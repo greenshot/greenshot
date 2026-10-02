@@ -1498,6 +1498,24 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public IReadOnlyList<string> SlotNames => RecipeSlots.All;
 
         /// <summary>
+        /// Slot: what the slot is for, shown under the choice
+        /// </summary>
+        public string SlotDescription
+        {
+            get
+            {
+                switch (RecipeSlots.Normalize(SlotName))
+                {
+                    case RecipeSlots.AfterCapture: return "After the capture and the selection, before the processors (OCR, ...).";
+                    case RecipeSlots.BeforeExport: return "When the image is final, once before all destinations.";
+                    case RecipeSlots.AfterExport: return "After the destinations, e.g. to do something with an upload link.";
+                    case RecipeSlots.BeforeDestination: return "Runs in the export steps for each destination, on its own copy: e.g. a border only for email. Where the slot node is doesn't matter.";
+                    default: return null;
+                }
+            }
+        }
+
+        /// <summary>
         /// Slot: AfterCapture, BeforeExport, AfterExport or BeforeDestination
         /// </summary>
         public string SlotName
@@ -1548,6 +1566,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         private void OnSlotChanged()
         {
             OnPropertyChanged(nameof(Summary));
+            OnPropertyChanged(nameof(SlotDescription));
             OnPropertyChanged(nameof(SlotExtensions));
             OnPropertyChanged(nameof(HasNoSlotExtensions));
         }

@@ -886,7 +886,9 @@
                 <Border Grid.Column="0" Background="{Binding WindowBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="0,0,1,0" Padding="8">
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <StackPanel>
-                            <TextBlock Text="STEP TOOLBOX" FontWeight="Bold" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="4,4,0,8"/>
+                            <TextBlock Text="STEP TOOLBOX" FontWeight="Bold" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="4,4,0,2"/>
+                            <TextBlock Text="Select a step or an arrow first: the new step goes right after it, or into the arrow." FontSize="10" TextWrapping="Wrap"
+                                       Foreground="{Binding TextSecondaryBrush}" Margin="4,0,0,8"/>
 
                             <!-- 1. Acquisition -->
                             <TextBlock Text="ACQUISITION" FontWeight="SemiBold" FontSize="10" Foreground="{Binding TextSecondaryBrush}" Margin="4,8,0,4"/>
@@ -1062,6 +1064,19 @@
                                     </nodify:Connection.Style>
                                     <nodify:Connection.ContextMenu>
                                         <ContextMenu>
+                                            <!-- A -> B becomes A -> new step -> B -->
+                                            <MenuItem Header="➕ Insert step here">
+                                                <MenuItem Header="🧩 Slot for Automatic Steps" Command="{Binding InsertStepCommand}" CommandParameter="Slot"/>
+                                                <MenuItem Header="✨ Effect" Command="{Binding InsertStepCommand}" CommandParameter="Effect"/>
+                                                <MenuItem Header="🎨 Annotation" Command="{Binding InsertStepCommand}" CommandParameter="Annotation"/>
+                                                <MenuItem Header="🛡️ Text Effect" Command="{Binding InsertStepCommand}" CommandParameter="TextEffect"/>
+                                                <MenuItem Header="💲 Set Variable" Command="{Binding InsertStepCommand}" CommandParameter="SetVariable"/>
+                                                <MenuItem Header="🔀 Conditional Branch" Command="{Binding InsertStepCommand}" CommandParameter="Conditional"/>
+                                                <MenuItem Header="❓ User Decision Prompt" Command="{Binding InsertStepCommand}" CommandParameter="UserPrompt"/>
+                                                <MenuItem Header="⚙️ Processors / OCR" Command="{Binding InsertStepCommand}" CommandParameter="Processors"/>
+                                                <MenuItem Header="🔔 Notification" Command="{Binding InsertStepCommand}" CommandParameter="Notification"/>
+                                            </MenuItem>
+                                            <Separator/>
                                             <MenuItem Header="🗑️ Delete Connection" Command="{Binding DisconnectCommand}"/>
                                         </ContextMenu>
                                     </nodify:Connection.ContextMenu>
@@ -2695,7 +2710,8 @@
                                         <!-- Slot Inspector: which slot, which extensions -->
                                         <StackPanel Visibility="{Binding SelectedNode.IsSlot, Converter={StaticResource BoolToVis}}">
                                             <TextBlock Text="Slot" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                            <ComboBox ItemsSource="{Binding SelectedNode.SlotNames}" SelectedItem="{Binding SelectedNode.SlotName, Mode=TwoWay}" Margin="0,0,0,8"/>
+                                            <ComboBox ItemsSource="{Binding SelectedNode.SlotNames}" SelectedItem="{Binding SelectedNode.SlotName, Mode=TwoWay}" Margin="0,0,0,2"/>
+                                            <TextBlock Text="{Binding SelectedNode.SlotDescription}" FontSize="10" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
                                             <TextBlock Text="Accept: all, none, or the ids of automatic steps separated by commas" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
                                             <TextBox Text="{Binding SelectedNode.SlotAccept, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" Padding="6,4" Margin="0,0,0,8"/>

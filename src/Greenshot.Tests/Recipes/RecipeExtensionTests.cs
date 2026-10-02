@@ -534,6 +534,41 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
+        public void Editor_InsertsAStep_IntoAConnection_AndAfterTheSelectedStep()
+        {
+            var editor = new Greenshot.Plugin.RecipeEditor.ViewModels.RecipeEditorViewModel();
+            var recipe = new CaptureRecipe("recipe_test_insert", "Insert")
+                .AddNode(RecipeStepConfig.CreateSource("source"))
+                .AddNode(RecipeStepConfig.CreateFeedback("feedback"))
+                .AddNode(RecipeStepConfig.CreateDestinations("export"));
+            recipe.Flow = new RecipeFlowConfig("source").AddTransition("source", "feedback").AddTransition("feedback", "export");
+            editor.ActiveRecipe = recipe;
+
+            // Into the arrow feedback -> export: a slot there is BeforeExport
+            var connection = editor.Connections.Single(c => c.SourceNode.Id == "feedback" && c.TargetNode.Id == "export");
+            editor.InsertStepIntoConnection(connection, WellKnownStepTypes.Slot);
+            var slot = editor.SelectedNode;
+            Assert.Equal(RecipeSlots.BeforeExport, slot.SlotName);
+            Assert.Equal(new[] { slot.Id }, editor.ActiveRecipe.Flow.Transitions["feedback"]);
+            Assert.Equal(new[] { "export" }, editor.ActiveRecipe.Flow.Transitions[slot.Id]);
+
+            // After the selected export: its next steps (none) follow, a slot there is AfterExport
+            editor.SelectedNode = editor.Nodes.Single(n => n.Id == "export");
+            editor.AddStep(WellKnownStepTypes.Slot);
+            var after = editor.SelectedNode;
+            Assert.Equal(RecipeSlots.AfterExport, after.SlotName);
+            Assert.Equal(new[] { after.Id }, editor.ActiveRecipe.Flow.Transitions["export"]);
+
+            // After source, which leads to feedback: source -> new -> feedback
+            editor.SelectedNode = editor.Nodes.Single(n => n.Id == "source");
+            editor.AddStep(WellKnownStepTypes.Effect);
+            var effect = editor.SelectedNode;
+            Assert.Equal(new[] { effect.Id }, editor.ActiveRecipe.Flow.Transitions["source"]);
+            Assert.Equal(new[] { "feedback" }, editor.ActiveRecipe.Flow.Transitions[effect.Id]);
+            Assert.True(editor.Nodes.Single(n => n.Id == "feedback").Location.Y > effect.Location.Y);
+        }
+
+        [Fact]
         public void BuiltInExtensions_DontChangeTheRecipesUntilSwitchedOn()
         {
             var manager = new RecipeManager();

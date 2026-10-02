@@ -1038,7 +1038,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                         {
                             if (nodeMap.TryGetValue(toId, out var targetNode))
                             {
-                                var conn = new StepConnectionViewModel(sourceNode.OutputPort, targetNode.InputPort, RemoveConnection);
+                                var conn = new StepConnectionViewModel(sourceNode.OutputPort, targetNode.InputPort, RemoveConnection) { OnInsertStep = InsertStepIntoConnection };
                                 Connections.Add(conn);
                                 sourceNode.OutputPort.IsConnected = true;
                                 targetNode.InputPort.IsConnected = true;
@@ -1059,7 +1059,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                         var branch = sourceNode.ConditionBranches.FirstOrDefault(b => string.Equals(b.Key, ct.Branch, StringComparison.OrdinalIgnoreCase));
                         var promptChoice = sourceNode.PromptChoices.FirstOrDefault(p => string.Equals(p.Key, ct.Branch, StringComparison.OrdinalIgnoreCase));
                         StepPortViewModel outPort = branch?.Port ?? promptChoice?.Port ?? sourceNode.OutputPort;
-                        var conn = new StepConnectionViewModel(outPort, targetNode.InputPort, RemoveConnection);
+                        var conn = new StepConnectionViewModel(outPort, targetNode.InputPort, RemoveConnection) { OnInsertStep = InsertStepIntoConnection };
                         Connections.Add(conn);
                         outPort.IsConnected = true;
                         targetNode.InputPort.IsConnected = true;
@@ -1244,7 +1244,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 return;
             }
 
-            var conn = new StepConnectionViewModel(fromPort, toPort, RemoveConnection);
+            var conn = new StepConnectionViewModel(fromPort, toPort, RemoveConnection) { OnInsertStep = InsertStepIntoConnection };
             Connections.Add(conn);
             fromPort.IsConnected = true;
             toPort.IsConnected = true;
@@ -1288,21 +1288,104 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
         }
 
+        /// <summary>
+        /// Distance between two steps one under the other
+        /// </summary>
+        private const double StepSpacing = 140;
+
+        /// <summary>
+        /// Adds a step from the toolbox: into the selected connection, after the selected step (its next steps follow the
+        /// new one), or on its own below the others.
+        /// </summary>
         public void AddStep(string stepType)
         {
             if (string.IsNullOrEmpty(stepType)) return;
 
-            string id = $"{stepType.ToLowerInvariant()}_{Guid.NewGuid().ToString("N").Substring(0, 4)}";
-            var config = new RecipeNodeConfig(id, stepType, stepType);
-            
-            // Set defaults
-            SetDefaultParametersForStep(config);
+            if (SelectedConnection != null && Connections.Contains(SelectedConnection))
+            {
+                InsertStepIntoConnection(SelectedConnection, stepType);
+                return;
+            }
+            if (SelectedNode != null && Nodes.Contains(SelectedNode) && !SelectedNode.HasDynamicOutputPorts)
+            {
+                InsertStepAfter(SelectedNode, stepType);
+                return;
+            }
 
             // Position at center below existing nodes
-            double x = 350;
-            double y = Nodes.Count > 0 ? Nodes.Max(n => n.Location.Y) + 140 : 100;
+            double y = Nodes.Count > 0 ? Nodes.Max(n => n.Location.Y) + StepSpacing : 100;
+            var nodeVm = CreateStepNode(stepType, new Point(350, y), null, null);
+            SelectedNode = nodeVm;
+            StatusMessage = $"Added step: {stepType}";
+        }
 
-            var nodeVm = new StepNodeViewModel(config, new Point(x, y), SetStartNode, DeleteNode, HandleNodeIdChanged, OnNodeStartToggled);
+        /// <summary>
+        /// Puts a new step between the two steps of the connection: A -> B becomes A -> new -> B
+        /// </summary>
+        public void InsertStepIntoConnection(StepConnectionViewModel connection, string stepType)
+        {
+            if (connection == null || string.IsNullOrEmpty(stepType) || !Connections.Contains(connection)) return;
+            var source = connection.Source;
+            var target = connection.Target;
+            var location = target.Node.Location;
+            MakeRoomBelow(location.Y);
+            var nodeVm = CreateStepNode(stepType, location, source.Node, target.Node);
+
+            RemoveConnection(connection);
+            Connect(source, nodeVm.InputPort);
+            Connect(nodeVm.OutputPort, target);
+            SelectedNode = nodeVm;
+            StatusMessage = $"Inserted {stepType} between '{source.Node.DisplayName}' and '{target.Node.DisplayName}'";
+        }
+
+        /// <summary>
+        /// Puts a new step right after the step: its next steps follow the new one
+        /// </summary>
+        public void InsertStepAfter(StepNodeViewModel previous, string stepType)
+        {
+            if (previous == null || string.IsNullOrEmpty(stepType)) return;
+            var outgoing = Connections.Where(c => c.Source == previous.OutputPort).ToList();
+            var location = new Point(previous.Location.X, previous.Location.Y + StepSpacing);
+            MakeRoomBelow(location.Y);
+            var nodeVm = CreateStepNode(stepType, location, previous, outgoing.Count == 1 ? outgoing[0].TargetNode : null);
+
+            foreach (var connection in outgoing)
+            {
+                var target = connection.Target;
+                RemoveConnection(connection);
+                Connect(nodeVm.OutputPort, target);
+            }
+            Connect(previous.OutputPort, nodeVm.InputPort);
+            SelectedNode = nodeVm;
+            StatusMessage = $"Inserted {stepType} after '{previous.DisplayName}'";
+        }
+
+        /// <summary>
+        /// Moves the steps at or below the height down, so a step fits in
+        /// </summary>
+        private void MakeRoomBelow(double y)
+        {
+            foreach (var node in Nodes.Where(n => n.Location.Y >= y - 1))
+            {
+                node.Location = new Point(node.Location.X, node.Location.Y + StepSpacing);
+            }
+        }
+
+        private StepNodeViewModel CreateStepNode(string stepType, Point location, StepNodeViewModel previous, StepNodeViewModel next)
+        {
+            string id = $"{stepType.ToLowerInvariant()}_{Guid.NewGuid().ToString("N").Substring(0, 4)}";
+            var config = new RecipeNodeConfig(id, stepType, stepType);
+
+            // Set defaults
+            SetDefaultParametersForStep(config);
+            if (string.Equals(stepType, WellKnownStepTypes.Slot, StringComparison.OrdinalIgnoreCase))
+            {
+                string slotName = GuessSlotName(previous, next);
+                config.Set("Name", slotName);
+                config.Name = slotName;
+            }
+
+            var nodeVm = new StepNodeViewModel(config, location, SetStartNode, DeleteNode, HandleNodeIdChanged, OnNodeStartToggled);
             nodeVm.RecipeNameProvider = () => RecipeTitle;
             nodeVm.SlotExtensionsProvider = GetSlotExtensions;
             nodeVm.OtherNodesProvider = () => Nodes.Where(n => n != nodeVm);
@@ -1318,12 +1401,19 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 ActiveRecipe.Nodes.Add(config);
             }
-
-            SelectedNode = nodeVm;
             IsDirty = true;
-            StatusMessage = $"Added step: {stepType}";
+            return nodeVm;
         }
 
+        /// <summary>
+        /// The slot which fits where a slot is put: after an export AfterExport, before an export BeforeExport, otherwise AfterCapture
+        /// </summary>
+        private static string GuessSlotName(StepNodeViewModel previous, StepNodeViewModel next)
+        {
+            if (previous != null && WellKnownStepTypes.IsDestination(previous.StepType)) return RecipeSlots.AfterExport;
+            if (next != null && WellKnownStepTypes.IsDestination(next.StepType)) return RecipeSlots.BeforeExport;
+            return RecipeSlots.AfterCapture;
+        }
         private void HandleNodeIdChanged(StepNodeViewModel node, string oldId, string newId)
         {
             if (node == null || string.IsNullOrWhiteSpace(newId) || string.Equals(oldId, newId, StringComparison.OrdinalIgnoreCase)) return;
