@@ -83,6 +83,7 @@ namespace Greenshot.Helpers.Ipc
         /// </summary>
         public TimeSpan ReplyWriteTimeout { get; set; } = IpcRequestContext.DefaultWriteTimeout;
 
+#if !GREENSHOT_LIGHT
         /// <summary>
         /// Checks the extension origin announced in the HELLO of a native_messaging connection.
         /// Defaults to the official extensions plus the host manifests next to Greenshot, see <see cref="ExtensionOriginPolicy"/>.
@@ -93,6 +94,7 @@ namespace Greenshot.Helpers.Ipc
         /// Identifies the AI tool behind a connection with source "mcp", see <see cref="AiToolCaller.TryIdentify"/>. Replaceable for tests.
         /// </summary>
         public McpClientIdentifierDelegate McpClientIdentifier { get; set; } = AiToolCaller.TryIdentify;
+#endif
 
         /// <summary>
         /// Checks the program behind a connection for every source except "mcp", see <see cref="IpcClientVerifier"/>. Null: no check.
@@ -101,7 +103,9 @@ namespace Greenshot.Helpers.Ipc
 
         public delegate bool ClientVerifierDelegate(NamedPipeServerStream pipe, string source, out string error);
 
+#if !GREENSHOT_LIGHT
         public delegate bool McpClientIdentifierDelegate(NamedPipeServerStream pipe, out AiToolClient client, out string error);
+#endif
 
         public NamedPipeServer() : this(NamedPipeEndpoint.GetPipeName())
         {
@@ -193,7 +197,9 @@ namespace Greenshot.Helpers.Ipc
                     // Connection identity: bound once from the mandatory HELLO frame, never from later envelopes.
                     string connectionSource = null;
                     string connectionOrigin = null;
+#if !GREENSHOT_LIGHT
                     AiToolClient connectionAiClient = null;
+#endif
                     bool connectionUsesTextFrames = false;
                     var connectionWriteLock = new SemaphoreSlim(1, 1);
 
@@ -262,6 +268,7 @@ namespace Greenshot.Helpers.Ipc
                                 break;
                             }
 
+#if !GREENSHOT_LIGHT
                             if (string.Equals(envelope.Source, IpcSources.NativeMessaging, StringComparison.OrdinalIgnoreCase) &&
                                 !IsExtensionOriginAllowed(envelope.Origin))
                             {
@@ -269,9 +276,12 @@ namespace Greenshot.Helpers.Ipc
                                 await RejectAsync(stream, connectionWriteLock, "[SECURITY] Connection rejected: this browser extension is not allowed to use Greenshot.", cancellationToken).ConfigureAwait(false);
                                 break;
                             }
+#endif
 
                             // Don't trust the HELLO: check which program is connected (and for AI tools, who started it)
+#if !GREENSHOT_LIGHT
                             if (!string.Equals(envelope.Source, IpcSources.Mcp, StringComparison.OrdinalIgnoreCase))
+#endif
                             {
                                 if (ClientVerifier != null && !ClientVerifier(stream, envelope.Source, out string verifyError))
                                 {
@@ -280,6 +290,7 @@ namespace Greenshot.Helpers.Ipc
                                     break;
                                 }
                             }
+#if !GREENSHOT_LIGHT
                             else
                             {
                                 if (!McpClientIdentifier(stream, out connectionAiClient, out string identifyError))
@@ -290,6 +301,7 @@ namespace Greenshot.Helpers.Ipc
                                 }
                                 Log.Info($"AI tool connected: {connectionAiClient} (calls itself '{envelope.Origin}').");
                             }
+#endif
 
                             connectionSource = envelope.Source.ToLowerInvariant();
                             connectionOrigin = envelope.Origin;
@@ -325,7 +337,9 @@ namespace Greenshot.Helpers.Ipc
                         var context = new IpcRequestContext(envelope, stream, connectionWriteLock)
                         {
                             ConnectionOrigin = connectionOrigin,
+#if !GREENSHOT_LIGHT
                             AiClient = connectionAiClient,
+#endif
                             UsesTextFrames = connectionUsesTextFrames,
                             WriteTimeout = ReplyWriteTimeout
                         };
@@ -417,6 +431,7 @@ namespace Greenshot.Helpers.Ipc
             }
         }
 
+#if !GREENSHOT_LIGHT
         private bool IsExtensionOriginAllowed(string origin)
         {
             var validator = ExtensionOriginValidator;
@@ -434,6 +449,7 @@ namespace Greenshot.Helpers.Ipc
                 return false;
             }
         }
+#endif
 
         /// <summary>
         /// Sends a final error frame before the server closes a connection that violates the protocol.

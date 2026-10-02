@@ -23,10 +23,23 @@
          The output path is inside obj/ so the auto-glob (**/*.cs) does NOT pick it up. -->
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     <CompilerGeneratedFilesOutputPath>$(MSBuildProjectDirectory)/obj/generated</CompilerGeneratedFilesOutputPath>
-    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
   </PropertyGroup>
-  
-  <PropertyGroup Condition="'$(Configuration)' != 'Debug' And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">
+
+  <!--
+    The Greenshot edition: Full (the default) or Light, set with /p:GreenshotEdition=Light or with the DebugLight / ReleaseLight
+    configurations of Greenshot.csproj (the "Debug Light" / "Release Light" solution configurations in Visual Studio).
+    GreenshotBaseConfiguration is Debug or Release for those too, use it instead of $(Configuration) in conditions.
+  -->
+  <PropertyGroup>
+    <GreenshotBaseConfiguration>$(Configuration)</GreenshotBaseConfiguration>
+    <GreenshotBaseConfiguration Condition="'$(Configuration)' == ''">Debug</GreenshotBaseConfiguration>
+    <GreenshotBaseConfiguration Condition="'$(Configuration)' == 'DebugLight'">Debug</GreenshotBaseConfiguration>
+    <GreenshotBaseConfiguration Condition="'$(Configuration)' == 'ReleaseLight'">Release</GreenshotBaseConfiguration>
+    <GreenshotEdition Condition="'$(GreenshotEdition)' == '' And $(Configuration.EndsWith('Light'))">Light</GreenshotEdition>
+    <GreenshotEdition Condition="'$(GreenshotEdition)' == ''">Full</GreenshotEdition>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(GreenshotBaseConfiguration)' != 'Debug' And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <IsPackable>true</IsPackable>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
@@ -37,7 +50,7 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+  <PropertyGroup Condition="'$(GreenshotBaseConfiguration)' == 'Debug'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugSymbols>True</DebugSymbols>
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
@@ -45,7 +58,7 @@
     <Optimize>false</Optimize>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+  <PropertyGroup Condition="'$(GreenshotBaseConfiguration)' == 'Release'">
     <Optimize>true</Optimize>
     <DebugType>embedded</DebugType>
     <DebugSymbols>True</DebugSymbols>
@@ -56,7 +69,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.401" PrivateAssets="All"/>
+    <!-- SourceLink is only needed for the build, its dependency System.IO.Hashing (the tasks bring their own copy) shouldn't end up in the output -->
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.401" PrivateAssets="All" ExcludeAssets="compile;runtime"/>
   </ItemGroup>
 
   <!-- HttpClient (NetworkHelper.HttpClient) is part of the framework, but not referenced by default -->

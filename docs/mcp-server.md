@@ -176,6 +176,7 @@ the exact name Greenshot trusts (`greenshot-mcp.exe`, see below), so it doesn't 
 1. Use the zip with the same version as Greenshot.
 2. Extract `greenshot-mcp.exe` into the directory of `Greenshot.exe`: `C:\Program Files\Greenshot` for an installed
    Greenshot (this needs administrator rights), or the directory of the portable version.
+   Greenshot Light (its installer and its portable version) has no AI tools: it doesn't answer greenshot-mcp.
 3. Connect your AI tool (below) with the full path of `greenshot-mcp.exe`.
 
 It has to be in the same directory as `Greenshot.exe`:

@@ -1,5 +1,7 @@
-; Greenshot Light Installer (No plugins/extensions)
+; Greenshot Light Installer: the basics only, no plugins, no AI tools and no browser extension. It installs the Light build of
+; Greenshot.exe (built with /p:GreenshotEdition=Light, which compiles that code out, see Greenshot.csproj).
 #define IsLightEdition 1
+#define ReleaseDir "..\Greenshot\bin\Release-Light\net480"
 #define AppDisplayName "Greenshot Light"
 #define OutputSuffix "-Light"
 

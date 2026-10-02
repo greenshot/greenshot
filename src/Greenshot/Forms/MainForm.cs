@@ -345,6 +345,7 @@ namespace Greenshot.Forms
             try
             {
                 InitializeComponent();
+                ApplyImages();
                 InitializeLanguage();
             }
             catch (ArgumentException ex)
@@ -366,8 +367,10 @@ namespace Greenshot.Forms
             SimpleServiceProvider.Current.AddService(notifyIcon);
 
             // Load all the plugins, their configuration sections are filled from the already loaded greenshot.ini
-            // The plugins start in parallel, the main window doesn't wait for them
+            // The plugins start in parallel, the main window doesn't wait for them. Greenshot Light has no plugins.
+#if !GREENSHOT_LIGHT
             PluginHelper.Instance.LoadPluginsAsync().FireAndLog("Start the plugins", Log);
+#endif
 
             EditorInitialize.Initialize();
             // JIT-compiling the editor and loading the emoji font takes seconds, do it in the background instead of when the first editor opens
@@ -461,6 +464,7 @@ namespace Greenshot.Forms
             _namedPipeServer.RequestReceived += OnNamedPipeRequestReceivedAsync;
             _namedPipeServer.Start();
             RestartManagerHelper.ShutdownNotifier = reason => _namedPipeServer.NotifyShutdownAsync(reason);
+#if !GREENSHOT_LIGHT
             // greenshot-mcp updates its tools right away when the recipes or the AI tools switch change
             RecipeManager.Instance.RecipesChanged += (sender, args) => NotifyToolsChanged();
             coreConfiguration.PropertyChanged += (sender, args) =>
@@ -470,6 +474,7 @@ namespace Greenshot.Forms
                     NotifyToolsChanged();
                 }
             };
+#endif
 
             if (options.Restore)
             {
@@ -503,6 +508,25 @@ namespace Greenshot.Forms
             }
         }
 
+        /// <summary>
+        /// The images of the controls, embedded as plain files (see EmbeddedResources). They are assigned here and not in the
+        /// designer: the designer would put them into the .resx as binary data, which needs System.Resources.Extensions.
+        /// Never set an Image in the designer, add the file to Resources and a line here.
+        /// </summary>
+        private void ApplyImages()
+        {
+            contextmenu_capturearea.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_capturearea.Image");
+            contextmenu_capturelastregion.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_capturelastregion.Image");
+            contextmenu_capturewindow.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_capturewindow.Image");
+            contextmenu_capturefullscreen.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_capturefullscreen.Image");
+            contextmenu_captureclipboard.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_captureclipboard.Image");
+            contextmenu_openfile.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_openfile.Image");
+            contextmenu_settings.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_settings.Image");
+            contextmenu_help.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_help.Image");
+            contextmenu_donate.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_donate.Image");
+            contextmenu_exit.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_exit.Image");
+        }
+
         protected override void InitializeLanguage()
         {
             this.contextmenu_quicksettings.Size = new System.Drawing.Size(170, coreConfiguration.IconSize.Height + 8);
@@ -522,7 +546,13 @@ namespace Greenshot.Forms
             contextmenu_donate.Text = Language.GetString("contextmenu_donate");
             contextmenu_about.Text = Language.GetString("contextmenu_about");
             contextmenu_exit.Text = Language.GetString("contextmenu_exit");
-            notifyIcon.Text = NotifyIconTextHelper.ToNotifyIconText(Language.GetString("application_title"));
+            // With the edition, e.g. "Greenshot Light - ..."
+            string applicationTitle = Language.GetString("application_title");
+            if (applicationTitle.StartsWith("Greenshot", StringComparison.Ordinal))
+            {
+                applicationTitle = GreenshotEdition.ProductName + applicationTitle.Substring("Greenshot".Length);
+            }
+            notifyIcon.Text = NotifyIconTextHelper.ToNotifyIconText(applicationTitle);
         }
 
         /// <summary>
@@ -664,7 +694,9 @@ namespace Greenshot.Forms
                 if (Interlocked.CompareExchange(ref _shutdownState, 1, 0) == 0)
                 {
                     ShutdownUi();
+#if !GREENSHOT_LIGHT
                     PluginHelper.Instance.ShutdownAsync(TimeSpan.FromSeconds(1)).FireAndLog("Stop the plugins", Log);
+#endif
                 }
 
                 ShutdownCleanup(false);
@@ -751,8 +783,7 @@ namespace Greenshot.Forms
                 (now.Month == 3 && now.Day > 13 && now.Day < 21))
             {
                 // birthday
-                var resources = new ComponentResourceManager(typeof(MainForm));
-                contextmenu_donate.Image = (Image) resources.GetObject("contextmenu_present.Image");
+                contextmenu_donate.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_present.Image");
             }
 
             UpdateRecipesMenu();
@@ -1675,6 +1706,7 @@ namespace Greenshot.Forms
                 }
             }
 
+#if !GREENSHOT_LIGHT
             // Inform all registered plugins
             try
             {
@@ -1684,6 +1716,7 @@ namespace Greenshot.Forms
             {
                 Log.Error("Error shutting down plugins!", e);
             }
+#endif
 
             try
             {
@@ -1698,10 +1731,12 @@ namespace Greenshot.Forms
             ShutdownCleanup(true);
         }
 
+#if !GREENSHOT_LIGHT
         private void NotifyToolsChanged()
         {
             _namedPipeServer?.NotifyWatchersAsync(new { @event = "tools_changed" }).FireAndLog("Tell the watchers that the tools changed", Log);
         }
+#endif
 
         /// <summary>
         /// The first, synchronous part of the shutdown: configuration, other forms, hotkeys, sound.

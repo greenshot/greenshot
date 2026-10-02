@@ -133,13 +133,11 @@ namespace Greenshot.Tests.Editor
                 var getBitmap = emojiRenderer.GetMethod("GetBitmap", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
                 var load = emojiData.GetMethod("Load", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
 
-                Measure("ComponentResourceManager(ImageEditorForm) + all images", () =>
+                Measure("All embedded images of the ImageEditorForm", () =>
                 {
-                    var resources = new System.ComponentModel.ComponentResourceManager(typeof(ImageEditorForm));
-                    var set = resources.GetResourceSet(System.Globalization.CultureInfo.InvariantCulture, true, true);
-                    foreach (System.Collections.DictionaryEntry entry in set)
+                    foreach (string name in EmbeddedResources.GetNames(typeof(ImageEditorForm)))
                     {
-                        (entry.Value as IDisposable)?.Dispose();
+                        EmbeddedResources.GetImage(typeof(ImageEditorForm), name)?.Dispose();
                     }
                 });
                 if (load != null)

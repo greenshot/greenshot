@@ -5,7 +5,8 @@ param(
     [string]$BuildArtifactsPath,
     [Parameter(Mandatory=$true)]
     [string]$OutputPath,
-    # The light version has no plugins, like the light installer
+    # Greenshot Light, like the light installer: BuildArtifactsPath is its own build (bin\Release-Light, see Greenshot.csproj),
+    # the basics only: no plugins, no AI tools and no browser extension
     [switch]$Light
 )
 
@@ -38,9 +39,11 @@ Copy-Item "$BuildArtifactsPath\*.dll" "$OutputPath" -Force
 Copy-Item "$BuildArtifactsPath\emojis.xml" "$OutputPath" -Force
 Copy-Item "$BuildArtifactsPath\Twemoji.Mozilla.ttf" "$OutputPath" -Force
 
-# Copy help files
-New-Item -ItemType Directory -Path "$OutputPath\Help" -Force | Out-Null
-Copy-Item "$RepositoryRootPath\src\Greenshot\Languages\*.html" "$OutputPath\Help" -Force
+# Copy help files, not for Greenshot Light
+if (-not $Light) {
+    New-Item -ItemType Directory -Path "$OutputPath\Help" -Force | Out-Null
+    Copy-Item "$RepositoryRootPath\src\Greenshot\Languages\*.html" "$OutputPath\Help" -Force
+}
 
 # Copy languages files
 New-Item -ItemType Directory -Path "$OutputPath\Languages" -Force | Out-Null

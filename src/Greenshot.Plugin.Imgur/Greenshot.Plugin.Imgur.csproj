@@ -10,6 +10,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Loaded with EmbeddedResources.GetImage(typeof(ImgurPlugin), "Imgur") -->
+    <EmbeddedResource Include="Imgur.png" LogicalName="Greenshot.Plugin.Imgur.ImgurPlugin.Imgur" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
   </ItemGroup>
 

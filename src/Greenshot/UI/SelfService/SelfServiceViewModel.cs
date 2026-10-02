@@ -27,6 +27,7 @@ using System.Runtime.CompilerServices;
 using System.Windows.Media;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
+using Greenshot.Helpers;
 
 namespace Greenshot.UI.SelfService
 {
@@ -60,7 +61,7 @@ namespace Greenshot.UI.SelfService
                 return Language.GetString("selfservice_window_title");
             }
         }
-        public string AppVersionTitle => $"Greenshot {EnvironmentInfo.GetGreenshotVersion()} ({OsInfo.Bits}-bit)";
+        public string AppVersionTitle => $"{GreenshotEdition.ProductName} {EnvironmentInfo.GetGreenshotVersion()} ({OsInfo.Bits}-bit)";
 
         public SelfServiceSectionViewModel SelectedSection
         {

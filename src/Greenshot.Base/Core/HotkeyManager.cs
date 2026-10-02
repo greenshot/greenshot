@@ -62,6 +62,12 @@ public static class HotkeyManager
     private static DateTime _lastChordTime;
     private static readonly TimeSpan ChordTimeout = TimeSpan.FromSeconds(2.5);
 
+    /// <summary>
+    /// False keeps the registration from installing the low-level keyboard hook. The tests feed the keys with
+    /// <see cref="HandleKeyboardEvent"/> instead, a hook left installed makes the test host crash when it shuts down.
+    /// </summary>
+    internal static bool UseKeyboardHook { get; set; } = true;
+
     internal static int CandidateSequenceCount => _candidateSequences?.Count ?? 0;
     internal static int ActiveChordIndex => _activeChordIndex;
 
@@ -324,7 +330,10 @@ public static class HotkeyManager
             return 0;
         }
 
-        _keyboardSubscription ??= KeyboardHook.KeyboardEvents.Subscribe(HandleKeyboardEvent);
+        if (UseKeyboardHook)
+        {
+            _keyboardSubscription ??= KeyboardHook.KeyboardEvents.Subscribe(HandleKeyboardEvent);
+        }
 
         lock (RegisteredHotkeys)
         {

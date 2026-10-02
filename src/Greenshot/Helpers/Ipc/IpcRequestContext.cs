@@ -72,10 +72,12 @@ namespace Greenshot.Helpers.Ipc
         /// </summary>
         public string ConnectionOrigin { get; set; }
 
+#if !GREENSHOT_LIGHT
         /// <summary>
         /// Source "mcp" only: the program which uses Greenshot through greenshot-mcp.exe, as identified by Greenshot (see <see cref="AiToolCaller"/>).
         /// </summary>
         public AiToolClient AiClient { get; set; }
+#endif
 
         /// <summary>
         /// True when the connection announced text replies (terminal / shell) instead of JSON.
@@ -120,7 +122,9 @@ namespace Greenshot.Helpers.Ipc
             return new IpcRequestContext(envelope, Stream, _writeLock, _replyState)
             {
                 ConnectionOrigin = ConnectionOrigin,
+#if !GREENSHOT_LIGHT
                 AiClient = AiClient,
+#endif
                 UsesTextFrames = UsesTextFrames,
                 WriteTimeout = WriteTimeout
             };

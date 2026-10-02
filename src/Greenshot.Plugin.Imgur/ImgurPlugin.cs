@@ -43,7 +43,6 @@ public class ImgurPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ImgurPlugin));
     private static IImgurConfiguration _config;
-    private ComponentResourceManager _resources;
     private ToolStripMenuItem _historyMenuItem;
     private ToolStripMenuItem _itemPlugInConfig;
 
@@ -64,7 +63,6 @@ public class ImgurPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
         services.AddConfiguration(section);
         _config = section;
 
-        _resources = new ComponentResourceManager(typeof(ImgurPlugin));
         services.AddService<IIconProvider>(ImgurDestination.Icons);
         services.AddService<IDestination>(new ImgurDestination());
         services.AddRecipeStepProvider(this);
@@ -93,7 +91,7 @@ public class ImgurPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
     {
         _itemPlugInConfig = new ToolStripMenuItem(PluginUtils.GetQuicklinkText("Imgur"))
         {
-            Image = (Image) _resources.GetObject("Imgur"),
+            Image = EmbeddedResources.GetImage(typeof(ImgurPlugin), "Imgur"),
             Visible = _config?.QuicklinkEnabled ?? false
         };
         _itemPlugInConfig.Click += delegate { ShowSettings(); };

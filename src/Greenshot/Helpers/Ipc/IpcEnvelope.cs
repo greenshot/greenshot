@@ -91,11 +91,18 @@ namespace Greenshot.Helpers.Ipc
 
         public static bool IsKnown(string source)
         {
+#if GREENSHOT_LIGHT
+            // Greenshot Light has no browser extension and no AI tools: their connections are rejected at HELLO
+            return string.Equals(source, Cli, StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(source, OpenWith, StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(source, UrlScheme, StringComparison.OrdinalIgnoreCase);
+#else
             return string.Equals(source, Cli, StringComparison.OrdinalIgnoreCase) ||
                    string.Equals(source, OpenWith, StringComparison.OrdinalIgnoreCase) ||
                    string.Equals(source, UrlScheme, StringComparison.OrdinalIgnoreCase) ||
                    string.Equals(source, NativeMessaging, StringComparison.OrdinalIgnoreCase) ||
                    string.Equals(source, Mcp, StringComparison.OrdinalIgnoreCase);
+#endif
         }
     }
 

@@ -85,6 +85,7 @@ jobs:
       run: |
         mkdir -p ${{ github.workspace }}/artifacts
         cp installer/Greenshot-INSTALLER-*.exe ${{ github.workspace }}/artifacts/
+        cp installer/Greenshot-Light-INSTALLER-*.exe ${{ github.workspace }}/artifacts/
     
     - name: Upload Installer Artifact
       uses: actions/upload-artifact@v4
@@ -98,6 +99,14 @@ jobs:
       with:
         name: artifacts-greenshot-build
         path: src/Greenshot/bin/Release/net480/**
+        if-no-files-found: error
+
+    # Greenshot Light, its own build of Greenshot.exe (see Greenshot.csproj), for the Light portable version (the Light installer is built from it in the build)
+    - name: Upload light build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: artifacts-greenshot-light-build
+        path: src/Greenshot/bin/Release-Light/net480/**
         if-no-files-found: error
 
   pre_deploy:
@@ -165,6 +174,12 @@ jobs:
           name: artifacts-greenshot-build
           path: artifacts-greenshot-build
 
+      - name: Download light build artifacts
+        uses: actions/download-artifact@v5
+        with:
+          name: artifacts-greenshot-light-build
+          path: artifacts-greenshot-light-build
+
       - name: Prepare portable folder
         run: |
           $buildArtifacts = "${{ github.workspace }}/artifacts-greenshot-build"
@@ -174,7 +189,7 @@ jobs:
 
       - name: Prepare light portable folder
         run: |
-          $buildArtifacts = "${{ github.workspace }}/artifacts-greenshot-build"
+          $buildArtifacts = "${{ github.workspace }}/artifacts-greenshot-light-build"
           $portableDir = "${{ github.workspace }}/portable-light"
           pwsh -File "${{ github.workspace }}/prepare-portable.ps1" -RepositoryRootPath ${{ github.workspace }} -BuildArtifactsPath $buildArtifacts -OutputPath $portableDir -Light
         shell: pwsh
@@ -249,6 +264,7 @@ jobs:
           branch="${BRANCH_NAME:-${GITHUB_REF#refs/heads/}}"
           sanitized=$(echo "$branch" | sed 's/[^a-zA-Z0-9._-]/_/g')
           mv artifacts-installer/Greenshot-INSTALLER-*.exe "artifacts-installer/Greenshot-INSTALLER-${sanitized}.exe"
+          mv artifacts-installer/Greenshot-Light-INSTALLER-*.exe "artifacts-installer/Greenshot-Light-INSTALLER-${sanitized}.exe"
         shell: bash
 
       - name: Create GitHub Release

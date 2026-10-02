@@ -244,6 +244,9 @@ namespace Greenshot.Recipes
                 .AddTransition("ocr", "export");
             RegisterBuiltIn(ocrRecipe, disabled);
 
+#if !GREENSHOT_LIGHT
+            // Greenshot Light has no browser extension and no AI tools
+
             // 9. Browser Extension Capture
             var extensionRecipe = new CaptureRecipe(
                 RecipeIdExtension,
@@ -257,8 +260,10 @@ namespace Greenshot.Recipes
             RegisterBuiltIn(extensionRecipe, disabled);
 
             RegisterAiToolRecipes(disabled);
+#endif
         }
 
+#if !GREENSHOT_LIGHT
         /// <summary>
         /// The tools AI tools get (greenshot-mcp.exe): capturing a window, a region or the screen, optionally with OCR.
         /// The image and text go back to the AI tool, there is no destination.
@@ -357,6 +362,7 @@ namespace Greenshot.Recipes
         {
             return RecipeStepConfig.CreateConditional(id, new[] { new KeyValuePair<string, string>("ocr", "${Ocr}") }).WithName("OCR wanted?");
         }
+#endif
 
         private HashSet<string> GetDisabledRecipeIds()
         {

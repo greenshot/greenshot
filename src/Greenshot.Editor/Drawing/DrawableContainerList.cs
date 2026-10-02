@@ -21,7 +21,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
@@ -45,8 +44,6 @@ namespace Greenshot.Editor.Drawing
     [Serializable]
     public class DrawableContainerList : List<IDrawableContainer>, IDrawableContainerList
     {
-        private static readonly ComponentResourceManager EditorFormResources = new(typeof(ImageEditorForm));
-
         public Guid ParentID { get; private set; }
 
         public DrawableContainerList()
@@ -736,7 +733,7 @@ namespace Greenshot.Editor.Drawing
             // Copy
             item = new ToolStripMenuItem(Language.GetString(LangKey.editor_copytoclipboard))
             {
-                Image = (Image) EditorFormResources.GetObject("copyToolStripMenuItem.Image")
+                Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "copyToolStripMenuItem.Image")
             };
             item.Click += delegate { DrawableContainerClipboard.Copy(this); };
             menu.Items.Add(item);
@@ -744,7 +741,7 @@ namespace Greenshot.Editor.Drawing
             // Cut
             item = new ToolStripMenuItem(Language.GetString(LangKey.editor_cuttoclipboard))
             {
-                Image = (Image) EditorFormResources.GetObject("btnCut.Image")
+                Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnCut.Image")
             };
             item.Click += delegate
             {
@@ -770,7 +767,7 @@ namespace Greenshot.Editor.Drawing
             // Delete
             item = new ToolStripMenuItem(Language.GetString(LangKey.editor_deleteelement))
             {
-                Image = (Image) EditorFormResources.GetObject("removeObjectToolStripMenuItem.Image")
+                Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "removeObjectToolStripMenuItem.Image")
             };
             item.Click += delegate { surface.RemoveElements(this); };
             menu.Items.Add(item);
@@ -970,7 +967,7 @@ namespace Greenshot.Editor.Drawing
             // Top
             var item = new ToolStripMenuItem(Language.GetString(LangKey.editor_align_top))
             {
-                Image = (Image)EditorFormResources.GetObject("PushOut-Top.Image")
+                Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "PushOut-Top.Image")
             };
             item.Click += delegate
             {
@@ -984,7 +981,7 @@ namespace Greenshot.Editor.Drawing
             // Right
             item = new ToolStripMenuItem(Language.GetString(LangKey.editor_align_right))
             {
-                Image = (Image)EditorFormResources.GetObject("PushOut-Right.Image")
+                Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "PushOut-Right.Image")
             };
             item.Click += delegate
             {
@@ -998,7 +995,7 @@ namespace Greenshot.Editor.Drawing
             // Bottom
             item = new ToolStripMenuItem(Language.GetString(LangKey.editor_align_bottom))
             {
-                Image = (Image)EditorFormResources.GetObject("PushOut-Bottom.Image")
+                Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "PushOut-Bottom.Image")
             };
             item.Click += delegate
             {
@@ -1012,7 +1009,7 @@ namespace Greenshot.Editor.Drawing
             // Left
             item = new ToolStripMenuItem(Language.GetString(LangKey.editor_align_left))
             {
-                Image = (Image)EditorFormResources.GetObject("PushOut-Left.Image")
+                Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "PushOut-Left.Image")
             };
             item.Click += delegate
             {
@@ -1033,7 +1030,7 @@ namespace Greenshot.Editor.Drawing
             // Fit width
             var item = new ToolStripMenuItem(Language.GetString(LangKey.editor_resize_width))
             {
-                Image = (Image)EditorFormResources.GetObject("Fit-width.Image")
+                Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "Fit-width.Image")
             };
             item.Click += delegate
             {
@@ -1054,7 +1051,7 @@ namespace Greenshot.Editor.Drawing
             // Fit height
             item = new ToolStripMenuItem(Language.GetString(LangKey.editor_resize_height))
             {
-                Image = (Image)EditorFormResources.GetObject("Fit-height.Image")
+                Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "Fit-height.Image")
             };
             item.Click += delegate
             {
@@ -1082,7 +1079,7 @@ namespace Greenshot.Editor.Drawing
             // Snap to top
             var item = new ToolStripMenuItem(Language.GetString(LangKey.editor_align_top))
             {
-                Image = (Image)EditorFormResources.GetObject("Snap-top.Image")
+                Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "Snap-top.Image")
             };
             item.Click += delegate
             {
@@ -1093,7 +1090,7 @@ namespace Greenshot.Editor.Drawing
             // Snap right
             item = new ToolStripMenuItem(Language.GetString(LangKey.editor_align_right))
             {
-                Image = (Image)EditorFormResources.GetObject("Snap-right.Image")
+                Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "Snap-right.Image")
             };
             item.Click += delegate
             {
@@ -1104,7 +1101,7 @@ namespace Greenshot.Editor.Drawing
             // Snap to bottom
             item = new ToolStripMenuItem(Language.GetString(LangKey.editor_align_bottom))
             {
-                Image = (Image)EditorFormResources.GetObject("Snap-bottom.Image")
+                Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "Snap-bottom.Image")
             };
             item.Click += delegate
             {
@@ -1115,7 +1112,7 @@ namespace Greenshot.Editor.Drawing
             // Snap left
             item = new ToolStripMenuItem(Language.GetString(LangKey.editor_align_left))
             {
-                Image = (Image)EditorFormResources.GetObject("Snap-left.Image")
+                Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "Snap-left.Image")
             };
             item.Click += delegate
             {

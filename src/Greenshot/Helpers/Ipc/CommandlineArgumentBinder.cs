@@ -75,7 +75,11 @@ namespace Greenshot.Helpers.Ipc
         /// <param name="cwd">Caller's working directory, used to resolve relative paths</param>
         /// <param name="source">Connection source, used for the path security rules</param>
         /// <param name="aiClient">The AI tool for an AI tool trigger: Window arguments resolve the window ids it got from list_windows</param>
+#if GREENSHOT_LIGHT
+        public static ArgumentBindingResult Bind(IList<CommandlineArgument> declared, IDictionary<string, string> supplied, string recipeName, string cwd, string source)
+#else
         public static ArgumentBindingResult Bind(IList<CommandlineArgument> declared, IDictionary<string, string> supplied, string recipeName, string cwd, string source, AiToolClient aiClient = null)
+#endif
         {
             declared = (declared ?? new List<CommandlineArgument>()).Where(a => !string.IsNullOrWhiteSpace(a?.Name)).ToList();
             supplied = supplied ?? new Dictionary<string, string>();
@@ -123,7 +127,11 @@ namespace Greenshot.Helpers.Ipc
                     continue;
                 }
 
+#if GREENSHOT_LIGHT
+                if (!TryConvert(argument, raw, cwd, source, out object value, out string error))
+#else
                 if (!TryConvert(argument, raw, cwd, source, aiClient, out object value, out string error))
+#endif
                 {
                     return ArgumentBindingResult.Fail(error);
                 }
@@ -133,7 +141,11 @@ namespace Greenshot.Helpers.Ipc
             return ArgumentBindingResult.Ok(variables);
         }
 
+#if GREENSHOT_LIGHT
+        private static bool TryConvert(CommandlineArgument argument, string raw, string cwd, string source, out object value, out string error)
+#else
         private static bool TryConvert(CommandlineArgument argument, string raw, string cwd, string source, AiToolClient aiClient, out object value, out string error)
+#endif
         {
             value = null;
             error = null;
@@ -208,7 +220,13 @@ namespace Greenshot.Helpers.Ipc
                     return true;
 
                 case ContractDataType.Window:
+#if GREENSHOT_LIGHT
+                    // Greenshot Light has no AI tools
+                    error = $"Error: argument '{name}' is a window, window arguments are only available to AI tools.";
+                    return false;
+#else
                     return TryResolveWindow(name, raw, aiClient, out value, out error);
+#endif
 
                 case ContractDataType.Region:
                     if (TryParseRegion(raw, out var region))
@@ -226,6 +244,7 @@ namespace Greenshot.Helpers.Ipc
             }
         }
 
+#if !GREENSHOT_LIGHT
         /// <summary>
         /// A Window argument: only a window id an AI tool got from list_windows, never a handle, title or anything else.
         /// Windows of excluded processes are refused (they don't get ids, this also covers a changed exclusion list).
@@ -254,6 +273,7 @@ namespace Greenshot.Helpers.Ipc
             error = null;
             return true;
         }
+#endif
 
         /// <summary>
         /// "x,y,width,height" (spaces and ';' allowed) in screen coordinates, width and height above 0.
