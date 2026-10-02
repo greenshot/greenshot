@@ -424,6 +424,26 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
+        public void RevokeRecipeApproval_RemovesOnlyThatRecipe_AndTheRecordWithTheLast()
+        {
+            WithTemporaryTrustStore(directory =>
+            {
+                string file = Path.Combine(directory, "two" + RecipeSerializer.RecipeFileExtension);
+                File.WriteAllText(file, "{}");
+                string hash = RecipeTrustStore.ComputeSha256(file);
+                RecipeTrustStore.RecordApproval(file, hash, new RecipeApproval { RecipeId = "one" });
+                RecipeTrustStore.RecordApproval(file, hash, new RecipeApproval { RecipeId = "two" });
+
+                RecipeTrustStore.RevokeRecipeApproval(file, "one");
+                Assert.Null(RecipeTrustStore.GetApproval(file, hash, "one"));
+                Assert.NotNull(RecipeTrustStore.GetApproval(file, hash, "two"));
+
+                RecipeTrustStore.RevokeRecipeApproval(file, "two");
+                Assert.Null(RecipeTrustStore.GetTrustRecord(file));
+            });
+        }
+
+        [Fact]
         public void SaveRecipeToFile_RenewsTheApproval_ForExactlyTheSavedContent()
         {
             WithTemporaryTrustStore(directory =>

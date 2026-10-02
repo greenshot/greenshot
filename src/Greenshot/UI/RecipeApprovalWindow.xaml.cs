@@ -57,7 +57,21 @@ namespace Greenshot.UI
             public RecipeApproval Approval { get; }
 
             public bool OpenInEditor { get; }
+
+            /// <summary>
+            /// The user revoked an earlier approval in the review
+            /// </summary>
+            public bool IsRevoked { get; private set; }
+
+            public static ApprovalResult Revoked => new ApprovalResult(null, false) { IsRevoked = true };
         }
+
+        /// <summary>
+        /// The user revoked the approval in the review of an approved recipe
+        /// </summary>
+        public bool IsRevoked { get; private set; }
+
+        public string RejectButtonText { get; private set; } = "Reject / Block";
 
         private readonly CaptureRecipe _recipe;
         private readonly string _content;
@@ -309,6 +323,7 @@ namespace Greenshot.UI
             else if (prev != null)
             {
                 ApprovalMode = RecipeApprovalMode.ReVerify;
+                RejectButtonText = "Revoke Approval";
                 WindowTitleSubtitle = " — Recipe Security Review";
                 HeaderIcon = "🛡️";
                 HeaderTitle = "Capture Recipe Review";
@@ -933,6 +948,17 @@ namespace Greenshot.UI
 
         private void OnRejectClicked(object sender, RoutedEventArgs e)
         {
+            if (ApprovalMode == RecipeApprovalMode.ReVerify)
+            {
+                int choice = ThemedMessageBox.ShowChoice(this, "Revoke Approval",
+                    $"Revoke the approval of \"{_recipe?.Name}\"? It stops running right away and isn't loaded again. Its file stays where it is: " +
+                    "open it again to review and approve it.", MessageBoxImage.Warning, new[] { "Revoke", "Keep" }, defaultIndex: 1, cancelIndex: 1);
+                if (choice != 0)
+                {
+                    return;
+                }
+                IsRevoked = true;
+            }
             IsApproved = false;
             DialogResult = false;
             Close();

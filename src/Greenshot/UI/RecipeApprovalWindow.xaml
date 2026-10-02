@@ -621,7 +621,7 @@
                               Visibility="{Binding OpenInEditorVisibility}"/>
 
                     <!-- Normal Approval Actions -->
-                    <Button Grid.Column="1" Content="Reject / Block" 
+                    <Button x:Name="BtnReject" Grid.Column="1" Content="{Binding RejectButtonText}" 
                             Style="{StaticResource SecondaryButtonStyle}"
                             IsCancel="True"
                             Width="120" Height="34" Margin="0,0,10,0"

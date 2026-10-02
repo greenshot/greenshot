@@ -802,10 +802,19 @@ namespace Greenshot.Recipes
                     {
                         if (interactiveApproval)
                         {
-                            approval = RequestInteractiveApproval(CreateApprovalRequest(recipe, filePath, content, contentHash, valResult));
+                            var decision = RequestInteractiveApprovalWithOptions(CreateApprovalRequest(recipe, filePath, content, contentHash, valResult));
+                            approval = decision?.Approval;
                             if (approval != null)
                             {
                                 RecipeTrustStore.RecordApproval(filePath, contentHash, approval, content, recipeName: recipe.Name, recipeVersion: recipe.Version);
+                            }
+                            else if (decision?.IsRevoked == true)
+                            {
+                                // Revoked in the review: it no longer runs, and isn't loaded again until the user opens it again
+                                RecipeTrustStore.RevokeRecipeApproval(filePath, recipe.Id);
+                                UnregisterRecipe(recipe.Id);
+                                overallResult.AddError($"The approval of recipe '{recipe.Name}' ({recipe.Id}) was revoked.");
+                                continue;
                             }
                             else
                             {
@@ -1005,7 +1014,7 @@ namespace Greenshot.Recipes
                 window.Approval.ReplacesBuiltIn = request.ReplacesBuiltIn;
                 return new UI.RecipeApprovalWindow.ApprovalResult(window.Approval, window.OpenInEditor);
             }
-            return null;
+            return window.IsRevoked ? UI.RecipeApprovalWindow.ApprovalResult.Revoked : null;
         }
 
         private RecipeApproval RequestInteractiveApproval(UI.RecipeApprovalRequest request)

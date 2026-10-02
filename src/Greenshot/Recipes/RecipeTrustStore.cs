@@ -309,6 +309,31 @@ namespace Greenshot.Recipes
         }
 
         /// <summary>
+        /// Revokes the approval of one recipe of a file; the record goes when no approved recipe is left in it.
+        /// </summary>
+        public static void RevokeRecipeApproval(string filePath, string recipeId)
+        {
+            if (string.IsNullOrEmpty(filePath)) return;
+
+            string fullPath = Path.GetFullPath(filePath);
+            lock (LockObj)
+            {
+                var records = LoadRecords();
+                if (!records.TryGetValue(fullPath, out var record))
+                {
+                    return;
+                }
+                record.Recipes?.RemoveAll(r => string.Equals(r.RecipeId, recipeId, StringComparison.OrdinalIgnoreCase));
+                if (record.Recipes == null || record.Recipes.Count == 0)
+                {
+                    records.Remove(fullPath);
+                }
+                SaveRecords();
+            }
+            Log.InfoFormat("Revoked the approval of recipe '{0}' in '{1}'", recipeId, fullPath);
+        }
+
+        /// <summary>
         /// Revokes approval for a given recipe file.
         /// </summary>
         public static void RevokeApproval(string filePath)
