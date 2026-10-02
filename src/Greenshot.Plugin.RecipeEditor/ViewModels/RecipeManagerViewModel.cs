@@ -210,7 +210,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             var result = _recipeManager.ReviewApproval(Recipe.Id);
             if (result != null && !result.IsValid)
             {
-                MessageBox.Show(string.Join("\n", result.Errors), "Recipe Permissions", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ThemedMessageBox.Show(string.Join("\n", result.Errors), "Recipe Permissions", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             _onRecipeChanged?.Invoke();
         }
@@ -224,7 +224,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 ? $"Are you sure you want to revert '{Name}' back to its default built-in definition?"
                 : $"Are you sure you want to unload '{Name}'? It will be unregistered from Greenshot.";
 
-            if (MessageBox.Show(confirmMsg, confirmTitle, MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+            if (ThemedMessageBox.Show(confirmMsg, confirmTitle, MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
             {
                 return;
             }
@@ -246,7 +246,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             var valResult = RecipeValidator.Validate(Recipe);
             if (!valResult.IsValid)
             {
-                MessageBox.Show($"Cannot test run recipe. Fix validation errors first:\n\n{string.Join("\n", valResult.Errors)}", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ThemedMessageBox.Show($"Cannot test run recipe. Fix validation errors first:\n\n{string.Join("\n", valResult.Errors)}", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -261,7 +261,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Recipe execution encountered an error:\n{ex.Message}", "Execution Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                ThemedMessageBox.Show($"Recipe execution encountered an error:\n{ex.Message}", "Execution Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
@@ -355,7 +355,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         {
             var replaced = AllRecipes.Where(r => r.IsOverridden).Select(r => r.Name).ToList();
             if (replaced.Count == 0) return;
-            if (MessageBox.Show($"Bring back the built-in version of these recipes?\n\n{string.Join("\n", replaced)}", "Reset All to Default",
+            if (ThemedMessageBox.Show($"Bring back the built-in version of these recipes?\n\n{string.Join("\n", replaced)}", "Reset All to Default",
                     MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
             {
                 return;
@@ -460,7 +460,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                         var valResult = RecipeValidator.Validate(recipe);
                         if (!valResult.IsValid)
                         {
-                            MessageBox.Show($"Recipe validation failed:\n\n{string.Join("\n", valResult.Errors)}", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            ThemedMessageBox.Show($"Recipe validation failed:\n\n{string.Join("\n", valResult.Errors)}", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                             return;
                         }
                         _onSelectRecipeForEditor?.Invoke(recipe);
@@ -472,7 +472,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     var result = _recipeManager.LoadRecipeFromFile(dlg.FileName);
                     if (!result.IsValid)
                     {
-                        MessageBox.Show($"Failed to load recipe:\n\n{string.Join("\n", result.Errors)}", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        ThemedMessageBox.Show($"Failed to load recipe:\n\n{string.Join("\n", result.Errors)}", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                         StatusMessage = $"Validation failed for {Path.GetFileName(dlg.FileName)}";
                     }
                     else
@@ -490,7 +490,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Failed to load recipe:\n{ex.Message}", "Error Loading Recipe", MessageBoxButton.OK, MessageBoxImage.Error);
+                    ThemedMessageBox.Show($"Failed to load recipe:\n{ex.Message}", "Error Loading Recipe", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }

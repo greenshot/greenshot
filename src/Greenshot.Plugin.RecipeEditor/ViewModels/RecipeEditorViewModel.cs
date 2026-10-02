@@ -573,11 +573,13 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 return;
             }
             current ??= GetCurrentContent();
-            if (!force && string.Equals(current, _noticeContent, StringComparison.Ordinal))
+            // The notice is about saving for unsaved changes, about the file otherwise
+            string noticeKey = (IsDirty ? "unsaved:" : "saved:") + current;
+            if (!force && string.Equals(noticeKey, _noticeContent, StringComparison.Ordinal))
             {
                 return;
             }
-            _noticeContent = current;
+            _noticeContent = noticeKey;
             try
             {
                 ApprovalNotice = IsDirty ? DescribeSaveDecision() : DescribePendingApproval();
@@ -632,13 +634,13 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 return true;
             }
-            var answer = MessageBox.Show($"\"{_activeRecipe.Name}\" has unsaved changes. Do you want to save them?\n\nYes saves, No discards the changes.",
-                "Unsaved Changes", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning);
+            int answer = ThemedMessageBox.ShowChoice(null, "Unsaved Changes", $"\"{_activeRecipe.Name}\" has unsaved changes. Do you want to save them?",
+                MessageBoxImage.Warning, new[] { "Save", "Don't Save", "Cancel" }, defaultIndex: 0, cancelIndex: 2);
             switch (answer)
             {
-                case MessageBoxResult.Yes:
+                case 0:
                     return TrySaveRecipe();
-                case MessageBoxResult.No:
+                case 1:
                     // The changes were only made on the copy, the registered recipe is unchanged
                     _savedContent = GetCurrentContent();
                     IsDirty = false;
@@ -1559,7 +1561,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 msg += "\n\nYour unsaved changes are discarded.";
             }
-            if (MessageBox.Show(msg, title, MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+            if (ThemedMessageBox.Show(msg, title, MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
             {
                 return;
             }
@@ -1606,7 +1608,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                         if (!valResult.IsValid)
                         {
                             string msg = $"Recipe failed validation:\n" + string.Join("\n", valResult.Errors);
-                            MessageBox.Show(msg, "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            ThemedMessageBox.Show(msg, "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                             StatusMessage = $"Recipe failed validation: {Path.GetFileName(dlg.FileName)}";
                         }
                         else
@@ -1628,7 +1630,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                         if (!valResult.IsValid)
                         {
                             string msg = $"Recipe failed validation:\n" + string.Join("\n", valResult.Errors);
-                            MessageBox.Show(msg, "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            ThemedMessageBox.Show(msg, "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                             StatusMessage = $"Recipe failed validation: {Path.GetFileName(dlg.FileName)}";
                         }
                         else
@@ -1641,7 +1643,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Failed to load recipe:\n{ex.Message}", "Error Loading Recipe", MessageBoxButton.OK, MessageBoxImage.Error);
+                    ThemedMessageBox.Show($"Failed to load recipe:\n{ex.Message}", "Error Loading Recipe", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -1670,7 +1672,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to save recipe:\n{ex.Message}", "Error Saving Recipe", MessageBoxButton.OK, MessageBoxImage.Error);
+                ThemedMessageBox.Show($"Failed to save recipe:\n{ex.Message}", "Error Saving Recipe", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
         }
@@ -1693,7 +1695,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             var result = _recipeManager.SaveRecipeToFile(saved, filePath);
             if (!result.IsValid)
             {
-                MessageBox.Show(string.Join("\n", result.Errors), "Recipe Not Saved", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ThemedMessageBox.Show(string.Join("\n", result.Errors), "Recipe Not Saved", MessageBoxButton.OK, MessageBoxImage.Warning);
                 StatusMessage = "The recipe was not saved.";
                 return false;
             }
@@ -1737,7 +1739,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Failed to save recipe:\n{ex.Message}", "Error Saving Recipe", MessageBoxButton.OK, MessageBoxImage.Error);
+                    ThemedMessageBox.Show($"Failed to save recipe:\n{ex.Message}", "Error Saving Recipe", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             return false;
@@ -1751,7 +1753,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             var valResult = RecipeValidator.Validate(ActiveRecipe);
             if (!valResult.IsValid)
             {
-                MessageBox.Show($"Cannot test run recipe. Fix validation errors first:\n\n{string.Join("\n", valResult.Errors)}", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ThemedMessageBox.Show($"Cannot test run recipe. Fix validation errors first:\n\n{string.Join("\n", valResult.Errors)}", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -1770,7 +1772,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             catch (Exception ex)
             {
                 StatusMessage = $"Test run error: {ex.Message}";
-                MessageBox.Show($"Recipe execution encountered an error:\n{ex.Message}", "Execution Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                ThemedMessageBox.Show($"Recipe execution encountered an error:\n{ex.Message}", "Execution Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -1832,7 +1834,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Invalid JSON syntax or schema:\n{ex.Message}", "JSON Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                ThemedMessageBox.Show($"Invalid JSON syntax or schema:\n{ex.Message}", "JSON Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
