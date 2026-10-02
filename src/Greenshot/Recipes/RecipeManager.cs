@@ -633,7 +633,8 @@ namespace Greenshot.Recipes
             {
                 var record = RecipeTrustStore.GetTrustRecord(fullPath);
                 var previousApproval = record?.GetApproval(recipe.Id);
-                var approvedVersion = RecipeEditApproval.FindRecipe(record?.ApprovedContent, recipe.Id);
+                string approvedContent = GetApprovedContent(record, fullPath);
+                var approvedVersion = RecipeEditApproval.FindRecipe(approvedContent, recipe.Id);
                 approval = RecipeEditApproval.Create(recipe, validation, approvedVersion, previousApproval, GetBuiltInRecipe(recipe.Id) != null, out var decision);
                 if (decision.IsNeeded)
                 {
@@ -643,9 +644,9 @@ namespace Greenshot.Recipes
                     request.StartSwitchedOff = false;
                     request.OwnEditReasons = decision.Reasons;
                     request.SuggestedApproval = new RecipeApproval { RecipeId = recipe.Id, ApprovedTriggers = approval.ApprovedTriggers.Concat(decision.TriggerKeys).ToList() };
-                    if (request.PreviousContent == null && !string.IsNullOrEmpty(record?.ApprovedContent))
+                    if (request.PreviousContent == null && !string.IsNullOrEmpty(approvedContent))
                     {
-                        request.PreviousContent = record.ApprovedContent;
+                        request.PreviousContent = approvedContent;
                     }
                     approval = RequestInteractiveApproval(request);
                     if (approval == null)
@@ -695,6 +696,36 @@ namespace Greenshot.Recipes
                 foreach (var error in validation.Errors) result.AddWarning(error);
             }
             return result;
+        }
+
+        /// <summary>
+        /// The approved content of a recipe file: from its trust record, or, for a record from before the content was kept, the file
+        /// on disk when it is still the approved one. Null when it isn't known.
+        /// </summary>
+        internal static string GetApprovedContent(RecipeTrustRecord record, string fullPath)
+        {
+            if (record == null)
+            {
+                return null;
+            }
+            if (!string.IsNullOrEmpty(record.ApprovedContent))
+            {
+                return record.ApprovedContent;
+            }
+            try
+            {
+                if (!File.Exists(fullPath))
+                {
+                    return null;
+                }
+                byte[] bytes = File.ReadAllBytes(fullPath);
+                return string.Equals(RecipeTrustStore.ComputeSha256(bytes), record.Sha256Hash, StringComparison.OrdinalIgnoreCase) ? DecodeRecipeFile(bytes) : null;
+            }
+            catch (Exception ex)
+            {
+                Log.Warn($"Could not read the approved version of '{fullPath}'.", ex);
+                return null;
+            }
         }
 
         public RecipeValidationResult LoadRecipeFromFile(string filePath)

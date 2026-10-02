@@ -77,7 +77,8 @@ namespace Greenshot.Recipes
                 needsDecision.Reasons.Add($"It replaces the built-in recipe \"{edited.Id}\".");
             }
 
-            // Triggers: unchanged ones keep their switch, new harmless ones are on, new ones which start the recipe on their own need a decision
+            // Triggers: unchanged ones keep their switch, new harmless ones are on, new ones which start the recipe on their own need a decision.
+            // Without the approved version (an approval from before the content was kept) every risky trigger counts as new.
             var oldTriggers = approvedVersion?.Triggers ?? new List<TriggerConfig>();
             var used = new HashSet<int>();
             var matches = new Dictionary<int, int>();
@@ -103,12 +104,6 @@ namespace Greenshot.Recipes
                     {
                         approval.ApprovedTriggers.Add(description.Key);
                     }
-                    continue;
-                }
-                if (approvedVersion == null && previousApproval?.AllTriggers == true)
-                {
-                    // An approval from before triggers were approved one by one, without the approved content to compare with
-                    approval.ApprovedTriggers.Add(description.Key);
                     continue;
                 }
                 if (string.IsNullOrEmpty(description.Risk) || description.IsDisabled)

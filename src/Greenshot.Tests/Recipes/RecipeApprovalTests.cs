@@ -335,6 +335,44 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
+        public void EditApproval_ApprovalFromBeforeTriggersWereApprovedOneByOne_StillAsksForANewRiskyTrigger()
+        {
+            // A record from before this version approves all triggers, but has no approved content to see which ones are new
+            var previous = new RecipeApproval { RecipeId = "edit_legacy", AllTriggers = true };
+            var edited = CreateRecipe("edit_legacy")
+                .AddTrigger(new TriggerConfig(TriggerConfig.TypeHotkey))
+                .AddTrigger(TriggerConfig.CreateClipboard());
+
+            var approval = RecipeEditApproval.Create(edited, RecipeValidator.Validate(edited), null, previous, false, out var decision);
+
+            Assert.True(decision.IsNeeded);
+            Assert.Equal(new[] { "1:Clipboard" }, decision.TriggerKeys);
+            Assert.Equal(new[] { "0:Hotkey" }, approval.ApprovedTriggers);
+        }
+
+        [Fact]
+        public void ApprovedContent_OfAnOldRecord_IsTheFileOnDisk_WhileItIsUnchanged()
+        {
+            string file = Path.Combine(Path.GetTempPath(), $"greenshot_legacy_{Guid.NewGuid():N}{RecipeSerializer.RecipeFileExtension}");
+            try
+            {
+                string content = RecipeSerializer.Serialize(CreateRecipe("legacy_content"));
+                File.WriteAllBytes(file, new UTF8Encoding(false).GetBytes(content));
+                var record = new RecipeTrustRecord { FilePath = file, Sha256Hash = RecipeTrustStore.ComputeSha256(file) };
+
+                Assert.Equal(content, RecipeManager.GetApprovedContent(record, file));
+
+                File.AppendAllText(file, " ");
+                Assert.Null(RecipeManager.GetApprovedContent(record, file));
+                Assert.Null(RecipeManager.GetApprovedContent(null, file));
+            }
+            finally
+            {
+                File.Delete(file);
+            }
+        }
+
+        [Fact]
         public void EditApproval_NewKindOfGatedAction_NeedsADecision_AllowedOnesStay()
         {
             var edited = CreateRecipe("edit_gates")
