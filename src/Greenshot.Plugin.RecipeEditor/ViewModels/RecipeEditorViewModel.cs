@@ -968,6 +968,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 var vm = new StepNodeViewModel(nodeConfig, new Point(defaultX, defaultY), SetStartNode, DeleteNode, HandleNodeIdChanged, OnNodeStartToggled);
                 vm.RecipeNameProvider = () => RecipeTitle;
+                vm.SlotExtensionsProvider = GetSlotExtensions;
                 vm.OtherNodesProvider = () => Nodes.Where(n => n != vm);
                 vm.AvailableRecipesProvider = () => AvailableRecipes;
                 if (hasExplicitStarts)
@@ -1303,6 +1304,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
             var nodeVm = new StepNodeViewModel(config, new Point(x, y), SetStartNode, DeleteNode, HandleNodeIdChanged, OnNodeStartToggled);
             nodeVm.RecipeNameProvider = () => RecipeTitle;
+            nodeVm.SlotExtensionsProvider = GetSlotExtensions;
             nodeVm.OtherNodesProvider = () => Nodes.Where(n => n != nodeVm);
             nodeVm.AvailableRecipesProvider = () => AvailableRecipes;
             if (Nodes.Count == 0)
@@ -1526,6 +1528,34 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             SyncRecipeTransitions();
             IsDirty = true;
             StatusMessage = "Removed recipe error fallback route";
+        }
+
+        /// <summary>
+        /// The extensions which plug into a slot of the recipe, by order: they target the recipe and the slot accepts them.
+        /// Shown greyed out on the slot; "(off)" when the user switched it off or not for this recipe.
+        /// </summary>
+        private IReadOnlyList<string> GetSlotExtensions(StepNodeViewModel node)
+        {
+            string slotName = RecipeSlots.GetSlotName(node?.Config);
+            var recipe = _activeRecipe;
+            if (slotName == null || recipe == null || _recipeManager == null) return Array.Empty<string>();
+            try
+            {
+                return _recipeManager.GetAllExtensions()
+                    .Where(e => e.SlotName == slotName && RecipeSlots.Accepts(node.Config, e.Id) && RecipeComposer.Targets(e, recipe))
+                    .OrderBy(e => e.Extends.Order).ThenBy(e => e.Id, StringComparer.OrdinalIgnoreCase)
+                    .Select(e =>
+                    {
+                        string name = RecipeText.Translate(e.Name ?? e.Id);
+                        return RecipeExtensionSettings.FromStore(e).AllowsRecipe(recipe.Id) ? name : $"{name} (off)";
+                    })
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                Log.Debug("Couldn't find the extensions of a slot", ex);
+                return Array.Empty<string>();
+            }
         }
 
         public void NewRecipe()
@@ -2235,6 +2265,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     break;
                 case WellKnownStepTypes.Processors:
                     dict["ProcessorIds"] = new List<string>();
+                    break;
+                case WellKnownStepTypes.Slot:
+                    dict["Name"] = RecipeSlots.BeforeExport;
                     break;
                 case "ExternalCommand":
                     dict["CommandLine"] = "cmd.exe";

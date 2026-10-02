@@ -1481,6 +1481,76 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         public bool IsCloudStorage => IsBox || IsDropbox;
 
+        public bool IsSlot => IsStepType(WellKnownStepTypes.Slot);
+
+        /// <summary>
+        /// Slot: the names of the extensions which plug in (set by the editor, which knows the recipe and the extensions)
+        /// </summary>
+        public Func<StepNodeViewModel, IReadOnlyList<string>> SlotExtensionsProvider { get; set; }
+
+        /// <summary>
+        /// Slot: the extensions which plug in, shown greyed out on the node
+        /// </summary>
+        public IReadOnlyList<string> SlotExtensions => IsSlot ? SlotExtensionsProvider?.Invoke(this) ?? Array.Empty<string>() : Array.Empty<string>();
+
+        public bool HasNoSlotExtensions => IsSlot && SlotExtensions.Count == 0;
+
+        public IReadOnlyList<string> SlotNames => RecipeSlots.All;
+
+        /// <summary>
+        /// Slot: AfterCapture, BeforeExport, AfterExport or BeforeDestination
+        /// </summary>
+        public string SlotName
+        {
+            get => RecipeSlots.Normalize(GetParam("Name", RecipeSlots.BeforeExport)) ?? GetParam("Name", RecipeSlots.BeforeExport);
+            set
+            {
+                SetParam("Name", value);
+                OnPropertyChanged(nameof(SlotName));
+                OnSlotChanged();
+            }
+        }
+
+        /// <summary>
+        /// Slot: which extensions it takes, "all", "none" or extension ids separated by commas
+        /// </summary>
+        public string SlotAccept
+        {
+            get
+            {
+                if (Config?.Parameters == null || !Config.Parameters.TryGetValue("Accept", out var accept) || accept == null) return RecipeSlots.AcceptAll;
+                if (accept is JValue jValue) accept = jValue.Value;
+                if (accept is string text) return string.IsNullOrWhiteSpace(text) ? RecipeSlots.AcceptAll : text;
+                if (accept is System.Collections.IEnumerable list) return string.Join(", ", list.Cast<object>().Select(o => (o as JValue)?.Value?.ToString() ?? o?.ToString()));
+                return RecipeSlots.AcceptAll;
+            }
+            set
+            {
+                string text = value?.Trim();
+                if (string.IsNullOrEmpty(text) || string.Equals(text, RecipeSlots.AcceptAll, StringComparison.OrdinalIgnoreCase))
+                {
+                    Config.Parameters?.Remove("Accept");
+                    NotifyConfigUpdated();
+                }
+                else if (string.Equals(text, RecipeSlots.AcceptNone, StringComparison.OrdinalIgnoreCase))
+                {
+                    SetParam("Accept", RecipeSlots.AcceptNone);
+                }
+                else
+                {
+                    SetParam("Accept", RecipeSlots.SplitList(text).ToList());
+                }
+                OnPropertyChanged(nameof(SlotAccept));
+                OnSlotChanged();
+            }
+        }
+
+        private void OnSlotChanged()
+        {
+            OnPropertyChanged(nameof(Summary));
+            OnPropertyChanged(nameof(SlotExtensions));
+            OnPropertyChanged(nameof(HasNoSlotExtensions));
+        }
         public StepPortViewModel InputPort { get; }
         public StepPortViewModel OutputPort { get; }
 
@@ -3628,6 +3698,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                         return $"Dynamic Destination ({dDests}, {dTime})";
                     case WellKnownStepTypes.Notification:
                         return NotificationShow ? "Notification: shown" : "Notification: hidden";
+                    case WellKnownStepTypes.Slot:
+                        return string.Equals(SlotAccept, RecipeSlots.AcceptAll, StringComparison.OrdinalIgnoreCase)
+                            ? $"Slot {SlotName}: extensions add their steps here"
+                            : $"Slot {SlotName}, accepts: {SlotAccept}";
                     case WellKnownStepTypes.Stdout:
                         return !string.IsNullOrWhiteSpace(OutputText) ? $"Stdout: {OutputText}" : "Stdout";
                     case WellKnownStepTypes.Stderr:

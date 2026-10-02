@@ -554,8 +554,8 @@ before the export, where it does nothing itself. Opening a file, OCR and the AI 
 
 **Where an extension goes.** `extends.recipes` takes recipe ids, `"*"` (every recipe with the slot) or `"*capture"`
 (recipes with a Source step and a destination). AI tool recipes are only extended when named by id. Several extensions
-on one slot run by `order`, then by id. In Settings > Recipes the user narrows it down: "Apply to: all captures / only
-these recipes" and "except these recipes"; an extension on `BeforeDestination` also gets "Only for these destinations".
+on one slot run by `order`, then by id. In Settings > Recipes the user narrows it down to some recipes and, for an
+extension on `BeforeDestination`, to some destinations (see below).
 
 **The flow of an extension** runs between In (its `startNodes`) and Out: a transition to `"Out"` ends the extension and
 the recipe goes on, as does a node without a next node. It can use any steps, decisions and forks included, with these
@@ -577,7 +577,7 @@ which are switched on for it: the slot node is replaced by the extensions' nodes
 extension's own options. The recipe file and its approval don't change. Settings > Recipes shows which extensions
 change which recipe.
 
-**Built-in extensions**, all off until switched on, at `BeforeExport` of the capture recipes:
+**Built-in extensions**, all off until switched on, at `BeforeDestination` of the capture recipes, so they can be limited to some destinations (e.g. a border only for email):
 
 | Extension | Options | Steps | Order |
 |---|---|---|---|
@@ -586,6 +586,18 @@ change which recipe.
 | Drop shadow | on/off, size, darkness, offset | Effect DropShadow | 300 |
 
 So the border goes around the caption bar and the shadow falls outside the border. Greenshot Light has them too.
+
+**Per destination, but only as often as needed.** The export steps (Destinations, the pickers and the Clipboard step) group
+the destinations by the extensions which run for them: each combination gets one copy of the capture, changed once;
+destinations without an extension get the capture itself.
+
+**Settings > Recipes** shows each extension with its on/off checkbox in front of its name; its options only while it is
+on. "Used for" sums up where it is used ("6 of 7 captures → Email"), "Change…" opens a dialog with the captures (recipes)
+and the destinations side by side. New recipes get an extension too, unless it is limited to some destinations.
+
+**Recipe editor.** The toolbox has "Slot for Extensions"; a slot node shows the extensions which plug into it, greyed out
+("(off)" when switched off or not used for this recipe), and the inspector sets the slot and what it accepts. Editing
+extensions in the editor comes later.
 
 > [!NOTE]
 > Until extension files get their own approval, Greenshot only uses the built-in extensions; a file with

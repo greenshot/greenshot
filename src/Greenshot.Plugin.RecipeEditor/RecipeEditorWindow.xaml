@@ -536,6 +536,21 @@
                                        TextWrapping="Wrap"
                                        Visibility="{Binding HasDynamicOutputPorts, Converter={StaticResource InvertBoolToVis}}"/>
 
+                            <!-- Slot: the extensions which plug in, greyed out (they are not part of the recipe) -->
+                            <StackPanel Visibility="{Binding IsSlot, Converter={StaticResource BoolToVis}}" Margin="0,4,0,0">
+                                <ItemsControl ItemsSource="{Binding SlotExtensions}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding StringFormat='⤷ {0}'}" FontSize="10" FontStyle="Italic"
+                                                       Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <TextBlock Text="No extension plugs in" FontSize="10" FontStyle="Italic"
+                                           Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                           Visibility="{Binding HasNoSlotExtensions, Converter={StaticResource BoolToVis}}"/>
+                            </StackPanel>
+
                             <!-- Conditional Branches Summary inside Card Body -->
                             <StackPanel Visibility="{Binding IsConditional, Converter={StaticResource BoolToVis}}">
                                 <TextBlock Text="Branches:" FontSize="10" FontWeight="SemiBold"
@@ -910,6 +925,10 @@
                             </Button>
                             <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Conditional">
                                 <TextBlock Text="🔀 Conditional Branch"/>
+                            </Button>
+                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Slot"
+                                    ToolTip="A place where extensions (border, drop shadow, caption, ...) add their steps">
+                                <TextBlock Text="🧩 Slot for Extensions"/>
                             </Button>
                             <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="ImmediateFeedback">
                                 <TextBlock Text="🔊 Shutter Sound"/>
@@ -2671,6 +2690,23 @@
                                             </Grid>
                                             <TextBlock Text="Leave empty to use the default camera shutter sound configured in Greenshot settings."
                                                        FontSize="10" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                        </StackPanel>
+
+                                        <!-- Slot Inspector: which slot, which extensions -->
+                                        <StackPanel Visibility="{Binding SelectedNode.IsSlot, Converter={StaticResource BoolToVis}}">
+                                            <TextBlock Text="Slot" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox ItemsSource="{Binding SelectedNode.SlotNames}" SelectedItem="{Binding SelectedNode.SlotName, Mode=TwoWay}" Margin="0,0,0,8"/>
+                                            <TextBlock Text="Accept: all, none, or extension ids separated by commas" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox Text="{Binding SelectedNode.SlotAccept, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" Padding="6,4" Margin="0,0,0,8"/>
+                                            <TextBlock Text="Extensions which plug in now (switched in Settings &gt; Recipes):" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ItemsControl ItemsSource="{Binding SelectedNode.SlotExtensions}" Margin="8,0,0,8">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding}" FontStyle="Italic" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
                                         </StackPanel>
 
                                         <!-- 11. Notification Step Inspector -->
