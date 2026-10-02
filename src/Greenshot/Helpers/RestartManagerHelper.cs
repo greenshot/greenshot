@@ -84,6 +84,10 @@ namespace Greenshot.Helpers
         private static void OnSessionEnding(EndSessionMessage endSessionMessage)
         {
             Log.InfoFormat("Shutting down the application due to {0}", endSessionMessage.EndSessionReason);
+            // The Restart Manager closes Greenshot for an installer (update or uninstall): greenshot-mcp has to exit too,
+            // otherwise it keeps the installation directory locked
+            bool closedForInstaller = endSessionMessage.EndSessionReason.HasFlag(Dapplo.Windows.AppRestartManager.Enums.EndSessionReasons.ENDSESSION_CLOSEAPP);
+            NotifyClientsOfShutdown(closedForInstaller ? Ipc.NamedPipeServer.ShutdownReasonUpdate : Ipc.NamedPipeServer.ShutdownReasonSessionEnd);
             SaveEditorState();
             // Don't wait for the exit, the editors might want to ask the user something
             UiDispatcher.Current.RunOnUiAsync(() =>
@@ -91,6 +95,36 @@ namespace Greenshot.Helpers
                 Application.Exit();
                 Environment.Exit(0);
             }).FireAndLog("Exit after the end of the session", Log);
+        }
+
+        /// <summary>
+        /// Tells the named pipe clients that Greenshot exits, set by the MainForm
+        /// </summary>
+        internal static Func<string, Task> ShutdownNotifier { get; set; }
+
+        /// <summary>
+        /// How long the end of the session waits for the clients to get the shutdown message
+        /// </summary>
+        private static readonly TimeSpan NotifyTimeout = TimeSpan.FromSeconds(1);
+
+        private static void NotifyClientsOfShutdown(string reason)
+        {
+            var notifier = ShutdownNotifier;
+            if (notifier == null)
+            {
+                return;
+            }
+            try
+            {
+                // R1 exception: like SaveEditorState, this runs inside the window procedure for WM_ENDSESSION
+#pragma warning disable RS0030, VSTHRD002
+                notifier(reason).Wait(NotifyTimeout);
+#pragma warning restore RS0030, VSTHRD002
+            }
+            catch (Exception ex)
+            {
+                Log.Debug("Could not tell the named pipe clients that Greenshot exits.", ex);
+            }
         }
 
         /// <summary>

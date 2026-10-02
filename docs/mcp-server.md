@@ -46,8 +46,20 @@ Two argument types are only meant for AI tools:
 
 The tool returns the recipe's final image, the text found by OCR, its stdout / stderr and its variables. A recipe for
 an AI tool needs no destination, its result goes back to the AI tool (it can still save or upload, as configured).
-greenshot-mcp checks the recipes every 30 seconds and after each tool call; when they changed it tells the AI tool
-(`notifications/tools/list_changed`), so a new recipe shows up without restarting the AI tool.
+greenshot-mcp keeps a watch connection to Greenshot (`WATCH`): Greenshot tells it right away when the recipes or the
+AI tools switch change, and greenshot-mcp tells the AI tool (`notifications/tools/list_changed`), so a new recipe shows
+up without restarting the AI tool. It also checks every 30 seconds and after each tool call (older Greenshot versions
+have no watch connection).
+
+When Greenshot exits it sends every open connection `{"event":"shutdown","reason":...,"greenshot_running":false}`
+(the browser extension shows Greenshot as offline right away):
+
+* `exit`, the user closed Greenshot: greenshot-mcp keeps running, so the AI tool doesn't mark the server as failed, but
+  doesn't start Greenshot again. Tool calls answer that Greenshot was closed, until Greenshot runs again; then it
+  reconnects by itself.
+* `update`, the Windows Restart Manager closes Greenshot for an installer (update or uninstall): greenshot-mcp exits,
+  otherwise it would keep the installation directory locked.
+* `session_end`, Windows logs off or shuts down.
 
 Example: the built-in `capture_window` recipe as JSON.
 

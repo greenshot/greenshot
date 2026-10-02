@@ -67,17 +67,9 @@ namespace Greenshot.Mcp
         /// <param name="startGreenshot">Start Greenshot when it isn't running (false for background requests)</param>
         public static async Task<JsonObject> SendAsync(JsonObject request, string? clientName, CancellationToken cancellationToken, bool startGreenshot = true)
         {
-            await using var pipe = await ConnectAsync(startGreenshot, cancellationToken).ConfigureAwait(false);
-
-            var hello = new JsonObject
-            {
-                ["version"] = 1,
-                ["command"] = "HELLO",
-                ["source"] = "mcp",
-                ["origin"] = string.IsNullOrWhiteSpace(clientName) ? "AI tool" : clientName,
-                ["reply_format"] = "json"
-            };
-            await WriteFrameAsync(pipe, hello, cancellationToken).ConfigureAwait(false);
+            // The user closed Greenshot: it isn't started again behind the user's back, it has to be started by the user
+            await using var pipe = await ConnectAsync(startGreenshot && !GreenshotState.IsClosedByUser, cancellationToken).ConfigureAwait(false);
+            await SendHelloAsync(pipe, clientName, cancellationToken).ConfigureAwait(false);
 
             request["version"] = 1;
             request["source"] = "mcp";
@@ -89,6 +81,18 @@ namespace Greenshot.Mcp
             {
                 var frame = await ReadFrameAsync(pipe, cancellationToken).ConfigureAwait(false)
                             ?? throw new GreenshotConnectionException("Greenshot closed the connection without a reply.");
+
+                string? greenshotEvent = (string?)frame["event"];
+                if (greenshotEvent != null)
+                {
+                    // Greenshot's own messages can arrive on any connection
+                    if (string.Equals(greenshotEvent, "shutdown", StringComparison.OrdinalIgnoreCase))
+                    {
+                        GreenshotState.OnShutdown((string?)frame["reason"]);
+                        throw new GreenshotConnectionException("Greenshot is exiting, the request was not finished.");
+                    }
+                    continue;
+                }
 
                 string? stream = (string?)frame["stream"];
                 if (stream != null)
@@ -108,6 +112,53 @@ namespace Greenshot.Mcp
                 }
                 return frame;
             }
+        }
+
+        /// <summary>
+        /// Opens a connection which stays open for Greenshot's events (WATCH), without starting Greenshot.
+        /// The pipe is null when Greenshot isn't running, or doesn't know WATCH (an older version, IsRunning is true).
+        /// </summary>
+        internal static async Task<(NamedPipeClientStream? Pipe, bool IsRunning)> OpenWatchAsync(CancellationToken cancellationToken)
+        {
+            NamedPipeClientStream pipe;
+            try
+            {
+                pipe = await ConnectAsync(false, cancellationToken).ConfigureAwait(false);
+            }
+            catch (GreenshotConnectionException)
+            {
+                return (null, false);
+            }
+
+            try
+            {
+                await SendHelloAsync(pipe, "greenshot-mcp", cancellationToken).ConfigureAwait(false);
+                await WriteFrameAsync(pipe, new JsonObject { ["version"] = 1, ["command"] = "WATCH", ["source"] = "mcp" }, cancellationToken).ConfigureAwait(false);
+                var reply = await ReadFrameAsync(pipe, cancellationToken).ConfigureAwait(false);
+                if (reply != null && reply["watching"] is JsonValue watching && watching.TryGetValue(out bool isWatching) && isWatching)
+                {
+                    return (pipe, true);
+                }
+            }
+            catch (Exception ex) when (ex is GreenshotConnectionException || ex is IOException)
+            {
+                // Treated like an older Greenshot
+            }
+            await pipe.DisposeAsync().ConfigureAwait(false);
+            return (null, true);
+        }
+
+        private static Task SendHelloAsync(Stream pipe, string? clientName, CancellationToken cancellationToken)
+        {
+            var hello = new JsonObject
+            {
+                ["version"] = 1,
+                ["command"] = "HELLO",
+                ["source"] = "mcp",
+                ["origin"] = string.IsNullOrWhiteSpace(clientName) ? "AI tool" : clientName,
+                ["reply_format"] = "json"
+            };
+            return WriteFrameAsync(pipe, hello, cancellationToken);
         }
 
         private static string GetPipeName()
@@ -137,7 +188,9 @@ namespace Greenshot.Mcp
             string greenshotExe = Path.Combine(AppContext.BaseDirectory, "Greenshot.exe");
             if (!startGreenshot || !File.Exists(greenshotExe))
             {
-                throw new GreenshotConnectionException("Greenshot is not running. Please start Greenshot and try again.");
+                throw new GreenshotConnectionException(GreenshotState.IsClosedByUser
+                    ? "Greenshot was closed by the user. Ask the user to start Greenshot to use these tools."
+                    : "Greenshot is not running. Please start Greenshot and try again.");
             }
 
             try

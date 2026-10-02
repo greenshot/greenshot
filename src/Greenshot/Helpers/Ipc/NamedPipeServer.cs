@@ -20,7 +20,10 @@
  */
 
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.IO.Pipes;
 using System.Text;
 using System.Threading;
@@ -39,6 +42,33 @@ namespace Greenshot.Helpers.Ipc
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(NamedPipeServer));
         private const int MaxPayloadSize = 64 * 1024 * 1024; // 64 MB cap per ADR 003
+
+        /// <summary>
+        /// The command which turns a connection into a watch connection: it stays open and gets the events
+        /// (<see cref="NotifyWatchersAsync"/>), e.g. greenshot-mcp to learn about new AI tools and that Greenshot exits.
+        /// </summary>
+        public const string WatchCommand = "WATCH";
+
+        /// <summary>
+        /// Shutdown reasons sent to the clients: the user exits Greenshot, an installer replaces or removes it
+        /// (the Windows Restart Manager closes it), or Windows ends the session.
+        /// </summary>
+        public const string ShutdownReasonExit = "exit";
+        public const string ShutdownReasonUpdate = "update";
+        public const string ShutdownReasonSessionEnd = "session_end";
+
+        /// <summary>
+        /// An identified (HELLO) JSON connection, for messages Greenshot sends on its own
+        /// </summary>
+        private sealed class OpenConnection
+        {
+            public Stream Stream { get; set; }
+            public SemaphoreSlim WriteLock { get; set; }
+            public string Source { get; set; }
+            public bool IsWatching { get; set; }
+        }
+
+        private readonly ConcurrentDictionary<OpenConnection, bool> _connections = new ConcurrentDictionary<OpenConnection, bool>();
 
         private readonly string _pipeName;
         private CancellationTokenSource _cancellationTokenSource;
@@ -153,6 +183,7 @@ namespace Greenshot.Helpers.Ipc
 
         private async Task ProcessClientAsync(NamedPipeServerStream stream, CancellationToken cancellationToken)
         {
+            OpenConnection openConnection = null;
             using (stream)
             {
                 try
@@ -263,6 +294,11 @@ namespace Greenshot.Helpers.Ipc
                             connectionSource = envelope.Source.ToLowerInvariant();
                             connectionOrigin = envelope.Origin;
                             connectionUsesTextFrames = string.Equals(replyFormat, IpcSources.ReplyFormatText, StringComparison.OrdinalIgnoreCase);
+                            if (!connectionUsesTextFrames)
+                            {
+                                openConnection = new OpenConnection { Stream = stream, WriteLock = connectionWriteLock, Source = connectionSource };
+                                _connections[openConnection] = true;
+                            }
                             Log.Debug($"Named pipe connection identified: source '{connectionSource}'{(string.IsNullOrEmpty(connectionOrigin) ? string.Empty : $", origin '{connectionOrigin}'")}.");
                             continue;
                         }
@@ -276,6 +312,15 @@ namespace Greenshot.Helpers.Ipc
 
                         // Whatever the client put into "source" is ignored; the connection's HELLO decides.
                         envelope.Source = connectionSource;
+
+                        if (openConnection != null && string.Equals(envelope.Command, WatchCommand, StringComparison.OrdinalIgnoreCase))
+                        {
+                            // Only events are sent on it, nothing about the user's windows or recipes
+                            openConnection.IsWatching = true;
+                            Log.Debug($"Named pipe connection '{connectionSource}' watches for events.");
+                            await SendAsync(openConnection, new { status = "ok", exit_code = 0, watching = true }, cancellationToken).ConfigureAwait(false);
+                            continue;
+                        }
 
                         var context = new IpcRequestContext(envelope, stream, connectionWriteLock)
                         {
@@ -325,6 +370,50 @@ namespace Greenshot.Helpers.Ipc
                 {
                     Log.Error("Error processing incoming message from named pipe client", ex);
                 }
+                finally
+                {
+                    if (openConnection != null)
+                    {
+                        _connections.TryRemove(openConnection, out _);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sends an event (e.g. {"event":"tools_changed"}) to every watch connection
+        /// </summary>
+        public Task NotifyWatchersAsync(object message, CancellationToken cancellationToken = default)
+        {
+            return SendToAllAsync(_connections.Keys.Where(c => c.IsWatching).ToList(), message, cancellationToken);
+        }
+
+        /// <summary>
+        /// Tells every open connection that Greenshot exits, and why (<see cref="ShutdownReasonExit"/>, ...): a browser extension
+        /// can show that Greenshot is offline, greenshot-mcp waits for Greenshot or exits for an update.
+        /// </summary>
+        public Task NotifyShutdownAsync(string reason, CancellationToken cancellationToken = default)
+        {
+            Log.Info($"Telling {_connections.Count} named pipe connection(s) that Greenshot exits ({reason}).");
+            return SendToAllAsync(_connections.Keys.ToList(), new { @event = "shutdown", reason, greenshot_running = false }, cancellationToken);
+        }
+
+        private async Task SendToAllAsync(IReadOnlyList<OpenConnection> connections, object message, CancellationToken cancellationToken)
+        {
+            // PARALLEL: one slow client must not hold up the others
+            await Task.WhenAll(connections.Select(c => SendAsync(c, message, cancellationToken))).ConfigureAwait(false);
+        }
+
+        private async Task SendAsync(OpenConnection connection, object message, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var context = new IpcRequestContext(new IpcEnvelope(), connection.Stream, connection.WriteLock) { WriteTimeout = ReplyWriteTimeout };
+                await context.ReplyAsync(message, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                Log.Debug($"Could not send a message to the named pipe connection '{connection.Source}'", ex);
             }
         }
 

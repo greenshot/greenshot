@@ -63,5 +63,7 @@ builder.Services
 
 // The user's recipes with an AI tool trigger are the other tools
 builder.Services.AddHostedService<RecipeToolSync>();
+// Greenshot's events: tools changed, Greenshot exits (wait for it, or exit for an update)
+builder.Services.AddHostedService<GreenshotWatch>();
 
 await builder.Build().RunAsync().ConfigureAwait(false);
