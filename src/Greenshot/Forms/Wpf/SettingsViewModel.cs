@@ -97,6 +97,12 @@ namespace Greenshot.Forms.Wpf
                 // The signature check can take a moment, the list shows right away
                 client.LoadDetailsAsync().FireAndLog("AI tool details", Log);
             }
+            DeniedAiToolClients = new ObservableCollection<AiToolClientItem>(Helpers.Ipc.AiToolAccess.GetDeniedClients().Select(path => new AiToolClientItem(path)));
+            DeniedAiToolClients.CollectionChanged += (s, e) => OnPropertyChanged(nameof(HasDeniedAiToolClients));
+            foreach (var client in DeniedAiToolClients)
+            {
+                client.LoadDetailsAsync().FireAndLog("AI tool details", Log);
+            }
             AiToolsExcludedProcesses = new ObservableCollection<string>();
             foreach (string name in CoreConfiguration.AiToolsExcludedProcesses ?? new List<string>())
             {
@@ -188,6 +194,37 @@ namespace Greenshot.Forms.Wpf
         public IReadOnlyList<Helpers.Ipc.McpServerStatus> McpServers { get; }
 
         public bool IsMcpServerFound => McpServers.Any(m => m.Exists);
+
+        /// <summary>
+        /// Programs the user didn't allow in this Greenshot run, they aren't asked again until a restart
+        /// </summary>
+        public ObservableCollection<AiToolClientItem> DeniedAiToolClients { get; }
+
+        public bool HasDeniedAiToolClients => DeniedAiToolClients.Count > 0;
+
+        /// <summary>
+        /// Allow a program which was denied in this run (saved with the settings)
+        /// </summary>
+        public void AllowDeniedClient(AiToolClientItem client)
+        {
+            if (client == null) return;
+            DeniedAiToolClients.Remove(client);
+            Helpers.Ipc.AiToolAccess.ForgetDenied(client.Path);
+            if (!AiToolsAllowedClients.Any(c => string.Equals(c.Path, client.Path, StringComparison.OrdinalIgnoreCase)))
+            {
+                AiToolsAllowedClients.Add(client);
+            }
+        }
+
+        /// <summary>
+        /// Ask again the next time the program connects
+        /// </summary>
+        public void AskAgain(AiToolClientItem client)
+        {
+            if (client == null) return;
+            DeniedAiToolClients.Remove(client);
+            Helpers.Ipc.AiToolAccess.ForgetDenied(client.Path);
+        }
 
         public bool HasNoAiToolClients => AiToolsAllowedClients.Count == 0;
 

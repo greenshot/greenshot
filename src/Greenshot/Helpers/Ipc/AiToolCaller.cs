@@ -288,12 +288,51 @@ namespace Greenshot.Helpers.Ipc
                 Log.Debug($"No version information for {exePath}", ex);
             }
 
+            // A helper without a name of its own (like Antigravity's resources\bin\language_server.exe) is named after its application.
+            // Only the name: the program which is allowed stays the helper itself.
+            if (string.IsNullOrWhiteSpace(displayName) || string.Equals(displayName.Trim(), Path.GetFileNameWithoutExtension(exePath), StringComparison.OrdinalIgnoreCase))
+            {
+                string application = FindApplicationName(exePath);
+                if (application != null)
+                {
+                    displayName = $"{application} ({Path.GetFileNameWithoutExtension(exePath)})";
+                }
+            }
+
             return new AiToolClient
             {
                 ExePath = exePath,
                 DisplayName = string.IsNullOrWhiteSpace(displayName) ? Path.GetFileNameWithoutExtension(exePath) : displayName.Trim(),
                 Signer = GetVerifiedSigner(exePath)
             };
+        }
+
+        /// <summary>
+        /// The name of the application a helper executable belongs to: up to three directories above it, an executable named like
+        /// its directory (…\Antigravity\resources\bin\language_server.exe → …\Antigravity\Antigravity.exe), null when there is none.
+        /// </summary>
+        internal static string FindApplicationName(string exePath)
+        {
+            try
+            {
+                var directory = new DirectoryInfo(Path.GetDirectoryName(exePath) ?? string.Empty);
+                for (int level = 0; level < 4 && directory != null; level++, directory = directory.Parent)
+                {
+                    string candidate = Path.Combine(directory.FullName, directory.Name + ".exe");
+                    if (string.Equals(candidate, exePath, StringComparison.OrdinalIgnoreCase) || !File.Exists(candidate))
+                    {
+                        continue;
+                    }
+                    var versionInfo = FileVersionInfo.GetVersionInfo(candidate);
+                    string name = !string.IsNullOrWhiteSpace(versionInfo.ProductName) ? versionInfo.ProductName : versionInfo.FileDescription;
+                    return string.IsNullOrWhiteSpace(name) ? directory.Name : name.Trim();
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Debug($"No application found for {exePath}", ex);
+            }
+            return null;
         }
 
         /// <summary>

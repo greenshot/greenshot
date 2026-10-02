@@ -304,6 +304,10 @@ Please check write accessibility of the selected storage location.</resource>
 		<resource name="settings_aitools_excluded">Never share these applications</resource>
 		<resource name="settings_aitools_excluded_description">Windows of these applications are never listed or captured for AI tools. Names are process names without .exe, upper and lower case don't matter.</resource>
 		<resource name="settings_aitools_remove">Remove</resource>
+		<resource name="settings_aitools_denied">Not allowed until Greenshot restarts</resource>
+		<resource name="settings_aitools_denied_description">You answered "Don't Allow" (or closed the question) for these programs, so Greenshot refuses them without asking. Allow one here (saved with OK), or let Greenshot ask again the next time it connects.</resource>
+		<resource name="settings_aitools_denied_allow">Allow</resource>
+		<resource name="settings_aitools_denied_askagain">Ask Again</resource>
 		<resource name="settings_aitools_add">Add</resource>
 		<resource name="settings_aitools_excluded_add_tooltip">A process name, like KeePass or keepass.exe; Enter adds it</resource>
 		<resource name="settings_aitools_mcp_download">Download Greenshot-MCP for this version from the releases page and extract it next to Greenshot.exe:</resource>

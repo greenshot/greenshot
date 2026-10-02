@@ -999,6 +999,44 @@
                             </StackPanel>
                         </GroupBox>
 
+                        <!-- Programs the user didn't allow in this Greenshot run -->
+                        <GroupBox Header="{wpf:Translate settings_aitools_denied}"
+                                  Visibility="{Binding HasDeniedAiToolClients, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <StackPanel>
+                                <TextBlock Text="{wpf:Translate settings_aitools_denied_description}"
+                                           TextWrapping="Wrap" Margin="0,0,0,8" FontSize="11"
+                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                <ItemsControl ItemsSource="{Binding DeniedAiToolClients}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Style="{StaticResource EntryRowStyle}">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold"
+                                                                   Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                                        <TextBlock Text="{Binding Path}" FontSize="11" TextTrimming="CharacterEllipsis" ToolTip="{Binding Path}"
+                                                                   Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                                        <TextBlock Text="{Binding SignerText}" FontSize="11"
+                                                                   Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
+                                                        <Button Content="{wpf:Translate settings_aitools_denied_allow}" Padding="10,2" Margin="0,0,4,0"
+                                                                Click="AllowDeniedClient_Click"/>
+                                                        <Button Content="{wpf:Translate settings_aitools_denied_askagain}" Padding="10,2"
+                                                                Click="AskAgainDeniedClient_Click"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </GroupBox>
+
                         <GroupBox Header="{wpf:Translate settings_aitools_permissions}">
                             <StackPanel>
                                 <CheckBox IsChecked="{Binding CoreConfiguration.AiToolsAllowRecipeProposals, Mode=TwoWay}"

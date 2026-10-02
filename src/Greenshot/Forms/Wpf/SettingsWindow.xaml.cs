@@ -266,6 +266,16 @@ namespace Greenshot.Forms.Wpf
             }
         }
 
+        private void AllowDeniedClient_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.AllowDeniedClient((sender as FrameworkElement)?.DataContext as AiToolClientItem);
+        }
+
+        private void AskAgainDeniedClient_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.AskAgain((sender as FrameworkElement)?.DataContext as AiToolClientItem);
+        }
+
         private void RemoveExcludedProcess_Click(object sender, RoutedEventArgs e)
         {
             if ((sender as FrameworkElement)?.DataContext is string processName)

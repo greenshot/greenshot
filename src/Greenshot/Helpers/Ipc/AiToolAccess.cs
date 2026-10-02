@@ -60,7 +60,8 @@ namespace Greenshot.Helpers.Ipc
         /// <summary>
         /// The message for a rejected request
         /// </summary>
-        public const string NotAllowedMessage = "The user did not allow this program to use Greenshot. Allowed programs are managed in the Greenshot settings (AI tools).";
+        public const string NotAllowedMessage = "The user did not allow this program to use Greenshot. Greenshot doesn't ask again until it is restarted; " +
+                                                "the user can allow it in the Greenshot settings (AI tools tab), or click \"Ask again\" there.";
 
         /// <summary>
         /// The message for a request while AI tools are switched off
@@ -160,6 +161,33 @@ namespace Greenshot.Helpers.Ipc
         }
 
         /// <summary>
+        /// The programs the user didn't allow in this Greenshot run: they aren't asked again until Greenshot restarts or the
+        /// user clicks "Ask again" in the settings
+        /// </summary>
+        public static IReadOnlyList<string> GetDeniedClients()
+        {
+            lock (DeniedClients)
+            {
+                return DeniedClients.OrderBy(p => p, StringComparer.OrdinalIgnoreCase).ToList();
+            }
+        }
+
+        /// <summary>
+        /// Forget the "don't allow" of this program: the next request asks again (or passes, when it was allowed meanwhile)
+        /// </summary>
+        public static void ForgetDenied(string exePath)
+        {
+            if (string.IsNullOrEmpty(exePath))
+            {
+                return;
+            }
+            lock (DeniedClients)
+            {
+                DeniedClients.Remove(exePath);
+            }
+        }
+
+        /// <summary>
         /// Forget the "denied" answers of this Greenshot run (for tests).
         /// </summary>
         internal static void ResetDeniedClients()
@@ -218,6 +246,11 @@ namespace Greenshot.Helpers.Ipc
             UiDispatcher.Current.RunOnUiAsync(() => notificationService.ShowInfoMessage(message, TimeSpan.FromSeconds(5))).FireAndLog("AI tool capture notification", Log);
         }
 
+        /// <summary>
+        /// The buttons of the consent question only react after this time
+        /// </summary>
+        private static readonly TimeSpan ConsentArmDelay = TimeSpan.FromSeconds(1);
+
         private static Task<bool> ShowConsentPromptAsync(AiToolClient client, CancellationToken cancellationToken)
         {
             string signer = string.IsNullOrEmpty(client.Signer) ? "This program is not signed." : $"Signed by: {client.Signer}";
@@ -229,9 +262,18 @@ namespace Greenshot.Helpers.Ipc
                           $"Allow {client.DisplayName} to use Greenshot?";
             return UiDispatcher.Current.InvokeAsync(() =>
             {
-                // On top, so the question doesn't end up behind the AI tool's window
+                // On top, so the question doesn't end up behind the AI tool's window. It doesn't take the keyboard, has no
+                // default button, ignores Escape and its buttons only react after a moment: the user is probably typing in the
+                // AI tool, and a keystroke meant for it must not answer the question.
                 int choice = ThemedMessageBox.ShowChoice(null, "AI Tool Access", text, System.Windows.MessageBoxImage.Question,
-                    new[] { "Allow", "Don't Allow" }, defaultIndex: 1, cancelIndex: 1, onTop: true);
+                    new[] { "Allow", "Don't Allow" }, defaultIndex: -1, cancelIndex: -1, onTop: true, takeFocus: false, armDelay: ConsentArmDelay);
+                string answer = choice switch
+                {
+                    0 => "clicked \"Allow\"",
+                    1 => "clicked \"Don't Allow\"",
+                    _ => "closed the question without an answer"
+                };
+                Log.Info($"AI tool access for {client}: the user {answer}.");
                 return choice == 0;
             }, cancellationToken);
         }

@@ -154,6 +154,51 @@ namespace Greenshot.Tests.Ipc
         }
 
         [Fact]
+        public async Task DeniedClient_IsListed_AndAskedAgainAfterAskAgain()
+        {
+            int asked = 0;
+            await WithConsentAsync(new List<string>(), (client, cancellationToken) =>
+            {
+                asked++;
+                return Task.FromResult(false);
+            }, async config =>
+            {
+                await DispatchAsync("LIST_WINDOWS", TestClient);
+                Assert.Equal(new[] { TestClient.ExePath }, AiToolAccess.GetDeniedClients());
+
+                // "Ask again" in the settings
+                AiToolAccess.ForgetDenied(TestClient.ExePath);
+                Assert.Empty(AiToolAccess.GetDeniedClients());
+                await DispatchAsync("LIST_WINDOWS", TestClient);
+                Assert.Equal(2, asked);
+            });
+        }
+
+        [Fact]
+        public void HelperExecutable_IsNamedAfterItsApplication()
+        {
+            string root = Path.Combine(Path.GetTempPath(), "GreenshotTest-" + Guid.NewGuid().ToString("N"), "Antigravity");
+            string bin = Path.Combine(root, "resources", "bin");
+            Directory.CreateDirectory(bin);
+            try
+            {
+                string helper = Path.Combine(bin, "language_server.exe");
+                File.WriteAllBytes(helper, new byte[] { 0 });
+                Assert.Null(AiToolCaller.FindApplicationName(helper));
+
+                File.WriteAllBytes(Path.Combine(root, "Antigravity.exe"), new byte[] { 0 });
+                // No version information: the directory's name
+                Assert.Equal("Antigravity", AiToolCaller.FindApplicationName(helper));
+                Assert.Equal("Antigravity (language_server)", AiToolCaller.Describe(helper).DisplayName);
+                Assert.Equal(helper, AiToolCaller.Describe(helper).ExePath);
+            }
+            finally
+            {
+                Directory.Delete(Path.GetDirectoryName(root), true);
+            }
+        }
+
+        [Fact]
         public async Task UnidentifiedClient_IsRejected_WithoutAsking()
         {
             bool asked = false;

@@ -127,7 +127,11 @@ and warns when its version isn't Greenshot's. The excluded applications are edit
   (cmd.exe / PowerShell in between are skipped), identified by its executable path and verified Authenticode signer.
 * Each AI tool must be allowed by the user: the first request shows a question with the program's name, path and
   signer. Allowed programs are stored in `AiToolsAllowedClients` and can be removed in the settings (AI tools tab).
-  A "No" is remembered until Greenshot restarts.
+  A "No" (or closing the question) is remembered until Greenshot restarts; the AI tools tab lists those programs with
+  "Allow" and "Ask Again". The question stays on top but doesn't take the keyboard, has no default button, ignores
+  Escape, and its buttons only react after a second, so a keystroke meant for the AI tool can't answer it. The log says
+  how it was answered. A helper without a name of its own (Antigravity's `resources\bin\language_server.exe`) is shown
+  with its application's name, "Antigravity (language_server)"; the helper's path is what is allowed.
 * The other sources are checked the same way: only Greenshot.exe and greenshot.com (source `cli`) and
   greenshot-proxy.exe (`url_scheme`, `open_with`, `native_messaging`) from Greenshot's directory may connect, so other
   programs can't talk to the pipe directly. The pipe also refuses network logons.

@@ -39,6 +39,8 @@ namespace Greenshot.Base.Wpf
         private int _choice = -1;
         private readonly int _cancelIndex;
 
+        private readonly List<Button> _buttons = new List<Button>();
+
         private ThemedMessageBox(string caption, string text, MessageBoxImage icon, IReadOnlyList<string> buttons, int defaultIndex, int cancelIndex)
         {
             _cancelIndex = cancelIndex;
@@ -126,6 +128,7 @@ namespace Greenshot.Base.Wpf
                     Close();
                 };
                 buttonRow.Children.Add(button);
+                _buttons.Add(button);
                 if (isDefault)
                 {
                     Loaded += (s, e) => button.Focus();
@@ -150,19 +153,63 @@ namespace Greenshot.Base.Wpf
         }
 
         /// <summary>
+        /// The buttons only react after this time: a keystroke or click meant for another program can't answer the question
+        /// </summary>
+        private void ArmButtonsAfter(TimeSpan delay)
+        {
+            foreach (var button in _buttons)
+            {
+                button.IsEnabled = false;
+            }
+            var timer = new System.Windows.Threading.DispatcherTimer { Interval = delay };
+            timer.Tick += (s, e) =>
+            {
+                timer.Stop();
+                foreach (var button in _buttons)
+                {
+                    button.IsEnabled = true;
+                }
+            };
+            ContentRendered += (s, e) => timer.Start();
+            Closed += (s, e) => timer.Stop();
+        }
+
+        /// <summary>
         /// Shows the message with own button texts; returns the index of the chosen button, or cancelIndex when the box was closed.
         /// With onTop the box is shown over all windows, also those of other programs (for questions which come from outside).
         /// </summary>
-        public static int ShowChoice(Window owner, string caption, string text, MessageBoxImage icon, IReadOnlyList<string> buttons, int defaultIndex = 0, int cancelIndex = -1, bool onTop = false)
+        /// <param name="owner">The owner window, found when null</param>
+        /// <param name="caption">Caption</param>
+        /// <param name="text">The message</param>
+        /// <param name="icon">Icon</param>
+        /// <param name="buttons">The button texts</param>
+        /// <param name="defaultIndex">The button Enter presses, -1 for none</param>
+        /// <param name="cancelIndex">The button Escape presses and the result when the box is closed; -1: Escape does nothing</param>
+        /// <param name="onTop">Over all windows, also of other programs</param>
+        /// <param name="takeFocus">With onTop: false shows the box without taking the keyboard from the program the user types in</param>
+        /// <param name="armDelay">The buttons are disabled for this time after the box is shown</param>
+        public static int ShowChoice(Window owner, string caption, string text, MessageBoxImage icon, IReadOnlyList<string> buttons, int defaultIndex = 0, int cancelIndex = -1,
+            bool onTop = false, bool takeFocus = true, TimeSpan? armDelay = null)
         {
             var box = new ThemedMessageBox(caption, text, icon, buttons, defaultIndex, cancelIndex);
+            if (armDelay > TimeSpan.Zero)
+            {
+                box.ArmButtonsAfter(armDelay.Value);
+            }
             owner ??= onTop ? null : FindOwner();
             if (onTop)
             {
                 box.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                 box.Topmost = true;
                 box.ShowInTaskbar = true;
-                box.Loaded += (s, e) => box.Activate();
+                if (takeFocus)
+                {
+                    box.Loaded += (s, e) => box.Activate();
+                }
+                else
+                {
+                    box.ShowActivated = false;
+                }
             }
             else if (owner != null && owner.IsVisible)
             {
