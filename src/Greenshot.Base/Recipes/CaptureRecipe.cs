@@ -63,6 +63,12 @@ namespace Greenshot.Base.Recipes
         public RecipeFlowConfig Flow { get; set; } = new RecipeFlowConfig();
 
         /// <summary>
+        /// Values the user sets once in Settings > Recipes, read by the nodes with ${option.key}. See <see cref="RecipeOption"/>.
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty(NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public List<RecipeOption> Options { get; set; }
+
+        /// <summary>
         /// Whether this recipe should appear as an option in the systray context menu.
         /// </summary>
         public bool ShowInContextMenu { get; set; } = true;
@@ -131,6 +137,14 @@ namespace Greenshot.Base.Recipes
             }
             return this;
         }
+
+        public RecipeOption FindOption(string key)
+        {
+            return Options?.FirstOrDefault(o => o != null && string.Equals(o.Key, key, StringComparison.OrdinalIgnoreCase));
+        }
+
+        [Newtonsoft.Json.JsonIgnore]
+        public bool HasOptions => Options != null && Options.Any(o => o != null);
 
         public RecipeNodeConfig FindNode(string nodeId)
         {
@@ -221,7 +235,8 @@ namespace Greenshot.Base.Recipes
                 Concurrency = Concurrency,
                 Triggers = new List<TriggerConfig>(Triggers?.Count ?? 0),
                 Nodes = new List<RecipeNodeConfig>(Nodes?.Count ?? 0),
-                Flow = Flow?.Clone() ?? new RecipeFlowConfig()
+                Flow = Flow?.Clone() ?? new RecipeFlowConfig(),
+                Options = Options?.Select(o => o?.Clone()).ToList()
             };
 
             if (Triggers != null)

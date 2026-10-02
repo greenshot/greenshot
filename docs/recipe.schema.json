@@ -66,6 +66,13 @@
       "$ref": "#/definitions/RecipeFlowConfig",
       "description": "DAG workflow definition configuring entry points, transitions, conditional branches, and join merges."
     },
+    "options": {
+      "type": "array",
+      "description": "Values the user sets once in Settings > Recipes (switches also in the quick settings), read by nodes with ${option.key}. The values are stored in greenshot.ini, not in the recipe file.",
+      "items": {
+        "$ref": "#/definitions/RecipeOption"
+      }
+    },
     "concurrency": {
       "type": "string",
       "enum": [
@@ -78,6 +85,66 @@
     }
   },
   "definitions": {
+    "RecipeOption": {
+      "type": "object",
+      "description": "An option of the recipe, shown in Settings > Recipes.",
+      "required": [ "key", "type" ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+          "description": "Unique in the recipe, used as ${option.key}."
+        },
+        "type": {
+          "type": "string",
+          "enum": [ "Boolean", "Integer", "Decimal", "String", "Enum", "Color" ]
+        },
+        "default": {
+          "description": "The value until the user changes it. A Color is \"#RRGGBB\" or \"#AARRGGBB\"."
+        },
+        "label": {
+          "type": "string",
+          "description": "The text in the settings, the key when empty."
+        },
+        "description": {
+          "type": "string",
+          "description": "Shown as tooltip."
+        },
+        "min": {
+          "type": "number",
+          "description": "Smallest value (Integer, Decimal)."
+        },
+        "max": {
+          "type": "number",
+          "description": "Largest value (Integer, Decimal)."
+        },
+        "choices": {
+          "type": "array",
+          "description": "The values of an Enum option.",
+          "items": {
+            "type": "object",
+            "required": [ "value" ],
+            "properties": {
+              "value": { "type": "string" },
+              "label": { "type": "string", "description": "The text in the settings, the value when empty." }
+            }
+          }
+        },
+        "enabledWhen": {
+          "type": "string",
+          "description": "The key of a Boolean option: this option can only be changed while that one is on."
+        },
+        "quickSettings": {
+          "type": "boolean",
+          "default": false,
+          "description": "Also show the option in the quick settings of the tray menu (Boolean and Enum only)."
+        },
+        "format": {
+          "type": "string",
+          "description": "A hint how a String is meant, e.g. dateTime for a .NET date and time format."
+        }
+      }
+    },
     "RecipeFlowConfig": {
       "type": "object",
       "required": [
@@ -154,9 +221,12 @@
           "description": "Optional label for this node (defaults to stepType if omitted)."
         },
         "enabled": {
-          "type": "boolean",
+          "oneOf": [
+            { "type": "boolean" },
+            { "type": "string", "pattern": "\\$\\{" }
+          ],
           "default": true,
-          "description": "Whether this individual node is enabled in the flow."
+          "description": "Whether this node runs: true, false or an expression such as \"${option.border}\". A node which doesn't run passes the flow on to its next nodes."
         },
         "parameters": {
           "type": "object",

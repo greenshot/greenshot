@@ -27,6 +27,9 @@ using Greenshot.Base.Drawing;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
+using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 
 namespace Greenshot.Base.Recipes
 {
@@ -186,6 +189,9 @@ namespace Greenshot.Base.Recipes
                 var node = recipe.Nodes[i];
                 ValidateNode(node, i, nodeIds, result);
             }
+
+            // Validate the options and where the nodes use them
+            ValidateOptions(recipe, result);
 
             // Validate Flow Definition & DAG acyclicity
             ValidateFlowAndDetectCycles(recipe, nodeIds, result);
@@ -476,6 +482,140 @@ namespace Greenshot.Base.Recipes
             catch
             {
                 // DI not initialized; skip runtime check
+            }
+        }
+
+        private static readonly Regex ExpressionPattern = new Regex(@"\$\{([^}]*)\}", RegexOptions.Compiled);
+        private static readonly Regex OptionReferencePattern = new Regex(@"(?<![A-Za-z0-9_.])option\.([A-Za-z0-9_]+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+        /// <summary>
+        /// The keys of the options a text uses in its ${...} expressions
+        /// </summary>
+        public static IReadOnlyCollection<string> FindOptionReferences(string text)
+        {
+            var keys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            if (string.IsNullOrEmpty(text)) return keys;
+            foreach (Match expression in ExpressionPattern.Matches(text))
+            {
+                foreach (Match reference in OptionReferencePattern.Matches(expression.Groups[1].Value))
+                {
+                    keys.Add(reference.Groups[1].Value);
+                }
+            }
+            return keys;
+        }
+
+        private static void ValidateOptions(CaptureRecipe recipe, RecipeValidationResult result)
+        {
+            var options = new Dictionary<string, RecipeOption>(StringComparer.OrdinalIgnoreCase);
+            foreach (var option in recipe.Options ?? new List<RecipeOption>())
+            {
+                if (option == null)
+                {
+                    result.AddError("An option cannot be null.");
+                    continue;
+                }
+                if (string.IsNullOrWhiteSpace(option.Key) || !RecipeOption.KeyPattern.IsMatch(option.Key))
+                {
+                    result.AddError($"Option key '{option.Key}' is invalid: use letters, digits and underscores, starting with a letter.");
+                    continue;
+                }
+                if (options.ContainsKey(option.Key))
+                {
+                    result.AddError($"Duplicate option key '{option.Key}'.");
+                    continue;
+                }
+                options[option.Key] = option;
+
+                if (!RecipeOption.SupportedTypes.Contains(option.Type))
+                {
+                    result.AddError($"Option '{option.Key}' has type '{option.Type}', options can be {string.Join(", ", RecipeOption.SupportedTypes)}.");
+                    continue;
+                }
+                if (option.Type == ContractDataType.Enum)
+                {
+                    var values = option.Choices?.Where(c => c != null).Select(c => c.Value).ToList() ?? new List<string>();
+                    if (values.Count == 0 || values.Any(string.IsNullOrWhiteSpace))
+                    {
+                        result.AddError($"Option '{option.Key}' is an Enum and needs 'choices', each with a 'value'.");
+                    }
+                    else if (values.Distinct(StringComparer.OrdinalIgnoreCase).Count() != values.Count)
+                    {
+                        result.AddError($"Option '{option.Key}' has duplicate choices.");
+                    }
+                }
+                else if (option.Choices != null && option.Choices.Count > 0)
+                {
+                    result.AddWarning($"Option '{option.Key}': 'choices' are only used for Enum options.");
+                }
+                bool isNumber = option.Type == ContractDataType.Integer || option.Type == ContractDataType.Decimal;
+                if (!isNumber && (option.Min.HasValue || option.Max.HasValue))
+                {
+                    result.AddWarning($"Option '{option.Key}': 'min' and 'max' are only used for Integer and Decimal options.");
+                }
+                if (option.Min.HasValue && option.Max.HasValue && option.Min.Value > option.Max.Value)
+                {
+                    result.AddError($"Option '{option.Key}': 'min' ({option.Min}) is larger than 'max' ({option.Max}).");
+                }
+                if (option.DefaultValue != null && !option.TryConvert(option.DefaultValue, out _))
+                {
+                    result.AddError($"Option '{option.Key}': the default '{option.DefaultValue}' is not a valid {option.Type}.");
+                }
+                if (option.QuickSettings && !RecipeOption.QuickSettingsTypes.Contains(option.Type))
+                {
+                    result.AddError($"Option '{option.Key}' can't be shown in the quick settings, only Boolean and Enum options can.");
+                }
+            }
+
+            foreach (var option in options.Values.Where(o => !string.IsNullOrWhiteSpace(o.EnabledWhen)))
+            {
+                if (string.Equals(option.EnabledWhen, option.Key, StringComparison.OrdinalIgnoreCase) ||
+                    !options.TryGetValue(option.EnabledWhen, out var switchOption) || switchOption.Type != ContractDataType.Boolean)
+                {
+                    result.AddError($"Option '{option.Key}': 'enabledWhen' must be the key of another Boolean option of the recipe.");
+                }
+            }
+
+            foreach (var node in recipe.Nodes.Where(n => n != null))
+            {
+                if (!string.IsNullOrWhiteSpace(node.EnabledExpression) && node.EnabledExpression.IndexOf("${", StringComparison.Ordinal) < 0)
+                {
+                    result.AddError($"Node '{node.Id}': 'enabled' must be true, false or an expression like \"${{option.key}}\".");
+                }
+
+                string parameters = node.Parameters == null || node.Parameters.Count == 0 ? null : JsonConvert.SerializeObject(node.Parameters);
+                var parameterReferences = FindOptionReferences(parameters);
+                foreach (var key in parameterReferences.Concat(FindOptionReferences(node.EnabledExpression)).Distinct(StringComparer.OrdinalIgnoreCase))
+                {
+                    if (!options.ContainsKey(key))
+                    {
+                        result.AddError($"Node '{node.Id}' uses the option '{key}', which the recipe doesn't declare in 'options'.");
+                    }
+                }
+
+                // A text the user types must not end up in a command line, an upload address or a file path:
+                // a step which needs an approval may only use options whose values the approved recipe limits.
+                var textOptions = parameterReferences
+                    .Where(key => options.TryGetValue(key, out var option) && option.Type == ContractDataType.String)
+                    .ToList();
+                if (textOptions.Count > 0 && IsGatedNode(node))
+                {
+                    result.AddError($"Node '{node.Id}' needs an approval and can't use the text option(s) {string.Join(", ", textOptions.Select(k => $"'{k}'"))}.");
+                }
+            }
+        }
+
+        private static bool IsGatedNode(RecipeNodeConfig node)
+        {
+            try
+            {
+                return StepRegistry.Instance.CreateStep(node) is IRequiresRecipeAuthorization authStep &&
+                       (authStep.GetGatedActions()?.Any() ?? false);
+            }
+            catch
+            {
+                // Unresolvable step types are flagged by the schema check
+                return false;
             }
         }
 

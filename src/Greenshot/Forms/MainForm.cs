@@ -61,6 +61,7 @@ using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Forms;
 using Greenshot.Forms.Wpf;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
 using Greenshot.Helpers;
@@ -389,6 +390,8 @@ namespace Greenshot.Forms
             {
                 // Raised from file watchers and flows: always marshal to the UI thread
                 UiDispatcher.InvokeAsync(UpdateRecipesMenu).FireAndLog("Update recipes menu", Log);
+                // Recipes with options in the quick settings can come or go
+                UiDispatcher.InvokeAsync(InitializeQuickSettingsMenu).FireAndLog("Update quick settings", Log);
             };
 
             // The command line language was already applied in Start, right after greenshot.ini was read
@@ -1413,6 +1416,99 @@ namespace Greenshot.Forms
             {
                 selectList.CheckedChanged += QuickSettingBoolItemChanged;
                 contextmenu_quicksettings.DropDownItems.Add(selectList);
+            }
+
+            AddRecipeQuickSettings();
+        }
+
+        /// <summary>
+        /// At most this many recipe options in the "Automatic steps" block of the quick settings, the others are in Settings > Recipes ("More…")
+        /// </summary>
+        private const int MaxRecipeQuickSettings = 6;
+
+        /// <summary>
+        /// The options recipes offer in the quick settings ("quickSettings": true), in one "Automatic steps" block: a switch
+        /// is a checked item, a choice a submenu with one item per value, at most <see cref="MaxRecipeQuickSettings"/> of them,
+        /// and "More…" opens Settings > Recipes. The value is stored right away.
+        /// </summary>
+        private void AddRecipeQuickSettings()
+        {
+            List<(CaptureRecipe Recipe, RecipeOption Option)> options;
+            try
+            {
+                options = RecipeManager.Instance.GetAllRecipes()
+                    .Where(r => r?.Options != null)
+                    .OrderBy(r => r.Name, StringComparer.CurrentCultureIgnoreCase)
+                    .SelectMany(r => r.Options
+                        .Where(o => o != null && o.QuickSettings && (o.Type == ContractDataType.Boolean || (o.Type == ContractDataType.Enum && o.Choices != null)))
+                        .Select(o => (Recipe: r, Option: o)))
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Couldn't add the options of the recipes to the quick settings.", ex);
+                return;
+            }
+
+            if (options.Count == 0)
+            {
+                return;
+            }
+
+            contextmenu_quicksettings.DropDownItems.Add(new ToolStripSeparator());
+            contextmenu_quicksettings.DropDownItems.Add(new ToolStripMenuItem(Language.GetString("quicksettings_automaticsteps"))
+            {
+                Enabled = false
+            });
+
+            // The same label of two recipes gets the recipe name in front
+            var duplicateLabels = new HashSet<string>(options.GroupBy(o => o.Option.DisplayLabel, StringComparer.CurrentCultureIgnoreCase).Where(g => g.Count() > 1).Select(g => g.Key), StringComparer.CurrentCultureIgnoreCase);
+            if (options.Count > MaxRecipeQuickSettings)
+            {
+                Log.DebugFormat("{0} recipe options are marked for the quick settings, showing {1}.", options.Count, MaxRecipeQuickSettings);
+            }
+
+            foreach (var (recipe, option) in options.Take(MaxRecipeQuickSettings))
+            {
+                string label = duplicateLabels.Contains(option.DisplayLabel) ? $"{recipe.Name ?? recipe.Id}: {option.DisplayLabel}" : option.DisplayLabel;
+                var value = RecipeOptionStore.GetValue(recipe, option);
+                if (option.Type == ContractDataType.Boolean)
+                {
+                    var switchItem = new ToolStripMenuSelectListItem
+                    {
+                        Text = label,
+                        Checked = value is true,
+                        CheckOnClick = true,
+                        ToolTipText = option.Description
+                    };
+                    switchItem.CheckedChanged += (sender, args) => RecipeOptionStore.SetValue(recipe.Id, option, switchItem.Checked);
+                    contextmenu_quicksettings.DropDownItems.Add(switchItem);
+                    continue;
+                }
+
+                var choiceList = new ToolStripMenuSelectList($"recipe:{recipe.Id}:{option.Key}", false, this)
+                {
+                    Text = label
+                };
+                foreach (var choice in option.Choices.Where(c => c != null))
+                {
+                    bool isCurrent = string.Equals(choice.Value, value as string, StringComparison.OrdinalIgnoreCase);
+                    choiceList.AddItem(choice.DisplayLabel, (Action)(() => RecipeOptionStore.SetValue(recipe.Id, option, choice.Value)), isCurrent);
+                }
+                choiceList.CheckedChanged += QuickSettingRecipeChoiceChanged;
+                contextmenu_quicksettings.DropDownItems.Add(choiceList);
+            }
+
+            var moreItem = new ToolStripMenuItem(Language.GetString("quicksettings_automaticsteps_more"));
+            moreItem.Click += (sender, args) => ShowSetting(null, "recipes");
+            contextmenu_quicksettings.DropDownItems.Add(moreItem);
+        }
+        private static void QuickSettingRecipeChoiceChanged(object sender, EventArgs e)
+        {
+            var item = ((ItemCheckedChangedEventArgs) e).Item;
+            if (item.Checked && item.Data is Action select)
+            {
+                select();
             }
         }
 
