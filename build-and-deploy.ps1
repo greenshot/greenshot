@@ -63,6 +63,8 @@ if (-not (Test-Path $ArtifactsPath)) {
     New-Item -ItemType Directory -Force -Path $ArtifactsPath
 }
 Copy-Item "$RepoPath\installer\Greenshot-INSTALLER-*.exe" -Destination $ExeArtifactPath -Force
+$LightExeArtifactPath = "$ArtifactsPath\Greenshot-Light-INSTALLER-$Version-RELEASE.exe"
+Copy-Item "$RepoPath\installer\Greenshot-Light-INSTALLER-*.exe" -Destination $LightExeArtifactPath -Force
 if ($LASTEXITCODE -ne 0) {
     Write-Error "Failed to copy installer files."
     exit $LASTEXITCODE
@@ -137,7 +139,9 @@ Write-Host "Uploading .exe file to GitHub release..."
 
 $FilesToUpload = @(
     $ExeArtifactPath,
-    $ZipArtifactPath
+    $LightExeArtifactPath,
+    $ZipArtifactPath,
+    $LightZipArtifactPath
 )
 
 foreach ($file in $FilesToUpload) {

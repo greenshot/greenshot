@@ -16,7 +16,7 @@
     </AssemblyAttribute>
   </ItemGroup>
   <!--
-    Greenshot Light (/p:GreenshotEdition=Light): the basics only, for the Light portable download (there is no Light installer).
+    Greenshot Light (/p:GreenshotEdition=Light): the basics only, for the Light installer (setup-light.iss) and the Light portable version.
     GREENSHOT_LIGHT compiles out loading plugins, the AI tools (greenshot-mcp) and the browser extension. It is built next to the
     full version, in bin\$(Configuration)-Light, by the Release build of Greenshot-Installer.
   -->

@@ -85,6 +85,7 @@ jobs:
       run: |
         mkdir -p ${{ github.workspace }}/artifacts
         cp installer/Greenshot-INSTALLER-*.exe ${{ github.workspace }}/artifacts/
+        cp installer/Greenshot-Light-INSTALLER-*.exe ${{ github.workspace }}/artifacts/
     
     - name: Upload Installer Artifact
       uses: actions/upload-artifact@v4
@@ -100,7 +101,7 @@ jobs:
         path: src/Greenshot/bin/Release/net480/**
         if-no-files-found: error
 
-    # Greenshot Light, its own build of Greenshot.exe (see Greenshot.csproj), only as a portable version
+    # Greenshot Light, its own build of Greenshot.exe (see Greenshot.csproj), for the Light portable version (the Light installer is built from it in the build)
     - name: Upload light build artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -263,6 +264,7 @@ jobs:
           branch="${BRANCH_NAME:-${GITHUB_REF#refs/heads/}}"
           sanitized=$(echo "$branch" | sed 's/[^a-zA-Z0-9._-]/_/g')
           mv artifacts-installer/Greenshot-INSTALLER-*.exe "artifacts-installer/Greenshot-INSTALLER-${sanitized}.exe"
+          mv artifacts-installer/Greenshot-Light-INSTALLER-*.exe "artifacts-installer/Greenshot-Light-INSTALLER-${sanitized}.exe"
         shell: bash
 
       - name: Create GitHub Release
