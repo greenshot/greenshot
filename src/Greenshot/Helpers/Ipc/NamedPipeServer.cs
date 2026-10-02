@@ -42,6 +42,7 @@ namespace Greenshot.Helpers.Ipc
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(NamedPipeServer));
         private const int MaxPayloadSize = 64 * 1024 * 1024; // 64 MB cap per ADR 003
+        private const int OutBufferSize = 64 * 1024;
 
         /// <summary>
         /// The command which turns a connection into a watch connection: it stays open and gets the events
@@ -147,7 +148,8 @@ namespace Greenshot.Helpers.Ipc
                         PipeTransmissionMode.Byte,
                         PipeOptions.Asynchronous,
                         0,
-                        0,
+                        // Without an out buffer every write waits until the client reads it, e.g. the shutdown event to a busy client would hold up the exit
+                        OutBufferSize,
                         pipeSecurity);
 
                     await serverStream.WaitForConnectionAsync(cancellationToken).ConfigureAwait(false);
