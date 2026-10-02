@@ -24,6 +24,8 @@
     <DefineConstants>$(DefineConstants);GREENSHOT_LIGHT</DefineConstants>
     <OutputPath>bin\$(Configuration)-Light\</OutputPath>
     <IntermediateOutputPath>obj\$(Configuration)-Light\</IntermediateOutputPath>
+    <!-- The edition in the version info, so Explorer's file properties show it -->
+    <Product>Greenshot Light</Product>
   </PropertyGroup>
   <!-- The code Greenshot Light doesn't have: loading plugins, the AI tools (greenshot-mcp) and the browser extension, with their settings tabs -->
   <ItemGroup Condition="'$(GreenshotEdition)' == 'Light'">
