@@ -40,6 +40,40 @@
     <Page Remove="Forms\Wpf\AiToolsSettingsPage.xaml" />
     <Page Remove="Forms\Wpf\PluginsSettingsPage.xaml" />
   </ItemGroup>
+  <!--
+    Greenshot Light must not contain that code at all, not only leave it unused: the build fails when one of these types
+    (or members) is in the compiled Greenshot.exe. Names are looked up in the metadata string heap (UTF-8, zero terminated).
+  -->
+  <UsingTask TaskName="CheckLightAssembly" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <Assembly ParameterType="System.String" Required="true" />
+      <ForbiddenNames ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System" />
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Linq" />
+      <Using Namespace="System.Text" />
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+        byte[] content = File.ReadAllBytes(Assembly);
+        string latin = Encoding.GetEncoding("ISO-8859-1").GetString(content);
+        var found = ForbiddenNames.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
+            .Select(n => n.Trim())
+            .Where(n => latin.Contains("\0" + n + "\0"))
+            .ToList();
+        foreach (var name in found)
+        {
+            Log.LogError("Greenshot Light must not contain " + name + ", it is in " + Assembly);
+        }
+        ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+  <Target Name="CheckLightAssembly" AfterTargets="CoreCompile" Condition="'$(GreenshotEdition)' == 'Light'">
+    <CheckLightAssembly Assembly="@(IntermediateAssembly->'%(FullPath)')"
+                        ForbiddenNames="PluginHelper;LoadPluginsAsync;AiToolIpcHandler;AiRecipeIpcHandler;AiToolCaller;AiToolClient;AiToolAccess;AiToolCapture;AiWindowRefs;McpServerStatus;RegisterAiToolRecipes;ImportCaptureDecoder;BrowserContextTracker;ExtensionOriginPolicy;HandleImportCaptureAsync;AiToolsSettingsPage;PluginsSettingsPage" />
+  </Target>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
