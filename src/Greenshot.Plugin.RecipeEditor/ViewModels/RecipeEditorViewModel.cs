@@ -49,6 +49,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 {
                     LoadRecipeIntoCanvas(value);
                     MarkAsSaved();
+                    if (!_isRestoring)
+                    {
+                        ResetHistory();
+                    }
                     OnPropertyChanged(nameof(SelectedRecipe));
                     OnPropertyChanged(nameof(RecipeId));
                     OnPropertyChanged(nameof(RecipeTitle));
@@ -360,7 +364,157 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
             string current = GetCurrentContent();
             IsDirty = _savedContent == null || !string.Equals(current, _savedContent, StringComparison.Ordinal);
+            RecordHistory(current, force: false);
             UpdateApprovalNotice(force: false, current);
+        }
+
+        /// <summary>
+        /// A state of the recipe for undo and redo (memento): its content and where its steps were on the canvas
+        /// </summary>
+        private sealed class RecipeMemento
+        {
+            public string Content { get; set; }
+            public Dictionary<string, Point> Locations { get; set; }
+        }
+
+        private const int MaxHistory = 100;
+        private readonly List<RecipeMemento> _undoHistory = new List<RecipeMemento>();
+        private readonly Stack<RecipeMemento> _redoHistory = new Stack<RecipeMemento>();
+
+        /// <summary>
+        /// The state the history is at
+        /// </summary>
+        private RecipeMemento _currentMemento;
+
+        /// <summary>
+        /// A change seen at the last check, recorded once it stopped changing (typing and dragging become one step)
+        /// </summary>
+        private string _pendingContent;
+
+        private bool _isRestoring;
+
+        public bool CanUndo => _undoHistory.Count > 0 || (_currentMemento != null && _pendingContent != null);
+
+        public bool CanRedo => _redoHistory.Count > 0;
+
+        private RecipeMemento CreateMemento(string content) => new RecipeMemento
+        {
+            Content = content,
+            Locations = Nodes.Where(n => !string.IsNullOrEmpty(n.Id)).GroupBy(n => n.Id, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(g => g.Key, g => g.First().Location, StringComparer.OrdinalIgnoreCase)
+        };
+
+        private void ResetHistory()
+        {
+            _undoHistory.Clear();
+            _redoHistory.Clear();
+            _pendingContent = null;
+            _currentMemento = _activeRecipe == null ? null : CreateMemento(GetCurrentContent());
+            RaiseHistoryChanged();
+        }
+
+        /// <summary>
+        /// Records a changed recipe as a step of the history, once it stopped changing or when forced (before undo and redo)
+        /// </summary>
+        private void RecordHistory(string current, bool force)
+        {
+            if (_isRestoring || _currentMemento == null || current == null || string.Equals(current, _currentMemento.Content, StringComparison.Ordinal))
+            {
+                if (_pendingContent != null)
+                {
+                    _pendingContent = null;
+                    RaiseHistoryChanged();
+                }
+                return;
+            }
+            if (!force && !string.Equals(current, _pendingContent, StringComparison.Ordinal))
+            {
+                // Still changing: wait for the next check
+                bool wasPending = _pendingContent != null;
+                _pendingContent = current;
+                if (!wasPending)
+                {
+                    RaiseHistoryChanged();
+                }
+                return;
+            }
+            _undoHistory.Add(_currentMemento);
+            if (_undoHistory.Count > MaxHistory)
+            {
+                _undoHistory.RemoveAt(0);
+            }
+            _redoHistory.Clear();
+            _currentMemento = CreateMemento(current);
+            _pendingContent = null;
+            RaiseHistoryChanged();
+        }
+
+        private void RaiseHistoryChanged()
+        {
+            OnPropertyChanged(nameof(CanUndo));
+            OnPropertyChanged(nameof(CanRedo));
+            (UndoCommand as RelayCommand)?.RaiseCanExecuteChanged();
+            (RedoCommand as RelayCommand)?.RaiseCanExecuteChanged();
+        }
+
+        public void Undo()
+        {
+            if (_activeRecipe == null) return;
+            RecordHistory(GetCurrentContent(), force: true);
+            if (_undoHistory.Count == 0) return;
+            var target = _undoHistory[_undoHistory.Count - 1];
+            _undoHistory.RemoveAt(_undoHistory.Count - 1);
+            _redoHistory.Push(CreateMemento(_currentMemento.Content));
+            Restore(target);
+            StatusMessage = "Undone";
+        }
+
+        public void Redo()
+        {
+            if (_activeRecipe == null) return;
+            RecordHistory(GetCurrentContent(), force: true);
+            if (_redoHistory.Count == 0) return;
+            var target = _redoHistory.Pop();
+            _undoHistory.Add(CreateMemento(_currentMemento.Content));
+            Restore(target);
+            StatusMessage = "Redone";
+        }
+
+        /// <summary>
+        /// Puts a state of the history into the editor; the recipe keeps its file and what was saved
+        /// </summary>
+        private void Restore(RecipeMemento memento)
+        {
+            var previous = _activeRecipe;
+            var restored = RecipeSerializer.Deserialize(memento.Content, validate: false);
+            restored.FilePath = previous.FilePath;
+            restored.IsBuiltIn = previous.IsBuiltIn;
+            restored.IsOverridden = previous.IsOverridden;
+            restored.IsEnabled = previous.IsEnabled;
+            restored.ProposedBy = previous.ProposedBy;
+            string savedContent = _savedContent;
+            _isRestoring = true;
+            try
+            {
+                ActiveRecipe = restored;
+                foreach (var node in Nodes)
+                {
+                    if (!string.IsNullOrEmpty(node.Id) && memento.Locations.TryGetValue(node.Id, out var location))
+                    {
+                        node.Location = location;
+                    }
+                }
+            }
+            finally
+            {
+                _isRestoring = false;
+            }
+            _savedContent = savedContent;
+            // The restored content as the editor writes it, so it isn't recorded as a new change
+            _currentMemento = CreateMemento(GetCurrentContent());
+            _pendingContent = null;
+            RefreshUnsavedState();
+            RaiseHistoryChanged();
         }
 
         private void UpdateApprovalNotice(bool force, string current = null)
@@ -478,6 +632,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public ICommand OpenRecipeCommand { get; }
         public ICommand SaveRecipeCommand { get; }
         public ICommand SaveAsCommand { get; }
+        public ICommand UndoCommand { get; }
+        public ICommand RedoCommand { get; }
         public ICommand AutoLayoutCommand { get; }
         public ICommand TestRunCommand { get; }
         public ICommand DeleteSelectedCommand { get; }
@@ -509,6 +665,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OpenRecipeCommand = new RelayCommand(OpenRecipeDialog);
             SaveRecipeCommand = new RelayCommand(SaveRecipe);
             SaveAsCommand = new RelayCommand(SaveAsRecipe);
+            UndoCommand = new RelayCommand(Undo, () => CanUndo);
+            RedoCommand = new RelayCommand(Redo, () => CanRedo);
             AutoLayoutCommand = new RelayCommand(PerformAutoLayout);
             TestRunCommand = new RelayCommand(() => AsyncCommand.Run(ExecuteTestRunAsync, "Recipe test run"));
             DeleteSelectedCommand = new RelayCommand(DeleteSelected, () => SelectedNode != null || SelectedConnection != null);
@@ -1599,10 +1757,29 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     parsed.ProposedBy = previous.ProposedBy;
                 }
                 string savedContent = _savedContent;
-                ActiveRecipe = parsed;
+                RecordHistory(GetCurrentContent(), force: true);
+                var memento = _currentMemento;
+                var undo = _undoHistory.ToList();
+                _isRestoring = true;
+                try
+                {
+                    ActiveRecipe = parsed;
+                }
+                finally
+                {
+                    _isRestoring = false;
+                }
                 _savedContent = savedContent;
+                // Undo goes back to the recipe before the JSON was applied
+                if (memento != null)
+                {
+                    _undoHistory.Clear();
+                    _undoHistory.AddRange(undo);
+                    _currentMemento = memento;
+                }
                 IsJsonViewVisible = false;
                 RefreshUnsavedState();
+                RecordHistory(GetCurrentContent(), force: true);
                 StatusMessage = "Applied recipe JSON changes.";
             }
             catch (Exception ex)

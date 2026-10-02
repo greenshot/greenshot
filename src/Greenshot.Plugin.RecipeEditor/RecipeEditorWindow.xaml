@@ -28,6 +28,9 @@
         <KeyBinding Key="Delete" Command="{Binding DeleteSelectedCommand}"/>
         <KeyBinding Key="Back" Command="{Binding DeleteSelectedCommand}"/>
         <KeyBinding Key="S" Modifiers="Control" Command="{Binding SaveRecipeCommand}"/>
+        <KeyBinding Key="Z" Modifiers="Control" Command="{Binding UndoCommand}"/>
+        <KeyBinding Key="Y" Modifiers="Control" Command="{Binding RedoCommand}"/>
+        <KeyBinding Key="Z" Modifiers="Control+Shift" Command="{Binding RedoCommand}"/>
         <KeyBinding Key="O" Modifiers="Control" Command="{Binding OpenRecipeCommand}"/>
         <KeyBinding Key="N" Modifiers="Control" Command="{Binding NewRecipeCommand}"/>
         <KeyBinding Key="L" Modifiers="Control" Command="{Binding AutoLayoutCommand}"/>
@@ -837,6 +840,9 @@
                             <Button Content="Open..." Style="{StaticResource ToolbarBtn}" Command="{Binding OpenRecipeCommand}" ToolTip="Open recipe file from disk"/>
                             <Button Content="Save" Style="{StaticResource ToolbarBtn}" Command="{Binding SaveRecipeCommand}" ToolTip="Save current recipe"/>
                             <Button Content="Save As..." Style="{StaticResource ToolbarBtn}" Command="{Binding SaveAsCommand}" ToolTip="Save recipe to new file"/>
+                            <Separator Width="1" Background="{Binding CardBorderBrush}" Margin="6,2"/>
+                            <Button Content="↶ Undo" Style="{StaticResource ToolbarBtn}" Command="{Binding UndoCommand}" ToolTip="Undo the last change (Ctrl+Z)"/>
+                            <Button Content="↷ Redo" Style="{StaticResource ToolbarBtn}" Command="{Binding RedoCommand}" ToolTip="Redo the change (Ctrl+Y)"/>
                             <Separator Width="1" Background="{Binding CardBorderBrush}" Margin="6,2"/>
                             <Button Content="Auto-Layout" Style="{StaticResource ToolbarBtn}" Command="{Binding AutoLayoutCommand}" ToolTip="Auto-organize DAG layout"/>
                             <Button Content="{}{ } JSON" Style="{StaticResource ToolbarBtn}" Command="{Binding ToggleJsonViewCommand}" ToolTip="View / Edit Raw Recipe JSON"/>
