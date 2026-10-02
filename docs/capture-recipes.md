@@ -541,8 +541,8 @@ it does nothing itself. No slot, no extension; nothing is inferred.
 | `BeforeDestination` | Run by the export steps (Destinations and the pickers) once per destination, on its own copy of the capture |
 
 The built-in capture recipes (region, window, active window, full screen, last region, clipboard and the browser
-extension) have `AfterCapture`, `BeforeExport` and `AfterExport`, and so does a new recipe in the recipe editor. Opening
-a file, OCR and the AI tools have no slots.
+extension) have all four slots, and so does a new recipe in the recipe editor; their `BeforeDestination` slot sits right
+before the export, where it does nothing itself. Opening a file, OCR and the AI tools have no slots.
 
 ```json
 { "id": "before_export", "stepType": "Slot", "parameters": { "name": "BeforeExport", "accept": "all" } }

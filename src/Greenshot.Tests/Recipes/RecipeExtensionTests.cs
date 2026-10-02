@@ -50,7 +50,7 @@ namespace Greenshot.Tests.Recipes
         private static RecipeExtensionSettings AllOn(RecipeExtension extension) => new RecipeExtensionSettings();
 
         /// <summary>
-        /// source -> after_capture -> process -> before_export -> export -> after_export -> notify
+        /// source -> after_capture -> process -> before_export -> before_destination -> export -> after_export -> notify
         /// </summary>
         private static CaptureRecipe CreateCaptureRecipe(string id = "recipe_test_capture")
         {
@@ -92,7 +92,8 @@ namespace Greenshot.Tests.Recipes
             Assert.Equal(new[] { "after_capture" }, Targets(recipe, "source"));
             Assert.Equal(new[] { "process" }, Targets(recipe, "after_capture"));
             Assert.Equal(new[] { "before_export" }, Targets(recipe, "process"));
-            Assert.Equal(new[] { "export" }, Targets(recipe, "before_export"));
+            Assert.Equal(new[] { "before_destination" }, Targets(recipe, "before_export"));
+            Assert.Equal(new[] { "export" }, Targets(recipe, "before_destination"));
             Assert.Equal(new[] { "after_export" }, Targets(recipe, "export"));
             Assert.Equal(new[] { "notify" }, Targets(recipe, "after_export"));
             Assert.True(RecipeValidator.Validate(recipe).IsValid, RecipeValidator.Validate(recipe).ToString());
@@ -114,7 +115,7 @@ namespace Greenshot.Tests.Recipes
             Assert.Equal("ext_test_border", border.ContributedBy);
             Assert.Equal("${option.ext_test_border.width}", border.Parameters["Width"]);
             Assert.Equal(new[] { "ext_test_border/border" }, Targets(composed, "process"));
-            Assert.Equal(new[] { "export" }, Targets(composed, "ext_test_border/border"));
+            Assert.Equal(new[] { "before_destination" }, Targets(composed, "ext_test_border/border"));
             Assert.Equal(new[] { extension }, composed.AppliedExtensions);
             // The input is not changed, the other slots stay
             Assert.NotNull(recipe.FindNode("before_export"));
@@ -148,7 +149,7 @@ namespace Greenshot.Tests.Recipes
             Assert.Equal(new[] { "ext_a_early/border" }, Targets(composed, "process"));
             Assert.Equal(new[] { "ext_b_early/border" }, Targets(composed, "ext_a_early/border"));
             Assert.Equal(new[] { "ext_b_late/border" }, Targets(composed, "ext_b_early/border"));
-            Assert.Equal(new[] { "export" }, Targets(composed, "ext_b_late/border"));
+            Assert.Equal(new[] { "before_destination" }, Targets(composed, "ext_b_late/border"));
         }
 
         [Fact]
@@ -238,7 +239,7 @@ namespace Greenshot.Tests.Recipes
             Assert.Equal(WellKnownStepTypes.Conditional, when.StepType);
             Assert.Equal(new[] { "ext_test_border/when" }, Targets(composed, "process"));
             Assert.Contains(composed.Flow.ConditionalTransitions, ct => ct.From == "ext_test_border/when" && ct.Branch == "run" && ct.To == "ext_test_border/border");
-            Assert.Contains(composed.Flow.ConditionalTransitions, ct => ct.From == "ext_test_border/when" && ct.Branch == "skip" && ct.To == "export");
+            Assert.Contains(composed.Flow.ConditionalTransitions, ct => ct.From == "ext_test_border/when" && ct.Branch == "skip" && ct.To == "before_destination");
             Assert.Contains("option.ext_test_border.width", JsonConvert.SerializeObject(when.Parameters));
             Assert.True(RecipeValidator.Validate(composed).IsValid, RecipeValidator.Validate(composed).ToString());
         }
@@ -263,9 +264,9 @@ namespace Greenshot.Tests.Recipes
 
             var composed = RecipeComposer.Compose(CreateCaptureRecipe(), new[] { extension }, AllOn);
 
-            Assert.Contains(composed.Flow.ConditionalTransitions, ct => ct.From == "ext_test_branch/decide" && ct.Branch == "small" && ct.To == "export");
+            Assert.Contains(composed.Flow.ConditionalTransitions, ct => ct.From == "ext_test_branch/decide" && ct.Branch == "small" && ct.To == "before_destination");
             Assert.Contains(composed.Flow.ConditionalTransitions, ct => ct.From == "ext_test_branch/decide" && ct.Branch == "big" && ct.To == "ext_test_branch/border");
-            Assert.Equal(new[] { "export" }, Targets(composed, "ext_test_branch/border"));
+            Assert.Equal(new[] { "before_destination" }, Targets(composed, "ext_test_branch/border"));
             Assert.True(RecipeValidator.Validate(composed).IsValid, RecipeValidator.Validate(composed).ToString());
         }
 
@@ -273,7 +274,6 @@ namespace Greenshot.Tests.Recipes
         public void Compose_BeforeDestination_BecomesADestinationChain()
         {
             var recipe = CreateCaptureRecipe();
-            recipe.AddNode(RecipeStepConfig.CreateSlot("before_destination", RecipeSlots.BeforeDestination));
             var extension = CreateBorderExtension(slot: RecipeSlots.BeforeDestination);
 
             var composed = RecipeComposer.Compose(recipe, new[] { extension }, e => new RecipeExtensionSettings
@@ -327,10 +327,10 @@ namespace Greenshot.Tests.Recipes
             }
 
             var ran = await RunAsync("${payload.width > 5}");
-            Assert.Equal(new[] { "source", "after_capture", "process", "ext_test_border/when", "ext_test_border/border", "export", "after_export", "notify" }, ran);
+            Assert.Equal(new[] { "source", "after_capture", "process", "ext_test_border/when", "ext_test_border/border", "before_destination", "export", "after_export", "notify" }, ran);
 
             var skipped = await RunAsync("${payload.width > 500}");
-            Assert.Equal(new[] { "source", "after_capture", "process", "ext_test_border/when", "export", "after_export", "notify" }, skipped);
+            Assert.Equal(new[] { "source", "after_capture", "process", "ext_test_border/when", "before_destination", "export", "after_export", "notify" }, skipped);
         }
 
         [Fact]
@@ -447,7 +447,7 @@ namespace Greenshot.Tests.Recipes
             {
                 var recipe = manager.GetRecipeById(id);
                 Assert.NotNull(recipe);
-                foreach (var slot in new[] { RecipeSlots.AfterCapture, RecipeSlots.BeforeExport, RecipeSlots.AfterExport })
+                foreach (var slot in RecipeSlots.All)
                 {
                     Assert.Single(RecipeComposer.FindSlots(recipe, slot));
                 }
@@ -478,7 +478,7 @@ namespace Greenshot.Tests.Recipes
             Assert.Equal(new[] { "ext_border/border" }, Targets(composed, "ext_caption/text_top"));
             Assert.Equal(new[] { "ext_border/border" }, Targets(composed, "ext_caption/text_bottom"));
             Assert.Equal(new[] { "ext_dropshadow/shadow" }, Targets(composed, "ext_border/border"));
-            Assert.Equal(new[] { "export" }, Targets(composed, "ext_dropshadow/shadow"));
+            Assert.Equal(new[] { "before_destination" }, Targets(composed, "ext_dropshadow/shadow"));
             var validation2 = RecipeValidator.Validate(composed);
             Assert.True(validation2.IsValid, validation2.ToString());
         }
@@ -489,7 +489,6 @@ namespace Greenshot.Tests.Recipes
             // The real steps (Effect, Annotation, Conditional) on a real image, the chains as the export steps run them
             _ = CapturePipeline.Instance;
             var recipe = CreateCaptureRecipe("recipe_test_real_steps");
-            recipe.AddNode(RecipeStepConfig.CreateSlot("before_destination", RecipeSlots.BeforeDestination));
             var extensions = BuiltInExtensions.Create().Select(e =>
             {
                 e.Extends.Slot = RecipeSlots.BeforeDestination;

@@ -61,13 +61,15 @@ namespace Greenshot.Base.Recipes
 
         /// <summary>
         /// Adds the standard slots to a linear capture flow: AfterCapture before <paramref name="afterCaptureBefore"/>,
-        /// BeforeExport before <paramref name="exportNode"/> and AfterExport after it.
+        /// BeforeExport and BeforeDestination before <paramref name="exportNode"/> and AfterExport after it.
+        /// The BeforeDestination slot does nothing where it is: its extensions run in the export steps, per destination.
         /// </summary>
         public static void AddStandardSlots(CaptureRecipe recipe, string afterCaptureBefore, string exportNode)
         {
             if (recipe?.Flow == null) return;
             InsertBefore(recipe, CreateSlot("after_capture", RecipeSlots.AfterCapture), afterCaptureBefore);
             InsertBefore(recipe, CreateSlot("before_export", RecipeSlots.BeforeExport), exportNode);
+            InsertBefore(recipe, CreateSlot("before_destination", RecipeSlots.BeforeDestination), exportNode);
             InsertAfter(recipe, CreateSlot("after_export", RecipeSlots.AfterExport), exportNode);
         }
 

@@ -235,7 +235,7 @@ namespace Greenshot.Recipes
             // Read the disabled recipes once, not per recipe
             var disabled = GetDisabledRecipeIds();
 
-            // The capture recipes get the standard slots (AfterCapture, BeforeExport, AfterExport), so the extensions
+            // The capture recipes get the standard slots (AfterCapture, BeforeExport, BeforeDestination, AfterExport), so the extensions
             // (border, drop shadow, caption, ...) can add their steps; opening a file, OCR and the AI tools have none.
 
             // 1. Interactive Region Capture
