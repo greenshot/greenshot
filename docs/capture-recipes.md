@@ -55,7 +55,10 @@ editor renews the approval for the saved content without asking: triggers keep t
 (clipboard, schedule, command line, web pages, browser extension, AI tools), a new kind of permission, or the first
 replacement of a built-in recipe shows the approval window when you save. To change the triggers or permissions later,
 use "Permissions" in the recipe manager; "Details" shows what a recipe does, its approval and the changes against the
-built-in recipe it replaces. Recipes proposed by AI tools
+built-in recipe it replaces. The recipe editor works on a copy: changes reach Greenshot only when you save, the
+title shows "*" while there are unsaved changes, and closing the editor, switching the recipe, New and Open ask to save
+or discard them. A bar under the toolbar says what is pending: what saving will ask for, or that the file changed outside
+Greenshot or has triggers switched off by the approval. Recipes proposed by AI tools
 go through the same window, see [mcp-server.md](mcp-server.md#recipes-written-by-ai-tools).
 
 ---

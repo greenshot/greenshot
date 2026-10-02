@@ -93,6 +93,12 @@ namespace Greenshot.Base.Recipes
         RecipeValidationResult SaveRecipeToFile(CaptureRecipe recipe, string filePath);
 
         /// <summary>
+        /// What saving the recipe (as edited in the recipe editor) to the file would ask the user to decide, empty when the save
+        /// renews the approval without asking. See <see cref="SaveRecipeToFile"/>.
+        /// </summary>
+        IReadOnlyList<string> GetSaveDecisionReasons(CaptureRecipe recipe, string filePath);
+
+        /// <summary>
         /// What the recipe does in plain words, its approval and the changes against the built-in recipe it replaces; null for an unknown id
         /// </summary>
         RecipeDetails GetRecipeDetails(string recipeId);

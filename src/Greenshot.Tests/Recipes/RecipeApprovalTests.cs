@@ -292,6 +292,24 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
+        public void SaveDecisionReasons_TellTheEditorWhatSavingWillAsk()
+        {
+            // A changed copy of a built-in recipe replaces it when saved
+            var builtIn = RecipeManager.Instance.GetAllRecipes().First(r => r.IsBuiltIn && !r.IsOverridden);
+            var copy = builtIn.Clone();
+            copy.Description = "changed in the editor";
+            Assert.Contains(RecipeManager.Instance.GetSaveDecisionReasons(copy, null), r => r.Contains("built-in"));
+
+            // A new recipe started from the recipe list only: nothing to decide
+            var harmless = CreateRecipe("editor_harmless").AddTrigger(new TriggerConfig(TriggerConfig.TypeManual));
+            Assert.Empty(RecipeManager.Instance.GetSaveDecisionReasons(harmless, null));
+
+            // A new recipe which starts on its own when an image is copied
+            var risky = CreateRecipe("editor_risky").AddTrigger(TriggerConfig.CreateClipboard());
+            Assert.NotEmpty(RecipeManager.Instance.GetSaveDecisionReasons(risky, null));
+        }
+
+        [Fact]
         public void ProposedBy_IsNotSaved_AndIsCloned()
         {
             var recipe = CreateRecipe("proposed_by");

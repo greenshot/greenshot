@@ -14,6 +14,7 @@ using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
 using Greenshot.Base.Wpf;
 using Greenshot.Plugin.RecipeEditor.Layout;
+using log4net;
 using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
 using Greenshot.Base.Threading;
@@ -22,6 +23,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 {
     public class RecipeEditorViewModel : ViewModelBase
     {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(RecipeEditorViewModel));
         private readonly IRecipeManager _recipeManager;
         private CaptureRecipe _activeRecipe;
         private StepNodeViewModel _selectedNode;
@@ -46,6 +48,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 if (SetField(ref _activeRecipe, value))
                 {
                     LoadRecipeIntoCanvas(value);
+                    MarkAsSaved();
+                    OnPropertyChanged(nameof(SelectedRecipe));
                     OnPropertyChanged(nameof(RecipeId));
                     OnPropertyChanged(nameof(RecipeTitle));
                     OnPropertyChanged(nameof(RecipeDescription));
@@ -66,8 +70,20 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 if (_activeRecipe != null && _activeRecipe.IsEnabled != value)
                 {
+                    // Takes effect right away, it isn't an unsaved change of the recipe
+                    RefreshUnsavedState();
+                    bool hadChanges = IsDirty;
                     _activeRecipe.IsEnabled = value;
                     _recipeManager?.SetRecipeEnabled(_activeRecipe.Id, value);
+                    var registered = _recipeManager?.GetRecipeById(_activeRecipe.Id);
+                    if (registered != null)
+                    {
+                        _openedFromContent = RecipeSerializer.Serialize(registered);
+                    }
+                    if (!hadChanges)
+                    {
+                        MarkAsSaved();
+                    }
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(ActiveRecipeStatusText));
                     RefreshAvailableRecipes();
@@ -218,7 +234,216 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public bool IsDirty
         {
             get => _isDirty;
-            set => SetField(ref _isDirty, value);
+            set
+            {
+                if (SetField(ref _isDirty, value))
+                {
+                    OnPropertyChanged(nameof(WindowTitle));
+                    OnPropertyChanged(nameof(TitleRecipeText));
+                }
+            }
+        }
+
+        /// <summary>
+        /// The recipe as it was loaded or last saved (serialized), null for a recipe which was never saved. The editor works on a copy
+        /// of the registered recipe: changes reach Greenshot only by saving, with the approval that needs.
+        /// </summary>
+        private string _savedContent;
+
+        /// <summary>
+        /// The registered recipe the working copy was made from (serialized), to see whether it changed elsewhere
+        /// </summary>
+        private string _openedFromContent;
+
+        /// <summary>
+        /// The content the approval notice was made for
+        /// </summary>
+        private string _noticeContent;
+
+        private string _approvalNotice;
+
+        /// <summary>
+        /// What is pending for the current recipe: what saving it will ask, or that its file waits for approval. Null when nothing is pending.
+        /// </summary>
+        public string ApprovalNotice
+        {
+            get => _approvalNotice;
+            private set
+            {
+                if (SetField(ref _approvalNotice, value))
+                {
+                    OnPropertyChanged(nameof(HasApprovalNotice));
+                }
+            }
+        }
+
+        public bool HasApprovalNotice => !string.IsNullOrEmpty(_approvalNotice);
+
+        public string WindowTitle => _activeRecipe == null ? "Greenshot - Recipe Visual Editor" : $"{(IsDirty ? "* " : "")}{_activeRecipe.Name} - Greenshot Recipe Visual Editor";
+
+        public string TitleRecipeText => _activeRecipe == null ? "" : $"  ·  {_activeRecipe.Name}{(IsDirty ? "  (unsaved changes)" : "")}";
+
+        /// <summary>
+        /// The registered recipe selected in the recipe list; selecting another one asks what to do with unsaved changes
+        /// </summary>
+        public CaptureRecipe SelectedRecipe
+        {
+            get => _activeRecipe == null ? null : AvailableRecipes.FirstOrDefault(r => string.Equals(r.Id, _activeRecipe.Id, StringComparison.OrdinalIgnoreCase));
+            set
+            {
+                if (value == null || ReferenceEquals(value, SelectedRecipe))
+                {
+                    return;
+                }
+                if (!ConfirmDiscardChanges())
+                {
+                    // Back to the recipe which is still open, after the list finished its selection change
+                    _ = Application.Current?.Dispatcher.BeginInvoke(new Action(() => OnPropertyChanged(nameof(SelectedRecipe))));
+                    return;
+                }
+                OpenWorkingCopy(value);
+            }
+        }
+
+        /// <summary>
+        /// Opens a copy of a registered recipe for editing
+        /// </summary>
+        private void OpenWorkingCopy(CaptureRecipe registered)
+        {
+            if (registered != null && _activeRecipe != null && ReferenceEquals(registered, _activeRecipe))
+            {
+                return;
+            }
+            var copy = registered?.Clone();
+            _openedFromContent = registered == null ? null : RecipeSerializer.Serialize(registered);
+            ActiveRecipe = copy;
+            // Opening the same id again: the setter only reloads for another object, which a copy always is
+        }
+
+        /// <summary>
+        /// The recipe as it would be saved now
+        /// </summary>
+        private string GetCurrentContent()
+        {
+            if (_activeRecipe == null)
+            {
+                return null;
+            }
+            SyncRecipeTransitions();
+            _activeRecipe.Triggers = Triggers.Select(t => t.Config).ToList();
+            return RecipeSerializer.Serialize(_activeRecipe);
+        }
+
+        /// <summary>
+        /// The current state is the saved one
+        /// </summary>
+        private void MarkAsSaved()
+        {
+            _savedContent = GetCurrentContent();
+            IsDirty = false;
+            OnPropertyChanged(nameof(WindowTitle));
+            OnPropertyChanged(nameof(TitleRecipeText));
+            UpdateApprovalNotice(force: true);
+        }
+
+        /// <summary>
+        /// Compares the recipe with the saved state, shows whether there are unsaved changes and what is pending for its approval.
+        /// Called regularly by the editor window, as steps and triggers change their configuration directly.
+        /// </summary>
+        public void RefreshUnsavedState()
+        {
+            if (_activeRecipe == null)
+            {
+                IsDirty = false;
+                ApprovalNotice = null;
+                return;
+            }
+            string current = GetCurrentContent();
+            IsDirty = _savedContent == null || !string.Equals(current, _savedContent, StringComparison.Ordinal);
+            UpdateApprovalNotice(force: false, current);
+        }
+
+        private void UpdateApprovalNotice(bool force, string current = null)
+        {
+            if (_recipeManager == null || _activeRecipe == null)
+            {
+                ApprovalNotice = null;
+                return;
+            }
+            current ??= GetCurrentContent();
+            if (!force && string.Equals(current, _noticeContent, StringComparison.Ordinal))
+            {
+                return;
+            }
+            _noticeContent = current;
+            try
+            {
+                ApprovalNotice = IsDirty ? DescribeSaveDecision() : DescribePendingApproval();
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Could not check the approval of the recipe in the editor.", ex);
+                ApprovalNotice = null;
+            }
+        }
+
+        private string DescribeSaveDecision()
+        {
+            var reasons = _recipeManager.GetSaveDecisionReasons(_activeRecipe, _activeRecipe.FilePath);
+            return reasons.Count == 0 ? null : "Saving asks for your approval: " + string.Join(" ", reasons.Select(r => r.TrimEnd('.') + "."));
+        }
+
+        private string DescribePendingApproval()
+        {
+            var registered = _recipeManager.GetRecipeById(_activeRecipe.Id);
+            if (registered == null)
+            {
+                return null;
+            }
+            if (!string.IsNullOrEmpty(registered.FilePath) && File.Exists(registered.FilePath))
+            {
+                var details = _recipeManager.GetRecipeDetails(registered.Id);
+                if (details != null && !details.IsApprovalCurrent)
+                {
+                    return details.ApprovedHash == null
+                        ? "This recipe file isn't approved yet. Greenshot asks for your approval before it runs."
+                        : "This recipe file changed outside Greenshot. Greenshot asks for your approval before it runs.";
+                }
+            }
+            int switchedOff = registered.Triggers?.Count(t => t != null && t.Enabled && !t.IsApproved) ?? 0;
+            if (switchedOff > 0)
+            {
+                return switchedOff == 1
+                    ? "1 trigger is off because it wasn't approved. Use Permissions in the recipe manager to switch it on."
+                    : $"{switchedOff} triggers are off because they weren't approved. Use Permissions in the recipe manager to switch them on.";
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Asks what to do with unsaved changes: save them, discard them, or cancel. True when the editor can go on (saved or discarded).
+        /// </summary>
+        public bool ConfirmDiscardChanges()
+        {
+            RefreshUnsavedState();
+            if (!IsDirty || _activeRecipe == null)
+            {
+                return true;
+            }
+            var answer = MessageBox.Show($"\"{_activeRecipe.Name}\" has unsaved changes. Do you want to save them?\n\nYes saves, No discards the changes.",
+                "Unsaved Changes", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning);
+            switch (answer)
+            {
+                case MessageBoxResult.Yes:
+                    return TrySaveRecipe();
+                case MessageBoxResult.No:
+                    // The changes were only made on the copy, the registered recipe is unchanged
+                    _savedContent = GetCurrentContent();
+                    IsDirty = false;
+                    return true;
+                default:
+                    return false;
+            }
         }
 
         public string RawJsonText
@@ -314,10 +539,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
             if (_recipeManager != null)
             {
-                _recipeManager.RecipesChanged += (s, e) =>
-                {
-                    UiDispatcher.Current.InvokeAsync(RefreshAvailableRecipes).FireAndLog("Refresh the available recipes");
-                };
+                _recipeManager.RecipesChanged += OnRecipesChanged;
             }
 
             DisconnectConnectorCommand = new RelayCommand(p =>
@@ -404,6 +626,22 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
         }
 
+        private void OnRecipesChanged(object sender, EventArgs e)
+        {
+            UiDispatcher.Current.InvokeAsync(RefreshAvailableRecipes).FireAndLog("Refresh the available recipes");
+        }
+
+        /// <summary>
+        /// The editor window closed: stop following the recipe manager
+        /// </summary>
+        public void Detach()
+        {
+            if (_recipeManager != null)
+            {
+                _recipeManager.RecipesChanged -= OnRecipesChanged;
+            }
+        }
+
         public void RefreshAvailableRecipes()
         {
             string currentId = ActiveRecipe?.Id;
@@ -414,22 +652,34 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 AvailableRecipes.Add(r);
             }
 
+            RefreshUnsavedState();
             if (!string.IsNullOrEmpty(currentId))
             {
                 var match = AvailableRecipes.FirstOrDefault(r => string.Equals(r.Id, currentId, StringComparison.OrdinalIgnoreCase));
-                if (match != null)
+                if (IsDirty)
                 {
-                    ActiveRecipe = match;
+                    // Unsaved changes stay in the editor, also when the recipe changed or was removed elsewhere
                 }
-                else if (AvailableRecipes.Count > 0)
+                else if (match != null)
                 {
-                    ActiveRecipe = AvailableRecipes[0];
+                    // Show the registered recipe when it changed elsewhere (reset, approval, another save)
+                    if (!string.Equals(RecipeSerializer.Serialize(match), _openedFromContent, StringComparison.Ordinal))
+                    {
+                        OpenWorkingCopy(match);
+                    }
+                }
+                else if (_savedContent != null && AvailableRecipes.Count > 0)
+                {
+                    OpenWorkingCopy(AvailableRecipes[0]);
                 }
             }
             else if (ActiveRecipe == null && AvailableRecipes.Count > 0)
             {
-                ActiveRecipe = AvailableRecipes[0];
+                OpenWorkingCopy(AvailableRecipes[0]);
             }
+
+            OnPropertyChanged(nameof(SelectedRecipe));
+            UpdateApprovalNotice(force: true);
 
             OnPropertyChanged(nameof(IsActiveRecipeEnabled));
             OnPropertyChanged(nameof(ActiveRecipeStatusText));
@@ -441,10 +691,15 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public void SelectRecipeById(string recipeId)
         {
             if (string.IsNullOrWhiteSpace(recipeId)) return;
-            var found = AvailableRecipes.FirstOrDefault(r => string.Equals(r.Id, recipeId, StringComparison.OrdinalIgnoreCase));
-            if (found != null)
+            if (string.Equals(ActiveRecipe?.Id, recipeId, StringComparison.OrdinalIgnoreCase))
             {
-                ActiveRecipe = found;
+                // Already open, with its changes
+                return;
+            }
+            var found = AvailableRecipes.FirstOrDefault(r => string.Equals(r.Id, recipeId, StringComparison.OrdinalIgnoreCase));
+            if (found != null && ConfirmDiscardChanges())
+            {
+                OpenWorkingCopy(found);
             }
         }
 
@@ -1035,6 +1290,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         public void NewRecipe()
         {
+            if (!ConfirmDiscardChanges()) return;
             var recipe = new CaptureRecipe(
                 $"recipe_{Guid.NewGuid().ToString("N").Substring(0, 6)}",
                 "New Custom Workflow",
@@ -1048,7 +1304,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 .AddTransition("feedback", "export");
 
             ErrorTransitions.Clear();
+            _openedFromContent = null;
             ActiveRecipe = recipe;
+            // Never saved: unsaved until it is
+            _savedContent = null;
             IsDirty = true;
             StatusMessage = "Created new recipe.";
         }
@@ -1083,16 +1342,24 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public void UnloadActiveRecipe()
         {
             if (!CanUnloadActiveRecipe || ActiveRecipe == null) return;
+            RefreshUnsavedState();
 
             string title = ActiveRecipe.IsOverridden ? "Reset Recipe to Default" : "Unload Recipe";
             string msg = ActiveRecipe.IsOverridden
                 ? $"Revert '{ActiveRecipe.Name}' to default built-in definition?"
                 : $"Unload '{ActiveRecipe.Name}' from Greenshot?";
 
+            if (IsDirty)
+            {
+                msg += "\n\nYour unsaved changes are discarded.";
+            }
             if (MessageBox.Show(msg, title, MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
             {
                 return;
             }
+            // Discarded: what Greenshot has after this is shown
+            _savedContent = GetCurrentContent();
+            IsDirty = false;
 
             string recipeId = ActiveRecipe.Id;
             if (ActiveRecipe.IsOverridden)
@@ -1104,16 +1371,12 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 _recipeManager?.UnregisterRecipe(recipeId);
             }
 
+            // Shows the built-in recipe after a reset, or the first recipe after an unload
+            _openedFromContent = null;
             RefreshAvailableRecipes();
-            if (AvailableRecipes.Count > 0)
+            if (AvailableRecipes.Count == 0)
             {
-                var target = AvailableRecipes.FirstOrDefault(r => string.Equals(r.Id, recipeId, StringComparison.OrdinalIgnoreCase))
-                             ?? AvailableRecipes[0];
-                ActiveRecipe = target;
-            }
-            else
-            {
-                ActiveRecipe = null;
+                OpenWorkingCopy(null);
             }
 
             StatusMessage = $"Unloaded recipe '{recipeId}'.";
@@ -1127,7 +1390,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 Title = "Open Greenshot Recipe"
             };
 
-            if (dlg.ShowDialog() == true)
+            if (dlg.ShowDialog() == true && ConfirmDiscardChanges())
             {
                 try
                 {
@@ -1147,7 +1410,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                                               ?? AvailableRecipes.LastOrDefault();
                             if (newlyLoaded != null)
                             {
-                                ActiveRecipe = newlyLoaded;
+                                OpenWorkingCopy(newlyLoaded);
                             }
                             StatusMessage = $"Loaded and registered: {Path.GetFileName(dlg.FileName)}";
                         }
@@ -1177,27 +1440,32 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
         }
 
-        public void SaveRecipe()
+        public void SaveRecipe() => TrySaveRecipe();
+
+        /// <summary>
+        /// Saves the recipe, to a new file when it has none. False when it wasn't saved.
+        /// </summary>
+        public bool TrySaveRecipe()
         {
-            if (ActiveRecipe == null) return;
+            if (ActiveRecipe == null) return false;
             SyncRecipeTransitions();
             SyncTriggersToRecipe();
 
             if (string.IsNullOrEmpty(ActiveRecipe.FilePath))
             {
-                SaveAsRecipe();
-                return;
+                return TrySaveAsRecipe();
             }
 
             try
             {
-                if (!SaveActiveRecipeTo(ActiveRecipe.FilePath)) return;
-                IsDirty = false;
+                if (!SaveActiveRecipeTo(ActiveRecipe.FilePath)) return false;
                 StatusMessage = $"Saved recipe to {Path.GetFileName(ActiveRecipe.FilePath)}";
+                return true;
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Failed to save recipe:\n{ex.Message}", "Error Saving Recipe", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
             }
         }
 
@@ -1210,21 +1478,39 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             if (_recipeManager == null)
             {
                 RecipeSerializer.SaveToFile(ActiveRecipe, filePath);
+                ActiveRecipe.FilePath = filePath;
+                MarkAsSaved();
                 return true;
             }
-            var result = _recipeManager.SaveRecipeToFile(ActiveRecipe, filePath);
+            // The manager registers what it saves: give it a copy, the editor keeps working on its own
+            var saved = ActiveRecipe.Clone();
+            var result = _recipeManager.SaveRecipeToFile(saved, filePath);
             if (!result.IsValid)
             {
                 MessageBox.Show(string.Join("\n", result.Errors), "Recipe Not Saved", MessageBoxButton.OK, MessageBoxImage.Warning);
                 StatusMessage = "The recipe was not saved.";
                 return false;
             }
+            ActiveRecipe.FilePath = saved.FilePath;
+            ActiveRecipe.IsBuiltIn = saved.IsBuiltIn;
+            ActiveRecipe.IsOverridden = saved.IsOverridden;
+            ActiveRecipe.ProposedBy = saved.ProposedBy;
+            _openedFromContent = RecipeSerializer.Serialize(saved);
+            MarkAsSaved();
+            OnPropertyChanged(nameof(CanUnloadActiveRecipe));
+            OnPropertyChanged(nameof(UnloadActiveRecipeText));
+            OnPropertyChanged(nameof(UnloadActiveRecipeToolTip));
             return true;
         }
 
-        public void SaveAsRecipe()
+        public void SaveAsRecipe() => TrySaveAsRecipe();
+
+        /// <summary>
+        /// Saves the recipe to a file the user picks. False when it wasn't saved.
+        /// </summary>
+        public bool TrySaveAsRecipe()
         {
-            if (ActiveRecipe == null) return;
+            if (ActiveRecipe == null) return false;
             SyncRecipeTransitions();
             SyncTriggersToRecipe();
 
@@ -1239,15 +1525,16 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 try
                 {
-                    if (!SaveActiveRecipeTo(dlg.FileName)) return;
-                    IsDirty = false;
+                    if (!SaveActiveRecipeTo(dlg.FileName)) return false;
                     StatusMessage = $"Saved recipe to {Path.GetFileName(dlg.FileName)}";
+                    return true;
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show($"Failed to save recipe:\n{ex.Message}", "Error Saving Recipe", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
+            return false;
         }
 
         public async Task ExecuteTestRunAsync()
@@ -1301,9 +1588,21 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             try
             {
                 var parsed = RecipeSerializer.Deserialize(RawJsonText);
+                // The same recipe, changed: it keeps its file and what was saved
+                var previous = ActiveRecipe;
+                if (previous != null)
+                {
+                    parsed.FilePath = previous.FilePath;
+                    parsed.IsBuiltIn = previous.IsBuiltIn;
+                    parsed.IsOverridden = previous.IsOverridden;
+                    parsed.IsEnabled = previous.IsEnabled;
+                    parsed.ProposedBy = previous.ProposedBy;
+                }
+                string savedContent = _savedContent;
                 ActiveRecipe = parsed;
+                _savedContent = savedContent;
                 IsJsonViewVisible = false;
-                IsDirty = true;
+                RefreshUnsavedState();
                 StatusMessage = "Applied recipe JSON changes.";
             }
             catch (Exception ex)

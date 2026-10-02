@@ -631,11 +631,7 @@ namespace Greenshot.Recipes
             RecipeApproval approval = null;
             if (validation.IsValid)
             {
-                var record = RecipeTrustStore.GetTrustRecord(fullPath);
-                var previousApproval = record?.GetApproval(recipe.Id);
-                string approvedContent = GetApprovedContent(record, fullPath);
-                var approvedVersion = RecipeEditApproval.FindRecipe(approvedContent, recipe.Id);
-                approval = RecipeEditApproval.Create(recipe, validation, approvedVersion, previousApproval, GetBuiltInRecipe(recipe.Id) != null, out var decision);
+                approval = CreateEditApproval(recipe, fullPath, validation, out var decision, out string approvedContent);
                 if (decision.IsNeeded)
                 {
                     Log.InfoFormat("The change of recipe '{0}' needs the user's decision: {1}", recipe.Id, string.Join(" ", decision.Reasons));
@@ -696,6 +692,34 @@ namespace Greenshot.Recipes
                 foreach (var error in validation.Errors) result.AddWarning(error);
             }
             return result;
+        }
+
+        public IReadOnlyList<string> GetSaveDecisionReasons(CaptureRecipe recipe, string filePath)
+        {
+            if (recipe == null)
+            {
+                return Array.Empty<string>();
+            }
+            var validation = RecipeValidator.Validate(recipe);
+            if (!validation.IsValid)
+            {
+                return Array.Empty<string>();
+            }
+            string fullPath = string.IsNullOrWhiteSpace(filePath) ? null : Path.GetFullPath(filePath);
+            CreateEditApproval(recipe, fullPath, validation, out var decision, out _);
+            return decision.Reasons;
+        }
+
+        /// <summary>
+        /// The approval of a recipe saved in the recipe editor, and what the user has to decide about it
+        /// </summary>
+        private RecipeApproval CreateEditApproval(CaptureRecipe recipe, string fullPath, RecipeValidationResult validation, out RecipeEditDecision decision, out string approvedContent)
+        {
+            var record = fullPath == null ? null : RecipeTrustStore.GetTrustRecord(fullPath);
+            var previousApproval = record?.GetApproval(recipe.Id);
+            approvedContent = GetApprovedContent(record, fullPath);
+            var approvedVersion = RecipeEditApproval.FindRecipe(approvedContent, recipe.Id);
+            return RecipeEditApproval.Create(recipe, validation, approvedVersion, previousApproval, GetBuiltInRecipe(recipe.Id) != null, out decision);
         }
 
         /// <summary>
