@@ -64,6 +64,11 @@ namespace Greenshot.Plugin.RecipeEditor
                     new Nodify.Interactivity.MouseGesture(MouseAction.MiddleClick),
                     new Nodify.Interactivity.MouseGesture(MouseAction.LeftClick, Key.Space)
                 );
+                // Mouse wheel as in other Windows apps: scroll up/down, Shift scrolls sideways, Ctrl zooms
+                gestures.Editor.PanWithMouseWheel = true;
+                gestures.Editor.PanVerticalModifierKey = ModifierKeys.None;
+                gestures.Editor.PanHorizontalModifierKey = ModifierKeys.Shift;
+                gestures.Editor.ZoomModifierKey = ModifierKeys.Control;
                 EditorCanvas.InputGestures = gestures;
             }
             catch
