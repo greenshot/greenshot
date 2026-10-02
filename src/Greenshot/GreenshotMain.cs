@@ -32,6 +32,7 @@ using Dapplo.Ini.Parsing;
 using Dapplo.Windows.Input.Keyboard;
 using Dapplo.Windows.Messages;
 using Greenshot.Base.Core;
+using Greenshot.Base.Recipes;
 using Greenshot.Configuration;
 using Greenshot.Editor.Configuration;
 using Greenshot.Forms;
@@ -148,6 +149,7 @@ public class GreenshotMain
                .RegisterSection<ICoreConfiguration>(new CoreConfigurationImpl())
                .RegisterSection<IEditorConfiguration>(new EditorConfigurationImpl())
                .RegisterSection<IWin10Configuration>(new Win10ConfigurationImpl())
+               .RegisterSection<IRecipeOptionsConfiguration>(new RecipeOptionsConfigurationImpl())
                // Plugins register their sections after the file was read, they are filled from the retained file content.
                // This also keeps the sections of plugins which are not loaded (excluded or uninstalled) when saving.
                .AllowLateSectionRegistration()

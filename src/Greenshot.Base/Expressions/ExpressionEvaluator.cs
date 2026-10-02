@@ -510,6 +510,14 @@ namespace Greenshot.Base.Expressions
                 return ResolveConfigProperty(key);
             }
 
+            // Recipe options: the values the user set in Settings > Recipes, e.g. option.border_width.
+            // Checked before the context, so a value set for one run (trigger, command line) can't replace them.
+            if (token.StartsWith("option.", StringComparison.OrdinalIgnoreCase))
+            {
+                string key = token.Substring(7);
+                return Recipes.RecipeOptionStore.TryGetValue(context?.Recipe, key, out var optionValue) ? optionValue : null;
+            }
+
             // 4. Flow Context Properties & Custom Variables
             // e.g. context.watermark_text, context.WindowTitle
             if (token.StartsWith("context.", StringComparison.OrdinalIgnoreCase))

@@ -19,32 +19,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Greenshot.Base.Pipeline.Contracts
+namespace Greenshot.Base.Recipes
 {
     /// <summary>
-    /// Type system used to disclose expected and produced data types for step parameters and flow variables.
+    /// Handwritten partial class that pairs with the Dapplo.Ini-generated
+    /// <c>RecipeOptionsConfigurationImpl.g.cs</c> to provide the concrete implementation
+    /// of <see cref="IRecipeOptionsConfiguration"/>.
     /// </summary>
-    public enum ContractDataType
+    public partial class RecipeOptionsConfigurationImpl : IRecipeOptionsConfiguration
     {
-        String,
-        Integer,
-        Decimal,
-        Boolean,
-        FilePath,
-        DirectoryPath,
-        Enum,
-        Object,
-        /// <summary>
-        /// A window: AI tools pass a window reference from list_windows, it is resolved to the window (only for AI tool triggers)
-        /// </summary>
-        Window,
-        /// <summary>
-        /// A screen region "x,y,width,height" in screen coordinates
-        /// </summary>
-        Region,
-        /// <summary>
-        /// A color as "#RRGGBB" or "#AARRGGBB" (recipe options)
-        /// </summary>
-        Color
     }
 }

@@ -305,6 +305,8 @@ namespace Greenshot.Forms.Wpf
             
             _viewModel.CoreConfiguration.OutputDestinations = destinations;
 
+            _viewModel.SaveRecipeOptions();
+
 #if !GREENSHOT_LIGHT
             _viewModel.SaveAiToolSettings();
 #endif
@@ -347,6 +349,27 @@ namespace Greenshot.Forms.Wpf
             
             // Force save of all configuration sections
             IniConfigRegistry.Get()?.Save();
+        }
+
+        /// <summary>
+        /// The swatch of a color option of a recipe: pick the color with the editor's color picker
+        /// </summary>
+        private void RecipeOptionColor_Click(object sender, RoutedEventArgs e)
+        {
+            if (!((sender as FrameworkElement)?.DataContext is RecipeOptionItem item))
+            {
+                return;
+            }
+
+            var colorWindow = new Greenshot.Editor.Forms.ColorPickerWindow
+            {
+                Owner = this,
+                SelectedColor = RecipeOptionColors.Parse(item.TextValue)
+            };
+            if (colorWindow.ShowDialog() == true)
+            {
+                item.Value = RecipeOptionColors.Format(colorWindow.SelectedColor);
+            }
         }
 
         private void HotkeyDisplayControl_EditRequested(object sender, EventArgs e)

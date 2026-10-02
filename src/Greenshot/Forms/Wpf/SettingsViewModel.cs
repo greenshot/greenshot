@@ -81,6 +81,9 @@ namespace Greenshot.Forms.Wpf
             // Initialize destinations
             InitializeDestinations();
             
+            // The options of the recipes (Greenshot Light: those of the built-in recipes)
+            InitializeRecipeOptions();
+
 #if !GREENSHOT_LIGHT
             // Plugins and AI tools: Greenshot Light has neither
             InitializePlugins();

@@ -222,6 +222,10 @@ namespace Greenshot.Recipes
                 {
                     text += " (disabled)";
                 }
+                else if (!string.IsNullOrWhiteSpace(node.EnabledExpression))
+                {
+                    text += $" (only when {node.EnabledExpression})";
+                }
                 lines.Add(new RecipeDescriptionLine(text, mainRisk));
                 foreach (var action in gatedActions)
                 {

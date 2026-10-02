@@ -61,6 +61,7 @@ using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Forms;
 using Greenshot.Forms.Wpf;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
 using Greenshot.Helpers;
@@ -389,6 +390,8 @@ namespace Greenshot.Forms
             {
                 // Raised from file watchers and flows: always marshal to the UI thread
                 UiDispatcher.InvokeAsync(UpdateRecipesMenu).FireAndLog("Update recipes menu", Log);
+                // Recipes with options in the quick settings can come or go
+                UiDispatcher.InvokeAsync(InitializeQuickSettingsMenu).FireAndLog("Update quick settings", Log);
             };
 
             // The command line language was already applied in Start, right after greenshot.ini was read
@@ -1413,6 +1416,74 @@ namespace Greenshot.Forms
             {
                 selectList.CheckedChanged += QuickSettingBoolItemChanged;
                 contextmenu_quicksettings.DropDownItems.Add(selectList);
+            }
+
+            AddRecipeQuickSettings();
+        }
+
+        /// <summary>
+        /// The options recipes offer in the quick settings ("quickSettings": true), one submenu per recipe:
+        /// a switch is a checked item, a choice a submenu with one item per value. The value is stored right away.
+        /// </summary>
+        private void AddRecipeQuickSettings()
+        {
+            List<CaptureRecipe> recipes;
+            try
+            {
+                recipes = RecipeManager.Instance.GetAllRecipes()
+                    .Where(r => r?.Options != null && r.Options.Any(o => o != null && o.QuickSettings))
+                    .OrderBy(r => r.Name, StringComparer.CurrentCultureIgnoreCase)
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Couldn't add the options of the recipes to the quick settings.", ex);
+                return;
+            }
+
+            foreach (var recipe in recipes)
+            {
+                var recipeList = new ToolStripMenuSelectList("recipe:" + recipe.Id, true, this)
+                {
+                    Text = recipe.Name ?? recipe.Id
+                };
+                foreach (var option in recipe.Options.Where(o => o != null && o.QuickSettings))
+                {
+                    var value = RecipeOptionStore.GetValue(recipe, option);
+                    if (option.Type == ContractDataType.Boolean)
+                    {
+                        recipeList.AddItem(option.DisplayLabel, (Action<bool>)(on => RecipeOptionStore.SetValue(recipe.Id, option, on)), value is true);
+                    }
+                    else if (option.Type == ContractDataType.Enum && option.Choices != null)
+                    {
+                        var choiceList = new ToolStripMenuSelectList($"recipe:{recipe.Id}:{option.Key}", false, this)
+                        {
+                            Text = option.DisplayLabel
+                        };
+                        foreach (var choice in option.Choices.Where(c => c != null))
+                        {
+                            bool isCurrent = string.Equals(choice.Value, value as string, StringComparison.OrdinalIgnoreCase);
+                            choiceList.AddItem(choice.DisplayLabel, (Action)(() => RecipeOptionStore.SetValue(recipe.Id, option, choice.Value)), isCurrent);
+                        }
+                        choiceList.CheckedChanged += QuickSettingRecipeChoiceChanged;
+                        recipeList.DropDownItems.Add(choiceList);
+                    }
+                }
+
+                if (recipeList.DropDownItems.Count > 0)
+                {
+                    recipeList.CheckedChanged += QuickSettingBoolItemChanged;
+                    contextmenu_quicksettings.DropDownItems.Add(recipeList);
+                }
+            }
+        }
+
+        private static void QuickSettingRecipeChoiceChanged(object sender, EventArgs e)
+        {
+            var item = ((ItemCheckedChangedEventArgs) e).Item;
+            if (item.Checked && item.Data is Action select)
+            {
+                select();
             }
         }
 

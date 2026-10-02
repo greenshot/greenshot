@@ -473,6 +473,37 @@ Greenshot resolves every parameter using a strict **three-tier precedence model*
 2. **Priority 2 (Node Parameter Pre-definition)**: Hardcoded parameter or expression defined on the node in the recipe JSON.
 3. **Priority 3 (Dynamic Evaluation)**: Parameter omitted or `null` in JSON → dynamically evaluates live setting from `greenshot.ini` (`CoreConfig`).
 
+### Recipe Options (`options`)
+A recipe can offer settings the user sets once, for example whether a border is added and how wide it is. They are
+declared in the recipe and shown by Greenshot in Settings > Recipes, one group per recipe; switches and choices can
+also go to the quick settings of the tray menu. The recipe file only holds the definition: the values the user picks are
+stored in `greenshot.ini` (section `[RecipeOptions]`, as `<recipe id>.<option key>`, only when they differ from the
+default). Changing a value therefore doesn't change the file and doesn't ask for a new approval.
+
+```json
+"options": [
+  { "key": "border", "type": "Boolean", "default": false, "label": "Add a border", "quickSettings": true },
+  { "key": "width", "type": "Integer", "default": 2, "min": 1, "max": 50, "label": "Width (px)", "enabledWhen": "border" },
+  { "key": "color", "type": "Color", "default": "#000000", "label": "Color", "enabledWhen": "border" }
+],
+"nodes": [
+  { "id": "frame", "stepType": "Effect", "enabled": "${option.border}",
+    "parameters": { "effect": "Border", "width": "${option.width}", "color": "${option.color}" } }
+]
+```
+
+- **Types**: `Boolean`, `Integer` and `Decimal` (with `min` and `max`), `String`, `Enum` (with `choices`, each a `value`
+  and an optional `label`) and `Color` (`#RRGGBB` or `#AARRGGBB`). Only `Boolean` and `Enum` can be in the quick settings.
+- **`enabledWhen`**: the key of a `Boolean` option; this option can only be changed while that one is on.
+- **Reading a value**: `${option.key}` in any parameter. Only the user sets these values: a value for one run (trigger,
+  command line, AI tools) can't replace them.
+- **Switching a step**: a node's `enabled` can be an expression, e.g. `"${option.border}"`. A node which doesn't run
+  passes the flow on to its next nodes.
+- **Checks**: options are checked when the recipe loads (valid keys and types, defaults which fit, no undeclared
+  `${option...}`). A `String` option can't be used by a step which needs an approval (external commands, uploads, files),
+  so a typed text never ends up in a command line, an upload address or a file path.
+- **Greenshot Light** has no recipe files; it shows only the options of its built-in recipes.
+
 ---
 
 ## 6. Complete Recipe Examples

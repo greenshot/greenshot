@@ -86,6 +86,23 @@ namespace Greenshot.Pipeline
         }
 
         /// <summary>
+        /// Whether the node runs: a disabled node, or one whose enabled expression is false, is passed through to its next nodes
+        /// </summary>
+        private static bool IsNodeRunning(RecipeNodeConfig node, CaptureFlowContext context)
+        {
+            try
+            {
+                if (node.ShouldRun(context)) return true;
+            }
+            catch (Exception ex)
+            {
+                Log.Warn($"The enabled expression '{node.EnabledExpression}' of node '{node.Id}' failed, the node is skipped.", ex);
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Checks what the step's contract requires before the step runs: required parameters (set, or with a default)
         /// and required input variables. A missing one fails the node with a clear message.
         /// </summary>
@@ -318,8 +335,8 @@ namespace Greenshot.Pipeline
                     return;
                 }
 
-                // Check node enabled state
-                if (nodeConfig.Enabled)
+                // Check node enabled state, also its enabled expression (e.g. switched by a recipe option)
+                if (IsNodeRunning(nodeConfig, nodeContext))
                 {
                     try
                     {
@@ -466,7 +483,9 @@ namespace Greenshot.Pipeline
                 }
                 else
                 {
-                    nodeContext.LogStep($"Skipping disabled node: [{nodeConfig.Id}] {nodeConfig.Name}");
+                    nodeContext.LogStep(string.IsNullOrWhiteSpace(nodeConfig.EnabledExpression)
+                        ? $"Skipping disabled node: [{nodeConfig.Id}] {nodeConfig.Name}"
+                        : $"Skipping node: [{nodeConfig.Id}] {nodeConfig.Name}, '{nodeConfig.EnabledExpression}' is not true");
                 }
 
                 completedNodes[nodeId] = true;

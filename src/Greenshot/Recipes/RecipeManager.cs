@@ -472,8 +472,22 @@ namespace Greenshot.Recipes
             _recipes[recipe.Id] = recipe;
         }
 
+#if GREENSHOT_LIGHT
+        /// <summary>
+        /// Greenshot Light has only the built-in recipes: no recipe files are loaded, imported or saved
+        /// </summary>
+        private static bool RecipeFilesSupported => false;
+#else
+        private static bool RecipeFilesSupported => true;
+#endif
+
         public void LoadConfiguredRecipeFiles()
         {
+            if (!RecipeFilesSupported)
+            {
+                return;
+            }
+
             if (!RecipeConfigHelper.IsRecipeFeatureEnabled())
             {
                 Log.Debug("Recipe feature is disabled. Skipping external recipe file loading.");
@@ -620,6 +634,11 @@ namespace Greenshot.Recipes
         public RecipeValidationResult SaveRecipeToFile(CaptureRecipe recipe, string filePath)
         {
             var result = new RecipeValidationResult();
+            if (!RecipeFilesSupported)
+            {
+                result.AddError("Greenshot Light doesn't save recipe files.");
+                return result;
+            }
             if (recipe == null || string.IsNullOrWhiteSpace(filePath))
             {
                 result.AddError("No recipe or file to save to.");
@@ -771,6 +790,11 @@ namespace Greenshot.Recipes
         public RecipeValidationResult LoadRecipeFromFile(string filePath, bool interactiveApproval, bool forceApprovalPrompt)
         {
             var overallResult = new RecipeValidationResult();
+            if (!RecipeFilesSupported)
+            {
+                overallResult.AddError("Greenshot Light doesn't load recipe files.");
+                return overallResult;
+            }
             if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
             {
                 overallResult.AddError($"File not found: {filePath}");
