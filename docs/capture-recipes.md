@@ -493,7 +493,9 @@ default). Changing a value therefore doesn't change the file and doesn't ask for
 ```
 
 - **Types**: `Boolean`, `Integer` and `Decimal` (with `min` and `max`), `String`, `Enum` (with `choices`, each a `value`
-  and an optional `label`) and `Color` (`#RRGGBB` or `#AARRGGBB`). Only `Boolean` and `Enum` can be in the quick settings.
+  and an optional `label`) and `Color` (`#RRGGBB` or `#AARRGGBB`). Only `Boolean` and `Enum` can be in the quick settings:
+  they appear in the tray menu's quick settings under "Automatic steps", a switch as a checked item and a choice as a
+  submenu, at most six of them; "More…" opens Settings > Recipes.
 - **`enabledWhen`**: the key of a `Boolean` option; this option can only be changed while that one is on.
 - **Reading a value**: `${option.key}` in any parameter. Only the user sets these values: a value for one run (trigger,
   command line, AI tools) can't replace them.
