@@ -466,19 +466,17 @@ namespace Greenshot.Tests.Recipes
                 var validation = RecipeValidator.Validate(extension);
                 Assert.True(validation.IsValid, $"{extension.Id}: {validation}");
                 Assert.True(extension.IsBuiltIn);
-                Assert.Equal(RecipeSlots.BeforeExport, extension.SlotName);
+                Assert.Equal(RecipeSlots.BeforeDestination, extension.SlotName);
                 Assert.False(extension.EnabledOption.GetDefaultValue() is true);
                 Assert.True(extension.EnabledOption.QuickSettings);
             }
 
+            // They run per destination, in their order; the flow itself is not changed
             var region = new RecipeManager().GetRecipeById(RecipeManager.RecipeIdRegion);
             var composed = RecipeComposer.Compose(region, extensions, AllOn);
             Assert.Equal(new[] { BuiltInExtensions.CaptionId, BuiltInExtensions.BorderId, BuiltInExtensions.DropShadowId }, composed.AppliedExtensions.Select(e => e.Id));
-            Assert.Equal(new[] { "ext_caption/position" }, Targets(composed, "scan_post"));
-            Assert.Equal(new[] { "ext_border/border" }, Targets(composed, "ext_caption/text_top"));
-            Assert.Equal(new[] { "ext_border/border" }, Targets(composed, "ext_caption/text_bottom"));
-            Assert.Equal(new[] { "ext_dropshadow/shadow" }, Targets(composed, "ext_border/border"));
-            Assert.Equal(new[] { "before_destination" }, Targets(composed, "ext_dropshadow/shadow"));
+            Assert.Equal(new[] { BuiltInExtensions.CaptionId, BuiltInExtensions.BorderId, BuiltInExtensions.DropShadowId }, composed.DestinationChains.Select(c => c.Extension.Id));
+            Assert.Equal(region.Nodes.Select(n => n.Id), composed.Nodes.Select(n => n.Id));
             var validation2 = RecipeValidator.Validate(composed);
             Assert.True(validation2.IsValid, validation2.ToString());
         }
@@ -489,12 +487,7 @@ namespace Greenshot.Tests.Recipes
             // The real steps (Effect, Annotation, Conditional) on a real image, the chains as the export steps run them
             _ = CapturePipeline.Instance;
             var recipe = CreateCaptureRecipe("recipe_test_real_steps");
-            var extensions = BuiltInExtensions.Create().Select(e =>
-            {
-                e.Extends.Slot = RecipeSlots.BeforeDestination;
-                return e;
-            }).ToList();
-            var composed = RecipeComposer.Compose(recipe, extensions, AllOn);
+            var composed = RecipeComposer.Compose(recipe, BuiltInExtensions.Create(), AllOn);
             Assert.Equal(3, composed.DestinationChains.Count);
 
             using var bmp = new Bitmap(100, 50);
@@ -518,6 +511,29 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
+        public async Task DestinationChains_ChangeACopy_NotTheCapture()
+        {
+            _ = CapturePipeline.Instance;
+            var composed = RecipeComposer.Compose(CreateCaptureRecipe("recipe_test_copy"), BuiltInExtensions.Create(), e => new RecipeExtensionSettings
+            {
+                Enabled = e.Id == BuiltInExtensions.BorderId,
+                OnlyDestinations = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "EMail" }
+            });
+
+            using var bmp = new Bitmap(100, 50);
+            using var context = new CaptureFlowContext(composed) { Payload = new CapturePayload(new Capture((Image)bmp.Clone())) };
+            Assert.Empty(DestinationDispatcher.ChainsFor(context, "Clipboard"));
+            var chains = DestinationDispatcher.ChainsFor(context, "EMail");
+            Assert.Equal(BuiltInExtensions.BorderId, Assert.Single(chains).Extension.Id);
+
+            var copy = await DestinationDispatcher.RunChainsOnCopyAsync(context, chains, "the test", default);
+
+            Assert.NotNull(copy);
+            Assert.Equal(new Size(104, 54), copy.Payload.EnsureSurface().Image.Size);
+            Assert.Equal(new Size(100, 50), context.Payload.EnsureSurface().Image.Size);
+        }
+
+        [Fact]
         public void BuiltInExtensions_DontChangeTheRecipesUntilSwitchedOn()
         {
             var manager = new RecipeManager();
@@ -536,7 +552,7 @@ namespace Greenshot.Tests.Recipes
                 RecipeOptionStore.SetValue(border.Id, border.EnabledOption, true);
                 var effective = manager.GetEffectiveRecipe(region);
                 Assert.NotSame(region, effective);
-                Assert.NotNull(effective.FindNode("ext_border/border"));
+                Assert.Equal(BuiltInExtensions.BorderId, Assert.Single(effective.DestinationChains).Extension.Id);
                 Assert.Equal(new[] { BuiltInExtensions.BorderId }, manager.GetExtensionsChanging(RecipeManager.RecipeIdRegion).Select(e => e.Id));
 
                 RecipeOptionStore.SetValue(border.Id, RecipeExtension.ExceptRecipesOption, RecipeManager.RecipeIdRegion);

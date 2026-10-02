@@ -26,8 +26,9 @@ using Greenshot.Base.Recipes;
 namespace Greenshot.Recipes
 {
     /// <summary>
-    /// The extensions Greenshot brings (also Greenshot Light): border, drop shadow and caption, before the export of every
-    /// capture, all switched off until the user switches them on (Settings > Recipes or the quick settings).
+    /// The extensions Greenshot brings (also Greenshot Light): border, drop shadow and caption on every capture, all switched
+    /// off until the user switches them on (Settings > Recipes or the quick settings). They run per destination
+    /// (BeforeDestination), so the user can pick the destinations they are for, e.g. a border only for email.
     /// Built only from existing steps; the texts are language keys.
     /// </summary>
     public static class BuiltInExtensions
@@ -53,7 +54,7 @@ namespace Greenshot.Recipes
                 Extends = new ExtensionTarget
                 {
                     Recipes = new List<string> { RecipeExtension.TargetCaptures },
-                    Slot = RecipeSlots.BeforeExport,
+                    Slot = RecipeSlots.BeforeDestination,
                     Order = order
                 }
             };
