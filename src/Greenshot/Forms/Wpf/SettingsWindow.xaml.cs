@@ -85,6 +85,12 @@ namespace Greenshot.Forms.Wpf
             ThemeManager.Instance.PropertyChanged += themeHandler;
             Closed += (s, e) => ThemeManager.Instance.PropertyChanged -= themeHandler;
 
+#if GREENSHOT_LIGHT
+            // Greenshot Light has no plugins and no AI tools
+            SettingsTabControl.Items.Remove(PluginsTabItem);
+            SettingsTabControl.Items.Remove(AiToolsTabItem);
+#endif
+
             // Lazy plugin configuration: only select/load first plugin if the user navigates to the Plugins tab
             SettingsTabControl.SelectionChanged += (s, e) =>
             {

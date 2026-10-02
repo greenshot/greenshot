@@ -860,7 +860,7 @@
             </TabItem>
             
             <!-- AI tools Tab (greenshot-mcp): an opt-in, shown for beta testers -->
-            <TabItem Header="{wpf:Translate settings_aitools}"
+            <TabItem x:Name="AiToolsTabItem" Header="{wpf:Translate settings_aitools}"
                      Visibility="{Binding CoreConfiguration.IsBetaTester, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <TabItem.Resources>
                     <!-- A small round "x" to remove an entry -->

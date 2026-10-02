@@ -100,6 +100,14 @@ jobs:
         path: src/Greenshot/bin/Release/net480/**
         if-no-files-found: error
 
+    # Greenshot Light, its own build of Greenshot.exe (see Greenshot.csproj), only as a portable version
+    - name: Upload light build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: artifacts-greenshot-light-build
+        path: src/Greenshot/bin/Release-Light/net480/**
+        if-no-files-found: error
+
   pre_deploy:
     # Prepare for deployment
     # Determine version and release tag name
@@ -165,6 +173,12 @@ jobs:
           name: artifacts-greenshot-build
           path: artifacts-greenshot-build
 
+      - name: Download light build artifacts
+        uses: actions/download-artifact@v5
+        with:
+          name: artifacts-greenshot-light-build
+          path: artifacts-greenshot-light-build
+
       - name: Prepare portable folder
         run: |
           $buildArtifacts = "${{ github.workspace }}/artifacts-greenshot-build"
@@ -174,7 +188,7 @@ jobs:
 
       - name: Prepare light portable folder
         run: |
-          $buildArtifacts = "${{ github.workspace }}/artifacts-greenshot-build"
+          $buildArtifacts = "${{ github.workspace }}/artifacts-greenshot-light-build"
           $portableDir = "${{ github.workspace }}/portable-light"
           pwsh -File "${{ github.workspace }}/prepare-portable.ps1" -RepositoryRootPath ${{ github.workspace }} -BuildArtifactsPath $buildArtifacts -OutputPath $portableDir -Light
         shell: pwsh

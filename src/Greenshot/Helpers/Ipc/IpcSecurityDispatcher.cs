@@ -331,6 +331,15 @@ namespace Greenshot.Helpers.Ipc
             {
                 return false;
             }
+#if GREENSHOT_LIGHT
+            // Greenshot Light has no AI tools and no browser extension: greenshot-mcp and the browser extension get nothing
+            if (AiToolCommands.Contains(command) ||
+                string.Equals(source, IpcSources.Mcp, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(source, IpcSources.NativeMessaging, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+#endif
             // AI tool commands only for greenshot-mcp.exe: not for the command line, a web page or the browser extension
             if (AiToolCommands.Contains(command) && !string.Equals(source, IpcSources.Mcp, StringComparison.OrdinalIgnoreCase))
             {

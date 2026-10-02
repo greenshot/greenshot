@@ -366,8 +366,10 @@ namespace Greenshot.Forms
             SimpleServiceProvider.Current.AddService(notifyIcon);
 
             // Load all the plugins, their configuration sections are filled from the already loaded greenshot.ini
-            // The plugins start in parallel, the main window doesn't wait for them
+            // The plugins start in parallel, the main window doesn't wait for them. Greenshot Light has no plugins.
+#if !GREENSHOT_LIGHT
             PluginHelper.Instance.LoadPluginsAsync().FireAndLog("Start the plugins", Log);
+#endif
 
             EditorInitialize.Initialize();
             // JIT-compiling the editor and loading the emoji font takes seconds, do it in the background instead of when the first editor opens

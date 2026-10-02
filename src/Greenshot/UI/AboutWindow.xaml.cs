@@ -37,6 +37,7 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using Greenshot.Base.Core;
 using Greenshot.Configuration;
+using Greenshot.Helpers;
 using log4net;
 using Lang = Greenshot.Base.Core.Language;
 using Path = System.Windows.Shapes.Path;
@@ -131,7 +132,7 @@ namespace Greenshot.UI
             var version = EnvironmentInfo.GetGreenshotVersion();
             var versionWithBuild = EnvironmentInfo.GetGreenshotVersion(true);
 
-            AppVersionTitle = $"Greenshot {version}";
+            AppVersionTitle = $"{GreenshotEdition.ProductName} {version}";
             BitnessText = $"{OsInfo.Bits}-bit";
 
             WebsiteUrl = $"https://getgreenshot.org/?version={versionWithBuild}";

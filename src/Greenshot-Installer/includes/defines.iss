@@ -7,7 +7,10 @@
 #define GreenshotProjectDir "..\Greenshot"
 #define LanguagesDir "..\Greenshot\Languages"
 #define BinDir "bin\Release\net480"
-#define ReleaseDir "..\Greenshot\bin\Release\net480"
+; Greenshot Light (setup-light.iss) installs its own build of Greenshot.exe, see Greenshot.csproj
+#ifndef ReleaseDir
+  #define ReleaseDir "..\Greenshot\bin\Release\net480"
+#endif
 #define PluginDir "..\Greenshot\bin\Release\net480\Plugins"
 #define CertumThumbprint GetEnv('CertumThumbprint')
 #define DefaultInstallFlags "overwritereadonly ignoreversion"

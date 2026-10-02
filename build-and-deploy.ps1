@@ -12,6 +12,8 @@ $ReleaseToken = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([Syste
 # Variables
 $RepoPath = "."  # Replace with your local repo path
 $BuildArtifactsPath = "$RepoPath\src\Greenshot\bin\Release\net480"
+# Greenshot Light is its own build of Greenshot.exe, made by the Release build (see Greenshot.csproj)
+$LightBuildArtifactsPath = "$RepoPath\src\Greenshot\bin\Release-Light\net480"
 $ArtifactsPath = "$RepoPath\artifacts"
 $PortableFilesPath = "$ArtifactsPath\portable-files"
 $SolutionFile = "$RepoPath\src\Greenshot.sln"
@@ -82,10 +84,10 @@ Write-Host "Creating ZIP archive..."
 $ZipArtifactPath = "$ArtifactsPath\Greenshot-PORTABLE-$Version-RELEASE.zip"
 Compress-Archive -Path "$PortableFilesPath/*" -DestinationPath $ZipArtifactPath -Force
 
-# Create the light ZIP Archive (no plugins)
+# Create the light ZIP Archive (the basics only: no plugins, no AI tools, no browser extension)
 Write-Host "Creating light ZIP archive..."
 $LightPortableFilesPath = "$ArtifactsPath\portable-files-light"
-./prepare-portable.ps1 -RepositoryRootPath . -BuildArtifactsPath $BuildArtifactsPath -OutputPath $LightPortableFilesPath -Light
+./prepare-portable.ps1 -RepositoryRootPath . -BuildArtifactsPath $LightBuildArtifactsPath -OutputPath $LightPortableFilesPath -Light
 $LightZipArtifactPath = "$ArtifactsPath\Greenshot-Light-PORTABLE-$Version-RELEASE.zip"
 Compress-Archive -Path "$LightPortableFilesPath/*" -DestinationPath $LightZipArtifactPath -Force
 
