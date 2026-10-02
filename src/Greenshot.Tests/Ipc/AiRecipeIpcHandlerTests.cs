@@ -376,6 +376,10 @@ namespace Greenshot.Tests.Ipc
 
         private static async Task<JObject> DispatchAsync(string command, Dictionary<string, string> parameters)
         {
+            // AI tools are opt-in: these tests are about what happens once they are switched on
+            var config = IniConfigRegistry.GetSection<ICoreConfiguration>();
+            config.AiToolsEnabled = true;
+            config.AiToolsAllowRecipeProposals = true;
             var envelope = new IpcEnvelope
             {
                 Command = command,

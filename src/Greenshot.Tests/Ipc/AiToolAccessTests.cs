@@ -514,6 +514,38 @@ namespace Greenshot.Tests.Ipc
             Assert.False(AiToolCapture.TryParseHandle(text, out _));
         }
 
+        [Fact]
+        public void AiTools_AreOptIn_AndRecipeProposalsCanBeSwitchedOff()
+        {
+            var config = IniConfigRegistry.GetSection<ICoreConfiguration>();
+            bool previousEnabled = config.AiToolsEnabled;
+            bool previousProposals = config.AiToolsAllowRecipeProposals;
+            try
+            {
+                // Off: only greenshot-mcp's version passes, nobody is asked
+                config.AiToolsEnabled = false;
+                Assert.Null(IpcSecurityDispatcher.GetAiToolsOptInError("VERSION", IpcSources.Mcp));
+                Assert.Equal(AiToolAccess.DisabledMessage, IpcSecurityDispatcher.GetAiToolsOptInError("LIST_WINDOWS", IpcSources.Mcp));
+                Assert.Equal(AiToolAccess.DisabledMessage, IpcSecurityDispatcher.GetAiToolsOptInError("LIST_AI_TOOLS", IpcSources.Mcp));
+                Assert.Equal(AiToolAccess.DisabledMessage, IpcSecurityDispatcher.GetAiToolsOptInError("PROPOSE_RECIPE", IpcSources.Mcp));
+                // Other sources aren't AI tools
+                Assert.Null(IpcSecurityDispatcher.GetAiToolsOptInError("CAPTURE", IpcSources.Cli));
+
+                config.AiToolsEnabled = true;
+                Assert.Null(IpcSecurityDispatcher.GetAiToolsOptInError("LIST_WINDOWS", IpcSources.Mcp));
+                Assert.Null(IpcSecurityDispatcher.GetAiToolsOptInError("PROPOSE_RECIPE", IpcSources.Mcp));
+
+                config.AiToolsAllowRecipeProposals = false;
+                Assert.Equal(AiToolAccess.ProposalsDisabledMessage, IpcSecurityDispatcher.GetAiToolsOptInError("PROPOSE_RECIPE", IpcSources.Mcp));
+                Assert.Null(IpcSecurityDispatcher.GetAiToolsOptInError("RUN_AI_TOOL", IpcSources.Mcp));
+            }
+            finally
+            {
+                config.AiToolsEnabled = previousEnabled;
+                config.AiToolsAllowRecipeProposals = previousProposals;
+            }
+        }
+
         private static Task<JObject> DispatchAsync(string command, AiToolClient client, Dictionary<string, string> parameters = null, string recipe = null)
         {
             var envelope = new IpcEnvelope
@@ -534,6 +566,8 @@ namespace Greenshot.Tests.Ipc
 
         private static async Task<JObject> DispatchAsync(IpcEnvelope envelope, AiToolClient client)
         {
+            // AI tools are opt-in: these tests are about what happens once they are switched on
+            IniConfigRegistry.GetSection<ICoreConfiguration>().AiToolsEnabled = true;
             using var stream = new MemoryStream();
             var context = new IpcRequestContext(envelope, stream)
             {

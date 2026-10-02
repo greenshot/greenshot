@@ -292,11 +292,21 @@ Please check write accessibility of the selected storage location.</resource>
     time, e.g. 11_58_32 (plus extension defined in the settings)</resource>
 		<resource name="settings_network">Network and updates</resource>
 		<resource name="settings_aitools">AI tools</resource>
-		<resource name="settings_aitools_allowed">Programs allowed to see your windows, take screenshots and run recipes through greenshot-mcp:</resource>
+		<resource name="settings_aitools_access">Access</resource>
+		<resource name="settings_aitools_enabled">Let AI tools use Greenshot</resource>
+		<resource name="settings_aitools_enabled_description">AI tools (like Claude Desktop or VS Code) connect through greenshot-mcp. They can list your windows, take screenshots and run your recipes. While this is off, Greenshot refuses every request without asking. Each program still needs your permission the first time it connects.</resource>
+		<resource name="settings_aitools_programs">Allowed programs</resource>
+		<resource name="settings_aitools_allowed">These programs may use Greenshot. Remove one to be asked again the next time it connects.</resource>
+		<resource name="settings_aitools_none">No program is allowed yet.</resource>
+		<resource name="settings_aitools_permissions">What AI tools may do</resource>
+		<resource name="settings_aitools_proposals">Let AI tools propose recipes</resource>
+		<resource name="settings_aitools_proposals_description">You see every proposed recipe and decide whether to approve it. Its triggers and risky actions start switched off.</resource>
+		<resource name="settings_aitools_excluded">Never share these applications</resource>
+		<resource name="settings_aitools_excluded_description">Windows of these processes are never listed or captured for AI tools. Process names without .exe, separated by commas.</resource>
 		<resource name="settings_aitools_remove">Remove</resource>
 		<resource name="settings_aitools_notify">Show a notification when an AI tool takes a screenshot</resource>
 		<resource name="settings_recipeapprovals">Approved recipes</resource>
-		<resource name="settings_recipeapprovals_description">Recipes from files, also those written by AI tools, and what you approved for them. Changes here take effect right away.</resource>
+		<resource name="settings_recipeapprovals_description">Recipes from files, also those written by AI tools, and what you approved for them. Changes here take effect right away, also when you cancel the settings.</resource>
 		<resource name="settings_recipeapprovals_details">Details</resource>
 		<resource name="settings_recipeapprovals_review">Review...</resource>
 		<resource name="settings_recipeapprovals_revoke">Revoke</resource>

@@ -63,6 +63,26 @@ namespace Greenshot.Helpers.Ipc
         public const string NotAllowedMessage = "The user did not allow this program to use Greenshot. Allowed programs are managed in the Greenshot settings (AI tools).";
 
         /// <summary>
+        /// The message for a request while AI tools are switched off
+        /// </summary>
+        public const string DisabledMessage = "AI tools are switched off in Greenshot. To use Greenshot from an AI tool, switch them on in the Greenshot settings (AI tools tab).";
+
+        /// <summary>
+        /// The message for a recipe proposal while proposals are switched off
+        /// </summary>
+        public const string ProposalsDisabledMessage = "The user switched off recipe proposals by AI tools in the Greenshot settings (AI tools tab).";
+
+        /// <summary>
+        /// AI tools may use Greenshot at all (opt-in, AiToolsEnabled)
+        /// </summary>
+        public static bool IsEnabled => ConfigurationProvider()?.AiToolsEnabled == true;
+
+        /// <summary>
+        /// AI tools may propose recipes (AiToolsAllowRecipeProposals)
+        /// </summary>
+        public static bool AreRecipeProposalsAllowed => ConfigurationProvider()?.AiToolsAllowRecipeProposals != false;
+
+        /// <summary>
         /// True when the user allowed this program (AiToolsAllowedClients).
         /// </summary>
         public static bool IsAllowed(AiToolClient client)
@@ -204,8 +224,8 @@ namespace Greenshot.Helpers.Ipc
             string text = $"{client.DisplayName} wants to use Greenshot to list your windows and take screenshots, and to run Greenshot recipes.\r\n\r\n" +
                           $"Program: {client.ExePath}\r\n{signer}\r\n\r\n" +
                           "Screenshots can contain anything that is visible on your screen. Windows of excluded applications " +
-                          "(password managers by default, see AiToolsExcludedProcesses in greenshot.ini) are never shared. " +
-                          "You can remove the permission in the Greenshot settings.\r\n\r\n" +
+                          "(password managers by default) are never shared. " +
+                          "You can change both in the Greenshot settings, on the AI tools tab.\r\n\r\n" +
                           $"Allow {client.DisplayName} to use Greenshot?";
             return UiDispatcher.Current.InvokeAsync(() =>
             {

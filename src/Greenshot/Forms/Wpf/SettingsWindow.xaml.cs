@@ -334,7 +334,11 @@ namespace Greenshot.Forms.Wpf
             _viewModel.CoreConfiguration.OutputDestinations = destinations;
 
             // Programs allowed to use Greenshot through greenshot-mcp
-            _viewModel.CoreConfiguration.AiToolsAllowedClients = _viewModel.AiToolsAllowedClients.ToList();
+            _viewModel.CoreConfiguration.AiToolsAllowedClients = _viewModel.AiToolsAllowedClients.Select(c => c.Path).ToList();
+            if (!_viewModel.CoreConfiguration.IsConstant(nameof(ICoreConfiguration.AiToolsExcludedProcesses)))
+            {
+                _viewModel.CoreConfiguration.AiToolsExcludedProcesses = _viewModel.GetAiToolsExcludedProcesses();
+            }
 
             // Save clipboard formats
             if (_viewModel.ClipboardFormats != null)

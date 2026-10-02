@@ -89,7 +89,10 @@ namespace Greenshot.Forms.Wpf
             InitializeClipboardFormats();
 
             // Programs allowed to use Greenshot through greenshot-mcp
-            AiToolsAllowedClients = new ObservableCollection<string>(CoreConfiguration.AiToolsAllowedClients ?? new List<string>());
+            AiToolsAllowedClients = new ObservableCollection<AiToolClientItem>((CoreConfiguration.AiToolsAllowedClients ?? new List<string>())
+                .Where(path => !string.IsNullOrWhiteSpace(path)).Select(path => new AiToolClientItem(path.Trim())));
+            AiToolsAllowedClients.CollectionChanged += (s, e) => OnPropertyChanged(nameof(HasNoAiToolClients));
+            _aiToolsExcludedProcessesText = string.Join(", ", CoreConfiguration.AiToolsExcludedProcesses ?? new List<string>());
             RefreshApprovedRecipes();
 
             // Initialize plugin controls collection
@@ -110,11 +113,58 @@ namespace Greenshot.Forms.Wpf
         /// <summary>
         /// Programs (full paths) the user allowed to use Greenshot through greenshot-mcp, written back on save
         /// </summary>
-        public ObservableCollection<string> AiToolsAllowedClients { get; }
+        public ObservableCollection<AiToolClientItem> AiToolsAllowedClients { get; }
 
-        private string _selectedAiToolClient;
+        /// <summary>
+        /// AI tools may use Greenshot at all (opt-in); everything else on the AI tools tab only matters when this is on
+        /// </summary>
+        public bool AiToolsEnabled
+        {
+            get => CoreConfiguration.AiToolsEnabled;
+            set
+            {
+                if (CoreConfiguration.AiToolsEnabled != value)
+                {
+                    CoreConfiguration.AiToolsEnabled = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
-        public string SelectedAiToolClient
+        private string _aiToolsExcludedProcessesText;
+
+        /// <summary>
+        /// The excluded processes, separated by commas, written back on save
+        /// </summary>
+        public string AiToolsExcludedProcessesText
+        {
+            get => _aiToolsExcludedProcessesText;
+            set
+            {
+                if (_aiToolsExcludedProcessesText != value)
+                {
+                    _aiToolsExcludedProcessesText = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// The process names from <see cref="AiToolsExcludedProcessesText"/>
+        /// </summary>
+        public List<string> GetAiToolsExcludedProcesses()
+        {
+            return (_aiToolsExcludedProcessesText ?? string.Empty)
+                .Split(new[] { ',', ';', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(name => name.Trim())
+                .Where(name => name.Length > 0)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
+
+        private AiToolClientItem _selectedAiToolClient;
+
+        public AiToolClientItem SelectedAiToolClient
         {
             get => _selectedAiToolClient;
             set
@@ -129,6 +179,8 @@ namespace Greenshot.Forms.Wpf
         }
 
         public bool HasSelectedAiToolClient => _selectedAiToolClient != null;
+
+        public bool HasNoAiToolClients => AiToolsAllowedClients.Count == 0;
 
         /// <summary>
         /// The recipes from files, with their approval: shown in core, so approvals can be seen and revoked without the recipe editor
@@ -661,8 +713,23 @@ namespace Greenshot.Forms.Wpf
                 : "changed since its approval";
             int off = details?.Triggers?.Count(t => t.EndsWith("(off, not approved)", StringComparison.Ordinal)) ?? 0;
             string offText = off == 0 ? "" : off == 1 ? " · 1 trigger off" : $" · {off} triggers off";
+            Title = recipe.Name;
+            Subtitle = $"{state}{by}{offText}";
+            NeedsAttention = details?.ApprovedAt == null || !details.IsApprovalCurrent || off > 0;
             DisplayText = $"{recipe.Name}{by} · {state}{offText}";
         }
+
+        public string Title { get; }
+
+        /// <summary>
+        /// The approval state, who wrote it and the triggers left off
+        /// </summary>
+        public string Subtitle { get; }
+
+        /// <summary>
+        /// Not approved, changed since the approval, or triggers left off
+        /// </summary>
+        public bool NeedsAttention { get; }
 
         public Greenshot.Base.Recipes.CaptureRecipe Recipe { get; }
 
@@ -673,5 +740,29 @@ namespace Greenshot.Forms.Wpf
         public string DisplayText { get; }
 
         public override string ToString() => DisplayText;
+    }
+
+    /// <summary>
+    /// A program allowed to use Greenshot through greenshot-mcp
+    /// </summary>
+    public sealed class AiToolClientItem
+    {
+        public AiToolClientItem(string path)
+        {
+            Path = path;
+            FileName = System.IO.Path.GetFileName(path);
+            Folder = System.IO.Path.GetDirectoryName(path) ?? string.Empty;
+        }
+
+        /// <summary>
+        /// The full path, as stored in AiToolsAllowedClients
+        /// </summary>
+        public string Path { get; }
+
+        public string FileName { get; }
+
+        public string Folder { get; }
+
+        public override string ToString() => Path;
     }
 }

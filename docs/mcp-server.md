@@ -108,17 +108,21 @@ and only one proposal is shown at a time.
 
 The recipe manager marks recipes written by AI tools (🤖, and the filter "AI"), shows triggers that are switched off
 by the approval as "off, not approved", and its "Permissions" button opens the approval again to change them or to
-revoke it. Without the recipe editor plug-in (it is optional, and not in the Light version), Settings > General >
+revoke it. Without the recipe editor plug-in (it is optional, and not in the Light version), Settings > AI tools >
 "Approved recipes" lists the recipes from files with who wrote them and their approval, with Details, Review and Revoke.
 
 ## Safety
 
+* AI tools are opt-in: until "Let AI tools use Greenshot" is switched on (Settings > AI tools, `AiToolsEnabled`, off
+  by default), Greenshot refuses every greenshot-mcp request without asking; only the version check answers, so the AI
+  tool can tell the user how to switch it on. Administrators can preset it in `greenshot-defaults.ini` or lock it, on or
+  off, in `greenshot-fixed.ini`. `AiToolsAllowRecipeProposals` (on by default) switches off recipe proposals alone.
 * Greenshot doesn't trust what a connection says about itself. For the source `mcp` it checks the process on the
   other end of the pipe: it must be `greenshot-mcp.exe` from Greenshot's own directory (or, in Debug builds only, a path in
   `AiToolsMcpServerPaths`). The AI tool is the program which started `greenshot-mcp.exe`
   (cmd.exe / PowerShell in between are skipped), identified by its executable path and verified Authenticode signer.
 * Each AI tool must be allowed by the user: the first request shows a question with the program's name, path and
-  signer. Allowed programs are stored in `AiToolsAllowedClients` and can be removed in the settings (General, AI tools).
+  signer. Allowed programs are stored in `AiToolsAllowedClients` and can be removed in the settings (AI tools tab).
   A "No" is remembered until Greenshot restarts.
 * The other sources are checked the same way: only Greenshot.exe and greenshot.com (source `cli`) and
   greenshot-proxy.exe (`url_scheme`, `open_with`, `native_messaging`) from Greenshot's directory may connect, so other
@@ -172,7 +176,8 @@ Ask the AI tool in your own words, for example:
 * "Add a tool that captures the active window and returns the text." The AI tool proposes a recipe with an AI tool
   trigger; after you approve it, the AI tool has the new tool.
 
-The first time, Greenshot asks whether the AI tool may use it. Every capture shows a notification.
+AI tools are off by default: switch on "Let AI tools use Greenshot" in Settings > AI tools first. The first time,
+Greenshot asks whether the AI tool may use it. Every capture shows a notification.
 
 ## Connect an AI tool
 
@@ -181,7 +186,8 @@ use the default install location `C:\Program Files\Greenshot\greenshot-mcp.exe`;
 doubled. Restart the AI tool or reload its MCP servers after changing a configuration file.
 
 The first time the AI tool uses a Greenshot tool, Greenshot asks whether that program may use it. The answer is
-stored in the Greenshot settings (General, AI tools), where it can be removed again.
+stored in the Greenshot settings (AI tools tab), where it can be removed again. Before that, switch on "Let AI
+tools use Greenshot" on the same tab: it is off by default.
 
 ### Claude Code
 

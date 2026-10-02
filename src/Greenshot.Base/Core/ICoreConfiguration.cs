@@ -404,6 +404,14 @@ namespace Greenshot.Base.Core
         [Description("List of certificate thumbprints (SHA-1 / SHA-256 hashes) for which SSL/TLS certificate validation errors are ignored.")]
         List<string> AllowedCertificateThumbprints { get; set; }
 
+        [Description("Let AI tools use Greenshot through greenshot-mcp (opt-in). When false, every greenshot-mcp request is refused without asking. Lock it with greenshot-fixed.ini.")]
+        [DefaultValue(false)]
+        bool AiToolsEnabled { get; set; }
+
+        [Description("Let allowed AI tools propose new or changed recipes (each one is still shown for approval).")]
+        [DefaultValue(true)]
+        bool AiToolsAllowRecipeProposals { get; set; }
+
         [Description("Programs (full paths) which the user allowed to list windows, take screenshots and run recipes through greenshot-mcp. Greenshot asks the first time a program connects.")]
         List<string> AiToolsAllowedClients { get; set; }
 

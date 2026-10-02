@@ -344,6 +344,27 @@ namespace Greenshot.Helpers.Ipc
         }
 
         /// <summary>
+        /// Why an AI tool request is refused by the opt-in switches, null when it isn't. Only greenshot-mcp's own version
+        /// passes while AI tools are switched off.
+        /// </summary>
+        internal static string GetAiToolsOptInError(string command, string source)
+        {
+            if (!string.Equals(source, IpcSources.Mcp, StringComparison.OrdinalIgnoreCase))
+            {
+                return null;
+            }
+            if (!AiToolAccess.IsEnabled)
+            {
+                return string.Equals(command, "VERSION", StringComparison.OrdinalIgnoreCase) ? null : AiToolAccess.DisabledMessage;
+            }
+            if (string.Equals(command, "PROPOSE_RECIPE", StringComparison.OrdinalIgnoreCase) && !AiToolAccess.AreRecipeProposalsAllowed)
+            {
+                return AiToolAccess.ProposalsDisabledMessage;
+            }
+            return null;
+        }
+
+        /// <summary>
         /// True when the command needs the user's consent for AI tools: every command from greenshot-mcp.exe except VERSION and
         /// LIST_AI_TOOLS (the tool names and descriptions, so the AI tool can show its tools before the user is asked),
         /// and the AI tool commands from any source. The recipe commands (catalog, validate, propose) need the consent too; a
@@ -419,7 +440,25 @@ namespace Greenshot.Helpers.Ipc
                 return;
             }
 
-            // 2. AI tools (and anything reading the screen contents) need the user's consent
+            // 2. AI tools are opt-in: switched off, greenshot-mcp gets nothing but its version, and nobody is asked
+            string optInError = GetAiToolsOptInError(command, context.Envelope.Source);
+            if (optInError != null)
+            {
+                Log.Warn($"[SECURITY] IPC command rejected: '{command}' from source '{context.Envelope.Source}': {optInError}");
+                try
+                {
+                    await context.ReplyAsync(new
+                    {
+                        status = "error",
+                        exit_code = 1,
+                        stderr = optInError
+                    }).ConfigureAwait(false);
+                }
+                catch { }
+                return;
+            }
+
+            // 3. AI tools (and anything reading the screen contents) need the user's consent
             if (RequiresAiToolConsent(command, context.Envelope.Source) &&
                 !await AiToolAccess.EnsureAllowedAsync(context.AiClient).ConfigureAwait(false))
             {
