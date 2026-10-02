@@ -777,6 +777,8 @@
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="🛡 " FontSize="12" VerticalAlignment="Center"/>
                             <TextBlock Text="{Binding ApprovalNotice}" FontSize="11" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                            <Button Content="Review approval..." Style="{StaticResource ToolbarBtn}" Command="{Binding ReviewApprovalCommand}" Margin="10,0,0,0" Padding="8,2"
+                                    Visibility="{Binding CanReviewApproval, Converter={StaticResource BoolToVis}}" ToolTip="Switch triggers and permissions of this recipe on or off"/>
                         </StackPanel>
                     </Border>
                     <Grid>

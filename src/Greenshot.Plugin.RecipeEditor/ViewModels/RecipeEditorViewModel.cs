@@ -249,6 +249,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 {
                     OnPropertyChanged(nameof(WindowTitle));
                     OnPropertyChanged(nameof(TitleRecipeText));
+                    OnPropertyChanged(nameof(CanReviewApproval));
                 }
             }
         }
@@ -282,11 +283,33 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 if (SetField(ref _approvalNotice, value))
                 {
                     OnPropertyChanged(nameof(HasApprovalNotice));
+                    OnPropertyChanged(nameof(CanReviewApproval));
                 }
             }
         }
 
         public bool HasApprovalNotice => !string.IsNullOrEmpty(_approvalNotice);
+
+        /// <summary>
+        /// The notice is about the approval of the saved file (not about saving): it can be reviewed from the editor
+        /// </summary>
+        public bool CanReviewApproval => HasApprovalNotice && !IsDirty && !string.IsNullOrEmpty(_recipeManager?.GetRecipeById(_activeRecipe?.Id)?.FilePath);
+
+        /// <summary>
+        /// Shows the approval of the recipe's file again, to switch its triggers and permissions on or off
+        /// </summary>
+        public void ReviewApproval()
+        {
+            if (_recipeManager == null || _activeRecipe == null) return;
+            if (!ConfirmDiscardChanges()) return;
+            var result = _recipeManager.ReviewApproval(_activeRecipe.Id);
+            if (result != null && !result.IsValid)
+            {
+                ThemedMessageBox.Show(string.Join("\n", result.Errors), "Recipe Permissions", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            RefreshAvailableRecipes();
+            UpdateApprovalNotice(force: true);
+        }
 
         public string WindowTitle => _activeRecipe == null ? "Greenshot - Recipe Visual Editor" : $"{(IsDirty ? "* " : "")}{_activeRecipe.Name} - Greenshot Recipe Visual Editor";
 
@@ -617,9 +640,16 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             int switchedOff = registered.Triggers?.Count(t => t != null && t.Enabled && !t.IsApproved) ?? 0;
             if (switchedOff > 0)
             {
+                // Name them: "off" alone reads like a bug when the switch was simply left off in the approval
+                const string offSuffix = " (off, not approved)";
+                var names = _recipeManager.GetRecipeDetails(registered.Id)?.Triggers?
+                    .Where(t => t.EndsWith(offSuffix, StringComparison.Ordinal))
+                    .Select(t => "\"" + t.Substring(0, t.Length - offSuffix.Length) + "\"")
+                    .ToList() ?? new List<string>();
+                string which = names.Count > 0 ? ": " + string.Join(", ", names) : "";
                 return switchedOff == 1
-                    ? "1 trigger is off because it wasn't approved. Use Permissions in the recipe manager to switch it on."
-                    : $"{switchedOff} triggers are off because they weren't approved. Use Permissions in the recipe manager to switch them on.";
+                    ? $"1 trigger was left off when this recipe was approved{which}. Review the approval to switch it on."
+                    : $"{switchedOff} triggers were left off when this recipe was approved{which}. Review the approval to switch them on.";
             }
             return null;
         }
@@ -683,6 +713,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public ICommand SaveRecipeCommand { get; }
         public ICommand SaveAsCommand { get; }
         public ICommand UndoCommand { get; }
+        public ICommand ReviewApprovalCommand { get; }
         public ICommand RedoCommand { get; }
         public ICommand AutoLayoutCommand { get; }
         public ICommand TestRunCommand { get; }
@@ -716,6 +747,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             SaveRecipeCommand = new RelayCommand(SaveRecipe);
             SaveAsCommand = new RelayCommand(SaveAsRecipe);
             UndoCommand = new RelayCommand(Undo, () => CanUndo);
+            ReviewApprovalCommand = new RelayCommand(ReviewApproval);
             RedoCommand = new RelayCommand(Redo, () => CanRedo);
             AutoLayoutCommand = new RelayCommand(PerformAutoLayout);
             TestRunCommand = new RelayCommand(() => AsyncCommand.Run(ExecuteTestRunAsync, "Recipe test run"));

@@ -142,7 +142,9 @@ by the approval as "off, not approved", and its "Permissions" button opens the a
 ## Install
 
 `greenshot-mcp.exe` is not part of the installer or the portable version, it is a separate download on the
-[releases page](https://github.com/greenshot/greenshot/releases): `Greenshot-MCP-<version>-win-x64.zip`.
+[releases page](https://github.com/greenshot/greenshot/releases): `Greenshot-MCP-<version>-win-x64.zip`. The zip holds
+nothing but the single, self-contained `greenshot-mcp.exe`: the zip carries the version in its name, while the exe keeps
+the exact name Greenshot trusts (`greenshot-mcp.exe`, see below), so it doesn't have to be renamed.
 
 1. Use the zip with the same version as Greenshot.
 2. Extract `greenshot-mcp.exe` into the directory of `Greenshot.exe`: `C:\Program Files\Greenshot` for an installed
@@ -310,7 +312,7 @@ A Release build of the solution publishes greenshot-mcp as its very last step (t
 `Greenshot-Installer.csproj`): a single native exe in `src\Greenshot\bin\Release\net480`, next to `Greenshot.exe`.
 It is published after `checksum.SHA256`, the SBOM, the installers and the portable versions, so it is in none of them;
 a greenshot-mcp.exe of an earlier build is removed before the checksums are made. The release workflow uploads it and
-attaches `Greenshot-MCP-<version>-win-x64.zip` to the GitHub release.
+attaches `Greenshot-MCP-<version>-win-x64.zip`, which holds only that exe, to the GitHub release.
 
 Native AOT needs the "Desktop development with C++" workload of Visual Studio. If the publish fails with
 "'vswhere.exe' is not recognized", add `%ProgramFiles(x86)%\Microsoft Visual Studio\Installer` to the PATH. To build

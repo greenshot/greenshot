@@ -502,7 +502,7 @@
                             <StackPanel>
                                 <TextBlock Text="What starts it" FontWeight="Bold" FontSize="13" Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,4"/>
                                 <StackPanel Visibility="{Binding TriggerItemsVisibility}">
-                                    <TextBlock Text="{Binding TriggerHint}" FontSize="11" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                    <TextBlock Text="{Binding TriggerHint}" FontSize="11" Foreground="{Binding TriggerHintBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
                                     <ItemsControl ItemsSource="{Binding TriggerItems}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
@@ -514,6 +514,9 @@
                                                     <TextBlock Text="{Binding Explanation}" FontSize="11" TextWrapping="Wrap" Margin="20,2,0,0"
                                                                Visibility="{Binding ExplanationVisibility}"
                                                                Foreground="{Binding DataContext.WarningTextBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                    <TextBlock Text="Off: it won't start the recipe until you tick it." FontSize="11" FontWeight="SemiBold" TextWrapping="Wrap" Margin="20,2,0,0"
+                                                               Visibility="{Binding OffVisibility}"
+                                                               Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
                                                 </StackPanel>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>

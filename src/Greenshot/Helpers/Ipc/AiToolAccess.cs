@@ -24,11 +24,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Threading;
+using Greenshot.Base.Wpf;
 using log4net;
 
 namespace Greenshot.Helpers.Ipc
@@ -209,19 +209,10 @@ namespace Greenshot.Helpers.Ipc
                           $"Allow {client.DisplayName} to use Greenshot?";
             return UiDispatcher.Current.InvokeAsync(() =>
             {
-                // A hidden top-most owner, so the question doesn't end up behind the AI tool's window
-                using var owner = new Form
-                {
-                    TopMost = true,
-                    ShowInTaskbar = false,
-                    FormBorderStyle = FormBorderStyle.None,
-                    StartPosition = FormStartPosition.CenterScreen,
-                    Size = new System.Drawing.Size(1, 1),
-                    Opacity = 0
-                };
-                owner.Show();
-                var result = MessageBox.Show(owner, text, "Greenshot - AI tool access", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
-                return result == DialogResult.Yes;
+                // On top, so the question doesn't end up behind the AI tool's window
+                int choice = ThemedMessageBox.ShowChoice(null, "AI Tool Access", text, System.Windows.MessageBoxImage.Question,
+                    new[] { "Allow", "Don't Allow" }, defaultIndex: 1, cancelIndex: 1, onTop: true);
+                return choice == 0;
             }, cancellationToken);
         }
     }

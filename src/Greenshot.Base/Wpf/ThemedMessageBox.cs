@@ -150,13 +150,21 @@ namespace Greenshot.Base.Wpf
         }
 
         /// <summary>
-        /// Shows the message with own button texts; returns the index of the chosen button, or cancelIndex when the box was closed
+        /// Shows the message with own button texts; returns the index of the chosen button, or cancelIndex when the box was closed.
+        /// With onTop the box is shown over all windows, also those of other programs (for questions which come from outside).
         /// </summary>
-        public static int ShowChoice(Window owner, string caption, string text, MessageBoxImage icon, IReadOnlyList<string> buttons, int defaultIndex = 0, int cancelIndex = -1)
+        public static int ShowChoice(Window owner, string caption, string text, MessageBoxImage icon, IReadOnlyList<string> buttons, int defaultIndex = 0, int cancelIndex = -1, bool onTop = false)
         {
             var box = new ThemedMessageBox(caption, text, icon, buttons, defaultIndex, cancelIndex);
-            owner ??= FindOwner();
-            if (owner != null && owner.IsVisible)
+            owner ??= onTop ? null : FindOwner();
+            if (onTop)
+            {
+                box.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                box.Topmost = true;
+                box.ShowInTaskbar = true;
+                box.Loaded += (s, e) => box.Activate();
+            }
+            else if (owner != null && owner.IsVisible)
             {
                 box.Owner = owner;
             }

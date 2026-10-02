@@ -33,6 +33,7 @@ using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
 using Greenshot.Recipes;
 using Greenshot.Base.Threading;
+using Greenshot.Base.Wpf;
 
 namespace Greenshot.UI
 {
@@ -179,6 +180,11 @@ namespace Greenshot.UI
         public Visibility OpenInEditorVisibility => IsAiProposal && !IsValidationError ? Visibility.Visible : Visibility.Collapsed;
         public bool HasExternalCommands { get; set; }
         public string TriggerHint { get; private set; }
+
+        /// <summary>
+        /// The hint is a warning when the triggers start switched off, it is easy to overlook
+        /// </summary>
+        public SolidColorBrush TriggerHintBrush { get; private set; }
 
         public bool IsApproved { get; private set; }
 
@@ -620,13 +626,16 @@ namespace Greenshot.UI
                 {
                     Key = trigger.Key,
                     Title = trigger.IsDisabled ? $"{trigger.Label} (disabled in the recipe)" : trigger.Label,
+                    IsDisabledInRecipe = trigger.IsDisabled,
                     Explanation = trigger.Risk,
                     IsChecked = keepPrevious && previousApproval != null ? previousApproval.IsTriggerApproved(trigger.Key) : defaultOn
                 });
             }
             TriggerHint = !defaultOn
-                ? "The triggers are off: switch on the ones you want. Without a trigger you can still run the recipe from the recipe list."
+                ? "⚠ The triggers start switched off. Tick each one that may start this recipe: a trigger you leave off stays off " +
+                  "(you can switch it on later with Permissions in the recipe manager). Without a trigger you can still run the recipe from the recipe list."
                 : "Switch off the triggers you don't want.";
+            TriggerHintBrush = !defaultOn ? WarningTextBrush : TextSecondaryBrush;
         }
 
         private void PopulateSteps(CaptureRecipe recipe)
@@ -895,6 +904,20 @@ namespace Greenshot.UI
             if (GateItems.Any(g => !g.IsChecked))
             {
                 return;
+            }
+            // A trigger left off is easy to miss: say so before it is approved like that
+            var leftOff = TriggerItems.Where(t => !t.IsChecked && !t.IsDisabledInRecipe).Select(t => "• " + t.Title).ToList();
+            if (leftOff.Count > 0)
+            {
+                string text = (leftOff.Count == 1 ? "This trigger stays off, so it won't start the recipe:" : "These triggers stay off, so they won't start the recipe:") +
+                              "\n\n" + string.Join("\n", leftOff) +
+                              "\n\nYou can switch triggers on later with Permissions in the recipe manager, and run the recipe from the recipe list.";
+                int choice = ThemedMessageBox.ShowChoice(this, "Triggers Left Off", text, MessageBoxImage.Warning,
+                    new[] { "Approve", "Go Back" }, defaultIndex: 1, cancelIndex: 1);
+                if (choice != 0)
+                {
+                    return;
+                }
             }
             IsApproved = true;
             Approval = new RecipeApproval

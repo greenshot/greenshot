@@ -135,6 +135,7 @@ namespace Greenshot.UI
                 if (_isChecked == value) return;
                 _isChecked = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsChecked)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(OffVisibility)));
             }
         }
 
@@ -146,6 +147,11 @@ namespace Greenshot.UI
         public string Explanation { get; set; }
 
         public Visibility ExplanationVisibility => string.IsNullOrEmpty(Explanation) ? Visibility.Collapsed : Visibility.Visible;
+
+        /// <summary>
+        /// Shown while it is switched off
+        /// </summary>
+        public Visibility OffVisibility => _isChecked ? Visibility.Collapsed : Visibility.Visible;
     }
 
     /// <summary>
@@ -153,6 +159,11 @@ namespace Greenshot.UI
     /// </summary>
     public sealed class TriggerApprovalItem : ApprovalSwitch
     {
+        /// <summary>
+        /// The trigger is switched off in the recipe itself: leaving it off here changes nothing
+        /// </summary>
+        public bool IsDisabledInRecipe { get; set; }
+
         public string Key { get; set; }
     }
 
