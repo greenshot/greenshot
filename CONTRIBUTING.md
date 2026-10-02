@@ -1,3 +1,5 @@
+## Coding style
+
 The general rule we follow is "use Visual Studio defaults".
 
 1. We use [Allman style](http://en.wikipedia.org/wiki/Indent_style#Allman_style) braces, where each brace begins on a new line. A single line statement block can go without braces but the block must be properly indented on its own line and it must not be nested in other statement blocks that use braces (See issue [381](https://github.com/dotnet/corefx/issues/381) for examples). 
@@ -16,3 +18,13 @@ The general rule we follow is "use Visual Studio defaults".
 14. Fields should be specified at the top within type declarations.
 15. When including non-ASCII characters in the source code use Unicode escape sequences (\uXXXX) instead of literal characters. Literal non-ASCII characters occasionally get garbled by a tool or editor.
 16. Do not use labels (e.g. for goto).
+
+## AI-assisted contributions
+
+Contributions written with the help of AI tools (for example Claude, GitHub Copilot or Gemini) are welcome, under the same rules as any other contribution:
+
+- The person who submits the pull request is the contributor. You are responsible for the change: you understand it, you have reviewed and tested it, and you can answer questions about it.
+- The Contributor License Agreement is signed by that person and covers the AI-assisted parts of the contribution. An AI tool can't sign the CLA itself, so commits authored by an AI account (such as `claude`) are on the CLA allowlist and are covered by the maintainer or contributor who asked for them.
+- Be transparent: mention in the pull request that an AI tool was used, and keep the attribution the tool adds (e.g. a `Co-Authored-By:` line), so reviewers know what they are looking at.
+- Only submit what you may submit: no content the AI reproduced from sources with an incompatible license.
+- The coding style above applies to AI-written code too.
