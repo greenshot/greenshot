@@ -295,6 +295,8 @@ Please check write accessibility of the selected storage location.</resource>
 		<resource name="settings_recipes">Recipes</resource>
 		<resource name="settings_recipes_description">The settings your recipes offer, for example a border around every capture. They are used from the next capture on.</resource>
 		<resource name="settings_recipes_reset">Reset to defaults</resource>
+	<resource name="quicksettings_automaticsteps">Automatic steps</resource>
+	<resource name="quicksettings_automaticsteps_more">More…</resource>
 		<resource name="settings_aitools_access">Access</resource>
 		<resource name="settings_aitools_enabled">Let AI tools use Greenshot</resource>
 		<resource name="settings_aitools_enabled_description">AI tools (like Claude Desktop or VS Code) connect through greenshot-mcp.exe, a separate download that has to be next to Greenshot.exe. They can list your windows, take screenshots and run your recipes. While this is off, Greenshot refuses every request without asking. Each program still needs your permission the first time it connects.</resource>

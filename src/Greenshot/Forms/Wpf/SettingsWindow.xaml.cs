@@ -144,6 +144,10 @@ namespace Greenshot.Forms.Wpf
                 case "plugins":
                     SettingsTabControl.SelectedItem = PluginsTabItem;
                     break;
+                case "recipes":
+                    // By name: the tabs before it are not always there
+                    SettingsTabControl.SelectedItem = RecipesTabItem;
+                    break;
                 case "expert":
                 case "expertsettings":
                     // By name: the AI tools and plugins tabs before it are not always there
