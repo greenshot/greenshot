@@ -298,7 +298,7 @@ Please check write accessibility of the selected storage location.</resource>
 	<resource name="settings_recipes_usedfor">Used for:</resource>
 	<resource name="settings_recipes_change">Change…</resource>
 	<resource name="settings_recipes_scope_title">Where {0} is used</resource>
-	<resource name="settings_recipes_scope_description">The extension changes the captures of the checked recipes, for the checked destinations. New recipes get it too.</resource>
+	<resource name="settings_recipes_scope_description">This automatic step changes the captures of the checked recipes, for the checked destinations. New recipes get it too.</resource>
 	<resource name="settings_recipes_scope_captures">Captures</resource>
 	<resource name="settings_recipes_scope_destinations">Destinations</resource>
 	<resource name="settings_recipes_scope_all">All</resource>
@@ -309,7 +309,7 @@ Please check write accessibility of the selected storage location.</resource>
 	<resource name="settings_recipes_scope_alldestinations">all destinations</resource>
 	<resource name="settings_recipes_scope_nodestination">Check at least one destination.</resource>
 	<resource name="settings_recipes_changes">Changed recipes</resource>
-	<resource name="settings_recipes_changes_none">No extension changes a recipe; switch one on above.</resource>
+	<resource name="settings_recipes_changes_none">No automatic step changes a recipe; switch one on above.</resource>
 	<resource name="recipe_extension_border">Border</resource>
 	<resource name="recipe_extension_border_description">Adds a border around the capture before it is exported.</resource>
 	<resource name="recipe_extension_border_enabled">Add a border</resource>

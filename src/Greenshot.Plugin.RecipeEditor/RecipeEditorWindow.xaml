@@ -546,7 +546,7 @@
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
-                                <TextBlock Text="No extension plugs in" FontSize="10" FontStyle="Italic"
+                                <TextBlock Text="No automatic step plugs in" FontSize="10" FontStyle="Italic"
                                            Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                            Visibility="{Binding HasNoSlotExtensions, Converter={StaticResource BoolToVis}}"/>
                             </StackPanel>
@@ -927,8 +927,8 @@
                                 <TextBlock Text="🔀 Conditional Branch"/>
                             </Button>
                             <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Slot"
-                                    ToolTip="A place where extensions (border, drop shadow, caption, ...) add their steps">
-                                <TextBlock Text="🧩 Slot for Extensions"/>
+                                    ToolTip="A place where automatic steps (border, drop shadow, caption, ...) are added">
+                                <TextBlock Text="🧩 Slot for Automatic Steps"/>
                             </Button>
                             <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="ImmediateFeedback">
                                 <TextBlock Text="🔊 Shutter Sound"/>
@@ -974,7 +974,7 @@
                             </Button>
 
                             <!-- 6. Extensions & Plugins -->
-                            <TextBlock Text="EXTENSIONS &amp; PLUGINS" FontWeight="SemiBold" FontSize="10" Foreground="{Binding TextSecondaryBrush}" Margin="4,12,0,4"/>
+                            <TextBlock Text="PLUGINS" FontWeight="SemiBold" FontSize="10" Foreground="{Binding TextSecondaryBrush}" Margin="4,12,0,4"/>
                             <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="ExternalCommand">
                                 <TextBlock Text="⚡ External Command"/>
                             </Button>
@@ -1240,7 +1240,7 @@
                                                 <ComboBoxItem Content="File (Load from disk)" Tag="File"/>
                                                 <ComboBoxItem Content="TextOcr (Screen OCR capture)" Tag="TextOcr"/>
                                                 <ComboBoxItem Content="CurrentEditor (Current editor image)" Tag="CurrentEditor"/>
-                                                <ComboBoxItem Content="Extension (Capture from the browser extension)" Tag="Extension"/>
+                                                <ComboBoxItem Content="Browser extension (capture sent by the browser extension)" Tag="Extension"/>
                                             </ComboBox>
 
                                             <StackPanel Visibility="{Binding SelectedNode.IsFileSource, Converter={StaticResource BoolToVis}}">
@@ -2004,13 +2004,13 @@
                                                                             <ColumnDefinition Width="Auto"/>
                                                                         </Grid.ColumnDefinitions>
                                                                         <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                                                            <TextBlock Text="Extension Configuration" FontSize="10" FontWeight="SemiBold"
+                                                                            <TextBlock Text="Plugin Configuration" FontSize="10" FontWeight="SemiBold"
                                                                                        Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
                                                                             <TextBlock Text="{Binding ConfigurationSummary}" FontSize="11" Margin="0,2,0,0" TextTrimming="CharacterEllipsis"
                                                                                        Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
                                                                         </StackPanel>
                                                                         <Button Grid.Column="1" Content="⚙ Configure..." Style="{StaticResource ToolbarBtn}" Padding="8,3" Margin="6,0,0,0"
-                                                                                Command="{Binding ConfigureCommand}" ToolTip="Open the extension configuration editor"
+                                                                                Command="{Binding ConfigureCommand}" ToolTip="Open the plugin configuration editor"
                                                                                 VerticalAlignment="Center"/>
                                                                     </Grid>
                                                                 </Border>
@@ -2696,10 +2696,10 @@
                                         <StackPanel Visibility="{Binding SelectedNode.IsSlot, Converter={StaticResource BoolToVis}}">
                                             <TextBlock Text="Slot" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
                                             <ComboBox ItemsSource="{Binding SelectedNode.SlotNames}" SelectedItem="{Binding SelectedNode.SlotName, Mode=TwoWay}" Margin="0,0,0,8"/>
-                                            <TextBlock Text="Accept: all, none, or extension ids separated by commas" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBlock Text="Accept: all, none, or the ids of automatic steps separated by commas" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
                                             <TextBox Text="{Binding SelectedNode.SlotAccept, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" Padding="6,4" Margin="0,0,0,8"/>
-                                            <TextBlock Text="Extensions which plug in now (switched in Settings &gt; Recipes):" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBlock Text="Automatic steps which plug in now (switched in Settings &gt; Recipes):" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
                                             <ItemsControl ItemsSource="{Binding SelectedNode.SlotExtensions}" Margin="8,0,0,8">
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate>
@@ -3334,7 +3334,7 @@
                                         <Button Content="+ Clipboard" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="Clipboard" Margin="0,0,4,4"/>
                                         <Button Content="+ CLI" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="Commandline" Margin="0,0,4,4" ToolTip="Add Command Line Trigger"/>
                                         <Button Content="+ Open With" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="OpenFile" Margin="0,0,4,4" ToolTip="Add Open With File Trigger"/>
-                                        <Button Content="+ Extension" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="Extension" Margin="0,0,4,4" ToolTip="Add Browser Extension Trigger"/>
+                                        <Button Content="+ Browser extension" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="Extension" Margin="0,0,4,4" ToolTip="Add Browser Extension Trigger"/>
                                         <Button Content="+ AI Tool" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="AiTool" Margin="0,0,4,4" ToolTip="Offer the recipe as a tool to AI tools (greenshot-mcp)"/>
                                         <Button Content="+ Manual" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="Manual" Margin="0,0,0,4"/>
                                     </WrapPanel>

@@ -508,9 +508,10 @@ default). Changing a value therefore doesn't change the file and doesn't ask for
 - **Templates**: a `String` option with `"format": "template"` holds a text with `${...}` in it, e.g. a caption
   `"Captured on ${now:yyyy-MM-dd}"`; it is evaluated where the option is used (options can't be used inside it).
 
-### Recipe Extensions (`"kind": "extension"`)
-An extension is a small flow which Greenshot puts into other recipes, the built-in ones included, without copying or
-replacing them: for example a border before the export of every capture. Recipes and extensions share one file type
+### Automatic Steps (recipe extensions, `"kind": "extension"`)
+An automatic step is a small flow which Greenshot puts into other recipes, the built-in ones included, without copying or
+replacing them: for example a border on every capture. Greenshot's windows call them automatic steps; in the recipe file
+and the code they are extensions. Recipes and extensions share one file type
 (`.gsrecipe.json`), told apart by `"kind": "recipe"` (the default) or `"kind": "extension"`. Both have `nodes`,
 `flow`, `options` and `requires`; a recipe adds `triggers` and `concurrency`, an extension adds `extends` and `when`.
 
@@ -595,7 +596,7 @@ destinations without an extension get the capture itself.
 on. "Used for" sums up where it is used ("6 of 7 captures → Email"), "Change…" opens a dialog with the captures (recipes)
 and the destinations side by side. New recipes get an extension too, unless it is limited to some destinations.
 
-**Recipe editor.** The toolbox has "Slot for Extensions"; a slot node shows the extensions which plug into it, greyed out
+**Recipe editor.** The toolbox has "Slot for Automatic Steps"; a slot node shows the extensions which plug into it, greyed out
 ("(off)" when switched off or not used for this recipe), and the inspector sets the slot and what it accepts. Editing
 extensions in the editor comes later.
 

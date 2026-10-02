@@ -3700,7 +3700,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                         return NotificationShow ? "Notification: shown" : "Notification: hidden";
                     case WellKnownStepTypes.Slot:
                         return string.Equals(SlotAccept, RecipeSlots.AcceptAll, StringComparison.OrdinalIgnoreCase)
-                            ? $"Slot {SlotName}: extensions add their steps here"
+                            ? $"Slot {SlotName}: automatic steps are added here"
                             : $"Slot {SlotName}, accepts: {SlotAccept}";
                     case WellKnownStepTypes.Stdout:
                         return !string.IsNullOrWhiteSpace(OutputText) ? $"Stdout: {OutputText}" : "Stdout";

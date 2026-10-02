@@ -1998,7 +1998,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     else if (string.Equals(t.TriggerType, TriggerConfig.TypeExtension, StringComparison.OrdinalIgnoreCase))
                     {
                         string browser = t.GetParameter<string>("Browser", "");
-                        tLabel = string.IsNullOrEmpty(browser) ? "🌐 Browser Extension" : $"🌐 Extension ({browser})";
+                        tLabel = string.IsNullOrEmpty(browser) ? "🌐 Browser Extension" : $"🌐 Browser Extension ({browser})";
                     }
                     else if (string.Equals(t.TriggerType, TriggerConfig.TypeAiTool, StringComparison.OrdinalIgnoreCase))
                     {
