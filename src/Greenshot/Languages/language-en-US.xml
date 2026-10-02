@@ -295,11 +295,8 @@ Please check write accessibility of the selected storage location.</resource>
 		<resource name="settings_recipes">Recipes</resource>
 		<resource name="settings_recipes_description">Automatic steps for your captures, like a border or a caption, and the settings your recipes offer. They are used from the next capture on.</resource>
 		<resource name="settings_recipes_reset">Reset to defaults</resource>
-	<resource name="settings_recipes_applyto">Apply to</resource>
-	<resource name="settings_recipes_applyto_all">All captures</resource>
-	<resource name="settings_recipes_applyto_only">Only these recipes</resource>
-	<resource name="settings_recipes_except">Except these recipes:</resource>
-	<resource name="settings_recipes_onlydestinations">Only for these destinations (none checked: all destinations)</resource>
+	<resource name="settings_recipes_usein">Use in:</resource>
+	<resource name="settings_recipes_onlydestinations">Only for (none checked: all):</resource>
 	<resource name="settings_recipes_changes">Changed recipes</resource>
 	<resource name="settings_recipes_changes_none">No extension changes a recipe; switch one on above.</resource>
 	<resource name="recipe_extension_border">Border</resource>

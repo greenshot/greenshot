@@ -90,14 +90,15 @@ namespace Greenshot.Forms.Wpf
             var extensions = extensionGroups.Select(g => g.Extension).ToList();
             RecipeExtensionSettings SettingsOf(RecipeExtension extension) => extensionGroups.First(g => g.Extension == extension).CurrentSettings();
 
+            // One line per combination of extensions, with the recipes they change
             RecipeChanges.Clear();
-            foreach (var recipe in _recipesForOptions)
+            var combinations = _recipesForOptions
+                .Select(recipe => (Recipe: recipe, Extensions: string.Join(", ", RecipeComposer.FindApplicableExtensions(recipe, extensions, SettingsOf).Select(e => RecipeText.Translate(e.Name ?? e.Id)))))
+                .Where(c => c.Extensions.Length > 0)
+                .GroupBy(c => c.Extensions);
+            foreach (var combination in combinations)
             {
-                var changing = RecipeComposer.FindApplicableExtensions(recipe, extensions, SettingsOf);
-                if (changing.Count > 0)
-                {
-                    RecipeChanges.Add(new RecipeChangeItem(recipe.Name ?? recipe.Id, string.Join(", ", changing.Select(e => RecipeText.Translate(e.Name ?? e.Id)))));
-                }
+                RecipeChanges.Add(new RecipeChangeItem(combination.Key, string.Join(", ", combination.Select(c => c.Recipe.Name ?? c.Recipe.Id))));
             }
             OnPropertyChanged(nameof(HasRecipeChanges));
             OnPropertyChanged(nameof(HasNoRecipeChanges));
@@ -116,19 +117,19 @@ namespace Greenshot.Forms.Wpf
     }
 
     /// <summary>
-    /// A recipe and the extensions which change it, shown at the end of the Recipes tab
+    /// Extensions and the recipes they change, shown at the end of the Recipes tab
     /// </summary>
     public class RecipeChangeItem
     {
-        public RecipeChangeItem(string recipeName, string extensions)
+        public RecipeChangeItem(string extensions, string recipes)
         {
-            RecipeName = recipeName;
             Extensions = extensions;
+            Recipes = recipes;
         }
 
-        public string RecipeName { get; }
-
         public string Extensions { get; }
+
+        public string Recipes { get; }
     }
 
     /// <summary>
@@ -164,15 +165,15 @@ namespace Greenshot.Forms.Wpf
     }
 
     /// <summary>
-    /// The options of one recipe or extension; an extension also has which recipes (and destinations) it applies to
+    /// The options of one recipe or extension. An extension with an on/off option has it as checkbox in front of its name,
+    /// its other options are only shown while it is on; it also has the recipes it is used in (and the destinations).
     /// </summary>
     public class RecipeOptionGroup : INotifyPropertyChanged
     {
         private readonly FlowDefinition _definition;
-        private bool _applyToAll;
 
         /// <param name="definition">The recipe or extension</param>
-        /// <param name="extensibleRecipes">Extension only: the recipes it can change, for the "only these" and "except these" lists</param>
+        /// <param name="extensibleRecipes">Extension only: the recipes it can change, for "Use in"</param>
         public RecipeOptionGroup(FlowDefinition definition, IReadOnlyList<CaptureRecipe> extensibleRecipes)
         {
             _definition = definition;
@@ -188,11 +189,16 @@ namespace Greenshot.Forms.Wpf
 
             if (Extension != null)
             {
+                SwitchItem = Items.FirstOrDefault(i => i.IsBoolean && string.Equals(i.Option.Key, RecipeExtension.EnabledOptionKey, StringComparison.OrdinalIgnoreCase));
+                if (SwitchItem != null)
+                {
+                    SwitchItem.PropertyChanged += (sender, args) => OnPropertyChanged(nameof(IsOn));
+                }
+
+                // Checked: the extension changes the recipe. New recipes get it too, so only the unchecked ones are stored.
                 var stored = RecipeExtensionSettings.FromStore(Extension);
-                _applyToAll = stored.ApplyToAll;
-                var recipes = extensibleRecipes ?? Array.Empty<CaptureRecipe>();
-                OnlyRecipes = new ObservableCollection<RecipeScopeItem>(recipes.Select(r => new RecipeScopeItem(r.Id, r.Name ?? r.Id, stored.OnlyRecipes.Contains(r.Id))));
-                ExceptRecipes = new ObservableCollection<RecipeScopeItem>(recipes.Select(r => new RecipeScopeItem(r.Id, r.Name ?? r.Id, stored.ExceptRecipes.Contains(r.Id))));
+                UseIn = new ObservableCollection<RecipeScopeItem>((extensibleRecipes ?? Array.Empty<CaptureRecipe>())
+                    .Select(r => new RecipeScopeItem(r.Id, r.Name ?? r.Id, (stored.ApplyToAll || stored.OnlyRecipes.Contains(r.Id)) && !stored.ExceptRecipes.Contains(r.Id))));
                 OnlyDestinations = new ObservableCollection<RecipeScopeItem>();
                 if (IsDestinationSlot)
                 {
@@ -201,11 +207,12 @@ namespace Greenshot.Forms.Wpf
                         OnlyDestinations.Add(new RecipeScopeItem(destination.Designation, destination.Descriptor?.DisplayName ?? destination.Designation, stored.OnlyDestinations.Contains(destination.Designation)));
                     }
                 }
-                foreach (var scopeItem in OnlyRecipes.Concat(ExceptRecipes).Concat(OnlyDestinations))
+                foreach (var scopeItem in UseIn.Concat(OnlyDestinations))
                 {
                     scopeItem.PropertyChanged += (sender, args) => OnChanged();
                 }
             }
+            BodyItems = new ObservableCollection<RecipeOptionItem>(Items.Where(i => i != SwitchItem));
             ResetCommand = new RelayCommand(Reset);
         }
 
@@ -218,21 +225,49 @@ namespace Greenshot.Forms.Wpf
 
         public RecipeExtension Extension => _definition as RecipeExtension;
 
-        public bool IsExtension => Extension != null;
-
         public string Id => _definition.Id;
 
         public string Name => RecipeText.Translate(_definition.Name ?? _definition.Id);
 
         public string Description => RecipeText.Translate(_definition.Description);
 
-        public bool HasDescription => !string.IsNullOrWhiteSpace(Description);
-
+        /// <summary>
+        /// All options, the on/off option of an extension included
+        /// </summary>
         public ObservableCollection<RecipeOptionItem> Items { get; }
 
-        public ObservableCollection<RecipeScopeItem> OnlyRecipes { get; }
+        /// <summary>
+        /// The options shown under the name: all but the on/off option, which is the checkbox in front of the name
+        /// </summary>
+        public ObservableCollection<RecipeOptionItem> BodyItems { get; }
 
-        public ObservableCollection<RecipeScopeItem> ExceptRecipes { get; }
+        /// <summary>
+        /// The on/off option of an extension, null when there is none (recipes, extensions which are always on)
+        /// </summary>
+        public RecipeOptionItem SwitchItem { get; }
+
+        public bool HasSwitch => SwitchItem != null;
+
+        public bool HasNoSwitch => SwitchItem == null;
+
+        /// <summary>
+        /// Switched on (always for a group without switch): the options are shown
+        /// </summary>
+        public bool IsOn
+        {
+            get => SwitchItem == null || SwitchItem.BoolValue;
+            set
+            {
+                if (SwitchItem != null) SwitchItem.BoolValue = value;
+            }
+        }
+
+        /// <summary>
+        /// Extension only: the recipes it can change, checked when it changes them
+        /// </summary>
+        public ObservableCollection<RecipeScopeItem> UseIn { get; }
+
+        public bool HasUseIn => UseIn != null && UseIn.Count > 0;
 
         public ObservableCollection<RecipeScopeItem> OnlyDestinations { get; }
 
@@ -242,48 +277,18 @@ namespace Greenshot.Forms.Wpf
         public bool IsDestinationSlot => Extension?.SlotName == RecipeSlots.BeforeDestination;
 
         /// <summary>
-        /// "Apply to: all captures"
-        /// </summary>
-        public bool ApplyToAll
-        {
-            get => _applyToAll;
-            set
-            {
-                if (_applyToAll == value) return;
-                _applyToAll = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(ApplyToOnly));
-                OnChanged();
-            }
-        }
-
-        /// <summary>
-        /// "Apply to: only these recipes"
-        /// </summary>
-        public bool ApplyToOnly
-        {
-            get => !_applyToAll;
-            set => ApplyToAll = !value;
-        }
-
-        /// <summary>
         /// The settings of the extension as they are on the tab
         /// </summary>
         public RecipeExtensionSettings CurrentSettings()
         {
-            var enabledItem = Items.FirstOrDefault(i => i.IsBoolean && string.Equals(i.Option.Key, RecipeExtension.EnabledOptionKey, StringComparison.OrdinalIgnoreCase));
             return new RecipeExtensionSettings
             {
-                Enabled = enabledItem == null || enabledItem.BoolValue,
-                ApplyToAll = _applyToAll,
-                OnlyRecipes = Checked(OnlyRecipes),
-                ExceptRecipes = Checked(ExceptRecipes),
-                OnlyDestinations = Checked(OnlyDestinations)
+                Enabled = IsOn,
+                ApplyToAll = true,
+                ExceptRecipes = new HashSet<string>(UseIn?.Where(i => !i.IsChecked).Select(i => i.Id) ?? Enumerable.Empty<string>(), StringComparer.OrdinalIgnoreCase),
+                OnlyDestinations = new HashSet<string>(OnlyDestinations?.Where(i => i.IsChecked).Select(i => i.Id) ?? Enumerable.Empty<string>(), StringComparer.OrdinalIgnoreCase)
             };
         }
-
-        private static ISet<string> Checked(IEnumerable<RecipeScopeItem> items) =>
-            new HashSet<string>(items?.Where(i => i.IsChecked).Select(i => i.Id) ?? Enumerable.Empty<string>(), StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Back to the defaults (stored on OK)
@@ -292,13 +297,16 @@ namespace Greenshot.Forms.Wpf
 
         public void Reset()
         {
-            foreach (var item in Items)
+            foreach (var item in Items.Where(i => i != SwitchItem))
             {
                 item.Value = item.Option.GetDefaultValue();
             }
             if (Extension == null) return;
-            ApplyToAll = true;
-            foreach (var scopeItem in OnlyRecipes.Concat(ExceptRecipes).Concat(OnlyDestinations))
+            foreach (var scopeItem in UseIn)
+            {
+                scopeItem.IsChecked = true;
+            }
+            foreach (var scopeItem in OnlyDestinations)
             {
                 scopeItem.IsChecked = false;
             }
@@ -312,8 +320,8 @@ namespace Greenshot.Forms.Wpf
             }
             if (Extension == null) return;
             var settings = CurrentSettings();
-            RecipeOptionStore.SetValue(Extension.Id, RecipeExtension.ApplyToOption, settings.ApplyToAll ? RecipeExtension.ApplyToAll : RecipeExtension.ApplyToOnly);
-            RecipeOptionStore.SetValue(Extension.Id, RecipeExtension.OnlyRecipesOption, string.Join(",", settings.OnlyRecipes.OrderBy(i => i, StringComparer.OrdinalIgnoreCase)));
+            RecipeOptionStore.SetValue(Extension.Id, RecipeExtension.ApplyToOption, RecipeExtension.ApplyToAll);
+            RecipeOptionStore.SetValue(Extension.Id, RecipeExtension.OnlyRecipesOption, string.Empty);
             RecipeOptionStore.SetValue(Extension.Id, RecipeExtension.ExceptRecipesOption, string.Join(",", settings.ExceptRecipes.OrderBy(i => i, StringComparer.OrdinalIgnoreCase)));
             RecipeOptionStore.SetValue(Extension.Id, RecipeExtension.OnlyDestinationsOption, string.Join(",", settings.OnlyDestinations.OrderBy(i => i, StringComparer.OrdinalIgnoreCase)));
         }
@@ -325,7 +333,6 @@ namespace Greenshot.Forms.Wpf
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
-
     /// <summary>
     /// One option in the settings, the template is picked by its type
     /// </summary>

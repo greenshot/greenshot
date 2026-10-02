@@ -69,8 +69,8 @@ namespace Greenshot.Base.Recipes
             DefaultValue = ApplyToAll,
             Choices = new List<RecipeOptionChoice>
             {
-                new RecipeOptionChoice { Value = ApplyToAll, Label = "settings_recipes_applyto_all" },
-                new RecipeOptionChoice { Value = ApplyToOnly, Label = "settings_recipes_applyto_only" }
+                new RecipeOptionChoice { Value = ApplyToAll },
+                new RecipeOptionChoice { Value = ApplyToOnly }
             }
         };
 
