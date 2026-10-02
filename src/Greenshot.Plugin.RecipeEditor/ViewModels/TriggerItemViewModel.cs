@@ -30,6 +30,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     OnPropertyChanged(nameof(IsManual));
                     OnPropertyChanged(nameof(IsCommandline));
                     OnPropertyChanged(nameof(IsOpenFile));
+                    OnPropertyChanged(nameof(IsExtension));
+                    OnPropertyChanged(nameof(IsAiTool));
                     OnPropertyChanged(nameof(DisplayTitle));
                     _onChanged?.Invoke();
                 }
@@ -133,6 +135,34 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public bool IsCommandline => string.Equals(TriggerType, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase);
         public bool IsOpenFile => string.Equals(TriggerType, TriggerConfig.TypeOpenFile, StringComparison.OrdinalIgnoreCase);
         public bool IsExtension => string.Equals(TriggerType, TriggerConfig.TypeExtension, StringComparison.OrdinalIgnoreCase);
+        public bool IsAiTool => string.Equals(TriggerType, TriggerConfig.TypeAiTool, StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// AI tool trigger: the tool name the AI uses
+        /// </summary>
+        public string ToolName
+        {
+            get => GetParam("ToolName", "");
+            set { SetParam("ToolName", value); OnPropertyChanged(nameof(DisplayTitle)); }
+        }
+
+        /// <summary>
+        /// AI tool trigger: the title of the tool for people
+        /// </summary>
+        public string ToolTitle
+        {
+            get => GetParam("Title", "");
+            set => SetParam("Title", value);
+        }
+
+        /// <summary>
+        /// AI tool trigger: the tool doesn't change anything
+        /// </summary>
+        public bool ReadOnly
+        {
+            get => Config.GetParameter("ReadOnly", true);
+            set => SetParam("ReadOnly", value);
+        }
 
         public string Browser
         {
@@ -160,6 +190,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 if (IsCommandline) return $"💻 CLI: {Command}";
                 if (IsOpenFile) return string.IsNullOrEmpty(Filter) ? "📂 Open With File (All)" : $"📂 Open With: {Filter}";
                 if (IsExtension) return string.IsNullOrEmpty(Browser) ? "🌐 Browser Extension (All)" : $"🌐 Browser: {Browser}";
+                if (IsAiTool) return $"🤖 AI tool: {ToolName}";
                 return $"⚡ Trigger: {TriggerType}";
             }
         }

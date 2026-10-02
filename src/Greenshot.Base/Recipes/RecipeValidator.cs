@@ -107,7 +107,8 @@ namespace Greenshot.Base.Recipes
             Greenshot.Base.Triggers.TriggerConfig.TypeSchedule,
             Greenshot.Base.Triggers.TriggerConfig.TypeCommandline,
             Greenshot.Base.Triggers.TriggerConfig.TypeOpenFile,
-            Greenshot.Base.Triggers.TriggerConfig.TypeExtension
+            Greenshot.Base.Triggers.TriggerConfig.TypeExtension,
+            Greenshot.Base.Triggers.TriggerConfig.TypeAiTool
         };
 
         /// <summary>
@@ -250,6 +251,19 @@ namespace Greenshot.Base.Recipes
                     {
                         result.AddError($"Hotkey trigger '{trigger.Name}' at index {index} has invalid hotkey '{hotkey}': {error}");
                     }
+                }
+            }
+
+            if (string.Equals(trigger.TriggerType, Greenshot.Base.Triggers.TriggerConfig.TypeAiTool, StringComparison.OrdinalIgnoreCase))
+            {
+                string toolName = trigger.GetParameter<string>("ToolName");
+                if (!Greenshot.Base.Triggers.AiToolTrigger.IsValidToolName(toolName))
+                {
+                    result.AddError($"AI tool trigger '{trigger.Name}' at index {index} needs a 'ToolName' of 1 to 64 letters, digits, '_' or '-'{(string.IsNullOrEmpty(toolName) ? string.Empty : $", not '{toolName}'")}.");
+                }
+                if (string.IsNullOrWhiteSpace(trigger.GetParameter<string>("Description")))
+                {
+                    result.AddWarning($"AI tool trigger '{trigger.Name}' at index {index} has no 'Description', the AI won't know what the tool does.");
                 }
             }
 

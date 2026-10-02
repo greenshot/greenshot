@@ -196,6 +196,9 @@
               "type": "string",
               "description": "Used by 'Source' step (Window/ActiveWindow): Target process name (e.g. 'notepad', 'Greenshot')."
             },
+            "WindowHandle": {
+              "description": "Used by 'Source' step (Window): the window to capture without asking or activating it, usually the variable of a Window argument (e.g. '${Window}')."
+            },
             "MatchCase": {
               "type": "boolean",
               "default": false,
@@ -723,7 +726,8 @@
             "Schedule",
             "Commandline",
             "OpenFile",
-            "Extension"
+            "Extension",
+            "AiTool"
           ],
           "description": "The trigger mechanism type."
         },
@@ -784,9 +788,33 @@
               "type": "string",
               "description": "Used by Commandline trigger: Expression or string template (e.g. '${Barcode.Text}') evaluated and emitted to stdout upon completion."
             },
+            "ToolName": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{1,64}$",
+              "description": "Used by AiTool trigger: the tool name AI tools use (greenshot-mcp)."
+            },
+            "Title": {
+              "type": "string",
+              "description": "Used by AiTool trigger: the name of the tool shown to people."
+            },
+            "ReadOnly": {
+              "type": "boolean",
+              "default": true,
+              "description": "Used by AiTool trigger: hint that the tool doesn't change anything (e.g. only captures)."
+            },
+            "Destructive": {
+              "type": "boolean",
+              "default": false,
+              "description": "Used by AiTool trigger: hint that the tool can overwrite or delete something."
+            },
+            "MaxImageSize": {
+              "type": "integer",
+              "default": 1568,
+              "description": "Used by AiTool trigger: the image returned to the AI tool is scaled so its longest side is at most this many pixels, 0 keeps the original size."
+            },
             "Arguments": {
               "type": "array",
-              "description": "Explicit list of named arguments accepted from the command line, their target context variables, requirement, and default values.",
+              "description": "Explicit list of named arguments accepted from the command line (Commandline trigger) or the AI tool (AiTool trigger), their target context variables, requirement, and default values.",
               "items": {
                 "$ref": "#/definitions/CommandlineArgument"
               }
@@ -825,9 +853,9 @@
         },
         "type": {
           "type": "string",
-          "enum": [ "String", "Integer", "Decimal", "Boolean", "FilePath", "DirectoryPath", "Enum", "Object" ],
+          "enum": [ "String", "Integer", "Decimal", "Boolean", "FilePath", "DirectoryPath", "Enum", "Object", "Window", "Region" ],
           "default": "String",
-          "description": "Type of the value. FilePath/DirectoryPath values are sanitized and resolved against the caller's working directory; Integer, Decimal and Boolean values are parsed; Enum values must be one of allowedValues. Only declared arguments are accepted by a recipe."
+          "description": "Type of the value. FilePath/DirectoryPath values are sanitized and resolved against the caller's working directory; Integer, Decimal and Boolean values are parsed; Enum values must be one of allowedValues. Window (AiTool triggers only): a window id from list_windows, resolved to the window. Region: 'x,y,width,height' in screen coordinates. Only declared arguments are accepted by a recipe."
         },
         "allowedValues": {
           "type": "array",

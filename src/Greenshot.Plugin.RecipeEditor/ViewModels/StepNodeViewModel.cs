@@ -1985,9 +1985,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             var owner = GetActiveWindow();
             if (owner != null)
             {
-                return MessageBox.Show(owner, messageBoxText, caption, button, icon);
+                return ThemedMessageBox.Show(owner, messageBoxText, caption, button, icon);
             }
-            return MessageBox.Show(messageBoxText, caption, button, icon);
+            return ThemedMessageBox.Show(messageBoxText, caption, button, icon);
         }
 
         private static void ShowInfoMessage(string messageBoxText, string caption, MessageBoxImage icon = MessageBoxImage.Information)
@@ -1995,11 +1995,11 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             var owner = GetActiveWindow();
             if (owner != null)
             {
-                MessageBox.Show(owner, messageBoxText, caption, MessageBoxButton.OK, icon);
+                ThemedMessageBox.Show(owner, messageBoxText, caption, MessageBoxButton.OK, icon);
             }
             else
             {
-                MessageBox.Show(messageBoxText, caption, MessageBoxButton.OK, icon);
+                ThemedMessageBox.Show(messageBoxText, caption, MessageBoxButton.OK, icon);
             }
         }
 

@@ -178,6 +178,40 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
+        public void RecipeEditorViewModel_UndoAndRedo_RestoreTheChangeAndItsApprovalNotice()
+        {
+            var editorVm = new Greenshot.Plugin.RecipeEditor.ViewModels.RecipeEditorViewModel(RecipeManager.Instance);
+            try
+            {
+                editorVm.NewRecipe();
+                editorVm.RefreshUnsavedState();
+                Assert.False(editorVm.CanUndo);
+                Assert.DoesNotContain("clipboard", editorVm.ApprovalNotice ?? "");
+
+                // A trigger which starts the recipe on its own: saving will ask
+                editorVm.AddTrigger("Clipboard");
+                editorVm.RefreshUnsavedState();
+                editorVm.RefreshUnsavedState();
+                Assert.True(editorVm.CanUndo);
+                Assert.Contains("clipboard", editorVm.ApprovalNotice);
+
+                editorVm.Undo();
+                Assert.Empty(editorVm.ActiveRecipe.Triggers);
+                Assert.DoesNotContain("clipboard", editorVm.ApprovalNotice ?? "");
+                Assert.True(editorVm.CanRedo);
+
+                editorVm.Redo();
+                Assert.Single(editorVm.ActiveRecipe.Triggers);
+                Assert.Contains("clipboard", editorVm.ApprovalNotice);
+                Assert.True(editorVm.IsDirty);
+            }
+            finally
+            {
+                editorVm.Detach();
+            }
+        }
+
+        [Fact]
         public void RecipeEditorViewModel_ManagesErrorTransitionsAndDynamicDestination()
         {
             var editorVm = new Greenshot.Plugin.RecipeEditor.ViewModels.RecipeEditorViewModel();

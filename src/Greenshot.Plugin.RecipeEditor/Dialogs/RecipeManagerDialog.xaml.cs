@@ -63,5 +63,10 @@ namespace Greenshot.Plugin.RecipeEditor.Dialogs
         {
             if (ViewModel != null) ViewModel.SelectedFilterCategory = "Custom";
         }
+
+        private void OnFilterAiClicked(object sender, RoutedEventArgs e)
+        {
+            if (ViewModel != null) ViewModel.SelectedFilterCategory = "AI";
+        }
     }
 }

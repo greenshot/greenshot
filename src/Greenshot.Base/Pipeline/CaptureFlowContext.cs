@@ -106,6 +106,12 @@ namespace Greenshot.Base.Pipeline
         public bool IsPayloadPreSupplied { get; set; }
 
         /// <summary>
+        /// Optional callback of the caller, run once when the flow finished and before the payload is disposed
+        /// (e.g. to hand the final image to an AI tool). Not copied to branch contexts.
+        /// </summary>
+        public Func<CaptureFlowContext, Task> FlowFinishedAsync { get; set; }
+
+        /// <summary>
         /// Optional delegate to immediately emit streaming stdout text back to the caller (e.g. IPC client).
         /// </summary>
         public Func<string, Task> StdoutWriter { get; set; }

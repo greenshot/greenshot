@@ -33,6 +33,7 @@ using Greenshot.Base.Core;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Pipeline;
 
 namespace Greenshot.Plugin.Jira;
 
@@ -137,7 +138,7 @@ public sealed class JiraIconProvider : IIconProvider
 /// <summary>
 /// Attach the capture to a Jira issue: a recent one (dynamic destination) or one chosen in the Jira dialog.
 /// </summary>
-public class JiraDestination : DestinationBase
+public class JiraDestination : DestinationBase, IRequiresRecipeAuthorization
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(JiraDestination));
     private static IJiraConfiguration Config => IniConfigRegistry.GetSection<IJiraConfiguration>();
@@ -149,6 +150,14 @@ public class JiraDestination : DestinationBase
     }
 
     public override string Designation => "Jira";
+
+    /// <summary>
+    /// Uploads the capture: the user has to allow network access when approving a recipe with this destination
+    /// </summary>
+    public IEnumerable<RecipeGatedAction> GetGatedActions()
+    {
+        yield return new RecipeGatedAction(RecipeGateType.NetworkAccess, "Jira");
+    }
 
     public override DestinationDescriptor Descriptor
     {

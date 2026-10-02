@@ -25,6 +25,7 @@
         <wpf:ExpertVisibilityConverter x:Key="ExpertVisibilityConverter"/>
         <wpf:FixedToEnabledConverter x:Key="FixedToEnabledConverter"/>
         <wpf:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         
         <!-- Modern GroupBox Style -->
         <Style TargetType="GroupBox">
@@ -858,6 +859,283 @@
                 </ScrollViewer>
             </TabItem>
             
+            <!-- AI tools Tab (greenshot-mcp): an opt-in, shown for beta testers -->
+            <TabItem Header="{wpf:Translate settings_aitools}"
+                     Visibility="{Binding CoreConfiguration.IsBetaTester, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <TabItem.Resources>
+                    <!-- A small round "x" to remove an entry -->
+                    <Style x:Key="RemoveEntryButtonStyle" TargetType="Button">
+                        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                        <Setter Property="Cursor" Value="Hand"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="Bd" Background="Transparent" CornerRadius="9" Width="18" Height="18">
+                                        <TextBlock Text="✕" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                   Foreground="{TemplateBinding Foreground}"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Bd" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonBackgroundBrush}"/>
+                                            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ErrorBrush}"/>
+                                        </Trigger>
+                                        <Trigger Property="IsEnabled" Value="False">
+                                            <Setter Property="Opacity" Value="0.4"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                    <!-- A row of a list: a card with a border -->
+                    <Style x:Key="EntryRowStyle" TargetType="Border">
+                        <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}"/>
+                        <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+                        <Setter Property="BorderThickness" Value="1"/>
+                        <Setter Property="CornerRadius" Value="4"/>
+                        <Setter Property="Padding" Value="10,6"/>
+                        <Setter Property="Margin" Value="0,0,0,4"/>
+                    </Style>
+                </TabItem.Resources>
+                <ScrollViewer Style="{DynamicResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel>
+                        <!-- The master switch, and whether greenshot-mcp.exe is there -->
+                        <GroupBox Header="{wpf:Translate settings_aitools_access}">
+                            <StackPanel>
+                                <CheckBox IsChecked="{Binding AiToolsEnabled, Mode=TwoWay}"
+                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=AiToolsEnabled}">
+                                    <TextBlock Text="{wpf:Translate settings_aitools_enabled}" FontWeight="SemiBold" TextWrapping="Wrap"
+                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                </CheckBox>
+                                <TextBlock Text="{wpf:Translate settings_aitools_enabled_description}"
+                                           TextWrapping="Wrap" Margin="22,4,0,0" FontSize="11"
+                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                <ItemsControl ItemsSource="{Binding McpServers}" Margin="22,10,0,0">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,0,0,4" ToolTip="{Binding Path}">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="20"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding Symbol}" FontWeight="Bold" VerticalAlignment="Top">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Foreground" Value="#2EA043"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsOtherVersion}" Value="True">
+                                                                    <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=WarningBrush}"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Exists}" Value="False">
+                                                                    <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ErrorBrush}"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                                <StackPanel Grid.Column="1">
+                                                    <TextBlock Text="{Binding Text}" TextWrapping="Wrap" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                                    <TextBlock Text="{Binding Path}" FontSize="11" TextTrimming="CharacterEllipsis"
+                                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <TextBlock Margin="42,0,0,0" TextWrapping="Wrap" FontSize="11" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsMcpServerFound}" Value="False">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                    <Run Text="{wpf:Translate settings_aitools_mcp_download}"/>
+                                    <Hyperlink NavigateUri="https://github.com/greenshot/greenshot/releases" RequestNavigate="McpDownload_RequestNavigate">
+                                        <Run Text="github.com/greenshot/greenshot/releases"/>
+                                    </Hyperlink>
+                                </TextBlock>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <GroupBox Header="{wpf:Translate settings_aitools_programs}">
+                            <StackPanel>
+                                <TextBlock Text="{wpf:Translate settings_aitools_allowed}"
+                                           TextWrapping="Wrap" Margin="0,0,0,8" FontSize="11"
+                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                <TextBlock Text="{wpf:Translate settings_aitools_none}"
+                                           Margin="0,0,0,4" FontStyle="Italic"
+                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
+                                           Visibility="{Binding HasNoAiToolClients, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                <ItemsControl ItemsSource="{Binding AiToolsAllowedClients}"
+                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=AiToolsAllowedClients}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Style="{StaticResource EntryRowStyle}">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold"
+                                                                   Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                                        <TextBlock Text="{Binding Path}" FontSize="11" TextTrimming="CharacterEllipsis" ToolTip="{Binding Path}"
+                                                                   Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                                        <TextBlock Text="{Binding SignerText}" FontSize="11"
+                                                                   Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                                    </StackPanel>
+                                                    <Button Grid.Column="1" Style="{StaticResource RemoveEntryButtonStyle}" VerticalAlignment="Center" Margin="8,0,0,0"
+                                                            ToolTip="{wpf:Translate settings_aitools_remove}"
+                                                            Click="RemoveAiToolClient_Click"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <!-- Programs the user didn't allow in this Greenshot run -->
+                        <GroupBox Header="{wpf:Translate settings_aitools_denied}"
+                                  Visibility="{Binding HasDeniedAiToolClients, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <StackPanel>
+                                <TextBlock Text="{wpf:Translate settings_aitools_denied_description}"
+                                           TextWrapping="Wrap" Margin="0,0,0,8" FontSize="11"
+                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                <ItemsControl ItemsSource="{Binding DeniedAiToolClients}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Style="{StaticResource EntryRowStyle}">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold"
+                                                                   Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                                        <TextBlock Text="{Binding Path}" FontSize="11" TextTrimming="CharacterEllipsis" ToolTip="{Binding Path}"
+                                                                   Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                                        <TextBlock Text="{Binding SignerText}" FontSize="11"
+                                                                   Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
+                                                        <Button Content="{wpf:Translate settings_aitools_denied_allow}" Padding="10,2" Margin="0,0,4,0"
+                                                                Click="AllowDeniedClient_Click"/>
+                                                        <Button Content="{wpf:Translate settings_aitools_denied_askagain}" Padding="10,2"
+                                                                Click="AskAgainDeniedClient_Click"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <GroupBox Header="{wpf:Translate settings_aitools_permissions}">
+                            <StackPanel>
+                                <CheckBox IsChecked="{Binding CoreConfiguration.AiToolsAllowRecipeProposals, Mode=TwoWay}"
+                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=AiToolsAllowRecipeProposals}">
+                                    <TextBlock Text="{wpf:Translate settings_aitools_proposals}" TextWrapping="Wrap" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                </CheckBox>
+                                <TextBlock Text="{wpf:Translate settings_aitools_proposals_description}"
+                                           TextWrapping="Wrap" Margin="22,2,0,8" FontSize="11"
+                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                <CheckBox IsChecked="{Binding CoreConfiguration.AiToolsNotifyOnCapture, Mode=TwoWay}"
+                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=AiToolsNotifyOnCapture}">
+                                    <TextBlock Text="{wpf:Translate settings_aitools_notify}" TextWrapping="Wrap" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                </CheckBox>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <GroupBox Header="{wpf:Translate settings_aitools_excluded}">
+                            <StackPanel IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=AiToolsExcludedProcesses}">
+                                <TextBlock Text="{wpf:Translate settings_aitools_excluded_description}"
+                                           TextWrapping="Wrap" Margin="0,0,0,8" FontSize="11"
+                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                <ItemsControl ItemsSource="{Binding AiToolsExcludedProcesses}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonBackgroundBrush}" BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}" BorderThickness="1"
+                                                    CornerRadius="12" Padding="10,3,4,3" Margin="0,0,6,6">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="{Binding}" VerticalAlignment="Center" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                                    <Button Style="{StaticResource RemoveEntryButtonStyle}" Margin="4,0,0,0"
+                                                            ToolTip="{wpf:Translate settings_aitools_remove}"
+                                                            Click="RemoveExcludedProcess_Click"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <Grid Margin="0,2,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Text="{Binding NewExcludedProcess, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             ToolTip="{wpf:Translate settings_aitools_excluded_add_tooltip}"
+                                             KeyDown="NewExcludedProcess_KeyDown"/>
+                                    <Button Grid.Column="1" Content="{wpf:Translate settings_aitools_add}" Margin="8,0,0,0" Padding="12,3" MinWidth="80"
+                                            Click="AddExcludedProcess_Click"/>
+                                </Grid>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <!-- Recipes from files and their approval (also those written by AI tools) -->
+                        <GroupBox Header="{wpf:Translate settings_recipeapprovals}">
+                            <StackPanel>
+                                <TextBlock Text="{wpf:Translate settings_recipeapprovals_description}"
+                                           TextWrapping="Wrap" Margin="0,0,0,8" FontSize="11"
+                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                <ItemsControl ItemsSource="{Binding ApprovedRecipes}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Style="{StaticResource EntryRowStyle}">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Text="⚠" Margin="0,0,8,0" VerticalAlignment="Center"
+                                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=WarningBrush}"
+                                                               Visibility="{Binding NeedsAttention, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold"
+                                                                   Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                                        <TextBlock Text="{Binding Subtitle}" FontSize="11" TextWrapping="Wrap"
+                                                                   Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
+                                                        <Button Content="{wpf:Translate settings_recipeapprovals_details}" Padding="10,2" Margin="0,0,4,0"
+                                                                Click="ShowRecipeDetails_Click"/>
+                                                        <Button Content="{wpf:Translate settings_recipeapprovals_review}" Padding="10,2" Margin="0,0,4,0"
+                                                                Click="ReviewRecipeApproval_Click"/>
+                                                        <Button Content="{wpf:Translate settings_recipeapprovals_revoke}" Padding="10,2"
+                                                                Click="RevokeRecipeApproval_Click"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
             <!-- Plugin Tab -->
             <TabItem x:Name="PluginsTabItem" Header="{wpf:Translate settings_plugins}">
                 <Grid Margin="8">

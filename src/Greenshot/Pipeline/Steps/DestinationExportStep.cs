@@ -91,6 +91,12 @@ namespace Greenshot.Pipeline.Steps
 
         public IEnumerable<RecipeGatedAction> GetGatedActions()
         {
+            string saveDirectory = Config.GetParameter<string>("SaveDirectory");
+            if (!string.IsNullOrWhiteSpace(saveDirectory))
+            {
+                yield return new RecipeGatedAction(RecipeGateType.FileSystemAccess, $"Writes files to {saveDirectory}");
+            }
+
             var designations = ResolveDestinationDesignations(null);
             if (designations != null)
             {

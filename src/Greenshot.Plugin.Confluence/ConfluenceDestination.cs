@@ -33,6 +33,7 @@ using Dapplo.Ini;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Pipeline;
 using Greenshot.Plugin.Confluence.Entities;
 
 namespace Greenshot.Plugin.Confluence;
@@ -40,7 +41,7 @@ namespace Greenshot.Plugin.Confluence;
 /// <summary>
 /// Description of ConfluenceDestination.
 /// </summary>
-public class ConfluenceDestination : DestinationBase
+public class ConfluenceDestination : DestinationBase, IRequiresRecipeAuthorization
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ConfluenceDestination));
     private static IConfluenceConfiguration ConfluenceConfig => IniConfigHelper.EnsureSection<IConfluenceConfiguration>(() => new ConfluenceConfigurationImpl());
@@ -126,6 +127,14 @@ public class ConfluenceDestination : DestinationBase
     }
 
     public override string Designation => "Confluence";
+
+    /// <summary>
+    /// Uploads the capture: the user has to allow network access when approving a recipe with this destination
+    /// </summary>
+    public IEnumerable<RecipeGatedAction> GetGatedActions()
+    {
+        yield return new RecipeGatedAction(RecipeGateType.NetworkAccess, "Confluence");
+    }
 
     public override DestinationDescriptor Descriptor
     {

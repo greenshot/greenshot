@@ -76,7 +76,27 @@ namespace Greenshot.Helpers.Ipc
             "ABOUT",
             "SELF_SERVICE",
             "RECIPE_EDITOR",
-            "RECIPE_MANAGER"
+            "RECIPE_MANAGER",
+            "LIST_WINDOWS",
+            "LIST_AI_TOOLS",
+            "RUN_AI_TOOL",
+            "RECIPE_CATALOG",
+            "VALIDATE_RECIPE",
+            "PROPOSE_RECIPE"
+        };
+
+        /// <summary>
+        /// The commands of AI tools (greenshot-mcp.exe): only allowed for the "mcp" source. Except LIST_AI_TOOLS they need the user's
+        /// consent for the AI tool (see <see cref="AiToolAccess"/>).
+        /// </summary>
+        private static readonly HashSet<string> AiToolCommands = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "LIST_WINDOWS",
+            "LIST_AI_TOOLS",
+            "RUN_AI_TOOL",
+            "RECIPE_CATALOG",
+            "VALIDATE_RECIPE",
+            "PROPOSE_RECIPE"
         };
 
         private static readonly HashSet<string> FallbackAllowedImageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -216,10 +236,11 @@ namespace Greenshot.Helpers.Ipc
             }
 
             // 4. UNC / Network share validation:
-            // Disallow UNC paths from untrusted sources (url_scheme, native_messaging) to prevent NTLM credential relay
+            // Disallow UNC paths from untrusted sources (url_scheme, native_messaging, mcp) to prevent NTLM credential relay
             bool isUnc = fullPath.StartsWith(@"\\") || fullPath.StartsWith("//");
             if (isUnc && (string.Equals(source, "url_scheme", StringComparison.OrdinalIgnoreCase) ||
-                          string.Equals(source, "native_messaging", StringComparison.OrdinalIgnoreCase)))
+                          string.Equals(source, "native_messaging", StringComparison.OrdinalIgnoreCase) ||
+                          string.Equals(source, IpcSources.Mcp, StringComparison.OrdinalIgnoreCase)))
             {
                 errorMessage = "Network (UNC) paths are not permitted from this source.";
                 return false;
@@ -286,6 +307,18 @@ namespace Greenshot.Helpers.Ipc
             {
                 "CLI",
                 "OPEN_FILE"
+            },
+            // greenshot-mcp.exe: what an AI tool may do, after the user allowed it. Everything it captures goes through a recipe
+            // with an AI tool trigger (RUN_AI_TOOL), not through the command line recipes (RUN_RECIPE).
+            [IpcSources.Mcp] = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "VERSION",
+                "LIST_WINDOWS",
+                "LIST_AI_TOOLS",
+                "RUN_AI_TOOL",
+                "RECIPE_CATALOG",
+                "VALIDATE_RECIPE",
+                "PROPOSE_RECIPE"
             }
         };
 
@@ -298,11 +331,53 @@ namespace Greenshot.Helpers.Ipc
             {
                 return false;
             }
+            // AI tool commands only for greenshot-mcp.exe: not for the command line, a web page or the browser extension
+            if (AiToolCommands.Contains(command) && !string.Equals(source, IpcSources.Mcp, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
             if (!string.IsNullOrEmpty(source) && SourceAllowedCommands.TryGetValue(source, out var sourceCommands))
             {
                 return sourceCommands.Contains(command);
             }
             return true;
+        }
+
+        /// <summary>
+        /// Why an AI tool request is refused by the opt-in switches, null when it isn't. Only greenshot-mcp's own version
+        /// passes while AI tools are switched off.
+        /// </summary>
+        internal static string GetAiToolsOptInError(string command, string source)
+        {
+            if (!string.Equals(source, IpcSources.Mcp, StringComparison.OrdinalIgnoreCase))
+            {
+                return null;
+            }
+            if (!AiToolAccess.IsEnabled)
+            {
+                return string.Equals(command, "VERSION", StringComparison.OrdinalIgnoreCase) ? null : AiToolAccess.DisabledMessage;
+            }
+            if (string.Equals(command, "PROPOSE_RECIPE", StringComparison.OrdinalIgnoreCase) && !AiToolAccess.AreRecipeProposalsAllowed)
+            {
+                return AiToolAccess.ProposalsDisabledMessage;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// True when the command needs the user's consent for AI tools: every command from greenshot-mcp.exe except VERSION and
+        /// LIST_AI_TOOLS (the tool names and descriptions, so the AI tool can show its tools before the user is asked),
+        /// and the AI tool commands from any source. The recipe commands (catalog, validate, propose) need the consent too; a
+        /// proposed recipe additionally needs the user's approval in the recipe approval window.
+        /// </summary>
+        internal static bool RequiresAiToolConsent(string command, string source)
+        {
+            if (string.Equals(command, "VERSION", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(command, "LIST_AI_TOOLS", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+            return AiToolCommands.Contains(command) || string.Equals(source, IpcSources.Mcp, StringComparison.OrdinalIgnoreCase);
         }
 
         public static async Task DispatchAsync(IpcRequestContext context, Form mainForm, Action onExit, Action onReloadConfig, Action onFirstLaunch, Action<string> onOpenFile)
@@ -359,6 +434,42 @@ namespace Greenshot.Helpers.Ipc
                         status = "error",
                         exit_code = 1,
                         stderr = $"[SECURITY] IPC command rejected: '{command}' is not in the allowed command whitelist for source '{context.Envelope.Source}'."
+                    }).ConfigureAwait(false);
+                }
+                catch { }
+                return;
+            }
+
+            // 2. AI tools are opt-in: switched off, greenshot-mcp gets nothing but its version, and nobody is asked
+            string optInError = GetAiToolsOptInError(command, context.Envelope.Source);
+            if (optInError != null)
+            {
+                Log.Warn($"[SECURITY] IPC command rejected: '{command}' from source '{context.Envelope.Source}': {optInError}");
+                try
+                {
+                    await context.ReplyAsync(new
+                    {
+                        status = "error",
+                        exit_code = 1,
+                        stderr = optInError
+                    }).ConfigureAwait(false);
+                }
+                catch { }
+                return;
+            }
+
+            // 3. AI tools (and anything reading the screen contents) need the user's consent
+            if (RequiresAiToolConsent(command, context.Envelope.Source) &&
+                !await AiToolAccess.EnsureAllowedAsync(context.AiClient).ConfigureAwait(false))
+            {
+                Log.Warn($"[SECURITY] IPC command rejected: '{command}' from source '{context.Envelope.Source}', the user did not allow {context.AiClient?.ToString() ?? "an unidentified program"}.");
+                try
+                {
+                    await context.ReplyAsync(new
+                    {
+                        status = "error",
+                        exit_code = 1,
+                        stderr = AiToolAccess.NotAllowedMessage
                     }).ConfigureAwait(false);
                 }
                 catch { }
@@ -422,6 +533,30 @@ namespace Greenshot.Helpers.Ipc
 
                 case "RECIPE_MANAGER":
                     await HandleRecipeManagerAsync(context, mainForm).ConfigureAwait(false);
+                    break;
+
+                case "LIST_WINDOWS":
+                    await AiToolIpcHandler.HandleListWindowsAsync(context).ConfigureAwait(false);
+                    break;
+
+                case "LIST_AI_TOOLS":
+                    await AiToolIpcHandler.HandleListAiToolsAsync(context).ConfigureAwait(false);
+                    break;
+
+                case "RUN_AI_TOOL":
+                    await AiToolIpcHandler.HandleRunAiToolAsync(context).ConfigureAwait(false);
+                    break;
+
+                case "RECIPE_CATALOG":
+                    await AiRecipeIpcHandler.HandleRecipeCatalogAsync(context).ConfigureAwait(false);
+                    break;
+
+                case "VALIDATE_RECIPE":
+                    await AiRecipeIpcHandler.HandleValidateRecipeAsync(context).ConfigureAwait(false);
+                    break;
+
+                case "PROPOSE_RECIPE":
+                    await AiRecipeIpcHandler.HandleProposeRecipeAsync(context).ConfigureAwait(false);
                     break;
 
                 case "EXIT":
@@ -663,7 +798,7 @@ namespace Greenshot.Helpers.Ipc
                 foreach (var recipe in recipeManager.GetAllRecipes().Where(r => r.IsEnabled))
                 {
                     if (recipe.Triggers == null) continue;
-                    foreach (var tc in recipe.Triggers.Where(t => t.Enabled && string.Equals(t.TriggerType, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase)))
+                    foreach (var tc in recipe.Triggers.Where(t => t.IsActive && string.Equals(t.TriggerType, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase)))
                     {
                         string cmd = tc.GetParameter<string>("Command") ?? recipe.Id;
                         string desc = tc.GetParameter<string>("Description") ?? recipe.Description ?? string.Empty;
@@ -881,7 +1016,7 @@ namespace Greenshot.Helpers.Ipc
             foreach (var recipe in recipeManager.GetAllRecipes().Where(r => r.IsEnabled))
             {
                 if (recipe.Triggers == null) continue;
-                foreach (var tc in recipe.Triggers.Where(t => t.Enabled && string.Equals(t.TriggerType, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase)))
+                foreach (var tc in recipe.Triggers.Where(t => t.IsActive && string.Equals(t.TriggerType, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase)))
                 {
                     string cmd = tc.GetParameter<string>("Command");
                     if (string.Equals(cmd, target, StringComparison.OrdinalIgnoreCase) ||
@@ -908,7 +1043,7 @@ namespace Greenshot.Helpers.Ipc
             }
 
             // Recipes can only be started from a browser (web page URL or extension) when the trigger explicitly opts in.
-            if (IsBrowserSource(context.Envelope.Source) && !matchedTriggerConfig.GetParameter<bool>("AllowBrowserInvocation", false))
+            if (IsBrowserSource(context.Envelope.Source) && !(matchedTriggerConfig.GetParameter<bool>("AllowBrowserInvocation", false) && matchedTriggerConfig.IsBrowserInvocationApproved))
             {
                 Log.Warn($"[SECURITY] RUN_RECIPE rejected: recipe '{matchedRecipe.Id}' does not allow invocation from source '{context.Envelope.Source}'.");
                 await context.ReplyAsync(new
@@ -1419,7 +1554,7 @@ namespace Greenshot.Helpers.Ipc
                 foreach (var recipe in recipeManager.GetAllRecipes().Where(r => r.IsEnabled))
                 {
                     if (recipe.Triggers == null) continue;
-                    foreach (var tc in recipe.Triggers.Where(t => t.Enabled && string.Equals(t.TriggerType, TriggerConfig.TypeOpenFile, StringComparison.OrdinalIgnoreCase)))
+                    foreach (var tc in recipe.Triggers.Where(t => t.IsActive && string.Equals(t.TriggerType, TriggerConfig.TypeOpenFile, StringComparison.OrdinalIgnoreCase)))
                     {
                         openFileRecipes.Add((recipe, tc));
                     }

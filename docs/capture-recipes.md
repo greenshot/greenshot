@@ -38,6 +38,32 @@ Recipes can be written in code or provided as external `.json` (`.gsrecipe.json`
 >
 > Custom recipes are stored in `%APPDATA%\Greenshot\Recipes\*.gsrecipe.json`.
 
+### Approving recipe files
+
+A recipe file only runs after you approved it. The approval window shows what the recipe does in plain words (written
+by Greenshot from the recipe, with uploads, external programs and file access marked), each trigger with its own
+switch and what it means, and a permission for each kind of action that needs one: uploads (network), external
+commands and file access. Without those permissions the recipe isn't loaded. A changed file is shown with what was
+added and removed and the changed lines, and a file that replaces a built-in recipe says so (the recipe manager's
+"Reset Default" brings the built-in recipe back).
+
+The approval is pinned to the exact content of the file (SHA-256) and stored, per recipe of the file, in the
+encrypted trust store (`%LOCALAPPDATA%\Greenshot\recipe_trust.dat`), not in the recipe file: which triggers are
+switched on and which permissions were given. When the file is changed outside Greenshot you are asked again, right after the change. Saving in Greenshot's recipe
+editor renews the approval for the saved content without asking: triggers keep their switch, and new harmless ones
+(hotkey, menu entry) are on. Only a change which adds a trigger that starts the recipe on its own or from outside
+(clipboard, schedule, command line, web pages, browser extension, AI tools), a new kind of permission, or the first
+replacement of a built-in recipe shows the approval window when you save. To change the triggers or permissions later,
+use "Permissions" in the recipe manager: "Save Changes" keeps the new switches, "Keep as Is" (or closing the window)
+changes nothing, and "Revoke Approval" takes an approval back; Settings > AI tools >
+"Approved recipes" offers the same (Details, Review, Revoke) without the recipe editor plug-in. "Details" shows the approval window read-only: what a recipe does, its approval and the changes against the
+built-in recipe it replaces. The recipe editor works on a copy: changes reach Greenshot only when you save, the
+title shows "*" while there are unsaved changes, and closing the editor, switching the recipe, New and Open ask to save
+or discard them. Undo and Redo (Ctrl+Z, Ctrl+Y) go back and forth through the changes of each recipe while the editor is open, also past a
+save. A bar under the toolbar says what is pending: what saving will ask for, or that the file changed outside
+Greenshot or has triggers switched off by the approval. Recipes proposed by AI tools
+go through the same window, see [mcp-server.md](mcp-server.md#recipes-written-by-ai-tools).
+
 ---
 
 ## 1. Core Architecture: Decoupling Triggers from Recipes

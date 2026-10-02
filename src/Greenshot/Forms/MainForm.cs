@@ -460,6 +460,16 @@ namespace Greenshot.Forms
             _namedPipeServer = new NamedPipeServer();
             _namedPipeServer.RequestReceived += OnNamedPipeRequestReceivedAsync;
             _namedPipeServer.Start();
+            RestartManagerHelper.ShutdownNotifier = reason => _namedPipeServer.NotifyShutdownAsync(reason);
+            // greenshot-mcp updates its tools right away when the recipes or the AI tools switch change
+            RecipeManager.Instance.RecipesChanged += (sender, args) => NotifyToolsChanged();
+            coreConfiguration.PropertyChanged += (sender, args) =>
+            {
+                if (args.PropertyName == nameof(ICoreConfiguration.AiToolsEnabled))
+                {
+                    NotifyToolsChanged();
+                }
+            };
 
             if (options.Restore)
             {
@@ -1639,6 +1649,19 @@ namespace Greenshot.Forms
             Log.Info("Exit: " + EnvironmentInfo.EnvironmentToString(false));
             ShutdownUi();
 
+            // The clients learn that Greenshot exits on purpose: greenshot-mcp waits for the next start instead of starting it again
+            if (_namedPipeServer != null)
+            {
+                try
+                {
+                    await _namedPipeServer.NotifyShutdownAsync(NamedPipeServer.ShutdownReasonExit).WaitAsync(TimeSpan.FromSeconds(1));
+                }
+                catch (Exception ex)
+                {
+                    Log.Debug("Could not tell the named pipe clients that Greenshot exits.", ex);
+                }
+            }
+
             // Running flows are cancelled, the shutdown waits a bounded time for them
             using (var timeoutSource = new CancellationTokenSource(ShutdownTimeout))
             {
@@ -1673,6 +1696,11 @@ namespace Greenshot.Forms
             }
 
             ShutdownCleanup(true);
+        }
+
+        private void NotifyToolsChanged()
+        {
+            _namedPipeServer?.NotifyWatchersAsync(new { @event = "tools_changed" }).FireAndLog("Tell the watchers that the tools changed", Log);
         }
 
         /// <summary>

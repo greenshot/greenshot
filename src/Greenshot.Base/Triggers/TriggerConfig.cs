@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Greenshot.Base.Triggers
@@ -41,6 +42,7 @@ namespace Greenshot.Base.Triggers
         public const string TypeCommandline = "Commandline";
         public const string TypeOpenFile = "OpenFile";
         public const string TypeExtension = "Extension";
+        public const string TypeAiTool = "AiTool";
 
         /// <summary>
         /// The type of trigger (e.g. "Hotkey", "ContextMenu", "Clipboard", "Manual").
@@ -56,6 +58,26 @@ namespace Greenshot.Base.Triggers
         /// Whether this trigger is active. Defaults to true.
         /// </summary>
         public bool Enabled { get; set; } = true;
+
+        /// <summary>
+        /// False when the user didn't approve this trigger for a recipe from a file (the approval window lists each trigger,
+        /// the decision is kept in the trust store, not in the recipe file). Not saved with the recipe.
+        /// </summary>
+        [JsonIgnore]
+        public bool IsApproved { get; set; } = true;
+
+        /// <summary>
+        /// Whether the trigger may start the recipe: enabled and approved
+        /// </summary>
+        [JsonIgnore]
+        public bool IsActive => Enabled && IsApproved;
+
+        /// <summary>
+        /// False when the user approved a Commandline trigger, but not its AllowBrowserInvocation (web pages and the browser
+        /// extension). Not saved with the recipe.
+        /// </summary>
+        [JsonIgnore]
+        public bool IsBrowserInvocationApproved { get; set; } = true;
 
         /// <summary>
         /// Trigger-specific parameters (e.g. Hotkey, MenuItemText, Group, Order).
@@ -126,6 +148,8 @@ namespace Greenshot.Base.Triggers
                 TriggerType = TriggerType,
                 Name = Name,
                 Enabled = Enabled,
+                IsApproved = IsApproved,
+                IsBrowserInvocationApproved = IsBrowserInvocationApproved,
                 Parameters = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
             };
 
@@ -230,6 +254,47 @@ namespace Greenshot.Base.Triggers
                 config.SetParameter("Browser", browser);
             }
             config.SetParameter("FireAndForget", fireAndForget);
+            return config;
+        }
+
+        /// <summary>
+        /// A trigger which offers the recipe as a tool to AI tools (MCP clients connected through greenshot-mcp.exe).
+        /// </summary>
+        /// <param name="toolName">The tool name the AI uses (letters, digits, _ and -)</param>
+        /// <param name="description">What the tool does, for the AI</param>
+        /// <param name="arguments">The tool's arguments; Window arguments take a window reference from list_windows</param>
+        /// <param name="title">Name of the tool for people</param>
+        /// <param name="readOnly">True when the tool doesn't change anything (e.g. only captures)</param>
+        /// <param name="destructive">True when the tool can overwrite or delete something</param>
+        /// <param name="name">Name of the trigger</param>
+        public static TriggerConfig CreateAiTool(
+            string toolName,
+            string description,
+            IEnumerable<CommandlineArgument> arguments = null,
+            string title = null,
+            bool readOnly = true,
+            bool destructive = false,
+            string name = null)
+        {
+            var config = new TriggerConfig(TypeAiTool, name ?? (title ?? toolName ?? "AI tool"));
+            if (!string.IsNullOrEmpty(toolName))
+            {
+                config.SetParameter("ToolName", toolName);
+            }
+            if (!string.IsNullOrEmpty(title))
+            {
+                config.SetParameter("Title", title);
+            }
+            if (!string.IsNullOrEmpty(description))
+            {
+                config.SetParameter("Description", description);
+            }
+            config.SetParameter("ReadOnly", readOnly);
+            config.SetParameter("Destructive", destructive);
+            if (arguments != null)
+            {
+                config.SetParameter("Arguments", new List<CommandlineArgument>(arguments));
+            }
             return config;
         }
 

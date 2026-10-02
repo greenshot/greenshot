@@ -258,6 +258,101 @@ namespace Greenshot.Forms.Wpf
             dialog.ShowDialog();
         }
 
+        private void RemoveAiToolClient_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as FrameworkElement)?.DataContext is AiToolClientItem client)
+            {
+                _viewModel.AiToolsAllowedClients.Remove(client);
+            }
+        }
+
+        private void AllowDeniedClient_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.AllowDeniedClient((sender as FrameworkElement)?.DataContext as AiToolClientItem);
+        }
+
+        private void AskAgainDeniedClient_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.AskAgain((sender as FrameworkElement)?.DataContext as AiToolClientItem);
+        }
+
+        private void RemoveExcludedProcess_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as FrameworkElement)?.DataContext is string processName)
+            {
+                _viewModel.AiToolsExcludedProcesses.Remove(processName);
+            }
+        }
+
+        private void AddExcludedProcess_Click(object sender, RoutedEventArgs e)
+        {
+            AddExcludedProcess();
+        }
+
+        private void NewExcludedProcess_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Enter)
+            {
+                AddExcludedProcess();
+                e.Handled = true;
+            }
+        }
+
+        private void AddExcludedProcess()
+        {
+            // Several at once are fine too: "KeePass, Bitwarden"
+            foreach (string name in (_viewModel.NewExcludedProcess ?? string.Empty).Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                _viewModel.AddExcludedProcess(name);
+            }
+            _viewModel.NewExcludedProcess = string.Empty;
+        }
+
+        private void McpDownload_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
+        {
+            try
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Could not open the download page of greenshot-mcp", ex);
+            }
+            e.Handled = true;
+        }
+
+        private void ShowRecipeDetails_Click(object sender, RoutedEventArgs e)
+        {
+            var item = (sender as FrameworkElement)?.DataContext as ApprovedRecipeItem;
+            if (item == null) return;
+            Greenshot.Recipes.RecipeManager.Instance.ShowRecipeDetails(item.RecipeId);
+        }
+
+        private void ReviewRecipeApproval_Click(object sender, RoutedEventArgs e)
+        {
+            var item = (sender as FrameworkElement)?.DataContext as ApprovedRecipeItem;
+            if (item == null) return;
+            // Takes effect right away, like every approval
+            var result = Greenshot.Recipes.RecipeManager.Instance.ReviewApproval(item.RecipeId);
+            if (result != null && !result.IsValid)
+            {
+                ThemedMessageBox.Show(this, string.Join("\n", result.Errors), BaseLanguage.GetString("settings_recipeapprovals"), MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            _viewModel.RefreshApprovedRecipes();
+        }
+
+        private void RevokeRecipeApproval_Click(object sender, RoutedEventArgs e)
+        {
+            var item = (sender as FrameworkElement)?.DataContext as ApprovedRecipeItem;
+            if (item == null) return;
+            int choice = ThemedMessageBox.ShowChoice(this, "Revoke Approval",
+                $"Revoke the approval of \"{item.Recipe.Name}\"? It stops running right away and isn't loaded again. Its file stays where it is: " +
+                "open it again to review and approve it.", MessageBoxImage.Warning, new[] { "Revoke", "Keep" }, defaultIndex: 1, cancelIndex: 1);
+            if (choice != 0) return;
+            Greenshot.Recipes.RecipeManager.Instance.RevokeApproval(item.RecipeId);
+            _viewModel.RefreshApprovedRecipes();
+        }
+
         private void IconSizeUp_Click(object sender, RoutedEventArgs e)
         {
             if (_viewModel.IconSize + 16 <= 256)
@@ -292,6 +387,13 @@ namespace Greenshot.Forms.Wpf
             }
             
             _viewModel.CoreConfiguration.OutputDestinations = destinations;
+
+            // Programs allowed to use Greenshot through greenshot-mcp
+            _viewModel.CoreConfiguration.AiToolsAllowedClients = _viewModel.AiToolsAllowedClients.Select(c => c.Path).ToList();
+            if (!_viewModel.CoreConfiguration.IsConstant(nameof(ICoreConfiguration.AiToolsExcludedProcesses)))
+            {
+                _viewModel.CoreConfiguration.AiToolsExcludedProcesses = _viewModel.AiToolsExcludedProcesses.ToList();
+            }
 
             // Save clipboard formats
             if (_viewModel.ClipboardFormats != null)

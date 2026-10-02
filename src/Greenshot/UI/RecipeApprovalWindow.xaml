@@ -358,7 +358,67 @@
                                             <TextBlock Text="View Recipe JSON" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
+                                    <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                            Padding="10,4" Margin="8,0,0,0"
+                                            Click="OnViewChangesClicked"
+                                            Visibility="{Binding DiffButtonVisibility}"
+                                            ToolTip="Show the lines that changed since the last approval">
+                                        <TextBlock Text="View Changes" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                    </Button>
                                 </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Proposed by an AI tool -->
+                        <Border CornerRadius="8" Padding="14" Margin="0,0,0,12"
+                                Background="{Binding WarningBackgroundBrush}"
+                                BorderBrush="{Binding WarningBorderBrush}"
+                                BorderThickness="1"
+                                Visibility="{Binding AiProposalVisibility}">
+                            <StackPanel>
+                                <TextBlock Text="🤖 Written by an AI tool" FontWeight="Bold" FontSize="13" Foreground="{Binding WarningTextBrush}" Margin="0,0,0,4"/>
+                                <TextBlock Text="{Binding ProposedByText}" Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap"/>
+                                <TextBlock Text="{Binding ProposedBySignerText}" FontSize="11" Foreground="{Binding WarningTextBrush}" Margin="0,0,0,8"/>
+                                <StackPanel Visibility="{Binding AiRequestVisibility}" Margin="0,0,0,6">
+                                    <TextBlock Text="What the AI tool says you asked for (the AI's words):" FontWeight="SemiBold" FontSize="11" Foreground="{Binding WarningTextBrush}"/>
+                                    <Border CornerRadius="4" Padding="8,6" Margin="0,2,0,0" Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1">
+                                        <TextBlock Text="{Binding AiRequest}" FontStyle="Italic" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap"/>
+                                    </Border>
+                                </StackPanel>
+                                <StackPanel Visibility="{Binding AiExplanationVisibility}">
+                                    <TextBlock Text="The AI tool's explanation (the AI's words):" FontWeight="SemiBold" FontSize="11" Foreground="{Binding WarningTextBrush}"/>
+                                    <Border CornerRadius="4" Padding="8,6" Margin="0,2,0,0" Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1">
+                                        <TextBlock Text="{Binding AiExplanation}" FontStyle="Italic" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap"/>
+                                    </Border>
+                                </StackPanel>
+                                <TextBlock Text="Only &quot;What it does&quot; below comes from Greenshot itself, check it against what you asked for."
+                                           FontSize="11" Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- What changed: replaced built-in recipe, a new version, or a modified file -->
+                        <Border CornerRadius="8" Padding="14" Margin="0,0,0,12"
+                                Background="{Binding CardBackgroundBrush}"
+                                BorderBrush="{Binding WarningBorderBrush}"
+                                BorderThickness="1"
+                                Visibility="{Binding ChangesVisibility}">
+                            <StackPanel>
+                                <TextBlock Text="{Binding ChangesTitle}" FontWeight="Bold" FontSize="13" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                                <ItemsControl ItemsSource="{Binding ChangeDescriptions}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding}" TextWrapping="Wrap" Margin="0,1,0,1"
+                                                       Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <Button Style="{StaticResource SecondaryButtonStyle}" HorizontalAlignment="Left"
+                                        Padding="10,4" Margin="0,8,0,0"
+                                        Click="OnViewChangesClicked"
+                                        Visibility="{Binding DiffButtonVisibility}"
+                                        ToolTip="Show the changed lines of the recipe JSON">
+                                    <TextBlock Text="View changed lines" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                </Button>
                             </StackPanel>
                         </Border>
 
@@ -433,15 +493,36 @@
 
 
 
-                        <!-- Triggers Card -->
+                        <!-- Triggers Card: each trigger is switched on or off -->
                         <Border CornerRadius="8" Padding="14" Margin="0,0,0,12"
                                 Background="{Binding CardBackgroundBrush}" 
                                 BorderBrush="{Binding CardBorderBrush}" 
                                 BorderThickness="1"
                                 Visibility="{Binding TriggersVisibility}">
                             <StackPanel>
-                                <TextBlock Text="Triggers" FontWeight="Bold" FontSize="13" Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,8"/>
-                                <ItemsControl ItemsSource="{Binding TriggerBadges}">
+                                <TextBlock Text="What starts it" FontWeight="Bold" FontSize="13" Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,4"/>
+                                <StackPanel Visibility="{Binding TriggerItemsVisibility}">
+                                    <TextBlock Text="{Binding TriggerHint}" FontSize="11" Foreground="{Binding TriggerHintBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                    <ItemsControl ItemsSource="{Binding TriggerItems}" IsEnabled="{Binding IsEditable}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Margin="0,0,0,8">
+                                                    <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                                                              Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}">
+                                                        <TextBlock Text="{Binding Title}" TextWrapping="Wrap"/>
+                                                    </CheckBox>
+                                                    <TextBlock Text="{Binding Explanation}" FontSize="11" TextWrapping="Wrap" Margin="20,2,0,0"
+                                                               Visibility="{Binding ExplanationVisibility}"
+                                                               Foreground="{Binding DataContext.WarningTextBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                    <TextBlock Text="Off: it won't start the recipe until you tick it." FontSize="11" FontWeight="SemiBold" TextWrapping="Wrap" Margin="20,2,0,0"
+                                                               Visibility="{Binding OffVisibility}"
+                                                               Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                                <ItemsControl ItemsSource="{Binding TriggerBadges}" Visibility="{Binding TriggerBadgesVisibility}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <WrapPanel Orientation="Horizontal"/>
@@ -465,17 +546,18 @@
                                 BorderThickness="1"
                                 Visibility="{Binding PipelineVisibility}">
                             <StackPanel>
-                                <TextBlock Text="Execution Pipeline Flow" FontWeight="Bold" FontSize="13" Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,8"/>
+                                <TextBlock Text="What it does" FontWeight="Bold" FontSize="13" Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,2"/>
+                                <TextBlock Text="Described by Greenshot from the recipe itself." FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,8"/>
                                 <ItemsControl ItemsSource="{Binding StepDescriptions}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Grid Margin="0,2,0,4">
+                                            <Grid Margin="{Binding Margin}">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="24"/>
                                                     <ColumnDefinition Width="*"/>
                                                 </Grid.ColumnDefinitions>
-                                                <TextBlock Text="▶" FontSize="10" Foreground="{Binding DataContext.AccentBrush, RelativeSource={RelativeSource AncestorType=Window}}" VerticalAlignment="Center"/>
-                                                <TextBlock Grid.Column="1" Text="{Binding}" Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}" TextWrapping="Wrap"/>
+                                                <TextBlock Text="{Binding Icon}" FontSize="11" Foreground="{Binding DataContext.AccentBrush, RelativeSource={RelativeSource AncestorType=Window}}" VerticalAlignment="Top"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Text}" Foreground="{Binding Foreground}" FontWeight="{Binding FontWeight}" TextWrapping="Wrap"/>
                                             </Grid>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
@@ -498,23 +580,28 @@
                                               Data="M 7.15,5.2 C 7.15,4.7 7.55,4.3 8.0,4.3 C 8.45,4.3 8.85,4.7 8.85,5.2 L 8.6,9.4 C 8.6,9.8 8.3,10.1 8.0,10.1 C 7.7,10.1 7.4,9.8 7.4,9.4 Z" />
                                         <Ellipse Fill="#18181B" Width="1.8" Height="1.8" Canvas.Left="7.1" Canvas.Top="11.4" />
                                     </Canvas>
-                                    <TextBlock Text="Security Warning: External Commands" FontWeight="Bold" FontSize="13" Foreground="{Binding WarningTextBrush}" VerticalAlignment="Center"/>
+                                    <TextBlock Text="This recipe needs your permission" FontWeight="Bold" FontSize="13" Foreground="{Binding WarningTextBrush}" VerticalAlignment="Center"/>
                                 </StackPanel>
-                                <TextBlock Text="This recipe contains steps that launch external processes or shell commands on your computer:" 
+                                <TextBlock Text="Allow each of these, or reject the recipe:" 
                                            Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" Margin="0,0,0,6"/>
 
-                                <ItemsControl ItemsSource="{Binding ExternalCommandsList}" Margin="0,0,0,8">
+                                <ItemsControl ItemsSource="{Binding GateItems}" IsEnabled="{Binding IsEditable}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <TextBlock Text="{Binding}" FontFamily="Consolas, Courier New" FontSize="11" Foreground="{Binding DataContext.WarningTextBrush, RelativeSource={RelativeSource AncestorType=Window}}" Margin="10,1,0,1"/>
+                                            <StackPanel Margin="0,0,0,10">
+                                                <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                                                          Foreground="{Binding DataContext.WarningTextBrush, RelativeSource={RelativeSource AncestorType=Window}}">
+                                                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                                </CheckBox>
+                                                <TextBlock Text="{Binding TargetsText}" FontFamily="Consolas, Courier New" FontSize="11" TextWrapping="Wrap" Margin="20,3,0,0"
+                                                           Foreground="{Binding DataContext.WarningTextBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                <TextBlock Text="{Binding Explanation}" FontSize="11" TextWrapping="Wrap" Margin="20,3,0,0"
+                                                           Visibility="{Binding ExplanationVisibility}"
+                                                           Foreground="{Binding DataContext.WarningTextBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                            </StackPanel>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
-
-                                <CheckBox x:Name="ChkAuthorizeExternalCommands" 
-                                          Content="I understand the security risks and authorize this recipe to execute external commands" 
-                                          Foreground="{Binding WarningTextBrush}"
-                                          Checked="OnAuthorizeChecked" Unchecked="OnAuthorizeChecked"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>
@@ -525,40 +612,63 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- Normal Approval Actions -->
-                    <Button Grid.Column="1" Content="Reject / Block" 
-                            Style="{StaticResource SecondaryButtonStyle}"
-                            IsCancel="True"
-                            Width="120" Height="34" Margin="0,0,10,0"
-                            Visibility="{Binding ApprovalActionsVisibility}"
-                            Click="OnRejectClicked"/>
+                    <CheckBox x:Name="ChkOpenInEditor" Grid.Column="0" VerticalAlignment="Center"
+                              Content="Open in the recipe editor after saving"
+                              Foreground="{Binding TextSecondaryBrush}"
+                              Visibility="{Binding OpenInEditorVisibility}"/>
 
-                    <Button x:Name="BtnApprove" Grid.Column="2" Content="{Binding ApproveButtonText}" 
-                            Style="{StaticResource PrimaryButtonStyle}"
-                            IsDefault="True"
-                            MinWidth="150" Height="34"
-                            Padding="16,6"
-                            Visibility="{Binding ApprovalActionsVisibility}"
-                            Click="OnApproveClicked"/>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <!-- Approval actions (a review also has "Keep as Is") -->
+                        <Button x:Name="BtnReject" Content="{Binding RejectButtonText}"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                IsCancel="True"
+                                MinWidth="120" Height="34" Margin="0,0,10,0" Padding="12,6"
+                                Visibility="{Binding DecisionVisibility}"
+                                Click="OnRejectClicked"/>
 
-                    <!-- Validation Error Actions -->
-                    <Button Grid.Column="1" Content="Edit Recipe File" 
-                            Style="{StaticResource SecondaryButtonStyle}"
-                            Width="130" Height="34" Margin="0,0,10,0"
-                            Visibility="{Binding ValidationErrorVisibility}"
-                            Click="OnEditFileClicked"
-                            ToolTip="Open recipe file in default editor to fix errors"/>
+                        <Button x:Name="BtnKeep" Content="Keep as Is"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                IsCancel="True"
+                                MinWidth="110" Height="34" Margin="0,0,10,0" Padding="12,6"
+                                Visibility="{Binding KeepVisibility}"
+                                ToolTip="Close the review without changing anything"
+                                Click="OnCloseClicked"/>
 
-                    <Button Grid.Column="2" Content="Close" 
-                            Style="{StaticResource PrimaryButtonStyle}"
-                            IsDefault="True" IsCancel="True"
-                            MinWidth="110" Height="34"
-                            Padding="16,6"
-                            Visibility="{Binding ValidationErrorVisibility}"
-                            Click="OnCloseClicked"/>
+                        <Button x:Name="BtnApprove" Content="{Binding ApproveButtonText}"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                IsDefault="True"
+                                MinWidth="150" Height="34"
+                                Padding="16,6"
+                                Visibility="{Binding DecisionVisibility}"
+                                Click="OnApproveClicked"/>
+
+                        <!-- Details -->
+                        <Button Content="Close"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                IsDefault="True" IsCancel="True"
+                                MinWidth="110" Height="34"
+                                Padding="16,6"
+                                Visibility="{Binding ReadOnlyCloseVisibility}"
+                                Click="OnCloseClicked"/>
+
+                        <!-- Validation Error Actions -->
+                        <Button Content="Edit Recipe File"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Width="130" Height="34" Margin="0,0,10,0"
+                                Visibility="{Binding ValidationErrorVisibility}"
+                                Click="OnEditFileClicked"
+                                ToolTip="Open recipe file in default editor to fix errors"/>
+
+                        <Button Content="Close"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                IsDefault="True" IsCancel="True"
+                                MinWidth="110" Height="34"
+                                Padding="16,6"
+                                Visibility="{Binding ValidationErrorVisibility}"
+                                Click="OnCloseClicked"/>
+                    </StackPanel>
                 </Grid>
             </Grid>
 
@@ -590,7 +700,7 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <TextBlock Text="{}{ } " FontFamily="Consolas" FontWeight="Bold" FontSize="15" Foreground="{Binding AccentBrush}"/>
-                                <TextBlock Text="Recipe JSON Definition" FontWeight="Bold" FontSize="15" Foreground="{Binding TextPrimaryBrush}"/>
+                                <TextBlock Text="{Binding OverlayTitle}" FontWeight="Bold" FontSize="15" Foreground="{Binding TextPrimaryBrush}"/>
                                 <TextBlock Text="{Binding RecipeName, StringFormat=' — {0}'}" FontSize="13" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
                             <Button Grid.Column="1" 

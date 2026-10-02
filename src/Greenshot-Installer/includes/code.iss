@@ -129,8 +129,27 @@ begin
     SuppressibleMsgBox(FmtMessage(SetupMessage(msgWinVersionTooLowError), ['.NET Framework', '4.8.0']), mbCriticalError, MB_OK, IDOK);
 end;
 
+/////////////////////////////////////////////////////////////////////
+// greenshot-mcp.exe (a separate download, extracted next to Greenshot.exe) keeps running in the AI tool while it waits for
+// Greenshot, and locks its file in the installation directory. Greenshot tells it to exit when the Restart Manager closes
+// Greenshot; this is the fallback for an install, an update and an uninstall.
+/////////////////////////////////////////////////////////////////////
+procedure CloseMcpServer();
+var
+  ResultCode: Integer;
+begin
+  Exec(ExpandConstant('{sys}\taskkill.exe'), '/F /IM greenshot-mcp.exe', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+end;
+
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+begin
+  if CurUninstallStep = usUninstall then
+    CloseMcpServer();
+end;
+
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 begin
+	CloseMcpServer();
 	// We must check if Greenshot is running HERE at the handoff point before installation.
 	// This prevents a stale snapshot if the user closes/starts Greenshot while sitting on the wizard pages.
 	// PrepareToInstall fires right before the Restart Manager checks for locked files.

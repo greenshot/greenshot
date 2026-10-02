@@ -137,6 +137,46 @@ namespace Greenshot.Tests.Ipc
         }
 
         [Fact]
+        public async Task NamedPipeServer_WatchConnection_GetsEventsAndTheShutdown()
+        {
+            string testPipeName = NamedPipeEndpoint.GetPipeName() + "_test_" + Guid.NewGuid().ToString("N");
+            bool requestReceived = false;
+
+            using (var server = new NamedPipeServer(testPipeName))
+            {
+                server.RequestReceived += ctx =>
+                {
+                    requestReceived = true;
+                    return Task.CompletedTask;
+                };
+                server.Start();
+
+                using (var client = new NamedPipeClientStream(".", testPipeName, PipeDirection.InOut))
+                {
+                    client.Connect(3000);
+                    WriteFrame(client, "{\"version\":1,\"command\":\"HELLO\",\"source\":\"cli\"}");
+                    WriteFrame(client, "{\"version\":1,\"command\":\"WATCH\"}");
+                    var reply = await Task.Run(() => ReadFrame(client));
+                    Assert.True(reply.Value<bool>("watching"));
+
+                    await server.NotifyWatchersAsync(new { @event = "tools_changed" });
+                    var changed = await Task.Run(() => ReadFrame(client));
+                    Assert.Equal("tools_changed", changed.Value<string>("event"));
+
+                    await server.NotifyShutdownAsync(NamedPipeServer.ShutdownReasonUpdate);
+                    var shutdown = await Task.Run(() => ReadFrame(client));
+                    Assert.Equal("shutdown", shutdown.Value<string>("event"));
+                    Assert.Equal("update", shutdown.Value<string>("reason"));
+                    // The browser extension's existing "offline" check
+                    Assert.False(shutdown.Value<bool>("greenshot_running"));
+                }
+            }
+
+            // WATCH is handled by the server itself
+            Assert.False(requestReceived);
+        }
+
+        [Fact]
         public async Task NamedPipeServer_ConnectionWithoutHello_IsRejected()
         {
             string testPipeName = NamedPipeEndpoint.GetPipeName() + "_test_" + Guid.NewGuid().ToString("N");

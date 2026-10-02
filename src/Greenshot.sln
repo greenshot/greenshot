@@ -52,6 +52,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot-Installer", "Gree
 		{CD642BF4-D815-4D67-A0B5-C69F0B8231AF} = {CD642BF4-D815-4D67-A0B5-C69F0B8231AF}
 		{B2B1B101-7F2A-4D78-9B55-081B1C824E31} = {B2B1B101-7F2A-4D78-9B55-081B1C824E31}
 		{C3C2C202-8F3B-5E89-AC66-192C2D935F42} = {C3C2C202-8F3B-5E89-AC66-192C2D935F42}
+		{88F268DD-6265-4914-BA8A-BB41F53E7A28} = {88F268DD-6265-4914-BA8A-BB41F53E7A28}
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Tests", "Greenshot.Tests\Greenshot.Tests.csproj", "{61A1DD76-5DA3-4229-B25A-5ED125C56567}"
@@ -61,6 +62,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "greenshot-proxy", "greenshot-proxy\greenshot-proxy.vcxproj", "{B2B1B101-7F2A-4D78-9B55-081B1C824E31}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "greenshot-cli", "greenshot-proxy\greenshot-cli.vcxproj", "{C3C2C202-8F3B-5E89-AC66-192C2D935F42}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Mcp", "Greenshot.Mcp\Greenshot.Mcp.csproj", "{88F268DD-6265-4914-BA8A-BB41F53E7A28}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -276,6 +279,18 @@ Global
 		{C3C2C202-8F3B-5E89-AC66-192C2D935F42}.Release|x64.Build.0 = Release|x64
 		{C3C2C202-8F3B-5E89-AC66-192C2D935F42}.Release|x86.ActiveCfg = Release|Win32
 		{C3C2C202-8F3B-5E89-AC66-192C2D935F42}.Release|x86.Build.0 = Release|Win32
+		{88F268DD-6265-4914-BA8A-BB41F53E7A28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88F268DD-6265-4914-BA8A-BB41F53E7A28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88F268DD-6265-4914-BA8A-BB41F53E7A28}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{88F268DD-6265-4914-BA8A-BB41F53E7A28}.Debug|x64.Build.0 = Debug|Any CPU
+		{88F268DD-6265-4914-BA8A-BB41F53E7A28}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{88F268DD-6265-4914-BA8A-BB41F53E7A28}.Debug|x86.Build.0 = Debug|Any CPU
+		{88F268DD-6265-4914-BA8A-BB41F53E7A28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88F268DD-6265-4914-BA8A-BB41F53E7A28}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88F268DD-6265-4914-BA8A-BB41F53E7A28}.Release|x64.ActiveCfg = Release|Any CPU
+		{88F268DD-6265-4914-BA8A-BB41F53E7A28}.Release|x64.Build.0 = Release|Any CPU
+		{88F268DD-6265-4914-BA8A-BB41F53E7A28}.Release|x86.ActiveCfg = Release|Any CPU
+		{88F268DD-6265-4914-BA8A-BB41F53E7A28}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

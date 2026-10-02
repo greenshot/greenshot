@@ -20,14 +20,16 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Pipeline;
 
 namespace Greenshot.Plugin.Box;
 
-public class BoxDestination : DestinationBase
+public class BoxDestination : DestinationBase, IRequiresRecipeAuthorization
 {
     /// <summary>
     /// The icons in the resources of the plugin
@@ -42,6 +44,14 @@ public class BoxDestination : DestinationBase
     }
 
     public override string Designation => "Box";
+
+    /// <summary>
+    /// Uploads the capture: the user has to allow network access when approving a recipe with this destination
+    /// </summary>
+    public IEnumerable<RecipeGatedAction> GetGatedActions()
+    {
+        yield return new RecipeGatedAction(RecipeGateType.NetworkAccess, "Box (box.com)");
+    }
 
     public override DestinationDescriptor Descriptor => new DestinationDescriptor(Language.GetString("box", LangKey.upload_menu_item), iconKey: Icons.KeyFor("Box"));
 

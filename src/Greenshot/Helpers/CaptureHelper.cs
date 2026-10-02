@@ -192,7 +192,7 @@ namespace Greenshot.Helpers
             if (allRecipes != null)
             {
                 recipe = allRecipes.FirstOrDefault(r => r != null && r.IsEnabled && r.Triggers != null && r.Triggers.Any(t =>
-                    t.Enabled &&
+                    t.IsActive &&
                     string.Equals(t.TriggerType, TriggerConfig.TypeExtension, StringComparison.OrdinalIgnoreCase) &&
                     (string.IsNullOrEmpty(t.GetParameter<string>("Browser")) ||
                      string.Equals(t.GetParameter<string>("Browser"), browser, StringComparison.OrdinalIgnoreCase))));

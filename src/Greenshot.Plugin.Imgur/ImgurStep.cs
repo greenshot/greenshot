@@ -52,13 +52,21 @@ namespace Greenshot.Plugin.Imgur
     [StepOutputVariable("Imgur.UploadUrl", ContractDataType.String, "Link to the uploaded image", Conditional = true)]
     [StepOutputVariable("Imgur.Hash", ContractDataType.String, "Imgur hash of the image", Conditional = true)]
     [StepOutputVariable("Imgur.DeleteHash", ContractDataType.String, "Hash to delete the image", Conditional = true)]
-    public class ImgurStep : ICaptureStep
+    public class ImgurStep : ICaptureStep, IRequiresRecipeAuthorization
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ImgurStep));
         private static IImgurConfiguration Config => IniConfigRegistry.GetSection<IImgurConfiguration>();
 
         public string Name { get; }
         public RecipeNodeConfig NodeConfig { get; }
+
+        /// <summary>
+        /// Uploads the capture: the user has to allow network access when approving a recipe with this step
+        /// </summary>
+        public IEnumerable<RecipeGatedAction> GetGatedActions()
+        {
+            yield return new RecipeGatedAction(RecipeGateType.NetworkAccess, "Imgur (imgur.com)");
+        }
 
         public ImgurStep(RecipeNodeConfig config)
         {

@@ -212,6 +212,19 @@ namespace Greenshot.Pipeline
                     PsApi.EmptyWorkingSet();
                 }
 
+                // The caller's last look at the result, while the payload still exists
+                if (context.FlowFinishedAsync != null)
+                {
+                    try
+                    {
+                        await context.FlowFinishedAsync(context).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Warn("The flow finished callback failed", ex);
+                    }
+                }
+
                 // Dispose context (cleans up raw capture and surface unless editor retained it)
                 context.Dispose();
             }
