@@ -135,7 +135,7 @@ namespace Greenshot.Helpers.Ipc
         /// <summary>
         /// AiToolsMcpServerPaths, for development builds only: in a release build the ini file must not be able to add a server location.
         /// </summary>
-        private static IEnumerable<string> GetAdditionalMcpServerPaths()
+        internal static IEnumerable<string> GetAdditionalMcpServerPaths()
         {
 #if DEBUG
             return IniConfigRegistry.GetSection<ICoreConfiguration>()?.AiToolsMcpServerPaths;

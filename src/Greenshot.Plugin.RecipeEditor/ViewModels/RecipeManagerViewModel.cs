@@ -195,13 +195,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         private void ExecuteShowDetails()
         {
-            var details = _recipeManager?.GetRecipeDetails(Recipe.Id);
-            if (details == null) return;
-            var window = new RecipeDetailsWindow(Recipe, details)
-            {
-                Owner = Application.Current?.Windows.OfType<Window>().FirstOrDefault(w => w.IsActive)
-            };
-            window.ShowDialog();
+            _recipeManager?.ShowRecipeDetails(Recipe.Id);
         }
 
         private void ExecuteReviewApproval()

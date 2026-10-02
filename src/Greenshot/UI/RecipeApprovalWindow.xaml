@@ -503,7 +503,7 @@
                                 <TextBlock Text="What starts it" FontWeight="Bold" FontSize="13" Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,4"/>
                                 <StackPanel Visibility="{Binding TriggerItemsVisibility}">
                                     <TextBlock Text="{Binding TriggerHint}" FontSize="11" Foreground="{Binding TriggerHintBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
-                                    <ItemsControl ItemsSource="{Binding TriggerItems}">
+                                    <ItemsControl ItemsSource="{Binding TriggerItems}" IsEnabled="{Binding IsEditable}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <StackPanel Margin="0,0,0,8">
@@ -585,7 +585,7 @@
                                 <TextBlock Text="Allow each of these, or reject the recipe:" 
                                            Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" Margin="0,0,0,6"/>
 
-                                <ItemsControl ItemsSource="{Binding GateItems}">
+                                <ItemsControl ItemsSource="{Binding GateItems}" IsEnabled="{Binding IsEditable}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <StackPanel Margin="0,0,0,10">
@@ -612,7 +612,6 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
                     <CheckBox x:Name="ChkOpenInEditor" Grid.Column="0" VerticalAlignment="Center"
@@ -620,37 +619,56 @@
                               Foreground="{Binding TextSecondaryBrush}"
                               Visibility="{Binding OpenInEditorVisibility}"/>
 
-                    <!-- Normal Approval Actions -->
-                    <Button x:Name="BtnReject" Grid.Column="1" Content="{Binding RejectButtonText}" 
-                            Style="{StaticResource SecondaryButtonStyle}"
-                            IsCancel="True"
-                            Width="120" Height="34" Margin="0,0,10,0"
-                            Visibility="{Binding ApprovalActionsVisibility}"
-                            Click="OnRejectClicked"/>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <!-- Approval actions (a review also has "Keep as Is") -->
+                        <Button x:Name="BtnReject" Content="{Binding RejectButtonText}"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                IsCancel="True"
+                                MinWidth="120" Height="34" Margin="0,0,10,0" Padding="12,6"
+                                Visibility="{Binding DecisionVisibility}"
+                                Click="OnRejectClicked"/>
 
-                    <Button x:Name="BtnApprove" Grid.Column="2" Content="{Binding ApproveButtonText}" 
-                            Style="{StaticResource PrimaryButtonStyle}"
-                            IsDefault="True"
-                            MinWidth="150" Height="34"
-                            Padding="16,6"
-                            Visibility="{Binding ApprovalActionsVisibility}"
-                            Click="OnApproveClicked"/>
+                        <Button x:Name="BtnKeep" Content="Keep as Is"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                IsCancel="True"
+                                MinWidth="110" Height="34" Margin="0,0,10,0" Padding="12,6"
+                                Visibility="{Binding KeepVisibility}"
+                                ToolTip="Close the review without changing anything"
+                                Click="OnCloseClicked"/>
 
-                    <!-- Validation Error Actions -->
-                    <Button Grid.Column="1" Content="Edit Recipe File" 
-                            Style="{StaticResource SecondaryButtonStyle}"
-                            Width="130" Height="34" Margin="0,0,10,0"
-                            Visibility="{Binding ValidationErrorVisibility}"
-                            Click="OnEditFileClicked"
-                            ToolTip="Open recipe file in default editor to fix errors"/>
+                        <Button x:Name="BtnApprove" Content="{Binding ApproveButtonText}"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                IsDefault="True"
+                                MinWidth="150" Height="34"
+                                Padding="16,6"
+                                Visibility="{Binding DecisionVisibility}"
+                                Click="OnApproveClicked"/>
 
-                    <Button Grid.Column="2" Content="Close" 
-                            Style="{StaticResource PrimaryButtonStyle}"
-                            IsDefault="True" IsCancel="True"
-                            MinWidth="110" Height="34"
-                            Padding="16,6"
-                            Visibility="{Binding ValidationErrorVisibility}"
-                            Click="OnCloseClicked"/>
+                        <!-- Details -->
+                        <Button Content="Close"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                IsDefault="True" IsCancel="True"
+                                MinWidth="110" Height="34"
+                                Padding="16,6"
+                                Visibility="{Binding ReadOnlyCloseVisibility}"
+                                Click="OnCloseClicked"/>
+
+                        <!-- Validation Error Actions -->
+                        <Button Content="Edit Recipe File"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Width="130" Height="34" Margin="0,0,10,0"
+                                Visibility="{Binding ValidationErrorVisibility}"
+                                Click="OnEditFileClicked"
+                                ToolTip="Open recipe file in default editor to fix errors"/>
+
+                        <Button Content="Close"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                IsDefault="True" IsCancel="True"
+                                MinWidth="110" Height="34"
+                                Padding="16,6"
+                                Visibility="{Binding ValidationErrorVisibility}"
+                                Click="OnCloseClicked"/>
+                    </StackPanel>
                 </Grid>
             </Grid>
 

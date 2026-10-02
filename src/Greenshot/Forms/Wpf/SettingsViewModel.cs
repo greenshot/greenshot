@@ -92,7 +92,17 @@ namespace Greenshot.Forms.Wpf
             AiToolsAllowedClients = new ObservableCollection<AiToolClientItem>((CoreConfiguration.AiToolsAllowedClients ?? new List<string>())
                 .Where(path => !string.IsNullOrWhiteSpace(path)).Select(path => new AiToolClientItem(path.Trim())));
             AiToolsAllowedClients.CollectionChanged += (s, e) => OnPropertyChanged(nameof(HasNoAiToolClients));
-            _aiToolsExcludedProcessesText = string.Join(", ", CoreConfiguration.AiToolsExcludedProcesses ?? new List<string>());
+            foreach (var client in AiToolsAllowedClients)
+            {
+                // The signature check can take a moment, the list shows right away
+                client.LoadDetailsAsync().FireAndLog("AI tool details", Log);
+            }
+            AiToolsExcludedProcesses = new ObservableCollection<string>();
+            foreach (string name in CoreConfiguration.AiToolsExcludedProcesses ?? new List<string>())
+            {
+                AddExcludedProcess(name);
+            }
+            McpServers = Helpers.Ipc.McpServerStatus.Find();
             RefreshApprovedRecipes();
 
             // Initialize plugin controls collection
@@ -131,54 +141,53 @@ namespace Greenshot.Forms.Wpf
             }
         }
 
-        private string _aiToolsExcludedProcessesText;
+        /// <summary>
+        /// Processes whose windows are never shared with AI tools, written back on save
+        /// </summary>
+        public ObservableCollection<string> AiToolsExcludedProcesses { get; }
+
+        private string _newExcludedProcess;
 
         /// <summary>
-        /// The excluded processes, separated by commas, written back on save
+        /// The text of the "add an application" box
         /// </summary>
-        public string AiToolsExcludedProcessesText
+        public string NewExcludedProcess
         {
-            get => _aiToolsExcludedProcessesText;
+            get => _newExcludedProcess;
             set
             {
-                if (_aiToolsExcludedProcessesText != value)
+                if (_newExcludedProcess != value)
                 {
-                    _aiToolsExcludedProcessesText = value;
+                    _newExcludedProcess = value;
                     OnPropertyChanged();
                 }
             }
         }
 
         /// <summary>
-        /// The process names from <see cref="AiToolsExcludedProcessesText"/>
+        /// Adds a process name (".exe" is removed, case doesn't matter, duplicates are ignored); false when nothing was added
         /// </summary>
-        public List<string> GetAiToolsExcludedProcesses()
+        public bool AddExcludedProcess(string processName)
         {
-            return (_aiToolsExcludedProcessesText ?? string.Empty)
-                .Split(new[] { ',', ';', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(name => name.Trim())
-                .Where(name => name.Length > 0)
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToList();
-        }
-
-        private AiToolClientItem _selectedAiToolClient;
-
-        public AiToolClientItem SelectedAiToolClient
-        {
-            get => _selectedAiToolClient;
-            set
+            string name = (processName ?? string.Empty).Trim().Trim('"');
+            if (name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
             {
-                if (_selectedAiToolClient != value)
-                {
-                    _selectedAiToolClient = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(HasSelectedAiToolClient));
-                }
+                name = name.Substring(0, name.Length - 4).Trim();
             }
+            if (name.Length == 0 || AiToolsExcludedProcesses.Any(e => string.Equals(e, name, StringComparison.OrdinalIgnoreCase)))
+            {
+                return false;
+            }
+            AiToolsExcludedProcesses.Add(name);
+            return true;
         }
 
-        public bool HasSelectedAiToolClient => _selectedAiToolClient != null;
+        /// <summary>
+        /// greenshot-mcp.exe: where it is looked for, and whether it is there
+        /// </summary>
+        public IReadOnlyList<Helpers.Ipc.McpServerStatus> McpServers { get; }
+
+        public bool IsMcpServerFound => McpServers.Any(m => m.Exists);
 
         public bool HasNoAiToolClients => AiToolsAllowedClients.Count == 0;
 
@@ -745,7 +754,7 @@ namespace Greenshot.Forms.Wpf
     /// <summary>
     /// A program allowed to use Greenshot through greenshot-mcp
     /// </summary>
-    public sealed class AiToolClientItem
+    public sealed class AiToolClientItem : INotifyPropertyChanged
     {
         public AiToolClientItem(string path)
         {
@@ -762,6 +771,51 @@ namespace Greenshot.Forms.Wpf
         public string FileName { get; }
 
         public string Folder { get; }
+
+        private string _displayName;
+
+        /// <summary>
+        /// The program's name from its version information, the file name until it is known
+        /// </summary>
+        public string DisplayName
+        {
+            get => _displayName ?? FileName;
+            private set
+            {
+                _displayName = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DisplayName)));
+            }
+        }
+
+        private string _signerText = "Checking the signature...";
+
+        public string SignerText
+        {
+            get => _signerText;
+            private set
+            {
+                _signerText = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SignerText)));
+            }
+        }
+
+        /// <summary>
+        /// Reads the name and verifies the signature (slow, not on the UI thread)
+        /// </summary>
+        public async Task LoadDetailsAsync()
+        {
+            await ThreadPoolSwitch.SwitchToThreadPoolAsync();
+            if (!File.Exists(Path))
+            {
+                SignerText = "The program isn't there anymore";
+                return;
+            }
+            var client = Helpers.Ipc.AiToolCaller.Describe(Path);
+            DisplayName = client.DisplayName;
+            SignerText = string.IsNullOrEmpty(client.Signer) ? "Not signed" : $"Signed by {client.Signer}";
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public override string ToString() => Path;
     }

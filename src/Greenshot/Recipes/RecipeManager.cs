@@ -814,6 +814,11 @@ namespace Greenshot.Recipes
                                 overallResult.AddError($"The approval of recipe '{recipe.Name}' ({recipe.Id}) was revoked.");
                                 continue;
                             }
+                            else if (forceApprovalPrompt && (approval = RecipeTrustStore.GetApproval(filePath, contentHash, recipe.Id)) != null)
+                            {
+                                // A review which was closed or kept as is changes nothing
+                                Log.InfoFormat("The review of recipe '{0}' was closed, its approval stays as it was.", recipe.Id);
+                            }
                             else
                             {
                                 overallResult.AddError($"User rejected recipe '{recipe.Name}' ({recipe.Id}) from '{filePath}'.");
@@ -1174,6 +1179,47 @@ namespace Greenshot.Recipes
             }
             // Shows the approval window with the current approval; what the user confirms replaces it
             return LoadRecipeFromFile(recipe.FilePath, interactiveApproval: true, forceApprovalPrompt: true);
+        }
+
+        public bool ShowRecipeDetails(string recipeId)
+        {
+            var recipe = GetRecipeById(recipeId);
+            if (recipe == null || !UiDispatcher.Current.CheckAccess())
+            {
+                return false;
+            }
+
+            UI.RecipeApprovalRequest request;
+            if (!string.IsNullOrEmpty(recipe.FilePath) && File.Exists(recipe.FilePath))
+            {
+                byte[] bytes = File.ReadAllBytes(recipe.FilePath);
+                string content = DecodeRecipeFile(bytes);
+                var fileRecipe = RecipeSerializer.DeserializeList(content, validate: false)
+                    .FirstOrDefault(r => string.Equals(r.Id, recipeId, StringComparison.OrdinalIgnoreCase)) ?? recipe.Clone();
+                fileRecipe.FilePath = recipe.FilePath;
+                request = CreateApprovalRequest(fileRecipe, recipe.FilePath, content, RecipeTrustStore.ComputeSha256(bytes), RecipeValidator.Validate(fileRecipe));
+                // Only the details: no "starts switched off" for files an AI tool wrote, the switches show the approval
+                request.StartSwitchedOff = false;
+            }
+            else
+            {
+                request = new UI.RecipeApprovalRequest
+                {
+                    Recipe = recipe,
+                    Content = RecipeSerializer.Serialize(recipe),
+                    Validation = RecipeValidator.Validate(recipe)
+                };
+            }
+            request.IsReadOnly = true;
+
+            var window = new UI.RecipeApprovalWindow(request)
+            {
+                Owner = System.Windows.Application.Current?.Windows.OfType<System.Windows.Window>().FirstOrDefault(w => w.IsActive),
+                ShowActivated = true
+            };
+            window.WindowStartupLocation = window.Owner != null ? System.Windows.WindowStartupLocation.CenterOwner : System.Windows.WindowStartupLocation.CenterScreen;
+            window.ShowDialog();
+            return true;
         }
 
         public void ResetAllToDefault()

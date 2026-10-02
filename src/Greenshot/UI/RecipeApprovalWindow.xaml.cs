@@ -161,7 +161,6 @@ namespace Greenshot.UI
         public bool IsValidationError => ApprovalMode == RecipeApprovalMode.ValidationError;
 
         public Visibility ValidationErrorVisibility => IsValidationError ? Visibility.Visible : Visibility.Collapsed;
-        public Visibility ApprovalActionsVisibility => !IsValidationError ? Visibility.Visible : Visibility.Collapsed;
 
         public string WindowTitleSubtitle { get; private set; }
         public string WindowFullTitle => $"Greenshot{WindowTitleSubtitle}";
@@ -191,7 +190,25 @@ namespace Greenshot.UI
         public Visibility TriggerBadgesVisibility => TriggerItems.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         public Visibility PipelineVisibility => StepDescriptions.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
         public Visibility ExternalCommandWarningVisibility => (HasExternalCommands && !IsValidationError) ? Visibility.Visible : Visibility.Collapsed;
-        public Visibility OpenInEditorVisibility => IsAiProposal && !IsValidationError ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility OpenInEditorVisibility => IsAiProposal && !IsValidationError && !IsReadOnly ? Visibility.Visible : Visibility.Collapsed;
+
+        /// <summary>
+        /// Details only: the switches show the approval but can't be changed
+        /// </summary>
+        public bool IsReadOnly { get; private set; }
+
+        public bool IsEditable => !IsReadOnly;
+
+        public bool IsReview => ApprovalMode == RecipeApprovalMode.ReVerify && !IsReadOnly;
+
+        public Visibility DecisionVisibility => !IsValidationError && !IsReadOnly ? Visibility.Visible : Visibility.Collapsed;
+
+        /// <summary>
+        /// A review offers "Keep as Is": closing it changes nothing
+        /// </summary>
+        public Visibility KeepVisibility => IsReview ? Visibility.Visible : Visibility.Collapsed;
+
+        public Visibility ReadOnlyCloseVisibility => IsReadOnly && !IsValidationError ? Visibility.Visible : Visibility.Collapsed;
         public bool HasExternalCommands { get; set; }
         public string TriggerHint { get; private set; }
 
@@ -327,14 +344,14 @@ namespace Greenshot.UI
                 WindowTitleSubtitle = " — Recipe Security Review";
                 HeaderIcon = "🛡️";
                 HeaderTitle = "Capture Recipe Review";
-                HeaderDescription = "Reviewing registration, triggers, and execution permissions for this capture recipe.";
+                HeaderDescription = "Change which triggers may start this recipe and what it may do. \"Keep as Is\" or closing the window changes nothing.";
                 StatusBadgeText = "ALREADY APPROVED";
                 StatusBadgeBackgroundBrush = BadgeBackgroundBrush;
                 StatusBadgeBorderBrush = CardBorderBrush;
                 StatusBadgeForegroundBrush = TextSecondaryBrush;
                 PreviousApprovalDate = prev.ApprovedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss");
                 PreviousFileHash = prev.Sha256Hash;
-                ApproveButtonText = "Confirm & Enable";
+                ApproveButtonText = "Save Changes";
             }
             else
             {
@@ -350,6 +367,25 @@ namespace Greenshot.UI
                 PreviousApprovalDate = null;
                 PreviousFileHash = null;
                 ApproveButtonText = "Approve & Enable";
+            }
+
+            if (request.IsReadOnly && !IsValidationError)
+            {
+                IsReadOnly = true;
+                WindowTitleSubtitle = " — Recipe Details";
+                HeaderIcon = "📄";
+                HeaderTitle = "Recipe Details";
+                HeaderDescription = string.IsNullOrEmpty(request.FilePath)
+                    ? "What this built-in recipe does and which triggers start it."
+                    : "What this recipe does and what you approved for it. Nothing can be changed here, use Review in the settings or Permissions in the recipe manager for that.";
+                if (string.IsNullOrEmpty(request.FilePath))
+                {
+                    FilePath = "Built into Greenshot";
+                    StatusBadgeText = "BUILT-IN";
+                    StatusBadgeBackgroundBrush = BadgeBackgroundBrush;
+                    StatusBadgeBorderBrush = CardBorderBrush;
+                    StatusBadgeForegroundBrush = TextSecondaryBrush;
+                }
             }
 
             // What changed: against the replaced recipe (built-in or current version) or the previously approved file
@@ -425,6 +461,11 @@ namespace Greenshot.UI
             Background = WindowBackgroundBrush;
             Title = WindowFullTitle;
             UpdateApproveEnabled();
+            if (IsReview && BtnReject != null)
+            {
+                // Esc means "Keep as Is" in a review, never "Revoke"
+                BtnReject.IsCancel = false;
+            }
         }
 
         private static CaptureRecipe TryFindRecipe(string content, string recipeId)

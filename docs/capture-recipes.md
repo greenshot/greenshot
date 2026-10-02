@@ -54,8 +54,9 @@ editor renews the approval for the saved content without asking: triggers keep t
 (hotkey, menu entry) are on. Only a change which adds a trigger that starts the recipe on its own or from outside
 (clipboard, schedule, command line, web pages, browser extension, AI tools), a new kind of permission, or the first
 replacement of a built-in recipe shows the approval window when you save. To change the triggers or permissions later,
-use "Permissions" in the recipe manager, where "Revoke Approval" takes an approval back; Settings > AI tools >
-"Approved recipes" offers the same (Details, Review, Revoke) without the recipe editor plug-in. "Details" shows what a recipe does, its approval and the changes against the
+use "Permissions" in the recipe manager: "Save Changes" keeps the new switches, "Keep as Is" (or closing the window)
+changes nothing, and "Revoke Approval" takes an approval back; Settings > AI tools >
+"Approved recipes" offers the same (Details, Review, Revoke) without the recipe editor plug-in. "Details" shows the approval window read-only: what a recipe does, its approval and the changes against the
 built-in recipe it replaces. The recipe editor works on a copy: changes reach Greenshot only when you save, the
 title shows "*" while there are unsaved changes, and closing the editor, switching the recipe, New and Open ask to save
 or discard them. Undo and Redo (Ctrl+Z, Ctrl+Y) go back and forth through the changes of each recipe while the editor is open, also past a

@@ -101,6 +101,11 @@ namespace Greenshot.UI
         /// </summary>
         public RecipeApproval SuggestedApproval { get; set; }
 
+        /// <summary>
+        /// Only show the recipe and its approval (details): nothing can be switched, the only button is Close
+        /// </summary>
+        public bool IsReadOnly { get; set; }
+
         public bool IsOwnEdit => OwnEditReasons != null;
 
         public bool IsAiProposal => !string.IsNullOrEmpty(ProposedByName);

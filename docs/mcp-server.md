@@ -110,6 +110,10 @@ The recipe manager marks recipes written by AI tools (🤖, and the filter "AI")
 by the approval as "off, not approved", and its "Permissions" button opens the approval again to change them or to
 revoke it. Without the recipe editor plug-in (it is optional, and not in the Light version), Settings > AI tools >
 "Approved recipes" lists the recipes from files with who wrote them and their approval, with Details, Review and Revoke.
+The AI tools tab is shown when "beta tester" is ticked on the Expert tab. It also shows whether greenshot-mcp.exe is
+next to Greenshot.exe (✔, or ✘ with the download link; Debug builds also check the `AiToolsMcpServerPaths` locations)
+and warns when its version isn't Greenshot's. The excluded applications are edited there as a list of names; case and
+".exe" don't matter.
 
 ## Safety
 

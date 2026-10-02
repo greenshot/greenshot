@@ -104,6 +104,11 @@ namespace Greenshot.Base.Recipes
         RecipeDetails GetRecipeDetails(string recipeId);
 
         /// <summary>
+        /// Shows the recipe and its approval in the approval window, read-only (UI thread). False for an unknown id.
+        /// </summary>
+        bool ShowRecipeDetails(string recipeId);
+
+        /// <summary>
         /// Brings back every built-in recipe a file replaces
         /// </summary>
         void ResetAllToDefault();
