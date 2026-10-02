@@ -207,7 +207,7 @@ namespace Greenshot.Forms
                 }
 
                 // Make sure we handle END Session correctly
-                RestartManagerHelper.RegisterForRestart();
+                RestartManagerHelper.RegisterForRestart(IniConfigRegistry.Get().OverrideDirectory);
 
                 // Make sure we can use forms
                 WindowsFormsHost.EnableWindowsFormsInterop();
