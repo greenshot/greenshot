@@ -159,12 +159,17 @@ namespace Greenshot.Tests.Ipc
                     var reply = await Task.Run(() => ReadFrame(client));
                     Assert.True(reply.Value<bool>("watching"));
 
-                    await server.NotifyWatchersAsync(new { @event = "tools_changed" });
+                    // The notifications complete before the client reads them: a client that isn't reading must not hold up Greenshot (e.g. its exit)
+                    var notify = server.NotifyWatchersAsync(new { @event = "tools_changed" });
+                    Assert.Same(notify, await Task.WhenAny(notify, Task.Delay(TimeSpan.FromSeconds(10))));
                     var changed = await Task.Run(() => ReadFrame(client));
+                    Assert.NotNull(changed);
                     Assert.Equal("tools_changed", changed.Value<string>("event"));
 
-                    await server.NotifyShutdownAsync(NamedPipeServer.ShutdownReasonUpdate);
+                    var notifyShutdown = server.NotifyShutdownAsync(NamedPipeServer.ShutdownReasonUpdate);
+                    Assert.Same(notifyShutdown, await Task.WhenAny(notifyShutdown, Task.Delay(TimeSpan.FromSeconds(10))));
                     var shutdown = await Task.Run(() => ReadFrame(client));
+                    Assert.NotNull(shutdown);
                     Assert.Equal("shutdown", shutdown.Value<string>("event"));
                     Assert.Equal("update", shutdown.Value<string>("reason"));
                     // The browser extension's existing "offline" check
