@@ -624,6 +624,28 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
+        public void Editor_InsertsADecision_WithEachBranchLeadingOn()
+        {
+            var editor = new Greenshot.Plugin.RecipeEditor.ViewModels.RecipeEditorViewModel();
+            var recipe = new CaptureRecipe("recipe_test_decision", "Decision")
+                .AddNode(RecipeStepConfig.CreateSource("source"))
+                .AddNode(RecipeStepConfig.CreateDestinations("export"));
+            recipe.Flow = new RecipeFlowConfig("source").AddTransition("source", "export");
+            editor.ActiveRecipe = recipe;
+
+            editor.InsertStepIntoConnection(editor.Connections.Single(), WellKnownStepTypes.Conditional);
+            var decision = editor.SelectedNode;
+
+            // Each branch leads to export (until the user changes one), the hidden normal output is not used
+            Assert.DoesNotContain(editor.Connections, c => c.Source == decision.OutputPort);
+            Assert.Equal(decision.ConditionBranches.Count, editor.Connections.Count(c => c.SourceNode == decision && c.TargetNode.Id == "export"));
+            var flow = editor.ActiveRecipe.Flow;
+            Assert.Equal(new[] { decision.Id }, flow.Transitions["source"]);
+            Assert.False(flow.Transitions.ContainsKey(decision.Id));
+            Assert.Equal(decision.ConditionBranches.Count, flow.ConditionalTransitions.Count(ct => ct.From == decision.Id && ct.To == "export"));
+        }
+
+        [Fact]
         public void Editor_EditsAnAutomaticStep_BetweenInAndOut()
         {
             var editor = new Greenshot.Plugin.RecipeEditor.ViewModels.RecipeEditorViewModel();

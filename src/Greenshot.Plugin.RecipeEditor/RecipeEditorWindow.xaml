@@ -1017,6 +1017,7 @@
                                          Connections="{Binding Connections}"
                                          PendingConnection="{Binding PendingConnection}"
                                          DisconnectConnectorCommand="{Binding DisconnectConnectorCommand}"
+                                         ItemsDragCompletedCommand="{Binding NodesDraggedCommand}"
                                          Background="{Binding WindowBackgroundBrush}">
                         <nodify:NodifyEditor.PendingConnectionTemplate>
                             <DataTemplate DataType="{x:Type vm:PendingConnectionViewModel}">
@@ -3400,7 +3401,8 @@
                                                                 <WrapPanel Grid.Row="6" Grid.Column="1" Margin="0,2,0,0">
                                                                     <CheckBox Content="Quick settings" IsChecked="{Binding QuickSettings, Mode=TwoWay}" Margin="0,0,10,0"
                                                                               IsEnabled="{Binding CanBeQuickSetting}" Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                                                                    <CheckBox Content="Template (${...} in the value)" IsChecked="{Binding IsTemplate, Mode=TwoWay}" Margin="0,0,10,0"
+                                                                    <CheckBox Content="Value may contain ${...}" IsChecked="{Binding IsTemplate, Mode=TwoWay}" Margin="0,0,10,0"
+                                                                              ToolTip="Text options only: placeholders in the value the user sets are filled in when the step runs, e.g. a caption &quot;Captured ${now:yyyy-MM-dd}&quot; gets the date. Without it the value is used as typed."
                                                                               Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
                                                                     <StackPanel Orientation="Horizontal">
                                                                         <TextBlock Text="Only when " />

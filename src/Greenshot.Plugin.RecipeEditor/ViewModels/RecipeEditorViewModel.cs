@@ -1378,10 +1378,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             MakeRoomBelow(location.Y);
             var nodeVm = CreateStepNode(stepType, location, source.Node, target.Node);
 
-            RemoveConnection(connection);
-            Connect(source, nodeVm.InputPort);
-            Connect(nodeVm.OutputPort, target);
-            SelectedNode = nodeVm;
+            PutNodeIntoConnection(connection, nodeVm);
             StatusMessage = $"Inserted {stepType} between '{source.Node.DisplayName}' and '{target.Node.DisplayName}'";
         }
 
@@ -1400,7 +1397,11 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 var target = connection.Target;
                 RemoveConnection(connection);
-                Connect(nodeVm.OutputPort, target);
+                // A decision: each of its branches leads to the next step until it is changed
+                foreach (var port in GetOutgoingPorts(nodeVm))
+                {
+                    Connect(port, target);
+                }
             }
             Connect(previous.OutputPort, nodeVm.InputPort);
             SelectedNode = nodeVm;
