@@ -810,9 +810,7 @@ namespace Greenshot.Recipes
                             }
                             else if (decision?.IsRevoked == true)
                             {
-                                // Revoked in the review: it no longer runs, and isn't loaded again until the user opens it again
-                                RecipeTrustStore.RevokeRecipeApproval(filePath, recipe.Id);
-                                UnregisterRecipe(recipe.Id);
+                                RevokeApproval(recipe.Id, filePath);
                                 overallResult.AddError($"The approval of recipe '{recipe.Name}' ({recipe.Id}) was revoked.");
                                 continue;
                             }
@@ -1148,6 +1146,23 @@ namespace Greenshot.Recipes
                 details.BuiltInDiff = RecipeTextDiff.ToUnifiedText(RecipeSerializer.Serialize(builtIn), RecipeSerializer.Serialize(current));
             }
             return details;
+        }
+
+        /// <summary>
+        /// Revokes the approval of a recipe from a file: it no longer runs (a built-in recipe it replaced comes back), and isn't
+        /// loaded again until the user opens its file again. False when the recipe has no file.
+        /// </summary>
+        public bool RevokeApproval(string recipeId, string filePath = null)
+        {
+            filePath ??= GetRecipeById(recipeId)?.FilePath;
+            if (string.IsNullOrEmpty(recipeId) || string.IsNullOrEmpty(filePath))
+            {
+                return false;
+            }
+            RecipeTrustStore.RevokeRecipeApproval(filePath, recipeId);
+            UnregisterRecipe(recipeId);
+            Log.InfoFormat("The user revoked the approval of recipe '{0}' from '{1}'.", recipeId, filePath);
+            return true;
         }
 
         public RecipeValidationResult ReviewApproval(string recipeId)

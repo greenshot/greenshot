@@ -295,6 +295,11 @@ Please check write accessibility of the selected storage location.</resource>
 		<resource name="settings_aitools_allowed">Programs allowed to see your windows, take screenshots and run recipes through greenshot-mcp:</resource>
 		<resource name="settings_aitools_remove">Remove</resource>
 		<resource name="settings_aitools_notify">Show a notification when an AI tool takes a screenshot</resource>
+		<resource name="settings_recipeapprovals">Approved recipes</resource>
+		<resource name="settings_recipeapprovals_description">Recipes from files, also those written by AI tools, and what you approved for them. Changes here take effect right away.</resource>
+		<resource name="settings_recipeapprovals_details">Details</resource>
+		<resource name="settings_recipeapprovals_review">Review...</resource>
+		<resource name="settings_recipeapprovals_revoke">Revoke</resource>
 		<resource name="settings_output">Output</resource>
 		<resource name="settings_playsound">Play camera sound</resource>
 		<resource name="settings_plugins">Plugins</resource>

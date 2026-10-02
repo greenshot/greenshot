@@ -197,7 +197,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         {
             var details = _recipeManager?.GetRecipeDetails(Recipe.Id);
             if (details == null) return;
-            var window = new Dialogs.RecipeDetailsWindow(Recipe, details)
+            var window = new RecipeDetailsWindow(Recipe, details)
             {
                 Owner = Application.Current?.Windows.OfType<Window>().FirstOrDefault(w => w.IsActive)
             };

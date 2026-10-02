@@ -591,6 +591,35 @@
                                           IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=AiToolsNotifyOnCapture}"/>
                             </StackPanel>
                         </GroupBox>
+
+                        <!-- Recipes from files and their approval (also those written by AI tools) -->
+                        <GroupBox Header="{wpf:Translate settings_recipeapprovals}">
+                            <StackPanel>
+                                <TextBlock Text="{wpf:Translate settings_recipeapprovals_description}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,0,0,4"
+                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ListBox ItemsSource="{Binding ApprovedRecipes}"
+                                             SelectedItem="{Binding SelectedApprovedRecipe, Mode=TwoWay}"
+                                             DisplayMemberPath="DisplayText"
+                                             MinHeight="48" MaxHeight="140"
+                                             ScrollViewer.HorizontalScrollBarVisibility="Auto"/>
+                                    <StackPanel Grid.Column="1" Margin="6,0,0,0">
+                                        <Button Content="{wpf:Translate settings_recipeapprovals_details}" Padding="8,2" Margin="0,0,0,4"
+                                                Click="ShowRecipeDetails_Click" IsEnabled="{Binding HasSelectedApprovedRecipe}"/>
+                                        <Button Content="{wpf:Translate settings_recipeapprovals_review}" Padding="8,2" Margin="0,0,0,4"
+                                                Click="ReviewRecipeApproval_Click" IsEnabled="{Binding HasSelectedApprovedRecipe}"/>
+                                        <Button Content="{wpf:Translate settings_recipeapprovals_revoke}" Padding="8,2"
+                                                Click="RevokeRecipeApproval_Click" IsEnabled="{Binding HasSelectedApprovedRecipe}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </GroupBox>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>

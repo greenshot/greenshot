@@ -24,12 +24,11 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Greenshot.Base.Recipes;
-using Greenshot.Base.Wpf;
 
-namespace Greenshot.Plugin.RecipeEditor.Dialogs
+namespace Greenshot.Base.Wpf
 {
     /// <summary>
-    /// Shows the details of a recipe in the recipe manager: what it does, its triggers, its approval and the changes against the
+    /// Shows the details of a recipe (recipe manager, settings): what it does, its triggers, its approval and the changes against the
     /// built-in recipe it replaces.
     /// </summary>
     public sealed class RecipeDetailsWindow : Window
@@ -59,7 +58,7 @@ namespace Greenshot.Plugin.RecipeEditor.Dialogs
             Content = text;
         }
 
-        internal static string Format(CaptureRecipe recipe, RecipeDetails details)
+        public static string Format(CaptureRecipe recipe, RecipeDetails details)
         {
             var builder = new StringBuilder();
             builder.AppendLine($"{recipe.Name} ({recipe.Id})");

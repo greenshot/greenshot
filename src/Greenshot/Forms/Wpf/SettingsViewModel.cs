@@ -90,6 +90,7 @@ namespace Greenshot.Forms.Wpf
 
             // Programs allowed to use Greenshot through greenshot-mcp
             AiToolsAllowedClients = new ObservableCollection<string>(CoreConfiguration.AiToolsAllowedClients ?? new List<string>());
+            RefreshApprovedRecipes();
 
             // Initialize plugin controls collection
             PluginControls = new ObservableCollection<UIElement>();
@@ -128,6 +129,42 @@ namespace Greenshot.Forms.Wpf
         }
 
         public bool HasSelectedAiToolClient => _selectedAiToolClient != null;
+
+        /// <summary>
+        /// The recipes from files, with their approval: shown in core, so approvals can be seen and revoked without the recipe editor
+        /// </summary>
+        public ObservableCollection<ApprovedRecipeItem> ApprovedRecipes { get; } = new ObservableCollection<ApprovedRecipeItem>();
+
+        private ApprovedRecipeItem _selectedApprovedRecipe;
+
+        public ApprovedRecipeItem SelectedApprovedRecipe
+        {
+            get => _selectedApprovedRecipe;
+            set
+            {
+                if (_selectedApprovedRecipe != value)
+                {
+                    _selectedApprovedRecipe = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(HasSelectedApprovedRecipe));
+                }
+            }
+        }
+
+        public bool HasSelectedApprovedRecipe => _selectedApprovedRecipe != null;
+
+        public void RefreshApprovedRecipes()
+        {
+            string selectedId = _selectedApprovedRecipe?.RecipeId;
+            ApprovedRecipes.Clear();
+            var manager = Greenshot.Recipes.RecipeManager.Instance;
+            foreach (var recipe in manager.GetAllRecipes().Where(r => !string.IsNullOrEmpty(r.FilePath)).OrderBy(r => r.Name, StringComparer.CurrentCultureIgnoreCase))
+            {
+                var details = manager.GetRecipeDetails(recipe.Id);
+                ApprovedRecipes.Add(new ApprovedRecipeItem(recipe, details));
+            }
+            SelectedApprovedRecipe = ApprovedRecipes.FirstOrDefault(r => string.Equals(r.RecipeId, selectedId, StringComparison.OrdinalIgnoreCase));
+        }
         
         public IEditorConfiguration EditorConfiguration { get; }
         
@@ -607,5 +644,34 @@ namespace Greenshot.Forms.Wpf
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+    }
+
+    /// <summary>
+    /// A recipe from a file in the settings, with its approval in a line
+    /// </summary>
+    public sealed class ApprovedRecipeItem
+    {
+        public ApprovedRecipeItem(Greenshot.Base.Recipes.CaptureRecipe recipe, Greenshot.Base.Recipes.RecipeDetails details)
+        {
+            Recipe = recipe;
+            Details = details;
+            string by = string.IsNullOrEmpty(details?.ProposedBy) ? "" : $" · written by {details.ProposedBy}";
+            string state = details?.ApprovedAt == null ? "not approved"
+                : details.IsApprovalCurrent ? $"approved {details.ApprovedAt:yyyy-MM-dd}"
+                : "changed since its approval";
+            int off = details?.Triggers?.Count(t => t.EndsWith("(off, not approved)", StringComparison.Ordinal)) ?? 0;
+            string offText = off == 0 ? "" : off == 1 ? " · 1 trigger off" : $" · {off} triggers off";
+            DisplayText = $"{recipe.Name}{by} · {state}{offText}";
+        }
+
+        public Greenshot.Base.Recipes.CaptureRecipe Recipe { get; }
+
+        public Greenshot.Base.Recipes.RecipeDetails Details { get; }
+
+        public string RecipeId => Recipe.Id;
+
+        public string DisplayText { get; }
+
+        public override string ToString() => DisplayText;
     }
 }

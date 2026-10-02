@@ -107,7 +107,9 @@ file an AI tool wrote all switches start off again. A rejected proposal isn't sh
 and only one proposal is shown at a time.
 
 The recipe manager marks recipes written by AI tools (🤖, and the filter "AI"), shows triggers that are switched off
-by the approval as "off, not approved", and its "Permissions" button opens the approval again to change them.
+by the approval as "off, not approved", and its "Permissions" button opens the approval again to change them or to
+revoke it. Without the recipe editor plug-in (it is optional, and not in the Light version), Settings > General >
+"Approved recipes" lists the recipes from files with who wrote them and their approval, with Details, Review and Revoke.
 
 ## Safety
 
