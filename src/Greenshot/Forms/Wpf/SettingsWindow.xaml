@@ -945,47 +945,18 @@
                                                         </DataTemplate>
                                                     </ItemsControl.ItemTemplate>
                                                 </ItemsControl>
-                                                <!-- Extensions: the recipes they change, checked by default -->
+                                                <!-- Extensions: where they are used, changed in a dialog with the captures and the destinations -->
                                                 <Grid Margin="0,3,0,0" Visibility="{Binding HasUseIn, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="140"/>
                                                         <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
-                                                    <TextBlock Text="{wpf:Translate settings_recipes_usein}" Margin="0,1,0,0"/>
-                                                    <ItemsControl Grid.Column="1" ItemsSource="{Binding UseIn}">
-                                                        <ItemsControl.ItemsPanel>
-                                                            <ItemsPanelTemplate>
-                                                                <WrapPanel/>
-                                                            </ItemsPanelTemplate>
-                                                        </ItemsControl.ItemsPanel>
-                                                        <ItemsControl.ItemTemplate>
-                                                            <DataTemplate>
-                                                                <CheckBox Content="{Binding Name}" IsChecked="{Binding IsChecked, Mode=TwoWay}" Margin="0,1,12,1"/>
-                                                            </DataTemplate>
-                                                        </ItemsControl.ItemTemplate>
-                                                    </ItemsControl>
-                                                </Grid>
-                                                <!-- Extensions which run per destination: for which ones (none checked: all) -->
-                                                <Grid Margin="0,3,0,0" Visibility="{Binding IsDestinationSlot, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="140"/>
-                                                        <ColumnDefinition Width="*"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <TextBlock Text="{wpf:Translate settings_recipes_onlydestinations}" TextWrapping="Wrap" Margin="0,1,8,0"/>
-                                                    <ItemsControl Grid.Column="1" ItemsSource="{Binding OnlyDestinations}">
-                                                        <ItemsControl.ItemsPanel>
-                                                            <ItemsPanelTemplate>
-                                                                <WrapPanel/>
-                                                            </ItemsPanelTemplate>
-                                                        </ItemsControl.ItemsPanel>
-                                                        <ItemsControl.ItemTemplate>
-                                                            <DataTemplate>
-                                                                <CheckBox Content="{Binding Name}" IsChecked="{Binding IsChecked, Mode=TwoWay}" Margin="0,1,12,1"/>
-                                                            </DataTemplate>
-                                                        </ItemsControl.ItemTemplate>
-                                                    </ItemsControl>
-                                                </Grid>
-                                            </StackPanel>
+                                                    <TextBlock Text="{wpf:Translate settings_recipes_usedfor}" VerticalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding ScopeSummary}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                                    <Button Grid.Column="2" Content="{wpf:Translate settings_recipes_change}" Padding="6,0" Margin="8,0,0,0"
+                                                            VerticalAlignment="Center" Click="RecipeExtensionScope_Click"/>
+                                                </Grid>                                            </StackPanel>
                                         </StackPanel>
                                     </Border>
                                 </DataTemplate>

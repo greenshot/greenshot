@@ -204,12 +204,17 @@ namespace Greenshot.Forms.Wpf
                 {
                     foreach (var destination in DestinationHelper.GetAllDestinations().Where(d => !string.Equals(d.Designation, "Picker", StringComparison.OrdinalIgnoreCase)))
                     {
-                        OnlyDestinations.Add(new RecipeScopeItem(destination.Designation, destination.Descriptor?.DisplayName ?? destination.Designation, stored.OnlyDestinations.Contains(destination.Designation)));
+                        OnlyDestinations.Add(new RecipeScopeItem(destination.Designation, destination.Descriptor?.DisplayName ?? destination.Designation,
+                            stored.OnlyDestinations.Count == 0 || stored.OnlyDestinations.Contains(destination.Designation)));
                     }
                 }
                 foreach (var scopeItem in UseIn.Concat(OnlyDestinations))
                 {
-                    scopeItem.PropertyChanged += (sender, args) => OnChanged();
+                    scopeItem.PropertyChanged += (sender, args) =>
+                    {
+                        OnPropertyChanged(nameof(ScopeSummary));
+                        OnChanged();
+                    };
                 }
             }
             BodyItems = new ObservableCollection<RecipeOptionItem>(Items.Where(i => i != SwitchItem));
@@ -269,6 +274,29 @@ namespace Greenshot.Forms.Wpf
 
         public bool HasUseIn => UseIn != null && UseIn.Count > 0;
 
+        /// <summary>
+        /// Where the extension is used, in one line: "all captures → all destinations", "3 of 7 captures → Email", ...
+        /// </summary>
+        public string ScopeSummary
+        {
+            get
+            {
+                if (UseIn == null) return null;
+                int checkedCaptures = UseIn.Count(i => i.IsChecked);
+                string captures = checkedCaptures == UseIn.Count
+                    ? Language.GetString("settings_recipes_scope_allcaptures")
+                    : checkedCaptures == 0
+                        ? Language.GetString("settings_recipes_scope_nocaptures")
+                        : string.Format(Language.GetString("settings_recipes_scope_somecaptures"), checkedCaptures, UseIn.Count);
+                if (OnlyDestinations == null || OnlyDestinations.Count == 0) return captures;
+                var checkedDestinations = OnlyDestinations.Where(i => i.IsChecked).ToList();
+                string destinations = checkedDestinations.Count == OnlyDestinations.Count
+                    ? Language.GetString("settings_recipes_scope_alldestinations")
+                    : string.Join(", ", checkedDestinations.Select(i => i.Name));
+                return $"{captures} → {destinations}";
+            }
+        }
+
         public ObservableCollection<RecipeScopeItem> OnlyDestinations { get; }
 
         /// <summary>
@@ -286,7 +314,10 @@ namespace Greenshot.Forms.Wpf
                 Enabled = IsOn,
                 ApplyToAll = true,
                 ExceptRecipes = new HashSet<string>(UseIn?.Where(i => !i.IsChecked).Select(i => i.Id) ?? Enumerable.Empty<string>(), StringComparer.OrdinalIgnoreCase),
-                OnlyDestinations = new HashSet<string>(OnlyDestinations?.Where(i => i.IsChecked).Select(i => i.Id) ?? Enumerable.Empty<string>(), StringComparer.OrdinalIgnoreCase)
+                // All destinations checked: stored as "all", so destinations added later get it too
+                OnlyDestinations = OnlyDestinations == null || OnlyDestinations.All(i => i.IsChecked)
+                    ? new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                    : new HashSet<string>(OnlyDestinations.Where(i => i.IsChecked).Select(i => i.Id), StringComparer.OrdinalIgnoreCase)
             };
         }
 
@@ -308,7 +339,7 @@ namespace Greenshot.Forms.Wpf
             }
             foreach (var scopeItem in OnlyDestinations)
             {
-                scopeItem.IsChecked = false;
+                scopeItem.IsChecked = true;
             }
         }
 
