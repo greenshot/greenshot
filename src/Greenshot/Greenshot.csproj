@@ -77,7 +77,9 @@
   <UsingTask TaskName="EmojiDataTask" TaskFactory="TaskHostFactory" AssemblyFile="..\Greenshot.BuildTasks\bin\$(Configuration)\$(TargetFramework)\Greenshot.BuildTasks.dll" />
 
   <Target Name="GenerateEmojiTestTxtFile" BeforeTargets="BeforeBuild">
-    <EmojiDataTask EmojiTestTxtFile="..\Greenshot.Editor\Controls\Emoji\emoji-test.txt" OutputFilename="$(SolutionDir)$(SolutionName)\$(OutDir)\emojis.xml" />
+    <!-- The output directory doesn't exist yet in a clean build (or the first build of Greenshot Light) -->
+    <MakeDir Directories="$(TargetDir)" />
+    <EmojiDataTask EmojiTestTxtFile="..\Greenshot.Editor\Controls\Emoji\emoji-test.txt" OutputFilename="$(TargetDir)emojis.xml" />
   </Target>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
