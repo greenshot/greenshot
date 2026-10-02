@@ -345,6 +345,7 @@ namespace Greenshot.Forms
             try
             {
                 InitializeComponent();
+                ApplyImages();
                 InitializeLanguage();
             }
             catch (ArgumentException ex)
@@ -505,6 +506,25 @@ namespace Greenshot.Forms
             {
                 PsApi.EmptyWorkingSet();
             }
+        }
+
+        /// <summary>
+        /// The images of the controls, embedded as plain files (see EmbeddedResources). They are assigned here and not in the
+        /// designer: the designer would put them into the .resx as binary data, which needs System.Resources.Extensions.
+        /// Never set an Image in the designer, add the file to Resources and a line here.
+        /// </summary>
+        private void ApplyImages()
+        {
+            contextmenu_capturearea.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_capturearea.Image");
+            contextmenu_capturelastregion.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_capturelastregion.Image");
+            contextmenu_capturewindow.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_capturewindow.Image");
+            contextmenu_capturefullscreen.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_capturefullscreen.Image");
+            contextmenu_captureclipboard.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_captureclipboard.Image");
+            contextmenu_openfile.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_openfile.Image");
+            contextmenu_settings.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_settings.Image");
+            contextmenu_help.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_help.Image");
+            contextmenu_donate.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_donate.Image");
+            contextmenu_exit.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_exit.Image");
         }
 
         protected override void InitializeLanguage()

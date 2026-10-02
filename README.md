@@ -81,6 +81,17 @@ Greenshot Light is the basics only: no plugins, no AI tools (greenshot-mcp) and 
 
 The edition is in Greenshot.exe (`[AssemblyMetadata("GreenshotEdition", "Light")]` and the product name in its file properties); `Greenshot.Base.Core.EditionInfo` reads it, for the About window, the tray icon, the log and the bug reports. Another edition is another value of the `GreenshotEdition` property (see `src\Directory.Build.props`).
 
+Adding images:
+--------------
+
+Images, icons and sounds for Windows Forms are embedded as plain files, not in .resx files: binary data in a .resx needs System.Resources.Extensions and its dependencies in the output, and the build fails when a .resx contains anything but strings.
+
+* An image of the editor goes to `src\Greenshot.Editor\Resources\<control>.Image.png`, e.g. `btnSave.Image.png`. The wildcard `EmbeddedResource` in Greenshot.Editor.csproj (LogicalName `Greenshot.Editor.Forms.ImageEditorForm.%(Filename)`) picks it up, nothing else to add there. Greenshot's main window works the same way with `src\Greenshot\Resources\MainForm`.
+* Anything else: `<EmbeddedResource Include="..." LogicalName="<Namespace>.<Type>.<name>" />` in the project, the type being the one the resource belongs to.
+* Load it with `EmbeddedResources.GetImage`, `GetIcon` or `GetBytes(typeof(<Type>), "<name>")`; the caller disposes what it gets.
+* Never set an image with the Image property in the Windows Forms designer, it writes the image into the .resx. Assign it in the code of the form, e.g. in `ApplyImages()` of ImageEditorForm.cs or MainForm.cs.
+* WPF is not affected: its images are `Resource` items with pack URIs, as before.
+
 How to contribute:
 ------------------
 
