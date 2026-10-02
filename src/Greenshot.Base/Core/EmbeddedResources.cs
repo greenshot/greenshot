@@ -53,7 +53,8 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// The names of all resources which belong to the type
+        /// The names of all resources which belong to the type. The compiled .resx of the type (e.g. "...ImageEditorForm.resources",
+        /// with the strings of the form) is not one of them.
         /// </summary>
         /// <param name="owner">Type to which the resources belong</param>
         /// <returns>IEnumerable with the names, which can be passed to the other methods</returns>
@@ -61,7 +62,8 @@ namespace Greenshot.Base.Core
         {
             string prefix = ManifestName(owner, string.Empty);
             return owner.Assembly.GetManifestResourceNames()
-                .Where(manifestName => manifestName.StartsWith(prefix, StringComparison.Ordinal))
+                .Where(manifestName => manifestName.StartsWith(prefix, StringComparison.Ordinal)
+                                       && !manifestName.EndsWith(".resources", StringComparison.Ordinal))
                 .Select(manifestName => manifestName.Substring(prefix.Length));
         }
 

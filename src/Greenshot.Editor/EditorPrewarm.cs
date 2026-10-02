@@ -92,7 +92,15 @@ namespace Greenshot.Editor
                 // Reading the embedded resources (the images of the buttons) the first time
                 foreach (string name in EmbeddedResources.GetNames(typeof(ImageEditorForm)))
                 {
-                    EmbeddedResources.GetImage(typeof(ImageEditorForm), name)?.Dispose();
+                    try
+                    {
+                        EmbeddedResources.GetImage(typeof(ImageEditorForm), name)?.Dispose();
+                    }
+                    catch (Exception ex)
+                    {
+                        // Only a preparation, the editor reports it if it really needs this image
+                        Log.Debug($"Couldn't load the embedded image {name}", ex);
+                    }
                 }
                 return PrepareMethods(cancellationToken);
             }, cancellationToken).ConfigureAwait(false);
