@@ -59,15 +59,31 @@ namespace Greenshot.Helpers
         private static IDisposable _endSessionSubscription;
 
         /// <summary>
+        /// Creates the command line for the restart: <c>--restore</c>, and <c>--ini-directory</c> when one is active.
+        /// </summary>
+        /// <param name="iniDirectory">The active --ini-directory (absolute) or null</param>
+        internal static string CreateRestartArguments(string iniDirectory)
+        {
+            if (string.IsNullOrEmpty(iniDirectory))
+            {
+                return "--restore";
+            }
+
+            // A trailing backslash (e.g. D:\) would escape the closing quote, so double it
+            return $"--restore --ini-directory \"{(iniDirectory.EndsWith(@"\") ? iniDirectory + @"\" : iniDirectory)}\"";
+        }
+
+        /// <summary>
         /// Registers Greenshot for automatic restart by the Windows Restart Manager.
         /// When the Restart Manager restarts Greenshot, it will use the <c>--restore</c> argument
         /// so that Greenshot can restore any open image editors.
         /// </summary>
-        public static void RegisterForRestart()
+        /// <param name="iniDirectory">The active --ini-directory (absolute) or null, passed on so the restarted Greenshot uses the same greenshot.ini</param>
+        public static void RegisterForRestart(string iniDirectory)
         {
             // Register with the Windows Restart Manager so it can restart us after updates
             // Don't restart if the application crashes
-            ApplicationRestartManager.RegisterForRestart(commandLineArgs: "--restore");
+            ApplicationRestartManager.RegisterForRestart(commandLineArgs: CreateRestartArguments(iniDirectory));
 
             // WM_QUERYENDSESSION is not answered, which allows the session to end (an update will take place).
             // OnNext is called on the SharedMessageWindow thread, not on the UI thread.
