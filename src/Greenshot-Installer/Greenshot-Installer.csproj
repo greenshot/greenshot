@@ -27,17 +27,18 @@
     <RemoveDir Directories="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\_manifest" />
   </Target>
 
-  <!-- Makes the output directory the layout of an installation: removes the plugins' copies of files in the main directory -->
-  <Target Name="PrunePluginFiles" BeforeTargets="PostBuildEvent">
+  <!-- Makes the output directory the layout of an installation: removes the plugins' copies of files in the main directory.
+       Like everything for the release (checksums, SBOM, Greenshot Light, signing, installers), only in Release. -->
+  <Target Name="PrunePluginFiles" BeforeTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Release'">
     <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)scripts\prune-plugin-files.ps1&quot; -OutputDir &quot;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)&quot;" />
   </Target>
 
   <!-- greenshot-mcp.exe is published after everything else (see PublishMcpServer): remove the one of a previous build, so it isn't in the checksums, the SBOM or the installers -->
-  <Target Name="RemovePreviousMcpServer" BeforeTargets="PrunePluginFiles">
+  <Target Name="RemovePreviousMcpServer" BeforeTargets="PrunePluginFiles" Condition="'$(Configuration)' == 'Release'">
     <Delete Files="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\greenshot-mcp.exe" />
   </Target>
 
-  <Target Name="Generate hashes" BeforeTargets="PostBuildEvent" DependsOnTargets="PrunePluginFiles">
+  <Target Name="Generate hashes" BeforeTargets="PostBuildEvent" DependsOnTargets="PrunePluginFiles" Condition="'$(Configuration)' == 'Release'">
     <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)scripts\generate-checksums.ps1&quot; -OutputDir &quot;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)&quot;" />
   </Target>
 

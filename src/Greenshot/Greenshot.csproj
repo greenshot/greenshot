@@ -8,24 +8,31 @@
     <ApplicationManifest>greenshot.manifest</ApplicationManifest>
 	  <EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
 	  <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+    <!-- DebugLight and ReleaseLight build Greenshot Light, see Directory.Build.props -->
+    <Configurations>Debug;Release;DebugLight;ReleaseLight</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
       <_Parameter1>Greenshot.Tests</_Parameter1>
     </AssemblyAttribute>
+    <!-- The edition, read by Greenshot.Base.Core.EditionInfo -->
+    <AssemblyMetadata Include="GreenshotEdition" Value="$(GreenshotEdition)" />
   </ItemGroup>
+  <!-- Every edition but Full has its name in the version info, so Explorer's file properties show it -->
+  <PropertyGroup Condition="'$(GreenshotEdition)' != 'Full'">
+    <Product>Greenshot $(GreenshotEdition)</Product>
+  </PropertyGroup>
   <!--
-    Greenshot Light (/p:GreenshotEdition=Light): the basics only, for the Light installer (setup-light.iss) and the Light portable version.
-    GREENSHOT_LIGHT compiles out loading plugins, the AI tools (greenshot-mcp) and the browser extension. It is built next to the
-    full version, in bin\$(Configuration)-Light, by the Release build of Greenshot-Installer.
+    Greenshot Light (/p:GreenshotEdition=Light, or the DebugLight / ReleaseLight configurations): the basics only, for the Light installer
+    (setup-light.iss) and the Light portable version. GREENSHOT_LIGHT compiles out loading plugins, the AI tools (greenshot-mcp) and the
+    browser extension. It is built next to the full version, in bin\Debug-Light or bin\Release-Light; the Release build of
+    Greenshot-Installer builds it too.
   -->
   <PropertyGroup Condition="'$(GreenshotEdition)' == 'Light'">
     <DefineConstants>$(DefineConstants);GREENSHOT_LIGHT</DefineConstants>
-    <OutputPath>bin\$(Configuration)-Light\</OutputPath>
-    <IntermediateOutputPath>obj\$(Configuration)-Light\</IntermediateOutputPath>
-    <!-- The edition in the version info, so Explorer's file properties show it -->
-    <Product>Greenshot Light</Product>
+    <OutputPath>bin\$(GreenshotBaseConfiguration)-Light\</OutputPath>
+    <IntermediateOutputPath>obj\$(GreenshotBaseConfiguration)-Light\</IntermediateOutputPath>
   </PropertyGroup>
   <!-- The code Greenshot Light doesn't have: loading plugins, the AI tools (greenshot-mcp) and the browser extension, with their settings tabs -->
   <ItemGroup Condition="'$(GreenshotEdition)' == 'Light'">
@@ -76,7 +83,7 @@
     <CheckLightAssembly Assembly="@(IntermediateAssembly->'%(FullPath)')"
                         ForbiddenNames="PluginHelper;LoadPluginsAsync;AiToolIpcHandler;AiRecipeIpcHandler;AiToolCaller;AiToolClient;AiToolAccess;AiToolCapture;AiWindowRefs;McpServerStatus;RegisterAiToolRecipes;ImportCaptureDecoder;BrowserContextTracker;ExtensionOriginPolicy;HandleImportCaptureAsync;AiToolsSettingsPage;PluginsSettingsPage" />
   </Target>
-  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+  <PropertyGroup Condition="'$(GreenshotBaseConfiguration)' == 'Release'">
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
@@ -106,10 +113,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- The edition only changes Greenshot.exe, the libraries are the same -->
-    <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" UndefineProperties="GreenshotEdition" />
-    <ProjectReference Include="..\Greenshot.Editor\Greenshot.Editor.csproj" UndefineProperties="GreenshotEdition" />
-    <ProjectReference Include="..\Greenshot.BuildTasks\Greenshot.BuildTasks.csproj" ReferenceOutputAssembly="false" ExcludeAssets="all" UndefineProperties="GreenshotEdition" />
+    <!-- The edition only changes Greenshot.exe, the libraries are the same (and built as Debug or Release for DebugLight and ReleaseLight) -->
+    <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" UndefineProperties="GreenshotEdition" SetConfiguration="Configuration=$(GreenshotBaseConfiguration)" />
+    <ProjectReference Include="..\Greenshot.Editor\Greenshot.Editor.csproj" UndefineProperties="GreenshotEdition" SetConfiguration="Configuration=$(GreenshotBaseConfiguration)" />
+    <ProjectReference Include="..\Greenshot.BuildTasks\Greenshot.BuildTasks.csproj" ReferenceOutputAssembly="false" ExcludeAssets="all" UndefineProperties="GreenshotEdition" SetConfiguration="Configuration=$(GreenshotBaseConfiguration)" />
   </ItemGroup>
 
   <ItemGroup>
@@ -127,20 +134,20 @@
     </PackageReference>
   </ItemGroup>
 
-  <UsingTask TaskName="EmojiDataTask" TaskFactory="TaskHostFactory" AssemblyFile="..\Greenshot.BuildTasks\bin\$(Configuration)\$(TargetFramework)\Greenshot.BuildTasks.dll" />
+  <UsingTask TaskName="EmojiDataTask" TaskFactory="TaskHostFactory" AssemblyFile="..\Greenshot.BuildTasks\bin\$(GreenshotBaseConfiguration)\$(TargetFramework)\Greenshot.BuildTasks.dll" />
 
-  <Target Name="GenerateEmojiTestTxtFile" BeforeTargets="BeforeBuild">
+  <Target Name="GenerateEmojiTestTxtFile" BeforeTargets="BeforeBuild" Inputs="..\Greenshot.Editor\Controls\Emoji\emoji-test.txt" Outputs="$(TargetDir)emojis.xml">
     <!-- The output directory doesn't exist yet in a clean build (or the first build of Greenshot Light) -->
     <MakeDir Directories="$(TargetDir)" />
     <EmojiDataTask EmojiTestTxtFile="..\Greenshot.Editor\Controls\Emoji\emoji-test.txt" OutputFilename="$(TargetDir)emojis.xml" />
   </Target>
 
-  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+  <PropertyGroup Condition="'$(GreenshotBaseConfiguration)' == 'Debug'">
     <PostBuildEvent>
       copy "$(SolutionDir)Greenshot\log4net-debug.xml" "$(TargetDir)log4net.xml"
     </PostBuildEvent>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+  <PropertyGroup Condition="'$(GreenshotBaseConfiguration)' == 'Release'">
     <PostBuildEvent>
       copy "$(SolutionDir)Greenshot\log4net-release.xml" "$(TargetDir)log4net.xml"
     </PostBuildEvent>

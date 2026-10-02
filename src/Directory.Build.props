@@ -24,8 +24,22 @@
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     <CompilerGeneratedFilesOutputPath>$(MSBuildProjectDirectory)/obj/generated</CompilerGeneratedFilesOutputPath>
   </PropertyGroup>
-  
-  <PropertyGroup Condition="'$(Configuration)' != 'Debug' And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">
+
+  <!--
+    The Greenshot edition: Full (the default) or Light, set with /p:GreenshotEdition=Light or with the DebugLight / ReleaseLight
+    configurations of Greenshot.csproj (the "Debug Light" / "Release Light" solution configurations in Visual Studio).
+    GreenshotBaseConfiguration is Debug or Release for those too, use it instead of $(Configuration) in conditions.
+  -->
+  <PropertyGroup>
+    <GreenshotBaseConfiguration>$(Configuration)</GreenshotBaseConfiguration>
+    <GreenshotBaseConfiguration Condition="'$(Configuration)' == ''">Debug</GreenshotBaseConfiguration>
+    <GreenshotBaseConfiguration Condition="'$(Configuration)' == 'DebugLight'">Debug</GreenshotBaseConfiguration>
+    <GreenshotBaseConfiguration Condition="'$(Configuration)' == 'ReleaseLight'">Release</GreenshotBaseConfiguration>
+    <GreenshotEdition Condition="'$(GreenshotEdition)' == '' And $(Configuration.EndsWith('Light'))">Light</GreenshotEdition>
+    <GreenshotEdition Condition="'$(GreenshotEdition)' == ''">Full</GreenshotEdition>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(GreenshotBaseConfiguration)' != 'Debug' And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <IsPackable>true</IsPackable>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
@@ -36,7 +50,7 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+  <PropertyGroup Condition="'$(GreenshotBaseConfiguration)' == 'Debug'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugSymbols>True</DebugSymbols>
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
@@ -44,7 +58,7 @@
     <Optimize>false</Optimize>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+  <PropertyGroup Condition="'$(GreenshotBaseConfiguration)' == 'Release'">
     <Optimize>true</Optimize>
     <DebugType>embedded</DebugType>
     <DebugSymbols>True</DebugSymbols>
