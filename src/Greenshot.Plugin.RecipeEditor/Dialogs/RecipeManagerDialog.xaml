@@ -259,6 +259,8 @@
                                      Click="OnFilterBuiltInClicked"/>
                         <RadioButton Content="Custom" Style="{StaticResource FilterChipStyle}"
                                      Click="OnFilterCustomClicked"/>
+                        <RadioButton Content="AI" Style="{StaticResource FilterChipStyle}" ToolTip="Recipes written by AI tools"
+                                     Click="OnFilterAiClicked"/>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -304,6 +306,14 @@
                                                 <TextBlock Text="{Binding RecipeTypeBadge}" FontSize="9" FontWeight="Bold"
                                                            Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}"/>
                                             </Border>
+                                            <Border Background="{x:Static ui:WpfThemeHelper.BadgeBackground}"
+                                                    BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}"
+                                                    BorderThickness="1" CornerRadius="3" Padding="5,1" Margin="0,0,6,0" VerticalAlignment="Center"
+                                                    Visibility="{Binding IsAiCreated, Converter={StaticResource BoolToVis}}"
+                                                    ToolTip="This recipe was written by an AI tool and approved by you">
+                                                <TextBlock Text="{Binding AiBadge}" FontSize="9" FontWeight="Bold"
+                                                           Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}"/>
+                                            </Border>
                                             <TextBlock Text="{Binding Version, StringFormat='v{0}'}" FontSize="10"
                                                        Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                                             <TextBlock Text="{Binding Id, StringFormat='({0})'}" FontSize="10" FontFamily="Consolas"
@@ -347,6 +357,9 @@
                                                 ToolTip="Open recipe in Visual Editor canvas" Margin="0,0,6,0"/>
                                         <Button Content="▶ Test Run" Style="{StaticResource DlgBtn}" Command="{Binding TestRunCommand}"
                                                 ToolTip="Test execute capture recipe in Greenshot" Margin="0,0,6,0"/>
+                                        <Button Content="🛡 Permissions" Style="{StaticResource DlgBtn}" Command="{Binding ReviewApprovalCommand}"
+                                                ToolTip="Switch the recipe's triggers and permissions on or off"
+                                                Visibility="{Binding HasFilePath, Converter={StaticResource BoolToVis}}" Margin="0,0,6,0"/>
                                         <Button Content="{Binding UnloadButtonText}" Style="{StaticResource DlgDangerBtn}" Command="{Binding UnloadCommand}"
                                                 ToolTip="{Binding UnloadToolTip}"
                                                 Visibility="{Binding CanUnload, Converter={StaticResource BoolToVis}}"/>

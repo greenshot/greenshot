@@ -72,15 +72,13 @@ jobs:
         Picasa_ClientId: ${{ secrets.Picasa_ClientId }}
         Picasa_ClientSecret: ${{ secrets.Picasa_ClientSecret }}
 
-    - name: Publish MCP server
-      shell: cmd
-      run: dotnet publish src/Greenshot.Mcp -c Release -r win-x64 -o mcp-publish/win-x64
-
+    # The Release build publishes greenshot-mcp.exe next to Greenshot.exe as its last step, after the checksums, the SBOM,
+    # the installers and the portable versions, so it is only in its own download
     - name: Upload MCP server artifact
       uses: actions/upload-artifact@v4
       with:
         name: artifacts-greenshot-mcp
-        path: mcp-publish/win-x64/greenshot-mcp.exe
+        path: src/Greenshot/bin/Release/net480/greenshot-mcp.exe
         if-no-files-found: error
 
     - name: Copy Files

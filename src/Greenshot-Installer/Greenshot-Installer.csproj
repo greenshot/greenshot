@@ -32,6 +32,11 @@
     <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)scripts\prune-plugin-files.ps1&quot; -OutputDir &quot;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)&quot;" />
   </Target>
 
+  <!-- greenshot-mcp.exe is published after everything else (see PublishMcpServer): remove the one of a previous build, so it isn't in the checksums, the SBOM or the installers -->
+  <Target Name="RemovePreviousMcpServer" BeforeTargets="PrunePluginFiles">
+    <Delete Files="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\greenshot-mcp.exe" />
+  </Target>
+
   <Target Name="Generate hashes" BeforeTargets="PostBuildEvent" DependsOnTargets="PrunePluginFiles">
     <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)scripts\generate-checksums.ps1&quot; -OutputDir &quot;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)&quot;" />
   </Target>
@@ -61,5 +66,18 @@
     <Exec Command="$(PkgTools_InnoSetup)\tools\ISCC.exe -q $(SolutionDir)$(ProjectName)\setup-light.iss" />
     <!-- The portable versions (full and light), as the release workflow creates them -->
     <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)scripts\create-portable-zips.ps1&quot; -RepositoryRootPath &quot;$(SolutionDir)..&quot; -BuildArtifactsPath &quot;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)&quot; -InstallerDir &quot;$(SolutionDir)..\installer&quot;" />
+  </Target>
+
+  <!--
+    The MCP server (greenshot-mcp.exe, Native AOT, a single exe) as the very last step: next to Greenshot.exe for the release
+    download, but not in checksum.SHA256, the SBOM, the installers or the portable versions, which are made before.
+    Needs the C++ build tools of Visual Studio (see docs/mcp-server.md); skip it with /p:SkipMcpPublish=true.
+  -->
+  <Target Name="PublishMcpServer" AfterTargets="PostBuild" Condition="'$(Configuration)' == 'Release' and '$(SkipMcpPublish)' != 'true'">
+    <PropertyGroup>
+      <McpPublishDir>$(MSBuildThisFileDirectory)obj\mcp-publish\win-x64\</McpPublishDir>
+    </PropertyGroup>
+    <Exec Command="dotnet publish &quot;$(SolutionDir)Greenshot.Mcp\Greenshot.Mcp.csproj&quot; -c Release -r win-x64 -o &quot;$(McpPublishDir.TrimEnd('\'))&quot;" />
+    <Copy SourceFiles="$(McpPublishDir)greenshot-mcp.exe" DestinationFolder="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)" />
   </Target>
 </Project>

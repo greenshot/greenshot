@@ -43,6 +43,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             EditCommand = new RelayCommand(() => _onSelectInEditor?.Invoke(Recipe));
             UnloadCommand = new RelayCommand(ExecuteUnload, () => CanUnload);
             TestRunCommand = new RelayCommand(() => AsyncCommand.Run(ExecuteTestRunAsync, "Recipe test run"));
+            ReviewApprovalCommand = new RelayCommand(ExecuteReviewApproval, () => HasFilePath);
         }
 
         public string Id => Recipe.Id;
@@ -56,6 +57,18 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public bool IsOverridden => Recipe.IsOverridden;
 
         public string RecipeTypeBadge => IsOverridden ? "OVERRIDDEN" : (IsBuiltIn ? "BUILT-IN" : "CUSTOM");
+
+        /// <summary>
+        /// The recipe file was written by an AI tool (and approved by the user)
+        /// </summary>
+        public bool IsAiCreated => !string.IsNullOrEmpty(Recipe.ProposedBy);
+
+        public string AiBadge => IsAiCreated ? $"🤖 BY {Recipe.ProposedBy}" : string.Empty;
+
+        /// <summary>
+        /// Triggers which are in the recipe but not switched on in its approval
+        /// </summary>
+        public bool HasUnapprovedTriggers => Recipe.Triggers?.Any(t => t != null && t.Enabled && !t.IsApproved) ?? false;
 
         public bool IsEnabled
         {
@@ -87,35 +100,75 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 }
 
                 var list = new List<string>();
-                foreach (var t in Recipe.Triggers)
+                foreach (var t in Recipe.Triggers.Where(t => t != null))
                 {
-                    if (string.Equals(t.TriggerType, TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase))
+                    string label = DescribeTrigger(t);
+                    if (!t.Enabled)
                     {
-                        string hk = t.GetParameter<string>("Hotkey");
-                        list.Add(string.IsNullOrWhiteSpace(hk) ? "⌨ Hotkey" : $"⌨ {hk}");
+                        label += " (disabled)";
                     }
-                    else if (string.Equals(t.TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase))
+                    else if (!t.IsApproved)
                     {
-                        string txt = t.GetParameter<string>("MenuItemText") ?? Recipe.Name;
-                        list.Add($"📋 Systray (\"{txt}\")");
+                        label += " (off, not approved)";
                     }
-                    else if (string.Equals(t.TriggerType, TriggerConfig.TypeEditor, StringComparison.OrdinalIgnoreCase))
-                    {
-                        string txt = t.GetParameter<string>("MenuItemText") ?? Recipe.Name;
-                        list.Add($"🎨 Editor (\"{txt}\")");
-                    }
-                    else if (string.Equals(t.TriggerType, TriggerConfig.TypeClipboard, StringComparison.OrdinalIgnoreCase))
-                    {
-                        list.Add("📋 Clipboard Monitor");
-                    }
-                    else
-                    {
-                        list.Add(t.Name ?? t.TriggerType);
-                    }
+                    list.Add(label);
                 }
 
                 return string.Join("  •  ", list);
             }
+        }
+
+        private string DescribeTrigger(TriggerConfig t)
+        {
+            string type = t.TriggerType ?? string.Empty;
+            bool Is(string triggerType) => string.Equals(type, triggerType, StringComparison.OrdinalIgnoreCase);
+            if (Is(TriggerConfig.TypeHotkey))
+            {
+                string hk = t.GetParameter<string>("Hotkey");
+                return string.IsNullOrWhiteSpace(hk) ? "⌨ Hotkey" : $"⌨ {hk}";
+            }
+            if (Is(TriggerConfig.TypeContextMenu))
+            {
+                return $"📋 Systray (\"{t.GetParameter<string>("MenuItemText") ?? Recipe.Name}\")";
+            }
+            if (Is(TriggerConfig.TypeEditor))
+            {
+                return $"🎨 Editor (\"{t.GetParameter<string>("MenuItemText") ?? Recipe.Name}\")";
+            }
+            if (Is(TriggerConfig.TypeClipboard))
+            {
+                return "📋 Clipboard Monitor";
+            }
+            if (Is(TriggerConfig.TypeCommandline))
+            {
+                string label = $"⌨ greenshot.com run {t.GetParameter<string>("Command") ?? Recipe.Id}";
+                if (t.GetParameter("AllowBrowserInvocation", false))
+                {
+                    label += t.IsBrowserInvocationApproved ? " (+ web pages)" : " (web pages: not approved)";
+                }
+                return label;
+            }
+            if (Is(TriggerConfig.TypeAiTool))
+            {
+                return $"🤖 AI tool \"{t.GetParameter<string>("ToolName") ?? t.Name}\"";
+            }
+            if (Is(TriggerConfig.TypeOpenFile))
+            {
+                return "📂 Open file";
+            }
+            if (Is(TriggerConfig.TypeExtension))
+            {
+                return "🌐 Browser extension";
+            }
+            if (Is(TriggerConfig.TypeSchedule))
+            {
+                return "⏱ Schedule";
+            }
+            if (Is(TriggerConfig.TypeManual))
+            {
+                return "▶ Manual";
+            }
+            return t.Name ?? t.TriggerType;
         }
 
         public bool CanUnload => !IsBuiltIn || IsOverridden;
@@ -128,6 +181,22 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public ICommand EditCommand { get; }
         public ICommand UnloadCommand { get; }
         public ICommand TestRunCommand { get; }
+
+        /// <summary>
+        /// Shows the approval of the recipe file again: which triggers are switched on and which permissions are given
+        /// </summary>
+        public ICommand ReviewApprovalCommand { get; }
+
+        private void ExecuteReviewApproval()
+        {
+            if (!HasFilePath || _recipeManager == null) return;
+            var result = _recipeManager.ReviewApproval(Recipe.Id);
+            if (result != null && !result.IsValid)
+            {
+                MessageBox.Show(string.Join("\n", result.Errors), "Recipe Permissions", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            _onRecipeChanged?.Invoke();
+        }
 
         private void ExecuteUnload()
         {
@@ -302,6 +371,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     "Deactivated" => !item.IsEnabled,
                     "Built-in" => item.IsBuiltIn && !item.IsOverridden,
                     "Custom" => !item.IsBuiltIn || item.IsOverridden,
+                    "AI" => item.IsAiCreated,
                     _ => true
                 };
 

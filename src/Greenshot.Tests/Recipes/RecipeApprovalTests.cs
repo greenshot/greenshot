@@ -279,6 +279,27 @@ namespace Greenshot.Tests.Recipes
             Assert.DoesNotContain(changes, c => c.StartsWith("Removes", StringComparison.OrdinalIgnoreCase));
         }
 
+        [Fact]
+        public void BuiltInRecipes_HavePlainNames()
+        {
+            var builtIns = RecipeManager.Instance.GetAllRecipes().Where(r => r.IsBuiltIn && !r.IsOverridden).ToList();
+            Assert.NotEmpty(builtIns);
+            Assert.All(builtIns, r =>
+            {
+                Assert.False(string.IsNullOrWhiteSpace(r.Name));
+                Assert.DoesNotContain("###", r.Name);
+            });
+        }
+
+        [Fact]
+        public void ProposedBy_IsNotSaved_AndIsCloned()
+        {
+            var recipe = CreateRecipe("proposed_by");
+            recipe.ProposedBy = "Test AI";
+            Assert.Equal("Test AI", recipe.Clone().ProposedBy);
+            Assert.DoesNotContain("Test AI", RecipeSerializer.Serialize(recipe));
+        }
+
         internal static CaptureRecipe CreateRecipe(string id)
         {
             var recipe = new CaptureRecipe(id, id)

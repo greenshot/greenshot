@@ -80,6 +80,12 @@ namespace Greenshot.Base.Recipes
         bool ResetToDefault(string recipeId);
 
         /// <summary>
+        /// Shows the approval of a recipe from a file again, so the user can switch triggers and permissions on or off.
+        /// Returns null when the recipe has no file.
+        /// </summary>
+        RecipeValidationResult ReviewApproval(string recipeId);
+
+        /// <summary>
         /// Reloads built-in recipes and re-applies configured recipe files from greenshot.ini.
         /// </summary>
         void ReloadRecipes();

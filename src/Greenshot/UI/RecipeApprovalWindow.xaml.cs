@@ -346,7 +346,8 @@ namespace Greenshot.UI
 
             PopulateTriggers(recipe);
             bool startSwitchedOff = IsAiProposal || request.StartSwitchedOff;
-            PopulateTriggerItems(recipe, defaultOn: !startSwitchedOff, prev?.GetApproval(recipe?.Id), request.PreviousRecord != null && ApprovalMode != RecipeApprovalMode.Modified);
+            var previousApproval = prev?.GetApproval(recipe?.Id);
+            PopulateTriggerItems(recipe, defaultOn: !startSwitchedOff, previousApproval, request.PreviousRecord != null && ApprovalMode != RecipeApprovalMode.Modified);
             PopulateSteps(recipe);
 
             // Gated actions: one switch per kind, all of them have to be allowed
@@ -360,8 +361,10 @@ namespace Greenshot.UI
                         GateType = group.Key,
                         Title = GetGateQuestion(group.Key),
                         Explanation = GetGateExplanation(group.Key),
-                        // External commands are always asked, the rest is pre-selected for what the user imports themselves
-                        IsChecked = !startSwitchedOff && group.Key != RecipeGateType.ExternalCommand && group.Key != RecipeGateType.Custom
+                        // A review keeps what was allowed; otherwise external commands are always asked, the rest is pre-selected for what the user imports themselves
+                        IsChecked = ApprovalMode == RecipeApprovalMode.ReVerify && previousApproval != null
+                            ? previousApproval.IsGateAllowed(group.Key)
+                            : !startSwitchedOff && group.Key != RecipeGateType.ExternalCommand && group.Key != RecipeGateType.Custom
                     };
                     item.Targets.AddRange(group.Select(a => "• " + RecipeDescriber.DescribeGatedAction(a)).Distinct());
                     item.PropertyChanged += (_, _) => UpdateApproveEnabled();

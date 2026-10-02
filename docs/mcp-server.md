@@ -106,6 +106,9 @@ the encrypted trust store, not in the recipe file. When the file changes later, 
 file an AI tool wrote all switches start off again. A rejected proposal isn't shown again until Greenshot restarts,
 and only one proposal is shown at a time.
 
+The recipe manager marks recipes written by AI tools (🤖, and the filter "AI"), shows triggers that are switched off
+by the approval as "off, not approved", and its "Permissions" button opens the approval again to change them.
+
 ## Safety
 
 * Greenshot doesn't trust what a connection says about itself. For the source `mcp` it checks the process on the
@@ -136,25 +139,36 @@ and only one proposal is shown at a time.
   screenshot API, and make sure the user's consent goes to a named program. An AI tool started through `node.exe`
   (e.g. an npm-installed client) is identified as Node.js.
 
-## Download
+## Install
 
 `greenshot-mcp.exe` is not part of the installer or the portable version, it is a separate download on the
-[releases page](https://github.com/greenshot/greenshot/releases): `Greenshot-MCP-<version>-win-x64.zip`. Use the one
-with the same version as Greenshot and extract `greenshot-mcp.exe` into the directory of `Greenshot.exe` (e.g.
-`C:\Program Files\Greenshot`). Greenshot only accepts `greenshot-mcp.exe` from its own directory.
+[releases page](https://github.com/greenshot/greenshot/releases): `Greenshot-MCP-<version>-win-x64.zip`.
 
-## Build
+1. Use the zip with the same version as Greenshot.
+2. Extract `greenshot-mcp.exe` into the directory of `Greenshot.exe`: `C:\Program Files\Greenshot` for an installed
+   Greenshot (this needs administrator rights), or the directory of the portable version.
+3. Connect your AI tool (below) with the full path of `greenshot-mcp.exe`.
 
-```
-dotnet publish src/Greenshot.Mcp -c Release -r win-x64
-```
+It has to be in the same directory as `Greenshot.exe`:
 
-Native AOT needs the "Desktop development with C++" workload of Visual Studio. If the publish fails with
-"'vswhere.exe' is not recognized", add `%ProgramFiles(x86)%\Microsoft Visual Studio\Installer` to the PATH.
+* Greenshot only answers `greenshot-mcp.exe` from its own directory (it checks the process on the other end of the
+  pipe), so a copy elsewhere is refused.
+* `greenshot-mcp.exe` starts `Greenshot.exe` from its own directory when Greenshot isn't running.
 
-The native `greenshot-mcp.exe` is in `src/Greenshot.Mcp/bin/Release/net10.0-windows/win-x64/publish`. Placed next to
-`Greenshot.exe`, it starts Greenshot when it isn't running. To use a development build from another directory with a
-Debug build of Greenshot, add that directory to `AiToolsMcpServerPaths` in greenshot.ini (ignored by Release builds).
+Nothing else is needed: it is a native executable, it doesn't need the .NET runtime.
+
+## Use it
+
+Ask the AI tool in your own words, for example:
+
+* "Look at my Visual Studio window and tell me what the error says." (`list_windows`, then `capture_window`)
+* "Take a screenshot of the region with the chart and read the numbers." (`capture_region` with OCR)
+* "Make a recipe: Ctrl+Shift+U captures a region, adds a red border and uploads it to Imgur." The AI tool writes the
+  recipe, checks it and proposes it; Greenshot shows it and you decide (see [Recipes written by AI tools](#recipes-written-by-ai-tools)).
+* "Add a tool that captures the active window and returns the text." The AI tool proposes a recipe with an AI tool
+  trigger; after you approve it, the AI tool has the new tool.
+
+The first time, Greenshot asks whether the AI tool may use it. Every capture shows a notification.
 
 ## Connect an AI tool
 
@@ -264,3 +278,56 @@ command = 'C:\Program Files\Greenshot\greenshot-mcp.exe'
 Any client that supports local (stdio) MCP servers works: the command is the path of `greenshot-mcp.exe`, without
 arguments or environment variables. Greenshot identifies the AI tool by the program which started `greenshot-mcp.exe`.
 A client that runs on Node.js (e.g. installed with npm) shows up as "Node.js" in Greenshot's question and settings.
+
+## For developers
+
+### Debug builds
+
+A Debug build of Greenshot doesn't publish greenshot-mcp. Build `src/Greenshot.Mcp` (it is in the solution) and
+point the AI tool at the build output, e.g. `src\Greenshot.Mcp\bin\Debug\net10.0-windows\greenshot-mcp.exe` (this
+needs the .NET 10 runtime). Because that isn't Greenshot's directory, allow it in greenshot.ini of the Debug build:
+
+```ini
+[Core]
+AiToolsMcpServerPaths=D:\code\greenshot\src\Greenshot.Mcp\bin\Debug\net10.0-windows
+```
+
+`AiToolsMcpServerPaths` takes directories or full paths of `greenshot-mcp.exe`, and is ignored by Release builds. A
+development build of greenshot-mcp can't start Greenshot (there is no `Greenshot.exe` next to it), so start Greenshot
+first, e.g. from Visual Studio.
+
+To test the tools without an AI tool, use the [MCP Inspector](https://github.com/modelcontextprotocol/inspector):
+
+```
+npx @modelcontextprotocol/inspector "D:\code\greenshot\src\Greenshot.Mcp\bin\Debug\net10.0-windows\greenshot-mcp.exe"
+```
+
+The Inspector (node.exe) is then the AI tool Greenshot asks about.
+
+### Release builds
+
+A Release build of the solution publishes greenshot-mcp as its very last step (target `PublishMcpServer` in
+`Greenshot-Installer.csproj`): a single native exe in `src\Greenshot\bin\Release\net480`, next to `Greenshot.exe`.
+It is published after `checksum.SHA256`, the SBOM, the installers and the portable versions, so it is in none of them;
+a greenshot-mcp.exe of an earlier build is removed before the checksums are made. The release workflow uploads it and
+attaches `Greenshot-MCP-<version>-win-x64.zip` to the GitHub release.
+
+Native AOT needs the "Desktop development with C++" workload of Visual Studio. If the publish fails with
+"'vswhere.exe' is not recognized", add `%ProgramFiles(x86)%\Microsoft Visual Studio\Installer` to the PATH. To build
+a Release without it, pass `/p:SkipMcpPublish=true`. To publish only greenshot-mcp:
+
+```
+dotnet publish src/Greenshot.Mcp -c Release -r win-x64
+```
+
+The result is in `src/Greenshot.Mcp/bin/Release/net10.0-windows/win-x64/publish`.
+
+### How it fits together
+
+* `src/Greenshot.Mcp`: the MCP server (ModelContextProtocol SDK, stdio). `GreenshotTools` (`list_windows`) and
+  `RecipeAuthoringTools` (schema, catalog, validate, propose, update) are fixed tools; `RecipeToolSync` turns the
+  recipes with an AI tool trigger into tools (`RecipeTool`). The recipe schema and examples are embedded from `docs/`.
+* Each tool call is one request over Greenshot's named pipe (`GreenshotConnection`), with the source `mcp`. On the
+  Greenshot side `IpcSecurityDispatcher` checks the whitelist and the consent, `AiToolIpcHandler` handles windows and
+  AI tool recipes, `AiRecipeIpcHandler` the recipe catalog and proposals.
+* Tests: `Greenshot.Tests/Ipc/AiToolAccessTests.cs`, `AiRecipeIpcHandlerTests.cs` and `Recipes/RecipeApprovalTests.cs`.

@@ -49,7 +49,8 @@ added and removed and the changed lines, and a file that replaces a built-in rec
 
 The approval is pinned to the exact content of the file (SHA-256) and stored, per recipe of the file, in the
 encrypted trust store (`%LOCALAPPDATA%\Greenshot\recipe_trust.dat`), not in the recipe file: which triggers are
-switched on and which permissions were given. When the file changes you are asked again. Recipes proposed by AI tools
+switched on and which permissions were given. When the file changes you are asked again. To change the triggers or
+permissions later, use "Permissions" in the recipe manager. Recipes proposed by AI tools
 go through the same window, see [mcp-server.md](mcp-server.md#recipes-written-by-ai-tools).
 
 ---

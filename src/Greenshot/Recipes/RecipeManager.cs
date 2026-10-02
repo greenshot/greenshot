@@ -99,7 +99,7 @@ namespace Greenshot.Recipes
             // 1. Interactive Region Capture
             var regionRecipe = new CaptureRecipe(
                 RecipeIdRegion,
-                Language.GetString("contextmenu_capturearea") ?? "Capture region",
+                "Capture region",
                 "Interactively select a region on the screen")
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Region))
                 .AddNode(RecipeStepConfig.CreateProcessors("scan_pre", timing: ProcessorTiming.PreSelection).WithName("Scan Before Selection"))
@@ -120,7 +120,7 @@ namespace Greenshot.Recipes
             // 2. Interactive Window Capture
             var windowRecipe = new CaptureRecipe(
                 RecipeIdWindow,
-                Language.GetString("contextmenu_capturewindow") ?? "Capture window",
+                "Capture window",
                 "Interactively select a window on the screen")
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Window))
                 .AddNode(RecipeStepConfig.CreateProcessors("scan_pre", timing: ProcessorTiming.PreSelection).WithName("Scan Before Selection"))
@@ -158,7 +158,7 @@ namespace Greenshot.Recipes
             // 4. Full Screen Capture
             var fullScreenRecipe = new CaptureRecipe(
                 RecipeIdFullScreen,
-                Language.GetString("contextmenu_capturefullscreen") ?? "Capture full screen",
+                "Capture full screen",
                 "Capture the entire screen or monitor")
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.FullScreen))
                 .AddNode(RecipeStepConfig.CreateFeedback("feedback"))
@@ -175,7 +175,7 @@ namespace Greenshot.Recipes
             // 5. Last Region Capture
             var lastRegionRecipe = new CaptureRecipe(
                 RecipeIdLastRegion,
-                Language.GetString("contextmenu_capturelastregion") ?? "Capture last region",
+                "Capture last region",
                 "Re-capture the coordinates of the previous region")
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.LastRegion))
                 .AddNode(RecipeStepConfig.CreateFeedback("feedback"))
@@ -192,7 +192,7 @@ namespace Greenshot.Recipes
             // 6. Clipboard Import
             var clipboardRecipe = new CaptureRecipe(
                 RecipeIdClipboard,
-                Language.GetString("contextmenu_captureclipboard") ?? "Capture from clipboard",
+                "Capture from clipboard",
                 "Import and process image from system clipboard")
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Clipboard, captureMouse: false))
                 .AddNode(RecipeStepConfig.CreateDestinations("export", new[] { "Editor" }));
@@ -203,7 +203,7 @@ namespace Greenshot.Recipes
             // 7. File Import
             var fileRecipe = new CaptureRecipe(
                 RecipeIdFile,
-                Language.GetString("contextmenu_openfile") ?? "Open file",
+                "Open file",
                 "Import an image or .greenshot file from disk")
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.File, captureMouse: false))
                 .AddNode(RecipeStepConfig.CreateDestinations("export", new[] { "Editor" }))
@@ -232,7 +232,7 @@ namespace Greenshot.Recipes
             // 9. Browser Extension Capture
             var extensionRecipe = new CaptureRecipe(
                 RecipeIdExtension,
-                Language.GetString("recipe_browser_extension_name") ?? "Capture from browser extension",
+                "Capture from browser extension",
                 "Process screenshots received from the browser extension and choose destination interactively")
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Extension, captureMouse: false))
                 .AddNode(RecipeStepConfig.CreateDynamicDestination("export", "Export Browser Capture"))
@@ -613,6 +613,8 @@ namespace Greenshot.Recipes
                     // Only the approved triggers can start the recipe
                     RecipeApprovalPolicy.Apply(recipe, approval);
                     recipe.FilePath = Path.GetFullPath(filePath);
+                    var trustRecord = RecipeTrustStore.GetTrustRecord(filePath);
+                    recipe.ProposedBy = trustRecord?.IsAiCreated == true ? trustRecord.Origin.Substring(RecipeTrustRecord.AiOriginPrefix.Length) : null;
                     recipe.IsEnabled = !GetDisabledRecipeIds().Contains(recipe.Id);
 
                     lock (_recipes)
@@ -871,6 +873,17 @@ namespace Greenshot.Recipes
             }
 
             return false;
+        }
+
+        public RecipeValidationResult ReviewApproval(string recipeId)
+        {
+            var recipe = GetRecipeById(recipeId);
+            if (string.IsNullOrEmpty(recipe?.FilePath))
+            {
+                return null;
+            }
+            // Shows the approval window with the current approval; what the user confirms replaces it
+            return LoadRecipeFromFile(recipe.FilePath, interactiveApproval: true, forceApprovalPrompt: true);
         }
 
         public void ResetAllToDefault()

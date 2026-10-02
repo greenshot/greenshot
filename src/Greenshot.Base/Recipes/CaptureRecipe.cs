@@ -89,6 +89,13 @@ namespace Greenshot.Base.Recipes
         public string FilePath { get; set; }
 
         /// <summary>
+        /// The AI tool which wrote the recipe file, null when it wasn't written by an AI tool. Set by Greenshot from the approval,
+        /// never read from the recipe file.
+        /// </summary>
+        [Newtonsoft.Json.JsonIgnore]
+        public string ProposedBy { get; set; }
+
+        /// <summary>
         /// What happens when the recipe is started while a flow of it is still running; null means <see cref="FlowConcurrency.Parallel"/>.
         /// </summary>
         [Newtonsoft.Json.JsonProperty(NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -210,6 +217,7 @@ namespace Greenshot.Base.Recipes
                 IsOverridden = IsOverridden,
                 IsEnabled = IsEnabled,
                 FilePath = FilePath,
+                ProposedBy = ProposedBy,
                 Concurrency = Concurrency,
                 Triggers = new List<TriggerConfig>(Triggers?.Count ?? 0),
                 Nodes = new List<RecipeNodeConfig>(Nodes?.Count ?? 0),
