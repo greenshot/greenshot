@@ -867,8 +867,21 @@
                         <StackPanel.Resources>
                             <!-- Compact fields: one line per option -->
                             <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
-                                <Setter Property="Padding" Value="4,1"/>
+                                <Setter Property="Padding" Value="4,0"/>
                                 <Setter Property="Margin" Value="0,1"/>
+                                <Setter Property="Height" Value="24"/>
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <!-- The text centered in the box -->
+                                        <ControlTemplate TargetType="TextBox">
+                                            <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                                    BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                                <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
                             </Style>
                             <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
                                 <Setter Property="Padding" Value="6,2"/>
@@ -935,11 +948,11 @@
                                                                 <!-- Color: the swatch opens the color picker, the text can be typed -->
                                                                 <StackPanel Grid.Column="1" Orientation="Horizontal"
                                                                             Visibility="{Binding IsColor, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                                                    <Button Width="28" Height="20" Padding="0" Click="RecipeOptionColor_Click">
+                                                                    <Button Width="28" Height="22" Padding="0" VerticalAlignment="Center" Click="RecipeOptionColor_Click">
                                                                         <Border Width="20" Height="12" Background="{Binding ColorBrush}" BorderThickness="1"
                                                                                 BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
                                                                     </Button>
-                                                                    <TextBox Width="80" Margin="6,0,0,0" Text="{Binding TextValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"/>
+                                                                    <TextBox Width="80" Margin="6,1,0,1" Text="{Binding TextValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"/>
                                                                 </StackPanel>
                                                             </Grid>
                                                         </DataTemplate>

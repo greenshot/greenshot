@@ -301,6 +301,8 @@ Please check write accessibility of the selected storage location.</resource>
 	<resource name="settings_recipes_scope_description">The extension changes the captures of the checked recipes, for the checked destinations. New recipes get it too.</resource>
 	<resource name="settings_recipes_scope_captures">Captures</resource>
 	<resource name="settings_recipes_scope_destinations">Destinations</resource>
+	<resource name="settings_recipes_scope_all">All</resource>
+	<resource name="settings_recipes_scope_none">None</resource>
 	<resource name="settings_recipes_scope_allcaptures">All captures</resource>
 	<resource name="settings_recipes_scope_nocaptures">No captures</resource>
 	<resource name="settings_recipes_scope_somecaptures">{0} of {1} captures</resource>

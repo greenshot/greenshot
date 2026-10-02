@@ -90,6 +90,22 @@ namespace Greenshot.Forms.Wpf
             NoDestinationText.Visibility = valid ? Visibility.Collapsed : Visibility.Visible;
         }
 
+        private void CapturesAll_Click(object sender, RoutedEventArgs e) => SetAll(_captureCopies, true);
+
+        private void CapturesNone_Click(object sender, RoutedEventArgs e) => SetAll(_captureCopies, false);
+
+        private void DestinationsAll_Click(object sender, RoutedEventArgs e) => SetAll(_destinationCopies, true);
+
+        private void DestinationsNone_Click(object sender, RoutedEventArgs e) => SetAll(_destinationCopies, false);
+
+        private static void SetAll(IEnumerable<RecipeScopeItem> items, bool isChecked)
+        {
+            foreach (var item in items)
+            {
+                item.IsChecked = isChecked;
+            }
+        }
+
         private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ClickCount == 1)

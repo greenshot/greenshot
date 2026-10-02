@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
         SizeToContent="Height"
-        Width="560"
+        Width="720"
         MaxHeight="640"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
@@ -98,6 +98,25 @@
             </CheckBox>
         </DataTemplate>
 
+        <!-- "All" / "None" above a list: small, like a link -->
+        <Style x:Key="LinkButton" TargetType="Button">
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="8,0,0,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <TextBlock x:Name="Text" Text="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}"/>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Text" Property="TextDecorations" Value="Underline"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <!-- A column is a card, like the group boxes of the other dialogs -->
         <Style x:Key="ColumnCard" TargetType="Border">
             <Setter Property="Padding" Value="12,8"/>
@@ -153,7 +172,13 @@
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                 <Border Grid.Row="1" Grid.RowSpan="2" Grid.Column="0" Style="{StaticResource ColumnCard}">
                     <DockPanel>
-                        <TextBlock DockPanel.Dock="Top" Text="{wpf:Translate settings_recipes_scope_captures}" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                        <DockPanel DockPanel.Dock="Top" Margin="0,0,0,4">
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                <Button Style="{StaticResource LinkButton}" Content="{wpf:Translate settings_recipes_scope_all}" Click="CapturesAll_Click"/>
+                                <Button Style="{StaticResource LinkButton}" Content="{wpf:Translate settings_recipes_scope_none}" Click="CapturesNone_Click"/>
+                            </StackPanel>
+                            <TextBlock Text="{wpf:Translate settings_recipes_scope_captures}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </DockPanel>
                         <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="400">
                             <ItemsControl x:Name="CapturesList" ItemTemplate="{StaticResource ScopeItemTemplate}"/>
                         </ScrollViewer>
@@ -161,7 +186,13 @@
                 </Border>
                 <Border Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" Style="{StaticResource ColumnCard}" x:Name="DestinationsCard">
                     <DockPanel>
-                        <TextBlock DockPanel.Dock="Top" Text="{wpf:Translate settings_recipes_scope_destinations}" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                        <DockPanel DockPanel.Dock="Top" Margin="0,0,0,4">
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                <Button Style="{StaticResource LinkButton}" Content="{wpf:Translate settings_recipes_scope_all}" Click="DestinationsAll_Click"/>
+                                <Button Style="{StaticResource LinkButton}" Content="{wpf:Translate settings_recipes_scope_none}" Click="DestinationsNone_Click"/>
+                            </StackPanel>
+                            <TextBlock Text="{wpf:Translate settings_recipes_scope_destinations}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </DockPanel>
                         <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="400">
                             <ItemsControl x:Name="DestinationsList" ItemTemplate="{StaticResource ScopeItemTemplate}"/>
                         </ScrollViewer>
