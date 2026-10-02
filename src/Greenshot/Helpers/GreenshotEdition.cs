@@ -19,6 +19,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using Greenshot.Base.Core;
+
 namespace Greenshot.Helpers
 {
     /// <summary>
@@ -35,8 +37,8 @@ namespace Greenshot.Helpers
 #endif
 
         /// <summary>
-        /// The name shown in the About window and the self-service window, so the edition is in every support request.
+        /// The name shown in the About window, the self-service window and the tray icon, so the edition is in every support request.
         /// </summary>
-        public static string ProductName => IsLight ? "Greenshot Light" : "Greenshot";
+        public static string ProductName => EditionInfo.ProductName;
     }
 }

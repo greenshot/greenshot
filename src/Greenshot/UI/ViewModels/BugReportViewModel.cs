@@ -75,11 +75,11 @@ namespace Greenshot.UI.ViewModels
                 }
                 if (!string.IsNullOrWhiteSpace(greenshotVer) && !greenshotVer.Contains("bit") && OsInfo.Bits != 0)
                 {
-                    greenshotVer += (GreenshotEnvironment.IsPortable ? " Portable" : "") + $" ({OsInfo.Bits} bit)";
+                    greenshotVer += EditionInfo.Suffix + (GreenshotEnvironment.IsPortable ? " Portable" : "") + $" ({OsInfo.Bits} bit)";
                 }
                 _currentVersion = greenshotVer;
             }
-            _upgradeDownloadUrl = UpdateService.DownloadsUri.AbsoluteUri;
+            _upgradeDownloadUrl = _updateService.DownloadsUrl.AbsoluteUri;
 
             if (_updateService.LatestReleaseVersion != null)
             {

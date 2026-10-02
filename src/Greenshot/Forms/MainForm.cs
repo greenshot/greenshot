@@ -526,7 +526,13 @@ namespace Greenshot.Forms
             contextmenu_donate.Text = Language.GetString("contextmenu_donate");
             contextmenu_about.Text = Language.GetString("contextmenu_about");
             contextmenu_exit.Text = Language.GetString("contextmenu_exit");
-            notifyIcon.Text = NotifyIconTextHelper.ToNotifyIconText(Language.GetString("application_title"));
+            // With the edition, e.g. "Greenshot Light - ..."
+            string applicationTitle = Language.GetString("application_title");
+            if (applicationTitle.StartsWith("Greenshot", StringComparison.Ordinal))
+            {
+                applicationTitle = GreenshotEdition.ProductName + applicationTitle.Substring("Greenshot".Length);
+            }
+            notifyIcon.Text = NotifyIconTextHelper.ToNotifyIconText(applicationTitle);
         }
 
         /// <summary>
