@@ -59,10 +59,13 @@ namespace Greenshot.Helpers.Ipc
 
         private static readonly HashSet<string> AllowedCommands = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
+#if !GREENSHOT_LIGHT
+            // The browser extension
             "HANDSHAKE",
-            "CLI",
             "IMPORT_CAPTURE",
             "TAB_CHANGED",
+#endif
+            "CLI",
             "OPEN_FILE",
             "EXIT",
             "RELOAD_CONFIG",
@@ -77,14 +80,18 @@ namespace Greenshot.Helpers.Ipc
             "SELF_SERVICE",
             "RECIPE_EDITOR",
             "RECIPE_MANAGER",
+#if !GREENSHOT_LIGHT
+            // AI tools (greenshot-mcp)
             "LIST_WINDOWS",
             "LIST_AI_TOOLS",
             "RUN_AI_TOOL",
             "RECIPE_CATALOG",
             "VALIDATE_RECIPE",
             "PROPOSE_RECIPE"
+#endif
         };
 
+#if !GREENSHOT_LIGHT
         /// <summary>
         /// The commands of AI tools (greenshot-mcp.exe): only allowed for the "mcp" source. Except LIST_AI_TOOLS they need the user's
         /// consent for the AI tool (see <see cref="AiToolAccess"/>).
@@ -98,6 +105,7 @@ namespace Greenshot.Helpers.Ipc
             "VALIDATE_RECIPE",
             "PROPOSE_RECIPE"
         };
+#endif
 
         private static readonly HashSet<string> FallbackAllowedImageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -293,6 +301,7 @@ namespace Greenshot.Helpers.Ipc
                 "RECIPE_EDITOR",
                 "RECIPE_MANAGER"
             },
+#if !GREENSHOT_LIGHT
             ["native_messaging"] = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
                 "HANDSHAKE",
@@ -303,11 +312,13 @@ namespace Greenshot.Helpers.Ipc
                 "DESCRIBE_RECIPE",
                 "RUN_RECIPE"
             },
+#endif
             ["open_with"] = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
                 "CLI",
                 "OPEN_FILE"
             },
+#if !GREENSHOT_LIGHT
             // greenshot-mcp.exe: what an AI tool may do, after the user allowed it. Everything it captures goes through a recipe
             // with an AI tool trigger (RUN_AI_TOOL), not through the command line recipes (RUN_RECIPE).
             [IpcSources.Mcp] = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -320,6 +331,7 @@ namespace Greenshot.Helpers.Ipc
                 "VALIDATE_RECIPE",
                 "PROPOSE_RECIPE"
             }
+#endif
         };
 
         /// <summary>
@@ -331,20 +343,13 @@ namespace Greenshot.Helpers.Ipc
             {
                 return false;
             }
-#if GREENSHOT_LIGHT
-            // Greenshot Light has no AI tools and no browser extension: greenshot-mcp and the browser extension get nothing
-            if (AiToolCommands.Contains(command) ||
-                string.Equals(source, IpcSources.Mcp, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(source, IpcSources.NativeMessaging, StringComparison.OrdinalIgnoreCase))
-            {
-                return false;
-            }
-#endif
+#if !GREENSHOT_LIGHT
             // AI tool commands only for greenshot-mcp.exe: not for the command line, a web page or the browser extension
             if (AiToolCommands.Contains(command) && !string.Equals(source, IpcSources.Mcp, StringComparison.OrdinalIgnoreCase))
             {
                 return false;
             }
+#endif
             if (!string.IsNullOrEmpty(source) && SourceAllowedCommands.TryGetValue(source, out var sourceCommands))
             {
                 return sourceCommands.Contains(command);
@@ -352,6 +357,7 @@ namespace Greenshot.Helpers.Ipc
             return true;
         }
 
+#if !GREENSHOT_LIGHT
         /// <summary>
         /// Why an AI tool request is refused by the opt-in switches, null when it isn't. Only greenshot-mcp's own version
         /// passes while AI tools are switched off.
@@ -388,6 +394,7 @@ namespace Greenshot.Helpers.Ipc
             }
             return AiToolCommands.Contains(command) || string.Equals(source, IpcSources.Mcp, StringComparison.OrdinalIgnoreCase);
         }
+#endif
 
         public static async Task DispatchAsync(IpcRequestContext context, Form mainForm, Action onExit, Action onReloadConfig, Action onFirstLaunch, Action<string> onOpenFile)
         {
@@ -449,6 +456,7 @@ namespace Greenshot.Helpers.Ipc
                 return;
             }
 
+#if !GREENSHOT_LIGHT
             // 2. AI tools are opt-in: switched off, greenshot-mcp gets nothing but its version, and nobody is asked
             string optInError = GetAiToolsOptInError(command, context.Envelope.Source);
             if (optInError != null)
@@ -484,11 +492,13 @@ namespace Greenshot.Helpers.Ipc
                 catch { }
                 return;
             }
+#endif
 
             Log.Info($"Processing whitelisted IPC command: '{command}' from source '{context.Envelope.Source}'");
 
             switch (command.ToUpperInvariant())
             {
+#if !GREENSHOT_LIGHT
                 case "HANDSHAKE":
                     await HandleHandshakeAsync(context).ConfigureAwait(false);
                     break;
@@ -500,6 +510,7 @@ namespace Greenshot.Helpers.Ipc
                 case "TAB_CHANGED":
                     HandleTabChanged(context);
                     break;
+#endif
 
                 case "CLI":
                     await HandleCliAsync(context, mainForm, onExit, onReloadConfig, onFirstLaunch, onOpenFile).ConfigureAwait(false);
@@ -544,6 +555,7 @@ namespace Greenshot.Helpers.Ipc
                     await HandleRecipeManagerAsync(context, mainForm).ConfigureAwait(false);
                     break;
 
+#if !GREENSHOT_LIGHT
                 case "LIST_WINDOWS":
                     await AiToolIpcHandler.HandleListWindowsAsync(context).ConfigureAwait(false);
                     break;
@@ -567,6 +579,7 @@ namespace Greenshot.Helpers.Ipc
                 case "PROPOSE_RECIPE":
                     await AiRecipeIpcHandler.HandleProposeRecipeAsync(context).ConfigureAwait(false);
                     break;
+#endif
 
                 case "EXIT":
                     try
@@ -625,6 +638,7 @@ namespace Greenshot.Helpers.Ipc
             UiDispatcher.Current.InvokeAsync(action).FireAndLog("IPC UI action", Log);
         }
 
+#if !GREENSHOT_LIGHT
         private static async Task HandleHandshakeAsync(IpcRequestContext context)
         {
             string versionStr = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "1.4.0";
@@ -752,6 +766,7 @@ namespace Greenshot.Helpers.Ipc
 
             BrowserContextTracker.Instance.UpdateContext(url, title);
         }
+#endif
 
         private static async Task HandleVersionAsync(IpcRequestContext context)
         {

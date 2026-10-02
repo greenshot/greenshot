@@ -30,7 +30,7 @@ namespace Greenshot.Helpers.Ipc
     /// Checks that the program on the other end of a pipe connection is one of Greenshot's own executables, from Greenshot's
     /// directory, and that it announced a source this executable uses. Other programs can't talk to the pipe directly;
     /// they can only start these executables, which then decide the source (e.g. greenshot.com is always "cli").
-    /// Source "mcp" is checked by <see cref="AiToolCaller"/>, which also identifies the AI tool.
+    /// Source "mcp" is checked by AiToolCaller, which also identifies the AI tool.
     /// </summary>
     public static class IpcClientVerifier
     {
@@ -49,7 +49,7 @@ namespace Greenshot.Helpers.Ipc
         /// </summary>
         public static bool Verify(NamedPipeServerStream pipe, string source, out string error)
         {
-            if (!AiToolCaller.TryGetClientProcess(pipe, out _, out string clientPath))
+            if (!PipeClientProcess.TryGetClientProcess(pipe, out _, out string clientPath))
             {
                 error = "Could not identify the program of the connection.";
                 return false;
@@ -64,7 +64,7 @@ namespace Greenshot.Helpers.Ipc
         {
             string fileName = string.IsNullOrEmpty(clientPath) ? null : Path.GetFileName(clientPath);
             if (fileName == null || !SourcesByExecutable.TryGetValue(fileName, out var sources) ||
-                !string.Equals(AiToolCaller.NormalizeDirectory(Path.GetDirectoryName(clientPath)), AiToolCaller.NormalizeDirectory(greenshotDirectory), StringComparison.OrdinalIgnoreCase))
+                !string.Equals(PipeClientProcess.NormalizeDirectory(Path.GetDirectoryName(clientPath)), PipeClientProcess.NormalizeDirectory(greenshotDirectory), StringComparison.OrdinalIgnoreCase))
             {
                 error = $"Only Greenshot's own programs may connect, not '{clientPath ?? "unknown"}'.";
                 return false;

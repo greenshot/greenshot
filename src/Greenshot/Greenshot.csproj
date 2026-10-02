@@ -25,6 +25,21 @@
     <OutputPath>bin\$(Configuration)-Light\</OutputPath>
     <IntermediateOutputPath>obj\$(Configuration)-Light\</IntermediateOutputPath>
   </PropertyGroup>
+  <!-- The code Greenshot Light doesn't have: loading plugins, the AI tools (greenshot-mcp) and the browser extension, with their settings tabs -->
+  <ItemGroup Condition="'$(GreenshotEdition)' == 'Light'">
+    <Compile Remove="Helpers\PluginHelper.cs" />
+    <Compile Remove="Helpers\Ipc\Ai*.cs" />
+    <Compile Remove="Helpers\Ipc\McpServerStatus.cs" />
+    <Compile Remove="Helpers\Ipc\BrowserContextTracker.cs" />
+    <Compile Remove="Helpers\Ipc\ExtensionOriginPolicy.cs" />
+    <Compile Remove="Helpers\Ipc\ImportCaptureDecoder.cs" />
+    <Compile Remove="Forms\Wpf\SettingsViewModel.AiTools.cs" />
+    <Compile Remove="Forms\Wpf\SettingsViewModel.Plugins.cs" />
+    <Compile Remove="Forms\Wpf\AiToolsSettingsPage.xaml.cs" />
+    <Compile Remove="Forms\Wpf\PluginsSettingsPage.xaml.cs" />
+    <Page Remove="Forms\Wpf\AiToolsSettingsPage.xaml" />
+    <Page Remove="Forms\Wpf\PluginsSettingsPage.xaml" />
+  </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>

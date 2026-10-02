@@ -463,6 +463,7 @@ namespace Greenshot.Forms
             _namedPipeServer.RequestReceived += OnNamedPipeRequestReceivedAsync;
             _namedPipeServer.Start();
             RestartManagerHelper.ShutdownNotifier = reason => _namedPipeServer.NotifyShutdownAsync(reason);
+#if !GREENSHOT_LIGHT
             // greenshot-mcp updates its tools right away when the recipes or the AI tools switch change
             RecipeManager.Instance.RecipesChanged += (sender, args) => NotifyToolsChanged();
             coreConfiguration.PropertyChanged += (sender, args) =>
@@ -472,6 +473,7 @@ namespace Greenshot.Forms
                     NotifyToolsChanged();
                 }
             };
+#endif
 
             if (options.Restore)
             {
@@ -666,7 +668,9 @@ namespace Greenshot.Forms
                 if (Interlocked.CompareExchange(ref _shutdownState, 1, 0) == 0)
                 {
                     ShutdownUi();
+#if !GREENSHOT_LIGHT
                     PluginHelper.Instance.ShutdownAsync(TimeSpan.FromSeconds(1)).FireAndLog("Stop the plugins", Log);
+#endif
                 }
 
                 ShutdownCleanup(false);
@@ -1677,6 +1681,7 @@ namespace Greenshot.Forms
                 }
             }
 
+#if !GREENSHOT_LIGHT
             // Inform all registered plugins
             try
             {
@@ -1686,6 +1691,7 @@ namespace Greenshot.Forms
             {
                 Log.Error("Error shutting down plugins!", e);
             }
+#endif
 
             try
             {
@@ -1700,10 +1706,12 @@ namespace Greenshot.Forms
             ShutdownCleanup(true);
         }
 
+#if !GREENSHOT_LIGHT
         private void NotifyToolsChanged()
         {
             _namedPipeServer?.NotifyWatchersAsync(new { @event = "tools_changed" }).FireAndLog("Tell the watchers that the tools changed", Log);
         }
+#endif
 
         /// <summary>
         /// The first, synchronous part of the shutdown: configuration, other forms, hotkeys, sound.

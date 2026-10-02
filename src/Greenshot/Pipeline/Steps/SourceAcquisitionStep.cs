@@ -139,7 +139,9 @@ namespace Greenshot.Pipeline.Steps
 
                 if (payload?.RawCapture != null )
                 {
+#if !GREENSHOT_LIGHT
                     RedactForAiTool(context, payload);
+#endif
                     // Offset to bitmap coordinates for cropping
                     NativeRect screenOffsetRect = preRect.Offset(-payload.RawCapture.Location.X, -payload.RawCapture.Location.Y);
                     payload.RawCapture.Crop(screenOffsetRect);
@@ -155,7 +157,12 @@ namespace Greenshot.Pipeline.Steps
             // A given window (WindowHandle): captured directly, with its exact contents, without activating it
             if (sourceType == CaptureSourceType.Window && Config.GetParameter<object>("WindowHandle") is { } windowHandle)
             {
+#if GREENSHOT_LIGHT
+                // The window of an AI tool's Window argument: Greenshot Light has no AI tools
+                context.Fail($"Capturing a given window ({windowHandle}) is not available in Greenshot Light.");
+#else
                 await AcquireWindowAsync(context, windowHandle, alignDpi, cancellationToken).ConfigureAwait(false);
+#endif
                 return;
             }
 
@@ -219,11 +226,13 @@ namespace Greenshot.Pipeline.Steps
             var acquired = await source.AcquireAsync(context, cancellationToken).ConfigureAwait(false);
             if (acquired != null)
             {
+#if !GREENSHOT_LIGHT
                 // Clipboard, file and editor contents are the user's, everything else is taken from the screen
                 if (sourceType != CaptureSourceType.Clipboard && sourceType != CaptureSourceType.File && sourceType != CaptureSourceType.CurrentEditor)
                 {
                     RedactForAiTool(context, acquired);
                 }
+#endif
                 // Align DPI for raw captured pixels (screen, window, active window, region, last region)
                 if (alignDpi && sourceType != CaptureSourceType.File)
                 {
@@ -237,6 +246,7 @@ namespace Greenshot.Pipeline.Steps
             }
         }
 
+#if !GREENSHOT_LIGHT
         /// <summary>
         /// Captures the window of the WindowHandle parameter. For AI tools windows of excluded processes are refused.
         /// </summary>
@@ -302,6 +312,7 @@ namespace Greenshot.Pipeline.Steps
                 context.LogStep($"Blacked out {redacted} window(s) of applications excluded from AI tools.");
             }
         }
+#endif
 
         private static void AlignDpi(ICapturePayload payload)
         {

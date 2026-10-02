@@ -50,7 +50,7 @@ namespace Greenshot.Forms.Wpf
     /// <summary>
     /// ViewModel for the WPF Settings Window
     /// </summary>
-    public class SettingsViewModel : INotifyPropertyChanged
+    public partial class SettingsViewModel : INotifyPropertyChanged
     {
         private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(SettingsViewModel));
         private bool _expertModeEnabled;
@@ -58,7 +58,6 @@ namespace Greenshot.Forms.Wpf
         private bool _pickerSelected;
         private string _selectedLanguage;
         private int _iconSize;
-        private PluginItem _selectedPlugin;
 
         public SettingsViewModel()
         {
@@ -82,37 +81,14 @@ namespace Greenshot.Forms.Wpf
             // Initialize destinations
             InitializeDestinations();
             
-            // Initialize plugins
+#if !GREENSHOT_LIGHT
+            // Plugins and AI tools: Greenshot Light has neither
             InitializePlugins();
+            InitializeAiTools();
+#endif
 
             // Initialize clipboard formats
             InitializeClipboardFormats();
-
-            // Programs allowed to use Greenshot through greenshot-mcp
-            AiToolsAllowedClients = new ObservableCollection<AiToolClientItem>((CoreConfiguration.AiToolsAllowedClients ?? new List<string>())
-                .Where(path => !string.IsNullOrWhiteSpace(path)).Select(path => new AiToolClientItem(path.Trim())));
-            AiToolsAllowedClients.CollectionChanged += (s, e) => OnPropertyChanged(nameof(HasNoAiToolClients));
-            foreach (var client in AiToolsAllowedClients)
-            {
-                // The signature check can take a moment, the list shows right away
-                client.LoadDetailsAsync().FireAndLog("AI tool details", Log);
-            }
-            DeniedAiToolClients = new ObservableCollection<AiToolClientItem>(Helpers.Ipc.AiToolAccess.GetDeniedClients().Select(path => new AiToolClientItem(path)));
-            DeniedAiToolClients.CollectionChanged += (s, e) => OnPropertyChanged(nameof(HasDeniedAiToolClients));
-            foreach (var client in DeniedAiToolClients)
-            {
-                client.LoadDetailsAsync().FireAndLog("AI tool details", Log);
-            }
-            AiToolsExcludedProcesses = new ObservableCollection<string>();
-            foreach (string name in CoreConfiguration.AiToolsExcludedProcesses ?? new List<string>())
-            {
-                AddExcludedProcess(name);
-            }
-            McpServers = Helpers.Ipc.McpServerStatus.Find();
-            RefreshApprovedRecipes();
-
-            // Initialize plugin controls collection
-            PluginControls = new ObservableCollection<UIElement>();
 
             ThemeManager.Instance.PropertyChanged += (s, e) =>
             {
@@ -126,192 +102,9 @@ namespace Greenshot.Forms.Wpf
 
         public ICoreConfiguration CoreConfiguration { get; }
 
-        /// <summary>
-        /// Programs (full paths) the user allowed to use Greenshot through greenshot-mcp, written back on save
-        /// </summary>
-        public ObservableCollection<AiToolClientItem> AiToolsAllowedClients { get; }
-
-        /// <summary>
-        /// AI tools may use Greenshot at all (opt-in); everything else on the AI tools tab only matters when this is on
-        /// </summary>
-        public bool AiToolsEnabled
-        {
-            get => CoreConfiguration.AiToolsEnabled;
-            set
-            {
-                if (CoreConfiguration.AiToolsEnabled != value)
-                {
-                    CoreConfiguration.AiToolsEnabled = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        /// <summary>
-        /// Processes whose windows are never shared with AI tools, written back on save
-        /// </summary>
-        public ObservableCollection<string> AiToolsExcludedProcesses { get; }
-
-        private string _newExcludedProcess;
-
-        /// <summary>
-        /// The text of the "add an application" box
-        /// </summary>
-        public string NewExcludedProcess
-        {
-            get => _newExcludedProcess;
-            set
-            {
-                if (_newExcludedProcess != value)
-                {
-                    _newExcludedProcess = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        /// <summary>
-        /// Adds a process name (".exe" is removed, case doesn't matter, duplicates are ignored); false when nothing was added
-        /// </summary>
-        public bool AddExcludedProcess(string processName)
-        {
-            string name = (processName ?? string.Empty).Trim().Trim('"');
-            if (name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
-            {
-                name = name.Substring(0, name.Length - 4).Trim();
-            }
-            if (name.Length == 0 || AiToolsExcludedProcesses.Any(e => string.Equals(e, name, StringComparison.OrdinalIgnoreCase)))
-            {
-                return false;
-            }
-            AiToolsExcludedProcesses.Add(name);
-            return true;
-        }
-
-        /// <summary>
-        /// greenshot-mcp.exe: where it is looked for, and whether it is there
-        /// </summary>
-        public IReadOnlyList<Helpers.Ipc.McpServerStatus> McpServers { get; }
-
-        public bool IsMcpServerFound => McpServers.Any(m => m.Exists);
-
-        /// <summary>
-        /// Programs the user didn't allow in this Greenshot run, they aren't asked again until a restart
-        /// </summary>
-        public ObservableCollection<AiToolClientItem> DeniedAiToolClients { get; }
-
-        public bool HasDeniedAiToolClients => DeniedAiToolClients.Count > 0;
-
-        /// <summary>
-        /// Allow a program which was denied in this run (saved with the settings)
-        /// </summary>
-        public void AllowDeniedClient(AiToolClientItem client)
-        {
-            if (client == null) return;
-            DeniedAiToolClients.Remove(client);
-            Helpers.Ipc.AiToolAccess.ForgetDenied(client.Path);
-            if (!AiToolsAllowedClients.Any(c => string.Equals(c.Path, client.Path, StringComparison.OrdinalIgnoreCase)))
-            {
-                AiToolsAllowedClients.Add(client);
-            }
-        }
-
-        /// <summary>
-        /// Ask again the next time the program connects
-        /// </summary>
-        public void AskAgain(AiToolClientItem client)
-        {
-            if (client == null) return;
-            DeniedAiToolClients.Remove(client);
-            Helpers.Ipc.AiToolAccess.ForgetDenied(client.Path);
-        }
-
-        public bool HasNoAiToolClients => AiToolsAllowedClients.Count == 0;
-
-        /// <summary>
-        /// The recipes from files, with their approval: shown in core, so approvals can be seen and revoked without the recipe editor
-        /// </summary>
-        public ObservableCollection<ApprovedRecipeItem> ApprovedRecipes { get; } = new ObservableCollection<ApprovedRecipeItem>();
-
-        private ApprovedRecipeItem _selectedApprovedRecipe;
-
-        public ApprovedRecipeItem SelectedApprovedRecipe
-        {
-            get => _selectedApprovedRecipe;
-            set
-            {
-                if (_selectedApprovedRecipe != value)
-                {
-                    _selectedApprovedRecipe = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(HasSelectedApprovedRecipe));
-                }
-            }
-        }
-
-        public bool HasSelectedApprovedRecipe => _selectedApprovedRecipe != null;
-
-        public void RefreshApprovedRecipes()
-        {
-            string selectedId = _selectedApprovedRecipe?.RecipeId;
-            ApprovedRecipes.Clear();
-            var manager = Greenshot.Recipes.RecipeManager.Instance;
-            foreach (var recipe in manager.GetAllRecipes().Where(r => !string.IsNullOrEmpty(r.FilePath)).OrderBy(r => r.Name, StringComparer.CurrentCultureIgnoreCase))
-            {
-                var details = manager.GetRecipeDetails(recipe.Id);
-                ApprovedRecipes.Add(new ApprovedRecipeItem(recipe, details));
-            }
-            SelectedApprovedRecipe = ApprovedRecipes.FirstOrDefault(r => string.Equals(r.RecipeId, selectedId, StringComparison.OrdinalIgnoreCase));
-        }
         
         public IEditorConfiguration EditorConfiguration { get; }
         
-        public ObservableCollection<UIElement> PluginControls { get; }
-
-        public ObservableCollection<PluginItem> Plugins { get; private set; }
-
-        public PluginItem SelectedPlugin
-        {
-            get => _selectedPlugin;
-            set
-            {
-                if (_selectedPlugin != value)
-                {
-                    _selectedPlugin = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(CanConfigureSelectedPlugin));
-                    OnPropertyChanged(nameof(SelectedPluginControl));
-                    OnPropertyChanged(nameof(HasSelectedPluginControl));
-                    OnPropertyChanged(nameof(SelectedPluginControlVisibility));
-                    OnPropertyChanged(nameof(NoSelectedPluginControlVisibility));
-                }
-            }
-        }
-
-        public UIElement SelectedPluginControl => SelectedPlugin?.GetConfigurationControl();
-        public bool HasSelectedPluginControl => SelectedPluginControl != null;
-        public Visibility SelectedPluginControlVisibility => HasSelectedPluginControl ? Visibility.Visible : Visibility.Collapsed;
-        public Visibility NoSelectedPluginControlVisibility => HasSelectedPluginControl ? Visibility.Collapsed : Visibility.Visible;
-
-        public void SelectPluginByName(string name)
-        {
-            if (string.IsNullOrWhiteSpace(name) || Plugins == null) return;
-            var item = Plugins.FirstOrDefault(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase));
-            if (item != null)
-            {
-                SelectedPlugin = item;
-            }
-        }
-
-        public bool CanConfigureSelectedPlugin => SelectedPlugin?.IsConfigurable == true;
-
-        public void ConfigureSelectedPlugin()
-        {
-            if (CanConfigureSelectedPlugin)
-            {
-                SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>(isOptional: true)?.ShowSetting(SelectedPlugin?.Name);
-            }
-        }
 
         public bool PrintColor
         {
@@ -594,38 +387,6 @@ namespace Greenshot.Forms.Wpf
             }
         }
 
-        private void InitializePlugins()
-        {
-            Plugins = new ObservableCollection<PluginItem>();
-            try
-            {
-                var plugins = SimpleServiceProvider.Current.GetAllInstances<IGreenshotPlugin>();
-                if (plugins != null)
-                {
-                    foreach (var plugin in plugins)
-                    {
-                        var assembly = plugin.GetType().Assembly;
-                        var company = assembly.GetCustomAttribute<AssemblyCompanyAttribute>()?.Company ?? string.Empty;
-                        var version = assembly.GetName().Version?.ToString() ?? string.Empty;
-                        var location = assembly.Location ?? string.Empty;
-
-                        Plugins.Add(new PluginItem
-                        {
-                            Plugin = plugin,
-                            Name = plugin.Name,
-                            Version = version,
-                            Company = company,
-                            Location = location
-                        });
-                    }
-                }
-            }
-            catch
-            {
-                // In some test scenarios SimpleServiceProvider might not have plugins registered
-            }
-        }
-
         private void InitializeClipboardFormats()
         {
             ClipboardFormats = new ObservableCollection<ClipboardFormatItem>();
@@ -698,28 +459,6 @@ namespace Greenshot.Forms.Wpf
         public event PropertyChangedEventHandler PropertyChanged;
     }
 
-    public class PluginItem
-    {
-        public IGreenshotPlugin Plugin { get; set; }
-        public string Name { get; set; }
-        public string Version { get; set; }
-        public string Company { get; set; }
-        public string Location { get; set; }
-        public bool IsConfigurable => Plugin is IConfigurablePlugin;
-
-        private UIElement _configControl;
-        private bool _controlCreated;
-
-        public UIElement GetConfigurationControl()
-        {
-            if (!_controlCreated)
-            {
-                _controlCreated = true;
-                _configControl = Plugin == null ? null : PluginHelper.Instance.CreateSettingsView(Plugin) as UIElement;
-            }
-            return _configControl;
-        }
-    }
 
     public class ClipboardFormatItem : INotifyPropertyChanged
     {
@@ -742,118 +481,5 @@ namespace Greenshot.Forms.Wpf
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-    }
-
-    /// <summary>
-    /// A recipe from a file in the settings, with its approval in a line
-    /// </summary>
-    public sealed class ApprovedRecipeItem
-    {
-        public ApprovedRecipeItem(Greenshot.Base.Recipes.CaptureRecipe recipe, Greenshot.Base.Recipes.RecipeDetails details)
-        {
-            Recipe = recipe;
-            Details = details;
-            string by = string.IsNullOrEmpty(details?.ProposedBy) ? "" : $" · written by {details.ProposedBy}";
-            string state = details?.ApprovedAt == null ? "not approved"
-                : details.IsApprovalCurrent ? $"approved {details.ApprovedAt:yyyy-MM-dd}"
-                : "changed since its approval";
-            int off = details?.Triggers?.Count(t => t.EndsWith("(off, not approved)", StringComparison.Ordinal)) ?? 0;
-            string offText = off == 0 ? "" : off == 1 ? " · 1 trigger off" : $" · {off} triggers off";
-            Title = recipe.Name;
-            Subtitle = $"{state}{by}{offText}";
-            NeedsAttention = details?.ApprovedAt == null || !details.IsApprovalCurrent || off > 0;
-            DisplayText = $"{recipe.Name}{by} · {state}{offText}";
-        }
-
-        public string Title { get; }
-
-        /// <summary>
-        /// The approval state, who wrote it and the triggers left off
-        /// </summary>
-        public string Subtitle { get; }
-
-        /// <summary>
-        /// Not approved, changed since the approval, or triggers left off
-        /// </summary>
-        public bool NeedsAttention { get; }
-
-        public Greenshot.Base.Recipes.CaptureRecipe Recipe { get; }
-
-        public Greenshot.Base.Recipes.RecipeDetails Details { get; }
-
-        public string RecipeId => Recipe.Id;
-
-        public string DisplayText { get; }
-
-        public override string ToString() => DisplayText;
-    }
-
-    /// <summary>
-    /// A program allowed to use Greenshot through greenshot-mcp
-    /// </summary>
-    public sealed class AiToolClientItem : INotifyPropertyChanged
-    {
-        public AiToolClientItem(string path)
-        {
-            Path = path;
-            FileName = System.IO.Path.GetFileName(path);
-            Folder = System.IO.Path.GetDirectoryName(path) ?? string.Empty;
-        }
-
-        /// <summary>
-        /// The full path, as stored in AiToolsAllowedClients
-        /// </summary>
-        public string Path { get; }
-
-        public string FileName { get; }
-
-        public string Folder { get; }
-
-        private string _displayName;
-
-        /// <summary>
-        /// The program's name from its version information, the file name until it is known
-        /// </summary>
-        public string DisplayName
-        {
-            get => _displayName ?? FileName;
-            private set
-            {
-                _displayName = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DisplayName)));
-            }
-        }
-
-        private string _signerText = "Checking the signature...";
-
-        public string SignerText
-        {
-            get => _signerText;
-            private set
-            {
-                _signerText = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SignerText)));
-            }
-        }
-
-        /// <summary>
-        /// Reads the name and verifies the signature (slow, not on the UI thread)
-        /// </summary>
-        public async Task LoadDetailsAsync()
-        {
-            await ThreadPoolSwitch.SwitchToThreadPoolAsync();
-            if (!File.Exists(Path))
-            {
-                SignerText = "The program isn't there anymore";
-                return;
-            }
-            var client = Helpers.Ipc.AiToolCaller.Describe(Path);
-            DisplayName = client.DisplayName;
-            SignerText = string.IsNullOrEmpty(client.Signer) ? "Not signed" : $"Signed by {client.Signer}";
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public override string ToString() => Path;
     }
 }

@@ -93,7 +93,7 @@ namespace Greenshot.Helpers.Ipc
         public static bool TryIdentify(NamedPipeServerStream pipe, out AiToolClient client, out string error)
         {
             client = null;
-            if (!TryGetClientProcess(pipe, out uint serverProcessId, out string serverPath))
+            if (!PipeClientProcess.TryGetClientProcess(pipe, out uint serverProcessId, out string serverPath))
             {
                 error = $"Could not get the process of the connection (error {Marshal.GetLastWin32Error()}).";
                 return false;
@@ -116,20 +116,6 @@ namespace Greenshot.Helpers.Ipc
             client.ServerProcessId = serverProcessId;
             error = null;
             return true;
-        }
-
-        /// <summary>
-        /// The process id and executable of the client of a connected pipe.
-        /// </summary>
-        internal static bool TryGetClientProcess(NamedPipeServerStream pipe, out uint processId, out string exePath)
-        {
-            exePath = null;
-            if (!GetNamedPipeClientProcessId(pipe.SafePipeHandle, out processId))
-            {
-                return false;
-            }
-            exePath = GetProcessPath(processId);
-            return exePath != null;
         }
 
         /// <summary>
@@ -156,8 +142,8 @@ namespace Greenshot.Helpers.Ipc
                 return false;
             }
 
-            string serverDirectory = NormalizeDirectory(Path.GetDirectoryName(serverPath));
-            if (string.Equals(serverDirectory, NormalizeDirectory(greenshotDirectory), StringComparison.OrdinalIgnoreCase))
+            string serverDirectory = PipeClientProcess.NormalizeDirectory(Path.GetDirectoryName(serverPath));
+            if (string.Equals(serverDirectory, PipeClientProcess.NormalizeDirectory(greenshotDirectory), StringComparison.OrdinalIgnoreCase))
             {
                 return true;
             }
@@ -170,7 +156,7 @@ namespace Greenshot.Helpers.Ipc
                 }
                 string allowed = additionalPath.Trim().Trim('"');
                 if (string.Equals(allowed, serverPath, StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(NormalizeDirectory(allowed), serverDirectory, StringComparison.OrdinalIgnoreCase))
+                    string.Equals(PipeClientProcess.NormalizeDirectory(allowed), serverDirectory, StringComparison.OrdinalIgnoreCase))
                 {
                     return true;
                 }
@@ -186,22 +172,6 @@ namespace Greenshot.Helpers.Ipc
             return !string.IsNullOrEmpty(exePath) && LauncherProcesses.Contains(Path.GetFileName(exePath));
         }
 
-        internal static string NormalizeDirectory(string directory)
-        {
-            if (string.IsNullOrWhiteSpace(directory))
-            {
-                return string.Empty;
-            }
-            try
-            {
-                return Path.GetFullPath(directory).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-            }
-            catch (Exception)
-            {
-                return directory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-            }
-        }
-
         /// <summary>
         /// The executable of the program which started greenshot-mcp.exe, skipping launchers like cmd.exe.
         /// </summary>
@@ -214,7 +184,7 @@ namespace Greenshot.Helpers.Ipc
                 {
                     return null;
                 }
-                string parentPath = GetProcessPath(parentId);
+                string parentPath = PipeClientProcess.GetProcessPath(parentId);
                 if (parentPath == null)
                 {
                     return null;
@@ -234,7 +204,7 @@ namespace Greenshot.Helpers.Ipc
         private static bool TryGetParent(uint processId, out uint parentId)
         {
             parentId = 0;
-            using var process = OpenProcess(ProcessQueryLimitedInformation, false, processId);
+            using var process = PipeClientProcess.OpenProcess(PipeClientProcess.ProcessQueryLimitedInformation, false, processId);
             if (process.IsInvalid)
             {
                 return false;
@@ -250,7 +220,7 @@ namespace Greenshot.Helpers.Ipc
                 return false;
             }
 
-            using var parent = OpenProcess(ProcessQueryLimitedInformation, false, parentId);
+            using var parent = PipeClientProcess.OpenProcess(PipeClientProcess.ProcessQueryLimitedInformation, false, parentId);
             if (parent.IsInvalid ||
                 !GetProcessTimes(process, out long childStart, out _, out _, out _) ||
                 !GetProcessTimes(parent, out long parentStart, out _, out _, out _))
@@ -258,18 +228,6 @@ namespace Greenshot.Helpers.Ipc
                 return false;
             }
             return parentStart <= childStart;
-        }
-
-        private static string GetProcessPath(uint processId)
-        {
-            using var process = OpenProcess(ProcessQueryLimitedInformation, false, processId);
-            if (process.IsInvalid)
-            {
-                return null;
-            }
-            var buffer = new StringBuilder(1024);
-            int size = buffer.Capacity;
-            return QueryFullProcessImageName(process, 0, buffer, ref size) ? buffer.ToString(0, size) : null;
         }
 
         /// <summary>
@@ -410,7 +368,6 @@ namespace Greenshot.Helpers.Ipc
             }
         }
 
-        private const uint ProcessQueryLimitedInformation = 0x1000;
         private const uint WtdUiNone = 2;
         private const uint WtdRevokeNone = 0;
         private const uint WtdChoiceFile = 1;
@@ -457,17 +414,6 @@ namespace Greenshot.Helpers.Ipc
             public uint dwUIContext;
             public IntPtr pSignatureSettings;
         }
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool GetNamedPipeClientProcessId(SafePipeHandle pipe, out uint clientProcessId);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        private static extern SafeProcessHandle OpenProcess(uint desiredAccess, bool inheritHandle, uint processId);
-
-        [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool QueryFullProcessImageName(SafeProcessHandle process, uint flags, StringBuilder exeName, ref int size);
 
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
