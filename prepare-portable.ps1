@@ -28,8 +28,8 @@ foreach ($file in $SbomFiles) {
 Copy-Item "$BuildArtifactsPath\Greenshot.exe" "$OutputPath" -Force
 # Copy greenshot.exe.config
 Copy-Item "$BuildArtifactsPath\Greenshot.exe.config" "$OutputPath" -Force
-# Copy the command line (greenshot.com) and greenshot-proxy.exe, which forwards files and URLs to Greenshot
-Copy-Item "$BuildArtifactsPath\greenshot.com" "$OutputPath" -Force
+# Copy the command line (greenshot-cli.exe) and greenshot-proxy.exe, which forwards files and URLs to Greenshot
+Copy-Item "$BuildArtifactsPath\greenshot-cli.exe" "$OutputPath" -Force
 Copy-Item "$BuildArtifactsPath\greenshot-proxy.exe" "$OutputPath" -Force
 
 # Copy all dlls

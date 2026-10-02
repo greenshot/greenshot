@@ -20,16 +20,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         public ICommand DisconnectCommand { get; }
 
-        /// <summary>
-        /// Inserts a step of the type (the command parameter) between the two steps of the connection
-        /// </summary>
-        public ICommand InsertStepCommand { get; }
-
-        /// <summary>
-        /// Set by the editor: inserts a step of the type into the connection
-        /// </summary>
-        public Action<StepConnectionViewModel, string> OnInsertStep { get; set; }
-
         public bool IsSelected
         {
             get => _isSelected;
@@ -68,7 +58,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             Target = target ?? throw new ArgumentNullException(nameof(target));
             _onDisconnect = onDisconnect;
             DisconnectCommand = new RelayCommand(() => _onDisconnect?.Invoke(this));
-            InsertStepCommand = new RelayCommand(stepType => OnInsertStep?.Invoke(this, stepType as string));
             if (Source != null) Source.IsConnected = true;
             if (Target != null) Target.IsConnected = true;
         }

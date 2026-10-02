@@ -11,6 +11,8 @@ Type: filesandordirs; Name: "{app}\Plugins"
 Type: files; Name: "{app}\*.dll"
 // The Native Messaging manifests are only installed with includes\browser-extension.iss
 Type: files; Name: "{app}\org.greenshot.proxy*.json"
+// The command line was greenshot.com before it was renamed to greenshot-cli.exe
+Type: files; Name: "{app}\greenshot.com"
 
 // Delete plugins from Greenshot 1.2
 Type: filesandordirs; Name: "{app}\Plugins\GreenshotBoxPlugin"

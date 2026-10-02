@@ -104,6 +104,20 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 Connect(port, target);
             }
             SelectedNode = node;
+            ScheduleAutoLayout();
+        }
+
+        /// <summary>
+        /// Arranges the steps now, and again once WPF drew a new step and its real height is known
+        /// </summary>
+        private void ScheduleAutoLayout()
+        {
+            PerformAutoLayout();
+            var dispatcher = Application.Current?.Dispatcher;
+            if (dispatcher != null && dispatcher.CheckAccess())
+            {
+                _ = dispatcher.BeginInvoke(new Action(PerformAutoLayout), System.Windows.Threading.DispatcherPriority.Loaded);
+            }
         }
 
         private static Point GetCenter(StepNodeViewModel node)

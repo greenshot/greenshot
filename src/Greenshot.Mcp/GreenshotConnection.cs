@@ -44,7 +44,7 @@ namespace Greenshot.Mcp
 
     /// <summary>
     /// One request to the running Greenshot over its named pipe (Greenshot_&lt;user SID&gt;), using the protocol of
-    /// greenshot.com and the browser extension: frames with a 4-byte little-endian length and UTF-8 JSON. The first frame is
+    /// greenshot-cli.exe and the browser extension: frames with a 4-byte little-endian length and UTF-8 JSON. The first frame is
     /// HELLO with source "mcp", which selects the command whitelist and consent rules for AI tools in Greenshot.
     /// </summary>
     public static class GreenshotConnection

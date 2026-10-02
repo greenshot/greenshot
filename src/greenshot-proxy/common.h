@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Shared definitions for greenshot.com (console CLI) and greenshot-proxy.exe (browser / shell integration).
+ * Shared definitions for greenshot-cli.exe (console CLI) and greenshot-proxy.exe (browser / shell integration).
  *
  * Both executables are built WITHOUT the C runtime: they only use the Win32 API (kernel32, advapi32, shell32),
  * see rt.h for the small replacements. This keeps them tiny and fast to start. All parsing of command lines,

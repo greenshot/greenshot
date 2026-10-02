@@ -1,5 +1,5 @@
 /*
- * greenshot.com - console command line interface for Greenshot (/SUBSYSTEM:CONSOLE).
+ * greenshot-cli.exe - console command line interface for Greenshot (/SUBSYSTEM:CONSOLE).
  *
  * Forwards the command line unchanged to Greenshot (connection source "cli", text replies) and prints what comes
  * back. Argument parsing, validation, output formatting and --json are all done by Greenshot; only --help and
@@ -13,8 +13,8 @@
 static const char Usage[] =
     "Greenshot Proxy CLI\n\n"
     "Usage:\n"
-    "  greenshot [options]\n"
-    "  greenshot <file...>\n\n"
+    "  greenshot-cli [options]\n"
+    "  greenshot-cli <file...>\n\n"
     "Options:\n"
     "  --list-recipes, -l [--json]             List all recipes configured with a CommandlineTrigger\n"
     "  --info, -i <id> [--json]                Describe the contract & variables of a recipe\n"
@@ -32,8 +32,8 @@ static const char Usage[] =
     "  --json                                  Print the result (status, exit code, output, variables) as JSON\n"
     "  --async                                 Start the recipe and return immediately\n"
     "  --                                      Stop option parsing; remaining arguments must be key=value\n\n"
-    "  Example: greenshot --recipe ocr destination=clipboard\n"
-    "  Example: greenshot -r qr --file=invoice.png --query \"${Barcode.Text}\"\n\n"
+    "  Example: greenshot-cli --recipe ocr destination=clipboard\n"
+    "  Example: greenshot-cli -r qr --file=invoice.png --query \"${Barcode.Text}\"\n\n"
     "Exit codes:\n"
     "  0 success, 1 failure, 2 invalid command line, 3 Greenshot not available,\n"
     "  or the exit code set by the recipe (Stderr step).\n";

@@ -70,7 +70,7 @@ Solution configurations:
 
 | Configuration | Builds | Output |
 |---|---|---|
-| Debug (the default) | Everything but the installer project: Greenshot, the plugins, greenshot.com and greenshot-proxy, greenshot-mcp, the tests | `src\Greenshot\bin\Debug` |
+| Debug (the default) | Everything but the installer project: Greenshot, the plugins, greenshot-cli.exe and greenshot-proxy, greenshot-mcp, the tests | `src\Greenshot\bin\Debug` |
 | Release | Everything, plus the release files: checksum.SHA256, the SBOM, Greenshot Light, the installers and greenshot-mcp | `src\Greenshot\bin\Release` and `installer\` |
 | Debug Light | Greenshot Light only: Greenshot, Greenshot.Base, Greenshot.Editor (and the build tasks) | `src\Greenshot\bin\Debug-Light` |
 | Release Light | The same, optimized | `src\Greenshot\bin\Release-Light` |

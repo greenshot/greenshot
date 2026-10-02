@@ -222,7 +222,7 @@ namespace Greenshot.Helpers.Ipc
             new { type = TriggerConfig.TypeEditor, parameters = "MenuItemText, Group, Order", note = "an entry in the editor's recipe menu, works on the open image" },
             new { type = TriggerConfig.TypeClipboard, parameters = "OnImageCopied, FormatFilter", note = "runs on its own when an image is copied" },
             new { type = TriggerConfig.TypeManual, parameters = "", note = "only started from the recipe list" },
-            new { type = TriggerConfig.TypeCommandline, parameters = "Command, Description, FireAndForget, Stdout, Arguments, AllowBrowserInvocation", note = "greenshot.com run <Command>" },
+            new { type = TriggerConfig.TypeCommandline, parameters = "Command, Description, FireAndForget, Stdout, Arguments, AllowBrowserInvocation", note = "greenshot-cli.exe run <Command>" },
             new { type = TriggerConfig.TypeOpenFile, parameters = "Filter, FireAndForget", note = "runs for files opened with Greenshot" },
             new { type = TriggerConfig.TypeExtension, parameters = "Browser, FireAndForget", note = "handles captures from the browser extension" },
             new { type = TriggerConfig.TypeAiTool, parameters = "ToolName, Title, Description, ReadOnly, Destructive, Arguments, MaxImageSize", note = "offers the recipe as a tool to AI tools" }

@@ -103,7 +103,7 @@ namespace Greenshot.Forms
 
                 var isAlreadyRunning = !_applicationMutex.IsLocked;
 
-                // A command (e.g. a file, --recipe, --reload, --exit) is handled exactly like one from greenshot.com:
+                // A command (e.g. a file, --recipe, --reload, --exit) is handled exactly like one from greenshot-cli.exe:
                 // the unparsed arguments are sent as a CLI request and parsed by the running Greenshot
                 IpcEnvelope startupCommand = null;
                 if (options.CommandArguments.Length > 0)
@@ -491,7 +491,7 @@ namespace Greenshot.Forms
 
             if (startupCommand != null)
             {
-                // The command Greenshot was started with takes the same way as one from greenshot.com, now that the pipe server listens
+                // The command Greenshot was started with takes the same way as one from greenshot-cli.exe, now that the pipe server listens
                 AsyncCommand.RunInBackground(() =>
                 {
                     NamedPipeClient.SendMessage(startupCommand);

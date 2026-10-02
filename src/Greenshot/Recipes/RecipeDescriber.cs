@@ -169,7 +169,7 @@ namespace Greenshot.Recipes
             {
                 return new RecipeTriggerDescription
                 {
-                    Label = $"Command line: greenshot.com run {trigger.GetParameter<string>("Command") ?? recipe.Id}",
+                    Label = $"Command line: greenshot-cli.exe run {trigger.GetParameter<string>("Command") ?? recipe.Id}",
                     Risk = "Programs and scripts on this PC can start it."
                 };
             }

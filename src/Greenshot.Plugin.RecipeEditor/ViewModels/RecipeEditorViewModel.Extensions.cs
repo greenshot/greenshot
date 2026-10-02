@@ -321,7 +321,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 if (!Connections.Any(c => c.Source == node.OutputPort))
                 {
-                    Connections.Add(new StepConnectionViewModel(node.OutputPort, outNode.InputPort, RemoveConnection) { OnInsertStep = InsertStepIntoConnection });
+                    Connections.Add(new StepConnectionViewModel(node.OutputPort, outNode.InputPort, RemoveConnection));
                 }
             }
         }
@@ -341,7 +341,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             // The start flags of the nodes, set from the flow's start steps while the nodes were added
             foreach (var startNode in Nodes.Where(n => n.IsStartNode && !n.IsBoundary).ToList())
             {
-                Connections.Add(new StepConnectionViewModel(inNode.OutputPort, startNode.InputPort, RemoveConnection) { OnInsertStep = InsertStepIntoConnection });
+                Connections.Add(new StepConnectionViewModel(inNode.OutputPort, startNode.InputPort, RemoveConnection));
             }
         }
     }

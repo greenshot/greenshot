@@ -3,7 +3,7 @@
 `greenshot-mcp.exe` lets AI tools (Claude Code, Claude Desktop, VS Code, Cursor and other MCP clients) see the
 user's windows through Greenshot. It is a small [Model Context Protocol](https://modelcontextprotocol.io) server over
 stdio, built with .NET 10 and Native AOT, and talks to the running Greenshot over the same named pipe as
-`greenshot.com` and the browser extension (see [greenshot-proxy-and-integration.md](greenshot-proxy-and-integration.md)).
+`greenshot-cli.exe` and the browser extension (see [greenshot-proxy-and-integration.md](greenshot-proxy-and-integration.md)).
 
 ## Tools
 
@@ -151,7 +151,7 @@ and warns when its version isn't Greenshot's. The excluded applications are edit
   Escape, and its buttons only react after a second, so a keystroke meant for the AI tool can't answer it. The log says
   how it was answered. A helper without a name of its own (Antigravity's `resources\bin\language_server.exe`) is shown
   with its application's name, "Antigravity (language_server)"; the helper's path is what is allowed.
-* The other sources are checked the same way: only Greenshot.exe and greenshot.com (source `cli`) and
+* The other sources are checked the same way: only Greenshot.exe and greenshot-cli.exe (source `cli`) and
   greenshot-proxy.exe (`url_scheme`, `open_with`, `native_messaging`) from Greenshot's directory may connect, so other
   programs can't talk to the pipe directly. The pipe also refuses network logons.
 * AI tools can only list windows, run recipes with an AI tool trigger (`LIST_WINDOWS`, `LIST_AI_TOOLS`,

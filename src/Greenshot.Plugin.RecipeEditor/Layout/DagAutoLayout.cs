@@ -285,6 +285,11 @@ namespace Greenshot.Plugin.RecipeEditor.Layout
         private static double EstimateNodeHeight(StepNodeViewModel node)
         {
             if (node == null) return 95;
+            // The real height once the step is drawn
+            if (node.Size.Height > 1)
+            {
+                return node.Size.Height;
+            }
             if (node.IsUserPrompt)
             {
                 int count = node.PromptChoices?.Count ?? 0;

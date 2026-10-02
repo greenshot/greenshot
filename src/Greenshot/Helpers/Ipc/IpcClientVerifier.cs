@@ -29,7 +29,7 @@ namespace Greenshot.Helpers.Ipc
     /// <summary>
     /// Checks that the program on the other end of a pipe connection is one of Greenshot's own executables, from Greenshot's
     /// directory, and that it announced a source this executable uses. Other programs can't talk to the pipe directly;
-    /// they can only start these executables, which then decide the source (e.g. greenshot.com is always "cli").
+    /// they can only start these executables, which then decide the source (e.g. greenshot-cli.exe is always "cli").
     /// Source "mcp" is checked by AiToolCaller, which also identifies the AI tool.
     /// </summary>
     public static class IpcClientVerifier
@@ -38,8 +38,8 @@ namespace Greenshot.Helpers.Ipc
         {
             // A second Greenshot instance forwards its command line
             ["Greenshot.exe"] = new[] { IpcSources.Cli },
-            // greenshot.com, the console front end
-            ["greenshot.com"] = new[] { IpcSources.Cli },
+            // greenshot-cli.exe, the console front end
+            ["greenshot-cli.exe"] = new[] { IpcSources.Cli },
             // greenshot-proxy.exe: greenshot: URLs, Explorer "Open with" and the browser extension (native messaging)
             ["greenshot-proxy.exe"] = new[] { IpcSources.UrlScheme, IpcSources.OpenWith, IpcSources.NativeMessaging }
         };

@@ -59,7 +59,7 @@
   
   <!--
     Greenshot Light: Greenshot.exe built once more with /p:GreenshotEdition=Light (see Greenshot.csproj), the basics only: no plugins,
-    no AI tools, no browser extension. It goes to bin\$(Configuration)-Light with greenshot.com, greenshot-proxy.exe (it opens the
+    no AI tools, no browser extension. It goes to bin\$(Configuration)-Light with greenshot-cli.exe, greenshot-proxy.exe (it opens the
     files of the file types the installer registers) and its own checksum.SHA256; setup-light.iss and the Light portable version use it.
   -->
   <Target Name="BuildLightEdition" Condition="'$(Configuration)' == 'Release'">
@@ -67,7 +67,7 @@
       <LightOutputDir>$(SolutionDir)Greenshot\bin\$(Configuration)-Light\$(TargetFramework)</LightOutputDir>
     </PropertyGroup>
     <MSBuild Projects="$(SolutionDir)Greenshot\Greenshot.csproj" Targets="Build" Properties="Configuration=$(Configuration);GreenshotEdition=Light" />
-    <Copy SourceFiles="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\greenshot.com;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\greenshot-proxy.exe" DestinationFolder="$(LightOutputDir)" />
+    <Copy SourceFiles="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\greenshot-cli.exe;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\greenshot-proxy.exe" DestinationFolder="$(LightOutputDir)" />
     <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)scripts\generate-checksums.ps1&quot; -OutputDir &quot;$(LightOutputDir)&quot;" />
   </Target>
 

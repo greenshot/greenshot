@@ -183,7 +183,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
             if (Is(TriggerConfig.TypeCommandline))
             {
-                string label = $"⌨ greenshot.com run {t.GetParameter<string>("Command") ?? Recipe.Id}";
+                string label = $"⌨ greenshot-cli.exe run {t.GetParameter<string>("Command") ?? Recipe.Id}";
                 if (t.GetParameter("AllowBrowserInvocation", false))
                 {
                     label += t.IsBrowserInvocationApproved ? " (+ web pages)" : " (web pages: not approved)";

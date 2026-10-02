@@ -36,7 +36,7 @@ namespace Greenshot.Helpers.Ipc
     /// <remarks>
     /// Handlers always reply with JSON-shaped objects: streaming chunks <c>{stream, text}</c> and one final reply
     /// <c>{status, exit_code, stdout, stderr, ...}</c>. For connections that announced <c>reply_format: "text"</c> in their HELLO
-    /// (greenshot.com / greenshot-proxy.exe) these are translated to text frames, so the executables never parse JSON:
+    /// (greenshot-cli.exe / greenshot-proxy.exe) these are translated to text frames, so the executables never parse JSON:
     /// <c>'O' + UTF-8</c> (stdout), <c>'E' + UTF-8</c> (stderr) and <c>'X' + int32 exit code</c> (end of the reply).
     /// With <c>--json</c> the final reply object itself is sent as stdout text.
     /// </remarks>

@@ -727,6 +727,8 @@
         <Style x:Key="ItemContainerStyle" TargetType="{x:Type nodify:ItemContainer}">
             <Setter Property="Location" Value="{Binding Location, Mode=TwoWay}" />
             <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+            <!-- The real size of a step, for the auto-layout -->
+            <Setter Property="ActualSize" Value="{Binding Size, Mode=OneWayToSource}" />
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="Background" Value="Transparent"/>
@@ -1067,19 +1069,6 @@
                                     </nodify:Connection.Style>
                                     <nodify:Connection.ContextMenu>
                                         <ContextMenu>
-                                            <!-- A -> B becomes A -> new step -> B -->
-                                            <MenuItem Header="➕ Insert step here">
-                                                <MenuItem Header="🧩 Slot for Automatic Steps" Command="{Binding InsertStepCommand}" CommandParameter="Slot"/>
-                                                <MenuItem Header="✨ Effect" Command="{Binding InsertStepCommand}" CommandParameter="Effect"/>
-                                                <MenuItem Header="🎨 Annotation" Command="{Binding InsertStepCommand}" CommandParameter="Annotation"/>
-                                                <MenuItem Header="🛡️ Text Effect" Command="{Binding InsertStepCommand}" CommandParameter="TextEffect"/>
-                                                <MenuItem Header="💲 Set Variable" Command="{Binding InsertStepCommand}" CommandParameter="SetVariable"/>
-                                                <MenuItem Header="🔀 Conditional Branch" Command="{Binding InsertStepCommand}" CommandParameter="Conditional"/>
-                                                <MenuItem Header="❓ User Decision Prompt" Command="{Binding InsertStepCommand}" CommandParameter="UserPrompt"/>
-                                                <MenuItem Header="⚙️ Processors / OCR" Command="{Binding InsertStepCommand}" CommandParameter="Processors"/>
-                                                <MenuItem Header="🔔 Notification" Command="{Binding InsertStepCommand}" CommandParameter="Notification"/>
-                                            </MenuItem>
-                                            <Separator/>
                                             <MenuItem Header="🗑️ Delete Connection" Command="{Binding DisconnectCommand}"/>
                                         </ContextMenu>
                                     </nodify:Connection.ContextMenu>

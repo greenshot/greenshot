@@ -1079,7 +1079,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                         {
                             if (nodeMap.TryGetValue(toId, out var targetNode))
                             {
-                                var conn = new StepConnectionViewModel(sourceNode.OutputPort, targetNode.InputPort, RemoveConnection) { OnInsertStep = InsertStepIntoConnection };
+                                var conn = new StepConnectionViewModel(sourceNode.OutputPort, targetNode.InputPort, RemoveConnection);
                                 Connections.Add(conn);
                                 sourceNode.OutputPort.IsConnected = true;
                                 targetNode.InputPort.IsConnected = true;
@@ -1100,7 +1100,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                         var branch = sourceNode.ConditionBranches.FirstOrDefault(b => string.Equals(b.Key, ct.Branch, StringComparison.OrdinalIgnoreCase));
                         var promptChoice = sourceNode.PromptChoices.FirstOrDefault(p => string.Equals(p.Key, ct.Branch, StringComparison.OrdinalIgnoreCase));
                         StepPortViewModel outPort = branch?.Port ?? promptChoice?.Port ?? sourceNode.OutputPort;
-                        var conn = new StepConnectionViewModel(outPort, targetNode.InputPort, RemoveConnection) { OnInsertStep = InsertStepIntoConnection };
+                        var conn = new StepConnectionViewModel(outPort, targetNode.InputPort, RemoveConnection);
                         Connections.Add(conn);
                         outPort.IsConnected = true;
                         targetNode.InputPort.IsConnected = true;
@@ -1124,8 +1124,12 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 ConnectEndsToOut();
             }
 
-            // Apply DagAutoLayout
+            // Apply DagAutoLayout, and again once the steps are drawn and their real height is known
             PerformAutoLayout();
+            if (!_isRestoring)
+            {
+                ScheduleAutoLayout();
+            }
             ValidateGraphCycles();
             IsDirty = false;
             StatusMessage = $"Loaded recipe '{recipe.Name}' ({recipe.Nodes.Count} steps, {Triggers.Count} triggers)";
@@ -1291,7 +1295,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 return;
             }
 
-            var conn = new StepConnectionViewModel(fromPort, toPort, RemoveConnection) { OnInsertStep = InsertStepIntoConnection };
+            var conn = new StepConnectionViewModel(fromPort, toPort, RemoveConnection);
             Connections.Add(conn);
             fromPort.IsConnected = true;
             toPort.IsConnected = true;
@@ -1374,9 +1378,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             if (connection == null || string.IsNullOrEmpty(stepType) || !Connections.Contains(connection)) return;
             var source = connection.Source;
             var target = connection.Target;
-            var location = target.Node.Location;
-            MakeRoomBelow(location.Y);
-            var nodeVm = CreateStepNode(stepType, location, source.Node, target.Node);
+            var nodeVm = CreateStepNode(stepType, target.Node.Location, source.Node, target.Node);
 
             PutNodeIntoConnection(connection, nodeVm);
             StatusMessage = $"Inserted {stepType} between '{source.Node.DisplayName}' and '{target.Node.DisplayName}'";
@@ -1390,7 +1392,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             if (previous == null || string.IsNullOrEmpty(stepType)) return;
             var outgoing = Connections.Where(c => c.Source == previous.OutputPort).ToList();
             var location = new Point(previous.Location.X, previous.Location.Y + StepSpacing);
-            MakeRoomBelow(location.Y);
             var nodeVm = CreateStepNode(stepType, location, previous, outgoing.Count == 1 ? outgoing[0].TargetNode : null);
 
             foreach (var connection in outgoing)
@@ -1405,18 +1406,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
             Connect(previous.OutputPort, nodeVm.InputPort);
             SelectedNode = nodeVm;
+            ScheduleAutoLayout();
             StatusMessage = $"Inserted {stepType} after '{previous.DisplayName}'";
-        }
-
-        /// <summary>
-        /// Moves the steps at or below the height down, so a step fits in
-        /// </summary>
-        private void MakeRoomBelow(double y)
-        {
-            foreach (var node in Nodes.Where(n => n.Location.Y >= y - 1))
-            {
-                node.Location = new Point(node.Location.X, node.Location.Y + StepSpacing);
-            }
         }
 
         private StepNodeViewModel CreateStepNode(string stepType, Point location, StepNodeViewModel previous, StepNodeViewModel next)

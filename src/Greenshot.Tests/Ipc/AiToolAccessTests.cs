@@ -484,14 +484,14 @@ namespace Greenshot.Tests.Ipc
         }
 
         [Theory]
-        [InlineData(@"C:\Program Files\Greenshot\greenshot.com", "cli", true)]
+        [InlineData(@"C:\Program Files\Greenshot\greenshot-cli.exe", "cli", true)]
         [InlineData(@"C:\Program Files\Greenshot\Greenshot.exe", "cli", true)]
         [InlineData(@"C:\Program Files\Greenshot\greenshot-proxy.exe", "url_scheme", true)]
         [InlineData(@"C:\Program Files\Greenshot\greenshot-proxy.exe", "native_messaging", true)]
         [InlineData(@"C:\Program Files\Greenshot\greenshot-proxy.exe", "open_with", true)]
         [InlineData(@"C:\Program Files\Greenshot\greenshot-proxy.exe", "cli", false)]
-        [InlineData(@"C:\Program Files\Greenshot\greenshot.com", "native_messaging", false)]
-        [InlineData(@"C:\Users\me\Downloads\greenshot.com", "cli", false)]
+        [InlineData(@"C:\Program Files\Greenshot\greenshot-cli.exe", "native_messaging", false)]
+        [InlineData(@"C:\Users\me\Downloads\greenshot-cli.exe", "cli", false)]
         [InlineData(@"C:\Program Files\Greenshot\evil.exe", "cli", false)]
         [InlineData(null, "cli", false)]
         public void PipeClients_MustBeGreenshotsOwnPrograms(string clientPath, string source, bool allowed)

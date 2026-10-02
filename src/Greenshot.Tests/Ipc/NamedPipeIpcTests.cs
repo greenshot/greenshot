@@ -36,7 +36,7 @@ namespace Greenshot.Tests.Ipc
     public class NamedPipeIpcTests
     {
         /// <summary>
-        /// Greenshot.exe sends its command arguments as the same CLI request that greenshot.com and greenshot-proxy.exe send.
+        /// Greenshot.exe sends its command arguments as the same CLI request that greenshot-cli.exe and greenshot-proxy.exe send.
         /// </summary>
         [Fact]
         public void EnvelopeSerialization_Cli_MatchesTheProxyRequest()
