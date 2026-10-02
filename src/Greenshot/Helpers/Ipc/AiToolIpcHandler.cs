@@ -221,7 +221,7 @@ namespace Greenshot.Helpers.Ipc
         /// <summary>
         /// What the flow produced, collected before the flow disposes its payload
         /// </summary>
-        private sealed class AiToolResult
+        internal sealed class AiToolResult
         {
             public byte[] Png;
             public int Width;
@@ -371,10 +371,11 @@ namespace Greenshot.Helpers.Ipc
         /// <summary>
         /// The final image of the flow (with what the recipe drew on it), and the text found by OCR.
         /// </summary>
-        private static async Task<AiToolResult> CollectResultAsync(CaptureFlowContext flowContext, int maxImageSize, CancellationToken cancellationToken)
+        internal static async Task<AiToolResult> CollectResultAsync(CaptureFlowContext flowContext, int maxImageSize, CancellationToken cancellationToken)
         {
             var payload = flowContext.Payload;
-            if (payload?.RawCapture?.Image == null)
+            // A surface takes the image from the capture (OCR creates one): then only the surface has it
+            if (payload?.RawCapture == null || payload.RawCapture.Image == null && payload.Surface == null)
             {
                 return null;
             }

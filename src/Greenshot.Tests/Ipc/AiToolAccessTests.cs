@@ -29,6 +29,8 @@ using System.Threading.Tasks;
 using Dapplo.Ini;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
+using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Pipeline;
 using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
@@ -172,6 +174,61 @@ namespace Greenshot.Tests.Ipc
                 await DispatchAsync("LIST_WINDOWS", TestClient);
                 Assert.Equal(2, asked);
             });
+        }
+
+        /// <summary>
+        /// OCR of a fixed text, the way Windows OCR reports it
+        /// </summary>
+        private sealed class FakeOcrProvider : Greenshot.Base.Interfaces.Ocr.IOcrProvider
+        {
+            public Task<List<IOcrLineFeature>> DoOcrAsync(System.Drawing.Image image, string languageTag = null) => Task.FromResult(Lines());
+
+            public Task<List<IOcrLineFeature>> DoOcrAsync(Greenshot.Base.Interfaces.ISurface surface, string languageTag = null) => Task.FromResult(Lines());
+
+            private static List<IOcrLineFeature> Lines() => new List<IOcrLineFeature>
+            {
+                new DetectedOcrLine(new NativeRect(5, 6, 70, 12), "Hello OCR", new List<OcrWordInfo>())
+            };
+        }
+
+        [Theory]
+        [InlineData(Greenshot.Recipes.RecipeManager.RecipeIdAiCaptureWindow)]
+        [InlineData(Greenshot.Recipes.RecipeManager.RecipeIdAiCaptureRegion)]
+        [InlineData(Greenshot.Recipes.RecipeManager.RecipeIdAiCaptureScreen)]
+        public async Task AiCapture_WithOcr_ReturnsTheImage_TheText_AndTheLines(string recipeId)
+        {
+            // The surface factory of the tests
+            TestEnvironment.EnsureInitialized();
+            var recipe = Greenshot.Recipes.RecipeManager.Instance.GetBuiltInRecipe(recipeId);
+            var ocrNode = recipe.FindNode("ocr");
+            Assert.NotNull(ocrNode);
+
+            var ocrProvider = new FakeOcrProvider();
+            Greenshot.Base.Core.SimpleServiceProvider.Current.AddService<Greenshot.Base.Interfaces.Ocr.IOcrProvider>(ocrProvider);
+            try
+            {
+                using var bitmap = new System.Drawing.Bitmap(120, 80);
+                using var flowContext = new CaptureFlowContext(recipe)
+                {
+                    Payload = new CapturePayload(new Capture((System.Drawing.Image)bitmap.Clone()))
+                };
+
+                // The recipe's own OCR step: it makes a surface, which takes the image from the capture
+                await new Greenshot.Pipeline.Steps.ProcessorExecutionStep(ocrNode).ExecuteAsync(flowContext);
+                Assert.NotNull(flowContext.Payload.Surface);
+
+                var result = await AiToolIpcHandler.CollectResultAsync(flowContext, 0, CancellationToken.None);
+                Assert.NotNull(result);
+                Assert.NotNull(result.Png);
+                Assert.Equal(120, result.OriginalWidth);
+                Assert.Equal(80, result.OriginalHeight);
+                Assert.Equal("Hello OCR", result.Text);
+                Assert.Single(result.OcrLines);
+            }
+            finally
+            {
+                Greenshot.Base.Core.SimpleServiceProvider.Current.RemoveService<Greenshot.Base.Interfaces.Ocr.IOcrProvider>(ocrProvider);
+            }
         }
 
         [Fact]

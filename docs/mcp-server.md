@@ -58,7 +58,8 @@ When Greenshot exits it sends every open connection `{"event":"shutdown","reason
   doesn't start Greenshot again. Tool calls answer that Greenshot was closed, until Greenshot runs again; then it
   reconnects by itself.
 * `update`, the Windows Restart Manager closes Greenshot for an installer (update or uninstall): greenshot-mcp exits,
-  otherwise it would keep the installation directory locked.
+  otherwise it would keep the installation directory locked. As a fallback the installer and the uninstaller close
+  greenshot-mcp.exe themselves, and the uninstaller removes it.
 * `session_end`, Windows logs off or shuts down.
 
 Example: the built-in `capture_window` recipe as JSON.

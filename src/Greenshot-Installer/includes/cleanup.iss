@@ -61,3 +61,7 @@ Name: {app}\Plugins; Type: dirifempty;
 
 // Cleanup the main directory if there are no files left
 Name: {app}; Type: dirifempty;
+
+[UninstallDelete]
+// greenshot-mcp.exe is a separate download, extracted next to Greenshot.exe: the uninstaller removes it too (it was closed first, see code.iss)
+Type: files; Name: "{app}\greenshot-mcp.exe"
