@@ -49,5 +49,26 @@
 	<resource name="configure">
 		Configure Imgur
 	</resource>
+	<resource name="history.delete">
+		Delete
+	</resource>
+	<resource name="history.open">
+		Open
+	</resource>
+	<resource name="history.copy_to_clipboard">
+		Copy link(s) to clipboard
+	</resource>
+	<resource name="history.clear">
+		Clear history
+	</resource>
+	<resource name="history.column_title">
+		Title
+	</resource>
+	<resource name="history.column_hash">
+		Hash
+	</resource>
+	<resource name="history.column_date">
+		Date
+	</resource>
   </resources>
 </language>

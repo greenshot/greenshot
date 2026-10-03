@@ -99,7 +99,7 @@ public class JiraPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProv
     /// </summary>
     public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken)
     {
-        services.GetService<IDialogViewRegistry>()?.Register<JiraUploadRequest, JiraUploadChoice>(Forms.JiraForm.Show);
+        services.GetService<IDialogViewRegistry>()?.Register<JiraUploadRequest, JiraUploadChoice>(Forms.JiraUploadWindow.Show);
         return services.GetRequiredService<IUiDispatcher>().RunOnUiAsync(Start, cancellationToken);
     }
 

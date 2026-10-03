@@ -17,5 +17,12 @@
 		<resource name="use_page_link">Seiten- statt Bildlink in Zwischenablage verwenden</resource>
 		<resource name="history">Verlauf...</resource>
 		<resource name="configure">Konfigurieren...</resource>
+		<resource name="history.delete">Löschen</resource>
+		<resource name="history.open">Öffnen</resource>
+		<resource name="history.copy_to_clipboard">Link(s) in die Zwischenablage kopieren</resource>
+		<resource name="history.clear">Verlauf löschen</resource>
+		<resource name="history.column_title">Titel</resource>
+		<resource name="history.column_hash">Hash</resource>
+		<resource name="history.column_date">Datum</resource>
 	</resources>
 </language>

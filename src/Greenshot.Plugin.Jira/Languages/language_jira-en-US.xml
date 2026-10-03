@@ -61,5 +61,11 @@
   	<resource name="communication_wait">
   		Transferring data to JIRA, please wait...
 	</resource>
+  	<resource name="upload">
+		Upload
+	</resource>
+  	<resource name="column_issueType">
+		Type
+	</resource>
   </resources>
 </language>

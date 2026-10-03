@@ -37,7 +37,7 @@ using Greenshot.Base.Pipeline;
 namespace Greenshot.Plugin.Jira;
 
 /// <summary>
-/// What the Jira upload dialog (JiraForm) asks for, the result is the choice of the user or null.
+/// What the Jira upload dialog (JiraUploadWindow) asks for, the result is the choice of the user or null.
 /// </summary>
 public sealed class JiraUploadRequest : IDialogViewModel<JiraUploadChoice>
 {
