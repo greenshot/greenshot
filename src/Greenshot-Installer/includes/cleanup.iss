@@ -11,6 +11,8 @@ Type: filesandordirs; Name: "{app}\Plugins"
 Type: files; Name: "{app}\*.dll"
 // The Native Messaging manifests are only installed with includes\browser-extension.iss
 Type: files; Name: "{app}\org.greenshot.proxy*.json"
+// The command line was greenshot.com before it was renamed to greenshot-cli.exe
+Type: files; Name: "{app}\greenshot.com"
 
 // Delete plugins from Greenshot 1.2
 Type: filesandordirs; Name: "{app}\Plugins\GreenshotBoxPlugin"
@@ -63,3 +65,7 @@ Name: {app}\Plugins; Type: dirifempty;
 
 // Cleanup the main directory if there are no files left
 Name: {app}; Type: dirifempty;
+
+[UninstallDelete]
+// greenshot-mcp.exe is a separate download, extracted next to Greenshot.exe: the uninstaller removes it too (it was closed first, see code.iss)
+Type: files; Name: "{app}\greenshot-mcp.exe"

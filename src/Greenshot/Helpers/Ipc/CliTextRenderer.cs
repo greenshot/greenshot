@@ -27,7 +27,7 @@ using Newtonsoft.Json.Linq;
 namespace Greenshot.Helpers.Ipc
 {
     /// <summary>
-    /// Renders the human readable console output of greenshot.com for LIST_RECIPES and DESCRIBE_RECIPE,
+    /// Renders the human readable console output of greenshot-cli.exe for LIST_RECIPES and DESCRIBE_RECIPE,
     /// from the same data that JSON clients receive.
     /// </summary>
     public static class CliTextRenderer

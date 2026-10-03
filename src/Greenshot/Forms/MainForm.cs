@@ -61,6 +61,7 @@ using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Forms;
 using Greenshot.Forms.Wpf;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
 using Greenshot.Helpers;
@@ -102,7 +103,7 @@ namespace Greenshot.Forms
 
                 var isAlreadyRunning = !_applicationMutex.IsLocked;
 
-                // A command (e.g. a file, --recipe, --reload, --exit) is handled exactly like one from greenshot.com:
+                // A command (e.g. a file, --recipe, --reload, --exit) is handled exactly like one from greenshot-cli.exe:
                 // the unparsed arguments are sent as a CLI request and parsed by the running Greenshot
                 IpcEnvelope startupCommand = null;
                 if (options.CommandArguments.Length > 0)
@@ -206,7 +207,7 @@ namespace Greenshot.Forms
                 }
 
                 // Make sure we handle END Session correctly
-                RestartManagerHelper.RegisterForRestart();
+                RestartManagerHelper.RegisterForRestart(IniConfigRegistry.Get().OverrideDirectory);
 
                 // Make sure we can use forms
                 WindowsFormsHost.EnableWindowsFormsInterop();
@@ -345,6 +346,7 @@ namespace Greenshot.Forms
             try
             {
                 InitializeComponent();
+                ApplyImages();
                 InitializeLanguage();
             }
             catch (ArgumentException ex)
@@ -366,8 +368,10 @@ namespace Greenshot.Forms
             SimpleServiceProvider.Current.AddService(notifyIcon);
 
             // Load all the plugins, their configuration sections are filled from the already loaded greenshot.ini
-            // The plugins start in parallel, the main window doesn't wait for them
+            // The plugins start in parallel, the main window doesn't wait for them. Greenshot Light has no plugins.
+#if !GREENSHOT_LIGHT
             PluginHelper.Instance.LoadPluginsAsync().FireAndLog("Start the plugins", Log);
+#endif
 
             EditorInitialize.Initialize();
             // JIT-compiling the editor and loading the emoji font takes seconds, do it in the background instead of when the first editor opens
@@ -386,6 +390,8 @@ namespace Greenshot.Forms
             {
                 // Raised from file watchers and flows: always marshal to the UI thread
                 UiDispatcher.InvokeAsync(UpdateRecipesMenu).FireAndLog("Update recipes menu", Log);
+                // Recipes with options in the quick settings can come or go
+                UiDispatcher.InvokeAsync(InitializeQuickSettingsMenu).FireAndLog("Update quick settings", Log);
             };
 
             // The command line language was already applied in Start, right after greenshot.ini was read
@@ -460,6 +466,18 @@ namespace Greenshot.Forms
             _namedPipeServer = new NamedPipeServer();
             _namedPipeServer.RequestReceived += OnNamedPipeRequestReceivedAsync;
             _namedPipeServer.Start();
+            RestartManagerHelper.ShutdownNotifier = reason => _namedPipeServer.NotifyShutdownAsync(reason);
+#if !GREENSHOT_LIGHT
+            // greenshot-mcp updates its tools right away when the recipes or the AI tools switch change
+            RecipeManager.Instance.RecipesChanged += (sender, args) => NotifyToolsChanged();
+            coreConfiguration.PropertyChanged += (sender, args) =>
+            {
+                if (args.PropertyName == nameof(ICoreConfiguration.AiToolsEnabled))
+                {
+                    NotifyToolsChanged();
+                }
+            };
+#endif
 
             if (options.Restore)
             {
@@ -473,7 +491,7 @@ namespace Greenshot.Forms
 
             if (startupCommand != null)
             {
-                // The command Greenshot was started with takes the same way as one from greenshot.com, now that the pipe server listens
+                // The command Greenshot was started with takes the same way as one from greenshot-cli.exe, now that the pipe server listens
                 AsyncCommand.RunInBackground(() =>
                 {
                     NamedPipeClient.SendMessage(startupCommand);
@@ -491,6 +509,25 @@ namespace Greenshot.Forms
             {
                 PsApi.EmptyWorkingSet();
             }
+        }
+
+        /// <summary>
+        /// The images of the controls, embedded as plain files (see EmbeddedResources). They are assigned here and not in the
+        /// designer: the designer would put them into the .resx as binary data, which needs System.Resources.Extensions.
+        /// Never set an Image in the designer, add the file to Resources and a line here.
+        /// </summary>
+        private void ApplyImages()
+        {
+            contextmenu_capturearea.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_capturearea.Image");
+            contextmenu_capturelastregion.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_capturelastregion.Image");
+            contextmenu_capturewindow.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_capturewindow.Image");
+            contextmenu_capturefullscreen.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_capturefullscreen.Image");
+            contextmenu_captureclipboard.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_captureclipboard.Image");
+            contextmenu_openfile.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_openfile.Image");
+            contextmenu_settings.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_settings.Image");
+            contextmenu_help.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_help.Image");
+            contextmenu_donate.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_donate.Image");
+            contextmenu_exit.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_exit.Image");
         }
 
         protected override void InitializeLanguage()
@@ -512,7 +549,13 @@ namespace Greenshot.Forms
             contextmenu_donate.Text = Language.GetString("contextmenu_donate");
             contextmenu_about.Text = Language.GetString("contextmenu_about");
             contextmenu_exit.Text = Language.GetString("contextmenu_exit");
-            notifyIcon.Text = NotifyIconTextHelper.ToNotifyIconText(Language.GetString("application_title"));
+            // With the edition, e.g. "Greenshot Light - ..."
+            string applicationTitle = Language.GetString("application_title");
+            if (applicationTitle.StartsWith("Greenshot", StringComparison.Ordinal))
+            {
+                applicationTitle = GreenshotEdition.ProductName + applicationTitle.Substring("Greenshot".Length);
+            }
+            notifyIcon.Text = NotifyIconTextHelper.ToNotifyIconText(applicationTitle);
         }
 
         /// <summary>
@@ -654,7 +697,9 @@ namespace Greenshot.Forms
                 if (Interlocked.CompareExchange(ref _shutdownState, 1, 0) == 0)
                 {
                     ShutdownUi();
+#if !GREENSHOT_LIGHT
                     PluginHelper.Instance.ShutdownAsync(TimeSpan.FromSeconds(1)).FireAndLog("Stop the plugins", Log);
+#endif
                 }
 
                 ShutdownCleanup(false);
@@ -741,8 +786,7 @@ namespace Greenshot.Forms
                 (now.Month == 3 && now.Day > 13 && now.Day < 21))
             {
                 // birthday
-                var resources = new ComponentResourceManager(typeof(MainForm));
-                contextmenu_donate.Image = (Image) resources.GetObject("contextmenu_present.Image");
+                contextmenu_donate.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_present.Image");
             }
 
             UpdateRecipesMenu();
@@ -1373,6 +1417,103 @@ namespace Greenshot.Forms
                 selectList.CheckedChanged += QuickSettingBoolItemChanged;
                 contextmenu_quicksettings.DropDownItems.Add(selectList);
             }
+
+            AddRecipeQuickSettings();
+        }
+
+        /// <summary>
+        /// At most this many recipe options in the "Automatic steps" block of the quick settings, the others are in Settings > Recipes ("More…")
+        /// </summary>
+        private const int MaxRecipeQuickSettings = 6;
+
+        /// <summary>
+        /// The options recipes offer in the quick settings ("quickSettings": true), in one "Automatic steps" block: a switch
+        /// is a checked item, a choice a submenu with one item per value, at most <see cref="MaxRecipeQuickSettings"/> of them,
+        /// and "More…" opens Settings > Recipes. The value is stored right away.
+        /// </summary>
+        private void AddRecipeQuickSettings()
+        {
+            List<(FlowDefinition Recipe, RecipeOption Option)> options;
+            try
+            {
+                // The extensions (border, drop shadow, caption, ...) first, then the recipes
+                var manager = RecipeManager.Instance;
+                options = manager.GetAllExtensions()
+                    .OrderBy(e => e.Extends?.Order ?? 0).ThenBy(e => e.Id, StringComparer.OrdinalIgnoreCase)
+                    .Cast<FlowDefinition>()
+                    .Concat(manager.GetAllRecipes().OrderBy(r => r.Name, StringComparer.CurrentCultureIgnoreCase))
+                    .Where(r => r?.Options != null)
+                    .SelectMany(r => r.Options
+                        .Where(o => o != null && o.QuickSettings && (o.Type == ContractDataType.Boolean || (o.Type == ContractDataType.Enum && o.Choices != null)))
+                        .Select(o => (Recipe: r, Option: o)))
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Couldn't add the options of the recipes to the quick settings.", ex);
+                return;
+            }
+
+            if (options.Count == 0)
+            {
+                return;
+            }
+
+            contextmenu_quicksettings.DropDownItems.Add(new ToolStripSeparator());
+            contextmenu_quicksettings.DropDownItems.Add(new ToolStripMenuItem(Language.GetString("quicksettings_automaticsteps"))
+            {
+                Enabled = false
+            });
+
+            // The same label of two recipes gets the recipe name in front
+            var duplicateLabels = new HashSet<string>(options.GroupBy(o => o.Option.DisplayLabel, StringComparer.CurrentCultureIgnoreCase).Where(g => g.Count() > 1).Select(g => g.Key), StringComparer.CurrentCultureIgnoreCase);
+            if (options.Count > MaxRecipeQuickSettings)
+            {
+                Log.DebugFormat("{0} recipe options are marked for the quick settings, showing {1}.", options.Count, MaxRecipeQuickSettings);
+            }
+
+            foreach (var (recipe, option) in options.Take(MaxRecipeQuickSettings))
+            {
+                string label = duplicateLabels.Contains(option.DisplayLabel) ? $"{RecipeText.Translate(recipe.Name ?? recipe.Id)}: {option.DisplayLabel}" : option.DisplayLabel;
+                var value = RecipeOptionStore.GetValue(recipe, option);
+                if (option.Type == ContractDataType.Boolean)
+                {
+                    var switchItem = new ToolStripMenuSelectListItem
+                    {
+                        Text = label,
+                        Checked = value is true,
+                        CheckOnClick = true,
+                        ToolTipText = option.DisplayDescription
+                    };
+                    switchItem.CheckedChanged += (sender, args) => RecipeOptionStore.SetValue(recipe.Id, option, switchItem.Checked);
+                    contextmenu_quicksettings.DropDownItems.Add(switchItem);
+                    continue;
+                }
+
+                var choiceList = new ToolStripMenuSelectList($"recipe:{recipe.Id}:{option.Key}", false, this)
+                {
+                    Text = label
+                };
+                foreach (var choice in option.Choices.Where(c => c != null))
+                {
+                    bool isCurrent = string.Equals(choice.Value, value as string, StringComparison.OrdinalIgnoreCase);
+                    choiceList.AddItem(choice.DisplayLabel, (Action)(() => RecipeOptionStore.SetValue(recipe.Id, option, choice.Value)), isCurrent);
+                }
+                choiceList.CheckedChanged += QuickSettingRecipeChoiceChanged;
+                contextmenu_quicksettings.DropDownItems.Add(choiceList);
+            }
+
+            var moreItem = new ToolStripMenuItem(Language.GetString("quicksettings_automaticsteps_more"));
+            moreItem.Click += (sender, args) => ShowSetting(null, "recipes");
+            contextmenu_quicksettings.DropDownItems.Add(moreItem);
+        }
+        private static void QuickSettingRecipeChoiceChanged(object sender, EventArgs e)
+        {
+            var item = ((ItemCheckedChangedEventArgs) e).Item;
+            if (item.Checked && item.Data is Action select)
+            {
+                select();
+            }
         }
 
         private void QuickSettingCaptureModeChanged(object sender, EventArgs e)
@@ -1639,6 +1780,19 @@ namespace Greenshot.Forms
             Log.Info("Exit: " + EnvironmentInfo.EnvironmentToString(false));
             ShutdownUi();
 
+            // The clients learn that Greenshot exits on purpose: greenshot-mcp waits for the next start instead of starting it again
+            if (_namedPipeServer != null)
+            {
+                try
+                {
+                    await _namedPipeServer.NotifyShutdownAsync(NamedPipeServer.ShutdownReasonExit).WaitAsync(TimeSpan.FromSeconds(1));
+                }
+                catch (Exception ex)
+                {
+                    Log.Debug("Could not tell the named pipe clients that Greenshot exits.", ex);
+                }
+            }
+
             // Running flows are cancelled, the shutdown waits a bounded time for them
             using (var timeoutSource = new CancellationTokenSource(ShutdownTimeout))
             {
@@ -1652,6 +1806,7 @@ namespace Greenshot.Forms
                 }
             }
 
+#if !GREENSHOT_LIGHT
             // Inform all registered plugins
             try
             {
@@ -1661,6 +1816,7 @@ namespace Greenshot.Forms
             {
                 Log.Error("Error shutting down plugins!", e);
             }
+#endif
 
             try
             {
@@ -1674,6 +1830,13 @@ namespace Greenshot.Forms
 
             ShutdownCleanup(true);
         }
+
+#if !GREENSHOT_LIGHT
+        private void NotifyToolsChanged()
+        {
+            _namedPipeServer?.NotifyWatchersAsync(new { @event = "tools_changed" }).FireAndLog("Tell the watchers that the tools changed", Log);
+        }
+#endif
 
         /// <summary>
         /// The first, synchronous part of the shutdown: configuration, other forms, hotkeys, sound.

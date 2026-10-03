@@ -14,14 +14,16 @@ using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
 using Greenshot.Base.Wpf;
 using Greenshot.Plugin.RecipeEditor.Layout;
+using log4net;
 using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
 using Greenshot.Base.Threading;
 
 namespace Greenshot.Plugin.RecipeEditor.ViewModels
 {
-    public class RecipeEditorViewModel : ViewModelBase
+    public partial class RecipeEditorViewModel : ViewModelBase
     {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(RecipeEditorViewModel));
         private readonly IRecipeManager _recipeManager;
         private CaptureRecipe _activeRecipe;
         private StepNodeViewModel _selectedNode;
@@ -43,9 +45,26 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             get => _activeRecipe;
             set
             {
+                var previous = _activeRecipe;
+                if (!_isRestoring && previous != null && !ReferenceEquals(previous, value))
+                {
+                    KeepHistory(previous.Id);
+                }
+                // A recipe is opened: no automatic step is edited anymore
+                bool wasExtension = _extension != null;
+                if (!_openingExtension)
+                {
+                    _extension = null;
+                }
                 if (SetField(ref _activeRecipe, value))
                 {
                     LoadRecipeIntoCanvas(value);
+                    MarkAsSaved();
+                    if (!_isRestoring)
+                    {
+                        ResetHistory();
+                    }
+                    OnPropertyChanged(nameof(SelectedRecipe));
                     OnPropertyChanged(nameof(RecipeId));
                     OnPropertyChanged(nameof(RecipeTitle));
                     OnPropertyChanged(nameof(RecipeDescription));
@@ -55,6 +74,11 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     OnPropertyChanged(nameof(CanUnloadActiveRecipe));
                     OnPropertyChanged(nameof(UnloadActiveRecipeText));
                     OnPropertyChanged(nameof(UnloadActiveRecipeToolTip));
+                    if (wasExtension && _extension == null)
+                    {
+                        OnPropertyChanged(nameof(IsExtensionMode));
+                        OnPropertyChanged(nameof(IsRecipeMode));
+                    }
                 }
             }
         }
@@ -66,8 +90,20 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 if (_activeRecipe != null && _activeRecipe.IsEnabled != value)
                 {
+                    // Takes effect right away, it isn't an unsaved change of the recipe
+                    RefreshUnsavedState();
+                    bool hadChanges = IsDirty;
                     _activeRecipe.IsEnabled = value;
                     _recipeManager?.SetRecipeEnabled(_activeRecipe.Id, value);
+                    var registered = _recipeManager?.GetRecipeById(_activeRecipe.Id);
+                    if (registered != null)
+                    {
+                        _openedFromContent = RecipeSerializer.Serialize(registered);
+                    }
+                    if (!hadChanges)
+                    {
+                        MarkAsSaved();
+                    }
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(ActiveRecipeStatusText));
                     RefreshAvailableRecipes();
@@ -218,7 +254,463 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public bool IsDirty
         {
             get => _isDirty;
-            set => SetField(ref _isDirty, value);
+            set
+            {
+                if (SetField(ref _isDirty, value))
+                {
+                    OnPropertyChanged(nameof(WindowTitle));
+                    OnPropertyChanged(nameof(TitleRecipeText));
+                    OnPropertyChanged(nameof(CanReviewApproval));
+                }
+            }
+        }
+
+        /// <summary>
+        /// The recipe as it was loaded or last saved (serialized), null for a recipe which was never saved. The editor works on a copy
+        /// of the registered recipe: changes reach Greenshot only by saving, with the approval that needs.
+        /// </summary>
+        private string _savedContent;
+
+        /// <summary>
+        /// The registered recipe the working copy was made from (serialized), to see whether it changed elsewhere
+        /// </summary>
+        private string _openedFromContent;
+
+        /// <summary>
+        /// The content the approval notice was made for
+        /// </summary>
+        private string _noticeContent;
+
+        private string _approvalNotice;
+
+        /// <summary>
+        /// What is pending for the current recipe: what saving it will ask, or that its file waits for approval. Null when nothing is pending.
+        /// </summary>
+        public string ApprovalNotice
+        {
+            get => _approvalNotice;
+            private set
+            {
+                if (SetField(ref _approvalNotice, value))
+                {
+                    OnPropertyChanged(nameof(HasApprovalNotice));
+                    OnPropertyChanged(nameof(CanReviewApproval));
+                }
+            }
+        }
+
+        public bool HasApprovalNotice => !string.IsNullOrEmpty(_approvalNotice);
+
+        /// <summary>
+        /// The notice is about the approval of the saved file (not about saving): it can be reviewed from the editor
+        /// </summary>
+        public bool CanReviewApproval => HasApprovalNotice && !IsDirty && !string.IsNullOrEmpty(_recipeManager?.GetRecipeById(_activeRecipe?.Id)?.FilePath);
+
+        /// <summary>
+        /// Shows the approval of the recipe's file again, to switch its triggers and permissions on or off
+        /// </summary>
+        public void ReviewApproval()
+        {
+            if (_recipeManager == null || _activeRecipe == null) return;
+            if (!ConfirmDiscardChanges()) return;
+            var result = _recipeManager.ReviewApproval(_activeRecipe.Id);
+            if (result != null && !result.IsValid)
+            {
+                ThemedMessageBox.Show(string.Join("\n", result.Errors), "Recipe Permissions", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            RefreshAvailableRecipes();
+            UpdateApprovalNotice(force: true);
+        }
+
+        public string WindowTitle => _activeRecipe == null ? "Greenshot - Recipe Visual Editor" : $"{(IsDirty ? "* " : "")}{_activeRecipe.Name} - Greenshot Recipe Visual Editor";
+
+        public string TitleRecipeText => _activeRecipe == null ? "" : $"  ·  {_activeRecipe.Name}{(IsDirty ? "  (unsaved changes)" : "")}";
+
+        /// <summary>
+        /// The registered recipe selected in the recipe list; selecting another one asks what to do with unsaved changes
+        /// </summary>
+        public CaptureRecipe SelectedRecipe
+        {
+            get => _activeRecipe == null ? null : AvailableRecipes.FirstOrDefault(r => string.Equals(r.Id, _activeRecipe.Id, StringComparison.OrdinalIgnoreCase));
+            set
+            {
+                if (value == null || ReferenceEquals(value, SelectedRecipe))
+                {
+                    return;
+                }
+                if (!ConfirmDiscardChanges())
+                {
+                    // Back to the recipe which is still open, after the list finished its selection change
+                    _ = Application.Current?.Dispatcher.BeginInvoke(new Action(() => OnPropertyChanged(nameof(SelectedRecipe))));
+                    return;
+                }
+                OpenWorkingCopy(value);
+            }
+        }
+
+        /// <summary>
+        /// Opens a copy of a registered recipe for editing
+        /// </summary>
+        private void OpenWorkingCopy(CaptureRecipe registered)
+        {
+            if (registered != null && _activeRecipe != null && ReferenceEquals(registered, _activeRecipe))
+            {
+                return;
+            }
+            var copy = registered?.Clone();
+            _openedFromContent = registered == null ? null : RecipeSerializer.Serialize(registered);
+            ActiveRecipe = copy;
+            // Opening the same id again: the setter only reloads for another object, which a copy always is
+        }
+
+        /// <summary>
+        /// The recipe as it would be saved now
+        /// </summary>
+        private string GetCurrentContent()
+        {
+            if (_activeRecipe == null)
+            {
+                return null;
+            }
+            if (_extension != null)
+            {
+                return RecipeSerializer.Serialize(BuildExtension());
+            }
+            SyncRecipeTransitions();
+            _activeRecipe.Triggers = Triggers.Select(t => t.Config).ToList();
+            return RecipeSerializer.Serialize(_activeRecipe);
+        }
+
+        /// <summary>
+        /// The current state is the saved one
+        /// </summary>
+        private void MarkAsSaved()
+        {
+            _savedContent = GetCurrentContent();
+            IsDirty = false;
+            OnPropertyChanged(nameof(WindowTitle));
+            OnPropertyChanged(nameof(TitleRecipeText));
+            UpdateApprovalNotice(force: true);
+        }
+
+        /// <summary>
+        /// Compares the recipe with the saved state, shows whether there are unsaved changes and what is pending for its approval.
+        /// Called regularly by the editor window, as steps and triggers change their configuration directly.
+        /// </summary>
+        public void RefreshUnsavedState()
+        {
+            if (_activeRecipe == null)
+            {
+                IsDirty = false;
+                ApprovalNotice = null;
+                return;
+            }
+            string current = GetCurrentContent();
+            IsDirty = _savedContent == null || !string.Equals(current, _savedContent, StringComparison.Ordinal);
+            RecordHistory(current, force: false);
+            UpdateApprovalNotice(force: false, current);
+        }
+
+        /// <summary>
+        /// A state of the recipe for undo and redo (memento): its content and where its steps were on the canvas
+        /// </summary>
+        private sealed class RecipeMemento
+        {
+            public string Content { get; set; }
+            public Dictionary<string, Point> Locations { get; set; }
+        }
+
+        private const int MaxHistory = 100;
+        private readonly List<RecipeMemento> _undoHistory = new List<RecipeMemento>();
+        private readonly Stack<RecipeMemento> _redoHistory = new Stack<RecipeMemento>();
+
+        /// <summary>
+        /// The state the history is at
+        /// </summary>
+        private RecipeMemento _currentMemento;
+
+        /// <summary>
+        /// A change seen at the last check, recorded once it stopped changing (typing and dragging become one step)
+        /// </summary>
+        private string _pendingContent;
+
+        private bool _isRestoring;
+
+        public bool CanUndo => _undoHistory.Count > 0 || (_currentMemento != null && _pendingContent != null);
+
+        public bool CanRedo => _redoHistory.Count > 0;
+
+        private RecipeMemento CreateMemento(string content) => new RecipeMemento
+        {
+            Content = content,
+            Locations = Nodes.Where(n => !string.IsNullOrEmpty(n.Id)).GroupBy(n => n.Id, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(g => g.Key, g => g.First().Location, StringComparer.OrdinalIgnoreCase)
+        };
+
+        /// <summary>
+        /// The history of the other recipes opened while the editor is open, by id
+        /// </summary>
+        private readonly Dictionary<string, (List<RecipeMemento> Undo, List<RecipeMemento> Redo, RecipeMemento Current)> _keptHistories =
+            new Dictionary<string, (List<RecipeMemento>, List<RecipeMemento>, RecipeMemento)>(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Keeps the history of the recipe which is closed in the editor, for when it is opened again
+        /// </summary>
+        private void KeepHistory(string recipeId)
+        {
+            if (string.IsNullOrEmpty(recipeId) || _currentMemento == null)
+            {
+                return;
+            }
+            // Redo order: the next state to redo first
+            _keptHistories[recipeId] = (_undoHistory.ToList(), _redoHistory.ToList(), _currentMemento);
+        }
+
+        /// <summary>
+        /// Starts the history of the recipe which was opened, with what was kept from earlier in this editor
+        /// </summary>
+        private void ResetHistory()
+        {
+            _undoHistory.Clear();
+            _redoHistory.Clear();
+            _pendingContent = null;
+            _currentMemento = _activeRecipe == null ? null : CreateMemento(GetCurrentContent());
+            if (_activeRecipe != null && _keptHistories.TryGetValue(_activeRecipe.Id ?? "", out var kept))
+            {
+                _keptHistories.Remove(_activeRecipe.Id);
+                _undoHistory.AddRange(kept.Undo);
+                if (string.Equals(kept.Current.Content, _currentMemento.Content, StringComparison.Ordinal))
+                {
+                    for (int i = kept.Redo.Count - 1; i >= 0; i--)
+                    {
+                        _redoHistory.Push(kept.Redo[i]);
+                    }
+                }
+                else
+                {
+                    // It changed since (discarded changes, or saved elsewhere): undo goes back to how it was left
+                    _undoHistory.Add(kept.Current);
+                }
+                while (_undoHistory.Count > MaxHistory)
+                {
+                    _undoHistory.RemoveAt(0);
+                }
+            }
+            RaiseHistoryChanged();
+        }
+
+        /// <summary>
+        /// Records a changed recipe as a step of the history, once it stopped changing or when forced (before undo and redo)
+        /// </summary>
+        private void RecordHistory(string current, bool force)
+        {
+            if (_isRestoring || _currentMemento == null || current == null || string.Equals(current, _currentMemento.Content, StringComparison.Ordinal))
+            {
+                if (_pendingContent != null)
+                {
+                    _pendingContent = null;
+                    RaiseHistoryChanged();
+                }
+                return;
+            }
+            if (!force && !string.Equals(current, _pendingContent, StringComparison.Ordinal))
+            {
+                // Still changing: wait for the next check
+                bool wasPending = _pendingContent != null;
+                _pendingContent = current;
+                if (!wasPending)
+                {
+                    RaiseHistoryChanged();
+                }
+                return;
+            }
+            _undoHistory.Add(_currentMemento);
+            if (_undoHistory.Count > MaxHistory)
+            {
+                _undoHistory.RemoveAt(0);
+            }
+            _redoHistory.Clear();
+            _currentMemento = CreateMemento(current);
+            _pendingContent = null;
+            RaiseHistoryChanged();
+        }
+
+        private void RaiseHistoryChanged()
+        {
+            OnPropertyChanged(nameof(CanUndo));
+            OnPropertyChanged(nameof(CanRedo));
+            (UndoCommand as RelayCommand)?.RaiseCanExecuteChanged();
+            (RedoCommand as RelayCommand)?.RaiseCanExecuteChanged();
+        }
+
+        public void Undo()
+        {
+            if (_activeRecipe == null) return;
+            RecordHistory(GetCurrentContent(), force: true);
+            if (_undoHistory.Count == 0) return;
+            var target = _undoHistory[_undoHistory.Count - 1];
+            _undoHistory.RemoveAt(_undoHistory.Count - 1);
+            _redoHistory.Push(CreateMemento(_currentMemento.Content));
+            Restore(target);
+            StatusMessage = "Undone";
+        }
+
+        public void Redo()
+        {
+            if (_activeRecipe == null) return;
+            RecordHistory(GetCurrentContent(), force: true);
+            if (_redoHistory.Count == 0) return;
+            var target = _redoHistory.Pop();
+            _undoHistory.Add(CreateMemento(_currentMemento.Content));
+            Restore(target);
+            StatusMessage = "Redone";
+        }
+
+        /// <summary>
+        /// Puts a state of the history into the editor; the recipe keeps its file and what was saved
+        /// </summary>
+        private void Restore(RecipeMemento memento)
+        {
+            var previous = _activeRecipe;
+            CaptureRecipe restored;
+            if (_extension != null)
+            {
+                // An automatic step: its state is its JSON
+                var restoredExtension = RecipeSerializer.DeserializeExtension(memento.Content, validate: false);
+                restoredExtension.FilePath = previous.FilePath;
+                restoredExtension.IsBuiltIn = _extension.IsBuiltIn;
+                restoredExtension.IsOverridden = _extension.IsOverridden;
+                restoredExtension.ProposedBy = _extension.ProposedBy;
+                _extension = restoredExtension;
+                restored = restoredExtension.AsRecipeView();
+                _openingExtension = true;
+            }
+            else
+            {
+                restored = RecipeSerializer.Deserialize(memento.Content, validate: false);
+                restored.FilePath = previous.FilePath;
+                restored.IsBuiltIn = previous.IsBuiltIn;
+                restored.IsOverridden = previous.IsOverridden;
+                restored.IsEnabled = previous.IsEnabled;
+                restored.ProposedBy = previous.ProposedBy;
+            }
+            string savedContent = _savedContent;
+            _isRestoring = true;
+            try
+            {
+                ActiveRecipe = restored;
+                foreach (var node in Nodes)
+                {
+                    if (!string.IsNullOrEmpty(node.Id) && memento.Locations.TryGetValue(node.Id, out var location))
+                    {
+                        node.Location = location;
+                    }
+                }
+            }
+            finally
+            {
+                _isRestoring = false;
+                _openingExtension = false;
+            }
+            _savedContent = savedContent;
+            // The restored content as the editor writes it, so it isn't recorded as a new change
+            _currentMemento = CreateMemento(GetCurrentContent());
+            _pendingContent = null;
+            RefreshUnsavedState();
+            RaiseHistoryChanged();
+        }
+
+        private void UpdateApprovalNotice(bool force, string current = null)
+        {
+            if (_recipeManager == null || _activeRecipe == null || _extension != null)
+            {
+                // An automatic step: saving asks when its change needs a decision
+                ApprovalNotice = null;
+                return;
+            }
+            current ??= GetCurrentContent();
+            // The notice is about saving for unsaved changes, about the file otherwise
+            string noticeKey = (IsDirty ? "unsaved:" : "saved:") + current;
+            if (!force && string.Equals(noticeKey, _noticeContent, StringComparison.Ordinal))
+            {
+                return;
+            }
+            _noticeContent = noticeKey;
+            try
+            {
+                ApprovalNotice = IsDirty ? DescribeSaveDecision() : DescribePendingApproval();
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Could not check the approval of the recipe in the editor.", ex);
+                ApprovalNotice = null;
+            }
+        }
+
+        private string DescribeSaveDecision()
+        {
+            var reasons = _recipeManager.GetSaveDecisionReasons(_activeRecipe, _activeRecipe.FilePath);
+            return reasons.Count == 0 ? null : "Saving asks for your approval: " + string.Join(" ", reasons.Select(r => r.TrimEnd('.') + "."));
+        }
+
+        private string DescribePendingApproval()
+        {
+            var registered = _recipeManager.GetRecipeById(_activeRecipe.Id);
+            if (registered == null)
+            {
+                return null;
+            }
+            if (!string.IsNullOrEmpty(registered.FilePath) && File.Exists(registered.FilePath))
+            {
+                var details = _recipeManager.GetRecipeDetails(registered.Id);
+                if (details != null && !details.IsApprovalCurrent)
+                {
+                    return details.ApprovedHash == null
+                        ? "This recipe file isn't approved yet. Greenshot asks for your approval before it runs."
+                        : "This recipe file changed outside Greenshot. Greenshot asks for your approval before it runs.";
+                }
+            }
+            int switchedOff = registered.Triggers?.Count(t => t != null && t.Enabled && !t.IsApproved) ?? 0;
+            if (switchedOff > 0)
+            {
+                // Name them: "off" alone reads like a bug when the switch was simply left off in the approval
+                const string offSuffix = " (off, not approved)";
+                var names = _recipeManager.GetRecipeDetails(registered.Id)?.Triggers?
+                    .Where(t => t.EndsWith(offSuffix, StringComparison.Ordinal))
+                    .Select(t => "\"" + t.Substring(0, t.Length - offSuffix.Length) + "\"")
+                    .ToList() ?? new List<string>();
+                string which = names.Count > 0 ? ": " + string.Join(", ", names) : "";
+                return switchedOff == 1
+                    ? $"1 trigger was left off when this recipe was approved{which}. Review the approval to switch it on."
+                    : $"{switchedOff} triggers were left off when this recipe was approved{which}. Review the approval to switch them on.";
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Asks what to do with unsaved changes: save them, discard them, or cancel. True when the editor can go on (saved or discarded).
+        /// </summary>
+        public bool ConfirmDiscardChanges()
+        {
+            RefreshUnsavedState();
+            if (!IsDirty || _activeRecipe == null)
+            {
+                return true;
+            }
+            int answer = ThemedMessageBox.ShowChoice(null, "Unsaved Changes", $"\"{_activeRecipe.Name}\" has unsaved changes. Do you want to save them?",
+                MessageBoxImage.Warning, new[] { "Save", "Don't Save", "Cancel" }, defaultIndex: 0, cancelIndex: 2);
+            switch (answer)
+            {
+                case 0:
+                    return TrySaveRecipe();
+                case 1:
+                    // The changes were only made on the copy, the registered recipe is unchanged
+                    _savedContent = GetCurrentContent();
+                    IsDirty = false;
+                    return true;
+                default:
+                    return false;
+            }
         }
 
         public string RawJsonText
@@ -253,6 +745,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public ICommand OpenRecipeCommand { get; }
         public ICommand SaveRecipeCommand { get; }
         public ICommand SaveAsCommand { get; }
+        public ICommand UndoCommand { get; }
+        public ICommand ReviewApprovalCommand { get; }
+        public ICommand RedoCommand { get; }
         public ICommand AutoLayoutCommand { get; }
         public ICommand TestRunCommand { get; }
         public ICommand DeleteSelectedCommand { get; }
@@ -284,6 +779,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OpenRecipeCommand = new RelayCommand(OpenRecipeDialog);
             SaveRecipeCommand = new RelayCommand(SaveRecipe);
             SaveAsCommand = new RelayCommand(SaveAsRecipe);
+            UndoCommand = new RelayCommand(Undo, () => CanUndo);
+            ReviewApprovalCommand = new RelayCommand(ReviewApproval);
+            RedoCommand = new RelayCommand(Redo, () => CanRedo);
             AutoLayoutCommand = new RelayCommand(PerformAutoLayout);
             TestRunCommand = new RelayCommand(() => AsyncCommand.Run(ExecuteTestRunAsync, "Recipe test run"));
             DeleteSelectedCommand = new RelayCommand(DeleteSelected, () => SelectedNode != null || SelectedConnection != null);
@@ -314,10 +812,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
             if (_recipeManager != null)
             {
-                _recipeManager.RecipesChanged += (s, e) =>
-                {
-                    UiDispatcher.Current.InvokeAsync(RefreshAvailableRecipes).FireAndLog("Refresh the available recipes");
-                };
+                _recipeManager.RecipesChanged += OnRecipesChanged;
             }
 
             DisconnectConnectorCommand = new RelayCommand(p =>
@@ -404,6 +899,22 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
         }
 
+        private void OnRecipesChanged(object sender, EventArgs e)
+        {
+            UiDispatcher.Current.InvokeAsync(RefreshAvailableRecipes).FireAndLog("Refresh the available recipes");
+        }
+
+        /// <summary>
+        /// The editor window closed: stop following the recipe manager
+        /// </summary>
+        public void Detach()
+        {
+            if (_recipeManager != null)
+            {
+                _recipeManager.RecipesChanged -= OnRecipesChanged;
+            }
+        }
+
         public void RefreshAvailableRecipes()
         {
             string currentId = ActiveRecipe?.Id;
@@ -414,22 +925,34 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 AvailableRecipes.Add(r);
             }
 
+            RefreshUnsavedState();
             if (!string.IsNullOrEmpty(currentId))
             {
                 var match = AvailableRecipes.FirstOrDefault(r => string.Equals(r.Id, currentId, StringComparison.OrdinalIgnoreCase));
-                if (match != null)
+                if (IsDirty)
                 {
-                    ActiveRecipe = match;
+                    // Unsaved changes stay in the editor, also when the recipe changed or was removed elsewhere
                 }
-                else if (AvailableRecipes.Count > 0)
+                else if (match != null)
                 {
-                    ActiveRecipe = AvailableRecipes[0];
+                    // Show the registered recipe when it changed elsewhere (reset, approval, another save)
+                    if (!string.Equals(RecipeSerializer.Serialize(match), _openedFromContent, StringComparison.Ordinal))
+                    {
+                        OpenWorkingCopy(match);
+                    }
+                }
+                else if (_savedContent != null && AvailableRecipes.Count > 0)
+                {
+                    OpenWorkingCopy(AvailableRecipes[0]);
                 }
             }
             else if (ActiveRecipe == null && AvailableRecipes.Count > 0)
             {
-                ActiveRecipe = AvailableRecipes[0];
+                OpenWorkingCopy(AvailableRecipes[0]);
             }
+
+            OnPropertyChanged(nameof(SelectedRecipe));
+            UpdateApprovalNotice(force: true);
 
             OnPropertyChanged(nameof(IsActiveRecipeEnabled));
             OnPropertyChanged(nameof(ActiveRecipeStatusText));
@@ -441,10 +964,15 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public void SelectRecipeById(string recipeId)
         {
             if (string.IsNullOrWhiteSpace(recipeId)) return;
-            var found = AvailableRecipes.FirstOrDefault(r => string.Equals(r.Id, recipeId, StringComparison.OrdinalIgnoreCase));
-            if (found != null)
+            if (string.Equals(ActiveRecipe?.Id, recipeId, StringComparison.OrdinalIgnoreCase))
             {
-                ActiveRecipe = found;
+                // Already open, with its changes
+                return;
+            }
+            var found = AvailableRecipes.FirstOrDefault(r => string.Equals(r.Id, recipeId, StringComparison.OrdinalIgnoreCase));
+            if (found != null && ConfirmDiscardChanges())
+            {
+                OpenWorkingCopy(found);
             }
         }
 
@@ -454,6 +982,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             Connections.Clear();
             SelectedNode = null;
 
+            LoadOptions(recipe);
             if (recipe == null)
             {
                 Triggers.Clear();
@@ -473,6 +1002,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 var vm = new StepNodeViewModel(nodeConfig, new Point(defaultX, defaultY), SetStartNode, DeleteNode, HandleNodeIdChanged, OnNodeStartToggled);
                 vm.RecipeNameProvider = () => RecipeTitle;
+                vm.SlotExtensionsProvider = GetSlotExtensions;
                 vm.OtherNodesProvider = () => Nodes.Where(n => n != vm);
                 vm.AvailableRecipesProvider = () => AvailableRecipes;
                 if (hasExplicitStarts)
@@ -482,6 +1012,13 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 Nodes.Add(vm);
                 nodeMap[nodeConfig.Id] = vm;
                 defaultY += 140;
+            }
+
+            // An automatic step: In and Out show where it starts and where the recipe goes on
+            if (_extension != null)
+            {
+                AddBoundaryNodes(recipe, nodeMap);
+                hasExplicitStarts = true;
             }
 
             // If no explicit start nodes were defined, infer start nodes from graph topology
@@ -581,8 +1118,18 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 }
             }
 
-            // Apply DagAutoLayout
+            // An automatic step: its last steps lead to Out (they do so anyway, the arrow shows it)
+            if (_extension != null)
+            {
+                ConnectEndsToOut();
+            }
+
+            // Apply DagAutoLayout, and again once the steps are drawn and their real height is known
             PerformAutoLayout();
+            if (!_isRestoring)
+            {
+                ScheduleAutoLayout();
+            }
             ValidateGraphCycles();
             IsDirty = false;
             StatusMessage = $"Loaded recipe '{recipe.Name}' ({recipe.Nodes.Count} steps, {Triggers.Count} triggers)";
@@ -674,6 +1221,13 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 config.Parameters["Browser"] = "";
                 config.Parameters["FireAndForget"] = false;
+            }
+            else if (string.Equals(type, TriggerConfig.TypeAiTool, StringComparison.OrdinalIgnoreCase))
+            {
+                config.Parameters["ToolName"] = new string((ActiveRecipe?.Id ?? "my_tool").Select(c => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-' ? c : '_').Take(64).ToArray());
+                config.Parameters["Title"] = ActiveRecipe?.Name ?? "My tool";
+                config.Parameters["Description"] = ActiveRecipe?.Description ?? "";
+                config.Parameters["ReadOnly"] = true;
             }
 
             var item = new TriggerItemViewModel(config, SyncTriggersToRecipe, RemoveTrigger);
@@ -785,22 +1339,94 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
         }
 
+        /// <summary>
+        /// Distance between two steps one under the other
+        /// </summary>
+        private const double StepSpacing = 140;
+
+        /// <summary>
+        /// Adds a step from the toolbox: into the selected connection, after the selected step (its next steps follow the
+        /// new one), or on its own below the others.
+        /// </summary>
         public void AddStep(string stepType)
         {
             if (string.IsNullOrEmpty(stepType)) return;
 
-            string id = $"{stepType.ToLowerInvariant()}_{Guid.NewGuid().ToString("N").Substring(0, 4)}";
-            var config = new RecipeNodeConfig(id, stepType, stepType);
-            
-            // Set defaults
-            SetDefaultParametersForStep(config);
+            if (SelectedConnection != null && Connections.Contains(SelectedConnection))
+            {
+                InsertStepIntoConnection(SelectedConnection, stepType);
+                return;
+            }
+            if (SelectedNode != null && Nodes.Contains(SelectedNode) && !SelectedNode.HasDynamicOutputPorts && !SelectedNode.IsOutNode)
+            {
+                InsertStepAfter(SelectedNode, stepType);
+                return;
+            }
 
             // Position at center below existing nodes
-            double x = 350;
-            double y = Nodes.Count > 0 ? Nodes.Max(n => n.Location.Y) + 140 : 100;
+            double y = Nodes.Count > 0 ? Nodes.Max(n => n.Location.Y) + StepSpacing : 100;
+            var nodeVm = CreateStepNode(stepType, new Point(350, y), null, null);
+            SelectedNode = nodeVm;
+            StatusMessage = $"Added step: {stepType}";
+        }
 
-            var nodeVm = new StepNodeViewModel(config, new Point(x, y), SetStartNode, DeleteNode, HandleNodeIdChanged, OnNodeStartToggled);
+        /// <summary>
+        /// Puts a new step between the two steps of the connection: A -> B becomes A -> new -> B
+        /// </summary>
+        public void InsertStepIntoConnection(StepConnectionViewModel connection, string stepType)
+        {
+            if (connection == null || string.IsNullOrEmpty(stepType) || !Connections.Contains(connection)) return;
+            var source = connection.Source;
+            var target = connection.Target;
+            var nodeVm = CreateStepNode(stepType, target.Node.Location, source.Node, target.Node);
+
+            PutNodeIntoConnection(connection, nodeVm);
+            StatusMessage = $"Inserted {stepType} between '{source.Node.DisplayName}' and '{target.Node.DisplayName}'";
+        }
+
+        /// <summary>
+        /// Puts a new step right after the step: its next steps follow the new one
+        /// </summary>
+        public void InsertStepAfter(StepNodeViewModel previous, string stepType)
+        {
+            if (previous == null || string.IsNullOrEmpty(stepType)) return;
+            var outgoing = Connections.Where(c => c.Source == previous.OutputPort).ToList();
+            var location = new Point(previous.Location.X, previous.Location.Y + StepSpacing);
+            var nodeVm = CreateStepNode(stepType, location, previous, outgoing.Count == 1 ? outgoing[0].TargetNode : null);
+
+            foreach (var connection in outgoing)
+            {
+                var target = connection.Target;
+                RemoveConnection(connection);
+                // A decision: each of its branches leads to the next step until it is changed
+                foreach (var port in GetOutgoingPorts(nodeVm))
+                {
+                    Connect(port, target);
+                }
+            }
+            Connect(previous.OutputPort, nodeVm.InputPort);
+            SelectedNode = nodeVm;
+            ScheduleAutoLayout();
+            StatusMessage = $"Inserted {stepType} after '{previous.DisplayName}'";
+        }
+
+        private StepNodeViewModel CreateStepNode(string stepType, Point location, StepNodeViewModel previous, StepNodeViewModel next)
+        {
+            string id = $"{stepType.ToLowerInvariant()}_{Guid.NewGuid().ToString("N").Substring(0, 4)}";
+            var config = new RecipeNodeConfig(id, stepType, stepType);
+
+            // Set defaults
+            SetDefaultParametersForStep(config);
+            if (string.Equals(stepType, WellKnownStepTypes.Slot, StringComparison.OrdinalIgnoreCase))
+            {
+                string slotName = GuessSlotName(previous, next);
+                config.Set("Name", slotName);
+                config.Name = slotName;
+            }
+
+            var nodeVm = new StepNodeViewModel(config, location, SetStartNode, DeleteNode, HandleNodeIdChanged, OnNodeStartToggled);
             nodeVm.RecipeNameProvider = () => RecipeTitle;
+            nodeVm.SlotExtensionsProvider = GetSlotExtensions;
             nodeVm.OtherNodesProvider = () => Nodes.Where(n => n != nodeVm);
             nodeVm.AvailableRecipesProvider = () => AvailableRecipes;
             if (Nodes.Count == 0)
@@ -814,15 +1440,28 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 ActiveRecipe.Nodes.Add(config);
             }
-
-            SelectedNode = nodeVm;
             IsDirty = true;
-            StatusMessage = $"Added step: {stepType}";
+            return nodeVm;
         }
 
+        /// <summary>
+        /// The slot which fits where a slot is put: after an export AfterExport, before an export BeforeExport, otherwise AfterCapture
+        /// </summary>
+        private static string GuessSlotName(StepNodeViewModel previous, StepNodeViewModel next)
+        {
+            if (previous != null && WellKnownStepTypes.IsDestination(previous.StepType)) return RecipeSlots.AfterExport;
+            if (next != null && WellKnownStepTypes.IsDestination(next.StepType)) return RecipeSlots.BeforeExport;
+            return RecipeSlots.AfterCapture;
+        }
         private void HandleNodeIdChanged(StepNodeViewModel node, string oldId, string newId)
         {
             if (node == null || string.IsNullOrWhiteSpace(newId) || string.Equals(oldId, newId, StringComparison.OrdinalIgnoreCase)) return;
+            if (node.IsBoundary)
+            {
+                node.ResetId(oldId);
+                StatusMessage = "In and Out keep their names.";
+                return;
+            }
 
             // Check for collision with another node
             bool duplicate = Nodes.Any(n => n != node && string.Equals(n.Id, newId, StringComparison.OrdinalIgnoreCase));
@@ -888,6 +1527,11 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public void DeleteNode(StepNodeViewModel nodeToDelete)
         {
             if (nodeToDelete == null) return;
+            if (nodeToDelete.IsBoundary)
+            {
+                StatusMessage = "In and Out belong to the automatic step, they can't be deleted.";
+                return;
+            }
             var connsToRemove = Connections.Where(c => c.SourceNode == nodeToDelete || c.TargetNode == nodeToDelete).ToList();
             foreach (var c in connsToRemove)
             {
@@ -942,11 +1586,22 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             if (ActiveRecipe?.Flow == null) return;
             var transitions = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
             var conditionalTransitions = new List<RecipeConditionalTransitionConfig>();
+            var extensionStarts = new List<string>();
 
             foreach (var c in Connections)
             {
                 if (c.SourceNode != null && c.TargetNode != null)
                 {
+                    // In: the start steps of an automatic step; connections to Out are transitions to "Out"
+                    if (c.SourceNode.IsInNode)
+                    {
+                        if (!c.TargetNode.IsBoundary) extensionStarts.Add(c.TargetNode.Id);
+                        continue;
+                    }
+                    if (c.SourceNode.IsOutNode || c.TargetNode.IsInNode)
+                    {
+                        continue;
+                    }
                     var branch = c.SourceNode.ConditionBranches.FirstOrDefault(b => b.Port == c.Source);
                     var promptChoice = c.SourceNode.PromptChoices.FirstOrDefault(p => p.Port == c.Source);
                     if (branch != null)
@@ -972,7 +1627,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 }
             }
 
-            ActiveRecipe.Flow.StartNodes = Nodes.Where(n => n.IsStartNode).Select(n => n.Id).ToList();
+            ActiveRecipe.Flow.StartNodes = _extension != null
+                ? extensionStarts.Distinct(StringComparer.OrdinalIgnoreCase).ToList()
+                : Nodes.Where(n => n.IsStartNode).Select(n => n.Id).ToList();
             ActiveRecipe.Flow.Transitions = transitions;
             ActiveRecipe.Flow.ConditionalTransitions = conditionalTransitions;
             ActiveRecipe.Flow.ErrorTransitions = ErrorTransitions.Select(e => e.ToConfig()).ToList();
@@ -980,7 +1637,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         private void ValidateGraphCycles()
         {
-            var valResult = RecipeValidator.Validate(ActiveRecipe);
+            var valResult = _extension != null ? RecipeValidator.Validate(BuildExtension(sync: false)) : RecipeValidator.Validate(ActiveRecipe);
             bool hasCycle = !valResult.IsValid && valResult.Errors.Any(e => e.IndexOf("cycle", StringComparison.OrdinalIgnoreCase) >= 0);
 
             foreach (var c in Connections) c.IsCycle = hasCycle;
@@ -1026,8 +1683,37 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             StatusMessage = "Removed recipe error fallback route";
         }
 
+        /// <summary>
+        /// The extensions which plug into a slot of the recipe, by order: they target the recipe and the slot accepts them.
+        /// Shown greyed out on the slot; "(off)" when the user switched it off or not for this recipe.
+        /// </summary>
+        private IReadOnlyList<string> GetSlotExtensions(StepNodeViewModel node)
+        {
+            string slotName = RecipeSlots.GetSlotName(node?.Config);
+            var recipe = _activeRecipe;
+            if (slotName == null || recipe == null || _recipeManager == null) return Array.Empty<string>();
+            try
+            {
+                return _recipeManager.GetAllExtensions()
+                    .Where(e => e.SlotName == slotName && RecipeSlots.Accepts(node.Config, e.Id) && RecipeComposer.Targets(e, recipe))
+                    .OrderBy(e => e.Extends.Order).ThenBy(e => e.Id, StringComparer.OrdinalIgnoreCase)
+                    .Select(e =>
+                    {
+                        string name = RecipeText.Translate(e.Name ?? e.Id);
+                        return RecipeExtensionSettings.FromStore(e).AllowsRecipe(recipe.Id) ? name : $"{name} (off)";
+                    })
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                Log.Debug("Couldn't find the extensions of a slot", ex);
+                return Array.Empty<string>();
+            }
+        }
+
         public void NewRecipe()
         {
+            if (!ConfirmDiscardChanges()) return;
             var recipe = new CaptureRecipe(
                 $"recipe_{Guid.NewGuid().ToString("N").Substring(0, 6)}",
                 "New Custom Workflow",
@@ -1039,9 +1725,14 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             recipe.Flow = new RecipeFlowConfig("acquire")
                 .AddTransition("acquire", "feedback")
                 .AddTransition("feedback", "export");
+            // New recipes accept extensions (border, drop shadow, caption, ...) like the built-in capture recipes
+            RecipeStepConfig.AddStandardSlots(recipe, "export", "export");
 
             ErrorTransitions.Clear();
+            _openedFromContent = null;
             ActiveRecipe = recipe;
+            // Never saved: unsaved until it is
+            _savedContent = null;
             IsDirty = true;
             StatusMessage = "Created new recipe.";
         }
@@ -1059,7 +1750,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 () =>
                 {
                     NewRecipe();
-                });
+                },
+                OpenExtension);
 
             var dlg = new Dialogs.RecipeManagerDialog(vm)
             {
@@ -1076,16 +1768,24 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public void UnloadActiveRecipe()
         {
             if (!CanUnloadActiveRecipe || ActiveRecipe == null) return;
+            RefreshUnsavedState();
 
             string title = ActiveRecipe.IsOverridden ? "Reset Recipe to Default" : "Unload Recipe";
             string msg = ActiveRecipe.IsOverridden
                 ? $"Revert '{ActiveRecipe.Name}' to default built-in definition?"
                 : $"Unload '{ActiveRecipe.Name}' from Greenshot?";
 
-            if (MessageBox.Show(msg, title, MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+            if (IsDirty)
+            {
+                msg += "\n\nYour unsaved changes are discarded.";
+            }
+            if (ThemedMessageBox.Show(msg, title, MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
             {
                 return;
             }
+            // Discarded: what Greenshot has after this is shown
+            _savedContent = GetCurrentContent();
+            IsDirty = false;
 
             string recipeId = ActiveRecipe.Id;
             if (ActiveRecipe.IsOverridden)
@@ -1097,16 +1797,12 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 _recipeManager?.UnregisterRecipe(recipeId);
             }
 
+            // Shows the built-in recipe after a reset, or the first recipe after an unload
+            _openedFromContent = null;
             RefreshAvailableRecipes();
-            if (AvailableRecipes.Count > 0)
+            if (AvailableRecipes.Count == 0)
             {
-                var target = AvailableRecipes.FirstOrDefault(r => string.Equals(r.Id, recipeId, StringComparison.OrdinalIgnoreCase))
-                             ?? AvailableRecipes[0];
-                ActiveRecipe = target;
-            }
-            else
-            {
-                ActiveRecipe = null;
+                OpenWorkingCopy(null);
             }
 
             StatusMessage = $"Unloaded recipe '{recipeId}'.";
@@ -1120,7 +1816,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 Title = "Open Greenshot Recipe"
             };
 
-            if (dlg.ShowDialog() == true)
+            if (dlg.ShowDialog() == true && ConfirmDiscardChanges())
             {
                 try
                 {
@@ -1130,8 +1826,14 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                         if (!valResult.IsValid)
                         {
                             string msg = $"Recipe failed validation:\n" + string.Join("\n", valResult.Errors);
-                            MessageBox.Show(msg, "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            ThemedMessageBox.Show(msg, "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                             StatusMessage = $"Recipe failed validation: {Path.GetFileName(dlg.FileName)}";
+                        }
+                        else if (_recipeManager.GetAllExtensions().FirstOrDefault(e => string.Equals(e.FilePath, Path.GetFullPath(dlg.FileName), StringComparison.OrdinalIgnoreCase)) is RecipeExtension loadedExtension)
+                        {
+                            // An automatic step file
+                            OpenExtensionCopy(loadedExtension, RecipeSerializer.Serialize(loadedExtension));
+                            StatusMessage = $"Loaded and registered automatic step: {Path.GetFileName(dlg.FileName)}";
                         }
                         else
                         {
@@ -1140,7 +1842,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                                               ?? AvailableRecipes.LastOrDefault();
                             if (newlyLoaded != null)
                             {
-                                ActiveRecipe = newlyLoaded;
+                                OpenWorkingCopy(newlyLoaded);
                             }
                             StatusMessage = $"Loaded and registered: {Path.GetFileName(dlg.FileName)}";
                         }
@@ -1152,7 +1854,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                         if (!valResult.IsValid)
                         {
                             string msg = $"Recipe failed validation:\n" + string.Join("\n", valResult.Errors);
-                            MessageBox.Show(msg, "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            ThemedMessageBox.Show(msg, "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                             StatusMessage = $"Recipe failed validation: {Path.GetFileName(dlg.FileName)}";
                         }
                         else
@@ -1165,39 +1867,86 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Failed to load recipe:\n{ex.Message}", "Error Loading Recipe", MessageBoxButton.OK, MessageBoxImage.Error);
+                    ThemedMessageBox.Show($"Failed to load recipe:\n{ex.Message}", "Error Loading Recipe", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
 
-        public void SaveRecipe()
+        public void SaveRecipe() => TrySaveRecipe();
+
+        /// <summary>
+        /// Saves the recipe, to a new file when it has none. False when it wasn't saved.
+        /// </summary>
+        public bool TrySaveRecipe()
         {
-            if (ActiveRecipe == null) return;
+            if (ActiveRecipe == null) return false;
             SyncRecipeTransitions();
             SyncTriggersToRecipe();
 
             if (string.IsNullOrEmpty(ActiveRecipe.FilePath))
             {
-                SaveAsRecipe();
-                return;
+                return TrySaveAsRecipe();
             }
 
             try
             {
-                RecipeSerializer.SaveToFile(ActiveRecipe, ActiveRecipe.FilePath);
-                _recipeManager?.RegisterRecipe(ActiveRecipe);
-                IsDirty = false;
+                if (!SaveActiveRecipeTo(ActiveRecipe.FilePath)) return false;
                 StatusMessage = $"Saved recipe to {Path.GetFileName(ActiveRecipe.FilePath)}";
+                return true;
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to save recipe:\n{ex.Message}", "Error Saving Recipe", MessageBoxButton.OK, MessageBoxImage.Error);
+                ThemedMessageBox.Show($"Failed to save recipe:\n{ex.Message}", "Error Saving Recipe", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
             }
         }
 
-        public void SaveAsRecipe()
+        /// <summary>
+        /// Saves the recipe through the recipe manager, which renews its approval for exactly the saved content (and asks only when
+        /// the change adds something that needs a decision). False when it wasn't saved.
+        /// </summary>
+        private bool SaveActiveRecipeTo(string filePath)
         {
-            if (ActiveRecipe == null) return;
+            if (_extension != null)
+            {
+                return SaveActiveExtensionTo(filePath);
+            }
+            if (_recipeManager == null)
+            {
+                RecipeSerializer.SaveToFile(ActiveRecipe, filePath);
+                ActiveRecipe.FilePath = filePath;
+                MarkAsSaved();
+                return true;
+            }
+            // The manager registers what it saves: give it a copy, the editor keeps working on its own
+            var saved = ActiveRecipe.Clone();
+            var result = _recipeManager.SaveRecipeToFile(saved, filePath);
+            if (!result.IsValid)
+            {
+                ThemedMessageBox.Show(string.Join("\n", result.Errors), "Recipe Not Saved", MessageBoxButton.OK, MessageBoxImage.Warning);
+                StatusMessage = "The recipe was not saved.";
+                return false;
+            }
+            ActiveRecipe.FilePath = saved.FilePath;
+            ActiveRecipe.IsBuiltIn = saved.IsBuiltIn;
+            ActiveRecipe.IsOverridden = saved.IsOverridden;
+            ActiveRecipe.ProposedBy = saved.ProposedBy;
+            _openedFromContent = RecipeSerializer.Serialize(saved);
+            MarkAsSaved();
+            OnPropertyChanged(nameof(CanUnloadActiveRecipe));
+            OnPropertyChanged(nameof(UnloadActiveRecipeText));
+            OnPropertyChanged(nameof(UnloadActiveRecipeToolTip));
+            return true;
+        }
+
+        public void SaveAsRecipe() => TrySaveAsRecipe();
+
+        /// <summary>
+        /// Saves the recipe to a file the user picks. False when it wasn't saved.
+        /// </summary>
+        public bool TrySaveAsRecipe()
+        {
+            if (ActiveRecipe == null) return false;
             SyncRecipeTransitions();
             SyncTriggersToRecipe();
 
@@ -1212,28 +1961,33 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 try
                 {
-                    ActiveRecipe.FilePath = dlg.FileName;
-                    RecipeSerializer.SaveToFile(ActiveRecipe, dlg.FileName);
-                    _recipeManager?.RegisterRecipe(ActiveRecipe);
-                    IsDirty = false;
+                    if (!SaveActiveRecipeTo(dlg.FileName)) return false;
                     StatusMessage = $"Saved recipe to {Path.GetFileName(dlg.FileName)}";
+                    return true;
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Failed to save recipe:\n{ex.Message}", "Error Saving Recipe", MessageBoxButton.OK, MessageBoxImage.Error);
+                    ThemedMessageBox.Show($"Failed to save recipe:\n{ex.Message}", "Error Saving Recipe", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
+            return false;
         }
 
         public async Task ExecuteTestRunAsync()
         {
             if (ActiveRecipe == null) return;
+            if (_extension != null)
+            {
+                ThemedMessageBox.Show("An automatic step runs inside the recipes it changes: save it, switch it on in Settings > Recipes and test run one of those recipes.",
+                    "Test Run", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
             SyncRecipeTransitions();
 
             var valResult = RecipeValidator.Validate(ActiveRecipe);
             if (!valResult.IsValid)
             {
-                MessageBox.Show($"Cannot test run recipe. Fix validation errors first:\n\n{string.Join("\n", valResult.Errors)}", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ThemedMessageBox.Show($"Cannot test run recipe. Fix validation errors first:\n\n{string.Join("\n", valResult.Errors)}", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -1252,7 +2006,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             catch (Exception ex)
             {
                 StatusMessage = $"Test run error: {ex.Message}";
-                MessageBox.Show($"Recipe execution encountered an error:\n{ex.Message}", "Execution Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                ThemedMessageBox.Show($"Recipe execution encountered an error:\n{ex.Message}", "Execution Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -1261,7 +2015,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             if (!IsJsonViewVisible)
             {
                 SyncRecipeTransitions();
-                RawJsonText = RecipeSerializer.Serialize(ActiveRecipe);
+                RawJsonText = _extension != null ? RecipeSerializer.Serialize(BuildExtension()) : RecipeSerializer.Serialize(ActiveRecipe);
                 IsJsonViewVisible = true;
                 IsMermaidViewVisible = false;
             }
@@ -1275,15 +2029,51 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         {
             try
             {
+                if (_extension != null)
+                {
+                    ApplyExtensionJson();
+                    return;
+                }
                 var parsed = RecipeSerializer.Deserialize(RawJsonText);
-                ActiveRecipe = parsed;
+                // The same recipe, changed: it keeps its file and what was saved
+                var previous = ActiveRecipe;
+                if (previous != null)
+                {
+                    parsed.FilePath = previous.FilePath;
+                    parsed.IsBuiltIn = previous.IsBuiltIn;
+                    parsed.IsOverridden = previous.IsOverridden;
+                    parsed.IsEnabled = previous.IsEnabled;
+                    parsed.ProposedBy = previous.ProposedBy;
+                }
+                string savedContent = _savedContent;
+                RecordHistory(GetCurrentContent(), force: true);
+                var memento = _currentMemento;
+                var undo = _undoHistory.ToList();
+                _isRestoring = true;
+                try
+                {
+                    ActiveRecipe = parsed;
+                }
+                finally
+                {
+                    _isRestoring = false;
+                }
+                _savedContent = savedContent;
+                // Undo goes back to the recipe before the JSON was applied
+                if (memento != null)
+                {
+                    _undoHistory.Clear();
+                    _undoHistory.AddRange(undo);
+                    _currentMemento = memento;
+                }
                 IsJsonViewVisible = false;
-                IsDirty = true;
+                RefreshUnsavedState();
+                RecordHistory(GetCurrentContent(), force: true);
                 StatusMessage = "Applied recipe JSON changes.";
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Invalid JSON syntax or schema:\n{ex.Message}", "JSON Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                ThemedMessageBox.Show($"Invalid JSON syntax or schema:\n{ex.Message}", "JSON Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -1383,7 +2173,11 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     else if (string.Equals(t.TriggerType, TriggerConfig.TypeExtension, StringComparison.OrdinalIgnoreCase))
                     {
                         string browser = t.GetParameter<string>("Browser", "");
-                        tLabel = string.IsNullOrEmpty(browser) ? "🌐 Browser Extension" : $"🌐 Extension ({browser})";
+                        tLabel = string.IsNullOrEmpty(browser) ? "🌐 Browser Extension" : $"🌐 Browser Extension ({browser})";
+                    }
+                    else if (string.Equals(t.TriggerType, TriggerConfig.TypeAiTool, StringComparison.OrdinalIgnoreCase))
+                    {
+                        tLabel = $"🤖 AI tool: {t.GetParameter<string>("ToolName", t.Name ?? "tool")}";
                     }
                     else
                     {
@@ -1646,6 +2440,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     break;
                 case WellKnownStepTypes.Processors:
                     dict["ProcessorIds"] = new List<string>();
+                    break;
+                case WellKnownStepTypes.Slot:
+                    dict["Name"] = RecipeSlots.BeforeExport;
                     break;
                 case "ExternalCommand":
                     dict["CommandLine"] = "cmd.exe";

@@ -36,7 +36,7 @@ namespace Greenshot.Helpers.Ipc
     /// <remarks>
     /// Handlers always reply with JSON-shaped objects: streaming chunks <c>{stream, text}</c> and one final reply
     /// <c>{status, exit_code, stdout, stderr, ...}</c>. For connections that announced <c>reply_format: "text"</c> in their HELLO
-    /// (greenshot.com / greenshot-proxy.exe) these are translated to text frames, so the executables never parse JSON:
+    /// (greenshot-cli.exe / greenshot-proxy.exe) these are translated to text frames, so the executables never parse JSON:
     /// <c>'O' + UTF-8</c> (stdout), <c>'E' + UTF-8</c> (stderr) and <c>'X' + int32 exit code</c> (end of the reply).
     /// With <c>--json</c> the final reply object itself is sent as stdout text.
     /// </remarks>
@@ -71,6 +71,13 @@ namespace Greenshot.Helpers.Ipc
         /// Origin of the calling browser extension, as announced in the connection's HELLO frame (native messaging only).
         /// </summary>
         public string ConnectionOrigin { get; set; }
+
+#if !GREENSHOT_LIGHT
+        /// <summary>
+        /// Source "mcp" only: the program which uses Greenshot through greenshot-mcp.exe, as identified by Greenshot (see <see cref="AiToolCaller"/>).
+        /// </summary>
+        public AiToolClient AiClient { get; set; }
+#endif
 
         /// <summary>
         /// True when the connection announced text replies (terminal / shell) instead of JSON.
@@ -115,6 +122,9 @@ namespace Greenshot.Helpers.Ipc
             return new IpcRequestContext(envelope, Stream, _writeLock, _replyState)
             {
                 ConnectionOrigin = ConnectionOrigin,
+#if !GREENSHOT_LIGHT
+                AiClient = AiClient,
+#endif
                 UsesTextFrames = UsesTextFrames,
                 WriteTimeout = WriteTimeout
             };

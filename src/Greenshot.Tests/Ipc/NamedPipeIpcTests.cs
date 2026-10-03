@@ -36,7 +36,7 @@ namespace Greenshot.Tests.Ipc
     public class NamedPipeIpcTests
     {
         /// <summary>
-        /// Greenshot.exe sends its command arguments as the same CLI request that greenshot.com and greenshot-proxy.exe send.
+        /// Greenshot.exe sends its command arguments as the same CLI request that greenshot-cli.exe and greenshot-proxy.exe send.
         /// </summary>
         [Fact]
         public void EnvelopeSerialization_Cli_MatchesTheProxyRequest()
@@ -134,6 +134,51 @@ namespace Greenshot.Tests.Ipc
                 read += n;
             }
             return JObject.Parse(Encoding.UTF8.GetString(payload));
+        }
+
+        [Fact]
+        public async Task NamedPipeServer_WatchConnection_GetsEventsAndTheShutdown()
+        {
+            string testPipeName = NamedPipeEndpoint.GetPipeName() + "_test_" + Guid.NewGuid().ToString("N");
+            bool requestReceived = false;
+
+            using (var server = new NamedPipeServer(testPipeName))
+            {
+                server.RequestReceived += ctx =>
+                {
+                    requestReceived = true;
+                    return Task.CompletedTask;
+                };
+                server.Start();
+
+                using (var client = new NamedPipeClientStream(".", testPipeName, PipeDirection.InOut))
+                {
+                    client.Connect(3000);
+                    WriteFrame(client, "{\"version\":1,\"command\":\"HELLO\",\"source\":\"cli\"}");
+                    WriteFrame(client, "{\"version\":1,\"command\":\"WATCH\"}");
+                    var reply = await Task.Run(() => ReadFrame(client));
+                    Assert.True(reply.Value<bool>("watching"));
+
+                    // The notifications complete before the client reads them: a client that isn't reading must not hold up Greenshot (e.g. its exit)
+                    var notify = server.NotifyWatchersAsync(new { @event = "tools_changed" });
+                    Assert.Same(notify, await Task.WhenAny(notify, Task.Delay(TimeSpan.FromSeconds(10))));
+                    var changed = await Task.Run(() => ReadFrame(client));
+                    Assert.NotNull(changed);
+                    Assert.Equal("tools_changed", changed.Value<string>("event"));
+
+                    var notifyShutdown = server.NotifyShutdownAsync(NamedPipeServer.ShutdownReasonUpdate);
+                    Assert.Same(notifyShutdown, await Task.WhenAny(notifyShutdown, Task.Delay(TimeSpan.FromSeconds(10))));
+                    var shutdown = await Task.Run(() => ReadFrame(client));
+                    Assert.NotNull(shutdown);
+                    Assert.Equal("shutdown", shutdown.Value<string>("event"));
+                    Assert.Equal("update", shutdown.Value<string>("reason"));
+                    // The browser extension's existing "offline" check
+                    Assert.False(shutdown.Value<bool>("greenshot_running"));
+                }
+            }
+
+            // WATCH is handled by the server itself
+            Assert.False(requestReceived);
         }
 
         [Fact]

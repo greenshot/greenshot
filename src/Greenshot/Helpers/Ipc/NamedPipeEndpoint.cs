@@ -66,6 +66,12 @@ namespace Greenshot.Helpers.Ipc
                 PipeAccessRights.FullControl,
                 AccessControlType.Allow));
 
+            // No connections over the network, also not with the user's own credentials
+            pipeSecurity.AddAccessRule(new PipeAccessRule(
+                new SecurityIdentifier(WellKnownSidType.NetworkSid, null),
+                PipeAccessRights.FullControl,
+                AccessControlType.Deny));
+
             // Restrict DACL solely to TokenUser and SYSTEM, preventing inheritance from wider permissions
             pipeSecurity.SetAccessRuleProtection(isProtected: true, preserveInheritance: false);
 

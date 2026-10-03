@@ -32,6 +32,7 @@ using Dapplo.Ini.Parsing;
 using Dapplo.Windows.Input.Keyboard;
 using Dapplo.Windows.Messages;
 using Greenshot.Base.Core;
+using Greenshot.Base.Recipes;
 using Greenshot.Configuration;
 using Greenshot.Editor.Configuration;
 using Greenshot.Forms;
@@ -116,18 +117,17 @@ public class GreenshotMain
         // Build the IniConfigRegistry:
         //   AddAppDataPath  → %APPDATA%\Greenshot
         //   AddSearchPath   → installation / startup directory
+        //   SetOverrideDirectory → --ini-directory: greenshot.ini is only read from and saved to that directory
         // Ensure any design-time / test fallback configuration is removed before production startup
         IniConfigHelper.UnregisterDesignTimeConfig();
 
         var builder = IniConfigRegistry.ForFile("greenshot.ini")
 
             .AddAppDataPath("Greenshot")
-            .AddSearchPath(startupPath);
-
-        if (!string.IsNullOrEmpty(options.IniDirectory) && Directory.Exists(options.IniDirectory))
-        {
-            builder.AddSearchPath(options.IniDirectory);
-        }
+            .AddSearchPath(startupPath)
+            // Ignored when not given, the directory is created when missing and greenshot-fixed.ini is never read from it.
+            // An unusable directory is logged (IniListener.OnError) and the search paths are used instead.
+            .SetOverrideDirectory(options.IniDirectory);
 
         builder.AddDefaultsFile("greenshot-defaults.ini")
                .AddConstantsFile("greenshot-fixed.ini")
@@ -148,6 +148,7 @@ public class GreenshotMain
                .RegisterSection<ICoreConfiguration>(new CoreConfigurationImpl())
                .RegisterSection<IEditorConfiguration>(new EditorConfigurationImpl())
                .RegisterSection<IWin10Configuration>(new Win10ConfigurationImpl())
+               .RegisterSection<IRecipeOptionsConfiguration>(new RecipeOptionsConfigurationImpl())
                // Plugins register their sections after the file was read, they are filled from the retained file content.
                // This also keeps the sections of plugins which are not loaded (excluded or uninstalled) when saving.
                .AllowLateSectionRegistration()
@@ -160,7 +161,11 @@ public class GreenshotMain
 
         // No file access yet: greenshot.ini is read (and locked) in MainForm.Start, only by the instance which really runs.
         // A second instance, which forwards a command or reports that Greenshot is running, doesn't touch the file.
-        builder.Create();
+        var iniConfig = builder.Create();
+        if (iniConfig.OverrideDirectory != null)
+        {
+            LOG.Info($"Using the ini-directory {iniConfig.OverrideDirectory}");
+        }
 
         // An exception in a window message or keyboard hook subscriber ends that subscription instead of crashing the process,
         // log it: otherwise a clipboard listener or the hotkeys just stop working without a trace.

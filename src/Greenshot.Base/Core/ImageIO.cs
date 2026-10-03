@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -138,7 +138,7 @@ namespace Greenshot.Base.Core
                 var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
                 if (!fileFormatHandlers.TrySaveToStream(imageToSave as Bitmap, targetStream, FileFormatRegistry.GetPreferredExtension(outputSettings.Format), surface, outputSettings))
                 {
-                    return;
+                    throw new InvalidOperationException($"No file format handler could save an image using format '{outputSettings.Format}'.");
                 }
 
                 // If we used a memory stream, we need to stream the memory stream to the original stream.

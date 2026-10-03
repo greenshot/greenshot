@@ -20,10 +20,7 @@
  */
 
 using System;
-using System.Collections;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.Globalization;
 using System.Drawing;
 using System.Linq;
 using System.Reflection;
@@ -31,6 +28,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Controls;
+using Greenshot.Base.Core;
 using Greenshot.Editor.Drawing.Emoji;
 using Greenshot.Editor.Forms;
 using log4net;
@@ -91,13 +89,19 @@ namespace Greenshot.Editor
             {
                 // The installed fonts for the font family combobox
                 _ = FontFamily.Families.Length;
-                // Reading the resources (the images of the buttons) the first time
-                var resources = new ComponentResourceManager(typeof(ImageEditorForm));
-                foreach (DictionaryEntry entry in resources.GetResourceSet(CultureInfo.InvariantCulture, true, true))
+                // Reading the embedded resources (the images of the buttons) the first time
+                foreach (string name in EmbeddedResources.GetNames(typeof(ImageEditorForm)))
                 {
-                    (entry.Value as IDisposable)?.Dispose();
+                    try
+                    {
+                        EmbeddedResources.GetImage(typeof(ImageEditorForm), name)?.Dispose();
+                    }
+                    catch (Exception ex)
+                    {
+                        // Only a preparation, the editor reports it if it really needs this image
+                        Log.Debug($"Couldn't load the embedded image {name}", ex);
+                    }
                 }
-                resources.ReleaseAllResources();
                 return PrepareMethods(cancellationToken);
             }, cancellationToken).ConfigureAwait(false);
 

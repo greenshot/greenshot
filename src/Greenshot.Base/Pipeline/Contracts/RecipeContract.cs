@@ -103,13 +103,14 @@ namespace Greenshot.Base.Pipeline.Contracts
             var inputs = new Dictionary<string, VariableContract>(StringComparer.OrdinalIgnoreCase);
             foreach (var trigger in recipe?.Triggers?.Where(t => t != null && t.Enabled) ?? Enumerable.Empty<TriggerConfig>())
             {
-                if (string.Equals(trigger.TriggerType, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase))
+                bool isAiTool = string.Equals(trigger.TriggerType, TriggerConfig.TypeAiTool, StringComparison.OrdinalIgnoreCase);
+                if (isAiTool || string.Equals(trigger.TriggerType, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase))
                 {
                     foreach (var arg in trigger.GetParameter<List<CommandlineArgument>>("Arguments") ?? new List<CommandlineArgument>())
                     {
                         if (string.IsNullOrWhiteSpace(arg?.Name)) continue;
                         string name = arg.EffectiveVariable;
-                        inputs[name] = new VariableContract(name, arg.Type, arg.Required, arg.Description ?? $"Command-line argument --{arg.Name}", arg.DefaultValue)
+                        inputs[name] = new VariableContract(name, arg.Type, arg.Required, arg.Description ?? (isAiTool ? $"AI tool argument {arg.Name}" : $"Command-line argument --{arg.Name}"), arg.DefaultValue)
                         {
                             // Only an argument with a value in every call is guaranteed
                             Conditional = !arg.Required && string.IsNullOrEmpty(arg.DefaultValue)

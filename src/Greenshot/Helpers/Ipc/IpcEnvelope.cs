@@ -69,7 +69,7 @@ namespace Greenshot.Helpers.Ipc
         public const string HelloCommand = "HELLO";
 
         /// <summary>
-        /// Raw command line from greenshot.com / greenshot-proxy.exe; parsed by <see cref="CliCommandParser"/> according to the connection source.
+        /// Raw command line from greenshot-cli.exe / greenshot-proxy.exe; parsed by <see cref="CliCommandParser"/> according to the connection source.
         /// </summary>
         public const string CliCommand = "CLI";
 
@@ -84,12 +84,25 @@ namespace Greenshot.Helpers.Ipc
         public const string UrlScheme = "url_scheme";
         public const string NativeMessaging = "native_messaging";
 
+        /// <summary>
+        /// greenshot-mcp.exe, the MCP server for AI tools. HELLO origin carries the AI tool's name.
+        /// </summary>
+        public const string Mcp = "mcp";
+
         public static bool IsKnown(string source)
         {
+#if GREENSHOT_LIGHT
+            // Greenshot Light has no browser extension and no AI tools: their connections are rejected at HELLO
+            return string.Equals(source, Cli, StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(source, OpenWith, StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(source, UrlScheme, StringComparison.OrdinalIgnoreCase);
+#else
             return string.Equals(source, Cli, StringComparison.OrdinalIgnoreCase) ||
                    string.Equals(source, OpenWith, StringComparison.OrdinalIgnoreCase) ||
                    string.Equals(source, UrlScheme, StringComparison.OrdinalIgnoreCase) ||
-                   string.Equals(source, NativeMessaging, StringComparison.OrdinalIgnoreCase);
+                   string.Equals(source, NativeMessaging, StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(source, Mcp, StringComparison.OrdinalIgnoreCase);
+#endif
         }
     }
 
@@ -242,7 +255,7 @@ namespace Greenshot.Helpers.Ipc
 
         /// <summary>
         /// Creates a CLI request: an unparsed command line, which Greenshot parses with <see cref="CliCommandParser"/>.
-        /// This is what greenshot.com and greenshot-proxy.exe send, and what Greenshot.exe sends for its command arguments.
+        /// This is what greenshot-cli.exe and greenshot-proxy.exe send, and what Greenshot.exe sends for its command arguments.
         /// </summary>
         public static IpcEnvelope CreateCli(IEnumerable<string> argv, string source, string cwd)
         {

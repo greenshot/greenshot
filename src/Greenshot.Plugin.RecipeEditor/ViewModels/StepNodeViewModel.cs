@@ -1481,6 +1481,107 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         public bool IsCloudStorage => IsBox || IsDropbox;
 
+        public bool IsSlot => IsStepType(WellKnownStepTypes.Slot);
+
+        /// <summary>
+        /// Automatic step: where it starts (its connections are the start steps); not a step of the flow
+        /// </summary>
+        public bool IsInNode => IsStepType(RecipeEditorViewModel.InNodeId);
+
+        /// <summary>
+        /// Automatic step: where it ends and the recipe goes on (connections to it lead to "Out"); not a step of the flow
+        /// </summary>
+        public bool IsOutNode => IsStepType(RecipeExtension.OutNode);
+
+        public bool IsBoundary => IsInNode || IsOutNode;
+
+        /// <summary>
+        /// Slot: the names of the extensions which plug in (set by the editor, which knows the recipe and the extensions)
+        /// </summary>
+        public Func<StepNodeViewModel, IReadOnlyList<string>> SlotExtensionsProvider { get; set; }
+
+        /// <summary>
+        /// Slot: the extensions which plug in, shown greyed out on the node
+        /// </summary>
+        public IReadOnlyList<string> SlotExtensions => IsSlot ? SlotExtensionsProvider?.Invoke(this) ?? Array.Empty<string>() : Array.Empty<string>();
+
+        public bool HasNoSlotExtensions => IsSlot && SlotExtensions.Count == 0;
+
+        public IReadOnlyList<string> SlotNames => RecipeSlots.All;
+
+        /// <summary>
+        /// Slot: what the slot is for, shown under the choice
+        /// </summary>
+        public string SlotDescription
+        {
+            get
+            {
+                switch (RecipeSlots.Normalize(SlotName))
+                {
+                    case RecipeSlots.AfterCapture: return "After the capture and the selection, before the processors (OCR, ...).";
+                    case RecipeSlots.BeforeExport: return "When the image is final, once before all destinations.";
+                    case RecipeSlots.AfterExport: return "After the destinations, e.g. to do something with an upload link.";
+                    case RecipeSlots.BeforeDestination: return "Runs in the export steps for each destination, on its own copy: e.g. a border only for email. Where the slot node is doesn't matter.";
+                    default: return null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Slot: AfterCapture, BeforeExport, AfterExport or BeforeDestination
+        /// </summary>
+        public string SlotName
+        {
+            get => RecipeSlots.Normalize(GetParam("Name", RecipeSlots.BeforeExport)) ?? GetParam("Name", RecipeSlots.BeforeExport);
+            set
+            {
+                SetParam("Name", value);
+                OnPropertyChanged(nameof(SlotName));
+                OnSlotChanged();
+            }
+        }
+
+        /// <summary>
+        /// Slot: which extensions it takes, "all", "none" or extension ids separated by commas
+        /// </summary>
+        public string SlotAccept
+        {
+            get
+            {
+                if (Config?.Parameters == null || !Config.Parameters.TryGetValue("Accept", out var accept) || accept == null) return RecipeSlots.AcceptAll;
+                if (accept is JValue jValue) accept = jValue.Value;
+                if (accept is string text) return string.IsNullOrWhiteSpace(text) ? RecipeSlots.AcceptAll : text;
+                if (accept is System.Collections.IEnumerable list) return string.Join(", ", list.Cast<object>().Select(o => (o as JValue)?.Value?.ToString() ?? o?.ToString()));
+                return RecipeSlots.AcceptAll;
+            }
+            set
+            {
+                string text = value?.Trim();
+                if (string.IsNullOrEmpty(text) || string.Equals(text, RecipeSlots.AcceptAll, StringComparison.OrdinalIgnoreCase))
+                {
+                    Config.Parameters?.Remove("Accept");
+                    NotifyConfigUpdated();
+                }
+                else if (string.Equals(text, RecipeSlots.AcceptNone, StringComparison.OrdinalIgnoreCase))
+                {
+                    SetParam("Accept", RecipeSlots.AcceptNone);
+                }
+                else
+                {
+                    SetParam("Accept", RecipeSlots.SplitList(text).ToList());
+                }
+                OnPropertyChanged(nameof(SlotAccept));
+                OnSlotChanged();
+            }
+        }
+
+        private void OnSlotChanged()
+        {
+            OnPropertyChanged(nameof(Summary));
+            OnPropertyChanged(nameof(SlotDescription));
+            OnPropertyChanged(nameof(SlotExtensions));
+            OnPropertyChanged(nameof(HasNoSlotExtensions));
+        }
         public StepPortViewModel InputPort { get; }
         public StepPortViewModel OutputPort { get; }
 
@@ -1985,9 +2086,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             var owner = GetActiveWindow();
             if (owner != null)
             {
-                return MessageBox.Show(owner, messageBoxText, caption, button, icon);
+                return ThemedMessageBox.Show(owner, messageBoxText, caption, button, icon);
             }
-            return MessageBox.Show(messageBoxText, caption, button, icon);
+            return ThemedMessageBox.Show(messageBoxText, caption, button, icon);
         }
 
         private static void ShowInfoMessage(string messageBoxText, string caption, MessageBoxImage icon = MessageBoxImage.Information)
@@ -1995,11 +2096,11 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             var owner = GetActiveWindow();
             if (owner != null)
             {
-                MessageBox.Show(owner, messageBoxText, caption, MessageBoxButton.OK, icon);
+                ThemedMessageBox.Show(owner, messageBoxText, caption, MessageBoxButton.OK, icon);
             }
             else
             {
-                MessageBox.Show(messageBoxText, caption, MessageBoxButton.OK, icon);
+                ThemedMessageBox.Show(messageBoxText, caption, MessageBoxButton.OK, icon);
             }
         }
 
@@ -3689,6 +3790,14 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                         return $"Dynamic Destination ({dDests}, {dTime})";
                     case WellKnownStepTypes.Notification:
                         return NotificationShow ? "Notification: shown" : "Notification: hidden";
+                    case RecipeEditorViewModel.InNodeId:
+                        return "Where the automatic step starts: connect it to the first step(s)";
+                    case RecipeExtension.OutNode:
+                        return "Where the automatic step ends and the recipe goes on";
+                    case WellKnownStepTypes.Slot:
+                        return string.Equals(SlotAccept, RecipeSlots.AcceptAll, StringComparison.OrdinalIgnoreCase)
+                            ? $"Slot {SlotName}: automatic steps are added here"
+                            : $"Slot {SlotName}, accepts: {SlotAccept}";
                     case WellKnownStepTypes.Stdout:
                         return !string.IsNullOrWhiteSpace(OutputText) ? $"Stdout: {OutputText}" : "Stdout";
                     case WellKnownStepTypes.Stderr:

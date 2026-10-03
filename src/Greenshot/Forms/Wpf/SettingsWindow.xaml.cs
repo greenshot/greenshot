@@ -85,6 +85,14 @@ namespace Greenshot.Forms.Wpf
             ThemeManager.Instance.PropertyChanged += themeHandler;
             Closed += (s, e) => ThemeManager.Instance.PropertyChanged -= themeHandler;
 
+#if GREENSHOT_LIGHT
+            // Greenshot Light has no plugins and no AI tools
+            SettingsTabControl.Items.Remove(PluginsTabItem);
+            SettingsTabControl.Items.Remove(AiToolsTabItem);
+#else
+            PluginsTabItem.Content = new PluginsSettingsPage();
+            AiToolsTabItem.Content = new AiToolsSettingsPage();
+
             // Lazy plugin configuration: only select/load first plugin if the user navigates to the Plugins tab
             SettingsTabControl.SelectionChanged += (s, e) =>
             {
@@ -93,6 +101,7 @@ namespace Greenshot.Forms.Wpf
                     _viewModel.SelectedPlugin = _viewModel.Plugins[0];
                 }
             };
+#endif
 
             if (!string.IsNullOrEmpty(initialTabName))
             {
@@ -135,11 +144,16 @@ namespace Greenshot.Forms.Wpf
                 case "plugins":
                     SettingsTabControl.SelectedItem = PluginsTabItem;
                     break;
+                case "recipes":
+                    // By name: the tabs before it are not always there
+                    SettingsTabControl.SelectedItem = RecipesTabItem;
+                    break;
                 case "expert":
                 case "expertsettings":
-                    if (SettingsTabControl.Items.Count > 7)
+                    // By name: the AI tools and plugins tabs before it are not always there
+                    if (_viewModel.IsExpertTabVisible)
                     {
-                        SettingsTabControl.SelectedIndex = 7;
+                        SettingsTabControl.SelectedItem = ExpertTabItem;
                     }
                     break;
                 default:
@@ -150,9 +164,11 @@ namespace Greenshot.Forms.Wpf
 
         public void SelectPlugin(string pluginName)
         {
+#if !GREENSHOT_LIGHT
             if (string.IsNullOrWhiteSpace(pluginName)) return;
             SettingsTabControl.SelectedItem = PluginsTabItem;
             _viewModel.SelectPluginByName(pluginName);
+#endif
         }
 
         protected override void OnSourceInitialized(EventArgs e)
@@ -293,6 +309,12 @@ namespace Greenshot.Forms.Wpf
             
             _viewModel.CoreConfiguration.OutputDestinations = destinations;
 
+            _viewModel.SaveRecipeOptions();
+
+#if !GREENSHOT_LIGHT
+            _viewModel.SaveAiToolSettings();
+#endif
+
             // Save clipboard formats
             if (_viewModel.ClipboardFormats != null)
             {
@@ -331,6 +353,44 @@ namespace Greenshot.Forms.Wpf
             
             // Force save of all configuration sections
             IniConfigRegistry.Get()?.Save();
+        }
+
+        /// <summary>
+        /// The swatch of a color option of a recipe: pick the color with the editor's color picker
+        /// </summary>
+        private void RecipeOptionColor_Click(object sender, RoutedEventArgs e)
+        {
+            if (!((sender as FrameworkElement)?.DataContext is RecipeOptionItem item))
+            {
+                return;
+            }
+
+            var colorWindow = new Greenshot.Editor.Forms.ColorPickerWindow
+            {
+                Owner = this,
+                SelectedColor = RecipeOptionColors.Parse(item.TextValue)
+            };
+            if (colorWindow.ShowDialog() == true)
+            {
+                item.Value = RecipeOptionColors.Format(colorWindow.SelectedColor);
+            }
+        }
+
+        /// <summary>
+        /// "Change…" of an extension: where it is used, the captures and the destinations
+        /// </summary>
+        private void RecipeExtensionScope_Click(object sender, RoutedEventArgs e)
+        {
+            if (!((sender as FrameworkElement)?.DataContext is RecipeOptionGroup group) || group.UseIn == null)
+            {
+                return;
+            }
+
+            var scopeWindow = new RecipeExtensionScopeWindow(group.Name, group.UseIn, group.OnlyDestinations)
+            {
+                Owner = this
+            };
+            scopeWindow.ShowDialog();
         }
 
         private void HotkeyDisplayControl_EditRequested(object sender, EventArgs e)

@@ -21,7 +21,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -33,6 +32,7 @@ using Greenshot.Base.Core;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Pipeline;
 
 namespace Greenshot.Plugin.Jira;
 
@@ -79,7 +79,6 @@ public sealed class JiraIconProvider : IIconProvider
     private const string Prefix = "jira:";
     private const string IssuePrefix = Prefix + "issue:";
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(JiraIconProvider));
-    private static readonly ComponentResourceManager Resources = new ComponentResourceManager(typeof(JiraPlugin));
 
     /// <summary>
     /// The icon of the Jira server (or the Jira logo)
@@ -130,14 +129,14 @@ public sealed class JiraIconProvider : IIconProvider
             }
         }
 
-        return (Image) Resources.GetObject("Jira");
+        return EmbeddedResources.GetImage(typeof(JiraPlugin), "Jira");
     }
 }
 
 /// <summary>
 /// Attach the capture to a Jira issue: a recent one (dynamic destination) or one chosen in the Jira dialog.
 /// </summary>
-public class JiraDestination : DestinationBase
+public class JiraDestination : DestinationBase, IRequiresRecipeAuthorization
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(JiraDestination));
     private static IJiraConfiguration Config => IniConfigRegistry.GetSection<IJiraConfiguration>();
@@ -149,6 +148,14 @@ public class JiraDestination : DestinationBase
     }
 
     public override string Designation => "Jira";
+
+    /// <summary>
+    /// Uploads the capture: the user has to allow network access when approving a recipe with this destination
+    /// </summary>
+    public IEnumerable<RecipeGatedAction> GetGatedActions()
+    {
+        yield return new RecipeGatedAction(RecipeGateType.NetworkAccess, "Jira");
+    }
 
     public override DestinationDescriptor Descriptor
     {

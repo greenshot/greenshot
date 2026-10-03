@@ -27,6 +27,10 @@ using Greenshot.Base.Drawing;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
+using System.Text.RegularExpressions;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Greenshot.Base.Recipes
 {
@@ -93,7 +97,8 @@ namespace Greenshot.Base.Recipes
             WellKnownStepTypes.RecordVideo,
             WellKnownStepTypes.UserPrompt,
             WellKnownStepTypes.Stdout,
-            WellKnownStepTypes.Stderr
+            WellKnownStepTypes.Stderr,
+            WellKnownStepTypes.Slot
         };
 
         private static readonly HashSet<string> KnownTriggerTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -107,7 +112,8 @@ namespace Greenshot.Base.Recipes
             Greenshot.Base.Triggers.TriggerConfig.TypeSchedule,
             Greenshot.Base.Triggers.TriggerConfig.TypeCommandline,
             Greenshot.Base.Triggers.TriggerConfig.TypeOpenFile,
-            Greenshot.Base.Triggers.TriggerConfig.TypeExtension
+            Greenshot.Base.Triggers.TriggerConfig.TypeExtension,
+            Greenshot.Base.Triggers.TriggerConfig.TypeAiTool
         };
 
         /// <summary>
@@ -129,38 +135,7 @@ namespace Greenshot.Base.Recipes
                 return result;
             }
 
-            // Validate Version
-            if (string.IsNullOrWhiteSpace(recipe.Version))
-            {
-                result.AddWarning("Recipe 'version' is missing; defaulting to '1.0'.");
-            }
-            else
-            {
-                string major = recipe.Version.Split('.')[0].Trim();
-                if (major != "1")
-                {
-                    result.AddError($"Unsupported recipe version '{recipe.Version}'. This version of Greenshot supports version 1.x recipes.");
-                }
-            }
-
-            if (string.IsNullOrWhiteSpace(recipe.Id))
-            {
-                result.AddError("Recipe 'id' is required and cannot be empty.");
-            }
-
-            if (string.IsNullOrWhiteSpace(recipe.Name))
-            {
-                result.AddError("Recipe 'name' is required and cannot be empty.");
-            }
-
-            // Validate Requires (extension dependencies)
-            if (recipe.Requires != null)
-            {
-                foreach (var req in recipe.Requires)
-                {
-                    ValidateRequirement(req, result);
-                }
-            }
+            ValidateHeader(recipe, "Recipe", result);
 
             // Validate Triggers (optional)
             if (recipe.Triggers != null)
@@ -186,6 +161,9 @@ namespace Greenshot.Base.Recipes
                 ValidateNode(node, i, nodeIds, result);
             }
 
+            // Validate the options and where the nodes use them
+            ValidateOptions(recipe, result);
+
             // Validate Flow Definition & DAG acyclicity
             ValidateFlowAndDetectCycles(recipe, nodeIds, result);
 
@@ -197,6 +175,193 @@ namespace Greenshot.Base.Recipes
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Version, id, name and requirements, the same for recipes and extensions
+        /// </summary>
+        private static void ValidateHeader(FlowDefinition definition, string what, RecipeValidationResult result)
+        {
+            if (string.IsNullOrWhiteSpace(definition.Version))
+            {
+                result.AddWarning($"{what} 'version' is missing; defaulting to '1.0'.");
+            }
+            else
+            {
+                string major = definition.Version.Split('.')[0].Trim();
+                if (major != "1")
+                {
+                    result.AddError($"Unsupported {what.ToLowerInvariant()} version '{definition.Version}'. This version of Greenshot supports version 1.x recipes.");
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(definition.Id))
+            {
+                result.AddError($"{what} 'id' is required and cannot be empty.");
+            }
+
+            if (string.IsNullOrWhiteSpace(definition.Name))
+            {
+                result.AddError($"{what} 'name' is required and cannot be empty.");
+            }
+
+            // Validate Requires (extension dependencies)
+            if (definition.Requires != null)
+            {
+                foreach (var req in definition.Requires)
+                {
+                    ValidateRequirement(req, result);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Validates a recipe extension: the common checks of a flow, plus where it goes and what it may contain.
+        /// An extension is a small flow between In (its startNodes) and Out (a transition target): no triggers, no Source step,
+        /// destinations only at AfterExport, no slots of its own, and every branch of a decision must lead somewhere.
+        /// </summary>
+        public static RecipeValidationResult Validate(RecipeExtension extension)
+        {
+            var result = new RecipeValidationResult();
+            if (extension == null)
+            {
+                result.AddError("Extension cannot be null.");
+                return result;
+            }
+
+            ValidateHeader(extension, "Extension", result);
+            if (!string.IsNullOrWhiteSpace(extension.Id) && !RecipeOption.KeyPattern.IsMatch(extension.Id))
+            {
+                result.AddError($"Extension id '{extension.Id}' is invalid: use letters, digits and underscores, starting with a letter.");
+            }
+
+            string slotName = extension.SlotName;
+            if (extension.Extends == null)
+            {
+                result.AddError("Extension 'extends' is required: which recipes, at which slot.");
+            }
+            else
+            {
+                if (slotName == null)
+                {
+                    result.AddError($"Extension slot '{extension.Extends.Slot}' is unknown, use {string.Join(", ", RecipeSlots.All)}.");
+                }
+                if (extension.Extends.Recipes == null || extension.Extends.Recipes.Count == 0 || extension.Extends.Recipes.Any(string.IsNullOrWhiteSpace))
+                {
+                    result.AddError($"Extension 'extends.recipes' needs recipe ids, \"{RecipeExtension.TargetAll}\" or \"{RecipeExtension.TargetCaptures}\".");
+                }
+                else if (extension.Extends.Recipes.Any(r => string.Equals(r.Trim(), extension.Id, StringComparison.OrdinalIgnoreCase)))
+                {
+                    result.AddError("An extension can't extend itself.");
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(extension.When) && extension.When.IndexOf("${", StringComparison.Ordinal) < 0)
+            {
+                result.AddError("Extension 'when' must be an expression like \"${payload.width > 800}\".");
+            }
+
+            if (extension.Nodes == null || extension.Nodes.Count == 0)
+            {
+                result.AddError("Extension must contain at least one node in 'nodes'.");
+                return result;
+            }
+
+            var nodeIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            for (int i = 0; i < extension.Nodes.Count; i++)
+            {
+                var node = extension.Nodes[i];
+                ValidateNode(node, i, nodeIds, result);
+                if (node == null) continue;
+
+                if (RecipeExtension.ReservedNodeIds.Contains(node.Id, StringComparer.OrdinalIgnoreCase))
+                {
+                    result.AddError($"Node id '{node.Id}' is reserved in extensions (In and Out are where the extension starts and ends).");
+                }
+                if (string.Equals(node.StepType, WellKnownStepTypes.Source, StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(node.StepType, WellKnownStepTypes.RecordVideo, StringComparison.OrdinalIgnoreCase))
+                {
+                    result.AddError($"Node '{node.Id}': an extension can't capture, it works on the capture of the recipe it extends.");
+                }
+                if (string.Equals(node.StepType, WellKnownStepTypes.Slot, StringComparison.OrdinalIgnoreCase))
+                {
+                    result.AddError($"Node '{node.Id}': an extension can't have slots, an extension can't extend another extension.");
+                }
+                if (WellKnownStepTypes.IsDestination(node.StepType) && slotName != null && slotName != RecipeSlots.AfterExport)
+                {
+                    result.AddError($"Node '{node.Id}' exports the capture ({node.StepType}); an extension can only use destinations at the {RecipeSlots.AfterExport} slot.");
+                }
+            }
+
+            ValidateOptions(extension, result);
+            foreach (var key in FindOptionReferences(extension.When).Where(k => extension.FindOption(k) == null))
+            {
+                result.AddError($"Extension 'when' uses the option '{key}', which the extension doesn't declare in 'options'.");
+            }
+
+            ValidateFlowAndDetectCycles(extension, nodeIds, result, allowOutTarget: true);
+            ValidateExtensionFlow(extension, result);
+            return result;
+        }
+
+        /// <summary>
+        /// Every branch of a decision in an extension leads to a node or to Out, there is an "else" branch, and error
+        /// transitions only start at the extension's own nodes: otherwise the recipe it extends would end in the extension.
+        /// </summary>
+        private static void ValidateExtensionFlow(RecipeExtension extension, RecipeValidationResult result)
+        {
+            var flow = extension.Flow ?? new RecipeFlowConfig();
+            if (flow.GetEffectiveStartNodes().Any(s => string.Equals(s, RecipeExtension.OutNode, StringComparison.OrdinalIgnoreCase)))
+            {
+                result.AddError("An extension can't start at Out.");
+            }
+
+            foreach (var node in extension.Nodes.Where(n => n != null && string.Equals(n.StepType, WellKnownStepTypes.Conditional, StringComparison.OrdinalIgnoreCase)))
+            {
+                var branches = ReadBranches(node);
+                if (!branches.Any(b => string.Equals(b.Expression?.Trim(), "else", StringComparison.OrdinalIgnoreCase)))
+                {
+                    result.AddError($"Node '{node.Id}' [Conditional]: in an extension a decision needs an \"else\" branch, so the recipe always goes on.");
+                }
+                foreach (var branch in branches.Where(b => !string.IsNullOrEmpty(b.Key)))
+                {
+                    bool routed = flow.ConditionalTransitions?.Any(ct => string.Equals(ct?.From, node.Id, StringComparison.OrdinalIgnoreCase) &&
+                                                                         string.Equals(ct.Branch, branch.Key, StringComparison.OrdinalIgnoreCase) &&
+                                                                         !string.IsNullOrWhiteSpace(ct.To)) ?? false;
+                    if (!routed)
+                    {
+                        result.AddError($"Node '{node.Id}' [Conditional]: branch '{branch.Key}' leads nowhere; route it to a node or to \"{RecipeExtension.OutNode}\".");
+                    }
+                }
+            }
+
+            foreach (var et in flow.ErrorTransitions ?? new List<RecipeErrorTransitionConfig>())
+            {
+                if (et == null) continue;
+                if (extension.FindNode(et.From) == null)
+                {
+                    result.AddError($"Error transition from '{et.From}': in an extension error transitions must start at one of its nodes.");
+                }
+                if (!string.IsNullOrWhiteSpace(et.To) && extension.FindNode(et.To) == null)
+                {
+                    result.AddError($"Error transition to '{et.To}' doesn't lead to a node of the extension.");
+                }
+            }
+        }
+
+        private static List<(string Key, string Expression)> ReadBranches(RecipeNodeConfig node)
+        {
+            var list = new List<(string Key, string Expression)>();
+            var branches = node.GetParameter<object>("Branches");
+            if (branches == null) return list;
+            var token = branches as JToken ?? JToken.FromObject(branches);
+            foreach (var item in token.OfType<JObject>())
+            {
+                string key = item.GetValue("key", StringComparison.OrdinalIgnoreCase)?.ToString();
+                string expression = item.GetValue("expression", StringComparison.OrdinalIgnoreCase)?.ToString();
+                list.Add((key, expression));
+            }
+            return list;
         }
 
         private static void AddContractWarnings(CaptureRecipe recipe, RecipeValidationResult result)
@@ -250,6 +415,19 @@ namespace Greenshot.Base.Recipes
                     {
                         result.AddError($"Hotkey trigger '{trigger.Name}' at index {index} has invalid hotkey '{hotkey}': {error}");
                     }
+                }
+            }
+
+            if (string.Equals(trigger.TriggerType, Greenshot.Base.Triggers.TriggerConfig.TypeAiTool, StringComparison.OrdinalIgnoreCase))
+            {
+                string toolName = trigger.GetParameter<string>("ToolName");
+                if (!Greenshot.Base.Triggers.AiToolTrigger.IsValidToolName(toolName))
+                {
+                    result.AddError($"AI tool trigger '{trigger.Name}' at index {index} needs a 'ToolName' of 1 to 64 letters, digits, '_' or '-'{(string.IsNullOrEmpty(toolName) ? string.Empty : $", not '{toolName}'")}.");
+                }
+                if (string.IsNullOrWhiteSpace(trigger.GetParameter<string>("Description")))
+                {
+                    result.AddWarning($"AI tool trigger '{trigger.Name}' at index {index} has no 'Description', the AI won't know what the tool does.");
                 }
             }
 
@@ -348,6 +526,22 @@ namespace Greenshot.Base.Recipes
             if (string.Equals(node.StepType, WellKnownStepTypes.Annotation, StringComparison.OrdinalIgnoreCase))
             {
                 ValidateAnnotationNode(node, result);
+            }
+            if (string.Equals(node.StepType, WellKnownStepTypes.Slot, StringComparison.OrdinalIgnoreCase))
+            {
+                if (RecipeSlots.GetSlotName(node) == null)
+                {
+                    result.AddError($"Node '{node.Id}' [Slot]: 'name' must be one of {string.Join(", ", RecipeSlots.All)}.");
+                }
+                if (node.Parameters.TryGetValue("Accept", out var accept) && accept != null)
+                {
+                    var acceptValue = accept is JValue jAccept ? jAccept.Value : accept;
+                    bool valid = acceptValue is string || (acceptValue is System.Collections.IEnumerable && !(acceptValue is string));
+                    if (!valid)
+                    {
+                        result.AddError($"Node '{node.Id}' [Slot]: 'accept' must be \"{RecipeSlots.AcceptAll}\", \"{RecipeSlots.AcceptNone}\" or a list of extension ids.");
+                    }
+                }
             }
 
             // Programmatic step inspection for recipe authorization gates
@@ -465,6 +659,146 @@ namespace Greenshot.Base.Recipes
             }
         }
 
+        private static readonly Regex ExpressionPattern = new Regex(@"\$\{([^}]*)\}", RegexOptions.Compiled);
+        private static readonly Regex OptionReferencePattern = new Regex(@"(?<![A-Za-z0-9_.])option\.([A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)?)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+        /// <summary>
+        /// The keys of the options a text uses in its ${...} expressions ("key", or "extension.key" in a composed recipe)
+        /// </summary>
+        public static IReadOnlyCollection<string> FindOptionReferences(string text)
+        {
+            var keys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            if (string.IsNullOrEmpty(text)) return keys;
+            foreach (Match expression in ExpressionPattern.Matches(text))
+            {
+                foreach (Match reference in OptionReferencePattern.Matches(expression.Groups[1].Value))
+                {
+                    keys.Add(reference.Groups[1].Value);
+                }
+            }
+            return keys;
+        }
+
+        private static void ValidateOptions(FlowDefinition recipe, RecipeValidationResult result)
+        {
+            var options = new Dictionary<string, RecipeOption>(StringComparer.OrdinalIgnoreCase);
+            foreach (var option in recipe.Options ?? new List<RecipeOption>())
+            {
+                if (option == null)
+                {
+                    result.AddError("An option cannot be null.");
+                    continue;
+                }
+                if (string.IsNullOrWhiteSpace(option.Key) || !RecipeOption.KeyPattern.IsMatch(option.Key))
+                {
+                    result.AddError($"Option key '{option.Key}' is invalid: use letters, digits and underscores, starting with a letter.");
+                    continue;
+                }
+                if (options.ContainsKey(option.Key))
+                {
+                    result.AddError($"Duplicate option key '{option.Key}'.");
+                    continue;
+                }
+                if (recipe is RecipeExtension && RecipeExtension.ScopeOptions.Any(s => string.Equals(s.Key, option.Key, StringComparison.OrdinalIgnoreCase)))
+                {
+                    result.AddError($"Option key '{option.Key}' is reserved for the settings every extension has (which recipes, which destinations).");
+                    continue;
+                }
+                options[option.Key] = option;
+
+                if (!RecipeOption.SupportedTypes.Contains(option.Type))
+                {
+                    result.AddError($"Option '{option.Key}' has type '{option.Type}', options can be {string.Join(", ", RecipeOption.SupportedTypes)}.");
+                    continue;
+                }
+                if (option.Type == ContractDataType.Enum)
+                {
+                    var values = option.Choices?.Where(c => c != null).Select(c => c.Value).ToList() ?? new List<string>();
+                    if (values.Count == 0 || values.Any(string.IsNullOrWhiteSpace))
+                    {
+                        result.AddError($"Option '{option.Key}' is an Enum and needs 'choices', each with a 'value'.");
+                    }
+                    else if (values.Distinct(StringComparer.OrdinalIgnoreCase).Count() != values.Count)
+                    {
+                        result.AddError($"Option '{option.Key}' has duplicate choices.");
+                    }
+                }
+                else if (option.Choices != null && option.Choices.Count > 0)
+                {
+                    result.AddWarning($"Option '{option.Key}': 'choices' are only used for Enum options.");
+                }
+                bool isNumber = option.Type == ContractDataType.Integer || option.Type == ContractDataType.Decimal;
+                if (!isNumber && (option.Min.HasValue || option.Max.HasValue))
+                {
+                    result.AddWarning($"Option '{option.Key}': 'min' and 'max' are only used for Integer and Decimal options.");
+                }
+                if (option.Min.HasValue && option.Max.HasValue && option.Min.Value > option.Max.Value)
+                {
+                    result.AddError($"Option '{option.Key}': 'min' ({option.Min}) is larger than 'max' ({option.Max}).");
+                }
+                if (option.DefaultValue != null && !option.TryConvert(option.DefaultValue, out _))
+                {
+                    result.AddError($"Option '{option.Key}': the default '{option.DefaultValue}' is not a valid {option.Type}.");
+                }
+                if (option.QuickSettings && !RecipeOption.QuickSettingsTypes.Contains(option.Type))
+                {
+                    result.AddError($"Option '{option.Key}' can't be shown in the quick settings, only Boolean and Enum options can.");
+                }
+            }
+
+            foreach (var option in options.Values.Where(o => !string.IsNullOrWhiteSpace(o.EnabledWhen)))
+            {
+                if (string.Equals(option.EnabledWhen, option.Key, StringComparison.OrdinalIgnoreCase) ||
+                    !options.TryGetValue(option.EnabledWhen, out var switchOption) || switchOption.Type != ContractDataType.Boolean)
+                {
+                    result.AddError($"Option '{option.Key}': 'enabledWhen' must be the key of another Boolean option of the recipe.");
+                }
+            }
+
+            foreach (var node in recipe.Nodes.Where(n => n != null))
+            {
+                if (!string.IsNullOrWhiteSpace(node.EnabledExpression) && node.EnabledExpression.IndexOf("${", StringComparison.Ordinal) < 0)
+                {
+                    result.AddError($"Node '{node.Id}': 'enabled' must be true, false or an expression like \"${{option.key}}\".");
+                }
+
+                string parameters = node.Parameters == null || node.Parameters.Count == 0 ? null : JsonConvert.SerializeObject(node.Parameters);
+                var parameterReferences = FindOptionReferences(parameters);
+                foreach (var key in parameterReferences.Concat(FindOptionReferences(node.EnabledExpression)).Distinct(StringComparer.OrdinalIgnoreCase))
+                {
+                    // Options of the recipe, or (composed recipe) of the extension the node came from
+                    if (!options.ContainsKey(key) && !RecipeOptionStore.TryResolve(recipe, key, out _, out _))
+                    {
+                        result.AddError($"Node '{node.Id}' uses the option '{key}', which the recipe doesn't declare in 'options'.");
+                    }
+                }
+
+                // A text the user types must not end up in a command line, an upload address or a file path:
+                // a step which needs an approval may only use options whose values the approved recipe limits.
+                var textOptions = parameterReferences
+                    .Where(key => RecipeOptionStore.TryResolve(recipe, key, out _, out var option) && option.Type == ContractDataType.String)
+                    .ToList();
+                if (textOptions.Count > 0 && IsGatedNode(node))
+                {
+                    result.AddError($"Node '{node.Id}' needs an approval and can't use the text option(s) {string.Join(", ", textOptions.Select(k => $"'{k}'"))}.");
+                }
+            }
+        }
+
+        private static bool IsGatedNode(RecipeNodeConfig node)
+        {
+            try
+            {
+                return StepRegistry.Instance.CreateStep(node) is IRequiresRecipeAuthorization authStep &&
+                       (authStep.GetGatedActions()?.Any() ?? false);
+            }
+            catch
+            {
+                // Unresolvable step types are flagged by the schema check
+                return false;
+            }
+        }
+
         private static void CheckAndDetectGatedActions(RecipeNodeConfig node, RecipeValidationResult result)
         {
             try
@@ -488,7 +822,7 @@ namespace Greenshot.Base.Recipes
             }
         }
 
-        private static void ValidateFlowAndDetectCycles(CaptureRecipe recipe, HashSet<string> validNodeIds, RecipeValidationResult result)
+        private static void ValidateFlowAndDetectCycles(FlowDefinition recipe, HashSet<string> validNodeIds, RecipeValidationResult result, bool allowOutTarget = false)
         {
             var flow = recipe.Flow;
             if (flow == null)
@@ -557,7 +891,7 @@ namespace Greenshot.Base.Recipes
                         }
                     }
 
-                    if (!validNodeIds.Contains(ct.To))
+                    if (!validNodeIds.Contains(ct.To) && !(allowOutTarget && IsOutNode(ct.To)))
                     {
                         result.AddError($"Conditional transition target node '{ct.To}' (from '{ct.From}', branch '{ct.Branch}') does not exist in 'nodes'.");
                     }
@@ -577,7 +911,7 @@ namespace Greenshot.Base.Recipes
 
                 foreach (var toNode in kvp.Value)
                 {
-                    if (!validNodeIds.Contains(toNode))
+                    if (!validNodeIds.Contains(toNode) && !(allowOutTarget && IsOutNode(toNode)))
                     {
                         result.AddError($"Flow transition target node '{toNode}' (from '{fromNode}') does not exist in 'nodes'.");
                     }
@@ -619,6 +953,8 @@ namespace Greenshot.Base.Recipes
                 }
             }
         }
+
+        private static bool IsOutNode(string nodeId) => string.Equals(nodeId, RecipeExtension.OutNode, StringComparison.OrdinalIgnoreCase);
 
         private static bool DetectCycleDfs(
             string current,

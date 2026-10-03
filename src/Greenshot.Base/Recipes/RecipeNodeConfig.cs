@@ -52,7 +52,46 @@ namespace Greenshot.Base.Recipes
         /// <summary>
         /// Whether this node is active in the flow. Disabled nodes are skipped during execution.
         /// </summary>
+        [Newtonsoft.Json.JsonIgnore]
         public bool Enabled { get; set; } = true;
+
+        /// <summary>
+        /// An expression deciding at run time whether the node runs, e.g. "${option.border}" to switch a step with a recipe option.
+        /// When set, it replaces <see cref="Enabled"/>; a node which doesn't run passes the flow on to the next nodes.
+        /// In the recipe file both are "enabled": true, false or the expression.
+        /// </summary>
+        [Newtonsoft.Json.JsonIgnore]
+        public string EnabledExpression { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("enabled")]
+        private object EnabledJson
+        {
+            get => string.IsNullOrWhiteSpace(EnabledExpression) ? Enabled : (object)EnabledExpression;
+            set
+            {
+                EnabledExpression = null;
+                if (value is JValue jValue)
+                {
+                    value = jValue.Value;
+                }
+                switch (value)
+                {
+                    case bool enabled:
+                        Enabled = enabled;
+                        break;
+                    case string text when bool.TryParse(text.Trim(), out var parsed):
+                        Enabled = parsed;
+                        break;
+                    case string text when !string.IsNullOrWhiteSpace(text):
+                        Enabled = true;
+                        EnabledExpression = text.Trim();
+                        break;
+                    default:
+                        Enabled = true;
+                        break;
+                }
+            }
+        }
 
         /// <summary>
         /// Optional fallback step node ID within the same recipe to route to when this node encounters an error.
@@ -162,6 +201,24 @@ namespace Greenshot.Base.Recipes
             return this;
         }
 
+        /// <summary>
+        /// Whether the node runs in this flow: it is enabled and its <see cref="EnabledExpression"/>, if any, is true.
+        /// An expression which can't be evaluated counts as false.
+        /// </summary>
+        public bool ShouldRun(Pipeline.CaptureFlowContext context)
+        {
+            if (!Enabled) return false;
+            if (string.IsNullOrWhiteSpace(EnabledExpression)) return true;
+            return Expressions.ExpressionEvaluator.Instance.Evaluate(EnabledExpression, context, false);
+        }
+
+        /// <summary>
+        /// Provenance: the id of the extension which put this node into a composed recipe, null for the recipe's own nodes.
+        /// Set only by <see cref="RecipeComposer"/>, never read from a file.
+        /// </summary>
+        [Newtonsoft.Json.JsonIgnore]
+        public string ContributedBy { get; set; }
+
         public RecipeNodeConfig Clone()
         {
             var clone = new RecipeNodeConfig
@@ -170,6 +227,10 @@ namespace Greenshot.Base.Recipes
                 StepType = StepType,
                 Name = Name,
                 Enabled = Enabled,
+                EnabledExpression = EnabledExpression,
+                OnErrorNodeId = OnErrorNodeId,
+                OnErrorRecipeId = OnErrorRecipeId,
+                ContributedBy = ContributedBy,
                 Parameters = new Dictionary<string, object>(Parameters, StringComparer.OrdinalIgnoreCase)
             };
             return clone;

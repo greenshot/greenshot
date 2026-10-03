@@ -51,14 +51,14 @@ namespace Greenshot.Helpers.Ipc
         internal static CliParseResult Ok(IpcEnvelope envelope) => new CliParseResult(envelope, null, envelope.Json);
 
         internal static CliParseResult Fail(string detail, bool json, bool showUsageHint = true) =>
-            new CliParseResult(null, "Error: " + detail + (showUsageHint ? "\nUse 'greenshot --help' for usage." : string.Empty), json);
+            new CliParseResult(null, "Error: " + detail + (showUsageHint ? "\nUse 'greenshot-cli --help' for usage." : string.Empty), json);
     }
 
     /// <summary>
-    /// Parses the raw command line forwarded by greenshot.com / greenshot-proxy.exe (CLI request) into the command to dispatch.
+    /// Parses the raw command line forwarded by greenshot-cli.exe / greenshot-proxy.exe (CLI request) into the command to dispatch.
     /// What is accepted depends on the connection source, which the executable announced in its HELLO frame:
     /// <list type="bullet">
-    /// <item><c>cli</c>: the full command line syntax of greenshot.com</item>
+    /// <item><c>cli</c>: the full command line syntax of greenshot-cli.exe</item>
     /// <item><c>url_scheme</c>: exactly one <c>greenshot:</c> URL</item>
     /// <item><c>open_with</c>: file paths, optionally preceded by <c>--file</c></item>
     /// </list>

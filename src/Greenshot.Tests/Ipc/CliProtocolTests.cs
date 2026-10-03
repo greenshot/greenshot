@@ -35,7 +35,7 @@ using Xunit;
 namespace Greenshot.Tests.Ipc
 {
     /// <summary>
-    /// Command line parsing (moved from the native proxy into Greenshot) and the text frame protocol for greenshot.com.
+    /// Command line parsing (moved from the native proxy into Greenshot) and the text frame protocol for greenshot-cli.exe.
     /// </summary>
     [Collection(TestCollections.RecipeManager)]
     public class CliProtocolTests
@@ -87,7 +87,7 @@ namespace Greenshot.Tests.Ipc
             Assert.False(result.Success);
             Assert.StartsWith("Error: ", result.Error);
             Assert.Contains(expectedMessage, result.Error);
-            Assert.Contains("greenshot --help", result.Error);
+            Assert.Contains("greenshot-cli --help", result.Error);
         }
 
         [Fact]

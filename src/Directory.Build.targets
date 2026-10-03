@@ -34,6 +34,39 @@
     </Task>
   </UsingTask>
 
+  <!--
+    A .resx may only contain strings: images, icons and other binary data in a .resx need System.Resources.Extensions (and its
+    dependencies) in the output. Embed such a file as a plain EmbeddedResource and load it with EmbeddedResources, see
+    "Adding images" in README.md. The WinForms designer writes an Image set in its property grid into the .resx, assign
+    images in the code of the form instead (e.g. ApplyImages in ImageEditorForm.cs).
+  -->
+  <UsingTask TaskName="CheckResxHasOnlyStrings" TaskFactory="RoslynCodeTaskFactory" AssemblyName="Microsoft.Build.Tasks.Core">
+    <ParameterGroup>
+      <ResxFiles ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System.Xml.Linq" />
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+        foreach (var resx in ResxFiles)
+        {
+            string path = resx.GetMetadata("FullPath");
+            foreach (var data in XDocument.Load(path).Root.Elements("data"))
+            {
+                if (data.Attribute("type") != null || data.Attribute("mimetype") != null)
+                {
+                    Log.LogError(path + " contains binary data (" + (string)data.Attribute("name") + "): embed it as a file and load it with EmbeddedResources, see \"Adding images\" in README.md");
+                }
+            }
+        }
+        ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+  <Target Name="CheckResxHasOnlyStrings" BeforeTargets="CoreResGen" Condition="'$(MSBuildProjectExtension)' == '.csproj' And '@(EmbeddedResource->WithMetadataValue('Extension', '.resx'))' != ''">
+    <CheckResxHasOnlyStrings ResxFiles="@(EmbeddedResource->WithMetadataValue('Extension', '.resx'))" />
+  </Target>
+
   <PropertyGroup>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>

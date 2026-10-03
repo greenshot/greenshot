@@ -163,6 +163,40 @@ namespace Greenshot.Tests.Forms
         }
 
         [Fact]
+        public void SettingsWindow_HasTheAiToolsAndPluginsPages_AndSelectsTabsByName()
+        {
+            Exception threadEx = null;
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    var window = new SettingsWindow();
+                    // The full version: the pages are their own controls, Greenshot Light doesn't have them
+                    Assert.IsType<AiToolsSettingsPage>(window.AiToolsTabItem.Content);
+                    Assert.IsType<PluginsSettingsPage>(window.PluginsTabItem.Content);
+
+                    window.SelectTab("plugins");
+                    Assert.Same(window.PluginsTabItem, window.SettingsTabControl.SelectedItem);
+                    // By name, not by index: the expert tab comes after the AI tools and plugins tabs
+                    if (((SettingsViewModel)window.DataContext).IsExpertTabVisible)
+                    {
+                        window.SelectTab("expert");
+                        Assert.Same(window.ExpertTabItem, window.SettingsTabControl.SelectedItem);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    threadEx = ex;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+
+            Assert.Null(threadEx);
+        }
+
+        [Fact]
         public void SettingsViewModel_PluginSelection_ControlsAndPropertiesWork()
         {
             var viewModel = new SettingsViewModel();

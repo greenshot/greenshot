@@ -10,7 +10,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="box.png" />
+    <!-- Loaded with EmbeddedResources.GetImage(typeof(BoxPlugin), "Box") -->
+    <EmbeddedResource Include="Box.png" LogicalName="Greenshot.Plugin.Box.BoxPlugin.Box" />
   </ItemGroup>
 
   <ItemGroup>

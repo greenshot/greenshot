@@ -447,6 +447,39 @@ namespace Greenshot.Base.Expressions
             }
         }
 
+        [ThreadStatic]
+        private static bool _evaluatingTemplateOption;
+
+        /// <summary>
+        /// The value of a template option (e.g. a caption "${now:yyyy-MM-dd}") with its ${...} evaluated.
+        /// Options can't be used inside it: a template doesn't expand another template.
+        /// </summary>
+        private string EvaluateTemplateOption(string template, CaptureFlowContext context)
+        {
+            if (string.IsNullOrEmpty(template) || template.IndexOf("${", StringComparison.Ordinal) < 0 || _evaluatingTemplateOption)
+            {
+                return template;
+            }
+
+            _evaluatingTemplateOption = true;
+            try
+            {
+                return TokenRegex.Replace(template, match =>
+                {
+                    string expression = match.Groups[1].Value.Trim();
+                    if (expression.IndexOf("option.", StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        return string.Empty;
+                    }
+                    return EvaluateExpression(expression, context)?.ToString() ?? string.Empty;
+                });
+            }
+            finally
+            {
+                _evaluatingTemplateOption = false;
+            }
+        }
+
         /// <summary>
         /// Resolves a single identifier or constant literal.
         /// </summary>
@@ -508,6 +541,20 @@ namespace Greenshot.Base.Expressions
             {
                 string key = token.Substring(7);
                 return ResolveConfigProperty(key);
+            }
+
+            // Recipe options: the values the user set in Settings > Recipes, e.g. option.border_width.
+            // Checked before the context, so a value set for one run (trigger, command line) can't replace them.
+            // In a composed recipe, the nodes of an extension read its options as option.<extension id>.<key>.
+            if (token.StartsWith("option.", StringComparison.OrdinalIgnoreCase))
+            {
+                string key = token.Substring(7);
+                if (!Recipes.RecipeOptionStore.TryResolve(context?.Recipe, key, out var owner, out var option))
+                {
+                    return null;
+                }
+                object optionValue = Recipes.RecipeOptionStore.GetValue(owner, option);
+                return option.IsTemplate ? EvaluateTemplateOption(optionValue as string, context) : optionValue;
             }
 
             // 4. Flow Context Properties & Custom Variables

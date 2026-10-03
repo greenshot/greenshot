@@ -31,16 +31,9 @@ namespace Greenshot.Base.Recipes
     /// Encapsulates a Directed Acyclic Graph composed of flow-local nodes and flow transitions.
     /// Nodes can execute asynchronously, split to multiple concurrent branches, and merge into join nodes without loops.
     /// </summary>
-    public class CaptureRecipe
+    public class CaptureRecipe : FlowDefinition
     {
-        /// <summary>
-        /// The recipe schema version (e.g. "1.0").
-        /// </summary>
-        public string Version { get; set; } = "1.0";
-
-        public string Id { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
+        public override string Kind => KindRecipe;
 
         /// <summary>
         /// Modular triggers configured for this recipe (e.g. Hotkey, ContextMenu, Clipboard).
@@ -48,29 +41,9 @@ namespace Greenshot.Base.Recipes
         public List<TriggerConfig> Triggers { get; set; } = new List<TriggerConfig>();
 
         /// <summary>
-        /// Explicit extension or plugin dependencies required to execute this recipe.
-        /// </summary>
-        public List<RecipeRequirement> Requires { get; set; } = new List<RecipeRequirement>();
-
-        /// <summary>
-        /// Specified flow-local nodes configured for execution.
-        /// </summary>
-        public List<RecipeNodeConfig> Nodes { get; set; } = new List<RecipeNodeConfig>();
-
-        /// <summary>
-        /// Flow definition specifying entry point(s) and node transitions (edges).
-        /// </summary>
-        public RecipeFlowConfig Flow { get; set; } = new RecipeFlowConfig();
-
-        /// <summary>
         /// Whether this recipe should appear as an option in the systray context menu.
         /// </summary>
         public bool ShowInContextMenu { get; set; } = true;
-
-        /// <summary>
-        /// Indicates if this is one of Greenshot's default built-in recipes.
-        /// </summary>
-        public bool IsBuiltIn { get; set; }
 
         /// <summary>
         /// Indicates if this recipe has been overridden by an external configuration file.
@@ -89,10 +62,37 @@ namespace Greenshot.Base.Recipes
         public string FilePath { get; set; }
 
         /// <summary>
+        /// The AI tool which wrote the recipe file, null when it wasn't written by an AI tool. Set by Greenshot from the approval,
+        /// never read from the recipe file.
+        /// </summary>
+        [Newtonsoft.Json.JsonIgnore]
+        public string ProposedBy { get; set; }
+
+        /// <summary>
         /// What happens when the recipe is started while a flow of it is still running; null means <see cref="FlowConcurrency.Parallel"/>.
         /// </summary>
         [Newtonsoft.Json.JsonProperty(NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Pipeline.FlowConcurrency? Concurrency { get; set; }
+
+        /// <summary>
+        /// Set by <see cref="RecipeComposer"/> on the recipe it composed: the extensions it put in (in the flow or for the
+        /// destinations). ${option.extension.key} in their nodes reads their options. Never read from a file.
+        /// </summary>
+        [Newtonsoft.Json.JsonIgnore]
+        public IReadOnlyList<RecipeExtension> AppliedExtensions { get; set; } = Array.Empty<RecipeExtension>();
+
+        /// <summary>
+        /// Set by <see cref="RecipeComposer"/>: the chains of the extensions on the BeforeDestination slot, run by the export
+        /// steps for each destination on its own copy of the capture.
+        /// </summary>
+        [Newtonsoft.Json.JsonIgnore]
+        public IReadOnlyList<ExtensionChain> DestinationChains { get; set; } = Array.Empty<ExtensionChain>();
+
+        /// <summary>
+        /// True for a recipe made by <see cref="RecipeComposer"/>, which isn't composed again
+        /// </summary>
+        [Newtonsoft.Json.JsonIgnore]
+        public bool IsComposed { get; set; }
 
         public CaptureRecipe()
         {
@@ -125,32 +125,11 @@ namespace Greenshot.Base.Recipes
             return this;
         }
 
-        public RecipeNodeConfig FindNode(string nodeId)
-        {
-            return Nodes?.FirstOrDefault(n => string.Equals(n.Id, nodeId, StringComparison.OrdinalIgnoreCase));
-        }
-
-        public RecipeNodeConfig FindFirstNodeByType(string stepType)
-        {
-            return Nodes?.FirstOrDefault(n => string.Equals(n.StepType, stepType, StringComparison.OrdinalIgnoreCase));
-        }
-
         /// <summary>
-        /// Checks whether the recipe contains any destination/export steps.
+        /// A recipe AI tools run (it has an AI tool trigger): extensions only change it when they name it
         /// </summary>
-        public bool HasDestinationStep()
-        {
-            if (Nodes == null || Nodes.Count == 0) return false;
-            return Nodes.Any(n =>
-                string.Equals(n.StepType, WellKnownStepTypes.Destinations, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(n.StepType, WellKnownStepTypes.SaveFile, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(n.StepType, WellKnownStepTypes.Clipboard, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(n.StepType, WellKnownStepTypes.Editor, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(n.StepType, WellKnownStepTypes.Printer, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(n.StepType, WellKnownStepTypes.Email, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(n.StepType, WellKnownStepTypes.DynamicDestination, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(n.StepType, WellKnownStepTypes.CustomDestination, StringComparison.OrdinalIgnoreCase));
-        }
+        [Newtonsoft.Json.JsonIgnore]
+        public bool IsAiToolRecipe => Triggers?.Any(t => string.Equals(t?.TriggerType, TriggerConfig.TypeAiTool, StringComparison.OrdinalIgnoreCase)) ?? false;
 
         /// <summary>
         /// Checks whether the recipe explicitly exports to an Image Editor destination.
@@ -186,55 +165,23 @@ namespace Greenshot.Base.Recipes
                 string.Equals(node.StepType, WellKnownStepTypes.RecordVideo, StringComparison.OrdinalIgnoreCase));
         }
 
-        /// <summary>
-        /// Determines whether the recipe contains any source step.
-        /// </summary>
-        public bool HasSourceStep()
-        {
-            if (Nodes == null || Nodes.Count == 0) return false;
-            return Nodes.Any(node =>
-                string.Equals(node.StepType, WellKnownStepTypes.Source, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(node.StepType, WellKnownStepTypes.RecordVideo, StringComparison.OrdinalIgnoreCase));
-        }
-
         public CaptureRecipe Clone()
         {
             var clone = new CaptureRecipe
             {
-                Version = Version,
-                Id = Id,
-                Name = Name,
-                Description = Description,
                 ShowInContextMenu = ShowInContextMenu,
-                IsBuiltIn = IsBuiltIn,
                 IsOverridden = IsOverridden,
                 IsEnabled = IsEnabled,
                 FilePath = FilePath,
+                ProposedBy = ProposedBy,
                 Concurrency = Concurrency,
-                Triggers = new List<TriggerConfig>(Triggers?.Count ?? 0),
-                Nodes = new List<RecipeNodeConfig>(Nodes?.Count ?? 0),
-                Flow = Flow?.Clone() ?? new RecipeFlowConfig()
+                AppliedExtensions = AppliedExtensions,
+                DestinationChains = DestinationChains,
+                IsComposed = IsComposed,
+                Triggers = Triggers?.Select(t => t.Clone()).ToList() ?? new List<TriggerConfig>()
             };
-
-            if (Triggers != null)
-            {
-                foreach (var trigger in Triggers)
-                {
-                    clone.Triggers.Add(trigger.Clone());
-                }
-            }
-
-            if (Nodes != null)
-            {
-                foreach (var node in Nodes)
-                {
-                    clone.Nodes.Add(node.Clone());
-                }
-            }
-
+            CopyTo(clone);
             return clone;
         }
-
-        public override string ToString() => Name ?? Id;
     }
 }

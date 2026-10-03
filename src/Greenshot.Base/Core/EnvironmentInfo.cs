@@ -100,7 +100,7 @@ namespace Greenshot.Base.Core
         public static string EnvironmentToString(bool newline)
         {
             StringBuilder environment = new();
-            environment.Append("Software version: " + GetGreenshotVersion());
+            environment.Append("Software version: " + GetGreenshotVersion() + EditionInfo.Suffix);
             if (GreenshotEnvironment.IsPortable)
             {
                 environment.Append(" Portable");

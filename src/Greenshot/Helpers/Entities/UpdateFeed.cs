@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace Greenshot.Helpers.Entities
@@ -29,5 +30,10 @@ namespace Greenshot.Helpers.Entities
         [JsonProperty("release")] public string CurrentReleaseVersion { get; set; }
 
         [JsonProperty("beta")] public string CurrentBetaVersion { get; set; }
+
+        /// <summary>
+        /// Optional download page per edition (e.g. "light"), for the editions that don't use the default downloads page
+        /// </summary>
+        [JsonProperty("downloads")] public Dictionary<string, string> Downloads { get; set; }
     }
 }

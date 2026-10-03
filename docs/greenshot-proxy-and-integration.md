@@ -49,7 +49,7 @@ flowchart TD
     Proxy -->|Local IPC (Named Pipe)| PipeServer
 ```
 
-### Dual Binaries Architecture (`greenshot-proxy.exe` & `greenshot.com`)
+### Dual Binaries Architecture (`greenshot-proxy.exe` & `greenshot-cli.exe`)
 Greenshot provides two small native binaries built from one C code base (`src/greenshot-proxy`). They share the
 connection, framing and HELLO code and differ in their entry point (`main_cli.c`, `main_proxy.c`) and Windows PE subsystem.
 Both are built **without the C runtime** (Win32 API only, about 10 KB of code each) and contain no parsing logic:
@@ -63,13 +63,13 @@ messages) and print what Greenshot sends back. Parsing, validation and output fo
      - Custom URL Protocol Scheme (`greenshot:`) registered in Windows Registry
      - Windows Explorer Shell Handlers ("Open with...")
    - **Why GUI subsystem**: Guarantees **zero console window flash** when launched from web browsers, protocol handlers, or shell shortcuts.
-2. **`greenshot.com` (`/SUBSYSTEM:CONSOLE`)**:
+2. **`greenshot-cli.exe` (`/SUBSYSTEM:CONSOLE`)**:
    - Used for:
      - Terminal invocations (`cmd.exe`, PowerShell, Bash, scripts, CI/CD)
-   - **Why `.com` and Console subsystem**:
-     - In Windows `cmd.exe`, the `%PATHEXT%` environment variable specifies `.COM;.EXE;.BAT;.CMD`.
-     - When a user in the terminal types `greenshot -r ocr -f doc.png`, Windows automatically prioritizes and executes `greenshot.com` ahead of `greenshot.exe`!
-     - Because `greenshot.com` is a Win32 PE console application, `cmd.exe` waits synchronously for execution to complete before displaying the next command prompt.
+   - **Why a separate `.exe` with the Console subsystem**:
+     - In the terminal the command is `greenshot-cli`, e.g. `greenshot-cli -r ocr -f doc.png`; `greenshot` still starts `Greenshot.exe` itself.
+     - The binary used to be called `greenshot.com` so that `%PATHEXT%` (`.COM;.EXE;...`) picked it ahead of `Greenshot.exe`, but Explorer shows no icon for `.com` files. The installer removes the old `greenshot.com`.
+     - Because `greenshot-cli.exe` is a Win32 PE console application, `cmd.exe` waits synchronously for execution to complete before displaying the next command prompt.
      - Full support for standard shell redirection (`>`, `2>`, `|`, `2>&1`) without timing or handle detach issues.
 
 ---
@@ -94,7 +94,7 @@ The first frame on every connection is a `HELLO` written by the executable itsel
 
 | Started as | `source` | `reply_format` | Then sends |
 | :--- | :--- | :--- | :--- |
-| `greenshot.com ...` (terminal) | `cli` | `text` | `{"command":"CLI","cwd":"...","argv":[...]}` |
+| `greenshot-cli.exe ...` (terminal) | `cli` | `text` | `{"command":"CLI","cwd":"...","argv":[...]}` |
 | `greenshot-proxy.exe greenshot:...` (URL protocol) | `url_scheme` | `text` | `{"command":"CLI","cwd":"...","argv":["greenshot:..."]}` |
 | `greenshot-proxy.exe --file <path>` (Explorer) | `open_with` | `text` | `{"command":"CLI","cwd":"...","argv":["--file","<path>"]}` |
 | `greenshot-proxy.exe chrome-extension://<id>/` (Chrome, Edge) | `native_messaging` (+ `origin`) | `json` | the extension's messages, relayed unchanged |
@@ -113,7 +113,7 @@ Handlers always produce JSON-shaped replies: streaming chunks `{"stream": "stdou
 A client has to read its replies: a frame that is not read within 2 minutes (`NamedPipeServer.ReplyWriteTimeout`) closes the connection, so a client that only writes cannot block its handler forever.
 
 * **`json` connections** (browser extension) receive these objects as they are.
-* **`text` connections** (`greenshot.com`, `greenshot-proxy.exe`) receive *text frames*, so the executables never parse JSON. The payload's first byte is the frame type:
+* **`text` connections** (`greenshot-cli.exe`, `greenshot-proxy.exe`) receive *text frames*, so the executables never parse JSON. The payload's first byte is the frame type:
   * `O` + UTF-8 text: write to stdout
   * `E` + UTF-8 text: write to stderr
   * `X` + 4-byte little-endian signed exit code: end of the reply
@@ -127,8 +127,8 @@ A client has to read its replies: a frame that is not read within 2 minutes (`Na
   ```
   `variables` and `payload.metadata` contain only JSON-safe values (strings, numbers, booleans, dates, enums, string lists).
 
-#### Command line (`greenshot.com`)
-* `--help` and `--version` are answered by `greenshot.com` itself; everything else is forwarded to Greenshot (which is started when it is not running).
+#### Command line (`greenshot-cli.exe`)
+* `--help` and `--version` are answered by `greenshot-cli.exe` itself; everything else is forwarded to Greenshot (which is started when it is not running).
 * Recipe arguments: `key=value`, `--key=value` or `--key value`. The value is taken as-is, also when it starts with `-`. `--` ends option parsing (remaining arguments must be `key=value`). Anything else is an error; nothing is silently dropped or truncated.
 * Output is written as UTF-8 to pipes and files, and as UTF-16 to a console, so any Unicode (including emoji) is preserved.
 * Exit codes: `0` success, `1` failure, `2` invalid command line, `3` Greenshot not available, or the exit code set by the recipe (Stderr step).
@@ -137,8 +137,8 @@ A client has to read its replies: a frame that is not read within 2 minutes (`Na
 `Greenshot.exe [startup options] [command]`
 
 * Startup options, used only by `Greenshot.exe` itself and only at the start of the command line: `--language <code>`, `--ini-directory <dir>`, `--no-run`, `--restore` (Restart Manager) and `--help`.
-* Everything after them is a command in the syntax of `greenshot.com` (e.g. `image.png`, `--file image.png`, `--recipe ocr`, `--reload`, `--exit`). `Greenshot.exe` checks it with the same parser (`CliCommandParser`) and sends it unchanged as a `CLI` request (source `cli`), exactly like `greenshot.com`. When Greenshot is not running it starts and sends the request to itself once its pipe server listens; `--exit` and `--reload` then do nothing.
-* `Greenshot.exe` shows no output of the command; use `greenshot.com` for that.
+* Everything after them is a command in the syntax of `greenshot-cli.exe` (e.g. `image.png`, `--file image.png`, `--recipe ocr`, `--reload`, `--exit`). `Greenshot.exe` checks it with the same parser (`CliCommandParser`) and sends it unchanged as a `CLI` request (source `cli`), exactly like `greenshot-cli.exe`. When Greenshot is not running it starts and sends the request to itself once its pipe server listens; `--exit` and `--reload` then do nothing.
+* `Greenshot.exe` shows no output of the command; use `greenshot-cli.exe` for that.
 
 ### 2.2 Cold-Start Orchestration & Concurrency
 When a client invokes `greenshot-proxy.exe` while Greenshot is not running:
@@ -272,7 +272,7 @@ External callers can supply runtime context that becomes variables inside the re
    - `${Browser.Domain}`: Hostname (e.g. `github.com`)
    - `${Browser.Title}`: Document title
    - `${Browser.Ticket}`: Extracted ticket/issue ID (e.g. `JIRA-1234`)
-2. **CLI Parameters**: `key=value`, `--key=value` or `--key value` passed after `greenshot --recipe <cmd>` are bound by `CommandlineArgumentBinder` against the `arguments` declared on the recipe's `CommandlineTrigger`:
+2. **CLI Parameters**: `key=value`, `--key=value` or `--key value` passed after `greenshot-cli --recipe <cmd>` are bound by `CommandlineArgumentBinder` against the `arguments` declared on the recipe's `CommandlineTrigger`:
    - Only declared arguments are accepted; anything else (including names of built-in variables) fails with exit code 2 and the list of accepted arguments. A recipe without declared arguments accepts none.
    - Required arguments must be supplied, missing optional ones get their `defaultValue`.
    - The value is stored only under the argument's `variable` (defaults to its `name`), so `${variable}` is available in node expressions, file naming templates and destination steps.

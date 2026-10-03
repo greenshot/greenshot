@@ -1,10 +1,12 @@
 using System;
+using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Threading;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Wpf;
 using Greenshot.Plugin.RecipeEditor.ViewModels;
@@ -21,6 +23,8 @@ namespace Greenshot.Plugin.RecipeEditor
 
         public RecipeEditorViewModel ViewModel { get; }
 
+        private readonly DispatcherTimer _unsavedStateTimer;
+
         public RecipeEditorWindow(IRecipeManager recipeManager = null)
         {
             InitializeComponent();
@@ -29,6 +33,17 @@ namespace Greenshot.Plugin.RecipeEditor
 
             ViewModel = new RecipeEditorViewModel(recipeManager);
             DataContext = ViewModel;
+
+            // Steps and triggers change their configuration directly: compare with the saved recipe regularly
+            _unsavedStateTimer = new DispatcherTimer(DispatcherPriority.Background) { Interval = TimeSpan.FromMilliseconds(700) };
+            _unsavedStateTimer.Tick += (s, e) => ViewModel.RefreshUnsavedState();
+            _unsavedStateTimer.Start();
+            Closing += OnWindowClosing;
+            Closed += (s, e) =>
+            {
+                _unsavedStateTimer.Stop();
+                ViewModel.Detach();
+            };
 
             WpfThemeHelper.ThemeChanged += ApplyImmersiveDarkMode;
             Loaded += (s, e) =>
@@ -49,6 +64,11 @@ namespace Greenshot.Plugin.RecipeEditor
                     new Nodify.Interactivity.MouseGesture(MouseAction.MiddleClick),
                     new Nodify.Interactivity.MouseGesture(MouseAction.LeftClick, Key.Space)
                 );
+                // Mouse wheel as in other Windows apps: scroll up/down, Shift scrolls sideways, Ctrl zooms
+                gestures.Editor.PanWithMouseWheel = true;
+                gestures.Editor.PanVerticalModifierKey = ModifierKeys.None;
+                gestures.Editor.PanHorizontalModifierKey = ModifierKeys.Shift;
+                gestures.Editor.ZoomModifierKey = ModifierKeys.Control;
                 EditorCanvas.InputGestures = gestures;
             }
             catch
@@ -107,9 +127,15 @@ namespace Greenshot.Plugin.RecipeEditor
                             {
                                 if (element is FrameworkElement fe && fe.ContextMenu != null)
                                 {
-                                    fe.ContextMenu.PlacementTarget = fe;
-                                    fe.ContextMenu.IsOpen = true;
+                                    // After this mouse up: the canvas may still hold the mouse (right drag pans), the menu wouldn't get its clicks
+                                    var menu = fe.ContextMenu;
                                     e.Handled = true;
+                                    _ = Dispatcher.BeginInvoke(new Action(() =>
+                                    {
+                                        Mouse.Capture(null);
+                                        menu.PlacementTarget = fe;
+                                        menu.IsOpen = true;
+                                    }), System.Windows.Threading.DispatcherPriority.Input);
                                     break;
                                 }
                                 element = VisualTreeHelper.GetParent(element);
@@ -160,6 +186,15 @@ namespace Greenshot.Plugin.RecipeEditor
         private void OnMaximizeClicked(object sender, RoutedEventArgs e)
         {
             WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+        }
+
+        private void OnWindowClosing(object sender, CancelEventArgs e)
+        {
+            // Save, discard or keep editing the unsaved changes
+            if (!ViewModel.ConfirmDiscardChanges())
+            {
+                e.Cancel = true;
+            }
         }
 
         private void OnCloseTitleBarClicked(object sender, RoutedEventArgs e)

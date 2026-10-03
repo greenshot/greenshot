@@ -40,6 +40,28 @@ namespace Greenshot.Base.Recipes
         CaptureRecipe GetRecipeById(string id);
 
         /// <summary>
+        /// The recipe extensions (border, drop shadow, ...), whether switched on or not
+        /// </summary>
+        IReadOnlyList<RecipeExtension> GetAllExtensions();
+
+        /// <summary>
+        /// Stops using an extension from a file and forgets the file (a built-in extension it replaced comes back)
+        /// </summary>
+        bool UnregisterExtension(string extensionId);
+
+        /// <summary>
+        /// Saves an extension (from the recipe editor) to its file and uses it: its approval is renewed for the saved content,
+        /// the user is asked when the change needs a decision (a new extension, it changes more recipes, a new permission)
+        /// </summary>
+        RecipeValidationResult SaveExtensionToFile(RecipeExtension extension, string filePath);
+
+        /// <summary>
+        /// The recipe as it runs: with the switched on extensions in its slots (see <see cref="RecipeComposer"/>).
+        /// The recipe itself when no extension changes it.
+        /// </summary>
+        CaptureRecipe GetEffectiveRecipe(CaptureRecipe recipe);
+
+        /// <summary>
         /// Registers or updates a recipe.
         /// </summary>
         void RegisterRecipe(CaptureRecipe recipe);
@@ -78,6 +100,40 @@ namespace Greenshot.Base.Recipes
         /// Resets an overridden built-in recipe back to its original default definition.
         /// </summary>
         bool ResetToDefault(string recipeId);
+
+        /// <summary>
+        /// Shows the approval of a recipe from a file again, so the user can switch triggers and permissions on or off.
+        /// Returns null when the recipe has no file.
+        /// </summary>
+        RecipeValidationResult ReviewApproval(string recipeId);
+
+        /// <summary>
+        /// Saves a recipe from Greenshot's recipe editor to the file and registers it. The approval is renewed for exactly the saved
+        /// content; the approval window is only shown when the change adds a trigger which starts the recipe on its own or from
+        /// outside, a kind of gated action that wasn't allowed, or replaces a built-in recipe. Errors when it wasn't saved.
+        /// </summary>
+        RecipeValidationResult SaveRecipeToFile(CaptureRecipe recipe, string filePath);
+
+        /// <summary>
+        /// What saving the recipe (as edited in the recipe editor) to the file would ask the user to decide, empty when the save
+        /// renews the approval without asking. See <see cref="SaveRecipeToFile"/>.
+        /// </summary>
+        IReadOnlyList<string> GetSaveDecisionReasons(CaptureRecipe recipe, string filePath);
+
+        /// <summary>
+        /// What the recipe does in plain words, its approval and the changes against the built-in recipe it replaces; null for an unknown id
+        /// </summary>
+        RecipeDetails GetRecipeDetails(string recipeId);
+
+        /// <summary>
+        /// Shows the recipe and its approval in the approval window, read-only (UI thread). False for an unknown id.
+        /// </summary>
+        bool ShowRecipeDetails(string recipeId);
+
+        /// <summary>
+        /// Brings back every built-in recipe a file replaces
+        /// </summary>
+        void ResetAllToDefault();
 
         /// <summary>
         /// Reloads built-in recipes and re-applies configured recipe files from greenshot.ini.

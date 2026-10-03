@@ -44,7 +44,6 @@ public class BoxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvi
 {
     private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BoxPlugin));
     private static IBoxConfiguration _config;
-    private ComponentResourceManager _resources;
     private ToolStripMenuItem _itemPlugInConfig;
 
     public ValueTask DisposeAsync()
@@ -64,7 +63,6 @@ public class BoxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvi
         services.AddConfiguration(section);
         _config = section;
 
-        _resources = new ComponentResourceManager(typeof(BoxPlugin));
         services.AddService<IIconProvider>(BoxDestination.Icons);
         services.AddService<IDestination>(new BoxDestination(this));
         services.AddRecipeStepProvider(this);
@@ -93,7 +91,7 @@ public class BoxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvi
     {
         _itemPlugInConfig = new ToolStripMenuItem
         {
-            Image = (Image) _resources.GetObject("Box"),
+            Image = EmbeddedResources.GetImage(typeof(BoxPlugin), "Box"),
             Text = PluginUtils.GetQuicklinkText("Box"),
             Visible = _config?.QuicklinkEnabled ?? false
         };

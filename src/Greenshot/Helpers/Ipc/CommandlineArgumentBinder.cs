@@ -23,6 +23,8 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Dapplo.Windows.Common.Structs;
+using Greenshot.Base.Core;
 using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Triggers;
 
@@ -72,7 +74,12 @@ namespace Greenshot.Helpers.Ipc
         /// <param name="recipeName">For error messages</param>
         /// <param name="cwd">Caller's working directory, used to resolve relative paths</param>
         /// <param name="source">Connection source, used for the path security rules</param>
+        /// <param name="aiClient">The AI tool for an AI tool trigger: Window arguments resolve the window ids it got from list_windows</param>
+#if GREENSHOT_LIGHT
         public static ArgumentBindingResult Bind(IList<CommandlineArgument> declared, IDictionary<string, string> supplied, string recipeName, string cwd, string source)
+#else
+        public static ArgumentBindingResult Bind(IList<CommandlineArgument> declared, IDictionary<string, string> supplied, string recipeName, string cwd, string source, AiToolClient aiClient = null)
+#endif
         {
             declared = (declared ?? new List<CommandlineArgument>()).Where(a => !string.IsNullOrWhiteSpace(a?.Name)).ToList();
             supplied = supplied ?? new Dictionary<string, string>();
@@ -120,7 +127,11 @@ namespace Greenshot.Helpers.Ipc
                     continue;
                 }
 
+#if GREENSHOT_LIGHT
                 if (!TryConvert(argument, raw, cwd, source, out object value, out string error))
+#else
+                if (!TryConvert(argument, raw, cwd, source, aiClient, out object value, out string error))
+#endif
                 {
                     return ArgumentBindingResult.Fail(error);
                 }
@@ -130,7 +141,11 @@ namespace Greenshot.Helpers.Ipc
             return ArgumentBindingResult.Ok(variables);
         }
 
+#if GREENSHOT_LIGHT
         private static bool TryConvert(CommandlineArgument argument, string raw, string cwd, string source, out object value, out string error)
+#else
+        private static bool TryConvert(CommandlineArgument argument, string raw, string cwd, string source, AiToolClient aiClient, out object value, out string error)
+#endif
         {
             value = null;
             error = null;
@@ -204,11 +219,87 @@ namespace Greenshot.Helpers.Ipc
                     value = fullPath;
                     return true;
 
+                case ContractDataType.Window:
+#if GREENSHOT_LIGHT
+                    // Greenshot Light has no AI tools
+                    error = $"Error: argument '{name}' is a window, window arguments are only available to AI tools.";
+                    return false;
+#else
+                    return TryResolveWindow(name, raw, aiClient, out value, out error);
+#endif
+
+                case ContractDataType.Region:
+                    if (TryParseRegion(raw, out var region))
+                    {
+                        value = region;
+                        return true;
+                    }
+                    error = $"Error: argument '{name}' expects a region 'x,y,width,height' in screen coordinates (width and height above 0), got '{raw}'.";
+                    return false;
+
                 default:
                     // String and Object: passed on as text
                     value = raw;
                     return true;
             }
+        }
+
+#if !GREENSHOT_LIGHT
+        /// <summary>
+        /// A Window argument: only a window id an AI tool got from list_windows, never a handle, title or anything else.
+        /// Windows of excluded processes are refused (they don't get ids, this also covers a changed exclusion list).
+        /// </summary>
+        private static bool TryResolveWindow(string name, string raw, AiToolClient aiClient, out object value, out string error)
+        {
+            value = null;
+            if (aiClient == null)
+            {
+                error = $"Error: argument '{name}' is a window, window arguments are only available to AI tools.";
+                return false;
+            }
+            if (!AiWindowRefs.TryResolve(aiClient, raw, out IntPtr handle, out string refError))
+            {
+                error = $"Error: argument '{name}': {refError}";
+                return false;
+            }
+            var window = new WindowDetails(handle);
+            string processName = AiToolCapture.GetProcessName(window);
+            if (AiToolAccess.IsProcessExcluded(processName))
+            {
+                error = $"Error: argument '{name}': windows of '{processName}' are excluded from AI tools.";
+                return false;
+            }
+            value = window;
+            error = null;
+            return true;
+        }
+#endif
+
+        /// <summary>
+        /// "x,y,width,height" (spaces and ';' allowed) in screen coordinates, width and height above 0.
+        /// </summary>
+        internal static bool TryParseRegion(string raw, out NativeRect region)
+        {
+            region = NativeRect.Empty;
+            var parts = (raw ?? string.Empty).Split(new[] { ',', ';', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length != 4)
+            {
+                return false;
+            }
+            var numbers = new int[4];
+            for (int i = 0; i < 4; i++)
+            {
+                if (!int.TryParse(parts[i], NumberStyles.Integer, CultureInfo.InvariantCulture, out numbers[i]))
+                {
+                    return false;
+                }
+            }
+            if (numbers[2] <= 0 || numbers[3] <= 0)
+            {
+                return false;
+            }
+            region = new NativeRect(numbers[0], numbers[1], numbers[2], numbers[3]);
+            return true;
         }
     }
 }

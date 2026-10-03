@@ -59,10 +59,13 @@ namespace Greenshot.Helpers.Ipc
 
         private static readonly HashSet<string> AllowedCommands = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
+#if !GREENSHOT_LIGHT
+            // The browser extension
             "HANDSHAKE",
-            "CLI",
             "IMPORT_CAPTURE",
             "TAB_CHANGED",
+#endif
+            "CLI",
             "OPEN_FILE",
             "EXIT",
             "RELOAD_CONFIG",
@@ -76,8 +79,33 @@ namespace Greenshot.Helpers.Ipc
             "ABOUT",
             "SELF_SERVICE",
             "RECIPE_EDITOR",
-            "RECIPE_MANAGER"
+            "RECIPE_MANAGER",
+#if !GREENSHOT_LIGHT
+            // AI tools (greenshot-mcp)
+            "LIST_WINDOWS",
+            "LIST_AI_TOOLS",
+            "RUN_AI_TOOL",
+            "RECIPE_CATALOG",
+            "VALIDATE_RECIPE",
+            "PROPOSE_RECIPE"
+#endif
         };
+
+#if !GREENSHOT_LIGHT
+        /// <summary>
+        /// The commands of AI tools (greenshot-mcp.exe): only allowed for the "mcp" source. Except LIST_AI_TOOLS they need the user's
+        /// consent for the AI tool (see <see cref="AiToolAccess"/>).
+        /// </summary>
+        private static readonly HashSet<string> AiToolCommands = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "LIST_WINDOWS",
+            "LIST_AI_TOOLS",
+            "RUN_AI_TOOL",
+            "RECIPE_CATALOG",
+            "VALIDATE_RECIPE",
+            "PROPOSE_RECIPE"
+        };
+#endif
 
         private static readonly HashSet<string> FallbackAllowedImageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -216,10 +244,11 @@ namespace Greenshot.Helpers.Ipc
             }
 
             // 4. UNC / Network share validation:
-            // Disallow UNC paths from untrusted sources (url_scheme, native_messaging) to prevent NTLM credential relay
+            // Disallow UNC paths from untrusted sources (url_scheme, native_messaging, mcp) to prevent NTLM credential relay
             bool isUnc = fullPath.StartsWith(@"\\") || fullPath.StartsWith("//");
             if (isUnc && (string.Equals(source, "url_scheme", StringComparison.OrdinalIgnoreCase) ||
-                          string.Equals(source, "native_messaging", StringComparison.OrdinalIgnoreCase)))
+                          string.Equals(source, "native_messaging", StringComparison.OrdinalIgnoreCase) ||
+                          string.Equals(source, IpcSources.Mcp, StringComparison.OrdinalIgnoreCase)))
             {
                 errorMessage = "Network (UNC) paths are not permitted from this source.";
                 return false;
@@ -272,6 +301,7 @@ namespace Greenshot.Helpers.Ipc
                 "RECIPE_EDITOR",
                 "RECIPE_MANAGER"
             },
+#if !GREENSHOT_LIGHT
             ["native_messaging"] = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
                 "HANDSHAKE",
@@ -282,11 +312,26 @@ namespace Greenshot.Helpers.Ipc
                 "DESCRIBE_RECIPE",
                 "RUN_RECIPE"
             },
+#endif
             ["open_with"] = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
                 "CLI",
                 "OPEN_FILE"
+            },
+#if !GREENSHOT_LIGHT
+            // greenshot-mcp.exe: what an AI tool may do, after the user allowed it. Everything it captures goes through a recipe
+            // with an AI tool trigger (RUN_AI_TOOL), not through the command line recipes (RUN_RECIPE).
+            [IpcSources.Mcp] = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "VERSION",
+                "LIST_WINDOWS",
+                "LIST_AI_TOOLS",
+                "RUN_AI_TOOL",
+                "RECIPE_CATALOG",
+                "VALIDATE_RECIPE",
+                "PROPOSE_RECIPE"
             }
+#endif
         };
 
         /// <summary>
@@ -298,12 +343,58 @@ namespace Greenshot.Helpers.Ipc
             {
                 return false;
             }
+#if !GREENSHOT_LIGHT
+            // AI tool commands only for greenshot-mcp.exe: not for the command line, a web page or the browser extension
+            if (AiToolCommands.Contains(command) && !string.Equals(source, IpcSources.Mcp, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+#endif
             if (!string.IsNullOrEmpty(source) && SourceAllowedCommands.TryGetValue(source, out var sourceCommands))
             {
                 return sourceCommands.Contains(command);
             }
             return true;
         }
+
+#if !GREENSHOT_LIGHT
+        /// <summary>
+        /// Why an AI tool request is refused by the opt-in switches, null when it isn't. Only greenshot-mcp's own version
+        /// passes while AI tools are switched off.
+        /// </summary>
+        internal static string GetAiToolsOptInError(string command, string source)
+        {
+            if (!string.Equals(source, IpcSources.Mcp, StringComparison.OrdinalIgnoreCase))
+            {
+                return null;
+            }
+            if (!AiToolAccess.IsEnabled)
+            {
+                return string.Equals(command, "VERSION", StringComparison.OrdinalIgnoreCase) ? null : AiToolAccess.DisabledMessage;
+            }
+            if (string.Equals(command, "PROPOSE_RECIPE", StringComparison.OrdinalIgnoreCase) && !AiToolAccess.AreRecipeProposalsAllowed)
+            {
+                return AiToolAccess.ProposalsDisabledMessage;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// True when the command needs the user's consent for AI tools: every command from greenshot-mcp.exe except VERSION and
+        /// LIST_AI_TOOLS (the tool names and descriptions, so the AI tool can show its tools before the user is asked),
+        /// and the AI tool commands from any source. The recipe commands (catalog, validate, propose) need the consent too; a
+        /// proposed recipe additionally needs the user's approval in the recipe approval window.
+        /// </summary>
+        internal static bool RequiresAiToolConsent(string command, string source)
+        {
+            if (string.Equals(command, "VERSION", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(command, "LIST_AI_TOOLS", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+            return AiToolCommands.Contains(command) || string.Equals(source, IpcSources.Mcp, StringComparison.OrdinalIgnoreCase);
+        }
+#endif
 
         public static async Task DispatchAsync(IpcRequestContext context, Form mainForm, Action onExit, Action onReloadConfig, Action onFirstLaunch, Action<string> onOpenFile)
         {
@@ -365,10 +456,49 @@ namespace Greenshot.Helpers.Ipc
                 return;
             }
 
+#if !GREENSHOT_LIGHT
+            // 2. AI tools are opt-in: switched off, greenshot-mcp gets nothing but its version, and nobody is asked
+            string optInError = GetAiToolsOptInError(command, context.Envelope.Source);
+            if (optInError != null)
+            {
+                Log.Warn($"[SECURITY] IPC command rejected: '{command}' from source '{context.Envelope.Source}': {optInError}");
+                try
+                {
+                    await context.ReplyAsync(new
+                    {
+                        status = "error",
+                        exit_code = 1,
+                        stderr = optInError
+                    }).ConfigureAwait(false);
+                }
+                catch { }
+                return;
+            }
+
+            // 3. AI tools (and anything reading the screen contents) need the user's consent
+            if (RequiresAiToolConsent(command, context.Envelope.Source) &&
+                !await AiToolAccess.EnsureAllowedAsync(context.AiClient).ConfigureAwait(false))
+            {
+                Log.Warn($"[SECURITY] IPC command rejected: '{command}' from source '{context.Envelope.Source}', the user did not allow {context.AiClient?.ToString() ?? "an unidentified program"}.");
+                try
+                {
+                    await context.ReplyAsync(new
+                    {
+                        status = "error",
+                        exit_code = 1,
+                        stderr = AiToolAccess.NotAllowedMessage
+                    }).ConfigureAwait(false);
+                }
+                catch { }
+                return;
+            }
+#endif
+
             Log.Info($"Processing whitelisted IPC command: '{command}' from source '{context.Envelope.Source}'");
 
             switch (command.ToUpperInvariant())
             {
+#if !GREENSHOT_LIGHT
                 case "HANDSHAKE":
                     await HandleHandshakeAsync(context).ConfigureAwait(false);
                     break;
@@ -380,6 +510,7 @@ namespace Greenshot.Helpers.Ipc
                 case "TAB_CHANGED":
                     HandleTabChanged(context);
                     break;
+#endif
 
                 case "CLI":
                     await HandleCliAsync(context, mainForm, onExit, onReloadConfig, onFirstLaunch, onOpenFile).ConfigureAwait(false);
@@ -423,6 +554,32 @@ namespace Greenshot.Helpers.Ipc
                 case "RECIPE_MANAGER":
                     await HandleRecipeManagerAsync(context, mainForm).ConfigureAwait(false);
                     break;
+
+#if !GREENSHOT_LIGHT
+                case "LIST_WINDOWS":
+                    await AiToolIpcHandler.HandleListWindowsAsync(context).ConfigureAwait(false);
+                    break;
+
+                case "LIST_AI_TOOLS":
+                    await AiToolIpcHandler.HandleListAiToolsAsync(context).ConfigureAwait(false);
+                    break;
+
+                case "RUN_AI_TOOL":
+                    await AiToolIpcHandler.HandleRunAiToolAsync(context).ConfigureAwait(false);
+                    break;
+
+                case "RECIPE_CATALOG":
+                    await AiRecipeIpcHandler.HandleRecipeCatalogAsync(context).ConfigureAwait(false);
+                    break;
+
+                case "VALIDATE_RECIPE":
+                    await AiRecipeIpcHandler.HandleValidateRecipeAsync(context).ConfigureAwait(false);
+                    break;
+
+                case "PROPOSE_RECIPE":
+                    await AiRecipeIpcHandler.HandleProposeRecipeAsync(context).ConfigureAwait(false);
+                    break;
+#endif
 
                 case "EXIT":
                     try
@@ -481,6 +638,7 @@ namespace Greenshot.Helpers.Ipc
             UiDispatcher.Current.InvokeAsync(action).FireAndLog("IPC UI action", Log);
         }
 
+#if !GREENSHOT_LIGHT
         private static async Task HandleHandshakeAsync(IpcRequestContext context)
         {
             string versionStr = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "1.4.0";
@@ -608,6 +766,7 @@ namespace Greenshot.Helpers.Ipc
 
             BrowserContextTracker.Instance.UpdateContext(url, title);
         }
+#endif
 
         private static async Task HandleVersionAsync(IpcRequestContext context)
         {
@@ -622,7 +781,7 @@ namespace Greenshot.Helpers.Ipc
         }
 
         /// <summary>
-        /// True when the reply is printed by greenshot.com as text (and not requested as --json).
+        /// True when the reply is printed by greenshot-cli.exe as text (and not requested as --json).
         /// </summary>
         private static bool WantsTextOutput(IpcRequestContext context)
         {
@@ -630,7 +789,7 @@ namespace Greenshot.Helpers.Ipc
         }
 
         /// <summary>
-        /// CLI: a raw command line forwarded by greenshot.com / greenshot-proxy.exe. It is parsed according to the connection
+        /// CLI: a raw command line forwarded by greenshot-cli.exe / greenshot-proxy.exe. It is parsed according to the connection
         /// source and the resulting command is dispatched like any other request (including the per-source whitelist).
         /// </summary>
         private static async Task HandleCliAsync(IpcRequestContext context, Form mainForm, Action onExit, Action onReloadConfig, Action onFirstLaunch, Action<string> onOpenFile)
@@ -663,7 +822,7 @@ namespace Greenshot.Helpers.Ipc
                 foreach (var recipe in recipeManager.GetAllRecipes().Where(r => r.IsEnabled))
                 {
                     if (recipe.Triggers == null) continue;
-                    foreach (var tc in recipe.Triggers.Where(t => t.Enabled && string.Equals(t.TriggerType, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase)))
+                    foreach (var tc in recipe.Triggers.Where(t => t.IsActive && string.Equals(t.TriggerType, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase)))
                     {
                         string cmd = tc.GetParameter<string>("Command") ?? recipe.Id;
                         string desc = tc.GetParameter<string>("Description") ?? recipe.Description ?? string.Empty;
@@ -699,7 +858,7 @@ namespace Greenshot.Helpers.Ipc
                 status = "ok",
                 exit_code = 0,
                 recipes = list,
-                // Console output for greenshot.com; JSON clients use "recipes"
+                // Console output for greenshot-cli.exe; JSON clients use "recipes"
                 stdout = WantsTextOutput(context) ? CliTextRenderer.RenderRecipeList(Newtonsoft.Json.Linq.JToken.FromObject(list)) : null
             }).ConfigureAwait(false);
         }
@@ -833,7 +992,7 @@ namespace Greenshot.Helpers.Ipc
                 status = "ok",
                 exit_code = 0,
                 recipe = recipeInfo,
-                // Console output for greenshot.com; JSON clients use "recipe"
+                // Console output for greenshot-cli.exe; JSON clients use "recipe"
                 stdout = WantsTextOutput(context) ? CliTextRenderer.RenderRecipeDescription(Newtonsoft.Json.Linq.JToken.FromObject(recipeInfo)) : null
             }).ConfigureAwait(false);
         }
@@ -881,7 +1040,7 @@ namespace Greenshot.Helpers.Ipc
             foreach (var recipe in recipeManager.GetAllRecipes().Where(r => r.IsEnabled))
             {
                 if (recipe.Triggers == null) continue;
-                foreach (var tc in recipe.Triggers.Where(t => t.Enabled && string.Equals(t.TriggerType, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase)))
+                foreach (var tc in recipe.Triggers.Where(t => t.IsActive && string.Equals(t.TriggerType, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase)))
                 {
                     string cmd = tc.GetParameter<string>("Command");
                     if (string.Equals(cmd, target, StringComparison.OrdinalIgnoreCase) ||
@@ -908,7 +1067,7 @@ namespace Greenshot.Helpers.Ipc
             }
 
             // Recipes can only be started from a browser (web page URL or extension) when the trigger explicitly opts in.
-            if (IsBrowserSource(context.Envelope.Source) && !matchedTriggerConfig.GetParameter<bool>("AllowBrowserInvocation", false))
+            if (IsBrowserSource(context.Envelope.Source) && !(matchedTriggerConfig.GetParameter<bool>("AllowBrowserInvocation", false) && matchedTriggerConfig.IsBrowserInvocationApproved))
             {
                 Log.Warn($"[SECURITY] RUN_RECIPE rejected: recipe '{matchedRecipe.Id}' does not allow invocation from source '{context.Envelope.Source}'.");
                 await context.ReplyAsync(new
@@ -1419,7 +1578,7 @@ namespace Greenshot.Helpers.Ipc
                 foreach (var recipe in recipeManager.GetAllRecipes().Where(r => r.IsEnabled))
                 {
                     if (recipe.Triggers == null) continue;
-                    foreach (var tc in recipe.Triggers.Where(t => t.Enabled && string.Equals(t.TriggerType, TriggerConfig.TypeOpenFile, StringComparison.OrdinalIgnoreCase)))
+                    foreach (var tc in recipe.Triggers.Where(t => t.IsActive && string.Equals(t.TriggerType, TriggerConfig.TypeOpenFile, StringComparison.OrdinalIgnoreCase)))
                     {
                         openFileRecipes.Add((recipe, tc));
                     }

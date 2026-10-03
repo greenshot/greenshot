@@ -59,15 +59,31 @@ namespace Greenshot.Helpers
         private static IDisposable _endSessionSubscription;
 
         /// <summary>
+        /// Creates the command line for the restart: <c>--restore</c>, and <c>--ini-directory</c> when one is active.
+        /// </summary>
+        /// <param name="iniDirectory">The active --ini-directory (absolute) or null</param>
+        internal static string CreateRestartArguments(string iniDirectory)
+        {
+            if (string.IsNullOrEmpty(iniDirectory))
+            {
+                return "--restore";
+            }
+
+            // A trailing backslash (e.g. D:\) would escape the closing quote, so double it
+            return $"--restore --ini-directory \"{(iniDirectory.EndsWith(@"\") ? iniDirectory + @"\" : iniDirectory)}\"";
+        }
+
+        /// <summary>
         /// Registers Greenshot for automatic restart by the Windows Restart Manager.
         /// When the Restart Manager restarts Greenshot, it will use the <c>--restore</c> argument
         /// so that Greenshot can restore any open image editors.
         /// </summary>
-        public static void RegisterForRestart()
+        /// <param name="iniDirectory">The active --ini-directory (absolute) or null, passed on so the restarted Greenshot uses the same greenshot.ini</param>
+        public static void RegisterForRestart(string iniDirectory)
         {
             // Register with the Windows Restart Manager so it can restart us after updates
             // Don't restart if the application crashes
-            ApplicationRestartManager.RegisterForRestart(commandLineArgs: "--restore");
+            ApplicationRestartManager.RegisterForRestart(commandLineArgs: CreateRestartArguments(iniDirectory));
 
             // WM_QUERYENDSESSION is not answered, which allows the session to end (an update will take place).
             // OnNext is called on the SharedMessageWindow thread, not on the UI thread.
@@ -84,6 +100,10 @@ namespace Greenshot.Helpers
         private static void OnSessionEnding(EndSessionMessage endSessionMessage)
         {
             Log.InfoFormat("Shutting down the application due to {0}", endSessionMessage.EndSessionReason);
+            // The Restart Manager closes Greenshot for an installer (update or uninstall): greenshot-mcp has to exit too,
+            // otherwise it keeps the installation directory locked
+            bool closedForInstaller = endSessionMessage.EndSessionReason.HasFlag(Dapplo.Windows.AppRestartManager.Enums.EndSessionReasons.ENDSESSION_CLOSEAPP);
+            NotifyClientsOfShutdown(closedForInstaller ? Ipc.NamedPipeServer.ShutdownReasonUpdate : Ipc.NamedPipeServer.ShutdownReasonSessionEnd);
             SaveEditorState();
             // Don't wait for the exit, the editors might want to ask the user something
             UiDispatcher.Current.RunOnUiAsync(() =>
@@ -91,6 +111,36 @@ namespace Greenshot.Helpers
                 Application.Exit();
                 Environment.Exit(0);
             }).FireAndLog("Exit after the end of the session", Log);
+        }
+
+        /// <summary>
+        /// Tells the named pipe clients that Greenshot exits, set by the MainForm
+        /// </summary>
+        internal static Func<string, Task> ShutdownNotifier { get; set; }
+
+        /// <summary>
+        /// How long the end of the session waits for the clients to get the shutdown message
+        /// </summary>
+        private static readonly TimeSpan NotifyTimeout = TimeSpan.FromSeconds(1);
+
+        private static void NotifyClientsOfShutdown(string reason)
+        {
+            var notifier = ShutdownNotifier;
+            if (notifier == null)
+            {
+                return;
+            }
+            try
+            {
+                // R1 exception: like SaveEditorState, this runs inside the window procedure for WM_ENDSESSION
+#pragma warning disable RS0030, VSTHRD002
+                notifier(reason).Wait(NotifyTimeout);
+#pragma warning restore RS0030, VSTHRD002
+            }
+            catch (Exception ex)
+            {
+                Log.Debug("Could not tell the named pipe clients that Greenshot exits.", ex);
+            }
         }
 
         /// <summary>

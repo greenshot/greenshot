@@ -944,7 +944,7 @@ namespace Greenshot.UI.SelfService
                 var sb = new StringBuilder();
                 sb.AppendLine("Greenshot Installation Integrity Report");
                 sb.AppendLine($"Generated: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
-                sb.AppendLine($"Greenshot Version: {EnvironmentInfo.GetGreenshotVersion()} ({OsInfo.Bits}-bit)");
+                sb.AppendLine($"Greenshot Version: {EnvironmentInfo.GetGreenshotVersion()}{EditionInfo.Suffix} ({OsInfo.Bits}-bit)");
                 sb.AppendLine($"Base Directory: {BaseDirectory}");
                 sb.AppendLine($"Checksum File: {ChecksumFilePath}");
                 sb.AppendLine();

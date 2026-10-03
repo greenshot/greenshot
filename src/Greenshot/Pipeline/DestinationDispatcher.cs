@@ -34,6 +34,7 @@ using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Recipes;
 using Greenshot.Base.Threading;
 using Greenshot.Destinations;
 using Greenshot.Editor.Destinations;
@@ -87,8 +88,18 @@ namespace Greenshot.Pipeline
             var userInteraction = context.UserInteraction;
             var source = await payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
 
+            // Extensions on the BeforeDestination slot run for each destination, on its own copy of the capture
+            var chains = context.Recipe?.DestinationChains ?? Array.Empty<ExtensionChain>();
+
             // If Destination Picker is in the list, let the user pick
             var picker = destinationList.FirstOrDefault(d => nameof(WellKnownDestinations.Picker).Equals(d.Designation, StringComparison.OrdinalIgnoreCase));
+            if (picker != null && chains.Count > 0)
+            {
+                // The picked destination must be known before the extensions run, so the picker is shown here
+                context.LogStep("Dispatching to Picker destination, with extensions per destination.");
+                await PickAndExportAsync(context, source, captureDetails, userInteraction, showNotify, cancellationToken).ConfigureAwait(false);
+                return;
+            }
             if (picker != null)
             {
                 context.LogStep("Dispatching to Picker destination.");
@@ -120,6 +131,7 @@ namespace Greenshot.Pipeline
             }
 
             var failedExports = new List<(string Designation, string Error, Exception Exception)>();
+            var copies = new Dictionary<string, PreparedCopy>();
             foreach (var destination in destinationList.OrderBy(d => d, DestinationComparer.Instance))
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -137,7 +149,7 @@ namespace Greenshot.Pipeline
 
                 context.LogStep($"Calling destination: {destination.Descriptor?.DisplayName}");
                 Log.InfoFormat("Calling destination {0}", destination.Designation);
-                var result = await ExportAsync(context, destinationToUse, source, captureDetails, userInteraction, cancellationToken).ConfigureAwait(false);
+                var result = await ExportWithChainsAsync(context, destinationToUse, destination.Designation, source, captureDetails, userInteraction, copies, showNotify, false, cancellationToken).ConfigureAwait(false);
                 if (result.Status == ExportStatus.Failed)
                 {
                     // Keep the capture, so the user can open it in the editor (notification click)
@@ -154,10 +166,120 @@ namespace Greenshot.Pipeline
             }
         }
 
-        private static async Task<ExportResult> ExportAsync(CaptureFlowContext context, IDestination destination, IExportSource source, ICaptureDetails captureDetails, IUserInteraction userInteraction,
-            CancellationToken cancellationToken)
+        /// <summary>
+        /// Shows the destination picker until an export succeeds or the user closes it; the extensions run for the picked destination
+        /// </summary>
+        private static async Task PickAndExportAsync(CaptureFlowContext context, IExportSource source, ICaptureDetails captureDetails, IUserInteraction userInteraction,
+            bool showNotify, CancellationToken cancellationToken)
         {
-            var result = await DestinationExporter.ExportAsync(destination, source, captureDetails, false, userInteraction, cancellationToken).ConfigureAwait(false);
+            var copies = new Dictionary<string, PreparedCopy>();
+            var choices = DestinationHelper.GetAllDestinations()
+                .Where(d => !nameof(WellKnownDestinations.Picker).Equals(d.Designation, StringComparison.OrdinalIgnoreCase) && d.IsAvailableFor(captureDetails))
+                .ToList();
+            while (true)
+            {
+                var picked = await userInteraction.PickDestinationAsync(choices, captureDetails, cancellationToken).ConfigureAwait(false);
+                if (picked == null)
+                {
+                    context.LogStep("The destination picker was closed.");
+                    return;
+                }
+
+                var result = await ExportWithChainsAsync(context, picked, picked.Designation, source, captureDetails, userInteraction, copies, showNotify, true, cancellationToken).ConfigureAwait(false);
+                if (result.IsSucceeded)
+                {
+                    return;
+                }
+                // Export cancelled or failed: the problem was shown, the picker comes again
+            }
+        }
+
+        /// <summary>
+        /// A copy of the capture changed by the extensions of a destination (BeforeDestination), shared by the destinations
+        /// with the same extensions
+        /// </summary>
+        private sealed class PreparedCopy
+        {
+            public CaptureFlowContext Context;
+            public IExportSource Source;
+            public ICaptureDetails CaptureDetails;
+        }
+
+        /// <summary>
+        /// The extensions (BeforeDestination) which run for the destination, in their order
+        /// </summary>
+        public static IReadOnlyList<ExtensionChain> ChainsFor(CaptureFlowContext context, string designation) =>
+            context?.Recipe?.DestinationChains?.Where(c => c.RunsFor(designation)).ToList() ?? new List<ExtensionChain>();
+
+        /// <summary>
+        /// Runs the extensions on a copy of the capture. Returns the context of the copy (disposed with the flow, unless a
+        /// destination keeps it), or null when an extension failed.
+        /// </summary>
+        public static async Task<CaptureFlowContext> RunChainsOnCopyAsync(CaptureFlowContext context, IReadOnlyList<ExtensionChain> chains, string forWhat, CancellationToken cancellationToken)
+        {
+            var copyContext = context.CreateBranchContext();
+            var engine = new DagExecutionEngine(StepRegistry.Instance.CreateStep, StepRegistry.Instance.GetContract);
+            foreach (var chain in chains)
+            {
+                copyContext.LogStep($"Running extension '{chain.Extension.Name ?? chain.Extension.Id}' for {forWhat}.");
+                await engine.ExecuteAsync(chain.Flow, copyContext, cancellationToken).ConfigureAwait(false);
+                if (copyContext.IsAborted)
+                {
+                    Log.WarnFormat("Extension '{0}' failed for {1} ({2}), the capture is used without it.", chain.Extension.Id, forWhat, copyContext.AbortReason);
+                    return null;
+                }
+            }
+            return copyContext;
+        }
+
+        /// <summary>
+        /// Exports to the destination: when extensions run for it (BeforeDestination), they change a copy of the capture,
+        /// which is exported instead, so the other destinations get the capture without them. Destinations with the same
+        /// extensions share one copy (<paramref name="copies"/>), so the extensions run once per combination.
+        /// </summary>
+        private static async Task<ExportResult> ExportWithChainsAsync(CaptureFlowContext context, IDestination destination, string designation, IExportSource source, ICaptureDetails captureDetails,
+            IUserInteraction userInteraction, IDictionary<string, PreparedCopy> copies, bool showNotify, bool manuallyInitiated, CancellationToken cancellationToken)
+        {
+            var applicable = ChainsFor(context, designation);
+            if (applicable.Count == 0)
+            {
+                return await ExportAsync(context, destination, source, captureDetails, userInteraction, cancellationToken, manuallyInitiated).ConfigureAwait(false);
+            }
+
+            string key = string.Join("|", applicable.Select(c => c.Extension.Id));
+            if (!copies.TryGetValue(key, out var prepared))
+            {
+                prepared = null;
+                var copyContext = await RunChainsOnCopyAsync(context, applicable, $"destination '{designation}'", cancellationToken).ConfigureAwait(false);
+                if (copyContext != null)
+                {
+                    var copySurface = copyContext.Payload?.EnsureSurface();
+                    if (showNotify && copySurface != null)
+                    {
+                        copySurface.SurfaceMessage -= SurfaceMessageReceived;
+                        copySurface.SurfaceMessage += SurfaceMessageReceived;
+                    }
+                    prepared = new PreparedCopy
+                    {
+                        Context = copyContext,
+                        Source = await copyContext.Payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false),
+                        CaptureDetails = copyContext.Payload.RawCapture?.CaptureDetails ?? copySurface?.CaptureDetails ?? captureDetails
+                    };
+                }
+                // A failed extension isn't tried again for the next destination with the same extensions
+                copies[key] = prepared;
+            }
+
+            if (prepared == null)
+            {
+                return await ExportAsync(context, destination, source, captureDetails, userInteraction, cancellationToken, manuallyInitiated).ConfigureAwait(false);
+            }
+            return await ExportAsync(prepared.Context, destination, prepared.Source, prepared.CaptureDetails, userInteraction, cancellationToken, manuallyInitiated).ConfigureAwait(false);
+        }
+        private static async Task<ExportResult> ExportAsync(CaptureFlowContext context, IDestination destination, IExportSource source, ICaptureDetails captureDetails, IUserInteraction userInteraction,
+            CancellationToken cancellationToken, bool manuallyInitiated = false)
+        {
+            var result = await DestinationExporter.ExportAsync(destination, source, captureDetails, manuallyInitiated, userInteraction, cancellationToken).ConfigureAwait(false);
             if (result.KeepsCapture)
             {
                 // The editor shows the surface now: the flow must not dispose it

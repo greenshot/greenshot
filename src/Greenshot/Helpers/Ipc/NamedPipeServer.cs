@@ -20,7 +20,10 @@
  */
 
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.IO.Pipes;
 using System.Text;
 using System.Threading;
@@ -39,6 +42,34 @@ namespace Greenshot.Helpers.Ipc
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(NamedPipeServer));
         private const int MaxPayloadSize = 64 * 1024 * 1024; // 64 MB cap per ADR 003
+        private const int OutBufferSize = 64 * 1024;
+
+        /// <summary>
+        /// The command which turns a connection into a watch connection: it stays open and gets the events
+        /// (<see cref="NotifyWatchersAsync"/>), e.g. greenshot-mcp to learn about new AI tools and that Greenshot exits.
+        /// </summary>
+        public const string WatchCommand = "WATCH";
+
+        /// <summary>
+        /// Shutdown reasons sent to the clients: the user exits Greenshot, an installer replaces or removes it
+        /// (the Windows Restart Manager closes it), or Windows ends the session.
+        /// </summary>
+        public const string ShutdownReasonExit = "exit";
+        public const string ShutdownReasonUpdate = "update";
+        public const string ShutdownReasonSessionEnd = "session_end";
+
+        /// <summary>
+        /// An identified (HELLO) JSON connection, for messages Greenshot sends on its own
+        /// </summary>
+        private sealed class OpenConnection
+        {
+            public Stream Stream { get; set; }
+            public SemaphoreSlim WriteLock { get; set; }
+            public string Source { get; set; }
+            public bool IsWatching { get; set; }
+        }
+
+        private readonly ConcurrentDictionary<OpenConnection, bool> _connections = new ConcurrentDictionary<OpenConnection, bool>();
 
         private readonly string _pipeName;
         private CancellationTokenSource _cancellationTokenSource;
@@ -53,14 +84,34 @@ namespace Greenshot.Helpers.Ipc
         /// </summary>
         public TimeSpan ReplyWriteTimeout { get; set; } = IpcRequestContext.DefaultWriteTimeout;
 
+#if !GREENSHOT_LIGHT
         /// <summary>
         /// Checks the extension origin announced in the HELLO of a native_messaging connection.
         /// Defaults to the official extensions plus the host manifests next to Greenshot, see <see cref="ExtensionOriginPolicy"/>.
         /// </summary>
         public Func<string, bool> ExtensionOriginValidator { get; set; } = ExtensionOriginPolicy.ForApplicationDirectory().IsAllowed;
 
+        /// <summary>
+        /// Identifies the AI tool behind a connection with source "mcp", see <see cref="AiToolCaller.TryIdentify"/>. Replaceable for tests.
+        /// </summary>
+        public McpClientIdentifierDelegate McpClientIdentifier { get; set; } = AiToolCaller.TryIdentify;
+#endif
+
+        /// <summary>
+        /// Checks the program behind a connection for every source except "mcp", see <see cref="IpcClientVerifier"/>. Null: no check.
+        /// </summary>
+        public ClientVerifierDelegate ClientVerifier { get; set; }
+
+        public delegate bool ClientVerifierDelegate(NamedPipeServerStream pipe, string source, out string error);
+
+#if !GREENSHOT_LIGHT
+        public delegate bool McpClientIdentifierDelegate(NamedPipeServerStream pipe, out AiToolClient client, out string error);
+#endif
+
         public NamedPipeServer() : this(NamedPipeEndpoint.GetPipeName())
         {
+            // The real pipe only accepts Greenshot's own executables (servers on other pipe names, e.g. in tests, don't check)
+            ClientVerifier = IpcClientVerifier.Verify;
         }
 
         public NamedPipeServer(string pipeName)
@@ -97,7 +148,8 @@ namespace Greenshot.Helpers.Ipc
                         PipeTransmissionMode.Byte,
                         PipeOptions.Asynchronous,
                         0,
-                        0,
+                        // Without an out buffer every write waits until the client reads it, e.g. the shutdown event to a busy client would hold up the exit
+                        OutBufferSize,
                         pipeSecurity);
 
                     await serverStream.WaitForConnectionAsync(cancellationToken).ConfigureAwait(false);
@@ -137,6 +189,7 @@ namespace Greenshot.Helpers.Ipc
 
         private async Task ProcessClientAsync(NamedPipeServerStream stream, CancellationToken cancellationToken)
         {
+            OpenConnection openConnection = null;
             using (stream)
             {
                 try
@@ -146,6 +199,9 @@ namespace Greenshot.Helpers.Ipc
                     // Connection identity: bound once from the mandatory HELLO frame, never from later envelopes.
                     string connectionSource = null;
                     string connectionOrigin = null;
+#if !GREENSHOT_LIGHT
+                    AiToolClient connectionAiClient = null;
+#endif
                     bool connectionUsesTextFrames = false;
                     var connectionWriteLock = new SemaphoreSlim(1, 1);
 
@@ -214,6 +270,7 @@ namespace Greenshot.Helpers.Ipc
                                 break;
                             }
 
+#if !GREENSHOT_LIGHT
                             if (string.Equals(envelope.Source, IpcSources.NativeMessaging, StringComparison.OrdinalIgnoreCase) &&
                                 !IsExtensionOriginAllowed(envelope.Origin))
                             {
@@ -221,10 +278,41 @@ namespace Greenshot.Helpers.Ipc
                                 await RejectAsync(stream, connectionWriteLock, "[SECURITY] Connection rejected: this browser extension is not allowed to use Greenshot.", cancellationToken).ConfigureAwait(false);
                                 break;
                             }
+#endif
+
+                            // Don't trust the HELLO: check which program is connected (and for AI tools, who started it)
+#if !GREENSHOT_LIGHT
+                            if (!string.Equals(envelope.Source, IpcSources.Mcp, StringComparison.OrdinalIgnoreCase))
+#endif
+                            {
+                                if (ClientVerifier != null && !ClientVerifier(stream, envelope.Source, out string verifyError))
+                                {
+                                    Log.Warn($"[SECURITY] Named pipe connection rejected: {verifyError}");
+                                    await RejectAsync(stream, connectionWriteLock, $"[SECURITY] Connection rejected: {verifyError}", cancellationToken).ConfigureAwait(false);
+                                    break;
+                                }
+                            }
+#if !GREENSHOT_LIGHT
+                            else
+                            {
+                                if (!McpClientIdentifier(stream, out connectionAiClient, out string identifyError))
+                                {
+                                    Log.Warn($"[SECURITY] Named pipe connection rejected: {identifyError}");
+                                    await RejectAsync(stream, connectionWriteLock, $"[SECURITY] Connection rejected: {identifyError}", cancellationToken).ConfigureAwait(false);
+                                    break;
+                                }
+                                Log.Info($"AI tool connected: {connectionAiClient} (calls itself '{envelope.Origin}').");
+                            }
+#endif
 
                             connectionSource = envelope.Source.ToLowerInvariant();
                             connectionOrigin = envelope.Origin;
                             connectionUsesTextFrames = string.Equals(replyFormat, IpcSources.ReplyFormatText, StringComparison.OrdinalIgnoreCase);
+                            if (!connectionUsesTextFrames)
+                            {
+                                openConnection = new OpenConnection { Stream = stream, WriteLock = connectionWriteLock, Source = connectionSource };
+                                _connections[openConnection] = true;
+                            }
                             Log.Debug($"Named pipe connection identified: source '{connectionSource}'{(string.IsNullOrEmpty(connectionOrigin) ? string.Empty : $", origin '{connectionOrigin}'")}.");
                             continue;
                         }
@@ -239,9 +327,21 @@ namespace Greenshot.Helpers.Ipc
                         // Whatever the client put into "source" is ignored; the connection's HELLO decides.
                         envelope.Source = connectionSource;
 
+                        if (openConnection != null && string.Equals(envelope.Command, WatchCommand, StringComparison.OrdinalIgnoreCase))
+                        {
+                            // Only events are sent on it, nothing about the user's windows or recipes
+                            openConnection.IsWatching = true;
+                            Log.Debug($"Named pipe connection '{connectionSource}' watches for events.");
+                            await SendAsync(openConnection, new { status = "ok", exit_code = 0, watching = true }, cancellationToken).ConfigureAwait(false);
+                            continue;
+                        }
+
                         var context = new IpcRequestContext(envelope, stream, connectionWriteLock)
                         {
                             ConnectionOrigin = connectionOrigin,
+#if !GREENSHOT_LIGHT
+                            AiClient = connectionAiClient,
+#endif
                             UsesTextFrames = connectionUsesTextFrames,
                             WriteTimeout = ReplyWriteTimeout
                         };
@@ -286,9 +386,54 @@ namespace Greenshot.Helpers.Ipc
                 {
                     Log.Error("Error processing incoming message from named pipe client", ex);
                 }
+                finally
+                {
+                    if (openConnection != null)
+                    {
+                        _connections.TryRemove(openConnection, out _);
+                    }
+                }
             }
         }
 
+        /// <summary>
+        /// Sends an event (e.g. {"event":"tools_changed"}) to every watch connection
+        /// </summary>
+        public Task NotifyWatchersAsync(object message, CancellationToken cancellationToken = default)
+        {
+            return SendToAllAsync(_connections.Keys.Where(c => c.IsWatching).ToList(), message, cancellationToken);
+        }
+
+        /// <summary>
+        /// Tells every open connection that Greenshot exits, and why (<see cref="ShutdownReasonExit"/>, ...): a browser extension
+        /// can show that Greenshot is offline, greenshot-mcp waits for Greenshot or exits for an update.
+        /// </summary>
+        public Task NotifyShutdownAsync(string reason, CancellationToken cancellationToken = default)
+        {
+            Log.Info($"Telling {_connections.Count} named pipe connection(s) that Greenshot exits ({reason}).");
+            return SendToAllAsync(_connections.Keys.ToList(), new { @event = "shutdown", reason, greenshot_running = false }, cancellationToken);
+        }
+
+        private async Task SendToAllAsync(IReadOnlyList<OpenConnection> connections, object message, CancellationToken cancellationToken)
+        {
+            // PARALLEL: one slow client must not hold up the others
+            await Task.WhenAll(connections.Select(c => SendAsync(c, message, cancellationToken))).ConfigureAwait(false);
+        }
+
+        private async Task SendAsync(OpenConnection connection, object message, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var context = new IpcRequestContext(new IpcEnvelope(), connection.Stream, connection.WriteLock) { WriteTimeout = ReplyWriteTimeout };
+                await context.ReplyAsync(message, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                Log.Debug($"Could not send a message to the named pipe connection '{connection.Source}'", ex);
+            }
+        }
+
+#if !GREENSHOT_LIGHT
         private bool IsExtensionOriginAllowed(string origin)
         {
             var validator = ExtensionOriginValidator;
@@ -306,6 +451,7 @@ namespace Greenshot.Helpers.Ipc
                 return false;
             }
         }
+#endif
 
         /// <summary>
         /// Sends a final error frame before the server closes a connection that violates the protocol.
