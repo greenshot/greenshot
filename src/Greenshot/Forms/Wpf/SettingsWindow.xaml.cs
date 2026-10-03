@@ -23,7 +23,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Forms;
 using Dapplo.Ini;
@@ -264,10 +263,7 @@ namespace Greenshot.Forms.Wpf
 
         private void ShowPatternHelp_Click(object sender, RoutedEventArgs e)
         {
-            string filenamepatternText = Texts.Settings.MessageFilenamepattern;
-            // Convert %NUM% to ${NUM} for old language files!
-            filenamepatternText = Regex.Replace(filenamepatternText, "%([a-zA-Z_0-9]+)%", @"${$1}");
-            var dialog = new PatternHelpWindow(filenamepatternText)
+            var dialog = new PatternHelpWindow(Texts.Settings.MessageFilenamepattern)
             {
                 Owner = this
             };

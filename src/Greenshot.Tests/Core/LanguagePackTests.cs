@@ -168,6 +168,74 @@ namespace Greenshot.Tests.Core
         }
 
         [Fact]
+        public void Translations_HaveTheFormatPlaceholdersOfEnglish()
+        {
+            // string.Format fills {0}, {1}...: a missing index loses information, an unknown one throws
+            var formatPlaceholder = new Regex(@"(?<!\$)\{(\d+)(?:[,:][^}]*)?\}");
+            var oldSyntax = new Regex(@"%(YYYY|MM|DD|hh|mm|ss|NUM|title|user|domain|hostname)%|\$\(\w+\)");
+            var problems = new List<string>();
+            foreach (string englishFile in Directory.GetFiles(LanguageDirectory, "greenshot.*en-US.ini"))
+            {
+                string prefix = Path.GetFileName(englishFile).Replace("en-US.ini", string.Empty);
+                var english = ReadPack(englishFile);
+                foreach (string file in Directory.GetFiles(LanguageDirectory, prefix + "*.ini").Where(f => f != englishFile))
+                {
+                    // greenshot.de-DE.ini, not greenshot.imgur.de-DE.ini for the core prefix
+                    if (Path.GetFileName(file).Substring(prefix.Length).Count(c => c == '.') != 1)
+                    {
+                        continue;
+                    }
+
+                    foreach (var entry in ReadPack(file))
+                    {
+                        if (oldSyntax.IsMatch(entry.Value))
+                        {
+                            problems.Add($"{Path.GetFileName(file)}: {entry.Key} uses an old placeholder syntax");
+                        }
+
+                        if (!english.TryGetValue(entry.Key, out var englishText))
+                        {
+                            continue;
+                        }
+
+                        string Indexes(string text) => string.Join(",", formatPlaceholder.Matches(text).Cast<Match>().Select(m => m.Groups[1].Value).Distinct().OrderBy(i => i));
+                        if (Indexes(englishText) != Indexes(entry.Value))
+                        {
+                            problems.Add($"{Path.GetFileName(file)}: {entry.Key} has [{Indexes(entry.Value)}], English [{Indexes(englishText)}]");
+                        }
+                    }
+                }
+            }
+
+            Assert.True(problems.Count == 0, string.Join(Environment.NewLine, problems));
+        }
+
+        /// <summary>
+        /// The texts of a language pack by section/key
+        /// </summary>
+        private static Dictionary<string, string> ReadPack(string file)
+        {
+            var texts = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            string section = null;
+            foreach (string line in File.ReadAllLines(file))
+            {
+                if (line.StartsWith("[", StringComparison.Ordinal))
+                {
+                    section = line.Trim('[', ']');
+                    continue;
+                }
+
+                int equals = line.IndexOf('=');
+                if (section != null && section != "__language__" && equals > 0)
+                {
+                    texts[section + "/" + line.Substring(0, equals)] = line.Substring(equals + 1);
+                }
+            }
+
+            return texts;
+        }
+
+        [Fact]
         public void RuntimeKeys_AreFound()
         {
             Assert.Equal("Automatically", Texts.Config.GetTranslation("WindowCaptureMode.Auto"));

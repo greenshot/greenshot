@@ -530,7 +530,7 @@ jobs:
       run: python3 tools/validate_translations.py
 ```
 
-The last step needs `tools/validate_translations.py` from above in the repository. It currently fails, because some translations have placeholders that differ from English (for example `warning_hotkeys` in several languages); fix those first or leave the step out.
+The last step needs `tools/validate_translations.py` from above in the repository. The unit tests in `src/Greenshot.Tests/Core/LanguagePackTests.cs` check the format placeholders as well.
 
 ## Future Enhancements
 

@@ -218,7 +218,7 @@ Plugins (keys in en-US, translations missing keys):
 
 **Finding**: Missing keys show English, so nothing breaks, but most languages are around half translated and need synchronization, starting with `[Settings]`, `[Recipe]` and `[SelfService]`.
 
-Several translations also have placeholders that differ from English (most often `warning_hotkeys`, `tooltip_firststart` and `error_openlink` in `[Core]`); the validation scripts in TRANSLATION_TOOLS.md list them.
+The format placeholders (`{0}`, `{1}`) of all translations match English; the unit test `LanguagePackTests.Translations_HaveTheFormatPlaceholdersOfEnglish` keeps it that way. The help text `message_filenamepattern` in `[Settings]` is outdated in most translations: it doesn't describe the newer placeholders `${NUM:p-2,0}` and `${RRR...}` and how to reset the counter.
 
 ### Translation Workflow Efficiency
 
@@ -271,7 +271,7 @@ Several translations also have placeholders that differ from English (most often
 2. **Language Synchronization** (High Priority)
    - Run validation scripts on all languages
    - Translate the `[Settings]`, `[Recipe]` and `[SelfService]` sections, which are missing in most languages
-   - Fix the placeholder differences
+   - Update `message_filenamepattern` with the newer placeholders
    - Create tasks to bring lagging languages up to date
 
 3. **Automation** (Medium Priority)
