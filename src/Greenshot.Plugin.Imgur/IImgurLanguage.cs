@@ -37,11 +37,6 @@ namespace Greenshot.Plugin.Imgur
         string AnonymousAccess { get; }
 
         /// <summary>
-        /// Cancel
-        /// </summary>
-        string Cancel { get; }
-
-        /// <summary>
         /// Are you sure you want to delete the local Imgur history?
         /// </summary>
         string ClearQuestion { get; }
@@ -115,11 +110,6 @@ namespace Greenshot.Plugin.Imgur
         /// Url
         /// </summary>
         string LabelUrl { get; }
-
-        /// <summary>
-        /// OK
-        /// </summary>
-        string Ok { get; }
 
         /// <summary>
         /// Imgur settings

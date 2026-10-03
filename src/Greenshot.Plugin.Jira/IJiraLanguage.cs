@@ -32,11 +32,6 @@ namespace Greenshot.Plugin.Jira
     public interface IJiraLanguage : INotifyPropertyChanged
     {
         /// <summary>
-        /// Cancel
-        /// </summary>
-        string Cancel { get; }
-
-        /// <summary>
         /// Assignee
         /// </summary>
         string ColumnAssignee { get; }
@@ -110,11 +105,6 @@ namespace Greenshot.Plugin.Jira
         /// Please enter your Jira login data
         /// </summary>
         string LoginTitle { get; }
-
-        /// <summary>
-        /// OK
-        /// </summary>
-        string Ok { get; }
 
         /// <summary>
         /// Jira settings

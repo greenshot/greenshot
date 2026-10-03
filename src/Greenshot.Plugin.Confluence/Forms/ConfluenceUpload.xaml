@@ -28,7 +28,7 @@
 		</Grid>
 		<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
             <Button Name="Upload" Content="{wpf:Text Confluence.Upload}" IsDefault="True" IsEnabled="False" Click="Upload_Click" />
-            <Button Name="Cancel" Content="{wpf:Text Confluence.Cancel}" IsCancel="True" />
+            <Button Name="Cancel" Content="{wpf:Text Core.Cancel}" IsCancel="True" />
 		</StackPanel>
 	</StackPanel>
 </Window>

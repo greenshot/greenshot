@@ -37,11 +37,6 @@ namespace Greenshot.Plugin.Confluence
         string BrowsePages { get; }
 
         /// <summary>
-        /// Cancel
-        /// </summary>
-        string Cancel { get; }
-
-        /// <summary>
         /// Transferring data to Confluence, please wait...
         /// </summary>
         string CommunicationWait { get; }
@@ -95,11 +90,6 @@ namespace Greenshot.Plugin.Confluence
         /// Please enter your Confluence login data
         /// </summary>
         string LoginTitle { get; }
-
-        /// <summary>
-        /// OK
-        /// </summary>
-        string Ok { get; }
 
         /// <summary>
         /// Open page after upload

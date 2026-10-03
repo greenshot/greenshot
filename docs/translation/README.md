@@ -110,7 +110,7 @@ Includes checklists for:
 ### Main Application
 ```
 src/Greenshot/Languages/
-├── greenshot.en-US.ini        ← Base language (598 keys)
+├── greenshot.en-US.ini        ← Base language (597 keys)
 ├── greenshot.de-DE.ini
 ├── greenshot.fr-FR.ini
 ├── greenshot.es-ES.ini

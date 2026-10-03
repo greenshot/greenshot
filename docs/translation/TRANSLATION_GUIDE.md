@@ -199,6 +199,79 @@ Keys that are only known at runtime are looked up with `Texts.Config.GetTranslat
 2. Add a string property with the matching name to the language interface (not needed for runtime keys)
 3. Add the translations to the other language packs
 
+## Texts in a Plugin
+
+A plugin brings its own language packs, but it can use every text of Greenshot itself: the `[Core]`, `[Editor]`, `[Settings]`, `[SelfService]` and `[Recipe]` sections are loaded by Greenshot before any plugin starts. There is nothing to register for them.
+
+**Shared texts:** use `Texts.Core.Ok` and `Texts.Core.Cancel` (`{wpf:Text Core.Ok}`, `{wpf:Text Core.Cancel}` in XAML) for the OK and Cancel buttons instead of adding own keys. They are translated in all languages, and translators don't have to translate them again for every plugin. Other texts which look the same (Close, URL, Image format, ...) stay in the plugin: their translation often differs per context.
+
+**Own texts**, using Imgur as example:
+
+1. **Language pack:** create `Languages/greenshot.{module}.en-US.ini` in the plugin project, with one section named after the plugin. The module name is the lower-case plugin name:
+   ```ini
+   [Imgur]
+   history=History...
+   delete_question=Are you sure you want to delete the image {0} from Imgur?
+   ```
+   Translations go next to it as `greenshot.imgur.de-DE.ini` etc. A missing translation shows English.
+
+2. **Interface:** add an interface with a string property per key. The source generator of Dapplo.Ini, which comes with the reference to Greenshot.Base, generates the implementation `ImgurLanguageImpl`:
+   ```csharp
+   [IniLanguageSection("Imgur", ModuleName = "imgur")]
+   public interface IImgurLanguage : INotifyPropertyChanged
+   {
+       /// <summary>
+       /// History...
+       /// </summary>
+       string History { get; }
+   }
+   ```
+   The section name must match the `[Imgur]` of the pack, `ModuleName` the `imgur` of the file name.
+
+3. **Register** the section as the first thing in `ConfigureServices` of the plugin, so the texts can be used from then on:
+   ```csharp
+   public void ConfigureServices(IPluginServices services)
+   {
+       Texts.Register<IImgurLanguage>(new ImgurLanguageImpl());
+       ...
+   }
+   ```
+   In code the texts are then available as `Texts.Get<IImgurLanguage>().History`.
+
+4. **Project file:** copy the packs to the output; the build copies them from there into the `Languages` folder of Greenshot:
+   ```xml
+   <None Include="Languages\greenshot*.ini">
+     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+   </None>
+   ```
+
+5. **Installer:** add the packs to the plugin's file in `src/Greenshot-Installer/includes/plugins/`, installed flat into `{app}\Languages`:
+   ```
+   Source: {#SolutionDir}\Greenshot.Plugin.Imgur\Languages\greenshot.imgur.*.ini; DestDir: {app}\Languages; Components: plugins\imgur; Flags: {#DefaultInstallFlags};
+   ```
+
+6. **XAML:** add the namespace and use `{wpf:Text Section.Property}`:
+   ```xml
+   <Window ...
+           xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
+           Title="{wpf:Text Imgur.History}">
+       <Button Content="{wpf:Text Core.Ok}" IsDefault="True" />
+   ```
+
+**What `{wpf:Text ...}` does:** it is a markup extension in Greenshot.Base. `Imgur.History` names a section and a property; the extension finds the registered section object for `Imgur` and creates a normal WPF one-way `Binding` to its `History` property. The section objects raise `PropertyChanged` for the texts that change when the user picks another language, so an open window updates by itself. The unit test `LanguagePackTests.XamlTexts_ReferenceExistingProperties` checks that every `{wpf:Text ...}` in the XAML files names an existing property.
+
+**Texts set from code** (WinForms controls, menu items) don't update by themselves. Set them again in a handler of `Texts.Config.LanguageChanged`, and remove the handler when the plugin shuts down:
+```csharp
+Texts.Config.LanguageChanged += OnLanguageChanged;
+
+private void OnLanguageChanged(object sender, EventArgs e)
+{
+    _historyMenuItem.Text = Texts.Get<IImgurLanguage>().History;
+}
+```
+
+**Avalonia:** the language interfaces and the generated sections don't depend on WPF, they work in any UI. Only `{wpf:Text ...}` is WPF specific; in Avalonia the section object can be bound directly, for example with a compiled binding (`x:DataType`), which also checks the property names at build time.
+
 ## Validation and Testing
 
 ### Manual Checks

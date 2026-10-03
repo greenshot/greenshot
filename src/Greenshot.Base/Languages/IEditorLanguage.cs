@@ -137,11 +137,6 @@ namespace Greenshot.Base.Languages
         string Brightness { get; }
 
         /// <summary>
-        /// Cancel
-        /// </summary>
-        string Cancel { get; }
-
-        /// <summary>
         /// Error while accessing the clipboard. Please try again.
         /// </summary>
         string Clipboardfailed { get; }

@@ -89,7 +89,7 @@
                 </WrapPanel>
                 <StackPanel Grid.Column="2" VerticalAlignment="Stretch">
                     <Button x:Name="ClearHistoryButton" Content="{wpf:Text Imgur.HistoryClear}" Click="ClearHistoryButton_Click"/>
-                    <Button Content="{wpf:Text Imgur.Ok}" Click="CloseButton_Click" IsDefault="True" IsCancel="True"
+                    <Button Content="{wpf:Text Core.Ok}" Click="CloseButton_Click" IsDefault="True" IsCancel="True"
                             Style="{StaticResource PrimaryButtonStyle}" Margin="0,8,0,0"/>
                 </StackPanel>
             </Grid>

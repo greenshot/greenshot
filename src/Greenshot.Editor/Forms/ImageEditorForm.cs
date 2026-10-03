@@ -2711,7 +2711,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             this.arrowHeadNoneMenuItem.Text = Texts.Editor.ArrowheadsNone;
             this.shadowButton.Text = Texts.Editor.Shadow;
             this.btnConfirm.Text = Texts.Editor.Confirm;
-            this.btnCancel.Text = Texts.Editor.Cancel;
+            this.btnCancel.Text = Texts.Core.Cancel;
             this.closeAllToolStripMenuItem.Text = Texts.Editor.CloseAll;
             this.closeToolStripMenuItem.Text = Texts.Editor.Close;
             this.copyPathMenuItem.Text = Texts.Editor.Copypathtoclipboard;

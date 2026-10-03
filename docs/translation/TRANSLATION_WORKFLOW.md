@@ -49,6 +49,8 @@ When a developer adds a new feature requiring translation:
 
 - [ ] Add to the plugin's en-US language pack (e.g., `greenshot.box.en-US.ini`, section `[Box]`)
 - [ ] Add the property to the plugin's language interface (e.g., `IBoxLanguage.cs`), use it as `Texts.Get<IBoxLanguage>().NewText`
+- [ ] For OK and Cancel use `Texts.Core.Ok` / `Texts.Core.Cancel` instead of own keys
+- [ ] New plugin: see "Texts in a Plugin" in [TRANSLATION_GUIDE.md](TRANSLATION_GUIDE.md)
 - [ ] Follow same naming conventions as main app
 - [ ] Consider if the string should also be in the main app
 

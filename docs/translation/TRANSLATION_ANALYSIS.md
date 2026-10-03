@@ -198,22 +198,22 @@ Plus:
 
 Computed from the language packs on 2026-10-03, comparing keys with en-US the way Greenshot does (case-insensitive, `_` and `-` ignored):
 
-- English reference: 598 keys (Core 106, Editor 143, Settings 116, Recipe 29, SelfService 204)
-- German: 514 keys (86%), the only language with the `[SelfService]` section
-- 21 languages: 281-313 keys (47-52%)
-- 8 languages: 254-269 keys (42-45%)
+- English reference: 597 keys (Core 106, Editor 142, Settings 116, Recipe 29, SelfService 204)
+- German: 513 keys (86%), the only language with the `[SelfService]` section
+- 21 languages: 280-312 keys (47-52%)
+- 8 languages: 253-268 keys (42-45%)
 - 9 languages (ar-SY, da-DK, fa-IR, fi-FI, he-IL, hu-HU, lt-LT, ro-RO, vi-VN): 187-197 keys (31-33%)
 - No language has keys that are not in en-US
 
-The gaps are mostly whole areas: `[SelfService]` (204 keys) is translated only in German, `[Recipe]` has 3 of 29 keys in every translation, and `[Settings]` has at most 69 of 116 keys. `[Core]` and `[Editor]` are largely translated in the better maintained languages (e.g. fr-FR: Core 98/106, Editor 143/143).
+The gaps are mostly whole areas: `[SelfService]` (204 keys) is translated only in German, `[Recipe]` has 3 of 29 keys in every translation, and `[Settings]` has at most 69 of 116 keys. `[Core]` and `[Editor]` are largely translated in the better maintained languages (e.g. fr-FR: Core 98/106, Editor 142/142).
 
 Plugins (keys in en-US, translations missing keys):
 - Box (9 keys): all complete
 - Dropbox (10 keys): kab-DZ misses 1
 - Office (19 keys): all complete
-- Confluence (25 keys): cs-CZ, kab-DZ, nl-NL miss 1
-- Jira (22 keys): all except de-DE miss 2
-- Imgur (23 keys): all except de-DE miss 7 (nl-NL 8)
+- Confluence (23 keys): cs-CZ, kab-DZ, nl-NL miss 1
+- Jira (20 keys): all except de-DE miss 2
+- Imgur (21 keys): all except de-DE miss 7 (nl-NL 8)
 - ExternalCommand (21 keys): all except pt-BR miss 9 (tr-TR 10)
 
 **Finding**: Missing keys show English, so nothing breaks, but most languages are around half translated and need synchronization, starting with `[Settings]`, `[Recipe]` and `[SelfService]`.

@@ -371,7 +371,7 @@ namespace Greenshot.Base.Languages
         string JpegqualitydialogChoosejpegquality { get; }
 
         /// <summary>
-        /// Ok
+        /// OK
         /// </summary>
         string Ok { get; }
 
