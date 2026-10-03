@@ -27,7 +27,8 @@ using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Configuration;
-using Greenshot.Base.Core.FileFormat;
+using Greenshot.Base.Core.FileFormat;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Destinations
 {
@@ -39,7 +40,7 @@ namespace Greenshot.Destinations
         public override string Designation => nameof(WellKnownDestinations.Clipboard);
 
         public override DestinationDescriptor Descriptor => new DestinationDescriptor(
-            Language.GetString(LangKey.settings_destination_clipboard), 2, DestinationIcons.Resource("Clipboard.Image"), "Ctrl+Shift+C");
+            Texts.Settings.DestinationClipboard, 2, DestinationIcons.Resource("Clipboard.Image"), "Ctrl+Shift+C");
 
         public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
         {

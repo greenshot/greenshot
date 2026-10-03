@@ -20,22 +20,30 @@
  */
 
 using System;
-using Greenshot.Base.Core;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Base.Recipes
 {
     /// <summary>
-    /// Texts of recipes and extensions shown to the user: built-in extensions use language keys, which are translated
-    /// when the key exists; other texts (from recipe files) are shown as they are.
+    /// Texts of recipes and extensions shown to the user: built-in extensions use language keys in the form Section.key
+    /// (e.g. Recipe.extension_border), which are translated when the key exists; other texts (from recipe files) are shown as they are.
     /// </summary>
     public static class RecipeText
     {
         public static string Translate(string text)
         {
             if (string.IsNullOrWhiteSpace(text)) return text;
+            string key = text.Trim();
+            // Only Section.key: a plain word of a recipe file ("Title") must not turn into a translation
+            int dot = key.IndexOf('.');
+            if (dot <= 0 || dot == key.Length - 1 || key.IndexOf(' ') >= 0)
+            {
+                return text;
+            }
+
             try
             {
-                return Language.TryGetString(text.Trim(), out var translated) ? translated : text;
+                return Texts.Config.TryGetTranslation(key, out var translated) ? translated : text;
             }
             catch (Exception)
             {

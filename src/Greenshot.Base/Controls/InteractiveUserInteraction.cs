@@ -31,6 +31,7 @@ using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Wpf;
 using log4net;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Base.Controls
 {
@@ -225,8 +226,8 @@ namespace Greenshot.Base.Controls
             return ModalAsync<bool?>(() =>
             {
                 var buttons = isError
-                    ? new[] { Language.GetString("OK") }
-                    : new[] { Language.GetString("OK"), Language.GetString("CANCEL") };
+                    ? new[] { Texts.Core.Ok }
+                    : new[] { Texts.Core.Ok, Texts.Core.Cancel };
                 // Flows run without a window of their own, so the box is shown over all windows
                 int choice = ThemedMessageBox.ShowChoice(null, title, message, isError ? MessageBoxImage.Error : MessageBoxImage.Question, buttons,
                     defaultIndex: 0, cancelIndex: buttons.Length - 1, onTop: true);

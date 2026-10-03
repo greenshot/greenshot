@@ -33,7 +33,7 @@ using System.Windows.Media.Imaging;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
 using log4net;
-using CoreLanguage = Greenshot.Base.Core.Language;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.UI.SelfService
 {
@@ -149,9 +149,9 @@ namespace Greenshot.UI.SelfService
             {
                 if (string.IsNullOrEmpty(LogFilePath) || !File.Exists(LogFilePath))
                 {
-                    string notFoundTemplate = CoreLanguage.GetString("selfservice_logviewer_status_notfound");
+                    string notFoundTemplate = Texts.SelfService.LogviewerStatusNotfound;
                     LogText = string.Format(string.IsNullOrEmpty(notFoundTemplate) ? "Log file does not currently exist at:\n{0}" : notFoundTemplate, LogFilePath);
-                    LogInfoText = CoreLanguage.GetString("selfservice_files_not_found") ?? "File not found";
+                    LogInfoText = Texts.SelfService.FilesNotFound ?? "File not found";
                     StatusMessage = LogInfoText;
                     ChunkStatusText = string.Empty;
                     CanLoadMore = false;
@@ -165,7 +165,7 @@ namespace Greenshot.UI.SelfService
 
                 if (_totalFileLength == 0)
                 {
-                    LogText = CoreLanguage.GetString("selfservice_logviewer_empty") ?? "(Log file is empty)";
+                    LogText = Texts.SelfService.LogviewerEmpty ?? "(Log file is empty)";
                     _actualStartOffset = 0;
                     CanLoadMore = false;
                     ChunkStatusText = string.Empty;
@@ -211,7 +211,7 @@ namespace Greenshot.UI.SelfService
             catch (Exception ex)
             {
                 Log.Error("Error reading log file", ex);
-                string errTemplate = CoreLanguage.GetString("selfservice_logviewer_status_error");
+                string errTemplate = Texts.SelfService.LogviewerStatusError;
                 LogText = string.Format(string.IsNullOrEmpty(errTemplate) ? "Error reading log file:\n{0}" : errTemplate, ex.Message);
                 LogInfoText = "Read error";
                 StatusMessage = $"Error: {ex.Message}";
@@ -365,7 +365,7 @@ namespace Greenshot.UI.SelfService
                 if (!string.IsNullOrEmpty(LogText))
                 {
                     ClipboardHelper.SetClipboardData(LogText);
-                    string copiedTemplate = CoreLanguage.GetString("selfservice_logviewer_copied");
+                    string copiedTemplate = Texts.SelfService.LogviewerCopied;
                     StatusMessage = string.Format(string.IsNullOrEmpty(copiedTemplate) ? "Copied entire log content to clipboard ({0:N0} characters)" : copiedTemplate, LogText.Length);
                 }
             }

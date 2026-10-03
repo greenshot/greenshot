@@ -28,7 +28,8 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Configuration;
 using log4net;
 using Greenshot.Base.Threading;
-using System.Threading;
+using System.Threading;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Helpers
 {
@@ -51,7 +52,7 @@ namespace Greenshot.Helpers
             var notifyIconClassicMessageHandler = SimpleServiceProvider.Current.GetInstance<INotificationService>();
 
             notifyIconClassicMessageHandler.ShowInfoMessage(
-                Language.GetFormattedString(LangKey.tooltip_firststart, HotkeyManager.GetLocalizedHotkeyStringFromString(config.RegionHotkey)),
+                string.Format(Texts.Core.TooltipFirststart, HotkeyManager.GetLocalizedHotkeyStringFromString(config.RegionHotkey)),
                 TimeSpan.FromMinutes(10),
                 () =>
                 {

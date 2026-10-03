@@ -33,6 +33,7 @@ using Greenshot.Base.Recipes;
 using Greenshot.Base.Threading;
 using Greenshot.Plugin.RecipeEditor.Views;
 using log4net;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Plugin.RecipeEditor;
 
@@ -75,7 +76,7 @@ public class RecipeEditorPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipe
         {
             _itemPlugInConfig = new ToolStripMenuItem
             {
-                Text = Language.GetString("contextmenu_recipeeditor") ?? "Recipe Editor...",
+                Text = Texts.Core.ContextmenuRecipeeditor ?? "Recipe Editor...",
                 Visible = true
             };
             _itemPlugInConfig.Click += (s, e) => OpenEditor();

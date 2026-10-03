@@ -37,6 +37,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
 using log4net;
 using Greenshot.Base.Threading;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.UI.SelfService
 {
@@ -143,13 +144,13 @@ namespace Greenshot.UI.SelfService
                 switch (Status)
                 {
                     case ChecksumStatus.Match:
-                        return Language.GetString("selfservice_checksum_status_match");
+                        return Texts.SelfService.ChecksumStatusMatch;
                     case ChecksumStatus.Mismatch:
-                        return Language.GetString("selfservice_checksum_status_mismatch");
+                        return Texts.SelfService.ChecksumStatusMismatch;
                     case ChecksumStatus.Missing:
-                        return Language.GetString("selfservice_checksum_status_missing");
+                        return Texts.SelfService.ChecksumStatusMissing;
                     case ChecksumStatus.Unlisted:
-                        return Language.GetString("selfservice_checksum_status_unlisted");
+                        return Texts.SelfService.ChecksumStatusUnlisted;
                     default:
                         return Status.ToString();
                 }
@@ -198,13 +199,13 @@ namespace Greenshot.UI.SelfService
                 switch (Status)
                 {
                     case ChecksumStatus.Match:
-                        return Language.GetString("selfservice_checksum_detail_hint_match");
+                        return Texts.SelfService.ChecksumDetailHintMatch;
                     case ChecksumStatus.Mismatch:
-                        return Language.GetString("selfservice_checksum_detail_hint_mismatch");
+                        return Texts.SelfService.ChecksumDetailHintMismatch;
                     case ChecksumStatus.Missing:
-                        return Language.GetString("selfservice_checksum_detail_hint_missing");
+                        return Texts.SelfService.ChecksumDetailHintMissing;
                     case ChecksumStatus.Unlisted:
-                        return Language.GetString("selfservice_checksum_detail_hint_unlisted");
+                        return Texts.SelfService.ChecksumDetailHintUnlisted;
                     default:
                         return string.Empty;
                 }
@@ -234,8 +235,8 @@ namespace Greenshot.UI.SelfService
         private static readonly ILog Log = LogManager.GetLogger(typeof(ChecksumSectionViewModel));
 
         public override string Id => "checksum";
-        public override string Title => Language.GetString("selfservice_category_checksum");
-        public override string Subtitle => Language.GetString("selfservice_category_checksum_sub");
+        public override string Title => Texts.SelfService.CategoryChecksum;
+        public override string Subtitle => Texts.SelfService.CategoryChecksumSub;
         public override string Icon => "🔒";
 
         private string _checksumFilePath;
@@ -366,12 +367,12 @@ namespace Greenshot.UI.SelfService
             get
             {
                 if (ChecksumFileNotFound)
-                    return Language.GetString("selfservice_checksum_status_notfound_title");
+                    return Texts.SelfService.ChecksumStatusNotfoundTitle;
                 if (HasCorruptFiles)
-                    return Language.GetString("selfservice_checksum_status_corrupt_title");
+                    return Texts.SelfService.ChecksumStatusCorruptTitle;
                 if (HasMissingFiles)
-                    return Language.GetString("selfservice_checksum_status_missing_title");
-                return Language.GetString("selfservice_checksum_status_ok_title");
+                    return Texts.SelfService.ChecksumStatusMissingTitle;
+                return Texts.SelfService.ChecksumStatusOkTitle;
             }
         }
 
@@ -380,12 +381,12 @@ namespace Greenshot.UI.SelfService
             get
             {
                 if (ChecksumFileNotFound)
-                    return Language.GetFormattedString("selfservice_checksum_status_notfound_desc", ChecksumFilePath);
+                    return string.Format(Texts.SelfService.ChecksumStatusNotfoundDesc, ChecksumFilePath);
                 if (HasCorruptFiles)
-                    return Language.GetFormattedString("selfservice_checksum_status_corrupt_desc", MismatchedCount);
+                    return string.Format(Texts.SelfService.ChecksumStatusCorruptDesc, MismatchedCount);
                 if (HasMissingFiles)
-                    return Language.GetFormattedString("selfservice_checksum_status_missing_desc", MissingCount);
-                return Language.GetString("selfservice_checksum_status_ok_desc");
+                    return string.Format(Texts.SelfService.ChecksumStatusMissingDesc, MissingCount);
+                return Texts.SelfService.ChecksumStatusOkDesc;
             }
         }
 
@@ -427,7 +428,7 @@ namespace Greenshot.UI.SelfService
         {
             BaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
             ChecksumFilePath = Path.Combine(BaseDirectory, "checksum.SHA256");
-            StatusMessage = Language.GetString("selfservice_category_checksum_sub");
+            StatusMessage = Texts.SelfService.CategoryChecksumSub;
         }
 
         public override void OnNavigatedTo()
@@ -454,8 +455,8 @@ namespace Greenshot.UI.SelfService
 
             IsScanning = true;
             ScanProgressPercentage = 0;
-            ScanProgressText = Language.GetString("selfservice_checksum_searching") != null 
-                ? string.Format(Language.GetString("selfservice_checksum_searching"), 0, 0)
+            ScanProgressText = Texts.SelfService.ChecksumSearching != null 
+                ? string.Format(Texts.SelfService.ChecksumSearching, 0, 0)
                 : "Validating files...";
 
             string baseDir = BaseDirectory;
@@ -471,7 +472,7 @@ namespace Greenshot.UI.SelfService
                         if (total > 0)
                         {
                             ScanProgressPercentage = (int)((cur / (double)total) * 100);
-                            ScanProgressText = Language.GetFormattedString("selfservice_checksum_searching", cur, total);
+                            ScanProgressText = string.Format(Texts.SelfService.ChecksumSearching, cur, total);
                         }
                     });
                 }), token);
@@ -815,11 +816,13 @@ namespace Greenshot.UI.SelfService
                 return true;
             }
 
-            if (!path.EndsWith(".xml", StringComparison.OrdinalIgnoreCase))
+            bool isLanguagePack = path.EndsWith(".ini", StringComparison.OrdinalIgnoreCase);
+            if (!isLanguagePack && !path.EndsWith(".xml", StringComparison.OrdinalIgnoreCase))
             {
                 return false;
             }
 
+            // Language packs (greenshot.{ietf}.ini) can be added or corrected by users; old XML language files too
             if (fileName.StartsWith("language-", StringComparison.OrdinalIgnoreCase) ||
                 fileName.StartsWith("language_", StringComparison.OrdinalIgnoreCase))
             {
@@ -997,7 +1000,7 @@ namespace Greenshot.UI.SelfService
                 }
 
                 ClipboardHelper.SetClipboardData(sb.ToString());
-                StatusMessage = Language.GetString("selfservice_checksum_copied_report") ?? "Integrity report copied to clipboard!";
+                StatusMessage = Texts.SelfService.ChecksumCopiedReport ?? "Integrity report copied to clipboard!";
             }
             catch (Exception ex)
             {
@@ -1019,7 +1022,7 @@ namespace Greenshot.UI.SelfService
                 sb.AppendLine($"Size: {SelectedItem.FileSizeText}");
                 sb.AppendLine($"Path: {SelectedItem.FullPath}");
                 ClipboardHelper.SetClipboardData(sb.ToString());
-                StatusMessage = Language.GetString("selfservice_copied") ?? "Copied!";
+                StatusMessage = Texts.SelfService.Copied ?? "Copied!";
             }
             catch (Exception ex)
             {

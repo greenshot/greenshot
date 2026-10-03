@@ -31,6 +31,7 @@ using log4net;
 using Microsoft.Win32;
 using System.Threading;
 using System.Threading.Tasks;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Base.Core
 {
@@ -238,7 +239,7 @@ namespace Greenshot.Base.Core
         /// <returns>Formatted quicklink text.</returns>
         public static string GetQuicklinkText(string pluginDisplayName)
         {
-            string format = Language.GetString("contextmenu_configure_plugin");
+            string format = Texts.Core.ContextmenuConfigurePlugin;
             if (string.IsNullOrEmpty(format) || format.StartsWith("string ###"))
             {
                 format = "Configure {0}";

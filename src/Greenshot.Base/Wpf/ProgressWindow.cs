@@ -25,6 +25,7 @@ using System.Windows;
 using System.Windows.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Base.Wpf
 {
@@ -74,7 +75,7 @@ namespace Greenshot.Base.Wpf
                 Background = WpfThemeHelper.CardBorder,
                 BorderThickness = new Thickness(0)
             };
-            _cancelButton = ThemedControls.CreateButton(Core.Language.GetString("CANCEL") ?? "Cancel", false, true);
+            _cancelButton = ThemedControls.CreateButton(Texts.Core.Cancel ?? "Cancel", false, true);
             _cancelButton.IsEnabled = cancel != null;
             _cancelButton.Click += (s, e) =>
             {

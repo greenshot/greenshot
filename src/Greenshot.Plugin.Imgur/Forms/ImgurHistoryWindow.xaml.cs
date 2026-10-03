@@ -34,7 +34,7 @@ using System.Windows.Input;
 using Greenshot.Base.Core;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Wpf;
-using GreenshotLanguage = Greenshot.Base.Core.Language;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Plugin.Imgur.Forms;
 
@@ -69,7 +69,7 @@ public partial class ImgurHistoryWindow : Window
             _isLoading = true;
             try
             {
-                await UserInteraction.Current.RunWithProgressAsync("Imgur " + GreenshotLanguage.GetString("imgur", LangKey.history),
+                await UserInteraction.Current.RunWithProgressAsync("Imgur " + Texts.Get<IImgurLanguage>().History,
                     (progress, token) => ImgurUtils.LoadHistoryAsync(token), CancellationToken.None);
             }
             finally
@@ -220,8 +220,8 @@ public partial class ImgurHistoryWindow : Window
         var toDelete = new List<ImgurInfo>();
         foreach (var imgurInfo in SelectedInfos)
         {
-            var result = ThemedMessageBox.Show(this, GreenshotLanguage.GetFormattedString("imgur", LangKey.delete_question, imgurInfo.Title),
-                GreenshotLanguage.GetFormattedString("imgur", LangKey.delete_title, imgurInfo.Hash), MessageBoxButton.YesNo, MessageBoxImage.Question);
+            var result = ThemedMessageBox.Show(this, string.Format(Texts.Get<IImgurLanguage>().DeleteQuestion, imgurInfo.Title),
+                string.Format(Texts.Get<IImgurLanguage>().DeleteTitle, imgurInfo.Hash), MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result == MessageBoxResult.Yes)
             {
                 toDelete.Add(imgurInfo);
@@ -285,7 +285,7 @@ public partial class ImgurHistoryWindow : Window
 
     private void ClearHistoryButton_Click(object sender, RoutedEventArgs e)
     {
-        var result = ThemedMessageBox.Show(this, GreenshotLanguage.GetString("imgur", LangKey.clear_question), "Imgur", MessageBoxButton.YesNo, MessageBoxImage.Question);
+        var result = ThemedMessageBox.Show(this, Texts.Get<IImgurLanguage>().ClearQuestion, "Imgur", MessageBoxButton.YesNo, MessageBoxImage.Question);
         if (result != MessageBoxResult.Yes)
         {
             return;

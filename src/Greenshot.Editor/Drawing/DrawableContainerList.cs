@@ -35,6 +35,7 @@ using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Drawing.Filters;
 using Greenshot.Editor.Forms;
 using Greenshot.Editor.Memento;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Editor.Drawing
 {
@@ -682,14 +683,14 @@ namespace Greenshot.Editor.Drawing
             // Pull "up"
             if (pull)
             {
-                item = new ToolStripMenuItem(Language.GetString(LangKey.editor_uptotop));
+                item = new ToolStripMenuItem(Texts.Editor.Uptotop);
                 item.Click += delegate
                 {
                     surface.Elements.PullElementsToTop(this);
                     surface.Elements.Invalidate();
                 };
                 menu.Items.Add(item);
-                item = new ToolStripMenuItem(Language.GetString(LangKey.editor_uponelevel));
+                item = new ToolStripMenuItem(Texts.Editor.Uponelevel);
                 item.Click += delegate
                 {
                     surface.Elements.PullElementsUp(this);
@@ -701,14 +702,14 @@ namespace Greenshot.Editor.Drawing
             // Push "down"
             if (push)
             {
-                item = new ToolStripMenuItem(Language.GetString(LangKey.editor_downtobottom));
+                item = new ToolStripMenuItem(Texts.Editor.Downtobottom);
                 item.Click += delegate
                 {
                     surface.Elements.PushElementsToBottom(this);
                     surface.Elements.Invalidate();
                 };
                 menu.Items.Add(item);
-                item = new ToolStripMenuItem(Language.GetString(LangKey.editor_downonelevel));
+                item = new ToolStripMenuItem(Texts.Editor.Downonelevel);
                 item.Click += delegate
                 {
                     surface.Elements.PushElementsDown(this);
@@ -718,7 +719,7 @@ namespace Greenshot.Editor.Drawing
             }
 
             // Duplicate
-            item = new ToolStripMenuItem(Language.GetString(LangKey.editor_duplicate));
+            item = new ToolStripMenuItem(Texts.Editor.Duplicate);
             item.Click += delegate
             {
                 IDrawableContainerList dcs = this.Clone();
@@ -731,7 +732,7 @@ namespace Greenshot.Editor.Drawing
             menu.Items.Add(item);
 
             // Copy
-            item = new ToolStripMenuItem(Language.GetString(LangKey.editor_copytoclipboard))
+            item = new ToolStripMenuItem(Texts.Editor.Copytoclipboard)
             {
                 Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "copyToolStripMenuItem.Image")
             };
@@ -739,7 +740,7 @@ namespace Greenshot.Editor.Drawing
             menu.Items.Add(item);
 
             // Cut
-            item = new ToolStripMenuItem(Language.GetString(LangKey.editor_cuttoclipboard))
+            item = new ToolStripMenuItem(Texts.Editor.Cuttoclipboard)
             {
                 Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnCut.Image")
             };
@@ -755,7 +756,7 @@ namespace Greenshot.Editor.Drawing
             {
                 "en-US",
             };
-            if (availableTranslations.Contains(Language.CurrentLanguage))
+            if (availableTranslations.Contains(Texts.Config.CurrentLanguage))
             {
                 menu.Items.Add(GetPushOutSubMenu(surface));
                 menu.Items.Add(GetFitSubMenu(surface));
@@ -765,7 +766,7 @@ namespace Greenshot.Editor.Drawing
             #endregion Push Out, Fit, Snap
 
             // Delete
-            item = new ToolStripMenuItem(Language.GetString(LangKey.editor_deleteelement))
+            item = new ToolStripMenuItem(Texts.Editor.Deleteelement)
             {
                 Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "removeObjectToolStripMenuItem.Image")
             };
@@ -777,7 +778,7 @@ namespace Greenshot.Editor.Drawing
 
             if (canReset)
             {
-                item = new ToolStripMenuItem(Language.GetString(LangKey.editor_resetsize));
+                item = new ToolStripMenuItem(Texts.Editor.Resetsize);
                 item.Click += delegate
                 {
                     MakeBoundsChangeUndoable(false);
@@ -962,10 +963,10 @@ namespace Greenshot.Editor.Drawing
 
         private ToolStripMenuItem GetPushOutSubMenu(ISurface surface)
         {
-            var pushOutSubmenu = new ToolStripMenuItem(Language.GetString(LangKey.editor_pushout));
+            var pushOutSubmenu = new ToolStripMenuItem(Texts.Editor.Pushout);
 
             // Top
-            var item = new ToolStripMenuItem(Language.GetString(LangKey.editor_align_top))
+            var item = new ToolStripMenuItem(Texts.Editor.AlignTop)
             {
                 Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "PushOut-Top.Image")
             };
@@ -979,7 +980,7 @@ namespace Greenshot.Editor.Drawing
             pushOutSubmenu.DropDownItems.Add(item);
 
             // Right
-            item = new ToolStripMenuItem(Language.GetString(LangKey.editor_align_right))
+            item = new ToolStripMenuItem(Texts.Editor.AlignRight)
             {
                 Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "PushOut-Right.Image")
             };
@@ -993,7 +994,7 @@ namespace Greenshot.Editor.Drawing
             pushOutSubmenu.DropDownItems.Add(item);
 
             // Bottom
-            item = new ToolStripMenuItem(Language.GetString(LangKey.editor_align_bottom))
+            item = new ToolStripMenuItem(Texts.Editor.AlignBottom)
             {
                 Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "PushOut-Bottom.Image")
             };
@@ -1007,7 +1008,7 @@ namespace Greenshot.Editor.Drawing
             pushOutSubmenu.DropDownItems.Add(item);
 
             // Left
-            item = new ToolStripMenuItem(Language.GetString(LangKey.editor_align_left))
+            item = new ToolStripMenuItem(Texts.Editor.AlignLeft)
             {
                 Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "PushOut-Left.Image")
             };
@@ -1025,10 +1026,10 @@ namespace Greenshot.Editor.Drawing
 
         private ToolStripMenuItem GetFitSubMenu(ISurface surface)
         {
-            var fitSubmenu = new ToolStripMenuItem(Language.GetString(LangKey.editor_fit));
+            var fitSubmenu = new ToolStripMenuItem(Texts.Editor.Fit);
 
             // Fit width
-            var item = new ToolStripMenuItem(Language.GetString(LangKey.editor_resize_width))
+            var item = new ToolStripMenuItem(Texts.Editor.ResizeWidth)
             {
                 Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "Fit-width.Image")
             };
@@ -1049,7 +1050,7 @@ namespace Greenshot.Editor.Drawing
             fitSubmenu.DropDownItems.Add(item);
 
             // Fit height
-            item = new ToolStripMenuItem(Language.GetString(LangKey.editor_resize_height))
+            item = new ToolStripMenuItem(Texts.Editor.ResizeHeight)
             {
                 Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "Fit-height.Image")
             };
@@ -1074,10 +1075,10 @@ namespace Greenshot.Editor.Drawing
 
         private ToolStripMenuItem GetSnapSubMenu(ISurface surface)
         {
-            var snapSubmenu = new ToolStripMenuItem(Language.GetString(LangKey.editor_snap));
+            var snapSubmenu = new ToolStripMenuItem(Texts.Editor.Snap);
 
             // Snap to top
-            var item = new ToolStripMenuItem(Language.GetString(LangKey.editor_align_top))
+            var item = new ToolStripMenuItem(Texts.Editor.AlignTop)
             {
                 Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "Snap-top.Image")
             };
@@ -1088,7 +1089,7 @@ namespace Greenshot.Editor.Drawing
             snapSubmenu.DropDownItems.Add(item);
 
             // Snap right
-            item = new ToolStripMenuItem(Language.GetString(LangKey.editor_align_right))
+            item = new ToolStripMenuItem(Texts.Editor.AlignRight)
             {
                 Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "Snap-right.Image")
             };
@@ -1099,7 +1100,7 @@ namespace Greenshot.Editor.Drawing
             snapSubmenu.DropDownItems.Add(item);
 
             // Snap to bottom
-            item = new ToolStripMenuItem(Language.GetString(LangKey.editor_align_bottom))
+            item = new ToolStripMenuItem(Texts.Editor.AlignBottom)
             {
                 Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "Snap-bottom.Image")
             };
@@ -1110,7 +1111,7 @@ namespace Greenshot.Editor.Drawing
             snapSubmenu.DropDownItems.Add(item);
 
             // Snap left
-            item = new ToolStripMenuItem(Language.GetString(LangKey.editor_align_left))
+            item = new ToolStripMenuItem(Texts.Editor.AlignLeft)
             {
                 Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "Snap-left.Image")
             };

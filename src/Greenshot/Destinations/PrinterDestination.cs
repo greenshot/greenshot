@@ -33,7 +33,8 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Configuration;
 using Greenshot.Helpers;
-using Greenshot.Base.Core.FileFormat;
+using Greenshot.Base.Core.FileFormat;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Destinations
 {
@@ -115,7 +116,7 @@ namespace Greenshot.Destinations
         {
             get
             {
-                string name = Language.GetString(LangKey.settings_destination_printer);
+                string name = Texts.Settings.DestinationPrinter;
                 if (_printerName != null)
                 {
                     name += " - " + _printerName;

@@ -31,6 +31,7 @@ using Greenshot.Configuration;
 using Greenshot.Helpers.Entities;
 using log4net;
 using Greenshot.Base.Threading;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Helpers
 {
@@ -324,7 +325,7 @@ namespace Greenshot.Helpers
                 var notificationService = SimpleServiceProvider.Current?.GetInstance<INotificationService>(isOptional: true);
                 if (notificationService == null) return;
 
-                var message = Language.GetFormattedString(LangKey.update_found, newVersion.ToString());
+                var message = string.Format(Texts.Core.UpdateFound, newVersion.ToString());
                 notificationService.ShowInfoMessage(message, TimeSpan.FromHours(1), () =>
                 {
                     try

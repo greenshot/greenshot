@@ -27,6 +27,7 @@ using System.Windows;
 using System.Windows.Input;
 using Greenshot.Base.Core;
 using log4net;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Forms.Wpf
 {
@@ -62,7 +63,7 @@ namespace Greenshot.Forms.Wpf
             _captureCopies = _captures.Select(i => new RecipeScopeItem(i.Id, i.Name, i.IsChecked)).ToList();
             _destinationCopies = _destinations.Select(i => new RecipeScopeItem(i.Id, i.Name, i.IsChecked)).ToList();
 
-            string title = string.Format(Greenshot.Base.Core.Language.GetString("settings_recipes_scope_title"), extensionName);
+            string title = string.Format(Texts.Settings.RecipesScopeTitle, extensionName);
             Title = title;
             TitleText.Text = title;
             CapturesList.ItemsSource = _captureCopies;

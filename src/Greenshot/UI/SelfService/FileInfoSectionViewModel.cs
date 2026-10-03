@@ -25,6 +25,7 @@ using System.Text;
 using System.Windows;
 using Greenshot.Base.Core;
 using log4net;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.UI.SelfService
 {
@@ -37,7 +38,7 @@ namespace Greenshot.UI.SelfService
         {
             get
             {
-                return Language.GetString("selfservice_category_files");
+                return Texts.SelfService.CategoryFiles;
             }
         }
 
@@ -45,7 +46,7 @@ namespace Greenshot.UI.SelfService
         {
             get
             {
-                return Language.GetString("selfservice_category_files_sub");
+                return Texts.SelfService.CategoryFilesSub;
             }
         }
         public override string Icon => "📁";
@@ -105,7 +106,7 @@ namespace Greenshot.UI.SelfService
                 else
                 {
                     LogFileExists = false;
-                    LogFileSizeText = Language.GetString("selfservice_files_not_found");
+                    LogFileSizeText = Texts.SelfService.FilesNotFound;
                     LogFileModifiedText = "N/A";
                 }
 
@@ -121,7 +122,7 @@ namespace Greenshot.UI.SelfService
                 else
                 {
                     ConfigFileExists = false;
-                    ConfigFileSizeText = Language.GetString("selfservice_files_not_found");
+                    ConfigFileSizeText = Texts.SelfService.FilesNotFound;
                     ConfigFileModifiedText = "N/A";
                 }
 
@@ -147,7 +148,7 @@ namespace Greenshot.UI.SelfService
         {
             if (string.IsNullOrEmpty(LogFilePath) || !File.Exists(LogFilePath))
             {
-                RecentLogContent = Language.GetFormattedString("selfservice_logviewer_status_notfound", LogFilePath);
+                RecentLogContent = string.Format(Texts.SelfService.LogviewerStatusNotfound, LogFilePath);
                 return;
             }
 
@@ -171,7 +172,7 @@ namespace Greenshot.UI.SelfService
                     }
                 }
 
-                string emptyFallback = Language.GetString("selfservice_logviewer_empty");
+                string emptyFallback = Texts.SelfService.LogviewerEmpty;
                 RecentLogContent = string.IsNullOrWhiteSpace(text) ? emptyFallback : text.TrimEnd();
             }
             catch (Exception ex)

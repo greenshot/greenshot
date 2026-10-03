@@ -26,6 +26,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using log4net;
+using Greenshot.Base.Languages;
+using System.IO;
+using System.Linq;
 
 namespace Greenshot.Base.Help
 {
@@ -43,11 +46,32 @@ namespace Greenshot.Base.Help
         /// </summary>
         public static async Task LoadHelpAsync()
         {
-            string uri = await FindOnlineHelpUrlAsync(Language.CurrentLanguage, CancellationToken.None).ConfigureAwait(false) ?? Language.HelpFilePath;
+            string uri = await FindOnlineHelpUrlAsync(Texts.Config.CurrentLanguage, CancellationToken.None).ConfigureAwait(false) ?? FindLocalHelpFile();
             using (Process.Start(uri))
             {
                 // Only started
             }
+        }
+
+        /// <summary>
+        /// The help file help-{ietf}.html of the current language in the language folders (or Help, the portable version), else the English one
+        /// </summary>
+        private static string FindLocalHelpFile()
+        {
+            var folders = Texts.SearchPaths.Concat(new[] { Path.Combine(EnvironmentInfo.GetApplicationFolder(), "Help") }).ToList();
+            foreach (var ietf in new[] { Texts.Config.CurrentLanguage, "en-US" })
+            {
+                foreach (var folder in folders)
+                {
+                    string helpFile = Path.Combine(folder, $"help-{ietf}.html");
+                    if (File.Exists(helpFile))
+                    {
+                        return helpFile;
+                    }
+                }
+            }
+
+            return ExtHelpUrl;
         }
 
         private static async Task<string> FindOnlineHelpUrlAsync(string currentIETF, CancellationToken cancellationToken)

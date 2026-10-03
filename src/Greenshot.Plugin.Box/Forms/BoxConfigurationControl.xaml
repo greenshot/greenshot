@@ -21,7 +21,7 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <Label Grid.Column="0" Content="{wpf:Translate box.label_upload_format}" Margin="0,0,12,0"/>
+            <Label Grid.Column="0" Content="{wpf:Text Box.LabelUploadFormat}" Margin="0,0,12,0"/>
             <ComboBox x:Name="UploadFormatCombo" Grid.Column="1"
                       HorizontalAlignment="Right" Width="200"
                       DisplayMemberPath="DisplayNameWithPreferredExtension"
@@ -30,9 +30,9 @@
         </Grid>
 
         <CheckBox IsChecked="{Binding AfterUploadLinkToClipBoard}"
-                  Content="{wpf:Translate box.label_AfterUploadLinkToClipBoard}"/>
+                  Content="{wpf:Text Box.LabelAfterUploadLinkToClipBoard}"/>
 
         <CheckBox IsChecked="{Binding QuicklinkEnabled}"
-                  Content="{wpf:Translate quicklink_enable}"/>
+                  Content="{wpf:Text Core.QuicklinkEnable}"/>
     </StackPanel>
 </UserControl>

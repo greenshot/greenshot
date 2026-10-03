@@ -24,7 +24,8 @@ using System.Threading.Tasks;
 using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
-using Greenshot.Configuration;
+using Greenshot.Configuration;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Destinations
 {
@@ -36,7 +37,7 @@ namespace Greenshot.Destinations
         public override string Designation => nameof(WellKnownDestinations.FileDialog);
 
         public override DestinationDescriptor Descriptor => new DestinationDescriptor(
-            Language.GetString(LangKey.settings_destination_fileas), 0, DestinationIcons.Resource("Save.Image"), "Ctrl+Shift+S");
+            Texts.Settings.DestinationFileas, 0, DestinationIcons.Resource("Save.Image"), "Ctrl+Shift+S");
 
         public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
         {

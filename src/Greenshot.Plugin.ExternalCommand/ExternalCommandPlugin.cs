@@ -35,7 +35,8 @@ using Greenshot.Base.Recipes;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Greenshot.Base.Threading;
+using Greenshot.Base.Threading;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Plugin.ExternalCommand;
 
@@ -117,6 +118,7 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRec
 
     public void ConfigureServices(IPluginServices services)
     {
+        Texts.Register<IExternalCommandLanguage>(new ExternalCommandLanguageImpl());
         var externalCommandSection = new ExternalCommandConfigurationImpl();
         services.AddConfiguration(externalCommandSection);
         ExternalCommandConfig = externalCommandSection;
@@ -182,7 +184,7 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRec
         {
             notify.PropertyChanged += OnConfigPropertyChanged;
         }
-        Language.LanguageChanged += OnLanguageChanged;
+        Texts.Config.LanguageChanged += OnLanguageChanged;
         CoreConfig.PropertyChanged += OnIconSizeChanged;
     }
 
@@ -244,7 +246,7 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRec
                 notify.PropertyChanged -= OnConfigPropertyChanged;
             }
 
-            Language.LanguageChanged -= OnLanguageChanged;
+            Texts.Config.LanguageChanged -= OnLanguageChanged;
             CoreConfig.PropertyChanged -= OnIconSizeChanged;
             _itemPlugInRoot?.Dispose();
             _itemPlugInRoot = null;

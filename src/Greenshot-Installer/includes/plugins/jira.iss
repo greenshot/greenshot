@@ -4,7 +4,7 @@ Name: "plugins\jira"; Description: {cm:jira}; Types: full custom; Flags: disable
 [Files]
 ; The plugin and the libraries only it uses; the build removed its copies of the files Greenshot itself installs
 Source: {#PluginDir}\Greenshot.Plugin.Jira\*.dll; DestDir: {app}\Plugins\Greenshot.Plugin.Jira; Components: plugins\jira; Flags: {#DefaultInstallFlags};
-Source: {#SolutionDir}\Greenshot.Plugin.Jira\Languages\language_jira*.xml; DestDir: {app}\Languages\Plugins\Jira; Components: plugins\jira; Flags: {#DefaultInstallFlags};
+Source: {#SolutionDir}\Greenshot.Plugin.Jira\Languages\greenshot.jira.*.ini; DestDir: {app}\Languages; Components: plugins\jira; Flags: {#DefaultInstallFlags};
 
 [CustomMessages]
 jira=Jira plug-in

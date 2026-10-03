@@ -39,9 +39,9 @@ using Greenshot.Base.Core;
 using Greenshot.Configuration;
 using Greenshot.Helpers;
 using log4net;
-using Lang = Greenshot.Base.Core.Language;
 using Path = System.Windows.Shapes.Path;
 using Greenshot.Base.Threading;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.UI
 {
@@ -171,7 +171,7 @@ namespace Greenshot.UI
             _highlightTimer.Tick += OnHighlightTimerTick;
 
             WpfThemeHelper.ThemeChanged += OnThemeChanged;
-            Lang.LanguageChanged += OnLanguageChanged;
+            Texts.Config.LanguageChanged += OnLanguageChanged;
 
             Loaded += OnWindowLoaded;
             Unloaded += OnWindowUnloaded;
@@ -183,20 +183,20 @@ namespace Greenshot.UI
         /// </summary>
         protected virtual void InitializeLanguage()
         {
-            WindowTitleText = Lang.GetString("about_title");
+            WindowTitleText = Texts.Core.AboutTitle;
             WindowTitleSubtitle = $" - {WindowTitleText}";
 
-            LicenseCopyrightText = Lang.GetString("about_license");
-            HostLabelText = Lang.GetString("about_host");
-            BugsLabelText = Lang.GetString("about_bugs");
-            DonationsLabelText = Lang.GetString("about_donations");
-            IconsLabelText = Lang.GetString("about_icons");
+            LicenseCopyrightText = Texts.Core.AboutLicense;
+            HostLabelText = Texts.Core.AboutHost;
+            BugsLabelText = Texts.Core.AboutBugs;
+            DonationsLabelText = Texts.Core.AboutDonations;
+            IconsLabelText = Texts.Core.AboutIcons;
 
-            TranslationCreditsText = Lang.GetString("about_translation");
-            SelfServiceButtonText = Lang.GetString("selfservice_button_text");
-            SelfServiceButtonToolTip = Lang.GetString("selfservice_tooltip");
+            TranslationCreditsText = Texts.Core.AboutTranslation;
+            SelfServiceButtonText = Texts.SelfService.ButtonText;
+            SelfServiceButtonToolTip = Texts.SelfService.Tooltip;
 
-            CloseButtonText = Lang.GetString("bugreport_cancel");
+            CloseButtonText = Texts.Core.BugreportCancel;
             CloseButtonToolTip = $"{CloseButtonText} (Esc)";
 
             OnPropertyChanged(nameof(WindowTitleText));
@@ -246,7 +246,7 @@ namespace Greenshot.UI
         private void OnWindowUnloaded(object sender, RoutedEventArgs e)
         {
             WpfThemeHelper.ThemeChanged -= OnThemeChanged;
-            Lang.LanguageChanged -= OnLanguageChanged;
+            Texts.Config.LanguageChanged -= OnLanguageChanged;
             _highlightTimer.Stop();
         }
 
@@ -352,8 +352,8 @@ namespace Greenshot.UI
             catch (Exception ex)
             {
                 Log.Error($"Error opening link '{e.Uri}'", ex);
-                MessageBox.Show(this, Lang.GetFormattedString(LangKey.error_openlink, e.Uri.AbsoluteUri),
-                    Lang.GetString(LangKey.error), MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(this, string.Format(Texts.Core.ErrorOpenlink, e.Uri.AbsoluteUri),
+                    Texts.Core.Error, MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

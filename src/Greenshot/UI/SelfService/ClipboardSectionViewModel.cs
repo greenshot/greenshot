@@ -37,6 +37,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
 using log4net;
 using Greenshot.Base.Threading;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.UI.SelfService
 {
@@ -66,7 +67,7 @@ namespace Greenshot.UI.SelfService
         {
             get
             {
-                string title = Language.GetString("selfservice_category_clipboard");
+                string title = Texts.SelfService.CategoryClipboard;
                 return string.IsNullOrEmpty(title) ? "Clipboard Diagnostics" : title;
             }
         }
@@ -74,7 +75,7 @@ namespace Greenshot.UI.SelfService
         {
             get
             {
-                string sub = Language.GetString("selfservice_category_clipboard_sub");
+                string sub = Texts.SelfService.CategoryClipboardSub;
                 return string.IsNullOrEmpty(sub) ? "Active formats and live clipboard locker detection" : sub;
             }
         }
@@ -169,8 +170,8 @@ namespace Greenshot.UI.SelfService
 
         private void UpdateMonitorToggleText()
         {
-            string startText = Language.GetString("selfservice_clipboard_btn_start_monitor");
-            string stopText = Language.GetString("selfservice_clipboard_btn_stop_monitor");
+            string startText = Texts.SelfService.ClipboardBtnStartMonitor;
+            string stopText = Texts.SelfService.ClipboardBtnStopMonitor;
             MonitorToggleText = _isMonitoring 
                 ? $"⏹ {(string.IsNullOrEmpty(stopText) ? "Stop Monitor Loop" : stopText)}" 
                 : $"▶ {(string.IsNullOrEmpty(startText) ? "Start Monitor Loop" : startText)}";
@@ -331,14 +332,14 @@ namespace Greenshot.UI.SelfService
                         BlockerWindowTitle = title;
                         BlockerExecutablePath = path;
 
-                        string blockedTemplate = Language.GetString("selfservice_clipboard_status_blocked_by");
-                        string winLabel = Language.GetString("selfservice_clipboard_window_label");
-                        string exeLabel = Language.GetString("selfservice_clipboard_executable_label");
+                        string blockedTemplate = Texts.SelfService.ClipboardStatusBlockedBy;
+                        string winLabel = Texts.SelfService.ClipboardWindowLabel;
+                        string exeLabel = Texts.SelfService.ClipboardExecutableLabel;
 
                         StatusHeader = string.Format(string.IsNullOrEmpty(blockedTemplate) ? "Clipboard is BLOCKED by {0} (PID: {1})" : blockedTemplate, procName, pid);
                         StatusDetails = $"{string.Format(string.IsNullOrEmpty(winLabel) ? "Window: \"{0}\"" : winLabel, title)}\n{string.Format(string.IsNullOrEmpty(exeLabel) ? "Executable: {0}" : exeLabel, path)}";
                         StatusBrush = WpfThemeHelper.ErrorText;
-                        string badge = Language.GetString("selfservice_clipboard_badge_blocked");
+                        string badge = Texts.SelfService.ClipboardBadgeBlocked;
                         BadgeText = string.IsNullOrEmpty(badge) ? "BLOCKED" : badge;
                         BadgeBrush = WpfThemeHelper.ErrorBackground;
 
@@ -366,9 +367,9 @@ namespace Greenshot.UI.SelfService
                         BlockerWindowTitle = null;
                         BlockerExecutablePath = null;
 
-                        string accessibleText = Language.GetString("selfservice_clipboard_status_accessible");
-                        string lastOwnerTemplate = Language.GetString("selfservice_clipboard_status_last_owner");
-                        string exeLabel = Language.GetString("selfservice_clipboard_executable_label");
+                        string accessibleText = Texts.SelfService.ClipboardStatusAccessible;
+                        string lastOwnerTemplate = Texts.SelfService.ClipboardStatusLastOwner;
+                        string exeLabel = Texts.SelfService.ClipboardExecutableLabel;
 
                         StatusHeader = string.IsNullOrEmpty(accessibleText) ? "Clipboard is Accessible (Unlocked)" : accessibleText;
                         StatusDetails = string.Format(string.IsNullOrEmpty(lastOwnerTemplate) ? "Last data set by: {0}" : lastOwnerTemplate, CurrentOwnerInfo);
@@ -523,9 +524,9 @@ namespace Greenshot.UI.SelfService
                     {
                         items.Add(new ClipboardFormatItemViewModel
                         {
-                            Name = Language.GetString("selfservice_clipboard_empty") ?? "(Empty)",
-                            TypeDescription = Language.GetString("selfservice_clipboard_no_data") ?? "Clipboard contains no data",
-                            Details = Language.GetString("selfservice_clipboard_no_formats") ?? "No formats currently active",
+                            Name = Texts.SelfService.ClipboardEmpty ?? "(Empty)",
+                            TypeDescription = Texts.SelfService.ClipboardNoData ?? "Clipboard contains no data",
+                            Details = Texts.SelfService.ClipboardNoFormats ?? "No formats currently active",
                             SizeText = "-"
                         });
                     }
@@ -535,9 +536,9 @@ namespace Greenshot.UI.SelfService
                     Log.Debug("Error querying clipboard formats via Dapplo", ex);
                     items.Add(new ClipboardFormatItemViewModel
                     {
-                        Name = Language.GetString("selfservice_clipboard_query_error") ?? "Error querying formats",
+                        Name = Texts.SelfService.ClipboardQueryError ?? "Error querying formats",
                         TypeDescription = ex.Message,
-                        Details = Language.GetString("selfservice_clipboard_busy") ?? "Clipboard may be busy or locked",
+                        Details = Texts.SelfService.ClipboardBusy ?? "Clipboard may be busy or locked",
                         SizeText = "-"
                     });
                 }
@@ -555,21 +556,21 @@ namespace Greenshot.UI.SelfService
 
         private string GetFormatDescription(string name)
         {
-            if (string.Equals(name, "CF_TEXT", StringComparison.OrdinalIgnoreCase)) return Language.GetString("selfservice_clipformat_ansi") ?? "Standard ANSI text string";
-            if (string.Equals(name, "CF_BITMAP", StringComparison.OrdinalIgnoreCase)) return Language.GetString("selfservice_clipformat_bitmap") ?? "Device-dependent bitmap (GDI)";
-            if (string.Equals(name, "CF_DIB", StringComparison.OrdinalIgnoreCase)) return Language.GetString("selfservice_clipformat_dib") ?? "Device-independent bitmap (DIB)";
-            if (string.Equals(name, "CF_DIBV5", StringComparison.OrdinalIgnoreCase)) return Language.GetString("selfservice_clipformat_dibv5") ?? "DIB version 5 bitmap";
-            if (string.Equals(name, "CF_UNICODETEXT", StringComparison.OrdinalIgnoreCase)) return Language.GetString("selfservice_clipformat_unicode") ?? "Standard Unicode (UTF-16) text string";
-            if (string.Equals(name, "CF_ENHMETAFILE", StringComparison.OrdinalIgnoreCase)) return Language.GetString("selfservice_clipformat_metafile") ?? "Enhanced Windows Metafile";
-            if (string.Equals(name, "CF_HDROP", StringComparison.OrdinalIgnoreCase)) return Language.GetString("selfservice_clipformat_hdrop") ?? "List of files dragged or copied (HDROP)";
-            if (string.Equals(name, "CF_LOCALE", StringComparison.OrdinalIgnoreCase)) return Language.GetString("selfservice_clipformat_locale") ?? "Locale identifier for clipboard text";
-            if (string.Equals(name, "CF_OEMTEXT", StringComparison.OrdinalIgnoreCase)) return Language.GetString("selfservice_clipformat_oem") ?? "OEM text string";
-            if (string.Equals(name, "CF_TIFF", StringComparison.OrdinalIgnoreCase)) return Language.GetString("selfservice_clipformat_tiff") ?? "TIFF image data";
-            if (name.StartsWith("HTML", StringComparison.OrdinalIgnoreCase)) return Language.GetString("selfservice_clipformat_html") ?? "Hypertext Markup Language (HTML)";
-            if (name.StartsWith("Rich Text", StringComparison.OrdinalIgnoreCase)) return Language.GetString("selfservice_clipformat_rtf") ?? "Rich Text Format (RTF)";
-            if (name.IndexOf("PNG", StringComparison.OrdinalIgnoreCase) >= 0) return Language.GetString("selfservice_clipformat_png") ?? "Portable Network Graphics (PNG)";
-            if (name.IndexOf("Bitmap", StringComparison.OrdinalIgnoreCase) >= 0) return Language.GetString("selfservice_clipformat_bmp") ?? "Bitmap image format";
-            return Language.GetString("selfservice_clipformat_custom") ?? "Custom registered format";
+            if (string.Equals(name, "CF_TEXT", StringComparison.OrdinalIgnoreCase)) return Texts.SelfService.ClipformatAnsi ?? "Standard ANSI text string";
+            if (string.Equals(name, "CF_BITMAP", StringComparison.OrdinalIgnoreCase)) return Texts.SelfService.ClipformatBitmap ?? "Device-dependent bitmap (GDI)";
+            if (string.Equals(name, "CF_DIB", StringComparison.OrdinalIgnoreCase)) return Texts.SelfService.ClipformatDib ?? "Device-independent bitmap (DIB)";
+            if (string.Equals(name, "CF_DIBV5", StringComparison.OrdinalIgnoreCase)) return Texts.SelfService.ClipformatDibv5 ?? "DIB version 5 bitmap";
+            if (string.Equals(name, "CF_UNICODETEXT", StringComparison.OrdinalIgnoreCase)) return Texts.SelfService.ClipformatUnicode ?? "Standard Unicode (UTF-16) text string";
+            if (string.Equals(name, "CF_ENHMETAFILE", StringComparison.OrdinalIgnoreCase)) return Texts.SelfService.ClipformatMetafile ?? "Enhanced Windows Metafile";
+            if (string.Equals(name, "CF_HDROP", StringComparison.OrdinalIgnoreCase)) return Texts.SelfService.ClipformatHdrop ?? "List of files dragged or copied (HDROP)";
+            if (string.Equals(name, "CF_LOCALE", StringComparison.OrdinalIgnoreCase)) return Texts.SelfService.ClipformatLocale ?? "Locale identifier for clipboard text";
+            if (string.Equals(name, "CF_OEMTEXT", StringComparison.OrdinalIgnoreCase)) return Texts.SelfService.ClipformatOem ?? "OEM text string";
+            if (string.Equals(name, "CF_TIFF", StringComparison.OrdinalIgnoreCase)) return Texts.SelfService.ClipformatTiff ?? "TIFF image data";
+            if (name.StartsWith("HTML", StringComparison.OrdinalIgnoreCase)) return Texts.SelfService.ClipformatHtml ?? "Hypertext Markup Language (HTML)";
+            if (name.StartsWith("Rich Text", StringComparison.OrdinalIgnoreCase)) return Texts.SelfService.ClipformatRtf ?? "Rich Text Format (RTF)";
+            if (name.IndexOf("PNG", StringComparison.OrdinalIgnoreCase) >= 0) return Texts.SelfService.ClipformatPng ?? "Portable Network Graphics (PNG)";
+            if (name.IndexOf("Bitmap", StringComparison.OrdinalIgnoreCase) >= 0) return Texts.SelfService.ClipformatBmp ?? "Bitmap image format";
+            return Texts.SelfService.ClipformatCustom ?? "Custom registered format";
         }
 
         public void ToggleMonitoring()
@@ -592,7 +593,7 @@ namespace Greenshot.UI.SelfService
                 {
                     _blockedOccurrenceCount = 0;
                     IsMonitoring = true;
-                    string startMsg = Language.GetString("selfservice_clipboard_monitor_started_msg");
+                    string startMsg = Texts.SelfService.ClipboardMonitorStartedMsg;
                     lock (_monitorLogLock)
                     {
                         MonitorLog.Insert(0, new ClipboardMonitorEvent
@@ -616,7 +617,7 @@ namespace Greenshot.UI.SelfService
                 {
                     _monitorTimer.Stop();
                     IsMonitoring = false;
-                    string stopMsg = Language.GetString("selfservice_clipboard_monitor_stopped_msg");
+                    string stopMsg = Texts.SelfService.ClipboardMonitorStoppedMsg;
                     lock (_monitorLogLock)
                     {
                         MonitorLog.Insert(0, new ClipboardMonitorEvent

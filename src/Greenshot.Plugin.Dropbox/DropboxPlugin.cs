@@ -33,7 +33,8 @@ using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Threading;
-using Greenshot.Plugin.Dropbox.Forms;
+using Greenshot.Plugin.Dropbox.Forms;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Plugin.Dropbox;
 
@@ -59,6 +60,7 @@ public class DropboxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepP
 
     public void ConfigureServices(IPluginServices services)
     {
+        Texts.Register<IDropboxLanguage>(new DropboxLanguageImpl());
         var section = new DropboxConfigurationImpl();
         services.AddConfiguration(section);
         _config = section;
@@ -98,7 +100,7 @@ public class DropboxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepP
         _itemPlugInConfig.Click += ConfigMenuClick;
 
         PluginUtils.AddToContextMenu(_itemPlugInConfig);
-        Language.LanguageChanged += OnLanguageChanged;
+        Texts.Config.LanguageChanged += OnLanguageChanged;
         if (_config is INotifyPropertyChanged notify)
         {
             notify.PropertyChanged += OnConfigPropertyChanged;
@@ -128,7 +130,7 @@ public class DropboxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepP
         UiDispatcher.Current.RunOnUiAsync(() =>
         {
             Log.Debug("Dropbox Plugin shutdown.");
-            Language.LanguageChanged -= OnLanguageChanged;
+            Texts.Config.LanguageChanged -= OnLanguageChanged;
             if (_config is INotifyPropertyChanged notify)
             {
                 notify.PropertyChanged -= OnConfigPropertyChanged;
@@ -153,7 +155,7 @@ public class DropboxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepP
         var outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
         string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
         var image = await source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
-        return await userInteraction.RunWithProgressAsync(Language.GetString("dropbox", LangKey.communication_wait),
+        return await userInteraction.RunWithProgressAsync(Texts.Get<IDropboxLanguage>().CommunicationWait,
             (progress, token) => DropboxUtils.UploadToDropboxAsync(image, filename, userInteraction, progress, token), cancellationToken).ConfigureAwait(false);
     }
 }

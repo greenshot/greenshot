@@ -25,6 +25,7 @@ using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Base.Wpf
 {
@@ -44,7 +45,7 @@ namespace Greenshot.Base.Wpf
         public QualityWindow(SurfaceOutputSettings settings)
         {
             _settings = settings;
-            string title = Core.Language.GetString("qualitydialog_title");
+            string title = Texts.Core.QualitydialogTitle;
             ThemedControls.ApplyDialogLook(this, title);
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
             Topmost = true;
@@ -61,11 +62,11 @@ namespace Greenshot.Base.Wpf
 
             bool isJpeg = WellKnownFileFormats.IsEqualFormat(WellKnownFileFormats.Jpg, settings.Format);
 
-            _reduceColors = ThemedControls.CreateCheckBox(Core.Language.GetString("settings_reducecolors"), settings.ReduceColors);
+            _reduceColors = ThemedControls.CreateCheckBox(Texts.Settings.Reducecolors, settings.ReduceColors);
 
             var qualityLabel = new TextBlock
             {
-                Text = Core.Language.GetString("jpegqualitydialog_choosejpegquality"),
+                Text = Texts.Core.JpegqualitydialogChoosejpegquality,
                 TextWrapping = TextWrapping.Wrap,
                 Foreground = WpfThemeHelper.TextPrimary,
                 Margin = new Thickness(0, 10, 0, 4)
@@ -99,16 +100,16 @@ namespace Greenshot.Base.Wpf
             qualityLabel.IsEnabled = qualityRow.IsEnabled = isJpeg;
             qualityLabel.Opacity = qualityRow.Opacity = isJpeg ? 1 : 0.5;
 
-            _dontAskAgain = ThemedControls.CreateCheckBox(Core.Language.GetString("qualitydialog_dontaskagain"), false);
+            _dontAskAgain = ThemedControls.CreateCheckBox(Texts.Core.QualitydialogDontaskagain, false);
             _dontAskAgain.Margin = new Thickness(0, 10, 0, 0);
 
-            var ok = ThemedControls.CreateButton(Core.Language.GetString("OK"), true, false);
+            var ok = ThemedControls.CreateButton(Texts.Core.Ok, true, false);
             ok.Click += (s, e) =>
             {
                 Apply();
                 DialogResult = true;
             };
-            var cancel = ThemedControls.CreateButton(Core.Language.GetString("CANCEL"), false, true);
+            var cancel = ThemedControls.CreateButton(Texts.Core.Cancel, false, true);
             var buttonRow = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 18, 0, 0) };
             buttonRow.Children.Add(ok);
             buttonRow.Children.Add(cancel);

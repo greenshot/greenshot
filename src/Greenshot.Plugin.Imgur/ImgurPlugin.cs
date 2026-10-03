@@ -32,7 +32,8 @@ using Greenshot.Base.Recipes;
 using Greenshot.Base.Threading;
 using Greenshot.Plugin.Imgur.Forms;
 using System.Threading;
-using System.Threading.Tasks;
+using System.Threading.Tasks;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Plugin.Imgur;
 
@@ -59,6 +60,7 @@ public class ImgurPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
 
     public void ConfigureServices(IPluginServices services)
     {
+        Texts.Register<IImgurLanguage>(new ImgurLanguageImpl());
         var section = new ImgurConfigurationImpl();
         services.AddConfiguration(section);
         _config = section;
@@ -97,7 +99,7 @@ public class ImgurPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
         _itemPlugInConfig.Click += delegate { ShowSettings(); };
 
         PluginUtils.AddToContextMenu(_itemPlugInConfig);
-        Language.LanguageChanged += OnLanguageChanged;
+        Texts.Config.LanguageChanged += OnLanguageChanged;
         if (_config is INotifyPropertyChanged notify)
         {
             notify.PropertyChanged += OnConfigPropertyChanged;
@@ -126,7 +128,7 @@ public class ImgurPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
 
         if (_historyMenuItem != null)
         {
-            _historyMenuItem.Text = Language.GetString("imgur", LangKey.history);
+            _historyMenuItem.Text = Texts.Get<IImgurLanguage>().History;
         }
     }
 
@@ -167,7 +169,7 @@ public class ImgurPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
         UiDispatcher.Current.RunOnUiAsync(() =>
         {
             Log.Debug("Imgur Plugin shutdown.");
-            Language.LanguageChanged -= OnLanguageChanged;
+            Texts.Config.LanguageChanged -= OnLanguageChanged;
             if (_config is INotifyPropertyChanged notify)
             {
                 notify.PropertyChanged -= OnConfigPropertyChanged;

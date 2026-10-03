@@ -26,7 +26,8 @@ using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Export;
 using Greenshot.Base.Interfaces;
-using Greenshot.Configuration;
+using Greenshot.Configuration;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Destinations
 {
@@ -37,7 +38,7 @@ namespace Greenshot.Destinations
     {
         public override string Designation => nameof(WellKnownDestinations.Picker);
 
-        public override DestinationDescriptor Descriptor => new DestinationDescriptor(Language.GetString(LangKey.settings_destination_picker), 1);
+        public override DestinationDescriptor Descriptor => new DestinationDescriptor(Texts.Settings.DestinationPicker, 1);
 
         /// <summary>
         /// Export the capture with the destination picker: until an export succeeds or the user closes the picker.

@@ -44,6 +44,7 @@ using Greenshot.Plugin.Zxing.Views;
 using Xunit;
 using Greenshot.Plugin.Zxing.Controls;
 using System.Threading.Tasks;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Tests.Forms
 {
@@ -274,7 +275,7 @@ namespace Greenshot.Tests.Forms
                 coreConfig.IsBetaTester = original;
             }
 
-            var textEn = Greenshot.Base.Core.Language.GetString("expertsettings_betatester");
+            var textEn = Texts.Settings.ExpertBetatester;
             Assert.False(string.IsNullOrEmpty(textEn));
             Assert.Equal("Enable to enable beta-test features.", textEn);
         }

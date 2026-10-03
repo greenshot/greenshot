@@ -44,16 +44,16 @@
 
     <StackPanel Margin="8">
         <CheckBox IsChecked="{Binding AnonymousAccess}"
-                  Content="{wpf:Translate imgur.anonymous_access}"/>
+                  Content="{wpf:Text Imgur.AnonymousAccess}"/>
 
         <CheckBox IsChecked="{Binding UsePageLink}"
-                  Content="{wpf:Translate imgur.use_page_link}"/>
+                  Content="{wpf:Text Imgur.UsePageLink}"/>
 
         <CheckBox IsChecked="{Binding QuicklinkEnabled}"
-                  Content="{wpf:Translate quicklink_enable}"/>
+                  Content="{wpf:Text Core.QuicklinkEnable}"/>
 
         <StackPanel Margin="0,8,0,0" Orientation="Horizontal">
-            <Button x:Name="ButtonHistory" Content="{wpf:Translate imgur.history}" Click="Button_History_Click"/>
+            <Button x:Name="ButtonHistory" Content="{wpf:Text Imgur.History}" Click="Button_History_Click"/>
         </StackPanel>
     </StackPanel>
 </UserControl>

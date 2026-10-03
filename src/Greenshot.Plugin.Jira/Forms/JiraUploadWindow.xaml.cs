@@ -35,7 +35,7 @@ using Dapplo.Jira.Entities;
 using Greenshot.Base.Core;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Wpf;
-using GreenshotLanguage = Greenshot.Base.Core.Language;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Plugin.Jira.Forms;
 
@@ -180,7 +180,7 @@ public partial class JiraUploadWindow : Window
         catch (Exception e)
         {
             Log.Error("Error with login.", e);
-            ShowError(GreenshotLanguage.GetFormattedString("jira", LangKey.login_error, e.Message));
+            ShowError(string.Format(Texts.Get<IJiraLanguage>().LoginError, e.Message));
         }
 
         if (_closed || !_jiraConnector.IsLoggedIn)
@@ -213,7 +213,7 @@ public partial class JiraUploadWindow : Window
         catch (Exception e)
         {
             Log.Error("Error getting favorites.", e);
-            ShowError(GreenshotLanguage.GetFormattedString("jira", LangKey.login_error, e.Message));
+            ShowError(string.Format(Texts.Get<IJiraLanguage>().LoginError, e.Message));
         }
     }
 

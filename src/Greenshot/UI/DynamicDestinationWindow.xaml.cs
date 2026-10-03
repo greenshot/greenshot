@@ -42,8 +42,8 @@ using Greenshot.Base.Recipes;
 using Greenshot.Base.Wpf;
 using Greenshot.Configuration;
 using Greenshot.Editor.Destinations;
-using BaseLanguage = Greenshot.Base.Core.Language;
 using Greenshot.Base.Threading;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.UI
 {
@@ -115,7 +115,7 @@ namespace Greenshot.UI
         public event PropertyChangedEventHandler PropertyChanged;
 
         public string WindowTitle => $"Greenshot - {HeaderTitle}";
-        public string HeaderTitle => !string.IsNullOrWhiteSpace(_customTitle) ? _customTitle : GetTranslation("settings_destination", "Export Capture");
+        public string HeaderTitle => !string.IsNullOrWhiteSpace(_customTitle) ? _customTitle : Texts.Settings.Destination;
         public string ErrorMessage { get; set; }
         public Visibility ErrorBannerVisibility => !string.IsNullOrWhiteSpace(ErrorMessage) ? Visibility.Visible : Visibility.Collapsed;
 
@@ -149,7 +149,7 @@ namespace Greenshot.UI
         }
 
         public string TimeoutText => _secondsRemaining > 0 
-            ? string.Format(GetTranslation("autoclosing_hint", "Auto-closing in {0}s..."), _secondsRemaining) 
+            ? string.Format("Auto-closing in {0}s...", _secondsRemaining) 
             : "";
 
         public IDestination SelectedDestination { get; private set; }
@@ -157,20 +157,20 @@ namespace Greenshot.UI
         public bool OpenInEditorRequested { get; private set; }
 
         // Localized UI text strings
-        public string CoreDestinationsHeaderText => GetTranslation("settings_destination_core", "Core Destinations");
-        public string OtherDestinationsHeaderText => GetTranslation("settings_destination_other", "Destinations");
-        public string ForwardToRecipeHeaderText => GetTranslation("contextmenu_recipeeditor", "Forward to Recipe");
-        public string RunRecipeButtonText => GetTranslation("recipe_run", "▶ Run Recipe");
-        public string DismissButtonText => GetTranslation("CANCEL", "Dismiss");
-        public string CloseButtonToolTip => GetTranslation("editor_close", "Close (Esc)");
-        public string ClickToPreviewTooltip => GetTranslation("preview_tooltip", "Click to view full preview (Esc to exit)");
-        public string FullscreenReturnHintText => GetTranslation("preview_return_hint", "Click anywhere or press Esc to return");
-        public string ErrorSubtitleText => GetTranslation("destination_exportfailed_hint", "Select an alternative destination below, forward to another recipe, or retry:");
+        public string CoreDestinationsHeaderText => "Core Destinations";
+        public string OtherDestinationsHeaderText => "Destinations";
+        public string ForwardToRecipeHeaderText => Texts.Core.ContextmenuRecipeeditor;
+        public string RunRecipeButtonText => "▶ Run Recipe";
+        public string DismissButtonText => Texts.Core.Cancel;
+        public string CloseButtonToolTip => Texts.Editor.Close;
+        public string ClickToPreviewTooltip => "Click to view full preview (Esc to exit)";
+        public string FullscreenReturnHintText => "Click anywhere or press Esc to return";
+        public string ErrorSubtitleText => "Select an alternative destination below, forward to another recipe, or retry:";
 
         public string ThemeToggleIcon => WpfThemeHelper.IsDarkMode ? "☀️" : "🌙";
         public string ThemeToggleToolTip => WpfThemeHelper.IsDarkMode 
-            ? GetTranslation("theme_light", "Switch to Light Mode (T)") 
-            : GetTranslation("theme_dark", "Switch to Dark Mode (T)");
+            ? "Switch to Light Mode (T)" 
+            : "Switch to Dark Mode (T)";
 
         // Theme brushes bound to XAML
         public SolidColorBrush WindowBackgroundBrush => WpfThemeHelper.WindowBackground;
@@ -246,7 +246,7 @@ namespace Greenshot.UI
                     string badge = null;
                     if (!string.IsNullOrEmpty(errorMessage) && string.Equals(dest.Designation, "Clipboard", StringComparison.OrdinalIgnoreCase))
                     {
-                        badge = GetTranslation("retry", "Retry");
+                        badge = "Retry";
                     }
 
                     var (destTitle, destSubtitle) = FormatDestinationNames(dest);
@@ -307,14 +307,14 @@ namespace Greenshot.UI
             }
 
             WpfThemeHelper.ThemeChanged += OnThemeChanged;
-            BaseLanguage.LanguageChanged += OnLanguageChanged;
+            Texts.Config.LanguageChanged += OnLanguageChanged;
 
             SourceInitialized += (s, e) => ApplyImmersiveDarkMode();
             Closed += (s, e) =>
             {
                 _timer?.Stop();
                 WpfThemeHelper.ThemeChanged -= OnThemeChanged;
-                BaseLanguage.LanguageChanged -= OnLanguageChanged;
+                Texts.Config.LanguageChanged -= OnLanguageChanged;
             };
             KeyDown += OnWindowKeyDown;
         }
@@ -366,27 +366,27 @@ namespace Greenshot.UI
             switch (des.ToLowerInvariant())
             {
                 case "clipboard":
-                    return (GetTranslation(LangKey.settings_destination_clipboard.ToString(), "Clipboard"), "Copy image to clipboard");
+                    return (Texts.Settings.DestinationClipboard, "Copy image to clipboard");
                 case "editor":
-                    return (GetTranslation("settings_destination_editor_short", GetTranslation(LangKey.editor_title.ToString(), "Image Editor")), "Annotate and export");
+                    return (Texts.Editor.Title, "Annotate and export");
                 case "fileno_dialog":
                 case "filenodialog":
                 case "file":
-                    return (GetTranslation("quicksettings_destination_file_short", "Save Directly"), "Save to folder");
+                    return ("Save Directly", "Save to folder");
                 case "filedialog":
                 case "fileas":
-                    return (GetTranslation("settings_destination_fileas_short", "Save As..."), "Choose folder & format");
+                    return ("Save As...", "Choose folder & format");
                 case "printer":
-                    return (GetTranslation(LangKey.settings_destination_printer.ToString(), "Print"), "Send to printer");
+                    return (Texts.Settings.DestinationPrinter, "Send to printer");
                 case "windows10ocr":
                 case "ocr":
-                    return (GetTranslation("destination_ocr", "OCR Text"), "Extract text from image");
+                    return ("OCR Text", "Extract text from image");
                 case "windows10share":
                 case "share":
-                    return (GetTranslation("destination_share", "Windows Share"), "Share with apps & contacts");
+                    return ("Windows Share", "Share with apps & contacts");
                 case "mail":
                 case "outlook":
-                    return (GetTranslation("editor_email", "Outlook"), "New email attachment");
+                    return (Texts.Editor.Email, "New email attachment");
                 case "word":
                     return ("Microsoft Word", "Insert into document");
                 case "excel":
@@ -397,7 +397,7 @@ namespace Greenshot.UI
                     return ("OneNote", "Send to notebook");
                 case "zxing":
                 case "zxingqrdestination":
-                    return (GetTranslation("destination_qrcode", "QR Code Actions"), "Detect & decode QR codes");
+                    return ("QR Code Actions", "Detect & decode QR codes");
                 case "paint":
                     return ("MS Paint", "Open in Paint");
                 case "dropbox":
@@ -426,26 +426,6 @@ namespace Greenshot.UI
             }
 
             return (rawDesc, "Export destination");
-        }
-
-        private static string GetTranslation(string key, string fallback)
-        {
-            try
-            {
-                if (BaseLanguage.HasKey(key))
-                {
-                    var str = BaseLanguage.GetString(key);
-                    if (!string.IsNullOrEmpty(str) && !str.StartsWith("string ###"))
-                    {
-                        return str;
-                    }
-                }
-            }
-            catch
-            {
-                // Ignore translation lookup error
-            }
-            return fallback;
         }
 
         private void UpdateFilteredDestinations()

@@ -24,10 +24,10 @@
 
     <StackPanel Margin="8">
         <CheckBox IsChecked="{Binding Enabled}"
-                  Content="{wpf:Translate expertsettings_enablerecipes}"/>
+                  Content="{wpf:Text Settings.ExpertEnablerecipes}"/>
 
         <CheckBox IsChecked="{Binding QuicklinkEnabled}"
-                  Content="{wpf:Translate quicklink_enable}"/>
+                  Content="{wpf:Text Core.QuicklinkEnable}"/>
 
         <Label Content="Configured Recipe Files (semicolon-separated):" Margin="0,8,0,2"/>
         <TextBox Text="{Binding RecipeFiles, UpdateSourceTrigger=PropertyChanged}"/>

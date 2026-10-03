@@ -94,10 +94,10 @@ namespace Greenshot.Recipes
         /// </summary>
         public static RecipeExtension CreateBorder()
         {
-            var extension = CreateExtension(BorderId, "recipe_extension_border", "recipe_extension_border_description", BorderOrder)
-                .AddOption(Switch("recipe_extension_border_enabled"))
-                .AddOption(Number("width", "recipe_extension_border_width", 2, 1, 50))
-                .AddOption(Color("color", "recipe_extension_border_color", "#000000"))
+            var extension = CreateExtension(BorderId, "Recipe.extension_border", "Recipe.extension_border_description", BorderOrder)
+                .AddOption(Switch("Recipe.extension_border_enabled"))
+                .AddOption(Number("width", "Recipe.extension_border_width", 2, 1, 50))
+                .AddOption(Color("color", "Recipe.extension_border_color", "#000000"))
                 .AddNode(new RecipeNodeConfig("border", WellKnownStepTypes.Effect, "Border")
                     .Set("Effect", "Border")
                     .Set("Width", "${option.width}")
@@ -118,14 +118,14 @@ namespace Greenshot.Recipes
                 DefaultValue = 0.6,
                 Min = 0.1m,
                 Max = 1m,
-                Label = "recipe_extension_dropshadow_darkness",
+                Label = "Recipe.extension_dropshadow_darkness",
                 EnabledWhen = RecipeExtension.EnabledOptionKey
             };
-            var extension = CreateExtension(DropShadowId, "recipe_extension_dropshadow", "recipe_extension_dropshadow_description", DropShadowOrder)
-                .AddOption(Switch("recipe_extension_dropshadow_enabled"))
-                .AddOption(Number("size", "recipe_extension_dropshadow_size", 7, 1, 50))
+            var extension = CreateExtension(DropShadowId, "Recipe.extension_dropshadow", "Recipe.extension_dropshadow_description", DropShadowOrder)
+                .AddOption(Switch("Recipe.extension_dropshadow_enabled"))
+                .AddOption(Number("size", "Recipe.extension_dropshadow_size", 7, 1, 50))
                 .AddOption(darkness)
-                .AddOption(Number("offset", "recipe_extension_dropshadow_offset", -1, -20, 20))
+                .AddOption(Number("offset", "Recipe.extension_dropshadow_offset", -1, -20, 20))
                 .AddNode(new RecipeNodeConfig("shadow", WellKnownStepTypes.Effect, "Drop shadow")
                     .Set("Effect", "DropShadow")
                     .Set("ShadowSize", "${option.size}")
@@ -148,8 +148,8 @@ namespace Greenshot.Recipes
                 Type = ContractDataType.String,
                 Format = RecipeOption.FormatTemplate,
                 DefaultValue = "${now:yyyy-MM-dd HH:mm:ss}",
-                Label = "recipe_extension_caption_text",
-                Description = "recipe_extension_caption_text_description",
+                Label = "Recipe.extension_caption_text",
+                Description = "Recipe.extension_caption_text_description",
                 EnabledWhen = RecipeExtension.EnabledOptionKey
             };
             var position = new RecipeOption
@@ -157,12 +157,12 @@ namespace Greenshot.Recipes
                 Key = "position",
                 Type = ContractDataType.Enum,
                 DefaultValue = "Bottom",
-                Label = "recipe_extension_caption_position",
+                Label = "Recipe.extension_caption_position",
                 EnabledWhen = RecipeExtension.EnabledOptionKey,
                 Choices = new List<RecipeOptionChoice>
                 {
-                    new RecipeOptionChoice { Value = "Top", Label = "recipe_extension_caption_position_top" },
-                    new RecipeOptionChoice { Value = "Bottom", Label = "recipe_extension_caption_position_bottom" }
+                    new RecipeOptionChoice { Value = "Top", Label = "Recipe.extension_caption_position_top" },
+                    new RecipeOptionChoice { Value = "Bottom", Label = "Recipe.extension_caption_position_bottom" }
                 }
             };
 
@@ -184,13 +184,13 @@ namespace Greenshot.Recipes
                 .Set("VerticalAnchor", anchor)
                 .Set(anchor, 0);
 
-            var extension = CreateExtension(CaptionId, "recipe_extension_caption", "recipe_extension_caption_description", CaptionOrder)
-                .AddOption(Switch("recipe_extension_caption_enabled"))
+            var extension = CreateExtension(CaptionId, "Recipe.extension_caption", "Recipe.extension_caption_description", CaptionOrder)
+                .AddOption(Switch("Recipe.extension_caption_enabled"))
                 .AddOption(text)
                 .AddOption(position)
-                .AddOption(Number("fontSize", "recipe_extension_caption_fontsize", 12, 6, 72))
-                .AddOption(Color("textColor", "recipe_extension_caption_textcolor", "#000000"))
-                .AddOption(Color("barColor", "recipe_extension_caption_barcolor", "#FFFFFF"))
+                .AddOption(Number("fontSize", "Recipe.extension_caption_fontsize", 12, 6, 72))
+                .AddOption(Color("textColor", "Recipe.extension_caption_textcolor", "#000000"))
+                .AddOption(Color("barColor", "Recipe.extension_caption_barcolor", "#FFFFFF"))
                 .AddNode(RecipeStepConfig.CreateConditional("position", new[]
                 {
                     new KeyValuePair<string, string>("Top", "${option.position == 'Top'}"),

@@ -498,10 +498,10 @@
                                 Style="{StaticResource SecondaryButtonStyle}"
                                 Margin="0,0,8,0"
                                 Click="OnOpenSelfServiceClicked"
-                                ToolTip="{wpf:Translate selfservice_tooltip}">
+                                ToolTip="{wpf:Text SelfService.Tooltip}">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="🛠️ " FontSize="12" Margin="0,0,2,0"/>
-                                <TextBlock Text="{wpf:Translate selfservice_title}" FontWeight="SemiBold"/>
+                                <TextBlock Text="{wpf:Text SelfService.Title}" FontWeight="SemiBold"/>
                             </StackPanel>
                         </Button>
 

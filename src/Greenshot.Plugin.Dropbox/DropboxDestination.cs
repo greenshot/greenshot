@@ -24,7 +24,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Plugin.Dropbox;
 
@@ -52,7 +53,7 @@ internal class DropboxDestination : DestinationBase, IRequiresRecipeAuthorizatio
         yield return new RecipeGatedAction(RecipeGateType.NetworkAccess, "Dropbox (dropbox.com)");
     }
 
-    public override DestinationDescriptor Descriptor => new DestinationDescriptor(Language.GetString("dropbox", LangKey.upload_menu_item), iconKey: Icons.KeyFor("Dropbox"));
+    public override DestinationDescriptor Descriptor => new DestinationDescriptor(Texts.Get<IDropboxLanguage>().UploadMenuItem, iconKey: Icons.KeyFor("Dropbox"));
 
     public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
     {
@@ -61,7 +62,7 @@ internal class DropboxDestination : DestinationBase, IRequiresRecipeAuthorizatio
         {
             null => ExportResult.Declined,
             true => ExportResult.Succeeded(),
-            false => ExportResult.Failed(Language.GetString("dropbox", LangKey.upload_failure))
+            false => ExportResult.Failed(Texts.Get<IDropboxLanguage>().UploadFailure)
         };
     }
 }

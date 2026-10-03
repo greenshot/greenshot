@@ -44,6 +44,8 @@ using Greenshot.Base.Wpf;
 using Greenshot.Editor.Configuration;
 using Greenshot.Helpers;
 using Greenshot.Base.Threading;
+using Greenshot.Base.Languages;
+using Dapplo.Ini.Internationalization;
 
 namespace Greenshot.Forms.Wpf
 {
@@ -67,7 +69,7 @@ namespace Greenshot.Forms.Wpf
             _autoStartEnabled = StartupHelper.HasRunUser() || StartupHelper.HasRunAll();
             
             // Initialize language
-            _selectedLanguage = Language.CurrentLanguage;
+            _selectedLanguage = Texts.Config.CurrentLanguage;
             
             // Initialize icon size
             _iconSize = CoreConfiguration.IconSize.Width;
@@ -230,7 +232,10 @@ namespace Greenshot.Forms.Wpf
             }
         }
 
-        public IList<LanguageFile> SupportedLanguages => Language.SupportedLanguages;
+        /// <summary>
+        /// The languages with a language pack, for the language picker
+        /// </summary>
+        public IList<LanguageInfo> SupportedLanguages => Texts.Config.GetLanguages().Where(l => l.HasBaseFile).ToList();
 
         public string SelectedLanguage
         {
@@ -239,9 +244,8 @@ namespace Greenshot.Forms.Wpf
             {
                 if (_selectedLanguage != value)
                 {
-                    _selectedLanguage = value;
-                    Language.CurrentLanguage = value;
-                    CoreConfiguration.Language = value;
+                    // The closest available language is used and stored in the configuration
+                    _selectedLanguage = Texts.SetLanguage(value);
                     InitializeImageFormats();
                     OnPropertyChanged(nameof(ImageFormats));
                     OnPropertyChanged();
@@ -329,7 +333,7 @@ namespace Greenshot.Forms.Wpf
                 WindowCaptureModes.Add(new WindowCaptureModeItem
                 {
                     Value = mode,
-                    Description = Language.Translate(mode)
+                    Description = Texts.Translate(mode)
                 });
             }
         }
@@ -399,7 +403,7 @@ namespace Greenshot.Forms.Wpf
                 ClipboardFormats.Add(new ClipboardFormatItem
                 {
                     Format = format,
-                    Name = Language.Translate(format),
+                    Name = Texts.Translate(format),
                     IsSelected = currentFormats.Contains(format)
                 });
             }

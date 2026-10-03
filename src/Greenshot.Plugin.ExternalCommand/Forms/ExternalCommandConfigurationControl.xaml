@@ -72,7 +72,7 @@
 
         <!-- Top Instruction -->
         <TextBlock Grid.Row="0"
-                   Text="{wpf:Translate externalcommand.settings_instructions}"
+                   Text="{wpf:Text ExternalCommand.SettingsInstructions}"
                    Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                    Margin="0,0,0,8"/>
 
@@ -92,7 +92,7 @@
                 </Grid.RowDefinitions>
 
                 <Button Grid.Row="0"
-                        Content="{wpf:Translate externalcommand.settings_new}"
+                        Content="{wpf:Text ExternalCommand.SettingsNew}"
                         Click="ButtonAdd_Click"
                         HorizontalAlignment="Stretch"/>
 
@@ -125,7 +125,7 @@
                     Padding="12">
                 <Grid>
                     <!-- Placeholder when nothing is selected -->
-                    <TextBlock Text="{wpf:Translate externalcommand.settings_instructions}"
+                    <TextBlock Text="{wpf:Text ExternalCommand.SettingsInstructions}"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"
@@ -154,12 +154,12 @@
 
                             <!-- Header with Delete -->
                             <Grid Grid.Row="0">
-                                <TextBlock Text="{wpf:Translate externalcommand.settings_detail_title}"
+                                <TextBlock Text="{wpf:Text ExternalCommand.SettingsDetailTitle}"
                                            FontWeight="SemiBold"
                                            FontSize="13"
                                            VerticalAlignment="Center"
                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                                <Button Content="{wpf:Translate externalcommand.settings_delete}"
+                                <Button Content="{wpf:Text ExternalCommand.SettingsDelete}"
                                         Click="ButtonDelete_Click"
                                         HorizontalAlignment="Right"
                                         Padding="8,2" Height="24"/>
@@ -173,7 +173,7 @@
                                     <ColumnDefinition Width="90"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Label Grid.Column="0" Content="{wpf:Translate externalcommand.label_name}"/>
+                                <Label Grid.Column="0" Content="{wpf:Text ExternalCommand.LabelName}"/>
                                 <TextBox Grid.Column="1" Text="{Binding SelectedCommand.Name, UpdateSourceTrigger=PropertyChanged}"/>
                             </Grid>
 
@@ -184,7 +184,7 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <Label Grid.Column="0" Content="{wpf:Translate externalcommand.label_command}"/>
+                                <Label Grid.Column="0" Content="{wpf:Text ExternalCommand.LabelCommand}"/>
                                 <TextBox Grid.Column="1" Text="{Binding SelectedCommand.CommandLine, UpdateSourceTrigger=PropertyChanged}"/>
                                 <Button Grid.Column="2" Content="..." Width="28" Height="28" Margin="4,0,0,0" Click="Browse_Click"/>
                             </Grid>
@@ -195,13 +195,13 @@
                                     <ColumnDefinition Width="90"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Label Grid.Column="0" Content="{wpf:Translate externalcommand.label_argument}"/>
+                                <Label Grid.Column="0" Content="{wpf:Text ExternalCommand.LabelArgument}"/>
                                 <TextBox Grid.Column="1" Text="{Binding SelectedCommand.Arguments, UpdateSourceTrigger=PropertyChanged}"/>
                             </Grid>
 
                             <!-- Placeholder info -->
                             <TextBlock Grid.Row="7" Margin="90,2,0,4"
-                                       Text="{wpf:Translate externalcommand.label_information}"
+                                       Text="{wpf:Text ExternalCommand.LabelInformation}"
                                        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
                                        FontSize="11"/>
 
@@ -211,7 +211,7 @@
                                     <ColumnDefinition Width="90"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Label Grid.Column="0" Content="{wpf:Translate externalcommand.label_outputimageformat}"/>
+                                <Label Grid.Column="0" Content="{wpf:Text ExternalCommand.LabelOutputimageformat}"/>
                                 <ComboBox Grid.Column="1"
                                           ItemsSource="{Binding SelectedCommand.OutputFormats}"
                                           DisplayMemberPath="DisplayNameWithPreferredExtension"
@@ -222,32 +222,32 @@
                             <!-- Run in background -->
                             <CheckBox Grid.Row="11" Margin="90,4,0,0"
                                       IsChecked="{Binding SelectedCommand.RunInBackground}"
-                                      Content="{wpf:Translate externalcommand.label_run_in_background}"/>
+                                      Content="{wpf:Text ExternalCommand.LabelRunInBackground}"/>
 
                             <Separator Grid.Row="12" Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}" Margin="0,8,0,8"/>
 
                             <!-- Redirection & Output Options (Per-Command) -->
                             <StackPanel Grid.Row="13">
                                 <CheckBox IsChecked="{Binding SelectedCommand.RedirectStandardError}"
-                                          Content="{wpf:Translate externalcommand.label_redirect_standard_error}"/>
+                                          Content="{wpf:Text ExternalCommand.LabelRedirectStandardError}"/>
                                 <CheckBox IsChecked="{Binding SelectedCommand.RedirectStandardOutput}"
-                                          Content="{wpf:Translate externalcommand.label_redirect_standard_output}"/>
+                                          Content="{wpf:Text ExternalCommand.LabelRedirectStandardOutput}"/>
                                 <CheckBox Margin="20,4,0,4"
                                           IsEnabled="{Binding SelectedCommand.CanConfigureOutputOptions}"
                                           IsChecked="{Binding SelectedCommand.ShowStandardOutputInLog}"
-                                          Content="{wpf:Translate externalcommand.label_show_output_in_log}"/>
+                                          Content="{wpf:Text ExternalCommand.LabelShowOutputInLog}"/>
                                 <CheckBox Margin="20,4,0,4"
                                           IsEnabled="{Binding SelectedCommand.CanConfigureOutputOptions}"
                                           IsChecked="{Binding SelectedCommand.ParseOutputForUri}"
-                                          Content="{wpf:Translate externalcommand.label_parse_output_for_uri}"/>
+                                          Content="{wpf:Text ExternalCommand.LabelParseOutputForUri}"/>
                                 <CheckBox Margin="20,4,0,4"
                                           IsEnabled="{Binding SelectedCommand.CanConfigureOutputOptions}"
                                           IsChecked="{Binding SelectedCommand.OutputToClipboard}"
-                                          Content="{wpf:Translate externalcommand.label_output_to_clipboard}"/>
+                                          Content="{wpf:Text ExternalCommand.LabelOutputToClipboard}"/>
                                 <CheckBox Margin="40,4,0,4"
                                           IsEnabled="{Binding SelectedCommand.CanConfigureUriToClipboard}"
                                           IsChecked="{Binding SelectedCommand.UriToClipboard}"
-                                          Content="{wpf:Translate externalcommand.label_uri_to_clipboard}"/>
+                                          Content="{wpf:Text ExternalCommand.LabelUriToClipboard}"/>
                             </StackPanel>
                         </Grid>
                     </ScrollViewer>
@@ -263,13 +263,13 @@
                 Padding="12"
                 Margin="0,12,0,0">
             <StackPanel>
-                <TextBlock Text="{wpf:Translate externalcommand.settings_general_title}"
+                <TextBlock Text="{wpf:Text ExternalCommand.SettingsGeneralTitle}"
                            FontWeight="SemiBold"
                            FontSize="13"
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                            Margin="0,0,0,6"/>
                 <CheckBox IsChecked="{Binding QuicklinkEnabled}"
-                          Content="{wpf:Translate quicklink_enable}"/>
+                          Content="{wpf:Text Core.QuicklinkEnable}"/>
             </StackPanel>
         </Border>
     </Grid>

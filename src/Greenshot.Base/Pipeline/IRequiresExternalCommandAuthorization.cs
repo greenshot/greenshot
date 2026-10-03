@@ -62,10 +62,10 @@ namespace Greenshot.Base.Pipeline
         {
             return gateType switch
             {
-                RecipeGateType.ExternalCommand => "recipe_gate_external_command",
-                RecipeGateType.NetworkAccess => "recipe_gate_network_access",
-                RecipeGateType.FileSystemAccess => "recipe_gate_file_system_access",
-                _ => "recipe_gate_custom"
+                RecipeGateType.ExternalCommand => "Recipe.gate_external_command",
+                RecipeGateType.NetworkAccess => "Recipe.gate_network_access",
+                RecipeGateType.FileSystemAccess => "Recipe.gate_file_system_access",
+                _ => "Recipe.gate_custom"
             };
         }
 

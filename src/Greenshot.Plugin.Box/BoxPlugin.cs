@@ -33,7 +33,8 @@ using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Threading;
-using Greenshot.Plugin.Box.Forms;
+using Greenshot.Plugin.Box.Forms;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Plugin.Box;
 
@@ -59,6 +60,7 @@ public class BoxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvi
 
     public void ConfigureServices(IPluginServices services)
     {
+        Texts.Register<IBoxLanguage>(new BoxLanguageImpl());
         var section = new BoxConfigurationImpl();
         services.AddConfiguration(section);
         _config = section;
@@ -98,7 +100,7 @@ public class BoxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvi
         _itemPlugInConfig.Click += ConfigMenuClick;
 
         PluginUtils.AddToContextMenu(_itemPlugInConfig);
-        Language.LanguageChanged += OnLanguageChanged;
+        Texts.Config.LanguageChanged += OnLanguageChanged;
         if (_config is INotifyPropertyChanged notify)
         {
             notify.PropertyChanged += OnConfigPropertyChanged;
@@ -128,7 +130,7 @@ public class BoxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvi
         UiDispatcher.Current.RunOnUiAsync(() =>
         {
             LOG.Debug("Box Plugin shutdown.");
-            Language.LanguageChanged -= OnLanguageChanged;
+            Texts.Config.LanguageChanged -= OnLanguageChanged;
             if (_config is INotifyPropertyChanged notify)
             {
                 notify.PropertyChanged -= OnConfigPropertyChanged;
@@ -154,7 +156,7 @@ public class BoxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvi
         string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
         var image = await source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
 
-        string url = await userInteraction.RunWithProgressAsync(Language.GetString("box", LangKey.communication_wait),
+        string url = await userInteraction.RunWithProgressAsync(Texts.Get<IBoxLanguage>().CommunicationWait,
             (progress, token) => BoxUtils.UploadToBoxAsync(image, filename, userInteraction, progress, token), cancellationToken).ConfigureAwait(false);
 
         if (url != null && _config.AfterUploadLinkToClipBoard)

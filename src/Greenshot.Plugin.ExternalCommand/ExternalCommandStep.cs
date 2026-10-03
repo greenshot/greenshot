@@ -116,7 +116,7 @@ namespace Greenshot.Plugin.ExternalCommand
                 ? (!string.IsNullOrEmpty(commandName) ? $"{commandName} ({commandLine})" : commandLine)
                 : (commandName ?? string.Empty);
 
-            yield return new RecipeGatedAction(RecipeGateType.ExternalCommand, target, "recipe_gate_external_command");
+            yield return new RecipeGatedAction(RecipeGateType.ExternalCommand, target, "Recipe.gate_external_command");
         }
 
         public async Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)

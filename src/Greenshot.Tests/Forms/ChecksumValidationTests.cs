@@ -37,11 +37,13 @@ namespace Greenshot.Tests.Forms
         [InlineData("log4net.xml", true)]
         [InlineData(@"Languages\help-en-US.html", true)]
         [InlineData(@"Languages\language-de-DE.xml", true)]
+        [InlineData(@"Languages\greenshot.en-US.ini", true)]
+        [InlineData(@"Languages\greenshot.imgur.de-DE.ini", true)]
         [InlineData(@"Plugins\Greenshot.Plugin.Jira\Greenshot.Plugin.Jira.pdb", true)]
         // A library left behind by an older version, and program files, are not skipped
         [InlineData("Nodify.dll", false)]
         [InlineData("Greenshot.exe", false)]
-        [InlineData(@"Languages\greenshot.en-US.ini", false)]
+        [InlineData(@"Languages\Greenshot.Base.dll", false)]
         [InlineData(@"Plugins\Greenshot.Plugin.Jira\readme.txt", false)]
         public void CanSkipFile_SkipsOnlyFilesThatAreNotProgramFiles(string path, bool skipped)
         {

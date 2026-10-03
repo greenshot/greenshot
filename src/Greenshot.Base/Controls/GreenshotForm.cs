@@ -30,6 +30,7 @@ using Dapplo.Ini;
 using Greenshot.Base.Core;
 using log4net;
 using Greenshot.Base.Threading;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Base.Controls
 {
@@ -125,7 +126,7 @@ namespace Greenshot.Base.Controls
         public GreenshotForm()
         {
             DpiChanged += (sender, dpiChangedEventArgs) => DpiChangedHandler(dpiChangedEventArgs.DeviceDpiOld, dpiChangedEventArgs.DeviceDpiNew);
-            Language.LanguageChanged += OnLanguageChanged;
+            Texts.Config.LanguageChanged += OnLanguageChanged;
         }
 
         private void OnLanguageChanged(object sender, EventArgs e)
@@ -183,7 +184,7 @@ namespace Greenshot.Base.Controls
         {
             if (disposing)
             {
-                Language.LanguageChanged -= OnLanguageChanged;
+                Texts.Config.LanguageChanged -= OnLanguageChanged;
             }
 
             base.Dispose(disposing);

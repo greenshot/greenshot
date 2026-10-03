@@ -76,6 +76,7 @@ using log4net;
 
 using Timer = System.Timers.Timer;
 using Greenshot.Base.Native;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Forms
 {
@@ -205,6 +206,10 @@ namespace Greenshot.Forms
                 {
                     IniConfigRegistry.GetSection<ICoreConfiguration>().Language = options.Language;
                 }
+
+                // The texts in the configured language, before anything shows one (also when a text was used before greenshot.ini was read)
+                Texts.Initialize();
+                Texts.SetLanguage(IniConfigRegistry.GetSection<ICoreConfiguration>().Language);
 
                 // Make sure we handle END Session correctly
                 RestartManagerHelper.RegisterForRestart(IniConfigRegistry.Get().OverrideDirectory);
@@ -400,12 +405,11 @@ namespace Greenshot.Forms
             {
                 var languageWindow = new Greenshot.Forms.Wpf.LanguageWindow();
                 languageWindow.ShowDialog(this);
-                _conf.Language = languageWindow.SelectedLanguage;
-                Language.CurrentLanguage = languageWindow.SelectedLanguage;
+                Texts.SetLanguage(languageWindow.SelectedLanguage);
             }
-            else if (Language.CurrentLanguage != _conf.Language)
+            else
             {
-                Language.CurrentLanguage = _conf.Language;
+                Texts.SetLanguage(_conf.Language);
             }
 
             // Disable access to the settings, for feature #3521446
@@ -533,24 +537,24 @@ namespace Greenshot.Forms
         protected override void InitializeLanguage()
         {
             this.contextmenu_quicksettings.Size = new System.Drawing.Size(170, coreConfiguration.IconSize.Height + 8);
-            Text = Language.GetString("application_title");
+            Text = Texts.Core.ApplicationTitle;
 
-            contextmenu_capturearea.Text = Language.GetString("contextmenu_capturearea");
-            contextmenu_capturelastregion.Text = Language.GetString("contextmenu_capturelastregion");
-            contextmenu_capturewindow.Text = Language.GetString("contextmenu_capturewindow");
-            contextmenu_capturefullscreen.Text = Language.GetString("contextmenu_capturefullscreen");
-            contextmenu_capturewindowfromlist.Text = Language.GetString("contextmenu_capturewindowfromlist");
-            contextmenu_captureclipboard.Text = Language.GetString("contextmenu_captureclipboard");
-            contextmenu_openfile.Text = Language.GetString("contextmenu_openfile");
-            contextmenu_openrecentcapture.Text = Language.GetString("contextmenu_openrecentcapture");
-            contextmenu_quicksettings.Text = Language.GetString("contextmenu_quicksettings");
-            contextmenu_settings.Text = Language.GetString("contextmenu_settings");
-            contextmenu_help.Text = Language.GetString("contextmenu_help");
-            contextmenu_donate.Text = Language.GetString("contextmenu_donate");
-            contextmenu_about.Text = Language.GetString("contextmenu_about");
-            contextmenu_exit.Text = Language.GetString("contextmenu_exit");
+            contextmenu_capturearea.Text = Texts.Core.ContextmenuCapturearea;
+            contextmenu_capturelastregion.Text = Texts.Core.ContextmenuCapturelastregion;
+            contextmenu_capturewindow.Text = Texts.Core.ContextmenuCapturewindow;
+            contextmenu_capturefullscreen.Text = Texts.Core.ContextmenuCapturefullscreen;
+            contextmenu_capturewindowfromlist.Text = Texts.Core.ContextmenuCapturewindowfromlist;
+            contextmenu_captureclipboard.Text = Texts.Core.ContextmenuCaptureclipboard;
+            contextmenu_openfile.Text = Texts.Core.ContextmenuOpenfile;
+            contextmenu_openrecentcapture.Text = Texts.Core.ContextmenuOpenrecentcapture;
+            contextmenu_quicksettings.Text = Texts.Core.ContextmenuQuicksettings;
+            contextmenu_settings.Text = Texts.Core.ContextmenuSettings;
+            contextmenu_help.Text = Texts.Core.ContextmenuHelp;
+            contextmenu_donate.Text = Texts.Core.ContextmenuDonate;
+            contextmenu_about.Text = Texts.Core.ContextmenuAbout;
+            contextmenu_exit.Text = Texts.Core.ContextmenuExit;
             // With the edition, e.g. "Greenshot Light - ..."
-            string applicationTitle = Language.GetString("application_title");
+            string applicationTitle = Texts.Core.ApplicationTitle;
             if (applicationTitle.StartsWith("Greenshot", StringComparison.Ordinal))
             {
                 applicationTitle = GreenshotEdition.ProductName + applicationTitle.Substring("Greenshot".Length);
@@ -808,7 +812,7 @@ namespace Greenshot.Forms
 
             if (_recipesMenuItem == null)
             {
-                _recipesMenuItem = new ToolStripMenuItem(Language.GetString("contextmenu_recipes") ?? "Recipes")
+                _recipesMenuItem = new ToolStripMenuItem(Texts.Core.ContextmenuRecipes ?? "Recipes")
                 {
                     Name = "contextmenu_recipes"
                 };
@@ -861,14 +865,14 @@ namespace Greenshot.Forms
                 _recipesMenuItem.DropDownItems.Add(new ToolStripSeparator());
             }
 
-            var importItem = new ToolStripMenuItem(Language.GetString("contextmenu_importrecipe") ?? "Import Recipe...");
+            var importItem = new ToolStripMenuItem(Texts.Core.ContextmenuImportrecipe ?? "Import Recipe...");
             importItem.Click += (s, ev) =>
             {
                 OnImportRecipeClicked();
             };
             _recipesMenuItem.DropDownItems.Add(importItem);
 
-            var reloadItem = new ToolStripMenuItem(Language.GetString("contextmenu_reloadrecipes") ?? "Reload Recipes");
+            var reloadItem = new ToolStripMenuItem(Texts.Core.ContextmenuReloadrecipes ?? "Reload Recipes");
             reloadItem.Click += (s, ev) =>
             {
                 recipeManager.ReloadRecipes();
@@ -878,14 +882,14 @@ namespace Greenshot.Forms
             var editorService = SimpleServiceProvider.Current.GetInstance<IRecipeEditorService>(isOptional: true);
             if (editorService != null)
             {
-                var managerItem = new ToolStripMenuItem(Language.GetString("contextmenu_managerecipes") ?? "Recipe Manager...");
+                var managerItem = new ToolStripMenuItem(Texts.Core.ContextmenuManagerecipes ?? "Recipe Manager...");
                 managerItem.Click += (s, ev) =>
                 {
                     editorService.OpenRecipeManager();
                 };
                 _recipesMenuItem.DropDownItems.Add(managerItem);
 
-                var editorItem = new ToolStripMenuItem(Language.GetString("contextmenu_recipeeditor") ?? "Recipe Editor...");
+                var editorItem = new ToolStripMenuItem(Texts.Core.ContextmenuRecipeeditor ?? "Recipe Editor...");
                 editorItem.Click += (s, ev) =>
                 {
                     OnOpenRecipeEditorClicked();
@@ -911,7 +915,7 @@ namespace Greenshot.Forms
         {
             using (var ofd = new OpenFileDialog
             {
-                Title = Language.GetString("recipe_import_title") ?? "Import Capture Recipe",
+                Title = Texts.Recipe.ImportTitle ?? "Import Capture Recipe",
                 Filter = Greenshot.Base.Recipes.RecipeSerializer.RecipeFileFilter,
                 Multiselect = false
             })
@@ -976,7 +980,7 @@ namespace Greenshot.Forms
 
             var allScreensBounds = DisplayInfo.ScreenBounds;
 
-            var captureScreenItem = new ToolStripMenuItem(Language.GetString(LangKey.contextmenu_capturefullscreen_all));
+            var captureScreenItem = new ToolStripMenuItem(Texts.Core.ContextmenuCapturefullscreenAll);
             captureScreenItem.Click += delegate {
                 RunLater(() =>
                 {
@@ -992,20 +996,20 @@ namespace Greenshot.Forms
                     
                 if (displayInfo.Bounds.Top == allScreensBounds.Top && displayInfo.Bounds.Bottom != allScreensBounds.Bottom)
                 {
-                    deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_top);
+                    deviceAlignment += " " + Texts.Core.ContextmenuCapturefullscreenTop;
                 }
                 else if (displayInfo.Bounds.Top != allScreensBounds.Top && displayInfo.Bounds.Bottom == allScreensBounds.Bottom)
                 {
-                    deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_bottom);
+                    deviceAlignment += " " + Texts.Core.ContextmenuCapturefullscreenBottom;
                 }
 
                 if (displayInfo.Bounds.Left == allScreensBounds.Left && displayInfo.Bounds.Right != allScreensBounds.Right)
                 {
-                    deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_left);
+                    deviceAlignment += " " + Texts.Core.ContextmenuCapturefullscreenLeft;
                 }
                 else if (displayInfo.Bounds.Left != allScreensBounds.Left && displayInfo.Bounds.Right == allScreensBounds.Right)
                 {
-                    deviceAlignment += " " + Language.GetString(LangKey.contextmenu_capturefullscreen_right);
+                    deviceAlignment += " " + Texts.Core.ContextmenuCapturefullscreenRight;
                 }
 
                 captureScreenItem = new ToolStripMenuItem(deviceAlignment);
@@ -1337,7 +1341,7 @@ namespace Greenshot.Forms
                 // For the capture mouse-cursor option
                 ToolStripMenuSelectListItem captureMouseItem = new ToolStripMenuSelectListItem
                 {
-                    Text = Language.GetString("settings_capture_mousepointer"),
+                    Text = Texts.Settings.CaptureMousepointer,
                     Checked = _conf.CaptureMousepointer,
                     CheckOnClick = true
                 };
@@ -1352,7 +1356,7 @@ namespace Greenshot.Forms
                 // screenshot destination
                 selectList = new ToolStripMenuSelectList("destinations", true, this)
                 {
-                    Text = Language.GetString(LangKey.settings_destination)
+                    Text = Texts.Settings.Destination
                 };
                 // Working with IDestination:
                 foreach (var destination in DestinationHelper.GetAllDestinations())
@@ -1369,12 +1373,11 @@ namespace Greenshot.Forms
                 // Capture Modes
                 selectList = new ToolStripMenuSelectList("capturemodes", false, this)
                 {
-                    Text = Language.GetString(LangKey.settings_window_capture_mode)
+                    Text = Texts.Settings.WindowCaptureMode
                 };
-                string enumTypeName = typeof(WindowCaptureMode).Name;
                 foreach (WindowCaptureMode captureMode in Enum.GetValues(typeof(WindowCaptureMode)))
                 {
-                    selectList.AddItem(Language.GetString(enumTypeName + "." + captureMode), captureMode, _conf.WindowCaptureMode == captureMode);
+                    selectList.AddItem(Texts.Translate(captureMode), captureMode, _conf.WindowCaptureMode == captureMode);
                 }
 
                 selectList.CheckedChanged += QuickSettingCaptureModeChanged;
@@ -1384,18 +1387,18 @@ namespace Greenshot.Forms
             // print options
             selectList = new ToolStripMenuSelectList("printoptions", true, this)
             {
-                Text = Language.GetString(LangKey.settings_printoptions)
+                Text = Texts.Settings.Printoptions
             };
 
-            AddBoolMenuItem(selectList, coreSection, "OutputPrintPromptOptions", "settings_alwaysshowprintoptionsdialog", v => _conf.OutputPrintPromptOptions = v, _conf.OutputPrintPromptOptions);
-            AddBoolMenuItem(selectList, coreSection, "OutputPrintAllowRotate", "printoptions_allowrotate", v => _conf.OutputPrintAllowRotate = v, _conf.OutputPrintAllowRotate);
-            AddBoolMenuItem(selectList, coreSection, "OutputPrintAllowEnlarge", "printoptions_allowenlarge", v => _conf.OutputPrintAllowEnlarge = v, _conf.OutputPrintAllowEnlarge);
-            AddBoolMenuItem(selectList, coreSection, "OutputPrintAllowShrink", "printoptions_allowshrink", v => _conf.OutputPrintAllowShrink = v, _conf.OutputPrintAllowShrink);
-            AddBoolMenuItem(selectList, coreSection, "OutputPrintCenter", "printoptions_allowcenter", v => _conf.OutputPrintCenter = v, _conf.OutputPrintCenter);
-            AddBoolMenuItem(selectList, coreSection, "OutputPrintInverted", "printoptions_inverted", v => _conf.OutputPrintInverted = v, _conf.OutputPrintInverted);
-            AddBoolMenuItem(selectList, coreSection, "OutputPrintGrayscale", "printoptions_printgrayscale", v => _conf.OutputPrintGrayscale = v, _conf.OutputPrintGrayscale);
-            AddBoolMenuItem(selectList, coreSection, "OutputPrintMonochrome", "printoptions_printmonochrome", v => _conf.OutputPrintMonochrome = v, _conf.OutputPrintMonochrome);
-            AddBoolMenuItem(selectList, coreSection, "OutputPrintFooter", "printoptions_timestamp", v => _conf.OutputPrintFooter = v, _conf.OutputPrintFooter);
+            AddBoolMenuItem(selectList, coreSection, "OutputPrintPromptOptions", Texts.Settings.Alwaysshowprintoptionsdialog, v => _conf.OutputPrintPromptOptions = v, _conf.OutputPrintPromptOptions);
+            AddBoolMenuItem(selectList, coreSection, "OutputPrintAllowRotate", Texts.Core.PrintoptionsAllowrotate, v => _conf.OutputPrintAllowRotate = v, _conf.OutputPrintAllowRotate);
+            AddBoolMenuItem(selectList, coreSection, "OutputPrintAllowEnlarge", Texts.Core.PrintoptionsAllowenlarge, v => _conf.OutputPrintAllowEnlarge = v, _conf.OutputPrintAllowEnlarge);
+            AddBoolMenuItem(selectList, coreSection, "OutputPrintAllowShrink", Texts.Core.PrintoptionsAllowshrink, v => _conf.OutputPrintAllowShrink = v, _conf.OutputPrintAllowShrink);
+            AddBoolMenuItem(selectList, coreSection, "OutputPrintCenter", Texts.Core.PrintoptionsAllowcenter, v => _conf.OutputPrintCenter = v, _conf.OutputPrintCenter);
+            AddBoolMenuItem(selectList, coreSection, "OutputPrintInverted", Texts.Core.PrintoptionsInverted, v => _conf.OutputPrintInverted = v, _conf.OutputPrintInverted);
+            AddBoolMenuItem(selectList, coreSection, "OutputPrintGrayscale", Texts.Core.PrintoptionsPrintgrayscale, v => _conf.OutputPrintGrayscale = v, _conf.OutputPrintGrayscale);
+            AddBoolMenuItem(selectList, coreSection, "OutputPrintMonochrome", Texts.Core.PrintoptionsPrintmonochrome, v => _conf.OutputPrintMonochrome = v, _conf.OutputPrintMonochrome);
+            AddBoolMenuItem(selectList, coreSection, "OutputPrintFooter", Texts.Core.PrintoptionsTimestamp, v => _conf.OutputPrintFooter = v, _conf.OutputPrintFooter);
 
             if (selectList.DropDownItems.Count > 0)
             {
@@ -1406,11 +1409,11 @@ namespace Greenshot.Forms
             // effects
             selectList = new ToolStripMenuSelectList("effects", true, this)
             {
-                Text = Language.GetString(LangKey.settings_visualization)
+                Text = Texts.Settings.Visualization
             };
 
-            AddBoolMenuItem(selectList, coreSection, "PlayCameraSound", "settings_playsound", v => _conf.PlayCameraSound = v, _conf.PlayCameraSound);
-            AddBoolMenuItem(selectList, coreSection, "ShowTrayNotification", "settings_shownotify", v => _conf.ShowTrayNotification = v, _conf.ShowTrayNotification);
+            AddBoolMenuItem(selectList, coreSection, "PlayCameraSound", Texts.Settings.Playsound, v => _conf.PlayCameraSound = v, _conf.PlayCameraSound);
+            AddBoolMenuItem(selectList, coreSection, "ShowTrayNotification", Texts.Settings.Shownotify, v => _conf.ShowTrayNotification = v, _conf.ShowTrayNotification);
 
             if (selectList.DropDownItems.Count > 0)
             {
@@ -1460,7 +1463,7 @@ namespace Greenshot.Forms
             }
 
             contextmenu_quicksettings.DropDownItems.Add(new ToolStripSeparator());
-            contextmenu_quicksettings.DropDownItems.Add(new ToolStripMenuItem(Language.GetString("quicksettings_automaticsteps"))
+            contextmenu_quicksettings.DropDownItems.Add(new ToolStripMenuItem(Texts.Core.QuicksettingsAutomaticsteps)
             {
                 Enabled = false
             });
@@ -1503,7 +1506,7 @@ namespace Greenshot.Forms
                 contextmenu_quicksettings.DropDownItems.Add(choiceList);
             }
 
-            var moreItem = new ToolStripMenuItem(Language.GetString("quicksettings_automaticsteps_more"));
+            var moreItem = new ToolStripMenuItem(Texts.Core.QuicksettingsAutomaticstepsMore);
             moreItem.Click += (sender, args) => ShowSetting(null, "recipes");
             contextmenu_quicksettings.DropDownItems.Add(moreItem);
         }
@@ -1534,7 +1537,7 @@ namespace Greenshot.Forms
             ToolStripMenuSelectList list,
             IIniSection section,
             string propertyName,
-            string langKey,
+            string text,
             Action<bool> setter,
             bool currentValue)
         {
@@ -1543,7 +1546,7 @@ namespace Greenshot.Forms
                 return;
             }
 
-            list.AddItem(Language.GetString(langKey), setter, currentValue);
+            list.AddItem(text, setter, currentValue);
         }
 
         private void QuickSettingBoolItemChanged(object sender, EventArgs e)

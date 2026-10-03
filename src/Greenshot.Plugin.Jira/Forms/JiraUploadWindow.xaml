@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
-        Title="{wpf:Translate jira.upload_menu_item}"
+        Title="{wpf:Text Jira.UploadMenuItem}"
         Width="760" Height="440"
         MinWidth="560" MinHeight="360"
         WindowStartupLocation="CenterScreen"
@@ -67,7 +67,7 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <Label Grid.Row="0" Grid.Column="0" Content="{wpf:Translate jira.label_jirafilter}" Margin="0,0,12,0"/>
+                <Label Grid.Row="0" Grid.Column="0" Content="{wpf:Text Jira.LabelJirafilter}" Margin="0,0,12,0"/>
                 <ComboBox x:Name="FilterBox" Grid.Row="0" Grid.Column="1" DisplayMemberPath="Name"
                           SelectionChanged="FilterBox_SelectionChanged"/>
 
@@ -79,33 +79,33 @@
                           GridViewColumnHeader.Click="IssueList_HeaderClick">
                     <ListView.View>
                         <GridView>
-                            <GridViewColumn Header="{wpf:Translate jira.column_issueType}" Width="44">
+                            <GridViewColumn Header="{wpf:Text Jira.ColumnIssueType}" Width="44">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <Image Source="{Binding Icon}" Width="16" Height="16" ToolTip="{Binding IssueType}"/>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
-                            <GridViewColumn Header="{wpf:Translate jira.column_id}" Width="90" DisplayMemberBinding="{Binding Key}"/>
-                            <GridViewColumn Header="{wpf:Translate jira.column_created}" Width="90" DisplayMemberBinding="{Binding CreatedText}"/>
-                            <GridViewColumn Header="{wpf:Translate jira.column_assignee}" Width="120" DisplayMemberBinding="{Binding Assignee}"/>
-                            <GridViewColumn Header="{wpf:Translate jira.column_reporter}" Width="120" DisplayMemberBinding="{Binding Reporter}"/>
-                            <GridViewColumn Header="{wpf:Translate jira.column_summary}" Width="260" DisplayMemberBinding="{Binding Summary}"/>
+                            <GridViewColumn Header="{wpf:Text Jira.ColumnId}" Width="90" DisplayMemberBinding="{Binding Key}"/>
+                            <GridViewColumn Header="{wpf:Text Jira.ColumnCreated}" Width="90" DisplayMemberBinding="{Binding CreatedText}"/>
+                            <GridViewColumn Header="{wpf:Text Jira.ColumnAssignee}" Width="120" DisplayMemberBinding="{Binding Assignee}"/>
+                            <GridViewColumn Header="{wpf:Text Jira.ColumnReporter}" Width="120" DisplayMemberBinding="{Binding Reporter}"/>
+                            <GridViewColumn Header="{wpf:Text Jira.ColumnSummary}" Width="260" DisplayMemberBinding="{Binding Summary}"/>
                         </GridView>
                     </ListView.View>
                 </ListView>
 
-                <Label Grid.Row="2" Grid.Column="0" Content="{wpf:Translate jira.label_filename}" Margin="0,0,12,0"/>
+                <Label Grid.Row="2" Grid.Column="0" Content="{wpf:Text Jira.LabelFilename}" Margin="0,0,12,0"/>
                 <TextBox x:Name="FilenameBox" Grid.Row="2" Grid.Column="1"/>
 
-                <Label Grid.Row="3" Grid.Column="0" Content="{wpf:Translate jira.label_comment}" Margin="0,8,12,0"/>
+                <Label Grid.Row="3" Grid.Column="0" Content="{wpf:Text Jira.LabelComment}" Margin="0,8,12,0"/>
                 <TextBox x:Name="CommentBox" Grid.Row="3" Grid.Column="1" Margin="0,8,0,0"/>
 
-                <Label Grid.Row="4" Grid.Column="0" Content="{wpf:Translate jira.label_jira}" Margin="0,8,12,0"/>
+                <Label Grid.Row="4" Grid.Column="0" Content="{wpf:Text Jira.LabelJira}" Margin="0,8,12,0"/>
                 <DockPanel Grid.Row="4" Grid.Column="1" Margin="0,8,0,0" LastChildFill="False">
                     <TextBox x:Name="KeyBox" Width="160" DockPanel.Dock="Left" TextChanged="KeyBox_TextChanged"/>
-                    <Button DockPanel.Dock="Right" Content="{wpf:Translate jira.CANCEL}" Click="CancelButton_Click" Margin="8,0,0,0"/>
-                    <Button x:Name="UploadButton" DockPanel.Dock="Right" Content="{wpf:Translate jira.upload}" IsDefault="True"
+                    <Button DockPanel.Dock="Right" Content="{wpf:Text Jira.Cancel}" Click="CancelButton_Click" Margin="8,0,0,0"/>
+                    <Button x:Name="UploadButton" DockPanel.Dock="Right" Content="{wpf:Text Jira.Upload}" IsDefault="True"
                             Click="UploadButton_Click" Style="{StaticResource PrimaryButtonStyle}"/>
                 </DockPanel>
             </Grid>

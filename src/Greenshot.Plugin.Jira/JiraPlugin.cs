@@ -38,7 +38,8 @@ using Greenshot.Base.Recipes;
 using Greenshot.Base.Threading;
 using Greenshot.Plugin.Jira.Forms;
 using log4net;
-using System.Threading;
+using System.Threading;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Plugin.Jira;
 
@@ -66,6 +67,7 @@ public class JiraPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProv
 
     public void ConfigureServices(IPluginServices services)
     {
+        Texts.Register<IJiraLanguage>(new JiraLanguageImpl());
         var section = new JiraConfigurationImpl();
         services.AddConfiguration(section);
         _config = section;
@@ -141,7 +143,7 @@ public class JiraPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProv
         _itemPlugInConfig.Click += delegate { ShowSettings(); };
 
         PluginUtils.AddToContextMenu(_itemPlugInConfig);
-        Language.LanguageChanged += OnLanguageChanged;
+        Texts.Config.LanguageChanged += OnLanguageChanged;
         if (_config is INotifyPropertyChanged notify)
         {
             notify.PropertyChanged += OnConfigPropertyChanged;
@@ -171,7 +173,7 @@ public class JiraPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProv
         UiDispatcher.Current.RunOnUiAsync(() =>
         {
             Log.Debug("Jira Plugin shutdown.");
-            Language.LanguageChanged -= OnLanguageChanged;
+            Texts.Config.LanguageChanged -= OnLanguageChanged;
             if (_config is INotifyPropertyChanged notify)
             {
                 notify.PropertyChanged -= OnConfigPropertyChanged;

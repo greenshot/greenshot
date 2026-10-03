@@ -89,7 +89,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="Languages\language*.xml">
+    <None Include="Languages\greenshot*.ini">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <Resource Include="icons\applicationIcon\icon.ico" />

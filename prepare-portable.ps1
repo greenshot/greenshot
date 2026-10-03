@@ -45,9 +45,9 @@ if (-not $Light) {
     Copy-Item "$RepositoryRootPath\src\Greenshot\Languages\*.html" "$OutputPath\Help" -Force
 }
 
-# Copy languages files
+# Copy the language packs (greenshot.{ietf}.ini), the plugins' packs are added below
 New-Item -ItemType Directory -Path "$OutputPath\Languages" -Force | Out-Null
-Copy-Item "$RepositoryRootPath\src\Greenshot\Languages\*.xml" "$OutputPath\Languages" -Force
+Copy-Item "$RepositoryRootPath\src\Greenshot\Languages\greenshot.*.ini" "$OutputPath\Languages" -Force
 
 # Create Dummy-INI
 ";dummy config, used to make greenshot store the configuration in this directory" | Set-Content "$OutputPath\greenshot.ini" -Encoding UTF8
@@ -77,7 +77,7 @@ foreach ($pluginDir in $pluginDirs) {
 
     $pluginLanguages = "$RepositoryRootPath\src\$pluginName\Languages"
     if (Test-Path $pluginLanguages) {
-        New-Item -ItemType Directory -Path "$OutputPath\Languages\$pluginName" -Force | Out-Null
-        Copy-Item "$pluginLanguages\language_*.xml" "$OutputPath\Languages\$pluginName" -Force
+        # greenshot.{module}.{ietf}.ini, next to the core language packs
+        Copy-Item "$pluginLanguages\greenshot.*.ini" "$OutputPath\Languages" -Force
     }
 }

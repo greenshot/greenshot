@@ -28,7 +28,7 @@ using System.Windows.Interop;
 using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
 using log4net;
-using GreenshotLanguage = Greenshot.Base.Core.Language;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Editor.Forms
 {
@@ -50,8 +50,8 @@ namespace Greenshot.Editor.Forms
         public ResizeSettingsWindow(ResizeEffect effect)
         {
             _effect = effect ?? new ResizeEffect(100, 100, true);
-            _valuePixel = GreenshotLanguage.GetString("editor_resize_pixel");
-            _valuePercent = GreenshotLanguage.GetString("editor_resize_percent");
+            _valuePixel = Texts.Editor.ResizePixel;
+            _valuePercent = Texts.Editor.ResizePercent;
 
             InitializeComponent();
             try

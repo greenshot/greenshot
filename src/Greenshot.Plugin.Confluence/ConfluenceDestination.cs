@@ -34,7 +34,8 @@ using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
-using Greenshot.Plugin.Confluence.Entities;
+using Greenshot.Plugin.Confluence.Entities;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Plugin.Confluence;
 
@@ -141,8 +142,8 @@ public class ConfluenceDestination : DestinationBase, IRequiresRecipeAuthorizati
         get
         {
             string displayName = _page == null
-                ? Language.GetString("confluence", LangKey.upload_menu_item)
-                : Language.GetString("confluence", LangKey.upload_menu_item) + ": \"" + _page.Title + "\"";
+                ? Texts.Get<IConfluenceLanguage>().UploadMenuItem
+                : Texts.Get<IConfluenceLanguage>().UploadMenuItem + ": \"" + _page.Title + "\"";
             return new DestinationDescriptor(displayName, iconKey: IconKey, hasDynamicDestinations: _page == null);
         }
     }
@@ -214,7 +215,7 @@ public class ConfluenceDestination : DestinationBase, IRequiresRecipeAuthorizati
         try
         {
             var image = await request.Source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
-            await request.Ui.RunWithProgressAsync(Language.GetString("confluence", LangKey.communication_wait), async (progress, token) =>
+            await request.Ui.RunWithProgressAsync(Texts.Get<IConfluenceLanguage>().CommunicationWait, async (progress, token) =>
             {
                 await connector.AddAttachmentAsync(selectedPage.Id, image, filename, null, token).ConfigureAwait(false);
                 return true;

@@ -43,14 +43,14 @@
     <ScrollViewer Style="{DynamicResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
         <StackPanel>
             <!-- The master switch, and whether greenshot-mcp.exe is there -->
-            <GroupBox Header="{wpf:Translate settings_aitools_access}">
+            <GroupBox Header="{wpf:Text Settings.AitoolsAccess}">
                 <StackPanel>
                     <CheckBox IsChecked="{Binding AiToolsEnabled, Mode=TwoWay}"
                               IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=AiToolsEnabled}">
-                        <TextBlock Text="{wpf:Translate settings_aitools_enabled}" FontWeight="SemiBold" TextWrapping="Wrap"
+                        <TextBlock Text="{wpf:Text Settings.AitoolsEnabled}" FontWeight="SemiBold" TextWrapping="Wrap"
                                    Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                     </CheckBox>
-                    <TextBlock Text="{wpf:Translate settings_aitools_enabled_description}"
+                    <TextBlock Text="{wpf:Text Settings.AitoolsEnabledDescription}"
                                TextWrapping="Wrap" Margin="22,4,0,0" FontSize="11"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                     <ItemsControl ItemsSource="{Binding McpServers}" Margin="22,10,0,0">
@@ -96,7 +96,7 @@
                                 </Style.Triggers>
                             </Style>
                         </TextBlock.Style>
-                        <Run Text="{wpf:Translate settings_aitools_mcp_download}"/>
+                        <Run Text="{wpf:Text Settings.AitoolsMcpDownload}"/>
                         <Hyperlink NavigateUri="https://github.com/greenshot/greenshot/releases" RequestNavigate="McpDownload_RequestNavigate">
                             <Run Text="github.com/greenshot/greenshot/releases"/>
                         </Hyperlink>
@@ -104,12 +104,12 @@
                 </StackPanel>
             </GroupBox>
 
-            <GroupBox Header="{wpf:Translate settings_aitools_programs}">
+            <GroupBox Header="{wpf:Text Settings.AitoolsPrograms}">
                 <StackPanel>
-                    <TextBlock Text="{wpf:Translate settings_aitools_allowed}"
+                    <TextBlock Text="{wpf:Text Settings.AitoolsAllowed}"
                                TextWrapping="Wrap" Margin="0,0,0,8" FontSize="11"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
-                    <TextBlock Text="{wpf:Translate settings_aitools_none}"
+                    <TextBlock Text="{wpf:Text Settings.AitoolsNone}"
                                Margin="0,0,0,4" FontStyle="Italic"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
                                Visibility="{Binding HasNoAiToolClients, Converter={StaticResource BooleanToVisibilityConverter}}"/>
@@ -132,7 +132,7 @@
                                                        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                                         </StackPanel>
                                         <Button Grid.Column="1" Style="{StaticResource RemoveEntryButtonStyle}" VerticalAlignment="Center" Margin="8,0,0,0"
-                                                ToolTip="{wpf:Translate settings_aitools_remove}"
+                                                ToolTip="{wpf:Text Settings.AitoolsRemove}"
                                                 Click="RemoveAiToolClient_Click"/>
                                     </Grid>
                                 </Border>
@@ -143,10 +143,10 @@
             </GroupBox>
 
             <!-- Programs the user didn't allow in this Greenshot run -->
-            <GroupBox Header="{wpf:Translate settings_aitools_denied}"
+            <GroupBox Header="{wpf:Text Settings.AitoolsDenied}"
                       Visibility="{Binding HasDeniedAiToolClients, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <StackPanel>
-                    <TextBlock Text="{wpf:Translate settings_aitools_denied_description}"
+                    <TextBlock Text="{wpf:Text Settings.AitoolsDeniedDescription}"
                                TextWrapping="Wrap" Margin="0,0,0,8" FontSize="11"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                     <ItemsControl ItemsSource="{Binding DeniedAiToolClients}">
@@ -167,9 +167,9 @@
                                                        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                                         </StackPanel>
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
-                                            <Button Content="{wpf:Translate settings_aitools_denied_allow}" Padding="10,2" Margin="0,0,4,0"
+                                            <Button Content="{wpf:Text Settings.AitoolsDeniedAllow}" Padding="10,2" Margin="0,0,4,0"
                                                     Click="AllowDeniedClient_Click"/>
-                                            <Button Content="{wpf:Translate settings_aitools_denied_askagain}" Padding="10,2"
+                                            <Button Content="{wpf:Text Settings.AitoolsDeniedAskagain}" Padding="10,2"
                                                     Click="AskAgainDeniedClient_Click"/>
                                         </StackPanel>
                                     </Grid>
@@ -180,25 +180,25 @@
                 </StackPanel>
             </GroupBox>
 
-            <GroupBox Header="{wpf:Translate settings_aitools_permissions}">
+            <GroupBox Header="{wpf:Text Settings.AitoolsPermissions}">
                 <StackPanel>
                     <CheckBox IsChecked="{Binding CoreConfiguration.AiToolsAllowRecipeProposals, Mode=TwoWay}"
                               IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=AiToolsAllowRecipeProposals}">
-                        <TextBlock Text="{wpf:Translate settings_aitools_proposals}" TextWrapping="Wrap" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                        <TextBlock Text="{wpf:Text Settings.AitoolsProposals}" TextWrapping="Wrap" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                     </CheckBox>
-                    <TextBlock Text="{wpf:Translate settings_aitools_proposals_description}"
+                    <TextBlock Text="{wpf:Text Settings.AitoolsProposalsDescription}"
                                TextWrapping="Wrap" Margin="22,2,0,8" FontSize="11"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                     <CheckBox IsChecked="{Binding CoreConfiguration.AiToolsNotifyOnCapture, Mode=TwoWay}"
                               IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=AiToolsNotifyOnCapture}">
-                        <TextBlock Text="{wpf:Translate settings_aitools_notify}" TextWrapping="Wrap" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                        <TextBlock Text="{wpf:Text Settings.AitoolsNotify}" TextWrapping="Wrap" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                     </CheckBox>
                 </StackPanel>
             </GroupBox>
 
-            <GroupBox Header="{wpf:Translate settings_aitools_excluded}">
+            <GroupBox Header="{wpf:Text Settings.AitoolsExcluded}">
                 <StackPanel IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=AiToolsExcludedProcesses}">
-                    <TextBlock Text="{wpf:Translate settings_aitools_excluded_description}"
+                    <TextBlock Text="{wpf:Text Settings.AitoolsExcludedDescription}"
                                TextWrapping="Wrap" Margin="0,0,0,8" FontSize="11"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                     <ItemsControl ItemsSource="{Binding AiToolsExcludedProcesses}">
@@ -214,7 +214,7 @@
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="{Binding}" VerticalAlignment="Center" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                                         <Button Style="{StaticResource RemoveEntryButtonStyle}" Margin="4,0,0,0"
-                                                ToolTip="{wpf:Translate settings_aitools_remove}"
+                                                ToolTip="{wpf:Text Settings.AitoolsRemove}"
                                                 Click="RemoveExcludedProcess_Click"/>
                                     </StackPanel>
                                 </Border>
@@ -227,18 +227,18 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBox Text="{Binding NewExcludedProcess, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                 ToolTip="{wpf:Translate settings_aitools_excluded_add_tooltip}"
+                                 ToolTip="{wpf:Text Settings.AitoolsExcludedAddTooltip}"
                                  KeyDown="NewExcludedProcess_KeyDown"/>
-                        <Button Grid.Column="1" Content="{wpf:Translate settings_aitools_add}" Margin="8,0,0,0" Padding="12,3" MinWidth="80"
+                        <Button Grid.Column="1" Content="{wpf:Text Settings.AitoolsAdd}" Margin="8,0,0,0" Padding="12,3" MinWidth="80"
                                 Click="AddExcludedProcess_Click"/>
                     </Grid>
                 </StackPanel>
             </GroupBox>
 
             <!-- Recipes from files and their approval (also those written by AI tools) -->
-            <GroupBox Header="{wpf:Translate settings_recipeapprovals}">
+            <GroupBox Header="{wpf:Text Settings.Recipeapprovals}">
                 <StackPanel>
-                    <TextBlock Text="{wpf:Translate settings_recipeapprovals_description}"
+                    <TextBlock Text="{wpf:Text Settings.RecipeapprovalsDescription}"
                                TextWrapping="Wrap" Margin="0,0,0,8" FontSize="11"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                     <ItemsControl ItemsSource="{Binding ApprovedRecipes}">
@@ -261,11 +261,11 @@
                                                        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                                         </StackPanel>
                                         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
-                                            <Button Content="{wpf:Translate settings_recipeapprovals_details}" Padding="10,2" Margin="0,0,4,0"
+                                            <Button Content="{wpf:Text Settings.RecipeapprovalsDetails}" Padding="10,2" Margin="0,0,4,0"
                                                     Click="ShowRecipeDetails_Click"/>
-                                            <Button Content="{wpf:Translate settings_recipeapprovals_review}" Padding="10,2" Margin="0,0,4,0"
+                                            <Button Content="{wpf:Text Settings.RecipeapprovalsReview}" Padding="10,2" Margin="0,0,4,0"
                                                     Click="ReviewRecipeApproval_Click"/>
-                                            <Button Content="{wpf:Translate settings_recipeapprovals_revoke}" Padding="10,2"
+                                            <Button Content="{wpf:Text Settings.RecipeapprovalsRevoke}" Padding="10,2"
                                                     Click="RevokeRecipeApproval_Click"/>
                                         </StackPanel>
                                     </Grid>

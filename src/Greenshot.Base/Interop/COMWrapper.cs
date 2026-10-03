@@ -28,6 +28,7 @@ using System.Runtime.Remoting.Proxies;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
 using log4net;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Base.Interop
 {
@@ -511,7 +512,7 @@ namespace Greenshot.Base.Interop
 
                             var form = SimpleServiceProvider.Current.GetInstance<Form>();
 
-                            DialogResult result = MessageBox.Show(form, Language.GetFormattedString("com_rejected", destinationName), Language.GetString("com_rejected_title"),
+                            DialogResult result = MessageBox.Show(form, string.Format(Texts.Core.ComRejected, destinationName), Texts.Core.ComRejectedTitle,
                                 MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation);
                             if (result == DialogResult.OK)
                             {

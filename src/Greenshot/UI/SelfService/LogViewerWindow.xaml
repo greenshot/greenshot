@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
         mc:Ignorable="d"
-        Title="{wpf:Translate selfservice_logviewer_title}"
+        Title="{wpf:Text SelfService.LogviewerTitle}"
         Width="860"
         Height="580"
         MinWidth="640"
@@ -153,7 +153,7 @@
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0,0,0">
                     <TextBlock Text="📄 " FontSize="16" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                    <TextBlock Text="{wpf:Translate selfservice_logviewer_title}" 
+                    <TextBlock Text="{wpf:Text SelfService.LogviewerTitle}" 
                                FontWeight="SemiBold" 
                                FontSize="13.5" 
                                Foreground="{Binding TextPrimaryBrush}" 
@@ -175,21 +175,21 @@
                         <TextBlock Text="{Binding ThemeToggleIcon}" FontSize="14"/>
                     </Button>
                     <Button Style="{StaticResource CaptionBtnStyle}" 
-                            ToolTip="{wpf:Translate selfservice_tooltip_minimize}" 
+                            ToolTip="{wpf:Text SelfService.TooltipMinimize}" 
                             Click="OnMinimizeClicked">
                         <Path Width="10" Height="1" Stretch="Fill" 
                               Stroke="{Binding TextPrimaryBrush}" StrokeThickness="1.2" 
                               Data="M 0,0 L 10,0"/>
                     </Button>
                     <Button Style="{StaticResource CaptionBtnStyle}" 
-                            ToolTip="{wpf:Translate selfservice_tooltip_maximize}" 
+                            ToolTip="{wpf:Text SelfService.TooltipMaximize}" 
                             Click="OnMaximizeRestoreClicked">
                         <Path Width="10" Height="10" Stretch="Fill" 
                               Stroke="{Binding TextPrimaryBrush}" StrokeThickness="1.2" 
                               Data="M 0,0 L 10,0 L 10,10 L 0,10 Z"/>
                     </Button>
                     <Button Style="{StaticResource CaptionCloseBtnStyle}" 
-                            ToolTip="{wpf:Translate selfservice_tooltip_close}" 
+                            ToolTip="{wpf:Text SelfService.TooltipClose}" 
                             Click="OnCloseClicked"/>
                 </StackPanel>
             </Grid>
@@ -215,7 +215,7 @@
                             Click="OnRefreshLogClicked">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="🔄 "/>
-                            <TextBlock Text="{wpf:Translate selfservice_logviewer_refresh}"/>
+                            <TextBlock Text="{wpf:Text SelfService.LogviewerRefresh}"/>
                         </StackPanel>
                     </Button>
                     <Button Style="{StaticResource SecondaryButtonStyle}" 
@@ -223,10 +223,10 @@
                             Click="OnCopyLogClicked">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="📋 "/>
-                            <TextBlock Text="{wpf:Translate selfservice_logviewer_copy}"/>
+                            <TextBlock Text="{wpf:Text SelfService.LogviewerCopy}"/>
                         </StackPanel>
                     </Button>
-                    <CheckBox Content="{wpf:Translate selfservice_logviewer_wrap}" 
+                    <CheckBox Content="{wpf:Text SelfService.LogviewerWrap}" 
                               IsChecked="{Binding WrapText, Mode=TwoWay}" 
                               Foreground="{Binding TextPrimaryBrush}" 
                               VerticalAlignment="Center" 
@@ -267,18 +267,18 @@
                     <Button Style="{StaticResource SecondaryButtonStyle}" 
                             Margin="0,0,8,0" 
                             Click="OnLoadEarlierLinesClicked"
-                            ToolTip="{wpf:Translate selfservice_logviewer_tooltip_load_earlier}">
+                            ToolTip="{wpf:Text SelfService.LogviewerTooltipLoadEarlier}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="⬆ " FontSize="11" Margin="0,0,3,0"/>
-                            <TextBlock Text="{wpf:Translate selfservice_logviewer_load_earlier}"/>
+                            <TextBlock Text="{wpf:Text SelfService.LogviewerLoadEarlier}"/>
                         </StackPanel>
                     </Button>
                     <Button Style="{StaticResource SecondaryButtonStyle}" 
                             Click="OnLoadEntireLogClicked"
-                            ToolTip="{wpf:Translate selfservice_logviewer_tooltip_load_entire}">
+                            ToolTip="{wpf:Text SelfService.LogviewerTooltipLoadEntire}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="⏬ " FontSize="11" Margin="0,0,3,0"/>
-                            <TextBlock Text="{wpf:Translate selfservice_logviewer_load_entire}"/>
+                            <TextBlock Text="{wpf:Text SelfService.LogviewerLoadEntire}"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>
