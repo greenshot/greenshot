@@ -80,6 +80,7 @@ Make sure to deliver high-quality translation by:
    - Keeping keyboard shortcuts unchanged (e.g., `(C)` in "Crop (C)")
    - Not translating plugin/service names (Box, Imgur, Dropbox, etc.)
    - Keeping every key in its section, one line per text (`\n` for line breaks) and UTF-8 encoding
+   - OK and Cancel exist only once, as `OK` and `CANCEL` in `[Core]`; the editor and the plugins use those, so don't add them to other sections or plugin packs
 
 5. **Documentation**:
    - Adding documentation about context to primary language file for ambiguous messages
@@ -90,6 +91,11 @@ Make sure to deliver high-quality translation by:
    - Checking that no line is outside a section and every line is `key=value`
    - Checking for completeness (no missing keys compared to en-US)
    - Following the review checklists in `TRANSLATION_WORKFLOW.md`
+   - Running the unit tests in `src/Greenshot.Tests/Core/LanguagePackTests.cs`: they check the sections, the format placeholders against English and that every text used in the code exists in en-US
+
+## Keys and Code
+
+Every key with a fixed name is a property on a language interface (e.g. `src/Greenshot.Base/Languages/IEditorLanguage.cs`, `src/Greenshot.Plugin.Imgur/IImgurLanguage.cs`). Adding, renaming or removing a key in en-US therefore needs the matching change in the interface, which is code: point it out to the developer instead of changing it. Translating existing keys needs no code change.
 
 ## Communication
 
