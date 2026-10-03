@@ -85,7 +85,7 @@ public sealed class PdfDestination : DestinationBase
         }
 
         string pdfPath = Path.ChangeExtension(selectedPath, ".pdf");
-        var outputSettings = new PdfSurfaceOutputSettings(_configuration, CoreConfiguration.OutputFileJpegQuality);
+        var outputSettings = new PdfSurfaceOutputSettings(_configuration);
 
         try
         {
@@ -121,12 +121,13 @@ public sealed class PdfDestination : DestinationBase
 
 /// <summary>
 /// Represents the output settings for saving a surface as a PDF document.
+/// Holds pdf specific settings to write the PDF document.
 /// Setting the encoding cache key ensures that the PDF is always re-encoded, even if the surface has been encoded before.
 /// </summary>
 internal sealed class PdfSurfaceOutputSettings : SurfaceOutputSettings
 {
-    public PdfSurfaceOutputSettings(IPdfConfiguration configuration, int jpegQuality)
-        : base(PdfFileFormatHandler.FormatId, jpegQuality, false)
+    public PdfSurfaceOutputSettings(IPdfConfiguration configuration)
+        : base(PdfFileFormatHandler.FormatId)
     {
         Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         EncodingCacheKey = Guid.NewGuid().ToString("N");

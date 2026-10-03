@@ -28,12 +28,13 @@ using System.IO;
 using System.IO.Compression;
 using System.Runtime.InteropServices;
 using System.Text;
+using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 
 namespace Greenshot.Plugin.Pdf;
 
 /// <summary>
-/// Creates a single-page PDF document containing a capture image and its metadata.
+/// Creates a PDF document containing capture images and their metadata.
 /// </summary>
 internal static class PdfDocumentWriter
 {
@@ -41,64 +42,84 @@ internal static class PdfDocumentWriter
     private const double MillimetersPerInch = 25.4;
 
     /// <summary>
-    /// Writes the capture image to a PDF document using the supplied page layout settings.
+    /// Writes the capture images to a PDF document using the supplied page layout settings.
     /// </summary>
-    /// <param name="bitmap">The image to place in the PDF.</param>
+    /// <param name="bitmaps">The images to place in the PDF, one image per page.</param>
     /// <param name="destination">The writable stream that receives the PDF document.</param>
     /// <param name="configuration">Page size, margins, and scaling settings for the document.</param>
     /// <param name="captureDetails">Optional capture metadata to include in the PDF document information.</param>
-    /// <param name="creator">The creator value to include in the PDF document information.</param>
     /// <exception cref="ArgumentNullException">A required argument is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException">The destination stream is not writable, or the creator is empty.</exception>
+    /// <exception cref="ArgumentException">The bitmap list is empty or contains a null entry, or the destination stream is not writable.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The page layout contains invalid dimensions or margins.</exception>
-    public static void Write(Bitmap bitmap, Stream destination, IPdfConfiguration configuration, ICaptureDetails captureDetails, string creator)
+    public static void Write(IReadOnlyList<Bitmap> bitmaps, Stream destination, IPdfConfiguration configuration, ICaptureDetails captureDetails)
     {
-        if (bitmap == null) throw new ArgumentNullException(nameof(bitmap));
+        if (bitmaps == null) throw new ArgumentNullException(nameof(bitmaps));
+        if (bitmaps.Count == 0) throw new ArgumentException("At least one bitmap is required.", nameof(bitmaps));
         if (destination == null) throw new ArgumentNullException(nameof(destination));
         if (!destination.CanWrite) throw new ArgumentException("The destination stream is not writable.", nameof(destination));
         if (configuration == null) throw new ArgumentNullException(nameof(configuration));
-        if (string.IsNullOrWhiteSpace(creator)) throw new ArgumentException("A creator value is required.", nameof(creator));
 
-        double dpiX = GetDpi(bitmap.HorizontalResolution);
-        double dpiY = GetDpi(bitmap.VerticalResolution);
-        double imageWidthPt = bitmap.Width * PdfPointsPerInch / dpiX;
-        double imageHeightPt = bitmap.Height * PdfPointsPerInch / dpiY;
-        PdfLayout layout = CalculateLayout(configuration, imageWidthPt, imageHeightPt);
-        byte[] imageBytes = EncodeLosslessRgb(bitmap);
+        foreach (Bitmap bitmap in bitmaps)
+        {
+            if (bitmap == null) throw new ArgumentException("The bitmap list cannot contain null entries.", nameof(bitmaps));
+        }
+
+        string creator = "Created with Greenshot v" + EnvironmentInfo.GetGreenshotVersion(true);
 
         using (var pdf = new MemoryStream())
         {
             WriteAscii(pdf, "%PDF-1.4\n");
             WriteBytes(pdf, new byte[] { 37, 0xE2, 0xE3, 0xCF, 0xD3, 10 });
 
-            long[] offsets = new long[7];
+            int infoObjectNumber = checked(3 + bitmaps.Count * 3);
+            long[] offsets = new long[infoObjectNumber + 1];
             offsets[1] = pdf.Position;
             WriteAscii(pdf, "1 0 obj\n<</Type/Catalog/Pages 2 0 R>>\nendobj\n");
 
             offsets[2] = pdf.Position;
-            WriteAscii(pdf, "2 0 obj\n<</Type/Pages/Kids[3 0 R]/Count 1>>\nendobj\n");
+            var pageReferences = new StringBuilder();
+            for (int i = 0; i < bitmaps.Count; i++)
+            {
+                pageReferences.Append(3 + i * 3).Append(" 0 R ");
+            }
 
-            offsets[3] = pdf.Position;
-            WriteAscii(pdf, $"3 0 obj\n<</Type/Page/Parent 2 0 R/MediaBox[0 0 {PdfPageSizes.FormatNumber(layout.PageWidthPt)} {PdfPageSizes.FormatNumber(layout.PageHeightPt)}]/Resources<</XObject<</Img1 4 0 R>>>>/Contents 5 0 R>>\nendobj\n");
+            WriteAscii(pdf, $"2 0 obj\n<</Type/Pages/Kids[{pageReferences}]/Count {bitmaps.Count}>>\nendobj\n");
 
-            offsets[4] = pdf.Position;
-            WriteAscii(pdf, $"4 0 obj\n<</Type/XObject/Subtype/Image/Width {bitmap.Width}/Height {bitmap.Height}/ColorSpace/DeviceRGB/BitsPerComponent 8/Filter/FlateDecode/Length {imageBytes.Length}>>\nstream\n");
-            WriteBytes(pdf, imageBytes);
-            WriteAscii(pdf, "\nendstream\nendobj\n");
+            for (int i = 0; i < bitmaps.Count; i++)
+            {
+                Bitmap bitmap = bitmaps[i];
+                double dpiX = GetDpi(bitmap.HorizontalResolution);
+                double dpiY = GetDpi(bitmap.VerticalResolution);
+                double imageWidthPt = bitmap.Width * PdfPointsPerInch / dpiX;
+                double imageHeightPt = bitmap.Height * PdfPointsPerInch / dpiY;
+                PdfLayout layout = CalculateLayout(configuration, imageWidthPt, imageHeightPt);
+                byte[] imageBytes = EncodeLosslessRgb(bitmap);
+                int pageObjectNumber = 3 + i * 3;
+                int imageObjectNumber = pageObjectNumber + 1;
+                int contentObjectNumber = pageObjectNumber + 2;
 
-            string content = $"q {PdfPageSizes.FormatNumber(layout.ImageWidthPt)} 0 0 {PdfPageSizes.FormatNumber(layout.ImageHeightPt)} {PdfPageSizes.FormatNumber(layout.LeftPt)} {PdfPageSizes.FormatNumber(layout.BottomPt)} cm /Img1 Do Q\n";
-            byte[] contentBytes = Encoding.ASCII.GetBytes(content);
-            offsets[5] = pdf.Position;
-            WriteAscii(pdf, $"5 0 obj\n<</Length {contentBytes.Length}>>\nstream\n");
-            WriteBytes(pdf, contentBytes);
-            WriteAscii(pdf, "endstream\nendobj\n");
+                offsets[pageObjectNumber] = pdf.Position;
+                WriteAscii(pdf, $"{pageObjectNumber} 0 obj\n<</Type/Page/Parent 2 0 R/MediaBox[0 0 {PdfPageSizes.FormatNumber(layout.PageWidthPt)} {PdfPageSizes.FormatNumber(layout.PageHeightPt)}]/Resources<</XObject<</Img1 {imageObjectNumber} 0 R>>>>/Contents {contentObjectNumber} 0 R>>\nendobj\n");
+
+                offsets[imageObjectNumber] = pdf.Position;
+                WriteAscii(pdf, $"{imageObjectNumber} 0 obj\n<</Type/XObject/Subtype/Image/Width {bitmap.Width}/Height {bitmap.Height}/ColorSpace/DeviceRGB/BitsPerComponent 8/Filter/FlateDecode/Length {imageBytes.Length}>>\nstream\n");
+                WriteBytes(pdf, imageBytes);
+                WriteAscii(pdf, "\nendstream\nendobj\n");
+
+                string content = $"q {PdfPageSizes.FormatNumber(layout.ImageWidthPt)} 0 0 {PdfPageSizes.FormatNumber(layout.ImageHeightPt)} {PdfPageSizes.FormatNumber(layout.LeftPt)} {PdfPageSizes.FormatNumber(layout.BottomPt)} cm /Img1 Do Q\n";
+                byte[] contentBytes = Encoding.ASCII.GetBytes(content);
+                offsets[contentObjectNumber] = pdf.Position;
+                WriteAscii(pdf, $"{contentObjectNumber} 0 obj\n<</Length {contentBytes.Length}>>\nstream\n");
+                WriteBytes(pdf, contentBytes);
+                WriteAscii(pdf, "endstream\nendobj\n");
+            }
 
             string infoDictionary = CreateInfoDictionary(captureDetails, creator);
-            offsets[6] = pdf.Position;
-            WriteAscii(pdf, $"6 0 obj\n{infoDictionary}\nendobj\n");
+            offsets[infoObjectNumber] = pdf.Position;
+            WriteAscii(pdf, $"{infoObjectNumber} 0 obj\n{infoDictionary}\nendobj\n");
 
             long xrefOffset = pdf.Position;
-            WriteAscii(pdf, "xref\n0 7\n0000000000 65535 f \n");
+            WriteAscii(pdf, $"xref\n0 {offsets.Length}\n0000000000 65535 f \n");
             for (int i = 1; i < offsets.Length; i++)
             {
                 if (offsets[i] > 9999999999L)
@@ -109,7 +130,7 @@ internal static class PdfDocumentWriter
                 WriteAscii(pdf, offsets[i].ToString("D10", CultureInfo.InvariantCulture) + " 00000 n \n");
             }
 
-            WriteAscii(pdf, $"trailer\n<</Size 7/Root 1 0 R/Info 6 0 R>>\nstartxref\n{xrefOffset}\n%%EOF\n");
+            WriteAscii(pdf, $"trailer\n<</Size {offsets.Length}/Root 1 0 R/Info {infoObjectNumber} 0 R>>\nstartxref\n{xrefOffset}\n%%EOF\n");
             pdf.Position = 0;
             pdf.CopyTo(destination);
         }

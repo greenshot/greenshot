@@ -23,7 +23,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
@@ -39,7 +38,7 @@ public sealed class PdfFileFormatHandler : AbstractFileFormatHandler
 {
     public const string FormatId = "pdf";
     private static readonly ILog Log = LogManager.GetLogger(typeof(PdfFileFormatHandler));
-    private static readonly IReadOnlyCollection<string> PdfExtensions = new[] { ".pdf" };
+    private static readonly IReadOnlyCollection<string> PdfExtensions = [".pdf"];
     private readonly IPdfConfiguration _configuration;
 
     public PdfFileFormatHandler(IPdfConfiguration configuration)
@@ -51,7 +50,7 @@ public sealed class PdfFileFormatHandler : AbstractFileFormatHandler
 
     public override void RegisterFileFormats(IFileFormatRegistry registry)
     {
-        RegisterFileFormat(registry, FormatId, Array.Empty<string>(), PdfExtensions, "pdf", "application/pdf", null, "Portable Document Format");
+        RegisterFileFormat(registry, FormatId, [], PdfExtensions, "pdf", "application/pdf", null, "Portable Document Format");
     }
 
     public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null)
@@ -63,9 +62,8 @@ public sealed class PdfFileFormatHandler : AbstractFileFormatHandler
 
         try
         {
-            string creator = "Created with Greenshot v" + EnvironmentInfo.GetGreenshotVersion(true);
             IPdfConfiguration configuration = (surfaceOutputSettings as PdfSurfaceOutputSettings)?.Configuration ?? _configuration;
-            PdfDocumentWriter.Write(bitmap, destination, configuration, surface?.CaptureDetails, creator);
+            PdfDocumentWriter.Write([bitmap], destination, configuration, surface?.CaptureDetails);
             return true;
         }
         catch (Exception exception)
