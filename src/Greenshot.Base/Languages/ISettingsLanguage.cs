@@ -167,11 +167,6 @@ namespace Greenshot.Base.Languages
         string CaptureMousepointer { get; }
 
         /// <summary>
-        /// Experimental: Use Windows Graphics Capture for screen and window capture
-        /// </summary>
-        string CaptureWindowsgraphicscapture { get; }
-
-        /// <summary>
         /// Use interactive window capture mode
         /// </summary>
         string CaptureWindowsInteractive { get; }
@@ -616,11 +611,6 @@ namespace Greenshot.Base.Languages
         /// Milliseconds to wait before capture
         /// </summary>
         string Waittime { get; }
-
-        /// <summary>
-        /// Window capture mode
-        /// </summary>
-        string WindowCaptureMode { get; }
 
         /// <summary>
         /// Window capture

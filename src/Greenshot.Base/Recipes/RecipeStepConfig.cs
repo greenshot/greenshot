@@ -110,7 +110,6 @@ namespace Greenshot.Base.Recipes
             bool? captureMouse = null,
             int? delayMs = null,
             ScreenCaptureMode? screenMode = null,
-            WindowCaptureMode? windowMode = null,
             bool? alignDpi = null)
         {
             var node = new RecipeNodeConfig(id, WellKnownStepTypes.Source, $"Acquire {sourceType}");
@@ -118,7 +117,6 @@ namespace Greenshot.Base.Recipes
             if (captureMouse.HasValue) node.Set("CaptureMouseCursor", captureMouse.Value);
             if (delayMs.HasValue) node.Set("DelayMs", delayMs.Value);
             if (screenMode.HasValue) node.Set("ScreenCaptureMode", screenMode.Value);
-            if (windowMode.HasValue) node.Set("WindowCaptureMode", windowMode.Value);
             if (alignDpi.HasValue) node.Set("AlignDpi", alignDpi.Value);
             return node;
         }

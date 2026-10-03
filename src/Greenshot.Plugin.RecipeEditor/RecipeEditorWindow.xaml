@@ -1294,17 +1294,6 @@
                                                 <ComboBoxItem Content="Fixed Screen (from Configuration)" Tag="Fixed"/>
                                             </ComboBox>
 
-                                            <TextBlock Text="Window Capture Mode" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                            <ComboBox SelectedValue="{Binding SelectedNode.WindowCaptureMode, Mode=TwoWay}"
-                                                      SelectedValuePath="Tag" Margin="0,0,0,8">
-                                                <ComboBoxItem Content="(From Configuration)" Tag=""/>
-                                                <ComboBoxItem Content="Auto Detect" Tag="Auto"/>
-                                                <ComboBoxItem Content="Screen (Copy from screen)" Tag="Screen"/>
-                                                <ComboBoxItem Content="GDI (Classic)" Tag="GDI"/>
-                                                <ComboBoxItem Content="Aero" Tag="Aero"/>
-                                                <ComboBoxItem Content="Aero Transparent" Tag="AeroTransparent"/>
-                                            </ComboBox>
-
                                             <TextBlock Text="Align Multi-DPI Displays" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
                                             <ComboBox SelectedValue="{Binding SelectedNode.AlignDpiMode, Mode=TwoWay}"
                                                       SelectedValuePath="Tag" Margin="0,0,0,8">

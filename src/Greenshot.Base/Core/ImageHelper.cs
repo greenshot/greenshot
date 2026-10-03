@@ -1424,43 +1424,6 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Count how many times the supplied color exists
-        /// </summary>
-        /// <param name="sourceImage">Image to count the pixels of</param>
-        /// <param name="colorToCount">Color to count</param>
-        /// <param name="includeAlpha">true if Alpha needs to be checked</param>
-        /// <returns>int with the number of pixels which have colorToCount</returns>
-        public static int CountColor(Image sourceImage, Color colorToCount, bool includeAlpha)
-        {
-            int colors = 0;
-            int toCount = colorToCount.ToArgb();
-            if (!includeAlpha)
-            {
-                toCount &= 0xffffff;
-            }
-
-            using IFastBitmap bb = FastBitmap.Create((Bitmap) sourceImage);
-            for (int y = 0; y < bb.Height; y++)
-            {
-                for (int x = 0; x < bb.Width; x++)
-                {
-                    int bitmapcolor = bb.GetColorAt(x, y).ToArgb();
-                    if (!includeAlpha)
-                    {
-                        bitmapcolor &= 0xffffff;
-                    }
-
-                    if (bitmapcolor == toCount)
-                    {
-                        colors++;
-                    }
-                }
-            }
-
-            return colors;
-        }
-
-        /// <summary>
         /// Scale the bitmap, keeping aspect ratio, but the canvas will always have the specified size.
         /// </summary>
         /// <param name="sourceImage">Image to scale</param>

@@ -80,7 +80,7 @@ ClipboardFormat.DIB=Geräteunabhängiges Bitmap (DIB)
 
 **Sections:**
 - `[__language__]` (optional, first section, only in core packs): `Description=` is the language name shown in the language picker, written in that language (e.g. "Deutsch", "Français", "日本語"). It is needed for tags Windows doesn't know, such as `de-x-franconia`; without it the Windows native name of the language is used.
-- `[Core]`: general texts (`about_title`, `contextmenu_capturearea`, ...) and the texts of enum values (`WindowCaptureMode.Auto`, `ClipboardFormat.PNG`, ...)
+- `[Core]`: general texts (`about_title`, `contextmenu_capturearea`, ...) and the texts of enum values (`ClipboardFormat.PNG`, `EmailFormat.MAPI`, ...)
 - `[Editor]`: the image editor (`undo`, `align_center`, ...)
 - `[Settings]`: the settings dialog; the expert settings keys start with `expert_`
 - `[SelfService]`: Self-Service and troubleshooting
@@ -192,7 +192,7 @@ In XAML a text is used as `{wpf:Text Editor.Undo}`.
 
 The property name is the key without `_` and `-`, in PascalCase: key `context_menu_title` becomes property `ContextMenuTitle`.
 
-Keys that are only known at runtime are looked up with `Texts.Config.GetTranslation(key)`: the texts of enum values (`WindowCaptureMode.Auto` in `[Core]`) and the labels of the built-in recipe extensions (written as `Recipe.extension_border`).
+Keys that are only known at runtime are looked up with `Texts.Config.GetTranslation(key)`: the texts of enum values (`ClipboardFormat.PNG` in `[Core]`) and the labels of the built-in recipe extensions (written as `Recipe.extension_border`).
 
 **Adding a new text:**
 1. Add `key=value` to the en-US pack, in the right section

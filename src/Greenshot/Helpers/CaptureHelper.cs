@@ -24,7 +24,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
@@ -36,176 +35,92 @@ using log4net;
 namespace Greenshot.Helpers
 {
     /// <summary>
-    /// Backward-compatible facade delegating capture operations to CapturePipeline and RecipeManager.
-    /// Preserves existing public API for plugins and legacy callers.
+    /// Starts the built-in recipes for the tray menu, the hotkeys and the command line.
+    /// Every capture is a recipe flow: the recipe decides how the image is acquired, selected and where it goes.
     /// </summary>
-    public class CaptureHelper : IDisposable
+    public static class CaptureHelper
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(CaptureHelper));
 
-        private WindowDetails _selectedCaptureWindow;
-        private ICapture _capture;
-        private CaptureMode _captureMode;
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            _selectedCaptureWindow = null;
-            _capture = null;
-        }
-
         /// <summary>
-        /// Start a flow for the recipe through the flow runner, snapshotting the trigger situation now.
+        /// Start the built-in recipe through the flow runner, snapshotting the trigger situation now.
         /// </summary>
-        private static CaptureFlowHandle StartFlow(CaptureRecipe recipe, Action<CaptureFlowContext> configure)
+        /// <param name="recipeId">Id of the built-in recipe</param>
+        /// <param name="captureMouse">Capture the mouse cursor, null to let the recipe decide</param>
+        /// <param name="destination">Destination which replaces the destinations of the recipe, null to use the recipe's</param>
+        /// <param name="configure">Sets more properties of the flow</param>
+        private static void Start(string recipeId, bool? captureMouse = null, IDestination destination = null, Action<CaptureFlowContext> configure = null)
+        {
+            Start(RecipeManager.Instance.GetRecipeById(recipeId), ctx =>
+            {
+                if (captureMouse.HasValue)
+                {
+                    ctx.Properties["CaptureMouseCursor"] = captureMouse.Value;
+                }
+                if (destination != null)
+                {
+                    ctx.Properties["OverrideDestinations"] = new List<string> { destination.Designation };
+                }
+                configure?.Invoke(ctx);
+            });
+        }
+
+        private static void Start(CaptureRecipe recipe, Action<CaptureFlowContext> configure)
         {
             if (recipe == null)
             {
                 Log.Error("Can't start the capture, the recipe was not found.");
-                return null;
-            }
-
-            return CaptureFlowRunner.Current.Start(recipe, FlowTriggerContext.Capture(), configure);
-        }
-
-        public static void CaptureClipboard(IDestination destination = null)
-        {
-            var recipe = RecipeManager.Instance.GetRecipeById(RecipeManager.RecipeIdClipboard);
-            StartFlow(recipe, ctx =>
-            {
-                if (destination != null)
-                {
-                    ctx.Properties["OverrideDestinations"] = new List<string> { destination.Designation };
-                }
-            });
-        }
-
-        public static void CaptureRegion(bool captureMouse)
-        {
-            var recipe = RecipeManager.Instance.GetRecipeById(RecipeManager.RecipeIdRegion);
-            StartFlow(recipe, ctx =>
-            {
-                ctx.Properties["CaptureMouseCursor"] = captureMouse;
-            });
-        }
-
-        public static void CaptureRegion(bool captureMouse, IDestination destination)
-        {
-            var recipe = RecipeManager.Instance.GetRecipeById(RecipeManager.RecipeIdRegion);
-            StartFlow(recipe, ctx =>
-            {
-                ctx.Properties["CaptureMouseCursor"] = captureMouse;
-                if (destination != null)
-                {
-                    ctx.Properties["OverrideDestinations"] = new List<string> { destination.Designation };
-                }
-            });
-        }
-
-        public static void CaptureRegion(bool captureMouse, NativeRect region)
-        {
-            var recipe = RecipeManager.Instance.GetRecipeById(RecipeManager.RecipeIdRegion);
-            StartFlow(recipe, ctx =>
-            {
-                ctx.Properties["CaptureMouseCursor"] = captureMouse;
-                ctx.Properties["PreSuppliedRegion"] = region;
-            });
-        }
-
-        public static void CaptureFullscreen(bool captureMouse, ScreenCaptureMode screenCaptureMode)
-        {
-            var recipe = RecipeManager.Instance.GetRecipeById(RecipeManager.RecipeIdFullScreen);
-            StartFlow(recipe, ctx =>
-            {
-                ctx.Properties["CaptureMouseCursor"] = captureMouse;
-                ctx.Properties["ScreenCaptureMode"] = screenCaptureMode;
-            });
-        }
-
-        public static void CaptureLastRegion(bool captureMouse)
-        {
-            var recipe = RecipeManager.Instance.GetRecipeById(RecipeManager.RecipeIdLastRegion);
-            StartFlow(recipe, ctx =>
-            {
-                ctx.Properties["CaptureMouseCursor"] = captureMouse;
-            });
-        }
-
-        public static void CaptureWindow(bool captureMouse)
-        {
-            var recipe = RecipeManager.Instance.GetRecipeById(RecipeManager.RecipeIdActiveWindow);
-            StartFlow(recipe, ctx =>
-            {
-                ctx.Properties["CaptureMouseCursor"] = captureMouse;
-            });
-        }
-
-        public static void CaptureWindow(WindowDetails windowToCapture)
-        {
-            var recipe = RecipeManager.Instance.GetRecipeById(RecipeManager.RecipeIdActiveWindow);
-            StartFlow(recipe, ctx =>
-            {
-                ctx.Properties["TargetWindow"] = windowToCapture;
-            });
-        }
-
-        public static void CaptureWindowInteractive(bool captureMouse)
-        {
-            var recipe = RecipeManager.Instance.GetRecipeById(RecipeManager.RecipeIdWindow);
-            StartFlow(recipe, ctx =>
-            {
-                ctx.Properties["CaptureMouseCursor"] = captureMouse;
-            });
-        }
-
-        public static void CaptureFile(string filename, IDestination destination = null)
-        {
-            var recipe = RecipeManager.Instance.GetRecipeById(RecipeManager.RecipeIdFile);
-            StartFlow(recipe, ctx =>
-            {
-                ctx.Properties["Filename"] = filename;
-                if (destination != null)
-                {
-                    ctx.Properties["OverrideDestinations"] = new List<string> { destination.Designation };
-                }
-            });
-        }
-
-        public static void ImportCapture(ICapture captureToImport)
-        {
-            var recipe = RecipeManager.Instance.GetRecipeById(RecipeManager.RecipeIdClipboard);
-            StartFlow(recipe, ctx =>
-            {
-                ctx.Payload = new CapturePayload(captureToImport);
-            });
-        }
-
-        public static void ImportExtensionCapture(ICapture captureToImport, string browser = null)
-        {
-            var allRecipes = RecipeManager.Instance.GetAllRecipes();
-            CaptureRecipe recipe = null;
-            if (allRecipes != null)
-            {
-                recipe = allRecipes.FirstOrDefault(r => r != null && r.IsEnabled && r.Triggers != null && r.Triggers.Any(t =>
-                    t.IsActive &&
-                    string.Equals(t.TriggerType, TriggerConfig.TypeExtension, StringComparison.OrdinalIgnoreCase) &&
-                    (string.IsNullOrEmpty(t.GetParameter<string>("Browser")) ||
-                     string.Equals(t.GetParameter<string>("Browser"), browser, StringComparison.OrdinalIgnoreCase))));
-            }
-            recipe ??= RecipeManager.Instance.GetRecipeById(RecipeManager.RecipeIdExtension);
-
-            if (recipe == null)
-            {
-                Log.Error("No extension recipe found to process browser capture.");
                 return;
             }
 
-            StartFlow(recipe, ctx =>
+            CaptureFlowRunner.Current.Start(recipe, FlowTriggerContext.Capture(), configure);
+        }
+
+        public static void CaptureClipboard(IDestination destination = null) => Start(RecipeManager.RecipeIdClipboard, destination: destination);
+
+        public static void CaptureRegion(bool captureMouse, IDestination destination = null) => Start(RecipeManager.RecipeIdRegion, captureMouse, destination);
+
+        /// <summary>
+        /// Capture the region without asking the user to select it
+        /// </summary>
+        public static void CaptureRegion(bool captureMouse, NativeRect region) => Start(RecipeManager.RecipeIdRegion, captureMouse, configure: ctx => ctx.Properties["PreSuppliedRegion"] = region);
+
+        public static void CaptureFullscreen(bool captureMouse, ScreenCaptureMode screenCaptureMode) =>
+            Start(RecipeManager.RecipeIdFullScreen, captureMouse, configure: ctx => ctx.Properties["ScreenCaptureMode"] = screenCaptureMode);
+
+        public static void CaptureLastRegion(bool captureMouse) => Start(RecipeManager.RecipeIdLastRegion, captureMouse);
+
+        /// <summary>
+        /// Capture the active window
+        /// </summary>
+        public static void CaptureWindow(bool captureMouse) => Start(RecipeManager.RecipeIdActiveWindow, captureMouse);
+
+        /// <summary>
+        /// Capture the window, e.g. one picked from the tray menu
+        /// </summary>
+        public static void CaptureWindow(WindowDetails windowToCapture) => Start(RecipeManager.RecipeIdActiveWindow, configure: ctx => ctx.Properties["TargetWindow"] = windowToCapture);
+
+        /// <summary>
+        /// Let the user select the window to capture
+        /// </summary>
+        public static void CaptureWindowInteractive(bool captureMouse) => Start(RecipeManager.RecipeIdWindow, captureMouse);
+
+        public static void CaptureFile(string filename, IDestination destination = null) =>
+            Start(RecipeManager.RecipeIdFile, destination: destination, configure: ctx => ctx.Properties["Filename"] = filename);
+
+        /// <summary>
+        /// Process a capture of the browser extension with the first active recipe of an extension trigger for the browser
+        /// </summary>
+        public static void ImportExtensionCapture(ICapture captureToImport, string browser = null)
+        {
+            var recipe = RecipeManager.Instance.GetAllRecipes()?.FirstOrDefault(r => r != null && r.IsEnabled && r.Triggers != null && r.Triggers.Any(t =>
+                t.IsActive &&
+                string.Equals(t.TriggerType, TriggerConfig.TypeExtension, StringComparison.OrdinalIgnoreCase) &&
+                (string.IsNullOrEmpty(t.GetParameter<string>("Browser")) ||
+                 string.Equals(t.GetParameter<string>("Browser"), browser, StringComparison.OrdinalIgnoreCase))));
+            recipe ??= RecipeManager.Instance.GetRecipeById(RecipeManager.RecipeIdExtension);
+
+            Start(recipe, ctx =>
             {
                 ctx.Payload = new CapturePayload(captureToImport);
                 ctx.Properties["Capture"] = captureToImport;
@@ -214,44 +129,6 @@ namespace Greenshot.Helpers
                     ctx.Properties["Browser"] = browser;
                 }
             });
-        }
-
-        public static WindowDetails SelectCaptureWindow(WindowDetails windowToCapture)
-        {
-            return WindowCaptureHelper.SelectCaptureWindow(windowToCapture);
-        }
-
-
-
-        public CaptureHelper AddDestination(IDestination destination)
-        {
-            _capture?.CaptureDetails?.AddDestination(destination);
-            return this;
-        }
-
-        public CaptureHelper(CaptureMode captureMode)
-        {
-            _captureMode = captureMode;
-            _capture = new Capture();
-        }
-
-        public CaptureHelper(CaptureMode captureMode, bool captureMouseCursor) : this(captureMode)
-        {
-        }
-
-        public CaptureHelper(CaptureMode captureMode, bool captureMouseCursor, ScreenCaptureMode screenCaptureMode) : this(captureMode)
-        {
-        }
-
-        public CaptureHelper(CaptureMode captureMode, bool captureMouseCursor, IDestination destination) : this(captureMode, captureMouseCursor)
-        {
-            _capture.CaptureDetails.AddDestination(destination);
-        }
-
-        public WindowDetails SelectedCaptureWindow
-        {
-            get => _selectedCaptureWindow;
-            set => _selectedCaptureWindow = value;
         }
     }
 }

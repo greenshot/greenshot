@@ -583,9 +583,6 @@
                                 <CheckBox Content="{wpf:Text Settings.Zoom}"
                                           IsChecked="{Binding CoreConfiguration.ZoomerEnabled, Mode=TwoWay}"
                                            IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ZoomerEnabled}"/>
-                                <CheckBox Content="{wpf:Text Settings.CaptureWindowsgraphicscapture}"
-                                          IsChecked="{Binding CoreConfiguration.UseWindowsGraphicsCapture, Mode=TwoWay}"
-                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=UseWindowsGraphicsCapture}"/>
                                 
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>
@@ -608,32 +605,9 @@
                         
                         <GroupBox Header="{wpf:Text Settings.Windowscapture}">
                             <StackPanel>
-                                <RadioButton Content="{wpf:Text Settings.CaptureWindowsInteractive}"
-                                             IsChecked="{Binding CoreConfiguration.CaptureWindowsInteractive, Mode=TwoWay}"
-                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureWindowsInteractive}"/>
-                                <Grid Margin="0,5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <RadioButton Content="{wpf:Text Settings.WindowCaptureMode}"
-                                                 VerticalAlignment="Center"
-                                                 IsChecked="{Binding CoreConfiguration.CaptureWindowsInteractive, Mode=TwoWay, Converter={StaticResource InverseBooleanConverter}}"
-                                                 IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureWindowsInteractive}"/>
-                                    <ComboBox Grid.Column="1" 
-                                              HorizontalAlignment="Right" Width="220"
-                                              ItemsSource="{Binding WindowCaptureModes}"
-                                              DisplayMemberPath="Description"
-                                              SelectedValuePath="Value"
-                                              SelectedValue="{Binding CoreConfiguration.WindowCaptureMode, Mode=TwoWay}">
-                                        <ComboBox.IsEnabled>
-                                            <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="WindowCaptureMode">
-                                                <Binding Path="CoreConfiguration.CaptureWindowsInteractive" Converter="{StaticResource InverseBooleanConverter}"/>
-                                                <Binding Path="CoreConfiguration"/>
-                                            </MultiBinding>
-                                        </ComboBox.IsEnabled>
-                                    </ComboBox>
-                                </Grid>
+                                <CheckBox Content="{wpf:Text Settings.CaptureWindowsInteractive}"
+                                          IsChecked="{Binding CoreConfiguration.CaptureWindowsInteractive, Mode=TwoWay}"
+                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureWindowsInteractive}"/>
                             </StackPanel>
                         </GroupBox>
                     </StackPanel>
