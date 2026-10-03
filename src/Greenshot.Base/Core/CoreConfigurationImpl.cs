@@ -196,26 +196,6 @@ namespace Greenshot.Base.Core
             }
         }
 
-        /// <summary>
-        /// Lower case all entries of the list in place
-        /// </summary>
-        /// <param name="entries">List of string</param>
-        /// <returns>true when an entry was changed</returns>
-        private static bool LowerCaseEntries(List<string> entries)
-        {
-            bool changed = false;
-            for (int i = 0; i < entries.Count; i++)
-            {
-                var lowerCase = entries[i]?.ToLower();
-                if (!string.Equals(lowerCase, entries[i], StringComparison.Ordinal))
-                {
-                    entries[i] = lowerCase;
-                    changed = true;
-                }
-            }
-            return changed;
-        }
-
         public void OnAfterLoad()
         {
             // Remember the version the file was saved with, before a save (see OnBeforeSave) replaces it
@@ -280,50 +260,6 @@ namespace Greenshot.Base.Core
                 };
             }
 
-            // The lists are changed in place, which the section doesn't notice: mark it dirty so the fix is saved.
-            // Since Dapplo.Ini 1.1 the dirty flags are cleared before IAfterLoad, so only do this when something changed.
-            if (NoGDICaptureForProduct != null)
-            {
-                bool changed = false;
-                // Fix error in configuration
-                if (NoGDICaptureForProduct.Count >= 2)
-                {
-                    if ("intellij".Equals(NoGDICaptureForProduct[0]) && "idea".Equals(NoGDICaptureForProduct[1]))
-                    {
-                        NoGDICaptureForProduct.RemoveRange(0, 2);
-                        NoGDICaptureForProduct.Add("Intellij Idea");
-                        changed = true;
-                    }
-                }
-
-                changed |= LowerCaseEntries(NoGDICaptureForProduct);
-                if (changed)
-                {
-                    MarkAsDirty();
-                }
-            }
-
-            if (NoDWMCaptureForProduct != null)
-            {
-                bool changed = false;
-                // Fix error in configuration
-                if (NoDWMCaptureForProduct.Count >= 3)
-                {
-                    if ("citrix".Equals(NoDWMCaptureForProduct[0]) && "ica".Equals(NoDWMCaptureForProduct[1]) && "client".Equals(NoDWMCaptureForProduct[2]))
-                    {
-                        NoDWMCaptureForProduct.RemoveRange(0, 3);
-                        NoDWMCaptureForProduct.Add("Citrix ICA Client");
-                        changed = true;
-                    }
-                }
-
-                changed |= LowerCaseEntries(NoDWMCaptureForProduct);
-                if (changed)
-                {
-                    MarkAsDirty();
-                }
-            }
-
             // Normalize paths to heal any legacy escaping issues (e.g. duplicated backslashes)
             if (!string.IsNullOrEmpty(OutputFilePath))
             {
@@ -355,11 +291,6 @@ namespace Greenshot.Base.Core
                 OutputFileAsFullpath = GreenshotEnvironment.IsPortable
                     ? Path.Combine(Application.StartupPath, @"..\..\Documents\Pictures\Greenshots\dummy.png")
                     : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "dummy.png");
-            }
-
-            if (DWMBackgroundColor == default)
-            {
-                DWMBackgroundColor = Color.Transparent;
             }
 
             ActiveTitleFixes ??= new List<string> { "Firefox", "Chrome" };

@@ -26,7 +26,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes;
 using log4net;
@@ -36,7 +35,7 @@ namespace Greenshot.Base.Pipeline.Sources
 {
     /// <summary>
     /// Captures the currently active desktop window or a targeted window matching title/pattern/process criteria,
-    /// with heuristic fallbacks (DWM/GDI/Screen).
+    /// falls back to the whole screen when there is no window to capture.
     /// </summary>
     public class ActiveWindowCaptureSource : ICaptureSource
     {
@@ -120,19 +119,13 @@ namespace Greenshot.Base.Pipeline.Sources
                     await Task.Delay(100, cancellationToken).ConfigureAwait(false);
                 }
 
-                window = WindowCaptureHelper.SelectCaptureWindow(window);
+                window = WindowCapture.SelectCaptureWindow(window);
                 if (window != null)
                 {
                     // Configuration is written on the UI thread (single writer, its change events have UI subscribers)
                     var capturedRegion = window.WindowRectangle;
                     context.Ui.InvokeAsync(() => CoreConfig.LastCapturedRegion = capturedRegion, CancellationToken.None).FireAndLog("Store the last captured region", Log);
-                    // Context (caller) -> node parameter -> settings
-                    var windowCaptureMode = context.Properties.TryGetValue("WindowCaptureMode", out var wcmObj) && wcmObj is WindowCaptureMode wcm
-                        ? wcm
-                        : Enum.TryParse(_config?.GetParameter<object>("WindowCaptureMode")?.ToString(), true, out WindowCaptureMode configured)
-                            ? configured
-                            : CoreConfig.WindowCaptureMode;
-                    capture = await WindowCaptureHelper.CaptureWindowAsync(window, capture, windowCaptureMode, context.Ui, cancellationToken).ConfigureAwait(false);
+                    capture = await WindowCapture.CaptureWindowAsync(window, capture, cancellationToken).ConfigureAwait(false);
                     if (capture != null)
                     {
                         if (capture.Cursor != null)

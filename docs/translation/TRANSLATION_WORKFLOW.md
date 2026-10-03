@@ -31,7 +31,7 @@ When a developer adds a new feature requiring translation:
   /// </summary>
   string NewFeatureTitle { get; }
   ```
-  Runtime keys (enum texts like `WindowCaptureMode.Auto`) need no property, they are read with `Texts.Config.GetTranslation(key)`.
+  Runtime keys (enum texts like `ClipboardFormat.PNG`) need no property, they are read with `Texts.Config.GetTranslation(key)`.
 - [ ] Use the text in code as `Texts.Editor.NewFeatureTitle`, in XAML as `{wpf:Text Editor.NewFeatureTitle}`
 - [ ] Check for reusable existing strings before adding new ones
 - [ ] If the string contains placeholders, document them in the property's comment (language packs have no comments):

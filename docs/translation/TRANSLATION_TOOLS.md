@@ -438,7 +438,7 @@ Run it:
 - every property of the language interfaces has an English text
 - every `{wpf:Text Section.Property}` in XAML refers to an existing property
 - the language packs contain only known sections (spelled exactly as in en-US), and no line outside a section or without `key=value`
-- runtime keys such as `WindowCaptureMode.Auto` and `Recipe.extension_border` are found
+- runtime keys such as `ClipboardFormat.PNG` and `Recipe.extension_border` are found
 
 ### Pre-commit Hook
 

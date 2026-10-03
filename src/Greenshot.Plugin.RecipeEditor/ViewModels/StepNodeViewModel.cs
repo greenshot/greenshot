@@ -3212,12 +3212,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetParamOrRemoveIfEmpty("ScreenCaptureMode", value); OnPropertyChanged(nameof(ScreenCaptureMode)); }
         }
 
-        public string WindowCaptureMode
-        {
-            get => GetParam("WindowCaptureMode", "");
-            set { SetParamOrRemoveIfEmpty("WindowCaptureMode", value); OnPropertyChanged(nameof(WindowCaptureMode)); }
-        }
-
         public string AlignDpiMode
         {
             get => GetTriStateParam("AlignDpi");
@@ -3830,7 +3824,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(PlaySound));
             OnPropertyChanged(nameof(SoundFilePath));
             OnPropertyChanged(nameof(ScreenCaptureMode));
-            OnPropertyChanged(nameof(WindowCaptureMode));
             OnPropertyChanged(nameof(AlignDpiMode));
             OnPropertyChanged(nameof(AllowWindowSnappingMode));
             OnPropertyChanged(nameof(OutputFileFormat));

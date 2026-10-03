@@ -238,7 +238,7 @@ namespace Greenshot.Tests.Core
         [Fact]
         public void RuntimeKeys_AreFound()
         {
-            Assert.Equal("Automatically", Texts.Config.GetTranslation("WindowCaptureMode.Auto"));
+            Assert.Equal("Outlook with HTML", Texts.Config.GetTranslation("EmailFormat.OUTLOOK_HTML"));
             Assert.Equal("Windows Bitmap", Texts.Translate(Greenshot.Base.Core.Enums.ClipboardFormat.BITMAP));
             Assert.Equal("Border", Greenshot.Base.Recipes.RecipeText.Translate("Recipe.extension_border"));
             Assert.Equal("Recipe Import", Texts.Recipe.Import);
