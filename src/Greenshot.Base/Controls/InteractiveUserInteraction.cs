@@ -24,11 +24,12 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
+using System.Windows;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Threading;
+using Greenshot.Base.Wpf;
 using log4net;
 
 namespace Greenshot.Base.Controls
@@ -85,8 +86,8 @@ namespace Greenshot.Base.Controls
         {
             return ModalAsync(() =>
             {
-                using var saveImageFileDialog = new SaveImageFileDialog(request?.CaptureDetails);
-                return saveImageFileDialog.ShowDialog() == DialogResult.OK ? saveImageFileDialog.FileNameWithExtension : null;
+                var saveImageFileDialog = new SaveImageFileDialog(request?.CaptureDetails);
+                return saveImageFileDialog.ShowDialog() ? saveImageFileDialog.FileNameWithExtension : null;
             }, cancellationToken);
         }
 
@@ -94,9 +95,9 @@ namespace Greenshot.Base.Controls
         {
             return ModalAsync(() =>
             {
-                using var qualityDialog = new QualityDialog(current);
-                qualityDialog.ShowDialog();
-                return qualityDialog.Settings;
+                var qualityWindow = new QualityWindow(current);
+                qualityWindow.ShowDialog();
+                return qualityWindow.Settings;
             }, cancellationToken);
         }
 
@@ -143,12 +144,12 @@ namespace Greenshot.Base.Controls
                 return await workTask.ConfigureAwait(false);
             }
 
-            ProgressDialog dialog = null;
+            ProgressWindow dialog = null;
             try
             {
                 dialog = await _ui.InvokeAsync(() =>
                 {
-                    var progressDialog = new ProgressDialog(title, () =>
+                    var progressDialog = new ProgressWindow(title, () =>
                     {
                         try
                         {
@@ -181,8 +182,7 @@ namespace Greenshot.Base.Controls
                     _ui.InvokeAsync(() =>
                     {
                         dialog.DetachCancel();
-                        dialog.Close();
-                        dialog.Dispose();
+                        dialog.CloseByCode();
                     }, CancellationToken.None).FireAndLog("Close the progress dialog", Log);
                 }
             }
@@ -224,8 +224,13 @@ namespace Greenshot.Base.Controls
         {
             return ModalAsync<bool?>(() =>
             {
-                var result = MessageBox.Show(message, title, isError ? MessageBoxButtons.OK : MessageBoxButtons.OKCancel, isError ? MessageBoxIcon.Error : MessageBoxIcon.Question);
-                return result == DialogResult.OK;
+                var buttons = isError
+                    ? new[] { Language.GetString("OK") }
+                    : new[] { Language.GetString("OK"), Language.GetString("CANCEL") };
+                // Flows run without a window of their own, so the box is shown over all windows
+                int choice = ThemedMessageBox.ShowChoice(null, title, message, isError ? MessageBoxImage.Error : MessageBoxImage.Question, buttons,
+                    defaultIndex: 0, cancelIndex: buttons.Length - 1, onTop: true);
+                return choice == 0;
             }, cancellationToken);
         }
 
@@ -235,7 +240,7 @@ namespace Greenshot.Base.Controls
         private sealed class DialogProgress : IProgress<ProgressInfo>
         {
             private readonly IUiDispatcher _ui;
-            private ProgressDialog _dialog;
+            private ProgressWindow _dialog;
             private ProgressInfo _last;
 
             public DialogProgress(IUiDispatcher ui)
@@ -243,7 +248,7 @@ namespace Greenshot.Base.Controls
                 _ui = ui;
             }
 
-            public void Attach(ProgressDialog dialog)
+            public void Attach(ProgressWindow dialog)
             {
                 _dialog = dialog;
                 if (_last != null)
