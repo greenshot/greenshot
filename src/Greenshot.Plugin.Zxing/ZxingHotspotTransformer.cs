@@ -21,10 +21,10 @@
 
 using System;
 using System.Diagnostics;
-using System.Drawing;
-using System.Windows.Forms;
-using Greenshot.Base.Interfaces.Plugin;
+using System.Windows;
 using Greenshot.Base.Core;
+using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Wpf;
 
 namespace Greenshot.Plugin.Zxing;
 
@@ -35,7 +35,7 @@ public class ZxingHotspotTransformer : IFeatureHotspotTransformer
         return feature is IBarcodeFeature;
     }
 
-    public CaptureFormHotspot Transform(IDetectedFeature feature, Form captureForm)
+    public CaptureFormHotspot Transform(IDetectedFeature feature)
     {
         if (feature is not IBarcodeFeature barcodeFeature)
         {
@@ -43,65 +43,49 @@ public class ZxingHotspotTransformer : IFeatureHotspotTransformer
         }
 
         string textContent = barcodeFeature.RawText;
+        // Shorten text for preview if it's too long
+        string previewText = textContent.Length > 30 ? textContent.Substring(0, 27) + "..." : textContent;
 
-        return new CaptureFormHotspot
+        var hotspot = new CaptureFormHotspot
         {
-            Bounds = (Rectangle)barcodeFeature.Bounds,
-            Text = textContent,
-            ToolTipText = textContent,
-            ClickAction = (e) =>
-            {
-                var menu = new ContextMenuStrip();
-                
-                // Shorten text for preview if it's too long
-                string previewText = textContent.Length > 30 ? textContent.Substring(0, 27) + "..." : textContent;
-
-                var previewItem = new ToolStripMenuItem($"QR Code: {previewText}") { Enabled = false };
-                menu.Items.Add(previewItem);
-                menu.Items.Add(new ToolStripSeparator());
-
-                var copyItem = new ToolStripMenuItem("Copy to Clipboard", null, (s, ev) =>
-                {
-                    try
-                    {
-                        ClipboardHelper.SetClipboardData(textContent);
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show("Failed to copy to clipboard: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                    captureForm.DialogResult = DialogResult.Cancel;
-                    captureForm.Close();
-                });
-                menu.Items.Add(copyItem);
-
-                bool isValidUrl = Uri.TryCreate(textContent, UriKind.Absolute, out var uriResult)
-                    && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
-
-                if (isValidUrl)
-                {
-                    var openItem = new ToolStripMenuItem("Open URL in Browser", null, (s, ev) =>
-                    {
-                        try
-                        {
-                            Process.Start(new ProcessStartInfo
-                            {
-                                FileName = textContent,
-                                UseShellExecute = true
-                            });
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show("Failed to open URL in browser: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                        captureForm.DialogResult = DialogResult.Cancel;
-                        captureForm.Close();
-                    });
-                    menu.Items.Add(openItem);
-                }
-
-                menu.Show(captureForm, captureForm.PointToClient(Cursor.Position));
-            }
+            Bounds = barcodeFeature.Bounds,
+            Text = $"QR Code: {previewText}",
+            ToolTipText = textContent
         };
+
+        hotspot.Actions.Add(new CaptureHotspotAction("Copy to Clipboard", () =>
+        {
+            try
+            {
+                ClipboardHelper.SetClipboardData(textContent);
+            }
+            catch (Exception ex)
+            {
+                ThemedMessageBox.Show("Failed to copy to clipboard: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }));
+
+        bool isValidUrl = Uri.TryCreate(textContent, UriKind.Absolute, out var uriResult)
+            && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+        if (isValidUrl)
+        {
+            hotspot.Actions.Add(new CaptureHotspotAction("Open URL in Browser", () =>
+            {
+                try
+                {
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = textContent,
+                        UseShellExecute = true
+                    });
+                }
+                catch (Exception ex)
+                {
+                    ThemedMessageBox.Show("Failed to open URL in browser: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }));
+        }
+
+        return hotspot;
     }
 }

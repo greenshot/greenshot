@@ -28,7 +28,7 @@ using Greenshot.Base.Interfaces;
 namespace Greenshot.Base.Pipeline
 {
     /// <summary>
-    /// Presents the interactive selection overlay to the user (e.g. CaptureForm), see roadmap section 5.3.
+    /// Presents the interactive selection overlay to the user (e.g. CaptureWindow), see roadmap section 5.3.
     /// </summary>
     public interface IInteractiveCaptureSelector
     {

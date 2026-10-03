@@ -64,7 +64,7 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Declares when this processor prefers to run relative to any interactive selection step.
         /// Override to <see cref="ProcessorTiming.PreSelection"/> for processors whose results
-        /// (e.g. detected QR codes, OCR text) should be visible as hotspots in the CaptureForm.
+        /// (e.g. detected QR codes, OCR text) should be visible as hotspots in the CaptureWindow.
         /// The default is <see cref="ProcessorTiming.PostSelection"/>.
         /// </summary>
         public virtual ProcessorTiming PreferredTiming => ProcessorTiming.PostSelection;

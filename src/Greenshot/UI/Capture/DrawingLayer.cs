@@ -19,28 +19,41 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Greenshot.Base.Interfaces
+using System.Windows;
+using System.Windows.Media;
+
+namespace Greenshot.UI.Capture
 {
     /// <summary>
-    /// Declares when a processor prefers to run within the capture pipeline,
-    /// relative to any interactive selection step (e.g. region/window picker).
-    ///
-    /// This is used by <c>ProcessorExecutionStep</c> to filter processors when a step
-    /// is configured with a specific timing. A recipe can contain multiple
-    /// <c>Processors</c> steps at different positions to run each phase explicitly.
+    /// A layer which is drawn directly: redrawing it doesn't cause a layout pass, which keeps the selection smooth.
     /// </summary>
-    public enum ProcessorTiming
+    public sealed class DrawingLayer : FrameworkElement
     {
-        /// <summary>
-        /// Run before interactive selection so results (e.g. QR code hotspots, OCR lines)
-        /// are available while the CaptureWindow is shown to the user.
-        /// </summary>
-        PreSelection,
+        private readonly DrawingVisual _visual = new DrawingVisual();
+
+        public DrawingLayer()
+        {
+            IsHitTestVisible = false;
+            AddVisualChild(_visual);
+        }
+
+        protected override int VisualChildrenCount => 1;
+
+        protected override Visual GetVisualChild(int index) => _visual;
 
         /// <summary>
-        /// Run after interactive selection / crop has been confirmed.
-        /// This is the default for all processors that do not override <see cref="PreSelection"/>.
+        /// Replace the content of the layer, dispose the DrawingContext to show it
         /// </summary>
-        PostSelection
+        public DrawingContext Open() => _visual.RenderOpen();
+
+        /// <summary>
+        /// Remove the content of the layer
+        /// </summary>
+        public void Clear()
+        {
+            using (_visual.RenderOpen())
+            {
+            }
+        }
     }
 }
