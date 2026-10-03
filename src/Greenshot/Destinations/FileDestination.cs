@@ -32,7 +32,8 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Threading;
 using Greenshot.Configuration;
-using log4net;
+using log4net;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Destinations
 {
@@ -78,7 +79,7 @@ namespace Greenshot.Destinations
         public override string Designation => nameof(WellKnownDestinations.FileNoDialog);
 
         public override DestinationDescriptor Descriptor => new DestinationDescriptor(
-            Language.GetString(LangKey.quicksettings_destination_file), 0, DestinationIcons.Resource("Save.Image"), "Ctrl+S");
+            Texts.Core.QuicksettingsDestinationFile, 0, DestinationIcons.Resource("Save.Image"), "Ctrl+S");
 
         public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
         {
@@ -109,7 +110,12 @@ namespace Greenshot.Destinations
 
             if (_options?.OutputSettings == null && CoreConfig.OutputFilePromptQuality && request.Ui.IsInteractive)
             {
-                outputSettings = await request.Ui.PromptOutputSettingsAsync(outputSettings, cancellationToken).ConfigureAwait(false) ?? outputSettings;
+                outputSettings = await request.Ui.PromptOutputSettingsAsync(outputSettings, cancellationToken).ConfigureAwait(false);
+                if (outputSettings == null)
+                {
+                    // The user cancelled the quality dialog
+                    return ExportResult.Declined;
+                }
             }
 
             bool copyPath = _options?.CopyPathToClipboard ?? CoreConfig.OutputFileCopyPathToClipboard;
@@ -141,7 +147,7 @@ namespace Greenshot.Destinations
                 }
 
                 // Show the problem, then present a save-as dialog
-                await request.Ui.ConfirmAsync(Language.GetString(LangKey.error), Language.GetString(LangKey.error_save), true, cancellationToken).ConfigureAwait(false);
+                await request.Ui.ConfirmAsync(Texts.Core.Error, Texts.Core.ErrorSave, true, cancellationToken).ConfigureAwait(false);
                 fullPath = await SaveWithDialogAsync(request, copyPath, cancellationToken).ConfigureAwait(false);
                 return fullPath == null ? ExportResult.Declined : Saved(captureDetails, fullPath);
             }
@@ -182,7 +188,12 @@ namespace Greenshot.Destinations
             var outputSettings = new SurfaceOutputSettings(ImageIO.FormatForFilename(fileNameWithExtension));
             if (CoreConfig.OutputFilePromptQuality)
             {
-                outputSettings = await request.Ui.PromptOutputSettingsAsync(outputSettings, cancellationToken).ConfigureAwait(false) ?? outputSettings;
+                outputSettings = await request.Ui.PromptOutputSettingsAsync(outputSettings, cancellationToken).ConfigureAwait(false);
+                if (outputSettings == null)
+                {
+                    // The user cancelled the quality dialog
+                    return null;
+                }
             }
 
             try
@@ -192,8 +203,8 @@ namespace Greenshot.Destinations
             }
             catch (Exception e) when (e is ExternalException || e is IOException || e is UnauthorizedAccessException)
             {
-                string message = Language.GetFormattedString("error_nowriteaccess", fileNameWithExtension).Replace(@"\\", @"\");
-                await request.Ui.ConfirmAsync(Language.GetString("error"), message, true, cancellationToken).ConfigureAwait(false);
+                string message = string.Format(Texts.Core.ErrorNowriteaccess, fileNameWithExtension).Replace(@"\\", @"\");
+                await request.Ui.ConfirmAsync(Texts.Core.Error, message, true, cancellationToken).ConfigureAwait(false);
                 return null;
             }
 
@@ -234,7 +245,7 @@ namespace Greenshot.Destinations
                 }
             }
 
-            await userInteraction.ConfirmAsync(Language.GetString(LangKey.error), Language.GetString(LangKey.error_save_invalid_chars), true, cancellationToken).ConfigureAwait(false);
+            await userInteraction.ConfirmAsync(Texts.Core.Error, Texts.Core.ErrorSaveInvalidChars, true, cancellationToken).ConfigureAwait(false);
             // ... lets get the pattern fixed....
             bool fixedPattern = await UiDispatcher.Current.InvokeAsync(() => new Forms.Wpf.SettingsWindow().ShowDialog() == true, cancellationToken).ConfigureAwait(false);
             // ... OK -> then try again, cancelled -> no file

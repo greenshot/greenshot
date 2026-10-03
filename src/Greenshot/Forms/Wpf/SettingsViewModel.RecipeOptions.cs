@@ -31,6 +31,7 @@ using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Wpf;
 using Greenshot.Recipes;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Forms.Wpf
 {
@@ -284,14 +285,14 @@ namespace Greenshot.Forms.Wpf
                 if (UseIn == null) return null;
                 int checkedCaptures = UseIn.Count(i => i.IsChecked);
                 string captures = checkedCaptures == UseIn.Count
-                    ? Language.GetString("settings_recipes_scope_allcaptures")
+                    ? Texts.Settings.RecipesScopeAllcaptures
                     : checkedCaptures == 0
-                        ? Language.GetString("settings_recipes_scope_nocaptures")
-                        : string.Format(Language.GetString("settings_recipes_scope_somecaptures"), checkedCaptures, UseIn.Count);
+                        ? Texts.Settings.RecipesScopeNocaptures
+                        : string.Format(Texts.Settings.RecipesScopeSomecaptures, checkedCaptures, UseIn.Count);
                 if (OnlyDestinations == null || OnlyDestinations.Count == 0) return captures;
                 var checkedDestinations = OnlyDestinations.Where(i => i.IsChecked).ToList();
                 string destinations = checkedDestinations.Count == OnlyDestinations.Count
-                    ? Language.GetString("settings_recipes_scope_alldestinations")
+                    ? Texts.Settings.RecipesScopeAlldestinations
                     : string.Join(", ", checkedDestinations.Select(i => i.Name));
                 return $"{captures} → {destinations}";
             }

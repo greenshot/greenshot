@@ -11,6 +11,7 @@ using Greenshot.Plugin.Office.Destinations;
 using Microsoft.Office.Interop.PowerPoint;
 using System.Threading.Tasks;
 using Greenshot.Base.Threading;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Plugin.Office.Forms
 {
@@ -92,35 +93,35 @@ namespace Greenshot.Plugin.Office.Forms
             OfficeApps.Add(new OfficeAppItem
             {
                 Name = "Word",
-                Title = Greenshot.Base.Core.Language.GetString("office", "app_word")
+                Title = Texts.Get<IOfficeLanguage>().AppWord
             });
             AsyncCommand.Run(() => OfficeApps[OfficeApps.Count - 1].LoadIconAsync(new WordDestination()), "Load the icon of WordDestination");
 
             OfficeApps.Add(new OfficeAppItem
             {
                 Name = "Excel",
-                Title = Greenshot.Base.Core.Language.GetString("office", "app_excel")
+                Title = Texts.Get<IOfficeLanguage>().AppExcel
             });
             AsyncCommand.Run(() => OfficeApps[OfficeApps.Count - 1].LoadIconAsync(new ExcelDestination()), "Load the icon of ExcelDestination");
 
             OfficeApps.Add(new OfficeAppItem
             {
                 Name = "PowerPoint",
-                Title = Greenshot.Base.Core.Language.GetString("office", "app_powerpoint")
+                Title = Texts.Get<IOfficeLanguage>().AppPowerpoint
             });
             AsyncCommand.Run(() => OfficeApps[OfficeApps.Count - 1].LoadIconAsync(new PowerpointDestination()), "Load the icon of PowerpointDestination");
 
             OfficeApps.Add(new OfficeAppItem
             {
                 Name = "Outlook",
-                Title = Greenshot.Base.Core.Language.GetString("office", "app_outlook")
+                Title = Texts.Get<IOfficeLanguage>().AppOutlook
             });
             AsyncCommand.Run(() => OfficeApps[OfficeApps.Count - 1].LoadIconAsync(new OutlookDestination()), "Load the icon of OutlookDestination");
 
             OfficeApps.Add(new OfficeAppItem
             {
                 Name = "OneNote",
-                Title = Greenshot.Base.Core.Language.GetString("office", "app_onenote")
+                Title = Texts.Get<IOfficeLanguage>().AppOnenote
             });
             AsyncCommand.Run(() => OfficeApps[OfficeApps.Count - 1].LoadIconAsync(new OneNoteDestination()), "Load the icon of OneNoteDestination");
 

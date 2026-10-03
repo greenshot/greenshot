@@ -34,7 +34,8 @@ using Greenshot.Plugin.Office.Destinations;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Greenshot.Base.Threading;
+using Greenshot.Base.Threading;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Plugin.Office
 {
@@ -135,6 +136,7 @@ namespace Greenshot.Plugin.Office
 
         public void ConfigureServices(IPluginServices services)
         {
+            Texts.Register<IOfficeLanguage>(new OfficeLanguageImpl());
             var section = new OfficeConfigurationImpl();
             services.AddConfiguration(section);
             _config = section;
@@ -184,7 +186,7 @@ namespace Greenshot.Plugin.Office
             _itemPlugInConfig.Click += delegate { ShowSettings(); };
 
             PluginUtils.AddToContextMenu(_itemPlugInConfig);
-            Language.LanguageChanged += OnLanguageChanged;
+            Texts.Config.LanguageChanged += OnLanguageChanged;
             if (_config is INotifyPropertyChanged notify)
             {
                 notify.PropertyChanged += OnConfigPropertyChanged;
@@ -214,7 +216,7 @@ namespace Greenshot.Plugin.Office
             UiDispatcher.Current.RunOnUiAsync(() =>
             {
                 LOG.Debug("Office Plugin shutdown.");
-                Language.LanguageChanged -= OnLanguageChanged;
+                Texts.Config.LanguageChanged -= OnLanguageChanged;
                 if (_config is INotifyPropertyChanged notify)
                 {
                     notify.PropertyChanged -= OnConfigPropertyChanged;

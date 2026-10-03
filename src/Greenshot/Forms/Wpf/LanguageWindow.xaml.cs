@@ -27,7 +27,8 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using Greenshot.Base.Core;
 using log4net;
-using GreenshotLanguage = Greenshot.Base.Core.Language;
+using System.Linq;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Forms.Wpf
 {
@@ -35,7 +36,7 @@ namespace Greenshot.Forms.Wpf
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(LanguageWindow));
 
-        public string SelectedLanguage => LanguageComboBox.SelectedValue?.ToString() ?? GreenshotLanguage.CurrentLanguage;
+        public string SelectedLanguage => LanguageComboBox.SelectedValue?.ToString() ?? Texts.Config.CurrentLanguage;
 
         public LanguageWindow()
         {
@@ -54,28 +55,29 @@ namespace Greenshot.Forms.Wpf
 
         private void LanguageWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            LanguageComboBox.ItemsSource = GreenshotLanguage.SupportedLanguages;
+            var languages = Texts.Config.GetLanguages().Where(l => l.HasBaseFile).ToList();
+            LanguageComboBox.ItemsSource = languages;
 
-            if (GreenshotLanguage.CurrentLanguage != null)
+            if (Texts.Config.CurrentLanguage != null)
             {
-                LOG.DebugFormat("Selecting {0}", GreenshotLanguage.CurrentLanguage);
-                LanguageComboBox.SelectedValue = GreenshotLanguage.CurrentLanguage;
+                LOG.DebugFormat("Selecting {0}", Texts.Config.CurrentLanguage);
+                LanguageComboBox.SelectedValue = Texts.Config.CurrentLanguage;
             }
             else
             {
                 LanguageComboBox.SelectedValue = Thread.CurrentThread.CurrentUICulture.Name;
             }
 
-            if (LanguageComboBox.SelectedItem == null && GreenshotLanguage.SupportedLanguages.Count > 0)
+            if (LanguageComboBox.SelectedItem == null && languages.Count > 0)
             {
                 LanguageComboBox.SelectedIndex = 0;
             }
 
             // Close again when there is only one language
-            if (GreenshotLanguage.SupportedLanguages.Count == 1)
+            if (languages.Count == 1)
             {
-                LanguageComboBox.SelectedValue = GreenshotLanguage.SupportedLanguages[0].Ietf;
-                GreenshotLanguage.CurrentLanguage = SelectedLanguage;
+                LanguageComboBox.SelectedValue = languages[0].Ietf;
+                Texts.SetLanguage(SelectedLanguage);
                 DialogResult = true;
                 Close();
             }
@@ -106,7 +108,7 @@ namespace Greenshot.Forms.Wpf
 
         private void OkButton_Click(object sender, RoutedEventArgs e)
         {
-            GreenshotLanguage.CurrentLanguage = SelectedLanguage;
+            Texts.SetLanguage(SelectedLanguage);
             DialogResult = true;
             Close();
         }

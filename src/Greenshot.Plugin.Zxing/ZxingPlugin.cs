@@ -35,6 +35,7 @@ using Greenshot.Base.Recipes;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Threading;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Plugin.Zxing;
 
@@ -484,7 +485,7 @@ public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
         _itemPlugInConfig.Click += delegate { ShowSettings(); };
 
         PluginUtils.AddToContextMenu(_itemPlugInConfig);
-        Language.LanguageChanged += OnLanguageChanged;
+        Texts.Config.LanguageChanged += OnLanguageChanged;
         if (_config is INotifyPropertyChanged notify)
         {
             notify.PropertyChanged += OnConfigPropertyChanged;
@@ -514,7 +515,7 @@ public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
         UiDispatcher.Current.RunOnUiAsync(() =>
         {
             Log.Debug("ZXing plugin shutdown.");
-            Language.LanguageChanged -= OnLanguageChanged;
+            Texts.Config.LanguageChanged -= OnLanguageChanged;
             if (_config is INotifyPropertyChanged notify)
             {
                 notify.PropertyChanged -= OnConfigPropertyChanged;

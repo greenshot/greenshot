@@ -345,7 +345,7 @@
                 <!-- Icon and Title -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0,0,0">
                     <TextBlock Text="🛠️" FontSize="16" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                    <TextBlock Text="{wpf:Translate selfservice_window_title}" 
+                    <TextBlock Text="{wpf:Text SelfService.WindowTitle}" 
                                FontWeight="SemiBold" 
                                FontSize="13.5" 
                                Foreground="{Binding TextPrimaryBrush}" 
@@ -368,7 +368,7 @@
 
                     <!-- Minimize -->
                     <Button Style="{StaticResource CaptionBtnStyle}" 
-                            ToolTip="{wpf:Translate selfservice_tooltip_minimize}" 
+                            ToolTip="{wpf:Text SelfService.TooltipMinimize}" 
                             Click="OnMinimizeClicked">
                         <Path Width="10" Height="1" Stretch="Fill" 
                               Stroke="{Binding TextPrimaryBrush}" StrokeThickness="1.2" 
@@ -377,7 +377,7 @@
 
                     <!-- Maximize / Restore -->
                     <Button Style="{StaticResource CaptionBtnStyle}" 
-                            ToolTip="{wpf:Translate selfservice_tooltip_maximize}" 
+                            ToolTip="{wpf:Text SelfService.TooltipMaximize}" 
                             Click="OnMaximizeRestoreClicked">
                         <Path Width="10" Height="10" Stretch="Fill" 
                               Stroke="{Binding TextPrimaryBrush}" StrokeThickness="1.2" 
@@ -386,7 +386,7 @@
 
                     <!-- Close -->
                     <Button Style="{StaticResource CaptionCloseBtnStyle}" 
-                            ToolTip="{wpf:Translate selfservice_tooltip_close}" 
+                            ToolTip="{wpf:Text SelfService.TooltipClose}" 
                             Click="OnCloseClicked"/>
                 </StackPanel>
             </Grid>
@@ -415,7 +415,7 @@
                     </Grid.RowDefinitions>
 
                     <TextBlock Grid.Row="0" 
-                               Text="{wpf:Translate selfservice_categories_header}" 
+                               Text="{wpf:Text SelfService.CategoriesHeader}" 
                                FontSize="11" 
                                FontWeight="Bold" 
                                Foreground="{Binding TextSecondaryBrush}" 
@@ -494,8 +494,8 @@
                             Padding="10" 
                             Margin="0,10,0,0">
                         <StackPanel>
-                            <TextBlock Text="{wpf:Translate selfservice_sidebar_navigation_header}" FontWeight="SemiBold" FontSize="11" Margin="0,0,0,4" Foreground="{Binding TextPrimaryBrush}"/>
-                            <TextBlock Text="{wpf:Translate selfservice_sidebar_navigation_tip}" 
+                            <TextBlock Text="{wpf:Text SelfService.SidebarNavigationHeader}" FontWeight="SemiBold" FontSize="11" Margin="0,0,0,4" Foreground="{Binding TextPrimaryBrush}"/>
+                            <TextBlock Text="{wpf:Text SelfService.SidebarNavigationTip}" 
                                        FontSize="10.5" 
                                        TextWrapping="Wrap" 
                                        Foreground="{Binding TextSecondaryBrush}"/>
@@ -518,11 +518,11 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="{wpf:Translate selfservice_system_title}" 
+                                <TextBlock Text="{wpf:Text SelfService.SystemTitle}" 
                                            FontSize="18" 
                                            FontWeight="SemiBold" 
                                            Foreground="{Binding TextPrimaryBrush}"/>
-                                <TextBlock Text="{wpf:Translate selfservice_system_sub}" 
+                                <TextBlock Text="{wpf:Text SelfService.SystemSub}" 
                                            FontSize="12" 
                                            Foreground="{Binding TextSecondaryBrush}" 
                                            Margin="0,3,0,0"/>
@@ -533,14 +533,14 @@
                                         Click="OnRefreshCurrentSectionClicked">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="🔄 "/>
-                                        <TextBlock Text="{wpf:Translate selfservice_btn_refresh}"/>
+                                        <TextBlock Text="{wpf:Text SelfService.BtnRefresh}"/>
                                     </StackPanel>
                                 </Button>
                                 <Button Style="{StaticResource PrimaryButtonStyle}" 
                                         Click="OnCopySystemInfoClicked">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="📋 "/>
-                                        <TextBlock Text="{wpf:Translate selfservice_btn_copy_sysinfo}"/>
+                                        <TextBlock Text="{wpf:Text SelfService.BtnCopySysinfo}"/>
                                     </StackPanel>
                                 </Button>
                             </StackPanel>
@@ -557,7 +557,7 @@
                             <!-- Process Working Set Card -->
                             <Border Grid.Column="0" Style="{StaticResource CardBorderStyle}" Margin="0,0,8,0">
                                 <StackPanel>
-                                    <TextBlock Text="{wpf:Translate selfservice_sys_memory_process}" FontSize="10.5" FontWeight="Bold" Foreground="{Binding TextSecondaryBrush}"/>
+                                    <TextBlock Text="{wpf:Text SelfService.SysMemoryProcess}" FontSize="10.5" FontWeight="Bold" Foreground="{Binding TextSecondaryBrush}"/>
                                     <TextBlock Text="{Binding SystemInfoSection.WorkingSetText}" FontSize="18" FontWeight="Bold" Margin="0,6,0,2"/>
                                     <TextBlock Text="{Binding SystemInfoSection.PeakWorkingSetText, StringFormat='Peak: {0}'}" FontSize="11" Foreground="{Binding TextSecondaryBrush}"/>
                                 </StackPanel>
@@ -566,7 +566,7 @@
                             <!-- Managed GC Heap Card -->
                             <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}" Margin="4,0,4,0">
                                 <StackPanel>
-                                    <TextBlock Text="{wpf:Translate selfservice_sys_memory_gc}" FontSize="10.5" FontWeight="Bold" Foreground="{Binding TextSecondaryBrush}"/>
+                                    <TextBlock Text="{wpf:Text SelfService.SysMemoryGc}" FontSize="10.5" FontWeight="Bold" Foreground="{Binding TextSecondaryBrush}"/>
                                     <TextBlock Text="{Binding SystemInfoSection.GcMemoryText}" FontSize="18" FontWeight="Bold" Margin="0,6,0,2"/>
                                     <TextBlock Text="{Binding SystemInfoSection.PrivateMemoryText, StringFormat='Private: {0}'}" FontSize="11" Foreground="{Binding TextSecondaryBrush}"/>
                                 </StackPanel>
@@ -575,7 +575,7 @@
                             <!-- System RAM Card -->
                             <Border Grid.Column="2" Style="{StaticResource CardBorderStyle}" Margin="8,0,0,0">
                                 <StackPanel>
-                                    <TextBlock Text="{wpf:Translate selfservice_sys_memory_ram}" FontSize="10.5" FontWeight="Bold" Foreground="{Binding TextSecondaryBrush}"/>
+                                    <TextBlock Text="{wpf:Text SelfService.SysMemoryRam}" FontSize="10.5" FontWeight="Bold" Foreground="{Binding TextSecondaryBrush}"/>
                                     <TextBlock Text="{Binding SystemInfoSection.SystemMemoryText}" FontSize="14" FontWeight="Bold" Margin="0,6,0,2"/>
                                     <TextBlock Text="{Binding SystemInfoSection.MemoryLoadText, StringFormat='Memory Load: {0}'}" FontSize="11" Foreground="{Binding TextSecondaryBrush}"/>
                                 </StackPanel>
@@ -594,7 +594,7 @@
                                     <TextBlock Text="{Binding SystemInfoSection.ProcessStatsText}" FontWeight="SemiBold" FontSize="12"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock Text="{wpf:Translate selfservice_sys_uptime_label}" FontSize="11.5" Foreground="{Binding TextSecondaryBrush}"/>
+                                    <TextBlock Text="{wpf:Text SelfService.SysUptimeLabel}" FontSize="11.5" Foreground="{Binding TextSecondaryBrush}"/>
                                     <TextBlock Text="{Binding SystemInfoSection.UptimeText}" FontWeight="SemiBold" FontSize="11.5"/>
                                 </StackPanel>
                             </Grid>
@@ -603,7 +603,7 @@
                         <!-- Full Diagnostic Text Viewer Card -->
                         <Border Style="{StaticResource CardBorderStyle}" Padding="12">
                             <StackPanel>
-                                <TextBlock Text="{wpf:Translate selfservice_sys_report_title}" FontWeight="SemiBold" FontSize="12.5" Margin="0,0,0,8"/>
+                                <TextBlock Text="{wpf:Text SelfService.SysReportTitle}" FontWeight="SemiBold" FontSize="12.5" Margin="0,0,0,8"/>
                                 <Border Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}" 
                                         BorderBrush="{Binding CardBorderBrush}" 
                                         BorderThickness="1" 
@@ -640,11 +640,11 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="{wpf:Translate selfservice_files_title}" 
+                                <TextBlock Text="{wpf:Text SelfService.FilesTitle}" 
                                            FontSize="18" 
                                            FontWeight="SemiBold" 
                                            Foreground="{Binding TextPrimaryBrush}"/>
-                                <TextBlock Text="{wpf:Translate selfservice_files_sub}" 
+                                <TextBlock Text="{wpf:Text SelfService.FilesSub}" 
                                            FontSize="12" 
                                            Foreground="{Binding TextSecondaryBrush}" 
                                            Margin="0,3,0,0"/>
@@ -654,7 +654,7 @@
                                     Click="OnRefreshCurrentSectionClicked">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="🔄 "/>
-                                    <TextBlock Text="{wpf:Translate selfservice_btn_refresh}"/>
+                                    <TextBlock Text="{wpf:Text SelfService.BtnRefresh}"/>
                                 </StackPanel>
                             </Button>
                         </Grid>
@@ -676,7 +676,7 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <TextBlock Text="📄 " FontSize="15" Margin="0,0,4,0"/>
-                                        <TextBlock Text="{wpf:Translate selfservice_files_logfile_title}" FontWeight="SemiBold" FontSize="13"/>
+                                        <TextBlock Text="{wpf:Text SelfService.FilesLogfileTitle}" FontWeight="SemiBold" FontSize="13"/>
                                     </StackPanel>
                                     <TextBlock Grid.Column="1" Text="{Binding FileInfoSection.LogFileSizeText}" FontSize="11" Foreground="{Binding TextSecondaryBrush}"/>
                                 </Grid>
@@ -701,7 +701,7 @@
                                             Click="OnCopyLogPathClicked">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="📋 "/>
-                                            <TextBlock Text="{wpf:Translate selfservice_btn_copy_path}"/>
+                                            <TextBlock Text="{wpf:Text SelfService.BtnCopyPath}"/>
                                         </StackPanel>
                                     </Button>
                                 </StackPanel>
@@ -725,7 +725,7 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <TextBlock Text="⚙️ " FontSize="15" Margin="0,0,4,0"/>
-                                        <TextBlock Text="{wpf:Translate selfservice_files_inifile_title}" FontWeight="SemiBold" FontSize="13"/>
+                                        <TextBlock Text="{wpf:Text SelfService.FilesInifileTitle}" FontWeight="SemiBold" FontSize="13"/>
                                     </StackPanel>
                                     <TextBlock Grid.Column="1" Text="{Binding FileInfoSection.ConfigFileSizeText}" FontSize="11" Foreground="{Binding TextSecondaryBrush}"/>
                                 </Grid>
@@ -750,7 +750,7 @@
                                             Click="OnCopyConfigPathClicked">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="📋 "/>
-                                            <TextBlock Text="{wpf:Translate selfservice_btn_copy_path}"/>
+                                            <TextBlock Text="{wpf:Text SelfService.BtnCopyPath}"/>
                                         </StackPanel>
                                     </Button>
                                 </StackPanel>
@@ -773,7 +773,7 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <TextBlock Text="🔍 " FontSize="15" Margin="0,0,4,0"/>
-                                        <TextBlock Text="{wpf:Translate selfservice_files_quickglance_title}" 
+                                        <TextBlock Text="{wpf:Text SelfService.FilesQuickglanceTitle}" 
                                                    FontWeight="SemiBold" 
                                                    FontSize="13"/>
                                     </StackPanel>
@@ -781,16 +781,16 @@
                                     <Button Grid.Column="1" 
                                             Style="{StaticResource PrimaryButtonStyle}" 
                                             Click="OnOpenLogViewerClicked" 
-                                            ToolTip="{wpf:Translate selfservice_tooltip_open_logviewer}">
+                                            ToolTip="{wpf:Text SelfService.TooltipOpenLogviewer}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="🔍 " FontSize="12"/>
-                                            <TextBlock Text="{wpf:Translate selfservice_btn_open_logviewer}"/>
+                                            <TextBlock Text="{wpf:Text SelfService.BtnOpenLogviewer}"/>
                                         </StackPanel>
                                     </Button>
                                 </Grid>
 
                                 <TextBlock Grid.Row="1" 
-                                           Text="{wpf:Translate selfservice_files_quickglance_desc}" 
+                                           Text="{wpf:Text SelfService.FilesQuickglanceDesc}" 
                                            FontSize="11.5" 
                                            Foreground="{Binding TextSecondaryBrush}" 
                                            Margin="0,0,0,8"/>
@@ -826,11 +826,11 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="{wpf:Translate selfservice_clipboard_title}" 
+                                <TextBlock Text="{wpf:Text SelfService.ClipboardTitle}" 
                                            FontSize="18" 
                                            FontWeight="SemiBold" 
                                            Foreground="{Binding TextPrimaryBrush}"/>
-                                <TextBlock Text="{wpf:Translate selfservice_clipboard_sub}" 
+                                <TextBlock Text="{wpf:Text SelfService.ClipboardSub}" 
                                            FontSize="12" 
                                            Foreground="{Binding TextSecondaryBrush}" 
                                            Margin="0,3,0,0"/>
@@ -841,14 +841,14 @@
                                         Click="OnRefreshCurrentSectionClicked">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="🔄 "/>
-                                        <TextBlock Text="{wpf:Translate selfservice_clipboard_refresh}"/>
+                                        <TextBlock Text="{wpf:Text SelfService.ClipboardRefresh}"/>
                                     </StackPanel>
                                 </Button>
                                 <Button Style="{StaticResource PrimaryButtonStyle}" 
                                         Click="OnCheckClipboardNowClicked">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="🔍 "/>
-                                        <TextBlock Text="{wpf:Translate selfservice_clipboard_test_now}"/>
+                                        <TextBlock Text="{wpf:Text SelfService.ClipboardTestNow}"/>
                                     </StackPanel>
                                 </Button>
                             </StackPanel>
@@ -894,11 +894,11 @@
                                         Padding="10" 
                                         Margin="0,4,0,0">
                                     <StackPanel>
-                                        <TextBlock Text="{wpf:Translate selfservice_clipboard_locking_process}" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                                        <TextBlock FontFamily="Consolas"><Run Text="{wpf:Translate selfservice_clipboard_label_process_name}"/><Run Text="{Binding ClipboardSection.BlockerProcessName, Mode=OneWay}"/></TextBlock>
-                                        <TextBlock FontFamily="Consolas"><Run Text="{wpf:Translate selfservice_clipboard_label_pid}"/><Run Text="{Binding ClipboardSection.BlockerProcessId, Mode=OneWay}"/></TextBlock>
-                                        <TextBlock FontFamily="Consolas"><Run Text="{wpf:Translate selfservice_clipboard_label_window_title}"/><Run Text="{Binding ClipboardSection.BlockerWindowTitle, Mode=OneWay}"/></TextBlock>
-                                        <TextBlock FontFamily="Consolas" TextWrapping="Wrap" FontWeight="SemiBold"><Run Text="{wpf:Translate selfservice_clipboard_label_executable}"/><Run Text="{Binding ClipboardSection.BlockerExecutablePath, Mode=OneWay}"/></TextBlock>
+                                        <TextBlock Text="{wpf:Text SelfService.ClipboardLockingProcess}" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                                        <TextBlock FontFamily="Consolas"><Run Text="{wpf:Text SelfService.ClipboardLabelProcessName}"/><Run Text="{Binding ClipboardSection.BlockerProcessName, Mode=OneWay}"/></TextBlock>
+                                        <TextBlock FontFamily="Consolas"><Run Text="{wpf:Text SelfService.ClipboardLabelPid}"/><Run Text="{Binding ClipboardSection.BlockerProcessId, Mode=OneWay}"/></TextBlock>
+                                        <TextBlock FontFamily="Consolas"><Run Text="{wpf:Text SelfService.ClipboardLabelWindowTitle}"/><Run Text="{Binding ClipboardSection.BlockerWindowTitle, Mode=OneWay}"/></TextBlock>
+                                        <TextBlock FontFamily="Consolas" TextWrapping="Wrap" FontWeight="SemiBold"><Run Text="{wpf:Text SelfService.ClipboardLabelExecutable}"/><Run Text="{Binding ClipboardSection.BlockerExecutablePath, Mode=OneWay}"/></TextBlock>
                                     </StackPanel>
                                 </Border>
 
@@ -912,9 +912,9 @@
                                         Padding="10" 
                                         Margin="0,4,0,0">
                                     <StackPanel>
-                                        <TextBlock Text="{wpf:Translate selfservice_clipboard_data_owner}" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                                        <TextBlock Text="{wpf:Text SelfService.ClipboardDataOwner}" FontWeight="SemiBold" Margin="0,0,0,4"/>
                                         <TextBlock Text="{Binding ClipboardSection.CurrentOwnerInfo, Mode=OneWay}" FontFamily="Consolas" FontSize="11.5"/>
-                                        <TextBlock FontFamily="Consolas" FontSize="11" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,2,0,0"><Run Text="{wpf:Translate selfservice_clipboard_label_path}"/><Run Text="{Binding ClipboardSection.OwnerExecutablePath, Mode=OneWay}"/></TextBlock>
+                                        <TextBlock FontFamily="Consolas" FontSize="11" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,2,0,0"><Run Text="{wpf:Text SelfService.ClipboardLabelPath}"/><Run Text="{Binding ClipboardSection.OwnerExecutablePath, Mode=OneWay}"/></TextBlock>
                                     </StackPanel>
                                 </Border>
                             </Grid>
@@ -929,8 +929,8 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock Text="{wpf:Translate selfservice_clipboard_loop_title}" FontWeight="SemiBold" FontSize="13"/>
-                                        <TextBlock Text="{wpf:Translate selfservice_clipboard_loop_desc}" 
+                                        <TextBlock Text="{wpf:Text SelfService.ClipboardLoopTitle}" FontWeight="SemiBold" FontSize="13"/>
+                                        <TextBlock Text="{wpf:Text SelfService.ClipboardLoopDesc}" 
                                                    FontSize="11.5" 
                                                    Foreground="{Binding TextSecondaryBrush}"/>
                                     </StackPanel>
@@ -942,7 +942,7 @@
                                         </Button>
                                         <Button Style="{StaticResource SecondaryButtonStyle}" 
                                                 Click="OnClearClipboardLogClicked">
-                                            <TextBlock Text="{wpf:Translate selfservice_clipboard_btn_clear_log}"/>
+                                            <TextBlock Text="{wpf:Text SelfService.ClipboardBtnClearLog}"/>
                                         </Button>
                                     </StackPanel>
                                 </Grid>
@@ -996,8 +996,8 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text="{wpf:Translate selfservice_clipboard_formats_title}" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
-                                    <TextBlock Grid.Column="1" Text="{wpf:Translate selfservice_clipboard_formats_sub}" FontSize="10.5" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{wpf:Text SelfService.ClipboardFormatsTitle}" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1" Text="{wpf:Text SelfService.ClipboardFormatsSub}" FontSize="10.5" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center"/>
                                 </Grid>
                                 <ItemsControl ItemsSource="{Binding ClipboardSection.Formats}">
                                     <ItemsControl.ItemTemplate>
@@ -1052,11 +1052,11 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="{wpf:Translate selfservice_hotkeys_title}" 
+                                <TextBlock Text="{wpf:Text SelfService.HotkeysTitle}" 
                                            FontSize="18" 
                                            FontWeight="SemiBold" 
                                            Foreground="{Binding TextPrimaryBrush}"/>
-                                <TextBlock Text="{wpf:Translate selfservice_hotkeys_sub}" 
+                                <TextBlock Text="{wpf:Text SelfService.HotkeysSub}" 
                                            FontSize="12" 
                                            Foreground="{Binding TextSecondaryBrush}" 
                                            Margin="0,3,0,0"/>
@@ -1066,7 +1066,7 @@
                                     Click="OnReRegisterHotkeysClicked">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="🔄 "/>
-                                    <TextBlock Text="{wpf:Translate selfservice_hotkeys_btn_reregister}"/>
+                                    <TextBlock Text="{wpf:Text SelfService.HotkeysBtnReregister}"/>
                                 </StackPanel>
                             </Button>
                         </Grid>
@@ -1074,7 +1074,7 @@
                         <!-- Greenshot Registered Hotkeys Card -->
                         <Border Style="{StaticResource CardBorderStyle}">
                             <StackPanel>
-                                <TextBlock Text="{wpf:Translate selfservice_hotkeys_configured_title}" FontWeight="SemiBold" FontSize="13" Margin="0,0,0,8"/>
+                                <TextBlock Text="{wpf:Text SelfService.HotkeysConfiguredTitle}" FontWeight="SemiBold" FontSize="13" Margin="0,0,0,8"/>
                                 <ItemsControl ItemsSource="{Binding HotkeySection.Hotkeys}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate DataType="{x:Type local:HotkeyStatusItemViewModel}">
@@ -1130,13 +1130,13 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <TextBlock Text="☁️ " FontSize="15" Margin="0,0,4,0"/>
-                                        <TextBlock Text="{wpf:Translate selfservice_hotkeys_onedrive_title}" FontWeight="SemiBold" FontSize="13"/>
+                                        <TextBlock Text="{wpf:Text SelfService.HotkeysOnedriveTitle}" FontWeight="SemiBold" FontSize="13"/>
                                     </StackPanel>
                                     <Button Grid.Column="1" 
                                             Visibility="{Binding HotkeySection.OneDriveFixButtonVisibility}"
                                             Style="{StaticResource WarningButtonStyle}" 
                                             Click="OnDisableOneDriveHotkeyClicked">
-                                        <TextBlock Text="{wpf:Translate selfservice_hotkeys_onedrive_disable_btn}"/>
+                                        <TextBlock Text="{wpf:Text SelfService.HotkeysOnedriveDisableBtn}"/>
                                     </Button>
                                 </Grid>
                                 <TextBlock Grid.Row="1" 
@@ -1146,7 +1146,7 @@
                                            FontSize="12" 
                                            Margin="0,0,0,4"/>
                                 <TextBlock Grid.Row="2" 
-                                           Text="{wpf:Translate selfservice_hotkeys_onedrive_desc}" 
+                                           Text="{wpf:Text SelfService.HotkeysOnedriveDesc}" 
                                            FontSize="11" 
                                            TextWrapping="Wrap" 
                                            Foreground="{Binding TextSecondaryBrush}"/>
@@ -1168,18 +1168,18 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <TextBlock Text="🪟 " FontSize="15" Margin="0,0,4,0"/>
-                                        <TextBlock Text="{wpf:Translate selfservice_hotkeys_snipping_title}" FontWeight="SemiBold" FontSize="13"/>
+                                        <TextBlock Text="{wpf:Text SelfService.HotkeysSnippingTitle}" FontWeight="SemiBold" FontSize="13"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Orientation="Horizontal">
                                         <Button Visibility="{Binding HotkeySection.SnippingToolFixButtonVisibility}"
                                                 Style="{StaticResource WarningButtonStyle}" 
                                                 Margin="0,0,6,0" 
                                                 Click="OnDisableSnippingToolTakeoverClicked">
-                                            <TextBlock Text="{wpf:Translate selfservice_hotkeys_snipping_disable_btn}"/>
+                                            <TextBlock Text="{wpf:Text SelfService.HotkeysSnippingDisableBtn}"/>
                                         </Button>
                                         <Button Style="{StaticResource SecondaryButtonStyle}" 
                                                 Click="OnOpenWindowsKeyboardSettingsClicked">
-                                            <TextBlock Text="{wpf:Translate selfservice_hotkeys_snipping_settings_btn}"/>
+                                            <TextBlock Text="{wpf:Text SelfService.HotkeysSnippingSettingsBtn}"/>
                                         </Button>
                                     </StackPanel>
                                 </Grid>
@@ -1190,7 +1190,7 @@
                                            FontSize="12" 
                                            Margin="0,0,0,4"/>
                                 <TextBlock Grid.Row="2" 
-                                           Text="{wpf:Translate selfservice_hotkeys_snipping_desc}" 
+                                           Text="{wpf:Text SelfService.HotkeysSnippingDesc}" 
                                            FontSize="11" 
                                            TextWrapping="Wrap" 
                                            Foreground="{Binding TextSecondaryBrush}"/>
@@ -1202,14 +1202,14 @@
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
                                     <TextBlock Text="📦 " FontSize="15" Margin="0,0,4,0"/>
-                                    <TextBlock Text="{wpf:Translate selfservice_hotkeys_dropbox_title}" FontWeight="SemiBold" FontSize="13"/>
+                                    <TextBlock Text="{wpf:Text SelfService.HotkeysDropboxTitle}" FontWeight="SemiBold" FontSize="13"/>
                                 </StackPanel>
                                 <TextBlock Text="{Binding HotkeySection.DropboxStatusText}" 
                                            Foreground="{Binding HotkeySection.DropboxStatusBrush}" 
                                            FontWeight="SemiBold" 
                                            FontSize="12" 
                                            Margin="0,0,0,4"/>
-                                <TextBlock Text="{wpf:Translate selfservice_hotkeys_dropbox_desc}" 
+                                <TextBlock Text="{wpf:Text SelfService.HotkeysDropboxDesc}" 
                                            FontSize="11" 
                                            TextWrapping="Wrap" 
                                            Foreground="{Binding TextSecondaryBrush}"/>
@@ -1219,7 +1219,7 @@
                         <!-- Contender Apps Detection Card -->
                         <Border Style="{StaticResource CardBorderStyle}">
                             <StackPanel>
-                                <TextBlock Text="{wpf:Translate selfservice_hotkeys_other_title}" FontWeight="SemiBold" FontSize="13" Margin="0,0,0,8"/>
+                                <TextBlock Text="{wpf:Text SelfService.HotkeysOtherTitle}" FontWeight="SemiBold" FontSize="13" Margin="0,0,0,8"/>
                                 <ItemsControl ItemsSource="{Binding HotkeySection.Contenders}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate DataType="{x:Type local:ContenderAppViewModel}">
@@ -1260,11 +1260,11 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="{wpf:Translate selfservice_checksum_title}" 
+                                <TextBlock Text="{wpf:Text SelfService.ChecksumTitle}" 
                                            FontSize="18" 
                                            FontWeight="SemiBold" 
                                            Foreground="{Binding TextPrimaryBrush}"/>
-                                <TextBlock Text="{wpf:Translate selfservice_checksum_sub}" 
+                                <TextBlock Text="{wpf:Text SelfService.ChecksumSub}" 
                                            FontSize="12" 
                                            Foreground="{Binding TextSecondaryBrush}" 
                                            Margin="0,3,0,0"/>
@@ -1275,14 +1275,14 @@
                                         Click="OnRefreshChecksumsClicked">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="🔄 "/>
-                                        <TextBlock Text="{wpf:Translate selfservice_checksum_btn_validate}"/>
+                                        <TextBlock Text="{wpf:Text SelfService.ChecksumBtnValidate}"/>
                                     </StackPanel>
                                 </Button>
                                 <Button Style="{StaticResource PrimaryButtonStyle}" 
                                         Click="OnCopyChecksumReportClicked">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="📋 "/>
-                                        <TextBlock Text="{wpf:Translate selfservice_checksum_btn_copy_report}"/>
+                                        <TextBlock Text="{wpf:Text SelfService.ChecksumBtnCopyReport}"/>
                                     </StackPanel>
                                 </Button>
                             </StackPanel>
@@ -1375,7 +1375,7 @@
                             <!-- Total -->
                             <Border Grid.Column="0" Style="{StaticResource CardBorderStyle}" Margin="0,0,4,0" Padding="10">
                                 <StackPanel>
-                                    <TextBlock Text="{wpf:Translate selfservice_checksum_metric_total}" FontSize="9.5" FontWeight="Bold" Foreground="{Binding TextSecondaryBrush}"/>
+                                    <TextBlock Text="{wpf:Text SelfService.ChecksumMetricTotal}" FontSize="9.5" FontWeight="Bold" Foreground="{Binding TextSecondaryBrush}"/>
                                     <TextBlock Text="{Binding ChecksumSection.TotalCount}" FontSize="18" FontWeight="Bold" Margin="0,4,0,0"/>
                                 </StackPanel>
                             </Border>
@@ -1383,7 +1383,7 @@
                             <!-- Valid (Matches) -->
                             <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}" Margin="4,0,4,0" Padding="10">
                                 <StackPanel>
-                                    <TextBlock Text="{wpf:Translate selfservice_checksum_metric_valid}" FontSize="9.5" FontWeight="Bold" Foreground="#10B981"/>
+                                    <TextBlock Text="{wpf:Text SelfService.ChecksumMetricValid}" FontSize="9.5" FontWeight="Bold" Foreground="#10B981"/>
                                     <TextBlock Text="{Binding ChecksumSection.MatchedCount}" FontSize="18" FontWeight="Bold" Foreground="#10B981" Margin="0,4,0,0"/>
                                 </StackPanel>
                             </Border>
@@ -1391,7 +1391,7 @@
                             <!-- Mismatched (Corrupt) -->
                             <Border Grid.Column="2" Style="{StaticResource CardBorderStyle}" Margin="4,0,4,0" Padding="10">
                                 <StackPanel>
-                                    <TextBlock Text="{wpf:Translate selfservice_checksum_metric_corrupt}" FontSize="9.5" FontWeight="Bold" Foreground="#EF4444"/>
+                                    <TextBlock Text="{wpf:Text SelfService.ChecksumMetricCorrupt}" FontSize="9.5" FontWeight="Bold" Foreground="#EF4444"/>
                                     <TextBlock Text="{Binding ChecksumSection.MismatchedCount}" FontSize="18" FontWeight="Bold" Foreground="#EF4444" Margin="0,4,0,0"/>
                                 </StackPanel>
                             </Border>
@@ -1399,7 +1399,7 @@
                             <!-- Missing -->
                             <Border Grid.Column="3" Style="{StaticResource CardBorderStyle}" Margin="4,0,4,0" Padding="10">
                                 <StackPanel>
-                                    <TextBlock Text="{wpf:Translate selfservice_checksum_metric_missing}" FontSize="9.5" FontWeight="Bold" Foreground="#F97316"/>
+                                    <TextBlock Text="{wpf:Text SelfService.ChecksumMetricMissing}" FontSize="9.5" FontWeight="Bold" Foreground="#F97316"/>
                                     <TextBlock Text="{Binding ChecksumSection.MissingCount}" FontSize="18" FontWeight="Bold" Foreground="#F97316" Margin="0,4,0,0"/>
                                 </StackPanel>
                             </Border>
@@ -1407,7 +1407,7 @@
                             <!-- Unlisted -->
                             <Border Grid.Column="4" Style="{StaticResource CardBorderStyle}" Margin="4,0,0,0" Padding="10">
                                 <StackPanel>
-                                    <TextBlock Text="{wpf:Translate selfservice_checksum_metric_unlisted}" FontSize="9.5" FontWeight="Bold" Foreground="#3B82F6"/>
+                                    <TextBlock Text="{wpf:Text SelfService.ChecksumMetricUnlisted}" FontSize="9.5" FontWeight="Bold" Foreground="#3B82F6"/>
                                     <TextBlock Text="{Binding ChecksumSection.UnlistedCount}" FontSize="18" FontWeight="Bold" Foreground="#3B82F6" Margin="0,4,0,0"/>
                                 </StackPanel>
                             </Border>
@@ -1452,36 +1452,36 @@
                                             Tag="All" 
                                             Click="OnFilterChecksumsClicked" 
                                             Margin="0,0,4,0">
-                                        <TextBlock Text="{wpf:Translate selfservice_checksum_filter_all}"/>
+                                        <TextBlock Text="{wpf:Text SelfService.ChecksumFilterAll}"/>
                                     </Button>
                                     <Button Style="{StaticResource SecondaryButtonStyle}" 
                                             Tag="Issues" 
                                             Click="OnFilterChecksumsClicked" 
                                             Margin="0,0,4,0">
-                                        <TextBlock Text="{wpf:Translate selfservice_checksum_filter_issues}"/>
+                                        <TextBlock Text="{wpf:Text SelfService.ChecksumFilterIssues}"/>
                                     </Button>
                                     <Button Style="{StaticResource SecondaryButtonStyle}" 
                                             Tag="Mismatch" 
                                             Click="OnFilterChecksumsClicked" 
                                             Margin="0,0,4,0">
-                                        <TextBlock Text="{wpf:Translate selfservice_checksum_filter_mismatch}"/>
+                                        <TextBlock Text="{wpf:Text SelfService.ChecksumFilterMismatch}"/>
                                     </Button>
                                     <Button Style="{StaticResource SecondaryButtonStyle}" 
                                             Tag="Missing" 
                                             Click="OnFilterChecksumsClicked" 
                                             Margin="0,0,4,0">
-                                        <TextBlock Text="{wpf:Translate selfservice_checksum_filter_missing}"/>
+                                        <TextBlock Text="{wpf:Text SelfService.ChecksumFilterMissing}"/>
                                     </Button>
                                     <Button Style="{StaticResource SecondaryButtonStyle}" 
                                             Tag="Unlisted" 
                                             Click="OnFilterChecksumsClicked" 
                                             Margin="0,0,4,0">
-                                        <TextBlock Text="{wpf:Translate selfservice_checksum_filter_unlisted}"/>
+                                        <TextBlock Text="{wpf:Text SelfService.ChecksumFilterUnlisted}"/>
                                     </Button>
                                     <Button Style="{StaticResource SecondaryButtonStyle}" 
                                             Tag="Match" 
                                             Click="OnFilterChecksumsClicked">
-                                        <TextBlock Text="{wpf:Translate selfservice_checksum_filter_valid}"/>
+                                        <TextBlock Text="{wpf:Text SelfService.ChecksumFilterValid}"/>
                                     </Button>
                                 </StackPanel>
                             </Grid>
@@ -1501,7 +1501,7 @@
                                 <ListView.View>
                                     <GridView ColumnHeaderContainerStyle="{StaticResource ThemedGridViewColumnHeaderStyle}">
                                         <!-- Status Column -->
-                                        <GridViewColumn Header="{wpf:Translate selfservice_checksum_col_status}" Width="120">
+                                        <GridViewColumn Header="{wpf:Text SelfService.ChecksumColStatus}" Width="120">
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate DataType="{x:Type local:ChecksumItemViewModel}">
                                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -1517,7 +1517,7 @@
                                         </GridViewColumn>
 
                                         <!-- File Path Column -->
-                                        <GridViewColumn Header="{wpf:Translate selfservice_checksum_col_file}" Width="260">
+                                        <GridViewColumn Header="{wpf:Text SelfService.ChecksumColFile}" Width="260">
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate DataType="{x:Type local:ChecksumItemViewModel}">
                                                     <StackPanel VerticalAlignment="Center">
@@ -1529,7 +1529,7 @@
                                         </GridViewColumn>
 
                                         <!-- Actual SHA-256 Column -->
-                                        <GridViewColumn Header="{wpf:Translate selfservice_checksum_col_actual_hash}" Width="230">
+                                        <GridViewColumn Header="{wpf:Text SelfService.ChecksumColActualHash}" Width="230">
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate DataType="{x:Type local:ChecksumItemViewModel}">
                                                     <TextBlock Text="{Binding ActualHash}" 
@@ -1542,7 +1542,7 @@
                                         </GridViewColumn>
 
                                         <!-- Expected SHA-256 Column -->
-                                        <GridViewColumn Header="{wpf:Translate selfservice_checksum_col_expected_hash}" Width="230">
+                                        <GridViewColumn Header="{wpf:Text SelfService.ChecksumColExpectedHash}" Width="230">
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate DataType="{x:Type local:ChecksumItemViewModel}">
                                                     <TextBlock Text="{Binding ExpectedHash}" 
@@ -1555,7 +1555,7 @@
                                         </GridViewColumn>
 
                                         <!-- File Size Column -->
-                                        <GridViewColumn Header="{wpf:Translate selfservice_checksum_col_size}" Width="75">
+                                        <GridViewColumn Header="{wpf:Text SelfService.ChecksumColSize}" Width="75">
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate DataType="{x:Type local:ChecksumItemViewModel}">
                                                     <TextBlock Text="{Binding FileSizeText}" 
@@ -1598,7 +1598,7 @@
                                             Click="OnCopySelectedChecksumDetailsClicked">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="📋 "/>
-                                            <TextBlock Text="{wpf:Translate selfservice_checksum_btn_copy_selected}"/>
+                                            <TextBlock Text="{wpf:Text SelfService.ChecksumBtnCopySelected}"/>
                                         </StackPanel>
                                     </Button>
                                 </Grid>
@@ -1631,7 +1631,7 @@
 
                                     <!-- Expected -->
                                     <TextBlock Grid.Row="0" Grid.Column="0" 
-                                               Text="{wpf:Translate selfservice_checksum_detail_expected}" 
+                                               Text="{wpf:Text SelfService.ChecksumDetailExpected}" 
                                                FontWeight="SemiBold" 
                                                FontSize="11" 
                                                Foreground="{Binding TextSecondaryBrush}" 
@@ -1654,7 +1654,7 @@
 
                                     <!-- Actual -->
                                     <TextBlock Grid.Row="1" Grid.Column="0" 
-                                               Text="{wpf:Translate selfservice_checksum_detail_actual}" 
+                                               Text="{wpf:Text SelfService.ChecksumDetailActual}" 
                                                FontWeight="SemiBold" 
                                                FontSize="11" 
                                                Foreground="{Binding TextSecondaryBrush}" 
@@ -1677,7 +1677,7 @@
 
                                     <!-- Full Path -->
                                     <TextBlock Grid.Row="2" Grid.Column="0" 
-                                               Text="{wpf:Translate selfservice_checksum_detail_path}" 
+                                               Text="{wpf:Text SelfService.ChecksumDetailPath}" 
                                                FontWeight="SemiBold" 
                                                FontSize="11" 
                                                Foreground="{Binding TextSecondaryBrush}" 
@@ -1912,7 +1912,7 @@
 
                 <!-- Shortcut indicator -->
                 <TextBlock Grid.Column="1" 
-                           Text="{wpf:Translate selfservice_shortcuts_hint}" 
+                           Text="{wpf:Text SelfService.ShortcutsHint}" 
                            FontSize="11" 
                            Foreground="{Binding TextSecondaryBrush}" 
                            VerticalAlignment="Center"/>

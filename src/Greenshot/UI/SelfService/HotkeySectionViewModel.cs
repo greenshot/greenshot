@@ -32,6 +32,7 @@ using Greenshot.Base.Wpf;
 using Greenshot.Helpers;
 using log4net;
 using Microsoft.Win32;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.UI.SelfService
 {
@@ -42,8 +43,8 @@ namespace Greenshot.UI.SelfService
         public string HotkeyText { get; set; }
         public bool IsRegistered { get; set; }
         public string StatusText => IsRegistered 
-            ? (Language.GetString("selfservice_hotkeys_status_ok") ?? "Registered") 
-            : (Language.GetString("selfservice_hotkeys_status_failed") ?? "Not Registered / Conflict");
+            ? (Texts.SelfService.HotkeysStatusOk ?? "Registered") 
+            : (Texts.SelfService.HotkeysStatusFailed ?? "Not Registered / Conflict");
         public Brush StatusBrush => IsRegistered ? WpfThemeHelper.Accent : WpfThemeHelper.WarningText;
     }
 
@@ -60,10 +61,10 @@ namespace Greenshot.UI.SelfService
             {
                 if (IsRunning)
                 {
-                    string runningTemplate = Language.GetString("selfservice_hotkeys_running");
+                    string runningTemplate = Texts.SelfService.HotkeysRunning;
                     return string.Format(string.IsNullOrEmpty(runningTemplate) ? "Running (PID {0})" : runningTemplate, ProcessId);
                 }
-                string notRunning = Language.GetString("selfservice_hotkeys_notrunning");
+                string notRunning = Texts.SelfService.HotkeysNotrunning;
                 return string.IsNullOrEmpty(notRunning) ? "Not Running" : notRunning;
             }
         }
@@ -80,7 +81,7 @@ namespace Greenshot.UI.SelfService
         {
             get
             {
-                string title = Language.GetString("selfservice_category_hotkeys");
+                string title = Texts.SelfService.CategoryHotkeys;
                 return string.IsNullOrEmpty(title) ? "Hotkeys & App Conflicts" : title;
             }
         }
@@ -88,7 +89,7 @@ namespace Greenshot.UI.SelfService
         {
             get
             {
-                string sub = Language.GetString("selfservice_category_hotkeys_sub");
+                string sub = Texts.SelfService.CategoryHotkeysSub;
                 return string.IsNullOrEmpty(sub) ? "Greenshot shortcuts, conflict detection and OneDrive / Windows fixes" : sub;
             }
         }
@@ -179,7 +180,7 @@ namespace Greenshot.UI.SelfService
                 BadgeBrush = null;
             }
 
-            string updatedTemplate = Language.GetString("selfservice_hotkeys_updated_at");
+            string updatedTemplate = Texts.SelfService.HotkeysUpdatedAt;
             StatusMessage = string.Format(string.IsNullOrEmpty(updatedTemplate) ? "Updated at {0}" : updatedTemplate, DateTime.Now.ToString("HH:mm:ss"));
         }
 
@@ -187,11 +188,11 @@ namespace Greenshot.UI.SelfService
         {
             Hotkeys.Clear();
 
-            AddHotkeyItem(Language.GetString("contextmenu_capturearea") ?? "Capture Region", "RegionHotkey", Config?.RegionHotkey);
-            AddHotkeyItem(Language.GetString("contextmenu_capturewindow") ?? "Capture Window", "WindowHotkey", Config?.WindowHotkey);
-            AddHotkeyItem(Language.GetString("contextmenu_capturefullscreen") ?? "Capture Fullscreen", "FullscreenHotkey", Config?.FullscreenHotkey);
-            AddHotkeyItem(Language.GetString("contextmenu_capturelastregion") ?? "Capture Last Region", "LastregionHotkey", Config?.LastregionHotkey);
-            AddHotkeyItem(Language.GetString("contextmenu_captureclipboard") ?? "Capture Clipboard", "ClipboardHotkey", Config?.ClipboardHotkey);
+            AddHotkeyItem(Texts.Core.ContextmenuCapturearea ?? "Capture Region", "RegionHotkey", Config?.RegionHotkey);
+            AddHotkeyItem(Texts.Core.ContextmenuCapturewindow ?? "Capture Window", "WindowHotkey", Config?.WindowHotkey);
+            AddHotkeyItem(Texts.Core.ContextmenuCapturefullscreen ?? "Capture Fullscreen", "FullscreenHotkey", Config?.FullscreenHotkey);
+            AddHotkeyItem(Texts.Core.ContextmenuCapturelastregion ?? "Capture Last Region", "LastregionHotkey", Config?.LastregionHotkey);
+            AddHotkeyItem(Texts.Core.ContextmenuCaptureclipboard ?? "Capture Clipboard", "ClipboardHotkey", Config?.ClipboardHotkey);
         }
 
         private void AddHotkeyItem(string actionName, string configKey, string hotkeyValue)
@@ -232,13 +233,13 @@ namespace Greenshot.UI.SelfService
                 RefreshGreenshotHotkeys();
 
                 StatusMessage = ok 
-                    ? (Language.GetString("selfservice_hotkeys_reregister_success") ?? "Successfully re-registered Greenshot hotkeys!") 
-                    : (Language.GetString("selfservice_hotkeys_reregister_conflict") ?? "Hotkeys re-registered (some keys may have conflicts).");
+                    ? (Texts.SelfService.HotkeysReregisterSuccess ?? "Successfully re-registered Greenshot hotkeys!") 
+                    : (Texts.SelfService.HotkeysReregisterConflict ?? "Hotkeys re-registered (some keys may have conflicts).");
             }
             catch (Exception ex)
             {
                 Log.Error("Error re-registering hotkeys", ex);
-                string failedTemplate = Language.GetString("selfservice_hotkeys_reregister_failed");
+                string failedTemplate = Texts.SelfService.HotkeysReregisterFailed;
                 StatusMessage = string.Format(string.IsNullOrEmpty(failedTemplate) ? "Failed to re-register hotkeys: {0}" : failedTemplate, ex.Message);
             }
         }
@@ -291,19 +292,19 @@ namespace Greenshot.UI.SelfService
 
                 if (blocking)
                 {
-                    OneDriveStatusText = Language.GetString("selfservice_hotkeys_onedrive_status_enabled") ?? "⚠️ OneDrive is currently intercepting screenshot hotkeys!";
+                    OneDriveStatusText = Texts.SelfService.HotkeysOnedriveStatusEnabled ?? "⚠️ OneDrive is currently intercepting screenshot hotkeys!";
                     OneDriveStatusBrush = WpfThemeHelper.ErrorText;
                     OneDriveFixButtonVisibility = Visibility.Visible;
                 }
                 else if (IsOneDriveRunning)
                 {
-                    OneDriveStatusText = Language.GetString("selfservice_hotkeys_onedrive_status_disabled") ?? "OneDrive is running, but screenshot hotkey capture is disabled. (OK)";
+                    OneDriveStatusText = Texts.SelfService.HotkeysOnedriveStatusDisabled ?? "OneDrive is running, but screenshot hotkey capture is disabled. (OK)";
                     OneDriveStatusBrush = WpfThemeHelper.Accent;
                     OneDriveFixButtonVisibility = Visibility.Collapsed;
                 }
                 else
                 {
-                    OneDriveStatusText = Language.GetString("selfservice_hotkeys_onedrive_status_notdetected") ?? "OneDrive is not running.";
+                    OneDriveStatusText = Texts.SelfService.HotkeysOnedriveStatusNotdetected ?? "OneDrive is not running.";
                     OneDriveStatusBrush = WpfThemeHelper.TextSecondary;
                     OneDriveFixButtonVisibility = Visibility.Collapsed;
                 }
@@ -311,7 +312,7 @@ namespace Greenshot.UI.SelfService
             catch (Exception ex)
             {
                 Log.Error("Error checking OneDrive status", ex);
-                OneDriveStatusText = Language.GetString("selfservice_hotkeys_onedrive_status_notdetected") ?? "Could not verify OneDrive status.";
+                OneDriveStatusText = Texts.SelfService.HotkeysOnedriveStatusNotdetected ?? "Could not verify OneDrive status.";
                 OneDriveStatusBrush = WpfThemeHelper.TextSecondary;
                 OneDriveFixButtonVisibility = Visibility.Collapsed;
             }
@@ -357,12 +358,12 @@ namespace Greenshot.UI.SelfService
                 CheckOneDriveStatus();
                 ReRegisterHotkeys();
 
-                StatusMessage = Language.GetString("selfservice_hotkeys_onedrive_success") ?? "Disabled OneDrive screenshot capture! Greenshot hotkeys re-registered.";
+                StatusMessage = Texts.SelfService.HotkeysOnedriveSuccess ?? "Disabled OneDrive screenshot capture! Greenshot hotkeys re-registered.";
             }
             catch (Exception ex)
             {
                 Log.Error("Error disabling OneDrive hotkey", ex);
-                string errTemplate = Language.GetString("selfservice_hotkeys_onedrive_error");
+                string errTemplate = Texts.SelfService.HotkeysOnedriveError;
                 StatusMessage = string.Format(string.IsNullOrEmpty(errTemplate) ? "Could not modify OneDrive configuration: {0}" : errTemplate, ex.Message);
             }
         }
@@ -394,13 +395,13 @@ namespace Greenshot.UI.SelfService
 
                 if (IsSnippingToolHijackEnabled)
                 {
-                    SnippingToolStatusText = Language.GetString("selfservice_hotkeys_snipping_status_enabled") ?? "⚠️ Windows Snipping Tool is set to open on PrintScreen!";
+                    SnippingToolStatusText = Texts.SelfService.HotkeysSnippingStatusEnabled ?? "⚠️ Windows Snipping Tool is set to open on PrintScreen!";
                     SnippingToolStatusBrush = WpfThemeHelper.WarningText;
                     SnippingToolFixButtonVisibility = Visibility.Visible;
                 }
                 else
                 {
-                    SnippingToolStatusText = Language.GetString("selfservice_hotkeys_snipping_status_disabled") ?? "Windows Snipping Tool PrintScreen takeover is disabled. (OK)";
+                    SnippingToolStatusText = Texts.SelfService.HotkeysSnippingStatusDisabled ?? "Windows Snipping Tool PrintScreen takeover is disabled. (OK)";
                     SnippingToolStatusBrush = WpfThemeHelper.Accent;
                     SnippingToolFixButtonVisibility = Visibility.Collapsed;
                 }
@@ -408,7 +409,7 @@ namespace Greenshot.UI.SelfService
             catch (Exception ex)
             {
                 Log.Error("Error checking Snipping Tool registry", ex);
-                SnippingToolStatusText = Language.GetString("selfservice_hotkeys_snipping_status_na") ?? "Could not check Windows Snipping Tool status.";
+                SnippingToolStatusText = Texts.SelfService.HotkeysSnippingStatusNa ?? "Could not check Windows Snipping Tool status.";
                 SnippingToolStatusBrush = WpfThemeHelper.TextSecondary;
                 SnippingToolFixButtonVisibility = Visibility.Collapsed;
             }
@@ -427,7 +428,7 @@ namespace Greenshot.UI.SelfService
                 CheckSnippingToolStatus();
                 ReRegisterHotkeys();
 
-                StatusMessage = Language.GetString("selfservice_hotkeys_snipping_success") ?? "Disabled Windows Snipping Tool takeover! Greenshot hotkeys re-registered.";
+                StatusMessage = Texts.SelfService.HotkeysSnippingSuccess ?? "Disabled Windows Snipping Tool takeover! Greenshot hotkeys re-registered.";
             }
             catch (Exception ex)
             {
@@ -441,7 +442,7 @@ namespace Greenshot.UI.SelfService
             try
             {
                 Process.Start(new ProcessStartInfo("ms-settings:easeofaccess-keyboard") { UseShellExecute = true });
-                StatusMessage = Language.GetString("selfservice_hotkeys_opened_settings") ?? "Opened Windows Keyboard Settings.";
+                StatusMessage = Texts.SelfService.HotkeysOpenedSettings ?? "Opened Windows Keyboard Settings.";
             }
             catch (Exception ex)
             {
@@ -458,18 +459,18 @@ namespace Greenshot.UI.SelfService
 
                 if (IsDropboxRunning)
                 {
-                    DropboxStatusText = Language.GetString("selfservice_hotkeys_dropbox_running") ?? "Dropbox is running.";
+                    DropboxStatusText = Texts.SelfService.HotkeysDropboxRunning ?? "Dropbox is running.";
                     DropboxStatusBrush = WpfThemeHelper.WarningText;
                 }
                 else
                 {
-                    DropboxStatusText = Language.GetString("selfservice_hotkeys_dropbox_notrunning") ?? "Dropbox is not running.";
+                    DropboxStatusText = Texts.SelfService.HotkeysDropboxNotrunning ?? "Dropbox is not running.";
                     DropboxStatusBrush = WpfThemeHelper.TextSecondary;
                 }
             }
             catch (Exception)
             {
-                DropboxStatusText = Language.GetString("selfservice_hotkeys_dropbox_notrunning") ?? "Could not check Dropbox status.";
+                DropboxStatusText = Texts.SelfService.HotkeysDropboxNotrunning ?? "Could not check Dropbox status.";
                 DropboxStatusBrush = WpfThemeHelper.TextSecondary;
             }
         }
@@ -478,13 +479,13 @@ namespace Greenshot.UI.SelfService
         {
             Contenders.Clear();
 
-            CheckContender("ShareX", "ShareX", Language.GetString("selfservice_hotkeys_contender_sharex") ?? "Full screen capture utility with global hotkeys");
-            CheckContender("Snagit", "Snagit32", Language.GetString("selfservice_hotkeys_contender_snagit") ?? "TechSmith Snagit screen capture application");
-            CheckContender("Snagit 64-bit", "Snagit64", Language.GetString("selfservice_hotkeys_contender_snagit64") ?? "TechSmith Snagit 64-bit screen capture application");
-            CheckContender("Lightshot", "Lightshot", Language.GetString("selfservice_hotkeys_contender_lightshot") ?? "Lightshot screenshot tool (claims PrintScreen)");
-            CheckContender("PicPick", "picpick", Language.GetString("selfservice_hotkeys_contender_picpick") ?? "PicPick graphic design and screen capture tool");
-            CheckContender("Windows Snipping Tool", "SnippingTool", Language.GetString("selfservice_hotkeys_contender_snipping") ?? "Built-in Windows Snipping Tool process");
-            CheckContender("Screen Clipping Host", "ScreenClippingHost", Language.GetString("selfservice_hotkeys_contender_screenclipping") ?? "Windows Snip & Sketch overlay process");
+            CheckContender("ShareX", "ShareX", Texts.SelfService.HotkeysContenderSharex ?? "Full screen capture utility with global hotkeys");
+            CheckContender("Snagit", "Snagit32", Texts.SelfService.HotkeysContenderSnagit ?? "TechSmith Snagit screen capture application");
+            CheckContender("Snagit 64-bit", "Snagit64", Texts.SelfService.HotkeysContenderSnagit64 ?? "TechSmith Snagit 64-bit screen capture application");
+            CheckContender("Lightshot", "Lightshot", Texts.SelfService.HotkeysContenderLightshot ?? "Lightshot screenshot tool (claims PrintScreen)");
+            CheckContender("PicPick", "picpick", Texts.SelfService.HotkeysContenderPicpick ?? "PicPick graphic design and screen capture tool");
+            CheckContender("Windows Snipping Tool", "SnippingTool", Texts.SelfService.HotkeysContenderSnipping ?? "Built-in Windows Snipping Tool process");
+            CheckContender("Screen Clipping Host", "ScreenClippingHost", Texts.SelfService.HotkeysContenderScreenclipping ?? "Windows Snip & Sketch overlay process");
         }
 
         private void CheckContender(string name, string processName, string description)

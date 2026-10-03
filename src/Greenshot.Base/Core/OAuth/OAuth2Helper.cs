@@ -22,14 +22,11 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
-using Greenshot.Base.Controls;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Threading;
 
 namespace Greenshot.Base.Core.OAuth
 {
@@ -112,42 +109,6 @@ namespace Greenshot.Base.Core.OAuth
             }
 
             settings.Code = null;
-        }
-
-        /// <summary>
-        /// Used to update the settings with the callback information
-        /// </summary>
-        /// <param name="settings">OAuth2Settings</param>
-        /// <param name="callbackParameters">IDictionary</param>
-        /// <returns>true if the access token is already in the callback</returns>
-        private static bool UpdateFromCallback(OAuth2Settings settings, IDictionary<string, string> callbackParameters)
-        {
-            if (!callbackParameters.ContainsKey(AccessToken))
-            {
-                return false;
-            }
-
-            if (callbackParameters.ContainsKey(RefreshToken))
-            {
-                // Refresh the refresh token :)
-                settings.RefreshToken = callbackParameters[RefreshToken];
-            }
-
-            if (callbackParameters.ContainsKey(ExpiresIn))
-            {
-                var expiresIn = callbackParameters[ExpiresIn];
-                settings.AccessTokenExpires = DateTimeOffset.MaxValue;
-                if (expiresIn != null)
-                {
-                    if (double.TryParse(expiresIn, out var seconds))
-                    {
-                        settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds(seconds);
-                    }
-                }
-            }
-
-            settings.AccessToken = callbackParameters[AccessToken];
-            return true;
         }
 
         /// <summary>
@@ -237,7 +198,6 @@ namespace Greenshot.Base.Core.OAuth
             return settings.AuthorizeMode switch
             {
                 OAuth2AuthorizeMode.LocalServer => AuthorizeViaLocalServerAsync(settings, cancellationToken),
-                OAuth2AuthorizeMode.EmbeddedBrowser => AuthorizeViaEmbeddedBrowserAsync(settings, cancellationToken),
                 OAuth2AuthorizeMode.JsonReceiver => AuthorizeViaDefaultBrowserAsync(settings, cancellationToken),
                 _ => throw new NotImplementedException($"Authorize mode '{settings.AuthorizeMode}' is not 'yet' implemented."),
             };
@@ -311,46 +271,6 @@ namespace Greenshot.Base.Core.OAuth
             }
 
             throw new Exception(error);
-        }
-
-        /// <summary>
-        /// Authorize via an embedded browser (a form on the UI thread)
-        /// If this works, return the code
-        /// </summary>
-        /// <param name="settings">OAuth2Settings with the Auth / Token url etc</param>
-        /// <param name="cancellationToken">CancellationToken</param>
-        /// <returns>true if completed, false if canceled</returns>
-        private static async Task<bool> AuthorizeViaEmbeddedBrowserAsync(OAuth2Settings settings, CancellationToken cancellationToken)
-        {
-            if (string.IsNullOrEmpty(settings.CloudServiceName))
-            {
-                throw new ArgumentNullException(nameof(settings.CloudServiceName));
-            }
-
-            if (settings.BrowserSize == Size.Empty)
-            {
-                throw new ArgumentNullException(nameof(settings.BrowserSize));
-            }
-
-            var callbackParameters = await UiDispatcher.Current.InvokeAsync(() =>
-            {
-                using var loginForm = new OAuthLoginForm($"Authorize {settings.CloudServiceName}", settings.BrowserSize, settings.FormattedAuthUrl, settings.RedirectUrl);
-                loginForm.ShowDialog();
-                return loginForm.IsOk ? loginForm.CallbackParameters : null;
-            }, cancellationToken).ConfigureAwait(false);
-            if (callbackParameters == null)
-            {
-                return false;
-            }
-
-            if (callbackParameters.TryGetValue(Code, out var code) && !string.IsNullOrEmpty(code))
-            {
-                settings.Code = code;
-                await GenerateRefreshTokenAsync(settings, cancellationToken).ConfigureAwait(false);
-                return true;
-            }
-
-            return UpdateFromCallback(settings, callbackParameters);
         }
 
         /// <summary>

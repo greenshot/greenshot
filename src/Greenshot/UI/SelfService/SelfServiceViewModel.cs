@@ -28,6 +28,7 @@ using System.Windows.Media;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
 using Greenshot.Helpers;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.UI.SelfService
 {
@@ -58,7 +59,7 @@ namespace Greenshot.UI.SelfService
         {
             get
             {
-                return Language.GetString("selfservice_window_title");
+                return Texts.SelfService.WindowTitle;
             }
         }
         public string AppVersionTitle => $"{GreenshotEdition.ProductName} {EnvironmentInfo.GetGreenshotVersion()} ({OsInfo.Bits}-bit)";
@@ -118,7 +119,7 @@ namespace Greenshot.UI.SelfService
             SelectSection(initialSectionId ?? "system");
 
             WpfThemeHelper.ThemeChanged += OnThemeChanged;
-            Language.LanguageChanged += OnLanguageChanged;
+            Texts.Config.LanguageChanged += OnLanguageChanged;
         }
 
         public void SelectSection(string sectionId)
@@ -171,7 +172,7 @@ namespace Greenshot.UI.SelfService
         public void Cleanup()
         {
             WpfThemeHelper.ThemeChanged -= OnThemeChanged;
-            Language.LanguageChanged -= OnLanguageChanged;
+            Texts.Config.LanguageChanged -= OnLanguageChanged;
             ClipboardSection?.StopMonitoring();
             ClipboardSection?.Dispose();
             ChecksumSection?.Cleanup();

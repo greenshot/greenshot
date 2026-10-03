@@ -23,7 +23,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Forms;
 using Dapplo.Ini;
@@ -33,7 +32,7 @@ using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Wpf;
 using Greenshot.Configuration;
 using Greenshot.Helpers;
-using BaseLanguage = Greenshot.Base.Core.Language;
+using Greenshot.Base.Languages;
 using MessageBox = System.Windows.MessageBox;
 
 namespace Greenshot.Forms.Wpf
@@ -254,7 +253,7 @@ namespace Greenshot.Forms.Wpf
             string selectedPath = ModernFolderPicker.SelectFolder(
                 this,
                 _viewModel.CoreConfiguration.OutputFilePath,
-                BaseLanguage.GetString("settings_storagelocation"));
+                Texts.Settings.Storagelocation);
 
             if (!string.IsNullOrEmpty(selectedPath))
             {
@@ -264,10 +263,7 @@ namespace Greenshot.Forms.Wpf
 
         private void ShowPatternHelp_Click(object sender, RoutedEventArgs e)
         {
-            string filenamepatternText = BaseLanguage.GetString(LangKey.settings_message_filenamepattern);
-            // Convert %NUM% to ${NUM} for old language files!
-            filenamepatternText = Regex.Replace(filenamepatternText, "%([a-zA-Z_0-9]+)%", @"${$1}");
-            var dialog = new PatternHelpWindow(filenamepatternText)
+            var dialog = new PatternHelpWindow(Texts.Settings.MessageFilenamepattern)
             {
                 Owner = this
             };

@@ -25,6 +25,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows;
 using Greenshot.Base.Core;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.UI.SelfService
 {
@@ -35,7 +36,7 @@ namespace Greenshot.UI.SelfService
         {
             get
             {
-                return Language.GetString("selfservice_category_system");
+                return Texts.SelfService.CategorySystem;
             }
         }
 
@@ -43,7 +44,7 @@ namespace Greenshot.UI.SelfService
         {
             get
             {
-                return Language.GetString("selfservice_category_system_sub");
+                return Texts.SelfService.CategorySystemSub;
             }
         }
         public override string Icon => "💻";
@@ -187,7 +188,7 @@ namespace Greenshot.UI.SelfService
             try
             {
                 ClipboardHelper.SetClipboardData(EnvironmentReport ?? string.Empty);
-                StatusMessage = Language.GetString("selfservice_sysinfo_copied");
+                StatusMessage = Texts.SelfService.SysinfoCopied;
             }
             catch (Exception ex)
             {

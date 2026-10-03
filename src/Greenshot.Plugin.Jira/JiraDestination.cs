@@ -32,12 +32,13 @@ using Greenshot.Base.Core;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Plugin.Jira;
 
 /// <summary>
-/// What the Jira upload dialog (JiraForm) asks for, the result is the choice of the user or null.
+/// What the Jira upload dialog (JiraUploadWindow) asks for, the result is the choice of the user or null.
 /// </summary>
 public sealed class JiraUploadRequest : IDialogViewModel<JiraUploadChoice>
 {
@@ -163,7 +164,7 @@ public class JiraDestination : DestinationBase, IRequiresRecipeAuthorization
         {
             if (_jiraIssue?.Fields?.Summary == null)
             {
-                return new DestinationDescriptor(Language.GetString("jira", LangKey.upload_menu_item), iconKey: JiraIconProvider.Default, hasDynamicDestinations: true);
+                return new DestinationDescriptor(Texts.Get<IJiraLanguage>().UploadMenuItem, iconKey: JiraIconProvider.Default, hasDynamicDestinations: true);
             }
 
             // Format the title of this destination
@@ -209,7 +210,7 @@ public class JiraDestination : DestinationBase, IRequiresRecipeAuthorization
         try
         {
             var image = await request.Source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
-            await request.Ui.RunWithProgressAsync(Language.GetString("jira", LangKey.communication_wait), async (progress, token) =>
+            await request.Ui.RunWithProgressAsync(Texts.Get<IJiraLanguage>().CommunicationWait, async (progress, token) =>
             {
                 await jiraConnector.AttachAsync(issue.Key, image, filename, token).ConfigureAwait(false);
                 if (!string.IsNullOrEmpty(comment))
@@ -223,7 +224,7 @@ public class JiraDestination : DestinationBase, IRequiresRecipeAuthorization
         catch (Exception e) when (e is not OperationCanceledException)
         {
             Log.Error($"Upload to Jira {issue.Key} failed", e);
-            return ExportResult.Failed(Language.GetString("jira", LangKey.upload_failure) + " " + e.Message, e);
+            return ExportResult.Failed(Texts.Get<IJiraLanguage>().UploadFailure + " " + e.Message, e);
         }
 
         Log.DebugFormat("Uploaded to Jira {0}", issue.Key);

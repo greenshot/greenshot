@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
-        Title="{wpf:Translate colorpicker_title}"
+        Title="{wpf:Text Core.ColorpickerTitle}"
         SizeToContent="WidthAndHeight"
         ResizeMode="NoResize"
         WindowStartupLocation="Manual"
@@ -209,7 +209,7 @@
 
                     <!-- Recent Colors Label -->
                     <TextBlock Grid.Row="2"
-                               Text="{wpf:Translate colorpicker_recentcolors}"
+                               Text="{wpf:Text Core.ColorpickerRecentcolors}"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                                FontSize="11"
                                FontWeight="SemiBold"/>
@@ -240,7 +240,7 @@
 
                     <!-- Transparent Button -->
                     <Button Grid.Row="0" x:Name="BtnTransparent"
-                            Content="{wpf:Translate colorpicker_transparent}"
+                            Content="{wpf:Text Core.ColorpickerTransparent}"
                             Height="24"
                             Click="BtnTransparent_Click"/>
 
@@ -276,7 +276,7 @@
 
                     <!-- HTML Color -->
                     <TextBlock Grid.Row="4"
-                               Text="{wpf:Translate colorpicker_htmlcolor}"
+                               Text="{wpf:Text Core.ColorpickerHtmlcolor}"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                                FontSize="11"/>
                     <TextBox Grid.Row="6" x:Name="TextBoxHtml"
@@ -303,7 +303,7 @@
                         </Grid.RowDefinitions>
 
                         <!-- Red -->
-                        <Label Grid.Row="0" Grid.Column="0" Content="{wpf:Translate colorpicker_red}"/>
+                        <Label Grid.Row="0" Grid.Column="0" Content="{wpf:Text Core.ColorpickerRed}"/>
                         <TextBox Grid.Row="0" Grid.Column="1" x:Name="TextBoxRed"
                                  Width="46" HorizontalAlignment="Right" TextAlignment="Right"
                                  TextChanged="TextBoxRgb_TextChanged"
@@ -311,7 +311,7 @@
                                  KeyDown="TextBox_KeyDown"/>
 
                         <!-- Green -->
-                        <Label Grid.Row="2" Grid.Column="0" Content="{wpf:Translate colorpicker_green}"/>
+                        <Label Grid.Row="2" Grid.Column="0" Content="{wpf:Text Core.ColorpickerGreen}"/>
                         <TextBox Grid.Row="2" Grid.Column="1" x:Name="TextBoxGreen"
                                  Width="46" HorizontalAlignment="Right" TextAlignment="Right"
                                  TextChanged="TextBoxRgb_TextChanged"
@@ -319,7 +319,7 @@
                                  KeyDown="TextBox_KeyDown"/>
 
                         <!-- Blue -->
-                        <Label Grid.Row="4" Grid.Column="0" Content="{wpf:Translate colorpicker_blue}"/>
+                        <Label Grid.Row="4" Grid.Column="0" Content="{wpf:Text Core.ColorpickerBlue}"/>
                         <TextBox Grid.Row="4" Grid.Column="1" x:Name="TextBoxBlue"
                                  Width="46" HorizontalAlignment="Right" TextAlignment="Right"
                                  TextChanged="TextBoxRgb_TextChanged"
@@ -327,7 +327,7 @@
                                  KeyDown="TextBox_KeyDown"/>
 
                         <!-- Alpha -->
-                        <Label Grid.Row="6" Grid.Column="0" Content="{wpf:Translate colorpicker_alpha}"/>
+                        <Label Grid.Row="6" Grid.Column="0" Content="{wpf:Text Core.ColorpickerAlpha}"/>
                         <TextBox Grid.Row="6" Grid.Column="1" x:Name="TextBoxAlpha"
                                  Width="46" HorizontalAlignment="Right" TextAlignment="Right"
                                  TextChanged="TextBoxRgb_TextChanged"
@@ -343,13 +343,13 @@
                             </Grid.ColumnDefinitions>
 
                             <Button Grid.Column="0" x:Name="BtnApply"
-                                    Content="{wpf:Translate colorpicker_apply}"
+                                    Content="{wpf:Text Core.ColorpickerApply}"
                                     IsDefault="True"
                                     Height="24"
                                     Click="BtnApply_Click"/>
 
                             <Button Grid.Column="2" x:Name="BtnCancel"
-                                    Content="{wpf:Translate CANCEL}"
+                                    Content="{wpf:Text Core.Cancel}"
                                     IsCancel="True"
                                     Height="24"
                                     Click="BtnCancel_Click"/>

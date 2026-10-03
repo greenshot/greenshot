@@ -692,16 +692,6 @@ namespace Greenshot.Editor.Drawing
         public bool CanRedo => _redoStack.Count > 0;
 
         /// <summary>
-        /// Get the language key for the undo action
-        /// </summary>
-        public LangKey UndoActionLanguageKey => LangKey.none;
-
-        /// <summary>
-        /// Get the language key for redo action
-        /// </summary>
-        public LangKey RedoActionLanguageKey => LangKey.none;
-
-        /// <summary>
         /// Make an action undo-able
         /// </summary>
         /// <param name="memento">The memento implementing the undo</param>

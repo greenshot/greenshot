@@ -35,6 +35,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Threading;
 using log4net;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Base.Controls
 {
@@ -336,7 +337,7 @@ namespace Greenshot.Base.Controls
 
             // Close
             menu.Items.Add(new ToolStripSeparator());
-            var closeItem = new ToolStripMenuItem(Language.GetString("editor_close"));
+            var closeItem = new ToolStripMenuItem(Texts.Editor.Close);
             AssignIcon(closeItem, DestinationIcons.Resource("Close.Image"));
             closeItem.Click += (_, _) => Complete(null);
             menu.Items.Add(closeItem);

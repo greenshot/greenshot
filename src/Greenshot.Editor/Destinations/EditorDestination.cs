@@ -36,6 +36,7 @@ using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Forms;
 using log4net;
 using Greenshot.Base.Core.FileFormat;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Editor.Destinations
 {
@@ -78,14 +79,14 @@ namespace Greenshot.Editor.Destinations
                 string name;
                 if (_dedicatedEditor == null)
                 {
-                    name = Language.GetString(LangKey.settings_destination_editor);
+                    name = Texts.Settings.DestinationEditor;
                 }
                 else
                 {
                     var title = _dedicatedEditor.CaptureDetails?.Title;
                     name = title == null
-                        ? Language.GetString(LangKey.settings_destination_editor_add)
-                        : Language.GetString(LangKey.settings_destination_editor_add) + " - " + title.Substring(0, Math.Min(20, title.Length));
+                        ? Texts.Settings.DestinationEditorAdd
+                        : Texts.Settings.DestinationEditorAdd + " - " + title.Substring(0, Math.Min(20, title.Length));
                 }
 
                 return new DestinationDescriptor(name, 1, DestinationIcons.Greenshot, hasDynamicDestinations: _dedicatedEditor == null);

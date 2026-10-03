@@ -168,16 +168,16 @@
                     <ColumnDefinition Width="20"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.ColumnSpan="3" Text="{wpf:Translate settings_recipes_scope_description}" TextWrapping="Wrap" Margin="0,0,0,10"
+                <TextBlock Grid.ColumnSpan="3" Text="{wpf:Text Settings.RecipesScopeDescription}" TextWrapping="Wrap" Margin="0,0,0,10"
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                 <Border Grid.Row="1" Grid.RowSpan="2" Grid.Column="0" Style="{StaticResource ColumnCard}">
                     <DockPanel>
                         <DockPanel DockPanel.Dock="Top" Margin="0,0,0,4">
                             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                                <Button Style="{StaticResource LinkButton}" Content="{wpf:Translate settings_recipes_scope_all}" Click="CapturesAll_Click"/>
-                                <Button Style="{StaticResource LinkButton}" Content="{wpf:Translate settings_recipes_scope_none}" Click="CapturesNone_Click"/>
+                                <Button Style="{StaticResource LinkButton}" Content="{wpf:Text Settings.RecipesScopeAll}" Click="CapturesAll_Click"/>
+                                <Button Style="{StaticResource LinkButton}" Content="{wpf:Text Settings.RecipesScopeNone}" Click="CapturesNone_Click"/>
                             </StackPanel>
-                            <TextBlock Text="{wpf:Translate settings_recipes_scope_captures}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            <TextBlock Text="{wpf:Text Settings.RecipesScopeCaptures}" FontWeight="SemiBold" VerticalAlignment="Center"/>
                         </DockPanel>
                         <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="400">
                             <ItemsControl x:Name="CapturesList" ItemTemplate="{StaticResource ScopeItemTemplate}"/>
@@ -188,10 +188,10 @@
                     <DockPanel>
                         <DockPanel DockPanel.Dock="Top" Margin="0,0,0,4">
                             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                                <Button Style="{StaticResource LinkButton}" Content="{wpf:Translate settings_recipes_scope_all}" Click="DestinationsAll_Click"/>
-                                <Button Style="{StaticResource LinkButton}" Content="{wpf:Translate settings_recipes_scope_none}" Click="DestinationsNone_Click"/>
+                                <Button Style="{StaticResource LinkButton}" Content="{wpf:Text Settings.RecipesScopeAll}" Click="DestinationsAll_Click"/>
+                                <Button Style="{StaticResource LinkButton}" Content="{wpf:Text Settings.RecipesScopeNone}" Click="DestinationsNone_Click"/>
                             </StackPanel>
-                            <TextBlock Text="{wpf:Translate settings_recipes_scope_destinations}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            <TextBlock Text="{wpf:Text Settings.RecipesScopeDestinations}" FontWeight="SemiBold" VerticalAlignment="Center"/>
                         </DockPanel>
                         <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="400">
                             <ItemsControl x:Name="DestinationsList" ItemTemplate="{StaticResource ScopeItemTemplate}"/>
@@ -205,11 +205,11 @@
                     BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
                     BorderThickness="0,1,0,0" Padding="16,10">
                 <DockPanel>
-                    <TextBlock x:Name="NoDestinationText" Text="{wpf:Translate settings_recipes_scope_nodestination}" VerticalAlignment="Center"
+                    <TextBlock x:Name="NoDestinationText" Text="{wpf:Text Settings.RecipesScopeNodestination}" VerticalAlignment="Center"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}" Visibility="Collapsed"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button x:Name="OkButton" Content="{wpf:Translate OK}" IsDefault="True" Width="80" Click="OkButton_Click"/>
-                        <Button Content="{wpf:Translate CANCEL}" IsCancel="True" Width="80" Click="CancelButton_Click"/>
+                        <Button x:Name="OkButton" Content="{wpf:Text Core.Ok}" IsDefault="True" Width="80" Click="OkButton_Click"/>
+                        <Button Content="{wpf:Text Core.Cancel}" IsCancel="True" Width="80" Click="CancelButton_Click"/>
                     </StackPanel>
                 </DockPanel>
             </Border>

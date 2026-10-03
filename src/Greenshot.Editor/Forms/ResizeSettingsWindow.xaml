@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
-        Title="{wpf:Translate editor_resize_settings}"
+        Title="{wpf:Text Editor.ResizeSettings}"
         SizeToContent="Height"
         Width="440"
         WindowStartupLocation="CenterOwner"
@@ -249,7 +249,7 @@
                        WindowChrome.IsHitTestVisibleInChrome="False"/>
 
                 <TextBlock Grid.Column="1"
-                           Text="{wpf:Translate editor_resize_settings}"
+                           Text="{wpf:Text Editor.ResizeSettings}"
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                            VerticalAlignment="Center"
                            Margin="8,0,0,0"
@@ -280,7 +280,7 @@
 
                 <!-- Width -->
                 <TextBlock Grid.Row="0" Grid.Column="0"
-                           Text="{wpf:Translate editor_resize_width}"
+                           Text="{wpf:Text Editor.ResizeWidth}"
                            VerticalAlignment="Center" Margin="0,6"
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                 <TextBox Grid.Row="0" Grid.Column="1" x:Name="WidthTextBox" Margin="0,6,8,6"/>
@@ -288,7 +288,7 @@
 
                 <!-- Height -->
                 <TextBlock Grid.Row="1" Grid.Column="0"
-                           Text="{wpf:Translate editor_resize_height}"
+                           Text="{wpf:Text Editor.ResizeHeight}"
                            VerticalAlignment="Center" Margin="0,6"
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                 <TextBox Grid.Row="1" Grid.Column="1" x:Name="HeightTextBox" Margin="0,6,8,6"/>
@@ -297,7 +297,7 @@
                 <!-- Maintain Aspect Ratio -->
                 <CheckBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2"
                           x:Name="MaintainAspectRatioCheckBox"
-                          Content="{wpf:Translate editor_resize_aspectratio}"
+                          Content="{wpf:Text Editor.ResizeAspectratio}"
                           Margin="0,10,0,4"/>
             </Grid>
 
@@ -308,11 +308,11 @@
                     BorderThickness="0,1,0,0"
                     Padding="16,10">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Content="{wpf:Translate OK}" 
+                    <Button Content="{wpf:Text Core.Ok}" 
                             IsDefault="True"
                             Width="80"
                             Click="OkButton_Click"/>
-                    <Button Content="{wpf:Translate CANCEL}" 
+                    <Button Content="{wpf:Text Core.Cancel}" 
                             IsCancel="True"
                             Width="80"
                             Click="CancelButton_Click"/>

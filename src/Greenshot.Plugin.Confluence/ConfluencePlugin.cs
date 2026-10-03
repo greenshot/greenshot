@@ -33,7 +33,7 @@ using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Threading;
 using Greenshot.Plugin.Confluence.Forms;
-using Greenshot.Plugin.Confluence.Support;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Plugin.Confluence;
 
@@ -89,18 +89,10 @@ public class ConfluencePlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeSt
 
     public void ConfigureServices(IPluginServices services)
     {
+        Texts.Register<IConfluenceLanguage>(new ConfluenceLanguageImpl());
         var section = new ConfluenceConfigurationImpl();
         services.AddConfiguration(section);
         _config = section;
-
-        try
-        {
-            TranslationManager.Instance.TranslationProvider = new LanguageXMLTranslationProvider();
-        }
-        catch (Exception ex)
-        {
-            LOG.ErrorFormat("Problem registering Confluence services: {0}", ex.Message);
-        }
 
         services.AddService<IIconProvider>(new ConfluenceIconProvider());
         if (ConfluenceDestination.IsInitialized)
@@ -144,7 +136,7 @@ public class ConfluencePlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeSt
         _itemPlugInConfig.Click += delegate { ShowSettings(); };
 
         PluginUtils.AddToContextMenu(_itemPlugInConfig);
-        Language.LanguageChanged += OnLanguageChanged;
+        Texts.Config.LanguageChanged += OnLanguageChanged;
         if (_config is INotifyPropertyChanged notify)
         {
             notify.PropertyChanged += OnConfigPropertyChanged;
@@ -174,7 +166,7 @@ public class ConfluencePlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeSt
         UiDispatcher.Current.RunOnUiAsync(() =>
         {
             LOG.Debug("Confluence Plugin shutdown.");
-            Language.LanguageChanged -= OnLanguageChanged;
+            Texts.Config.LanguageChanged -= OnLanguageChanged;
             if (_config is INotifyPropertyChanged notify)
             {
                 notify.PropertyChanged -= OnConfigPropertyChanged;

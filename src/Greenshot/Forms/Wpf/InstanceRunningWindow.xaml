@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
-        Title="{wpf:Translate error_multipleinstances}"
+        Title="{wpf:Text Core.ErrorMultipleinstances}"
         SizeToContent="Height"
         Width="640"
         MinWidth="480"
@@ -109,7 +109,7 @@
                        WindowChrome.IsHitTestVisibleInChrome="False"/>
 
                 <TextBlock Grid.Column="1"
-                           Text="{wpf:Translate error_multipleinstances}"
+                           Text="{wpf:Text Core.ErrorMultipleinstances}"
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                            VerticalAlignment="Center"
                            Margin="8,0,0,0"
@@ -127,7 +127,7 @@
 
             <!-- Description / Header -->
             <StackPanel Grid.Row="1" Margin="20,16,20,8">
-                <TextBlock Text="{wpf:Translate error_multipleinstances}"
+                <TextBlock Text="{wpf:Text Core.ErrorMultipleinstances}"
                            FontSize="15"
                            FontWeight="SemiBold"
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
@@ -178,7 +178,7 @@
 
                                     <!-- Show in Explorer Button -->
                                     <Button Grid.Column="2"
-                                            Content="{wpf:Translate editor_opendirinexplorer}"
+                                            Content="{wpf:Text Editor.Opendirinexplorer}"
                                             Click="ShowInExplorerButton_Click"
                                             Tag="{Binding Path}"
                                             VerticalAlignment="Center"
@@ -193,7 +193,7 @@
 
             <!-- Bottom Actions -->
             <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="20,0,20,16">
-                <Button Content="{wpf:Translate OK}" Width="90" Height="30" IsDefault="True" Click="CloseButton_Click"/>
+                <Button Content="{wpf:Text Core.Ok}" Width="90" Height="30" IsDefault="True" Click="CloseButton_Click"/>
             </StackPanel>
         </Grid>
     </Border>

@@ -301,9 +301,20 @@ public sealed class JiraConnector : IDisposable
     /// <param name="issue">Issue</param>
     /// <param name="cancellationToken">CancellationToken</param>
     /// <returns>Bitmap</returns>
-    public async Task<Bitmap> GetIssueTypeBitmapAsync(IssueV2 issue, CancellationToken cancellationToken = default)
+    public Task<Bitmap> GetIssueTypeBitmapAsync(IssueV2 issue, CancellationToken cancellationToken = default)
     {
-        return await _issueTypeBitmapCache.GetOrCreateAsync(issue.Fields.IssueType, cancellationToken).ConfigureAwait(false);
+        return GetIssueTypeBitmapAsync(issue.Fields.IssueType, cancellationToken);
+    }
+
+    /// <summary>
+    /// Get the bitmap representing the issue type, from cache (search results are Issue, not IssueV2).
+    /// </summary>
+    /// <param name="issueType">IssueType</param>
+    /// <param name="cancellationToken">CancellationToken</param>
+    /// <returns>Bitmap</returns>
+    public async Task<Bitmap> GetIssueTypeBitmapAsync(IssueType issueType, CancellationToken cancellationToken = default)
+    {
+        return await _issueTypeBitmapCache.GetOrCreateAsync(issueType, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>

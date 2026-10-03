@@ -38,9 +38,9 @@ using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Fields;
 using log4net;
-using GreenshotLanguage = Greenshot.Base.Core.Language;
 using DrawingColor = System.Drawing.Color;
 using static Greenshot.Editor.Drawing.FilterContainer;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Editor.Forms
 {
@@ -100,15 +100,15 @@ namespace Greenshot.Editor.Forms
         private void InitializeDropdowns()
         {
             SearchScopeComboBox.Items.Clear();
-            SearchScopeComboBox.Items.Add(GreenshotLanguage.GetString("editor_obfuscate_text_scope_words"));
-            SearchScopeComboBox.Items.Add(GreenshotLanguage.GetString("editor_obfuscate_text_scope_lines"));
+            SearchScopeComboBox.Items.Add(Texts.Editor.ObfuscateTextScopeWords);
+            SearchScopeComboBox.Items.Add(Texts.Editor.ObfuscateTextScopeLines);
             SearchScopeComboBox.SelectedIndex = 0;
 
             EffectComboBox.Items.Clear();
-            EffectComboBox.Items.Add(new EffectItem(PreparedFilter.PIXELIZE, GreenshotLanguage.GetString("editor_obfuscate_pixelize")));
-            EffectComboBox.Items.Add(new EffectItem(PreparedFilter.BLUR, GreenshotLanguage.GetString("editor_obfuscate_blur")));
-            EffectComboBox.Items.Add(new EffectItem(PreparedFilter.TEXT_HIGHTLIGHT, GreenshotLanguage.GetString("editor_highlight_text")));
-            EffectComboBox.Items.Add(new EffectItem(PreparedFilter.MAGNIFICATION, GreenshotLanguage.GetString("editor_highlight_magnify")));
+            EffectComboBox.Items.Add(new EffectItem(PreparedFilter.PIXELIZE, Texts.Editor.ObfuscatePixelize));
+            EffectComboBox.Items.Add(new EffectItem(PreparedFilter.BLUR, Texts.Editor.ObfuscateBlur));
+            EffectComboBox.Items.Add(new EffectItem(PreparedFilter.TEXT_HIGHTLIGHT, Texts.Editor.HighlightText));
+            EffectComboBox.Items.Add(new EffectItem(PreparedFilter.MAGNIFICATION, Texts.Editor.HighlightMagnify));
             EffectComboBox.SelectedIndex = 0;
         }
 
@@ -250,7 +250,7 @@ namespace Greenshot.Editor.Forms
             string searchText = SearchTextBox.Text;
             if (string.IsNullOrEmpty(searchText) || searchText.Length < 3)
             {
-                MatchCountTextBlock.Text = string.Format(GreenshotLanguage.GetString("editor_obfuscate_text_matches"), "0");
+                MatchCountTextBlock.Text = string.Format(Texts.Editor.ObfuscateTextMatches, "0");
                 return;
             }
 
@@ -259,7 +259,7 @@ namespace Greenshot.Editor.Forms
 
             if (useRegex && !IsValidRegex(searchText))
             {
-                MatchCountTextBlock.Text = GreenshotLanguage.GetString("editor_obfuscate_text_error") + ": Invalid regex";
+                MatchCountTextBlock.Text = Texts.Editor.ObfuscateTextError + ": Invalid regex";
                 return;
             }
 
@@ -275,11 +275,11 @@ namespace Greenshot.Editor.Forms
                 }
 
                 ShowPreview();
-                MatchCountTextBlock.Text = string.Format(GreenshotLanguage.GetString("editor_obfuscate_text_matches"), _matchedBounds.Count.ToString());
+                MatchCountTextBlock.Text = string.Format(Texts.Editor.ObfuscateTextMatches, _matchedBounds.Count.ToString());
             }
             catch (Exception ex)
             {
-                MatchCountTextBlock.Text = GreenshotLanguage.GetString("editor_obfuscate_text_error") + ": " + ex.Message;
+                MatchCountTextBlock.Text = Texts.Editor.ObfuscateTextError + ": " + ex.Message;
             }
         }
 

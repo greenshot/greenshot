@@ -72,28 +72,28 @@
             <Grid>
                 <!-- Word Settings -->
                 <StackPanel Visibility="{Binding IsWordSelected, Converter={StaticResource BoolToVis}}">
-                    <TextBlock Text="{wpf:Translate office.app_word}"
+                    <TextBlock Text="{wpf:Text Office.AppWord}"
                                FontWeight="SemiBold" FontSize="14"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                                Margin="0,0,0,10"/>
                     <CheckBox IsChecked="{Binding Config.WordLockAspectRatio}"
-                              Content="{wpf:Translate office.word_lockaspect}"/>
+                              Content="{wpf:Text Office.WordLockaspect}"/>
                 </StackPanel>
 
                 <!-- PowerPoint Settings -->
                 <StackPanel Visibility="{Binding IsPowerPointSelected, Converter={StaticResource BoolToVis}}">
-                    <TextBlock Text="{wpf:Translate office.app_powerpoint}"
+                    <TextBlock Text="{wpf:Text Office.AppPowerpoint}"
                                FontWeight="SemiBold" FontSize="14"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                                Margin="0,0,0,10"/>
                     <CheckBox IsChecked="{Binding Config.PowerpointLockAspectRatio}"
-                              Content="{wpf:Translate office.powerpoint_lockaspect}"/>
+                              Content="{wpf:Text Office.PowerpointLockaspect}"/>
                     <Grid Margin="0,6,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <Label Grid.Column="0" Content="{wpf:Translate office.powerpoint_slide_layout}" Margin="0,0,12,0"/>
+                        <Label Grid.Column="0" Content="{wpf:Text Office.PowerpointSlideLayout}" Margin="0,0,12,0"/>
                         <ComboBox Grid.Column="1"
                                   HorizontalAlignment="Right" Width="220"
                                   ItemsSource="{Binding SlideLayouts}"
@@ -103,7 +103,7 @@
 
                 <!-- Outlook Settings -->
                 <StackPanel Visibility="{Binding IsOutlookSelected, Converter={StaticResource BoolToVis}}">
-                    <TextBlock Text="{wpf:Translate office.app_outlook}"
+                    <TextBlock Text="{wpf:Text Office.AppOutlook}"
                                FontWeight="SemiBold" FontSize="14"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                                Margin="0,0,0,10"/>
@@ -113,7 +113,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <Label Grid.Column="0" Content="{wpf:Translate office.outlook_email_format}" Margin="0,0,12,0"/>
+                        <Label Grid.Column="0" Content="{wpf:Text Office.OutlookEmailFormat}" Margin="0,0,12,0"/>
                         <ComboBox Grid.Column="1"
                                   HorizontalAlignment="Right" Width="200"
                                   ItemsSource="{Binding Source={StaticResource emailFormats}, Path=DisplayNames}"
@@ -125,7 +125,7 @@
                             <ColumnDefinition Width="130"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Label Grid.Column="0" Content="{wpf:Translate office.outlook_subject_pattern}"/>
+                        <Label Grid.Column="0" Content="{wpf:Text Office.OutlookSubjectPattern}"/>
                         <TextBox Grid.Column="1" Text="{Binding Config.EmailSubjectPattern, UpdateSourceTrigger=PropertyChanged}"/>
                     </Grid>
 
@@ -134,7 +134,7 @@
                             <ColumnDefinition Width="130"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Label Grid.Column="0" Content="{wpf:Translate office.outlook_emailto}"/>
+                        <Label Grid.Column="0" Content="{wpf:Text Office.OutlookEmailto}"/>
                         <TextBox Grid.Column="1" Text="{Binding Config.EmailTo, UpdateSourceTrigger=PropertyChanged}"/>
                     </Grid>
 
@@ -143,7 +143,7 @@
                             <ColumnDefinition Width="130"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Label Grid.Column="0" Content="{wpf:Translate office.outlook_emailcc}"/>
+                        <Label Grid.Column="0" Content="{wpf:Text Office.OutlookEmailcc}"/>
                         <TextBox Grid.Column="1" Text="{Binding Config.EmailCC, UpdateSourceTrigger=PropertyChanged}"/>
                     </Grid>
 
@@ -152,22 +152,22 @@
                             <ColumnDefinition Width="130"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Label Grid.Column="0" Content="{wpf:Translate office.outlook_emailbcc}"/>
+                        <Label Grid.Column="0" Content="{wpf:Text Office.OutlookEmailbcc}"/>
                         <TextBox Grid.Column="1" Text="{Binding Config.EmailBCC, UpdateSourceTrigger=PropertyChanged}"/>
                     </Grid>
 
                     <CheckBox Margin="0,6,0,0"
                               IsChecked="{Binding Config.OutlookAllowExportInMeetings}"
-                              Content="{wpf:Translate office.outlook_allowmeetings}"/>
+                              Content="{wpf:Text Office.OutlookAllowmeetings}"/>
                 </StackPanel>
 
                 <!-- Excel Settings -->
                 <StackPanel Visibility="{Binding IsExcelSelected, Converter={StaticResource BoolToVis}}">
-                    <TextBlock Text="{wpf:Translate office.app_excel}"
+                    <TextBlock Text="{wpf:Text Office.AppExcel}"
                                FontWeight="SemiBold" FontSize="14"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                                Margin="0,0,0,10"/>
-                    <TextBlock Text="{wpf:Translate office.excel_info}"
+                    <TextBlock Text="{wpf:Text Office.ExcelInfo}"
                                TextWrapping="Wrap"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
                                FontSize="12"/>
@@ -175,11 +175,11 @@
 
                 <!-- OneNote Settings -->
                 <StackPanel Visibility="{Binding IsOneNoteSelected, Converter={StaticResource BoolToVis}}">
-                    <TextBlock Text="{wpf:Translate office.app_onenote}"
+                    <TextBlock Text="{wpf:Text Office.AppOnenote}"
                                FontWeight="SemiBold" FontSize="14"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                                Margin="0,0,0,10"/>
-                    <TextBlock Text="{wpf:Translate office.onenote_info}"
+                    <TextBlock Text="{wpf:Text Office.OnenoteInfo}"
                                TextWrapping="Wrap"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
                                FontSize="12"/>
@@ -191,6 +191,6 @@
         <CheckBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
                   Margin="0,8,0,0"
                   IsChecked="{Binding Config.QuicklinkEnabled}"
-                  Content="{wpf:Translate quicklink_enable}"/>
+                  Content="{wpf:Text Core.QuicklinkEnable}"/>
     </Grid>
 </UserControl>

@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
-        Title="{wpf:Translate printoptions_title}"
+        Title="{wpf:Text Core.PrintoptionsTitle}"
         SizeToContent="Height"
         Width="520"
         WindowStartupLocation="CenterScreen"
@@ -155,7 +155,7 @@
                        WindowChrome.IsHitTestVisibleInChrome="False"/>
 
                 <TextBlock Grid.Column="1"
-                           Text="{wpf:Translate printoptions_title}"
+                           Text="{wpf:Text Core.PrintoptionsTitle}"
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                            VerticalAlignment="Center"
                            Margin="8,0,0,0"
@@ -174,30 +174,30 @@
             <!-- Dialog Content -->
             <StackPanel Grid.Row="1" Margin="20,16,20,10">
                 <!-- Layout Options -->
-                <GroupBox Header="{wpf:Translate printoptions_layout}">
+                <GroupBox Header="{wpf:Text Core.PrintoptionsLayout}">
                     <StackPanel>
-                        <CheckBox x:Name="CheckboxAllowShrink" Content="{wpf:Translate printoptions_allowshrink}"/>
-                        <CheckBox x:Name="CheckboxAllowEnlarge" Content="{wpf:Translate printoptions_allowenlarge}"/>
-                        <CheckBox x:Name="CheckboxAllowRotate" Content="{wpf:Translate printoptions_allowrotate}"/>
-                        <CheckBox x:Name="CheckboxAllowCenter" Content="{wpf:Translate printoptions_allowcenter}"/>
-                        <CheckBox x:Name="CheckboxDateTime" Content="{wpf:Translate printoptions_timestamp}"/>
+                        <CheckBox x:Name="CheckboxAllowShrink" Content="{wpf:Text Core.PrintoptionsAllowshrink}"/>
+                        <CheckBox x:Name="CheckboxAllowEnlarge" Content="{wpf:Text Core.PrintoptionsAllowenlarge}"/>
+                        <CheckBox x:Name="CheckboxAllowRotate" Content="{wpf:Text Core.PrintoptionsAllowrotate}"/>
+                        <CheckBox x:Name="CheckboxAllowCenter" Content="{wpf:Text Core.PrintoptionsAllowcenter}"/>
+                        <CheckBox x:Name="CheckboxDateTime" Content="{wpf:Text Core.PrintoptionsTimestamp}"/>
                     </StackPanel>
                 </GroupBox>
 
                 <!-- Color Options -->
-                <GroupBox Header="{wpf:Translate printoptions_colors}">
+                <GroupBox Header="{wpf:Text Core.PrintoptionsColors}">
                     <StackPanel>
-                        <RadioButton x:Name="RadioBtnColorPrint" Content="{wpf:Translate printoptions_printcolor}"/>
-                        <RadioButton x:Name="RadioBtnGrayScale" Content="{wpf:Translate printoptions_printgrayscale}"/>
-                        <RadioButton x:Name="RadioBtnMonochrome" Content="{wpf:Translate printoptions_printmonochrome}"/>
+                        <RadioButton x:Name="RadioBtnColorPrint" Content="{wpf:Text Core.PrintoptionsPrintcolor}"/>
+                        <RadioButton x:Name="RadioBtnGrayScale" Content="{wpf:Text Core.PrintoptionsPrintgrayscale}"/>
+                        <RadioButton x:Name="RadioBtnMonochrome" Content="{wpf:Text Core.PrintoptionsPrintmonochrome}"/>
                         <Separator Margin="4,6" Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
-                        <CheckBox x:Name="CheckboxPrintInverted" Content="{wpf:Translate printoptions_inverted}"/>
+                        <CheckBox x:Name="CheckboxPrintInverted" Content="{wpf:Text Core.PrintoptionsInverted}"/>
                     </StackPanel>
                 </GroupBox>
 
                 <!-- Don't ask again -->
                 <CheckBox x:Name="CheckboxDontAskAgain" 
-                          Content="{wpf:Translate printoptions_dontaskagain}"
+                          Content="{wpf:Text Core.PrintoptionsDontaskagain}"
                           Margin="4,6,4,0"/>
             </StackPanel>
 
@@ -208,11 +208,11 @@
                     BorderThickness="0,1,0,0"
                     Padding="16,10">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Content="{wpf:Translate OK}" 
+                    <Button Content="{wpf:Text Core.Ok}" 
                             IsDefault="True"
                             Width="80"
                             Click="OkButton_Click"/>
-                    <Button Content="{wpf:Translate CANCEL}" 
+                    <Button Content="{wpf:Text Core.Cancel}" 
                             IsCancel="True"
                             Width="80"
                             Click="CancelButton_Click"/>

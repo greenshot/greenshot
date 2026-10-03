@@ -25,7 +25,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Plugin.Box;
 
@@ -53,7 +54,7 @@ public class BoxDestination : DestinationBase, IRequiresRecipeAuthorization
         yield return new RecipeGatedAction(RecipeGateType.NetworkAccess, "Box (box.com)");
     }
 
-    public override DestinationDescriptor Descriptor => new DestinationDescriptor(Language.GetString("box", LangKey.upload_menu_item), iconKey: Icons.KeyFor("Box"));
+    public override DestinationDescriptor Descriptor => new DestinationDescriptor(Texts.Get<IBoxLanguage>().UploadMenuItem, iconKey: Icons.KeyFor("Box"));
 
     public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
     {

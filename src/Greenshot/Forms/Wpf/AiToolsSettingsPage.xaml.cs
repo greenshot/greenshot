@@ -23,7 +23,7 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 using Greenshot.Base.Wpf;
-using BaseLanguage = Greenshot.Base.Core.Language;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Forms.Wpf
 {
@@ -120,7 +120,7 @@ namespace Greenshot.Forms.Wpf
             var result = Greenshot.Recipes.RecipeManager.Instance.ReviewApproval(item.RecipeId);
             if (result != null && !result.IsValid)
             {
-                ThemedMessageBox.Show(Window.GetWindow(this), string.Join("\n", result.Errors), BaseLanguage.GetString("settings_recipeapprovals"), MessageBoxButton.OK, MessageBoxImage.Information);
+                ThemedMessageBox.Show(Window.GetWindow(this), string.Join("\n", result.Errors), Texts.Settings.Recipeapprovals, MessageBoxButton.OK, MessageBoxImage.Information);
             }
             ViewModel.RefreshApprovedRecipes();
         }

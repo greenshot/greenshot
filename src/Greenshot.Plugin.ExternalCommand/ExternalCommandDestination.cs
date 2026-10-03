@@ -107,7 +107,7 @@ public class ExternalCommandDestination : DestinationBase, IRequiresRecipeAuthor
             cmd = Config.Commandline[_presetCommand];
         }
         string target = !string.IsNullOrWhiteSpace(cmd) ? cmd : Designation;
-        yield return new RecipeGatedAction(RecipeGateType.ExternalCommand, target, "recipe_gate_external_command");
+        yield return new RecipeGatedAction(RecipeGateType.ExternalCommand, target, "Recipe.gate_external_command");
     }
 
     public override string Designation => "External " + _presetCommand.Replace(',', '_');

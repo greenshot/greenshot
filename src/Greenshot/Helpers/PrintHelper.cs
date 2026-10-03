@@ -33,7 +33,8 @@ using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Configuration;
 using Greenshot.Editor.Helpers;
 using Greenshot.Forms;
-using log4net;
+using log4net;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Helpers
 {
@@ -142,7 +143,7 @@ namespace Greenshot.Helpers
             catch (Exception e)
             {
                 Log.Error("An error occurred while trying to print", e);
-                MessageBox.Show(Language.GetString(LangKey.print_error), Language.GetString(LangKey.error));
+                MessageBox.Show(Texts.Core.PrintError, Texts.Core.Error);
             }
 
             return returnPrinterSettings;
@@ -175,7 +176,7 @@ namespace Greenshot.Helpers
             catch (Exception e)
             {
                 Log.Error("An error occurred while trying to print", e);
-                MessageBox.Show(Language.GetString(LangKey.print_error), Language.GetString(LangKey.error));
+                MessageBox.Show(Texts.Core.PrintError, Texts.Core.Error);
             }
 
             return returnPrinterSettings;

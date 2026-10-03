@@ -282,20 +282,24 @@ Examples:
 - German: "Export nach '{0}' fehlgeschlagen"
 - Note: Placeholder position may change to match grammar
 
+Expressions like `${now:yyyy-MM-dd HH:mm:ss}` or `${user.username}` (in the `[Recipe]` section) are also placeholders: keep them unchanged.
+
+### Line Breaks
+
+**Policy**: Keep `\n` line breaks where English has them; a value is always one line in the language pack
+
+Example (`about_license` in `[Core]`):
+```ini
+; English (greenshot.en-US.ini)
+about_license=Copyright © 2007-2026 Thomas Braun, Jens Klingen, Robin Krom\nGreenshot comes with ABSOLUTELY NO WARRANTY. This is free software, ...
+
+; German (greenshot.de-DE.ini)
+about_license=Copyright © 2007-2026 Thomas Braun, Jens Klingen, Robin Krom\nFür Greenshot besteht KEINERLEI GARANTIE. Greenshot ist freie Software, ...
+```
+
 ### HTML Content
 
-**Policy**: Keep HTML tags unchanged, translate only text content
-
-Example:
-```xml
-<!-- English -->
-<resource name="about_license">Copyright © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
-Greenshot comes with ABSOLUTELY NO WARRANTY. This is free software...</resource>
-
-<!-- German -->
-<resource name="about_license">Copyright © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
-Für Greenshot besteht KEINERLEI GARANTIE. Greenshot ist freie Software...</resource>
-```
+**Policy**: Keep HTML tags unchanged, translate only text content. Tags and `&` are written as they are, without XML escaping.
 
 ---
 
@@ -346,5 +350,5 @@ This glossary should be reviewed:
 - When user feedback suggests better translations
 - Annually to ensure consistency
 
-**Last Updated**: 2026-02-03
+**Last Updated**: 2026-10-03
 **Version**: 1.0

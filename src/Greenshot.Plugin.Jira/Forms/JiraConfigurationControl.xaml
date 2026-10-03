@@ -29,7 +29,7 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Label Grid.Column="0" Content="{wpf:Translate jira.label_url}" Margin="0,0,12,0"/>
+            <Label Grid.Column="0" Content="{wpf:Text Jira.LabelUrl}" Margin="0,0,12,0"/>
             <TextBox Grid.Column="1" Text="{Binding Url, UpdateSourceTrigger=PropertyChanged}"/>
         </Grid>
 
@@ -38,7 +38,7 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <Label Grid.Column="0" Content="{wpf:Translate jira.label_upload_format}" Margin="0,0,12,0"/>
+            <Label Grid.Column="0" Content="{wpf:Text Jira.LabelUploadFormat}" Margin="0,0,12,0"/>
             <ComboBox x:Name="UploadFormatCombo" Grid.Column="1"
                       HorizontalAlignment="Right" Width="200"
                       DisplayMemberPath="DisplayNameWithPreferredExtension"
@@ -47,6 +47,6 @@
         </Grid>
 
         <CheckBox IsChecked="{Binding QuicklinkEnabled}"
-                  Content="{wpf:Translate quicklink_enable}"/>
+                  Content="{wpf:Text Core.QuicklinkEnable}"/>
     </StackPanel>
 </UserControl>

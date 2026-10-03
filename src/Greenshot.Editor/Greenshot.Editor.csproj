@@ -7,7 +7,7 @@
       <DebugSymbols>false</DebugSymbols>
     </PropertyGroup>
   <ItemGroup>
-    <None Include="Languages\language*.xml">
+    <None Include="Languages\greenshot*.ini">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -23,6 +23,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Base.Core.Export
 {
@@ -61,16 +62,16 @@ namespace Greenshot.Base.Core.Export
                 if (result.Uri != null)
                 {
                     surface.UploadUrl = result.Uri.AbsoluteUri;
-                    surface.SendMessageEvent(destination, SurfaceMessageTyp.UploadedUri, Language.GetFormattedString("exported_to", target));
+                    surface.SendMessageEvent(destination, SurfaceMessageTyp.UploadedUri, string.Format(Texts.Core.ExportedTo, target));
                 }
                 else if (!string.IsNullOrEmpty(result.FilePath))
                 {
                     surface.LastSaveFullPath = result.FilePath;
-                    surface.SendMessageEvent(destination, SurfaceMessageTyp.FileSaved, Language.GetFormattedString("exported_to", target));
+                    surface.SendMessageEvent(destination, SurfaceMessageTyp.FileSaved, string.Format(Texts.Core.ExportedTo, target));
                 }
                 else
                 {
-                    surface.SendMessageEvent(destination, SurfaceMessageTyp.Info, Language.GetFormattedString("exported_to", target));
+                    surface.SendMessageEvent(destination, SurfaceMessageTyp.Info, string.Format(Texts.Core.ExportedTo, target));
                 }
 
                 if (result.ClearsModified)
@@ -80,7 +81,7 @@ namespace Greenshot.Base.Core.Export
             }
             else if (!string.IsNullOrEmpty(result.Error))
             {
-                surface.SendMessageEvent(destination, SurfaceMessageTyp.Error, Language.GetFormattedString("exported_to_error", target) + " " + result.Error);
+                surface.SendMessageEvent(destination, SurfaceMessageTyp.Error, string.Format(Texts.Core.ExportedToError, target) + " " + result.Error);
             }
         }
     }

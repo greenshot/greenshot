@@ -29,6 +29,7 @@ using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Plugin.Imgur
 {
@@ -49,13 +50,13 @@ namespace Greenshot.Plugin.Imgur
             yield return new RecipeGatedAction(RecipeGateType.NetworkAccess, "Imgur (imgur.com)");
         }
 
-        public override DestinationDescriptor Descriptor => new DestinationDescriptor(Language.GetString("imgur", LangKey.upload_menu_item) ?? "Upload to Imgur", iconKey: Icons.KeyFor("Imgur"));
+        public override DestinationDescriptor Descriptor => new DestinationDescriptor(Texts.Get<IImgurLanguage>().UploadMenuItem ?? "Upload to Imgur", iconKey: Icons.KeyFor("Imgur"));
 
         public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
         {
             var outputSettings = new SurfaceOutputSettings(WellKnownFileFormats.Png, 90, false);
             var image = await request.Source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
-            var info = await request.Ui.RunWithProgressAsync(Language.GetString("imgur", LangKey.communication_wait),
+            var info = await request.Ui.RunWithProgressAsync(Texts.Get<IImgurLanguage>().CommunicationWait,
                 (progress, token) => ImgurStep.UploadToImgurAsync(image, request.Metadata?.Title, null, token), cancellationToken).ConfigureAwait(false);
             if (info == null || string.IsNullOrEmpty(info.Original))
             {

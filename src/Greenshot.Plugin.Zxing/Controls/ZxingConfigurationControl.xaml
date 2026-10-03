@@ -11,8 +11,8 @@
 
     <StackPanel Margin="8">
         <CheckBox IsChecked="{Binding ScanOnCapture}"
-                  Content="{wpf:Translate zxing_scan_on_capture}"/>
+                  Content="{wpf:Text Core.ZxingScanOnCapture}"/>
         <CheckBox IsChecked="{Binding QuicklinkEnabled}"
-                  Content="{wpf:Translate quicklink_enable}"/>
+                  Content="{wpf:Text Core.QuicklinkEnable}"/>
     </StackPanel>
 </UserControl>
