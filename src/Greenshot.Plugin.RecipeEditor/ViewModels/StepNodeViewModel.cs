@@ -3458,6 +3458,67 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetParam("Application", value); OnPropertyChanged(nameof(OfficeApplication)); OnPropertyChanged(nameof(Summary)); }
         }
 
+        // --- PDF Step ---
+        public string PdfPageSize
+        {
+            get => GetParam("PageSize", "");
+            set { SetParamOrRemoveIfEmpty("PageSize", value); OnPropertyChanged(nameof(PdfPageSize)); }
+        }
+
+        public string PdfMeasurementUnit
+        {
+            get => GetParam("MeasurementUnit", "");
+            set { SetParamOrRemoveIfEmpty("MeasurementUnit", value); OnPropertyChanged(nameof(PdfMeasurementUnit)); }
+        }
+
+        public string PdfPageWidthMm
+        {
+            get => GetParam("PageWidthMm", "");
+            set { SetParamOrRemoveIfEmpty("PageWidthMm", value); OnPropertyChanged(nameof(PdfPageWidthMm)); }
+        }
+
+        public string PdfPageHeightMm
+        {
+            get => GetParam("PageHeightMm", "");
+            set { SetParamOrRemoveIfEmpty("PageHeightMm", value); OnPropertyChanged(nameof(PdfPageHeightMm)); }
+        }
+
+        public string PdfMarginTopMm
+        {
+            get => GetParam("MarginTopMm", "");
+            set { SetParamOrRemoveIfEmpty("MarginTopMm", value); OnPropertyChanged(nameof(PdfMarginTopMm)); }
+        }
+
+        public string PdfMarginBottomMm
+        {
+            get => GetParam("MarginBottomMm", "");
+            set { SetParamOrRemoveIfEmpty("MarginBottomMm", value); OnPropertyChanged(nameof(PdfMarginBottomMm)); }
+        }
+
+        public string PdfMarginLeftMm
+        {
+            get => GetParam("MarginLeftMm", "");
+            set { SetParamOrRemoveIfEmpty("MarginLeftMm", value); OnPropertyChanged(nameof(PdfMarginLeftMm)); }
+        }
+
+        public string PdfMarginRightMm
+        {
+            get => GetParam("MarginRightMm", "");
+            set { SetParamOrRemoveIfEmpty("MarginRightMm", value); OnPropertyChanged(nameof(PdfMarginRightMm)); }
+        }
+
+        public string PdfScalingMode
+        {
+            get => GetParam("ScalingMode", "");
+            set { SetParamOrRemoveIfEmpty("ScalingMode", value); OnPropertyChanged(nameof(PdfScalingMode)); }
+        }
+
+        public string PdfShowSaveDialog
+        {
+            get => GetTriStateParam("ShowSaveDialog");
+            set { SetTriStateParam("ShowSaveDialog", value); OnPropertyChanged(nameof(PdfShowSaveDialog)); }
+        }
+
         // --- 18. Zxing Step ---
         public string ZxingSetVariable
         {
@@ -3849,6 +3910,16 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(PrinterColorMode));
             OnPropertyChanged(nameof(PrinterPrintFooter));
             OnPropertyChanged(nameof(PrinterFooterPattern));
+            OnPropertyChanged(nameof(PdfPageSize));
+            OnPropertyChanged(nameof(PdfMeasurementUnit));
+            OnPropertyChanged(nameof(PdfPageWidthMm));
+            OnPropertyChanged(nameof(PdfPageHeightMm));
+            OnPropertyChanged(nameof(PdfMarginTopMm));
+            OnPropertyChanged(nameof(PdfMarginBottomMm));
+            OnPropertyChanged(nameof(PdfMarginLeftMm));
+            OnPropertyChanged(nameof(PdfMarginRightMm));
+            OnPropertyChanged(nameof(PdfScalingMode));
+            OnPropertyChanged(nameof(PdfShowSaveDialog));
             OnPropertyChanged(nameof(ExternalCommandLine));
             OnPropertyChanged(nameof(ExternalCommandArguments));
             OnPropertyChanged(nameof(ExternalCommandFormat));

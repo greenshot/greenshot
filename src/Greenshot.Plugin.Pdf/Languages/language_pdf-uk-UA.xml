@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Українська" ietf="uk-UA" version="1.0.0">
+  <resources>
+    <resource name="settings_title">Налаштування PDF</resource>
+    <resource name="destination">Зберегти як PDF</resource>
+    <resource name="label_pdf_document">Документ PDF</resource>
+    <resource name="label_destination_options">Параметри призначення</resource>
+    <resource name="label_unit">Одиниця вимірювання</resource>
+    <resource name="label_page_size">Розмір сторінки</resource>
+    <resource name="label_page_width">Ширина</resource>
+    <resource name="label_page_height">Висота</resource>
+    <resource name="label_margins">Поля</resource>
+    <resource name="label_top">Зверху</resource>
+    <resource name="label_bottom">Знизу</resource>
+    <resource name="label_left">Ліворуч</resource>
+    <resource name="label_right">Праворуч</resource>
+    <resource name="label_scaling">Масштабування зображення</resource>
+    <resource name="destination_option_fileas">Зберегти як (відкрити діалогове вікно)</resource>
+    <resource name="page_image">Автоматично (розмір зображення)</resource>
+    <resource name="page_custom">Власний</resource>
+    <resource name="page_a3">A3</resource>
+    <resource name="page_a4">A4</resource>
+    <resource name="page_a5">A5</resource>
+    <resource name="page_a6">A6</resource>
+    <resource name="page_letter">Letter</resource>
+    <resource name="unit_mm">Міліметри (мм)</resource>
+    <resource name="unit_cm">Сантиметри (см)</resource>
+    <resource name="unit_inch">Дюйми (дюйм)</resource>
+    <resource name="scale_shrink">Лише зменшувати для вміщення</resource>
+    <resource name="scale_fit">Умістити на сторінці</resource>
+  </resources>
+</language>

@@ -1,4 +1,4 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.3.11312.210
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -64,6 +64,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "greenshot-cli", "greenshot-proxy\greenshot-cli.vcxproj", "{C3C2C202-8F3B-5E89-AC66-192C2D935F42}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Mcp", "Greenshot.Mcp\Greenshot.Mcp.csproj", "{88F268DD-6265-4914-BA8A-BB41F53E7A28}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.Plugin.Pdf", "Greenshot.Plugin.Pdf\Greenshot.Plugin.Pdf.csproj", "{A1D9417F-7FFF-F778-44C8-27A8BA2A74AD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -426,6 +428,24 @@ Global
 		{88F268DD-6265-4914-BA8A-BB41F53E7A28}.Release|x64.Build.0 = Release|Any CPU
 		{88F268DD-6265-4914-BA8A-BB41F53E7A28}.Release|x86.ActiveCfg = Release|Any CPU
 		{88F268DD-6265-4914-BA8A-BB41F53E7A28}.Release|x86.Build.0 = Release|Any CPU
+		{A1D9417F-7FFF-F778-44C8-27A8BA2A74AD}.Debug Light|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1D9417F-7FFF-F778-44C8-27A8BA2A74AD}.Debug Light|x64.ActiveCfg = Debug|Any CPU
+		{A1D9417F-7FFF-F778-44C8-27A8BA2A74AD}.Debug Light|x86.ActiveCfg = Debug|Any CPU
+		{A1D9417F-7FFF-F778-44C8-27A8BA2A74AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1D9417F-7FFF-F778-44C8-27A8BA2A74AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1D9417F-7FFF-F778-44C8-27A8BA2A74AD}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A1D9417F-7FFF-F778-44C8-27A8BA2A74AD}.Debug|x64.Build.0 = Debug|Any CPU
+		{A1D9417F-7FFF-F778-44C8-27A8BA2A74AD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A1D9417F-7FFF-F778-44C8-27A8BA2A74AD}.Debug|x86.Build.0 = Debug|Any CPU
+		{A1D9417F-7FFF-F778-44C8-27A8BA2A74AD}.Release Light|Any CPU.ActiveCfg = Release|Any CPU
+		{A1D9417F-7FFF-F778-44C8-27A8BA2A74AD}.Release Light|x64.ActiveCfg = Release|Any CPU
+		{A1D9417F-7FFF-F778-44C8-27A8BA2A74AD}.Release Light|x86.ActiveCfg = Release|Any CPU
+		{A1D9417F-7FFF-F778-44C8-27A8BA2A74AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1D9417F-7FFF-F778-44C8-27A8BA2A74AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1D9417F-7FFF-F778-44C8-27A8BA2A74AD}.Release|x64.ActiveCfg = Release|Any CPU
+		{A1D9417F-7FFF-F778-44C8-27A8BA2A74AD}.Release|x64.Build.0 = Release|Any CPU
+		{A1D9417F-7FFF-F778-44C8-27A8BA2A74AD}.Release|x86.ActiveCfg = Release|Any CPU
+		{A1D9417F-7FFF-F778-44C8-27A8BA2A74AD}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

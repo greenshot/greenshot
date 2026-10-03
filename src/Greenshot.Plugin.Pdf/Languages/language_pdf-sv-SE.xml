@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Svenska" ietf="sv-SE" version="1.0.0">
+  <resources>
+    <resource name="settings_title">PDF-inställningar</resource>
+    <resource name="destination">Spara som PDF</resource>
+    <resource name="label_pdf_document">PDF-dokument</resource>
+    <resource name="label_destination_options">Målalternativ</resource>
+    <resource name="label_unit">Enhet</resource>
+    <resource name="label_page_size">Sidstorlek</resource>
+    <resource name="label_page_width">Bredd</resource>
+    <resource name="label_page_height">Höjd</resource>
+    <resource name="label_margins">Marginaler</resource>
+    <resource name="label_top">Överkant</resource>
+    <resource name="label_bottom">Underkant</resource>
+    <resource name="label_left">Vänster</resource>
+    <resource name="label_right">Höger</resource>
+    <resource name="label_scaling">Bildskalning</resource>
+    <resource name="destination_option_fileas">Spara som (visa dialogruta)</resource>
+    <resource name="page_image">Automatiskt (bildstorlek)</resource>
+    <resource name="page_custom">Anpassad</resource>
+    <resource name="page_a3">A3</resource>
+    <resource name="page_a4">A4</resource>
+    <resource name="page_a5">A5</resource>
+    <resource name="page_a6">A6</resource>
+    <resource name="page_letter">Letter</resource>
+    <resource name="unit_mm">Millimeter (mm)</resource>
+    <resource name="unit_cm">Centimeter (cm)</resource>
+    <resource name="unit_inch">Tum (in)</resource>
+    <resource name="scale_shrink">Förminska endast för att få plats</resource>
+    <resource name="scale_fit">Anpassa till sidan</resource>
+  </resources>
+</language>

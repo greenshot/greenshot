@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -73,6 +73,12 @@ namespace Greenshot.Base.Interfaces.Plugin
         }
 
         public string Format { get; set; }
+
+        /// <summary>
+        /// An optional discriminator for encoded-image cache entries when output depends on settings not otherwise represented here.
+        /// Use the same key for equivalent output settings and different keys when they can produce different encoded data.
+        /// </summary>
+        public string EncodingCacheKey { get; set; }
 
         public int JPGQuality { get; set; }
 

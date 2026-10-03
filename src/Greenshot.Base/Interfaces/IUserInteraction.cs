@@ -116,15 +116,18 @@ namespace Greenshot.Base.Interfaces
     /// </summary>
     public sealed class SaveFileRequest
     {
-        public SaveFileRequest(ICaptureDetails captureDetails, string suggestedPath = null)
+        public SaveFileRequest(ICaptureDetails captureDetails, string suggestedPath = null, string format = null)
         {
             CaptureDetails = captureDetails;
             SuggestedPath = suggestedPath;
+            Format = format;
         }
 
         public ICaptureDetails CaptureDetails { get; }
 
         public string SuggestedPath { get; }
+
+        public string Format { get; }
     }
 
     /// <summary>

@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Français" ietf="fr-FR" version="1.0.0">
+  <resources>
+    <resource name="settings_title">Paramètres PDF</resource>
+    <resource name="destination">Enregistrer au format PDF</resource>
+    <resource name="label_pdf_document">Document PDF</resource>
+    <resource name="label_destination_options">Options de destination</resource>
+    <resource name="label_unit">Unité</resource>
+    <resource name="label_page_size">Format de page</resource>
+    <resource name="label_page_width">Largeur</resource>
+    <resource name="label_page_height">Hauteur</resource>
+    <resource name="label_margins">Marges</resource>
+    <resource name="label_top">Haut</resource>
+    <resource name="label_bottom">Bas</resource>
+    <resource name="label_left">Gauche</resource>
+    <resource name="label_right">Droite</resource>
+    <resource name="label_scaling">Mise à l’échelle de l’image</resource>
+    <resource name="destination_option_fileas">Enregistrer sous... (afficher la boîte de dialogue)</resource>
+    <resource name="page_image">Automatique (taille de l’image)</resource>
+    <resource name="page_custom">Personnalisé</resource>
+    <resource name="page_a3">A3</resource>
+    <resource name="page_a4">A4</resource>
+    <resource name="page_a5">A5</resource>
+    <resource name="page_a6">A6</resource>
+    <resource name="page_letter">Letter</resource>
+    <resource name="unit_mm">Millimètres (mm)</resource>
+    <resource name="unit_cm">Centimètres (cm)</resource>
+    <resource name="unit_inch">Pouces (in)</resource>
+    <resource name="scale_shrink">Réduire uniquement pour ajuster</resource>
+    <resource name="scale_fit">Ajuster à la page</resource>
+  </resources>
+</language>

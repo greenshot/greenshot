@@ -167,7 +167,8 @@ namespace Greenshot.Tests.Recipes
             foreach (var pluginStep in new[]
                      {
                          typeof(Greenshot.Plugin.Imgur.ImgurStep), typeof(Greenshot.Plugin.Jira.JiraStep), typeof(Greenshot.Plugin.Confluence.ConfluenceStep),
-                         typeof(Greenshot.Plugin.Office.OfficeStep), typeof(Greenshot.Plugin.Box.BoxStep), typeof(Greenshot.Plugin.Dropbox.DropboxStep)
+                         typeof(Greenshot.Plugin.Office.OfficeStep), typeof(Greenshot.Plugin.Box.BoxStep), typeof(Greenshot.Plugin.Dropbox.DropboxStep),
+                         typeof(Greenshot.Plugin.Pdf.PdfStep)
                      })
             {
                 var contract = StepContractBuilder.FromType(pluginStep);

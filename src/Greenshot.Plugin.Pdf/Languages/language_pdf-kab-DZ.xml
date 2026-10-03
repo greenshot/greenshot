@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Taqbaylit" ietf="kab-DZ" version="1.0.0" languagegroup="">
+  <resources>
+    <resource name="settings_title">Iɣewwaṛen n PDF</resource>
+    <resource name="destination">Sekles s PDF</resource>
+    <resource name="label_pdf_document">Arrat PDF</resource>
+    <resource name="label_destination_options">Tinefrunin n usekles</resource>
+    <resource name="label_unit">Aferdis</resource>
+    <resource name="label_page_size">Teɣzi n usebter</resource>
+    <resource name="label_page_width">Tehri</resource>
+    <resource name="label_page_height">Teɣzi</resource>
+    <resource name="label_margins">Iɣezran</resource>
+    <resource name="label_top">Afella</resource>
+    <resource name="label_bottom">Adday</resource>
+    <resource name="label_left">Azelmaḍ</resource>
+    <resource name="label_right">Ayefus</resource>
+    <resource name="label_scaling">Asali n tugna</resource>
+    <resource name="destination_option_fileas">Sekles am (s udiwenni)</resource>
+    <resource name="page_image">Awurman (teɣzi n tugna)</resource>
+    <resource name="page_custom">Udmawan</resource>
+    <resource name="page_a3">A3</resource>
+    <resource name="page_a4">A4</resource>
+    <resource name="page_a5">A5</resource>
+    <resource name="page_a6">A6</resource>
+    <resource name="page_letter">Letter</resource>
+    <resource name="unit_mm">Imillimitren (mm)</resource>
+    <resource name="unit_cm">Isentimitren (cm)</resource>
+    <resource name="unit_inch">Imiḍanen (in)</resource>
+    <resource name="scale_shrink">Simecṭeḥ kan akken ad yekfu</resource>
+    <resource name="scale_fit">Sgaddi ɣer usebter</resource>
+  </resources>
+</language>

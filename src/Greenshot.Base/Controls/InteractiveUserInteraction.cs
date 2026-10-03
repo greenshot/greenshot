@@ -86,6 +86,22 @@ namespace Greenshot.Base.Controls
             return ModalAsync(() =>
             {
                 using var saveImageFileDialog = new SaveImageFileDialog(request?.CaptureDetails);
+                if (!string.IsNullOrWhiteSpace(request?.SuggestedPath))
+                {
+                    string initialDirectory = System.IO.Path.GetDirectoryName(request.SuggestedPath);
+                    if (!string.IsNullOrWhiteSpace(initialDirectory))
+                    {
+                        saveImageFileDialog.InitialDirectory = initialDirectory;
+                    }
+
+                    saveImageFileDialog.FileNameWithExtension = System.IO.Path.GetFileName(request.SuggestedPath);
+                }
+
+                if (!string.IsNullOrWhiteSpace(request?.Format))
+                {
+                    saveImageFileDialog.SelectFormat(request.Format);
+                }
+
                 return saveImageFileDialog.ShowDialog() == DialogResult.OK ? saveImageFileDialog.FileNameWithExtension : null;
             }, cancellationToken);
         }

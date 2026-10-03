@@ -5,5 +5,6 @@
 #include "imgur.iss"
 #include "jira.iss"
 #include "office.iss"
+#include "pdf.iss"
 #include "recipeeditor.iss"
 #include "zxing.iss"

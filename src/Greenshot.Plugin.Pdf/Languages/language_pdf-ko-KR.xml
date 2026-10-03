@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="한국어" ietf="ko-KR" version="1.0.0">
+  <resources>
+    <resource name="settings_title">PDF 설정</resource>
+    <resource name="destination">PDF로 저장</resource>
+    <resource name="label_pdf_document">PDF 문서</resource>
+    <resource name="label_destination_options">저장 대상 옵션</resource>
+    <resource name="label_unit">단위</resource>
+    <resource name="label_page_size">페이지 크기</resource>
+    <resource name="label_page_width">너비</resource>
+    <resource name="label_page_height">높이</resource>
+    <resource name="label_margins">여백</resource>
+    <resource name="label_top">위</resource>
+    <resource name="label_bottom">아래</resource>
+    <resource name="label_left">왼쪽</resource>
+    <resource name="label_right">오른쪽</resource>
+    <resource name="label_scaling">이미지 크기 조정</resource>
+    <resource name="destination_option_fileas">다른 이름으로 저장 (대화 상자 표시)</resource>
+    <resource name="page_image">자동 (이미지 크기)</resource>
+    <resource name="page_custom">사용자 지정</resource>
+    <resource name="page_a3">A3</resource>
+    <resource name="page_a4">A4</resource>
+    <resource name="page_a5">A5</resource>
+    <resource name="page_a6">A6</resource>
+    <resource name="page_letter">Letter</resource>
+    <resource name="unit_mm">밀리미터 (mm)</resource>
+    <resource name="unit_cm">센티미터 (cm)</resource>
+    <resource name="unit_inch">인치 (in)</resource>
+    <resource name="scale_shrink">맞도록 축소만</resource>
+    <resource name="scale_fit">페이지에 맞춤</resource>
+  </resources>
+</language>
