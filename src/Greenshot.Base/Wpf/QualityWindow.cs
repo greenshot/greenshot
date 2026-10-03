@@ -30,7 +30,7 @@ namespace Greenshot.Base.Wpf
 {
     /// <summary>
     /// Asks for the output settings of a file: the JPEG quality (only for JPEG) and whether to reduce the colors.
-    /// OK takes the values, closing the window keeps the settings as they were.
+    /// OK takes the values; Cancel, Escape or closing the window means the user doesn't want to save (the settings stay as they were).
     /// </summary>
     public sealed class QualityWindow : Window
     {

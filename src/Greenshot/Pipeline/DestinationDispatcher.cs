@@ -124,10 +124,13 @@ namespace Greenshot.Pipeline
                 ? customSos
                 : new SurfaceOutputSettings();
 
+            bool skipFileDestinations = false;
             if (hasFileDestination && promptQuality && userInteraction.IsInteractive)
             {
-                // Asked once for all file destinations of the flow
-                sharedFileOutputSettings = await userInteraction.PromptOutputSettingsAsync(sharedFileOutputSettings, cancellationToken).ConfigureAwait(false) ?? sharedFileOutputSettings;
+                // Asked once for all file destinations of the flow; cancelling it means: don't save, the other destinations still run
+                var promptedSettings = await userInteraction.PromptOutputSettingsAsync(sharedFileOutputSettings, cancellationToken).ConfigureAwait(false);
+                skipFileDestinations = promptedSettings == null;
+                sharedFileOutputSettings = promptedSettings ?? sharedFileOutputSettings;
             }
 
             var failedExports = new List<(string Designation, string Error, Exception Exception)>();
@@ -136,6 +139,12 @@ namespace Greenshot.Pipeline
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 var destinationToUse = destination;
+                if (skipFileDestinations && (destination.Designation == nameof(WellKnownDestinations.FileNoDialog) || destination.Designation == nameof(WellKnownDestinations.FileDialog)))
+                {
+                    context.LogStep($"The quality dialog was cancelled, not saving to {destination.Descriptor?.DisplayName}");
+                    continue;
+                }
+
                 if (destination.Designation == nameof(WellKnownDestinations.FileNoDialog))
                 {
                     // The flow can override the options of the file export

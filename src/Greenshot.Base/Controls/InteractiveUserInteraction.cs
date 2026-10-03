@@ -96,8 +96,8 @@ namespace Greenshot.Base.Controls
             return ModalAsync(() =>
             {
                 var qualityWindow = new QualityWindow(current);
-                qualityWindow.ShowDialog();
-                return qualityWindow.Settings;
+                // Cancel or Escape: the user doesn't want to save
+                return qualityWindow.ShowDialog() == true ? qualityWindow.Settings : null;
             }, cancellationToken);
         }
 

@@ -109,7 +109,12 @@ namespace Greenshot.Destinations
 
             if (_options?.OutputSettings == null && CoreConfig.OutputFilePromptQuality && request.Ui.IsInteractive)
             {
-                outputSettings = await request.Ui.PromptOutputSettingsAsync(outputSettings, cancellationToken).ConfigureAwait(false) ?? outputSettings;
+                outputSettings = await request.Ui.PromptOutputSettingsAsync(outputSettings, cancellationToken).ConfigureAwait(false);
+                if (outputSettings == null)
+                {
+                    // The user cancelled the quality dialog
+                    return ExportResult.Declined;
+                }
             }
 
             bool copyPath = _options?.CopyPathToClipboard ?? CoreConfig.OutputFileCopyPathToClipboard;
@@ -182,7 +187,12 @@ namespace Greenshot.Destinations
             var outputSettings = new SurfaceOutputSettings(ImageIO.FormatForFilename(fileNameWithExtension));
             if (CoreConfig.OutputFilePromptQuality)
             {
-                outputSettings = await request.Ui.PromptOutputSettingsAsync(outputSettings, cancellationToken).ConfigureAwait(false) ?? outputSettings;
+                outputSettings = await request.Ui.PromptOutputSettingsAsync(outputSettings, cancellationToken).ConfigureAwait(false);
+                if (outputSettings == null)
+                {
+                    // The user cancelled the quality dialog
+                    return null;
+                }
             }
 
             try

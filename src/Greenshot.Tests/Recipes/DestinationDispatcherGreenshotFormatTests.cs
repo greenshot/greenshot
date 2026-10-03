@@ -74,6 +74,59 @@ namespace Greenshot.Tests.Recipes
                 => Task.FromResult(ExportResult.Succeeded(clearsModified: false, keepsCapture: _keepsCapture));
         }
 
+        /// <summary>
+        /// Counts how often it was called
+        /// </summary>
+        private class CountingDestination : StubDestination
+        {
+            public CountingDestination(string designation) : base(designation)
+            {
+            }
+
+            public int Calls { get; private set; }
+
+            public override Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
+            {
+                Calls++;
+                return base.ExportAsync(request, cancellationToken);
+            }
+        }
+
+        /// <summary>
+        /// An interactive user who answers the quality dialog with OK or Cancel
+        /// </summary>
+        private class QualityUserInteraction : IUserInteraction
+        {
+            private readonly bool _ok;
+
+            public QualityUserInteraction(bool ok)
+            {
+                _ok = ok;
+            }
+
+            public int QualityPrompts { get; private set; }
+
+            public bool IsInteractive => true;
+
+            public Task<SurfaceOutputSettings> PromptOutputSettingsAsync(SurfaceOutputSettings current, CancellationToken cancellationToken)
+            {
+                QualityPrompts++;
+                return Task.FromResult(_ok ? current : null);
+            }
+
+            public Task NotifyAsync(Notification notification) => Task.CompletedTask;
+
+            public Task<string> PickSaveFileAsync(SaveFileRequest request, CancellationToken cancellationToken) => throw new InvalidOperationException("Not expected");
+
+            public Task<IDestination> PickDestinationAsync(IReadOnlyList<IDestination> choices, ICaptureDetails captureDetails, CancellationToken cancellationToken) => throw new InvalidOperationException("Not expected");
+
+            public Task<TResult> ShowDialogAsync<TResult>(IDialogViewModel<TResult> viewModel, CancellationToken cancellationToken) => throw new InvalidOperationException("Not expected");
+
+            public Task<T> RunWithProgressAsync<T>(string title, Func<IProgress<ProgressInfo>, CancellationToken, Task<T>> work, CancellationToken cancellationToken) => work(new Progress<ProgressInfo>(), cancellationToken);
+
+            public Task<bool?> ConfirmAsync(string title, string message, bool isError, CancellationToken cancellationToken) => throw new InvalidOperationException("Not expected");
+        }
+
         private static CaptureFlowContext CreateContext(string filename)
         {
             var bmp = new Bitmap(64, 48);
@@ -117,6 +170,54 @@ namespace Greenshot.Tests.Recipes
                 byte[] bytes = File.ReadAllBytes(path);
                 Assert.True(bytes.Length > 14, $"File is {bytes.Length} bytes");
                 Assert.StartsWith("Greenshot", Encoding.ASCII.GetString(bytes, bytes.Length - 14, 14));
+            }
+            finally
+            {
+                File.Delete(path);
+            }
+        }
+
+        [Fact]
+        public async Task Dispatch_QualityDialogOk_Saves()
+        {
+            string path = Path.Combine(Path.GetTempPath(), $"dispatcher_{Guid.NewGuid():N}.png");
+            try
+            {
+                using CaptureFlowContext context = CreateContext(path);
+                context.Properties["Destination.PromptQuality"] = true;
+                context.Properties["Destination.SurfaceOutputSettings"] = new SurfaceOutputSettings(WellKnownFileFormats.Png);
+                var userInteraction = new QualityUserInteraction(true);
+                context.UserInteraction = userInteraction;
+
+                await DispatchWithoutUiContext(context, new StubDestination(nameof(WellKnownDestinations.FileNoDialog)));
+
+                Assert.Equal(1, userInteraction.QualityPrompts);
+                Assert.True(File.Exists(path), "The file was not saved");
+            }
+            finally
+            {
+                File.Delete(path);
+            }
+        }
+
+        [Fact]
+        public async Task Dispatch_QualityDialogCancelled_DoesNotSaveButRunsTheOtherDestinations()
+        {
+            string path = Path.Combine(Path.GetTempPath(), $"dispatcher_{Guid.NewGuid():N}.png");
+            try
+            {
+                using CaptureFlowContext context = CreateContext(path);
+                context.Properties["Destination.PromptQuality"] = true;
+                context.Properties["Destination.SurfaceOutputSettings"] = new SurfaceOutputSettings(WellKnownFileFormats.Png);
+                var userInteraction = new QualityUserInteraction(false);
+                context.UserInteraction = userInteraction;
+                var clipboard = new CountingDestination(nameof(WellKnownDestinations.Clipboard));
+
+                await DispatchWithoutUiContext(context, new StubDestination(nameof(WellKnownDestinations.FileNoDialog)), clipboard);
+
+                Assert.Equal(1, userInteraction.QualityPrompts);
+                Assert.False(File.Exists(path), "The file was saved although the quality dialog was cancelled");
+                Assert.Equal(1, clipboard.Calls);
             }
             finally
             {
