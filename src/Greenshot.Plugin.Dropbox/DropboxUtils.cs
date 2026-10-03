@@ -49,6 +49,10 @@ public static class DropboxUtils
     /// <returns>true when uploaded, false when Dropbox didn't accept it, null when the user didn't authorize</returns>
     public static async Task<bool?> UploadToDropboxAsync(EncodedImage image, string filename, IUserInteraction userInteraction, IProgress<ProgressInfo> progress, CancellationToken cancellationToken)
     {
+        // Stored encrypted; a token stored as plain text by an old version is returned unchanged by Decrypt.
+        // A null result for a non-empty stored token means the DPAPI value belongs to another user profile/machine.
+        string refreshToken = string.IsNullOrEmpty(DropboxConfig.RefreshToken) ? DropboxConfig.RefreshToken : DropboxConfig.RefreshToken.Decrypt();
+        bool hasUnusableStoredToken = !string.IsNullOrEmpty(DropboxConfig.RefreshToken) && refreshToken == null;
         var oauth2Settings = new OAuth2Settings
         {
             AuthUrlPattern = "https://www.dropbox.com/oauth2/authorize?client_id={ClientId}&response_type=code&state={State}&redirect_uri={RedirectUrl}&token_access_type=offline",
@@ -58,9 +62,8 @@ public static class DropboxUtils
             ClientId = DropBoxCredentials.CONSUMER_KEY,
             ClientSecret = DropBoxCredentials.CONSUMER_SECRET,
             AuthorizeMode = OAuth2AuthorizeMode.JsonReceiver,
-            // Stored encrypted, a token stored as plain text by an old version is returned unchanged by Decrypt
-            RefreshToken = string.IsNullOrEmpty(DropboxConfig.RefreshToken) ? DropboxConfig.RefreshToken : DropboxConfig.RefreshToken.Decrypt(),
-            AccessToken = DropboxConfig.AccessToken,
+            RefreshToken = refreshToken,
+            AccessToken = hasUnusableStoredToken ? null : DropboxConfig.AccessToken,
             AccessTokenExpires = DropboxConfig.AccessTokenExpires
         };
         try
