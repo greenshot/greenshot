@@ -11,8 +11,7 @@ This PR implements a complete WPF-based settings window that replaces the Window
 src/Greenshot.Base/Wpf/
 ├── IniValueConverter.cs       - Converters for expert/fixed/visibility handling
 ├── ThemeManager.cs             - Dark/light theme detection and management
-├── TranslateExtension.cs       - XAML markup extension for translations
-└── TranslationData.cs          - INotifyPropertyChanged wrapper for language keys
+└── TextExtension.cs            - XAML markup extension for the typed language sections ({wpf:Text Section.Property})
 ```
 
 ### Application Layer (Greenshot/Forms/Wpf/)
@@ -33,16 +32,15 @@ docs/WPF-Settings-Window.md        - Comprehensive implementation guide
 
 ### 1. Translation Support ✅
 ```xaml
-<!-- XAML: Translations bind to language keys -->
-<Label Content="{wpf:Translate settings_language}"/>
-<CheckBox Content="{wpf:Translate settings_playsound}"
+<!-- XAML: texts bind to the properties of the language sections -->
+<Label Content="{wpf:Text Settings.Language}"/>
+<CheckBox Content="{wpf:Text Settings.Playsound}"
           IsChecked="{Binding CoreConfiguration.PlayCameraSound}"/>
 ```
 
 **How it works:**
-- `TranslateExtension` creates binding to `TranslationData`
-- `TranslationData` subscribes to `Language.LanguageChanged` event
-- When language changes, `PropertyChanged` fires and UI updates automatically
+- `TextExtension` binds to the property of the language section (Dapplo.Ini, see `Greenshot.Base/Languages/Texts.cs`)
+- The section raises `PropertyChanged` for the texts which changed when the language is switched, the UI updates automatically
 
 ### 2. INI Value Binding with OnPropertyChanged ✅
 ```xaml
@@ -68,7 +66,7 @@ docs/WPF-Settings-Window.md        - Comprehensive implementation guide
 
 **Expert Attribute** (controls hidden when not in expert mode):
 ```xaml
-<CheckBox Content="{wpf:Translate expertsettings_autoreducecolors}"
+<CheckBox Content="{wpf:Text Settings.ExpertAutoreducecolors}"
           Visibility="{Binding ExpertModeEnabled, 
                        Converter={StaticResource ExpertVisibilityConverter}}"
           IsChecked="{Binding CoreConfiguration.OutputFileAutoReduceColors}"/>
@@ -77,13 +75,13 @@ docs/WPF-Settings-Window.md        - Comprehensive implementation guide
 ### 4. Grouping ✅
 ```xaml
 <!-- Settings organized in GroupBox elements -->
-<GroupBox Header="{wpf:Translate settings_applicationsettings}">
+<GroupBox Header="{wpf:Text Settings.Applicationsettings}">
     <StackPanel>
         <!-- Application settings grouped here -->
     </StackPanel>
 </GroupBox>
 
-<GroupBox Header="{wpf:Translate settings_capture}">
+<GroupBox Header="{wpf:Text Settings.Capture}">
     <StackPanel>
         <!-- Capture settings grouped here -->
     </StackPanel>

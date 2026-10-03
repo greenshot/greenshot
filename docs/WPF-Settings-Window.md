@@ -17,14 +17,12 @@ The WPF settings window provides a modern, theme-aware user interface for managi
 
 ### WPF Infrastructure (`Greenshot.Base/Wpf/`)
 
-#### TranslateExtension.cs
-XAML markup extension that provides translation binding:
+#### TextExtension.cs
+XAML markup extension that binds to a text of a language section (`Section.Property`):
 ```xaml
-<Label Content="{wpf:Translate settings_language}"/>
+<Label Content="{wpf:Text Settings.Language}"/>
 ```
-
-#### TranslationData.cs
-Implements `INotifyPropertyChanged` to update translations when language changes. Subscribes to `Language.LanguageChanged` event.
+The sections are typed interfaces in `Greenshot.Base/Languages` (`ICoreLanguage`, `ISettingsLanguage`, ...), loaded by Dapplo.Ini from the language packs `greenshot.{ietf}.ini`.
 
 #### ThemeManager.cs
 Singleton that:
@@ -78,7 +76,7 @@ if (_settingsWindow.ShowDialog() == true)
 Settings are bound directly to the CoreConfiguration properties:
 
 ```xaml
-<CheckBox Content="{wpf:Translate settings_playsound}"
+<CheckBox Content="{wpf:Text Settings.Playsound}"
           IsChecked="{Binding CoreConfiguration.PlayCameraSound, Mode=TwoWay}"/>
 ```
 
@@ -100,22 +98,22 @@ Theme changes are detected automatically and the UI updates in real-time.
 
 ## Translation Support
 
-Translations update automatically when language changes through the `TranslationData` class:
+Translations update automatically when the language changes:
 
-1. XAML uses `{wpf:Translate key}` markup extension
-2. Extension creates `TranslationData` instance for the key
-3. `TranslationData` subscribes to `Language.LanguageChanged`
-4. When language changes, `PropertyChanged` is raised
-5. WPF binding updates the UI text
+1. XAML uses the `{wpf:Text Section.Property}` markup extension
+2. The extension binds to that property of the language section (one object per section, nothing is created per binding)
+3. Switching the language (`Texts.SetLanguage`) reloads the sections, they raise `PropertyChanged` for the texts which changed
+4. WPF binding updates the UI text
 
 ## Extending the Settings Window
 
 ### Adding a New Setting
 
 1. Ensure the property exists in `CoreConfiguration`
-2. Add the control to the appropriate tab in `SettingsWindow.xaml`:
+2. Add the text: `your_setting=...` in the `[Settings]` section of `src/Greenshot/Languages/greenshot.en-US.ini` and the property `string YourSetting { get; }` in `ISettingsLanguage`
+3. Add the control to the appropriate tab in `SettingsWindow.xaml`:
 ```xaml
-<CheckBox Content="{wpf:Translate your_setting_key}"
+<CheckBox Content="{wpf:Text Settings.YourSetting}"
           IsChecked="{Binding CoreConfiguration.YourSetting, Mode=TwoWay}"/>
 ```
 
@@ -123,7 +121,7 @@ Translations update automatically when language changes through the `Translation
 
 1. Add a new `TabItem` to the `TabControl`:
 ```xaml
-<TabItem Header="{wpf:Translate your_tab_title}">
+<TabItem Header="{wpf:Text Settings.YourTabTitle}">
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel>
             <!-- Your settings groups here -->
@@ -137,7 +135,7 @@ Translations update automatically when language changes through the `Translation
 Use the `ExpertVisibilityConverter`:
 ```xaml
 <CheckBox Visibility="{Binding ExpertModeEnabled, Converter={StaticResource ExpertVisibilityConverter}}"
-          Content="{wpf:Translate expert_setting}"
+          Content="{wpf:Text Settings.ExpertYourSetting}"
           IsChecked="{Binding CoreConfiguration.ExpertSetting, Mode=TwoWay}"/>
 ```
 

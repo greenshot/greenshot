@@ -4,7 +4,9 @@ This guide provides comprehensive instructions for working with translations in 
 
 ## Overview
 
-Greenshot supports **39 languages** in the main application and varying numbers of languages for different plugins. Translation files are stored in XML format (with a few legacy `.ini` files in the Office plugin).
+Greenshot supports **40 languages** in the main application and varying numbers of languages for different plugins. The application texts are stored in INI language packs, read with Dapplo.Ini. English (en-US) is the base language: every key that is missing in a translation shows the English text.
+
+The help files (`help-{ietf}.html`) and the installer and website translations (`src/Greenshot/Languages/installer`, `src/Greenshot/Languages/website`) are separate and not described here.
 
 ### Repository Structure
 
@@ -12,123 +14,133 @@ Greenshot supports **39 languages** in the main application and varying numbers 
 src/
 ├── Greenshot/
 │   └── Languages/
-│       ├── language-en-US.xml    (Primary/Reference language - 281 resources)
-│       ├── language-de-DE.xml
-│       ├── language-fr-FR.xml
-│       └── ... (39 total languages)
+│       ├── greenshot.en-US.ini    (Base language - 598 keys)
+│       ├── greenshot.de-DE.ini
+│       ├── greenshot.fr-FR.ini
+│       └── ... (40 language packs)
 ├── Greenshot.Plugin.Box/
 │   └── Languages/
-│       └── language_box-{locale}.xml    (19 languages)
+│       └── greenshot.box.{ietf}.ini    (20 languages)
 ├── Greenshot.Plugin.Confluence/
 │   └── Languages/
-│       └── language_confluence-{locale}.xml    (20 languages)
+│       └── greenshot.confluence.{ietf}.ini    (21 languages)
 ├── Greenshot.Plugin.Dropbox/
 │   └── Languages/
-│       └── language_dropbox-{locale}.xml    (19 languages)
+│       └── greenshot.dropbox.{ietf}.ini    (20 languages)
 ├── Greenshot.Plugin.ExternalCommand/
 │   └── Languages/
-│       └── language_externalcommand-{locale}.xml    (20 languages)
-├── Greenshot.Plugin.Flickr/
-│   └── Languages/
-│       └── language_flickr-{locale}.xml    (19 languages)
-├── Greenshot.Plugin.GooglePhotos/
-│   └── Languages/
-│       └── language_googlephotos-{locale}.xml    (19 languages)
+│       └── greenshot.externalcommand.{ietf}.ini    (21 languages)
 ├── Greenshot.Plugin.Imgur/
 │   └── Languages/
-│       └── language_imgur-{locale}.xml    (21 languages)
+│       └── greenshot.imgur.{ietf}.ini    (22 languages)
 ├── Greenshot.Plugin.Jira/
 │   └── Languages/
-│       └── language_jira-{locale}.xml    (20 languages)
-├── Greenshot.Plugin.Office/
-│   └── Languages/
-│       └── language_office-{locale}.ini    (2 languages - LEGACY FORMAT)
-└── Greenshot.Plugin.Photobucket/
+│       └── greenshot.jira.{ietf}.ini    (21 languages)
+└── Greenshot.Plugin.Office/
     └── Languages/
-        └── language_photobucket-{locale}.xml    (19 languages)
+        └── greenshot.office.{ietf}.ini    (4 languages)
 ```
+
+All language packs, core and plugins, are installed flat into the `Languages` folder of Greenshot.
 
 ## Supported Languages
 
-### Main Application (39 languages)
+### Main Application (40 languages)
 
-Arabic (ar-SY), Catalan (ca-CA), Czech (cs-CZ), Danish (da-DK), German (de-DE), Franconian German (de-x-franconia), Greek (el-GR), **English (en-US)** [PRIMARY], Spanish (es-ES), Estonian (et-EE), Persian (fa-IR), Finnish (fi-FI), French (fr-FR), Quebec French (fr-QC), Hebrew (he-IL), Hungarian (hu-HU), Indonesian (id-ID), Italian (it-IT), Japanese (ja-JP), Kabyle (kab-DZ), Korean (ko-KR), Lithuanian (lt-LT), Latvian (lv-LV), Dutch (nl-NL), Norwegian (nn-NO), Polish (pl-PL), Brazilian Portuguese (pt-BR), Portuguese (pt-PT), Romanian (ro-RO), Russian (ru-RU), Slovak (sk-SK), Slovenian (sl-SI), Serbian (sr-RS), Swedish (sv-SE), Turkish (tr-TR), Ukrainian (uk-UA), Vietnamese (vi-VN), Simplified Chinese (zh-CN), Traditional Chinese (zh-TW)
+Arabic (ar-SY), Catalan (ca-CA), Czech (cs-CZ), Danish (da-DK), German (de-DE), Franconian German (de-x-franconia), Greek (el-GR), **English (en-US)** [BASE], Spanish (es-ES), Estonian (et-EE), Persian (fa-IR), Finnish (fi-FI), French (fr-FR), Quebec French (fr-QC), Hebrew (he-IL), Hungarian (hu-HU), Indonesian (id-ID), Italian (it-IT), Japanese (ja-JP), Kabyle (kab-DZ), Korean (ko-KR), Lithuanian (lt-LT), Latvian (lv-LV), Dutch (nl-NL), Norwegian Nynorsk (nn-NO), Polish (pl-PL), Brazilian Portuguese (pt-BR), Portuguese (pt-PT), Romanian (ro-RO), Russian (ru-RU), Slovak (sk-SK), Slovenian (sl-SI), Serbian (sr-RS), Swedish (sv-SE), Turkish (tr-TR), Ukrainian (uk-UA), Valencian (va-VA), Vietnamese (vi-VN), Simplified Chinese (zh-CN), Traditional Chinese (zh-TW)
 
 ### Plugin Language Coverage
 
-**Most plugins support 19-21 languages:**
-cs-CZ, de-DE, en-US, fr-FR, id-ID, it-IT, ja-JP, kab-DZ, ko-KR, lv-LV, pl-PL, pt-PT, ru-RU, sr-RS, sv-SE, tr-TR, uk-UA, zh-CN, zh-TW
+**Most plugins support 20-22 languages:**
+cs-CZ, de-DE, en-US, fr-FR, id-ID, it-IT, ja-JP, kab-DZ, ko-KR, lv-LV, pl-PL, pt-BR, pt-PT, ru-RU, sr-RS, sv-SE, tr-TR, uk-UA, zh-CN, zh-TW
 
-**Some plugins also include:** nl-NL, sk-SK
+**Some plugins also include:** nl-NL (Confluence, Imgur, Jira), sk-SK (ExternalCommand, Imgur)
 
-**NOTE:** The Office plugin currently only has 2 languages (fr-FR, ja-JP) and uses the legacy `.ini` format instead of XML.
+**NOTE:** The Office plugin has only 4 languages (de-DE, en-US, pt-BR, tr-TR).
 
 ## Translation File Format
 
-### XML Format (Standard)
+### Core Language Pack
 
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<language description="English" ietf="en-US" version="1.0.4" languagegroup="1">
-    <resources>
-        <resource name="key_name">Translation text</resource>
-        <resource name="another_key">Another translation</resource>
-        <!-- Comments can be added for translator context -->
-    </resources>
-</language>
-```
-
-**XML Attributes:**
-- `description`: Language name in that language (e.g., "Deutsch", "Français", "日本語")
-- `ietf`: IETF language tag (e.g., "en-US", "de-DE", "pt-BR")
-- `version`: Version of the translation (should match or be close to app version)
-- `languagegroup`: Windows language group identifier (see [MSDN docs](http://msdn.microsoft.com/en-us/goglobal/bb964663#EVD))
-
-**Special Characters:**
-- Use XML entities for special characters: `&lt;` `&gt;` `&amp;` `&quot;` `&apos;`
-- Unicode characters should be encoded properly in UTF-8
-- Newlines are preserved within resource elements
-
-### INI Format (Legacy - Office Plugin Only)
+File name: `greenshot.{ietf}.ini`, for example `greenshot.de-DE.ini`. Example from `greenshot.de-DE.ini`:
 
 ```ini
-[language]
-description=English
-ietf=en-US
-version=1.0.0
-languagegroup=1
-prefix=office
+[__language__]
+Description=Deutsch
 
-[messages]
-settings_title=Office settings
-word_lockaspect=Lock image aspect ratio on Word exports
+[Core]
+about_title=Über Greenshot
+bugreport_cancel=Schließen
+clipboard_inuse=Greenshot kann nicht in die Zwischenablage schreiben, da sie vom Prozess {0} blockiert ist.
+ClipboardFormat.DIB=Geräteunabhängiges Bitmap (DIB)
+
+[Editor]
+...
 ```
 
-**NOTE:** New translations should avoid the `.ini` format. The Office plugin should eventually be migrated to XML format.
+**Sections:**
+- `[__language__]` (optional, first section, only in core packs): `Description=` is the language name shown in the language picker, written in that language (e.g. "Deutsch", "Français", "日本語"). It is needed for tags Windows doesn't know, such as `de-x-franconia`; without it the Windows native name of the language is used.
+- `[Core]`: general texts (`about_title`, `contextmenu_capturearea`, ...) and the texts of enum values (`WindowCaptureMode.Auto`, `ClipboardFormat.PNG`, ...)
+- `[Editor]`: the image editor (`undo`, `align_center`, ...)
+- `[Settings]`: the settings dialog; the expert settings keys start with `expert_`
+- `[SelfService]`: Self-Service and troubleshooting
+- `[Recipe]`: capture recipes, including the labels of the built-in recipe extensions (`extension_border`, ...)
+
+Every key must be inside a section. A key in the wrong section is not found. Write section names exactly as in en-US.
+
+### Plugin Language Pack
+
+File name: `greenshot.{module}.{ietf}.ini`, for example `greenshot.imgur.de-DE.ini`. The modules are `box`, `confluence`, `dropbox`, `externalcommand`, `imgur`, `jira` and `office`. A plugin pack has one section named after the plugin: `[Box]`, `[Confluence]`, `[Dropbox]`, `[ExternalCommand]`, `[Imgur]`, `[Jira]`, `[Office]`. Example from `greenshot.imgur.de-DE.ini`:
+
+```ini
+[Imgur]
+upload_menu_item=Zu Imgur hochladen
+settings_title=Imgur-Einstellungen
+delete_question=Sind Sie sicher, dass Sie das Bild {0} von Imgur löschen möchten?
+history=Verlauf...
+```
+
+### Lines and Values
+
+- One `key=value` per line, without spaces around `=`.
+- Keys are case-insensitive, and `_` and `-` are ignored when keys are compared (`about_title`, `AboutTitle` and `about-title` are the same key). Keep the spelling of the en-US file anyway.
+- A value is one line. Write `\n` for a line break, `\t` for a tab and `\\` for a backslash:
+  ```ini
+  about_license=Copyright © 2007-2026 Thomas Braun, Jens Klingen, Robin Krom\nGreenshot comes with ABSOLUTELY NO WARRANTY. ...
+  ```
+- `;` and `#` inside a value are fine. Only lines starting with `;` or `#` are comments.
+- No XML escaping: `&`, `<`, `>` and quotes are written as they are (`tooltip=Open Greenshot Self-Service & Troubleshooting (S)`).
+- Files are UTF-8 without BOM, like the existing files.
+
+### Fallback and User Overrides
+
+- A key missing in a translation shows the English (en-US) text. A partial language pack works.
+- Languages fall back through their parent language: for `de-DE`, a `greenshot.de.ini` is also used if it exists, then en-US.
+- A file with the same name in `%APPDATA%\Greenshot\Languages` overrides single keys of the installed pack. It only needs the sections and keys it changes, so users can fix or add translations without replacing the installed files. This is also the easiest way to try a translation in a running Greenshot.
 
 ## Translation Workflow
 
 ### 1. Identifying Changes
 
-When the English (en-US) language file is updated, all other language files need to be synchronized:
+When the English (en-US) language pack is updated, all other language packs need to be synchronized:
 
 **Check for:**
-- **New resources** added to en-US (need translation in all languages)
-- **Removed resources** in en-US (should be removed from all languages)
-- **Modified resources** in en-US (translations may need updating)
+- **New keys** added to en-US (need translation in all languages; until then English is shown)
+- **Removed keys** in en-US (should be removed from all languages)
+- **Modified texts** in en-US (translations may need updating)
 
 ### 2. Translation Best Practices
 
 #### Understanding Context
 
-- **Resource name prefixes** indicate related features:
-  - `editor_*` - Image editor features
-  - `settings_*` - Settings/preferences
-  - `contextmenu_*` - Context menu items
-  - `clipboard_*` - Clipboard operations
-  - `colorpicker_*` - Color picker dialog
+- **Sections and key prefixes** indicate related features:
+  - `[Editor]` - Image editor features
+  - `[Settings]` - Settings/preferences (`expert_*` - expert settings)
+  - `[Core]` `contextmenu_*` - Context menu items
+  - `[Core]` `clipboard_*` - Clipboard operations
+  - `[Core]` `colorpicker_*` - Color picker dialog
   
-- **Examine surrounding messages** with the same prefix to understand the UI context
+- **Examine surrounding keys** in the same section or with the same prefix to understand the UI context
 - **Check other languages** to see how they handled similar phrases
 - **Look at German translations** as they're typically high-quality and maintained
 
@@ -137,16 +149,17 @@ When the English (en-US) language file is updated, all other language files need
 1. **Reverse translation check**: After translating, mentally translate back to English to verify meaning is preserved
 2. **Consistency**: Use the same translation for the same English term throughout
 3. **UI constraints**: Keep translations reasonably similar in length to English (some UI space is limited)
-4. **Placeholders**: Preserve placeholders like `{0}`, `{1}` in the same order
+4. **Placeholders**: Preserve placeholders like `{0}`, `{1}` in the same order, and keep expressions like `${now:yyyy-MM-dd HH:mm:ss}` unchanged
 5. **Keyboard shortcuts**: Keep keyboard shortcut indicators (e.g., `(C)` in "Crop (C)")
 6. **Capitalization**: Follow the capitalization conventions of the target language
 
 #### Common Pitfalls
 
-- **Don't** remove or change resource names (the `name="..."` attribute)
-- **Don't** change XML structure or encoding
+- **Don't** remove or change keys (the part before `=`) or section names
+- **Don't** put a key in another section, or before the first section
+- **Don't** split a value over several lines; use `\n`
 - **Don't** translate placeholder variables like `{0}`, `{1}`
-- **Do** preserve newlines and formatting in multi-line messages
+- **Do** keep `\n` line breaks and formatting in multi-line messages
 - **Do** keep HTML tags unchanged in HTML-containing messages
 
 ### 3. Maintaining Consistency
@@ -158,59 +171,85 @@ When the English (en-US) language file is updated, all other language files need
 - "Export" vs "Save" - Understand the distinction
 - Plugin names (Box, Dropbox, Imgur, etc.) - Usually not translated
 
-### 4. Adding Context to English File
+### 4. Adding Context to the English File
 
-When adding new resources to the English file, consider adding XML comments to help translators:
+The language packs have no comments, the values must stay on one line. Context for translators lives in the language interface in code: every key with a fixed name is a property there, with the English text as documentation (see "Texts in Code" below). Put additional context in the pull request or issue that asks for the translation.
 
-```xml
-<!-- Button label for confirming deletion -->
-<resource name="delete_confirm">Delete</resource>
+## Texts in Code
 
-<!-- Error message when file cannot be saved -->
-<resource name="save_error">Could not save file to {0}. Check permissions.</resource>
-```
+Every key with a fixed name is a typed string property on a language interface:
+
+| Section | Interface | Used as |
+|---------|-----------|---------|
+| `[Core]` | `src/Greenshot.Base/Languages/ICoreLanguage.cs` | `Texts.Core.AboutTitle` |
+| `[Editor]` | `src/Greenshot.Base/Languages/IEditorLanguage.cs` | `Texts.Editor.Undo` |
+| `[Settings]` | `src/Greenshot.Base/Languages/ISettingsLanguage.cs` | `Texts.Settings.Language` |
+| `[SelfService]` | `src/Greenshot.Base/Languages/ISelfServiceLanguage.cs` | `Texts.SelfService.Title` |
+| `[Recipe]` | `src/Greenshot.Base/Languages/IRecipeLanguage.cs` | `Texts.Recipe.ImportTitle` |
+| `[Imgur]` etc. | `src/Greenshot.Plugin.Imgur/IImgurLanguage.cs` etc. | `Texts.Get<IImgurLanguage>().History` |
+
+In XAML a text is used as `{wpf:Text Editor.Undo}`.
+
+The property name is the key without `_` and `-`, in PascalCase: key `context_menu_title` becomes property `ContextMenuTitle`.
+
+Keys that are only known at runtime are looked up with `Texts.Config.GetTranslation(key)`: the texts of enum values (`WindowCaptureMode.Auto` in `[Core]`) and the labels of the built-in recipe extensions (written as `Recipe.extension_border`).
+
+**Adding a new text:**
+1. Add `key=value` to the en-US pack, in the right section
+2. Add a string property with the matching name to the language interface (not needed for runtime keys)
+3. Add the translations to the other language packs
 
 ## Validation and Testing
 
 ### Manual Checks
 
-1. **XML Well-formedness**: Ensure files are valid XML
+1. **Structure**: No line outside a section, every line is `key=value`, a comment or empty
    ```bash
-   xmllint --noout src/Greenshot/Languages/language-de-DE.xml
+   awk '{ sub(/\r$/, "") }
+        FNR == 1 { insection = 0 }
+        /^\[.+\]$/ { insection = 1; next }
+        /^[[:space:]]*$/ || /^[;#]/ { next }
+        !insection || !/=/ { print FILENAME ":" FNR ": " $0 }' src/Greenshot/Languages/greenshot.de-DE.ini
    ```
 
-2. **Encoding**: All XML files must be UTF-8 with BOM (`﻿<?xml`)
+2. **Encoding**: All language packs must be UTF-8 (without BOM)
 
-3. **Resource Count**: Compare resource counts between languages
+3. **Key Count**: Compare key counts between languages (the count includes the `Description=` line)
    ```bash
-   grep -c '<resource name=' src/Greenshot/Languages/language-*.xml
+   grep -c '^[^;#[][^=]*=' src/Greenshot/Languages/greenshot.*.ini
    ```
 
-4. **Missing Translations**: Look for empty resource values
+4. **Empty Values**: Look for keys with an empty value (`about_translation=` is empty on purpose)
    ```bash
-   grep '<resource name="[^"]*"></resource>' src/Greenshot/Languages/language-*.xml
+   grep -n '^[^;#[][^=]*=[[:space:]]*$' src/Greenshot/Languages/greenshot.*.ini
    ```
+
+See [TRANSLATION_TOOLS.md](TRANSLATION_TOOLS.md) for comparing keys with en-US and for the validation scripts.
+
+### Testing in Greenshot
+
+Copy the language pack to `%APPDATA%\Greenshot\Languages` and restart Greenshot; no build is needed. Remove the file afterwards, otherwise it keeps overriding the installed pack.
 
 ### Automated Validation Ideas
 
 Consider creating tools to:
-- Compare resource keys between en-US and other languages
-- Detect missing or extra resources
+- Compare keys between en-US and other languages
+- Detect missing or extra keys
 - Verify placeholder consistency (`{0}`, `{1}`, etc.)
 - Check for common translation errors
-- Validate XML structure and encoding
+- Check that every key of en-US has a property on the language interface
 
 ## Working with Specific Plugins
 
-Each plugin has its own `Languages/` directory with fewer resources than the main application.
+Each plugin has its own `Languages/` directory with fewer keys than the main application.
 
-**Typical plugin resource counts:**
-- **Main app**: ~281 resources
-- **Plugins**: ~5-20 resources each
+**Plugin key counts (en-US):**
+- **Main app**: 598 keys
+- **Plugins**: 9-25 keys each
 
 **Plugin naming convention:**
-- Pattern: `language_{pluginname}-{locale}.xml`
-- Example: `language_box-de-DE.xml`, `language_imgur-fr-FR.xml`
+- Pattern: `greenshot.{module}.{ietf}.ini`
+- Example: `greenshot.box.de-DE.ini`, `greenshot.imgur.fr-FR.ini`
 
 ## Translation Priorities
 
@@ -246,21 +285,19 @@ If you encounter:
 - **UI/UX questions** - Describe the uncertainty and propose translation options
 - **Special characters/encoding issues** - Document the specific characters involved
 
-## Migration TODO
+## TODO
 
 ### Office Plugin
-- [ ] Convert `language_office-*.ini` files to XML format
 - [ ] Expand Office plugin translations to match main app language coverage
-- [ ] Update Office plugin to use same translation loading mechanism
 
 ### Documentation
 - [ ] Add screenshots of Greenshot UI with key areas labeled
-- [ ] Create visual guide showing where different resource groups appear
+- [ ] Create visual guide showing where different sections appear
 - [ ] Build automated translation synchronization tools
 
 ## References
 
-- **Language Loader Code**: `src/Greenshot.Base/Core/Language.cs`
+- **Language Loader Code**: `src/Greenshot.Base/Languages/Texts.cs`
+- **Language Interfaces**: `src/Greenshot.Base/Languages/I*Language.cs`, `src/Greenshot.Plugin.*/I*Language.cs`
 - **IETF Language Tags**: [RFC 5646](https://tools.ietf.org/html/rfc5646)
-- **Windows Language Groups**: [MSDN Reference](http://msdn.microsoft.com/en-us/goglobal/bb964663#EVD)
 - **Contributing Guidelines**: `CONTRIBUTING.md` (for code style when examining code context)

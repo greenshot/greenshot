@@ -11,12 +11,13 @@ be helpful to understand the context of a message.
 
 ## Primary Language and Structure
 
-- The **leading language is English (en-US)**, located at `src/Greenshot/Languages/language-en-US.xml`
+- The **leading language is English (en-US)**, located at `src/Greenshot/Languages/greenshot.en-US.ini`
   - It is used during development and guaranteed to be up to date
-  - Currently contains **281 resources**
-- Translation files are in **XML format** (UTF-8 with BOM)
-- Greenshot supports **39 languages** in the main application
-- Plugins have their own language files (typically 19-21 languages per plugin)
+  - A key missing in a translation shows the English text
+- Translation files are **INI language packs** (UTF-8), read by Dapplo.Ini: every key is inside a `[Section]`
+  (`[Core]`, `[Editor]`, `[Settings]`, `[SelfService]`, `[Recipe]`), one `key=value` per line, `\n` for a line break
+- Greenshot supports **40 languages** in the main application
+- Plugins have their own language packs `greenshot.{plugin}.{ietf}.ini` with one section named after the plugin
 
 ## Key Documentation Resources
 
@@ -24,7 +25,7 @@ be helpful to understand the context of a message.
 
 1. **`docs/translation/TRANSLATION_GUIDE.md`** - Comprehensive guide covering:
    - Repository structure and language coverage
-   - Translation file format (XML and legacy INI)
+   - Translation file format (INI language packs)
    - Translation workflow and best practices
    - Common issues and validation methods
 
@@ -43,7 +44,7 @@ be helpful to understand the context of a message.
    - Reviewing translations
 
 4. **`docs/translation/TRANSLATION_TOOLS.md`** - Validation and automation:
-   - Manual validation commands (xmllint, resource counting)
+   - Manual validation commands (section and key checks)
    - Automated validation scripts (Python, PowerShell)
    - Integration with build process
 
@@ -57,12 +58,12 @@ be helpful to understand the context of a message.
 Make sure to deliver high-quality translation by:
 
 1. **Understanding Context**:
-   - Interpreting the leading language file: messages with the same prefix usually 
-     belong to the same or a nearby feature (e.g., `editor_*`, `settings_*`, `contextmenu_*`)
+   - Interpreting the leading language file: messages in the same section or with the same prefix usually
+     belong to the same or a nearby feature (e.g., the `[Editor]` and `[Settings]` sections, `contextmenu_*` in `[Core]`)
    - Checking the glossary (`TRANSLATION_GLOSSARY.md`) for standard terms
    - Reviewing how other languages (especially German) handled similar phrases
-   - Examining resource name prefixes to identify related UI elements
-   - Checking if a term to translate appears elsewhere in the file (e.g., for 'destination', check settings_destination and related resources) and use the established term.
+   - Examining key prefixes to identify related UI elements
+   - Checking if a term to translate appears elsewhere in the file (e.g., for 'destination', check `destination` in `[Settings]` and related keys) and use the established term.
 
 2. **Reverse Translation Check**:
    - After translating, translate the message back to the primary language
@@ -78,7 +79,7 @@ Make sure to deliver high-quality translation by:
    - Preserving placeholders (`{0}`, `{1}`, etc.) in grammatically correct positions
    - Keeping keyboard shortcuts unchanged (e.g., `(C)` in "Crop (C)")
    - Not translating plugin/service names (Box, Imgur, Dropbox, etc.)
-   - Maintaining XML structure and UTF-8 encoding
+   - Keeping every key in its section, one line per text (`\n` for line breaks) and UTF-8 encoding
 
 5. **Documentation**:
    - Adding documentation about context to primary language file for ambiguous messages
@@ -86,8 +87,8 @@ Make sure to deliver high-quality translation by:
    - Maintaining translation documentation and guidelines
 
 6. **Quality Assurance**:
-   - Validating XML well-formedness after changes
-   - Checking for completeness (no missing resources compared to en-US)
+   - Checking that no line is outside a section and every line is `key=value`
+   - Checking for completeness (no missing keys compared to en-US)
    - Following the review checklists in `TRANSLATION_WORKFLOW.md`
 
 ## Communication
@@ -108,8 +109,9 @@ Before starting translation work:
 
 ## File Locations
 
-- **Main app**: `src/Greenshot/Languages/language-{locale}.xml`
-- **Plugins**: `src/Greenshot.Plugin.{Name}/Languages/language_{plugin}-{locale}.xml`
+- **Main app**: `src/Greenshot/Languages/greenshot.{locale}.ini`
+- **Plugins**: `src/Greenshot.Plugin.{Name}/Languages/greenshot.{plugin}.{locale}.ini`
+- **Installer and website** translations are separate XML files in `src/Greenshot/Languages/installer` and `website`
 - **Documentation**: `docs/translation/` (see `docs/translation/README.md` for index)
 - **Tools**: `docs/translation/TRANSLATION_TOOLS.md` (validation scripts and commands)
   
