@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -97,10 +98,15 @@ namespace Greenshot.Pipeline.Steps
             }
         }
 
-        public SourceAcquisitionStep(RecipeNodeConfig config)
+        private readonly ICaptureWindowPreparer _windowPreparer;
+
+        /// <param name="config">RecipeNodeConfig</param>
+        /// <param name="windowPreparer">Opens the window of the interactive selection while the screen is captured, optional</param>
+        public SourceAcquisitionStep(RecipeNodeConfig config, ICaptureWindowPreparer windowPreparer = null)
         {
             Config = config ?? throw new ArgumentNullException(nameof(config));
             Name = config.Name ?? "SourceAcquisitionStep";
+            _windowPreparer = windowPreparer;
         }
 
         public async Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
@@ -219,6 +225,13 @@ namespace Greenshot.Pipeline.Steps
                     context.Fail($"Unsupported capture source type: {sourceType}");
                 }
                 return;
+            }
+
+            // The window of the selection is built while the screen is captured
+            if (_windowPreparer != null && sourceType is CaptureSourceType.Region or CaptureSourceType.Window or CaptureSourceType.TextOcr &&
+                !hasTargetWindowConfig && HasInteractiveSelection(context))
+            {
+                _windowPreparer.PrepareWindow(InteractiveSelectionStep.GetSnapWindowsAsync(cancellationToken));
             }
 
             var acquired = await source.AcquireAsync(context, cancellationToken).ConfigureAwait(false);
@@ -386,6 +399,17 @@ namespace Greenshot.Pipeline.Steps
             return CoreConfig.CaptureMousepointer;
         }
 
+        /// <summary>
+        /// The default of ICoreConfiguration.CaptureDelay
+        /// </summary>
+        private const int DefaultCaptureDelay = 100;
+
+        private static bool HasInteractiveSelection(CaptureFlowContext context) =>
+            context.Recipe?.Nodes?.Any(node => string.Equals(node?.StepType, WellKnownStepTypes.InteractiveSelection, StringComparison.OrdinalIgnoreCase)) == true;
+
+        private static bool IsHotkeyTrigger(CaptureFlowContext context) =>
+            string.Equals(context.Trigger?.TriggerType, Greenshot.Base.Triggers.TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase);
+
         private async Task PreparePreCaptureAsync(CaptureFlowContext context, CancellationToken ct)
         {
             // Dismiss lingering tray balloons
@@ -426,6 +450,12 @@ namespace Greenshot.Pipeline.Steps
             if (delay < 0)
             {
                 delay = CoreConfig.CaptureDelay;
+                // The default delay lets a tray or context menu close before the capture; a hotkey opens no menu, so it only made
+                // the capture slower. A delay the user configured is kept.
+                if (delay == DefaultCaptureDelay && IsHotkeyTrigger(context))
+                {
+                    delay = 0;
+                }
             }
 
             if (delay > 0)

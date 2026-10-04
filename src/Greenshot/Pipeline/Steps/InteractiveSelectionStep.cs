@@ -101,16 +101,27 @@ namespace Greenshot.Pipeline.Steps
             bool allowSnapping = Config.GetParameter("AllowWindowSnapping", true);
             List<WindowDetails> snapWindows = new List<WindowDetails>();
 
+            // Started by the acquire step next to the capture, see GetSnapWindowsAsync
+            Task<List<WindowDetails>> snapWindowsTask = null;
+            bool started = _selector is ICaptureWindowPreparer preparer && preparer.TryTakeSnapWindows(out snapWindowsTask);
             if (allowSnapping)
             {
-                // Win32 enumeration, runs inline on the pool thread the step is already on
-                int depth = CoreConfig.WindowCaptureAllChildLocations ? 20 : 3;
-                foreach (var window in WindowDetails.GetVisibleWindows())
+                if (started)
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
-                    window.FreezeDetails();
-                    window.GetChildren(depth);
-                    snapWindows.Add(window);
+                    try
+                    {
+                        snapWindows = await snapWindowsTask.ConfigureAwait(false);
+                    }
+                    catch (Exception ex) when (ex is not OperationCanceledException)
+                    {
+                        Log.Warn("Getting the windows to snap to next to the capture failed, getting them now", ex);
+                        started = false;
+                    }
+                }
+                if (!started)
+                {
+                    // Win32 enumeration, runs inline on the pool thread the step is already on
+                    snapWindows = EnumerateSnapWindows(cancellationToken);
                 }
             }
 
@@ -146,6 +157,35 @@ namespace Greenshot.Pipeline.Steps
             {
                 await ExtractOcrTextAsync(context, cancellationToken).ConfigureAwait(false);
             }
+        }
+
+        /// <summary>
+        /// Get the windows to snap to on the thread pool, while the screen is captured: the acquire step hands the task to the selector,
+        /// the selection takes it from there. They are the windows of the moment of the capture as before.
+        /// </summary>
+        /// <param name="cancellationToken">CancellationToken</param>
+        internal static Task<List<WindowDetails>> GetSnapWindowsAsync(CancellationToken cancellationToken)
+        {
+#pragma warning disable RS0030 // R10: the Win32 window enumeration runs next to the capture
+            var task = Task.Run(() => EnumerateSnapWindows(cancellationToken), cancellationToken);
+#pragma warning restore RS0030
+            // Observed, also when no selection takes it
+            _ = task.ContinueWith(t => Log.Debug("Getting the windows to snap to failed", t.Exception), CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
+            return task;
+        }
+
+        private static List<WindowDetails> EnumerateSnapWindows(CancellationToken cancellationToken)
+        {
+            int depth = CoreConfig.WindowCaptureAllChildLocations ? 20 : 3;
+            var snapWindows = new List<WindowDetails>();
+            foreach (var window in WindowDetails.GetVisibleWindows())
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                window.FreezeDetails();
+                window.GetChildren(depth);
+                snapWindows.Add(window);
+            }
+            return snapWindows;
         }
 
         /// <summary>

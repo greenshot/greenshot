@@ -20,6 +20,7 @@
  */
 
 
+using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.UI.Capture;
 using Xunit;
@@ -99,6 +100,35 @@ public class PanelPlacementTests
         var current = new NativeRect(M, M, 300, 200);
         var bounds = PanelPlacement.Place(new NativeSize(320, 210), Monitor, new NativePoint(1800, 1000), current, null);
         Assert.Equal(new NativeRect(M, M, 320, 210), bounds);
+    }
+
+    [Fact]
+    public void Panel_Stays_WhenItOnlyTouchesTheSelection()
+    {
+        var current = new NativeRect(1920 - M - 300, 1080 - M - 200, 300, 200);
+        // Overlaps the top left 30 x 20 pixels of the panel, a free corner exists
+        var selection = new NativeRect(1000, 600, 640, 290);
+        Assert.True(selection.IntersectsWith(current));
+        var bounds = PanelPlacement.Place(Size, Monitor, new NativePoint(1200, 700), current, null, new[] { selection });
+        Assert.Equal(current, bounds);
+    }
+
+    [Fact]
+    public void Panel_Moves_WhenItCoversMuchOfTheSelection()
+    {
+        var current = new NativeRect(1920 - M - 300, 1080 - M - 200, 300, 200);
+        var selection = new NativeRect(1500, 800, 400, 270);
+        var bounds = PanelPlacement.Place(Size, Monitor, new NativePoint(1200, 700), current, null, new[] { selection });
+        Assert.Equal(new NativeRect(M, M, 300, 200), bounds);
+    }
+
+    [Fact]
+    public void Panel_Stays_WhenNoCornerIsFree()
+    {
+        // A maximized window as selection covers every corner: moving would only go from one overlap to another
+        var current = new NativeRect(M, M, 300, 200);
+        var bounds = PanelPlacement.Place(Size, Monitor, new NativePoint(1200, 700), current, null, new[] { Monitor });
+        Assert.Equal(current, bounds);
     }
 
     [Fact]

@@ -45,30 +45,30 @@ namespace Greenshot.UI.Capture
         public const int CursorClearance = 40;
 
         /// <summary>
-        /// The bounds for a panel
+        /// A panel may cover this part of what it should only loosely avoid (the selection) before it moves: small overlaps are not worth a jump
+        /// </summary>
+        public const double ToleratedOverlap = 0.25;
+
+        /// <summary>
+        /// The bounds for a panel. A panel stays where it is unless it comes close to the cursor, overlaps another panel,
+        /// or covers a good part of the selection while a completely free corner exists: moving from one overlap to another isn't worth it.
         /// </summary>
         /// <param name="size">Size of the panel</param>
         /// <param name="monitor">The monitor the cursor is on</param>
         /// <param name="cursor">The cursor</param>
-        /// <param name="current">Where the panel is now, it stays there when that is fine; empty for a new panel</param>
-        /// <param name="avoid">What the panel should not cover, e.g. the selection, the zoomer and other panels</param>
-        public static NativeRect Place(NativeSize size, NativeRect monitor, NativePoint cursor, NativeRect current, IEnumerable<NativeRect> avoid)
+        /// <param name="current">Where the panel is now, empty for a new panel</param>
+        /// <param name="avoid">What the panel must not cover, e.g. the other panels</param>
+        /// <param name="avoidLoosely">What the panel should not cover, e.g. the selection; a small overlap is tolerated, see ToleratedOverlap</param>
+        public static NativeRect Place(NativeSize size, NativeRect monitor, NativePoint cursor, NativeRect current, IEnumerable<NativeRect> avoid,
+            IEnumerable<NativeRect> avoidLoosely = null)
         {
             var avoidList = (avoid ?? Enumerable.Empty<NativeRect>()).Where(rect => !rect.IsEmpty).ToList();
+            var looseList = (avoidLoosely ?? Enumerable.Empty<NativeRect>()).Where(rect => !rect.IsEmpty).ToList();
             var cursorArea = new NativeRect(cursor.X - CursorClearance, cursor.Y - CursorClearance, 2 * CursorClearance, 2 * CursorClearance);
 
-            bool Free(NativeRect rect, bool checkAvoid) =>
-                monitor.Contains(rect) && !rect.IntersectsWith(cursorArea) && (!checkAvoid || !avoidList.Any(other => rect.IntersectsWith(other)));
-
-            if (!current.IsEmpty)
-            {
-                // A panel which changed size grows or shrinks away from its corner, so its outer edges stay where they are
-                var resized = Resize(current, size, monitor);
-                if (Free(resized, true))
-                {
-                    return resized;
-                }
-            }
+            bool AwayFromCursor(NativeRect rect) => monitor.Contains(rect) && !rect.IntersectsWith(cursorArea);
+            bool ClearOfPanels(NativeRect rect) => !avoidList.Any(other => rect.IntersectsWith(other));
+            bool Free(NativeRect rect) => AwayFromCursor(rect) && ClearOfPanels(rect) && !looseList.Any(other => rect.IntersectsWith(other));
 
             int left = monitor.Left + Margin;
             int top = monitor.Top + Margin;
@@ -84,13 +84,46 @@ namespace Greenshot.UI.Capture
                 }
                 .OrderByDescending(corner => DistanceSquared(corner, cursor))
                 .ToList();
+            var free = corners.FirstOrDefault(Free);
 
-            return corners.FirstOrDefault(corner => Free(corner, true)) is { IsEmpty: false } free
+            if (!current.IsEmpty)
+            {
+                // A panel which changed size grows or shrinks away from its corner, so its outer edges stay where they are
+                var resized = Resize(current, size, monitor);
+                if (AwayFromCursor(resized) && ClearOfPanels(resized)
+                    && (free.IsEmpty || CoveredPart(resized, looseList) <= ToleratedOverlap))
+                {
+                    return resized;
+                }
+            }
+
+            return !free.IsEmpty
                 ? free
-                // Everything is covered: only keep away from the cursor
-                : corners.FirstOrDefault(corner => Free(corner, false)) is { IsEmpty: false } awayFromCursor
-                    ? awayFromCursor
-                    : corners[0];
+                // Everything is covered: only keep away from the cursor and the other panels, or at least the cursor
+                : corners.FirstOrDefault(corner => AwayFromCursor(corner) && ClearOfPanels(corner)) is { IsEmpty: false } clearOfPanels
+                    ? clearOfPanels
+                    : corners.FirstOrDefault(AwayFromCursor) is { IsEmpty: false } awayFromCursor
+                        ? awayFromCursor
+                        : corners[0];
+        }
+
+        /// <summary>
+        /// The largest part of the panel, or of one of the rectangles, which they share: covering half of a small selection counts as much as being half covered
+        /// </summary>
+        private static double CoveredPart(NativeRect panel, IEnumerable<NativeRect> rects)
+        {
+            double covered = 0;
+            foreach (var rect in rects)
+            {
+                var overlap = panel.Intersect(rect);
+                if (overlap.IsEmpty)
+                {
+                    continue;
+                }
+                double area = (double)overlap.Width * overlap.Height;
+                covered = Math.Max(covered, area / Math.Max(1.0, Math.Min((double)panel.Width * panel.Height, (double)rect.Width * rect.Height)));
+            }
+            return covered;
         }
 
         /// <summary>

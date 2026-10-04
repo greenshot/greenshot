@@ -97,7 +97,7 @@ namespace Greenshot.Pipeline
         {
             // Step types are registered with their contract (from the step class' attributes).
             // Classes that implement several step types get a contract per step type.
-            _stepRegistry.Register<SourceAcquisitionStep>(config => new SourceAcquisitionStep(config));
+            _stepRegistry.Register<SourceAcquisitionStep>(config => new SourceAcquisitionStep(config, _selector as ICaptureWindowPreparer));
             _stepRegistry.Register<InteractiveSelectionStep>(config => new InteractiveSelectionStep(config, _selector));
             _stepRegistry.Register<EffectCaptureStep>(config => new EffectCaptureStep(config));
             _stepRegistry.Register<AnnotationStep>(config => new AnnotationStep(config));
