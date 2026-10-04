@@ -96,6 +96,8 @@ taken (by the window or an earlier tool) does not switch to the later tool. The 
 | `ScreenBounds` | Where the capture is on the virtual screen, to convert to screen coordinates. |
 | `CursorPosition` | The cursor in capture pixels, already corrected for the fix mode (shift keeps it to one direction). |
 | `GetPixelColor(point)` | The color of a pixel of the frozen capture (a 1x1 copy, cheap enough for every mouse move). |
+| `GetMonitorBounds()` | The monitor under the cursor, in capture pixels. |
+| `PlacePanel(owner, size)`, `RemovePanel(owner)` | A free corner for a panel, reserved so the zoomer and other panels avoid it, see Positioning. |
 | `Windows`, `FindWindowUnderCursor(children)` | The visible windows in z-order, the (child) window under the cursor. |
 | `ShowSelection(rect, animate, completed)`, `HideSelection()`, `IsSelectionVisible`, `IsSelectionAnimating` | The one selection rectangle. Animated with the window selection animation of the XAML; jumps in a remote desktop session. |
 | `ShowLabels(rect, size, fadeIn, debugText)`, `ClearLabels()` | The size rulers at the sides of a rectangle and the size in its middle. |
@@ -123,6 +125,129 @@ taken (by the window or an earlier tool) does not switch to the later tool. The 
 
 Each overlay has its own layer, above the tool's layer and below the selection, in the order the overlays were added.
 An error in an overlay's handler is logged and does not stop the capture.
+
+## Positioning
+
+Tools and overlays draw on layers which cover the whole capture, in capture pixels; there is no layout, a tool decides in `Draw`
+where things go. Two ways:
+
+- **Next to the cursor**, like the color picker swatch below: use `Host.CursorPosition`. Keep it small and near the cursor; the zoomer
+  is at one of the cursor's corners (mostly bottom right), so the opposite corner is usually free.
+- **A panel in a corner**, like a help text: ask `Host.PlacePanel(this, size)` for its bounds on every mouse move and draw it there.
+  It picks the corner of the monitor under the cursor which is farthest from the cursor and doesn't cover the selection, the zoomer
+  or other panels, keeps at least `PanelPlacement.CursorClearance` (40 pixels) from the cursor and `PanelPlacement.Margin` (10) from
+  the edge. As long as that place stays fine the panel stays there, otherwise it jumps to another corner. The place is reserved:
+  the zoomer and the other panels avoid it. Call `Host.RemovePanel(this)` when the panel is hidden.
+
+`ScreenBounds` is the whole virtual screen, which can have gaps between monitors; use `GetMonitorBounds()` for "a corner of the screen".
+
+### Example: a help overlay
+
+F1 shows a panel with the keys in a free corner, and moves it out of the way of the cursor, the selection and the zoomer.
+
+```csharp
+using System.Collections.Generic;
+using System.Globalization;
+using System.Windows;
+using System.Windows.Input;
+using System.Windows.Media;
+using Dapplo.Windows.Common.Structs;
+using Greenshot.Base.Interfaces.Capture;
+
+namespace Greenshot.Plugin.Help
+{
+    /// <summary>
+    /// F1 shows or hides a panel with the keys, in a free corner of the monitor with the cursor
+    /// </summary>
+    public class HelpOverlay : CaptureOverlay
+    {
+        private const int Padding = 8;
+        private static readonly string[] Lines =
+        {
+            "Space  region / window",
+            "T  text",
+            "Z  zoomer",
+            "M  mouse cursor",
+            "Arrows  move the cursor (Ctrl: 10 px)",
+            "Shift  keep one direction",
+            "Esc  cancel"
+        };
+
+        private bool _visible;
+        private FormattedText _text;
+        private NativeRect _bounds = NativeRect.Empty;
+
+        public override void Attach(ICaptureToolHost host)
+        {
+            base.Attach(host);
+            // One unit is one pixel in the capture window: the font size is in pixels, pixelsPerDip is 1
+            _text = new FormattedText(string.Join("\n", Lines), CultureInfo.CurrentCulture, FlowDirection.LeftToRight,
+                new Typeface("Segoe UI"), 13, Brushes.White, 1.0);
+        }
+
+        public override bool OnKeyDown(Key key)
+        {
+            if (key != Key.F1)
+            {
+                return false;
+            }
+            _visible = !_visible;
+            if (!_visible)
+            {
+                // Release the corner, the zoomer may go there again
+                Host.RemovePanel(this);
+            }
+            OnMouseMove();
+            return true;
+        }
+
+        public override void OnMouseMove()
+        {
+            if (!_visible)
+            {
+                if (!_bounds.IsEmpty)
+                {
+                    _bounds = NativeRect.Empty;
+                    Host.Redraw(this);
+                }
+                return;
+            }
+            var size = new NativeSize((int)_text.Width + 2 * Padding, (int)_text.Height + 2 * Padding);
+            // Stays where it is until the cursor, the selection or the zoomer comes close
+            var bounds = Host.PlacePanel(this, size);
+            if (!bounds.Equals(_bounds))
+            {
+                _bounds = bounds;
+                Host.Redraw(this);
+            }
+        }
+
+        public override void Draw(DrawingContext drawingContext)
+        {
+            if (_bounds.IsEmpty)
+            {
+                return;
+            }
+            var rect = new Rect(_bounds.X, _bounds.Y, _bounds.Width, _bounds.Height);
+            drawingContext.DrawRoundedRectangle((Brush)Host.FindResource("RulerBackgroundBrush"), null, rect, 4, 4);
+            drawingContext.DrawText(_text, new Point(rect.X + Padding, rect.Y + Padding));
+        }
+    }
+
+    /// <summary>
+    /// Gives every capture window a new help overlay, registered in the plugin's Initialize
+    /// </summary>
+    public class HelpOverlayProvider : ICaptureOverlayProvider
+    {
+        public IEnumerable<ICaptureOverlay> CreateOverlays()
+        {
+            yield return new HelpOverlay();
+        }
+    }
+}
+```
+
+This example was compiled against the current code, but not run.
 
 ## Example: a color picker
 
@@ -247,8 +372,8 @@ Points to note:
 - **The result:** neither tools nor overlays can return a color, see the restrictions below. The color picker therefore
   closes the window with `Cancel()` and does its work itself, like the hotspot actions (QR code) do. The flow ends there as "cancelled",
   so no destination runs.
-- **Placement:** the swatch is drawn above left of the cursor, where the zoomer usually isn't. The zoomer only avoids the selection
-  rectangle, not what tools and overlays draw.
+- **Placement:** the swatch is drawn above left of the cursor, where the zoomer usually isn't. The zoomer avoids the selection and the
+  panels placed with `PlacePanel`, not what is drawn elsewhere.
 - **As a tool instead:** derive from `CaptureTool`, give it a `ShortcutKey` and copy the color in `OnMouseUp`. Then it is a mode the
   user switches to, and a click picks the color, but it can't show the color during a region selection.
 

@@ -64,6 +64,9 @@ public class RegionCaptureToolTests
         public void HideSelection() => IsSelectionVisible = false;
         public void ShowLabels(NativeRect rect, NativeSize size, bool fadeIn = false, string debugText = null) => LabelSize = size;
         public void ClearLabels() => LabelSize = NativeSize.Empty;
+        public NativeRect GetMonitorBounds() => ScreenBounds;
+        public NativeRect PlacePanel(object owner, NativeSize size) => new NativeRect(NativePoint.Empty, size);
+        public void RemovePanel(object owner) { }
         public void Redraw() { }
         public void Redraw(ICaptureOverlay overlay) { }
         public object FindResource(object resourceKey) => null;

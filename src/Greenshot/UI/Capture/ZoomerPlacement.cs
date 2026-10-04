@@ -20,13 +20,15 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 
 namespace Greenshot.UI.Capture
 {
     /// <summary>
-    /// Where the zoomer goes: next to the cursor, on the screen, and if possible not over the selection.
+    /// Where the zoomer goes: next to the cursor, on the screen, and if possible not over the selection or the panels.
     /// All coordinates are in the same space (pixels of the capture).
     /// </summary>
     public static class ZoomerPlacement
@@ -55,11 +57,23 @@ namespace Greenshot.UI.Capture
         /// <param name="selection">The selection, empty when there is none</param>
         /// <returns>NativePoint with the offset</returns>
         public static NativePoint GetOffset(NativePoint cursor, NativePoint currentOffset, int size, NativeRect screenBounds, NativeRect selection)
+            => GetOffset(cursor, currentOffset, size, screenBounds, new[] { selection });
+
+        /// <summary>
+        /// The offset of the zoomer's top left corner from the cursor
+        /// </summary>
+        /// <param name="cursor">The cursor</param>
+        /// <param name="currentOffset">Where the zoomer is now, it stays there when that is fine</param>
+        /// <param name="size">Size of the zoomer</param>
+        /// <param name="screenBounds">The screen the cursor is on</param>
+        /// <param name="avoid">What the zoomer should not cover if possible: the selection, panels of tools and overlays</param>
+        /// <returns>NativePoint with the offset</returns>
+        public static NativePoint GetOffset(NativePoint cursor, NativePoint currentOffset, int size, NativeRect screenBounds, IReadOnlyCollection<NativeRect> avoid)
         {
-            bool Fits(NativePoint offset, bool allowOverSelection)
+            bool Fits(NativePoint offset, bool allowOverlap)
             {
                 var zoomer = new NativeRect(cursor.X + offset.X, cursor.Y + offset.Y, size, size);
-                return screenBounds.Contains(zoomer) && (allowOverSelection || selection.IsEmpty || !selection.IntersectsWith(zoomer));
+                return screenBounds.Contains(zoomer) && (allowOverlap || !avoid.Any(rect => !rect.IsEmpty && rect.IntersectsWith(zoomer)));
             }
 
             if (Fits(currentOffset, false))
@@ -75,11 +89,11 @@ namespace Greenshot.UI.Capture
                 new NativePoint(Distance, -Distance - size),
                 new NativePoint(-Distance - size, -Distance - size)
             };
-            foreach (bool allowOverSelection in new[] { false, true })
+            foreach (bool allowOverlap in new[] { false, true })
             {
                 foreach (var candidate in candidates)
                 {
-                    if (Fits(candidate, allowOverSelection))
+                    if (Fits(candidate, allowOverlap))
                     {
                         return candidate;
                     }

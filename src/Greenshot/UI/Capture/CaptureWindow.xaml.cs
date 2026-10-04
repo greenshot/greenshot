@@ -99,6 +99,8 @@ namespace Greenshot.UI.Capture
         private WindowDetails _acceptedWindow;
         private NativeRect _captureRect = NativeRect.Empty;
         private NativeRect _selectionRect = NativeRect.Empty;
+        // The panels of tools and overlays, by owner
+        private readonly Dictionary<object, NativeRect> _panels = new Dictionary<object, NativeRect>();
         private NativePoint _cursorPos;
         private NativePoint _previousMousePos;
         private FixMode _fixMode = FixMode.None;
@@ -139,6 +141,40 @@ namespace Greenshot.UI.Capture
 
         /// <inheritdoc />
         public ICaptureTool ActiveTool => _activeTool;
+
+        /// <inheritdoc />
+        public NativeRect GetMonitorBounds() => DisplayInfo.GetBounds(User32Api.GetCursorLocation()).Offset(-_screenBounds.X, -_screenBounds.Y);
+
+        /// <inheritdoc />
+        public NativeRect PlacePanel(object owner, NativeSize size)
+        {
+            if (owner == null)
+            {
+                throw new ArgumentNullException(nameof(owner));
+            }
+            var avoid = _panels.Where(panel => !Equals(panel.Key, owner)).Select(panel => panel.Value).ToList();
+            if (IsSelectionVisible)
+            {
+                avoid.Add(_selectionRect);
+            }
+            if (_zoomerShown && _zoomSize > 0)
+            {
+                avoid.Add(new NativeRect(_cursorPos.X + _zoomOffset.X, _cursorPos.Y + _zoomOffset.Y, _zoomSize, _zoomSize));
+            }
+            _panels.TryGetValue(owner, out var current);
+            var bounds = PanelPlacement.Place(size, GetMonitorBounds(), _cursorPos, current, avoid);
+            _panels[owner] = bounds;
+            return bounds;
+        }
+
+        /// <inheritdoc />
+        public void RemovePanel(object owner)
+        {
+            if (owner != null)
+            {
+                _panels.Remove(owner);
+            }
+        }
 
         /// <inheritdoc />
         public Color GetPixelColor(NativePoint location)
@@ -958,14 +994,14 @@ namespace Greenshot.UI.Capture
                 return;
             }
 
-            var screenBounds = DisplayInfo.GetBounds(User32Api.GetCursorLocation()).Offset(-_screenBounds.X, -_screenBounds.Y);
+            var screenBounds = GetMonitorBounds();
             int zoomSize = ZoomerPlacement.GetSize(screenBounds);
             if (zoomSize != _zoomSize)
             {
                 ResizeZoomer(zoomSize);
             }
 
-            var offset = ZoomerPlacement.GetOffset(_cursorPos, _zoomOffset, zoomSize, screenBounds, IsSelectionVisible && !IsSelectionAnimating ? _selectionRect : NativeRect.Empty);
+            var offset = ZoomerPlacement.GetOffset(_cursorPos, _zoomOffset, zoomSize, screenBounds, GetZoomerAvoids());
             if (offset.Equals(_zoomOffset))
             {
                 return;
@@ -984,6 +1020,19 @@ namespace Greenshot.UI.Capture
             moveY.To = offset.Y;
             ZoomerOffset.BeginAnimation(TranslateTransform.XProperty, moveX);
             ZoomerOffset.BeginAnimation(TranslateTransform.YProperty, moveY);
+        }
+
+        /// <summary>
+        /// The zoomer stays off the selection (not while it animates) and the panels of tools and overlays
+        /// </summary>
+        private List<NativeRect> GetZoomerAvoids()
+        {
+            var avoid = new List<NativeRect>(_panels.Values);
+            if (IsSelectionVisible && !IsSelectionAnimating)
+            {
+                avoid.Add(_selectionRect);
+            }
+            return avoid;
         }
 
         private void ResizeZoomer(int zoomSize)

@@ -54,6 +54,26 @@ namespace Greenshot.Base.Interfaces.Capture
         Color GetPixelColor(NativePoint location);
 
         /// <summary>
+        /// The bounds of the monitor under the cursor
+        /// </summary>
+        NativeRect GetMonitorBounds();
+
+        /// <summary>
+        /// A place for a panel (e.g. a help text) in a corner of the monitor under the cursor, away from the cursor, the selection,
+        /// the zoomer and the other panels. The place is reserved for the owner until RemovePanel, the zoomer and other panels avoid it.
+        /// Call it again when the cursor moved: the panel stays where it is as long as that is fine, otherwise it gets another corner.
+        /// </summary>
+        /// <param name="owner">The tool or overlay, one panel per owner</param>
+        /// <param name="size">The size of the panel</param>
+        /// <returns>The bounds for the panel</returns>
+        NativeRect PlacePanel(object owner, NativeSize size);
+
+        /// <summary>
+        /// Release the place of the owner's panel, e.g. when it is hidden
+        /// </summary>
+        void RemovePanel(object owner);
+
+        /// <summary>
         /// The active tool
         /// </summary>
         ICaptureTool ActiveTool { get; }
