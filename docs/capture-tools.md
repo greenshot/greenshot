@@ -1,13 +1,15 @@
-# Capture tools: adding a new way to select on the screen
+# Capture tools and overlays: extending the interactive capture
 
 The interactive capture shows a frozen capture of the whole screen in the `CaptureWindow` (WPF, `src/Greenshot/UI/Capture`).
 What the user can do on it comes from **capture tools**: the region, window and text selections are each one tool class in
-`src/Greenshot/UI/Capture/Tools`. Plugins can add their own tools. This document explains how to write one, in Greenshot itself
-or in a plugin, and what is possible and what is not, with a color picker as the example.
+`src/Greenshot/UI/Capture/Tools`. One tool is active at a time. Next to it, **overlays** can run for as long as the window is open,
+e.g. a color picker which shows the color under the cursor while a region is selected. Plugins can add both.
+This document explains how to write them, in Greenshot itself or in a plugin, and what is possible and what is not,
+with a color picker as the example.
 
 The interfaces are in `Greenshot.Base` (`src/Greenshot.Base/Interfaces/Capture`, namespace `Greenshot.Base.Interfaces.Capture`):
-`ICaptureTool` with its base class `CaptureTool`, `ICaptureToolHost` (what the window offers a tool) and `ICaptureToolProvider`
-(how a plugin adds tools).
+`ICaptureTool` with its base class `CaptureTool`, `ICaptureOverlay` with its base class `CaptureOverlay`, `ICaptureToolHost`
+(what the window offers tools and overlays), and `ICaptureToolProvider` / `ICaptureOverlayProvider` (how a plugin adds them).
 
 ## How it fits together
 
@@ -19,9 +21,19 @@ CaptureWindow (ICaptureToolHost)                 ICaptureTool (derive from Captu
  - size rulers and labels                         - OnMouseMove / OnMouseDown / OnMouseUp
  - keys: arrows, Esc, M, Z, F, Space, shortcuts   - OnKeyDown (sees keys first)
  - Accept / Cancel  ──────────────────────────►    - Draw (its own layer)
+                     │
+                     └────────────────────────►  ICaptureOverlay (derive from CaptureOverlay), any number
+                                                  - Attach, OnToolChanged
+                                                  - OnMouseMove (after the tool)
+                                                  - OnKeyDown (keys nobody else used)
+                                                  - Draw (its own layer, above the tool's)
 ```
 
 The window does everything the tools share and passes the input to the **active tool**. A tool only contains what makes it different.
+The overlays get the mouse moves too, and the keys which neither the tool nor the window used, but never the mouse buttons.
+
+**Tool or overlay?** A tool is a way to make the selection: it owns the mouse buttons and decides what is accepted. An overlay adds
+information or a shortcut to whatever the user is doing, without changing how the selection works.
 
 | Tool | Mode | Key | What it does |
 |---|---|---|---|
@@ -87,80 +99,96 @@ taken (by the window or an earlier tool) does not switch to the later tool. The 
 | `Windows`, `FindWindowUnderCursor(children)` | The visible windows in z-order, the (child) window under the cursor. |
 | `ShowSelection(rect, animate, completed)`, `HideSelection()`, `IsSelectionVisible`, `IsSelectionAnimating` | The one selection rectangle. Animated with the window selection animation of the XAML; jumps in a remote desktop session. |
 | `ShowLabels(rect, size, fadeIn, debugText)`, `ClearLabels()` | The size rulers at the sides of a rectangle and the size in its middle. |
-| `Redraw()` | Redraw your layer (calls your `Draw`). |
+| `Redraw()`, `Redraw(overlay)` | Redraw the layer of the active tool, or of an overlay (calls its `Draw`). |
 | `FindResource(key)` | The brushes and other resources of `CaptureWindow.xaml`, e.g. `RulerBackgroundBrush`, `OcrHighlightBrush`. |
 | `Accept(rect, window)` | Close the window with a selection. |
 | `Cancel()` | Close the window without a selection. |
 | `ActiveTool` | To check in a callback (animation completed, OCR finished) whether you are still active. |
 
+## Overlays
+
+1. Create a class that derives from `CaptureOverlay`, override what you need (see the table).
+2. Make the window use it:
+   - **In a plugin:** implement `ICaptureOverlayProvider`, which returns new instances for every window that opens, and register it
+     in the plugin's `Initialize` with `SimpleServiceProvider.Current.AddService<ICaptureOverlayProvider>(...)`.
+   - **In Greenshot:** register a provider the same way at startup; there are no built-in overlays yet.
+
+| Call | When |
+|---|---|
+| `Attach(host)` | The window opened. `Host` is set. |
+| `OnMouseMove()` | Every mouse move, after the active tool handled it. |
+| `OnToolChanged()` | The user switched to another tool, `Host.ActiveTool` is the new one. |
+| `OnKeyDown(key)` | A key which neither the active tool nor the window used (also not a tool's shortcut key). Return true when you handled it; the later overlays don't get it then. |
+| `Draw(dc)` | When you call `Host.Redraw(this)`, when the window was shown, and when the detected features changed. |
+
+Each overlay has its own layer, above the tool's layer and below the selection, in the order the overlays were added.
+An error in an overlay's handler is logged and does not stop the capture.
+
 ## Example: a color picker
 
-The color picker needs the pixel under the cursor, shows it next to the cursor, and copies it as `#RRGGBB` on a click.
-It keeps the zoomer, which already magnifies the pixels around the cursor and marks the one under it.
-
-As a tool in Greenshot:
-
-1. Add `ColorPicker` at the end of the `CaptureMode` enum.
-2. Add the class below.
-3. Add `new ColorPickerTool()` in `CreateTools` of `CaptureWindow`.
-
-C now switches to the color picker, Space goes back to the region selection. In a plugin, use the provider above, and as the plugin
-can't add to `CaptureMode`, return an existing one as `Mode`; the picker never accepts, so it doesn't matter which (e.g. `Region`).
+The color picker needs the pixel under the cursor, shows it next to the cursor whatever tool is active, and copies it as `#RRGGBB`
+with C. That makes it an overlay: the user can select a region as usual, and press C when they want the color instead.
+H hides the swatch. The zoomer of the region tool already magnifies the pixels around the cursor and marks the one under it.
 
 ```csharp
+using System.Collections.Generic;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Capture;
-using CaptureMode = Greenshot.Base.Interfaces.CaptureMode;
 
-namespace Greenshot.UI.Capture.Tools
+namespace Greenshot.Plugin.ColorPicker
 {
     /// <summary>
-    /// Shows the color under the cursor, a click (or Enter) copies it as #RRGGBB to the clipboard
+    /// Shows the color under the cursor next to it, whatever tool is active. C copies it as #RRGGBB to the clipboard and closes the window,
+    /// H hides or shows the swatch.
     /// </summary>
-    public class ColorPickerTool : CaptureTool
+    public class ColorPickerOverlay : CaptureOverlay
     {
         private const int SwatchSize = 32;
         private Color _color = Colors.Transparent;
+        private bool _visible = true;
 
-        public override CaptureMode Mode => CaptureMode.ColorPicker;
-
-        public override Key ShortcutKey => Key.C;
-
-        // The zoomer shows the pixels around the cursor, the crosshair where exactly the cursor is
-        public override bool ShowsZoomer => true;
-
-        public override bool ShowsCrosshair => true;
-
-        public override void Activate(ICaptureToolHost host)
+        public override void Attach(ICaptureToolHost host)
         {
-            base.Activate(host);
-            // Nothing of another tool should stay visible
-            Host.HideSelection();
-            Host.ClearLabels();
+            base.Attach(host);
             _color = Host.GetPixelColor(Host.CursorPosition);
         }
 
         public override void OnMouseMove()
         {
+            if (!_visible)
+            {
+                return;
+            }
             // The swatch moves with the cursor, so it is redrawn on every move
             _color = Host.GetPixelColor(Host.CursorPosition);
-            Host.Redraw();
+            Host.Redraw(this);
         }
-
-        public override void OnMouseUp() => PickColor();
 
         public override bool OnKeyDown(Key key)
         {
-            if (key != Key.Return)
+            switch (key)
             {
-                return false;
+                case Key.C:
+                    string hex = ToHex(_color);
+                    // There is no color in the selection result: close the window without a capture, then do the work
+                    Host.Cancel();
+                    Clipboard.SetText(hex);
+                    return true;
+                case Key.H:
+                    _visible = !_visible;
+                    OnMouseMove();
+                    if (!_visible)
+                    {
+                        // Draws nothing, which clears the layer
+                        Host.Redraw(this);
+                    }
+                    return true;
+                default:
+                    return false;
             }
-            PickColor();
-            return true;
         }
 
         /// <summary>
@@ -168,6 +196,10 @@ namespace Greenshot.UI.Capture.Tools
         /// </summary>
         public override void Draw(DrawingContext drawingContext)
         {
+            if (!_visible)
+            {
+                return;
+            }
             var cursor = Host.CursorPosition;
             var swatch = new Rect(cursor.X - 12 - SwatchSize, cursor.Y - 12 - SwatchSize, SwatchSize, SwatchSize);
             var border = new Pen(Brushes.White, 1);
@@ -182,17 +214,26 @@ namespace Greenshot.UI.Capture.Tools
             drawingContext.DrawText(text, new Point(textBackground.X + 2, textBackground.Y));
         }
 
-        private void PickColor()
-        {
-            string hex = ToHex(_color);
-            // There is no color in the selection result: close the window without a capture, then do the work
-            Host.Cancel();
-            Clipboard.SetText(hex);
-        }
-
         private static string ToHex(Color color) => $"#{color.R:X2}{color.G:X2}{color.B:X2}";
     }
+
+    /// <summary>
+    /// Gives every capture window a new color picker, registered in the plugin's Initialize
+    /// </summary>
+    public class ColorPickerOverlayProvider : ICaptureOverlayProvider
+    {
+        public IEnumerable<ICaptureOverlay> CreateOverlays()
+        {
+            yield return new ColorPickerOverlay();
+        }
+    }
 }
+```
+
+In the plugin's `Initialize`:
+
+```csharp
+SimpleServiceProvider.Current.AddService<ICaptureOverlayProvider>(new ColorPickerOverlayProvider());
 ```
 
 This example was compiled against the current code, but not run.
@@ -203,11 +244,13 @@ Points to note:
   Outside of the capture it returns transparent. Areas between monitors of different sizes are part of the capture, with whatever the capture has there.
 - **Redrawing on every move** is fine for a few shapes: the layer is a `DrawingVisual`, there is no layout pass. Keep `Draw` small,
   it redraws the whole layer.
-- **The result:** a tool can only return a rectangle and a window (`Accept`), see the restrictions below. The color picker therefore
+- **The result:** neither tools nor overlays can return a color, see the restrictions below. The color picker therefore
   closes the window with `Cancel()` and does its work itself, like the hotspot actions (QR code) do. The flow ends there as "cancelled",
   so no destination runs.
 - **Placement:** the swatch is drawn above left of the cursor, where the zoomer usually isn't. The zoomer only avoids the selection
-  rectangle, not what a tool draws.
+  rectangle, not what tools and overlays draw.
+- **As a tool instead:** derive from `CaptureTool`, give it a `ShortcutKey` and copy the color in `OnMouseUp`. Then it is a mode the
+  user switches to, and a click picks the color, but it can't show the color during a region selection.
 
 ## What is possible
 
@@ -226,7 +269,7 @@ Points to note:
   `FinalMode`). The flow crops the capture to the rectangle and, for `Text`, extracts the text. A tool with another kind of result
   (a color, a list of rectangles) either does its work itself and calls `Cancel()`, or needs an extension of `SelectionResult`,
   `ICaptureToolHost.Accept` and `InteractiveSelectionStep` so a recipe can use the result.
-- **One layer per tool.** `Draw` redraws the whole layer, below the selection and its labels and above the hotspots.
+- **One layer per tool or overlay.** `Draw` redraws the whole layer; the layers are below the selection and its labels and above the hotspots.
   A large static drawing which should not be redrawn on every move would need a second layer (a change in the window).
 - **One selection rectangle and one set of labels**, shared by all tools.
 - **The window's keys:** the arrow keys move the cursor (Ctrl for 10 pixels), Shift fixes a direction, Escape cancels, M toggles the
@@ -240,6 +283,8 @@ Points to note:
 - **Remote desktop:** the window shows no animations there (`OptimizeForRDP`, `DisableRDPOptimizing`). `ShowSelection` takes
   care of that, a tool should not add animations of its own, and keep redrawing to what changed.
 - **Plugin tools run inside the capture window:** an exception in a tool's handler is not caught per tool, so it breaks the
-  interactive capture. Errors in `ICaptureToolProvider.CreateTools` are logged and that provider's tools are skipped.
+  interactive capture. Errors in `ICaptureToolProvider.CreateTools` and `ICaptureOverlayProvider.CreateOverlays` are logged and
+  that provider is skipped; errors in an overlay's handlers are logged.
+- **Overlays never get mouse buttons,** and only the keys nobody else used: they can't change how the selection works.
 - **Plugin API:** the interfaces in `Greenshot.Base.Interfaces.Capture` are now used by plugins, so changing them breaks plugins.
   Add members to `CaptureTool` (with an empty implementation) rather than to `ICaptureTool` where possible.

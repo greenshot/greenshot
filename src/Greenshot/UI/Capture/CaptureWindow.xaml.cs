@@ -87,6 +87,8 @@ namespace Greenshot.UI.Capture
         private readonly RegionCaptureTool _regionTool = new RegionCaptureTool();
         private readonly WindowCaptureTool _windowTool = new WindowCaptureTool();
         private readonly IList<ICaptureTool> _tools;
+        // The overlays of the plugins, each with its own layer above the tool layer
+        private readonly IList<KeyValuePair<ICaptureOverlay, DrawingLayer>> _overlays = new List<KeyValuePair<ICaptureOverlay, DrawingLayer>>();
 
         private ICaptureTool _activeTool;
         private CaptureMode _usedCaptureMode;
@@ -199,6 +201,7 @@ namespace Greenshot.UI.Capture
             _previousMousePos = User32Api.GetCursorLocation();
             SetSelection(new Rect(ToPoint(_cursorPos), new Size(0, 0)));
             _activeTool.Activate(this);
+            CreateOverlays();
 
             _capture.CaptureDetails.FeaturesChanged += OnFeaturesChanged;
             RebuildFeatureHotspots();
@@ -259,6 +262,53 @@ namespace Greenshot.UI.Capture
         }
 
         /// <summary>
+        /// The overlays of the registered ICaptureOverlayProviders (plugins), each gets a layer above the tool layer
+        /// </summary>
+        private void CreateOverlays()
+        {
+            int layerIndex = Root.Children.IndexOf(ToolLayer) + 1;
+            foreach (var provider in SimpleServiceProvider.Current.GetAllInstances<ICaptureOverlayProvider>())
+            {
+                try
+                {
+                    foreach (var overlay in provider.CreateOverlays() ?? Enumerable.Empty<ICaptureOverlay>())
+                    {
+                        if (overlay == null)
+                        {
+                            continue;
+                        }
+                        var layer = new DrawingLayer();
+                        Root.Children.Insert(layerIndex++, layer);
+                        _overlays.Add(new KeyValuePair<ICaptureOverlay, DrawingLayer>(overlay, layer));
+                        overlay.Attach(this);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"Error creating the capture overlays of {provider.GetType().FullName}", ex);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Call all overlays, an error in one of them is logged and doesn't stop the capture
+        /// </summary>
+        private void ForEachOverlay(Action<ICaptureOverlay> action)
+        {
+            foreach (var entry in _overlays)
+            {
+                try
+                {
+                    action(entry.Key);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"Error in the capture overlay {entry.Key.GetType().FullName}", ex);
+                }
+            }
+        }
+
+        /// <summary>
         /// Make another tool the active one
         /// </summary>
         private void SwitchTool(ICaptureTool tool)
@@ -271,6 +321,7 @@ namespace Greenshot.UI.Capture
             _activeTool = tool;
             _usedCaptureMode = tool.Mode;
             tool.Activate(this);
+            ForEachOverlay(overlay => overlay.OnToolChanged());
             UpdateZoomerVisibility();
             UpdateSelection();
             Redraw();
@@ -291,6 +342,7 @@ namespace Greenshot.UI.Capture
             InitializeZoomer();
             UpdateSelection();
             Redraw();
+            ForEachOverlay(Redraw);
         }
 
         /// <summary>
@@ -399,6 +451,7 @@ namespace Greenshot.UI.Capture
                 RebuildFeatureHotspots();
                 DrawFeatures();
                 Redraw();
+                ForEachOverlay(Redraw);
             }).FireAndLog("Capture window features changed", Log);
         }
 
@@ -478,8 +531,37 @@ namespace Greenshot.UI.Capture
                     Topmost = !Topmost;
                     break;
                 default:
-                    SwitchTool(_tools.FirstOrDefault(tool => tool.ShortcutKey != Key.None && tool.ShortcutKey == e.Key));
+                    var shortcutTool = _tools.FirstOrDefault(tool => tool.ShortcutKey != Key.None && tool.ShortcutKey == e.Key);
+                    if (shortcutTool != null)
+                    {
+                        SwitchTool(shortcutTool);
+                    }
+                    else
+                    {
+                        OfferKeyToOverlays(e.Key);
+                    }
                     break;
+            }
+        }
+
+        /// <summary>
+        /// A key nobody else used goes to the overlays, until one handles it
+        /// </summary>
+        private void OfferKeyToOverlays(Key key)
+        {
+            foreach (var entry in _overlays)
+            {
+                try
+                {
+                    if (entry.Key.OnKeyDown(key))
+                    {
+                        return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"Error in the capture overlay {entry.Key.GetType().FullName}", ex);
+                }
             }
         }
 
@@ -592,6 +674,7 @@ namespace Greenshot.UI.Capture
 
             UpdateWindowUnderCursor();
             _activeTool.OnMouseMove();
+            ForEachOverlay(overlay => overlay.OnMouseMove());
             UpdateCrosshair(_activeTool.ShowsCrosshair);
             UpdateZoomer();
 
@@ -661,6 +744,18 @@ namespace Greenshot.UI.Capture
         {
             using var dc = ToolLayer.Open();
             _activeTool.Draw(dc);
+        }
+
+        /// <inheritdoc />
+        public void Redraw(ICaptureOverlay overlay)
+        {
+            var layer = _overlays.FirstOrDefault(entry => entry.Key == overlay).Value;
+            if (layer == null)
+            {
+                return;
+            }
+            using var dc = layer.Open();
+            overlay.Draw(dc);
         }
 
         /// <summary>

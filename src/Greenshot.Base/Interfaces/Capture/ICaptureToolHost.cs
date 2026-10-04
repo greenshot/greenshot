@@ -112,6 +112,11 @@ namespace Greenshot.Base.Interfaces.Capture
         void Redraw();
 
         /// <summary>
+        /// Redraw the layer of an overlay (calls ICaptureOverlay.Draw)
+        /// </summary>
+        void Redraw(ICaptureOverlay overlay);
+
+        /// <summary>
         /// A resource of the CaptureWindow, e.g. one of its brushes
         /// </summary>
         object FindResource(object resourceKey);
