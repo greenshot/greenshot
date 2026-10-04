@@ -246,6 +246,14 @@ namespace Greenshot.Base.Native
         /// </summary>
         private static readonly Guid GraphicsCaptureItemGuid = new Guid("79C3F95B-31F7-4EC2-A464-632EF5D30760");
 
+        private static IGraphicsCaptureItemInterop _captureItemInterop;
+
+        /// <summary>
+        /// The activation factory of GraphicsCaptureItem, it was looked up for every capture item
+        /// </summary>
+        private static IGraphicsCaptureItemInterop CaptureItemInterop =>
+            _captureItemInterop ??= (IGraphicsCaptureItemInterop)WindowsRuntimeMarshal.GetActivationFactory(typeof(GraphicsCaptureItem));
+
         /// <summary>
         /// Creates a new instance of a GraphicsCaptureItem that represents the specified window, enabling capture of
         /// its visual content.
@@ -257,8 +265,7 @@ namespace Greenshot.Base.Native
         /// <returns>A GraphicsCaptureItem that corresponds to the specified window, allowing its content to be captured.</returns>
         public static GraphicsCaptureItem CreateCaptureItemForWindow(IntPtr window)
         {
-            var factory = WindowsRuntimeMarshal.GetActivationFactory(typeof(GraphicsCaptureItem));
-            var interop = (IGraphicsCaptureItemInterop)factory;
+            var interop = CaptureItemInterop;
             var itemPointer = interop.CreateForWindow(window, GraphicsCaptureItemGuid);
             var item = Marshal.GetObjectForIUnknown(itemPointer) as GraphicsCaptureItem;
             Marshal.Release(itemPointer);
@@ -275,8 +282,7 @@ namespace Greenshot.Base.Native
         /// <returns>A GraphicsCaptureItem that represents the specified monitor. Returns null if the creation fails.</returns>
         public static GraphicsCaptureItem CreateCaptureItemForMonitor(IntPtr hMonitor)
         {
-            var factory = WindowsRuntimeMarshal.GetActivationFactory(typeof(GraphicsCaptureItem));
-            var interop = (IGraphicsCaptureItemInterop)factory;
+            var interop = CaptureItemInterop;
             var itemPointer = interop.CreateForMonitor(hMonitor, GraphicsCaptureItemGuid);
             var item = Marshal.GetObjectForIUnknown(itemPointer) as GraphicsCaptureItem;
             Marshal.Release(itemPointer);
@@ -404,19 +410,52 @@ namespace Greenshot.Base.Native
         /// <param name="device">The Direct3D 11 device used to create a staging texture for data transfer.</param>
         /// <param name="context">The Direct3D 11 device context used to copy and map the texture data.</param>
         /// <returns>A Bitmap containing the pixel data from the specified texture. The Bitmap is formatted as 32bpp ARGB.</returns>
-        internal static unsafe Bitmap TransformTextureToBitmap(ID3D11Texture2D texture, ID3D11Device device, ID3D11DeviceContext context)
+        internal static Bitmap TransformTextureToBitmap(ID3D11Texture2D texture, ID3D11Device device, ID3D11DeviceContext context)
+        {
+            texture.GetDesc(out D3D11_TEXTURE2D_DESC desc);
+            var bitmap = new Bitmap(desc.Width, desc.Height, PixelFormat.Format32bppArgb);
+            try
+            {
+                CopyTextureToBitmap(texture, device, context, new Rectangle(0, 0, desc.Width, desc.Height), bitmap, Point.Empty);
+                return bitmap;
+            }
+            catch
+            {
+                bitmap.Dispose();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Copy a part of a Direct3D 11 texture into a 32bpp ARGB bitmap, un-premultiplying like TransformTextureToBitmap.
+        /// Used to put the monitors directly into the bitmap of the whole screen, without a bitmap per monitor which is copied again.
+        /// </summary>
+        /// <param name="texture">The Direct3D 11 texture, B8G8R8A8</param>
+        /// <param name="device">The Direct3D 11 device used to create a staging texture for data transfer.</param>
+        /// <param name="context">The Direct3D 11 device context used to copy and map the texture data.</param>
+        /// <param name="sourceRect">Rectangle in the texture, it is clipped to the texture and the target</param>
+        /// <param name="target">Bitmap in Format32bppArgb</param>
+        /// <param name="targetLocation">Where the source rectangle goes in the target</param>
+        internal static unsafe void CopyTextureToBitmap(ID3D11Texture2D texture, ID3D11Device device, ID3D11DeviceContext context, Rectangle sourceRect, Bitmap target, Point targetLocation)
         {
             D3D11_TEXTURE2D_DESC desc;
             texture.GetDesc(out desc);
 
-            var width = desc.Width;
-            var height = desc.Height;
+            var clipped = Rectangle.Intersect(sourceRect, new Rectangle(0, 0, desc.Width, desc.Height));
+            targetLocation = new Point(targetLocation.X + clipped.X - sourceRect.X, targetLocation.Y + clipped.Y - sourceRect.Y);
+            clipped = Rectangle.Intersect(clipped, new Rectangle(clipped.X, clipped.Y, target.Width - targetLocation.X, target.Height - targetLocation.Y));
+            if (clipped.Width <= 0 || clipped.Height <= 0)
+            {
+                return;
+            }
+            var width = clipped.Width;
+            var height = clipped.Height;
             long bytesPerRow = (long)width * 4;
 
             var stagingDesc = new D3D11_TEXTURE2D_DESC
             {
-                Width = width,
-                Height = height,
+                Width = desc.Width,
+                Height = desc.Height,
                 MipLevels = 1,
                 ArraySize = 1,
                 Format = desc.Format,
@@ -439,10 +478,9 @@ namespace Greenshot.Base.Native
 
                 try
                 {
-                    Bitmap bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
-                    BitmapData bmpData = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, bitmap.PixelFormat);
+                    BitmapData bmpData = target.LockBits(new Rectangle(targetLocation, clipped.Size), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
 
-                    byte* sourcePtr = (byte*)mappedResource.pData;
+                    byte* sourcePtr = (byte*)mappedResource.pData + (long)clipped.Y * mappedResource.RowPitch + (long)clipped.X * 4;
                     byte* destPtr = (byte*)bmpData.Scan0;
 
                     for (int y = 0; y < height; y++)
@@ -455,8 +493,7 @@ namespace Greenshot.Base.Native
                         destPtr += bmpData.Stride;
                     }
 
-                    bitmap.UnlockBits(bmpData);
-                    return bitmap;
+                    target.UnlockBits(bmpData);
                 }
                 finally
                 {
@@ -769,6 +806,13 @@ namespace Greenshot.Base.Native
             public bool IsHdr { get; set; }
             public float SdrWhiteLevelInNits { get; set; } = 80.0f;
             public long CreateItemMs { get; set; }
+            /// <summary>
+            /// When set, an SDR frame is copied directly into this bitmap (TargetSourceRect at TargetLocation) instead of a bitmap of its own
+            /// </summary>
+            public Bitmap Target { get; set; }
+            public Rectangle TargetSourceRect { get; set; }
+            public Point TargetLocation { get; set; }
+            public bool WroteTarget { get; set; }
             public long HdrQueryMs { get; set; }
         }
 
@@ -930,6 +974,13 @@ namespace Greenshot.Base.Native
                     return ToneMapHdrTextureToBitmap(texture, d3d11Device, context, request.SdrWhiteLevelInNits);
                 }
 
+                if (request.Target != null)
+                {
+                    CopyTextureToBitmap(texture, d3d11Device, context, request.TargetSourceRect, request.Target, request.TargetLocation);
+                    request.WroteTarget = true;
+                    return null;
+                }
+
                 return TransformTextureToBitmap(texture, d3d11Device, context);
             }
             finally
@@ -987,39 +1038,55 @@ namespace Greenshot.Base.Native
             }
 
             // All monitors at once, see CaptureItemsToBitmapsAsync
+            // SDR monitors are copied from their texture directly into the result, HDR monitors (tone mapped) come as a bitmap which is copied
+            var resultBitmap = new Bitmap(captureBounds.Width, captureBounds.Height, PixelFormat.Format32bppArgb);
             var requests = displaysInCapture
-                .Select(item => new CaptureRequest(() => CreateCaptureItemForMonitor(item.Display.MonitorHandle), () => item.Display.MonitorHandle, $"monitor {item.Display.MonitorHandle}"))
+                .Select(item => new CaptureRequest(() => CreateCaptureItemForMonitor(item.Display.MonitorHandle), () => item.Display.MonitorHandle, $"monitor {item.Display.MonitorHandle}")
+                {
+                    Target = resultBitmap,
+                    // Source rectangle within the monitor, destination within the result bitmap
+                    TargetSourceRect = new Rectangle(
+                        item.Intersection.X - item.Display.Bounds.X,
+                        item.Intersection.Y - item.Display.Bounds.Y,
+                        item.Intersection.Width,
+                        item.Intersection.Height),
+                    TargetLocation = new Point(item.Intersection.X - captureBounds.X, item.Intersection.Y - captureBounds.Y)
+                })
                 .ToArray();
-            var monitorBitmaps = await CaptureItemsToBitmapsAsync(requests, cancellationToken).ConfigureAwait(false);
 
-            Bitmap resultBitmap = null;
+            Bitmap[] monitorBitmaps = null;
             try
             {
-                for (int i = 0; i < displaysInCapture.Length; i++)
+                monitorBitmaps = await CaptureItemsToBitmapsAsync(requests, cancellationToken).ConfigureAwait(false);
+                bool anyCaptured = false;
+                for (int i = 0; i < requests.Length; i++)
                 {
+                    var request = requests[i];
                     var monitorBitmap = monitorBitmaps[i];
-                    if (monitorBitmap == null) continue;
-                    resultBitmap ??= new Bitmap(captureBounds.Width, captureBounds.Height, PixelFormat.Format32bppArgb);
+                    if (monitorBitmap != null)
+                    {
+                        CopyPixels(monitorBitmap, request.TargetSourceRect, resultBitmap, request.TargetLocation);
+                    }
+                    anyCaptured |= monitorBitmap != null || request.WroteTarget;
+                }
 
-                    var item = displaysInCapture[i];
-                    var intersection = item.Intersection;
-                    // Source rectangle within the monitor bitmap, destination within the result bitmap
-                    var srcRect = new Rectangle(
-                        intersection.X - item.Display.Bounds.X,
-                        intersection.Y - item.Display.Bounds.Y,
-                        intersection.Width,
-                        intersection.Height);
-                    CopyPixels(monitorBitmap, srcRect, resultBitmap, new Point(intersection.X - captureBounds.X, intersection.Y - captureBounds.Y));
+                if (!anyCaptured)
+                {
+                    resultBitmap.Dispose();
+                    return null;
                 }
             }
             catch
             {
-                resultBitmap?.Dispose();
+                resultBitmap.Dispose();
                 throw;
             }
             finally
             {
-                DisposeAll(monitorBitmaps);
+                if (monitorBitmaps != null)
+                {
+                    DisposeAll(monitorBitmaps);
+                }
             }
 
             return resultBitmap;
