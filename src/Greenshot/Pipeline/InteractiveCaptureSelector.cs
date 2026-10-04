@@ -19,11 +19,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Interop;
+using System.Windows.Threading;
+using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.User32;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Pipeline;
@@ -36,13 +40,17 @@ namespace Greenshot.Pipeline
     /// <summary>
     /// Shows the CaptureWindow on the UI thread (through the IUiDispatcher) and returns the selection to the flow on the pool.
     /// </summary>
-    public class InteractiveCaptureSelector : IInteractiveCaptureSelector
+    public class InteractiveCaptureSelector : IInteractiveCaptureSelector, ICaptureWindowPreparer
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(InteractiveCaptureSelector));
         private readonly IUiDispatcher _ui;
         private int _active;
+        // A prepared window which isn't used in this time is closed, the flow didn't come to the selection
+        private static readonly TimeSpan PreparedWindowLifetime = TimeSpan.FromSeconds(10);
         // Only accessed on the UI thread
         private CaptureWindow _openWindow;
+        private CaptureWindow _preparedWindow;
+        private DispatcherTimer _preparedWindowTimer;
 
         /// <param name="ui">Dispatcher for the UI thread, default is the registered one</param>
         public InteractiveCaptureSelector(IUiDispatcher ui = null)
@@ -60,6 +68,71 @@ namespace Greenshot.Pipeline
             {
                 _openWindow?.Activate();
             }).FireAndLog("Bring the capture window to the front", Log);
+        }
+
+        /// <inheritdoc />
+        public void PrepareWindow()
+        {
+            if (IsSelecting)
+            {
+                return;
+            }
+            var screenBounds = DisplayInfo.ScreenBounds;
+            Ui.InvokeAsync(() => CreatePreparedWindow(screenBounds)).FireAndLog("Prepare the capture window", Log);
+        }
+
+        /// <summary>
+        /// Runs on the UI thread: create the capture window and show it cloaked, the capture is set when the selection starts
+        /// </summary>
+        private void CreatePreparedWindow(NativeRect screenBounds)
+        {
+            if (_preparedWindow != null || _openWindow != null)
+            {
+                return;
+            }
+
+            var captureWindow = new CaptureWindow(screenBounds);
+            SetOwner(captureWindow);
+            if (!captureWindow.ShowCloaked())
+            {
+                Log.Debug("The capture window couldn't be shown cloaked, it is created after the capture.");
+                return;
+            }
+            _preparedWindow = captureWindow;
+            _preparedWindowTimer ??= new DispatcherTimer { Interval = PreparedWindowLifetime };
+            _preparedWindowTimer.Tick -= OnPreparedWindowExpired;
+            _preparedWindowTimer.Tick += OnPreparedWindowExpired;
+            _preparedWindowTimer.Start();
+        }
+
+        private void OnPreparedWindowExpired(object sender, EventArgs e)
+        {
+            _preparedWindowTimer.Stop();
+            var unused = TakePreparedWindow();
+            if (unused != null)
+            {
+                Log.Debug("The prepared capture window wasn't used, closing it.");
+                unused.Close();
+            }
+        }
+
+        /// <summary>
+        /// The prepared window, if there is one which is still open
+        /// </summary>
+        private CaptureWindow TakePreparedWindow()
+        {
+            _preparedWindowTimer?.Stop();
+            var preparedWindow = _preparedWindow;
+            _preparedWindow = null;
+            return preparedWindow is { IsCloaked: true, IsVisible: true } ? preparedWindow : null;
+        }
+
+        private static void SetOwner(CaptureWindow captureWindow)
+        {
+            if (SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>(isOptional: true) is System.Windows.Forms.IWin32Window mainForm)
+            {
+                new WindowInteropHelper(captureWindow).Owner = mainForm.Handle;
+            }
         }
 
         public async Task<SelectionResult> SelectAsync(
@@ -98,10 +171,16 @@ namespace Greenshot.Pipeline
                 fullscreenCapture.CaptureDetails.CaptureMode = initialMode;
             }
 
-            var captureWindow = new CaptureWindow(fullscreenCapture, visibleWindows?.ToList() ?? new List<WindowDetails>());
-            if (SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>(isOptional: true) is System.Windows.Forms.IWin32Window mainForm)
+            var windows = visibleWindows?.ToList() ?? new List<WindowDetails>();
+            var captureWindow = TakePreparedWindow();
+            if (captureWindow != null)
             {
-                new WindowInteropHelper(captureWindow).Owner = mainForm.Handle;
+                captureWindow.SetCapture(fullscreenCapture, windows);
+            }
+            else
+            {
+                captureWindow = new CaptureWindow(fullscreenCapture, windows);
+                SetOwner(captureWindow);
             }
             _openWindow = captureWindow;
             // Cancelling the flow closes the window
@@ -116,7 +195,7 @@ namespace Greenshot.Pipeline
             bool? result;
             try
             {
-                result = captureWindow.ShowDialog();
+                result = captureWindow.WaitUntilClosed();
             }
             finally
             {

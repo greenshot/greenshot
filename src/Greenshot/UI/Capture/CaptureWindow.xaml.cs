@@ -37,6 +37,8 @@ using System.Windows.Threading;
 using Dapplo.Ini;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.DesktopWindowsManager;
+using Dapplo.Windows.DesktopWindowsManager.Enums;
 using Dapplo.Windows.Icons;
 using Dapplo.Windows.User32;
 using Greenshot.Base.Core;
@@ -77,8 +79,8 @@ namespace Greenshot.UI.Capture
 
         private const int WM_DPICHANGED = 0x02E0;
 
-        private readonly ICapture _capture;
-        private readonly NativeRect _screenBounds;
+        private ICapture _capture;
+        private NativeRect _screenBounds;
         // Remote desktop: no animations and no crosshair, every repaint of the screen costs bandwidth (OptimizeForRDP / DisableRDPOptimizing as before)
         private readonly bool _isRemoteSession = !Conf.DisableRDPOptimizing && (Conf.OptimizeForRDP || SystemParameters.IsRemoteSession);
         private BitmapSource _screenImage;
@@ -90,7 +92,7 @@ namespace Greenshot.UI.Capture
         // The built-in tools first, the region tool is the default, then the tools of the plugins
         private readonly RegionCaptureTool _regionTool = new RegionCaptureTool();
         private readonly WindowCaptureTool _windowTool = new WindowCaptureTool();
-        private readonly IList<ICaptureTool> _tools;
+        private IList<ICaptureTool> _tools = new List<ICaptureTool>();
         // The overlays of the plugins, each with its own layer above the tool layer
         private readonly IList<KeyValuePair<ICaptureOverlay, DrawingLayer>> _overlays = new List<KeyValuePair<ICaptureOverlay, DrawingLayer>>();
 
@@ -138,6 +140,14 @@ namespace Greenshot.UI.Capture
         private int _zoomSize;
         private NativePoint _zoomOffset = new NativePoint(ZoomerPlacement.Distance, ZoomerPlacement.Distance);
         private double _dpiScale = 1;
+        // ShowCloaked: the window is shown before it has the capture, and without ShowDialog
+        private bool _cloakWhenCreated;
+        private bool _cloaked;
+        private bool _shownModeless;
+        private bool? _modelessResult;
+        private bool _handleCreated;
+        private bool _contentRendered;
+        private bool _closed;
         private AnimationClock _selectionClock;
 
         /// <summary>
@@ -376,15 +386,19 @@ namespace Greenshot.UI.Capture
         /// </summary>
         /// <param name="capture">ICapture of the whole screen</param>
         /// <param name="windows">The windows to snap to, in z-order</param>
-        public CaptureWindow(ICapture capture, IList<WindowDetails> windows)
+        public CaptureWindow(ICapture capture, IList<WindowDetails> windows) : this((capture ?? throw new ArgumentNullException(nameof(capture))).ScreenBounds)
+        {
+            SetCapture(capture, windows);
+        }
+
+        /// <summary>
+        /// Create the window before the capture exists, see ShowCloaked and SetCapture: the window and its surface are built while the screen is captured
+        /// </summary>
+        /// <param name="screenBounds">NativeRect with the bounds of the whole screen</param>
+        public CaptureWindow(NativeRect screenBounds)
         {
             _openStopwatch = System.Diagnostics.Stopwatch.StartNew();
-            _capture = capture ?? throw new ArgumentNullException(nameof(capture));
-            _screenBounds = capture.ScreenBounds;
-            _tools = CreateTools();
-            var initialMode = capture.CaptureDetails.CaptureMode;
-            _activeTool = _tools.FirstOrDefault(tool => tool.Mode == initialMode) ?? _tools[0];
-            _usedCaptureMode = _activeTool.Mode;
+            _screenBounds = screenBounds;
 
             InitializeComponent();
             // The DPI of the primary monitor until the window is placed, see ApplyDpiScale
@@ -392,6 +406,71 @@ namespace Greenshot.UI.Capture
             var labelFont = (FontFamily)FindResource("LabelFontFamily");
             _labelTypeface = new Typeface(labelFont, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
             _boldLabelTypeface = new Typeface(labelFont, FontStyles.Normal, FontWeights.Bold, FontStretches.Normal);
+            Root.Width = _screenBounds.Width;
+            Root.Height = _screenBounds.Height;
+
+            SourceInitialized += OnSourceInitialized;
+            ContentRendered += OnContentRendered;
+            Closed += OnClosed;
+        }
+
+        /// <summary>
+        /// True when the window was shown with ShowCloaked and DWM really keeps it off the screen
+        /// </summary>
+        public bool IsCloaked => _cloaked;
+
+        /// <summary>
+        /// Show the window without a capture: DWM keeps a cloaked window off the screen, so it isn't in the capture which is taken meanwhile.
+        /// It doesn't take the focus either, that would close menus and tooltips before they are captured. Returns false when the window
+        /// can't be cloaked, it is closed then.
+        /// </summary>
+        public bool ShowCloaked()
+        {
+            _cloakWhenCreated = true;
+            ShowActivated = false;
+            new WindowInteropHelper(this).EnsureHandle();
+            if (!_cloaked)
+            {
+                Close();
+                return false;
+            }
+            _shownModeless = true;
+            Show();
+            return true;
+        }
+
+        /// <summary>
+        /// Give the window its capture, the window becomes visible when it rendered it
+        /// </summary>
+        /// <param name="capture">ICapture of the whole screen</param>
+        /// <param name="windows">The windows to snap to, in z-order</param>
+        public void SetCapture(ICapture capture, IList<WindowDetails> windows)
+        {
+            if (_capture != null)
+            {
+                throw new InvalidOperationException("The capture window already has a capture.");
+            }
+            _capture = capture ?? throw new ArgumentNullException(nameof(capture));
+            if (_shownModeless)
+            {
+                Log.Debug($"Capture window got the capture {_openStopwatch.ElapsedMilliseconds} ms after it was created.");
+                _openStopwatch.Restart();
+            }
+            if (capture.ScreenBounds != _screenBounds)
+            {
+                // The screen changed since the window was created
+                _screenBounds = capture.ScreenBounds;
+                Root.Width = _screenBounds.Width;
+                Root.Height = _screenBounds.Height;
+                if (_handleCreated)
+                {
+                    PlaceWindow();
+                }
+            }
+            _tools = CreateTools();
+            var initialMode = capture.CaptureDetails.CaptureMode;
+            _activeTool = _tools.FirstOrDefault(tool => tool.Mode == initialMode) ?? _tools[0];
+            _usedCaptureMode = _activeTool.Mode;
 
             if (windows != null)
             {
@@ -407,8 +486,6 @@ namespace Greenshot.UI.Capture
                 }
             }
 
-            Root.Width = _screenBounds.Width;
-            Root.Height = _screenBounds.Height;
             _screenImage = CreateBitmapSource(capture.Image, true);
             ScreenImage.Source = _screenImage;
             ZoomBrush.ImageSource = _screenImage;
@@ -427,17 +504,58 @@ namespace Greenshot.UI.Capture
             _capture.CaptureDetails.FeaturesChanged += OnFeaturesChanged;
             RebuildFeatureHotspots();
 
-            SourceInitialized += OnSourceInitialized;
-            ContentRendered += OnContentRendered;
-            Closed += OnClosed;
             // Preview: the arrow keys would otherwise be taken by the keyboard navigation
             PreviewKeyDown += OnKeyDown;
             PreviewKeyUp += OnKeyUp;
             MouseMove += (sender, args) => UpdateSelection();
             MouseLeftButtonDown += OnMouseLeftButtonDown;
             MouseLeftButtonUp += OnMouseLeftButtonUp;
-            Loaded += (sender, args) => Log.Debug($"Capture window laid out after {_openStopwatch.ElapsedMilliseconds} ms.");
+            if (_handleCreated)
+            {
+                PrepareContent();
+            }
+            else
+            {
+                Loaded += (sender, args) => Log.Debug($"Capture window laid out after {_openStopwatch.ElapsedMilliseconds} ms.");
+            }
+            if (_contentRendered)
+            {
+                // After the next render pass, like ContentRendered
+                _ = Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(Reveal));
+            }
             Log.Debug($"Capture window created in {_openStopwatch.ElapsedMilliseconds} ms.");
+        }
+
+        /// <summary>
+        /// For a window shown with ShowCloaked: wait, like ShowDialog, until the window closed
+        /// </summary>
+        /// <returns>true when something was selected</returns>
+        public bool? WaitUntilClosed()
+        {
+            if (!_shownModeless)
+            {
+                return ShowDialog();
+            }
+            if (!_closed)
+            {
+                var frame = new DispatcherFrame();
+                Closed += (sender, args) => frame.Continue = false;
+                Dispatcher.PushFrame(frame);
+            }
+            return _modelessResult;
+        }
+
+        private void Finish(bool selected)
+        {
+            if (_shownModeless)
+            {
+                _modelessResult = selected;
+                Close();
+            }
+            else
+            {
+                DialogResult = selected;
+            }
         }
 
         /// <summary>
@@ -447,7 +565,7 @@ namespace Greenshot.UI.Capture
         {
             if (IsLoaded)
             {
-                DialogResult = false;
+                Finish(false);
             }
             else
             {
@@ -461,7 +579,7 @@ namespace Greenshot.UI.Capture
             _captureRect = rect;
             _acceptedWindow = window;
             _usedCaptureMode = _activeTool.Mode;
-            DialogResult = true;
+            Finish(true);
         }
 
         /// <summary>
@@ -656,14 +774,41 @@ namespace Greenshot.UI.Capture
             // Make sure we never capture the capture window
             WindowDetails.RegisterIgnoreHandle(handle);
             HwndSource.FromHwnd(handle)?.AddHook(WndProc);
+            if (_cloakWhenCreated)
+            {
+                _cloaked = SetCloaked(handle, true);
+            }
             PlaceWindow();
 
             ApplyDpiScale(VisualTreeHelper.GetDpi(this));
+            _handleCreated = true;
+            if (_capture != null)
+            {
+                PrepareContent();
+            }
+            Log.Debug($"Capture window handle created after {start} ms, prepared in {_openStopwatch.ElapsedMilliseconds - start} ms.");
+        }
+
+        /// <summary>
+        /// What needs the window handle and the capture
+        /// </summary>
+        private void PrepareContent()
+        {
             InitializeZoomer();
             UpdateSelection();
             Redraw();
             ForEachOverlay(Redraw);
-            Log.Debug($"Capture window handle created after {start} ms, prepared in {_openStopwatch.ElapsedMilliseconds - start} ms.");
+        }
+
+        private static bool SetCloaked(IntPtr handle, bool cloaked)
+        {
+            uint value = cloaked ? 1u : 0u;
+            int result = (int)DwmApi.DwmSetWindowAttribute(handle, DwmWindowAttributes.Cloak, ref value, sizeof(uint));
+            if (result != 0)
+            {
+                Log.Debug($"Couldn't {(cloaked ? "cloak" : "uncloak")} the capture window, error {result}.");
+            }
+            return result == 0;
         }
 
         /// <summary>
@@ -715,6 +860,30 @@ namespace Greenshot.UI.Capture
 
         private void OnContentRendered(object sender, EventArgs e)
         {
+            _contentRendered = true;
+            if (_capture == null)
+            {
+                Log.Debug($"Capture window rendered, still cloaked, {_openStopwatch.ElapsedMilliseconds} ms after it was created.");
+                return;
+            }
+            Reveal();
+        }
+
+        /// <summary>
+        /// The capture is rendered: uncloak, show and activate the window
+        /// </summary>
+        private void Reveal()
+        {
+            if (_closed)
+            {
+                return;
+            }
+            var handle = new WindowInteropHelper(this).Handle;
+            if (_cloaked)
+            {
+                SetCloaked(handle, false);
+                _cloaked = false;
+            }
             Log.Debug($"Capture window shown {_openStopwatch.ElapsedMilliseconds} ms after it was created.");
             // Showing the window must not have changed the bounds, but make sure
             PlaceWindow();
@@ -725,8 +894,12 @@ namespace Greenshot.UI.Capture
         private void OnClosed(object sender, EventArgs e)
         {
             Log.Debug("Closing capture window");
+            _closed = true;
             WindowDetails.UnregisterIgnoreHandle(new WindowInteropHelper(this).Handle);
-            _capture.CaptureDetails.FeaturesChanged -= OnFeaturesChanged;
+            if (_capture != null)
+            {
+                _capture.CaptureDetails.FeaturesChanged -= OnFeaturesChanged;
+            }
             _selectionSettleTimer?.Stop();
         }
 
