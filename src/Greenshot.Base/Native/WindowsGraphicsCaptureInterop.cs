@@ -20,7 +20,6 @@
  */
 
 using System;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
@@ -805,7 +804,6 @@ namespace Greenshot.Base.Native
             public TaskCompletionSource<bool> FrameArrived { get; } = Tcs.Create<bool>();
             public bool IsHdr { get; set; }
             public float SdrWhiteLevelInNits { get; set; } = 80.0f;
-            public long CreateItemMs { get; set; }
             /// <summary>
             /// When set, an SDR frame is copied directly into this bitmap (TargetSourceRect at TargetLocation) instead of a bitmap of its own
             /// </summary>
@@ -813,7 +811,6 @@ namespace Greenshot.Base.Native
             public Rectangle TargetSourceRect { get; set; }
             public Point TargetLocation { get; set; }
             public bool WroteTarget { get; set; }
-            public long HdrQueryMs { get; set; }
         }
 
         /// <summary>
@@ -827,12 +824,10 @@ namespace Greenshot.Base.Native
             // The Direct3D objects are bound to the MTA (see GetOrCreateDevice): never run this on the UI (STA) thread
             await ThreadPoolSwitch.SwitchToThreadPoolAsync();
             await CaptureSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
-            var stopwatch = Stopwatch.StartNew();
             try
             {
                 ID3D11Device d3d11Device;
                 ID3D11DeviceContext context;
-                long deviceMs;
                 lock (DeviceLock)
                 {
                     if (!GetOrCreateDevice(out d3d11Device, out context, out var device))
@@ -840,14 +835,12 @@ namespace Greenshot.Base.Native
                         return results;
                     }
 
-                    deviceMs = stopwatch.ElapsedMilliseconds;
                     foreach (var request in requests)
                     {
                         StartCapture(request, device);
                     }
                 }
 
-                long startedMs = stopwatch.ElapsedMilliseconds;
                 var started = requests.Where(request => request.Session != null).ToList();
                 try
                 {
@@ -862,7 +855,6 @@ namespace Greenshot.Base.Native
                     }
                 }
 
-                long framesMs = stopwatch.ElapsedMilliseconds;
                 // Continues on a thread pool (MTA) thread
                 lock (DeviceLock)
                 {
@@ -876,10 +868,6 @@ namespace Greenshot.Base.Native
                     }
                 }
 
-                // Shows where the time of a capture goes
-                Log.Debug($"WindowsGraphicsCapture timing: device {deviceMs} ms, {started.Count} session(s) started after {startedMs} ms " +
-                          $"(capture items {requests.Sum(request => request.CreateItemMs)} ms, HDR queries {requests.Sum(request => request.HdrQueryMs)} ms), " +
-                          $"first frames after {framesMs} ms, read after {stopwatch.ElapsedMilliseconds} ms.");
                 return results;
             }
             catch (OperationCanceledException)
@@ -911,11 +899,9 @@ namespace Greenshot.Base.Native
         private static void StartCapture(CaptureRequest request, IDirect3DDevice device)
         {
             GraphicsCaptureItem captureItem;
-            var stopwatch = Stopwatch.StartNew();
             try
             {
                 captureItem = request.CreateItem();
-                request.CreateItemMs = stopwatch.ElapsedMilliseconds;
             }
             catch (Exception ex)
             {
@@ -930,11 +916,9 @@ namespace Greenshot.Base.Native
             }
 
             // Detect HDR on the monitor of the capture item
-            stopwatch.Restart();
             IntPtr hMonitor = request.GetMonitor();
             request.IsHdr = HdrDisplayInfo.IsHdrActiveForMonitor(hMonitor);
             request.SdrWhiteLevelInNits = request.IsHdr ? HdrDisplayInfo.GetSdrWhiteLevelInNits(hMonitor) : 80.0f;
-            request.HdrQueryMs = stopwatch.ElapsedMilliseconds;
             var pixelFormat = request.IsHdr
                 ? DirectXPixelFormat.R16G16B16A16Float
                 : DirectXPixelFormat.B8G8R8A8UIntNormalized;

@@ -82,8 +82,6 @@ namespace Greenshot.UI.Capture
         // Remote desktop: no animations and no crosshair, every repaint of the screen costs bandwidth (OptimizeForRDP / DisableRDPOptimizing as before)
         private readonly bool _isRemoteSession = !Conf.DisableRDPOptimizing && (Conf.OptimizeForRDP || SystemParameters.IsRemoteSession);
         private BitmapSource _screenImage;
-        // From the constructor to the first frame on the screen, for the log
-        private readonly System.Diagnostics.Stopwatch _openStopwatch;
         private readonly Typeface _labelTypeface;
         private readonly Typeface _boldLabelTypeface;
 
@@ -392,7 +390,6 @@ namespace Greenshot.UI.Capture
         /// <param name="screenBounds">NativeRect with the bounds of the whole screen</param>
         public CaptureWindow(NativeRect screenBounds)
         {
-            _openStopwatch = System.Diagnostics.Stopwatch.StartNew();
             _screenBounds = screenBounds;
 
             InitializeComponent();
@@ -437,11 +434,6 @@ namespace Greenshot.UI.Capture
                 throw new InvalidOperationException("The capture window already has a capture.");
             }
             _capture = capture ?? throw new ArgumentNullException(nameof(capture));
-            if (_prepared)
-            {
-                Log.Debug($"Capture window got the capture {_openStopwatch.ElapsedMilliseconds} ms after it was created.");
-                _openStopwatch.Restart();
-            }
             if (capture.ScreenBounds != _screenBounds)
             {
                 // The screen changed since the window was created
@@ -500,15 +492,10 @@ namespace Greenshot.UI.Capture
             {
                 PrepareContent();
             }
-            else
-            {
-                Loaded += (sender, args) => Log.Debug($"Capture window laid out after {_openStopwatch.ElapsedMilliseconds} ms.");
-            }
             if (_prepared)
             {
                 Show();
             }
-            Log.Debug($"Capture window created in {_openStopwatch.ElapsedMilliseconds} ms.");
         }
 
         /// <summary>
@@ -754,7 +741,6 @@ namespace Greenshot.UI.Capture
         /// </summary>
         private void OnSourceInitialized(object sender, EventArgs e)
         {
-            long start = _openStopwatch.ElapsedMilliseconds;
             var handle = new WindowInteropHelper(this).Handle;
             // Make sure we never capture the capture window
             WindowDetails.RegisterIgnoreHandle(handle);
@@ -767,7 +753,6 @@ namespace Greenshot.UI.Capture
             {
                 PrepareContent();
             }
-            Log.Debug($"Capture window handle created after {start} ms, prepared in {_openStopwatch.ElapsedMilliseconds - start} ms.");
         }
 
         /// <summary>
@@ -842,7 +827,6 @@ namespace Greenshot.UI.Capture
             {
                 return;
             }
-            Log.Debug($"Capture window shown {_openStopwatch.ElapsedMilliseconds} ms after it was created.");
             // Showing the window must not have changed the bounds, but make sure
             PlaceWindow();
             Activate();

@@ -176,7 +176,6 @@ namespace Greenshot.Pipeline.Steps
 
         private static List<WindowDetails> EnumerateSnapWindows(CancellationToken cancellationToken)
         {
-            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
             int depth = CoreConfig.WindowCaptureAllChildLocations ? 20 : 3;
             var snapWindows = new List<WindowDetails>();
             foreach (var window in WindowDetails.GetVisibleWindows())
@@ -186,7 +185,6 @@ namespace Greenshot.Pipeline.Steps
                 window.GetChildren(depth);
                 snapWindows.Add(window);
             }
-            Log.Debug($"Got {snapWindows.Count} windows to snap to in {stopwatch.ElapsedMilliseconds} ms.");
             return snapWindows;
         }
 

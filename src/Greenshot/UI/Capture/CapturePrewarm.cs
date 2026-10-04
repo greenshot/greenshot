@@ -21,7 +21,6 @@
 
 
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -73,7 +72,6 @@ namespace Greenshot.UI.Capture
                 await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
             }
 
-            var stopwatch = Stopwatch.StartNew();
 #pragma warning disable RS0030 // R10: CPU-bound preparation on the thread pool
             int preparedMethods = await Task.Run(() =>
 #pragma warning restore RS0030
@@ -89,7 +87,7 @@ namespace Greenshot.UI.Capture
                 }
                 return PrepareMethods(cancellationToken);
             }, cancellationToken).ConfigureAwait(false);
-            Log.DebugFormat("Prepared the interactive capture in {0} ms, {1} methods were JIT-compiled.", stopwatch.ElapsedMilliseconds, preparedMethods);
+            Log.DebugFormat("Prepared the interactive capture, {0} methods were JIT-compiled.", preparedMethods);
         }
 
         private static int PrepareMethods(CancellationToken cancellationToken)
