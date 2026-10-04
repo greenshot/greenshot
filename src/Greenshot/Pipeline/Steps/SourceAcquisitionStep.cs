@@ -386,6 +386,14 @@ namespace Greenshot.Pipeline.Steps
             return CoreConfig.CaptureMousepointer;
         }
 
+        /// <summary>
+        /// The default of ICoreConfiguration.CaptureDelay
+        /// </summary>
+        private const int DefaultCaptureDelay = 100;
+
+        private static bool IsHotkeyTrigger(CaptureFlowContext context) =>
+            string.Equals(context.Trigger?.TriggerType, Greenshot.Base.Triggers.TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase);
+
         private async Task PreparePreCaptureAsync(CaptureFlowContext context, CancellationToken ct)
         {
             // Dismiss lingering tray balloons
@@ -426,6 +434,12 @@ namespace Greenshot.Pipeline.Steps
             if (delay < 0)
             {
                 delay = CoreConfig.CaptureDelay;
+                // The default delay lets a tray or context menu close before the capture; a hotkey opens no menu, so it only made
+                // the capture slower. A delay the user configured is kept.
+                if (delay == DefaultCaptureDelay && IsHotkeyTrigger(context))
+                {
+                    delay = 0;
+                }
             }
 
             if (delay > 0)
