@@ -146,7 +146,9 @@ namespace Greenshot.UI.Capture
         private bool _shownModeless;
         private bool? _modelessResult;
         private bool _handleCreated;
-        private bool _contentRendered;
+        private int _framesWithCapture;
+        // See OnRenderingCapture
+        private const int FramesBeforeReveal = 2;
         private bool _closed;
         private AnimationClock _selectionClock;
 
@@ -518,10 +520,10 @@ namespace Greenshot.UI.Capture
             {
                 Loaded += (sender, args) => Log.Debug($"Capture window laid out after {_openStopwatch.ElapsedMilliseconds} ms.");
             }
-            if (_contentRendered)
+            if (_shownModeless)
             {
-                // After the next render pass, like ContentRendered
-                _ = Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(Reveal));
+                // The window already showed (cloaked) frames without the capture: uncloaking it now would show one of those, a black flash
+                CompositionTarget.Rendering += OnRenderingCapture;
             }
             Log.Debug($"Capture window created in {_openStopwatch.ElapsedMilliseconds} ms.");
         }
@@ -860,13 +862,28 @@ namespace Greenshot.UI.Capture
 
         private void OnContentRendered(object sender, EventArgs e)
         {
-            _contentRendered = true;
-            if (_capture == null)
+            if (_shownModeless)
             {
-                Log.Debug($"Capture window rendered, still cloaked, {_openStopwatch.ElapsedMilliseconds} ms after it was created.");
+                // Revealed by OnRenderingCapture, ContentRendered can come after the capture was set but belong to a frame without it
+                Log.Debug($"Capture window rendered, cloaked, {_openStopwatch.ElapsedMilliseconds} ms after it was created.");
                 return;
             }
             Reveal();
+        }
+
+        /// <summary>
+        /// A prepared window is revealed when the frames with the capture were rendered: Rendering is raised before a frame is rendered,
+        /// the frame of the first call has the capture, the render thread has it when the next frame starts.
+        /// </summary>
+        private void OnRenderingCapture(object sender, EventArgs e)
+        {
+            if (++_framesWithCapture < FramesBeforeReveal && !_closed)
+            {
+                return;
+            }
+            CompositionTarget.Rendering -= OnRenderingCapture;
+            // After this render pass, like ContentRendered
+            _ = Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(Reveal));
         }
 
         /// <summary>
@@ -895,6 +912,7 @@ namespace Greenshot.UI.Capture
         {
             Log.Debug("Closing capture window");
             _closed = true;
+            CompositionTarget.Rendering -= OnRenderingCapture;
             WindowDetails.UnregisterIgnoreHandle(new WindowInteropHelper(this).Handle);
             if (_capture != null)
             {
