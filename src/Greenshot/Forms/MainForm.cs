@@ -72,6 +72,7 @@ using Greenshot.Processors;
 using Greenshot.Recipes;
 using Greenshot.Triggers;
 using Greenshot.UI;
+using Greenshot.UI.Capture;
 using log4net;
 
 using Timer = System.Timers.Timer;
@@ -376,6 +377,8 @@ namespace Greenshot.Forms
 
             EditorInitialize.Initialize();
             // JIT-compiling the editor and loading the emoji font takes seconds, do it in the background instead of when the first editor opens
+            // The same for the interactive capture, earlier: it is what a hotkey opens first
+            CapturePrewarm.PrewarmAsync(TimeSpan.FromSeconds(2)).FireAndLog("Prepare the interactive capture", Log);
             EditorPrewarm.PrewarmAsync(TimeSpan.FromSeconds(5)).FireAndLog("Prepare the editor", Log);
 
             // This forces the registration of all destinations inside Greenshot itself.
