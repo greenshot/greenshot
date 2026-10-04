@@ -58,7 +58,6 @@ namespace Greenshot.Pipeline.Steps
     [StepParameter("CaptureMouseCursor", ContractDataType.Boolean, Description = "Include the mouse cursor (default: settings)")]
     [StepParameter("DelayMs", ContractDataType.Integer, Description = "Delay before capturing in milliseconds (default: settings)")]
     [StepParameter("ScreenCaptureMode", ContractDataType.Enum, Description = "Which screen(s) to capture for FullScreen (default: settings)", AllowedValues = new[] { "Auto", "FullScreen", "Fixed" })]
-    [StepParameter("WindowCaptureMode", ContractDataType.Enum, Description = "How to capture a window (default: settings)", AllowedValues = new[] { "Screen", "GDI", "Aero", "AeroTransparent", "Auto" })]
     [StepParameter("WindowTitle", ContractDataType.String, Description = "Capture the window with this title (SourceType Window)")]
     [StepParameter("WindowTitlePattern", ContractDataType.String, Description = "Capture the window whose title matches this regular expression (SourceType Window)")]
     [StepParameter("ProcessName", ContractDataType.String, Description = "Capture the window of this process (SourceType Window)")]
@@ -69,7 +68,6 @@ namespace Greenshot.Pipeline.Steps
     [StepInputVariable("CaptureDelay", ContractDataType.Integer, Description = "Overrides DelayMs")]
     [StepInputVariable("CaptureMouseCursor", ContractDataType.Boolean, Description = "Overrides the CaptureMouseCursor parameter")]
     [StepInputVariable("ScreenCaptureMode", ContractDataType.Enum, Description = "Overrides the ScreenCaptureMode parameter")]
-    [StepInputVariable("WindowCaptureMode", ContractDataType.Enum, Description = "Overrides the WindowCaptureMode parameter")]
     [StepInputVariable("TargetWindow", ContractDataType.Object, Description = "Window to capture (set by the caller)")]
     [StepInputVariable("WindowTitle", ContractDataType.String, Description = "Window title, when the parameter is not set")]
     [StepInputVariable("WindowTitlePattern", ContractDataType.String, Description = "Window title pattern, when the parameter is not set")]
@@ -268,13 +266,7 @@ namespace Greenshot.Pipeline.Steps
                 }
             }
 
-            // Context (caller) -> node parameter -> settings
-            var windowCaptureMode = context.Properties.TryGetValue("WindowCaptureMode", out var wcmObj) && wcmObj is WindowCaptureMode wcm
-                ? wcm
-                : Enum.TryParse(Config.GetParameter<object>("WindowCaptureMode")?.ToString(), true, out WindowCaptureMode configured)
-                    ? configured
-                    : CoreConfig.WindowCaptureMode;
-            var capture = await AiToolCapture.CaptureWindowAsync(window, windowCaptureMode, context.Ui, cancellationToken).ConfigureAwait(false);
+            var capture = await AiToolCapture.CaptureWindowAsync(window, cancellationToken).ConfigureAwait(false);
             if (capture?.Image == null)
             {
                 capture?.Dispose();
@@ -283,10 +275,8 @@ namespace Greenshot.Pipeline.Steps
             }
 
             var payload = new CapturePayload(capture);
-            // The other window capture modes can contain what covers the window
-            if (!(capture.CaptureDetails?.MetaData != null &&
-                  capture.CaptureDetails.MetaData.TryGetValue(AiToolCapture.CaptureMethodKey, out var method) &&
-                  method == AiToolCapture.CaptureMethodGraphicsCapture))
+            // A capture of the window's area of the screen can contain what covers the window
+            if (!AiToolCapture.IsWindowContentOnly(capture))
             {
                 RedactForAiTool(context, payload);
             }

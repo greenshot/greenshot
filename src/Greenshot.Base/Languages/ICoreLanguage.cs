@@ -240,6 +240,111 @@ namespace Greenshot.Base.Languages
         string ContextmenuConfigurePlugin { get; }
 
         /// <summary>
+        /// Keys
+        /// </summary>
+        string CaptureKeysTitle { get; }
+
+        /// <summary>
+        /// Cancel the capture
+        /// </summary>
+        string CaptureKeyCancel { get; }
+
+        /// <summary>
+        /// Move the cursor one pixel
+        /// </summary>
+        string CaptureKeyMove { get; }
+
+        /// <summary>
+        /// Move the cursor 10 pixels
+        /// </summary>
+        string CaptureKeyMoveFast { get; }
+
+        /// <summary>
+        /// Hold to keep the selection to one direction
+        /// </summary>
+        string CaptureKeyFixDirection { get; }
+
+        /// <summary>
+        /// Show or hide the mouse cursor
+        /// </summary>
+        string CaptureKeyMouseCursor { get; }
+
+        /// <summary>
+        /// Show or hide the zoomer
+        /// </summary>
+        string CaptureKeyZoomer { get; }
+
+        /// <summary>
+        /// Switch between region and window
+        /// </summary>
+        string CaptureKeyRegionWindow { get; }
+
+        /// <summary>
+        /// Capture text (OCR)
+        /// </summary>
+        string CaptureKeyText { get; }
+
+        /// <summary>
+        /// Start or finish the selection
+        /// </summary>
+        string CaptureKeyRegionSelect { get; }
+
+        /// <summary>
+        /// Capture the window
+        /// </summary>
+        string CaptureKeyWindowAccept { get; }
+
+        /// <summary>
+        /// Show or hide window details
+        /// </summary>
+        string CaptureKeyWindowDetails { get; }
+
+        /// <summary>
+        /// Show or hide the keys
+        /// </summary>
+        string CaptureKeyHelp { get; }
+
+        /// <summary>
+        /// Show or hide the info
+        /// </summary>
+        string CaptureKeyInfo { get; }
+
+        /// <summary>
+        /// Info
+        /// </summary>
+        string CaptureInfoTitle { get; }
+
+        /// <summary>
+        /// Screen
+        /// </summary>
+        string CaptureInfoScreen { get; }
+
+        /// <summary>
+        /// All screens
+        /// </summary>
+        string CaptureInfoAllScreens { get; }
+
+        /// <summary>
+        /// Selection
+        /// </summary>
+        string CaptureInfoSelection { get; }
+
+        /// <summary>
+        /// None
+        /// </summary>
+        string CaptureInfoNoSelection { get; }
+
+        /// <summary>
+        /// Window
+        /// </summary>
+        string CaptureInfoWindow { get; }
+
+        /// <summary>
+        /// Mouse
+        /// </summary>
+        string CaptureInfoMouse { get; }
+
+        /// <summary>
         /// Support Greenshot
         /// </summary>
         string ContextmenuDonate { get; }

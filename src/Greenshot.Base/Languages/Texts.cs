@@ -217,7 +217,7 @@ namespace Greenshot.Base.Languages
         }
 
         /// <summary>
-        /// The text of an enum value: the key Type.Value (e.g. WindowCaptureMode.Auto), or the value's name when there is none
+        /// The text of an enum value: the key Type.Value (e.g. ClipboardFormat.PNG), or the value's name when there is none
         /// </summary>
         public static string Translate(Enum value)
         {

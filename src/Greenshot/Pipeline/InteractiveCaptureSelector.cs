@@ -23,18 +23,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
+using System.Windows.Interop;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Pipeline;
 using Greenshot.Base.Threading;
-using Greenshot.Forms;
+using Greenshot.UI.Capture;
 using log4net;
 
 namespace Greenshot.Pipeline
 {
     /// <summary>
-    /// Shows the CaptureForm on the UI thread (through the IUiDispatcher) and returns the selection to the flow on the pool.
+    /// Shows the CaptureWindow on the UI thread (through the IUiDispatcher) and returns the selection to the flow on the pool.
     /// </summary>
     public class InteractiveCaptureSelector : IInteractiveCaptureSelector
     {
@@ -42,7 +42,7 @@ namespace Greenshot.Pipeline
         private readonly IUiDispatcher _ui;
         private int _active;
         // Only accessed on the UI thread
-        private CaptureForm _openForm;
+        private CaptureWindow _openWindow;
 
         /// <param name="ui">Dispatcher for the UI thread, default is the registered one</param>
         public InteractiveCaptureSelector(IUiDispatcher ui = null)
@@ -58,11 +58,8 @@ namespace Greenshot.Pipeline
         {
             Ui.InvokeAsync(() =>
             {
-                var form = _openForm;
-                if (form == null || form.IsDisposed) return;
-                form.Activate();
-                form.BringToFront();
-            }).FireAndLog("Bring the capture form to the front", Log);
+                _openWindow?.Activate();
+            }).FireAndLog("Bring the capture window to the front", Log);
         }
 
         public async Task<SelectionResult> SelectAsync(
@@ -80,7 +77,7 @@ namespace Greenshot.Pipeline
 
             try
             {
-                var selection = await Ui.InvokeAsync(() => ShowCaptureForm(fullscreenCapture, visibleWindows, initialMode, cancellationToken), cancellationToken).ConfigureAwait(false);
+                var selection = await Ui.InvokeAsync(() => ShowCaptureWindow(fullscreenCapture, visibleWindows, initialMode, cancellationToken), cancellationToken).ConfigureAwait(false);
                 cancellationToken.ThrowIfCancellationRequested();
                 return selection;
             }
@@ -91,9 +88,9 @@ namespace Greenshot.Pipeline
         }
 
         /// <summary>
-        /// Runs on the UI thread: shows the capture form modally and returns the selection (null when the user declined)
+        /// Runs on the UI thread: shows the capture window modally and returns the selection (null when the user declined)
         /// </summary>
-        private SelectionResult ShowCaptureForm(ICapture fullscreenCapture, IReadOnlyList<WindowDetails> visibleWindows, CaptureMode initialMode, CancellationToken cancellationToken)
+        private SelectionResult ShowCaptureWindow(ICapture fullscreenCapture, IReadOnlyList<WindowDetails> visibleWindows, CaptureMode initialMode, CancellationToken cancellationToken)
         {
             ThreadAssert.IsUi(nameof(InteractiveCaptureSelector));
             if (fullscreenCapture?.CaptureDetails != null)
@@ -101,39 +98,41 @@ namespace Greenshot.Pipeline
                 fullscreenCapture.CaptureDetails.CaptureMode = initialMode;
             }
 
-            using var captureForm = new CaptureForm(fullscreenCapture, visibleWindows?.ToList() ?? new List<WindowDetails>());
-            _openForm = captureForm;
-            // Cancelling the flow closes the form
+            var captureWindow = new CaptureWindow(fullscreenCapture, visibleWindows?.ToList() ?? new List<WindowDetails>());
+            if (SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>(isOptional: true) is System.Windows.Forms.IWin32Window mainForm)
+            {
+                new WindowInteropHelper(captureWindow).Owner = mainForm.Handle;
+            }
+            _openWindow = captureWindow;
+            // Cancelling the flow closes the window
             using var registration = cancellationToken.Register(() => Ui.InvokeAsync(() =>
             {
-                if (!captureForm.IsDisposed)
+                if (_openWindow == captureWindow)
                 {
-                    captureForm.DialogResult = DialogResult.Cancel;
+                    captureWindow.Cancel();
                 }
-            }).FireAndLog("Close the capture form", Log));
+            }).FireAndLog("Close the capture window", Log));
 
-            DialogResult result;
+            bool? result;
             try
             {
-                var mainForm = SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>(isOptional: true);
-                result = captureForm.ShowDialog(mainForm as IWin32Window);
+                result = captureWindow.ShowDialog();
             }
             finally
             {
-                _openForm = null;
-                captureForm.Hide();
+                _openWindow = null;
             }
 
-            if (result != DialogResult.OK || cancellationToken.IsCancellationRequested)
+            if (result != true || cancellationToken.IsCancellationRequested)
             {
                 return null;
             }
 
             return new SelectionResult
             {
-                SelectedRegion = captureForm.CaptureRectangle,
-                SelectedWindow = captureForm.SelectedCaptureWindow,
-                FinalMode = captureForm.UsedCaptureMode
+                SelectedRegion = captureWindow.CaptureRectangle,
+                SelectedWindow = captureWindow.SelectedCaptureWindow,
+                FinalMode = captureWindow.UsedCaptureMode
             };
         }
     }

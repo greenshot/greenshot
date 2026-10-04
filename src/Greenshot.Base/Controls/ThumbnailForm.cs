@@ -29,7 +29,6 @@ using Dapplo.Windows.DesktopWindowsManager.Structs;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Enums;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.Enums;
 
 namespace Greenshot.Base.Controls
 {
@@ -39,8 +38,6 @@ namespace Greenshot.Base.Controls
     /// </summary>
     public sealed class ThumbnailForm : FormWithoutActivation
     {
-        private static ICoreConfiguration conf => IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
-
         private IntPtr _thumbnailHandle = IntPtr.Zero;
 
         public ThumbnailForm()
@@ -49,14 +46,7 @@ namespace Greenshot.Base.Controls
             FormBorderStyle = FormBorderStyle.None;
             TopMost = false;
             Enabled = false;
-            if (conf.WindowCaptureMode == WindowCaptureMode.Auto || conf.WindowCaptureMode == WindowCaptureMode.Aero)
-            {
-                BackColor = Color.FromArgb(255, conf.DWMBackgroundColor.R, conf.DWMBackgroundColor.G, conf.DWMBackgroundColor.B);
-            }
-            else
-            {
-                BackColor = Color.White;
-            }
+            BackColor = Color.White;
 
             // cleanup at close
             FormClosing += delegate { UnregisterThumbnail(); };

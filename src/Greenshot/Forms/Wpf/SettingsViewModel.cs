@@ -78,7 +78,6 @@ namespace Greenshot.Forms.Wpf
             InitializeImageFormats();
             
             // Initialize window capture modes
-            InitializeWindowCaptureModes();
             
             // Initialize destinations
             InitializeDestinations();
@@ -255,8 +254,6 @@ namespace Greenshot.Forms.Wpf
 
         public List<ImageFormatItem> ImageFormats { get; private set; }
 
-        public List<WindowCaptureModeItem> WindowCaptureModes { get; private set; }
-
         public int IconSize
         {
             get => _iconSize;
@@ -321,19 +318,6 @@ namespace Greenshot.Forms.Wpf
                     Value = CoreConfiguration.OutputFileFormat,
                     Description = CoreConfiguration.OutputFileFormat,
                     DisplayNameWithPreferredExtension = CoreConfiguration.OutputFileFormat
-                });
-            }
-        }
-
-        private void InitializeWindowCaptureModes()
-        {
-            WindowCaptureModes = new List<WindowCaptureModeItem>();
-            foreach (WindowCaptureMode mode in System.Enum.GetValues(typeof(WindowCaptureMode)))
-            {
-                WindowCaptureModes.Add(new WindowCaptureModeItem
-                {
-                    Value = mode,
-                    Description = Texts.Translate(mode)
                 });
             }
         }
@@ -422,12 +406,6 @@ namespace Greenshot.Forms.Wpf
         public string Value { get; set; }
         public string Description { get; set; }
         public string DisplayNameWithPreferredExtension { get; set; }
-    }
-
-    public class WindowCaptureModeItem
-    {
-        public WindowCaptureMode Value { get; set; }
-        public string Description { get; set; }
     }
 
     public class DestinationItem : INotifyPropertyChanged

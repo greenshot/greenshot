@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -19,17 +19,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Greenshot.Base.Core.Enums
+
+using System.Windows.Controls;
+
+namespace Greenshot.UI.Capture.Tools
 {
     /// <summary>
-    /// These are the possible window capture modes
+    /// The content of the info panel, see InfoOverlay
     /// </summary>
-    public enum WindowCaptureMode
+    public partial class InfoPanel : UserControl
     {
-        Screen,
-        GDI,
-        Aero,
-        AeroTransparent,
-        Auto
+        public InfoPanel()
+        {
+            InitializeComponent();
+        }
     }
 }

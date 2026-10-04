@@ -2128,12 +2128,11 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                     capture.CaptureDetails.DpiY = graphics.DpiY;
                 }
 
-                var captureHelper = SimpleServiceProvider.Current.GetInstance<ICaptureHelper>();
-                windowToCapture = captureHelper.SelectCaptureWindow(windowToCapture);
+                windowToCapture = WindowCapture.SelectCaptureWindow(windowToCapture);
                 if (windowToCapture != null)
                 {
                     // Continues on the UI thread (the context is captured), where the surface is changed
-                    capture = await captureHelper.CaptureWindowAsync(windowToCapture, capture, coreConfiguration.WindowCaptureMode).ConfigureAwait(true);
+                    capture = await WindowCapture.CaptureWindowAsync(windowToCapture, capture).ConfigureAwait(true);
                     if (capture?.CaptureDetails != null && capture.Image != null)
                     {
                         ((Bitmap)capture.Image).SetResolution(capture.CaptureDetails.DpiX, capture.CaptureDetails.DpiY);

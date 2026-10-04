@@ -20,15 +20,56 @@
  */
 
 using System;
-using System.Drawing;
-using System.Windows.Forms;
+using System.Collections.Generic;
+using Dapplo.Windows.Common.Structs;
 
 namespace Greenshot.Base.Interfaces.Plugin;
 
+/// <summary>
+/// An area of the capture the user can click while selecting, e.g. a QR code. A click shows the actions in a menu,
+/// choosing one runs it and ends the selection without a capture.
+/// </summary>
 public class CaptureFormHotspot
 {
-    public Rectangle Bounds { get; set; }
+    /// <summary>
+    /// The area, in coordinates of the capture
+    /// </summary>
+    public NativeRect Bounds { get; set; }
+
+    /// <summary>
+    /// The title of the menu
+    /// </summary>
     public string Text { get; set; }
+
+    /// <summary>
+    /// Shown when the cursor is over the hotspot
+    /// </summary>
     public string ToolTipText { get; set; }
-    public Action<MouseEventArgs> ClickAction { get; set; }
+
+    /// <summary>
+    /// What the user can do with the hotspot
+    /// </summary>
+    public IList<CaptureHotspotAction> Actions { get; } = new List<CaptureHotspotAction>();
+}
+
+/// <summary>
+/// An action of a hotspot, runs on the UI thread after the selection was closed
+/// </summary>
+public class CaptureHotspotAction
+{
+    public CaptureHotspotAction(string text, Action execute)
+    {
+        Text = text;
+        Execute = execute ?? throw new ArgumentNullException(nameof(execute));
+    }
+
+    /// <summary>
+    /// The text of the menu item
+    /// </summary>
+    public string Text { get; }
+
+    /// <summary>
+    /// Runs the action
+    /// </summary>
+    public Action Execute { get; }
 }

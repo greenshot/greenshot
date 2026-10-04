@@ -83,7 +83,7 @@ namespace Greenshot.Forms
     /// <summary>
     /// This is the MainForm, the shell of Greenshot
     /// </summary>
-    public partial class MainForm : GreenshotForm, IGreenshotMainForm, ICaptureHelper, IProvideDeviceDpi
+    public partial class MainForm : GreenshotForm, IGreenshotMainForm, IProvideDeviceDpi
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(MainForm));
         private static ResourceMutex _applicationMutex;
@@ -312,11 +312,8 @@ namespace Greenshot.Forms
 #endif
             // The UI thread is reached through IUiDispatcher (UiDispatcher.Current), the SynchronizationContext and TaskScheduler aren't registered
 
-            if (_conf.UseWindowsGraphicsCapture)
-            {
-                // Creating the Direct3D device costs ~200 ms, do it now in the background instead of in the first capture
-                WindowsGraphicsCaptureInterop.PrewarmAsync().FireAndLog("Prewarm the Windows Graphics Capture", Log);
-            }
+            // Creating the Direct3D device costs ~200 ms, do it now in the background instead of in the first capture
+            WindowsGraphicsCaptureInterop.PrewarmAsync().FireAndLog("Prewarm the Windows Graphics Capture", Log);
 
             // Register the RecyclableMemoryStreamManager to minimise Large Object Heap usage.
             SimpleServiceProvider.Current.AddService(RecyclableMemoryStreamFactory.Manager);
@@ -326,7 +323,6 @@ namespace Greenshot.Forms
             // Also as itself
             SimpleServiceProvider.Current.AddService(this);
             SimpleServiceProvider.Current.AddService<IGreenshotMainForm>(this);
-            SimpleServiceProvider.Current.AddService<ICaptureHelper>(this);
             SimpleServiceProvider.Current.AddService<ITriggerManager>(TriggerManager.Instance);
             SimpleServiceProvider.Current.AddService<IRecipeManager>(RecipeManager.Instance);
             SimpleServiceProvider.Current.AddService<IStepRegistry>(StepRegistry.Instance);
@@ -1368,22 +1364,6 @@ namespace Greenshot.Forms
                 contextmenu_quicksettings.DropDownItems.Add(selectList);
             }
 
-            if (coreSection == null || !coreSection.IsConstant("WindowCaptureMode"))
-            {
-                // Capture Modes
-                selectList = new ToolStripMenuSelectList("capturemodes", false, this)
-                {
-                    Text = Texts.Settings.WindowCaptureMode
-                };
-                foreach (WindowCaptureMode captureMode in Enum.GetValues(typeof(WindowCaptureMode)))
-                {
-                    selectList.AddItem(Texts.Translate(captureMode), captureMode, _conf.WindowCaptureMode == captureMode);
-                }
-
-                selectList.CheckedChanged += QuickSettingCaptureModeChanged;
-                contextmenu_quicksettings.DropDownItems.Add(selectList);
-            }
-
             // print options
             selectList = new ToolStripMenuSelectList("printoptions", true, this)
             {
@@ -1516,16 +1496,6 @@ namespace Greenshot.Forms
             if (item.Checked && item.Data is Action select)
             {
                 select();
-            }
-        }
-
-        private void QuickSettingCaptureModeChanged(object sender, EventArgs e)
-        {
-            ToolStripMenuSelectListItem item = ((ItemCheckedChangedEventArgs) e).Item;
-            WindowCaptureMode windowsCaptureMode = (WindowCaptureMode) item.Data;
-            if (item.Checked)
-            {
-                _conf.WindowCaptureMode = windowsCaptureMode;
             }
         }
 
@@ -1939,28 +1909,6 @@ namespace Greenshot.Forms
             {
                 Log.Error("Error closing application!", e);
             }
-        }
-
-        /// <summary>
-        /// TODO: Delete when the ICaptureHelper can be solve someway else
-        /// </summary>
-        /// <param name="windowToCapture">WindowDetails</param>
-        /// <returns>WindowDetails</returns>
-        public WindowDetails SelectCaptureWindow(WindowDetails windowToCapture)
-        {
-            return CaptureHelper.SelectCaptureWindow(windowToCapture);
-        }
-
-        /// <summary>
-        /// TODO: Delete when the ICaptureHelper can be solve someway else
-        /// </summary>
-        /// <param name="windowToCapture">WindowDetails</param>
-        /// <param name="capture">ICapture</param>
-        /// <param name="coreConfigurationWindowCaptureMode">WindowCaptureMode</param>
-        /// <returns>ICapture</returns>
-        public Task<ICapture> CaptureWindowAsync(WindowDetails windowToCapture, ICapture capture, WindowCaptureMode coreConfigurationWindowCaptureMode, CancellationToken cancellationToken = default)
-        {
-            return WindowCaptureHelper.CaptureWindowAsync(windowToCapture, capture, coreConfigurationWindowCaptureMode, UiDispatcher, cancellationToken);
         }
 
         protected override void WndProc(ref Message m)

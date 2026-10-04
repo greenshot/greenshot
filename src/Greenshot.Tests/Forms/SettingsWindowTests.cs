@@ -70,7 +70,6 @@ namespace Greenshot.Tests.Forms
             Assert.NotNull(viewModel.CoreConfiguration);
             Assert.NotNull(viewModel.EditorConfiguration);
             Assert.NotNull(viewModel.ImageFormats);
-            Assert.NotNull(viewModel.WindowCaptureModes);
             Assert.NotNull(viewModel.Destinations);
             Assert.NotNull(viewModel.Plugins);
             Assert.NotNull(viewModel.ClipboardFormats);

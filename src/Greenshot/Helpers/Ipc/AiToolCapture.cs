@@ -25,16 +25,15 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Capturing;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Native;
 using Greenshot.Base.Pipeline;
-using Greenshot.Base.Threading;
 using Greenshot.Base.Triggers;
 using log4net;
 
@@ -48,16 +47,6 @@ namespace Greenshot.Helpers.Ipc
     public static class AiToolCapture
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(AiToolCapture));
-
-        /// <summary>
-        /// Capture details metadata: how the window was captured
-        /// </summary>
-        public const string CaptureMethodKey = "capture_method";
-
-        /// <summary>
-        /// Windows Graphics Capture: only the window's own contents, nothing that covers it
-        /// </summary>
-        public const string CaptureMethodGraphicsCapture = "WindowsGraphicsCapture";
 
         /// <summary>
         /// True when the flow was started by an AI tool (only greenshot-mcp.exe can fire an AI tool trigger)
@@ -106,47 +95,26 @@ namespace Greenshot.Helpers.Ipc
         }
 
         /// <summary>
-        /// The exact contents of the window: Windows Graphics Capture when supported (also for covered windows, independent of
-        /// the UseWindowsGraphicsCapture setting), otherwise the window capture of the given mode. The window is not activated.
+        /// Capture the window: Windows Graphics Capture when supported (only the window's contents, also for covered windows),
+        /// otherwise the window's area of the screen.
         /// </summary>
-        public static async Task<ICapture> CaptureWindowAsync(WindowDetails window, WindowCaptureMode fallbackMode, IUiDispatcher ui, CancellationToken cancellationToken)
+        public static async Task<ICapture> CaptureWindowAsync(WindowDetails window, CancellationToken cancellationToken)
         {
-            var bounds = window.WindowRectangle;
-            if (WindowsGraphicsCaptureInterop.IsSupported && !window.Iconic)
-            {
-                try
-                {
-                    // The capture owns the bitmap
-                    var bitmap = await WindowsGraphicsCaptureInterop.CaptureWindowToBitmapAsync(window.Handle, cancellationToken).ConfigureAwait(false);
-                    if (bitmap != null)
-                    {
-                        var capture = new Capture(bitmap)
-                        {
-                            Location = bounds.Location
-                        };
-                        capture.CaptureDetails.Title = window.Text;
-                        capture.CaptureDetails.AddMetaData("source", "Window");
-                        capture.CaptureDetails.AddMetaData(CaptureMethodKey, CaptureMethodGraphicsCapture);
-                        return capture;
-                    }
-                }
-                catch (OperationCanceledException)
-                {
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    Log.Warn($"Windows Graphics Capture failed for window {window.Handle}, using the window capture.", ex);
-                }
-            }
+            var capture = await WindowCapture.CaptureWindowAsync(window, null, cancellationToken).ConfigureAwait(false);
+            capture?.CaptureDetails.AddMetaData("source", "Window");
+            return capture;
+        }
 
-            var legacy = await WindowCaptureHelper.CaptureWindowAsync(window, new Capture(), fallbackMode, ui, cancellationToken).ConfigureAwait(false);
-            if (legacy != null)
+        /// <summary>
+        /// True when the capture was taken by a backend which captures only the window's contents, nothing that covers it
+        /// </summary>
+        public static bool IsWindowContentOnly(ICapture capture)
+        {
+            if (capture?.CaptureDetails?.MetaData == null || !capture.CaptureDetails.MetaData.TryGetValue(ScreenCapture.CaptureMethodKey, out var method))
             {
-                legacy.CaptureDetails.Title = window.Text;
-                legacy.CaptureDetails.AddMetaData("source", "Window");
+                return false;
             }
-            return legacy;
+            return ScreenCapture.Backends.Any(backend => backend.CapturesWindowContentOnly && string.Equals(backend.Name, method, StringComparison.Ordinal));
         }
 
         /// <summary>

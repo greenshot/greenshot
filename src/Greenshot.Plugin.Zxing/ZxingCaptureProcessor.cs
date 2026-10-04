@@ -42,7 +42,7 @@ public class ZxingCaptureProcessor : AbstractProcessor
 
     /// <summary>
     /// Runs before interactive selection so detected QR/barcode hotspots are visible
-    /// in the CaptureForm while the user selects a region.
+    /// in the CaptureWindow while the user selects a region.
     /// </summary>
     public override ProcessorTiming PreferredTiming => ProcessorTiming.PreSelection;
 

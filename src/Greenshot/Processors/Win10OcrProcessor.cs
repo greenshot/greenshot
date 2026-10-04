@@ -47,7 +47,7 @@ namespace Greenshot.Processors
 
         /// <summary>
         /// Runs before interactive selection so detected OCR text lines are visible
-        /// as hotspots in the CaptureForm while the user selects a region.
+        /// as hotspots in the CaptureWindow while the user selects a region.
         /// </summary>
         public override ProcessorTiming PreferredTiming => ProcessorTiming.PreSelection;
 

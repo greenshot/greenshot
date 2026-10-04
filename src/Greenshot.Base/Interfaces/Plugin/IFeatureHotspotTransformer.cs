@@ -19,13 +19,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System.Windows.Forms;
-
 namespace Greenshot.Base.Interfaces.Plugin;
 
 /// <summary>
 /// Service interface for converting abstract detected features into UI-specific interactive hotspots.
-/// This allows presentation layer forms (e.g. CaptureForm) to render features without knowing
+/// This allows presentation layer forms (e.g. CaptureWindow) to render features without knowing
 /// the underlying click actions, context menus, or business logic of specific plugins.
 /// </summary>
 public interface IFeatureHotspotTransformer
@@ -41,7 +39,6 @@ public interface IFeatureHotspotTransformer
     /// Transforms the abstract feature into a presentation-layer interactive UI hotspot.
     /// </summary>
     /// <param name="feature">The detected feature to transform.</param>
-    /// <param name="captureForm">The active screenshot capture form acting as the parent UI context.</param>
-    /// <returns>An interactive hotspot with boundaries and click action handlers, or null if transformation is not possible.</returns>
-    CaptureFormHotspot Transform(IDetectedFeature feature, Form captureForm);
+    /// <returns>An interactive hotspot with boundaries and actions, or null if transformation is not possible.</returns>
+    CaptureFormHotspot Transform(IDetectedFeature feature);
 }
