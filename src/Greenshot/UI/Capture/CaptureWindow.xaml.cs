@@ -423,10 +423,6 @@ namespace Greenshot.UI.Capture
         {
             _prepared = true;
             new WindowInteropHelper(this).EnsureHandle();
-            // Templates and layout now, not when the window is shown with the capture
-            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-            UpdateLayout();
-            Log.Debug($"Capture window laid out while hidden in {stopwatch.ElapsedMilliseconds} ms.");
         }
 
         /// <summary>
