@@ -86,8 +86,11 @@
         <!-- The captured mouse cursor, toggled with M -->
         <Image x:Name="CursorImage" Stretch="None" Visibility="Collapsed" />
 
-        <!-- Hotspots of detected features (e.g. QR codes) and the text lines of the OCR -->
+        <!-- Hotspots of detected features (e.g. QR codes) -->
         <capture:DrawingLayer x:Name="FeatureLayer" />
+
+        <!-- Drawn by the active capture tool, e.g. the text lines of the OCR -->
+        <capture:DrawingLayer x:Name="ToolLayer" />
 
         <!-- The selected region or window -->
         <Path x:Name="SelectionPath" Fill="{StaticResource SelectionFillBrush}" Stroke="{StaticResource SelectionBorderBrush}" StrokeThickness="1" Visibility="Collapsed" IsHitTestVisible="False">

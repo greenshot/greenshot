@@ -40,9 +40,9 @@ using Dapplo.Windows.Icons;
 using Dapplo.Windows.User32;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Threading;
+using Greenshot.UI.Capture.Tools;
 using log4net;
 using CaptureMode = Greenshot.Base.Interfaces.CaptureMode;
 using Point = System.Windows.Point;
@@ -50,10 +50,11 @@ using Point = System.Windows.Point;
 namespace Greenshot.UI.Capture
 {
     /// <summary>
-    /// Lets the user select a region, a window or text on the frozen capture of the screen.
-    /// Space switches between region and window, T to text, Escape cancels.
+    /// Lets the user select something on the frozen capture of the screen with one of the capture tools (region, window, text).
+    /// Takes care of what the tools share: the cursor and its keys, the crosshair, the zoomer, the hotspots, the selection and its labels.
+    /// Space switches between region and window, the shortcut key of a tool (T for text) to that tool, Escape cancels.
     /// </summary>
-    public partial class CaptureWindow : Window
+    public partial class CaptureWindow : Window, ICaptureToolHost
     {
         private enum FixMode
         {
@@ -80,20 +81,29 @@ namespace Greenshot.UI.Capture
         private readonly Typeface _labelTypeface;
         private readonly Typeface _boldLabelTypeface;
 
-        private CaptureMode _captureMode;
+        // The available tools, a new tool only needs to be added here
+        private readonly IList<ICaptureTool> _tools = new List<ICaptureTool>
+        {
+            new RegionCaptureTool(),
+            new WindowCaptureTool(),
+            new TextCaptureTool()
+        };
+
+        private ICaptureTool _activeTool;
+        private CaptureMode _usedCaptureMode;
         private List<WindowDetails> _windows = new List<WindowDetails>();
         private List<CaptureFormHotspot> _hotspots = new List<CaptureFormHotspot>();
         private CaptureFormHotspot _hoveredHotspot;
-        private IOcrLineFeature _hoveredLine;
-        private WindowDetails _selectedCaptureWindow;
+        private WindowDetails _windowUnderCursor;
+        private WindowDetails _acceptedWindow;
         private NativeRect _captureRect = NativeRect.Empty;
+        private NativeRect _selectionRect = NativeRect.Empty;
         private NativePoint _cursorPos;
-        private NativePoint _mouseDownPos;
         private NativePoint _previousMousePos;
         private FixMode _fixMode = FixMode.None;
-        private bool _mouseDown;
         private bool _isCtrlPressed;
-        private bool _showDebugInfo;
+        // The mouse button was pressed for the active tool, not on a hotspot
+        private bool _toolMouseDown;
         // True while the label fade-in storyboard is applied to the label layer
         private bool _labelsFading;
         private bool _zoomerShown;
@@ -110,12 +120,27 @@ namespace Greenshot.UI.Capture
         /// <summary>
         /// The mode the selection ended in
         /// </summary>
-        public CaptureMode UsedCaptureMode => _captureMode;
+        public CaptureMode UsedCaptureMode => _usedCaptureMode;
 
         /// <summary>
-        /// The selected window
+        /// The selected window, or the top level window under the cursor
         /// </summary>
-        public WindowDetails SelectedCaptureWindow => _selectedCaptureWindow;
+        public WindowDetails SelectedCaptureWindow => _acceptedWindow ?? _windowUnderCursor;
+
+        /// <inheritdoc />
+        public ICapture Capture => _capture;
+
+        /// <inheritdoc />
+        public NativeRect ScreenBounds => _screenBounds;
+
+        /// <inheritdoc />
+        public NativePoint CursorPosition => _cursorPos;
+
+        /// <inheritdoc />
+        public ICaptureTool ActiveTool => _activeTool;
+
+        /// <inheritdoc />
+        public IReadOnlyList<WindowDetails> Windows => _windows;
 
         /// <summary>
         /// Create the window for the capture of the screen
@@ -126,7 +151,9 @@ namespace Greenshot.UI.Capture
         {
             _capture = capture ?? throw new ArgumentNullException(nameof(capture));
             _screenBounds = capture.ScreenBounds;
-            _captureMode = capture.CaptureDetails.CaptureMode;
+            var initialMode = capture.CaptureDetails.CaptureMode;
+            _activeTool = _tools.FirstOrDefault(tool => tool.Mode == initialMode) ?? _tools[0];
+            _usedCaptureMode = _activeTool.Mode;
 
             InitializeComponent();
             var labelFont = (FontFamily)FindResource("LabelFontFamily");
@@ -158,6 +185,7 @@ namespace Greenshot.UI.Capture
             _cursorPos = WindowCapture.GetCursorLocationRelativeToScreenBounds();
             _previousMousePos = User32Api.GetCursorLocation();
             SetSelection(new Rect(ToPoint(_cursorPos), new Size(0, 0)));
+            _activeTool.Activate(this);
 
             _capture.CaptureDetails.FeaturesChanged += OnFeaturesChanged;
             RebuildFeatureHotspots();
@@ -188,13 +216,31 @@ namespace Greenshot.UI.Capture
             }
         }
 
-        private void Accept()
+        /// <inheritdoc />
+        public void Accept(NativeRect rect, WindowDetails window = null)
         {
-            if (_captureMode == CaptureMode.Text)
-            {
-                _capture.CaptureDetails.CaptureMode = CaptureMode.Text;
-            }
+            _captureRect = rect;
+            _acceptedWindow = window;
+            _usedCaptureMode = _activeTool.Mode;
             DialogResult = true;
+        }
+
+        /// <summary>
+        /// Make another tool the active one
+        /// </summary>
+        private void SwitchTool(ICaptureTool tool)
+        {
+            if (tool == null || tool == _activeTool)
+            {
+                return;
+            }
+            _activeTool.Deactivate();
+            _activeTool = tool;
+            _usedCaptureMode = tool.Mode;
+            tool.Activate(this);
+            UpdateZoomerVisibility();
+            UpdateSelection();
+            Redraw();
         }
 
         /// <summary>
@@ -211,6 +257,7 @@ namespace Greenshot.UI.Capture
             ApplyDpiScale(VisualTreeHelper.GetDpi(this));
             InitializeZoomer();
             UpdateSelection();
+            Redraw();
         }
 
         /// <summary>
@@ -261,10 +308,6 @@ namespace Greenshot.UI.Capture
             PlaceWindow();
             Activate();
             WindowDetails.ToForeground(new WindowInteropHelper(this).Handle);
-            if (_captureMode == CaptureMode.Text)
-            {
-                EnsureOcr();
-            }
         }
 
         private void OnClosed(object sender, EventArgs e)
@@ -322,62 +365,8 @@ namespace Greenshot.UI.Capture
                 if (!IsVisible) return;
                 RebuildFeatureHotspots();
                 DrawFeatures();
+                Redraw();
             }).FireAndLog("Capture window features changed", Log);
-        }
-
-        private List<IOcrLineFeature> GetOcrLines()
-        {
-            lock (_capture.CaptureDetails.Features)
-            {
-                return _capture.CaptureDetails.Features.OfType<IOcrLineFeature>().ToList();
-            }
-        }
-
-        /// <summary>
-        /// Start the OCR for the text mode when there are no text lines yet, and it isn't running in the background already
-        /// </summary>
-        private void EnsureOcr()
-        {
-            if (GetOcrLines().Any())
-            {
-                return;
-            }
-            var processingTask = _capture.CaptureDetails.ProcessingTask;
-            if (processingTask != null && !processingTask.IsCompleted)
-            {
-                // Already processing in the background, the features changed event redraws when finished
-                return;
-            }
-            var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>(isOptional: true);
-            if (ocrProvider == null)
-            {
-                return;
-            }
-            // Started on the UI thread: the OCR result is merged and the window redrawn there
-            var ocrTask = RunOcrAsync(ocrProvider);
-            _capture.CaptureDetails.ProcessingTask = processingTask != null ? Task.WhenAll(processingTask, ocrTask) : ocrTask;
-        }
-
-        private async Task RunOcrAsync(IOcrProvider ocrProvider)
-        {
-            var ocrLines = await ocrProvider.DoOcrAsync(_capture.Image).ConfigureAwait(true);
-            if (ocrLines != null && ocrLines.Any())
-            {
-                lock (_capture.CaptureDetails.Features)
-                {
-                    _capture.CaptureDetails.Features.AddRange(ocrLines);
-                }
-
-                if (_capture.CaptureDetails is CaptureDetails concreteDetails)
-                {
-                    concreteDetails.NotifyFeaturesChanged();
-                }
-            }
-
-            if (IsVisible)
-            {
-                DrawFeatures();
-            }
         }
 
         #endregion
@@ -401,6 +390,10 @@ namespace Greenshot.UI.Capture
 
         private void OnKeyDown(object sender, KeyEventArgs e)
         {
+            if (_activeTool.OnKeyDown(e.Key))
+            {
+                return;
+            }
             int step = _isCtrlPressed ? 10 : 1;
             var cursor = System.Windows.Forms.Cursor.Position;
             switch (e.Key)
@@ -438,81 +431,24 @@ namespace Greenshot.UI.Capture
                     ShowCapturedCursor();
                     break;
                 case Key.Z:
-                    if (_captureMode == CaptureMode.Region)
+                    if (_activeTool.ShowsZoomer)
                     {
                         Conf.ZoomerEnabled = !Conf.ZoomerEnabled;
                         UpdateZoomerVisibility();
                     }
                     break;
-                case Key.D:
-                    if (_captureMode == CaptureMode.Window)
-                    {
-                        _showDebugInfo = !_showDebugInfo;
-                        DrawLabels(false);
-                    }
-                    break;
                 case Key.Space:
-                    ToggleCaptureMode();
-                    break;
-                case Key.Return:
-                    if (_captureMode == CaptureMode.Window)
-                    {
-                        Accept();
-                    }
-                    else if (!_mouseDown)
-                    {
-                        StartSelection();
-                    }
-                    else
-                    {
-                        EndSelection();
-                    }
+                    // Region to window, everything else back to region
+                    var nextMode = _activeTool.Mode == CaptureMode.Region ? CaptureMode.Window : CaptureMode.Region;
+                    SwitchTool(_tools.FirstOrDefault(tool => tool.Mode == nextMode));
                     break;
                 case Key.F:
                     Topmost = !Topmost;
                     break;
-                case Key.T:
-                    _captureMode = CaptureMode.Text;
-                    EnsureOcr();
-                    UpdateSelection();
-                    DrawFeatures();
+                default:
+                    SwitchTool(_tools.FirstOrDefault(tool => tool.ShortcutKey != Key.None && tool.ShortcutKey == e.Key));
                     break;
             }
-        }
-
-        private void ToggleCaptureMode()
-        {
-            switch (_captureMode)
-            {
-                case CaptureMode.Region:
-                    _captureMode = CaptureMode.Window;
-                    // The window selection grows out of the cursor
-                    SetSelection(new Rect(ToPoint(_cursorPos), new Size(0, 0)));
-                    SelectionPath.Visibility = Visibility.Visible;
-                    break;
-                case CaptureMode.Text:
-                    _captureMode = CaptureMode.Region;
-                    break;
-                case CaptureMode.Window:
-                    _captureMode = CaptureMode.Region;
-                    // The window selection shrinks into the cursor
-                    AnimateSelection(new Rect(ToPoint(_cursorPos), new Size(0, 0)), () =>
-                    {
-                        if (_captureMode != CaptureMode.Window && !_mouseDown)
-                        {
-                            SelectionPath.Visibility = Visibility.Collapsed;
-                        }
-                    });
-                    LabelLayer.Clear();
-                    break;
-            }
-
-            _captureRect = NativeRect.Empty;
-            _selectedCaptureWindow = null;
-            _mouseDown = false;
-            UpdateZoomerVisibility();
-            UpdateSelection();
-            DrawFeatures();
         }
 
         private void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -524,52 +460,20 @@ namespace Greenshot.UI.Capture
                 e.Handled = true;
                 return;
             }
-            StartSelection();
             CaptureMouse();
+            _toolMouseDown = true;
+            _activeTool.OnMouseDown();
         }
 
         private void OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             ReleaseMouseCapture();
-            if (_mouseDown)
+            if (!_toolMouseDown)
             {
-                EndSelection();
+                return;
             }
-        }
-
-        private void StartSelection()
-        {
-            _mouseDownPos = WindowCapture.GetCursorLocationRelativeToScreenBounds();
-            _mouseDown = true;
-            UpdateSelection();
-        }
-
-        private void EndSelection()
-        {
-            _mouseDown = false;
-            if (_captureMode == CaptureMode.Window && _selectedCaptureWindow != null)
-            {
-                Accept();
-            }
-            else if (_captureRect.Height > 3 && _captureRect.Width > 3)
-            {
-                if (_captureMode is CaptureMode.Region or CaptureMode.Text)
-                {
-                    // The selection includes the pixel under the cursor
-                    _captureRect = new NativeRect(_captureRect.Left, _captureRect.Top, _captureRect.Width + 1, _captureRect.Height + 1);
-                }
-                Accept();
-            }
-            else if (_captureMode == CaptureMode.Text && FindOcrLine(_cursorPos) is { } clickedLine)
-            {
-                // A click on a single line selects it
-                _captureRect = clickedLine.Bounds;
-                Accept();
-            }
-            else
-            {
-                UpdateSelection();
-            }
+            _toolMouseDown = false;
+            _activeTool.OnMouseUp();
         }
 
         private void ShowHotspotMenu(CaptureFormHotspot hotspot)
@@ -637,8 +541,6 @@ namespace Greenshot.UI.Capture
 
         private CaptureFormHotspot FindHotspot(NativePoint location) => _hotspots.FirstOrDefault(hotspot => hotspot.Bounds.Contains(location));
 
-        private IOcrLineFeature FindOcrLine(NativePoint location) => _captureMode == CaptureMode.Text ? GetOcrLines().FirstOrDefault(line => line.Bounds.Contains(location)) : null;
-
         #endregion
 
         #region selection
@@ -649,7 +551,6 @@ namespace Greenshot.UI.Capture
         private void UpdateSelection()
         {
             _cursorPos = GetCursorPosition();
-            bool isRegion = _captureMode is CaptureMode.Region or CaptureMode.Text;
 
             var hoveredHotspot = FindHotspot(_cursorPos);
             Cursor = hoveredHotspot != null ? Cursors.Hand : Cursors.Cross;
@@ -657,30 +558,10 @@ namespace Greenshot.UI.Capture
             bool redrawFeatures = hoveredHotspot != _hoveredHotspot;
             _hoveredHotspot = hoveredHotspot;
 
-            if (isRegion && _mouseDown)
-            {
-                _captureRect = new NativeRect(_cursorPos.X, _cursorPos.Y, _mouseDownPos.X - _cursorPos.X, _mouseDownPos.Y - _cursorPos.Y).Normalize();
-                SetSelection(ToRect(_captureRect));
-                SelectionPath.Visibility = Visibility.Visible;
-                DrawLabels(false);
-            }
-            else if (isRegion && SelectionPath.Visibility == Visibility.Visible && !IsSelectionAnimating())
-            {
-                SelectionPath.Visibility = Visibility.Collapsed;
-                LabelLayer.Clear();
-            }
-
-            UpdateSelectedWindow();
-            UpdateCrosshair(isRegion && !_mouseDown);
+            UpdateWindowUnderCursor();
+            _activeTool.OnMouseMove();
+            UpdateCrosshair(_activeTool.ShowsCrosshair);
             UpdateZoomer();
-
-            if (_captureMode == CaptureMode.Text)
-            {
-                var hoveredLine = _mouseDown ? null : FindOcrLine(_cursorPos);
-                // While selecting the highlighted words change with every move
-                redrawFeatures |= _mouseDown || hoveredLine != _hoveredLine;
-                _hoveredLine = hoveredLine;
-            }
 
             if (redrawFeatures)
             {
@@ -689,56 +570,65 @@ namespace Greenshot.UI.Capture
         }
 
         /// <summary>
-        /// Find the window under the cursor, in window mode the selection moves there
+        /// The top level window under the cursor gives the capture its title
         /// </summary>
-        private void UpdateSelectedWindow()
+        private void UpdateWindowUnderCursor()
         {
-            var lastWindow = _selectedCaptureWindow;
-            // In screen coordinates, as the windows are
-            var cursorPosition = User32Api.GetCursorLocation();
-            _selectedCaptureWindow = null;
-            foreach (var window in _windows)
-            {
-                if (!window.Contains(cursorPosition))
-                {
-                    continue;
-                }
-
-                // Only go over the children in window mode
-                _selectedCaptureWindow = _captureMode == CaptureMode.Window ? window.FindChildUnderPoint(cursorPosition) : window;
-                break;
-            }
-
-            if (_selectedCaptureWindow == null || _selectedCaptureWindow.Equals(lastWindow))
+            var window = FindWindowUnderCursor(false);
+            if (window == null || window.Equals(_windowUnderCursor))
             {
                 return;
             }
-
-            _capture.CaptureDetails.Title = _selectedCaptureWindow.Text;
-            _capture.CaptureDetails.AddMetaData("windowtitle", _selectedCaptureWindow.Text);
-            if (_captureMode != CaptureMode.Window)
-            {
-                return;
-            }
-
-            _captureRect = GetClippedWindowRectangle(_selectedCaptureWindow)
-                .Offset(-_screenBounds.X, -_screenBounds.Y)
-                .Intersect(new NativeRect(0, 0, _screenBounds.Width, _screenBounds.Height));
-            SelectionPath.Visibility = Visibility.Visible;
-            AnimateSelection(ToRect(_captureRect), null);
-            DrawLabels(true);
+            _windowUnderCursor = window;
+            _capture.CaptureDetails.Title = window.Text;
+            _capture.CaptureDetails.AddMetaData("windowtitle", window.Text);
         }
 
-        private static NativeRect GetClippedWindowRectangle(WindowDetails window)
+        /// <inheritdoc />
+        public WindowDetails FindWindowUnderCursor(bool includeChildren)
         {
-            var rect = window.WindowRectangle;
-            var parent = window.GetParent();
-            while (parent != null)
+            // In screen coordinates, as the windows are
+            var cursorPosition = User32Api.GetCursorLocation();
+            var window = _windows.FirstOrDefault(w => w.Contains(cursorPosition));
+            return includeChildren ? window?.FindChildUnderPoint(cursorPosition) : window;
+        }
+
+        /// <inheritdoc />
+        public void ShowSelection(NativeRect rect, bool animate = false, Action completed = null)
+        {
+            _selectionRect = rect;
+            SelectionPath.Visibility = Visibility.Visible;
+            if (animate)
             {
-                rect = rect.Intersect(parent.WindowRectangle);
-                parent = parent.GetParent();
+                AnimateSelection(ToRect(rect), completed);
             }
-            return rect;
+            else
+            {
+                SetSelection(ToRect(rect));
+                completed?.Invoke();
+            }
+        }
+
+        /// <inheritdoc />
+        public void HideSelection()
+        {
+            SelectionPath.Visibility = Visibility.Collapsed;
+        }
+
+        /// <inheritdoc />
+        public bool IsSelectionVisible => SelectionPath.Visibility == Visibility.Visible;
+
+        /// <inheritdoc />
+        public bool IsSelectionAnimating => _selectionClock != null;
+
+        /// <inheritdoc />
+        public void ClearLabels() => LabelLayer.Clear();
+
+        /// <inheritdoc />
+        public void Redraw()
+        {
+            using var dc = ToolLayer.Open();
+            _activeTool.Draw(dc);
         }
 
         /// <summary>
@@ -766,8 +656,6 @@ namespace Greenshot.UI.Capture
             SelectionGeometry.ApplyAnimationClock(RectangleGeometry.RectProperty, clock, HandoffBehavior.SnapshotAndReplace);
         }
 
-        private bool IsSelectionAnimating() => _selectionClock != null;
-
         /// <summary>
         /// Show the selection there, without animation
         /// </summary>
@@ -778,23 +666,17 @@ namespace Greenshot.UI.Capture
             SelectionGeometry.Rect = rect;
         }
 
-        /// <summary>
-        /// The size of the selection and the rulers at its sides
-        /// </summary>
-        /// <param name="fadeIn">true to let them appear when a window selection arrives</param>
-        private void DrawLabels(bool fadeIn)
+        /// <inheritdoc />
+        public void ShowLabels(NativeRect rect, NativeSize size, bool fadeIn = false, string debugText = null)
         {
-            if (_captureRect.IsEmpty)
+            if (rect.IsEmpty)
             {
                 LabelLayer.Clear();
                 return;
             }
 
-            var rect = _captureRect;
-            bool isRegion = _captureMode is CaptureMode.Region or CaptureMode.Text;
-            // A region includes the pixel under the cursor
-            int width = isRegion ? rect.Width + 1 : rect.Width;
-            int height = isRegion ? rect.Height + 1 : rect.Height;
+            int width = size.Width;
+            int height = size.Height;
             string widthText = width.ToString(CultureInfo.InvariantCulture);
             string heightText = height.ToString(CultureInfo.InvariantCulture);
             var rulerBrush = (Brush)FindResource("RulerBrush");
@@ -847,10 +729,9 @@ namespace Greenshot.UI.Capture
                     var sizeLabel = CreateText(sizeText, fontSize, (Brush)FindResource("SizeTextBrush"), bold: true);
                     dc.DrawText(sizeLabel, new Point(rect.X + rect.Width / 2.0 - sizeLabel.Width / 2, rect.Y + rect.Height / 2.0 - sizeLabel.Height / 2));
 
-                    if (_showDebugInfo && _selectedCaptureWindow != null)
+                    if (!string.IsNullOrEmpty(debugText))
                     {
-                        string title = $"#{_selectedCaptureWindow.Handle.ToInt64():X} - {(_selectedCaptureWindow.Text.Length > 0 ? _selectedCaptureWindow.Text : _selectedCaptureWindow.Process?.ProcessName)}";
-                        dc.DrawText(CreateText(title, 12, (Brush)FindResource("DebugTextBrush")), new Point(rect.X, rect.Y));
+                        dc.DrawText(CreateText(debugText, 12, (Brush)FindResource("DebugTextBrush")), new Point(rect.X, rect.Y));
                     }
                 }
             }
@@ -923,7 +804,7 @@ namespace Greenshot.UI.Capture
 
         private void UpdateZoomerVisibility()
         {
-            bool show = Conf.ZoomerEnabled && _captureMode != CaptureMode.Window;
+            bool show = Conf.ZoomerEnabled && _activeTool.ShowsZoomer;
             if (show == _zoomerShown)
             {
                 return;
@@ -957,7 +838,7 @@ namespace Greenshot.UI.Capture
                 ResizeZoomer(zoomSize);
             }
 
-            var offset = ZoomerPlacement.GetOffset(_cursorPos, _zoomOffset, zoomSize, screenBounds, _mouseDown ? _captureRect : NativeRect.Empty);
+            var offset = ZoomerPlacement.GetOffset(_cursorPos, _zoomOffset, zoomSize, screenBounds, IsSelectionVisible && !IsSelectionAnimating ? _selectionRect : NativeRect.Empty);
             if (offset.Equals(_zoomOffset))
             {
                 return;
@@ -1006,7 +887,7 @@ namespace Greenshot.UI.Capture
         #region drawing
 
         /// <summary>
-        /// Draw the hotspots and, in text mode, the text lines with the hovered or selected text
+        /// Draw the hotspots of the detected features
         /// </summary>
         private void DrawFeatures()
         {
@@ -1022,43 +903,6 @@ namespace Greenshot.UI.Capture
                 }
             }
 
-            if (_captureMode != CaptureMode.Text)
-            {
-                return;
-            }
-
-            var linePen = new Pen((Brush)FindResource("OcrLineBrush"), 1);
-            linePen.Freeze();
-            var highlightBrush = (Brush)FindResource("OcrHighlightBrush");
-            foreach (var line in GetOcrLines())
-            {
-                var lineBounds = line.Bounds;
-                if (lineBounds.IsEmpty)
-                {
-                    continue;
-                }
-                var lineRect = ToRect(lineBounds);
-                dc.DrawRectangle(null, linePen, new Rect(lineRect.X + 0.5, lineRect.Y + 0.5, lineRect.Width, lineRect.Height));
-                if (_mouseDown)
-                {
-                    // Highlight the words which are selected
-                    if (!lineBounds.IntersectsWith(_captureRect))
-                    {
-                        continue;
-                    }
-                    foreach (var word in line.Words)
-                    {
-                        if (word.Bounds.IntersectsWith(_captureRect))
-                        {
-                            dc.DrawRectangle(highlightBrush, null, ToRect(word.Bounds));
-                        }
-                    }
-                }
-                else if (line == _hoveredLine)
-                {
-                    dc.DrawRectangle(highlightBrush, null, lineRect);
-                }
-            }
         }
 
         private void ShowCapturedCursor()
