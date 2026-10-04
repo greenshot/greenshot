@@ -93,6 +93,8 @@ namespace Greenshot.UI.Capture
         private bool _mouseDown;
         private bool _isCtrlPressed;
         private bool _showDebugInfo;
+        // True while the label fade-in storyboard is applied to the label layer
+        private bool _labelsFading;
         private bool _zoomerShown;
         private int _zoomSize;
         private NativePoint _zoomOffset = new NativePoint(ZoomerPlacement.Distance, ZoomerPlacement.Distance);
@@ -850,11 +852,13 @@ namespace Greenshot.UI.Capture
             if (fadeIn)
             {
                 ((Storyboard)FindResource("ShowLabelsStoryboard")).Begin(this, true);
+                _labelsFading = true;
             }
-            else
+            else if (_labelsFading)
             {
+                // Only remove a storyboard which was started, removing one which never was logs a warning on every mouse move
                 ((Storyboard)FindResource("ShowLabelsStoryboard")).Remove(this);
-                LabelLayer.Opacity = 1;
+                _labelsFading = false;
             }
         }
 
