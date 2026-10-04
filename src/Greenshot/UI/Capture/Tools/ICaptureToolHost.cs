@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
+using Color = System.Windows.Media.Color;
 
 namespace Greenshot.UI.Capture.Tools
 {
@@ -47,6 +48,11 @@ namespace Greenshot.UI.Capture.Tools
         /// The cursor, corrected for the fix mode (shift keeps it to one direction)
         /// </summary>
         NativePoint CursorPosition { get; }
+
+        /// <summary>
+        /// The color of a pixel of the frozen capture, transparent outside of it. Cheap enough to call for every mouse move.
+        /// </summary>
+        Color GetPixelColor(NativePoint location);
 
         /// <summary>
         /// The active tool

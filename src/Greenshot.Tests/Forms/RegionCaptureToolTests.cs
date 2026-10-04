@@ -51,6 +51,7 @@ public class RegionCaptureToolTests
         public NativeRect? Accepted { get; private set; }
 
         public WindowDetails FindWindowUnderCursor(bool includeChildren) => null;
+        public System.Windows.Media.Color GetPixelColor(NativePoint location) => System.Windows.Media.Colors.Transparent;
 
         public void ShowSelection(NativeRect rect, bool animate = false, Action completed = null)
         {

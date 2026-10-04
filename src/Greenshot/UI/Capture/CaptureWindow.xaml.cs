@@ -78,6 +78,7 @@ namespace Greenshot.UI.Capture
         private readonly NativeRect _screenBounds;
         // Remote desktop: no animations and no crosshair, every repaint of the screen costs bandwidth (OptimizeForRDP / DisableRDPOptimizing as before)
         private readonly bool _isRemoteSession = !Conf.DisableRDPOptimizing && (Conf.OptimizeForRDP || SystemParameters.IsRemoteSession);
+        private BitmapSource _screenImage;
         private readonly Typeface _labelTypeface;
         private readonly Typeface _boldLabelTypeface;
 
@@ -140,6 +141,19 @@ namespace Greenshot.UI.Capture
         public ICaptureTool ActiveTool => _activeTool;
 
         /// <inheritdoc />
+        public Color GetPixelColor(NativePoint location)
+        {
+            if (location.X < 0 || location.Y < 0 || location.X >= _screenImage.PixelWidth || location.Y >= _screenImage.PixelHeight)
+            {
+                return Colors.Transparent;
+            }
+            // Pbgra32, premultiplied: the capture of the screen is opaque, so the color is the pixel as it is
+            var pixel = new byte[4];
+            _screenImage.CopyPixels(new Int32Rect(location.X, location.Y, 1, 1), pixel, 4, 0);
+            return Color.FromArgb(pixel[3], pixel[2], pixel[1], pixel[0]);
+        }
+
+        /// <inheritdoc />
         public IReadOnlyList<WindowDetails> Windows => _windows;
 
         /// <summary>
@@ -176,9 +190,9 @@ namespace Greenshot.UI.Capture
 
             Root.Width = _screenBounds.Width;
             Root.Height = _screenBounds.Height;
-            var screenImage = CreateBitmapSource(capture.Image);
-            ScreenImage.Source = screenImage;
-            ZoomBrush.ImageSource = screenImage;
+            _screenImage = CreateBitmapSource(capture.Image);
+            ScreenImage.Source = _screenImage;
+            ZoomBrush.ImageSource = _screenImage;
             ShowCapturedCursor();
             DrawCrosshairLines();
 
