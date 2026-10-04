@@ -409,7 +409,7 @@ namespace Greenshot.UI.Capture
 
             Root.Width = _screenBounds.Width;
             Root.Height = _screenBounds.Height;
-            _screenImage = CreateBitmapSource(capture.Image);
+            _screenImage = CreateBitmapSource(capture.Image, true);
             ScreenImage.Source = _screenImage;
             ZoomBrush.ImageSource = _screenImage;
             ShowCapturedCursor();
@@ -436,6 +436,7 @@ namespace Greenshot.UI.Capture
             MouseMove += (sender, args) => UpdateSelection();
             MouseLeftButtonDown += OnMouseLeftButtonDown;
             MouseLeftButtonUp += OnMouseLeftButtonUp;
+            Loaded += (sender, args) => Log.Debug($"Capture window laid out after {_openStopwatch.ElapsedMilliseconds} ms.");
             Log.Debug($"Capture window created in {_openStopwatch.ElapsedMilliseconds} ms.");
         }
 
@@ -650,6 +651,7 @@ namespace Greenshot.UI.Capture
         /// </summary>
         private void OnSourceInitialized(object sender, EventArgs e)
         {
+            long start = _openStopwatch.ElapsedMilliseconds;
             var handle = new WindowInteropHelper(this).Handle;
             // Make sure we never capture the capture window
             WindowDetails.RegisterIgnoreHandle(handle);
@@ -661,6 +663,7 @@ namespace Greenshot.UI.Capture
             UpdateSelection();
             Redraw();
             ForEachOverlay(Redraw);
+            Log.Debug($"Capture window handle created after {start} ms, prepared in {_openStopwatch.ElapsedMilliseconds - start} ms.");
         }
 
         /// <summary>
@@ -1359,7 +1362,7 @@ namespace Greenshot.UI.Capture
                 {
                     CursorHelper.DrawCursorOnGraphics(graphics, cursor, new NativePoint(0, 0));
                 }
-                CursorImage.Source = CreateBitmapSource(cursorBitmap);
+                CursorImage.Source = CreateBitmapSource(cursorBitmap, false);
                 Canvas.SetLeft(CursorImage, _capture.CursorLocation.X);
                 Canvas.SetTop(CursorImage, _capture.CursorLocation.Y);
             }
@@ -1376,25 +1379,38 @@ namespace Greenshot.UI.Capture
         }
 
         /// <summary>
-        /// The pixels of the capture at 96 DPI, so one unit is one pixel
+        /// The pixels of an image at 96 DPI, so one unit is one pixel
         /// </summary>
-        private static BitmapSource CreateBitmapSource(System.Drawing.Image image)
+        /// <param name="image">The image</param>
+        /// <param name="opaque">True for the capture of the screen: its pixels are used as they are (Bgr32 ignores the alpha byte), so neither
+        /// GDI+ nor WPF has to convert the whole capture (premultiplying 7 million pixels takes noticeable time); gaps between monitors become black,
+        /// like the background. False for images with transparency (the mouse cursor), which are premultiplied (Pbgra32).</param>
+        private static BitmapSource CreateBitmapSource(System.Drawing.Image image, bool opaque)
         {
             if (image is not System.Drawing.Bitmap bitmap)
             {
                 using var copy = new System.Drawing.Bitmap(image);
-                return CreateBitmapSource(copy);
+                return CreateBitmapSource(copy, opaque);
             }
 
-            // The screen is opaque: the pixels are used as they are (Bgr32 ignores the alpha byte), so neither GDI+ nor WPF has to convert
-            // the whole capture (premultiplying 7 million pixels takes noticeable time). Gaps between monitors become black, like the background.
-            var lockFormat = bitmap.PixelFormat is DrawingPixelFormat.Format32bppArgb or DrawingPixelFormat.Format32bppPArgb or DrawingPixelFormat.Format32bppRgb
-                ? bitmap.PixelFormat
-                : DrawingPixelFormat.Format32bppRgb;
+            DrawingPixelFormat lockFormat;
+            PixelFormat pixelFormat;
+            if (opaque)
+            {
+                lockFormat = bitmap.PixelFormat is DrawingPixelFormat.Format32bppArgb or DrawingPixelFormat.Format32bppPArgb or DrawingPixelFormat.Format32bppRgb
+                    ? bitmap.PixelFormat
+                    : DrawingPixelFormat.Format32bppRgb;
+                pixelFormat = PixelFormats.Bgr32;
+            }
+            else
+            {
+                lockFormat = DrawingPixelFormat.Format32bppPArgb;
+                pixelFormat = PixelFormats.Pbgra32;
+            }
             var bitmapData = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, lockFormat);
             try
             {
-                var bitmapSource = BitmapSource.Create(bitmapData.Width, bitmapData.Height, 96, 96, PixelFormats.Bgr32, null,
+                var bitmapSource = BitmapSource.Create(bitmapData.Width, bitmapData.Height, 96, 96, pixelFormat, null,
                     bitmapData.Scan0, bitmapData.Stride * bitmapData.Height, bitmapData.Stride);
                 bitmapSource.Freeze();
                 return bitmapSource;
