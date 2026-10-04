@@ -240,6 +240,76 @@ namespace Greenshot.Base.Languages
         string ContextmenuConfigurePlugin { get; }
 
         /// <summary>
+        /// Keys
+        /// </summary>
+        string CaptureKeysTitle { get; }
+
+        /// <summary>
+        /// Cancel the capture
+        /// </summary>
+        string CaptureKeyCancel { get; }
+
+        /// <summary>
+        /// Move the cursor one pixel
+        /// </summary>
+        string CaptureKeyMove { get; }
+
+        /// <summary>
+        /// Move the cursor 10 pixels
+        /// </summary>
+        string CaptureKeyMoveFast { get; }
+
+        /// <summary>
+        /// Hold to keep the selection to one direction
+        /// </summary>
+        string CaptureKeyFixDirection { get; }
+
+        /// <summary>
+        /// Show or hide the mouse cursor
+        /// </summary>
+        string CaptureKeyMouseCursor { get; }
+
+        /// <summary>
+        /// Show or hide the zoomer
+        /// </summary>
+        string CaptureKeyZoomer { get; }
+
+        /// <summary>
+        /// Keep the capture window on top or not
+        /// </summary>
+        string CaptureKeyTopmost { get; }
+
+        /// <summary>
+        /// Switch between region and window
+        /// </summary>
+        string CaptureKeyRegionWindow { get; }
+
+        /// <summary>
+        /// Capture text (OCR)
+        /// </summary>
+        string CaptureKeyText { get; }
+
+        /// <summary>
+        /// Start or finish the selection
+        /// </summary>
+        string CaptureKeyRegionSelect { get; }
+
+        /// <summary>
+        /// Capture the window
+        /// </summary>
+        string CaptureKeyWindowAccept { get; }
+
+        /// <summary>
+        /// Show or hide window details
+        /// </summary>
+        string CaptureKeyWindowDetails { get; }
+
+        /// <summary>
+        /// Show or hide the keys
+        /// </summary>
+        string CaptureKeyHelp { get; }
+
+        /// <summary>
         /// Support Greenshot
         /// </summary>
         string ContextmenuDonate { get; }

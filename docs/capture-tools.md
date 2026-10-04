@@ -15,22 +15,22 @@ The interfaces are in `Greenshot.Base` (`src/Greenshot.Base/Interfaces/Capture`,
 
 ```
 CaptureWindow (ICaptureToolHost)                 ICaptureTool (derive from CaptureTool)
- - frozen capture, cursor, fix mode (shift)       - Mode, ShortcutKey
+ - frozen capture, cursor, fix mode (shift)       - Mode
  - crosshair, zoomer, hotspots (QR codes...)      - ShowsZoomer, ShowsCrosshair
- - selection rectangle + its animation            - Activate / Deactivate
- - size rulers and labels                         - OnMouseMove / OnMouseDown / OnMouseUp
- - keys: arrows, Esc, M, Z, F, Space, shortcuts   - OnKeyDown (sees keys first)
+ - selection rectangle + its animation            - Attach (register keys)
+ - size rulers and labels                         - Activate / Deactivate
+ - keys: a registry of every key, see Keys        - OnMouseMove / OnMouseDown / OnMouseUp
  - Accept / Cancel  ──────────────────────────►    - Draw (its own layer)
                      │
                      └────────────────────────►  ICaptureOverlay (derive from CaptureOverlay), any number
-                                                  - Attach, OnToolChanged
+                                                  - Attach (register keys), OnToolChanged
                                                   - OnMouseMove (after the tool)
-                                                  - OnKeyDown (keys nobody else used)
                                                   - Draw (its own layer, above the tool's)
 ```
 
 The window does everything the tools share and passes the input to the **active tool**. A tool only contains what makes it different.
-The overlays get the mouse moves too, and the keys which neither the tool nor the window used, but never the mouse buttons.
+The overlays get the mouse moves too, but never the mouse buttons. Keys work through registration: the window, the tools and the
+overlays register each key with a description and what it does, see Keys.
 
 **Tool or overlay?** A tool is a way to make the selection: it owns the mouse buttons and decides what is accepted. An overlay adds
 information or a shortcut to whatever the user is doing, without changing how the selection works.
@@ -44,12 +44,13 @@ information or a shortcut to whatever the user is doing, without changing how th
 ## Adding a tool, step by step
 
 1. Create a class that derives from `CaptureTool`. It has empty implementations of everything,
-   override only what you need. `Host` (the `ICaptureToolHost`) is set when the tool is activated.
+   override only what you need. `Host` (the `ICaptureToolHost`) is set in `Attach`, when the window opens.
 2. Give it a `Mode`, the `CaptureMode` the flow sees when your tool made the selection (`FinalMode` of the selection result).
    The window starts with the first tool whose mode the recipe asked for, so a tool with the mode of a built-in tool is never
    the starting tool. In Greenshot itself a new kind of selection can get its own value at the end of `CaptureMode`
    (`src/Greenshot.Base/Interfaces/CaptureMode.cs`); a plugin uses an existing value, e.g. `Region` when it accepts a rectangle.
-3. Optionally a `ShortcutKey`, which switches to the tool.
+3. Register its keys in `Attach`, see Keys: `Host.RegisterToolKey` for keys which only work while the tool is active (e.g. Enter),
+   and optionally `Host.RegisterKey` for a key which switches to the tool (`Host.ActivateTool(this)`), like T for the text tool.
 4. Make the window use it:
    - **In Greenshot:** put the class in `src/Greenshot/UI/Capture/Tools` and add it to `CreateTools` in `CaptureWindow.xaml.cs`.
      Wrap it in `#if !GREENSHOT_LIGHT` if the tool should not be in the Light edition.
@@ -71,17 +72,17 @@ public class ColorPickerToolProvider : ICaptureToolProvider
 SimpleServiceProvider.Current.AddService<ICaptureToolProvider>(new ColorPickerToolProvider());
 ```
 
-The tools of the plugins come after the built-in ones, in the order the plugins were loaded. A shortcut key which is already
-taken (by the window or an earlier tool) does not switch to the later tool. The Light edition loads no plugins, so it has no plugin tools.
+The tools of the plugins come after the built-in ones, in the order the plugins were loaded. A key which is already taken
+(by the window or an earlier tool) is refused with an error, see Keys. The Light edition loads no plugins, so it has no plugin tools.
 
 ### The life of a tool
 
 | Call | When |
 |---|---|
+| `Attach(host)` | Once, when the window opens, for every tool before one is activated. Register your keys here. |
 | `Activate(host)` | The tool becomes active: when the window opens with it, or when the user switches to it. Reset your state here, a tool instance lives as long as the window and can be activated several times. |
 | `OnMouseMove()` | Every mouse move, also when the arrow keys move the cursor. `Host.CursorPosition` is the new position. |
 | `OnMouseDown()` / `OnMouseUp()` | Left button. Not called for a press on a hotspot, which opens the hotspot's menu instead. The mouse is captured in between, `OnMouseUp` comes only after an `OnMouseDown`. |
-| `OnKeyDown(key)` | Before the window handles the key. Return true when you handled it. |
 | `Draw(dc)` | When you call `Host.Redraw()`, when the tool becomes active, and when the detected features changed (e.g. the OCR finished). Draw everything, the layer is cleared first. |
 | `Deactivate()` | Another tool becomes active. Clean up what you showed (selection, labels); your layer is redrawn by the next tool. |
 
@@ -107,7 +108,8 @@ taken (by the window or an earlier tool) does not switch to the later tool. The 
 | `FindResource(key)` | The brushes and other resources of `CaptureWindow.xaml`, e.g. `RulerBackgroundBrush`, `OcrHighlightBrush`. |
 | `Accept(rect, window)` | Close the window with a selection. |
 | `Cancel()` | Close the window without a selection. |
-| `ActiveTool` | To check in a callback (animation completed, OCR finished) whether you are still active. |
+| `ActiveTool`, `ActivateTool(tool)` | To check in a callback (animation completed, OCR finished) whether you are still active; switch to another tool. |
+| `RegisterKey(owner, key, modifiers, description, execute)`, `RegisterToolKey(tool, ...)`, `KeyBindings` | Register a key, list all keys, see Keys. |
 
 ## Overlays
 
@@ -115,18 +117,200 @@ taken (by the window or an earlier tool) does not switch to the later tool. The 
 2. Make the window use it:
    - **In a plugin:** implement `ICaptureOverlayProvider`, which returns new instances for every window that opens, and register it
      in the plugin's `Initialize` with `SimpleServiceProvider.Current.AddService<ICaptureOverlayProvider>(...)`.
-   - **In Greenshot:** register a provider the same way at startup; there are no built-in overlays yet.
+   - **In Greenshot:** add it to `CreateOverlays` in `CaptureWindow.xaml.cs`, like the built-in `HelpOverlay`.
 
 | Call | When |
 |---|---|
-| `Attach(host)` | The window opened. `Host` is set. |
+| `Attach(host)` | The window opened. `Host` is set. Register your keys here. |
 | `OnMouseMove()` | Every mouse move, after the active tool handled it. |
 | `OnToolChanged()` | The user switched to another tool, `Host.ActiveTool` is the new one. |
-| `OnKeyDown(key)` | A key which neither the active tool nor the window used (also not a tool's shortcut key). Return true when you handled it; the later overlays don't get it then. |
 | `Draw(dc)` | When you call `Host.Redraw(this)`, when the window was shown, and when the detected features changed. |
 
 Each overlay has its own layer, above the tool's layer and below the selection, in the order the overlays were added.
 An error in an overlay's handler is logged and does not stop the capture.
+
+## Keys
+
+Every key of the capture window is registered: by the window itself, by the tools and by the overlays. A registration says
+which key (with Ctrl, Alt, Shift or Windows if needed), what it does, and a description for the user. The window looks up
+the binding of a pressed key and calls it; a key nobody registered does nothing. Because of that the list of registrations
+is complete, and the help overlay (F1) shows it.
+
+```csharp
+public override void Attach(ICaptureToolHost host)
+{
+    base.Attach(host);
+    // Only while this tool is active
+    host.RegisterToolKey(this, Key.Return, ModifierKeys.None, () => Texts.Core.CaptureKeyRegionSelect, ToggleSelection);
+    // Always, also when another tool is active: switch to this tool
+    host.RegisterKey(this, Key.T, ModifierKeys.None, () => Texts.Core.CaptureKeyText, () => host.ActivateTool(this));
+}
+```
+
+- **The description is a callback.** It is called every time the text is needed (when the help is shown), not at the
+  registration, so it returns the text in the current language. Greenshot uses its language sections
+  (`Texts.Core.CaptureKey...`, keys `capture_key_...` in `greenshot.en-US.ini`); a plugin uses its own section (`Texts.Get<T>()`).
+- **Conflicts are errors.** Registering a key which is already used throws a `CaptureKeyConflictException` with both
+  bindings (`Requested`, `Existing`). A key registered with `RegisterKey` is always active and conflicts with every other use of
+  that key. A key registered with `RegisterToolKey` is only active while its tool is; it conflicts with the always active keys and
+  the other keys of the same tool, but two tools can use the same key (the region and window tools both use Enter).
+  Ctrl+C and C are different keys.
+- **Who wins:** the window registers first, then the built-in tools, then the plugin tools, then the built-in help overlay, then
+  the plugin overlays. So a plugin can never take a built-in key. If you don't want the exception, look in `Host.KeyBindings` first.
+  An exception in a plugin's `Attach` is logged; the tool or overlay keeps the keys it registered before.
+- **Not allowed:** Ctrl, Alt or Windows alone (an `ArgumentException`): they only work together with another key.
+- **Shift:** the window uses Shift (held) to keep the selection to one direction. When Shift is held and nothing is registered
+  for the key with Shift, the binding without Shift is used, so the arrow keys work while Shift is held.
+- **Querying:** `Host.KeyBindings` lists all registrations in order. Each `CaptureKeyBinding` has `Key`, `Modifiers`,
+  `KeyText` (e.g. "Ctrl+↑"), `Description`, `Owner`, `Tool` (null for always active) and `IsActiveFor(Host.ActiveTool)`.
+- Keys stay registered as long as the window is open; there is no unregistering. A handler which doesn't apply in some
+  state can do nothing (the zoomer key does nothing while the tool shows no zoomer). An error in a key handler is logged.
+
+The keys of the window and the built-in tools:
+
+| Key | Who | What |
+|---|---|---|
+| Space | Window | Switch between region and window (from every other tool: back to region) |
+| ↑ ↓ ← →, Ctrl+↑ ↓ ← → | Window | Move the cursor one pixel, 10 pixels |
+| Shift (held) | Window | Keep the selection to one direction |
+| M, Z, F | Window | Captured mouse cursor, zoomer, window on top |
+| Esc | Window | Cancel |
+| T | Text tool | Switch to the text tool |
+| Enter | Region and text tool | Start or finish the selection |
+| Enter, D | Window tool | Capture the window, window details |
+| F1 | Help overlay | Show or hide the keys |
+
+### Example: the help overlay
+
+The help is a built-in overlay (`src/Greenshot/UI/Capture/Tools/HelpOverlay.cs`): F1 shows a panel with the keys which work now,
+the keys of the active tool first, as key caps like the hotkey settings show them. Keys with the same description share a row
+(the four arrow keys, left and right Shift). Because it reads `Host.KeyBindings`, keys of plugin tools and overlays are in it too,
+and the descriptions are read when the panel is shown, in the current language. When the tool changes, the panel is shown again
+with the keys of the new tool.
+
+```csharp
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows;
+using System.Windows.Input;
+using System.Windows.Media;
+using Greenshot.Base.Interfaces.Capture;
+using Greenshot.Base.Languages;
+
+namespace Greenshot.UI.Capture.Tools
+{
+    /// <summary>
+    /// F1 shows or hides a panel with the keys which work now: those of the active tool first, then those which are always active.
+    /// The list comes from the registered keys (ICaptureToolHost.KeyBindings), so keys of plugins are in it too,
+    /// and the descriptions are read when the panel is shown, in the current language.
+    /// </summary>
+    public class HelpOverlay : CaptureOverlay
+    {
+        private bool _visible;
+
+        public override void Attach(ICaptureToolHost host)
+        {
+            base.Attach(host);
+            host.RegisterKey(this, Key.F1, ModifierKeys.None, () => Texts.Core.CaptureKeyHelp, Toggle);
+        }
+
+        /// <summary>
+        /// Another tool has other keys
+        /// </summary>
+        public override void OnToolChanged()
+        {
+            if (_visible)
+            {
+                ShowHelp();
+            }
+        }
+
+        private void Toggle()
+        {
+            _visible = !_visible;
+            if (_visible)
+            {
+                ShowHelp();
+            }
+            else
+            {
+                Host.HidePanel(this);
+            }
+        }
+
+        /// <summary>
+        /// One row per description: keys which do the same (e.g. the arrow keys, or left and right Shift) share a row
+        /// </summary>
+        public static IList<(IList<string> Keys, string Description)> GetRows(IEnumerable<CaptureKeyBinding> bindings, ICaptureTool activeTool)
+        {
+            var rows = new List<(IList<string> Keys, string Description)>();
+            var active = (bindings ?? Enumerable.Empty<CaptureKeyBinding>()).Where(binding => binding.IsActiveFor(activeTool)).ToList();
+            // The keys of the tool first, they change with the tool; OrderBy is stable, so the order of registration stays
+            foreach (var binding in active.OrderBy(binding => binding.Tool == null ? 1 : 0))
+            {
+                string description = binding.Description;
+                int index = rows.FindIndex(row => row.Description == description);
+                if (index < 0)
+                {
+                    rows.Add((new List<string> { binding.KeyText }, description));
+                }
+                else if (!rows[index].Keys.Contains(binding.KeyText))
+                {
+                    rows[index].Keys.Add(binding.KeyText);
+                }
+            }
+            return rows;
+        }
+
+        private void ShowHelp()
+        {
+            var style = Host.ToolStyle;
+            double gap = style.Scale(8);
+            double keyGap = style.Scale(3);
+            var title = style.CreateText(Texts.Core.CaptureKeysTitle, 10, bold: true);
+
+            // Measure first: the key caps in one column, right aligned, the descriptions next to them
+            double keyColumnWidth = 0, textWidth = title.Width, height = title.Height + gap;
+            var rows = new List<(IList<string> Keys, double KeysWidth, FormattedText Text, double Height)>();
+            foreach (var (keys, description) in GetRows(Host.KeyBindings, Host.ActiveTool))
+            {
+                double keysWidth = 0, keysHeight = 0;
+                foreach (var key in keys)
+                {
+                    var keyCap = style.MeasureKeyCap(key);
+                    keysWidth += keyCap.Width + (keysWidth > 0 ? keyGap : 0);
+                    keysHeight = Math.Max(keysHeight, keyCap.Height);
+                }
+                var text = style.CreateText(description, 9, style.MutedForeground);
+                double rowHeight = Math.Max(keysHeight, text.Height) + style.Scale(4);
+                keyColumnWidth = Math.Max(keyColumnWidth, keysWidth);
+                textWidth = Math.Max(textWidth, text.Width);
+                rows.Add((keys, keysWidth, text, rowHeight));
+                height += rowHeight;
+            }
+
+            Host.ShowPanel(this, new Size(keyColumnWidth + gap + textWidth, height), dc =>
+            {
+                dc.DrawText(title, new Point(0, 0));
+                double y = title.Height + gap;
+                foreach (var (keys, keysWidth, text, rowHeight) in rows)
+                {
+                    double x = keyColumnWidth - keysWidth;
+                    foreach (var key in keys)
+                    {
+                        var keyCap = style.MeasureKeyCap(key);
+                        style.DrawKeyCap(dc, key, new Point(x, y + (rowHeight - keyCap.Height) / 2));
+                        x += keyCap.Width + keyGap;
+                    }
+                    dc.DrawText(text, new Point(keyColumnWidth + gap, y + (rowHeight - text.Height) / 2));
+                    y += rowHeight;
+                }
+            });
+        }
+    }
+}
+```
 
 ## Positioning
 
@@ -152,106 +336,7 @@ where things go. Two ways:
 
 `ScreenBounds` is the whole virtual screen, which can have gaps between monitors; use `GetMonitorBounds()` for "a corner of the screen".
 
-### Example: a help overlay
-
-F1 shows a panel with the keys as key caps, like the hotkey settings show them.
-
-```csharp
-using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Input;
-using System.Windows.Media;
-using Greenshot.Base.Interfaces.Capture;
-
-namespace Greenshot.Plugin.Help
-{
-    /// <summary>
-    /// F1 shows or hides a panel with the keys. The capture window places it in a free corner, draws it in Greenshot's style
-    /// and moves it (animated) out of the way of the cursor, the selection and the zoomer.
-    /// </summary>
-    public class HelpOverlay : CaptureOverlay
-    {
-        private static readonly (string Key, string Text)[] Keys =
-        {
-            ("Space", "Region or window"),
-            ("T", "Text"),
-            ("Z", "Zoomer"),
-            ("M", "Mouse cursor"),
-            ("Arrows", "Move the cursor, Ctrl: 10 pixels"),
-            ("Shift", "Keep one direction"),
-            ("Esc", "Cancel")
-        };
-
-        private bool _visible;
-
-        public override bool OnKeyDown(Key key)
-        {
-            if (key != Key.F1)
-            {
-                return false;
-            }
-            _visible = !_visible;
-            if (_visible)
-            {
-                ShowHelp();
-            }
-            else
-            {
-                Host.HidePanel(this);
-            }
-            return true;
-        }
-
-        private void ShowHelp()
-        {
-            var style = Host.ToolStyle;
-            double gap = style.Scale(8);
-            var title = style.CreateText("Keys", 10, bold: true);
-
-            // Measure first: the key caps in one column, the texts next to them
-            double keyWidth = 0, textWidth = title.Width, height = title.Height + gap;
-            var rows = new List<(string Key, FormattedText Text, double Height)>();
-            foreach (var (key, description) in Keys)
-            {
-                var keyCap = style.MeasureKeyCap(key);
-                var text = style.CreateText(description, 9, style.MutedForeground);
-                double rowHeight = System.Math.Max(keyCap.Height, text.Height) + style.Scale(4);
-                keyWidth = System.Math.Max(keyWidth, keyCap.Width);
-                textWidth = System.Math.Max(textWidth, text.Width);
-                rows.Add((key, text, rowHeight));
-                height += rowHeight;
-            }
-
-            var size = new Size(keyWidth + gap + textWidth, height);
-            Host.ShowPanel(this, size, dc =>
-            {
-                dc.DrawText(title, new Point(0, 0));
-                double y = title.Height + gap;
-                foreach (var (key, text, rowHeight) in rows)
-                {
-                    var keyCap = style.MeasureKeyCap(key);
-                    style.DrawKeyCap(dc, key, new Point(keyWidth - keyCap.Width, y + (rowHeight - keyCap.Height) / 2));
-                    dc.DrawText(text, new Point(keyWidth + gap, y + (rowHeight - text.Height) / 2));
-                    y += rowHeight;
-                }
-            });
-        }
-    }
-
-    /// <summary>
-    /// Gives every capture window a new help overlay, registered in the plugin's Initialize
-    /// </summary>
-    public class HelpOverlayProvider : ICaptureOverlayProvider
-    {
-        public IEnumerable<ICaptureOverlay> CreateOverlays()
-        {
-            yield return new HelpOverlay();
-        }
-    }
-}
-```
-
-This example was compiled against the current code, but not run.
+The help overlay (see Keys) is an example of a panel: it is drawn with key caps and stays in a free corner.
 
 ### WPF content and binding
 
@@ -463,6 +548,9 @@ namespace Greenshot.Plugin.ColorPicker
         {
             base.Attach(host);
             _color = Host.GetPixelColor(Host.CursorPosition);
+            // The descriptions are shown by the help (F1); a plugin returns the text of its own language section here
+            host.RegisterKey(this, Key.C, ModifierKeys.None, () => "Copy the color under the cursor", CopyColor);
+            host.RegisterKey(this, Key.H, ModifierKeys.None, () => "Show or hide the color", ToggleSwatch);
         }
 
         public override void OnMouseMove()
@@ -476,27 +564,22 @@ namespace Greenshot.Plugin.ColorPicker
             Host.Redraw(this);
         }
 
-        public override bool OnKeyDown(Key key)
+        private void CopyColor()
         {
-            switch (key)
+            string hex = ToHex(_color);
+            // There is no color in the selection result: close the window without a capture, then do the work
+            Host.Cancel();
+            Clipboard.SetText(hex);
+        }
+
+        private void ToggleSwatch()
+        {
+            _visible = !_visible;
+            OnMouseMove();
+            if (!_visible)
             {
-                case Key.C:
-                    string hex = ToHex(_color);
-                    // There is no color in the selection result: close the window without a capture, then do the work
-                    Host.Cancel();
-                    Clipboard.SetText(hex);
-                    return true;
-                case Key.H:
-                    _visible = !_visible;
-                    OnMouseMove();
-                    if (!_visible)
-                    {
-                        // Draws nothing, which clears the layer
-                        Host.Redraw(this);
-                    }
-                    return true;
-                default:
-                    return false;
+                // Draws nothing, which clears the layer
+                Host.Redraw(this);
             }
         }
 
@@ -559,7 +642,9 @@ Points to note:
   so no destination runs.
 - **Placement:** the swatch is drawn above left of the cursor, where the zoomer usually isn't. The zoomer avoids the selection and the
   panels shown with `ShowPanel`, not what is drawn elsewhere.
-- **As a tool instead:** derive from `CaptureTool`, give it a `ShortcutKey` and copy the color in `OnMouseUp`. Then it is a mode the
+- **Keys:** C and H are free; if a later Greenshot version or an earlier plugin takes one of them, `RegisterKey` throws and the
+  error is logged (the overlay keeps the keys it registered before). Check `Host.KeyBindings` first to pick another key instead.
+- **As a tool instead:** derive from `CaptureTool`, register a key which switches to it and copy the color in `OnMouseUp`. Then it is a mode the
   user switches to, and a click picks the color, but it can't show the color during a region selection.
 
 ## What is possible
@@ -582,19 +667,19 @@ Points to note:
 - **One layer per tool or overlay.** `Draw` redraws the whole layer; the layers are below the selection and its labels and above the hotspots.
   A large static drawing which should not be redrawn on every move would need a second layer (a change in the window).
 - **One selection rectangle and one set of labels**, shared by all tools.
-- **The window's keys:** the arrow keys move the cursor (Ctrl for 10 pixels), Shift fixes a direction, Escape cancels, M toggles the
-  captured mouse cursor, Z the zoomer, F topmost, Space switches from region to window and from every other tool back to region,
-  and the shortcut keys of the tools switch to them. A tool sees every key first and could take one of them, don't take Escape or the arrow keys.
+- **Keys only through registration,** and the built-in keys can't be taken (see Keys). There is no key up and no key repeat
+  control: a binding is called for every key down, also when the key repeats.
 - **Hotspots come first:** a press on a hotspot (e.g. a QR code) opens its menu and never reaches the tool.
 - **The UI thread:** everything is called on the UI thread of the window. Don't block in a handler, run longer work as a task and
   call `Host.Redraw()` (on the UI thread) when it finished. Use `Host.ActiveTool == this` to check you are still active.
 - **Coordinates:** everything is in pixels of the capture, 0,0 is the top left of the virtual screen. One unit in `Draw` is one
   pixel, also on high DPI screens, so give font sizes in pixels and use 1.0 as pixelsPerDip.
+- **Key names** in `KeyText` are English ("Ctrl", "Esc"), the descriptions are translated.
 - **Remote desktop:** the window shows no animations there (`OptimizeForRDP`, `DisableRDPOptimizing`). `ShowSelection` takes
   care of that, a tool should not add animations of its own, and keep redrawing to what changed.
-- **Plugin tools run inside the capture window:** an exception in a tool's handler is not caught per tool, so it breaks the
-  interactive capture. Errors in `ICaptureToolProvider.CreateTools` and `ICaptureOverlayProvider.CreateOverlays` are logged and
+- **Plugin tools run inside the capture window:** an exception in a tool's mouse handler or `Draw` is not caught per tool, so it
+  breaks the interactive capture. Errors in key handlers and in `Attach` are logged. Errors in `ICaptureToolProvider.CreateTools` and `ICaptureOverlayProvider.CreateOverlays` are logged and
   that provider is skipped; errors in an overlay's handlers are logged.
-- **Overlays never get mouse buttons,** and only the keys nobody else used: they can't change how the selection works.
+- **Overlays never get mouse buttons,** and only the keys they registered: they can't change how the selection works.
 - **Plugin API:** the interfaces in `Greenshot.Base.Interfaces.Capture` are now used by plugins, so changing them breaks plugins.
   Add members to `CaptureTool` (with an empty implementation) rather than to `ICaptureTool` where possible.

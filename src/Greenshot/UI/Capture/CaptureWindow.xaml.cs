@@ -42,6 +42,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Capture;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Languages;
 using Greenshot.Base.Threading;
 using Greenshot.UI.Capture.Tools;
 using log4net;
@@ -125,7 +126,7 @@ namespace Greenshot.UI.Capture
         private NativePoint _cursorPos;
         private NativePoint _previousMousePos;
         private FixMode _fixMode = FixMode.None;
-        private bool _isCtrlPressed;
+        private readonly CaptureKeyRegistry _keys = new CaptureKeyRegistry();
         // The mouse button was pressed for the active tool, not on a hotspot
         private bool _toolMouseDown;
         // True while the label fade-in storyboard is applied to the label layer
@@ -413,6 +414,9 @@ namespace Greenshot.UI.Capture
             _cursorPos = WindowCapture.GetCursorLocationRelativeToScreenBounds();
             _previousMousePos = User32Api.GetCursorLocation();
             SetSelection(new Rect(ToPoint(_cursorPos), new Size(0, 0)));
+            // The window's keys first, then the built-in tools, then plugins: the built-in keys win a conflict
+            RegisterWindowKeys();
+            AttachTools();
             _activeTool.Activate(this);
             CreateOverlays();
 
@@ -475,25 +479,121 @@ namespace Greenshot.UI.Capture
         }
 
         /// <summary>
-        /// The overlays of the registered ICaptureOverlayProviders (plugins), each gets a layer above the tool layer
+        /// Every tool registers its keys, a tool which fails (e.g. a key which is already used) is logged and stays available with the keys it got
+        /// </summary>
+        private void AttachTools()
+        {
+            foreach (var tool in _tools)
+            {
+                try
+                {
+                    tool.Attach(this);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"Error attaching the capture tool {tool.GetType().FullName}", ex);
+                }
+            }
+        }
+
+        /// <summary>
+        /// The keys of the window itself, for every tool
+        /// </summary>
+        private void RegisterWindowKeys()
+        {
+            RegisterKey(this, Key.Space, ModifierKeys.None, () => Texts.Core.CaptureKeyRegionWindow,
+                // Region to window, every other tool back to region
+                () => SwitchTool(_activeTool == _regionTool ? _windowTool : _regionTool));
+            foreach (var (key, dx, dy) in new[] { (Key.Up, 0, -1), (Key.Down, 0, 1), (Key.Left, -1, 0), (Key.Right, 1, 0) })
+            {
+                RegisterKey(this, key, ModifierKeys.None, () => Texts.Core.CaptureKeyMove, () => MoveCursor(dx, dy));
+            }
+            foreach (var (key, dx, dy) in new[] { (Key.Up, 0, -10), (Key.Down, 0, 10), (Key.Left, -10, 0), (Key.Right, 10, 0) })
+            {
+                RegisterKey(this, key, ModifierKeys.Control, () => Texts.Core.CaptureKeyMoveFast, () => MoveCursor(dx, dy));
+            }
+            foreach (var key in new[] { Key.LeftShift, Key.RightShift })
+            {
+                RegisterKey(this, key, ModifierKeys.None, () => Texts.Core.CaptureKeyFixDirection, () =>
+                {
+                    // Fix mode: keep the selection to one direction, until Shift is released
+                    if (_fixMode == FixMode.None)
+                    {
+                        _fixMode = FixMode.Initiated;
+                    }
+                });
+            }
+            RegisterKey(this, Key.M, ModifierKeys.None, () => Texts.Core.CaptureKeyMouseCursor, () =>
+            {
+                _capture.CursorVisible = !_capture.CursorVisible;
+                ShowCapturedCursor();
+            });
+            RegisterKey(this, Key.Z, ModifierKeys.None, () => Texts.Core.CaptureKeyZoomer, () =>
+            {
+                if (_activeTool.ShowsZoomer)
+                {
+                    Conf.ZoomerEnabled = !Conf.ZoomerEnabled;
+                    UpdateZoomerVisibility();
+                }
+            });
+            RegisterKey(this, Key.F, ModifierKeys.None, () => Texts.Core.CaptureKeyTopmost, () => Topmost = !Topmost);
+            RegisterKey(this, Key.Escape, ModifierKeys.None, () => Texts.Core.CaptureKeyCancel, Cancel);
+        }
+
+        private static void MoveCursor(int dx, int dy)
+        {
+            var cursor = System.Windows.Forms.Cursor.Position;
+            System.Windows.Forms.Cursor.Position = new System.Drawing.Point(cursor.X + dx, cursor.Y + dy);
+        }
+
+        /// <inheritdoc />
+        public CaptureKeyBinding RegisterKey(object owner, Key key, ModifierKeys modifiers, Func<string> description, Action execute) =>
+            _keys.Register(new CaptureKeyBinding(owner, null, key, modifiers, description, execute));
+
+        /// <inheritdoc />
+        public CaptureKeyBinding RegisterToolKey(ICaptureTool tool, Key key, ModifierKeys modifiers, Func<string> description, Action execute) =>
+            _keys.Register(new CaptureKeyBinding(tool, tool ?? throw new ArgumentNullException(nameof(tool)), key, modifiers, description, execute));
+
+        /// <inheritdoc />
+        public IReadOnlyList<CaptureKeyBinding> KeyBindings => _keys.Bindings;
+
+        /// <inheritdoc />
+        public void ActivateTool(ICaptureTool tool) => SwitchTool(tool);
+
+        /// <summary>
+        /// The built-in overlays (the help) and those of the registered ICaptureOverlayProviders (plugins), each gets a layer above the tool layer
         /// </summary>
         private void CreateOverlays()
         {
             int layerIndex = Root.Children.IndexOf(ToolLayer) + 1;
+            void Add(ICaptureOverlay overlay)
+            {
+                if (overlay == null)
+                {
+                    return;
+                }
+                var layer = new DrawingLayer();
+                Root.Children.Insert(layerIndex++, layer);
+                _overlays.Add(new KeyValuePair<ICaptureOverlay, DrawingLayer>(overlay, layer));
+                try
+                {
+                    overlay.Attach(this);
+                }
+                catch (Exception ex)
+                {
+                    // E.g. a key which is already used, the overlay keeps what it registered before
+                    Log.Error($"Error attaching the capture overlay {overlay.GetType().FullName}", ex);
+                }
+            }
+
+            Add(new HelpOverlay());
             foreach (var provider in SimpleServiceProvider.Current.GetAllInstances<ICaptureOverlayProvider>())
             {
                 try
                 {
                     foreach (var overlay in provider.CreateOverlays() ?? Enumerable.Empty<ICaptureOverlay>())
                     {
-                        if (overlay == null)
-                        {
-                            continue;
-                        }
-                        var layer = new DrawingLayer();
-                        Root.Children.Insert(layerIndex++, layer);
-                        _overlays.Add(new KeyValuePair<ICaptureOverlay, DrawingLayer>(overlay, layer));
-                        overlay.Attach(this);
+                        Add(overlay);
                     }
                 }
                 catch (Exception ex)
@@ -679,107 +779,32 @@ namespace Greenshot.UI.Capture
 
         private void OnKeyUp(object sender, KeyEventArgs e)
         {
-            switch (e.Key)
+            if (e.Key is Key.LeftShift or Key.RightShift)
             {
-                case Key.LeftShift:
-                case Key.RightShift:
-                    _fixMode = FixMode.None;
-                    break;
-                case Key.LeftCtrl:
-                case Key.RightCtrl:
-                    _isCtrlPressed = false;
-                    break;
-            }
-        }
-
-        private void OnKeyDown(object sender, KeyEventArgs e)
-        {
-            if (_activeTool.OnKeyDown(e.Key))
-            {
-                return;
-            }
-            int step = _isCtrlPressed ? 10 : 1;
-            var cursor = System.Windows.Forms.Cursor.Position;
-            switch (e.Key)
-            {
-                case Key.Up:
-                    System.Windows.Forms.Cursor.Position = new System.Drawing.Point(cursor.X, cursor.Y - step);
-                    break;
-                case Key.Down:
-                    System.Windows.Forms.Cursor.Position = new System.Drawing.Point(cursor.X, cursor.Y + step);
-                    break;
-                case Key.Left:
-                    System.Windows.Forms.Cursor.Position = new System.Drawing.Point(cursor.X - step, cursor.Y);
-                    break;
-                case Key.Right:
-                    System.Windows.Forms.Cursor.Position = new System.Drawing.Point(cursor.X + step, cursor.Y);
-                    break;
-                case Key.LeftShift:
-                case Key.RightShift:
-                    // Fix mode: keep the selection to one direction
-                    if (_fixMode == FixMode.None)
-                    {
-                        _fixMode = FixMode.Initiated;
-                    }
-                    break;
-                case Key.LeftCtrl:
-                case Key.RightCtrl:
-                    _isCtrlPressed = true;
-                    break;
-                case Key.Escape:
-                    Cancel();
-                    break;
-                case Key.M:
-                    // Toggle mouse cursor
-                    _capture.CursorVisible = !_capture.CursorVisible;
-                    ShowCapturedCursor();
-                    break;
-                case Key.Z:
-                    if (_activeTool.ShowsZoomer)
-                    {
-                        Conf.ZoomerEnabled = !Conf.ZoomerEnabled;
-                        UpdateZoomerVisibility();
-                    }
-                    break;
-                case Key.Space:
-                    // Region to window, every other tool back to region
-                    SwitchTool(_activeTool == _regionTool ? _windowTool : _regionTool);
-                    break;
-                case Key.F:
-                    Topmost = !Topmost;
-                    break;
-                default:
-                    var shortcutTool = _tools.FirstOrDefault(tool => tool.ShortcutKey != Key.None && tool.ShortcutKey == e.Key);
-                    if (shortcutTool != null)
-                    {
-                        SwitchTool(shortcutTool);
-                    }
-                    else
-                    {
-                        OfferKeyToOverlays(e.Key);
-                    }
-                    break;
+                _fixMode = FixMode.None;
             }
         }
 
         /// <summary>
-        /// A key nobody else used goes to the overlays, until one handles it
+        /// A key does what its registration says, see RegisterKey and RegisterToolKey; keys nobody registered do nothing
         /// </summary>
-        private void OfferKeyToOverlays(Key key)
+        private void OnKeyDown(object sender, KeyEventArgs e)
         {
-            foreach (var entry in _overlays)
+            // With Alt the key is reported as Key.System
+            var key = e.Key == Key.System ? e.SystemKey : e.Key;
+            var binding = _keys.Find(key, Keyboard.Modifiers, _activeTool);
+            if (binding == null)
             {
-                try
-                {
-                    if (entry.Key.OnKeyDown(key))
-                    {
-                        return;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Log.Error($"Error in the capture overlay {entry.Key.GetType().FullName}", ex);
-                }
+                return;
+            }
+            e.Handled = true;
+            try
+            {
+                binding.Execute();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error handling the capture key {binding.KeyText} of {binding.Owner.GetType().FullName}", ex);
             }
         }
 

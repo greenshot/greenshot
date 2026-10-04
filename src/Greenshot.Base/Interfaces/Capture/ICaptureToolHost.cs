@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
@@ -96,6 +97,39 @@ namespace Greenshot.Base.Interfaces.Capture
         /// The active tool
         /// </summary>
         ICaptureTool ActiveTool { get; }
+
+        /// <summary>
+        /// Make another tool the active one, e.g. from the key which switches to it
+        /// </summary>
+        void ActivateTool(ICaptureTool tool);
+
+        /// <summary>
+        /// Register a key which is always active, e.g. for an overlay or the key which switches to a tool.
+        /// Register in ICaptureTool.Attach or ICaptureOverlay.Attach; the keys stay registered as long as the window is open.
+        /// The window registers its own keys first, then the built-in tools theirs, then the tools and overlays of plugins.
+        /// </summary>
+        /// <param name="owner">The tool or overlay which registers the key</param>
+        /// <param name="key">The key</param>
+        /// <param name="modifiers">Ctrl, Alt, Shift or Windows which have to be held with it, ModifierKeys.None for the key alone</param>
+        /// <param name="description">What the key does, called every time it is shown (e.g. by the help overlay), so it can return the text in the current language</param>
+        /// <param name="execute">What happens when the key is pressed</param>
+        /// <returns>The binding, also in KeyBindings</returns>
+        /// <exception cref="CaptureKeyConflictException">The key is already used</exception>
+        /// <exception cref="System.ArgumentException">Ctrl, Alt or Windows alone</exception>
+        CaptureKeyBinding RegisterKey(object owner, Key key, ModifierKeys modifiers, Func<string> description, Action execute);
+
+        /// <summary>
+        /// Register a key which is only active while the tool is active, e.g. Enter to finish a selection.
+        /// Different tools can use the same key; it conflicts with the keys which are always active and with the other keys of the tool.
+        /// </summary>
+        /// <exception cref="CaptureKeyConflictException">The key is already used</exception>
+        CaptureKeyBinding RegisterToolKey(ICaptureTool tool, Key key, ModifierKeys modifiers, Func<string> description, Action execute);
+
+        /// <summary>
+        /// All registered keys in the order of registration, of the window, every tool and every overlay.
+        /// CaptureKeyBinding.IsActiveFor(ActiveTool) tells which of them work now.
+        /// </summary>
+        IReadOnlyList<CaptureKeyBinding> KeyBindings { get; }
 
         /// <summary>
         /// The visible windows, in z-order

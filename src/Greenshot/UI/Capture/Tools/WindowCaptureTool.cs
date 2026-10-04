@@ -25,6 +25,7 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Capture;
+using Greenshot.Base.Languages;
 using CaptureMode = Greenshot.Base.Interfaces.CaptureMode;
 
 namespace Greenshot.UI.Capture.Tools
@@ -87,20 +88,15 @@ namespace Greenshot.UI.Capture.Tools
 
         public override void OnMouseUp() => AcceptWindow();
 
-        public override bool OnKeyDown(Key key)
+        public override void Attach(ICaptureToolHost host)
         {
-            switch (key)
+            base.Attach(host);
+            host.RegisterToolKey(this, Key.Return, ModifierKeys.None, () => Texts.Core.CaptureKeyWindowAccept, AcceptWindow);
+            host.RegisterToolKey(this, Key.D, ModifierKeys.None, () => Texts.Core.CaptureKeyWindowDetails, () =>
             {
-                case Key.Return:
-                    AcceptWindow();
-                    return true;
-                case Key.D:
-                    _showDebugInfo = !_showDebugInfo;
-                    ShowLabels(false);
-                    return true;
-                default:
-                    return false;
-            }
+                _showDebugInfo = !_showDebugInfo;
+                ShowLabels(false);
+            });
         }
 
         private void AcceptWindow()

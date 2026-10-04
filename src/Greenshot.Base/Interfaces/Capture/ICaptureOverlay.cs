@@ -19,21 +19,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System.Windows.Input;
 using System.Windows.Media;
 
 namespace Greenshot.Base.Interfaces.Capture
 {
     /// <summary>
     /// Runs next to the active capture tool for as long as the CaptureWindow is open, e.g. a color picker which shows the color
-    /// under the cursor while a region is selected. An overlay gets the mouse moves, the keys nobody else used, and draws on its
+    /// under the cursor while a region is selected. An overlay gets the mouse moves, the keys it registered, and draws on its
     /// own layer above the tool's layer. It never gets mouse clicks, those belong to the active tool.
     /// Derive from CaptureOverlay, which has empty implementations.
     /// </summary>
     public interface ICaptureOverlay
     {
         /// <summary>
-        /// The CaptureWindow opened
+        /// The CaptureWindow opened, register the keys of the overlay here with ICaptureToolHost.RegisterKey
         /// </summary>
         void Attach(ICaptureToolHost host);
 
@@ -46,12 +45,6 @@ namespace Greenshot.Base.Interfaces.Capture
         /// The active tool changed, see ICaptureToolHost.ActiveTool
         /// </summary>
         void OnToolChanged();
-
-        /// <summary>
-        /// A key which neither the active tool nor the CaptureWindow used
-        /// </summary>
-        /// <returns>true when the overlay handled the key, the later overlays don't get it</returns>
-        bool OnKeyDown(Key key);
 
         /// <summary>
         /// Draw on the layer of the overlay. Called by ICaptureToolHost.Redraw(overlay) and when the detected features changed.
@@ -81,8 +74,6 @@ namespace Greenshot.Base.Interfaces.Capture
         public virtual void OnToolChanged()
         {
         }
-
-        public virtual bool OnKeyDown(Key key) => false;
 
         public virtual void Draw(DrawingContext drawingContext)
         {

@@ -27,6 +27,7 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Capture;
+using Greenshot.UI.Capture;
 using Greenshot.UI.Capture.Tools;
 using Xunit;
 using CaptureMode = Greenshot.Base.Interfaces.CaptureMode;
@@ -74,6 +75,24 @@ public class RegionCaptureToolTests
         public object FindResource(object resourceKey) => null;
         public void Accept(NativeRect rect, WindowDetails window = null) => Accepted = rect;
         public void Cancel() { }
+
+        private readonly CaptureKeyRegistry _keys = new CaptureKeyRegistry();
+        public void ActivateTool(ICaptureTool tool) => ActiveTool = tool;
+        public CaptureKeyBinding RegisterKey(object owner, Key key, ModifierKeys modifiers, Func<string> description, Action execute) =>
+            _keys.Register(new CaptureKeyBinding(owner, null, key, modifiers, description, execute));
+        public CaptureKeyBinding RegisterToolKey(ICaptureTool tool, Key key, ModifierKeys modifiers, Func<string> description, Action execute) =>
+            _keys.Register(new CaptureKeyBinding(tool, tool, key, modifiers, description, execute));
+        public IReadOnlyList<CaptureKeyBinding> KeyBindings => _keys.Bindings;
+
+        /// <summary>
+        /// Like the window: the registered binding of the key, false when there is none
+        /// </summary>
+        public bool Press(Key key)
+        {
+            var binding = _keys.Find(key, ModifierKeys.None, ActiveTool);
+            binding?.Execute();
+            return binding != null;
+        }
     }
 
     private static (RegionCaptureTool tool, FakeHost host) Create()
@@ -81,6 +100,7 @@ public class RegionCaptureToolTests
         var host = new FakeHost();
         var tool = new RegionCaptureTool();
         host.ActiveTool = tool;
+        tool.Attach(host);
         tool.Activate(host);
         return (tool, host);
     }
@@ -126,20 +146,23 @@ public class RegionCaptureToolTests
     {
         var (tool, host) = Create();
         MoveTo(tool, host, 10, 10);
-        Assert.True(tool.OnKeyDown(Key.Return));
+        Assert.True(host.Press(Key.Return));
         Assert.False(tool.ShowsCrosshair);
         MoveTo(tool, host, 110, 60);
-        Assert.True(tool.OnKeyDown(Key.Return));
+        Assert.True(host.Press(Key.Return));
 
         Assert.Equal(new NativeRect(10, 10, 101, 51), host.Accepted);
     }
 
     [Fact]
-    public void OtherKeys_AreLeftToTheWindow()
+    public void OnlyEnter_IsRegistered_ForTheTool()
     {
-        var (tool, _) = Create();
-        Assert.False(tool.OnKeyDown(Key.Space));
-        Assert.False(tool.OnKeyDown(Key.Escape));
+        var (tool, host) = Create();
+        var binding = Assert.Single(host.KeyBindings);
+        Assert.Equal(Key.Return, binding.Key);
+        Assert.Same(tool, binding.Tool);
+        Assert.False(host.Press(Key.Space));
+        Assert.False(host.Press(Key.Escape));
     }
 
     [Fact]

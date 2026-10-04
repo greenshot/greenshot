@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System.Windows.Input;
 using System.Windows.Media;
 using CaptureMode = Greenshot.Base.Interfaces.CaptureMode;
 
@@ -27,7 +26,7 @@ namespace Greenshot.Base.Interfaces.Capture
 {
     /// <summary>
     /// A way to select something on the frozen capture, e.g. a region, a window or text.
-    /// The CaptureWindow takes care of everything the tools share (cursor, crosshair, zoomer, hotspots, keys to move the cursor and to switch tools),
+    /// The CaptureWindow takes care of everything the tools share (cursor, crosshair, zoomer, hotspots, the keys),
     /// and passes the input to the active tool. Derive from CaptureTool, which has empty implementations.
     /// </summary>
     public interface ICaptureTool
@@ -38,11 +37,6 @@ namespace Greenshot.Base.Interfaces.Capture
         CaptureMode Mode { get; }
 
         /// <summary>
-        /// The key which switches to this tool, Key.None for none (space toggles between region and window)
-        /// </summary>
-        Key ShortcutKey { get; }
-
-        /// <summary>
         /// True to show the zoomer (when it is enabled), read when the tool becomes active
         /// </summary>
         bool ShowsZoomer { get; }
@@ -51,6 +45,12 @@ namespace Greenshot.Base.Interfaces.Capture
         /// True to show the crosshair through the cursor, read after every mouse move
         /// </summary>
         bool ShowsCrosshair { get; }
+
+        /// <summary>
+        /// The CaptureWindow opened, called once for every tool before one of them is activated.
+        /// Register the keys here: ICaptureToolHost.RegisterToolKey for keys of the tool, RegisterKey for a key which switches to it.
+        /// </summary>
+        void Attach(ICaptureToolHost host);
 
         /// <summary>
         /// The tool becomes active
@@ -78,12 +78,6 @@ namespace Greenshot.Base.Interfaces.Capture
         void OnMouseUp();
 
         /// <summary>
-        /// A key was pressed, before the CaptureWindow handles it
-        /// </summary>
-        /// <returns>true when the tool handled the key</returns>
-        bool OnKeyDown(Key key);
-
-        /// <summary>
         /// Draw on the layer of the tool, which is below the selection. Called by ICaptureToolHost.Redraw and when the detected features changed.
         /// </summary>
         void Draw(DrawingContext drawingContext);
@@ -95,17 +89,20 @@ namespace Greenshot.Base.Interfaces.Capture
     public abstract class CaptureTool : ICaptureTool
     {
         /// <summary>
-        /// The CaptureWindow, set when the tool is activated
+        /// The CaptureWindow, set when the window opened (Attach)
         /// </summary>
         protected ICaptureToolHost Host { get; private set; }
 
         public abstract CaptureMode Mode { get; }
 
-        public virtual Key ShortcutKey => Key.None;
-
         public virtual bool ShowsZoomer => true;
 
         public virtual bool ShowsCrosshair => false;
+
+        public virtual void Attach(ICaptureToolHost host)
+        {
+            Host = host;
+        }
 
         public virtual void Activate(ICaptureToolHost host)
         {
@@ -127,8 +124,6 @@ namespace Greenshot.Base.Interfaces.Capture
         public virtual void OnMouseUp()
         {
         }
-
-        public virtual bool OnKeyDown(Key key) => false;
 
         public virtual void Draw(DrawingContext drawingContext)
         {

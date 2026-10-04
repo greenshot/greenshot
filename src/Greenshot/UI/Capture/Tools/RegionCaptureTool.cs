@@ -24,6 +24,7 @@ using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Capture;
+using Greenshot.Base.Languages;
 using CaptureMode = Greenshot.Base.Interfaces.CaptureMode;
 
 namespace Greenshot.UI.Capture.Tools
@@ -81,12 +82,17 @@ namespace Greenshot.UI.Capture.Tools
             }
         }
 
-        public override bool OnKeyDown(Key key)
+        /// <summary>
+        /// Enter starts and finishes the selection, only while this tool is active
+        /// </summary>
+        public override void Attach(ICaptureToolHost host)
         {
-            if (key != Key.Return)
-            {
-                return false;
-            }
+            base.Attach(host);
+            host.RegisterToolKey(this, Key.Return, ModifierKeys.None, () => Texts.Core.CaptureKeyRegionSelect, ToggleSelection);
+        }
+
+        private void ToggleSelection()
+        {
             if (IsSelecting)
             {
                 EndSelection();
@@ -95,7 +101,6 @@ namespace Greenshot.UI.Capture.Tools
             {
                 StartSelection();
             }
-            return true;
         }
 
         public override void OnMouseMove()

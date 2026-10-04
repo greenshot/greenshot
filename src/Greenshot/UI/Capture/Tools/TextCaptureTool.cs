@@ -32,6 +32,7 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Capture;
+using Greenshot.Base.Languages;
 using CaptureMode = Greenshot.Base.Interfaces.CaptureMode;
 using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
@@ -47,7 +48,14 @@ namespace Greenshot.UI.Capture.Tools
 
         public override CaptureMode Mode => CaptureMode.Text;
 
-        public override Key ShortcutKey => Key.T;
+        /// <summary>
+        /// T switches to this tool from every other tool, Enter (from the region tool) selects while it is active
+        /// </summary>
+        public override void Attach(ICaptureToolHost host)
+        {
+            base.Attach(host);
+            host.RegisterKey(this, Key.T, ModifierKeys.None, () => Texts.Core.CaptureKeyText, () => host.ActivateTool(this));
+        }
 
         public override void Activate(ICaptureToolHost host)
         {
