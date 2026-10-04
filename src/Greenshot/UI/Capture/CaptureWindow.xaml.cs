@@ -193,7 +193,7 @@ namespace Greenshot.UI.Capture
             }
 
             // A new panel appears where it belongs, a changed one may need another place
-            PlacePanel(owner, panel, !isNew);
+            PlacePanel(owner, panel, !isNew, animateResize: false);
         }
 
         /// <inheritdoc />
@@ -232,16 +232,24 @@ namespace Greenshot.UI.Capture
         /// </summary>
         private void UpdatePanelSize(object owner, Panel panel)
         {
-            panel.Element.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-            var desired = panel.Element.DesiredSize;
-            var size = new NativeSize((int)Math.Ceiling(desired.Width), (int)Math.Ceiling(desired.Height));
+            var element = (FrameworkElement)panel.Element;
+            element.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+            var desired = element.DesiredSize;
             bool isFirst = panel.Bounds.IsEmpty;
-            if (!isFirst && size.Equals(panel.Size))
+            // While shown, the panel only grows: changing values (e.g. 99 and 100) would otherwise make it wobble.
+            // MinWidth and MinHeight are in device independent units, DesiredSize in pixels (the panel scales its content).
+            double scale = ToolStyle.Scale(1);
+            element.MinWidth = Math.Max(element.MinWidth, desired.Width / scale);
+            element.MinHeight = Math.Max(element.MinHeight, desired.Height / scale);
+            var size = new NativeSize((int)Math.Ceiling(desired.Width), (int)Math.Ceiling(desired.Height));
+            if (!isFirst && size.Width <= panel.Size.Width && size.Height <= panel.Size.Height)
             {
                 return;
             }
+            size = new NativeSize(Math.Max(size.Width, panel.Size.Width), Math.Max(size.Height, panel.Size.Height));
             panel.Size = size;
-            PlacePanel(owner, panel, !isFirst);
+            // Growing keeps the corner without animation, only a move to another corner slides
+            PlacePanel(owner, panel, !isFirst, animateResize: false);
         }
 
         /// <summary>
@@ -283,7 +291,7 @@ namespace Greenshot.UI.Capture
             }
         }
 
-        private void PlacePanel(object owner, Panel panel, bool animate)
+        private void PlacePanel(object owner, Panel panel, bool animate, bool animateResize = true)
         {
             var avoid = _panels.Where(other => !Equals(other.Key, owner)).Select(other => other.Value.Bounds).ToList();
             if (IsSelectionVisible)
@@ -298,6 +306,10 @@ namespace Greenshot.UI.Capture
             if (bounds.Equals(panel.Bounds))
             {
                 return;
+            }
+            if (!animateResize && !panel.Bounds.IsEmpty && bounds.Equals(PanelPlacement.Resize(panel.Bounds, panel.Size, GetMonitorBounds())))
+            {
+                animate = false;
             }
             panel.Bounds = bounds;
             MovePanel(panel.Position, TranslateTransform.XProperty, bounds.X, animate);

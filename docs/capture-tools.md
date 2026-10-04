@@ -263,7 +263,9 @@ panel in a free corner as above. What the window does with the content:
   and Greenshot's font, size and foreground inherited by the content.
 - The theme brushes are resources of that border, use them with `{DynamicResource CaptureTool.MutedForeground}` etc., see Look and feel.
 - The content is in device independent units like any other XAML, the border scales it for the monitor.
-- When the content changes size (a longer text), the panel is measured again and re-placed; only the panel is laid out, not the capture.
+- When the content changes size (a longer text), the panel is measured again; only the panel is laid out, not the capture.
+  While shown it only grows and keeps its corner (the outer edges stay), so changing values like 99 and 100 don't make it wobble.
+  It only slides when the bigger panel no longer fits there.
 - Panels take no mouse input (`IsHitTestVisible` is false), clicks go to the active tool.
 - Calling `ShowPanel` again with the same content does nothing; with other content it replaces the panel. `HidePanel(this)` fades it out.
 

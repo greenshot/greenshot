@@ -85,6 +85,23 @@ public class PanelPlacementTests
     }
 
     [Fact]
+    public void ResizedPanel_KeepsItsCorner()
+    {
+        // Bottom right: the right and bottom edges stay
+        var current = new NativeRect(Monitor.Right - M - 300, Monitor.Bottom - M - 200, 300, 200);
+        var bounds = PanelPlacement.Place(new NativeSize(320, 210), Monitor, new NativePoint(100, 100), current, null);
+        Assert.Equal(new NativeRect(Monitor.Right - M - 320, Monitor.Bottom - M - 210, 320, 210), bounds);
+    }
+
+    [Fact]
+    public void ResizedPanel_TopLeft_GrowsToTheRightAndDown()
+    {
+        var current = new NativeRect(M, M, 300, 200);
+        var bounds = PanelPlacement.Place(new NativeSize(320, 210), Monitor, new NativePoint(1800, 1000), current, null);
+        Assert.Equal(new NativeRect(M, M, 320, 210), bounds);
+    }
+
+    [Fact]
     public void Zoomer_AvoidsPanels()
     {
         int size = 216;

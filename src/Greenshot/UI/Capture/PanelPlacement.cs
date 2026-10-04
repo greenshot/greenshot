@@ -60,9 +60,14 @@ namespace Greenshot.UI.Capture
             bool Free(NativeRect rect, bool checkAvoid) =>
                 monitor.Contains(rect) && !rect.IntersectsWith(cursorArea) && (!checkAvoid || !avoidList.Any(other => rect.IntersectsWith(other)));
 
-            if (!current.IsEmpty && current.Width == size.Width && current.Height == size.Height && Free(current, true))
+            if (!current.IsEmpty)
             {
-                return current;
+                // A panel which changed size grows or shrinks away from its corner, so its outer edges stay where they are
+                var resized = Resize(current, size, monitor);
+                if (Free(resized, true))
+                {
+                    return resized;
+                }
             }
 
             int left = monitor.Left + Margin;
@@ -86,6 +91,18 @@ namespace Greenshot.UI.Capture
                 : corners.FirstOrDefault(corner => Free(corner, false)) is { IsEmpty: false } awayFromCursor
                     ? awayFromCursor
                     : corners[0];
+        }
+
+        /// <summary>
+        /// The panel with a new size, keeping the edges which face the nearest corner of the monitor
+        /// </summary>
+        public static NativeRect Resize(NativeRect current, NativeSize size, NativeRect monitor)
+        {
+            bool right = current.Left + current.Width / 2 > monitor.Left + monitor.Width / 2;
+            bool bottom = current.Top + current.Height / 2 > monitor.Top + monitor.Height / 2;
+            int x = right ? current.Right - size.Width : current.Left;
+            int y = bottom ? current.Bottom - size.Height : current.Top;
+            return new NativeRect(x, y, size.Width, size.Height);
         }
 
         private static long DistanceSquared(NativeRect rect, NativePoint point)
