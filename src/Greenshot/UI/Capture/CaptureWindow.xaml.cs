@@ -100,7 +100,20 @@ namespace Greenshot.UI.Capture
         private NativeRect _captureRect = NativeRect.Empty;
         private NativeRect _selectionRect = NativeRect.Empty;
         // The panels of tools and overlays, by owner
-        private readonly Dictionary<object, NativeRect> _panels = new Dictionary<object, NativeRect>();
+        private readonly Dictionary<object, Panel> _panels = new Dictionary<object, Panel>();
+        private CaptureToolStyle _toolStyle;
+
+        /// <summary>
+        /// A panel of a tool or overlay: its layer, where it is (the target while it moves) and what is drawn on it
+        /// </summary>
+        private sealed class Panel
+        {
+            public DrawingLayer Layer { get; } = new DrawingLayer();
+            public TranslateTransform Position { get; } = new TranslateTransform();
+            public NativeSize Size { get; set; }
+            public NativeRect Bounds { get; set; } = NativeRect.Empty;
+            public Action<DrawingContext> DrawContent { get; set; }
+        }
         private NativePoint _cursorPos;
         private NativePoint _previousMousePos;
         private FixMode _fixMode = FixMode.None;
@@ -146,13 +159,69 @@ namespace Greenshot.UI.Capture
         public NativeRect GetMonitorBounds() => DisplayInfo.GetBounds(User32Api.GetCursorLocation()).Offset(-_screenBounds.X, -_screenBounds.Y);
 
         /// <inheritdoc />
-        public NativeRect PlacePanel(object owner, NativeSize size)
+        public CaptureToolStyle ToolStyle => _toolStyle ??= new CaptureToolStyle(_dpiScale);
+
+        /// <inheritdoc />
+        public void ShowPanel(object owner, Size contentSize, Action<DrawingContext> drawContent)
         {
             if (owner == null)
             {
                 throw new ArgumentNullException(nameof(owner));
             }
-            var avoid = _panels.Where(panel => !Equals(panel.Key, owner)).Select(panel => panel.Value).ToList();
+            bool isNew = !_panels.TryGetValue(owner, out var panel);
+            if (isNew)
+            {
+                panel = new Panel();
+                panel.Layer.RenderTransform = panel.Position;
+                PanelHost.Children.Add(panel.Layer);
+                _panels[owner] = panel;
+            }
+
+            double padding = ToolStyle.PanelPadding;
+            panel.Size = new NativeSize((int)Math.Ceiling(contentSize.Width + 2 * padding), (int)Math.Ceiling(contentSize.Height + 2 * padding));
+            panel.DrawContent = drawContent;
+            using (var dc = panel.Layer.Open())
+            {
+                ToolStyle.DrawPanel(dc, new Rect(0, 0, panel.Size.Width, panel.Size.Height));
+                dc.PushTransform(new TranslateTransform(padding, padding));
+                drawContent?.Invoke(dc);
+                dc.Pop();
+            }
+
+            // A new panel appears where it belongs, a changed one may need another place
+            PlacePanel(owner, panel, !isNew);
+            if (isNew)
+            {
+                Fade(panel.Layer, 0, 1, null);
+            }
+        }
+
+        /// <inheritdoc />
+        public void HidePanel(object owner)
+        {
+            if (owner == null || !_panels.TryGetValue(owner, out var panel))
+            {
+                return;
+            }
+            // Released right away, the zoomer and the other panels may go there
+            _panels.Remove(owner);
+            Fade(panel.Layer, panel.Layer.Opacity, 0, () => PanelHost.Children.Remove(panel.Layer));
+        }
+
+        /// <summary>
+        /// Move every panel which is in the way of the cursor, the selection or the zoomer
+        /// </summary>
+        private void UpdatePanels()
+        {
+            foreach (var entry in _panels.ToList())
+            {
+                PlacePanel(entry.Key, entry.Value, true);
+            }
+        }
+
+        private void PlacePanel(object owner, Panel panel, bool animate)
+        {
+            var avoid = _panels.Where(other => !Equals(other.Key, owner)).Select(other => other.Value.Bounds).ToList();
             if (IsSelectionVisible)
             {
                 avoid.Add(_selectionRect);
@@ -161,19 +230,49 @@ namespace Greenshot.UI.Capture
             {
                 avoid.Add(new NativeRect(_cursorPos.X + _zoomOffset.X, _cursorPos.Y + _zoomOffset.Y, _zoomSize, _zoomSize));
             }
-            _panels.TryGetValue(owner, out var current);
-            var bounds = PanelPlacement.Place(size, GetMonitorBounds(), _cursorPos, current, avoid);
-            _panels[owner] = bounds;
-            return bounds;
+            var bounds = PanelPlacement.Place(panel.Size, GetMonitorBounds(), _cursorPos, panel.Bounds, avoid);
+            if (bounds.Equals(panel.Bounds))
+            {
+                return;
+            }
+            panel.Bounds = bounds;
+            MovePanel(panel.Position, TranslateTransform.XProperty, bounds.X, animate);
+            MovePanel(panel.Position, TranslateTransform.YProperty, bounds.Y, animate);
         }
 
-        /// <inheritdoc />
-        public void RemovePanel(object owner)
+        private void MovePanel(TranslateTransform position, DependencyProperty property, double to, bool animate)
         {
-            if (owner != null)
+            if (!animate || _isRemoteSession)
             {
-                _panels.Remove(owner);
+                position.BeginAnimation(property, null);
+                position.SetValue(property, to);
+                return;
             }
+            var move = ((DoubleAnimation)FindResource("PanelMoveAnimation")).Clone();
+            move.To = to;
+            position.BeginAnimation(property, move);
+        }
+
+        /// <summary>
+        /// Fade a panel in or out, at once in a remote session
+        /// </summary>
+        private void Fade(UIElement element, double from, double to, Action completed)
+        {
+            if (_isRemoteSession)
+            {
+                element.BeginAnimation(OpacityProperty, null);
+                element.Opacity = to;
+                completed?.Invoke();
+                return;
+            }
+            var fade = ((DoubleAnimation)FindResource("PanelFadeAnimation")).Clone();
+            fade.From = from;
+            fade.To = to;
+            if (completed != null)
+            {
+                fade.Completed += (sender, args) => completed();
+            }
+            element.BeginAnimation(OpacityProperty, fade);
         }
 
         /// <inheritdoc />
@@ -207,6 +306,8 @@ namespace Greenshot.UI.Capture
             _usedCaptureMode = _activeTool.Mode;
 
             InitializeComponent();
+            // The DPI of the primary monitor until the window is placed, see ApplyDpiScale
+            _dpiScale = VisualTreeHelper.GetDpi(this).DpiScaleX;
             var labelFont = (FontFamily)FindResource("LabelFontFamily");
             _labelTypeface = new Typeface(labelFont, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
             _boldLabelTypeface = new Typeface(labelFont, FontStyles.Normal, FontWeights.Bold, FontStretches.Normal);
@@ -386,6 +487,11 @@ namespace Greenshot.UI.Capture
         /// </summary>
         private void ApplyDpiScale(DpiScale dpi)
         {
+            if (Math.Abs(_dpiScale - dpi.DpiScaleX) > 0.001)
+            {
+                // The style scales with the DPI
+                _toolStyle = null;
+            }
             _dpiScale = dpi.DpiScaleX;
             Root.LayoutTransform = new ScaleTransform(1 / _dpiScale, 1 / _dpiScale);
         }
@@ -711,6 +817,7 @@ namespace Greenshot.UI.Capture
             UpdateWindowUnderCursor();
             _activeTool.OnMouseMove();
             ForEachOverlay(overlay => overlay.OnMouseMove());
+            UpdatePanels();
             UpdateCrosshair(_activeTool.ShowsCrosshair);
             UpdateZoomer();
 
@@ -1027,7 +1134,7 @@ namespace Greenshot.UI.Capture
         /// </summary>
         private List<NativeRect> GetZoomerAvoids()
         {
-            var avoid = new List<NativeRect>(_panels.Values);
+            var avoid = _panels.Values.Select(panel => panel.Bounds).ToList();
             if (IsSelectionVisible && !IsSelectionAnimating)
             {
                 avoid.Add(_selectionRect);

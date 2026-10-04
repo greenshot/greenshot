@@ -21,6 +21,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Windows;
+using System.Windows.Media;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Color = System.Windows.Media.Color;
@@ -59,19 +61,25 @@ namespace Greenshot.Base.Interfaces.Capture
         NativeRect GetMonitorBounds();
 
         /// <summary>
-        /// A place for a panel (e.g. a help text) in a corner of the monitor under the cursor, away from the cursor, the selection,
-        /// the zoomer and the other panels. The place is reserved for the owner until RemovePanel, the zoomer and other panels avoid it.
-        /// Call it again when the cursor moved: the panel stays where it is as long as that is fine, otherwise it gets another corner.
+        /// Show a panel (e.g. a help text) in a corner of the monitor under the cursor, away from the cursor, the selection,
+        /// the zoomer and the other panels. The window draws the panel in Greenshot's style (ToolStyle.DrawPanel) with the content on it,
+        /// moves it to another corner (animated) when the cursor, the selection or the zoomer comes close, and keeps the zoomer away from it.
+        /// Call it again to change the content; the panel fades in the first time.
         /// </summary>
         /// <param name="owner">The tool or overlay, one panel per owner</param>
-        /// <param name="size">The size of the panel</param>
-        /// <returns>The bounds for the panel</returns>
-        NativeRect PlacePanel(object owner, NativeSize size);
+        /// <param name="contentSize">The size of the content in pixels, without the padding</param>
+        /// <param name="drawContent">Draws the content, 0,0 is the top left of the content (inside the padding)</param>
+        void ShowPanel(object owner, Size contentSize, Action<DrawingContext> drawContent);
 
         /// <summary>
-        /// Release the place of the owner's panel, e.g. when it is hidden
+        /// Hide the owner's panel, it fades out
         /// </summary>
-        void RemovePanel(object owner);
+        void HidePanel(object owner);
+
+        /// <summary>
+        /// The look of Greenshot: colors of the current theme, font, and helpers to draw text, panels and key caps
+        /// </summary>
+        CaptureToolStyle ToolStyle { get; }
 
         /// <summary>
         /// The active tool

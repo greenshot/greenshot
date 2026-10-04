@@ -56,6 +56,11 @@
         <!-- The selection moves from the cursor to the window under it, and from window to window -->
         <RectAnimation x:Key="WindowSelectionAnimation" Duration="{StaticResource WindowSelectionDuration}" EasingFunction="{StaticResource SelectionEase}" />
 
+        <!-- Panels of tools and overlays (e.g. a help text) move to another corner when something comes close, and fade in and out -->
+        <Duration x:Key="PanelDuration">0:0:0.35</Duration>
+        <DoubleAnimation x:Key="PanelMoveAnimation" Duration="{StaticResource PanelDuration}" EasingFunction="{StaticResource SelectionEase}" />
+        <DoubleAnimation x:Key="PanelFadeAnimation" Duration="0:0:0.15" />
+
         <!-- The zoomer moves to another corner of the cursor when it would leave the screen or cover the selection -->
         <DoubleAnimation x:Key="ZoomerMoveAnimation" Duration="{StaticResource ZoomerDuration}" EasingFunction="{StaticResource SelectionEase}" />
 
@@ -114,6 +119,9 @@
             </capture:DrawingLayer.RenderTransform>
         </capture:DrawingLayer>
         <capture:DrawingLayer x:Name="CoordinatesLabel" />
+
+        <!-- Panels of tools and overlays, each a DrawingLayer moved by its transform -->
+        <Canvas x:Name="PanelHost" IsHitTestVisible="False" />
 
         <!-- The zoomer: drawn with its top left corner at 0,0, moved next to the cursor and scaled out of it -->
         <Canvas x:Name="Zoomer" IsHitTestVisible="False" RenderOptions.BitmapScalingMode="NearestNeighbor">

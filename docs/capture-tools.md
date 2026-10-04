@@ -97,7 +97,8 @@ taken (by the window or an earlier tool) does not switch to the later tool. The 
 | `CursorPosition` | The cursor in capture pixels, already corrected for the fix mode (shift keeps it to one direction). |
 | `GetPixelColor(point)` | The color of a pixel of the frozen capture (a 1x1 copy, cheap enough for every mouse move). |
 | `GetMonitorBounds()` | The monitor under the cursor, in capture pixels. |
-| `PlacePanel(owner, size)`, `RemovePanel(owner)` | A free corner for a panel, reserved so the zoomer and other panels avoid it, see Positioning. |
+| `ShowPanel(owner, contentSize, drawContent)`, `HidePanel(owner)` | A panel in Greenshot's style in a free corner, moved (animated) out of the way, see Positioning. |
+| `ToolStyle` | Greenshot's look: theme colors, font, text, panels and key caps, see Look and feel. |
 | `Windows`, `FindWindowUnderCursor(children)` | The visible windows in z-order, the (child) window under the cursor. |
 | `ShowSelection(rect, animate, completed)`, `HideSelection()`, `IsSelectionVisible`, `IsSelectionAnimating` | The one selection rectangle. Animated with the window selection animation of the XAML; jumps in a remote desktop session. |
 | `ShowLabels(rect, size, fadeIn, debugText)`, `ClearLabels()` | The size rulers at the sides of a rectangle and the size in its middle. |
@@ -133,57 +134,52 @@ where things go. Two ways:
 
 - **Next to the cursor**, like the color picker swatch below: use `Host.CursorPosition`. Keep it small and near the cursor; the zoomer
   is at one of the cursor's corners (mostly bottom right), so the opposite corner is usually free.
-- **A panel in a corner**, like a help text: ask `Host.PlacePanel(this, size)` for its bounds on every mouse move and draw it there.
-  It picks the corner of the monitor under the cursor which is farthest from the cursor and doesn't cover the selection, the zoomer
-  or other panels, keeps at least `PanelPlacement.CursorClearance` (40 pixels) from the cursor and `PanelPlacement.Margin` (10) from
-  the edge. As long as that place stays fine the panel stays there, otherwise it jumps to another corner. The place is reserved:
-  the zoomer and the other panels avoid it. Call `Host.RemovePanel(this)` when the panel is hidden.
+- **A panel in a corner**, like a help text: `Host.ShowPanel(this, contentSize, dc => ...)`. The window does the rest:
+  - It draws the panel in Greenshot's style (`ToolStyle.DrawPanel`: theme colors, rounded corners, padding) with your content on it.
+  - It places it in the corner of the monitor under the cursor which is farthest from the cursor and doesn't cover the selection,
+    the zoomer or other panels, at least `PanelPlacement.CursorClearance` (40 pixels) from the cursor and `PanelPlacement.Margin`
+    (10) from the edge.
+  - On every mouse move it checks the place again: as long as it is fine the panel stays, otherwise it **slides** to the new corner
+    (`PanelMoveAnimation` in `CaptureWindow.xaml`, 0.35 s with the same easing as the window selection). A panel **fades** in
+    when shown, and out with `Host.HidePanel(this)`.
+  - The place is reserved: the zoomer and the other panels avoid it.
+  - In a remote desktop session the panel jumps and appears without fading.
+
+  Call `ShowPanel` again only when the content changes, not for every move.
 
 `ScreenBounds` is the whole virtual screen, which can have gaps between monitors; use `GetMonitorBounds()` for "a corner of the screen".
 
 ### Example: a help overlay
 
-F1 shows a panel with the keys in a free corner, and moves it out of the way of the cursor, the selection and the zoomer.
+F1 shows a panel with the keys as key caps, like the hotkey settings show them.
 
 ```csharp
 using System.Collections.Generic;
-using System.Globalization;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces.Capture;
 
 namespace Greenshot.Plugin.Help
 {
     /// <summary>
-    /// F1 shows or hides a panel with the keys, in a free corner of the monitor with the cursor
+    /// F1 shows or hides a panel with the keys. The capture window places it in a free corner, draws it in Greenshot's style
+    /// and moves it (animated) out of the way of the cursor, the selection and the zoomer.
     /// </summary>
     public class HelpOverlay : CaptureOverlay
     {
-        private const int Padding = 8;
-        private static readonly string[] Lines =
+        private static readonly (string Key, string Text)[] Keys =
         {
-            "Space  region / window",
-            "T  text",
-            "Z  zoomer",
-            "M  mouse cursor",
-            "Arrows  move the cursor (Ctrl: 10 px)",
-            "Shift  keep one direction",
-            "Esc  cancel"
+            ("Space", "Region or window"),
+            ("T", "Text"),
+            ("Z", "Zoomer"),
+            ("M", "Mouse cursor"),
+            ("Arrows", "Move the cursor, Ctrl: 10 pixels"),
+            ("Shift", "Keep one direction"),
+            ("Esc", "Cancel")
         };
 
         private bool _visible;
-        private FormattedText _text;
-        private NativeRect _bounds = NativeRect.Empty;
-
-        public override void Attach(ICaptureToolHost host)
-        {
-            base.Attach(host);
-            // One unit is one pixel in the capture window: the font size is in pixels, pixelsPerDip is 1
-            _text = new FormattedText(string.Join("\n", Lines), CultureInfo.CurrentCulture, FlowDirection.LeftToRight,
-                new Typeface("Segoe UI"), 13, Brushes.White, 1.0);
-        }
 
         public override bool OnKeyDown(Key key)
         {
@@ -192,45 +188,50 @@ namespace Greenshot.Plugin.Help
                 return false;
             }
             _visible = !_visible;
-            if (!_visible)
+            if (_visible)
             {
-                // Release the corner, the zoomer may go there again
-                Host.RemovePanel(this);
+                ShowHelp();
             }
-            OnMouseMove();
+            else
+            {
+                Host.HidePanel(this);
+            }
             return true;
         }
 
-        public override void OnMouseMove()
+        private void ShowHelp()
         {
-            if (!_visible)
-            {
-                if (!_bounds.IsEmpty)
-                {
-                    _bounds = NativeRect.Empty;
-                    Host.Redraw(this);
-                }
-                return;
-            }
-            var size = new NativeSize((int)_text.Width + 2 * Padding, (int)_text.Height + 2 * Padding);
-            // Stays where it is until the cursor, the selection or the zoomer comes close
-            var bounds = Host.PlacePanel(this, size);
-            if (!bounds.Equals(_bounds))
-            {
-                _bounds = bounds;
-                Host.Redraw(this);
-            }
-        }
+            var style = Host.ToolStyle;
+            double gap = style.Scale(8);
+            var title = style.CreateText("Keys", 10, bold: true);
 
-        public override void Draw(DrawingContext drawingContext)
-        {
-            if (_bounds.IsEmpty)
+            // Measure first: the key caps in one column, the texts next to them
+            double keyWidth = 0, textWidth = title.Width, height = title.Height + gap;
+            var rows = new List<(string Key, FormattedText Text, double Height)>();
+            foreach (var (key, description) in Keys)
             {
-                return;
+                var keyCap = style.MeasureKeyCap(key);
+                var text = style.CreateText(description, 9, style.MutedForeground);
+                double rowHeight = System.Math.Max(keyCap.Height, text.Height) + style.Scale(4);
+                keyWidth = System.Math.Max(keyWidth, keyCap.Width);
+                textWidth = System.Math.Max(textWidth, text.Width);
+                rows.Add((key, text, rowHeight));
+                height += rowHeight;
             }
-            var rect = new Rect(_bounds.X, _bounds.Y, _bounds.Width, _bounds.Height);
-            drawingContext.DrawRoundedRectangle((Brush)Host.FindResource("RulerBackgroundBrush"), null, rect, 4, 4);
-            drawingContext.DrawText(_text, new Point(rect.X + Padding, rect.Y + Padding));
+
+            var size = new Size(keyWidth + gap + textWidth, height);
+            Host.ShowPanel(this, size, dc =>
+            {
+                dc.DrawText(title, new Point(0, 0));
+                double y = title.Height + gap;
+                foreach (var (key, text, rowHeight) in rows)
+                {
+                    var keyCap = style.MeasureKeyCap(key);
+                    style.DrawKeyCap(dc, key, new Point(keyWidth - keyCap.Width, y + (rowHeight - keyCap.Height) / 2));
+                    dc.DrawText(text, new Point(keyWidth + gap, y + (rowHeight - text.Height) / 2));
+                    y += rowHeight;
+                }
+            });
         }
     }
 
@@ -249,6 +250,24 @@ namespace Greenshot.Plugin.Help
 
 This example was compiled against the current code, but not run.
 
+## Look and feel
+
+`Host.ToolStyle` (`CaptureToolStyle`) gives tools and overlays the look of Greenshot's WPF UI, if they want it:
+
+| Member | What |
+|---|---|
+| `PanelBackground`, `PanelBorder`, `Foreground`, `MutedForeground`, `Accent`, `KeyCapBackground`, `KeyCapBorder` | Frozen brushes of the current theme (`ThemeManager.Instance.CurrentPalette`), light or dark like the rest of Greenshot. |
+| `IsDarkTheme` | True for the dark theme. |
+| `FontFamily`, `CreateText(text, points, brush, bold)` | Greenshot's UI font (Segoe UI); the size in points is scaled to pixels for the monitor. |
+| `Scale(units)` | Converts a size in device independent units (as in XAML) to pixels, for margins and gaps. |
+| `PanelPadding`, `PanelCornerRadius`, `DrawPanel(dc, rect)` | The panel as `ShowPanel` draws it, also for your own drawings (e.g. a small label). |
+| `MeasureKeyCap(key)`, `DrawKeyCap(dc, key, point)` | A key cap like `KeyCapBadge` in the settings. |
+
+The capture-specific brushes (selection, rulers, OCR highlight, hotspots) are resources of `CaptureWindow.xaml`, available with
+`Host.FindResource(key)`. They don't follow the theme on purpose: they are drawn over the screenshot and need to be visible on any content.
+
+A tool which wants its own look can ignore all of this and draw with its own brushes and fonts.
+
 ## Example: a color picker
 
 The color picker needs the pixel under the cursor, shows it next to the cursor whatever tool is active, and copies it as `#RRGGBB`
@@ -257,7 +276,6 @@ H hides the swatch. The zoomer of the region tool already magnifies the pixels a
 
 ```csharp
 using System.Collections.Generic;
-using System.Globalization;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -327,16 +345,17 @@ namespace Greenshot.Plugin.ColorPicker
             }
             var cursor = Host.CursorPosition;
             var swatch = new Rect(cursor.X - 12 - SwatchSize, cursor.Y - 12 - SwatchSize, SwatchSize, SwatchSize);
-            var border = new Pen(Brushes.White, 1);
+            var style = Host.ToolStyle;
+            var border = new Pen(style.PanelBorder, 1);
             border.Freeze();
             drawingContext.DrawRectangle(new SolidColorBrush(_color), border, swatch);
 
-            // One unit is one pixel in the capture window: the font size is in pixels, pixelsPerDip is 1
-            var text = new FormattedText(ToHex(_color), CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
-                new Typeface("Segoe UI"), 12, Brushes.White, 1.0);
-            var textBackground = new Rect(swatch.X, swatch.Y - text.Height - 2, text.Width + 4, text.Height);
-            drawingContext.DrawRectangle((Brush)Host.FindResource("RulerBackgroundBrush"), null, textBackground);
-            drawingContext.DrawText(text, new Point(textBackground.X + 2, textBackground.Y));
+            // The value on a small panel in Greenshot's style
+            var text = style.CreateText(ToHex(_color), 9);
+            double padding = style.Scale(3);
+            var textPanel = new Rect(swatch.X, swatch.Y - text.Height - 2 * padding - 2, text.Width + 2 * padding, text.Height + 2 * padding);
+            style.DrawPanel(drawingContext, textPanel);
+            drawingContext.DrawText(text, new Point(textPanel.X + padding, textPanel.Y + padding));
         }
 
         private static string ToHex(Color color) => $"#{color.R:X2}{color.G:X2}{color.B:X2}";
@@ -373,7 +392,7 @@ Points to note:
   closes the window with `Cancel()` and does its work itself, like the hotspot actions (QR code) do. The flow ends there as "cancelled",
   so no destination runs.
 - **Placement:** the swatch is drawn above left of the cursor, where the zoomer usually isn't. The zoomer avoids the selection and the
-  panels placed with `PlacePanel`, not what is drawn elsewhere.
+  panels shown with `ShowPanel`, not what is drawn elsewhere.
 - **As a tool instead:** derive from `CaptureTool`, give it a `ShortcutKey` and copy the color in `OnMouseUp`. Then it is a mode the
   user switches to, and a click picks the color, but it can't show the color during a region selection.
 
