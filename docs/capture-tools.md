@@ -343,12 +343,15 @@ where things go. Two ways:
 - **A panel in a corner**, like a help text: `Host.ShowPanel(this, contentSize, dc => ...)` with drawn content, or
   `Host.ShowPanel(this, content)` with WPF content (see below). The window does the rest:
   - It draws the panel in Greenshot's style (`ToolStyle.DrawPanel`: theme colors, rounded corners, padding) with your content on it.
-  - It places it in the corner of the monitor under the cursor which is farthest from the cursor and doesn't cover the selection,
-    the zoomer or other panels, at least `PanelPlacement.CursorClearance` (40 pixels) from the cursor and `PanelPlacement.Margin`
-    (10) from the edge.
-  - On every mouse move it checks the place again: as long as it is fine the panel stays, otherwise it **slides** to the new corner
-    (`PanelMoveAnimation` in `CaptureWindow.xaml`, 0.35 s with the same easing as the window selection). A panel **fades** in
-    when shown, and out with `Host.HidePanel(this)`.
+  - It places it in the corner of the monitor under the cursor which is farthest from the cursor and doesn't cover the selection
+    or other panels, at least `PanelPlacement.CursorClearance` (40 pixels) from the cursor and `PanelPlacement.Margin`
+    (10) from the edge. The zoomer is not avoided: it moves with the cursor and avoids the panels itself.
+  - On every mouse move it checks the place again. A panel stays where it is unless the cursor comes close, or it covers more
+    than a quarter (`PanelPlacement.ToleratedOverlap`) of the selection, or the selection of it, while a completely free corner exists:
+    going from one overlap to another isn't worth a jump. The selection only counts once it stayed the same for 0.3 s, so a
+    window selection that follows the cursor from window to window doesn't chase the panels around. When a panel moves it
+    **slides** to the new corner (`PanelMoveAnimation` in `CaptureWindow.xaml`, 0.35 s with the same easing as the window
+    selection). A panel **fades** in when shown, and out with `Host.HidePanel(this)`.
   - The place is reserved: the zoomer and the other panels avoid it.
   - In a remote desktop session the panel jumps and appears without fading.
 

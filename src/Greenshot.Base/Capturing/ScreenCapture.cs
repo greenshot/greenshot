@@ -107,9 +107,11 @@ namespace Greenshot.Base.Capturing
 
                 try
                 {
+                    var stopwatch = System.Diagnostics.Stopwatch.StartNew();
                     var bitmap = await capture(backend).ConfigureAwait(false);
                     if (bitmap != null)
                     {
+                        Log.Debug($"{backend.Name} captured the {description} in {stopwatch.ElapsedMilliseconds} ms.");
                         return new ScreenCaptureResult(bitmap, location(), backend);
                     }
                     Log.Debug($"{backend.Name} returned nothing for the {description}, trying the next backend.");

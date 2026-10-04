@@ -33,6 +33,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using Dapplo.Ini;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
@@ -81,6 +82,8 @@ namespace Greenshot.UI.Capture
         // Remote desktop: no animations and no crosshair, every repaint of the screen costs bandwidth (OptimizeForRDP / DisableRDPOptimizing as before)
         private readonly bool _isRemoteSession = !Conf.DisableRDPOptimizing && (Conf.OptimizeForRDP || SystemParameters.IsRemoteSession);
         private BitmapSource _screenImage;
+        // From the constructor to the first frame on the screen, for the log
+        private readonly System.Diagnostics.Stopwatch _openStopwatch;
         private readonly Typeface _labelTypeface;
         private readonly Typeface _boldLabelTypeface;
 
@@ -300,15 +303,10 @@ namespace Greenshot.UI.Capture
         private void PlacePanel(object owner, Panel panel, bool animate, bool animateResize = true)
         {
             var avoid = _panels.Where(other => !Equals(other.Key, owner)).Select(other => other.Value.Bounds).ToList();
-            if (IsSelectionVisible)
-            {
-                avoid.Add(_selectionRect);
-            }
-            if (_zoomerShown && _zoomSize > 0)
-            {
-                avoid.Add(new NativeRect(_cursorPos.X + _zoomOffset.X, _cursorPos.Y + _zoomOffset.Y, _zoomSize, _zoomSize));
-            }
-            var bounds = PanelPlacement.Place(panel.Size, GetMonitorBounds(), _cursorPos, panel.Bounds, avoid);
+            // The selection only once it stopped changing: the window tool changes it with every window under the cursor.
+            // The zoomer is not avoided, it avoids the panels itself and moves with the cursor.
+            var avoidLoosely = IsSelectionVisible && IsSelectionSettled ? new[] { _selectionRect } : Array.Empty<NativeRect>();
+            var bounds = PanelPlacement.Place(panel.Size, GetMonitorBounds(), _cursorPos, panel.Bounds, avoid, avoidLoosely);
             if (bounds.Equals(panel.Bounds))
             {
                 return;
@@ -364,10 +362,10 @@ namespace Greenshot.UI.Capture
             {
                 return Colors.Transparent;
             }
-            // Pbgra32, premultiplied: the capture of the screen is opaque, so the color is the pixel as it is
+            // Bgr32: the capture of the screen is opaque
             var pixel = new byte[4];
             _screenImage.CopyPixels(new Int32Rect(location.X, location.Y, 1, 1), pixel, 4, 0);
-            return Color.FromArgb(pixel[3], pixel[2], pixel[1], pixel[0]);
+            return Color.FromRgb(pixel[2], pixel[1], pixel[0]);
         }
 
         /// <inheritdoc />
@@ -380,6 +378,7 @@ namespace Greenshot.UI.Capture
         /// <param name="windows">The windows to snap to, in z-order</param>
         public CaptureWindow(ICapture capture, IList<WindowDetails> windows)
         {
+            _openStopwatch = System.Diagnostics.Stopwatch.StartNew();
             _capture = capture ?? throw new ArgumentNullException(nameof(capture));
             _screenBounds = capture.ScreenBounds;
             _tools = CreateTools();
@@ -437,6 +436,7 @@ namespace Greenshot.UI.Capture
             MouseMove += (sender, args) => UpdateSelection();
             MouseLeftButtonDown += OnMouseLeftButtonDown;
             MouseLeftButtonUp += OnMouseLeftButtonUp;
+            Log.Debug($"Capture window created in {_openStopwatch.ElapsedMilliseconds} ms.");
         }
 
         /// <summary>
@@ -712,6 +712,7 @@ namespace Greenshot.UI.Capture
 
         private void OnContentRendered(object sender, EventArgs e)
         {
+            Log.Debug($"Capture window shown {_openStopwatch.ElapsedMilliseconds} ms after it was created.");
             // Showing the window must not have changed the bounds, but make sure
             PlaceWindow();
             Activate();
@@ -723,6 +724,7 @@ namespace Greenshot.UI.Capture
             Log.Debug("Closing capture window");
             WindowDetails.UnregisterIgnoreHandle(new WindowInteropHelper(this).Handle);
             _capture.CaptureDetails.FeaturesChanged -= OnFeaturesChanged;
+            _selectionSettleTimer?.Stop();
         }
 
         #region features
@@ -960,6 +962,10 @@ namespace Greenshot.UI.Capture
         /// <inheritdoc />
         public void ShowSelection(NativeRect rect, bool animate = false, Action completed = null)
         {
+            if (!rect.Equals(_selectionRect))
+            {
+                SelectionChanged();
+            }
             _selectionRect = rect;
             SelectionPath.Visibility = Visibility.Visible;
             if (animate)
@@ -987,6 +993,38 @@ namespace Greenshot.UI.Capture
 
         /// <inheritdoc />
         public NativeRect Selection => IsSelectionVisible ? _selectionRect : NativeRect.Empty;
+
+        /// <summary>
+        /// How long the selection has to stay the same before the panels move out of its way
+        /// </summary>
+        private static readonly TimeSpan SelectionSettleTime = TimeSpan.FromMilliseconds(300);
+        private DateTime _selectionChangedAt = DateTime.MinValue;
+        private DispatcherTimer _selectionSettleTimer;
+
+        private bool IsSelectionSettled => DateTime.UtcNow - _selectionChangedAt >= SelectionSettleTime;
+
+        /// <summary>
+        /// The panels wait until the selection settled, then check their place once more
+        /// </summary>
+        private void SelectionChanged()
+        {
+            _selectionChangedAt = DateTime.UtcNow;
+            if (_panels.Count == 0)
+            {
+                return;
+            }
+            if (_selectionSettleTimer == null)
+            {
+                _selectionSettleTimer = new DispatcherTimer(DispatcherPriority.Normal, Dispatcher) { Interval = SelectionSettleTime };
+                _selectionSettleTimer.Tick += (sender, args) =>
+                {
+                    _selectionSettleTimer.Stop();
+                    UpdatePanels();
+                };
+            }
+            _selectionSettleTimer.Stop();
+            _selectionSettleTimer.Start();
+        }
 
         /// <inheritdoc />
         public NativeSize SelectionSize { get; private set; } = NativeSize.Empty;
@@ -1348,10 +1386,15 @@ namespace Greenshot.UI.Capture
                 return CreateBitmapSource(copy);
             }
 
-            var bitmapData = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, DrawingPixelFormat.Format32bppPArgb);
+            // The screen is opaque: the pixels are used as they are (Bgr32 ignores the alpha byte), so neither GDI+ nor WPF has to convert
+            // the whole capture (premultiplying 7 million pixels takes noticeable time). Gaps between monitors become black, like the background.
+            var lockFormat = bitmap.PixelFormat is DrawingPixelFormat.Format32bppArgb or DrawingPixelFormat.Format32bppPArgb or DrawingPixelFormat.Format32bppRgb
+                ? bitmap.PixelFormat
+                : DrawingPixelFormat.Format32bppRgb;
+            var bitmapData = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, lockFormat);
             try
             {
-                var bitmapSource = BitmapSource.Create(bitmapData.Width, bitmapData.Height, 96, 96, PixelFormats.Pbgra32, null,
+                var bitmapSource = BitmapSource.Create(bitmapData.Width, bitmapData.Height, 96, 96, PixelFormats.Bgr32, null,
                     bitmapData.Scan0, bitmapData.Stride * bitmapData.Height, bitmapData.Stride);
                 bitmapSource.Freeze();
                 return bitmapSource;

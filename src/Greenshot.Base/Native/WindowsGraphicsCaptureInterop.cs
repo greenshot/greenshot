@@ -742,115 +742,191 @@ namespace Greenshot.Base.Native
         /// </summary>
         private static async Task<Bitmap> CaptureItemToBitmapAsync(Func<GraphicsCaptureItem> createItem, Func<IntPtr> getMonitor, string description, CancellationToken cancellationToken)
         {
+            var bitmaps = await CaptureItemsToBitmapsAsync(new[] { new CaptureRequest(createItem, getMonitor, description) }, cancellationToken).ConfigureAwait(false);
+            return bitmaps[0];
+        }
+
+        /// <summary>
+        /// What to capture: the capture item, the monitor it is on (for HDR) and a description for the log
+        /// </summary>
+        private sealed class CaptureRequest
+        {
+            public CaptureRequest(Func<GraphicsCaptureItem> createItem, Func<IntPtr> getMonitor, string description)
+            {
+                CreateItem = createItem;
+                GetMonitor = getMonitor;
+                Description = description;
+            }
+
+            public Func<GraphicsCaptureItem> CreateItem { get; }
+            public Func<IntPtr> GetMonitor { get; }
+            public string Description { get; }
+
+            public Direct3D11CaptureFramePool FramePool { get; set; }
+            public GraphicsCaptureSession Session { get; set; }
+            public TaskCompletionSource<bool> FrameArrived { get; } = Tcs.Create<bool>();
+            public bool IsHdr { get; set; }
+            public float SdrWhiteLevelInNits { get; set; } = 80.0f;
+        }
+
+        /// <summary>
+        /// Capture one frame of every capture item. All sessions are started together and their first frames awaited together:
+        /// waiting for a frame is most of the time of a capture, so several monitors take about as long as one.
+        /// The result has a bitmap per request, null for those which failed.
+        /// </summary>
+        private static async Task<Bitmap[]> CaptureItemsToBitmapsAsync(CaptureRequest[] requests, CancellationToken cancellationToken)
+        {
+            var results = new Bitmap[requests.Length];
             // The Direct3D objects are bound to the MTA (see GetOrCreateDevice): never run this on the UI (STA) thread
             await ThreadPoolSwitch.SwitchToThreadPoolAsync();
             await CaptureSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
-            Direct3D11CaptureFramePool framePool = null;
-            GraphicsCaptureSession session = null;
             try
             {
-                var frameArrived = Tcs.Create<bool>();
                 ID3D11Device d3d11Device;
                 ID3D11DeviceContext context;
-                bool isHdr;
-                float sdrWhiteLevelInNits;
                 lock (DeviceLock)
                 {
                     if (!GetOrCreateDevice(out d3d11Device, out context, out var device))
                     {
-                        return null;
+                        return results;
                     }
 
-                    GraphicsCaptureItem captureItem;
-                    try
+                    foreach (var request in requests)
                     {
-                        captureItem = createItem();
+                        StartCapture(request, device);
                     }
-                    catch (Exception ex)
-                    {
-                        Log.Warn($"Creating the capture item failed for {description}: {ex.Message}");
-                        return null;
-                    }
-
-                    if (captureItem == null)
-                    {
-                        Log.Debug($"No capture item for {description}.");
-                        return null;
-                    }
-
-                    // Detect HDR on the monitor of the capture item
-                    IntPtr hMonitor = getMonitor();
-                    isHdr = HdrDisplayInfo.IsHdrActiveForMonitor(hMonitor);
-                    sdrWhiteLevelInNits = isHdr ? HdrDisplayInfo.GetSdrWhiteLevelInNits(hMonitor) : 80.0f;
-                    var pixelFormat = isHdr
-                        ? DirectXPixelFormat.R16G16B16A16Float
-                        : DirectXPixelFormat.B8G8R8A8UIntNormalized;
-
-                    Log.Debug($"{description}: HDR={isHdr}, SDR white level={sdrWhiteLevelInNits} nits, format={pixelFormat}.");
-
-                    framePool = Direct3D11CaptureFramePool.CreateFreeThreaded(device, pixelFormat, 1, captureItem.Size);
-                    session = framePool.CreateCaptureSession(captureItem);
-                    ConfigureCaptureSession(session);
-                    framePool.FrameArrived += (s, e) => frameArrived.TrySetResult(true);
-                    session.StartCapture();
                 }
 
+                var started = requests.Where(request => request.Session != null).ToList();
                 try
                 {
-                    await frameArrived.Task.WaitAsync(FrameArrivedTimeout, cancellationToken).ConfigureAwait(false);
+                    await Task.WhenAll(started.Select(request => request.FrameArrived.Task)).WaitAsync(FrameArrivedTimeout, cancellationToken).ConfigureAwait(false);
                 }
                 catch (TimeoutException)
                 {
-                    Log.Debug($"Timeout waiting for FrameArrived on {description}.");
-                    return null;
+                    // Take the frames which did arrive
+                    foreach (var request in started.Where(request => !request.FrameArrived.Task.IsCompleted))
+                    {
+                        Log.Debug($"Timeout waiting for FrameArrived on {request.Description}.");
+                    }
                 }
 
                 // Continues on a thread pool (MTA) thread
                 lock (DeviceLock)
                 {
-                    using var frame = framePool.TryGetNextFrame();
-                    if (frame == null)
+                    for (int i = 0; i < requests.Length; i++)
                     {
-                        Log.Debug($"TryGetNextFrame returned null after FrameArrived on {description}.");
-                        return null;
-                    }
-
-                    var texture = CreateTexture2DFromID3DSurface(frame.Surface);
-                    try
-                    {
-                        if (texture == null)
+                        var request = requests[i];
+                        if (request.Session != null && request.FrameArrived.Task.IsCompleted)
                         {
-                            return null;
+                            results[i] = ReadFrame(request, d3d11Device, context);
                         }
-
-                        if (isHdr)
-                        {
-                            return ToneMapHdrTextureToBitmap(texture, d3d11Device, context, sdrWhiteLevelInNits);
-                        }
-
-                        return TransformTextureToBitmap(texture, d3d11Device, context);
-                    }
-                    finally
-                    {
-                        if (texture != null) Marshal.ReleaseComObject(texture);
                     }
                 }
+                return results;
             }
             catch (OperationCanceledException)
             {
+                DisposeAll(results);
                 throw;
             }
             catch (Exception ex)
             {
-                Log.Warn($"WindowsGraphicsCapture failed for {description}: {ex.Message}", ex);
+                Log.Warn($"WindowsGraphicsCapture failed for {string.Join(", ", requests.Select(request => request.Description))}: {ex.Message}", ex);
                 InvalidateCachedDevice();
-                return null;
+                DisposeAll(results);
+                return new Bitmap[requests.Length];
             }
             finally
             {
-                session?.Dispose();
-                framePool?.Dispose();
+                foreach (var request in requests)
+                {
+                    request.Session?.Dispose();
+                    request.FramePool?.Dispose();
+                }
                 CaptureSemaphore.Release();
+            }
+        }
+
+        /// <summary>
+        /// Create the frame pool and session of a request and start it, under the DeviceLock. A request whose item can't be created keeps no session.
+        /// </summary>
+        private static void StartCapture(CaptureRequest request, IDirect3DDevice device)
+        {
+            GraphicsCaptureItem captureItem;
+            try
+            {
+                captureItem = request.CreateItem();
+            }
+            catch (Exception ex)
+            {
+                Log.Warn($"Creating the capture item failed for {request.Description}: {ex.Message}");
+                return;
+            }
+
+            if (captureItem == null)
+            {
+                Log.Debug($"No capture item for {request.Description}.");
+                return;
+            }
+
+            // Detect HDR on the monitor of the capture item
+            IntPtr hMonitor = request.GetMonitor();
+            request.IsHdr = HdrDisplayInfo.IsHdrActiveForMonitor(hMonitor);
+            request.SdrWhiteLevelInNits = request.IsHdr ? HdrDisplayInfo.GetSdrWhiteLevelInNits(hMonitor) : 80.0f;
+            var pixelFormat = request.IsHdr
+                ? DirectXPixelFormat.R16G16B16A16Float
+                : DirectXPixelFormat.B8G8R8A8UIntNormalized;
+
+            Log.Debug($"{request.Description}: HDR={request.IsHdr}, SDR white level={request.SdrWhiteLevelInNits} nits, format={pixelFormat}.");
+
+            request.FramePool = Direct3D11CaptureFramePool.CreateFreeThreaded(device, pixelFormat, 1, captureItem.Size);
+            request.Session = request.FramePool.CreateCaptureSession(captureItem);
+            ConfigureCaptureSession(request.Session);
+            var frameArrived = request.FrameArrived;
+            request.FramePool.FrameArrived += (s, e) => frameArrived.TrySetResult(true);
+            request.Session.StartCapture();
+        }
+
+        /// <summary>
+        /// Copy the frame of a request into a bitmap, under the DeviceLock
+        /// </summary>
+        private static Bitmap ReadFrame(CaptureRequest request, ID3D11Device d3d11Device, ID3D11DeviceContext context)
+        {
+            using var frame = request.FramePool.TryGetNextFrame();
+            if (frame == null)
+            {
+                Log.Debug($"TryGetNextFrame returned null after FrameArrived on {request.Description}.");
+                return null;
+            }
+
+            var texture = CreateTexture2DFromID3DSurface(frame.Surface);
+            try
+            {
+                if (texture == null)
+                {
+                    return null;
+                }
+
+                if (request.IsHdr)
+                {
+                    return ToneMapHdrTextureToBitmap(texture, d3d11Device, context, request.SdrWhiteLevelInNits);
+                }
+
+                return TransformTextureToBitmap(texture, d3d11Device, context);
+            }
+            finally
+            {
+                if (texture != null) Marshal.ReleaseComObject(texture);
+            }
+        }
+
+        private static void DisposeAll(Bitmap[] bitmaps)
+        {
+            for (int i = 0; i < bitmaps.Length; i++)
+            {
+                bitmaps[i]?.Dispose();
+                bitmaps[i] = null;
             }
         }
 
@@ -893,34 +969,30 @@ namespace Greenshot.Base.Native
                 }
             }
 
+            // All monitors at once, see CaptureItemsToBitmapsAsync
+            var requests = displaysInCapture
+                .Select(item => new CaptureRequest(() => CreateCaptureItemForMonitor(item.Display.MonitorHandle), () => item.Display.MonitorHandle, $"monitor {item.Display.MonitorHandle}"))
+                .ToArray();
+            var monitorBitmaps = await CaptureItemsToBitmapsAsync(requests, cancellationToken).ConfigureAwait(false);
+
             Bitmap resultBitmap = null;
-            Graphics graphics = null;
             try
             {
-
-                foreach (var item in displaysInCapture)
+                for (int i = 0; i < displaysInCapture.Length; i++)
                 {
-                    using var monitorBitmap = await CaptureMonitorToBitmapAsync(item.Display.MonitorHandle, cancellationToken).ConfigureAwait(false);
+                    var monitorBitmap = monitorBitmaps[i];
                     if (monitorBitmap == null) continue;
                     resultBitmap ??= new Bitmap(captureBounds.Width, captureBounds.Height, PixelFormat.Format32bppArgb);
 
+                    var item = displaysInCapture[i];
                     var intersection = item.Intersection;
-
-                    // Source rectangle within the monitor bitmap
+                    // Source rectangle within the monitor bitmap, destination within the result bitmap
                     var srcRect = new Rectangle(
                         intersection.X - item.Display.Bounds.X,
                         intersection.Y - item.Display.Bounds.Y,
                         intersection.Width,
                         intersection.Height);
-
-                    // Destination rectangle within the result bitmap
-                    var destRect = new Rectangle(
-                        intersection.X - captureBounds.X,
-                        intersection.Y - captureBounds.Y,
-                        intersection.Width,
-                        intersection.Height);
-                    graphics ??= Graphics.FromImage(resultBitmap);
-                    graphics.DrawImage(monitorBitmap, destRect, srcRect, GraphicsUnit.Pixel);
+                    CopyPixels(monitorBitmap, srcRect, resultBitmap, new Point(intersection.X - captureBounds.X, intersection.Y - captureBounds.Y));
                 }
             }
             catch
@@ -930,10 +1002,40 @@ namespace Greenshot.Base.Native
             }
             finally
             {
-                graphics?.Dispose();
+                DisposeAll(monitorBitmaps);
             }
 
             return resultBitmap;
+        }
+
+        /// <summary>
+        /// Copy a rectangle of 32bpp ARGB pixels as they are, row by row: much faster than Graphics.DrawImage, which blends and filters
+        /// </summary>
+        private static unsafe void CopyPixels(Bitmap source, Rectangle sourceRect, Bitmap target, Point targetLocation)
+        {
+            var sourceData = source.LockBits(sourceRect, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            try
+            {
+                var targetData = target.LockBits(new Rectangle(targetLocation, sourceRect.Size), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+                try
+                {
+                    long bytesPerRow = (long)sourceRect.Width * 4;
+                    for (int y = 0; y < sourceRect.Height; y++)
+                    {
+                        byte* sourceRow = (byte*)sourceData.Scan0 + (long)y * sourceData.Stride;
+                        byte* targetRow = (byte*)targetData.Scan0 + (long)y * targetData.Stride;
+                        Buffer.MemoryCopy(sourceRow, targetRow, bytesPerRow, bytesPerRow);
+                    }
+                }
+                finally
+                {
+                    target.UnlockBits(targetData);
+                }
+            }
+            finally
+            {
+                source.UnlockBits(sourceData);
+            }
         }
     }
 }
