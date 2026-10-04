@@ -101,8 +101,9 @@ namespace Greenshot.Pipeline.Steps
             bool allowSnapping = Config.GetParameter("AllowWindowSnapping", true);
             List<WindowDetails> snapWindows = new List<WindowDetails>();
 
-            // Started by the acquire step next to the capture, see StartGetSnapWindows
-            bool started = TryTakeSnapWindowsTask(context, out var snapWindowsTask);
+            // Started by the acquire step next to the capture, see GetSnapWindowsAsync
+            Task<List<WindowDetails>> snapWindowsTask = null;
+            bool started = _selector is ICaptureWindowPreparer preparer && preparer.TryTakeSnapWindows(out snapWindowsTask);
             if (allowSnapping)
             {
                 if (started)
@@ -120,7 +121,7 @@ namespace Greenshot.Pipeline.Steps
                 if (!started)
                 {
                     // Win32 enumeration, runs inline on the pool thread the step is already on
-                    snapWindows = GetSnapWindows(cancellationToken);
+                    snapWindows = EnumerateSnapWindows(cancellationToken);
                 }
             }
 
@@ -159,40 +160,21 @@ namespace Greenshot.Pipeline.Steps
         }
 
         /// <summary>
-        /// The key of the Task with the windows to snap to in the context properties
+        /// Get the windows to snap to on the thread pool, while the screen is captured: the acquire step hands the task to the selector,
+        /// the selection takes it from there. They are the windows of the moment of the capture as before.
         /// </summary>
-        private const string SnapWindowsTaskKey = "InteractiveSelection.SnapWindowsTask";
-
-        /// <summary>
-        /// Get the windows to snap to on the thread pool, while the screen is captured: the selection takes them from the context.
-        /// They are the windows of the moment of the capture as before, the capture window is cloaked and ignored.
-        /// </summary>
-        /// <param name="context">CaptureFlowContext</param>
         /// <param name="cancellationToken">CancellationToken</param>
-        internal static void StartGetSnapWindows(CaptureFlowContext context, CancellationToken cancellationToken)
+        internal static Task<List<WindowDetails>> GetSnapWindowsAsync(CancellationToken cancellationToken)
         {
 #pragma warning disable RS0030 // R10: the Win32 window enumeration runs next to the capture
-            var task = Task.Run(() => GetSnapWindows(cancellationToken), cancellationToken);
+            var task = Task.Run(() => EnumerateSnapWindows(cancellationToken), cancellationToken);
 #pragma warning restore RS0030
             // Observed, also when no selection takes it
             _ = task.ContinueWith(t => Log.Debug("Getting the windows to snap to failed", t.Exception), CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
-            context.Properties[SnapWindowsTaskKey] = task;
+            return task;
         }
 
-        private static bool TryTakeSnapWindowsTask(CaptureFlowContext context, out Task<List<WindowDetails>> task)
-        {
-            task = null;
-            if (!context.Properties.TryGetValue(SnapWindowsTaskKey, out var value))
-            {
-                return false;
-            }
-            // Not handed on to forwarded recipes
-            context.Properties.Remove(SnapWindowsTaskKey);
-            task = value as Task<List<WindowDetails>>;
-            return task != null;
-        }
-
-        private static List<WindowDetails> GetSnapWindows(CancellationToken cancellationToken)
+        private static List<WindowDetails> EnumerateSnapWindows(CancellationToken cancellationToken)
         {
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
             int depth = CoreConfig.WindowCaptureAllChildLocations ? 20 : 3;

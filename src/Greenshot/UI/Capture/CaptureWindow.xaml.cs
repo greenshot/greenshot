@@ -37,8 +37,6 @@ using System.Windows.Threading;
 using Dapplo.Ini;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
-using Dapplo.Windows.DesktopWindowsManager;
-using Dapplo.Windows.DesktopWindowsManager.Enums;
 using Dapplo.Windows.Icons;
 using Dapplo.Windows.User32;
 using Greenshot.Base.Core;
@@ -140,15 +138,10 @@ namespace Greenshot.UI.Capture
         private int _zoomSize;
         private NativePoint _zoomOffset = new NativePoint(ZoomerPlacement.Distance, ZoomerPlacement.Distance);
         private double _dpiScale = 1;
-        // ShowCloaked: the window is shown before it has the capture, and without ShowDialog
-        private bool _cloakWhenCreated;
-        private bool _cloaked;
-        private bool _shownModeless;
+        // Prepare: the window and its handle are created before the capture, it is shown (without ShowDialog) when it has the capture
+        private bool _prepared;
         private bool? _modelessResult;
         private bool _handleCreated;
-        private int _framesWithCapture;
-        // See OnRenderingCapture
-        private const int FramesBeforeReveal = 2;
         private bool _closed;
         private AnimationClock _selectionClock;
 
@@ -394,7 +387,7 @@ namespace Greenshot.UI.Capture
         }
 
         /// <summary>
-        /// Create the window before the capture exists, see ShowCloaked and SetCapture: the window and its surface are built while the screen is captured
+        /// Create the window before the capture exists, see Prepare and SetCapture: the window is built while the screen is captured
         /// </summary>
         /// <param name="screenBounds">NativeRect with the bounds of the whole screen</param>
         public CaptureWindow(NativeRect screenBounds)
@@ -417,28 +410,19 @@ namespace Greenshot.UI.Capture
         }
 
         /// <summary>
-        /// True when the window was shown with ShowCloaked and DWM really keeps it off the screen
+        /// True when the window was prepared and can still get its capture
         /// </summary>
-        public bool IsCloaked => _cloaked;
+        public bool IsPrepared => _prepared && !_closed && _capture == null;
 
         /// <summary>
-        /// Show the window without a capture: DWM keeps a cloaked window off the screen, so it isn't in the capture which is taken meanwhile.
-        /// It doesn't take the focus either, that would close menus and tooltips before they are captured. Returns false when the window
-        /// can't be cloaked, it is closed then.
+        /// Create the window and its handle without showing it, SetCapture shows it. An invisible window is in no capture and takes no focus.
+        /// Showing it before it has the capture doesn't help: WPF doesn't render it earlier, and uncloaking a window which rendered without
+        /// the capture shows a black frame.
         /// </summary>
-        public bool ShowCloaked()
+        public void Prepare()
         {
-            _cloakWhenCreated = true;
-            ShowActivated = false;
+            _prepared = true;
             new WindowInteropHelper(this).EnsureHandle();
-            if (!_cloaked)
-            {
-                Close();
-                return false;
-            }
-            _shownModeless = true;
-            Show();
-            return true;
         }
 
         /// <summary>
@@ -453,7 +437,7 @@ namespace Greenshot.UI.Capture
                 throw new InvalidOperationException("The capture window already has a capture.");
             }
             _capture = capture ?? throw new ArgumentNullException(nameof(capture));
-            if (_shownModeless)
+            if (_prepared)
             {
                 Log.Debug($"Capture window got the capture {_openStopwatch.ElapsedMilliseconds} ms after it was created.");
                 _openStopwatch.Restart();
@@ -520,21 +504,20 @@ namespace Greenshot.UI.Capture
             {
                 Loaded += (sender, args) => Log.Debug($"Capture window laid out after {_openStopwatch.ElapsedMilliseconds} ms.");
             }
-            if (_shownModeless)
+            if (_prepared)
             {
-                // The window already showed (cloaked) frames without the capture: uncloaking it now would show one of those, a black flash
-                CompositionTarget.Rendering += OnRenderingCapture;
+                Show();
             }
             Log.Debug($"Capture window created in {_openStopwatch.ElapsedMilliseconds} ms.");
         }
 
         /// <summary>
-        /// For a window shown with ShowCloaked: wait, like ShowDialog, until the window closed
+        /// For a prepared window: wait, like ShowDialog, until the window closed
         /// </summary>
         /// <returns>true when something was selected</returns>
         public bool? WaitUntilClosed()
         {
-            if (!_shownModeless)
+            if (!_prepared)
             {
                 return ShowDialog();
             }
@@ -549,7 +532,7 @@ namespace Greenshot.UI.Capture
 
         private void Finish(bool selected)
         {
-            if (_shownModeless)
+            if (_prepared)
             {
                 _modelessResult = selected;
                 Close();
@@ -776,10 +759,6 @@ namespace Greenshot.UI.Capture
             // Make sure we never capture the capture window
             WindowDetails.RegisterIgnoreHandle(handle);
             HwndSource.FromHwnd(handle)?.AddHook(WndProc);
-            if (_cloakWhenCreated)
-            {
-                _cloaked = SetCloaked(handle, true);
-            }
             PlaceWindow();
 
             ApplyDpiScale(VisualTreeHelper.GetDpi(this));
@@ -800,17 +779,6 @@ namespace Greenshot.UI.Capture
             UpdateSelection();
             Redraw();
             ForEachOverlay(Redraw);
-        }
-
-        private static bool SetCloaked(IntPtr handle, bool cloaked)
-        {
-            uint value = cloaked ? 1u : 0u;
-            int result = (int)DwmApi.DwmSetWindowAttribute(handle, DwmWindowAttributes.Cloak, ref value, sizeof(uint));
-            if (result != 0)
-            {
-                Log.Debug($"Couldn't {(cloaked ? "cloak" : "uncloak")} the capture window, error {result}.");
-            }
-            return result == 0;
         }
 
         /// <summary>
@@ -862,44 +830,17 @@ namespace Greenshot.UI.Capture
 
         private void OnContentRendered(object sender, EventArgs e)
         {
-            if (_shownModeless)
-            {
-                // Revealed by OnRenderingCapture, ContentRendered can come after the capture was set but belong to a frame without it
-                Log.Debug($"Capture window rendered, cloaked, {_openStopwatch.ElapsedMilliseconds} ms after it was created.");
-                return;
-            }
             Reveal();
         }
 
         /// <summary>
-        /// A prepared window is revealed when the frames with the capture were rendered: Rendering is raised before a frame is rendered,
-        /// the frame of the first call has the capture, the render thread has it when the next frame starts.
-        /// </summary>
-        private void OnRenderingCapture(object sender, EventArgs e)
-        {
-            if (++_framesWithCapture < FramesBeforeReveal && !_closed)
-            {
-                return;
-            }
-            CompositionTarget.Rendering -= OnRenderingCapture;
-            // After this render pass, like ContentRendered
-            _ = Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(Reveal));
-        }
-
-        /// <summary>
-        /// The capture is rendered: uncloak, show and activate the window
+        /// The capture is rendered: activate the window
         /// </summary>
         private void Reveal()
         {
             if (_closed)
             {
                 return;
-            }
-            var handle = new WindowInteropHelper(this).Handle;
-            if (_cloaked)
-            {
-                SetCloaked(handle, false);
-                _cloaked = false;
             }
             Log.Debug($"Capture window shown {_openStopwatch.ElapsedMilliseconds} ms after it was created.");
             // Showing the window must not have changed the bounds, but make sure
@@ -912,7 +853,6 @@ namespace Greenshot.UI.Capture
         {
             Log.Debug("Closing capture window");
             _closed = true;
-            CompositionTarget.Rendering -= OnRenderingCapture;
             WindowDetails.UnregisterIgnoreHandle(new WindowInteropHelper(this).Handle);
             if (_capture != null)
             {

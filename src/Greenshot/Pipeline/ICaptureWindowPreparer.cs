@@ -19,16 +19,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Greenshot.Base.Core;
+
 namespace Greenshot.Pipeline
 {
     /// <summary>
-    /// An interactive selector which can open its window while the screen is captured, so the window is ready sooner
+    /// An interactive selector which can prepare its window, and keep the windows to snap to, while the screen is captured
     /// </summary>
     public interface ICaptureWindowPreparer
     {
         /// <summary>
         /// Called from the thread pool right before the screen is captured for an interactive selection. Doesn't wait for the window.
         /// </summary>
-        void PrepareWindow();
+        /// <param name="snapWindows">Task which gets the windows to snap to, next to the capture</param>
+        void PrepareWindow(Task<List<WindowDetails>> snapWindows);
+
+        /// <summary>
+        /// The windows to snap to of the last PrepareWindow, when that was recent. Each one is taken once.
+        /// </summary>
+        bool TryTakeSnapWindows(out Task<List<WindowDetails>> snapWindows);
     }
 }

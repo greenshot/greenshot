@@ -51,6 +51,10 @@ namespace Greenshot.Pipeline
         private CaptureWindow _openWindow;
         private CaptureWindow _preparedWindow;
         private DispatcherTimer _preparedWindowTimer;
+        // The windows to snap to of the last PrepareWindow, with the time it was called
+        private readonly object _snapWindowsLock = new object();
+        private Task<List<WindowDetails>> _snapWindows;
+        private DateTime _snapWindowsStarted;
 
         /// <param name="ui">Dispatcher for the UI thread, default is the registered one</param>
         public InteractiveCaptureSelector(IUiDispatcher ui = null)
@@ -71,8 +75,13 @@ namespace Greenshot.Pipeline
         }
 
         /// <inheritdoc />
-        public void PrepareWindow()
+        public void PrepareWindow(Task<List<WindowDetails>> snapWindows)
         {
+            lock (_snapWindowsLock)
+            {
+                _snapWindows = snapWindows;
+                _snapWindowsStarted = DateTime.UtcNow;
+            }
             if (IsSelecting)
             {
                 return;
@@ -81,8 +90,19 @@ namespace Greenshot.Pipeline
             Ui.InvokeAsync(() => CreatePreparedWindow(screenBounds)).FireAndLog("Prepare the capture window", Log);
         }
 
+        /// <inheritdoc />
+        public bool TryTakeSnapWindows(out Task<List<WindowDetails>> snapWindows)
+        {
+            lock (_snapWindowsLock)
+            {
+                snapWindows = DateTime.UtcNow - _snapWindowsStarted < PreparedWindowLifetime ? _snapWindows : null;
+                _snapWindows = null;
+            }
+            return snapWindows != null;
+        }
+
         /// <summary>
-        /// Runs on the UI thread: create the capture window and show it cloaked, the capture is set when the selection starts
+        /// Runs on the UI thread: create the capture window without showing it, it is shown when it gets the capture
         /// </summary>
         private void CreatePreparedWindow(NativeRect screenBounds)
         {
@@ -93,11 +113,7 @@ namespace Greenshot.Pipeline
 
             var captureWindow = new CaptureWindow(screenBounds);
             SetOwner(captureWindow);
-            if (!captureWindow.ShowCloaked())
-            {
-                Log.Debug("The capture window couldn't be shown cloaked, it is created after the capture.");
-                return;
-            }
+            captureWindow.Prepare();
             _preparedWindow = captureWindow;
             _preparedWindowTimer ??= new DispatcherTimer { Interval = PreparedWindowLifetime };
             _preparedWindowTimer.Tick -= OnPreparedWindowExpired;
@@ -124,7 +140,7 @@ namespace Greenshot.Pipeline
             _preparedWindowTimer?.Stop();
             var preparedWindow = _preparedWindow;
             _preparedWindow = null;
-            return preparedWindow is { IsCloaked: true, IsVisible: true } ? preparedWindow : null;
+            return preparedWindow is { IsPrepared: true } ? preparedWindow : null;
         }
 
         private static void SetOwner(CaptureWindow captureWindow)

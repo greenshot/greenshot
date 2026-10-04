@@ -231,8 +231,7 @@ namespace Greenshot.Pipeline.Steps
             if (_windowPreparer != null && sourceType is CaptureSourceType.Region or CaptureSourceType.Window or CaptureSourceType.TextOcr &&
                 !hasTargetWindowConfig && HasInteractiveSelection(context))
             {
-                _windowPreparer.PrepareWindow();
-                InteractiveSelectionStep.StartGetSnapWindows(context, cancellationToken);
+                _windowPreparer.PrepareWindow(InteractiveSelectionStep.GetSnapWindowsAsync(cancellationToken));
             }
 
             var acquired = await source.AcquireAsync(context, cancellationToken).ConfigureAwait(false);
