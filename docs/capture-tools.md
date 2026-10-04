@@ -2,8 +2,12 @@
 
 The interactive capture shows a frozen capture of the whole screen in the `CaptureWindow` (WPF, `src/Greenshot/UI/Capture`).
 What the user can do on it comes from **capture tools**: the region, window and text selections are each one tool class in
-`src/Greenshot/UI/Capture/Tools`. This document explains how to write another one, and what is possible and what is not,
-with a color picker as the example.
+`src/Greenshot/UI/Capture/Tools`. Plugins can add their own tools. This document explains how to write one, in Greenshot itself
+or in a plugin, and what is possible and what is not, with a color picker as the example.
+
+The interfaces are in `Greenshot.Base` (`src/Greenshot.Base/Interfaces/Capture`, namespace `Greenshot.Base.Interfaces.Capture`):
+`ICaptureTool` with its base class `CaptureTool`, `ICaptureToolHost` (what the window offers a tool) and `ICaptureToolProvider`
+(how a plugin adds tools).
 
 ## How it fits together
 
@@ -27,13 +31,36 @@ The window does everything the tools share and passes the input to the **active 
 
 ## Adding a tool, step by step
 
-1. Create a class in `src/Greenshot/UI/Capture/Tools` that derives from `CaptureTool`. It has empty implementations of everything,
+1. Create a class that derives from `CaptureTool`. It has empty implementations of everything,
    override only what you need. `Host` (the `ICaptureToolHost`) is set when the tool is activated.
-2. Give it a `Mode`, the `CaptureMode` the flow sees when your tool made the selection. It must be unique among the tools:
-   the window starts with the tool whose mode the recipe asked for, and Space switches by mode. For a new kind of selection
-   add a value at the end of `CaptureMode` (`src/Greenshot.Base/Interfaces/CaptureMode.cs`).
+2. Give it a `Mode`, the `CaptureMode` the flow sees when your tool made the selection (`FinalMode` of the selection result).
+   The window starts with the first tool whose mode the recipe asked for, so a tool with the mode of a built-in tool is never
+   the starting tool. In Greenshot itself a new kind of selection can get its own value at the end of `CaptureMode`
+   (`src/Greenshot.Base/Interfaces/CaptureMode.cs`); a plugin uses an existing value, e.g. `Region` when it accepts a rectangle.
 3. Optionally a `ShortcutKey`, which switches to the tool.
-4. Add one line to the `_tools` list at the top of `CaptureWindow.xaml.cs`. Wrap it in `#if !GREENSHOT_LIGHT` if the tool should not be in the Light edition.
+4. Make the window use it:
+   - **In Greenshot:** put the class in `src/Greenshot/UI/Capture/Tools` and add it to `CreateTools` in `CaptureWindow.xaml.cs`.
+     Wrap it in `#if !GREENSHOT_LIGHT` if the tool should not be in the Light edition.
+   - **In a plugin:** implement `ICaptureToolProvider` and register it in the plugin's `Initialize`, see below.
+
+### Tools from a plugin
+
+```csharp
+public class ColorPickerToolProvider : ICaptureToolProvider
+{
+    // Called every time a capture window opens: return new instances, a tool keeps its state for one window
+    public IEnumerable<ICaptureTool> CreateTools()
+    {
+        yield return new ColorPickerTool();
+    }
+}
+
+// In the plugin's Initialize, like the QR code plugin registers its hotspot transformer
+SimpleServiceProvider.Current.AddService<ICaptureToolProvider>(new ColorPickerToolProvider());
+```
+
+The tools of the plugins come after the built-in ones, in the order the plugins were loaded. A shortcut key which is already
+taken (by the window or an earlier tool) does not switch to the later tool. The Light edition loads no plugins, so it has no plugin tools.
 
 ### The life of a tool
 
@@ -71,11 +98,14 @@ The window does everything the tools share and passes the input to the **active 
 The color picker needs the pixel under the cursor, shows it next to the cursor, and copies it as `#RRGGBB` on a click.
 It keeps the zoomer, which already magnifies the pixels around the cursor and marks the one under it.
 
+As a tool in Greenshot:
+
 1. Add `ColorPicker` at the end of the `CaptureMode` enum.
 2. Add the class below.
-3. Add `new ColorPickerTool()` to `_tools` in `CaptureWindow`.
+3. Add `new ColorPickerTool()` in `CreateTools` of `CaptureWindow`.
 
-C now switches to the color picker, Space goes back to the region selection.
+C now switches to the color picker, Space goes back to the region selection. In a plugin, use the provider above, and as the plugin
+can't add to `CaptureMode`, return an existing one as `Mode`; the picker never accepts, so it doesn't matter which (e.g. `Region`).
 
 ```csharp
 using System.Globalization;
@@ -83,6 +113,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Capture;
 using CaptureMode = Greenshot.Base.Interfaces.CaptureMode;
 
 namespace Greenshot.UI.Capture.Tools
@@ -199,8 +230,8 @@ Points to note:
   A large static drawing which should not be redrawn on every move would need a second layer (a change in the window).
 - **One selection rectangle and one set of labels**, shared by all tools.
 - **The window's keys:** the arrow keys move the cursor (Ctrl for 10 pixels), Shift fixes a direction, Escape cancels, M toggles the
-  captured mouse cursor, Z the zoomer, F topmost, Space switches between region and window, and the shortcut keys of the tools switch
-  to them. A tool sees every key first and could take one of them, don't take Escape or the arrow keys.
+  captured mouse cursor, Z the zoomer, F topmost, Space switches from region to window and from every other tool back to region,
+  and the shortcut keys of the tools switch to them. A tool sees every key first and could take one of them, don't take Escape or the arrow keys.
 - **Hotspots come first:** a press on a hotspot (e.g. a QR code) opens its menu and never reaches the tool.
 - **The UI thread:** everything is called on the UI thread of the window. Don't block in a handler, run longer work as a task and
   call `Host.Redraw()` (on the UI thread) when it finished. Use `Host.ActiveTool == this` to check you are still active.
@@ -208,6 +239,7 @@ Points to note:
   pixel, also on high DPI screens, so give font sizes in pixels and use 1.0 as pixelsPerDip.
 - **Remote desktop:** the window shows no animations there (`OptimizeForRDP`, `DisableRDPOptimizing`). `ShowSelection` takes
   care of that, a tool should not add animations of its own, and keep redrawing to what changed.
-- **Not from plugins (yet):** the tool list is in `CaptureWindow`. Tools from plugins would need the list to come from the
-  service provider (`SimpleServiceProvider.Current.GetAllInstances<ICaptureTool>()`), which is a small change, but the
-  interfaces would then be public API.
+- **Plugin tools run inside the capture window:** an exception in a tool's handler is not caught per tool, so it breaks the
+  interactive capture. Errors in `ICaptureToolProvider.CreateTools` are logged and that provider's tools are skipped.
+- **Plugin API:** the interfaces in `Greenshot.Base.Interfaces.Capture` are now used by plugins, so changing them breaks plugins.
+  Add members to `CaptureTool` (with an empty implementation) rather than to `ICaptureTool` where possible.

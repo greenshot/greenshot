@@ -26,6 +26,7 @@ using System.Windows.Input;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Capture;
 using Greenshot.UI.Capture.Tools;
 using Xunit;
 using CaptureMode = Greenshot.Base.Interfaces.CaptureMode;

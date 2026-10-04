@@ -23,10 +23,9 @@ using System;
 using System.Collections.Generic;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
-using Greenshot.Base.Interfaces;
 using Color = System.Windows.Media.Color;
 
-namespace Greenshot.UI.Capture.Tools
+namespace Greenshot.Base.Interfaces.Capture
 {
     /// <summary>
     /// What the CaptureWindow offers its tools: the frozen capture, the cursor, the selection with its labels, and the result.

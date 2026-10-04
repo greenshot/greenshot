@@ -23,6 +23,7 @@ using System.Windows.Input;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Capture;
 using CaptureMode = Greenshot.Base.Interfaces.CaptureMode;
 
 namespace Greenshot.UI.Capture.Tools

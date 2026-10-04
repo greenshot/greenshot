@@ -21,10 +21,9 @@
 
 using System.Windows.Input;
 using System.Windows.Media;
-using Greenshot.Base.Interfaces;
 using CaptureMode = Greenshot.Base.Interfaces.CaptureMode;
 
-namespace Greenshot.UI.Capture.Tools
+namespace Greenshot.Base.Interfaces.Capture
 {
     /// <summary>
     /// A way to select something on the frozen capture, e.g. a region, a window or text.

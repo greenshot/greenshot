@@ -40,6 +40,7 @@ using Dapplo.Windows.Icons;
 using Dapplo.Windows.User32;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Capture;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Threading;
 using Greenshot.UI.Capture.Tools;
@@ -82,13 +83,10 @@ namespace Greenshot.UI.Capture
         private readonly Typeface _labelTypeface;
         private readonly Typeface _boldLabelTypeface;
 
-        // The available tools, a new tool only needs to be added here
-        private readonly IList<ICaptureTool> _tools = new List<ICaptureTool>
-        {
-            new RegionCaptureTool(),
-            new WindowCaptureTool(),
-            new TextCaptureTool()
-        };
+        // The built-in tools first, the region tool is the default, then the tools of the plugins
+        private readonly RegionCaptureTool _regionTool = new RegionCaptureTool();
+        private readonly WindowCaptureTool _windowTool = new WindowCaptureTool();
+        private readonly IList<ICaptureTool> _tools;
 
         private ICaptureTool _activeTool;
         private CaptureMode _usedCaptureMode;
@@ -165,6 +163,7 @@ namespace Greenshot.UI.Capture
         {
             _capture = capture ?? throw new ArgumentNullException(nameof(capture));
             _screenBounds = capture.ScreenBounds;
+            _tools = CreateTools();
             var initialMode = capture.CaptureDetails.CaptureMode;
             _activeTool = _tools.FirstOrDefault(tool => tool.Mode == initialMode) ?? _tools[0];
             _usedCaptureMode = _activeTool.Mode;
@@ -237,6 +236,26 @@ namespace Greenshot.UI.Capture
             _acceptedWindow = window;
             _usedCaptureMode = _activeTool.Mode;
             DialogResult = true;
+        }
+
+        /// <summary>
+        /// The built-in tools and those of the registered ICaptureToolProviders (plugins)
+        /// </summary>
+        private IList<ICaptureTool> CreateTools()
+        {
+            var tools = new List<ICaptureTool> { _regionTool, _windowTool, new TextCaptureTool() };
+            foreach (var provider in SimpleServiceProvider.Current.GetAllInstances<ICaptureToolProvider>())
+            {
+                try
+                {
+                    tools.AddRange(provider.CreateTools()?.Where(tool => tool != null) ?? Enumerable.Empty<ICaptureTool>());
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"Error creating the capture tools of {provider.GetType().FullName}", ex);
+                }
+            }
+            return tools;
         }
 
         /// <summary>
@@ -452,9 +471,8 @@ namespace Greenshot.UI.Capture
                     }
                     break;
                 case Key.Space:
-                    // Region to window, everything else back to region
-                    var nextMode = _activeTool.Mode == CaptureMode.Region ? CaptureMode.Window : CaptureMode.Region;
-                    SwitchTool(_tools.FirstOrDefault(tool => tool.Mode == nextMode));
+                    // Region to window, every other tool back to region
+                    SwitchTool(_activeTool == _regionTool ? _windowTool : _regionTool);
                     break;
                 case Key.F:
                     Topmost = !Topmost;
