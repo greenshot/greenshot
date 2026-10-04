@@ -72,6 +72,17 @@ namespace Greenshot.Base.Interfaces.Capture
         void ShowPanel(object owner, Size contentSize, Action<DrawingContext> drawContent);
 
         /// <summary>
+        /// Show a panel with WPF content, e.g. a UserControl or a ContentControl with a DataTemplate and a view model as DataContext,
+        /// whose bindings keep it up to date. Placed, moved and styled like the drawn panels; when the content changes its size
+        /// (e.g. a longer text) the panel is placed again. The content can use the theme with {DynamicResource} and the keys of
+        /// CaptureToolStyle, and plain TextBlocks get Greenshot's font and foreground. Sizes in the content are device independent units,
+        /// as everywhere in WPF. Only the panel is laid out, not the window. Panels don't take mouse input.
+        /// </summary>
+        /// <param name="owner">The tool or overlay, one panel per owner</param>
+        /// <param name="content">The content, shown inside the padding of the panel</param>
+        void ShowPanel(object owner, FrameworkElement content);
+
+        /// <summary>
         /// Hide the owner's panel, it fades out
         /// </summary>
         void HidePanel(object owner);

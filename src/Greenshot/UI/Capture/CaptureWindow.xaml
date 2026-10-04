@@ -121,7 +121,8 @@
         <capture:DrawingLayer x:Name="CoordinatesLabel" />
 
         <!-- Panels of tools and overlays, each a DrawingLayer moved by its transform -->
-        <Canvas x:Name="PanelHost" IsHitTestVisible="False" />
+        <!-- Anti-aliased, unlike the pixel exact selection: the panels have rounded corners -->
+        <Canvas x:Name="PanelHost" IsHitTestVisible="False" RenderOptions.EdgeMode="Unspecified" />
 
         <!-- The zoomer: drawn with its top left corner at 0,0, moved next to the cursor and scaled out of it -->
         <Canvas x:Name="Zoomer" IsHitTestVisible="False" RenderOptions.BitmapScalingMode="NearestNeighbor">

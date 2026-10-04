@@ -98,6 +98,7 @@ taken (by the window or an earlier tool) does not switch to the later tool. The 
 | `GetPixelColor(point)` | The color of a pixel of the frozen capture (a 1x1 copy, cheap enough for every mouse move). |
 | `GetMonitorBounds()` | The monitor under the cursor, in capture pixels. |
 | `ShowPanel(owner, contentSize, drawContent)`, `HidePanel(owner)` | A panel in Greenshot's style in a free corner, moved (animated) out of the way, see Positioning. |
+| `ShowPanel(owner, content)` | The same panel with WPF content (a `UserControl`, bindings, a view model), see WPF content and binding. |
 | `ToolStyle` | Greenshot's look: theme colors, font, text, panels and key caps, see Look and feel. |
 | `Windows`, `FindWindowUnderCursor(children)` | The visible windows in z-order, the (child) window under the cursor. |
 | `ShowSelection(rect, animate, completed)`, `HideSelection()`, `IsSelectionVisible`, `IsSelectionAnimating` | The one selection rectangle. Animated with the window selection animation of the XAML; jumps in a remote desktop session. |
@@ -134,7 +135,8 @@ where things go. Two ways:
 
 - **Next to the cursor**, like the color picker swatch below: use `Host.CursorPosition`. Keep it small and near the cursor; the zoomer
   is at one of the cursor's corners (mostly bottom right), so the opposite corner is usually free.
-- **A panel in a corner**, like a help text: `Host.ShowPanel(this, contentSize, dc => ...)`. The window does the rest:
+- **A panel in a corner**, like a help text: `Host.ShowPanel(this, contentSize, dc => ...)` with drawn content, or
+  `Host.ShowPanel(this, content)` with WPF content (see below). The window does the rest:
   - It draws the panel in Greenshot's style (`ToolStyle.DrawPanel`: theme colors, rounded corners, padding) with your content on it.
   - It places it in the corner of the monitor under the cursor which is farthest from the cursor and doesn't cover the selection,
     the zoomer or other panels, at least `PanelPlacement.CursorClearance` (40 pixels) from the cursor and `PanelPlacement.Margin`
@@ -145,7 +147,8 @@ where things go. Two ways:
   - The place is reserved: the zoomer and the other panels avoid it.
   - In a remote desktop session the panel jumps and appears without fading.
 
-  Call `ShowPanel` again only when the content changes, not for every move.
+  With drawn content, call `ShowPanel` again only when the content changes, not for every move. With WPF content, change the
+  view model; the panel follows its size.
 
 `ScreenBounds` is the whole virtual screen, which can have gaps between monitors; use `GetMonitorBounds()` for "a corner of the screen".
 
@@ -250,6 +253,165 @@ namespace Greenshot.Plugin.Help
 
 This example was compiled against the current code, but not run.
 
+### WPF content and binding
+
+A panel can also show WPF content: `Host.ShowPanel(this, content)` with any `FrameworkElement`, usually a `UserControl` whose
+`DataContext` is a view model. The overlay only updates the view model, the bindings update the text, and the window keeps the
+panel in a free corner as above. What the window does with the content:
+
+- It puts it in a `Border` in Greenshot's style (`ToolStyle.CreatePanel`): theme background and border, rounded corners, padding,
+  and Greenshot's font, size and foreground inherited by the content.
+- The theme brushes are resources of that border, use them with `{DynamicResource CaptureTool.MutedForeground}` etc., see Look and feel.
+- The content is in device independent units like any other XAML, the border scales it for the monitor.
+- When the content changes size (a longer text), the panel is measured again and re-placed; only the panel is laid out, not the capture.
+- Panels take no mouse input (`IsHitTestVisible` is false), clicks go to the active tool.
+- Calling `ShowPanel` again with the same content does nothing; with other content it replaces the panel. `HidePanel(this)` fades it out.
+
+Example: the cursor position and the color under it.
+
+`CoordinatesPanel.xaml`:
+
+```xml
+<UserControl x:Class="Greenshot.Plugin.Coordinates.CoordinatesPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Font, size and foreground come from the panel, the other theme brushes are resources of it -->
+    <StackPanel>
+        <TextBlock Text="Cursor" FontWeight="SemiBold" Margin="0,0,0,4" />
+        <TextBlock Foreground="{DynamicResource CaptureTool.MutedForeground}">
+            <Run Text="{Binding X, Mode=OneWay}" /><Run Text=" x " /><Run Text="{Binding Y, Mode=OneWay}" />
+        </TextBlock>
+        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+            <Border Width="14" Height="14" CornerRadius="2" BorderThickness="1" Margin="0,0,6,0"
+                    BorderBrush="{DynamicResource CaptureTool.PanelBorder}" Background="{Binding ColorBrush}" />
+            <TextBlock Text="{Binding ColorText}" Foreground="{DynamicResource CaptureTool.MutedForeground}" />
+        </StackPanel>
+    </StackPanel>
+</UserControl>
+```
+
+`CoordinatesPanel.xaml.cs`:
+
+```csharp
+using System.Windows.Controls;
+
+namespace Greenshot.Plugin.Coordinates
+{
+    public partial class CoordinatesPanel : UserControl
+    {
+        public CoordinatesPanel()
+        {
+            InitializeComponent();
+        }
+    }
+}
+```
+
+`CoordinatesOverlay.cs`:
+
+```csharp
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Windows.Media;
+using Greenshot.Base.Interfaces.Capture;
+
+namespace Greenshot.Plugin.Coordinates
+{
+    /// <summary>
+    /// What the panel shows, the bindings of CoordinatesPanel.xaml update it
+    /// </summary>
+    public class CoordinatesViewModel : INotifyPropertyChanged
+    {
+        private int _x;
+        private int _y;
+        private Color _color;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public int X
+        {
+            get => _x;
+            set => Set(ref _x, value);
+        }
+
+        public int Y
+        {
+            get => _y;
+            set => Set(ref _y, value);
+        }
+
+        public Color Color
+        {
+            get => _color;
+            set
+            {
+                if (Set(ref _color, value))
+                {
+                    OnPropertyChanged(nameof(ColorBrush));
+                    OnPropertyChanged(nameof(ColorText));
+                }
+            }
+        }
+
+        public Brush ColorBrush => new SolidColorBrush(_color);
+
+        public string ColorText => $"#{_color.R:X2}{_color.G:X2}{_color.B:X2}";
+
+        private bool Set<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value))
+            {
+                return false;
+            }
+            field = value;
+            OnPropertyChanged(propertyName);
+            return true;
+        }
+
+        private void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    /// <summary>
+    /// Shows the cursor position and the color under it on a panel, which the capture window keeps in a free corner
+    /// </summary>
+    public class CoordinatesOverlay : CaptureOverlay
+    {
+        private readonly CoordinatesViewModel _viewModel = new CoordinatesViewModel();
+
+        public override void Attach(ICaptureToolHost host)
+        {
+            base.Attach(host);
+            OnMouseMove();
+            Host.ShowPanel(this, new CoordinatesPanel { DataContext = _viewModel });
+        }
+
+        public override void OnMouseMove()
+        {
+            // Only the view model: the bindings update the text, the window moves the panel when needed
+            var cursor = Host.CursorPosition;
+            _viewModel.X = cursor.X;
+            _viewModel.Y = cursor.Y;
+            _viewModel.Color = Host.GetPixelColor(cursor);
+        }
+    }
+
+    /// <summary>
+    /// Registered in the plugin's Initialize
+    /// </summary>
+    public class CoordinatesOverlayProvider : ICaptureOverlayProvider
+    {
+        public IEnumerable<ICaptureOverlay> CreateOverlays()
+        {
+            yield return new CoordinatesOverlay();
+        }
+    }
+}
+```
+
+Updating three properties on every mouse move is cheap: a binding update only re-renders the text blocks, and the window moves the
+panel only when the cursor comes close. This example was compiled against the current code, but not run.
+
 ## Look and feel
 
 `Host.ToolStyle` (`CaptureToolStyle`) gives tools and overlays the look of Greenshot's WPF UI, if they want it:
@@ -261,6 +423,8 @@ This example was compiled against the current code, but not run.
 | `FontFamily`, `CreateText(text, points, brush, bold)` | Greenshot's UI font (Segoe UI); the size in points is scaled to pixels for the monitor. |
 | `Scale(units)` | Converts a size in device independent units (as in XAML) to pixels, for margins and gaps. |
 | `PanelPadding`, `PanelCornerRadius`, `DrawPanel(dc, rect)` | The panel as `ShowPanel` draws it, also for your own drawings (e.g. a small label). |
+| `CreatePanel(content)` | The `Border` which `ShowPanel(owner, content)` puts around WPF content. |
+| `PanelBackgroundKey`, `PanelBorderKey`, `ForegroundKey`, `MutedForegroundKey`, `AccentKey`, `KeyCapBackgroundKey`, `KeyCapBorderKey` | The resource keys (`CaptureTool.PanelBackground` etc.) of the brushes in WPF panel content, for `DynamicResource`. |
 | `MeasureKeyCap(key)`, `DrawKeyCap(dc, key, point)` | A key cap like `KeyCapBadge` in the settings. |
 
 The capture-specific brushes (selection, rulers, OCR highlight, hotspots) are resources of `CaptureWindow.xaml`, available with

@@ -108,11 +108,19 @@ namespace Greenshot.UI.Capture
         /// </summary>
         private sealed class Panel
         {
-            public DrawingLayer Layer { get; } = new DrawingLayer();
+            public Panel(UIElement element)
+            {
+                Element = element;
+                Element.RenderTransform = Position;
+            }
+
+            /// <summary>
+            /// A DrawingLayer for drawn content, a Border around WPF content
+            /// </summary>
+            public UIElement Element { get; }
             public TranslateTransform Position { get; } = new TranslateTransform();
             public NativeSize Size { get; set; }
             public NativeRect Bounds { get; set; } = NativeRect.Empty;
-            public Action<DrawingContext> DrawContent { get; set; }
         }
         private NativePoint _cursorPos;
         private NativePoint _previousMousePos;
@@ -168,19 +176,15 @@ namespace Greenshot.UI.Capture
             {
                 throw new ArgumentNullException(nameof(owner));
             }
-            bool isNew = !_panels.TryGetValue(owner, out var panel);
+            bool isNew = !(_panels.TryGetValue(owner, out var panel) && panel.Element is DrawingLayer);
             if (isNew)
             {
-                panel = new Panel();
-                panel.Layer.RenderTransform = panel.Position;
-                PanelHost.Children.Add(panel.Layer);
-                _panels[owner] = panel;
+                panel = AddPanel(owner, new DrawingLayer());
             }
 
             double padding = ToolStyle.PanelPadding;
             panel.Size = new NativeSize((int)Math.Ceiling(contentSize.Width + 2 * padding), (int)Math.Ceiling(contentSize.Height + 2 * padding));
-            panel.DrawContent = drawContent;
-            using (var dc = panel.Layer.Open())
+            using (var dc = ((DrawingLayer)panel.Element).Open())
             {
                 ToolStyle.DrawPanel(dc, new Rect(0, 0, panel.Size.Width, panel.Size.Height));
                 dc.PushTransform(new TranslateTransform(padding, padding));
@@ -190,10 +194,70 @@ namespace Greenshot.UI.Capture
 
             // A new panel appears where it belongs, a changed one may need another place
             PlacePanel(owner, panel, !isNew);
-            if (isNew)
+        }
+
+        /// <inheritdoc />
+        public void ShowPanel(object owner, FrameworkElement content)
+        {
+            if (owner == null)
             {
-                Fade(panel.Layer, 0, 1, null);
+                throw new ArgumentNullException(nameof(owner));
             }
+            if (content == null)
+            {
+                throw new ArgumentNullException(nameof(content));
+            }
+            if (_panels.TryGetValue(owner, out var existing) && existing.Element is Border existingBorder && existingBorder.Child == content)
+            {
+                // The same content: its bindings update it, only the size may have changed
+                UpdatePanelSize(owner, existing);
+                return;
+            }
+
+            var border = ToolStyle.CreatePanel(content);
+            var panel = AddPanel(owner, border);
+            // Bound values which change the size of the content (e.g. longer text) move the panel when needed
+            border.SizeChanged += (sender, args) =>
+            {
+                if (_panels.TryGetValue(owner, out var current) && current == panel)
+                {
+                    UpdatePanelSize(owner, panel);
+                }
+            };
+            UpdatePanelSize(owner, panel);
+        }
+
+        /// <summary>
+        /// Measure the WPF content of a panel, which only lays out the panel itself, and place it for that size
+        /// </summary>
+        private void UpdatePanelSize(object owner, Panel panel)
+        {
+            panel.Element.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+            var desired = panel.Element.DesiredSize;
+            var size = new NativeSize((int)Math.Ceiling(desired.Width), (int)Math.Ceiling(desired.Height));
+            bool isFirst = panel.Bounds.IsEmpty;
+            if (!isFirst && size.Equals(panel.Size))
+            {
+                return;
+            }
+            panel.Size = size;
+            PlacePanel(owner, panel, !isFirst);
+        }
+
+        /// <summary>
+        /// A new panel (replacing an older one of the owner), fading in
+        /// </summary>
+        private Panel AddPanel(object owner, UIElement element)
+        {
+            if (_panels.TryGetValue(owner, out var old))
+            {
+                PanelHost.Children.Remove(old.Element);
+            }
+            var panel = new Panel(element);
+            PanelHost.Children.Add(element);
+            _panels[owner] = panel;
+            Fade(element, 0, 1, null);
+            return panel;
         }
 
         /// <inheritdoc />
@@ -205,7 +269,7 @@ namespace Greenshot.UI.Capture
             }
             // Released right away, the zoomer and the other panels may go there
             _panels.Remove(owner);
-            Fade(panel.Layer, panel.Layer.Opacity, 0, () => PanelHost.Children.Remove(panel.Layer));
+            Fade(panel.Element, panel.Element.Opacity, 0, () => PanelHost.Children.Remove(panel.Element));
         }
 
         /// <summary>

@@ -66,6 +66,7 @@ public class RegionCaptureToolTests
         public void ClearLabels() => LabelSize = NativeSize.Empty;
         public NativeRect GetMonitorBounds() => ScreenBounds;
         public void ShowPanel(object owner, System.Windows.Size contentSize, Action<System.Windows.Media.DrawingContext> drawContent) { }
+        public void ShowPanel(object owner, System.Windows.FrameworkElement content) { }
         public void HidePanel(object owner) { }
         public CaptureToolStyle ToolStyle => null;
         public void Redraw() { }

@@ -22,6 +22,8 @@
 using System;
 using System.Globalization;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Media;
 using Greenshot.Base.Wpf;
 
@@ -59,6 +61,17 @@ namespace Greenshot.Base.Interfaces.Capture
             _panelBorder = Frozen(new Pen(PanelBorder, 1));
             _keyCapBorder = Frozen(new Pen(KeyCapBorder, 1));
         }
+
+        /// <summary>
+        /// Resource keys of the theme brushes for WPF content of panels, e.g. Foreground="{DynamicResource CaptureTool.Accent}"
+        /// </summary>
+        public const string PanelBackgroundKey = "CaptureTool.PanelBackground";
+        public const string PanelBorderKey = "CaptureTool.PanelBorder";
+        public const string ForegroundKey = "CaptureTool.Foreground";
+        public const string MutedForegroundKey = "CaptureTool.MutedForeground";
+        public const string AccentKey = "CaptureTool.Accent";
+        public const string KeyCapBackgroundKey = "CaptureTool.KeyCapBackground";
+        public const string KeyCapBorderKey = "CaptureTool.KeyCapBorder";
 
         /// <summary>
         /// True when Greenshot uses the dark theme
@@ -114,6 +127,40 @@ namespace Greenshot.Base.Interfaces.Capture
             // Half a pixel in, so the one pixel border is sharp
             var rect = new Rect(bounds.X + 0.5, bounds.Y + 0.5, bounds.Width - 1, bounds.Height - 1);
             drawingContext.DrawRoundedRectangle(PanelBackground, _panelBorder, rect, PanelCornerRadius, PanelCornerRadius);
+        }
+
+        /// <summary>
+        /// The panel around WPF content, as the capture window shows it for ICaptureToolHost.ShowPanel(owner, content):
+        /// the theme brushes as resources, Greenshot's font and foreground for the content, and a scale so the content
+        /// is in device independent units in the capture window (where one unit is one pixel).
+        /// </summary>
+        public Border CreatePanel(FrameworkElement content)
+        {
+            var border = new Border
+            {
+                Background = PanelBackground,
+                BorderBrush = PanelBorder,
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(6),
+                Padding = new Thickness(10),
+                Child = content,
+                IsHitTestVisible = false,
+                LayoutTransform = new ScaleTransform(_dpiScale, _dpiScale),
+                SnapsToDevicePixels = true
+            };
+            border.Resources[PanelBackgroundKey] = PanelBackground;
+            border.Resources[PanelBorderKey] = PanelBorder;
+            border.Resources[ForegroundKey] = Foreground;
+            border.Resources[MutedForegroundKey] = MutedForeground;
+            border.Resources[AccentKey] = Accent;
+            border.Resources[KeyCapBackgroundKey] = KeyCapBackground;
+            border.Resources[KeyCapBorderKey] = KeyCapBorder;
+            TextElement.SetForeground(border, Foreground);
+            TextElement.SetFontFamily(border, FontFamily);
+            TextElement.SetFontSize(border, 12);
+            // The capture window renders text for pixels, the content gets the normal WPF text rendering back
+            TextOptions.SetTextFormattingMode(border, TextFormattingMode.Ideal);
+            return border;
         }
 
         /// <summary>
