@@ -232,6 +232,7 @@ namespace Greenshot.Pipeline.Steps
                 !hasTargetWindowConfig && HasInteractiveSelection(context))
             {
                 _windowPreparer.PrepareWindow();
+                InteractiveSelectionStep.StartGetSnapWindows(context, cancellationToken);
             }
 
             var acquired = await source.AcquireAsync(context, cancellationToken).ConfigureAwait(false);
