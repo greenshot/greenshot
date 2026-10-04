@@ -1,4 +1,4 @@
-<!--
+﻿<!--
     The interactive selection of a region, a window or text on the frozen capture of the screen.
 
     Why this is smooth in WPF: the window is opaque (no AllowsTransparency, so WPF renders it with DirectX instead of a
@@ -51,7 +51,7 @@
         <!-- The animations, the ones with a target which is only known at runtime get their To value in code -->
         <QuinticEase x:Key="SelectionEase" EasingMode="EaseOut" />
         <Duration x:Key="WindowSelectionDuration">0:0:0.7</Duration>
-        <Duration x:Key="ZoomerDuration">0:0:1</Duration>
+        <Duration x:Key="ZoomerDuration">0:0:0.5</Duration>
 
         <!-- The selection moves from the cursor to the window under it, and from window to window -->
         <RectAnimation x:Key="WindowSelectionAnimation" Duration="{StaticResource WindowSelectionDuration}" EasingFunction="{StaticResource SelectionEase}" />
