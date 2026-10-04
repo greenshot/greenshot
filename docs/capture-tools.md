@@ -102,7 +102,7 @@ The tools of the plugins come after the built-in ones, in the order the plugins 
 | `ShowPanel(owner, content)` | The same panel with WPF content (a `UserControl`, bindings, a view model), see WPF content and binding. |
 | `ToolStyle` | Greenshot's look: theme colors, font, text, panels and key caps, see Look and feel. |
 | `Windows`, `FindWindowUnderCursor(children)` | The visible windows in z-order, the (child) window under the cursor. |
-| `ShowSelection(rect, animate, completed)`, `HideSelection()`, `IsSelectionVisible`, `IsSelectionAnimating` | The one selection rectangle. Animated with the window selection animation of the XAML; jumps in a remote desktop session. |
+| `ShowSelection(rect, animate, completed)`, `HideSelection()`, `IsSelectionVisible`, `IsSelectionAnimating`, `Selection`, `SelectionSize` | The one selection rectangle (`Selection` is where it is or goes, `SelectionSize` the size the labels show). Animated with the window selection animation of the XAML; jumps in a remote desktop session. |
 | `ShowLabels(rect, size, fadeIn, debugText)`, `ClearLabels()` | The size rulers at the sides of a rectangle and the size in its middle. |
 | `Redraw()`, `Redraw(overlay)` | Redraw the layer of the active tool, or of an overlay (calls its `Draw`). |
 | `FindResource(key)` | The brushes and other resources of `CaptureWindow.xaml`, e.g. `RulerBackgroundBrush`, `OcrHighlightBrush`. |
@@ -117,7 +117,8 @@ The tools of the plugins come after the built-in ones, in the order the plugins 
 2. Make the window use it:
    - **In a plugin:** implement `ICaptureOverlayProvider`, which returns new instances for every window that opens, and register it
      in the plugin's `Initialize` with `SimpleServiceProvider.Current.AddService<ICaptureOverlayProvider>(...)`.
-   - **In Greenshot:** add it to `CreateOverlays` in `CaptureWindow.xaml.cs`, like the built-in `HelpOverlay`.
+   - **In Greenshot:** add it to `CreateOverlays` in `CaptureWindow.xaml.cs`, like the built-in `HelpOverlay` (F1, a drawn panel)
+     and `InfoOverlay` (I, a WPF panel bound to a view model: screen resolution, selection, window under the mouse, mouse position).
 
 | Call | When |
 |---|---|
@@ -155,8 +156,8 @@ public override void Attach(ICaptureToolHost host)
   that key. A key registered with `RegisterToolKey` is only active while its tool is; it conflicts with the always active keys and
   the other keys of the same tool, but two tools can use the same key (the region and window tools both use Enter).
   Ctrl+C and C are different keys.
-- **Who wins:** the window registers first, then the built-in tools, then the plugin tools, then the built-in help overlay, then
-  the plugin overlays. So a plugin can never take a built-in key. If you don't want the exception, look in `Host.KeyBindings` first.
+- **Who wins:** the window registers first, then the built-in tools, then the plugin tools, then the built-in help and info
+  overlays, then the plugin overlays. So a plugin can never take a built-in key. If you don't want the exception, look in `Host.KeyBindings` first.
   An exception in a plugin's `Attach` is logged; the tool or overlay keeps the keys it registered before.
 - **Not allowed:** Ctrl, Alt or Windows alone (an `ArgumentException`): they only work together with another key.
 - **Shift:** the window uses Shift (held) to keep the selection to one direction. When Shift is held and nothing is registered
@@ -179,6 +180,7 @@ The keys of the window and the built-in tools:
 | Enter | Region and text tool | Start or finish the selection |
 | Enter, D | Window tool | Capture the window, window details |
 | F1 | Help overlay | Show or hide the keys |
+| I | Info overlay | Show or hide the info (screen, selection, window, mouse) |
 
 ### Example: the help overlay
 
@@ -186,8 +188,8 @@ The help is a built-in overlay (`src/Greenshot/UI/Capture/Tools/HelpOverlay.cs`)
 the keys of the active tool first, as key caps like the hotkey settings show them. Keys with the same description share a row
 (the four arrow keys, left and right Shift). Because it reads `Host.KeyBindings`, keys of plugin tools and overlays are in it too,
 and the descriptions are read when the panel is shown, in the current language. When the tool changes, the panel is shown again
-with the keys of the new tool. Whether it is shown is remembered in the configuration (`CaptureHelpVisible` in `greenshot.ini`),
-so after F1 it comes back with every capture until F1 is pressed again.
+with the keys of the new tool. Whether it is shown is remembered in the configuration (`CaptureHelpVisible` in `greenshot.ini`, on by default),
+so it comes back with every capture until F1 hides it. The info overlay does the same with `CaptureInfoVisible`.
 
 ```csharp
 using System;
@@ -361,7 +363,8 @@ The help overlay (see Keys) is an example of a panel: it is drawn with key caps 
 
 A panel can also show WPF content: `Host.ShowPanel(this, content)` with any `FrameworkElement`, usually a `UserControl` whose
 `DataContext` is a view model. The overlay only updates the view model, the bindings update the text, and the window keeps the
-panel in a free corner as above. What the window does with the content:
+panel in a free corner as above. The built-in info overlay (`src/Greenshot/UI/Capture/Tools/InfoOverlay.cs` and `InfoPanel.xaml`)
+works this way. What the window does with the content:
 
 - It puts it in a `Border` in Greenshot's style (`ToolStyle.CreatePanel`): theme background and border, rounded corners, padding,
   and Greenshot's font, size and foreground inherited by the content.

@@ -50,6 +50,7 @@ public class RegionCaptureToolTests
         public bool IsSelectionAnimating => false;
         public NativeRect Selection { get; private set; }
         public NativeSize LabelSize { get; private set; }
+        public NativeSize SelectionSize => LabelSize;
         public NativeRect? Accepted { get; private set; }
 
         public WindowDetails FindWindowUnderCursor(bool includeChildren) => null;

@@ -215,6 +215,11 @@ namespace Greenshot.UI.Capture
                 return;
             }
 
+            // Shown again after HidePanel: the old panel may still be fading out with the content in it
+            if (content.Parent is Decorator oldPanel)
+            {
+                oldPanel.Child = null;
+            }
             var border = ToolStyle.CreatePanel(content);
             var panel = AddPanel(owner, border);
             // Bound values which change the size of the content (e.g. longer text) move the panel when needed
@@ -586,6 +591,7 @@ namespace Greenshot.UI.Capture
             }
 
             Add(new HelpOverlay());
+            Add(new InfoOverlay());
             foreach (var provider in SimpleServiceProvider.Current.GetAllInstances<ICaptureOverlayProvider>())
             {
                 try
@@ -980,7 +986,17 @@ namespace Greenshot.UI.Capture
         public bool IsSelectionAnimating => _selectionClock != null;
 
         /// <inheritdoc />
-        public void ClearLabels() => LabelLayer.Clear();
+        public NativeRect Selection => IsSelectionVisible ? _selectionRect : NativeRect.Empty;
+
+        /// <inheritdoc />
+        public NativeSize SelectionSize { get; private set; } = NativeSize.Empty;
+
+        /// <inheritdoc />
+        public void ClearLabels()
+        {
+            SelectionSize = NativeSize.Empty;
+            LabelLayer.Clear();
+        }
 
         /// <inheritdoc />
         public void Redraw()
@@ -1041,9 +1057,10 @@ namespace Greenshot.UI.Capture
         {
             if (rect.IsEmpty)
             {
-                LabelLayer.Clear();
+                ClearLabels();
                 return;
             }
+            SelectionSize = size;
 
             int width = size.Width;
             int height = size.Height;

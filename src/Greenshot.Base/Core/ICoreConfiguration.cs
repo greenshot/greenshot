@@ -306,8 +306,12 @@ namespace Greenshot.Base.Core
         bool ZoomerEnabled { get; set; }
 
         [Description("Sets if the keys are shown (help panel) in the interactive capture, F1 shows or hides them")]
-        [DefaultValue(false)]
+        [DefaultValue(true)]
         bool CaptureHelpVisible { get; set; }
+
+        [Description("Sets if the info panel (screen, selection, window and mouse position) is shown in the interactive capture, I shows or hides it")]
+        [DefaultValue(true)]
+        bool CaptureInfoVisible { get; set; }
 
         [Description("Specify the transparency for the zoomer, from 0-1 (where 1 is no transparency and 0 is complete transparent. An useful setting would be 0.7)")]
         [DefaultValue(1)]

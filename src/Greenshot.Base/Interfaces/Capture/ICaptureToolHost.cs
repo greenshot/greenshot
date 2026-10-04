@@ -166,6 +166,16 @@ namespace Greenshot.Base.Interfaces.Capture
         bool IsSelectionAnimating { get; }
 
         /// <summary>
+        /// Where the selection rectangle is (the end of an animation), empty when it is not shown
+        /// </summary>
+        NativeRect Selection { get; }
+
+        /// <summary>
+        /// The size which the labels show, empty without labels. It can differ from Selection: the region tool includes the pixel under the cursor.
+        /// </summary>
+        NativeSize SelectionSize { get; }
+
+        /// <summary>
         /// Show the rulers and the size of a selection
         /// </summary>
         /// <param name="rect">The rectangle the rulers are drawn at</param>

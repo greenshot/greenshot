@@ -305,6 +305,46 @@ namespace Greenshot.Base.Languages
         string CaptureKeyHelp { get; }
 
         /// <summary>
+        /// Show or hide the info
+        /// </summary>
+        string CaptureKeyInfo { get; }
+
+        /// <summary>
+        /// Info
+        /// </summary>
+        string CaptureInfoTitle { get; }
+
+        /// <summary>
+        /// Screen
+        /// </summary>
+        string CaptureInfoScreen { get; }
+
+        /// <summary>
+        /// All screens
+        /// </summary>
+        string CaptureInfoAllScreens { get; }
+
+        /// <summary>
+        /// Selection
+        /// </summary>
+        string CaptureInfoSelection { get; }
+
+        /// <summary>
+        /// None
+        /// </summary>
+        string CaptureInfoNoSelection { get; }
+
+        /// <summary>
+        /// Window
+        /// </summary>
+        string CaptureInfoWindow { get; }
+
+        /// <summary>
+        /// Mouse
+        /// </summary>
+        string CaptureInfoMouse { get; }
+
+        /// <summary>
         /// Support Greenshot
         /// </summary>
         string ContextmenuDonate { get; }
