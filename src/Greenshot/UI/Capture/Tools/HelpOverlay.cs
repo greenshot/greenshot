@@ -26,6 +26,9 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
+using Dapplo.Ini;
+using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Capture;
 using Greenshot.Base.Languages;
 
@@ -35,15 +38,29 @@ namespace Greenshot.UI.Capture.Tools
     /// F1 shows or hides a panel with the keys which work now: those of the active tool first, then those which are always active.
     /// The list comes from the registered keys (ICaptureToolHost.KeyBindings), so keys of plugins are in it too,
     /// and the descriptions are read when the panel is shown, in the current language.
+    /// Whether it is shown is remembered (CaptureHelpVisible), so it comes back with the next capture.
     /// </summary>
     public class HelpOverlay : CaptureOverlay
     {
+        private static readonly ICoreConfiguration Conf = IniConfigRegistry.GetSection<ICoreConfiguration>();
         private bool _visible;
 
         public override void Attach(ICaptureToolHost host)
         {
             base.Attach(host);
             host.RegisterKey(this, Key.F1, ModifierKeys.None, () => Texts.Core.CaptureKeyHelp, Toggle);
+            if (Conf.CaptureHelpVisible)
+            {
+                _visible = true;
+                // Once the window is shown: then the monitor and its DPI are known
+                _ = Dispatcher.CurrentDispatcher.BeginInvoke(new Action(() =>
+                {
+                    if (_visible)
+                    {
+                        ShowHelp();
+                    }
+                }), DispatcherPriority.ContextIdle);
+            }
         }
 
         /// <summary>
@@ -60,6 +77,7 @@ namespace Greenshot.UI.Capture.Tools
         private void Toggle()
         {
             _visible = !_visible;
+            Conf.CaptureHelpVisible = _visible;
             if (_visible)
             {
                 ShowHelp();

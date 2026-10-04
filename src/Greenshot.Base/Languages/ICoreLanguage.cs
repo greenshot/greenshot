@@ -275,11 +275,6 @@ namespace Greenshot.Base.Languages
         string CaptureKeyZoomer { get; }
 
         /// <summary>
-        /// Keep the capture window on top or not
-        /// </summary>
-        string CaptureKeyTopmost { get; }
-
-        /// <summary>
         /// Switch between region and window
         /// </summary>
         string CaptureKeyRegionWindow { get; }

@@ -173,7 +173,7 @@ The keys of the window and the built-in tools:
 | Space | Window | Switch between region and window (from every other tool: back to region) |
 | ↑ ↓ ← →, Ctrl+↑ ↓ ← → | Window | Move the cursor one pixel, 10 pixels |
 | Shift (held) | Window | Keep the selection to one direction |
-| M, Z, F | Window | Captured mouse cursor, zoomer, window on top |
+| M, Z | Window | Captured mouse cursor, zoomer |
 | Esc | Window | Cancel |
 | T | Text tool | Switch to the text tool |
 | Enter | Region and text tool | Start or finish the selection |
@@ -186,7 +186,8 @@ The help is a built-in overlay (`src/Greenshot/UI/Capture/Tools/HelpOverlay.cs`)
 the keys of the active tool first, as key caps like the hotkey settings show them. Keys with the same description share a row
 (the four arrow keys, left and right Shift). Because it reads `Host.KeyBindings`, keys of plugin tools and overlays are in it too,
 and the descriptions are read when the panel is shown, in the current language. When the tool changes, the panel is shown again
-with the keys of the new tool.
+with the keys of the new tool. Whether it is shown is remembered in the configuration (`CaptureHelpVisible` in `greenshot.ini`),
+so after F1 it comes back with every capture until F1 is pressed again.
 
 ```csharp
 using System;
@@ -195,6 +196,9 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
+using Dapplo.Ini;
+using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Capture;
 using Greenshot.Base.Languages;
 
@@ -204,15 +208,29 @@ namespace Greenshot.UI.Capture.Tools
     /// F1 shows or hides a panel with the keys which work now: those of the active tool first, then those which are always active.
     /// The list comes from the registered keys (ICaptureToolHost.KeyBindings), so keys of plugins are in it too,
     /// and the descriptions are read when the panel is shown, in the current language.
+    /// Whether it is shown is remembered (CaptureHelpVisible), so it comes back with the next capture.
     /// </summary>
     public class HelpOverlay : CaptureOverlay
     {
+        private static readonly ICoreConfiguration Conf = IniConfigRegistry.GetSection<ICoreConfiguration>();
         private bool _visible;
 
         public override void Attach(ICaptureToolHost host)
         {
             base.Attach(host);
             host.RegisterKey(this, Key.F1, ModifierKeys.None, () => Texts.Core.CaptureKeyHelp, Toggle);
+            if (Conf.CaptureHelpVisible)
+            {
+                _visible = true;
+                // Once the window is shown: then the monitor and its DPI are known
+                _ = Dispatcher.CurrentDispatcher.BeginInvoke(new Action(() =>
+                {
+                    if (_visible)
+                    {
+                        ShowHelp();
+                    }
+                }), DispatcherPriority.ContextIdle);
+            }
         }
 
         /// <summary>
@@ -229,6 +247,7 @@ namespace Greenshot.UI.Capture.Tools
         private void Toggle()
         {
             _visible = !_visible;
+            Conf.CaptureHelpVisible = _visible;
             if (_visible)
             {
                 ShowHelp();

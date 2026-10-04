@@ -536,7 +536,6 @@ namespace Greenshot.UI.Capture
                     UpdateZoomerVisibility();
                 }
             });
-            RegisterKey(this, Key.F, ModifierKeys.None, () => Texts.Core.CaptureKeyTopmost, () => Topmost = !Topmost);
             RegisterKey(this, Key.Escape, ModifierKeys.None, () => Texts.Core.CaptureKeyCancel, Cancel);
         }
 
