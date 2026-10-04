@@ -75,7 +75,8 @@ namespace Greenshot.UI.Capture
 
         private readonly ICapture _capture;
         private readonly NativeRect _screenBounds;
-        private readonly bool _isRemoteSession = SystemParameters.IsRemoteSession;
+        // Remote desktop: no animations and no crosshair, every repaint of the screen costs bandwidth (OptimizeForRDP / DisableRDPOptimizing as before)
+        private readonly bool _isRemoteSession = !Conf.DisableRDPOptimizing && (Conf.OptimizeForRDP || SystemParameters.IsRemoteSession);
         private readonly Typeface _labelTypeface;
         private readonly Typeface _boldLabelTypeface;
 
@@ -747,6 +748,11 @@ namespace Greenshot.UI.Capture
         {
             var animation = ((RectAnimation)FindResource("WindowSelectionAnimation")).Clone();
             animation.To = target;
+            if (_isRemoteSession)
+            {
+                // Jump there, the completed handler still runs
+                animation.Duration = new Duration(TimeSpan.Zero);
+            }
             var clock = animation.CreateClock();
             clock.Completed += (sender, args) =>
             {
@@ -849,7 +855,7 @@ namespace Greenshot.UI.Capture
                 }
             }
 
-            if (fadeIn)
+            if (fadeIn && !_isRemoteSession)
             {
                 ((Storyboard)FindResource("ShowLabelsStoryboard")).Begin(this, true);
                 _labelsFading = true;
@@ -923,6 +929,11 @@ namespace Greenshot.UI.Capture
                 return;
             }
             _zoomerShown = show;
+            if (_isRemoteSession)
+            {
+                ZoomerScale.ScaleX = ZoomerScale.ScaleY = show ? 1 : 0;
+                return;
+            }
             ((Storyboard)FindResource(show ? "ShowZoomerStoryboard" : "HideZoomerStoryboard")).Begin(this, true);
         }
 
@@ -952,6 +963,12 @@ namespace Greenshot.UI.Capture
                 return;
             }
             _zoomOffset = offset;
+            if (_isRemoteSession)
+            {
+                ZoomerOffset.X = offset.X;
+                ZoomerOffset.Y = offset.Y;
+                return;
+            }
             var template = (DoubleAnimation)FindResource("ZoomerMoveAnimation");
             var moveX = template.Clone();
             moveX.To = offset.X;
