@@ -36,7 +36,6 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.User32;
 using Greenshot.Base;
-using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Help;
@@ -71,7 +70,7 @@ namespace Greenshot.Shell
 
         private readonly IGreenshotShell _shell;
         private ContextMenu _openMenu;
-        private ThumbnailForm _thumbnailForm;
+        private ThumbnailWindow _thumbnailWindow;
 
         private static ICoreConfiguration CoreConfig => IniConfigRegistry.GetSection<ICoreConfiguration>();
 
@@ -399,7 +398,7 @@ namespace Greenshot.Shell
                 if (thumbnailPreview)
                 {
                     item.MouseEnter += (sender, args) => ShowThumbnail(item, windowToCapture);
-                    item.MouseLeave += (sender, args) => _thumbnailForm?.Hide();
+                    item.MouseLeave += (sender, args) => _thumbnailWindow?.Hide();
                 }
             }
         }
@@ -416,13 +415,13 @@ namespace Greenshot.Shell
                     return;
                 }
 
-                // PointToScreen returns pixels, as the thumbnail form uses them
+                // PointToScreen returns pixels, as the thumbnail window uses them
                 var topLeft = popupRoot.PointToScreen(new Point(0, 0));
                 var bottomRight = popupRoot.PointToScreen(new Point(popupRoot.ActualWidth, popupRoot.ActualHeight));
                 var bounds = new NativeRect((int)topLeft.X, (int)topLeft.Y, (int)(bottomRight.X - topLeft.X), (int)(bottomRight.Y - topLeft.Y));
 
-                _thumbnailForm ??= new ThumbnailForm();
-                _thumbnailForm.ShowThumbnail(window, bounds, source.Handle);
+                _thumbnailWindow ??= new ThumbnailWindow();
+                _thumbnailWindow.ShowThumbnail(window, bounds, source.Handle);
             }
             catch (Exception ex)
             {
@@ -432,13 +431,13 @@ namespace Greenshot.Shell
 
         private void CleanupThumbnail()
         {
-            if (_thumbnailForm == null)
+            if (_thumbnailWindow == null)
             {
                 return;
             }
 
-            _thumbnailForm.Close();
-            _thumbnailForm = null;
+            _thumbnailWindow.Close();
+            _thumbnailWindow = null;
         }
 
         /// <summary>

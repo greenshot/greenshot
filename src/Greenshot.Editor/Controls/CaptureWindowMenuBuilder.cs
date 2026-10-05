@@ -23,9 +23,10 @@
 using System;
 using System.Windows.Forms;
 using Dapplo.Ini;
+using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.DesktopWindowsManager;
-using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
+using Greenshot.Base.Wpf;
 using log4net;
 
 namespace Greenshot.Editor.Controls
@@ -36,7 +37,7 @@ namespace Greenshot.Editor.Controls
     public sealed class CaptureWindowMenuBuilder
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(CaptureWindowMenuBuilder));
-        private ThumbnailForm _thumbnailForm;
+        private ThumbnailWindow _thumbnailWindow;
 
         /// <summary>
         /// Replace the drop down items of the menu item with one item per window (the item's Tag is the WindowDetails)
@@ -91,24 +92,28 @@ namespace Greenshot.Editor.Controls
                 return;
             }
 
-            _thumbnailForm ??= new ThumbnailForm();
-            _thumbnailForm.ShowThumbnail(window, captureWindowItem.GetCurrentParent().TopLevelControl);
+            // The drop down with the windows: its screen bounds in pixels and its handle, the thumbnail goes above (or under) it
+            var dropDown = captureWindowItem.GetCurrentParent()?.TopLevelControl;
+            NativeRect? alignTo = dropDown == null ? null : new NativeRect(dropDown.Left, dropDown.Top, dropDown.Width, dropDown.Height);
+
+            _thumbnailWindow ??= new ThumbnailWindow();
+            _thumbnailWindow.ShowThumbnail(window, alignTo, dropDown?.Handle ?? IntPtr.Zero);
         }
 
         private void HideThumbnailOnLeave(object sender, EventArgs e)
         {
-            _thumbnailForm?.Hide();
+            _thumbnailWindow?.Hide();
         }
 
         private void OnDropDownClosed(object sender, EventArgs e)
         {
-            if (_thumbnailForm == null)
+            if (_thumbnailWindow == null)
             {
                 return;
             }
 
-            _thumbnailForm.Close();
-            _thumbnailForm = null;
+            _thumbnailWindow.Close();
+            _thumbnailWindow = null;
         }
     }
 }
