@@ -27,8 +27,8 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
-using Greenshot.Pipeline.Steps;
 using Greenshot.Plugin.ExternalCommand;
+using Greenshot.Recipes.Steps;
 using Xunit;
 
 namespace Greenshot.Tests.Recipes

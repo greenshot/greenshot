@@ -1,0 +1,67 @@
+/*
+ * Greenshot - a free and open source screenshot tool
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
+ *
+ * For more information see: https://getgreenshot.org/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 1 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows;
+using System.Windows.Media;
+using Greenshot.Base.Pipeline;
+using Greenshot.Base.Recipes;
+using Greenshot.Recipes;
+
+namespace Greenshot.Recipes.ViewModels
+{
+    /// <summary>
+    /// A switch in the approval window (a trigger or a kind of gated action)
+    /// </summary>
+    public abstract class ApprovalSwitchViewModel : INotifyPropertyChanged
+    {
+        private bool _isChecked;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public bool IsChecked
+        {
+            get => _isChecked;
+            set
+            {
+                if (_isChecked == value) return;
+                _isChecked = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsChecked)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(OffVisibility)));
+            }
+        }
+
+        public string Title { get; set; }
+
+        /// <summary>
+        /// Why it matters, empty when it doesn't
+        /// </summary>
+        public string Explanation { get; set; }
+
+        public Visibility ExplanationVisibility => string.IsNullOrEmpty(Explanation) ? Visibility.Collapsed : Visibility.Visible;
+
+        /// <summary>
+        /// Shown while it is switched off
+        /// </summary>
+        public Visibility OffVisibility => _isChecked ? Visibility.Collapsed : Visibility.Visible;
+    }
+}

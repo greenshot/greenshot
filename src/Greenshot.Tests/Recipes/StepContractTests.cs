@@ -31,8 +31,8 @@ using Greenshot.Base.Pipeline;
 using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
-using Greenshot.Pipeline;
 using Greenshot.Recipes;
+using Greenshot.Recipes.Pipeline;
 using Xunit;
 
 namespace Greenshot.Tests.Recipes
@@ -207,7 +207,7 @@ namespace Greenshot.Tests.Recipes
         /// Parameters that take a file format do not hard-code the formats, they offer what the file format registry can save.
         /// </summary>
         [Theory]
-        [InlineData(typeof(Greenshot.Pipeline.Steps.DestinationExportStep))]
+        [InlineData(typeof(Greenshot.Recipes.Steps.DestinationExportStep))]
         [InlineData(typeof(Greenshot.Plugin.ExternalCommand.ExternalCommandStep))]
         [InlineData(typeof(Greenshot.Plugin.Imgur.ImgurStep))]
         [InlineData(typeof(Greenshot.Plugin.Jira.JiraStep))]

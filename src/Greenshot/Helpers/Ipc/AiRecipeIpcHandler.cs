@@ -34,6 +34,7 @@ using Greenshot.Base.Recipes;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Triggers;
 using Greenshot.Recipes;
+using Greenshot.Recipes.Approval;
 using Greenshot.UI;
 using log4net;
 
@@ -75,7 +76,7 @@ namespace Greenshot.Helpers.Ipc
         /// <summary>
         /// Shows the proposal and returns the user's decision; replaceable for tests
         /// </summary>
-        internal static Func<RecipeApprovalRequest, CancellationToken, Task<RecipeApprovalWindow.ApprovalResult>> ApprovalPrompt { get; set; } = ShowApprovalAsync;
+        internal static Func<RecipeApprovalRequest, CancellationToken, Task<ApprovalResult>> ApprovalPrompt { get; set; } = ShowApprovalAsync;
 
         /// <summary>
         /// The directory for the recipes AI tools write; replaceable for tests
@@ -788,7 +789,7 @@ namespace Greenshot.Helpers.Ipc
             return null;
         }
 
-        private static Task<RecipeApprovalWindow.ApprovalResult> ShowApprovalAsync(RecipeApprovalRequest request, CancellationToken cancellationToken)
+        private static Task<ApprovalResult> ShowApprovalAsync(RecipeApprovalRequest request, CancellationToken cancellationToken)
         {
             return UiDispatcher.Current.InvokeAsync(() => RecipeManager.Instance.RequestInteractiveApprovalWithOptions(request), cancellationToken);
         }

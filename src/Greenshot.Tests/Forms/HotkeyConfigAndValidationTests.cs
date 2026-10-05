@@ -115,7 +115,7 @@ namespace Greenshot.Tests.Forms
         public void HotkeyControls_CanBeInstantiatedOnStaThread()
         {
             Exception threadEx = null;
-            bool initialDarkMode = Greenshot.UI.WpfThemeHelper.IsDarkMode;
+            bool initialDarkMode = Greenshot.Base.Wpf.WpfThemeHelper.IsDarkMode;
             var thread = new Thread(() =>
             {
                 try
@@ -135,7 +135,7 @@ namespace Greenshot.Tests.Forms
                     display.ShowEditButton = true;
                     Assert.Equal(System.Windows.Visibility.Visible, display.EditButtonControl.Visibility);
 
-                    Greenshot.UI.WpfThemeHelper.IsDarkMode = true;
+                    Greenshot.Base.Wpf.WpfThemeHelper.IsDarkMode = true;
                     var modal = new HotkeyEditorModal();
                     string savedResult = null;
                     modal.Open("Test Recipe Hotkey", "Ctrl + Shift + R", s => savedResult = s);
@@ -165,7 +165,7 @@ namespace Greenshot.Tests.Forms
                 finally
                 {
                     // Don't leak the dark theme into other tests
-                    Greenshot.UI.WpfThemeHelper.IsDarkMode = initialDarkMode;
+                    Greenshot.Base.Wpf.WpfThemeHelper.IsDarkMode = initialDarkMode;
                 }
             });
 
@@ -492,7 +492,7 @@ namespace Greenshot.Tests.Forms
             var node = Greenshot.Base.Recipes.RecipeStepConfig.CreateDestinations("export", new[] { "Editor" });
             Assert.True(node.Parameters.ContainsKey("DestinationDesignations"));
 
-            var step = new Greenshot.Pipeline.Steps.DestinationExportStep(node);
+            var step = new Greenshot.Recipes.Steps.DestinationExportStep(node);
             var gatedActions = step.GetGatedActions().ToList();
             Assert.NotNull(gatedActions);
         }

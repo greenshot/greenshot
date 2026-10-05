@@ -31,8 +31,8 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
-using Greenshot.Pipeline.Steps;
 using Greenshot.Recipes;
+using Greenshot.Recipes.Steps;
 using Xunit;
 
 namespace Greenshot.Tests.Recipes

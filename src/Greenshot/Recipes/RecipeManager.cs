@@ -31,6 +31,9 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
+using Greenshot.Recipes.Approval;
+using Greenshot.Recipes.Triggers;
+using Greenshot.Recipes.Views;
 using log4net;
 using System.Threading.Tasks;
 using Greenshot.Base.Threading;
@@ -971,7 +974,7 @@ namespace Greenshot.Recipes
                         foreach (var err in valResult.Errors) overallResult.AddError($"[{recipe.Id ?? "unknown"}]: {err}");
                         if (interactiveApproval)
                         {
-                            UI.RecipeApprovalWindow.ShowValidationError(filePath, valResult, recipe);
+                            RecipeApprovalWindow.ShowValidationError(filePath, valResult, recipe);
                         }
                         continue;
                     }
@@ -1061,7 +1064,7 @@ namespace Greenshot.Recipes
                 overallResult.AddError($"Exception reading recipe file: {ex.Message}");
                 if (interactiveApproval)
                 {
-                    UI.RecipeApprovalWindow.ShowValidationError(filePath, rawErrorMessage: ex.Message);
+                    RecipeApprovalWindow.ShowValidationError(filePath, rawErrorMessage: ex.Message);
                 }
             }
 
@@ -1083,10 +1086,10 @@ namespace Greenshot.Recipes
         /// What the approval window shows for a recipe from a file: the content that was read, the earlier approval, and the
         /// built-in recipe it replaces
         /// </summary>
-        private UI.RecipeApprovalRequest CreateApprovalRequest(CaptureRecipe recipe, string filePath, string content, string contentHash, RecipeValidationResult valResult)
+        private RecipeApprovalRequest CreateApprovalRequest(CaptureRecipe recipe, string filePath, string content, string contentHash, RecipeValidationResult valResult)
         {
             var previousRecord = RecipeTrustStore.GetTrustRecord(filePath);
-            var request = new UI.RecipeApprovalRequest
+            var request = new RecipeApprovalRequest
             {
                 Recipe = recipe,
                 FilePath = filePath,
@@ -1133,7 +1136,7 @@ namespace Greenshot.Recipes
         /// <summary>
         /// Show the approval dialog (modal, on the UI thread). Returns what the user approved, null when the recipe was rejected.
         /// </summary>
-        internal UI.RecipeApprovalWindow.ApprovalResult RequestInteractiveApprovalWithOptions(UI.RecipeApprovalRequest request)
+        internal ApprovalResult RequestInteractiveApprovalWithOptions(RecipeApprovalRequest request)
         {
             if (!UiDispatcher.Current.CheckAccess())
             {
@@ -1141,7 +1144,7 @@ namespace Greenshot.Recipes
                 return null;
             }
 
-            var window = new UI.RecipeApprovalWindow(request)
+            var window = new RecipeApprovalWindow(request)
             {
                 Topmost = true,
                 ShowActivated = true,
@@ -1195,12 +1198,12 @@ namespace Greenshot.Recipes
             if (window.ShowDialog() == true && window.Approval != null)
             {
                 window.Approval.ReplacesBuiltIn = request.ReplacesBuiltIn;
-                return new UI.RecipeApprovalWindow.ApprovalResult(window.Approval, window.OpenInEditor);
+                return new ApprovalResult(window.Approval, window.OpenInEditor);
             }
-            return window.IsRevoked ? UI.RecipeApprovalWindow.ApprovalResult.Revoked : null;
+            return window.IsRevoked ? ApprovalResult.Revoked : null;
         }
 
-        private RecipeApproval RequestInteractiveApproval(UI.RecipeApprovalRequest request)
+        private RecipeApproval RequestInteractiveApproval(RecipeApprovalRequest request)
         {
             return RequestInteractiveApprovalWithOptions(request)?.Approval;
         }
@@ -1208,7 +1211,7 @@ namespace Greenshot.Recipes
         private void NotifyRecipesChanged()
         {
             RecomposeRecipes();
-            var triggerManager = SimpleServiceProvider.Current.GetInstance<Greenshot.Base.Triggers.ITriggerManager>(isOptional: true) as Triggers.TriggerManager ?? Triggers.TriggerManager.Instance;
+            var triggerManager = SimpleServiceProvider.Current.GetInstance<Greenshot.Base.Triggers.ITriggerManager>(isOptional: true) as TriggerManager ?? TriggerManager.Instance;
             triggerManager?.SyncRecipeTriggers(GetAllRecipes());
             RecipesChanged?.Invoke(this, EventArgs.Empty);
         }
@@ -1384,7 +1387,7 @@ namespace Greenshot.Recipes
                 return false;
             }
 
-            UI.RecipeApprovalRequest request;
+            RecipeApprovalRequest request;
             if (!string.IsNullOrEmpty(recipe.FilePath) && File.Exists(recipe.FilePath))
             {
                 byte[] bytes = File.ReadAllBytes(recipe.FilePath);
@@ -1398,7 +1401,7 @@ namespace Greenshot.Recipes
             }
             else
             {
-                request = new UI.RecipeApprovalRequest
+                request = new RecipeApprovalRequest
                 {
                     Recipe = recipe,
                     Content = RecipeSerializer.Serialize(recipe),
@@ -1407,7 +1410,7 @@ namespace Greenshot.Recipes
             }
             request.IsReadOnly = true;
 
-            var window = new UI.RecipeApprovalWindow(request)
+            var window = new RecipeApprovalWindow(request)
             {
                 Owner = System.Windows.Application.Current?.Windows.OfType<System.Windows.Window>().FirstOrDefault(w => w.IsActive),
                 ShowActivated = true

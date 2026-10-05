@@ -33,6 +33,7 @@ using Greenshot.Base.Wpf;
 using Greenshot.Configuration;
 using Greenshot.Helpers;
 using Greenshot.Base.Languages;
+using Greenshot.Recipes.Views;
 using MessageBox = System.Windows.MessageBox;
 
 namespace Greenshot.Forms.Wpf

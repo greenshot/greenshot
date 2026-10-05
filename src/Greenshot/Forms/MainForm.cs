@@ -68,11 +68,11 @@ using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
 using Greenshot.Helpers;
 using Greenshot.Helpers.Ipc;
-using Greenshot.Pipeline;
 using Greenshot.Plugin.Win10;
 using Greenshot.Processors;
 using Greenshot.Recipes;
-using Greenshot.Triggers;
+using Greenshot.Recipes.Pipeline;
+using Greenshot.Recipes.Triggers;
 using Greenshot.UI;
 using log4net;
 
@@ -829,7 +829,7 @@ namespace Greenshot.Forms
 
             _recipesMenuItem.DropDownItems.Clear();
 
-            var triggerManager = SimpleServiceProvider.Current.GetInstance<Greenshot.Base.Triggers.ITriggerManager>(isOptional: true) as Triggers.TriggerManager ?? Triggers.TriggerManager.Instance;
+            var triggerManager = SimpleServiceProvider.Current.GetInstance<Greenshot.Base.Triggers.ITriggerManager>(isOptional: true) as TriggerManager ?? TriggerManager.Instance;
             var recipeManager = SimpleServiceProvider.Current.GetInstance<Greenshot.Base.Recipes.IRecipeManager>(isOptional: true) ?? Recipes.RecipeManager.Instance;
 
             var menuTriggers = triggerManager.GetContextMenuTriggers();

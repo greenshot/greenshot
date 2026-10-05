@@ -24,7 +24,7 @@ using System.Linq;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
-using Greenshot.Triggers;
+using Greenshot.Recipes.Triggers;
 using Xunit;
 
 namespace Greenshot.Tests.Recipes

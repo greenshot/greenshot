@@ -32,9 +32,9 @@ using Greenshot.Base.Recipes;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Helpers;
 using System.IO;
-using Greenshot.Pipeline.Steps;
 using Greenshot.Plugin.Zxing;
 using Greenshot.Plugin.RecipeEditor.Helpers;
+using Greenshot.Recipes.Steps;
 using Xunit;
 
 namespace Greenshot.Tests.Recipes

@@ -29,6 +29,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
+using Greenshot.Recipes.Approval;
 using log4net;
 using Newtonsoft.Json.Linq;
 

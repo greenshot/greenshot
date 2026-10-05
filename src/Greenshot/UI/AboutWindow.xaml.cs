@@ -36,6 +36,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using Greenshot.Base.Core;
+using Greenshot.Base.Wpf;
 using Greenshot.Configuration;
 using Greenshot.Helpers;
 using log4net;

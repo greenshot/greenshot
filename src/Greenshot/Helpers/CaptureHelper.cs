@@ -28,8 +28,8 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
-using Greenshot.Pipeline;
 using Greenshot.Recipes;
+using Greenshot.Recipes.Pipeline;
 using log4net;
 
 namespace Greenshot.Helpers

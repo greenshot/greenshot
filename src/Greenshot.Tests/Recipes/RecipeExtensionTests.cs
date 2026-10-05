@@ -31,8 +31,9 @@ using Greenshot.Base.Pipeline;
 using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
-using Greenshot.Pipeline;
 using Greenshot.Recipes;
+using Greenshot.Recipes.Approval;
+using Greenshot.Recipes.Pipeline;
 using Newtonsoft.Json;
 using Xunit;
 
