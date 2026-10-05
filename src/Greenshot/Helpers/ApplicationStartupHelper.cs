@@ -28,7 +28,8 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Configuration;
 using log4net;
 using Greenshot.Base.Threading;
-using System.Threading;
+using System.Threading;
+
 using Greenshot.Base.Languages;
 
 namespace Greenshot.Helpers
@@ -56,8 +57,8 @@ namespace Greenshot.Helpers
                 TimeSpan.FromMinutes(10),
                 () =>
                 {
-                    var mainForm = SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>();
-                    mainForm.ShowSetting();
+                    var shell = SimpleServiceProvider.Current.GetInstance<IGreenshotShell>();
+                    shell.ShowSetting();
                 });
         }
 
@@ -80,9 +81,9 @@ namespace Greenshot.Helpers
                 // Make sure the current hotkeys are disabled
                 HotkeyManager.UnregisterHotkeys();
                 IniConfigRegistry.Get().Reload();
-                var mainForm = SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>();
+                var shell = SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true);
                 // Even update language when needed
-                mainForm.UpdateUi();
+                shell?.UpdateUi();
                 // Update the hotkey
                 HotkeyHelper.RegisterHotkeys();
             }

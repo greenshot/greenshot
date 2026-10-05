@@ -109,15 +109,22 @@ namespace Greenshot.Helpers
             // Don't wait for the exit, the editors might want to ask the user something
             UiDispatcher.Current.RunOnUiAsync(() =>
             {
+                // Closes the WinForms forms (the editors)
                 Application.Exit();
+                SessionEndShutdown?.Invoke();
                 Environment.Exit(0);
             }).FireAndLog("Exit after the end of the session", Log);
         }
 
         /// <summary>
-        /// Tells the named pipe clients that Greenshot exits, set by the MainForm
+        /// Tells the named pipe clients that Greenshot exits, set by the GreenshotShell
         /// </summary>
         internal static Func<string, Task> ShutdownNotifier { get; set; }
+
+        /// <summary>
+        /// The essential cleanup when the session ends, without waiting for anything; set by the GreenshotShell, called on the UI thread
+        /// </summary>
+        internal static Action SessionEndShutdown { get; set; }
 
         /// <summary>
         /// How long the end of the session waits for the clients to get the shutdown message

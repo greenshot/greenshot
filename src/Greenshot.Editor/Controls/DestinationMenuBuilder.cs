@@ -21,26 +21,20 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Dapplo.Ini;
-using Dapplo.Windows.Common.Extensions;
-using Dapplo.Windows.Common.Structs;
-using Dapplo.Windows.Dpi;
-using Dapplo.Windows.User32;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Threading;
 using log4net;
-using Greenshot.Base.Languages;
 
-namespace Greenshot.Base.Controls
+namespace Greenshot.Editor.Controls
 {
     /// <summary>
-    /// Builds WinForms menus from destination descriptors (the destinations don't know about menus anymore).
+    /// Builds the WinForms menus of the editor (toolbar drop downs, File menu) from destination descriptors.
+    /// The tray menu and the destination picker are WPF, see Greenshot.Base.Wpf.DestinationPicker.
     /// Must be used on the UI thread; icons and dynamic destinations are loaded asynchronously, the menu is updated when they arrive.
     /// </summary>
     public static class DestinationMenuBuilder
@@ -145,23 +139,10 @@ namespace Greenshot.Base.Controls
         }
 
         /// <summary>
-        /// Load the dynamic destinations in the background: some do slow work before their first await
-        /// (the printers are enumerated synchronously, Office starts its COM thread), the menu must not wait for that.
+        /// Load the dynamic destinations in the background, see <see cref="DestinationHelper.LoadDynamicDestinationsAsync"/>
         /// </summary>
-        public static async Task<IReadOnlyList<IDestination>> LoadDynamicDestinationsAsync(IDestination destination, ICaptureDetails captureDetails)
-        {
-            await ThreadPoolSwitch.SwitchToThreadPoolAsync();
-            try
-            {
-                return await destination.GetDynamicDestinationsAsync(captureDetails, CancellationToken.None).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                // Fixing Bug #3536968: skip the dynamic destinations when there is an error
-                Log.ErrorFormat("Skipping the dynamic destinations of {0}, due to the following error: {1}", destination.Designation, ex.Message);
-                return Array.Empty<IDestination>();
-            }
-        }
+        public static Task<IReadOnlyList<IDestination>> LoadDynamicDestinationsAsync(IDestination destination, ICaptureDetails captureDetails) =>
+            DestinationHelper.LoadDynamicDestinationsAsync(destination, captureDetails);
 
         private static void ApplyDynamicDestinations(ToolStripMenuItem menuItem, IDestination destination, IReadOnlyList<IDestination> subDestinations, ICaptureDetails captureDetails, Action<IDestination> onClick)
         {
@@ -226,154 +207,6 @@ namespace Greenshot.Base.Controls
             {
                 menuItem.DropDownItems.Add(CreateMenuItem(subDestination, captureDetails, onClick, false));
             }
-        }
-
-        /// <summary>
-        /// Show the destination picker (a context menu at the cursor) and return the destination the user clicked, null when the user closed it.
-        /// Runs on the UI thread, completes when the menu closes.
-        /// </summary>
-        public static Task<IDestination> ShowPickerAsync(IReadOnlyList<IDestination> destinations, ICaptureDetails captureDetails, CancellationToken cancellationToken = default)
-        {
-            ThreadAssert.IsUi(nameof(ShowPickerAsync));
-            var picked = Tcs.Create<IDestination>();
-            var coreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
-            var menu = new ContextMenuStrip
-            {
-                ImageScalingSize = coreConfig.IconSize,
-                Tag = null,
-                TopLevel = true,
-                // set new default font, so we are allowed to dispose it later, we will scale it later on the Opening event
-                Font = new Font(FontFamily.GenericSansSerif, 9)
-            };
-
-            void Complete(IDestination destination)
-            {
-                if (!picked.TrySetResult(destination))
-                {
-                    return;
-                }
-
-                menu.Tag = destination?.Designation ?? "closed";
-                CloseLater();
-            }
-
-            void CloseLater()
-            {
-                // We might be in the closing process, dispose later (on the UI thread) to avoid re-entrancy
-                UiDispatcher.Current.InvokeAsync(() =>
-                {
-                    if (!menu.IsDisposed)
-                    {
-                        menu.Tag ??= "cancelled";
-                        menu.Close();
-                        menu.Dispose();
-                    }
-                }, CancellationToken.None).FireAndLog("Close the destination picker", Log);
-            }
-
-            var registration = cancellationToken.Register(() =>
-            {
-                if (picked.TrySetCanceled(cancellationToken))
-                {
-                    CloseLater();
-                }
-            });
-            _ = picked.Task.ContinueWith(_ => registration.Dispose(), TaskScheduler.Default);
-
-            menu.Opening += (_, _) =>
-            {
-                // find the DPI settings for the screen where this is going to land
-                var screenDpi = NativeDpiMethods.GetDpi(menu.Location);
-                var scaledIconSize = DpiCalculator.ScaleWithDpi(coreConfig.IconSize, screenDpi);
-                menu.SuspendLayout();
-                var fontSize = DpiCalculator.ScaleWithDpi(12f, screenDpi);
-                var previousFont = menu.Font;
-                menu.Font = new Font(FontFamily.GenericSansSerif, fontSize, FontStyle.Regular, GraphicsUnit.Pixel);
-                previousFont?.Dispose();
-                menu.ImageScalingSize = scaledIconSize;
-                menu.ResumeLayout();
-            };
-
-            menu.Closing += (_, eventArgs) =>
-            {
-                Log.DebugFormat("Close reason: {0}", eventArgs.CloseReason);
-                switch (eventArgs.CloseReason)
-                {
-                    case ToolStripDropDownCloseReason.AppFocusChange:
-                        // Do not allow the close if nothing was picked yet, this means the user clicked somewhere else.
-                        if (menu.Tag == null)
-                        {
-                            eventArgs.Cancel = true;
-                        }
-
-                        break;
-                    case ToolStripDropDownCloseReason.ItemClicked:
-                    case ToolStripDropDownCloseReason.CloseCalled:
-                        break;
-                    case ToolStripDropDownCloseReason.Keyboard:
-                        // Menu closed via keyboard (e.g., ESC key): declined
-                        Complete(null);
-                        break;
-                    default:
-                        eventArgs.Cancel = true;
-                        break;
-                }
-            };
-            menu.MouseEnter += (_, _) =>
-            {
-                // in case the menu has been unfocused, focus again so that dropdown menus will still open on mouseenter
-                if (!menu.ContainsFocus)
-                {
-                    menu.Focus();
-                }
-            };
-
-            foreach (var destination in destinations.OrderBy(d => d, DestinationComparer.Instance))
-            {
-                var item = CreateMenuItem(destination, captureDetails, Complete);
-                item.Visible = destination.IsAvailableFor(captureDetails);
-                menu.Items.Add(item);
-            }
-
-            // Close
-            menu.Items.Add(new ToolStripSeparator());
-            var closeItem = new ToolStripMenuItem(Texts.Editor.Close);
-            AssignIcon(closeItem, DestinationIcons.Resource("Close.Image"));
-            closeItem.Click += (_, _) => Complete(null);
-            menu.Items.Add(closeItem);
-
-            ShowMenuAtCursor(menu);
-            return picked.Task;
-        }
-
-        /// <summary>
-        /// This method will show the supplied context menu at the mouse cursor, also makes sure it has focus and it's not visible in the taskbar.
-        /// </summary>
-        private static void ShowMenuAtCursor(ContextMenuStrip menu)
-        {
-            // find a suitable location
-            NativePoint location = Cursor.Position;
-            var menuRectangle = new NativeRect(location, menu.Size);
-
-            menuRectangle = menuRectangle.Intersect(DisplayInfo.ScreenBounds);
-            if (menuRectangle.Height < menu.Height)
-            {
-                location = location.Offset(-40, -(menuRectangle.Height - menu.Height));
-            }
-            else
-            {
-                location = location.Offset(-40, -10);
-            }
-
-            // This prevents the problem that the context menu shows in the task-bar
-            var notifyIcon = SimpleServiceProvider.Current.GetInstance<NotifyIcon>(isOptional: true);
-            if (notifyIcon?.ContextMenuStrip != null)
-            {
-                User32Api.SetForegroundWindow(notifyIcon.ContextMenuStrip.Handle);
-            }
-
-            menu.Show(location);
-            menu.Focus();
         }
     }
 }

@@ -510,9 +510,7 @@ namespace Greenshot.Base.Interop
                                 destinationName = _interceptType.FullName;
                             }
 
-                            var form = SimpleServiceProvider.Current.GetInstance<Form>();
-
-                            DialogResult result = MessageBox.Show(form, string.Format(Texts.Core.ComRejected, destinationName), Texts.Core.ComRejectedTitle,
+                            DialogResult result = MessageBox.Show(string.Format(Texts.Core.ComRejected, destinationName), Texts.Core.ComRejectedTitle,
                                 MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation);
                             if (result == DialogResult.OK)
                             {

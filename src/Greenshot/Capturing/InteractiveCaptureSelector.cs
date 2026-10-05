@@ -145,9 +145,10 @@ namespace Greenshot.Capturing
 
         private static void SetOwner(CaptureWindow captureWindow)
         {
-            if (SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>(isOptional: true) is System.Windows.Forms.IWin32Window mainForm)
+            var shell = SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true);
+            if (shell != null && shell.OwnerHandle != IntPtr.Zero)
             {
-                new WindowInteropHelper(captureWindow).Owner = mainForm.Handle;
+                new WindowInteropHelper(captureWindow).Owner = shell.OwnerHandle;
             }
         }
 

@@ -51,7 +51,7 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRec
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ExternalCommandPlugin));
     private static ICoreConfiguration CoreConfig;
     private static IExternalCommandConfiguration ExternalCommandConfig;
-    private ToolStripMenuItem _itemPlugInRoot;
+    private TrayMenuEntry _itemPlugInRoot;
 
     public ValueTask DisposeAsync()
     {
@@ -176,7 +176,7 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRec
 
     private void Start()
     {
-        _itemPlugInRoot = new ToolStripMenuItem();
+        _itemPlugInRoot = new TrayMenuEntry();
         _itemPlugInRoot.Click += ConfigMenuClick;
         OnIconSizeChanged(this, new PropertyChangedEventArgs("IconSize"));
         OnLanguageChanged(this, null);
@@ -258,6 +258,6 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRec
     private void ConfigMenuClick(object sender, EventArgs eventArgs)
     {
         // Show the settings of this plugin
-        SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>(isOptional: true)?.ShowSetting(Name);
+        SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true)?.ShowSetting(Name);
     }
 }

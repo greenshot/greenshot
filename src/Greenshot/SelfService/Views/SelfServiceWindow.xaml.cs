@@ -134,7 +134,6 @@ namespace Greenshot.SelfService.Views
         private void OnWindowLoaded(object sender, RoutedEventArgs e)
         {
             ApplyImmersiveDarkMode();
-            System.Windows.Forms.Integration.ElementHost.EnableModelessKeyboardInterop(this);
         }
 
         private void OnWindowClosed(object sender, EventArgs e)

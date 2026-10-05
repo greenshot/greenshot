@@ -26,7 +26,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.Interfaces;
@@ -37,7 +36,6 @@ using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Expressions;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Triggers;
-using Greenshot.Forms;
 using Greenshot.Helpers;
 using Greenshot.Ipc.Cli;
 using Greenshot.Recipes;
@@ -317,7 +315,7 @@ namespace Greenshot.Ipc
             return true;
         }
 
-        public static async Task DispatchAsync(IpcRequestContext context, Form mainForm, Action onExit, Action onReloadConfig, Action onFirstLaunch, Action<string> onOpenFile)
+        public static async Task DispatchAsync(IpcRequestContext context, IGreenshotShell shell, Action onExit, Action onReloadConfig, Action onFirstLaunch, Action<string> onOpenFile)
         {
             if (context?.Envelope == null)
             {
@@ -403,7 +401,7 @@ namespace Greenshot.Ipc
             switch (command.ToUpperInvariant())
             {
                 case "CLI":
-                    await HandleCliAsync(context, mainForm, onExit, onReloadConfig, onFirstLaunch, onOpenFile).ConfigureAwait(false);
+                    await HandleCliAsync(context, shell, onExit, onReloadConfig, onFirstLaunch, onOpenFile).ConfigureAwait(false);
                     break;
                 case "LIST_RECIPES":
                     await HandleListRecipesAsync(context).ConfigureAwait(false);
@@ -418,7 +416,7 @@ namespace Greenshot.Ipc
                     break;
 
                 case "OPEN_FILE":
-                    await HandleOpenFileAsync(context, mainForm, onOpenFile).ConfigureAwait(false);
+                    await HandleOpenFileAsync(context, shell, onOpenFile).ConfigureAwait(false);
                     break;
 
                 case "VERSION":
@@ -426,23 +424,23 @@ namespace Greenshot.Ipc
                     break;
 
                 case "SETTINGS":
-                    await HandleSettingsAsync(context, mainForm).ConfigureAwait(false);
+                    await HandleSettingsAsync(context, shell).ConfigureAwait(false);
                     break;
 
                 case "ABOUT":
-                    await HandleAboutAsync(context, mainForm).ConfigureAwait(false);
+                    await HandleAboutAsync(context, shell).ConfigureAwait(false);
                     break;
 
                 case "SELF_SERVICE":
-                    await HandleSelfServiceAsync(context, mainForm).ConfigureAwait(false);
+                    await HandleSelfServiceAsync(context, shell).ConfigureAwait(false);
                     break;
 
                 case "RECIPE_EDITOR":
-                    await HandleRecipeEditorAsync(context, mainForm).ConfigureAwait(false);
+                    await HandleRecipeEditorAsync(context, shell).ConfigureAwait(false);
                     break;
 
                 case "RECIPE_MANAGER":
-                    await HandleRecipeManagerAsync(context, mainForm).ConfigureAwait(false);
+                    await HandleRecipeManagerAsync(context, shell).ConfigureAwait(false);
                     break;
 
                 case "EXIT":
@@ -451,11 +449,11 @@ namespace Greenshot.Ipc
                         await context.ReplyAsync(new { status = "ok", exit_code = 0, stdout = "Greenshot exiting." }).ConfigureAwait(false);
                     }
                     catch { }
-                    InvokeOnUi(mainForm, () => onExit?.Invoke());
+                    InvokeOnUi(shell, () => onExit?.Invoke());
                     break;
 
                 case "RELOAD_CONFIG":
-                    InvokeOnUi(mainForm, () => onReloadConfig?.Invoke());
+                    InvokeOnUi(shell, () => onReloadConfig?.Invoke());
                     try
                     {
                         await context.ReplyAsync(new { status = "ok", exit_code = 0, stdout = "Greenshot configuration reloaded." }).ConfigureAwait(false);
@@ -464,7 +462,7 @@ namespace Greenshot.Ipc
                     break;
 
                 case "FIRST_LAUNCH":
-                    InvokeOnUi(mainForm, () => onFirstLaunch?.Invoke());
+                    InvokeOnUi(shell, () => onFirstLaunch?.Invoke());
                     try
                     {
                         await context.ReplyAsync(new { status = "ok", exit_code = 0, stdout = "First launch completed." }).ConfigureAwait(false);
@@ -476,7 +474,7 @@ namespace Greenshot.Ipc
                     var handler = Extensions.FirstOrDefault(e => e.Commands.Contains(command, StringComparer.OrdinalIgnoreCase));
                     if (handler != null)
                     {
-                        await handler.HandleAsync(command, context, mainForm).ConfigureAwait(false);
+                        await handler.HandleAsync(command, context, shell).ConfigureAwait(false);
                         break;
                     }
                     Log.Warn($"Unhandled whitelisted command: {command}");
@@ -484,7 +482,7 @@ namespace Greenshot.Ipc
             }
         }
 
-        private static void InvokeOnUi(Form form, Action action)
+        private static void InvokeOnUi(IGreenshotShell shell, Action action)
         {
             if (action == null)
             {
@@ -498,9 +496,9 @@ namespace Greenshot.Ipc
         /// <summary>
         /// Run the action on the UI thread, later (the reply doesn't wait for it). Nothing happens without a main form (tests, headless).
         /// </summary>
-        internal static void RunOnUi(Form mainForm, Action action)
+        internal static void RunOnUi(IGreenshotShell shell, Action action)
         {
-            if (mainForm == null)
+            if (shell == null)
             {
                 return;
             }
@@ -532,7 +530,7 @@ namespace Greenshot.Ipc
         /// CLI: a raw command line forwarded by greenshot-cli.exe / greenshot-proxy.exe. It is parsed according to the connection
         /// source and the resulting command is dispatched like any other request (including the per-source whitelist).
         /// </summary>
-        private static async Task HandleCliAsync(IpcRequestContext context, Form mainForm, Action onExit, Action onReloadConfig, Action onFirstLaunch, Action<string> onOpenFile)
+        private static async Task HandleCliAsync(IpcRequestContext context, IGreenshotShell shell, Action onExit, Action onReloadConfig, Action onFirstLaunch, Action<string> onOpenFile)
         {
             var result = CliCommandParser.Parse(context.Envelope.Argv, context.Envelope.Source, context.Envelope.Cwd);
             if (!result.Success)
@@ -549,7 +547,7 @@ namespace Greenshot.Ipc
             }
 
             result.Envelope.Source = context.Envelope.Source;
-            await DispatchAsync(context.WithEnvelope(result.Envelope), mainForm, onExit, onReloadConfig, onFirstLaunch, onOpenFile).ConfigureAwait(false);
+            await DispatchAsync(context.WithEnvelope(result.Envelope), shell, onExit, onReloadConfig, onFirstLaunch, onOpenFile).ConfigureAwait(false);
         }
 
         private static async Task HandleListRecipesAsync(IpcRequestContext context)
@@ -1238,7 +1236,7 @@ namespace Greenshot.Ipc
             return false;
         }
 
-        private static async Task HandleOpenFileAsync(IpcRequestContext context, Form mainForm, Action<string> onOpenFile)
+        private static async Task HandleOpenFileAsync(IpcRequestContext context, IGreenshotShell shell, Action<string> onOpenFile)
         {
             var rawFiles = new List<string>();
             if (context.Envelope.Files != null && context.Envelope.Files.Count > 0)
@@ -1393,7 +1391,7 @@ namespace Greenshot.Ipc
                 {
                     foreach (var file in validFiles)
                     {
-                        InvokeOnUi(mainForm, () => onOpenFile?.Invoke(file));
+                        InvokeOnUi(shell, () => onOpenFile?.Invoke(file));
                     }
                     await context.ReplyAsync(new
                     {
@@ -1405,7 +1403,7 @@ namespace Greenshot.Ipc
             }
         }
 
-        private static async Task HandleSettingsAsync(IpcRequestContext context, Form mainForm)
+        private static async Task HandleSettingsAsync(IpcRequestContext context, IGreenshotShell shell)
         {
             string tab = null;
             string plugin = null;
@@ -1414,13 +1412,13 @@ namespace Greenshot.Ipc
             if (string.IsNullOrEmpty(tab) && context.Envelope.Parameters != null) context.Envelope.Parameters.TryGetValue("tab", out tab);
             if (string.IsNullOrEmpty(plugin) && context.Envelope.Parameters != null) context.Envelope.Parameters.TryGetValue("plugin", out plugin);
 
-            if (mainForm is MainForm mf)
+            if (shell != null)
             {
-                RunOnUi(mainForm, new Action(() => mf.ShowSetting(plugin, tab)));
+                RunOnUi(shell, new Action(() => shell.ShowSetting(plugin, tab)));
             }
             else
             {
-                RunOnUi(mainForm, new Action(() =>
+                RunOnUi(shell, new Action(() =>
                 {
                     var window = new SettingsWindow(plugin, tab);
                     window.ShowDialog();
@@ -1435,11 +1433,11 @@ namespace Greenshot.Ipc
             }).ConfigureAwait(false);
         }
 
-        private static async Task HandleAboutAsync(IpcRequestContext context, Form mainForm)
+        private static async Task HandleAboutAsync(IpcRequestContext context, IGreenshotShell shell)
         {
-            if (mainForm is MainForm mf)
+            if (shell != null)
             {
-                RunOnUi(mainForm, new Action(() => mf.ShowAbout()));
+                RunOnUi(shell, new Action(() => shell.ShowAbout()));
             }
 
             await context.ReplyAsync(new
@@ -1450,13 +1448,13 @@ namespace Greenshot.Ipc
             }).ConfigureAwait(false);
         }
 
-        private static async Task HandleSelfServiceAsync(IpcRequestContext context, Form mainForm)
+        private static async Task HandleSelfServiceAsync(IpcRequestContext context, IGreenshotShell shell)
         {
             string section = null;
             context.Envelope.Parsed?.Parameters?.TryGetValue("section", out section);
             if (string.IsNullOrEmpty(section) && context.Envelope.Parameters != null) context.Envelope.Parameters.TryGetValue("section", out section);
 
-            RunOnUi(mainForm, new Action(() =>
+            RunOnUi(shell, new Action(() =>
             {
                 SelfServiceWindow.ShowSelfService(initialSection: section);
             }));
@@ -1469,13 +1467,13 @@ namespace Greenshot.Ipc
             }).ConfigureAwait(false);
         }
 
-        private static async Task HandleRecipeEditorAsync(IpcRequestContext context, Form mainForm)
+        private static async Task HandleRecipeEditorAsync(IpcRequestContext context, IGreenshotShell shell)
         {
             string recipe = null;
             context.Envelope.Parsed?.Parameters?.TryGetValue("recipe", out recipe);
             if (string.IsNullOrEmpty(recipe) && context.Envelope.Parameters != null) context.Envelope.Parameters.TryGetValue("recipe", out recipe);
 
-            RunOnUi(mainForm, new Action(() =>
+            RunOnUi(shell, new Action(() =>
             {
                 var editorService = SimpleServiceProvider.Current?.GetInstance<IRecipeEditorService>(isOptional: true);
                 editorService?.OpenEditor(recipe);
@@ -1489,9 +1487,9 @@ namespace Greenshot.Ipc
             }).ConfigureAwait(false);
         }
 
-        private static async Task HandleRecipeManagerAsync(IpcRequestContext context, Form mainForm)
+        private static async Task HandleRecipeManagerAsync(IpcRequestContext context, IGreenshotShell shell)
         {
-            RunOnUi(mainForm, new Action(() =>
+            RunOnUi(shell, new Action(() =>
             {
                 var editorService = SimpleServiceProvider.Current?.GetInstance<IRecipeEditorService>(isOptional: true);
                 editorService?.OpenRecipeManager();

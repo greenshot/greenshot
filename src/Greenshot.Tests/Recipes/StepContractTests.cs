@@ -174,7 +174,7 @@ namespace Greenshot.Tests.Recipes
                 contracts[contract.StepType] = contract;
             }
 
-            string xaml = File.ReadAllText(Path.Combine(FindRepositoryDirectory(), "src", "Greenshot.Plugin.RecipeEditor", "RecipeEditorWindow.xaml"));
+            string xaml = File.ReadAllText(Path.Combine(FindRepositoryDirectory(), "src", "Greenshot.Plugin.RecipeEditor", "Views", "RecipeEditorWindow.xaml"));
             var toolboxStepTypes = System.Text.RegularExpressions.Regex.Matches(xaml, "Command=\"\\{Binding AddStepCommand\\}\" CommandParameter=\"(\\w+)\"")
                 .Cast<System.Text.RegularExpressions.Match>()
                 .Select(m => m.Groups[1].Value)

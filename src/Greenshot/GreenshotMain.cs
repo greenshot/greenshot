@@ -35,8 +35,8 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Recipes;
 using Greenshot.Configuration;
 using Greenshot.Editor.Configuration;
-using Greenshot.Forms;
 using Greenshot.Helpers;
+using Greenshot.Shell;
 using Greenshot.Views;
 using log4net;
 
@@ -160,7 +160,7 @@ public class GreenshotMain
                // Also logs errors of the background work (auto-save, save on exit), which are only reported to listeners
                .AddListener(new IniListener());
 
-        // No file access yet: greenshot.ini is read (and locked) in MainForm.Start, only by the instance which really runs.
+        // No file access yet: greenshot.ini is read (and locked) in GreenshotApplication.Start, only by the instance which really runs.
         // A second instance, which forwards a command or reports that Greenshot is running, doesn't touch the file.
         var iniConfig = builder.Create();
         if (iniConfig.OverrideDirectory != null)
@@ -176,7 +176,7 @@ public class GreenshotMain
         // Log the startup
         LOG.Info("Starting: " + EnvironmentInfo.EnvironmentToString(false));
 
-        MainForm.Start(options);
+        GreenshotApplication.Start(options);
     }
 
     internal static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)

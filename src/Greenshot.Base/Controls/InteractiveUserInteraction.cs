@@ -105,7 +105,7 @@ namespace Greenshot.Base.Controls
 
         public Task<IDestination> PickDestinationAsync(IReadOnlyList<IDestination> choices, ICaptureDetails captureDetails, CancellationToken cancellationToken)
         {
-            return ModalTaskAsync(() => DestinationMenuBuilder.ShowPickerAsync(choices, captureDetails, cancellationToken), cancellationToken);
+            return ModalTaskAsync(() => DestinationPicker.ShowAsync(choices, captureDetails, cancellationToken), cancellationToken);
         }
 
         public void Register<TViewModel, TResult>(Func<TViewModel, TResult> showDialog) where TViewModel : IDialogViewModel<TResult>

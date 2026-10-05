@@ -418,20 +418,19 @@ namespace Greenshot.Recipes.Steps
             bool isTerminalServer = !CoreConfig.DisableRDPOptimizing && (CoreConfig.OptimizeForRDP || SystemInformation.TerminalServerSession);
             if (!CoreConfig.HideTrayicon && !isTerminalServer)
             {
-                var notifyIcon = SimpleServiceProvider.Current.GetInstance<NotifyIcon>(isOptional: true);
-                if (notifyIcon != null)
+                var trayIcon = SimpleServiceProvider.Current.GetInstance<ITrayIcon>(isOptional: true);
+                if (trayIcon != null)
                 {
                     // The tray icon belongs to the UI thread; awaited, so the balloon is gone before the capture
                     await context.Ui.RunOnUiAsync(() =>
                     {
                         try
                         {
-                            notifyIcon.Visible = false;
-                            notifyIcon.Visible = true;
+                            trayIcon.HideBalloon();
                         }
                         catch (Exception ex)
                         {
-                            Log.Warn("Failed to toggle notifyIcon visibility", ex);
+                            Log.Warn("Failed to hide the tray balloon", ex);
                         }
                     }, ct).ConfigureAwait(false);
                 }

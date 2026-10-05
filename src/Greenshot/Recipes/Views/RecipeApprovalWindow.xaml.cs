@@ -622,24 +622,9 @@ namespace Greenshot.Recipes.Views
                     WindowStartupLocation = WindowStartupLocation.CenterScreen
                 };
 
+                // The active WPF window owns the errors, otherwise they stand alone (topmost)
                 IntPtr ownerHwnd = IntPtr.Zero;
-                var mainForm = SimpleServiceProvider.Current.GetInstance<System.Windows.Forms.Form>(isOptional: true);
-                if (mainForm != null && mainForm.IsHandleCreated)
-                {
-                    try
-                    {
-                        if (mainForm.Visible && !mainForm.Disposing && !mainForm.IsDisposed)
-                        {
-                            ownerHwnd = mainForm.Handle;
-                        }
-                    }
-                    catch
-                    {
-                        ownerHwnd = IntPtr.Zero;
-                    }
-                }
-
-                if (ownerHwnd == IntPtr.Zero && System.Windows.Application.Current != null)
+                if (System.Windows.Application.Current != null)
                 {
                     try
                     {

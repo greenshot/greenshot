@@ -64,7 +64,7 @@ namespace Greenshot.Recipes.Pipeline
             SimpleServiceProvider.Current?.GetInstance<IUiDispatcher>(isOptional: true) ?? InlineUiDispatcher.Instance), LazyThreadSafetyMode.ExecutionAndPublication);
 
         /// <summary>
-        /// The runner registered in the service locator (by the MainForm), or a default one (tests, headless).
+        /// The runner registered in the service locator (by the GreenshotShell), or a default one (tests, headless).
         /// </summary>
         public static ICaptureFlowRunner Current => SimpleServiceProvider.Current?.GetInstance<ICaptureFlowRunner>(isOptional: true) ?? Fallback.Value;
 

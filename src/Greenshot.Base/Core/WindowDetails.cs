@@ -269,7 +269,7 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Use this to make remove internal windows, like the mainform and the captureforms, invisible
+        /// Use this to make remove internal windows, like the message windows and the capture window, invisible
         /// </summary>
         /// <param name="ignoreHandle"></param>
         public static void RegisterIgnoreHandle(IntPtr ignoreHandle)

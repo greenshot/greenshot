@@ -2076,8 +2076,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         private static Window GetActiveWindow()
         {
             return Application.Current?.Windows.OfType<Window>().FirstOrDefault(w => w.IsActive)
-                ?? Application.Current?.Windows.OfType<Window>().FirstOrDefault()
-                ?? Application.Current?.MainWindow;
+                // Not a hidden window (MainWindow is just the first WPF window which was created)
+                ?? Application.Current?.Windows.OfType<Window>().FirstOrDefault(w => w.IsVisible);
         }
 
         private static MessageBoxResult ShowMessageBox(string messageBoxText, string caption, MessageBoxButton button, MessageBoxImage icon)

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -19,16 +19,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
 namespace Greenshot.Base.Interfaces
 {
     /// <summary>
-    /// IProvideDeviceDpi can provide the current DPI for a component
+    /// The icon of a tray balloon
     /// </summary>
-    public interface IProvideDeviceDpi
+    public enum TrayBalloonLevel
     {
-        /// <summary>
-        /// A simple getter for the current DPI
-        /// </summary>
-        int DeviceDpi { get; }
+        Info,
+        Warning,
+        Error
     }
 }

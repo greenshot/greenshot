@@ -48,7 +48,7 @@ public class DropboxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepP
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(DropboxPlugin));
     private static IDropboxConfiguration _config;
-    private ToolStripMenuItem _itemPlugInConfig;
+    private TrayMenuEntry _itemPlugInConfig;
 
     public ValueTask DisposeAsync()
     {
@@ -94,7 +94,7 @@ public class DropboxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepP
 
     private void Start()
     {
-        _itemPlugInConfig = new ToolStripMenuItem
+        _itemPlugInConfig = new TrayMenuEntry
         {
             Text = PluginUtils.GetQuicklinkText("Dropbox"),
             Image = EmbeddedResources.GetImage(typeof(DropboxPlugin), "Dropbox"),
@@ -146,7 +146,7 @@ public class DropboxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepP
     private void ConfigMenuClick(object sender, EventArgs eventArgs)
     {
         // Show the settings of this plugin
-        SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>(isOptional: true)?.ShowSetting(Name);
+        SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true)?.ShowSetting(Name);
     }
 
     /// <summary>

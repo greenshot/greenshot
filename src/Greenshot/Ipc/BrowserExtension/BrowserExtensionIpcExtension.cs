@@ -25,7 +25,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Reflection;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Helpers;
@@ -69,7 +68,7 @@ namespace Greenshot.Ipc.BrowserExtension
 
         public Task<string> CheckAccessAsync(string command, IpcRequestContext context) => Task.FromResult<string>(null);
 
-        public async Task HandleAsync(string command, IpcRequestContext context, Form mainForm)
+        public async Task HandleAsync(string command, IpcRequestContext context, IGreenshotShell shell)
         {
             switch (command.ToUpperInvariant())
             {
@@ -78,7 +77,7 @@ namespace Greenshot.Ipc.BrowserExtension
                     break;
 
                 case "IMPORT_CAPTURE":
-                    await HandleImportCaptureAsync(context, mainForm).ConfigureAwait(false);
+                    await HandleImportCaptureAsync(context, shell).ConfigureAwait(false);
                     break;
 
                 case "TAB_CHANGED":
@@ -117,7 +116,7 @@ namespace Greenshot.Ipc.BrowserExtension
         /// then handed to the UI thread. The extension gets an acknowledgement with "reply_to": "IMPORT_CAPTURE":
         /// status "ok" when the capture was accepted, or "error" with the reason.
         /// </summary>
-        private static async Task HandleImportCaptureAsync(IpcRequestContext context, Form mainForm)
+        private static async Task HandleImportCaptureAsync(IpcRequestContext context, IGreenshotShell shell)
         {
             if (!ImportCaptureDecoder.TryDecode(context.Envelope.Data?.Payload, out Bitmap importedBmp, out string error))
             {
@@ -126,7 +125,7 @@ namespace Greenshot.Ipc.BrowserExtension
                 return;
             }
 
-            if (mainForm == null || mainForm.IsDisposed)
+            if (shell == null)
             {
                 importedBmp.Dispose();
                 Log.Warn("IMPORT_CAPTURE rejected: Greenshot is not ready to import captures.");
@@ -147,7 +146,7 @@ namespace Greenshot.Ipc.BrowserExtension
 
             try
             {
-                IpcSecurityDispatcher.RunOnUi(mainForm, new Action(() =>
+                IpcSecurityDispatcher.RunOnUi(shell, new Action(() =>
                 {
                     try
                     {

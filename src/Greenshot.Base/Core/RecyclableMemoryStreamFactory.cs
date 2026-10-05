@@ -27,7 +27,7 @@ namespace Greenshot.Base.Core
     /// <summary>
     /// Factory for obtaining RecyclableMemoryStream instances to minimize Large Object Heap (LOH) usage.
     /// The shared <see cref="RecyclableMemoryStreamManager"/> is also registered in
-    /// <see cref="SimpleServiceProvider"/> (from MainForm) so it can be looked up by any code that needs it.
+    /// <see cref="SimpleServiceProvider"/> (from the GreenshotShell) so it can be looked up by any code that needs it.
     /// </summary>
     public static class RecyclableMemoryStreamFactory
     {

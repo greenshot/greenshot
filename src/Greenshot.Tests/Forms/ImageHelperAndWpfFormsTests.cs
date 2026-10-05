@@ -420,7 +420,7 @@ namespace Greenshot.Tests.Forms
         }
 
         [Fact]
-        public void PluginUtils_QuicklinkAndSeparatorVisibilityTests()
+        public void PluginUtils_QuicklinkAndTrayMenuEntriesTests()
         {
             // 1. Unified quicklink text
             string text = PluginUtils.GetQuicklinkText("Dropbox");
@@ -429,30 +429,28 @@ namespace Greenshot.Tests.Forms
             string textImgur = PluginUtils.GetQuicklinkText("Imgur");
             Assert.Equal("Configure Imgur", textImgur);
 
-            // 2. Separator visibility when no plugin items are visible
-            var contextMenu = new System.Windows.Forms.ContextMenuStrip();
-            var topSeparator = new System.Windows.Forms.ToolStripSeparator { Tag = "PluginsAreAddedAfter" };
-            var pluginItem1 = new System.Windows.Forms.ToolStripMenuItem("Item 1") { Visible = false };
-            var pluginItem2 = new System.Windows.Forms.ToolStripMenuItem("Item 2") { Visible = false };
-            var bottomSeparator = new System.Windows.Forms.ToolStripSeparator { Tag = "PluginsAreAddedBefore" };
+            // 2. Only visible tray menu entries are in the menu, disposing removes the entry
+            var entry1 = new TrayMenuEntry("Item 1") { Visible = false };
+            var entry2 = new TrayMenuEntry("Item 2") { Visible = false };
+            try
+            {
+                PluginUtils.AddToContextMenu(entry1);
+                PluginUtils.AddToContextMenu(entry2);
+                Assert.DoesNotContain(entry1, PluginUtils.GetVisibleContextMenuEntries());
+                Assert.DoesNotContain(entry2, PluginUtils.GetVisibleContextMenuEntries());
 
-            contextMenu.Items.Add(topSeparator);
-            contextMenu.Items.Add(pluginItem1);
-            contextMenu.Items.Add(pluginItem2);
-            contextMenu.Items.Add(bottomSeparator);
+                entry1.Visible = true;
+                Assert.Contains(entry1, PluginUtils.GetVisibleContextMenuEntries());
+                Assert.DoesNotContain(entry2, PluginUtils.GetVisibleContextMenuEntries());
 
-            PluginUtils.UpdatePluginSeparatorsVisibility(contextMenu);
-            Assert.False(topSeparator.Available, "Top separator should be hidden when all plugin items are invisible");
-
-            // Make one item visible
-            pluginItem1.Available = true;
-            PluginUtils.UpdatePluginSeparatorsVisibility(contextMenu);
-            Assert.True(topSeparator.Available, "Top separator should be visible when at least one plugin item is visible");
-
-            // Hide it again
-            pluginItem1.Available = false;
-            PluginUtils.UpdatePluginSeparatorsVisibility(contextMenu);
-            Assert.False(topSeparator.Available, "Top separator should be hidden again when all items become invisible");
+                entry1.Dispose();
+                Assert.DoesNotContain(entry1, PluginUtils.GetVisibleContextMenuEntries());
+            }
+            finally
+            {
+                entry1.Dispose();
+                entry2.Dispose();
+            }
         }
 
         [Fact]

@@ -102,5 +102,23 @@ namespace Greenshot.Tests.Core
             Assert.Equal(desktopPath, config.OutputFilePath);
             Assert.Equal(dummyFile, config.OutputFileAsFullpath);
         }
+
+        [Theory]
+        [InlineData("24,24", 16)]
+        [InlineData("40,40", 32)]
+        [InlineData("8,8", 16)]
+        [InlineData("512,512", 256)]
+        [InlineData("32,32", 32)]
+        public void IconSize_FromIniFile_IsCoercedToAMultipleOf16(string rawValue, int expected)
+        {
+            var config = new CoreConfigurationImpl();
+            config.ResetToDefaults();
+
+            // Loading the ini file sets the raw value, not the property
+            config.SetRawValue("BaseIconSize", rawValue);
+
+            Assert.Equal(expected, config.IconSize.Width);
+            Assert.Equal(expected, config.IconSize.Height);
+        }
     }
 }

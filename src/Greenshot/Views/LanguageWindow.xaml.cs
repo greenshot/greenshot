@@ -83,11 +83,15 @@ namespace Greenshot.Views
             }
         }
 
-        public bool? ShowDialog(System.Windows.Forms.IWin32Window owner)
+        /// <summary>
+        /// Show the window modal, owned by a window which is no WPF window
+        /// </summary>
+        /// <param name="ownerHandle">The handle of the owner, IntPtr.Zero for none</param>
+        public bool? ShowDialog(IntPtr ownerHandle)
         {
-            if (owner != null)
+            if (ownerHandle != IntPtr.Zero)
             {
-                new WindowInteropHelper(this) { Owner = owner.Handle };
+                new WindowInteropHelper(this) { Owner = ownerHandle };
             }
             return ShowDialog();
         }

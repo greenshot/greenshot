@@ -32,7 +32,6 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Configuration;
 using Greenshot.Editor.Helpers;
-using Greenshot.Forms;
 using log4net;
 
 using Greenshot.Base.Languages;
