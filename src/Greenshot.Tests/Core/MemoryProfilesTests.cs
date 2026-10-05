@@ -20,6 +20,7 @@
  */
 
 
+using System;
 using Greenshot.Base.Core;
 using Xunit;
 
@@ -32,11 +33,22 @@ namespace Greenshot.Tests.Core
             TestEnvironment.EnsureInitialized();
         }
 
+        /// <summary>
+        /// A configuration with the default values (a new one has none until ResetToDefaults), with an optional change
+        /// </summary>
+        private static CoreConfigurationImpl CreateDefaults(Action<CoreConfigurationImpl> change = null)
+        {
+            var configuration = new CoreConfigurationImpl();
+            configuration.ResetToDefaults();
+            change?.Invoke(configuration);
+            return configuration;
+        }
+
         [Fact]
         public void Defaults_AreTheFastProfile()
         {
             // Greenshot stays as fast as it is unless the user turns something down
-            Assert.Equal(MemoryProfile.Fast, MemoryProfiles.Detect(new CoreConfigurationImpl()));
+            Assert.Equal(MemoryProfile.Fast, MemoryProfiles.Detect(CreateDefaults()));
         }
 
         [Theory]
@@ -45,7 +57,7 @@ namespace Greenshot.Tests.Core
         [InlineData(MemoryProfile.LowMemory)]
         public void Apply_ThenDetect_GivesTheSameProfile(MemoryProfile profile)
         {
-            var configuration = new CoreConfigurationImpl();
+            var configuration = CreateDefaults();
             MemoryProfiles.Apply(configuration, profile);
             Assert.Equal(profile, MemoryProfiles.Detect(configuration));
         }
@@ -53,7 +65,7 @@ namespace Greenshot.Tests.Core
         [Fact]
         public void Balanced_KeepsHardwareRendering()
         {
-            var configuration = new CoreConfigurationImpl();
+            var configuration = CreateDefaults();
             MemoryProfiles.Apply(configuration, MemoryProfile.Balanced);
 
             Assert.True(configuration.HardwareRendering);
@@ -66,7 +78,7 @@ namespace Greenshot.Tests.Core
         [Fact]
         public void LowMemory_TurnsEverythingDown()
         {
-            var configuration = new CoreConfigurationImpl();
+            var configuration = CreateDefaults();
             MemoryProfiles.Apply(configuration, MemoryProfile.LowMemory);
 
             Assert.False(configuration.HardwareRendering);
@@ -81,7 +93,7 @@ namespace Greenshot.Tests.Core
         public void Profiles_LeaveTheCaptureMethodAlone()
         {
             // The GDI capture changes what a capture contains, so no profile switches it
-            var configuration = new CoreConfigurationImpl { UseGraphicsCapture = false };
+            var configuration = CreateDefaults(c => c.UseGraphicsCapture = false);
             MemoryProfiles.Apply(configuration, MemoryProfile.LowMemory);
             Assert.False(configuration.UseGraphicsCapture);
             Assert.Equal(MemoryProfile.LowMemory, MemoryProfiles.Detect(configuration));
@@ -90,14 +102,14 @@ namespace Greenshot.Tests.Core
         [Fact]
         public void OneChangedSetting_IsCustom()
         {
-            var configuration = new CoreConfigurationImpl { PrewarmEditor = false };
+            var configuration = CreateDefaults(c => c.PrewarmEditor = false);
             Assert.Equal(MemoryProfile.Custom, MemoryProfiles.Detect(configuration));
         }
 
         [Fact]
         public void ApplyCustom_ChangesNothing()
         {
-            var configuration = new CoreConfigurationImpl { PrewarmEditor = false };
+            var configuration = CreateDefaults(c => c.PrewarmEditor = false);
             MemoryProfiles.Apply(configuration, MemoryProfile.Custom);
             Assert.False(configuration.PrewarmEditor);
             Assert.True(configuration.PrewarmCapture);
