@@ -70,6 +70,10 @@ namespace Greenshot.Base.Core
         }
 
         partial void OnAutoCropDifferenceSet(ref int value) => value = Clamp(value, 0, 255);
+
+        // Also when read: loading the ini file doesn't go through the setter
+        partial void OnBufferPoolLimitSet(ref int value) => value = Math.Max(0, value);
+        partial void OnBufferPoolLimitGet(ref int value) => value = Math.Max(0, value);
         partial void OnOutputFileReduceColorsToSet(ref int value) => value = Clamp(value, 2, 256);
         partial void OnWebRequestTimeoutSet(ref int value) => value = Clamp(value, 1, 100);
         partial void OnWebRequestReadWriteTimeoutSet(ref int value) => value = Clamp(value, 1, 100);

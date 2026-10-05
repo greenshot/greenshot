@@ -282,6 +282,36 @@ namespace Greenshot.Base.Languages
         string ExpertMinimizememoryfootprint { get; }
 
         /// <summary>
+        /// Draw the windows with the graphics card (uses more memory, takes effect after a restart)
+        /// </summary>
+        string ExpertHardwarerendering { get; }
+
+        /// <summary>
+        /// Take screenshots with DirectX (Windows Graphics Capture, needed for HDR screens)
+        /// </summary>
+        string ExpertGraphicscapture { get; }
+
+        /// <summary>
+        /// Keep DirectX ready for faster screenshots (uses more memory)
+        /// </summary>
+        string ExpertKeepgraphicscaptureready { get; }
+
+        /// <summary>
+        /// Prepare the capture in the background after the start (uses more memory)
+        /// </summary>
+        string ExpertPrewarmcapture { get; }
+
+        /// <summary>
+        /// Prepare the editor in the background after the start (uses more memory)
+        /// </summary>
+        string ExpertPrewarmeditor { get; }
+
+        /// <summary>
+        /// Most memory (MB) kept by unused buffers, 0 = no limit (takes effect after a restart)
+        /// </summary>
+        string ExpertBufferpoollimit { get; }
+
+        /// <summary>
         /// Make some optimizations for usage with remote desktop
         /// </summary>
         string ExpertOptimizeforrdp { get; }

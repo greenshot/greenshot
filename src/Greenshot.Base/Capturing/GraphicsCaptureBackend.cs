@@ -42,7 +42,8 @@ namespace Greenshot.Base.Capturing
         public string Name => BackendName;
 
         /// <inheritdoc />
-        public bool IsAvailable => WindowsGraphicsCaptureInterop.IsSupported;
+        /// <remarks>False when the UseGraphicsCapture setting is off: the GDI capture is used, without a DirectX device</remarks>
+        public bool IsAvailable => WindowsGraphicsCaptureInterop.IsSupported && WindowsGraphicsCaptureInterop.IsEnabledForScreenshots;
 
         /// <inheritdoc />
         public bool CapturesWindowContentOnly => true;

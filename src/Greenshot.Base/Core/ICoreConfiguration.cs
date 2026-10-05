@@ -269,6 +269,30 @@ namespace Greenshot.Base.Core
         [DefaultValue(false)]
         bool MinimizeWorkingSetSize { get; set; }
 
+        [Description("Draw Greenshot's windows with the graphics card (WPF hardware rendering). False saves the memory of the graphics driver (about 45 MB) but costs CPU, e.g. in the capture window. Takes effect after a restart.")]
+        [DefaultValue(true)]
+        bool HardwareRendering { get; set; }
+
+        [Description("Take screenshots with Windows Graphics Capture (DirectX, needed for HDR screens). False uses the GDI capture only, without a DirectX device. Video recording always uses Windows Graphics Capture.")]
+        [DefaultValue(true)]
+        bool UseGraphicsCapture { get; set; }
+
+        [Description("Create the DirectX device for the screenshots at the start and keep it, which makes every capture about 200 ms faster. False creates it for each capture and releases it afterwards (about 15-30 MB less while idle).")]
+        [DefaultValue(true)]
+        bool KeepGraphicsCaptureReady { get; set; }
+
+        [Description("Prepare the interactive capture in the background after the start, so the first capture opens faster.")]
+        [DefaultValue(true)]
+        bool PrewarmCapture { get; set; }
+
+        [Description("Prepare the editor in the background after the start (code, emoji font, installed fonts), so the first editor opens faster. False keeps this memory free until the first editor opens.")]
+        [DefaultValue(true)]
+        bool PrewarmEditor { get; set; }
+
+        [Description("The most memory in MB which the reusable buffer pools keep when they're not in use (each, for small blocks and for large buffers). 0 means no limit.")]
+        [DefaultValue(0)]
+        int BufferPoolLimit { get; set; }
+
         [Description("Log when the UI thread doesn't respond for more than 250 ms (diagnostics, always active in debug builds).")]
         [DefaultValue(false)]
         bool EnableUiStallWatchdog { get; set; }

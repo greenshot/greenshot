@@ -1089,6 +1089,80 @@
                                     </CheckBox.IsEnabled>
                                 </CheckBox>
 
+                                <!-- Memory and speed: everything on uses the most memory and is the fastest -->
+                                <CheckBox Content="{wpf:Text Settings.ExpertHardwarerendering}"
+                                          IsChecked="{Binding CoreConfiguration.HardwareRendering, Mode=TwoWay}">
+                                    <CheckBox.IsEnabled>
+                                        <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="HardwareRendering">
+                                            <Binding Path="ExpertModeEnabled"/>
+                                            <Binding Path="CoreConfiguration"/>
+                                        </MultiBinding>
+                                    </CheckBox.IsEnabled>
+                                </CheckBox>
+
+                                <CheckBox Content="{wpf:Text Settings.ExpertGraphicscapture}"
+                                          IsChecked="{Binding CoreConfiguration.UseGraphicsCapture, Mode=TwoWay}">
+                                    <CheckBox.IsEnabled>
+                                        <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="UseGraphicsCapture">
+                                            <Binding Path="ExpertModeEnabled"/>
+                                            <Binding Path="CoreConfiguration"/>
+                                        </MultiBinding>
+                                    </CheckBox.IsEnabled>
+                                </CheckBox>
+
+                                <CheckBox Content="{wpf:Text Settings.ExpertKeepgraphicscaptureready}"
+                                          IsChecked="{Binding CoreConfiguration.KeepGraphicsCaptureReady, Mode=TwoWay}">
+                                    <CheckBox.IsEnabled>
+                                        <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="KeepGraphicsCaptureReady">
+                                            <Binding Path="ExpertModeEnabled"/>
+                                            <Binding Path="CoreConfiguration"/>
+                                        </MultiBinding>
+                                    </CheckBox.IsEnabled>
+                                </CheckBox>
+
+                                <CheckBox Content="{wpf:Text Settings.ExpertPrewarmcapture}"
+                                          IsChecked="{Binding CoreConfiguration.PrewarmCapture, Mode=TwoWay}">
+                                    <CheckBox.IsEnabled>
+                                        <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="PrewarmCapture">
+                                            <Binding Path="ExpertModeEnabled"/>
+                                            <Binding Path="CoreConfiguration"/>
+                                        </MultiBinding>
+                                    </CheckBox.IsEnabled>
+                                </CheckBox>
+
+                                <CheckBox Content="{wpf:Text Settings.ExpertPrewarmeditor}"
+                                          IsChecked="{Binding CoreConfiguration.PrewarmEditor, Mode=TwoWay}">
+                                    <CheckBox.IsEnabled>
+                                        <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="PrewarmEditor">
+                                            <Binding Path="ExpertModeEnabled"/>
+                                            <Binding Path="CoreConfiguration"/>
+                                        </MultiBinding>
+                                    </CheckBox.IsEnabled>
+                                </CheckBox>
+
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{wpf:Text Settings.ExpertBufferpoollimit}"
+                                               TextWrapping="Wrap"
+                                               VerticalAlignment="Center"
+                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                    <TextBox Grid.Column="1"
+                                             HorizontalAlignment="Right"
+                                             Width="70"
+                                             TextAlignment="Right"
+                                             Text="{Binding CoreConfiguration.BufferPoolLimit, Mode=TwoWay}">
+                                        <TextBox.IsEnabled>
+                                            <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="BufferPoolLimit">
+                                                <Binding Path="ExpertModeEnabled"/>
+                                                <Binding Path="CoreConfiguration"/>
+                                            </MultiBinding>
+                                        </TextBox.IsEnabled>
+                                    </TextBox>
+                                </Grid>
+
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
