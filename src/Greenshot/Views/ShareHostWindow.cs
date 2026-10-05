@@ -27,6 +27,7 @@ using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Threading;
+using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Enums;
 using Greenshot.Base.Core;
@@ -114,7 +115,7 @@ namespace Greenshot.Views
 
             // In the middle of the monitor with the mouse cursor, in pixels
             var cursor = User32Api.GetCursorLocation();
-            var display = DisplayInfo.AllDisplayInfos.FirstOrDefault(d => d.Bounds.Contains(cursor.X, cursor.Y)) ?? DisplayInfo.AllDisplayInfos.FirstOrDefault();
+            var display = DisplayInfo.AllDisplayInfos.FirstOrDefault(d => d.Bounds.Contains(cursor)) ?? DisplayInfo.AllDisplayInfos.FirstOrDefault();
             if (display != null)
             {
                 var workArea = display.WorkingArea;
