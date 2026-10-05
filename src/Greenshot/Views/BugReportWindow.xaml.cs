@@ -22,7 +22,6 @@
 using System;
 using System.Threading;
 using System.Windows;
-using System.Windows.Input;
 using Greenshot.Base.Threading;
 using Greenshot.SelfService.Views;
 using Greenshot.ViewModels;
@@ -46,14 +45,6 @@ namespace Greenshot.Views
         public BugReportWindow(Exception ex, string fullReport = null)
             : this(new BugReportViewModel(ex, fullReport))
         {
-        }
-
-        private void OnTitleBarMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ChangedButton == MouseButton.Left)
-            {
-                DragMove();
-            }
         }
 
         private void OnCloseClicked(object sender, RoutedEventArgs e)

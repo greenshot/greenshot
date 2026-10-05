@@ -648,6 +648,26 @@ namespace Greenshot.Base.Languages
         string StoragelocationFolderErrorTitle { get; }
 
         /// <summary>
+        /// Colors
+        /// </summary>
+        string Theme { get; }
+
+        /// <summary>
+        /// Dark
+        /// </summary>
+        string ThemeDark { get; }
+
+        /// <summary>
+        /// Light
+        /// </summary>
+        string ThemeLight { get; }
+
+        /// <summary>
+        /// Same as Windows
+        /// </summary>
+        string ThemeSystem { get; }
+
+        /// <summary>
         /// Settings
         /// </summary>
         string Title { get; }

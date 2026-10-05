@@ -12,15 +12,6 @@
         WindowStyle="None"
         AllowsTransparency="False">
 
-    <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="36"
-                      CornerRadius="0"
-                      GlassFrameThickness="0"
-                      NonClientFrameEdges="None"
-                      ResizeBorderThickness="5"
-                      UseAeroCaptionButtons="False"/>
-    </WindowChrome.WindowChrome>
-
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -32,28 +23,12 @@
     <Border BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}" BorderThickness="1">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="36"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- Title bar -->
-            <Grid Grid.Row="0" Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TitleBarBrush}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="36"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <Image Grid.Column="0"
-                       Source="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Icon}"
-                       Width="16" Height="16" Margin="10,0,0,0" VerticalAlignment="Center"/>
-                <TextBlock Grid.Column="1"
-                           Text="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Title}"
-                           VerticalAlignment="Center" Margin="8,0,0,0" FontSize="13" FontWeight="SemiBold"/>
-                <Button Grid.Column="2" Content="✕" Click="CloseButton_Click"
-                        Style="{StaticResource TitleBarCloseButtonStyle}"
-                        WindowChrome.IsHitTestVisibleInChrome="True"/>
-            </Grid>
+            <wpf:ThemedTitleBar Grid.Row="0"/>
 
             <!-- The uploads, newest first -->
             <ListView x:Name="UploadsList" Grid.Row="1" Margin="14,10,14,10"

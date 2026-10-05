@@ -104,6 +104,10 @@ namespace Greenshot.Settings.ViewModels
                     OnPropertyChanged(nameof(ThemeToggleIcon));
                     OnPropertyChanged(nameof(ThemeToggleToolTip));
                 }
+                else if (e.PropertyName == nameof(ThemeManager.Theme))
+                {
+                    OnPropertyChanged(nameof(SelectedTheme));
+                }
             };
         }
 

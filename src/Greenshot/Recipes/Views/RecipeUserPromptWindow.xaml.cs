@@ -86,6 +86,7 @@ namespace Greenshot.Recipes.Views
             {
                 PromptTitle = title;
                 WindowTitle = $"Greenshot - {title}";
+                Title = WindowTitle;
             }
 
             if (!string.IsNullOrWhiteSpace(message))
@@ -216,14 +217,11 @@ namespace Greenshot.Recipes.Views
             }
         }
 
-        private void CloseButton_Click(object sender, RoutedEventArgs e)
-        {
-            SelectAndClose(_cancelChoiceKey ?? "No");
-        }
-
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
+            // Closed by the title bar (or a cancelled flow): the countdown must not pick a choice afterwards
+            _timer?.Stop();
             if (string.IsNullOrEmpty(SelectedChoiceKey))
             {
                 SelectedChoiceKey = _cancelChoiceKey ?? "No";

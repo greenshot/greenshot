@@ -389,6 +389,10 @@ namespace Greenshot.Base.Core
         [DefaultValue("16,16")]
         NativeSize IconSize { get; set; }
 
+        [Description("The colors of Greenshot's windows and menus: System (follow the Windows settings), Light or Dark. A high contrast theme of Windows always wins.")]
+        [DefaultValue("System")]
+        UiTheme Theme { get; set; }
+
         [Description("The connect timeout value for web requests, these are seconds")]
         [DefaultValue(10)]
         [Range(1, 100, ErrorMessage = "WebRequestTimeout must be between 1 and 100 seconds.")]
