@@ -111,7 +111,7 @@ classDiagram
 ### 2.2 Core Enums & Data Types
 
 ```csharp
-namespace Greenshot.Base.Pipeline.Contracts
+namespace Greenshot.Base.Recipes.Contracts
 {
     public enum ContractDataType
     {
@@ -241,7 +241,7 @@ Recipe inputs are the trigger inputs plus required step inputs that no node prod
 
 ### 4.1 Pipeline Context Additions
 
-We extend [`CaptureFlowContext`](file:///d:/code/greenshot/src/Greenshot.Base/Pipeline/CaptureFlowContext.cs) to provide dedicated stderr streaming and exit code tracking:
+We extend [`CaptureFlowContext`](file:///d:/code/greenshot/src/Greenshot.Base/Recipes/Pipeline/CaptureFlowContext.cs) to provide dedicated stderr streaming and exit code tracking:
 
 ```csharp
 public class CaptureFlowContext : IDisposable
@@ -452,7 +452,7 @@ flowchart TD
 ```
 
 ### Phase 1: Contract Models & Context Enhancements
-* Create `Greenshot.Base.Pipeline.Contracts`:
+* Create `Greenshot.Base.Recipes.Contracts`:
   * `StepContract`, `ParameterContract`, `VariableContract`, `PayloadContract`.
   * Enums: `ContractDataType`, `PayloadRequirement`, `PayloadEffect`.
 * Update `CaptureFlowContext`:
@@ -465,7 +465,7 @@ flowchart TD
 * Decorate all core and plugin steps, with the parameters and variables they actually use.
 
 ### Phase 3: `StderrStep` Implementation
-* Implement `StderrStep` in `src/Greenshot/Pipeline/Steps/StderrStep.cs`.
+* Implement `StderrStep` in `src/Greenshot/Recipes/Steps/StderrStep.cs`.
 * Register under `WellKnownStepTypes.Stderr` in `CapturePipeline`.
 * Wire `context.StderrWriter` in `IpcSecurityDispatcher` to emit `{"stream": "stderr", "text": "..."}` frames.
 * Propagate `context.ExitCode` into final IPC reply `exit_code`.
