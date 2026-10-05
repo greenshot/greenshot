@@ -129,7 +129,6 @@ public class RecipeEditorPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipe
                 {
                     WindowStartupLocation = WindowStartupLocation.CenterScreen
                 };
-                System.Windows.Forms.Integration.ElementHost.EnableModelessKeyboardInterop(dlg);
                 dlg.Show();
             }
             catch (Exception ex)
@@ -167,7 +166,6 @@ public class RecipeEditorPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipe
                 var recipeManager = SimpleServiceProvider.Current?.GetInstance<IRecipeManager>(isOptional: true);
                 _activeRecipeEditorWindow = new RecipeEditorWindow(recipeManager);
                 _activeRecipeEditorWindow.Closed += (s, e) => _activeRecipeEditorWindow = null;
-                System.Windows.Forms.Integration.ElementHost.EnableModelessKeyboardInterop(_activeRecipeEditorWindow);
                 _activeRecipeEditorWindow.Show();
 
                 if (!string.IsNullOrEmpty(recipeId))

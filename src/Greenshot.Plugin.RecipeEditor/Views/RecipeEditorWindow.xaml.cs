@@ -50,7 +50,6 @@ namespace Greenshot.Plugin.RecipeEditor.Views
             Loaded += (s, e) =>
             {
                 ApplyImmersiveDarkMode();
-                System.Windows.Forms.Integration.ElementHost.EnableModelessKeyboardInterop(this);
             };
         }
 

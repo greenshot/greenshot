@@ -225,7 +225,6 @@ namespace Greenshot.Views
         private void OnWindowLoaded(object sender, RoutedEventArgs e)
         {
             ApplyImmersiveDarkMode();
-            System.Windows.Forms.Integration.ElementHost.EnableModelessKeyboardInterop(this);
 
             _startupStoryboard = TryFindResource("StartupStoryboard") as Storyboard;
             _waveStoryboard = TryFindResource("WaveStoryboard") as Storyboard;
