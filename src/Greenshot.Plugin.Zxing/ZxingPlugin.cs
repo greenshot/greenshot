@@ -26,7 +26,6 @@ using System.Drawing;
 using System.Windows.Forms;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
-using Greenshot.Base.Drawing;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Plugin;
@@ -37,6 +36,8 @@ using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Languages;
 using Greenshot.Plugin.Zxing.Destinations;
+using Greenshot.Plugin.Zxing.Drawing;
+using Greenshot.Plugin.Zxing.Processing;
 using Greenshot.Plugin.Zxing.Recipes;
 using Greenshot.Plugin.Zxing.Views;
 

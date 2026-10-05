@@ -26,8 +26,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Greenshot.Base.Threading;
-using Greenshot.Plugin.Confluence.Entities;
-using Page = Greenshot.Plugin.Confluence.Entities.Page;
+using Greenshot.Plugin.Confluence.Api;
+using Greenshot.Plugin.Confluence.Api.Entities;
+using Page = Greenshot.Plugin.Confluence.Api.Entities.Page;
 
 namespace Greenshot.Plugin.Confluence.Views;
 

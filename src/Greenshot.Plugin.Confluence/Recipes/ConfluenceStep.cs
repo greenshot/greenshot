@@ -33,8 +33,9 @@ using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Plugin.Confluence.Api;
+using Greenshot.Plugin.Confluence.Api.Entities;
 using Greenshot.Plugin.Confluence.Destinations;
-using Greenshot.Plugin.Confluence.Entities;
 using log4net;
 using Greenshot.Base.Core.Export;
 

@@ -33,6 +33,7 @@ using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Threading;
+using Greenshot.Plugin.Box.Api;
 using Greenshot.Plugin.Box.Destinations;
 using Greenshot.Base.Languages;
 using Greenshot.Plugin.Box.Recipes;

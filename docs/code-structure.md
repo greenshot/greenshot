@@ -25,8 +25,10 @@ Moving these types breaks opening existing files:
 - `Greenshot.Editor/Drawing/**` (containers, fields, filters, adorners, emoji, `Surface`) and `EmojiPicker`
 - `Greenshot.Base/Interfaces/Drawing/**`, `ISurface` and the surface event types
 - `Greenshot.Editor/Helpers/BinaryFormatterHelper.cs` and the editor file format handlers
-- the Zxing `BarcodeContainer` and its model (namespace `Greenshot.Plugin.Zxing`)
 - the assembly names
+
+The Zxing `BarcodeContainer` is not in the `BinaryFormatterHelper` allow-list, so barcodes are not part of `.greenshot` files today;
+once it is added there, its type names (`Greenshot.Plugin.Zxing.Drawing`) are frozen too.
 
 Also kept as they are: the plugin classes (`…Plugin`, recipe requirements match their full type name, embedded resources are named after them),
 `Greenshot.Base.Interfaces.Capture` (capture tool plugin API) and the pack URIs of `Greenshot.Base/Wpf/Styles`.
@@ -46,4 +48,4 @@ Also kept as they are: the plugin classes (`…Plugin`, recipe requirements matc
 | `Greenshot.Base/Recipes` | `Pipeline`, `Contracts`, `Sources`, `Triggers`, `Expressions` |
 | `Greenshot.Base/Wpf` | Shared WPF helpers, styles, `Views`, `ViewModels` |
 | `Greenshot.Editor/Views` | WPF windows of the editor (the editor itself is still WinForms in `Forms`) |
-| `Greenshot.Plugin.*` | `Destinations`, `Recipes` (steps), `Views` (configuration views) |
+| `Greenshot.Plugin.*` | Root: the plugin class, its configuration and language interfaces. `Destinations`, `Recipes` (steps), `Views`, `Api` (the web service client and its entities), `Images`; Jira also `Monitoring`, Zxing `Drawing` (barcode container) and `Processing` (detection, generation) |

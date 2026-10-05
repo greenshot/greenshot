@@ -10,9 +10,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Dropbox.gif" />
+    <EmbeddedResource Include="Images\Dropbox.gif" LogicalName="Greenshot.Plugin.Dropbox.Dropbox.gif" />
     <!-- Loaded with EmbeddedResources.GetImage(typeof(DropboxPlugin), "Dropbox") -->
-    <EmbeddedResource Include="Dropbox.png" LogicalName="Greenshot.Plugin.Dropbox.DropboxPlugin.Dropbox" />
+    <EmbeddedResource Include="Images\Dropbox.png" LogicalName="Greenshot.Plugin.Dropbox.DropboxPlugin.Dropbox" />
   </ItemGroup>
 
   <ItemGroup>

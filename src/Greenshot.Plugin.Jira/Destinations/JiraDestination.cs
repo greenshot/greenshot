@@ -35,6 +35,7 @@ using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Languages;
 using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Plugin.Jira.Api;
 
 namespace Greenshot.Plugin.Jira.Destinations;
 

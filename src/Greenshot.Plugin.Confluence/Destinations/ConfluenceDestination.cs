@@ -34,7 +34,8 @@ using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes.Pipeline;
-using Greenshot.Plugin.Confluence.Entities;
+using Greenshot.Plugin.Confluence.Api;
+using Greenshot.Plugin.Confluence.Api.Entities;
 using Greenshot.Base.Languages;
 
 namespace Greenshot.Plugin.Confluence.Destinations;

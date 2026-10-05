@@ -35,6 +35,7 @@ using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Threading;
+using Greenshot.Plugin.Imgur.Api;
 using log4net;
 
 namespace Greenshot.Plugin.Imgur.Recipes

@@ -28,6 +28,7 @@ using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Plugin.Zxing.Processing;
 
 namespace Greenshot.Plugin.Zxing.Destinations
 {

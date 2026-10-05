@@ -27,7 +27,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using Dapplo.Ini;
 using Greenshot.Base.Threading;
-using Greenshot.Plugin.Confluence.Entities;
+using Greenshot.Plugin.Confluence.Api;
+using Greenshot.Plugin.Confluence.Api.Entities;
 
 namespace Greenshot.Plugin.Confluence.Views;
 

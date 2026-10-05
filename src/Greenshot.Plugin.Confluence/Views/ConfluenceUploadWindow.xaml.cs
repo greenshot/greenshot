@@ -22,8 +22,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using Greenshot.Plugin.Confluence.Api.Entities;
 using Greenshot.Plugin.Confluence.Destinations;
-using Greenshot.Plugin.Confluence.Entities;
 
 namespace Greenshot.Plugin.Confluence.Views;
 

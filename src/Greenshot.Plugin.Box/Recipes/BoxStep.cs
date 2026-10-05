@@ -27,6 +27,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Plugin.Box.Api;
 using log4net;
 
 namespace Greenshot.Plugin.Box.Recipes

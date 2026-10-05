@@ -42,6 +42,7 @@ using Greenshot.Plugin.Imgur.Views;
 using Greenshot.Plugin.Jira;
 using Greenshot.Plugin.Jira.Views;
 using Greenshot.Plugin.Zxing;
+using Greenshot.Plugin.Zxing.Drawing;
 using Greenshot.Plugin.Zxing.Views;
 using Greenshot.ViewModels;
 using Greenshot.Views;

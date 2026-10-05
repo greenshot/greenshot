@@ -30,7 +30,6 @@ using System.Windows.Forms;
 using Dapplo.Ini;
 using Dapplo.Ini.Interfaces;
 using Greenshot.Base.Core;
-using Greenshot.Base.Drawing;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Plugin;

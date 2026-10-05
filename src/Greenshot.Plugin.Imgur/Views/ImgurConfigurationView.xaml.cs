@@ -21,6 +21,7 @@
 
 using System.Windows;
 using System.Windows.Controls;
+using Greenshot.Plugin.Imgur.Api;
 
 namespace Greenshot.Plugin.Imgur.Views;
 

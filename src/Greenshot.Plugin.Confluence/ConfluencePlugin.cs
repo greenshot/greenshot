@@ -32,6 +32,7 @@ using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Threading;
+using Greenshot.Plugin.Confluence.Api;
 using Greenshot.Plugin.Confluence.Destinations;
 using Greenshot.Base.Languages;
 using Greenshot.Plugin.Confluence.Recipes;

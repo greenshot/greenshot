@@ -33,6 +33,7 @@ using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Threading;
+using Greenshot.Plugin.Dropbox.Api;
 using Greenshot.Plugin.Dropbox.Destinations;
 using Greenshot.Base.Languages;
 using Greenshot.Plugin.Dropbox.Recipes;

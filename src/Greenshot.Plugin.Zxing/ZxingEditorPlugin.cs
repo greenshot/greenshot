@@ -22,6 +22,7 @@
 using System.Windows.Forms;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Plugin.Zxing.Drawing;
 
 namespace Greenshot.Plugin.Zxing;
 

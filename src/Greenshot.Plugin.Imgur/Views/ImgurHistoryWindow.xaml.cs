@@ -35,6 +35,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Wpf;
 using Greenshot.Base.Languages;
+using Greenshot.Plugin.Imgur.Api;
 
 namespace Greenshot.Plugin.Imgur.Views;
 

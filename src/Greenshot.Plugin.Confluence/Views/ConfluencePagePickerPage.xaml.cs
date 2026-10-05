@@ -20,7 +20,7 @@
  */
 
 using System.Collections.Generic;
-using Greenshot.Plugin.Confluence.Entities;
+using Greenshot.Plugin.Confluence.Api.Entities;
 
 namespace Greenshot.Plugin.Confluence.Views;
 

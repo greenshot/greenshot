@@ -36,6 +36,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Wpf;
 using Greenshot.Base.Languages;
+using Greenshot.Plugin.Jira.Api;
 using Greenshot.Plugin.Jira.Destinations;
 
 namespace Greenshot.Plugin.Jira.Views;
