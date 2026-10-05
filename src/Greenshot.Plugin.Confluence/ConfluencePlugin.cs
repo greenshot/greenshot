@@ -32,8 +32,10 @@ using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Threading;
-using Greenshot.Plugin.Confluence.Forms;
+using Greenshot.Plugin.Confluence.Destinations;
 using Greenshot.Base.Languages;
+using Greenshot.Plugin.Confluence.Recipes;
+using Greenshot.Plugin.Confluence.Views;
 
 namespace Greenshot.Plugin.Confluence;
 
@@ -101,7 +103,7 @@ public class ConfluencePlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeSt
         }
 
         services.AddRecipeStepProvider(this);
-        services.AddSettingsView<IConfluenceConfiguration>(config => new ConfluenceConfigurationControl(config));
+        services.AddSettingsView<IConfluenceConfiguration>(config => new ConfluenceConfigurationView(config));
     }
 
     public object CreateSettingsViewModel(IServiceProvider services) => _config;
@@ -121,7 +123,7 @@ public class ConfluencePlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeSt
     /// </summary>
     public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken)
     {
-        services.GetService<IDialogViewRegistry>()?.Register<ConfluenceUploadRequest, ConfluenceUploadChoice>(Forms.ConfluenceUpload.Show);
+        services.GetService<IDialogViewRegistry>()?.Register<ConfluenceUploadRequest, ConfluenceUploadChoice>(ConfluenceUploadWindow.Show);
         return services.GetRequiredService<IUiDispatcher>().RunOnUiAsync(Start, cancellationToken);
     }
 

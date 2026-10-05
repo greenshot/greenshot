@@ -125,7 +125,7 @@ public class RecipeEditorPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipe
                         OpenEditor();
                     });
 
-                var dlg = new Dialogs.RecipeManagerDialog(vm)
+                var dlg = new RecipeManagerWindow(vm)
                 {
                     WindowStartupLocation = WindowStartupLocation.CenterScreen
                 };

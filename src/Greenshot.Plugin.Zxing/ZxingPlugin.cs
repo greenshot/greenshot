@@ -36,6 +36,9 @@ using System.Threading.Tasks;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Languages;
+using Greenshot.Plugin.Zxing.Destinations;
+using Greenshot.Plugin.Zxing.Recipes;
+using Greenshot.Plugin.Zxing.Views;
 
 namespace Greenshot.Plugin.Zxing;
 
@@ -71,7 +74,7 @@ public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
         services.AddService<IDestination>(new ZxingQrDestination());
         services.AddRecipeStepProvider(this);
         services.AddRecipeDrawableProvider(this);
-        services.AddSettingsView<IZxingConfiguration>(config => new Controls.ZxingConfigurationControl(config));
+        services.AddSettingsView<IZxingConfiguration>(config => new ZxingConfigurationView(config));
     }
 
     public object CreateSettingsViewModel(IServiceProvider services) => _config;

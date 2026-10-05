@@ -34,6 +34,7 @@ using Greenshot.Editor.Helpers;
 using System.IO;
 using Greenshot.Plugin.Zxing;
 using Greenshot.Plugin.RecipeEditor.Helpers;
+using Greenshot.Plugin.Zxing.Recipes;
 using Greenshot.Recipes.Steps;
 using Xunit;
 

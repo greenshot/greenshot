@@ -36,6 +36,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Languages;
+using Greenshot.Plugin.Office.Recipes;
+using Greenshot.Plugin.Office.Views;
 
 namespace Greenshot.Plugin.Office
 {
@@ -144,7 +146,7 @@ namespace Greenshot.Plugin.Office
             // The destinations look for the Office installation and read the configuration
             services.AddServices(() => Destinations().ToList());
             services.AddRecipeStepProvider(this);
-            services.AddSettingsView<IOfficeConfiguration>(_ => new Forms.OfficeConfigurationControl());
+            services.AddSettingsView<IOfficeConfiguration>(_ => new OfficeConfigurationView());
         }
 
         public object CreateSettingsViewModel(IServiceProvider services) => _config;

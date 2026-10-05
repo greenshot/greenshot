@@ -27,8 +27,8 @@ using System.Windows.Controls;
 using System.Windows.Threading;
 using Greenshot.Base.Core;
 using Greenshot.Plugin.Imgur;
-using Greenshot.Plugin.Imgur.Forms;
-using Greenshot.Plugin.Jira.Forms;
+using Greenshot.Plugin.Imgur.Views;
+using Greenshot.Plugin.Jira.Views;
 using Xunit;
 
 namespace Greenshot.Tests.Forms

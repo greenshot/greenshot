@@ -33,8 +33,10 @@ using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Threading;
-using Greenshot.Plugin.Dropbox.Forms;
+using Greenshot.Plugin.Dropbox.Destinations;
 using Greenshot.Base.Languages;
+using Greenshot.Plugin.Dropbox.Recipes;
+using Greenshot.Plugin.Dropbox.Views;
 
 namespace Greenshot.Plugin.Dropbox;
 
@@ -68,7 +70,7 @@ public class DropboxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepP
         services.AddService<IIconProvider>(DropboxDestination.Icons);
         services.AddService<IDestination>(new DropboxDestination(this));
         services.AddRecipeStepProvider(this);
-        services.AddSettingsView<IDropboxConfiguration>(config => new Forms.DropboxConfigurationControl(config));
+        services.AddSettingsView<IDropboxConfiguration>(config => new DropboxConfigurationView(config));
     }
 
     public object CreateSettingsViewModel(IServiceProvider services) => _config;

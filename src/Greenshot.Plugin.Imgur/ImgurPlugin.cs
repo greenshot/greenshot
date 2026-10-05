@@ -30,10 +30,12 @@ using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Threading;
-using Greenshot.Plugin.Imgur.Forms;
+using Greenshot.Plugin.Imgur.Destinations;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Languages;
+using Greenshot.Plugin.Imgur.Recipes;
+using Greenshot.Plugin.Imgur.Views;
 
 namespace Greenshot.Plugin.Imgur;
 
@@ -68,7 +70,7 @@ public class ImgurPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
         services.AddService<IIconProvider>(ImgurDestination.Icons);
         services.AddService<IDestination>(new ImgurDestination());
         services.AddRecipeStepProvider(this);
-        services.AddSettingsView<IImgurConfiguration>(config => new Forms.ImgurConfigurationControl(config));
+        services.AddSettingsView<IImgurConfiguration>(config => new ImgurConfigurationView(config));
     }
 
     public object CreateSettingsViewModel(IServiceProvider services) => _config;

@@ -62,7 +62,7 @@ namespace Greenshot.Tests.Recipes
             _ = new CapturePipeline(stepRegistry: registry);
             // Plugins are not services in the tests: register the ones the tests reference
             new Greenshot.Plugin.Zxing.ZxingPlugin().RegisterSteps(registry);
-            registry.Register<Greenshot.Plugin.ExternalCommand.ExternalCommandStep>(config => new Greenshot.Plugin.ExternalCommand.ExternalCommandStep(config));
+            registry.Register<Greenshot.Plugin.ExternalCommand.Recipes.ExternalCommandStep>(config => new Greenshot.Plugin.ExternalCommand.Recipes.ExternalCommandStep(config));
             return registry;
         }
 
@@ -119,9 +119,9 @@ namespace Greenshot.Tests.Recipes
         public void PluginSteps_AreRegisteredWithTheirContract()
         {
             var registry = CreatePipelineRegistry();
-            var barcode = registry.GetContract(Greenshot.Plugin.Zxing.ZxingStep.StepType);
+            var barcode = registry.GetContract(Greenshot.Plugin.Zxing.Recipes.ZxingStep.StepType);
             Assert.NotNull(barcode);
-            Assert.Equal(typeof(Greenshot.Plugin.Zxing.ZxingStep), barcode.ImplementationType);
+            Assert.Equal(typeof(Greenshot.Plugin.Zxing.Recipes.ZxingStep), barcode.ImplementationType);
             Assert.Contains(barcode.OutputVariables, v => v.Name == "Barcode.Format" && v.Conditional);
         }
 
@@ -166,8 +166,8 @@ namespace Greenshot.Tests.Recipes
             var contracts = registry.Contracts.ToDictionary(c => c.StepType, StringComparer.OrdinalIgnoreCase);
             foreach (var pluginStep in new[]
                      {
-                         typeof(Greenshot.Plugin.Imgur.ImgurStep), typeof(Greenshot.Plugin.Jira.JiraStep), typeof(Greenshot.Plugin.Confluence.ConfluenceStep),
-                         typeof(Greenshot.Plugin.Office.OfficeStep), typeof(Greenshot.Plugin.Box.BoxStep), typeof(Greenshot.Plugin.Dropbox.DropboxStep)
+                         typeof(Greenshot.Plugin.Imgur.Recipes.ImgurStep), typeof(Greenshot.Plugin.Jira.Recipes.JiraStep), typeof(Greenshot.Plugin.Confluence.Recipes.ConfluenceStep),
+                         typeof(Greenshot.Plugin.Office.Recipes.OfficeStep), typeof(Greenshot.Plugin.Box.Recipes.BoxStep), typeof(Greenshot.Plugin.Dropbox.Recipes.DropboxStep)
                      })
             {
                 var contract = StepContractBuilder.FromType(pluginStep);
@@ -208,10 +208,10 @@ namespace Greenshot.Tests.Recipes
         /// </summary>
         [Theory]
         [InlineData(typeof(Greenshot.Recipes.Steps.DestinationExportStep))]
-        [InlineData(typeof(Greenshot.Plugin.ExternalCommand.ExternalCommandStep))]
-        [InlineData(typeof(Greenshot.Plugin.Imgur.ImgurStep))]
-        [InlineData(typeof(Greenshot.Plugin.Jira.JiraStep))]
-        [InlineData(typeof(Greenshot.Plugin.Confluence.ConfluenceStep))]
+        [InlineData(typeof(Greenshot.Plugin.ExternalCommand.Recipes.ExternalCommandStep))]
+        [InlineData(typeof(Greenshot.Plugin.Imgur.Recipes.ImgurStep))]
+        [InlineData(typeof(Greenshot.Plugin.Jira.Recipes.JiraStep))]
+        [InlineData(typeof(Greenshot.Plugin.Confluence.Recipes.ConfluenceStep))]
         public void FormatParameter_AllowedValues_ComeFromTheFileFormatRegistry(Type stepType)
         {
             var registry = SimpleServiceProvider.Current.GetInstance<Greenshot.Base.Core.FileFormat.IFileFormatRegistry>();
