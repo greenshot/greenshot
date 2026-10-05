@@ -211,6 +211,12 @@ namespace Greenshot.Base.Wpf
                 return;
             }
 
+            // The space of the icon from the start: the menu doesn't grow when the icon arrives (the first time that takes a while)
+            item.Icon ??= new Border
+            {
+                Width = IconSize,
+                Height = IconSize
+            };
             AssignIconAsync(item, iconKey).FireAndLog($"Load icon {iconKey}", Log);
         }
 
