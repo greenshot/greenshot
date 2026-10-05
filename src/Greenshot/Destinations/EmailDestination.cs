@@ -29,7 +29,8 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Configuration;
 using Greenshot.Helpers;
-using Microsoft.Win32;
+using Microsoft.Win32;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Destinations
 {
@@ -57,7 +58,7 @@ namespace Greenshot.Destinations
         public override string Designation => nameof(WellKnownDestinations.EMail);
 
         public override DestinationDescriptor Descriptor => new DestinationDescriptor(
-            MapiClient ?? Language.GetString(LangKey.editor_email), 3, DestinationIcons.Resource("Email.Image"), "Ctrl+E");
+            MapiClient ?? Texts.Editor.Email, 3, DestinationIcons.Resource("Email.Image"), "Ctrl+E");
 
         /// <summary>
         /// Only with a MAPI client, and not when the Office plugin handles Outlook

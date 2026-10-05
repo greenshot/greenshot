@@ -30,6 +30,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Forms;
+using Greenshot.Ipc;
 using log4net;
 using Greenshot.Base.Threading;
 using System.Threading.Tasks;
@@ -103,20 +104,27 @@ namespace Greenshot.Helpers
             // The Restart Manager closes Greenshot for an installer (update or uninstall): greenshot-mcp has to exit too,
             // otherwise it keeps the installation directory locked
             bool closedForInstaller = endSessionMessage.EndSessionReason.HasFlag(Dapplo.Windows.AppRestartManager.Enums.EndSessionReasons.ENDSESSION_CLOSEAPP);
-            NotifyClientsOfShutdown(closedForInstaller ? Ipc.NamedPipeServer.ShutdownReasonUpdate : Ipc.NamedPipeServer.ShutdownReasonSessionEnd);
+            NotifyClientsOfShutdown(closedForInstaller ? NamedPipeServer.ShutdownReasonUpdate : NamedPipeServer.ShutdownReasonSessionEnd);
             SaveEditorState();
             // Don't wait for the exit, the editors might want to ask the user something
             UiDispatcher.Current.RunOnUiAsync(() =>
             {
+                // Closes the WinForms forms (the editors)
                 Application.Exit();
+                SessionEndShutdown?.Invoke();
                 Environment.Exit(0);
             }).FireAndLog("Exit after the end of the session", Log);
         }
 
         /// <summary>
-        /// Tells the named pipe clients that Greenshot exits, set by the MainForm
+        /// Tells the named pipe clients that Greenshot exits, set by the GreenshotShell
         /// </summary>
         internal static Func<string, Task> ShutdownNotifier { get; set; }
+
+        /// <summary>
+        /// The essential cleanup when the session ends, without waiting for anything; set by the GreenshotShell, called on the UI thread
+        /// </summary>
+        internal static Action SessionEndShutdown { get; set; }
 
         /// <summary>
         /// How long the end of the session waits for the clients to get the shutdown message

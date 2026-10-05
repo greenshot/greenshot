@@ -22,9 +22,9 @@
 using System;
 using System.IO;
 using System.Windows.Forms;
-using System.Xml;
 using Greenshot.Helpers;
 using Xunit;
+using System.Linq;
 
 namespace Greenshot.Tests.Core
 {
@@ -86,21 +86,19 @@ namespace Greenshot.Tests.Core
         public void ToNotifyIconText_AllApplicationTitles_AreAcceptedByNotifyIcon()
         {
             var languageDirectory = FindLanguageDirectory();
-            var languageFiles = Directory.GetFiles(languageDirectory, "language-*.xml");
+            var languageFiles = Directory.GetFiles(languageDirectory, "greenshot.*.ini");
             Assert.NotEmpty(languageFiles);
 
             using var notifyIcon = new NotifyIcon();
             foreach (var languageFile in languageFiles)
             {
-                var document = new XmlDocument();
-                document.Load(languageFile);
-                var titleNode = document.SelectSingleNode("//resource[@name='application_title']");
-                if (titleNode == null)
+                string titleLine = File.ReadAllLines(languageFile).FirstOrDefault(l => l.StartsWith("application_title=", StringComparison.Ordinal));
+                if (titleLine == null)
                 {
                     continue;
                 }
 
-                string result = NotifyIconTextHelper.ToNotifyIconText(titleNode.InnerText.Trim());
+                string result = NotifyIconTextHelper.ToNotifyIconText(titleLine.Substring("application_title=".Length).Trim());
                 Assert.True(result.Length <= NotifyIconTextHelper.MaxLength, $"{Path.GetFileName(languageFile)}: '{result}' is {result.Length} characters");
                 // Throws an ArgumentOutOfRangeException when the text is too long
                 notifyIcon.Text = result;

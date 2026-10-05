@@ -27,6 +27,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Core.Export;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Languages;
 using log4net;
 
 namespace Greenshot.Plugin.Pdf;
@@ -47,7 +48,7 @@ public sealed class PdfDestination : DestinationBase
     public override string Designation => "Pdf";
 
     public override DestinationDescriptor Descriptor => new DestinationDescriptor(
-        Language.GetString("pdf", "destination"), 0, DestinationIcons.Resource("Save.Image"));
+        "blatext", 0, DestinationIcons.Resource("Save.Image"));
 
     public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
     {

@@ -4,9 +4,10 @@ This document provides step-by-step checklists for common translation tasks in t
 
 ## Quick Reference
 
-- **Primary Language**: English (en-US) - `src/Greenshot/Languages/language-en-US.xml`
-- **Total Languages**: 39 in main app, 19-21 in most plugins
-- **File Format**: XML (UTF-8 with BOM)
+- **Base Language**: English (en-US) - `src/Greenshot/Languages/greenshot.en-US.ini`
+- **Total Languages**: 40 in main app, 20-22 in most plugins
+- **File Format**: INI language packs (`key=value` in `[Section]`s, UTF-8 without BOM)
+- **Missing keys**: show the English text
 - **Glossary**: See `TRANSLATION_GLOSSARY.md`
 - **Guide**: See `TRANSLATION_GUIDE.md`
 
@@ -18,28 +19,38 @@ When a developer adds a new feature requiring translation:
 
 ### For the Developer (Adding to en-US)
 
-- [ ] Add the new resource to `src/Greenshot/Languages/language-en-US.xml`
-- [ ] Use a clear, descriptive resource name following existing patterns
-  - [ ] Use appropriate prefix (`editor_`, `settings_`, `contextmenu_`, etc.)
-  - [ ] Use lowercase with underscores (e.g., `editor_new_feature_title`)
-- [ ] Write clear, concise English text
-- [ ] Add XML comment above if context is not obvious
-  ```xml
-  <!-- Title for the new feature dialog -->
-  <resource name="feature_dialog_title">Feature Name</resource>
+- [ ] Add the new `key=value` line to `src/Greenshot/Languages/greenshot.en-US.ini`, in the right section (`[Core]`, `[Editor]`, `[Settings]`, `[SelfService]`, `[Recipe]`)
+- [ ] Use a clear, descriptive key following existing patterns
+  - [ ] Use an existing prefix inside the section where it fits (`contextmenu_`, `clipboard_`, `expert_`, etc.)
+  - [ ] Use lowercase with underscores (e.g., `new_feature_title` in `[Editor]`)
+- [ ] Write clear, concise English text on one line (`\n` for a line break)
+- [ ] Add a string property with the matching name to the language interface, e.g. `ContextMenuTitle` for `context_menu_title` (key without `_` and `-`, PascalCase):
+  ```csharp
+  /// <summary>
+  /// Title for the new feature dialog
+  /// </summary>
+  string NewFeatureTitle { get; }
   ```
+  Runtime keys (enum texts like `ClipboardFormat.PNG`) need no property, they are read with `Texts.Config.GetTranslation(key)`.
+- [ ] Use the text in code as `Texts.Editor.NewFeatureTitle`, in XAML as `{wpf:Text Editor.NewFeatureTitle}`
 - [ ] Check for reusable existing strings before adding new ones
-- [ ] If the string contains placeholders, document them:
-  ```xml
-  <!-- {0} = filename, {1} = error message -->
-  <resource name="error_saving_file">Could not save {0}: {1}</resource>
+- [ ] If the string contains placeholders, document them in the property's comment (language packs have no comments):
+  ```csharp
+  /// <summary>
+  /// Could not save {0}: {1}
+  /// {0} = filename, {1} = error message
+  /// </summary>
+  string ErrorSavingFile { get; }
   ```
 - [ ] Commit the English file change
 - [ ] Create issue/task for translators to update other languages
 
 ### For Plugin Developers
 
-- [ ] Add to plugin-specific language files (e.g., `language_box-en-US.xml`)
+- [ ] Add to the plugin's en-US language pack (e.g., `greenshot.box.en-US.ini`, section `[Box]`)
+- [ ] Add the property to the plugin's language interface (e.g., `IBoxLanguage.cs`), use it as `Texts.Get<IBoxLanguage>().NewText`
+- [ ] For OK and Cancel use `Texts.Core.Ok` / `Texts.Core.Cancel` instead of own keys
+- [ ] New plugin: see "Texts in a Plugin" in [TRANSLATION_GUIDE.md](TRANSLATION_GUIDE.md)
 - [ ] Follow same naming conventions as main app
 - [ ] Consider if the string should also be in the main app
 
@@ -52,25 +63,26 @@ When new strings appear in the English file:
 ### Preparation
 
 - [ ] Pull latest changes from repository
-- [ ] Identify which languages need updating (compare with en-US)
+- [ ] Identify which languages need updating (compare with en-US, see Tools below)
 - [ ] Check the glossary (`TRANSLATION_GLOSSARY.md`) for standard terms
 - [ ] Review context of the new strings:
-  - [ ] Look at resource name prefix
-  - [ ] Read any XML comments
+  - [ ] Look at the section and key prefix
+  - [ ] Read the comment of the property in the language interface
   - [ ] Check how similar strings are translated
 
 ### Translation Process
 
 For each language you're translating:
 
-- [ ] Open the target language file (e.g., `language-de-DE.xml`)
-- [ ] Find the location where the new string should be inserted
+- [ ] Open the target language pack (e.g., `greenshot.de-DE.ini`)
+- [ ] Find the section where the new key belongs (same section as in en-US)
   - [ ] Keep the same order as the English file for easier comparison
   - [ ] Group related strings together
-- [ ] Add the new `<resource>` element with the same `name` attribute
-- [ ] Translate the content:
+- [ ] Add a `key=value` line with exactly the key of the English file
+- [ ] Translate the value:
   - [ ] Use glossary terms for consistency
   - [ ] Preserve placeholders (`{0}`, `{1}`, etc.) in correct grammatical position
+  - [ ] Keep `\n` line breaks; the value stays on one line
   - [ ] Keep keyboard shortcuts (e.g., `(C)`) if present
   - [ ] Maintain similar length to English if possible (UI space constraints)
 - [ ] Perform reverse translation check:
@@ -78,16 +90,20 @@ For each language you're translating:
   - [ ] Verify meaning is preserved
   - [ ] Adjust if meaning has shifted
 - [ ] Compare with similar strings in other languages for consistency
-- [ ] Save file with UTF-8 encoding
+- [ ] Save file with UTF-8 encoding (without BOM)
 
 ### Quality Checks
 
-- [ ] Validate XML syntax:
+- [ ] Check the structure (no line outside a section, every line `key=value`):
   ```bash
-  xmllint --noout src/Greenshot/Languages/language-XX-YY.xml
+  awk '{ sub(/\r$/, "") }
+       FNR == 1 { insection = 0 }
+       /^\[.+\]$/ { insection = 1; next }
+       /^[[:space:]]*$/ || /^[;#]/ { next }
+       !insection || !/=/ { print FILENAME ":" FNR ": " $0 }' src/Greenshot/Languages/greenshot.XX-YY.ini
   ```
 - [ ] Check for typos and grammatical errors
-- [ ] Verify no resource names were changed (only content translated)
+- [ ] Verify no keys or section names were changed (only values translated)
 - [ ] Test file in Greenshot if possible (see Testing section)
 
 ---
@@ -98,8 +114,8 @@ When English strings are modified:
 
 ### Identify Changes
 
-- [ ] Compare old and new versions of `language-en-US.xml`
-- [ ] List changed resources (use git diff or comparison tool)
+- [ ] Compare old and new versions of `greenshot.en-US.ini`
+- [ ] List changed keys (use git diff or comparison tool)
 - [ ] Understand WHY each change was made:
   - [ ] Typo fix → Minor change
   - [ ] Clarity improvement → May need rethinking translation
@@ -109,14 +125,14 @@ When English strings are modified:
 
 For each changed string in each language:
 
-- [ ] Open the language file
-- [ ] Find the corresponding resource
+- [ ] Open the language pack
+- [ ] Find the corresponding key in the same section
 - [ ] Review the English change
 - [ ] Update translation accordingly:
   - [ ] Minor English fixes may need minor translation fixes
   - [ ] Significant changes require re-translation
   - [ ] Consider if old translation is still valid despite English change
-- [ ] Add comment if translation reasoning is not obvious
+- [ ] Explain non-obvious translation choices in the commit message or pull request
 - [ ] Perform reverse translation check
 
 ---
@@ -127,19 +143,21 @@ When features are removed and strings are no longer needed:
 
 ### Verification
 
-- [ ] Confirm the resource is removed from `language-en-US.xml`
-- [ ] Search codebase to verify the resource is truly unused:
+- [ ] Confirm the key is removed from `greenshot.en-US.ini`
+- [ ] Confirm the property is removed from the language interface
+- [ ] Search codebase to verify the text is truly unused, by property name and, for runtime keys, by key:
   ```bash
-  grep -r "resource_name" src/
+  grep -rn "ContextMenuTitle" src/ --include=*.cs --include=*.xaml
+  grep -rn "extension_border" src/ --include=*.cs
   ```
-- [ ] Check if resource is used in multiple places (main app + plugins)
+- [ ] Check if the key is used in multiple places (main app + plugins)
 
 ### Removal
 
 For each language:
 
-- [ ] Open the language file
-- [ ] Find and remove the obsolete resource
+- [ ] Open the language pack
+- [ ] Find and remove the obsolete `key=value` line
 - [ ] Save the file
 - [ ] Note the removal in commit message
 
@@ -152,39 +170,41 @@ When adding support for a completely new language:
 ### Setup
 
 - [ ] Determine the correct IETF language tag (e.g., `pt-BR`, `zh-CN`)
-- [ ] Find the Windows language group number (see MSDN docs)
-- [ ] Create new file: `src/Greenshot/Languages/language-XX-YY.xml`
+- [ ] Create new file: `src/Greenshot/Languages/greenshot.XX-YY.ini`
 
 ### File Creation
 
-- [ ] Copy `language-en-US.xml` as template
-- [ ] Update XML header:
-  ```xml
-  <language description="[Language in itself]" ietf="XX-YY" version="1.0.0" languagegroup="N">
+- [ ] Copy `greenshot.en-US.ini` as template, or start with only the sections and keys you translate (missing keys show English)
+- [ ] Set the language name in the first section:
+  ```ini
+  [__language__]
+  Description=[Language in itself]
   ```
-- [ ] Translate all resources:
+  This is needed for tags Windows doesn't know (like `de-x-franconia`); otherwise the Windows native name is used.
+- [ ] Translate all keys:
   - [ ] Start with critical UI elements (menus, buttons)
   - [ ] Then settings and dialogs
   - [ ] Finally help text and detailed messages
 - [ ] Use glossary to maintain consistency from the start
+- [ ] Add the language as an installer component in `src/Greenshot-Installer/includes/languages.iss` (copy the lines of an existing language)
 
 ### Plugin Support
 
 - [ ] Decide which plugins to support initially
-- [ ] Create corresponding plugin language files:
-  - `language_box-XX-YY.xml`
-  - `language_imgur-XX-YY.xml`
+- [ ] Create corresponding plugin language packs (no `[__language__]` section):
+  - `greenshot.box.XX-YY.ini`
+  - `greenshot.imgur.XX-YY.ini`
   - etc.
-- [ ] Translate plugin strings (usually 5-20 strings each)
+- [ ] Translate plugin strings (9-25 strings each)
 
 ### Testing
 
-- [ ] Build Greenshot with new language
-- [ ] Verify language appears in language selection
+- [ ] Build Greenshot with new language, or copy the language packs to `%APPDATA%\Greenshot\Languages`
+- [ ] Verify language appears in language selection with the right name
 - [ ] Check UI for:
   - [ ] Text truncation issues
   - [ ] Layout problems
-  - [ ] Missing translations (showing English keys)
+  - [ ] Missing translations (showing English text)
   - [ ] Character encoding problems
 
 ### Documentation
@@ -209,22 +229,22 @@ Before committing translation work:
   - [ ] Formatting matches (capitalization, punctuation)
 - [ ] Check technical accuracy:
   - [ ] Placeholders present and correctly positioned
-  - [ ] XML entities used for special characters
+  - [ ] `\n` line breaks kept, every value on one line
   - [ ] Keyboard shortcuts preserved
 
 ### File Validation
 
-- [ ] XML well-formed (use xmllint or validator)
-- [ ] UTF-8 encoding with BOM
-- [ ] No trailing whitespace in resource values (unless intentional)
-- [ ] Consistent indentation (tabs match source file)
+- [ ] Every key inside a section, every line `key=value`, a comment or empty
+- [ ] Sections and keys spelled as in en-US
+- [ ] UTF-8 encoding without BOM
+- [ ] No trailing whitespace in values (unless intentional)
 
 ### Completeness Check
 
-- [ ] All resources from en-US are present
-- [ ] No extra resources not in en-US (unless legacy)
-- [ ] No empty resource values (`<resource name="x"></resource>`)
-- [ ] Version number in XML header is appropriate
+- [ ] All keys from en-US are present (missing keys show English)
+- [ ] No extra keys not in en-US (they are never shown)
+- [ ] No empty values as placeholders (`key=`); leave the line out instead so English is shown
+- [ ] No key appears twice in a section
 
 ### Testing
 
@@ -232,6 +252,7 @@ Before committing translation work:
   ```powershell
   msbuild src/Greenshot.sln /p:Configuration=Release /t:Rebuild
   ```
+  Or copy the language pack to `%APPDATA%\Greenshot\Languages` and use an installed Greenshot (remove the file afterwards).
 - [ ] Launch Greenshot
 - [ ] Select your language in settings
 - [ ] Navigate through UI checking translations:
@@ -250,11 +271,11 @@ When performing a comprehensive sync of all languages:
 ### Preparation
 
 - [ ] Create a spreadsheet or tool to track status
-- [ ] List all resources in en-US (current reference)
+- [ ] List all keys in en-US (current reference)
 - [ ] For each language, identify:
-  - [ ] Missing resources
-  - [ ] Extra/obsolete resources
-  - [ ] Resources to review (marked in English as changed)
+  - [ ] Missing keys
+  - [ ] Extra/obsolete keys
+  - [ ] Keys to review (changed in English)
 
 ### Batch Processing
 
@@ -263,16 +284,16 @@ When performing a comprehensive sync of all languages:
   2. [ ] Secondary languages (other European languages)
   3. [ ] Other languages
 - [ ] For each language:
-  - [ ] Remove obsolete resources
-  - [ ] Add missing resources (translate or mark as TODO)
-  - [ ] Update changed resources
+  - [ ] Remove obsolete keys
+  - [ ] Add missing keys (translate them; untranslated keys can stay out, English is shown)
+  - [ ] Update changed keys
   - [ ] Validate file
 
 ### Documentation
 
 - [ ] Create a sync report:
   - Which languages were updated
-  - How many resources added/removed/changed per language
+  - How many keys added/removed/changed per language
   - Any languages needing additional attention
 - [ ] Update language coverage matrix
 - [ ] Note any recurring issues or patterns
@@ -287,7 +308,7 @@ If using machine translation tools (e.g., for initial drafts):
 
 - [ ] Select an appropriate translation service
 - [ ] Prepare context for the translator (screenshots, glossary)
-- [ ] Understand tool limitations (may not handle XML well)
+- [ ] Understand tool limitations (keys, `\n` and placeholders must survive unchanged)
 
 ### After Machine Translation
 
@@ -321,7 +342,8 @@ When translating plugin-specific strings:
 
 ### Translation
 
-- [ ] Locate plugin language files: `src/Greenshot.Plugin.{Name}/Languages/`
+- [ ] Locate plugin language packs: `src/Greenshot.Plugin.{Name}/Languages/greenshot.{module}.{ietf}.ini`
+- [ ] Keep the single section named after the plugin (`[Box]`, `[Imgur]`, ...)
 - [ ] Follow same process as main app translation
 - [ ] Keep service-specific terms:
   - [ ] "Box" stays "Box"
@@ -335,15 +357,17 @@ When translating plugin-specific strings:
 
 ## Common Issues and Solutions
 
-### Issue: XML Validation Errors
+### Issue: Translation Not Shown (English Appears)
 
-**Symptoms**: Build fails, xmllint reports errors
+**Symptoms**: The English text is shown although the key is translated
 
 **Checklist**:
-- [ ] Check for unescaped special characters (`<`, `>`, `&`)
-- [ ] Verify all tags are closed
-- [ ] Check for mismatched quotes
-- [ ] Ensure UTF-8 encoding with BOM
+- [ ] Check the key is in the same section as in en-US
+- [ ] Check the key is spelled as in en-US (case, `_` and `-` don't matter)
+- [ ] Check no line before the first section holds keys
+- [ ] Check the value is on one line (a continuation line is not part of the value)
+- [ ] Check the file name: `greenshot.{ietf}.ini` or `greenshot.{module}.{ietf}.ini`
+- [ ] Check for an older file with the same name in `%APPDATA%\Greenshot\Languages` that overrides the key
 
 ### Issue: Text Truncated in UI
 
@@ -371,7 +395,6 @@ When translating plugin-specific strings:
 
 **Checklist**:
 - [ ] Verify file is UTF-8 encoded
-- [ ] Check if BOM (Byte Order Mark) is present
 - [ ] Ensure characters are in Unicode range
 - [ ] Test with different fonts/systems
 
@@ -382,27 +405,35 @@ When translating plugin-specific strings:
 ### Validation Tools
 
 ```bash
-# Validate XML syntax
-xmllint --noout src/Greenshot/Languages/language-XX-YY.xml
+# Check that no line is outside a section and every line is key=value
+awk '{ sub(/\r$/, "") }
+     FNR == 1 { insection = 0 }
+     /^\[.+\]$/ { insection = 1; next }
+     /^[[:space:]]*$/ || /^[;#]/ { next }
+     !insection || !/=/ { print FILENAME ":" FNR ": " $0 }' src/Greenshot/Languages/greenshot.XX-YY.ini
 
-# Count resources
-grep -c '<resource name=' src/Greenshot/Languages/language-XX-YY.xml
+# Count keys per section
+awk '/^\[/ { section = $0; next } /^[;#]/ || !/=/ { next } { count[section]++ }
+     END { for (s in count) printf "%-16s %d\n", s, count[s] }' src/Greenshot/Languages/greenshot.XX-YY.ini | sort
 
-# Find empty resources
-grep '<resource name="[^"]*"></resource>' src/Greenshot/Languages/language-XX-YY.xml
+# Find empty values
+grep -n '^[^;#[][^=]*=[[:space:]]*$' src/Greenshot/Languages/greenshot.XX-YY.ini
 
-# Compare resource keys between languages
-diff <(grep 'resource name=' src/Greenshot/Languages/language-en-US.xml | sort) \
-     <(grep 'resource name=' src/Greenshot/Languages/language-de-DE.xml | sort)
+# Compare keys between languages ("<" = missing in XX-YY, ">" = not in en-US)
+keys() { awk '/^\[/ { s = $0; next } /^[;#]/ { next } /=/ { print s substr($0, 1, index($0, "=") - 1) }' "$1" | sort; }
+diff <(keys src/Greenshot/Languages/greenshot.en-US.ini) \
+     <(keys src/Greenshot/Languages/greenshot.XX-YY.ini)
 ```
+
+The `diff` compares the exact spelling of keys. `compare_keys.sh` and the validation scripts in `TRANSLATION_TOOLS.md` compare keys the way Greenshot does (case-insensitive, `_` and `-` ignored).
 
 ### Recommended Approach
 
-1. **Use a good XML editor**: Visual Studio Code, Notepad++, or specialized XML editors
-2. **Enable XML validation**: Catch errors as you type
+1. **Use a good text editor**: Visual Studio Code, Notepad++ or any editor that saves UTF-8 without BOM and doesn't wrap lines when saving
+2. **Turn on INI syntax highlighting**: Sections and keys are easier to see
 3. **Use version control**: Git to track changes and compare versions
-4. **Test frequently**: Build and run Greenshot to see translations in context
-5. **Document decisions**: Add comments for non-obvious translations
+4. **Test frequently**: Copy the language pack to `%APPDATA%\Greenshot\Languages` to see translations in context
+5. **Document decisions**: Explain non-obvious translations in the commit message or pull request
 
 ---
 
@@ -419,5 +450,5 @@ Before submitting translation work:
 
 ---
 
-**Version**: 1.0  
-**Last Updated**: 2026-02-03
+**Version**: 1.1  
+**Last Updated**: 2026-10-03

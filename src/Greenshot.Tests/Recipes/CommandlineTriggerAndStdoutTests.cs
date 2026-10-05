@@ -23,12 +23,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using Greenshot.Base.Pipeline;
-using Greenshot.Base.Pipeline.Sources;
 using Greenshot.Base.Recipes;
-using Greenshot.Base.Triggers;
-using Greenshot.Pipeline;
-using Greenshot.Pipeline.Steps;
+using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Recipes.Sources;
+using Greenshot.Base.Recipes.Triggers;
+using Greenshot.Recipes.Steps;
 using Xunit;
 
 namespace Greenshot.Tests.Recipes

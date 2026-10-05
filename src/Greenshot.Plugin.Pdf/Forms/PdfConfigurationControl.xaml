@@ -159,17 +159,17 @@
     </UserControl.Resources>
 
     <StackPanel Margin="8">
-        <GroupBox Header="{wpf:Translate pdf.label_pdf_document}" Margin="0,4,0,8">
+        <GroupBox Header="{wpf:Text pdf.label_pdf_document}" Margin="0,4,0,8">
             <StackPanel>
                 <Grid Margin="0,4">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <Label Grid.Column="0" Content="{wpf:Translate pdf.label_unit}" Margin="0,0,12,0"/>
+                    <Label Grid.Column="0" Content="{wpf:Text pdf.label_unit}" Margin="0,0,12,0"/>
                     <ComboBox Grid.Column="1" Width="200" HorizontalAlignment="Right"
                               ItemsSource="{Binding MeasurementUnits}"
-                              DisplayMemberPath="Value.Value"
+                              DisplayMemberPath="Value"
                               SelectedValuePath="Key"
                               SelectedValue="{Binding MeasurementUnit, Mode=TwoWay}"/>
                 </Grid>
@@ -179,10 +179,10 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <Label Grid.Column="0" Content="{wpf:Translate pdf.label_page_size}" Margin="0,0,12,0"/>
+                    <Label Grid.Column="0" Content="{wpf:Text pdf.label_page_size}" Margin="0,0,12,0"/>
                     <ComboBox Grid.Column="1" Width="200" HorizontalAlignment="Right"
                               ItemsSource="{Binding PageSizes}"
-                              DisplayMemberPath="Value.Value"
+                              DisplayMemberPath="Value"
                               SelectedValuePath="Key"
                               SelectedValue="{Binding PageSize, Mode=TwoWay}"/>
                 </Grid>
@@ -197,7 +197,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <Label Grid.Column="0" Content="{wpf:Translate pdf.label_page_height}"/>
+                        <Label Grid.Column="0" Content="{wpf:Text pdf.label_page_height}"/>
                         <TextBox Grid.Column="1" Width="90" Margin="4,0" IsEnabled="{Binding IsPageDimensionsEnabled}"
                                  Text="{Binding PageHeight, Mode=TwoWay, UpdateSourceTrigger=LostFocus, StringFormat={}{0:F2}}"
                                  ToolTip="1–10000"/>
@@ -207,7 +207,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <Label Grid.Column="0" Content="{wpf:Translate pdf.label_page_width}"/>
+                        <Label Grid.Column="0" Content="{wpf:Text pdf.label_page_width}"/>
                         <TextBox Grid.Column="1" Width="90" Margin="4,0" IsEnabled="{Binding IsPageDimensionsEnabled}"
                                  Text="{Binding PageWidth, Mode=TwoWay, UpdateSourceTrigger=LostFocus, StringFormat={}{0:F2}}"
                                  ToolTip="1–10000"/>
@@ -219,7 +219,7 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <Label Grid.Column="0" Content="{wpf:Translate pdf.label_scaling}" Margin="0,0,12,0"/>
+                    <Label Grid.Column="0" Content="{wpf:Text pdf.label_scaling}" Margin="0,0,12,0"/>
                     <ComboBox Grid.Column="1" Width="200" HorizontalAlignment="Right"
                               IsEnabled="{Binding IsFixedPage}"
                               ItemsSource="{Binding ScalingModes}"
@@ -230,7 +230,7 @@
             </StackPanel>
         </GroupBox>
 
-        <GroupBox Header="{wpf:Translate pdf.label_margins}" Margin="0,8,0,4">
+        <GroupBox Header="{wpf:Text pdf.label_margins}" Margin="0,8,0,4">
             <Grid Margin="6">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -245,7 +245,7 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <Label Grid.Column="0" Content="{wpf:Translate pdf.label_top}"/>
+                    <Label Grid.Column="0" Content="{wpf:Text pdf.label_top}"/>
                     <TextBox Grid.Column="1" Width="90" Margin="4" Text="{Binding MarginTop, Mode=TwoWay, UpdateSourceTrigger=LostFocus, StringFormat={}{0:F2}}" ToolTip="0–10000"/>
                 </Grid>
                 <Grid Grid.Row="0" Grid.Column="1">
@@ -253,7 +253,7 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <Label Grid.Column="0" Content="{wpf:Translate pdf.label_bottom}"/>
+                    <Label Grid.Column="0" Content="{wpf:Text pdf.label_bottom}"/>
                     <TextBox Grid.Column="1" Width="90" Margin="4" Text="{Binding MarginBottom, Mode=TwoWay, UpdateSourceTrigger=LostFocus, StringFormat={}{0:F2}}" ToolTip="0–10000"/>
                 </Grid>
                 <Grid Grid.Row="1" Grid.Column="0">
@@ -261,7 +261,7 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <Label Grid.Column="0" Content="{wpf:Translate pdf.label_left}"/>
+                    <Label Grid.Column="0" Content="{wpf:Text pdf.label_left}"/>
                     <TextBox Grid.Column="1" Width="90" Margin="4" Text="{Binding MarginLeft, Mode=TwoWay, UpdateSourceTrigger=LostFocus, StringFormat={}{0:F2}}" ToolTip="0–10000"/>
                 </Grid>
                 <Grid Grid.Row="1" Grid.Column="1">
@@ -269,15 +269,15 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <Label Grid.Column="0" Content="{wpf:Translate pdf.label_right}"/>
+                    <Label Grid.Column="0" Content="{wpf:Text pdf.label_right}"/>
                     <TextBox Grid.Column="1" Width="90" Margin="4" Text="{Binding MarginRight, Mode=TwoWay, UpdateSourceTrigger=LostFocus, StringFormat={}{0:F2}}" ToolTip="0–10000"/>
                 </Grid>
             </Grid>
         </GroupBox>
 
-        <GroupBox Header="{wpf:Translate pdf.label_destination_options}" Margin="0,8,0,4">
+        <GroupBox Header="{wpf:Text pdf.label_destination_options}" Margin="0,8,0,4">
             <CheckBox IsChecked="{Binding ShowSaveDialog, Mode=TwoWay}"
-                      Content="{wpf:Translate pdf.destination_option_fileas}"/>
+                      Content="{wpf:Text pdf.destination_option_fileas}"/>
         </GroupBox>
     </StackPanel>
 </UserControl>

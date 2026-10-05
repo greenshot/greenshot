@@ -24,7 +24,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Greenshot.Base.Pipeline.Contracts;
+using Greenshot.Base.Recipes.Contracts;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 

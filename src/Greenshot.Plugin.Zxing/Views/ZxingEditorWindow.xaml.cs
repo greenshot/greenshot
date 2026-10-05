@@ -29,6 +29,8 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
+using Greenshot.Plugin.Zxing.Drawing;
+using Greenshot.Plugin.Zxing.Processing;
 using ZXing;
 using Color = System.Drawing.Color;
 using WpfColor = System.Windows.Media.Color;

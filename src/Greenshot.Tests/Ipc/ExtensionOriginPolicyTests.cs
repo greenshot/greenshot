@@ -21,7 +21,7 @@
 
 using System;
 using System.IO;
-using Greenshot.Helpers.Ipc;
+using Greenshot.Ipc.BrowserExtension;
 using Xunit;
 
 namespace Greenshot.Tests.Ipc

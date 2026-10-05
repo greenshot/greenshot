@@ -23,7 +23,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.Pipeline;
+using Greenshot.Base.Languages;
+using Greenshot.Base.Recipes.Pipeline;
 
 namespace Greenshot.Plugin.Pdf;
 

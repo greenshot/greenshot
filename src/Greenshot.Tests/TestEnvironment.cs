@@ -23,10 +23,11 @@ using System;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Pipeline;
+using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Editor;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Drawing;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Tests
 {
@@ -63,6 +64,17 @@ namespace Greenshot.Tests
                 }
 
                 EditorInitialize.Initialize();
+                // The tests check English texts, whatever the language of Windows is
+                Texts.SystemLanguage = "en-US";
+                Texts.SetLanguage("en-US");
+                // The plugins register their texts when they start, the tests need them without starting the plugins
+                Texts.Register<Greenshot.Plugin.Box.IBoxLanguage>(new Greenshot.Plugin.Box.BoxLanguageImpl());
+                Texts.Register<Greenshot.Plugin.Confluence.IConfluenceLanguage>(new Greenshot.Plugin.Confluence.ConfluenceLanguageImpl());
+                Texts.Register<Greenshot.Plugin.Dropbox.IDropboxLanguage>(new Greenshot.Plugin.Dropbox.DropboxLanguageImpl());
+                Texts.Register<Greenshot.Plugin.ExternalCommand.IExternalCommandLanguage>(new Greenshot.Plugin.ExternalCommand.ExternalCommandLanguageImpl());
+                Texts.Register<Greenshot.Plugin.Imgur.IImgurLanguage>(new Greenshot.Plugin.Imgur.ImgurLanguageImpl());
+                Texts.Register<Greenshot.Plugin.Jira.IJiraLanguage>(new Greenshot.Plugin.Jira.JiraLanguageImpl());
+                Texts.Register<Greenshot.Plugin.Office.IOfficeLanguage>(new Greenshot.Plugin.Office.OfficeLanguageImpl());
 
                 _initialized = true;
             }

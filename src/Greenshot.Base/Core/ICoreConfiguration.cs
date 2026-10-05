@@ -45,10 +45,6 @@ namespace Greenshot.Base.Core
         [Description("The user wants to be beta-tester, this enables some features not available otherwise.")]
         bool IsBetaTester { get; set; }
 
-        [Description("Use Windows Graphics Capture (WGC) for window and screen region captures.")]
-        [DefaultValue(false)]
-        bool UseWindowsGraphicsCapture { get; set; }
-
         [Description("Hotkey for starting the region capture")]
         [DefaultValue("PrintScreen")]
         string RegionHotkey { get; set; }
@@ -106,16 +102,9 @@ namespace Greenshot.Base.Core
         [DefaultValue(1)]
         int ScreenToCapture { get; set; }
 
-        [Description("The capture mode used to capture a Window (Screen, GDI, Aero, AeroTransparent, Auto).")]
-        [DefaultValue("Auto")]
-        WindowCaptureMode WindowCaptureMode { get; set; }
-
         [Description("Enable/disable capture all children, very slow but will make it possible to use this information in the editor.")]
         [DefaultValue(false)]
         bool WindowCaptureAllChildLocations { get; set; }
-
-        [Description("The background color for a DWM window capture.")]
-        Color DWMBackgroundColor { get; set; }
 
         [Description("Play a camera sound after taking a capture.")]
         [DefaultValue(false)]
@@ -268,14 +257,6 @@ namespace Greenshot.Base.Core
         [DefaultValue(true)]
         bool ThumnailPreview { get; set; }
 
-        [Description("List of productnames for which GDI capturing is skipped (using fallback).")]
-        [DefaultValue("IntelliJ IDEA")]
-        List<string> NoGDICaptureForProduct { get; set; }
-
-        [Description("List of productnames for which DWM capturing is skipped (using fallback).")]
-        [DefaultValue("Citrix ICA Client")]
-        List<string> NoDWMCaptureForProduct { get; set; }
-
         [Description("Make some optimizations for usage with remote desktop")]
         [DefaultValue(false)]
         bool OptimizeForRDP { get; set; }
@@ -291,10 +272,6 @@ namespace Greenshot.Base.Core
         [Description("Log when the UI thread doesn't respond for more than 250 ms (diagnostics, always active in debug builds).")]
         [DefaultValue(false)]
         bool EnableUiStallWatchdog { get; set; }
-
-        [Description("Remove the corners from a window capture")]
-        [DefaultValue(true)]
-        bool WindowCaptureRemoveCorners { get; set; }
 
         [Description("Also check for unstable version updates")]
         [DefaultValue(false)]
@@ -316,10 +293,6 @@ namespace Greenshot.Base.Core
         [DefaultValue(true)]
         bool EnableSpecialDIBClipboardReader { get; set; }
 
-        [Description("The cutshape which is used to remove the window corners, is mirrored for all corners")]
-        [DefaultValue("5,3,2,1,1")]
-        List<int> WindowCornerCutShape { get; set; }
-
         [Description("Specify what action is made if the tray icon is left clicked, if a double-click action is specified this action is initiated after a delay (configurable via the windows double-click speed)")]
         [DefaultValue("SHOW_CONTEXT_MENU")]
         ClickActions LeftClickAction { get; set; }
@@ -331,6 +304,14 @@ namespace Greenshot.Base.Core
         [Description("Sets if the zoomer is enabled")]
         [DefaultValue(true)]
         bool ZoomerEnabled { get; set; }
+
+        [Description("Sets if the keys are shown (help panel) in the interactive capture, F1 shows or hides them")]
+        [DefaultValue(true)]
+        bool CaptureHelpVisible { get; set; }
+
+        [Description("Sets if the info panel (screen, selection, window and mouse position) is shown in the interactive capture, I shows or hides it")]
+        [DefaultValue(true)]
+        bool CaptureInfoVisible { get; set; }
 
         [Description("Specify the transparency for the zoomer, from 0-1 (where 1 is no transparency and 0 is complete transparent. An useful setting would be 0.7)")]
         [DefaultValue(1)]
@@ -378,10 +359,6 @@ namespace Greenshot.Base.Core
 
         [Description("The last used region, for reuse in the capture last region")]
         NativeRect LastCapturedRegion { get; set; }
-
-        [Description("The capture is cropped with these settings, e.g. when you don't want to color around it -1,-1")]
-        [DefaultValue("0,0")]
-        NativeSize Win10BorderCrop { get; set; }
 
         [DataMember(Name = "BaseIconSize")]
         [Description("Defines the base size of the icons (e.g. for the buttons in the editor), default value 16,16 and it's scaled to the current DPI")]

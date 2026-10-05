@@ -25,8 +25,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
 
 namespace Greenshot.Base.Wpf
 {
@@ -44,29 +42,12 @@ namespace Greenshot.Base.Wpf
         private ThemedMessageBox(string caption, string text, MessageBoxImage icon, IReadOnlyList<string> buttons, int defaultIndex, int cancelIndex)
         {
             _cancelIndex = cancelIndex;
-            var palette = ThemeManager.Instance.CurrentPalette;
-            Title = caption ?? "Greenshot";
-            WindowStyle = WindowStyle.None;
-            ResizeMode = ResizeMode.NoResize;
-            SizeToContent = SizeToContent.WidthAndHeight;
-            ShowInTaskbar = false;
+            ThemedControls.ApplyDialogLook(this, caption);
             WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            Background = WpfThemeHelper.CardBackground;
-            BorderBrush = WpfThemeHelper.CardBorder;
-            BorderThickness = new Thickness(1);
             MinWidth = 360;
             MaxWidth = 640;
 
-            var header = new TextBlock
-            {
-                Text = caption ?? "Greenshot",
-                FontWeight = FontWeights.SemiBold,
-                FontSize = 14,
-                Foreground = WpfThemeHelper.TextPrimary,
-                Margin = new Thickness(0, 0, 0, 10)
-            };
-            // The window has no title bar: it is moved by its header
-            header.MouseLeftButtonDown += (s, e) => DragMove();
+            var header = ThemedControls.CreateHeader(this, caption);
 
             var message = new TextBlock
             {
@@ -107,21 +88,7 @@ namespace Greenshot.Base.Wpf
             {
                 int index = i;
                 bool isDefault = i == defaultIndex;
-                var button = new Button
-                {
-                    Content = buttons[i],
-                    MinWidth = 88,
-                    Padding = new Thickness(14, 5, 14, 5),
-                    Margin = new Thickness(8, 0, 0, 0),
-                    IsDefault = isDefault,
-                    IsCancel = i == cancelIndex,
-                    Foreground = isDefault ? Brushes.White : WpfThemeHelper.TextPrimary,
-                    Background = isDefault ? WpfThemeHelper.Accent : palette.ButtonBackgroundBrush,
-                    BorderBrush = isDefault ? WpfThemeHelper.Accent : WpfThemeHelper.CardBorder,
-                    BorderThickness = new Thickness(1),
-                    Cursor = Cursors.Hand,
-                    Template = CreateButtonTemplate()
-                };
+                var button = ThemedControls.CreateButton(buttons[i], isDefault, i == cancelIndex);
                 button.Click += (s, e) =>
                 {
                     _choice = index;
@@ -265,31 +232,6 @@ namespace Greenshot.Base.Wpf
                 case MessageBoxImage.Information: return "ℹ";
                 default: return null;
             }
-        }
-
-        /// <summary>
-        /// A flat, rounded button which uses the background and border it is given
-        /// </summary>
-        private static ControlTemplate CreateButtonTemplate()
-        {
-            var border = new FrameworkElementFactory(typeof(Border));
-            border.SetValue(Border.CornerRadiusProperty, new CornerRadius(4));
-            border.SetBinding(Border.BackgroundProperty, new System.Windows.Data.Binding("Background") { RelativeSource = System.Windows.Data.RelativeSource.TemplatedParent });
-            border.SetBinding(Border.BorderBrushProperty, new System.Windows.Data.Binding("BorderBrush") { RelativeSource = System.Windows.Data.RelativeSource.TemplatedParent });
-            border.SetBinding(Border.BorderThicknessProperty, new System.Windows.Data.Binding("BorderThickness") { RelativeSource = System.Windows.Data.RelativeSource.TemplatedParent });
-            border.SetBinding(Border.PaddingProperty, new System.Windows.Data.Binding("Padding") { RelativeSource = System.Windows.Data.RelativeSource.TemplatedParent });
-            var content = new FrameworkElementFactory(typeof(ContentPresenter));
-            content.SetValue(HorizontalAlignmentProperty, HorizontalAlignment.Center);
-            content.SetValue(VerticalAlignmentProperty, VerticalAlignment.Center);
-            border.AppendChild(content);
-            var template = new ControlTemplate(typeof(Button)) { VisualTree = border };
-            var hover = new Trigger { Property = IsMouseOverProperty, Value = true };
-            hover.Setters.Add(new Setter(OpacityProperty, 0.85));
-            template.Triggers.Add(hover);
-            var focused = new Trigger { Property = IsKeyboardFocusedProperty, Value = true };
-            focused.Setters.Add(new Setter(Control.BorderThicknessProperty, new Thickness(2)));
-            template.Triggers.Add(focused);
-            return template;
         }
     }
 }

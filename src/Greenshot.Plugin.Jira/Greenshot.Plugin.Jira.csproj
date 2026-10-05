@@ -4,13 +4,13 @@
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="Languages\language*.xml">
+    <None Include="Languages\greenshot*.ini">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
     <!-- Loaded with EmbeddedResources.GetImage(typeof(JiraPlugin), "Jira") -->
-    <EmbeddedResource Include="Jira.png" LogicalName="Greenshot.Plugin.Jira.JiraPlugin.Jira" />
+    <EmbeddedResource Include="Images\Jira.png" LogicalName="Greenshot.Plugin.Jira.JiraPlugin.Jira" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />

@@ -21,8 +21,8 @@
 
 using System.Drawing;
 using Greenshot.Base.Core;
-using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Pipeline;
 using Xunit;
 
 namespace Greenshot.Tests.Recipes

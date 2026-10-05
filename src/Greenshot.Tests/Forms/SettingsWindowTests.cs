@@ -21,11 +21,20 @@
 
 using System;
 using System.Threading;
+using Greenshot.Ai.Views;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
-using Greenshot.Forms.Wpf;
+using Greenshot.Plugin.Box.Api;
+using Greenshot.Plugins.Views;
+using Greenshot.Settings.ViewModels;
+using Greenshot.Settings.Views;
 using Xunit;
 using Xunit.Abstractions;
+using Greenshot.Base.Languages;
+using Greenshot.Plugin.Box;
+using Greenshot.Plugin.Dropbox;
+using Greenshot.Plugin.Jira;
+using Greenshot.Plugin.Office;
 
 namespace Greenshot.Tests.Forms
 {
@@ -65,7 +74,6 @@ namespace Greenshot.Tests.Forms
             Assert.NotNull(viewModel.CoreConfiguration);
             Assert.NotNull(viewModel.EditorConfiguration);
             Assert.NotNull(viewModel.ImageFormats);
-            Assert.NotNull(viewModel.WindowCaptureModes);
             Assert.NotNull(viewModel.Destinations);
             Assert.NotNull(viewModel.Plugins);
             Assert.NotNull(viewModel.ClipboardFormats);
@@ -75,15 +83,15 @@ namespace Greenshot.Tests.Forms
         [Fact]
         public void PluginTranslations_AreLoadedCorrectly()
         {
-            Assert.Equal("Upload to Box", Language.GetString("box", "upload_menu_item"));
-            Assert.Equal("Image format", Language.GetString("box.label_upload_format"));
-            Assert.Equal("Link to clipboard", Language.GetString("box.label_AfterUploadLinkToClipBoard"));
-            Assert.Equal("Upload to Dropbox", Language.GetString("dropbox", "upload_menu_item"));
-            Assert.Equal("Upload to Jira", Language.GetString("jira", "upload_menu_item"));
-            Assert.Equal("Office settings", Language.GetString("office", "settings_title"));
-            Assert.Equal("Lock aspect ratio of the image", Language.GetString("office", "word_lockaspect"));
-            Assert.Equal("Slide layout for exported captures", Language.GetString("office", "powerpoint_slide_layout"));
-            Assert.Equal("Email format for new emails", Language.GetString("office", "outlook_email_format"));
+            Assert.Equal("Upload to Box", Texts.Get<IBoxLanguage>().UploadMenuItem);
+            Assert.Equal("Image format", Texts.Get<IBoxLanguage>().LabelUploadFormat);
+            Assert.Equal("Link to clipboard", Texts.Get<IBoxLanguage>().LabelAfterUploadLinkToClipBoard);
+            Assert.Equal("Upload to Dropbox", Texts.Get<IDropboxLanguage>().UploadMenuItem);
+            Assert.Equal("Upload to Jira", Texts.Get<IJiraLanguage>().UploadMenuItem);
+            Assert.Equal("Office settings", Texts.Get<IOfficeLanguage>().SettingsTitle);
+            Assert.Equal("Lock aspect ratio of the image", Texts.Get<IOfficeLanguage>().WordLockaspect);
+            Assert.Equal("Slide layout for exported captures", Texts.Get<IOfficeLanguage>().PowerpointSlideLayout);
+            Assert.Equal("Email format for new emails", Texts.Get<IOfficeLanguage>().OutlookEmailFormat);
         }
 
         [Fact]

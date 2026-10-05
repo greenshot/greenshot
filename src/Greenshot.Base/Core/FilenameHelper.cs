@@ -31,6 +31,7 @@ using Dapplo.Ini;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using log4net;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Base.Core
 {
@@ -678,7 +679,7 @@ namespace Greenshot.Base.Core
             return mode switch
             {
                 // Not every UI language is a culture Windows knows (e.g. de-x-franconia), then the current culture formats the date
-                DateCultureMode.UILanguage => Language.TryGetCultureInfo(Language.CurrentLanguage, out var uiCulture) ? uiCulture : CultureInfo.CurrentCulture,
+                DateCultureMode.UILanguage => Texts.CurrentCulture ?? CultureInfo.CurrentCulture,
                 _ => CultureInfo.CurrentCulture
             };
         }

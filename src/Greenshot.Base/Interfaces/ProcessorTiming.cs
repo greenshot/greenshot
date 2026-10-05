@@ -33,7 +33,7 @@ namespace Greenshot.Base.Interfaces
     {
         /// <summary>
         /// Run before interactive selection so results (e.g. QR code hotspots, OCR lines)
-        /// are available while the CaptureForm is shown to the user.
+        /// are available while the CaptureWindow is shown to the user.
         /// </summary>
         PreSelection,
 

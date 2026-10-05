@@ -35,34 +35,34 @@ public sealed class PdfConfigurationViewModel : INotifyPropertyChanged
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         MeasurementUnits = new[]
         {
-            Option(PdfMeasurementUnits.Mm, "unit_mm"),
-            Option(PdfMeasurementUnits.Cm, "unit_cm"),
-            Option(PdfMeasurementUnits.Inch, "unit_inch")
+            new KeyValuePair<string, string>(PdfMeasurementUnits.Mm, "unit_mm"),
+            new KeyValuePair<string, string>(PdfMeasurementUnits.Cm, "unit_cm"),
+            new KeyValuePair<string, string>(PdfMeasurementUnits.Inch, "unit_inch")
         };
         PageSizes = new[]
         {
-            Option(PdfPageSizes.Image, "page_image"),
-            Option(PdfPageSizes.Custom, "page_custom"),
-            Option(PdfPageSizes.A3, "page_a3"),
-            Option(PdfPageSizes.A4, "page_a4"),
-            Option(PdfPageSizes.A5, "page_a5"),
-            Option(PdfPageSizes.A6, "page_a6"),
-            Option(PdfPageSizes.Letter, "page_letter")
+            new KeyValuePair<string, string>(PdfPageSizes.Image, "page_image"),
+            new KeyValuePair<string, string>(PdfPageSizes.Custom, "page_custom"),
+            new KeyValuePair<string, string>(PdfPageSizes.A3, "page_a3"),
+            new KeyValuePair<string, string>(PdfPageSizes.A4, "page_a4"),
+            new KeyValuePair<string, string>(PdfPageSizes.A5, "page_a5"),
+            new KeyValuePair<string, string>(PdfPageSizes.A6, "page_a6"),
+            new KeyValuePair<string, string>(PdfPageSizes.Letter, "page_letter")
         };
         ScalingModes = new[]
         {
-            Option(PdfScalingModes.OnlyShrinkToFit, "scale_shrink"),
-            Option(PdfScalingModes.FitToPage, "scale_fit")
+            new KeyValuePair<string, string>(PdfScalingModes.OnlyShrinkToFit, "scale_shrink"),
+            new KeyValuePair<string, string>(PdfScalingModes.FitToPage, "scale_fit")
         };
     }
 
     public event PropertyChangedEventHandler PropertyChanged;
 
-    public IReadOnlyList<KeyValuePair<string, TranslationData>> MeasurementUnits { get; }
+    public IReadOnlyList<KeyValuePair<string, string>> MeasurementUnits { get; }
 
-    public IReadOnlyList<KeyValuePair<string, TranslationData>> PageSizes { get; }
+    public IReadOnlyList<KeyValuePair<string, string>> PageSizes { get; }
 
-    public IReadOnlyList<KeyValuePair<string, TranslationData>> ScalingModes { get; }
+    public IReadOnlyList<KeyValuePair<string, string>> ScalingModes { get; }
 
     public string PageSize
     {
@@ -173,11 +173,6 @@ public sealed class PdfConfigurationViewModel : INotifyPropertyChanged
     public bool IsPageDimensionsEnabled => string.Equals(PageSize, PdfPageSizes.Custom, StringComparison.OrdinalIgnoreCase);
 
     public bool IsFixedPage => !string.Equals(PageSize, PdfPageSizes.Image, StringComparison.OrdinalIgnoreCase);
-
-    private static KeyValuePair<string, TranslationData> Option(string value, string resourceKey)
-    {
-        return new KeyValuePair<string, TranslationData>(value, new TranslationData("pdf." + resourceKey));
-    }
 
     private void SetPageDimension(double value, bool isWidth)
     {

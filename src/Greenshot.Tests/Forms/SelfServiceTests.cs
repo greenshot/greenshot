@@ -25,7 +25,8 @@ using System.Threading;
 using System.Windows;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
-using Greenshot.UI.SelfService;
+using Greenshot.SelfService.ViewModels;
+using Greenshot.SelfService.Views;
 using Xunit;
 
 namespace Greenshot.Tests.Forms
@@ -728,36 +729,13 @@ namespace Greenshot.Tests.Forms
         public void SelfService_LanguageResources_GermanCoversAllSelfServiceKeys()
         {
             // The language files are copied next to the test assembly by the build
-            string enPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Languages", "language-en-US.xml");
-            string dePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Languages", "language-de-DE.xml");
+            string enPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Languages", "greenshot.en-US.ini");
+            string dePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Languages", "greenshot.de-DE.ini");
             Assert.True(File.Exists(enPath), $"Language file not found: {enPath}");
             Assert.True(File.Exists(dePath), $"Language file not found: {dePath}");
 
-            var enDoc = new System.Xml.XmlDocument();
-            enDoc.Load(enPath);
-
-            var deDoc = new System.Xml.XmlDocument();
-            deDoc.Load(dePath);
-
-            var enKeys = new System.Collections.Generic.HashSet<string>();
-            foreach (System.Xml.XmlNode node in enDoc.SelectNodes("//resource"))
-            {
-                string name = node.Attributes?["name"]?.Value;
-                if (name != null && name.StartsWith("selfservice_"))
-                {
-                    enKeys.Add(name);
-                }
-            }
-
-            var deKeys = new System.Collections.Generic.HashSet<string>();
-            foreach (System.Xml.XmlNode node in deDoc.SelectNodes("//resource"))
-            {
-                string name = node.Attributes?["name"]?.Value;
-                if (name != null && name.StartsWith("selfservice_"))
-                {
-                    deKeys.Add(name);
-                }
-            }
+            var enKeys = SectionKeys(enPath, "SelfService");
+            var deKeys = SectionKeys(dePath, "SelfService");
 
             Assert.NotEmpty(enKeys);
             foreach (var key in enKeys)
@@ -766,9 +744,36 @@ namespace Greenshot.Tests.Forms
             }
         }
 
+        /// <summary>
+        /// The keys of a [section] in a language pack
+        /// </summary>
+        private static System.Collections.Generic.HashSet<string> SectionKeys(string languagePack, string section)
+        {
+            var keys = new System.Collections.Generic.HashSet<string>();
+            bool inSection = false;
+            foreach (string line in File.ReadAllLines(languagePack))
+            {
+                if (line.StartsWith("["))
+                {
+                    inSection = line == $"[{section}]";
+                    continue;
+                }
+
+                int equals = line.IndexOf('=');
+                if (inSection && equals > 0)
+                {
+                    keys.Add(line.Substring(0, equals));
+                }
+            }
+
+            return keys;
+        }
+
         [Fact]
         public void ChecksumSectionViewModel_IsLanguageXmlFile_IdentifiesLanguageXmlCorrectly()
         {
+            Assert.True(ChecksumSectionViewModel.CanSkipFile(@"Languages\greenshot.de-DE.ini"));
+            Assert.True(ChecksumSectionViewModel.CanSkipFile(@"Languages\greenshot.imgur.de-DE.ini"));
             Assert.True(ChecksumSectionViewModel.CanSkipFile("language-en-US.xml"));
             Assert.True(ChecksumSectionViewModel.CanSkipFile("language-de-DE.xml"));
             Assert.True(ChecksumSectionViewModel.CanSkipFile(@"Languages\language-fr-FR.xml"));

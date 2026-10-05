@@ -37,6 +37,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Plugin;
 using log4net;
+using Greenshot.Base.Languages;
 using HtmlDocument = HtmlAgilityPack.HtmlDocument;
 
 namespace Greenshot.Base.Core
@@ -225,8 +226,8 @@ namespace Greenshot.Base.Core
         {
             string blocker = (exception as ClipboardAccessDeniedException)?.BlockingProcessName;
             string message = blocker != null
-                ? Language.GetFormattedString("clipboard_inuse", blocker)
-                : Language.GetString("clipboard_error");
+                ? string.Format(Texts.Core.ClipboardInuse, blocker)
+                : Texts.Core.ClipboardError;
             Log.Warn(message, exception);
             return new ClipboardException(message, blocker, exception);
         }

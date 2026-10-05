@@ -13,6 +13,9 @@ Type: files; Name: "{app}\*.dll"
 Type: files; Name: "{app}\org.greenshot.proxy*.json"
 // The command line was greenshot.com before it was renamed to greenshot-cli.exe
 Type: files; Name: "{app}\greenshot.com"
+// The XML language files were replaced by the language packs greenshot.{ietf}.ini, plugins had theirs in Languages\Plugins
+Type: files; Name: "{app}\Languages\language*.xml"
+Type: filesandordirs; Name: "{app}\Languages\Plugins"
 
 // Delete plugins from Greenshot 1.2
 Type: filesandordirs; Name: "{app}\Plugins\GreenshotBoxPlugin"

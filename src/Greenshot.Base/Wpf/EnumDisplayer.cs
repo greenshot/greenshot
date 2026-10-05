@@ -27,6 +27,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Windows.Data;
 using Greenshot.Base.Core;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Base.Wpf;
 
@@ -70,9 +71,9 @@ public class EnumDisplayer : IValueConverter
                 object enumValue = fieldInfo.GetValue(null);
 
                 string displayString = null;
-                if (displayKey != null && Language.HasKey(displayKey))
+                if (displayKey != null && Texts.Config.TryGetTranslation(displayKey, out var translation))
                 {
-                    displayString = Language.GetString(displayKey);
+                    displayString = translation;
                 }
 
                 displayString = displayString ?? displayKey ?? enumValue.ToString();

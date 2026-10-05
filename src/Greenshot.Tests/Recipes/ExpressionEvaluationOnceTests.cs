@@ -25,10 +25,10 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
-using Greenshot.Base.Pipeline;
-using Greenshot.Base.Pipeline.Sources;
 using Greenshot.Base.Recipes;
-using Greenshot.Pipeline.Steps;
+using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Recipes.Sources;
+using Greenshot.Recipes.Steps;
 using Xunit;
 
 namespace Greenshot.Tests.Recipes

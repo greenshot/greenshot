@@ -25,16 +25,18 @@ using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
-using Greenshot.Base.Drawing;
 using Greenshot.Base.Interfaces.Drawing;
-using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Helpers;
 using System.IO;
-using Greenshot.Pipeline.Steps;
 using Greenshot.Plugin.Zxing;
 using Greenshot.Plugin.RecipeEditor.Helpers;
+using Greenshot.Plugin.Zxing.Drawing;
+using Greenshot.Plugin.Zxing.Processing;
+using Greenshot.Plugin.Zxing.Recipes;
+using Greenshot.Recipes.Steps;
 using Xunit;
 
 namespace Greenshot.Tests.Recipes

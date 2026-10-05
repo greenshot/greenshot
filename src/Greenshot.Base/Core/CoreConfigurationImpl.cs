@@ -54,11 +54,19 @@ namespace Greenshot.Base.Core
         /// Coerce the value to stay between 16 and 256, and to be a multiple of 16, as this is required for the icons to be properly displayed in the Windows shell.
         /// </summary>
         /// <param name="value">NativeSize</param>
-        partial void OnIconSizeSet(ref NativeSize value)
+        partial void OnIconSizeSet(ref NativeSize value) => value = CoerceIconSize(value);
+
+        /// <summary>
+        /// Loading the ini file doesn't go through the setter, so a value like 24 from the file is coerced when it's read
+        /// </summary>
+        /// <param name="value">NativeSize</param>
+        partial void OnIconSizeGet(ref NativeSize value) => value = CoerceIconSize(value);
+
+        private static NativeSize CoerceIconSize(NativeSize value)
         {
-            int newWidth = (Clamp(value.Width, 16, 256) /16) * 16;
+            int newWidth = (Clamp(value.Width, 16, 256) / 16) * 16;
             int newHeight = (Clamp(value.Height, 16, 256) / 16) * 16;
-            value = new NativeSize(newWidth, newHeight);
+            return new NativeSize(newWidth, newHeight);
         }
 
         partial void OnAutoCropDifferenceSet(ref int value) => value = Clamp(value, 0, 255);
@@ -196,26 +204,6 @@ namespace Greenshot.Base.Core
             }
         }
 
-        /// <summary>
-        /// Lower case all entries of the list in place
-        /// </summary>
-        /// <param name="entries">List of string</param>
-        /// <returns>true when an entry was changed</returns>
-        private static bool LowerCaseEntries(List<string> entries)
-        {
-            bool changed = false;
-            for (int i = 0; i < entries.Count; i++)
-            {
-                var lowerCase = entries[i]?.ToLower();
-                if (!string.Equals(lowerCase, entries[i], StringComparison.Ordinal))
-                {
-                    entries[i] = lowerCase;
-                    changed = true;
-                }
-            }
-            return changed;
-        }
-
         public void OnAfterLoad()
         {
             // Remember the version the file was saved with, before a save (see OnBeforeSave) replaces it
@@ -280,50 +268,6 @@ namespace Greenshot.Base.Core
                 };
             }
 
-            // The lists are changed in place, which the section doesn't notice: mark it dirty so the fix is saved.
-            // Since Dapplo.Ini 1.1 the dirty flags are cleared before IAfterLoad, so only do this when something changed.
-            if (NoGDICaptureForProduct != null)
-            {
-                bool changed = false;
-                // Fix error in configuration
-                if (NoGDICaptureForProduct.Count >= 2)
-                {
-                    if ("intellij".Equals(NoGDICaptureForProduct[0]) && "idea".Equals(NoGDICaptureForProduct[1]))
-                    {
-                        NoGDICaptureForProduct.RemoveRange(0, 2);
-                        NoGDICaptureForProduct.Add("Intellij Idea");
-                        changed = true;
-                    }
-                }
-
-                changed |= LowerCaseEntries(NoGDICaptureForProduct);
-                if (changed)
-                {
-                    MarkAsDirty();
-                }
-            }
-
-            if (NoDWMCaptureForProduct != null)
-            {
-                bool changed = false;
-                // Fix error in configuration
-                if (NoDWMCaptureForProduct.Count >= 3)
-                {
-                    if ("citrix".Equals(NoDWMCaptureForProduct[0]) && "ica".Equals(NoDWMCaptureForProduct[1]) && "client".Equals(NoDWMCaptureForProduct[2]))
-                    {
-                        NoDWMCaptureForProduct.RemoveRange(0, 3);
-                        NoDWMCaptureForProduct.Add("Citrix ICA Client");
-                        changed = true;
-                    }
-                }
-
-                changed |= LowerCaseEntries(NoDWMCaptureForProduct);
-                if (changed)
-                {
-                    MarkAsDirty();
-                }
-            }
-
             // Normalize paths to heal any legacy escaping issues (e.g. duplicated backslashes)
             if (!string.IsNullOrEmpty(OutputFilePath))
             {
@@ -355,11 +299,6 @@ namespace Greenshot.Base.Core
                 OutputFileAsFullpath = GreenshotEnvironment.IsPortable
                     ? Path.Combine(Application.StartupPath, @"..\..\Documents\Pictures\Greenshots\dummy.png")
                     : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "dummy.png");
-            }
-
-            if (DWMBackgroundColor == default)
-            {
-                DWMBackgroundColor = Color.Transparent;
             }
 
             ActiveTitleFixes ??= new List<string> { "Firefox", "Chrome" };

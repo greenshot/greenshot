@@ -30,10 +30,14 @@ using Greenshot.Base.Core;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Threading;
-using Greenshot.Plugin.Dropbox.Forms;
+using Greenshot.Plugin.Dropbox.Api;
+using Greenshot.Plugin.Dropbox.Destinations;
+using Greenshot.Base.Languages;
+using Greenshot.Plugin.Dropbox.Recipes;
+using Greenshot.Plugin.Dropbox.Views;
 
 namespace Greenshot.Plugin.Dropbox;
 
@@ -44,7 +48,7 @@ public class DropboxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepP
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(DropboxPlugin));
     private static IDropboxConfiguration _config;
-    private ToolStripMenuItem _itemPlugInConfig;
+    private TrayMenuEntry _itemPlugInConfig;
 
     public ValueTask DisposeAsync()
     {
@@ -59,6 +63,7 @@ public class DropboxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepP
 
     public void ConfigureServices(IPluginServices services)
     {
+        Texts.Register<IDropboxLanguage>(new DropboxLanguageImpl());
         var section = new DropboxConfigurationImpl();
         services.AddConfiguration(section);
         _config = section;
@@ -66,7 +71,7 @@ public class DropboxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepP
         services.AddService<IIconProvider>(DropboxDestination.Icons);
         services.AddService<IDestination>(new DropboxDestination(this));
         services.AddRecipeStepProvider(this);
-        services.AddSettingsView<IDropboxConfiguration>(config => new Forms.DropboxConfigurationControl(config));
+        services.AddSettingsView<IDropboxConfiguration>(config => new DropboxConfigurationView(config));
     }
 
     public object CreateSettingsViewModel(IServiceProvider services) => _config;
@@ -89,7 +94,7 @@ public class DropboxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepP
 
     private void Start()
     {
-        _itemPlugInConfig = new ToolStripMenuItem
+        _itemPlugInConfig = new TrayMenuEntry
         {
             Text = PluginUtils.GetQuicklinkText("Dropbox"),
             Image = EmbeddedResources.GetImage(typeof(DropboxPlugin), "Dropbox"),
@@ -98,7 +103,7 @@ public class DropboxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepP
         _itemPlugInConfig.Click += ConfigMenuClick;
 
         PluginUtils.AddToContextMenu(_itemPlugInConfig);
-        Language.LanguageChanged += OnLanguageChanged;
+        Texts.Config.LanguageChanged += OnLanguageChanged;
         if (_config is INotifyPropertyChanged notify)
         {
             notify.PropertyChanged += OnConfigPropertyChanged;
@@ -128,7 +133,7 @@ public class DropboxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepP
         UiDispatcher.Current.RunOnUiAsync(() =>
         {
             Log.Debug("Dropbox Plugin shutdown.");
-            Language.LanguageChanged -= OnLanguageChanged;
+            Texts.Config.LanguageChanged -= OnLanguageChanged;
             if (_config is INotifyPropertyChanged notify)
             {
                 notify.PropertyChanged -= OnConfigPropertyChanged;
@@ -141,7 +146,7 @@ public class DropboxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepP
     private void ConfigMenuClick(object sender, EventArgs eventArgs)
     {
         // Show the settings of this plugin
-        SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>(isOptional: true)?.ShowSetting(Name);
+        SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true)?.ShowSetting(Name);
     }
 
     /// <summary>
@@ -153,7 +158,7 @@ public class DropboxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepP
         var outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
         string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
         var image = await source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
-        return await userInteraction.RunWithProgressAsync(Language.GetString("dropbox", LangKey.communication_wait),
+        return await userInteraction.RunWithProgressAsync(Texts.Get<IDropboxLanguage>().CommunicationWait,
             (progress, token) => DropboxUtils.UploadToDropboxAsync(image, filename, userInteraction, progress, token), cancellationToken).ConfigureAwait(false);
     }
 }

@@ -30,10 +30,14 @@ using Greenshot.Base.Core;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Threading;
-using Greenshot.Plugin.Box.Forms;
+using Greenshot.Plugin.Box.Api;
+using Greenshot.Plugin.Box.Destinations;
+using Greenshot.Base.Languages;
+using Greenshot.Plugin.Box.Recipes;
+using Greenshot.Plugin.Box.Views;
 
 namespace Greenshot.Plugin.Box;
 
@@ -44,7 +48,7 @@ public class BoxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvi
 {
     private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BoxPlugin));
     private static IBoxConfiguration _config;
-    private ToolStripMenuItem _itemPlugInConfig;
+    private TrayMenuEntry _itemPlugInConfig;
 
     public ValueTask DisposeAsync()
     {
@@ -59,6 +63,7 @@ public class BoxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvi
 
     public void ConfigureServices(IPluginServices services)
     {
+        Texts.Register<IBoxLanguage>(new BoxLanguageImpl());
         var section = new BoxConfigurationImpl();
         services.AddConfiguration(section);
         _config = section;
@@ -66,7 +71,7 @@ public class BoxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvi
         services.AddService<IIconProvider>(BoxDestination.Icons);
         services.AddService<IDestination>(new BoxDestination(this));
         services.AddRecipeStepProvider(this);
-        services.AddSettingsView<IBoxConfiguration>(config => new Forms.BoxConfigurationControl(config));
+        services.AddSettingsView<IBoxConfiguration>(config => new BoxConfigurationView(config));
     }
 
     public object CreateSettingsViewModel(IServiceProvider services) => _config;
@@ -89,7 +94,7 @@ public class BoxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvi
 
     private void Start()
     {
-        _itemPlugInConfig = new ToolStripMenuItem
+        _itemPlugInConfig = new TrayMenuEntry
         {
             Image = EmbeddedResources.GetImage(typeof(BoxPlugin), "Box"),
             Text = PluginUtils.GetQuicklinkText("Box"),
@@ -98,7 +103,7 @@ public class BoxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvi
         _itemPlugInConfig.Click += ConfigMenuClick;
 
         PluginUtils.AddToContextMenu(_itemPlugInConfig);
-        Language.LanguageChanged += OnLanguageChanged;
+        Texts.Config.LanguageChanged += OnLanguageChanged;
         if (_config is INotifyPropertyChanged notify)
         {
             notify.PropertyChanged += OnConfigPropertyChanged;
@@ -128,7 +133,7 @@ public class BoxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvi
         UiDispatcher.Current.RunOnUiAsync(() =>
         {
             LOG.Debug("Box Plugin shutdown.");
-            Language.LanguageChanged -= OnLanguageChanged;
+            Texts.Config.LanguageChanged -= OnLanguageChanged;
             if (_config is INotifyPropertyChanged notify)
             {
                 notify.PropertyChanged -= OnConfigPropertyChanged;
@@ -141,7 +146,7 @@ public class BoxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvi
     private void ConfigMenuClick(object sender, EventArgs eventArgs)
     {
         // Show the settings of this plugin
-        SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>(isOptional: true)?.ShowSetting(Name);
+        SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true)?.ShowSetting(Name);
     }
 
     /// <summary>
@@ -154,7 +159,7 @@ public class BoxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvi
         string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
         var image = await source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
 
-        string url = await userInteraction.RunWithProgressAsync(Language.GetString("box", LangKey.communication_wait),
+        string url = await userInteraction.RunWithProgressAsync(Texts.Get<IBoxLanguage>().CommunicationWait,
             (progress, token) => BoxUtils.UploadToBoxAsync(image, filename, userInteraction, progress, token), cancellationToken).ConfigureAwait(false);
 
         if (url != null && _config.AfterUploadLinkToClipBoard)

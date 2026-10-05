@@ -21,7 +21,7 @@
 
 using System;
 using Greenshot.Base.Core;
-using Greenshot.UI.ViewModels;
+using Greenshot.ViewModels;
 using Xunit;
 
 namespace Greenshot.Tests.Core
@@ -126,7 +126,7 @@ namespace Greenshot.Tests.Core
         [Fact]
         public void NormalizeStackTrace_HandlesFrameworkOnlyStackTraces()
         {
-            string wpfStack = @"System.InvalidOperationException: A TwoWay or OneWayToSource binding cannot work on the read-only property 'BlockerProcessName' of type 'Greenshot.UI.SelfService.ClipboardSectionViewModel'.
+            string wpfStack = @"System.InvalidOperationException: A TwoWay or OneWayToSource binding cannot work on the read-only property 'BlockerProcessName' of type 'Greenshot.SelfService.ViewModels.ClipboardSectionViewModel'.
    at MS.Internal.Data.PropertyPathWorker.CheckPathPoints(Object source)
    at MS.Internal.Data.PropertyPathWorker.SourceValue(Int32 index)
    at System.Windows.FrameworkElement.MeasureCore(Size availableSize)";

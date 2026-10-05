@@ -25,7 +25,6 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using Greenshot.Base.Core;
-using Greenshot.Base.Drawing;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Recipes;
@@ -37,6 +36,7 @@ using Greenshot.Editor.FileFormatHandlers;
 using Greenshot.Plugin.Zxing;
 using Greenshot.Plugin.RecipeEditor.Helpers;
 using Greenshot.Plugin.RecipeEditor.ViewModels;
+using Greenshot.Plugin.Zxing.Drawing;
 using Xunit;
 
 namespace Greenshot.Tests.Recipes

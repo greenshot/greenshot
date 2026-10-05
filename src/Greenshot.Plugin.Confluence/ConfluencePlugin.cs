@@ -29,11 +29,14 @@ using Greenshot.Base.Core;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Threading;
-using Greenshot.Plugin.Confluence.Forms;
-using Greenshot.Plugin.Confluence.Support;
+using Greenshot.Plugin.Confluence.Api;
+using Greenshot.Plugin.Confluence.Destinations;
+using Greenshot.Base.Languages;
+using Greenshot.Plugin.Confluence.Recipes;
+using Greenshot.Plugin.Confluence.Views;
 
 namespace Greenshot.Plugin.Confluence;
 
@@ -45,7 +48,7 @@ public class ConfluencePlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeSt
     private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluencePlugin));
     private static ConfluenceConnector _confluenceConnector;
     private static IConfluenceConfiguration _config;
-    private ToolStripMenuItem _itemPlugInConfig;
+    private TrayMenuEntry _itemPlugInConfig;
 
     public ValueTask DisposeAsync()
     {
@@ -89,18 +92,10 @@ public class ConfluencePlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeSt
 
     public void ConfigureServices(IPluginServices services)
     {
+        Texts.Register<IConfluenceLanguage>(new ConfluenceLanguageImpl());
         var section = new ConfluenceConfigurationImpl();
         services.AddConfiguration(section);
         _config = section;
-
-        try
-        {
-            TranslationManager.Instance.TranslationProvider = new LanguageXMLTranslationProvider();
-        }
-        catch (Exception ex)
-        {
-            LOG.ErrorFormat("Problem registering Confluence services: {0}", ex.Message);
-        }
 
         services.AddService<IIconProvider>(new ConfluenceIconProvider());
         if (ConfluenceDestination.IsInitialized)
@@ -109,7 +104,7 @@ public class ConfluencePlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeSt
         }
 
         services.AddRecipeStepProvider(this);
-        services.AddSettingsView<IConfluenceConfiguration>(config => new ConfluenceConfigurationControl(config));
+        services.AddSettingsView<IConfluenceConfiguration>(config => new ConfluenceConfigurationView(config));
     }
 
     public object CreateSettingsViewModel(IServiceProvider services) => _config;
@@ -129,13 +124,13 @@ public class ConfluencePlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeSt
     /// </summary>
     public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken)
     {
-        services.GetService<IDialogViewRegistry>()?.Register<ConfluenceUploadRequest, ConfluenceUploadChoice>(Forms.ConfluenceUpload.Show);
+        services.GetService<IDialogViewRegistry>()?.Register<ConfluenceUploadRequest, ConfluenceUploadChoice>(ConfluenceUploadWindow.Show);
         return services.GetRequiredService<IUiDispatcher>().RunOnUiAsync(Start, cancellationToken);
     }
 
     private void Start()
     {
-        _itemPlugInConfig = new ToolStripMenuItem
+        _itemPlugInConfig = new TrayMenuEntry
         {
             Image = ConfluenceDestination.LoadConfluenceIcon(),
             Text = PluginUtils.GetQuicklinkText("Confluence"),
@@ -144,7 +139,7 @@ public class ConfluencePlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeSt
         _itemPlugInConfig.Click += delegate { ShowSettings(); };
 
         PluginUtils.AddToContextMenu(_itemPlugInConfig);
-        Language.LanguageChanged += OnLanguageChanged;
+        Texts.Config.LanguageChanged += OnLanguageChanged;
         if (_config is INotifyPropertyChanged notify)
         {
             notify.PropertyChanged += OnConfigPropertyChanged;
@@ -174,7 +169,7 @@ public class ConfluencePlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeSt
         UiDispatcher.Current.RunOnUiAsync(() =>
         {
             LOG.Debug("Confluence Plugin shutdown.");
-            Language.LanguageChanged -= OnLanguageChanged;
+            Texts.Config.LanguageChanged -= OnLanguageChanged;
             if (_config is INotifyPropertyChanged notify)
             {
                 notify.PropertyChanged -= OnConfigPropertyChanged;
@@ -194,6 +189,6 @@ public class ConfluencePlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeSt
     /// </summary>
     private void ShowSettings()
     {
-        SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>(isOptional: true)?.ShowSetting(Name);
+        SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true)?.ShowSetting(Name);
     }
 }

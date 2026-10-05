@@ -4,7 +4,7 @@ Name: "plugins\confluence"; Description: {cm:confluence}; Types: full custom; Fl
 [Files]
 ; The plugin and the libraries only it uses; the build removed its copies of the files Greenshot itself installs
 Source: {#PluginDir}\Greenshot.Plugin.Confluence\*.dll; DestDir: {app}\Plugins\Greenshot.Plugin.Confluence; Components: plugins\confluence; Flags: {#DefaultInstallFlags};
-Source: {#SolutionDir}\Greenshot.Plugin.Confluence\Languages\language_confluence*.xml; DestDir: {app}\Languages\Plugins\Confluence; Components: plugins\confluence; Flags: {#DefaultInstallFlags};
+Source: {#SolutionDir}\Greenshot.Plugin.Confluence\Languages\greenshot.confluence.*.ini; DestDir: {app}\Languages; Components: plugins\confluence; Flags: {#DefaultInstallFlags};
 
 [CustomMessages]
 confluence=Confluence plug-in
