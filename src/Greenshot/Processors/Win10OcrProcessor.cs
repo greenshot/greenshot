@@ -20,13 +20,15 @@
  */
 
 using System;
-using System.Drawing;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
+using Greenshot.Base.Interfaces.Plugin;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Configuration;
 
 namespace Greenshot.Processors
@@ -84,62 +86,24 @@ namespace Greenshot.Processors
                 return false;
             }
 
-            Image clonedImage;
-            try
-            {
-                clonedImage = (Image)capture.Image.Clone();
-            }
-            catch (Exception ex)
-            {
-                Log.Error("Failed to clone capture image for OCR background processing", ex);
-                return false;
-            }
-
             var captureDetails = capture.CaptureDetails;
             var initialCropOffset = captureDetails.CropOffset;
 
+            Task<List<IOcrLineFeature>> ocrTask;
+            try
+            {
+                // The provider copies the pixels before it returns, so the image needs no clone
+                ocrTask = ocrProvider.DoOcrAsync(capture.Image);
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Failed to start the OCR of the capture", ex);
+                return false;
+            }
+
             // PARALLEL: the OCR runs next to the interactive selection, its lines show up as hotspots while the user selects.
             // (Background work tracked on the capture details, replaced by AnalysisResults with imaging roadmap step 2.)
-#pragma warning disable RS0030 // R10: documented parallel branch
-            var task = Task.Run(async () =>
-#pragma warning restore RS0030
-            {
-                using (clonedImage)
-                {
-                    try
-                    {
-                        var ocrLines = await ocrProvider.DoOcrAsync(clonedImage).ConfigureAwait(false);
-                        if (ocrLines != null && ocrLines.Any())
-                        {
-                            lock (captureDetails.Features)
-                            {
-                                var currentCropOffset = captureDetails.CropOffset;
-                                var dx = currentCropOffset.X - initialCropOffset.X;
-                                var dy = currentCropOffset.Y - initialCropOffset.Y;
-                                if (dx != 0 || dy != 0)
-                                {
-                                    foreach (var line in ocrLines)
-                                    {
-                                        line.Offset(-dx, -dy);
-                                    }
-                                }
-                                captureDetails.Features.AddRange(ocrLines);
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error("Error performing Windows OCR in background task", ex);
-                    }
-                    finally
-                    {
-                        if (captureDetails is CaptureDetails concreteDetails)
-                        {
-                            concreteDetails.NotifyFeaturesChanged();
-                        }
-                    }
-                }
-            });
+            var task = AddOcrLinesAsync(ocrTask, captureDetails, initialCropOffset);
 
             if (captureDetails.ProcessingTask != null)
             {
@@ -151,6 +115,45 @@ namespace Greenshot.Processors
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Add the detected lines to the capture details when the OCR is done, corrected for a crop which happened in the meantime
+        /// </summary>
+        private static async Task AddOcrLinesAsync(Task<List<IOcrLineFeature>> ocrTask, ICaptureDetails captureDetails, NativePoint initialCropOffset)
+        {
+            try
+            {
+                var ocrLines = await ocrTask.ConfigureAwait(false);
+                if (ocrLines != null && ocrLines.Any())
+                {
+                    lock (captureDetails.Features)
+                    {
+                        var currentCropOffset = captureDetails.CropOffset;
+                        var dx = currentCropOffset.X - initialCropOffset.X;
+                        var dy = currentCropOffset.Y - initialCropOffset.Y;
+                        if (dx != 0 || dy != 0)
+                        {
+                            foreach (var line in ocrLines)
+                            {
+                                line.Offset(-dx, -dy);
+                            }
+                        }
+                        captureDetails.Features.AddRange(ocrLines);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Error performing Windows OCR in background task", ex);
+            }
+            finally
+            {
+                if (captureDetails is CaptureDetails concreteDetails)
+                {
+                    concreteDetails.NotifyFeaturesChanged();
+                }
+            }
         }
     }
 }
