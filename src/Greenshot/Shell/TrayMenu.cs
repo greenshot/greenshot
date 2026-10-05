@@ -155,7 +155,7 @@ namespace Greenshot.Shell
         private ContextMenu Build()
         {
             var conf = CoreConfig;
-            var menu = ThemedMenu.CreateContextMenu();
+            var menu = ThemedMenu.CreateContextMenu(followTaskbar: true);
 
             // Captures
             var captureArea = AddItem(menu, Texts.Core.ContextmenuCapturearea, "contextmenu_capturearea.Image", () => CaptureHelper.CaptureRegion(false));

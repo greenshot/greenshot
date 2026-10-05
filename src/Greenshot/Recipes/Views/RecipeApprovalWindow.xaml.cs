@@ -936,27 +936,9 @@ namespace Greenshot.Recipes.Views
 
         private void ApplyImmersiveDarkMode()
         {
-            try
-            {
-                var helper = new System.Windows.Interop.WindowInteropHelper(this);
-                if (helper.Handle != IntPtr.Zero && WpfThemeHelper.IsDarkMode)
-                {
-                    int useImmersiveDarkMode = 1;
-                    int hr = DwmSetWindowAttribute(helper.Handle, 20, ref useImmersiveDarkMode, sizeof(int));
-                    if (hr != 0)
-                    {
-                        DwmSetWindowAttribute(helper.Handle, 19, ref useImmersiveDarkMode, sizeof(int));
-                    }
-                }
-            }
-            catch
-            {
-                // Silently ignore if DWM call is unsupported on older OS
-            }
+            // The title bar in the colors of the theme, it follows theme changes from now on
+            WindowFrameTheme.Attach(this);
         }
-
-        [System.Runtime.InteropServices.DllImport("dwmapi.dll", PreserveSig = true)]
-        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
 
         [System.Runtime.InteropServices.DllImport("user32.dll")]
         [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]

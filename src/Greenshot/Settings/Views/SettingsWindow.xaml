@@ -460,6 +460,20 @@
                                               SelectedValue="{Binding SelectedLanguage, Mode=TwoWay}"
                                               IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=Language}"/>
                                 </Grid>
+
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Content="{wpf:Text Settings.Theme}"/>
+                                    <ComboBox Grid.Column="1"
+                                              ItemsSource="{Binding Themes}"
+                                              DisplayMemberPath="DisplayName"
+                                              SelectedValuePath="Theme"
+                                              SelectedValue="{Binding SelectedTheme, Mode=TwoWay}"
+                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=Theme}"/>
+                                </Grid>
                                 
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>

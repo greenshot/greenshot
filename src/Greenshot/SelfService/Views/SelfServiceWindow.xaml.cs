@@ -21,11 +21,9 @@
 
 using System;
 using System.ComponentModel;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
@@ -389,23 +387,8 @@ namespace Greenshot.SelfService.Views
 
         private void ApplyImmersiveDarkMode()
         {
-            try
-            {
-                var helper = new WindowInteropHelper(this);
-                if (helper.Handle != IntPtr.Zero)
-                {
-                    int useImmersiveDarkMode = WpfThemeHelper.IsDarkMode ? 1 : 0;
-                    int hr = DwmSetWindowAttribute(helper.Handle, 20, ref useImmersiveDarkMode, sizeof(int));
-                    if (hr != 0)
-                    {
-                        DwmSetWindowAttribute(helper.Handle, 19, ref useImmersiveDarkMode, sizeof(int));
-                    }
-                }
-            }
-            catch
-            {
-                // Ignore if unsupported by OS
-            }
+            // The title bar in the colors of the theme, it follows theme changes from now on
+            WindowFrameTheme.Attach(this);
         }
 
 #if DEBUG
@@ -441,8 +424,6 @@ namespace Greenshot.SelfService.Views
         private void OnOpenDebugExtensionFolderClicked(object sender, RoutedEventArgs e) { }
 #endif
 
-        [DllImport("dwmapi.dll", PreserveSig = true)]
-        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
 
         /// <summary>
         /// Displays the Self-Service window safely, activating an existing instance if one is open.

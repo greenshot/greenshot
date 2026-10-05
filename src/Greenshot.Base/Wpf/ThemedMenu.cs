@@ -67,12 +67,34 @@ namespace Greenshot.Base.Wpf
         /// <summary>
         /// A new, empty, themed context menu
         /// </summary>
-        public static ContextMenu CreateContextMenu()
+        /// <param name="followTaskbar">True for the tray menu: it has the light or dark mode of the taskbar (the Windows mode),
+        /// which can differ from the one of apps. False for menus of Greenshot's windows.</param>
+        public static ContextMenu CreateContextMenu(bool followTaskbar = false)
         {
-            return new ContextMenu
-            {
-                Style = (Style)Styles["GreenshotContextMenuStyle"]
-            };
+            var menu = new ContextMenu();
+            var themeManager = ThemeManager.Instance;
+            ApplyPalette(menu, followTaskbar ? themeManager.TaskbarPalette : themeManager.CurrentPalette);
+            menu.Style = (Style)Styles["GreenshotContextMenuStyle"];
+            return menu;
+        }
+
+        /// <summary>
+        /// The brushes the menu styles use, as resources of the menu: the sub menus find them there too
+        /// </summary>
+        private static void ApplyPalette(ContextMenu menu, ThemePalette palette)
+        {
+            menu.Resources["GreenshotMenu.Foreground"] = palette.ForegroundBrush;
+            menu.Resources["GreenshotMenu.Background"] = palette.GroupBoxBrush;
+            menu.Resources["GreenshotMenu.Border"] = palette.BorderBrush;
+            menu.Resources["GreenshotMenu.CheckBackground"] = palette.ButtonPressedBrush;
+            menu.Resources["GreenshotMenu.Accent"] = palette.AccentBrush;
+            menu.Resources["GreenshotMenu.Muted"] = palette.MutedBrush;
+            menu.Resources["GreenshotMenu.Hover"] = palette.ButtonHoverBrush;
+            menu.Resources["GreenshotMenu.HoverForeground"] = palette.HighlightForegroundBrush;
+            // The radius of the menus of Windows 11, the smaller one before
+            bool rounded = WindowFrameTheme.HasRoundedCorners;
+            menu.Resources["GreenshotMenu.CornerRadius"] = new CornerRadius(rounded ? 8 : 4);
+            menu.Resources["GreenshotMenu.ItemCornerRadius"] = new CornerRadius(rounded ? 4 : 3);
         }
 
         /// <summary>

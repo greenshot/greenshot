@@ -23,11 +23,9 @@ using System;
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Greenshot.Base.Core;
@@ -455,27 +453,9 @@ namespace Greenshot.SelfService.Views
 
         private void ApplyImmersiveDarkMode()
         {
-            try
-            {
-                var helper = new WindowInteropHelper(this);
-                if (helper.Handle != IntPtr.Zero)
-                {
-                    int useImmersiveDarkMode = WpfThemeHelper.IsDarkMode ? 1 : 0;
-                    int hr = DwmSetWindowAttribute(helper.Handle, 20, ref useImmersiveDarkMode, sizeof(int));
-                    if (hr != 0)
-                    {
-                        DwmSetWindowAttribute(helper.Handle, 19, ref useImmersiveDarkMode, sizeof(int));
-                    }
-                }
-            }
-            catch
-            {
-                // Ignore if unsupported
-            }
+            // The title bar in the colors of the theme, it follows theme changes from now on
+            WindowFrameTheme.Attach(this);
         }
-
-        [DllImport("dwmapi.dll", PreserveSig = true)]
-        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
