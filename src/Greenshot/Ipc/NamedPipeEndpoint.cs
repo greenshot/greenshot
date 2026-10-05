@@ -24,7 +24,7 @@ using System.IO.Pipes;
 using System.Security.AccessControl;
 using System.Security.Principal;
 
-namespace Greenshot.Helpers.Ipc
+namespace Greenshot.Ipc
 {
     /// <summary>
     /// Helper for resolving the user-SID scoped named pipe endpoint and configuring its security DACL.

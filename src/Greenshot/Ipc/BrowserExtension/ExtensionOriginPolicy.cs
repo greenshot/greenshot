@@ -25,7 +25,7 @@ using System.IO;
 using log4net;
 using Newtonsoft.Json.Linq;
 
-namespace Greenshot.Helpers.Ipc
+namespace Greenshot.Ipc.BrowserExtension
 {
     /// <summary>
     /// Decides which browser extensions may talk to Greenshot over a native_messaging connection.

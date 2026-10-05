@@ -27,8 +27,11 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Triggers;
+#if !GREENSHOT_LIGHT
+using Greenshot.Ai;
+#endif
 
-namespace Greenshot.Helpers.Ipc
+namespace Greenshot.Ipc.Cli
 {
     /// <summary>
     /// Result of binding caller supplied arguments to the arguments a recipe's Commandline trigger declares.

@@ -24,7 +24,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Greenshot.Base.Core;
 
-namespace Greenshot.Helpers.Ipc
+namespace Greenshot.Ai
 {
     /// <summary>
     /// Window references for AI tools: list_windows hands out short ids like "w7" instead of window handles, and a recipe argument

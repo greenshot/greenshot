@@ -24,7 +24,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 
-namespace Greenshot.Helpers.Ipc
+namespace Greenshot.Ipc
 {
     /// <summary>
     /// Metadata accompanying a browser capture import.

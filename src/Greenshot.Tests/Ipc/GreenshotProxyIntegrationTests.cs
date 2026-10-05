@@ -27,7 +27,7 @@ using System.IO.Pipes;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Greenshot.Helpers.Ipc;
+using Greenshot.Ipc;
 using Newtonsoft.Json.Linq;
 using Xunit;
 

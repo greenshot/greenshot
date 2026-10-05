@@ -27,8 +27,11 @@ using System.Threading.Tasks;
 using log4net;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+#if !GREENSHOT_LIGHT
+using Greenshot.Ai;
+#endif
 
-namespace Greenshot.Helpers.Ipc
+namespace Greenshot.Ipc
 {
     /// <summary>
     /// Encapsulates an incoming IPC request and provides bidirectional response capability on the connected stream.

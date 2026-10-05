@@ -24,7 +24,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using log4net;
 
-namespace Greenshot.Helpers.Ipc
+namespace Greenshot.Ipc.BrowserExtension
 {
     /// <summary>
     /// Tracks active browser tab metadata reported by the browser extension.

@@ -36,12 +36,7 @@
   </PropertyGroup>
   <!-- The code Greenshot Light doesn't have: loading plugins, the AI tools (greenshot-mcp) and the browser extension, with their settings tabs -->
   <ItemGroup Condition="'$(GreenshotEdition)' == 'Light'">
-    <Compile Remove="Helpers\PluginHelper.cs" />
-    <Compile Remove="Helpers\Ipc\Ai*.cs" />
-    <Compile Remove="Helpers\Ipc\McpServerStatus.cs" />
-    <Compile Remove="Helpers\Ipc\BrowserContextTracker.cs" />
-    <Compile Remove="Helpers\Ipc\ExtensionOriginPolicy.cs" />
-    <Compile Remove="Helpers\Ipc\ImportCaptureDecoder.cs" />
+    <Compile Remove="Ipc\BrowserExtension\**\*.cs" />
     <Compile Remove="Settings\ViewModels\SettingsViewModel.AiTools.cs" />
     <Compile Remove="Settings\ViewModels\SettingsViewModel.Plugins.cs" />
     <Compile Remove="Ai\**\*.cs" />

@@ -34,6 +34,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Dapplo.Ini;
 using Dapplo.Windows.Common.Structs;
+using Greenshot.Ai;
 using Greenshot.Ai.ViewModels;
 using Greenshot.Base;
 using Greenshot.Base.Core;
@@ -64,7 +65,7 @@ namespace Greenshot.Settings.ViewModels
                 // The signature check can take a moment, the list shows right away
                 client.LoadDetailsAsync().FireAndLog("AI tool details", Log);
             }
-            DeniedAiToolClients = new ObservableCollection<AiToolClientViewModel>(Helpers.Ipc.AiToolAccess.GetDeniedClients().Select(path => new AiToolClientViewModel(path)));
+            DeniedAiToolClients = new ObservableCollection<AiToolClientViewModel>(AiToolAccess.GetDeniedClients().Select(path => new AiToolClientViewModel(path)));
             DeniedAiToolClients.CollectionChanged += (s, e) => OnPropertyChanged(nameof(HasDeniedAiToolClients));
             foreach (var client in DeniedAiToolClients)
             {
@@ -75,7 +76,7 @@ namespace Greenshot.Settings.ViewModels
             {
                 AddExcludedProcess(name);
             }
-            McpServers = Helpers.Ipc.McpServerStatus.Find();
+            McpServers = McpServerStatus.Find();
             RefreshApprovedRecipes();
         }
 
@@ -144,7 +145,7 @@ namespace Greenshot.Settings.ViewModels
         /// <summary>
         /// greenshot-mcp.exe: where it is looked for, and whether it is there
         /// </summary>
-        public IReadOnlyList<Helpers.Ipc.McpServerStatus> McpServers { get; private set; }
+        public IReadOnlyList<McpServerStatus> McpServers { get; private set; }
 
         public bool IsMcpServerFound => McpServers.Any(m => m.Exists);
 
@@ -162,7 +163,7 @@ namespace Greenshot.Settings.ViewModels
         {
             if (client == null) return;
             DeniedAiToolClients.Remove(client);
-            Helpers.Ipc.AiToolAccess.ForgetDenied(client.Path);
+            AiToolAccess.ForgetDenied(client.Path);
             if (!AiToolsAllowedClients.Any(c => string.Equals(c.Path, client.Path, StringComparison.OrdinalIgnoreCase)))
             {
                 AiToolsAllowedClients.Add(client);
@@ -176,7 +177,7 @@ namespace Greenshot.Settings.ViewModels
         {
             if (client == null) return;
             DeniedAiToolClients.Remove(client);
-            Helpers.Ipc.AiToolAccess.ForgetDenied(client.Path);
+            AiToolAccess.ForgetDenied(client.Path);
         }
 
         public bool HasNoAiToolClients => AiToolsAllowedClients.Count == 0;

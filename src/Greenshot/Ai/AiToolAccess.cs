@@ -31,7 +31,7 @@ using Greenshot.Base.Threading;
 using Greenshot.Base.Wpf;
 using log4net;
 
-namespace Greenshot.Helpers.Ipc
+namespace Greenshot.Ai
 {
     /// <summary>
     /// Consent, exclusions and notifications for AI tools (MCP clients) which use Greenshot through greenshot-mcp.exe.

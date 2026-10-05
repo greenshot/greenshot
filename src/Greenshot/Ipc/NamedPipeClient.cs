@@ -26,7 +26,7 @@ using System.Text;
 using log4net;
 using Newtonsoft.Json;
 
-namespace Greenshot.Helpers.Ipc
+namespace Greenshot.Ipc
 {
     /// <summary>
     /// Client for sending framed JSON IPC envelopes over the user-SID scoped named pipe.

@@ -38,14 +38,20 @@ using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
 using Greenshot.Forms;
+using Greenshot.Helpers;
+using Greenshot.Ipc.Cli;
 using Greenshot.Recipes;
 using Greenshot.Recipes.Pipeline;
 using Greenshot.SelfService.Views;
 using Greenshot.Settings.Views;
 using log4net;
 using Greenshot.Base.Threading;
+#if !GREENSHOT_LIGHT
+using Greenshot.Ai;
+using Greenshot.Ipc.BrowserExtension;
+#endif
 
-namespace Greenshot.Helpers.Ipc
+namespace Greenshot.Ipc
 {
     /// <summary>
     /// Strict whitelist-focused security dispatcher for incoming IPC messages.

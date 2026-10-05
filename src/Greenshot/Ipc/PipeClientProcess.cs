@@ -26,7 +26,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Win32.SafeHandles;
 
-namespace Greenshot.Helpers.Ipc
+namespace Greenshot.Ipc
 {
     /// <summary>
     /// Which program is connected to the named pipe: for the check of Greenshot's own programs (<see cref="IpcClientVerifier"/>)

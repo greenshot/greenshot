@@ -28,13 +28,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Ini;
 using Dapplo.Windows.Common.Structs;
+using Greenshot.Ai;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
 using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
-using Greenshot.Helpers.Ipc;
+using Greenshot.Ipc;
+using Greenshot.Ipc.Cli;
 using Newtonsoft.Json.Linq;
 using Xunit;
 

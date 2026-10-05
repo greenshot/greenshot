@@ -34,11 +34,13 @@ using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
+using Greenshot.Ipc;
+using Greenshot.Ipc.Cli;
 using Greenshot.Recipes;
 using Greenshot.Recipes.Pipeline;
 using log4net;
 
-namespace Greenshot.Helpers.Ipc
+namespace Greenshot.Ai
 {
     /// <summary>
     /// The commands of greenshot-mcp.exe (AI tools). The caller (<see cref="IpcSecurityDispatcher"/>) already checked the source,

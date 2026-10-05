@@ -41,9 +41,11 @@ using Contracts = Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Pipeline.Sources;
 using Greenshot.Base.Recipes;
 using Greenshot.Capturing;
-using Greenshot.Helpers.Ipc;
 using log4net;
 using Greenshot.Base.Threading;
+#if !GREENSHOT_LIGHT
+using Greenshot.Ai;
+#endif
 
 namespace Greenshot.Recipes.Steps
 {

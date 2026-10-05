@@ -30,10 +30,11 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
+using Greenshot.Ipc;
 using log4net;
 using Microsoft.Win32.SafeHandles;
 
-namespace Greenshot.Helpers.Ipc
+namespace Greenshot.Ai
 {
     /// <summary>
     /// The program which uses Greenshot through greenshot-mcp.exe (e.g. Claude, VS Code), identified by Greenshot itself.

@@ -33,11 +33,12 @@ using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Triggers;
+using Greenshot.Ipc;
 using Greenshot.Recipes;
 using Greenshot.Recipes.Approval;
 using log4net;
 
-namespace Greenshot.Helpers.Ipc
+namespace Greenshot.Ai
 {
     /// <summary>
     /// AI tools writing recipes (greenshot-mcp.exe). The caller (<see cref="IpcSecurityDispatcher"/>) already checked the source,

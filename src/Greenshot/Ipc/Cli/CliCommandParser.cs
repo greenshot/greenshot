@@ -23,7 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Greenshot.Helpers.Ipc
+namespace Greenshot.Ipc.Cli
 {
     /// <summary>
     /// Result of parsing a forwarded command line.

@@ -66,7 +66,8 @@ using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
 using Greenshot.Helpers;
-using Greenshot.Helpers.Ipc;
+using Greenshot.Ipc;
+using Greenshot.Ipc.Cli;
 using Greenshot.Plugin.Win10;
 using Greenshot.Processors;
 using Greenshot.Recipes;
@@ -80,6 +81,9 @@ using log4net;
 using Timer = System.Timers.Timer;
 using Greenshot.Base.Native;
 using Greenshot.Base.Languages;
+#if !GREENSHOT_LIGHT
+using Greenshot.Plugins;
+#endif
 
 namespace Greenshot.Forms
 {

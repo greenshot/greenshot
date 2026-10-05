@@ -106,7 +106,7 @@ namespace Greenshot.Ai.ViewModels
                 SignerText = "The program isn't there anymore";
                 return;
             }
-            var client = Helpers.Ipc.AiToolCaller.Describe(Path);
+            var client = AiToolCaller.Describe(Path);
             DisplayName = client.DisplayName;
             SignerText = string.IsNullOrEmpty(client.Signer) ? "Not signed" : $"Signed by {client.Signer}";
         }

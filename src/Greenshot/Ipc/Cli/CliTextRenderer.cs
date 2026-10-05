@@ -24,7 +24,7 @@ using System.Globalization;
 using System.Text;
 using Newtonsoft.Json.Linq;
 
-namespace Greenshot.Helpers.Ipc
+namespace Greenshot.Ipc.Cli
 {
     /// <summary>
     /// Renders the human readable console output of greenshot-cli.exe for LIST_RECIPES and DESCRIBE_RECIPE,

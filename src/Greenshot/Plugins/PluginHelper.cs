@@ -39,7 +39,7 @@ using Greenshot.Base.Recipes;
 using log4net;
 using Greenshot.Base.Threading;
 
-namespace Greenshot.Helpers
+namespace Greenshot.Plugins
 {
     /// <summary>
     /// The PluginHelper takes care of all plugin related functionality: loading, registration, the parallel start (with

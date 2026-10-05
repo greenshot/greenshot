@@ -24,7 +24,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
-namespace Greenshot.Helpers.Ipc
+namespace Greenshot.Ai
 {
     /// <summary>
     /// A place where greenshot-mcp.exe may be, for the settings: next to Greenshot.exe, and in Debug builds the

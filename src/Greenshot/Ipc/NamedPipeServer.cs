@@ -31,8 +31,12 @@ using System.Threading.Tasks;
 using log4net;
 using Newtonsoft.Json;
 using Greenshot.Base.Threading;
+#if !GREENSHOT_LIGHT
+using Greenshot.Ai;
+using Greenshot.Ipc.BrowserExtension;
+#endif
 
-namespace Greenshot.Helpers.Ipc
+namespace Greenshot.Ipc
 {
     /// <summary>
     /// Server listener for incoming framed JSON IPC envelopes on the user-SID scoped named pipe.

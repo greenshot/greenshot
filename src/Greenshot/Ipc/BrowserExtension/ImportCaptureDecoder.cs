@@ -24,7 +24,7 @@ using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace Greenshot.Helpers.Ipc
+namespace Greenshot.Ipc.BrowserExtension
 {
     /// <summary>
     /// Validates and decodes the image of an IMPORT_CAPTURE request (a browser extension capture).

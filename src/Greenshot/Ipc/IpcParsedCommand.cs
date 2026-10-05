@@ -23,7 +23,7 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace Greenshot.Helpers.Ipc
+namespace Greenshot.Ipc
 {
     public class IpcParsedCommand
     {

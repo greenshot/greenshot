@@ -24,7 +24,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipes;
 
-namespace Greenshot.Helpers.Ipc
+namespace Greenshot.Ipc
 {
     /// <summary>
     /// Checks that the program on the other end of a pipe connection is one of Greenshot's own executables, from Greenshot's

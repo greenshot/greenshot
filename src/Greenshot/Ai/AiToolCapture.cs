@@ -37,7 +37,7 @@ using Greenshot.Base.Pipeline;
 using Greenshot.Base.Triggers;
 using log4net;
 
-namespace Greenshot.Helpers.Ipc
+namespace Greenshot.Ai
 {
     /// <summary>
     /// The capture rules for recipes started by AI tools (AI tool triggers), used by the Source step:
