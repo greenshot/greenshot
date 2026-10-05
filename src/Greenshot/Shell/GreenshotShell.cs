@@ -70,7 +70,7 @@ namespace Greenshot.Shell
 {
     /// <summary>
     /// The shell of Greenshot while it runs: composes the services, owns the tray icon, the settings and about windows, and the shutdown.
-    /// The message loop of the UI thread is the one of the WPF Application (see <see cref="GreenshotApplication"/>), there is no main window.
+    /// The message loop of the UI thread is a WPF one (see <see cref="GreenshotApplication"/>), there is no main window.
     /// </summary>
     internal sealed class GreenshotShell : IGreenshotShell
     {
@@ -641,7 +641,7 @@ namespace Greenshot.Shell
                 }
 
                 Log.Debug("The forms are closed, ending the message loop.");
-                System.Windows.Application.Current?.Shutdown();
+                GreenshotApplication.EndMessageLoop();
             }
             catch (Exception e)
             {
