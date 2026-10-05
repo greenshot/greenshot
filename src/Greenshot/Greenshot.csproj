@@ -76,7 +76,7 @@
   </UsingTask>
   <Target Name="CheckLightAssembly" AfterTargets="CoreCompile" Condition="'$(GreenshotEdition)' == 'Light'">
     <CheckLightAssembly Assembly="@(IntermediateAssembly->'%(FullPath)')"
-                        ForbiddenNames="PluginHelper;LoadPluginsAsync;AiToolIpcHandler;AiRecipeIpcHandler;AiToolCaller;AiToolClient;AiToolAccess;AiToolCapture;AiWindowRefs;McpServerStatus;RegisterAiToolRecipes;ImportCaptureDecoder;BrowserContextTracker;ExtensionOriginPolicy;HandleImportCaptureAsync;AiToolsSettingsPage;PluginsSettingsPage" />
+                        ForbiddenNames="PluginHelper;LoadPluginsAsync;AiToolIpcHandler;AiRecipeIpcHandler;AiToolCaller;AiToolClient;AiToolAccess;AiToolCapture;AiWindowRefs;McpServerStatus;RegisterAiToolRecipes;ImportCaptureDecoder;BrowserContextTracker;ExtensionOriginPolicy;HandleImportCaptureAsync;AiToolsSettingsPage;PluginsSettingsPage;AiToolsIpcExtension;AiToolRecipes;BrowserExtensionIpcExtension;BrowserExtensionRecipes" />
   </Target>
   <PropertyGroup Condition="'$(GreenshotBaseConfiguration)' == 'Release'">
     <DebugType>none</DebugType>

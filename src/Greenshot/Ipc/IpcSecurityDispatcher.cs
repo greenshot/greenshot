@@ -46,10 +46,6 @@ using Greenshot.SelfService.Views;
 using Greenshot.Settings.Views;
 using log4net;
 using Greenshot.Base.Threading;
-#if !GREENSHOT_LIGHT
-using Greenshot.Ai;
-using Greenshot.Ipc.BrowserExtension;
-#endif
 
 namespace Greenshot.Ipc
 {
@@ -62,14 +58,13 @@ namespace Greenshot.Ipc
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(IpcSecurityDispatcher));
 
-        private static readonly HashSet<string> AllowedCommands = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        /// <summary>
+        /// The optional parts of Greenshot with their own commands (browser extension, AI tools), see <see cref="GreenshotModuleAttribute"/>
+        /// </summary>
+        private static readonly IReadOnlyList<IIpcCommandExtension> Extensions = GreenshotModules.Create<IIpcCommandExtension>();
+
+        private static readonly HashSet<string> AllowedCommands = new HashSet<string>(Extensions.SelectMany(e => e.Commands), StringComparer.OrdinalIgnoreCase)
         {
-#if !GREENSHOT_LIGHT
-            // The browser extension
-            "HANDSHAKE",
-            "IMPORT_CAPTURE",
-            "TAB_CHANGED",
-#endif
             "CLI",
             "OPEN_FILE",
             "EXIT",
@@ -84,33 +79,8 @@ namespace Greenshot.Ipc
             "ABOUT",
             "SELF_SERVICE",
             "RECIPE_EDITOR",
-            "RECIPE_MANAGER",
-#if !GREENSHOT_LIGHT
-            // AI tools (greenshot-mcp)
-            "LIST_WINDOWS",
-            "LIST_AI_TOOLS",
-            "RUN_AI_TOOL",
-            "RECIPE_CATALOG",
-            "VALIDATE_RECIPE",
-            "PROPOSE_RECIPE"
-#endif
+            "RECIPE_MANAGER"
         };
-
-#if !GREENSHOT_LIGHT
-        /// <summary>
-        /// The commands of AI tools (greenshot-mcp.exe): only allowed for the "mcp" source. Except LIST_AI_TOOLS they need the user's
-        /// consent for the AI tool (see <see cref="AiToolAccess"/>).
-        /// </summary>
-        private static readonly HashSet<string> AiToolCommands = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        {
-            "LIST_WINDOWS",
-            "LIST_AI_TOOLS",
-            "RUN_AI_TOOL",
-            "RECIPE_CATALOG",
-            "VALIDATE_RECIPE",
-            "PROPOSE_RECIPE"
-        };
-#endif
 
         private static readonly HashSet<string> FallbackAllowedImageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -306,38 +276,25 @@ namespace Greenshot.Ipc
                 "RECIPE_EDITOR",
                 "RECIPE_MANAGER"
             },
-#if !GREENSHOT_LIGHT
-            ["native_messaging"] = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-            {
-                "HANDSHAKE",
-                "IMPORT_CAPTURE",
-                "TAB_CHANGED",
-                "VERSION",
-                "LIST_RECIPES",
-                "DESCRIBE_RECIPE",
-                "RUN_RECIPE"
-            },
-#endif
             ["open_with"] = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
                 "CLI",
                 "OPEN_FILE"
-            },
-#if !GREENSHOT_LIGHT
-            // greenshot-mcp.exe: what an AI tool may do, after the user allowed it. Everything it captures goes through a recipe
-            // with an AI tool trigger (RUN_AI_TOOL), not through the command line recipes (RUN_RECIPE).
-            [IpcSources.Mcp] = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-            {
-                "VERSION",
-                "LIST_WINDOWS",
-                "LIST_AI_TOOLS",
-                "RUN_AI_TOOL",
-                "RECIPE_CATALOG",
-                "VALIDATE_RECIPE",
-                "PROPOSE_RECIPE"
             }
-#endif
-        };
+        }.WithExtensionSources();
+
+        private static Dictionary<string, HashSet<string>> WithExtensionSources(this Dictionary<string, HashSet<string>> sourceCommands)
+        {
+            foreach (var extension in Extensions)
+            {
+                foreach (var entry in extension.SourceCommands)
+                {
+                    // Add, not replace: an extension can't widen the whitelist of a source it doesn't bring
+                    sourceCommands.Add(entry.Key, new HashSet<string>(entry.Value, StringComparer.OrdinalIgnoreCase));
+                }
+            }
+            return sourceCommands;
+        }
 
         /// <summary>
         /// Checks the command against the global whitelist and, when the source has one, the source-specific whitelist.
@@ -348,58 +305,17 @@ namespace Greenshot.Ipc
             {
                 return false;
             }
-#if !GREENSHOT_LIGHT
-            // AI tool commands only for greenshot-mcp.exe: not for the command line, a web page or the browser extension
-            if (AiToolCommands.Contains(command) && !string.Equals(source, IpcSources.Mcp, StringComparison.OrdinalIgnoreCase))
+            // e.g. AI tool commands only for greenshot-mcp.exe: not for the command line, a web page or the browser extension
+            if (Extensions.Any(e => !e.IsAllowedForSource(command, source)))
             {
                 return false;
             }
-#endif
             if (!string.IsNullOrEmpty(source) && SourceAllowedCommands.TryGetValue(source, out var sourceCommands))
             {
                 return sourceCommands.Contains(command);
             }
             return true;
         }
-
-#if !GREENSHOT_LIGHT
-        /// <summary>
-        /// Why an AI tool request is refused by the opt-in switches, null when it isn't. Only greenshot-mcp's own version
-        /// passes while AI tools are switched off.
-        /// </summary>
-        internal static string GetAiToolsOptInError(string command, string source)
-        {
-            if (!string.Equals(source, IpcSources.Mcp, StringComparison.OrdinalIgnoreCase))
-            {
-                return null;
-            }
-            if (!AiToolAccess.IsEnabled)
-            {
-                return string.Equals(command, "VERSION", StringComparison.OrdinalIgnoreCase) ? null : AiToolAccess.DisabledMessage;
-            }
-            if (string.Equals(command, "PROPOSE_RECIPE", StringComparison.OrdinalIgnoreCase) && !AiToolAccess.AreRecipeProposalsAllowed)
-            {
-                return AiToolAccess.ProposalsDisabledMessage;
-            }
-            return null;
-        }
-
-        /// <summary>
-        /// True when the command needs the user's consent for AI tools: every command from greenshot-mcp.exe except VERSION and
-        /// LIST_AI_TOOLS (the tool names and descriptions, so the AI tool can show its tools before the user is asked),
-        /// and the AI tool commands from any source. The recipe commands (catalog, validate, propose) need the consent too; a
-        /// proposed recipe additionally needs the user's approval in the recipe approval window.
-        /// </summary>
-        internal static bool RequiresAiToolConsent(string command, string source)
-        {
-            if (string.Equals(command, "VERSION", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(command, "LIST_AI_TOOLS", StringComparison.OrdinalIgnoreCase))
-            {
-                return false;
-            }
-            return AiToolCommands.Contains(command) || string.Equals(source, IpcSources.Mcp, StringComparison.OrdinalIgnoreCase);
-        }
-#endif
 
         public static async Task DispatchAsync(IpcRequestContext context, Form mainForm, Action onExit, Action onReloadConfig, Action onFirstLaunch, Action<string> onOpenFile)
         {
@@ -461,62 +377,31 @@ namespace Greenshot.Ipc
                 return;
             }
 
-#if !GREENSHOT_LIGHT
-            // 2. AI tools are opt-in: switched off, greenshot-mcp gets nothing but its version, and nobody is asked
-            string optInError = GetAiToolsOptInError(command, context.Envelope.Source);
-            if (optInError != null)
+            // 2. The optional parts check their own rules, e.g. AI tools are opt-in and need the user's consent
+            foreach (var extension in Extensions)
             {
-                Log.Warn($"[SECURITY] IPC command rejected: '{command}' from source '{context.Envelope.Source}': {optInError}");
+                string accessError = await extension.CheckAccessAsync(command, context).ConfigureAwait(false);
+                if (accessError == null)
+                {
+                    continue;
+                }
                 try
                 {
                     await context.ReplyAsync(new
                     {
                         status = "error",
                         exit_code = 1,
-                        stderr = optInError
+                        stderr = accessError
                     }).ConfigureAwait(false);
                 }
                 catch { }
                 return;
             }
-
-            // 3. AI tools (and anything reading the screen contents) need the user's consent
-            if (RequiresAiToolConsent(command, context.Envelope.Source) &&
-                !await AiToolAccess.EnsureAllowedAsync(context.AiClient).ConfigureAwait(false))
-            {
-                Log.Warn($"[SECURITY] IPC command rejected: '{command}' from source '{context.Envelope.Source}', the user did not allow {context.AiClient?.ToString() ?? "an unidentified program"}.");
-                try
-                {
-                    await context.ReplyAsync(new
-                    {
-                        status = "error",
-                        exit_code = 1,
-                        stderr = AiToolAccess.NotAllowedMessage
-                    }).ConfigureAwait(false);
-                }
-                catch { }
-                return;
-            }
-#endif
 
             Log.Info($"Processing whitelisted IPC command: '{command}' from source '{context.Envelope.Source}'");
 
             switch (command.ToUpperInvariant())
             {
-#if !GREENSHOT_LIGHT
-                case "HANDSHAKE":
-                    await HandleHandshakeAsync(context).ConfigureAwait(false);
-                    break;
-
-                case "IMPORT_CAPTURE":
-                    await HandleImportCaptureAsync(context, mainForm).ConfigureAwait(false);
-                    break;
-
-                case "TAB_CHANGED":
-                    HandleTabChanged(context);
-                    break;
-#endif
-
                 case "CLI":
                     await HandleCliAsync(context, mainForm, onExit, onReloadConfig, onFirstLaunch, onOpenFile).ConfigureAwait(false);
                     break;
@@ -560,32 +445,6 @@ namespace Greenshot.Ipc
                     await HandleRecipeManagerAsync(context, mainForm).ConfigureAwait(false);
                     break;
 
-#if !GREENSHOT_LIGHT
-                case "LIST_WINDOWS":
-                    await AiToolIpcHandler.HandleListWindowsAsync(context).ConfigureAwait(false);
-                    break;
-
-                case "LIST_AI_TOOLS":
-                    await AiToolIpcHandler.HandleListAiToolsAsync(context).ConfigureAwait(false);
-                    break;
-
-                case "RUN_AI_TOOL":
-                    await AiToolIpcHandler.HandleRunAiToolAsync(context).ConfigureAwait(false);
-                    break;
-
-                case "RECIPE_CATALOG":
-                    await AiRecipeIpcHandler.HandleRecipeCatalogAsync(context).ConfigureAwait(false);
-                    break;
-
-                case "VALIDATE_RECIPE":
-                    await AiRecipeIpcHandler.HandleValidateRecipeAsync(context).ConfigureAwait(false);
-                    break;
-
-                case "PROPOSE_RECIPE":
-                    await AiRecipeIpcHandler.HandleProposeRecipeAsync(context).ConfigureAwait(false);
-                    break;
-#endif
-
                 case "EXIT":
                     try
                     {
@@ -614,6 +473,12 @@ namespace Greenshot.Ipc
                     break;
 
                 default:
+                    var handler = Extensions.FirstOrDefault(e => e.Commands.Contains(command, StringComparer.OrdinalIgnoreCase));
+                    if (handler != null)
+                    {
+                        await handler.HandleAsync(command, context, mainForm).ConfigureAwait(false);
+                        break;
+                    }
                     Log.Warn($"Unhandled whitelisted command: {command}");
                     break;
             }
@@ -633,7 +498,7 @@ namespace Greenshot.Ipc
         /// <summary>
         /// Run the action on the UI thread, later (the reply doesn't wait for it). Nothing happens without a main form (tests, headless).
         /// </summary>
-        private static void RunOnUi(Form mainForm, Action action)
+        internal static void RunOnUi(Form mainForm, Action action)
         {
             if (mainForm == null)
             {
@@ -642,136 +507,6 @@ namespace Greenshot.Ipc
 
             UiDispatcher.Current.InvokeAsync(action).FireAndLog("IPC UI action", Log);
         }
-
-#if !GREENSHOT_LIGHT
-        private static async Task HandleHandshakeAsync(IpcRequestContext context)
-        {
-            string versionStr = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "1.4.0";
-
-            var response = new
-            {
-                status = "ready",
-                greenshot_running = true,
-                greenshot_version = versionStr,
-                config = new
-                {
-                    capture_format = "png",
-                    track_tab_urls = true,
-                    full_page_delay_ms = 250
-                }
-            };
-
-            await context.ReplyAsync(response).ConfigureAwait(false);
-            Log.Info("Handshake response sent successfully.");
-        }
-
-        /// <summary>
-        /// Imports a browser capture. The image is validated (PNG/JPEG only, dimension limits) before it is decoded,
-        /// then handed to the UI thread. The extension gets an acknowledgement with "reply_to": "IMPORT_CAPTURE":
-        /// status "ok" when the capture was accepted, or "error" with the reason.
-        /// </summary>
-        private static async Task HandleImportCaptureAsync(IpcRequestContext context, Form mainForm)
-        {
-            if (!ImportCaptureDecoder.TryDecode(context.Envelope.Data?.Payload, out Bitmap importedBmp, out string error))
-            {
-                Log.Warn($"IMPORT_CAPTURE rejected: {error}.");
-                await ReplyImportCaptureAsync(context, false, $"Error: {error}.").ConfigureAwait(false);
-                return;
-            }
-
-            if (mainForm == null || mainForm.IsDisposed)
-            {
-                importedBmp.Dispose();
-                Log.Warn("IMPORT_CAPTURE rejected: Greenshot is not ready to import captures.");
-                await ReplyImportCaptureAsync(context, false, "Error: Greenshot is not ready to import captures.").ConfigureAwait(false);
-                return;
-            }
-
-            string title = context.Envelope.Metadata?.Title ?? "Browser Capture";
-            string url = context.Envelope.Metadata?.Url ?? string.Empty;
-            string browser = context.Envelope.Browser;
-            int width = importedBmp.Width;
-            int height = importedBmp.Height;
-
-            if (!string.IsNullOrEmpty(url))
-            {
-                BrowserContextTracker.Instance.UpdateContext(url, title);
-            }
-
-            try
-            {
-                RunOnUi(mainForm, new Action(() =>
-                {
-                    try
-                    {
-                        var details = new CaptureDetails
-                        {
-                            Title = title,
-                            CaptureMode = CaptureMode.Import
-                        };
-                        if (!string.IsNullOrEmpty(url))
-                        {
-                            details.AddMetaData("url", url);
-                        }
-                        if (!string.IsNullOrEmpty(browser))
-                        {
-                            details.AddMetaData("browser", browser);
-                        }
-
-                        var capture = new Capture
-                        {
-                            Image = importedBmp,
-                            CaptureDetails = details
-                        };
-                        CaptureHelper.ImportExtensionCapture(capture, browser);
-                        Log.Info($"Browser capture successfully imported into pipeline. Title='{title}' Browser='{browser}'");
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error("Error forwarding imported capture to CaptureHelper", ex);
-                    }
-                }));
-            }
-            catch (InvalidOperationException ex)
-            {
-                // The window handle is gone (Greenshot is shutting down)
-                importedBmp.Dispose();
-                Log.Warn("IMPORT_CAPTURE could not be handed to the UI thread", ex);
-                await ReplyImportCaptureAsync(context, false, "Error: Greenshot is not ready to import captures.").ConfigureAwait(false);
-                return;
-            }
-
-            Log.Debug($"IMPORT_CAPTURE accepted ({width}x{height}).");
-            await ReplyImportCaptureAsync(context, true, null, width, height).ConfigureAwait(false);
-        }
-
-        private static async Task ReplyImportCaptureAsync(IpcRequestContext context, bool success, string stderr, int width = 0, int height = 0)
-        {
-            try
-            {
-                if (success)
-                {
-                    await context.ReplyAsync(new { status = "ok", reply_to = "IMPORT_CAPTURE", exit_code = 0, width, height }).ConfigureAwait(false);
-                }
-                else
-                {
-                    await context.ReplyAsync(new { status = "error", reply_to = "IMPORT_CAPTURE", exit_code = 1, stderr }).ConfigureAwait(false);
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Debug("Could not send the IMPORT_CAPTURE acknowledgement", ex);
-            }
-        }
-
-        private static void HandleTabChanged(IpcRequestContext context)
-        {
-            string url = context.Envelope.Url ?? string.Empty;
-            string title = context.Envelope.Title ?? string.Empty;
-
-            BrowserContextTracker.Instance.UpdateContext(url, title);
-        }
-#endif
 
         private static async Task HandleVersionAsync(IpcRequestContext context)
         {

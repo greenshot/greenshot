@@ -66,7 +66,7 @@ namespace Greenshot.Tests.Ipc
         public void RecipeCommands_AreOnlyForMcp_AndNeedConsent(string command)
         {
             Assert.True(IpcSecurityDispatcher.IsCommandAllowedForSource(command, IpcSources.Mcp));
-            Assert.True(IpcSecurityDispatcher.RequiresAiToolConsent(command, IpcSources.Mcp));
+            Assert.True(AiToolsIpcExtension.RequiresAiToolConsent(command, IpcSources.Mcp));
             foreach (var source in new[] { "cli", "url_scheme", "native_messaging", "open_with", null })
             {
                 Assert.False(IpcSecurityDispatcher.IsCommandAllowedForSource(command, source));

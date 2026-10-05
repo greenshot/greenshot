@@ -37,6 +37,7 @@ using Greenshot.Recipes.Views;
 using log4net;
 using System.Threading.Tasks;
 using Greenshot.Base.Threading;
+using Greenshot.Helpers;
 
 namespace Greenshot.Recipes
 {
@@ -384,126 +385,15 @@ namespace Greenshot.Recipes
                 .AddTransition("ocr", "export");
             RegisterBuiltIn(ocrRecipe, disabled);
 
-#if !GREENSHOT_LIGHT
-            // Greenshot Light has no browser extension and no AI tools
-
-            // 9. Browser Extension Capture
-            var extensionRecipe = new CaptureRecipe(
-                RecipeIdExtension,
-                "Capture from browser extension",
-                "Process screenshots received from the browser extension and choose destination interactively")
-                .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Extension, captureMouse: false))
-                .AddNode(RecipeStepConfig.CreateDynamicDestination("export", "Export Browser Capture"))
-                .AddTrigger(TriggerConfig.CreateExtension(name: "Default Browser Extension Trigger"));
-            extensionRecipe.Flow = new RecipeFlowConfig("acquire")
-                .AddTransition("acquire", "export");
-            RecipeStepConfig.AddStandardSlots(extensionRecipe, "export", "export");
-            RegisterBuiltIn(extensionRecipe, disabled);
-
-            RegisterAiToolRecipes(disabled);
-#endif
-        }
-
-#if !GREENSHOT_LIGHT
-        /// <summary>
-        /// The tools AI tools get (greenshot-mcp.exe): capturing a window, a region or the screen, optionally with OCR.
-        /// The image and text go back to the AI tool, there is no destination.
-        /// </summary>
-        private void RegisterAiToolRecipes(ISet<string> disabled)
-        {
-            var ocrArgument = new CommandlineArgument
+            // The optional parts (browser extension, AI tools), Greenshot Light has none of them
+            foreach (var provider in GreenshotModules.Create<IBuiltInRecipeProvider>())
             {
-                Name = "ocr",
-                Variable = "Ocr",
-                Type = ContractDataType.Boolean,
-                DefaultValue = "false",
-                Description = "true to also return the text in the image (OCR) with the position of each line"
-            };
-
-            var windowRecipe = new CaptureRecipe(
-                RecipeIdAiCaptureWindow,
-                "AI tool: capture window",
-                "Captures a window for an AI tool, with its exact contents (also when it is covered), without activating it")
-                .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Window, captureMouse: false, delayMs: 0).Set("WindowHandle", "${Window}"))
-                .AddNode(CreateOcrCondition("ocr_wanted"))
-                .AddNode(RecipeStepConfig.CreateProcessors("ocr", new[] { "Windows10OcrProcessor" }))
-                .AddTrigger(TriggerConfig.CreateAiTool(
-                    "capture_window",
-                    "Screenshot of one window, with its exact contents even when other windows cover it. The window is not activated. " +
-                    "Use list_windows first and pass the id of the window (e.g. w7).",
-                    new[]
-                    {
-                        new CommandlineArgument
-                        {
-                            Name = "window",
-                            Variable = "Window",
-                            Type = ContractDataType.Window,
-                            Required = true,
-                            Description = "The id of the window from list_windows, e.g. w7"
-                        },
-                        ocrArgument
-                    },
-                    title: "Capture window"));
-            windowRecipe.Flow = new RecipeFlowConfig("acquire")
-                .AddTransition("acquire", "ocr_wanted")
-                .AddConditionalTransition("ocr_wanted", "ocr", "ocr");
-            RegisterBuiltIn(windowRecipe, disabled);
-
-            var regionRecipe = new CaptureRecipe(
-                RecipeIdAiCaptureRegion,
-                "AI tool: capture region",
-                "Captures a part of the screen for an AI tool")
-                .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Region, captureMouse: false, delayMs: 0))
-                .AddNode(CreateOcrCondition("ocr_wanted"))
-                .AddNode(RecipeStepConfig.CreateProcessors("ocr", new[] { "Windows10OcrProcessor" }))
-                .AddTrigger(TriggerConfig.CreateAiTool(
-                    "capture_region",
-                    "Screenshot of a part of the screen, in screen coordinates (list_windows has the bounds of the windows and displays). " +
-                    "Use it to see details at full resolution.",
-                    new[]
-                    {
-                        new CommandlineArgument
-                        {
-                            Name = "region",
-                            Variable = "PreSuppliedRegion",
-                            Type = ContractDataType.Region,
-                            Required = true,
-                            Description = "x,y,width,height in screen coordinates, e.g. 0,0,800,600"
-                        },
-                        ocrArgument
-                    },
-                    title: "Capture region"));
-            regionRecipe.Flow = new RecipeFlowConfig("acquire")
-                .AddTransition("acquire", "ocr_wanted")
-                .AddConditionalTransition("ocr_wanted", "ocr", "ocr");
-            RegisterBuiltIn(regionRecipe, disabled);
-
-            var screenRecipe = new CaptureRecipe(
-                RecipeIdAiCaptureScreen,
-                "AI tool: capture screen",
-                "Captures all displays for an AI tool")
-                .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.FullScreen, captureMouse: false, delayMs: 0, screenMode: ScreenCaptureMode.FullScreen))
-                .AddNode(CreateOcrCondition("ocr_wanted"))
-                .AddNode(RecipeStepConfig.CreateProcessors("ocr", new[] { "Windows10OcrProcessor" }))
-                .AddTrigger(TriggerConfig.CreateAiTool(
-                    "capture_screen",
-                    "Screenshot of all displays. For one display or a part of the screen use capture_region with the bounds from list_windows.",
-                    new[] { ocrArgument },
-                    title: "Capture screen"));
-            screenRecipe.Flow = new RecipeFlowConfig("acquire")
-                .AddTransition("acquire", "ocr_wanted")
-                .AddConditionalTransition("ocr_wanted", "ocr", "ocr");
-            RegisterBuiltIn(screenRecipe, disabled);
+                foreach (var recipe in provider.CreateRecipes())
+                {
+                    RegisterBuiltIn(recipe, disabled);
+                }
+            }
         }
-
-        /// <summary>
-        /// Continues with the node "ocr" when the Ocr argument is true, otherwise the flow ends
-        /// </summary>
-        private static RecipeNodeConfig CreateOcrCondition(string id)
-        {
-            return RecipeStepConfig.CreateConditional(id, new[] { new KeyValuePair<string, string>("ocr", "${Ocr}") }).WithName("OCR wanted?");
-        }
-#endif
 
         private HashSet<string> GetDisabledRecipeIds()
         {

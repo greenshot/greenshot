@@ -102,7 +102,7 @@ namespace Greenshot.Tests.Ipc
         [InlineData("LIST_RECIPES", "native_messaging", false)]
         public void Consent_IsRequired(string command, string source, bool required)
         {
-            Assert.Equal(required, IpcSecurityDispatcher.RequiresAiToolConsent(command, source));
+            Assert.Equal(required, AiToolsIpcExtension.RequiresAiToolConsent(command, source));
         }
 
         private static readonly AiToolClient TestClient = new AiToolClient
@@ -628,20 +628,20 @@ namespace Greenshot.Tests.Ipc
             {
                 // Off: only greenshot-mcp's version passes, nobody is asked
                 config.AiToolsEnabled = false;
-                Assert.Null(IpcSecurityDispatcher.GetAiToolsOptInError("VERSION", IpcSources.Mcp));
-                Assert.Equal(AiToolAccess.DisabledMessage, IpcSecurityDispatcher.GetAiToolsOptInError("LIST_WINDOWS", IpcSources.Mcp));
-                Assert.Equal(AiToolAccess.DisabledMessage, IpcSecurityDispatcher.GetAiToolsOptInError("LIST_AI_TOOLS", IpcSources.Mcp));
-                Assert.Equal(AiToolAccess.DisabledMessage, IpcSecurityDispatcher.GetAiToolsOptInError("PROPOSE_RECIPE", IpcSources.Mcp));
+                Assert.Null(AiToolsIpcExtension.GetAiToolsOptInError("VERSION", IpcSources.Mcp));
+                Assert.Equal(AiToolAccess.DisabledMessage, AiToolsIpcExtension.GetAiToolsOptInError("LIST_WINDOWS", IpcSources.Mcp));
+                Assert.Equal(AiToolAccess.DisabledMessage, AiToolsIpcExtension.GetAiToolsOptInError("LIST_AI_TOOLS", IpcSources.Mcp));
+                Assert.Equal(AiToolAccess.DisabledMessage, AiToolsIpcExtension.GetAiToolsOptInError("PROPOSE_RECIPE", IpcSources.Mcp));
                 // Other sources aren't AI tools
-                Assert.Null(IpcSecurityDispatcher.GetAiToolsOptInError("CAPTURE", IpcSources.Cli));
+                Assert.Null(AiToolsIpcExtension.GetAiToolsOptInError("CAPTURE", IpcSources.Cli));
 
                 config.AiToolsEnabled = true;
-                Assert.Null(IpcSecurityDispatcher.GetAiToolsOptInError("LIST_WINDOWS", IpcSources.Mcp));
-                Assert.Null(IpcSecurityDispatcher.GetAiToolsOptInError("PROPOSE_RECIPE", IpcSources.Mcp));
+                Assert.Null(AiToolsIpcExtension.GetAiToolsOptInError("LIST_WINDOWS", IpcSources.Mcp));
+                Assert.Null(AiToolsIpcExtension.GetAiToolsOptInError("PROPOSE_RECIPE", IpcSources.Mcp));
 
                 config.AiToolsAllowRecipeProposals = false;
-                Assert.Equal(AiToolAccess.ProposalsDisabledMessage, IpcSecurityDispatcher.GetAiToolsOptInError("PROPOSE_RECIPE", IpcSources.Mcp));
-                Assert.Null(IpcSecurityDispatcher.GetAiToolsOptInError("RUN_AI_TOOL", IpcSources.Mcp));
+                Assert.Equal(AiToolAccess.ProposalsDisabledMessage, AiToolsIpcExtension.GetAiToolsOptInError("PROPOSE_RECIPE", IpcSources.Mcp));
+                Assert.Null(AiToolsIpcExtension.GetAiToolsOptInError("RUN_AI_TOOL", IpcSources.Mcp));
             }
             finally
             {
