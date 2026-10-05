@@ -279,19 +279,22 @@ namespace Greenshot.Settings.Views
             dialog.ShowDialog();
         }
 
+        // The buttons go to the next multiple of 16, also from a typed value in between (e.g. 24 goes to 16 or 32)
         private void IconSizeUp_Click(object sender, RoutedEventArgs e)
         {
-            if (_viewModel.IconSize + 16 <= 256)
+            int next = (_viewModel.IconSize / 16 + 1) * 16;
+            if (next <= 256)
             {
-                _viewModel.IconSize += 16;
+                _viewModel.IconSize = next;
             }
         }
 
         private void IconSizeDown_Click(object sender, RoutedEventArgs e)
         {
-            if (_viewModel.IconSize - 16 >= 16)
+            int previous = (_viewModel.IconSize - 1) / 16 * 16;
+            if (previous >= 16)
             {
-                _viewModel.IconSize -= 16;
+                _viewModel.IconSize = previous;
             }
         }
 

@@ -54,11 +54,19 @@ namespace Greenshot.Base.Core
         /// Coerce the value to stay between 16 and 256, and to be a multiple of 16, as this is required for the icons to be properly displayed in the Windows shell.
         /// </summary>
         /// <param name="value">NativeSize</param>
-        partial void OnIconSizeSet(ref NativeSize value)
+        partial void OnIconSizeSet(ref NativeSize value) => value = CoerceIconSize(value);
+
+        /// <summary>
+        /// Loading the ini file doesn't go through the setter, so a value like 24 from the file is coerced when it's read
+        /// </summary>
+        /// <param name="value">NativeSize</param>
+        partial void OnIconSizeGet(ref NativeSize value) => value = CoerceIconSize(value);
+
+        private static NativeSize CoerceIconSize(NativeSize value)
         {
-            int newWidth = (Clamp(value.Width, 16, 256) /16) * 16;
+            int newWidth = (Clamp(value.Width, 16, 256) / 16) * 16;
             int newHeight = (Clamp(value.Height, 16, 256) / 16) * 16;
-            value = new NativeSize(newWidth, newHeight);
+            return new NativeSize(newWidth, newHeight);
         }
 
         partial void OnAutoCropDifferenceSet(ref int value) => value = Clamp(value, 0, 255);
