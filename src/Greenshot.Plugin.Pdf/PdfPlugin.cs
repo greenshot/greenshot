@@ -25,6 +25,10 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Languages;
 using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Plugin.Pdf.Configuration;
+using Greenshot.Plugin.Pdf.Destinations;
+using Greenshot.Plugin.Pdf.FileFormatHandlers;
+using Greenshot.Plugin.Pdf.Recipes;
 
 namespace Greenshot.Plugin.Pdf;
 
@@ -41,13 +45,14 @@ public sealed class PdfPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeSt
 
     public void ConfigureServices(IPluginServices services)
     {
+        Texts.Register<IPdfLanguage>(new PdfLanguageImpl());
         var configuration = new PdfConfigurationImpl();
         services.AddConfiguration(configuration);
         _configuration = configuration;
         services.AddService<IFileFormatHandler>(new PdfFileFormatHandler(configuration));
         services.AddService<IDestination>(new PdfDestination(configuration));
         services.AddRecipeStepProvider(this);
-        services.AddSettingsView<IPdfConfiguration>(settings => new Forms.PdfConfigurationControl(settings));
+        services.AddSettingsView<IPdfConfiguration>(settings => new Views.PdfConfigurationControl(settings));
     }
 
     public void RegisterSteps(IStepRegistry registry)

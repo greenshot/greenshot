@@ -26,6 +26,8 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 using Greenshot.Plugin.Pdf;
+using Greenshot.Plugin.Pdf.Configuration;
+using Greenshot.Plugin.Pdf.ViewModels;
 using Xunit;
 
 namespace Greenshot.Tests.Plugins;
@@ -61,7 +63,7 @@ public class PdfDocumentWriterTests
         bitmap.SetResolution(96, 96);
         using var output = new MemoryStream();
 
-        PdfDocumentWriter.Write(new[] { bitmap }, output, configuration, captureDetails, "Created with Greenshot v1.4.0");
+        PdfDocumentWriter.Write(new[] { bitmap }, output, configuration, captureDetails);
 
         string pdf = Encoding.GetEncoding(28591).GetString(output.ToArray());
         Assert.StartsWith("%PDF-1.4", pdf, StringComparison.Ordinal);
@@ -90,7 +92,7 @@ public class PdfDocumentWriterTests
         secondBitmap.SetResolution(96, 96);
         using var output = new MemoryStream();
 
-        PdfDocumentWriter.Write(new[] { firstBitmap, secondBitmap }, output, configuration, null, "Created with Greenshot v1.4.0");
+        PdfDocumentWriter.Write(new[] { firstBitmap, secondBitmap }, output, configuration, null);
 
         string pdf = Encoding.GetEncoding(28591).GetString(output.ToArray());
         Assert.Contains("/Count 2", pdf);
@@ -115,7 +117,7 @@ public class PdfDocumentWriterTests
         using var bitmap = new Bitmap(1, 1);
         using var output = new MemoryStream();
 
-        PdfDocumentWriter.Write(new[] { bitmap }, output, configuration, captureDetails, "Created with Greenshot v1.4.0");
+        PdfDocumentWriter.Write(new[] { bitmap }, output, configuration, captureDetails);
 
         string pdf = Encoding.GetEncoding(28591).GetString(output.ToArray());
         Assert.Contains("/CreationDate (D:20240305140907Z)", pdf);
@@ -130,7 +132,7 @@ public class PdfDocumentWriterTests
         using var bitmap = new Bitmap(1, 1);
         using var output = new MemoryStream();
 
-        PdfDocumentWriter.Write(new[] { bitmap }, output, configuration, null, "Created with Greenshot v1.4.0");
+        PdfDocumentWriter.Write(new[] { bitmap }, output, configuration, null);
 
         string pdf = Encoding.GetEncoding(28591).GetString(output.ToArray());
         Assert.DoesNotContain("/CreationDate", pdf);
@@ -146,7 +148,7 @@ public class PdfDocumentWriterTests
         bitmap.SetResolution(192, 192);
         using var output = new MemoryStream();
 
-        PdfDocumentWriter.Write(new[] { bitmap }, output, configuration, null, "Created with Greenshot v1.4.0");
+        PdfDocumentWriter.Write(new[] { bitmap }, output, configuration, null);
 
         string pdf = Encoding.GetEncoding(28591).GetString(output.ToArray());
         Assert.Contains("/MediaBox[0 0 36 18]", pdf);
@@ -168,7 +170,7 @@ public class PdfDocumentWriterTests
         bitmap.SetResolution(96, 96);
         using var output = new MemoryStream();
 
-        PdfDocumentWriter.Write(new[] { bitmap }, output, configuration, null, "Created with Greenshot v1.4.0");
+        PdfDocumentWriter.Write(new[] { bitmap }, output, configuration, null);
 
         string pdf = Encoding.GetEncoding(28591).GetString(output.ToArray());
         Assert.Contains("/MediaBox[0 0 216 180]", pdf);
@@ -195,7 +197,7 @@ public class PdfDocumentWriterTests
         bitmap.SetResolution(96, 96);
         using var output = new MemoryStream();
 
-        PdfDocumentWriter.Write(new[] { bitmap }, output, configuration, null, "Created with Greenshot v1.4.0");
+        PdfDocumentWriter.Write(new[] { bitmap }, output, configuration, null);
 
         string pdf = Encoding.GetEncoding(28591).GetString(output.ToArray());
         Assert.Contains($"q {PdfPageSizes.FormatNumber(width)} 0 0 {PdfPageSizes.FormatNumber(height)} {PdfPageSizes.FormatNumber(left)} {PdfPageSizes.FormatNumber(bottom)} cm /Img1 Do Q", pdf);
@@ -218,7 +220,7 @@ public class PdfDocumentWriterTests
         bitmap.SetResolution(96, 96);
         using var output = new MemoryStream();
 
-        PdfDocumentWriter.Write(new[] { bitmap }, output, configuration, null, "Created with Greenshot v1.4.0");
+        PdfDocumentWriter.Write(new[] { bitmap }, output, configuration, null);
 
         string pdf = Encoding.GetEncoding(28591).GetString(output.ToArray());
         Assert.Contains("/MediaBox[0 0 72 72]", pdf);
@@ -236,7 +238,7 @@ public class PdfDocumentWriterTests
         bitmap.SetPixel(1, 0, Color.FromArgb(255, 78, 90, 123));
         using var output = new MemoryStream();
 
-        PdfDocumentWriter.Write(new[] { bitmap }, output, configuration, null, "Created with Greenshot v1.4.0");
+        PdfDocumentWriter.Write(new[] { bitmap }, output, configuration, null);
 
         byte[] pixels = ReadImagePixels(output.ToArray());
         Assert.Equal(new byte[] { 12, 34, 56, 78, 90, 123 }, pixels);
@@ -257,7 +259,7 @@ public class PdfDocumentWriterTests
         using var bitmap = new Bitmap(10, 10);
         using var output = new MemoryStream();
 
-        Assert.Throws<ArgumentOutOfRangeException>(() => PdfDocumentWriter.Write(new[] { bitmap }, output, configuration, null, "Created with Greenshot v1.4.0"));
+        Assert.Throws<ArgumentOutOfRangeException>(() => PdfDocumentWriter.Write(new[] { bitmap }, output, configuration, null));
     }
 
     private static string ReadAfter(string value, string marker)

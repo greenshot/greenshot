@@ -2779,50 +2779,50 @@
 
                                         <!-- PDF Step Inspector -->
                                         <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=Pdf}">
-                                            <TextBlock Text="{wpf:Text pdf.label_page_size}" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBlock Text="{wpf:Text Pdf.LabelPageSize}" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
                                             <ComboBox SelectedValue="{Binding SelectedNode.PdfPageSize, Mode=TwoWay}" SelectedValuePath="Tag" Margin="0,0,0,8">
                                                 <ComboBoxItem Content="(From Configuration)" Tag=""/>
-                                                <ComboBoxItem Content="{wpf:Text pdf.page_image}" Tag="Image"/>
-                                                <ComboBoxItem Content="{wpf:Text pdf.page_custom}" Tag="Custom"/>
-                                                <ComboBoxItem Content="{wpf:Text pdf.page_a3}" Tag="A3"/>
-                                                <ComboBoxItem Content="{wpf:Text pdf.page_a4}" Tag="A4"/>
-                                                <ComboBoxItem Content="{wpf:Text pdf.page_a5}" Tag="A5"/>
+                                                <ComboBoxItem Content="{wpf:Text Pdf.PageImage}" Tag="Image"/>
+                                                <ComboBoxItem Content="{wpf:Text Pdf.PageCustom}" Tag="Custom"/>
+                                                <ComboBoxItem Content="{wpf:Text Pdf.PageA3}" Tag="A3"/>
+                                                <ComboBoxItem Content="{wpf:Text Pdf.PageA4}" Tag="A4"/>
+                                                <ComboBoxItem Content="{wpf:Text Pdf.PageA5}" Tag="A5"/>
                                                 <ComboBoxItem Content="A6" Tag="A6"/>
-                                                <ComboBoxItem Content="{wpf:Text pdf.page_letter}" Tag="Letter"/>
+                                                <ComboBoxItem Content="{wpf:Text Pdf.PageLetter}" Tag="Letter"/>
                                             </ComboBox>
-                                            <TextBlock Text="{wpf:Text pdf.label_unit}" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBlock Text="{wpf:Text Pdf.LabelUnit}" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
                                             <ComboBox SelectedValue="{Binding SelectedNode.PdfMeasurementUnit, Mode=TwoWay}" SelectedValuePath="Tag" Margin="0,0,0,8">
                                                 <ComboBoxItem Content="(From Configuration)" Tag=""/>
-                                                <ComboBoxItem Content="{wpf:Text pdf.unit_mm}" Tag="Mm"/>
-                                                <ComboBoxItem Content="{wpf:Text pdf.unit_cm}" Tag="Cm"/>
-                                                <ComboBoxItem Content="{wpf:Text pdf.unit_inch}" Tag="Inch"/>
+                                                <ComboBoxItem Content="{wpf:Text Pdf.UnitMm}" Tag="Mm"/>
+                                                <ComboBoxItem Content="{wpf:Text Pdf.UnitCm}" Tag="Cm"/>
+                                                <ComboBoxItem Content="{wpf:Text Pdf.UnitInch}" Tag="Inch"/>
                                             </ComboBox>
-                                            <TextBlock FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"><Run Text="{wpf:Text pdf.label_page_width}"/><Run Text=" (mm)"/></TextBlock>
+                                            <TextBlock FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"><Run Text="{wpf:Text Pdf.LabelPageWidth}"/><Run Text=" (mm)"/></TextBlock>
                                             <TextBox Text="{Binding SelectedNode.PdfPageWidthMm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" Padding="6,4" Margin="0,0,0,8"/>
-                                            <TextBlock FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"><Run Text="{wpf:Text pdf.label_page_height}"/><Run Text=" (mm)"/></TextBlock>
+                                            <TextBlock FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"><Run Text="{wpf:Text Pdf.LabelPageHeight}"/><Run Text=" (mm)"/></TextBlock>
                                             <TextBox Text="{Binding SelectedNode.PdfPageHeightMm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" Padding="6,4" Margin="0,0,0,8"/>
-                                            <TextBlock Text="{wpf:Text pdf.label_margins}" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,8"/>
-                                            <TextBlock FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"><Run Text="{wpf:Text pdf.label_top}"/><Run Text=" (mm)"/></TextBlock>
+                                            <TextBlock Text="{wpf:Text Pdf.LabelMargins}" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,8"/>
+                                            <TextBlock FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"><Run Text="{wpf:Text Pdf.LabelTop}"/><Run Text=" (mm)"/></TextBlock>
                                             <TextBox Text="{Binding SelectedNode.PdfMarginTopMm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" Padding="6,4" Margin="0,0,0,8"/>
-                                            <TextBlock FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"><Run Text="{wpf:Text pdf.label_bottom}"/><Run Text=" (mm)"/></TextBlock>
+                                            <TextBlock FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"><Run Text="{wpf:Text Pdf.LabelBottom}"/><Run Text=" (mm)"/></TextBlock>
                                             <TextBox Text="{Binding SelectedNode.PdfMarginBottomMm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" Padding="6,4" Margin="0,0,0,8"/>
-                                            <TextBlock FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"><Run Text="{wpf:Text pdf.label_left}"/><Run Text=" (mm)"/></TextBlock>
+                                            <TextBlock FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"><Run Text="{wpf:Text Pdf.LabelLeft}"/><Run Text=" (mm)"/></TextBlock>
                                             <TextBox Text="{Binding SelectedNode.PdfMarginLeftMm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" Padding="6,4" Margin="0,0,0,8"/>
-                                            <TextBlock FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"><Run Text="{wpf:Text pdf.label_right}"/><Run Text=" (mm)"/></TextBlock>
+                                            <TextBlock FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"><Run Text="{wpf:Text Pdf.LabelRight}"/><Run Text=" (mm)"/></TextBlock>
                                             <TextBox Text="{Binding SelectedNode.PdfMarginRightMm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" Padding="6,4" Margin="0,0,0,8"/>
-                                            <TextBlock Text="{wpf:Text pdf.label_scaling}" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBlock Text="{wpf:Text Pdf.LabelScaling}" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
                                             <ComboBox SelectedValue="{Binding SelectedNode.PdfScalingMode, Mode=TwoWay}" SelectedValuePath="Tag" Margin="0,0,0,8">
                                                 <ComboBoxItem Content="(From Configuration)" Tag=""/>
-                                                <ComboBoxItem Content="{wpf:Text pdf.scale_shrink}" Tag="OnlyShrinkToFit"/>
-                                                <ComboBoxItem Content="{wpf:Text pdf.scale_fit}" Tag="FitToPage"/>
+                                                <ComboBoxItem Content="{wpf:Text Pdf.ScaleShrink}" Tag="OnlyShrinkToFit"/>
+                                                <ComboBoxItem Content="{wpf:Text Pdf.ScaleFit}" Tag="FitToPage"/>
                                             </ComboBox>
-                                            <TextBlock Text="{wpf:Text pdf.destination_option_fileas}" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBlock Text="{wpf:Text Pdf.DestinationOptionFileAs}" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
                                             <ComboBox SelectedValue="{Binding SelectedNode.PdfShowSaveDialog, Mode=TwoWay}" SelectedValuePath="Tag" Margin="0,0,0,8">
                                                 <ComboBoxItem Content="(From Configuration)" Tag=""/>
                                                 <ComboBoxItem Content="Enabled" Tag="true"/>

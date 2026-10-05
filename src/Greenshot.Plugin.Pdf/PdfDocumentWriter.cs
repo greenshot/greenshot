@@ -30,6 +30,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
+using Greenshot.Plugin.Pdf.Configuration;
 
 namespace Greenshot.Plugin.Pdf;
 
@@ -52,7 +53,7 @@ internal static class PdfDocumentWriter
     /// <exception cref="ArgumentException">The bitmap list is empty or contains a null entry, or the destination stream is not writable.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The page layout contains invalid dimensions or margins.</exception>
     public static void Write(IReadOnlyList<Bitmap> bitmaps, Stream destination, IPdfConfiguration configuration, ICaptureDetails captureDetails)
-    {
+            {
         if (bitmaps == null) throw new ArgumentNullException(nameof(bitmaps));
         if (bitmaps.Count == 0) throw new ArgumentException("At least one bitmap is required.", nameof(bitmaps));
         if (destination == null) throw new ArgumentNullException(nameof(destination));
@@ -144,7 +145,7 @@ internal static class PdfDocumentWriter
     /// <param name="imageHeightPt">The unscaled image height in PDF points.</param>
     /// <returns>The page dimensions and image placement, in PDF points.</returns>
     /// <exception cref="ArgumentOutOfRangeException">A margin, page dimension, or image dimension is invalid.</exception>
-    private static PdfLayout CalculateLayout(IPdfConfiguration configuration, double imageWidthPt, double imageHeightPt)
+    private static PdfLayout CalculateLayout(Greenshot.Plugin.Pdf.Configuration.IPdfConfiguration configuration, double imageWidthPt, double imageHeightPt)
     {
         if (!IsValidMargin(configuration.MarginLeftMm)
             || !IsValidMargin(configuration.MarginRightMm)
