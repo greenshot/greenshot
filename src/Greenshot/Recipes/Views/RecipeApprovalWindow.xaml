@@ -6,7 +6,6 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="Greenshot - Recipe Security Approval"
-        Icon="/icons/applicationIcon/icon.ico"
         SizeToContent="Height"
         Width="600"
         MinWidth="520"

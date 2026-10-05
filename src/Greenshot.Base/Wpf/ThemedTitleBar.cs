@@ -316,10 +316,18 @@ namespace Greenshot.Base.Wpf
             bool canResize = window.ResizeMode == ResizeMode.CanResize || window.ResizeMode == ResizeMode.CanResizeWithGrip;
             if (useSystemTitleBar)
             {
+                bool hadChrome = WindowChrome.GetWindowChrome(window) != null;
                 WindowChrome.SetWindowChrome(window, null);
                 if (window.WindowStyle == WindowStyle.None)
                 {
                     window.WindowStyle = WindowStyle.SingleBorderWindow;
+                }
+
+                if (hadChrome)
+                {
+                    // Switched while the window is open: WPF leaves the old frame of Windows 7, also after its own (queued) frame update
+                    WindowFrameTheme.RestoreSystemFrame(window);
+                    _ = Dispatcher.InvokeAsync(() => WindowFrameTheme.RestoreSystemFrame(window), System.Windows.Threading.DispatcherPriority.Background);
                 }
             }
             else

@@ -42,6 +42,9 @@ namespace Greenshot.Base.Wpf
         private const int DwmwaUseImmersiveDarkModeBefore20H1 = 19;
         private const int DwmwaUseImmersiveDarkMode = 20;
         private const int DwmwaWindowCornerPreference = 33;
+        private const int DwmwaNcRenderingPolicy = 2;
+
+        private const int DwmncrpUseWindowStyle = 0;
 
         private const int DwmwcpRound = 2;
         private const int DwmwcpRoundSmall = 3;
@@ -177,6 +180,40 @@ namespace Greenshot.Base.Wpf
             DwmSetWindowAttribute(handle, DwmwaWindowCornerPreference, ref preference, sizeof(int));
         }
 
+        /// <summary>
+        /// The window had a WindowChrome which was removed while it is open: WPF leaves the frame drawing of the desktop window manager
+        /// switched off, Windows then draws the old frame of Windows 7 "basic". Switch it on again and redraw the frame.
+        /// </summary>
+        /// <param name="window">The window, without WindowChrome now</param>
+        public static void RestoreSystemFrame(Window window)
+        {
+            if (window == null || !window.CheckAccess())
+            {
+                return;
+            }
+
+            var handle = new WindowInteropHelper(window).Handle;
+            if (handle == IntPtr.Zero)
+            {
+                // Not shown yet: the frame is created as it should be
+                return;
+            }
+
+            try
+            {
+                int policy = DwmncrpUseWindowStyle;
+                DwmSetWindowAttribute(handle, DwmwaNcRenderingPolicy, ref policy, sizeof(int));
+                SetWindowRgn(handle, IntPtr.Zero, IsWindowVisible(handle));
+                SetWindowPos(handle, IntPtr.Zero, 0, 0, 0, 0, SwpFrameChanged | SwpNoMove | SwpNoSize | SwpNoZOrder | SwpNoActivate | SwpNoOwnerZOrder);
+            }
+            catch (Exception ex)
+            {
+                Log.Debug("Couldn't restore the frame of the window", ex);
+            }
+
+            ApplyTheme(handle);
+        }
+
         private static void ApplyTheme(IntPtr handle, bool redrawFrame = false)
         {
             if (handle == IntPtr.Zero)
@@ -223,6 +260,9 @@ namespace Greenshot.Base.Wpf
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool IsWindowVisible(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        private static extern int SetWindowRgn(IntPtr hWnd, IntPtr hRgn, [MarshalAs(UnmanagedType.Bool)] bool bRedraw);
 
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]

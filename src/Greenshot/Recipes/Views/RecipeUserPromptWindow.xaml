@@ -6,7 +6,6 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="Greenshot - Decision Prompt"
-        Icon="/icons/applicationIcon/icon.ico"
         SizeToContent="Height"
         Width="520"
         MinWidth="440"
