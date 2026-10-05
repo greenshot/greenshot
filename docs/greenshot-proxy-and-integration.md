@@ -212,7 +212,7 @@ A recipe cannot be invoked via the proxy unless it has explicitly configured the
 * A recipe with only a `HotkeyTrigger` cannot be triggered from the outside world.
 
 ### 3.4 Thread Affinity & UI Marshaling
-IPC requests arrive on background worker threads. Any action that displays UI (`SettingsWindow`, `AboutForm`, `SelfServiceWindow`) is marshaled onto the UI thread via `Dispatcher.BeginInvoke` or `MainForm.BeginInvoke` to avoid deadlocks and cross-thread access exceptions.
+IPC requests arrive on background worker threads. Any action that displays UI (`SettingsWindow`, `AboutForm`, `SelfServiceWindow`) is marshaled onto the UI thread via `UiDispatcher.Current` to avoid deadlocks and cross-thread access exceptions.
 
 ---
 
@@ -316,7 +316,7 @@ To add a new route (e.g., `greenshot:quick-export`):
        await HandleQuickExportAsync(envelope.Payload, context);
        break;
    ```
-   Ensure any UI code is marshaled via `Application.Current.Dispatcher` or `MainForm.Instance.BeginInvoke`.
+   Ensure any UI code is marshaled via `UiDispatcher.Current`.
 
 4. **Add Unit Test** in [`src/Greenshot.Tests/Ipc/IpcSecurityDispatcherTests.cs`](file:///d:/code/greenshot/src/Greenshot.Tests/Ipc/IpcSecurityDispatcherTests.cs):
    Add the new test URI to the `ParseUrlSchemeCommand_ValidUris_DispatchesCorrectCommand` theory.

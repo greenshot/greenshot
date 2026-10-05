@@ -22,7 +22,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Windows.Forms;
+using Greenshot.Base.Interfaces;
 
 namespace Greenshot.Ipc
 {
@@ -57,6 +57,6 @@ namespace Greenshot.Ipc
         /// <summary>
         /// Handles one of <see cref="Commands"/>
         /// </summary>
-        Task HandleAsync(string command, IpcRequestContext context, Form mainForm);
+        Task HandleAsync(string command, IpcRequestContext context, IGreenshotShell shell);
     }
 }

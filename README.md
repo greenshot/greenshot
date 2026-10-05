@@ -86,10 +86,10 @@ Adding images:
 
 Images, icons and sounds for Windows Forms are embedded as plain files, not in .resx files: binary data in a .resx needs System.Resources.Extensions and its dependencies in the output, and the build fails when a .resx contains anything but strings.
 
-* An image of the editor goes to `src\Greenshot.Editor\Resources\<control>.Image.png`, e.g. `btnSave.Image.png`. The wildcard `EmbeddedResource` in Greenshot.Editor.csproj (LogicalName `Greenshot.Editor.Forms.ImageEditorForm.%(Filename)`) picks it up, nothing else to add there. Greenshot's main window works the same way with `src\Greenshot\Resources\MainForm`.
+* An image of the editor goes to `src\Greenshot.Editor\Resources\<control>.Image.png`, e.g. `btnSave.Image.png`. The wildcard `EmbeddedResource` in Greenshot.Editor.csproj (LogicalName `Greenshot.Editor.Forms.ImageEditorForm.%(Filename)`) picks it up, nothing else to add there. The icons of the tray menu work the same way with `src\Greenshot\Resources\Tray` (LogicalName `Greenshot.Shell.TrayMenu.%(Filename)`).
 * Anything else: `<EmbeddedResource Include="..." LogicalName="<Namespace>.<Type>.<name>" />` in the project, the type being the one the resource belongs to.
 * Load it with `EmbeddedResources.GetImage`, `GetIcon` or `GetBytes(typeof(<Type>), "<name>")`; the caller disposes what it gets.
-* Never set an image with the Image property in the Windows Forms designer, it writes the image into the .resx. Assign it in the code of the form, e.g. in `ApplyImages()` of ImageEditorForm.cs or MainForm.cs.
+* Never set an image with the Image property in the Windows Forms designer, it writes the image into the .resx. Assign it in the code of the form, e.g. in `ApplyImages()` of ImageEditorForm.cs.
 * WPF is not affected: its images are `Resource` items with pack URIs, as before.
 
 How to contribute:

@@ -1041,28 +1041,9 @@ namespace Greenshot.Recipes
                 WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen
             };
 
-            // Safely determine owner handle.
-            // Note: If this runs on a separate STA thread (e.g. from FileWatcher or non-UI thread),
-            // accessing mainForm.Handle or mainForm.Visible directly will throw an InvalidOperationException (Cross-thread operation).
+            // The active WPF window (e.g. RecipeEditorWindow) owns the approval, otherwise it stands alone (topmost)
             IntPtr ownerHwnd = IntPtr.Zero;
-            var mainForm = SimpleServiceProvider.Current.GetInstance<System.Windows.Forms.Form>(isOptional: true);
-            if (mainForm != null && mainForm.IsHandleCreated)
-            {
-                try
-                {
-                    if (mainForm.Visible && !mainForm.Disposing && !mainForm.IsDisposed)
-                    {
-                        ownerHwnd = mainForm.Handle;
-                    }
-                }
-                catch
-                {
-                    ownerHwnd = IntPtr.Zero;
-                }
-            }
-
-            // If MainForm is not available or hidden, check for active WPF window (e.g. RecipeEditorWindow)
-            if (ownerHwnd == IntPtr.Zero && System.Windows.Application.Current != null)
+            if (System.Windows.Application.Current != null)
             {
                 try
                 {

@@ -115,7 +115,7 @@ namespace Greenshot.Helpers
         }
 
         /// <summary>
-        /// Tells the named pipe clients that Greenshot exits, set by the MainForm
+        /// Tells the named pipe clients that Greenshot exits, set by the GreenshotShell
         /// </summary>
         internal static Func<string, Task> ShutdownNotifier { get; set; }
 

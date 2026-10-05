@@ -41,7 +41,7 @@ public class RecipeEditorPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipe
 {
     private static readonly ILog Log = LogManager.GetLogger(typeof(RecipeEditorPlugin));
     private static IRecipeConfiguration _config;
-    private ToolStripMenuItem _itemPlugInConfig;
+    private TrayMenuEntry _itemPlugInConfig;
     private static RecipeEditorWindow _activeRecipeEditorWindow;
 
     public ValueTask DisposeAsync()
@@ -74,7 +74,7 @@ public class RecipeEditorPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipe
     {
         if (_config != null && _config.QuicklinkEnabled)
         {
-            _itemPlugInConfig = new ToolStripMenuItem
+            _itemPlugInConfig = new TrayMenuEntry
             {
                 Text = Texts.Core.ContextmenuRecipeeditor ?? "Recipe Editor...",
                 Visible = true

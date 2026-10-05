@@ -48,7 +48,7 @@ namespace Greenshot.Plugin.Office
     {
         private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OfficePlugin));
         private IOfficeConfiguration _config;
-        private ToolStripMenuItem _itemPlugInConfig;
+        private TrayMenuEntry _itemPlugInConfig;
 
         public ValueTask DisposeAsync()
         {
@@ -179,7 +179,7 @@ namespace Greenshot.Plugin.Office
                 // Word may not be available
             }
 
-            _itemPlugInConfig = new ToolStripMenuItem
+            _itemPlugInConfig = new TrayMenuEntry
             {
                 Image = icon,
                 Text = PluginUtils.GetQuicklinkText("Microsoft Office"),
@@ -233,7 +233,7 @@ namespace Greenshot.Plugin.Office
         /// </summary>
         private void ShowSettings()
         {
-            SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>(isOptional: true)?.ShowSetting(Name);
+            SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true)?.ShowSetting(Name);
         }
     }
 }

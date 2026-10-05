@@ -53,7 +53,7 @@ public class JiraPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProv
 {
     private static readonly ILog Log = LogManager.GetLogger(typeof(JiraPlugin));
     private IJiraConfiguration _config;
-    private ToolStripMenuItem _itemPlugInConfig;
+    private TrayMenuEntry _itemPlugInConfig;
     private JiraConnector _jiraConnector;
 
     public ValueTask DisposeAsync()
@@ -137,7 +137,7 @@ public class JiraPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProv
             LogSettings.RegisterDefaultLogger<Log4NetLogger>(LogLevels.Fatal);
         }
 
-        _itemPlugInConfig = new ToolStripMenuItem
+        _itemPlugInConfig = new TrayMenuEntry
         {
             Image = EmbeddedResources.GetImage(typeof(JiraPlugin), "Jira"),
             Text = PluginUtils.GetQuicklinkText("Jira"),
@@ -192,6 +192,6 @@ public class JiraPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProv
     /// </summary>
     private void ShowSettings()
     {
-        SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>(isOptional: true)?.ShowSetting(Name);
+        SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true)?.ShowSetting(Name);
     }
 }

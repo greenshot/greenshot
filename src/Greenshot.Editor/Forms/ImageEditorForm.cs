@@ -51,6 +51,7 @@ using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Editor.Configuration;
+using Greenshot.Editor.Controls;
 using Greenshot.Editor.Controls.Emoji;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
@@ -1222,14 +1223,14 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
         private void AboutToolStripMenuItemClick(object sender, EventArgs e)
         {
-            var mainForm = SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>();
-            mainForm.ShowAbout();
+            var shell = SimpleServiceProvider.Current.GetInstance<IGreenshotShell>();
+            shell.ShowAbout();
         }
 
         private void PreferencesToolStripMenuItemClick(object sender, EventArgs e)
         {
-            var mainForm = SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>();
-            mainForm.ShowSetting();
+            var shell = SimpleServiceProvider.Current.GetInstance<IGreenshotShell>();
+            shell.ShowSetting();
         }
 
         private void BtnSettingsClick(object sender, EventArgs e)
@@ -2024,11 +2025,12 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             RefreshEditorControls();
         }
 
+        private readonly CaptureWindowMenuBuilder _captureWindowMenuBuilder = new CaptureWindowMenuBuilder();
+
         private void Insert_window_toolstripmenuitemMouseEnter(object sender, EventArgs e)
         {
             ToolStripMenuItem captureWindowMenuItem = (ToolStripMenuItem)sender;
-            var mainForm = SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>();
-            mainForm.AddCaptureWindowMenuItems(captureWindowMenuItem, Contextmenu_window_Click);
+            _captureWindowMenuBuilder.Fill(captureWindowMenuItem, Contextmenu_window_Click);
         }
 
         private void ObfuscateTextToolStripMenuItemClick(object sender, EventArgs e)

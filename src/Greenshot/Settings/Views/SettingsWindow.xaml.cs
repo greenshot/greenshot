@@ -28,11 +28,11 @@ using System.Windows.Forms;
 using Dapplo.Ini;
 using Greenshot.Base;
 using Greenshot.Base.Core;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Wpf;
 using Greenshot.Base.Wpf.Views;
 using Greenshot.Configuration;
-using Greenshot.Forms;
 using Greenshot.Helpers;
 using Greenshot.Base.Languages;
 using Greenshot.Recipes.Views;
@@ -243,8 +243,8 @@ namespace Greenshot.Settings.Views
             SaveSettings();
             HotkeyHelper.RegisterHotkeys();
 
-            var mainForm = SimpleServiceProvider.Current.GetInstance<MainForm>();
-            mainForm?.UpdateUi();
+            var shell = SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true);
+            shell?.UpdateUi();
 
             DialogResult = true;
             Close();

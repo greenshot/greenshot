@@ -34,7 +34,7 @@ namespace Greenshot.Base.Controls
 {
     /// <summary>
     /// This form allows us to show a Thumbnail preview of a window near the context menu when selecting a window to capture.
-    /// Didn't make it completely "generic" yet, but at least most logic is in here so we don't have it in the mainform.
+    /// Didn't make it completely "generic" yet, but at least most logic is in here so we don't have it in the tray menu.
     /// </summary>
     public sealed class ThumbnailForm : FormWithoutActivation
     {
@@ -73,6 +73,23 @@ namespace Greenshot.Base.Controls
         /// <param name="parentControl">Control</param>
         public void ShowThumbnail(WindowDetails window, Control parentControl)
         {
+            if (parentControl == null)
+            {
+                ShowThumbnail(window, null, IntPtr.Zero);
+                return;
+            }
+
+            ShowThumbnail(window, new NativeRect(parentControl.Left, parentControl.Top, parentControl.Width, parentControl.Height), parentControl.Handle);
+        }
+
+        /// <summary>
+        /// Show the thumbnail of the supplied window above (or under) the bounds of a window, e.g. a WPF menu
+        /// </summary>
+        /// <param name="window">WindowDetails</param>
+        /// <param name="alignTo">The screen bounds (in pixels) to align to, null to keep the location</param>
+        /// <param name="insertAfter">The window the thumbnail is placed on top of, IntPtr.Zero for none</param>
+        public void ShowThumbnail(WindowDetails window, NativeRect? alignTo, IntPtr insertAfter)
+        {
             UnregisterThumbnail();
 
             DwmApi.DwmRegisterThumbnail(Handle, window.Handle, out _thumbnailHandle);
@@ -93,9 +110,9 @@ namespace Greenshot.Base.Controls
 
             int thumbnailHeight = 200;
             int thumbnailWidth = (int) (thumbnailHeight * (sourceSize.Width / (float) sourceSize.Height));
-            if (parentControl != null && thumbnailWidth > parentControl.Width)
+            if (alignTo.HasValue && thumbnailWidth > alignTo.Value.Width)
             {
-                thumbnailWidth = parentControl.Width;
+                thumbnailWidth = alignTo.Value.Width;
                 thumbnailHeight = (int) (thumbnailWidth * (sourceSize.Height / (float) sourceSize.Width));
             }
 
@@ -116,9 +133,9 @@ namespace Greenshot.Base.Controls
                 return;
             }
 
-            if (parentControl != null)
+            if (alignTo.HasValue)
             {
-                AlignToControl(parentControl);
+                AlignTo(alignTo.Value);
             }
 
             if (!Visible)
@@ -127,13 +144,22 @@ namespace Greenshot.Base.Controls
             }
 
             // Make sure it's on "top"!
-            if (parentControl != null)
+            if (insertAfter != IntPtr.Zero)
             {
-                User32Api.SetWindowPos(Handle, parentControl.Handle, 0, 0, 0, 0, WindowPos.SWP_NOMOVE | WindowPos.SWP_NOSIZE | WindowPos.SWP_NOACTIVATE);
+                User32Api.SetWindowPos(Handle, insertAfter, 0, 0, 0, 0, WindowPos.SWP_NOMOVE | WindowPos.SWP_NOSIZE | WindowPos.SWP_NOACTIVATE);
             }
         }
 
         public void AlignToControl(Control alignTo)
+        {
+            AlignTo(new NativeRect(alignTo.Left, alignTo.Top, alignTo.Width, alignTo.Height));
+        }
+
+        /// <summary>
+        /// Place the thumbnail centered above the bounds, or under them when there is no room above
+        /// </summary>
+        /// <param name="alignTo">Screen bounds in pixels</param>
+        public void AlignTo(NativeRect alignTo)
         {
             var screenBounds = DisplayInfo.ScreenBounds;
             if (screenBounds.Contains(alignTo.Left, alignTo.Top - Height))

@@ -44,7 +44,7 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Also used in the MainForm WndProc
+        /// Also usable in a WndProc
         /// </summary>
         /// <param name="m">Message</param>
         /// <returns>true if the message should be filtered</returns>

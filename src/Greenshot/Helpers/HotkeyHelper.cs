@@ -29,9 +29,9 @@ using Greenshot.Base.Core;
 using Dapplo.Ini;
 using Greenshot.Configuration;
 using Greenshot.Editor.Destinations;
-using Greenshot.Forms;
 using log4net;
-using Greenshot.Base.Threading;
+using Greenshot.Base.Threading;
+
 using Greenshot.Base.Languages;
 
 namespace Greenshot.Helpers;
@@ -164,7 +164,6 @@ internal static class HotkeyHelper
         bool success = false;
         var warningTitle = Texts.Core.Warning;
         var message = string.Format(Texts.Core.WarningHotkeys, failedKeys, IsOneDriveBlockingHotkey() ? " (OneDrive)" : "");
-        var mainForm = SimpleServiceProvider.Current.GetInstance<MainForm>();
         DialogResult dr = MessageBox.Show(message, warningTitle, MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Exclamation);
         if (dr == DialogResult.Retry)
         {

@@ -87,7 +87,7 @@ src/
 
 ### Main Application
 - **Entry Point**: `src/Greenshot/GreenshotMain.cs`
-- **Main Form**: `src/Greenshot/Forms/MainForm.cs`
+- **Shell (startup, services, tray icon and menu)**: `src/Greenshot/Shell/`
 - **Configuration**: `src/Greenshot/Configuration/`
 - **Destination Handlers**: `src/Greenshot/Destinations/` (clipboard, email, file, etc.)
 - **Capture Helpers**: `src/Greenshot/Helpers/CaptureHelper.cs`

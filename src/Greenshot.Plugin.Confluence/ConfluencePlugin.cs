@@ -48,7 +48,7 @@ public class ConfluencePlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeSt
     private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluencePlugin));
     private static ConfluenceConnector _confluenceConnector;
     private static IConfluenceConfiguration _config;
-    private ToolStripMenuItem _itemPlugInConfig;
+    private TrayMenuEntry _itemPlugInConfig;
 
     public ValueTask DisposeAsync()
     {
@@ -130,7 +130,7 @@ public class ConfluencePlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeSt
 
     private void Start()
     {
-        _itemPlugInConfig = new ToolStripMenuItem
+        _itemPlugInConfig = new TrayMenuEntry
         {
             Image = ConfluenceDestination.LoadConfluenceIcon(),
             Text = PluginUtils.GetQuicklinkText("Confluence"),
@@ -189,6 +189,6 @@ public class ConfluencePlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeSt
     /// </summary>
     private void ShowSettings()
     {
-        SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>(isOptional: true)?.ShowSetting(Name);
+        SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true)?.ShowSetting(Name);
     }
 }

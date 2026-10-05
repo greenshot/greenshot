@@ -44,8 +44,8 @@ Also kept as they are: the plugin classes (`…Plugin`, recipe requirements matc
 | `Greenshot/Ai` | Everything for AI tools (greenshot-mcp), with its settings page |
 | `Greenshot/Plugins` | Plugin loading and the plugins settings page |
 | `Greenshot/SelfService`, `Greenshot/Views`, `Greenshot/ViewModels` | Self-service, about, bug report and the other app windows |
-| `Greenshot/Forms` | The remaining WinForms (`MainForm`, `SharingForm`) |
+| `Greenshot/Shell` | Start (`GreenshotApplication`), the shell which composes the services and owns the shutdown (`GreenshotShell`), the tray icon and its WPF menu |
 | `Greenshot.Base/Recipes` | `Pipeline`, `Contracts`, `Sources`, `Triggers`, `Expressions` |
-| `Greenshot.Base/Wpf` | Shared WPF helpers, styles, `Views`, `ViewModels` |
+| `Greenshot.Base/Wpf` | Shared WPF helpers, styles, `Views`, `ViewModels`, the themed menus (`ThemedMenu`) and the destination picker |
 | `Greenshot.Editor/Views` | WPF windows of the editor (the editor itself is still WinForms in `Forms`) |
 | `Greenshot.Plugin.*` | Root: the plugin class, its configuration and language interfaces. `Destinations`, `Recipes` (steps), `Views`, `Api` (the web service client and its entities), `Images`; Jira also `Monitoring`, Zxing `Drawing` (barcode container) and `Processing` (detection, generation) |

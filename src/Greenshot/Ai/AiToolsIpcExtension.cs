@@ -23,11 +23,11 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using Greenshot.Ai;
 using Greenshot.Helpers;
 using Greenshot.Ipc;
 using log4net;
+using Greenshot.Base.Interfaces;
 
 [assembly: GreenshotModule(typeof(AiToolsIpcExtension), 20)]
 
@@ -138,7 +138,7 @@ namespace Greenshot.Ai
             return AiToolCommands.Contains(command) || string.Equals(source, IpcSources.Mcp, StringComparison.OrdinalIgnoreCase);
         }
 
-        public Task HandleAsync(string command, IpcRequestContext context, Form mainForm)
+        public Task HandleAsync(string command, IpcRequestContext context, IGreenshotShell shell)
         {
             switch (command.ToUpperInvariant())
             {

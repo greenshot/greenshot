@@ -98,7 +98,7 @@ namespace Greenshot.Settings.ViewModels
         {
             if (CanConfigureSelectedPlugin)
             {
-                SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>(isOptional: true)?.ShowSetting(SelectedPlugin?.Name);
+                SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true)?.ShowSetting(SelectedPlugin?.Name);
             }
         }
 

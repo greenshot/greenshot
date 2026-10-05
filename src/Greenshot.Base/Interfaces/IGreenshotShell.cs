@@ -19,25 +19,35 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
 using System;
-using System.Windows.Forms;
 
 namespace Greenshot.Base.Interfaces
 {
-    public interface IGreenshotMainForm : IWin32Window
+    /// <summary>
+    /// The application shell: the windows and commands of Greenshot itself, which are not tied to a capture.
+    /// Available as a service while Greenshot runs (not in tests or headless).
+    /// </summary>
+    public interface IGreenshotShell
     {
         /// <summary>
-        /// Create the "capture window from list" list
+        /// A hidden top level window which owns the windows that belong to no other window (e.g. the capture window),
+        /// so they don't show up in the taskbar on their own.
         /// </summary>
-        /// <param name="menuItem">ToolStripMenuItem</param>
-        /// <param name="eventHandler">EventHandler</param>
-        void AddCaptureWindowMenuItems(ToolStripMenuItem menuItem, EventHandler eventHandler);
+        IntPtr OwnerHandle { get; }
 
         /// <summary>
-        /// This is called indirectly from the context menu "Preferences" or plugin "Configure"
+        /// Show the settings, called from the tray menu "Preferences" or a plugin "Configure"
         /// </summary>
         /// <param name="pluginName">Optional name of plugin to activate in the plugins tab.</param>
         void ShowSetting(string pluginName = null);
+
+        /// <summary>
+        /// Show the settings with a tab and/or a plugin selected
+        /// </summary>
+        /// <param name="pluginName">Name of the plugin to select, or null</param>
+        /// <param name="tabName">Name of the tab to select, or null</param>
+        void ShowSetting(string pluginName, string tabName);
 
         /// <summary>
         /// Show the about window
@@ -45,8 +55,13 @@ namespace Greenshot.Base.Interfaces
         void ShowAbout();
 
         /// <summary>
-        /// Refreshes the user interface to reflect the current state of the application.
+        /// Refresh what depends on the configuration or the language (e.g. the tray icon tooltip)
         /// </summary>
         void UpdateUi();
+
+        /// <summary>
+        /// Exit Greenshot
+        /// </summary>
+        void Exit();
     }
 }
