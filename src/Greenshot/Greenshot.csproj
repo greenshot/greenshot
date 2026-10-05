@@ -129,7 +129,8 @@
 
   <UsingTask TaskName="EmojiDataTask" TaskFactory="TaskHostFactory" AssemblyFile="..\Greenshot.BuildTasks\bin\$(GreenshotBaseConfiguration)\$(TargetFramework)\Greenshot.BuildTasks.dll" />
 
-  <Target Name="GenerateEmojiTestTxtFile" BeforeTargets="BeforeBuild" Inputs="..\Greenshot.Editor\Controls\Emoji\emoji-test.txt" Outputs="$(TargetDir)emojis.xml">
+  <!-- After ResolveProjectReferences: that builds Greenshot.BuildTasks, in a clean build its dll doesn't exist before (BeforeBuild is too early) -->
+  <Target Name="GenerateEmojiTestTxtFile" AfterTargets="ResolveProjectReferences" Condition="'$(BuildingProject)' == 'true' And '$(DesignTimeBuild)' != 'true'" Inputs="..\Greenshot.Editor\Controls\Emoji\emoji-test.txt" Outputs="$(TargetDir)emojis.xml">
     <!-- The output directory doesn't exist yet in a clean build (or the first build of Greenshot Light) -->
     <MakeDir Directories="$(TargetDir)" />
     <EmojiDataTask EmojiTestTxtFile="..\Greenshot.Editor\Controls\Emoji\emoji-test.txt" OutputFilename="$(TargetDir)emojis.xml" />
