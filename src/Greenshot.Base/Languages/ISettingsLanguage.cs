@@ -356,6 +356,26 @@ namespace Greenshot.Base.Languages
         string Network { get; }
 
         /// <summary>
+        /// Text recognition (OCR)
+        /// </summary>
+        string Ocr { get; }
+
+        /// <summary>
+        /// Language of the text
+        /// </summary>
+        string OcrLanguage { get; }
+
+        /// <summary>
+        /// Automatic (Windows language settings)
+        /// </summary>
+        string OcrLanguageAutomatic { get; }
+
+        /// <summary>
+        /// not installed
+        /// </summary>
+        string OcrLanguageNotinstalled { get; }
+
+        /// <summary>
         /// Output
         /// </summary>
         string Output { get; }
@@ -581,6 +601,11 @@ namespace Greenshot.Base.Languages
         /// Language of greenshot's user interface
         /// </summary>
         string TooltipLanguage { get; }
+
+        /// <summary>
+        /// The language Windows recognizes text in, for capturing text and the OCR destination. More languages can be added in the Windows settings (Time and language, Language and region).
+        /// </summary>
+        string TooltipOcrLanguage { get; }
 
         /// <summary>
         /// Image format used by default

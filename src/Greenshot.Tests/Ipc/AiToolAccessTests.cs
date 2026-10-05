@@ -187,6 +187,8 @@ namespace Greenshot.Tests.Ipc
 
             public Task<List<IOcrLineFeature>> DoOcrAsync(Greenshot.Base.Interfaces.ISurface surface, string languageTag = null) => Task.FromResult(Lines());
 
+            public IList<Greenshot.Base.Interfaces.Ocr.OcrLanguage> GetAvailableLanguages() => new List<Greenshot.Base.Interfaces.Ocr.OcrLanguage>();
+
             private static List<IOcrLineFeature> Lines() => new List<IOcrLineFeature>
             {
                 new DetectedOcrLine(new NativeRect(5, 6, 70, 12), "Hello OCR", new List<OcrWordInfo>())

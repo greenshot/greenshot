@@ -32,7 +32,7 @@ namespace Greenshot.Base.Interfaces.Ocr
     public interface IOcrProvider
     {
         /// <summary>
-        /// Start the actual OCR
+        /// Start the actual OCR. The pixels are read before this returns, the caller may change or dispose the image while the OCR runs.
         /// </summary>
         /// <param name="image">Image</param>
         /// <param name="languageTag">Optional OCR language tag (e.g. en-US, de-DE)</param>
@@ -40,11 +40,17 @@ namespace Greenshot.Base.Interfaces.Ocr
         Task<List<IOcrLineFeature>> DoOcrAsync(Image image, string languageTag = null);
 
         /// <summary>
-        /// Start the actual OCR
+        /// Start the actual OCR of the surface image (the background, not the elements drawn on it), read before this returns
         /// </summary>
         /// <param name="surface">ISurface</param>
         /// <param name="languageTag">Optional OCR language tag (e.g. en-US, de-DE)</param>
         /// <returns>List of detected OCR line features</returns>
         Task<List<IOcrLineFeature>> DoOcrAsync(ISurface surface, string languageTag = null);
+
+        /// <summary>
+        /// The languages which can be recognized, for the OCR language setting
+        /// </summary>
+        /// <returns>The installed OCR languages, empty when none are installed</returns>
+        IList<OcrLanguage> GetAvailableLanguages();
     }
 }
