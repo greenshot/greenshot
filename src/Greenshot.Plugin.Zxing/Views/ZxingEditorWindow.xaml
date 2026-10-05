@@ -13,15 +13,6 @@
         WindowStyle="None"
         AllowsTransparency="False">
 
-    <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="36"
-                      CornerRadius="0"
-                      GlassFrameThickness="0"
-                      NonClientFrameEdges="None"
-                      ResizeBorderThickness="5"
-                      UseAeroCaptionButtons="False"/>
-    </WindowChrome.WindowChrome>
-
     <Window.Resources>
         <!-- Modern GroupBox Style -->
         <Style TargetType="GroupBox">
@@ -255,108 +246,17 @@
                 </Setter.Value>
             </Setter>
         </Style>
-
-        <!-- TitleBar Button Styles -->
-        <Style x:Key="TitleBarButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Width" Value="46"/>
-            <Setter Property="Height" Value="36"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderThickness="0">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="TitleBarCloseButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Width" Value="46"/>
-            <Setter Property="Height" Value="36"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderThickness="0">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#E81123"/>
-                                <Setter Property="Foreground" Value="White"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
     </Window.Resources>
 
     <Border BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
             BorderThickness="1">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="36"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- Custom Title Bar -->
-            <Grid Grid.Row="0"
-                  Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"
-                  MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="36"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <!-- Icon -->
-                <Image x:Name="ImgWindowIcon"
-                       Grid.Column="0"
-                       Width="16" Height="16"
-                       Margin="10,0,0,0"
-                       VerticalAlignment="Center"
-                       WindowChrome.IsHitTestVisibleInChrome="False"/>
-
-                <!-- Title -->
-                <TextBlock x:Name="TxtWindowTitle"
-                           Grid.Column="1"
-                           Text="Insert QR / Barcode"
-                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
-                           VerticalAlignment="Center"
-                           Margin="8,0,0,0"
-                           FontSize="12"
-                           FontWeight="SemiBold"
-                           WindowChrome.IsHitTestVisibleInChrome="False"/>
-
-                <!-- Caption Buttons -->
-                <StackPanel Grid.Column="2"
-                            Orientation="Horizontal"
-                            WindowChrome.IsHitTestVisibleInChrome="True">
-                    <Button x:Name="BtnThemeToggle"
-                            Content="🌙"
-                            Click="ThemeToggle_Click"
-                            Style="{StaticResource TitleBarButtonStyle}"
-                            ToolTip="Toggle Dark / Light Theme"/>
-                    <Button Content="✕"
-                            Click="CloseButton_Click"
-                            Style="{StaticResource TitleBarCloseButtonStyle}"
-                            ToolTip="Close"/>
-                </StackPanel>
-            </Grid>
+            <wpf:ThemedTitleBar Grid.Row="0" ShowThemeToggle="True"/>
 
             <!-- Main Content Area -->
             <Grid Grid.Row="1" Margin="14,6,14,14">

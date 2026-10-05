@@ -6,6 +6,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="Greenshot - Decision Prompt"
+        Icon="/icons/applicationIcon/icon.ico"
         SizeToContent="Height"
         Width="520"
         MinWidth="440"
@@ -19,49 +20,7 @@
         FontSize="13"
         Background="{Binding WindowBackgroundBrush}">
 
-    <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="40"
-                      ResizeBorderThickness="4"
-                      CornerRadius="0"
-                      GlassFrameThickness="0"
-                      UseAeroCaptionButtons="False" />
-    </WindowChrome.WindowChrome>
-
     <Window.Resources>
-        <!-- Modern Caption Close Button Style -->
-        <Style x:Key="CaptionCloseButtonStyle" TargetType="Button">
-            <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
-            <Setter Property="Focusable" Value="False"/>
-            <Setter Property="Width" Value="46"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Foreground" Value="{Binding TextSecondaryBrush}"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}">
-                            <Path HorizontalAlignment="Center" VerticalAlignment="Center"
-                                  Width="10" Height="10" Stretch="Uniform"
-                                  Stroke="{TemplateBinding Foreground}" StrokeThickness="1.2"
-                                  Data="M 0,0 L 10,10 M 10,0 L 0,10"
-                                  SnapsToDevicePixels="True"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#E81123"/>
-                                <Setter Property="Foreground" Value="White"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#C42B1C"/>
-                                <Setter Property="Foreground" Value="White"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
         <!-- Modern Primary Button Style -->
         <Style x:Key="PrimaryButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="{Binding AccentBrush}"/>
@@ -157,37 +116,12 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="40"/>  <!-- Title Bar -->
+            <RowDefinition Height="Auto"/> <!-- Title Bar -->
             <RowDefinition Height="*"/>   <!-- Content -->
             <RowDefinition Height="Auto"/> <!-- Footer Actions -->
         </Grid.RowDefinitions>
 
-        <!-- Custom Title Bar -->
-        <Grid Grid.Row="0" Background="{Binding CardBackgroundBrush}">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-
-            <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="14,0,0,0" VerticalAlignment="Center">
-                <!-- Question / Help Icon -->
-                <Path Width="16" Height="16" Stretch="Uniform"
-                      Fill="{Binding AccentBrush}"
-                      Data="M 12 2 C 6.48 2 2 6.48 2 12 C 2 17.52 6.48 22 12 22 C 17.52 22 22 17.52 22 12 C 22 6.48 17.52 2 12 2 Z M 13 19 L 11 19 L 11 17 L 13 17 L 13 19 Z M 13.07 13.75 L 12.2 14.65 C 11.5 15.35 11 16 11 17.5 L 13 17.5 C 13 16.5 13.5 16 14.2 15.3 L 15.42 14.07 C 15.78 13.7 16 13.2 16 12.5 C 16 10.57 14.21 9 12 9 C 9.79 9 8 10.57 8 12.5 L 10 12.5 C 10 11.4 10.9 10.5 12 10.5 C 13.1 10.5 14 11.4 14 12.5 C 14 13 13.78 13.4 13.07 13.75 Z"/>
-                <TextBlock Text="{Binding WindowTitle}"
-                           FontWeight="SemiBold"
-                           FontSize="12"
-                           Foreground="{Binding TextSecondaryBrush}"
-                           Margin="8,0,0,0"
-                           VerticalAlignment="Center"/>
-            </StackPanel>
-
-            <Button Grid.Column="2" 
-                    Style="{StaticResource CaptionCloseButtonStyle}"
-                    Click="CloseButton_Click"
-                    ToolTip="Close / Cancel"/>
-        </Grid>
+        <wpf:ThemedTitleBar Grid.Row="0"/>
 
         <!-- Main Body -->
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="20,16,20,16">

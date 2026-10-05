@@ -152,6 +152,12 @@ namespace Greenshot.Base.Wpf
         public bool IsHighContrast => CurrentPalette.IsHighContrast;
 
         /// <summary>
+        /// True when Greenshot's windows use the title bar of Windows: when following the Windows theme, and always with high contrast.
+        /// With the light or dark theme the windows draw their own title bar in the theme colors, see <see cref="ThemedTitleBar"/>.
+        /// </summary>
+        public bool UseSystemTitleBar => Theme == UiTheme.System || IsHighContrast;
+
+        /// <summary>
         /// Switch between light and dark, this stops following the Windows theme (it can be chosen again in the settings)
         /// </summary>
         public void ToggleTheme()
@@ -309,6 +315,8 @@ namespace Greenshot.Base.Wpf
             }
 
             OnPropertyChanged(nameof(Theme));
+            // Also when the colors stay the same: "Same as Windows" and "Dark" on a dark Windows only differ in the title bar
+            OnPropertyChanged(nameof(UseSystemTitleBar));
             if (palette == null)
             {
                 return;

@@ -543,6 +543,60 @@ namespace Greenshot.Tests.Forms
         }
 
         [Fact]
+        public void ThemedTitleBar_UsesTheWindowsTitleBarOnlyWhenFollowingWindows()
+        {
+            Exception threadEx = null;
+            var thread = new Thread(() =>
+            {
+                var tm = ThemeManager.Instance;
+                var previousTheme = tm.Theme;
+                try
+                {
+                    var root = new System.Windows.Controls.Grid();
+                    var window = new System.Windows.Window
+                    {
+                        Title = "Title bar test",
+                        WindowStyle = System.Windows.WindowStyle.None,
+                        Content = root
+                    };
+                    var titleBar = new ThemedTitleBar();
+                    root.Children.Add(titleBar);
+
+                    tm.Theme = Greenshot.Base.Core.Enums.UiTheme.Dark;
+                    if (!tm.IsHighContrast)
+                    {
+                        // Light or dark: Greenshot's own title bar, the client area covers the frame
+                        Assert.False(titleBar.IsSystemTitleBar);
+                        Assert.NotNull(System.Windows.Shell.WindowChrome.GetWindowChrome(window));
+                        Assert.Equal(System.Windows.WindowStyle.None, window.WindowStyle);
+                        Assert.Equal(System.Windows.Visibility.Visible, titleBar.Visibility);
+                    }
+
+                    // Same as Windows: the title bar of Windows, this one hides
+                    tm.Theme = Greenshot.Base.Core.Enums.UiTheme.System;
+                    Assert.True(titleBar.IsSystemTitleBar);
+                    Assert.Null(System.Windows.Shell.WindowChrome.GetWindowChrome(window));
+                    Assert.Equal(System.Windows.WindowStyle.SingleBorderWindow, window.WindowStyle);
+                    Assert.Equal(System.Windows.Visibility.Collapsed, titleBar.Visibility);
+                    window.Close();
+                }
+                catch (Exception ex)
+                {
+                    threadEx = ex;
+                }
+                finally
+                {
+                    tm.Theme = previousTheme;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+
+            Assert.Null(threadEx);
+        }
+
+        [Fact]
         public void HotkeyEditorModal_HasInitialViewModelDataContext_ToPreventInheritedBindingErrors()
         {
             Exception threadEx = null;

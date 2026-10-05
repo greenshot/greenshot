@@ -754,21 +754,6 @@ namespace Greenshot.Recipes.Views
             }
         }
 
-        private void OnCloseTitleBarClicked(object sender, RoutedEventArgs e)
-        {
-            IsApproved = false;
-            DialogResult = false;
-            Close();
-        }
-
-        private void OnTitleBarMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            if (e.ChangedButton == System.Windows.Input.MouseButton.Left)
-            {
-                DragMove();
-            }
-        }
-
         protected override void OnSourceInitialized(EventArgs e)
         {
             base.OnSourceInitialized(e);

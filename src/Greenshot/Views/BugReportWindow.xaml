@@ -6,7 +6,7 @@
         xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
         xmlns:vm="clr-namespace:Greenshot.ViewModels"
         mc:Ignorable="d"
-        Title="Greenshot - Error"
+        Title="Greenshot - An Unexpected Error Occurred"
         Icon="/icons/applicationIcon/icon.ico"
         Width="660"
         MinWidth="560"
@@ -21,50 +21,8 @@
         Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"
         Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}">
 
-    <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="40"
-                      ResizeBorderThickness="4"
-                      CornerRadius="0"
-                      GlassFrameThickness="0"
-                      UseAeroCaptionButtons="False" />
-    </WindowChrome.WindowChrome>
-
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-
-        <!-- Caption Close Button Style -->
-        <Style x:Key="CaptionCloseButtonStyle" TargetType="Button">
-            <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
-            <Setter Property="Focusable" Value="False"/>
-            <Setter Property="Width" Value="46"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}">
-                            <Path HorizontalAlignment="Center" VerticalAlignment="Center"
-                                  Width="10" Height="10" Stretch="Uniform"
-                                  Stroke="{TemplateBinding Foreground}" StrokeThickness="1.2"
-                                  Data="M 0,0 L 10,10 M 10,0 L 0,10"
-                                  SnapsToDevicePixels="True"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#E81123"/>
-                                <Setter Property="Foreground" Value="White"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#C42B1C"/>
-                                <Setter Property="Foreground" Value="White"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
 
         <!-- Primary Action Button Style -->
         <Style x:Key="PrimaryButtonStyle" TargetType="Button">
@@ -185,37 +143,12 @@
     <Border BorderThickness="1" BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="40"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- Custom Window Caption Bar -->
-            <Grid Grid.Row="0"
-                  Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TitleBarBrush}"
-                  MouseDown="OnTitleBarMouseDown">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0,0,0">
-                    <Path Width="16" Height="16" Stretch="Uniform"
-                          Fill="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ErrorBrush}"
-                          Data="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10s10-4.48,10-10S17.52,2,12,2z M13,17h-2v-2h2V17z M13,13h-2V7h2V13z"/>
-                    <TextBlock Text="Greenshot - An Unexpected Error Occurred"
-                               FontWeight="SemiBold"
-                               FontSize="12"
-                               Margin="10,0,0,0"
-                               VerticalAlignment="Center"
-                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                </StackPanel>
-
-                <Button Grid.Column="2"
-                        Style="{StaticResource CaptionCloseButtonStyle}"
-                        Click="OnCloseClicked"
-                        ToolTip="Close (Esc)"/>
-            </Grid>
+            <!-- Only a close button, like before: the error dialog stays on top and isn't minimized -->
+            <wpf:ThemedTitleBar Grid.Row="0" ShowMinimize="False" ShowMaximize="False"/>
 
             <!-- Main Content Area -->
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">

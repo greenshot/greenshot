@@ -23,7 +23,6 @@
 using System;
 using System.Threading;
 using System.Windows;
-using System.Windows.Input;
 using System.Windows.Interop;
 using Greenshot.Base.Core;
 using log4net;
@@ -94,20 +93,6 @@ namespace Greenshot.Views
                 new WindowInteropHelper(this) { Owner = ownerHandle };
             }
             return ShowDialog();
-        }
-
-        private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ClickCount == 1)
-            {
-                DragMove();
-            }
-        }
-
-        private void CloseButton_Click(object sender, RoutedEventArgs e)
-        {
-            DialogResult = false;
-            Close();
         }
 
         private void OkButton_Click(object sender, RoutedEventArgs e)

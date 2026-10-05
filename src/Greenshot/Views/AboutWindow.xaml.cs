@@ -47,7 +47,7 @@ using Greenshot.Base.Languages;
 namespace Greenshot.Views
 {
     /// <summary>
-    /// Modern WPF About window with custom WindowChrome, dark/light mode support, runtime translation updates, and XAML animations matching g.svg specification.
+    /// Modern WPF About window with the themed title bar, dark/light mode support, runtime translation updates, and XAML animations matching g.svg specification.
     /// </summary>
     public partial class AboutWindow : Window, INotifyPropertyChanged
     {
@@ -322,19 +322,6 @@ namespace Greenshot.Views
         {
             base.OnSourceInitialized(e);
             ApplyImmersiveDarkMode();
-        }
-
-        private void OnTitleBarMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ChangedButton == MouseButton.Left)
-            {
-                DragMove();
-            }
-        }
-
-        private void OnThemeToggleClicked(object sender, RoutedEventArgs e)
-        {
-            WpfThemeHelper.ToggleTheme();
         }
 
         private void OnCloseClicked(object sender, RoutedEventArgs e)

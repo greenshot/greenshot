@@ -140,20 +140,6 @@ namespace Greenshot.Plugin.RecipeEditor.Views
             }
         }
 
-        private void OnTitleBarMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ChangedButton == MouseButton.Left)
-            {
-                DragMove();
-            }
-        }
-
-        private void OnCloseTitleBarClicked(object sender, RoutedEventArgs e)
-        {
-            DialogResult = false;
-            Close();
-        }
-
         private void EditorListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             UpdatePreview();

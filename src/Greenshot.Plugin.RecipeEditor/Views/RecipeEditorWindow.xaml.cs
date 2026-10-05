@@ -161,31 +161,6 @@ namespace Greenshot.Plugin.RecipeEditor.Views
             ApplyImmersiveDarkMode();
         }
 
-        private void OnTitleBarMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ChangedButton == MouseButton.Left)
-            {
-                if (e.ClickCount == 2)
-                {
-                    WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
-                }
-                else
-                {
-                    DragMove();
-                }
-            }
-        }
-
-        private void OnMinimizeClicked(object sender, RoutedEventArgs e)
-        {
-            WindowState = WindowState.Minimized;
-        }
-
-        private void OnMaximizeClicked(object sender, RoutedEventArgs e)
-        {
-            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
-        }
-
         private void OnWindowClosing(object sender, CancelEventArgs e)
         {
             // Save, discard or keep editing the unsaved changes
@@ -193,11 +168,6 @@ namespace Greenshot.Plugin.RecipeEditor.Views
             {
                 e.Cancel = true;
             }
-        }
-
-        private void OnCloseTitleBarClicked(object sender, RoutedEventArgs e)
-        {
-            Close();
         }
 
         private void HotkeyDisplayControl_EditRequested(object sender, EventArgs e)

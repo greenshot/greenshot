@@ -155,46 +155,6 @@ namespace Greenshot.SelfService.Views
             ApplyImmersiveDarkMode();
         }
 
-        private void OnTitleBarMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ChangedButton == MouseButton.Left)
-            {
-                if (e.ClickCount == 2)
-                {
-                    ToggleMaximize();
-                }
-                else
-                {
-                    DragMove();
-                }
-            }
-        }
-
-        private void OnMinimizeClicked(object sender, RoutedEventArgs e)
-        {
-            WindowState = WindowState.Minimized;
-        }
-
-        private void OnMaximizeRestoreClicked(object sender, RoutedEventArgs e)
-        {
-            ToggleMaximize();
-        }
-
-        private void ToggleMaximize()
-        {
-            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
-        }
-
-        private void OnThemeToggleClicked(object sender, RoutedEventArgs e)
-        {
-            ViewModel?.ToggleTheme();
-        }
-
-        private void OnCloseClicked(object sender, RoutedEventArgs e)
-        {
-            Close();
-        }
-
         private void OnWindowKeyDown(object sender, KeyEventArgs e)
         {
             // If the user is currently typing in an editable input (search TextBox, etc.),

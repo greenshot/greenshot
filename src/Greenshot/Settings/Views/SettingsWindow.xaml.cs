@@ -217,26 +217,6 @@ namespace Greenshot.Settings.Views
             }
         }
 
-        private void TitleBar_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            DragMove();
-        }
-
-        private void ThemeToggle_Click(object sender, RoutedEventArgs e)
-        {
-            _viewModel.ToggleTheme();
-        }
-
-        private void MinimizeButton_Click(object sender, RoutedEventArgs e)
-        {
-            WindowState = WindowState.Minimized;
-        }
-
-        private void CloseButton_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
-        }
-
         private void OkButton_Click(object sender, RoutedEventArgs e)
         {
             HotkeyManager.UnregisterHotkeys();

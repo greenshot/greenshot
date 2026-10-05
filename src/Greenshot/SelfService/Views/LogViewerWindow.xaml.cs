@@ -416,41 +416,6 @@ namespace Greenshot.SelfService.Views
             }
         }
 
-        private void OnTitleBarMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ChangedButton == MouseButton.Left)
-            {
-                if (e.ClickCount == 2)
-                {
-                    WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
-                }
-                else
-                {
-                    DragMove();
-                }
-            }
-        }
-
-        private void OnThemeToggleClicked(object sender, RoutedEventArgs e)
-        {
-            WpfThemeHelper.ToggleTheme();
-        }
-
-        private void OnMinimizeClicked(object sender, RoutedEventArgs e)
-        {
-            WindowState = WindowState.Minimized;
-        }
-
-        private void OnMaximizeRestoreClicked(object sender, RoutedEventArgs e)
-        {
-            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
-        }
-
-        private void OnCloseClicked(object sender, RoutedEventArgs e)
-        {
-            Close();
-        }
-
         private void ApplyImmersiveDarkMode()
         {
             // The title bar in the colors of the theme, it follows theme changes from now on

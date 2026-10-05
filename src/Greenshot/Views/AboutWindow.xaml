@@ -17,77 +17,7 @@
         FontSize="13"
         Background="{Binding WindowBackgroundBrush}">
 
-    <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="40"
-                      ResizeBorderThickness="0"
-                      CornerRadius="0"
-                      GlassFrameThickness="0"
-                      UseAeroCaptionButtons="False" />
-    </WindowChrome.WindowChrome>
-
     <Window.Resources>
-        <!-- Modern Caption Button Style -->
-        <Style x:Key="CaptionBtnStyle" TargetType="Button">
-            <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
-            <Setter Property="Focusable" Value="False"/>
-            <Setter Property="Width" Value="46"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Foreground" Value="{Binding TextPrimaryBrush}"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#26888888"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#40888888"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Modern Caption Close Button Style -->
-        <Style x:Key="CaptionCloseBtnStyle" TargetType="Button">
-            <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
-            <Setter Property="Focusable" Value="False"/>
-            <Setter Property="Width" Value="46"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Foreground" Value="{Binding TextPrimaryBrush}"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}">
-                            <Path x:Name="crossPath" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                  Width="10" Height="10" Stretch="Uniform"
-                                  Stroke="{TemplateBinding Foreground}" StrokeThickness="1.5"
-                                  Data="M 0,0 L 10,10 M 10,0 L 0,10"
-                                  SnapsToDevicePixels="True"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#E81123"/>
-                                <Setter TargetName="crossPath" Property="Stroke" Value="White"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#C42B1C"/>
-                                <Setter TargetName="crossPath" Property="Stroke" Value="White"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
         <!-- Modern Primary Button Style -->
         <Style x:Key="PrimaryButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="{Binding AccentBrush}"/>
@@ -719,34 +649,12 @@
     <Border BorderThickness="1" BorderBrush="{Binding CardBorderBrush}" Background="{Binding WindowBackgroundBrush}">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="40"/> <!-- Custom Chrome Title Bar -->
+                <RowDefinition Height="Auto"/> <!-- Title Bar -->
                 <RowDefinition Height="*"/>    <!-- Main Body -->
                 <RowDefinition Height="Auto"/> <!-- Footer / Shortcuts -->
             </Grid.RowDefinitions>
 
-            <!-- Custom Chrome Title Bar (Greenshot "G" Icon, no standard title bar, custom buttons like Recipe Editor) -->
-            <Grid Grid.Row="0" Background="Transparent" MouseLeftButtonDown="OnTitleBarMouseDown">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <!-- Left Branding / Window G Icon -->
-                <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="14,0,0,0" VerticalAlignment="Center">
-                    <Image Source="{Binding WindowIconSource}" Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality"/>
-                    <TextBlock Text="Greenshot" FontWeight="Bold" FontSize="12" Foreground="{Binding TextPrimaryBrush}" VerticalAlignment="Center"/>
-                    <TextBlock Text="{Binding WindowTitleSubtitle}" FontSize="12" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center"/>
-                </StackPanel>
-
-                <!-- Window Caption Control Buttons -->
-                <StackPanel Grid.Column="2" Orientation="Horizontal">
-                    <Button Style="{StaticResource CaptionBtnStyle}" Click="OnThemeToggleClicked" ToolTip="{Binding ThemeToggleToolTip}">
-                        <TextBlock Text="{Binding ThemeToggleIcon}" FontSize="13" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                    </Button>
-                    <Button Style="{StaticResource CaptionCloseBtnStyle}" Click="OnCloseClicked" ToolTip="{Binding CloseButtonToolTip}"/>
-                </StackPanel>
-            </Grid>
+            <wpf:ThemedTitleBar Grid.Row="0" ShowThemeToggle="True"/>
 
             <!-- Main Content -->
             <Grid Grid.Row="1" Margin="24,10,24,16">
