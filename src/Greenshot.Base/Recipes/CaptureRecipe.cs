@@ -22,7 +22,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Greenshot.Base.Triggers;
+using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Recipes.Triggers;
 
 namespace Greenshot.Base.Recipes
 {
@@ -72,7 +73,7 @@ namespace Greenshot.Base.Recipes
         /// What happens when the recipe is started while a flow of it is still running; null means <see cref="FlowConcurrency.Parallel"/>.
         /// </summary>
         [Newtonsoft.Json.JsonProperty(NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public Pipeline.FlowConcurrency? Concurrency { get; set; }
+        public FlowConcurrency? Concurrency { get; set; }
 
         /// <summary>
         /// Set by <see cref="RecipeComposer"/> on the recipe it composed: the extensions it put in (in the flow or for the

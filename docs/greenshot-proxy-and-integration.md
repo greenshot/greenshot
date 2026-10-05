@@ -290,7 +290,7 @@ External callers can supply runtime context that becomes variables inside the re
 ### 5.1 Adding a New Custom URI Action
 To add a new route (e.g., `greenshot:quick-export`):
 
-1. **Update Command Whitelist** in [`src/Greenshot/Helpers/Ipc/IpcSecurityDispatcher.cs`](file:///d:/code/greenshot/src/Greenshot/Helpers/Ipc/IpcSecurityDispatcher.cs):
+1. **Update Command Whitelist** in `src/Greenshot/Ipc/IpcSecurityDispatcher.cs` (commands of an optional part, like the browser extension in `Ipc/BrowserExtension` or the AI tools in `Ai`, go into its own `IIpcCommandExtension` instead, registered with `[assembly: GreenshotModule(...)]`, so Greenshot Light leaves them out with the folder):
    ```csharp
    private static readonly HashSet<string> AllowedCommands = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
    {

@@ -28,8 +28,8 @@ using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Threading;
 using Greenshot.Plugin.RecipeEditor.Views;
 using log4net;
@@ -125,7 +125,7 @@ public class RecipeEditorPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipe
                         OpenEditor();
                     });
 
-                var dlg = new Dialogs.RecipeManagerDialog(vm)
+                var dlg = new RecipeManagerWindow(vm)
                 {
                     WindowStartupLocation = WindowStartupLocation.CenterScreen
                 };

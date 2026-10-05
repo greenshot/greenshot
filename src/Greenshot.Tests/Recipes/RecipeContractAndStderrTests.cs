@@ -24,12 +24,12 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
-using Greenshot.Base.Expressions;
-using Greenshot.Base.Pipeline;
-using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
-using Greenshot.Base.Triggers;
-using Greenshot.Pipeline.Steps;
+using Greenshot.Base.Recipes.Contracts;
+using Greenshot.Base.Recipes.Expressions;
+using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Recipes.Triggers;
+using Greenshot.Recipes.Steps;
 using Xunit;
 
 namespace Greenshot.Tests.Recipes
@@ -164,7 +164,7 @@ namespace Greenshot.Tests.Recipes
                     new RecipeNodeConfig
                     {
                         Id = "zxing_qr",
-                        StepType = Greenshot.Plugin.Zxing.ZxingStep.StepType,
+                        StepType = Greenshot.Plugin.Zxing.Recipes.ZxingStep.StepType,
                         Parameters = new Dictionary<string, object>()
                     },
                     new RecipeNodeConfig
@@ -186,7 +186,7 @@ namespace Greenshot.Tests.Recipes
             var registry = new StepRegistry();
             registry.Register<SourceAcquisitionStep>(config => new SourceAcquisitionStep(config));
             registry.Register<StdoutStep>(config => new StdoutStep(config));
-            registry.Register<Greenshot.Plugin.Zxing.ZxingStep>(config => new Greenshot.Plugin.Zxing.ZxingStep(config));
+            registry.Register<Greenshot.Plugin.Zxing.Recipes.ZxingStep>(config => new Greenshot.Plugin.Zxing.Recipes.ZxingStep(config));
 
             var contract = RecipeContract.Analyze(recipe, registry);
             Assert.NotNull(contract);

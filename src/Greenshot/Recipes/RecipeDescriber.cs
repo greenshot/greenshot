@@ -26,9 +26,11 @@ using System.Globalization;
 using System.Linq;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
-using Greenshot.Base.Triggers;
+using Greenshot.Base.Recipes.Contracts;
+using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Recipes.Triggers;
+using Greenshot.Recipes.Approval;
 using log4net;
 using Newtonsoft.Json.Linq;
 
@@ -418,7 +420,7 @@ namespace Greenshot.Recipes
             return delay > 0 ? $"{what}, after {delay.ToString(CultureInfo.InvariantCulture)} ms" : what;
         }
 
-        private static string SummarizeParameters(RecipeNodeConfig node, Base.Pipeline.Contracts.StepContract contract)
+        private static string SummarizeParameters(RecipeNodeConfig node, StepContract contract)
         {
             if (node.Parameters == null || node.Parameters.Count == 0)
             {

@@ -23,7 +23,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
-using Greenshot.UI.ViewModels;
+using Greenshot.ViewModels;
 using Xunit;
 
 namespace Greenshot.Tests.Core

@@ -1,0 +1,69 @@
+﻿/*
+ * Greenshot - a free and open source screenshot tool
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
+ *
+ * For more information see: https://getgreenshot.org/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 1 of the License, or
+ * (at your option) any later version. 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Greenshot.Base.Core;
+using Greenshot.Base.Interfaces;
+using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Languages;
+using Greenshot.Base.Recipes.Pipeline;
+
+namespace Greenshot.Plugin.Dropbox.Destinations;
+
+internal class DropboxDestination : DestinationBase, IRequiresRecipeAuthorization
+{
+    /// <summary>
+    /// The icons in the resources of the plugin
+    /// </summary>
+    public static ResourceIconProvider Icons { get; } = new ResourceIconProvider("dropbox", typeof(DropboxPlugin));
+
+    private readonly DropboxPlugin _plugin;
+
+    public DropboxDestination(DropboxPlugin plugin)
+    {
+        _plugin = plugin;
+    }
+
+    public override string Designation => "Dropbox";
+
+    /// <summary>
+    /// Uploads the capture: the user has to allow network access when approving a recipe with this destination
+    /// </summary>
+    public IEnumerable<RecipeGatedAction> GetGatedActions()
+    {
+        yield return new RecipeGatedAction(RecipeGateType.NetworkAccess, "Dropbox (dropbox.com)");
+    }
+
+    public override DestinationDescriptor Descriptor => new DestinationDescriptor(Texts.Get<IDropboxLanguage>().UploadMenuItem, iconKey: Icons.KeyFor("Dropbox"));
+
+    public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
+    {
+        bool? uploaded = await _plugin.UploadAsync(request.Source, request.Metadata, request.Ui, cancellationToken).ConfigureAwait(false);
+        return uploaded switch
+        {
+            null => ExportResult.Declined,
+            true => ExportResult.Succeeded(),
+            false => ExportResult.Failed(Texts.Get<IDropboxLanguage>().UploadFailure)
+        };
+    }
+}

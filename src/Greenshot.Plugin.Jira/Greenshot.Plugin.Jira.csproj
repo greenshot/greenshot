@@ -10,7 +10,7 @@
   </ItemGroup>
   <ItemGroup>
     <!-- Loaded with EmbeddedResources.GetImage(typeof(JiraPlugin), "Jira") -->
-    <EmbeddedResource Include="Jira.png" LogicalName="Greenshot.Plugin.Jira.JiraPlugin.Jira" />
+    <EmbeddedResource Include="Images\Jira.png" LogicalName="Greenshot.Plugin.Jira.JiraPlugin.Jira" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />

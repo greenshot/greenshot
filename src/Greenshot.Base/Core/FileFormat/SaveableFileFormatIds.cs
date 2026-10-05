@@ -22,7 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Greenshot.Base.Pipeline.Contracts;
+using Greenshot.Base.Recipes.Contracts;
 
 namespace Greenshot.Base.Core.FileFormat;
 

@@ -27,6 +27,7 @@ using System.Linq;
 // Kernel32Api is required to attach to (or allocate) a Windows console window before
 // printing help text, because Greenshot is built as a WinExe and has no console by default.
 using Dapplo.Windows.Kernel32;
+using Greenshot.Ipc.Cli;
 
 namespace Greenshot.Helpers
 {
@@ -68,7 +69,7 @@ namespace Greenshot.Helpers
     /// <summary>
     /// Parses Greenshot.exe's command line: leading startup options, which only Greenshot.exe itself uses
     /// (--language, --ini-directory, --no-run, --restore, --help), followed by an optional Greenshot command.
-    /// The command is not interpreted here: it is parsed by <see cref="Ipc.CliCommandParser"/>, like every
+    /// The command is not interpreted here: it is parsed by <see cref="CliCommandParser"/>, like every
     /// command that reaches Greenshot through greenshot-cli.exe or greenshot-proxy.exe.
     /// </summary>
     internal static class GreenshotCommandLine

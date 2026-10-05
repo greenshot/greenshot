@@ -30,6 +30,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Forms;
+using Greenshot.Ipc;
 using log4net;
 using Greenshot.Base.Threading;
 using System.Threading.Tasks;
@@ -103,7 +104,7 @@ namespace Greenshot.Helpers
             // The Restart Manager closes Greenshot for an installer (update or uninstall): greenshot-mcp has to exit too,
             // otherwise it keeps the installation directory locked
             bool closedForInstaller = endSessionMessage.EndSessionReason.HasFlag(Dapplo.Windows.AppRestartManager.Enums.EndSessionReasons.ENDSESSION_CLOSEAPP);
-            NotifyClientsOfShutdown(closedForInstaller ? Ipc.NamedPipeServer.ShutdownReasonUpdate : Ipc.NamedPipeServer.ShutdownReasonSessionEnd);
+            NotifyClientsOfShutdown(closedForInstaller ? NamedPipeServer.ShutdownReasonUpdate : NamedPipeServer.ShutdownReasonSessionEnd);
             SaveEditorState();
             // Don't wait for the exit, the editors might want to ask the user something
             UiDispatcher.Current.RunOnUiAsync(() =>

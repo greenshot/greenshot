@@ -30,13 +30,16 @@ using Dapplo.Ini;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Languages;
+using Greenshot.Plugin.ExternalCommand.Destinations;
+using Greenshot.Plugin.ExternalCommand.Recipes;
+using Greenshot.Plugin.ExternalCommand.Views;
 
 namespace Greenshot.Plugin.ExternalCommand;
 
@@ -127,7 +130,7 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRec
         // The destinations come from the loaded configuration
         services.AddServices(CreateDestinations);
         services.AddRecipeStepProvider(this);
-        services.AddSettingsView<IExternalCommandConfiguration>(_ => new Forms.ExternalCommandConfigurationControl());
+        services.AddSettingsView<IExternalCommandConfiguration>(_ => new ExternalCommandConfigurationView());
     }
 
     public object CreateSettingsViewModel(IServiceProvider services) => ExternalCommandConfig;

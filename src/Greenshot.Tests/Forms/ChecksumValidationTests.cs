@@ -22,7 +22,7 @@
 
 using System;
 using System.IO;
-using Greenshot.UI.SelfService;
+using Greenshot.SelfService.ViewModels;
 using Xunit;
 
 namespace Greenshot.Tests.Forms

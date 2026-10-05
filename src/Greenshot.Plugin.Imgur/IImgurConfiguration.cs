@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using Dapplo.Ini.Attributes;
 using Dapplo.Ini.Interfaces;
+using Greenshot.Plugin.Imgur.Api;
 
 namespace Greenshot.Plugin.Imgur;
 

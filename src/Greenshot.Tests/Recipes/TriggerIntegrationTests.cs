@@ -25,11 +25,9 @@ using System.Drawing;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
-using Greenshot.Base.Triggers;
-using Greenshot.Pipeline.Steps;
-using Greenshot.Triggers;
+using Greenshot.Base.Recipes.Triggers;
+using Greenshot.Recipes.Triggers;
 using Xunit;
 
 namespace Greenshot.Tests.Recipes

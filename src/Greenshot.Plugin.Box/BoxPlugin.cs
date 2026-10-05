@@ -30,11 +30,14 @@ using Greenshot.Base.Core;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Threading;
-using Greenshot.Plugin.Box.Forms;
+using Greenshot.Plugin.Box.Api;
+using Greenshot.Plugin.Box.Destinations;
 using Greenshot.Base.Languages;
+using Greenshot.Plugin.Box.Recipes;
+using Greenshot.Plugin.Box.Views;
 
 namespace Greenshot.Plugin.Box;
 
@@ -68,7 +71,7 @@ public class BoxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvi
         services.AddService<IIconProvider>(BoxDestination.Icons);
         services.AddService<IDestination>(new BoxDestination(this));
         services.AddRecipeStepProvider(this);
-        services.AddSettingsView<IBoxConfiguration>(config => new Forms.BoxConfigurationControl(config));
+        services.AddSettingsView<IBoxConfiguration>(config => new BoxConfigurationView(config));
     }
 
     public object CreateSettingsViewModel(IServiceProvider services) => _config;

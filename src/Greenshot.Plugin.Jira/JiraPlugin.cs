@@ -33,10 +33,13 @@ using Greenshot.Base.Core;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Threading;
-using Greenshot.Plugin.Jira.Forms;
+using Greenshot.Plugin.Jira.Api;
+using Greenshot.Plugin.Jira.Destinations;
+using Greenshot.Plugin.Jira.Recipes;
+using Greenshot.Plugin.Jira.Views;
 using log4net;
 using System.Threading;
 using Greenshot.Base.Languages;
@@ -81,7 +84,7 @@ public class JiraPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProv
         services.AddService<IIconProvider>(new JiraIconProvider());
         services.AddService<IDestination>(new JiraDestination());
         services.AddRecipeStepProvider(this);
-        services.AddSettingsView<IJiraConfiguration>(config => new Forms.JiraConfigurationControl(config));
+        services.AddSettingsView<IJiraConfiguration>(config => new JiraConfigurationView(config));
     }
 
     public object CreateSettingsViewModel(IServiceProvider services) => _config;
@@ -101,7 +104,7 @@ public class JiraPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProv
     /// </summary>
     public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken)
     {
-        services.GetService<IDialogViewRegistry>()?.Register<JiraUploadRequest, JiraUploadChoice>(Forms.JiraUploadWindow.Show);
+        services.GetService<IDialogViewRegistry>()?.Register<JiraUploadRequest, JiraUploadChoice>(JiraUploadWindow.Show);
         return services.GetRequiredService<IUiDispatcher>().RunOnUiAsync(Start, cancellationToken);
     }
 

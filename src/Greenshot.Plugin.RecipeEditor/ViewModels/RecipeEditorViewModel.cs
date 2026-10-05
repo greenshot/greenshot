@@ -9,11 +9,12 @@ using System.Windows.Input;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
-using Greenshot.Base.Triggers;
+using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Base.Wpf;
 using Greenshot.Plugin.RecipeEditor.Layout;
+using Greenshot.Plugin.RecipeEditor.Views;
 using log4net;
 using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
@@ -1753,7 +1754,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 },
                 OpenExtension);
 
-            var dlg = new Dialogs.RecipeManagerDialog(vm)
+            var dlg = new RecipeManagerWindow(vm)
             {
                 Owner = Application.Current?.Windows.OfType<RecipeEditorWindow>().FirstOrDefault()
             };

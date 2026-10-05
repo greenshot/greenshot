@@ -28,14 +28,16 @@ using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Plugin.Office.Destinations;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Languages;
+using Greenshot.Plugin.Office.Recipes;
+using Greenshot.Plugin.Office.Views;
 
 namespace Greenshot.Plugin.Office
 {
@@ -144,7 +146,7 @@ namespace Greenshot.Plugin.Office
             // The destinations look for the Office installation and read the configuration
             services.AddServices(() => Destinations().ToList());
             services.AddRecipeStepProvider(this);
-            services.AddSettingsView<IOfficeConfiguration>(_ => new Forms.OfficeConfigurationControl());
+            services.AddSettingsView<IOfficeConfiguration>(_ => new OfficeConfigurationView());
         }
 
         public object CreateSettingsViewModel(IServiceProvider services) => _config;

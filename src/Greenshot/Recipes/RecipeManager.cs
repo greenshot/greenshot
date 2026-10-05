@@ -28,12 +28,16 @@ using System.Threading;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
-using Greenshot.Base.Triggers;
+using Greenshot.Base.Recipes.Contracts;
+using Greenshot.Base.Recipes.Triggers;
+using Greenshot.Recipes.Approval;
+using Greenshot.Recipes.Triggers;
+using Greenshot.Recipes.Views;
 using log4net;
 using System.Threading.Tasks;
 using Greenshot.Base.Threading;
+using Greenshot.Helpers;
 
 namespace Greenshot.Recipes
 {
@@ -381,126 +385,15 @@ namespace Greenshot.Recipes
                 .AddTransition("ocr", "export");
             RegisterBuiltIn(ocrRecipe, disabled);
 
-#if !GREENSHOT_LIGHT
-            // Greenshot Light has no browser extension and no AI tools
-
-            // 9. Browser Extension Capture
-            var extensionRecipe = new CaptureRecipe(
-                RecipeIdExtension,
-                "Capture from browser extension",
-                "Process screenshots received from the browser extension and choose destination interactively")
-                .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Extension, captureMouse: false))
-                .AddNode(RecipeStepConfig.CreateDynamicDestination("export", "Export Browser Capture"))
-                .AddTrigger(TriggerConfig.CreateExtension(name: "Default Browser Extension Trigger"));
-            extensionRecipe.Flow = new RecipeFlowConfig("acquire")
-                .AddTransition("acquire", "export");
-            RecipeStepConfig.AddStandardSlots(extensionRecipe, "export", "export");
-            RegisterBuiltIn(extensionRecipe, disabled);
-
-            RegisterAiToolRecipes(disabled);
-#endif
-        }
-
-#if !GREENSHOT_LIGHT
-        /// <summary>
-        /// The tools AI tools get (greenshot-mcp.exe): capturing a window, a region or the screen, optionally with OCR.
-        /// The image and text go back to the AI tool, there is no destination.
-        /// </summary>
-        private void RegisterAiToolRecipes(ISet<string> disabled)
-        {
-            var ocrArgument = new CommandlineArgument
+            // The optional parts (browser extension, AI tools), Greenshot Light has none of them
+            foreach (var provider in GreenshotModules.Create<IBuiltInRecipeProvider>())
             {
-                Name = "ocr",
-                Variable = "Ocr",
-                Type = ContractDataType.Boolean,
-                DefaultValue = "false",
-                Description = "true to also return the text in the image (OCR) with the position of each line"
-            };
-
-            var windowRecipe = new CaptureRecipe(
-                RecipeIdAiCaptureWindow,
-                "AI tool: capture window",
-                "Captures a window for an AI tool, with its exact contents (also when it is covered), without activating it")
-                .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Window, captureMouse: false, delayMs: 0).Set("WindowHandle", "${Window}"))
-                .AddNode(CreateOcrCondition("ocr_wanted"))
-                .AddNode(RecipeStepConfig.CreateProcessors("ocr", new[] { "Windows10OcrProcessor" }))
-                .AddTrigger(TriggerConfig.CreateAiTool(
-                    "capture_window",
-                    "Screenshot of one window, with its exact contents even when other windows cover it. The window is not activated. " +
-                    "Use list_windows first and pass the id of the window (e.g. w7).",
-                    new[]
-                    {
-                        new CommandlineArgument
-                        {
-                            Name = "window",
-                            Variable = "Window",
-                            Type = ContractDataType.Window,
-                            Required = true,
-                            Description = "The id of the window from list_windows, e.g. w7"
-                        },
-                        ocrArgument
-                    },
-                    title: "Capture window"));
-            windowRecipe.Flow = new RecipeFlowConfig("acquire")
-                .AddTransition("acquire", "ocr_wanted")
-                .AddConditionalTransition("ocr_wanted", "ocr", "ocr");
-            RegisterBuiltIn(windowRecipe, disabled);
-
-            var regionRecipe = new CaptureRecipe(
-                RecipeIdAiCaptureRegion,
-                "AI tool: capture region",
-                "Captures a part of the screen for an AI tool")
-                .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Region, captureMouse: false, delayMs: 0))
-                .AddNode(CreateOcrCondition("ocr_wanted"))
-                .AddNode(RecipeStepConfig.CreateProcessors("ocr", new[] { "Windows10OcrProcessor" }))
-                .AddTrigger(TriggerConfig.CreateAiTool(
-                    "capture_region",
-                    "Screenshot of a part of the screen, in screen coordinates (list_windows has the bounds of the windows and displays). " +
-                    "Use it to see details at full resolution.",
-                    new[]
-                    {
-                        new CommandlineArgument
-                        {
-                            Name = "region",
-                            Variable = "PreSuppliedRegion",
-                            Type = ContractDataType.Region,
-                            Required = true,
-                            Description = "x,y,width,height in screen coordinates, e.g. 0,0,800,600"
-                        },
-                        ocrArgument
-                    },
-                    title: "Capture region"));
-            regionRecipe.Flow = new RecipeFlowConfig("acquire")
-                .AddTransition("acquire", "ocr_wanted")
-                .AddConditionalTransition("ocr_wanted", "ocr", "ocr");
-            RegisterBuiltIn(regionRecipe, disabled);
-
-            var screenRecipe = new CaptureRecipe(
-                RecipeIdAiCaptureScreen,
-                "AI tool: capture screen",
-                "Captures all displays for an AI tool")
-                .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.FullScreen, captureMouse: false, delayMs: 0, screenMode: ScreenCaptureMode.FullScreen))
-                .AddNode(CreateOcrCondition("ocr_wanted"))
-                .AddNode(RecipeStepConfig.CreateProcessors("ocr", new[] { "Windows10OcrProcessor" }))
-                .AddTrigger(TriggerConfig.CreateAiTool(
-                    "capture_screen",
-                    "Screenshot of all displays. For one display or a part of the screen use capture_region with the bounds from list_windows.",
-                    new[] { ocrArgument },
-                    title: "Capture screen"));
-            screenRecipe.Flow = new RecipeFlowConfig("acquire")
-                .AddTransition("acquire", "ocr_wanted")
-                .AddConditionalTransition("ocr_wanted", "ocr", "ocr");
-            RegisterBuiltIn(screenRecipe, disabled);
+                foreach (var recipe in provider.CreateRecipes())
+                {
+                    RegisterBuiltIn(recipe, disabled);
+                }
+            }
         }
-
-        /// <summary>
-        /// Continues with the node "ocr" when the Ocr argument is true, otherwise the flow ends
-        /// </summary>
-        private static RecipeNodeConfig CreateOcrCondition(string id)
-        {
-            return RecipeStepConfig.CreateConditional(id, new[] { new KeyValuePair<string, string>("ocr", "${Ocr}") }).WithName("OCR wanted?");
-        }
-#endif
 
         private HashSet<string> GetDisabledRecipeIds()
         {
@@ -971,7 +864,7 @@ namespace Greenshot.Recipes
                         foreach (var err in valResult.Errors) overallResult.AddError($"[{recipe.Id ?? "unknown"}]: {err}");
                         if (interactiveApproval)
                         {
-                            UI.RecipeApprovalWindow.ShowValidationError(filePath, valResult, recipe);
+                            RecipeApprovalWindow.ShowValidationError(filePath, valResult, recipe);
                         }
                         continue;
                     }
@@ -1061,7 +954,7 @@ namespace Greenshot.Recipes
                 overallResult.AddError($"Exception reading recipe file: {ex.Message}");
                 if (interactiveApproval)
                 {
-                    UI.RecipeApprovalWindow.ShowValidationError(filePath, rawErrorMessage: ex.Message);
+                    RecipeApprovalWindow.ShowValidationError(filePath, rawErrorMessage: ex.Message);
                 }
             }
 
@@ -1083,10 +976,10 @@ namespace Greenshot.Recipes
         /// What the approval window shows for a recipe from a file: the content that was read, the earlier approval, and the
         /// built-in recipe it replaces
         /// </summary>
-        private UI.RecipeApprovalRequest CreateApprovalRequest(CaptureRecipe recipe, string filePath, string content, string contentHash, RecipeValidationResult valResult)
+        private RecipeApprovalRequest CreateApprovalRequest(CaptureRecipe recipe, string filePath, string content, string contentHash, RecipeValidationResult valResult)
         {
             var previousRecord = RecipeTrustStore.GetTrustRecord(filePath);
-            var request = new UI.RecipeApprovalRequest
+            var request = new RecipeApprovalRequest
             {
                 Recipe = recipe,
                 FilePath = filePath,
@@ -1133,7 +1026,7 @@ namespace Greenshot.Recipes
         /// <summary>
         /// Show the approval dialog (modal, on the UI thread). Returns what the user approved, null when the recipe was rejected.
         /// </summary>
-        internal UI.RecipeApprovalWindow.ApprovalResult RequestInteractiveApprovalWithOptions(UI.RecipeApprovalRequest request)
+        internal ApprovalResult RequestInteractiveApprovalWithOptions(RecipeApprovalRequest request)
         {
             if (!UiDispatcher.Current.CheckAccess())
             {
@@ -1141,7 +1034,7 @@ namespace Greenshot.Recipes
                 return null;
             }
 
-            var window = new UI.RecipeApprovalWindow(request)
+            var window = new RecipeApprovalWindow(request)
             {
                 Topmost = true,
                 ShowActivated = true,
@@ -1195,12 +1088,12 @@ namespace Greenshot.Recipes
             if (window.ShowDialog() == true && window.Approval != null)
             {
                 window.Approval.ReplacesBuiltIn = request.ReplacesBuiltIn;
-                return new UI.RecipeApprovalWindow.ApprovalResult(window.Approval, window.OpenInEditor);
+                return new ApprovalResult(window.Approval, window.OpenInEditor);
             }
-            return window.IsRevoked ? UI.RecipeApprovalWindow.ApprovalResult.Revoked : null;
+            return window.IsRevoked ? ApprovalResult.Revoked : null;
         }
 
-        private RecipeApproval RequestInteractiveApproval(UI.RecipeApprovalRequest request)
+        private RecipeApproval RequestInteractiveApproval(RecipeApprovalRequest request)
         {
             return RequestInteractiveApprovalWithOptions(request)?.Approval;
         }
@@ -1208,7 +1101,7 @@ namespace Greenshot.Recipes
         private void NotifyRecipesChanged()
         {
             RecomposeRecipes();
-            var triggerManager = SimpleServiceProvider.Current.GetInstance<Greenshot.Base.Triggers.ITriggerManager>(isOptional: true) as Triggers.TriggerManager ?? Triggers.TriggerManager.Instance;
+            var triggerManager = SimpleServiceProvider.Current.GetInstance<Greenshot.Base.Recipes.Triggers.ITriggerManager>(isOptional: true) as TriggerManager ?? TriggerManager.Instance;
             triggerManager?.SyncRecipeTriggers(GetAllRecipes());
             RecipesChanged?.Invoke(this, EventArgs.Empty);
         }
@@ -1384,7 +1277,7 @@ namespace Greenshot.Recipes
                 return false;
             }
 
-            UI.RecipeApprovalRequest request;
+            RecipeApprovalRequest request;
             if (!string.IsNullOrEmpty(recipe.FilePath) && File.Exists(recipe.FilePath))
             {
                 byte[] bytes = File.ReadAllBytes(recipe.FilePath);
@@ -1398,7 +1291,7 @@ namespace Greenshot.Recipes
             }
             else
             {
-                request = new UI.RecipeApprovalRequest
+                request = new RecipeApprovalRequest
                 {
                     Recipe = recipe,
                     Content = RecipeSerializer.Serialize(recipe),
@@ -1407,7 +1300,7 @@ namespace Greenshot.Recipes
             }
             request.IsReadOnly = true;
 
-            var window = new UI.RecipeApprovalWindow(request)
+            var window = new RecipeApprovalWindow(request)
             {
                 Owner = System.Windows.Application.Current?.Windows.OfType<System.Windows.Window>().FirstOrDefault(w => w.IsActive),
                 ShowActivated = true

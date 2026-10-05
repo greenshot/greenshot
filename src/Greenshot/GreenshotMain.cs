@@ -37,6 +37,7 @@ using Greenshot.Configuration;
 using Greenshot.Editor.Configuration;
 using Greenshot.Forms;
 using Greenshot.Helpers;
+using Greenshot.Views;
 using log4net;
 
 namespace Greenshot;
@@ -190,7 +191,7 @@ public class GreenshotMain
             return;
         }
 
-        UI.BugReportWindow.ShowReport(exceptionToLog, exceptionText);
+        BugReportWindow.ShowReport(exceptionToLog, exceptionText);
     }
 
     internal static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -205,7 +206,7 @@ public class GreenshotMain
             return;
         }
 
-        UI.BugReportWindow.ShowReport(exceptionToLog, exceptionText, e.IsTerminating);
+        BugReportWindow.ShowReport(exceptionToLog, exceptionText, e.IsTerminating);
     }
 
     internal static void Task_UnhandledException(object sender, UnobservedTaskExceptionEventArgs args)
@@ -216,7 +217,7 @@ public class GreenshotMain
             string exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
             LOG.Error("Exception caught in the UnobservedTaskException handler.");
             LOG.Error(exceptionText);
-            UI.BugReportWindow.ShowReport(exceptionToLog, exceptionText);
+            BugReportWindow.ShowReport(exceptionToLog, exceptionText);
         }
         finally
         {

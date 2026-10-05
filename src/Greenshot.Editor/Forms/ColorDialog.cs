@@ -23,6 +23,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Windows.Interop;
+using Greenshot.Editor.Views;
 
 namespace Greenshot.Editor.Forms
 {

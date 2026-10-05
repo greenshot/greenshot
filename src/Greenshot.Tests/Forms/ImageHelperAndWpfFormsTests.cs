@@ -26,23 +26,27 @@ using System.Threading;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
+using Greenshot.Base.Wpf.ViewModels;
+using Greenshot.Base.Wpf.Views;
 using Greenshot.Plugin.Box;
-using Greenshot.Plugin.Box.Forms;
+using Greenshot.Plugin.Box.Views;
 using Greenshot.Plugin.Confluence;
-using Greenshot.Plugin.Confluence.Forms;
+using Greenshot.Plugin.Confluence.Destinations;
+using Greenshot.Plugin.Confluence.Views;
 using Greenshot.Plugin.Dropbox;
-using Greenshot.Plugin.Dropbox.Forms;
+using Greenshot.Plugin.Dropbox.Views;
 using Greenshot.Plugin.ExternalCommand;
-using Greenshot.Plugin.ExternalCommand.Forms;
+using Greenshot.Plugin.ExternalCommand.Views;
 using Greenshot.Plugin.Imgur;
-using Greenshot.Plugin.Imgur.Forms;
+using Greenshot.Plugin.Imgur.Views;
 using Greenshot.Plugin.Jira;
-using Greenshot.Plugin.Jira.Forms;
-using Greenshot.Forms.Wpf;
+using Greenshot.Plugin.Jira.Views;
 using Greenshot.Plugin.Zxing;
+using Greenshot.Plugin.Zxing.Drawing;
 using Greenshot.Plugin.Zxing.Views;
+using Greenshot.ViewModels;
+using Greenshot.Views;
 using Xunit;
-using Greenshot.Plugin.Zxing.Controls;
 using System.Threading.Tasks;
 using Greenshot.Base.Languages;
 
@@ -113,35 +117,35 @@ namespace Greenshot.Tests.Forms
                 try
                 {
                     var boxConfig = IniConfigHelper.EnsureSection<IBoxConfiguration>(() => new BoxConfigurationImpl());
-                    var boxControl = new BoxConfigurationControl(boxConfig);
+                    var boxControl = new BoxConfigurationView(boxConfig);
                     Assert.NotNull(boxControl);
 
                     var dropboxConfig = IniConfigHelper.EnsureSection<IDropboxConfiguration>(() => new DropboxConfigurationImpl());
-                    var dropboxControl = new DropboxConfigurationControl(dropboxConfig);
+                    var dropboxControl = new DropboxConfigurationView(dropboxConfig);
                     Assert.NotNull(dropboxControl);
 
                     var imgurConfig = IniConfigHelper.EnsureSection<IImgurConfiguration>(() => new ImgurConfigurationImpl());
-                    var imgurControl = new ImgurConfigurationControl(imgurConfig);
+                    var imgurControl = new ImgurConfigurationView(imgurConfig);
                     Assert.NotNull(imgurControl);
 
                     var jiraConfig = IniConfigHelper.EnsureSection<IJiraConfiguration>(() => new JiraConfigurationImpl());
-                    var jiraControl = new JiraConfigurationControl(jiraConfig);
+                    var jiraControl = new JiraConfigurationView(jiraConfig);
                     Assert.NotNull(jiraControl);
 
                     var zxingConfig = IniConfigHelper.EnsureSection<IZxingConfiguration>(() => new ZxingConfigurationImpl());
-                    var zxingControl = new ZxingConfigurationControl(zxingConfig);
+                    var zxingControl = new ZxingConfigurationView(zxingConfig);
                     Assert.NotNull(zxingControl);
 
                     IniConfigHelper.EnsureSection<IExternalCommandConfiguration>(() => new ExternalCommandConfigurationImpl());
-                    var extCmdControl = new ExternalCommandConfigurationControl();
+                    var extCmdControl = new ExternalCommandConfigurationView();
                     Assert.NotNull(extCmdControl);
 
                     var confluenceConfig = IniConfigHelper.EnsureSection<IConfluenceConfiguration>(() => new ConfluenceConfigurationImpl());
-                    var confluenceControl = new ConfluenceConfigurationControl(confluenceConfig);
+                    var confluenceControl = new ConfluenceConfigurationView(confluenceConfig);
                     Assert.NotNull(confluenceControl);
 
                     IniConfigHelper.EnsureSection<Greenshot.Plugin.Office.IOfficeConfiguration>(() => new Greenshot.Plugin.Office.OfficeConfigurationImpl());
-                    var officeControl = new Greenshot.Plugin.Office.Forms.OfficeConfigurationControl();
+                    var officeControl = new Greenshot.Plugin.Office.Views.OfficeConfigurationView();
                     Assert.NotNull(officeControl);
                     Assert.Equal(5, officeControl.OfficeApps.Count);
                     Assert.NotNull(officeControl.SelectedApp);
@@ -155,14 +159,14 @@ namespace Greenshot.Tests.Forms
 
                     var instances = new[]
                     {
-                        new Greenshot.Forms.Wpf.RunningInstanceItem
+                        new Greenshot.ViewModels.RunningInstanceViewModel
                         {
                             Index = 1,
                             ProcessId = 1234,
                             Path = @"C:\Program Files\Greenshot\Greenshot.exe"
                         }
                     };
-                    var instanceRunningWindow = new Greenshot.Forms.Wpf.InstanceRunningWindow(instances);
+                    var instanceRunningWindow = new Greenshot.Views.InstanceRunningWindow(instances);
                     Assert.NotNull(instanceRunningWindow);
                 }
                 catch (Exception ex)
@@ -195,7 +199,7 @@ namespace Greenshot.Tests.Forms
             {
                 try
                 {
-                    var window = new Greenshot.Editor.Forms.ColorPickerWindow
+                    var window = new Greenshot.Editor.Views.ColorPickerWindow
                     {
                         SelectedColor = System.Drawing.Color.CornflowerBlue
                     };
@@ -225,23 +229,23 @@ namespace Greenshot.Tests.Forms
                 try
                 {
                     // Greenshot WPF windows
-                    var languageWindow = new Greenshot.Forms.Wpf.LanguageWindow();
+                    var languageWindow = new Greenshot.Views.LanguageWindow();
                     Assert.NotNull(languageWindow);
 
-                    var printOptionsWindow = new Greenshot.Forms.Wpf.PrintOptionsWindow();
+                    var printOptionsWindow = new Greenshot.Views.PrintOptionsWindow();
                     Assert.NotNull(printOptionsWindow);
 
                     // Greenshot.Editor WPF windows
-                    var dropShadowWindow = new Greenshot.Editor.Forms.DropShadowSettingsWindow();
+                    var dropShadowWindow = new Greenshot.Editor.Views.DropShadowSettingsWindow();
                     Assert.NotNull(dropShadowWindow);
 
-                    var tornEdgeWindow = new Greenshot.Editor.Forms.TornEdgeSettingsWindow();
+                    var tornEdgeWindow = new Greenshot.Editor.Views.TornEdgeSettingsWindow();
                     Assert.NotNull(tornEdgeWindow);
 
-                    var resizeWindow = new Greenshot.Editor.Forms.ResizeSettingsWindow();
+                    var resizeWindow = new Greenshot.Editor.Views.ResizeSettingsWindow();
                     Assert.NotNull(resizeWindow);
 
-                    var textObfuscationWindow = new Greenshot.Editor.Forms.TextObfuscationWindow();
+                    var textObfuscationWindow = new Greenshot.Editor.Views.TextObfuscationWindow();
                     Assert.NotNull(textObfuscationWindow);
                 }
                 catch (Exception ex)
@@ -349,7 +353,7 @@ namespace Greenshot.Tests.Forms
                 try
                 {
                     var config = IniConfigHelper.EnsureSection<IExternalCommandConfiguration>(() => new ExternalCommandConfigurationImpl());
-                    var control = new ExternalCommandConfigurationControl();
+                    var control = new ExternalCommandConfigurationView();
 
                     // Quicklink
                     bool origQuicklink = control.QuicklinkEnabled;
@@ -548,7 +552,7 @@ namespace Greenshot.Tests.Forms
             {
                 try
                 {
-                    var modal = new HotkeyEditorModal();
+                    var modal = new HotkeyEditorView();
                     Assert.NotNull(modal.DataContext);
                     Assert.IsType<HotkeyEditorViewModel>(modal.DataContext);
                 }

@@ -32,7 +32,9 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Threading;
 using Greenshot.Configuration;
-using log4net;
+using Greenshot.Settings.Views;
+using log4net;
+
 using Greenshot.Base.Languages;
 
 namespace Greenshot.Destinations
@@ -247,7 +249,7 @@ namespace Greenshot.Destinations
 
             await userInteraction.ConfirmAsync(Texts.Core.Error, Texts.Core.ErrorSaveInvalidChars, true, cancellationToken).ConfigureAwait(false);
             // ... lets get the pattern fixed....
-            bool fixedPattern = await UiDispatcher.Current.InvokeAsync(() => new Forms.Wpf.SettingsWindow().ShowDialog() == true, cancellationToken).ConfigureAwait(false);
+            bool fixedPattern = await UiDispatcher.Current.InvokeAsync(() => new SettingsWindow().ShowDialog() == true, cancellationToken).ConfigureAwait(false);
             // ... OK -> then try again, cancelled -> no file
             return fixedPattern ? await CreateNewFilenameAsync(captureDetails, userInteraction, cancellationToken).ConfigureAwait(false) : null;
         }

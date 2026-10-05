@@ -23,7 +23,7 @@ using System;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Pipeline;
+using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Editor;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Drawing;

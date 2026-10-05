@@ -33,11 +33,11 @@ using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.FileFormatHandlers;
-using Greenshot.Pipeline;
+using Greenshot.Recipes.Pipeline;
 using Xunit;
 
 namespace Greenshot.Tests.Recipes

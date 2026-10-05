@@ -51,7 +51,12 @@ using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Help;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
+using Greenshot.Base.Recipes.Contracts;
+using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Base.Threading;
+using Greenshot.Capturing;
+using Greenshot.Capturing.Views;
 using Greenshot.Configuration;
 using Greenshot.Controls;
 using Greenshot.Destinations;
@@ -59,25 +64,26 @@ using Greenshot.Editor;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Forms;
-using Greenshot.Forms.Wpf;
-using Greenshot.Base.Pipeline;
-using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
-using Greenshot.Base.Triggers;
 using Greenshot.Helpers;
-using Greenshot.Helpers.Ipc;
-using Greenshot.Pipeline;
+using Greenshot.Ipc;
+using Greenshot.Ipc.Cli;
 using Greenshot.Plugin.Win10;
 using Greenshot.Processors;
 using Greenshot.Recipes;
-using Greenshot.Triggers;
-using Greenshot.UI;
-using Greenshot.UI.Capture;
+using Greenshot.Recipes.Pipeline;
+using Greenshot.Recipes.Triggers;
+using Greenshot.Settings.Views;
+using Greenshot.ViewModels;
+using Greenshot.Views;
 using log4net;
 
 using Timer = System.Timers.Timer;
 using Greenshot.Base.Native;
 using Greenshot.Base.Languages;
+#if !GREENSHOT_LIGHT
+using Greenshot.Plugins;
+#endif
 
 namespace Greenshot.Forms
 {
@@ -146,7 +152,7 @@ namespace Greenshot.Forms
 
                 if (isAlreadyRunning)
                 {
-                    var instances = new List<RunningInstanceItem>();
+                    var instances = new List<RunningInstanceViewModel>();
                     bool matchedThisProcess = false;
                     int index = 1;
                     int currentProcessId;
@@ -160,7 +166,7 @@ namespace Greenshot.Forms
                         try
                         {
                             string path = Kernel32Api.GetProcessPath(greenshotProcess.Id);
-                            instances.Add(new RunningInstanceItem
+                            instances.Add(new RunningInstanceViewModel
                             {
                                 Index = index++,
                                 ProcessId = greenshotProcess.Id,
@@ -182,7 +188,7 @@ namespace Greenshot.Forms
                     if (!matchedThisProcess)
                     {
                         using Process currentProcess = Process.GetCurrentProcess();
-                        instances.Add(new RunningInstanceItem
+                        instances.Add(new RunningInstanceViewModel
                         {
                             Index = index,
                             ProcessId = currentProcess.Id,
@@ -402,7 +408,7 @@ namespace Greenshot.Forms
             // if language is not set, show language dialog
             if (string.IsNullOrEmpty(_conf.Language))
             {
-                var languageWindow = new Greenshot.Forms.Wpf.LanguageWindow();
+                var languageWindow = new Greenshot.Views.LanguageWindow();
                 languageWindow.ShowDialog(this);
                 Texts.SetLanguage(languageWindow.SelectedLanguage);
             }
@@ -828,7 +834,7 @@ namespace Greenshot.Forms
 
             _recipesMenuItem.DropDownItems.Clear();
 
-            var triggerManager = SimpleServiceProvider.Current.GetInstance<Greenshot.Base.Triggers.ITriggerManager>(isOptional: true) as Triggers.TriggerManager ?? Triggers.TriggerManager.Instance;
+            var triggerManager = SimpleServiceProvider.Current.GetInstance<Greenshot.Base.Recipes.Triggers.ITriggerManager>(isOptional: true) as TriggerManager ?? TriggerManager.Instance;
             var recipeManager = SimpleServiceProvider.Current.GetInstance<Greenshot.Base.Recipes.IRecipeManager>(isOptional: true) ?? Recipes.RecipeManager.Instance;
 
             var menuTriggers = triggerManager.GetContextMenuTriggers();
