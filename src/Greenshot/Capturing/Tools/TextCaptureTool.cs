@@ -37,7 +37,7 @@ using CaptureMode = Greenshot.Base.Interfaces.CaptureMode;
 using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
 
-namespace Greenshot.UI.Capture.Tools
+namespace Greenshot.Capturing.Tools
 {
     /// <summary>
     /// Select text: the text lines of the OCR are shown, a click selects a line, a drag the words in the rectangle

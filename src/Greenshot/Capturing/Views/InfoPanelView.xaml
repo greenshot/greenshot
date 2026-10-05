@@ -1,8 +1,8 @@
 <!--
-    The content of the info panel of the capture window, bound to InfoViewModel. The panel around it (background, border,
+    The content of the info panel of the capture window, bound to InfoPanelViewModel. The panel around it (background, border,
     font, foreground) and the theme brushes come from the capture window, see CaptureToolStyle.CreatePanel.
 -->
-<UserControl x:Class="Greenshot.UI.Capture.Tools.InfoPanel"
+<UserControl x:Class="Greenshot.Capturing.Views.InfoPanelView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <UserControl.Resources>

@@ -28,7 +28,7 @@ using Greenshot.Base.Interfaces.Capture;
 using Greenshot.Base.Languages;
 using CaptureMode = Greenshot.Base.Interfaces.CaptureMode;
 
-namespace Greenshot.UI.Capture.Tools
+namespace Greenshot.Capturing.Tools
 {
     /// <summary>
     /// The selection follows the (child) window under the cursor, a click or Enter selects it. D shows debug information.

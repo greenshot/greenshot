@@ -26,7 +26,7 @@ using System.Linq;
 using System.Windows.Input;
 using Greenshot.Base.Interfaces.Capture;
 
-namespace Greenshot.UI.Capture
+namespace Greenshot.Capturing
 {
     /// <summary>
     /// The keys of the CaptureWindow, registered by the window, the tools and the overlays (in that order, so the built-in keys win).

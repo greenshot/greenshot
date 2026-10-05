@@ -32,7 +32,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Capture;
 using Greenshot.Base.Languages;
 
-namespace Greenshot.UI.Capture.Tools
+namespace Greenshot.Capturing.Overlays
 {
     /// <summary>
     /// F1 shows or hides a panel with the keys which work now: those of the active tool first, then those which are always active.

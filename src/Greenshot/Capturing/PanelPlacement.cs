@@ -25,7 +25,7 @@ using System.Linq;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 
-namespace Greenshot.UI.Capture
+namespace Greenshot.Capturing
 {
     /// <summary>
     /// Where a panel of a capture tool or overlay goes (e.g. a help text): in a corner of the monitor with the cursor,

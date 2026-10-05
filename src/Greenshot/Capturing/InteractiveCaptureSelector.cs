@@ -32,10 +32,10 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Pipeline;
 using Greenshot.Base.Threading;
-using Greenshot.UI.Capture;
+using Greenshot.Capturing.Views;
 using log4net;
 
-namespace Greenshot.Pipeline
+namespace Greenshot.Capturing
 {
     /// <summary>
     /// Shows the CaptureWindow on the UI thread (through the IUiDispatcher) and returns the selection to the flow on the pool.

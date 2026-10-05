@@ -22,7 +22,7 @@
 
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
-using Greenshot.UI.Capture;
+using Greenshot.Capturing;
 using Xunit;
 
 namespace Greenshot.Tests.Forms;

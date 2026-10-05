@@ -27,8 +27,8 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Capture;
-using Greenshot.UI.Capture;
-using Greenshot.UI.Capture.Tools;
+using Greenshot.Capturing;
+using Greenshot.Capturing.Tools;
 using Xunit;
 using CaptureMode = Greenshot.Base.Interfaces.CaptureMode;
 

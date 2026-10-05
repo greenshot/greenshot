@@ -25,7 +25,7 @@ using System.Linq;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 
-namespace Greenshot.UI.Capture
+namespace Greenshot.Capturing
 {
     /// <summary>
     /// Where the zoomer goes: next to the cursor, on the screen, and if possible not over the selection or the panels.

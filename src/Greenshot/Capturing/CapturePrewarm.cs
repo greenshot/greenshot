@@ -27,9 +27,10 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Capturing;
+using Greenshot.Capturing.Views;
 using log4net;
 
-namespace Greenshot.UI.Capture
+namespace Greenshot.Capturing
 {
     /// <summary>
     /// The first interactive capture after Greenshot started was slower than the following ones: the capture window, its tools and

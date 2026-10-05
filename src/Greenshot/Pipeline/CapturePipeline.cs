@@ -32,6 +32,7 @@ using Greenshot.Base.Pipeline;
 using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
+using Greenshot.Capturing;
 using Greenshot.Editor.Drawing;
 using Greenshot.Native;
 using Greenshot.Pipeline.Steps;

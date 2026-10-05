@@ -27,7 +27,7 @@ using Greenshot.Base.Interfaces.Capture;
 using Greenshot.Base.Languages;
 using CaptureMode = Greenshot.Base.Interfaces.CaptureMode;
 
-namespace Greenshot.UI.Capture.Tools
+namespace Greenshot.Capturing.Tools
 {
     /// <summary>
     /// Drag a rectangle with the mouse, or start and end it with Enter

@@ -22,14 +22,14 @@
 
 using System.Windows.Controls;
 
-namespace Greenshot.UI.Capture.Tools
+namespace Greenshot.Capturing.Views
 {
     /// <summary>
     /// The content of the info panel, see InfoOverlay
     /// </summary>
-    public partial class InfoPanel : UserControl
+    public partial class InfoPanelView : UserControl
     {
-        public InfoPanel()
+        public InfoPanelView()
         {
             InitializeComponent();
         }

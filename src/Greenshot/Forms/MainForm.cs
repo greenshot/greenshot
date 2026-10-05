@@ -52,6 +52,8 @@ using Greenshot.Base.Help;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Threading;
+using Greenshot.Capturing;
+using Greenshot.Capturing.Views;
 using Greenshot.Configuration;
 using Greenshot.Controls;
 using Greenshot.Destinations;
@@ -72,7 +74,6 @@ using Greenshot.Processors;
 using Greenshot.Recipes;
 using Greenshot.Triggers;
 using Greenshot.UI;
-using Greenshot.UI.Capture;
 using log4net;
 
 using Timer = System.Timers.Timer;

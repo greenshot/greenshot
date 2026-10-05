@@ -19,41 +19,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System.Windows;
-using System.Windows.Media;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Greenshot.Base.Core;
 
-namespace Greenshot.UI.Capture
+namespace Greenshot.Capturing
 {
     /// <summary>
-    /// A layer which is drawn directly: redrawing it doesn't cause a layout pass, which keeps the selection smooth.
+    /// An interactive selector which can prepare its window, and keep the windows to snap to, while the screen is captured
     /// </summary>
-    public sealed class DrawingLayer : FrameworkElement
+    public interface ICaptureWindowPreparer
     {
-        private readonly DrawingVisual _visual = new DrawingVisual();
-
-        public DrawingLayer()
-        {
-            IsHitTestVisible = false;
-            AddVisualChild(_visual);
-        }
-
-        protected override int VisualChildrenCount => 1;
-
-        protected override Visual GetVisualChild(int index) => _visual;
+        /// <summary>
+        /// Called from the thread pool right before the screen is captured for an interactive selection. Doesn't wait for the window.
+        /// </summary>
+        /// <param name="snapWindows">Task which gets the windows to snap to, next to the capture</param>
+        void PrepareWindow(Task<List<WindowDetails>> snapWindows);
 
         /// <summary>
-        /// Replace the content of the layer, dispose the DrawingContext to show it
+        /// The windows to snap to of the last PrepareWindow, when that was recent. Each one is taken once.
         /// </summary>
-        public DrawingContext Open() => _visual.RenderOpen();
-
-        /// <summary>
-        /// Remove the content of the layer
-        /// </summary>
-        public void Clear()
-        {
-            using (_visual.RenderOpen())
-            {
-            }
-        }
+        bool TryTakeSnapWindows(out Task<List<WindowDetails>> snapWindows);
     }
 }

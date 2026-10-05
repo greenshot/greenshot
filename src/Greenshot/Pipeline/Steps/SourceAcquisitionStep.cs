@@ -40,6 +40,7 @@ using Contracts = Greenshot.Base.Pipeline.Contracts;
 
 using Greenshot.Base.Pipeline.Sources;
 using Greenshot.Base.Recipes;
+using Greenshot.Capturing;
 using Greenshot.Helpers.Ipc;
 using Greenshot.Triggers;
 using log4net;

@@ -45,12 +45,14 @@ using Greenshot.Base.Interfaces.Capture;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Languages;
 using Greenshot.Base.Threading;
-using Greenshot.UI.Capture.Tools;
+using Greenshot.Capturing.Controls;
+using Greenshot.Capturing.Overlays;
+using Greenshot.Capturing.Tools;
 using log4net;
 using CaptureMode = Greenshot.Base.Interfaces.CaptureMode;
 using Point = System.Windows.Point;
 
-namespace Greenshot.UI.Capture
+namespace Greenshot.Capturing.Views
 {
     /// <summary>
     /// Lets the user select something on the frozen capture of the screen with one of the capture tools (region, window, text).

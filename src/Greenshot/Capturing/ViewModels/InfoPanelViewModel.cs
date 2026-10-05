@@ -34,107 +34,12 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Capture;
 using Greenshot.Base.Languages;
 
-namespace Greenshot.UI.Capture.Tools
+namespace Greenshot.Capturing.ViewModels
 {
     /// <summary>
-    /// I shows or hides a panel with the resolution of the screen, the selection, the window under the mouse and the mouse position.
-    /// The panel is WPF content bound to a view model: a mouse move only updates the view model.
-    /// Whether it is shown is remembered (CaptureInfoVisible), so it comes back with the next capture.
+    /// What the info panel shows, the bindings of InfoPanelView.xaml update it
     /// </summary>
-    public class InfoOverlay : CaptureOverlay
-    {
-        private static readonly ICoreConfiguration Conf = IniConfigRegistry.GetSection<ICoreConfiguration>();
-        private readonly InfoViewModel _viewModel = new InfoViewModel();
-        private InfoPanel _panel;
-        private bool _visible;
-
-        public override void Attach(ICaptureToolHost host)
-        {
-            base.Attach(host);
-            host.RegisterKey(this, Key.I, ModifierKeys.None, () => Texts.Core.CaptureKeyInfo, Toggle);
-            if (Conf.CaptureInfoVisible)
-            {
-                _visible = true;
-                // Once the window is shown: then the monitor and its DPI are known
-                _ = Dispatcher.CurrentDispatcher.BeginInvoke(new Action(() =>
-                {
-                    if (_visible)
-                    {
-                        Show();
-                    }
-                }), DispatcherPriority.ContextIdle);
-            }
-        }
-
-        public override void OnMouseMove()
-        {
-            if (_visible)
-            {
-                Update();
-            }
-        }
-
-        public override void OnToolChanged() => OnMouseMove();
-
-        private void Toggle()
-        {
-            _visible = !_visible;
-            Conf.CaptureInfoVisible = _visible;
-            if (_visible)
-            {
-                Show();
-            }
-            else
-            {
-                Host.HidePanel(this);
-            }
-        }
-
-        private void Show()
-        {
-            Update();
-            _panel ??= new InfoPanel { DataContext = _viewModel };
-            Host.ShowPanel(this, _panel);
-        }
-
-        private void Update()
-        {
-            var screenBounds = Host.ScreenBounds;
-            var monitor = Host.GetMonitorBounds();
-            _viewModel.Screen = FormatSize(monitor.Width, monitor.Height);
-            _viewModel.AllScreens = FormatSize(screenBounds.Width, screenBounds.Height);
-            _viewModel.HasMoreScreens = monitor.Width != screenBounds.Width || monitor.Height != screenBounds.Height;
-
-            // Positions in screen coordinates, as the user knows them; the host works in capture pixels
-            var selection = Host.Selection;
-            if (selection.IsEmpty)
-            {
-                _viewModel.Selection = Texts.Core.CaptureInfoNoSelection;
-            }
-            else
-            {
-                var size = Host.SelectionSize;
-                if (size.IsEmpty)
-                {
-                    size = new NativeSize(selection.Width, selection.Height);
-                }
-                _viewModel.Selection = $"{FormatSize(size.Width, size.Height)} @ {FormatPoint(selection.X + screenBounds.X, selection.Y + screenBounds.Y)}";
-            }
-
-            _viewModel.Window = Host.FindWindowUnderCursor(false)?.Text ?? string.Empty;
-            var cursor = Host.CursorPosition;
-            _viewModel.Mouse = FormatPoint(cursor.X + screenBounds.X, cursor.Y + screenBounds.Y);
-        }
-
-        private static string FormatSize(int width, int height) => string.Format(CultureInfo.CurrentCulture, "{0} × {1}", width, height);
-
-        private static string FormatPoint(int x, int y) => string.Format(CultureInfo.CurrentCulture, "{0}, {1}", x, y);
-    }
-
-    /// <summary>
-    /// What the info panel shows, the bindings of InfoPanel.xaml update it
-    /// </summary>
-    public class InfoViewModel : INotifyPropertyChanged
+    public class InfoPanelViewModel : INotifyPropertyChanged
     {
         private string _screen = string.Empty;
         private string _allScreens = string.Empty;
