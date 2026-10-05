@@ -386,6 +386,36 @@ namespace Greenshot.Base.Languages
         string Network { get; }
 
         /// <summary>
+        /// Memory and speed
+        /// </summary>
+        string MemoryProfile { get; }
+
+        /// <summary>
+        /// Fast: prepare and keep everything ready (default)
+        /// </summary>
+        string MemoryProfileFast { get; }
+
+        /// <summary>
+        /// Balanced: smooth capture window, nothing else kept ready
+        /// </summary>
+        string MemoryProfileBalanced { get; }
+
+        /// <summary>
+        /// Low memory: software rendering, nothing kept ready
+        /// </summary>
+        string MemoryProfileLowmemory { get; }
+
+        /// <summary>
+        /// Custom
+        /// </summary>
+        string MemoryProfileCustom { get; }
+
+        /// <summary>
+        /// Greenshot prepares the capture and the editor and keeps them ready, so they open fast. That costs memory, most of it in the graphics driver. A profile sets the settings below, which can also be changed one by one.
+        /// </summary>
+        string TooltipMemoryProfile { get; }
+
+        /// <summary>
         /// Text recognition (OCR)
         /// </summary>
         string Ocr { get; }
