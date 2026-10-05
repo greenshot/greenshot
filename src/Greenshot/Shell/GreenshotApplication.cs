@@ -172,18 +172,21 @@ namespace Greenshot.Shell
                 // Make sure we handle END Session correctly
                 RestartManagerHelper.RegisterForRestart(IniConfigRegistry.Get().OverrideDirectory);
 
-                // Make sure we can use forms
+                // The WinForms forms (the editor) run in the WPF message loop: this gives them their keyboard handling (shortcuts, Tab, dialog keys)
                 WindowsFormsHost.EnableWindowsFormsInterop();
 
                 // From here on we continue starting Greenshot
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
 
-                Application.ApplicationExit += Application_ApplicationExit;
+                var wpfApplication = CreateWpfApplication();
 
-                CreateWpfApplication();
-
-                Application.Run(new GreenshotShell(options, startupCommand));
+                // The shell is created before the message loop runs: when its start fails, the catch below reports it and Greenshot ends
+                var shell = new GreenshotShell(options, startupCommand);
+                // The message loop of the UI thread, until the shell shuts the WPF Application down
+                wpfApplication.Run();
+                GC.KeepAlive(shell);
+                Log.Debug("The message loop ended.");
             }
             catch (Exception ex)
             {
@@ -192,23 +195,12 @@ namespace Greenshot.Shell
             }
         }
 
-        private static void Application_ApplicationExit(object sender, EventArgs e)
-        {
-            FreeMutex();
-        }
-
         /// <summary>
-        /// The WPF Application of the UI thread, it isn't run: the message loop stays the WinForms one of <see cref="GreenshotShell"/>
-        /// (the editor is a WinForms form). It gives the WPF code Application.Current, its Windows (owners of dialogs) and a Dispatcher,
-        /// it never shuts down by itself when a window closes.
+        /// The WPF Application of the UI thread, its Run is the message loop of Greenshot. There is no main window,
+        /// it never shuts down by itself when a window closes, only when <see cref="GreenshotShell"/> exits.
         /// </summary>
-        private static void CreateWpfApplication()
+        private static System.Windows.Application CreateWpfApplication()
         {
-            if (System.Windows.Application.Current != null)
-            {
-                return;
-            }
-
             var wpfApplication = new System.Windows.Application
             {
                 ShutdownMode = System.Windows.ShutdownMode.OnExplicitShutdown
@@ -219,6 +211,7 @@ namespace Greenshot.Shell
                 GreenshotMain.Application_ThreadException(sender, new ThreadExceptionEventArgs(args.Exception));
                 args.Handled = true;
             };
+            return wpfApplication;
         }
 
 

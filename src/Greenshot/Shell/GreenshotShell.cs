@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -69,9 +70,9 @@ namespace Greenshot.Shell
 {
     /// <summary>
     /// The shell of Greenshot while it runs: composes the services, owns the tray icon, the settings and about windows, and the shutdown.
-    /// It is the <see cref="ApplicationContext"/> of the message loop of the UI thread, there is no main window.
+    /// The message loop of the UI thread is the one of the WPF Application (see <see cref="GreenshotApplication"/>), there is no main window.
     /// </summary>
-    internal sealed class GreenshotShell : ApplicationContext, IGreenshotShell
+    internal sealed class GreenshotShell : IGreenshotShell
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(GreenshotShell));
         private static ICoreConfiguration _conf => IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
@@ -102,7 +103,7 @@ namespace Greenshot.Shell
         /// <summary>
         /// The dispatcher for the UI thread
         /// </summary>
-        internal WinFormsUiDispatcher UiDispatcher { get; }
+        internal WpfUiDispatcher UiDispatcher { get; }
 
         /// <summary>
         /// The STA workers for COM servers (Office, MAPI)
@@ -115,7 +116,7 @@ namespace Greenshot.Shell
         public GreenshotShell(CommandLineOptions options, IpcEnvelope startupCommand = null)
         {
             // The one UI thread: everything else reaches it through the IUiDispatcher
-            UiDispatcher = WinFormsUiDispatcher.CreateForCurrentThread();
+            UiDispatcher = WpfUiDispatcher.CreateForCurrentThread();
             SimpleServiceProvider.Current.AddService<IUiDispatcher>(UiDispatcher);
             SimpleServiceProvider.Current.AddService<IStaWorkerFactory>(StaWorkers);
             SimpleServiceProvider.Current.AddService<IClipboardService>(new ClipboardService(UiDispatcher));
@@ -244,8 +245,9 @@ namespace Greenshot.Shell
             WindowDetails.RegisterIgnoreHandle(SharedMessageWindow.Handle);
             WindowDetails.RegisterIgnoreHandle(OwnerHandle);
 
-            // The application ends without the shutdown when the session ends (see RestartManagerHelper)
-            Application.ApplicationExit += OnApplicationExit;
+            // The application ends without the shutdown when the session ends (see RestartManagerHelper).
+            // Not Application.ApplicationExit: WinForms raises it when its first message loop ends, which is the one of an STA worker now.
+            RestartManagerHelper.SessionEndShutdown = ShutdownForSessionEnd;
 
             // Start named pipe server for session-isolated IPC
             _namedPipeServer = new NamedPipeServer();
@@ -525,9 +527,8 @@ namespace Greenshot.Shell
         /// The application ends without <see cref="ExitAsync"/>, e.g. at the end of the session: no time to wait for flows,
         /// clean up what is essential, the plugins stop synchronously as far as they can
         /// </summary>
-        private void OnApplicationExit(object sender, EventArgs e)
+        private void ShutdownForSessionEnd()
         {
-            Application.ApplicationExit -= OnApplicationExit;
             if (Volatile.Read(ref _shutdownState) == 2)
             {
                 // The shutdown is done
@@ -626,10 +627,21 @@ namespace Greenshot.Shell
                 return;
             }
 
-            // Graceful shutdown, the message loop ends
+            Log.Debug("Closing the forms.");
+
+            // Graceful shutdown: the WinForms forms (the editors) close first, they can ask to save and cancel, then the message loop ends
             try
             {
-                Application.Exit();
+                var cancelExit = new CancelEventArgs();
+                Application.Exit(cancelExit);
+                if (cancelExit.Cancel)
+                {
+                    Log.Info("A form cancelled the exit.");
+                    return;
+                }
+
+                Log.Debug("The forms are closed, ending the message loop.");
+                System.Windows.Application.Current?.Shutdown();
             }
             catch (Exception e)
             {

@@ -211,6 +211,9 @@ Semantics (must be identical across implementations, and tested):
 - Exceptions from the delegate propagate to the awaiter. Nothing is swallowed.
 
 Implementations:
+- `WpfUiDispatcher`: the one Greenshot uses, `DispatcherSynchronizationContext.Post` captured at startup (on the thread
+  that later runs the WPF `Application.Run`, the message loop of Greenshot). The WinForms editor forms live on this
+  thread too, `WindowsFormsHost.EnableWindowsFormsInterop` gives them their keyboard handling.
 - `WinFormsUiDispatcher`: `WindowsFormsSynchronizationContext.Post` captured at startup (on the thread that later
   runs `Application.Run`). This avoids `Control.BeginInvoke`'s "handle not yet created" failure mode during
   startup and shutdown. After `ShutdownAsync` begins, new invokes fail fast with `ObjectDisposedException`
