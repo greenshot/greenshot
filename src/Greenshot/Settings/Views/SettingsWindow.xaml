@@ -1,0 +1,1141 @@
+<Window x:Class="Greenshot.Settings.Views.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
+        Title="{wpf:Text Settings.Title}"
+        Icon="{Binding WindowIcon}"
+        Width="820" Height="820"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResizeWithGrip"
+        MinWidth="750" MinHeight="550"
+        Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"
+        WindowStyle="None"
+        AllowsTransparency="False">
+    
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="36"
+                      CornerRadius="0"
+                      GlassFrameThickness="0"
+                      NonClientFrameEdges="None"
+                      ResizeBorderThickness="5"
+                      UseAeroCaptionButtons="False"/>
+    </WindowChrome.WindowChrome>
+    
+    <Window.Resources>
+        <wpf:ExpertVisibilityConverter x:Key="ExpertVisibilityConverter"/>
+        <wpf:FixedToEnabledConverter x:Key="FixedToEnabledConverter"/>
+        <wpf:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        
+        <!-- Modern GroupBox Style -->
+        <Style TargetType="GroupBox">
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="Padding" Value="12"/>
+            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=GroupBoxBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="GroupBox">
+                        <Grid>
+                            <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="6"
+                                    Padding="{TemplateBinding Padding}">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Text="{TemplateBinding Header}"
+                                               FontWeight="SemiBold"
+                                               FontSize="13"
+                                               Foreground="{TemplateBinding Foreground}"
+                                               Margin="0,0,0,8"/>
+                                    <ContentPresenter Grid.Row="1"/>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <!-- Modern TabControl Style -->
+        <Style TargetType="TabControl">
+            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+        </Style>
+        
+        <!-- Modern TabItem Style -->
+        <Style TargetType="TabItem">
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TabItemBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="Margin" Value="0,0,2,0"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border Name="Border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="1,1,1,0"
+                                CornerRadius="6,6,0,0"
+                                Padding="{TemplateBinding Padding}"
+                                Margin="{TemplateBinding Margin}">
+                            <ContentPresenter ContentSource="Header"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TabItemSelectedBrush}"/>
+                                <Setter Property="Panel.ZIndex" Value="100"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="False">
+                                <Setter TargetName="Border" Property="Opacity" Value="0.7"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Opacity" Value="1"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <!-- Modern Label Style -->
+        <Style TargetType="Label">
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        
+        <!-- Modern CheckBox Style -->
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="Margin" Value="6,3"/>
+            <Setter Property="Padding" Value="4,0,0,0"/>
+        </Style>
+        
+        <!-- Modern TextBox Style -->
+        <Style TargetType="TextBox">
+            <Setter Property="Margin" Value="6,3"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <ScrollViewer x:Name="PART_ContentHost"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <!-- Modern ComboBoxItem Style -->
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="TextElement.Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Padding" Value="8,5"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="ItemBorder"
+                                Background="{TemplateBinding Background}"
+                                Padding="{TemplateBinding Padding}"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                                <ContentPresenter.Resources>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                    </Style>
+                                </ContentPresenter.Resources>
+                            </ContentPresenter>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TabItemSelectedBrush}"/>
+                                <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Modern ComboBox Style -->
+        <Style TargetType="ComboBox">
+            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="Margin" Value="6,3"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton Name="ToggleButton"
+                                          Background="{TemplateBinding Background}"
+                                          BorderBrush="{TemplateBinding BorderBrush}"
+                                          BorderThickness="1"
+                                          Focusable="False"
+                                          IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                          ClickMode="Press">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border Name="Border"
+                                                Background="{TemplateBinding Background}"
+                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                CornerRadius="4">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition/>
+                                                    <ColumnDefinition Width="20"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Path Grid.Column="1"
+                                                      HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"
+                                                      Data="M 0 0 L 4 4 L 8 0 Z"
+                                                      Fill="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                            </Grid>
+                                        </Border>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <ContentPresenter Name="ContentSite"
+                                              IsHitTestVisible="False"
+                                              Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                              Margin="8,6,28,6"
+                                              VerticalAlignment="Center"
+                                              HorizontalAlignment="Left">
+                                <ContentPresenter.Resources>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                    </Style>
+                                </ContentPresenter.Resources>
+                            </ContentPresenter>
+                            <Popup Name="Popup"
+                                   Placement="Bottom"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   AllowsTransparency="True"
+                                   Focusable="False"
+                                   PopupAnimation="None">
+                                <Grid Name="DropDown"
+                                      SnapsToDevicePixels="True"
+                                      MinWidth="{TemplateBinding ActualWidth}"
+                                      MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                     <Border Name="DropDownBorder"
+                                            Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}"
+                                            BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
+                                            TextElement.Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="4"
+                                            Padding="0"
+                                            Margin="0,1,0,0">
+                                        <ScrollViewer x:Name="DropDownScrollViewer"
+                                                      CanContentScroll="True"
+                                                      Focusable="False"
+                                                      VerticalScrollBarVisibility="Auto"
+                                                      HorizontalScrollBarVisibility="Disabled"
+                                                      SnapsToDevicePixels="True">
+                                            <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained"
+                                                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                        </ScrollViewer>
+                                    </Border>
+                                </Grid>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <!-- Modern Button Style -->
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Name="Border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonPressedBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.4"/>
+                                <Setter Property="Cursor" Value="Arrow"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <!-- Modern Icon/Small Button Style -->
+        <Style x:Key="IconButtonStyle" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Width" Value="34"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        
+        <!-- Modern RadioButton Style -->
+        <Style TargetType="RadioButton">
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="Margin" Value="6,3"/>
+        </Style>
+        
+        
+        <!-- Modern Slider Style -->
+        <Style TargetType="Slider">
+            <Setter Property="Margin" Value="6,3"/>
+        </Style>
+        
+        <!-- Title Bar Button Style -->
+        <Style x:Key="TitleBarButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Width" Value="46"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" BorderThickness="0">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <!-- Title Bar Close Button Style -->
+        <Style x:Key="TitleBarCloseButtonStyle" TargetType="Button" BasedOn="{StaticResource TitleBarButtonStyle}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" BorderThickness="0">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#E81123"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="36"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Custom Title Bar -->
+        <Grid Grid.Row="0" 
+              Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TitleBarBrush}"
+              MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="36"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Window Icon -->
+            <Image Grid.Column="0" 
+                   Source="{Binding WindowIcon}"
+                   Width="16" Height="16"
+                   Margin="10,0,0,0"
+                   VerticalAlignment="Center"
+                   WindowChrome.IsHitTestVisibleInChrome="False"/>
+            
+            <!-- Window Title -->
+            <TextBlock Grid.Column="1"
+                       Text="{wpf:Text Settings.Title}"
+                       Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
+                       VerticalAlignment="Center"
+                       Margin="8,0,0,0"
+                       FontSize="13"
+                       WindowChrome.IsHitTestVisibleInChrome="False"/>
+            
+            <!-- Window Controls -->
+            <StackPanel Grid.Column="2" 
+                        Orientation="Horizontal"
+                        WindowChrome.IsHitTestVisibleInChrome="True">
+                <Button Content="{Binding ThemeToggleIcon}" 
+                        Click="ThemeToggle_Click"
+                        Style="{StaticResource TitleBarButtonStyle}"
+                        ToolTip="{Binding ThemeToggleToolTip}"/>
+                <Button Content="🗕" 
+                        Click="MinimizeButton_Click"
+                        Style="{StaticResource TitleBarButtonStyle}"
+                        ToolTip="Minimize"/>
+                <Button Content="✕" 
+                        Click="CloseButton_Click"
+                        Style="{StaticResource TitleBarCloseButtonStyle}"
+                        ToolTip="Close"/>
+            </StackPanel>
+        </Grid>
+        
+    <Grid Grid.Row="1" Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Tab Control -->
+        <TabControl x:Name="SettingsTabControl" Grid.Row="0">
+            <!-- General Tab -->
+            <TabItem Header="{wpf:Text Settings.General}">
+                <ScrollViewer Style="{DynamicResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel>
+                        <!-- Application Settings -->
+                        <GroupBox Header="{wpf:Text Settings.Applicationsettings}">
+                            <StackPanel>
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Content="{wpf:Text Settings.Language}"/>
+                                    <ComboBox Grid.Column="1" 
+                                              ItemsSource="{Binding SupportedLanguages}"
+                                              DisplayMemberPath="DisplayName"
+                                              SelectedValuePath="Ietf"
+                                              SelectedValue="{Binding SelectedLanguage, Mode=TwoWay}"
+                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=Language}"/>
+                                </Grid>
+                                
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Content="{wpf:Text Settings.Iconsize}"/>
+                                    <Grid Grid.Column="1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox Text="{Binding IconSize, Mode=TwoWay}" 
+                                                 TextAlignment="Right"
+                                                 IsReadOnly="True"
+                                                 IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=BaseIconSize}"/>
+                                        <StackPanel Grid.Column="1" Orientation="Vertical" Margin="2,0,0,0" VerticalAlignment="Center">
+                                            <Button Content="▲" Click="IconSizeUp_Click" Padding="4,0" FontSize="8" MinWidth="20" Height="15" Margin="0,0,0,1"
+                                                    IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=BaseIconSize}"/>
+                                            <Button Content="▼" Click="IconSizeDown_Click" Padding="4,0" FontSize="8" MinWidth="20" Height="15" Margin="0,1,0,0"
+                                                    IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=BaseIconSize}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Grid>
+                                
+                                <CheckBox Content="{wpf:Text Settings.Autostartshortcut}"
+                                          IsChecked="{Binding AutoStartEnabled, Mode=TwoWay}"/>
+                            </StackPanel>
+                        </GroupBox>
+                        
+                        <!-- Hotkeys -->
+                        <GroupBox Header="{wpf:Text Core.Hotkeys}">
+                            <StackPanel>
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    
+                                    <Label Grid.Row="0" Grid.Column="0" Content="{wpf:Text Core.ContextmenuCapturefullscreen}" VerticalAlignment="Center"/>
+                                    <wpf:HotkeyDisplayControl Grid.Row="0" Grid.Column="1"
+                                                                  HeaderText="{wpf:Text Core.ContextmenuCapturefullscreen}"
+                                                                  HotkeyString="{Binding CoreConfiguration.FullscreenHotkey, Mode=TwoWay}"
+                                                                  IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=FullscreenHotkey}"
+                                                                  EditRequested="HotkeyDisplayControl_EditRequested"/>
+                                    
+                                    <Label Grid.Row="1" Grid.Column="0" Content="{wpf:Text Core.ContextmenuCapturewindow}" VerticalAlignment="Center" Margin="0,4,0,0"/>
+                                    <wpf:HotkeyDisplayControl Grid.Row="1" Grid.Column="1" Margin="0,4,0,0"
+                                                                  HeaderText="{wpf:Text Core.ContextmenuCapturewindow}"
+                                                                  HotkeyString="{Binding CoreConfiguration.WindowHotkey, Mode=TwoWay}"
+                                                                  IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=WindowHotkey}"
+                                                                  EditRequested="HotkeyDisplayControl_EditRequested"/>
+                                    
+                                    <Label Grid.Row="2" Grid.Column="0" Content="{wpf:Text Core.ContextmenuCapturearea}" VerticalAlignment="Center" Margin="0,4,0,0"/>
+                                    <wpf:HotkeyDisplayControl Grid.Row="2" Grid.Column="1" Margin="0,4,0,0"
+                                                                  HeaderText="{wpf:Text Core.ContextmenuCapturearea}"
+                                                                  HotkeyString="{Binding CoreConfiguration.RegionHotkey, Mode=TwoWay}"
+                                                                  IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=RegionHotkey}"
+                                                                  EditRequested="HotkeyDisplayControl_EditRequested"/>
+                                    
+                                    <Label Grid.Row="3" Grid.Column="0" Content="{wpf:Text Core.ContextmenuCapturelastregion}" VerticalAlignment="Center" Margin="0,4,0,0"/>
+                                    <wpf:HotkeyDisplayControl Grid.Row="3" Grid.Column="1" Margin="0,4,0,0"
+                                                                  HeaderText="{wpf:Text Core.ContextmenuCapturelastregion}"
+                                                                  HotkeyString="{Binding CoreConfiguration.LastregionHotkey, Mode=TwoWay}"
+                                                                  IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=LastregionHotkey}"
+                                                                  EditRequested="HotkeyDisplayControl_EditRequested"/>
+                                    
+                                    <Label Grid.Row="4" Grid.Column="0" Content="{wpf:Text Core.ContextmenuCaptureclipboard}" VerticalAlignment="Center" Margin="0,4,0,0"/>
+                                    <wpf:HotkeyDisplayControl Grid.Row="4" Grid.Column="1" Margin="0,4,0,0"
+                                                                  HeaderText="{wpf:Text Core.ContextmenuCaptureclipboard}"
+                                                                  HotkeyString="{Binding CoreConfiguration.ClipboardHotkey, Mode=TwoWay}"
+                                                                  IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ClipboardHotkey}"
+                                                                  EditRequested="HotkeyDisplayControl_EditRequested"/>
+                                </Grid>
+                            </StackPanel>
+                        </GroupBox>
+                        
+                        <!-- Network Settings -->
+                        <GroupBox Header="{wpf:Text Settings.Network}">
+                            <StackPanel>
+                                <CheckBox Content="{wpf:Text Settings.Usedefaultproxy}"
+                                          IsChecked="{Binding CoreConfiguration.UseProxy, Mode=TwoWay}"
+                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=UseProxy}"/>
+                                
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Content="{wpf:Text Settings.Checkperiod}"/>
+                                    <TextBox Grid.Column="1" HorizontalAlignment="Right" Width="80" TextAlignment="Right" Text="{Binding CoreConfiguration.UpdateCheckInterval}"
+                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=UpdateCheckInterval}"/>
+                                </Grid>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            
+            <!-- Capture Tab -->
+            <TabItem Header="{wpf:Text Settings.Capture}">
+                <ScrollViewer Style="{DynamicResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel>
+                        <GroupBox Header="{wpf:Text Settings.Capture}">
+                            <StackPanel>
+                                <CheckBox Content="{wpf:Text Settings.CaptureMousepointer}"
+                                          IsChecked="{Binding CoreConfiguration.CaptureMousepointer, Mode=TwoWay}"
+                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureMousepointer}"/>
+                                <CheckBox Content="{wpf:Text Settings.Playsound}"
+                                          IsChecked="{Binding CoreConfiguration.PlayCameraSound, Mode=TwoWay}"
+                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=PlayCameraSound}"/>
+                                <CheckBox Content="{wpf:Text Settings.Shownotify}"
+                                          IsChecked="{Binding CoreConfiguration.ShowTrayNotification, Mode=TwoWay}"
+                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ShowTrayNotification}"/>
+                                <CheckBox Content="{wpf:Text Settings.Zoom}"
+                                          IsChecked="{Binding CoreConfiguration.ZoomerEnabled, Mode=TwoWay}"
+                                           IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ZoomerEnabled}"/>
+                                
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{wpf:Text Settings.Waittime}"
+                                               TextWrapping="Wrap"
+                                               VerticalAlignment="Center"
+                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                    <TextBox Grid.Column="1" 
+                                             HorizontalAlignment="Right"
+                                             Width="70"
+                                             TextAlignment="Right"
+                                             Text="{Binding CoreConfiguration.CaptureDelay, Mode=TwoWay}"
+                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureDelay}"/>
+                                </Grid>
+                            </StackPanel>
+                        </GroupBox>
+                        
+                        <GroupBox Header="{wpf:Text Settings.Windowscapture}">
+                            <StackPanel>
+                                <CheckBox Content="{wpf:Text Settings.CaptureWindowsInteractive}"
+                                          IsChecked="{Binding CoreConfiguration.CaptureWindowsInteractive, Mode=TwoWay}"
+                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureWindowsInteractive}"/>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            
+            <!-- Output Tab -->
+            <TabItem Header="{wpf:Text Settings.Output}">
+                <ScrollViewer Style="{DynamicResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel>
+                        <GroupBox Header="{wpf:Text Settings.Preferredfilesettings}">
+                            <StackPanel>
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    
+                                    <Label Grid.Row="0" Grid.Column="0" Content="{wpf:Text Settings.Storagelocation}" Margin="0,0,12,0"/>
+                                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding CoreConfiguration.OutputFilePath}"
+                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFilePath}"/>
+                                    <Button Grid.Row="0" Grid.Column="2" Content="..." Style="{StaticResource IconButtonStyle}" Margin="6,0,0,0" Click="BrowseStorageLocation_Click"
+                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFilePath}"/>
+                                    
+                                    <Label Grid.Row="1" Grid.Column="0" Content="{wpf:Text Settings.Filenamepattern}" Margin="0,0,12,0"/>
+                                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding CoreConfiguration.OutputFileFilenamePattern}"
+                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFileFilenamePattern}"/>
+                                    <Button Grid.Row="1" Grid.Column="2" Content="?" Style="{StaticResource IconButtonStyle}" Margin="6,0,0,0" Click="ShowPatternHelp_Click"
+                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFileFilenamePattern}"/>
+                                    
+                                    <Label Grid.Row="2" Grid.Column="0" Content="{wpf:Text Settings.Primaryimageformat}" Margin="0,0,12,0"/>
+                                    <ComboBox Grid.Row="2" Grid.Column="1"
+                                              ItemsSource="{Binding ImageFormats}"
+                                              DisplayMemberPath="DisplayNameWithPreferredExtension"
+                                              SelectedValuePath="Value"
+                                              SelectedValue="{Binding CoreConfiguration.OutputFileFormat, Mode=TwoWay}"
+                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFileFormat}"/>
+                                </Grid>
+                                
+                                <CheckBox Content="{wpf:Text Settings.Copypathtoclipboard}"
+                                          IsChecked="{Binding CoreConfiguration.OutputFileCopyPathToClipboard, Mode=TwoWay}"
+                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFileCopyPathToClipboard}"/>
+                            </StackPanel>
+                        </GroupBox>
+                        
+                        <GroupBox Header="{wpf:Text Settings.Qualitysettings}">
+                            <StackPanel>
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="85"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Content="{wpf:Text Settings.Jpegquality}"/>
+                                    <Slider Grid.Column="1" 
+                                            Minimum="0" Maximum="100" 
+                                            TickFrequency="10" 
+                                            IsSnapToTickEnabled="True" 
+                                            Value="{Binding CoreConfiguration.OutputFileJpegQuality, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFileJpegQuality}"/>
+                                    <TextBox Grid.Column="2" 
+                                             Text="{Binding CoreConfiguration.OutputFileJpegQuality, Mode=OneWay, StringFormat={}{0}%}" 
+                                             IsReadOnly="True"
+                                             TextAlignment="Center"
+                                             Padding="2,4"
+                                             MinWidth="65"
+                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFileJpegQuality}"/>
+                                </Grid>
+                                
+                                <CheckBox Content="{wpf:Text Settings.Alwaysshowqualitydialog}"
+                                          IsChecked="{Binding CoreConfiguration.OutputFilePromptQuality, Mode=TwoWay}"
+                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFilePromptQuality}"/>
+                                <CheckBox Content="{wpf:Text Settings.Reducecolors}"
+                                          IsChecked="{Binding CoreConfiguration.OutputFileReduceColors, Mode=TwoWay}"
+                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFileReduceColors}"/>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            
+            <!-- Destinations Tab -->
+            <TabItem Header="{wpf:Text Settings.Destination}">
+                    <GroupBox Header="{wpf:Text Settings.Destination}">
+                        <DockPanel LastChildFill="True">
+                            <CheckBox Content="{wpf:Text Settings.DestinationPicker}" 
+                                      IsChecked="{Binding PickerSelected, Mode=TwoWay}" 
+                                      IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputDestinations}"
+                                      Margin="5" DockPanel.Dock="Top"/>
+                            <ListView ItemsSource="{Binding Destinations}" 
+                                      Style="{DynamicResource ThemeListView}"
+                                      ItemContainerStyle="{DynamicResource ThemeListViewItem}"
+                                      Margin="5" 
+                                      ScrollViewer.VerticalScrollBarVisibility="Visible"
+                                      ScrollViewer.CanContentScroll="False"
+                                      IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputDestinations}">
+                                <ListView.View>
+                                    <GridView ColumnHeaderContainerStyle="{DynamicResource ThemeGridViewColumnHeader}">
+                                        <GridViewColumn Width="50">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                              IsEnabled="{Binding DataContext.PickerSelected, RelativeSource={RelativeSource AncestorType=ListView}, Converter={StaticResource InverseBooleanConverter}}"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="{wpf:Text Settings.Destination}" Width="330">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                        <Image Source="{Binding IconSource}" Width="16" Height="16" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                                        <TextBlock Text="{Binding Description}" VerticalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </DockPanel>
+                    </GroupBox>
+            </TabItem>
+            
+            <!-- Editor Tab -->
+            <TabItem Header="{wpf:Text Settings.Editor}">
+                <ScrollViewer Style="{DynamicResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel>
+                        <GroupBox Header="{wpf:Text Settings.Editor}">
+                            <StackPanel>
+                                <CheckBox Content="{wpf:Text Editor.MatchCaptureSize}"
+                                          IsChecked="{Binding EditorConfiguration.MatchSizeToCapture, Mode=TwoWay}"
+                                          IsEnabled="{Binding EditorConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=MatchSizeToCapture}"/>
+                                <CheckBox Content="{wpf:Text Settings.ExpertReuseeditorifpossible}"
+                                          IsChecked="{Binding EditorConfiguration.ReuseEditor, Mode=TwoWay}"
+                                          IsEnabled="{Binding EditorConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ReuseEditor}"/>
+                                <CheckBox Content="{wpf:Text Settings.ExpertSuppresssavedialogatclose}"
+                                          IsChecked="{Binding EditorConfiguration.SuppressSaveDialogAtClose, Mode=TwoWay}"
+                                          IsEnabled="{Binding EditorConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=SuppressSaveDialogAtClose}"/>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            
+            <!-- Printer Tab -->
+            <TabItem Header="{wpf:Text Settings.Printer}">
+                <ScrollViewer Style="{DynamicResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel>
+                        <GroupBox Header="{wpf:Text Settings.Printoptions}">
+                            <StackPanel>
+                                <CheckBox Content="{wpf:Text Settings.Alwaysshowprintoptionsdialog}"
+                                          IsChecked="{Binding CoreConfiguration.OutputPrintPromptOptions, Mode=TwoWay}"
+                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputPrintPromptOptions}"/>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <GroupBox Header="{wpf:Text Core.PrintoptionsColors}">
+                            <StackPanel>
+                                <CheckBox Content="{wpf:Text Core.PrintoptionsInverted}"
+                                          IsChecked="{Binding CoreConfiguration.OutputPrintInverted, Mode=TwoWay}"
+                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputPrintInverted}"/>
+                                <RadioButton Content="{wpf:Text Core.PrintoptionsPrintcolor}"
+                                             GroupName="PrintColorMode"
+                                             IsChecked="{Binding PrintColor, Mode=TwoWay}">
+                                    <RadioButton.IsEnabled>
+                                        <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="OutputPrintGrayscale">
+                                            <Binding Path="CoreConfiguration"/>
+                                        </MultiBinding>
+                                    </RadioButton.IsEnabled>
+                                </RadioButton>
+                                <RadioButton Content="{wpf:Text Core.PrintoptionsPrintgrayscale}"
+                                             GroupName="PrintColorMode"
+                                             IsChecked="{Binding PrintGrayscale, Mode=TwoWay}"
+                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputPrintGrayscale}"/>
+                                <RadioButton Content="{wpf:Text Core.PrintoptionsPrintmonochrome}"
+                                             GroupName="PrintColorMode"
+                                             IsChecked="{Binding PrintMonochrome, Mode=TwoWay}"
+                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputPrintMonochrome}"/>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <GroupBox Header="{wpf:Text Core.PrintoptionsLayout}">
+                            <StackPanel>
+                                <CheckBox Content="{wpf:Text Core.PrintoptionsTimestamp}"
+                                          IsChecked="{Binding CoreConfiguration.OutputPrintFooter, Mode=TwoWay}"
+                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputPrintFooter}"/>
+                                <Grid Margin="20,2,0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Content="{wpf:Text Settings.ExpertFooterpattern}" VerticalAlignment="Center"/>
+                                    <TextBox Grid.Column="1" Text="{Binding CoreConfiguration.OutputPrintFooterPattern, Mode=TwoWay}">
+                                        <TextBox.IsEnabled>
+                                            <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="OutputPrintFooterPattern">
+                                                <Binding Path="CoreConfiguration.OutputPrintFooter"/>
+                                                <Binding Path="CoreConfiguration"/>
+                                            </MultiBinding>
+                                        </TextBox.IsEnabled>
+                                    </TextBox>
+                                </Grid>
+                                <CheckBox Content="{wpf:Text Core.PrintoptionsAllowshrink}"
+                                          IsChecked="{Binding CoreConfiguration.OutputPrintAllowShrink, Mode=TwoWay}"
+                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputPrintAllowShrink}"/>
+                                <CheckBox Content="{wpf:Text Core.PrintoptionsAllowenlarge}"
+                                          IsChecked="{Binding CoreConfiguration.OutputPrintAllowEnlarge, Mode=TwoWay}"
+                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputPrintAllowEnlarge}"/>
+                                <CheckBox Content="{wpf:Text Core.PrintoptionsAllowrotate}"
+                                          IsChecked="{Binding CoreConfiguration.OutputPrintAllowRotate, Mode=TwoWay}"
+                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputPrintAllowRotate}"/>
+                                <CheckBox Content="{wpf:Text Core.PrintoptionsAllowcenter}"
+                                          IsChecked="{Binding CoreConfiguration.OutputPrintCenter, Mode=TwoWay}"
+                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputPrintCenter}"/>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            
+            <!-- Recipes Tab: the extensions (border, drop shadow, caption, ...) and the options recipes declare, one compact card each -->
+            <TabItem x:Name="RecipesTabItem" Header="{wpf:Text Settings.Recipes}"
+                     Visibility="{Binding HasRecipeOptions, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <ScrollViewer Style="{DynamicResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel>
+                        <StackPanel.Resources>
+                            <!-- Compact fields: one line per option -->
+                            <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+                                <Setter Property="Padding" Value="4,0"/>
+                                <Setter Property="Margin" Value="0,1"/>
+                                <Setter Property="Height" Value="24"/>
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <!-- The text centered in the box -->
+                                        <ControlTemplate TargetType="TextBox">
+                                            <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                                    BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                                <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                            <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
+                                <Setter Property="Padding" Value="6,2"/>
+                                <Setter Property="Margin" Value="0,1"/>
+                            </Style>
+                        </StackPanel.Resources>
+                        <TextBlock Text="{wpf:Text Settings.RecipesDescription}" TextWrapping="Wrap" Margin="4,0,4,6"
+                                   Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                        <ItemsControl ItemsSource="{Binding RecipeOptionGroups}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Margin="4,2" Padding="10,6" CornerRadius="6" BorderThickness="1"
+                                            Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=GroupBoxBrush}"
+                                            BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}">
+                                        <StackPanel>
+                                            <!-- The name with its description on one line; an extension has its on/off checkbox in front -->
+                                            <DockPanel>
+                                                <Button DockPanel.Dock="Right" Content="{wpf:Text Settings.RecipesReset}" Padding="6,0" Margin="8,0,0,0"
+                                                        VerticalAlignment="Center" Command="{Binding ResetCommand}"
+                                                        Visibility="{Binding IsOn, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                                <CheckBox VerticalAlignment="Center" IsChecked="{Binding IsOn, Mode=TwoWay}"
+                                                          Visibility="{Binding HasSwitch, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                    <TextBlock TextWrapping="Wrap">
+                                                        <Run Text="{Binding Name, Mode=OneWay}" FontWeight="SemiBold"/>
+                                                        <Run Text="{Binding Description, Mode=OneWay}" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                                    </TextBlock>
+                                                </CheckBox>
+                                                <TextBlock TextWrapping="Wrap" VerticalAlignment="Center"
+                                                           Visibility="{Binding HasNoSwitch, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                    <Run Text="{Binding Name, Mode=OneWay}" FontWeight="SemiBold"/>
+                                                    <Run Text="{Binding Description, Mode=OneWay}" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                                </TextBlock>
+                                            </DockPanel>
+                                            <!-- Only while it is on: the options, and where it is used -->
+                                            <StackPanel Margin="20,4,0,0" Visibility="{Binding IsOn, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                <ItemsControl ItemsSource="{Binding BodyItems}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Grid Margin="0,1" IsEnabled="{Binding IsEditable}" ToolTip="{Binding Description}">
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="140"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                </Grid.ColumnDefinitions>
+                                                                <!-- A switch takes the whole row -->
+                                                                <CheckBox Grid.ColumnSpan="2" Content="{Binding Label}" IsChecked="{Binding BoolValue, Mode=TwoWay}"
+                                                                          Visibility="{Binding IsBoolean, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                                                <TextBlock Grid.Column="0" Text="{Binding Label}" VerticalAlignment="Center" TextWrapping="Wrap"
+                                                                           Visibility="{Binding HasLabelColumn, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                                                <!-- Number: a box with the range next to it -->
+                                                                <StackPanel Grid.Column="1" Orientation="Horizontal"
+                                                                            Visibility="{Binding IsNumber, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                    <TextBox Width="60" Text="{Binding TextValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"/>
+                                                                    <TextBlock Text="{Binding RangeText}" Margin="8,0,0,0" VerticalAlignment="Center"
+                                                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                                                </StackPanel>
+                                                                <!-- Text -->
+                                                                <TextBox Grid.Column="1" Text="{Binding TextValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                                                         Visibility="{Binding IsText, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                                                <!-- Choice -->
+                                                                <ComboBox Grid.Column="1" HorizontalAlignment="Left" MinWidth="140"
+                                                                          ItemsSource="{Binding Choices}" DisplayMemberPath="DisplayLabel"
+                                                                          SelectedItem="{Binding SelectedChoice, Mode=TwoWay}"
+                                                                          Visibility="{Binding IsEnum, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                                                <!-- Color: the swatch opens the color picker, the text can be typed -->
+                                                                <StackPanel Grid.Column="1" Orientation="Horizontal"
+                                                                            Visibility="{Binding IsColor, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                    <Button Width="28" Height="22" Padding="0" VerticalAlignment="Center" Click="RecipeOptionColor_Click">
+                                                                        <Border Width="20" Height="12" Background="{Binding ColorBrush}" BorderThickness="1"
+                                                                                BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+                                                                    </Button>
+                                                                    <TextBox Width="80" Margin="6,1,0,1" Text="{Binding TextValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"/>
+                                                                </StackPanel>
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                                <!-- Extensions: where they are used, changed in a dialog with the captures and the destinations -->
+                                                <Grid Margin="0,3,0,0" Visibility="{Binding HasUseIn, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="140"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Text="{wpf:Text Settings.RecipesUsedfor}" VerticalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding ScopeSummary}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                                    <Button Grid.Column="2" Content="{wpf:Text Settings.RecipesChange}" Padding="6,0" Margin="8,0,0,0"
+                                                            VerticalAlignment="Center" Click="RecipeExtensionScope_Click"/>
+                                                </Grid>                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <!-- Per recipe, the extensions which change it, with the values above -->
+                        <Border Margin="4,2" Padding="10,6" CornerRadius="6" BorderThickness="1"
+                                Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=GroupBoxBrush}"
+                                BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}">
+                            <StackPanel>
+                                <TextBlock Text="{wpf:Text Settings.RecipesChanges}" FontWeight="SemiBold"/>
+                                <TextBlock Text="{wpf:Text Settings.RecipesChangesNone}" TextWrapping="Wrap" Margin="20,2,0,0"
+                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
+                                           Visibility="{Binding HasNoRecipeChanges, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                <ItemsControl ItemsSource="{Binding RecipeChanges}" Margin="20,2,0,0">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,1">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="140"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding Extensions}" TextWrapping="Wrap"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Recipes}" TextWrapping="Wrap"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- AI tools Tab (greenshot-mcp): an opt-in, shown for beta testers -->
+            <TabItem x:Name="AiToolsTabItem" Header="{wpf:Text Settings.Aitools}"
+                     Visibility="{Binding CoreConfiguration.IsBetaTester, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+            <!-- Plugin Tab -->
+            <TabItem x:Name="PluginsTabItem" Header="{wpf:Text Settings.Plugins}"/>
+            
+            <!-- Expert Tab -->
+            <TabItem x:Name="ExpertTabItem" Header="{wpf:Text Core.Expertsettings}" Visibility="{Binding IsExpertTabVisible, Converter={StaticResource ExpertVisibilityConverter}}">
+                <ScrollViewer Style="{DynamicResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel>
+                        <!-- Top Banner: Enable Expert Mode set apart -->
+                        <Border Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=GroupBoxBrush}"
+                                BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="6"
+                                Padding="12"
+                                Margin="8,8,8,4">
+                            <CheckBox Content="{wpf:Text Settings.ExpertEnableexpert}"
+                                      FontWeight="SemiBold"
+                                      IsChecked="{Binding ExpertModeEnabled, Mode=TwoWay}"/>
+                        </Border>
+                        
+                        <!-- Expert settings container: enabled only when expert mode is enabled -->
+                        <GroupBox Header="{wpf:Text Core.Expertsettings}"
+                                  Margin="8,4,8,8"
+                                  IsEnabled="{Binding ExpertModeEnabled}">
+                            <StackPanel>
+                                <CheckBox Content="{wpf:Text Settings.ExpertAutoreducecolors}"
+                                          IsChecked="{Binding CoreConfiguration.OutputFileAutoReduceColors, Mode=TwoWay}">
+                                    <CheckBox.IsEnabled>
+                                        <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="OutputFileAutoReduceColors">
+                                            <Binding Path="ExpertModeEnabled"/>
+                                            <Binding Path="CoreConfiguration"/>
+                                        </MultiBinding>
+                                    </CheckBox.IsEnabled>
+                                </CheckBox>
+                                
+                                <CheckBox Content="{wpf:Text Settings.ExpertOptimizeforrdp}"
+                                          IsChecked="{Binding CoreConfiguration.OptimizeForRDP, Mode=TwoWay}">
+                                    <CheckBox.IsEnabled>
+                                        <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="OptimizeForRDP">
+                                            <Binding Path="ExpertModeEnabled"/>
+                                            <Binding Path="CoreConfiguration"/>
+                                        </MultiBinding>
+                                    </CheckBox.IsEnabled>
+                                </CheckBox>
+                                
+                                <CheckBox Content="{wpf:Text Settings.ExpertThumbnailpreview}"
+                                          IsChecked="{Binding CoreConfiguration.ThumnailPreview, Mode=TwoWay}">
+                                    <CheckBox.IsEnabled>
+                                        <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="ThumnailPreview">
+                                            <Binding Path="ExpertModeEnabled"/>
+                                            <Binding Path="CoreConfiguration"/>
+                                        </MultiBinding>
+                                    </CheckBox.IsEnabled>
+                                </CheckBox>
+                                
+                                <CheckBox Content="{wpf:Text Settings.ExpertCheckunstableupdates}"
+                                          IsChecked="{Binding CoreConfiguration.CheckForUnstable, Mode=TwoWay}">
+                                    <CheckBox.IsEnabled>
+                                        <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="CheckForUnstable">
+                                            <Binding Path="ExpertModeEnabled"/>
+                                            <Binding Path="CoreConfiguration"/>
+                                        </MultiBinding>
+                                    </CheckBox.IsEnabled>
+                                </CheckBox>
+                                
+                                <CheckBox Content="{wpf:Text Settings.ExpertBetatester}"
+                                          IsChecked="{Binding CoreConfiguration.IsBetaTester, Mode=TwoWay}">
+                                    <CheckBox.IsEnabled>
+                                        <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="IsBetaTester">
+                                            <Binding Path="ExpertModeEnabled"/>
+                                            <Binding Path="CoreConfiguration"/>
+                                        </MultiBinding>
+                                    </CheckBox.IsEnabled>
+                                </CheckBox>
+                                
+                                <CheckBox Content="{wpf:Text Settings.ExpertMinimizememoryfootprint}"
+                                          IsChecked="{Binding CoreConfiguration.MinimizeWorkingSetSize, Mode=TwoWay}">
+                                    <CheckBox.IsEnabled>
+                                        <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="MinimizeWorkingSetSize">
+                                            <Binding Path="ExpertModeEnabled"/>
+                                            <Binding Path="CoreConfiguration"/>
+                                        </MultiBinding>
+                                    </CheckBox.IsEnabled>
+                                </CheckBox>
+
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{wpf:Text Settings.ExpertCounter}" 
+                                               TextWrapping="Wrap"
+                                               VerticalAlignment="Center"
+                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                    <TextBox Grid.Column="1" 
+                                             HorizontalAlignment="Right"
+                                             Width="70"
+                                             TextAlignment="Right"
+                                             Text="{Binding CoreConfiguration.OutputFileIncrementingNumber, Mode=TwoWay}">
+                                        <TextBox.IsEnabled>
+                                            <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="OutputFileIncrementingNumber">
+                                                <Binding Path="ExpertModeEnabled"/>
+                                                <Binding Path="CoreConfiguration"/>
+                                            </MultiBinding>
+                                        </TextBox.IsEnabled>
+                                    </TextBox>
+                                </Grid>
+
+
+                                <GroupBox Header="{wpf:Text Settings.ExpertClipboardformats}" Margin="0,8,0,0">
+                                    <ItemsControl ItemsSource="{Binding ClipboardFormats}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <CheckBox Content="{Binding Name}"
+                                                          IsChecked="{Binding IsSelected, Mode=TwoWay}">
+                                                    <CheckBox.IsEnabled>
+                                                        <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="ClipboardFormats">
+                                                            <Binding Path="DataContext.ExpertModeEnabled" RelativeSource="{RelativeSource AncestorType=ItemsControl}"/>
+                                                            <Binding Path="DataContext.CoreConfiguration" RelativeSource="{RelativeSource AncestorType=ItemsControl}"/>
+                                                        </MultiBinding>
+                                                    </CheckBox.IsEnabled>
+                                                </CheckBox>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </GroupBox>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+        
+        <!-- Buttons -->
+        <StackPanel Grid.Row="1" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Right" 
+                    Margin="0,10,0,0">
+            <Button Content="{wpf:Text Core.Ok}" 
+                    MinWidth="80" 
+                    Margin="5,0"
+                    IsDefault="True"
+                    Click="OkButton_Click"/>
+            <Button Content="{wpf:Text Core.Cancel}" 
+                    MinWidth="80"
+                    Margin="5,0"
+                    IsCancel="True"
+                    Click="CancelButton_Click"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- In-Window Modal Hotkey Editor Overlay -->
+        <wpf:HotkeyEditorModal x:Name="HotkeyModal"
+                               Grid.Row="0"
+                               Grid.RowSpan="2"
+                               Visibility="Collapsed"/>
+    </Grid>
+</Window>

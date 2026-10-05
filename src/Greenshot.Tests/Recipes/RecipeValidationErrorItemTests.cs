@@ -20,7 +20,6 @@
  */
 
 using Greenshot.Recipes.ViewModels;
-using Greenshot.UI;
 using Xunit;
 
 namespace Greenshot.Tests.Recipes

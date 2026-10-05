@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
   <PropertyGroup>
     <RootNamespace>Greenshot</RootNamespace>
     <AssemblyName>Greenshot</AssemblyName>
@@ -42,12 +42,12 @@
     <Compile Remove="Helpers\Ipc\BrowserContextTracker.cs" />
     <Compile Remove="Helpers\Ipc\ExtensionOriginPolicy.cs" />
     <Compile Remove="Helpers\Ipc\ImportCaptureDecoder.cs" />
-    <Compile Remove="Forms\Wpf\SettingsViewModel.AiTools.cs" />
-    <Compile Remove="Forms\Wpf\SettingsViewModel.Plugins.cs" />
-    <Compile Remove="Forms\Wpf\AiToolsSettingsPage.xaml.cs" />
-    <Compile Remove="Forms\Wpf\PluginsSettingsPage.xaml.cs" />
-    <Page Remove="Forms\Wpf\AiToolsSettingsPage.xaml" />
-    <Page Remove="Forms\Wpf\PluginsSettingsPage.xaml" />
+    <Compile Remove="Settings\ViewModels\SettingsViewModel.AiTools.cs" />
+    <Compile Remove="Settings\ViewModels\SettingsViewModel.Plugins.cs" />
+    <Compile Remove="Ai\**\*.cs" />
+    <Compile Remove="Plugins\**\*.cs" />
+    <Page Remove="Ai\**\*.xaml" />
+    <Page Remove="Plugins\**\*.xaml" />
   </ItemGroup>
   <!--
     Greenshot Light must not contain that code at all, not only leave it unused: the build fails when one of these types

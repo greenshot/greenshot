@@ -26,7 +26,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using Greenshot.Base.Core;
-using Greenshot.Forms.Wpf;
+using Greenshot.Settings.ViewModels;
 using log4net;
 using Greenshot.Base.Languages;
 
@@ -39,15 +39,15 @@ namespace Greenshot.Recipes.Views
     public partial class RecipeExtensionScopeWindow : Window
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(RecipeExtensionScopeWindow));
-        private readonly IReadOnlyList<RecipeScopeItem> _captures;
-        private readonly IReadOnlyList<RecipeScopeItem> _destinations;
-        private readonly List<RecipeScopeItem> _captureCopies;
-        private readonly List<RecipeScopeItem> _destinationCopies;
+        private readonly IReadOnlyList<RecipeScopeViewModel> _captures;
+        private readonly IReadOnlyList<RecipeScopeViewModel> _destinations;
+        private readonly List<RecipeScopeViewModel> _captureCopies;
+        private readonly List<RecipeScopeViewModel> _destinationCopies;
 
         /// <param name="extensionName">Shown in the title</param>
         /// <param name="captures">The recipes the extension can change</param>
         /// <param name="destinations">The destinations, empty when the extension doesn't run per destination</param>
-        public RecipeExtensionScopeWindow(string extensionName, IReadOnlyList<RecipeScopeItem> captures, IReadOnlyList<RecipeScopeItem> destinations)
+        public RecipeExtensionScopeWindow(string extensionName, IReadOnlyList<RecipeScopeViewModel> captures, IReadOnlyList<RecipeScopeViewModel> destinations)
         {
             InitializeComponent();
             try
@@ -59,10 +59,10 @@ namespace Greenshot.Recipes.Views
                 Log.Debug("Could not set window icon", ex);
             }
 
-            _captures = captures ?? Array.Empty<RecipeScopeItem>();
-            _destinations = destinations ?? Array.Empty<RecipeScopeItem>();
-            _captureCopies = _captures.Select(i => new RecipeScopeItem(i.Id, i.Name, i.IsChecked)).ToList();
-            _destinationCopies = _destinations.Select(i => new RecipeScopeItem(i.Id, i.Name, i.IsChecked)).ToList();
+            _captures = captures ?? Array.Empty<RecipeScopeViewModel>();
+            _destinations = destinations ?? Array.Empty<RecipeScopeViewModel>();
+            _captureCopies = _captures.Select(i => new RecipeScopeViewModel(i.Id, i.Name, i.IsChecked)).ToList();
+            _destinationCopies = _destinations.Select(i => new RecipeScopeViewModel(i.Id, i.Name, i.IsChecked)).ToList();
 
             string title = string.Format(Texts.Settings.RecipesScopeTitle, extensionName);
             Title = title;
@@ -100,7 +100,7 @@ namespace Greenshot.Recipes.Views
 
         private void DestinationsNone_Click(object sender, RoutedEventArgs e) => SetAll(_destinationCopies, false);
 
-        private static void SetAll(IEnumerable<RecipeScopeItem> items, bool isChecked)
+        private static void SetAll(IEnumerable<RecipeScopeViewModel> items, bool isChecked)
         {
             foreach (var item in items)
             {

@@ -35,7 +35,6 @@ using Contracts = Greenshot.Base.Pipeline.Contracts;
 
 using Greenshot.Base.Recipes;
 using Greenshot.Recipes.Views;
-using Greenshot.UI;
 using log4net;
 using Newtonsoft.Json.Linq;
 using Greenshot.Base.Threading;

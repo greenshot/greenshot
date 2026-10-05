@@ -25,7 +25,8 @@ using System.Threading;
 using System.Windows;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
-using Greenshot.UI.SelfService;
+using Greenshot.SelfService.ViewModels;
+using Greenshot.SelfService.Views;
 using Xunit;
 
 namespace Greenshot.Tests.Forms

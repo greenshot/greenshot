@@ -35,7 +35,6 @@ using Greenshot.Base.Threading;
 using Greenshot.Base.Triggers;
 using Greenshot.Recipes;
 using Greenshot.Recipes.Approval;
-using Greenshot.UI;
 using log4net;
 
 namespace Greenshot.Helpers.Ipc

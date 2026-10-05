@@ -38,9 +38,10 @@ using Greenshot.Plugin.Imgur;
 using Greenshot.Plugin.Imgur.Forms;
 using Greenshot.Plugin.Jira;
 using Greenshot.Plugin.Jira.Forms;
-using Greenshot.Forms.Wpf;
 using Greenshot.Plugin.Zxing;
 using Greenshot.Plugin.Zxing.Views;
+using Greenshot.ViewModels;
+using Greenshot.Views;
 using Xunit;
 using Greenshot.Plugin.Zxing.Controls;
 using System.Threading.Tasks;
@@ -155,14 +156,14 @@ namespace Greenshot.Tests.Forms
 
                     var instances = new[]
                     {
-                        new Greenshot.Forms.Wpf.RunningInstanceItem
+                        new Greenshot.ViewModels.RunningInstanceViewModel
                         {
                             Index = 1,
                             ProcessId = 1234,
                             Path = @"C:\Program Files\Greenshot\Greenshot.exe"
                         }
                     };
-                    var instanceRunningWindow = new Greenshot.Forms.Wpf.InstanceRunningWindow(instances);
+                    var instanceRunningWindow = new Greenshot.Views.InstanceRunningWindow(instances);
                     Assert.NotNull(instanceRunningWindow);
                 }
                 catch (Exception ex)
@@ -225,10 +226,10 @@ namespace Greenshot.Tests.Forms
                 try
                 {
                     // Greenshot WPF windows
-                    var languageWindow = new Greenshot.Forms.Wpf.LanguageWindow();
+                    var languageWindow = new Greenshot.Views.LanguageWindow();
                     Assert.NotNull(languageWindow);
 
-                    var printOptionsWindow = new Greenshot.Forms.Wpf.PrintOptionsWindow();
+                    var printOptionsWindow = new Greenshot.Views.PrintOptionsWindow();
                     Assert.NotNull(printOptionsWindow);
 
                     // Greenshot.Editor WPF windows

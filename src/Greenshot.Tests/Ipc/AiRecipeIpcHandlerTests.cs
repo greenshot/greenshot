@@ -35,7 +35,6 @@ using Greenshot.Helpers.Ipc;
 using Greenshot.Recipes;
 using Greenshot.Recipes.Approval;
 using Greenshot.Tests.Recipes;
-using Greenshot.UI;
 using Newtonsoft.Json.Linq;
 using Xunit;
 

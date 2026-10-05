@@ -61,7 +61,6 @@ using Greenshot.Editor;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Forms;
-using Greenshot.Forms.Wpf;
 using Greenshot.Base.Pipeline;
 using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
@@ -73,7 +72,9 @@ using Greenshot.Processors;
 using Greenshot.Recipes;
 using Greenshot.Recipes.Pipeline;
 using Greenshot.Recipes.Triggers;
-using Greenshot.UI;
+using Greenshot.Settings.Views;
+using Greenshot.ViewModels;
+using Greenshot.Views;
 using log4net;
 
 using Timer = System.Timers.Timer;
@@ -147,7 +148,7 @@ namespace Greenshot.Forms
 
                 if (isAlreadyRunning)
                 {
-                    var instances = new List<RunningInstanceItem>();
+                    var instances = new List<RunningInstanceViewModel>();
                     bool matchedThisProcess = false;
                     int index = 1;
                     int currentProcessId;
@@ -161,7 +162,7 @@ namespace Greenshot.Forms
                         try
                         {
                             string path = Kernel32Api.GetProcessPath(greenshotProcess.Id);
-                            instances.Add(new RunningInstanceItem
+                            instances.Add(new RunningInstanceViewModel
                             {
                                 Index = index++,
                                 ProcessId = greenshotProcess.Id,
@@ -183,7 +184,7 @@ namespace Greenshot.Forms
                     if (!matchedThisProcess)
                     {
                         using Process currentProcess = Process.GetCurrentProcess();
-                        instances.Add(new RunningInstanceItem
+                        instances.Add(new RunningInstanceViewModel
                         {
                             Index = index,
                             ProcessId = currentProcess.Id,
@@ -403,7 +404,7 @@ namespace Greenshot.Forms
             // if language is not set, show language dialog
             if (string.IsNullOrEmpty(_conf.Language))
             {
-                var languageWindow = new Greenshot.Forms.Wpf.LanguageWindow();
+                var languageWindow = new Greenshot.Views.LanguageWindow();
                 languageWindow.ShowDialog(this);
                 Texts.SetLanguage(languageWindow.SelectedLanguage);
             }

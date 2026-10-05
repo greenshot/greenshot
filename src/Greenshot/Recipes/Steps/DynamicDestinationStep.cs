@@ -38,7 +38,6 @@ using Greenshot.Destinations;
 using Greenshot.Editor.Destinations;
 using Greenshot.Recipes.Pipeline;
 using Greenshot.Recipes.Views;
-using Greenshot.UI;
 using log4net;
 using Greenshot.Base.Threading;
 

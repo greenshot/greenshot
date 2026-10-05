@@ -38,10 +38,10 @@ using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
 using Greenshot.Forms;
-using Greenshot.Forms.Wpf;
 using Greenshot.Recipes;
 using Greenshot.Recipes.Pipeline;
-using Greenshot.UI.SelfService;
+using Greenshot.SelfService.Views;
+using Greenshot.Settings.Views;
 using log4net;
 using Greenshot.Base.Threading;
 
