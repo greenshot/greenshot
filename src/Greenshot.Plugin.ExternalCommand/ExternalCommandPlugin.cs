@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Windows.Forms;
+using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Dapplo.Ini;
@@ -175,7 +176,7 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRec
     {
         _itemPlugInRoot = new ToolStripMenuItem();
         _itemPlugInRoot.Click += ConfigMenuClick;
-        OnIconSizeChanged(this, new PropertyChangedEventArgs("IconSize"));
+        ShowCommandIcon();
         OnLanguageChanged(this, null);
 
         PluginUtils.AddToContextMenu(_itemPlugInRoot);
@@ -185,7 +186,6 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRec
             notify.PropertyChanged += OnConfigPropertyChanged;
         }
         Texts.Config.LanguageChanged += OnLanguageChanged;
-        CoreConfig.PropertyChanged += OnIconSizeChanged;
     }
 
     private void OnConfigPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -200,32 +200,21 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRec
     }
 
     /// <summary>
-    /// Fix icon reference
+    /// The icon of cmd.exe on the quick link, in the size of the tray menu (see IconBinder)
     /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void OnIconSizeChanged(object sender, PropertyChangedEventArgs e)
+    private void ShowCommandIcon()
     {
-        if (e.PropertyName == "IconSize")
+        try
         {
-            try
+            string exePath = PluginUtils.GetExePath("cmd.exe");
+            if (exePath != null && File.Exists(exePath))
             {
-                string exePath = PluginUtils.GetExePath("cmd.exe");
-                if (exePath != null && File.Exists(exePath))
-                {
-                    var icon = PluginUtils.GetCachedExeIcon(exePath, 0);
-                    // Clone the icon to prevent issues when the cache is cleared
-                    var iconClone = icon != null ? ImageHelper.Clone(icon) : null;
-                    // Dispose the previous image before assigning the new one
-                    var oldImage = _itemPlugInRoot.Image;
-                    _itemPlugInRoot.Image = iconClone;
-                    oldImage?.Dispose();
-                }
+                IconBinder.Bind(_itemPlugInRoot, IconSource.FromKey(DestinationIcons.Exe(exePath, 0)));
             }
-            catch (Exception ex)
-            {
-                Log.Warn("Couldn't get the cmd.exe image", ex);
-            }
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("Couldn't get the cmd.exe image", ex);
         }
     }
 
@@ -247,7 +236,6 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRec
             }
 
             Texts.Config.LanguageChanged -= OnLanguageChanged;
-            CoreConfig.PropertyChanged -= OnIconSizeChanged;
             _itemPlugInRoot?.Dispose();
             _itemPlugInRoot = null;
         }, cancellationToken);

@@ -455,9 +455,6 @@ namespace Greenshot.Forms
 
             SoundHelper.Initialize();
 
-            coreConfiguration.PropertyChanged += OnIconSizeChanged;
-            OnIconSizeChanged(this, new PropertyChangedEventArgs("IconSize"));
-
             // Set the Greenshot icon visibility depending on the configuration. (Added for feature #3521446)
             // Setting it to true this late prevents Problems with the context menu
             notifyIcon.Visible = !_conf.HideTrayicon;
@@ -521,16 +518,16 @@ namespace Greenshot.Forms
         /// </summary>
         private void ApplyImages()
         {
-            contextmenu_capturearea.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_capturearea.Image");
-            contextmenu_capturelastregion.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_capturelastregion.Image");
-            contextmenu_capturewindow.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_capturewindow.Image");
-            contextmenu_capturefullscreen.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_capturefullscreen.Image");
-            contextmenu_captureclipboard.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_captureclipboard.Image");
-            contextmenu_openfile.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_openfile.Image");
-            contextmenu_settings.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_settings.Image");
-            contextmenu_help.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_help.Image");
-            contextmenu_donate.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_donate.Image");
-            contextmenu_exit.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_exit.Image");
+            IconBinder.Bind(contextmenu_capturearea, IconSource.FromResource(typeof(MainForm), "contextmenu_capturearea.Image"));
+            IconBinder.Bind(contextmenu_capturelastregion, IconSource.FromResource(typeof(MainForm), "contextmenu_capturelastregion.Image"));
+            IconBinder.Bind(contextmenu_capturewindow, IconSource.FromResource(typeof(MainForm), "contextmenu_capturewindow.Image"));
+            IconBinder.Bind(contextmenu_capturefullscreen, IconSource.FromResource(typeof(MainForm), "contextmenu_capturefullscreen.Image"));
+            IconBinder.Bind(contextmenu_captureclipboard, IconSource.FromResource(typeof(MainForm), "contextmenu_captureclipboard.Image"));
+            IconBinder.Bind(contextmenu_openfile, IconSource.FromResource(typeof(MainForm), "contextmenu_openfile.Image"));
+            IconBinder.Bind(contextmenu_settings, IconSource.FromResource(typeof(MainForm), "contextmenu_settings.Image"));
+            IconBinder.Bind(contextmenu_help, IconSource.FromResource(typeof(MainForm), "contextmenu_help.Image"));
+            IconBinder.Bind(contextmenu_donate, IconSource.FromResource(typeof(MainForm), "contextmenu_donate.Image"));
+            IconBinder.Bind(contextmenu_exit, IconSource.FromResource(typeof(MainForm), "contextmenu_exit.Image"));
         }
 
         protected override void InitializeLanguage()
@@ -643,30 +640,6 @@ namespace Greenshot.Forms
                 ApplicationStartupHelper.OpenFile).ConfigureAwait(false);
         }
 
-        /// <summary>
-        /// Fix icon reference
-        /// </summary>
-        /// <param name="sender">object</param>
-        /// <param name="e">PropertyChangedEventArgs</param>
-        private void OnIconSizeChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName != "IconSize")
-            {
-                return;
-            }
-
-            DpiChangedHandler(96, DeviceDpi);
-        }
-
-        /// <summary>
-        /// Modify the DPI settings depending in the current value
-        /// </summary>
-        protected override void DpiChangedHandler(int oldDpi, int newDpi)
-        {
-            var newSize = DpiCalculator.ScaleWithDpi(coreConfiguration.IconSize, newDpi);
-            contextMenu.ImageScalingSize = newSize;
-        }
-
         public void UpdateUi()
         {
             // As the form is never loaded, call ApplyLanguage ourselves
@@ -759,8 +732,6 @@ namespace Greenshot.Forms
 
         private void ContextMenuOpening(object sender, CancelEventArgs e)
         {
-            var factor = DeviceDpi / 96f;
-            contextMenu.Scale(new SizeF(factor, factor));
             // Phase 1 only checks the formats; when a file list, virtual files or HTML could contain an image, phase 2 checks them in the background
             bool? clipboardImage = ClipboardHelper.ContainsImageQuick();
             contextmenu_captureclipboard.Enabled = clipboardImage == true;
@@ -789,11 +760,14 @@ namespace Greenshot.Forms
                 (now.Month == 3 && now.Day > 13 && now.Day < 21))
             {
                 // birthday
-                contextmenu_donate.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_present.Image");
+                IconBinder.Bind(contextmenu_donate, IconSource.FromResource(typeof(MainForm), "contextmenu_present.Image"));
             }
 
             UpdateRecipesMenu();
             PluginUtils.UpdatePluginSeparatorsVisibility(contextMenu);
+
+            // The icons in the size for the display the menu opens on: where the tray icon was clicked
+            IconBinder.ApplyForDpi(contextMenu, IconSizing.DpiAt(Cursor.Position), "the tray menu");
         }
 
         private ToolStripMenuItem _recipesMenuItem;
@@ -1090,6 +1064,8 @@ namespace Greenshot.Forms
             // check if thumbnailPreview is enabled and DWM is enabled
             bool thumbnailPreview = _conf.ThumnailPreview && DwmApi.IsDwmEnabled;
 
+            // Over 16 pixels the large icon of the window is the better source
+            bool largeIcons = (menuItem.Owner?.ImageScalingSize.Height ?? 0) > 16;
             foreach (var window in WindowDetails.GetTopLevelWindows())
             {
                 if (Log.IsDebugEnabled)
@@ -1111,8 +1087,8 @@ namespace Greenshot.Forms
                 ToolStripItem captureWindowItem = menuItem.DropDownItems.Add(title);
                 captureWindowItem.Tag = window;
                 captureWindowItem.Click += eventHandler;
-                // Dispose the icon when the menu item is disposed to prevent memory leaks
-                captureWindowItem.AssignAutoDisposingImage(window?.DisplayIcon, needsClone: false);
+                // The item owns the icon, it's disposed with the item
+                IconBinder.Bind(captureWindowItem, IconSource.FromImage(window?.GetDisplayIcon(largeIcons)));
                 // Only show preview when enabled
                 if (thumbnailPreview)
                 {

@@ -25,6 +25,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using Dapplo.Ini;
+using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
@@ -167,23 +168,21 @@ namespace Greenshot.Plugin.Office
 
         private void Start()
         {
-            Image icon = null;
+            _itemPlugInConfig = new ToolStripMenuItem
+            {
+                Text = PluginUtils.GetQuicklinkText("Microsoft Office"),
+                Visible = _config?.QuicklinkEnabled ?? false
+            };
+            _itemPlugInConfig.Click += delegate { ShowSettings(); };
             try
             {
-                icon = WordDestination.WordExePath == null ? null : PluginUtils.GetCachedExeIcon(WordDestination.WordExePath, 0);
+                // The icon in the size of the tray menu, see IconBinder
+                IconBinder.Bind(_itemPlugInConfig, IconSource.FromKey(DestinationIcons.Exe(WordDestination.WordExePath, 0)));
             }
             catch
             {
                 // Word may not be available
             }
-
-            _itemPlugInConfig = new ToolStripMenuItem
-            {
-                Image = icon,
-                Text = PluginUtils.GetQuicklinkText("Microsoft Office"),
-                Visible = _config?.QuicklinkEnabled ?? false
-            };
-            _itemPlugInConfig.Click += delegate { ShowSettings(); };
 
             PluginUtils.AddToContextMenu(_itemPlugInConfig);
             Texts.Config.LanguageChanged += OnLanguageChanged;

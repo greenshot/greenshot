@@ -41,14 +41,30 @@ namespace Greenshot.Base.Core
 
         public const string Greenshot = "greenshot";
 
-        public static string Resource(string name) => name == null ? null : "resource:" + name;
+        /// <summary>
+        /// The prefix of the keys of the Greenshot resources
+        /// </summary>
+        public const string ResourcePrefix = "resource:";
+
+        private const string ExePrefix = "exe:";
+
+        public static string Resource(string name) => name == null ? null : ResourcePrefix + name;
 
         public static string Exe(string path, int index) => path == null ? null : string.Format(CultureInfo.InvariantCulture, "exe:{0}:{1}", index, path);
 
         /// <summary>
         /// Resolve the icon, the caller owns (disposes) the image; null when unknown.
         /// </summary>
-        public static async Task<Image> GetIconAsync(string iconKey, CancellationToken cancellationToken = default)
+        public static Task<Image> GetIconAsync(string iconKey, CancellationToken cancellationToken = default) => GetIconAsync(iconKey, 0, cancellationToken);
+
+        /// <summary>
+        /// Resolve the icon in (or close to) the size, the caller owns (disposes) the image; null when unknown.
+        /// Only sources which have several sizes (exe icons, <see cref="ISizedIconProvider"/>) use the size, the result still needs scaling.
+        /// </summary>
+        /// <param name="iconKey">string with the key</param>
+        /// <param name="pixelSize">int with the size in pixels which is needed, 0 for the default</param>
+        /// <param name="cancellationToken">CancellationToken</param>
+        public static async Task<Image> GetIconAsync(string iconKey, int pixelSize, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrEmpty(iconKey))
             {
@@ -59,7 +75,7 @@ namespace Greenshot.Base.Core
             {
                 if (BuiltIn.CanProvide(iconKey))
                 {
-                    return await BuiltIn.GetIconAsync(iconKey, cancellationToken).ConfigureAwait(false);
+                    return await BuiltIn.GetIconAsync(iconKey, pixelSize, cancellationToken).ConfigureAwait(false);
                 }
 
                 var providers = SimpleServiceProvider.Current?.GetAllInstances<IIconProvider>() ?? Enumerable.Empty<IIconProvider>();
@@ -67,6 +83,11 @@ namespace Greenshot.Base.Core
                 {
                     if (provider.CanProvide(iconKey))
                     {
+                        if (pixelSize > 0 && provider is ISizedIconProvider sizedProvider)
+                        {
+                            return await sizedProvider.GetIconAsync(iconKey, pixelSize, cancellationToken).ConfigureAwait(false);
+                        }
+
                         return await provider.GetIconAsync(iconKey, cancellationToken).ConfigureAwait(false);
                     }
                 }
@@ -82,6 +103,40 @@ namespace Greenshot.Base.Core
 
             return null;
         }
+
+        /// <summary>
+        /// Which original the key uses for the size: exe icons have a small (16) and a large (32) icon, a sized provider can have any size.
+        /// Null when the key always has the same original.
+        /// </summary>
+        /// <param name="iconKey">string with the key</param>
+        /// <param name="pixelSize">int with the size in pixels</param>
+        /// <returns>string or null</returns>
+        public static string GetVariant(string iconKey, int pixelSize)
+        {
+            if (string.IsNullOrEmpty(iconKey) || pixelSize <= 0)
+            {
+                return null;
+            }
+
+            if (iconKey.StartsWith(ExePrefix, StringComparison.Ordinal))
+            {
+                return IsLargeIcon(pixelSize) ? "large" : "small";
+            }
+
+            if (BuiltIn.CanProvide(iconKey))
+            {
+                return null;
+            }
+
+            var providers = SimpleServiceProvider.Current?.GetAllInstances<IIconProvider>() ?? Enumerable.Empty<IIconProvider>();
+            var provider = providers.FirstOrDefault(p => p.CanProvide(iconKey));
+            return provider is ISizedIconProvider ? pixelSize.ToString(CultureInfo.InvariantCulture) : null;
+        }
+
+        /// <summary>
+        /// The large (32x32) system icon is the better source for everything over 16 pixels
+        /// </summary>
+        internal static bool IsLargeIcon(int pixelSize) => pixelSize > 16;
 
         /// <summary>
         /// Resolve the icon as a frozen WPF image source (usable on any thread), null when unknown.
@@ -105,9 +160,11 @@ namespace Greenshot.Base.Core
         private sealed class CoreIconProvider : IIconProvider
         {
             public bool CanProvide(string iconKey) =>
-                iconKey == Greenshot || iconKey.StartsWith("resource:", StringComparison.Ordinal) || iconKey.StartsWith("exe:", StringComparison.Ordinal);
+                iconKey == Greenshot || iconKey.StartsWith(ResourcePrefix, StringComparison.Ordinal) || iconKey.StartsWith(ExePrefix, StringComparison.Ordinal);
 
-            public async Task<Image> GetIconAsync(string iconKey, CancellationToken cancellationToken)
+            public Task<Image> GetIconAsync(string iconKey, CancellationToken cancellationToken) => GetIconAsync(iconKey, 0, cancellationToken);
+
+            public async Task<Image> GetIconAsync(string iconKey, int pixelSize, CancellationToken cancellationToken)
             {
                 Image image = null;
                 if (iconKey == Greenshot)
@@ -126,7 +183,9 @@ namespace Greenshot.Base.Core
                     var parts = iconKey.Split(new[] { ':' }, 3);
                     if (parts.Length == 3 && int.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out int index))
                     {
-                        var cached = await PluginUtils.GetCachedExeIconAsync(parts[2], index, cancellationToken).ConfigureAwait(false);
+                        var cached = pixelSize > 0
+                            ? await PluginUtils.GetCachedExeIconAsync(parts[2], index, IsLargeIcon(pixelSize), cancellationToken).ConfigureAwait(false)
+                            : await PluginUtils.GetCachedExeIconAsync(parts[2], index, cancellationToken).ConfigureAwait(false);
                         if (cached != null)
                         {
                             // The cache owns the icon, the caller gets a copy

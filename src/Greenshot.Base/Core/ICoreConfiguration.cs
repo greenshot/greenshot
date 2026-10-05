@@ -361,7 +361,7 @@ namespace Greenshot.Base.Core
         NativeRect LastCapturedRegion { get; set; }
 
         [DataMember(Name = "BaseIconSize")]
-        [Description("Defines the base size of the icons (e.g. for the buttons in the editor), default value 16,16 and it's scaled to the current DPI")]
+        [Description("Defines the base size of the icons (e.g. for the buttons in the editor and the menus) at 100%, in steps of 4, default value 16,16. It's scaled to the DPI of the display the menu or window is on")]
         [DefaultValue("16,16")]
         NativeSize IconSize { get; set; }
 

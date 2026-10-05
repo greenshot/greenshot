@@ -25,6 +25,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using Dapplo.Ini;
+using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Drawing;
 using Greenshot.Base.Interfaces;
@@ -466,23 +467,14 @@ public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
 
     private void Start()
     {
-        Image icon = null;
-        try
-        {
-            icon = PluginUtils.GetCachedExeIcon(FilenameHelper.FillCmdVariables(@"%windir%\system32\imageres.dll"), 97);
-        }
-        catch
-        {
-            // Ignore
-        }
-
         _itemPlugInConfig = new ToolStripMenuItem
         {
-            Image = icon,
             Text = PluginUtils.GetQuicklinkText("Zxing"),
             Visible = _config?.QuicklinkEnabled ?? false
         };
         _itemPlugInConfig.Click += delegate { ShowSettings(); };
+        // The icon in the size of the tray menu, see IconBinder
+        IconBinder.Bind(_itemPlugInConfig, IconSource.FromKey(DestinationIcons.Exe(FilenameHelper.FillCmdVariables(@"%windir%\system32\imageres.dll"), 97)));
 
         PluginUtils.AddToContextMenu(_itemPlugInConfig);
         Texts.Config.LanguageChanged += OnLanguageChanged;

@@ -272,17 +272,17 @@ namespace Greenshot.Forms.Wpf
 
         private void IconSizeUp_Click(object sender, RoutedEventArgs e)
         {
-            if (_viewModel.IconSize + 16 <= 256)
+            if (_viewModel.IconSize + CoreConfigurationImpl.IconSizeStep <= 256)
             {
-                _viewModel.IconSize += 16;
+                _viewModel.IconSize += CoreConfigurationImpl.IconSizeStep;
             }
         }
 
         private void IconSizeDown_Click(object sender, RoutedEventArgs e)
         {
-            if (_viewModel.IconSize - 16 >= 16)
+            if (_viewModel.IconSize - CoreConfigurationImpl.IconSizeStep >= 16)
             {
-                _viewModel.IconSize -= 16;
+                _viewModel.IconSize -= CoreConfigurationImpl.IconSizeStep;
             }
         }
 

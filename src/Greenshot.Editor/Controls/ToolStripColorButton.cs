@@ -24,12 +24,13 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using Greenshot.Base.Controls;
 using Dapplo.Windows.Common.Structs;
 using ColorDialog = Greenshot.Editor.Forms.ColorDialog;
 
 namespace Greenshot.Editor.Controls
 {
-    public class ToolStripColorButton : ToolStripButton, INotifyPropertyChanged
+    public class ToolStripColorButton : ToolStripButton, INotifyPropertyChanged, IIconDecorator
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -46,27 +47,32 @@ namespace Greenshot.Editor.Controls
             set
             {
                 _selectedColor = value;
-
-                Brush brush;
-                if (value != Color.Transparent)
-                {
-                    brush = new SolidBrush(value);
-                }
-                else
-                {
-                    brush = new HatchBrush(HatchStyle.Percent50, Color.White, Color.Gray);
-                }
-
                 if (Image != null)
                 {
-                    using Graphics graphics = Graphics.FromImage(Image);
-                    graphics.FillRectangle(brush, new NativeRect(0, 13, 16, 3));
+                    DecorateIcon(Image);
                 }
 
-                // cleanup GDI Object
-                brush.Dispose();
                 Invalidate();
             }
+        }
+
+        /// <summary>
+        /// Draw the selected color as a bar at the bottom of the icon: the lowest 3 of 16 pixels, scaled with the icon
+        /// </summary>
+        /// <param name="icon">Image</param>
+        public void DecorateIcon(Image icon)
+        {
+            if (icon == null)
+            {
+                return;
+            }
+
+            using Brush brush = _selectedColor != Color.Transparent
+                ? new SolidBrush(_selectedColor)
+                : new HatchBrush(HatchStyle.Percent50, Color.White, Color.Gray);
+            int barHeight = Math.Max(1, (int)Math.Round(icon.Height * 3 / 16.0));
+            using Graphics graphics = Graphics.FromImage(icon);
+            graphics.FillRectangle(brush, new NativeRect(0, icon.Height - barHeight, icon.Width, barHeight));
         }
 
         private void ColorButtonClick(object sender, EventArgs e)

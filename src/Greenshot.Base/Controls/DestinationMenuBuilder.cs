@@ -26,7 +26,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Dapplo.Ini;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Dpi;
@@ -70,7 +69,8 @@ namespace Greenshot.Base.Controls
         }
 
         /// <summary>
-        /// Show the icon of the key on the item, as soon as it is available (right away for built in icons).
+        /// Show the icon of the key on the item, as soon as it is available (right away for built in icons),
+        /// in the size of the menu the item is on, see <see cref="IconBinder"/>.
         /// </summary>
         public static void AssignIcon(ToolStripItem item, string iconKey)
         {
@@ -79,25 +79,7 @@ namespace Greenshot.Base.Controls
                 return;
             }
 
-            LoadIconAsync(item, iconKey).FireAndLog($"Load icon {iconKey}", Log);
-        }
-
-        private static async Task LoadIconAsync(ToolStripItem item, string iconKey)
-        {
-            // Completes synchronously for icons which don't need to wait, the continuation stays on the UI thread
-            var image = await DestinationIcons.GetIconAsync(iconKey).ConfigureAwait(true);
-            if (image == null)
-            {
-                return;
-            }
-
-            if (item.IsDisposed)
-            {
-                image.Dispose();
-                return;
-            }
-
-            item.AssignAutoDisposingImage(image, needsClone: false);
+            IconBinder.Bind(item, IconSource.FromKey(iconKey));
         }
 
         /// <summary>
@@ -236,13 +218,11 @@ namespace Greenshot.Base.Controls
         {
             ThreadAssert.IsUi(nameof(ShowPickerAsync));
             var picked = Tcs.Create<IDestination>();
-            var coreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
             var menu = new ContextMenuStrip
             {
-                ImageScalingSize = coreConfig.IconSize,
                 Tag = null,
                 TopLevel = true,
-                // set new default font, so we are allowed to dispose it later, we will scale it later on the Opening event
+                // set new default font, so we are allowed to dispose it later, it is scaled when the menu is shown
                 Font = new Font(FontFamily.GenericSansSerif, 9)
             };
 
@@ -279,20 +259,6 @@ namespace Greenshot.Base.Controls
                 }
             });
             _ = picked.Task.ContinueWith(_ => registration.Dispose(), TaskScheduler.Default);
-
-            menu.Opening += (_, _) =>
-            {
-                // find the DPI settings for the screen where this is going to land
-                var screenDpi = NativeDpiMethods.GetDpi(menu.Location);
-                var scaledIconSize = DpiCalculator.ScaleWithDpi(coreConfig.IconSize, screenDpi);
-                menu.SuspendLayout();
-                var fontSize = DpiCalculator.ScaleWithDpi(12f, screenDpi);
-                var previousFont = menu.Font;
-                menu.Font = new Font(FontFamily.GenericSansSerif, fontSize, FontStyle.Regular, GraphicsUnit.Pixel);
-                previousFont?.Dispose();
-                menu.ImageScalingSize = scaledIconSize;
-                menu.ResumeLayout();
-            };
 
             menu.Closing += (_, eventArgs) =>
             {
@@ -353,6 +319,14 @@ namespace Greenshot.Base.Controls
         {
             // find a suitable location
             NativePoint location = Cursor.Position;
+            // Size the icons and the font for the display the menu is shown on, before its size is used for the location
+            int dpi = IconSizing.DpiAt(Cursor.Position);
+            menu.SuspendLayout();
+            var previousFont = menu.Font;
+            menu.Font = new Font(FontFamily.GenericSansSerif, DpiCalculator.ScaleWithDpi(12f, dpi), FontStyle.Regular, GraphicsUnit.Pixel);
+            previousFont?.Dispose();
+            IconBinder.ApplyForDpi(menu, dpi, "the destination picker");
+            menu.ResumeLayout();
             var menuRectangle = new NativeRect(location, menu.Size);
 
             menuRectangle = menuRectangle.Intersect(DisplayInfo.ScreenBounds);

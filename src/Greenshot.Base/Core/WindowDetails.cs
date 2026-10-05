@@ -177,40 +177,44 @@ namespace Greenshot.Base.Core
 
 
         /// <summary>
-        /// Get the icon belonging to the process
+        /// Get the icon belonging to the process, the caller owns (disposes) it
         /// </summary>
-        public Image DisplayIcon
+        public Image DisplayIcon => GetDisplayIcon(Conf.IconSize.Width >= 32 || Conf.IconSize.Height >= 32);
+
+        /// <summary>
+        /// Get the small (16x16) or large (32x32) icon belonging to the process, the caller owns (disposes) it
+        /// </summary>
+        /// <param name="large">true for the large icon, use it for everything over 16 pixels</param>
+        /// <returns>Image or null</returns>
+        public Image GetDisplayIcon(bool large)
         {
-            get
+            try
             {
-                try
+                using var appIcon = GetAppIcon(Handle, large);
+                if (appIcon != null)
                 {
-                    using var appIcon = GetAppIcon(Handle);
-                    if (appIcon != null)
-                    {
-                        return appIcon.ToBitmap();
-                    }
+                    return appIcon.ToBitmap();
                 }
-                catch (Exception ex)
-                {
-                    Log.WarnFormat("Couldn't get icon for window {0} due to: {1}", Text, ex.Message);
-                    Log.Warn(ex);
-                }
-
-                try
-                {
-                    var cachedIcon = PluginUtils.GetCachedExeIcon(ProcessPath, 0);
-                    // Clone the cached icon to prevent issues when the cache is cleared on icon size change
-                    return cachedIcon != null ? ImageHelper.Clone(cachedIcon) : null;
-                }
-                catch (Exception ex)
-                {
-                    Log.WarnFormat("Couldn't get icon for window {0} due to: {1}", Text, ex.Message);
-                    Log.Warn(ex);
-                }
-
-                return null;
             }
+            catch (Exception ex)
+            {
+                Log.WarnFormat("Couldn't get icon for window {0} due to: {1}", Text, ex.Message);
+                Log.Warn(ex);
+            }
+
+            try
+            {
+                var cachedIcon = PluginUtils.GetCachedExeIcon(ProcessPath, 0, large);
+                // The cache keeps its image, the caller gets a copy
+                return cachedIcon != null ? ImageHelper.Clone(cachedIcon) : null;
+            }
+            catch (Exception ex)
+            {
+                Log.WarnFormat("Couldn't get icon for window {0} due to: {1}", Text, ex.Message);
+                Log.Warn(ex);
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -218,14 +222,14 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="hWnd"></param>
         /// <returns></returns>
-        private static Icon GetAppIcon(IntPtr hWnd)
+        private static Icon GetAppIcon(IntPtr hWnd, bool large)
         {
             IntPtr iconSmall = IntPtr.Zero;
             IntPtr iconBig = new IntPtr(1);
             IntPtr iconSmall2 = new IntPtr(2);
 
             IntPtr iconHandle;
-            if (Conf.IconSize.Width >= 32 || Conf.IconSize.Height >= 32)
+            if (large)
             {
                 iconHandle = User32Api.SendMessage(hWnd, WindowsMessages.WM_GETICON, iconBig, IntPtr.Zero);
                 if (iconHandle == IntPtr.Zero)
