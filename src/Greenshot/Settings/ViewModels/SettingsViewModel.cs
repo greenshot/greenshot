@@ -91,6 +91,9 @@ namespace Greenshot.Settings.ViewModels
             InitializeAiTools();
 #endif
 
+            // The memory dial follows the memory settings
+            InitializeMemoryProfile();
+
             // Initialize clipboard formats
             InitializeClipboardFormats();
 
