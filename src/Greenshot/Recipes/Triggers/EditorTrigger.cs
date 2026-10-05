@@ -22,7 +22,7 @@
 using System;
 using System.Collections.Generic;
 using Greenshot.Base.Interfaces.Forms;
-using Greenshot.Base.Triggers;
+using Greenshot.Base.Recipes.Triggers;
 using log4net;
 
 namespace Greenshot.Recipes.Triggers

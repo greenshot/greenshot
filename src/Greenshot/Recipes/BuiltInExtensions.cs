@@ -20,8 +20,8 @@
  */
 
 using System.Collections.Generic;
-using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Contracts;
 
 namespace Greenshot.Recipes
 {

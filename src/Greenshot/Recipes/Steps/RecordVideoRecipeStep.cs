@@ -31,9 +31,9 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.User32;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Video;
-using Greenshot.Base.Pipeline;
-using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Contracts;
+using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Video;
 using log4net;
 

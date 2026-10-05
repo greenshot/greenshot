@@ -33,11 +33,11 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.Pipeline;
-using Greenshot.Base.Pipeline.Contracts;
-using Contracts = Greenshot.Base.Pipeline.Contracts;
+using Contracts = Greenshot.Base.Recipes.Contracts;
 
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Contracts;
+using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Capturing;
 using log4net;
 using Greenshot.Base.Threading;

@@ -21,7 +21,7 @@
 
 using System;
 using System.Collections.Generic;
-using Greenshot.Base.Pipeline;
+using Greenshot.Base.Recipes.Pipeline;
 
 namespace Greenshot.Base.Interfaces.Drawing
 {

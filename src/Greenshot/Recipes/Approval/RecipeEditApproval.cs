@@ -22,7 +22,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Greenshot.Base.Recipes;
-using Greenshot.Base.Triggers;
+using Greenshot.Base.Recipes.Triggers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;

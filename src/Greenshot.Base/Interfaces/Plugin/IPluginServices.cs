@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using Dapplo.Ini.Interfaces;
+using Greenshot.Base.Recipes.Pipeline;
 
 namespace Greenshot.Base.Interfaces.Plugin
 {
@@ -49,7 +50,7 @@ namespace Greenshot.Base.Interfaces.Plugin
         /// <summary>
         /// Register a provider of recipe steps, the host registers it when the recipe feature is enabled.
         /// </summary>
-        void AddRecipeStepProvider(Pipeline.IRecipeStepProvider provider);
+        void AddRecipeStepProvider(IRecipeStepProvider provider);
 
         /// <summary>
         /// Register a provider of recipe drawables, the host registers it when the recipe feature is enabled.

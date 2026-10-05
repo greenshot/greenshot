@@ -28,8 +28,8 @@ using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.Pipeline;
 using Greenshot.Base.Languages;
+using Greenshot.Base.Recipes.Pipeline;
 
 namespace Greenshot.Plugin.Imgur
 {

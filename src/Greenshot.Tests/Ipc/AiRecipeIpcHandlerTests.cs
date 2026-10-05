@@ -29,9 +29,9 @@ using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Ai;
 using Greenshot.Base.Core;
-using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
-using Greenshot.Base.Triggers;
+using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Ipc;
 using Greenshot.Recipes;
 using Greenshot.Recipes.Approval;
@@ -315,7 +315,7 @@ namespace Greenshot.Tests.Ipc
             {
                 Extends = new ExtensionTarget { Recipes = new List<string> { RecipeExtension.TargetCaptures }, Slot = RecipeSlots.BeforeDestination }
             }
-                .AddOption(new RecipeOption { Key = RecipeExtension.EnabledOptionKey, Type = Greenshot.Base.Pipeline.Contracts.ContractDataType.Boolean, DefaultValue = true })
+                .AddOption(new RecipeOption { Key = RecipeExtension.EnabledOptionKey, Type = Greenshot.Base.Recipes.Contracts.ContractDataType.Boolean, DefaultValue = true })
                 .AddNode(RecipeStepConfig.CreateBorder("border"));
             extension.Flow = new RecipeFlowConfig("border");
             var parameters = new Dictionary<string, string>

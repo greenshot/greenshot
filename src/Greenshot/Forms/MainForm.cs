@@ -51,6 +51,9 @@ using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Help;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
+using Greenshot.Base.Recipes.Contracts;
+using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Base.Threading;
 using Greenshot.Capturing;
 using Greenshot.Capturing.Views;
@@ -61,10 +64,7 @@ using Greenshot.Editor;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Forms;
-using Greenshot.Base.Pipeline;
-using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
-using Greenshot.Base.Triggers;
 using Greenshot.Helpers;
 using Greenshot.Ipc;
 using Greenshot.Ipc.Cli;
@@ -834,7 +834,7 @@ namespace Greenshot.Forms
 
             _recipesMenuItem.DropDownItems.Clear();
 
-            var triggerManager = SimpleServiceProvider.Current.GetInstance<Greenshot.Base.Triggers.ITriggerManager>(isOptional: true) as TriggerManager ?? TriggerManager.Instance;
+            var triggerManager = SimpleServiceProvider.Current.GetInstance<Greenshot.Base.Recipes.Triggers.ITriggerManager>(isOptional: true) as TriggerManager ?? TriggerManager.Instance;
             var recipeManager = SimpleServiceProvider.Current.GetInstance<Greenshot.Base.Recipes.IRecipeManager>(isOptional: true) ?? Recipes.RecipeManager.Instance;
 
             var menuTriggers = triggerManager.GetContextMenuTriggers();

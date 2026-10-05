@@ -22,7 +22,7 @@
 using System.Collections.Generic;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Recipes;
-using Greenshot.Base.Triggers;
+using Greenshot.Base.Recipes.Triggers;
 using Newtonsoft.Json;
 using Xunit;
 

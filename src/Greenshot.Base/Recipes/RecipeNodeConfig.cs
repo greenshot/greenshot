@@ -24,6 +24,8 @@ using System.Collections;
 using System.Collections.Generic;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Recipes.Expressions;
+using Greenshot.Base.Recipes.Pipeline;
 using Newtonsoft.Json.Linq;
 
 namespace Greenshot.Base.Recipes
@@ -205,11 +207,11 @@ namespace Greenshot.Base.Recipes
         /// Whether the node runs in this flow: it is enabled and its <see cref="EnabledExpression"/>, if any, is true.
         /// An expression which can't be evaluated counts as false.
         /// </summary>
-        public bool ShouldRun(Pipeline.CaptureFlowContext context)
+        public bool ShouldRun(CaptureFlowContext context)
         {
             if (!Enabled) return false;
             if (string.IsNullOrWhiteSpace(EnabledExpression)) return true;
-            return Expressions.ExpressionEvaluator.Instance.Evaluate(EnabledExpression, context, false);
+            return ExpressionEvaluator.Instance.Evaluate(EnabledExpression, context, false);
         }
 
         /// <summary>

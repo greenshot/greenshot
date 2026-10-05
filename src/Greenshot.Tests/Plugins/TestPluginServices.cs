@@ -25,7 +25,7 @@ using System.Linq;
 using Dapplo.Ini.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.Pipeline;
+using Greenshot.Base.Recipes.Pipeline;
 
 namespace Greenshot.Tests.Plugins
 {

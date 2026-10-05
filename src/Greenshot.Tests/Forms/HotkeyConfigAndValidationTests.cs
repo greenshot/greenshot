@@ -25,6 +25,8 @@ using System.Threading;
 using Dapplo.Windows.Input.Enums;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
+using Greenshot.Base.Wpf.ViewModels;
+using Greenshot.Base.Wpf.Views;
 using Xunit;
 
 namespace Greenshot.Tests.Forms
@@ -120,10 +122,10 @@ namespace Greenshot.Tests.Forms
             {
                 try
                 {
-                    var badge = new KeyCapBadge("Ctrl (L)");
+                    var badge = new KeyCapBadgeView("Ctrl (L)");
                     Assert.Equal("Ctrl (L)", badge.KeyText);
 
-                    var display = new HotkeyDisplayControl();
+                    var display = new HotkeyDisplayView();
                     display.HotkeyString = "Ctrl(L) + Alt + K, Ctrl + C";
                     display.UpdateBadges();
                     Assert.True(display.BadgesContainer.Items.Count >= 5);
@@ -136,7 +138,7 @@ namespace Greenshot.Tests.Forms
                     Assert.Equal(System.Windows.Visibility.Visible, display.EditButtonControl.Visibility);
 
                     Greenshot.Base.Wpf.WpfThemeHelper.IsDarkMode = true;
-                    var modal = new HotkeyEditorModal();
+                    var modal = new HotkeyEditorView();
                     string savedResult = null;
                     modal.Open("Test Recipe Hotkey", "Ctrl + Shift + R", s => savedResult = s);
                     Assert.True(Greenshot.Base.Wpf.ThemeManager.Instance.IsDarkTheme);
@@ -181,9 +183,9 @@ namespace Greenshot.Tests.Forms
         {
             var validRecipe = new Greenshot.Base.Recipes.CaptureRecipe("test_recipe_1", "Test Recipe", "Test Description")
                 .AddNode(new Greenshot.Base.Recipes.RecipeNodeConfig { Id = "node1", Name = "Step 1", StepType = "Source" });
-            validRecipe.Triggers = new System.Collections.Generic.List<Greenshot.Base.Triggers.TriggerConfig>
+            validRecipe.Triggers = new System.Collections.Generic.List<Greenshot.Base.Recipes.Triggers.TriggerConfig>
             {
-                new Greenshot.Base.Triggers.TriggerConfig("Hotkey", "Valid Hotkey")
+                new Greenshot.Base.Recipes.Triggers.TriggerConfig("Hotkey", "Valid Hotkey")
                 {
                     Parameters = new System.Collections.Generic.Dictionary<string, object>
                     {
@@ -197,9 +199,9 @@ namespace Greenshot.Tests.Forms
 
             var invalidRecipe = new Greenshot.Base.Recipes.CaptureRecipe("test_recipe_2", "Test Recipe Invalid", "Test Description")
                 .AddNode(new Greenshot.Base.Recipes.RecipeNodeConfig { Id = "node1", Name = "Step 1", StepType = "Source" });
-            invalidRecipe.Triggers = new System.Collections.Generic.List<Greenshot.Base.Triggers.TriggerConfig>
+            invalidRecipe.Triggers = new System.Collections.Generic.List<Greenshot.Base.Recipes.Triggers.TriggerConfig>
             {
-                new Greenshot.Base.Triggers.TriggerConfig("Hotkey", "Invalid Hotkey")
+                new Greenshot.Base.Recipes.Triggers.TriggerConfig("Hotkey", "Invalid Hotkey")
                 {
                     Parameters = new System.Collections.Generic.Dictionary<string, object>
                     {
@@ -237,7 +239,7 @@ namespace Greenshot.Tests.Forms
             {
                 try
                 {
-                    var modal = new HotkeyEditorModal();
+                    var modal = new HotkeyEditorView();
                     string savedResult = "Initial";
                     modal.Open("Test Disable", "Ctrl + Shift + R", s => savedResult = s);
                     var vm = modal.DataContext as HotkeyEditorViewModel;
@@ -271,7 +273,7 @@ namespace Greenshot.Tests.Forms
             {
                 try
                 {
-                    var modal = new HotkeyEditorModal();
+                    var modal = new HotkeyEditorView();
                     string savedResult = null;
                     modal.Open("Test Steps", "Scroll, C", s => savedResult = s);
                     var vm = modal.DataContext as HotkeyEditorViewModel;
@@ -318,9 +320,9 @@ namespace Greenshot.Tests.Forms
         {
             // The flow runs on a pool (MTA) thread, the clipboard is read on the (STA) UI thread through the dispatcher
             using var ui = Greenshot.Tests.Threading.StrictTestUiDispatcher.Create();
-            var source = new Greenshot.Base.Pipeline.Sources.ClipboardCaptureSource();
+            var source = new Greenshot.Base.Recipes.Sources.ClipboardCaptureSource();
             var recipe = new Greenshot.Base.Recipes.CaptureRecipe("test_clipboard", "Test Clipboard", "Test");
-            var context = new Greenshot.Base.Pipeline.CaptureFlowContext(recipe) { Ui = ui };
+            var context = new Greenshot.Base.Recipes.Pipeline.CaptureFlowContext(recipe) { Ui = ui };
             var payload = await source.AcquireAsync(context);
             // Should either return payload (if clipboard contains image) or abort cleanly, without throwing ThreadStateException
             Assert.True(context.IsAborted || payload != null);

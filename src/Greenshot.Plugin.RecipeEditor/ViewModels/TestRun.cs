@@ -22,9 +22,9 @@
 using System;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
-using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
-using Greenshot.Base.Triggers;
+using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Recipes.Triggers;
 
 namespace Greenshot.Plugin.RecipeEditor.ViewModels
 {

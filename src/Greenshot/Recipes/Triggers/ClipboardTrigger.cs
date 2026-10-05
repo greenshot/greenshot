@@ -28,7 +28,7 @@ using System.Windows.Forms;
 using Dapplo.Windows.Clipboard;
 using Dapplo.Windows.User32;
 using Greenshot.Base.Core;
-using Greenshot.Base.Triggers;
+using Greenshot.Base.Recipes.Triggers;
 using log4net;
 using System.Threading.Tasks;
 using Greenshot.Base.Threading;

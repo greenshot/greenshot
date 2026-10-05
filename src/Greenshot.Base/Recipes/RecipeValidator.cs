@@ -26,9 +26,9 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Drawing;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.Pipeline;
-using Greenshot.Base.Pipeline.Contracts;
 using System.Text.RegularExpressions;
+using Greenshot.Base.Recipes.Contracts;
+using Greenshot.Base.Recipes.Pipeline;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -103,17 +103,17 @@ namespace Greenshot.Base.Recipes
 
         private static readonly HashSet<string> KnownTriggerTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
-            Greenshot.Base.Triggers.TriggerConfig.TypeHotkey,
-            Greenshot.Base.Triggers.TriggerConfig.TypeContextMenu,
-            Greenshot.Base.Triggers.TriggerConfig.TypeSystray,
-            Greenshot.Base.Triggers.TriggerConfig.TypeClipboard,
-            Greenshot.Base.Triggers.TriggerConfig.TypeEditor,
-            Greenshot.Base.Triggers.TriggerConfig.TypeManual,
-            Greenshot.Base.Triggers.TriggerConfig.TypeSchedule,
-            Greenshot.Base.Triggers.TriggerConfig.TypeCommandline,
-            Greenshot.Base.Triggers.TriggerConfig.TypeOpenFile,
-            Greenshot.Base.Triggers.TriggerConfig.TypeExtension,
-            Greenshot.Base.Triggers.TriggerConfig.TypeAiTool
+            Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeHotkey,
+            Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeContextMenu,
+            Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeSystray,
+            Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeClipboard,
+            Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeEditor,
+            Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeManual,
+            Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeSchedule,
+            Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeCommandline,
+            Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeOpenFile,
+            Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeExtension,
+            Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeAiTool
         };
 
         /// <summary>
@@ -368,7 +368,7 @@ namespace Greenshot.Base.Recipes
         {
             try
             {
-                var contract = Pipeline.Contracts.RecipeContract.Analyze(recipe);
+                var contract = RecipeContract.Analyze(recipe);
                 foreach (var warning in contract?.ValidationWarnings ?? Array.Empty<string>())
                 {
                     // Unknown step types are already reported as errors above (or are built-ins not registered yet)
@@ -382,7 +382,7 @@ namespace Greenshot.Base.Recipes
             }
         }
 
-        private static void ValidateTrigger(Greenshot.Base.Triggers.TriggerConfig trigger, int index, RecipeValidationResult result)
+        private static void ValidateTrigger(Greenshot.Base.Recipes.Triggers.TriggerConfig trigger, int index, RecipeValidationResult result)
         {
             if (trigger == null)
             {
@@ -401,7 +401,7 @@ namespace Greenshot.Base.Recipes
                 result.AddWarning($"Trigger at index {index} has unrecognized triggerType '{trigger.TriggerType}'.");
             }
 
-            if (string.Equals(trigger.TriggerType, Greenshot.Base.Triggers.TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(trigger.TriggerType, Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase))
             {
                 string hotkey = trigger.GetParameter<string>("Hotkey");
                 if (string.IsNullOrWhiteSpace(hotkey))
@@ -418,10 +418,10 @@ namespace Greenshot.Base.Recipes
                 }
             }
 
-            if (string.Equals(trigger.TriggerType, Greenshot.Base.Triggers.TriggerConfig.TypeAiTool, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(trigger.TriggerType, Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeAiTool, StringComparison.OrdinalIgnoreCase))
             {
                 string toolName = trigger.GetParameter<string>("ToolName");
-                if (!Greenshot.Base.Triggers.AiToolTrigger.IsValidToolName(toolName))
+                if (!Greenshot.Base.Recipes.Triggers.AiToolTrigger.IsValidToolName(toolName))
                 {
                     result.AddError($"AI tool trigger '{trigger.Name}' at index {index} needs a 'ToolName' of 1 to 64 letters, digits, '_' or '-'{(string.IsNullOrEmpty(toolName) ? string.Empty : $", not '{toolName}'")}.");
                 }
@@ -431,7 +431,7 @@ namespace Greenshot.Base.Recipes
                 }
             }
 
-            if (string.Equals(trigger.TriggerType, Greenshot.Base.Triggers.TriggerConfig.TypeOpenFile, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(trigger.TriggerType, Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeOpenFile, StringComparison.OrdinalIgnoreCase))
             {
                 // Filter: extensions separated by ';', e.g. ".png;.jpg"
                 string filter = trigger.GetParameter<string>("Filter");

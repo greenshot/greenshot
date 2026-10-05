@@ -378,7 +378,7 @@ namespace Greenshot.Recipes
             }
             else
             {
-                approval = new RecipeApproval { RecipeId = extension.Id, AllowedGates = previousApproval?.AllowedGates?.ToList() ?? new List<Greenshot.Base.Pipeline.RecipeGateType>() };
+                approval = new RecipeApproval { RecipeId = extension.Id, AllowedGates = previousApproval?.AllowedGates?.ToList() ?? new List<Greenshot.Base.Recipes.Pipeline.RecipeGateType>() };
             }
             approval.RecipeId = extension.Id;
             // Recorded before writing, so the change on disk is known as Greenshot's own

@@ -33,8 +33,8 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Capturing;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Pipeline;
-using Greenshot.Base.Triggers;
+using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Recipes.Triggers;
 using log4net;
 
 namespace Greenshot.Ai

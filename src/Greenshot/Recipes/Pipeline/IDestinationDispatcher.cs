@@ -23,7 +23,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Pipeline;
+using Greenshot.Base.Recipes.Pipeline;
 
 namespace Greenshot.Recipes.Pipeline
 {

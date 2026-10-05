@@ -22,9 +22,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
-using Greenshot.Base.Triggers;
+using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Recipes.Triggers;
 
 namespace Greenshot.Recipes.Approval
 {

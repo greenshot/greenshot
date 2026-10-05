@@ -28,9 +28,9 @@ using System.Threading;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
-using Greenshot.Base.Triggers;
+using Greenshot.Base.Recipes.Contracts;
+using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Recipes.Approval;
 using Greenshot.Recipes.Triggers;
 using Greenshot.Recipes.Views;
@@ -1211,7 +1211,7 @@ namespace Greenshot.Recipes
         private void NotifyRecipesChanged()
         {
             RecomposeRecipes();
-            var triggerManager = SimpleServiceProvider.Current.GetInstance<Greenshot.Base.Triggers.ITriggerManager>(isOptional: true) as TriggerManager ?? TriggerManager.Instance;
+            var triggerManager = SimpleServiceProvider.Current.GetInstance<Greenshot.Base.Recipes.Triggers.ITriggerManager>(isOptional: true) as TriggerManager ?? TriggerManager.Instance;
             triggerManager?.SyncRecipeTriggers(GetAllRecipes());
             RecipesChanged?.Invoke(this, EventArgs.Empty);
         }

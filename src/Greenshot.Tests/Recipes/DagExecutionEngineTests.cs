@@ -24,8 +24,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
-using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Recipes.Pipeline;
 using Xunit;
 

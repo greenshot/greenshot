@@ -24,11 +24,11 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
-using Greenshot.Base.Expressions;
-using Greenshot.Base.Pipeline;
-using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
-using Greenshot.Base.Triggers;
+using Greenshot.Base.Recipes.Contracts;
+using Greenshot.Base.Recipes.Expressions;
+using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Recipes.Steps;
 using Xunit;
 

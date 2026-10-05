@@ -26,6 +26,8 @@ using System.Threading;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
+using Greenshot.Base.Wpf.ViewModels;
+using Greenshot.Base.Wpf.Views;
 using Greenshot.Plugin.Box;
 using Greenshot.Plugin.Box.Forms;
 using Greenshot.Plugin.Confluence;
@@ -549,7 +551,7 @@ namespace Greenshot.Tests.Forms
             {
                 try
                 {
-                    var modal = new HotkeyEditorModal();
+                    var modal = new HotkeyEditorView();
                     Assert.NotNull(modal.DataContext);
                     Assert.IsType<HotkeyEditorViewModel>(modal.DataContext);
                 }

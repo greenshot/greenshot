@@ -30,7 +30,7 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.User32;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Pipeline;
+using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Threading;
 using Greenshot.Capturing.Views;
 using log4net;

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Input;
-using Greenshot.Base.Triggers;
+using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Base.Wpf;
 
 namespace Greenshot.Plugin.RecipeEditor.ViewModels

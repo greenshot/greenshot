@@ -34,8 +34,8 @@ using Greenshot.Base.Drawing;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Pipeline;
 using log4net;
 using Greenshot.Base.Threading;
 

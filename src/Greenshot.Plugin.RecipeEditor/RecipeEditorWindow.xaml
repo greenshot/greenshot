@@ -7,7 +7,7 @@
         xmlns:vm="clr-namespace:Greenshot.Plugin.RecipeEditor.ViewModels"
         xmlns:conv="clr-namespace:Greenshot.Plugin.RecipeEditor.Converters"
         xmlns:emoji="clr-namespace:Greenshot.Editor.Controls.Emoji;assembly=Greenshot.Editor"
-        xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
+        xmlns:views="clr-namespace:Greenshot.Base.Wpf.Views;assembly=Greenshot.Base"
         mc:Ignorable="d"
         Title="{Binding WindowTitle}"
         Height="800" Width="1240"
@@ -3475,7 +3475,7 @@
                                                         <!-- 1. Hotkey -->
                                                         <StackPanel Visibility="{Binding IsHotkey, Converter={StaticResource BoolToVis}}" Margin="0,2,0,0">
                                                             <TextBlock Text="Hotkey Trigger" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                                                            <wpf:HotkeyDisplayControl Margin="0,4,0,4"
+                                                            <views:HotkeyDisplayView Margin="0,4,0,4"
                                                                                       HotkeyString="{Binding Hotkey, Mode=TwoWay}"
                                                                                       HeaderText="{Binding DisplayTitle}"
                                                                                       EditRequested="HotkeyDisplayControl_EditRequested"/>
@@ -3702,7 +3702,7 @@
             </Border>
 
             <!-- In-Window Modal Hotkey Editor Overlay -->
-            <wpf:HotkeyEditorModal x:Name="HotkeyModal"
+            <views:HotkeyEditorView x:Name="HotkeyModal"
                                    Grid.RowSpan="4"
                                    Visibility="Collapsed"/>
         </Grid>

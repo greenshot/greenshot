@@ -26,7 +26,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Greenshot.Base.Recipes;
-using Greenshot.Base.Triggers;
+using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Ipc;
 using Greenshot.Ipc.Cli;
 using Greenshot.Recipes;

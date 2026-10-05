@@ -13,11 +13,11 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Forms;
 using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.Pipeline;
-using Greenshot.Base.Pipeline.Contracts;
-using Contracts = Greenshot.Base.Pipeline.Contracts;
+using Contracts = Greenshot.Base.Recipes.Contracts;
 
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Contracts;
+using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Destinations;
 using Greenshot.Editor.Destinations;
 using Greenshot.Helpers;

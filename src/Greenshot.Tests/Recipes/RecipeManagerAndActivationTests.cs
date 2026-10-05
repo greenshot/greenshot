@@ -26,7 +26,7 @@ using System.Linq;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes;
-using Greenshot.Base.Triggers;
+using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Plugin.RecipeEditor.ViewModels;
 using Greenshot.Recipes;
 using Greenshot.Recipes.Triggers;

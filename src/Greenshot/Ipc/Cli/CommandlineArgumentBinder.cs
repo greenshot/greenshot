@@ -25,8 +25,8 @@ using System.Globalization;
 using System.Linq;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
-using Greenshot.Base.Pipeline.Contracts;
-using Greenshot.Base.Triggers;
+using Greenshot.Base.Recipes.Contracts;
+using Greenshot.Base.Recipes.Triggers;
 #if !GREENSHOT_LIGHT
 using Greenshot.Ai;
 #endif

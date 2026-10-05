@@ -30,6 +30,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Wpf;
+using Greenshot.Base.Wpf.Views;
 using log4net;
 using Greenshot.Base.Languages;
 

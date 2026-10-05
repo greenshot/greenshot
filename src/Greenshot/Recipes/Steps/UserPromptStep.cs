@@ -29,11 +29,11 @@ using System.Threading.Tasks;
 using System.Windows;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Pipeline;
-using Greenshot.Base.Pipeline.Contracts;
-using Contracts = Greenshot.Base.Pipeline.Contracts;
+using Contracts = Greenshot.Base.Recipes.Contracts;
 
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Contracts;
+using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Recipes.Views;
 using log4net;
 using Newtonsoft.Json.Linq;

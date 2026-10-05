@@ -24,11 +24,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
-using Greenshot.Base.Pipeline;
-using Greenshot.Base.Pipeline.Contracts;
-using Contracts = Greenshot.Base.Pipeline.Contracts;
+using Contracts = Greenshot.Base.Recipes.Contracts;
 
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Contracts;
+using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Helpers;
 using log4net;
 
@@ -116,7 +116,7 @@ namespace Greenshot.Recipes.Steps
                 string stepStr = stepVal.ToString();
                 if (!string.IsNullOrWhiteSpace(stepStr))
                 {
-                    var evaluator = Greenshot.Base.Expressions.ExpressionEvaluator.Instance;
+                    var evaluator = Greenshot.Base.Recipes.Expressions.ExpressionEvaluator.Instance;
                     return evaluator.Evaluate<string>(stepStr, context);
                 }
             }

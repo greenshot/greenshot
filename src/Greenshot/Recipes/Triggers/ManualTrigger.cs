@@ -20,7 +20,7 @@
  */
 
 using System.Collections.Generic;
-using Greenshot.Base.Triggers;
+using Greenshot.Base.Recipes.Triggers;
 
 namespace Greenshot.Recipes.Triggers
 {

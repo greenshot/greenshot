@@ -22,7 +22,7 @@
 using System.Threading;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
-using Greenshot.Base.Triggers;
+using Greenshot.Base.Recipes.Triggers;
 using log4net;
 using Greenshot.Base.Threading;
 

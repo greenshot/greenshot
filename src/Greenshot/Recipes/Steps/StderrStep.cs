@@ -22,9 +22,9 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Greenshot.Base.Pipeline;
-using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Contracts;
+using Greenshot.Base.Recipes.Pipeline;
 using log4net;
 
 namespace Greenshot.Recipes.Steps

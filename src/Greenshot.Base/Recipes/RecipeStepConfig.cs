@@ -24,7 +24,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Pipeline;
 
 namespace Greenshot.Base.Recipes
 {

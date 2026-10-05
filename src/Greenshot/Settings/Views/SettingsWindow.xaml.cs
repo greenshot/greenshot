@@ -30,6 +30,7 @@ using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Wpf;
+using Greenshot.Base.Wpf.Views;
 using Greenshot.Configuration;
 using Greenshot.Forms;
 using Greenshot.Helpers;
@@ -399,7 +400,7 @@ namespace Greenshot.Settings.Views
 
         private void HotkeyDisplayControl_EditRequested(object sender, EventArgs e)
         {
-            if (sender is Greenshot.Base.Wpf.HotkeyDisplayControl displayControl)
+            if (sender is Greenshot.Base.Wpf.Views.HotkeyDisplayView displayControl)
             {
                 HotkeyModal.Open(displayControl.HeaderText, displayControl.HotkeyString, newHotkey =>
                 {

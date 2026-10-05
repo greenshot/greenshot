@@ -157,7 +157,7 @@ namespace Greenshot.Recipes.Approval
                 {
                     record.ApprovedContent = content;
                 }
-                record.AllowExternalCommands = approval.IsGateAllowed(Greenshot.Base.Pipeline.RecipeGateType.ExternalCommand);
+                record.AllowExternalCommands = approval.IsGateAllowed(Greenshot.Base.Recipes.Pipeline.RecipeGateType.ExternalCommand);
                 record.Recipes.RemoveAll(r => string.Equals(r.RecipeId, approval.RecipeId, StringComparison.OrdinalIgnoreCase));
                 record.Recipes.Add(approval);
                 SaveRecords();
@@ -165,7 +165,7 @@ namespace Greenshot.Recipes.Approval
 
             Log.InfoFormat("Recorded user approval for recipe '{0}' in '{1}' (SHA256: {2}, triggers: {3}, allowed: {4})", approval.RecipeId, fullPath, sha256,
                 approval.AllTriggers ? "all" : string.Join(",", approval.ApprovedTriggers ?? new List<string>()),
-                string.Join(",", approval.AllowedGates ?? new List<Greenshot.Base.Pipeline.RecipeGateType>()));
+                string.Join(",", approval.AllowedGates ?? new List<Greenshot.Base.Recipes.Pipeline.RecipeGateType>()));
         }
 
         private static Dictionary<string, RecipeTrustRecord> LoadRecords()

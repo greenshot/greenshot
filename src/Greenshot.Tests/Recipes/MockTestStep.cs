@@ -22,8 +22,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Greenshot.Base.Pipeline;
-using Greenshot.Base.Pipeline.Contracts;
+using Greenshot.Base.Recipes.Pipeline;
 
 namespace Greenshot.Tests.Recipes
 {

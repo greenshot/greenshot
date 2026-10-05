@@ -26,11 +26,11 @@ using System.Drawing.Drawing2D;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Effects;
-using Greenshot.Base.Pipeline;
-using Greenshot.Base.Pipeline.Contracts;
-using Contracts = Greenshot.Base.Pipeline.Contracts;
+using Contracts = Greenshot.Base.Recipes.Contracts;
 
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Contracts;
+using Greenshot.Base.Recipes.Pipeline;
 using log4net;
 
 namespace Greenshot.Recipes.Steps

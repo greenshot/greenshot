@@ -25,9 +25,9 @@ using System.Linq;
 using System.Threading;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
-using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
-using Greenshot.Base.Triggers;
+using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Recipes;
 using log4net;
 

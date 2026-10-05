@@ -27,7 +27,6 @@ using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Greenshot.Base.Core;
-using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Wpf;
 using Greenshot.Recipes;

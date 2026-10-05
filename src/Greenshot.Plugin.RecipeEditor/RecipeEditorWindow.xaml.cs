@@ -9,6 +9,7 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Wpf;
+using Greenshot.Base.Wpf.Views;
 using Greenshot.Plugin.RecipeEditor.ViewModels;
 
 namespace Greenshot.Plugin.RecipeEditor
@@ -204,7 +205,7 @@ namespace Greenshot.Plugin.RecipeEditor
 
         private void HotkeyDisplayControl_EditRequested(object sender, EventArgs e)
         {
-            if (sender is Greenshot.Base.Wpf.HotkeyDisplayControl displayControl)
+            if (sender is Greenshot.Base.Wpf.Views.HotkeyDisplayView displayControl)
             {
                 HotkeyModal.Open(displayControl.HeaderText, displayControl.HotkeyString, newHotkey =>
                 {

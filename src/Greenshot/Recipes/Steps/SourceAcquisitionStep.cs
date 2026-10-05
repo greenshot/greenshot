@@ -34,12 +34,12 @@ using Dapplo.Windows.User32;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Pipeline;
-using Greenshot.Base.Pipeline.Contracts;
-using Contracts = Greenshot.Base.Pipeline.Contracts;
+using Contracts = Greenshot.Base.Recipes.Contracts;
 
-using Greenshot.Base.Pipeline.Sources;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Contracts;
+using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Recipes.Sources;
 using Greenshot.Capturing;
 using log4net;
 using Greenshot.Base.Threading;
@@ -410,7 +410,7 @@ namespace Greenshot.Recipes.Steps
             context.Recipe?.Nodes?.Any(node => string.Equals(node?.StepType, WellKnownStepTypes.InteractiveSelection, StringComparison.OrdinalIgnoreCase)) == true;
 
         private static bool IsHotkeyTrigger(CaptureFlowContext context) =>
-            string.Equals(context.Trigger?.TriggerType, Greenshot.Base.Triggers.TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase);
+            string.Equals(context.Trigger?.TriggerType, Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase);
 
         private async Task PreparePreCaptureAsync(CaptureFlowContext context, CancellationToken ct)
         {
