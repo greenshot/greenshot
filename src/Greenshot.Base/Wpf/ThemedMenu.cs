@@ -21,7 +21,6 @@
 
 
 using System;
-using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -166,71 +165,16 @@ namespace Greenshot.Base.Wpf
         {
             var image = new Image
             {
-                Source = Sharpen(source),
+                Source = source,
                 Width = IconSize,
                 Height = IconSize,
                 Stretch = Stretch.Uniform
             };
-            RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
+            // Our icons are pixel art, mostly 16 px: enlarged they keep hard edges (sharp at 24 px too, where a smooth
+            // scaling mixes every other pixel), only bigger pictures are scaled smoothly
+            bool enlarged = source is BitmapSource bitmap && Math.Max(bitmap.PixelWidth, bitmap.PixelHeight) <= IconSize;
+            RenderOptions.SetBitmapScalingMode(image, enlarged ? BitmapScalingMode.NearestNeighbor : BitmapScalingMode.HighQuality);
             return image;
-        }
-
-        private static readonly ConditionalWeakTable<ImageSource, ImageSource> SharpenedIcons = new ConditionalWeakTable<ImageSource, ImageSource>();
-
-        /// <summary>
-        /// A small icon (e.g. 16 px) is enlarged by a whole number with hard pixel edges first, so the smooth scaling to the icon size
-        /// only shrinks it: a direct smooth enlargement (16 to 24) looks soft. Big enough sources are used as they are.
-        /// </summary>
-        private static ImageSource Sharpen(ImageSource source)
-        {
-            if (source is not BitmapSource bitmap)
-            {
-                return source;
-            }
-
-            return SharpenedIcons.GetValue(source, _ => EnlargeWithHardEdges(bitmap));
-        }
-
-        private static ImageSource EnlargeWithHardEdges(BitmapSource bitmap)
-        {
-            try
-            {
-                int sourceSize = Math.Max(bitmap.PixelWidth, bitmap.PixelHeight);
-                // Big enough for the icon size at 200 %
-                int factor = (int)Math.Ceiling(IconSize * 2 / Math.Max(1, sourceSize));
-                if (factor <= 1)
-                {
-                    return bitmap;
-                }
-
-                var converted = bitmap.Format == PixelFormats.Bgra32 ? bitmap : new FormatConvertedBitmap(bitmap, PixelFormats.Bgra32, null, 0);
-                int width = converted.PixelWidth;
-                int height = converted.PixelHeight;
-                var pixels = new int[width * height];
-                converted.CopyPixels(pixels, width * 4, 0);
-
-                int targetWidth = width * factor;
-                int targetHeight = height * factor;
-                var enlarged = new int[targetWidth * targetHeight];
-                for (int y = 0; y < targetHeight; y++)
-                {
-                    int sourceRow = y / factor * width;
-                    int targetRow = y * targetWidth;
-                    for (int x = 0; x < targetWidth; x++)
-                    {
-                        enlarged[targetRow + x] = pixels[sourceRow + x / factor];
-                    }
-                }
-
-                var result = BitmapSource.Create(targetWidth, targetHeight, 96, 96, PixelFormats.Bgra32, null, enlarged, targetWidth * 4);
-                result.Freeze();
-                return result;
-            }
-            catch (Exception ex)
-            {
-                Log.Debug("Couldn't sharpen a menu icon", ex);
-                return bitmap;
-            }
         }
 
         /// <summary>
