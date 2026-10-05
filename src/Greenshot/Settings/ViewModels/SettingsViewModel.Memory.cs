@@ -21,6 +21,7 @@
 
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using Greenshot.Base.Core;
 using Greenshot.Base.Languages;
 
@@ -59,6 +60,19 @@ namespace Greenshot.Settings.ViewModels
 
                 MemoryProfiles.Apply(CoreConfiguration, value);
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(SelectedMemoryProfileName));
+            }
+        }
+
+        /// <summary>
+        /// The name of the profile which matches the settings, shown in the header of the collapsed group
+        /// </summary>
+        public string SelectedMemoryProfileName
+        {
+            get
+            {
+                var selected = SelectedMemoryProfile;
+                return MemoryProfileOptions.FirstOrDefault(option => option.Profile == selected)?.DisplayName;
             }
         }
 
@@ -84,6 +98,7 @@ namespace Greenshot.Settings.ViewModels
                 case null:
                 case "":
                     OnPropertyChanged(nameof(SelectedMemoryProfile));
+                    OnPropertyChanged(nameof(SelectedMemoryProfileName));
                     break;
             }
         }

@@ -265,7 +265,7 @@ namespace Greenshot.Base.Core
         [DefaultValue(false)]
         bool DisableRDPOptimizing { get; set; }
 
-        [Description("Optimize memory footprint, but with a performance penalty!")]
+        [Description("Give the unused memory back to Windows after the start, after each capture and when an editor closes. It's paged in again when it's used, which makes that use a little slower.")]
         [DefaultValue(false)]
         bool MinimizeWorkingSetSize { get; set; }
 
@@ -289,7 +289,7 @@ namespace Greenshot.Base.Core
         [DefaultValue(true)]
         bool PrewarmEditor { get; set; }
 
-        [Description("The most memory in MB which the reusable buffer pools keep when they're not in use (each, for small blocks and for large buffers). 0 means no limit.")]
+        [Description("The most memory in MB which the reusable buffer pools keep when they're not in use (each, for small blocks and for large buffers). 0 means no limit, otherwise 4 to 1024. Takes effect after a restart.")]
         [DefaultValue(0)]
         int BufferPoolLimit { get; set; }
 
