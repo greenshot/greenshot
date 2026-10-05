@@ -184,6 +184,8 @@ namespace Greenshot.Shell
 
                 Application.ApplicationExit += Application_ApplicationExit;
 
+                CreateWpfApplication();
+
                 Application.Run(new GreenshotShell(options, startupCommand));
             }
             catch (Exception ex)
@@ -196,6 +198,30 @@ namespace Greenshot.Shell
         private static void Application_ApplicationExit(object sender, EventArgs e)
         {
             FreeMutex();
+        }
+
+        /// <summary>
+        /// The WPF Application of the UI thread, it isn't run: the message loop stays the WinForms one of <see cref="GreenshotShell"/>
+        /// (the editor is a WinForms form). It gives the WPF code Application.Current, its Windows (owners of dialogs) and a Dispatcher,
+        /// it never shuts down by itself when a window closes.
+        /// </summary>
+        private static void CreateWpfApplication()
+        {
+            if (System.Windows.Application.Current != null)
+            {
+                return;
+            }
+
+            var wpfApplication = new System.Windows.Application
+            {
+                ShutdownMode = System.Windows.ShutdownMode.OnExplicitShutdown
+            };
+            // An exception in a WPF dispatcher operation is reported like one of a WinForms window, and Greenshot continues
+            wpfApplication.Dispatcher.UnhandledException += (sender, args) =>
+            {
+                GreenshotMain.Application_ThreadException(sender, new ThreadExceptionEventArgs(args.Exception));
+                args.Handled = true;
+            };
         }
 
 
