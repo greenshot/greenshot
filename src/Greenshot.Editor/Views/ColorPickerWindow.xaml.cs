@@ -38,11 +38,12 @@ using Dapplo.Windows.User32;
 using Greenshot.Base.Core;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Controls;
+using Greenshot.Editor.Forms;
 using Color = System.Drawing.Color;
 using Cursors = System.Windows.Input.Cursors;
 using Point = System.Drawing.Point;
 
-namespace Greenshot.Editor.Forms
+namespace Greenshot.Editor.Views
 {
     public partial class ColorPickerWindow : Window
     {

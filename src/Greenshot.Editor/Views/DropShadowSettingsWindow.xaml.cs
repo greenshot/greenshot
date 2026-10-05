@@ -28,7 +28,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
 using log4net;
 
-namespace Greenshot.Editor.Forms
+namespace Greenshot.Editor.Views
 {
     public partial class DropShadowSettingsWindow : Window
     {

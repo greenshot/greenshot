@@ -198,7 +198,7 @@ namespace Greenshot.Tests.Forms
             {
                 try
                 {
-                    var window = new Greenshot.Editor.Forms.ColorPickerWindow
+                    var window = new Greenshot.Editor.Views.ColorPickerWindow
                     {
                         SelectedColor = System.Drawing.Color.CornflowerBlue
                     };
@@ -235,16 +235,16 @@ namespace Greenshot.Tests.Forms
                     Assert.NotNull(printOptionsWindow);
 
                     // Greenshot.Editor WPF windows
-                    var dropShadowWindow = new Greenshot.Editor.Forms.DropShadowSettingsWindow();
+                    var dropShadowWindow = new Greenshot.Editor.Views.DropShadowSettingsWindow();
                     Assert.NotNull(dropShadowWindow);
 
-                    var tornEdgeWindow = new Greenshot.Editor.Forms.TornEdgeSettingsWindow();
+                    var tornEdgeWindow = new Greenshot.Editor.Views.TornEdgeSettingsWindow();
                     Assert.NotNull(tornEdgeWindow);
 
-                    var resizeWindow = new Greenshot.Editor.Forms.ResizeSettingsWindow();
+                    var resizeWindow = new Greenshot.Editor.Views.ResizeSettingsWindow();
                     Assert.NotNull(resizeWindow);
 
-                    var textObfuscationWindow = new Greenshot.Editor.Forms.TextObfuscationWindow();
+                    var textObfuscationWindow = new Greenshot.Editor.Views.TextObfuscationWindow();
                     Assert.NotNull(textObfuscationWindow);
                 }
                 catch (Exception ex)

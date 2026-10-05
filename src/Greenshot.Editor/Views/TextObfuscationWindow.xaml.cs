@@ -42,7 +42,7 @@ using DrawingColor = System.Drawing.Color;
 using static Greenshot.Editor.Drawing.FilterContainer;
 using Greenshot.Base.Languages;
 
-namespace Greenshot.Editor.Forms
+namespace Greenshot.Editor.Views
 {
     public partial class TextObfuscationWindow : Window
     {

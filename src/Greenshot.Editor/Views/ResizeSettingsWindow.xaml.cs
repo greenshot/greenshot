@@ -30,7 +30,7 @@ using Greenshot.Base.Effects;
 using log4net;
 using Greenshot.Base.Languages;
 
-namespace Greenshot.Editor.Forms
+namespace Greenshot.Editor.Views
 {
     public partial class ResizeSettingsWindow : Window
     {

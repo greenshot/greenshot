@@ -59,6 +59,7 @@ using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Drawing.Fields.Binding;
 using Greenshot.Editor.Helpers;
 using Greenshot.Base.Threading;
+using Greenshot.Editor.Views;
 using log4net;
 using System.Threading.Tasks;
 using System.Threading;

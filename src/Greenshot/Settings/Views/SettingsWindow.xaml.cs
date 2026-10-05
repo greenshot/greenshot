@@ -370,7 +370,7 @@ namespace Greenshot.Settings.Views
                 return;
             }
 
-            var colorWindow = new Greenshot.Editor.Forms.ColorPickerWindow
+            var colorWindow = new Greenshot.Editor.Views.ColorPickerWindow
             {
                 Owner = this,
                 SelectedColor = RecipeOptionColors.Parse(item.TextValue)
