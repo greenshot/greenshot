@@ -214,13 +214,10 @@ Implementations:
 - `WpfUiDispatcher`: the one Greenshot uses, `DispatcherSynchronizationContext.Post` captured at startup (on the thread
   that later runs the message loop of Greenshot, a `Dispatcher.PushFrame`; not `Application.Run`, a running WPF
   Application shuts down at `WM_QUERYENDSESSION`). The WinForms editor forms live on this thread too,
-  `WindowsFormsHost.EnableWindowsFormsInterop` gives them their keyboard handling.
-- `WinFormsUiDispatcher`: `WindowsFormsSynchronizationContext.Post` captured at startup (on the thread that later
-  runs `Application.Run`). This avoids `Control.BeginInvoke`'s "handle not yet created" failure mode during
-  startup and shutdown. After `ShutdownAsync` begins, new invokes fail fast with `ObjectDisposedException`
-  instead of hanging.
-  On .NET 9+ WinForms, check whether `Control.InvokeAsync` and the (experimental) `Form.ShowDialogAsync` can
-  replace the hand-rolled parts.
+  `WindowsFormsHost.EnableWindowsFormsInterop` gives them their keyboard handling. Posting to the captured context
+  avoids `Control.BeginInvoke`'s "handle not yet created" failure mode during startup and shutdown. After
+  `BeginShutdown`, new invokes fail fast with `ObjectDisposedException` instead of hanging.
+  (The earlier `WinFormsUiDispatcher`, for the WinForms `Application.Run` loop, was removed with that loop.)
 - `AvaloniaUiDispatcher`: `Dispatcher.UIThread.InvokeAsync` (later).
 - `InlineUiDispatcher` for tests, plus `StrictTestUiDispatcher` which runs a dedicated single thread and fails any
   test that touches UI objects from elsewhere.
@@ -565,8 +562,8 @@ Done when: no plugin references WinForms/WPF types through the plugin contract, 
 - [ ] Generic Host + `Microsoft.Extensions.DependencyInjection`; replace `SimpleServiceProvider` (≈150 uses).
 - [ ] `IHostedService` for `TriggerManager`, `NamedPipeServer`, `UpdateService`, hotkeys.
 - [ ] Remove `SynchronizationContext` / `TaskScheduler` registrations from the service locator.
-- [ ] Delete net48 shims (`WithCancellation`, `Exited`-TCS helpers); evaluate .NET 9+ WinForms `InvokeAsync` /
-      `ShowDialogAsync` for `WinFormsUiDispatcher`.
+- [ ] Delete net48 shims (`WithCancellation`, `Exited`-TCS helpers); evaluate .NET 9+ WinForms `ShowDialogAsync`
+      for the editor's dialogs.
 
 ### Done when (overall)
 - Banned-API baseline is empty; VSTHRD analyzers at error level.
