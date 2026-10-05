@@ -19,6 +19,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
+    <ProjectReference Include="..\Greenshot.FileFormat.Legacy\Greenshot.FileFormat.Legacy.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Greenshot.Tests" />
   </ItemGroup>
 
   <ItemGroup>

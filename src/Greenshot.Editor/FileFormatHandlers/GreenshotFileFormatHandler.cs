@@ -29,6 +29,7 @@ using System.Text;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.FileFormat.Legacy;
 using log4net;
 
 namespace Greenshot.Editor.FileFormatHandlers
@@ -103,31 +104,23 @@ namespace Greenshot.Editor.FileFormatHandlers
                 captureBitmap = ImageHelper.Clone(tmpImage) as Bitmap;
             }
 
-            // Start at -14 read "GreenshotXX.YY" (XX=Major, YY=Minor)
-            const int markerSize = 14;
-            surfaceFileStream.Seek(-markerSize, SeekOrigin.End);
-            using (var streamReader = new StreamReader(surfaceFileStream))
+            // The end of the file has the "GreenshotXX.YY" marker (XX=Major, YY=Minor) and the length of the elements before it
+            if (!LegacyGreenshotFile.TryLocate(surfaceFileStream, out var greenshotFile))
             {
-                var greenshotMarker = streamReader.ReadToEnd();
-                if (!greenshotMarker.StartsWith("Greenshot"))
-                {
-                    throw new ArgumentException("Stream is not a Greenshot file!");
-                }
-
-                Log.InfoFormat("Greenshot file format: {0}", greenshotMarker);
-                const int fileSizeLocation = 8 + markerSize;
-                surfaceFileStream.Seek(-fileSizeLocation, SeekOrigin.End);
-                using BinaryReader reader = new BinaryReader(surfaceFileStream);
-                long bytesWritten = reader.ReadInt64();
-                surfaceFileStream.Seek(-(bytesWritten + fileSizeLocation), SeekOrigin.End);
-                returnSurface.LoadElementsFromStream(surfaceFileStream);
+                throw new ArgumentException("Stream is not a Greenshot file!");
             }
 
+            Log.InfoFormat("Greenshot file format: {0}", greenshotFile.Marker);
+
+            // The image is set first, the elements may depend on the size of the surface
             if (captureBitmap != null)
             {
                 returnSurface.Image = captureBitmap;
                 Log.InfoFormat("Information about .greenshot file: {0}x{1}-{2} Resolution {3}x{4}", captureBitmap.Width, captureBitmap.Height, captureBitmap.PixelFormat, captureBitmap.HorizontalResolution, captureBitmap.VerticalResolution);
             }
+
+            surfaceFileStream.Seek(greenshotFile.ElementsOffset, SeekOrigin.Begin);
+            returnSurface.LoadElementsFromStream(surfaceFileStream);
 
             return returnSurface;
         }

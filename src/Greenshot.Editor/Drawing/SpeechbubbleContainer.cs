@@ -72,6 +72,16 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
+        /// Restore the target (tail) of a speech bubble which was loaded from a file
+        /// </summary>
+        /// <param name="location">Location of the target in surface coordinates</param>
+        internal void RestoreTargetGripper(NativePoint location)
+        {
+            _storedTargetGripperLocation = location;
+            InitTargetAdorner(location);
+        }
+
+        /// <summary>
         /// We set our own field values
         /// </summary>
         protected override void InitializeFields()

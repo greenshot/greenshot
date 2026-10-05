@@ -31,6 +31,10 @@
     <Reference Include="CustomMarshalers" />
   </ItemGroup>
   <ItemGroup>
+    <!-- Reads the .greenshot / .gst files of Greenshot 1.2 - 1.4 without BinaryFormatter -->
+    <ProjectReference Include="..\Greenshot.FileFormat.Legacy\Greenshot.FileFormat.Legacy.csproj" />
+  </ItemGroup>
+  <ItemGroup>
     <InternalsVisibleTo Include="Greenshot" />
   </ItemGroup>
   <ItemGroup>

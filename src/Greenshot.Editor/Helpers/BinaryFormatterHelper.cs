@@ -34,8 +34,8 @@ using static Greenshot.Editor.Drawing.FilterContainer;
 namespace Greenshot.Editor.Helpers
 {
     /// <summary>
-    /// This helps to map the serialization of the old .greenshot file to the newer.
-    /// It also prevents misuse.
+    /// Restricts the types BinaryFormatter may create when elements are pasted from the clipboard or a surface is cloned,
+    /// and maps old type names to the current ones. Files (.greenshot, .gst) don't use BinaryFormatter anymore, see Greenshot.FileFormat.Legacy.
     /// </summary>
     internal class BinaryFormatterHelper : SerializationBinder
     {

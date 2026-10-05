@@ -28,7 +28,6 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.ServiceModel.Security;
 using System.Windows.Forms;
 using Dapplo.Windows.Clipboard;
 using Dapplo.Windows.Common.Extensions;
@@ -44,12 +43,14 @@ using Greenshot.Base.Interfaces.Drawing.Adorners;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Drawing.Emoji;
 using Greenshot.Editor.Drawing.Fields;
+using Greenshot.Editor.FileFormat;
 using Greenshot.Editor.Helpers;
 using Greenshot.Editor.Memento;
 using log4net;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Threading;
+using Greenshot.FileFormat.Legacy;
 
 namespace Greenshot.Editor.Drawing
 {
@@ -750,31 +751,61 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
-        /// This loads elements from a stream, among others this is used to load a surface.
+        /// This loads elements from a stream with the format of the .greenshot / .gst files of Greenshot 1.2 - 1.4,
+        /// among others this is used to load a surface. The elements are read without BinaryFormatter (Greenshot.FileFormat.Legacy)
+        /// and mapped to the containers of the editor.
         /// </summary>
         /// <param name="streamRead"></param>
         public void LoadElementsFromStream(Stream streamRead)
         {
             try
             {
-                BinaryFormatter binaryRead = new BinaryFormatter();
-                binaryRead.Binder = new BinaryFormatterHelper();
-                IDrawableContainerList loadedElements = (IDrawableContainerList) binaryRead.Deserialize(streamRead);
-                loadedElements.Parent = this;
-                // Make sure the steplabels are sorted according to their number
-                _stepLabels.Sort((p1, p2) => p1.Number.CompareTo(p2.Number));
-                DeselectAllElements();
-                AddElements(loadedElements);
-                SelectElements(loadedElements);
-                FieldAggregator.BindElements(loadedElements);
-            }
-            catch (SecurityAccessDeniedException)
-            {
-                throw;
+                var legacyElements = LegacyElementReader.Read(streamRead);
+                AddLoadedElements(LegacyElementMapper.ToContainers(legacyElements, this));
             }
             catch (Exception e)
             {
-                LOG.Error("Error serializing elements from stream.", e);
+                // LegacyFormatException for files which aren't valid
+                LOG.Error("Error reading elements from stream.", e);
+            }
+        }
+
+        /// <summary>
+        /// Add elements which were loaded or cloned, and select them
+        /// </summary>
+        /// <param name="loadedElements">IDrawableContainerList</param>
+        private void AddLoadedElements(IDrawableContainerList loadedElements)
+        {
+            loadedElements.Parent = this;
+            // Make sure the steplabels are sorted according to their number
+            _stepLabels.Sort((p1, p2) => p1.Number.CompareTo(p2.Number));
+            DeselectAllElements();
+            AddElements(loadedElements);
+            SelectElements(loadedElements);
+            FieldAggregator.BindElements(loadedElements);
+        }
+
+        /// <summary>
+        /// Copy the elements of this surface to the other surface. This is an in-memory copy of the same Greenshot version,
+        /// so it still uses BinaryFormatter (restricted by BinaryFormatterHelper), files don't.
+        /// </summary>
+        /// <param name="targetSurface">Surface</param>
+        private void CloneElementsTo(Surface targetSurface)
+        {
+            using var ms = RecyclableMemoryStreamFactory.GetStream("Surface.Clone");
+            SaveElementsToStream(ms);
+            ms.Position = 0;
+            try
+            {
+                var binaryFormatter = new BinaryFormatter
+                {
+                    Binder = new BinaryFormatterHelper()
+                };
+                targetSurface.AddLoadedElements((IDrawableContainerList)binaryFormatter.Deserialize(ms));
+            }
+            catch (Exception e)
+            {
+                LOG.Error("Error cloning the elements.", e);
             }
         }
 
@@ -796,12 +827,9 @@ namespace Greenshot.Editor.Drawing
 
             if (_elements != null && _elements.Count > 0)
             {
-                using var ms = RecyclableMemoryStreamFactory.GetStream("Surface.Clone");
-                SaveElementsToStream(ms);
-                ms.Position = 0;
-                clonedSurface.LoadElementsFromStream(ms);
+                CloneElementsTo(clonedSurface);
 
-                /* TODO: LoadElementsFromStream() selects all Elements, we don't want that in the clone.
+                /* TODO: CloneElementsTo() selects all Elements, we don't want that in the clone.
                 * It should be changed there but that would be a breaking change, e.g. for copy/paste.
                 */
                 clonedSurface.DeselectAllElements(); 

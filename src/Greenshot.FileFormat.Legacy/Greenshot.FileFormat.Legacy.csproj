@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Reads the .greenshot and .gst files written by Greenshot 1.2, 1.3 and 1.4 (BinaryFormatter / NRBF payloads)
+    WITHOUT BinaryFormatter: System.Formats.Nrbf decodes the records, nothing is instantiated by type name.
+    The result is a simple, version-neutral element tree (see LegacyElement), the editor maps it into its own model.
+    Read only, and on purpose without references to System.Drawing, WinForms or the editor, so it can stay untouched
+    while the editor classes change and it can move along to other platforms.
+  -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <UseWPF>false</UseWPF>
+    <UseWindowsForms>false</UseWindowsForms>
+    <RuntimeIdentifiers></RuntimeIdentifiers>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Formats.Nrbf" Version="10.0.12" />
+  </ItemGroup>
+</Project>

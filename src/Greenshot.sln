@@ -65,6 +65,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "greenshot-cli", "greenshot-
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Mcp", "Greenshot.Mcp\Greenshot.Mcp.csproj", "{88F268DD-6265-4914-BA8A-BB41F53E7A28}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.FileFormat.Legacy", "Greenshot.FileFormat.Legacy\Greenshot.FileFormat.Legacy.csproj", "{340D5033-1238-47CD-9D2F-D5B4D0185622}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug Light|Any CPU = Debug Light|Any CPU
@@ -129,6 +131,30 @@ Global
 		{5B924697-4DCD-4F98-85F1-105CB84B7341}.Release|x64.Build.0 = Release|Any CPU
 		{5B924697-4DCD-4F98-85F1-105CB84B7341}.Release|x86.ActiveCfg = Release|Any CPU
 		{5B924697-4DCD-4F98-85F1-105CB84B7341}.Release|x86.Build.0 = Release|Any CPU
+		{340D5033-1238-47CD-9D2F-D5B4D0185622}.Debug Light|Any CPU.ActiveCfg = Debug|Any CPU
+		{340D5033-1238-47CD-9D2F-D5B4D0185622}.Debug Light|Any CPU.Build.0 = Debug|Any CPU
+		{340D5033-1238-47CD-9D2F-D5B4D0185622}.Debug Light|x64.ActiveCfg = Debug|Any CPU
+		{340D5033-1238-47CD-9D2F-D5B4D0185622}.Debug Light|x64.Build.0 = Debug|Any CPU
+		{340D5033-1238-47CD-9D2F-D5B4D0185622}.Debug Light|x86.ActiveCfg = Debug|Any CPU
+		{340D5033-1238-47CD-9D2F-D5B4D0185622}.Debug Light|x86.Build.0 = Debug|Any CPU
+		{340D5033-1238-47CD-9D2F-D5B4D0185622}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{340D5033-1238-47CD-9D2F-D5B4D0185622}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{340D5033-1238-47CD-9D2F-D5B4D0185622}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{340D5033-1238-47CD-9D2F-D5B4D0185622}.Debug|x64.Build.0 = Debug|Any CPU
+		{340D5033-1238-47CD-9D2F-D5B4D0185622}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{340D5033-1238-47CD-9D2F-D5B4D0185622}.Debug|x86.Build.0 = Debug|Any CPU
+		{340D5033-1238-47CD-9D2F-D5B4D0185622}.Release Light|Any CPU.ActiveCfg = Release|Any CPU
+		{340D5033-1238-47CD-9D2F-D5B4D0185622}.Release Light|Any CPU.Build.0 = Release|Any CPU
+		{340D5033-1238-47CD-9D2F-D5B4D0185622}.Release Light|x64.ActiveCfg = Release|Any CPU
+		{340D5033-1238-47CD-9D2F-D5B4D0185622}.Release Light|x64.Build.0 = Release|Any CPU
+		{340D5033-1238-47CD-9D2F-D5B4D0185622}.Release Light|x86.ActiveCfg = Release|Any CPU
+		{340D5033-1238-47CD-9D2F-D5B4D0185622}.Release Light|x86.Build.0 = Release|Any CPU
+		{340D5033-1238-47CD-9D2F-D5B4D0185622}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{340D5033-1238-47CD-9D2F-D5B4D0185622}.Release|Any CPU.Build.0 = Release|Any CPU
+		{340D5033-1238-47CD-9D2F-D5B4D0185622}.Release|x64.ActiveCfg = Release|Any CPU
+		{340D5033-1238-47CD-9D2F-D5B4D0185622}.Release|x64.Build.0 = Release|Any CPU
+		{340D5033-1238-47CD-9D2F-D5B4D0185622}.Release|x86.ActiveCfg = Release|Any CPU
+		{340D5033-1238-47CD-9D2F-D5B4D0185622}.Release|x86.Build.0 = Release|Any CPU
 		{47F23C86-604E-4CC3-8767-B3D4088F30BB}.Debug Light|Any CPU.ActiveCfg = Debug|Any CPU
 		{47F23C86-604E-4CC3-8767-B3D4088F30BB}.Debug Light|x64.ActiveCfg = Debug|Any CPU
 		{47F23C86-604E-4CC3-8767-B3D4088F30BB}.Debug Light|x86.ActiveCfg = Debug|Any CPU

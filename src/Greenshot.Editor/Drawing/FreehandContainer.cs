@@ -84,6 +84,17 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
+        /// Restore the points of a freehand line which was loaded from a file
+        /// </summary>
+        /// <param name="points">The points in surface coordinates</param>
+        internal void RestoreCapturePoints(IEnumerable<Point> points)
+        {
+            capturePoints.Clear();
+            capturePoints.AddRange(points);
+            RecalculatePath();
+        }
+
+        /// <summary>
         /// This Dispose is called from the Dispose and the Destructor.
         /// </summary>
         /// <param name="disposing">When disposing==true all non-managed resources should be freed too!</param>
