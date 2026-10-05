@@ -170,6 +170,14 @@ namespace Greenshot.Shell
                 Texts.Initialize();
                 Texts.SetLanguage(IniConfigRegistry.GetSection<ICoreConfiguration>().Language);
 
+                // Before the first WPF window: without hardware rendering WPF creates no Direct3D device (the graphics driver
+                // keeps about 45 MB for it until Greenshot exits), the windows are drawn by the CPU
+                if (!IniConfigRegistry.GetSection<ICoreConfiguration>().HardwareRendering)
+                {
+                    Log.Info("Hardware rendering is switched off, the windows are drawn without the graphics card.");
+                    System.Windows.Media.RenderOptions.ProcessRenderMode = System.Windows.Interop.RenderMode.SoftwareOnly;
+                }
+
                 // Make sure we handle END Session correctly
                 RestartManagerHelper.RegisterForRestart(IniConfigRegistry.Get().OverrideDirectory);
 

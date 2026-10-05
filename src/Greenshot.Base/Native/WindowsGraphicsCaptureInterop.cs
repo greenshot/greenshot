@@ -27,6 +27,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapplo.Ini;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.DesktopWindowsManager;
@@ -136,11 +137,30 @@ namespace Greenshot.Base.Native
             }
         }
 
+        private static ICoreConfiguration CoreConfig => IniConfigRegistry.GetSection<ICoreConfiguration>();
+
+        /// <summary>
+        /// The UseGraphicsCapture setting (true when there is no configuration, e.g. in tests)
+        /// </summary>
+        public static bool IsEnabledForScreenshots => CoreConfig?.UseGraphicsCapture ?? true;
+
+        /// <summary>
+        /// The KeepGraphicsCaptureReady setting: the device is created at the start and kept between the screenshots
+        /// (true when there is no configuration, e.g. in tests)
+        /// </summary>
+        public static bool KeepDeviceReady => CoreConfig?.KeepGraphicsCaptureReady ?? true;
+
         /// <summary>
         /// Create the Direct3D device in the background, so the first capture doesn't pay for it (~200 ms).
+        /// Nothing happens when the settings don't use or keep the device.
         /// </summary>
         public static async Task PrewarmAsync(CancellationToken cancellationToken = default)
         {
+            if (!IsEnabledForScreenshots || !KeepDeviceReady)
+            {
+                return;
+            }
+
             // The device is bound to the MTA (see GetOrCreateDevice)
             await ThreadPoolSwitch.SwitchToThreadPoolAsync();
             cancellationToken.ThrowIfCancellationRequested();
@@ -888,6 +908,13 @@ namespace Greenshot.Base.Native
                 {
                     request.Session?.Dispose();
                     request.FramePool?.Dispose();
+                }
+
+                // The KeepGraphicsCaptureReady setting is off: the device and the driver's memory are released until the next screenshot.
+                // Still inside the semaphore, so no other screenshot uses the device (the video recording has its own).
+                if (!KeepDeviceReady)
+                {
+                    InvalidateCachedDevice();
                 }
                 CaptureSemaphore.Release();
             }

@@ -120,5 +120,26 @@ namespace Greenshot.Tests.Core
             Assert.Equal(expected, config.IconSize.Width);
             Assert.Equal(expected, config.IconSize.Height);
         }
+
+        [Theory]
+        [InlineData("0", 0)]
+        [InlineData("-5", 0)]
+        [InlineData("1", 4)]
+        [InlineData("4", 4)]
+        [InlineData("16", 16)]
+        [InlineData("1024", 1024)]
+        [InlineData("100000", 1024)]
+        public void BufferPoolLimit_IsNoLimitOrBetween4And1024(string rawValue, int expected)
+        {
+            var config = new CoreConfigurationImpl();
+            config.ResetToDefaults();
+
+            // From the ini file (raw value) and from the settings (property)
+            config.SetRawValue(nameof(config.BufferPoolLimit), rawValue);
+            Assert.Equal(expected, config.BufferPoolLimit);
+
+            config.BufferPoolLimit = int.Parse(rawValue);
+            Assert.Equal(expected, config.BufferPoolLimit);
+        }
     }
 }
