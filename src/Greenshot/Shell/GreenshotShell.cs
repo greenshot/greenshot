@@ -462,6 +462,15 @@ namespace Greenshot.Shell
                 return;
             }
 
+            // The editors first, before anything is stopped: the user can still keep Greenshot running
+            // (cancel in the save question, or in the save dialog)
+            if (!await UiDispatcher.InvokeAsync(CloseEditors))
+            {
+                Log.Info("The exit was cancelled in an editor, Greenshot keeps running.");
+                Volatile.Write(ref _shutdownState, 0);
+                return;
+            }
+
             Log.Info("Exit: " + EnvironmentInfo.EnvironmentToString(false));
             ShutdownUi();
 
@@ -522,6 +531,24 @@ namespace Greenshot.Shell
             _namedPipeServer?.NotifyWatchersAsync(new { @event = "tools_changed" }).FireAndLog("Tell the watchers that the tools changed", Log);
         }
 #endif
+
+        /// <summary>
+        /// Close the editors like the user does, so each can ask to save its image (with cancel)
+        /// </summary>
+        /// <returns>false when an editor stays open: the user cancelled</returns>
+        private static bool CloseEditors()
+        {
+            foreach (var editor in Application.OpenForms.OfType<ImageEditorForm>().ToList())
+            {
+                editor.Close();
+                if (!editor.IsDisposed)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
 
         /// <summary>
         /// The application ends without <see cref="ExitAsync"/>, e.g. at the end of the session: no time to wait for flows,
@@ -632,21 +659,22 @@ namespace Greenshot.Shell
             // Graceful shutdown: the WinForms forms (the editors) close first, they can ask to save and cancel, then the message loop ends
             try
             {
+                // The editors were closed (and could cancel) at the start of ExitAsync
                 var cancelExit = new CancelEventArgs();
                 Application.Exit(cancelExit);
                 if (cancelExit.Cancel)
                 {
-                    Log.Info("A form cancelled the exit.");
-                    return;
+                    // Everything is stopped already (tray icon, hotkeys, plugins): staying would leave an invisible Greenshot
+                    Log.Warn("A form cancelled the exit, Greenshot ends anyway.");
                 }
-
-                Log.Debug("The forms are closed, ending the message loop.");
-                GreenshotApplication.EndMessageLoop();
             }
             catch (Exception e)
             {
                 Log.Error("Error closing application!", e);
             }
+
+            Log.Debug("Ending the message loop.");
+            GreenshotApplication.EndMessageLoop();
         }
     }
 }
