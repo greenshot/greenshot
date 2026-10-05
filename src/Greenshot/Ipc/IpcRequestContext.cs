@@ -21,6 +21,7 @@
 
 using System;
 using System.IO;
+using System.IO.Pipes;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -62,6 +63,11 @@ namespace Greenshot.Ipc
         private sealed class ReplyState
         {
             public bool Completed;
+
+            /// <summary>
+            /// The client closed the connection without reading the reply, nothing more is written
+            /// </summary>
+            public bool ClientGone;
         }
 
         private readonly SemaphoreSlim _writeLock;
@@ -244,6 +250,11 @@ namespace Greenshot.Ipc
 
         private async Task WriteFrameAsync(byte[] payload, CancellationToken cancellationToken)
         {
+            if (_replyState.ClientGone)
+            {
+                return;
+            }
+
             byte[] lengthBytes = BitConverter.GetBytes((uint)payload.Length);
             if (!BitConverter.IsLittleEndian)
             {
@@ -255,6 +266,7 @@ namespace Greenshot.Ipc
             Buffer.BlockCopy(payload, 0, frame, lengthBytes.Length, payload.Length);
 
             await _writeLock.WaitAsync(cancellationToken).ConfigureAwait(false);
+            bool closedHere = false;
             try
             {
                 var writeTask = Stream.WriteAsync(frame, 0, frame.Length, cancellationToken);
@@ -263,6 +275,7 @@ namespace Greenshot.Ipc
                     // The client does not read its replies. Closing the connection ends the pending write (and the connection),
                     // instead of keeping the handler waiting forever.
                     Log.Warn($"IPC client did not read its reply within {WriteTimeout.TotalSeconds:0} seconds, closing the connection.");
+                    closedHere = true;
                     Stream.Dispose();
                     _ = writeTask.ContinueWith(t => _ = t.Exception, TaskContinuationOptions.OnlyOnFaulted);
                     cancellationToken.ThrowIfCancellationRequested();
@@ -270,9 +283,30 @@ namespace Greenshot.Ipc
                 }
                 await writeTask.ConfigureAwait(false);
             }
+            catch (IOException) when (!closedHere && IsClientGone())
+            {
+                // Not an error: e.g. a second Greenshot.exe only forwards its command and exits, or greenshot-cli was stopped
+                _replyState.ClientGone = true;
+                Log.Debug($"The IPC client closed the connection, the reply to '{Envelope.Command}' is dropped.");
+            }
             finally
             {
                 _writeLock.Release();
+            }
+        }
+
+        /// <summary>
+        /// True when the pipe is broken because the client closed its end
+        /// </summary>
+        private bool IsClientGone()
+        {
+            try
+            {
+                return Stream is PipeStream pipe && !pipe.IsConnected;
+            }
+            catch (ObjectDisposedException)
+            {
+                return false;
             }
         }
     }
