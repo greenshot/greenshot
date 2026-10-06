@@ -33,7 +33,8 @@ namespace Greenshot.Tests.Helpers
         [InlineData("1.4.289", "1.4.290", true)] // update
         [InlineData("1.3.300", "1.4.1", true)]
         [InlineData("1.4.290", "1.4.290", false)] // shown already
-        [InlineData("1.4.291", "1.4.290", false)] // downgrade
+        [InlineData("1.4.291", "1.4.290", true)] // downgrade
+        [InlineData("99.0", "1.4.290", true)] // a version pinned in the future doesn't suppress it
         [InlineData("garbage", "1.4.290", true)]
         [InlineData("1.4.289", "unknown", false)]
         public void ShouldShow(string shownForVersion, string currentVersion, bool expected)

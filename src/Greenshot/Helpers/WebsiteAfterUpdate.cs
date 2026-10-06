@@ -28,6 +28,7 @@ using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Threading;
 using log4net;
+using Microsoft.Win32;
 
 namespace Greenshot.Helpers
 {
@@ -41,6 +42,8 @@ namespace Greenshot.Helpers
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(WebsiteAfterUpdate));
         private const string ThankYouPage = "https://getgreenshot.org/thank-you/";
+        private const string RegistryKey = @"Software\Greenshot";
+        private const string RegistryValue = "WebsiteShownForVersion";
 
         /// <summary>
         /// Wait after the start, so a capture started with Greenshot isn't disturbed by the browser taking the focus
@@ -59,7 +62,8 @@ namespace Greenshot.Helpers
         {
             var config = IniConfigRegistry.GetSection<ICoreConfiguration>();
             string version = EnvironmentInfo.GetGreenshotVersion(true);
-            if (!ShouldShow(config.WebsiteShownForVersion, version) || !IsInteractiveUser())
+            string shownForVersion = ReadShownForVersion(config);
+            if (!ShouldShow(shownForVersion, version) || !IsInteractiveUser())
             {
                 return;
             }
@@ -67,17 +71,60 @@ namespace Greenshot.Helpers
             await Task.Delay(Delay).ConfigureAwait(false);
 
             var uri = BuildUri(version, config.Language, EditionInfo.IsFull ? null : EditionInfo.Name);
-            Log.InfoFormat("Opening {0} for version {1} (shown before for {2})", uri, version, config.WebsiteShownForVersion ?? "none");
+            Log.InfoFormat("Opening {0} for version {1} (shown before for {2})", uri, version, shownForVersion ?? "none");
             // Remember it first: a browser which fails to start shouldn't make this happen on every start
-            config.WebsiteShownForVersion = version;
+            WriteShownForVersion(config, version);
             using (Process.Start(new ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true }))
             {
             }
         }
 
         /// <summary>
+        /// The version the page was shown for. greenshot-fixed.ini can't pin it: a fixed value is ignored and the registry of the user is used instead.
+        /// </summary>
+        private static string ReadShownForVersion(ICoreConfiguration config)
+        {
+            if (!config.IsConstant(nameof(ICoreConfiguration.WebsiteShownForVersion)))
+            {
+                return config.WebsiteShownForVersion;
+            }
+
+            Log.Warn("WebsiteShownForVersion is set in greenshot-fixed.ini, this is ignored.");
+            try
+            {
+                using var key = Registry.CurrentUser.OpenSubKey(RegistryKey);
+                return key?.GetValue(RegistryValue) as string;
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Couldn't read the version the website was shown for from the registry", ex);
+                return null;
+            }
+        }
+
+        private static void WriteShownForVersion(ICoreConfiguration config, string version)
+        {
+            if (!config.IsConstant(nameof(ICoreConfiguration.WebsiteShownForVersion)))
+            {
+                config.WebsiteShownForVersion = version;
+                return;
+            }
+
+            try
+            {
+                using var key = Registry.CurrentUser.CreateSubKey(RegistryKey);
+                key?.SetValue(RegistryValue, version);
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Couldn't store the version the website was shown for in the registry", ex);
+            }
+        }
+
+        /// <summary>
         /// True when the page wasn't shown for this version yet: a new install, an update from a version
-        /// before this existed, or an update. Not for a downgrade or for a version which can't be read.
+        /// before this existed, an update or a downgrade. Any other remembered version than the running one counts,
+        /// so a version pinned in the future (e.g. 99.0 in greenshot-defaults.ini) can't suppress it.
         /// </summary>
         internal static bool ShouldShow(string shownForVersion, string currentVersion)
         {
@@ -86,12 +133,7 @@ namespace Greenshot.Helpers
                 return false;
             }
 
-            if (string.IsNullOrWhiteSpace(shownForVersion) || !Version.TryParse(shownForVersion, out var shown))
-            {
-                return true;
-            }
-
-            return current > shown;
+            return !Version.TryParse(shownForVersion, out var shown) || current != shown;
         }
 
         /// <summary>
