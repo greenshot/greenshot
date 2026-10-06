@@ -222,7 +222,9 @@ namespace Greenshot.Editor.Drawing
             int toothHeight = Math.Min(ToothHeight, Math.Min(width, height) / 3);
             var random = new Random(_seed);
             var outline = new List<PointF>();
-            tornSides = new List<PointF[]>();
+            // A local, the out parameter can't be used in the local function
+            var sides = new List<PointF[]>();
+            tornSides = sides;
             bool top = _edges[0], right = _edges[1], bottom = _edges[2], left = _edges[3];
 
             void AddSide(bool torn, bool tornBefore, bool tornAfter, int length, PointF cornerStart, PointF cornerEnd, Func<float, float, PointF> map)
@@ -241,7 +243,7 @@ namespace Greenshot.Editor.Drawing
                 var side = CutOutHelper.CreateEdge(CutMarkStyle.Torn, sideLength, toothHeight, ToothRange, random)
                     .Select(p => map(insetStart + p.X, p.Y)).ToArray();
                 outline.AddRange(side);
-                tornSides.Add(side);
+                sides.Add(side);
             }
 
             AddSide(top, left, right, width, new PointF(0, 0), new PointF(width, 0), (along, depth) => new PointF(along, depth));
