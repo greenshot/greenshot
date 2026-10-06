@@ -267,13 +267,28 @@ namespace Greenshot.Base.Wpf
             menu.Placement = PlacementMode.MousePoint;
             menu.IsOpen = true;
 
-            // A menu of a process without a foreground window wouldn't get the keyboard and wouldn't close on a click elsewhere
-            if (PresentationSource.FromVisual(menu) is HwndSource source)
+            // A menu of a process without a foreground window wouldn't get the keyboard and wouldn't close on a click elsewhere.
+            // Not when a Greenshot window is in the foreground already: it would be deactivated, WPF takes the keyboard focus away
+            // from the menu with it, and the menu closes right away.
+            if (PresentationSource.FromVisual(menu) is HwndSource source && !IsForegroundWindowOfThisProcess())
             {
                 User32Api.SetForegroundWindow(source.Handle);
             }
 
             menu.Focus();
+        }
+
+        private static bool IsForegroundWindowOfThisProcess()
+        {
+            var foregroundWindow = User32Api.GetForegroundWindow();
+            if (foregroundWindow == IntPtr.Zero)
+            {
+                return false;
+            }
+
+            User32Api.GetWindowThreadProcessId(foregroundWindow, out var processId);
+            using var currentProcess = System.Diagnostics.Process.GetCurrentProcess();
+            return processId == currentProcess.Id;
         }
     }
 }

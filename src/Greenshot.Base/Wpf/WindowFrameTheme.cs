@@ -43,6 +43,7 @@ namespace Greenshot.Base.Wpf
         private const int DwmwaUseImmersiveDarkMode = 20;
         private const int DwmwaWindowCornerPreference = 33;
         private const int DwmwaNcRenderingPolicy = 2;
+        private const int DwmwaCloak = 13;
 
         private const int DwmncrpUseWindowStyle = 0;
 
@@ -178,6 +179,55 @@ namespace Greenshot.Base.Wpf
 
             int preference = small ? DwmwcpRoundSmall : DwmwcpRound;
             DwmSetWindowAttribute(handle, DwmwaWindowCornerPreference, ref preference, sizeof(int));
+        }
+
+        /// <summary>
+        /// Windows shows a window before WPF drew it: a big window (e.g. the settings) is white for a moment, also with a dark theme.
+        /// The desktop window manager keeps the window invisible (cloaked) until its content is rendered.
+        /// </summary>
+        /// <param name="window">The window, its handle must exist and it must not be shown yet (call it in OnSourceInitialized)</param>
+        public static void CloakUntilRendered(Window window)
+        {
+            if (window == null || !window.CheckAccess())
+            {
+                return;
+            }
+
+            // Window.IsVisible is true already when the handle is created, Windows knows whether it's on the screen
+            var handle = new WindowInteropHelper(window).Handle;
+            if (handle == IntPtr.Zero || IsWindowVisible(handle))
+            {
+                return;
+            }
+
+            int cloak = 1;
+            if (DwmSetWindowAttribute(handle, DwmwaCloak, ref cloak, sizeof(int)) != 0)
+            {
+                // No desktop window manager: shown as before
+                return;
+            }
+
+            bool uncloaked = false;
+            void Uncloak()
+            {
+                if (uncloaked)
+                {
+                    return;
+                }
+
+                uncloaked = true;
+                int value = 0;
+                DwmSetWindowAttribute(handle, DwmwaCloak, ref value, sizeof(int));
+            }
+
+            window.ContentRendered += (s, e) => Uncloak();
+            // Never an invisible window: when nothing is rendered in time, it shows anyway
+            var fallback = new System.Windows.Threading.DispatcherTimer(TimeSpan.FromSeconds(2), System.Windows.Threading.DispatcherPriority.Normal, (s, e) =>
+            {
+                ((System.Windows.Threading.DispatcherTimer)s).Stop();
+                Uncloak();
+            }, window.Dispatcher);
+            fallback.Start();
         }
 
         /// <summary>
