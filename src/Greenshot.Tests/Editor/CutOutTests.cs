@@ -212,6 +212,35 @@ namespace Greenshot.Tests.Editor
         }
 
         [Fact]
+        public void CutMark_DraggedWithTheSelection_StaysFullWidth()
+        {
+            using var surface = CreateRedSurface();
+            surface.ApplyCutOut(new NativeRect(0, 30, 100, 30), CropContainer.CropModes.Horizontal, CutMarkStyle.Torn, CreateEdgeSettings());
+            var cutMark = surface.Elements.OfType<CutMarkContainer>().Single();
+            var selection = new DrawableContainerList(surface.ID) { cutMark };
+
+            selection.MoveBy(15, -4);
+
+            Assert.Equal(0, cutMark.Left);
+            Assert.Equal(100, cutMark.Width);
+            Assert.Equal(14, cutMark.Top);
+        }
+
+        [Fact]
+        public void CutMark_BiggerTeeth_KeepTheGap()
+        {
+            using var surface = CreateRedSurface();
+            surface.ApplyCutOut(new NativeRect(0, 30, 100, 30), CropContainer.CropModes.Horizontal, CutMarkStyle.Torn, CreateEdgeSettings());
+            var cutMark = surface.Elements.OfType<CutMarkContainer>().Single();
+
+            cutMark.SetFieldValue(FieldType.TOOTH_HEIGHT, 20);
+
+            // 8 more on both sides, the gap stays 12
+            Assert.Equal(10, cutMark.Top);
+            Assert.Equal(52, cutMark.Height);
+        }
+
+        [Fact]
         public void CutMark_KeepsItsEdge_UntilReseeded()
         {
             using var surface = CreateRedSurface();

@@ -45,7 +45,7 @@ namespace Greenshot.Editor.Drawing
     /// It always spans the whole image: the full width for a horizontal cut, the full height for a vertical one,
     /// it can only be moved and sized across the cut.
     /// Between the two edges (straight, zig-zag, wavy or torn, like the torn edge effect) is a gap,
-    /// transparent or filled with the fill color, with the shadow of the torn edge effect.
+    /// transparent or filled with the fill color, with the shadow of the torn edge effect and optionally a line along the edges.
     /// The edges come from a stored seed, so they never change unless a new random edge is asked for.
     /// </summary>
     [Serializable]
@@ -53,28 +53,28 @@ namespace Greenshot.Editor.Drawing
     {
         private readonly bool _horizontal;
         private int _seed;
-        private int _toothHeight;
-        private int _toothRange;
         private float _shadowDarkness;
         private int _shadowSize;
         private int _shadowOffsetX;
         private int _shadowOffsetY;
+
+        // The tooth height the band was sized for, when it changes the band grows or shrinks so the gap keeps its size
+        [NonSerialized] private int _bandToothHeight;
 
         // The shadow only changes with the settings, so it is kept
         [NonSerialized] private Bitmap _shadowCache;
         [NonSerialized] private string _shadowCacheKey;
 
         /// <summary>
-        /// Create a cut mark
+        /// Create a cut mark, the tooth sizes are the last used ones
         /// </summary>
         /// <param name="parent">ISurface</param>
         /// <param name="horizontal">true for a horizontal cut (full width), false for a vertical cut (full height)</param>
-        /// <param name="settings">TornEdgeEffect with the tooth and shadow settings to start with</param>
-        public CutMarkContainer(ISurface parent, bool horizontal, TornEdgeEffect settings) : base(parent)
+        /// <param name="shadowSettings">TornEdgeEffect with the shadow settings to start with</param>
+        public CutMarkContainer(ISurface parent, bool horizontal, TornEdgeEffect shadowSettings) : base(parent)
         {
             _horizontal = horizontal;
-            settings ??= new TornEdgeEffect();
-            ApplySettings(settings);
+            ApplyShadowSettings(shadowSettings ?? new TornEdgeEffect());
             NewSeed();
             Init();
         }
@@ -97,13 +97,20 @@ namespace Greenshot.Editor.Drawing
                 Adorners.Add(new ResizeAdorner(this, Positions.MiddleLeft));
                 Adorners.Add(new ResizeAdorner(this, Positions.MiddleRight));
             }
+
+            _bandToothHeight = ToothHeight;
+            FieldChanged += OnOwnFieldChanged;
         }
 
         protected override void InitializeFields()
         {
+            AddField(GetType(), FieldType.LINE_THICKNESS, 0);
+            AddField(GetType(), FieldType.LINE_COLOR, Color.DimGray);
             AddField(GetType(), FieldType.FILL_COLOR, Color.Transparent);
             AddField(GetType(), FieldType.SHADOW, true);
             AddField(GetType(), FieldType.CUT_MARK_STYLE, CutMarkStyle.Torn);
+            AddField(GetType(), FieldType.TOOTH_HEIGHT, 12);
+            AddField(GetType(), FieldType.TOOTH_RANGE, 20);
         }
 
         /// <summary>
@@ -119,7 +126,12 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// How deep the edges go into the image parts
         /// </summary>
-        public int ToothHeight => _toothHeight;
+        public int ToothHeight => Math.Max(1, GetFieldValueAsInt(FieldType.TOOTH_HEIGHT));
+
+        /// <summary>
+        /// How wide a tooth is
+        /// </summary>
+        public int ToothRange => Math.Max(2, GetFieldValueAsInt(FieldType.TOOTH_RANGE));
 
         /// <summary>
         /// The gap between the edges is transparent, this needs an image with an alpha channel on export
@@ -132,12 +144,19 @@ namespace Greenshot.Editor.Drawing
         public static int GetBandSize(int toothHeight, int gap) => 2 * Math.Max(1, toothHeight) + gap;
 
         /// <summary>
-        /// Take the tooth sizes and the shadow from the settings
+        /// Use the tooth sizes of the settings
         /// </summary>
-        public void ApplySettings(TornEdgeEffect settings)
+        public void SetToothSize(int toothHeight, int toothRange)
         {
-            _toothHeight = Math.Max(1, settings.ToothHeight);
-            _toothRange = Math.Max(2, _horizontal ? settings.HorizontalToothRange : settings.VerticalToothRange);
+            SetFieldValue(FieldType.TOOTH_HEIGHT, Math.Max(1, toothHeight));
+            SetFieldValue(FieldType.TOOTH_RANGE, Math.Max(2, toothRange));
+        }
+
+        /// <summary>
+        /// Take the shadow from the settings
+        /// </summary>
+        public void ApplyShadowSettings(TornEdgeEffect settings)
+        {
             _shadowDarkness = settings.Darkness;
             _shadowSize = Math.Max(1, settings.ShadowSize);
             _shadowOffsetX = settings.ShadowOffset.X;
@@ -153,9 +172,9 @@ namespace Greenshot.Editor.Drawing
         {
             return new TornEdgeEffect
             {
-                ToothHeight = _toothHeight,
-                HorizontalToothRange = _toothRange,
-                VerticalToothRange = _toothRange,
+                ToothHeight = ToothHeight,
+                HorizontalToothRange = ToothRange,
+                VerticalToothRange = ToothRange,
                 Darkness = _shadowDarkness,
                 ShadowSize = _shadowSize,
                 ShadowOffset = new NativePoint(_shadowOffsetX, _shadowOffsetY),
@@ -169,9 +188,7 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         public void NewSeed()
         {
-            _seed = new Random().Next(1, int.MaxValue);
-            ClearShadowCache();
-            Invalidate();
+            SetSeed(new Random().Next(1, int.MaxValue));
         }
 
         /// <summary>
@@ -180,6 +197,42 @@ namespace Greenshot.Editor.Drawing
         public void SetSeed(int seed)
         {
             _seed = seed;
+            ClearShadowCache();
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Keep the gap the same size when the teeth change: the band grows or shrinks on both sides
+        /// </summary>
+        private void OnOwnFieldChanged(object sender, FieldChangedEventArgs e)
+        {
+            if (!Equals(e.Field.FieldType, FieldType.TOOTH_HEIGHT))
+            {
+                ClearShadowCache();
+                return;
+            }
+
+            int toothHeight = ToothHeight;
+            int delta = toothHeight - _bandToothHeight;
+            _bandToothHeight = toothHeight;
+            if (delta == 0)
+            {
+                return;
+            }
+
+            Invalidate();
+            var band = new NativeRect(Left, Top, Width, Height).Normalize();
+            if (_horizontal)
+            {
+                Top = band.Top - delta;
+                Height = Math.Max(2 * toothHeight, band.Height + 2 * delta);
+            }
+            else
+            {
+                Left = band.Left - delta;
+                Width = Math.Max(2 * toothHeight, band.Width + 2 * delta);
+            }
+
             ClearShadowCache();
             Invalidate();
         }
@@ -239,22 +292,31 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
-        /// The outline of the gap between the two edges, in image coordinates
+        /// The two edges in image coordinates: the first one goes into the part before the cut, the second one into the part after it
         /// </summary>
-        private GraphicsPath CreateGapPath(NativeRect band, CutMarkStyle style)
+        private void CreateEdges(NativeRect band, CutMarkStyle style, out PointF[] firstEdge, out PointF[] secondEdge)
         {
             int length = _horizontal ? band.Width : band.Height;
             int thickness = _horizontal ? band.Height : band.Width;
-            int toothHeight = Math.Min(_toothHeight, thickness / 2);
+            int toothHeight = Math.Min(ToothHeight, thickness / 2);
             var random = new Random(_seed);
-            var firstEdge = CutOutHelper.CreateEdge(style, length, toothHeight, _toothRange, random);
-            var secondEdge = CutOutHelper.CreateEdge(style, length, toothHeight, _toothRange, random);
+            var first = CutOutHelper.CreateEdge(style, length, toothHeight, ToothRange, random);
+            var second = CutOutHelper.CreateEdge(style, length, toothHeight, ToothRange, random);
 
-            // along the cut, across the cut: the first edge goes up into the part before, the second down into the part after
+            // along the cut, across the cut
             PointF Map(float along, float across) => _horizontal ? new PointF(band.Left + along, band.Top + across) : new PointF(band.Left + across, band.Top + along);
+            firstEdge = first.Select(p => Map(p.X, toothHeight - p.Y)).ToArray();
+            secondEdge = second.Select(p => Map(p.X, thickness - toothHeight + p.Y)).ToArray();
+        }
+
+        /// <summary>
+        /// The outline of the gap between the two edges
+        /// </summary>
+        private static GraphicsPath CreateGapPath(PointF[] firstEdge, PointF[] secondEdge)
+        {
             var path = new GraphicsPath();
-            path.AddLines(firstEdge.Select(p => Map(p.X, toothHeight - p.Y)).ToArray());
-            path.AddLines(Enumerable.Reverse(secondEdge).Select(p => Map(p.X, thickness - toothHeight + p.Y)).ToArray());
+            path.AddLines(firstEdge);
+            path.AddLines(Enumerable.Reverse(secondEdge).ToArray());
             path.CloseFigure();
             return path;
         }
@@ -273,7 +335,8 @@ namespace Greenshot.Editor.Drawing
             }
 
             Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR, Color.Transparent);
-            using var gapPath = CreateGapPath(band, style);
+            CreateEdges(band, style, out var firstEdge, out var secondEdge);
+            using var gapPath = CreateGapPath(firstEdge, secondEdge);
 
             var state = graphics.Save();
             graphics.SmoothingMode = SmoothingMode.HighQuality;
@@ -310,7 +373,21 @@ namespace Greenshot.Editor.Drawing
 
             if (GetFieldValueAsBool(FieldType.SHADOW))
             {
+                var shadowState = graphics.Save();
                 DrawShadow(graphics, band, gapPath, style);
+                graphics.Restore(shadowState);
+            }
+
+            int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
+            Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR, Color.DimGray);
+            if (lineThickness > 0 && Colors.IsVisible(lineColor))
+            {
+                using var pen = new Pen(lineColor, lineThickness)
+                {
+                    LineJoin = LineJoin.Round
+                };
+                graphics.DrawLines(pen, firstEdge);
+                graphics.DrawLines(pen, secondEdge);
             }
 
             graphics.Restore(state);
@@ -321,7 +398,7 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         private void DrawShadow(Graphics graphics, NativeRect band, GraphicsPath gapPath, CutMarkStyle style)
         {
-            string key = $"{band.Width}x{band.Height}|{style}|{_seed}|{_toothHeight}|{_toothRange}|{_shadowDarkness}|{_shadowSize}|{_shadowOffsetX},{_shadowOffsetY}";
+            string key = $"{band.Width}x{band.Height}|{style}|{_seed}|{ToothHeight}|{ToothRange}|{_shadowDarkness}|{_shadowSize}|{_shadowOffsetX},{_shadowOffsetY}";
             if (_shadowCache == null || _shadowCacheKey != key)
             {
                 ClearShadowCache();
@@ -347,7 +424,7 @@ namespace Greenshot.Editor.Drawing
 
             // The mask itself is drawn at this offset in the shadow image, inside the gap only the shadow shows
             var offset = new NativePoint(_shadowOffsetX, _shadowOffsetY).Offset(_shadowSize - 1, _shadowSize - 1);
-            // The clip is reset by the caller
+            // The clip is restored by the caller
             graphics.SetClip(gapPath, CombineMode.Intersect);
             graphics.DrawImage(_shadowCache, band.Left - offset.X, band.Top - offset.Y, _shadowCache.Width, _shadowCache.Height);
         }
@@ -363,6 +440,7 @@ namespace Greenshot.Editor.Drawing
         {
             if (disposing)
             {
+                FieldChanged -= OnOwnFieldChanged;
                 ClearShadowCache();
             }
 
@@ -400,7 +478,8 @@ namespace Greenshot.Editor.Drawing
                     return;
                 }
 
-                ApplySettings(settings);
+                ApplyShadowSettings(settings);
+                SetToothSize(settings.ToothHeight, _horizontal ? settings.HorizontalToothRange : settings.VerticalToothRange);
                 SetSeed(settings.Seed);
                 SetFieldValue(FieldType.SHADOW, settings.GenerateShadow);
                 surface.Invalidate();

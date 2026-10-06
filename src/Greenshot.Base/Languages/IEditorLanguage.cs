@@ -247,6 +247,11 @@ namespace Greenshot.Base.Languages
         string CutMarkSettings { get; }
 
         /// <summary>
+        /// Tooth range
+        /// </summary>
+        string CutMarkToothRange { get; }
+
+        /// <summary>
         /// Torn
         /// </summary>
         string CutMarkTorn { get; }

@@ -1648,6 +1648,10 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             new BidirectionalBinding(btnLineColor, "SelectedColor", _surface.FieldAggregator.GetField(FieldType.LINE_COLOR), "Value", NotNullValidator.GetInstance());
             new BidirectionalBinding(lineThicknessUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.LINE_THICKNESS), "Value", DecimalIntConverter.GetInstance(),
                 NotNullValidator.GetInstance());
+            new BidirectionalBinding(toothHeightUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.TOOTH_HEIGHT), "Value", DecimalIntConverter.GetInstance(),
+                NotNullValidator.GetInstance());
+            new BidirectionalBinding(toothRangeUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.TOOTH_RANGE), "Value", DecimalIntConverter.GetInstance(),
+                NotNullValidator.GetInstance());
             new BidirectionalBinding(blurRadiusUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.BLUR_RADIUS), "Value", DecimalIntConverter.GetInstance(),
                 NotNullValidator.GetInstance());
             new BidirectionalBinding(magnificationFactorUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.MAGNIFICATION_FACTOR), "Value",
@@ -1689,6 +1693,8 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 btnFillColor.Visible = props.HasFieldValue(FieldType.FILL_COLOR);
                 btnLineColor.Visible = props.HasFieldValue(FieldType.LINE_COLOR);
                 lineThicknessLabel.Visible = lineThicknessUpDown.Visible = props.HasFieldValue(FieldType.LINE_THICKNESS);
+                toothHeightLabel.Visible = toothHeightUpDown.Visible = props.HasFieldValue(FieldType.TOOTH_HEIGHT);
+                toothRangeLabel.Visible = toothRangeUpDown.Visible = props.HasFieldValue(FieldType.TOOTH_RANGE);
                 blurRadiusLabel.Visible = blurRadiusUpDown.Visible = props.HasFieldValue(FieldType.BLUR_RADIUS);
                 previewQualityLabel.Visible = previewQualityUpDown.Visible = props.HasFieldValue(FieldType.PREVIEW_QUALITY);
                 magnificationFactorLabel.Visible = magnificationFactorUpDown.Visible = props.HasFieldValue(FieldType.MAGNIFICATION_FACTOR);
@@ -2821,6 +2827,8 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             this.btnLineColor.Text = Texts.Editor.Forecolor;
             this.counterLabel.Text = Texts.Editor.CounterStartvalue;
             this.lineThicknessLabel.Text = Texts.Editor.Thickness;
+            this.toothHeightLabel.Text = Texts.Editor.TornedgeToothsize;
+            this.toothRangeLabel.Text = Texts.Editor.CutMarkToothRange;
             this.fontSizeLabel.Text = Texts.Editor.Fontsize;
             this.fontBoldButton.Text = Texts.Editor.Bold;
             this.fontItalicButton.Text = Texts.Editor.Italic;

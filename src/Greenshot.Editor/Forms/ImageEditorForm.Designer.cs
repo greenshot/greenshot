@@ -150,6 +150,10 @@ namespace Greenshot.Editor.Forms
 			this.btnCropHorizontal = new ToolStripButton();
 			this.btnCropAuto = new ToolStripButton();
 			this.cutMarkStyleButton = new BindableToolStripDropDownButton();
+			this.toothHeightLabel = new ToolStripLabel();
+			this.toothHeightUpDown = new ToolStripNumericUpDown();
+			this.toothRangeLabel = new ToolStripLabel();
+			this.toothRangeUpDown = new ToolStripNumericUpDown();
 			this.pixelizeToolStripMenuItem = new ToolStripMenuItem();
 			this.blurToolStripMenuItem = new ToolStripMenuItem();
 			this.cutMarkNoneMenuItem = new ToolStripMenuItem();
@@ -1009,6 +1013,10 @@ namespace Greenshot.Editor.Forms
 									this.btnCropHorizontal,
 									this.btnCropAuto,
 									this.cutMarkStyleButton,
+									this.toothHeightLabel,
+									this.toothHeightUpDown,
+									this.toothRangeLabel,
+									this.toothRangeUpDown,
 									this.counterLabel,
 									this.counterUpDown});
 			// 
@@ -1169,6 +1177,70 @@ namespace Greenshot.Editor.Forms
 			this.counterUpDown.Value = 1;
 			this.counterUpDown.GotFocus += new System.EventHandler(this.ToolBarFocusableElementGotFocus);
 			this.counterUpDown.LostFocus += new System.EventHandler(this.ToolBarFocusableElementLostFocus);
+			// 
+			// toothHeightLabel
+			// 
+			this.toothHeightLabel.Name = "toothHeightLabel";
+			// 
+			// toothHeightUpDown
+			// 
+			this.toothHeightUpDown.DecimalPlaces = 0;
+			this.toothHeightUpDown.Increment = new decimal(new int[] {
+									1,
+									0,
+									0,
+									0});
+			this.toothHeightUpDown.Maximum = new decimal(new int[] {
+									40,
+									0,
+									0,
+									0});
+			this.toothHeightUpDown.Minimum = new decimal(new int[] {
+									1,
+									0,
+									0,
+									0});
+			this.toothHeightUpDown.Name = "toothHeightUpDown";
+			this.toothHeightUpDown.Text = "12";
+			this.toothHeightUpDown.Value = new decimal(new int[] {
+									12,
+									0,
+									0,
+									0});
+			this.toothHeightUpDown.GotFocus += new System.EventHandler(this.ToolBarFocusableElementGotFocus);
+			this.toothHeightUpDown.LostFocus += new System.EventHandler(this.ToolBarFocusableElementLostFocus);
+			// 
+			// toothRangeLabel
+			// 
+			this.toothRangeLabel.Name = "toothRangeLabel";
+			// 
+			// toothRangeUpDown
+			// 
+			this.toothRangeUpDown.DecimalPlaces = 0;
+			this.toothRangeUpDown.Increment = new decimal(new int[] {
+									1,
+									0,
+									0,
+									0});
+			this.toothRangeUpDown.Maximum = new decimal(new int[] {
+									40,
+									0,
+									0,
+									0});
+			this.toothRangeUpDown.Minimum = new decimal(new int[] {
+									2,
+									0,
+									0,
+									0});
+			this.toothRangeUpDown.Name = "toothRangeUpDown";
+			this.toothRangeUpDown.Text = "20";
+			this.toothRangeUpDown.Value = new decimal(new int[] {
+									20,
+									0,
+									0,
+									0});
+			this.toothRangeUpDown.GotFocus += new System.EventHandler(this.ToolBarFocusableElementGotFocus);
+			this.toothRangeUpDown.LostFocus += new System.EventHandler(this.ToolBarFocusableElementLostFocus);
 			// 
 			// lineThicknessLabel
 			// 
@@ -1823,6 +1895,10 @@ namespace Greenshot.Editor.Forms
 		private ToolStripButton btnCropHorizontal;
 		private ToolStripButton btnCropAuto;
 		private BindableToolStripDropDownButton cutMarkStyleButton;
+		private ToolStripLabel toothHeightLabel;
+		private ToolStripNumericUpDown toothHeightUpDown;
+		private ToolStripLabel toothRangeLabel;
+		private ToolStripNumericUpDown toothRangeUpDown;
 		private ToolStripMenuItem cutMarkNoneMenuItem;
 		private ToolStripMenuItem cutMarkLineMenuItem;
 		private ToolStripMenuItem cutMarkZigZagMenuItem;

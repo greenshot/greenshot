@@ -1579,11 +1579,23 @@ namespace Greenshot.Editor.Drawing
             int cutStart = horizontal ? cropRectangle.Top : cropRectangle.Left;
             int cutSize = horizontal ? cropRectangle.Height : cropRectangle.Width;
             int imageLength = horizontal ? Image.Height : Image.Width;
-            edgeSettings ??= IniConfigRegistry.GetSection<IEditorConfiguration>()?.TornEdgeEffectSettings ?? new TornEdgeEffect();
 
             // Only a cut in the middle has a joint to mark, the gap of the mark keeps a part of the strip
-            bool withCutMark = cutMarkStyle != CutMarkStyle.None && cutStart > 0 && cutStart + cutSize < imageLength;
-            int gap = withCutMark ? Math.Min(cutSize, Math.Max(2, edgeSettings.ToothHeight)) : 0;
+            CutMarkContainer cutMark = null;
+            if (cutMarkStyle != CutMarkStyle.None && cutStart > 0 && cutStart + cutSize < imageLength)
+            {
+                // The shadow comes from the torn edge effect, the tooth sizes are the last used ones unless settings are given
+                var shadowSettings = edgeSettings ?? IniConfigRegistry.GetSection<IEditorConfiguration>()?.TornEdgeEffectSettings ?? new TornEdgeEffect();
+                cutMark = new CutMarkContainer(this, horizontal, shadowSettings);
+                if (edgeSettings != null)
+                {
+                    cutMark.SetToothSize(edgeSettings.ToothHeight, horizontal ? edgeSettings.HorizontalToothRange : edgeSettings.VerticalToothRange);
+                }
+
+                cutMark.SetFieldValue(FieldType.CUT_MARK_STYLE, cutMarkStyle);
+            }
+
+            int gap = cutMark != null ? Math.Min(cutSize, Math.Max(2, cutMark.ToothHeight)) : 0;
 
             Bitmap newImage;
             try
@@ -1592,6 +1604,7 @@ namespace Greenshot.Editor.Drawing
             }
             catch (Exception ex)
             {
+                cutMark?.Dispose();
                 ex.Data.Add("CropRectangle", cropRectangle);
                 ex.Data.Add("Width", Image.Width);
                 ex.Data.Add("Height", Image.Height);
@@ -1615,16 +1628,14 @@ namespace Greenshot.Editor.Drawing
             }
 
             var addedElements = new DrawableContainerList(ID);
-            if (withCutMark)
+            if (cutMark != null)
             {
-                var cutMark = new CutMarkContainer(this, horizontal, edgeSettings);
                 int bandSize = CutMarkContainer.GetBandSize(cutMark.ToothHeight, gap);
                 int bandStart = cutStart + gap / 2 - bandSize / 2;
                 cutMark.Left = horizontal ? 0 : bandStart;
                 cutMark.Top = horizontal ? bandStart : 0;
                 cutMark.Width = horizontal ? newImage.Width : bandSize;
                 cutMark.Height = horizontal ? bandSize : newImage.Height;
-                cutMark.SetFieldValue(FieldType.CUT_MARK_STYLE, cutMarkStyle);
                 addedElements.Add(cutMark);
             }
 
