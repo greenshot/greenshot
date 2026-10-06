@@ -102,7 +102,7 @@ namespace Greenshot.Base.Wpf
         /// </summary>
         /// <param name="text">The text, shown as is (an underscore is no access key)</param>
         /// <param name="icon">The icon or null</param>
-        /// <param name="onClick">Called when the item itself (not a sub item) is clicked, can be null</param>
+        /// <param name="onClick">Called when the item itself (not a sub item) is clicked and the menu is gone, can be null</param>
         public static MenuItem CreateItem(string text, ImageSource icon = null, Action onClick = null)
         {
             var item = new MenuItem
@@ -125,18 +125,51 @@ namespace Greenshot.Base.Wpf
                         return;
                     }
 
-                    try
+                    void Run()
                     {
-                        onClick();
+                        try
+                        {
+                            onClick();
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Error($"Error in the menu action of '{text}'", ex);
+                        }
                     }
-                    catch (Exception ex)
+
+                    var menu = FindContextMenu(item);
+                    if (item.StaysOpenOnClick || menu == null || PresentationSource.FromVisual(menu) == null)
                     {
-                        Log.Error($"Error in the menu action of '{text}'", ex);
+                        Run();
+                        return;
                     }
+
+                    // The menu is closed, but its window stays while it fades out, and it is the active window (see ShowAtCursor).
+                    // A dialog the action shows (e.g. Save as) would belong to it and close with it: the action runs when it's gone.
+                    void OnClosed(object closedSender, RoutedEventArgs closedArgs)
+                    {
+                        menu.Closed -= OnClosed;
+                        Run();
+                    }
+
+                    menu.Closed += OnClosed;
                 };
             }
 
             return item;
+        }
+
+        /// <summary>
+        /// The context menu the item is in, also for an item of a sub menu
+        /// </summary>
+        private static ContextMenu FindContextMenu(DependencyObject element)
+        {
+            while (element != null && !(element is ContextMenu))
+            {
+                element = LogicalTreeHelper.GetParent(element);
+            }
+
+            return element as ContextMenu;
         }
 
         /// <summary>
