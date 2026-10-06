@@ -619,6 +619,119 @@ namespace Greenshot.Tests.Forms
         }
 
         [Fact]
+        public void ThemedTitleBar_WindowsTitleBarHasTheThemeColorsWhenTheWindowShows()
+        {
+            Exception threadEx = null;
+            var thread = new Thread(() =>
+            {
+                var tm = ThemeManager.Instance;
+                var previousTheme = tm.Theme;
+                System.Windows.Window window = null;
+                try
+                {
+                    tm.Theme = Greenshot.Base.Core.Enums.UiTheme.System;
+                    var root = new System.Windows.Controls.Grid();
+                    window = new System.Windows.Window
+                    {
+                        Title = "Title bar color test",
+                        WindowStyle = System.Windows.WindowStyle.None,
+                        Width = 300,
+                        Height = 200,
+                        Left = -2000,
+                        Top = -2000,
+                        ShowInTaskbar = false,
+                        ShowActivated = false,
+                        Content = root
+                    };
+
+                    // In the window before it is shown, like a title bar in XAML
+                    root.Children.Add(new ThemedTitleBar());
+
+                    // The window exists but isn't shown yet (and not loaded): the title bar must already be dark with a dark theme
+                    int? darkModeWhenShown = null;
+                    window.SourceInitialized += (s, e) =>
+                    {
+                        var handle = new System.Windows.Interop.WindowInteropHelper(window).Handle;
+                        DwmGetWindowAttribute(handle, 20, out int darkMode, sizeof(int));
+                        darkModeWhenShown = darkMode;
+                    };
+                    window.Show();
+                    Assert.Equal(tm.IsDarkTheme ? 1 : 0, darkModeWhenShown);
+                }
+                catch (Exception ex)
+                {
+                    threadEx = ex;
+                }
+                finally
+                {
+                    window?.Close();
+                    tm.Theme = previousTheme;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+
+            Assert.Null(threadEx);
+        }
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern IntPtr GetForegroundWindow();
+
+        [Fact]
+        public void ThemedMenu_ShowAtCursor_StaysOpenWhenAGreenshotWindowIsActive()
+        {
+            Exception threadEx = null;
+            var thread = new Thread(() =>
+            {
+                System.Windows.Window settings = null;
+                System.Windows.Controls.ContextMenu menu = null;
+                try
+                {
+                    // Like a capture with the settings open: the capture window closes, the settings become active, the picker opens
+                    settings = new System.Windows.Window { Title = "Settings stand-in", Width = 300, Height = 200, Left = 100, Top = 100, ShowInTaskbar = false };
+                    settings.Show();
+                    var capture = new System.Windows.Window { Title = "Capture stand-in", Width = 300, Height = 200, Left = 500, Top = 100, ShowInTaskbar = false, Topmost = true };
+                    capture.Show();
+                    capture.Activate();
+                    WaitForIdle();
+                    capture.Close();
+                    WaitForIdle();
+                    if (GetForegroundWindow() != new System.Windows.Interop.WindowInteropHelper(settings).Handle)
+                    {
+                        // Windows didn't let the test become the foreground, the situation can't be built here
+                        return;
+                    }
+
+                    menu = ThemedMenu.CreateContextMenu();
+                    menu.StaysOpen = true;
+                    menu.Items.Add(ThemedMenu.CreateItem("File", null, () => { }));
+                    ThemedMenu.ShowAtCursor(menu);
+                    WaitForIdle();
+                    Assert.True(menu.IsOpen);
+                }
+                catch (Exception ex)
+                {
+                    threadEx = ex;
+                }
+                finally
+                {
+                    if (menu != null)
+                    {
+                        menu.IsOpen = false;
+                    }
+
+                    settings?.Close();
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+
+            Assert.Null(threadEx);
+        }
+
+        [Fact]
         public void ThemedTitleBar_SwitchingBackToTheWindowsTitleBar_KeepsTheModernFrame()
         {
             Exception threadEx = null;

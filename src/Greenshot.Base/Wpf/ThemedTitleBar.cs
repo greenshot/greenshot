@@ -247,7 +247,12 @@ namespace Greenshot.Base.Wpf
             _window = window;
             _customWindowStyle = window.WindowStyle;
             window.StateChanged += (s, e) => UpdateButtons();
-            window.SourceInitialized += (s, e) => UpdateMode();
+            window.SourceInitialized += (s, e) =>
+            {
+                // The title bar of Windows in the colors of the theme before the window shows, not only when it's loaded: no light flash
+                WindowFrameTheme.Attach(window);
+                UpdateMode();
+            };
             DependencyPropertyDescriptor.FromProperty(Window.TitleProperty, typeof(Window)).AddValueChanged(window, (s, e) => UpdateTitle());
             DependencyPropertyDescriptor.FromProperty(Window.IconProperty, typeof(Window)).AddValueChanged(window, (s, e) => UpdateTitle());
             DependencyPropertyDescriptor.FromProperty(Window.ResizeModeProperty, typeof(Window)).AddValueChanged(window, (s, e) => UpdateMode());
