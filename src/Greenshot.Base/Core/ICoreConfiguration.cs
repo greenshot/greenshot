@@ -69,6 +69,7 @@ namespace Greenshot.Base.Core
         bool IsFirstLaunch { get; set; }
 
         [Description("The version of Greenshot for which the website was last opened after an install or update, kept up to date by Greenshot.")]
+        [IniValue(IgnoreConstants = true)]
         string WebsiteShownForVersion { get; set; }
 
         [DataMember(Name = "Destinations")]
