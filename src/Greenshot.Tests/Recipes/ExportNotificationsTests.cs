@@ -21,9 +21,14 @@
 
 using System;
 using System.Drawing;
+using System.IO;
+using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Editor.Destinations;
+using Greenshot.Editor.Drawing;
 using Greenshot.Recipes.Pipeline;
 using Xunit;
 
@@ -116,6 +121,33 @@ namespace Greenshot.Tests.Recipes
             Action edit = () => { };
             Assert.Same(open, new ExportNotification { Open = open, Edit = edit }.DefaultAction);
             Assert.Same(edit, new ExportNotification { Edit = edit }.DefaultAction);
+        }
+
+        [Fact]
+        public void GreenshotFormat_KeepsTheElements_WrittenWithoutTheSurface()
+        {
+            using var surface = new Surface { Image = new Bitmap(100, 80) };
+            // An element like the mouse cursor of a capture
+            surface.AddImageContainer(new Bitmap(10, 10), 5, 5);
+            byte[] elements;
+            using (var elementStream = new MemoryStream())
+            {
+                surface.SaveElementsToStream(elementStream);
+                elements = elementStream.ToArray();
+            }
+
+            // How the notification keeps the capture, and how the editor saves a .greenshot file: both load with the elements
+            using var copyStream = new MemoryStream();
+            ImageIO.WriteGreenshotFormat(surface.Image, elements, copyStream);
+            using var savedStream = new MemoryStream();
+            ImageIO.SaveToStream(surface, savedStream, new SurfaceOutputSettings(WellKnownFileFormats.Greenshot));
+
+            foreach (var stream in new[] { copyStream, savedStream })
+            {
+                using var loaded = ImageIO.LoadGreenshotSurface(stream, new Surface());
+                Assert.Equal(new Size(100, 80), loaded.Image.Size);
+                Assert.Equal(1, loaded.Elements.Count);
+            }
         }
 
         [Theory]

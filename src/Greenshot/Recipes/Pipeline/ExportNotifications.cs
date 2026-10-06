@@ -45,7 +45,7 @@ namespace Greenshot.Recipes.Pipeline
     /// <summary>
     /// The notification after an export: where the capture went (icon of the destination, the file or link), a preview, and the buttons
     /// Open, Send to (the destination picker) and Edit. How much it shows is the ExportNotificationDetail setting.
-    /// The flow disposes its capture when it ends, so a copy is kept as file for the preview and the buttons.
+    /// The flow disposes its capture when it ends, so a copy is kept as .greenshot file for the buttons, and a preview as PNG.
     /// </summary>
     public static class ExportNotifications
     {
@@ -157,31 +157,62 @@ namespace Greenshot.Recipes.Pipeline
                 return;
             }
 
-            // The capture with its annotations, the flow disposes the surface after the export
-            Image image = null;
+            // The flow disposes the surface after the export: a copy of the capture with its elements (the mouse cursor, annotations),
+            // and the image as exported for the preview. Only the copies are made here, the files are written on the pool.
+            CaptureCopy copy = null;
             try
             {
-                image = surface.GetImageForExport();
+                copy = new CaptureCopy
+                {
+                    Image = ImageHelper.Clone(surface.Image),
+                    Elements = SaveElements(surface),
+                    Exported = content.ShowPreview ? surface.GetImageForExport() : null
+                };
             }
             catch (Exception ex)
             {
                 Log.Warn("Couldn't copy the capture for the notification", ex);
+                copy?.Dispose();
+                copy = null;
             }
 
-            ShowAsync(destination, result, content, image, surface.CaptureDetails, UiDispatcher.Current).FireAndLog("Export notification", Log);
+            ShowAsync(destination, result, content, copy, surface.CaptureDetails, UiDispatcher.Current).FireAndLog("Export notification", Log);
         }
 
-        private static async Task ShowAsync(IDestination destination, ExportResult result, Content content, Image image, ICaptureDetails captureDetails, IUiDispatcher ui)
+        /// <summary>
+        /// The copy of the capture for the notification
+        /// </summary>
+        private sealed class CaptureCopy : IDisposable
+        {
+            public Image Image;
+            public byte[] Elements;
+            public Image Exported;
+
+            public void Dispose()
+            {
+                Image?.Dispose();
+                Exported?.Dispose();
+            }
+        }
+
+        private static byte[] SaveElements(ISurface surface)
+        {
+            using var stream = new MemoryStream();
+            surface.SaveElementsToStream(stream);
+            return stream.ToArray();
+        }
+
+        private static async Task ShowAsync(IDestination destination, ExportResult result, Content content, CaptureCopy copy, ICaptureDetails captureDetails, IUiDispatcher ui)
         {
             // Writing the files takes a moment for a big capture, not on the UI thread
             await ThreadPoolSwitch.SwitchToThreadPoolAsync();
             string capturePath = null;
             string previewPath = null;
-            using (image)
+            using (copy)
             {
-                if (image != null)
+                if (copy != null)
                 {
-                    (capturePath, previewPath) = SaveCopies(image, content.ShowPreview);
+                    (capturePath, previewPath) = SaveCopies(copy);
                 }
             }
 
@@ -226,24 +257,29 @@ namespace Greenshot.Recipes.Pipeline
         }
 
         /// <summary>
-        /// Write the capture (for Send to and Edit) and a small preview as PNG files, the old ones are removed
+        /// Write the capture as .greenshot file (for Send to and Edit, with its elements) and a small preview as PNG (Windows shows
+        /// the pictures of a notification from files), the old ones are removed
         /// </summary>
-        private static (string CapturePath, string PreviewPath) SaveCopies(Image image, bool withPreview)
+        private static (string CapturePath, string PreviewPath) SaveCopies(CaptureCopy copy)
         {
             try
             {
                 Directory.CreateDirectory(Folder);
                 RemoveOldCopies();
                 string name = Guid.NewGuid().ToString("N");
-                string capturePath = Path.Combine(Folder, name + ".png");
-                image.Save(capturePath, ImageFormat.Png);
-                if (!withPreview)
+                string capturePath = Path.Combine(Folder, name + ".greenshot");
+                using (var stream = File.Create(capturePath))
+                {
+                    ImageIO.WriteGreenshotFormat(copy.Image, copy.Elements, stream);
+                }
+
+                if (copy.Exported == null)
                 {
                     return (capturePath, null);
                 }
 
                 string previewPath = Path.Combine(Folder, name + "-preview.png");
-                using (var preview = CreatePreview(image))
+                using (var preview = CreatePreview(copy.Exported))
                 {
                     preview.Save(previewPath, ImageFormat.Png);
                 }
@@ -276,7 +312,8 @@ namespace Greenshot.Recipes.Pipeline
         private static void RemoveOldCopies()
         {
             var tooOld = DateTime.Now - KeepCopies;
-            foreach (var file in Directory.EnumerateFiles(Folder, "*.png"))
+            // The icons stay, they are in a folder of their own
+            foreach (var file in Directory.EnumerateFiles(Folder))
             {
                 try
                 {
@@ -345,9 +382,8 @@ namespace Greenshot.Recipes.Pipeline
         private static ISurface CreateSurface(string capturePath, ICaptureDetails captureDetails, bool modified)
         {
             var surfaceFactory = SimpleServiceProvider.Current.GetInstance<Func<ISurface>>();
-            var image = ImageIO.LoadImage(capturePath);
             var surface = WinFormsContextGuard.CreateWithoutContext(() => surfaceFactory());
-            surface.Image = image;
+            ImageIO.LoadGreenshotSurface(capturePath, surface);
             surface.CaptureDetails = captureDetails;
             surface.Modified = modified;
             return surface;

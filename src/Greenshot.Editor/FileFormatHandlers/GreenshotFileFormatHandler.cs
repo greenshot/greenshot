@@ -55,15 +55,9 @@ namespace Greenshot.Editor.FileFormatHandlers
 
             try
             {
-                bitmap.Save(stream, ImageFormat.Png);
-                using MemoryStream tmpStream = RecyclableMemoryStreamFactory.GetStream("GreenshotFileFormatHandler.SaveToStream");
-                long bytesWritten = surface.SaveElementsToStream(tmpStream);
-                using BinaryWriter writer = new BinaryWriter(tmpStream);
-                writer.Write(bytesWritten);
-                Version v = Assembly.GetExecutingAssembly().GetName().Version;
-                byte[] marker = Encoding.ASCII.GetBytes($"Greenshot{v.Major:00}.{v.Minor:00}");
-                writer.Write(marker);
-                tmpStream.WriteTo(stream);
+                using MemoryStream elementsStream = RecyclableMemoryStreamFactory.GetStream("GreenshotFileFormatHandler.SaveToStream");
+                surface.SaveElementsToStream(elementsStream);
+                ImageIO.WriteGreenshotFormat(bitmap, elementsStream.ToArray(), stream);
                 return true;
             }
             catch (Exception ex)
