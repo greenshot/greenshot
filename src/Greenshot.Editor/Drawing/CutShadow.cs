@@ -99,6 +99,29 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
+        /// Leave out the areas the other elements cut out, e.g. so the line along the edges doesn't show in another gap
+        /// </summary>
+        internal static void ExcludeOtherCuts(Graphics graphics, DrawableContainer self, IEnumerable<DrawableContainer> cuts)
+        {
+            foreach (var cut in cuts)
+            {
+                if (ReferenceEquals(cut, self))
+                {
+                    continue;
+                }
+
+                using var cutPath = CreateCutPath(cut);
+                if (cutPath == null)
+                {
+                    continue;
+                }
+
+                using var cutRegion = new Region(cutPath);
+                graphics.ExcludeClip(cutRegion);
+            }
+        }
+
+        /// <summary>
         /// Draw the shadow into the cut area of the element, leaving out the parts where a cut which is drawn later takes over
         /// </summary>
         internal static void Draw(Graphics graphics, Bitmap shadow, DrawableContainer self, IList<DrawableContainer> cuts, int shadowSize, NativePoint shadowOffset)

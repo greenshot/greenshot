@@ -249,6 +249,8 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             foreach (ToolStripItem cutMarkItem in cutMarkStyleButton.DropDownItems)
             {
                 cutMarkItem.Image = CreateCutMarkPreview((CutMarkStyle)cutMarkItem.Tag);
+                // The pictures fill the whole item, this keeps them apart
+                cutMarkItem.Padding = new Padding(0, 3, 0, 3);
             }
             highlightModeButton.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "highlightModeButton.Image");
             textHighlightMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "textHighlightMenuItem.Image");
@@ -2040,7 +2042,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         private static Bitmap CreateCutMarkPreview(CutMarkStyle cutMarkStyle)
         {
             const int size = 16;
-            const int border = 1;
+            const int border = 2;
             const int inner = size - 2 * border;
             var preview = new Bitmap(size, size, PixelFormat.Format32bppArgb);
             using var graphics = Graphics.FromImage(preview);
@@ -2062,7 +2064,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             }
 
             const int toothHeight = 2;
-            const int bandTop = 3;
+            const int bandTop = 2;
             const int bandHeight = 8;
             var random = new Random(16);
             var firstEdge = CutOutHelper.CreateEdge(cutMarkStyle, inner, toothHeight, 4, random);

@@ -381,6 +381,8 @@ namespace Greenshot.Editor.Drawing
             Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR, Color.DimGray);
             if (lineThickness > 0 && Colors.IsVisible(lineColor))
             {
+                // The edges are part of the image, where another element cut the image away they don't show
+                CutShadow.ExcludeOtherCuts(graphics, this, CutShadow.GetCuts(InternalParent, this));
                 using var pen = new Pen(lineColor, lineThickness)
                 {
                     LineJoin = LineJoin.Round
