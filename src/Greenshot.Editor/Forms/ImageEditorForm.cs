@@ -246,12 +246,6 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             btnCropVertical.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "CropVertical.Image");
             btnCropHorizontal.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "CropHorizontal.Image");
             btnCropAuto.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "AutoCrop.Image");
-            foreach (ToolStripItem cutMarkItem in cutMarkStyleButton.DropDownItems)
-            {
-                cutMarkItem.Image = CreateCutMarkPreview((CutMarkStyle)cutMarkItem.Tag);
-            }
-            // The button shows the picture of the selected style
-            cutMarkStyleButton.Image = cutMarkNoneMenuItem.Image;
             highlightModeButton.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "highlightModeButton.Image");
             textHighlightMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "textHighlightMenuItem.Image");
             areaHighlightMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "areaHighlightMenuItem.Image");
@@ -1727,7 +1721,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 }
 
                 // The cut mark is for crop out only, or for a selected cut mark
-                cutMarkStyleButton.Visible = props.HasFieldValue(FieldType.CUT_MARK_STYLE) &&
+                cutMarkLabel.Visible = cutMarkStyleButton.Visible = props.HasFieldValue(FieldType.CUT_MARK_STYLE) &&
                                              (!cropping || cropMode == CropContainer.CropModes.Horizontal || cropMode == CropContainer.CropModes.Vertical);
                 highlightModeButton.Visible = props.HasFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT);
             }
@@ -2033,35 +2027,6 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         /// <summary>
         /// A small picture of the cut mark style for the drop-down: two image parts with their edges and the gap between them
         /// </summary>
-        private static Bitmap CreateCutMarkPreview(CutMarkStyle cutMarkStyle)
-        {
-            const int size = 16;
-            var preview = new Bitmap(size, size, PixelFormat.Format32bppArgb);
-            using var graphics = Graphics.FromImage(preview);
-            if (cutMarkStyle == CutMarkStyle.None)
-            {
-                graphics.Clear(Color.SteelBlue);
-                return preview;
-            }
-
-            // Two parts with the edges of the style and a gap between them, like the cut mark
-            const int toothHeight = 2;
-            const int bandTop = 5;
-            const int bandHeight = 6;
-            var random = new Random(16);
-            var firstEdge = CutOutHelper.CreateEdge(cutMarkStyle, size, toothHeight, 4, random);
-            var secondEdge = CutOutHelper.CreateEdge(cutMarkStyle, size, toothHeight, 4, random);
-            var before = new List<PointF> { new PointF(0, 0), new PointF(size, 0) };
-            before.AddRange(Enumerable.Reverse(firstEdge).Select(p => new PointF(p.X, bandTop + toothHeight - p.Y)));
-            var after = secondEdge.Select(p => new PointF(p.X, bandTop + bandHeight - toothHeight + p.Y)).ToList();
-            after.Add(new PointF(size, size));
-            after.Add(new PointF(0, size));
-            graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            graphics.FillPolygon(Brushes.SteelBlue, before.ToArray());
-            graphics.FillPolygon(Brushes.SteelBlue, after.ToArray());
-            return preview;
-        }
-
         private void SelectCropMode(CropContainer.CropModes cropMode)
         {
             _surface.FieldAggregator.GetField(FieldType.CROPMODE).Value = cropMode;
@@ -2356,7 +2321,10 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
             if (apply)
             {
-                ApplyEffect(tornEdgeEffect);
+                // The torn edges are an element, so they can be changed or removed later
+                _surface.AddTornEdges(tornEdgeEffect);
+                UpdateUndoRedoSurfaceDependencies();
+                RefreshFieldControls();
             }
         }
 
@@ -2812,12 +2780,15 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             this.btnCropVertical.Text = Texts.Editor.CropmodeVertical;
             this.btnCropHorizontal.Text = Texts.Editor.CropmodeHorizontal;
             this.btnCropAuto.Text = Texts.Editor.CropmodeAuto;
-            this.cutMarkStyleButton.Text = Texts.Editor.CutMark;
+            this.cutMarkLabel.Text = Texts.Editor.CutMark;
+            this.cutMarkStyleButton.ToolTipText = Texts.Editor.CutMark;
             this.cutMarkNoneMenuItem.Text = Texts.Editor.CutMarkNone;
             this.cutMarkLineMenuItem.Text = Texts.Editor.CutMarkLine;
             this.cutMarkZigZagMenuItem.Text = Texts.Editor.CutMarkZigzag;
             this.cutMarkWaveMenuItem.Text = Texts.Editor.CutMarkWave;
             this.cutMarkTornMenuItem.Text = Texts.Editor.CutMarkTorn;
+            // The button shows the name of the selected style
+            this.cutMarkStyleButton.SelectedTag = this.cutMarkStyleButton.SelectedTag;
             this.highlightModeButton.Text = Texts.Editor.HighlightMode;
             this.textHighlightMenuItem.Text = Texts.Editor.HighlightText;
             this.areaHighlightMenuItem.Text = Texts.Editor.HighlightArea;

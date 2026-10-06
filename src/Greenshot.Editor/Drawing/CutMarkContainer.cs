@@ -179,6 +179,7 @@ namespace Greenshot.Editor.Drawing
                 ShadowSize = _shadowSize,
                 ShadowOffset = new NativePoint(_shadowOffsetX, _shadowOffsetY),
                 GenerateShadow = GetFieldValueAsBool(FieldType.SHADOW),
+                BackgroundColor = GetFieldValueAsColor(FieldType.FILL_COLOR, Color.Transparent),
                 Seed = _seed
             };
         }
@@ -482,6 +483,7 @@ namespace Greenshot.Editor.Drawing
                 SetToothSize(settings.ToothHeight, _horizontal ? settings.HorizontalToothRange : settings.VerticalToothRange);
                 SetSeed(settings.Seed);
                 SetFieldValue(FieldType.SHADOW, settings.GenerateShadow);
+                SetFieldValue(FieldType.FILL_COLOR, settings.BackgroundColor);
                 surface.Invalidate();
             };
             menu.Items.Add(settingsItem);

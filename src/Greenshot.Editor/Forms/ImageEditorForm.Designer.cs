@@ -149,6 +149,7 @@ namespace Greenshot.Editor.Forms
 			this.btnCropVertical = new ToolStripButton();
 			this.btnCropHorizontal = new ToolStripButton();
 			this.btnCropAuto = new ToolStripButton();
+			this.cutMarkLabel = new ToolStripLabel();
 			this.cutMarkStyleButton = new BindableToolStripDropDownButton();
 			this.toothHeightLabel = new ToolStripLabel();
 			this.toothHeightUpDown = new ToolStripNumericUpDown();
@@ -1012,6 +1013,7 @@ namespace Greenshot.Editor.Forms
 									this.btnCropVertical,
 									this.btnCropHorizontal,
 									this.btnCropAuto,
+									this.cutMarkLabel,
 									this.cutMarkStyleButton,
 									this.toothHeightLabel,
 									this.toothHeightUpDown,
@@ -1075,9 +1077,14 @@ namespace Greenshot.Editor.Forms
 			this.btnCropAuto.Tag = CropContainer.CropModes.AutoCrop;
 			this.btnCropAuto.Click += new System.EventHandler(this.CropModeButtonClick);
 			// 
+			// cutMarkLabel
+			// 
+			this.cutMarkLabel.Name = "cutMarkLabel";
+			// 
 			// cutMarkStyleButton
 			// 
-			this.cutMarkStyleButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.cutMarkStyleButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.cutMarkStyleButton.ShowSelectedText = true;
 			this.cutMarkStyleButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
 									this.cutMarkNoneMenuItem,
 									this.cutMarkLineMenuItem,
@@ -1894,6 +1901,7 @@ namespace Greenshot.Editor.Forms
 		private ToolStripButton btnCropVertical;
 		private ToolStripButton btnCropHorizontal;
 		private ToolStripButton btnCropAuto;
+		private ToolStripLabel cutMarkLabel;
 		private BindableToolStripDropDownButton cutMarkStyleButton;
 		private ToolStripLabel toothHeightLabel;
 		private ToolStripNumericUpDown toothHeightUpDown;

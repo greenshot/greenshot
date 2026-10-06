@@ -1650,6 +1650,26 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
+        /// Tear the edges of the capture, as an element which can be changed later. When there are torn edges already, these are selected.
+        /// </summary>
+        /// <param name="settings">TornEdgeEffect with the settings for new torn edges</param>
+        /// <returns>TornEdgeContainer</returns>
+        public TornEdgeContainer AddTornEdges(TornEdgeEffect settings)
+        {
+            // There is only one torn edge, which can be changed
+            var tornEdges = _elements.OfType<TornEdgeContainer>().FirstOrDefault();
+            if (tornEdges == null)
+            {
+                tornEdges = new TornEdgeContainer(this, settings);
+                AddElement(tornEdges);
+            }
+
+            DeselectAllElements();
+            SelectElement(tornEdges);
+            return tornEdges;
+        }
+
+        /// <summary>
         /// Change the image and elements for a crop out, or the undo / redo of it.
         /// This is called from the SurfaceCutOutMemento.
         /// </summary>
@@ -2020,8 +2040,8 @@ namespace Greenshot.Editor.Drawing
         private Image GetImage(RenderMode renderMode)
         {
             // Generate a copy of the original image with a dpi equal to the default...
-            // A cut mark with a transparent gap needs an alpha channel
-            var pixelFormat = renderMode == RenderMode.EXPORT && _elements.Any(element => element is CutMarkContainer { HasTransparentGap: true })
+            // A cut mark with a transparent gap or transparent torn edges need an alpha channel
+            var pixelFormat = renderMode == RenderMode.EXPORT && _elements.Any(element => element is CutMarkContainer { HasTransparentGap: true } or TornEdgeContainer { HasTransparentEdge: true })
                 ? PixelFormat.Format32bppArgb
                 : PixelFormat.DontCare;
             Bitmap clone = ImageHelper.Clone(_image, pixelFormat);

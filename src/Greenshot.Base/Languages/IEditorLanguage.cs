@@ -742,9 +742,9 @@ namespace Greenshot.Base.Languages
         string TornedgeLeft { get; }
 
         /// <summary>
-        /// New random edges
+        /// Background color
         /// </summary>
-        string TornedgeReseed { get; }
+        string TornedgeBackgroundColor { get; }
 
         /// <summary>
         /// Right side

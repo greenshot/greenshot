@@ -35,7 +35,7 @@ namespace Greenshot.Editor.Views
         private static readonly ILog LOG = LogManager.GetLogger(typeof(TornEdgeSettingsWindow));
         private readonly TornEdgeEffect _effect;
         private bool _isUpdatingEdges;
-        private int _seed;
+        private System.Drawing.Color _backgroundColor;
 
         public TornEdgeSettingsWindow() : this(new TornEdgeEffect())
         {
@@ -53,7 +53,7 @@ namespace Greenshot.Editor.Views
         public TornEdgeSettingsWindow(TornEdgeEffect effect, bool showEdges)
         {
             _effect = effect ?? new TornEdgeEffect();
-            _seed = _effect.Seed;
+            _backgroundColor = _effect.BackgroundColor;
             InitializeComponent();
             if (!showEdges)
             {
@@ -83,6 +83,7 @@ namespace Greenshot.Editor.Views
             ToothSizeSlider.Value = Math.Max(0, Math.Min(40, _effect.ToothHeight));
             VerticalToothRangeSlider.Value = Math.Max(0, Math.Min(40, _effect.VerticalToothRange));
             HorizontalToothRangeSlider.Value = Math.Max(0, Math.Min(40, _effect.HorizontalToothRange));
+            ShowBackgroundColor();
 
             _isUpdatingEdges = true;
             TopEdgeCheckBox.IsChecked = _effect.Edges != null && _effect.Edges.Length > 0 && _effect.Edges[0];
@@ -115,11 +116,27 @@ namespace Greenshot.Editor.Views
             _isUpdatingEdges = false;
         }
 
-        private void Reseed_Click(object sender, RoutedEventArgs e)
+        private void ShowBackgroundColor()
         {
+            BackgroundColorSwatch.Background = new System.Windows.Media.SolidColorBrush(
+                System.Windows.Media.Color.FromArgb(_backgroundColor.A, _backgroundColor.R, _backgroundColor.G, _backgroundColor.B));
+        }
+
+        private void BackgroundColor_Click(object sender, RoutedEventArgs e)
+        {
+            var colorPicker = new ColorPickerWindow
+            {
+                SelectedColor = _backgroundColor,
+                Owner = this
+            };
+            if (colorPicker.ShowDialog() != true)
+            {
+                return;
+            }
+
             // Only used when OK is pressed
-            var reseeded = new TornEdgeEffect();
-            _seed = reseeded.Seed;
+            _backgroundColor = colorPicker.SelectedColor;
+            ShowBackgroundColor();
         }
 
         private void GenerateShadow_Click(object sender, RoutedEventArgs e)
@@ -172,7 +189,7 @@ namespace Greenshot.Editor.Views
                 LeftEdgeCheckBox.IsChecked == true
             };
             _effect.GenerateShadow = GenerateShadowCheckBox.IsChecked == true;
-            _effect.Seed = _seed;
+            _effect.BackgroundColor = _backgroundColor;
             DialogResult = true;
             Close();
         }

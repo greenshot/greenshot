@@ -22,6 +22,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -335,15 +336,94 @@ namespace Greenshot.Tests.Editor
         }
 
         [Fact]
-        public void TornEdgeEffect_Seed_IsStoredInTheSettings()
+        public void TornEdgeEffect_BackgroundColor_IsStoredInTheSettings()
         {
-            var effect = new TornEdgeEffect { Seed = 4711 };
+            var effect = new TornEdgeEffect { BackgroundColor = Color.FromArgb(255, 10, 20, 30) };
             var converter = new EffectConverter();
 
             string stored = (string)converter.ConvertTo(null, CultureInfo.InvariantCulture, effect, typeof(string));
             var loaded = (TornEdgeEffect)converter.ConvertFrom(null, CultureInfo.InvariantCulture, stored);
 
-            Assert.Equal(4711, loaded.Seed);
+            Assert.Equal(effect.BackgroundColor.ToArgb(), loaded.BackgroundColor.ToArgb());
+        }
+
+        [Fact]
+        public void TornEdgeEffect_OnlyTransparentNeedsAlpha()
+        {
+            using var source = new Bitmap(120, 80, PixelFormat.Format24bppRgb);
+            using (var graphics = Graphics.FromImage(source))
+            {
+                graphics.Clear(Color.Red);
+            }
+
+            using var transparent = new TornEdgeEffect().Apply(source, new Matrix());
+            using var white = new TornEdgeEffect { BackgroundColor = Color.White }.Apply(source, new Matrix());
+
+            Assert.Equal(PixelFormat.Format32bppArgb, transparent.PixelFormat);
+            Assert.Equal(PixelFormat.Format24bppRgb, white.PixelFormat);
+        }
+
+        [Fact]
+        public void TornEdges_AreAnElement_WhichCanBeUndone()
+        {
+            using var surface = CreateRedSurface();
+
+            var tornEdges = surface.AddTornEdges(CreateEdgeSettings());
+
+            Assert.Contains(tornEdges, surface.Elements);
+            Assert.Same(tornEdges, surface.AddTornEdges(CreateEdgeSettings()));
+            Assert.Single(surface.Elements.OfType<TornEdgeContainer>());
+            Assert.Equal(new Size(100, 100), surface.Image.Size);
+
+            surface.Undo();
+
+            Assert.Empty(surface.Elements.OfType<TornEdgeContainer>());
+        }
+
+        [Fact]
+        public void TornEdges_CoverTheImage_AndOnlyTheEdgesAreClickable()
+        {
+            using var surface = CreateRedSurface();
+            var tornEdges = surface.AddTornEdges(CreateEdgeSettings());
+
+            tornEdges.MoveBy(10, 10);
+
+            Assert.Equal(0, tornEdges.Left);
+            Assert.Equal(0, tornEdges.Top);
+            Assert.True(tornEdges.ClickableAt(2, 50));
+            Assert.True(tornEdges.ClickableAt(50, 97));
+            Assert.False(tornEdges.ClickableAt(50, 50));
+        }
+
+        [Fact]
+        public void TornEdges_Export_IsTransparentOutsideTheEdges()
+        {
+            using var surface = CreateRedSurface();
+            var tornEdges = surface.AddTornEdges(CreateEdgeSettings());
+            tornEdges.SetFieldValue(FieldType.SHADOW, false);
+
+            using var exported = (Bitmap)surface.GetImageForExport();
+
+            Assert.Equal(new Size(100, 100), exported.Size);
+            Assert.Equal(0, exported.GetPixel(0, 0).A);
+            Assert.Equal(255, exported.GetPixel(50, 50).A);
+        }
+
+        [Fact]
+        public void TornEdges_SurviveSaveAndLoad()
+        {
+            using var surface = CreateRedSurface();
+            var tornEdges = surface.AddTornEdges(CreateEdgeSettings());
+
+            using var stream = new MemoryStream();
+            surface.SaveElementsToStream(stream);
+            stream.Position = 0;
+            using var loadedSurface = new Surface(new Bitmap(100, 100));
+            loadedSurface.LoadElementsFromStream(stream);
+
+            var loaded = Assert.Single(loadedSurface.Elements.OfType<TornEdgeContainer>());
+            Assert.Equal(tornEdges.Seed, loaded.Seed);
+            Assert.Equal(12, loaded.ToothHeight);
         }
 
         [Theory]

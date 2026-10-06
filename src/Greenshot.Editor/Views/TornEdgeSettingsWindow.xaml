@@ -261,10 +261,17 @@
                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                             </StackPanel>
 
-                            <Button Grid.Row="3" Grid.Column="1" x:Name="ReseedButton"
-                                    Content="{wpf:Text Editor.TornedgeReseed}"
-                                    HorizontalAlignment="Left" Margin="0,6,0,2" Padding="10,2"
-                                    Click="Reseed_Click"/>
+                            <TextBlock Grid.Row="3" Grid.Column="0"
+                                       Text="{wpf:Text Editor.TornedgeBackgroundColor}"
+                                       VerticalAlignment="Center" Margin="0,4"
+                                       Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                            <Button Grid.Row="3" Grid.Column="1" x:Name="BackgroundColorButton"
+                                    HorizontalAlignment="Left" Margin="0,4" Padding="2"
+                                    Click="BackgroundColor_Click">
+                                <Border x:Name="BackgroundColorSwatch" Width="40" Height="16"
+                                        BorderThickness="1"
+                                        BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+                            </Button>
                         </Grid>
                     </GroupBox>
 

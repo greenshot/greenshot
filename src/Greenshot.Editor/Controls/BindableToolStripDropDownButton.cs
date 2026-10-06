@@ -33,6 +33,29 @@ namespace Greenshot.Editor.Controls
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
+        /// <summary>
+        /// Show the text of the selected item on the button and check it in the drop down, for items without a picture
+        /// </summary>
+        public bool ShowSelectedText { get; set; }
+
+        private void ShowSelected(ToolStripItem selectedItem)
+        {
+            Image = selectedItem.Image;
+            if (!ShowSelectedText)
+            {
+                return;
+            }
+
+            Text = selectedItem.Text;
+            foreach (ToolStripItem item in DropDownItems)
+            {
+                if (item is ToolStripMenuItem menuItem)
+                {
+                    menuItem.Checked = ReferenceEquals(item, selectedItem);
+                }
+            }
+        }
+
         public object SelectedTag
         {
             get
@@ -49,7 +72,7 @@ namespace Greenshot.Editor.Controls
             if (Tag == null || !Tag.Equals(clickedItem.Tag))
             {
                 Tag = clickedItem.Tag;
-                Image = clickedItem.Image;
+                ShowSelected(clickedItem);
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedTag"));
             }
 
@@ -62,7 +85,7 @@ namespace Greenshot.Editor.Controls
             {
                 if (item.Tag != null && item.Tag.Equals(tag))
                 {
-                    Image = item.Image;
+                    ShowSelected(item);
                     break;
                 }
             }
