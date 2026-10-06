@@ -373,11 +373,83 @@ namespace Greenshot.Tests.Editor
             Assert.Contains(tornEdges, surface.Elements);
             Assert.Same(tornEdges, surface.AddTornEdges(CreateEdgeSettings()));
             Assert.Single(surface.Elements.OfType<TornEdgeContainer>());
-            Assert.Equal(new Size(100, 100), surface.Image.Size);
 
             surface.Undo();
 
             Assert.Empty(surface.Elements.OfType<TornEdgeContainer>());
+            Assert.Equal(new Size(100, 100), surface.Image.Size);
+        }
+
+        [Fact]
+        public void TornEdges_WithShadow_MakeRoomForIt()
+        {
+            using var surface = CreateRedSurface();
+            var rectangle = AddRectangle(surface, 5, 10);
+            var settings = CreateEdgeSettings();
+            int margin = TornEdgeContainer.GetShadowMargin(settings);
+
+            var tornEdges = surface.AddTornEdges(settings);
+
+            Assert.True(margin > 0);
+            Assert.Equal(margin, tornEdges.Margin);
+            Assert.Equal(new Size(100 + 2 * margin, 100 + 2 * margin), surface.Image.Size);
+            Assert.Equal(5 + margin, rectangle.Left);
+            Assert.Equal(10 + margin, rectangle.Top);
+            Assert.Equal(surface.Image.Width, tornEdges.Width);
+
+            surface.Undo();
+
+            Assert.Equal(new Size(100, 100), surface.Image.Size);
+            Assert.Equal(5, rectangle.Left);
+            Assert.Equal(10, rectangle.Top);
+        }
+
+        [Fact]
+        public void TornEdges_WithoutShadow_KeepTheSize()
+        {
+            using var surface = CreateRedSurface();
+            var settings = CreateEdgeSettings();
+            settings.GenerateShadow = false;
+
+            surface.AddTornEdges(settings);
+
+            Assert.Equal(new Size(100, 100), surface.Image.Size);
+        }
+
+        [Fact]
+        public void TornEdges_Apply_DrawsThemIntoTheImage_AndUndoBringsTheElementBack()
+        {
+            using var surface = CreateRedSurface();
+            var settings = CreateEdgeSettings();
+            settings.GenerateShadow = false;
+            var tornEdges = surface.AddTornEdges(settings);
+
+            Assert.True(surface.ApplyElementToImage(tornEdges));
+
+            Assert.DoesNotContain(tornEdges, surface.Elements);
+            var image = (Bitmap)surface.Image;
+            Assert.Equal(PixelFormat.Format32bppArgb, image.PixelFormat);
+            Assert.Equal(0, image.GetPixel(0, 0).A);
+            Assert.Equal(255, image.GetPixel(50, 50).A);
+
+            surface.Undo();
+
+            Assert.Contains(tornEdges, surface.Elements);
+            Assert.Equal(255, ((Bitmap)surface.Image).GetPixel(0, 0).A);
+        }
+
+        [Fact]
+        public void CutMark_Apply_RemovesTheElement()
+        {
+            using var surface = CreateRedSurface();
+            surface.ApplyCutOut(new NativeRect(0, 30, 100, 30), CropContainer.CropModes.Horizontal, CutMarkStyle.Torn, CreateEdgeSettings());
+            var cutMark = surface.Elements.OfType<CutMarkContainer>().Single();
+            cutMark.SetFieldValue(FieldType.SHADOW, false);
+
+            Assert.True(surface.ApplyElementToImage(cutMark));
+
+            Assert.DoesNotContain(cutMark, surface.Elements);
+            Assert.Equal(0, ((Bitmap)surface.Image).GetPixel(50, 36).A);
         }
 
         [Fact]
@@ -391,8 +463,8 @@ namespace Greenshot.Tests.Editor
             Assert.Equal(0, tornEdges.Left);
             Assert.Equal(0, tornEdges.Top);
             Assert.True(tornEdges.ClickableAt(2, 50));
-            Assert.True(tornEdges.ClickableAt(50, 97));
-            Assert.False(tornEdges.ClickableAt(50, 50));
+            Assert.True(tornEdges.ClickableAt(50, tornEdges.Height - 3));
+            Assert.False(tornEdges.ClickableAt(58, 58));
         }
 
         [Fact]
@@ -404,9 +476,9 @@ namespace Greenshot.Tests.Editor
 
             using var exported = (Bitmap)surface.GetImageForExport();
 
-            Assert.Equal(new Size(100, 100), exported.Size);
+            Assert.Equal(surface.Image.Size, exported.Size);
             Assert.Equal(0, exported.GetPixel(0, 0).A);
-            Assert.Equal(255, exported.GetPixel(50, 50).A);
+            Assert.Equal(255, exported.GetPixel(58, 58).A);
         }
 
         [Fact]

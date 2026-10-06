@@ -487,6 +487,10 @@ namespace Greenshot.Editor.Drawing
                 surface.Invalidate();
             };
             menu.Items.Add(settingsItem);
+
+            var applyItem = new ToolStripMenuItem(Texts.Editor.ApplyToImage);
+            applyItem.Click += (_, _) => InternalParent?.ApplyElementToImage(this);
+            menu.Items.Add(applyItem);
         }
     }
 }

@@ -203,6 +203,7 @@ namespace Greenshot.Editor.Forms
 			this.toolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
 			this.toolStripSeparator10 = new System.Windows.Forms.ToolStripSeparator();
 			this.btnConfirm = new BindableToolStripButton();
+			this.btnApplyToImage = new ToolStripButton();
 			this.btnCancel = new BindableToolStripButton();
 			this.toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
             this.closeToolStripMenuItem = new ToolStripMenuItem();
@@ -1019,6 +1020,7 @@ namespace Greenshot.Editor.Forms
 									this.toothHeightUpDown,
 									this.toothRangeLabel,
 									this.toothRangeUpDown,
+									this.btnApplyToImage,
 									this.counterLabel,
 									this.counterUpDown});
 			// 
@@ -1598,6 +1600,13 @@ namespace Greenshot.Editor.Forms
 			// 
 			this.toolStripSeparator10.Name = "toolStripSeparator10";
 			// 
+			// btnApplyToImage
+			// 
+			this.btnApplyToImage.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
+			this.btnApplyToImage.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnApplyToImage.Name = "btnApplyToImage";
+			this.btnApplyToImage.Click += new System.EventHandler(this.BtnApplyToImageClick);
+			// 
 			// btnConfirm
 			// 
 			this.btnConfirm.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
@@ -1895,6 +1904,7 @@ namespace Greenshot.Editor.Forms
 		private ToolStripMenuItem arrowHeadNoneMenuItem;
 		private BindableToolStripButton btnCancel;
 		private BindableToolStripButton btnConfirm;
+		private ToolStripButton btnApplyToImage;
 		private ToolStripMenuItem selectAllToolStripMenuItem;
 		private BindableToolStripDropDownButton highlightModeButton;
 		private ToolStripButton btnCropDefault;

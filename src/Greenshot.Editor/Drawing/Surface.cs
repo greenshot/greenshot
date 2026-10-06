@@ -1658,15 +1658,73 @@ namespace Greenshot.Editor.Drawing
         {
             // There is only one torn edge, which can be changed
             var tornEdges = _elements.OfType<TornEdgeContainer>().FirstOrDefault();
-            if (tornEdges == null)
+            if (tornEdges != null)
             {
-                tornEdges = new TornEdgeContainer(this, settings);
+                DeselectAllElements();
+                SelectElement(tornEdges);
+                return tornEdges;
+            }
+
+            settings ??= new TornEdgeEffect();
+            int margin = TornEdgeContainer.GetShadowMargin(settings);
+            tornEdges = new TornEdgeContainer(this, settings, margin);
+            DeselectAllElements();
+            if (margin == 0)
+            {
                 AddElement(tornEdges);
+            }
+            else
+            {
+                // Make room for the shadow like the torn edge effect does, the elements move with the image.
+                // The room is part of the torn off area, so it is transparent or the fill color.
+                Color background = settings.BackgroundColor;
+                var pixelFormat = background.A < 255 || Image.IsAlphaPixelFormat(Image.PixelFormat) ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb;
+                Bitmap newImage = ImageHelper.CreateEmpty(Image.Width + 2 * margin, Image.Height + 2 * margin, pixelFormat, background.A < 255 ? Color.Transparent : background,
+                    Image.HorizontalResolution, Image.VerticalResolution);
+                using (var graphics = Graphics.FromImage(newImage))
+                {
+                    graphics.DrawImage(Image, new Rectangle(margin, margin, Image.Width, Image.Height), new Rectangle(0, 0, Image.Width, Image.Height), GraphicsUnit.Pixel);
+                }
+
+                var movedElements = _elements.ToList();
+                var addedElements = new DrawableContainerList(ID) { tornEdges };
+                var offset = new NativePoint(margin, margin);
+                MakeUndoable(new SurfaceCutOutMemento(this, Image, movedElements, new NativePoint(-margin, -margin), new DrawableContainerList(ID), addedElements), false);
+                ApplyCutOutState(newImage, movedElements, offset, addedElements, new DrawableContainerList(ID));
+                // It was created for the old image size, this makes it cover the new one
+                tornEdges.MoveBy(0, 0);
+            }
+
+            SelectElement(tornEdges);
+            return tornEdges;
+        }
+
+        /// <summary>
+        /// Draw an element into the image and remove it, e.g. to keep the cut edges or torn edges before drawing on.
+        /// Only when the element needs transparency the image gets an alpha channel.
+        /// </summary>
+        /// <param name="element">IDrawableContainer on this surface</param>
+        /// <returns>true when it was applied</returns>
+        public bool ApplyElementToImage(IDrawableContainer element)
+        {
+            if (element is not DrawableContainer drawableContainer || !_elements.Contains(element))
+            {
+                return false;
+            }
+
+            bool needsAlpha = element is CutMarkContainer { HasTransparentGap: true } or TornEdgeContainer { HasTransparentEdge: true };
+            Bitmap newImage = ImageHelper.Clone(Image, needsAlpha ? PixelFormat.Format32bppArgb : PixelFormat.DontCare);
+            using (var graphics = Graphics.FromImage(newImage))
+            {
+                drawableContainer.Draw(graphics, RenderMode.EXPORT);
             }
 
             DeselectAllElements();
-            SelectElement(tornEdges);
-            return tornEdges;
+            var removedElements = new DrawableContainerList(ID) { element };
+            var noElements = new List<IDrawableContainer>();
+            MakeUndoable(new SurfaceCutOutMemento(this, Image, noElements, NativePoint.Empty, removedElements, new DrawableContainerList(ID)), false);
+            ApplyCutOutState(newImage, noElements, NativePoint.Empty, new DrawableContainerList(ID), removedElements);
+            return true;
         }
 
         /// <summary>

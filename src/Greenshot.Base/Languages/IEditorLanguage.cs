@@ -222,6 +222,11 @@ namespace Greenshot.Base.Languages
         string CropmodeVertical { get; }
 
         /// <summary>
+        /// Apply to the image
+        /// </summary>
+        string ApplyToImage { get; }
+
+        /// <summary>
         /// Cut edges
         /// </summary>
         string CutMark { get; }

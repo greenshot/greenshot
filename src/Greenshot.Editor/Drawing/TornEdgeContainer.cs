@@ -51,6 +51,8 @@ namespace Greenshot.Editor.Drawing
     {
         private int _seed;
         private bool[] _edges = { true, true, true, true };
+        // Room around the torn edges for the shadow, the canvas was made bigger by this on every side
+        private int _margin;
         private float _shadowDarkness;
         private int _shadowSize;
         private int _shadowOffsetX;
@@ -65,8 +67,10 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         /// <param name="parent">ISurface</param>
         /// <param name="settings">TornEdgeEffect with the settings to start with</param>
-        public TornEdgeContainer(ISurface parent, TornEdgeEffect settings) : base(parent)
+        /// <param name="margin">int room on every side of the image for the shadow</param>
+        public TornEdgeContainer(ISurface parent, TornEdgeEffect settings, int margin = 0) : base(parent)
         {
+            _margin = Math.Max(0, margin);
             settings ??= new TornEdgeEffect();
             ApplySettings(settings);
             NewSeed();
@@ -100,6 +104,17 @@ namespace Greenshot.Editor.Drawing
         /// The seed for the random edges
         /// </summary>
         public int Seed => _seed;
+
+        /// <summary>
+        /// The room on every side for the shadow
+        /// </summary>
+        public int Margin => _margin;
+
+        /// <summary>
+        /// The room needed on every side for the shadow of the settings
+        /// </summary>
+        public static int GetShadowMargin(TornEdgeEffect settings) =>
+            settings.GenerateShadow ? Math.Max(1, settings.ShadowSize) + Math.Max(Math.Abs(settings.ShadowOffset.X), Math.Abs(settings.ShadowOffset.Y)) : 0;
 
         /// <summary>
         /// Which edges are torn: top, right, bottom, left
@@ -250,6 +265,18 @@ namespace Greenshot.Editor.Drawing
             AddSide(right, top, bottom, height, new PointF(width, 0), new PointF(width, height), (along, depth) => new PointF(width - depth, along));
             AddSide(bottom, right, left, width, new PointF(width, height), new PointF(0, height), (along, depth) => new PointF(width - along, height - depth));
             AddSide(left, bottom, top, height, new PointF(0, height), new PointF(0, 0), (along, depth) => new PointF(depth, height - along));
+            if (_margin > 0)
+            {
+                // The torn edges are inside the room for the shadow
+                PointF Shift(PointF p) => new PointF(p.X + _margin, p.Y + _margin);
+                for (int i = 0; i < sides.Count; i++)
+                {
+                    sides[i] = sides[i].Select(Shift).ToArray();
+                }
+
+                return outline.Select(Shift).ToArray();
+            }
+
             return outline.ToArray();
         }
 
@@ -261,7 +288,12 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 
-            var outline = CreateOutline(bounds.Size, out var tornSides);
+            if (bounds.Width - 2 * _margin <= 2 || bounds.Height - 2 * _margin <= 2)
+            {
+                return;
+            }
+
+            var outline = CreateOutline(new Size(bounds.Width - 2 * _margin, bounds.Height - 2 * _margin), out var tornSides);
             using var keptPath = new GraphicsPath();
             keptPath.AddPolygon(outline);
             using var tornOff = new Region(new Rectangle(0, 0, bounds.Width, bounds.Height));
@@ -383,7 +415,7 @@ namespace Greenshot.Editor.Drawing
                 return false;
             }
 
-            int reach = ToothHeight + 4;
+            int reach = _margin + ToothHeight + 4;
             return (_edges[0] && y < reach) || (_edges[1] && x >= bounds.Width - reach) ||
                    (_edges[2] && y >= bounds.Height - reach) || (_edges[3] && x < reach);
         }
@@ -418,6 +450,10 @@ namespace Greenshot.Editor.Drawing
                 surface.Invalidate();
             };
             menu.Items.Add(settingsItem);
+
+            var applyItem = new ToolStripMenuItem(Texts.Editor.ApplyToImage);
+            applyItem.Click += (_, _) => InternalParent?.ApplyElementToImage(this);
+            menu.Items.Add(applyItem);
         }
     }
 }

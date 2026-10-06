@@ -266,6 +266,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             arrowHeadNoneMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "arrowHeadNoneMenuItem.Image");
             shadowButton.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "shadowButton.Image");
             btnConfirm.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnConfirm.Image");
+            btnApplyToImage.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnConfirm.Image");
             btnCancel.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnCancel.Image");
             closeAllToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "closeToolStripMenuItem.Image");
             closeToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "closeToolStripMenuItem.Image");
@@ -1689,6 +1690,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 lineThicknessLabel.Visible = lineThicknessUpDown.Visible = props.HasFieldValue(FieldType.LINE_THICKNESS);
                 toothHeightLabel.Visible = toothHeightUpDown.Visible = props.HasFieldValue(FieldType.TOOTH_HEIGHT);
                 toothRangeLabel.Visible = toothRangeUpDown.Visible = props.HasFieldValue(FieldType.TOOTH_RANGE);
+                btnApplyToImage.Visible = _surface.SelectedElements?.Any(element => element is CutMarkContainer or TornEdgeContainer) == true;
                 blurRadiusLabel.Visible = blurRadiusUpDown.Visible = props.HasFieldValue(FieldType.BLUR_RADIUS);
                 previewQualityLabel.Visible = previewQualityUpDown.Visible = props.HasFieldValue(FieldType.PREVIEW_QUALITY);
                 magnificationFactorLabel.Visible = magnificationFactorUpDown.Visible = props.HasFieldValue(FieldType.MAGNIFICATION_FACTOR);
@@ -2070,6 +2072,20 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         {
             _surface.Confirm(true);
             RefreshEditorControls();
+        }
+
+        /// <summary>
+        /// Draw the selected cut edges or torn edges into the image
+        /// </summary>
+        private void BtnApplyToImageClick(object sender, EventArgs e)
+        {
+            foreach (var element in _surface.SelectedElements.Where(element => element is CutMarkContainer or TornEdgeContainer).ToList())
+            {
+                _surface.ApplyElementToImage(element);
+            }
+
+            UpdateUndoRedoSurfaceDependencies();
+            RefreshFieldControls();
         }
 
         private void BtnCancelClick(object sender, EventArgs e)
@@ -2820,6 +2836,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             this.arrowHeadNoneMenuItem.Text = Texts.Editor.ArrowheadsNone;
             this.shadowButton.Text = Texts.Editor.Shadow;
             this.btnConfirm.Text = Texts.Editor.Confirm;
+            this.btnApplyToImage.Text = Texts.Editor.ApplyToImage;
             this.btnCancel.Text = Texts.Core.Cancel;
             this.closeAllToolStripMenuItem.Text = Texts.Editor.CloseAll;
             this.closeToolStripMenuItem.Text = Texts.Editor.Close;
