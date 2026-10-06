@@ -251,6 +251,8 @@ namespace Greenshot.Base.Wpf
             {
                 // The title bar of Windows in the colors of the theme before the window shows, not only when it's loaded: no light flash
                 WindowFrameTheme.Attach(window);
+                // And not white for a moment before WPF drew it
+                WindowFrameTheme.CloakUntilRendered(window);
                 UpdateMode();
             };
             DependencyPropertyDescriptor.FromProperty(Window.TitleProperty, typeof(Window)).AddValueChanged(window, (s, e) => UpdateTitle());

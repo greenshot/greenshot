@@ -675,6 +675,58 @@ namespace Greenshot.Tests.Forms
             Assert.Null(threadEx);
         }
 
+        [Fact]
+        public void ThemedTitleBar_WindowIsHiddenUntilItIsRendered()
+        {
+            Exception threadEx = null;
+            var thread = new Thread(() =>
+            {
+                System.Windows.Window window = null;
+                try
+                {
+                    var root = new System.Windows.Controls.Grid();
+                    window = new System.Windows.Window
+                    {
+                        Title = "Cloak test",
+                        Width = 300,
+                        Height = 200,
+                        Left = -2000,
+                        Top = -2000,
+                        ShowInTaskbar = false,
+                        ShowActivated = false,
+                        Content = root
+                    };
+                    root.Children.Add(new ThemedTitleBar());
+                    bool rendered = false;
+                    window.ContentRendered += (s, e) => rendered = true;
+                    window.Show();
+                    var handle = new System.Windows.Interop.WindowInteropHelper(window).Handle;
+
+                    // DWMWA_CLOAKED: shown, but not drawn by WPF yet, so not on the screen (no white window for a moment)
+                    Assert.Equal(0, DwmGetWindowAttribute(handle, 14, out int cloakedBeforeRender, sizeof(int)));
+                    Assert.NotEqual(0, cloakedBeforeRender);
+
+                    WaitForIdle();
+                    Assert.True(rendered);
+                    Assert.Equal(0, DwmGetWindowAttribute(handle, 14, out int cloakedAfterRender, sizeof(int)));
+                    Assert.Equal(0, cloakedAfterRender);
+                }
+                catch (Exception ex)
+                {
+                    threadEx = ex;
+                }
+                finally
+                {
+                    window?.Close();
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+
+            Assert.Null(threadEx);
+        }
+
         [System.Runtime.InteropServices.DllImport("user32.dll")]
         private static extern IntPtr GetForegroundWindow();
 
