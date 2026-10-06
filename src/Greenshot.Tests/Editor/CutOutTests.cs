@@ -21,10 +21,15 @@
 
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Editor.Drawing;
+using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
+using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Helpers;
 using Xunit;
 
@@ -128,34 +133,134 @@ namespace Greenshot.Tests.Editor
             Assert.Equal(40, right.Left);
         }
 
-        [Fact]
-        public void ApplyCutOut_TornEdges_LeavesATransparentGap_AndMovesByCutSizeMinusGap()
+        private static TornEdgeEffect CreateEdgeSettings() => new TornEdgeEffect
         {
-            using var source = new Bitmap(100, 100);
+            ToothHeight = 12,
+            HorizontalToothRange = 20,
+            VerticalToothRange = 20
+        };
+
+        private static Surface CreateRedSurface()
+        {
+            var source = new Bitmap(100, 100);
             using (var graphics = Graphics.FromImage(source))
             {
                 graphics.Clear(Color.Red);
             }
 
-            using var surface = new Surface((Image)source.Clone());
+            return new Surface(source);
+        }
+
+        [Fact]
+        public void ApplyCutOut_TornEdges_AddsAFullWidthCutMark_AndKeepsTheGap()
+        {
+            using var surface = CreateRedSurface();
             var below = AddRectangle(surface, 5, 70);
-            var settings = new TornEdgeEffect();
-            int gap = CutOutHelper.GetGap(CutMarkStyle.Torn, settings);
 
-            Assert.True(surface.ApplyCutOut(new NativeRect(0, 30, 100, 30), CropContainer.CropModes.Horizontal, CutMarkStyle.Torn, settings));
+            Assert.True(surface.ApplyCutOut(new NativeRect(0, 30, 100, 30), CropContainer.CropModes.Horizontal, CutMarkStyle.Torn, CreateEdgeSettings()));
 
-            Assert.Equal(new Size(100, 70 + gap), surface.Image.Size);
-            Assert.Equal(70 - 30 + gap, below.Top);
-            var image = (Bitmap)surface.Image;
-            Assert.Equal(255, image.GetPixel(50, 2).A);
-            Assert.Equal(255, image.GetPixel(50, 70 + gap - 2).A);
-            // The middle of the gap only has the shadow
-            Assert.True(image.GetPixel(50, 30 + gap / 2).A < 255);
+            // 12 rows of the strip are kept for the gap
+            Assert.Equal(new Size(100, 82), surface.Image.Size);
+            Assert.Equal(52, below.Top);
+            var cutMark = Assert.Single(surface.Elements.OfType<CutMarkContainer>());
+            Assert.True(cutMark.IsHorizontal);
+            Assert.Equal(0, cutMark.Left);
+            Assert.Equal(100, cutMark.Width);
+            // The band has a tooth on both sides of the gap
+            Assert.Equal(18, cutMark.Top);
+            Assert.Equal(36, cutMark.Height);
+            Assert.Equal(CutMarkStyle.Torn, cutMark.GetFieldValue(FieldType.CUT_MARK_STYLE));
 
             surface.Undo();
 
             Assert.Equal(new Size(100, 100), surface.Image.Size);
             Assert.Equal(70, below.Top);
+            Assert.Empty(surface.Elements.OfType<CutMarkContainer>());
+
+            surface.Redo();
+
+            Assert.Equal(new Size(100, 82), surface.Image.Size);
+            Assert.Contains(cutMark, surface.Elements);
+        }
+
+        [Fact]
+        public void ApplyCutOut_Vertical_CutMarkSpansTheFullHeight()
+        {
+            using var surface = CreateRedSurface();
+
+            Assert.True(surface.ApplyCutOut(new NativeRect(30, 0, 30, 100), CropContainer.CropModes.Vertical, CutMarkStyle.ZigZag, CreateEdgeSettings()));
+
+            var cutMark = Assert.Single(surface.Elements.OfType<CutMarkContainer>());
+            Assert.False(cutMark.IsHorizontal);
+            Assert.Equal(0, cutMark.Top);
+            Assert.Equal(100, cutMark.Height);
+            Assert.Equal(18, cutMark.Left);
+        }
+
+        [Fact]
+        public void CutMark_MovesOnlyAcrossTheCut()
+        {
+            using var surface = CreateRedSurface();
+            surface.ApplyCutOut(new NativeRect(0, 30, 100, 30), CropContainer.CropModes.Horizontal, CutMarkStyle.Torn, CreateEdgeSettings());
+            var cutMark = surface.Elements.OfType<CutMarkContainer>().Single();
+
+            cutMark.MoveBy(10, 5);
+
+            Assert.Equal(0, cutMark.Left);
+            Assert.Equal(100, cutMark.Width);
+            Assert.Equal(23, cutMark.Top);
+        }
+
+        [Fact]
+        public void CutMark_KeepsItsEdge_UntilReseeded()
+        {
+            using var surface = CreateRedSurface();
+            surface.ApplyCutOut(new NativeRect(0, 30, 100, 30), CropContainer.CropModes.Horizontal, CutMarkStyle.Torn, CreateEdgeSettings());
+            var cutMark = surface.Elements.OfType<CutMarkContainer>().Single();
+            int seed = cutMark.Seed;
+
+            Assert.Equal(seed, cutMark.GetSettings().Seed);
+
+            cutMark.NewSeed();
+
+            Assert.NotEqual(seed, cutMark.Seed);
+        }
+
+        [Fact]
+        public void CutMark_SurvivesSaveAndLoad()
+        {
+            using var surface = CreateRedSurface();
+            surface.ApplyCutOut(new NativeRect(0, 30, 100, 30), CropContainer.CropModes.Horizontal, CutMarkStyle.Wave, CreateEdgeSettings());
+            var cutMark = surface.Elements.OfType<CutMarkContainer>().Single();
+
+            using var stream = new MemoryStream();
+            surface.SaveElementsToStream(stream);
+            stream.Position = 0;
+            using var loadedSurface = new Surface(new Bitmap(100, 82));
+            loadedSurface.LoadElementsFromStream(stream);
+
+            var loaded = Assert.Single(loadedSurface.Elements.OfType<CutMarkContainer>());
+            Assert.Equal(cutMark.Seed, loaded.Seed);
+            Assert.Equal(cutMark.Top, loaded.Top);
+            Assert.Equal(cutMark.Height, loaded.Height);
+            Assert.True(loaded.IsHorizontal);
+            Assert.Equal(CutMarkStyle.Wave, loaded.GetFieldValue(FieldType.CUT_MARK_STYLE));
+        }
+
+        [Fact]
+        public void Export_WithTransparentGap_HasTransparentPixels()
+        {
+            using var surface = CreateRedSurface();
+            surface.ApplyCutOut(new NativeRect(0, 30, 100, 30), CropContainer.CropModes.Horizontal, CutMarkStyle.Torn, CreateEdgeSettings());
+            var cutMark = surface.Elements.OfType<CutMarkContainer>().Single();
+            cutMark.SetFieldValue(FieldType.SHADOW, false);
+
+            using var exported = (Bitmap)surface.GetImageForExport();
+
+            Assert.Equal(255, exported.GetPixel(50, 2).A);
+            Assert.Equal(255, exported.GetPixel(50, 79).A);
+            // The middle of the gap
+            Assert.Equal(0, exported.GetPixel(50, 36).A);
         }
 
         [Fact]
@@ -163,24 +268,53 @@ namespace Greenshot.Tests.Editor
         {
             using var surface = new Surface(new Bitmap(100, 100));
 
-            Assert.True(surface.ApplyCutOut(new NativeRect(0, 0, 100, 30), CropContainer.CropModes.Horizontal, CutMarkStyle.Torn, new TornEdgeEffect()));
+            Assert.True(surface.ApplyCutOut(new NativeRect(0, 0, 100, 30), CropContainer.CropModes.Horizontal, CutMarkStyle.Torn, CreateEdgeSettings()));
 
             Assert.Equal(new Size(100, 70), surface.Image.Size);
+            Assert.Empty(surface.Elements.OfType<CutMarkContainer>());
         }
 
-        [Theory]
-        [InlineData(CutMarkStyle.Line)]
-        [InlineData(CutMarkStyle.ZigZag)]
-        [InlineData(CutMarkStyle.Wave)]
-        [InlineData(CutMarkStyle.Torn)]
-        public void CutOut_EveryStyle_HasTheExpectedSize(CutMarkStyle style)
+        [Fact]
+        public void CutOut_JoinsSeamlessly()
         {
             using var source = new Bitmap(80, 60);
-            var settings = new TornEdgeEffect();
 
-            using var vertical = CutOutHelper.CutOut(source, 20, 30, false, style, settings);
+            using var vertical = CutOutHelper.CutOut(source, 20, 30, false);
+            using var horizontal = CutOutHelper.CutOut(source, 20, 30, true);
 
-            Assert.Equal(new Size(50 + CutOutHelper.GetGap(style, settings), 60), vertical.Size);
+            Assert.Equal(new Size(50, 60), vertical.Size);
+            Assert.Equal(new Size(80, 30), horizontal.Size);
+        }
+
+        [Fact]
+        public void TornEdgeEffect_SameSeed_GivesTheSameEdges()
+        {
+            using var source = new Bitmap(120, 80);
+            using (var graphics = Graphics.FromImage(source))
+            {
+                graphics.Clear(Color.Red);
+            }
+
+            var effect = new TornEdgeEffect { GenerateShadow = false };
+            using var first = (Bitmap)effect.Apply(source, new Matrix());
+            using var second = (Bitmap)effect.Apply(source, new Matrix());
+
+            for (int x = 0; x < first.Width; x++)
+            {
+                Assert.Equal(first.GetPixel(x, 5).A, second.GetPixel(x, 5).A);
+            }
+        }
+
+        [Fact]
+        public void TornEdgeEffect_Seed_IsStoredInTheSettings()
+        {
+            var effect = new TornEdgeEffect { Seed = 4711 };
+            var converter = new EffectConverter();
+
+            string stored = (string)converter.ConvertTo(null, CultureInfo.InvariantCulture, effect, typeof(string));
+            var loaded = (TornEdgeEffect)converter.ConvertFrom(null, CultureInfo.InvariantCulture, stored);
+
+            Assert.Equal(4711, loaded.Seed);
         }
 
         [Theory]

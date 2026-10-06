@@ -24,126 +24,46 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using System.Linq;
-using Dapplo.Windows.Common.Extensions;
-using Dapplo.Windows.Common.Structs;
-using Greenshot.Base.Core;
-using Greenshot.Base.Effects;
 using Greenshot.Editor.Drawing;
 
 namespace Greenshot.Editor.Helpers
 {
     /// <summary>
-    /// Creates the image for a crop out: the strip is removed and the two parts are joined.
-    /// With a style other than None the parts get edges of that style, with a transparent gap and the shadow of the torn edge effect between them.
+    /// Helps with a crop out: the strip is removed and the two parts are joined, the cut mark draws the edges
     /// </summary>
     public static class CutOutHelper
     {
         /// <summary>
-        /// The size of the gap between the parts for a style, in pixels
-        /// </summary>
-        /// <param name="style">CutMarkStyle</param>
-        /// <param name="settings">TornEdgeEffect with the tooth height</param>
-        /// <returns>int</returns>
-        public static int GetGap(CutMarkStyle style, TornEdgeEffect settings)
-            => style == CutMarkStyle.None ? 0 : Math.Max(2, settings.ToothHeight);
-
-        /// <summary>
-        /// Cut out a strip of the image and join the parts before and after it
+        /// Cut out a strip of the image and join the parts before and after it seamlessly
         /// </summary>
         /// <param name="image">Image to cut</param>
         /// <param name="cutStart">int first row (horizontal) or column which is cut out</param>
         /// <param name="cutSize">int number of rows or columns which are cut out</param>
         /// <param name="horizontal">true when rows are cut out, false for columns</param>
-        /// <param name="style">CutMarkStyle for the edges, None joins seamlessly</param>
-        /// <param name="settings">TornEdgeEffect with the tooth sizes and shadow settings</param>
-        /// <returns>Bitmap, the part after the cut starts at cutStart + GetGap(style, settings)</returns>
-        public static Bitmap CutOut(Image image, int cutStart, int cutSize, bool horizontal, CutMarkStyle style, TornEdgeEffect settings)
+        /// <returns>Bitmap</returns>
+        public static Bitmap CutOut(Image image, int cutStart, int cutSize, bool horizontal)
         {
             int length = horizontal ? image.Height : image.Width;
             int breadth = horizontal ? image.Width : image.Height;
             int afterLength = length - cutStart - cutSize;
-            // Only a cut in the middle has a joint to show
-            if (cutStart <= 0 || afterLength <= 0)
+            var result = new Bitmap(horizontal ? breadth : length - cutSize, horizontal ? length - cutSize : breadth, PixelFormat.Format32bppArgb);
+            result.SetResolution(image.HorizontalResolution, image.VerticalResolution);
+            using var graphics = Graphics.FromImage(result);
+            graphics.CompositingMode = CompositingMode.SourceCopy;
+            if (cutStart > 0)
             {
-                style = CutMarkStyle.None;
+                var before = horizontal ? new Rectangle(0, 0, breadth, cutStart) : new Rectangle(0, 0, cutStart, breadth);
+                graphics.DrawImage(image, before, before, GraphicsUnit.Pixel);
             }
 
-            int gap = GetGap(style, settings);
-            int newLength = cutStart + gap + afterLength;
-
-            // Map (along the cut, across the cut) to image coordinates
-            PointF Map(float along, float across) => horizontal ? new PointF(along, across) : new PointF(across, along);
-            var parts = new Bitmap(horizontal ? breadth : newLength, horizontal ? newLength : breadth, PixelFormat.Format32bppArgb);
-            parts.SetResolution(image.HorizontalResolution, image.VerticalResolution);
-            using (var graphics = Graphics.FromImage(parts))
+            if (afterLength > 0)
             {
-                if (style == CutMarkStyle.None)
-                {
-                    graphics.CompositingMode = CompositingMode.SourceCopy;
-                    if (cutStart > 0)
-                    {
-                        var before = horizontal ? new Rectangle(0, 0, breadth, cutStart) : new Rectangle(0, 0, cutStart, breadth);
-                        graphics.DrawImage(image, before, before, GraphicsUnit.Pixel);
-                    }
-
-                    if (afterLength > 0)
-                    {
-                        var source = horizontal ? new Rectangle(0, cutStart + cutSize, breadth, afterLength) : new Rectangle(cutStart + cutSize, 0, afterLength, breadth);
-                        var target = horizontal ? new Rectangle(0, cutStart, breadth, afterLength) : new Rectangle(cutStart, 0, afterLength, breadth);
-                        graphics.DrawImage(image, target, source, GraphicsUnit.Pixel);
-                    }
-
-                    return parts;
-                }
-
-                graphics.SmoothingMode = SmoothingMode.HighQuality;
-                graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                graphics.CompositingQuality = CompositingQuality.HighQuality;
-                graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-
-                int toothRange = horizontal ? settings.HorizontalToothRange : settings.VerticalToothRange;
-                var random = new Random();
-                var beforeEdge = CreateEdge(style, breadth, settings.ToothHeight, toothRange, random);
-                var afterEdge = CreateEdge(style, breadth, settings.ToothHeight, toothRange, random);
-
-                // The part before the cut, its edge goes into the part
-                using (var path = new GraphicsPath())
-                {
-                    path.AddLines(new[] { Map(0, 0), Map(breadth, 0) });
-                    path.AddLines(Enumerable.Reverse(beforeEdge).Select(p => Map(p.X, cutStart - p.Y)).ToArray());
-                    path.CloseFigure();
-                    using var brush = new TextureBrush(image, WrapMode.Clamp);
-                    graphics.FillPath(brush, path);
-                }
-
-                // The part after the cut, moved up / left over the cut out strip minus the gap
-                int afterStart = cutStart + gap;
-                using (var path = new GraphicsPath())
-                {
-                    path.AddLines(afterEdge.Select(p => Map(p.X, afterStart + p.Y)).ToArray());
-                    path.AddLines(new[] { Map(breadth, newLength), Map(0, newLength) });
-                    path.CloseFigure();
-                    using var brush = new TextureBrush(image, WrapMode.Clamp);
-                    var shift = Map(0, afterStart - (cutStart + cutSize));
-                    brush.TranslateTransform(shift.X, shift.Y);
-                    graphics.FillPath(brush, path);
-                }
+                var source = horizontal ? new Rectangle(0, cutStart + cutSize, breadth, afterLength) : new Rectangle(cutStart + cutSize, 0, afterLength, breadth);
+                var target = horizontal ? new Rectangle(0, cutStart, breadth, afterLength) : new Rectangle(cutStart, 0, afterLength, breadth);
+                graphics.DrawImage(image, target, source, GraphicsUnit.Pixel);
             }
 
-            if (!settings.GenerateShadow)
-            {
-                return parts;
-            }
-
-            // The shadow of the torn edge effect, it only shows in the gap
-            using (parts)
-            {
-                using var matrix = new Matrix();
-                using var withShadow = ImageHelper.CreateShadow(parts, settings.Darkness, settings.ShadowSize, settings.ShadowOffset, matrix, PixelFormat.Format32bppArgb);
-                var offset = settings.ShadowOffset.Offset(settings.ShadowSize - 1, settings.ShadowSize - 1);
-                return ImageHelper.CloneArea(withShadow, new NativeRect(offset.X, offset.Y, parts.Width, parts.Height), PixelFormat.Format32bppArgb);
-            }
+            return result;
         }
 
         /// <summary>

@@ -191,6 +191,13 @@ namespace Greenshot.Base.Core
                         }
 
                         break;
+                    case "Seed":
+                        if (int.TryParse(pair[1], out var seed))
+                        {
+                            effect.Seed = seed;
+                        }
+
+                        break;
                     case "Edges":
                         string[] edges = pair[1].Split(',');
                         if (bool.TryParse(edges[0], out var edge))
@@ -227,8 +234,8 @@ namespace Greenshot.Base.Core
 
         private void RetrieveTornEdgeEffectValues(TornEdgeEffect effect, StringBuilder sb)
         {
-            sb.AppendFormat("GenerateShadow:{0}|ToothHeight:{1}|HorizontalToothRange:{2}|VerticalToothRange:{3}|Edges:{4},{5},{6},{7}", effect.GenerateShadow, effect.ToothHeight,
-                effect.HorizontalToothRange, effect.VerticalToothRange, effect.Edges[0], effect.Edges[1], effect.Edges[2], effect.Edges[3]);
+            sb.AppendFormat("GenerateShadow:{0}|ToothHeight:{1}|HorizontalToothRange:{2}|VerticalToothRange:{3}|Edges:{4},{5},{6},{7}|Seed:{8}", effect.GenerateShadow, effect.ToothHeight,
+                effect.HorizontalToothRange, effect.VerticalToothRange, effect.Edges[0], effect.Edges[1], effect.Edges[2], effect.Edges[3], effect.Seed);
         }
     }
 }

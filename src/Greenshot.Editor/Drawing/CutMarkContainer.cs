@@ -1,0 +1,411 @@
+/*
+ * Greenshot - a free and open source screenshot tool
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
+ *
+ * For more information see: https://getgreenshot.org/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 1 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+using System;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Windows.Forms;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
+using Greenshot.Base.Core;
+using Greenshot.Base.Effects;
+using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Drawing;
+using Greenshot.Base.Languages;
+using Greenshot.Editor.Drawing.Adorners;
+using Greenshot.Editor.Drawing.Fields;
+using Greenshot.Editor.Helpers;
+using Greenshot.Editor.Views;
+
+namespace Greenshot.Editor.Drawing
+{
+    /// <summary>
+    /// Marks the place where a strip was cut out of the image (crop out horizontally / vertically).
+    /// It always spans the whole image: the full width for a horizontal cut, the full height for a vertical one,
+    /// it can only be moved and sized across the cut.
+    /// Between the two edges (straight, zig-zag, wavy or torn, like the torn edge effect) is a gap,
+    /// transparent or filled with the fill color, with the shadow of the torn edge effect.
+    /// The edges come from a stored seed, so they never change unless a new random edge is asked for.
+    /// </summary>
+    [Serializable]
+    public sealed class CutMarkContainer : DrawableContainer
+    {
+        private readonly bool _horizontal;
+        private int _seed;
+        private int _toothHeight;
+        private int _toothRange;
+        private float _shadowDarkness;
+        private int _shadowSize;
+        private int _shadowOffsetX;
+        private int _shadowOffsetY;
+
+        // The shadow only changes with the settings, so it is kept
+        [NonSerialized] private Bitmap _shadowCache;
+        [NonSerialized] private string _shadowCacheKey;
+
+        /// <summary>
+        /// Create a cut mark
+        /// </summary>
+        /// <param name="parent">ISurface</param>
+        /// <param name="horizontal">true for a horizontal cut (full width), false for a vertical cut (full height)</param>
+        /// <param name="settings">TornEdgeEffect with the tooth and shadow settings to start with</param>
+        public CutMarkContainer(ISurface parent, bool horizontal, TornEdgeEffect settings) : base(parent)
+        {
+            _horizontal = horizontal;
+            settings ??= new TornEdgeEffect();
+            ApplySettings(settings);
+            NewSeed();
+            Init();
+        }
+
+        protected override void OnDeserialized(StreamingContext streamingContext)
+        {
+            base.OnDeserialized(streamingContext);
+            Init();
+        }
+
+        private void Init()
+        {
+            if (_horizontal)
+            {
+                Adorners.Add(new ResizeAdorner(this, Positions.TopCenter));
+                Adorners.Add(new ResizeAdorner(this, Positions.BottomCenter));
+            }
+            else
+            {
+                Adorners.Add(new ResizeAdorner(this, Positions.MiddleLeft));
+                Adorners.Add(new ResizeAdorner(this, Positions.MiddleRight));
+            }
+        }
+
+        protected override void InitializeFields()
+        {
+            AddField(GetType(), FieldType.FILL_COLOR, Color.Transparent);
+            AddField(GetType(), FieldType.SHADOW, true);
+            AddField(GetType(), FieldType.CUT_MARK_STYLE, CutMarkStyle.Torn);
+        }
+
+        /// <summary>
+        /// true for a horizontal cut, the mark spans the full width
+        /// </summary>
+        public bool IsHorizontal => _horizontal;
+
+        /// <summary>
+        /// The seed for the random parts of the edges
+        /// </summary>
+        public int Seed => _seed;
+
+        /// <summary>
+        /// How deep the edges go into the image parts
+        /// </summary>
+        public int ToothHeight => _toothHeight;
+
+        /// <summary>
+        /// The gap between the edges is transparent, this needs an image with an alpha channel on export
+        /// </summary>
+        public bool HasTransparentGap => !Colors.IsVisible(GetFieldValueAsColor(FieldType.FILL_COLOR, Color.Transparent));
+
+        /// <summary>
+        /// The size of the band for a gap, two teeth and the gap
+        /// </summary>
+        public static int GetBandSize(int toothHeight, int gap) => 2 * Math.Max(1, toothHeight) + gap;
+
+        /// <summary>
+        /// Take the tooth sizes and the shadow from the settings
+        /// </summary>
+        public void ApplySettings(TornEdgeEffect settings)
+        {
+            _toothHeight = Math.Max(1, settings.ToothHeight);
+            _toothRange = Math.Max(2, _horizontal ? settings.HorizontalToothRange : settings.VerticalToothRange);
+            _shadowDarkness = settings.Darkness;
+            _shadowSize = Math.Max(1, settings.ShadowSize);
+            _shadowOffsetX = settings.ShadowOffset.X;
+            _shadowOffsetY = settings.ShadowOffset.Y;
+            ClearShadowCache();
+            Invalidate();
+        }
+
+        /// <summary>
+        /// The tooth sizes and the shadow as torn edge effect settings, e.g. for the settings window
+        /// </summary>
+        public TornEdgeEffect GetSettings()
+        {
+            return new TornEdgeEffect
+            {
+                ToothHeight = _toothHeight,
+                HorizontalToothRange = _toothRange,
+                VerticalToothRange = _toothRange,
+                Darkness = _shadowDarkness,
+                ShadowSize = _shadowSize,
+                ShadowOffset = new NativePoint(_shadowOffsetX, _shadowOffsetY),
+                GenerateShadow = GetFieldValueAsBool(FieldType.SHADOW),
+                Seed = _seed
+            };
+        }
+
+        /// <summary>
+        /// Make new random edges
+        /// </summary>
+        public void NewSeed()
+        {
+            _seed = new Random().Next(1, int.MaxValue);
+            ClearShadowCache();
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Use the given seed for the edges
+        /// </summary>
+        public void SetSeed(int seed)
+        {
+            _seed = seed;
+            ClearShadowCache();
+            Invalidate();
+        }
+
+        /// <summary>
+        /// The mark always spans the whole image along the cut
+        /// </summary>
+        private void SpanImage()
+        {
+            if (_parent?.Image is not { } image)
+            {
+                return;
+            }
+
+            if (_horizontal)
+            {
+                Left = 0;
+                Width = image.Width;
+            }
+            else
+            {
+                Top = 0;
+                Height = image.Height;
+            }
+        }
+
+        public override void MoveBy(int dx, int dy)
+        {
+            base.MoveBy(_horizontal ? 0 : dx, _horizontal ? dy : 0);
+            SpanImage();
+        }
+
+        public override void ApplyBounds(NativeRectFloat newBounds)
+        {
+            base.ApplyBounds(newBounds);
+            SpanImage();
+        }
+
+        public override void Transform(Matrix matrix)
+        {
+            base.Transform(matrix);
+            SpanImage();
+        }
+
+        /// <summary>
+        /// The rectangle of the band, over the whole image
+        /// </summary>
+        private NativeRect GetBand()
+        {
+            var rect = new NativeRect(Left, Top, Width, Height).Normalize();
+            if (_parent?.Image is { } image)
+            {
+                rect = _horizontal ? new NativeRect(0, rect.Top, image.Width, rect.Height) : new NativeRect(rect.Left, 0, rect.Width, image.Height);
+            }
+
+            return rect;
+        }
+
+        /// <summary>
+        /// The outline of the gap between the two edges, in image coordinates
+        /// </summary>
+        private GraphicsPath CreateGapPath(NativeRect band, CutMarkStyle style)
+        {
+            int length = _horizontal ? band.Width : band.Height;
+            int thickness = _horizontal ? band.Height : band.Width;
+            int toothHeight = Math.Min(_toothHeight, thickness / 2);
+            var random = new Random(_seed);
+            var firstEdge = CutOutHelper.CreateEdge(style, length, toothHeight, _toothRange, random);
+            var secondEdge = CutOutHelper.CreateEdge(style, length, toothHeight, _toothRange, random);
+
+            // along the cut, across the cut: the first edge goes up into the part before, the second down into the part after
+            PointF Map(float along, float across) => _horizontal ? new PointF(band.Left + along, band.Top + across) : new PointF(band.Left + across, band.Top + along);
+            var path = new GraphicsPath();
+            path.AddLines(firstEdge.Select(p => Map(p.X, toothHeight - p.Y)).ToArray());
+            path.AddLines(Enumerable.Reverse(secondEdge).Select(p => Map(p.X, thickness - toothHeight + p.Y)).ToArray());
+            path.CloseFigure();
+            return path;
+        }
+
+        public override void Draw(Graphics graphics, RenderMode rm)
+        {
+            if (GetFieldValue(FieldType.CUT_MARK_STYLE) is not CutMarkStyle style || style == CutMarkStyle.None)
+            {
+                return;
+            }
+
+            var band = GetBand();
+            if (band.Width <= 0 || band.Height <= 0)
+            {
+                return;
+            }
+
+            Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR, Color.Transparent);
+            using var gapPath = CreateGapPath(band, style);
+
+            var state = graphics.Save();
+            graphics.SmoothingMode = SmoothingMode.HighQuality;
+            graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            if (Colors.IsVisible(fillColor))
+            {
+                using var brush = new SolidBrush(fillColor);
+                graphics.FillPath(brush, gapPath);
+            }
+            else if (rm == RenderMode.EXPORT)
+            {
+                // Really transparent, the image is 32 bit when exporting (see Surface.GetImage)
+                graphics.CompositingMode = CompositingMode.SourceCopy;
+                using var clear = new SolidBrush(Color.Transparent);
+                graphics.FillPath(clear, gapPath);
+                graphics.CompositingMode = CompositingMode.SourceOver;
+            }
+            else if (InternalParent?.TransparencyBackgroundBrush is TextureBrush checkerBoard)
+            {
+                // Show the transparency like the rest of the editor, the squares don't zoom
+                using var brush = (TextureBrush)checkerBoard.Clone();
+                var elements = graphics.Transform.Elements;
+                if (elements[0] != 0 && elements[3] != 0)
+                {
+                    brush.ScaleTransform(1 / elements[0], 1 / elements[3]);
+                }
+
+                graphics.FillPath(brush, gapPath);
+            }
+            else
+            {
+                graphics.FillPath(Brushes.White, gapPath);
+            }
+
+            if (GetFieldValueAsBool(FieldType.SHADOW))
+            {
+                DrawShadow(graphics, band, gapPath, style);
+            }
+
+            graphics.Restore(state);
+        }
+
+        /// <summary>
+        /// The shadow of the torn edge effect, cast by the parts into the gap
+        /// </summary>
+        private void DrawShadow(Graphics graphics, NativeRect band, GraphicsPath gapPath, CutMarkStyle style)
+        {
+            string key = $"{band.Width}x{band.Height}|{style}|{_seed}|{_toothHeight}|{_toothRange}|{_shadowDarkness}|{_shadowSize}|{_shadowOffsetX},{_shadowOffsetY}";
+            if (_shadowCache == null || _shadowCacheKey != key)
+            {
+                ClearShadowCache();
+                // A mask of the parts: everything in the band except the gap
+                using var mask = new Bitmap(band.Width, band.Height, PixelFormat.Format32bppArgb);
+                using (var maskGraphics = Graphics.FromImage(mask))
+                using (var localGap = (GraphicsPath)gapPath.Clone())
+                using (var toLocal = new Matrix())
+                {
+                    toLocal.Translate(-band.Left, -band.Top);
+                    localGap.Transform(toLocal);
+                    maskGraphics.Clear(Color.Black);
+                    maskGraphics.SmoothingMode = SmoothingMode.HighQuality;
+                    maskGraphics.CompositingMode = CompositingMode.SourceCopy;
+                    using var clear = new SolidBrush(Color.Transparent);
+                    maskGraphics.FillPath(clear, localGap);
+                }
+
+                using var matrix = new Matrix();
+                _shadowCache = ImageHelper.CreateShadow(mask, _shadowDarkness, _shadowSize, new NativePoint(_shadowOffsetX, _shadowOffsetY), matrix, PixelFormat.Format32bppArgb);
+                _shadowCacheKey = key;
+            }
+
+            // The mask itself is drawn at this offset in the shadow image, inside the gap only the shadow shows
+            var offset = new NativePoint(_shadowOffsetX, _shadowOffsetY).Offset(_shadowSize - 1, _shadowSize - 1);
+            // The clip is reset by the caller
+            graphics.SetClip(gapPath, CombineMode.Intersect);
+            graphics.DrawImage(_shadowCache, band.Left - offset.X, band.Top - offset.Y, _shadowCache.Width, _shadowCache.Height);
+        }
+
+        private void ClearShadowCache()
+        {
+            _shadowCache?.Dispose();
+            _shadowCache = null;
+            _shadowCacheKey = null;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                ClearShadowCache();
+            }
+
+            base.Dispose(disposing);
+        }
+
+        public override bool ClickableAt(int x, int y)
+        {
+            return GetBand().Contains(x, y);
+        }
+
+        public override void AddContextMenuItems(ContextMenuStrip menu, ISurface surface, MouseEventArgs mouseEventArgs)
+        {
+            // The surface asks every element, only the selected cut mark adds its items
+            if (!Selected)
+            {
+                return;
+            }
+
+            var reseedItem = new ToolStripMenuItem(Texts.Editor.CutMarkReseed);
+            reseedItem.Click += (_, _) =>
+            {
+                NewSeed();
+                surface.Invalidate();
+            };
+            menu.Items.Add(reseedItem);
+
+            var settingsItem = new ToolStripMenuItem(Texts.Editor.CutMarkSettings);
+            settingsItem.Click += (_, _) =>
+            {
+                var settings = GetSettings();
+                var window = new TornEdgeSettingsWindow(settings, false);
+                if (window.ShowDialog(surface as IWin32Window) != true)
+                {
+                    return;
+                }
+
+                ApplySettings(settings);
+                SetSeed(settings.Seed);
+                SetFieldValue(FieldType.SHADOW, settings.GenerateShadow);
+                surface.Invalidate();
+            };
+            menu.Items.Add(settingsItem);
+        }
+    }
+}

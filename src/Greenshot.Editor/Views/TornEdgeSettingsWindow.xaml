@@ -173,7 +173,7 @@
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                 <StackPanel Margin="20,12,20,10">
                     <!-- Edges Selection Group -->
-                    <GroupBox Header="{wpf:Text Editor.TornedgeSettings}">
+                    <GroupBox x:Name="EdgesGroupBox" Header="{wpf:Text Editor.TornedgeSettings}">
                         <Grid HorizontalAlignment="Center" Margin="0,4">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -225,6 +225,7 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
                             <TextBlock Grid.Row="0" Grid.Column="0"
@@ -259,6 +260,11 @@
                                            Margin="10,0,0,0" VerticalAlignment="Center" MinWidth="45"
                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                             </StackPanel>
+
+                            <Button Grid.Row="3" Grid.Column="1" x:Name="ReseedButton"
+                                    Content="{wpf:Text Editor.TornedgeReseed}"
+                                    HorizontalAlignment="Left" Margin="0,6,0,2" Padding="10,2"
+                                    Click="Reseed_Click"/>
                         </Grid>
                     </GroupBox>
 

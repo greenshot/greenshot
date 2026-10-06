@@ -237,6 +237,16 @@ namespace Greenshot.Base.Languages
         string CutMarkNone { get; }
 
         /// <summary>
+        /// New random edge
+        /// </summary>
+        string CutMarkReseed { get; }
+
+        /// <summary>
+        /// Cut edge settings...
+        /// </summary>
+        string CutMarkSettings { get; }
+
+        /// <summary>
         /// Torn
         /// </summary>
         string CutMarkTorn { get; }
@@ -725,6 +735,11 @@ namespace Greenshot.Base.Languages
         /// Left side
         /// </summary>
         string TornedgeLeft { get; }
+
+        /// <summary>
+        /// New random edges
+        /// </summary>
+        string TornedgeReseed { get; }
 
         /// <summary>
         /// Right side

@@ -1559,11 +1559,12 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// Crop out the surface: cut out the middle part and join the other two.
         /// Elements after the cut move with the image, elements inside the cut are removed, all others stay where they are.
+        /// With a cut mark style a few rows / columns of the strip stay for the gap of a cut mark, which is placed over the joint.
         /// </summary>
         /// <param name="cropRectangle">NativeRect of the middle part</param>
         /// <param name="cropMode">CropModes.Horizontal to cut out rows, CropModes.Vertical to cut out columns</param>
-        /// <param name="cutMarkStyle">CutMarkStyle for the edges of the parts, None for a seamless join</param>
-        /// <param name="edgeSettings">TornEdgeEffect with the tooth and shadow settings, null for the ones of the torn edge effect</param>
+        /// <param name="cutMarkStyle">CutMarkStyle for the cut mark, None for a seamless join</param>
+        /// <param name="edgeSettings">TornEdgeEffect with the tooth and shadow settings for the cut mark, null for the ones of the torn edge effect</param>
         /// <returns>bool true if the image was changed</returns>
         public bool ApplyCutOut(NativeRect cropRectangle, CropContainer.CropModes cropMode, CutMarkStyle cutMarkStyle = CutMarkStyle.None, TornEdgeEffect edgeSettings = null)
         {
@@ -1577,12 +1578,17 @@ namespace Greenshot.Editor.Drawing
             bool horizontal = cropMode == CropContainer.CropModes.Horizontal;
             int cutStart = horizontal ? cropRectangle.Top : cropRectangle.Left;
             int cutSize = horizontal ? cropRectangle.Height : cropRectangle.Width;
+            int imageLength = horizontal ? Image.Height : Image.Width;
             edgeSettings ??= IniConfigRegistry.GetSection<IEditorConfiguration>()?.TornEdgeEffectSettings ?? new TornEdgeEffect();
+
+            // Only a cut in the middle has a joint to mark, the gap of the mark keeps a part of the strip
+            bool withCutMark = cutMarkStyle != CutMarkStyle.None && cutStart > 0 && cutStart + cutSize < imageLength;
+            int gap = withCutMark ? Math.Min(cutSize, Math.Max(2, edgeSettings.ToothHeight)) : 0;
 
             Bitmap newImage;
             try
             {
-                newImage = CutOutHelper.CutOut(Image, cutStart, cutSize, horizontal, cutMarkStyle, edgeSettings);
+                newImage = CutOutHelper.CutOut(Image, cutStart + gap, cutSize - gap, horizontal);
             }
             catch (Exception ex)
             {
@@ -1608,14 +1614,27 @@ namespace Greenshot.Editor.Drawing
                 }
             }
 
-            // The part after the cut moved by the cut size, less the gap between the edges
-            int moveBy = (horizontal ? Image.Height - newImage.Height : Image.Width - newImage.Width);
+            var addedElements = new DrawableContainerList(ID);
+            if (withCutMark)
+            {
+                var cutMark = new CutMarkContainer(this, horizontal, edgeSettings);
+                int bandSize = CutMarkContainer.GetBandSize(cutMark.ToothHeight, gap);
+                int bandStart = cutStart + gap / 2 - bandSize / 2;
+                cutMark.Left = horizontal ? 0 : bandStart;
+                cutMark.Top = horizontal ? bandStart : 0;
+                cutMark.Width = horizontal ? newImage.Width : bandSize;
+                cutMark.Height = horizontal ? bandSize : newImage.Height;
+                cutMark.SetFieldValue(FieldType.CUT_MARK_STYLE, cutMarkStyle);
+                addedElements.Add(cutMark);
+            }
+
+            int moveBy = cutSize - gap;
             var offset = horizontal ? new NativePoint(0, -moveBy) : new NativePoint(-moveBy, 0);
             // Make undoable, the memento takes the current image
-            MakeUndoable(new SurfaceCutOutMemento(this, Image, movedElements, new NativePoint(-offset.X, -offset.Y), removedElements, new DrawableContainerList(ID)), false);
+            MakeUndoable(new SurfaceCutOutMemento(this, Image, movedElements, new NativePoint(-offset.X, -offset.Y), removedElements, addedElements), false);
 
             // Do not dispose otherwise we can't undo the image!
-            ApplyCutOutState(newImage, movedElements, offset, new DrawableContainerList(ID), removedElements);
+            ApplyCutOutState(newImage, movedElements, offset, addedElements, removedElements);
             return true;
         }
 
@@ -1990,7 +2009,11 @@ namespace Greenshot.Editor.Drawing
         private Image GetImage(RenderMode renderMode)
         {
             // Generate a copy of the original image with a dpi equal to the default...
-            Bitmap clone = ImageHelper.Clone(_image, PixelFormat.DontCare);
+            // A cut mark with a transparent gap needs an alpha channel
+            var pixelFormat = renderMode == RenderMode.EXPORT && _elements.Any(element => element is CutMarkContainer { HasTransparentGap: true })
+                ? PixelFormat.Format32bppArgb
+                : PixelFormat.DontCare;
+            Bitmap clone = ImageHelper.Clone(_image, pixelFormat);
             // otherwise we would have a problem drawing the image to the surface... :(
             using (Graphics graphics = Graphics.FromImage(clone))
             {

@@ -44,6 +44,19 @@ namespace Greenshot.Base.Effects
         public bool[] Edges { get; set; }
         public bool GenerateShadow { get; set; }
 
+        /// <summary>
+        /// The seed for the random edges, the same seed always gives the same edges
+        /// </summary>
+        public int Seed { get; set; }
+
+        /// <summary>
+        /// Pick new random edges
+        /// </summary>
+        public void Reseed()
+        {
+            Seed = System.Environment.TickCount ^ System.Guid.NewGuid().GetHashCode();
+        }
+
         public override void Reset()
         {
             base.Reset();
@@ -56,11 +69,12 @@ namespace Greenshot.Base.Effects
                 true, true, true, true
             };
             GenerateShadow = true;
+            Reseed();
         }
 
         public override Image Apply(Image sourceImage, Matrix matrix)
         {
-            Image tmpTornImage = ImageHelper.CreateTornEdge(sourceImage, ToothHeight, HorizontalToothRange, VerticalToothRange, Edges);
+            Image tmpTornImage = ImageHelper.CreateTornEdge(sourceImage, ToothHeight, HorizontalToothRange, VerticalToothRange, Edges, Seed);
             if (GenerateShadow)
             {
                 using (tmpTornImage)

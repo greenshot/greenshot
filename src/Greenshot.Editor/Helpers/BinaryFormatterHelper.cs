@@ -66,6 +66,7 @@ namespace Greenshot.Editor.Helpers
             {"Greenshot.Editor.Drawing.TextContainer", typeof(TextContainer) },
             {"Greenshot.Editor.Drawing.SpeechbubbleContainer", typeof(SpeechbubbleContainer) },
             {"Greenshot.Editor.Drawing.RectangleContainer", typeof(RectangleContainer) },
+            {"Greenshot.Editor.Drawing.CutMarkContainer", typeof(CutMarkContainer) },
             {"Greenshot.Editor.Drawing.EllipseContainer", typeof(EllipseContainer) },
             {"Greenshot.Editor.Drawing.FreehandContainer", typeof(FreehandContainer) },
             {"Greenshot.Editor.Drawing.HighlightContainer", typeof(HighlightContainer) },

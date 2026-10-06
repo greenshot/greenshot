@@ -1720,8 +1720,9 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                     cropModeButton.Checked = cropping && Equals(cropModeButton.Tag, cropMode);
                 }
 
-                // The cut mark is for crop out only
-                cutMarkStyleButton.Visible = cropping && (cropMode == CropContainer.CropModes.Horizontal || cropMode == CropContainer.CropModes.Vertical);
+                // The cut mark is for crop out only, or for a selected cut mark
+                cutMarkStyleButton.Visible = props.HasFieldValue(FieldType.CUT_MARK_STYLE) &&
+                                             (!cropping || cropMode == CropContainer.CropModes.Horizontal || cropMode == CropContainer.CropModes.Vertical);
                 highlightModeButton.Visible = props.HasFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT);
             }
             else
@@ -2029,21 +2030,30 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         private static Bitmap CreateCutMarkPreview(CutMarkStyle cutMarkStyle)
         {
             const int size = 16;
-            using var source = new Bitmap(size, size + 8, PixelFormat.Format32bppArgb);
-            using (var graphics = Graphics.FromImage(source))
+            var preview = new Bitmap(size, size, PixelFormat.Format32bppArgb);
+            using var graphics = Graphics.FromImage(preview);
+            if (cutMarkStyle == CutMarkStyle.None)
             {
                 graphics.Clear(Color.SteelBlue);
+                return preview;
             }
 
-            var settings = new TornEdgeEffect
-            {
-                ToothHeight = 3,
-                HorizontalToothRange = 4,
-                VerticalToothRange = 4,
-                GenerateShadow = false
-            };
-            // Cut rows out of the middle so the picture, with the gap, is 16 pixels high
-            return CutOutHelper.CutOut(source, 6, 8 + CutOutHelper.GetGap(cutMarkStyle, settings), true, cutMarkStyle, settings);
+            // Two parts with the edges of the style and a gap between them, like the cut mark
+            const int toothHeight = 2;
+            const int bandTop = 5;
+            const int bandHeight = 6;
+            var random = new Random(16);
+            var firstEdge = CutOutHelper.CreateEdge(cutMarkStyle, size, toothHeight, 4, random);
+            var secondEdge = CutOutHelper.CreateEdge(cutMarkStyle, size, toothHeight, 4, random);
+            var before = new List<PointF> { new PointF(0, 0), new PointF(size, 0) };
+            before.AddRange(Enumerable.Reverse(firstEdge).Select(p => new PointF(p.X, bandTop + toothHeight - p.Y)));
+            var after = secondEdge.Select(p => new PointF(p.X, bandTop + bandHeight - toothHeight + p.Y)).ToList();
+            after.Add(new PointF(size, size));
+            after.Add(new PointF(0, size));
+            graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            graphics.FillPolygon(Brushes.SteelBlue, before.ToArray());
+            graphics.FillPolygon(Brushes.SteelBlue, after.ToArray());
+            return preview;
         }
 
         private void SelectCropMode(CropContainer.CropModes cropMode)

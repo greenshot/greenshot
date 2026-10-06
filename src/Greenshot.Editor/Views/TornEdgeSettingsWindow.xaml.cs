@@ -35,15 +35,31 @@ namespace Greenshot.Editor.Views
         private static readonly ILog LOG = LogManager.GetLogger(typeof(TornEdgeSettingsWindow));
         private readonly TornEdgeEffect _effect;
         private bool _isUpdatingEdges;
+        private int _seed;
 
         public TornEdgeSettingsWindow() : this(new TornEdgeEffect())
         {
         }
 
-        public TornEdgeSettingsWindow(TornEdgeEffect effect)
+        public TornEdgeSettingsWindow(TornEdgeEffect effect) : this(effect, true)
+        {
+        }
+
+        /// <summary>
+        /// Create the settings window
+        /// </summary>
+        /// <param name="effect">TornEdgeEffect to show and change</param>
+        /// <param name="showEdges">false hides the selection of the edges, e.g. for a cut mark which only has the edges along the cut</param>
+        public TornEdgeSettingsWindow(TornEdgeEffect effect, bool showEdges)
         {
             _effect = effect ?? new TornEdgeEffect();
+            _seed = _effect.Seed;
             InitializeComponent();
+            if (!showEdges)
+            {
+                EdgesGroupBox.Visibility = Visibility.Collapsed;
+            }
+
             try
             {
                 Icon = ImageHelper.ToBitmapSource(GreenshotResources.GetGreenshotIcon());
@@ -99,6 +115,13 @@ namespace Greenshot.Editor.Views
             _isUpdatingEdges = false;
         }
 
+        private void Reseed_Click(object sender, RoutedEventArgs e)
+        {
+            // Only used when OK is pressed
+            var reseeded = new TornEdgeEffect();
+            _seed = reseeded.Seed;
+        }
+
         private void GenerateShadow_Click(object sender, RoutedEventArgs e)
         {
             // Enabled state bound to CheckBox.IsChecked
@@ -149,6 +172,7 @@ namespace Greenshot.Editor.Views
                 LeftEdgeCheckBox.IsChecked == true
             };
             _effect.GenerateShadow = GenerateShadowCheckBox.IsChecked == true;
+            _effect.Seed = _seed;
             DialogResult = true;
             Close();
         }
