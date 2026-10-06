@@ -70,8 +70,15 @@ namespace Greenshot.Helpers
             var uri = BuildUri(version, config.Language, EditionInfo.IsFull ? null : EditionInfo.Name);
             Log.InfoFormat("Opening {0} for version {1} (shown before for {2})", uri, version, shownForVersion ?? "none");
             // Remember it first: a browser which fails to start shouldn't make this happen on every start
-            // IgnoreConstants: greenshot-fixed.ini can't pin this, so it is always stored
-            config.WebsiteShownForVersion = version;
+            try
+            {
+                config.WebsiteShownForVersion = version;
+            }
+            catch (Exception ex)
+            {
+                // Pinned in greenshot-fixed.ini, Dapplo.Ini refuses the change: the page opens anyway
+                Log.Warn("Couldn't remember the version the website was shown for", ex);
+            }
             using (Process.Start(new ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true }))
             {
             }
