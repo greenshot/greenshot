@@ -19,11 +19,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Drawing;
 using System.Linq;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Editor.Drawing;
-using Greenshot.Editor.Drawing.Fields;
+using Greenshot.Base.Effects;
+using Greenshot.Editor.Helpers;
 using Xunit;
 
 namespace Greenshot.Tests.Editor
@@ -127,47 +129,43 @@ namespace Greenshot.Tests.Editor
         }
 
         [Fact]
-        public void ApplyCutOut_WithCutMark_AddsMarkOverTheJoint_AndUndoRemovesIt()
+        public void ApplyCutOut_TornEdges_LeavesATransparentGap_AndMovesByCutSizeMinusGap()
         {
-            using var surface = new Surface(new Bitmap(100, 100));
+            using var source = new Bitmap(100, 100);
+            using (var graphics = Graphics.FromImage(source))
+            {
+                graphics.Clear(Color.Red);
+            }
 
-            Assert.True(surface.ApplyCutOut(new NativeRect(0, 30, 100, 30), CropContainer.CropModes.Horizontal, CutMarkStyle.Torn));
+            using var surface = new Surface((Image)source.Clone());
+            var below = AddRectangle(surface, 5, 70);
+            var settings = new TornEdgeEffect();
+            int gap = CutOutHelper.GetGap(CutMarkStyle.Torn, settings);
 
-            var cutMark = Assert.IsType<CutMarkContainer>(Assert.Single(surface.Elements));
-            Assert.Equal(CutMarkStyle.Torn, cutMark.GetFieldValue(FieldType.CUT_MARK_STYLE));
-            Assert.Equal(100, cutMark.Width);
-            Assert.True(cutMark.Top < 30 && cutMark.Top + cutMark.Height > 30);
+            Assert.True(surface.ApplyCutOut(new NativeRect(0, 30, 100, 30), CropContainer.CropModes.Horizontal, CutMarkStyle.Torn, settings));
+
+            Assert.Equal(new Size(100, 70 + gap), surface.Image.Size);
+            Assert.Equal(70 - 30 + gap, below.Top);
+            var image = (Bitmap)surface.Image;
+            Assert.Equal(255, image.GetPixel(50, 2).A);
+            Assert.Equal(255, image.GetPixel(50, 70 + gap - 2).A);
+            // The middle of the gap only has the shadow
+            Assert.True(image.GetPixel(50, 30 + gap / 2).A < 255);
 
             surface.Undo();
 
-            Assert.Empty(surface.Elements);
+            Assert.Equal(new Size(100, 100), surface.Image.Size);
+            Assert.Equal(70, below.Top);
         }
 
         [Fact]
-        public void ApplyCutOut_AtTheEdge_HasNoCutMark()
+        public void ApplyCutOut_AtTheEdge_IsSeamless()
         {
             using var surface = new Surface(new Bitmap(100, 100));
 
-            Assert.True(surface.ApplyCutOut(new NativeRect(0, 0, 100, 30), CropContainer.CropModes.Horizontal, CutMarkStyle.Torn));
+            Assert.True(surface.ApplyCutOut(new NativeRect(0, 0, 100, 30), CropContainer.CropModes.Horizontal, CutMarkStyle.Torn, new TornEdgeEffect()));
 
-            Assert.Empty(surface.Elements);
-        }
-
-        [Fact]
-        public void CutMark_SurvivesSerialization()
-        {
-            using var surface = new Surface(new Bitmap(100, 100));
-            var cutMark = new CutMarkContainer(surface, 42)
-            {
-                Width = 100,
-                Height = 14
-            };
-            cutMark.SetFieldValue(FieldType.CUT_MARK_STYLE, CutMarkStyle.ZigZag);
-
-            var result = DrawableContainerClipboard.Deserialize(DrawableContainerClipboard.Serialize(new DrawableContainerList(surface.ID) { cutMark }));
-
-            var copy = Assert.IsType<CutMarkContainer>(Assert.Single(result));
-            Assert.Equal(CutMarkStyle.ZigZag, copy.GetFieldValue(FieldType.CUT_MARK_STYLE));
+            Assert.Equal(new Size(100, 70), surface.Image.Size);
         }
 
         [Theory]
@@ -175,20 +173,28 @@ namespace Greenshot.Tests.Editor
         [InlineData(CutMarkStyle.ZigZag)]
         [InlineData(CutMarkStyle.Wave)]
         [InlineData(CutMarkStyle.Torn)]
-        public void CreateEdges_StayInsideTheBand_AndTornIsRepeatable(CutMarkStyle style)
+        public void CutOut_EveryStyle_HasTheExpectedSize(CutMarkStyle style)
         {
-            var rect = new NativeRect(10, 20, 200, 14);
-            CutMarkContainer.CreateEdges(style, rect, 7, out var first, out var second);
-            CutMarkContainer.CreateEdges(style, rect, 7, out var firstAgain, out _);
+            using var source = new Bitmap(80, 60);
+            var settings = new TornEdgeEffect();
 
-            Assert.All(first.Concat(second), p =>
-            {
-                Assert.InRange(p.X, 10, 210);
-                Assert.InRange(p.Y, 20, 34);
-            });
-            Assert.Equal(first, firstAgain);
-            Assert.Equal(10, first.First().X);
-            Assert.Equal(210, first.Last().X);
+            using var vertical = CutOutHelper.CutOut(source, 20, 30, false, style, settings);
+
+            Assert.Equal(new Size(50 + CutOutHelper.GetGap(style, settings), 60), vertical.Size);
+        }
+
+        [Theory]
+        [InlineData(CutMarkStyle.Line)]
+        [InlineData(CutMarkStyle.ZigZag)]
+        [InlineData(CutMarkStyle.Wave)]
+        [InlineData(CutMarkStyle.Torn)]
+        public void CreateEdge_StaysWithinTheToothHeight(CutMarkStyle style)
+        {
+            var edge = CutOutHelper.CreateEdge(style, 200, 12, 20, new Random(7));
+
+            Assert.All(edge, p => Assert.InRange(p.Y, 0, 12));
+            Assert.Equal(0, edge.First().X);
+            Assert.Equal(200, edge.Last().X);
         }
     }
 }

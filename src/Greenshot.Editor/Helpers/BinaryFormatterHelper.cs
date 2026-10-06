@@ -72,9 +72,8 @@ namespace Greenshot.Editor.Helpers
             {"Greenshot.Editor.Drawing.IconContainer", typeof(IconContainer) },
             {"Greenshot.Editor.Drawing.ObfuscateContainer", typeof(ObfuscateContainer) },
             {"Greenshot.Editor.Drawing.StepLabelContainer", typeof(StepLabelContainer) },
-            {"Greenshot.Editor.Drawing.CutMarkContainer", typeof(CutMarkContainer) },
-            {"Greenshot.Editor.Drawing.CutMarkStyle", typeof(CutMarkStyle) },
             // Only used for the last used field values in the .ini
+            {"Greenshot.Editor.Drawing.CutMarkStyle", typeof(CutMarkStyle) },
             {"Greenshot.Editor.Drawing.CropContainer+CropModes", typeof(CropContainer.CropModes) },
             {"Greenshot.Editor.Drawing.SvgContainer", typeof(SvgContainer) },
             {"Greenshot.Editor.Drawing.Emoji.EmojiContainer", typeof(EmojiContainer) },

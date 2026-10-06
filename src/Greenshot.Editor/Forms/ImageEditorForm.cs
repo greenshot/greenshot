@@ -1720,9 +1720,8 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                     cropModeButton.Checked = cropping && Equals(cropModeButton.Tag, cropMode);
                 }
 
-                // The cut mark is for crop out only, or a selected cut mark
-                cutMarkStyleButton.Visible = props.HasFieldValue(FieldType.CUT_MARK_STYLE)
-                                             && (!cropping || cropMode == CropContainer.CropModes.Horizontal || cropMode == CropContainer.CropModes.Vertical);
+                // The cut mark is for crop out only
+                cutMarkStyleButton.Visible = cropping && (cropMode == CropContainer.CropModes.Horizontal || cropMode == CropContainer.CropModes.Vertical);
                 highlightModeButton.Visible = props.HasFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT);
             }
             else
@@ -2025,33 +2024,26 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         }
 
         /// <summary>
-        /// A small picture of the cut mark style for the drop-down: two image parts with the mark between them
+        /// A small picture of the cut mark style for the drop-down: two image parts with their edges and the gap between them
         /// </summary>
         private static Bitmap CreateCutMarkPreview(CutMarkStyle cutMarkStyle)
         {
             const int size = 16;
-            var preview = new Bitmap(size, size, PixelFormat.Format32bppArgb);
-            using var graphics = Graphics.FromImage(preview);
-            graphics.SmoothingMode = SmoothingMode.HighQuality;
-            using var imageBrush = new SolidBrush(Color.SteelBlue);
-            graphics.FillRectangle(imageBrush, 1, 1, size - 2, size - 2);
-            if (cutMarkStyle == CutMarkStyle.None)
+            using var source = new Bitmap(size, size + 8, PixelFormat.Format32bppArgb);
+            using (var graphics = Graphics.FromImage(source))
             {
-                return preview;
+                graphics.Clear(Color.SteelBlue);
             }
 
-            CutMarkContainer.CreateEdges(cutMarkStyle, new NativeRect(0, 3, size, size - 6), 4, out var firstEdge, out var secondEdge);
-            using (var path = new GraphicsPath())
+            var settings = new TornEdgeEffect
             {
-                path.AddLines(firstEdge);
-                path.AddLines(Enumerable.Reverse(secondEdge).ToArray());
-                path.CloseFigure();
-                graphics.FillPath(Brushes.White, path);
-            }
-
-            graphics.DrawLines(Pens.DimGray, firstEdge);
-            graphics.DrawLines(Pens.DimGray, secondEdge);
-            return preview;
+                ToothHeight = 3,
+                HorizontalToothRange = 4,
+                VerticalToothRange = 4,
+                GenerateShadow = false
+            };
+            // Cut rows out of the middle so the picture, with the gap, is 16 pixels high
+            return CutOutHelper.CutOut(source, 6, 8 + CutOutHelper.GetGap(cutMarkStyle, settings), true, cutMarkStyle, settings);
         }
 
         private void SelectCropMode(CropContainer.CropModes cropMode)

@@ -1562,9 +1562,10 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         /// <param name="cropRectangle">NativeRect of the middle part</param>
         /// <param name="cropMode">CropModes.Horizontal to cut out rows, CropModes.Vertical to cut out columns</param>
-        /// <param name="cutMarkStyle">CutMarkStyle for the mark over the joint, None for a seamless join</param>
+        /// <param name="cutMarkStyle">CutMarkStyle for the edges of the parts, None for a seamless join</param>
+        /// <param name="edgeSettings">TornEdgeEffect with the tooth and shadow settings, null for the ones of the torn edge effect</param>
         /// <returns>bool true if the image was changed</returns>
-        public bool ApplyCutOut(NativeRect cropRectangle, CropContainer.CropModes cropMode, CutMarkStyle cutMarkStyle = CutMarkStyle.None)
+        public bool ApplyCutOut(NativeRect cropRectangle, CropContainer.CropModes cropMode, CutMarkStyle cutMarkStyle = CutMarkStyle.None, TornEdgeEffect edgeSettings = null)
         {
             if (cropMode != CropContainer.CropModes.Horizontal && cropMode != CropContainer.CropModes.Vertical)
             {
@@ -1576,29 +1577,12 @@ namespace Greenshot.Editor.Drawing
             bool horizontal = cropMode == CropContainer.CropModes.Horizontal;
             int cutStart = horizontal ? cropRectangle.Top : cropRectangle.Left;
             int cutSize = horizontal ? cropRectangle.Height : cropRectangle.Width;
-            int imageLength = horizontal ? Image.Height : Image.Width;
-            int imageBreadth = horizontal ? Image.Width : Image.Height;
-
-            // The part before and after the cut, and where they go in the new image
-            NativeRect Part(int start, int length) => horizontal ? new NativeRect(0, start, imageBreadth, length) : new NativeRect(start, 0, length, imageBreadth);
-            var beforeRectangle = Part(0, cutStart);
-            var afterRectangle = Part(cutStart + cutSize, imageLength - cutStart - cutSize);
-            var afterTarget = Part(cutStart, imageLength - cutStart - cutSize);
+            edgeSettings ??= IniConfigRegistry.GetSection<IEditorConfiguration>()?.TornEdgeEffectSettings ?? new TornEdgeEffect();
 
             Bitmap newImage;
             try
             {
-                newImage = horizontal ? new Bitmap(Image.Width, Image.Height - cutSize) : new Bitmap(Image.Width - cutSize, Image.Height);
-                using var graphics = Graphics.FromImage(newImage);
-                if (cutStart > 0)
-                {
-                    graphics.DrawImage(Image, beforeRectangle, beforeRectangle, GraphicsUnit.Pixel);
-                }
-
-                if (imageLength - cutStart - cutSize > 0)
-                {
-                    graphics.DrawImage(Image, afterTarget, afterRectangle, GraphicsUnit.Pixel);
-                }
+                newImage = CutOutHelper.CutOut(Image, cutStart, cutSize, horizontal, cutMarkStyle, edgeSettings);
             }
             catch (Exception ex)
             {
@@ -1624,29 +1608,14 @@ namespace Greenshot.Editor.Drawing
                 }
             }
 
-            var addedElements = new DrawableContainerList(ID);
-            // Only a cut in the middle has a joint to mark
-            if (cutMarkStyle != CutMarkStyle.None && cutStart > 0 && cutStart + cutSize < imageLength)
-            {
-                // A band over the joint, over the whole image
-                int bandSize = Math.Min(CutMarkContainer.DefaultBandSize, horizontal ? newImage.Height : newImage.Width);
-                var cutMark = new CutMarkContainer(this)
-                {
-                    Left = horizontal ? 0 : cutStart - bandSize / 2,
-                    Top = horizontal ? cutStart - bandSize / 2 : 0,
-                    Width = horizontal ? newImage.Width : bandSize,
-                    Height = horizontal ? bandSize : newImage.Height
-                };
-                cutMark.SetFieldValue(FieldType.CUT_MARK_STYLE, cutMarkStyle);
-                addedElements.Add(cutMark);
-            }
-
-            var offset = horizontal ? new NativePoint(0, -cutSize) : new NativePoint(-cutSize, 0);
+            // The part after the cut moved by the cut size, less the gap between the edges
+            int moveBy = (horizontal ? Image.Height - newImage.Height : Image.Width - newImage.Width);
+            var offset = horizontal ? new NativePoint(0, -moveBy) : new NativePoint(-moveBy, 0);
             // Make undoable, the memento takes the current image
-            MakeUndoable(new SurfaceCutOutMemento(this, Image, movedElements, new NativePoint(-offset.X, -offset.Y), removedElements, addedElements), false);
+            MakeUndoable(new SurfaceCutOutMemento(this, Image, movedElements, new NativePoint(-offset.X, -offset.Y), removedElements, new DrawableContainerList(ID)), false);
 
             // Do not dispose otherwise we can't undo the image!
-            ApplyCutOutState(newImage, movedElements, offset, addedElements, removedElements);
+            ApplyCutOutState(newImage, movedElements, offset, new DrawableContainerList(ID), removedElements);
             return true;
         }
 

@@ -222,27 +222,27 @@ namespace Greenshot.Base.Languages
         string CropmodeVertical { get; }
 
         /// <summary>
-        /// Cut mark
+        /// Cut edges
         /// </summary>
         string CutMark { get; }
 
         /// <summary>
-        /// Lines
+        /// Straight
         /// </summary>
         string CutMarkLine { get; }
 
         /// <summary>
-        /// None
+        /// None (seamless)
         /// </summary>
         string CutMarkNone { get; }
 
         /// <summary>
-        /// Torn edges
+        /// Torn
         /// </summary>
         string CutMarkTorn { get; }
 
         /// <summary>
-        /// Waves
+        /// Wavy
         /// </summary>
         string CutMarkWave { get; }
 
