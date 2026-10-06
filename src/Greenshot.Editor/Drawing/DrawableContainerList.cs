@@ -377,8 +377,7 @@ namespace Greenshot.Editor.Drawing
 
             var drawnGroups = new HashSet<string>();
 
-            // Torn edges are a cut through everything: they are drawn last so nothing shows in the torn off parts
-            foreach (var drawableContainer in this.OrderBy(element => element is TornEdgeContainer ? 1 : 0))
+            foreach (var drawableContainer in this)
             {
                 var dc = (DrawableContainer) drawableContainer;
                 if (dc.Parent == null)

@@ -395,11 +395,39 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
-        /// The shadow of the torn edge effect, cast by the parts into the gap
+        /// Describes the shape, other elements use it to know when their shadow changes
+        /// </summary>
+        internal string ShapeKey => $"{GetBand()}|{GetFieldValue(FieldType.CUT_MARK_STYLE)}|{_seed}|{ToothHeight}|{ToothRange}";
+
+        /// <summary>
+        /// The transparent gap in image coordinates, e.g. so torn edges don't cast a shadow there
+        /// </summary>
+        /// <returns>GraphicsPath or null when there is no transparent gap</returns>
+        internal GraphicsPath CreateTransparentGapPath()
+        {
+            if (!HasTransparentGap || GetFieldValue(FieldType.CUT_MARK_STYLE) is not CutMarkStyle style || style == CutMarkStyle.None)
+            {
+                return null;
+            }
+
+            var band = GetBand();
+            if (band.Width <= 0 || band.Height <= 0)
+            {
+                return null;
+            }
+
+            CreateEdges(band, style, out var firstEdge, out var secondEdge);
+            return CreateGapPath(firstEdge, secondEdge);
+        }
+
+        /// <summary>
+        /// The shadow of the torn edge effect, cast by the parts into the gap.
+        /// Where torn edges took a part away, that part casts no shadow.
         /// </summary>
         private void DrawShadow(Graphics graphics, NativeRect band, GraphicsPath gapPath, CutMarkStyle style)
         {
-            string key = $"{band.Width}x{band.Height}|{style}|{_seed}|{ToothHeight}|{ToothRange}|{_shadowDarkness}|{_shadowSize}|{_shadowOffsetX},{_shadowOffsetY}";
+            var tornEdges = InternalParent?.Elements.OfType<TornEdgeContainer>().FirstOrDefault();
+            string key = $"{band.Width}x{band.Height}|{style}|{_seed}|{ToothHeight}|{ToothRange}|{_shadowDarkness}|{_shadowSize}|{_shadowOffsetX},{_shadowOffsetY}|{band.Left},{band.Top}|{tornEdges?.ShapeKey}";
             if (_shadowCache == null || _shadowCacheKey != key)
             {
                 ClearShadowCache();
@@ -416,6 +444,15 @@ namespace Greenshot.Editor.Drawing
                     maskGraphics.CompositingMode = CompositingMode.SourceCopy;
                     using var clear = new SolidBrush(Color.Transparent);
                     maskGraphics.FillPath(clear, localGap);
+
+                    using var keptPath = tornEdges?.CreateKeptPath();
+                    if (keptPath != null)
+                    {
+                        keptPath.Transform(toLocal);
+                        using var tornOff = new Region(new Rectangle(0, 0, band.Width, band.Height));
+                        tornOff.Exclude(keptPath);
+                        maskGraphics.FillRegion(clear, tornOff);
+                    }
                 }
 
                 using var matrix = new Matrix();

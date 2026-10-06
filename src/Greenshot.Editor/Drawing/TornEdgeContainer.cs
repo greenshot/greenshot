@@ -358,11 +358,35 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
-        /// The shadow of the torn edge effect, cast by the part which stays into the torn off parts
+        /// Describes the shape, other elements use it to know when their shadow changes
+        /// </summary>
+        internal string ShapeKey => $"{ImageBounds.Width}x{ImageBounds.Height}|{_margin}|{_seed}|{string.Join(",", _edges)}|{ToothHeight}|{ToothRange}";
+
+        /// <summary>
+        /// The part which stays in image coordinates, e.g. so a cut mark doesn't cast a shadow from the torn off parts
+        /// </summary>
+        /// <returns>GraphicsPath or null when nothing is torn</returns>
+        internal GraphicsPath CreateKeptPath()
+        {
+            var bounds = ImageBounds;
+            if (bounds.Width - 2 * _margin <= 2 || bounds.Height - 2 * _margin <= 2 || !_edges.Any(edge => edge))
+            {
+                return null;
+            }
+
+            var path = new GraphicsPath();
+            path.AddPolygon(CreateOutline(new Size(bounds.Width - 2 * _margin, bounds.Height - 2 * _margin), out _));
+            return path;
+        }
+
+        /// <summary>
+        /// The shadow of the torn edge effect, cast by the part which stays into the torn off parts.
+        /// Transparent gaps of cut marks are not part of the image, so they cast no shadow.
         /// </summary>
         private void DrawShadow(Graphics graphics, Size size, GraphicsPath keptPath, Region tornOff)
         {
-            string key = $"{size.Width}x{size.Height}|{_seed}|{string.Join(",", _edges)}|{ToothHeight}|{ToothRange}|{_shadowDarkness}|{_shadowSize}|{_shadowOffsetX},{_shadowOffsetY}";
+            var cutMarks = InternalParent?.Elements.OfType<CutMarkContainer>().Where(cutMark => cutMark.HasTransparentGap).ToList() ?? new List<CutMarkContainer>();
+            string key = $"{size.Width}x{size.Height}|{_margin}|{_seed}|{string.Join(",", _edges)}|{ToothHeight}|{ToothRange}|{_shadowDarkness}|{_shadowSize}|{_shadowOffsetX},{_shadowOffsetY}|{string.Join(";", cutMarks.Select(cutMark => cutMark.ShapeKey))}";
             if (_shadowCache == null || _shadowCacheKey != key)
             {
                 ClearShadowCache();
@@ -372,6 +396,16 @@ namespace Greenshot.Editor.Drawing
                     maskGraphics.Clear(Color.Transparent);
                     maskGraphics.SmoothingMode = SmoothingMode.HighQuality;
                     maskGraphics.FillPath(Brushes.Black, keptPath);
+                    maskGraphics.CompositingMode = CompositingMode.SourceCopy;
+                    using var clear = new SolidBrush(Color.Transparent);
+                    foreach (var cutMark in cutMarks)
+                    {
+                        using var gapPath = cutMark.CreateTransparentGapPath();
+                        if (gapPath != null)
+                        {
+                            maskGraphics.FillPath(clear, gapPath);
+                        }
+                    }
                 }
 
                 using var matrix = new Matrix();

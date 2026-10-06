@@ -246,6 +246,10 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             btnCropVertical.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "CropVertical.Image");
             btnCropHorizontal.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "CropHorizontal.Image");
             btnCropAuto.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "AutoCrop.Image");
+            foreach (ToolStripItem cutMarkItem in cutMarkStyleButton.DropDownItems)
+            {
+                cutMarkItem.Image = CreateCutMarkPreview((CutMarkStyle)cutMarkItem.Tag);
+            }
             highlightModeButton.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "highlightModeButton.Image");
             textHighlightMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "textHighlightMenuItem.Image");
             areaHighlightMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "areaHighlightMenuItem.Image");
@@ -2029,6 +2033,46 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         /// <summary>
         /// A small picture of the cut mark style for the drop-down: two image parts with their edges and the gap between them
         /// </summary>
+        /// <summary>
+        /// A picture for a cut edge style: two parts with the edges of the style, the gap between them shows the transparency checker pattern
+        /// </summary>
+        private static Bitmap CreateCutMarkPreview(CutMarkStyle cutMarkStyle)
+        {
+            const int size = 16;
+            var preview = new Bitmap(size, size, PixelFormat.Format32bppArgb);
+            using var graphics = Graphics.FromImage(preview);
+            graphics.Clear(Color.White);
+            for (int y = 0; y < size; y += 2)
+            {
+                for (int x = (y / 2) % 2 * 2; x < size; x += 4)
+                {
+                    graphics.FillRectangle(Brushes.Silver, x, y, 2, 2);
+                }
+            }
+
+            if (cutMarkStyle == CutMarkStyle.None)
+            {
+                graphics.FillRectangle(Brushes.SteelBlue, 0, 0, size, size);
+                return preview;
+            }
+
+            const int toothHeight = 2;
+            const int bandTop = 4;
+            const int bandHeight = 8;
+            var random = new Random(16);
+            var firstEdge = CutOutHelper.CreateEdge(cutMarkStyle, size, toothHeight, 4, random);
+            var secondEdge = CutOutHelper.CreateEdge(cutMarkStyle, size, toothHeight, 4, random);
+            var before = new List<PointF> { new PointF(0, 0), new PointF(size, 0) };
+            before.AddRange(Enumerable.Reverse(firstEdge).Select(p => new PointF(p.X, bandTop + toothHeight - p.Y)));
+            var after = secondEdge.Select(p => new PointF(p.X, bandTop + bandHeight - toothHeight + p.Y)).ToList();
+            after.Add(new PointF(size, size));
+            after.Add(new PointF(0, size));
+            graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            graphics.FillPolygon(Brushes.SteelBlue, before.ToArray());
+            graphics.FillPolygon(Brushes.SteelBlue, after.ToArray());
+            return preview;
+        }
+
         private void SelectCropMode(CropContainer.CropModes cropMode)
         {
             _surface.FieldAggregator.GetField(FieldType.CROPMODE).Value = cropMode;
@@ -2803,7 +2847,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             this.cutMarkZigZagMenuItem.Text = Texts.Editor.CutMarkZigzag;
             this.cutMarkWaveMenuItem.Text = Texts.Editor.CutMarkWave;
             this.cutMarkTornMenuItem.Text = Texts.Editor.CutMarkTorn;
-            // The button shows the name of the selected style
+            // The button shows the picture of the selected style
             this.cutMarkStyleButton.SelectedTag = this.cutMarkStyleButton.SelectedTag;
             this.highlightModeButton.Text = Texts.Editor.HighlightMode;
             this.textHighlightMenuItem.Text = Texts.Editor.HighlightText;

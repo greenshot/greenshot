@@ -1085,8 +1085,7 @@ namespace Greenshot.Editor.Forms
 			// 
 			// cutMarkStyleButton
 			// 
-			this.cutMarkStyleButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-			this.cutMarkStyleButton.ShowSelectedText = true;
+			this.cutMarkStyleButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.cutMarkStyleButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
 									this.cutMarkNoneMenuItem,
 									this.cutMarkLineMenuItem,
