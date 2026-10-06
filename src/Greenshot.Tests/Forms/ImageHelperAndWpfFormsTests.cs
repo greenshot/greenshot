@@ -676,40 +676,54 @@ namespace Greenshot.Tests.Forms
         }
 
         [Fact]
-        public void ThemedTitleBar_WindowIsHiddenUntilItIsRendered()
+        public void ThemedTitleBar_WindowWithTheWindowsTitleBarIsHiddenUntilItIsRendered()
         {
             Exception threadEx = null;
             var thread = new Thread(() =>
             {
-                System.Windows.Window window = null;
+                var tm = ThemeManager.Instance;
+                var previousTheme = tm.Theme;
                 try
                 {
-                    var root = new System.Windows.Controls.Grid();
-                    window = new System.Windows.Window
+                    foreach (var theme in new[] { Greenshot.Base.Core.Enums.UiTheme.System, Greenshot.Base.Core.Enums.UiTheme.Dark })
                     {
-                        Title = "Cloak test",
-                        Width = 300,
-                        Height = 200,
-                        Left = -2000,
-                        Top = -2000,
-                        ShowInTaskbar = false,
-                        ShowActivated = false,
-                        Content = root
-                    };
-                    root.Children.Add(new ThemedTitleBar());
-                    bool rendered = false;
-                    window.ContentRendered += (s, e) => rendered = true;
-                    window.Show();
-                    var handle = new System.Windows.Interop.WindowInteropHelper(window).Handle;
+                        tm.Theme = theme;
+                        var root = new System.Windows.Controls.Grid();
+                        var window = new System.Windows.Window
+                        {
+                            Title = "Cloak test",
+                            WindowStyle = System.Windows.WindowStyle.None,
+                            Width = 300,
+                            Height = 200,
+                            Left = -2000,
+                            Top = -2000,
+                            ShowInTaskbar = false,
+                            ShowActivated = false,
+                            Content = root
+                        };
+                        root.Children.Add(new ThemedTitleBar());
+                        bool rendered = false;
+                        window.ContentRendered += (s, e) => rendered = true;
+                        try
+                        {
+                            window.Show();
+                            var handle = new System.Windows.Interop.WindowInteropHelper(window).Handle;
 
-                    // DWMWA_CLOAKED: shown, but not drawn by WPF yet, so not on the screen (no white window for a moment)
-                    Assert.Equal(0, DwmGetWindowAttribute(handle, 14, out int cloakedBeforeRender, sizeof(int)));
-                    Assert.NotEqual(0, cloakedBeforeRender);
+                            // DWMWA_CLOAKED right after showing: with the frame of Windows the window waits until WPF drew it
+                            // (not white for a moment), with Greenshot's own title bar it doesn't need to wait
+                            Assert.Equal(0, DwmGetWindowAttribute(handle, 14, out int cloakedBeforeRender, sizeof(int)));
+                            Assert.Equal(tm.UseSystemTitleBar, cloakedBeforeRender != 0);
 
-                    WaitForIdle();
-                    Assert.True(rendered);
-                    Assert.Equal(0, DwmGetWindowAttribute(handle, 14, out int cloakedAfterRender, sizeof(int)));
-                    Assert.Equal(0, cloakedAfterRender);
+                            WaitForIdle();
+                            Assert.True(rendered);
+                            Assert.Equal(0, DwmGetWindowAttribute(handle, 14, out int cloakedAfterRender, sizeof(int)));
+                            Assert.Equal(0, cloakedAfterRender);
+                        }
+                        finally
+                        {
+                            window.Close();
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -717,7 +731,7 @@ namespace Greenshot.Tests.Forms
                 }
                 finally
                 {
-                    window?.Close();
+                    tm.Theme = previousTheme;
                 }
             });
             thread.SetApartmentState(ApartmentState.STA);

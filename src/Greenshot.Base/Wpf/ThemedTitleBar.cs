@@ -251,8 +251,12 @@ namespace Greenshot.Base.Wpf
             {
                 // The title bar of Windows in the colors of the theme before the window shows, not only when it's loaded: no light flash
                 WindowFrameTheme.Attach(window);
-                // And not white for a moment before WPF drew it
-                WindowFrameTheme.CloakUntilRendered(window);
+                // With the frame of Windows the window is white for a moment before WPF drew it: hidden until then.
+                // Without it nothing shows in that moment, the window doesn't need to wait.
+                if (ThemeManager.Instance.UseSystemTitleBar && !window.AllowsTransparency)
+                {
+                    WindowFrameTheme.CloakUntilRendered(window);
+                }
                 UpdateMode();
             };
             DependencyPropertyDescriptor.FromProperty(Window.TitleProperty, typeof(Window)).AddValueChanged(window, (s, e) => UpdateTitle());
