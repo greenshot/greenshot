@@ -111,7 +111,6 @@ Root: HKCU; Subkey: Control Panel\Keyboard; ValueType: dword; ValueName: "PrintS
 
 [Run]
 Filename: "{app}\{#ExeName}.exe"; Description: "{cm:startgreenshot}"; Parameters: "{code:GetParamsForGS}"; WorkingDir: "{app}"; Flags: nowait postinstall runasoriginaluser; Check: NotAlreadyRestarted
-Filename: "https://getgreenshot.org/thank-you/?language={language}&version={#Version}"; Flags: shellexec runasoriginaluser
 
 [CustomMessages]
 default=Default installation

@@ -291,6 +291,9 @@ namespace Greenshot.Shell
                 ApplicationStartupHelper.FirstLaunch();
             }
 
+            // The thank-you page of the website, once per user for every new version
+            WebsiteAfterUpdate.ShowIfNewVersion();
+
             if (startupCommand != null)
             {
                 // The command Greenshot was started with takes the same way as one from greenshot-cli.exe, now that the pipe server listens
