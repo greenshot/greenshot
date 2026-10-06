@@ -30,6 +30,7 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
+using Greenshot.Editor.Helpers;
 
 namespace Greenshot.Editor.Drawing
 {
@@ -141,7 +142,7 @@ namespace Greenshot.Editor.Drawing
             {
                 using var path = new GraphicsPath();
                 path.AddLines(firstEdge);
-                path.AddLines(secondEdge.Reverse().ToArray());
+                path.AddLines(Enumerable.Reverse(secondEdge).ToArray());
                 path.CloseFigure();
                 using Brush brush = new SolidBrush(fillColor);
                 graphics.FillPath(brush, path);

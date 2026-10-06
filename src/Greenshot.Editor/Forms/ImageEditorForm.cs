@@ -2044,7 +2044,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             using (var path = new GraphicsPath())
             {
                 path.AddLines(firstEdge);
-                path.AddLines(secondEdge.Reverse().ToArray());
+                path.AddLines(Enumerable.Reverse(secondEdge).ToArray());
                 path.CloseFigure();
                 graphics.FillPath(Brushes.White, path);
             }
