@@ -1502,35 +1502,102 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
-        /// Crop out the surface
-        /// Splits the image in 3 parts(top, middle, bottom). Crop out the middle and joins top and bottom. 
+        /// Where an element is, compared to a strip which is cut out
+        /// </summary>
+        public enum CutOutPlacement
+        {
+            /// <summary>
+            /// Above or left of the cut, it stays
+            /// </summary>
+            Before,
+            /// <summary>
+            /// Completely inside the cut, it is removed
+            /// </summary>
+            Inside,
+            /// <summary>
+            /// Below or right of the cut, it moves with the image
+            /// </summary>
+            After,
+            /// <summary>
+            /// Over an edge of the cut, it stays
+            /// </summary>
+            Across
+        }
+
+        /// <summary>
+        /// Find out where an element is, compared to the strip which is cut out
+        /// </summary>
+        /// <param name="bounds">NativeRect of the element</param>
+        /// <param name="cutStart">int first row / column which is cut out</param>
+        /// <param name="cutSize">int number of rows / columns which are cut out</param>
+        /// <param name="horizontal">true when rows are cut out (crop out horizontally), false for columns</param>
+        /// <returns>CutOutPlacement</returns>
+        public static CutOutPlacement GetCutOutPlacement(NativeRect bounds, int cutStart, int cutSize, bool horizontal)
+        {
+            bounds = bounds.Normalize();
+            int start = horizontal ? bounds.Top : bounds.Left;
+            int end = start + (horizontal ? bounds.Height : bounds.Width);
+            int cutEnd = cutStart + cutSize;
+            if (end <= cutStart)
+            {
+                return CutOutPlacement.Before;
+            }
+
+            if (start >= cutEnd)
+            {
+                return CutOutPlacement.After;
+            }
+
+            if (start >= cutStart && end <= cutEnd)
+            {
+                return CutOutPlacement.Inside;
+            }
+
+            return CutOutPlacement.Across;
+        }
+
+        /// <summary>
+        /// Crop out the surface: cut out the middle part and join the other two.
+        /// Elements after the cut move with the image, elements inside the cut are removed, all others stay where they are.
         /// </summary>
         /// <param name="cropRectangle">NativeRect of the middle part</param>
-        /// <returns>bool</returns>
-        private bool ApplyHorizontalCrop(NativeRect cropRectangle)
+        /// <param name="cropMode">CropModes.Horizontal to cut out rows, CropModes.Vertical to cut out columns</param>
+        /// <param name="cutMarkStyle">CutMarkStyle for the mark over the joint, None for a seamless join</param>
+        /// <returns>bool true if the image was changed</returns>
+        public bool ApplyCutOut(NativeRect cropRectangle, CropContainer.CropModes cropMode, CutMarkStyle cutMarkStyle = CutMarkStyle.None)
         {
-            if (!IsCropPossible(ref cropRectangle, CropContainer.CropModes.Horizontal)) return false;
+            if (cropMode != CropContainer.CropModes.Horizontal && cropMode != CropContainer.CropModes.Vertical)
+            {
+                throw new ArgumentOutOfRangeException(nameof(cropMode), cropMode, "Only horizontal and vertical can be cut out");
+            }
 
-            var imageRectangle = new NativeRect(NativePoint.Empty, Image.Size);
-            var topRectangle = new NativeRect(0, 0, Image.Size.Width, cropRectangle.Top);
-            var bottomRectangle = new NativeRect(0, cropRectangle.Top + cropRectangle.Height, Image.Size.Width, Image.Size.Height - cropRectangle.Top - cropRectangle.Height);
+            if (!IsCropPossible(ref cropRectangle, cropMode)) return false;
+
+            bool horizontal = cropMode == CropContainer.CropModes.Horizontal;
+            int cutStart = horizontal ? cropRectangle.Top : cropRectangle.Left;
+            int cutSize = horizontal ? cropRectangle.Height : cropRectangle.Width;
+            int imageLength = horizontal ? Image.Height : Image.Width;
+            int imageBreadth = horizontal ? Image.Width : Image.Height;
+
+            // The part before and after the cut, and where they go in the new image
+            NativeRect Part(int start, int length) => horizontal ? new NativeRect(0, start, imageBreadth, length) : new NativeRect(start, 0, length, imageBreadth);
+            var beforeRectangle = Part(0, cutStart);
+            var afterRectangle = Part(cutStart + cutSize, imageLength - cutStart - cutSize);
+            var afterTarget = Part(cutStart, imageLength - cutStart - cutSize);
 
             Bitmap newImage;
             try
             {
-                newImage = new Bitmap(Image.Size.Width, Image.Size.Height - cropRectangle.Height);
-
+                newImage = horizontal ? new Bitmap(Image.Width, Image.Height - cutSize) : new Bitmap(Image.Width - cutSize, Image.Height);
                 using var graphics = Graphics.FromImage(newImage);
-
-                var insertPositionTop = 0;
-                if (topRectangle.Height > 0)
+                if (cutStart > 0)
                 {
-                    graphics.DrawImage(Image, new NativeRect(0, insertPositionTop, topRectangle.Width, topRectangle.Height), topRectangle, GraphicsUnit.Pixel);
-                    insertPositionTop += topRectangle.Height;
+                    graphics.DrawImage(Image, beforeRectangle, beforeRectangle, GraphicsUnit.Pixel);
                 }
-                if (bottomRectangle.Height > 0)
+
+                if (imageLength - cutStart - cutSize > 0)
                 {
-                    graphics.DrawImage(Image, new NativeRect(0, insertPositionTop, bottomRectangle.Width, bottomRectangle.Height), bottomRectangle, GraphicsUnit.Pixel);
+                    graphics.DrawImage(Image, afterTarget, afterRectangle, GraphicsUnit.Pixel);
                 }
             }
             catch (Exception ex)
@@ -1541,80 +1608,87 @@ namespace Greenshot.Editor.Drawing
                 ex.Data.Add("Pixelformat", Image.PixelFormat);
                 throw;
             }
-            var matrix = new Matrix();
-            matrix.Translate(0, -(cropRectangle.Top + cropRectangle.Height), MatrixOrder.Append);
-            // Make undoable
-            MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
 
-            // Do not dispose otherwise we can't undo the image!
-            SetImage(newImage, false);
-
-            _elements.Transform(matrix);
-            if (_surfaceSizeChanged != null && !imageRectangle.Equals(new NativeRect(NativePoint.Empty, newImage.Size)))
+            var movedElements = new List<IDrawableContainer>();
+            var removedElements = new DrawableContainerList(ID);
+            foreach (var element in _elements)
             {
-                _surfaceSizeChanged(this, null);
+                switch (GetCutOutPlacement(element.Bounds, cutStart, cutSize, horizontal))
+                {
+                    case CutOutPlacement.After:
+                        movedElements.Add(element);
+                        break;
+                    case CutOutPlacement.Inside:
+                        removedElements.Add(element);
+                        break;
+                }
             }
 
-            Invalidate();
+            var addedElements = new DrawableContainerList(ID);
+            // Only a cut in the middle has a joint to mark
+            if (cutMarkStyle != CutMarkStyle.None && cutStart > 0 && cutStart + cutSize < imageLength)
+            {
+                // A band over the joint, over the whole image
+                int bandSize = Math.Min(CutMarkContainer.DefaultBandSize, horizontal ? newImage.Height : newImage.Width);
+                var cutMark = new CutMarkContainer(this)
+                {
+                    Left = horizontal ? 0 : cutStart - bandSize / 2,
+                    Top = horizontal ? cutStart - bandSize / 2 : 0,
+                    Width = horizontal ? newImage.Width : bandSize,
+                    Height = horizontal ? bandSize : newImage.Height
+                };
+                cutMark.SetFieldValue(FieldType.CUT_MARK_STYLE, cutMarkStyle);
+                addedElements.Add(cutMark);
+            }
+
+            var offset = horizontal ? new NativePoint(0, -cutSize) : new NativePoint(-cutSize, 0);
+            // Make undoable, the memento takes the current image
+            MakeUndoable(new SurfaceCutOutMemento(this, Image, movedElements, new NativePoint(-offset.X, -offset.Y), removedElements, addedElements), false);
+
+            // Do not dispose otherwise we can't undo the image!
+            ApplyCutOutState(newImage, movedElements, offset, addedElements, removedElements);
             return true;
         }
 
         /// <summary>
-        /// Crop out the surface
-        /// Splits the image in 3 parts(left, middle, right). Crop out the middle and joins top and bottom.
+        /// Change the image and elements for a crop out, or the undo / redo of it.
+        /// This is called from the SurfaceCutOutMemento.
         /// </summary>
-        /// <param name="cropRectangle">NativeRect of the middle part</param>
-        /// <returns>bool</returns>
-        private bool ApplyVerticalCrop(NativeRect cropRectangle)
+        /// <param name="image">Image the new image, the current one is not disposed</param>
+        /// <param name="movedElements">elements to move</param>
+        /// <param name="offset">NativePoint how far to move the elements</param>
+        /// <param name="elementsToAdd">elements to add</param>
+        /// <param name="elementsToRemove">elements to remove</param>
+        public void ApplyCutOutState(Image image, IEnumerable<IDrawableContainer> movedElements, NativePoint offset, IDrawableContainerList elementsToAdd, IDrawableContainerList elementsToRemove)
         {
-            if (!IsCropPossible(ref cropRectangle, CropContainer.CropModes.Vertical)) return false;
+            var imageSize = Image?.Size ?? Size.Empty;
+            SetImage(image, false);
 
-            var imageRectangle = new NativeRect(NativePoint.Empty, Image.Size);
-            var leftRectangle = new NativeRect(0, 0, cropRectangle.Left, Image.Size.Height);
-            var rightRectangle = new NativeRect(cropRectangle.Left + cropRectangle.Width, 0, Image.Size.Width - cropRectangle.Width - cropRectangle.Left, Image.Size.Height);
-            Bitmap newImage;
-            try
+            using (var matrix = new Matrix())
             {
-                newImage = new Bitmap(Image.Size.Width - cropRectangle.Width, Image.Size.Height);
-
-                using var graphics = Graphics.FromImage(newImage);
-
-                var insertPositionLeft = 0;
-                if (leftRectangle.Width > 0)
+                matrix.Translate(offset.X, offset.Y, MatrixOrder.Append);
+                foreach (var element in movedElements)
                 {
-                    graphics.DrawImage(Image, new NativeRect(insertPositionLeft, 0, leftRectangle.Width, leftRectangle.Height), leftRectangle , GraphicsUnit.Pixel);
-                    insertPositionLeft += leftRectangle.Width;
-                }
-                
-                if (rightRectangle.Width > 0)
-                {
-                    graphics.DrawImage(Image, new NativeRect(insertPositionLeft, 0, rightRectangle.Width, rightRectangle.Height), rightRectangle,  GraphicsUnit.Pixel);
+                    element.Transform(matrix);
                 }
             }
-            catch (Exception ex)
+
+            foreach (var element in elementsToRemove.ToList())
             {
-                ex.Data.Add("CropRectangle", cropRectangle);
-                ex.Data.Add("Width", Image.Width);
-                ex.Data.Add("Height", Image.Height);
-                ex.Data.Add("Pixelformat", Image.PixelFormat);
-                throw;
+                RemoveElement(element, false, false, false);
             }
-            var matrix = new Matrix();
-            matrix.Translate(-cropRectangle.Left - cropRectangle.Width, 0, MatrixOrder.Append);
-            // Make undoable
-            MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
 
-            // Do not dispose otherwise we can't undo the image!
-            SetImage(newImage, false);
+            foreach (var element in elementsToAdd)
+            {
+                AddElement(element, false, false);
+            }
 
-            _elements.Transform(matrix);
-            if (_surfaceSizeChanged != null && !imageRectangle.Equals(new NativeRect(NativePoint.Empty, newImage.Size)))
+            if (_surfaceSizeChanged != null && imageSize != image.Size)
             {
                 _surfaceSizeChanged(this, null);
             }
 
             Invalidate();
-            return true;
         }
 
         /// <summary>
@@ -2398,8 +2472,8 @@ namespace Greenshot.Editor.Drawing
 
                 _ = e.GetFieldValue(FieldType.CROPMODE) switch
                 {
-                    CropContainer.CropModes.Horizontal => ApplyHorizontalCrop(_cropContainer.Bounds),
-                    CropContainer.CropModes.Vertical => ApplyVerticalCrop(_cropContainer.Bounds),
+                    CropContainer.CropModes.Horizontal => ApplyCutOut(_cropContainer.Bounds, CropContainer.CropModes.Horizontal, GetCutMarkStyle(e)),
+                    CropContainer.CropModes.Vertical => ApplyCutOut(_cropContainer.Bounds, CropContainer.CropModes.Vertical, GetCutMarkStyle(e)),
                     _ => ApplyCrop(_cropContainer.Bounds)
                 };
 
@@ -2416,6 +2490,9 @@ namespace Greenshot.Editor.Drawing
             // maybe the undo button has to be enabled
             _movingElementChanged?.Invoke(this, new SurfaceElementEventArgs());
         }
+
+        private static CutMarkStyle GetCutMarkStyle(CropContainer cropContainer)
+            => cropContainer.GetFieldValue(FieldType.CUT_MARK_STYLE) is CutMarkStyle cutMarkStyle ? cutMarkStyle : CutMarkStyle.None;
 
         public void RemoveCropContainer()
         {

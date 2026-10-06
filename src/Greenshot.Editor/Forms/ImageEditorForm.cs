@@ -158,6 +158,14 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         }
 
         _surface.AdjustToDpi(DeviceDpi);
+        if (_fitToCaptureAfterDpiChange && WindowState == FormWindowState.Normal)
+        {
+            // Toolbar heights don't scale exactly with the DPI, fit the window to the capture once more
+            PerformLayout();
+            Size = GetOptimalWindowSize();
+        }
+
+        _fitToCaptureAfterDpiChange = false;
         AlignCanvasPositionAfterResize();
     }));
 }
@@ -234,11 +242,16 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             obfuscateModeButton.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "obfuscateModeButton.Image");
             pixelizeToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "pixelizeToolStripMenuItem.Image");
             blurToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "blurToolStripMenuItem.Image");
-            cropModeButton.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnCrop.Image");
-            defaultCropModeToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnCrop.Image");
-            verticalCropModeToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "CropVertical.Image");
-            horizontalCropModeToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "CropHorizontal.Image");
-            autoCropModeToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "AutoCrop.Image");
+            btnCropDefault.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnCrop.Image");
+            btnCropVertical.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "CropVertical.Image");
+            btnCropHorizontal.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "CropHorizontal.Image");
+            btnCropAuto.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "AutoCrop.Image");
+            foreach (ToolStripItem cutMarkItem in cutMarkStyleButton.DropDownItems)
+            {
+                cutMarkItem.Image = CreateCutMarkPreview((CutMarkStyle)cutMarkItem.Tag);
+            }
+            // The button shows the picture of the selected style
+            cutMarkStyleButton.Image = cutMarkNoneMenuItem.Image;
             highlightModeButton.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "highlightModeButton.Image");
             textHighlightMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "textHighlightMenuItem.Image");
             areaHighlightMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "areaHighlightMenuItem.Image");
@@ -1344,7 +1357,14 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                         BtnObfuscateClick(sender, e);
                         break;
                     case Keys.C:
-                        BtnCropClick(sender, e);
+                        if (_surface.DrawingMode == DrawingModes.Crop)
+                        {
+                            CycleCropMode();
+                        }
+                        else
+                        {
+                            BtnCropClick(sender, e);
+                        }
                         break;
                     case Keys.M:
                         BtnEmojiClick(sender, e);
@@ -1649,7 +1669,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             new BidirectionalBinding(previewQualityUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.PREVIEW_QUALITY), "Value",
                 DecimalDoublePercentageConverter.GetInstance(), NotNullValidator.GetInstance());
             new BidirectionalBinding(obfuscateModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.PREPARED_FILTER_OBFUSCATE), "Value");
-            new BidirectionalBinding(cropModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.CROPMODE), "Value");
+            new BidirectionalBinding(cutMarkStyleButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.CUT_MARK_STYLE), "Value");
             new BidirectionalBinding(highlightModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.PREPARED_FILTER_HIGHLIGHT), "Value");
             new BidirectionalBinding(arrowHeadsDropDownButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.ARROWHEADS), "Value",
                 NotNullValidator.GetInstance());
@@ -1692,7 +1712,17 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 btnConfirm.Enabled = _surface.HasSelectedElements;
 
                 obfuscateModeButton.Visible = props.HasFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE);
-                cropModeButton.Visible = props.HasFieldValue(FieldType.CROPMODE);
+                bool cropping = props.HasFieldValue(FieldType.CROPMODE);
+                var cropMode = cropping ? (CropContainer.CropModes)props.GetFieldValue(FieldType.CROPMODE) : CropContainer.CropModes.Default;
+                foreach (var cropModeButton in new[] { btnCropDefault, btnCropVertical, btnCropHorizontal, btnCropAuto })
+                {
+                    cropModeButton.Visible = cropping;
+                    cropModeButton.Checked = cropping && Equals(cropModeButton.Tag, cropMode);
+                }
+
+                // The cut mark is for crop out only, or a selected cut mark
+                cutMarkStyleButton.Visible = props.HasFieldValue(FieldType.CUT_MARK_STYLE)
+                                             && (!cropping || cropMode == CropContainer.CropModes.Horizontal || cropMode == CropContainer.CropModes.Vertical);
                 highlightModeButton.Visible = props.HasFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT);
             }
             else
@@ -1974,9 +2004,60 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             Invalidate(true);
         }
 
-        protected void CropStyleDropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        private void CropModeButtonClick(object sender, EventArgs e)
         {
-            InitCropMode((CropContainer.CropModes)e.ClickedItem.Tag);
+            SelectCropMode((CropContainer.CropModes)((ToolStripItem)sender).Tag);
+        }
+
+        /// <summary>
+        /// Pressing C again while cropping goes to the next crop mode
+        /// </summary>
+        private void CycleCropMode()
+        {
+            var cropMode = (CropContainer.CropModes)_surface.FieldAggregator.GetField(FieldType.CROPMODE).Value;
+            SelectCropMode(cropMode switch
+            {
+                CropContainer.CropModes.Default => CropContainer.CropModes.Vertical,
+                CropContainer.CropModes.Vertical => CropContainer.CropModes.Horizontal,
+                CropContainer.CropModes.Horizontal => CropContainer.CropModes.AutoCrop,
+                _ => CropContainer.CropModes.Default
+            });
+        }
+
+        /// <summary>
+        /// A small picture of the cut mark style for the drop-down: two image parts with the mark between them
+        /// </summary>
+        private static Bitmap CreateCutMarkPreview(CutMarkStyle cutMarkStyle)
+        {
+            const int size = 16;
+            var preview = new Bitmap(size, size, PixelFormat.Format32bppArgb);
+            using var graphics = Graphics.FromImage(preview);
+            graphics.SmoothingMode = SmoothingMode.HighQuality;
+            using var imageBrush = new SolidBrush(Color.SteelBlue);
+            graphics.FillRectangle(imageBrush, 1, 1, size - 2, size - 2);
+            if (cutMarkStyle == CutMarkStyle.None)
+            {
+                return preview;
+            }
+
+            CutMarkContainer.CreateEdges(cutMarkStyle, new NativeRect(0, 3, size, size - 6), 4, out var firstEdge, out var secondEdge);
+            using (var path = new GraphicsPath())
+            {
+                path.AddLines(firstEdge);
+                path.AddLines(secondEdge.Reverse().ToArray());
+                path.CloseFigure();
+                graphics.FillPath(Brushes.White, path);
+            }
+
+            graphics.DrawLines(Pens.DimGray, firstEdge);
+            graphics.DrawLines(Pens.DimGray, secondEdge);
+            return preview;
+        }
+
+        private void SelectCropMode(CropContainer.CropModes cropMode)
+        {
+            _surface.FieldAggregator.GetField(FieldType.CROPMODE).Value = cropMode;
+            InitCropMode(cropMode);
 
             RefreshFieldControls();
             Invalidate(true);
@@ -1996,7 +2077,6 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                     //not AutoCrop possible automatic switch to default crop mode
                     _surface.DrawingMode = DrawingModes.Crop;
                     _surface.FieldAggregator.GetField(FieldType.CROPMODE).Value = CropContainer.CropModes.Default;
-                    this.cropModeButton.SelectedTag = CropContainer.CropModes.Default;
                     this.statusLabel.Text = Texts.Editor.AutocropNotPossible;
                 }
             }
@@ -2544,8 +2624,50 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             return false;
         }
 
+        /// <summary>
+        /// Sent before WM_DPICHANGED, the window can choose its own size for the new DPI
+        /// </summary>
+        private const int WmGetDpiScaledSize = 0x02E4;
+
+        /// <summary>
+        /// Set when the window was fitted to the capture before a DPI change, so it is fitted again afterwards
+        /// </summary>
+        private bool _fitToCaptureAfterDpiChange;
+
+        /// <summary>
+        /// Windows scales the whole window on a DPI change, including the canvas area.
+        /// The capture keeps its size in pixels, so this would add empty space around it.
+        /// Scale only the toolbars, menus and borders, and keep the canvas area the same size in pixels.
+        /// </summary>
+        /// <param name="m">Message WM_GETDPISCALEDSIZE, wParam has the new DPI, lParam points to a SIZE to fill</param>
+        /// <returns>true if the size was set</returns>
+        private bool TryHandleGetDpiScaledSize(ref Message m)
+        {
+            int oldDpi = DeviceDpi;
+            int newDpi = (int)(m.WParam.ToInt64() & 0xFFFF);
+            if (WindowState != FormWindowState.Normal || oldDpi <= 0 || newDpi <= 0 || newDpi == oldDpi || m.LParam == IntPtr.Zero)
+            {
+                return false;
+            }
+
+            _fitToCaptureAfterDpiChange = Size == GetOptimalWindowSize();
+            var chromeSize = GetChromeSize();
+            var canvasAreaSize = panel1.ClientSize;
+            int width = (int)Math.Round(chromeSize.Width * (double)newDpi / oldDpi) + canvasAreaSize.Width;
+            int height = (int)Math.Round(chromeSize.Height * (double)newDpi / oldDpi) + canvasAreaSize.Height;
+            System.Runtime.InteropServices.Marshal.WriteInt32(m.LParam, 0, width);
+            System.Runtime.InteropServices.Marshal.WriteInt32(m.LParam, 4, height);
+            m.Result = new IntPtr(1);
+            return true;
+        }
+
         protected override void WndProc(ref Message m)
         {
+            if (m.Msg == WmGetDpiScaledSize && TryHandleGetDpiScaledSize(ref m))
+            {
+                return;
+            }
+
             if (!WndProcDefaults.TryHandleMessage(ref m))
             {
                 base.WndProc(ref m);
@@ -2678,11 +2800,16 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             this.obfuscateModeButton.Text = Texts.Editor.ObfuscateMode;
             this.pixelizeToolStripMenuItem.Text = Texts.Editor.ObfuscatePixelize;
             this.blurToolStripMenuItem.Text = Texts.Editor.ObfuscateBlur;
-            this.cropModeButton.Text = Texts.Editor.CropMode;
-            this.defaultCropModeToolStripMenuItem.Text = Texts.Editor.CropmodeDefault;
-            this.verticalCropModeToolStripMenuItem.Text = Texts.Editor.CropmodeVertical;
-            this.horizontalCropModeToolStripMenuItem.Text = Texts.Editor.CropmodeHorizontal;
-            this.autoCropModeToolStripMenuItem.Text = Texts.Editor.CropmodeAuto;
+            this.btnCropDefault.Text = Texts.Editor.CropmodeDefault;
+            this.btnCropVertical.Text = Texts.Editor.CropmodeVertical;
+            this.btnCropHorizontal.Text = Texts.Editor.CropmodeHorizontal;
+            this.btnCropAuto.Text = Texts.Editor.CropmodeAuto;
+            this.cutMarkStyleButton.Text = Texts.Editor.CutMark;
+            this.cutMarkNoneMenuItem.Text = Texts.Editor.CutMarkNone;
+            this.cutMarkLineMenuItem.Text = Texts.Editor.CutMarkLine;
+            this.cutMarkZigZagMenuItem.Text = Texts.Editor.CutMarkZigzag;
+            this.cutMarkWaveMenuItem.Text = Texts.Editor.CutMarkWave;
+            this.cutMarkTornMenuItem.Text = Texts.Editor.CutMarkTorn;
             this.highlightModeButton.Text = Texts.Editor.HighlightMode;
             this.textHighlightMenuItem.Text = Texts.Editor.HighlightText;
             this.areaHighlightMenuItem.Text = Texts.Editor.HighlightArea;

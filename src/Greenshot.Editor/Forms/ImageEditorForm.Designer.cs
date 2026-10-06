@@ -145,13 +145,18 @@ namespace Greenshot.Editor.Forms
 			this.btnHelp = new ToolStripButton();
 			this.propertiesToolStrip = new ToolStripEx();
 			this.obfuscateModeButton = new BindableToolStripDropDownButton();
-			this.cropModeButton = new BindableToolStripDropDownButton();
+			this.btnCropDefault = new ToolStripButton();
+			this.btnCropVertical = new ToolStripButton();
+			this.btnCropHorizontal = new ToolStripButton();
+			this.btnCropAuto = new ToolStripButton();
+			this.cutMarkStyleButton = new BindableToolStripDropDownButton();
 			this.pixelizeToolStripMenuItem = new ToolStripMenuItem();
 			this.blurToolStripMenuItem = new ToolStripMenuItem();
-			this.defaultCropModeToolStripMenuItem = new ToolStripMenuItem();
-			this.verticalCropModeToolStripMenuItem = new ToolStripMenuItem();
-			this.horizontalCropModeToolStripMenuItem = new ToolStripMenuItem();
-			this.autoCropModeToolStripMenuItem = new ToolStripMenuItem();
+			this.cutMarkNoneMenuItem = new ToolStripMenuItem();
+			this.cutMarkLineMenuItem = new ToolStripMenuItem();
+			this.cutMarkZigZagMenuItem = new ToolStripMenuItem();
+			this.cutMarkWaveMenuItem = new ToolStripMenuItem();
+			this.cutMarkTornMenuItem = new ToolStripMenuItem();
 			this.highlightModeButton = new BindableToolStripDropDownButton();
 			this.textHighlightMenuItem = new ToolStripMenuItem();
 			this.areaHighlightMenuItem = new ToolStripMenuItem();
@@ -999,7 +1004,11 @@ namespace Greenshot.Editor.Forms
 									this.toolStripSeparator10,
 									this.btnConfirm,
 									this.btnCancel,
-									this.cropModeButton,
+									this.btnCropDefault,
+									this.btnCropVertical,
+									this.btnCropHorizontal,
+									this.btnCropAuto,
+									this.cutMarkStyleButton,
 									this.counterLabel,
 									this.counterUpDown});
 			// 
@@ -1026,42 +1035,75 @@ namespace Greenshot.Editor.Forms
 			this.blurToolStripMenuItem.Tag = FilterContainer.PreparedFilter.BLUR;
 
 			// 
-			// cropModeButton
+			// btnCropDefault
 			// 
-			this.cropModeButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.cropModeButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-									this.defaultCropModeToolStripMenuItem,
-									this.verticalCropModeToolStripMenuItem,
-									this.horizontalCropModeToolStripMenuItem,
-									this.autoCropModeToolStripMenuItem});
-			this.cropModeButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.cropModeButton.Name = "cropModeButton";
-			this.cropModeButton.SelectedTag = CropContainer.CropModes.Default;
-			this.cropModeButton.Tag = CropContainer.CropModes.Default;
-            this.cropModeButton.DropDownItemClicked += CropStyleDropDownItemClicked;
+			this.btnCropDefault.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.btnCropDefault.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnCropDefault.Name = "btnCropDefault";
+			this.btnCropDefault.Tag = CropContainer.CropModes.Default;
+			this.btnCropDefault.Click += new System.EventHandler(this.CropModeButtonClick);
 			// 
-			// defaultCropStyleToolStripMenuItem
+			// btnCropVertical
 			// 
-			this.defaultCropModeToolStripMenuItem.Name = "defaultCropModeToolStripMenuItem";
-			this.defaultCropModeToolStripMenuItem.Tag = CropContainer.CropModes.Default;
-
+			this.btnCropVertical.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.btnCropVertical.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnCropVertical.Name = "btnCropVertical";
+			this.btnCropVertical.Tag = CropContainer.CropModes.Vertical;
+			this.btnCropVertical.Click += new System.EventHandler(this.CropModeButtonClick);
 			// 
-			// verticalCropStyleToolStripMenuItem
+			// btnCropHorizontal
 			// 
-			this.verticalCropModeToolStripMenuItem.Name = "verticalCropModeToolStripMenuItem";
-			this.verticalCropModeToolStripMenuItem.Tag = CropContainer.CropModes.Vertical;
-
+			this.btnCropHorizontal.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.btnCropHorizontal.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnCropHorizontal.Name = "btnCropHorizontal";
+			this.btnCropHorizontal.Tag = CropContainer.CropModes.Horizontal;
+			this.btnCropHorizontal.Click += new System.EventHandler(this.CropModeButtonClick);
 			// 
-			// horizontalCropStyleToolStripMenuItem
+			// btnCropAuto
 			// 
-			this.horizontalCropModeToolStripMenuItem.Name = "horizontalCropModeToolStripMenuItem";
-			this.horizontalCropModeToolStripMenuItem.Tag = CropContainer.CropModes.Horizontal;
-
+			this.btnCropAuto.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.btnCropAuto.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnCropAuto.Name = "btnCropAuto";
+			this.btnCropAuto.Tag = CropContainer.CropModes.AutoCrop;
+			this.btnCropAuto.Click += new System.EventHandler(this.CropModeButtonClick);
 			// 
-			// autoCropModeToolStripMenuItem
+			// cutMarkStyleButton
 			// 
-			this.autoCropModeToolStripMenuItem.Name = "autoCropModeToolStripMenuItem";
-			this.autoCropModeToolStripMenuItem.Tag = CropContainer.CropModes.AutoCrop;
+			this.cutMarkStyleButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.cutMarkStyleButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+									this.cutMarkNoneMenuItem,
+									this.cutMarkLineMenuItem,
+									this.cutMarkZigZagMenuItem,
+									this.cutMarkWaveMenuItem,
+									this.cutMarkTornMenuItem});
+			this.cutMarkStyleButton.Name = "cutMarkStyleButton";
+			this.cutMarkStyleButton.SelectedTag = CutMarkStyle.None;
+			this.cutMarkStyleButton.Tag = CutMarkStyle.None;
+			// 
+			// cutMarkNoneMenuItem
+			// 
+			this.cutMarkNoneMenuItem.Name = "cutMarkNoneMenuItem";
+			this.cutMarkNoneMenuItem.Tag = CutMarkStyle.None;
+			// 
+			// cutMarkLineMenuItem
+			// 
+			this.cutMarkLineMenuItem.Name = "cutMarkLineMenuItem";
+			this.cutMarkLineMenuItem.Tag = CutMarkStyle.Line;
+			// 
+			// cutMarkZigZagMenuItem
+			// 
+			this.cutMarkZigZagMenuItem.Name = "cutMarkZigZagMenuItem";
+			this.cutMarkZigZagMenuItem.Tag = CutMarkStyle.ZigZag;
+			// 
+			// cutMarkWaveMenuItem
+			// 
+			this.cutMarkWaveMenuItem.Name = "cutMarkWaveMenuItem";
+			this.cutMarkWaveMenuItem.Tag = CutMarkStyle.Wave;
+			// 
+			// cutMarkTornMenuItem
+			// 
+			this.cutMarkTornMenuItem.Name = "cutMarkTornMenuItem";
+			this.cutMarkTornMenuItem.Tag = CutMarkStyle.Torn;
 
 			// 
 			// highlightModeButton
@@ -1776,11 +1818,16 @@ namespace Greenshot.Editor.Forms
 		private BindableToolStripButton btnConfirm;
 		private ToolStripMenuItem selectAllToolStripMenuItem;
 		private BindableToolStripDropDownButton highlightModeButton;
-		private BindableToolStripDropDownButton cropModeButton;
-		private ToolStripMenuItem defaultCropModeToolStripMenuItem;
-		private ToolStripMenuItem verticalCropModeToolStripMenuItem;
-		private ToolStripMenuItem horizontalCropModeToolStripMenuItem;
-		private ToolStripMenuItem autoCropModeToolStripMenuItem;
+		private ToolStripButton btnCropDefault;
+		private ToolStripButton btnCropVertical;
+		private ToolStripButton btnCropHorizontal;
+		private ToolStripButton btnCropAuto;
+		private BindableToolStripDropDownButton cutMarkStyleButton;
+		private ToolStripMenuItem cutMarkNoneMenuItem;
+		private ToolStripMenuItem cutMarkLineMenuItem;
+		private ToolStripMenuItem cutMarkZigZagMenuItem;
+		private ToolStripMenuItem cutMarkWaveMenuItem;
+		private ToolStripMenuItem cutMarkTornMenuItem;
 		private ToolStripMenuItem pixelizeToolStripMenuItem;
 		private ToolStripMenuItem blurToolStripMenuItem;
 		private BindableToolStripDropDownButton obfuscateModeButton;
