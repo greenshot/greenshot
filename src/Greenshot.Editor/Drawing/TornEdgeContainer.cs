@@ -164,7 +164,7 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         public void NewSeed()
         {
-            _seed = new Random().Next(1, int.MaxValue);
+            _seed = CutOutHelper.NewSeed(_seed);
             ClearShadowCache();
             Invalidate();
         }

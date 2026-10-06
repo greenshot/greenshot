@@ -189,7 +189,7 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         public void NewSeed()
         {
-            SetSeed(new Random().Next(1, int.MaxValue));
+            SetSeed(CutOutHelper.NewSeed(_seed));
         }
 
         /// <summary>

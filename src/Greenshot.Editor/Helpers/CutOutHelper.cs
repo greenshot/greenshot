@@ -33,6 +33,28 @@ namespace Greenshot.Editor.Helpers
     /// </summary>
     public static class CutOutHelper
     {
+        // One instance, new Random() on .NET Framework uses the tick count and gives the same value within a few ms
+        private static readonly Random SeedRandom = new Random();
+
+        /// <summary>
+        /// A new seed for random edges, different from the current one
+        /// </summary>
+        /// <param name="currentSeed">int the seed which is used now</param>
+        /// <returns>int</returns>
+        public static int NewSeed(int currentSeed)
+        {
+            lock (SeedRandom)
+            {
+                int seed;
+                do
+                {
+                    seed = SeedRandom.Next(1, int.MaxValue);
+                } while (seed == currentSeed);
+
+                return seed;
+            }
+        }
+
         /// <summary>
         /// Cut out a strip of the image and join the parts before and after it seamlessly
         /// </summary>
