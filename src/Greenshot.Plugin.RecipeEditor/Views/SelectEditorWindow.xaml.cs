@@ -24,11 +24,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Greenshot.Base.Interfaces.Forms;
@@ -142,20 +140,6 @@ namespace Greenshot.Plugin.RecipeEditor.Views
             }
         }
 
-        private void OnTitleBarMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ChangedButton == MouseButton.Left)
-            {
-                DragMove();
-            }
-        }
-
-        private void OnCloseTitleBarClicked(object sender, RoutedEventArgs e)
-        {
-            DialogResult = false;
-            Close();
-        }
-
         private void EditorListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             UpdatePreview();
@@ -215,26 +199,8 @@ namespace Greenshot.Plugin.RecipeEditor.Views
 
         private void ApplyImmersiveDarkMode()
         {
-            try
-            {
-                var helper = new WindowInteropHelper(this);
-                if (helper.Handle != IntPtr.Zero)
-                {
-                    int useImmersiveDarkMode = WpfThemeHelper.IsDarkMode ? 1 : 0;
-                    int hr = DwmSetWindowAttribute(helper.Handle, 20, ref useImmersiveDarkMode, sizeof(int));
-                    if (hr != 0)
-                    {
-                        DwmSetWindowAttribute(helper.Handle, 19, ref useImmersiveDarkMode, sizeof(int));
-                    }
-                }
-            }
-            catch
-            {
-                // Silently ignore if DWM call is unsupported
-            }
+            // The title bar in the colors of the theme, it follows theme changes from now on
+            WindowFrameTheme.Attach(this);
         }
-
-        [DllImport("dwmapi.dll", PreserveSig = true)]
-        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
     }
 }

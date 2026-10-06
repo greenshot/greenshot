@@ -13,15 +13,6 @@
         WindowStyle="None"
         AllowsTransparency="False">
     
-    <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="36"
-                      CornerRadius="0"
-                      GlassFrameThickness="0"
-                      NonClientFrameEdges="None"
-                      ResizeBorderThickness="5"
-                      UseAeroCaptionButtons="False"/>
-    </WindowChrome.WindowChrome>
-    
     <Window.Resources>
         <wpf:ExpertVisibilityConverter x:Key="ExpertVisibilityConverter"/>
         <wpf:FixedToEnabledConverter x:Key="FixedToEnabledConverter"/>
@@ -336,42 +327,52 @@
             <Setter Property="Margin" Value="6,3"/>
         </Style>
         
-        <!-- Title Bar Button Style -->
-        <Style x:Key="TitleBarButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
+        <!-- A group which opens and closes with its header, the arrow follows the theme -->
+        <Style x:Key="SettingsGroupExpanderStyle" TargetType="Expander">
             <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Width" Value="46"/>
-            <Setter Property="Height" Value="36"/>
-            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="IsExpanded" Value="False"/>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" BorderThickness="0">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
+                    <ControlTemplate TargetType="Expander">
+                        <DockPanel>
+                            <ToggleButton DockPanel.Dock="Top"
+                                          Content="{TemplateBinding Header}"
+                                          Foreground="{TemplateBinding Foreground}"
+                                          IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                          Cursor="Hand">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="HeaderBorder" Background="Transparent" CornerRadius="3" Padding="2,4">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Path x:Name="Arrow" Data="M 0,0 L 4,4 L 0,8" Stroke="{TemplateBinding Foreground}" StrokeThickness="1.5"
+                                                      VerticalAlignment="Center" Margin="2,0,8,0" RenderTransformOrigin="0.5,0.5">
+                                                    <Path.RenderTransform>
+                                                        <RotateTransform Angle="0"/>
+                                                    </Path.RenderTransform>
+                                                </Path>
+                                                <ContentPresenter VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsChecked" Value="True">
+                                                <Setter TargetName="Arrow" Property="RenderTransform">
+                                                    <Setter.Value>
+                                                        <RotateTransform Angle="90"/>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Trigger>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="HeaderBorder" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <ContentPresenter x:Name="ExpandSite" Visibility="Collapsed"/>
+                        </DockPanel>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        
-        <!-- Title Bar Close Button Style -->
-        <Style x:Key="TitleBarCloseButtonStyle" TargetType="Button" BasedOn="{StaticResource TitleBarButtonStyle}">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" BorderThickness="0">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#E81123"/>
-                                <Setter Property="Foreground" Value="White"/>
+                            <Trigger Property="IsExpanded" Value="True">
+                                <Setter TargetName="ExpandSite" Property="Visibility" Value="Visible"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -382,55 +383,11 @@
     
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="36"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
-        <!-- Custom Title Bar -->
-        <Grid Grid.Row="0" 
-              Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TitleBarBrush}"
-              MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="36"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            
-            <!-- Window Icon -->
-            <Image Grid.Column="0" 
-                   Source="{Binding WindowIcon}"
-                   Width="16" Height="16"
-                   Margin="10,0,0,0"
-                   VerticalAlignment="Center"
-                   WindowChrome.IsHitTestVisibleInChrome="False"/>
-            
-            <!-- Window Title -->
-            <TextBlock Grid.Column="1"
-                       Text="{wpf:Text Settings.Title}"
-                       Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
-                       VerticalAlignment="Center"
-                       Margin="8,0,0,0"
-                       FontSize="13"
-                       WindowChrome.IsHitTestVisibleInChrome="False"/>
-            
-            <!-- Window Controls -->
-            <StackPanel Grid.Column="2" 
-                        Orientation="Horizontal"
-                        WindowChrome.IsHitTestVisibleInChrome="True">
-                <Button Content="{Binding ThemeToggleIcon}" 
-                        Click="ThemeToggle_Click"
-                        Style="{StaticResource TitleBarButtonStyle}"
-                        ToolTip="{Binding ThemeToggleToolTip}"/>
-                <Button Content="🗕" 
-                        Click="MinimizeButton_Click"
-                        Style="{StaticResource TitleBarButtonStyle}"
-                        ToolTip="Minimize"/>
-                <Button Content="✕" 
-                        Click="CloseButton_Click"
-                        Style="{StaticResource TitleBarCloseButtonStyle}"
-                        ToolTip="Close"/>
-            </StackPanel>
-        </Grid>
+        <wpf:ThemedTitleBar Grid.Row="0" ShowThemeToggle="True"/>
         
     <Grid Grid.Row="1" Margin="12">
         <Grid.RowDefinitions>
@@ -459,6 +416,20 @@
                                               SelectedValuePath="Ietf"
                                               SelectedValue="{Binding SelectedLanguage, Mode=TwoWay}"
                                               IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=Language}"/>
+                                </Grid>
+
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Content="{wpf:Text Settings.Theme}"/>
+                                    <ComboBox Grid.Column="1"
+                                              ItemsSource="{Binding Themes}"
+                                              DisplayMemberPath="DisplayName"
+                                              SelectedValuePath="Theme"
+                                              SelectedValue="{Binding SelectedTheme, Mode=TwoWay}"
+                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=Theme}"/>
                                 </Grid>
                                 
                                 <Grid Margin="0,5">
@@ -1079,15 +1050,109 @@
                                     </CheckBox.IsEnabled>
                                 </CheckBox>
                                 
-                                <CheckBox Content="{wpf:Text Settings.ExpertMinimizememoryfootprint}"
-                                          IsChecked="{Binding CoreConfiguration.MinimizeWorkingSetSize, Mode=TwoWay}">
+                                <!-- What a screenshot contains (HDR, covered windows), so no part of the memory profiles -->
+                                <CheckBox Content="{wpf:Text Settings.ExpertGraphicscapture}"
+                                          IsChecked="{Binding CoreConfiguration.UseGraphicsCapture, Mode=TwoWay}">
                                     <CheckBox.IsEnabled>
-                                        <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="MinimizeWorkingSetSize">
+                                        <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="UseGraphicsCapture">
                                             <Binding Path="ExpertModeEnabled"/>
                                             <Binding Path="CoreConfiguration"/>
                                         </MultiBinding>
                                     </CheckBox.IsEnabled>
                                 </CheckBox>
+
+                                <!-- Memory and speed, collapsed: the header shows the profile the settings match. The profile sets the settings, which can also be changed one by one -->
+                                <Expander Margin="0,8,0,5" Style="{StaticResource SettingsGroupExpanderStyle}">
+                                    <Expander.Header>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{wpf:Text Settings.MemoryProfile}" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding SelectedMemoryProfileName}" Margin="8,0,0,0"
+                                                       Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                        </StackPanel>
+                                    </Expander.Header>
+                                    <StackPanel Margin="18,4,0,0">
+                                        <!-- The profile; the header of the group already names it -->
+                                        <ComboBox Margin="0,0,0,5"
+                                                  ItemsSource="{Binding MemoryProfileOptions}"
+                                                  DisplayMemberPath="DisplayName"
+                                                  SelectedValuePath="Profile"
+                                                  SelectedValue="{Binding SelectedMemoryProfile, Mode=TwoWay}"
+                                                  ToolTip="{wpf:Text Settings.TooltipMemoryProfile}"/>
+
+                                        <CheckBox Content="{wpf:Text Settings.ExpertHardwarerendering}"
+                                                  IsChecked="{Binding CoreConfiguration.HardwareRendering, Mode=TwoWay}">
+                                            <CheckBox.IsEnabled>
+                                                <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="HardwareRendering">
+                                                    <Binding Path="ExpertModeEnabled"/>
+                                                    <Binding Path="CoreConfiguration"/>
+                                                </MultiBinding>
+                                            </CheckBox.IsEnabled>
+                                        </CheckBox>
+
+                                        <CheckBox Content="{wpf:Text Settings.ExpertKeepgraphicscaptureready}"
+                                                  IsChecked="{Binding CoreConfiguration.KeepGraphicsCaptureReady, Mode=TwoWay}">
+                                            <CheckBox.IsEnabled>
+                                                <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="KeepGraphicsCaptureReady">
+                                                    <Binding Path="ExpertModeEnabled"/>
+                                                    <Binding Path="CoreConfiguration"/>
+                                                </MultiBinding>
+                                            </CheckBox.IsEnabled>
+                                        </CheckBox>
+
+                                        <CheckBox Content="{wpf:Text Settings.ExpertPrewarmcapture}"
+                                                  IsChecked="{Binding CoreConfiguration.PrewarmCapture, Mode=TwoWay}">
+                                            <CheckBox.IsEnabled>
+                                                <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="PrewarmCapture">
+                                                    <Binding Path="ExpertModeEnabled"/>
+                                                    <Binding Path="CoreConfiguration"/>
+                                                </MultiBinding>
+                                            </CheckBox.IsEnabled>
+                                        </CheckBox>
+
+                                        <CheckBox Content="{wpf:Text Settings.ExpertPrewarmeditor}"
+                                                  IsChecked="{Binding CoreConfiguration.PrewarmEditor, Mode=TwoWay}">
+                                            <CheckBox.IsEnabled>
+                                                <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="PrewarmEditor">
+                                                    <Binding Path="ExpertModeEnabled"/>
+                                                    <Binding Path="CoreConfiguration"/>
+                                                </MultiBinding>
+                                            </CheckBox.IsEnabled>
+                                        </CheckBox>
+
+                                        <Grid Margin="0,5">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{wpf:Text Settings.ExpertBufferpoollimit}"
+                                                       TextWrapping="Wrap"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                            <TextBox Grid.Column="1"
+                                                     HorizontalAlignment="Right"
+                                                     Width="70"
+                                                     TextAlignment="Right"
+                                                     Text="{Binding CoreConfiguration.BufferPoolLimit, Mode=TwoWay}">
+                                                <TextBox.IsEnabled>
+                                                    <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="BufferPoolLimit">
+                                                        <Binding Path="ExpertModeEnabled"/>
+                                                        <Binding Path="CoreConfiguration"/>
+                                                    </MultiBinding>
+                                                </TextBox.IsEnabled>
+                                            </TextBox>
+                                        </Grid>
+
+                                        <CheckBox Content="{wpf:Text Settings.ExpertMinimizememoryfootprint}"
+                                                  IsChecked="{Binding CoreConfiguration.MinimizeWorkingSetSize, Mode=TwoWay}">
+                                            <CheckBox.IsEnabled>
+                                                <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="MinimizeWorkingSetSize">
+                                                    <Binding Path="ExpertModeEnabled"/>
+                                                    <Binding Path="CoreConfiguration"/>
+                                                </MultiBinding>
+                                            </CheckBox.IsEnabled>
+                                        </CheckBox>
+                                    </StackPanel>
+                                </Expander>
 
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>

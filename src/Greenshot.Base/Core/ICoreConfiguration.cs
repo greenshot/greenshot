@@ -265,9 +265,33 @@ namespace Greenshot.Base.Core
         [DefaultValue(false)]
         bool DisableRDPOptimizing { get; set; }
 
-        [Description("Optimize memory footprint, but with a performance penalty!")]
+        [Description("Give the unused memory back to Windows after the start, after each capture and when an editor closes. It's paged in again when it's used, which makes that use a little slower.")]
         [DefaultValue(false)]
         bool MinimizeWorkingSetSize { get; set; }
+
+        [Description("Draw Greenshot's windows with the graphics card (WPF hardware rendering). False saves the memory of the graphics driver (about 45 MB) but costs CPU, e.g. in the capture window. Takes effect after a restart.")]
+        [DefaultValue(true)]
+        bool HardwareRendering { get; set; }
+
+        [Description("Take screenshots with Windows Graphics Capture (DirectX, needed for HDR screens). False uses the GDI capture only, without a DirectX device. Video recording always uses Windows Graphics Capture.")]
+        [DefaultValue(true)]
+        bool UseGraphicsCapture { get; set; }
+
+        [Description("Create the DirectX device for the screenshots at the start and keep it, which makes every capture about 200 ms faster. False creates it for each capture and releases it afterwards (about 15-30 MB less while idle).")]
+        [DefaultValue(true)]
+        bool KeepGraphicsCaptureReady { get; set; }
+
+        [Description("Prepare the interactive capture in the background after the start, so the first capture opens faster.")]
+        [DefaultValue(true)]
+        bool PrewarmCapture { get; set; }
+
+        [Description("Prepare the editor in the background after the start (code, emoji font, installed fonts), so the first editor opens faster. False keeps this memory free until the first editor opens.")]
+        [DefaultValue(true)]
+        bool PrewarmEditor { get; set; }
+
+        [Description("The most memory in MB which the reusable buffer pools keep when they're not in use (each, for small blocks and for large buffers). 0 means no limit, otherwise 4 to 1024. Takes effect after a restart.")]
+        [DefaultValue(0)]
+        int BufferPoolLimit { get; set; }
 
         [Description("Log when the UI thread doesn't respond for more than 250 ms (diagnostics, always active in debug builds).")]
         [DefaultValue(false)]
@@ -364,6 +388,10 @@ namespace Greenshot.Base.Core
         [Description("Defines the base size of the icons (e.g. for the buttons in the editor), default value 16,16 and it's scaled to the current DPI")]
         [DefaultValue("16,16")]
         NativeSize IconSize { get; set; }
+
+        [Description("The colors of Greenshot's windows and menus: System (follow the Windows settings), Light or Dark. A high contrast theme of Windows always wins.")]
+        [DefaultValue("System")]
+        UiTheme Theme { get; set; }
 
         [Description("The connect timeout value for web requests, these are seconds")]
         [DefaultValue(10)]

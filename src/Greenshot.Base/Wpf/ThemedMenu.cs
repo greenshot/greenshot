@@ -67,12 +67,34 @@ namespace Greenshot.Base.Wpf
         /// <summary>
         /// A new, empty, themed context menu
         /// </summary>
-        public static ContextMenu CreateContextMenu()
+        /// <param name="followTaskbar">True for the tray menu: it has the light or dark mode of the taskbar (the Windows mode),
+        /// which can differ from the one of apps. False for menus of Greenshot's windows.</param>
+        public static ContextMenu CreateContextMenu(bool followTaskbar = false)
         {
-            return new ContextMenu
-            {
-                Style = (Style)Styles["GreenshotContextMenuStyle"]
-            };
+            var menu = new ContextMenu();
+            var themeManager = ThemeManager.Instance;
+            ApplyPalette(menu, followTaskbar ? themeManager.TaskbarPalette : themeManager.CurrentPalette);
+            menu.Style = (Style)Styles["GreenshotContextMenuStyle"];
+            return menu;
+        }
+
+        /// <summary>
+        /// The brushes the menu styles use, as resources of the menu: the sub menus find them there too
+        /// </summary>
+        private static void ApplyPalette(ContextMenu menu, ThemePalette palette)
+        {
+            menu.Resources["GreenshotMenu.Foreground"] = palette.ForegroundBrush;
+            menu.Resources["GreenshotMenu.Background"] = palette.GroupBoxBrush;
+            menu.Resources["GreenshotMenu.Border"] = palette.BorderBrush;
+            menu.Resources["GreenshotMenu.CheckBackground"] = palette.ButtonPressedBrush;
+            menu.Resources["GreenshotMenu.Accent"] = palette.AccentBrush;
+            menu.Resources["GreenshotMenu.Muted"] = palette.MutedBrush;
+            menu.Resources["GreenshotMenu.Hover"] = palette.ButtonHoverBrush;
+            menu.Resources["GreenshotMenu.HoverForeground"] = palette.HighlightForegroundBrush;
+            // The radius of the menus of Windows 11, the smaller one before
+            bool rounded = WindowFrameTheme.HasRoundedCorners;
+            menu.Resources["GreenshotMenu.CornerRadius"] = new CornerRadius(rounded ? 8 : 4);
+            menu.Resources["GreenshotMenu.ItemCornerRadius"] = new CornerRadius(rounded ? 4 : 3);
         }
 
         /// <summary>
@@ -80,7 +102,7 @@ namespace Greenshot.Base.Wpf
         /// </summary>
         /// <param name="text">The text, shown as is (an underscore is no access key)</param>
         /// <param name="icon">The icon or null</param>
-        /// <param name="onClick">Called when the item itself (not a sub item) is clicked, can be null</param>
+        /// <param name="onClick">Called when the item itself (not a sub item) is clicked and the menu is gone, can be null</param>
         public static MenuItem CreateItem(string text, ImageSource icon = null, Action onClick = null)
         {
             var item = new MenuItem
@@ -103,18 +125,51 @@ namespace Greenshot.Base.Wpf
                         return;
                     }
 
-                    try
+                    void Run()
                     {
-                        onClick();
+                        try
+                        {
+                            onClick();
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Error($"Error in the menu action of '{text}'", ex);
+                        }
                     }
-                    catch (Exception ex)
+
+                    var menu = FindContextMenu(item);
+                    if (item.StaysOpenOnClick || menu == null || PresentationSource.FromVisual(menu) == null)
                     {
-                        Log.Error($"Error in the menu action of '{text}'", ex);
+                        Run();
+                        return;
                     }
+
+                    // The menu is closed, but its window stays while it fades out, and it is the active window (see ShowAtCursor).
+                    // A dialog the action shows (e.g. Save as) would belong to it and close with it: the action runs when it's gone.
+                    void OnClosed(object closedSender, RoutedEventArgs closedArgs)
+                    {
+                        menu.Closed -= OnClosed;
+                        Run();
+                    }
+
+                    menu.Closed += OnClosed;
                 };
             }
 
             return item;
+        }
+
+        /// <summary>
+        /// The context menu the item is in, also for an item of a sub menu
+        /// </summary>
+        private static ContextMenu FindContextMenu(DependencyObject element)
+        {
+            while (element != null && !(element is ContextMenu))
+            {
+                element = LogicalTreeHelper.GetParent(element);
+            }
+
+            return element as ContextMenu;
         }
 
         /// <summary>
@@ -245,13 +300,28 @@ namespace Greenshot.Base.Wpf
             menu.Placement = PlacementMode.MousePoint;
             menu.IsOpen = true;
 
-            // A menu of a process without a foreground window wouldn't get the keyboard and wouldn't close on a click elsewhere
-            if (PresentationSource.FromVisual(menu) is HwndSource source)
+            // A menu of a process without a foreground window wouldn't get the keyboard and wouldn't close on a click elsewhere.
+            // Not when a Greenshot window is in the foreground already: it would be deactivated, WPF takes the keyboard focus away
+            // from the menu with it, and the menu closes right away.
+            if (PresentationSource.FromVisual(menu) is HwndSource source && !IsForegroundWindowOfThisProcess())
             {
                 User32Api.SetForegroundWindow(source.Handle);
             }
 
             menu.Focus();
+        }
+
+        private static bool IsForegroundWindowOfThisProcess()
+        {
+            var foregroundWindow = User32Api.GetForegroundWindow();
+            if (foregroundWindow == IntPtr.Zero)
+            {
+                return false;
+            }
+
+            User32Api.GetWindowThreadProcessId(foregroundWindow, out var processId);
+            using var currentProcess = System.Diagnostics.Process.GetCurrentProcess();
+            return processId == currentProcess.Id;
         }
     }
 }

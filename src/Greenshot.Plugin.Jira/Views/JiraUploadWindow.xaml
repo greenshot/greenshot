@@ -12,15 +12,6 @@
         WindowStyle="None"
         AllowsTransparency="False">
 
-    <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="36"
-                      CornerRadius="0"
-                      GlassFrameThickness="0"
-                      NonClientFrameEdges="None"
-                      ResizeBorderThickness="5"
-                      UseAeroCaptionButtons="False"/>
-    </WindowChrome.WindowChrome>
-
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -32,27 +23,11 @@
     <Border BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}" BorderThickness="1">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="36"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- Title bar -->
-            <Grid Grid.Row="0" Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TitleBarBrush}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="36"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <Image Grid.Column="0"
-                       Source="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Icon}"
-                       Width="16" Height="16" Margin="10,0,0,0" VerticalAlignment="Center"/>
-                <TextBlock Grid.Column="1"
-                           Text="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Title}"
-                           VerticalAlignment="Center" Margin="8,0,0,0" FontSize="13" FontWeight="SemiBold"/>
-                <Button Grid.Column="2" Content="✕" IsCancel="True" Click="CancelButton_Click"
-                        Style="{StaticResource TitleBarCloseButtonStyle}"
-                        WindowChrome.IsHitTestVisibleInChrome="True"/>
-            </Grid>
+            <wpf:ThemedTitleBar Grid.Row="0"/>
 
             <Grid Grid.Row="1" Margin="14,10,14,14">
                 <Grid.ColumnDefinitions>
@@ -104,7 +79,7 @@
                 <Label Grid.Row="4" Grid.Column="0" Content="{wpf:Text Jira.LabelJira}" Margin="0,8,12,0"/>
                 <DockPanel Grid.Row="4" Grid.Column="1" Margin="0,8,0,0" LastChildFill="False">
                     <TextBox x:Name="KeyBox" Width="160" DockPanel.Dock="Left" TextChanged="KeyBox_TextChanged"/>
-                    <Button DockPanel.Dock="Right" Content="{wpf:Text Core.Cancel}" Click="CancelButton_Click" Margin="8,0,0,0"/>
+                    <Button DockPanel.Dock="Right" Content="{wpf:Text Core.Cancel}" IsCancel="True" Click="CancelButton_Click" Margin="8,0,0,0"/>
                     <Button x:Name="UploadButton" DockPanel.Dock="Right" Content="{wpf:Text Jira.Upload}" IsDefault="True"
                             Click="UploadButton_Click" Style="{StaticResource PrimaryButtonStyle}"/>
                 </DockPanel>

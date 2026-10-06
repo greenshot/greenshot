@@ -91,6 +91,9 @@ namespace Greenshot.Settings.ViewModels
             InitializeAiTools();
 #endif
 
+            // The memory dial follows the memory settings
+            InitializeMemoryProfile();
+
             // Initialize clipboard formats
             InitializeClipboardFormats();
 
@@ -100,6 +103,10 @@ namespace Greenshot.Settings.ViewModels
                 {
                     OnPropertyChanged(nameof(ThemeToggleIcon));
                     OnPropertyChanged(nameof(ThemeToggleToolTip));
+                }
+                else if (e.PropertyName == nameof(ThemeManager.Theme))
+                {
+                    OnPropertyChanged(nameof(SelectedTheme));
                 }
             };
         }

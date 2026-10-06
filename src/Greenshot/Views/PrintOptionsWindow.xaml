@@ -12,15 +12,6 @@
         WindowStyle="None"
         AllowsTransparency="False">
 
-    <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="36"
-                      CornerRadius="0"
-                      GlassFrameThickness="0"
-                      NonClientFrameEdges="None"
-                      ResizeBorderThickness="5"
-                      UseAeroCaptionButtons="False"/>
-    </WindowChrome.WindowChrome>
-
     <Window.Resources>
         <!-- Modern GroupBox Style -->
         <Style TargetType="GroupBox">
@@ -70,30 +61,6 @@
             <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
 
-        <Style x:Key="TitleBarButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Width" Value="46"/>
-            <Setter Property="Height" Value="36"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" BorderThickness="0">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#E81123"/>
-                                <Setter Property="Foreground" Value="White"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
         <Style TargetType="Button">
             <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonBackgroundBrush}"/>
             <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
@@ -132,44 +99,12 @@
             BorderThickness="1">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="36"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- Custom Title Bar -->
-            <Grid Grid.Row="0" 
-                  Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TitleBarBrush}"
-                  MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="36"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <Image Grid.Column="0" 
-                       Source="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Icon}"
-                       Width="16" Height="16"
-                       Margin="10,0,0,0"
-                       VerticalAlignment="Center"
-                       WindowChrome.IsHitTestVisibleInChrome="False"/>
-
-                <TextBlock Grid.Column="1"
-                           Text="{wpf:Text Core.PrintoptionsTitle}"
-                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
-                           VerticalAlignment="Center"
-                           Margin="8,0,0,0"
-                           FontSize="13"
-                           FontWeight="SemiBold"
-                           WindowChrome.IsHitTestVisibleInChrome="False"/>
-
-                <Button Grid.Column="2"
-                        Content="✕" 
-                        Click="CloseButton_Click"
-                        Style="{StaticResource TitleBarButtonStyle}"
-                        ToolTip="Close"
-                        WindowChrome.IsHitTestVisibleInChrome="True"/>
-            </Grid>
+            <wpf:ThemedTitleBar Grid.Row="0"/>
 
             <!-- Dialog Content -->
             <StackPanel Grid.Row="1" Margin="20,16,20,10">

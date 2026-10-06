@@ -25,7 +25,7 @@ using System.Windows.Media;
 namespace Greenshot.Base.Wpf
 {
     /// <summary>
-    /// Detects Windows system theme (Dark / Light mode) and exposes color brushes for modern WPF UI.
+    /// Static access to the theme of <see cref="ThemeManager"/> (light / dark, accent color, high contrast) for code-behind.
     /// </summary>
     public static class WpfThemeHelper
     {
@@ -35,7 +35,8 @@ namespace Greenshot.Base.Wpf
         {
             ThemeManager.Instance.PropertyChanged += (s, e) =>
             {
-                if (e.PropertyName == nameof(ThemeManager.IsDarkTheme))
+                // Raised last, after every brush changed: light/dark, accent color or high contrast
+                if (e.PropertyName == nameof(ThemeManager.CurrentPalette))
                 {
                     ThemeChanged?.Invoke();
                 }
@@ -43,7 +44,7 @@ namespace Greenshot.Base.Wpf
         }
 
         /// <summary>
-        /// Returns true if Windows system apps or the selected theme is set to Dark Mode.
+        /// True when Greenshot's windows are dark. Setting it chooses light or dark instead of following Windows.
         /// </summary>
         public static bool IsDarkMode
         {
@@ -67,6 +68,11 @@ namespace Greenshot.Base.Wpf
         public static SolidColorBrush TextSecondary => ThemeManager.Instance.CurrentPalette.TextSecondary;
 
         public static SolidColorBrush Accent => ThemeManager.Instance.CurrentPalette.Accent;
+
+        /// <summary>
+        /// The text color on <see cref="Accent"/>
+        /// </summary>
+        public static SolidColorBrush AccentForeground => ThemeManager.Instance.CurrentPalette.AccentForegroundBrush;
 
         public static SolidColorBrush WarningBackground => ThemeManager.Instance.CurrentPalette.WarningBackground;
 

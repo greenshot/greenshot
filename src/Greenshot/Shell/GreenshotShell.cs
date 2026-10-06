@@ -136,8 +136,17 @@ namespace Greenshot.Shell
 #endif
             // The UI thread is reached through IUiDispatcher (UiDispatcher.Current), the SynchronizationContext and TaskScheduler aren't registered
 
+            // The background work of the start, MinimizeWorkingSetSize trims the memory when it's done
+            var startupWork = new List<Task>();
+            void TrackStartupWork(Task work, string description)
+            {
+                work.FireAndLog(description, Log);
+                startupWork.Add(work);
+            }
+
             // Creating the Direct3D device costs ~200 ms, do it now in the background instead of in the first capture
-            WindowsGraphicsCaptureInterop.PrewarmAsync().FireAndLog("Prewarm the Windows Graphics Capture", Log);
+            // (unless the UseGraphicsCapture or KeepGraphicsCaptureReady settings are off)
+            TrackStartupWork(WindowsGraphicsCaptureInterop.PrewarmAsync(), "Prewarm the Windows Graphics Capture");
 
             // Register the RecyclableMemoryStreamManager to minimise Large Object Heap usage.
             SimpleServiceProvider.Current.AddService(RecyclableMemoryStreamFactory.Manager);
@@ -180,14 +189,20 @@ namespace Greenshot.Shell
             // Load all the plugins, their configuration sections are filled from the already loaded greenshot.ini
             // The plugins start in parallel, the shell doesn't wait for them. Greenshot Light has no plugins.
 #if !GREENSHOT_LIGHT
-            PluginHelper.Instance.LoadPluginsAsync().FireAndLog("Start the plugins", Log);
+            TrackStartupWork(PluginHelper.Instance.LoadPluginsAsync(), "Start the plugins");
 #endif
 
             EditorInitialize.Initialize();
             // JIT-compiling the editor and loading the emoji font takes seconds, do it in the background instead of when the first editor opens
-            // The same for the interactive capture, earlier: it is what a hotkey opens first
-            CapturePrewarm.PrewarmAsync(TimeSpan.FromSeconds(2)).FireAndLog("Prepare the interactive capture", Log);
-            EditorPrewarm.PrewarmAsync(TimeSpan.FromSeconds(5)).FireAndLog("Prepare the editor", Log);
+            // The same for the interactive capture, earlier: it is what a hotkey opens first. The settings can switch both off to save memory.
+            if (_conf.PrewarmCapture)
+            {
+                TrackStartupWork(CapturePrewarm.PrewarmAsync(TimeSpan.FromSeconds(2)), "Prepare the interactive capture");
+            }
+            if (_conf.PrewarmEditor)
+            {
+                TrackStartupWork(EditorPrewarm.PrewarmAsync(TimeSpan.FromSeconds(5)), "Prepare the editor");
+            }
 
             // This forces the registration of all destinations inside Greenshot itself.
             RegisterInternalDestinations();
@@ -291,11 +306,25 @@ namespace Greenshot.Shell
             _updateService.Startup();
             SimpleServiceProvider.Current.AddService(_updateService);
 
-            // Make Greenshot use less memory after startup
+            // Make Greenshot use less memory after startup: once the background work of the start is done, it would fill the memory again
             if (_conf.MinimizeWorkingSetSize)
             {
-                PsApi.EmptyWorkingSet();
+                TrimMemoryAfterAsync(startupWork).FireAndLog("Minimize the memory after the start", Log);
             }
+        }
+
+        private static async Task TrimMemoryAfterAsync(IEnumerable<Task> work)
+        {
+            try
+            {
+                await Task.WhenAll(work).ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                // Already logged by FireAndLog
+            }
+
+            PsApi.EmptyWorkingSet();
         }
 
         /// <summary>

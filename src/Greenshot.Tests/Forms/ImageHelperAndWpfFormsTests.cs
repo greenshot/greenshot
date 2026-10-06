@@ -543,6 +543,333 @@ namespace Greenshot.Tests.Forms
         }
 
         [Fact]
+        public void ThemedTitleBar_UsesTheWindowsTitleBarOnlyWhenFollowingWindows()
+        {
+            Exception threadEx = null;
+            var thread = new Thread(() =>
+            {
+                var tm = ThemeManager.Instance;
+                var previousTheme = tm.Theme;
+                try
+                {
+                    var root = new System.Windows.Controls.Grid();
+                    var window = new System.Windows.Window
+                    {
+                        Title = "Title bar test",
+                        WindowStyle = System.Windows.WindowStyle.None,
+                        Content = root
+                    };
+                    var titleBar = new ThemedTitleBar();
+                    root.Children.Add(titleBar);
+
+                    tm.Theme = Greenshot.Base.Core.Enums.UiTheme.Dark;
+                    if (!tm.IsHighContrast)
+                    {
+                        // Light or dark: Greenshot's own title bar, the client area covers the frame
+                        Assert.False(titleBar.IsSystemTitleBar);
+                        Assert.NotNull(System.Windows.Shell.WindowChrome.GetWindowChrome(window));
+                        Assert.Equal(System.Windows.WindowStyle.None, window.WindowStyle);
+                        Assert.Equal(System.Windows.Visibility.Visible, titleBar.Visibility);
+                    }
+
+                    // Same as Windows: the title bar of Windows, this one hides
+                    tm.Theme = Greenshot.Base.Core.Enums.UiTheme.System;
+                    Assert.True(titleBar.IsSystemTitleBar);
+                    Assert.Null(System.Windows.Shell.WindowChrome.GetWindowChrome(window));
+                    Assert.Equal(System.Windows.WindowStyle.SingleBorderWindow, window.WindowStyle);
+                    Assert.Equal(System.Windows.Visibility.Collapsed, titleBar.Visibility);
+                    window.Close();
+                }
+                catch (Exception ex)
+                {
+                    threadEx = ex;
+                }
+                finally
+                {
+                    tm.Theme = previousTheme;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+
+            Assert.Null(threadEx);
+        }
+
+        [System.Runtime.InteropServices.DllImport("dwmapi.dll")]
+        private static extern int DwmGetWindowAttribute(IntPtr hwnd, int attribute, out int value, int size);
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern int GetWindowRgn(IntPtr hwnd, IntPtr region);
+
+        [System.Runtime.InteropServices.DllImport("gdi32.dll")]
+        private static extern IntPtr CreateRectRgn(int left, int top, int right, int bottom);
+
+        [System.Runtime.InteropServices.DllImport("gdi32.dll")]
+        private static extern bool DeleteObject(IntPtr handle);
+
+        private static void WaitForIdle()
+        {
+            // WPF updates the frame in queued steps
+            for (int i = 0; i < 3; i++)
+            {
+                System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+                Thread.Sleep(100);
+            }
+        }
+
+        [Fact]
+        public void ThemedTitleBar_WindowsTitleBarHasTheThemeColorsWhenTheWindowShows()
+        {
+            Exception threadEx = null;
+            var thread = new Thread(() =>
+            {
+                var tm = ThemeManager.Instance;
+                var previousTheme = tm.Theme;
+                System.Windows.Window window = null;
+                try
+                {
+                    tm.Theme = Greenshot.Base.Core.Enums.UiTheme.System;
+                    var root = new System.Windows.Controls.Grid();
+                    window = new System.Windows.Window
+                    {
+                        Title = "Title bar color test",
+                        WindowStyle = System.Windows.WindowStyle.None,
+                        Width = 300,
+                        Height = 200,
+                        Left = -2000,
+                        Top = -2000,
+                        ShowInTaskbar = false,
+                        ShowActivated = false,
+                        Content = root
+                    };
+
+                    // In the window before it is shown, like a title bar in XAML
+                    root.Children.Add(new ThemedTitleBar());
+
+                    // The window exists but isn't shown yet (and not loaded): the title bar must already be dark with a dark theme
+                    int? darkModeWhenShown = null;
+                    window.SourceInitialized += (s, e) =>
+                    {
+                        var handle = new System.Windows.Interop.WindowInteropHelper(window).Handle;
+                        DwmGetWindowAttribute(handle, 20, out int darkMode, sizeof(int));
+                        darkModeWhenShown = darkMode;
+                    };
+                    window.Show();
+                    Assert.Equal(tm.IsDarkTheme ? 1 : 0, darkModeWhenShown);
+                }
+                catch (Exception ex)
+                {
+                    threadEx = ex;
+                }
+                finally
+                {
+                    window?.Close();
+                    tm.Theme = previousTheme;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+
+            Assert.Null(threadEx);
+        }
+
+        [Fact]
+        public void ThemedTitleBar_WindowWithTheWindowsTitleBarIsHiddenUntilItIsRendered()
+        {
+            Exception threadEx = null;
+            var thread = new Thread(() =>
+            {
+                var tm = ThemeManager.Instance;
+                var previousTheme = tm.Theme;
+                try
+                {
+                    foreach (var theme in new[] { Greenshot.Base.Core.Enums.UiTheme.System, Greenshot.Base.Core.Enums.UiTheme.Dark })
+                    {
+                        tm.Theme = theme;
+                        var root = new System.Windows.Controls.Grid();
+                        var window = new System.Windows.Window
+                        {
+                            Title = "Cloak test",
+                            WindowStyle = System.Windows.WindowStyle.None,
+                            Width = 300,
+                            Height = 200,
+                            Left = -2000,
+                            Top = -2000,
+                            ShowInTaskbar = false,
+                            ShowActivated = false,
+                            Content = root
+                        };
+                        root.Children.Add(new ThemedTitleBar());
+                        bool rendered = false;
+                        window.ContentRendered += (s, e) => rendered = true;
+                        try
+                        {
+                            window.Show();
+                            var handle = new System.Windows.Interop.WindowInteropHelper(window).Handle;
+
+                            // DWMWA_CLOAKED right after showing: with the frame of Windows the window waits until WPF drew it
+                            // (not white for a moment), with Greenshot's own title bar it doesn't need to wait
+                            Assert.Equal(0, DwmGetWindowAttribute(handle, 14, out int cloakedBeforeRender, sizeof(int)));
+                            Assert.Equal(tm.UseSystemTitleBar, cloakedBeforeRender != 0);
+
+                            WaitForIdle();
+                            Assert.True(rendered);
+                            Assert.Equal(0, DwmGetWindowAttribute(handle, 14, out int cloakedAfterRender, sizeof(int)));
+                            Assert.Equal(0, cloakedAfterRender);
+                        }
+                        finally
+                        {
+                            window.Close();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    threadEx = ex;
+                }
+                finally
+                {
+                    tm.Theme = previousTheme;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+
+            Assert.Null(threadEx);
+        }
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern IntPtr GetForegroundWindow();
+
+        [Fact]
+        public void ThemedMenu_ShowAtCursor_StaysOpenWhenAGreenshotWindowIsActive()
+        {
+            Exception threadEx = null;
+            var thread = new Thread(() =>
+            {
+                System.Windows.Window settings = null;
+                System.Windows.Controls.ContextMenu menu = null;
+                try
+                {
+                    // Like a capture with the settings open: the capture window closes, the settings become active, the picker opens
+                    settings = new System.Windows.Window { Title = "Settings stand-in", Width = 300, Height = 200, Left = 100, Top = 100, ShowInTaskbar = false };
+                    settings.Show();
+                    var capture = new System.Windows.Window { Title = "Capture stand-in", Width = 300, Height = 200, Left = 500, Top = 100, ShowInTaskbar = false, Topmost = true };
+                    capture.Show();
+                    capture.Activate();
+                    WaitForIdle();
+                    capture.Close();
+                    WaitForIdle();
+                    if (GetForegroundWindow() != new System.Windows.Interop.WindowInteropHelper(settings).Handle)
+                    {
+                        // Windows didn't let the test become the foreground, the situation can't be built here
+                        return;
+                    }
+
+                    menu = ThemedMenu.CreateContextMenu();
+                    menu.StaysOpen = true;
+                    menu.Items.Add(ThemedMenu.CreateItem("File", null, () => { }));
+                    ThemedMenu.ShowAtCursor(menu);
+                    WaitForIdle();
+                    Assert.True(menu.IsOpen);
+                }
+                catch (Exception ex)
+                {
+                    threadEx = ex;
+                }
+                finally
+                {
+                    if (menu != null)
+                    {
+                        menu.IsOpen = false;
+                    }
+
+                    settings?.Close();
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+
+            Assert.Null(threadEx);
+        }
+
+        [Fact]
+        public void ThemedTitleBar_SwitchingBackToTheWindowsTitleBar_KeepsTheModernFrame()
+        {
+            Exception threadEx = null;
+            var thread = new Thread(() =>
+            {
+                var tm = ThemeManager.Instance;
+                var previousTheme = tm.Theme;
+                System.Windows.Window window = null;
+                try
+                {
+                    tm.Theme = Greenshot.Base.Core.Enums.UiTheme.System;
+                    var root = new System.Windows.Controls.Grid();
+                    root.Children.Add(new ThemedTitleBar());
+                    window = new System.Windows.Window
+                    {
+                        Title = "Title bar switch test",
+                        WindowStyle = System.Windows.WindowStyle.None,
+                        Width = 300,
+                        Height = 200,
+                        Left = -2000,
+                        Top = -2000,
+                        ShowInTaskbar = false,
+                        ShowActivated = false,
+                        Content = root
+                    };
+                    window.Show();
+                    if (tm.IsHighContrast)
+                    {
+                        return;
+                    }
+
+                    // Light and back to Same as Windows while the window is open: the title bar of Windows, drawn by the desktop window manager
+                    tm.Theme = Greenshot.Base.Core.Enums.UiTheme.Light;
+                    WaitForIdle();
+                    tm.Theme = Greenshot.Base.Core.Enums.UiTheme.System;
+                    WaitForIdle();
+                    var handle = new System.Windows.Interop.WindowInteropHelper(window).Handle;
+
+                    // DWMWA_NCRENDERING_ENABLED: false means the old frame of Windows 7 "basic"
+                    Assert.Equal(0, DwmGetWindowAttribute(handle, 1, out int ncRendering, sizeof(int)));
+                    Assert.Equal(1, ncRendering);
+
+                    // A window region also turns the frame of the desktop window manager off
+                    var region = CreateRectRgn(0, 0, 0, 0);
+                    try
+                    {
+                        // ERROR (0): the window has no region
+                        Assert.Equal(0, GetWindowRgn(handle, region));
+                    }
+                    finally
+                    {
+                        DeleteObject(region);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    threadEx = ex;
+                }
+                finally
+                {
+                    window?.Close();
+                    tm.Theme = previousTheme;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+
+            Assert.Null(threadEx);
+        }
+
+        [Fact]
         public void HotkeyEditorModal_HasInitialViewModelDataContext_ToPreventInheritedBindingErrors()
         {
             Exception threadEx = null;

@@ -1,10 +1,8 @@
 using System;
 using System.ComponentModel;
-using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Threading;
 using Greenshot.Base.Recipes;
@@ -163,31 +161,6 @@ namespace Greenshot.Plugin.RecipeEditor.Views
             ApplyImmersiveDarkMode();
         }
 
-        private void OnTitleBarMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ChangedButton == MouseButton.Left)
-            {
-                if (e.ClickCount == 2)
-                {
-                    WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
-                }
-                else
-                {
-                    DragMove();
-                }
-            }
-        }
-
-        private void OnMinimizeClicked(object sender, RoutedEventArgs e)
-        {
-            WindowState = WindowState.Minimized;
-        }
-
-        private void OnMaximizeClicked(object sender, RoutedEventArgs e)
-        {
-            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
-        }
-
         private void OnWindowClosing(object sender, CancelEventArgs e)
         {
             // Save, discard or keep editing the unsaved changes
@@ -195,11 +168,6 @@ namespace Greenshot.Plugin.RecipeEditor.Views
             {
                 e.Cancel = true;
             }
-        }
-
-        private void OnCloseTitleBarClicked(object sender, RoutedEventArgs e)
-        {
-            Close();
         }
 
         private void HotkeyDisplayControl_EditRequested(object sender, EventArgs e)
@@ -215,26 +183,8 @@ namespace Greenshot.Plugin.RecipeEditor.Views
 
         private void ApplyImmersiveDarkMode()
         {
-            try
-            {
-                var helper = new WindowInteropHelper(this);
-                if (helper.Handle != IntPtr.Zero)
-                {
-                    int useImmersiveDarkMode = WpfThemeHelper.IsDarkMode ? 1 : 0;
-                    int hr = DwmSetWindowAttribute(helper.Handle, 20, ref useImmersiveDarkMode, sizeof(int));
-                    if (hr != 0)
-                    {
-                        DwmSetWindowAttribute(helper.Handle, 19, ref useImmersiveDarkMode, sizeof(int));
-                    }
-                }
-            }
-            catch
-            {
-                // Silently ignore if DWM call is unsupported on older OS
-            }
+            // The title bar in the colors of the theme, it follows theme changes from now on
+            WindowFrameTheme.Attach(this);
         }
-
-        [DllImport("dwmapi.dll", PreserveSig = true)]
-        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
     }
 }

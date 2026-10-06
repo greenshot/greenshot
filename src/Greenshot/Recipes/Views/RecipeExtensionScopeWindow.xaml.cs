@@ -24,7 +24,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
-using System.Windows.Input;
 using Greenshot.Base.Core;
 using Greenshot.Settings.ViewModels;
 using log4net;
@@ -66,7 +65,6 @@ namespace Greenshot.Recipes.Views
 
             string title = string.Format(Texts.Settings.RecipesScopeTitle, extensionName);
             Title = title;
-            TitleText.Text = title;
             CapturesList.ItemsSource = _captureCopies;
             DestinationsList.ItemsSource = _destinationCopies;
             if (_destinationCopies.Count == 0)
@@ -105,14 +103,6 @@ namespace Greenshot.Recipes.Views
             foreach (var item in items)
             {
                 item.IsChecked = isChecked;
-            }
-        }
-
-        private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ClickCount == 1)
-            {
-                DragMove();
             }
         }
 
