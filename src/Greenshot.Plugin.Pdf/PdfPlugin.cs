@@ -26,7 +26,6 @@ using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Languages;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Plugin.Pdf.Configuration;
-using Greenshot.Plugin.Pdf.Destinations;
 using Greenshot.Plugin.Pdf.FileFormatHandlers;
 using Greenshot.Plugin.Pdf.Recipes;
 
@@ -50,7 +49,6 @@ public sealed class PdfPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeSt
         services.AddConfiguration(configuration);
         _configuration = configuration;
         services.AddService<IFileFormatHandler>(new PdfFileFormatHandler(configuration));
-        services.AddService<IDestination>(new PdfDestination(configuration));
         services.AddRecipeStepProvider(this);
         services.AddSettingsView<IPdfConfiguration>(settings => new Views.PdfConfigurationControl(settings));
     }

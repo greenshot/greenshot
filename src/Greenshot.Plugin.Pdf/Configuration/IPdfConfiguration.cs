@@ -71,8 +71,4 @@ public interface IPdfConfiguration : IIniSection
     [Description("How the image is scaled to fit a fixed page (OnlyShrinkToFit, FitToPage)")]
     [DefaultValue(PdfScalingModes.OnlyShrinkToFit)]
     string ScalingMode { get; set; }
-
-    [Description("Show the save dialog when exporting to the PDF destination")]
-    [DefaultValue(true)]
-    bool ShowSaveDialog { get; set; }
 }

@@ -97,11 +97,6 @@ public interface IPdfLanguage : INotifyPropertyChanged
     string LabelPdfDocument { get; }
 
     /// <summary>
-    /// Destination options
-    /// </summary>
-    string LabelDestinationOptions { get; }
-
-    /// <summary>
     /// Unit
     /// </summary>
     string LabelUnit { get; }

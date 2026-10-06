@@ -35,16 +35,19 @@ using log4net;
 namespace Greenshot.Plugin.Pdf.Destinations;
 
 /// <summary>
-/// Represents a destination for exporting captures as PDF documents.
+/// Represents a internal destination for exporting captures as PDF documents.
+/// Don't register this destination in the plugin, it is used by the PdfStep to export captures as PDF documents.
 /// </summary>
 public sealed class PdfDestination : DestinationBase
 {
     private static readonly ILog Log = LogManager.GetLogger(typeof(PdfDestination));
     private readonly IPdfConfiguration _configuration;
+    private readonly bool _showSaveDialog;
 
-    public PdfDestination(IPdfConfiguration configuration)
+    public PdfDestination(IPdfConfiguration configuration, bool showSaveDialog)
     {
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        _showSaveDialog = showSaveDialog;
     }
 
     public override string Designation => "Pdf";
@@ -67,9 +70,8 @@ public sealed class PdfDestination : DestinationBase
             return ExportResult.Failed(exception.Message, exception);
         }
 
-        bool showSaveDialog = _configuration.ShowSaveDialog;
         string selectedPath = suggestedPath;
-        if (showSaveDialog)
+        if (_showSaveDialog)
         {
             try
             {
@@ -92,7 +94,7 @@ public sealed class PdfDestination : DestinationBase
 
         try
         {
-            string savedPath = await ExportFiles.SaveAsync(request.Source, pdfPath, showSaveDialog || CoreConfiguration.OutputFileAllowOverwrite, outputSettings, cancellationToken).ConfigureAwait(false);
+            string savedPath = await ExportFiles.SaveAsync(request.Source, pdfPath, _showSaveDialog || CoreConfiguration.OutputFileAllowOverwrite, outputSettings, cancellationToken).ConfigureAwait(false);
             if (request.Metadata != null)
             {
                 request.Metadata.Filename = savedPath;

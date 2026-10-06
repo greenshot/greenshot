@@ -3506,10 +3506,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetParamOrRemoveIfEmpty("ScalingMode", value); OnPropertyChanged(nameof(PdfScalingMode)); }
         }
 
-        public string PdfShowSaveDialog
+        public bool PdfShowSaveDialog
         {
-            get => GetTriStateParam("ShowSaveDialog");
-            set { SetTriStateParam("ShowSaveDialog", value); OnPropertyChanged(nameof(PdfShowSaveDialog)); }
+            get => GetParamBool("ShowSaveDialog", true);
+            set { SetParam("ShowSaveDialog", value); OnPropertyChanged(nameof(PdfShowSaveDialog)); }
         }
 
         // --- 18. Zxing Step ---

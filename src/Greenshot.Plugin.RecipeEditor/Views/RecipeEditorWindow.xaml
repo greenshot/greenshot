@@ -9,7 +9,6 @@
         xmlns:conv="clr-namespace:Greenshot.Plugin.RecipeEditor.Converters"
         xmlns:emoji="clr-namespace:Greenshot.Editor.Controls.Emoji;assembly=Greenshot.Editor"
         xmlns:views="clr-namespace:Greenshot.Base.Wpf.Views;assembly=Greenshot.Base"
-        xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
         mc:Ignorable="d"
         Title="{Binding WindowTitle}"
         Height="800" Width="1240"
@@ -2725,12 +2724,8 @@
                                                 <ComboBoxItem Content="{wpf:Text Pdf.ScaleShrink}" Tag="OnlyShrinkToFit"/>
                                                 <ComboBoxItem Content="{wpf:Text Pdf.ScaleFit}" Tag="FitToPage"/>
                                             </ComboBox>
-                                            <TextBlock Text="{wpf:Text Pdf.DestinationOptionFileAs}" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                            <ComboBox SelectedValue="{Binding SelectedNode.PdfShowSaveDialog, Mode=TwoWay}" SelectedValuePath="Tag" Margin="0,0,0,8">
-                                                <ComboBoxItem Content="(From Configuration)" Tag=""/>
-                                                <ComboBoxItem Content="Enabled" Tag="true"/>
-                                                <ComboBoxItem Content="Disabled" Tag="false"/>
-                                            </ComboBox>
+                                            <CheckBox IsChecked="{Binding SelectedNode.PdfShowSaveDialog, Mode=TwoWay}"
+                                                      Content="{wpf:Text Pdf.DestinationOptionFileAs}" Margin="0,0,0,8"/>
                                         </StackPanel>
 
                                         <!-- 12. Save to File Step Inspector -->

@@ -48,7 +48,7 @@ namespace Greenshot.Plugin.Pdf.Recipes;
 [StepParameter("MarginLeftMm", ContractDataType.Decimal, Description = "Left margin in millimeters (default: PDF settings)")]
 [StepParameter("MarginRightMm", ContractDataType.Decimal, Description = "Right margin in millimeters (default: PDF settings)")]
 [StepParameter("ScalingMode", ContractDataType.Enum, Description = "How to scale the image on a fixed page (default: PDF settings)", AllowedValues = new[] { PdfScalingModes.OnlyShrinkToFit, PdfScalingModes.FitToPage })]
-[StepParameter("ShowSaveDialog", ContractDataType.Boolean, Description = "Show the PDF save dialog (default: PDF settings)")]
+[StepParameter("ShowSaveDialog", ContractDataType.Boolean, DefaultValue = true, Description = "Show the PDF save dialog")]
 [StepOutputVariable("Pdf.FilePath", ContractDataType.FilePath, "Path of the saved PDF file", Conditional = true)]
 public sealed class PdfStep : ICaptureStep
 {
@@ -87,10 +87,9 @@ public sealed class PdfStep : ICaptureStep
             MarginBottomMm = NodeConfig.GetParameter("MarginBottomMm", _configuration.MarginBottomMm),
             MarginLeftMm = NodeConfig.GetParameter("MarginLeftMm", _configuration.MarginLeftMm),
             MarginRightMm = NodeConfig.GetParameter("MarginRightMm", _configuration.MarginRightMm),
-            ScalingMode = NodeConfig.GetParameter("ScalingMode", _configuration.ScalingMode),
-            ShowSaveDialog = NodeConfig.GetParameter("ShowSaveDialog", _configuration.ShowSaveDialog)
+            ScalingMode = NodeConfig.GetParameter("ScalingMode", _configuration.ScalingMode)
         };
-        var destination = new PdfDestination(configuration);
+        var destination = new PdfDestination(configuration, NodeConfig.GetParameter("ShowSaveDialog", true));
         var source = await context.Payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
         var result = await DestinationExporter.ExportAsync(destination, source, captureDetails, false, context.UserInteraction, cancellationToken).ConfigureAwait(false);
         await ExportResultHandler.ApplyAsync(destination, result, source, cancellationToken).ConfigureAwait(false);

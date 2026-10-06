@@ -274,10 +274,5 @@
                 </Grid>
             </Grid>
         </GroupBox>
-
-        <GroupBox Header="{wpf:Text Pdf.LabelDestinationOptions}" Margin="0,8,0,4">
-            <CheckBox IsChecked="{Binding ShowSaveDialog, Mode=TwoWay}"
-                      Content="{wpf:Text Pdf.DestinationOptionFileAs}"/>
-        </GroupBox>
     </StackPanel>
 </UserControl>

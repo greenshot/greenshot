@@ -25,9 +25,10 @@ using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
+using Greenshot.Base.Recipes;
 using Greenshot.Plugin.Pdf;
 using Greenshot.Plugin.Pdf.Configuration;
-using Greenshot.Plugin.Pdf.ViewModels;
+using Greenshot.Plugin.RecipeEditor.ViewModels;
 using Xunit;
 
 namespace Greenshot.Tests.Plugins;
@@ -35,16 +36,16 @@ namespace Greenshot.Tests.Plugins;
 public class PdfDocumentWriterTests
 {
     [Fact]
-    public void Configuration_SaveDialogDefaultsToEnabledAndCanBeDisabled()
+    public void RecipeStep_SaveDialogDefaultsToEnabledAndCanBeDisabled()
     {
         TestEnvironment.EnsureInitialized();
-        var configuration = new PdfConfigurationImpl();
-        configuration.ResetToDefaults();
-        var viewModel = new PdfConfigurationViewModel(configuration);
+        var config = new RecipeNodeConfig("pdf", "Pdf");
+        var viewModel = new StepNodeViewModel(config, new System.Windows.Point());
 
-        Assert.True(viewModel.ShowSaveDialog);
-        viewModel.ShowSaveDialog = false;
-        Assert.False(configuration.ShowSaveDialog);
+        Assert.True(viewModel.PdfShowSaveDialog);
+        viewModel.PdfShowSaveDialog = false;
+        Assert.False(viewModel.PdfShowSaveDialog);
+        Assert.Equal(false, config.Parameters["ShowSaveDialog"]);
     }
 
     [Fact]

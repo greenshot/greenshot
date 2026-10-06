@@ -136,21 +136,6 @@ public sealed class PdfConfigurationViewModel : INotifyPropertyChanged
         }
     }
 
-    public bool ShowSaveDialog
-    {
-        get => _configuration.ShowSaveDialog;
-        set
-        {
-            if (_configuration.ShowSaveDialog == value)
-            {
-                return;
-            }
-
-            _configuration.ShowSaveDialog = value;
-            OnPropertyChanged(nameof(ShowSaveDialog));
-        }
-    }
-
     public bool IsPageDimensionsEnabled => string.Equals(PageSize, PdfPageSizes.Custom, StringComparison.OrdinalIgnoreCase);
 
     public bool IsFixedPage => !string.Equals(PageSize, PdfPageSizes.Image, StringComparison.OrdinalIgnoreCase);
