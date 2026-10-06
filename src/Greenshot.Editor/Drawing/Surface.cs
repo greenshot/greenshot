@@ -1382,7 +1382,8 @@ namespace Greenshot.Editor.Drawing
         /// <param name="source">Who send</param>
         /// <param name="messageType">Type of message</param>
         /// <param name="message">Message itself</param>
-        public void SendMessageEvent(object source, SurfaceMessageTyp messageType, string message)
+        /// <param name="exportResult">The result of the export the message is about, null for other messages</param>
+        public void SendMessageEvent(object source, SurfaceMessageTyp messageType, string message, ExportResult exportResult = null)
         {
             if (_surfaceMessage == null) return;
 
@@ -1390,7 +1391,8 @@ namespace Greenshot.Editor.Drawing
             {
                 Message = message,
                 MessageType = messageType,
-                Surface = this
+                Surface = this,
+                ExportResult = exportResult
             };
             _surfaceMessage(source, eventArgs);
         }

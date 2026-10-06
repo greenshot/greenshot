@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Concurrent;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Threading;
@@ -29,6 +30,7 @@ using Windows.UI.Notifications;
 using Greenshot.Base.Core;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Languages;
 using log4net;
 using Microsoft.Toolkit.Uwp.Notifications;
 using System.Threading.Tasks;
@@ -43,6 +45,16 @@ namespace Greenshot.Plugin.Win10
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ToastNotificationService));
         private static readonly ICoreConfiguration CoreConfiguration = IniConfigRegistry.GetSection<ICoreConfiguration>();
+
+        private const string ExportIdArgument = "exportId";
+        private const string ActionArgument = "action";
+        private const string OpenAction = "open";
+        private const string SendToAction = "sendTo";
+        private const string EditAction = "edit";
+
+        // The export notifications which can still be clicked, by id: Windows reports a click with OnActivated, with the arguments of the toast
+        private static readonly ConcurrentDictionary<string, (ExportNotification Notification, DateTimeOffset Expires)> ExportNotificationsById =
+            new ConcurrentDictionary<string, (ExportNotification Notification, DateTimeOffset Expires)>();
 
         private readonly string _imageFilePath;
 
@@ -63,6 +75,7 @@ namespace Greenshot.Plugin.Win10
                 ValueSet userInput = toastArgs.UserInput;
 
                 Log.Info("Toast activated. Args: " + toastArgs.Argument);
+                OnExportNotificationActivated(args);
             };
 
             var localAppData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Greenshot");
@@ -171,6 +184,124 @@ namespace Greenshot.Plugin.Win10
             catch (Exception ex)
             {
                 Log.Warn("Ignoring exception as this means that it was not possible to generate a toast.", ex);
+            }
+        }
+
+        /// <inheritdoc />
+        public void ShowExportNotification(ExportNotification notification)
+        {
+            ShowExportNotificationAsync(notification).FireAndLog("Show an export toast", Log);
+        }
+
+        private async Task ShowExportNotificationAsync(ExportNotification notification)
+        {
+            // Do not inform the user if this is disabled
+            if (notification == null || !CoreConfiguration.ShowTrayNotification)
+            {
+                return;
+            }
+
+            if (!await IsToastNotificationEnabledAsync())
+            {
+                return;
+            }
+
+            try
+            {
+                RemoveExpiredExportNotifications();
+                string id = Guid.NewGuid().ToString("N");
+                var builder = new ToastContentBuilder()
+                    // Also the argument of every button
+                    .AddArgument(ExportIdArgument, id)
+                    .AddText(notification.Title);
+                if (!string.IsNullOrEmpty(notification.Detail))
+                {
+                    builder.AddText(notification.Detail);
+                }
+
+                // Where the capture went: the icon of the destination
+                builder.AddAppLogoOverride(new Uri(notification.IconPath ?? _imageFilePath), ToastGenericAppLogoCrop.None);
+                if (notification.PreviewPath != null)
+                {
+                    builder.AddInlineImage(new Uri(notification.PreviewPath));
+                }
+
+                int buttons = 0;
+                if (notification.ShowButtons)
+                {
+                    buttons += AddButton(builder, notification.Open, Texts.Core.NotificationOpen, OpenAction);
+                    buttons += AddButton(builder, notification.SendTo, Texts.Core.NotificationSendTo, SendToAction);
+                    buttons += AddButton(builder, notification.Edit, Texts.Core.NotificationEdit, EditAction);
+                }
+
+                if (!notification.Succeeded && buttons > 0)
+                {
+                    // A failure stays until the user did something with it (a reminder needs a button)
+                    builder.SetToastScenario(ToastScenario.Reminder);
+                }
+
+                var expires = notification.Timeout.HasValue ? DateTimeOffset.Now.Add(notification.Timeout.Value) : DateTimeOffset.Now.AddDays(1);
+                ExportNotificationsById[id] = (notification, expires);
+                builder.Show(toast =>
+                {
+                    toast.ExpirationTime = expires;
+                    toast.Failed += ToastOnFailed;
+                });
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Ignoring exception as this means that it was not possible to generate a toast.", ex);
+            }
+        }
+
+        private static int AddButton(ToastContentBuilder builder, Action action, string text, string actionArgument)
+        {
+            if (action == null)
+            {
+                return 0;
+            }
+
+            builder.AddButton(new ToastButton().SetContent(text).AddArgument(ActionArgument, actionArgument));
+            return 1;
+        }
+
+        /// <summary>
+        /// The user clicked an export notification or one of its buttons, Windows reports it on another thread
+        /// </summary>
+        private static void OnExportNotificationActivated(ToastArguments args)
+        {
+            if (!args.TryGetValue(ExportIdArgument, out string id) || !ExportNotificationsById.TryGetValue(id, out var entry))
+            {
+                // Not an export notification, or from before Greenshot was started again
+                return;
+            }
+
+            args.TryGetValue(ActionArgument, out string actionArgument);
+            var notification = entry.Notification;
+            var action = actionArgument switch
+            {
+                OpenAction => notification.Open,
+                SendToAction => notification.SendTo,
+                EditAction => notification.Edit,
+                _ => notification.DefaultAction
+            };
+            if (action == null)
+            {
+                return;
+            }
+
+            UiDispatcher.Current.InvokeAsync(action, CancellationToken.None).FireAndLog($"Export notification action {actionArgument ?? "click"}", Log);
+        }
+
+        private static void RemoveExpiredExportNotifications()
+        {
+            var now = DateTimeOffset.Now;
+            foreach (var pair in ExportNotificationsById)
+            {
+                if (pair.Value.Expires < now)
+                {
+                    ExportNotificationsById.TryRemove(pair.Key, out _);
+                }
             }
         }
 

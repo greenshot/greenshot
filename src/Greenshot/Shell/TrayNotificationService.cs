@@ -56,6 +56,19 @@ namespace Greenshot.Shell
             ShowMessage(message, TrayBalloonLevel.Info, onClickAction, onClosedAction);
         }
 
+        /// <inheritdoc />
+        public void ShowExportNotification(ExportNotification notification)
+        {
+            if (notification == null)
+            {
+                return;
+            }
+
+            // A balloon has no picture and no buttons: the text, a click opens the export or edits the capture
+            string message = string.IsNullOrEmpty(notification.Detail) ? notification.Title : notification.Title + Environment.NewLine + notification.Detail;
+            ShowMessage(message, notification.Succeeded ? TrayBalloonLevel.Info : TrayBalloonLevel.Error, notification.DefaultAction, null);
+        }
+
         /// <summary>
         /// Show the message, the timeout is up to Windows (it ignores the one of a balloon since Vista)
         /// </summary>

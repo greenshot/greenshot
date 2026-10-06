@@ -81,6 +81,36 @@ namespace Greenshot.Tests.Forms
         }
 
         [Fact]
+        public void SettingsViewModel_NotificationChoice_SetsBothSettings()
+        {
+            var viewModel = new SettingsViewModel();
+            var config = viewModel.CoreConfiguration;
+            bool previousShow = config.ShowTrayNotification;
+            var previousDetail = config.ExportNotificationDetail;
+            try
+            {
+                Assert.Equal(4, viewModel.NotificationChoices.Count);
+
+                // Off: no notifications, the detail stays for when they are switched on again (e.g. in the tray menu)
+                config.ExportNotificationDetail = Greenshot.Base.Core.Enums.NotificationDetail.Short;
+                viewModel.SelectedNotificationChoice = viewModel.NotificationChoices[0];
+                Assert.False(config.ShowTrayNotification);
+                Assert.Equal(Greenshot.Base.Core.Enums.NotificationDetail.Short, config.ExportNotificationDetail);
+                Assert.Same(viewModel.NotificationChoices[0], viewModel.SelectedNotificationChoice);
+
+                viewModel.SelectedNotificationChoice = viewModel.NotificationChoices[3];
+                Assert.True(config.ShowTrayNotification);
+                Assert.Equal(Greenshot.Base.Core.Enums.NotificationDetail.Full, config.ExportNotificationDetail);
+                Assert.Same(viewModel.NotificationChoices[3], viewModel.SelectedNotificationChoice);
+            }
+            finally
+            {
+                config.ShowTrayNotification = previousShow;
+                config.ExportNotificationDetail = previousDetail;
+            }
+        }
+
+        [Fact]
         public void PluginTranslations_AreLoadedCorrectly()
         {
             Assert.Equal("Upload to Box", Texts.Get<IBoxLanguage>().UploadMenuItem);

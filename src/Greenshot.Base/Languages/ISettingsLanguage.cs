@@ -631,6 +631,26 @@ namespace Greenshot.Base.Languages
         string Shownotify { get; }
 
         /// <summary>
+        /// Off
+        /// </summary>
+        string ShownotifyOff { get; }
+
+        /// <summary>
+        /// Only errors
+        /// </summary>
+        string ShownotifyErrors { get; }
+
+        /// <summary>
+        /// Short: where the capture went
+        /// </summary>
+        string ShownotifyShort { get; }
+
+        /// <summary>
+        /// Full: with preview and buttons
+        /// </summary>
+        string ShownotifyFull { get; }
+
+        /// <summary>
         /// Storage location
         /// </summary>
         string Storagelocation { get; }

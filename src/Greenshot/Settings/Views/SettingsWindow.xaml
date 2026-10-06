@@ -549,12 +549,27 @@
                                 <CheckBox Content="{wpf:Text Settings.Playsound}"
                                           IsChecked="{Binding CoreConfiguration.PlayCameraSound, Mode=TwoWay}"
                                           IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=PlayCameraSound}"/>
-                                <CheckBox Content="{wpf:Text Settings.Shownotify}"
-                                          IsChecked="{Binding CoreConfiguration.ShowTrayNotification, Mode=TwoWay}"
-                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ShowTrayNotification}"/>
                                 <CheckBox Content="{wpf:Text Settings.Zoom}"
                                           IsChecked="{Binding CoreConfiguration.ZoomerEnabled, Mode=TwoWay}"
                                            IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ZoomerEnabled}"/>
+
+                                <!-- Off, or how much the notification after an export shows -->
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{wpf:Text Settings.Shownotify}"
+                                               TextWrapping="Wrap"
+                                               VerticalAlignment="Center"
+                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                    <ComboBox Grid.Column="1"
+                                              MinWidth="260"
+                                              ItemsSource="{Binding NotificationChoices}"
+                                              DisplayMemberPath="DisplayName"
+                                              SelectedItem="{Binding SelectedNotificationChoice, Mode=TwoWay}"
+                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ShowTrayNotification}"/>
+                                </Grid>
                                 
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>

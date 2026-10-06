@@ -54,5 +54,11 @@ namespace Greenshot.Base.Interfaces
         /// <param name="onClickAction">Action called if the user clicks the notification</param>
         /// <param name="onClosedAction">Action</param>
         void ShowInfoMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null);
+
+        /// <summary>
+        /// Show the notification about an export: its icon, preview and buttons where the implementation can show them
+        /// </summary>
+        /// <param name="notification">ExportNotification</param>
+        void ShowExportNotification(ExportNotification notification);
     }
 }

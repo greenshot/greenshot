@@ -62,16 +62,16 @@ namespace Greenshot.Base.Core.Export
                 if (result.Uri != null)
                 {
                     surface.UploadUrl = result.Uri.AbsoluteUri;
-                    surface.SendMessageEvent(destination, SurfaceMessageTyp.UploadedUri, string.Format(Texts.Core.ExportedTo, target));
+                    surface.SendMessageEvent(destination, SurfaceMessageTyp.UploadedUri, string.Format(Texts.Core.ExportedTo, target), result);
                 }
                 else if (!string.IsNullOrEmpty(result.FilePath))
                 {
                     surface.LastSaveFullPath = result.FilePath;
-                    surface.SendMessageEvent(destination, SurfaceMessageTyp.FileSaved, string.Format(Texts.Core.ExportedTo, target));
+                    surface.SendMessageEvent(destination, SurfaceMessageTyp.FileSaved, string.Format(Texts.Core.ExportedTo, target), result);
                 }
                 else
                 {
-                    surface.SendMessageEvent(destination, SurfaceMessageTyp.Info, string.Format(Texts.Core.ExportedTo, target));
+                    surface.SendMessageEvent(destination, SurfaceMessageTyp.Info, string.Format(Texts.Core.ExportedTo, target), result);
                 }
 
                 if (result.ClearsModified)
@@ -81,7 +81,7 @@ namespace Greenshot.Base.Core.Export
             }
             else if (!string.IsNullOrEmpty(result.Error))
             {
-                surface.SendMessageEvent(destination, SurfaceMessageTyp.Error, string.Format(Texts.Core.ExportedToError, target) + " " + result.Error);
+                surface.SendMessageEvent(destination, SurfaceMessageTyp.Error, string.Format(Texts.Core.ExportedToError, target) + " " + result.Error, result);
             }
         }
     }

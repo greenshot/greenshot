@@ -307,6 +307,13 @@ namespace Greenshot.Recipes.Pipeline
         {
             if (string.IsNullOrEmpty(eventArgs?.Message)) return;
 
+            if (eventArgs.ExportResult != null && sender is IDestination destination)
+            {
+                // About an export: with the icon of the destination, a preview and what can be done next
+                ExportNotifications.Show(destination, eventArgs.ExportResult, eventArgs.Surface);
+                return;
+            }
+
             Notification notification;
             switch (eventArgs.MessageType)
             {

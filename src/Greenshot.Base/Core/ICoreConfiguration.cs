@@ -114,6 +114,10 @@ namespace Greenshot.Base.Core
         [DefaultValue(true)]
         bool ShowTrayNotification { get; set; }
 
+        [Description("What the notification after an export shows: ErrorsOnly, Short (where the capture went) or Full (also a preview and the buttons Open, Send to and Edit). ShowTrayNotification switches the notifications off.")]
+        [DefaultValue("Full")]
+        NotificationDetail ExportNotificationDetail { get; set; }
+
         [Description("Output file path.")]
         string OutputFilePath { get; set; }
 

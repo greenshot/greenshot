@@ -64,7 +64,19 @@ namespace Greenshot.Base.Interfaces
         /// <summary>
         /// The same result for another target (e.g. the destination picked in the picker).
         /// </summary>
-        public ExportResult WithTarget(string target) => new ExportResult(Status, FilePath, Uri, Error, target, ClearsModified, KeepsCapture, Exception);
+        public ExportResult WithTarget(string target) => new ExportResult(Status, FilePath, Uri, Error, target, ClearsModified, KeepsCapture, Exception) { ExportedBy = ExportedBy };
+
+        /// <summary>
+        /// The same result, exported by another destination than the one which returns it (e.g. the one picked in the picker).
+        /// </summary>
+        public ExportResult WithExportedBy(IDestination destination) =>
+            new ExportResult(Status, FilePath, Uri, Error, Target, ClearsModified, KeepsCapture, Exception) { ExportedBy = destination };
+
+        /// <summary>
+        /// The destination which really exported the capture when it isn't the one which returns the result (e.g. the picker), null otherwise.
+        /// The notification shows its icon.
+        /// </summary>
+        public IDestination ExportedBy { get; private set; }
 
         /// <summary>
         /// The exception which made the export fail, if any (for the log and the error report).

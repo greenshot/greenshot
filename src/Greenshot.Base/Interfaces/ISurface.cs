@@ -204,7 +204,14 @@ namespace Greenshot.Base.Interfaces
         /// <param name="generateEvents">flag specifying if the deselect needs to generate an event</param>
         void RemoveElement(IDrawableContainer elementToRemove, bool makeUndoable = true, bool invalidate = true, bool generateEvents = true);
 
-        void SendMessageEvent(object source, SurfaceMessageTyp messageType, string message);
+        /// <summary>
+        /// Raise the SurfaceMessage event (status bar of the editor, notifications)
+        /// </summary>
+        /// <param name="source">Who sends it, the destination for the message about an export</param>
+        /// <param name="messageType">Type of message</param>
+        /// <param name="message">Message itself</param>
+        /// <param name="exportResult">The result of the export the message is about, null for other messages</param>
+        void SendMessageEvent(object source, SurfaceMessageTyp messageType, string message, ExportResult exportResult = null);
         void ResizeCanvas(int left, int right, int top, int bottom);
         void ResizeCanvas(Expansion expansion);
         System.Threading.Tasks.Task ApplyBitmapEffectAsync(IEffect effect, System.Threading.CancellationToken cancellationToken = default);

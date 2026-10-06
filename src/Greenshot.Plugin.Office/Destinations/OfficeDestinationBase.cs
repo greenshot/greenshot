@@ -95,7 +95,7 @@ namespace Greenshot.Plugin.Office.Destinations
             // The user picked it: export as manually initiated, else "new document" would show the picker again
             var pickedRequest = new ExportRequest(request.Source, request.Metadata, true, request.Ui, request.Progress);
             var result = await picked.ExportAsync(pickedRequest, cancellationToken).ConfigureAwait(false);
-            return result.WithTarget(picked.Descriptor?.DisplayName);
+            return result.WithTarget(picked.Descriptor?.DisplayName).WithExportedBy(picked);
         }
 
         /// <summary>

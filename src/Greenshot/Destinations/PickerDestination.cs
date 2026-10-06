@@ -61,7 +61,7 @@ namespace Greenshot.Destinations
                 if (result.IsSucceeded)
                 {
                     // The caller applies the result (messages, surface state) for the picked destination
-                    return result.WithTarget(result.Target ?? picked.Descriptor.DisplayName);
+                    return result.WithTarget(result.Target ?? picked.Descriptor.DisplayName).WithExportedBy(picked);
                 }
 
                 // Export cancelled or failed: show the problem, and the picker again

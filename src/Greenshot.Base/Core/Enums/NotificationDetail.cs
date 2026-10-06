@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -19,19 +19,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
-
-namespace Greenshot.Base.Interfaces
+namespace Greenshot.Base.Core.Enums
 {
-    public class SurfaceMessageEventArgs : EventArgs
+    /// <summary>
+    /// How much the notification after an export shows. Whether there are notifications at all is ShowTrayNotification.
+    /// </summary>
+    public enum NotificationDetail
     {
-        public SurfaceMessageTyp MessageType { get; set; }
-        public string Message { get; set; }
-        public ISurface Surface { get; set; }
+        /// <summary>
+        /// Only when an export failed
+        /// </summary>
+        ErrorsOnly,
 
         /// <summary>
-        /// The result of the export the message is about (the sender is the destination), null for other messages
+        /// Where the capture went, with the icon of the destination
         /// </summary>
-        public ExportResult ExportResult { get; set; }
+        Short,
+
+        /// <summary>
+        /// Also a preview of the capture and the buttons to open it, send it somewhere else or edit it
+        /// </summary>
+        Full
     }
 }
