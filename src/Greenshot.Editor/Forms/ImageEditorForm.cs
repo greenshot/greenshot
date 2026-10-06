@@ -2034,17 +2034,22 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         /// A small picture of the cut mark style for the drop-down: two image parts with their edges and the gap between them
         /// </summary>
         /// <summary>
-        /// A picture for a cut edge style: two parts with the edges of the style, the gap between them shows the transparency checker pattern
+        /// A picture for a cut edge style: two parts with the edges of the style, the gap between them shows the transparency checker pattern.
+        /// There is a transparent border, so the pictures in the drop down don't touch.
         /// </summary>
         private static Bitmap CreateCutMarkPreview(CutMarkStyle cutMarkStyle)
         {
             const int size = 16;
+            const int border = 1;
+            const int inner = size - 2 * border;
             var preview = new Bitmap(size, size, PixelFormat.Format32bppArgb);
             using var graphics = Graphics.FromImage(preview);
-            graphics.Clear(Color.White);
-            for (int y = 0; y < size; y += 2)
+            graphics.Clear(Color.Transparent);
+            graphics.TranslateTransform(border, border);
+            graphics.FillRectangle(Brushes.White, 0, 0, inner, inner);
+            for (int y = 0; y < inner; y += 2)
             {
-                for (int x = (y / 2) % 2 * 2; x < size; x += 4)
+                for (int x = (y / 2) % 2 * 2; x < inner; x += 4)
                 {
                     graphics.FillRectangle(Brushes.Silver, x, y, 2, 2);
                 }
@@ -2052,21 +2057,21 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
             if (cutMarkStyle == CutMarkStyle.None)
             {
-                graphics.FillRectangle(Brushes.SteelBlue, 0, 0, size, size);
+                graphics.FillRectangle(Brushes.SteelBlue, 0, 0, inner, inner);
                 return preview;
             }
 
             const int toothHeight = 2;
-            const int bandTop = 4;
+            const int bandTop = 3;
             const int bandHeight = 8;
             var random = new Random(16);
-            var firstEdge = CutOutHelper.CreateEdge(cutMarkStyle, size, toothHeight, 4, random);
-            var secondEdge = CutOutHelper.CreateEdge(cutMarkStyle, size, toothHeight, 4, random);
-            var before = new List<PointF> { new PointF(0, 0), new PointF(size, 0) };
+            var firstEdge = CutOutHelper.CreateEdge(cutMarkStyle, inner, toothHeight, 4, random);
+            var secondEdge = CutOutHelper.CreateEdge(cutMarkStyle, inner, toothHeight, 4, random);
+            var before = new List<PointF> { new PointF(0, 0), new PointF(inner, 0) };
             before.AddRange(Enumerable.Reverse(firstEdge).Select(p => new PointF(p.X, bandTop + toothHeight - p.Y)));
             var after = secondEdge.Select(p => new PointF(p.X, bandTop + bandHeight - toothHeight + p.Y)).ToList();
-            after.Add(new PointF(size, size));
-            after.Add(new PointF(0, size));
+            after.Add(new PointF(inner, inner));
+            after.Add(new PointF(0, inner));
             graphics.SmoothingMode = SmoothingMode.AntiAlias;
             graphics.FillPolygon(Brushes.SteelBlue, before.ToArray());
             graphics.FillPolygon(Brushes.SteelBlue, after.ToArray());

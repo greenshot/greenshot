@@ -335,9 +335,7 @@ namespace Greenshot.Editor.Drawing
 
             if (GetFieldValueAsBool(FieldType.SHADOW))
             {
-                var shadowState = graphics.Save();
-                DrawShadow(graphics, bounds.Size, keptPath, tornOff);
-                graphics.Restore(shadowState);
+                DrawShadow(graphics);
             }
 
             int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
@@ -363,10 +361,10 @@ namespace Greenshot.Editor.Drawing
         internal string ShapeKey => $"{ImageBounds.Width}x{ImageBounds.Height}|{_margin}|{_seed}|{string.Join(",", _edges)}|{ToothHeight}|{ToothRange}";
 
         /// <summary>
-        /// The part which stays in image coordinates, e.g. so a cut mark doesn't cast a shadow from the torn off parts
+        /// The torn off parts in image coordinates, these are cut out of the image
         /// </summary>
         /// <returns>GraphicsPath or null when nothing is torn</returns>
-        internal GraphicsPath CreateKeptPath()
+        internal GraphicsPath CreateCutPath()
         {
             var bounds = ImageBounds;
             if (bounds.Width - 2 * _margin <= 2 || bounds.Height - 2 * _margin <= 2 || !_edges.Any(edge => edge))
@@ -374,50 +372,29 @@ namespace Greenshot.Editor.Drawing
                 return null;
             }
 
-            var path = new GraphicsPath();
+            // The image with the part which stays as hole
+            var path = new GraphicsPath(FillMode.Alternate);
+            path.AddRectangle(new Rectangle(0, 0, bounds.Width, bounds.Height));
             path.AddPolygon(CreateOutline(new Size(bounds.Width - 2 * _margin, bounds.Height - 2 * _margin), out _));
             return path;
         }
 
         /// <summary>
-        /// The shadow of the torn edge effect, cast by the part which stays into the torn off parts.
-        /// Transparent gaps of cut marks are not part of the image, so they cast no shadow.
+        /// The shadow of the torn edge effect, cast by what is left of the image into the torn off parts
         /// </summary>
-        private void DrawShadow(Graphics graphics, Size size, GraphicsPath keptPath, Region tornOff)
+        private void DrawShadow(Graphics graphics)
         {
-            var cutMarks = InternalParent?.Elements.OfType<CutMarkContainer>().Where(cutMark => cutMark.HasTransparentGap).ToList() ?? new List<CutMarkContainer>();
-            string key = $"{size.Width}x{size.Height}|{_margin}|{_seed}|{string.Join(",", _edges)}|{ToothHeight}|{ToothRange}|{_shadowDarkness}|{_shadowSize}|{_shadowOffsetX},{_shadowOffsetY}|{string.Join(";", cutMarks.Select(cutMark => cutMark.ShapeKey))}";
+            var cuts = CutShadow.GetCuts(InternalParent, this);
+            var imageSize = new Size(ImageBounds.Width, ImageBounds.Height);
+            string key = $"{imageSize}|{_shadowDarkness}|{_shadowSize}|{_shadowOffsetX},{_shadowOffsetY}|{CutShadow.GetKey(cuts)}";
             if (_shadowCache == null || _shadowCacheKey != key)
             {
                 ClearShadowCache();
-                using var mask = new Bitmap(size.Width, size.Height, PixelFormat.Format32bppArgb);
-                using (var maskGraphics = Graphics.FromImage(mask))
-                {
-                    maskGraphics.Clear(Color.Transparent);
-                    maskGraphics.SmoothingMode = SmoothingMode.HighQuality;
-                    maskGraphics.FillPath(Brushes.Black, keptPath);
-                    maskGraphics.CompositingMode = CompositingMode.SourceCopy;
-                    using var clear = new SolidBrush(Color.Transparent);
-                    foreach (var cutMark in cutMarks)
-                    {
-                        using var gapPath = cutMark.CreateTransparentGapPath();
-                        if (gapPath != null)
-                        {
-                            maskGraphics.FillPath(clear, gapPath);
-                        }
-                    }
-                }
-
-                using var matrix = new Matrix();
-                _shadowCache = ImageHelper.CreateShadow(mask, _shadowDarkness, _shadowSize, new NativePoint(_shadowOffsetX, _shadowOffsetY), matrix, PixelFormat.Format32bppArgb);
+                _shadowCache = CutShadow.CreateShadow(imageSize, cuts, _shadowDarkness, _shadowSize, new NativePoint(_shadowOffsetX, _shadowOffsetY));
                 _shadowCacheKey = key;
             }
 
-            // The mask is drawn at this offset in the shadow image, in the torn off parts only the shadow shows
-            var offset = new NativePoint(_shadowOffsetX, _shadowOffsetY).Offset(_shadowSize - 1, _shadowSize - 1);
-            // The clip is restored by the caller
-            graphics.SetClip(tornOff, CombineMode.Intersect);
-            graphics.DrawImage(_shadowCache, -offset.X, -offset.Y, _shadowCache.Width, _shadowCache.Height);
+            CutShadow.Draw(graphics, _shadowCache, this, cuts, _shadowSize, new NativePoint(_shadowOffsetX, _shadowOffsetY));
         }
 
         private void ClearShadowCache()
