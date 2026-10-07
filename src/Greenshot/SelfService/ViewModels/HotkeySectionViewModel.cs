@@ -30,6 +30,7 @@ using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
 using Greenshot.Helpers;
+using Greenshot.Recipes.Triggers;
 using log4net;
 using Microsoft.Win32;
 using Greenshot.Base.Languages;
@@ -229,12 +230,10 @@ namespace Greenshot.SelfService.ViewModels
             try
             {
                 HotkeyManager.UnregisterHotkeys();
-                bool ok = HotkeyHelper.RegisterHotkeys(true);
+                TriggerManager.Instance.RestartHotkeyTriggers();
                 RefreshGreenshotHotkeys();
 
-                StatusMessage = ok 
-                    ? (Texts.SelfService.HotkeysReregisterSuccess ?? "Successfully re-registered Greenshot hotkeys!") 
-                    : (Texts.SelfService.HotkeysReregisterConflict ?? "Hotkeys re-registered (some keys may have conflicts).");
+                StatusMessage = Texts.SelfService.HotkeysReregisterSuccess ?? "Successfully re-registered Greenshot hotkeys!";
             }
             catch (Exception ex)
             {

@@ -26,6 +26,7 @@ using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Configuration;
+using Greenshot.Recipes.Triggers;
 using log4net;
 using Greenshot.Base.Threading;
 using System.Threading;
@@ -85,7 +86,7 @@ namespace Greenshot.Helpers
                 // Even update language when needed
                 shell?.UpdateUi();
                 // Update the hotkey
-                HotkeyHelper.RegisterHotkeys();
+                TriggerManager.Instance.RestartHotkeyTriggers();
             }
             catch (Exception ex)
             {
