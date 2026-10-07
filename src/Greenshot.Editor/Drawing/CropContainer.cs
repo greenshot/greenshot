@@ -138,14 +138,6 @@ namespace Greenshot.Editor.Drawing
 
         public override void Invalidate()
         {
-            // When the crop rectangle is dragged, only the area of the old and the new rectangle changes.
-            // Adding or removing it changes the shading of the whole image.
-            if (Width != 0 && Height != 0 && _parent?.IsOnSurface(this) == true)
-            {
-                _parent.InvalidateElements(base.DrawingBounds);
-                return;
-            }
-
             _parent?.Invalidate();
         }
 
