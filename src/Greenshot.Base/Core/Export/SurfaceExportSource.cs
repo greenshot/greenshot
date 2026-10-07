@@ -189,7 +189,8 @@ namespace Greenshot.Base.Core.Export
                 {
                     var image = await RenderLockedAsync(settings, cancellationToken).ConfigureAwait(false);
                     using var stream = new MemoryStream();
-                    ImageIO.SaveToStream(image, null, stream, settings);
+                    // pass the surface to SaveToStream so that the FormatHandler can access the CaptureDetails
+                    ImageIO.SaveToStream(image, _surface, stream, settings);
                     bytes = stream.ToArray();
                 }
 
