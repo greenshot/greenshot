@@ -24,7 +24,6 @@ using System;
 using System.Windows.Forms;
 using Dapplo.Ini;
 using Dapplo.Windows.Common.Structs;
-using Dapplo.Windows.DesktopWindowsManager;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
 using log4net;
@@ -51,7 +50,7 @@ namespace Greenshot.Editor.Controls
             menuItem.DropDownClosed += OnDropDownClosed;
             menuItem.DropDownItems.Clear();
             // check if thumbnailPreview is enabled and DWM is enabled
-            bool thumbnailPreview = coreConfig.ThumnailPreview && DwmApi.IsDwmEnabled;
+            bool thumbnailPreview = coreConfig.ThumnailPreview;
 
             foreach (var window in WindowDetails.GetTopLevelWindows())
             {

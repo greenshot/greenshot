@@ -102,10 +102,6 @@ namespace Greenshot.Base.Core
         [DefaultValue(1)]
         int ScreenToCapture { get; set; }
 
-        [Description("Enable/disable capture all children, very slow but will make it possible to use this information in the editor.")]
-        [DefaultValue(false)]
-        bool WindowCaptureAllChildLocations { get; set; }
-
         [Description("Play a camera sound after taking a capture.")]
         [DefaultValue(false)]
         bool PlayCameraSound { get; set; }

@@ -33,7 +33,6 @@ using System.Windows.Media.Imaging;
 using Dapplo.Ini;
 using Dapplo.Ini.Interfaces;
 using Dapplo.Windows.Common.Structs;
-using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.User32;
 using Greenshot.Base;
 using Greenshot.Base.Core;
@@ -362,7 +361,7 @@ namespace Greenshot.Shell
         {
             windowList.Items.Clear();
             // Only show the preview when enabled and DWM is there
-            bool thumbnailPreview = conf.ThumnailPreview && DwmApi.IsDwmEnabled;
+            bool thumbnailPreview = conf.ThumnailPreview;
 
             foreach (var window in WindowDetails.GetTopLevelWindows())
             {
