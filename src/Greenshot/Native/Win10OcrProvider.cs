@@ -25,6 +25,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Dapplo.Windows.Common.Extensions;
@@ -52,9 +53,21 @@ namespace Greenshot.Plugin.Win10
         private const int MinHeight = 130;
 
         /// <summary>
-        /// Constructor, this is only debug information
+        /// Constructor, logs the available languages when debug logging is on (the provider is created at startup)
         /// </summary>
         public Win10OcrProvider()
+        {
+            if (Log.IsDebugEnabled)
+            {
+                LogAvailableLanguages();
+            }
+        }
+
+        /// <summary>
+        /// Separate method, so the OCR engine isn't loaded at startup when nothing is logged
+        /// </summary>
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void LogAvailableLanguages()
         {
             foreach (var language in OcrEngine.AvailableRecognizerLanguages)
             {

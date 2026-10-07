@@ -27,6 +27,7 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Interfaces;
+using Newtonsoft.Json;
 
 namespace Greenshot.Base.Core.OAuth
 {
@@ -73,7 +74,7 @@ namespace Greenshot.Base.Core.OAuth
 
             string accessTokenJsonResult = await NetworkHelper.PostFormUrlEncodedAsync(settings.TokenUrl, data, cancellationToken, true).ConfigureAwait(false);
 
-            IDictionary<string, object> refreshTokenResult = JSONHelper.JsonDecode(accessTokenJsonResult);
+            IDictionary<string, object> refreshTokenResult = JsonConvert.DeserializeObject<Dictionary<string, object>>(accessTokenJsonResult);
             if (refreshTokenResult.ContainsKey("error"))
             {
                 if (refreshTokenResult.ContainsKey("error_description"))
@@ -104,7 +105,7 @@ namespace Greenshot.Base.Core.OAuth
                 object seconds = refreshTokenResult[ExpiresIn];
                 if (seconds != null)
                 {
-                    settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds((double) seconds);
+                    settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds(Convert.ToDouble(seconds));
                 }
             }
 
@@ -138,7 +139,7 @@ namespace Greenshot.Base.Core.OAuth
             //  "expires_in":3920,
             //  "token_type":"Bearer",
 
-            IDictionary<string, object> accessTokenResult = JSONHelper.JsonDecode(accessTokenJsonResult);
+            IDictionary<string, object> accessTokenResult = JsonConvert.DeserializeObject<Dictionary<string, object>>(accessTokenJsonResult);
             if (accessTokenResult.ContainsKey("error"))
             {
                 if ("invalid_grant" == (string) accessTokenResult["error"])
@@ -176,7 +177,7 @@ namespace Greenshot.Base.Core.OAuth
                 object seconds = accessTokenResult[ExpiresIn];
                 if (seconds != null)
                 {
-                    settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds((double) seconds);
+                    settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds(Convert.ToDouble(seconds));
                 }
             }
         }

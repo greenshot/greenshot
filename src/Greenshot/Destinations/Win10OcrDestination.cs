@@ -50,18 +50,6 @@ namespace Greenshot.Destinations
             new DestinationDescriptor("Windows OCR", 3, DestinationIcons.Exe(FilenameHelper.FillCmdVariables(@"%windir%\system32\imageres.dll"), 97));
 
         /// <summary>
-        /// Constructor, this is only debug information
-        /// </summary>
-        public Win10OcrDestination()
-        {
-            var languages = OcrEngine.AvailableRecognizerLanguages;
-            foreach (var language in languages)
-            {
-                Log.DebugFormat("Found language {0} {1}", language.NativeName, language.LanguageTag);
-            }
-        }
-
-        /// <summary>
         /// Run the Windows OCR engine to process the text on the captured image
         /// </summary>
         public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)

@@ -158,6 +158,14 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         }
 
         _surface.AdjustToDpi(DeviceDpi);
+        if (_fitToCaptureAfterDpiChange && WindowState == FormWindowState.Normal)
+        {
+            // Toolbar heights don't scale exactly with the DPI, fit the window to the capture once more
+            PerformLayout();
+            Size = GetOptimalWindowSize();
+        }
+
+        _fitToCaptureAfterDpiChange = false;
         AlignCanvasPositionAfterResize();
     }));
 }
@@ -234,11 +242,16 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             obfuscateModeButton.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "obfuscateModeButton.Image");
             pixelizeToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "pixelizeToolStripMenuItem.Image");
             blurToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "blurToolStripMenuItem.Image");
-            cropModeButton.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnCrop.Image");
-            defaultCropModeToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnCrop.Image");
-            verticalCropModeToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "CropVertical.Image");
-            horizontalCropModeToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "CropHorizontal.Image");
-            autoCropModeToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "AutoCrop.Image");
+            btnCropDefault.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnCrop.Image");
+            btnCropVertical.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "CropVertical.Image");
+            btnCropHorizontal.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "CropHorizontal.Image");
+            btnCropAuto.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "AutoCrop.Image");
+            foreach (ToolStripItem cutMarkItem in cutMarkStyleButton.DropDownItems)
+            {
+                cutMarkItem.Image = CreateCutMarkPreview((CutMarkStyle)cutMarkItem.Tag);
+                // The pictures fill the whole item, this keeps them apart
+                cutMarkItem.Padding = new Padding(0, 3, 0, 3);
+            }
             highlightModeButton.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "highlightModeButton.Image");
             textHighlightMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "textHighlightMenuItem.Image");
             areaHighlightMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "areaHighlightMenuItem.Image");
@@ -259,6 +272,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             arrowHeadNoneMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "arrowHeadNoneMenuItem.Image");
             shadowButton.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "shadowButton.Image");
             btnConfirm.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnConfirm.Image");
+            btnApplyToImage.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnConfirm.Image");
             btnCancel.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnCancel.Image");
             closeAllToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "closeToolStripMenuItem.Image");
             closeToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "closeToolStripMenuItem.Image");
@@ -1344,7 +1358,14 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                         BtnObfuscateClick(sender, e);
                         break;
                     case Keys.C:
-                        BtnCropClick(sender, e);
+                        if (_surface.DrawingMode == DrawingModes.Crop)
+                        {
+                            CycleCropMode();
+                        }
+                        else
+                        {
+                            BtnCropClick(sender, e);
+                        }
                         break;
                     case Keys.M:
                         BtnEmojiClick(sender, e);
@@ -1628,6 +1649,10 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             new BidirectionalBinding(btnLineColor, "SelectedColor", _surface.FieldAggregator.GetField(FieldType.LINE_COLOR), "Value", NotNullValidator.GetInstance());
             new BidirectionalBinding(lineThicknessUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.LINE_THICKNESS), "Value", DecimalIntConverter.GetInstance(),
                 NotNullValidator.GetInstance());
+            new BidirectionalBinding(toothHeightUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.TOOTH_HEIGHT), "Value", DecimalIntConverter.GetInstance(),
+                NotNullValidator.GetInstance());
+            new BidirectionalBinding(toothRangeUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.TOOTH_RANGE), "Value", DecimalIntConverter.GetInstance(),
+                NotNullValidator.GetInstance());
             new BidirectionalBinding(blurRadiusUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.BLUR_RADIUS), "Value", DecimalIntConverter.GetInstance(),
                 NotNullValidator.GetInstance());
             new BidirectionalBinding(magnificationFactorUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.MAGNIFICATION_FACTOR), "Value",
@@ -1649,7 +1674,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             new BidirectionalBinding(previewQualityUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.PREVIEW_QUALITY), "Value",
                 DecimalDoublePercentageConverter.GetInstance(), NotNullValidator.GetInstance());
             new BidirectionalBinding(obfuscateModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.PREPARED_FILTER_OBFUSCATE), "Value");
-            new BidirectionalBinding(cropModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.CROPMODE), "Value");
+            new BidirectionalBinding(cutMarkStyleButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.CUT_MARK_STYLE), "Value");
             new BidirectionalBinding(highlightModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.PREPARED_FILTER_HIGHLIGHT), "Value");
             new BidirectionalBinding(arrowHeadsDropDownButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.ARROWHEADS), "Value",
                 NotNullValidator.GetInstance());
@@ -1669,6 +1694,9 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 btnFillColor.Visible = props.HasFieldValue(FieldType.FILL_COLOR);
                 btnLineColor.Visible = props.HasFieldValue(FieldType.LINE_COLOR);
                 lineThicknessLabel.Visible = lineThicknessUpDown.Visible = props.HasFieldValue(FieldType.LINE_THICKNESS);
+                toothHeightLabel.Visible = toothHeightUpDown.Visible = props.HasFieldValue(FieldType.TOOTH_HEIGHT);
+                toothRangeLabel.Visible = toothRangeUpDown.Visible = props.HasFieldValue(FieldType.TOOTH_RANGE);
+                btnApplyToImage.Visible = _surface.SelectedElements?.Any(element => element is CutMarkContainer or TornEdgeContainer) == true;
                 blurRadiusLabel.Visible = blurRadiusUpDown.Visible = props.HasFieldValue(FieldType.BLUR_RADIUS);
                 previewQualityLabel.Visible = previewQualityUpDown.Visible = props.HasFieldValue(FieldType.PREVIEW_QUALITY);
                 magnificationFactorLabel.Visible = magnificationFactorUpDown.Visible = props.HasFieldValue(FieldType.MAGNIFICATION_FACTOR);
@@ -1692,7 +1720,17 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 btnConfirm.Enabled = _surface.HasSelectedElements;
 
                 obfuscateModeButton.Visible = props.HasFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE);
-                cropModeButton.Visible = props.HasFieldValue(FieldType.CROPMODE);
+                bool cropping = props.HasFieldValue(FieldType.CROPMODE);
+                var cropMode = cropping ? (CropContainer.CropModes)props.GetFieldValue(FieldType.CROPMODE) : CropContainer.CropModes.Default;
+                foreach (var cropModeButton in new[] { btnCropDefault, btnCropVertical, btnCropHorizontal, btnCropAuto })
+                {
+                    cropModeButton.Visible = cropping;
+                    cropModeButton.Checked = cropping && Equals(cropModeButton.Tag, cropMode);
+                }
+
+                // The cut edges are for crop and crop out, or for selected cut or torn edges
+                cutMarkLabel.Visible = cutMarkStyleButton.Visible = props.HasFieldValue(FieldType.CUT_MARK_STYLE) &&
+                                             (!cropping || cropMode != CropContainer.CropModes.AutoCrop);
                 highlightModeButton.Visible = props.HasFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT);
             }
             else
@@ -1715,22 +1753,24 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         /// <summary>
         /// refreshes all editor controls depending on selected elements and their fields
         /// </summary>
+        private string _stepLabelIconName;
+        private Image _stepLabelIcon;
+
         private void RefreshEditorControls()
         {
             if (IsDisposed || Disposing) return;
             int stepLabels = _surface.CountStepLabels(null);
-            Image icon;
-            if (stepLabels <= 20)
+            string stepLabelIconName = stepLabels <= 20 ? $"btnStepLabel{stepLabels:00}.Image" : "btnStepLabel20+.Image";
+            // This runs on every selection change, only decode the icon when the number changed
+            if (stepLabelIconName != _stepLabelIconName)
             {
-                icon = EmbeddedResources.GetImage(typeof(ImageEditorForm), $"btnStepLabel{stepLabels:00}.Image");
+                var previousIcon = _stepLabelIcon;
+                _stepLabelIcon = EmbeddedResources.GetImage(typeof(ImageEditorForm), stepLabelIconName);
+                _stepLabelIconName = stepLabelIconName;
+                btnStepLabel.Image = _stepLabelIcon;
+                addCounterToolStripMenuItem.Image = _stepLabelIcon;
+                previousIcon?.Dispose();
             }
-            else
-            {
-                icon = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnStepLabel20+.Image");
-            }
-
-            btnStepLabel.Image = icon;
-            addCounterToolStripMenuItem.Image = icon;
 
             FieldAggregator props = (FieldAggregator)_surface.FieldAggregator;
             // if a confirmable element is selected, we must disable most of the controls
@@ -1974,9 +2014,78 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             Invalidate(true);
         }
 
-        protected void CropStyleDropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        private void CropModeButtonClick(object sender, EventArgs e)
         {
-            InitCropMode((CropContainer.CropModes)e.ClickedItem.Tag);
+            SelectCropMode((CropContainer.CropModes)((ToolStripItem)sender).Tag);
+        }
+
+        /// <summary>
+        /// Pressing C again while cropping goes to the next crop mode
+        /// </summary>
+        private void CycleCropMode()
+        {
+            var cropMode = (CropContainer.CropModes)_surface.FieldAggregator.GetField(FieldType.CROPMODE).Value;
+            SelectCropMode(cropMode switch
+            {
+                CropContainer.CropModes.Default => CropContainer.CropModes.Vertical,
+                CropContainer.CropModes.Vertical => CropContainer.CropModes.Horizontal,
+                CropContainer.CropModes.Horizontal => CropContainer.CropModes.AutoCrop,
+                _ => CropContainer.CropModes.Default
+            });
+        }
+
+        /// <summary>
+        /// A small picture of the cut mark style for the drop-down: two image parts with their edges and the gap between them
+        /// </summary>
+        /// <summary>
+        /// A picture for a cut edge style: two parts with the edges of the style, the gap between them shows the transparency checker pattern.
+        /// There is a transparent border, so the pictures in the drop down don't touch.
+        /// </summary>
+        private static Bitmap CreateCutMarkPreview(CutMarkStyle cutMarkStyle)
+        {
+            const int size = 16;
+            const int border = 2;
+            const int inner = size - 2 * border;
+            var preview = new Bitmap(size, size, PixelFormat.Format32bppArgb);
+            using var graphics = Graphics.FromImage(preview);
+            graphics.Clear(Color.Transparent);
+            graphics.TranslateTransform(border, border);
+            graphics.FillRectangle(Brushes.White, 0, 0, inner, inner);
+            for (int y = 0; y < inner; y += 2)
+            {
+                for (int x = (y / 2) % 2 * 2; x < inner; x += 4)
+                {
+                    graphics.FillRectangle(Brushes.Silver, x, y, 2, 2);
+                }
+            }
+
+            if (cutMarkStyle == CutMarkStyle.None)
+            {
+                graphics.FillRectangle(Brushes.SteelBlue, 0, 0, inner, inner);
+                return preview;
+            }
+
+            const int toothHeight = 2;
+            const int bandTop = 2;
+            const int bandHeight = 8;
+            var random = new Random(16);
+            var firstEdge = CutOutHelper.CreateEdge(cutMarkStyle, inner, toothHeight, 4, random);
+            var secondEdge = CutOutHelper.CreateEdge(cutMarkStyle, inner, toothHeight, 4, random);
+            var before = new List<PointF> { new PointF(0, 0), new PointF(inner, 0) };
+            before.AddRange(Enumerable.Reverse(firstEdge).Select(p => new PointF(p.X, bandTop + toothHeight - p.Y)));
+            var after = secondEdge.Select(p => new PointF(p.X, bandTop + bandHeight - toothHeight + p.Y)).ToList();
+            after.Add(new PointF(inner, inner));
+            after.Add(new PointF(0, inner));
+            graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            graphics.FillPolygon(Brushes.SteelBlue, before.ToArray());
+            graphics.FillPolygon(Brushes.SteelBlue, after.ToArray());
+            return preview;
+        }
+
+        private void SelectCropMode(CropContainer.CropModes cropMode)
+        {
+            _surface.FieldAggregator.GetField(FieldType.CROPMODE).Value = cropMode;
+            InitCropMode(cropMode);
 
             RefreshFieldControls();
             Invalidate(true);
@@ -1996,7 +2105,6 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                     //not AutoCrop possible automatic switch to default crop mode
                     _surface.DrawingMode = DrawingModes.Crop;
                     _surface.FieldAggregator.GetField(FieldType.CROPMODE).Value = CropContainer.CropModes.Default;
-                    this.cropModeButton.SelectedTag = CropContainer.CropModes.Default;
                     this.statusLabel.Text = Texts.Editor.AutocropNotPossible;
                 }
             }
@@ -2017,6 +2125,20 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         {
             _surface.Confirm(true);
             RefreshEditorControls();
+        }
+
+        /// <summary>
+        /// Draw the selected cut edges or torn edges into the image
+        /// </summary>
+        private void BtnApplyToImageClick(object sender, EventArgs e)
+        {
+            foreach (var element in _surface.SelectedElements.Where(element => element is CutMarkContainer or TornEdgeContainer).ToList())
+            {
+                _surface.ApplyElementToImage(element);
+            }
+
+            UpdateUndoRedoSurfaceDependencies();
+            RefreshFieldControls();
         }
 
         private void BtnCancelClick(object sender, EventArgs e)
@@ -2268,7 +2390,10 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
             if (apply)
             {
-                ApplyEffect(tornEdgeEffect);
+                // The torn edges are an element, so they can be changed or removed later
+                _surface.AddTornEdges(tornEdgeEffect);
+                UpdateUndoRedoSurfaceDependencies();
+                RefreshFieldControls();
             }
         }
 
@@ -2544,8 +2669,50 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             return false;
         }
 
+        /// <summary>
+        /// Sent before WM_DPICHANGED, the window can choose its own size for the new DPI
+        /// </summary>
+        private const int WmGetDpiScaledSize = 0x02E4;
+
+        /// <summary>
+        /// Set when the window was fitted to the capture before a DPI change, so it is fitted again afterwards
+        /// </summary>
+        private bool _fitToCaptureAfterDpiChange;
+
+        /// <summary>
+        /// Windows scales the whole window on a DPI change, including the canvas area.
+        /// The capture keeps its size in pixels, so this would add empty space around it.
+        /// Scale only the toolbars, menus and borders, and keep the canvas area the same size in pixels.
+        /// </summary>
+        /// <param name="m">Message WM_GETDPISCALEDSIZE, wParam has the new DPI, lParam points to a SIZE to fill</param>
+        /// <returns>true if the size was set</returns>
+        private bool TryHandleGetDpiScaledSize(ref Message m)
+        {
+            int oldDpi = DeviceDpi;
+            int newDpi = (int)(m.WParam.ToInt64() & 0xFFFF);
+            if (WindowState != FormWindowState.Normal || oldDpi <= 0 || newDpi <= 0 || newDpi == oldDpi || m.LParam == IntPtr.Zero)
+            {
+                return false;
+            }
+
+            _fitToCaptureAfterDpiChange = Size == GetOptimalWindowSize();
+            var chromeSize = GetChromeSize();
+            var canvasAreaSize = panel1.ClientSize;
+            int width = (int)Math.Round(chromeSize.Width * (double)newDpi / oldDpi) + canvasAreaSize.Width;
+            int height = (int)Math.Round(chromeSize.Height * (double)newDpi / oldDpi) + canvasAreaSize.Height;
+            System.Runtime.InteropServices.Marshal.WriteInt32(m.LParam, 0, width);
+            System.Runtime.InteropServices.Marshal.WriteInt32(m.LParam, 4, height);
+            m.Result = new IntPtr(1);
+            return true;
+        }
+
         protected override void WndProc(ref Message m)
         {
+            if (m.Msg == WmGetDpiScaledSize && TryHandleGetDpiScaledSize(ref m))
+            {
+                return;
+            }
+
             if (!WndProcDefaults.TryHandleMessage(ref m))
             {
                 base.WndProc(ref m);
@@ -2678,11 +2845,19 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             this.obfuscateModeButton.Text = Texts.Editor.ObfuscateMode;
             this.pixelizeToolStripMenuItem.Text = Texts.Editor.ObfuscatePixelize;
             this.blurToolStripMenuItem.Text = Texts.Editor.ObfuscateBlur;
-            this.cropModeButton.Text = Texts.Editor.CropMode;
-            this.defaultCropModeToolStripMenuItem.Text = Texts.Editor.CropmodeDefault;
-            this.verticalCropModeToolStripMenuItem.Text = Texts.Editor.CropmodeVertical;
-            this.horizontalCropModeToolStripMenuItem.Text = Texts.Editor.CropmodeHorizontal;
-            this.autoCropModeToolStripMenuItem.Text = Texts.Editor.CropmodeAuto;
+            this.btnCropDefault.Text = Texts.Editor.CropmodeDefault;
+            this.btnCropVertical.Text = Texts.Editor.CropmodeVertical;
+            this.btnCropHorizontal.Text = Texts.Editor.CropmodeHorizontal;
+            this.btnCropAuto.Text = Texts.Editor.CropmodeAuto;
+            this.cutMarkLabel.Text = Texts.Editor.CutMark;
+            this.cutMarkStyleButton.ToolTipText = Texts.Editor.CutMark;
+            this.cutMarkNoneMenuItem.Text = Texts.Editor.CutMarkNone;
+            this.cutMarkLineMenuItem.Text = Texts.Editor.CutMarkLine;
+            this.cutMarkZigZagMenuItem.Text = Texts.Editor.CutMarkZigzag;
+            this.cutMarkWaveMenuItem.Text = Texts.Editor.CutMarkWave;
+            this.cutMarkTornMenuItem.Text = Texts.Editor.CutMarkTorn;
+            // The button shows the picture of the selected style
+            this.cutMarkStyleButton.SelectedTag = this.cutMarkStyleButton.SelectedTag;
             this.highlightModeButton.Text = Texts.Editor.HighlightMode;
             this.textHighlightMenuItem.Text = Texts.Editor.HighlightText;
             this.areaHighlightMenuItem.Text = Texts.Editor.HighlightArea;
@@ -2692,6 +2867,8 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             this.btnLineColor.Text = Texts.Editor.Forecolor;
             this.counterLabel.Text = Texts.Editor.CounterStartvalue;
             this.lineThicknessLabel.Text = Texts.Editor.Thickness;
+            this.toothHeightLabel.Text = Texts.Editor.TornedgeToothsize;
+            this.toothRangeLabel.Text = Texts.Editor.CutMarkToothRange;
             this.fontSizeLabel.Text = Texts.Editor.Fontsize;
             this.fontBoldButton.Text = Texts.Editor.Bold;
             this.fontItalicButton.Text = Texts.Editor.Italic;
@@ -2712,6 +2889,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             this.arrowHeadNoneMenuItem.Text = Texts.Editor.ArrowheadsNone;
             this.shadowButton.Text = Texts.Editor.Shadow;
             this.btnConfirm.Text = Texts.Editor.Confirm;
+            this.btnApplyToImage.Text = Texts.Editor.ApplyToImage;
             this.btnCancel.Text = Texts.Core.Cancel;
             this.closeAllToolStripMenuItem.Text = Texts.Editor.CloseAll;
             this.closeToolStripMenuItem.Text = Texts.Editor.Close;

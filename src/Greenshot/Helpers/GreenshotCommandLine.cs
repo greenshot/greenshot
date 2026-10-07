@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 // Kernel32Api is required to attach to (or allocate) a Windows console window before
 // printing help text, because Greenshot is built as a WinExe and has no console by default.
@@ -118,8 +119,21 @@ namespace Greenshot.Helpers
         /// </returns>
         public static CommandLineOptions Parse(string[] args)
         {
-            args ??= [];
+            // Most starts (autostart, the start menu) have no arguments: this doesn't load and initialize System.CommandLine
+            if (args == null || args.Length == 0)
+            {
+                return new CommandLineOptions();
+            }
 
+            return ParseArguments(args);
+        }
+
+        /// <summary>
+        /// Parses a command line with at least one argument, kept apart from Parse so System.CommandLine is only loaded when it's needed
+        /// </summary>
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static CommandLineOptions ParseArguments(string[] args)
+        {
             // The startup options come first; everything from the first other argument on is the command
             int commandStart = 0;
             while (commandStart < args.Length)

@@ -177,13 +177,12 @@ namespace Greenshot.Recipes.Steps
 
         private static List<WindowDetails> EnumerateSnapWindows(CancellationToken cancellationToken)
         {
-            int depth = CoreConfig.WindowCaptureAllChildLocations ? 20 : 3;
             var snapWindows = new List<WindowDetails>();
             foreach (var window in WindowDetails.GetVisibleWindows())
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 window.FreezeDetails();
-                window.GetChildren(depth);
+                window.GetChildren(1);
                 snapWindows.Add(window);
             }
             return snapWindows;

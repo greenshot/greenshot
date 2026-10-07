@@ -23,6 +23,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Runtime;
 using System.Threading;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
@@ -156,6 +158,8 @@ namespace Greenshot.Shell
                     return;
                 }
 
+                StartJitProfile();
+
                 // This is the Greenshot instance which runs: read greenshot.ini now, before anything (the language, the plugins,
                 // the shell) uses the configuration. The plugins add their sections later, they are filled from the loaded content.
                 IniConfigRegistry.Get().Load();
@@ -237,6 +241,31 @@ namespace Greenshot.Shell
             };
         }
 
+
+        /// <summary>
+        /// Multi-core JIT: the methods which were JIT-compiled during the previous start are compiled on another core this time.
+        /// Only the instance which runs records the profile, a start which forwards its command would overwrite it with a short one.
+        /// </summary>
+        private static void StartJitProfile()
+        {
+            // The portable app (PAF) leaves no files outside its own directory
+            if (GreenshotEnvironment.IsPortable)
+            {
+                return;
+            }
+
+            try
+            {
+                var profileRoot = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Greenshot");
+                Directory.CreateDirectory(profileRoot);
+                ProfileOptimization.SetProfileRoot(profileRoot);
+                ProfileOptimization.StartProfile("Startup.profile");
+            }
+            catch (Exception ex)
+            {
+                Log.Debug("Couldn't start the multi-core JIT profile", ex);
+            }
+        }
 
         internal static void FreeMutex()
         {

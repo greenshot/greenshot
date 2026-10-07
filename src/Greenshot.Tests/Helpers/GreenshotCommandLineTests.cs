@@ -27,6 +27,23 @@ namespace Greenshot.Tests.Helpers
     public class GreenshotCommandLineTests
     {
         [Fact]
+        public void Parse_NoArguments_DefaultsWithoutCommand()
+        {
+            // Autostart: no startup options and no command
+            foreach (string[] args in new[] { System.Array.Empty<string>(), null })
+            {
+                CommandLineOptions options = GreenshotCommandLine.Parse(args);
+
+                Assert.NotNull(options);
+                Assert.False(options.NoRun);
+                Assert.False(options.Restore);
+                Assert.Null(options.Language);
+                Assert.Null(options.IniDirectory);
+                Assert.Empty(options.CommandArguments);
+            }
+        }
+
+        [Fact]
         public void Parse_FileArgument_IsTheCommand()
         {
             // The form the shell uses when Greenshot.exe was chosen via "Open with"

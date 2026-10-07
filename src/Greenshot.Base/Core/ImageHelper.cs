@@ -369,12 +369,12 @@ namespace Greenshot.Base.Core
         /// <param name="verticalToothRange">How wide is a vertical tooth</param>
         /// <param name="edges">bool[] with information on if the edge needs torn or not. Order is clockwise: 0=top,1=right,2=bottom,3=left</param>
         /// <returns>Changed bitmap</returns>
-        public static Image CreateTornEdge(Image sourceImage, int toothHeight, int horizontalToothRange, int verticalToothRange, bool[] edges)
+        public static Image CreateTornEdge(Image sourceImage, int toothHeight, int horizontalToothRange, int verticalToothRange, bool[] edges, int? seed = null)
         {
             Image returnImage = CreateEmpty(sourceImage.Width, sourceImage.Height, PixelFormat.Format32bppArgb, Color.Empty, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
             using (var path = new GraphicsPath())
             {
-                Random random = new Random();
+                Random random = seed.HasValue ? new Random(seed.Value) : new Random();
                 int horizontalRegions = (int) Math.Round((float) sourceImage.Width / horizontalToothRange);
                 int verticalRegions = (int) Math.Round((float) sourceImage.Height / verticalToothRange);
 
@@ -1265,6 +1265,11 @@ namespace Greenshot.Base.Core
                 {
                     // Rule 2: Make sure the background color is white
                     graphics.Clear(Color.White);
+                }
+                else
+                {
+                    // Nothing to blend with, copy the pixels as they are: the default SourceOver blends every pixel
+                    graphics.CompositingMode = CompositingMode.SourceCopy;
                 }
 
                 // decide fastest copy method

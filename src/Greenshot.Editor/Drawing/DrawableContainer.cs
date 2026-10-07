@@ -543,7 +543,7 @@ namespace Greenshot.Editor.Drawing
             _parent?.MakeUndoable(new DrawableContainerBoundsChangeMemento(this), allowMerge);
         }
 
-        public void MoveBy(int dx, int dy)
+        public virtual void MoveBy(int dx, int dy)
         {
             Left += dx;
             Top += dy;

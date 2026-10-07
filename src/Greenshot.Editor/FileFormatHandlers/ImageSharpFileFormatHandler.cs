@@ -150,8 +150,16 @@ namespace Greenshot.Editor.FileFormatHandlers
                 bitmap = null;
                 return false;
             }
-            using (var image = Image.Load(stream, decoder))
+            // Decode straight into the pixel layout of the GDI+ bitmap, this saves a converted copy of the whole image.
+            // JPEG has no transparency, it stays 24 bit.
+            if (decoder is JpegDecoder)
             {
+                using var image = Image.Load<SixLabors.ImageSharp.PixelFormats.Bgr24>(stream, decoder);
+                bitmap = ImageSharpHelper.ToBitmap(image);
+            }
+            else
+            {
+                using var image = Image.Load<SixLabors.ImageSharp.PixelFormats.Bgra32>(stream, decoder);
                 bitmap = ImageSharpHelper.ToBitmap(image);
             }
             return true;

@@ -102,10 +102,6 @@ namespace Greenshot.Base.Core
         [DefaultValue(1)]
         int ScreenToCapture { get; set; }
 
-        [Description("Enable/disable capture all children, very slow but will make it possible to use this information in the editor.")]
-        [DefaultValue(false)]
-        bool WindowCaptureAllChildLocations { get; set; }
-
         [Description("Play a camera sound after taking a capture.")]
         [DefaultValue(false)]
         bool PlayCameraSound { get; set; }
@@ -313,10 +309,6 @@ namespace Greenshot.Base.Core
         [Description("A list of experimental features, this allows us to test certain features before releasing them.")]
         List<string> ExperimentalFeatures { get; set; }
 
-        [Description("Enable a special DIB clipboard reader")]
-        [DefaultValue(true)]
-        bool EnableSpecialDIBClipboardReader { get; set; }
-
         [Description("Specify what action is made if the tray icon is left clicked, if a double-click action is specified this action is initiated after a delay (configurable via the windows double-click speed)")]
         [DefaultValue("SHOW_CONTEXT_MENU")]
         ClickActions LeftClickAction { get; set; }
@@ -392,16 +384,6 @@ namespace Greenshot.Base.Core
         [Description("The colors of Greenshot's windows and menus: System (follow the Windows settings), Light or Dark. A high contrast theme of Windows always wins.")]
         [DefaultValue("System")]
         UiTheme Theme { get; set; }
-
-        [Description("The connect timeout value for web requests, these are seconds")]
-        [DefaultValue(10)]
-        [Range(1, 100, ErrorMessage = "WebRequestTimeout must be between 1 and 100 seconds.")]
-        int WebRequestTimeout { get; set; }
-
-        [Description("The read/write timeout value for web requests, these are seconds")]
-        [DefaultValue(10)]
-        [Range(1, 100, ErrorMessage = "WebRequestReadWriteTimeout must be between 1 and 100 seconds.")]
-        int WebRequestReadWriteTimeout { get; set; }
 
         [Description("List of hostnames or domain patterns (e.g. jira.internal, *.mycompany.local) for which SSL/TLS certificate validation errors are ignored.")]
         List<string> AllowedUntrustedCertificateHosts { get; set; }

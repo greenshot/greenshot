@@ -78,7 +78,8 @@ namespace Greenshot.Editor.FileFormatHandlers
         {
             try
             {
-                var surface = LoadSurface(stream);
+                // The export is a new image, the surface with its own copy and elements isn't needed afterwards
+                using var surface = LoadSurface(stream);
                 bitmap = (Bitmap)surface.GetImageForExport();
                 return true;
             }
