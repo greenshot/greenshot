@@ -393,15 +393,24 @@ namespace Greenshot.Base.Core
         private static void AddImageFormats(ClipboardContent content, Image imageToSave, IList<ClipboardFormat> activeFormats)
         {
             var contents = content.Contents;
+            // The PNG, HTML and HTMLDATAURL formats all use the same PNG, it's encoded only once
+            MemoryStream pngStream = null;
+            MemoryStream GetPngStream()
+            {
+                if (pngStream == null)
+                {
+                    pngStream = content.Own(CreatePngStream(imageToSave));
+                }
+                return pngStream;
+            }
+
             if (activeFormats.Contains(ClipboardFormat.PNG))
             {
                 try
                 {
-                    var pngStream = content.Own(RecyclableMemoryStreamFactory.GetStream("ClipboardHelper.PNG"));
                     // PNG works for e.g. Powerpoint
-                    ImageIO.SaveToStream(imageToSave, null, pngStream, new SurfaceOutputSettings(WellKnownFileFormats.Png, 100, false));
-                    pngStream.Position = 0;
-                    contents.AddStream(FormatPng, pngStream, pngStream.Length);
+                    var png = GetPngStream();
+                    contents.AddStream(FormatPng, png, png.Length);
                     content.HasData = true;
                 }
                 catch (Exception pngEx)
@@ -440,13 +449,15 @@ namespace Greenshot.Base.Core
             {
                 if (activeFormats.Contains(ClipboardFormat.HTML))
                 {
-                    string tmpFile = ImageIO.SaveToTmpFile(imageToSave, new SurfaceOutputSettings(WellKnownFileFormats.Png, 100, false), null);
+                    string tmpFile = ImageIO.SaveEncodedToTmpFile(GetPngStream(), WellKnownFileFormats.Png, null);
                     contents.AddHtml(CreateImageFragment(new Uri(tmpFile).AbsoluteUri, imageToSave.Size));
                     content.HasData = true;
                 }
                 else if (activeFormats.Contains(ClipboardFormat.HTMLDATAURL))
                 {
-                    contents.AddHtml(CreateImageFragment(CreatePngDataUrl(imageToSave), imageToSave.Size));
+                    var png = GetPngStream();
+                    string dataUrl = "data:image/png;base64," + Convert.ToBase64String(png.GetBuffer(), 0, (int)png.Length);
+                    contents.AddHtml(CreateImageFragment(dataUrl, imageToSave.Size));
                     content.HasData = true;
                 }
             }
@@ -456,26 +467,38 @@ namespace Greenshot.Base.Core
             }
         }
 
-        private static string CreatePngDataUrl(Image image)
+        /// <summary>
+        /// Encode the image as PNG for the clipboard, used for the PNG, HTML and HTMLDATAURL formats
+        /// </summary>
+        private static MemoryStream CreatePngStream(Image image)
         {
-            using MemoryStream pngStream = RecyclableMemoryStreamFactory.GetStream("ClipboardHelper.HTMLDATAURL");
+            var pngStream = RecyclableMemoryStreamFactory.GetStream("ClipboardHelper.PNG");
             var pngOutputSettings = new SurfaceOutputSettings(WellKnownFileFormats.Png, 100, false)
             {
                 // Do not allow to reduce the colors, some applications dislike 256 color images
                 // reported with bug #3594681
                 DisableReduceColors = true
             };
-            if (image.PixelFormat != PixelFormat.Format8bppIndexed)
+            try
             {
-                ImageIO.SaveToStream(image, null, pngStream, pngOutputSettings);
+                if (image.PixelFormat != PixelFormat.Format8bppIndexed)
+                {
+                    ImageIO.SaveToStream(image, null, pngStream, pngOutputSettings);
+                }
+                else
+                {
+                    // A 256 color image is converted first, some applications dislike them
+                    using var fullColorImage = ImageHelper.Clone(image, PixelFormat.Format32bppArgb);
+                    ImageIO.SaveToStream(fullColorImage, null, pngStream, pngOutputSettings);
+                }
             }
-            else
+            catch
             {
-                // A 256 color image is converted first, some applications dislike them
-                using var fullColorImage = ImageHelper.Clone(image, PixelFormat.Format32bppArgb);
-                ImageIO.SaveToStream(fullColorImage, null, pngStream, pngOutputSettings);
+                pngStream.Dispose();
+                throw;
             }
-            return "data:image/png;base64," + Convert.ToBase64String(pngStream.GetBuffer(), 0, (int)pngStream.Length);
+            pngStream.Position = 0;
+            return pngStream;
         }
 
         /// <summary>

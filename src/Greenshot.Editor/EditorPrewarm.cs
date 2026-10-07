@@ -21,7 +21,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -88,7 +87,7 @@ namespace Greenshot.Editor
 #pragma warning restore RS0030
             {
                 // The installed fonts for the font family combobox
-                _ = FontFamily.Families.Length;
+                _ = Controls.FontFamilyComboBox.InstalledFamilies.Length;
                 // Reading the embedded resources (the images of the buttons) the first time
                 foreach (string name in EmbeddedResources.GetNames(typeof(ImageEditorForm)))
                 {

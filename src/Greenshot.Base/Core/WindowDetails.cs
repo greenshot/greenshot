@@ -53,23 +53,6 @@ namespace Greenshot.Base.Core
         private static readonly ILog Log = LogManager.GetLogger(typeof(WindowDetails));
         private static readonly ICoreConfiguration Conf = IniConfigRegistry.GetSection<ICoreConfiguration>();
         private static readonly IList<IntPtr> IgnoreHandles = new List<IntPtr>();
-        private static readonly IAppVisibility AppVisibility;
-
-        static WindowDetails()
-        {
-            try
-            {
-                // Only try to instantiate when Windows 8 or later.
-                if (WindowsVersion.IsWindows8OrLater)
-                {
-                    AppVisibility = COMWrapper.CreateInstance<IAppVisibility>();
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.WarnFormat("Couldn't create instance of IAppVisibility: {0}", ex.Message);
-            }
-        }
 
         internal static bool IsIgnoreHandle(IntPtr handle)
         {
@@ -1091,23 +1074,6 @@ namespace Greenshot.Base.Core
                 {
                     window.ToForeground();
                 }
-            }
-        }
-
-        /// <summary>
-        /// Return true if the metro-app-launcher is visible
-        /// </summary>
-        /// <returns></returns>
-        public static bool IsAppLauncherVisible
-        {
-            get
-            {
-                if (AppVisibility != null)
-                {
-                    return AppVisibility.IsLauncherVisible;
-                }
-
-                return false;
             }
         }
 

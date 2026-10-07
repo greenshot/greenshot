@@ -141,6 +141,9 @@ public sealed class JiraConnector : IDisposable
         {
             Log.WarnFormat("Couldn't connect to JIRA {0}", JiraConfig.Url);
             Log.Warn("Exception details: ", ex2);
+            // The monitor hooks the title changes of all windows, don't leave one running for every failed login
+            Monitor?.Dispose();
+            Monitor = null;
             return false;
         }
 

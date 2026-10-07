@@ -180,7 +180,7 @@ namespace Greenshot.Base.Core.Export
                     // The greenshot format serializes the elements of the surface: UI thread
                     bytes = await _ui.InvokeAsync(() =>
                     {
-                        using var stream = new MemoryStream();
+                        using var stream = RecyclableMemoryStreamFactory.GetStream("SurfaceExportSource.Encode");
                         ImageIO.SaveToStream(_surface, stream, settings);
                         return stream.ToArray();
                     }, cancellationToken).ConfigureAwait(false);
@@ -188,7 +188,7 @@ namespace Greenshot.Base.Core.Export
                 else
                 {
                     var image = await RenderLockedAsync(settings, cancellationToken).ConfigureAwait(false);
-                    using var stream = new MemoryStream();
+                    using var stream = RecyclableMemoryStreamFactory.GetStream("SurfaceExportSource.Encode");
                     ImageIO.SaveToStream(image, null, stream, settings);
                     bytes = stream.ToArray();
                 }

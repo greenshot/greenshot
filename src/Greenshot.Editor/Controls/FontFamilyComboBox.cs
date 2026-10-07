@@ -35,6 +35,14 @@ namespace Greenshot.Editor.Controls
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
+        private static readonly Lazy<FontFamily[]> SharedFamilies = new Lazy<FontFamily[]>(() => FontFamily.Families);
+
+        /// <summary>
+        /// The installed font families, read once and shared by all editors (and the editor prewarm).
+        /// FontFamily.Families creates new GDI+ objects for every installed font on each call.
+        /// </summary>
+        internal static FontFamily[] InstalledFamilies => SharedFamilies.Value;
+
         public FontFamily FontFamily
         {
             get { return (FontFamily) SelectedItem; }
@@ -51,7 +59,7 @@ namespace Greenshot.Editor.Controls
         {
             if (ComboBox != null)
             {
-                ComboBox.DataSource = FontFamily.Families;
+                ComboBox.DataSource = InstalledFamilies;
                 ComboBox.DisplayMember = "Name";
                 SelectedIndexChanged += BindableToolStripComboBox_SelectedIndexChanged;
                 ComboBox.DrawMode = DrawMode.OwnerDrawFixed;

@@ -1753,22 +1753,24 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         /// <summary>
         /// refreshes all editor controls depending on selected elements and their fields
         /// </summary>
+        private string _stepLabelIconName;
+        private Image _stepLabelIcon;
+
         private void RefreshEditorControls()
         {
             if (IsDisposed || Disposing) return;
             int stepLabels = _surface.CountStepLabels(null);
-            Image icon;
-            if (stepLabels <= 20)
+            string stepLabelIconName = stepLabels <= 20 ? $"btnStepLabel{stepLabels:00}.Image" : "btnStepLabel20+.Image";
+            // This runs on every selection change, only decode the icon when the number changed
+            if (stepLabelIconName != _stepLabelIconName)
             {
-                icon = EmbeddedResources.GetImage(typeof(ImageEditorForm), $"btnStepLabel{stepLabels:00}.Image");
+                var previousIcon = _stepLabelIcon;
+                _stepLabelIcon = EmbeddedResources.GetImage(typeof(ImageEditorForm), stepLabelIconName);
+                _stepLabelIconName = stepLabelIconName;
+                btnStepLabel.Image = _stepLabelIcon;
+                addCounterToolStripMenuItem.Image = _stepLabelIcon;
+                previousIcon?.Dispose();
             }
-            else
-            {
-                icon = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnStepLabel20+.Image");
-            }
-
-            btnStepLabel.Image = icon;
-            addCounterToolStripMenuItem.Image = icon;
 
             FieldAggregator props = (FieldAggregator)_surface.FieldAggregator;
             // if a confirmable element is selected, we must disable most of the controls

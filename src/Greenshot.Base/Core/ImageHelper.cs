@@ -1266,6 +1266,11 @@ namespace Greenshot.Base.Core
                     // Rule 2: Make sure the background color is white
                     graphics.Clear(Color.White);
                 }
+                else
+                {
+                    // Nothing to blend with, copy the pixels as they are: the default SourceOver blends every pixel
+                    graphics.CompositingMode = CompositingMode.SourceCopy;
+                }
 
                 // decide fastest copy method
                 if (isAreaEqual)
