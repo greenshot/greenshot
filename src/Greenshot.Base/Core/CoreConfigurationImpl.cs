@@ -92,8 +92,6 @@ namespace Greenshot.Base.Core
         public static int CoerceBufferPoolLimit(int value) => value <= 0 ? 0 : Clamp(value, MinimumBufferPoolLimit, MaximumBufferPoolLimit);
 
         partial void OnOutputFileReduceColorsToSet(ref int value) => value = Clamp(value, 2, 256);
-        partial void OnWebRequestTimeoutSet(ref int value) => value = Clamp(value, 1, 100);
-        partial void OnWebRequestReadWriteTimeoutSet(ref int value) => value = Clamp(value, 1, 100);
 
 
         /// <summary>
