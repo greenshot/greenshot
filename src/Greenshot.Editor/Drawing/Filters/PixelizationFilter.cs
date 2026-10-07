@@ -41,43 +41,39 @@ namespace Greenshot.Editor.Drawing.Filters
             AddField(GetType(), FieldType.PIXEL_SIZE, 5);
         }
 
-        // Secret key for the noise, generated once per filter and never stored, so every repaint and the export use the same noise
+        // Secret key and IV for the noise, generated once per filter and never stored, so every repaint and the export use the same noise
         [NonSerialized] private byte[] _noiseKey;
+        [NonSerialized] private byte[] _noiseIv;
 
         /// <summary>
-        /// Cryptographically secure random numbers (AES in counter mode), the same key gives the same numbers
+        /// Cryptographically secure random numbers (the AES-CBC encrypted zeros), the same key and IV give the same numbers
         /// </summary>
         private class CryptoRandomBuffer : IDisposable
         {
             private readonly Aes _aes;
             private readonly ICryptoTransform _encryptor;
-            private readonly byte[] _counter;
+            private readonly byte[] _zeros;
             private readonly byte[] _buffer;
-            private long _blockNumber;
             private int _index;
 
-            public CryptoRandomBuffer(byte[] key, int size)
+            public CryptoRandomBuffer(byte[] key, byte[] iv, int size)
             {
                 // Ensure size is a multiple of the AES block size
                 int alignedSize = ((size + 15) / 16) * 16;
                 _buffer = new byte[alignedSize];
-                _counter = new byte[alignedSize];
+                _zeros = new byte[alignedSize];
                 _aes = Aes.Create();
-                _aes.Mode = CipherMode.ECB;
                 _aes.Padding = PaddingMode.None;
                 _aes.Key = key;
+                _aes.IV = iv;
                 _encryptor = _aes.CreateEncryptor();
                 Refill();
             }
 
             private void Refill()
             {
-                for (int offset = 0; offset < _counter.Length; offset += 16)
-                {
-                    Array.Copy(BitConverter.GetBytes(_blockNumber++), 0, _counter, offset, 8);
-                }
-
-                _encryptor.TransformBlock(_counter, 0, _counter.Length, _buffer, 0);
+                // The encryptor keeps chaining, so every refill gives new numbers
+                _encryptor.TransformBlock(_zeros, 0, _zeros.Length, _buffer, 0);
                 _index = 0;
             }
 
@@ -145,12 +141,13 @@ namespace Greenshot.Editor.Drawing.Filters
             // Create a small 4KB cryptographically secure random buffer
             if (_noiseKey == null)
             {
-                _noiseKey = new byte[16];
-                using var rng = RandomNumberGenerator.Create();
-                rng.GetBytes(_noiseKey);
+                // Aes.Create generates a random key and IV
+                using var aes = Aes.Create();
+                _noiseKey = aes.Key;
+                _noiseIv = aes.IV;
             }
 
-            using CryptoRandomBuffer cryptoRandom = new CryptoRandomBuffer(_noiseKey, 4096);
+            using CryptoRandomBuffer cryptoRandom = new CryptoRandomBuffer(_noiseKey, _noiseIv, 4096);
 
             using IFastBitmap dest = FastBitmap.CreateCloneOf(applyBitmap, applyRect);
             using (IFastBitmap src = FastBitmap.Create(applyBitmap, applyRect))
