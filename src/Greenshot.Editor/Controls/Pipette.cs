@@ -58,10 +58,8 @@ namespace Greenshot.Editor.Controls
 
         internal static Bitmap CreatePipetteBitmap()
         {
-            using var ms = new System.IO.MemoryStream(PipettePngBytes);
-            // A copy: GDI+ needs the stream of a Bitmap for as long as the Bitmap lives
-            using var pngBitmap = new Bitmap(ms);
-            return new Bitmap(pngBitmap);
+            // Not disposed: GDI+ needs the stream as long as the bitmap lives
+            return new Bitmap(new System.IO.MemoryStream(PipettePngBytes));
         }
 
         public Pipette()
