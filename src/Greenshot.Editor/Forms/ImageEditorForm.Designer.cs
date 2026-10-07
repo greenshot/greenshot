@@ -145,13 +145,23 @@ namespace Greenshot.Editor.Forms
 			this.btnHelp = new ToolStripButton();
 			this.propertiesToolStrip = new ToolStripEx();
 			this.obfuscateModeButton = new BindableToolStripDropDownButton();
-			this.cropModeButton = new BindableToolStripDropDownButton();
+			this.btnCropDefault = new ToolStripButton();
+			this.btnCropVertical = new ToolStripButton();
+			this.btnCropHorizontal = new ToolStripButton();
+			this.btnCropAuto = new ToolStripButton();
+			this.cutMarkLabel = new ToolStripLabel();
+			this.cutMarkStyleButton = new BindableToolStripDropDownButton();
+			this.toothHeightLabel = new ToolStripLabel();
+			this.toothHeightUpDown = new ToolStripNumericUpDown();
+			this.toothRangeLabel = new ToolStripLabel();
+			this.toothRangeUpDown = new ToolStripNumericUpDown();
 			this.pixelizeToolStripMenuItem = new ToolStripMenuItem();
 			this.blurToolStripMenuItem = new ToolStripMenuItem();
-			this.defaultCropModeToolStripMenuItem = new ToolStripMenuItem();
-			this.verticalCropModeToolStripMenuItem = new ToolStripMenuItem();
-			this.horizontalCropModeToolStripMenuItem = new ToolStripMenuItem();
-			this.autoCropModeToolStripMenuItem = new ToolStripMenuItem();
+			this.cutMarkNoneMenuItem = new ToolStripMenuItem();
+			this.cutMarkLineMenuItem = new ToolStripMenuItem();
+			this.cutMarkZigZagMenuItem = new ToolStripMenuItem();
+			this.cutMarkWaveMenuItem = new ToolStripMenuItem();
+			this.cutMarkTornMenuItem = new ToolStripMenuItem();
 			this.highlightModeButton = new BindableToolStripDropDownButton();
 			this.textHighlightMenuItem = new ToolStripMenuItem();
 			this.areaHighlightMenuItem = new ToolStripMenuItem();
@@ -193,6 +203,7 @@ namespace Greenshot.Editor.Forms
 			this.toolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
 			this.toolStripSeparator10 = new System.Windows.Forms.ToolStripSeparator();
 			this.btnConfirm = new BindableToolStripButton();
+			this.btnApplyToImage = new ToolStripButton();
 			this.btnCancel = new BindableToolStripButton();
 			this.toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
             this.closeToolStripMenuItem = new ToolStripMenuItem();
@@ -999,7 +1010,17 @@ namespace Greenshot.Editor.Forms
 									this.toolStripSeparator10,
 									this.btnConfirm,
 									this.btnCancel,
-									this.cropModeButton,
+									this.btnCropDefault,
+									this.btnCropVertical,
+									this.btnCropHorizontal,
+									this.btnCropAuto,
+									this.cutMarkLabel,
+									this.cutMarkStyleButton,
+									this.toothHeightLabel,
+									this.toothHeightUpDown,
+									this.toothRangeLabel,
+									this.toothRangeUpDown,
+									this.btnApplyToImage,
 									this.counterLabel,
 									this.counterUpDown});
 			// 
@@ -1026,42 +1047,79 @@ namespace Greenshot.Editor.Forms
 			this.blurToolStripMenuItem.Tag = FilterContainer.PreparedFilter.BLUR;
 
 			// 
-			// cropModeButton
+			// btnCropDefault
 			// 
-			this.cropModeButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.cropModeButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-									this.defaultCropModeToolStripMenuItem,
-									this.verticalCropModeToolStripMenuItem,
-									this.horizontalCropModeToolStripMenuItem,
-									this.autoCropModeToolStripMenuItem});
-			this.cropModeButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.cropModeButton.Name = "cropModeButton";
-			this.cropModeButton.SelectedTag = CropContainer.CropModes.Default;
-			this.cropModeButton.Tag = CropContainer.CropModes.Default;
-            this.cropModeButton.DropDownItemClicked += CropStyleDropDownItemClicked;
+			this.btnCropDefault.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.btnCropDefault.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnCropDefault.Name = "btnCropDefault";
+			this.btnCropDefault.Tag = CropContainer.CropModes.Default;
+			this.btnCropDefault.Click += new System.EventHandler(this.CropModeButtonClick);
 			// 
-			// defaultCropStyleToolStripMenuItem
+			// btnCropVertical
 			// 
-			this.defaultCropModeToolStripMenuItem.Name = "defaultCropModeToolStripMenuItem";
-			this.defaultCropModeToolStripMenuItem.Tag = CropContainer.CropModes.Default;
-
+			this.btnCropVertical.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.btnCropVertical.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnCropVertical.Name = "btnCropVertical";
+			this.btnCropVertical.Tag = CropContainer.CropModes.Vertical;
+			this.btnCropVertical.Click += new System.EventHandler(this.CropModeButtonClick);
 			// 
-			// verticalCropStyleToolStripMenuItem
+			// btnCropHorizontal
 			// 
-			this.verticalCropModeToolStripMenuItem.Name = "verticalCropModeToolStripMenuItem";
-			this.verticalCropModeToolStripMenuItem.Tag = CropContainer.CropModes.Vertical;
-
+			this.btnCropHorizontal.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.btnCropHorizontal.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnCropHorizontal.Name = "btnCropHorizontal";
+			this.btnCropHorizontal.Tag = CropContainer.CropModes.Horizontal;
+			this.btnCropHorizontal.Click += new System.EventHandler(this.CropModeButtonClick);
 			// 
-			// horizontalCropStyleToolStripMenuItem
+			// btnCropAuto
 			// 
-			this.horizontalCropModeToolStripMenuItem.Name = "horizontalCropModeToolStripMenuItem";
-			this.horizontalCropModeToolStripMenuItem.Tag = CropContainer.CropModes.Horizontal;
-
+			this.btnCropAuto.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.btnCropAuto.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnCropAuto.Name = "btnCropAuto";
+			this.btnCropAuto.Tag = CropContainer.CropModes.AutoCrop;
+			this.btnCropAuto.Click += new System.EventHandler(this.CropModeButtonClick);
 			// 
-			// autoCropModeToolStripMenuItem
+			// cutMarkLabel
 			// 
-			this.autoCropModeToolStripMenuItem.Name = "autoCropModeToolStripMenuItem";
-			this.autoCropModeToolStripMenuItem.Tag = CropContainer.CropModes.AutoCrop;
+			this.cutMarkLabel.Name = "cutMarkLabel";
+			// 
+			// cutMarkStyleButton
+			// 
+			this.cutMarkStyleButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.cutMarkStyleButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+									this.cutMarkNoneMenuItem,
+									this.cutMarkLineMenuItem,
+									this.cutMarkZigZagMenuItem,
+									this.cutMarkWaveMenuItem,
+									this.cutMarkTornMenuItem});
+			this.cutMarkStyleButton.Name = "cutMarkStyleButton";
+			this.cutMarkStyleButton.SelectedTag = CutMarkStyle.None;
+			this.cutMarkStyleButton.Tag = CutMarkStyle.None;
+			// 
+			// cutMarkNoneMenuItem
+			// 
+			this.cutMarkNoneMenuItem.Name = "cutMarkNoneMenuItem";
+			this.cutMarkNoneMenuItem.Tag = CutMarkStyle.None;
+			// 
+			// cutMarkLineMenuItem
+			// 
+			this.cutMarkLineMenuItem.Name = "cutMarkLineMenuItem";
+			this.cutMarkLineMenuItem.Tag = CutMarkStyle.Line;
+			// 
+			// cutMarkZigZagMenuItem
+			// 
+			this.cutMarkZigZagMenuItem.Name = "cutMarkZigZagMenuItem";
+			this.cutMarkZigZagMenuItem.Tag = CutMarkStyle.ZigZag;
+			// 
+			// cutMarkWaveMenuItem
+			// 
+			this.cutMarkWaveMenuItem.Name = "cutMarkWaveMenuItem";
+			this.cutMarkWaveMenuItem.Tag = CutMarkStyle.Wave;
+			// 
+			// cutMarkTornMenuItem
+			// 
+			this.cutMarkTornMenuItem.Name = "cutMarkTornMenuItem";
+			this.cutMarkTornMenuItem.Tag = CutMarkStyle.Torn;
 
 			// 
 			// highlightModeButton
@@ -1127,6 +1185,70 @@ namespace Greenshot.Editor.Forms
 			this.counterUpDown.Value = 1;
 			this.counterUpDown.GotFocus += new System.EventHandler(this.ToolBarFocusableElementGotFocus);
 			this.counterUpDown.LostFocus += new System.EventHandler(this.ToolBarFocusableElementLostFocus);
+			// 
+			// toothHeightLabel
+			// 
+			this.toothHeightLabel.Name = "toothHeightLabel";
+			// 
+			// toothHeightUpDown
+			// 
+			this.toothHeightUpDown.DecimalPlaces = 0;
+			this.toothHeightUpDown.Increment = new decimal(new int[] {
+									1,
+									0,
+									0,
+									0});
+			this.toothHeightUpDown.Maximum = new decimal(new int[] {
+									40,
+									0,
+									0,
+									0});
+			this.toothHeightUpDown.Minimum = new decimal(new int[] {
+									1,
+									0,
+									0,
+									0});
+			this.toothHeightUpDown.Name = "toothHeightUpDown";
+			this.toothHeightUpDown.Text = "12";
+			this.toothHeightUpDown.Value = new decimal(new int[] {
+									12,
+									0,
+									0,
+									0});
+			this.toothHeightUpDown.GotFocus += new System.EventHandler(this.ToolBarFocusableElementGotFocus);
+			this.toothHeightUpDown.LostFocus += new System.EventHandler(this.ToolBarFocusableElementLostFocus);
+			// 
+			// toothRangeLabel
+			// 
+			this.toothRangeLabel.Name = "toothRangeLabel";
+			// 
+			// toothRangeUpDown
+			// 
+			this.toothRangeUpDown.DecimalPlaces = 0;
+			this.toothRangeUpDown.Increment = new decimal(new int[] {
+									1,
+									0,
+									0,
+									0});
+			this.toothRangeUpDown.Maximum = new decimal(new int[] {
+									40,
+									0,
+									0,
+									0});
+			this.toothRangeUpDown.Minimum = new decimal(new int[] {
+									2,
+									0,
+									0,
+									0});
+			this.toothRangeUpDown.Name = "toothRangeUpDown";
+			this.toothRangeUpDown.Text = "20";
+			this.toothRangeUpDown.Value = new decimal(new int[] {
+									20,
+									0,
+									0,
+									0});
+			this.toothRangeUpDown.GotFocus += new System.EventHandler(this.ToolBarFocusableElementGotFocus);
+			this.toothRangeUpDown.LostFocus += new System.EventHandler(this.ToolBarFocusableElementLostFocus);
 			// 
 			// lineThicknessLabel
 			// 
@@ -1477,6 +1599,13 @@ namespace Greenshot.Editor.Forms
 			// 
 			this.toolStripSeparator10.Name = "toolStripSeparator10";
 			// 
+			// btnApplyToImage
+			// 
+			this.btnApplyToImage.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
+			this.btnApplyToImage.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnApplyToImage.Name = "btnApplyToImage";
+			this.btnApplyToImage.Click += new System.EventHandler(this.BtnApplyToImageClick);
+			// 
 			// btnConfirm
 			// 
 			this.btnConfirm.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
@@ -1774,13 +1903,24 @@ namespace Greenshot.Editor.Forms
 		private ToolStripMenuItem arrowHeadNoneMenuItem;
 		private BindableToolStripButton btnCancel;
 		private BindableToolStripButton btnConfirm;
+		private ToolStripButton btnApplyToImage;
 		private ToolStripMenuItem selectAllToolStripMenuItem;
 		private BindableToolStripDropDownButton highlightModeButton;
-		private BindableToolStripDropDownButton cropModeButton;
-		private ToolStripMenuItem defaultCropModeToolStripMenuItem;
-		private ToolStripMenuItem verticalCropModeToolStripMenuItem;
-		private ToolStripMenuItem horizontalCropModeToolStripMenuItem;
-		private ToolStripMenuItem autoCropModeToolStripMenuItem;
+		private ToolStripButton btnCropDefault;
+		private ToolStripButton btnCropVertical;
+		private ToolStripButton btnCropHorizontal;
+		private ToolStripButton btnCropAuto;
+		private ToolStripLabel cutMarkLabel;
+		private BindableToolStripDropDownButton cutMarkStyleButton;
+		private ToolStripLabel toothHeightLabel;
+		private ToolStripNumericUpDown toothHeightUpDown;
+		private ToolStripLabel toothRangeLabel;
+		private ToolStripNumericUpDown toothRangeUpDown;
+		private ToolStripMenuItem cutMarkNoneMenuItem;
+		private ToolStripMenuItem cutMarkLineMenuItem;
+		private ToolStripMenuItem cutMarkZigZagMenuItem;
+		private ToolStripMenuItem cutMarkWaveMenuItem;
+		private ToolStripMenuItem cutMarkTornMenuItem;
 		private ToolStripMenuItem pixelizeToolStripMenuItem;
 		private ToolStripMenuItem blurToolStripMenuItem;
 		private BindableToolStripDropDownButton obfuscateModeButton;
