@@ -101,59 +101,11 @@ namespace Greenshot.Editor
                         Log.Debug($"Couldn't load the embedded image {name}", ex);
                     }
                 }
-                return PrepareMethods(cancellationToken);
+                return JitPrewarm.PrepareMethods(new[] { typeof(ImageEditorForm).Assembly, typeof(GreenshotForm).Assembly }, EditorStartupNamespaces, cancellationToken);
             }, cancellationToken).ConfigureAwait(false);
 
             await emojiTask.ConfigureAwait(false);
             Log.DebugFormat("Prepared the editor in {0} ms, {1} methods were JIT-compiled.", stopwatch.ElapsedMilliseconds, preparedMethods);
-        }
-
-        /// <summary>
-        /// JIT-compile the methods of the editor, so this doesn't happen on the UI thread when the first editor opens
-        /// </summary>
-        private static int PrepareMethods(CancellationToken cancellationToken)
-        {
-            const BindingFlags allMethods = BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
-            int prepared = 0;
-            var types = LoadableTypes(typeof(ImageEditorForm).Assembly)
-                .Concat(LoadableTypes(typeof(GreenshotForm).Assembly))
-                .Where(type => type.Namespace != null && EditorStartupNamespaces.Contains(type.Namespace) && !type.ContainsGenericParameters);
-            foreach (var type in types)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                foreach (var method in type.GetMethods(allMethods).Cast<MethodBase>().Concat(type.GetConstructors(allMethods)))
-                {
-                    if (method.IsAbstract || method.ContainsGenericParameters || method.GetMethodBody() == null)
-                    {
-                        continue;
-                    }
-
-                    try
-                    {
-                        RuntimeHelpers.PrepareMethod(method.MethodHandle);
-                        prepared++;
-                    }
-                    catch (Exception ex)
-                    {
-                        // Not important, the method is compiled when it's called
-                        Log.DebugFormat("Couldn't prepare {0}.{1}: {2}", type.FullName, method.Name, ex.Message);
-                    }
-                }
-            }
-
-            return prepared;
-        }
-
-        private static Type[] LoadableTypes(Assembly assembly)
-        {
-            try
-            {
-                return assembly.GetTypes();
-            }
-            catch (ReflectionTypeLoadException ex)
-            {
-                return ex.Types.Where(type => type != null).ToArray();
-            }
         }
     }
 }
