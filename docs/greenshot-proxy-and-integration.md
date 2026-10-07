@@ -42,11 +42,11 @@ flowchart TD
         Security --> UI
     end
 
-    Ext -->|Native Messaging (stdio)| Proxy
+    Ext -->|"Native Messaging (stdio)"| Proxy
     CLI -->|Command-line Arguments| Proxy
     URL -->|Protocol Invocations| Proxy
     Shell -->|Argument Passing| Proxy
-    Proxy -->|Local IPC (Named Pipe)| PipeServer
+    Proxy -->|"Local IPC (Named Pipe)"| PipeServer
 ```
 
 ### Dual Binaries Architecture (`greenshot-proxy.exe` & `greenshot-cli.exe`)
