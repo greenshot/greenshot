@@ -506,6 +506,38 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
+        /// Writes already encoded image bytes to a temp file, so an image which was encoded once doesn't need to be encoded again.
+        /// </summary>
+        /// <param name="encoded">MemoryStream with the encoded image, the position isn't changed</param>
+        /// <param name="format">the format of the encoded bytes, used for the extension</param>
+        /// <param name="destinationPath">directory, null for the temp directory</param>
+        /// <returns>the path of the temp file, null when it couldn't be written</returns>
+        public static string SaveEncodedToTmpFile(MemoryStream encoded, string format, string destinationPath)
+        {
+            string tmpFile = Path.GetRandomFileName() + FileFormatRegistry.GetPreferredExtensionWithDot(format);
+            tmpFile = Regex.Replace(tmpFile, @"[^\d\w\.]", string.Empty);
+            destinationPath ??= Path.GetTempPath();
+
+            string tmpPath = Path.Combine(destinationPath, tmpFile);
+            Log.Debug("Creating TMP File from encoded image: " + tmpPath);
+
+            try
+            {
+                using (FileStream stream = new FileStream(tmpPath, FileMode.Create, FileAccess.Write))
+                {
+                    encoded.WriteTo(stream);
+                }
+                TmpFileCache.Add(tmpPath, tmpPath);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+
+            return tmpPath;
+        }
+
+        /// <summary>
         /// Remember a temporary file, it is removed by RemoveTmpFiles (e.g. at exit).
         /// </summary>
         public static void RegisterTmpFile(string tmpFile)

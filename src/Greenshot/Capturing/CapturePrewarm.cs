@@ -45,12 +45,18 @@ namespace Greenshot.Capturing
         /// <summary>
         /// The namespaces with the code which runs from the hotkey to the shown capture window
         /// </summary>
-        private static readonly string[] CaptureNamespaces =
+        internal static readonly string[] CaptureNamespaces =
         {
-            "Greenshot.UI.Capture",
-            "Greenshot.UI.Capture.Tools",
-            "Greenshot.Pipeline",
-            "Greenshot.Pipeline.Steps",
+            "Greenshot.Capturing",
+            "Greenshot.Capturing.Controls",
+            "Greenshot.Capturing.Overlays",
+            "Greenshot.Capturing.Tools",
+            "Greenshot.Capturing.ViewModels",
+            "Greenshot.Capturing.Views",
+            "Greenshot.Recipes.Pipeline",
+            "Greenshot.Recipes.Steps",
+            "Greenshot.Base.Recipes.Pipeline",
+            "Greenshot.Base.Recipes.Sources",
             "Greenshot.Base.Capturing",
             "Greenshot.Base.Interfaces.Capture",
             "Greenshot.Base.Native"

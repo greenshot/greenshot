@@ -1253,6 +1253,12 @@ namespace Greenshot.Base.Core
             bool fromTransparentToNon = !destinationIsTransparent && sourceIsTransparent;
             bool isBitmap = sourceImage is Bitmap;
             bool isAreaEqual = sourceRect.Equals(bitmapRect);
+            if (isAreaEqual && isBitmap && targetFormat == sourceImage.PixelFormat)
+            {
+                // Same size and format: copy the pixels row by row, Graphics.DrawImage would blend every pixel
+                return CopyBitmap((Bitmap)sourceImage);
+            }
+
             if (isAreaEqual || fromTransparentToNon || !isBitmap)
             {
                 // Rule 1: if the areas are equal, always copy ourselves
@@ -1309,6 +1315,52 @@ namespace Greenshot.Base.Core
             catch (Exception ex)
             {
                 Log.Warn("Problem cloning a propertyItem.", ex);
+            }
+
+            return newImage;
+        }
+
+        /// <summary>
+        /// Copy a bitmap with one of the supported pixel formats as it is, row by row
+        /// </summary>
+        /// <param name="source">Bitmap with a pixel format for which SupportsPixelFormat is true</param>
+        /// <returns>a new Bitmap with the same size, pixel format, resolution and pixels</returns>
+        private static unsafe Bitmap CopyBitmap(Bitmap source)
+        {
+            var pixelFormat = source.PixelFormat;
+            var newImage = new Bitmap(source.Width, source.Height, pixelFormat);
+            try
+            {
+                newImage.SetResolution(source.HorizontalResolution, source.VerticalResolution);
+                var rect = new Rectangle(0, 0, source.Width, source.Height);
+                var sourceData = source.LockBits(rect, ImageLockMode.ReadOnly, pixelFormat);
+                try
+                {
+                    var targetData = newImage.LockBits(rect, ImageLockMode.WriteOnly, pixelFormat);
+                    try
+                    {
+                        long bytesPerRow = (long)rect.Width * (Image.GetPixelFormatSize(pixelFormat) / 8);
+                        for (int y = 0; y < rect.Height; y++)
+                        {
+                            byte* sourceRow = (byte*)sourceData.Scan0 + (long)y * sourceData.Stride;
+                            byte* targetRow = (byte*)targetData.Scan0 + (long)y * targetData.Stride;
+                            Buffer.MemoryCopy(sourceRow, targetRow, bytesPerRow, bytesPerRow);
+                        }
+                    }
+                    finally
+                    {
+                        newImage.UnlockBits(targetData);
+                    }
+                }
+                finally
+                {
+                    source.UnlockBits(sourceData);
+                }
+            }
+            catch
+            {
+                newImage.Dispose();
+                throw;
             }
 
             return newImage;

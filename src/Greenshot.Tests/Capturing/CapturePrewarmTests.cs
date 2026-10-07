@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -19,20 +19,32 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Runtime.InteropServices;
+using System.Linq;
+using Greenshot.Base.Capturing;
+using Greenshot.Capturing;
+using Greenshot.Capturing.Views;
+using Xunit;
 
-namespace Greenshot.Base.Interop
+namespace Greenshot.Tests.Capturing
 {
-    [ComImport, InterfaceType(ComInterfaceType.InterfaceIsIUnknown), Guid("00000000-0000-0000-C000-000000000046")]
-    public interface IUnknown
+    public class CapturePrewarmTests
     {
-        IntPtr QueryInterface(ref Guid riid);
+        /// <summary>
+        /// The prewarm selects types by namespace, a renamed namespace silently stops the prewarm (it did after the restructuring)
+        /// </summary>
+        [Fact]
+        public void EveryPrewarmNamespaceHasTypes()
+        {
+            var namespaces = typeof(CaptureWindow).Assembly.GetTypes()
+                .Concat(typeof(ScreenCapture).Assembly.GetTypes())
+                .Select(type => type.Namespace)
+                .Distinct()
+                .ToList();
 
-        [PreserveSig]
-        uint AddRef();
-
-        [PreserveSig]
-        uint Release();
+            foreach (var captureNamespace in CapturePrewarm.CaptureNamespaces)
+            {
+                Assert.Contains(captureNamespace, namespaces);
+            }
+        }
     }
 }

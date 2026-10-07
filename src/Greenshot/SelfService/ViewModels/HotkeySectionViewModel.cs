@@ -385,7 +385,7 @@ namespace Greenshot.SelfService.ViewModels
                     else
                     {
                         // On Windows 11 default is 1 if not set
-                        IsSnippingToolHijackEnabled = WindowsVersion.IsWindows10OrLater;
+                        IsSnippingToolHijackEnabled = WindowsVersion.IsWindows11OrLater;
                     }
                 }
                 else
