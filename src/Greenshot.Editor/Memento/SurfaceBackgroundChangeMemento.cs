@@ -35,6 +35,11 @@ namespace Greenshot.Editor.Memento
         private ISurface _surface;
         private Matrix _matrix;
 
+        /// <summary>
+        /// The image this memento restores, used to limit the memory of the undo stack
+        /// </summary>
+        internal Image Image => _image;
+
         public SurfaceBackgroundChangeMemento(ISurface surface, Matrix matrix)
         {
             _surface = surface;

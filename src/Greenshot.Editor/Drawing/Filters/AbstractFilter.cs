@@ -106,6 +106,11 @@ namespace Greenshot.Editor.Drawing.Filters
         }
 
         /// <summary>
+        /// How many pixels around the repainted area the filter reads, e.g. the blur radius
+        /// </summary>
+        protected virtual int ClipMargin => 0;
+
+        /// <summary>
         /// Executes the given render action within a clipped region for the specified rectangles.
         /// Handles graphics state saving and restoring, bounding rectangle calculation,
         /// and clipping (including multi-rectangle inverted exclusion).
@@ -133,6 +138,11 @@ namespace Greenshot.Editor.Drawing.Filters
                 applyRect = rectList.Aggregate(NativeRect.Empty, (current, r) => current.IsEmpty ? r : current.Union(r))
                                     .Intersect(new NativeRect(0, 0, applyBitmap.Width, applyBitmap.Height));
             }
+
+            // Only process the part which is repainted, plus the margin the filter reads around it
+            var visibleRect = Rectangle.Ceiling(graphics.ClipBounds);
+            visibleRect.Inflate(ClipMargin, ClipMargin);
+            applyRect = applyRect.Intersect(visibleRect);
 
             if (applyRect.Width <= 0 || applyRect.Height <= 0)
             {

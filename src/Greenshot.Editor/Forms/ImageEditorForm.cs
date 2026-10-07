@@ -169,8 +169,6 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         AlignCanvasPositionAfterResize();
     }));
 }
-
-            UpdateUi();
         }
 
         private bool? _matchSizeToCapture;

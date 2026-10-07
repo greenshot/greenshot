@@ -44,6 +44,11 @@ namespace Greenshot.Editor.Memento
         private IList<TornEdgeLayout> _edgeLayouts;
 
         /// <summary>
+        /// The image this memento restores, used to limit the memory of the undo stack
+        /// </summary>
+        internal Image Image => _image;
+
+        /// <summary>
         /// Which sides of torn edges have an edge, and the room outside of them
         /// </summary>
         public sealed class TornEdgeLayout
