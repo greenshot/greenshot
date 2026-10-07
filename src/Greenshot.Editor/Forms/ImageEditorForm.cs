@@ -1728,9 +1728,9 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                     cropModeButton.Checked = cropping && Equals(cropModeButton.Tag, cropMode);
                 }
 
-                // The cut mark is for crop out only, or for a selected cut mark
+                // The cut edges are for crop and crop out, or for selected cut or torn edges
                 cutMarkLabel.Visible = cutMarkStyleButton.Visible = props.HasFieldValue(FieldType.CUT_MARK_STYLE) &&
-                                             (!cropping || cropMode == CropContainer.CropModes.Horizontal || cropMode == CropContainer.CropModes.Vertical);
+                                             (!cropping || cropMode != CropContainer.CropModes.AutoCrop);
                 highlightModeButton.Visible = props.HasFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT);
             }
             else

@@ -20,6 +20,7 @@
  */
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Drawing;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces;
@@ -40,6 +41,29 @@ namespace Greenshot.Editor.Memento
         private readonly NativePoint _offset;
         private IDrawableContainerList _elementsToAdd;
         private IDrawableContainerList _elementsToRemove;
+        private IList<TornEdgeLayout> _edgeLayouts;
+
+        /// <summary>
+        /// Which sides of torn edges have an edge, and the room outside of them
+        /// </summary>
+        public sealed class TornEdgeLayout
+        {
+            public TornEdgeLayout(TornEdgeContainer container)
+                : this(container, container.Edges, container.Margins)
+            {
+            }
+
+            public TornEdgeLayout(TornEdgeContainer container, bool[] edges, int[] margins)
+            {
+                Container = container;
+                Edges = edges;
+                Margins = margins;
+            }
+
+            public TornEdgeContainer Container { get; }
+            public bool[] Edges { get; }
+            public int[] Margins { get; }
+        }
 
         /// <summary>
         /// Create the memento
@@ -50,8 +74,11 @@ namespace Greenshot.Editor.Memento
         /// <param name="offset">NativePoint how far to move the elements</param>
         /// <param name="elementsToAdd">elements to add, owned by this memento until restored</param>
         /// <param name="elementsToRemove">elements to remove, these are on the surface</param>
-        public SurfaceCutOutMemento(Surface surface, Image image, IList<IDrawableContainer> movedElements, NativePoint offset, IDrawableContainerList elementsToAdd, IDrawableContainerList elementsToRemove)
+        /// <param name="edgeLayouts">torn edges to change back, e.g. after a crop cut sides off</param>
+        public SurfaceCutOutMemento(Surface surface, Image image, IList<IDrawableContainer> movedElements, NativePoint offset, IDrawableContainerList elementsToAdd, IDrawableContainerList elementsToRemove,
+            IList<TornEdgeLayout> edgeLayouts = null)
         {
+            _edgeLayouts = edgeLayouts;
             _surface = surface;
             _image = image;
             _movedElements = movedElements;
@@ -76,6 +103,7 @@ namespace Greenshot.Editor.Memento
             _elementsToAdd = null;
             _elementsToRemove = null;
             _movedElements = null;
+            _edgeLayouts = null;
             _surface = null;
         }
 
@@ -86,7 +114,16 @@ namespace Greenshot.Editor.Memento
 
         public IMemento Restore()
         {
-            var oldState = new SurfaceCutOutMemento(_surface, _surface.Image, _movedElements, new NativePoint(-_offset.X, -_offset.Y), _elementsToRemove, _elementsToAdd);
+            var currentLayouts = _edgeLayouts?.Select(layout => new TornEdgeLayout(layout.Container)).ToList();
+            var oldState = new SurfaceCutOutMemento(_surface, _surface.Image, _movedElements, new NativePoint(-_offset.X, -_offset.Y), _elementsToRemove, _elementsToAdd, currentLayouts);
+            if (_edgeLayouts != null)
+            {
+                foreach (var layout in _edgeLayouts)
+                {
+                    layout.Container.SetLayout(layout.Edges, layout.Margins);
+                }
+            }
+
             _surface.ApplyCutOutState(_image, _movedElements, _offset, _elementsToAdd, _elementsToRemove);
             // The surface owns these now
             _image = null;

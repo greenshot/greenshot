@@ -498,6 +498,145 @@ namespace Greenshot.Tests.Editor
             Assert.Equal(12, loaded.ToothHeight);
         }
 
+        [Fact]
+        public void ApplyCrop_RemovesElementsOutside_AndUndoBringsThemBack()
+        {
+            using var surface = new Surface(new Bitmap(100, 100));
+            var inside = AddRectangle(surface, 30, 30);
+            var partly = AddRectangle(surface, 15, 30);
+            var outside = AddRectangle(surface, 80, 80);
+
+            Assert.True(surface.ApplyCrop(new NativeRect(20, 20, 40, 40)));
+
+            Assert.Equal(new Size(40, 40), surface.Image.Size);
+            Assert.Equal(10, inside.Left);
+            Assert.Equal(-5, partly.Left);
+            Assert.Contains(partly, surface.Elements);
+            Assert.DoesNotContain(outside, surface.Elements);
+
+            surface.Undo();
+
+            Assert.Equal(new Size(100, 100), surface.Image.Size);
+            Assert.Equal(30, inside.Left);
+            Assert.Equal(80, outside.Left);
+            Assert.Contains(outside, surface.Elements);
+
+            surface.Redo();
+
+            Assert.DoesNotContain(outside, surface.Elements);
+            Assert.Equal(10, inside.Left);
+        }
+
+        [Fact]
+        public void ApplyCrop_KeepsALineWithoutWidthInside()
+        {
+            using var surface = new Surface(new Bitmap(100, 100));
+            var line = new LineContainer(surface)
+            {
+                Left = 30,
+                Top = 25,
+                Width = 0,
+                Height = 20
+            };
+            surface.AddElement(line, false, false);
+
+            Assert.True(surface.ApplyCrop(new NativeRect(20, 20, 40, 40)));
+
+            Assert.Contains(line, surface.Elements);
+        }
+
+        [Fact]
+        public void ApplyCrop_WithCutEdges_TearsOnlyTheCutSides()
+        {
+            using var surface = CreateRedSurface();
+            var rectangle = AddRectangle(surface, 10, 30);
+            var settings = CreateEdgeSettings();
+            int margin = TornEdgeContainer.GetShadowMargin(settings);
+
+            // Only the right and the bottom are cut off
+            Assert.True(surface.ApplyCrop(new NativeRect(0, 0, 60, 70), CutMarkStyle.ZigZag, settings));
+
+            var edges = Assert.Single(surface.Elements.OfType<TornEdgeContainer>());
+            Assert.Equal(new[] { false, true, true, false }, edges.Edges);
+            Assert.Equal(new[] { 0, margin, margin, 0 }, edges.Margins);
+            Assert.Equal(CutMarkStyle.ZigZag, edges.Style);
+            Assert.Equal(new Size(60 + margin, 70 + margin), surface.Image.Size);
+            Assert.Equal(surface.Image.Width, edges.Width);
+            Assert.Equal(10, rectangle.Left);
+
+            surface.Undo();
+
+            Assert.Empty(surface.Elements.OfType<TornEdgeContainer>());
+            Assert.Equal(new Size(100, 100), surface.Image.Size);
+        }
+
+        [Fact]
+        public void ApplyCrop_WithCutEdges_MovesElementsByTheRoomForTheShadow()
+        {
+            using var surface = CreateRedSurface();
+            var rectangle = AddRectangle(surface, 30, 30);
+            var settings = CreateEdgeSettings();
+            int margin = TornEdgeContainer.GetShadowMargin(settings);
+
+            Assert.True(surface.ApplyCrop(new NativeRect(20, 20, 40, 40), CutMarkStyle.Torn, settings));
+
+            Assert.Equal(new Size(40 + 2 * margin, 40 + 2 * margin), surface.Image.Size);
+            Assert.Equal(10 + margin, rectangle.Left);
+            Assert.Equal(10 + margin, rectangle.Top);
+            // The room is torn off, so transparent
+            Assert.Equal(0, ((Bitmap)surface.Image).GetPixel(0, 0).A);
+
+            surface.Undo();
+
+            Assert.Equal(30, rectangle.Left);
+        }
+
+        [Fact]
+        public void ApplyCrop_WithoutStyle_HasNoEdges()
+        {
+            using var surface = CreateRedSurface();
+
+            Assert.True(surface.ApplyCrop(new NativeRect(20, 20, 40, 40), CutMarkStyle.None, CreateEdgeSettings()));
+
+            Assert.Empty(surface.Elements.OfType<TornEdgeContainer>());
+            Assert.Equal(new Size(40, 40), surface.Image.Size);
+        }
+
+        [Fact]
+        public void ApplyCrop_OverTornEdges_KeepsTheEdgesOfTheSidesWhichStay_AndUndoBringsThemBack()
+        {
+            using var surface = CreateRedSurface();
+            var settings = CreateEdgeSettings();
+            settings.GenerateShadow = false;
+            var tornEdges = surface.AddTornEdges(settings);
+
+            // The left side is cut off
+            Assert.True(surface.ApplyCrop(new NativeRect(30, 0, 70, 100)));
+
+            Assert.Contains(tornEdges, surface.Elements);
+            Assert.Equal(new[] { true, true, true, false }, tornEdges.Edges);
+            Assert.Equal(70, tornEdges.Width);
+
+            surface.Undo();
+
+            Assert.Equal(new[] { true, true, true, true }, tornEdges.Edges);
+            Assert.Equal(100, tornEdges.Width);
+        }
+
+        [Fact]
+        public void ApplyCrop_CutEdgesStyleNone_DrawsNothing()
+        {
+            using var surface = CreateRedSurface();
+            var settings = CreateEdgeSettings();
+            settings.GenerateShadow = false;
+            var tornEdges = surface.AddTornEdges(settings);
+            tornEdges.SetFieldValue(FieldType.CUT_MARK_STYLE, CutMarkStyle.None);
+
+            using var image = surface.GetImageForExport();
+
+            Assert.Equal(255, ((Bitmap)image).GetPixel(0, 0).A);
+        }
+
         [Theory]
         [InlineData(CutMarkStyle.Line)]
         [InlineData(CutMarkStyle.ZigZag)]

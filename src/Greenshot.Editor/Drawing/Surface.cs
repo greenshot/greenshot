@@ -1460,20 +1460,54 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
-        /// Crop the surface
+        /// Crop the surface.
+        /// Elements which are completely outside of the crop are removed, the others move with the image.
+        /// With a cut mark style the sides which were cut off get edges in that style, as torn edges element.
         /// </summary>
         /// <param name="cropRectangle">NativeRect that remains</param>
+        /// <param name="cutMarkStyle">CutMarkStyle for the edges of the sides which were cut off, None for straight sides</param>
+        /// <param name="edgeSettings">TornEdgeEffect with the tooth and shadow settings for the edges, null for the ones of the torn edge effect</param>
         /// <returns>bool</returns>
-        public bool ApplyCrop(NativeRect cropRectangle)
+        public bool ApplyCrop(NativeRect cropRectangle, CutMarkStyle cutMarkStyle = CutMarkStyle.None, TornEdgeEffect edgeSettings = null)
         {
             if (!IsCropPossible(ref cropRectangle, CropContainer.CropModes.Default)) return false;
 
-            var imageRectangle = new NativeRect(NativePoint.Empty, Image.Size);
-            Bitmap tmpImage;
+            // top, right, bottom, left
+            var cutSides = new[] { cropRectangle.Top > 0, cropRectangle.Right < Image.Width, cropRectangle.Bottom < Image.Height, cropRectangle.Left > 0 };
+            bool withEdges = cutMarkStyle != CutMarkStyle.None && cutSides.Any(cut => cut);
+            TornEdgeEffect settings = null;
+            int margin = 0;
+            if (withEdges)
+            {
+                // The shadow comes from the torn edge effect, like for the cut marks
+                var source = edgeSettings ?? IniConfigRegistry.GetSection<IEditorConfiguration>()?.TornEdgeEffectSettings ?? new TornEdgeEffect();
+                settings = new TornEdgeEffect
+                {
+                    Edges = cutSides,
+                    ToothHeight = source.ToothHeight,
+                    HorizontalToothRange = source.HorizontalToothRange,
+                    VerticalToothRange = source.VerticalToothRange,
+                    GenerateShadow = source.GenerateShadow,
+                    Darkness = source.Darkness,
+                    ShadowSize = source.ShadowSize,
+                    ShadowOffset = source.ShadowOffset,
+                    BackgroundColor = source.BackgroundColor
+                };
+                margin = TornEdgeContainer.GetShadowMargin(settings);
+            }
+
+            var margins = cutSides.Select(cut => withEdges && cut ? margin : 0).ToArray();
+            Bitmap newImage;
             // Make sure we have information, this this fails
             try
             {
-                tmpImage = ImageHelper.CloneArea(Image, cropRectangle, PixelFormat.DontCare);
+                newImage = ImageHelper.CloneArea(Image, cropRectangle, PixelFormat.DontCare);
+                if (margins.Any(m => m > 0))
+                {
+                    var expanded = ExpandImage(newImage, settings.BackgroundColor, margins);
+                    newImage.Dispose();
+                    newImage = expanded;
+                }
             }
             catch (Exception ex)
             {
@@ -1484,21 +1518,93 @@ namespace Greenshot.Editor.Drawing
                 throw;
             }
 
-            var matrix = new Matrix();
-            matrix.Translate(-cropRectangle.Left, -cropRectangle.Top, MatrixOrder.Append);
-            // Make undoable
-            MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
-
-            // Do not dispose otherwise we can't undo the image!
-            SetImage(tmpImage, false);
-            _elements.Transform(matrix);
-            if (_surfaceSizeChanged != null && !imageRectangle.Equals(new NativeRect(NativePoint.Empty, tmpImage.Size)))
+            var movedElements = new List<IDrawableContainer>();
+            var removedElements = new DrawableContainerList(ID);
+            var edgeLayouts = new List<SurfaceCutOutMemento.TornEdgeLayout>();
+            foreach (var element in _elements)
             {
-                _surfaceSizeChanged(this, null);
+                if (element is TornEdgeContainer tornEdges)
+                {
+                    // The sides which were cut off lost their edges, the room for the shadow there belongs to the new edges
+                    var edges = tornEdges.Edges;
+                    var tornMargins = tornEdges.Margins;
+                    for (int side = 0; side < 4; side++)
+                    {
+                        if (!cutSides[side]) continue;
+                        edges[side] = false;
+                        tornMargins[side] = margins[side];
+                    }
+
+                    if (edges.Any(edge => edge))
+                    {
+                        edgeLayouts.Add(new SurfaceCutOutMemento.TornEdgeLayout(tornEdges));
+                        tornEdges.SetLayout(edges, tornMargins);
+                        movedElements.Add(element);
+                    }
+                    else
+                    {
+                        removedElements.Add(element);
+                    }
+
+                    continue;
+                }
+
+                if (IsOutside(element.Bounds, cropRectangle))
+                {
+                    removedElements.Add(element);
+                }
+                else
+                {
+                    movedElements.Add(element);
+                }
             }
 
-            Invalidate();
+            var addedElements = new DrawableContainerList(ID);
+            TornEdgeContainer cropEdges = null;
+            if (withEdges)
+            {
+                cropEdges = new TornEdgeContainer(this, settings, margins, cutMarkStyle);
+                addedElements.Add(cropEdges);
+            }
+
+            DeselectAllElements();
+            var offset = new NativePoint(margins[3] - cropRectangle.Left, margins[0] - cropRectangle.Top);
+            // Make undoable, the memento takes the current image
+            MakeUndoable(new SurfaceCutOutMemento(this, Image, movedElements, new NativePoint(-offset.X, -offset.Y), removedElements, addedElements, edgeLayouts), false);
+
+            // Do not dispose otherwise we can't undo the image!
+            ApplyCutOutState(newImage, movedElements, offset, addedElements, removedElements);
+            // It was created for the old image size, this makes it cover the new one
+            cropEdges?.MoveBy(0, 0);
             return true;
+        }
+
+        /// <summary>
+        /// Is an element completely outside of the crop? Lines have no width or height, so the bounds are at least one pixel.
+        /// </summary>
+        private static bool IsOutside(NativeRect elementBounds, NativeRect cropRectangle)
+        {
+            var bounds = elementBounds.Normalize();
+            var area = new NativeRect(bounds.Left, bounds.Top, Math.Max(1, bounds.Width), Math.Max(1, bounds.Height));
+            return area.Right <= cropRectangle.Left || area.Left >= cropRectangle.Right || area.Bottom <= cropRectangle.Top || area.Top >= cropRectangle.Bottom;
+        }
+
+        /// <summary>
+        /// Make the canvas bigger, e.g. to have room for the shadow of edges. The room is transparent or the color.
+        /// Only when the color isn't opaque, or the image has an alpha channel, the new image has one.
+        /// </summary>
+        /// <param name="image">Image to expand</param>
+        /// <param name="background">Color for the room</param>
+        /// <param name="margins">int array top, right, bottom, left</param>
+        /// <returns>Bitmap</returns>
+        private static Bitmap ExpandImage(Image image, Color background, int[] margins)
+        {
+            var pixelFormat = background.A < 255 || Image.IsAlphaPixelFormat(image.PixelFormat) ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb;
+            Bitmap newImage = ImageHelper.CreateEmpty(image.Width + margins[1] + margins[3], image.Height + margins[0] + margins[2], pixelFormat,
+                background.A < 255 ? Color.Transparent : background, image.HorizontalResolution, image.VerticalResolution);
+            using var graphics = Graphics.FromImage(newImage);
+            graphics.DrawImage(image, new Rectangle(margins[3], margins[0], image.Width, image.Height), new Rectangle(0, 0, image.Width, image.Height), GraphicsUnit.Pixel);
+            return newImage;
         }
 
         /// <summary>
@@ -1677,14 +1783,7 @@ namespace Greenshot.Editor.Drawing
             {
                 // Make room for the shadow like the torn edge effect does, the elements move with the image.
                 // The room is part of the torn off area, so it is transparent or the fill color.
-                Color background = settings.BackgroundColor;
-                var pixelFormat = background.A < 255 || Image.IsAlphaPixelFormat(Image.PixelFormat) ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb;
-                Bitmap newImage = ImageHelper.CreateEmpty(Image.Width + 2 * margin, Image.Height + 2 * margin, pixelFormat, background.A < 255 ? Color.Transparent : background,
-                    Image.HorizontalResolution, Image.VerticalResolution);
-                using (var graphics = Graphics.FromImage(newImage))
-                {
-                    graphics.DrawImage(Image, new Rectangle(margin, margin, Image.Width, Image.Height), new Rectangle(0, 0, Image.Width, Image.Height), GraphicsUnit.Pixel);
-                }
+                Bitmap newImage = ExpandImage(Image, settings.BackgroundColor, new[] { margin, margin, margin, margin });
 
                 var movedElements = _elements.ToList();
                 var addedElements = new DrawableContainerList(ID) { tornEdges };
@@ -2555,7 +2654,7 @@ namespace Greenshot.Editor.Drawing
                 {
                     CropContainer.CropModes.Horizontal => ApplyCutOut(_cropContainer.Bounds, CropContainer.CropModes.Horizontal, GetCutMarkStyle(e)),
                     CropContainer.CropModes.Vertical => ApplyCutOut(_cropContainer.Bounds, CropContainer.CropModes.Vertical, GetCutMarkStyle(e)),
-                    _ => ApplyCrop(_cropContainer.Bounds)
+                    _ => ApplyCrop(_cropContainer.Bounds, GetCutMarkStyle(e))
                 };
 
                 _cropContainer.Dispose();

@@ -42,6 +42,7 @@ namespace Greenshot.Editor.Drawing
 {
     /// <summary>
     /// The torn edge effect as an element: it tears the edges of the whole capture, which can be changed or removed later.
+    /// A crop with a cut edge style uses it for the sides it cut off, in that style.
     /// Outside of the torn edges is transparent or the fill color, with the shadow of the torn edge effect.
     /// The image keeps its size, the shadow falls into the torn off parts.
     /// The edges come from a stored seed, so they never change unless new random edges are asked for.
@@ -51,8 +52,8 @@ namespace Greenshot.Editor.Drawing
     {
         private int _seed;
         private bool[] _edges = { true, true, true, true };
-        // Room around the torn edges for the shadow, the canvas was made bigger by this on every side
-        private int _margin;
+        // Room outside of the edges for the shadow, top, right, bottom, left: the canvas was made bigger by this
+        private int[] _margins = { 0, 0, 0, 0 };
         private float _shadowDarkness;
         private int _shadowSize;
         private int _shadowOffsetX;
@@ -68,11 +69,23 @@ namespace Greenshot.Editor.Drawing
         /// <param name="parent">ISurface</param>
         /// <param name="settings">TornEdgeEffect with the settings to start with</param>
         /// <param name="margin">int room on every side of the image for the shadow</param>
-        public TornEdgeContainer(ISurface parent, TornEdgeEffect settings, int margin = 0) : base(parent)
+        public TornEdgeContainer(ISurface parent, TornEdgeEffect settings, int margin = 0) : this(parent, settings, new[] { margin, margin, margin, margin }, CutMarkStyle.Torn)
         {
-            _margin = Math.Max(0, margin);
+        }
+
+        /// <summary>
+        /// Create edges for the whole image, e.g. for the sides a crop cut off
+        /// </summary>
+        /// <param name="parent">ISurface</param>
+        /// <param name="settings">TornEdgeEffect with the settings to start with, the edges say which sides get an edge</param>
+        /// <param name="margins">int array with the room for the shadow outside of the top, right, bottom and left side</param>
+        /// <param name="style">CutMarkStyle of the edges</param>
+        public TornEdgeContainer(ISurface parent, TornEdgeEffect settings, int[] margins, CutMarkStyle style) : base(parent)
+        {
+            _margins = NormalizeMargins(margins);
             settings ??= new TornEdgeEffect();
             ApplySettings(settings);
+            SetFieldValue(FieldType.CUT_MARK_STYLE, style);
             NewSeed();
             SpanImage();
             Init();
@@ -96,6 +109,7 @@ namespace Greenshot.Editor.Drawing
             AddField(GetType(), FieldType.LINE_COLOR, Color.DimGray);
             AddField(GetType(), FieldType.FILL_COLOR, Color.Transparent);
             AddField(GetType(), FieldType.SHADOW, true);
+            AddField(GetType(), FieldType.CUT_MARK_STYLE, CutMarkStyle.Torn);
             AddField(GetType(), FieldType.TOOTH_HEIGHT, 12);
             AddField(GetType(), FieldType.TOOTH_RANGE, 20);
         }
@@ -106,9 +120,35 @@ namespace Greenshot.Editor.Drawing
         public int Seed => _seed;
 
         /// <summary>
-        /// The room on every side for the shadow
+        /// The biggest room on a side for the shadow
         /// </summary>
-        public int Margin => _margin;
+        public int Margin => _margins.Max();
+
+        /// <summary>
+        /// The room for the shadow outside of the top, right, bottom and left side
+        /// </summary>
+        public int[] Margins => (int[])_margins.Clone();
+
+        /// <summary>
+        /// The style of the edges, None draws nothing
+        /// </summary>
+        public CutMarkStyle Style => GetFieldValue(FieldType.CUT_MARK_STYLE) is CutMarkStyle style ? style : CutMarkStyle.Torn;
+
+        private static int[] NormalizeMargins(int[] margins) =>
+            margins is { Length: 4 } ? margins.Select(margin => Math.Max(0, margin)).ToArray() : new[] { 0, 0, 0, 0 };
+
+        /// <summary>
+        /// Change which sides have an edge and the room outside of them, e.g. when a crop cut sides off.
+        /// </summary>
+        /// <param name="edges">bool array top, right, bottom, left</param>
+        /// <param name="margins">int array top, right, bottom, left</param>
+        internal void SetLayout(bool[] edges, int[] margins)
+        {
+            _edges = edges is { Length: 4 } ? (bool[])edges.Clone() : new[] { true, true, true, true };
+            _margins = NormalizeMargins(margins);
+            ClearShadowCache();
+            Invalidate();
+        }
 
         /// <summary>
         /// The room needed on every side for the shadow of the settings
@@ -241,6 +281,7 @@ namespace Greenshot.Editor.Drawing
             var sides = new List<PointF[]>();
             tornSides = sides;
             bool top = _edges[0], right = _edges[1], bottom = _edges[2], left = _edges[3];
+            var style = Style;
 
             void AddSide(bool torn, bool tornBefore, bool tornAfter, int length, PointF cornerStart, PointF cornerEnd, Func<float, float, PointF> map)
             {
@@ -255,7 +296,7 @@ namespace Greenshot.Editor.Drawing
                 int insetStart = tornBefore ? toothHeight : 0;
                 int insetEnd = tornAfter ? toothHeight : 0;
                 int sideLength = Math.Max(1, length - insetStart - insetEnd);
-                var side = CutOutHelper.CreateEdge(CutMarkStyle.Torn, sideLength, toothHeight, ToothRange, random)
+                var side = CutOutHelper.CreateEdge(style, sideLength, toothHeight, ToothRange, random)
                     .Select(p => map(insetStart + p.X, p.Y)).ToArray();
                 outline.AddRange(side);
                 sides.Add(side);
@@ -265,10 +306,10 @@ namespace Greenshot.Editor.Drawing
             AddSide(right, top, bottom, height, new PointF(width, 0), new PointF(width, height), (along, depth) => new PointF(width - depth, along));
             AddSide(bottom, right, left, width, new PointF(width, height), new PointF(0, height), (along, depth) => new PointF(width - along, height - depth));
             AddSide(left, bottom, top, height, new PointF(0, height), new PointF(0, 0), (along, depth) => new PointF(depth, height - along));
-            if (_margin > 0)
+            if (_margins[0] > 0 || _margins[3] > 0)
             {
                 // The torn edges are inside the room for the shadow
-                PointF Shift(PointF p) => new PointF(p.X + _margin, p.Y + _margin);
+                PointF Shift(PointF p) => new PointF(p.X + _margins[3], p.Y + _margins[0]);
                 for (int i = 0; i < sides.Count; i++)
                 {
                     sides[i] = sides[i].Select(Shift).ToArray();
@@ -282,18 +323,13 @@ namespace Greenshot.Editor.Drawing
 
         public override void Draw(Graphics graphics, RenderMode rm)
         {
+            if (!HasEdges(out var innerSize))
+            {
+                return;
+            }
+
             var bounds = ImageBounds;
-            if (bounds.Width <= 2 || bounds.Height <= 2 || !_edges.Any(edge => edge))
-            {
-                return;
-            }
-
-            if (bounds.Width - 2 * _margin <= 2 || bounds.Height - 2 * _margin <= 2)
-            {
-                return;
-            }
-
-            var outline = CreateOutline(new Size(bounds.Width - 2 * _margin, bounds.Height - 2 * _margin), out var tornSides);
+            var outline = CreateOutline(innerSize, out var tornSides);
             using var keptPath = new GraphicsPath();
             keptPath.AddPolygon(outline);
             using var tornOff = new Region(new Rectangle(0, 0, bounds.Width, bounds.Height));
@@ -358,9 +394,19 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
+        /// Is there anything to draw, and the size of the part inside of the room for the shadow
+        /// </summary>
+        private bool HasEdges(out Size innerSize)
+        {
+            var bounds = ImageBounds;
+            innerSize = new Size(bounds.Width - _margins[1] - _margins[3], bounds.Height - _margins[0] - _margins[2]);
+            return Style != CutMarkStyle.None && innerSize.Width > 2 && innerSize.Height > 2 && _edges.Any(edge => edge);
+        }
+
+        /// <summary>
         /// Describes the shape, other elements use it to know when their shadow changes
         /// </summary>
-        internal string ShapeKey => $"{ImageBounds.Width}x{ImageBounds.Height}|{_margin}|{_seed}|{string.Join(",", _edges)}|{ToothHeight}|{ToothRange}";
+        internal string ShapeKey => $"{ImageBounds.Width}x{ImageBounds.Height}|{string.Join(",", _margins)}|{Style}|{_seed}|{string.Join(",", _edges)}|{ToothHeight}|{ToothRange}";
 
         /// <summary>
         /// The torn off parts in image coordinates, these are cut out of the image
@@ -368,16 +414,16 @@ namespace Greenshot.Editor.Drawing
         /// <returns>GraphicsPath or null when nothing is torn</returns>
         internal GraphicsPath CreateCutPath()
         {
-            var bounds = ImageBounds;
-            if (bounds.Width - 2 * _margin <= 2 || bounds.Height - 2 * _margin <= 2 || !_edges.Any(edge => edge))
+            if (!HasEdges(out var innerSize))
             {
                 return null;
             }
 
+            var bounds = ImageBounds;
             // The image with the part which stays as hole
             var path = new GraphicsPath(FillMode.Alternate);
             path.AddRectangle(new Rectangle(0, 0, bounds.Width, bounds.Height));
-            path.AddPolygon(CreateOutline(new Size(bounds.Width - 2 * _margin, bounds.Height - 2 * _margin), out _));
+            path.AddPolygon(CreateOutline(innerSize, out _));
             return path;
         }
 
@@ -428,9 +474,9 @@ namespace Greenshot.Editor.Drawing
                 return false;
             }
 
-            int reach = _margin + ToothHeight + 4;
-            return (_edges[0] && y < reach) || (_edges[1] && x >= bounds.Width - reach) ||
-                   (_edges[2] && y >= bounds.Height - reach) || (_edges[3] && x < reach);
+            int reach = ToothHeight + 4;
+            return (_edges[0] && y < _margins[0] + reach) || (_edges[1] && x >= bounds.Width - _margins[1] - reach) ||
+                   (_edges[2] && y >= bounds.Height - _margins[2] - reach) || (_edges[3] && x < _margins[3] + reach);
         }
 
         public override void AddContextMenuItems(ContextMenuStrip menu, ISurface surface, MouseEventArgs mouseEventArgs)
