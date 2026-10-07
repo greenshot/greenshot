@@ -222,6 +222,56 @@ namespace Greenshot.Base.Languages
         string CropmodeVertical { get; }
 
         /// <summary>
+        /// Apply to the image
+        /// </summary>
+        string ApplyToImage { get; }
+
+        /// <summary>
+        /// Cut edges
+        /// </summary>
+        string CutMark { get; }
+
+        /// <summary>
+        /// Straight
+        /// </summary>
+        string CutMarkLine { get; }
+
+        /// <summary>
+        /// None (seamless)
+        /// </summary>
+        string CutMarkNone { get; }
+
+        /// <summary>
+        /// New random edge
+        /// </summary>
+        string CutMarkReseed { get; }
+
+        /// <summary>
+        /// Cut edge settings...
+        /// </summary>
+        string CutMarkSettings { get; }
+
+        /// <summary>
+        /// Tooth range
+        /// </summary>
+        string CutMarkToothRange { get; }
+
+        /// <summary>
+        /// Torn
+        /// </summary>
+        string CutMarkTorn { get; }
+
+        /// <summary>
+        /// Wavy
+        /// </summary>
+        string CutMarkWave { get; }
+
+        /// <summary>
+        /// Zig-zag
+        /// </summary>
+        string CutMarkZigzag { get; }
+
+        /// <summary>
         /// Selection Tool (ESC)
         /// </summary>
         string Cursortool { get; }
@@ -695,6 +745,11 @@ namespace Greenshot.Base.Languages
         /// Left side
         /// </summary>
         string TornedgeLeft { get; }
+
+        /// <summary>
+        /// Background color
+        /// </summary>
+        string TornedgeBackgroundColor { get; }
 
         /// <summary>
         /// Right side

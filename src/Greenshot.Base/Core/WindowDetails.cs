@@ -53,23 +53,6 @@ namespace Greenshot.Base.Core
         private static readonly ILog Log = LogManager.GetLogger(typeof(WindowDetails));
         private static readonly ICoreConfiguration Conf = IniConfigRegistry.GetSection<ICoreConfiguration>();
         private static readonly IList<IntPtr> IgnoreHandles = new List<IntPtr>();
-        private static readonly IAppVisibility AppVisibility;
-
-        static WindowDetails()
-        {
-            try
-            {
-                // Only try to instantiate when Windows 8 or later.
-                if (WindowsVersion.IsWindows8OrLater)
-                {
-                    AppVisibility = COMWrapper.CreateInstance<IAppVisibility>();
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.WarnFormat("Couldn't create instance of IAppVisibility: {0}", ex.Message);
-            }
-        }
 
         internal static bool IsIgnoreHandle(IntPtr handle)
         {
@@ -90,7 +73,7 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Check if this window belongs to a background app
         /// </summary>
-        public bool IsBackgroundWin10App => WindowsVersion.IsWindows10OrLater && AppFrameWindowClass.Equals(ClassName) &&
+        public bool IsBackgroundWin10App => AppFrameWindowClass.Equals(ClassName) &&
                                             !Children.Any(window => string.Equals(window.ClassName, AppWindowClass));
 
 
@@ -376,7 +359,7 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Retrieve all the children, this only stores the children internally, use the "Children" property for the value
         /// </summary>
-        /// <param name="levelsToGo">Specify how many levels we go in</param>
+        /// <param name="levelsToGo">0 for this window only, more to also fill the children of all child windows</param>
         public IList<WindowDetails> GetChildren(int levelsToGo)
         {
             if (_childWindows != null)
@@ -384,16 +367,40 @@ namespace Greenshot.Base.Core
                 return _childWindows;
             }
 
+            // EnumChildWindows returns all descendants, not only the direct children
             _childWindows = new WindowsEnumerator().GetWindows(Handle, null).Items;
-            foreach (var childWindow in _childWindows)
+            if (levelsToGo > 0)
             {
-                if (levelsToGo > 0)
-                {
-                    childWindow.GetChildren(levelsToGo - 1);
-                }
+                SetChildrenOfDescendants();
             }
 
             return _childWindows;
+        }
+
+        /// <summary>
+        /// Fill the children (all descendants) of every descendant from the one enumeration of this window,
+        /// instead of enumerating every descendant again (which also enumerated their descendants again, level after level)
+        /// </summary>
+        private void SetChildrenOfDescendants()
+        {
+            var descendants = new Dictionary<IntPtr, WindowDetails>();
+            foreach (var window in _childWindows)
+            {
+                descendants[window.Handle] = window;
+                window._childWindows ??= new List<WindowDetails>();
+            }
+
+            foreach (var window in _childWindows)
+            {
+                window.ParentHandle = User32Api.GetParent(window.Handle);
+                // Add the window to all its ancestors below this window, in the order of the enumeration
+                var parentHandle = window.ParentHandle;
+                while (parentHandle != Handle && descendants.TryGetValue(parentHandle, out var ancestor))
+                {
+                    ancestor._childWindows.Add(window);
+                    parentHandle = User32Api.GetParent(parentHandle);
+                }
+            }
         }
 
         /// <summary>
@@ -565,25 +572,22 @@ namespace Greenshot.Base.Core
                     return _previousWindowRectangle;
                 }
                 NativeRect windowRect = new();
-                if (DwmApi.IsDwmEnabled)
+                bool gotFrameBounds = GetExtendedFrameBounds(out windowRect);
+                if (IsWin10App)
                 {
-                    bool gotFrameBounds = GetExtendedFrameBounds(out windowRect);
-                    if (IsWin10App)
-                    {
-                        // Pre-Cache for maximized call, this is only on Windows 8 apps (full screen)
-                        if (gotFrameBounds)
-                        {
-                            _previousWindowRectangle = windowRect;
-                            _lastWindowRectangleRetrieveTime = now;
-                        }
-                    }
-
-                    if (gotFrameBounds && WindowsVersion.IsWindows10OrLater && !Maximised)
+                    // Pre-Cache for maximized call, this is only on Windows 8 apps (full screen)
+                    if (gotFrameBounds)
                     {
                         _previousWindowRectangle = windowRect;
                         _lastWindowRectangleRetrieveTime = now;
-                        return windowRect;
                     }
+                }
+
+                if (gotFrameBounds && !Maximised)
+                {
+                    _previousWindowRectangle = windowRect;
+                    _lastWindowRectangleRetrieveTime = now;
+                    return windowRect;
                 }
 
                 if (windowRect.IsEmpty)
@@ -1091,23 +1095,6 @@ namespace Greenshot.Base.Core
                 {
                     window.ToForeground();
                 }
-            }
-        }
-
-        /// <summary>
-        /// Return true if the metro-app-launcher is visible
-        /// </summary>
-        /// <returns></returns>
-        public static bool IsAppLauncherVisible
-        {
-            get
-            {
-                if (AppVisibility != null)
-                {
-                    return AppVisibility.IsLauncherVisible;
-                }
-
-                return false;
             }
         }
 

@@ -110,7 +110,12 @@ Root: HKA; Subkey: Software\RegisteredApplications; ValueType: string; ValueName
 Root: HKCU; Subkey: Control Panel\Keyboard; ValueType: dword; ValueName: "PrintScreenKeyForSnippingEnabled"; ValueData: "0"; Flags: uninsdeletevalue; Check: ShouldDisableSnippingTool
 
 [Run]
+; Native images (NGen) for Greenshot and the assemblies it references: less JIT at startup. Needs admin rights; queued, the .NET optimization service compiles them right away.
+Filename: "{dotnet40}\ngen.exe"; Parameters: "install ""{app}\{#ExeName}.exe"" /queue:1 /nologo"; Flags: runhidden waituntilterminated; Check: IsAdminInstallMode
 Filename: "{app}\{#ExeName}.exe"; Description: "{cm:startgreenshot}"; Parameters: "{code:GetParamsForGS}"; WorkingDir: "{app}"; Flags: nowait postinstall runasoriginaluser; Check: NotAlreadyRestarted
+
+[UninstallRun]
+Filename: "{dotnet40}\ngen.exe"; Parameters: "uninstall ""{app}\{#ExeName}.exe"" /nologo"; Flags: runhidden waituntilterminated; RunOnceId: "NgenUninstall"; Check: IsAdminInstallMode
 
 [CustomMessages]
 default=Default installation

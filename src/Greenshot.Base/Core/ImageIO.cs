@@ -441,29 +441,23 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Helper method to create a temp image file
+        /// Writes already encoded image bytes to a temp file, so an image which was encoded once doesn't need to be encoded again.
+        /// The file is removed later, see RegisterTmpFile.
         /// </summary>
-        /// <param name="surface"></param>
-        /// <param name="outputSettings"></param>
-        /// <param name="destinationPath"></param>
-        /// <returns></returns>
-        public static string SaveToTmpFile(ISurface surface, SurfaceOutputSettings outputSettings, string destinationPath)
+        /// <param name="encoded">MemoryStream with the encoded image, the position isn't changed</param>
+        /// <param name="format">the format of the encoded bytes, used for the extension</param>
+        /// <param name="destinationPath">directory, null for the temp directory</param>
+        /// <returns>the path of the temp file, null when it couldn't be written</returns>
+        public static string SaveEncodedToTmpFile(MemoryStream encoded, string format, string destinationPath)
         {
-            string tmpFile = Path.GetRandomFileName() + FileFormatRegistry.GetPreferredExtensionWithDot(outputSettings.Format);
-            // Prevent problems with "other characters", which could cause problems
-            tmpFile = Regex.Replace(tmpFile, @"[^\d\w\.]", string.Empty);
-            if (destinationPath == null)
-            {
-                destinationPath = Path.GetTempPath();
-            }
-
-            string tmpPath = Path.Combine(destinationPath, tmpFile);
-            Log.Debug("Creating TMP File : " + tmpPath);
-
+            string tmpPath = CreateTmpFilePath(format, destinationPath);
             try
             {
-                Save(surface, tmpPath, true, outputSettings, false);
-                TmpFileCache.Add(tmpPath, tmpPath);
+                using (var stream = new FileStream(tmpPath, FileMode.Create, FileAccess.Write))
+                {
+                    encoded.WriteTo(stream);
+                }
+                RegisterTmpFile(tmpPath);
             }
             catch (Exception)
             {
@@ -474,34 +468,18 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Saves a pre-rendered image to a temp file, skipping the surface render step.
-        /// Use this overload when the surface has already been rendered to avoid a redundant render pass.
+        /// A path for a temp file with a random name and the extension of the format
         /// </summary>
-        public static string SaveToTmpFile(Image renderedImage, SurfaceOutputSettings outputSettings, string destinationPath)
+        /// <param name="format">the file format, used for the extension</param>
+        /// <param name="destinationPath">directory, null for the temp directory</param>
+        /// <returns>the path, the file isn't created</returns>
+        public static string CreateTmpFilePath(string format, string destinationPath)
         {
-            string tmpFile = Path.GetRandomFileName() + FileFormatRegistry.GetPreferredExtensionWithDot(outputSettings.Format);
+            string tmpFile = Path.GetRandomFileName() + FileFormatRegistry.GetPreferredExtensionWithDot(format);
+            // Prevent problems with "other characters", which could cause problems
             tmpFile = Regex.Replace(tmpFile, @"[^\d\w\.]", string.Empty);
-            if (destinationPath == null)
-            {
-                destinationPath = Path.GetTempPath();
-            }
-
-            string tmpPath = Path.Combine(destinationPath, tmpFile);
-            Log.Debug("Creating TMP File from pre-rendered image: " + tmpPath);
-
-            try
-            {
-                using (FileStream stream = new FileStream(tmpPath, FileMode.Create, FileAccess.Write))
-                {
-                    SaveToStream(renderedImage, null, stream, outputSettings);
-                }
-                TmpFileCache.Add(tmpPath, tmpPath);
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-
+            string tmpPath = Path.Combine(destinationPath ?? Path.GetTempPath(), tmpFile);
+            Log.Debug("Creating TMP File : " + tmpPath);
             return tmpPath;
         }
 

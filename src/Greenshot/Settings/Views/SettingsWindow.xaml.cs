@@ -35,6 +35,7 @@ using Greenshot.Base.Wpf.Views;
 using Greenshot.Configuration;
 using Greenshot.Helpers;
 using Greenshot.Base.Languages;
+using Greenshot.Recipes.Triggers;
 using Greenshot.Recipes.Views;
 using Greenshot.Settings.ViewModels;
 using Greenshot.Views;
@@ -221,7 +222,7 @@ namespace Greenshot.Settings.Views
         {
             HotkeyManager.UnregisterHotkeys();
             SaveSettings();
-            HotkeyHelper.RegisterHotkeys();
+            TriggerManager.Instance.RestartHotkeyTriggers();
 
             var shell = SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true);
             shell?.UpdateUi();

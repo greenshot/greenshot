@@ -74,30 +74,38 @@ namespace Greenshot.Recipes.Triggers
             if (CoreConfig == null) return;
 
             // Register hotkeys from legacy config as default hotkey triggers
-            if (!string.IsNullOrEmpty(CoreConfig.RegionHotkey))
-            {
-                RegisterTrigger(new HotkeyTrigger("trigger_hotkey_region", "Region Hotkey", CoreConfig.RegionHotkey, RecipeManager.RecipeIdRegion));
-            }
+            RegisterDefaultHotkeyTrigger("trigger_hotkey_region", "Region Hotkey", CoreConfig.RegionHotkey, RecipeManager.RecipeIdRegion);
+            string windowRecipe = CoreConfig.CaptureWindowsInteractive ? RecipeManager.RecipeIdWindow : RecipeManager.RecipeIdActiveWindow;
+            RegisterDefaultHotkeyTrigger("trigger_hotkey_window", "Window Hotkey", CoreConfig.WindowHotkey, windowRecipe);
+            RegisterDefaultHotkeyTrigger("trigger_hotkey_fullscreen", "Fullscreen Hotkey", CoreConfig.FullscreenHotkey, RecipeManager.RecipeIdFullScreen);
+            RegisterDefaultHotkeyTrigger("trigger_hotkey_lastregion", "Last Region Hotkey", CoreConfig.LastregionHotkey, RecipeManager.RecipeIdLastRegion);
+            RegisterDefaultHotkeyTrigger("trigger_hotkey_clipboard", "Clipboard Hotkey", CoreConfig.ClipboardHotkey, RecipeManager.RecipeIdClipboard);
+        }
 
-            if (!string.IsNullOrEmpty(CoreConfig.WindowHotkey))
+        private void RegisterDefaultHotkeyTrigger(string id, string name, string hotkey, string recipeId)
+        {
+            if (string.IsNullOrEmpty(hotkey))
             {
-                string targetRecipe = CoreConfig.CaptureWindowsInteractive ? RecipeManager.RecipeIdWindow : RecipeManager.RecipeIdActiveWindow;
-                RegisterTrigger(new HotkeyTrigger("trigger_hotkey_window", "Window Hotkey", CoreConfig.WindowHotkey, targetRecipe));
+                // The hotkey could have been removed in the settings
+                UnregisterTrigger(id);
+                return;
             }
+            RegisterTrigger(new HotkeyTrigger(id, name, hotkey, recipeId));
+        }
 
-            if (!string.IsNullOrEmpty(CoreConfig.FullscreenHotkey))
+        /// <summary>
+        /// Register all hotkeys again, after HotkeyManager.UnregisterHotkeys removed every registration or the configuration changed.
+        /// This covers the default hotkeys from the configuration and the hotkeys of the recipes.
+        /// </summary>
+        public void RestartHotkeyTriggers()
+        {
+            InitializeDefaultTriggers();
+            lock (_triggers)
             {
-                RegisterTrigger(new HotkeyTrigger("trigger_hotkey_fullscreen", "Fullscreen Hotkey", CoreConfig.FullscreenHotkey, RecipeManager.RecipeIdFullScreen));
-            }
-
-            if (!string.IsNullOrEmpty(CoreConfig.LastregionHotkey))
-            {
-                RegisterTrigger(new HotkeyTrigger("trigger_hotkey_lastregion", "Last Region Hotkey", CoreConfig.LastregionHotkey, RecipeManager.RecipeIdLastRegion));
-            }
-
-            if (!string.IsNullOrEmpty(CoreConfig.ClipboardHotkey))
-            {
-                RegisterTrigger(new HotkeyTrigger("trigger_hotkey_clipboard", "Clipboard Hotkey", CoreConfig.ClipboardHotkey, RecipeManager.RecipeIdClipboard));
+                foreach (var trigger in _triggers.Values.OfType<HotkeyTrigger>().Where(t => t.IsEnabled))
+                {
+                    trigger.Start();
+                }
             }
         }
 

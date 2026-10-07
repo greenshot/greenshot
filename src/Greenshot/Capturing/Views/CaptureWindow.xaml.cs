@@ -363,7 +363,7 @@ namespace Greenshot.Capturing.Views
         /// <inheritdoc />
         public Color GetPixelColor(NativePoint location)
         {
-            if (location.X < 0 || location.Y < 0 || location.X >= _screenImage.PixelWidth || location.Y >= _screenImage.PixelHeight)
+            if (_screenImage == null || location.X < 0 || location.Y < 0 || location.X >= _screenImage.PixelWidth || location.Y >= _screenImage.PixelHeight)
             {
                 return Colors.Transparent;
             }
@@ -845,6 +845,10 @@ namespace Greenshot.Capturing.Views
                 _capture.CaptureDetails.FeaturesChanged -= OnFeaturesChanged;
             }
             _selectionSettleTimer?.Stop();
+            // The copy of the whole screen is large, don't keep it until the window is garbage collected
+            ZoomBrush.ImageSource = null;
+            ScreenImage.Source = null;
+            _screenImage = null;
         }
 
         #region features

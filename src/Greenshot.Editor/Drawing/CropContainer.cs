@@ -132,6 +132,8 @@ namespace Greenshot.Editor.Drawing
         {
             AddField(GetType(), FieldType.FLAGS, FieldFlag.CONFIRMABLE);
             AddField(GetType(), FieldType.CROPMODE, CropModes.Default);
+            // How the joint is marked after crop out horizontally / vertically
+            AddField(GetType(), FieldType.CUT_MARK_STYLE, CutMarkStyle.None);
         }
 
         public override void Invalidate()

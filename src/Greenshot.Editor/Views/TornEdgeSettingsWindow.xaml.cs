@@ -35,15 +35,31 @@ namespace Greenshot.Editor.Views
         private static readonly ILog LOG = LogManager.GetLogger(typeof(TornEdgeSettingsWindow));
         private readonly TornEdgeEffect _effect;
         private bool _isUpdatingEdges;
+        private System.Drawing.Color _backgroundColor;
 
         public TornEdgeSettingsWindow() : this(new TornEdgeEffect())
         {
         }
 
-        public TornEdgeSettingsWindow(TornEdgeEffect effect)
+        public TornEdgeSettingsWindow(TornEdgeEffect effect) : this(effect, true)
+        {
+        }
+
+        /// <summary>
+        /// Create the settings window
+        /// </summary>
+        /// <param name="effect">TornEdgeEffect to show and change</param>
+        /// <param name="showEdges">false hides the selection of the edges, e.g. for a cut mark which only has the edges along the cut</param>
+        public TornEdgeSettingsWindow(TornEdgeEffect effect, bool showEdges)
         {
             _effect = effect ?? new TornEdgeEffect();
+            _backgroundColor = _effect.BackgroundColor;
             InitializeComponent();
+            if (!showEdges)
+            {
+                EdgesGroupBox.Visibility = Visibility.Collapsed;
+            }
+
             try
             {
                 Icon = ImageHelper.ToBitmapSource(GreenshotResources.GetGreenshotIcon());
@@ -67,6 +83,7 @@ namespace Greenshot.Editor.Views
             ToothSizeSlider.Value = Math.Max(0, Math.Min(40, _effect.ToothHeight));
             VerticalToothRangeSlider.Value = Math.Max(0, Math.Min(40, _effect.VerticalToothRange));
             HorizontalToothRangeSlider.Value = Math.Max(0, Math.Min(40, _effect.HorizontalToothRange));
+            ShowBackgroundColor();
 
             _isUpdatingEdges = true;
             TopEdgeCheckBox.IsChecked = _effect.Edges != null && _effect.Edges.Length > 0 && _effect.Edges[0];
@@ -97,6 +114,29 @@ namespace Greenshot.Editor.Views
             AllEdgesCheckBox.IsChecked = TopEdgeCheckBox.IsChecked == true && RightEdgeCheckBox.IsChecked == true &&
                                         BottomEdgeCheckBox.IsChecked == true && LeftEdgeCheckBox.IsChecked == true;
             _isUpdatingEdges = false;
+        }
+
+        private void ShowBackgroundColor()
+        {
+            BackgroundColorSwatch.Background = new System.Windows.Media.SolidColorBrush(
+                System.Windows.Media.Color.FromArgb(_backgroundColor.A, _backgroundColor.R, _backgroundColor.G, _backgroundColor.B));
+        }
+
+        private void BackgroundColor_Click(object sender, RoutedEventArgs e)
+        {
+            var colorPicker = new ColorPickerWindow
+            {
+                SelectedColor = _backgroundColor,
+                Owner = this
+            };
+            if (colorPicker.ShowDialog() != true)
+            {
+                return;
+            }
+
+            // Only used when OK is pressed
+            _backgroundColor = colorPicker.SelectedColor;
+            ShowBackgroundColor();
         }
 
         private void GenerateShadow_Click(object sender, RoutedEventArgs e)
@@ -149,6 +189,7 @@ namespace Greenshot.Editor.Views
                 LeftEdgeCheckBox.IsChecked == true
             };
             _effect.GenerateShadow = GenerateShadowCheckBox.IsChecked == true;
+            _effect.BackgroundColor = _backgroundColor;
             DialogResult = true;
             Close();
         }

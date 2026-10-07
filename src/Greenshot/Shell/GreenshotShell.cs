@@ -347,24 +347,10 @@ namespace Greenshot.Shell
                 new Win10OcrDestination()
             };
 
-            bool useEditor = false;
-            if (WindowsVersion.IsWindows10OrLater)
-            {
-                int len = 250;
-                var stringBuilder = new StringBuilder(len);
-                using var proc = Process.GetCurrentProcess();
-                var err = Kernel32Api.GetPackageFullName(proc.Handle, ref len, stringBuilder);
-                if (err != 0)
-                {
-                    useEditor = true;
-                }
-            }
-            else
-            {
-                useEditor = true;
-            }
-
-            if (useEditor)
+            int len = 250;
+            var stringBuilder = new StringBuilder(len);
+            using var proc = Process.GetCurrentProcess();
+            if (Kernel32Api.GetPackageFullName(proc.Handle, ref len, stringBuilder) != 0)
             {
                 internalDestinations.Add(new EditorDestination());
             }
