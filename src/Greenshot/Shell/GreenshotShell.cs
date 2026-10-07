@@ -341,9 +341,16 @@ namespace Greenshot.Shell
                 new EmailDestination(),
                 new PickerDestination(),
                 new Win10ShareDestination(),
-                new Win10OcrDestination(),
-                new EditorDestination()
+                new Win10OcrDestination()
             };
+
+            int len = 250;
+            var stringBuilder = new StringBuilder(len);
+            using var proc = Process.GetCurrentProcess();
+            if (Kernel32Api.GetPackageFullName(proc.Handle, ref len, stringBuilder) != 0)
+            {
+                internalDestinations.Add(new EditorDestination());
+            }
 
             foreach (var internalDestination in internalDestinations)
             {
