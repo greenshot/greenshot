@@ -141,26 +141,9 @@ namespace Greenshot.Editor.FileFormatHandlers
 
         public override bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
         {
-            _ = stream.Seek(0, SeekOrigin.Current);
-
-            // Icon logic, try to get the Vista icon, else the biggest possible
             try
             {
-                using Image tmpImage = ExtractVistaIcon(stream);
-                if (tmpImage != null)
-                {
-                    bitmap = ImageHelper.Clone(tmpImage, PixelFormat.Format32bppArgb);
-                    return true;
-                }
-            }
-            catch (Exception vistaIconException)
-            {
-                Log.Warn("Can't read icon", vistaIconException);
-            }
-
-            try
-            {
-                // No vista icon, try normal icon
+                // The biggest icon, ToBitmap also reads the PNG compressed (256x256) icons
                 stream.Position = stream.Seek(0, SeekOrigin.Begin);
                 // We create a copy of the bitmap, so everything else can be disposed
                 using Icon tmpIcon = new Icon(stream, new Size(1024, 1024));
@@ -175,46 +158,6 @@ namespace Greenshot.Editor.FileFormatHandlers
 
             bitmap = null;
             return false;
-        }
-
-        /// <summary>
-        /// Based on: https://www.codeproject.com/KB/cs/IconExtractor.aspx
-        /// And a hint from: https://www.codeproject.com/KB/cs/IconLib.aspx
-        /// </summary>
-        /// <param name="iconStream">Stream with the icon information</param>
-        /// <returns>Bitmap with the Vista Icon (256x256)</returns>
-        private static Bitmap ExtractVistaIcon(Stream iconStream)
-        {
-            const int sizeIconDir = 6;
-            const int sizeIconDirEntry = 16;
-            Bitmap bmpPngExtracted = null;
-            try
-            {
-                byte[] srcBuf = new byte[iconStream.Length];
-                // TODO: Check if there is a need to process the result
-                _ = iconStream.Read(srcBuf, 0, (int)iconStream.Length);
-                int iCount = BitConverter.ToInt16(srcBuf, 4);
-                for (int iIndex = 0; iIndex < iCount; iIndex++)
-                {
-                    int iWidth = srcBuf[sizeIconDir + sizeIconDirEntry * iIndex];
-                    int iHeight = srcBuf[sizeIconDir + sizeIconDirEntry * iIndex + 1];
-                    if (iWidth != 0 || iHeight != 0) continue;
-
-                    int iImageSize = BitConverter.ToInt32(srcBuf, sizeIconDir + sizeIconDirEntry * iIndex + 8);
-                    int iImageOffset = BitConverter.ToInt32(srcBuf, sizeIconDir + sizeIconDirEntry * iIndex + 12);
-                    using MemoryStream destStream = new MemoryStream();
-                    destStream.Write(srcBuf, iImageOffset, iImageSize);
-                    destStream.Seek(0, SeekOrigin.Begin);
-                    bmpPngExtracted = new Bitmap(destStream); // This is PNG! :)
-                    break;
-                }
-            }
-            catch
-            {
-                return null;
-            }
-
-            return bmpPngExtracted;
         }
     }
 }
