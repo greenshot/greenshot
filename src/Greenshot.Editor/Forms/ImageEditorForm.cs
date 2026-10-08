@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -135,40 +136,52 @@ namespace Greenshot.Editor.Forms
         /// <param name="newDpi"></param>
         protected override void DpiChangedHandler(int oldDpi, int newDpi)
         {
-            var newSize = DpiCalculator.ScaleWithDpi(coreConfiguration.IconSize, newDpi);
-            toolsToolStrip.ImageScalingSize = newSize;
-            menuStrip1.ImageScalingSize = newSize;
-            destinationsToolStrip.ImageScalingSize = newSize;
-            propertiesToolStrip.ImageScalingSize = newSize;
-            propertiesToolStrip.MinimumSize = new Size(150, newSize.Height + 10);
-            _surface?.AdjustToDpi(newDpi);
+            ApplyDpi(newDpi);
 
             // The framework's own DPI-triggered scaling runs after this handler returns, and it resizes
             // the canvas control along with every other control on the form - even though the canvas size
             // must always be image-size * zoom-factor in device pixels, independent of monitor DPI. Redo
             // the adjustment once that scaling has completed, so the canvas ends up at its correct size
             // instead of being left clipped.
-if (!IsDisposed && !Disposing && IsHandleCreated)
-{
-    BeginInvoke(new MethodInvoker(() =>
-    {
-        if (IsDisposed || Disposing || _surface?.Image == null)
-        {
-            return;
+            if (!IsDisposed && !Disposing && IsHandleCreated)
+            {
+                BeginInvoke(new MethodInvoker(() =>
+                {
+                    if (IsDisposed || Disposing || _surface?.Image == null)
+                    {
+                        return;
+                    }
+
+                    _surface.AdjustToDpi(DeviceDpi);
+                    if (_fitToCaptureAfterDpiChange && WindowState == FormWindowState.Normal)
+                    {
+                        // Toolbar heights don't scale exactly with the DPI, fit the window to the capture once more
+                        PerformLayout();
+                        Size = GetOptimalWindowSize();
+                    }
+
+                    _fitToCaptureAfterDpiChange = false;
+                    AlignCanvasPositionAfterResize();
+                }));
+            }
         }
 
-        _surface.AdjustToDpi(DeviceDpi);
-        if (_fitToCaptureAfterDpiChange && WindowState == FormWindowState.Normal)
+        /// <summary>
+        /// Show the icons in the size for the DPI of the display the editor is on, and size the grippers.
+        /// Called when the editor is created, when it moves to a display with another DPI and when the icon size setting changes.
+        /// Drop downs get the same size when they open, see IconBinder.
+        /// </summary>
+        /// <param name="dpi">int with the DPI of the editor window</param>
+        private void ApplyDpi(int dpi)
         {
-            // Toolbar heights don't scale exactly with the DPI, fit the window to the capture once more
-            PerformLayout();
-            Size = GetOptimalWindowSize();
-        }
+            int pixelSize = 0;
+            foreach (var toolStrip in new ToolStrip[] { menuStrip1, toolsToolStrip, destinationsToolStrip, propertiesToolStrip, statusStrip1, zoomMenuStrip, fileSavedStatusContextMenu })
+            {
+                pixelSize = IconBinder.ApplyForDpi(toolStrip, dpi, "the editor");
+            }
 
-        _fitToCaptureAfterDpiChange = false;
-        AlignCanvasPositionAfterResize();
-    }));
-}
+            propertiesToolStrip.MinimumSize = new Size(150, pixelSize + 10);
+            _surface?.AdjustToDpi(dpi);
         }
 
         private bool? _matchSizeToCapture;
@@ -194,95 +207,95 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         /// </summary>
         private void ApplyImages()
         {
-            btnCursor.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnCursor.Image");
-            btnRect.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnRect.Image");
-            btnEllipse.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnEllipse.Image");
-            btnLine.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnLine.Image");
-            btnArrow.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnArrow.Image");
-            btnFreehand.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnFreehand.Image");
-            btnText.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnText.Image");
-            btnSpeechBubble.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnSpeechBubble.Image");
-            btnStepLabel.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnStepLabel01.Image");
-            btnHighlight.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnHighlight.Image");
-            btnObfuscate.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnObfuscate.Image");
-            toolStripSplitButton1.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "toolStripSplitButton1.Image");
-            btnResize.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnResize.Image");
-            btnCrop.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnCrop.Image");
-            rotateCwToolstripButton.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "rotateCwToolstripButton.Image");
-            rotateCcwToolstripButton.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "rotateCcwToolstripButton.Image");
-            undoToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "undoToolStripMenuItem.Image");
-            redoToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "redoToolStripMenuItem.Image");
-            cutToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "cutToolStripMenuItem.Image");
-            copyToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "copyToolStripMenuItem.Image");
-            pasteToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "pasteToolStripMenuItem.Image");
-            preferencesToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "preferencesToolStripMenuItem.Image");
-            addRectangleToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "addRectangleToolStripMenuItem.Image");
-            addEllipseToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "addEllipseToolStripMenuItem.Image");
-            drawLineToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "drawLineToolStripMenuItem.Image");
-            drawArrowToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "drawArrowToolStripMenuItem.Image");
-            drawFreehandToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "drawFreehandToolStripMenuItem.Image");
-            addTextBoxToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "addTextBoxToolStripMenuItem.Image");
-            addSpeechBubbleToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnSpeechBubble.Image");
-            addCounterToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnStepLabel01.Image");
-            removeObjectToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "removeObjectToolStripMenuItem.Image");
-            helpToolStripMenuItem1.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "helpToolStripMenuItem1.Image");
-            btnSave.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnSave.Image");
-            btnClipboard.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnClipboard.Image");
-            btnPrint.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnPrint.Image");
-            btnDelete.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnDelete.Image");
-            btnCut.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnCut.Image");
-            btnCopy.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnCopy.Image");
-            btnPaste.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnPaste.Image");
-            btnUndo.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnUndo.Image");
-            btnRedo.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnRedo.Image");
-            btnSettings.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnSettings.Image");
-            btnHelp.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnHelp.Image");
-            obfuscateModeButton.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "obfuscateModeButton.Image");
-            pixelizeToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "pixelizeToolStripMenuItem.Image");
-            blurToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "blurToolStripMenuItem.Image");
-            btnCropDefault.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnCrop.Image");
-            btnCropVertical.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "CropVertical.Image");
-            btnCropHorizontal.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "CropHorizontal.Image");
-            btnCropAuto.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "AutoCrop.Image");
+            IconBinder.Bind(btnCursor, IconSource.FromResource(typeof(ImageEditorForm), "btnCursor.Image"));
+            IconBinder.Bind(btnRect, IconSource.FromResource(typeof(ImageEditorForm), "btnRect.Image"));
+            IconBinder.Bind(btnEllipse, IconSource.FromResource(typeof(ImageEditorForm), "btnEllipse.Image"));
+            IconBinder.Bind(btnLine, IconSource.FromResource(typeof(ImageEditorForm), "btnLine.Image"));
+            IconBinder.Bind(btnArrow, IconSource.FromResource(typeof(ImageEditorForm), "btnArrow.Image"));
+            IconBinder.Bind(btnFreehand, IconSource.FromResource(typeof(ImageEditorForm), "btnFreehand.Image"));
+            IconBinder.Bind(btnText, IconSource.FromResource(typeof(ImageEditorForm), "btnText.Image"));
+            IconBinder.Bind(btnSpeechBubble, IconSource.FromResource(typeof(ImageEditorForm), "btnSpeechBubble.Image"));
+            IconBinder.Bind(btnStepLabel, IconSource.FromResource(typeof(ImageEditorForm), "btnStepLabel01.Image"));
+            IconBinder.Bind(btnHighlight, IconSource.FromResource(typeof(ImageEditorForm), "btnHighlight.Image"));
+            IconBinder.Bind(btnObfuscate, IconSource.FromResource(typeof(ImageEditorForm), "btnObfuscate.Image"));
+            IconBinder.Bind(toolStripSplitButton1, IconSource.FromResource(typeof(ImageEditorForm), "toolStripSplitButton1.Image"));
+            IconBinder.Bind(btnResize, IconSource.FromResource(typeof(ImageEditorForm), "btnResize.Image"));
+            IconBinder.Bind(btnCrop, IconSource.FromResource(typeof(ImageEditorForm), "btnCrop.Image"));
+            IconBinder.Bind(rotateCwToolstripButton, IconSource.FromResource(typeof(ImageEditorForm), "rotateCwToolstripButton.Image"));
+            IconBinder.Bind(rotateCcwToolstripButton, IconSource.FromResource(typeof(ImageEditorForm), "rotateCcwToolstripButton.Image"));
+            IconBinder.Bind(undoToolStripMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "undoToolStripMenuItem.Image"));
+            IconBinder.Bind(redoToolStripMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "redoToolStripMenuItem.Image"));
+            IconBinder.Bind(cutToolStripMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "cutToolStripMenuItem.Image"));
+            IconBinder.Bind(copyToolStripMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "copyToolStripMenuItem.Image"));
+            IconBinder.Bind(pasteToolStripMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "pasteToolStripMenuItem.Image"));
+            IconBinder.Bind(preferencesToolStripMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "preferencesToolStripMenuItem.Image"));
+            IconBinder.Bind(addRectangleToolStripMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "addRectangleToolStripMenuItem.Image"));
+            IconBinder.Bind(addEllipseToolStripMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "addEllipseToolStripMenuItem.Image"));
+            IconBinder.Bind(drawLineToolStripMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "drawLineToolStripMenuItem.Image"));
+            IconBinder.Bind(drawArrowToolStripMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "drawArrowToolStripMenuItem.Image"));
+            IconBinder.Bind(drawFreehandToolStripMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "drawFreehandToolStripMenuItem.Image"));
+            IconBinder.Bind(addTextBoxToolStripMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "addTextBoxToolStripMenuItem.Image"));
+            IconBinder.Bind(addSpeechBubbleToolStripMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "btnSpeechBubble.Image"));
+            IconBinder.Bind(addCounterToolStripMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "btnStepLabel01.Image"));
+            IconBinder.Bind(removeObjectToolStripMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "removeObjectToolStripMenuItem.Image"));
+            IconBinder.Bind(helpToolStripMenuItem1, IconSource.FromResource(typeof(ImageEditorForm), "helpToolStripMenuItem1.Image"));
+            IconBinder.Bind(btnSave, IconSource.FromResource(typeof(ImageEditorForm), "btnSave.Image"));
+            IconBinder.Bind(btnClipboard, IconSource.FromResource(typeof(ImageEditorForm), "btnClipboard.Image"));
+            IconBinder.Bind(btnPrint, IconSource.FromResource(typeof(ImageEditorForm), "btnPrint.Image"));
+            IconBinder.Bind(btnDelete, IconSource.FromResource(typeof(ImageEditorForm), "btnDelete.Image"));
+            IconBinder.Bind(btnCut, IconSource.FromResource(typeof(ImageEditorForm), "btnCut.Image"));
+            IconBinder.Bind(btnCopy, IconSource.FromResource(typeof(ImageEditorForm), "btnCopy.Image"));
+            IconBinder.Bind(btnPaste, IconSource.FromResource(typeof(ImageEditorForm), "btnPaste.Image"));
+            IconBinder.Bind(btnUndo, IconSource.FromResource(typeof(ImageEditorForm), "btnUndo.Image"));
+            IconBinder.Bind(btnRedo, IconSource.FromResource(typeof(ImageEditorForm), "btnRedo.Image"));
+            IconBinder.Bind(btnSettings, IconSource.FromResource(typeof(ImageEditorForm), "btnSettings.Image"));
+            IconBinder.Bind(btnHelp, IconSource.FromResource(typeof(ImageEditorForm), "btnHelp.Image"));
+            IconBinder.Bind(obfuscateModeButton, IconSource.FromResource(typeof(ImageEditorForm), "obfuscateModeButton.Image"));
+            IconBinder.Bind(pixelizeToolStripMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "pixelizeToolStripMenuItem.Image"));
+            IconBinder.Bind(blurToolStripMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "blurToolStripMenuItem.Image"));
+            IconBinder.Bind(btnCropDefault, IconSource.FromResource(typeof(ImageEditorForm), "btnCrop.Image"));
+            IconBinder.Bind(btnCropVertical, IconSource.FromResource(typeof(ImageEditorForm), "CropVertical.Image"));
+            IconBinder.Bind(btnCropHorizontal, IconSource.FromResource(typeof(ImageEditorForm), "CropHorizontal.Image"));
+            IconBinder.Bind(btnCropAuto, IconSource.FromResource(typeof(ImageEditorForm), "AutoCrop.Image"));
             foreach (ToolStripItem cutMarkItem in cutMarkStyleButton.DropDownItems)
             {
                 cutMarkItem.Image = CreateCutMarkPreview((CutMarkStyle)cutMarkItem.Tag);
                 // The pictures fill the whole item, this keeps them apart
                 cutMarkItem.Padding = new Padding(0, 3, 0, 3);
             }
-            highlightModeButton.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "highlightModeButton.Image");
-            textHighlightMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "textHighlightMenuItem.Image");
-            areaHighlightMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "areaHighlightMenuItem.Image");
-            grayscaleHighlightMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "grayscaleHighlightMenuItem.Image");
-            magnifyMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "magnifyMenuItem.Image");
-            btnFillColor.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnFillColor.Image");
-            btnLineColor.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnLineColor.Image");
-            fontBoldButton.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "fontBoldButton.Image");
-            fontItalicButton.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "fontItalicButton.Image");
-            textVerticalAlignmentButton.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnAlignMiddle.Image");
-            alignTopToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnAlignTop.Image");
-            alignMiddleToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnAlignMiddle.Image");
-            alignBottomToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnAlignBottom.Image");
-            arrowHeadsDropDownButton.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "arrowHeadsDropDownButton.Image");
-            arrowHeadStartMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "arrowHeadStartMenuItem.Image");
-            arrowHeadEndMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "arrowHeadEndMenuItem.Image");
-            arrowHeadBothMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "arrowHeadBothMenuItem.Image");
-            arrowHeadNoneMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "arrowHeadNoneMenuItem.Image");
-            shadowButton.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "shadowButton.Image");
-            btnConfirm.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnConfirm.Image");
-            btnApplyToImage.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnConfirm.Image");
-            btnCancel.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnCancel.Image");
-            closeAllToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "closeToolStripMenuItem.Image");
-            closeToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "closeToolStripMenuItem.Image");
-            textHorizontalAlignmentButton.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnAlignCenter.Image");
-            alignLeftToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnAlignLeft.Image");
-            alignCenterToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnAlignCenter.Image");
-            alignRightToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnAlignRight.Image");
-            zoomInMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "zoomInMenuItem.Image");
-            zoomOutMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "zoomOutMenuItem.Image");
-            zoomBestFitMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "zoomBestFitMenuItem.Image");
-            zoomActualSizeMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "zoomActualSizeMenuItem.Image");
-            zoomStatusDropDownBtn.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "zoomStatusDropDownBtn.Image");
+            IconBinder.Bind(highlightModeButton, IconSource.FromResource(typeof(ImageEditorForm), "highlightModeButton.Image"));
+            IconBinder.Bind(textHighlightMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "textHighlightMenuItem.Image"));
+            IconBinder.Bind(areaHighlightMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "areaHighlightMenuItem.Image"));
+            IconBinder.Bind(grayscaleHighlightMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "grayscaleHighlightMenuItem.Image"));
+            IconBinder.Bind(magnifyMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "magnifyMenuItem.Image"));
+            IconBinder.Bind(btnFillColor, IconSource.FromResource(typeof(ImageEditorForm), "btnFillColor.Image"));
+            IconBinder.Bind(btnLineColor, IconSource.FromResource(typeof(ImageEditorForm), "btnLineColor.Image"));
+            IconBinder.Bind(fontBoldButton, IconSource.FromResource(typeof(ImageEditorForm), "fontBoldButton.Image"));
+            IconBinder.Bind(fontItalicButton, IconSource.FromResource(typeof(ImageEditorForm), "fontItalicButton.Image"));
+            IconBinder.Bind(textVerticalAlignmentButton, IconSource.FromResource(typeof(ImageEditorForm), "btnAlignMiddle.Image"));
+            IconBinder.Bind(alignTopToolStripMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "btnAlignTop.Image"));
+            IconBinder.Bind(alignMiddleToolStripMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "btnAlignMiddle.Image"));
+            IconBinder.Bind(alignBottomToolStripMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "btnAlignBottom.Image"));
+            IconBinder.Bind(arrowHeadsDropDownButton, IconSource.FromResource(typeof(ImageEditorForm), "arrowHeadsDropDownButton.Image"));
+            IconBinder.Bind(arrowHeadStartMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "arrowHeadStartMenuItem.Image"));
+            IconBinder.Bind(arrowHeadEndMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "arrowHeadEndMenuItem.Image"));
+            IconBinder.Bind(arrowHeadBothMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "arrowHeadBothMenuItem.Image"));
+            IconBinder.Bind(arrowHeadNoneMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "arrowHeadNoneMenuItem.Image"));
+            IconBinder.Bind(shadowButton, IconSource.FromResource(typeof(ImageEditorForm), "shadowButton.Image"));
+            IconBinder.Bind(btnConfirm, IconSource.FromResource(typeof(ImageEditorForm), "btnConfirm.Image"));
+            IconBinder.Bind(btnApplyToImage, IconSource.FromResource(typeof(ImageEditorForm), "btnConfirm.Image"));
+            IconBinder.Bind(btnCancel, IconSource.FromResource(typeof(ImageEditorForm), "btnCancel.Image"));
+            IconBinder.Bind(closeAllToolStripMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "closeToolStripMenuItem.Image"));
+            IconBinder.Bind(closeToolStripMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "closeToolStripMenuItem.Image"));
+            IconBinder.Bind(textHorizontalAlignmentButton, IconSource.FromResource(typeof(ImageEditorForm), "btnAlignCenter.Image"));
+            IconBinder.Bind(alignLeftToolStripMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "btnAlignLeft.Image"));
+            IconBinder.Bind(alignCenterToolStripMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "btnAlignCenter.Image"));
+            IconBinder.Bind(alignRightToolStripMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "btnAlignRight.Image"));
+            IconBinder.Bind(zoomInMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "zoomInMenuItem.Image"));
+            IconBinder.Bind(zoomOutMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "zoomOutMenuItem.Image"));
+            IconBinder.Bind(zoomBestFitMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "zoomBestFitMenuItem.Image"));
+            IconBinder.Bind(zoomActualSizeMenuItem, IconSource.FromResource(typeof(ImageEditorForm), "zoomActualSizeMenuItem.Image"));
+            IconBinder.Bind(zoomStatusDropDownBtn, IconSource.FromResource(typeof(ImageEditorForm), "zoomStatusDropDownBtn.Image"));
         }
 
         private void Initialize(ISurface surface, bool outputMade)
@@ -361,6 +374,27 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
             UpdateUi();
             timing.Mark("UpdateUi");
+
+            // The handle exists and the editor is placed: size the icons for the display it is on.
+            // A DPI change only happens when the editor moves, an editor which opens on a 150% display needs this.
+            ApplyDpi(DeviceDpi);
+            PropertyChangedEventHandler iconSizeChangedHandler = (s, e) =>
+            {
+                if (e.PropertyName != nameof(ICoreConfiguration.IconSize))
+                {
+                    return;
+                }
+
+                var ui = SimpleServiceProvider.Current.GetInstance<IUiDispatcher>(isOptional: true) ?? InlineUiDispatcher.Instance;
+                ui.InvokeAsync(() =>
+                {
+                    if (IsDisposed || Disposing) return;
+                    ApplyDpi(DeviceDpi);
+                }).FireAndLog("Apply the icon size to the editor", Log);
+            };
+            coreConfiguration.PropertyChanged += iconSizeChangedHandler;
+            FormClosed += (s, e) => coreConfiguration.PropertyChanged -= iconSizeChangedHandler;
+            timing.Mark("Icons");
 
             // Re-apply the capture title after UpdateUi()/ApplyLanguage() which resets Text
             // to just the bare form language key ("Greenshot editor").
@@ -1751,24 +1785,15 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         /// <summary>
         /// refreshes all editor controls depending on selected elements and their fields
         /// </summary>
-        private string _stepLabelIconName;
-        private Image _stepLabelIcon;
 
         private void RefreshEditorControls()
         {
             if (IsDisposed || Disposing) return;
             int stepLabels = _surface.CountStepLabels(null);
-            string stepLabelIconName = stepLabels <= 20 ? $"btnStepLabel{stepLabels:00}.Image" : "btnStepLabel20+.Image";
-            // This runs on every selection change, only decode the icon when the number changed
-            if (stepLabelIconName != _stepLabelIconName)
-            {
-                var previousIcon = _stepLabelIcon;
-                _stepLabelIcon = EmbeddedResources.GetImage(typeof(ImageEditorForm), stepLabelIconName);
-                _stepLabelIconName = stepLabelIconName;
-                btnStepLabel.Image = _stepLabelIcon;
-                addCounterToolStripMenuItem.Image = _stepLabelIcon;
-                previousIcon?.Dispose();
-            }
+            string stepLabelIcon = stepLabels <= 20 ? $"btnStepLabel{stepLabels:00}.Image" : "btnStepLabel20+.Image";
+            // Binding the same icon again does nothing, so this is cheap when the count didn't change
+            IconBinder.Bind(btnStepLabel, IconSource.FromResource(typeof(ImageEditorForm), stepLabelIcon));
+            IconBinder.Bind(addCounterToolStripMenuItem, IconSource.FromResource(typeof(ImageEditorForm), stepLabelIcon));
 
             FieldAggregator props = (FieldAggregator)_surface.FieldAggregator;
             // if a confirmable element is selected, we must disable most of the controls
@@ -2770,12 +2795,6 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
         private void ApplyLanguage()
         {
-            this.toolsToolStrip.ImageScalingSize = coreConfiguration.IconSize;
-            this.menuStrip1.ImageScalingSize = coreConfiguration.IconSize;
-            this.destinationsToolStrip.ImageScalingSize = coreConfiguration.IconSize;
-            this.propertiesToolStrip.ImageScalingSize = coreConfiguration.IconSize;
-            this.propertiesToolStrip.MinimumSize = new System.Drawing.Size(150, coreConfiguration.IconSize.Height + 10);
-
             this.btnCursor.Text = Texts.Editor.Cursortool;
             this.btnRect.Text = Texts.Editor.Drawrectangle;
             this.btnEllipse.Text = Texts.Editor.Drawellipse;

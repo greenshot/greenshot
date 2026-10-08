@@ -51,21 +51,26 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Coerce the value to stay between 16 and 256, and to be a multiple of 16, as this is required for the icons to be properly displayed in the Windows shell.
+        /// The steps in which the icon size can be changed
+        /// </summary>
+        public const int IconSizeStep = 4;
+
+        /// <summary>
+        /// Coerce the value to stay between 16 and 256, in steps of 4 pixels (the size at 100%, it's scaled with the DPI of the display).
         /// </summary>
         /// <param name="value">NativeSize</param>
         partial void OnIconSizeSet(ref NativeSize value) => value = CoerceIconSize(value);
 
         /// <summary>
-        /// Loading the ini file doesn't go through the setter, so a value like 24 from the file is coerced when it's read
+        /// Loading the ini file doesn't go through the setter, so a value from the file is coerced when it's read
         /// </summary>
         /// <param name="value">NativeSize</param>
         partial void OnIconSizeGet(ref NativeSize value) => value = CoerceIconSize(value);
 
         private static NativeSize CoerceIconSize(NativeSize value)
         {
-            int newWidth = (Clamp(value.Width, 16, 256) / 16) * 16;
-            int newHeight = (Clamp(value.Height, 16, 256) / 16) * 16;
+            int newWidth = (Clamp(value.Width, 16, 256) / IconSizeStep) * IconSizeStep;
+            int newHeight = (Clamp(value.Height, 16, 256) / IconSizeStep) * IconSizeStep;
             return new NativeSize(newWidth, newHeight);
         }
 

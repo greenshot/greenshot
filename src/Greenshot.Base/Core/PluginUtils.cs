@@ -21,7 +21,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
@@ -50,10 +49,6 @@ namespace Greenshot.Base.Core
                 try
                 {
                     _coreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
-                    if (_coreConfig != null)
-                    {
-                        _coreConfig.PropertyChanged += OnIconSizeChanged;
-                    }
                 }
                 catch
                 {
@@ -62,33 +57,20 @@ namespace Greenshot.Base.Core
                 return _coreConfig;
             }
         }
-        private static readonly IDictionary<string, Image> ExeIconCache = new Dictionary<string, Image>();
-        private const string PathKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\";
-
         /// <summary>
-        /// Clear icon cache
+        /// The old rule for callers which don't know the size: the large icon when the configured size is 32 or more
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private static void OnIconSizeChanged(object sender, PropertyChangedEventArgs e)
+        private static bool IsLargeIconConfigured
         {
-            if (e.PropertyName != "IconSize") return;
-            var cachedImages = new List<Image>();
-            lock (ExeIconCache)
+            get
             {
-                foreach (string key in ExeIconCache.Keys)
-                {
-                    cachedImages.Add(ExeIconCache[key]);
-                }
-
-                ExeIconCache.Clear();
-            }
-
-            foreach (Image cachedImage in cachedImages)
-            {
-                cachedImage?.Dispose();
+                var iconSize = CoreConfig?.IconSize;
+                return iconSize.HasValue && (iconSize.Value.Width >= 32 || iconSize.Value.Height >= 32);
             }
         }
+
+        private static readonly IDictionary<string, Image> ExeIconCache = new Dictionary<string, Image>();
+        private const string PathKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\";
 
         /// <summary>
         /// Get the path of an executable
@@ -132,9 +114,19 @@ namespace Greenshot.Base.Core
         /// <param name="path">path to the exe or dll</param>
         /// <param name="index">index of the icon</param>
         /// <returns>Bitmap with the icon or null if something happened</returns>
-        public static Image GetCachedExeIcon(string path, int index)
+        public static Image GetCachedExeIcon(string path, int index) => GetCachedExeIcon(path, index, IsLargeIconConfigured);
+
+        /// <summary>
+        /// Get the small (16x16) or large (32x32) icon from resource files, from the cache. The image is cached, don't dispose it.
+        /// The cache keeps both sizes and never disposes them, so an image which is on the screen stays valid.
+        /// </summary>
+        /// <param name="path">path to the exe or dll</param>
+        /// <param name="index">index of the icon</param>
+        /// <param name="large">true for the large icon</param>
+        /// <returns>Bitmap with the icon or null if something happened</returns>
+        public static Image GetCachedExeIcon(string path, int index, bool large)
         {
-            string cacheKey = $"{path}:{index}";
+            string cacheKey = $"{path}:{index}:{(large ? "large" : "small")}";
             Image returnValue;
             lock (ExeIconCache)
             {
@@ -150,7 +142,7 @@ namespace Greenshot.Base.Core
                         return returnValue;
                     }
 
-                    returnValue = GetExeIcon(path, index);
+                    returnValue = GetExeIcon(path, index, large);
                     if (returnValue != null)
                     {
                         ExeIconCache.Add(cacheKey, returnValue);
@@ -169,7 +161,19 @@ namespace Greenshot.Base.Core
         /// <param name="index">index of the icon</param>
         /// <param name="cancellationToken">CancellationToken</param>
         /// <returns>Image with the icon or null</returns>
-        public static async Task<Image> GetCachedExeIconAsync(string path, int index, CancellationToken cancellationToken = default)
+        public static Task<Image> GetCachedExeIconAsync(string path, int index, CancellationToken cancellationToken = default) =>
+            GetCachedExeIconAsync(path, index, IsLargeIconConfigured, cancellationToken);
+
+        /// <summary>
+        /// The small or large icon of the executable; for a Windows App (MSIX, AppExecutionAlias) the app logo, which is loaded async (WinRT).
+        /// The image is cached, don't dispose it.
+        /// </summary>
+        /// <param name="path">path to the exe or dll</param>
+        /// <param name="index">index of the icon</param>
+        /// <param name="large">true for the large icon</param>
+        /// <param name="cancellationToken">CancellationToken</param>
+        /// <returns>Image with the icon or null</returns>
+        public static async Task<Image> GetCachedExeIconAsync(string path, int index, bool large, CancellationToken cancellationToken = default)
         {
             if (index == 0 && File.Exists(path))
             {
@@ -181,7 +185,7 @@ namespace Greenshot.Base.Core
                 }
             }
 
-            return GetCachedExeIcon(path, index) ?? await WindowsAppHelper.GetAppLogoAsync(path, cancellationToken: cancellationToken).ConfigureAwait(false);
+            return GetCachedExeIcon(path, index, large) ?? await WindowsAppHelper.GetAppLogoAsync(path, cancellationToken: cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -190,7 +194,7 @@ namespace Greenshot.Base.Core
         /// <param name="path">path to the exe or dll</param>
         /// <param name="index">index of the icon</param>
         /// <returns>Bitmap with the icon or null if something happened</returns>
-        private static Bitmap GetExeIcon(string path, int index)
+        private static Bitmap GetExeIcon(string path, int index, bool isLarge)
         {
             if (!File.Exists(path))
             {
@@ -199,8 +203,6 @@ namespace Greenshot.Base.Core
 
             try
             {
-                var iconSize = CoreConfig?.IconSize;
-                bool isLarge = iconSize.HasValue && (iconSize.Value.Width >= 32 || iconSize.Value.Height >= 32);
                 var appIcon = IconHelper.ExtractAssociatedIcon<Bitmap>(path, index, isLarge);
                 if (appIcon != null)
                 {
