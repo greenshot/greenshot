@@ -24,8 +24,6 @@ This directory contains comprehensive changelogs for all Greenshot releases.
 ### Latest Stable Release
 **[Greenshot 1.3.322](CHANGELOG-1.3.md#version-1322-october-8-2026)** (October 8, 2026)
 - Security fixes for TLS certificate validation, crafted clipboard data, and SVG external resource handling, plus dependency updates and editor/capture stability improvements
-- [Download Installer](https://github.com/greenshot/greenshot/releases/download/v1.3.322/Greenshot-INSTALLER-1.3.322-RELEASE.exe)
-- [Download Portable](https://github.com/greenshot/greenshot/releases/download/v1.3.322/Greenshot-PORTABLE-1.3.322-RELEASE.zip)
 
 ### Latest Development Build
 **[Greenshot 1.4.108](CHANGELOG-1.4.md)** (March 14, 2026)
@@ -41,7 +39,6 @@ Our changelogs follow these principles:
 - **User-friendly language**: Focus on benefits and value for users
 - **Important changes first**: Security fixes, major features, then minor improvements
 - **Natural language**: Avoid overly technical jargon
-- **Links to downloads**: Direct download links for stable releases
 - **Links to technical details**: Reference to full technical changelog
 
 ### Technical Changelogs
@@ -139,7 +136,6 @@ When creating new releases:
 1. Update the appropriate changelog file (CHANGELOG-1.3.md or CHANGELOG-1.4.md)
 2. Follow the established format (see existing entries as templates)
 3. Include both user-friendly descriptions and technical details
-4. Add download links for stable releases
 5. Credit all contributors
 6. Update this README with latest version information
 

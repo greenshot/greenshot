@@ -42,10 +42,6 @@ Released: October 8, 2026
 - Improved the installer to remove additional leftover files/plugin directories from previous Greenshot versions — by [@Lakritzator](https://github.com/Lakritzator) (Robin Krom) in [PR #1092](https://github.com/greenshot/greenshot/pull/1092)
 - Greenshot 1.3 can now close automatically when the Greenshot 1.4 installer upgrades it via the Windows Restart Manager — by [@Christian-Schulz](https://github.com/Christian-Schulz) in [PR #1109](https://github.com/greenshot/greenshot/pull/1109)
 
-### Downloads
-- [Installer](https://github.com/greenshot/greenshot/releases/download/v1.3.322/Greenshot-INSTALLER-1.3.322-RELEASE.exe)
-- [Portable ZIP](https://github.com/greenshot/greenshot/releases/download/v1.3.322/Greenshot-PORTABLE-1.3.322-RELEASE.zip)
-
 ### Technical Details
 - **Backport scope**: Most bug fixes in this release were originally developed and merged into the 1.4 development line first, then selectively backported to `release/1.3` for stabilization; see the individual attributions above for each original author.
 - **Release scope**: This is the 10th stable release of the 1.3 series. Versions 1.3.319, 1.3.320, and 1.3.321 were intermediate builds; their changes are rolled into this release.
