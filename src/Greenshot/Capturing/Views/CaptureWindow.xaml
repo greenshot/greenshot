@@ -1,0 +1,146 @@
+﻿<!--
+    The interactive selection of a region, a window or text on the frozen capture of the screen.
+
+    Why this is smooth in WPF: the window is opaque (no AllowsTransparency, so WPF renders it with DirectX instead of a
+    layered software window), the frozen screen capture is uploaded once, and a mouse move only changes transforms,
+    geometries and a few small drawings, there is no layout pass. Everything inside Root is in screen pixels: the
+    LayoutTransform undoes the DPI scaling WPF applies to the window (set in code).
+-->
+<Window x:Class="Greenshot.Capturing.Views.CaptureWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:capture="clr-namespace:Greenshot.Capturing.Controls"
+        Title="Greenshot capture form"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        AllowsTransparency="False"
+        ShowInTaskbar="False"
+        Topmost="True"
+        WindowStartupLocation="Manual"
+        Background="Black"
+        Cursor="Cross"
+        UseLayoutRounding="False"
+        SnapsToDevicePixels="True"
+        TextOptions.TextFormattingMode="Display"
+        RenderOptions.EdgeMode="Aliased">
+    <Window.Resources>
+        <!-- The look of the selection -->
+        <SolidColorBrush x:Key="SelectionFillBrush" Color="#323CB371" />
+        <SolidColorBrush x:Key="SelectionBorderBrush" Color="#32000000" />
+        <SolidColorBrush x:Key="RulerBackgroundBrush" Color="#C8D9F0E3" />
+        <SolidColorBrush x:Key="RulerBrush" Color="SeaGreen" />
+        <SolidColorBrush x:Key="SizeTextBrush" Color="LightSeaGreen" />
+        <SolidColorBrush x:Key="CrosshairBrush" Color="LightSeaGreen" />
+        <SolidColorBrush x:Key="DebugTextBrush" Color="DarkOrange" />
+        <SolidColorBrush x:Key="HotspotBrush" Color="#0078D7" />
+        <SolidColorBrush x:Key="HotspotHoverBrush" Color="#280078D7" />
+        <SolidColorBrush x:Key="OcrLineBrush" Color="Red" />
+        <SolidColorBrush x:Key="OcrHighlightBrush" Color="#80FFFF00" />
+        <FontFamily x:Key="LabelFontFamily">Microsoft Sans Serif, Segoe UI</FontFamily>
+
+        <!-- Shown in the zoomer where there is no capture (outside of the screens) -->
+        <DrawingBrush x:Key="CheckerboardBrush" TileMode="Tile" Viewport="0,0,16,16" ViewportUnits="Absolute">
+            <DrawingBrush.Drawing>
+                <DrawingGroup>
+                    <GeometryDrawing Brush="White" Geometry="M0,0 L2,0 2,2 0,2Z" />
+                    <GeometryDrawing Brush="LightGray" Geometry="M0,0 L1,0 1,1 0,1Z M1,1 L2,1 2,2 1,2Z" />
+                </DrawingGroup>
+            </DrawingBrush.Drawing>
+        </DrawingBrush>
+
+        <!-- The animations, the ones with a target which is only known at runtime get their To value in code -->
+        <QuinticEase x:Key="SelectionEase" EasingMode="EaseOut" />
+        <Duration x:Key="WindowSelectionDuration">0:0:0.7</Duration>
+        <Duration x:Key="ZoomerDuration">0:0:0.5</Duration>
+
+        <!-- The selection moves from the cursor to the window under it, and from window to window -->
+        <RectAnimation x:Key="WindowSelectionAnimation" Duration="{StaticResource WindowSelectionDuration}" EasingFunction="{StaticResource SelectionEase}" />
+
+        <!-- Panels of tools and overlays (e.g. a help text) move to another corner when something comes close, and fade in and out -->
+        <Duration x:Key="PanelDuration">0:0:0.35</Duration>
+        <DoubleAnimation x:Key="PanelMoveAnimation" Duration="{StaticResource PanelDuration}" EasingFunction="{StaticResource SelectionEase}" />
+        <DoubleAnimation x:Key="PanelFadeAnimation" Duration="0:0:0.15" />
+
+        <!-- The zoomer moves to another corner of the cursor when it would leave the screen or cover the selection -->
+        <DoubleAnimation x:Key="ZoomerMoveAnimation" Duration="{StaticResource ZoomerDuration}" EasingFunction="{StaticResource SelectionEase}" />
+
+        <!-- The zoomer grows out of the cursor, and shrinks back into it -->
+        <Storyboard x:Key="ShowZoomerStoryboard">
+            <DoubleAnimation Storyboard.TargetName="ZoomerScale" Storyboard.TargetProperty="ScaleX" To="1" Duration="{StaticResource ZoomerDuration}" EasingFunction="{StaticResource SelectionEase}" />
+            <DoubleAnimation Storyboard.TargetName="ZoomerScale" Storyboard.TargetProperty="ScaleY" To="1" Duration="{StaticResource ZoomerDuration}" EasingFunction="{StaticResource SelectionEase}" />
+        </Storyboard>
+        <Storyboard x:Key="HideZoomerStoryboard">
+            <DoubleAnimation Storyboard.TargetName="ZoomerScale" Storyboard.TargetProperty="ScaleX" To="0" Duration="{StaticResource ZoomerDuration}" EasingFunction="{StaticResource SelectionEase}" />
+            <DoubleAnimation Storyboard.TargetName="ZoomerScale" Storyboard.TargetProperty="ScaleY" To="0" Duration="{StaticResource ZoomerDuration}" EasingFunction="{StaticResource SelectionEase}" />
+        </Storyboard>
+
+        <!-- The size and rulers of a selected window appear when the selection arrives there -->
+        <Storyboard x:Key="ShowLabelsStoryboard">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="LabelLayer" Storyboard.TargetProperty="Opacity">
+                <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="0" />
+                <DiscreteDoubleKeyFrame KeyTime="0:0:0.25" Value="0" />
+                <LinearDoubleKeyFrame KeyTime="0:0:0.55" Value="1" />
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+    </Window.Resources>
+
+    <Canvas x:Name="Root" HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="True">
+        <!-- The frozen capture of the screen -->
+        <Image x:Name="ScreenImage" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+
+        <!-- The captured mouse cursor, toggled with M -->
+        <Image x:Name="CursorImage" Stretch="None" Visibility="Collapsed" />
+
+        <!-- Hotspots of detected features (e.g. QR codes) -->
+        <capture:DrawingLayer x:Name="FeatureLayer" />
+
+        <!-- Drawn by the active capture tool, e.g. the text lines of the OCR -->
+        <capture:DrawingLayer x:Name="ToolLayer" />
+
+        <!-- The selected region or window -->
+        <Path x:Name="SelectionPath" Fill="{StaticResource SelectionFillBrush}" Stroke="{StaticResource SelectionBorderBrush}" StrokeThickness="1" Visibility="Collapsed" IsHitTestVisible="False">
+            <Path.Data>
+                <RectangleGeometry x:Name="SelectionGeometry" />
+            </Path.Data>
+        </Path>
+
+        <!-- Size and rulers of the selection -->
+        <capture:DrawingLayer x:Name="LabelLayer" />
+
+        <!-- The crosshair through the cursor, moved by its transform -->
+        <capture:DrawingLayer x:Name="VerticalLine">
+            <capture:DrawingLayer.RenderTransform>
+                <TranslateTransform x:Name="VerticalLinePosition" />
+            </capture:DrawingLayer.RenderTransform>
+        </capture:DrawingLayer>
+        <capture:DrawingLayer x:Name="HorizontalLine">
+            <capture:DrawingLayer.RenderTransform>
+                <TranslateTransform x:Name="HorizontalLinePosition" />
+            </capture:DrawingLayer.RenderTransform>
+        </capture:DrawingLayer>
+        <capture:DrawingLayer x:Name="CoordinatesLabel" />
+
+        <!-- Panels of tools and overlays, each a DrawingLayer moved by its transform -->
+        <!-- Anti-aliased, unlike the pixel exact selection: the panels have rounded corners -->
+        <Canvas x:Name="PanelHost" IsHitTestVisible="False" RenderOptions.EdgeMode="Unspecified" />
+
+        <!-- The zoomer: drawn with its top left corner at 0,0, moved next to the cursor and scaled out of it -->
+        <Canvas x:Name="Zoomer" IsHitTestVisible="False" RenderOptions.BitmapScalingMode="NearestNeighbor">
+            <Canvas.RenderTransform>
+                <TransformGroup>
+                    <TranslateTransform x:Name="ZoomerOffset" />
+                    <ScaleTransform x:Name="ZoomerScale" ScaleX="0" ScaleY="0" />
+                    <TranslateTransform x:Name="ZoomerPosition" />
+                </TransformGroup>
+            </Canvas.RenderTransform>
+            <Ellipse x:Name="ZoomerBackground" Fill="{StaticResource CheckerboardBrush}" />
+            <Ellipse x:Name="ZoomerLens" RenderOptions.EdgeMode="Unspecified">
+                <Ellipse.Fill>
+                    <ImageBrush x:Name="ZoomBrush" ViewboxUnits="Absolute" Stretch="Fill" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                </Ellipse.Fill>
+            </Ellipse>
+            <Path x:Name="ZoomerCrosshair" Fill="Black" Stroke="White" StrokeThickness="1" />
+            <Ellipse x:Name="ZoomerRing" Stroke="White" StrokeThickness="2" RenderOptions.EdgeMode="Unspecified" />
+        </Canvas>
+    </Canvas>
+</Window>

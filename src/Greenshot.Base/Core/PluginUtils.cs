@@ -249,88 +249,55 @@ namespace Greenshot.Base.Core
             return string.Format(format, pluginDisplayName);
         }
 
+        private static readonly object TrayMenuEntriesLock = new object();
+        private static readonly List<TrayMenuEntry> TrayMenuEntries = new List<TrayMenuEntry>();
+
         /// <summary>
-        /// Helper method to add a plugin MenuItem to the Greenshot context menu
+        /// Add a plugin entry to the Greenshot tray menu, it is shown between the "Open last capture location" and the quick preferences.
+        /// The tray menu is built every time it opens, changes of the entry (text, image, visibility) show the next time.
         /// </summary>
-        /// <param name="item">ToolStripMenuItem</param>
-        public static void AddToContextMenu(ToolStripMenuItem item)
+        /// <param name="entry">TrayMenuEntry</param>
+        public static void AddToContextMenu(TrayMenuEntry entry)
         {
-            // Here we can hang ourselves to the main context menu!
-            var contextMenu = SimpleServiceProvider.Current.GetInstance<ContextMenuStrip>();
-            bool addedItem = false;
-
-            // Try to find a separator, so we insert ourselves after it 
-            for (int i = 0; i < contextMenu.Items.Count; i++)
+            if (entry == null)
             {
-                if (contextMenu.Items[i].GetType() != typeof(ToolStripSeparator)) continue;
-                // Check if we need to add a new separator, which is done if the first found has a Tag with the value "PluginsAreAddedBefore"
-                if ("PluginsAreAddedBefore".Equals(contextMenu.Items[i].Tag))
-                {
-                    var separator = new ToolStripSeparator
-                    {
-                        Tag = "PluginsAreAddedAfter",
-                        Size = new Size(305, 6)
-                    };
-                    contextMenu.Items.Insert(i, separator);
-                }
-                else if (!"PluginsAreAddedAfter".Equals(contextMenu.Items[i].Tag))
-                {
-                    continue;
-                }
-
-                contextMenu.Items.Insert(i + 1, item);
-                addedItem = true;
-                break;
+                return;
             }
 
-            // If we didn't insert the item, we just add it...
-            if (!addedItem)
+            lock (TrayMenuEntriesLock)
             {
-                contextMenu.Items.Add(item);
+                if (!TrayMenuEntries.Contains(entry))
+                {
+                    TrayMenuEntries.Add(entry);
+                }
             }
-
-            item.VisibleChanged += (s, e) => UpdatePluginSeparatorsVisibility(contextMenu);
-            UpdatePluginSeparatorsVisibility(contextMenu);
         }
 
         /// <summary>
-        /// Update visibility of the plugin separator based on whether any plugin items are currently visible.
-        /// If no plugin items are visible, hides the top separator so two separators don't appear next to each other.
+        /// Remove a plugin entry from the Greenshot tray menu (disposing the entry does the same)
         /// </summary>
-        public static void UpdatePluginSeparatorsVisibility(ContextMenuStrip contextMenu = null)
+        /// <param name="entry">TrayMenuEntry</param>
+        public static void RemoveFromContextMenu(TrayMenuEntry entry)
         {
-            contextMenu ??= SimpleServiceProvider.Current.GetInstance<ContextMenuStrip>(isOptional: true);
-            if (contextMenu == null) return;
-
-            ToolStripSeparator afterSeparator = null;
-            bool hasVisiblePluginItems = false;
-            bool trackingPlugins = false;
-
-            for (int i = 0; i < contextMenu.Items.Count; i++)
+            if (entry == null)
             {
-                var current = contextMenu.Items[i];
-                if ("PluginsAreAddedAfter".Equals(current.Tag))
-                {
-                    afterSeparator = current as ToolStripSeparator;
-                    trackingPlugins = true;
-                    continue;
-                }
-
-                if ("PluginsAreAddedBefore".Equals(current.Tag))
-                {
-                    break;
-                }
-
-                if (trackingPlugins && current.Available)
-                {
-                    hasVisiblePluginItems = true;
-                    break;
-                }
+                return;
             }
 
-            if (afterSeparator != null)
+            lock (TrayMenuEntriesLock)
             {
-                afterSeparator.Available = hasVisiblePluginItems;
+                TrayMenuEntries.Remove(entry);
+            }
+        }
+
+        /// <summary>
+        /// The plugin entries of the tray menu which are visible, in the order they were added
+        /// </summary>
+        public static IReadOnlyList<TrayMenuEntry> GetVisibleContextMenuEntries()
+        {
+            lock (TrayMenuEntriesLock)
+            {
+                return TrayMenuEntries.FindAll(entry => entry.Visible);
             }
         }
     }

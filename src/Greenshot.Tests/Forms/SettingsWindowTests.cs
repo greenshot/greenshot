@@ -21,9 +21,13 @@
 
 using System;
 using System.Threading;
+using Greenshot.Ai.Views;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
-using Greenshot.Forms.Wpf;
+using Greenshot.Plugin.Box.Api;
+using Greenshot.Plugins.Views;
+using Greenshot.Settings.ViewModels;
+using Greenshot.Settings.Views;
 using Xunit;
 using Xunit.Abstractions;
 using Greenshot.Base.Languages;

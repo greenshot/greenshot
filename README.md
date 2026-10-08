@@ -86,11 +86,27 @@ Adding images:
 
 Images, icons and sounds for Windows Forms are embedded as plain files, not in .resx files: binary data in a .resx needs System.Resources.Extensions and its dependencies in the output, and the build fails when a .resx contains anything but strings.
 
-* An image of the editor goes to `src\Greenshot.Editor\Resources\<control>.Image.png`, e.g. `btnSave.Image.png`. The wildcard `EmbeddedResource` in Greenshot.Editor.csproj (LogicalName `Greenshot.Editor.Forms.ImageEditorForm.%(Filename)`) picks it up, nothing else to add there. Greenshot's main window works the same way with `src\Greenshot\Resources\MainForm`.
+* An image of the editor goes to `src\Greenshot.Editor\Resources\<control>.Image.png`, e.g. `btnSave.Image.png`. The wildcard `EmbeddedResource` in Greenshot.Editor.csproj (LogicalName `Greenshot.Editor.Forms.ImageEditorForm.%(Filename)`) picks it up, nothing else to add there. The icons of the tray menu work the same way with `src\Greenshot\Resources\Tray` (LogicalName `Greenshot.Shell.TrayMenu.%(Filename)`).
 * Anything else: `<EmbeddedResource Include="..." LogicalName="<Namespace>.<Type>.<name>" />` in the project, the type being the one the resource belongs to.
 * Load it with `EmbeddedResources.GetImage`, `GetIcon` or `GetBytes(typeof(<Type>), "<name>")`; the caller disposes what it gets.
-* Never set an image with the Image property in the Windows Forms designer, it writes the image into the .resx. Assign it in the code of the form, e.g. in `ApplyImages()` of ImageEditorForm.cs or MainForm.cs.
+* Never set an image with the Image property in the Windows Forms designer, it writes the image into the .resx. Assign it in the code of the form, e.g. in `ApplyImages()` of ImageEditorForm.cs.
 * WPF is not affected: its images are `Resource` items with pack URIs, as before.
+
+Known vulnerability warnings:
+-----------------------------
+
+This is for Greenshot 1.4.x, Greenshot 1.3 doesn't use ImageSharp!
+Some NuGet audit warnings are suppressed with `NuGetAuditSuppress` in `src\Directory.Build.props`, because they don't apply to Greenshot or are worked around. The reasons are listed here. Remove the suppression when the package is updated.
+
+**SixLabors.ImageSharp 2.1.13.** These advisories are fixed only in 4.1.2, which no longer supports .NET Framework, and there is no 2.1.x fix. Greenshot only loads and saves files with ImageSharp when "beta tester" is on (`ImageSharpFileFormatHandler`); otherwise System.Drawing is used.
+
+| Advisory | Severity | What it is | Why Greenshot is not affected |
+|---|---|---|---|
+| [GHSA-wmxv-xphr-5c9g](https://github.com/advisories/GHSA-wmxv-xphr-5c9g) | Moderate | A crafted BigTIFF makes the EXIF reader loop for a long time | Worked around: ImageSharp doesn't load .tif/.tiff, WIC does (PR #1472) |
+| [GHSA-gwg2-r3hj-4w44](https://github.com/advisories/GHSA-gwg2-r3hj-4w44) | Moderate | A crafted ICC profile causes a large allocation | In 2.x only reached by reading `IccProfile.Entries`, which Greenshot doesn't do |
+| [GHSA-j3p4-wp97-rph4](https://github.com/advisories/GHSA-j3p4-wp97-rph4) | High | Out-of-bounds write in `HistogramEqualization` on a float TIFF decoded as `HalfVector4` | Greenshot uses neither, and no longer decodes TIFF with ImageSharp |
+| [GHSA-j9gm-c75j-xc9q](https://github.com/advisories/GHSA-j9gm-c75j-xc9q) | High | Out-of-bounds write in the TIFF encoder with CCITT Group 3 compression | Needs a 1-bit CCITT encode, set directly or kept from a decoded TIFF; Greenshot saves 8 or 24 bit with default compression from a GDI+ bitmap |
+| [GHSA-jjfr-hcj7-qf5w](https://github.com/advisories/GHSA-jjfr-hcj7-qf5w) | High | Out-of-bounds write in the TIFF encoder with CCITT Group 4 compression | Same as above |
 
 How to contribute:
 ------------------

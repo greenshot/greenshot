@@ -27,13 +27,15 @@ using Greenshot.Base.Core;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Threading;
-using Greenshot.Plugin.Imgur.Forms;
+using Greenshot.Plugin.Imgur.Destinations;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Languages;
+using Greenshot.Plugin.Imgur.Recipes;
+using Greenshot.Plugin.Imgur.Views;
 
 namespace Greenshot.Plugin.Imgur;
 
@@ -45,7 +47,7 @@ public class ImgurPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ImgurPlugin));
     private static IImgurConfiguration _config;
     private ToolStripMenuItem _historyMenuItem;
-    private ToolStripMenuItem _itemPlugInConfig;
+    private TrayMenuEntry _itemPlugInConfig;
 
     public ValueTask DisposeAsync()
     {
@@ -68,7 +70,7 @@ public class ImgurPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
         services.AddService<IIconProvider>(ImgurDestination.Icons);
         services.AddService<IDestination>(new ImgurDestination());
         services.AddRecipeStepProvider(this);
-        services.AddSettingsView<IImgurConfiguration>(config => new Forms.ImgurConfigurationControl(config));
+        services.AddSettingsView<IImgurConfiguration>(config => new ImgurConfigurationView(config));
     }
 
     public object CreateSettingsViewModel(IServiceProvider services) => _config;
@@ -91,7 +93,7 @@ public class ImgurPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
 
     private void Start()
     {
-        _itemPlugInConfig = new ToolStripMenuItem(PluginUtils.GetQuicklinkText("Imgur"))
+        _itemPlugInConfig = new TrayMenuEntry(PluginUtils.GetQuicklinkText("Imgur"))
         {
             Image = EmbeddedResources.GetImage(typeof(ImgurPlugin), "Imgur"),
             Visible = _config?.QuicklinkEnabled ?? false
@@ -186,6 +188,6 @@ public class ImgurPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
     /// </summary>
     private void ShowSettings()
     {
-        SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>(isOptional: true)?.ShowSetting(Name);
+        SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true)?.ShowSetting(Name);
     }
 }

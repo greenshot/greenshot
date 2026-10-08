@@ -33,7 +33,7 @@ using Greenshot.Base.Core.FileFormat;
 namespace Greenshot.Destinations
 {
     /// <summary>
-    /// What to share with the Windows share dialog, the view (SharingForm) returns the name of the app, null when nothing was shared.
+    /// What to share with the Windows share dialog, the view (ShareHostWindow) returns the name of the app, null when nothing was shared.
     /// </summary>
     public sealed class ShareRequest : IDialogViewModel<string>
     {

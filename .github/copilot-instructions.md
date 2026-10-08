@@ -87,7 +87,7 @@ src/
 
 ### Main Application
 - **Entry Point**: `src/Greenshot/GreenshotMain.cs`
-- **Main Form**: `src/Greenshot/Forms/MainForm.cs`
+- **Shell (startup, services, tray icon and menu)**: `src/Greenshot/Shell/`
 - **Configuration**: `src/Greenshot/Configuration/`
 - **Destination Handlers**: `src/Greenshot/Destinations/` (clipboard, email, file, etc.)
 - **Capture Helpers**: `src/Greenshot/Helpers/CaptureHelper.cs`
@@ -186,7 +186,8 @@ $env:Box13_ClientSecret = "your_secret"
 - Core functionality: `src/Greenshot.Base/` or `src/Greenshot/`
 - Editor features: `src/Greenshot.Editor/`
 - New plugins: Create new `Greenshot.Plugin.{Name}` project following existing plugin structure
-- UI changes: Modify Forms in `src/Greenshot/Forms/` or `src/Greenshot.Editor/Forms/`
+- Where code goes and how it is named (Views/ViewModels, `Forms` only for WinForms, Recipes, optional parts, frozen .greenshot types): see `docs/code-structure.md`
+- UI changes: WPF in the `Views`/`ViewModels` folders of the feature, WinForms in `src/Greenshot/Forms/` or `src/Greenshot.Editor/Forms/`
 
 ### Modifying Plugins
 Each plugin in `src/Greenshot.Plugin.*/` is self-contained. Changes are automatically copied to main output via post-build events.

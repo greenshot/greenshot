@@ -23,11 +23,11 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Base.Threading;
-using Greenshot.Base.Triggers;
-using Greenshot.Pipeline;
+using Greenshot.Recipes.Pipeline;
 using Xunit;
 
 namespace Greenshot.Tests.Threading

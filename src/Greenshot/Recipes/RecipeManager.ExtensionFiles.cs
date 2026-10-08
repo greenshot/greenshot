@@ -24,6 +24,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Greenshot.Base.Recipes;
+using Greenshot.Recipes.Approval;
+using Greenshot.Recipes.Views;
 using Newtonsoft.Json.Linq;
 
 namespace Greenshot.Recipes
@@ -73,7 +75,7 @@ namespace Greenshot.Recipes
                 result.AddError($"The automatic step in '{filePath}' can't be read: {ex.Message}");
                 if (interactiveApproval)
                 {
-                    UI.RecipeApprovalWindow.ShowValidationError(filePath, rawErrorMessage: ex.Message);
+                    RecipeApprovalWindow.ShowValidationError(filePath, rawErrorMessage: ex.Message);
                 }
                 return result;
             }
@@ -85,7 +87,7 @@ namespace Greenshot.Recipes
                 foreach (var error in validation.Errors) result.AddError($"[{extension.Id ?? "unknown"}]: {error}");
                 if (interactiveApproval)
                 {
-                    UI.RecipeApprovalWindow.ShowValidationError(filePath, validation, extension.AsRecipeView());
+                    RecipeApprovalWindow.ShowValidationError(filePath, validation, extension.AsRecipeView());
                 }
                 return result;
             }
@@ -172,10 +174,10 @@ namespace Greenshot.Recipes
         /// <summary>
         /// The approval window for an extension: its steps, and which recipes it changes
         /// </summary>
-        private UI.RecipeApprovalRequest CreateExtensionApprovalRequest(RecipeExtension extension, string filePath, string content, string contentHash, RecipeValidationResult validation)
+        private RecipeApprovalRequest CreateExtensionApprovalRequest(RecipeExtension extension, string filePath, string content, string contentHash, RecipeValidationResult validation)
         {
             var previousRecord = RecipeTrustStore.GetTrustRecord(filePath);
-            var request = new UI.RecipeApprovalRequest
+            var request = new RecipeApprovalRequest
             {
                 Recipe = extension.AsRecipeView(),
                 Extension = extension,
@@ -298,7 +300,7 @@ namespace Greenshot.Recipes
         /// </summary>
         private bool ShowExtensionDetails(RecipeExtension extension)
         {
-            UI.RecipeApprovalRequest request;
+            RecipeApprovalRequest request;
             if (!string.IsNullOrEmpty(extension.FilePath) && File.Exists(extension.FilePath))
             {
                 byte[] bytes = File.ReadAllBytes(extension.FilePath);
@@ -307,7 +309,7 @@ namespace Greenshot.Recipes
             }
             else
             {
-                request = new UI.RecipeApprovalRequest
+                request = new RecipeApprovalRequest
                 {
                     Recipe = extension.AsRecipeView(),
                     Extension = extension,
@@ -318,7 +320,7 @@ namespace Greenshot.Recipes
             }
             request.IsReadOnly = true;
 
-            var window = new UI.RecipeApprovalWindow(request)
+            var window = new RecipeApprovalWindow(request)
             {
                 Owner = System.Windows.Application.Current?.Windows.OfType<System.Windows.Window>().FirstOrDefault(w => w.IsActive),
                 ShowActivated = true
@@ -376,7 +378,7 @@ namespace Greenshot.Recipes
             }
             else
             {
-                approval = new RecipeApproval { RecipeId = extension.Id, AllowedGates = previousApproval?.AllowedGates?.ToList() ?? new List<Greenshot.Base.Pipeline.RecipeGateType>() };
+                approval = new RecipeApproval { RecipeId = extension.Id, AllowedGates = previousApproval?.AllowedGates?.ToList() ?? new List<Greenshot.Base.Recipes.Pipeline.RecipeGateType>() };
             }
             approval.RecipeId = extension.Id;
             // Recorded before writing, so the change on disk is known as Greenshot's own

@@ -288,11 +288,6 @@ namespace Greenshot.Base.Core
         /// <returns>Returns a DialogResult indicating the user action.</returns>
         public DialogResult Show(IWin32Window owner, string name, string password, bool saveChecked)
         {
-            if ((Environment.OSVersion.Version.Major < 5) || ((Environment.OSVersion.Version.Major == 5) && (Environment.OSVersion.Version.Minor < 1)))
-            {
-                throw new ApplicationException("The Credential Management API requires Windows XP / Windows Server 2003 or later.");
-            }
-
             Name = name;
             Password = password;
             SaveChecked = saveChecked;

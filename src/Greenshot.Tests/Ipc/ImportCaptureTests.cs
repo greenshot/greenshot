@@ -25,7 +25,8 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using Greenshot.Helpers.Ipc;
+using Greenshot.Ipc;
+using Greenshot.Ipc.BrowserExtension;
 using Newtonsoft.Json.Linq;
 using Xunit;
 

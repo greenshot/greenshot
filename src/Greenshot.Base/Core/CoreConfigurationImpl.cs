@@ -59,17 +59,44 @@ namespace Greenshot.Base.Core
         /// Coerce the value to stay between 16 and 256, in steps of 4 pixels (the size at 100%, it's scaled with the DPI of the display).
         /// </summary>
         /// <param name="value">NativeSize</param>
-        partial void OnIconSizeSet(ref NativeSize value)
+        partial void OnIconSizeSet(ref NativeSize value) => value = CoerceIconSize(value);
+
+        /// <summary>
+        /// Loading the ini file doesn't go through the setter, so a value from the file is coerced when it's read
+        /// </summary>
+        /// <param name="value">NativeSize</param>
+        partial void OnIconSizeGet(ref NativeSize value) => value = CoerceIconSize(value);
+
+        private static NativeSize CoerceIconSize(NativeSize value)
         {
             int newWidth = (Clamp(value.Width, 16, 256) / IconSizeStep) * IconSizeStep;
             int newHeight = (Clamp(value.Height, 16, 256) / IconSizeStep) * IconSizeStep;
-            value = new NativeSize(newWidth, newHeight);
+            return new NativeSize(newWidth, newHeight);
         }
 
         partial void OnAutoCropDifferenceSet(ref int value) => value = Clamp(value, 0, 255);
+
+        // Also when read: loading the ini file doesn't go through the setter
+        partial void OnBufferPoolLimitSet(ref int value) => value = CoerceBufferPoolLimit(value);
+        partial void OnBufferPoolLimitGet(ref int value) => value = CoerceBufferPoolLimit(value);
+
+        /// <summary>
+        /// The smallest useful limit of the buffer pools in MB: they work in 128 KB blocks, a limit below some blocks
+        /// would make every stream allocate again
+        /// </summary>
+        public const int MinimumBufferPoolLimit = 4;
+
+        /// <summary>
+        /// The largest limit of the buffer pools in MB: a pooled buffer is at most 128 MB, above this there's no practical limit
+        /// </summary>
+        public const int MaximumBufferPoolLimit = 1024;
+
+        /// <summary>
+        /// 0 (or less) is no limit, otherwise the limit stays between <see cref="MinimumBufferPoolLimit"/> and <see cref="MaximumBufferPoolLimit"/>
+        /// </summary>
+        public static int CoerceBufferPoolLimit(int value) => value <= 0 ? 0 : Clamp(value, MinimumBufferPoolLimit, MaximumBufferPoolLimit);
+
         partial void OnOutputFileReduceColorsToSet(ref int value) => value = Clamp(value, 2, 256);
-        partial void OnWebRequestTimeoutSet(ref int value) => value = Clamp(value, 1, 100);
-        partial void OnWebRequestReadWriteTimeoutSet(ref int value) => value = Clamp(value, 1, 100);
 
 
         /// <summary>

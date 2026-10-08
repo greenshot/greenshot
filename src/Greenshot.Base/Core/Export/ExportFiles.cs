@@ -148,9 +148,7 @@ namespace Greenshot.Base.Core.Export
         /// </summary>
         public static async Task<string> SaveToTmpFileAsync(IExportSource source, SurfaceOutputSettings outputSettings, string destinationPath, CancellationToken cancellationToken)
         {
-            string tmpFile = Regex.Replace(Path.GetRandomFileName() + "." + outputSettings.Format, @"[^\d\w\.]", string.Empty);
-            string tmpPath = Path.Combine(destinationPath ?? Path.GetTempPath(), tmpFile);
-            Log.Debug("Creating TMP File : " + tmpPath);
+            string tmpPath = ImageIO.CreateTmpFilePath(outputSettings.Format, destinationPath);
             await SaveAsync(source, tmpPath, true, outputSettings, cancellationToken).ConfigureAwait(false);
             ImageIO.RegisterTmpFile(tmpPath);
             return tmpPath;

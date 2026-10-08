@@ -27,14 +27,15 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Ini;
+using Greenshot.Ai;
 using Greenshot.Base.Core;
-using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
-using Greenshot.Base.Triggers;
-using Greenshot.Helpers.Ipc;
+using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Recipes.Triggers;
+using Greenshot.Ipc;
 using Greenshot.Recipes;
+using Greenshot.Recipes.Approval;
 using Greenshot.Tests.Recipes;
-using Greenshot.UI;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
@@ -65,7 +66,7 @@ namespace Greenshot.Tests.Ipc
         public void RecipeCommands_AreOnlyForMcp_AndNeedConsent(string command)
         {
             Assert.True(IpcSecurityDispatcher.IsCommandAllowedForSource(command, IpcSources.Mcp));
-            Assert.True(IpcSecurityDispatcher.RequiresAiToolConsent(command, IpcSources.Mcp));
+            Assert.True(AiToolsIpcExtension.RequiresAiToolConsent(command, IpcSources.Mcp));
             foreach (var source in new[] { "cli", "url_scheme", "native_messaging", "open_with", null })
             {
                 Assert.False(IpcSecurityDispatcher.IsCommandAllowedForSource(command, source));
@@ -173,7 +174,7 @@ namespace Greenshot.Tests.Ipc
             await WithProposalPromptAsync((request, cancellationToken) =>
             {
                 shown = true;
-                return Task.FromResult<RecipeApprovalWindow.ApprovalResult>(null);
+                return Task.FromResult<ApprovalResult>(null);
             }, async () =>
             {
                 var config = IniConfigRegistry.GetSection<ICoreConfiguration>();
@@ -205,7 +206,7 @@ namespace Greenshot.Tests.Ipc
             await WithProposalPromptAsync((request, cancellationToken) =>
             {
                 shown.Add(request);
-                return Task.FromResult<RecipeApprovalWindow.ApprovalResult>(null);
+                return Task.FromResult<ApprovalResult>(null);
             }, async () =>
             {
                 var parameters = ProposalParameters(CreateProposal("rejected_ai_recipe"));
@@ -240,7 +241,7 @@ namespace Greenshot.Tests.Ipc
             await WithProposalPromptAsync((request, cancellationToken) =>
             {
                 var approval = new RecipeApproval { ApprovedTriggers = new List<string> { "0:" + TriggerConfig.TypeManual } };
-                return Task.FromResult(new RecipeApprovalWindow.ApprovalResult(approval, false));
+                return Task.FromResult(new ApprovalResult(approval, false));
             }, async () =>
             {
                 try
@@ -314,7 +315,7 @@ namespace Greenshot.Tests.Ipc
             {
                 Extends = new ExtensionTarget { Recipes = new List<string> { RecipeExtension.TargetCaptures }, Slot = RecipeSlots.BeforeDestination }
             }
-                .AddOption(new RecipeOption { Key = RecipeExtension.EnabledOptionKey, Type = Greenshot.Base.Pipeline.Contracts.ContractDataType.Boolean, DefaultValue = true })
+                .AddOption(new RecipeOption { Key = RecipeExtension.EnabledOptionKey, Type = Greenshot.Base.Recipes.Contracts.ContractDataType.Boolean, DefaultValue = true })
                 .AddNode(RecipeStepConfig.CreateBorder("border"));
             extension.Flow = new RecipeFlowConfig("border");
             var parameters = new Dictionary<string, string>
@@ -328,7 +329,7 @@ namespace Greenshot.Tests.Ipc
             await WithProposalPromptAsync((request, cancellationToken) =>
             {
                 shown = request;
-                return Task.FromResult(new RecipeApprovalWindow.ApprovalResult(new RecipeApproval(), false));
+                return Task.FromResult(new ApprovalResult(new RecipeApproval(), false));
             }, async () =>
             {
                 try
@@ -395,7 +396,7 @@ namespace Greenshot.Tests.Ipc
         /// <summary>
         /// The test client is allowed, proposals go to a temporary directory and trust store, and the approval window is replaced
         /// </summary>
-        private static async Task WithProposalPromptAsync(Func<RecipeApprovalRequest, CancellationToken, Task<RecipeApprovalWindow.ApprovalResult>> prompt, Func<Task> test)
+        private static async Task WithProposalPromptAsync(Func<RecipeApprovalRequest, CancellationToken, Task<ApprovalResult>> prompt, Func<Task> test)
         {
             string directory = Path.Combine(Path.GetTempPath(), "GreenshotAiRecipes_" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(directory);

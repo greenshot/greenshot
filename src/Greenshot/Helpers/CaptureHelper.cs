@@ -25,11 +25,11 @@ using System.Linq;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
-using Greenshot.Base.Triggers;
-using Greenshot.Pipeline;
+using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Recipes;
+using Greenshot.Recipes.Pipeline;
 using log4net;
 
 namespace Greenshot.Helpers

@@ -24,8 +24,8 @@ using System;
 using System.Linq;
 using System.Windows.Input;
 using Greenshot.Base.Interfaces.Capture;
-using Greenshot.UI.Capture;
-using Greenshot.UI.Capture.Tools;
+using Greenshot.Capturing;
+using Greenshot.Capturing.Overlays;
 using Xunit;
 
 namespace Greenshot.Tests.Forms;

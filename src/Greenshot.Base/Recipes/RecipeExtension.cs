@@ -22,7 +22,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Greenshot.Base.Pipeline.Contracts;
+using Greenshot.Base.Recipes.Contracts;
+using Greenshot.Base.Recipes.Triggers;
 using Newtonsoft.Json;
 
 namespace Greenshot.Base.Recipes
@@ -137,7 +138,7 @@ namespace Greenshot.Base.Recipes
             {
                 FilePath = FilePath,
                 IsBuiltIn = IsBuiltIn,
-                Triggers = new List<Triggers.TriggerConfig>()
+                Triggers = new List<TriggerConfig>()
             };
             var copy = Clone();
             view.Version = copy.Version;

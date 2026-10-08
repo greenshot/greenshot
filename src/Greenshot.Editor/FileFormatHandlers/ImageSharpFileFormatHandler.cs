@@ -48,13 +48,15 @@ namespace Greenshot.Editor.FileFormatHandlers
     public class ImageSharpFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
         private readonly IReadOnlyCollection<string> _ourExtensions = new[] { ".png", ".bmp", ".gif", ".jpg", ".jpeg", ".tiff", ".tif", ".tga", ".pbm", ".webp" };
+        // No TIFF loading: the ImageSharp 2.x TIFF decoder has an unfixed advisory (GHSA-wmxv-xphr-5c9g), WIC loads .tif instead
+        private readonly IReadOnlyCollection<string> _loadExtensions = new[] { ".png", ".bmp", ".gif", ".jpg", ".jpeg", ".tga", ".pbm", ".webp" };
         public ImageSharpFileFormatHandler()
         {
-            SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = _ourExtensions;
-            SupportedExtensions[FileFormatHandlerActions.LoadFromStream] = _ourExtensions;
+            SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = _loadExtensions;
+            SupportedExtensions[FileFormatHandlerActions.LoadFromStream] = _loadExtensions;
             SupportedExtensions[FileFormatHandlerActions.SaveToStream] = _ourExtensions;
             SupportedExtensions[FileFormatHandlerActions.SaveToFile] = _ourExtensions;
-            SupportedExtensions[FileFormatHandlerActions.LoadFromFile] = _ourExtensions;
+            SupportedExtensions[FileFormatHandlerActions.LoadFromFile] = _loadExtensions;
         }
 
         public override void RegisterFileFormats(IFileFormatRegistry registry)
@@ -138,8 +140,6 @@ namespace Greenshot.Editor.FileFormatHandlers
                 ".gif" => new GifDecoder(),
                 ".jpg" => new JpegDecoder(),
                 ".jpeg" => new JpegDecoder(),
-                ".tiff" => new TiffDecoder(),
-                ".tif" => new TiffDecoder(),
                 ".tga" => new TgaDecoder(),
                 ".pbm" => new PbmDecoder(),
                 ".webp" => new WebpDecoder(),
@@ -150,8 +150,16 @@ namespace Greenshot.Editor.FileFormatHandlers
                 bitmap = null;
                 return false;
             }
-            using (var image = Image.Load(stream, decoder))
+            // Decode straight into the pixel layout of the GDI+ bitmap, this saves a converted copy of the whole image.
+            // JPEG has no transparency, it stays 24 bit.
+            if (decoder is JpegDecoder)
             {
+                using var image = Image.Load<SixLabors.ImageSharp.PixelFormats.Bgr24>(stream, decoder);
+                bitmap = ImageSharpHelper.ToBitmap(image);
+            }
+            else
+            {
+                using var image = Image.Load<SixLabors.ImageSharp.PixelFormats.Bgra32>(stream, decoder);
                 bitmap = ImageSharpHelper.ToBitmap(image);
             }
             return true;

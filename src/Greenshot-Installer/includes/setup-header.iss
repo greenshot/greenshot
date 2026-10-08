@@ -22,7 +22,7 @@ DefaultGroupName={#ExeName}
 InfoBeforeFile=additional_files\readme.txt
 LicenseFile=additional_files\gpl-3.0.rtf
 LanguageDetectionMethod=uilanguage
-MinVersion=10.0.10240
+MinVersion=10.0.17763
 OutputDir=..\..\installer
 ; user may choose between all-users vs. current-user installation in a dialog or by using the /ALLUSERS flag (on the command line)
 ; in registry section, HKA will take care of the appropriate root key (HKLM vs. HKCU), see https://jrsoftware.org/ishelp/index.php?topic=admininstallmode

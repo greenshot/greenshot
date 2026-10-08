@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
   <PropertyGroup>
     <RootNamespace>Greenshot</RootNamespace>
     <AssemblyName>Greenshot</AssemblyName>
@@ -36,18 +36,13 @@
   </PropertyGroup>
   <!-- The code Greenshot Light doesn't have: loading plugins, the AI tools (greenshot-mcp) and the browser extension, with their settings tabs -->
   <ItemGroup Condition="'$(GreenshotEdition)' == 'Light'">
-    <Compile Remove="Helpers\PluginHelper.cs" />
-    <Compile Remove="Helpers\Ipc\Ai*.cs" />
-    <Compile Remove="Helpers\Ipc\McpServerStatus.cs" />
-    <Compile Remove="Helpers\Ipc\BrowserContextTracker.cs" />
-    <Compile Remove="Helpers\Ipc\ExtensionOriginPolicy.cs" />
-    <Compile Remove="Helpers\Ipc\ImportCaptureDecoder.cs" />
-    <Compile Remove="Forms\Wpf\SettingsViewModel.AiTools.cs" />
-    <Compile Remove="Forms\Wpf\SettingsViewModel.Plugins.cs" />
-    <Compile Remove="Forms\Wpf\AiToolsSettingsPage.xaml.cs" />
-    <Compile Remove="Forms\Wpf\PluginsSettingsPage.xaml.cs" />
-    <Page Remove="Forms\Wpf\AiToolsSettingsPage.xaml" />
-    <Page Remove="Forms\Wpf\PluginsSettingsPage.xaml" />
+    <Compile Remove="Ipc\BrowserExtension\**\*.cs" />
+    <Compile Remove="Settings\ViewModels\SettingsViewModel.AiTools.cs" />
+    <Compile Remove="Settings\ViewModels\SettingsViewModel.Plugins.cs" />
+    <Compile Remove="Ai\**\*.cs" />
+    <Compile Remove="Plugins\**\*.cs" />
+    <Page Remove="Ai\**\*.xaml" />
+    <Page Remove="Plugins\**\*.xaml" />
   </ItemGroup>
   <!--
     Greenshot Light must not contain that code at all, not only leave it unused: the build fails when one of these types
@@ -81,7 +76,7 @@
   </UsingTask>
   <Target Name="CheckLightAssembly" AfterTargets="CoreCompile" Condition="'$(GreenshotEdition)' == 'Light'">
     <CheckLightAssembly Assembly="@(IntermediateAssembly->'%(FullPath)')"
-                        ForbiddenNames="PluginHelper;LoadPluginsAsync;AiToolIpcHandler;AiRecipeIpcHandler;AiToolCaller;AiToolClient;AiToolAccess;AiToolCapture;AiWindowRefs;McpServerStatus;RegisterAiToolRecipes;ImportCaptureDecoder;BrowserContextTracker;ExtensionOriginPolicy;HandleImportCaptureAsync;AiToolsSettingsPage;PluginsSettingsPage" />
+                        ForbiddenNames="PluginHelper;LoadPluginsAsync;AiToolIpcHandler;AiRecipeIpcHandler;AiToolCaller;AiToolClient;AiToolAccess;AiToolCapture;AiWindowRefs;McpServerStatus;RegisterAiToolRecipes;ImportCaptureDecoder;BrowserContextTracker;ExtensionOriginPolicy;HandleImportCaptureAsync;AiToolsSettingsPage;PluginsSettingsPage;AiToolsIpcExtension;AiToolRecipes;BrowserExtensionIpcExtension;BrowserExtensionRecipes" />
   </Target>
   <PropertyGroup Condition="'$(GreenshotBaseConfiguration)' == 'Release'">
     <DebugType>none</DebugType>
@@ -100,15 +95,13 @@
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.13" />
     <PackageReference Include="System.CommandLine" Version="3.0.0-preview.1.26104.118" />
     <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" version="7.1.3" />
+    <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="2.0.1" />
     <Reference Include="System.Security" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Forms\MainForm.resx">
-      <DependentUpon>MainForm.cs</DependentUpon>
-    </EmbeddedResource>
     <!-- Images and sounds, loaded with EmbeddedResources (non string .resx entries would need System.Resources.Extensions) -->
-    <EmbeddedResource Include="Resources\MainForm\*.png" LogicalName="Greenshot.Forms.MainForm.%(Filename)" />
+    <EmbeddedResource Include="Resources\Tray\*.png" LogicalName="Greenshot.Shell.TrayMenu.%(Filename)" />
     <EmbeddedResource Include="sounds\camera.wav" LogicalName="Greenshot.Sounds.camera" />
   </ItemGroup>
 
@@ -136,7 +129,8 @@
 
   <UsingTask TaskName="EmojiDataTask" TaskFactory="TaskHostFactory" AssemblyFile="..\Greenshot.BuildTasks\bin\$(GreenshotBaseConfiguration)\$(TargetFramework)\Greenshot.BuildTasks.dll" />
 
-  <Target Name="GenerateEmojiTestTxtFile" BeforeTargets="BeforeBuild" Inputs="..\Greenshot.Editor\Controls\Emoji\emoji-test.txt" Outputs="$(TargetDir)emojis.xml">
+  <!-- After ResolveProjectReferences: that builds Greenshot.BuildTasks, in a clean build its dll doesn't exist before (BeforeBuild is too early) -->
+  <Target Name="GenerateEmojiTestTxtFile" AfterTargets="ResolveProjectReferences" Condition="'$(BuildingProject)' == 'true' And '$(DesignTimeBuild)' != 'true'" Inputs="..\Greenshot.Editor\Controls\Emoji\emoji-test.txt" Outputs="$(TargetDir)emojis.xml">
     <!-- The output directory doesn't exist yet in a clean build (or the first build of Greenshot Light) -->
     <MakeDir Directories="$(TargetDir)" />
     <EmojiDataTask EmojiTestTxtFile="..\Greenshot.Editor\Controls\Emoji\emoji-test.txt" OutputFilename="$(TargetDir)emojis.xml" />

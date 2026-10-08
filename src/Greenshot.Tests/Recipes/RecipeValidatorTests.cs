@@ -24,11 +24,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
-using Greenshot.Base.Triggers;
-using Greenshot.Pipeline.Steps;
+using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Plugin.ExternalCommand;
+using Greenshot.Plugin.ExternalCommand.Destinations;
+using Greenshot.Plugin.ExternalCommand.Recipes;
+using Greenshot.Recipes.Steps;
 using Xunit;
 
 namespace Greenshot.Tests.Recipes

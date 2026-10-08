@@ -22,10 +22,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Greenshot.Base.Expressions;
-using Greenshot.Base.Pipeline;
-using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Contracts;
+using Greenshot.Base.Recipes.Expressions;
+using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Plugin.ExternalCommand;
 using Xunit;
 

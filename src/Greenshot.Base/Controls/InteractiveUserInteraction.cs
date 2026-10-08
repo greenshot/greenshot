@@ -30,6 +30,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Wpf;
+using Greenshot.Base.Wpf.Views;
 using log4net;
 using Greenshot.Base.Languages;
 
@@ -104,7 +105,7 @@ namespace Greenshot.Base.Controls
 
         public Task<IDestination> PickDestinationAsync(IReadOnlyList<IDestination> choices, ICaptureDetails captureDetails, CancellationToken cancellationToken)
         {
-            return ModalTaskAsync(() => DestinationMenuBuilder.ShowPickerAsync(choices, captureDetails, cancellationToken), cancellationToken);
+            return ModalTaskAsync(() => DestinationPicker.ShowAsync(choices, captureDetails, cancellationToken), cancellationToken);
         }
 
         public void Register<TViewModel, TResult>(Func<TViewModel, TResult> showDialog) where TViewModel : IDialogViewModel<TResult>

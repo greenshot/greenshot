@@ -50,6 +50,9 @@ namespace Greenshot.Editor.Drawing.Filters
             AddField(GetType(), FieldType.PREVIEW_QUALITY, 1.0d);
         }
 
+        // The box blur runs twice, so a pixel is influenced by pixels up to twice the radius away
+        protected override int ClipMargin => 2 * GetFieldValueAsInt(FieldType.BLUR_RADIUS);
+
         protected override void ApplyFilter(Graphics graphics, Bitmap applyBitmap, NativeRect applyRect, RenderMode renderMode)
         {
             int blurRadius = GetFieldValueAsInt(FieldType.BLUR_RADIUS);

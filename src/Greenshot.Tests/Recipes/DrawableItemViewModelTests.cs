@@ -21,8 +21,8 @@
 
 using System.Collections.Generic;
 using Greenshot.Base.Recipes;
-using Greenshot.Pipeline.Steps;
 using Greenshot.Plugin.RecipeEditor.ViewModels;
+using Greenshot.Recipes.Steps;
 using Xunit;
 
 namespace Greenshot.Tests.Recipes

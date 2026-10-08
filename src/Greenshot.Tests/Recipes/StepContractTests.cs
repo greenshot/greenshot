@@ -27,12 +27,12 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
-using Greenshot.Base.Pipeline;
-using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
-using Greenshot.Base.Triggers;
-using Greenshot.Pipeline;
+using Greenshot.Base.Recipes.Contracts;
+using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Recipes;
+using Greenshot.Recipes.Pipeline;
 using Xunit;
 
 namespace Greenshot.Tests.Recipes
@@ -62,7 +62,7 @@ namespace Greenshot.Tests.Recipes
             _ = new CapturePipeline(stepRegistry: registry);
             // Plugins are not services in the tests: register the ones the tests reference
             new Greenshot.Plugin.Zxing.ZxingPlugin().RegisterSteps(registry);
-            registry.Register<Greenshot.Plugin.ExternalCommand.ExternalCommandStep>(config => new Greenshot.Plugin.ExternalCommand.ExternalCommandStep(config));
+            registry.Register<Greenshot.Plugin.ExternalCommand.Recipes.ExternalCommandStep>(config => new Greenshot.Plugin.ExternalCommand.Recipes.ExternalCommandStep(config));
             return registry;
         }
 
@@ -119,9 +119,9 @@ namespace Greenshot.Tests.Recipes
         public void PluginSteps_AreRegisteredWithTheirContract()
         {
             var registry = CreatePipelineRegistry();
-            var barcode = registry.GetContract(Greenshot.Plugin.Zxing.ZxingStep.StepType);
+            var barcode = registry.GetContract(Greenshot.Plugin.Zxing.Recipes.ZxingStep.StepType);
             Assert.NotNull(barcode);
-            Assert.Equal(typeof(Greenshot.Plugin.Zxing.ZxingStep), barcode.ImplementationType);
+            Assert.Equal(typeof(Greenshot.Plugin.Zxing.Recipes.ZxingStep), barcode.ImplementationType);
             Assert.Contains(barcode.OutputVariables, v => v.Name == "Barcode.Format" && v.Conditional);
         }
 
@@ -166,15 +166,15 @@ namespace Greenshot.Tests.Recipes
             var contracts = registry.Contracts.ToDictionary(c => c.StepType, StringComparer.OrdinalIgnoreCase);
             foreach (var pluginStep in new[]
                      {
-                         typeof(Greenshot.Plugin.Imgur.ImgurStep), typeof(Greenshot.Plugin.Jira.JiraStep), typeof(Greenshot.Plugin.Confluence.ConfluenceStep),
-                         typeof(Greenshot.Plugin.Office.OfficeStep), typeof(Greenshot.Plugin.Box.BoxStep), typeof(Greenshot.Plugin.Dropbox.DropboxStep)
+                         typeof(Greenshot.Plugin.Imgur.Recipes.ImgurStep), typeof(Greenshot.Plugin.Jira.Recipes.JiraStep), typeof(Greenshot.Plugin.Confluence.Recipes.ConfluenceStep),
+                         typeof(Greenshot.Plugin.Office.Recipes.OfficeStep), typeof(Greenshot.Plugin.Box.Recipes.BoxStep), typeof(Greenshot.Plugin.Dropbox.Recipes.DropboxStep)
                      })
             {
                 var contract = StepContractBuilder.FromType(pluginStep);
                 contracts[contract.StepType] = contract;
             }
 
-            string xaml = File.ReadAllText(Path.Combine(FindRepositoryDirectory(), "src", "Greenshot.Plugin.RecipeEditor", "RecipeEditorWindow.xaml"));
+            string xaml = File.ReadAllText(Path.Combine(FindRepositoryDirectory(), "src", "Greenshot.Plugin.RecipeEditor", "Views", "RecipeEditorWindow.xaml"));
             var toolboxStepTypes = System.Text.RegularExpressions.Regex.Matches(xaml, "Command=\"\\{Binding AddStepCommand\\}\" CommandParameter=\"(\\w+)\"")
                 .Cast<System.Text.RegularExpressions.Match>()
                 .Select(m => m.Groups[1].Value)
@@ -207,11 +207,11 @@ namespace Greenshot.Tests.Recipes
         /// Parameters that take a file format do not hard-code the formats, they offer what the file format registry can save.
         /// </summary>
         [Theory]
-        [InlineData(typeof(Greenshot.Pipeline.Steps.DestinationExportStep))]
-        [InlineData(typeof(Greenshot.Plugin.ExternalCommand.ExternalCommandStep))]
-        [InlineData(typeof(Greenshot.Plugin.Imgur.ImgurStep))]
-        [InlineData(typeof(Greenshot.Plugin.Jira.JiraStep))]
-        [InlineData(typeof(Greenshot.Plugin.Confluence.ConfluenceStep))]
+        [InlineData(typeof(Greenshot.Recipes.Steps.DestinationExportStep))]
+        [InlineData(typeof(Greenshot.Plugin.ExternalCommand.Recipes.ExternalCommandStep))]
+        [InlineData(typeof(Greenshot.Plugin.Imgur.Recipes.ImgurStep))]
+        [InlineData(typeof(Greenshot.Plugin.Jira.Recipes.JiraStep))]
+        [InlineData(typeof(Greenshot.Plugin.Confluence.Recipes.ConfluenceStep))]
         public void FormatParameter_AllowedValues_ComeFromTheFileFormatRegistry(Type stepType)
         {
             var registry = SimpleServiceProvider.Current.GetInstance<Greenshot.Base.Core.FileFormat.IFileFormatRegistry>();

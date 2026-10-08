@@ -30,8 +30,8 @@ using Greenshot.Base.Interfaces.Video;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Native;
 using Greenshot.Base.Native.DirectX;
-using Greenshot.Pipeline.Steps;
 using Greenshot.Base.Video;
+using Greenshot.Recipes.Steps;
 using Xunit;
 using Xunit.Abstractions;
 

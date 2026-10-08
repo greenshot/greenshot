@@ -19,7 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using Greenshot.UI;
+using Greenshot.Recipes.ViewModels;
 using Xunit;
 
 namespace Greenshot.Tests.Recipes
@@ -30,7 +30,7 @@ namespace Greenshot.Tests.Recipes
         public void Create_UnknownStepTypePluginError_ReturnsPluginHint()
         {
             string errorMessage = "Node 'ocr_node' uses stepType 'OcrPlugin' which is not available because the required extension/plugin is not installed or active.";
-            var item = RecipeValidationErrorItem.Create(errorMessage);
+            var item = RecipeValidationErrorViewModel.Create(errorMessage);
 
             Assert.True(item.HasHint);
             Assert.Contains("Settings > Plugins", item.DiagnosticHint);
@@ -40,7 +40,7 @@ namespace Greenshot.Tests.Recipes
         public void Create_UnknownSourceType_ReturnsSourceTypeHint()
         {
             string errorMessage = "Node 'src' [Source]: Unknown SourceType 'Desktop'.";
-            var item = RecipeValidationErrorItem.Create(errorMessage);
+            var item = RecipeValidationErrorViewModel.Create(errorMessage);
 
             Assert.True(item.HasHint);
             Assert.Contains("Region, Window, ActiveWindow", item.DiagnosticHint);
@@ -50,7 +50,7 @@ namespace Greenshot.Tests.Recipes
         public void Create_MissingTargetTransition_ReturnsTargetHint()
         {
             string errorMessage = "Transition targets node 'step_2' which does not exist in the recipe.";
-            var item = RecipeValidationErrorItem.Create(errorMessage);
+            var item = RecipeValidationErrorViewModel.Create(errorMessage);
 
             Assert.True(item.HasHint);
             Assert.Contains("target node ID", item.DiagnosticHint);
@@ -60,7 +60,7 @@ namespace Greenshot.Tests.Recipes
         public void Create_JsonSyntaxError_ReturnsJsonHint()
         {
             string errorMessage = "JsonReaderException: Unexpected character encountered while parsing value: { at line 12, position 4.";
-            var item = RecipeValidationErrorItem.Create(errorMessage);
+            var item = RecipeValidationErrorViewModel.Create(errorMessage);
 
             Assert.True(item.HasHint);
             Assert.Contains("Check the recipe JSON syntax", item.DiagnosticHint);

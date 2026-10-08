@@ -55,7 +55,8 @@ namespace Greenshot.Base.Interfaces.Capture
             KeyCapBackground = Frozen(palette.ControlBackgroundBrush);
             KeyCapBorder = Frozen(palette.BorderBrush);
 
-            FontFamily = new FontFamily("Segoe UI");
+            // The UI font of Windows (Segoe UI), like the other Greenshot windows
+            FontFamily = SystemFonts.MessageFontFamily;
             _typeface = new Typeface(FontFamily, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
             _boldTypeface = new Typeface(FontFamily, FontStyles.Normal, FontWeights.SemiBold, FontStretches.Normal);
             _panelBorder = Frozen(new Pen(PanelBorder, 1));

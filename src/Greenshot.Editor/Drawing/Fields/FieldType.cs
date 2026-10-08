@@ -52,12 +52,16 @@ namespace Greenshot.Editor.Drawing.Fields
         public static readonly IFieldType PREPARED_FILTER_HIGHLIGHT = new FieldType(nameof(PREPARED_FILTER_HIGHLIGHT));
         public static readonly IFieldType FLAGS = new FieldType(nameof(FLAGS));
         public static readonly IFieldType CROPMODE = new FieldType(nameof(CROPMODE));
+        public static readonly IFieldType CUT_MARK_STYLE = new FieldType(nameof(CUT_MARK_STYLE));
+        public static readonly IFieldType TOOTH_HEIGHT = new FieldType(nameof(TOOTH_HEIGHT));
+        public static readonly IFieldType TOOTH_RANGE = new FieldType(nameof(TOOTH_RANGE));
 
 
         public static IFieldType[] Values =
         {
             ARROWHEADS, BLUR_RADIUS, BRIGHTNESS, FILL_COLOR, FONT_BOLD, FONT_FAMILY, FONT_ITALIC, FONT_SIZE, TEXT_HORIZONTAL_ALIGNMENT, TEXT_VERTICAL_ALIGNMENT, HIGHLIGHT_COLOR,
-            LINE_COLOR, LINE_THICKNESS, MAGNIFICATION_FACTOR, PIXEL_SIZE, PREVIEW_QUALITY, SHADOW, PREPARED_FILTER_OBFUSCATE, PREPARED_FILTER_HIGHLIGHT, FLAGS, CROPMODE
+            LINE_COLOR, LINE_THICKNESS, MAGNIFICATION_FACTOR, PIXEL_SIZE, PREVIEW_QUALITY, SHADOW, PREPARED_FILTER_OBFUSCATE, PREPARED_FILTER_HIGHLIGHT, FLAGS, CROPMODE, CUT_MARK_STYLE,
+            TOOTH_HEIGHT, TOOTH_RANGE
         };
 
         public string Name { get; set; }

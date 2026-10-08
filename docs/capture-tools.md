@@ -1,8 +1,8 @@
 # Capture tools and overlays: extending the interactive capture
 
-The interactive capture shows a frozen capture of the whole screen in the `CaptureWindow` (WPF, `src/Greenshot/UI/Capture`).
+The interactive capture shows a frozen capture of the whole screen in the `CaptureWindow` (WPF, `src/Greenshot/Capturing/Views`).
 What the user can do on it comes from **capture tools**: the region, window and text selections are each one tool class in
-`src/Greenshot/UI/Capture/Tools`. One tool is active at a time. Next to it, **overlays** can run for as long as the window is open,
+`src/Greenshot/Capturing/Tools`. One tool is active at a time. Next to it, **overlays** can run for as long as the window is open,
 e.g. a color picker which shows the color under the cursor while a region is selected. Plugins can add both.
 This document explains how to write them, in Greenshot itself or in a plugin, and what is possible and what is not,
 with a color picker as the example.
@@ -52,7 +52,7 @@ information or a shortcut to whatever the user is doing, without changing how th
 3. Register its keys in `Attach`, see Keys: `Host.RegisterToolKey` for keys which only work while the tool is active (e.g. Enter),
    and optionally `Host.RegisterKey` for a key which switches to the tool (`Host.ActivateTool(this)`), like T for the text tool.
 4. Make the window use it:
-   - **In Greenshot:** put the class in `src/Greenshot/UI/Capture/Tools` and add it to `CreateTools` in `CaptureWindow.xaml.cs`.
+   - **In Greenshot:** put the class in `src/Greenshot/Capturing/Tools` and add it to `CreateTools` in `CaptureWindow.xaml.cs`.
      Wrap it in `#if !GREENSHOT_LIGHT` if the tool should not be in the Light edition.
    - **In a plugin:** implement `ICaptureToolProvider` and register it in the plugin's `Initialize`, see below.
 
@@ -184,7 +184,7 @@ The keys of the window and the built-in tools:
 
 ### Example: the help overlay
 
-The help is a built-in overlay (`src/Greenshot/UI/Capture/Tools/HelpOverlay.cs`): F1 shows a panel with the keys which work now,
+The help is a built-in overlay (`src/Greenshot/Capturing/Overlays/HelpOverlay.cs`): F1 shows a panel with the keys which work now,
 the keys of the active tool first, as key caps like the hotkey settings show them. Keys with the same description share a row
 (the four arrow keys, left and right Shift). Because it reads `Host.KeyBindings`, keys of plugin tools and overlays are in it too,
 and the descriptions are read when the panel is shown, in the current language. When the tool changes, the panel is shown again
@@ -204,7 +204,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Capture;
 using Greenshot.Base.Languages;
 
-namespace Greenshot.UI.Capture.Tools
+namespace Greenshot.Capturing.Overlays
 {
     /// <summary>
     /// F1 shows or hides a panel with the keys which work now: those of the active tool first, then those which are always active.
@@ -366,7 +366,7 @@ The help overlay (see Keys) is an example of a panel: it is drawn with key caps 
 
 A panel can also show WPF content: `Host.ShowPanel(this, content)` with any `FrameworkElement`, usually a `UserControl` whose
 `DataContext` is a view model. The overlay only updates the view model, the bindings update the text, and the window keeps the
-panel in a free corner as above. The built-in info overlay (`src/Greenshot/UI/Capture/Tools/InfoOverlay.cs` and `InfoPanel.xaml`)
+panel in a free corner as above. The built-in info overlay (`src/Greenshot/Capturing/Overlays/InfoOverlay.cs`, the view `Capturing/Views/InfoPanelView.xaml` and its view model `Capturing/ViewModels/InfoPanelViewModel.cs`)
 works this way. What the window does with the content:
 
 - It puts it in a `Border` in Greenshot's style (`ToolStyle.CreatePanel`): theme background and border, rounded corners, padding,

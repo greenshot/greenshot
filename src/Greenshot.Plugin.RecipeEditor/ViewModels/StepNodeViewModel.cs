@@ -8,13 +8,12 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
-using Greenshot.Base.Drawing;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Forms;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Wpf;
-using Greenshot.Plugin.RecipeEditor.Dialogs;
 using Greenshot.Plugin.RecipeEditor.Helpers;
+using Greenshot.Plugin.RecipeEditor.Views;
 using Newtonsoft.Json.Linq;
 
 namespace Greenshot.Plugin.RecipeEditor.ViewModels
@@ -2077,8 +2076,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         private static Window GetActiveWindow()
         {
             return Application.Current?.Windows.OfType<Window>().FirstOrDefault(w => w.IsActive)
-                ?? Application.Current?.Windows.OfType<Window>().FirstOrDefault()
-                ?? Application.Current?.MainWindow;
+                // Not a hidden window (MainWindow is just the first WPF window which was created)
+                ?? Application.Current?.Windows.OfType<Window>().FirstOrDefault(w => w.IsVisible);
         }
 
         private static MessageBoxResult ShowMessageBox(string messageBoxText, string caption, MessageBoxButton button, MessageBoxImage icon)
@@ -2130,7 +2129,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             else
             {
                 var owner = GetActiveWindow();
-                var dlg = new SelectEditorDialog(editors);
+                var dlg = new SelectEditorWindow(editors);
                 if (owner != null)
                 {
                     dlg.Owner = owner;
@@ -2166,7 +2165,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             string recipeName = RecipeNameProvider?.Invoke() ?? DisplayName;
 
             var ownerWin = GetActiveWindow();
-            var importDlg = new ImportAnnotationsDialog(items, sourceTitle, recipeName, Annotations.Count > 0);
+            var importDlg = new ImportAnnotationsWindow(items, sourceTitle, recipeName, Annotations.Count > 0);
             if (ownerWin != null)
             {
                 importDlg.Owner = ownerWin;
@@ -2207,7 +2206,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     string recipeName = RecipeNameProvider?.Invoke() ?? DisplayName;
 
                     var ownerWin = GetActiveWindow();
-                    var importDlg = new ImportAnnotationsDialog(items, sourceTitle, recipeName, Annotations.Count > 0);
+                    var importDlg = new ImportAnnotationsWindow(items, sourceTitle, recipeName, Annotations.Count > 0);
                     if (ownerWin != null)
                     {
                         importDlg.Owner = ownerWin;

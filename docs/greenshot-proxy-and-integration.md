@@ -42,11 +42,11 @@ flowchart TD
         Security --> UI
     end
 
-    Ext -->|Native Messaging (stdio)| Proxy
+    Ext -->|"Native Messaging (stdio)"| Proxy
     CLI -->|Command-line Arguments| Proxy
     URL -->|Protocol Invocations| Proxy
     Shell -->|Argument Passing| Proxy
-    Proxy -->|Local IPC (Named Pipe)| PipeServer
+    Proxy -->|"Local IPC (Named Pipe)"| PipeServer
 ```
 
 ### Dual Binaries Architecture (`greenshot-proxy.exe` & `greenshot-cli.exe`)
@@ -212,7 +212,7 @@ A recipe cannot be invoked via the proxy unless it has explicitly configured the
 * A recipe with only a `HotkeyTrigger` cannot be triggered from the outside world.
 
 ### 3.4 Thread Affinity & UI Marshaling
-IPC requests arrive on background worker threads. Any action that displays UI (`SettingsWindow`, `AboutForm`, `SelfServiceWindow`) is marshaled onto the UI thread via `Dispatcher.BeginInvoke` or `MainForm.BeginInvoke` to avoid deadlocks and cross-thread access exceptions.
+IPC requests arrive on background worker threads. Any action that displays UI (`SettingsWindow`, `AboutForm`, `SelfServiceWindow`) is marshaled onto the UI thread via `UiDispatcher.Current` to avoid deadlocks and cross-thread access exceptions.
 
 ---
 
@@ -290,7 +290,7 @@ External callers can supply runtime context that becomes variables inside the re
 ### 5.1 Adding a New Custom URI Action
 To add a new route (e.g., `greenshot:quick-export`):
 
-1. **Update Command Whitelist** in [`src/Greenshot/Helpers/Ipc/IpcSecurityDispatcher.cs`](file:///d:/code/greenshot/src/Greenshot/Helpers/Ipc/IpcSecurityDispatcher.cs):
+1. **Update Command Whitelist** in `src/Greenshot/Ipc/IpcSecurityDispatcher.cs` (commands of an optional part, like the browser extension in `Ipc/BrowserExtension` or the AI tools in `Ai`, go into its own `IIpcCommandExtension` instead, registered with `[assembly: GreenshotModule(...)]`, so Greenshot Light leaves them out with the folder):
    ```csharp
    private static readonly HashSet<string> AllowedCommands = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
    {
@@ -316,7 +316,7 @@ To add a new route (e.g., `greenshot:quick-export`):
        await HandleQuickExportAsync(envelope.Payload, context);
        break;
    ```
-   Ensure any UI code is marshaled via `Application.Current.Dispatcher` or `MainForm.Instance.BeginInvoke`.
+   Ensure any UI code is marshaled via `UiDispatcher.Current`.
 
 4. **Add Unit Test** in [`src/Greenshot.Tests/Ipc/IpcSecurityDispatcherTests.cs`](file:///d:/code/greenshot/src/Greenshot.Tests/Ipc/IpcSecurityDispatcherTests.cs):
    Add the new test URI to the `ParseUrlSchemeCommand_ValidUris_DispatchesCorrectCommand` theory.

@@ -1,0 +1,153 @@
+/*
+ * Greenshot - a free and open source screenshot tool
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * 
+ * For more information see: https://getgreenshot.org/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 1 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+using Dapplo.HttpExtensions;
+using Dapplo.Ini;
+using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.Export;
+using Greenshot.Base.Core.FileFormat;
+using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Contracts;
+using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Plugin.Jira.Api;
+using Greenshot.Plugin.Jira.Destinations;
+using log4net;
+
+namespace Greenshot.Plugin.Jira.Recipes
+{
+    /// <summary>
+    /// Capture recipe step that attaches the screenshot to a Jira issue.
+    /// </summary>
+    [StepInfo("Jira", "Attach to Jira", "Attaches the capture to a Jira issue.", "Export")]
+    [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required)]
+    [StepParameter("Format", ContractDataType.Enum, Description = "Image format of the upload", AllowedValuesProvider = typeof(SaveableFileFormatIds))]
+    [StepParameter("JpegQuality", ContractDataType.Integer, Description = "JPEG quality (1-100) when uploading as JPEG")]
+    [StepParameter("ReduceColors", ContractDataType.Boolean, Description = "Reduce the image to 256 colors")]
+    [StepParameter("IssueKey", ContractDataType.String, Description = "Issue to attach to (default: variable Jira.IssueKey)")]
+    [StepInputVariable("Jira.IssueKey", ContractDataType.String, Description = "Issue to attach to, when the IssueKey parameter is not set")]
+    [StepOutputVariable("Jira.UploadUrl", ContractDataType.String, "Link to the attachment", Conditional = true)]
+    [StepOutputVariable("Jira.IssueKey", ContractDataType.String, "The issue the capture was attached to", Conditional = true)]
+    public class JiraStep : ICaptureStep, IRequiresRecipeAuthorization
+    {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(JiraStep));
+        private static IJiraConfiguration Config => IniConfigRegistry.GetSection<IJiraConfiguration>();
+
+        public string Name { get; }
+        public RecipeNodeConfig NodeConfig { get; }
+
+        /// <summary>
+        /// Uploads the capture: the user has to allow network access when approving a recipe with this step
+        /// </summary>
+        public IEnumerable<RecipeGatedAction> GetGatedActions()
+        {
+            yield return new RecipeGatedAction(RecipeGateType.NetworkAccess, "Jira");
+        }
+
+        public JiraStep(RecipeNodeConfig config)
+        {
+            NodeConfig = config ?? throw new ArgumentNullException(nameof(config));
+            Name = config.Name ?? "JiraUploadStep";
+        }
+
+        public async Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
+        {
+            if (context == null) throw new ArgumentNullException(nameof(context));
+
+            if (context.Payload?.EnsureSurface() == null)
+            {
+                context.LogStep("JiraStep: No surface available to upload.");
+                Log.Warn("JiraStep: Surface is null in context payload.");
+                return;
+            }
+
+            var captureDetails = context.Payload?.RawCapture?.CaptureDetails ?? new CaptureDetails();
+            var jiraConnector = SimpleServiceProvider.Current.GetInstance<JiraConnector>(isOptional: true);
+            if (jiraConnector == null)
+            {
+                context.LogStep("JiraStep: JiraConnector service is not available.");
+                Log.Warn("JiraStep: JiraConnector not registered.");
+                return;
+            }
+
+            string issueKey = NodeConfig.GetParameter<string>("IssueKey")
+                ?? (context.Properties.TryGetValue("Jira.IssueKey", out var ik) && ik is string iks ? iks : null);
+
+            if (!string.IsNullOrEmpty(issueKey))
+            {
+                issueKey = FilenameHelper.FillVariables(issueKey, false);
+            }
+
+            string formatStr = NodeConfig.GetParameter<string>("Format");
+            var formatRegistry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
+            string uploadFormat = formatRegistry.ResolveFormatId(formatStr, Config?.UploadFormat ?? WellKnownFileFormats.Png);
+
+            int jpegQuality = NodeConfig.GetParameter<int?>("JpegQuality") ?? (Config?.UploadJpegQuality ?? 80);
+            bool reduceColors = NodeConfig.GetParameter<bool?>("ReduceColors") ?? (Config?.UploadReduceColors ?? false);
+            var outputSettings = new SurfaceOutputSettings(uploadFormat, jpegQuality, reduceColors);
+
+            string filename = Path.GetFileName(FilenameHelper.GetFilename(uploadFormat, captureDetails));
+            var source = await context.Payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
+
+            if (!string.IsNullOrEmpty(issueKey))
+            {
+                context.LogStep($"Attaching capture to Jira issue '{issueKey}'...");
+                Log.InfoFormat("JiraStep: Attaching capture to Jira issue '{0}'", issueKey);
+
+                try
+                {
+                    var image = await source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
+                    await jiraConnector.AttachAsync(issueKey, image, filename, cancellationToken).ConfigureAwait(false);
+                    string uploadUrl = jiraConnector.JiraBaseUri.AppendSegments("browse", issueKey).AbsoluteUri;
+                    await source.UseSurfaceAsync(surface => surface.UploadUrl = uploadUrl, cancellationToken).ConfigureAwait(false);
+                    context.Properties["Jira.UploadUrl"] = uploadUrl;
+                    context.Properties["Jira.IssueKey"] = issueKey;
+                    context.LogStep($"Successfully attached capture to Jira issue '{issueKey}': {uploadUrl}");
+                }
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    context.LogStep($"JiraStep: Failed to attach capture to '{issueKey}': {ex.Message}");
+                    Log.Error($"JiraStep: Error attaching capture to {issueKey}", ex);
+                }
+            }
+            else
+            {
+                // Dispatch via JiraDestination (interactive dialog or default)
+                context.LogStep("JiraStep: No issue key specified; delegating to Jira destination.");
+                var destination = new JiraDestination();
+                var result = await DestinationExporter.ExportAsync(destination, source, captureDetails, false, context.UserInteraction, cancellationToken).ConfigureAwait(false);
+                await ExportResultHandler.ApplyAsync(destination, result, source, cancellationToken).ConfigureAwait(false);
+                if (result.Uri != null)
+                {
+                    context.Properties["Jira.UploadUrl"] = result.Uri.AbsoluteUri;
+                    context.Properties["Jira.IssueKey"] = result.Target;
+                }
+            }
+        }
+    }
+}

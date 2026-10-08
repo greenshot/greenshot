@@ -22,11 +22,10 @@
 using System;
 using System.Collections.Generic;
 using Greenshot.Base.Core;
-using Greenshot.Base.Drawing;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
-using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Plugin.ExternalCommand;
 using Greenshot.Plugin.RecipeEditor;
 using Greenshot.Plugin.Zxing;

@@ -25,10 +25,11 @@ using System.Drawing;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Interop;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
+using Greenshot.Plugin.Zxing.Drawing;
+using Greenshot.Plugin.Zxing.Processing;
 using ZXing;
 using Color = System.Drawing.Color;
 using WpfColor = System.Windows.Media.Color;
@@ -59,7 +60,6 @@ namespace Greenshot.Plugin.Zxing.Views
                 var icon = GreenshotResources.GetGreenshotIcon();
                 if (icon != null)
                 {
-                    ImgWindowIcon.Source = icon.ToBitmapSource();
                     Icon = icon.ToBitmapSource();
                 }
             }
@@ -69,12 +69,10 @@ namespace Greenshot.Plugin.Zxing.Views
             }
 
             InitializeDropdowns();
-            UpdateThemeButton();
 
             if (_model != null)
             {
                 BtnInsert.Content = "Apply";
-                TxtWindowTitle.Text = "Edit QR / Barcode";
                 Title = "Edit QR / Barcode";
                 LoadFromModel(_model);
             }
@@ -244,32 +242,6 @@ namespace Greenshot.Plugin.Zxing.Views
                 new WindowInteropHelper(this) { Owner = owner.Handle };
             }
             return ShowDialog();
-        }
-
-        private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ClickCount == 1)
-            {
-                DragMove();
-            }
-        }
-
-        private void ThemeToggle_Click(object sender, RoutedEventArgs e)
-        {
-            WpfThemeHelper.ToggleTheme();
-            UpdateThemeButton();
-        }
-
-        private void UpdateThemeButton()
-        {
-            BtnThemeToggle.Content = WpfThemeHelper.IsDarkMode ? "☀️" : "🌙";
-            BtnThemeToggle.ToolTip = WpfThemeHelper.IsDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode";
-        }
-
-        private void CloseButton_Click(object sender, RoutedEventArgs e)
-        {
-            DialogResult = false;
-            Close();
         }
 
         private void BtnCancel_Click(object sender, RoutedEventArgs e)

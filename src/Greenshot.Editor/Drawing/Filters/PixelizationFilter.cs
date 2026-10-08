@@ -41,24 +41,39 @@ namespace Greenshot.Editor.Drawing.Filters
             AddField(GetType(), FieldType.PIXEL_SIZE, 5);
         }
 
+        // Secret key and IV for the noise, generated once per filter and never stored, so every repaint and the export use the same noise
+        [NonSerialized] private byte[] _noiseKey;
+        [NonSerialized] private byte[] _noiseIv;
+
+        /// <summary>
+        /// Cryptographically secure random numbers (the AES-CBC encrypted zeros), the same key and IV give the same numbers
+        /// </summary>
         private class CryptoRandomBuffer : IDisposable
         {
-            private readonly RandomNumberGenerator _rng;
+            private readonly Aes _aes;
+            private readonly ICryptoTransform _encryptor;
+            private readonly byte[] _zeros;
             private readonly byte[] _buffer;
             private int _index;
 
-            public CryptoRandomBuffer(int size)
+            public CryptoRandomBuffer(byte[] key, byte[] iv, int size)
             {
-                // Ensure size is a multiple of 4
-                int alignedSize = ((size + 3) / 4) * 4;
+                // Ensure size is a multiple of the AES block size
+                int alignedSize = ((size + 15) / 16) * 16;
                 _buffer = new byte[alignedSize];
-                _rng = RandomNumberGenerator.Create();
+                _zeros = new byte[alignedSize];
+                _aes = Aes.Create();
+                _aes.Padding = PaddingMode.None;
+                _aes.Key = key;
+                _aes.IV = iv;
+                _encryptor = _aes.CreateEncryptor();
                 Refill();
             }
 
             private void Refill()
             {
-                _rng.GetBytes(_buffer);
+                // The encryptor keeps chaining, so every refill gives new numbers
+                _encryptor.TransformBlock(_zeros, 0, _zeros.Length, _buffer, 0);
                 _index = 0;
             }
 
@@ -90,7 +105,8 @@ namespace Greenshot.Editor.Drawing.Filters
 
             public void Dispose()
             {
-                _rng.Dispose();
+                _encryptor.Dispose();
+                _aes.Dispose();
             }
         }
 
@@ -123,7 +139,15 @@ namespace Greenshot.Editor.Drawing.Filters
 
             // Secure randomized pixelation
             // Create a small 4KB cryptographically secure random buffer
-            using CryptoRandomBuffer cryptoRandom = new CryptoRandomBuffer(4096);
+            if (_noiseKey == null)
+            {
+                // Aes.Create generates a random key and IV
+                using var aes = Aes.Create();
+                _noiseKey = aes.Key;
+                _noiseIv = aes.IV;
+            }
+
+            using CryptoRandomBuffer cryptoRandom = new CryptoRandomBuffer(_noiseKey, _noiseIv, 4096);
 
             using IFastBitmap dest = FastBitmap.CreateCloneOf(applyBitmap, applyRect);
             using (IFastBitmap src = FastBitmap.Create(applyBitmap, applyRect))

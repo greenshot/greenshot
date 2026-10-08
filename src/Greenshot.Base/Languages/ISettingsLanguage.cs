@@ -282,6 +282,36 @@ namespace Greenshot.Base.Languages
         string ExpertMinimizememoryfootprint { get; }
 
         /// <summary>
+        /// Draw the windows with the graphics card (uses more memory, takes effect after a restart)
+        /// </summary>
+        string ExpertHardwarerendering { get; }
+
+        /// <summary>
+        /// Take screenshots with DirectX (Windows Graphics Capture, needed for HDR screens)
+        /// </summary>
+        string ExpertGraphicscapture { get; }
+
+        /// <summary>
+        /// Keep DirectX ready for faster screenshots (uses more memory)
+        /// </summary>
+        string ExpertKeepgraphicscaptureready { get; }
+
+        /// <summary>
+        /// Prepare the capture in the background after the start (uses more memory)
+        /// </summary>
+        string ExpertPrewarmcapture { get; }
+
+        /// <summary>
+        /// Prepare the editor in the background after the start (uses more memory)
+        /// </summary>
+        string ExpertPrewarmeditor { get; }
+
+        /// <summary>
+        /// Most memory (MB) kept by unused buffers, 0 = no limit (takes effect after a restart)
+        /// </summary>
+        string ExpertBufferpoollimit { get; }
+
+        /// <summary>
         /// Make some optimizations for usage with remote desktop
         /// </summary>
         string ExpertOptimizeforrdp { get; }
@@ -354,6 +384,56 @@ namespace Greenshot.Base.Languages
         /// Network and updates
         /// </summary>
         string Network { get; }
+
+        /// <summary>
+        /// Memory and speed
+        /// </summary>
+        string MemoryProfile { get; }
+
+        /// <summary>
+        /// Fast: prepare and keep everything ready (default)
+        /// </summary>
+        string MemoryProfileFast { get; }
+
+        /// <summary>
+        /// Balanced: smooth capture window, nothing else kept ready
+        /// </summary>
+        string MemoryProfileBalanced { get; }
+
+        /// <summary>
+        /// Low memory: software rendering, nothing kept ready
+        /// </summary>
+        string MemoryProfileLowmemory { get; }
+
+        /// <summary>
+        /// Custom
+        /// </summary>
+        string MemoryProfileCustom { get; }
+
+        /// <summary>
+        /// Greenshot prepares the capture and the editor and keeps them ready, so they open fast. That costs memory, most of it in the graphics driver. A profile sets the settings below, which can also be changed one by one.
+        /// </summary>
+        string TooltipMemoryProfile { get; }
+
+        /// <summary>
+        /// Text recognition (OCR)
+        /// </summary>
+        string Ocr { get; }
+
+        /// <summary>
+        /// Language of the text
+        /// </summary>
+        string OcrLanguage { get; }
+
+        /// <summary>
+        /// Automatic (Windows language settings)
+        /// </summary>
+        string OcrLanguageAutomatic { get; }
+
+        /// <summary>
+        /// not installed
+        /// </summary>
+        string OcrLanguageNotinstalled { get; }
 
         /// <summary>
         /// Output
@@ -568,6 +648,26 @@ namespace Greenshot.Base.Languages
         string StoragelocationFolderErrorTitle { get; }
 
         /// <summary>
+        /// Colors
+        /// </summary>
+        string Theme { get; }
+
+        /// <summary>
+        /// Dark
+        /// </summary>
+        string ThemeDark { get; }
+
+        /// <summary>
+        /// Light
+        /// </summary>
+        string ThemeLight { get; }
+
+        /// <summary>
+        /// Same as Windows
+        /// </summary>
+        string ThemeSystem { get; }
+
+        /// <summary>
         /// Settings
         /// </summary>
         string Title { get; }
@@ -581,6 +681,11 @@ namespace Greenshot.Base.Languages
         /// Language of greenshot's user interface
         /// </summary>
         string TooltipLanguage { get; }
+
+        /// <summary>
+        /// The language Windows recognizes text in, for capturing text and the OCR destination. More languages can be added in the Windows settings (Time and language, Language and region).
+        /// </summary>
+        string TooltipOcrLanguage { get; }
 
         /// <summary>
         /// Image format used by default

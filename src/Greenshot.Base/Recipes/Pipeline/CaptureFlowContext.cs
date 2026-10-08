@@ -1,0 +1,255 @@
+/*
+ * Greenshot - a free and open source screenshot tool
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
+ *
+ * For more information see: https://getgreenshot.org/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 1 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Greenshot.Base.Core;
+using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Triggers;
+using Greenshot.Base.Threading;
+using Greenshot.Base.Interfaces;
+
+namespace Greenshot.Base.Recipes.Pipeline
+{
+    /// <summary>
+    /// Encapsulates the execution state and lifecycle of a capture pipeline run.
+    /// Strictly decoupled from UI and graphical payload types to ensure clean testability and maintainability.
+    /// </summary>
+    public class CaptureFlowContext : IDisposable
+    {
+        private bool _disposed;
+
+        /// <summary>
+        /// Unique execution identifier for tracking/logging this flow.
+        /// </summary>
+        public Guid ExecutionId { get; set; } = Guid.NewGuid();
+
+        /// <summary>
+        /// Snapshot of the trigger situation (foreground window, cursor), taken when the flow was started.
+        /// </summary>
+        public FlowTriggerContext TriggerContext { get; set; }
+
+        /// <summary>
+        /// The way to the UI thread for steps and sources which need it (dialogs, clipboard, the editor).
+        /// Defaults to the registered IUiDispatcher, or runs inline when there is none (tests, headless).
+        /// </summary>
+        public IUiDispatcher Ui
+        {
+            get => _ui ??= SimpleServiceProvider.Current?.GetInstance<IUiDispatcher>(isOptional: true) ?? InlineUiDispatcher.Instance;
+            set => _ui = value;
+        }
+
+        private IUiDispatcher _ui;
+
+        /// <summary>
+        /// Dialogs, progress and notifications for the steps and destinations of this flow.
+        /// Defaults to the registered IUserInteraction, headless when there is none (tests, command line).
+        /// </summary>
+        public IUserInteraction UserInteraction
+        {
+            get => _userInteraction ??= Core.UserInteraction.Current;
+            set => _userInteraction = value;
+        }
+
+        private IUserInteraction _userInteraction;
+
+        /// <summary>
+        /// The recipe driving this flow.
+        /// </summary>
+        public CaptureRecipe Recipe { get; }
+
+        /// <summary>
+        /// The trigger that initiated this flow (null if triggered manually/programmatically).
+        /// </summary>
+        public ITrigger Trigger { get; }
+
+        /// <summary>
+        /// Current lifecycle state of the flow.
+        /// </summary>
+        public CaptureFlowState State { get; set; } = CaptureFlowState.NotStarted;
+
+        /// <summary>
+        /// Extensible property bag for steps and triggers to share data (e.g. OCR text, window handles, user choices).
+        /// </summary>
+        public IDictionary<string, object> Properties { get; } = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// The visual payload (bitmap, surface, extracted text). Null until acquisition succeeds.
+        /// </summary>
+        public ICapturePayload Payload { get; set; }
+
+        /// <summary>
+        /// True when the payload was handed to this flow (forwarded from another recipe, imported from the browser extension,
+        /// injected programmatically) instead of being captured by it. Such an image is used as a whole: there is no screen
+        /// to select a region on, and nothing was captured, so no capture feedback is given either.
+        /// </summary>
+        public bool IsPayloadPreSupplied { get; set; }
+
+        /// <summary>
+        /// Optional callback of the caller, run once when the flow finished and before the payload is disposed
+        /// (e.g. to hand the final image to an AI tool). Not copied to branch contexts.
+        /// </summary>
+        public Func<CaptureFlowContext, Task> FlowFinishedAsync { get; set; }
+
+        /// <summary>
+        /// Optional delegate to immediately emit streaming stdout text back to the caller (e.g. IPC client).
+        /// </summary>
+        public Func<string, Task> StdoutWriter { get; set; }
+
+        /// <summary>
+        /// Optional delegate to immediately emit streaming stderr text back to the caller (e.g. IPC client).
+        /// </summary>
+        public Func<string, Task> StderrWriter { get; set; }
+
+        /// <summary>
+        /// Numerical exit code for the flow (0 = success, non-zero = error).
+        /// </summary>
+        public int ExitCode { get; set; } = 0;
+
+        /// <summary>
+        /// Cancellation token for early termination.
+        /// </summary>
+        public CancellationToken CancellationToken { get; set; }
+
+        /// <summary>
+        /// Whether the flow was explicitly aborted or cancelled.
+        /// </summary>
+        public bool IsAborted => State == CaptureFlowState.Cancelled || State == CaptureFlowState.Failed;
+
+        /// <summary>
+        /// Reason for aborting/failing the flow, if any.
+        /// </summary>
+        public string AbortReason { get; private set; }
+
+        /// <summary>
+        /// Optional exception that caused a failure.
+        /// </summary>
+        public Exception Error { get; private set; }
+
+        /// <summary>
+        /// Chronological execution log for diagnostic tracking.
+        /// </summary>
+        public List<string> ExecutionLog { get; } = new List<string>();
+
+        public CaptureFlowContext(CaptureRecipe recipe, ITrigger trigger = null, CancellationToken cancellationToken = default)
+        {
+            Recipe = recipe ?? throw new ArgumentNullException(nameof(recipe));
+            Trigger = trigger;
+            CancellationToken = cancellationToken;
+        }
+
+        /// <summary>
+        /// Log a pipeline step or event.
+        /// </summary>
+        public void LogStep(string message)
+        {
+            ExecutionLog.Add($"[{DateTime.UtcNow:HH:mm:ss.fff}] {message}");
+        }
+
+        /// <summary>
+        /// Cancel or abort the flow cleanly.
+        /// </summary>
+        public void Abort(string reason)
+        {
+            State = CaptureFlowState.Cancelled;
+            AbortReason = reason;
+            LogStep($"Flow cancelled: {reason}");
+        }
+
+        /// <summary>
+        /// Mark the flow as failed with an exception.
+        /// </summary>
+        public void Fail(string reason, Exception ex = null)
+        {
+            State = CaptureFlowState.Failed;
+            AbortReason = reason;
+            Error = ex;
+            LogStep($"Flow failed: {reason} {(ex != null ? ex.Message : "")}");
+        }
+
+        private readonly List<CaptureFlowContext> _childBranchContexts = new List<CaptureFlowContext>();
+
+        /// <summary>
+        /// Creates an isolated child context for an independent DAG branch.
+        /// Deep-copies properties and assigns a cloned payload if none is explicitly provided.
+        /// </summary>
+        public CaptureFlowContext CreateBranchContext(ICapturePayload payload = null)
+        {
+            var branchPayload = payload ?? Payload?.Clone();
+            var branchContext = new CaptureFlowContext(Recipe, Trigger, CancellationToken)
+            {
+                TriggerContext = TriggerContext,
+                Ui = _ui,
+                UserInteraction = _userInteraction,
+                State = State,
+                Payload = branchPayload,
+                IsPayloadPreSupplied = IsPayloadPreSupplied,
+                StdoutWriter = StdoutWriter,
+                StderrWriter = StderrWriter,
+                ExitCode = ExitCode
+            };
+
+            if (Properties != null)
+            {
+                foreach (var kvp in Properties)
+                {
+                    branchContext.Properties[kvp.Key] = kvp.Value;
+                }
+            }
+
+            lock (_childBranchContexts)
+            {
+                _childBranchContexts.Add(branchContext);
+            }
+
+            return branchContext;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed) return;
+            _disposed = true;
+
+            if (disposing)
+            {
+                lock (_childBranchContexts)
+                {
+                    foreach (var child in _childBranchContexts)
+                    {
+                        child.Dispose();
+                    }
+                    _childBranchContexts.Clear();
+                }
+
+                Payload?.Dispose();
+                Payload = null;
+            }
+        }
+    }
+}

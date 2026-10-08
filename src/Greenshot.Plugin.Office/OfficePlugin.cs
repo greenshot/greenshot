@@ -25,18 +25,19 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using Dapplo.Ini;
-using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Plugin.Office.Destinations;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Languages;
+using Greenshot.Plugin.Office.Recipes;
+using Greenshot.Plugin.Office.Views;
 
 namespace Greenshot.Plugin.Office
 {
@@ -47,7 +48,7 @@ namespace Greenshot.Plugin.Office
     {
         private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OfficePlugin));
         private IOfficeConfiguration _config;
-        private ToolStripMenuItem _itemPlugInConfig;
+        private TrayMenuEntry _itemPlugInConfig;
 
         public ValueTask DisposeAsync()
         {
@@ -145,7 +146,7 @@ namespace Greenshot.Plugin.Office
             // The destinations look for the Office installation and read the configuration
             services.AddServices(() => Destinations().ToList());
             services.AddRecipeStepProvider(this);
-            services.AddSettingsView<IOfficeConfiguration>(_ => new Forms.OfficeConfigurationControl());
+            services.AddSettingsView<IOfficeConfiguration>(_ => new OfficeConfigurationView());
         }
 
         public object CreateSettingsViewModel(IServiceProvider services) => _config;
@@ -168,21 +169,23 @@ namespace Greenshot.Plugin.Office
 
         private void Start()
         {
-            _itemPlugInConfig = new ToolStripMenuItem
-            {
-                Text = PluginUtils.GetQuicklinkText("Microsoft Office"),
-                Visible = _config?.QuicklinkEnabled ?? false
-            };
-            _itemPlugInConfig.Click += delegate { ShowSettings(); };
+            Image icon = null;
             try
             {
-                // The icon in the size of the tray menu, see IconBinder
-                IconBinder.Bind(_itemPlugInConfig, IconSource.FromKey(DestinationIcons.Exe(WordDestination.WordExePath, 0)));
+                icon = WordDestination.WordExePath == null ? null : PluginUtils.GetCachedExeIcon(WordDestination.WordExePath, 0);
             }
             catch
             {
                 // Word may not be available
             }
+
+            _itemPlugInConfig = new TrayMenuEntry
+            {
+                Image = icon,
+                Text = PluginUtils.GetQuicklinkText("Microsoft Office"),
+                Visible = _config?.QuicklinkEnabled ?? false
+            };
+            _itemPlugInConfig.Click += delegate { ShowSettings(); };
 
             PluginUtils.AddToContextMenu(_itemPlugInConfig);
             Texts.Config.LanguageChanged += OnLanguageChanged;
@@ -230,7 +233,7 @@ namespace Greenshot.Plugin.Office
         /// </summary>
         private void ShowSettings()
         {
-            SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>(isOptional: true)?.ShowSetting(Name);
+            SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true)?.ShowSetting(Name);
         }
     }
 }
