@@ -886,18 +886,10 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Load a bitmap from a stream with the extension. DIB data is decoded directly, other formats by the file format handlers.
+        /// Load a bitmap from a stream with the extension, CF_DIB / CF_DIBV5 go to the DibFileFormatHandler
         /// </summary>
-        private static IEnumerable<Bitmap> LoadBitmap(Stream stream, string extension)
-        {
-            if (extension == ".dib")
-            {
-                using var memoryStream = new MemoryStream();
-                stream.CopyTo(memoryStream);
-                return ClipboardBitmapConverter.TryDecodeDib(memoryStream.ToArray(), out var dibBitmap) ? new[] { dibBitmap } : Array.Empty<Bitmap>();
-            }
-            return FileFormatHandlers.TryLoadFromStream(stream, extension, out var bitmap) ? new[] { bitmap } : Array.Empty<Bitmap>();
-        }
+        private static IEnumerable<Bitmap> LoadBitmap(Stream stream, string extension) =>
+            FileFormatHandlers.TryLoadFromStream(stream, extension, out var bitmap) ? new[] { bitmap } : Array.Empty<Bitmap>();
 
         /// <summary>
         /// Load drawables from a stream with the extension, CF_DIB / CF_DIBV5 go to the DibFileFormatHandler

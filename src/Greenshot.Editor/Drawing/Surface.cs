@@ -2828,21 +2828,18 @@ namespace Greenshot.Editor.Drawing
                 LOG.Debug("List of clipboard formats available for pasting: " + string.Join(", ", clipboard.Formats));
             }
 
-            if (ClipboardHelper.ContainsImage(clipboard))
+            // Loading tells if there is an image, a separate check would read the files and parse the HTML twice
+            var drawableContainers = ClipboardHelper.GetDrawables(clipboard).Where(drawableContainer => drawableContainer != null).ToList();
+            var imageUrls = drawableContainers.Count == 0 ? ClipboardHelper.GetHtmlImageUrls(clipboard) : Array.Empty<string>();
+            if (imageUrls.Count > 0)
             {
+                // Only HTML with images: download them without blocking the UI
                 NativePoint pasteLocation = GetPasteLocation(0.1f, 0.1f);
-
-                var drawableContainers = ClipboardHelper.GetDrawables(clipboard).Where(drawableContainer => drawableContainer != null).ToList();
-                var imageUrls = drawableContainers.Count == 0 ? ClipboardHelper.GetHtmlImageUrls(clipboard) : Array.Empty<string>();
-                if (imageUrls.Count > 0)
-                {
-                    // Only HTML with images: download them without blocking the UI
-                    AsyncCommand.Run(() => AddDownloadedOrFallbackAsync(imageUrls, drawableContainers, pasteLocation, pasteLocation, false, true), "Download the pasted image");
-                }
-                else
-                {
-                    AddDrawables(drawableContainers, pasteLocation, false, true);
-                }
+                AsyncCommand.Run(() => AddDownloadedOrFallbackAsync(imageUrls, drawableContainers, pasteLocation, pasteLocation, false, true), "Download the pasted image");
+            }
+            else if (drawableContainers.Count > 0)
+            {
+                AddDrawables(drawableContainers, GetPasteLocation(0.1f, 0.1f), false, true);
             }
             else if (ClipboardHelper.ContainsText(clipboard))
             {
