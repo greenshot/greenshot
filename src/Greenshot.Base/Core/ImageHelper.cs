@@ -531,61 +531,52 @@ namespace Greenshot.Base.Core
             // By the central limit theorem, if applied 3 times on the same image, a box blur approximates the Gaussian kernel to within about 3%, yielding the same result as a quadratic convolution kernel.
             // This might be true, but the GDI+ BlurEffect doesn't look the same, a 2x blur is more similar and we only make 2x Box-Blur.
             // (Might also be a mistake in our blur, but for now it looks great)
-            int channelCount = Math.Min(fastBitmap.HasAlphaChannel ? 4 : 3, bytesPerPixel);
-            BoxBlurHorizontal(pixels, stride, width, height, bytesPerPixel, channelCount, range);
-            BoxBlurVertical(pixels, stride, width, height, bytesPerPixel, channelCount, range);
-            BoxBlurHorizontal(pixels, stride, width, height, bytesPerPixel, channelCount, range);
-            BoxBlurVertical(pixels, stride, width, height, bytesPerPixel, channelCount, range);
+            // Every byte of a pixel is blurred, also the unused one of Format32bppRgb: that keeps the inner loops free of a loop over the channels.
+            // With alpha the pixels should be premultiplied (Format32bppPArgb), otherwise the color of transparent pixels bleeds into the visible ones.
+            BoxBlurHorizontal(pixels, stride, width, height, bytesPerPixel, range);
+            BoxBlurVertical(pixels, stride, width, height, bytesPerPixel, range);
+            BoxBlurHorizontal(pixels, stride, width, height, bytesPerPixel, range);
+            BoxBlurVertical(pixels, stride, width, height, bytesPerPixel, range);
         }
 
         /// <summary>
-        /// Horizontal box blur pass: every pixel becomes the average of the pixels within range / 2 left and right of it (only those inside the row),
-        /// for the first channelCount bytes of each pixel. The row is copied first, so the sliding sums use the original values.
+        /// Horizontal box blur pass: every byte becomes the average of the same byte of the pixels within range / 2 left and right of it
+        /// (only those inside the row). The row is copied first, so the sliding sums use the original values; the bytes of a pixel are done one after the other.
         /// </summary>
-        private static void BoxBlurHorizontal(Span<byte> pixels, int stride, int width, int height, int bytesPerPixel, int channelCount, int range)
+        private static void BoxBlurHorizontal(Span<byte> pixels, int stride, int width, int height, int bytesPerPixel, int range)
         {
             int halfRange = range / 2;
             int rowBytes = width * bytesPerPixel;
             byte[] original = ArrayPool<byte>.Shared.Rent(rowBytes);
-            Span<int> sums = stackalloc int[4];
             try
             {
                 for (int y = 0; y < height; y++)
                 {
                     var row = pixels.Slice(y * stride, rowBytes);
                     row.CopyTo(original);
-                    sums.Clear();
-                    int hits = 0;
-                    for (int x = -halfRange; x < width; x++)
+                    for (int channel = 0; channel < bytesPerPixel; channel++)
                     {
-                        int oldPixel = x - halfRange - 1;
-                        if (oldPixel >= 0)
+                        int sum = 0;
+                        int hits = 0;
+                        for (int x = -halfRange; x < width; x++)
                         {
-                            int offset = oldPixel * bytesPerPixel;
-                            for (int c = 0; c < channelCount; c++)
+                            int oldPixel = x - halfRange - 1;
+                            if (oldPixel >= 0)
                             {
-                                sums[c] -= original[offset + c];
+                                sum -= original[oldPixel * bytesPerPixel + channel];
+                                hits--;
                             }
-                            hits--;
-                        }
 
-                        int newPixel = x + halfRange;
-                        if (newPixel < width)
-                        {
-                            int offset = newPixel * bytesPerPixel;
-                            for (int c = 0; c < channelCount; c++)
+                            int newPixel = x + halfRange;
+                            if (newPixel < width)
                             {
-                                sums[c] += original[offset + c];
+                                sum += original[newPixel * bytesPerPixel + channel];
+                                hits++;
                             }
-                            hits++;
-                        }
 
-                        if (x >= 0)
-                        {
-                            int offset = x * bytesPerPixel;
-                            for (int c = 0; c < channelCount; c++)
+                            if (x >= 0)
                             {
-                                row[offset + c] = (byte)(sums[c] / hits);
+                                row[x * bytesPerPixel + channel] = (byte)(sum / hits);
                             }
                         }
                     }
@@ -602,7 +593,7 @@ namespace Greenshot.Base.Core
         /// instead of walking down every column. A row is written as soon as its average is known, so the last range / 2 + 1 original rows
         /// are kept in a ring buffer for subtracting them from the sums later.
         /// </summary>
-        private static void BoxBlurVertical(Span<byte> pixels, int stride, int width, int height, int bytesPerPixel, int channelCount, int range)
+        private static void BoxBlurVertical(Span<byte> pixels, int stride, int width, int height, int bytesPerPixel, int range)
         {
             int halfRange = range / 2;
             int rowBytes = width * bytesPerPixel;
@@ -619,12 +610,9 @@ namespace Greenshot.Base.Core
                     if (oldRow >= 0)
                     {
                         var original = new ReadOnlySpan<byte>(ring, oldRow % ringRows * rowBytes, rowBytes);
-                        for (int offset = 0; offset < rowBytes; offset += bytesPerPixel)
+                        for (int i = 0; i < rowBytes; i++)
                         {
-                            for (int c = offset; c < offset + channelCount; c++)
-                            {
-                                sums[c] -= original[c];
-                            }
+                            sums[i] -= original[i];
                         }
                         hits--;
                     }
@@ -634,12 +622,9 @@ namespace Greenshot.Base.Core
                     if (newRow < height)
                     {
                         var added = pixels.Slice(newRow * stride, rowBytes);
-                        for (int offset = 0; offset < rowBytes; offset += bytesPerPixel)
+                        for (int i = 0; i < rowBytes; i++)
                         {
-                            for (int c = offset; c < offset + channelCount; c++)
-                            {
-                                sums[c] += added[c];
-                            }
+                            sums[i] += added[i];
                         }
                         hits++;
                     }
@@ -648,12 +633,9 @@ namespace Greenshot.Base.Core
                     {
                         var row = pixels.Slice(y * stride, rowBytes);
                         row.CopyTo(new Span<byte>(ring, y % ringRows * rowBytes, rowBytes));
-                        for (int offset = 0; offset < rowBytes; offset += bytesPerPixel)
+                        for (int i = 0; i < rowBytes; i++)
                         {
-                            for (int c = offset; c < offset + channelCount; c++)
-                            {
-                                row[c] = (byte)(sums[c] / hits);
-                            }
+                            row[i] = (byte)(sums[i] / hits);
                         }
                     }
                 }

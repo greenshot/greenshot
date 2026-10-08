@@ -21,6 +21,7 @@
 
 using System;
 using System.Drawing;
+using System.Drawing.Imaging;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Gdi32;
 using Greenshot.Base.Core;
@@ -62,7 +63,9 @@ namespace Greenshot.Editor.Drawing.Filters
             }
             else
             {
-                using (IFastBitmap fastBitmap = FastBitmap.CreateCloneOf(applyBitmap, applyRect))
+                // Blurring premultiplied pixels keeps the color of transparent pixels out of the visible ones
+                var pixelFormat = Image.IsAlphaPixelFormat(applyBitmap.PixelFormat) ? PixelFormat.Format32bppPArgb : PixelFormat.DontCare;
+                using (IFastBitmap fastBitmap = FastBitmap.CreateCloneOf(applyBitmap, pixelFormat, applyRect))
                 {
                     ImageHelper.ApplyBoxBlur(fastBitmap, blurRadius);
                     fastBitmap.DrawTo(graphics, applyRect);

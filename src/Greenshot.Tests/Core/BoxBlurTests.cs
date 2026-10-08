@@ -53,19 +53,20 @@ namespace Greenshot.Tests.Core
             random.NextBytes(pixels);
             WritePixels(bitmap, pixels);
 
-            int channelCount = pixelFormat == PixelFormat.Format32bppArgb ? 4 : 3;
+            // Every byte is blurred, the unused byte of Format32bppRgb isn't compared
             int oddRange = (range & 1) == 0 ? range + 1 : range;
             var expected = (byte[])pixels.Clone();
             for (int pass = 0; pass < 2; pass++)
             {
                 // Rows, then columns
-                BlurByDefinition(expected, channelCount, oddRange, height, stride, width, bytesPerPixel);
-                BlurByDefinition(expected, channelCount, oddRange, width, bytesPerPixel, height, stride);
+                BlurByDefinition(expected, bytesPerPixel, oddRange, height, stride, width, bytesPerPixel);
+                BlurByDefinition(expected, bytesPerPixel, oddRange, width, bytesPerPixel, height, stride);
             }
 
             ImageHelper.ApplyBoxBlur(bitmap, range);
 
             var actual = ReadPixels(bitmap, out _);
+            int channelCount = pixelFormat == PixelFormat.Format32bppRgb ? 3 : bytesPerPixel;
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
