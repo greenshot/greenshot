@@ -38,7 +38,7 @@ information or a shortcut to whatever the user is doing, without changing how th
 | Tool | Mode | Key | What it does |
 |---|---|---|---|
 | `RegionCaptureTool` | `Region` | Space toggles | Drag or Enter/Enter for a rectangle, includes the pixel under the cursor |
-| `WindowCaptureTool` | `Window` | Space toggles | The selection animates to the (child) window under the cursor, D for debug info |
+| `WindowCaptureTool` | `Window` | Space toggles | The selection animates to the (child) window under the cursor, D for debug info. In `Greenshot.Base` (`Greenshot.Base.Capturing`), a plugin can derive from it |
 | `TextCaptureTool` | `Text` | T | Extends the region tool: shows the OCR lines, a click selects a line |
 
 ## Adding a tool, step by step
@@ -49,6 +49,8 @@ information or a shortcut to whatever the user is doing, without changing how th
    The window starts with the first tool whose mode the recipe asked for, so a tool with the mode of a built-in tool is never
    the starting tool. In Greenshot itself a new kind of selection can get its own value at the end of `CaptureMode`
    (`src/Greenshot.Base/Interfaces/CaptureMode.cs`); a plugin uses an existing value, e.g. `Region` when it accepts a rectangle.
+   To start with your tool, a recipe sets the `SelectionTool` parameter of its interactive selection step to the tool's `Id`
+   (default: the name of its mode, so override it in a plugin tool, e.g. `"ColorPicker"`). Without a tool of that id the mode decides.
 3. Register its keys in `Attach`, see Keys: `Host.RegisterToolKey` for keys which only work while the tool is active (e.g. Enter),
    and optionally `Host.RegisterKey` for a key which switches to the tool (`Host.ActivateTool(this)`), like T for the text tool.
 4. Make the window use it:
@@ -74,6 +76,20 @@ SimpleServiceProvider.Current.AddService<ICaptureToolProvider>(new ColorPickerTo
 
 The tools of the plugins come after the built-in ones, in the order the plugins were loaded. A key which is already taken
 (by the window or an earlier tool) is refused with an error, see Keys. The Light edition loads no plugins, so it has no plugin tools.
+
+### A tool which takes its own image
+
+Normally the flow crops the frozen capture to the selection. A tool which implements `ISelectionCaptureTool` takes a new image instead:
+after the window closed, the interactive selection step calls `CaptureSelectionAsync(selection, screenArea, ui, cancellationToken)`
+on a pool thread, and the image it returns replaces the capture (null cancels the flow). This is for a tool which has to change
+the window to capture it. `WindowCaptureSession` (`Greenshot.Base.Capturing`) captures one window over many frames
+with Windows Graphics Capture, without what covers it.
+
+### Recipes from a plugin
+
+A plugin which brings a tool can bring the recipe which starts with it: register an `IBuiltInRecipeProvider`
+(`Greenshot.Base.Recipes`) in `ConfigureServices` with `services.AddService<IBuiltInRecipeProvider>(...)`. Its recipes are added
+to the built-in recipes when the recipes are loaded after the plugins registered.
 
 ### The life of a tool
 

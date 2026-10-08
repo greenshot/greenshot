@@ -21,15 +21,14 @@
 
 
 using System.Collections.Generic;
-using Greenshot.Base.Recipes;
 
-namespace Greenshot.Recipes
+namespace Greenshot.Base.Recipes
 {
     /// <summary>
-    /// Built-in recipes of an optional part of Greenshot (browser extension, AI tools), registered with
-    /// <see cref="Greenshot.Helpers.GreenshotModuleAttribute"/>. <see cref="RecipeManager"/> adds them after its own built-in recipes.
+    /// Built-in recipes of an optional part of Greenshot (browser extension, AI tools), registered with the GreenshotModule attribute,
+    /// or of a plugin, registered as a service in ConfigureServices. The RecipeManager adds them after its own built-in recipes.
     /// </summary>
-    internal interface IBuiltInRecipeProvider
+    public interface IBuiltInRecipeProvider
     {
         IEnumerable<CaptureRecipe> CreateRecipes();
     }

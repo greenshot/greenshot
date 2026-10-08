@@ -724,40 +724,51 @@ namespace Greenshot.Base.Native
                 return bitmap;
             }
 
-            return CropToChildWindow(bitmap, topLevelWindow, window);
+            if (!GetWindowRect(window, out var childBounds))
+            {
+                bitmap.Dispose();
+                Log.Debug($"Can't determine the bounds of the child window {window}.");
+                return null;
+            }
+            return CropToScreenArea(bitmap, topLevelWindow, childBounds);
         }
 
         /// <summary>
-        /// Crop the capture of the top-level window to the bounds of the child window, the capture is disposed.
+        /// Crop the capture of the top-level window to an area in screen coordinates (e.g. a child window), the capture is disposed.
         /// </summary>
-        private static Bitmap CropToChildWindow(Bitmap topLevelCapture, IntPtr topLevelWindow, IntPtr childWindow)
+        internal static Bitmap CropToScreenArea(Bitmap topLevelCapture, IntPtr topLevelWindow, NativeRect screenArea)
         {
             using (topLevelCapture)
             {
-                // The capture of a top-level window covers its visible frame (the extended frame bounds, without the invisible resize borders)
-                if (!TryGetExtendedFrameBounds(topLevelWindow, out var captureBounds) && !GetWindowRect(topLevelWindow, out captureBounds))
-                {
-                    Log.Debug($"Can't determine the bounds of window {topLevelWindow}, the child window {childWindow} isn't captured.");
-                    return null;
-                }
-
-                if (!GetWindowRect(childWindow, out var childBounds))
-                {
-                    Log.Debug($"Can't determine the bounds of the child window {childWindow}.");
-                    return null;
-                }
-
-                var cropRectangle = new Rectangle(childBounds.X - captureBounds.X, childBounds.Y - captureBounds.Y, childBounds.Width, childBounds.Height);
-                cropRectangle.Intersect(new Rectangle(0, 0, topLevelCapture.Width, topLevelCapture.Height));
-                if (cropRectangle.Width <= 0 || cropRectangle.Height <= 0)
-                {
-                    Log.Debug($"The child window {childWindow} is outside of the capture of its top-level window {topLevelWindow}.");
-                    return null;
-                }
-
-                Log.Debug($"Captured the top-level window {topLevelWindow} for the child window {childWindow}, cropped to {cropRectangle}.");
-                return topLevelCapture.Clone(cropRectangle, topLevelCapture.PixelFormat);
+                return TryGetCropRectangle(topLevelWindow, screenArea, topLevelCapture.Size, out var cropRectangle)
+                    ? topLevelCapture.Clone(cropRectangle, topLevelCapture.PixelFormat)
+                    : null;
             }
+        }
+
+        /// <summary>
+        /// The part of the capture of a top-level window which shows an area in screen coordinates
+        /// </summary>
+        internal static bool TryGetCropRectangle(IntPtr topLevelWindow, NativeRect screenArea, Size captureSize, out Rectangle cropRectangle)
+        {
+            cropRectangle = Rectangle.Empty;
+            // The capture of a top-level window covers its visible frame (the extended frame bounds, without the invisible resize borders)
+            if (!TryGetExtendedFrameBounds(topLevelWindow, out var captureBounds) && !GetWindowRect(topLevelWindow, out captureBounds))
+            {
+                Log.Debug($"Can't determine the bounds of window {topLevelWindow}, the area {screenArea} isn't captured.");
+                return false;
+            }
+
+            cropRectangle = new Rectangle(screenArea.X - captureBounds.X, screenArea.Y - captureBounds.Y, screenArea.Width, screenArea.Height);
+            cropRectangle.Intersect(new Rectangle(Point.Empty, captureSize));
+            if (cropRectangle.Width <= 0 || cropRectangle.Height <= 0)
+            {
+                Log.Debug($"The area {screenArea} is outside of the capture of its top-level window {topLevelWindow}.");
+                return false;
+            }
+
+            Log.Debug($"Captured the top-level window {topLevelWindow} for the area {screenArea}, cropped to {cropRectangle}.");
+            return true;
         }
 
         private static bool TryGetExtendedFrameBounds(IntPtr window, out NativeRect bounds)
@@ -766,10 +777,10 @@ namespace Greenshot.Base.Native
             return result.Succeeded() && bounds.Width > 0 && bounds.Height > 0;
         }
 
-        private const uint GetAncestorRoot = 2; // GA_ROOT
+        internal const uint GetAncestorRoot = 2; // GA_ROOT
 
         [DllImport("user32.dll", ExactSpelling = true)]
-        private static extern IntPtr GetAncestor(IntPtr hwnd, uint flags);
+        internal static extern IntPtr GetAncestor(IntPtr hwnd, uint flags);
 
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -806,7 +817,7 @@ namespace Greenshot.Base.Native
         /// <summary>
         /// What to capture: the capture item, the monitor it is on (for HDR) and a description for the log
         /// </summary>
-        private sealed class CaptureRequest
+        internal sealed class CaptureRequest
         {
             public CaptureRequest(Func<GraphicsCaptureItem> createItem, Func<IntPtr> getMonitor, string description)
             {
@@ -923,7 +934,7 @@ namespace Greenshot.Base.Native
         /// <summary>
         /// Create the frame pool and session of a request and start it, under the DeviceLock. A request whose item can't be created keeps no session.
         /// </summary>
-        private static void StartCapture(CaptureRequest request, IDirect3DDevice device)
+        internal static void StartCapture(CaptureRequest request, IDirect3DDevice device, int numberOfBuffers = 1)
         {
             GraphicsCaptureItem captureItem;
             try
@@ -952,7 +963,7 @@ namespace Greenshot.Base.Native
 
             Log.Debug($"{request.Description}: HDR={request.IsHdr}, SDR white level={request.SdrWhiteLevelInNits} nits, format={pixelFormat}.");
 
-            request.FramePool = Direct3D11CaptureFramePool.CreateFreeThreaded(device, pixelFormat, 1, captureItem.Size);
+            request.FramePool = Direct3D11CaptureFramePool.CreateFreeThreaded(device, pixelFormat, numberOfBuffers, captureItem.Size);
             request.Session = request.FramePool.CreateCaptureSession(captureItem);
             ConfigureCaptureSession(request.Session);
             var frameArrived = request.FrameArrived;
@@ -971,7 +982,14 @@ namespace Greenshot.Base.Native
                 Log.Debug($"TryGetNextFrame returned null after FrameArrived on {request.Description}.");
                 return null;
             }
+            return FrameToBitmap(frame, request, d3d11Device, context);
+        }
 
+        /// <summary>
+        /// Copy a frame into a bitmap (HDR is tone mapped), under the DeviceLock
+        /// </summary>
+        internal static Bitmap FrameToBitmap(Direct3D11CaptureFrame frame, CaptureRequest request, ID3D11Device d3d11Device, ID3D11DeviceContext context)
+        {
             var texture = CreateTexture2DFromID3DSurface(frame.Surface);
             try
             {

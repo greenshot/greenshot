@@ -22,6 +22,7 @@
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Capture;
 
 namespace Greenshot.Base.Recipes.Pipeline
 {
@@ -33,5 +34,10 @@ namespace Greenshot.Base.Recipes.Pipeline
         public NativeRect SelectedRegion { get; set; } = NativeRect.Empty;
         public WindowDetails SelectedWindow { get; set; }
         public CaptureMode FinalMode { get; set; } = CaptureMode.Region;
+
+        /// <summary>
+        /// The tool which made the selection
+        /// </summary>
+        public ICaptureTool Tool { get; set; }
     }
 }

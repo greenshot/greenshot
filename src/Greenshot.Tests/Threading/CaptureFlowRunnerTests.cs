@@ -207,7 +207,7 @@ namespace Greenshot.Tests.Threading
 
             public void BringToFront() => BroughtToFront++;
 
-            public Task<SelectionResult> SelectAsync(Base.Interfaces.ICapture fullscreenCapture, System.Collections.Generic.IReadOnlyList<Base.Core.WindowDetails> visibleWindows, Base.Interfaces.CaptureMode initialMode, CancellationToken cancellationToken = default)
+            public Task<SelectionResult> SelectAsync(Base.Interfaces.ICapture fullscreenCapture, System.Collections.Generic.IReadOnlyList<Base.Core.WindowDetails> visibleWindows, Base.Interfaces.CaptureMode initialMode, string initialTool, CancellationToken cancellationToken = default)
             {
                 return Task.FromResult<SelectionResult>(null);
             }

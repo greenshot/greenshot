@@ -28,10 +28,11 @@ using Greenshot.Base.Interfaces.Capture;
 using Greenshot.Base.Languages;
 using CaptureMode = Greenshot.Base.Interfaces.CaptureMode;
 
-namespace Greenshot.Capturing.Tools
+namespace Greenshot.Base.Capturing
 {
     /// <summary>
     /// The selection follows the (child) window under the cursor, a click or Enter selects it. D shows debug information.
+    /// A plugin can derive from it for a tool which selects a window.
     /// </summary>
     public class WindowCaptureTool : CaptureTool
     {
@@ -40,6 +41,16 @@ namespace Greenshot.Capturing.Tools
         private bool _showDebugInfo;
 
         public override CaptureMode Mode => CaptureMode.Window;
+
+        /// <summary>
+        /// The window under the cursor, null before the first mouse move
+        /// </summary>
+        protected WindowDetails SelectedWindow => _selectedWindow;
+
+        /// <summary>
+        /// The visible part of the selected window, in capture coordinates
+        /// </summary>
+        protected NativeRect WindowSelection => _selection;
 
         public override bool ShowsZoomer => false;
 
@@ -99,7 +110,7 @@ namespace Greenshot.Capturing.Tools
             });
         }
 
-        private void AcceptWindow()
+        protected virtual void AcceptWindow()
         {
             if (_selectedWindow != null)
             {

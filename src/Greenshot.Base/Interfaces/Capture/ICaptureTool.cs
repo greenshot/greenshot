@@ -37,6 +37,11 @@ namespace Greenshot.Base.Interfaces.Capture
         CaptureMode Mode { get; }
 
         /// <summary>
+        /// The name of the tool, which a recipe uses to start with it (SelectionTool parameter of the interactive selection)
+        /// </summary>
+        string Id { get; }
+
+        /// <summary>
         /// True to show the zoomer (when it is enabled), read when the tool becomes active
         /// </summary>
         bool ShowsZoomer { get; }
@@ -94,6 +99,8 @@ namespace Greenshot.Base.Interfaces.Capture
         protected ICaptureToolHost Host { get; private set; }
 
         public abstract CaptureMode Mode { get; }
+
+        public virtual string Id => Mode.ToString();
 
         public virtual bool ShowsZoomer => true;
 

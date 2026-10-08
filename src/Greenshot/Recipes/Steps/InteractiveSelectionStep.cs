@@ -35,6 +35,7 @@ using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
 using Contracts = Greenshot.Base.Recipes.Contracts;
 
+using Greenshot.Base.Interfaces.Capture;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Pipeline;
@@ -50,6 +51,7 @@ namespace Greenshot.Recipes.Steps
     [StepInfo(WellKnownStepTypes.InteractiveSelection, "Interactive Selection", "Lets the user select a region, a window or text on a capture of the screen. A capture that was handed to the flow, or that is not a screen capture, is used as a whole.", "Interaction")]
     [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Optional, VisualMutation = PayloadEffect.MutatesPixels)]
     [StepParameter("SelectionMode", ContractDataType.Enum, DefaultValue = "Region", Description = "Initial selection mode; Text also extracts the text of the selection", AllowedValues = new[] { "Region", "Window", "Text" })]
+    [StepParameter("SelectionTool", ContractDataType.String, Description = "Id of the capture tool to start with, e.g. one of a plugin; when it is not there, the tool of the SelectionMode")]
     [StepParameter("AllowWindowSnapping", ContractDataType.Boolean, DefaultValue = true, Description = "Snap the selection to windows")]
     [StepInputVariable("PreSuppliedRegion", ContractDataType.Object, Description = "When set, the selection is skipped")]
     [StepOutputVariable("SelectedWindow", ContractDataType.Object, "The window that was selected", Conditional = true)]
@@ -128,7 +130,9 @@ namespace Greenshot.Recipes.Steps
 
             CaptureMode initialMode = Config.GetParameter("SelectionMode", CaptureMode.Region);
 
-            var selection = await _selector.SelectAsync(payload.RawCapture, snapWindows, initialMode, cancellationToken).ConfigureAwait(false);
+            string initialTool = Config.GetParameter<string>("SelectionTool");
+
+            var selection = await _selector.SelectAsync(payload.RawCapture, snapWindows, initialMode, initialTool, cancellationToken).ConfigureAwait(false);
 
             if (selection == null)
             {
@@ -152,6 +156,21 @@ namespace Greenshot.Recipes.Steps
                     payload.RawCapture.ScreenBounds.Location.Y);
                 // Configuration is written on the UI thread (single writer, its change events have UI subscribers)
                 context.Ui.InvokeAsync(() => CoreConfig.LastCapturedRegion = screenOffsetRect, CancellationToken.None).FireAndLog("Store the last captured region", Log);
+
+                // A tool which takes its own image of the selection, e.g. of a plugin
+                if (selection.Tool is ISelectionCaptureTool selectionCaptureTool)
+                {
+                    context.State = CaptureFlowState.Acquiring;
+                    var image = await selectionCaptureTool.CaptureSelectionAsync(selection, screenOffsetRect, context.Ui, cancellationToken).ConfigureAwait(false);
+                    if (image == null)
+                    {
+                        context.Abort($"User cancelled the capture of tool {selectionCaptureTool.Id}.");
+                        return;
+                    }
+                    // The cursor was somewhere on the screen, not in the new image
+                    payload.RawCapture.CursorVisible = false;
+                    payload.RawCapture.Image = image;
+                }
             }
 
             if (selection.FinalMode == CaptureMode.Text)

@@ -28,9 +28,11 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Capture;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Threading;
 using Greenshot.Recipes;
 using Greenshot.Recipes.Steps;
 using Xunit;
@@ -53,17 +55,32 @@ namespace Greenshot.Tests.Recipes
         {
             public int Calls { get; private set; }
 
+            public string InitialTool { get; private set; }
+
+            public ICaptureTool Tool { get; set; }
+
             public bool IsSelecting => false;
 
             public void BringToFront()
             {
             }
 
-            public Task<SelectionResult> SelectAsync(ICapture fullscreenCapture, IReadOnlyList<WindowDetails> visibleWindows, CaptureMode initialMode, CancellationToken cancellationToken = default)
+            public Task<SelectionResult> SelectAsync(ICapture fullscreenCapture, IReadOnlyList<WindowDetails> visibleWindows, CaptureMode initialMode, string initialTool, CancellationToken cancellationToken = default)
             {
                 Calls++;
-                return Task.FromResult(new SelectionResult { SelectedRegion = new NativeRect(0, 0, 10, 10), FinalMode = initialMode });
+                InitialTool = initialTool;
+                return Task.FromResult(new SelectionResult { SelectedRegion = new NativeRect(0, 0, 10, 10), FinalMode = initialMode, Tool = Tool });
             }
+        }
+
+        private sealed class OwnImageTool : CaptureTool, ISelectionCaptureTool
+        {
+            public override CaptureMode Mode => CaptureMode.Window;
+
+            public override string Id => "OwnImage";
+
+            public Task<Bitmap> CaptureSelectionAsync(SelectionResult selection, NativeRect screenArea, IUiDispatcher ui, CancellationToken cancellationToken) =>
+                Task.FromResult(new Bitmap(30, 20));
         }
 
         private static CaptureFlowContext CreateContext(string source, bool preSupplied, string ocrText = null)
@@ -129,6 +146,22 @@ namespace Greenshot.Tests.Recipes
 
             Assert.Equal(1, selector.Calls);
             Assert.Equal(10, context.Payload.RawCapture.Image.Width);
+        }
+
+        [Fact]
+        public async Task Selection_WithASelectionCaptureTool_UsesTheImageOfTheTool()
+        {
+            var selector = new RecordingSelector { Tool = new OwnImageTool() };
+            using var context = CreateContext("Screen", preSupplied: false);
+            var config = RecipeStepConfig.CreateSelection("select", CaptureMode.Region, allowWindowSnapping: false);
+            config.Set("SelectionTool", "OwnImage");
+
+            await new InteractiveSelectionStep(config, selector).ExecuteAsync(context);
+
+            Assert.Equal("OwnImage", selector.InitialTool);
+            Assert.False(context.IsAborted);
+            Assert.Equal(30, context.Payload.RawCapture.Image.Width);
+            Assert.False(context.Payload.RawCapture.CursorVisible);
         }
 
         [Fact]
