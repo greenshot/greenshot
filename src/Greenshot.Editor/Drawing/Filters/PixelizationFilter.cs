@@ -22,11 +22,13 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Security.Cryptography;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace Greenshot.Editor.Drawing.Filters
 {
@@ -149,30 +151,31 @@ namespace Greenshot.Editor.Drawing.Filters
 
             using CryptoRandomBuffer cryptoRandom = new CryptoRandomBuffer(_noiseKey, _noiseIv, 4096);
 
-            using IFastBitmap dest = FastBitmap.CreateCloneOf(applyBitmap, applyRect);
-            using (IFastBitmap src = FastBitmap.Create(applyBitmap, applyRect))
+            // The blocks don't overlap, so every block is read and written in place
+            using Bitmap pixelated = ImageHelper.CloneArea(applyBitmap, applyRect, PixelFormat.Format32bppArgb);
+            BitmapPixels.ProcessPixelRows<Bgra32>(pixelated, pixels =>
             {
                 int jitter = Math.Max(1, pixelSize / 3);
 
                 // Generate randomized row boundaries (Y coordinates)
                 List<int> yCoords = new List<int>();
-                yCoords.Add(src.Top);
-                int currentY = src.Top;
-                while (currentY < src.Bottom)
+                yCoords.Add(0);
+                int currentY = 0;
+                while (currentY < pixels.Height)
                 {
                     int nextStep = pixelSize + cryptoRandom.GetNextInt(-jitter, jitter);
                     if (nextStep < 2) nextStep = 2;
                     currentY += nextStep;
-                    if (currentY >= src.Bottom)
+                    if (currentY >= pixels.Height)
                     {
-                        yCoords.Add(src.Bottom);
+                        yCoords.Add(pixels.Height);
                         break;
                     }
                     yCoords.Add(currentY);
                 }
-                if (yCoords[yCoords.Count - 1] < src.Bottom)
+                if (yCoords[yCoords.Count - 1] < pixels.Height)
                 {
-                    yCoords.Add(src.Bottom);
+                    yCoords.Add(pixels.Height);
                 }
 
                 // Pre-allocate xCoords list to avoid allocation inside the loop
@@ -185,23 +188,23 @@ namespace Greenshot.Editor.Drawing.Filters
 
                     // Generate randomized column boundaries (X coordinates) independently for each row
                     xCoords.Clear();
-                    xCoords.Add(src.Left);
-                    int currentX = src.Left;
-                    while (currentX < src.Right)
+                    xCoords.Add(0);
+                    int currentX = 0;
+                    while (currentX < pixels.Width)
                     {
                         int nextStep = pixelSize + cryptoRandom.GetNextInt(-jitter, jitter);
                         if (nextStep < 2) nextStep = 2;
                         currentX += nextStep;
-                        if (currentX >= src.Right)
+                        if (currentX >= pixels.Width)
                         {
-                            xCoords.Add(src.Right);
+                            xCoords.Add(pixels.Width);
                             break;
                         }
                         xCoords.Add(currentX);
                     }
-                    if (xCoords[xCoords.Count - 1] < src.Right)
+                    if (xCoords[xCoords.Count - 1] < pixels.Width)
                     {
-                        xCoords.Add(src.Right);
+                        xCoords.Add(pixels.Width);
                     }
 
                     for (int j = 0; j < xCoords.Count - 1; j++)
@@ -218,24 +221,22 @@ namespace Greenshot.Editor.Drawing.Filters
 
                         for (int yy = yStart; yy < yEnd; yy++)
                         {
+                            var row = pixels.GetRowSpan(yy);
                             for (int xx = xStart; xx < xEnd; xx++)
                             {
-                                Color c = src.GetColorAt(xx, yy);
-                                if (!c.Equals(Color.Empty))
-                                {
-                                    sumA += c.A;
-                                    sumR += c.R;
-                                    sumG += c.G;
-                                    sumB += c.B;
-                                    count++;
+                                Bgra32 c = row[xx];
+                                sumA += c.A;
+                                sumR += c.R;
+                                sumG += c.G;
+                                sumB += c.B;
+                                count++;
 
-                                    if (c.R < minR) minR = c.R;
-                                    if (c.R > maxR) maxR = c.R;
-                                    if (c.G < minG) minG = c.G;
-                                    if (c.G > maxG) maxG = c.G;
-                                    if (c.B < minB) minB = c.B;
-                                    if (c.B > maxB) maxB = c.B;
-                                }
+                                if (c.R < minR) minR = c.R;
+                                if (c.R > maxR) maxR = c.R;
+                                if (c.G < minG) minG = c.G;
+                                if (c.G > maxG) maxG = c.G;
+                                if (c.B < minB) minB = c.B;
+                                if (c.B > maxB) maxB = c.B;
                             }
                         }
 
@@ -244,7 +245,7 @@ namespace Greenshot.Editor.Drawing.Filters
                             continue;
                         }
 
-                        Color currentAvgColor = Color.FromArgb(sumA / count, sumR / count, sumG / count, sumB / count);
+                        int averageA = sumA / count, averageR = sumR / count, averageG = sumG / count, averageB = sumB / count;
 
                         int diffR = maxR - minR;
                         int diffG = maxG - minG;
@@ -266,24 +267,25 @@ namespace Greenshot.Editor.Drawing.Filters
 
                         for (int yy = yStart; yy < yEnd; yy++)
                         {
+                            var row = pixels.GetRowSpan(yy);
                             for (int xx = xStart; xx < xEnd; xx++)
                             {
                                 int pixelR = pixelNoiseRange > 0 ? cryptoRandom.GetNextInt(-pixelNoiseRange, pixelNoiseRange) : 0;
                                 int pixelG = pixelNoiseRange > 0 ? cryptoRandom.GetNextInt(-pixelNoiseRange, pixelNoiseRange) : 0;
                                 int pixelB = pixelNoiseRange > 0 ? cryptoRandom.GetNextInt(-pixelNoiseRange, pixelNoiseRange) : 0;
 
-                                byte r = ClampToByte(currentAvgColor.R + blockR + pixelR);
-                                byte g = ClampToByte(currentAvgColor.G + blockG + pixelG);
-                                byte b = ClampToByte(currentAvgColor.B + blockB + pixelB);
+                                byte r = ClampToByte(averageR + blockR + pixelR);
+                                byte g = ClampToByte(averageG + blockG + pixelG);
+                                byte b = ClampToByte(averageB + blockB + pixelB);
 
-                                dest.SetColorAt(xx, yy, Color.FromArgb(currentAvgColor.A, r, g, b));
+                                row[xx] = new Bgra32(r, g, b, (byte)averageA);
                             }
                         }
                     }
                 }
-            }
+            });
 
-            dest.DrawTo(graphics, applyRect.Location);
+            graphics.DrawImage(pixelated, applyRect, new Rectangle(0, 0, pixelated.Width, pixelated.Height), GraphicsUnit.Pixel);
         }
 
         public override void Apply(Graphics graphics, Bitmap applyBitmap, IEnumerable<NativeRect> rects, RenderMode renderMode)

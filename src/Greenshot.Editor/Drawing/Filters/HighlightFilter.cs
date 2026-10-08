@@ -21,10 +21,12 @@
 
 using System;
 using System.Drawing;
+using System.Drawing.Imaging;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace Greenshot.Editor.Drawing.Filters
 {
@@ -41,21 +43,24 @@ namespace Greenshot.Editor.Drawing.Filters
 
         protected override void ApplyFilter(Graphics graphics, Bitmap applyBitmap, NativeRect applyRect, RenderMode renderMode)
         {
-            using (IFastBitmap fastBitmap = FastBitmap.CreateCloneOf(applyBitmap, applyRect))
+            using Bitmap highlighted = ImageHelper.CloneArea(applyBitmap, applyRect, PixelFormat.Format32bppArgb);
+            Color highlightColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
+            BitmapPixels.ProcessPixelRows<Bgra32>(highlighted, pixels =>
             {
-                Color highlightColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
-                for (int y = fastBitmap.Top; y < fastBitmap.Bottom; y++)
+                for (int y = 0; y < pixels.Height; y++)
                 {
-                    for (int x = fastBitmap.Left; x < fastBitmap.Right; x++)
+                    var row = pixels.GetRowSpan(y);
+                    for (int x = 0; x < row.Length; x++)
                     {
-                        Color color = fastBitmap.GetColorAt(x, y);
-                        color = Color.FromArgb(color.A, Math.Min(highlightColor.R, color.R), Math.Min(highlightColor.G, color.G), Math.Min(highlightColor.B, color.B));
-                        fastBitmap.SetColorAt(x, y, color);
+                        ref Bgra32 pixel = ref row[x];
+                        pixel.R = Math.Min(highlightColor.R, pixel.R);
+                        pixel.G = Math.Min(highlightColor.G, pixel.G);
+                        pixel.B = Math.Min(highlightColor.B, pixel.B);
                     }
                 }
+            });
 
-                fastBitmap.DrawTo(graphics, applyRect.Location);
-            }
+            graphics.DrawImage(highlighted, applyRect, new Rectangle(0, 0, highlighted.Width, highlighted.Height), GraphicsUnit.Pixel);
         }
     }
 }
