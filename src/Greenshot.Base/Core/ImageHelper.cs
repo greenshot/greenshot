@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -35,6 +36,7 @@ using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Effects;
 using Dapplo.Ini;
 using log4net;
+using SixLabors.ImageSharp.PixelFormats;
 using Brush = System.Drawing.Brush;
 using Color = System.Drawing.Color;
 using Matrix = System.Drawing.Drawing2D.Matrix;
@@ -195,26 +197,26 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Private helper method for the FindAutoCropNativeRect
         /// </summary>
-        /// <param name="fastBitmap">IFastBitmap</param>
+        /// <param name="pixels">BitmapPixelAccessor</param>
         /// <param name="colorPoint">NativePoint</param>
         /// <param name="cropDifference">int</param>
-        /// <param name="area">NativeRect with optional area to scan in</param>
+        /// <param name="area">NativeRect with the area to scan in</param>
         /// <returns>NativeRect</returns>
-        private static NativeRect FindAutoCropNativeRect(IFastBitmap fastBitmap, NativePoint colorPoint, int cropDifference, NativeRect? area = null)
+        private static NativeRect FindAutoCropNativeRect(BitmapPixelAccessor<Bgra32> pixels, NativePoint colorPoint, int cropDifference, NativeRect area)
         {
-            area ??= new NativeRect(0, 0, fastBitmap.Width, fastBitmap.Height);
             NativeRect cropNativeRect = NativeRect.Empty;
-            Color referenceColor = fastBitmap.GetColorAt(colorPoint.X, colorPoint.Y);
+            Bgra32 referenceColor = pixels.GetRowSpan(colorPoint.Y)[colorPoint.X];
             NativePoint min = new NativePoint(int.MaxValue, int.MaxValue);
             NativePoint max = new NativePoint(int.MinValue, int.MinValue);
 
-            if (cropDifference > 0)
+            for (int y = area.Top; y < area.Bottom; y++)
             {
-                for (int y = area.Value.Top; y < area.Value.Bottom; y++)
+                var row = pixels.GetRowSpan(y);
+                for (int x = area.Left; x < area.Right; x++)
                 {
-                    for (int x = area.Value.Left; x < area.Value.Right; x++)
+                    Bgra32 currentColor = row[x];
+                    if (cropDifference > 0)
                     {
-                        Color currentColor = fastBitmap.GetColorAt(x, y);
                         int diffR = Math.Abs(currentColor.R - referenceColor.R);
                         int diffG = Math.Abs(currentColor.G - referenceColor.G);
                         int diffB = Math.Abs(currentColor.B - referenceColor.B);
@@ -222,35 +224,20 @@ namespace Greenshot.Base.Core
                         {
                             continue;
                         }
-
-                        if (x < min.X) min = min.ChangeX(x);
-                        if (y < min.Y) min = min.ChangeY(y);
-                        if (x > max.X) max = max.ChangeX(x);
-                        if (y > max.Y) max = max.ChangeY(y);
                     }
-                }
-            }
-            else
-            {
-                for (int y = area.Value.Top; y < area.Value.Bottom; y++)
-                {
-                    for (int x = area.Value.Left; x < area.Value.Right; x++)
+                    else if (!referenceColor.Equals(currentColor))
                     {
-                        Color currentColor = fastBitmap.GetColorAt(x, y);
-                        if (!referenceColor.Equals(currentColor))
-                        {
-                            continue;
-                        }
-
-                        if (x < min.X) min = min.ChangeX(x);
-                        if (y < min.Y) min = min.ChangeY(y);
-                        if (x > max.X) max = max.ChangeX(x);
-                        if (y > max.Y) max = max.ChangeY(y);
+                        continue;
                     }
+
+                    if (x < min.X) min = min.ChangeX(x);
+                    if (y < min.Y) min = min.ChangeY(y);
+                    if (x > max.X) max = max.ChangeX(x);
+                    if (y > max.Y) max = max.ChangeY(y);
                 }
             }
 
-            if (!(NativePoint.Empty.Equals(min) && max.Equals(new NativePoint(area.Value.Width - 1, area.Value.Height - 1))))
+            if (!(NativePoint.Empty.Equals(min) && max.Equals(new NativePoint(area.Width - 1, area.Height - 1))))
             {
                 if (!(min.X == int.MaxValue || min.Y == int.MaxValue || max.X == int.MinValue || min.X == int.MinValue))
                 {
@@ -284,18 +271,19 @@ namespace Greenshot.Base.Core
             // Bottom Left
             // Top Right
             // Bottom Right
-            using (IFastBitmap fastBitmap = FastBitmap.Create((Bitmap) image))
+            var scanArea = area.Value;
+            BitmapPixels.ProcessPixelRows<Bgra32>((Bitmap) image, pixels =>
             {
                 // find biggest area
                 foreach (var checkPoint in checkPoints)
                 {
-                    var currentNativeRect = FindAutoCropNativeRect(fastBitmap, checkPoint, cropDifference, area);
+                    var currentNativeRect = FindAutoCropNativeRect(pixels, checkPoint, cropDifference, scanArea);
                     if (currentNativeRect.Width * currentNativeRect.Height > cropNativeRect.Width * cropNativeRect.Height)
                     {
                         cropNativeRect = currentNativeRect;
                     }
                 }
-            }
+            }, ImageLockMode.ReadOnly);
 
             return cropNativeRect;
         }
@@ -488,21 +476,9 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Apply BoxBlur to the destinationBitmap
         /// </summary>
-        /// <param name="destinationBitmap">Bitmap to blur</param>
+        /// <param name="destinationBitmap">Bitmap to blur, with alpha it should be Format32bppPArgb (otherwise the color of transparent pixels bleeds into the visible ones)</param>
         /// <param name="range">Must be ODD!</param>
         public static void ApplyBoxBlur(Bitmap destinationBitmap, int range)
-        {
-            // We only need one fastbitmap as we use it as source and target (the reading is done for one line H/V, writing after "parsing" one line H/V)
-            using IFastBitmap fastBitmap = FastBitmap.Create(destinationBitmap);
-            ApplyBoxBlur(fastBitmap, range);
-        }
-
-        /// <summary>
-        /// Apply BoxBlur to the fastBitmap
-        /// </summary>
-        /// <param name="fastBitmap">IFastBitmap to blur, locked</param>
-        /// <param name="range">Must be ODD!</param>
-        public static void ApplyBoxBlur(IFastBitmap fastBitmap, int range)
         {
             // Range must be odd!
             if ((range & 1) == 0)
@@ -510,49 +486,50 @@ namespace Greenshot.Base.Core
                 range++;
             }
 
-            int width = fastBitmap.Width;
-            int height = fastBitmap.Height;
-            int stride = fastBitmap.Stride;
-            int bytesPerPixel = fastBitmap.BytesPerPixel;
-            int rowBytes = width * bytesPerPixel;
-            if (range <= 1 || width <= 0 || height <= 0 || stride < rowBytes)
+            if (range <= 1)
             {
                 return;
-            }
-
-            // All access goes through a span over exactly the locked pixels, so every read and write is bounds checked
-            Span<byte> pixels;
-            unsafe
-            {
-                pixels = new Span<byte>((void*)fastBitmap.GetRowPointer(0), stride * (height - 1) + rowBytes);
             }
 
             // Box blurs are frequently used to approximate a Gaussian blur.
             // By the central limit theorem, if applied 3 times on the same image, a box blur approximates the Gaussian kernel to within about 3%, yielding the same result as a quadratic convolution kernel.
             // This might be true, but the GDI+ BlurEffect doesn't look the same, a 2x blur is more similar and we only make 2x Box-Blur.
             // (Might also be a mistake in our blur, but for now it looks great)
-            // Every byte of a pixel is blurred, also the unused one of Format32bppRgb: that keeps the inner loops free of a loop over the channels.
-            // With alpha the pixels should be premultiplied (Format32bppPArgb), otherwise the color of transparent pixels bleeds into the visible ones.
-            BoxBlurHorizontal(pixels, stride, width, height, bytesPerPixel, range);
-            BoxBlurVertical(pixels, stride, width, height, bytesPerPixel, range);
-            BoxBlurHorizontal(pixels, stride, width, height, bytesPerPixel, range);
-            BoxBlurVertical(pixels, stride, width, height, bytesPerPixel, range);
+            // Every byte of a pixel is blurred, that keeps the inner loops free of a loop over the channels.
+            if (destinationBitmap.PixelFormat == PixelFormat.Format24bppRgb)
+            {
+                BitmapPixels.ProcessPixelRows<Bgr24>(destinationBitmap, pixels => BoxBlur(pixels, 3, range));
+            }
+            else
+            {
+                BitmapPixels.ProcessPixelRows<Bgra32>(destinationBitmap, pixels => BoxBlur(pixels, 4, range));
+            }
+        }
+
+        private static void BoxBlur<TPixel>(BitmapPixelAccessor<TPixel> pixels, int bytesPerPixel, int range) where TPixel : unmanaged
+        {
+            BoxBlurHorizontal(pixels, bytesPerPixel, range);
+            BoxBlurVertical(pixels, bytesPerPixel, range);
+            BoxBlurHorizontal(pixels, bytesPerPixel, range);
+            BoxBlurVertical(pixels, bytesPerPixel, range);
         }
 
         /// <summary>
         /// Horizontal box blur pass: every byte becomes the average of the same byte of the pixels within range / 2 left and right of it
         /// (only those inside the row). The row is copied first, so the sliding sums use the original values; the bytes of a pixel are done one after the other.
         /// </summary>
-        private static void BoxBlurHorizontal(Span<byte> pixels, int stride, int width, int height, int bytesPerPixel, int range)
+        private static void BoxBlurHorizontal<TPixel>(BitmapPixelAccessor<TPixel> pixels, int bytesPerPixel, int range) where TPixel : unmanaged
         {
             int halfRange = range / 2;
+            int width = pixels.Width;
+            int height = pixels.Height;
             int rowBytes = width * bytesPerPixel;
             byte[] original = ArrayPool<byte>.Shared.Rent(rowBytes);
             try
             {
                 for (int y = 0; y < height; y++)
                 {
-                    var row = pixels.Slice(y * stride, rowBytes);
+                    var row = MemoryMarshal.AsBytes(pixels.GetRowSpan(y));
                     row.CopyTo(original);
                     for (int channel = 0; channel < bytesPerPixel; channel++)
                     {
@@ -593,10 +570,11 @@ namespace Greenshot.Base.Core
         /// instead of walking down every column. A row is written as soon as its average is known, so the last range / 2 + 1 original rows
         /// are kept in a ring buffer for subtracting them from the sums later.
         /// </summary>
-        private static void BoxBlurVertical(Span<byte> pixels, int stride, int width, int height, int bytesPerPixel, int range)
+        private static void BoxBlurVertical<TPixel>(BitmapPixelAccessor<TPixel> pixels, int bytesPerPixel, int range) where TPixel : unmanaged
         {
             int halfRange = range / 2;
-            int rowBytes = width * bytesPerPixel;
+            int height = pixels.Height;
+            int rowBytes = pixels.Width * bytesPerPixel;
             int ringRows = halfRange + 1;
             int[] sums = ArrayPool<int>.Shared.Rent(rowBytes);
             byte[] ring = ArrayPool<byte>.Shared.Rent(ringRows * rowBytes);
@@ -621,7 +599,7 @@ namespace Greenshot.Base.Core
                     int newRow = y + halfRange;
                     if (newRow < height)
                     {
-                        var added = pixels.Slice(newRow * stride, rowBytes);
+                        var added = MemoryMarshal.AsBytes(pixels.GetRowSpan(newRow));
                         for (int i = 0; i < rowBytes; i++)
                         {
                             sums[i] += added[i];
@@ -631,7 +609,7 @@ namespace Greenshot.Base.Core
 
                     if (y >= 0)
                     {
-                        var row = pixels.Slice(y * stride, rowBytes);
+                        var row = MemoryMarshal.AsBytes(pixels.GetRowSpan(y));
                         row.CopyTo(new Span<byte>(ring, y % ringRows * rowBytes, rowBytes));
                         for (int i = 0; i < rowBytes; i++)
                         {
@@ -852,19 +830,24 @@ namespace Greenshot.Base.Core
         /// <returns>b/w bitmap</returns>
         public static Bitmap CreateMonochrome(Image sourceImage, byte threshold)
         {
-            using IFastBitmap fastBitmap = FastBitmap.CreateCloneOf(sourceImage, sourceImage.PixelFormat);
-            for (int y = 0; y < fastBitmap.Height; y++)
+            Bitmap monochrome = CloneArea(sourceImage, NativeRect.Empty, sourceImage.PixelFormat);
+            BitmapPixels.ProcessPixelRows<Bgra32>(monochrome, pixels =>
             {
-                for (int x = 0; x < fastBitmap.Width; x++)
+                for (int y = 0; y < pixels.Height; y++)
                 {
-                    Color color = fastBitmap.GetColorAt(x, y);
-                    int colorBrightness = (color.R + color.G + color.B) / 3 > threshold ? 255 : 0;
-                    Color monoColor = Color.FromArgb(color.A, colorBrightness, colorBrightness, colorBrightness);
-                    fastBitmap.SetColorAt(x, y, monoColor);
+                    var row = pixels.GetRowSpan(y);
+                    for (int x = 0; x < row.Length; x++)
+                    {
+                        ref Bgra32 pixel = ref row[x];
+                        byte colorBrightness = (byte)((pixel.R + pixel.G + pixel.B) / 3 > threshold ? 255 : 0);
+                        pixel.R = colorBrightness;
+                        pixel.G = colorBrightness;
+                        pixel.B = colorBrightness;
+                    }
                 }
-            }
+            });
 
-            return fastBitmap.UnlockAndReturnBitmap();
+            return monochrome;
         }
 
         /// <summary>
