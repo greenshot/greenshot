@@ -30,6 +30,7 @@ using System.Threading.Tasks;
 using Dapplo.Ini;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Desktop;
 using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.DesktopWindowsManager.Enums;
 using Dapplo.Windows.User32;
@@ -711,11 +712,11 @@ namespace Greenshot.Base.Native
             }
 
             // A minimized window doesn't deliver frames, the capture would run into the timeout: restore it first (as the legacy capture does)
-            var topLevelDetails = new WindowDetails(topLevelWindow);
-            if (topLevelDetails.Iconic)
+            var topLevelInteropWindow = InteropWindowFactory.CreateFor(topLevelWindow);
+            if (topLevelInteropWindow.IsMinimized())
             {
                 Log.Debug($"Restoring the minimized window {topLevelWindow} for the capture.");
-                await topLevelDetails.RestoreAsync(cancellationToken).ConfigureAwait(false);
+                await topLevelInteropWindow.ToForegroundAsync().ConfigureAwait(false);
             }
 
             var bitmap = await CaptureItemToBitmapAsync(() => CreateCaptureItemForWindow(topLevelWindow), () => HdrDisplayInfo.GetMonitorForWindow(topLevelWindow), $"window {topLevelWindow}", cancellationToken).ConfigureAwait(false);

@@ -37,6 +37,7 @@ using System.Windows.Threading;
 using Dapplo.Ini;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Icons;
 using Dapplo.Windows.User32;
 using Greenshot.Base.Capturing;
@@ -97,11 +98,11 @@ namespace Greenshot.Capturing.Views
 
         private ICaptureTool _activeTool;
         private CaptureMode _usedCaptureMode;
-        private List<WindowDetails> _windows = new List<WindowDetails>();
+        private List<IInteropWindow> _windows = new List<IInteropWindow>();
         private List<CaptureFormHotspot> _hotspots = new List<CaptureFormHotspot>();
         private CaptureFormHotspot _hoveredHotspot;
-        private WindowDetails _windowUnderCursor;
-        private WindowDetails _acceptedWindow;
+        private IInteropWindow _windowUnderCursor;
+        private IInteropWindow _acceptedWindow;
         private NativeRect _captureRect = NativeRect.Empty;
         private NativeRect _selectionRect = NativeRect.Empty;
         // The panels of tools and overlays, by owner
@@ -164,7 +165,7 @@ namespace Greenshot.Capturing.Views
         /// <summary>
         /// The selected window, or the top level window under the cursor
         /// </summary>
-        public WindowDetails SelectedCaptureWindow => _acceptedWindow ?? _windowUnderCursor;
+        public IInteropWindow SelectedCaptureWindow => _acceptedWindow ?? _windowUnderCursor;
 
         /// <inheritdoc />
         public ICapture Capture => _capture;
@@ -380,7 +381,7 @@ namespace Greenshot.Capturing.Views
         }
 
         /// <inheritdoc />
-        public IReadOnlyList<WindowDetails> Windows => _windows;
+        public IReadOnlyList<IInteropWindow> Windows => _windows;
 
         /// <summary>
         /// Create the window for the capture of the screen
@@ -388,7 +389,7 @@ namespace Greenshot.Capturing.Views
         /// <param name="capture">ICapture of the whole screen</param>
         /// <param name="windows">The windows to snap to, in z-order</param>
         /// <param name="initialTool">Id of the tool to start with, null: the tool of the capture mode</param>
-        public CaptureWindow(ICapture capture, IList<WindowDetails> windows, string initialTool = null) : this((capture ?? throw new ArgumentNullException(nameof(capture))).ScreenBounds)
+        public CaptureWindow(ICapture capture, IList<IInteropWindow> windows, string initialTool = null) : this((capture ?? throw new ArgumentNullException(nameof(capture))).ScreenBounds)
         {
             SetCapture(capture, windows, initialTool);
         }
@@ -437,7 +438,7 @@ namespace Greenshot.Capturing.Views
         /// <param name="capture">ICapture of the whole screen</param>
         /// <param name="windows">The windows to snap to, in z-order</param>
         /// <param name="initialTool">Id of the tool to start with, null: the tool of the capture mode</param>
-        public void SetCapture(ICapture capture, IList<WindowDetails> windows, string initialTool = null)
+        public void SetCapture(ICapture capture, IList<IInteropWindow> windows, string initialTool = null)
         {
             if (_capture != null)
             {
@@ -557,7 +558,7 @@ namespace Greenshot.Capturing.Views
         }
 
         /// <inheritdoc />
-        public void Accept(NativeRect rect, WindowDetails window = null)
+        public void Accept(NativeRect rect, IInteropWindow window = null)
         {
             _captureRect = rect;
             _acceptedWindow = window;
@@ -754,7 +755,7 @@ namespace Greenshot.Capturing.Views
         {
             var handle = new WindowInteropHelper(this).Handle;
             // Make sure we never capture the capture window
-            WindowDetails.RegisterIgnoreHandle(handle);
+            WindowHelper.RegisterIgnoreHandle(handle);
             HwndSource.FromHwnd(handle)?.AddHook(WndProc);
             PlaceWindow();
 
@@ -841,14 +842,14 @@ namespace Greenshot.Capturing.Views
             // Showing the window must not have changed the bounds, but make sure
             PlaceWindow();
             Activate();
-            WindowDetails.ToForeground(new WindowInteropHelper(this).Handle);
+            WindowHelper.ToForeground(new WindowInteropHelper(this).Handle);
         }
 
         private void OnClosed(object sender, EventArgs e)
         {
             Log.Debug("Closing capture window");
             _closed = true;
-            WindowDetails.UnregisterIgnoreHandle(new WindowInteropHelper(this).Handle);
+            WindowHelper.UnregisterIgnoreHandle(new WindowInteropHelper(this).Handle);
             if (_capture != null)
             {
                 _capture.CaptureDetails.FeaturesChanged -= OnFeaturesChanged;
@@ -1079,17 +1080,29 @@ namespace Greenshot.Capturing.Views
                 return;
             }
             _windowUnderCursor = window;
-            _capture.CaptureDetails.Title = window.Text;
-            _capture.CaptureDetails.AddMetaData("windowtitle", window.Text);
+            var title = window.GetCaption();
+            _capture.CaptureDetails.Title = title;
+            _capture.CaptureDetails.AddMetaData("windowtitle", title);
         }
 
         /// <inheritdoc />
-        public WindowDetails FindWindowUnderCursor(bool includeChildren)
+        public IInteropWindow FindWindowUnderCursor(bool includeChildren)
         {
             // In screen coordinates, as the windows are
             var cursorPosition = User32Api.GetCursorLocation();
-            var window = _windows.FirstOrDefault(w => w.Contains(cursorPosition));
-            return includeChildren ? window?.FindChildUnderPoint(cursorPosition) : window;
+            var window = _windows.FirstOrDefault(w => w.GetInfo().Bounds.Contains(cursorPosition));
+            if (window == null || !includeChildren)
+            {
+                return window;
+            }
+
+            // At the edge of the window take the whole window, else the (deepest) child window under the cursor
+            var bounds = window.GetInfo().Bounds;
+            if (bounds.X == cursorPosition.X || bounds.Y == cursorPosition.Y || bounds.Right == cursorPosition.X || bounds.Bottom == cursorPosition.Y)
+            {
+                return window;
+            }
+            return window.FindChildAt(cursorPosition) ?? window;
         }
 
         /// <inheritdoc />

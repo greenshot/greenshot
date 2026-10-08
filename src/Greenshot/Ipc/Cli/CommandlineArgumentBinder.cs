@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Desktop;
 using Greenshot.Base.Core;
 using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Triggers;
@@ -265,8 +266,8 @@ namespace Greenshot.Ipc.Cli
                 error = $"Error: argument '{name}': {refError}";
                 return false;
             }
-            var window = new WindowDetails(handle);
-            string processName = AiToolCapture.GetProcessName(window);
+            var window = InteropWindowFactory.CreateFor(handle);
+            string processName = window.GetProcessName();
             if (AiToolAccess.IsProcessExcluded(processName))
             {
                 error = $"Error: argument '{name}': windows of '{processName}' are excluded from AI tools.";

@@ -23,7 +23,7 @@ using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Windows.Common.Structs;
-using Greenshot.Base.Core;
+using Dapplo.Windows.Desktop;
 
 namespace Greenshot.Base.Capturing
 {
@@ -32,7 +32,7 @@ namespace Greenshot.Base.Capturing
     /// (macOS, Linux) can add its own backend without touching the capture flow.
     /// </summary>
     /// <remarks>
-    /// Bitmap and WindowDetails are still the Windows types, they change together with the capture model (see the capture roadmap).
+    /// Bitmap and IInteropWindow are still the Windows types, they change together with the capture model (see the capture roadmap).
     /// </remarks>
     public interface IScreenCaptureBackend
     {
@@ -62,9 +62,9 @@ namespace Greenshot.Base.Capturing
         /// <summary>
         /// Capture the window, a minimized window is restored first
         /// </summary>
-        /// <param name="window">WindowDetails</param>
+        /// <param name="window">IInteropWindow</param>
         /// <param name="cancellationToken">CancellationToken</param>
         /// <returns>The pixels, or null when the backend couldn't take them</returns>
-        Task<Bitmap> CaptureWindowAsync(WindowDetails window, CancellationToken cancellationToken = default);
+        Task<Bitmap> CaptureWindowAsync(IInteropWindow window, CancellationToken cancellationToken = default);
     }
 }

@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Input;
 using Dapplo.Windows.Common.Structs;
-using Greenshot.Base.Core;
+using Dapplo.Windows.Desktop;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Capture;
 using Greenshot.Capturing;
@@ -45,7 +45,7 @@ public class RegionCaptureToolTests
         public NativeRect ScreenBounds => new NativeRect(0, 0, 1920, 1080);
         public NativePoint CursorPosition { get; set; }
         public ICaptureTool ActiveTool { get; set; }
-        public IReadOnlyList<WindowDetails> Windows => Array.Empty<WindowDetails>();
+        public IReadOnlyList<IInteropWindow> Windows => Array.Empty<IInteropWindow>();
         public bool IsSelectionVisible { get; private set; }
         public bool IsSelectionAnimating => false;
         public NativeRect Selection { get; private set; }
@@ -53,7 +53,7 @@ public class RegionCaptureToolTests
         public NativeSize SelectionSize => LabelSize;
         public NativeRect? Accepted { get; private set; }
 
-        public WindowDetails FindWindowUnderCursor(bool includeChildren) => null;
+        public IInteropWindow FindWindowUnderCursor(bool includeChildren) => null;
         public System.Windows.Media.Color GetPixelColor(NativePoint location) => System.Windows.Media.Colors.Transparent;
 
         public void ShowSelection(NativeRect rect, bool animate = false, Action completed = null)
@@ -74,7 +74,7 @@ public class RegionCaptureToolTests
         public void Redraw() { }
         public void Redraw(ICaptureOverlay overlay) { }
         public object FindResource(object resourceKey) => null;
-        public void Accept(NativeRect rect, WindowDetails window = null) => Accepted = rect;
+        public void Accept(NativeRect rect, IInteropWindow window = null) => Accepted = rect;
         public void Cancel() { }
 
         private readonly CaptureKeyRegistry _keys = new CaptureKeyRegistry();

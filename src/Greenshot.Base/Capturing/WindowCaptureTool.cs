@@ -22,6 +22,7 @@
 using System.Windows.Input;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Desktop;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Capture;
@@ -36,7 +37,7 @@ namespace Greenshot.Base.Capturing
     /// </summary>
     public class WindowCaptureTool : CaptureTool
     {
-        private WindowDetails _selectedWindow;
+        private IInteropWindow _selectedWindow;
         private NativeRect _selection = NativeRect.Empty;
         private bool _showDebugInfo;
 
@@ -45,7 +46,7 @@ namespace Greenshot.Base.Capturing
         /// <summary>
         /// The window under the cursor, null before the first mouse move
         /// </summary>
-        protected WindowDetails SelectedWindow => _selectedWindow;
+        protected IInteropWindow SelectedWindow => _selectedWindow;
 
         /// <summary>
         /// The visible part of the selected window, in capture coordinates
@@ -86,11 +87,13 @@ namespace Greenshot.Base.Capturing
             }
 
             _selectedWindow = window;
-            Host.Capture.CaptureDetails.Title = window.Text;
-            Host.Capture.CaptureDetails.AddMetaData("windowtitle", window.Text);
+            var title = window.GetCaption();
+            Host.Capture.CaptureDetails.Title = title;
+            Host.Capture.CaptureDetails.AddMetaData("windowtitle", title);
 
             var screenBounds = Host.ScreenBounds;
-            _selection = GetClippedWindowRectangle(window)
+            // A child window can be partly outside of its parents, GetInfo clips it to them so only the visible part is captured
+            _selection = window.GetInfo().Bounds
                 .Offset(-screenBounds.X, -screenBounds.Y)
                 .Intersect(new NativeRect(0, 0, screenBounds.Width, screenBounds.Height));
             Host.ShowSelection(_selection, true);
@@ -128,24 +131,10 @@ namespace Greenshot.Base.Capturing
             string debugText = null;
             if (_showDebugInfo && _selectedWindow != null)
             {
-                debugText = $"#{_selectedWindow.Handle.ToInt64():X} - {(_selectedWindow.Text.Length > 0 ? _selectedWindow.Text : _selectedWindow.Process?.ProcessName)}";
+                var caption = _selectedWindow.GetCaption();
+                debugText = $"#{_selectedWindow.Handle.ToInt64():X} - {(string.IsNullOrEmpty(caption) ? _selectedWindow.GetProcessName() : caption)}";
             }
             Host.ShowLabels(_selection, _selection.Size, fadeIn, debugText);
-        }
-
-        /// <summary>
-        /// A child window can be partly outside of its parents, only the visible part is captured
-        /// </summary>
-        private static NativeRect GetClippedWindowRectangle(WindowDetails window)
-        {
-            var rect = window.WindowRectangle;
-            var parent = window.GetParent();
-            while (parent != null)
-            {
-                rect = rect.Intersect(parent.WindowRectangle);
-                parent = parent.GetParent();
-            }
-            return rect;
         }
     }
 }
