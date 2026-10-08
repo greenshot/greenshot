@@ -6,7 +6,7 @@ This directory contains comprehensive changelogs for all Greenshot releases.
 
 ### Stable Releases
 
-- **[1.3 Series](CHANGELOG-1.3.md)** - All stable releases from 1.3.290 to 1.3.322 (May 2025 - October 2026)
+- **[1.3 Series](CHANGELOG-1.3.md)** - All stable releases from 1.3.290 to 1.3.323 (May 2025 - October 2026)
   - 10 stable releases
   - Latest release for the 1.3 series
   - Includes security fixes, stability improvements, installation cleanup, and portable releases
@@ -22,7 +22,7 @@ This directory contains comprehensive changelogs for all Greenshot releases.
 ## Quick Navigation
 
 ### Latest Stable Release
-**[Greenshot 1.3.322](CHANGELOG-1.3.md#version-1322-october-8-2026)** (October 8, 2026)
+**[Greenshot 1.3.323](CHANGELOG-1.3.md#version-1323-october-8-2026)** (October 8, 2026)
 - Security fixes for TLS certificate validation, crafted clipboard data, and SVG external resource handling, plus dependency updates and editor/capture stability improvements
 
 ### Latest Development Build
@@ -52,10 +52,10 @@ Our changelogs follow these principles:
 
 ### 1.3 Series (Stable)
 - **First Release**: 1.3.290 (May 23, 2025) - Initial stable release for the 1.3 series
-- **Latest Release**: 1.3.322 (October 8, 2026)
+- **Latest Release**: 1.3.323 (October 8, 2026)
 - **Total Stable Releases**: 10
 - **Key Features**:
-  - Security fixes (CVE-2023-34634, GHSA-8f7f-x7ww-xx5w, GHSA-7hvw-q8q5-gpmj, GHSA-f8v9-7fph-fr2j, and the security fixes in 1.3.322)
+  - Security fixes (CVE-2023-34634, GHSA-8f7f-x7ww-xx5w, GHSA-7hvw-q8q5-gpmj, GHSA-f8v9-7fph-fr2j, and the security fixes in 1.3.323)
   - Zoom functionality in editor
   - High-DPI support
   - Portable ZIP releases

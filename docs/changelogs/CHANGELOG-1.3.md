@@ -4,7 +4,7 @@ This document contains changelogs for all stable releases in the Greenshot 1.3 s
 
 ---
 
-## Version 1.3.322 (October 8, 2026)
+## Version 1.3.323 (October 8, 2026)
 
 Released: October 8, 2026
 
@@ -44,8 +44,8 @@ Released: October 8, 2026
 
 ### Technical Details
 - **Backport scope**: Most bug fixes in this release were originally developed and merged into the 1.4 development line first, then selectively backported to `release/1.3` for stabilization; see the individual attributions above for each original author.
-- **Release scope**: This is the 10th stable release of the 1.3 series. Versions 1.3.319, 1.3.320, and 1.3.321 were intermediate builds; their changes are rolled into this release.
-- **Full Changelog**: https://github.com/greenshot/greenshot/compare/v1.3.315...v1.3.322
+- **Release scope**: This is the 10th stable release of the 1.3 series. Versions 1.3.319, 1.3.320, 1.3.321, and 1.3.322 were intermediate builds; their changes are rolled into this release.
+- **Full Changelog**: https://github.com/greenshot/greenshot/compare/v1.3.315...v1.3.323
 
 ---
 
@@ -307,7 +307,7 @@ Released: May 23, 2025
 
 ## About Greenshot 1.3
 
-Greenshot 1.3 was built on the `release/1.3` branch and received multiple stable releases from May 2025 through October 2026. **Version 1.3.322 (October 8, 2026) is the latest stable release of the 1.3 series.** The series introduced significant improvements in:
+Greenshot 1.3 was built on the `release/1.3` branch and received multiple stable releases from May 2025 through October 2026. **Version 1.3.323 (October 8, 2026) is the latest stable release of the 1.3 series.** The series introduced significant improvements in:
 
 - **Security**: Multiple critical security fixes (CVE-2023-34634, GHSA-8f7f-x7ww-xx5w, GHSA-7hvw-q8q5-gpmj, GHSA-f8v9-7fph-fr2j)
 - **Editor functionality**: Zoom, keyboard shortcuts, better DPI support, and rendering fixes
