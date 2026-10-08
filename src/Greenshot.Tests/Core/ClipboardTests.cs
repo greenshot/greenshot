@@ -276,9 +276,10 @@ namespace Greenshot.Tests.Core
                 ClipboardHelper.SetClipboardData(content.Contents);
             }
 
-            // Only the two best image formats and the file formats are read, not HTML
+            // Only the best image format and the file formats are read, not HTML
             var readFormats = ClipboardHelper.SelectImageReadFormats();
-            Assert.Equal(new[] { "PNG", FormatDibV5 }, readFormats.Take(2));
+            Assert.Equal("PNG", readFormats[0]);
+            Assert.DoesNotContain(FormatDibV5, readFormats);
             Assert.DoesNotContain(ClipboardHtml.FormatName, readFormats);
 
             // PNG wins
@@ -379,6 +380,21 @@ namespace Greenshot.Tests.Core
             AssertSamePixels(bitmap, image, compareAlpha: true);
             using var drawable = ClipboardHelper.GetDrawables(Snapshot(ClipboardHelper.ImageReadFormats.ToArray())).Single();
             Assert.Equal(bitmap.Width, drawable.Width);
+        }
+
+        [InteractiveDesktopFact]
+        public void Read_BrokenPng_FallsBackToDibV5()
+        {
+            using var bitmap = CreateTestBitmap();
+            var pixels = ClipboardBitmapConverter.ToBgra32(bitmap);
+            ClipboardHelper.SetClipboardData(new ClipboardContents()
+                .AddBytes(new byte[] { 1, 2, 3, 4 }, "PNG")
+                .AddBytes(DibImage.CreateDibV5(pixels.Pixels, pixels.Width, pixels.Height, pixels.Stride, false), StandardClipboardFormats.DeviceIndependentBitmapV5));
+
+            // The snapshot only has the PNG, the DIBV5 is read when the PNG can't be decoded
+            Assert.DoesNotContain(FormatDibV5, ClipboardHelper.SelectImageReadFormats());
+            using var image = ReadImage();
+            AssertSamePixels(bitmap, image, compareAlpha: true);
         }
 
         [InteractiveDesktopFact]

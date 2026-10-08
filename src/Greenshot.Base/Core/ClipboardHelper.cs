@@ -117,14 +117,14 @@ namespace Greenshot.Base.Core
         private const long SmallFormatLimit = 16L * 1024 * 1024;
 
         /// <summary>
-        /// The formats needed to get an image from the current clipboard content: the first two image formats which are available
-        /// (the second is a fallback when the first can't be decoded), the file formats, and HTML only when there is no image format.
+        /// The formats needed to get an image from the current clipboard content: the best image format which is available
+        /// (the others are only read when it can't be decoded), the file formats, and HTML only when there is no image format.
         /// Reading a format makes the application which copied render it, so not every image format is requested.
         /// This doesn't open the clipboard.
         /// </summary>
         public static IReadOnlyList<string> SelectImageReadFormats()
         {
-            var formats = ClipboardNative.AvailableFormats(ImageFormatOrder(ClipboardNative.HasFormat), 2).ToList();
+            var formats = ClipboardNative.AvailableFormats(ImageFormatOrder(ClipboardNative.HasFormat), 1).ToList();
             bool hasImageFormat = formats.Count > 0;
             formats.Add(FormatDrop);
             formats.AddRange(VirtualFileFormats);
@@ -898,9 +898,25 @@ namespace Greenshot.Base.Core
             FileFormatHandlers.LoadDrawablesFromStream(stream, extension).ToList();
 
         /// <summary>
-        /// Load from the first image format of the source which gives a result
+        /// Load from the first image format of the source which gives a result. A snapshot has only the best image format,
+        /// when that can't be decoded the other image formats are read from the clipboard, if it didn't change since.
         /// </summary>
         private static List<T> LoadFromFormats<T>(IClipboardDataSource source, Func<Stream, string, IEnumerable<T>> load)
+        {
+            var result = LoadFromFormatsOf(source, load);
+            if (result.Count == 0 && source is ClipboardSnapshot snapshot && snapshot.SequenceNumber == ClipboardNative.SequenceNumber)
+            {
+                var otherFormats = ClipboardNative.AvailableFormats(ImageFormatOrder(ClipboardNative.HasFormat)).Except(snapshot.Formats).ToList();
+                var otherSnapshot = otherFormats.Count > 0 ? ReadSnapshot(otherFormats) : null;
+                if (otherSnapshot != null && otherSnapshot.SequenceNumber == snapshot.SequenceNumber)
+                {
+                    result = LoadFromFormatsOf(otherSnapshot, load);
+                }
+            }
+            return result;
+        }
+
+        private static List<T> LoadFromFormatsOf<T>(IClipboardDataSource source, Func<Stream, string, IEnumerable<T>> load)
         {
             foreach (string format in ImageFormatOrder(source.HasFormat))
             {
