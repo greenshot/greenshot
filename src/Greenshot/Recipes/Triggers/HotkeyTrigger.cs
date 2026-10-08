@@ -21,6 +21,7 @@
 
 using System.Threading;
 using System.Windows.Forms;
+using Dapplo.Windows.Input.Enums;
 using Greenshot.Base.Core;
 using Greenshot.Base.Recipes.Triggers;
 using log4net;
@@ -53,6 +54,13 @@ namespace Greenshot.Recipes.Triggers
             if (sequence.IsEmpty)
             {
                 Log.InfoFormat("Skipping hotkey registration for {0}, no hotkey set!", Name);
+                return;
+            }
+
+            // An unknown key name is parsed as no key: "Ctrl + Foo" would be registered as Ctrl alone
+            if (sequence.Chords.Exists(chord => chord.Key == VirtualKeyCode.None))
+            {
+                Log.WarnFormat("Skipping hotkey '{0}' for {1}, a key name can't be read", HotkeyString, Name);
                 return;
             }
 
