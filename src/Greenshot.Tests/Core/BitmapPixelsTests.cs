@@ -111,8 +111,10 @@ namespace Greenshot.Tests.Core
             Assert.Throws<NotSupportedException>(() => BitmapPixels.ProcessPixelRows<byte>(bitmap, _ => { }));
         }
 
-        [Fact]
-        public void FindAutoCropRectangle_FindsTheContent()
+        [Theory]
+        [InlineData(0)]
+        [InlineData(10)]
+        public void FindAutoCropRectangle_FindsTheContent(int cropDifference)
         {
             using var bitmap = new Bitmap(40, 30, PixelFormat.Format24bppRgb);
             using (var graphics = Graphics.FromImage(bitmap))
@@ -121,9 +123,41 @@ namespace Greenshot.Tests.Core
                 graphics.FillRectangle(Brushes.Red, 10, 5, 8, 6);
             }
 
-            var cropRectangle = ImageHelper.FindAutoCropRectangle(bitmap, 10);
+            var cropRectangle = ImageHelper.FindAutoCropRectangle(bitmap, cropDifference);
 
             Assert.Equal(new NativeRect(10, 5, 8, 6), cropRectangle);
+        }
+
+        [Theory]
+        [InlineData(0, 2, 2, 36, 26)]
+        [InlineData(10, 10, 5, 8, 6)]
+        public void FindAutoCropRectangle_DifferenceAllowsNearlyEqualColors(int cropDifference, int x, int y, int width, int height)
+        {
+            using var bitmap = new Bitmap(40, 30, PixelFormat.Format24bppRgb);
+            using (var graphics = Graphics.FromImage(bitmap))
+            {
+                graphics.Clear(Color.White);
+                // A slightly darker frame, only cropped with a difference
+                using var nearlyWhite = new SolidBrush(Color.FromArgb(250, 250, 250));
+                graphics.FillRectangle(nearlyWhite, 2, 2, 36, 26);
+                graphics.FillRectangle(Brushes.Red, 10, 5, 8, 6);
+            }
+
+            var cropRectangle = ImageHelper.FindAutoCropRectangle(bitmap, cropDifference);
+
+            Assert.Equal(new NativeRect(x, y, width, height), cropRectangle);
+        }
+
+        [Fact]
+        public void FindAutoCropRectangle_NothingToCrop()
+        {
+            using var bitmap = new Bitmap(10, 10, PixelFormat.Format24bppRgb);
+            using (var graphics = Graphics.FromImage(bitmap))
+            {
+                graphics.Clear(Color.White);
+            }
+
+            Assert.Equal(NativeRect.Empty, ImageHelper.FindAutoCropRectangle(bitmap, 0));
         }
 
         [Fact]

@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Media;
@@ -195,89 +196,66 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Private helper method for the FindAutoCropNativeRect
+        /// Find the content in the area: every pixel which differs more than cropDifference from the reference color.
+        /// With cropDifference 0 only the exact reference color is cropped away.
         /// </summary>
         /// <param name="pixels">BitmapPixelAccessor</param>
-        /// <param name="colorPoint">NativePoint</param>
-        /// <param name="cropDifference">int</param>
+        /// <param name="referenceColor">Bgra32 with the color to crop away</param>
+        /// <param name="cropDifference">int, the allowed difference per channel (average of R, G and B)</param>
         /// <param name="area">NativeRect with the area to scan in</param>
-        /// <returns>NativeRect</returns>
-        private static NativeRect FindAutoCropNativeRect(BitmapPixelAccessor<Bgra32> pixels, NativePoint colorPoint, int cropDifference, NativeRect area)
+        /// <returns>NativeRect with the content, empty if there is nothing to crop</returns>
+        private static NativeRect FindAutoCropNativeRect(BitmapPixelAccessor<Bgra32> pixels, Bgra32 referenceColor, int cropDifference, NativeRect area)
         {
-            NativeRect cropNativeRect = NativeRect.Empty;
-            Bgra32 referenceColor = pixels.GetRowSpan(colorPoint.Y)[colorPoint.X];
-            NativePoint min = new NativePoint(int.MaxValue, int.MaxValue);
-            NativePoint max = new NativePoint(int.MinValue, int.MinValue);
-
+            int left = int.MaxValue, top = int.MaxValue, right = int.MinValue, bottom = int.MinValue;
             for (int y = area.Top; y < area.Bottom; y++)
             {
                 var row = pixels.GetRowSpan(y);
                 for (int x = area.Left; x < area.Right; x++)
                 {
-                    Bgra32 currentColor = row[x];
-                    if (cropDifference > 0)
-                    {
-                        int diffR = Math.Abs(currentColor.R - referenceColor.R);
-                        int diffG = Math.Abs(currentColor.G - referenceColor.G);
-                        int diffB = Math.Abs(currentColor.B - referenceColor.B);
-                        if ((diffR + diffG + diffB) / 3 <= cropDifference)
-                        {
-                            continue;
-                        }
-                    }
-                    else if (!referenceColor.Equals(currentColor))
+                    Bgra32 color = row[x];
+                    int difference = (Math.Abs(color.R - referenceColor.R) + Math.Abs(color.G - referenceColor.G) + Math.Abs(color.B - referenceColor.B)) / 3;
+                    if (difference <= cropDifference && Math.Abs(color.A - referenceColor.A) <= cropDifference)
                     {
                         continue;
                     }
 
-                    if (x < min.X) min = min.ChangeX(x);
-                    if (y < min.Y) min = min.ChangeY(y);
-                    if (x > max.X) max = max.ChangeX(x);
-                    if (y > max.Y) max = max.ChangeY(y);
+                    left = Math.Min(left, x);
+                    right = Math.Max(right, x);
+                    top = Math.Min(top, y);
+                    bottom = Math.Max(bottom, y);
                 }
             }
 
-            if (!(NativePoint.Empty.Equals(min) && max.Equals(new NativePoint(area.Width - 1, area.Height - 1))))
+            if (left == int.MaxValue)
             {
-                if (!(min.X == int.MaxValue || min.Y == int.MaxValue || max.X == int.MinValue || min.X == int.MinValue))
-                {
-                    cropNativeRect = new NativeRect(min.X, min.Y, max.X - min.X + 1, max.Y - min.Y + 1);
-                }
+                // Only the reference color
+                return NativeRect.Empty;
             }
 
-            return cropNativeRect;
+            var content = new NativeRect(left, top, right - left + 1, bottom - top + 1);
+            return content == area ? NativeRect.Empty : content;
         }
 
         /// <summary>
-        /// Get a NativeRect for the image which crops the image of all colors equal to that on 0,0
+        /// Get the content of the image, cropping away the color of one of the corners (the one which crops the least)
         /// </summary>
         /// <param name="image">Image</param>
-        /// <param name="cropDifference">int</param>
+        /// <param name="cropDifference">int, 0 crops only the exact color of the corner</param>
         /// <param name="area">NativeRect with optional area</param>
-        /// <returns>NativeRect</returns>
+        /// <returns>NativeRect, empty if there is nothing to crop</returns>
         public static NativeRect FindAutoCropRectangle(Image image, int cropDifference, NativeRect? area = null)
         {
-            area ??= new NativeRect(0, 0, image.Width, image.Height);
+            var scanArea = area ?? new NativeRect(0, 0, image.Width, image.Height);
             NativeRect cropNativeRect = NativeRect.Empty;
-            var checkPoints = new List<NativePoint>
-            {
-                new(area.Value.Left, area.Value.Top),
-                new(area.Value.Left, area.Value.Bottom - 1),
-                new(area.Value.Right - 1, area.Value.Top),
-                new(area.Value.Right - 1, area.Value.Bottom - 1)
-            };
-
-            // Top Left
-            // Bottom Left
-            // Top Right
-            // Bottom Right
-            var scanArea = area.Value;
             BitmapPixels.ProcessPixelRows<Bgra32>((Bitmap) image, pixels =>
             {
-                // find biggest area
-                foreach (var checkPoint in checkPoints)
+                var top = pixels.GetRowSpan(scanArea.Top);
+                var bottom = pixels.GetRowSpan(scanArea.Bottom - 1);
+                Bgra32[] corners = { top[scanArea.Left], top[scanArea.Right - 1], bottom[scanArea.Left], bottom[scanArea.Right - 1] };
+                // Corners with the same color give the same result
+                foreach (var corner in corners.Distinct())
                 {
-                    var currentNativeRect = FindAutoCropNativeRect(pixels, checkPoint, cropDifference, scanArea);
+                    var currentNativeRect = FindAutoCropNativeRect(pixels, corner, cropDifference, scanArea);
                     if (currentNativeRect.Width * currentNativeRect.Height > cropNativeRect.Width * cropNativeRect.Height)
                     {
                         cropNativeRect = currentNativeRect;
