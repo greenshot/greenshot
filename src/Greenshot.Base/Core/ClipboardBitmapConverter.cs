@@ -120,6 +120,36 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
+        /// Blend the pixels onto white and make them opaque, for CF_DIB which has no defined alpha channel
+        /// </summary>
+        /// <param name="pixels">Bgra32Pixels from ToBgra32</param>
+        /// <returns>byte array with opaque pixels, straight alpha, the same stride</returns>
+        public static byte[] FlattenOnWhite(Bgra32Pixels pixels)
+        {
+            var result = (byte[])pixels.Pixels.Clone();
+            for (int i = 0; i < result.Length; i += 4)
+            {
+                int alpha = result[i + 3];
+                if (alpha == 255)
+                {
+                    continue;
+                }
+
+                for (int channel = i; channel < i + 3; channel++)
+                {
+                    // Premultiplied: color + white * (1 - alpha), straight: color * alpha + white * (1 - alpha)
+                    result[channel] = pixels.PremultipliedAlpha
+                        ? (byte)Math.Min(255, result[channel] + 255 - alpha)
+                        : (byte)((result[channel] * alpha + 255 * (255 - alpha) + 127) / 255);
+                }
+
+                result[i + 3] = 255;
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// Create a Bitmap from a decoded DIB. With alpha the bitmap is Format32bppArgb (the DibImage has straight alpha),
         /// otherwise Format32bppRgb.
         /// </summary>

@@ -307,6 +307,48 @@ namespace Greenshot.Tests.Core
             return int.Parse(header.Substring(start, end - start));
         }
 
+        [InteractiveDesktopFact]
+        public void RoundTrip_WithoutAlpha_OnlyDibV5_WindowsProvidesDib()
+        {
+            using var bitmap = new Bitmap(5, 3, PixelFormat.Format24bppRgb);
+            using (var graphics = Graphics.FromImage(bitmap))
+            {
+                graphics.Clear(Color.Red);
+            }
+
+            using (var content = ClipboardHelper.CreateContent(bitmap, new[] { ClipboardFormat.DIB, ClipboardFormat.DIBV5 }))
+            {
+                // Without alpha CF_DIB is left to Windows
+                var formatNames = content.Contents.FormatIds.Select(ClipboardFormatExtensions.MapIdToFormat).ToList();
+                Assert.Equal(new[] { FormatDibV5 }, formatNames);
+                ClipboardHelper.SetClipboardData(content.Contents);
+            }
+
+            // Windows synthesizes CF_DIB from CF_DIBV5
+            Assert.True(ClipboardNative.HasFormat(StandardClipboardFormats.DeviceIndependentBitmap));
+            using var fromDib = ClipboardHelper.GetFirstImage(Snapshot(FormatDib));
+            AssertSamePixels(bitmap, fromDib, compareAlpha: false);
+        }
+
+        [Fact]
+        public void FlattenOnWhite_MakesTransparentPixelsWhiteAndOpaque()
+        {
+            using var bitmap = CreateTestBitmap();
+            var pixels = ClipboardBitmapConverter.ToBgra32(bitmap);
+            var flattened = ClipboardBitmapConverter.FlattenOnWhite(pixels);
+
+            for (int i = 0; i < flattened.Length; i += 4)
+            {
+                Assert.Equal(255, flattened[i + 3]);
+            }
+
+            // Pixel 0: opaque red stays red (B, G, R, A)
+            Assert.Equal(new byte[] { 0, 0, 255, 255 }, flattened.Take(4).ToArray());
+            // Pixel 3: half transparent white and pixel 4: transparent, both become white
+            Assert.Equal(new byte[] { 255, 255, 255, 255 }, flattened.Skip(12).Take(4).ToArray());
+            Assert.Equal(new byte[] { 255, 255, 255, 255 }, flattened.Skip(16).Take(4).ToArray());
+        }
+
         #endregion
 
         #region Reading content of other applications
