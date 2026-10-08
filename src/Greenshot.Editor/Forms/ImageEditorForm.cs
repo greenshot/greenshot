@@ -1727,8 +1727,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 }
 
                 // The cut edges are for crop and crop out, or for selected cut or torn edges
-                cutMarkLabel.Visible = cutMarkStyleButton.Visible = props.HasFieldValue(FieldType.CUT_MARK_STYLE) &&
-                                             (!cropping || cropMode != CropContainer.CropModes.AutoCrop);
+                cutMarkLabel.Visible = cutMarkStyleButton.Visible = props.HasFieldValue(FieldType.CUT_MARK_STYLE);
                 highlightModeButton.Visible = props.HasFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT);
             }
             else
