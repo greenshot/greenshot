@@ -4,15 +4,18 @@ This document contains changelogs for all stable releases in the Greenshot 1.3 s
 
 ---
 
-## Version 1.3.319 (September 16, 2026)
+## Version 1.3.322 (October 8, 2026)
 
-Released: September 16, 2026
+Released: October 8, 2026
 
 > **Note**: Many of the fixes below were originally developed for the 1.4 development line and were selectively backported to 1.3 as part of a stabilization effort. Each entry credits the original author of the change, not just whoever performed the backport merge.
 
 ### Security
 
-- Fixed a security issue where TLS certificate validation was disabled process-wide, exposing OAuth tokens and uploads used by plugins (Imgur, Box, Dropbox, Flickr, Confluence, Jira) to man-in-the-middle attacks. Reported by [@sondt99](https://github.com/sondt99) and [@lihnucs](https://github.com/lihnucs) — a public security advisory will be linked here once published.
+- Fixed a security issue where TLS certificate validation was disabled process-wide, exposing OAuth tokens and plugin uploads (Imgur, Box, Dropbox, Flickr, Confluence, Jira) to man-in-the-middle attacks. Reported by [@sondt99](https://github.com/sondt99), [@lihnucs](https://github.com/lihnucs), and [@dungNHVhust](https://github.com/dungNHVhust); fixed in backport [PR #1122](https://github.com/greenshot/greenshot/pull/1122). [GHSA-q4w7-9m8v-53fm](https://github.com/greenshot/greenshot/security/advisories/GHSA-q4w7-9m8v-53fm)
+- Fixed an out-of-bounds read that could cause denial of service when processing crafted CF_DIBV5 clipboard data. Reported by [@hacker1984](https://github.com/hacker1984); fixed by [@Lakritzator](https://github.com/Lakritzator) and [@jklingen](https://github.com/jklingen) in [commit 80ccbde9d](https://github.com/greenshot/greenshot/commit/80ccbde9d). [GHSA-4674-75g5-79mx](https://github.com/greenshot/greenshot/security/advisories/GHSA-4674-75g5-79mx)
+- Fixed server-side request forgery when opening crafted SVG files by preventing Svg.NET from resolving external resources and entities. Reported by [@Zenquiem](https://github.com/Zenquiem); fixed by [@Lakritzator](https://github.com/Lakritzator) and [@jklingen](https://github.com/jklingen) in [commit 40de45d91](https://github.com/greenshot/greenshot/commit/40de45d91). [GHSA-mmr7-mfv6-wp78](https://github.com/greenshot/greenshot/security/advisories/GHSA-mmr7-mfv6-wp78)
+- Updated vulnerable build and runtime dependencies: Inno Setup 6.2.1 to 6.2.2 ([CVE-2025-15595](https://www.cve.org/CVERecord?id=CVE-2025-15595)) and log4net 2.0.15 to 3.3.0 ([CVE-2026-40021](https://www.cve.org/CVERecord?id=CVE-2026-40021)) — by [@jklingen](https://github.com/jklingen) in [PR #1455](https://github.com/greenshot/greenshot/pull/1455).
 
 ### Bug Fixes
 
@@ -40,13 +43,13 @@ Released: September 16, 2026
 - Greenshot 1.3 can now close automatically when the Greenshot 1.4 installer upgrades it via the Windows Restart Manager — by [@Christian-Schulz](https://github.com/Christian-Schulz) in [PR #1109](https://github.com/greenshot/greenshot/pull/1109)
 
 ### Downloads
-- [Installer](https://github.com/greenshot/greenshot/releases/download/v1.3.319/Greenshot-INSTALLER-1.3.319-RELEASE.exe)
-- [Portable ZIP](https://github.com/greenshot/greenshot/releases/download/v1.3.319/Greenshot-PORTABLE-1.3.319-RELEASE.zip)
+- [Installer](https://github.com/greenshot/greenshot/releases/download/v1.3.322/Greenshot-INSTALLER-1.3.322-RELEASE.exe)
+- [Portable ZIP](https://github.com/greenshot/greenshot/releases/download/v1.3.322/Greenshot-PORTABLE-1.3.322-RELEASE.zip)
 
 ### Technical Details
 - **Backport scope**: Most bug fixes in this release were originally developed and merged into the 1.4 development line first, then selectively backported to `release/1.3` for stabilization; see the individual attributions above for each original author.
-- **Release scope**: This is the 10th stable release of the 1.3 series, superseding 1.3.315 as the latest stable build.
-- **Full Changelog**: https://github.com/greenshot/greenshot/compare/v1.3.315...v1.3.319
+- **Release scope**: This is the 10th stable release of the 1.3 series. Versions 1.3.319, 1.3.320, and 1.3.321 were intermediate builds; their changes are rolled into this release.
+- **Full Changelog**: https://github.com/greenshot/greenshot/compare/v1.3.315...v1.3.322
 
 ---
 
@@ -308,7 +311,7 @@ Released: May 23, 2025
 
 ## About Greenshot 1.3
 
-Greenshot 1.3 was built on the `release/1.3` branch and received multiple stable releases from May 2025 through September 2026. **Version 1.3.319 (September 16, 2026) is the latest stable release of the 1.3 series.** The series introduced significant improvements in:
+Greenshot 1.3 was built on the `release/1.3` branch and received multiple stable releases from May 2025 through October 2026. **Version 1.3.322 (October 8, 2026) is the latest stable release of the 1.3 series.** The series introduced significant improvements in:
 
 - **Security**: Multiple critical security fixes (CVE-2023-34634, GHSA-8f7f-x7ww-xx5w, GHSA-7hvw-q8q5-gpmj, GHSA-f8v9-7fph-fr2j)
 - **Editor functionality**: Zoom, keyboard shortcuts, better DPI support, and rendering fixes
