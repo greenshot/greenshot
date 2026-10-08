@@ -83,12 +83,12 @@ namespace Greenshot.Editor.FileFormatHandlers
                     return false;
                 }
 
-                if (ClipboardBitmapConverter.TryDecodeDib(dib, out bitmap))
+                if (ClipboardBitmapConverter.TryDecodeDib(dib.AsSpan(), out bitmap))
                 {
                     return true;
                 }
 
-                Log.WarnFormat("Couldn't decode the DIB data ({0} bytes)", dib.Length);
+                Log.WarnFormat("Couldn't decode the DIB data ({0} bytes)", dib.Count);
                 return false;
             }
             catch (Exception ex)
@@ -100,9 +100,9 @@ namespace Greenshot.Editor.FileFormatHandlers
             }
         }
 
-        private static bool TryReadAll(Stream stream, out byte[] bytes)
+        private static bool TryReadAll(Stream stream, out ArraySegment<byte> bytes)
         {
-            bytes = null;
+            bytes = default;
             if (stream.CanSeek)
             {
                 long remaining = stream.Length - stream.Position;
@@ -111,6 +111,14 @@ namespace Greenshot.Editor.FileFormatHandlers
                     Log.WarnFormat("DIB data has an unsupported size: {0} bytes", remaining);
                     return false;
                 }
+            }
+
+            // The streams of a clipboard snapshot or a drop expose their array, it's used without a copy
+            if (stream is MemoryStream sourceStream && sourceStream.TryGetBuffer(out var sourceBuffer))
+            {
+                int position = (int)sourceStream.Position;
+                bytes = new ArraySegment<byte>(sourceBuffer.Array, sourceBuffer.Offset + position, sourceBuffer.Count - position);
+                return bytes.Count > 0;
             }
 
             using var memoryStream = new MemoryStream();
@@ -130,7 +138,7 @@ namespace Greenshot.Editor.FileFormatHandlers
             {
                 return false;
             }
-            bytes = memoryStream.ToArray();
+            bytes = new ArraySegment<byte>(memoryStream.GetBuffer(), 0, (int)memoryStream.Length);
             return true;
         }
     }

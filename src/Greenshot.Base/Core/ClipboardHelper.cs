@@ -117,14 +117,14 @@ namespace Greenshot.Base.Core
         private const long SmallFormatLimit = 16L * 1024 * 1024;
 
         /// <summary>
-        /// The formats needed to get an image from the current clipboard content: the first two image formats which are available
-        /// (the second is a fallback when the first can't be decoded), the file formats, and HTML only when there is no image format.
+        /// The formats needed to get an image from the current clipboard content: the best image format which is available
+        /// (the others are only read when it can't be decoded), the file formats, and HTML only when there is no image format.
         /// Reading a format makes the application which copied render it, so not every image format is requested.
         /// This doesn't open the clipboard.
         /// </summary>
         public static IReadOnlyList<string> SelectImageReadFormats()
         {
-            var formats = ClipboardNative.AvailableFormats(ImageFormatOrder(ClipboardNative.HasFormat), 2).ToList();
+            var formats = ClipboardNative.AvailableFormats(ImageFormatOrder(ClipboardNative.HasFormat), 1).ToList();
             bool hasImageFormat = formats.Count > 0;
             formats.Add(FormatDrop);
             formats.AddRange(VirtualFileFormats);
@@ -425,7 +425,9 @@ namespace Greenshot.Base.Core
             {
                 dibFormats |= DibFormats.DibV5;
             }
-            if (activeFormats.Contains(ClipboardFormat.DIB) || activeFormats.Contains(ClipboardFormat.BITMAP))
+            // Without alpha, Windows creates the same CF_DIB from CF_DIBV5 when an application asks for it
+            bool hasAlpha = Image.IsAlphaPixelFormat(imageToSave.PixelFormat);
+            if ((activeFormats.Contains(ClipboardFormat.DIB) || activeFormats.Contains(ClipboardFormat.BITMAP)) && (hasAlpha || dibFormats == DibFormats.None))
             {
                 dibFormats |= DibFormats.Dib;
             }
@@ -435,8 +437,18 @@ namespace Greenshot.Base.Core
                 try
                 {
                     var pixels = ClipboardBitmapConverter.ToBgra32(imageToSave);
-                    // CF_DIBV5 is placed before CF_DIB
-                    contents.AddDib(pixels.Pixels, pixels.Width, pixels.Height, pixels.Stride, pixels.PremultipliedAlpha, dibFormats);
+                    // The DIBs are encoded straight into the clipboard memory when the contents are placed, CF_DIBV5 before CF_DIB
+                    if (hasAlpha && (dibFormats & DibFormats.Dib) != 0)
+                    {
+                        // CF_DIB has no defined alpha channel, many applications show transparent pixels black: place it on white
+                        contents.AddDib(new ReadOnlyMemory<byte>(pixels.Pixels), pixels.Width, pixels.Height, pixels.Stride, pixels.PremultipliedAlpha, dibFormats & DibFormats.DibV5);
+                        contents.AddDib(new ReadOnlyMemory<byte>(ClipboardBitmapConverter.FlattenOnWhite(pixels)), pixels.Width, pixels.Height, pixels.Stride, false, DibFormats.Dib);
+                    }
+                    else
+                    {
+                        contents.AddDib(new ReadOnlyMemory<byte>(pixels.Pixels), pixels.Width, pixels.Height, pixels.Stride, pixels.PremultipliedAlpha, dibFormats);
+                    }
+
                     content.HasData = true;
                 }
                 catch (Exception dibEx)
@@ -874,18 +886,10 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Load a bitmap from a stream with the extension. DIB data is decoded directly, other formats by the file format handlers.
+        /// Load a bitmap from a stream with the extension, CF_DIB / CF_DIBV5 go to the DibFileFormatHandler
         /// </summary>
-        private static IEnumerable<Bitmap> LoadBitmap(Stream stream, string extension)
-        {
-            if (extension == ".dib")
-            {
-                using var memoryStream = new MemoryStream();
-                stream.CopyTo(memoryStream);
-                return ClipboardBitmapConverter.TryDecodeDib(memoryStream.ToArray(), out var dibBitmap) ? new[] { dibBitmap } : Array.Empty<Bitmap>();
-            }
-            return FileFormatHandlers.TryLoadFromStream(stream, extension, out var bitmap) ? new[] { bitmap } : Array.Empty<Bitmap>();
-        }
+        private static IEnumerable<Bitmap> LoadBitmap(Stream stream, string extension) =>
+            FileFormatHandlers.TryLoadFromStream(stream, extension, out var bitmap) ? new[] { bitmap } : Array.Empty<Bitmap>();
 
         /// <summary>
         /// Load drawables from a stream with the extension, CF_DIB / CF_DIBV5 go to the DibFileFormatHandler
@@ -894,9 +898,25 @@ namespace Greenshot.Base.Core
             FileFormatHandlers.LoadDrawablesFromStream(stream, extension).ToList();
 
         /// <summary>
-        /// Load from the first image format of the source which gives a result
+        /// Load from the first image format of the source which gives a result. A snapshot has only the best image format,
+        /// when that can't be decoded the other image formats are read from the clipboard, if it didn't change since.
         /// </summary>
         private static List<T> LoadFromFormats<T>(IClipboardDataSource source, Func<Stream, string, IEnumerable<T>> load)
+        {
+            var result = LoadFromFormatsOf(source, load);
+            if (result.Count == 0 && source is ClipboardSnapshot snapshot && snapshot.SequenceNumber == ClipboardNative.SequenceNumber)
+            {
+                var otherFormats = ClipboardNative.AvailableFormats(ImageFormatOrder(ClipboardNative.HasFormat)).Except(snapshot.Formats).ToList();
+                var otherSnapshot = otherFormats.Count > 0 ? ReadSnapshot(otherFormats) : null;
+                if (otherSnapshot != null && otherSnapshot.SequenceNumber == snapshot.SequenceNumber)
+                {
+                    result = LoadFromFormatsOf(otherSnapshot, load);
+                }
+            }
+            return result;
+        }
+
+        private static List<T> LoadFromFormatsOf<T>(IClipboardDataSource source, Func<Stream, string, IEnumerable<T>> load)
         {
             foreach (string format in ImageFormatOrder(source.HasFormat))
             {

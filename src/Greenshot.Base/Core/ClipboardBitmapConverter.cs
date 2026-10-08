@@ -29,7 +29,7 @@ namespace Greenshot.Base.Core
 {
     /// <summary>
     /// Converts between System.Drawing bitmaps and the top-down BGRA32 pixels which Dapplo.Windows.Clipboard reads and writes
-    /// for CF_DIB / CF_DIBV5. Only managed arrays and LockBits with checked sizes are used, no pointer arithmetic on clipboard data.
+    /// for CF_DIB / CF_DIBV5. Only managed arrays and spans over LockBits with checked sizes are used, no pointer arithmetic on clipboard data.
     /// </summary>
     public static class ClipboardBitmapConverter
     {
@@ -120,84 +120,91 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Create a Bitmap from a decoded DIB. With alpha the bitmap is Format32bppArgb (the DibImage has straight alpha),
-        /// otherwise Format32bppRgb.
+        /// Blend the pixels onto white and make them opaque, for CF_DIB which has no defined alpha channel
         /// </summary>
-        /// <param name="dibImage">DibImage, e.g. from DibImage.TryDecode or TryGetAsDib</param>
-        /// <returns>Bitmap, the caller disposes it</returns>
-        public static Bitmap ToBitmap(DibImage dibImage)
+        /// <param name="pixels">Bgra32Pixels from ToBgra32</param>
+        /// <returns>byte array with opaque pixels, straight alpha, the same stride</returns>
+        public static byte[] FlattenOnWhite(Bgra32Pixels pixels)
         {
-            if (dibImage == null)
+            var result = (byte[])pixels.Pixels.Clone();
+            for (int i = 0; i < result.Length; i += 4)
             {
-                throw new ArgumentNullException(nameof(dibImage));
+                int alpha = result[i + 3];
+                if (alpha == 255)
+                {
+                    continue;
+                }
+
+                for (int channel = i; channel < i + 3; channel++)
+                {
+                    // Premultiplied: color + white * (1 - alpha), straight: color * alpha + white * (1 - alpha)
+                    result[channel] = pixels.PremultipliedAlpha
+                        ? (byte)Math.Min(255, result[channel] + 255 - alpha)
+                        : (byte)((result[channel] * alpha + 255 * (255 - alpha) + 127) / 255);
+                }
+
+                result[i + 3] = 255;
             }
 
-            var pixelFormat = dibImage.HasAlpha ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppRgb;
-            int width = dibImage.Width;
-            int height = dibImage.Height;
-            int stride = dibImage.Stride;
-            byte[] pixels = dibImage.Pixels;
-            if (width <= 0 || height <= 0 || stride != width * 4 || pixels == null || pixels.LongLength < (long)stride * height)
+            return result;
+        }
+
+        /// <summary>
+        /// Decode CF_DIB / CF_DIBV5 data (or the content of a .dib file with BITMAPFILEHEADER) straight into a new Bitmap:
+        /// Format32bppArgb when the DIB has alpha, otherwise Format32bppRgb. DibImage validates the header against the data
+        /// and checks the pixel count (DibImage.DefaultMaxPixelCount, 64 megapixels) before the bitmap is created.
+        /// </summary>
+        /// <param name="dib">the data, e.g. the buffer of a clipboard snapshot stream</param>
+        /// <param name="bitmap">Bitmap or null</param>
+        /// <returns>true when the data could be decoded</returns>
+        public static bool TryDecodeDib(ReadOnlySpan<byte> dib, out Bitmap bitmap)
+        {
+            bitmap = null;
+            // A .dib / .bmp file starts with a 14 byte BITMAPFILEHEADER ("BM"), the clipboard formats don't
+            if (dib.Length > 14 && dib[0] == (byte)'B' && dib[1] == (byte)'M')
             {
-                throw new ArgumentException("The DibImage has inconsistent dimensions.", nameof(dibImage));
+                dib = dib.Slice(14);
             }
 
-            var bitmap = new Bitmap(width, height, pixelFormat);
+            if (!DibImage.TryReadInfo(dib, DibImage.DefaultMaxPixelCount, out int width, out int height, out bool hasAlpha))
+            {
+                return false;
+            }
+
+            var pixelFormat = hasAlpha ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppRgb;
+            var result = new Bitmap(width, height, pixelFormat);
             try
             {
-                var bitmapData = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, pixelFormat);
+                bool decoded;
+                var bitmapData = result.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, pixelFormat);
                 try
                 {
-                    for (int y = 0; y < height; y++)
+                    // The span covers exactly the locked bits, the decoder checks every write against it
+                    unsafe
                     {
-                        var row = IntPtr.Add(bitmapData.Scan0, y * bitmapData.Stride);
-                        Marshal.Copy(pixels, y * stride, row, stride);
+                        var destination = new Span<byte>((void*)bitmapData.Scan0, bitmapData.Stride * height);
+                        decoded = DibImage.TryDecode(dib, DibImage.DefaultMaxPixelCount, destination, bitmapData.Stride);
                     }
                 }
                 finally
                 {
-                    bitmap.UnlockBits(bitmapData);
+                    result.UnlockBits(bitmapData);
                 }
-                return bitmap;
+
+                if (decoded)
+                {
+                    bitmap = result;
+                    return true;
+                }
             }
             catch
             {
-                bitmap.Dispose();
+                result.Dispose();
                 throw;
             }
-        }
 
-        /// <summary>
-        /// Decode CF_DIB / CF_DIBV5 bytes (or the content of a .dib file without BITMAPFILEHEADER) into a Bitmap.
-        /// The decoding is done by DibImage.TryDecode which validates the header against the data.
-        /// </summary>
-        /// <param name="dib">bytes</param>
-        /// <param name="bitmap">Bitmap or null</param>
-        /// <returns>true when the data could be decoded</returns>
-        public static bool TryDecodeDib(byte[] dib, out Bitmap bitmap)
-        {
-            bitmap = null;
-            if (dib == null || dib.Length == 0)
-            {
-                return false;
-            }
-
-            // A .dib / .bmp file starts with a 14 byte BITMAPFILEHEADER ("BM"), the clipboard formats don't
-            if (dib.Length > 14 && dib[0] == (byte)'B' && dib[1] == (byte)'M')
-            {
-                var withoutFileHeader = new byte[dib.Length - 14];
-                Buffer.BlockCopy(dib, 14, withoutFileHeader, 0, withoutFileHeader.Length);
-                dib = withoutFileHeader;
-            }
-
-            // The pixel count is checked from the header before anything is allocated (DibImage.DefaultMaxPixelCount, 64 megapixels)
-            if (!DibImage.TryDecode(dib, DibImage.DefaultMaxPixelCount, out var dibImage))
-            {
-                return false;
-            }
-
-            bitmap = ToBitmap(dibImage);
-            return true;
+            result.Dispose();
+            return false;
         }
     }
 }
