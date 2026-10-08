@@ -1318,6 +1318,11 @@ namespace Greenshot.Recipes
             {
                 _recipes.Clear();
                 var disabled = GetDisabledRecipeIds();
+                // The plugins registered their recipes after the RecipeManager was created
+                foreach (var recipe in SimpleServiceProvider.Current.GetAllInstances<IBuiltInRecipeProvider>().SelectMany(provider => provider.CreateRecipes()))
+                {
+                    RegisterBuiltIn(recipe, disabled);
+                }
                 foreach (var kvp in _builtInRecipes)
                 {
                     var restored = kvp.Value.Clone();

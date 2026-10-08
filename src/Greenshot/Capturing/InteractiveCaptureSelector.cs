@@ -156,6 +156,7 @@ namespace Greenshot.Capturing
             ICapture fullscreenCapture,
             IReadOnlyList<WindowDetails> visibleWindows,
             CaptureMode initialMode,
+            string initialTool,
             CancellationToken cancellationToken = default)
         {
             if (Interlocked.CompareExchange(ref _active, 1, 0) != 0)
@@ -167,7 +168,7 @@ namespace Greenshot.Capturing
 
             try
             {
-                var selection = await Ui.InvokeAsync(() => ShowCaptureWindow(fullscreenCapture, visibleWindows, initialMode, cancellationToken), cancellationToken).ConfigureAwait(false);
+                var selection = await Ui.InvokeAsync(() => ShowCaptureWindow(fullscreenCapture, visibleWindows, initialMode, initialTool, cancellationToken), cancellationToken).ConfigureAwait(false);
                 cancellationToken.ThrowIfCancellationRequested();
                 return selection;
             }
@@ -180,7 +181,7 @@ namespace Greenshot.Capturing
         /// <summary>
         /// Runs on the UI thread: shows the capture window modally and returns the selection (null when the user declined)
         /// </summary>
-        private SelectionResult ShowCaptureWindow(ICapture fullscreenCapture, IReadOnlyList<WindowDetails> visibleWindows, CaptureMode initialMode, CancellationToken cancellationToken)
+        private SelectionResult ShowCaptureWindow(ICapture fullscreenCapture, IReadOnlyList<WindowDetails> visibleWindows, CaptureMode initialMode, string initialTool, CancellationToken cancellationToken)
         {
             ThreadAssert.IsUi(nameof(InteractiveCaptureSelector));
             if (fullscreenCapture?.CaptureDetails != null)
@@ -192,11 +193,11 @@ namespace Greenshot.Capturing
             var captureWindow = TakePreparedWindow();
             if (captureWindow != null)
             {
-                captureWindow.SetCapture(fullscreenCapture, windows);
+                captureWindow.SetCapture(fullscreenCapture, windows, initialTool);
             }
             else
             {
-                captureWindow = new CaptureWindow(fullscreenCapture, windows);
+                captureWindow = new CaptureWindow(fullscreenCapture, windows, initialTool);
                 SetOwner(captureWindow);
             }
             _openWindow = captureWindow;
@@ -228,7 +229,8 @@ namespace Greenshot.Capturing
             {
                 SelectedRegion = captureWindow.CaptureRectangle,
                 SelectedWindow = captureWindow.SelectedCaptureWindow,
-                FinalMode = captureWindow.UsedCaptureMode
+                FinalMode = captureWindow.UsedCaptureMode,
+                Tool = captureWindow.UsedTool
             };
         }
     }

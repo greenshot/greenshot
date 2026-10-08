@@ -39,6 +39,7 @@ using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Icons;
 using Dapplo.Windows.User32;
+using Greenshot.Base.Capturing;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Capture;
@@ -154,6 +155,11 @@ namespace Greenshot.Capturing.Views
         /// The mode the selection ended in
         /// </summary>
         public CaptureMode UsedCaptureMode => _usedCaptureMode;
+
+        /// <summary>
+        /// The tool the selection ended in
+        /// </summary>
+        public ICaptureTool UsedTool => _activeTool;
 
         /// <summary>
         /// The selected window, or the top level window under the cursor
@@ -381,9 +387,10 @@ namespace Greenshot.Capturing.Views
         /// </summary>
         /// <param name="capture">ICapture of the whole screen</param>
         /// <param name="windows">The windows to snap to, in z-order</param>
-        public CaptureWindow(ICapture capture, IList<WindowDetails> windows) : this((capture ?? throw new ArgumentNullException(nameof(capture))).ScreenBounds)
+        /// <param name="initialTool">Id of the tool to start with, null: the tool of the capture mode</param>
+        public CaptureWindow(ICapture capture, IList<WindowDetails> windows, string initialTool = null) : this((capture ?? throw new ArgumentNullException(nameof(capture))).ScreenBounds)
         {
-            SetCapture(capture, windows);
+            SetCapture(capture, windows, initialTool);
         }
 
         /// <summary>
@@ -429,7 +436,8 @@ namespace Greenshot.Capturing.Views
         /// </summary>
         /// <param name="capture">ICapture of the whole screen</param>
         /// <param name="windows">The windows to snap to, in z-order</param>
-        public void SetCapture(ICapture capture, IList<WindowDetails> windows)
+        /// <param name="initialTool">Id of the tool to start with, null: the tool of the capture mode</param>
+        public void SetCapture(ICapture capture, IList<WindowDetails> windows, string initialTool = null)
         {
             if (_capture != null)
             {
@@ -449,7 +457,8 @@ namespace Greenshot.Capturing.Views
             }
             _tools = CreateTools();
             var initialMode = capture.CaptureDetails.CaptureMode;
-            _activeTool = _tools.FirstOrDefault(tool => tool.Mode == initialMode) ?? _tools[0];
+            _activeTool = _tools.FirstOrDefault(tool => string.Equals(tool.Id, initialTool, StringComparison.OrdinalIgnoreCase))
+                          ?? _tools.FirstOrDefault(tool => tool.Mode == initialMode) ?? _tools[0];
             _usedCaptureMode = _activeTool.Mode;
 
             if (windows != null)

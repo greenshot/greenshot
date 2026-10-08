@@ -31,7 +31,7 @@ namespace Greenshot.Helpers
     /// Registers an optional part of Greenshot (the browser extension, AI tools). The attribute lives in the folder of the part,
     /// so leaving the folder out of the build (Greenshot Light) also leaves out its registration.
     /// The module type implements one or more of the extension interfaces, e.g. <see cref="Greenshot.Ipc.IIpcCommandExtension"/>
-    /// or <see cref="Greenshot.Recipes.IBuiltInRecipeProvider"/>, and needs a public parameterless constructor.
+    /// or <see cref="Greenshot.Base.Recipes.IBuiltInRecipeProvider"/>, and needs a public parameterless constructor.
     /// </summary>
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
     internal sealed class GreenshotModuleAttribute : Attribute

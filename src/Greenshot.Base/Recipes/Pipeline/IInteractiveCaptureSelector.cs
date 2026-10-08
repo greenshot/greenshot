@@ -49,12 +49,14 @@ namespace Greenshot.Base.Recipes.Pipeline
         /// <param name="fullscreenCapture">The captured desktop image.</param>
         /// <param name="visibleWindows">Visible windows for window snapping.</param>
         /// <param name="initialMode">Initial selection mode (Region, Window, Text).</param>
+        /// <param name="initialTool">Id of the tool to start with (e.g. one of a plugin), null or unknown: the tool of the initial mode.</param>
         /// <param name="cancellationToken">Cancelling closes the overlay and throws an OperationCanceledException.</param>
         /// <returns>The selection, or null when the user declined (Esc) or another selection is already open.</returns>
         Task<SelectionResult> SelectAsync(
             ICapture fullscreenCapture,
             IReadOnlyList<WindowDetails> visibleWindows,
             CaptureMode initialMode,
+            string initialTool,
             CancellationToken cancellationToken = default);
     }
 }
