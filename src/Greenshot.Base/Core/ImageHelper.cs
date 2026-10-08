@@ -500,7 +500,7 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Apply BoxBlur to the fastBitmap
         /// </summary>
-        /// <param name="fastBitmap">IFastBitmap to blur</param>
+        /// <param name="fastBitmap">IFastBitmap to blur, locked</param>
         /// <param name="range">Must be ODD!</param>
         public static void ApplyBoxBlur(IFastBitmap fastBitmap, int range)
         {
@@ -510,285 +510,158 @@ namespace Greenshot.Base.Core
                 range++;
             }
 
-            if (range <= 1)
+            int width = fastBitmap.Width;
+            int height = fastBitmap.Height;
+            int stride = fastBitmap.Stride;
+            int bytesPerPixel = fastBitmap.BytesPerPixel;
+            int rowBytes = width * bytesPerPixel;
+            if (range <= 1 || width <= 0 || height <= 0 || stride < rowBytes)
             {
                 return;
+            }
+
+            // All access goes through a span over exactly the locked pixels, so every read and write is bounds checked
+            Span<byte> pixels;
+            unsafe
+            {
+                pixels = new Span<byte>((void*)fastBitmap.GetRowPointer(0), stride * (height - 1) + rowBytes);
             }
 
             // Box blurs are frequently used to approximate a Gaussian blur.
             // By the central limit theorem, if applied 3 times on the same image, a box blur approximates the Gaussian kernel to within about 3%, yielding the same result as a quadratic convolution kernel.
             // This might be true, but the GDI+ BlurEffect doesn't look the same, a 2x blur is more similar and we only make 2x Box-Blur.
             // (Might also be a mistake in our blur, but for now it looks great)
-            int channelCount = fastBitmap.HasAlphaChannel ? 4 : 3;
-            BoxBlurHorizontalCore(fastBitmap, range, channelCount);
-            BoxBlurVerticalCore(fastBitmap, range, channelCount);
-            BoxBlurHorizontalCore(fastBitmap, range, channelCount);
-            BoxBlurVerticalCore(fastBitmap, range, channelCount);
+            int channelCount = Math.Min(fastBitmap.HasAlphaChannel ? 4 : 3, bytesPerPixel);
+            BoxBlurHorizontal(pixels, stride, width, height, bytesPerPixel, channelCount, range);
+            BoxBlurVertical(pixels, stride, width, height, bytesPerPixel, channelCount, range);
+            BoxBlurHorizontal(pixels, stride, width, height, bytesPerPixel, channelCount, range);
+            BoxBlurVertical(pixels, stride, width, height, bytesPerPixel, channelCount, range);
         }
 
         /// <summary>
-        /// BoxBlurHorizontalCore is the shared horizontal-pass implementation for BoxBlur.
-        /// It processes <paramref name="channelCount"/> consecutive bytes per pixel (e.g. 3 for RGB, 4 for ARGB)
-        /// using ArrayPool buffers to minimise GC pressure.
-        /// The channelCount branch is hoisted outside all loops; pixel access uses pointer advancement
-        /// (no per-pixel multiplications, no per-pixel branches).
+        /// Horizontal box blur pass: every pixel becomes the average of the pixels within range / 2 left and right of it (only those inside the row),
+        /// for the first channelCount bytes of each pixel. The row is copied first, so the sliding sums use the original values.
         /// </summary>
-        /// <param name="targetFastBitmap">Target BitmapBuffer</param>
-        /// <param name="range">Range must be odd!</param>
-        /// <param name="channelCount">Number of byte channels to blur (3 for RGB, 4 for ARGB)</param>
-        private static unsafe void BoxBlurHorizontalCore(IFastBitmap targetFastBitmap, int range, int channelCount)
+        private static void BoxBlurHorizontal(Span<byte> pixels, int stride, int width, int height, int bytesPerPixel, int channelCount, int range)
         {
             int halfRange = range / 2;
-            int width = targetFastBitmap.Width;
-            int bytesPerPixel = targetFastBitmap.BytesPerPixel;
-            int left = targetFastBitmap.Left;
-            int right = targetFastBitmap.Right;
-            int top = targetFastBitmap.Top;
-            int bottom = targetFastBitmap.Bottom;
-
-            // Channels are laid out sequentially in memory: [0]=B, [1]=G, [2]=R, [3]=A (BGRA order).
-            // Rent one output buffer per channel; these are returned even if an exception is thrown.
-            byte[] buf0 = ArrayPool<byte>.Shared.Rent(width);
-            byte[] buf1 = ArrayPool<byte>.Shared.Rent(width);
-            byte[] buf2 = ArrayPool<byte>.Shared.Rent(width);
-            byte[] buf3 = channelCount == 4 ? ArrayPool<byte>.Shared.Rent(width) : null;
+            int rowBytes = width * bytesPerPixel;
+            byte[] original = ArrayPool<byte>.Shared.Rent(rowBytes);
+            Span<int> sums = stackalloc int[4];
             try
             {
-                // The channelCount check is hoisted here so the inner loops contain no conditional branching.
-                // oldPtr / newPtr advance by bytesPerPixel on every access, avoiding any per-pixel multiplication.
-                if (channelCount == 4)
+                for (int y = 0; y < height; y++)
                 {
-                    for (int y = top; y < bottom; y++)
+                    var row = pixels.Slice(y * stride, rowBytes);
+                    row.CopyTo(original);
+                    sums.Clear();
+                    int hits = 0;
+                    for (int x = -halfRange; x < width; x++)
                     {
-                        byte* rowPtr = (byte*)targetFastBitmap.GetRowPointer(y);
-                        // Both pointers start at the first pixel of the clipped area.
-                        // They advance by bytesPerPixel each time the sliding window adds/removes a pixel.
-                        byte* oldPtr = rowPtr + left * bytesPerPixel;
-                        byte* newPtr = rowPtr + left * bytesPerPixel;
-                        int hits = 0;
-                        int ch0 = 0, ch1 = 0, ch2 = 0, ch3 = 0;
-                        for (int x = left - halfRange; x < right; x++)
+                        int oldPixel = x - halfRange - 1;
+                        if (oldPixel >= 0)
                         {
-                            int oldPixel = x - halfRange - 1;
-                            if (oldPixel >= left)
+                            int offset = oldPixel * bytesPerPixel;
+                            for (int c = 0; c < channelCount; c++)
                             {
-                                ch0 -= oldPtr[0]; ch1 -= oldPtr[1]; ch2 -= oldPtr[2]; ch3 -= oldPtr[3];
-                                oldPtr += bytesPerPixel;
-                                hits--;
+                                sums[c] -= original[offset + c];
                             }
-
-                            int newPixel = x + halfRange;
-                            if (newPixel < right)
-                            {
-                                ch0 += newPtr[0]; ch1 += newPtr[1]; ch2 += newPtr[2]; ch3 += newPtr[3];
-                                newPtr += bytesPerPixel;
-                                hits++;
-                            }
-
-                            if (x >= left)
-                            {
-                                int idx = x - left;
-                                buf0[idx] = (byte)(ch0 / hits);
-                                buf1[idx] = (byte)(ch1 / hits);
-                                buf2[idx] = (byte)(ch2 / hits);
-                                buf3[idx] = (byte)(ch3 / hits);
-                            }
+                            hits--;
                         }
 
-                        byte* writePtr = rowPtr + left * bytesPerPixel;
-                        for (int i = 0; i < width; i++)
+                        int newPixel = x + halfRange;
+                        if (newPixel < width)
                         {
-                            writePtr[0] = buf0[i]; writePtr[1] = buf1[i];
-                            writePtr[2] = buf2[i]; writePtr[3] = buf3[i];
-                            writePtr += bytesPerPixel;
-                        }
-                    }
-                }
-                else // channelCount == 3
-                {
-                    for (int y = top; y < bottom; y++)
-                    {
-                        byte* rowPtr = (byte*)targetFastBitmap.GetRowPointer(y);
-                        byte* oldPtr = rowPtr + left * bytesPerPixel;
-                        byte* newPtr = rowPtr + left * bytesPerPixel;
-                        int hits = 0;
-                        int ch0 = 0, ch1 = 0, ch2 = 0;
-                        for (int x = left - halfRange; x < right; x++)
-                        {
-                            int oldPixel = x - halfRange - 1;
-                            if (oldPixel >= left)
+                            int offset = newPixel * bytesPerPixel;
+                            for (int c = 0; c < channelCount; c++)
                             {
-                                ch0 -= oldPtr[0]; ch1 -= oldPtr[1]; ch2 -= oldPtr[2];
-                                oldPtr += bytesPerPixel;
-                                hits--;
+                                sums[c] += original[offset + c];
                             }
-
-                            int newPixel = x + halfRange;
-                            if (newPixel < right)
-                            {
-                                ch0 += newPtr[0]; ch1 += newPtr[1]; ch2 += newPtr[2];
-                                newPtr += bytesPerPixel;
-                                hits++;
-                            }
-
-                            if (x >= left)
-                            {
-                                int idx = x - left;
-                                buf0[idx] = (byte)(ch0 / hits);
-                                buf1[idx] = (byte)(ch1 / hits);
-                                buf2[idx] = (byte)(ch2 / hits);
-                            }
+                            hits++;
                         }
 
-                        byte* writePtr = rowPtr + left * bytesPerPixel;
-                        for (int i = 0; i < width; i++)
+                        if (x >= 0)
                         {
-                            writePtr[0] = buf0[i]; writePtr[1] = buf1[i]; writePtr[2] = buf2[i];
-                            writePtr += bytesPerPixel;
+                            int offset = x * bytesPerPixel;
+                            for (int c = 0; c < channelCount; c++)
+                            {
+                                row[offset + c] = (byte)(sums[c] / hits);
+                            }
                         }
                     }
                 }
             }
             finally
             {
-                ArrayPool<byte>.Shared.Return(buf0);
-                ArrayPool<byte>.Shared.Return(buf1);
-                ArrayPool<byte>.Shared.Return(buf2);
-                if (buf3 != null) ArrayPool<byte>.Shared.Return(buf3);
+                ArrayPool<byte>.Shared.Return(original);
             }
         }
 
         /// <summary>
-        /// BoxBlurVerticalCore is the shared vertical-pass implementation for BoxBlur.
-        /// It processes <paramref name="channelCount"/> consecutive bytes per pixel (e.g. 3 for RGB, 4 for ARGB)
-        /// using ArrayPool buffers to minimise GC pressure.
-        /// The channelCount branch is hoisted outside all loops; column access uses stride-based pointer
-        /// advancement rather than per-row GetRowPointer calls.
+        /// Vertical box blur pass, like <see cref="BoxBlurHorizontal"/> but with rows: it sweeps the rows in memory order with a sum per byte of a row,
+        /// instead of walking down every column. A row is written as soon as its average is known, so the last range / 2 + 1 original rows
+        /// are kept in a ring buffer for subtracting them from the sums later.
         /// </summary>
-        /// <param name="targetFastBitmap">BitmapBuffer which previously was created with BoxBlurHorizontalCore</param>
-        /// <param name="range">Range must be odd!</param>
-        /// <param name="channelCount">Number of byte channels to blur (3 for RGB, 4 for ARGB)</param>
-        private static unsafe void BoxBlurVerticalCore(IFastBitmap targetFastBitmap, int range, int channelCount)
+        private static void BoxBlurVertical(Span<byte> pixels, int stride, int width, int height, int bytesPerPixel, int channelCount, int range)
         {
             int halfRange = range / 2;
-            int height = targetFastBitmap.Height;
-            int bytesPerPixel = targetFastBitmap.BytesPerPixel;
-            int stride = targetFastBitmap.Stride;
-            int left = targetFastBitmap.Left;
-            int right = targetFastBitmap.Right;
-            int top = targetFastBitmap.Top;
-            int bottom = targetFastBitmap.Bottom;
-
-            // Channels are laid out sequentially in memory: [0]=B, [1]=G, [2]=R, [3]=A (BGRA order).
-            byte[] buf0 = ArrayPool<byte>.Shared.Rent(height);
-            byte[] buf1 = ArrayPool<byte>.Shared.Rent(height);
-            byte[] buf2 = ArrayPool<byte>.Shared.Rent(height);
-            byte[] buf3 = channelCount == 4 ? ArrayPool<byte>.Shared.Rent(height) : null;
-
-            // Base pointer to row `top`; xOffset added per column so each column walk uses stride advancement.
-            byte* topRowPtr = (byte*)targetFastBitmap.GetRowPointer(top);
+            int rowBytes = width * bytesPerPixel;
+            int ringRows = halfRange + 1;
+            int[] sums = ArrayPool<int>.Shared.Rent(rowBytes);
+            byte[] ring = ArrayPool<byte>.Shared.Rent(ringRows * rowBytes);
             try
             {
-                // The channelCount check is hoisted here so the inner loops contain no conditional branching.
-                // oldColPtr / newColPtr advance by `stride` on every access, replacing per-row GetRowPointer calls.
-                if (channelCount == 4)
+                Array.Clear(sums, 0, rowBytes);
+                int hits = 0;
+                for (int y = -halfRange; y < height; y++)
                 {
-                    for (int x = left; x < right; x++)
+                    int oldRow = y - halfRange - 1;
+                    if (oldRow >= 0)
                     {
-                        int xOffset = x * bytesPerPixel;
-                        // Column pointers start at the first valid row (top) and advance by stride each step.
-                        byte* oldColPtr = topRowPtr + xOffset;
-                        byte* newColPtr = topRowPtr + xOffset;
-                        int hits = 0;
-                        int ch0 = 0, ch1 = 0, ch2 = 0, ch3 = 0;
-                        for (int y = top - halfRange; y < bottom; y++)
+                        var original = new ReadOnlySpan<byte>(ring, oldRow % ringRows * rowBytes, rowBytes);
+                        for (int offset = 0; offset < rowBytes; offset += bytesPerPixel)
                         {
-                            int oldPixel = y - halfRange - 1;
-                            if (oldPixel >= top)
+                            for (int c = offset; c < offset + channelCount; c++)
                             {
-                                ch0 -= oldColPtr[0]; ch1 -= oldColPtr[1]; ch2 -= oldColPtr[2]; ch3 -= oldColPtr[3];
-                                oldColPtr += stride;
-                                hits--;
-                            }
-
-                            int newPixel = y + halfRange;
-                            if (newPixel < bottom)
-                            {
-                                ch0 += newColPtr[0]; ch1 += newColPtr[1]; ch2 += newColPtr[2]; ch3 += newColPtr[3];
-                                newColPtr += stride;
-                                hits++;
-                            }
-
-                            if (y >= top)
-                            {
-                                int idx = y - top;
-                                buf0[idx] = (byte)(ch0 / hits);
-                                buf1[idx] = (byte)(ch1 / hits);
-                                buf2[idx] = (byte)(ch2 / hits);
-                                buf3[idx] = (byte)(ch3 / hits);
+                                sums[c] -= original[c];
                             }
                         }
-
-                        byte* writeColPtr = topRowPtr + xOffset;
-                        for (int i = 0; i < height; i++)
-                        {
-                            writeColPtr[0] = buf0[i]; writeColPtr[1] = buf1[i];
-                            writeColPtr[2] = buf2[i]; writeColPtr[3] = buf3[i];
-                            writeColPtr += stride;
-                        }
+                        hits--;
                     }
-                }
-                else // channelCount == 3
-                {
-                    for (int x = left; x < right; x++)
+
+                    // Rows below y are not written yet, so they still have their original values
+                    int newRow = y + halfRange;
+                    if (newRow < height)
                     {
-                        int xOffset = x * bytesPerPixel;
-                        byte* oldColPtr = topRowPtr + xOffset;
-                        byte* newColPtr = topRowPtr + xOffset;
-                        int hits = 0;
-                        int ch0 = 0, ch1 = 0, ch2 = 0;
-                        for (int y = top - halfRange; y < bottom; y++)
+                        var added = pixels.Slice(newRow * stride, rowBytes);
+                        for (int offset = 0; offset < rowBytes; offset += bytesPerPixel)
                         {
-                            int oldPixel = y - halfRange - 1;
-                            if (oldPixel >= top)
+                            for (int c = offset; c < offset + channelCount; c++)
                             {
-                                ch0 -= oldColPtr[0]; ch1 -= oldColPtr[1]; ch2 -= oldColPtr[2];
-                                oldColPtr += stride;
-                                hits--;
-                            }
-
-                            int newPixel = y + halfRange;
-                            if (newPixel < bottom)
-                            {
-                                ch0 += newColPtr[0]; ch1 += newColPtr[1]; ch2 += newColPtr[2];
-                                newColPtr += stride;
-                                hits++;
-                            }
-
-                            if (y >= top)
-                            {
-                                int idx = y - top;
-                                buf0[idx] = (byte)(ch0 / hits);
-                                buf1[idx] = (byte)(ch1 / hits);
-                                buf2[idx] = (byte)(ch2 / hits);
+                                sums[c] += added[c];
                             }
                         }
+                        hits++;
+                    }
 
-                        byte* writeColPtr = topRowPtr + xOffset;
-                        for (int i = 0; i < height; i++)
+                    if (y >= 0)
+                    {
+                        var row = pixels.Slice(y * stride, rowBytes);
+                        row.CopyTo(new Span<byte>(ring, y % ringRows * rowBytes, rowBytes));
+                        for (int offset = 0; offset < rowBytes; offset += bytesPerPixel)
                         {
-                            writeColPtr[0] = buf0[i]; writeColPtr[1] = buf1[i]; writeColPtr[2] = buf2[i];
-                            writeColPtr += stride;
+                            for (int c = offset; c < offset + channelCount; c++)
+                            {
+                                row[c] = (byte)(sums[c] / hits);
+                            }
                         }
                     }
                 }
             }
             finally
             {
-                ArrayPool<byte>.Shared.Return(buf0);
-                ArrayPool<byte>.Shared.Return(buf1);
-                ArrayPool<byte>.Shared.Return(buf2);
-                if (buf3 != null) ArrayPool<byte>.Shared.Return(buf3);
+                ArrayPool<int>.Shared.Return(sums);
+                ArrayPool<byte>.Shared.Return(ring);
             }
         }
 
