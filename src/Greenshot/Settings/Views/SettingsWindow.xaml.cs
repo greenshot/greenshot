@@ -260,7 +260,7 @@ namespace Greenshot.Settings.Views
             dialog.ShowDialog();
         }
 
-        // The buttons go to the next multiple of 16, also from a typed value in between (e.g. 24 goes to 16 or 32)
+        // The buttons change the size in steps of 4 pixels, the configuration keeps the value on a step
         private void IconSizeUp_Click(object sender, RoutedEventArgs e)
         {
             if (_viewModel.IconSize + CoreConfigurationImpl.IconSizeStep <= 256)
