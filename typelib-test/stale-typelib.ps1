@@ -9,7 +9,7 @@ $major = $version.Split('.')[0]
 $key = "HKCU:\Software\Classes\TypeLib\$typeLib\$major.99"
 if ($Remove) {
     Remove-Item $key -Recurse -ErrorAction SilentlyContinue
-    Write-Host "Removed $key"
+    Write-Host "Removed $key, still there: $(Test-Path $key)"
     return
 }
 New-Item "$key\0\win32" -Force | Out-Null

@@ -1,6 +1,7 @@
 // Which way of calling Word survives a stale type library registration?
 // Run once without and once with the stale key (stale-typelib.ps1).
 using System;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using Word = Microsoft.Office.Interop.Word;
 
@@ -36,45 +37,14 @@ internal static class Program
         {
             if (app != null)
             {
-                try { DispatchCall(app, "Quit"); } catch { }
+                // Quit without saving: wdDoNotSaveChanges = 0
+                try { DispatchCall(app, "Quit", 0); } catch (Exception ex) { Console.WriteLine($"      Quit failed: {ex.Message}"); }
                 Marshal.FinalReleaseComObject(app);
             }
         }
     }
 
-    // Only IDispatch.GetIDsOfNames and IDispatch.Invoke, no type information
-    private static object DispatchGet(object target, string name) => Invoke(target, name, DISPATCH_PROPERTYGET);
-    private static void DispatchCall(object target, string name) => Invoke(target, name, DISPATCH_METHOD);
-
-    private static object Invoke(object target, string name, ushort flags)
-    {
-        var dispatch = (IDispatch)target;
-        var iidNull = Guid.Empty;
-        int[] dispIds = new int[1];
-        Marshal.ThrowExceptionForHR(dispatch.GetIDsOfNames(ref iidNull, new[] { name }, 1, 0, dispIds));
-        var parameters = new DISPPARAMS();
-        Marshal.ThrowExceptionForHR(dispatch.Invoke(dispIds[0], ref iidNull, 0, flags, ref parameters, out object result, IntPtr.Zero, IntPtr.Zero));
-        return result;
-    }
-
-    private const ushort DISPATCH_METHOD = 1;
-    private const ushort DISPATCH_PROPERTYGET = 2;
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct DISPPARAMS
-    {
-        public IntPtr rgvarg;
-        public IntPtr rgdispidNamedArgs;
-        public int cArgs;
-        public int cNamedArgs;
-    }
-
-    [ComImport, Guid("00020400-0000-0000-C000-000000000046"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-    private interface IDispatch
-    {
-        [PreserveSig] int GetTypeInfoCount(out uint count);
-        [PreserveSig] int GetTypeInfo(uint index, uint lcid, out IntPtr typeInfo);
-        [PreserveSig] int GetIDsOfNames(ref Guid iid, [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPWStr)] string[] names, int count, uint lcid, [Out] int[] dispIds);
-        [PreserveSig] int Invoke(int dispId, ref Guid iid, uint lcid, ushort flags, ref DISPPARAMS parameters, out object result, IntPtr exceptionInfo, IntPtr argumentError);
-    }
+    // Type.InvokeMember on a COM object calls IDispatch.GetIDsOfNames and IDispatch.Invoke, no type information
+    private static object DispatchGet(object target, string name) => target.GetType().InvokeMember(name, BindingFlags.GetProperty, null, target, null);
+    private static void DispatchCall(object target, string name, params object[] args) => target.GetType().InvokeMember(name, BindingFlags.InvokeMethod, null, target, args);
 }

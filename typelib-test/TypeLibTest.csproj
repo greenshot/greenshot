@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <!-- Remove net10.0-windows when the .NET 10 SDK isn't installed -->
     <TargetFrameworks>net48;net10.0-windows</TargetFrameworks>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
@@ -14,4 +13,12 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
+  <!-- The SDK ignores EmbedInteropTypes on a PackageReference for .NET 10, Greenshot's Office plugin does the same -->
+  <Target Name="EmbeddingWord" AfterTargets="ResolveReferences" BeforeTargets="FindReferenceAssembliesForReferences">
+    <ItemGroup>
+      <ReferencePath Condition=" '%(FileName)' == 'Microsoft.Office.Interop.Word' ">
+        <EmbedInteropTypes>true</EmbedInteropTypes>
+      </ReferencePath>
+    </ItemGroup>
+  </Target>
 </Project>
