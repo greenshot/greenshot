@@ -25,8 +25,8 @@ using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Desktop;
 using Greenshot.Base.Capturing;
-using Greenshot.Base.Core;
 using Xunit;
 
 namespace Greenshot.Tests.Core;
@@ -58,7 +58,7 @@ public class ScreenCaptureTests
             return Task.FromResult(_capture());
         }
 
-        public Task<Bitmap> CaptureWindowAsync(WindowDetails window, CancellationToken cancellationToken = default)
+        public Task<Bitmap> CaptureWindowAsync(IInteropWindow window, CancellationToken cancellationToken = default)
         {
             Calls++;
             return Task.FromResult(_capture());

@@ -30,6 +30,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Desktop;
 using Greenshot.Base.Core;
 using Greenshot.Base.Capturing;
 using Greenshot.Base.Interfaces;
@@ -60,14 +61,14 @@ namespace Greenshot.Ai
         /// The window for a WindowHandle parameter: a window (from a Window argument), a handle, or a handle as text (hex with 0x, or decimal).
         /// Only top-level windows.
         /// </summary>
-        public static WindowDetails ResolveWindow(object windowHandle)
+        public static IInteropWindow ResolveWindow(object windowHandle)
         {
             IntPtr handle;
             switch (windowHandle)
             {
                 case null:
                     return null;
-                case WindowDetails window:
+                case IInteropWindow window:
                     handle = window.Handle;
                     break;
                 case IntPtr intPtr:
@@ -90,15 +91,16 @@ namespace Greenshot.Ai
             {
                 return null;
             }
-            var result = new WindowDetails(handle);
-            return result.ProcessId == 0 || result.HasParent ? null : result;
+            var result = InteropWindowFactory.CreateFor(handle);
+            // Not a window (anymore), or a child window
+            return result.GetProcessId() == 0 || result.GetParent() != IntPtr.Zero ? null : result;
         }
 
         /// <summary>
         /// Capture the window: Windows Graphics Capture when supported (only the window's contents, also for covered windows),
         /// otherwise the window's area of the screen.
         /// </summary>
-        public static async Task<ICapture> CaptureWindowAsync(WindowDetails window, CancellationToken cancellationToken)
+        public static async Task<ICapture> CaptureWindowAsync(IInteropWindow window, CancellationToken cancellationToken)
         {
             var capture = await WindowCapture.CaptureWindowAsync(window, null, cancellationToken).ConfigureAwait(false);
             capture?.CaptureDetails.AddMetaData("source", "Window");
@@ -133,13 +135,13 @@ namespace Greenshot.Ai
             int redacted = 0;
             using var graphics = Graphics.FromImage(image);
             // All visible windows, also untitled popups and tool windows (e.g. a password manager's quick access)
-            foreach (var window in WindowDetails.GetVisibleWindows())
+            foreach (var window in WindowHelper.GetVisibleWindows())
             {
-                if (window.Iconic || !AiToolAccess.IsProcessExcluded(GetProcessName(window)))
+                if (!AiToolAccess.IsProcessExcluded(window.GetProcessName()))
                 {
                     continue;
                 }
-                var overlap = window.WindowRectangle.Intersect(bounds);
+                var overlap = window.GetInfo().Bounds.Intersect(bounds);
                 if (overlap.IsEmpty)
                 {
                     continue;
@@ -207,36 +209,6 @@ namespace Greenshot.Ai
             }
             handle = new IntPtr(number);
             return true;
-        }
-
-        /// <summary>
-        /// The process name (without .exe) of the window; works for elevated processes too.
-        /// </summary>
-        public static string GetProcessName(WindowDetails window)
-        {
-            try
-            {
-                string path = window.ProcessPath;
-                if (!string.IsNullOrEmpty(path))
-                {
-                    return Path.GetFileNameWithoutExtension(path);
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Debug($"Could not get the process path of window {window.Handle}", ex);
-            }
-
-            try
-            {
-                using var process = window.Process;
-                return process?.ProcessName ?? string.Empty;
-            }
-            catch (Exception ex)
-            {
-                Log.Debug($"Could not get the process of window {window.Handle}", ex);
-                return string.Empty;
-            }
         }
     }
 }

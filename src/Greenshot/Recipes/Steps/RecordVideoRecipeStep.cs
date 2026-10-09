@@ -24,10 +24,10 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Desktop;
 using Dapplo.Windows.User32;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Video;
@@ -234,11 +234,11 @@ namespace Greenshot.Recipes.Steps
 
                     if (!string.IsNullOrEmpty(title) || !string.IsNullOrEmpty(titlePattern) || !string.IsNullOrEmpty(processName))
                     {
-                        var win = FindMatchingWindow(title, titlePattern, processName, matchCase);
+                        var win = WindowHelper.FindMatchingWindow(title, titlePattern, processName, matchCase);
                         if (win != null)
                         {
                             hWnd = win.Handle;
-                            Log.Info($"Resolved targeted window: '{win.Text}' (0x{hWnd:X8})");
+                            Log.Info($"Resolved targeted window: '{win.GetCaption()}' (0x{hWnd:X8})");
                         }
                         else
                         {
@@ -380,78 +380,6 @@ namespace Greenshot.Recipes.Steps
             }
 
             return options;
-        }
-
-        private static WindowDetails FindMatchingWindow(string title, string titlePattern, string processName, bool matchCase)
-        {
-            var comparison = matchCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
-            Regex regex = null;
-            if (!string.IsNullOrEmpty(titlePattern))
-            {
-                var regexOptions = matchCase ? RegexOptions.None : RegexOptions.IgnoreCase;
-                regex = new Regex(titlePattern, regexOptions);
-            }
-
-            // 1. Check current active window first
-            var activeWin = WindowDetails.GetActiveWindow();
-            if (activeWin != null && Matches(activeWin, title, regex, processName, comparison))
-            {
-                return activeWin;
-            }
-
-            // 2. Search top-level application windows
-            foreach (var win in WindowDetails.GetTopLevelWindows())
-            {
-                if (win == null || win.Handle == IntPtr.Zero || win.HasParent) continue;
-
-                if (Matches(win, title, regex, processName, comparison))
-                {
-                    return win;
-                }
-            }
-
-            return null;
-        }
-
-        private static bool Matches(WindowDetails win, string title, Regex regex, string processName, StringComparison comparison)
-        {
-            if (win == null || win.Handle == IntPtr.Zero) return false;
-
-            if (!string.IsNullOrEmpty(processName))
-            {
-                string proc = null;
-                try
-                {
-                    if (!string.IsNullOrEmpty(win.ProcessPath))
-                    {
-                        proc = Path.GetFileNameWithoutExtension(win.ProcessPath);
-                    }
-                }
-                catch { }
-
-                string expectedProc = Path.GetFileNameWithoutExtension(processName);
-                if (proc == null || (!proc.Equals(expectedProc, comparison) && !proc.Equals(processName, comparison)))
-                {
-                    return false;
-                }
-            }
-
-            if (regex != null)
-            {
-                if (string.IsNullOrEmpty(win.Text) || !regex.IsMatch(win.Text))
-                {
-                    return false;
-                }
-            }
-            else if (!string.IsNullOrEmpty(title))
-            {
-                if (string.IsNullOrEmpty(win.Text) || win.Text.IndexOf(title, comparison) < 0)
-                {
-                    return false;
-                }
-            }
-
-            return true;
         }
     }
 }

@@ -29,7 +29,7 @@ namespace Greenshot.Base.Core
     /// <summary>
     /// See: https://social.msdn.microsoft.com/Forums/en-US/ieextensiondevelopment/thread/03a8c835-e9e4-405b-8345-6c3d36bc8941
     /// This should really be cleaned up, there is little OO behind this class!
-    /// Maybe move the basic Accessible functions to WindowDetails!?
+    /// Maybe move the basic Accessible functions to Dapplo.Windows!?
     /// </summary>
     public class Accessible
     {

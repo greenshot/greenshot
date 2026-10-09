@@ -24,6 +24,7 @@ using System;
 using System.Windows.Forms;
 using Dapplo.Ini;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Desktop;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
 using log4net;
@@ -39,7 +40,7 @@ namespace Greenshot.Editor.Controls
         private ThumbnailWindow _thumbnailWindow;
 
         /// <summary>
-        /// Replace the drop down items of the menu item with one item per window (the item's Tag is the WindowDetails)
+        /// Replace the drop down items of the menu item with one item per window (the item's Tag is the IInteropWindow)
         /// </summary>
         /// <param name="menuItem">ToolStripMenuItem</param>
         /// <param name="onClick">Click handler of the window items</param>
@@ -52,14 +53,13 @@ namespace Greenshot.Editor.Controls
             // check if thumbnailPreview is enabled and DWM is enabled
             bool thumbnailPreview = coreConfig.ThumnailPreview;
 
-            foreach (var window in WindowDetails.GetTopLevelWindows())
+            foreach (var window in WindowHelper.GetTopLevelWindows())
             {
+                string title = window.GetCaption();
                 if (Log.IsDebugEnabled)
                 {
-                    Log.Debug(window.ToString());
+                    Log.Debug($"Window {window.Handle} '{title}' ({window.GetClassname()})");
                 }
-
-                string title = window.Text;
                 if (string.IsNullOrEmpty(title))
                 {
                     continue;
@@ -74,7 +74,7 @@ namespace Greenshot.Editor.Controls
                 captureWindowItem.Tag = window;
                 captureWindowItem.Click += onClick;
                 // Dispose the icon when the menu item is disposed to prevent memory leaks
-                captureWindowItem.AssignAutoDisposingImage(window?.DisplayIcon, needsClone: false);
+                captureWindowItem.AssignAutoDisposingImage(window.GetDisplayIcon(), needsClone: false);
                 // Only show preview when enabled
                 if (thumbnailPreview)
                 {
@@ -86,7 +86,7 @@ namespace Greenshot.Editor.Controls
 
         private void ShowThumbnailOnEnter(object sender, EventArgs e)
         {
-            if (sender is not ToolStripMenuItem captureWindowItem || captureWindowItem.Tag is not WindowDetails window)
+            if (sender is not ToolStripMenuItem captureWindowItem || captureWindowItem.Tag is not IInteropWindow window)
             {
                 return;
             }

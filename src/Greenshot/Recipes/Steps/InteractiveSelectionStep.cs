@@ -29,6 +29,7 @@ using System.Windows.Forms;
 using Dapplo.Ini;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Desktop;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
@@ -102,10 +103,10 @@ namespace Greenshot.Recipes.Steps
             context.State = CaptureFlowState.Selecting;
 
             bool allowSnapping = Config.GetParameter("AllowWindowSnapping", true);
-            List<WindowDetails> snapWindows = new List<WindowDetails>();
+            List<IInteropWindow> snapWindows = new List<IInteropWindow>();
 
             // Started by the acquire step next to the capture, see GetSnapWindowsAsync
-            Task<List<WindowDetails>> snapWindowsTask = null;
+            Task<List<IInteropWindow>> snapWindowsTask = null;
             bool started = _selector is ICaptureWindowPreparer preparer && preparer.TryTakeSnapWindows(out snapWindowsTask);
             if (allowSnapping)
             {
@@ -142,7 +143,7 @@ namespace Greenshot.Recipes.Steps
 
             if (selection.SelectedWindow != null)
             {
-                payload.RawCapture.CaptureDetails.Title = selection.SelectedWindow.Text;
+                payload.RawCapture.CaptureDetails.Title = selection.SelectedWindow.GetCaption();
                 context.Properties["SelectedWindow"] = selection.SelectedWindow;
             }
 
@@ -184,7 +185,7 @@ namespace Greenshot.Recipes.Steps
         /// the selection takes it from there. They are the windows of the moment of the capture as before.
         /// </summary>
         /// <param name="cancellationToken">CancellationToken</param>
-        internal static Task<List<WindowDetails>> GetSnapWindowsAsync(CancellationToken cancellationToken)
+        internal static Task<List<IInteropWindow>> GetSnapWindowsAsync(CancellationToken cancellationToken)
         {
 #pragma warning disable RS0030 // R10: the Win32 window enumeration runs next to the capture
             var task = Task.Run(() => EnumerateSnapWindows(cancellationToken), cancellationToken);
@@ -194,14 +195,14 @@ namespace Greenshot.Recipes.Steps
             return task;
         }
 
-        private static List<WindowDetails> EnumerateSnapWindows(CancellationToken cancellationToken)
+        private static List<IInteropWindow> EnumerateSnapWindows(CancellationToken cancellationToken)
         {
-            var snapWindows = new List<WindowDetails>();
-            foreach (var window in WindowDetails.GetVisibleWindows())
+            var snapWindows = new List<IInteropWindow>();
+            foreach (var window in WindowHelper.GetVisibleWindows())
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                window.FreezeDetails();
-                window.GetChildren(1);
+                // Dapplo.Windows caches the values, so the windows describe the screen of the capture, also the child windows
+                window.GetChildren(allLevels: true);
                 snapWindows.Add(window);
             }
             return snapWindows;

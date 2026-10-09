@@ -19,10 +19,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Icons;
 using Dapplo.Windows.User32;
 using Greenshot.Base.Capturing;
@@ -132,15 +134,15 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Select the window to capture, resolving linked windows for special applications (e.g. TOAD, Excel).
         /// </summary>
-        public static WindowDetails SelectCaptureWindow(WindowDetails windowToCapture)
+        public static IInteropWindow SelectCaptureWindow(IInteropWindow windowToCapture)
         {
             if (windowToCapture == null) return null;
 
-            NativeRect windowRectangle = windowToCapture.WindowRectangle;
+            NativeRect windowRectangle = windowToCapture.GetInfo().Bounds;
             if (windowRectangle.Width == 0 || windowRectangle.Height == 0)
             {
-                Log.WarnFormat("Window {0} has nothing to capture, using workaround to find other window of same process.", windowToCapture.Text);
-                return WindowDetails.GetLinkedWindow(windowToCapture);
+                Log.WarnFormat("Window {0} has nothing to capture, using workaround to find other window of same process.", windowToCapture.GetCaption());
+                return windowToCapture.GetLinkedWindows().FirstOrDefault();
             }
 
             return windowToCapture;
@@ -149,11 +151,11 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Capture the window: Windows.Graphics.Capture, or what is displayed in the window's area when that is not possible.
         /// </summary>
-        /// <param name="windowToCapture">WindowDetails</param>
+        /// <param name="windowToCapture">IInteropWindow</param>
         /// <param name="capture">ICapture to fill, null to create one</param>
         /// <param name="cancellationToken">CancellationToken</param>
         /// <returns>ICapture, null when nothing could be captured</returns>
-        public static async Task<ICapture> CaptureWindowAsync(WindowDetails windowToCapture, ICapture capture = null, CancellationToken cancellationToken = default)
+        public static async Task<ICapture> CaptureWindowAsync(IInteropWindow windowToCapture, ICapture capture = null, CancellationToken cancellationToken = default)
         {
             capture ??= new Capture();
 
@@ -165,7 +167,7 @@ namespace Greenshot.Base.Core
 
             capture.Image = result.Image;
             capture.Location = result.Location;
-            capture.CaptureDetails.Title = windowToCapture.Text;
+            capture.CaptureDetails.Title = windowToCapture.GetCaption();
             capture.CaptureDetails.AddMetaData(ScreenCapture.CaptureMethodKey, result.Backend.Name);
             return capture;
         }

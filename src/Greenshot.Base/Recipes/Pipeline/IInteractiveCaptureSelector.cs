@@ -22,7 +22,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Greenshot.Base.Core;
+using Dapplo.Windows.Desktop;
 using Greenshot.Base.Interfaces;
 
 namespace Greenshot.Base.Recipes.Pipeline
@@ -54,7 +54,7 @@ namespace Greenshot.Base.Recipes.Pipeline
         /// <returns>The selection, or null when the user declined (Esc) or another selection is already open.</returns>
         Task<SelectionResult> SelectAsync(
             ICapture fullscreenCapture,
-            IReadOnlyList<WindowDetails> visibleWindows,
+            IReadOnlyList<IInteropWindow> visibleWindows,
             CaptureMode initialMode,
             string initialTool,
             CancellationToken cancellationToken = default);

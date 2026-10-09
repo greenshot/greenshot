@@ -38,7 +38,7 @@ information or a shortcut to whatever the user is doing, without changing how th
 | Tool | Mode | Key | What it does |
 |---|---|---|---|
 | `RegionCaptureTool` | `Region` | Space toggles | Drag or Enter/Enter for a rectangle, includes the pixel under the cursor |
-| `WindowCaptureTool` | `Window` | Space toggles | The selection animates to the (child) window under the cursor, D for debug info. In `Greenshot.Base` (`Greenshot.Base.Capturing`), a plugin can derive from it |
+| `WindowCaptureTool` | `Window` | Space toggles | The selection animates to the (child) window under the cursor, D for debug info. For beta testers it also follows the UI Automation areas inside a window (e.g. the parts of a browser page), PageUp/PageDown select the larger/smaller area; a turning mark next to the cursor shows when reading the areas takes longer than 200 ms. In `Greenshot.Base` (`Greenshot.Base.Capturing`), a plugin can derive from it, and override `SelectsAreas` to select whole windows only |
 | `TextCaptureTool` | `Text` | T | Extends the region tool: shows the OCR lines, a click selects a line |
 
 ## Adding a tool, step by step

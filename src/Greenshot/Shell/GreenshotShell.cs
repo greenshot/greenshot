@@ -257,8 +257,8 @@ namespace Greenshot.Shell
             }
 
             // Make sure we never capture our own windows
-            WindowDetails.RegisterIgnoreHandle(SharedMessageWindow.Handle);
-            WindowDetails.RegisterIgnoreHandle(OwnerHandle);
+            WindowHelper.RegisterIgnoreHandle(SharedMessageWindow.Handle);
+            WindowHelper.RegisterIgnoreHandle(OwnerHandle);
 
             // The application ends without the shutdown when the session ends (see RestartManagerHelper).
             // Not Application.ApplicationExit: WinForms raises it when its first message loop ends, which is the one of an STA worker now.
@@ -440,7 +440,7 @@ namespace Greenshot.Shell
             if (_aboutWindow != null && _aboutWindow.IsLoaded)
             {
                 _aboutWindow.Activate();
-                WindowDetails.ToForeground(new WindowInteropHelper(_aboutWindow).Handle);
+                WindowHelper.ToForeground(new WindowInteropHelper(_aboutWindow).Handle);
                 return;
             }
 

@@ -27,6 +27,7 @@ using System.Threading;
 using System.Windows.Forms;
 using Dapplo.Ini;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Desktop;
 using Dapplo.Windows.User32;
 using Greenshot.Base.Core;
 using Greenshot.Base.Capturing;
@@ -136,14 +137,14 @@ public class CursorCaptureTests
         await host.InvokeAsync(form => handle = form.Handle);
 
         // Windows Graphics Capture, or the GDI fallback where it isn't supported
-        var windowDetails = new WindowDetails(handle);
-        var capture = await WindowCapture.CaptureWindowAsync(windowDetails);
+        var window = InteropWindowFactory.CreateFor(handle);
+        var capture = await WindowCapture.CaptureWindowAsync(window);
 
         Assert.NotNull(capture);
         Assert.NotNull(capture.Image);
         Assert.Equal(320, capture.Image.Width);
         Assert.Equal(240, capture.Image.Height);
-        Assert.Equal(windowDetails.Location, capture.Location);
+        Assert.Equal(window.GetInfo().Bounds.Location, capture.Location);
         Assert.Equal("Greenshot capture handler test", capture.CaptureDetails.Title);
         Assert.True(capture.CaptureDetails.MetaData.ContainsKey(ScreenCapture.CaptureMethodKey));
     }

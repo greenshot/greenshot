@@ -30,6 +30,7 @@ using System.Windows.Forms;
 using Dapplo.Ini;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Desktop;
 using Dapplo.Windows.User32;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
@@ -273,7 +274,7 @@ namespace Greenshot.Recipes.Steps
             }
             if (AiToolCapture.IsAiToolRun(context))
             {
-                string processName = AiToolCapture.GetProcessName(window);
+                string processName = window.GetProcessName();
                 if (AiToolAccess.IsProcessExcluded(processName))
                 {
                     context.Fail($"Windows of '{processName}' are excluded from AI tools.");
@@ -285,7 +286,7 @@ namespace Greenshot.Recipes.Steps
             if (capture?.Image == null)
             {
                 capture?.Dispose();
-                context.Fail($"Capturing the window '{window.Text}' failed.");
+                context.Fail($"Capturing the window '{window.GetCaption()}' failed.");
                 return;
             }
 

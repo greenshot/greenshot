@@ -300,6 +300,16 @@ namespace Greenshot.Base.Languages
         string CaptureKeyWindowDetails { get; }
 
         /// <summary>
+        /// Select the larger area around it
+        /// </summary>
+        string CaptureKeyWindowLarger { get; }
+
+        /// <summary>
+        /// Select the smaller area inside it
+        /// </summary>
+        string CaptureKeyWindowSmaller { get; }
+
+        /// <summary>
         /// Show or hide the keys
         /// </summary>
         string CaptureKeyHelp { get; }
