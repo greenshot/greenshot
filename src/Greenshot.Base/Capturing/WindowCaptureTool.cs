@@ -184,7 +184,7 @@ namespace Greenshot.Base.Capturing
             _areasPending = handle;
             try
             {
-                _areas[handle] = await FindAreasAsync(handle, cancellation.Token);
+                await FindAreasAsync(handle, cancellation.Token);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
@@ -213,21 +213,30 @@ namespace Greenshot.Base.Capturing
         /// </summary>
         private async Task<UiAutomationArea> FindAreasAsync(IntPtr handle, CancellationToken cancellationToken)
         {
+            // The windows read on the way up get the same result, their own areas or those of the parent
+            var windows = new List<IntPtr>();
+            UiAutomationArea result = null;
             for (var window = handle; window != IntPtr.Zero; window = InteropWindowFactory.CreateFor(window).GetParent())
             {
-                if (!_areas.TryGetValue(window, out var areas))
+                if (_areas.TryGetValue(window, out result))
                 {
-                    var stopwatch = Stopwatch.StartNew();
-                    areas = await UiAutomationAreas.FindAreasAsync(window, MaximumAreaDepth, MinimumAreaSize, cancellationToken: cancellationToken);
-                    Log.Debug($"Areas of window {window} in {stopwatch.ElapsedMilliseconds} ms: {areas}");
+                    break;
                 }
+                var stopwatch = Stopwatch.StartNew();
+                var areas = await UiAutomationAreas.FindAreasAsync(window, MaximumAreaDepth, MinimumAreaSize, cancellationToken: cancellationToken);
+                Log.Debug($"Areas of window {window} in {stopwatch.ElapsedMilliseconds} ms: {areas}");
+                windows.Add(window);
                 if (areas?.Children.Count > 0)
                 {
-                    _areas[window] = areas;
-                    return areas;
+                    result = areas;
+                    break;
                 }
             }
-            return null;
+            foreach (var window in windows)
+            {
+                _areas[window] = result;
+            }
+            return result;
         }
 
         /// <summary>
