@@ -12,16 +12,16 @@
     <PackageReference Include="Dapplo.HttpExtensions.JsonNet" Version="2.0.12" />
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="3.0.1" />
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.12" />
-    <PackageReference Include="Dapplo.Windows" Version="3.10.3" />
-    <PackageReference Include="Dapplo.Windows.Automation" Version="3.10.3" />
-    <PackageReference Include="Dapplo.Windows.Clipboard" Version="3.10.3" />
-    <PackageReference Include="Dapplo.Windows.DesktopWindowsManager" Version="3.10.3" />
-    <PackageReference Include="Dapplo.Windows.Dpi" Version="3.10.3" />
-    <PackageReference Include="Dapplo.Windows.Gdi32" Version="3.10.3" />
-    <PackageReference Include="Dapplo.Windows.Icons" Version="3.10.3" />
-    <PackageReference Include="Dapplo.Windows.Input" Version="3.10.3" />
-    <PackageReference Include="Dapplo.Windows.Kernel32" Version="3.10.3" />
-    <PackageReference Include="Dapplo.Windows.Multimedia" Version="3.10.3" />
+    <PackageReference Include="Dapplo.Windows" Version="3.10.5" />
+    <PackageReference Include="Dapplo.Windows.Automation" Version="3.10.5" />
+    <PackageReference Include="Dapplo.Windows.Clipboard" Version="3.10.5" />
+    <PackageReference Include="Dapplo.Windows.DesktopWindowsManager" Version="3.10.5" />
+    <PackageReference Include="Dapplo.Windows.Dpi" Version="3.10.5" />
+    <PackageReference Include="Dapplo.Windows.Gdi32" Version="3.10.5" />
+    <PackageReference Include="Dapplo.Windows.Icons" Version="3.10.5" />
+    <PackageReference Include="Dapplo.Windows.Input" Version="3.10.5" />
+    <PackageReference Include="Dapplo.Windows.Kernel32" Version="3.10.5" />
+    <PackageReference Include="Dapplo.Windows.Multimedia" Version="3.10.5" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.13" />
     <PackageReference Include="HtmlAgilityPack" Version="1.13.0" />
     <PackageReference Include="log4net" version="3.5.0" />
