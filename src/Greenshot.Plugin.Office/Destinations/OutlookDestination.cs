@@ -30,7 +30,7 @@ using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Plugin.Office.OfficeExport;
-using Microsoft.Office.Interop.Outlook;
+using Greenshot.Plugin.Office.OfficeInterop;
 using Microsoft.Win32;
 
 namespace Greenshot.Plugin.Office.Destinations

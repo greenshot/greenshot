@@ -20,8 +20,7 @@ using System;
 using System.Collections.Generic;
 using Dapplo.Ini;
 using Dapplo.Windows.Com;
-using Microsoft.Office.Core;
-using Microsoft.Office.Interop.Word;
+using Greenshot.Plugin.Office.OfficeInterop;
 
 namespace Greenshot.Plugin.Office.OfficeExport
 {
@@ -39,10 +38,10 @@ namespace Greenshot.Plugin.Office.OfficeExport
         /// </summary>
         /// <param name="selection"></param>
         /// <param name="tmpFile"></param>
-        private void AddPictureToSelection(IDisposableCom<Selection> selection, string tmpFile)
+        private void AddPictureToSelection(IDisposableCom<IWordSelection> selection, string tmpFile)
         {
             using var shapes = DisposableCom.Create(selection.ComObject.InlineShapes);
-            using var shape = DisposableCom.Create(shapes.ComObject.AddPicture(tmpFile, false, true, Type.Missing));
+            using var shape = DisposableCom.Create(shapes.ComObject.AddPicture(tmpFile, false, true));
             // Lock aspect ratio
             if (_officeConfiguration.WordLockAspectRatio)
             {
@@ -50,31 +49,20 @@ namespace Greenshot.Plugin.Office.OfficeExport
             }
 
             selection.ComObject.InsertAfter("\r\n");
-            selection.ComObject.MoveDown(WdUnits.wdLine, 1, Type.Missing);
+            selection.ComObject.MoveDown(WdUnits.wdLine, 1);
         }
 
         /// <summary>
         ///     Call this to get the running Word application, or create a new instance
         /// </summary>
         /// <returns>ComDisposable for Word.Application</returns>
-        private IDisposableCom<Application> GetOrCreateWordApplication() => GetWordApplication() ?? DisposableCom.Create(new Application());
+        private IDisposableCom<IWordApplication> GetOrCreateWordApplication() => OfficeApplication.GetOrCreate<IWordApplication>("Word.Application");
 
         /// <summary>
         ///     Call this to get the running Word application, returns null if there isn't any.
         /// </summary>
         /// <returns>ComDisposable for Word.Application or null</returns>
-        private IDisposableCom<Application> GetWordApplication()
-        {
-            try
-            {
-                return OleAut32Api.GetActiveObject<Application>("Word.Application");
-            }
-            catch (Exception ex)
-            {
-                LOG.Warn("Unexpected error while getting Word application instance.", ex);
-                return null;
-            }
-        }
+        private IDisposableCom<IWordApplication> GetWordApplication() => OfficeApplication.GetActive<IWordApplication>("Word.Application");
 
         /// <summary>
         ///     Get the captions of all the open word documents
@@ -91,7 +79,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
             using var documents = DisposableCom.Create(wordApplication.ComObject.Documents);
             for (int i = 1; i <= documents.ComObject.Count; i++)
             {
-                using var document = DisposableCom.Create(documents.ComObject[i]);
+                using var document = DisposableCom.Create(documents.ComObject.Item(i));
                 if (document.ComObject.ReadOnly || document.ComObject.Final)
                 {
                     continue;
@@ -120,7 +108,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 using var documents = DisposableCom.Create(wordApplication.ComObject.Documents);
                 for (int i = 1; i <= documents.ComObject.Count; i++)
                 {
-                    using var wordDocument = DisposableCom.Create((_Document) documents.ComObject[i]);
+                    using var wordDocument = DisposableCom.Create(documents.ComObject.Item(i));
                     using var activeWindow = DisposableCom.Create(wordDocument.ComObject.ActiveWindow);
                     if (activeWindow.ComObject.Caption.StartsWith(wordCaption))
                     {
@@ -139,7 +127,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
         /// <param name="wordDocument">IDisposableCom with _Document</param>
         /// <param name="tmpFile">string</param>
         /// <returns>bool</returns>
-        internal bool InsertIntoExistingDocument(IDisposableCom<Application> wordApplication, IDisposableCom<_Document> wordDocument, string tmpFile)
+        internal bool InsertIntoExistingDocument(IDisposableCom<IWordApplication> wordApplication, IDisposableCom<IWordDocument> wordDocument, string tmpFile)
         {
             // Bug #1517: image will be inserted into that document, where the focus was last. It will not inserted into the chosen one.
             // Solution: Make sure the selected document is active, otherwise the insert will be made in a different document!
@@ -207,12 +195,8 @@ namespace Greenshot.Plugin.Office.OfficeExport
             wordApplication.ComObject.Visible = true;
             wordApplication.ComObject.Activate();
             // Create new Document
-            object template = string.Empty;
-            object newTemplate = false;
-            object documentType = 0;
-            object documentVisible = true;
             using var documents = DisposableCom.Create(wordApplication.ComObject.Documents);
-            using var wordDocument = DisposableCom.Create(documents.ComObject.Add(template, newTemplate, documentType, documentVisible));
+            using var wordDocument = DisposableCom.Create(documents.ComObject.Add());
             using (var selection = DisposableCom.Create(wordApplication.ComObject.Selection))
             {
                 AddPictureToSelection(selection, tmpFile);

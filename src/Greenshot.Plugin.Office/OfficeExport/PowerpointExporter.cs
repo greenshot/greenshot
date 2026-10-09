@@ -22,9 +22,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using Dapplo.Ini;
 using Dapplo.Windows.Com;
-using Microsoft.Office.Core;
-using Microsoft.Office.Interop.PowerPoint;
-using Shape = Microsoft.Office.Interop.PowerPoint.Shape;
+using Greenshot.Plugin.Office.OfficeInterop;
 
 namespace Greenshot.Plugin.Office.OfficeExport
 {
@@ -43,12 +41,12 @@ namespace Greenshot.Plugin.Office.OfficeExport
         /// <param name="tmpFile"></param>
         /// <param name="imageSize"></param>
         /// <param name="title"></param>
-        private void AddPictureToPresentation(IDisposableCom<Presentation> presentation, string tmpFile, Size imageSize, string title)
+        private void AddPictureToPresentation(IDisposableCom<IPowerPointPresentation> presentation, string tmpFile, Size imageSize, string title)
         {
             if (presentation != null)
             {
                 //ISlide slide = presentation.Slides.AddSlide( presentation.Slides.Count + 1, PPSlideLayout.ppLayoutPictureWithCaption);
-                IDisposableCom<Slide> slide = null;
+                IDisposableCom<IPowerPointSlide> slide = null;
                 try
                 {
                     float left, top;
@@ -60,7 +58,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
 
                     float width = imageSize.Width;
                     float height = imageSize.Height;
-                    IDisposableCom<Shape> shapeForCaption = null;
+                    IDisposableCom<IPowerPointShape> shapeForCaption = null;
                     bool hasScaledWidth = false;
                     bool hasScaledHeight = false;
                     try
@@ -71,9 +69,9 @@ namespace Greenshot.Plugin.Office.OfficeExport
                         }
 
                         using var shapes = DisposableCom.Create(slide.ComObject.Shapes);
-                        using var shapeForLocation = DisposableCom.Create(shapes.ComObject[2]);
+                        using var shapeForLocation = DisposableCom.Create(shapes.ComObject.Item(2));
                         // Shapes[2] is the image shape on this layout.
-                        shapeForCaption = DisposableCom.Create(shapes.ComObject[1]);
+                        shapeForCaption = DisposableCom.Create(shapes.ComObject.Item(1));
                         if (width > shapeForLocation.ComObject.Width)
                         {
                             width = shapeForLocation.ComObject.Width;
@@ -195,7 +193,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 LOG.DebugFormat("Open Presentations: {0}", presentations.ComObject.Count);
                 for (int i = 1; i <= presentations.ComObject.Count; i++)
                 {
-                    using var presentation = DisposableCom.Create(presentations.ComObject[i]);
+                    using var presentation = DisposableCom.Create(presentations.ComObject.Item(i));
                     if (presentation == null)
                     {
                         continue;
@@ -225,24 +223,13 @@ namespace Greenshot.Plugin.Office.OfficeExport
         ///     Call this to get the running PowerPoint application, or create a new instance
         /// </summary>
         /// <returns>ComDisposable for PowerPoint.Application</returns>
-        private IDisposableCom<Application> GetOrCreatePowerPointApplication() => GetPowerPointApplication() ?? DisposableCom.Create(new Application());
+        private IDisposableCom<IPowerPointApplication> GetOrCreatePowerPointApplication() => OfficeApplication.GetOrCreate<IPowerPointApplication>("PowerPoint.Application");
 
         /// <summary>
         ///     Call this to get the running PowerPoint application, returns null if there isn't any.
         /// </summary>
         /// <returns>ComDisposable for PowerPoint.Application or null</returns>
-        private IDisposableCom<Application> GetPowerPointApplication()
-        {
-            try
-            {
-                return OleAut32Api.GetActiveObject<Application>("PowerPoint.Application");
-            }
-            catch (Exception ex)
-            {
-                LOG.Warn("Unexpected error while getting PowerPoint application instance.", ex);
-                return null;
-            }
-        }
+        private IDisposableCom<IPowerPointApplication> GetPowerPointApplication() => OfficeApplication.GetActive<IPowerPointApplication>("PowerPoint.Application");
 
         /// <summary>
         ///     Get the captions of all the open powerpoint presentations
@@ -260,13 +247,13 @@ namespace Greenshot.Plugin.Office.OfficeExport
             LOG.DebugFormat("Open Presentations: {0}", presentations.ComObject.Count);
             for (int i = 1; i <= presentations.ComObject.Count; i++)
             {
-                using var presentation = DisposableCom.Create(presentations.ComObject[i]);
+                using var presentation = DisposableCom.Create(presentations.ComObject.Item(i));
                 if (presentation == null)
                 {
                     continue;
                 }
 
-                if (presentation.ComObject.ReadOnly == MsoTriState.msoTrue || presentation.ComObject.Final)
+                if (presentation.ComObject.ReadOnly == (int) MsoTriState.msoTrue || presentation.ComObject.Final)
                 {
                     continue;
                 }

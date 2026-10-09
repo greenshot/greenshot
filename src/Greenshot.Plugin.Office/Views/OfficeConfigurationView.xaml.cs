@@ -8,7 +8,7 @@ using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Plugin.Office.Destinations;
-using Microsoft.Office.Interop.PowerPoint;
+using Greenshot.Plugin.Office.OfficeInterop;
 using System.Threading.Tasks;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Languages;

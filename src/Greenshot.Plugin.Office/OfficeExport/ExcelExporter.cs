@@ -22,8 +22,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using Dapplo.Windows.Com;
 using Dapplo.Windows.User32;
-using Microsoft.Office.Core;
-using Microsoft.Office.Interop.Excel;
+using Greenshot.Plugin.Office.OfficeInterop;
 
 namespace Greenshot.Plugin.Office.OfficeExport
 {
@@ -32,30 +31,17 @@ namespace Greenshot.Plugin.Office.OfficeExport
     /// </summary>
     public static class ExcelExporter
     {
-        private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExcelExporter));
-
         /// <summary>
         ///     Call this to get the running Excel application, returns null if there isn't any.
         /// </summary>
         /// <returns>ComDisposable for Excel.Application or null</returns>
-        private static IDisposableCom<Application> GetExcelApplication()
-        {
-            try
-            {
-                return OleAut32Api.GetActiveObject<Application>("Excel.Application");
-            }
-            catch (Exception ex)
-            {
-                LOG.Warn("Unexpected error while getting Excel application instance.", ex);
-                return null;
-            }
-        }
+        private static IDisposableCom<IExcelApplication> GetExcelApplication() => OfficeApplication.GetActive<IExcelApplication>("Excel.Application");
 
         /// <summary>
         ///     Call this to get the running Excel application, or create a new instance
         /// </summary>
         /// <returns>ComDisposable for Excel.Application</returns>
-        private static IDisposableCom<Application> GetOrCreateExcelApplication() => GetExcelApplication() ?? DisposableCom.Create(new Application());
+        private static IDisposableCom<IExcelApplication> GetOrCreateExcelApplication() => OfficeApplication.GetOrCreate<IExcelApplication>("Excel.Application");
 
         /// <summary>
         ///     Get all currently opened workbooks
@@ -72,7 +58,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
             using var workbooks = DisposableCom.Create(excelApplication.ComObject.Workbooks);
             for (int i = 1; i <= workbooks.ComObject.Count; i++)
             {
-                using var workbook = DisposableCom.Create(workbooks.ComObject[i]);
+                using var workbook = DisposableCom.Create(workbooks.ComObject.Item(i));
                 if (workbook != null)
                 {
                     yield return workbook.ComObject.Name;
@@ -98,7 +84,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
             using var workbooks = DisposableCom.Create(excelApplication.ComObject.Workbooks);
             for (int i = 1; i <= workbooks.ComObject.Count; i++)
             {
-                using var workbook = DisposableCom.Create((_Workbook) workbooks.ComObject[i]);
+                using var workbook = DisposableCom.Create(workbooks.ComObject.Item(i));
                 if (workbook != null && workbook.ComObject.Name == workbookName)
                 {
                     return InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);
@@ -114,9 +100,9 @@ namespace Greenshot.Plugin.Office.OfficeExport
         /// <param name="workbook"></param>
         /// <param name="tmpFile"></param>
         /// <param name="imageSize"></param>
-        private static bool InsertIntoExistingWorkbook(IDisposableCom<_Workbook> workbook, string tmpFile, Size imageSize)
+        private static bool InsertIntoExistingWorkbook(IDisposableCom<IExcelWorkbook> workbook, string tmpFile, Size imageSize)
         {
-            using var workSheet = DisposableCom.Create(workbook.ComObject.ActiveSheet as Worksheet);
+            using var workSheet = DisposableCom.Create(workbook.ComObject.ActiveSheet);
             if (workSheet == null)
             {
                 return false;
@@ -156,7 +142,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
             using var excelApplication = GetOrCreateExcelApplication();
             excelApplication.ComObject.Visible = true;
             using var workbooks = DisposableCom.Create(excelApplication.ComObject.Workbooks);
-            using var workbook = DisposableCom.Create((_Workbook) workbooks.ComObject.Add());
+            using var workbook = DisposableCom.Create(workbooks.ComObject.Add());
             return InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);
         }
     }

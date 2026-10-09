@@ -21,10 +21,6 @@ using System.Collections.Generic;
 using Dapplo.Ini;
 using Dapplo.Windows.Com;
 using Greenshot.Plugin.Office.OfficeInterop;
-using Microsoft.Office.Interop.Outlook;
-using Microsoft.Office.Interop.Word;
-using Application = Microsoft.Office.Interop.Outlook.Application;
-using Exception = System.Exception;
 
 namespace Greenshot.Plugin.Office.OfficeExport
 {
@@ -54,26 +50,28 @@ namespace Greenshot.Plugin.Office.OfficeExport
             using (var outlookApplication = GetOrCreateOutlookApplication())
             {
                 // Check the inline response "panel" of the explorer
-                using var activeExplorer = DisposableCom.Create((_Explorer) outlookApplication.ComObject.ActiveExplorer());
+                using var activeExplorer = DisposableCom.Create(outlookApplication.ComObject.ActiveExplorer());
                 // Only if we have one and if the capture is the one we selected
                 if ((activeExplorer != null) && activeExplorer.ComObject.Caption.StartsWith(inspectorCaption))
                 {
                     var untypedInlineResponse = activeExplorer.ComObject.ActiveInlineResponse;
                     using (DisposableCom.Create(untypedInlineResponse))
                     {
-                        switch (untypedInlineResponse)
+                        switch (ClassOf(untypedInlineResponse))
                         {
-                            case MailItem mailItem:
+                            case OlObjectClass.olMail:
+                                var mailItem = (IOutlookMailItem) untypedInlineResponse;
                                 if (!mailItem.Sent)
                                 {
-                                    return ExportToInspector(null, activeExplorer, mailItem.Class, mailItem, tmpFile, attachmentName);
+                                    return ExportToInspector(null, activeExplorer, OlObjectClass.olMail, mailItem, tmpFile, attachmentName);
                                 }
 
                                 break;
-                            case AppointmentItem appointmentItem:
+                            case OlObjectClass.olAppointment:
+                                var appointmentItem = (IOutlookAppointmentItem) untypedInlineResponse;
                                 if (_officeConfiguration.OutlookAllowExportInMeetings && !string.IsNullOrEmpty(appointmentItem.Organizer) && appointmentItem.Organizer.Equals(_currentUser))
                                 {
-                                    return ExportToInspector(null, activeExplorer, appointmentItem.Class, null, tmpFile, attachmentName);
+                                    return ExportToInspector(null, activeExplorer, OlObjectClass.olAppointment, null, tmpFile, attachmentName);
                                 }
 
                                 break;
@@ -90,7 +88,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 LOG.DebugFormat("Got {0} inspectors to check", inspectors.ComObject.Count);
                 for (int i = 1; i <= inspectors.ComObject.Count; i++)
                 {
-                    using var inspector = DisposableCom.Create((_Inspector) inspectors.ComObject[i]);
+                    using var inspector = DisposableCom.Create(inspectors.ComObject.Item(i));
                     string currentCaption = inspector.ComObject.Caption;
                     if (!currentCaption.StartsWith(inspectorCaption))
                     {
@@ -100,9 +98,10 @@ namespace Greenshot.Plugin.Office.OfficeExport
                     var currentItemUntyped = inspector.ComObject.CurrentItem;
                     using (DisposableCom.Create(currentItemUntyped))
                     {
-                        switch (currentItemUntyped)
+                        switch (ClassOf(currentItemUntyped))
                         {
-                            case MailItem mailItem:
+                            case OlObjectClass.olMail:
+                                var mailItem = (IOutlookMailItem) currentItemUntyped;
                                 if (mailItem.Sent)
                                 {
                                     continue;
@@ -110,7 +109,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
 
                                 try
                                 {
-                                    return ExportToInspector(inspector, null, mailItem.Class, mailItem, tmpFile, attachmentName);
+                                    return ExportToInspector(inspector, null, OlObjectClass.olMail, mailItem, tmpFile, attachmentName);
                                 }
                                 catch (Exception exExport)
                                 {
@@ -118,13 +117,14 @@ namespace Greenshot.Plugin.Office.OfficeExport
                                 }
 
                                 break;
-                            case AppointmentItem appointmentItem:
+                            case OlObjectClass.olAppointment:
                                 if (!_officeConfiguration.OutlookAllowExportInMeetings)
                                 {
                                     // skip, can't export to olAppointment
                                     continue;
                                 }
 
+                                var appointmentItem = (IOutlookAppointmentItem) currentItemUntyped;
                                 if (!string.IsNullOrEmpty(appointmentItem.Organizer) && !appointmentItem.Organizer.Equals(_currentUser))
                                 {
                                     LOG.DebugFormat("Not exporting, as organizer is set to {0} and currentuser {1} is not him.", appointmentItem.Organizer, _currentUser);
@@ -133,7 +133,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
 
                                 try
                                 {
-                                    return ExportToInspector(inspector, null, appointmentItem.Class, null, tmpFile, attachmentName);
+                                    return ExportToInspector(inspector, null, OlObjectClass.olAppointment, null, tmpFile, attachmentName);
                                 }
                                 catch (Exception exExport)
                                 {
@@ -161,7 +161,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
         /// <param name="tmpFile"></param>
         /// <param name="attachmentName"></param>
         /// <returns>true if it worked</returns>
-        private bool ExportToInspector(IDisposableCom<_Inspector> inspector, IDisposableCom<_Explorer> explorer, OlObjectClass itemClass, MailItem mailItem, string tmpFile,
+        private bool ExportToInspector(IDisposableCom<IOutlookInspector> inspector, IDisposableCom<IOutlookExplorer> explorer, OlObjectClass itemClass, IOutlookMailItem mailItem, string tmpFile,
             string attachmentName)
         {
             bool isMail = OlObjectClass.olMail.Equals(itemClass);
@@ -177,18 +177,18 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 // Make sure the inspector is activated, only this way the word editor is active!
                 // This also ensures that the window is visible!
                 inspector?.ComObject.Activate();
-                bool isTextFormat = isMail && OlBodyFormat.olFormatPlain.Equals(mailItem.BodyFormat);
+                bool isTextFormat = isMail && mailItem.BodyFormat == (int) OlBodyFormat.olFormatPlain;
                 if (isAppointment || !isTextFormat)
                 {
                     // Word is the editor of Outlook, use the word exporter
-                    IDisposableCom<_Document> wordDocument = null;
+                    IDisposableCom<IWordDocument> wordDocument = null;
                     if (explorer != null)
                     {
-                        wordDocument = DisposableCom.Create((_Document) explorer.ComObject.ActiveInlineResponseWordEditor);
+                        wordDocument = DisposableCom.Create((IWordDocument) explorer.ComObject.ActiveInlineResponseWordEditor);
                     }
-                    else if (inspector != null && inspector.ComObject.IsWordMail() && inspector.ComObject.EditorType == OlEditorType.olEditorWord)
+                    else if (inspector != null && inspector.ComObject.IsWordMail() && inspector.ComObject.EditorType == (int) OlEditorType.olEditorWord)
                     {
-                        wordDocument = DisposableCom.Create((_Document) inspector.ComObject.WordEditor);
+                        wordDocument = DisposableCom.Create((IWordDocument) inspector.ComObject.WordEditor);
                     }
 
                     if (wordDocument != null)
@@ -273,10 +273,10 @@ namespace Greenshot.Plugin.Office.OfficeExport
         /// <param name="to"></param>
         /// <param name="cc"></param>
         /// <param name="bcc"></param>
-        private void ExportToNewEmail(IDisposableCom<Application> outlookApplication, EmailFormat format, string tmpFile, string subject, string attachmentName, string to,
+        private void ExportToNewEmail(IDisposableCom<IOutlookApplication> outlookApplication, EmailFormat format, string tmpFile, string subject, string attachmentName, string to,
             string cc, string bcc)
         {
-            using var newItem = DisposableCom.Create((MailItem) outlookApplication.ComObject.CreateItem(OlItemType.olMailItem));
+            using var newItem = DisposableCom.Create((IOutlookMailItem) outlookApplication.ComObject.CreateItem(OlItemType.olMailItem));
             if (newItem == null)
             {
                 return;
@@ -299,9 +299,9 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 newMail.BCC = bcc;
             }
 
-            newMail.BodyFormat = format == EmailFormat.Text ? OlBodyFormat.olFormatPlain : OlBodyFormat.olFormatHTML;
+            newMail.BodyFormat = (int) (format == EmailFormat.Text ? OlBodyFormat.olFormatPlain : OlBodyFormat.olFormatHTML);
             // Getting the inspector makes Outlook add the default signature to the body, also a signature stored in the mailbox
-            using var inspector = DisposableCom.Create((_Inspector) newMail.GetInspector);
+            using var inspector = DisposableCom.Create(newMail.GetInspector);
 
             // Create the attachment (and dispose the COM object after using)
             using (var attachments = DisposableCom.Create(newMail.Attachments))
@@ -365,9 +365,9 @@ namespace Greenshot.Plugin.Office.OfficeExport
         ///     Call this to get the running Outlook application, or create a new instance
         /// </summary>
         /// <returns>IDisposableCom for Outlook.Application</returns>
-        private IDisposableCom<Application> GetOrCreateOutlookApplication()
+        private IDisposableCom<IOutlookApplication> GetOrCreateOutlookApplication()
         {
-            var outlookApplication = GetOutlookApplication() ?? DisposableCom.Create(new Application());
+            var outlookApplication = OfficeApplication.GetOrCreate<IOutlookApplication>("Outlook.Application");
             InitializeVariables(outlookApplication);
             return outlookApplication;
         }
@@ -376,19 +376,9 @@ namespace Greenshot.Plugin.Office.OfficeExport
         ///     Call this to get the running Outlook application, returns null if there isn't any.
         /// </summary>
         /// <returns>IDisposableCom for Outlook.Application or null</returns>
-        private IDisposableCom<Application> GetOutlookApplication()
+        private IDisposableCom<IOutlookApplication> GetOutlookApplication()
         {
-            IDisposableCom<Application> outlookApplication;
-            try
-            {
-                outlookApplication = OleAut32Api.GetActiveObject<Application>("Outlook.Application");
-            }
-            catch (Exception ex)
-            {
-                LOG.Warn("Unexpected error while getting Outlook application instance.", ex);
-                return null;
-            }
-
+            var outlookApplication = OfficeApplication.GetActive<IOutlookApplication>("Outlook.Application");
             InitializeVariables(outlookApplication);
             return outlookApplication;
         }
@@ -397,7 +387,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
         ///     Initialize the current user, used to check if appointments are ours
         /// </summary>
         /// <param name="outlookApplication"></param>
-        private void InitializeVariables(IDisposableCom<Application> outlookApplication)
+        private void InitializeVariables(IDisposableCom<IOutlookApplication> outlookApplication)
         {
             if (outlookApplication == null || _currentUser != null)
             {
@@ -445,19 +435,20 @@ namespace Greenshot.Plugin.Office.OfficeExport
                         string caption = activeExplorer.ComObject.Caption;
                         using (DisposableCom.Create(untypedInlineResponse))
                         {
-                            switch (untypedInlineResponse)
+                            switch (ClassOf(untypedInlineResponse))
                             {
-                                case MailItem mailItem:
-                                    if (!mailItem.Sent)
+                                case OlObjectClass.olMail:
+                                    if (!((IOutlookMailItem) untypedInlineResponse).Sent)
                                     {
-                                        inspectorCaptions.Add(caption, mailItem.Class);
+                                        inspectorCaptions.Add(caption, OlObjectClass.olMail);
                                     }
 
                                     break;
-                                case AppointmentItem appointmentItem:
+                                case OlObjectClass.olAppointment:
+                                    var appointmentItem = (IOutlookAppointmentItem) untypedInlineResponse;
                                     if (_officeConfiguration.OutlookAllowExportInMeetings && !string.IsNullOrEmpty(appointmentItem.Organizer) && appointmentItem.Organizer.Equals(_currentUser))
                                     {
-                                        inspectorCaptions.Add(caption, appointmentItem.Class);
+                                        inspectorCaptions.Add(caption, OlObjectClass.olAppointment);
                                     }
 
                                     break;
@@ -471,7 +462,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 {
                     for (int i = 1; i <= inspectors.ComObject.Count; i++)
                     {
-                        using var inspector = DisposableCom.Create(inspectors.ComObject[i]);
+                        using var inspector = DisposableCom.Create(inspectors.ComObject.Item(i));
                         string caption = inspector.ComObject.Caption;
                         // Fix double entries in the directory, TODO: store on something unique
                         if (inspectorCaptions.ContainsKey(caption))
@@ -482,30 +473,31 @@ namespace Greenshot.Plugin.Office.OfficeExport
                         var currentItemUntyped = inspector.ComObject.CurrentItem;
                         using (DisposableCom.Create(currentItemUntyped))
                         {
-                            switch (currentItemUntyped)
+                            switch (ClassOf(currentItemUntyped))
                             {
-                                case MailItem mailItem:
-                                    if (mailItem.Sent)
+                                case OlObjectClass.olMail:
+                                    if (((IOutlookMailItem) currentItemUntyped).Sent)
                                     {
                                         continue;
                                     }
 
-                                    inspectorCaptions.Add(caption, mailItem.Class);
+                                    inspectorCaptions.Add(caption, OlObjectClass.olMail);
                                     break;
-                                case AppointmentItem appointmentItem:
+                                case OlObjectClass.olAppointment:
                                     if (!_officeConfiguration.OutlookAllowExportInMeetings)
                                     {
                                         // skip, can't export to olAppointment
                                         continue;
                                     }
 
+                                    var appointmentItem = (IOutlookAppointmentItem) currentItemUntyped;
                                     if (!string.IsNullOrEmpty(appointmentItem.Organizer) && !appointmentItem.Organizer.Equals(_currentUser))
                                     {
                                         LOG.DebugFormat("Not exporting, as organizer is set to {0} and currentuser {1} is not him.", appointmentItem.Organizer, _currentUser);
                                         continue;
                                     }
 
-                                    inspectorCaptions.Add(caption, appointmentItem.Class);
+                                    inspectorCaptions.Add(caption, OlObjectClass.olAppointment);
                                     break;
                                 default:
                                     continue;
@@ -520,6 +512,22 @@ namespace Greenshot.Plugin.Office.OfficeExport
             }
 
             return inspectorCaptions;
+        }
+
+        /// <summary>
+        ///     The class of an Outlook item (mail, appointment...), null when it's no Outlook item
+        /// </summary>
+        private static OlObjectClass? ClassOf(object item)
+        {
+            try
+            {
+                return item == null ? null : (OlObjectClass) ((IOutlookItem) item).Class;
+            }
+            catch (Exception ex)
+            {
+                LOG.Debug("Couldn't read the class of the Outlook item", ex);
+                return null;
+            }
         }
     }
 }
