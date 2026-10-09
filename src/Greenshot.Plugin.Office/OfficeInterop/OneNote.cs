@@ -33,7 +33,7 @@ namespace Greenshot.Plugin.Office.OfficeInterop
     {
         void GetHierarchy(string startNodeId, HierarchyScope scope, out string hierarchyXml, XMLSchema schema);
         void UnusedUpdateHierarchy();
-        void UnusedOpenHierarchy();
+        void OpenHierarchy(string path, string relativeToObjectId, out string objectId, CreateFileType createFileType);
         void UnusedDeleteHierarchy();
         void CreateNewPage(string sectionId, out string pageId, NewPageStyle newPageStyle);
         void UnusedCloseNotebook();
@@ -66,6 +66,14 @@ namespace Greenshot.Plugin.Office.OfficeInterop
     public enum SpecialLocation
     {
         slUnfiledNotesSection = 1
+    }
+
+    /// <summary>
+    /// CreateFileType
+    /// </summary>
+    public enum CreateFileType
+    {
+        cftNone = 0
     }
 
     /// <summary>

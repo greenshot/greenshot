@@ -321,52 +321,10 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 return null;
             }
 
-            // ReSharper disable once RedundantAssignment
-            string unfiledNotesPath = "";
-            oneNoteApplication.ComObject.GetSpecialLocation(specialLocation, out unfiledNotesPath);
-
-            // ReSharper disable once RedundantAssignment
-            string notebookXml = "";
-            oneNoteApplication.ComObject.GetHierarchy("", HierarchyScope.hsPages, out notebookXml, XMLSchema.xs2010);
-            if (!string.IsNullOrEmpty(notebookXml))
-            {
-                LOG.Debug(notebookXml);
-                StringReader reader = null;
-                try
-                {
-                    reader = new StringReader(notebookXml);
-                    using var xmlReader = new XmlTextReader(reader);
-                    while (xmlReader.Read())
-                    {
-                        // The unfiled notes (Quick Notes) section is listed as its own element when it's in no open notebook
-                        if (specialLocation == SpecialLocation.slUnfiledNotesSection && "one:UnfiledNotes".Equals(xmlReader.Name))
-                        {
-                            return xmlReader.GetAttribute("ID");
-                        }
-
-                        if (!"one:Section".Equals(xmlReader.Name))
-                        {
-                            continue;
-                        }
-
-                        string id = xmlReader.GetAttribute("ID");
-                        string path = xmlReader.GetAttribute("path");
-                        if (unfiledNotesPath.Equals(path))
-                        {
-                            return id;
-                        }
-                    }
-                }
-                finally
-                {
-                    if (reader != null)
-                    {
-                        reader.Dispose();
-                    }
-                }
-            }
-
-            return null;
+            oneNoteApplication.ComObject.GetSpecialLocation(specialLocation, out string sectionPath);
+            // Opening the section gives its ID, also when it's in no open notebook (where the hierarchy doesn't list it)
+            oneNoteApplication.ComObject.OpenHierarchy(sectionPath, string.Empty, out string sectionId, CreateFileType.cftNone);
+            return sectionId;
         }
     }
 }
