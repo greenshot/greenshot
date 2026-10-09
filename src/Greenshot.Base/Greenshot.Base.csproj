@@ -28,7 +28,7 @@
     <PackageReference Include="Svg" Version="3.4.8" />
     <PackageReference Include="Dapplo.Ini" Version="1.1.9" />
     <PackageReference Include="Dapplo.Ini.Generator" Version="1.1.9" />
-    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.19041.1" />
+    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.28000.2705" />
     <Reference Include="Accessibility" />
     <Reference Include="CustomMarshalers" />
   </ItemGroup>
