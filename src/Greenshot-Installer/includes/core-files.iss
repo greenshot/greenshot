@@ -36,7 +36,6 @@ Source: {#ReleaseDir}\System.ComponentModel.Annotations.dll; DestDir: {app}; Com
 Source: {#ReleaseDir}\System.Memory.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\System.Numerics.Vectors.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\System.Reactive.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
-Source: {#ReleaseDir}\System.Reactive.Linq.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\System.Reflection.TypeExtensions.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\System.Runtime.CompilerServices.Unsafe.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\System.Text.Encoding.CodePages.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}

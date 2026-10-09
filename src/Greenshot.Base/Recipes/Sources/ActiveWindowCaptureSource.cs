@@ -108,7 +108,7 @@ namespace Greenshot.Base.Recipes.Sources
                 // Restores a minimized window, a targeted window is also brought to the front
                 if (isTargeted || window.IsMinimized(true))
                 {
-                    await window.ToForegroundAsync().ConfigureAwait(false);
+                    await window.ToForegroundAsync(cancellationToken).ConfigureAwait(false);
                     await Task.Delay(100, cancellationToken).ConfigureAwait(false);
                     // The bounds changed when the window was restored
                     window.GetInfo(forceUpdate: true);

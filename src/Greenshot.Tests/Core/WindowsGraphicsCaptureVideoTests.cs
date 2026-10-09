@@ -33,7 +33,6 @@ using Greenshot.Base.Recipes;
 using Greenshot.Base.Video;
 using Greenshot.Recipes.Steps;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Greenshot.Tests.Core
 {
@@ -147,7 +146,10 @@ namespace Greenshot.Tests.Core
 
                 // Another MTA thread (the thread pool, like the capture methods) shares the apartment and can use the device
                 ID3D11Texture2D otherThreadTex = null;
+                // Blocking is intended: an await can't be inside the lock, which must be held like the capture methods do
+#pragma warning disable xUnit1031
                 Task.Run(() => d3d11Device.CreateTexture2D(ref desc, IntPtr.Zero, out otherThreadTex)).GetAwaiter().GetResult();
+#pragma warning restore xUnit1031
                 Assert.NotNull(otherThreadTex);
                 context.CopyResource(tex2, otherThreadTex);
             }

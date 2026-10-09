@@ -716,7 +716,7 @@ namespace Greenshot.Base.Native
             if (topLevelInteropWindow.IsMinimized())
             {
                 Log.Debug($"Restoring the minimized window {topLevelWindow} for the capture.");
-                await topLevelInteropWindow.ToForegroundAsync().ConfigureAwait(false);
+                await topLevelInteropWindow.ToForegroundAsync(cancellationToken).ConfigureAwait(false);
             }
 
             var bitmap = await CaptureItemToBitmapAsync(() => CreateCaptureItemForWindow(topLevelWindow), () => HdrDisplayInfo.GetMonitorForWindow(topLevelWindow), $"window {topLevelWindow}", cancellationToken).ConfigureAwait(false);

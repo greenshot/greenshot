@@ -42,6 +42,8 @@ namespace Greenshot.Tests.Recipes
     /// <summary>
     /// Recipe extensions: slots, the composer, the extension format and its checks, and the built-in extensions
     /// </summary>
+    // Uses the recipe trust store through RecipeApprovalTests.WithTemporaryTrustStore, like the tests of that collection
+    [Collection(TestCollections.RecipeManager)]
     public class RecipeExtensionTests
     {
         public RecipeExtensionTests()

@@ -73,7 +73,7 @@ namespace Greenshot.Base.Capturing
         public async Task<Bitmap> CaptureWindowAsync(IInteropWindow window, CancellationToken cancellationToken = default)
         {
             // What is on the screen is captured, so the window has to be visible and in front, a minimized window is restored
-            await window.ToForegroundAsync().ConfigureAwait(false);
+            await window.ToForegroundAsync(cancellationToken).ConfigureAwait(false);
             cancellationToken.ThrowIfCancellationRequested();
 
             // Read the bounds again, they changed when the window was restored

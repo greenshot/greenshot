@@ -11,7 +11,8 @@ namespace Greenshot.Base.Wpf.ViewModels
         private readonly HotkeyEditorViewModel _parent;
         private readonly int _index;
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        // All properties are fixed, a changed step gets a new view model. The interface stays so WPF binding does not fall back to PropertyDescriptor (which leaks)
+        public event PropertyChangedEventHandler PropertyChanged { add { } remove { } }
 
         public ChordStepViewModel(HotkeyEditorViewModel parent, int index, KeyChord chord, bool isSelected)
         {
