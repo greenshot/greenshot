@@ -40,6 +40,7 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Icons;
 using Dapplo.Windows.User32;
+using Dapplo.Windows.User32.Enums;
 using Greenshot.Base.Capturing;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
@@ -757,6 +758,10 @@ namespace Greenshot.Capturing.Views
             // Make sure we never capture the capture window
             WindowHelper.RegisterIgnoreHandle(handle);
             HwndSource.FromHwnd(handle)?.AddHook(WndProc);
+            // Browsers and Electron apps treat a window covered by an opaque window like a minimized one and don't build their
+            // UI Automation content then, which the window tool needs for its areas. Chromium doesn't count tool windows as covering.
+            var exStyle = (ExtendedWindowStyleFlags)User32Api.GetWindowLongWrapper(handle, WindowLongIndex.GWL_EXSTYLE);
+            User32Api.SetWindowLongWrapper(handle, WindowLongIndex.GWL_EXSTYLE, new IntPtr((uint)(exStyle | ExtendedWindowStyleFlags.WS_EX_TOOLWINDOW)));
             PlaceWindow();
 
             ApplyDpiScale(VisualTreeHelper.GetDpi(this));
