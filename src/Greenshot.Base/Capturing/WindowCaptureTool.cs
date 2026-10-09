@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -221,7 +222,9 @@ namespace Greenshot.Base.Capturing
                     areas = await UiAutomationAreas.FindAreasAsync(window, MaximumAreaDepth, MinimumAreaSize, cancellationToken: cancellationToken);
                     if (Log.IsDebugEnabled)
                     {
-                        Log.Debug($"Areas of window {window}: {areas}, {CountAreas(areas, 0, out int depth)} areas, {depth} levels, {stopwatch.ElapsedMilliseconds} ms");
+                        var tree = new StringBuilder();
+                        DescribeAreas(areas, 0, tree);
+                        Log.Debug($"Areas of window {window} in {stopwatch.ElapsedMilliseconds} ms:{Environment.NewLine}{tree}");
                     }
                 }
                 if (areas?.Children.Count > 0)
@@ -233,20 +236,18 @@ namespace Greenshot.Base.Capturing
             return null;
         }
 
-        private static int CountAreas(UiAutomationArea area, int level, out int depth)
+        // The tree for the debug log, the control type ids are listed at https://learn.microsoft.com/windows/win32/winauto/uiauto-controltype-ids
+        private static void DescribeAreas(UiAutomationArea area, int level, StringBuilder tree)
         {
-            depth = level;
             if (area == null)
             {
-                return 0;
+                return;
             }
-            int count = 1;
+            tree.Append(' ', level * 2).Append(area.ControlType).Append(' ').Append(area.Bounds).Append(' ').AppendLine(area.Name);
             foreach (var child in area.Children)
             {
-                count += CountAreas(child, level + 1, out int childDepth);
-                depth = Math.Max(depth, childDepth);
+                DescribeAreas(child, level + 1, tree);
             }
-            return count;
         }
 
         /// <summary>
