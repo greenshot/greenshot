@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -52,8 +53,9 @@ namespace Greenshot.Base.Capturing
         private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
         // Smaller areas (a word, an icon) are rarely what the user wants to capture
         private const int MinimumAreaSize = 64;
-        // The levels below the window, counted without the elements which only wrap another one
-        private const int MaximumAreaDepth = 3;
+        // The levels below the window, counted without the elements which only wrap another one. The parts of a browser page are
+        // several levels below the window, under the panes of the browser and the document
+        private const int MaximumAreaDepth = 8;
 
         // The areas of the windows the cursor was over, null when there are none; the screen doesn't change during the selection
         private readonly Dictionary<IntPtr, UiAutomationArea> _areas = new();
@@ -215,8 +217,12 @@ namespace Greenshot.Base.Capturing
             {
                 if (!_areas.TryGetValue(window, out var areas))
                 {
+                    var stopwatch = Stopwatch.StartNew();
                     areas = await UiAutomationAreas.FindAreasAsync(window, MaximumAreaDepth, MinimumAreaSize, cancellationToken: cancellationToken);
-                    Log.Debug($"Areas of window {window}: {areas}");
+                    if (Log.IsDebugEnabled)
+                    {
+                        Log.Debug($"Areas of window {window}: {areas}, {CountAreas(areas, 0, out int depth)} areas, {depth} levels, {stopwatch.ElapsedMilliseconds} ms");
+                    }
                 }
                 if (areas?.Children.Count > 0)
                 {
@@ -225,6 +231,22 @@ namespace Greenshot.Base.Capturing
                 }
             }
             return null;
+        }
+
+        private static int CountAreas(UiAutomationArea area, int level, out int depth)
+        {
+            depth = level;
+            if (area == null)
+            {
+                return 0;
+            }
+            int count = 1;
+            foreach (var child in area.Children)
+            {
+                count += CountAreas(child, level + 1, out int childDepth);
+                depth = Math.Max(depth, childDepth);
+            }
+            return count;
         }
 
         /// <summary>
