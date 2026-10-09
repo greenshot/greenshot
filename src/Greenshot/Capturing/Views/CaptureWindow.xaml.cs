@@ -146,7 +146,7 @@ namespace Greenshot.Capturing.Views
         private bool? _modelessResult;
         private bool _handleCreated;
         private bool _closed;
-        private bool _closing;
+        private bool _lostFocus;
         private AnimationClock _selectionClock;
 
         /// <summary>
@@ -416,17 +416,6 @@ namespace Greenshot.Capturing.Views
             SourceInitialized += OnSourceInitialized;
             ContentRendered += OnContentRendered;
             Closed += OnClosed;
-            Closing += (_, _) => _closing = true;
-            // Another window got the focus (e.g. Alt+Tab or the Windows key): the keys don't reach the capture any more, while it still
-            // follows the mouse on top of everything, so it ends
-            Deactivated += (_, _) =>
-            {
-                if (!_closing)
-                {
-                    Log.Debug("The capture window lost the focus, cancelling the capture");
-                    Cancel();
-                }
-            };
         }
 
         /// <summary>
@@ -510,7 +499,18 @@ namespace Greenshot.Capturing.Views
             // Preview: the arrow keys would otherwise be taken by the keyboard navigation
             PreviewKeyDown += OnKeyDown;
             PreviewKeyUp += OnKeyUp;
-            MouseMove += (sender, args) => UpdateSelection();
+            MouseMove += (sender, args) =>
+            {
+                // Another window took the focus (e.g. Alt+Tab, a dialog of another application) while the capture stays on top:
+                // the next mouse move takes it back once, so the keys work again
+                if (_lostFocus)
+                {
+                    _lostFocus = false;
+                    WindowHelper.ToForeground(new WindowInteropHelper(this).Handle);
+                }
+                UpdateSelection();
+            };
+            Deactivated += (sender, args) => _lostFocus = !_closed;
             MouseLeftButtonDown += OnMouseLeftButtonDown;
             MouseLeftButtonUp += OnMouseLeftButtonUp;
             if (_handleCreated)
