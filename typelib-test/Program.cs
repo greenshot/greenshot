@@ -15,6 +15,7 @@ internal static class Program
         failures += Run("dynamic", app => (int)((dynamic)app).Documents.Count);
         failures += Run("IDispatch by name (what a DispatchProxy would do)", app => (int)DispatchGet(DispatchGet(app, "Documents"), "Count"));
         failures += Run("own typed interfaces over IDispatch (no library, no type information)", app => ((IWordApplication)app).Documents.Count);
+        failures += Run("own interfaces: Documents.Add, Item(1) as method, [1] as indexer, Close", OwnInterfaceCollections);
         return failures;
     }
 
@@ -45,6 +46,19 @@ internal static class Program
         }
     }
 
+    private static int OwnInterfaceCollections(object app)
+    {
+        var documents = ((IWordApplication)app).Documents;
+        var added = documents.Add();
+        string viaMethod, viaIndexer;
+        try { viaMethod = ((IWordDocumentsByMethod)documents).Item(1).Name; } catch (Exception ex) { viaMethod = $"failed 0x{ex.HResult:X8}"; }
+        try { viaIndexer = ((IWordDocumentsByIndexer)documents)[1].Name; } catch (Exception ex) { viaIndexer = $"failed 0x{ex.HResult:X8}"; }
+        Console.WriteLine($"      Item(1): {viaMethod}, [1]: {viaIndexer}");
+        // wdDoNotSaveChanges = 0
+        added.Close(0);
+        return documents.Count;
+    }
+
     // Type.InvokeMember on a COM object calls IDispatch.GetIDsOfNames and IDispatch.Invoke, no type information
     private static object DispatchGet(object target, string name) => target.GetType().InvokeMember(name, BindingFlags.GetProperty, null, target, null);
     private static void DispatchCall(object target, string name, params object[] args) => target.GetType().InvokeMember(name, BindingFlags.InvokeMethod, null, target, args);
@@ -62,4 +76,24 @@ public interface IWordApplication
 public interface IWordDocuments
 {
     int Count { get; }
+    IWordDocument Add();
+}
+
+[ComImport, Guid("00020400-0000-0000-C000-000000000046"), InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
+public interface IWordDocumentsByMethod
+{
+    IWordDocument Item(object index);
+}
+
+[ComImport, Guid("00020400-0000-0000-C000-000000000046"), InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
+public interface IWordDocumentsByIndexer
+{
+    IWordDocument this[object index] { get; }
+}
+
+[ComImport, Guid("00020400-0000-0000-C000-000000000046"), InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
+public interface IWordDocument
+{
+    string Name { get; }
+    void Close(object saveChanges);
 }
