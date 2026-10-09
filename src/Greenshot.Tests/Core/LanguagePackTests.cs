@@ -59,7 +59,8 @@ namespace Greenshot.Tests.Core
                 typeof(Greenshot.Plugin.ExternalCommand.IExternalCommandLanguage).Assembly,
                 typeof(Greenshot.Plugin.Imgur.IImgurLanguage).Assembly,
                 typeof(Greenshot.Plugin.Jira.IJiraLanguage).Assembly,
-                typeof(Greenshot.Plugin.Office.IOfficeLanguage).Assembly
+                typeof(Greenshot.Plugin.Office.IOfficeLanguage).Assembly,
+                typeof(Greenshot.Plugin.Pdf.IPdfLanguage).Assembly
             };
             return assemblies
                 .SelectMany(a => a.GetTypes())
