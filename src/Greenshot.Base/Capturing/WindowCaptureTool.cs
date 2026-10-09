@@ -60,6 +60,7 @@ namespace Greenshot.Base.Capturing
         private CancellationTokenSource _areasCancellation;
         private IntPtr _areasPending;
         private UiAutomationArea _deepestArea;
+        private UiAutomationArea _selectedArea;
         // 0 is the deepest area under the cursor, every step up the area around it, the last one is the window
         private int _areaLevel;
         private IInteropWindow _selectedWindow;
@@ -91,6 +92,7 @@ namespace Greenshot.Base.Capturing
             base.Activate(host);
             _selectedWindow = null;
             _deepestArea = null;
+            _selectedArea = null;
             _areaLevel = 0;
             _windowSelection = NativeRect.Empty;
             _selection = NativeRect.Empty;
@@ -180,7 +182,7 @@ namespace Greenshot.Base.Capturing
             _areasPending = handle;
             try
             {
-                _areas[handle] = await UiAutomationAreas.FindAreasAsync(handle, MaximumAreaDepth, MinimumAreaSize, cancellationToken: cancellation.Token);
+                _areas[handle] = await FindAreasAsync(handle, cancellation.Token);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
@@ -204,11 +206,33 @@ namespace Greenshot.Base.Capturing
         }
 
         /// <summary>
+        /// The areas of the window, or of its first parent which has some: a window which only draws (e.g. a "D3D window" of a browser)
+        /// has none itself, the content belongs to its parent
+        /// </summary>
+        private async Task<UiAutomationArea> FindAreasAsync(IntPtr handle, CancellationToken cancellationToken)
+        {
+            for (var window = handle; window != IntPtr.Zero; window = InteropWindowFactory.CreateFor(window).GetParent())
+            {
+                if (!_areas.TryGetValue(window, out var areas))
+                {
+                    areas = await UiAutomationAreas.FindAreasAsync(window, MaximumAreaDepth, MinimumAreaSize, cancellationToken: cancellationToken);
+                    Log.Debug($"Areas of window {window}: {areas}");
+                }
+                if (areas?.Children.Count > 0)
+                {
+                    _areas[window] = areas;
+                    return areas;
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
         /// The parts of the window under the cursor in capture coordinates, from the deepest area up to the window itself
         /// </summary>
-        private List<NativeRect> GetSelectableAreas()
+        private List<(NativeRect Bounds, UiAutomationArea Area)> GetSelectableAreas()
         {
-            var selectable = new List<NativeRect>();
+            var selectable = new List<(NativeRect Bounds, UiAutomationArea Area)>();
             UiAutomationArea deepestArea = null;
             if (_areas.TryGetValue(_selectedWindow.Handle, out var root) && root != null)
             {
@@ -218,15 +242,15 @@ namespace Greenshot.Base.Capturing
                 {
                     deepestArea ??= areas[i];
                     var area = ToCapture(areas[i].Bounds).Intersect(_windowSelection);
-                    if (!area.IsEmpty && (selectable.Count == 0 || selectable[selectable.Count - 1] != area))
+                    if (!area.IsEmpty && (selectable.Count == 0 || selectable[selectable.Count - 1].Bounds != area))
                     {
-                        selectable.Add(area);
+                        selectable.Add((area, areas[i]));
                     }
                 }
             }
-            if (selectable.Count == 0 || selectable[selectable.Count - 1] != _windowSelection)
+            if (selectable.Count == 0 || selectable[selectable.Count - 1].Bounds != _windowSelection)
             {
-                selectable.Add(_windowSelection);
+                selectable.Add((_windowSelection, null));
             }
 
             // Another area under the cursor starts at the deepest level again
@@ -246,12 +270,13 @@ namespace Greenshot.Base.Capturing
                 return;
             }
 
-            var selection = GetSelectableAreas()[_areaLevel];
+            var (selection, area) = GetSelectableAreas()[_areaLevel];
             if (selection == _selection)
             {
                 return;
             }
             _selection = selection;
+            _selectedArea = area;
             Host.ShowSelection(_selection, true);
             ShowLabels(true);
         }
@@ -285,6 +310,11 @@ namespace Greenshot.Base.Capturing
             {
                 var caption = _selectedWindow.GetCaption();
                 debugText = $"#{_selectedWindow.Handle.ToInt64():X} - {(string.IsNullOrEmpty(caption) ? _selectedWindow.GetProcessName() : caption)}";
+                if (_selectedArea != null)
+                {
+                    // The UI Automation control type id and name of the area
+                    debugText += $" - {_selectedArea.ControlType} {_selectedArea.Name}";
+                }
             }
             Host.ShowLabels(_selection, _selection.Size, fadeIn, debugText);
         }
