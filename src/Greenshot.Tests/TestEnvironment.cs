@@ -75,6 +75,7 @@ namespace Greenshot.Tests
                 Texts.Register<Greenshot.Plugin.Imgur.IImgurLanguage>(new Greenshot.Plugin.Imgur.ImgurLanguageImpl());
                 Texts.Register<Greenshot.Plugin.Jira.IJiraLanguage>(new Greenshot.Plugin.Jira.JiraLanguageImpl());
                 Texts.Register<Greenshot.Plugin.Office.IOfficeLanguage>(new Greenshot.Plugin.Office.OfficeLanguageImpl());
+                Texts.Register<Greenshot.Plugin.Pdf.IPdfLanguage>(new Greenshot.Plugin.Pdf.PdfLanguageImpl());
 
                 _initialized = true;
             }

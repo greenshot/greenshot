@@ -189,7 +189,8 @@ namespace Greenshot.Base.Core.Export
                 {
                     var image = await RenderLockedAsync(settings, cancellationToken).ConfigureAwait(false);
                     using var stream = RecyclableMemoryStreamFactory.GetStream("SurfaceExportSource.Encode");
-                    ImageIO.SaveToStream(image, null, stream, settings);
+                    // pass the surface to SaveToStream so that the FormatHandler can access the CaptureDetails
+                    ImageIO.SaveToStream(image, _surface, stream, settings);
                     bytes = stream.ToArray();
                 }
 
@@ -224,7 +225,7 @@ namespace Greenshot.Base.Core.Export
                 return null;
             }
 
-            return $"{settings.Format}|{settings.JPGQuality}|{settings.ReduceColors}|{settings.DisableReduceColors}|{settings.SaveBackgroundOnly}";
+            return $"{settings.Format}|{settings.JPGQuality}|{settings.ReduceColors}|{settings.DisableReduceColors}|{settings.SaveBackgroundOnly}|{settings.EncodingCacheKey}";
         }
 
         private void ThrowIfDisposed()
