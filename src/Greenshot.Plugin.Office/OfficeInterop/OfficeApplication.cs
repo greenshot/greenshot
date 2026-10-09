@@ -18,6 +18,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System;
+using System.Reflection;
 using Dapplo.Windows.Com;
 
 namespace Greenshot.Plugin.Office.OfficeInterop
@@ -27,7 +28,7 @@ namespace Greenshot.Plugin.Office.OfficeInterop
     /// They are declared with the IID of IDispatch: casting asks Office only for IDispatch, and every call is
     /// IDispatch.GetIDsOfNames (by member name) and IDispatch.Invoke. No Office type library is loaded, so a broken
     /// type library registration (TYPE_E_CANTLOADLIBRARY, 0x80029C4A) can't break the export, and no interop assemblies are needed.
-    /// Collection items must be read with an Item method, an indexer doesn't work this way.
+    /// Collection items must be read with an Item method, an indexer doesn't work this way. Where Item is a property (Excel), use GetItem.
     /// Values Office returns are declared as the plain type it returns (int instead of an enum), enums are only passed in.
     /// </summary>
     internal static class OfficeApplication
@@ -62,6 +63,13 @@ namespace Greenshot.Plugin.Office.OfficeInterop
         /// <param name="progId">e.g. Word.Application</param>
         public static IDisposableCom<T> GetOrCreate<T>(string progId) where T : class =>
             GetActive<T>(progId) ?? DisposableCom.Create((T) Activator.CreateInstance(Type.GetTypeFromProgID(progId, true)));
+
+        /// <summary>
+        /// An item of a collection whose Item is a property: an Item method on the interface would be called as a method,
+        /// which Office answers with DISP_E_MEMBERNOTFOUND. This calls it like VBA does, as method or property get.
+        /// </summary>
+        public static T GetItem<T>(object collection, int index) where T : class =>
+            (T) collection.GetType().InvokeMember("Item", BindingFlags.InvokeMethod | BindingFlags.GetProperty, null, collection, new object[] { index });
     }
 
     /// <summary>

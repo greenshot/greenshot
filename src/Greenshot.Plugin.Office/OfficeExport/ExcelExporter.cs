@@ -58,7 +58,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
             using var workbooks = DisposableCom.Create(excelApplication.ComObject.Workbooks);
             for (int i = 1; i <= workbooks.ComObject.Count; i++)
             {
-                using var workbook = DisposableCom.Create(workbooks.ComObject.Item(i));
+                using var workbook = DisposableCom.Create(OfficeApplication.GetItem<IExcelWorkbook>(workbooks.ComObject, i));
                 if (workbook != null)
                 {
                     yield return workbook.ComObject.Name;
@@ -84,7 +84,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
             using var workbooks = DisposableCom.Create(excelApplication.ComObject.Workbooks);
             for (int i = 1; i <= workbooks.ComObject.Count; i++)
             {
-                using var workbook = DisposableCom.Create(workbooks.ComObject.Item(i));
+                using var workbook = DisposableCom.Create(OfficeApplication.GetItem<IExcelWorkbook>(workbooks.ComObject, i));
                 if (workbook != null && workbook.ComObject.Name == workbookName)
                 {
                     return InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);

@@ -35,7 +35,7 @@ namespace Greenshot.Plugin.Office.OfficeInterop
     public interface IExcelWorkbooks
     {
         int Count { get; }
-        IExcelWorkbook Item(object index);
+        // Item is a property in Excel, see OfficeApplication.GetItem
         IExcelWorkbook Add();
     }
 
