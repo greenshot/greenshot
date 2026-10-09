@@ -24,7 +24,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Threading;
 using Dapplo.Ini;
 using Dapplo.Windows.Automation;
 using Dapplo.Windows.Common.Extensions;
@@ -56,11 +59,15 @@ namespace Greenshot.Base.Capturing
         // The levels below the window, counted without the elements which only wrap another one. The parts of a browser page are
         // several levels below the window, under the panes of the browser and the document
         private const int MaximumAreaDepth = 8;
+        // Most windows answer much faster, the busy mark only shows when reading the areas takes longer
+        private static readonly TimeSpan BusyMarkDelay = TimeSpan.FromMilliseconds(200);
 
         // The areas of the windows the cursor was over, null when there are none; the screen doesn't change during the selection
         private readonly Dictionary<IntPtr, UiAutomationArea> _areas = new();
         private CancellationTokenSource _areasCancellation;
         private IntPtr _areasPending;
+        private readonly Stopwatch _areasTime = new();
+        private DispatcherTimer _busyTimer;
         private UiAutomationArea _deepestArea;
         private UiAutomationArea _selectedArea;
         // 0 is the deepest area under the cursor, every step up the area around it, the last one is the window
@@ -106,6 +113,7 @@ namespace Greenshot.Base.Capturing
         public override void Deactivate()
         {
             _areasCancellation?.Cancel();
+            _busyTimer?.Stop();
             // The selection shrinks into the cursor
             Host.ShowSelection(new NativeRect(Host.CursorPosition, NativeSize.Empty), true, () =>
             {
@@ -182,6 +190,8 @@ namespace Greenshot.Base.Capturing
             _areasCancellation?.Cancel();
             var cancellation = _areasCancellation = new CancellationTokenSource();
             _areasPending = handle;
+            _areasTime.Restart();
+            StartBusyMark();
             try
             {
                 await FindAreasAsync(handle, cancellation.Token);
@@ -205,6 +215,59 @@ namespace Greenshot.Base.Capturing
             {
                 UpdateSelection();
             }
+        }
+
+        /// <summary>
+        /// True while the areas of the window under the cursor are read
+        /// </summary>
+        private bool IsReadingAreas => _areasPending != IntPtr.Zero && _areasPending == _selectedWindow?.Handle;
+
+        /// <summary>
+        /// Some applications (e.g. a browser after its start) need a moment for their areas, a mark next to the cursor turns until they arrive
+        /// </summary>
+        private void StartBusyMark()
+        {
+            if (_busyTimer == null)
+            {
+                _busyTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(40) };
+                _busyTimer.Tick += (_, _) =>
+                {
+                    if (!IsReadingAreas || Host.ActiveTool != this)
+                    {
+                        _busyTimer.Stop();
+                    }
+                    Host.Redraw();
+                };
+            }
+            _busyTimer.Start();
+        }
+
+        /// <summary>
+        /// The busy mark, an arc which turns once a second
+        /// </summary>
+        public override void Draw(DrawingContext drawingContext)
+        {
+            if (!IsReadingAreas || _areasTime.Elapsed < BusyMarkDelay)
+            {
+                return;
+            }
+            var style = Host.ToolStyle;
+            var radius = style.Scale(6);
+            var cursor = Host.CursorPosition;
+            var center = new Point(cursor.X + style.Scale(20), cursor.Y + style.Scale(20));
+            var angle = _areasTime.ElapsedMilliseconds % 1000 * 2 * Math.PI / 1000;
+            Point OnCircle(double a) => new(center.X + radius * Math.Cos(a), center.Y + radius * Math.Sin(a));
+
+            var arc = new StreamGeometry();
+            using (var context = arc.Open())
+            {
+                context.BeginFigure(OnCircle(angle), false, false);
+                context.ArcTo(OnCircle(angle + 1.5 * Math.PI), new Size(radius, radius), 0, true, SweepDirection.Clockwise, true, false);
+            }
+            arc.Freeze();
+            // The background behind the arc keeps it visible on every content
+            drawingContext.DrawEllipse(null, new Pen(style.PanelBackground, style.Scale(4)), center, radius, radius);
+            drawingContext.DrawGeometry(null, new Pen(style.Accent, style.Scale(2)), arc);
         }
 
         /// <summary>
