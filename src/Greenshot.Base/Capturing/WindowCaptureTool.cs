@@ -59,6 +59,9 @@ namespace Greenshot.Base.Capturing
         // The levels below the window, counted without the elements which only wrap another one. The parts of a browser page are
         // several levels below the window, under the panes of the browser and the document
         private const int MaximumAreaDepth = 8;
+        // Electron apps and browsers build the tree for UI Automation only when asked, right after their start this can take longer
+        // than Dapplo's default of 3 seconds. The lookup is cancelled when the cursor moves to another window.
+        private static readonly TimeSpan AreaContentWait = TimeSpan.FromSeconds(10);
         // Most windows answer much faster, the busy mark only shows when reading the areas takes longer
         private static readonly TimeSpan BusyMarkDelay = TimeSpan.FromMilliseconds(200);
 
@@ -286,7 +289,7 @@ namespace Greenshot.Base.Capturing
                     break;
                 }
                 var stopwatch = Stopwatch.StartNew();
-                var areas = await UiAutomationAreas.FindAreasAsync(window, MaximumAreaDepth, MinimumAreaSize, cancellationToken: cancellationToken);
+                var areas = await UiAutomationAreas.FindAreasAsync(window, MaximumAreaDepth, MinimumAreaSize, contentWait: AreaContentWait, cancellationToken: cancellationToken);
                 Log.Debug($"Areas of window {window} in {stopwatch.ElapsedMilliseconds} ms: {areas}");
                 windows.Add(window);
                 if (areas?.Children.Count > 0)
