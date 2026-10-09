@@ -19,25 +19,51 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Input;
+using Dapplo.Ini;
+using Dapplo.Windows.Automation;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Desktop;
+using Dapplo.Windows.User32;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Capture;
 using Greenshot.Base.Languages;
+using Greenshot.Base.Threading;
+using log4net;
 using CaptureMode = Greenshot.Base.Interfaces.CaptureMode;
 
 namespace Greenshot.Base.Capturing
 {
     /// <summary>
     /// The selection follows the (child) window under the cursor, a click or Enter selects it. D shows debug information.
+    /// For beta testers it also follows the areas UI Automation knows inside a window, e.g. the parts of a browser page, which has no child windows
+    /// for them. PageUp and PageDown select the larger or the smaller area.
     /// A plugin can derive from it for a tool which selects a window.
     /// </summary>
     public class WindowCaptureTool : CaptureTool
     {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(WindowCaptureTool));
+        private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
+        // Smaller areas (a word, an icon) are rarely what the user wants to capture
+        private const int MinimumAreaSize = 64;
+        // The levels below the window, counted without the elements which only wrap another one
+        private const int MaximumAreaDepth = 3;
+
+        // The areas of the windows the cursor was over, null when there are none; the screen doesn't change during the selection
+        private readonly Dictionary<IntPtr, UiAutomationArea> _areas = new();
+        private CancellationTokenSource _areasCancellation;
+        private IntPtr _areasPending;
+        private UiAutomationArea _deepestArea;
+        // 0 is the deepest area under the cursor, every step up the area around it, the last one is the window
+        private int _areaLevel;
         private IInteropWindow _selectedWindow;
+        private NativeRect _windowSelection = NativeRect.Empty;
         private NativeRect _selection = NativeRect.Empty;
         private bool _showDebugInfo;
 
@@ -51,7 +77,12 @@ namespace Greenshot.Base.Capturing
         /// <summary>
         /// The visible part of the selected window, in capture coordinates
         /// </summary>
-        protected NativeRect WindowSelection => _selection;
+        protected NativeRect WindowSelection => _windowSelection;
+
+        /// <summary>
+        /// True when the selection also follows the areas inside a window, a tool which only selects whole windows returns false
+        /// </summary>
+        protected virtual bool SelectsAreas => CoreConfig.IsBetaTester;
 
         public override bool ShowsZoomer => false;
 
@@ -59,6 +90,9 @@ namespace Greenshot.Base.Capturing
         {
             base.Activate(host);
             _selectedWindow = null;
+            _deepestArea = null;
+            _areaLevel = 0;
+            _windowSelection = NativeRect.Empty;
             _selection = NativeRect.Empty;
             // The selection grows out of the cursor
             Host.ShowSelection(new NativeRect(Host.CursorPosition, NativeSize.Empty));
@@ -67,6 +101,7 @@ namespace Greenshot.Base.Capturing
 
         public override void Deactivate()
         {
+            _areasCancellation?.Cancel();
             // The selection shrinks into the cursor
             Host.ShowSelection(new NativeRect(Host.CursorPosition, NativeSize.Empty), true, () =>
             {
@@ -81,23 +116,27 @@ namespace Greenshot.Base.Capturing
         public override void OnMouseMove()
         {
             var window = Host.FindWindowUnderCursor(true);
-            if (window == null || window.Equals(_selectedWindow))
+            if (window == null)
             {
                 return;
             }
 
-            _selectedWindow = window;
-            var title = window.GetCaption();
-            Host.Capture.CaptureDetails.Title = title;
-            Host.Capture.CaptureDetails.AddMetaData("windowtitle", title);
+            if (!window.Equals(_selectedWindow))
+            {
+                _selectedWindow = window;
+                _areaLevel = 0;
+                var title = window.GetCaption();
+                Host.Capture.CaptureDetails.Title = title;
+                Host.Capture.CaptureDetails.AddMetaData("windowtitle", title);
 
-            var screenBounds = Host.ScreenBounds;
-            // A child window can be partly outside of its parents, GetInfo clips it to them so only the visible part is captured
-            _selection = window.GetInfo().Bounds
-                .Offset(-screenBounds.X, -screenBounds.Y)
-                .Intersect(new NativeRect(0, 0, screenBounds.Width, screenBounds.Height));
-            Host.ShowSelection(_selection, true);
-            ShowLabels(true);
+                // A child window can be partly outside of its parents, GetInfo clips it to them so only the visible part is captured
+                _windowSelection = ToCapture(window.GetInfo().Bounds);
+                if (SelectsAreas)
+                {
+                    FindAreasAsync(window).FireAndLog("Find the areas of a window", Log);
+                }
+            }
+            UpdateSelection();
         }
 
         public override void OnMouseUp() => AcceptWindow();
@@ -111,6 +150,11 @@ namespace Greenshot.Base.Capturing
                 _showDebugInfo = !_showDebugInfo;
                 ShowLabels(false);
             });
+            if (SelectsAreas)
+            {
+                host.RegisterToolKey(this, Key.PageUp, ModifierKeys.None, () => Texts.Core.CaptureKeyWindowLarger, () => ChangeAreaLevel(1));
+                host.RegisterToolKey(this, Key.PageDown, ModifierKeys.None, () => Texts.Core.CaptureKeyWindowSmaller, () => ChangeAreaLevel(-1));
+            }
         }
 
         protected virtual void AcceptWindow()
@@ -119,6 +163,114 @@ namespace Greenshot.Base.Capturing
             {
                 Host.Accept(_selection, _selectedWindow);
             }
+        }
+
+        /// <summary>
+        /// Read the areas of the window in the background, the lookup for a window the cursor left is cancelled
+        /// </summary>
+        private async Task FindAreasAsync(IInteropWindow window)
+        {
+            var handle = window.Handle;
+            if (_areas.ContainsKey(handle) || _areasPending == handle)
+            {
+                return;
+            }
+            _areasCancellation?.Cancel();
+            var cancellation = _areasCancellation = new CancellationTokenSource();
+            _areasPending = handle;
+            try
+            {
+                _areas[handle] = await UiAutomationAreas.FindAreasAsync(handle, MaximumAreaDepth, MinimumAreaSize, cancellationToken: cancellation.Token);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                // Not every application supports UI Automation, the window is selected as a whole
+                Log.Debug($"Couldn't read the areas of window {handle}", ex);
+                _areas[handle] = null;
+            }
+            finally
+            {
+                if (_areasCancellation == cancellation)
+                {
+                    _areasPending = IntPtr.Zero;
+                }
+            }
+
+            // Back on the UI thread, the cursor may have moved on
+            if (Host.ActiveTool == this && window.Equals(_selectedWindow))
+            {
+                UpdateSelection();
+            }
+        }
+
+        /// <summary>
+        /// The parts of the window under the cursor in capture coordinates, from the deepest area up to the window itself
+        /// </summary>
+        private List<NativeRect> GetSelectableAreas()
+        {
+            var selectable = new List<NativeRect>();
+            UiAutomationArea deepestArea = null;
+            if (_areas.TryGetValue(_selectedWindow.Handle, out var root) && root != null)
+            {
+                var areas = root.GetAreasAt(User32Api.GetCursorLocation());
+                // The last one is the window's own element, the window takes its place
+                for (int i = 0; i < areas.Count - 1; i++)
+                {
+                    deepestArea ??= areas[i];
+                    var area = ToCapture(areas[i].Bounds).Intersect(_windowSelection);
+                    if (!area.IsEmpty && (selectable.Count == 0 || selectable[selectable.Count - 1] != area))
+                    {
+                        selectable.Add(area);
+                    }
+                }
+            }
+            if (selectable.Count == 0 || selectable[selectable.Count - 1] != _windowSelection)
+            {
+                selectable.Add(_windowSelection);
+            }
+
+            // Another area under the cursor starts at the deepest level again
+            if (deepestArea != _deepestArea)
+            {
+                _deepestArea = deepestArea;
+                _areaLevel = 0;
+            }
+            _areaLevel = Math.Min(_areaLevel, selectable.Count - 1);
+            return selectable;
+        }
+
+        private void UpdateSelection()
+        {
+            if (_selectedWindow == null)
+            {
+                return;
+            }
+
+            var selection = GetSelectableAreas()[_areaLevel];
+            if (selection == _selection)
+            {
+                return;
+            }
+            _selection = selection;
+            Host.ShowSelection(_selection, true);
+            ShowLabels(true);
+        }
+
+        private void ChangeAreaLevel(int change)
+        {
+            _areaLevel = Math.Max(0, _areaLevel + change);
+            UpdateSelection();
+        }
+
+        /// <summary>
+        /// Screen coordinates to capture coordinates, limited to the capture
+        /// </summary>
+        private NativeRect ToCapture(NativeRect screenRect)
+        {
+            var screenBounds = Host.ScreenBounds;
+            return screenRect
+                .Offset(-screenBounds.X, -screenBounds.Y)
+                .Intersect(new NativeRect(0, 0, screenBounds.Width, screenBounds.Height));
         }
 
         private void ShowLabels(bool fadeIn)

@@ -13,6 +13,7 @@
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="3.0.1" />
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.12" />
     <PackageReference Include="Dapplo.Windows" Version="3.10.3" />
+    <PackageReference Include="Dapplo.Windows.Automation" Version="3.10.3" />
     <PackageReference Include="Dapplo.Windows.Clipboard" Version="3.10.3" />
     <PackageReference Include="Dapplo.Windows.DesktopWindowsManager" Version="3.10.3" />
     <PackageReference Include="Dapplo.Windows.Dpi" Version="3.10.3" />
