@@ -20,21 +20,16 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
-using System.ServiceModel.Security;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing;
-using log4net;
 
 namespace Greenshot.Editor.FileFormat.V1.Legacy;
 
 /// <summary>
-/// This helps to map the serialization of the old .greenshot file to the legacy container.
-/// It also prevents misuse like ysoserial attacks, by throwing an exception if a type is not mapped.
+/// Maps historical type names to the restricted legacy model without resolving payload types.
 /// </summary>
-internal sealed class LegacySerializationBinder : SerializationBinder
+internal static class LegacyTypeMapper
 {
-    private static readonly ILog Log = LogManager.GetLogger(typeof(LegacySerializationBinder));
     private static readonly IDictionary<string, Type> TypeMapper = new Dictionary<string, Type>
         {
             // Used specifically for the .ini configuration (besides the ones already defined)
@@ -129,21 +124,4 @@ internal sealed class LegacySerializationBinder : SerializationBinder
         return TypeMapper.TryGetValue(comparingTypeName, out type);
     }
 
-    /// <summary>
-    /// Do the type mapping
-    /// </summary>
-    /// <param name="assemblyName">Assembly for the type that was serialized</param>
-    /// <param name="typeName">Type that was serialized</param>
-    /// <returns>Type which was mapped</returns>
-    /// <exception cref="SecurityAccessDeniedException">If something smells fishy</exception>
-    public override Type BindToType(string assemblyName, string typeName)
-    {
-        if (TryGetType(typeName, out var returnType))
-        {
-            Log.Info($"Mapped {assemblyName} - {typeName} to {returnType.FullName}");
-            return returnType;
-        }
-        Log.Warn($"Unexpected Greenshot type in .greenshot file detected, maybe vulnerability attack created with ysoserial? Suspicious type: {assemblyName} - {typeName}");
-        throw new SecurityAccessDeniedException($"Suspicious type in .greenshot file: {assemblyName} - {typeName}");
-    }
 }

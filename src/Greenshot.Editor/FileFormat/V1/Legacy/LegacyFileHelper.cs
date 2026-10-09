@@ -20,7 +20,6 @@
  */
 using System;
 using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.FileFormat.Dto;
 using Greenshot.Editor.FileFormat.Dto.Container;
@@ -39,17 +38,7 @@ public static class LegacyFileHelper
     /// <exception cref="ArgumentException">Thrown if the stream does not contain a valid legacy Greenshot file.</exception>
     public static DrawableContainerList GetContainerListFromLegacyContainerListStream(Stream stream)
     {
-        // load file in legacy container classes
-        BinaryFormatter binaryRead = new BinaryFormatter
-        {
-            Binder = new LegacySerializationBinder()
-        };
-        var loadedElements = binaryRead.Deserialize(stream);
-
-        if (loadedElements is not LegacyDrawableContainerList legacyDrawableContainerList)
-        {
-            throw new ArgumentException("Stream is not a Greenshot file!");
-        }
+        var legacyDrawableContainerList = LegacyNrbfReader.ReadContainerList(stream);
 
         // Convert the legacy data to DTO 
         var dto = ConvertLegacyToDto.ToDto(legacyDrawableContainerList);

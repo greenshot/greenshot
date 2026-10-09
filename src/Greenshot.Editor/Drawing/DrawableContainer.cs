@@ -308,7 +308,11 @@ namespace Greenshot.Editor.Drawing
                 {
                     if (filter.Invert)
                     {
-                        return new NativeRect(Point.Empty, _parent.Image.Size);
+                        var parentImage = _parent?.Image;
+                        if (parentImage != null)
+                        {
+                            return new NativeRect(Point.Empty, parentImage.Size);
+                        }
                     }
                 }
 

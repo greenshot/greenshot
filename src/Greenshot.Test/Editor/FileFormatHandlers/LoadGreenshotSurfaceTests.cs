@@ -71,6 +71,30 @@ public class LoadGreenshotSurfaceTests
         Assert.Equal(0, resultElementList.Count);
     }
 
+    [Theory]
+    [InlineData(FilterContainer.PreparedFilter.AREA_HIGHLIGHT)]
+    [InlineData(FilterContainer.PreparedFilter.GRAYSCALE)]
+    public void AddInvertedHighlightFilterBeforeImageDoesNotThrow(FilterContainer.PreparedFilter preset)
+    {
+        using var surface = new Surface();
+        var container = new HighlightContainer(surface)
+        {
+            Left = 20,
+            Top = 30,
+            Width = 100,
+            Height = 60
+        };
+        container.SetFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT, preset);
+
+        surface.AddElement(container, false, false);
+        container.Invalidate();
+
+        using var image = new Bitmap(320, 240);
+        surface.Image = image;
+        var drawingBounds = container.DrawingBounds;
+        Assert.Equal((0, 0, 320, 240), (drawingBounds.Left, drawingBounds.Top, drawingBounds.Width, drawingBounds.Height));
+    }
+
     public static IEnumerable<object[]> RectangleContainerTestData()
     {
         yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.02", "RectangleContainer_lt_100_200_wh_150_80.greenshot")];

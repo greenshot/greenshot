@@ -56,7 +56,7 @@ namespace Greenshot.Editor.Configuration
             string valuePart = raw.Substring(colonIdx + 1);
             try
             {
-              if (LegacySerializationBinder.TryGetType(typePart, out var type))
+              if (LegacyTypeMapper.TryGetType(typePart, out var type))
                 {
                     var converter = TypeDescriptor.GetConverter(type);
                     return converter.ConvertFromInvariantString(valuePart);

@@ -341,6 +341,9 @@
     <None Update="TestData\Images\Logo_G_with_Border.wmf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="TestData\Images\Screenshot_background_800x400.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

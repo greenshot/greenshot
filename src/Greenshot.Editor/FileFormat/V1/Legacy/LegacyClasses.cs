@@ -45,6 +45,10 @@ internal class LegacyField
 #pragma warning disable CS0649 // Field is never assigned to, and will always have its default value. The field will be set during deserialization. 
     private object _myValue;
 #pragma warning restore CS0649 // Field is never assigned to, and will always have its default value. The field will be set during deserialization. 
+    internal LegacyField()
+    {
+    }
+
     public LegacyFieldType FieldType { get; set; }
     public string Scope { get; set; }
 
@@ -62,6 +66,10 @@ internal class LegacyField
 [Serializable]
 internal class LegacyFieldType
 {
+    internal LegacyFieldType()
+    {
+    }
+
     public string Name { get; set; }
 }
 
@@ -69,6 +77,11 @@ internal class LegacyFieldType
 internal class LegacyFieldHolder : ISerializable
 {
     public IList<LegacyField> Fields;
+
+    internal LegacyFieldHolder()
+    {
+        Fields = new List<LegacyField>();
+    }
 
     protected LegacyFieldHolder(SerializationInfo info, StreamingContext context)
     {
@@ -88,6 +101,11 @@ internal class LegacyFieldHolderWithChildren : LegacyFieldHolder
 {
     public IList<LegacyFieldHolder> Children;
 
+    internal LegacyFieldHolderWithChildren()
+    {
+        Children = new List<LegacyFieldHolder>();
+    }
+
     protected LegacyFieldHolderWithChildren(SerializationInfo info, StreamingContext context) : base(info, context)
     {
         Children = (IList<LegacyFieldHolder>)info.GetValue("Children", typeof(IList<LegacyFieldHolder>));
@@ -100,6 +118,10 @@ internal class LegacyFieldHolderWithChildren : LegacyFieldHolder
 [Serializable]
 internal class LegacyDrawableContainer : LegacyFieldHolderWithChildren
 {
+    internal LegacyDrawableContainer()
+    {
+    }
+
     public int Left;
     public int Top;
     public int Width;
@@ -122,36 +144,60 @@ internal class LegacyDrawableContainerList : List<LegacyDrawableContainer>
 [Serializable]
 internal class LegacyLineContainer : LegacyDrawableContainer
 {
+    internal LegacyLineContainer()
+    {
+    }
+
     protected LegacyLineContainer(SerializationInfo info, StreamingContext context) : base(info, context) { }
 }
 
 [Serializable]
 internal class LegacyArrowContainer : LegacyDrawableContainer
 {
+    internal LegacyArrowContainer()
+    {
+    }
+
     protected LegacyArrowContainer(SerializationInfo info, StreamingContext context) : base(info, context) { }
 }
 
 [Serializable]
 internal class LegacyRectangleContainer : LegacyDrawableContainer
 {
+    internal LegacyRectangleContainer()
+    {
+    }
+
     protected LegacyRectangleContainer(SerializationInfo info, StreamingContext context) : base(info, context) { }
 }
 
 [Serializable]
 internal class LegacyEllipseContainer : LegacyDrawableContainer
 {
+    internal LegacyEllipseContainer()
+    {
+    }
+
     protected LegacyEllipseContainer(SerializationInfo info, StreamingContext context) : base(info, context) { }
 }
 
 [Serializable]
 internal class LegacyHighlightContainer : LegacyDrawableContainer
 {
+    internal LegacyHighlightContainer()
+    {
+    }
+
     protected LegacyHighlightContainer(SerializationInfo info, StreamingContext context) : base(info, context) { }
 }
 
 [Serializable]
 internal class LegacyObfuscateContainer : LegacyDrawableContainer
 {
+    internal LegacyObfuscateContainer()
+    {
+    }
+
     protected LegacyObfuscateContainer(SerializationInfo info, StreamingContext context) : base(info, context) { }
 }
 
@@ -159,6 +205,10 @@ internal class LegacyObfuscateContainer : LegacyDrawableContainer
 internal class LegacyTextContainer : LegacyDrawableContainer
 {
     public string Text;
+
+    internal LegacyTextContainer()
+    {
+    }
 
     protected LegacyTextContainer(SerializationInfo info, StreamingContext context) : base(info, context)
     {
@@ -170,6 +220,10 @@ internal class LegacyTextContainer : LegacyDrawableContainer
 internal class LegacyImageContainer : LegacyDrawableContainer
 {
     public Image Image;
+
+    internal LegacyImageContainer()
+    {
+    }
 
     protected LegacyImageContainer(SerializationInfo info, StreamingContext context) : base(info, context)
     {
@@ -197,6 +251,10 @@ public class LegacyCaptureCursorSerializationWrapper : ISerializable
     public int HotspotX;
     public int HotspotY;
 
+    internal LegacyCaptureCursorSerializationWrapper()
+    {
+    }
+
     public LegacyCaptureCursorSerializationWrapper(SerializationInfo info, StreamingContext context)
     {
         ColorLayer = (Bitmap)info.GetValue("<ColorLayer>k__BackingField", typeof(Bitmap));
@@ -218,6 +276,10 @@ internal class LegacyCursorContainer : LegacyDrawableContainer
 {
     public LegacyCaptureCursorSerializationWrapper savedCursor;
 
+    internal LegacyCursorContainer()
+    {
+    }
+
     protected LegacyCursorContainer(SerializationInfo info, StreamingContext context) : base(info, context)
     {
         savedCursor = (LegacyCaptureCursorSerializationWrapper)info.GetValue("savedCursor", typeof(LegacyCaptureCursorSerializationWrapper));   
@@ -228,6 +290,10 @@ internal class LegacyCursorContainer : LegacyDrawableContainer
 internal class LegacyIconContainer : LegacyDrawableContainer
 {
     public Icon Icon;
+
+    internal LegacyIconContainer()
+    {
+    }
 
     protected LegacyIconContainer(SerializationInfo info, StreamingContext context) : base(info, context)
     {
@@ -241,6 +307,10 @@ internal class LegacySpeechbubbleContainer : LegacyDrawableContainer
     public string Text;
     public Point StoredTargetGripperLocation;
 
+    internal LegacySpeechbubbleContainer()
+    {
+    }
+
     protected LegacySpeechbubbleContainer(SerializationInfo info, StreamingContext context) : base(info, context)
     {
         Text = info.GetString("TextContainer+text");
@@ -252,6 +322,10 @@ internal class LegacySpeechbubbleContainer : LegacyDrawableContainer
 internal class LegacyFreehandContainer : LegacyDrawableContainer
 {
     public List<Point> CapturePoints;
+
+    internal LegacyFreehandContainer()
+    {
+    }
 
     protected LegacyFreehandContainer(SerializationInfo info, StreamingContext context) : base(info, context)
     {
@@ -268,6 +342,10 @@ internal class LegacyMetafileContainer : LegacyDrawableContainer
 
     public MemoryStream MetafileContent;
 
+    internal LegacyMetafileContainer()
+    {
+    }
+
     protected LegacyMetafileContainer(SerializationInfo info, StreamingContext context) : base(info, context)
     {
         RotationAngle = info.GetInt32("VectorGraphicsContainer+_rotationAngle");
@@ -278,6 +356,31 @@ internal class LegacyMetafileContainer : LegacyDrawableContainer
         {
             ConvertWmfToPngAndReplaceMetafileAndStream(ref Metafile, ref MetafileContent);
         }
+    }
+
+    internal void SetMetafileFromData(byte[] data)
+    {
+        if (data == null)
+        {
+            return;
+        }
+
+        using var stream = new MemoryStream(data, false);
+        using var sourceImage = Image.FromStream(stream, true, true);
+        using var bitmap = new Bitmap(sourceImage.Width, sourceImage.Height);
+        using (var graphics = Graphics.FromImage(bitmap))
+        {
+            graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            graphics.Clear(Color.Transparent);
+            graphics.DrawImage(sourceImage, 0, 0, bitmap.Width, bitmap.Height);
+        }
+
+        MetafileContent?.Dispose();
+        MetafileContent = RecyclableMemoryStreamFactory.GetStream("LegacyMetafileContainer.ConvertWmfToPng");
+        bitmap.Save(MetafileContent, ImageFormat.Png);
+        MetafileContent.Position = 0;
     }
 
     /// <summary>
@@ -341,6 +444,10 @@ internal class LegacySvgContainer : LegacyDrawableContainer
     public int RotationAngle;
     public MemoryStream SvgContent;
 
+    internal LegacySvgContainer()
+    {
+    }
+
     protected LegacySvgContainer(SerializationInfo info, StreamingContext context) : base(info, context)
     {
         RotationAngle = info.GetInt32("VectorGraphicsContainer+_rotationAngle");
@@ -353,6 +460,10 @@ internal class LegacyEmojiContainer : LegacyDrawableContainer
 {
     public int RotationAngle;
     public string Emoji;
+
+    internal LegacyEmojiContainer()
+    {
+    }
 
     protected LegacyEmojiContainer(SerializationInfo info, StreamingContext context) : base(info, context)
     {
@@ -367,13 +478,26 @@ internal class LegacyStepLabelContainer : LegacyDrawableContainer
     public int Number;
     public int CounterStart;
 
+    internal LegacyStepLabelContainer()
+    {
+    }
+
     protected LegacyStepLabelContainer(SerializationInfo info, StreamingContext context) : base(info, context)
     {
         Number = info.GetInt32("_number");
         CounterStart = info.GetInt32("_counterStart");
+        EnsureBackwardCompatibleFields();
+    }
 
+    internal void EnsureBackwardCompatibleFields()
+    {
         // Backward compatibility: Ensure SHADOW and LINE_THICKNESS fields exist
-        if (!Fields.Any(x => x.Scope == "StepLabelContainer" && x.FieldType.Name == "LINE_THICKNESS"))
+        if (Fields == null)
+        {
+            Fields = new List<LegacyField>();
+        }
+
+        if (!Fields.Any(x => x?.Scope == "StepLabelContainer" && x.FieldType?.Name == "LINE_THICKNESS"))
         {
             var lineThicknessField = new LegacyField
             {
@@ -384,7 +508,7 @@ internal class LegacyStepLabelContainer : LegacyDrawableContainer
             Fields.Add(lineThicknessField);
         }
 
-        if (!Fields.Any(x => x.Scope == "StepLabelContainer" && x.FieldType.Name == "SHADOW"))
+        if (!Fields.Any(x => x?.Scope == "StepLabelContainer" && x.FieldType?.Name == "SHADOW"))
         {
             var shadowField = new LegacyField
             {
@@ -404,38 +528,60 @@ internal class LegacyStepLabelContainer : LegacyDrawableContainer
 [Serializable]
 internal class LegacyHighlightFilter : LegacyFieldHolder
 {
+    internal LegacyHighlightFilter()
+    {
+    }
+
     protected LegacyHighlightFilter(SerializationInfo info, StreamingContext context) : base(info, context) { }
 }
 
 [Serializable]
 internal class LegacyBlurFilter : LegacyFieldHolder
 {
+    internal LegacyBlurFilter()
+    {
+    }
+
     protected LegacyBlurFilter(SerializationInfo info, StreamingContext context) : base(info, context) { }
 }
 
 [Serializable]
 internal class LegacyBrightnessFilter : LegacyFieldHolder
 {
+    internal LegacyBrightnessFilter()
+    {
+    }
+
     protected LegacyBrightnessFilter(SerializationInfo info, StreamingContext context) : base(info, context) { }
 }
 
 [Serializable]
 internal class LegacyGrayscaleFilter : LegacyFieldHolder
 {
+    internal LegacyGrayscaleFilter()
+    {
+    }
+
     protected LegacyGrayscaleFilter(SerializationInfo info, StreamingContext context) : base(info, context) { }
 }
 
 [Serializable]
 internal class LegacyMagnifierFilter : LegacyFieldHolder
 {
+    internal LegacyMagnifierFilter()
+    {
+    }
+
     protected LegacyMagnifierFilter(SerializationInfo info, StreamingContext context) : base(info, context) { }
 }
 
 [Serializable]
 internal class LegacyPixelizationFilter : LegacyFieldHolder
 {
+    internal LegacyPixelizationFilter()
+    {
+    }
+
     protected LegacyPixelizationFilter(SerializationInfo info, StreamingContext context) : base(info, context) { }
 }
 #endregion
-
-

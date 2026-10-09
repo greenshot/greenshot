@@ -103,5 +103,6 @@
 
   <ItemGroup>
     <PackageReference Include="System.Text.Json" Version="10.0.2" />
+    <PackageReference Include="System.Formats.Nrbf" Version="10.0.12" />
   </ItemGroup>
 </Project>
