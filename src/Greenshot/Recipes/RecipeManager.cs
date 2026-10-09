@@ -118,10 +118,9 @@ namespace Greenshot.Recipes
         {
             InitializeDefaultRecipes();
             InitializeBuiltInExtensions();
-            LoadConfiguredRecipeFiles();
+            // The recipe files and the triggers are loaded by ReloadRecipes at startup, once the plugins registered their recipes and steps
             // An extension switched on or off, or set to other recipes, changes the composed recipes
             RecipeOptionStore.ValuesChanged += (sender, args) => RecomposeRecipes();
-            NotifyRecipesChanged();
         }
 
         private void InitializeBuiltInExtensions()
@@ -512,7 +511,12 @@ namespace Greenshot.Recipes
         private static bool RecipeFilesSupported => true;
 #endif
 
-        public void LoadConfiguredRecipeFiles()
+        /// <summary>
+        /// True while ReloadRecipes loads the configured files: it notifies once for all of them
+        /// </summary>
+        private bool _loadingConfiguredFiles;
+
+        private void LoadConfiguredRecipeFiles()
         {
             if (!RecipeFilesSupported)
             {
@@ -943,7 +947,7 @@ namespace Greenshot.Recipes
                     AddRecipeFileToConfig(filePath);
                 }
 
-                if (anyChanged)
+                if (anyChanged && !_loadingConfiguredFiles)
                 {
                     NotifyRecipesChanged();
                 }
@@ -1330,7 +1334,15 @@ namespace Greenshot.Recipes
                     _recipes[kvp.Key] = restored;
                 }
             }
-            LoadConfiguredRecipeFiles();
+            _loadingConfiguredFiles = true;
+            try
+            {
+                LoadConfiguredRecipeFiles();
+            }
+            finally
+            {
+                _loadingConfiguredFiles = false;
+            }
             NotifyRecipesChanged();
         }
 
