@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security;
@@ -136,14 +137,25 @@ namespace Greenshot.Plugin.Office.OfficeExport
         }
 
         /// <summary>
-        ///     The running OneNote, null if there isn't any
+        ///     Is OneNote running? OneNote doesn't register in the Running Object Table, so GetActiveObject never finds it.
+        ///     Creating OneNote.Application connects to the running OneNote instead of starting a second one.
         /// </summary>
-        private IDisposableCom<IOneNoteApplication> GetOneNoteApplication() => OfficeApplication.GetActive<IOneNoteApplication>("OneNote.Application");
+        private static bool IsOneNoteRunning()
+        {
+            var processes = Process.GetProcessesByName("ONENOTE");
+            foreach (var process in processes)
+            {
+                process.Dispose();
+            }
+
+            return processes.Length > 0;
+        }
 
         /// <summary>
-        ///     The running OneNote, or a new instance
+        ///     The running OneNote, or a new instance (see IsOneNoteRunning why this doesn't use GetActiveObject)
         /// </summary>
-        private IDisposableCom<IOneNoteApplication> GetOrCreateOneNoteApplication() => OfficeApplication.GetOrCreate<IOneNoteApplication>("OneNote.Application");
+        private IDisposableCom<IOneNoteApplication> GetOrCreateOneNoteApplication() =>
+            DisposableCom.Create((IOneNoteApplication) Activator.CreateInstance(Type.GetTypeFromProgID("OneNote.Application", true)));
 
         /// <summary>
         ///     Get the pages of a running OneNote, opening the destination menu doesn't start OneNote
@@ -154,7 +166,12 @@ namespace Greenshot.Plugin.Office.OfficeExport
             var pages = new List<OneNotePage>();
             try
             {
-                using var oneNoteApplication = GetOneNoteApplication();
+                if (!IsOneNoteRunning())
+                {
+                    return pages;
+                }
+
+                using var oneNoteApplication = GetOrCreateOneNoteApplication();
                 if (oneNoteApplication != null)
                 {
                     // ReSharper disable once RedundantAssignment
