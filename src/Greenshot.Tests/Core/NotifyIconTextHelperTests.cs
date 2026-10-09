@@ -22,9 +22,9 @@
 using System;
 using System.IO;
 using System.Windows.Forms;
-using Greenshot.Helpers;
 using Xunit;
 using System.Linq;
+using Greenshot.Helpers;
 
 namespace Greenshot.Tests.Core
 {

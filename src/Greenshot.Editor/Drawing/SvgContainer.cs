@@ -28,8 +28,6 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Svg;
 
-using Greenshot.Editor.Helpers;
-
 namespace Greenshot.Editor.Drawing
 {
     /// <summary>

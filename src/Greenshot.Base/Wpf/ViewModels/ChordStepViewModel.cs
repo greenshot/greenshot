@@ -1,14 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using System.Windows.Media;
 using Dapplo.Windows.Input.Enums;
 using Greenshot.Base.Core;
-using Greenshot.Base.Wpf;
 
 namespace Greenshot.Base.Wpf.ViewModels
 {

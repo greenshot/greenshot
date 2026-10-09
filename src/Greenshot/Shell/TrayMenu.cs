@@ -37,7 +37,6 @@ using Dapplo.Windows.Desktop;
 using Dapplo.Windows.User32;
 using Greenshot.Base;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Help;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Languages;

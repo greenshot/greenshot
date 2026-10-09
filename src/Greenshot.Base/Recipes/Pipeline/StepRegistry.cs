@@ -26,7 +26,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using Greenshot.Base.Core;
-using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
 using log4net;
 

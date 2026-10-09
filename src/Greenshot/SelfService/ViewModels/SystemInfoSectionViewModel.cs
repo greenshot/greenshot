@@ -23,7 +23,6 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Windows;
 using Greenshot.Base.Core;
 using Greenshot.Base.Languages;
 

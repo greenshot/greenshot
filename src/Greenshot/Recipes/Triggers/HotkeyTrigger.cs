@@ -19,8 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System.Threading;
-using System.Windows.Forms;
 using Dapplo.Windows.Input.Enums;
 using Greenshot.Base.Core;
 using Greenshot.Base.Recipes.Triggers;

@@ -19,13 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Windows;
-using System.Windows.Media;
-using Greenshot.Base.Recipes;
-using Greenshot.Recipes;
-
 namespace Greenshot.Recipes.ViewModels
 {
     /// <summary>

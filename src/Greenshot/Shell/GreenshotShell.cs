@@ -38,13 +38,11 @@ using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Languages;
-using Greenshot.Base.Native;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Base.Threading;
 using Greenshot.Capturing;
-using Greenshot.Configuration;
 using Greenshot.Destinations;
 using Greenshot.Editor;
 using Greenshot.Editor.Destinations;
@@ -65,6 +63,7 @@ using Greenshot.Plugins;
 #endif
 using WpfWindow = System.Windows.Window;
 using WpfWindowStyle = System.Windows.WindowStyle;
+using Greenshot.Base.Native;
 
 namespace Greenshot.Shell
 {

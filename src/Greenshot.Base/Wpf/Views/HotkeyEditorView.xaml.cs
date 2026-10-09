@@ -5,7 +5,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using Dapplo.Windows.Input.Enums;
 using Greenshot.Base.Core;
-using Greenshot.Base.Wpf;
 using Greenshot.Base.Wpf.ViewModels;
 
 namespace Greenshot.Base.Wpf.Views

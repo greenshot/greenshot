@@ -25,7 +25,6 @@ using Dapplo.Ini;
 using Dapplo.Windows.Desktop;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
 using log4net;
 using Greenshot.Base.Threading;

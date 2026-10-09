@@ -29,7 +29,6 @@ using System.Windows.Media;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
-using Greenshot.Helpers;
 using Greenshot.Recipes.Triggers;
 using log4net;
 using Microsoft.Win32;

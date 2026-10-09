@@ -22,7 +22,6 @@
 using System.Windows.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
-using Greenshot.Base.Interfaces;
 
 namespace Greenshot.Plugin.Dropbox.Views;
 

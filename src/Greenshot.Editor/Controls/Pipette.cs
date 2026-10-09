@@ -20,7 +20,6 @@
  */
 
 using System;
-using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Structs;
@@ -29,7 +28,6 @@ using Dapplo.Windows.Icons.SafeHandles;
 using Dapplo.Windows.Messages.Enums;
 using Dapplo.Windows.User32;
 using Greenshot.Editor.Forms;
-using ColorDialog = Greenshot.Editor.Forms.ColorDialog;
 
 namespace Greenshot.Editor.Controls
 {

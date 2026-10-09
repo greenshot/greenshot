@@ -20,7 +20,6 @@
  */
 
 using System;
-using Greenshot.Base.Recipes;
 
 namespace Greenshot.Base.Recipes.Pipeline
 {

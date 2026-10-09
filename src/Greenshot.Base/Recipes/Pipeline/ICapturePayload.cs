@@ -21,7 +21,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using Greenshot.Base.Interfaces;
 using System.Threading;
 using System.Threading.Tasks;

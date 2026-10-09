@@ -33,7 +33,6 @@ using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Icons;
 using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.User32;
-using Greenshot.Base.Interfaces;
 using Greenshot.Base.Threading;
 using log4net;
 

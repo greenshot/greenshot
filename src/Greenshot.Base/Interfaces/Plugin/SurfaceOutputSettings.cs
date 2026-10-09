@@ -21,7 +21,6 @@
 
 using System.Collections.Generic;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Effects;
 using Dapplo.Ini;
 using Greenshot.Base.Core.FileFormat;

@@ -27,7 +27,6 @@ using Dapplo.HttpExtensions.JsonNet;
 using Greenshot.Base.Core;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
-using Greenshot.Configuration;
 using Greenshot.Helpers.Entities;
 using log4net;
 using Greenshot.Base.Threading;

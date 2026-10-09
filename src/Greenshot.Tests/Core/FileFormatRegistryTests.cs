@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using Greenshot.Base.Core.FileFormat;
 using Xunit;
 

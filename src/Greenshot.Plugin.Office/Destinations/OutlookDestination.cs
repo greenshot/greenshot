@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -28,7 +28,6 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Plugin.Office.OfficeExport;
 using Greenshot.Plugin.Office.OfficeInterop;
 using Microsoft.Win32;

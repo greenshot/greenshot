@@ -29,7 +29,6 @@ using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes;
-using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Recipes.Approval;
 using Greenshot.Recipes.Triggers;

@@ -20,11 +20,8 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Greenshot.Base.Core;
-using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Plugin.RecipeEditor.ViewModels;

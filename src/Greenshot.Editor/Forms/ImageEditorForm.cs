@@ -40,7 +40,6 @@ using Dapplo.Windows.User32.Enums;
 using Dapplo.Windows.User32.Structs;
 using Greenshot.Base;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Effects;
 using Greenshot.Base.Help;
@@ -53,7 +52,6 @@ using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Controls;
-using Greenshot.Editor.Controls.Emoji;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Emoji;
@@ -64,9 +62,7 @@ using Greenshot.Base.Threading;
 using Greenshot.Editor.Views;
 using log4net;
 using System.Threading.Tasks;
-using System.Threading;
 using Greenshot.Base.Core.Export;
-using Greenshot.Base.Controls;
 using Greenshot.Base.Languages;
 
 namespace Greenshot.Editor.Forms

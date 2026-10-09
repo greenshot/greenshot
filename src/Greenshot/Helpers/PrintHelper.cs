@@ -30,7 +30,6 @@ using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Effects;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Configuration;
 using Greenshot.Editor.Helpers;
 using log4net;
 

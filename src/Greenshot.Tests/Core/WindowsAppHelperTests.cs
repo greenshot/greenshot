@@ -20,7 +20,6 @@
  */
 
 using System;
-using System.IO;
 using System.Threading.Tasks;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;

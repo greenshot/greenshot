@@ -25,11 +25,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
 using log4net;
 

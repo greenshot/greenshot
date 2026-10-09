@@ -23,13 +23,11 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
-using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Icons;
 using Dapplo.Windows.Icons.SafeHandles;
@@ -40,8 +38,6 @@ using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Controls;
 using Greenshot.Editor.Forms;
 using Color = System.Drawing.Color;
-using Cursors = System.Windows.Input.Cursors;
-using Point = System.Drawing.Point;
 
 namespace Greenshot.Editor.Views
 {

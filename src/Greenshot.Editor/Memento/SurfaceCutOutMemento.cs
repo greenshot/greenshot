@@ -23,7 +23,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Drawing;
 using Dapplo.Windows.Common.Structs;
-using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing;
 

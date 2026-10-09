@@ -23,7 +23,6 @@ using System;
 using System.IO;
 using System.Linq;
 using Greenshot.Base.Core;
-using Dapplo.Ini;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using log4net;

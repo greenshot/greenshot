@@ -29,7 +29,6 @@ using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Editor.Drawing;
-using Greenshot.Editor.Helpers;
 using System.IO;
 using Greenshot.Plugin.Zxing;
 using Greenshot.Plugin.RecipeEditor.Helpers;

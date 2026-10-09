@@ -22,7 +22,6 @@
 using System;
 using System.Linq;
 using Greenshot.Base.Core.Enums;
-using Greenshot.Base.Recipes;
 using log4net;
 
 namespace Greenshot.Base.Recipes.Triggers

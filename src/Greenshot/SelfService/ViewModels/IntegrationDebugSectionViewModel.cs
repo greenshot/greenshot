@@ -26,7 +26,6 @@ using System.IO;
 using System.Windows.Media;
 using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
-using Greenshot.Base.Wpf;
 
 namespace Greenshot.SelfService.ViewModels
 {

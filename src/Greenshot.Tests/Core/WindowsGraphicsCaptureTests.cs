@@ -26,10 +26,10 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Dapplo.Windows.User32;
-using Greenshot.Base.Native;
-using Greenshot.Base.Native.DirectX;
 using Xunit;
 using Xunit.Abstractions;
+using Greenshot.Base.Native.DirectX;
+using Greenshot.Base.Native;
 
 namespace Greenshot.Tests.Core;
 

@@ -20,7 +20,6 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
@@ -31,7 +30,6 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Triggers;
-using Greenshot.Recipes;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Wpf;
 using Greenshot.Recipes.Approval;

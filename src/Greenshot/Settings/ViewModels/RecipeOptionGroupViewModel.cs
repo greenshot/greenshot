@@ -23,13 +23,11 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Greenshot.Base.Core;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Wpf;
-using Greenshot.Recipes;
 using Greenshot.Base.Languages;
 
 namespace Greenshot.Settings.ViewModels

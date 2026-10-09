@@ -35,7 +35,6 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Desktop;
 using Dapplo.Windows.User32;
 using Greenshot.Base.Core;
-using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Capture;
 using Greenshot.Base.Languages;
 using Greenshot.Base.Threading;

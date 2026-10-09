@@ -28,7 +28,6 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Controls.Emoji;
-using Greenshot.Editor.Helpers;
 using Image = System.Drawing.Image;
 
 namespace Greenshot.Editor.Drawing.Emoji

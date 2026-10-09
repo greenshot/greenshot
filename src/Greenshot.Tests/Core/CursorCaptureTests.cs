@@ -21,11 +21,9 @@
 
 using System;
 using System.Drawing;
-using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Windows.Forms;
-using Dapplo.Ini;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Desktop;
 using Dapplo.Windows.User32;
@@ -34,7 +32,6 @@ using Greenshot.Base.Capturing;
 using Greenshot.Base.Interfaces;
 using Xunit;
 using System.Threading.Tasks;
-using Greenshot.Base.Threading;
 
 namespace Greenshot.Tests.Core;
 

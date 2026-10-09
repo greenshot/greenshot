@@ -27,7 +27,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Forms;
 using Greenshot.Base.Interfaces.Plugin;

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -27,7 +27,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using Dapplo.Ini;
 using Greenshot.Base.Threading;
-using Greenshot.Plugin.Confluence.Api;
 using Greenshot.Plugin.Confluence.Api.Entities;
 
 namespace Greenshot.Plugin.Confluence.Views;

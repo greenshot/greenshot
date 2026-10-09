@@ -19,14 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using Greenshot.Base.Core;
-using Greenshot.Base.Wpf;
-
 namespace Greenshot.ViewModels
 {
     public class RunningInstanceViewModel

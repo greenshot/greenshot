@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -27,12 +27,10 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Windows.Forms;
 using Greenshot.Base.Core;
 using Dapplo.Ini;
 using Dapplo.Windows.Desktop;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Interfaces.Plugin;
 using System.Threading.Tasks;
 using Greenshot.Base.Threading;
 

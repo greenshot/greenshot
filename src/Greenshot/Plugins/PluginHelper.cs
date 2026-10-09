@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -30,8 +30,6 @@ using System.Windows.Forms;
 using Dapplo.Ini;
 using Dapplo.Ini.Interfaces;
 using Greenshot.Base.Core;
-using Greenshot.Base.Interfaces;
-using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;

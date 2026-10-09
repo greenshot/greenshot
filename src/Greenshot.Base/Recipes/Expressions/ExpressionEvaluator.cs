@@ -32,7 +32,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
-using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes.Pipeline;
 using Newtonsoft.Json.Linq;
 

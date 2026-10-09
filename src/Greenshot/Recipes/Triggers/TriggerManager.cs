@@ -28,7 +28,6 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Triggers;
-using Greenshot.Recipes;
 using log4net;
 
 namespace Greenshot.Recipes.Triggers

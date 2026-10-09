@@ -20,7 +20,6 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,7 +32,6 @@ using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Capturing;
 using Greenshot.Editor.Drawing;
-using Greenshot.Native;
 using Greenshot.Recipes.Steps;
 using log4net;
 using Greenshot.Base.Threading;

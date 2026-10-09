@@ -28,7 +28,6 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Threading;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.Wpf;
 using Greenshot.Base.Wpf.Views;
 using Xunit;
 

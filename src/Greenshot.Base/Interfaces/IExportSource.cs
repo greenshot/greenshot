@@ -25,7 +25,6 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Core;
 

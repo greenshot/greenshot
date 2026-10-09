@@ -24,7 +24,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Desktop;
-using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;

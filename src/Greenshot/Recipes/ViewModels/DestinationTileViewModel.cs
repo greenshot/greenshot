@@ -19,31 +19,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
 using System.Windows;
-using System.Windows.Input;
-using System.Windows.Interop;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using System.Windows.Threading;
-using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Recipes;
 using Greenshot.Base.Wpf;
-using Greenshot.Configuration;
-using Greenshot.Editor.Destinations;
-using Greenshot.Base.Threading;
-using Greenshot.Base.Languages;
 
 namespace Greenshot.Recipes.ViewModels
 {

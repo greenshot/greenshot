@@ -1,4 +1,4 @@
-﻿// Greenshot - a free and open source screenshot tool
+// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: https://getgreenshot.org/
@@ -24,11 +24,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Xml;
-using Greenshot.Base.Core;
-using Greenshot.Base.Core.Enums;
-using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Interfaces.Plugin;
 using Dapplo.Windows.Com;
 using Greenshot.Plugin.Office.OfficeExport.Entities;
 using Greenshot.Plugin.Office.OfficeInterop;

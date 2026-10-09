@@ -20,7 +20,6 @@
  */
 
 using System.Windows.Media;
-using CaptureMode = Greenshot.Base.Interfaces.CaptureMode;
 
 namespace Greenshot.Base.Interfaces.Capture
 {
