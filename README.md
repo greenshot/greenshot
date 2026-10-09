@@ -54,7 +54,7 @@ IDE System Requirements:
 * Windows OS environment
 * Greenshot is build using (as of this writing) .net Framework 4.8.0 This means any version between .net Framework 4.8.0-4.8.1 will suffice. 
 * Visual Studio 2022 or newer (works fine with 2026)
-* .NET SDK 9.0.311 also for building (supported by VS 2022)
+* .NET SDK 10.0.100 or newer for building (Greenshot.Mcp targets .NET 10)
 
 Build Instructions:
 -------------------

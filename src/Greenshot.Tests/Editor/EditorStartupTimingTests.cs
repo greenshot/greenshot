@@ -33,7 +33,6 @@ using Greenshot.Base.Core;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Forms;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Greenshot.Tests.Editor
 {

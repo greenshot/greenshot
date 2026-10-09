@@ -22,6 +22,7 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 using Xunit;
 
 namespace Greenshot.Tests
@@ -34,7 +35,7 @@ namespace Greenshot.Tests
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public sealed class InteractiveDesktopFactAttribute : FactAttribute
     {
-        public InteractiveDesktopFactAttribute()
+        public InteractiveDesktopFactAttribute([CallerFilePath] string sourceFilePath = null, [CallerLineNumber] int sourceLineNumber = -1) : base(sourceFilePath, sourceLineNumber)
         {
             if (!IsInteractiveSession())
             {

@@ -145,13 +145,13 @@
     IF NOT EXIST &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(TargetName)&quot; (&#xD;&#xA;
             mkdir &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(TargetName)&quot;&#xD;&#xA;
         )&#xD;&#xA;
-    xcopy /q /y /d &quot;$(TargetDir)$(TargetName).*&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)\Plugins\$(TargetName)&quot;&#xD;&#xA;
-    xcopy /q /y /d &quot;$(TargetDir)*.dll&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)\Plugins\$(TargetName)&quot;&#xD;&#xA;
+    xcopy /q /y /d &quot;$(TargetDir)$(TargetName).*&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)\Plugins\$(TargetName)&quot; &gt;nul&#xD;&#xA;
+    xcopy /q /y /d &quot;$(TargetDir)*.dll&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)\Plugins\$(TargetName)&quot; &gt;nul&#xD;&#xA;
     IF EXIST &quot;$(TargetDir)Languages&quot; (&#xD;&#xA;
         IF NOT EXIST &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages&quot; (&#xD;&#xA;
             mkdir &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages&quot;&#xD;&#xA;
         )&#xD;&#xA;
-        xcopy /q /y /d &quot;$(TargetDir)Languages\*.ini&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages&quot;&#xD;&#xA;
+        xcopy /q /y /d &quot;$(TargetDir)Languages\*.ini&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages&quot; &gt;nul&#xD;&#xA;
 	  )
     for /f &quot;tokens=*&quot; %%F in ('dir /b /A-D $(SolutionDir)$(SolutionName)\$(OutDir)') do if EXIST &quot;$(SolutionDir)$(SolutionName)\$(OutDir)\Plugins\$(TargetName)\%%F&quot; (&#xD;&#xA;del &quot;$(SolutionDir)$(SolutionName)\$(OutDir)\Plugins\$(TargetName)\%%F&quot;&#xD;&#xA;)&#xD;&#xA;
   " />

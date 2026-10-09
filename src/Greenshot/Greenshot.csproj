@@ -138,12 +138,12 @@
 
   <PropertyGroup Condition="'$(GreenshotBaseConfiguration)' == 'Debug'">
     <PostBuildEvent>
-      copy "$(SolutionDir)Greenshot\log4net-debug.xml" "$(TargetDir)log4net.xml"
+      copy "$(SolutionDir)Greenshot\log4net-debug.xml" "$(TargetDir)log4net.xml" >nul
     </PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition="'$(GreenshotBaseConfiguration)' == 'Release'">
     <PostBuildEvent>
-      copy "$(SolutionDir)Greenshot\log4net-release.xml" "$(TargetDir)log4net.xml"
+      copy "$(SolutionDir)Greenshot\log4net-release.xml" "$(TargetDir)log4net.xml" >nul
     </PostBuildEvent>
   </PropertyGroup>
 </Project>

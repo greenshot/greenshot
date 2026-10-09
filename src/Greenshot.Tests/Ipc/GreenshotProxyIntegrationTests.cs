@@ -25,6 +25,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Greenshot.Ipc;
@@ -87,7 +88,7 @@ namespace Greenshot.Tests.Ipc
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public sealed class ProxyFactAttribute : FactAttribute
     {
-        public ProxyFactAttribute(string fileName, bool needsPipe = true)
+        public ProxyFactAttribute(string fileName, bool needsPipe = true, [CallerFilePath] string sourceFilePath = null, [CallerLineNumber] int sourceLineNumber = -1) : base(sourceFilePath, sourceLineNumber)
         {
             Skip = ProxyBinaries.GetSkipReason(fileName, needsPipe);
         }
