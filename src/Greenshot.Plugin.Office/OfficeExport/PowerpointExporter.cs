@@ -191,14 +191,8 @@ namespace Greenshot.Plugin.Office.OfficeExport
 
                 using var presentations = DisposableCom.Create(powerpointApplication.ComObject.Presentations);
                 LOG.DebugFormat("Open Presentations: {0}", presentations.ComObject.Count);
-                for (int i = 1; i <= presentations.ComObject.Count; i++)
+                foreach (var presentation in OfficeApplication.Items(presentations.ComObject.Count, i => presentations.ComObject.Item(i)))
                 {
-                    using var presentation = DisposableCom.Create(presentations.ComObject.Item(i));
-                    if (presentation == null)
-                    {
-                        continue;
-                    }
-
                     if (presentation.ComObject.Name != presentationName)
                     {
                         continue;
@@ -245,14 +239,8 @@ namespace Greenshot.Plugin.Office.OfficeExport
 
             using var presentations = DisposableCom.Create(powerpointApplication.ComObject.Presentations);
             LOG.DebugFormat("Open Presentations: {0}", presentations.ComObject.Count);
-            for (int i = 1; i <= presentations.ComObject.Count; i++)
+            foreach (var presentation in OfficeApplication.Items(presentations.ComObject.Count, i => presentations.ComObject.Item(i)))
             {
-                using var presentation = DisposableCom.Create(presentations.ComObject.Item(i));
-                if (presentation == null)
-                {
-                    continue;
-                }
-
                 if (presentation.ComObject.ReadOnly == (int) MsoTriState.msoTrue || presentation.ComObject.Final)
                 {
                     continue;

@@ -77,9 +77,8 @@ namespace Greenshot.Plugin.Office.OfficeExport
             }
 
             using var documents = DisposableCom.Create(wordApplication.ComObject.Documents);
-            for (int i = 1; i <= documents.ComObject.Count; i++)
+            foreach (var document in OfficeApplication.Items(documents.ComObject.Count, i => documents.ComObject.Item(i)))
             {
-                using var document = DisposableCom.Create(documents.ComObject.Item(i));
                 if (document.ComObject.ReadOnly || document.ComObject.Final)
                 {
                     continue;
@@ -106,9 +105,8 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 }
 
                 using var documents = DisposableCom.Create(wordApplication.ComObject.Documents);
-                for (int i = 1; i <= documents.ComObject.Count; i++)
+                foreach (var wordDocument in OfficeApplication.Items(documents.ComObject.Count, i => documents.ComObject.Item(i)))
                 {
-                    using var wordDocument = DisposableCom.Create(documents.ComObject.Item(i));
                     using var activeWindow = DisposableCom.Create(wordDocument.ComObject.ActiveWindow);
                     if (activeWindow.ComObject.Caption.StartsWith(wordCaption))
                     {

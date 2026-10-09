@@ -136,64 +136,17 @@ namespace Greenshot.Plugin.Office.OfficeExport
         }
 
         /// <summary>
-        ///     Call this to get the running Excel application, returns null if there isn't any.
+        ///     The running OneNote, null if there isn't any
         /// </summary>
-        /// <returns>ComDisposable for Excel.Application or null</returns>
-        private IDisposableCom<IOneNoteApplication> GetOneNoteApplication()
-        {
-            IDisposableCom<IOneNoteApplication> oneNoteApplication;
-            try
-            {
-                oneNoteApplication = OleAut32Api.GetActiveObject<IOneNoteApplication>("OneNote.Application");
-            }
-            catch
-            {
-                // Ignore, probably no OneNote running
-                return null;
-            }
-
-            return oneNoteApplication;
-        }
+        private IDisposableCom<IOneNoteApplication> GetOneNoteApplication() => OfficeApplication.GetActive<IOneNoteApplication>("OneNote.Application");
 
         /// <summary>
-        ///     Call this to get the running OneNote application, or create a new instance
+        ///     The running OneNote, or a new instance
         /// </summary>
-        /// <returns>ComDisposable for OneNote.Application</returns>
-        private IDisposableCom<IOneNoteApplication> GetOrCreateOneNoteApplication()
-        {
-            var oneNoteApplication = GetOneNoteApplication();
-            if (oneNoteApplication == null)
-            {
-                try
-                {
-                    // Try to get the type from ProgID for more reliable COM instantiation
-                    var oneNoteType = Type.GetTypeFromProgID("OneNote.Application");
-                    if (oneNoteType != null)
-                    {
-                        var oneNoteObject = Activator.CreateInstance(oneNoteType);
-                        oneNoteApplication = DisposableCom.Create((IOneNoteApplication)oneNoteObject);
-                        LOG.Debug("Created new OneNote.Application instance using Type.GetTypeFromProgID");
-                    }
-                    else
-                    {
-                        LOG.Warn("Could not get type for OneNote.Application from ProgID. OneNote may not be installed or registered for COM automation.");
-                    }
-                }
-                catch (COMException comEx)
-                {
-                    LOG.Error($"Failed to create OneNote.Application instance. Error code: 0x{comEx.ErrorCode:X}. OneNote may not be installed or available.", comEx);
-                }
-                catch (Exception ex)
-                {
-                    LOG.Error("Failed to create OneNote.Application instance. OneNote may not be installed or available.", ex);
-                }
-            }
-
-            return oneNoteApplication;
-        }
+        private IDisposableCom<IOneNoteApplication> GetOrCreateOneNoteApplication() => OfficeApplication.GetOrCreate<IOneNoteApplication>("OneNote.Application");
 
         /// <summary>
-        ///     Get the captions of all the open word documents
+        ///     Get the pages of a running OneNote, opening the destination menu doesn't start OneNote
         /// </summary>
         /// <returns></returns>
         public IList<OneNotePage> GetPages()
@@ -201,7 +154,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
             var pages = new List<OneNotePage>();
             try
             {
-                using var oneNoteApplication = GetOrCreateOneNoteApplication();
+                using var oneNoteApplication = GetOneNoteApplication();
                 if (oneNoteApplication != null)
                 {
                     // ReSharper disable once RedundantAssignment
