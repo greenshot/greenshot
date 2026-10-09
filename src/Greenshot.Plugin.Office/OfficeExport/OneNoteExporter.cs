@@ -338,6 +338,12 @@ namespace Greenshot.Plugin.Office.OfficeExport
                     using var xmlReader = new XmlTextReader(reader);
                     while (xmlReader.Read())
                     {
+                        // The unfiled notes (Quick Notes) section is listed as its own element when it's in no open notebook
+                        if (specialLocation == SpecialLocation.slUnfiledNotesSection && "one:UnfiledNotes".Equals(xmlReader.Name))
+                        {
+                            return xmlReader.GetAttribute("ID");
+                        }
+
                         if (!"one:Section".Equals(xmlReader.Name))
                         {
                             continue;
