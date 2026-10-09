@@ -30,7 +30,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Dapplo.Windows.Com;
 using Greenshot.Plugin.Office.OfficeExport.Entities;
-using Microsoft.Office.Interop.OneNote;
+using Greenshot.Plugin.Office.OfficeInterop;
 using System.Drawing;
 
 namespace Greenshot.Plugin.Office.OfficeExport
@@ -108,7 +108,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
         /// <param name="imageSize">Size of the capture</param>
         /// <param name="page">OneNotePage</param>
         /// <returns>bool true if everything worked</returns>
-        private bool ExportToPage(IDisposableCom<Application> oneNoteApplication, EncodedImage png, Size imageSize, OneNotePage page)
+        private bool ExportToPage(IDisposableCom<IOneNoteApplication> oneNoteApplication, EncodedImage png, Size imageSize, OneNotePage page)
         {
             if (oneNoteApplication == null)
             {
@@ -139,12 +139,12 @@ namespace Greenshot.Plugin.Office.OfficeExport
         ///     Call this to get the running Excel application, returns null if there isn't any.
         /// </summary>
         /// <returns>ComDisposable for Excel.Application or null</returns>
-        private IDisposableCom<Application> GetOneNoteApplication()
+        private IDisposableCom<IOneNoteApplication> GetOneNoteApplication()
         {
-            IDisposableCom<Application> oneNoteApplication;
+            IDisposableCom<IOneNoteApplication> oneNoteApplication;
             try
             {
-                oneNoteApplication = OleAut32Api.GetActiveObject<Application>("OneNote.Application");
+                oneNoteApplication = OleAut32Api.GetActiveObject<IOneNoteApplication>("OneNote.Application");
             }
             catch
             {
@@ -159,7 +159,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
         ///     Call this to get the running OneNote application, or create a new instance
         /// </summary>
         /// <returns>ComDisposable for OneNote.Application</returns>
-        private IDisposableCom<Application> GetOrCreateOneNoteApplication()
+        private IDisposableCom<IOneNoteApplication> GetOrCreateOneNoteApplication()
         {
             var oneNoteApplication = GetOneNoteApplication();
             if (oneNoteApplication == null)
@@ -171,7 +171,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                     if (oneNoteType != null)
                     {
                         var oneNoteObject = Activator.CreateInstance(oneNoteType);
-                        oneNoteApplication = DisposableCom.Create((Application)oneNoteObject);
+                        oneNoteApplication = DisposableCom.Create((IOneNoteApplication)oneNoteObject);
                         LOG.Debug("Created new OneNote.Application instance using Type.GetTypeFromProgID");
                     }
                     else
@@ -314,53 +314,17 @@ namespace Greenshot.Plugin.Office.OfficeExport
         /// <param name="oneNoteApplication"></param>
         /// <param name="specialLocation">SpecialLocation</param>
         /// <returns>string with section ID</returns>
-        private string GetSectionId(IDisposableCom<Application> oneNoteApplication, SpecialLocation specialLocation)
+        private string GetSectionId(IDisposableCom<IOneNoteApplication> oneNoteApplication, SpecialLocation specialLocation)
         {
             if (oneNoteApplication == null)
             {
                 return null;
             }
 
-            // ReSharper disable once RedundantAssignment
-            string unfiledNotesPath = "";
-            oneNoteApplication.ComObject.GetSpecialLocation(specialLocation, out unfiledNotesPath);
-
-            // ReSharper disable once RedundantAssignment
-            string notebookXml = "";
-            oneNoteApplication.ComObject.GetHierarchy("", HierarchyScope.hsPages, out notebookXml, XMLSchema.xs2010);
-            if (!string.IsNullOrEmpty(notebookXml))
-            {
-                LOG.Debug(notebookXml);
-                StringReader reader = null;
-                try
-                {
-                    reader = new StringReader(notebookXml);
-                    using var xmlReader = new XmlTextReader(reader);
-                    while (xmlReader.Read())
-                    {
-                        if (!"one:Section".Equals(xmlReader.Name))
-                        {
-                            continue;
-                        }
-
-                        string id = xmlReader.GetAttribute("ID");
-                        string path = xmlReader.GetAttribute("path");
-                        if (unfiledNotesPath.Equals(path))
-                        {
-                            return id;
-                        }
-                    }
-                }
-                finally
-                {
-                    if (reader != null)
-                    {
-                        reader.Dispose();
-                    }
-                }
-            }
-
-            return null;
+            oneNoteApplication.ComObject.GetSpecialLocation(specialLocation, out string sectionPath);
+            // Opening the section gives its ID, also when it's in no open notebook (where the hierarchy doesn't list it)
+            oneNoteApplication.ComObject.OpenHierarchy(sectionPath, string.Empty, out string sectionId, CreateFileType.cftNone);
+            return sectionId;
         }
     }
 }

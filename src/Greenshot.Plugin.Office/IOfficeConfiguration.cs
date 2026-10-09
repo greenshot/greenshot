@@ -23,7 +23,6 @@ using System.ComponentModel;
 using Dapplo.Ini.Attributes;
 using Dapplo.Ini.Interfaces;
 using Greenshot.Plugin.Office.OfficeInterop;
-using Microsoft.Office.Interop.PowerPoint;
 
 namespace Greenshot.Plugin.Office
 {
