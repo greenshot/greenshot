@@ -18,6 +18,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Dapplo.Windows.Com;
 
@@ -64,6 +65,20 @@ namespace Greenshot.Plugin.Office.OfficeInterop
         /// <param name="progId">e.g. Word.Application</param>
         public static IDisposableCom<T> GetOrCreate<T>(string progId) where T : class =>
             GetActive<T>(progId) ?? DisposableCom.Create((T) Activator.CreateInstance(Type.GetTypeFromProgID(progId, true)));
+
+        /// <summary>
+        /// The items of a collection, each one is released when the loop moves on (or ends)
+        /// </summary>
+        /// <param name="count">Count of the collection</param>
+        /// <param name="getItem">Gets the item with the 1-based index</param>
+        public static IEnumerable<IDisposableCom<T>> Items<T>(int count, Func<int, T> getItem) where T : class
+        {
+            for (int i = 1; i <= count; i++)
+            {
+                using var item = DisposableCom.Create(getItem(i));
+                yield return item;
+            }
+        }
 
         /// <summary>
         /// An item of a collection whose Item is a property: an Item method on the interface would be called as a method,

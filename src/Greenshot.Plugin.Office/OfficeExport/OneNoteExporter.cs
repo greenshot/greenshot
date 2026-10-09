@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security;
@@ -136,64 +137,28 @@ namespace Greenshot.Plugin.Office.OfficeExport
         }
 
         /// <summary>
-        ///     Call this to get the running Excel application, returns null if there isn't any.
+        ///     Is OneNote running? OneNote doesn't register in the Running Object Table, so GetActiveObject never finds it.
+        ///     Creating OneNote.Application connects to the running OneNote instead of starting a second one.
         /// </summary>
-        /// <returns>ComDisposable for Excel.Application or null</returns>
-        private IDisposableCom<IOneNoteApplication> GetOneNoteApplication()
+        private static bool IsOneNoteRunning()
         {
-            IDisposableCom<IOneNoteApplication> oneNoteApplication;
-            try
+            var processes = Process.GetProcessesByName("ONENOTE");
+            foreach (var process in processes)
             {
-                oneNoteApplication = OleAut32Api.GetActiveObject<IOneNoteApplication>("OneNote.Application");
-            }
-            catch
-            {
-                // Ignore, probably no OneNote running
-                return null;
+                process.Dispose();
             }
 
-            return oneNoteApplication;
+            return processes.Length > 0;
         }
 
         /// <summary>
-        ///     Call this to get the running OneNote application, or create a new instance
+        ///     The running OneNote, or a new instance (see IsOneNoteRunning why this doesn't use GetActiveObject)
         /// </summary>
-        /// <returns>ComDisposable for OneNote.Application</returns>
-        private IDisposableCom<IOneNoteApplication> GetOrCreateOneNoteApplication()
-        {
-            var oneNoteApplication = GetOneNoteApplication();
-            if (oneNoteApplication == null)
-            {
-                try
-                {
-                    // Try to get the type from ProgID for more reliable COM instantiation
-                    var oneNoteType = Type.GetTypeFromProgID("OneNote.Application");
-                    if (oneNoteType != null)
-                    {
-                        var oneNoteObject = Activator.CreateInstance(oneNoteType);
-                        oneNoteApplication = DisposableCom.Create((IOneNoteApplication)oneNoteObject);
-                        LOG.Debug("Created new OneNote.Application instance using Type.GetTypeFromProgID");
-                    }
-                    else
-                    {
-                        LOG.Warn("Could not get type for OneNote.Application from ProgID. OneNote may not be installed or registered for COM automation.");
-                    }
-                }
-                catch (COMException comEx)
-                {
-                    LOG.Error($"Failed to create OneNote.Application instance. Error code: 0x{comEx.ErrorCode:X}. OneNote may not be installed or available.", comEx);
-                }
-                catch (Exception ex)
-                {
-                    LOG.Error("Failed to create OneNote.Application instance. OneNote may not be installed or available.", ex);
-                }
-            }
-
-            return oneNoteApplication;
-        }
+        private IDisposableCom<IOneNoteApplication> GetOrCreateOneNoteApplication() =>
+            DisposableCom.Create((IOneNoteApplication) Activator.CreateInstance(Type.GetTypeFromProgID("OneNote.Application", true)));
 
         /// <summary>
-        ///     Get the captions of all the open word documents
+        ///     Get the pages of a running OneNote, opening the destination menu doesn't start OneNote
         /// </summary>
         /// <returns></returns>
         public IList<OneNotePage> GetPages()
@@ -201,6 +166,11 @@ namespace Greenshot.Plugin.Office.OfficeExport
             var pages = new List<OneNotePage>();
             try
             {
+                if (!IsOneNoteRunning())
+                {
+                    return pages;
+                }
+
                 using var oneNoteApplication = GetOrCreateOneNoteApplication();
                 if (oneNoteApplication != null)
                 {
