@@ -5,6 +5,7 @@
     <IsPackable>false</IsPackable>
     <!-- xunit.v3 test projects are programs -->
     <OutputType>Exe</OutputType>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
     <!-- The tests don't pass TestContext.Current.CancellationToken to every call that takes a token, a hanging test is stopped by the runner -->
     <NoWarn>$(NoWarn);xUnit1051</NoWarn>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
