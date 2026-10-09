@@ -20,7 +20,6 @@
  */
 
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -47,47 +46,19 @@ namespace Greenshot.Plugin.Office.Destinations
 
         private static readonly string MailIconKey = DestinationIcons.Resource("Email.Image");
         private static readonly IOfficeConfiguration OfficeConfig = IniConfigRegistry.GetSection<IOfficeConfiguration>();
-        private static readonly string ExePath;
-        private static readonly bool IsActiveFlag;
+        private static readonly string ExePath = GetComServerPath("Outlook.Application");
         private const string MapiClient = "Microsoft Outlook";
         private readonly string _outlookInspectorCaption;
         private readonly OlObjectClass _outlookInspectorType;
         private readonly OutlookEmailExporter _outlookEmailExporter = new();
 
-        static OutlookDestination()
-        {
-            if (HasOutlook())
-            {
-                IsActiveFlag = true;
-            }
-            ExePath = OfficeUtils.GetOfficeExePath("OUTLOOK.EXE") ?? PluginUtils.GetExePath("OUTLOOK.EXE");
-            if (ExePath == null || !File.Exists(ExePath))
-            {
-                ExePath = GetOutlookExePath();
-            }
-
-            if (ExePath == null)
-            {
-                IsActiveFlag = false;
-            }
-        }
-
-
-        private static string GetOutlookExePath() => RegistryHive.LocalMachine.ReadKey64Or32(@"Microsoft\Windows\CurrentVersion\App Paths\OUTLOOK.EXE");
-
         /// <summary>
-        /// Check if Outlook is installed
+        /// The new Outlook has no COM interface, when the user switched to it the classic Outlook shouldn't be used
         /// </summary>
-        /// <returns>Returns true if outlook is installed</returns>
-        private static bool HasOutlook()
+        private static bool UsesNewOutlook()
         {
-            string outlookPath = GetOutlookExePath();
-            if (outlookPath == null)
-            {
-                return false;
-            }
-
-            return File.Exists(outlookPath);
+            using var preferences = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Office\16.0\Outlook\Preferences", false);
+            return preferences?.GetValue("UseNewOutlook") is int useNewOutlook && useNewOutlook != 0;
         }
 
         public OutlookDestination()
@@ -118,7 +89,7 @@ namespace Greenshot.Plugin.Office.Destinations
             }
         }
 
-        public override bool IsAvailableFor(ICaptureDetails metadata) => base.IsAvailableFor(metadata) && IsActiveFlag;
+        public override bool IsAvailableFor(ICaptureDetails metadata) => base.IsAvailableFor(metadata) && ExePath != null && !UsesNewOutlook();
 
         public override async ValueTask<IReadOnlyList<IDestination>> GetDynamicDestinationsAsync(ICaptureDetails metadata, CancellationToken cancellationToken)
         {
@@ -178,14 +149,13 @@ namespace Greenshot.Plugin.Office.Destinations
             bool exported;
             if (_outlookInspectorCaption != null)
             {
-                await Office.RunAsync(() => _outlookEmailExporter.ExportToInspector(_outlookInspectorCaption, tmpFile, attachmentName), cancellationToken).ConfigureAwait(false);
-                exported = true;
+                exported = await RunOnOfficeAsync(() => _outlookEmailExporter.ExportToInspector(_outlookInspectorCaption, tmpFile, attachmentName), cancellationToken).ConfigureAwait(false);
             }
             else
             {
                 string subject = FilenameHelper.FillPattern(OfficeConfig.EmailSubjectPattern, captureDetails, false, DateCultureMode.UILanguage);
                 exported = await RunOnOfficeAsync(() => _outlookEmailExporter.ExportToOutlook(OfficeConfig.OutlookEmailFormat, tmpFile,
-                    subject, attachmentName, OfficeConfig.EmailTo, OfficeConfig.EmailCC, OfficeConfig.EmailBCC, null), cancellationToken).ConfigureAwait(false);
+                    subject, attachmentName, OfficeConfig.EmailTo, OfficeConfig.EmailCC, OfficeConfig.EmailBCC), cancellationToken).ConfigureAwait(false);
             }
 
             return exported ? ExportResult.Succeeded() : ExportResult.Failed("Export to Outlook failed");

@@ -20,12 +20,10 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using Dapplo.Windows.Com;
 using Dapplo.Windows.User32;
-using Greenshot.Plugin.Office.Com;
-using Greenshot.Plugin.Office.OfficeInterop;
 using Microsoft.Office.Core;
 using Microsoft.Office.Interop.Excel;
-using Version = System.Version;
 
 namespace Greenshot.Plugin.Office.OfficeExport
 {
@@ -35,7 +33,6 @@ namespace Greenshot.Plugin.Office.OfficeExport
     public static class ExcelExporter
     {
         private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExcelExporter));
-        private static Version _excelVersion;
 
         /// <summary>
         ///     Call this to get the running Excel application, returns null if there isn't any.
@@ -43,59 +40,22 @@ namespace Greenshot.Plugin.Office.OfficeExport
         /// <returns>ComDisposable for Excel.Application or null</returns>
         private static IDisposableCom<Application> GetExcelApplication()
         {
-            IDisposableCom<Application> excelApplication;
             try
             {
-                excelApplication = OleAut32Api.GetActiveObject<Application>("Excel.Application");
+                return OleAut32Api.GetActiveObject<Application>("Excel.Application");
             }
-            catch
+            catch (Exception ex)
             {
-                // Ignore, probably no excel running
+                LOG.Warn("Unexpected error while getting Excel application instance.", ex);
                 return null;
             }
-
-            if (excelApplication?.ComObject != null)
-            {
-                try
-                {
-                    InitializeVariables(excelApplication);
-                }
-                catch (InvalidCastException ex)
-                {
-                    LOG.Warn("Excel COM object is unusable due to a type library error — treating Excel as unavailable.", ex);
-                    excelApplication.Dispose();
-                    return null;
-                }
-            }
-
-            return excelApplication;
         }
 
         /// <summary>
         ///     Call this to get the running Excel application, or create a new instance
         /// </summary>
         /// <returns>ComDisposable for Excel.Application</returns>
-        private static IDisposableCom<Application> GetOrCreateExcelApplication()
-        {
-            var excelApplication = GetExcelApplication();
-            if (excelApplication == null)
-            {
-                excelApplication = DisposableCom.Create(new Application());
-            }
-
-            try
-            {
-                InitializeVariables(excelApplication);
-            }
-            catch (InvalidCastException ex)
-            {
-                LOG.Warn("Excel COM object is unusable due to a type library error — treating Excel as unavailable.", ex);
-                excelApplication.Dispose();
-                return null;
-            }
-
-            return excelApplication;
-        }
+        private static IDisposableCom<Application> GetOrCreateExcelApplication() => GetExcelApplication() ?? DisposableCom.Create(new Application());
 
         /// <summary>
         ///     Get all currently opened workbooks
@@ -104,7 +64,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
         public static IEnumerable<string> GetWorkbooks()
         {
             using var excelApplication = GetExcelApplication();
-            if ((excelApplication == null) || (excelApplication.ComObject == null))
+            if (excelApplication == null)
             {
                 yield break;
             }
@@ -121,55 +81,31 @@ namespace Greenshot.Plugin.Office.OfficeExport
         }
 
         /// <summary>
-        ///     Initialize static excel variables like version and currentuser
-        /// </summary>
-        /// <param name="excelApplication"></param>
-        private static void InitializeVariables(IDisposableCom<Application> excelApplication)
-        {
-            if ((excelApplication == null) || (excelApplication.ComObject == null) || (_excelVersion != null))
-            {
-                return;
-            }
-
-            try
-            {
-                if (!Version.TryParse(excelApplication.ComObject.Version, out _excelVersion))
-                {
-                    LOG.Warn("Could not determine Excel version, assuming minimum.");
-                    _excelVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
-                }
-            }
-            catch (InvalidCastException)
-            {
-                // TYPE_E_CANTLOADLIBRARY: the COM object is entirely unusable. Re-throw so callers
-                // can treat Excel as unavailable rather than returning a broken COM object.
-                throw;
-            }
-        }
-
-        /// <summary>
         ///     Insert image from supplied tmp file into the give excel workbook
         /// </summary>
         /// <param name="workbookName"></param>
         /// <param name="tmpFile"></param>
         /// <param name="imageSize"></param>
-        public static void InsertIntoExistingWorkbook(string workbookName, string tmpFile, Size imageSize)
+        /// <returns>true if it worked</returns>
+        public static bool InsertIntoExistingWorkbook(string workbookName, string tmpFile, Size imageSize)
         {
             using var excelApplication = GetExcelApplication();
-            if ((excelApplication == null) || (excelApplication.ComObject == null))
+            if (excelApplication == null)
             {
-                return;
+                return false;
             }
 
             using var workbooks = DisposableCom.Create(excelApplication.ComObject.Workbooks);
             for (int i = 1; i <= workbooks.ComObject.Count; i++)
             {
                 using var workbook = DisposableCom.Create((_Workbook) workbooks.ComObject[i]);
-                if ((workbook != null) && workbook.ComObject.Name.StartsWith(workbookName))
+                if (workbook != null && workbook.ComObject.Name == workbookName)
                 {
-                    InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);
+                    return InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);
                 }
             }
+
+            return false;
         }
 
         /// <summary>
@@ -178,24 +114,24 @@ namespace Greenshot.Plugin.Office.OfficeExport
         /// <param name="workbook"></param>
         /// <param name="tmpFile"></param>
         /// <param name="imageSize"></param>
-        private static void InsertIntoExistingWorkbook(IDisposableCom<_Workbook> workbook, string tmpFile, Size imageSize)
+        private static bool InsertIntoExistingWorkbook(IDisposableCom<_Workbook> workbook, string tmpFile, Size imageSize)
         {
             using var workSheet = DisposableCom.Create(workbook.ComObject.ActiveSheet as Worksheet);
             if (workSheet == null)
             {
-                return;
+                return false;
             }
 
             using var shapes = DisposableCom.Create(workSheet.ComObject.Shapes);
             if (shapes == null)
             {
-                return;
+                return false;
             }
 
             using var shape = DisposableCom.Create(shapes.ComObject.AddPicture(tmpFile, MsoTriState.msoFalse, MsoTriState.msoTrue, 0, 0, imageSize.Width, imageSize.Height));
             if (shape == null)
             {
-                return;
+                return false;
             }
 
             shape.ComObject.Top = 40;
@@ -206,6 +142,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
             workbook.ComObject.Activate();
             using var application = DisposableCom.Create(workbook.ComObject.Application);
             User32Api.SetForegroundWindow((IntPtr) application.ComObject.Hwnd);
+            return true;
         }
 
         /// <summary>
@@ -213,18 +150,14 @@ namespace Greenshot.Plugin.Office.OfficeExport
         /// </summary>
         /// <param name="tmpFile"></param>
         /// <param name="imageSize"></param>
-        public static void InsertIntoNewWorkbook(string tmpFile, Size imageSize)
+        /// <returns>true if it worked</returns>
+        public static bool InsertIntoNewWorkbook(string tmpFile, Size imageSize)
         {
             using var excelApplication = GetOrCreateExcelApplication();
-            if (excelApplication == null)
-            {
-                return;
-            }
-
             excelApplication.ComObject.Visible = true;
             using var workbooks = DisposableCom.Create(excelApplication.ComObject.Workbooks);
             using var workbook = DisposableCom.Create((_Workbook) workbooks.ComObject.Add());
-            InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);
+            return InsertIntoExistingWorkbook(workbook, tmpFile, imageSize);
         }
     }
 }

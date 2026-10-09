@@ -20,7 +20,6 @@
  */
 
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -39,18 +38,9 @@ namespace Greenshot.Plugin.Office.Destinations
         private const int IconApplication = 0;
         private const int IconPresentation = 1;
 
-        private static readonly string ExePath;
+        private static readonly string ExePath = GetComServerPath("PowerPoint.Application");
         private readonly string _presentationName;
         private readonly PowerpointExporter _powerpointExporter = new PowerpointExporter();
-
-        static PowerpointDestination()
-        {
-            ExePath = OfficeUtils.GetOfficeExePath("POWERPNT.EXE") ?? PluginUtils.GetExePath("POWERPNT.EXE");
-            if (ExePath != null && !File.Exists(ExePath))
-            {
-                ExePath = null;
-            }
-        }
 
         public PowerpointDestination()
         {

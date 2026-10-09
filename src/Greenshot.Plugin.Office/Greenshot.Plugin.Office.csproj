@@ -10,6 +10,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
+    <PackageReference Include="Dapplo.Windows.Com" Version="3.9.2" />
   </ItemGroup>
   <Target Name="EmbeddingOutlook" AfterTargets="ResolveReferences" BeforeTargets="FindReferenceAssembliesForReferences">
     <PropertyGroup>
@@ -61,16 +62,6 @@
       </ReferencePath>
     </ItemGroup>
   </Target>
-  <Target Name="EmbeddingMsHtml" AfterTargets="ResolveReferences" BeforeTargets="FindReferenceAssembliesForReferences">
-    <PropertyGroup>
-      <_InteropAssemblyFileName>Unofficial.Microsoft.mshtml</_InteropAssemblyFileName>
-    </PropertyGroup>
-    <ItemGroup>
-      <ReferencePath Condition=" '%(FileName)' == '$(_InteropAssemblyFileName)' AND '%(ReferencePath.NuGetPackageId)' == '$(_InteropAssemblyFileName)' ">
-        <EmbedInteropTypes>true</EmbedInteropTypes>
-      </ReferencePath>
-    </ItemGroup>
-  </Target>
   <Target Name="EmbeddingMicrosoftOfficeCore" AfterTargets="ResolveReferences" BeforeTargets="FindReferenceAssembliesForReferences">
     <ItemGroup>
       <!-- MicrosoftOfficeCore NuGet ships Office.dll (not MicrosoftOfficeCore.dll), so the filename
@@ -103,10 +94,6 @@
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="MicrosoftOfficeCore" Version="15.0.0">
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-      <ExcludeAssets>runtime</ExcludeAssets>
-    </PackageReference>
-    <PackageReference Include="Unofficial.Microsoft.mshtml" Version="7.0.3300">
       <EmbedInteropTypes>True</EmbedInteropTypes>
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>

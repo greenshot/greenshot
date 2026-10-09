@@ -19,9 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,21 +35,11 @@ namespace Greenshot.Plugin.Office.Destinations
     /// </summary>
     public class WordDestination : OfficeDestinationBase
     {
-        private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(WordDestination));
         private const int IconApplication = 0;
         private const int IconDocument = 1;
-        private static readonly string ExePath;
+        private static readonly string ExePath = GetComServerPath("Word.Application");
         private readonly string _documentCaption;
         private readonly WordExporter _wordExporter = new WordExporter();
-
-        static WordDestination()
-        {
-            ExePath = OfficeUtils.GetOfficeExePath("WINWORD.EXE") ?? PluginUtils.GetExePath("WINWORD.EXE");
-            if (ExePath != null && !File.Exists(ExePath))
-            {
-                ExePath = null;
-            }
-        }
 
         /// <summary>
         /// The path of Word, null when it's not installed
@@ -97,30 +85,10 @@ namespace Greenshot.Plugin.Office.Destinations
             }
 
             var (tmpFile, _) = await GetImageFileAsync(request, cancellationToken).ConfigureAwait(false);
-            try
-            {
-                await Office.RunAsync(() => Insert(tmpFile), cancellationToken).ConfigureAwait(false);
-            }
-            catch (Exception ex) when (ex is not OperationCanceledException)
-            {
-                // Retry once, just in case
-                Log.Warn("Export to Word failed, retrying", ex);
-                await Office.RunAsync(() => Insert(tmpFile), cancellationToken).ConfigureAwait(false);
-            }
-
-            return ExportResult.Succeeded();
-        }
-
-        private void Insert(string tmpFile)
-        {
-            if (_documentCaption != null)
-            {
-                _wordExporter.InsertIntoExistingDocument(_documentCaption, tmpFile);
-            }
-            else
-            {
-                _wordExporter.InsertIntoNewDocument(tmpFile, null, null);
-            }
+            bool exported = await RunOnOfficeAsync(() => _documentCaption != null
+                ? _wordExporter.InsertIntoExistingDocument(_documentCaption, tmpFile)
+                : _wordExporter.InsertIntoNewDocument(tmpFile), cancellationToken).ConfigureAwait(false);
+            return exported ? ExportResult.Succeeded() : ExportResult.Failed("Export to Word failed");
         }
     }
 }

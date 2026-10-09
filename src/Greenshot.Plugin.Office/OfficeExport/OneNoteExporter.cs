@@ -21,13 +21,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Security;
 using System.Xml;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Plugin.Office.Com;
+using Dapplo.Windows.Com;
 using Greenshot.Plugin.Office.OfficeExport.Entities;
 using Microsoft.Office.Interop.OneNote;
 using System.Drawing;
@@ -43,7 +44,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
         private const string XmlImageContent = "<one:Image format=\"png\"><one:Size width=\"{1}.0\" height=\"{2}.0\" isSetByUser=\"true\" /><one:Data>{0}</one:Data></one:Image>";
 
         private const string XmlOutline =
-            "<?xml version=\"1.0\"?><one:Page xmlns:one=\"{2}\" ID=\"{1}\"><one:Title><one:OE><one:T><![CDATA[{3}]]></one:T></one:OE></one:Title>{0}</one:Page>";
+            "<?xml version=\"1.0\"?><one:Page xmlns:one=\"{2}\" ID=\"{1}\"><one:Title><one:OE><one:T>{3}</one:T></one:OE></one:Title>{0}</one:Page>";
 
         private const string OnenoteNamespace2010 = "http://schemas.microsoft.com/office/onenote/2010/onenote";
         private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OneNoteExporter));
@@ -119,8 +120,8 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 ? Convert.ToBase64String(buffer.Array, buffer.Offset, buffer.Count)
                 : Convert.ToBase64String(png.ToArray());
             var imageXmlStr = string.Format(XmlImageContent, base64String, imageSize.Width, imageSize.Height);
-            var pageChangesXml = string.Format(XmlOutline, imageXmlStr, page.Id, OnenoteNamespace2010, page.Name);
-            LOG.InfoFormat("Sending XML: {0}", pageChangesXml);
+            var pageChangesXml = string.Format(XmlOutline, imageXmlStr, page.Id, OnenoteNamespace2010, SecurityElement.Escape(page.Name));
+            LOG.DebugFormat("Updating OneNote page {0}", page.Id);
             oneNoteApplication.ComObject.UpdatePageContent(pageChangesXml, DateTime.MinValue, XMLSchema.xs2010, false);
             try
             {
