@@ -3,7 +3,7 @@ Name: "plugins\pdf"; Description: {cm:pdf}; Types: default full custom; Flags: d
 
 [Files]
 ; The plugin and the libraries only it uses; the build removed its copies of the files Greenshot itself installs
-Source: {#SolutionDir}\Greenshot.Plugin.Pdf\Languages\language_pdf*.ini; DestDir: {app}\Languages\Plugins\Pdf; Components: plugins\pdf; Flags: {#DefaultInstallFlags};
+Source: {#SolutionDir}\Greenshot.Plugin.Pdf\Languages\language.pdf.*.ini; DestDir: {app}\Languages\Plugins\Pdf; Components: plugins\pdf; Flags: {#DefaultInstallFlags};
 
 [CustomMessages]
 pdf=PDF export plug-in
