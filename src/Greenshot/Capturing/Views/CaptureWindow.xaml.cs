@@ -622,20 +622,26 @@ namespace Greenshot.Capturing.Views
         /// </summary>
         private void RegisterWindowKeys()
         {
+            // Moving the cursor by a pixel, fixing the direction and the zoomer only make sense for tools which select pixels,
+            // not e.g. for the window tool: those tools show the zoomer
+            static bool SelectsPixels(ICaptureTool tool) => tool?.ShowsZoomer == true;
+            CaptureKeyBinding RegisterPixelKey(Key key, ModifierKeys modifiers, Func<string> description, Action execute) =>
+                _keys.Register(new CaptureKeyBinding(this, null, key, modifiers, description, execute, SelectsPixels));
+
             RegisterKey(this, Key.Space, ModifierKeys.None, () => Texts.Core.CaptureKeyRegionWindow,
                 // Region to window, every other tool back to region
                 () => SwitchTool(_activeTool == _regionTool ? _windowTool : _regionTool));
             foreach (var (key, dx, dy) in new[] { (Key.Up, 0, -1), (Key.Down, 0, 1), (Key.Left, -1, 0), (Key.Right, 1, 0) })
             {
-                RegisterKey(this, key, ModifierKeys.None, () => Texts.Core.CaptureKeyMove, () => MoveCursor(dx, dy));
+                RegisterPixelKey(key, ModifierKeys.None, () => Texts.Core.CaptureKeyMove, () => MoveCursor(dx, dy));
             }
             foreach (var (key, dx, dy) in new[] { (Key.Up, 0, -10), (Key.Down, 0, 10), (Key.Left, -10, 0), (Key.Right, 10, 0) })
             {
-                RegisterKey(this, key, ModifierKeys.Control, () => Texts.Core.CaptureKeyMoveFast, () => MoveCursor(dx, dy));
+                RegisterPixelKey(key, ModifierKeys.Control, () => Texts.Core.CaptureKeyMoveFast, () => MoveCursor(dx, dy));
             }
             foreach (var key in new[] { Key.LeftShift, Key.RightShift })
             {
-                RegisterKey(this, key, ModifierKeys.None, () => Texts.Core.CaptureKeyFixDirection, () =>
+                RegisterPixelKey(key, ModifierKeys.None, () => Texts.Core.CaptureKeyFixDirection, () =>
                 {
                     // Fix mode: keep the selection to one direction, until Shift is released
                     if (_fixMode == FixMode.None)
@@ -649,13 +655,10 @@ namespace Greenshot.Capturing.Views
                 _capture.CursorVisible = !_capture.CursorVisible;
                 ShowCapturedCursor();
             });
-            RegisterKey(this, Key.Z, ModifierKeys.None, () => Texts.Core.CaptureKeyZoomer, () =>
+            RegisterPixelKey(Key.Z, ModifierKeys.None, () => Texts.Core.CaptureKeyZoomer, () =>
             {
-                if (_activeTool.ShowsZoomer)
-                {
-                    Conf.ZoomerEnabled = !Conf.ZoomerEnabled;
-                    UpdateZoomerVisibility();
-                }
+                Conf.ZoomerEnabled = !Conf.ZoomerEnabled;
+                UpdateZoomerVisibility();
             });
             RegisterKey(this, Key.Escape, ModifierKeys.None, () => Texts.Core.CaptureKeyCancel, Cancel);
         }
