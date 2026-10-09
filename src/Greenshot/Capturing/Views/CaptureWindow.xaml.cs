@@ -146,6 +146,7 @@ namespace Greenshot.Capturing.Views
         private bool? _modelessResult;
         private bool _handleCreated;
         private bool _closed;
+        private bool _closing;
         private AnimationClock _selectionClock;
 
         /// <summary>
@@ -415,6 +416,17 @@ namespace Greenshot.Capturing.Views
             SourceInitialized += OnSourceInitialized;
             ContentRendered += OnContentRendered;
             Closed += OnClosed;
+            Closing += (_, _) => _closing = true;
+            // Another window got the focus (e.g. Alt+Tab or the Windows key): the keys don't reach the capture any more, while it still
+            // follows the mouse on top of everything, so it ends
+            Deactivated += (_, _) =>
+            {
+                if (!_closing)
+                {
+                    Log.Debug("The capture window lost the focus, cancelling the capture");
+                    Cancel();
+                }
+            };
         }
 
         /// <summary>
