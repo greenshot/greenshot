@@ -22,7 +22,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -220,12 +219,7 @@ namespace Greenshot.Base.Capturing
                 {
                     var stopwatch = Stopwatch.StartNew();
                     areas = await UiAutomationAreas.FindAreasAsync(window, MaximumAreaDepth, MinimumAreaSize, cancellationToken: cancellationToken);
-                    if (Log.IsDebugEnabled)
-                    {
-                        var tree = new StringBuilder();
-                        DescribeAreas(areas, 0, tree);
-                        Log.Debug($"Areas of window {window} in {stopwatch.ElapsedMilliseconds} ms:{Environment.NewLine}{tree}");
-                    }
+                    Log.Debug($"Areas of window {window} in {stopwatch.ElapsedMilliseconds} ms: {areas}");
                 }
                 if (areas?.Children.Count > 0)
                 {
@@ -234,20 +228,6 @@ namespace Greenshot.Base.Capturing
                 }
             }
             return null;
-        }
-
-        // The tree for the debug log, the control type ids are listed at https://learn.microsoft.com/windows/win32/winauto/uiauto-controltype-ids
-        private static void DescribeAreas(UiAutomationArea area, int level, StringBuilder tree)
-        {
-            if (area == null)
-            {
-                return;
-            }
-            tree.Append(' ', level * 2).Append(area.ControlType).Append(' ').Append(area.Bounds).Append(' ').AppendLine(area.Name);
-            foreach (var child in area.Children)
-            {
-                DescribeAreas(child, level + 1, tree);
-            }
         }
 
         /// <summary>
