@@ -19,12 +19,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.IO;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Ini;
+using Dapplo.Windows.Desktop;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes;
@@ -54,10 +52,10 @@ namespace Greenshot.Base.Recipes.Sources
 
         public async Task<ICapturePayload> AcquireAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
         {
-            WindowDetails window = null;
+            IInteropWindow window = null;
             if (context.Properties.TryGetValue("TargetWindow", out var twObj))
             {
-                window = twObj as WindowDetails;
+                window = twObj as IInteropWindow;
             }
 
             // Check config and context properties for targeted window specifications
@@ -77,10 +75,10 @@ namespace Greenshot.Base.Recipes.Sources
 
             if (window == null && isTargeted)
             {
-                window = FindMatchingWindow(title, titlePattern, processName, matchCase);
+                window = WindowHelper.FindMatchingWindow(title, titlePattern, processName, matchCase);
                 if (window != null)
                 {
-                    Log.InfoFormat("Found targeted window '{0}' (Handle: {1})", window.Text, window.Handle);
+                    Log.InfoFormat("Found targeted window '{0}' (Handle: {1})", window.GetCaption(), window.Handle);
                 }
                 else
                 {
@@ -96,11 +94,11 @@ namespace Greenshot.Base.Recipes.Sources
                 var triggerContext = context.TriggerContext;
                 if (triggerContext != null && triggerContext.HasExternalForegroundWindow)
                 {
-                    var triggeredWindow = new WindowDetails(triggerContext.ForegroundWindow);
-                    window = triggeredWindow.Visible ? triggeredWindow : null;
+                    var triggeredWindow = InteropWindowFactory.CreateFor(triggerContext.ForegroundWindow);
+                    window = triggeredWindow.IsVisible() ? triggeredWindow : null;
                 }
 
-                window ??= WindowDetails.GetActiveWindow();
+                window ??= WindowHelper.GetActiveWindow();
             }
 
             ICapture capture = new Greenshot.Base.Core.Capture();
@@ -108,23 +106,20 @@ namespace Greenshot.Base.Recipes.Sources
 
             if (window != null)
             {
-                if (window.Iconic)
+                // Restores a minimized window, a targeted window is also brought to the front
+                if (isTargeted || window.IsMinimized(true))
                 {
-                    await window.RestoreAsync(cancellationToken).ConfigureAwait(false);
+                    await window.ToForegroundAsync().ConfigureAwait(false);
                     await Task.Delay(100, cancellationToken).ConfigureAwait(false);
-                }
-
-                if (isTargeted)
-                {
-                    window.ToForeground();
-                    await Task.Delay(100, cancellationToken).ConfigureAwait(false);
+                    // The bounds changed when the window was restored
+                    window.GetInfo(forceUpdate: true);
                 }
 
                 window = WindowCapture.SelectCaptureWindow(window);
                 if (window != null)
                 {
                     // Configuration is written on the UI thread (single writer, its change events have UI subscribers)
-                    var capturedRegion = window.WindowRectangle;
+                    var capturedRegion = window.GetInfo().Bounds;
                     context.Ui.InvokeAsync(() => CoreConfig.LastCapturedRegion = capturedRegion, CancellationToken.None).FireAndLog("Store the last captured region", Log);
                     capture = await WindowCapture.CaptureWindowAsync(window, capture, cancellationToken).ConfigureAwait(false);
                     if (capture != null)
@@ -148,89 +143,6 @@ namespace Greenshot.Base.Recipes.Sources
             }
 
             return new CapturePayload(capture);
-        }
-
-        private static WindowDetails FindMatchingWindow(string title, string titlePattern, string processName, bool matchCase)
-        {
-            Regex regex = null;
-            if (!string.IsNullOrEmpty(titlePattern))
-            {
-                var options = matchCase ? RegexOptions.None : RegexOptions.IgnoreCase;
-                try
-                {
-                    regex = new Regex(titlePattern, options);
-                }
-                catch (Exception ex)
-                {
-                    Log.Warn($"Invalid windowTitlePattern regex '{titlePattern}'", ex);
-                }
-            }
-
-            StringComparison comparison = matchCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
-
-            // 1. Check if the currently active foreground window matches criteria
-            var activeWin = WindowDetails.GetActiveWindow();
-            if (activeWin != null && Matches(activeWin, title, regex, processName, comparison))
-            {
-                return activeWin;
-            }
-
-            // 2. Search top-level application windows in desktop Z-order
-            foreach (var win in WindowDetails.GetTopLevelWindows())
-            {
-                if (win == null || win.Handle == IntPtr.Zero || win.HasParent) continue;
-
-                if (Matches(win, title, regex, processName, comparison))
-                {
-                    return win;
-                }
-            }
-
-            return null;
-        }
-
-        private static bool Matches(WindowDetails win, string title, Regex regex, string processName, StringComparison comparison)
-        {
-            if (win == null || win.Handle == IntPtr.Zero) return false;
-
-            // Process name check
-            if (!string.IsNullOrEmpty(processName))
-            {
-                string proc = null;
-                try
-                {
-                    if (!string.IsNullOrEmpty(win.ProcessPath))
-                    {
-                        proc = Path.GetFileNameWithoutExtension(win.ProcessPath);
-                    }
-                }
-                catch { }
-
-                string expectedProc = Path.GetFileNameWithoutExtension(processName);
-                if (proc == null || (!proc.Equals(expectedProc, comparison) && !proc.Equals(processName, comparison)))
-                {
-                    return false;
-                }
-            }
-
-            // Title regex check
-            if (regex != null)
-            {
-                if (string.IsNullOrEmpty(win.Text) || !regex.IsMatch(win.Text))
-                {
-                    return false;
-                }
-            }
-            // Title exact or substring check
-            else if (!string.IsNullOrEmpty(title))
-            {
-                if (string.IsNullOrEmpty(win.Text) || win.Text.IndexOf(title, comparison) < 0)
-                {
-                    return false;
-                }
-            }
-
-            return true;
         }
     }
 }

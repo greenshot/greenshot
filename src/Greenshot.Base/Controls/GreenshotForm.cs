@@ -194,7 +194,7 @@ namespace Greenshot.Base.Controls
             base.OnShown(e);
             if (ToFront)
             {
-                WindowDetails.ToForeground(Handle);
+                WindowHelper.ToForeground(Handle);
             }
         }
 

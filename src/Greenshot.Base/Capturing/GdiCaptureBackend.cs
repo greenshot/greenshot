@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Gdi32;
 using Dapplo.Windows.Gdi32.Enums;
 using Dapplo.Windows.Gdi32.SafeHandles;
@@ -69,19 +70,14 @@ namespace Greenshot.Base.Capturing
         }
 
         /// <inheritdoc />
-        public async Task<Bitmap> CaptureWindowAsync(WindowDetails window, CancellationToken cancellationToken = default)
+        public async Task<Bitmap> CaptureWindowAsync(IInteropWindow window, CancellationToken cancellationToken = default)
         {
-            // What is on the screen is captured, so the window has to be visible and in front
-            if (window.Iconic)
-            {
-                await window.RestoreAsync(cancellationToken).ConfigureAwait(false);
-            }
-            else
-            {
-                window.ToForeground();
-            }
+            // What is on the screen is captured, so the window has to be visible and in front, a minimized window is restored
+            await window.ToForegroundAsync().ConfigureAwait(false);
+            cancellationToken.ThrowIfCancellationRequested();
 
-            var windowRectangle = window.WindowRectangle.Intersect(DisplayInfo.ScreenBounds);
+            // Read the bounds again, they changed when the window was restored
+            var windowRectangle = window.GetInfo(forceUpdate: true).Bounds.Intersect(DisplayInfo.ScreenBounds);
             return CopyFromScreen(windowRectangle);
         }
 

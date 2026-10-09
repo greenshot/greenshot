@@ -21,11 +21,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Automation;
-using Greenshot.Base.Core;
+using Dapplo.Windows.Desktop;
 using Greenshot.Plugin.Confluence.Api.Entities;
 
 namespace Greenshot.Plugin.Confluence.Api;
@@ -147,9 +148,9 @@ public class ConfluenceUtils
         HashSet<string> urls = new HashSet<string>();
 
         // FireFox
-        foreach (WindowDetails window in WindowDetails.GetAllWindows("MozillaWindowClass"))
+        foreach (var window in InteropWindowQuery.GetTopWindows().Where(window => window.GetClassname() == "MozillaWindowClass"))
         {
-            if (window.Text.Length == 0)
+            if (string.IsNullOrEmpty(window.GetCaption()))
             {
                 continue;
             }

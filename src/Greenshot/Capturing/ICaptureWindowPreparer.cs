@@ -21,7 +21,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Greenshot.Base.Core;
+using Dapplo.Windows.Desktop;
 
 namespace Greenshot.Capturing
 {
@@ -34,11 +34,11 @@ namespace Greenshot.Capturing
         /// Called from the thread pool right before the screen is captured for an interactive selection. Doesn't wait for the window.
         /// </summary>
         /// <param name="snapWindows">Task which gets the windows to snap to, next to the capture</param>
-        void PrepareWindow(Task<List<WindowDetails>> snapWindows);
+        void PrepareWindow(Task<List<IInteropWindow>> snapWindows);
 
         /// <summary>
         /// The windows to snap to of the last PrepareWindow, when that was recent. Each one is taken once.
         /// </summary>
-        bool TryTakeSnapWindows(out Task<List<WindowDetails>> snapWindows);
+        bool TryTakeSnapWindows(out Task<List<IInteropWindow>> snapWindows);
     }
 }

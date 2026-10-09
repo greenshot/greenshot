@@ -22,7 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Greenshot.Base.Core;
+using Dapplo.Windows.Desktop;
 
 namespace Greenshot.Ai
 {
@@ -63,7 +63,7 @@ namespace Greenshot.Ai
         /// <summary>
         /// The process id of a window, 0 when the window doesn't exist (anymore). Replaceable for tests.
         /// </summary>
-        internal static Func<IntPtr, int> GetWindowProcessId { get; set; } = handle => new WindowDetails(handle).ProcessId;
+        internal static Func<IntPtr, int> GetWindowProcessId { get; set; } = handle => InteropWindowFactory.CreateFor(handle).GetProcessId();
 
         private sealed class Entry
         {

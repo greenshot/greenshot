@@ -27,6 +27,7 @@ using System.Threading.Tasks;
 using System.Windows.Interop;
 using System.Windows.Threading;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Desktop;
 using Dapplo.Windows.User32;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
@@ -53,7 +54,7 @@ namespace Greenshot.Capturing
         private DispatcherTimer _preparedWindowTimer;
         // The windows to snap to of the last PrepareWindow, with the time it was called
         private readonly object _snapWindowsLock = new object();
-        private Task<List<WindowDetails>> _snapWindows;
+        private Task<List<IInteropWindow>> _snapWindows;
         private DateTime _snapWindowsStarted;
 
         /// <param name="ui">Dispatcher for the UI thread, default is the registered one</param>
@@ -75,7 +76,7 @@ namespace Greenshot.Capturing
         }
 
         /// <inheritdoc />
-        public void PrepareWindow(Task<List<WindowDetails>> snapWindows)
+        public void PrepareWindow(Task<List<IInteropWindow>> snapWindows)
         {
             lock (_snapWindowsLock)
             {
@@ -91,7 +92,7 @@ namespace Greenshot.Capturing
         }
 
         /// <inheritdoc />
-        public bool TryTakeSnapWindows(out Task<List<WindowDetails>> snapWindows)
+        public bool TryTakeSnapWindows(out Task<List<IInteropWindow>> snapWindows)
         {
             lock (_snapWindowsLock)
             {
@@ -154,7 +155,7 @@ namespace Greenshot.Capturing
 
         public async Task<SelectionResult> SelectAsync(
             ICapture fullscreenCapture,
-            IReadOnlyList<WindowDetails> visibleWindows,
+            IReadOnlyList<IInteropWindow> visibleWindows,
             CaptureMode initialMode,
             string initialTool,
             CancellationToken cancellationToken = default)
@@ -181,7 +182,7 @@ namespace Greenshot.Capturing
         /// <summary>
         /// Runs on the UI thread: shows the capture window modally and returns the selection (null when the user declined)
         /// </summary>
-        private SelectionResult ShowCaptureWindow(ICapture fullscreenCapture, IReadOnlyList<WindowDetails> visibleWindows, CaptureMode initialMode, string initialTool, CancellationToken cancellationToken)
+        private SelectionResult ShowCaptureWindow(ICapture fullscreenCapture, IReadOnlyList<IInteropWindow> visibleWindows, CaptureMode initialMode, string initialTool, CancellationToken cancellationToken)
         {
             ThreadAssert.IsUi(nameof(InteractiveCaptureSelector));
             if (fullscreenCapture?.CaptureDetails != null)
@@ -189,7 +190,7 @@ namespace Greenshot.Capturing
                 fullscreenCapture.CaptureDetails.CaptureMode = initialMode;
             }
 
-            var windows = visibleWindows?.ToList() ?? new List<WindowDetails>();
+            var windows = visibleWindows?.ToList() ?? new List<IInteropWindow>();
             var captureWindow = TakePreparedWindow();
             if (captureWindow != null)
             {

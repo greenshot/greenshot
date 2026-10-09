@@ -29,6 +29,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using Dapplo.Ini;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Desktop;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Capture;
 using Greenshot.Base.Languages;
@@ -122,7 +123,7 @@ namespace Greenshot.Capturing.Overlays
                 _viewModel.Selection = $"{FormatSize(size.Width, size.Height)} @ {FormatPoint(selection.X + screenBounds.X, selection.Y + screenBounds.Y)}";
             }
 
-            _viewModel.Window = Host.FindWindowUnderCursor(false)?.Text ?? string.Empty;
+            _viewModel.Window = Host.FindWindowUnderCursor(false)?.GetCaption() ?? string.Empty;
             var cursor = Host.CursorPosition;
             _viewModel.Mouse = FormatPoint(cursor.X + screenBounds.X, cursor.Y + screenBounds.Y);
         }

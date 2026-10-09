@@ -153,7 +153,7 @@ namespace Greenshot.Views
         private void OnContentRendered(object sender, EventArgs e)
         {
             var handle = new WindowInteropHelper(this).Handle;
-            WindowDetails.ToForeground(handle);
+            WindowHelper.ToForeground(handle);
 
             if (_dtmInterop == null)
             {

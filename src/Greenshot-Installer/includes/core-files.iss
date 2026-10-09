@@ -11,8 +11,11 @@ Source: {#ReleaseDir}\Dapplo.HttpExtensions.dll; DestDir: {app}; Components: gre
 Source: {#ReleaseDir}\Dapplo.HttpExtensions.JsonNet.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\Dapplo.Ini.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\Dapplo.Log.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
+Source: {#ReleaseDir}\Dapplo.Windows.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\Dapplo.Windows.AppRestartManager.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
+Source: {#ReleaseDir}\Dapplo.Windows.Automation.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\Dapplo.Windows.Clipboard.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
+Source: {#ReleaseDir}\Dapplo.Windows.Com.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\Dapplo.Windows.Common.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\Dapplo.Windows.DesktopWindowsManager.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\Dapplo.Windows.Dpi.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}

@@ -25,6 +25,7 @@ using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Desktop;
 using Greenshot.Base.Core;
 using log4net;
 
@@ -77,18 +78,18 @@ namespace Greenshot.Base.Capturing
         /// <summary>
         /// Capture the window, a minimized window is restored first
         /// </summary>
-        /// <param name="window">WindowDetails</param>
+        /// <param name="window">IInteropWindow</param>
         /// <param name="cancellationToken">CancellationToken</param>
         /// <returns>ScreenCaptureResult, null when there was nothing to capture</returns>
         /// <exception cref="InvalidOperationException">All backends failed</exception>
-        public static Task<ScreenCaptureResult> CaptureWindowAsync(WindowDetails window, CancellationToken cancellationToken = default)
+        public static Task<ScreenCaptureResult> CaptureWindowAsync(IInteropWindow window, CancellationToken cancellationToken = default)
         {
             if (window == null)
             {
                 throw new ArgumentNullException(nameof(window));
             }
             // A restored window may have moved: take the location after the capture
-            return CaptureAsync(_backends, backend => backend.CaptureWindowAsync(window, cancellationToken), () => window.Location, $"window {window.Handle} ('{window.Text}')", cancellationToken);
+            return CaptureAsync(_backends, backend => backend.CaptureWindowAsync(window, cancellationToken), () => window.GetInfo(forceUpdate: true).Bounds.Location, $"window {window.Handle} ('{window.GetCaption()}')", cancellationToken);
         }
 
         /// <summary>

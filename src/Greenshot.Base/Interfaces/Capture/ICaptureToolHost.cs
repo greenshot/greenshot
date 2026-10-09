@@ -25,7 +25,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using Dapplo.Windows.Common.Structs;
-using Greenshot.Base.Core;
+using Dapplo.Windows.Desktop;
 using Color = System.Windows.Media.Color;
 
 namespace Greenshot.Base.Interfaces.Capture
@@ -134,13 +134,13 @@ namespace Greenshot.Base.Interfaces.Capture
         /// <summary>
         /// The visible windows, in z-order
         /// </summary>
-        IReadOnlyList<WindowDetails> Windows { get; }
+        IReadOnlyList<IInteropWindow> Windows { get; }
 
         /// <summary>
         /// The window under the mouse cursor
         /// </summary>
         /// <param name="includeChildren">true for the child window under the cursor, false for the top level window</param>
-        WindowDetails FindWindowUnderCursor(bool includeChildren);
+        IInteropWindow FindWindowUnderCursor(bool includeChildren);
 
         /// <summary>
         /// Show the selection rectangle
@@ -209,7 +209,7 @@ namespace Greenshot.Base.Interfaces.Capture
         /// </summary>
         /// <param name="rect">The selected rectangle</param>
         /// <param name="window">The selected window, null to use the top level window under the cursor</param>
-        void Accept(NativeRect rect, WindowDetails window = null);
+        void Accept(NativeRect rect, IInteropWindow window = null);
 
         /// <summary>
         /// Close the window without a selection
