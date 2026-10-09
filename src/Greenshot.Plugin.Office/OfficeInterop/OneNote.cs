@@ -22,16 +22,24 @@ using System.Runtime.InteropServices;
 
 namespace Greenshot.Plugin.Office.OfficeInterop
 {
-    // The members of OneNote we use, see OfficeApplication for how this works
-
-    [ComImport, Guid(OfficeApplication.IDispatchIid), InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
+    /// <summary>
+    /// OneNote's IApplication, unlike the other Office applications not used by name over IDispatch:
+    /// OneNote answers IDispatch calls with its type library, and a 64-bit Click-to-Run OneNote was seen with it registered
+    /// for 32-bit only (no win64 key), which fails with TYPE_E_LIBNOTREGISTERED. Calls through the interface itself worked there.
+    /// The slots must be in OneNote's order, the _VtblGap entries skip the methods we don't use.
+    /// </summary>
+    [ComImport, Guid("452AC71A-B655-4967-A208-A4CC39DD7949"), InterfaceType(ComInterfaceType.InterfaceIsDual)]
     public interface IOneNoteApplication
     {
         void GetHierarchy(string startNodeId, HierarchyScope scope, out string hierarchyXml, XMLSchema schema);
-        void GetSpecialLocation(SpecialLocation specialLocation, out string specialLocationPath);
+        void _VtblGap1_3();
         void CreateNewPage(string sectionId, out string pageId, NewPageStyle newPageStyle);
+        void _VtblGap2_3();
         void UpdatePageContent(string pageChangesXml, DateTime dateExpectedLastModified, XMLSchema schema, bool force);
+        void _VtblGap3_2();
         void NavigateTo(string hierarchyObjectId, string objectId, bool newWindow);
+        void _VtblGap4_6();
+        void GetSpecialLocation(SpecialLocation specialLocation, out string specialLocationPath);
     }
 
     /// <summary>

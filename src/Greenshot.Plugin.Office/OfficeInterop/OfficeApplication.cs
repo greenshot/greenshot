@@ -29,6 +29,7 @@ namespace Greenshot.Plugin.Office.OfficeInterop
     /// IDispatch.GetIDsOfNames (by member name) and IDispatch.Invoke. No Office type library is loaded, so a broken
     /// type library registration (TYPE_E_CANTLOADLIBRARY, 0x80029C4A) can't break the export, and no interop assemblies are needed.
     /// Collection items must be read with an Item method, an indexer doesn't work this way. Where Item is a property (Excel), use GetItem.
+    /// OneNote is the exception, see IOneNoteApplication.
     /// Values Office returns are declared as the plain type it returns (int instead of an enum), enums are only passed in.
     /// </summary>
     internal static class OfficeApplication
@@ -66,10 +67,10 @@ namespace Greenshot.Plugin.Office.OfficeInterop
 
         /// <summary>
         /// An item of a collection whose Item is a property: an Item method on the interface would be called as a method,
-        /// which Office answers with DISP_E_MEMBERNOTFOUND. This calls it like VBA does, as method or property get.
+        /// which Office answers with DISP_E_MEMBERNOTFOUND.
         /// </summary>
         public static T GetItem<T>(object collection, int index) where T : class =>
-            (T) collection.GetType().InvokeMember("Item", BindingFlags.InvokeMethod | BindingFlags.GetProperty, null, collection, new object[] { index });
+            (T) collection.GetType().InvokeMember("Item", BindingFlags.GetProperty, null, collection, new object[] { index });
     }
 
     /// <summary>
