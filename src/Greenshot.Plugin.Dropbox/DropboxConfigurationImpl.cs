@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -29,36 +29,18 @@ public partial class DropboxConfigurationImpl : IDropboxConfiguration
     public void OnAfterLoad()
     {
         var coreConfiguration = IniConfigRegistry.GetSection<ICoreConfiguration>();
-        bool isUpgradeFrom12 = coreConfiguration.LastSaveWithVersion?.StartsWith("1.2") ?? false;
+        // Not LastSaveWithVersion: this section can be added after an auto-save already replaced it with the current version
+        bool isUpgradeFrom12 = coreConfiguration.LoadedWithVersion?.StartsWith("1.2") ?? false;
         // Clear token when we upgrade from 1.2 to 1.3 as it is no longer valid, discussed in #421
         if (isUpgradeFrom12)
         {
             // We have an upgrade, remove all previous credentials.
             RefreshToken = null;
             AccessToken = null;
-            return;
         }
 
-        // Decrypt the refresh token that was stored encrypted on disk.
-        // If the value was stored as plain text (old format), Decrypt returns it unchanged
-        // (backward compatible).
-        if (!string.IsNullOrEmpty(RefreshToken))
-        {
-            RefreshToken = RefreshToken.Decrypt();
-        }
-    }
-
-    public bool OnBeforeSave()
-    {
-        // Encrypt the refresh token before it is written to disk.
-        // SetRawValue writes only to the serialization buffer; the in-memory property
-        // (RefreshToken) is intentionally left as plain text so OAuth code can keep
-        // using it without extra decryption.
-        if (!string.IsNullOrEmpty(RefreshToken))
-        {
-            SetRawValue(nameof(RefreshToken), RefreshToken.Encrypt());
-        }
-
-        return true;
+        // The RefreshToken stays encrypted in the section, it's decrypted where it's used.
+        // Decrypting here and encrypting in OnBeforeSave via SetRawValue doesn't work: SetRawValue also updates the property,
+        // so after every save the in-memory token was the encrypted one.
     }
 }

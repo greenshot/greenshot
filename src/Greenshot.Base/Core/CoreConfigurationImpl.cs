@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -21,12 +21,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core.Enums;
+using System.Text.RegularExpressions;
 using log4net;
 
 namespace Greenshot.Base.Core
@@ -53,17 +53,44 @@ namespace Greenshot.Base.Core
         /// Coerce the value to stay between 16 and 256, and to be a multiple of 16, as this is required for the icons to be properly displayed in the Windows shell.
         /// </summary>
         /// <param name="value">NativeSize</param>
-        partial void OnIconSizeSet(ref NativeSize value)
+        partial void OnIconSizeSet(ref NativeSize value) => value = CoerceIconSize(value);
+
+        /// <summary>
+        /// Loading the ini file doesn't go through the setter, so a value like 24 from the file is coerced when it's read
+        /// </summary>
+        /// <param name="value">NativeSize</param>
+        partial void OnIconSizeGet(ref NativeSize value) => value = CoerceIconSize(value);
+
+        private static NativeSize CoerceIconSize(NativeSize value)
         {
-            int newWidth = (Clamp(value.Width, 16, 256) /16) * 16;
+            int newWidth = (Clamp(value.Width, 16, 256) / 16) * 16;
             int newHeight = (Clamp(value.Height, 16, 256) / 16) * 16;
-            value = new NativeSize(newWidth, newHeight);
+            return new NativeSize(newWidth, newHeight);
         }
 
         partial void OnAutoCropDifferenceSet(ref int value) => value = Clamp(value, 0, 255);
+
+        // Also when read: loading the ini file doesn't go through the setter
+        partial void OnBufferPoolLimitSet(ref int value) => value = CoerceBufferPoolLimit(value);
+        partial void OnBufferPoolLimitGet(ref int value) => value = CoerceBufferPoolLimit(value);
+
+        /// <summary>
+        /// The smallest useful limit of the buffer pools in MB: they work in 128 KB blocks, a limit below some blocks
+        /// would make every stream allocate again
+        /// </summary>
+        public const int MinimumBufferPoolLimit = 4;
+
+        /// <summary>
+        /// The largest limit of the buffer pools in MB: a pooled buffer is at most 128 MB, above this there's no practical limit
+        /// </summary>
+        public const int MaximumBufferPoolLimit = 1024;
+
+        /// <summary>
+        /// 0 (or less) is no limit, otherwise the limit stays between <see cref="MinimumBufferPoolLimit"/> and <see cref="MaximumBufferPoolLimit"/>
+        /// </summary>
+        public static int CoerceBufferPoolLimit(int value) => value <= 0 ? 0 : Clamp(value, MinimumBufferPoolLimit, MaximumBufferPoolLimit);
+
         partial void OnOutputFileReduceColorsToSet(ref int value) => value = Clamp(value, 2, 256);
-        partial void OnWebRequestTimeoutSet(ref int value) => value = Clamp(value, 1, 100);
-        partial void OnWebRequestReadWriteTimeoutSet(ref int value) => value = Clamp(value, 1, 100);
 
 
         /// <summary>
@@ -107,11 +134,69 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
+        /// Normalizes file and directory paths by collapsing redundant backslashes,
+        /// while preserving leading double-backslashes for UNC network shares and safely
+        /// handling paths containing pattern variables/tokens (e.g. ${capturetime}).
+        /// </summary>
+        /// <param name="path">The path to normalize.</param>
+        /// <returns>The normalized path.</returns>
+        public static string NormalizePath(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return path;
+            }
+
+            path = path.Trim();
+            bool isUnc = path.StartsWith(@"\\") || path.StartsWith("//");
+
+            // Replace forward slashes with backslashes
+            path = path.Replace('/', '\\');
+
+            // Collapse 2 or more consecutive backslashes into a single backslash
+            path = Regex.Replace(path, @"\\{2,}", @"\");
+
+            // Restore leading double-backslash for UNC network paths
+            if (isUnc)
+            {
+                path = @"\" + path;
+            }
+
+            // Remove trailing backslash unless it is a drive root like C:\ or UNC root \\server\share\
+            if (path.Length > 3 && path.EndsWith(@"\") && !path.EndsWith(@":\"))
+            {
+                path = path.TrimEnd('\\');
+            }
+
+            return path;
+        }
+
+        partial void OnOutputFilePathSet(ref string value)
+        {
+            if (!string.IsNullOrEmpty(value))
+            {
+                value = NormalizePath(value);
+            }
+        }
+
+        partial void OnOutputFileAsFullpathSet(ref string value)
+        {
+            if (!string.IsNullOrEmpty(value))
+            {
+                value = NormalizePath(value);
+            }
+        }
+
+        /// <summary>
         /// Validate the OutputFilePath, and if this is not correct it will be set to the default.
         /// Added for BUG-1992, reset the OutputFilePath if it doesn't exist (e.g. the configuration is used on a different PC)
         /// </summary>
         public void ValidateAndCorrectOutputFilePath()
         {
+            if (!string.IsNullOrEmpty(OutputFilePath))
+            {
+                OutputFilePath = NormalizePath(OutputFilePath);
+            }
             if (!Directory.Exists(OutputFilePath))
             {
                 OutputFilePath = CreateOutputFilePath();
@@ -124,6 +209,10 @@ namespace Greenshot.Base.Core
         /// </summary>
         public void ValidateAndCorrectOutputFileAsFullpath()
         {
+            if (!string.IsNullOrEmpty(OutputFileAsFullpath))
+            {
+                OutputFileAsFullpath = NormalizePath(OutputFileAsFullpath);
+            }
             var outputFilePath = Path.GetDirectoryName(OutputFileAsFullpath);
             if (outputFilePath == null || (!File.Exists(OutputFileAsFullpath) && !Directory.Exists(outputFilePath)))
             {
@@ -135,6 +224,9 @@ namespace Greenshot.Base.Core
 
         public void OnAfterLoad()
         {
+            // Remember the version the file was saved with, before a save (see OnBeforeSave) replaces it
+            LoadedWithVersion = LastSaveWithVersion;
+
             if (string.IsNullOrEmpty(LastSaveWithVersion))
             {
                 try
@@ -163,15 +255,18 @@ namespace Greenshot.Base.Core
                 if (LastSaveWithVersion != null && LastSaveWithVersion.StartsWith("1.1"))
                 {
                     ExcludeDestinations.Remove("OneNote");
+                    // Changed in place, the section doesn't notice that by itself
+                    MarkAsDirty();
                 }
             }
 
             // Make sure there is an output!
+            OutputDestinations ??= new List<string>();
             if (OutputDestinations.Count == 0)
             {
                 OutputDestinations.Add("Editor");
-                // Re-assign to trigger SetRawValue dirty tracking for the in-place Add
-                OutputDestinations = OutputDestinations;
+                // The list was changed in place: re-assigning the same instance is a no-op for this INotifyPropertyChanged section
+                MarkAsDirty();
             }
 
             // Prevent both settings at once, bug #3435056
@@ -191,44 +286,24 @@ namespace Greenshot.Base.Core
                 };
             }
 
-            if (NoGDICaptureForProduct != null)
+            // Normalize paths to heal any legacy escaping issues (e.g. duplicated backslashes)
+            if (!string.IsNullOrEmpty(OutputFilePath))
             {
-                // Fix error in configuration
-                if (NoGDICaptureForProduct.Count >= 2)
+                var normalized = NormalizePath(OutputFilePath);
+                if (!string.Equals(normalized, OutputFilePath, StringComparison.Ordinal))
                 {
-                    if ("intellij".Equals(NoGDICaptureForProduct[0]) && "idea".Equals(NoGDICaptureForProduct[1]))
-                    {
-                        NoGDICaptureForProduct.RemoveRange(0, 2);
-                        NoGDICaptureForProduct.Add("Intellij Idea");
-                    }
+                    // The setter marks the section dirty, so the healed path is saved
+                    OutputFilePath = normalized;
                 }
-
-                for (int i = 0; i < NoGDICaptureForProduct.Count; i++)
-                {
-                    NoGDICaptureForProduct[i] = NoGDICaptureForProduct[i].ToLower();
-                }
-
-                MarkAsDirty();
             }
 
-            if (NoDWMCaptureForProduct != null)
+            if (!string.IsNullOrEmpty(OutputFileAsFullpath))
             {
-                // Fix error in configuration
-                if (NoDWMCaptureForProduct.Count >= 3)
+                var normalized = NormalizePath(OutputFileAsFullpath);
+                if (!string.Equals(normalized, OutputFileAsFullpath, StringComparison.Ordinal))
                 {
-                    if ("citrix".Equals(NoDWMCaptureForProduct[0]) && "ica".Equals(NoDWMCaptureForProduct[1]) && "client".Equals(NoDWMCaptureForProduct[2]))
-                    {
-                        NoDWMCaptureForProduct.RemoveRange(0, 3);
-                        NoDWMCaptureForProduct.Add("Citrix ICA Client");
-                    }
+                    OutputFileAsFullpath = normalized;
                 }
-
-                for (int i = 0; i < NoDWMCaptureForProduct.Count; i++)
-                {
-                    NoDWMCaptureForProduct[i] = NoDWMCaptureForProduct[i].ToLower();
-                }
-
-                MarkAsDirty();
             }
 
             // Set defaults for properties that need computed defaults
@@ -244,24 +319,24 @@ namespace Greenshot.Base.Core
                     : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "dummy.png");
             }
 
-            if (DWMBackgroundColor == default)
-            {
-                DWMBackgroundColor = Color.Transparent;
-            }
-
             ActiveTitleFixes ??= new List<string> { "Firefox", "Chrome" };
-            TitleFixMatcher ??= new Dictionary<string, string>
+            if (TitleFixMatcher == null || TitleFixMatcher.Count == 0)
             {
-                { "Firefox", " - Mozilla Firefox.*" },
-                { "Chrome", " - Google Chrome.*" }
-            };
-            TitleFixReplacer ??= new Dictionary<string, string>
+                SetRawValue("TitleFixMatcher.Firefox", " - Mozilla Firefox.*");
+                SetRawValue("TitleFixMatcher.Chrome", " - Google Chrome.*");
+            }
+            if (TitleFixReplacer == null || TitleFixReplacer.Count == 0)
             {
-                { "Firefox", string.Empty },
-                { "Chrome", string.Empty }
-            };
+                SetRawValue("TitleFixReplacer.Firefox", string.Empty);
+                SetRawValue("TitleFixReplacer.Chrome", string.Empty);
+            }
             ExcludePlugins ??= new List<string>();
             IncludePlugins ??= new List<string>();
+            AllowedUntrustedCertificateHosts ??= new List<string>();
+            AllowedCertificateThumbprints ??= new List<string>();
+            AiToolsExcludedProcesses ??= new List<string>();
+            AiToolsAllowedClients ??= new List<string>();
+            AiToolsMcpServerPaths ??= new List<string>();
         }
 
         public bool OnBeforeSave()

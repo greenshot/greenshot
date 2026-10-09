@@ -1,98 +1,57 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
- * 
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
+ *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Drawing;
-using System.Windows.Forms;
+using System.Threading;
+using System.Threading.Tasks;
 using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
-using Greenshot.Configuration;
+using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Core.FileFormat;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Destinations
 {
     /// <summary>
-    /// Description of ClipboardDestination.
+    /// Places the capture on the clipboard: rendered and encoded on the pool, placed on the clipboard on the UI thread.
     /// </summary>
-    public class ClipboardDestination : AbstractDestination, IAcceptsPreRenderedImage
+    public class ClipboardDestination : DestinationBase
     {
         public override string Designation => nameof(WellKnownDestinations.Clipboard);
 
-        public override string Description
-        {
-            get { return Language.GetString(LangKey.settings_destination_clipboard); }
-        }
+        public override DestinationDescriptor Descriptor => new DestinationDescriptor(
+            Texts.Settings.DestinationClipboard, 2, DestinationIcons.Resource("Clipboard.Image"), "Ctrl+Shift+C");
 
-        public override int Priority
+        public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
         {
-            get { return 2; }
-        }
-
-        public override Keys EditorShortcutKeys
-        {
-            get { return Keys.Control | Keys.Shift | Keys.C; }
-        }
-
-        public override Image DisplayIcon
-        {
-            get { return GreenshotResources.GetImage("Clipboard.Image"); }
-        }
-
-        public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
-        {
-            ExportInformation exportInformation = new ExportInformation(Designation, Description);
             try
             {
-                ClipboardHelper.SetClipboardData(surface);
-                exportInformation.ExportMade = true;
+                using var lease = await request.Source.RenderAsync(new SurfaceOutputSettings(WellKnownFileFormats.Png, 100, false), cancellationToken).ConfigureAwait(false);
+                await ClipboardService.Current.SetImageAsync(lease.Image, cancellationToken: cancellationToken).ConfigureAwait(false);
+                return ExportResult.Succeeded();
             }
-            catch (Exception)
+            catch (ClipboardException ex)
             {
-                // TODO: Change to general logic in ProcessExport
-                surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetString(LangKey.editor_clipboardfailed));
+                return ExportResult.Failed(ex.Message, ex);
             }
-
-            ProcessExport(exportInformation, surface);
-            return exportInformation;
-        }
-
-        /// <summary>
-        /// Exports to clipboard using a pre-rendered bitmap, avoiding a redundant surface render pass.
-        /// Called by CaptureHelper when a shared rendered bitmap is already available.
-        /// </summary>
-        public ExportInformation ExportCaptureWithRenderedImage(Image preRenderedImage, ISurface surface, ICaptureDetails captureDetails)
-        {
-            ExportInformation exportInformation = new ExportInformation(Designation, Description);
-            try
-            {
-                ClipboardHelper.SetClipboardData(surface, preRenderedImage);
-                exportInformation.ExportMade = true;
-            }
-            catch (Exception)
-            {
-                surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetString(LangKey.editor_clipboardfailed));
-            }
-
-            ProcessExport(exportInformation, surface);
-            return exportInformation;
         }
     }
 }

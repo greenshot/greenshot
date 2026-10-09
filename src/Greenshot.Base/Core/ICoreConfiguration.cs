@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -23,12 +23,12 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Drawing;
 using System.Runtime.Serialization;
 using Dapplo.Ini.Attributes;
 using Dapplo.Ini.Interfaces;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 
 namespace Greenshot.Base.Core
@@ -89,6 +89,10 @@ namespace Greenshot.Base.Core
         [Range(0, int.MaxValue, ErrorMessage = "CaptureDelay must be non-negative.")]
         int CaptureDelay { get; set; }
 
+        [Description("Semicolon-separated list of explicit recipe file paths to load. Automatic directory scanning is disabled for security.")]
+        [DefaultValue(null)]
+        string RecipeFiles { get; set; }
+
         [Description("The capture mode used to capture a screen. (Auto, FullScreen, Fixed)")]
         [DefaultValue("Auto")]
         ScreenCaptureMode ScreenCaptureMode { get; set; }
@@ -96,17 +100,6 @@ namespace Greenshot.Base.Core
         [Description("The screen number to capture when using ScreenCaptureMode Fixed.")]
         [DefaultValue(1)]
         int ScreenToCapture { get; set; }
-
-        [Description("The capture mode used to capture a Window (Screen, GDI, Aero, AeroTransparent, Auto).")]
-        [DefaultValue("Auto")]
-        WindowCaptureMode WindowCaptureMode { get; set; }
-
-        [Description("Enable/disable capture all children, very slow but will make it possible to use this information in the editor.")]
-        [DefaultValue(false)]
-        bool WindowCaptureAllChildLocations { get; set; }
-
-        [Description("The background color for a DWM window capture.")]
-        Color DWMBackgroundColor { get; set; }
 
         [Description("Play a camera sound after taking a capture.")]
         [DefaultValue(false)]
@@ -127,9 +120,9 @@ namespace Greenshot.Base.Core
         [DefaultValue("${capturetime:d\"yyyy-MM-dd HH_mm_ss\"}-${title}")]
         string OutputFileFilenamePattern { get; set; }
 
-        [Description("Default file type for writing screenshots. (bmp, gif, jpg, png, tiff)")]
-        [DefaultValue("png")]
-        OutputFormat OutputFileFormat { get; set; }
+        [Description("Default file type for writing screenshots.")]
+        [DefaultValue(WellKnownFileFormats.Png)]
+        string OutputFileFormat { get; set; }
 
         [Description("If set to true, than the colors of the output file are reduced to 256 (8-bit) colors")]
         [DefaultValue(false)]
@@ -259,14 +252,6 @@ namespace Greenshot.Base.Core
         [DefaultValue(true)]
         bool ThumnailPreview { get; set; }
 
-        [Description("List of productnames for which GDI capturing is skipped (using fallback).")]
-        [DefaultValue("IntelliJ IDEA")]
-        List<string> NoGDICaptureForProduct { get; set; }
-
-        [Description("List of productnames for which DWM capturing is skipped (using fallback).")]
-        [DefaultValue("Citrix ICA Client")]
-        List<string> NoDWMCaptureForProduct { get; set; }
-
         [Description("Make some optimizations for usage with remote desktop")]
         [DefaultValue(false)]
         bool OptimizeForRDP { get; set; }
@@ -275,13 +260,37 @@ namespace Greenshot.Base.Core
         [DefaultValue(false)]
         bool DisableRDPOptimizing { get; set; }
 
-        [Description("Optimize memory footprint, but with a performance penalty!")]
+        [Description("Give the unused memory back to Windows after the start, after each capture and when an editor closes. It's paged in again when it's used, which makes that use a little slower.")]
         [DefaultValue(false)]
         bool MinimizeWorkingSetSize { get; set; }
 
-        [Description("Remove the corners from a window capture")]
+        [Description("Draw Greenshot's windows with the graphics card (WPF hardware rendering). False saves the memory of the graphics driver (about 45 MB) but costs CPU, e.g. in the capture window. Takes effect after a restart.")]
         [DefaultValue(true)]
-        bool WindowCaptureRemoveCorners { get; set; }
+        bool HardwareRendering { get; set; }
+
+        [Description("Take screenshots with Windows Graphics Capture (DirectX, needed for HDR screens). False uses the GDI capture only, without a DirectX device. Video recording always uses Windows Graphics Capture.")]
+        [DefaultValue(true)]
+        bool UseGraphicsCapture { get; set; }
+
+        [Description("Create the DirectX device for the screenshots at the start and keep it, which makes every capture about 200 ms faster. False creates it for each capture and releases it afterwards (about 15-30 MB less while idle).")]
+        [DefaultValue(true)]
+        bool KeepGraphicsCaptureReady { get; set; }
+
+        [Description("Prepare the interactive capture in the background after the start, so the first capture opens faster.")]
+        [DefaultValue(true)]
+        bool PrewarmCapture { get; set; }
+
+        [Description("Prepare the editor in the background after the start (code, emoji font, installed fonts), so the first editor opens faster. False keeps this memory free until the first editor opens.")]
+        [DefaultValue(true)]
+        bool PrewarmEditor { get; set; }
+
+        [Description("The most memory in MB which the reusable buffer pools keep when they're not in use (each, for small blocks and for large buffers). 0 means no limit, otherwise 4 to 1024. Takes effect after a restart.")]
+        [DefaultValue(0)]
+        int BufferPoolLimit { get; set; }
+
+        [Description("Log when the UI thread doesn't respond for more than 250 ms (diagnostics, always active in debug builds).")]
+        [DefaultValue(false)]
+        bool EnableUiStallWatchdog { get; set; }
 
         [Description("Also check for unstable version updates")]
         [DefaultValue(false)]
@@ -299,14 +308,6 @@ namespace Greenshot.Base.Core
         [Description("A list of experimental features, this allows us to test certain features before releasing them.")]
         List<string> ExperimentalFeatures { get; set; }
 
-        [Description("Enable a special DIB clipboard reader")]
-        [DefaultValue(true)]
-        bool EnableSpecialDIBClipboardReader { get; set; }
-
-        [Description("The cutshape which is used to remove the window corners, is mirrored for all corners")]
-        [DefaultValue("5,3,2,1,1")]
-        List<int> WindowCornerCutShape { get; set; }
-
         [Description("Specify what action is made if the tray icon is left clicked, if a double-click action is specified this action is initiated after a delay (configurable via the windows double-click speed)")]
         [DefaultValue("SHOW_CONTEXT_MENU")]
         ClickActions LeftClickAction { get; set; }
@@ -318,6 +319,14 @@ namespace Greenshot.Base.Core
         [Description("Sets if the zoomer is enabled")]
         [DefaultValue(true)]
         bool ZoomerEnabled { get; set; }
+
+        [Description("Sets if the keys are shown (help panel) in the interactive capture, F1 shows or hides them")]
+        [DefaultValue(true)]
+        bool CaptureHelpVisible { get; set; }
+
+        [Description("Sets if the info panel (screen, selection, window and mouse position) is shown in the interactive capture, I shows or hides it")]
+        [DefaultValue(true)]
+        bool CaptureInfoVisible { get; set; }
 
         [Description("Specify the transparency for the zoomer, from 0-1 (where 1 is no transparency and 0 is complete transparent. An useful setting would be 0.7)")]
         [DefaultValue(1)]
@@ -351,6 +360,14 @@ namespace Greenshot.Base.Core
         [Description("Version of Greenshot which created this .ini")]
         string LastSaveWithVersion { get; }
 
+        /// <summary>
+        /// The version of Greenshot which saved greenshot.ini before this start (LastSaveWithVersion as it was loaded), use this for upgrade checks.
+        /// LastSaveWithVersion changes with every save, and plugins add their sections (running IAfterLoad) after the file was loaded,
+        /// possibly after an auto-save.
+        /// </summary>
+        [IniValue(RuntimeOnly = true)]
+        string LoadedWithVersion { get; set; }
+
         [Description("When reading images from files or clipboard, use the EXIF information to correct the orientation")]
         [DefaultValue(true)]
         bool ProcessEXIFOrientation { get; set; }
@@ -358,24 +375,42 @@ namespace Greenshot.Base.Core
         [Description("The last used region, for reuse in the capture last region")]
         NativeRect LastCapturedRegion { get; set; }
 
-        [Description("The capture is cropped with these settings, e.g. when you don't want to color around it -1,-1")]
-        [DefaultValue("0,0")]
-        NativeSize Win10BorderCrop { get; set; }
-
         [DataMember(Name = "BaseIconSize")]
         [Description("Defines the base size of the icons (e.g. for the buttons in the editor), default value 16,16 and it's scaled to the current DPI")]
         [DefaultValue("16,16")]
         NativeSize IconSize { get; set; }
 
-        [Description("The connect timeout value for web requests, these are seconds")]
-        [DefaultValue(10)]
-        [Range(1, 100, ErrorMessage = "WebRequestTimeout must be between 1 and 100 seconds.")]
-        int WebRequestTimeout { get; set; }
+        [Description("The colors of Greenshot's windows and menus: System (follow the Windows settings), Light or Dark. A high contrast theme of Windows always wins.")]
+        [DefaultValue("System")]
+        UiTheme Theme { get; set; }
 
-        [Description("The read/write timeout value for web requests, these are seconds")]
-        [DefaultValue(10)]
-        [Range(1, 100, ErrorMessage = "WebRequestReadWriteTimeout must be between 1 and 100 seconds.")]
-        int WebRequestReadWriteTimeout { get; set; }
+        [Description("List of hostnames or domain patterns (e.g. jira.internal, *.mycompany.local) for which SSL/TLS certificate validation errors are ignored.")]
+        List<string> AllowedUntrustedCertificateHosts { get; set; }
+
+        [Description("List of certificate thumbprints (SHA-1 / SHA-256 hashes) for which SSL/TLS certificate validation errors are ignored.")]
+        List<string> AllowedCertificateThumbprints { get; set; }
+
+        [Description("Let AI tools use Greenshot through greenshot-mcp (opt-in). When false, every greenshot-mcp request is refused without asking. Lock it with greenshot-fixed.ini.")]
+        [DefaultValue(false)]
+        bool AiToolsEnabled { get; set; }
+
+        [Description("Let allowed AI tools propose new or changed recipes (each one is still shown for approval).")]
+        [DefaultValue(true)]
+        bool AiToolsAllowRecipeProposals { get; set; }
+
+        [Description("Programs (full paths) which the user allowed to list windows, take screenshots and run recipes through greenshot-mcp. Greenshot asks the first time a program connects.")]
+        List<string> AiToolsAllowedClients { get; set; }
+
+        [Description("Additional locations of greenshot-mcp.exe (the file or its directory) which may connect, besides Greenshot's own directory; only used by Debug builds.")]
+        List<string> AiToolsMcpServerPaths { get; set; }
+
+        [Description("Processes whose windows are never listed or captured for AI tools (process names without .exe).")]
+        [DefaultValue("KeePass,KeePassXC,1Password,Bitwarden,LastPass,Dashlane,Enpass,RoboForm,NordPass,ProtonPass")]
+        List<string> AiToolsExcludedProcesses { get; set; }
+
+        [Description("Show a notification every time an AI tool takes a screenshot with Greenshot.")]
+        [DefaultValue(true)]
+        bool AiToolsNotifyOnCapture { get; set; }
 
         /// <summary>Validates <see cref="OutputFilePath"/>; resets it to the default output folder when the path no longer exists.</summary>
         void ValidateAndCorrectOutputFilePath();

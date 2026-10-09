@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -20,17 +20,16 @@
  */
 
 using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
-using System.Windows.Forms;
+using System.Threading;
+using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Plugin.Office.OfficeExport;
-using Microsoft.Office.Interop.Outlook;
+using Greenshot.Plugin.Office.OfficeInterop;
 using Microsoft.Win32;
 
 namespace Greenshot.Plugin.Office.Destinations
@@ -38,59 +37,27 @@ namespace Greenshot.Plugin.Office.Destinations
     /// <summary>
     /// Description of OutlookDestination.
     /// </summary>
-    public class OutlookDestination : AbstractDestination
+    public class OutlookDestination : OfficeDestinationBase
     {
         private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(OutlookDestination));
         private const int IconApplication = 0;
         private const int IconMeeting = 2;
 
-        private static readonly Image MailIcon = GreenshotResources.GetImage("Email.Image");
+        private static readonly string MailIconKey = DestinationIcons.Resource("Email.Image");
         private static readonly IOfficeConfiguration OfficeConfig = IniConfigRegistry.GetSection<IOfficeConfiguration>();
-        private static readonly string ExePath;
-        private static readonly bool IsActiveFlag;
+        private static readonly string ExePath = GetComServerPath("Outlook.Application");
         private const string MapiClient = "Microsoft Outlook";
         private readonly string _outlookInspectorCaption;
         private readonly OlObjectClass _outlookInspectorType;
         private readonly OutlookEmailExporter _outlookEmailExporter = new();
 
-        static OutlookDestination()
-        {
-            if (HasOutlook())
-            {
-                IsActiveFlag = true;
-            }
-            ExePath = OfficeUtils.GetOfficeExePath("OUTLOOK.EXE") ?? PluginUtils.GetExePath("OUTLOOK.EXE");
-            if (ExePath != null && File.Exists(ExePath))
-            {
-                WindowDetails.AddProcessToExcludeFromFreeze("outlook");
-            }
-            else
-            {
-                ExePath = GetOutlookExePath();
-            }
-
-            if (ExePath == null)
-            {
-                IsActiveFlag = false;
-            }
-        }
-
-
-        private static string GetOutlookExePath() => RegistryHive.LocalMachine.ReadKey64Or32(@"Microsoft\Windows\CurrentVersion\App Paths\OUTLOOK.EXE");
-
         /// <summary>
-        /// Check if Outlook is installed
+        /// The new Outlook has no COM interface, when the user switched to it the classic Outlook shouldn't be used
         /// </summary>
-        /// <returns>Returns true if outlook is installed</returns>
-        private static bool HasOutlook()
+        private static bool UsesNewOutlook()
         {
-            string outlookPath = GetOutlookExePath();
-            if (outlookPath == null)
-            {
-                return false;
-            }
-
-            return File.Exists(outlookPath);
+            using var preferences = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Office\16.0\Outlook\Preferences", false);
+            return preferences?.GetValue("UseNewOutlook") is int useNewOutlook && useNewOutlook != 0;
         }
 
         public OutlookDestination()
@@ -105,70 +72,65 @@ namespace Greenshot.Plugin.Office.Destinations
 
         public override string Designation => "Outlook";
 
-        public override string Description => _outlookInspectorCaption ?? MapiClient;
+        public override DestinationDescriptor Descriptor => new DestinationDescriptor(_outlookInspectorCaption ?? MapiClient, 3, IconKey, "Ctrl+E",
+            hasDynamicDestinations: _outlookInspectorCaption == null);
 
-        public override int Priority => 3;
-
-        public override bool IsActive => base.IsActive && IsActiveFlag;
-
-        public override bool IsDynamic => true;
-
-        public override Keys EditorShortcutKeys => Keys.Control | Keys.E;
-
-        public override Image DisplayIcon
+        private string IconKey
         {
             get
             {
                 if (_outlookInspectorCaption == null)
                 {
-                    return PluginUtils.GetCachedExeIcon(ExePath, IconApplication);
+                    return IconKeyFor(ExePath, IconApplication);
                 }
 
-                if (OlObjectClass.olAppointment.Equals(_outlookInspectorType))
-                {
-                    // Make sure we loaded the icon, maybe the configuration has been changed!
-                    return PluginUtils.GetCachedExeIcon(ExePath, IconMeeting);
-                }
-
-                return MailIcon;
+                return OlObjectClass.olAppointment.Equals(_outlookInspectorType) ? IconKeyFor(ExePath, IconMeeting) : MailIconKey;
             }
         }
 
-        public override IEnumerable<IDestination> DynamicDestinations()
+        public override bool IsAvailableFor(ICaptureDetails metadata) => base.IsAvailableFor(metadata) && ExePath != null && !UsesNewOutlook();
+
+        public override async ValueTask<IReadOnlyList<IDestination>> GetDynamicDestinationsAsync(ICaptureDetails metadata, CancellationToken cancellationToken)
         {
-            IDictionary<string, OlObjectClass> inspectorCaptions = _outlookEmailExporter.RetrievePossibleTargets();
-            if (inspectorCaptions != null)
+            if (_outlookInspectorCaption != null)
             {
-                foreach (string inspectorCaption in inspectorCaptions.Keys)
-                {
-                    yield return new OutlookDestination(inspectorCaption, inspectorCaptions[inspectorCaption]);
-                }
+                return await base.GetDynamicDestinationsAsync(metadata, cancellationToken).ConfigureAwait(false);
             }
+
+            return await GetInspectorDestinationsAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        private async Task<List<IDestination>> GetInspectorDestinationsAsync(CancellationToken cancellationToken)
+        {
+            var inspectorCaptions = await RunOnOfficeAsync(() => _outlookEmailExporter.RetrievePossibleTargets()?.ToList(), cancellationToken).ConfigureAwait(false);
+            return inspectorCaptions?.Select(inspector => (IDestination) new OutlookDestination(inspector.Key, inspector.Value)).ToList() ?? new List<IDestination>();
         }
 
         /// <summary>
         /// Export the capture to outlook
         /// </summary>
-        /// <param name="manuallyInitiated"></param>
-        /// <param name="surface"></param>
-        /// <param name="captureDetails"></param>
-        /// <returns></returns>
-        public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+        public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
         {
-            ExportInformation exportInformation = new ExportInformation(Designation, Description);
-            // Outlook logic
-            string tmpFile = captureDetails.Filename;
-            if (tmpFile == null || surface.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$"))
+            if (_outlookInspectorCaption == null && !request.ManuallyInitiated)
             {
-                tmpFile = ImageIO.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
+                var inspectorDestinations = await GetInspectorDestinationsAsync(cancellationToken).ConfigureAwait(false);
+                if (inspectorDestinations.Count > 0)
+                {
+                    inspectorDestinations.Insert(0, new OutlookDestination());
+                    // A new e-mail or one of the open ones
+                    return await PickAndExportAsync(request, inspectorDestinations, cancellationToken).ConfigureAwait(false);
+                }
             }
-            else
+
+            var captureDetails = request.Metadata;
+            var (tmpFile, created) = await GetImageFileAsync(request, cancellationToken).ConfigureAwait(false);
+            if (!created)
             {
                 Log.InfoFormat("Using already available file: {0}", tmpFile);
             }
 
             // Create a attachment name for the image
-            string attachmentName = captureDetails.Title;
+            string attachmentName = captureDetails?.Title;
             if (!string.IsNullOrEmpty(attachmentName))
             {
                 attachmentName = attachmentName.Trim();
@@ -183,41 +145,19 @@ namespace Greenshot.Plugin.Office.Destinations
             // Make sure it's "clean" so it doesn't corrupt the header
             attachmentName = Regex.Replace(attachmentName, @"[^\x20\d\w]", string.Empty);
 
+            bool exported;
             if (_outlookInspectorCaption != null)
             {
-                _outlookEmailExporter.ExportToInspector(_outlookInspectorCaption, tmpFile, attachmentName);
-                exportInformation.ExportMade = true;
+                exported = await RunOnOfficeAsync(() => _outlookEmailExporter.ExportToInspector(_outlookInspectorCaption, tmpFile, attachmentName), cancellationToken).ConfigureAwait(false);
             }
             else
             {
-                if (!manuallyInitiated)
-                {
-                    var inspectorCaptions = _outlookEmailExporter.RetrievePossibleTargets();
-                    if (inspectorCaptions != null && inspectorCaptions.Count > 0)
-                    {
-                        var destinations = new List<IDestination>
-                        {
-                            new OutlookDestination()
-                        };
-                        foreach (string inspectorCaption in inspectorCaptions.Keys)
-                        {
-                            destinations.Add(new OutlookDestination(inspectorCaption, inspectorCaptions[inspectorCaption]));
-                        }
-
-                        // Return the ExportInformation from the picker without processing, as this indirectly comes from us self
-                        return ShowPickerMenu(false, surface, captureDetails, destinations);
-                    }
-                }
-                else
-                {
-                    exportInformation.ExportMade = _outlookEmailExporter.ExportToOutlook(OfficeConfig.OutlookEmailFormat, tmpFile,
-                        FilenameHelper.FillPattern(OfficeConfig.EmailSubjectPattern, captureDetails, false, DateCultureMode.UILanguage), attachmentName, OfficeConfig.EmailTo, OfficeConfig.EmailCC,
-                        OfficeConfig.EmailBCC, null);
-                }
+                string subject = FilenameHelper.FillPattern(OfficeConfig.EmailSubjectPattern, captureDetails, false, DateCultureMode.UILanguage);
+                exported = await RunOnOfficeAsync(() => _outlookEmailExporter.ExportToOutlook(OfficeConfig.OutlookEmailFormat, tmpFile,
+                    subject, attachmentName, OfficeConfig.EmailTo, OfficeConfig.EmailCC, OfficeConfig.EmailBCC), cancellationToken).ConfigureAwait(false);
             }
 
-            ProcessExport(exportInformation, surface);
-            return exportInformation;
+            return exported ? ExportResult.Succeeded() : ExportResult.Failed("Export to Outlook failed");
         }
     }
 }

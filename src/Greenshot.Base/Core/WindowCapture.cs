@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -19,35 +19,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Runtime.InteropServices;
-using System.Windows.Forms;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
-using Dapplo.Windows.Gdi32;
-using Dapplo.Windows.Gdi32.Enums;
-using Dapplo.Windows.Gdi32.SafeHandles;
-using Dapplo.Windows.Gdi32.Structs;
+using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Icons;
-using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.User32;
-using Dapplo.Ini;
+using Greenshot.Base.Capturing;
 using Greenshot.Base.Interfaces;
 using log4net;
 
 namespace Greenshot.Base.Core
 {
     /// <summary>
-    /// The Window Capture code
+    /// Captures the screen, a part of it, a window or the cursor into an ICapture. The pixels come from ScreenCapture.
     /// </summary>
     public static class WindowCapture
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(WindowCapture));
-        private static readonly ICoreConfiguration Configuration = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         /// <summary>
         /// Retrieves the cursor location safely, accounting for DPI settings in Vista/Windows 7. This implementation
@@ -91,8 +82,11 @@ namespace Greenshot.Base.Core
             {
                 NativePoint cursorLocation = User32Api.GetCursorLocation();
                 // Align cursor location to Bitmap coordinates (instead of Screen coordinates)
-                var x = cursorLocation.X - capturedCursor.HotSpot.X - capture.ScreenBounds.X;
-                var y = cursorLocation.Y - capturedCursor.HotSpot.Y - capture.ScreenBounds.Y;
+                NativePoint origin = (capture.Image != null)
+                    ? capture.Location
+                    : capture.ScreenBounds.Location;
+                var x = cursorLocation.X - capturedCursor.HotSpot.X - origin.X;
+                var y = cursorLocation.Y - capturedCursor.HotSpot.Y - origin.Y;
                 // Set the location
                 capture.CursorLocation = new NativePoint(x, y);
                 capture.Cursor = capturedCursor;
@@ -104,319 +98,78 @@ namespace Greenshot.Base.Core
         /// This method will call the CaptureRectangle with the screenbounds, therefore Capturing the whole screen.
         /// </summary>
         /// <returns>A Capture Object with the Screen as an Image</returns>
-        public static ICapture CaptureScreen(ICapture capture)
+        public static Task<ICapture> CaptureScreenAsync(ICapture capture, CancellationToken cancellationToken = default)
         {
             if (capture == null)
             {
                 capture = new Capture();
             }
 
-            return CaptureRectangle(capture, capture.ScreenBounds);
+            return CaptureRectangleAsync(capture, capture.ScreenBounds, cancellationToken);
         }
 
         /// <summary>
-        /// Helper method to create an exception that might explain what is wrong while capturing
-        /// </summary>
-        /// <param name="method">string with current method</param>
-        /// <param name="captureBounds">NativeRect of what we want to capture</param>
-        /// <returns></returns>
-        private static Exception CreateCaptureException(string method, NativeRect captureBounds)
-        {
-            Exception exceptionToThrow = User32Api.CreateWin32Exception(method);
-            if (!captureBounds.IsEmpty)
-            {
-                exceptionToThrow.Data.Add("Height", captureBounds.Height);
-                exceptionToThrow.Data.Add("Width", captureBounds.Width);
-            }
-
-            return exceptionToThrow;
-        }
-
-        /// <summary>
-        /// Helper method to check if it is allowed to capture the process using DWM
-        /// </summary>
-        /// <param name="process">Process owning the window</param>
-        /// <returns>true if it's allowed</returns>
-        public static bool IsDwmAllowed(Process process)
-        {
-            if (process == null) return true;
-            if (Configuration.NoDWMCaptureForProduct == null ||
-                Configuration.NoDWMCaptureForProduct.Count <= 0) return true;
-
-            try
-            {
-                string productName = process.MainModule?.FileVersionInfo.ProductName;
-                if (productName != null && Configuration.NoDWMCaptureForProduct.Contains(productName.ToLower()))
-                {
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Warn(ex.Message);
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// Helper method to check if it is allowed to capture the process using GDI
-        /// </summary>
-        /// <param name="process">Process owning the window</param>
-        /// <returns>true if it's allowed</returns>
-        public static bool IsGdiAllowed(Process process)
-        {
-            if (process == null) return true;
-            if (Configuration.NoGDICaptureForProduct == null ||
-                Configuration.NoGDICaptureForProduct.Count <= 0) return true;
-
-            try
-            {
-                string productName = process.MainModule?.FileVersionInfo.ProductName;
-                if (productName != null && Configuration.NoGDICaptureForProduct.Contains(productName.ToLower()))
-                {
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Warn(ex.Message);
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// This method will use User32 code to capture the specified captureBounds from the screen
+        /// Capture the area of the screen
         /// </summary>
         /// <param name="capture">ICapture where the captured Bitmap will be stored</param>
         /// <param name="captureBounds">NativeRect with the bounds to capture</param>
-        /// <returns>A Capture Object with a part of the Screen as an Image</returns>
-        public static ICapture CaptureRectangle(ICapture capture, NativeRect captureBounds)
+        /// <param name="cancellationToken">CancellationToken</param>
+        /// <returns>A Capture Object with a part of the Screen as an Image, null when nothing could be captured</returns>
+        public static async Task<ICapture> CaptureRectangleAsync(ICapture capture, NativeRect captureBounds, CancellationToken cancellationToken = default)
         {
-            if (capture == null)
+            capture ??= new Capture();
+
+            var result = await ScreenCapture.CaptureRectangleAsync(captureBounds, cancellationToken).ConfigureAwait(false);
+            if (result == null)
             {
-                capture = new Capture();
-            }
-
-            Image capturedImage = null;
-            // If the CaptureHandler has a handle use this, otherwise use the CaptureRectangle here
-            if (CaptureHandler.CaptureScreenRectangle != null)
-            {
-                try
-                {
-                    capturedImage = CaptureHandler.CaptureScreenRectangle(captureBounds);
-                }
-                catch
-                {
-                    // ignored
-                }
-            }
-
-            // If no capture, use the normal screen capture
-            if (capturedImage == null)
-            {
-                Log.Debug("No capture yet, taking it via legacy.");
-                capturedImage = CaptureRectangle(captureBounds);
-            }
-
-            capture.Image = capturedImage;
-            capture.Location = captureBounds.Location;
-            return capture.Image == null ? null : capture;
-        }
-
-        /// <summary>
-        /// This method will use User32 code to capture the specified captureBounds from the screen
-        /// </summary>
-        /// <param name="capture">ICapture where the captured Bitmap will be stored</param>
-        /// <param name="captureBounds">NativeRect with the bounds to capture</param>
-        /// <returns>A Capture Object with a part of the Screen as an Image</returns>
-        public static ICapture CaptureRectangleFromDesktopScreen(ICapture capture, NativeRect captureBounds)
-        {
-            if (capture == null)
-            {
-                capture = new Capture();
-            }
-
-            capture.Image = CaptureRectangle(captureBounds);
-            capture.Location = captureBounds.Location;
-            return capture.Image == null ? null : capture;
-        }
-
-        /// <summary>
-        /// This method will use User32 code to capture the specified captureBounds from the screen
-        /// </summary>
-        /// <param name="captureBounds">NativeRect with the bounds to capture</param>
-        /// <returns>Bitmap which is captured from the screen at the location specified by the captureBounds</returns>
-        public static Bitmap CaptureRectangle(NativeRect captureBounds)
-        {
-            Bitmap returnBitmap = null;
-            if (captureBounds.Height <= 0 || captureBounds.Width <= 0)
-            {
-                Log.Warn("Nothing to capture, ignoring!");
                 return null;
             }
 
-            Log.Debug("CaptureRectangle Called!");
+            capture.Image = result.Image;
+            capture.Location = result.Location;
+            capture.CaptureDetails.AddMetaData(ScreenCapture.CaptureMethodKey, result.Backend.Name);
+            return capture;
+        }
 
-            // .NET GDI+ Solution, according to some post this has a GDI+ leak...
-            // See https://connect.microsoft.com/VisualStudio/feedback/details/344752/gdi-object-leak-when-calling-graphics-copyfromscreen
-            // Bitmap capturedBitmap = new Bitmap(captureBounds.Width, captureBounds.Height);
-            // using (Graphics graphics = Graphics.FromImage(capturedBitmap)) {
-            //    graphics.CopyFromScreen(captureBounds.Location, Point.Empty, captureBounds.Size, CopyPixelOperation.CaptureBlt);
-            // }
-            // capture.Image = capturedBitmap;
-            // capture.Location = captureBounds.Location;
+        /// <summary>
+        /// Select the window to capture, resolving linked windows for special applications (e.g. TOAD, Excel).
+        /// </summary>
+        public static IInteropWindow SelectCaptureWindow(IInteropWindow windowToCapture)
+        {
+            if (windowToCapture == null) return null;
 
-            using (var desktopDcHandle = SafeWindowDcHandle.FromDesktop())
+            NativeRect windowRectangle = windowToCapture.GetInfo().Bounds;
+            if (windowRectangle.Width == 0 || windowRectangle.Height == 0)
             {
-                if (desktopDcHandle.IsInvalid)
-                {
-                    // Get Exception before the error is lost
-                    Exception exceptionToThrow = CreateCaptureException("desktopDCHandle", captureBounds);
-                    // throw exception
-                    throw exceptionToThrow;
-                }
-
-                // create a device context we can copy to
-                using SafeCompatibleDcHandle safeCompatibleDcHandle = Gdi32Api.CreateCompatibleDC(desktopDcHandle);
-                // Check if the device context is there, if not throw an error with as much info as possible!
-                if (safeCompatibleDcHandle.IsInvalid)
-                {
-                    // Get Exception before the error is lost
-                    Exception exceptionToThrow = CreateCaptureException("CreateCompatibleDC", captureBounds);
-                    // throw exception
-                    throw exceptionToThrow;
-                }
-
-                // Create BITMAPINFOHEADER for CreateDIBSection
-                var bitmapInfoHeader = BitmapV5Header.Create(captureBounds.Width, captureBounds.Height, 24);
-
-                // Make sure the last error is set to 0
-                Kernel32Api.SetLastError(0);
-
-                // create a bitmap we can copy it to, using GetDeviceCaps to get the width/height
-                using SafeDibSectionHandle safeDibSectionHandle = Gdi32Api.CreateDIBSection(desktopDcHandle, ref bitmapInfoHeader, DibColors.RgbColors, out _, IntPtr.Zero, 0);
-                if (safeDibSectionHandle.IsInvalid)
-                {
-                    // Get Exception before the error is lost
-                    var exceptionToThrow = CreateCaptureException("CreateDIBSection", captureBounds);
-                    exceptionToThrow.Data.Add("hdcDest", safeCompatibleDcHandle.DangerousGetHandle().ToInt32());
-                    exceptionToThrow.Data.Add("hdcSrc", desktopDcHandle.DangerousGetHandle().ToInt32());
-
-                    // Throw so people can report the problem
-                    throw exceptionToThrow;
-                }
-
-                // select the bitmap object and store the old handle
-                using (safeCompatibleDcHandle.SelectObject(safeDibSectionHandle))
-                {
-                    // bitblt over (make copy)
-                    // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
-                    Gdi32Api.BitBlt(safeCompatibleDcHandle, 0, 0, captureBounds.Width, captureBounds.Height, desktopDcHandle, captureBounds.X, captureBounds.Y,
-                        RasterOperations.SourceCopy | RasterOperations.CaptureBlt);
-                }
-
-                // get a .NET image object for it
-                // A suggestion for the "A generic error occurred in GDI+." E_FAIL/0�80004005 error is to re-try...
-                bool success = false;
-                ExternalException exception = null;
-                for (int i = 0; i < 3; i++)
-                {
-                    try
-                    {
-                        // Collect all screens inside this capture
-                        List<Screen> screensInsideCapture = new List<Screen>();
-                        foreach (Screen screen in Screen.AllScreens)
-                        {
-                            if (screen.Bounds.IntersectsWith(captureBounds))
-                            {
-                                screensInsideCapture.Add(screen);
-                            }
-                        }
-
-                        // Check all all screens are of an equal size
-                        bool offscreenContent;
-                        using (Region captureRegion = new Region(captureBounds))
-                        {
-                            // Exclude every visible part
-                            foreach (Screen screen in screensInsideCapture)
-                            {
-                                captureRegion.Exclude(screen.Bounds);
-                            }
-
-                            // If the region is not empty, we have "offscreenContent"
-                            using Graphics screenGraphics = Graphics.FromHwnd(User32Api.GetDesktopWindow());
-                            offscreenContent = !captureRegion.IsEmpty(screenGraphics);
-                        }
-
-                        // Check if we need to have a transparent background, needed for offscreen content
-                        if (offscreenContent)
-                        {
-                            Bitmap tmpBitmap = Image.FromHbitmap(safeDibSectionHandle.DangerousGetHandle());
-                            if (tmpBitmap.Width <= 0 || tmpBitmap.Height <= 0)
-                            {
-                                Log.Warn($"DIB section returned degenerate bitmap dimensions ({tmpBitmap.Width}x{tmpBitmap.Height}), skipping offscreen capture.");
-                                returnBitmap = tmpBitmap;
-                                success = true;
-                                break;
-                            }
-                            // Create a new bitmap which has a transparent background
-                            using (tmpBitmap)
-                            {
-                                returnBitmap = ImageHelper.CreateEmpty(tmpBitmap.Width, tmpBitmap.Height, PixelFormat.Format32bppArgb, Color.Transparent, tmpBitmap.HorizontalResolution, tmpBitmap.VerticalResolution);
-                                // Content will be copied here
-                                using Graphics graphics = Graphics.FromImage(returnBitmap);
-                                // For all screens copy the content to the new bitmap
-
-                                foreach (var displayInfo in DisplayInfo.AllDisplayInfos)
-                                {
-                                    // Make sure the bounds are offset to the capture bounds
-                                    var displayBounds = displayInfo.Bounds.Offset(-captureBounds.X, -captureBounds.Y);
-                                    graphics.DrawImage(tmpBitmap, displayBounds, displayBounds.X, displayBounds.Y, displayBounds.Width, displayBounds.Height, GraphicsUnit.Pixel);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            // All screens, which are inside the capture, are of equal size
-                            // assign image to Capture, the image will be disposed there..
-                            returnBitmap = Image.FromHbitmap(safeDibSectionHandle.DangerousGetHandle());
-                            if (returnBitmap.Width <= 0 || returnBitmap.Height <= 0)
-                            {
-                                Log.Warn($"DIB section returned degenerate bitmap dimensions ({returnBitmap.Width}x{returnBitmap.Height}), skipping capture.");
-                                success = true;
-                                break;
-                            }
-                        }
-
-                        // We got through the capture without exception
-                        success = true;
-                        break;
-                    }
-                    catch (ExternalException ee)
-                    {
-                        Log.Warn("Problem getting bitmap at try " + i + " : ", ee);
-                        exception = ee;
-                    }
-                    catch (ArgumentException ae)
-                    {
-                        Log.Warn("Invalid bitmap dimensions at try " + i + " : ", ae);
-                        exception = new System.Runtime.InteropServices.ExternalException(ae.Message, ae);
-                    }
-                }
-
-                if (!success)
-                {
-                    Log.Error("Still couldn't create Bitmap!");
-                    if (exception != null)
-                    {
-                        throw exception;
-                    }
-                }
+                Log.WarnFormat("Window {0} has nothing to capture, using workaround to find other window of same process.", windowToCapture.GetCaption());
+                return windowToCapture.GetLinkedWindows().FirstOrDefault();
             }
 
-            return returnBitmap;
+            return windowToCapture;
+        }
+
+        /// <summary>
+        /// Capture the window: Windows.Graphics.Capture, or what is displayed in the window's area when that is not possible.
+        /// </summary>
+        /// <param name="windowToCapture">IInteropWindow</param>
+        /// <param name="capture">ICapture to fill, null to create one</param>
+        /// <param name="cancellationToken">CancellationToken</param>
+        /// <returns>ICapture, null when nothing could be captured</returns>
+        public static async Task<ICapture> CaptureWindowAsync(IInteropWindow windowToCapture, ICapture capture = null, CancellationToken cancellationToken = default)
+        {
+            capture ??= new Capture();
+
+            var result = await ScreenCapture.CaptureWindowAsync(windowToCapture, cancellationToken).ConfigureAwait(false);
+            if (result == null)
+            {
+                return null;
+            }
+
+            capture.Image = result.Image;
+            capture.Location = result.Location;
+            capture.CaptureDetails.Title = windowToCapture.GetCaption();
+            capture.CaptureDetails.AddMetaData(ScreenCapture.CaptureMethodKey, result.Backend.Name);
+            return capture;
         }
     }
 }

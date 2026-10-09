@@ -36,9 +36,10 @@ jobs:
     - name: Set up .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '7.x'
+        dotnet-version: '10.0.x'
 
     - name: Restore NuGet packages 
+      shell: cmd
       run: msbuild src/Greenshot.sln /p:Configuration=Release /restore /t:PrepareForBuild
       env:
         Box13_ClientId: ${{ secrets.Box13_ClientId }}
@@ -55,6 +56,7 @@ jobs:
         Picasa_ClientSecret: ${{ secrets.Picasa_ClientSecret }}
 
     - name: Build and package
+      shell: cmd
       run: msbuild src/Greenshot.sln /p:Configuration=Release /t:Rebuild /v:normal
       env:
         Box13_ClientId: ${{ secrets.Box13_ClientId }}
@@ -70,10 +72,20 @@ jobs:
         Picasa_ClientId: ${{ secrets.Picasa_ClientId }}
         Picasa_ClientSecret: ${{ secrets.Picasa_ClientSecret }}
 
+    # The Release build publishes greenshot-mcp.exe next to Greenshot.exe as its last step, after the checksums, the SBOM,
+    # the installers and the portable versions, so it is only in its own download
+    - name: Upload MCP server artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: artifacts-greenshot-mcp
+        path: src/Greenshot/bin/Release/net480/greenshot-mcp.exe
+        if-no-files-found: error
+
     - name: Copy Files
       run: |
         mkdir -p ${{ github.workspace }}/artifacts
         cp installer/Greenshot-INSTALLER-*.exe ${{ github.workspace }}/artifacts/
+        cp installer/Greenshot-Light-INSTALLER-*.exe ${{ github.workspace }}/artifacts/
     
     - name: Upload Installer Artifact
       uses: actions/upload-artifact@v4
@@ -87,6 +99,14 @@ jobs:
       with:
         name: artifacts-greenshot-build
         path: src/Greenshot/bin/Release/net480/**
+        if-no-files-found: error
+
+    # Greenshot Light, its own build of Greenshot.exe (see Greenshot.csproj), for the Light portable version (the Light installer is built from it in the build)
+    - name: Upload light build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: artifacts-greenshot-light-build
+        path: src/Greenshot/bin/Release-Light/net480/**
         if-no-files-found: error
 
   pre_deploy:
@@ -154,6 +174,12 @@ jobs:
           name: artifacts-greenshot-build
           path: artifacts-greenshot-build
 
+      - name: Download light build artifacts
+        uses: actions/download-artifact@v5
+        with:
+          name: artifacts-greenshot-light-build
+          path: artifacts-greenshot-light-build
+
       - name: Prepare portable folder
         run: |
           $buildArtifacts = "${{ github.workspace }}/artifacts-greenshot-build"
@@ -161,17 +187,26 @@ jobs:
           pwsh -File "${{ github.workspace }}/prepare-portable.ps1" -RepositoryRootPath ${{ github.workspace }} -BuildArtifactsPath $buildArtifacts -OutputPath $portableDir
         shell: pwsh
 
-      - name: Create ZIP archive
+      - name: Prepare light portable folder
+        run: |
+          $buildArtifacts = "${{ github.workspace }}/artifacts-greenshot-light-build"
+          $portableDir = "${{ github.workspace }}/portable-light"
+          pwsh -File "${{ github.workspace }}/prepare-portable.ps1" -RepositoryRootPath ${{ github.workspace }} -BuildArtifactsPath $buildArtifacts -OutputPath $portableDir -Light
+        shell: pwsh
+
+      - name: Create ZIP archives
         run: |
           $zipName = "Greenshot-PORTABLE-${{ needs.pre_deploy.outputs.version }}-UNSTABLE-UNSIGNED.zip"
           Compress-Archive -Path "${{ github.workspace }}/portable/*" -DestinationPath $zipName -Force
+          $lightZipName = "Greenshot-Light-PORTABLE-${{ needs.pre_deploy.outputs.version }}-UNSTABLE-UNSIGNED.zip"
+          Compress-Archive -Path "${{ github.workspace }}/portable-light/*" -DestinationPath $lightZipName -Force
         shell: pwsh
       
       - name: Upload portable build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: artifacts-greenshot-portable
-          path: Greenshot-PORTABLE-*.zip
+          path: Greenshot-*PORTABLE-*.zip
           if-no-files-found: error
 
   deploy:
@@ -203,6 +238,18 @@ jobs:
           name: artifacts-greenshot-portable
           path: artifacts-greenshot-portable
 
+      - name: Download MCP server artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: artifacts-greenshot-mcp
+          path: artifacts-greenshot-mcp
+
+      - name: Create MCP server ZIP
+        run: |
+          cd artifacts-greenshot-mcp
+          zip "Greenshot-MCP-${{ needs.pre_deploy.outputs.version }}-win-x64.zip" greenshot-mcp.exe
+        shell: bash
+
       - name: Create tag
         if: env.IS_MAIN_OR_RELEASE_BRANCH == 'true'
         run: |
@@ -217,6 +264,7 @@ jobs:
           branch="${BRANCH_NAME:-${GITHUB_REF#refs/heads/}}"
           sanitized=$(echo "$branch" | sed 's/[^a-zA-Z0-9._-]/_/g')
           mv artifacts-installer/Greenshot-INSTALLER-*.exe "artifacts-installer/Greenshot-INSTALLER-${sanitized}.exe"
+          mv artifacts-installer/Greenshot-Light-INSTALLER-*.exe "artifacts-installer/Greenshot-Light-INSTALLER-${sanitized}.exe"
         shell: bash
 
       - name: Create GitHub Release
@@ -224,7 +272,7 @@ jobs:
         with:
           name: "Greenshot ${{ needs.pre_deploy.outputs.version }} (continuous build)"
           tag_name: ${{ needs.pre_deploy.outputs.tag_name }}
-          files: artifacts-installer/*.exe, artifacts-greenshot-portable/*.zip
+          files: artifacts-installer/*.exe, artifacts-greenshot-portable/*.zip, artifacts-greenshot-mcp/*.zip
           generate_release_notes: true
           draft: ${{ env.IS_MAIN_OR_RELEASE_BRANCH != 'true'  }}
           prerelease: true

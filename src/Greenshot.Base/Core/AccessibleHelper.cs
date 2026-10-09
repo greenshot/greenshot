@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -29,7 +29,7 @@ namespace Greenshot.Base.Core
     /// <summary>
     /// See: https://social.msdn.microsoft.com/Forums/en-US/ieextensiondevelopment/thread/03a8c835-e9e4-405b-8345-6c3d36bc8941
     /// This should really be cleaned up, there is little OO behind this class!
-    /// Maybe move the basic Accessible functions to WindowDetails!?
+    /// Maybe move the basic Accessible functions to Dapplo.Windows!?
     /// </summary>
     public class Accessible
     {

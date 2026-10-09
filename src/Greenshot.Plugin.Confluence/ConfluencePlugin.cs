@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -20,45 +20,42 @@
  */
 
 using System;
-using System.Windows;
+using System.ComponentModel;
+using System.Threading;
+using System.Threading.Tasks;
 using Greenshot.Base.Core;
-using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Plugin.Confluence.Forms;
-using Greenshot.Plugin.Confluence.Support;
+using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Threading;
+using Greenshot.Plugin.Confluence.Api;
+using Greenshot.Plugin.Confluence.Destinations;
+using Greenshot.Base.Languages;
+using Greenshot.Plugin.Confluence.Recipes;
+using Greenshot.Plugin.Confluence.Views;
 
 namespace Greenshot.Plugin.Confluence;
 
 /// <summary>
 /// This is the ConfluencePlugin base code
 /// </summary>
-public class ConfluencePlugin : IGreenshotPlugin
+public class ConfluencePlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvider
 {
     private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluencePlugin));
     private static ConfluenceConnector _confluenceConnector;
     private static IConfluenceConfiguration _config;
+    private TrayMenuEntry _itemPlugInConfig;
 
-    public void Dispose()
+    public ValueTask DisposeAsync()
     {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    private void Dispose(bool disposing)
-    {
-        //if (disposing) {}
+        // The menu item is removed and disposed in StopAsync
+        return default;
     }
 
     /// <summary>
     /// Name of the plugin
     /// </summary>
     public string Name => "Confluence";
-
-    /// <summary>
-    /// Specifies if the plugin can be configured
-    /// </summary>
-    public bool IsConfigurable => true;
 
     private static void CreateConfluenceConnector()
     {
@@ -73,6 +70,9 @@ public class ConfluencePlugin : IGreenshotPlugin
         get { return _confluenceConnector; }
     }
 
+    /// <summary>
+    /// The connector, created when needed. Its methods log in (ask the user for the credentials) when needed.
+    /// </summary>
     public static ConfluenceConnector ConfluenceConnector
     {
         get
@@ -82,97 +82,109 @@ public class ConfluencePlugin : IGreenshotPlugin
                 CreateConfluenceConnector();
             }
 
-            try
-            {
-                if (_confluenceConnector != null && !_confluenceConnector.IsLoggedIn)
-                {
-                    _confluenceConnector.Login();
-                }
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show(Language.GetFormattedString("confluence", LangKey.login_error, e.Message));
-            }
-
             return _confluenceConnector;
         }
     }
 
-    /// <summary>
-    /// Implementation of RegisterConfiguration phase: register INI section before file is loaded.
-    /// </summary>
-    public void RegisterConfiguration(IniConfig iniConfig)
+    public void ConfigureServices(IPluginServices services)
     {
+        Texts.Register<IConfluenceLanguage>(new ConfluenceLanguageImpl());
         var section = new ConfluenceConfigurationImpl();
-        iniConfig.AddSection(section);
+        services.AddConfiguration(section);
         _config = section;
-    }
 
-    /// <summary>
-    /// Implementation of RegisterServices phase: register DI services after config is loaded.
-    /// </summary>
-    public void RegisterServices(IServiceLocator serviceLocator)
-    {
-        try
-        {
-            TranslationManager.Instance.TranslationProvider = new LanguageXMLTranslationProvider();
-        }
-        catch (Exception ex)
-        {
-            LOG.ErrorFormat("Problem registering Confluence services: {0}", ex.Message);
-        }
-    }
-
-    /// <summary>
-    /// Implementation of the IGreenshotPlugin.Start
-    /// </summary>
-    public bool Start()
-    {
+        services.AddService<IIconProvider>(new ConfluenceIconProvider());
         if (ConfluenceDestination.IsInitialized)
         {
-            SimpleServiceProvider.Current.AddService<IDestination>(new ConfluenceDestination());
+            services.AddService<IDestination>(new ConfluenceDestination());
         }
 
-        return true;
+        services.AddRecipeStepProvider(this);
+        services.AddSettingsView<IConfluenceConfiguration>(config => new ConfluenceConfigurationView(config));
     }
 
-    public void Shutdown()
+    public object CreateSettingsViewModel(IServiceProvider services) => _config;
+
+    /// <summary>
+    /// Registers recipe step factories provided by the Confluence plugin.
+    /// </summary>
+    /// <param name="registry">The step registry.</param>
+    public void RegisterSteps(IStepRegistry registry)
     {
-        LOG.Debug("Confluence Plugin shutdown.");
-        if (_confluenceConnector != null)
-        {
-            _confluenceConnector.Logout();
-            _confluenceConnector = null;
-        }
+        if (registry == null) return;
+        registry.Register<ConfluenceStep>(config => new ConfluenceStep(config));
     }
 
     /// <summary>
-    /// Implementation of the IPlugin.Configure
+    /// Register the dialog, add the quick link to the context menu (on the UI thread)
     /// </summary>
-    public void Configure()
+    public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken)
     {
-        ConfluenceConfigurationForm configForm = new ConfluenceConfigurationForm(_config);
-        string url = _config.Url;
-        bool? dialogResult = configForm.ShowDialog();
-        if (dialogResult.HasValue && dialogResult.Value)
-        {
-            if (_confluenceConnector != null)
-            {
-                if (!url.Equals(_config.Url))
-                {
-                    if (_confluenceConnector.IsLoggedIn)
-                    {
-                        _confluenceConnector.Logout();
-                    }
+        services.GetService<IDialogViewRegistry>()?.Register<ConfluenceUploadRequest, ConfluenceUploadChoice>(ConfluenceUploadWindow.Show);
+        return services.GetRequiredService<IUiDispatcher>().RunOnUiAsync(Start, cancellationToken);
+    }
 
-                    _confluenceConnector = null;
-                }
+    private void Start()
+    {
+        _itemPlugInConfig = new TrayMenuEntry
+        {
+            Image = ConfluenceDestination.LoadConfluenceIcon(),
+            Text = PluginUtils.GetQuicklinkText("Confluence"),
+            Visible = _config?.QuicklinkEnabled ?? false
+        };
+        _itemPlugInConfig.Click += delegate { ShowSettings(); };
+
+        PluginUtils.AddToContextMenu(_itemPlugInConfig);
+        Texts.Config.LanguageChanged += OnLanguageChanged;
+        if (_config is INotifyPropertyChanged notify)
+        {
+            notify.PropertyChanged += OnConfigPropertyChanged;
+        }
+    }
+
+    private void OnConfigPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(IConfluenceConfiguration.QuicklinkEnabled))
+        {
+            if (_itemPlugInConfig != null)
+            {
+                _itemPlugInConfig.Visible = _config?.QuicklinkEnabled ?? false;
             }
         }
-        else
+    }
+
+    public void OnLanguageChanged(object sender, EventArgs e)
+    {
+        if (_itemPlugInConfig != null)
         {
-            // User cancelled — reload to discard any changes made by the form binding.
-            IniConfigRegistry.Get().Reload();
+            _itemPlugInConfig.Text = PluginUtils.GetQuicklinkText("Confluence");
         }
+    }
+
+    public Task StopAsync(CancellationToken cancellationToken) =>
+        UiDispatcher.Current.RunOnUiAsync(() =>
+        {
+            LOG.Debug("Confluence Plugin shutdown.");
+            Texts.Config.LanguageChanged -= OnLanguageChanged;
+            if (_config is INotifyPropertyChanged notify)
+            {
+                notify.PropertyChanged -= OnConfigPropertyChanged;
+            }
+
+            _itemPlugInConfig?.Dispose();
+            _itemPlugInConfig = null;
+            if (_confluenceConnector != null)
+            {
+                _confluenceConnector.Logout();
+                _confluenceConnector = null;
+            }
+        }, cancellationToken);
+
+    /// <summary>
+    /// Show the settings of this plugin
+    /// </summary>
+    private void ShowSettings()
+    {
+        SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true)?.ShowSetting(Name);
     }
 }

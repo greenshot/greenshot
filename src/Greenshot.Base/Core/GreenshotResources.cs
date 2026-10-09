@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -19,26 +19,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System.ComponentModel;
 using System.Drawing;
 
 namespace Greenshot.Base.Core
 {
     /// <summary>
-    /// Centralized storage of the icons & bitmaps
+    /// Centralized storage of the icons & bitmaps, these are embedded resources in Resources\GreenshotResources
     /// </summary>
     public static class GreenshotResources
     {
-        private static readonly ComponentResourceManager GreenshotResourceManager = new ComponentResourceManager(typeof(GreenshotResources));
-
         public static Image GetImage(string imageName)
         {
-            return (Image) GreenshotResourceManager.GetObject(imageName);
+            return EmbeddedResources.GetImage(typeof(GreenshotResources), imageName);
         }
 
         public static Icon GetIcon(string imageName)
         {
-            return (Icon) GreenshotResourceManager.GetObject(imageName);
+            return EmbeddedResources.GetIcon(typeof(GreenshotResources), imageName);
         }
 
         public static Icon GetGreenshotIcon()

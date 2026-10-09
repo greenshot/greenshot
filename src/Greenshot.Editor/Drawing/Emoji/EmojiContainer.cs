@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -28,7 +28,6 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Controls.Emoji;
-using Greenshot.Editor.Helpers;
 using Image = System.Drawing.Image;
 
 namespace Greenshot.Editor.Drawing.Emoji
@@ -63,6 +62,10 @@ namespace Greenshot.Editor.Drawing.Emoji
             Emoji = emoji ?? EditorConfig.RecentEmoji;
             Width = size ?? DefaultSize.Width;
             Height = size ?? DefaultSize.Height;
+            if (emoji != null)
+            {
+                _justCreated = false;
+            }
             Init();
         }
 
@@ -73,6 +76,11 @@ namespace Greenshot.Editor.Drawing.Emoji
 
         private void ShowEmojiPicker()
         {
+            if (System.Threading.Thread.CurrentThread.GetApartmentState() != System.Threading.ApartmentState.STA || _parent?.Controls == null)
+            {
+                return;
+            }
+
             _currentContainer = this;
 
             GetOrCreatePickerControl();
@@ -95,6 +103,7 @@ namespace Greenshot.Editor.Drawing.Emoji
             _emojiPickerHost = _parent.Controls.Find("EmojiPickerHost", false).OfType<ElementHost>().FirstOrDefault();
             if (_emojiPickerHost != null)
             {
+                _emojiPicker = (EmojiPicker)_emojiPickerHost.Child;
                 return;
             }
 
@@ -111,6 +120,20 @@ namespace Greenshot.Editor.Drawing.Emoji
                 Dock = DockStyle.None,
                 Child = _emojiPicker,
                 Name = "EmojiPickerHost"
+            };
+
+            // Don't keep a closed editor alive through the static fields
+            var pickerHost = _emojiPickerHost;
+            pickerHost.Disposed += (_, _) =>
+            {
+                if (_emojiPickerHost != pickerHost)
+                {
+                    return;
+                }
+
+                _emojiPickerHost = null;
+                _emojiPicker = null;
+                _currentContainer = null;
             };
 
             _parent.Controls.Add(_emojiPickerHost);

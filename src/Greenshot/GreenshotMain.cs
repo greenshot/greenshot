@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -29,11 +29,15 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Ini;
 using Dapplo.Ini.Parsing;
+using Dapplo.Windows.Input.Keyboard;
+using Dapplo.Windows.Messages;
 using Greenshot.Base.Core;
+using Greenshot.Base.Recipes;
 using Greenshot.Configuration;
 using Greenshot.Editor.Configuration;
-using Greenshot.Forms;
 using Greenshot.Helpers;
+using Greenshot.Shell;
+using Greenshot.Views;
 using log4net;
 
 namespace Greenshot;
@@ -75,6 +79,8 @@ public class GreenshotMain
         // Enable TLS 1.2 and 1.3 support only (TLS 1.0/1.1 deprecated per RFC 8996)
         ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13;
 
+        Greenshot.Base.Languages.Texts.SystemLanguage = CultureInfo.CurrentUICulture.Name;
+
         CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
         CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
 
@@ -84,7 +90,7 @@ public class GreenshotMain
         // Init Log4NET
         LogFileLocation = LogHelper.InitializeLog4Net();
         // Get logger
-        LOG = LogManager.GetLogger(typeof(MainForm));
+        LOG = LogManager.GetLogger(typeof(GreenshotMain));
 
         Application.ThreadException += Application_ThreadException;
         AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
@@ -102,6 +108,7 @@ public class GreenshotMain
 
         // Register custom value converters (NativeRect, Color, etc.) before building the registry.
         IniValueConverters.Register();
+        Editor.EditorInitialize.RegisterValueConverters();
 
         // Detect PortableApp (PAF) mode: the App\Greenshot directory lives next to the executable.
         var startupPath = AppContext.BaseDirectory;
@@ -111,15 +118,17 @@ public class GreenshotMain
         // Build the IniConfigRegistry:
         //   AddAppDataPath  → %APPDATA%\Greenshot
         //   AddSearchPath   → installation / startup directory
-        //   --ini-directory → optional command-line override (highest priority)
-        var builder = IniConfigRegistry.ForFile("greenshot.ini")
-            .AddAppDataPath("Greenshot")
-            .AddSearchPath(startupPath);
+        //   SetOverrideDirectory → --ini-directory: greenshot.ini is only read from and saved to that directory
+        // Ensure any design-time / test fallback configuration is removed before production startup
+        IniConfigHelper.UnregisterDesignTimeConfig();
 
-        if (!string.IsNullOrEmpty(options.IniDirectory) && Directory.Exists(options.IniDirectory))
-        {
-            builder.AddSearchPath(options.IniDirectory);
-        }
+        var builder = IniConfigRegistry.ForFile("greenshot.ini")
+
+            .AddAppDataPath("Greenshot")
+            .AddSearchPath(startupPath)
+            // Ignored when not given, the directory is created when missing and greenshot-fixed.ini is never read from it.
+            // An unusable directory is logged (IniListener.OnError) and the search paths are used instead.
+            .SetOverrideDirectory(options.IniDirectory);
 
         builder.AddDefaultsFile("greenshot-defaults.ini")
                .AddConstantsFile("greenshot-fixed.ini")
@@ -134,27 +143,40 @@ public class GreenshotMain
                {
                    CaseSensitiveKeys = false,
                    EscapeSequences = false,
-                   LineContinuation = true,
+                   LineContinuation = false,
                    QuotedValues = false
                })
                .RegisterSection<ICoreConfiguration>(new CoreConfigurationImpl())
                .RegisterSection<IEditorConfiguration>(new EditorConfigurationImpl())
                .RegisterSection<IWin10Configuration>(new Win10ConfigurationImpl())
+               .RegisterSection<IRecipeOptionsConfiguration>(new RecipeOptionsConfigurationImpl())
+               // Plugins register their sections after the file was read, they are filled from the retained file content.
+               // This also keeps the sections of plugins which are not loaded (excluded or uninstalled) when saving.
+               .AllowLateSectionRegistration()
                .AutoSaveInterval(TimeSpan.FromSeconds(2))
                .EmptyWhenNull()
                .LockFile()
-               .EnableMetadata(applicationName: "Greenshot");
+               .EnableMetadata(applicationName: "Greenshot")
+               // Also logs errors of the background work (auto-save, save on exit), which are only reported to listeners
+               .AddListener(new IniListener());
 
-#if DEBUG
-        builder.AddListener(new Helpers.IniListener());
-#endif
-
+        // No file access yet: greenshot.ini is read (and locked) in GreenshotApplication.Start, only by the instance which really runs.
+        // A second instance, which forwards a command or reports that Greenshot is running, doesn't touch the file.
         var iniConfig = builder.Create();
+        if (iniConfig.OverrideDirectory != null)
+        {
+            LOG.Info($"Using the ini-directory {iniConfig.OverrideDirectory}");
+        }
+
+        // An exception in a window message or keyboard hook subscriber ends that subscription instead of crashing the process,
+        // log it: otherwise a clipboard listener or the hotkeys just stop working without a trace.
+        SharedMessageWindow.SubscriberErrors.Subscribe(ex => LOG.Error("A window message subscriber failed and was removed.", ex));
+        KeyboardHook.SubscriberErrors.Subscribe(ex => LOG.Error("A keyboard hook subscriber failed and was removed.", ex));
 
         // Log the startup
         LOG.Info("Starting: " + EnvironmentInfo.EnvironmentToString(false));
 
-        MainForm.Start(options);
+        GreenshotApplication.Start(options);
     }
 
     internal static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
@@ -169,7 +191,7 @@ public class GreenshotMain
             return;
         }
 
-        new BugReportForm(exceptionText).ShowDialog();
+        BugReportWindow.ShowReport(exceptionToLog, exceptionText);
     }
 
     internal static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -184,7 +206,7 @@ public class GreenshotMain
             return;
         }
 
-        new BugReportForm(exceptionText).ShowDialog();
+        BugReportWindow.ShowReport(exceptionToLog, exceptionText, e.IsTerminating);
     }
 
     internal static void Task_UnhandledException(object sender, UnobservedTaskExceptionEventArgs args)
@@ -195,7 +217,7 @@ public class GreenshotMain
             string exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
             LOG.Error("Exception caught in the UnobservedTaskException handler.");
             LOG.Error(exceptionText);
-            new BugReportForm(exceptionText).ShowDialog();
+            BugReportWindow.ShowReport(exceptionToLog, exceptionText);
         }
         finally
         {

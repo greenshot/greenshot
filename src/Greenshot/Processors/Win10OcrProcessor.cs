@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -19,11 +19,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
+using Greenshot.Base.Interfaces.Plugin;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Configuration;
 
 namespace Greenshot.Processors
@@ -34,44 +39,121 @@ namespace Greenshot.Processors
     public class Win10OcrProcessor : AbstractProcessor
     {
         private static readonly IWin10Configuration Win10Configuration = IniConfigRegistry.GetSection<IWin10Configuration>();
+        private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(Win10OcrProcessor));
+
         public override string Designation => "Windows10OcrProcessor";
 
         public override string Description => "Windows OCR";
 
-        public override bool ProcessCapture(ISurface surface, ICaptureDetails captureDetails)
+        public override bool isActive => Win10Configuration.AlwaysRunOCROnCapture;
+
+        /// <summary>
+        /// Runs before interactive selection so detected OCR text lines are visible
+        /// as hotspots in the CaptureWindow while the user selects a region.
+        /// </summary>
+        public override ProcessorTiming PreferredTiming => ProcessorTiming.PreSelection;
+
+        public override bool ProcessCapture(ICapture capture)
         {
             if (!Win10Configuration.AlwaysRunOCROnCapture)
             {
                 return false;
             }
 
-            if (surface == null)
+            if (capture == null || capture.CaptureDetails == null)
             {
                 return false;
             }
 
-            if (captureDetails == null || captureDetails.OcrInformation != null)
+            lock (capture.CaptureDetails.StartedProcessors)
             {
-                return false;
+                if (capture.CaptureDetails.StartedProcessors.Contains(Designation))
+                {
+                    return false;
+                }
+                capture.CaptureDetails.StartedProcessors.Add(Designation);
             }
 
-            var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
+            var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>(isOptional: true);
 
             if (ocrProvider == null)
             {
                 return false;
             }
 
-            var ocrResult = Task.Run(async () => await ocrProvider.DoOcrAsync(surface).ConfigureAwait(false)).Result;
-
-            if (!ocrResult.HasContent)
+            if (capture.Image == null)
             {
                 return false;
             }
 
-            captureDetails.OcrInformation = ocrResult;
+            var captureDetails = capture.CaptureDetails;
+            var initialCropOffset = captureDetails.CropOffset;
+
+            Task<List<IOcrLineFeature>> ocrTask;
+            try
+            {
+                // The provider copies the pixels before it returns, so the image needs no clone
+                ocrTask = ocrProvider.DoOcrAsync(capture.Image);
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Failed to start the OCR of the capture", ex);
+                return false;
+            }
+
+            // PARALLEL: the OCR runs next to the interactive selection, its lines show up as hotspots while the user selects.
+            // (Background work tracked on the capture details, replaced by AnalysisResults with imaging roadmap step 2.)
+            var task = AddOcrLinesAsync(ocrTask, captureDetails, initialCropOffset);
+
+            if (captureDetails.ProcessingTask != null)
+            {
+                captureDetails.ProcessingTask = Task.WhenAll(captureDetails.ProcessingTask, task);
+            }
+            else
+            {
+                captureDetails.ProcessingTask = task;
+            }
 
             return true;
+        }
+
+        /// <summary>
+        /// Add the detected lines to the capture details when the OCR is done, corrected for a crop which happened in the meantime
+        /// </summary>
+        private static async Task AddOcrLinesAsync(Task<List<IOcrLineFeature>> ocrTask, ICaptureDetails captureDetails, NativePoint initialCropOffset)
+        {
+            try
+            {
+                var ocrLines = await ocrTask.ConfigureAwait(false);
+                if (ocrLines != null && ocrLines.Any())
+                {
+                    lock (captureDetails.Features)
+                    {
+                        var currentCropOffset = captureDetails.CropOffset;
+                        var dx = currentCropOffset.X - initialCropOffset.X;
+                        var dy = currentCropOffset.Y - initialCropOffset.Y;
+                        if (dx != 0 || dy != 0)
+                        {
+                            foreach (var line in ocrLines)
+                            {
+                                line.Offset(-dx, -dy);
+                            }
+                        }
+                        captureDetails.Features.AddRange(ocrLines);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Error performing Windows OCR in background task", ex);
+            }
+            finally
+            {
+                if (captureDetails is CaptureDetails concreteDetails)
+                {
+                    concreteDetails.NotifyFeaturesChanged();
+                }
+            }
         }
     }
 }

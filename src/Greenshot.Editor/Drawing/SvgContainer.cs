@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -24,6 +24,7 @@ using System.IO;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Drawing;
 using Svg;
 
 namespace Greenshot.Editor.Drawing
@@ -31,7 +32,7 @@ namespace Greenshot.Editor.Drawing
     /// <summary>
     /// This provides a resizable SVG container, redrawing the SVG in the size the container takes.
     /// </summary>
-    public class SvgContainer : VectorGraphicsContainer
+    public class SvgContainer : VectorGraphicsContainer, IHaveScaleOptions
     {
         public MemoryStream SvgContent;
 
@@ -73,5 +74,10 @@ namespace Greenshot.Editor.Drawing
         public override bool HasDefaultSize => true;
 
         public override NativeSize DefaultSize => new NativeSize((int)_svgDocument.Width, (int)_svgDocument.Height);
+
+        public ScaleOptions GetScaleOptions()
+        {
+            return ScaleOptions.Rational;
+        }
     }
 }

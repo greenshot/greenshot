@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -24,17 +24,20 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using Dapplo.Ini.Attributes;
 using Dapplo.Ini.Interfaces;
-using Greenshot.Base.Core.Enums;
 
 namespace Greenshot.Plugin.Dropbox;
 
 [IniSection("Dropbox")]
 [Description("Greenshot Dropbox Plugin configuration")]
-public interface IDropboxConfiguration : IIniSection, IAfterLoad, IBeforeSave
+public interface IDropboxConfiguration : IIniSection, IAfterLoad
 {
+    [Description("Whether to show a quicklink in the tray context menu for configuring this plugin.")]
+    [DefaultValue(false)]
+    bool QuicklinkEnabled { get; set; }
+
     [Description("What file type to use for uploading")]
     [DefaultValue("png")]
-    OutputFormat UploadFormat { get; set; }
+    string UploadFormat { get; set; }
 
     [Description("JPEG file save quality in %.")]
     [DefaultValue(80)]
@@ -45,6 +48,7 @@ public interface IDropboxConfiguration : IIniSection, IAfterLoad, IBeforeSave
     [DefaultValue(true)]
     bool AfterUploadLinkToClipBoard { get; set; }
 
+    /// <summary>The refresh token as stored in the ini: encrypted, use Decrypt() before passing it to OAuth and Encrypt() when storing a new one.</summary>
     [Description("Dropbox refresh Token (stored encrypted)")]
     string RefreshToken { get; set; }
 

@@ -4,14 +4,22 @@
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="Languages\language*.xml">
+    <None Include="Languages\greenshot*.ini">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Loaded with EmbeddedResources.GetImage(typeof(JiraPlugin), "Jira") -->
+    <EmbeddedResource Include="Images\Jira.png" LogicalName="Greenshot.Plugin.Jira.JiraPlugin.Jira" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
     <PackageReference Include="Dapplo.Jira" version="2.0.7" />
     <PackageReference Include="Dapplo.Jira.SvgWinForms" Version="2.0.7" />
     <PackageReference Include="Dapplo.HttpExtensions.WinForms" Version="2.0.12" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0" />
+    <PackageReference Update="Microsoft.VisualStudio.Threading.Analyzers" Version="18.7.23" />
   </ItemGroup>
 </Project>

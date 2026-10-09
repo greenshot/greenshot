@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -25,6 +25,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Linq;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -35,6 +37,7 @@ using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Effects;
 using Dapplo.Ini;
 using log4net;
+using SixLabors.ImageSharp.PixelFormats;
 using Brush = System.Drawing.Brush;
 using Color = System.Drawing.Color;
 using Matrix = System.Drawing.Drawing2D.Matrix;
@@ -193,109 +196,72 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Private helper method for the FindAutoCropNativeRect
+        /// Find the content in the area: every pixel which differs more than cropDifference from the reference color.
+        /// With cropDifference 0 only the exact reference color is cropped away.
         /// </summary>
-        /// <param name="fastBitmap">IFastBitmap</param>
-        /// <param name="colorPoint">NativePoint</param>
-        /// <param name="cropDifference">int</param>
-        /// <param name="area">NativeRect with optional area to scan in</param>
-        /// <returns>NativeRect</returns>
-        private static NativeRect FindAutoCropNativeRect(IFastBitmap fastBitmap, NativePoint colorPoint, int cropDifference, NativeRect? area = null)
+        /// <param name="pixels">BitmapPixelAccessor</param>
+        /// <param name="referenceColor">Bgra32 with the color to crop away</param>
+        /// <param name="cropDifference">int, the allowed difference per channel (average of R, G and B)</param>
+        /// <param name="area">NativeRect with the area to scan in</param>
+        /// <returns>NativeRect with the content, empty if there is nothing to crop</returns>
+        private static NativeRect FindAutoCropNativeRect(BitmapPixelAccessor<Bgra32> pixels, Bgra32 referenceColor, int cropDifference, NativeRect area)
         {
-            area ??= new NativeRect(0, 0, fastBitmap.Width, fastBitmap.Height);
-            NativeRect cropNativeRect = NativeRect.Empty;
-            Color referenceColor = fastBitmap.GetColorAt(colorPoint.X, colorPoint.Y);
-            NativePoint min = new NativePoint(int.MaxValue, int.MaxValue);
-            NativePoint max = new NativePoint(int.MinValue, int.MinValue);
-
-            if (cropDifference > 0)
+            int left = int.MaxValue, top = int.MaxValue, right = int.MinValue, bottom = int.MinValue;
+            for (int y = area.Top; y < area.Bottom; y++)
             {
-                for (int y = area.Value.Top; y < area.Value.Bottom; y++)
+                var row = pixels.GetRowSpan(y);
+                for (int x = area.Left; x < area.Right; x++)
                 {
-                    for (int x = area.Value.Left; x < area.Value.Right; x++)
+                    Bgra32 color = row[x];
+                    int difference = (Math.Abs(color.R - referenceColor.R) + Math.Abs(color.G - referenceColor.G) + Math.Abs(color.B - referenceColor.B)) / 3;
+                    if (difference <= cropDifference && Math.Abs(color.A - referenceColor.A) <= cropDifference)
                     {
-                        Color currentColor = fastBitmap.GetColorAt(x, y);
-                        int diffR = Math.Abs(currentColor.R - referenceColor.R);
-                        int diffG = Math.Abs(currentColor.G - referenceColor.G);
-                        int diffB = Math.Abs(currentColor.B - referenceColor.B);
-                        if ((diffR + diffG + diffB) / 3 <= cropDifference)
-                        {
-                            continue;
-                        }
-
-                        if (x < min.X) min = min.ChangeX(x);
-                        if (y < min.Y) min = min.ChangeY(y);
-                        if (x > max.X) max = max.ChangeX(x);
-                        if (y > max.Y) max = max.ChangeY(y);
+                        continue;
                     }
+
+                    left = Math.Min(left, x);
+                    right = Math.Max(right, x);
+                    top = Math.Min(top, y);
+                    bottom = Math.Max(bottom, y);
                 }
             }
-            else
+
+            if (left == int.MaxValue)
             {
-                for (int y = area.Value.Top; y < area.Value.Bottom; y++)
-                {
-                    for (int x = area.Value.Left; x < area.Value.Right; x++)
-                    {
-                        Color currentColor = fastBitmap.GetColorAt(x, y);
-                        if (!referenceColor.Equals(currentColor))
-                        {
-                            continue;
-                        }
-
-                        if (x < min.X) min = min.ChangeX(x);
-                        if (y < min.Y) min = min.ChangeY(y);
-                        if (x > max.X) max = max.ChangeX(x);
-                        if (y > max.Y) max = max.ChangeY(y);
-                    }
-                }
+                // Only the reference color
+                return NativeRect.Empty;
             }
 
-            if (!(NativePoint.Empty.Equals(min) && max.Equals(new NativePoint(area.Value.Width - 1, area.Value.Height - 1))))
-            {
-                if (!(min.X == int.MaxValue || min.Y == int.MaxValue || max.X == int.MinValue || min.X == int.MinValue))
-                {
-                    cropNativeRect = new NativeRect(min.X, min.Y, max.X - min.X + 1, max.Y - min.Y + 1);
-                }
-            }
-
-            return cropNativeRect;
+            var content = new NativeRect(left, top, right - left + 1, bottom - top + 1);
+            return content == area ? NativeRect.Empty : content;
         }
 
         /// <summary>
-        /// Get a NativeRect for the image which crops the image of all colors equal to that on 0,0
+        /// Get the content of the image, cropping away the color of one of the corners (the one which crops the least)
         /// </summary>
         /// <param name="image">Image</param>
-        /// <param name="cropDifference">int</param>
+        /// <param name="cropDifference">int, 0 crops only the exact color of the corner</param>
         /// <param name="area">NativeRect with optional area</param>
-        /// <returns>NativeRect</returns>
+        /// <returns>NativeRect, empty if there is nothing to crop</returns>
         public static NativeRect FindAutoCropRectangle(Image image, int cropDifference, NativeRect? area = null)
         {
-            area ??= new NativeRect(0, 0, image.Width, image.Height);
+            var scanArea = area ?? new NativeRect(0, 0, image.Width, image.Height);
             NativeRect cropNativeRect = NativeRect.Empty;
-            var checkPoints = new List<NativePoint>
+            BitmapPixels.ProcessPixelRows<Bgra32>((Bitmap) image, pixels =>
             {
-                new(area.Value.Left, area.Value.Top),
-                new(area.Value.Left, area.Value.Bottom - 1),
-                new(area.Value.Right - 1, area.Value.Top),
-                new(area.Value.Right - 1, area.Value.Bottom - 1)
-            };
-
-            // Top Left
-            // Bottom Left
-            // Top Right
-            // Bottom Right
-            using (IFastBitmap fastBitmap = FastBitmap.Create((Bitmap) image))
-            {
-                // find biggest area
-                foreach (var checkPoint in checkPoints)
+                var top = pixels.GetRowSpan(scanArea.Top);
+                var bottom = pixels.GetRowSpan(scanArea.Bottom - 1);
+                Bgra32[] corners = { top[scanArea.Left], top[scanArea.Right - 1], bottom[scanArea.Left], bottom[scanArea.Right - 1] };
+                // Corners with the same color give the same result
+                foreach (var corner in corners.Distinct())
                 {
-                    var currentNativeRect = FindAutoCropNativeRect(fastBitmap, checkPoint, cropDifference, area);
+                    var currentNativeRect = FindAutoCropNativeRect(pixels, corner, cropDifference, scanArea);
                     if (currentNativeRect.Width * currentNativeRect.Height > cropNativeRect.Width * cropNativeRect.Height)
                     {
                         cropNativeRect = currentNativeRect;
                     }
                 }
-            }
+            }, ImageLockMode.ReadOnly);
 
             return cropNativeRect;
         }
@@ -369,12 +335,12 @@ namespace Greenshot.Base.Core
         /// <param name="verticalToothRange">How wide is a vertical tooth</param>
         /// <param name="edges">bool[] with information on if the edge needs torn or not. Order is clockwise: 0=top,1=right,2=bottom,3=left</param>
         /// <returns>Changed bitmap</returns>
-        public static Image CreateTornEdge(Image sourceImage, int toothHeight, int horizontalToothRange, int verticalToothRange, bool[] edges)
+        public static Image CreateTornEdge(Image sourceImage, int toothHeight, int horizontalToothRange, int verticalToothRange, bool[] edges, int? seed = null)
         {
             Image returnImage = CreateEmpty(sourceImage.Width, sourceImage.Height, PixelFormat.Format32bppArgb, Color.Empty, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
             using (var path = new GraphicsPath())
             {
-                Random random = new Random();
+                Random random = seed.HasValue ? new Random(seed.Value) : new Random();
                 int horizontalRegions = (int) Math.Round((float) sourceImage.Width / horizontalToothRange);
                 int verticalRegions = (int) Math.Round((float) sourceImage.Height / verticalToothRange);
 
@@ -488,21 +454,9 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Apply BoxBlur to the destinationBitmap
         /// </summary>
-        /// <param name="destinationBitmap">Bitmap to blur</param>
+        /// <param name="destinationBitmap">Bitmap to blur, with alpha it should be Format32bppPArgb (otherwise the color of transparent pixels bleeds into the visible ones)</param>
         /// <param name="range">Must be ODD!</param>
         public static void ApplyBoxBlur(Bitmap destinationBitmap, int range)
-        {
-            // We only need one fastbitmap as we use it as source and target (the reading is done for one line H/V, writing after "parsing" one line H/V)
-            using IFastBitmap fastBitmap = FastBitmap.Create(destinationBitmap);
-            ApplyBoxBlur(fastBitmap, range);
-        }
-
-        /// <summary>
-        /// Apply BoxBlur to the fastBitmap
-        /// </summary>
-        /// <param name="fastBitmap">IFastBitmap to blur</param>
-        /// <param name="range">Must be ODD!</param>
-        public static void ApplyBoxBlur(IFastBitmap fastBitmap, int range)
         {
             // Range must be odd!
             if ((range & 1) == 0)
@@ -519,276 +473,133 @@ namespace Greenshot.Base.Core
             // By the central limit theorem, if applied 3 times on the same image, a box blur approximates the Gaussian kernel to within about 3%, yielding the same result as a quadratic convolution kernel.
             // This might be true, but the GDI+ BlurEffect doesn't look the same, a 2x blur is more similar and we only make 2x Box-Blur.
             // (Might also be a mistake in our blur, but for now it looks great)
-            int channelCount = fastBitmap.HasAlphaChannel ? 4 : 3;
-            BoxBlurHorizontalCore(fastBitmap, range, channelCount);
-            BoxBlurVerticalCore(fastBitmap, range, channelCount);
-            BoxBlurHorizontalCore(fastBitmap, range, channelCount);
-            BoxBlurVerticalCore(fastBitmap, range, channelCount);
+            // Every byte of a pixel is blurred, that keeps the inner loops free of a loop over the channels.
+            if (destinationBitmap.PixelFormat == PixelFormat.Format24bppRgb)
+            {
+                BitmapPixels.ProcessPixelRows<Bgr24>(destinationBitmap, pixels => BoxBlur(pixels, 3, range));
+            }
+            else
+            {
+                BitmapPixels.ProcessPixelRows<Bgra32>(destinationBitmap, pixels => BoxBlur(pixels, 4, range));
+            }
+        }
+
+        private static void BoxBlur<TPixel>(BitmapPixelAccessor<TPixel> pixels, int bytesPerPixel, int range) where TPixel : unmanaged
+        {
+            BoxBlurHorizontal(pixels, bytesPerPixel, range);
+            BoxBlurVertical(pixels, bytesPerPixel, range);
+            BoxBlurHorizontal(pixels, bytesPerPixel, range);
+            BoxBlurVertical(pixels, bytesPerPixel, range);
         }
 
         /// <summary>
-        /// BoxBlurHorizontalCore is the shared horizontal-pass implementation for BoxBlur.
-        /// It processes <paramref name="channelCount"/> consecutive bytes per pixel (e.g. 3 for RGB, 4 for ARGB)
-        /// using ArrayPool buffers to minimise GC pressure.
-        /// The channelCount branch is hoisted outside all loops; pixel access uses pointer advancement
-        /// (no per-pixel multiplications, no per-pixel branches).
+        /// Horizontal box blur pass: every byte becomes the average of the same byte of the pixels within range / 2 left and right of it
+        /// (only those inside the row). The row is copied first, so the sliding sums use the original values; the bytes of a pixel are done one after the other.
         /// </summary>
-        /// <param name="targetFastBitmap">Target BitmapBuffer</param>
-        /// <param name="range">Range must be odd!</param>
-        /// <param name="channelCount">Number of byte channels to blur (3 for RGB, 4 for ARGB)</param>
-        private static unsafe void BoxBlurHorizontalCore(IFastBitmap targetFastBitmap, int range, int channelCount)
+        private static void BoxBlurHorizontal<TPixel>(BitmapPixelAccessor<TPixel> pixels, int bytesPerPixel, int range) where TPixel : unmanaged
         {
             int halfRange = range / 2;
-            int width = targetFastBitmap.Width;
-            int bytesPerPixel = targetFastBitmap.BytesPerPixel;
-            int left = targetFastBitmap.Left;
-            int right = targetFastBitmap.Right;
-            int top = targetFastBitmap.Top;
-            int bottom = targetFastBitmap.Bottom;
-
-            // Channels are laid out sequentially in memory: [0]=B, [1]=G, [2]=R, [3]=A (BGRA order).
-            // Rent one output buffer per channel; these are returned even if an exception is thrown.
-            byte[] buf0 = ArrayPool<byte>.Shared.Rent(width);
-            byte[] buf1 = ArrayPool<byte>.Shared.Rent(width);
-            byte[] buf2 = ArrayPool<byte>.Shared.Rent(width);
-            byte[] buf3 = channelCount == 4 ? ArrayPool<byte>.Shared.Rent(width) : null;
+            int width = pixels.Width;
+            int height = pixels.Height;
+            int rowBytes = width * bytesPerPixel;
+            byte[] original = ArrayPool<byte>.Shared.Rent(rowBytes);
             try
             {
-                // The channelCount check is hoisted here so the inner loops contain no conditional branching.
-                // oldPtr / newPtr advance by bytesPerPixel on every access, avoiding any per-pixel multiplication.
-                if (channelCount == 4)
+                for (int y = 0; y < height; y++)
                 {
-                    for (int y = top; y < bottom; y++)
+                    var row = MemoryMarshal.AsBytes(pixels.GetRowSpan(y));
+                    row.CopyTo(original);
+                    for (int channel = 0; channel < bytesPerPixel; channel++)
                     {
-                        byte* rowPtr = (byte*)targetFastBitmap.GetRowPointer(y);
-                        // Both pointers start at the first pixel of the clipped area.
-                        // They advance by bytesPerPixel each time the sliding window adds/removes a pixel.
-                        byte* oldPtr = rowPtr + left * bytesPerPixel;
-                        byte* newPtr = rowPtr + left * bytesPerPixel;
+                        int sum = 0;
                         int hits = 0;
-                        int ch0 = 0, ch1 = 0, ch2 = 0, ch3 = 0;
-                        for (int x = left - halfRange; x < right; x++)
+                        for (int x = -halfRange; x < width; x++)
                         {
                             int oldPixel = x - halfRange - 1;
-                            if (oldPixel >= left)
+                            if (oldPixel >= 0)
                             {
-                                ch0 -= oldPtr[0]; ch1 -= oldPtr[1]; ch2 -= oldPtr[2]; ch3 -= oldPtr[3];
-                                oldPtr += bytesPerPixel;
+                                sum -= original[oldPixel * bytesPerPixel + channel];
                                 hits--;
                             }
 
                             int newPixel = x + halfRange;
-                            if (newPixel < right)
+                            if (newPixel < width)
                             {
-                                ch0 += newPtr[0]; ch1 += newPtr[1]; ch2 += newPtr[2]; ch3 += newPtr[3];
-                                newPtr += bytesPerPixel;
+                                sum += original[newPixel * bytesPerPixel + channel];
                                 hits++;
                             }
 
-                            if (x >= left)
+                            if (x >= 0)
                             {
-                                int idx = x - left;
-                                buf0[idx] = (byte)(ch0 / hits);
-                                buf1[idx] = (byte)(ch1 / hits);
-                                buf2[idx] = (byte)(ch2 / hits);
-                                buf3[idx] = (byte)(ch3 / hits);
+                                row[x * bytesPerPixel + channel] = (byte)(sum / hits);
                             }
-                        }
-
-                        byte* writePtr = rowPtr + left * bytesPerPixel;
-                        for (int i = 0; i < width; i++)
-                        {
-                            writePtr[0] = buf0[i]; writePtr[1] = buf1[i];
-                            writePtr[2] = buf2[i]; writePtr[3] = buf3[i];
-                            writePtr += bytesPerPixel;
-                        }
-                    }
-                }
-                else // channelCount == 3
-                {
-                    for (int y = top; y < bottom; y++)
-                    {
-                        byte* rowPtr = (byte*)targetFastBitmap.GetRowPointer(y);
-                        byte* oldPtr = rowPtr + left * bytesPerPixel;
-                        byte* newPtr = rowPtr + left * bytesPerPixel;
-                        int hits = 0;
-                        int ch0 = 0, ch1 = 0, ch2 = 0;
-                        for (int x = left - halfRange; x < right; x++)
-                        {
-                            int oldPixel = x - halfRange - 1;
-                            if (oldPixel >= left)
-                            {
-                                ch0 -= oldPtr[0]; ch1 -= oldPtr[1]; ch2 -= oldPtr[2];
-                                oldPtr += bytesPerPixel;
-                                hits--;
-                            }
-
-                            int newPixel = x + halfRange;
-                            if (newPixel < right)
-                            {
-                                ch0 += newPtr[0]; ch1 += newPtr[1]; ch2 += newPtr[2];
-                                newPtr += bytesPerPixel;
-                                hits++;
-                            }
-
-                            if (x >= left)
-                            {
-                                int idx = x - left;
-                                buf0[idx] = (byte)(ch0 / hits);
-                                buf1[idx] = (byte)(ch1 / hits);
-                                buf2[idx] = (byte)(ch2 / hits);
-                            }
-                        }
-
-                        byte* writePtr = rowPtr + left * bytesPerPixel;
-                        for (int i = 0; i < width; i++)
-                        {
-                            writePtr[0] = buf0[i]; writePtr[1] = buf1[i]; writePtr[2] = buf2[i];
-                            writePtr += bytesPerPixel;
                         }
                     }
                 }
             }
             finally
             {
-                ArrayPool<byte>.Shared.Return(buf0);
-                ArrayPool<byte>.Shared.Return(buf1);
-                ArrayPool<byte>.Shared.Return(buf2);
-                if (buf3 != null) ArrayPool<byte>.Shared.Return(buf3);
+                ArrayPool<byte>.Shared.Return(original);
             }
         }
 
         /// <summary>
-        /// BoxBlurVerticalCore is the shared vertical-pass implementation for BoxBlur.
-        /// It processes <paramref name="channelCount"/> consecutive bytes per pixel (e.g. 3 for RGB, 4 for ARGB)
-        /// using ArrayPool buffers to minimise GC pressure.
-        /// The channelCount branch is hoisted outside all loops; column access uses stride-based pointer
-        /// advancement rather than per-row GetRowPointer calls.
+        /// Vertical box blur pass, like <see cref="BoxBlurHorizontal"/> but with rows: it sweeps the rows in memory order with a sum per byte of a row,
+        /// instead of walking down every column. A row is written as soon as its average is known, so the last range / 2 + 1 original rows
+        /// are kept in a ring buffer for subtracting them from the sums later.
         /// </summary>
-        /// <param name="targetFastBitmap">BitmapBuffer which previously was created with BoxBlurHorizontalCore</param>
-        /// <param name="range">Range must be odd!</param>
-        /// <param name="channelCount">Number of byte channels to blur (3 for RGB, 4 for ARGB)</param>
-        private static unsafe void BoxBlurVerticalCore(IFastBitmap targetFastBitmap, int range, int channelCount)
+        private static void BoxBlurVertical<TPixel>(BitmapPixelAccessor<TPixel> pixels, int bytesPerPixel, int range) where TPixel : unmanaged
         {
             int halfRange = range / 2;
-            int height = targetFastBitmap.Height;
-            int bytesPerPixel = targetFastBitmap.BytesPerPixel;
-            int stride = targetFastBitmap.Stride;
-            int left = targetFastBitmap.Left;
-            int right = targetFastBitmap.Right;
-            int top = targetFastBitmap.Top;
-            int bottom = targetFastBitmap.Bottom;
-
-            // Channels are laid out sequentially in memory: [0]=B, [1]=G, [2]=R, [3]=A (BGRA order).
-            byte[] buf0 = ArrayPool<byte>.Shared.Rent(height);
-            byte[] buf1 = ArrayPool<byte>.Shared.Rent(height);
-            byte[] buf2 = ArrayPool<byte>.Shared.Rent(height);
-            byte[] buf3 = channelCount == 4 ? ArrayPool<byte>.Shared.Rent(height) : null;
-
-            // Base pointer to row `top`; xOffset added per column so each column walk uses stride advancement.
-            byte* topRowPtr = (byte*)targetFastBitmap.GetRowPointer(top);
+            int height = pixels.Height;
+            int rowBytes = pixels.Width * bytesPerPixel;
+            int ringRows = halfRange + 1;
+            int[] sums = ArrayPool<int>.Shared.Rent(rowBytes);
+            byte[] ring = ArrayPool<byte>.Shared.Rent(ringRows * rowBytes);
             try
             {
-                // The channelCount check is hoisted here so the inner loops contain no conditional branching.
-                // oldColPtr / newColPtr advance by `stride` on every access, replacing per-row GetRowPointer calls.
-                if (channelCount == 4)
+                Array.Clear(sums, 0, rowBytes);
+                int hits = 0;
+                for (int y = -halfRange; y < height; y++)
                 {
-                    for (int x = left; x < right; x++)
+                    int oldRow = y - halfRange - 1;
+                    if (oldRow >= 0)
                     {
-                        int xOffset = x * bytesPerPixel;
-                        // Column pointers start at the first valid row (top) and advance by stride each step.
-                        byte* oldColPtr = topRowPtr + xOffset;
-                        byte* newColPtr = topRowPtr + xOffset;
-                        int hits = 0;
-                        int ch0 = 0, ch1 = 0, ch2 = 0, ch3 = 0;
-                        for (int y = top - halfRange; y < bottom; y++)
+                        var original = new ReadOnlySpan<byte>(ring, oldRow % ringRows * rowBytes, rowBytes);
+                        for (int i = 0; i < rowBytes; i++)
                         {
-                            int oldPixel = y - halfRange - 1;
-                            if (oldPixel >= top)
-                            {
-                                ch0 -= oldColPtr[0]; ch1 -= oldColPtr[1]; ch2 -= oldColPtr[2]; ch3 -= oldColPtr[3];
-                                oldColPtr += stride;
-                                hits--;
-                            }
-
-                            int newPixel = y + halfRange;
-                            if (newPixel < bottom)
-                            {
-                                ch0 += newColPtr[0]; ch1 += newColPtr[1]; ch2 += newColPtr[2]; ch3 += newColPtr[3];
-                                newColPtr += stride;
-                                hits++;
-                            }
-
-                            if (y >= top)
-                            {
-                                int idx = y - top;
-                                buf0[idx] = (byte)(ch0 / hits);
-                                buf1[idx] = (byte)(ch1 / hits);
-                                buf2[idx] = (byte)(ch2 / hits);
-                                buf3[idx] = (byte)(ch3 / hits);
-                            }
+                            sums[i] -= original[i];
                         }
-
-                        byte* writeColPtr = topRowPtr + xOffset;
-                        for (int i = 0; i < height; i++)
-                        {
-                            writeColPtr[0] = buf0[i]; writeColPtr[1] = buf1[i];
-                            writeColPtr[2] = buf2[i]; writeColPtr[3] = buf3[i];
-                            writeColPtr += stride;
-                        }
+                        hits--;
                     }
-                }
-                else // channelCount == 3
-                {
-                    for (int x = left; x < right; x++)
+
+                    // Rows below y are not written yet, so they still have their original values
+                    int newRow = y + halfRange;
+                    if (newRow < height)
                     {
-                        int xOffset = x * bytesPerPixel;
-                        byte* oldColPtr = topRowPtr + xOffset;
-                        byte* newColPtr = topRowPtr + xOffset;
-                        int hits = 0;
-                        int ch0 = 0, ch1 = 0, ch2 = 0;
-                        for (int y = top - halfRange; y < bottom; y++)
+                        var added = MemoryMarshal.AsBytes(pixels.GetRowSpan(newRow));
+                        for (int i = 0; i < rowBytes; i++)
                         {
-                            int oldPixel = y - halfRange - 1;
-                            if (oldPixel >= top)
-                            {
-                                ch0 -= oldColPtr[0]; ch1 -= oldColPtr[1]; ch2 -= oldColPtr[2];
-                                oldColPtr += stride;
-                                hits--;
-                            }
-
-                            int newPixel = y + halfRange;
-                            if (newPixel < bottom)
-                            {
-                                ch0 += newColPtr[0]; ch1 += newColPtr[1]; ch2 += newColPtr[2];
-                                newColPtr += stride;
-                                hits++;
-                            }
-
-                            if (y >= top)
-                            {
-                                int idx = y - top;
-                                buf0[idx] = (byte)(ch0 / hits);
-                                buf1[idx] = (byte)(ch1 / hits);
-                                buf2[idx] = (byte)(ch2 / hits);
-                            }
+                            sums[i] += added[i];
                         }
+                        hits++;
+                    }
 
-                        byte* writeColPtr = topRowPtr + xOffset;
-                        for (int i = 0; i < height; i++)
+                    if (y >= 0)
+                    {
+                        var row = MemoryMarshal.AsBytes(pixels.GetRowSpan(y));
+                        row.CopyTo(new Span<byte>(ring, y % ringRows * rowBytes, rowBytes));
+                        for (int i = 0; i < rowBytes; i++)
                         {
-                            writeColPtr[0] = buf0[i]; writeColPtr[1] = buf1[i]; writeColPtr[2] = buf2[i];
-                            writeColPtr += stride;
+                            row[i] = (byte)(sums[i] / hits);
                         }
                     }
                 }
             }
             finally
             {
-                ArrayPool<byte>.Shared.Return(buf0);
-                ArrayPool<byte>.Shared.Return(buf1);
-                ArrayPool<byte>.Shared.Return(buf2);
-                if (buf3 != null) ArrayPool<byte>.Shared.Return(buf3);
+                ArrayPool<int>.Shared.Return(sums);
+                ArrayPool<byte>.Shared.Return(ring);
             }
         }
 
@@ -997,19 +808,24 @@ namespace Greenshot.Base.Core
         /// <returns>b/w bitmap</returns>
         public static Bitmap CreateMonochrome(Image sourceImage, byte threshold)
         {
-            using IFastBitmap fastBitmap = FastBitmap.CreateCloneOf(sourceImage, sourceImage.PixelFormat);
-            for (int y = 0; y < fastBitmap.Height; y++)
+            Bitmap monochrome = CloneArea(sourceImage, NativeRect.Empty, sourceImage.PixelFormat);
+            BitmapPixels.ProcessPixelRows<Bgra32>(monochrome, pixels =>
             {
-                for (int x = 0; x < fastBitmap.Width; x++)
+                for (int y = 0; y < pixels.Height; y++)
                 {
-                    Color color = fastBitmap.GetColorAt(x, y);
-                    int colorBrightness = (color.R + color.G + color.B) / 3 > threshold ? 255 : 0;
-                    Color monoColor = Color.FromArgb(color.A, colorBrightness, colorBrightness, colorBrightness);
-                    fastBitmap.SetColorAt(x, y, monoColor);
+                    var row = pixels.GetRowSpan(y);
+                    for (int x = 0; x < row.Length; x++)
+                    {
+                        ref Bgra32 pixel = ref row[x];
+                        byte colorBrightness = (byte)((pixel.R + pixel.G + pixel.B) / 3 > threshold ? 255 : 0);
+                        pixel.R = colorBrightness;
+                        pixel.G = colorBrightness;
+                        pixel.B = colorBrightness;
+                    }
                 }
-            }
+            });
 
-            return fastBitmap.UnlockAndReturnBitmap();
+            return monochrome;
         }
 
         /// <summary>
@@ -1266,6 +1082,11 @@ namespace Greenshot.Base.Core
                     // Rule 2: Make sure the background color is white
                     graphics.Clear(Color.White);
                 }
+                else
+                {
+                    // Nothing to blend with, copy the pixels as they are: the default SourceOver blends every pixel
+                    graphics.CompositingMode = CompositingMode.SourceCopy;
+                }
 
                 // decide fastest copy method
                 if (isAreaEqual)
@@ -1421,43 +1242,6 @@ namespace Greenshot.Base.Core
         public static Image ResizeImage(Image sourceImage, bool maintainAspectRatio, int newWidth, int newHeight, Matrix matrix)
         {
             return ResizeImage(sourceImage, maintainAspectRatio, false, Color.Empty, newWidth, newHeight, matrix);
-        }
-
-        /// <summary>
-        /// Count how many times the supplied color exists
-        /// </summary>
-        /// <param name="sourceImage">Image to count the pixels of</param>
-        /// <param name="colorToCount">Color to count</param>
-        /// <param name="includeAlpha">true if Alpha needs to be checked</param>
-        /// <returns>int with the number of pixels which have colorToCount</returns>
-        public static int CountColor(Image sourceImage, Color colorToCount, bool includeAlpha)
-        {
-            int colors = 0;
-            int toCount = colorToCount.ToArgb();
-            if (!includeAlpha)
-            {
-                toCount &= 0xffffff;
-            }
-
-            using IFastBitmap bb = FastBitmap.Create((Bitmap) sourceImage);
-            for (int y = 0; y < bb.Height; y++)
-            {
-                for (int x = 0; x < bb.Width; x++)
-                {
-                    int bitmapcolor = bb.GetColorAt(x, y).ToArgb();
-                    if (!includeAlpha)
-                    {
-                        bitmapcolor &= 0xffffff;
-                    }
-
-                    if (bitmapcolor == toCount)
-                    {
-                        colors++;
-                    }
-                }
-            }
-
-            return colors;
         }
 
         /// <summary>
@@ -1627,6 +1411,7 @@ namespace Greenshot.Base.Core
                     bitmap.HorizontalResolution, bitmap.VerticalResolution,
                     bitmap.PixelFormat.Map(), null,
                     bitmapData.Scan0, bitmapData.Stride * bitmapData.Height, bitmapData.Stride);
+                bitmapSource.Freeze();
             }
             finally
             {
@@ -1634,6 +1419,61 @@ namespace Greenshot.Base.Core
             }
 
             return bitmapSource;
+        }
+
+        /// <summary>
+        /// Convert an Image to a BitmapSource
+        /// </summary>
+        /// <param name="image">Image</param>
+        /// <returns>BitmapSource</returns>
+        public static BitmapSource ToBitmapSource(this Image image)
+        {
+            if (image == null)
+            {
+                return null;
+            }
+
+            if (image is Bitmap bitmap)
+            {
+                try
+                {
+                    return ToBitmapSource(bitmap);
+                }
+                catch (Exception)
+                {
+                    // Fall back to 32bpp conversion if pixel format is not directly mappable or LockBits fails
+                }
+            }
+
+            try
+            {
+                using var bmp = new Bitmap(image.Width, image.Height, PixelFormat.Format32bppArgb);
+                using (var g = Graphics.FromImage(bmp))
+                {
+                    g.DrawImage(image, 0, 0, image.Width, image.Height);
+                }
+                return ToBitmapSource(bmp);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Convert an Icon to a BitmapSource
+        /// </summary>
+        /// <param name="icon">Icon</param>
+        /// <returns>BitmapSource</returns>
+        public static BitmapSource ToBitmapSource(this Icon icon)
+        {
+            if (icon == null)
+            {
+                return null;
+            }
+
+            using var bmp = icon.ToBitmap();
+            return ToBitmapSource(bmp);
         }
 
         /// <summary>

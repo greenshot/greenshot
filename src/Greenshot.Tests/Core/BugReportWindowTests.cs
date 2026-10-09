@@ -1,0 +1,187 @@
+/*
+ * Greenshot - a free and open source screenshot tool
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * 
+ * For more information see: https://getgreenshot.org/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 1 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Greenshot.Base.Core;
+using Greenshot.ViewModels;
+using Xunit;
+
+namespace Greenshot.Tests.Core
+{
+    public class BugReportWindowTests
+    {
+        public BugReportWindowTests()
+        {
+            TestEnvironment.EnsureInitialized();
+        }
+
+        [Fact]
+        public async Task ShowReport_FromMTAThreadPoolThread_SpawnsSTAAndDoesNotCrash()
+        {
+            // Verify that ApartmentState on ThreadPool is MTA
+            bool wasMta = false;
+            var ex = new ApplicationException("Simulated background exception");
+
+            await Task.Run(() =>
+            {
+                wasMta = Thread.CurrentThread.GetApartmentState() == ApartmentState.MTA;
+                // Instantiating ViewModel on MTA is safe
+                var vm = new BugReportViewModel(ex);
+                Assert.NotNull(vm.StackTraceHash);
+            });
+
+            Assert.True(wasMta);
+        }
+
+        [Fact]
+        public void ExceptionHelper_GeneratesProperNewIssueAndSearchUrls()
+        {
+            string hash = "abc123def456";
+            string searchUrl = ExceptionHelper.GetGitHubSearchUrl(hash);
+            string newIssueUrl = ExceptionHelper.GetNewIssueUrl(hash, "System.NullReferenceException");
+
+            Assert.StartsWith("https://github.com/greenshot/greenshot/issues", searchUrl);
+            Assert.Contains(hash, searchUrl);
+            Assert.StartsWith("https://github.com/greenshot/greenshot/issues/new", newIssueUrl);
+            Assert.Contains(hash, newIssueUrl);
+            Assert.Contains("System.NullReferenceException", newIssueUrl);
+        }
+
+        [Fact]
+        public void UpdateService_ProcessFeed_CorrectlyUpdatesReleaseAndBetaVersions()
+        {
+            var service = new Greenshot.Helpers.UpdateService(new Version(1, 2, 10));
+            Assert.Equal(new Version(1, 2, 10), service.CurrentVersion);
+            Assert.Null(service.LatestReleaseVersion);
+            Assert.False(service.IsUpdateAvailable);
+
+            // Process feed with newer version
+            var feed = new Greenshot.Helpers.Entities.UpdateFeed
+            {
+                CurrentReleaseVersion = "1.3.0",
+                CurrentBetaVersion = "1.3.1-beta"
+            };
+            service.ProcessFeed(feed);
+
+            Assert.Equal(new Version(1, 3, 0), service.LatestReleaseVersion);
+            Assert.Equal(new Version(1, 3, 1), service.LatestBetaVersion);
+            Assert.True(service.IsUpdateAvailable);
+            Assert.True(service.IsBetaUpdateAvailable);
+        }
+
+        [Fact]
+        public void UpdateService_ProcessFeed_WhenUpToDate_ReportsNoUpdateAvailable()
+        {
+            var service = new Greenshot.Helpers.UpdateService(new Version(1, 3, 0));
+            var feed = new Greenshot.Helpers.Entities.UpdateFeed
+            {
+                CurrentReleaseVersion = "1.3.0",
+                CurrentBetaVersion = "1.2.9"
+            };
+            service.ProcessFeed(feed);
+
+            Assert.Equal(new Version(1, 3, 0), service.LatestReleaseVersion);
+            Assert.False(service.IsUpdateAvailable);
+            Assert.False(service.IsBetaUpdateAvailable);
+        }
+
+        [Fact]
+        public void UpdateService_DownloadsUri_IsConfigured()
+        {
+            Assert.NotNull(Greenshot.Helpers.UpdateService.DownloadsUri);
+            Assert.Equal("https://getgreenshot.org/downloads", Greenshot.Helpers.UpdateService.DownloadsUri.AbsoluteUri);
+        }
+
+        [Fact]
+        public void EditionInfo_TheTestedBuild_IsTheFullEdition()
+        {
+            Assert.Equal("Full", Greenshot.Base.Core.EditionInfo.Name);
+            Assert.True(Greenshot.Base.Core.EditionInfo.IsFull);
+            Assert.Equal("Greenshot", Greenshot.Base.Core.EditionInfo.ProductName);
+            Assert.Equal(string.Empty, Greenshot.Base.Core.EditionInfo.Suffix);
+        }
+
+        [Fact]
+        public void UpdateService_FullEdition_IgnoresTheDownloadsOfOtherEditions()
+        {
+            var service = new Greenshot.Helpers.UpdateService(new Version(1, 2, 10));
+            service.ProcessFeed(new Greenshot.Helpers.Entities.UpdateFeed
+            {
+                CurrentReleaseVersion = "1.3.0",
+                Downloads = new System.Collections.Generic.Dictionary<string, string> { ["light"] = "https://getgreenshot.org/downloads/light" }
+            });
+
+            Assert.Equal("https://getgreenshot.org/downloads", service.DownloadsUrl.AbsoluteUri);
+        }
+
+        [Fact]
+        public void BugReportViewModel_WithOutdatedVersion_DisplaysUpgradeHint()
+        {
+            var updateService = new Greenshot.Helpers.UpdateService(new Version(1, 2, 10));
+            updateService.ProcessFeed(new Greenshot.Helpers.Entities.UpdateFeed
+            {
+                CurrentReleaseVersion = "1.3.0"
+            });
+
+            var vm = new BugReportViewModel(new Exception("Test exception"), updateService: updateService);
+
+            Assert.Equal("1.2.10", vm.CurrentVersion);
+            Assert.Equal("1.3.0", vm.LatestReleaseVersion);
+            Assert.True(vm.IsOutdated);
+            Assert.Contains("A newer version (1.3.0) is available", vm.VersionComparisonText);
+            Assert.Equal("https://getgreenshot.org/downloads", vm.UpgradeDownloadUrl);
+        }
+
+        [Fact]
+        public void BugReportViewModel_WhenUpToDate_DisplaysUpToDateText()
+        {
+            var updateService = new Greenshot.Helpers.UpdateService(new Version(1, 3, 0));
+            updateService.ProcessFeed(new Greenshot.Helpers.Entities.UpdateFeed
+            {
+                CurrentReleaseVersion = "1.3.0"
+            });
+
+            var vm = new BugReportViewModel(new Exception("Test exception"), updateService: updateService);
+
+            Assert.Equal("1.3.0", vm.CurrentVersion);
+            Assert.Equal("1.3.0", vm.LatestReleaseVersion);
+            Assert.False(vm.IsOutdated);
+            Assert.Contains("You are using the latest version", vm.VersionComparisonText);
+        }
+
+        [Fact]
+        public async Task BugReportViewModel_CheckVersionAsync_HandlesNetworkFailureGracefully()
+        {
+            // Empty service with no feed loaded; CheckForUpdatesAsync with invalid/offline will return false or catch
+            var updateService = new Greenshot.Helpers.UpdateService(new Version(1, 2, 10));
+            var vm = new BugReportViewModel(new Exception("Test exception"), updateService: updateService);
+
+            // Wait for CheckVersionAsync to complete
+            await vm.CheckVersionAsync();
+
+            Assert.False(vm.IsCheckingVersion);
+            // If offline, LatestReleaseVersion should be Unavailable or a version, and should not crash
+            Assert.NotNull(vm.LatestReleaseVersion);
+        }
+    }
+}

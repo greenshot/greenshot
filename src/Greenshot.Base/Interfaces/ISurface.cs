@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -41,6 +41,7 @@ namespace Greenshot.Base.Interfaces
         event SurfaceMessageEventHandler SurfaceMessage;
         event SurfaceDrawingModeEventHandler DrawingModeChanged;
         event SurfaceElementEventHandler MovingElementChanged;
+        event SurfaceExpandedEventHandler SurfaceExpanded;
         event SurfaceForegroundColorEventHandler ForegroundColorChanged;
         event SurfaceBackgroundColorEventHandler BackgroundColorChanged;
         event SurfaceLineThicknessEventHandler LineThicknessChanged;
@@ -209,7 +210,9 @@ namespace Greenshot.Base.Interfaces
         void RemoveElement(IDrawableContainer elementToRemove, bool makeUndoable = true, bool invalidate = true, bool generateEvents = true);
 
         void SendMessageEvent(object source, SurfaceMessageTyp messageType, string message);
-        void ApplyBitmapEffect(IEffect effect);
+        void ResizeCanvas(int left, int right, int top, int bottom);
+        void ResizeCanvas(Expansion expansion);
+        System.Threading.Tasks.Task ApplyBitmapEffectAsync(IEffect effect, System.Threading.CancellationToken cancellationToken = default);
         void RemoveCursor();
         bool HasCursor { get; }
 
@@ -275,5 +278,10 @@ namespace Greenshot.Base.Interfaces
         /// Provide access to the controls, this is for the EmojiContainer and needs to go.
         /// </summary>
         public Control.ControlCollection Controls { get; }
+
+        /// <summary>
+        /// Creates a deep copy of the surface, cloning its background image, elements, and capture details.
+        /// </summary>
+        ISurface Clone();
     }
 }

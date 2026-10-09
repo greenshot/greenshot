@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -22,6 +22,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Plugin;
@@ -46,6 +47,23 @@ namespace Greenshot.Editor.FileFormatHandlers
         /// <inheritdoc />
         public abstract bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap);
 
+        public virtual void RegisterFileFormats(IFileFormatRegistry registry)
+        {
+        }
+
+        protected static void RegisterFileFormat(
+            IFileFormatRegistry registry, 
+            string formatId,
+            IEnumerable<string> loadableExtensions,
+            IEnumerable<string> saveableExtensions,
+            string preferredExtension,
+            string mimeType,
+            IEnumerable<string> mimeTypeAliases,
+            string displayName)
+        {
+            registry.RegisterIfMissing(new FileFormatDefinition(formatId, loadableExtensions, saveableExtensions, preferredExtension, mimeType, mimeTypeAliases, displayName));
+        }
+
         /// <summary>
         /// <inheritdoc />
         /// </summary>
@@ -65,6 +83,11 @@ namespace Greenshot.Editor.FileFormatHandlers
                 imageContainer.ResetToDefaultSize();
                 yield return imageContainer;
             }
+        }
+
+        public virtual ISurface LoadSurface(Stream stream)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

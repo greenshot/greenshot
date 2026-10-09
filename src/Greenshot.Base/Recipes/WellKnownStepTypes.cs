@@ -1,0 +1,158 @@
+/*
+ * Greenshot - a free and open source screenshot tool
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
+ *
+ * For more information see: https://getgreenshot.org/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 1 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+using System;
+using System.Collections.Generic;
+
+namespace Greenshot.Base.Recipes
+{
+    /// <summary>
+    /// Standard identifiers for built-in recipe step types.
+    /// </summary>
+    public static class WellKnownStepTypes
+    {
+        /// <summary>
+        /// Acquires raw pixels from a capture source (Screen, Window, ActiveWindow, Clipboard, File, LastRegion).
+        /// </summary>
+        public const string Source = "Source";
+
+        /// <summary>
+        /// Presents interactive selection UI (region overlay, window snap, or OCR text selection).
+        /// </summary>
+        public const string InteractiveSelection = "InteractiveSelection";
+
+        /// <summary>
+        /// Provides immediate acquisition feedback (camera shutter sound, flash, DPI alignment).
+        /// </summary>
+        public const string ImmediateFeedback = "ImmediateFeedback";
+
+        /// <summary>
+        /// Runs image processors (e.g. Windows 10 OCR, TitleFix, or plugin processors).
+        /// </summary>
+        public const string Processors = "Processors";
+
+        /// <summary>
+        /// Exports the capture surface to one or more destinations (File, Clipboard, Editor, Picker, etc.).
+        /// </summary>
+        public const string Destinations = "Destinations";
+
+        /// <summary>
+        /// Dispatches completion feedback after export (e.g. tray balloon/toast notification).
+        /// </summary>
+        public const string Notification = "Notification";
+
+        /// <summary>
+        /// Modern WPF-styled interactive export flyout displaying a thumbnail preview and quick action buttons
+        /// to forward the capture to destinations or other recipes. Also functions as an error recovery UI.
+        /// </summary>
+        public const string DynamicDestination = "DynamicDestination";
+
+        /// <summary>
+        /// Applies an image effect (e.g. Border, DropShadow, TornEdge, Invert, Grayscale, Rotate, Resize).
+        /// </summary>
+        public const string Effect = "Effect";
+
+        /// <summary>
+        /// Evaluates a condition and executes child steps based on the result.
+        /// </summary>
+        public const string Conditional = "Conditional";
+
+        /// <summary>
+        /// Scans text via OCR, locates occurrences matching regex/text pattern, and applies effects (Blur, Pixelize, Highlight, Redact).
+        /// </summary>
+        public const string TextEffect = "TextEffect";
+
+        /// <summary>
+        /// Adds one or more annotation elements (shapes, text, arrows, icons, images, stamps, filters) directly onto the capture surface.
+        /// </summary>
+        public const string Annotation = "Annotation";
+
+        /// <summary>
+        /// Evaluates an expression and creates or updates a variable in the flow context.
+        /// </summary>
+        public const string SetVariable = "SetVariable";
+
+        /// <summary>
+        /// Dedicated step saving the capture to a file with customizable directory, pattern, and format.
+        /// </summary>
+        public const string SaveFile = "SaveFile";
+
+        /// <summary>
+        /// Dedicated step copying the capture to the clipboard.
+        /// </summary>
+        public const string Clipboard = "Clipboard";
+
+        /// <summary>
+        /// Dedicated step opening the capture in the Greenshot image editor.
+        /// </summary>
+        public const string Editor = "Editor";
+
+        /// <summary>
+        /// Dedicated step sending the capture to a printer.
+        /// </summary>
+        public const string Printer = "Printer";
+
+        /// <summary>
+        /// Dedicated step sending the capture via email.
+        /// </summary>
+        public const string Email = "Email";
+
+        /// <summary>
+        /// Custom destination step allowing free-string destination designations (plugins, external handlers).
+        /// </summary>
+        public const string CustomDestination = "CustomDestination";
+
+        /// <summary>
+        /// Prompts the user with an interactive decision dialog with choices that route to DAG branches.
+        /// </summary>
+        public const string UserPrompt = "UserPrompt";
+
+        /// <summary>
+        /// Records screen video using Windows Graphics Capture (WGC).
+        /// </summary>
+        public const string RecordVideo = "RecordVideo";
+
+        /// <summary>
+        /// Dedicated step emitting text output directly to the standard output stream (stdout) immediately via IPC or console.
+        /// </summary>
+        public const string Stdout = "Stdout";
+
+        /// <summary>
+        /// Dedicated step emitting error text directly to the standard error stream (stderr) and optionally aborting execution with a custom exit code.
+        /// </summary>
+        public const string Stderr = "Stderr";
+
+        /// <summary>
+        /// A named place in a recipe where recipe extensions put their steps (see <see cref="RecipeSlots"/>); does nothing itself.
+        /// </summary>
+        public const string Slot = "Slot";
+
+        private static readonly HashSet<string> DestinationStepTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            Destinations, SaveFile, Clipboard, Editor, Printer, Email, DynamicDestination, CustomDestination
+        };
+
+        /// <summary>
+        /// Whether the step type exports the capture (destinations, file, clipboard, editor, printer, email, picker)
+        /// </summary>
+        public static bool IsDestination(string stepType) => !string.IsNullOrEmpty(stepType) && DestinationStepTypes.Contains(stepType);
+    }
+}

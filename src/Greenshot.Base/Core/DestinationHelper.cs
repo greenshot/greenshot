@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -19,10 +19,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Dapplo.Ini;
+using System.Threading;
+using System.Threading.Tasks;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Threading;
+using log4net;
 
 namespace Greenshot.Base.Core
 {
@@ -31,18 +35,49 @@ namespace Greenshot.Base.Core
     /// </summary>
     public static class DestinationHelper
     {
-        private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
+        private static readonly ILog Log = LogManager.GetLogger(typeof(DestinationHelper));
 
         /// <summary>
-        /// Method to get all the destinations from the plugins
+        /// Load the dynamic destinations (e.g. the open Word documents) of the destination in the background: some do slow work
+        /// before their first await (the printers are enumerated synchronously, Office starts its COM thread), a menu must not wait for that.
+        /// </summary>
+        /// <returns>The dynamic destinations, empty when there are none or loading them failed</returns>
+        public static async Task<IReadOnlyList<IDestination>> LoadDynamicDestinationsAsync(IDestination destination, ICaptureDetails captureDetails)
+        {
+            await ThreadPoolSwitch.SwitchToThreadPoolAsync();
+            try
+            {
+                return await destination.GetDynamicDestinationsAsync(captureDetails, CancellationToken.None).ConfigureAwait(false) ?? Array.Empty<IDestination>();
+            }
+            catch (Exception ex)
+            {
+                // Fixing Bug #3536968: skip the dynamic destinations when there is an error
+                Log.ErrorFormat("Skipping the dynamic destinations of {0}, due to the following error: {1}", destination.Designation, ex.Message);
+                return Array.Empty<IDestination>();
+            }
+        }
+
+        /// <summary>
+        /// All registered destinations which are available in general (not excluded), sorted by priority and name.
         /// </summary>
         /// <returns>List of IDestination</returns>
         public static IEnumerable<IDestination> GetAllDestinations()
         {
-            return SimpleServiceProvider.Current.GetAllInstances<IDestination>()
-                .Where(destination => destination.IsActive)
-                .Where(destination => CoreConfig.ExcludeDestinations == null ||
-                                      !CoreConfig.ExcludeDestinations.Contains(destination.Designation)).OrderBy(p => p.Priority).ThenBy(p => p.Description);
+            var destinations = SimpleServiceProvider.Current.GetAllInstances<IDestination>() ?? Enumerable.Empty<IDestination>();
+            return destinations
+                .Where(destination =>
+                {
+                    try
+                    {
+                        return destination != null && destination.IsAvailableFor(null);
+                    }
+                    catch
+                    {
+                        return destination != null;
+                    }
+                })
+                .OrderBy(d => d, DestinationComparer.Instance)
+                .ToList();
         }
 
         /// <summary>
@@ -57,45 +92,35 @@ namespace Greenshot.Base.Core
                 return null;
             }
 
-            foreach (IDestination destination in GetAllDestinations())
+            try
             {
-                if (designation.Equals(destination.Designation))
-                {
-                    return destination;
-                }
+                return SimpleServiceProvider.Current.GetAllInstances<IDestination>()
+                    .FirstOrDefault(d => string.Equals(designation, d?.Designation, StringComparison.OrdinalIgnoreCase));
             }
-
-            return null;
+            catch
+            {
+                return null;
+            }
         }
 
         /// <summary>
-        /// A simple helper method which will call ExportCapture for the destination with the specified designation
+        /// Start the export of the surface to the destination with the designation, from a UI event (the export runs in the background).
         /// </summary>
-        /// <param name="manuallyInitiated"></param>
-        /// <param name="designation">WellKnownDestinations</param>
-        /// <param name="surface">ISurface</param>
-        /// <param name="captureDetails">ICaptureDetails</param>
-        public static ExportInformation ExportCapture(bool manuallyInitiated, WellKnownDestinations designation, ISurface surface, ICaptureDetails captureDetails)
+        public static void StartExport(WellKnownDestinations designation, ISurface surface, bool manuallyInitiated = true)
         {
-            return ExportCapture(manuallyInitiated, designation.ToString(), surface, captureDetails);
+            StartExport(designation.ToString(), surface, manuallyInitiated);
         }
 
         /// <summary>
-        /// A simple helper method which will call ExportCapture for the destination with the specified designation
+        /// Start the export of the surface to the destination with the designation, from a UI event (the export runs in the background).
         /// </summary>
-        /// <param name="manuallyInitiated">bool</param>
-        /// <param name="designation">string</param>
-        /// <param name="surface">ISurface</param>
-        /// <param name="captureDetails">ICaptureDetails</param>
-        public static ExportInformation ExportCapture(bool manuallyInitiated, string designation, ISurface surface, ICaptureDetails captureDetails)
+        public static void StartExport(string designation, ISurface surface, bool manuallyInitiated = true)
         {
-            IDestination destination = GetDestination(designation);
-            if (destination != null && destination.IsActive)
+            var destination = GetDestination(designation);
+            if (destination != null && destination.IsAvailableFor(surface?.CaptureDetails))
             {
-                return destination.ExportCapture(manuallyInitiated, surface, captureDetails);
+                Export.DestinationExporter.StartExport(destination, surface, manuallyInitiated);
             }
-
-            return null;
         }
     }
 }

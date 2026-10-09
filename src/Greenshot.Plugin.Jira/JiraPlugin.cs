@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -20,41 +20,43 @@
  */
 
 using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.WinForms.ContentConverter;
 using Dapplo.Jira.SvgWinForms.Converters;
 using Dapplo.Log;
 using Greenshot.Base.Core;
-using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Plugin.Jira.Forms;
+using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Threading;
+using Greenshot.Plugin.Jira.Api;
+using Greenshot.Plugin.Jira.Destinations;
+using Greenshot.Plugin.Jira.Recipes;
+using Greenshot.Plugin.Jira.Views;
 using log4net;
+using System.Threading;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Plugin.Jira;
 
 /// <summary>
 /// This is the JiraPlugin base code
 /// </summary>
-public class JiraPlugin : IGreenshotPlugin
+public class JiraPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvider
 {
     private static readonly ILog Log = LogManager.GetLogger(typeof(JiraPlugin));
     private IJiraConfiguration _config;
+    private TrayMenuEntry _itemPlugInConfig;
+    private JiraConnector _jiraConnector;
 
-    public void Dispose()
+    public ValueTask DisposeAsync()
     {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    private void Dispose(bool disposing)
-    {
-        if (!disposing) return;
-        var jiraConnector = SimpleServiceProvider.Current.GetInstance<JiraConnector>();
-        jiraConnector?.Dispose();
+        _jiraConnector?.Dispose();
+        _jiraConnector = null;
+        return default;
     }
 
     /// <summary>
@@ -62,35 +64,47 @@ public class JiraPlugin : IGreenshotPlugin
     /// </summary>
     public string Name => "Jira";
 
-    /// <summary>
-    /// Specifies if the plugin can be configured
-    /// </summary>
-    public bool IsConfigurable => true;
-
-    /// <summary>
-    /// Implementation of RegisterConfiguration phase: register INI section before file is loaded.
-    /// </summary>
-    public void RegisterConfiguration(IniConfig iniConfig)
+    public void ConfigureServices(IPluginServices services)
     {
+        Texts.Register<IJiraLanguage>(new JiraLanguageImpl());
         var section = new JiraConfigurationImpl();
-        iniConfig.AddSection(section);
+        services.AddConfiguration(section);
         _config = section;
+
+        // The connector needs the loaded configuration
+        services.AddServices(() =>
+        {
+            _jiraConnector = new JiraConnector();
+            return new[] { _jiraConnector };
+        });
+        services.AddService<IIconProvider>(new JiraIconProvider());
+        services.AddService<IDestination>(new JiraDestination());
+        services.AddRecipeStepProvider(this);
+        services.AddSettingsView<IJiraConfiguration>(config => new JiraConfigurationView(config));
     }
 
+    public object CreateSettingsViewModel(IServiceProvider services) => _config;
+
     /// <summary>
-    /// Implementation of RegisterServices phase: register DI services after config is loaded.
+    /// Registers recipe step factories provided by the Jira plugin.
     /// </summary>
-    public void RegisterServices(IServiceLocator serviceLocator)
+    /// <param name="registry">The step registry.</param>
+    public void RegisterSteps(IStepRegistry registry)
     {
-        serviceLocator.AddService(new JiraConnector());
-        serviceLocator.AddService<IDestination>(new JiraDestination());
+        if (registry == null) return;
+        registry.Register<JiraStep>(config => new JiraStep(config));
     }
 
     /// <summary>
-    /// Implementation of the IGreenshotPlugin.Start
+    /// Register the dialog and the HTTP converters, add the quick link to the context menu (on the UI thread)
     /// </summary>
-    /// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-    public bool Start()
+    public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken)
+    {
+        services.GetService<IDialogViewRegistry>()?.Register<JiraUploadRequest, JiraUploadChoice>(JiraUploadWindow.Show);
+        return services.GetRequiredService<IUiDispatcher>().RunOnUiAsync(Start, cancellationToken);
+    }
+
+    private void Start()
     {
         if (HttpExtensionsGlobals.HttpContentConverters.All(x => x.GetType() != typeof(SvgBitmapHttpContentConverter)))
         {
@@ -119,50 +133,61 @@ public class JiraPlugin : IGreenshotPlugin
             LogSettings.RegisterDefaultLogger<Log4NetLogger>(LogLevels.Fatal);
         }
 
-        return true;
-    }
-
-    public void Shutdown()
-    {
-        Log.Debug("Jira Plugin shutdown.");
-        var jiraConnector = SimpleServiceProvider.Current.GetInstance<JiraConnector>();
-        jiraConnector?.Logout();
-    }
-
-    /// <summary>
-    /// Implementation of the IPlugin.Configure
-    /// </summary>
-    public void Configure()
-    {
-        string url = _config.Url;
-        if (ShowConfigDialog())
+        _itemPlugInConfig = new TrayMenuEntry
         {
-            // check for re-login
-            var jiraConnector = SimpleServiceProvider.Current.GetInstance<JiraConnector>();
-            if (jiraConnector != null && jiraConnector.IsLoggedIn && !string.IsNullOrEmpty(url))
+            Image = EmbeddedResources.GetImage(typeof(JiraPlugin), "Jira"),
+            Text = PluginUtils.GetQuicklinkText("Jira"),
+            Visible = _config?.QuicklinkEnabled ?? false
+        };
+        _itemPlugInConfig.Click += delegate { ShowSettings(); };
+
+        PluginUtils.AddToContextMenu(_itemPlugInConfig);
+        Texts.Config.LanguageChanged += OnLanguageChanged;
+        if (_config is INotifyPropertyChanged notify)
+        {
+            notify.PropertyChanged += OnConfigPropertyChanged;
+        }
+    }
+
+    private void OnConfigPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(IJiraConfiguration.QuicklinkEnabled))
+        {
+            if (_itemPlugInConfig != null)
             {
-                if (!url.Equals(_config.Url))
-                {
-                    jiraConnector.Logout();
-                    Task.Run(async () => { await jiraConnector.LoginAsync(); });
-                }
+                _itemPlugInConfig.Visible = _config?.QuicklinkEnabled ?? false;
             }
         }
     }
 
-    /// <summary>
-    /// A form for username/password
-    /// </summary>
-    /// <returns>bool true if OK was pressed, false if cancel</returns>
-    private bool ShowConfigDialog()
+    public void OnLanguageChanged(object sender, EventArgs e)
     {
-        var settingsForm = new SettingsForm();
-        var result = settingsForm.ShowDialog();
-        if (result == DialogResult.OK)
+        if (_itemPlugInConfig != null)
         {
-            return true;
+            _itemPlugInConfig.Text = PluginUtils.GetQuicklinkText("Jira");
         }
+    }
 
-        return false;
+    public Task StopAsync(CancellationToken cancellationToken) =>
+        UiDispatcher.Current.RunOnUiAsync(() =>
+        {
+            Log.Debug("Jira Plugin shutdown.");
+            Texts.Config.LanguageChanged -= OnLanguageChanged;
+            if (_config is INotifyPropertyChanged notify)
+            {
+                notify.PropertyChanged -= OnConfigPropertyChanged;
+            }
+
+            _itemPlugInConfig?.Dispose();
+            _itemPlugInConfig = null;
+            _jiraConnector?.Logout();
+        }, cancellationToken);
+
+    /// <summary>
+    /// Show the settings of this plugin
+    /// </summary>
+    private void ShowSettings()
+    {
+        SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true)?.ShowSetting(Name);
     }
 }

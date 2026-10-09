@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -21,32 +21,35 @@
 
 using System;
 using System.ComponentModel;
-using System.Drawing;
 using System.IO;
-using System.Windows.Forms;
-using Greenshot.Base.Controls;
+using System.Threading;
+using System.Threading.Tasks;
 using Greenshot.Base.Core;
-using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Plugin.Box.Forms;
+using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Threading;
+using Greenshot.Plugin.Box.Api;
+using Greenshot.Plugin.Box.Destinations;
+using Greenshot.Base.Languages;
+using Greenshot.Plugin.Box.Recipes;
+using Greenshot.Plugin.Box.Views;
 
 namespace Greenshot.Plugin.Box;
 
 /// <summary>
 /// This is the Box base code
 /// </summary>
-public class BoxPlugin : IGreenshotPlugin
+public class BoxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvider
 {
     private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BoxPlugin));
     private static IBoxConfiguration _config;
-    private ComponentResourceManager _resources;
-    private ToolStripMenuItem _itemPlugInConfig;
+    private TrayMenuEntry _itemPlugInConfig;
 
-    public void Dispose()
+    public ValueTask DisposeAsync()
     {
-        Dispose(true);
-        GC.SuppressFinalize(this);
+        // The menu item is removed and disposed in StopAsync
+        return default;
     }
 
     /// <summary>
@@ -54,121 +57,112 @@ public class BoxPlugin : IGreenshotPlugin
     /// </summary>
     public string Name => "Box";
 
-    /// <summary>
-    /// Specifies if the plugin can be configured
-    /// </summary>
-    public bool IsConfigurable => true;
-
-    private void Dispose(bool disposing)
+    public void ConfigureServices(IPluginServices services)
     {
-        if (!disposing) return;
-
-        if (_itemPlugInConfig == null) return;
-
-        _itemPlugInConfig.Dispose();
-        _itemPlugInConfig = null;
-    }
-
-    /// <summary>
-    /// Implementation of RegisterConfiguration phase: register INI section before file is loaded.
-    /// </summary>
-    public void RegisterConfiguration(IniConfig iniConfig)
-    {
+        Texts.Register<IBoxLanguage>(new BoxLanguageImpl());
         var section = new BoxConfigurationImpl();
-        iniConfig.AddSection(section);
+        services.AddConfiguration(section);
         _config = section;
+
+        services.AddService<IIconProvider>(BoxDestination.Icons);
+        services.AddService<IDestination>(new BoxDestination(this));
+        services.AddRecipeStepProvider(this);
+        services.AddSettingsView<IBoxConfiguration>(config => new BoxConfigurationView(config));
+    }
+
+    public object CreateSettingsViewModel(IServiceProvider services) => _config;
+
+    /// <summary>
+    /// Registers recipe step factories provided by the Box plugin.
+    /// </summary>
+    /// <param name="registry">The step registry.</param>
+    public void RegisterSteps(IStepRegistry registry)
+    {
+        if (registry == null) return;
+        registry.Register<BoxStep>(config => new BoxStep(config, this));
     }
 
     /// <summary>
-    /// Implementation of RegisterServices phase: register DI services after config is loaded.
+    /// Add the quick link to the context menu (on the UI thread)
     /// </summary>
-    public void RegisterServices(IServiceLocator serviceLocator)
-    {
-        _resources = new ComponentResourceManager(typeof(BoxPlugin));
-        serviceLocator.AddService<IDestination>(new BoxDestination(this));
-    }
+    public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken) =>
+        services.GetRequiredService<IUiDispatcher>().RunOnUiAsync(Start, cancellationToken);
 
-    /// <summary>
-    /// Implementation of the IGreenshotPlugin.Start
-    /// </summary>
-    public bool Start()
+    private void Start()
     {
-        _itemPlugInConfig = new ToolStripMenuItem
+        _itemPlugInConfig = new TrayMenuEntry
         {
-            Image = (Image) _resources.GetObject("Box"),
-            Text = Language.GetString("box", LangKey.Configure)
+            Image = EmbeddedResources.GetImage(typeof(BoxPlugin), "Box"),
+            Text = PluginUtils.GetQuicklinkText("Box"),
+            Visible = _config?.QuicklinkEnabled ?? false
         };
         _itemPlugInConfig.Click += ConfigMenuClick;
 
         PluginUtils.AddToContextMenu(_itemPlugInConfig);
-        Language.LanguageChanged += OnLanguageChanged;
-        return true;
+        Texts.Config.LanguageChanged += OnLanguageChanged;
+        if (_config is INotifyPropertyChanged notify)
+        {
+            notify.PropertyChanged += OnConfigPropertyChanged;
+        }
+    }
+
+    private void OnConfigPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(IBoxConfiguration.QuicklinkEnabled))
+        {
+            if (_itemPlugInConfig != null)
+            {
+                _itemPlugInConfig.Visible = _config?.QuicklinkEnabled ?? false;
+            }
+        }
     }
 
     public void OnLanguageChanged(object sender, EventArgs e)
     {
         if (_itemPlugInConfig != null)
         {
-            _itemPlugInConfig.Text = Language.GetString("box", LangKey.Configure);
+            _itemPlugInConfig.Text = PluginUtils.GetQuicklinkText("Box");
         }
     }
 
-    public void Shutdown()
-    {
-        LOG.Debug("Box Plugin shutdown.");
-        Language.LanguageChanged -= OnLanguageChanged;
-    }
-
-    /// <summary>
-    /// Implementation of the IPlugin.Configure
-    /// </summary>
-    public void Configure()
-    {
-        ShowConfigDialog();
-    }
-
-    public void ConfigMenuClick(object sender, EventArgs eventArgs)
-    {
-        ShowConfigDialog();
-    }
-
-    /// <summary>
-    /// Opens the Box settings dialog.
-    /// </summary>
-    /// <returns>true if OK was pressed; false if cancelled</returns>
-    private bool ShowConfigDialog()
-    {
-        return new SettingsForm().ShowDialog() == DialogResult.OK;
-    }
-
-    /// <summary>
-    /// This will be called when the menu item in the Editor is clicked
-    /// </summary>
-    public string Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload)
-    {
-        SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
-        try
+    public Task StopAsync(CancellationToken cancellationToken) =>
+        UiDispatcher.Current.RunOnUiAsync(() =>
         {
-            string url = null;
-            string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
-            SurfaceContainer imageToUpload = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
-
-            new PleaseWaitForm().ShowAndWait("Box", Language.GetString("box", LangKey.communication_wait),
-                delegate { url = BoxUtils.UploadToBox(imageToUpload, captureDetails.Title, filename); }
-            );
-
-            if (url != null && _config.AfterUploadLinkToClipBoard)
+            LOG.Debug("Box Plugin shutdown.");
+            Texts.Config.LanguageChanged -= OnLanguageChanged;
+            if (_config is INotifyPropertyChanged notify)
             {
-                ClipboardHelper.SetClipboardData(url);
+                notify.PropertyChanged -= OnConfigPropertyChanged;
             }
 
-            return url;
-        }
-        catch (Exception ex)
+            _itemPlugInConfig?.Dispose();
+            _itemPlugInConfig = null;
+        }, cancellationToken);
+
+    private void ConfigMenuClick(object sender, EventArgs eventArgs)
+    {
+        // Show the settings of this plugin
+        SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true)?.ShowSetting(Name);
+    }
+
+    /// <summary>
+    /// Upload the capture to Box, shows the progress to the user.
+    /// </summary>
+    /// <returns>the url of the upload, null when the user didn't authorize</returns>
+    public async Task<string> UploadAsync(IExportSource source, ICaptureDetails captureDetails, IUserInteraction userInteraction, CancellationToken cancellationToken)
+    {
+        var outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
+        string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
+        var image = await source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
+
+        string url = await userInteraction.RunWithProgressAsync(Texts.Get<IBoxLanguage>().CommunicationWait,
+            (progress, token) => BoxUtils.UploadToBoxAsync(image, filename, userInteraction, progress, token), cancellationToken).ConfigureAwait(false);
+
+        if (url != null && _config.AfterUploadLinkToClipBoard)
         {
-            LOG.Error("Error uploading.", ex);
-            MessageBox.Show(Language.GetString("box", LangKey.upload_failure) + " " + ex.Message);
-            return null;
+            await ClipboardService.Current.SetTextAsync(url, cancellationToken).ConfigureAwait(false);
         }
+
+        return url;
     }
 }

@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -125,6 +125,8 @@ namespace Greenshot.Editor.Drawing
         {
             AddField(GetType(), FieldType.FLAGS, FieldFlag.CONFIRMABLE);
             AddField(GetType(), FieldType.CROPMODE, CropModes.Default);
+            // How the joint is marked after crop out horizontally / vertically
+            AddField(GetType(), FieldType.CUT_MARK_STYLE, CutMarkStyle.None);
         }
 
         public override void Invalidate()
@@ -241,7 +243,7 @@ namespace Greenshot.Editor.Drawing
                             _boundsBeforeResize.Left, _boundsBeforeResize.Top,
                             x - _boundsAfterResize.Left, y - _boundsAfterResize.Top);
 
-                        _boundsAfterResize = ScaleHelper.Scale(_boundsAfterResize, x, y, GetAngleRoundProcessor());
+                        _boundsAfterResize = ScaleHelper.Scale(_boundsAfterResize.Round(), x, y, GetAngleRoundProcessor());
                         break;
                     }
             }

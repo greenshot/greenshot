@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -21,13 +21,15 @@
 
 using System;
 using System.IO;
-using System.Windows.Threading;
 using Dapplo.Ini;
-using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
-using Greenshot.Configuration;
+using Greenshot.Recipes.Triggers;
 using log4net;
+using Greenshot.Base.Threading;
+using System.Threading;
+
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Helpers
 {
@@ -50,12 +52,12 @@ namespace Greenshot.Helpers
             var notifyIconClassicMessageHandler = SimpleServiceProvider.Current.GetInstance<INotificationService>();
 
             notifyIconClassicMessageHandler.ShowInfoMessage(
-                Language.GetFormattedString(LangKey.tooltip_firststart, HotkeyManager.GetLocalizedHotkeyStringFromString(config.RegionHotkey)),
+                string.Format(Texts.Core.TooltipFirststart, HotkeyManager.GetLocalizedHotkeyStringFromString(config.RegionHotkey)),
                 TimeSpan.FromMinutes(10),
                 () =>
                 {
-                    var mainForm = SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>();
-                    mainForm.ShowSetting();
+                    var shell = SimpleServiceProvider.Current.GetInstance<IGreenshotShell>();
+                    shell.ShowSetting();
                 });
         }
 
@@ -67,19 +69,22 @@ namespace Greenshot.Helpers
         /// modified at runtime to ensure the application state remains consistent.</remarks>
         public static void ReloadConfig()
         {
+            // Hotkeys and the UI belong to the UI thread: runs inline there, otherwise posted to it
+            UiDispatcher.Current.RunOnUiAsync(ReloadConfigOnUi, CancellationToken.None).FireAndLog("Reload the configuration", LOG);
+        }
+
+        private static void ReloadConfigOnUi()
+        {
             try
             {
-                Dispatcher.CurrentDispatcher.Invoke(() =>
-                {
-                    // Make sure the current hotkeys are disabled
-                    HotkeyManager.UnregisterHotkeys();
-                    IniConfigRegistry.Get().Reload();
-                    var mainForm = SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>();
-                    // Even update language when needed
-                    mainForm.UpdateUi();
-                    // Update the hotkey
-                    HotkeyHelper.RegisterHotkeys();
-                });
+                // Make sure the current hotkeys are disabled
+                HotkeyManager.UnregisterHotkeys();
+                IniConfigRegistry.Get().Reload();
+                var shell = SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true);
+                // Even update language when needed
+                shell?.UpdateUi();
+                // Update the hotkey
+                TriggerManager.Instance.RestartHotkeyTriggers();
             }
             catch (Exception ex)
             {
@@ -98,10 +103,7 @@ namespace Greenshot.Helpers
             LOG.InfoFormat("Open file requested: {0}", filePath);
             if (File.Exists(filePath))
             {
-                Dispatcher.CurrentDispatcher.BeginInvoke(
-                    ()=> {
-                        CaptureHelper.CaptureFile(filePath);
-                    });
+                UiDispatcher.Current.InvokeAsync(() => CaptureHelper.CaptureFile(filePath)).FireAndLog("Open " + filePath, LOG);
             }
             else
             {

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -27,12 +27,10 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Windows.Forms;
+using Dapplo.Windows.Clipboard;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
-using Dapplo.Windows.Gdi32;
 using Dapplo.Windows.Icons;
-using Dapplo.Windows.User32;
-using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
 using Dapplo.Ini;
@@ -42,11 +40,12 @@ using Greenshot.Base.Interfaces.Drawing.Adorners;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Drawing.Emoji;
 using Greenshot.Editor.Drawing.Fields;
-using Greenshot.Editor.FileFormat.Dto;
-using Greenshot.Editor.FileFormat.Dto.Container;
-using Greenshot.Editor.FileFormat.V2;
+using Greenshot.Editor.Helpers;
 using Greenshot.Editor.Memento;
 using log4net;
+using System.Threading;
+using System.Threading.Tasks;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Editor.Drawing
 {
@@ -108,6 +107,14 @@ namespace Greenshot.Editor.Drawing
         {
             add => _surfaceSizeChanged += value;
             remove => _surfaceSizeChanged -= value;
+        }
+
+        [NonSerialized] private SurfaceExpandedEventHandler _surfaceExpanded;
+
+        public event SurfaceExpandedEventHandler SurfaceExpanded
+        {
+            add => _surfaceExpanded += value;
+            remove => _surfaceExpanded -= value;
         }
 
         [NonSerialized] private SurfaceMessageEventHandler _surfaceMessage;
@@ -482,6 +489,11 @@ namespace Greenshot.Editor.Drawing
             {
                 element.AdjustToDpi(dpi);
             }
+
+            // The framework's automatic DPI-driven control scaling resizes this control along with
+            // every other control on the form, which is wrong here: the canvas size must always be
+            // exactly image-size * zoom-factor, in device pixels, regardless of monitor DPI.
+            UpdateSize();
         }
 
         /// <summary>
@@ -676,16 +688,6 @@ namespace Greenshot.Editor.Drawing
         public bool CanRedo => _redoStack.Count > 0;
 
         /// <summary>
-        /// Get the language key for the undo action
-        /// </summary>
-        public LangKey UndoActionLanguageKey => LangKey.none;
-
-        /// <summary>
-        /// Get the language key for redo action
-        /// </summary>
-        public LangKey RedoActionLanguageKey => LangKey.none;
-
-        /// <summary>
         /// Make an action undo-able
         /// </summary>
         /// <param name="memento">The memento implementing the undo</param>
@@ -715,7 +717,52 @@ namespace Greenshot.Editor.Drawing
                     }
 
                     _undoStack.Push(memento);
+                    LimitUndoImages();
                 }
+            }
+        }
+
+        /// <summary>
+        /// Every effect or crop keeps the previous image for undo, drop the oldest steps when they use more than this
+        /// </summary>
+        private const long UndoImagesBudget = 256L * 1024 * 1024;
+
+        private void LimitUndoImages()
+        {
+            // Newest first, always keep the last step
+            var mementos = _undoStack.ToArray();
+            long imageBytes = 0;
+            for (int i = 0; i < mementos.Length; i++)
+            {
+                var image = mementos[i] switch
+                {
+                    SurfaceBackgroundChangeMemento backgroundChangeMemento => backgroundChangeMemento.Image,
+                    SurfaceCutOutMemento cutOutMemento => cutOutMemento.Image,
+                    _ => null
+                };
+                if (image != null)
+                {
+                    imageBytes += (long)image.Width * image.Height * System.Drawing.Image.GetPixelFormatSize(image.PixelFormat) / 8;
+                }
+
+                if (i == 0 || imageBytes <= UndoImagesBudget)
+                {
+                    continue;
+                }
+
+                _undoStack.Clear();
+                for (int keep = i - 1; keep >= 0; keep--)
+                {
+                    _undoStack.Push(mementos[keep]);
+                }
+
+                for (int drop = i; drop < mementos.Length; drop++)
+                {
+                    mementos[drop].Dispose();
+                }
+
+                LOG.InfoFormat("Dropped {0} undo steps to limit the memory use", mementos.Length - i);
+                return;
             }
         }
 
@@ -729,6 +776,35 @@ namespace Greenshot.Editor.Drawing
             AddElements(containerList);
             SelectElements(containerList);
             FieldAggregator.BindElements(containerList);
+        }
+
+        /// <summary>
+        /// Creates a deep copy of the surface, cloning its background image, elements, and capture details.
+        /// </summary>
+        public ISurface Clone()
+        {
+            var clonedImage = _image != null ? ImageHelper.Clone(_image) : null;
+            var clonedSurface = new Surface(clonedImage)
+            {
+                CounterStart = CounterStart,
+                CaptureDetails = (CaptureDetails as CaptureDetails)?.Clone() ?? CaptureDetails,
+                Modified = Modified,
+                ZoomFactor = ZoomFactor,
+                LastSaveFullPath = LastSaveFullPath,
+                UploadUrl = UploadUrl
+            };
+
+            if (_elements != null && _elements.Count > 0)
+            {
+                clonedSurface.LoadElements(_elements.Clone());
+
+                /* TODO: LoadElements() selects all Elements, we don't want that in the clone.
+                * It should be changed there but that would be a breaking change, e.g. for copy/paste.
+                */
+                clonedSurface.DeselectAllElements(); 
+            }
+
+            return clonedSurface;
         }
 
         /// <summary>
@@ -908,31 +984,34 @@ namespace Greenshot.Editor.Drawing
 
         #region DragDrop
 
+        /// <summary>
+        /// A reader for the dropped data, drop and paste share the IClipboardDataSource code path. Null when the data isn't an OLE data object.
+        /// </summary>
+        private static DataObjectReader CreateDropReader(DragEventArgs e) =>
+            e.Data is System.Runtime.InteropServices.ComTypes.IDataObject comDataObject ? new DataObjectReader(comDataObject) : null;
+
         private void OnDragEnter(object sender, DragEventArgs e)
         {
-            if (LOG.IsDebugEnabled)
-            {
-                LOG.Debug("DragEnter got following formats: ");
-                foreach (string format in ClipboardHelper.GetFormats(e.Data))
-                {
-                    LOG.Debug(format);
-                }
-            }
-
+            e.Effect = DragDropEffects.None;
             if ((e.AllowedEffect & DragDropEffects.Copy) != DragDropEffects.Copy)
             {
-                e.Effect = DragDropEffects.None;
+                return;
             }
-            else
+
+            using var reader = CreateDropReader(e);
+            if (reader == null)
             {
-                if (ClipboardHelper.ContainsImage(e.Data) || ClipboardHelper.ContainsFormat(e.Data, "DragImageBits"))
-                {
-                    e.Effect = DragDropEffects.Copy;
-                }
-                else
-                {
-                    e.Effect = DragDropEffects.None;
-                }
+                return;
+            }
+
+            if (LOG.IsDebugEnabled)
+            {
+                LOG.Debug("DragEnter got following formats: " + string.Join(", ", reader.Formats));
+            }
+
+            if (ClipboardHelper.ContainsImage(reader) || reader.HasFormat("DragImageBits"))
+            {
+                e.Effect = DragDropEffects.Copy;
             }
         }
 
@@ -965,32 +1044,98 @@ namespace Greenshot.Editor.Drawing
         private void OnDragDrop(object sender, DragEventArgs e)
         {
             NativePoint mouse = PointToClient(new NativePoint(e.X, e.Y));
-            if (e.Data.GetDataPresent("Text"))
+            using var reader = CreateDropReader(e);
+            if (reader == null)
             {
-                string possibleUrl = ClipboardHelper.GetText(e.Data);
+                return;
+            }
+
+            // The data object is only valid during the drop: read everything now
+            var containers = ClipboardHelper.GetDrawables(reader).ToList();
+            if (ClipboardHelper.ContainsText(reader))
+            {
+                string possibleUrl = ClipboardHelper.GetText(reader);
                 // Test if it's an url and try to download the image so we have it in the original form
                 if (possibleUrl != null && possibleUrl.StartsWith("http"))
                 {
-                    var drawableContainer = NetworkHelper.DownloadImageAsDrawableContainer(possibleUrl);
-                    if (drawableContainer != null)
-                    {
-                        drawableContainer.Left = Location.X;
-                        drawableContainer.Top = Location.Y;
-                        FitContainer(drawableContainer);
-                        AddElement(drawableContainer);
-                        return;
-                    }
+                    AsyncCommand.Run(() => AddDownloadedOrFallbackAsync(new[] { possibleUrl }, containers, new NativePoint(Location.X, Location.Y), mouse, true, false),
+                        "Download the dropped image");
+                    return;
                 }
             }
 
-            foreach (var drawableContainer in ClipboardHelper.GetDrawables(e.Data))
+            AddDrawables(containers, mouse, true, false);
+        }
+
+        /// <summary>
+        /// Add the drawables, each 10 pixels offset from the previous
+        /// </summary>
+        private void AddDrawables(IEnumerable<IDrawableContainer> drawableContainers, NativePoint location, bool fit, bool select)
+        {
+            foreach (var drawableContainer in drawableContainers)
             {
-                drawableContainer.Left = mouse.X;
-                drawableContainer.Top = mouse.Y;
-                FitContainer(drawableContainer);
+                if (drawableContainer == null) continue;
+                if (select)
+                {
+                    DeselectAllElements();
+                }
+
+                drawableContainer.Left = location.X;
+                drawableContainer.Top = location.Y;
+                if (fit)
+                {
+                    FitContainer(drawableContainer);
+                }
+
                 AddElement(drawableContainer);
-                mouse = mouse.Offset(10, 10);
+                if (select)
+                {
+                    SelectElement(drawableContainer);
+                }
+
+                location = location.Offset(10, 10);
             }
+        }
+
+        /// <summary>
+        /// Download the first image of the urls and add it, else add the fallback drawables. Runs on the UI thread, the download doesn't block it.
+        /// </summary>
+        private async Task AddDownloadedOrFallbackAsync(IList<string> urls, IList<IDrawableContainer> fallbackContainers, NativePoint downloadLocation, NativePoint fallbackLocation, bool fit, bool select)
+        {
+            IDrawableContainer downloaded = null;
+            foreach (var url in urls)
+            {
+                downloaded = await NetworkHelper.DownloadImageAsDrawableContainerAsync(url, CancellationToken.None);
+                if (downloaded != null)
+                {
+                    break;
+                }
+            }
+
+            if (IsDisposed)
+            {
+                // The editor was closed during the download
+                downloaded?.Dispose();
+                foreach (var fallbackContainer in fallbackContainers)
+                {
+                    fallbackContainer?.Dispose();
+                }
+
+                return;
+            }
+
+            if (downloaded == null)
+            {
+                AddDrawables(fallbackContainers, fallbackLocation, fit, select);
+                return;
+            }
+
+            foreach (var fallbackContainer in fallbackContainers)
+            {
+                fallbackContainer?.Dispose();
+            }
+
+            AddDrawables(new[] { downloaded }, downloadLocation, fit, select);
         }
 
         #endregion
@@ -1045,42 +1190,133 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
+        /// Set the canvas to a new size using the given bounds.
+        /// Each parameter is the distance to expand in that direction.
+        /// </summary>
+        public void ResizeCanvas(int left, int right, int top, int bottom)
+        {
+            var resizeEffect = new ResizeCanvasEffect(left, right, top, bottom);
+            // Fast enough for the UI thread
+            ApplyEffectResult(resizeEffect, Image);
+            _surfaceExpanded(this, null);
+        }
+
+        /// <summary>
+        /// Set the canvas to a new size using the given expansion directions.
+        /// </summary>
+        /// <param name="expansion">The amount to expand in each direction.</param>
+        public void ResizeCanvas(Expansion expansion)
+        {
+            var resizeEffect = new ResizeCanvasEffect(expansion.Left, expansion.Right, expansion.Top, expansion.Bottom);
+            // Fast enough for the UI thread
+            ApplyEffectResult(resizeEffect, Image);
+            _surfaceExpanded(this, null);
+        }
+
+        /// <summary>
         /// Apply a bitmap effect to the surface
         /// </summary>
         /// <param name="effect"></param>
-        public void ApplyBitmapEffect(IEffect effect)
+        /// <remarks>
+        /// Call on the UI thread: the effect is calculated on the thread pool with a copy of the image (a progress dialog
+        /// shows when it takes longer), the result is applied on the UI thread.
+        /// </remarks>
+        private bool _effectRunning;
+
+        public async Task ApplyBitmapEffectAsync(IEffect effect, CancellationToken cancellationToken = default)
         {
-            BackgroundForm backgroundForm = new BackgroundForm("Effect", "Please wait");
-            backgroundForm.Show();
-            Application.DoEvents();
+            if (_effectRunning)
+            {
+                // One effect at a time, the next would work on the image without the running effect
+                LOG.Info("An effect is still running, ignoring " + effect?.GetType().Name);
+                return;
+            }
+
+            _effectRunning = true;
             try
             {
-                var imageRectangle = new NativeRect(NativePoint.Empty, Image.Size);
-                Matrix matrix = new Matrix();
-                Image newImage = ImageHelper.ApplyEffect(Image, effect, matrix);
-                if (newImage != null)
-                {
-                    // Make sure the elements move according to the offset the effect made the bitmap move
-                    _elements.Transform(matrix);
-                    // Make undoable
-                    MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
-                    SetImage(newImage, false);
-                    Invalidate();
-                    if (_surfaceSizeChanged != null && !imageRectangle.Equals(new NativeRect(NativePoint.Empty, newImage.Size)))
-                    {
-                        _surfaceSizeChanged(this, null);
-                    }
-                }
-                else
-                {
-                    // clean up matrix, as it hasn't been used in the undo stack.
-                    matrix.Dispose();
-                }
+                await ApplyBitmapEffectCoreAsync(effect, cancellationToken);
             }
             finally
             {
-                // Always close the background form
-                backgroundForm.CloseDialog();
+                _effectRunning = false;
+            }
+        }
+
+        private async Task ApplyBitmapEffectCoreAsync(IEffect effect, CancellationToken cancellationToken)
+        {
+            var sourceImage = ImageHelper.Clone(Image);
+            var matrix = new Matrix();
+            Image newImage;
+            try
+            {
+                newImage = await UserInteraction.Current.RunWithProgressAsync("Please wait",
+                    (progress, token) => ApplyEffectOnPoolAsync(sourceImage, effect, matrix), cancellationToken);
+            }
+            catch
+            {
+                sourceImage.Dispose();
+                matrix.Dispose();
+                throw;
+            }
+
+            if (ReferenceEquals(newImage, sourceImage))
+            {
+                // The effect didn't change anything
+                newImage = null;
+            }
+
+            sourceImage.Dispose();
+            if (IsDisposed)
+            {
+                // The editor was closed in the meantime
+                newImage?.Dispose();
+                matrix.Dispose();
+                return;
+            }
+
+            // Back on the UI thread
+            ApplyEffectResult(newImage, matrix);
+        }
+
+        private static async Task<Image> ApplyEffectOnPoolAsync(Image sourceImage, IEffect effect, Matrix matrix)
+        {
+            await ThreadPoolSwitch.SwitchToThreadPoolAsync();
+            return ImageHelper.ApplyEffect(sourceImage, effect, matrix);
+        }
+
+        /// <summary>
+        /// Apply the effect to the image on the calling (UI) thread
+        /// </summary>
+        private void ApplyEffectResult(IEffect effect, Image sourceImage)
+        {
+            var matrix = new Matrix();
+            var newImage = ImageHelper.ApplyEffect(sourceImage, effect, matrix);
+            ApplyEffectResult(ReferenceEquals(newImage, sourceImage) ? null : newImage, matrix);
+        }
+
+        /// <summary>
+        /// Use the result of an effect: the new image and the matrix of the offset, both are owned by the surface afterwards
+        /// </summary>
+        private void ApplyEffectResult(Image newImage, Matrix matrix)
+        {
+            if (newImage == null)
+            {
+                // clean up matrix, as it hasn't been used in the undo stack.
+                matrix.Dispose();
+                return;
+            }
+
+            var imageRectangle = new NativeRect(NativePoint.Empty, Image.Size);
+            // Make sure the elements move according to the offset the effect made the bitmap move
+            _elements.Transform(matrix);
+            // Make undoable
+            MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
+            SetImage(newImage, false);
+            Invalidate();
+            if (_surfaceSizeChanged != null && !imageRectangle.Equals(new NativeRect(NativePoint.Empty, newImage.Size)))
+            {
+                _surfaceSizeChanged(this, null);
             }
         }
 
@@ -1221,20 +1457,54 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
-        /// Crop the surface
+        /// Crop the surface.
+        /// Elements which are completely outside of the crop are removed, the others move with the image.
+        /// With a cut mark style the sides which were cut off get edges in that style, as torn edges element.
         /// </summary>
         /// <param name="cropRectangle">NativeRect that remains</param>
+        /// <param name="cutMarkStyle">CutMarkStyle for the edges of the sides which were cut off, None for straight sides</param>
+        /// <param name="edgeSettings">TornEdgeEffect with the tooth and shadow settings for the edges, null for the ones of the torn edge effect</param>
         /// <returns>bool</returns>
-        public bool ApplyCrop(NativeRect cropRectangle)
+        public bool ApplyCrop(NativeRect cropRectangle, CutMarkStyle cutMarkStyle = CutMarkStyle.None, TornEdgeEffect edgeSettings = null)
         {
             if (!IsCropPossible(ref cropRectangle, CropContainer.CropModes.Default)) return false;
 
-            var imageRectangle = new NativeRect(NativePoint.Empty, Image.Size);
-            Bitmap tmpImage;
+            // top, right, bottom, left
+            var cutSides = new[] { cropRectangle.Top > 0, cropRectangle.Right < Image.Width, cropRectangle.Bottom < Image.Height, cropRectangle.Left > 0 };
+            bool withEdges = cutMarkStyle != CutMarkStyle.None && cutSides.Any(cut => cut);
+            TornEdgeEffect settings = null;
+            int margin = 0;
+            if (withEdges)
+            {
+                // The shadow comes from the torn edge effect, like for the cut marks
+                var source = edgeSettings ?? IniConfigRegistry.GetSection<IEditorConfiguration>()?.TornEdgeEffectSettings ?? new TornEdgeEffect();
+                settings = new TornEdgeEffect
+                {
+                    Edges = cutSides,
+                    ToothHeight = source.ToothHeight,
+                    HorizontalToothRange = source.HorizontalToothRange,
+                    VerticalToothRange = source.VerticalToothRange,
+                    GenerateShadow = source.GenerateShadow,
+                    Darkness = source.Darkness,
+                    ShadowSize = source.ShadowSize,
+                    ShadowOffset = source.ShadowOffset,
+                    BackgroundColor = source.BackgroundColor
+                };
+                margin = TornEdgeContainer.GetShadowMargin(settings);
+            }
+
+            var margins = cutSides.Select(cut => withEdges && cut ? margin : 0).ToArray();
+            Bitmap newImage;
             // Make sure we have information, this this fails
             try
             {
-                tmpImage = ImageHelper.CloneArea(Image, cropRectangle, PixelFormat.DontCare);
+                newImage = ImageHelper.CloneArea(Image, cropRectangle, PixelFormat.DontCare);
+                if (margins.Any(m => m > 0))
+                {
+                    var expanded = ExpandImage(newImage, settings.BackgroundColor, margins);
+                    newImage.Dispose();
+                    newImage = expanded;
+                }
             }
             catch (Exception ex)
             {
@@ -1245,137 +1515,353 @@ namespace Greenshot.Editor.Drawing
                 throw;
             }
 
-            var matrix = new Matrix();
-            matrix.Translate(-cropRectangle.Left, -cropRectangle.Top, MatrixOrder.Append);
-            // Make undoable
-            MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
-
-            // Do not dispose otherwise we can't undo the image!
-            SetImage(tmpImage, false);
-            _elements.Transform(matrix);
-            if (_surfaceSizeChanged != null && !imageRectangle.Equals(new NativeRect(NativePoint.Empty, tmpImage.Size)))
+            var movedElements = new List<IDrawableContainer>();
+            var removedElements = new DrawableContainerList(ID);
+            var edgeLayouts = new List<SurfaceCutOutMemento.TornEdgeLayout>();
+            foreach (var element in _elements)
             {
-                _surfaceSizeChanged(this, null);
+                if (element is TornEdgeContainer tornEdges)
+                {
+                    // The sides which were cut off lost their edges, the room for the shadow there belongs to the new edges
+                    var edges = tornEdges.Edges;
+                    var tornMargins = tornEdges.Margins;
+                    for (int side = 0; side < 4; side++)
+                    {
+                        if (!cutSides[side]) continue;
+                        edges[side] = false;
+                        tornMargins[side] = margins[side];
+                    }
+
+                    if (edges.Any(edge => edge))
+                    {
+                        edgeLayouts.Add(new SurfaceCutOutMemento.TornEdgeLayout(tornEdges));
+                        tornEdges.SetLayout(edges, tornMargins);
+                        movedElements.Add(element);
+                    }
+                    else
+                    {
+                        removedElements.Add(element);
+                    }
+
+                    continue;
+                }
+
+                if (IsOutside(element.Bounds, cropRectangle))
+                {
+                    removedElements.Add(element);
+                }
+                else
+                {
+                    movedElements.Add(element);
+                }
             }
 
-            Invalidate();
+            var addedElements = new DrawableContainerList(ID);
+            TornEdgeContainer cropEdges = null;
+            if (withEdges)
+            {
+                cropEdges = new TornEdgeContainer(this, settings, margins, cutMarkStyle);
+                addedElements.Add(cropEdges);
+            }
+
+            DeselectAllElements();
+            var offset = new NativePoint(margins[3] - cropRectangle.Left, margins[0] - cropRectangle.Top);
+            // Make undoable, the memento takes the current image
+            MakeUndoable(new SurfaceCutOutMemento(this, Image, movedElements, new NativePoint(-offset.X, -offset.Y), removedElements, addedElements, edgeLayouts), false);
+
+            // Do not dispose otherwise we can't undo the image!
+            ApplyCutOutState(newImage, movedElements, offset, addedElements, removedElements);
+            // It was created for the old image size, this makes it cover the new one
+            cropEdges?.MoveBy(0, 0);
             return true;
         }
 
         /// <summary>
-        /// Crop out the surface
-        /// Splits the image in 3 parts(top, middle, bottom). Crop out the middle and joins top and bottom. 
+        /// Is an element completely outside of the crop? Lines have no width or height, so the bounds are at least one pixel.
+        /// </summary>
+        private static bool IsOutside(NativeRect elementBounds, NativeRect cropRectangle)
+        {
+            var bounds = elementBounds.Normalize();
+            var area = new NativeRect(bounds.Left, bounds.Top, Math.Max(1, bounds.Width), Math.Max(1, bounds.Height));
+            return area.Right <= cropRectangle.Left || area.Left >= cropRectangle.Right || area.Bottom <= cropRectangle.Top || area.Top >= cropRectangle.Bottom;
+        }
+
+        /// <summary>
+        /// Make the canvas bigger, e.g. to have room for the shadow of edges. The room is transparent or the color.
+        /// Only when the color isn't opaque, or the image has an alpha channel, the new image has one.
+        /// </summary>
+        /// <param name="image">Image to expand</param>
+        /// <param name="background">Color for the room</param>
+        /// <param name="margins">int array top, right, bottom, left</param>
+        /// <returns>Bitmap</returns>
+        private static Bitmap ExpandImage(Image image, Color background, int[] margins)
+        {
+            var pixelFormat = background.A < 255 || Image.IsAlphaPixelFormat(image.PixelFormat) ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb;
+            Bitmap newImage = ImageHelper.CreateEmpty(image.Width + margins[1] + margins[3], image.Height + margins[0] + margins[2], pixelFormat,
+                background.A < 255 ? Color.Transparent : background, image.HorizontalResolution, image.VerticalResolution);
+            using var graphics = Graphics.FromImage(newImage);
+            graphics.DrawImage(image, new Rectangle(margins[3], margins[0], image.Width, image.Height), new Rectangle(0, 0, image.Width, image.Height), GraphicsUnit.Pixel);
+            return newImage;
+        }
+
+        /// <summary>
+        /// Where an element is, compared to a strip which is cut out
+        /// </summary>
+        public enum CutOutPlacement
+        {
+            /// <summary>
+            /// Above or left of the cut, it stays
+            /// </summary>
+            Before,
+            /// <summary>
+            /// Completely inside the cut, it is removed
+            /// </summary>
+            Inside,
+            /// <summary>
+            /// Below or right of the cut, it moves with the image
+            /// </summary>
+            After,
+            /// <summary>
+            /// Over an edge of the cut, it stays
+            /// </summary>
+            Across
+        }
+
+        /// <summary>
+        /// Find out where an element is, compared to the strip which is cut out
+        /// </summary>
+        /// <param name="bounds">NativeRect of the element</param>
+        /// <param name="cutStart">int first row / column which is cut out</param>
+        /// <param name="cutSize">int number of rows / columns which are cut out</param>
+        /// <param name="horizontal">true when rows are cut out (crop out horizontally), false for columns</param>
+        /// <returns>CutOutPlacement</returns>
+        public static CutOutPlacement GetCutOutPlacement(NativeRect bounds, int cutStart, int cutSize, bool horizontal)
+        {
+            bounds = bounds.Normalize();
+            int start = horizontal ? bounds.Top : bounds.Left;
+            int end = start + (horizontal ? bounds.Height : bounds.Width);
+            int cutEnd = cutStart + cutSize;
+            if (end <= cutStart)
+            {
+                return CutOutPlacement.Before;
+            }
+
+            if (start >= cutEnd)
+            {
+                return CutOutPlacement.After;
+            }
+
+            if (start >= cutStart && end <= cutEnd)
+            {
+                return CutOutPlacement.Inside;
+            }
+
+            return CutOutPlacement.Across;
+        }
+
+        /// <summary>
+        /// Crop out the surface: cut out the middle part and join the other two.
+        /// Elements after the cut move with the image, elements inside the cut are removed, all others stay where they are.
+        /// With a cut mark style a few rows / columns of the strip stay for the gap of a cut mark, which is placed over the joint.
         /// </summary>
         /// <param name="cropRectangle">NativeRect of the middle part</param>
-        /// <returns>bool</returns>
-        private bool ApplyHorizontalCrop(NativeRect cropRectangle)
+        /// <param name="cropMode">CropModes.Horizontal to cut out rows, CropModes.Vertical to cut out columns</param>
+        /// <param name="cutMarkStyle">CutMarkStyle for the cut mark, None for a seamless join</param>
+        /// <param name="edgeSettings">TornEdgeEffect with the tooth and shadow settings for the cut mark, null for the ones of the torn edge effect</param>
+        /// <returns>bool true if the image was changed</returns>
+        public bool ApplyCutOut(NativeRect cropRectangle, CropContainer.CropModes cropMode, CutMarkStyle cutMarkStyle = CutMarkStyle.None, TornEdgeEffect edgeSettings = null)
         {
-            if (!IsCropPossible(ref cropRectangle, CropContainer.CropModes.Horizontal)) return false;
+            if (cropMode != CropContainer.CropModes.Horizontal && cropMode != CropContainer.CropModes.Vertical)
+            {
+                throw new ArgumentOutOfRangeException(nameof(cropMode), cropMode, "Only horizontal and vertical can be cut out");
+            }
 
-            var imageRectangle = new NativeRect(NativePoint.Empty, Image.Size);
-            var topRectangle = new NativeRect(0, 0, Image.Size.Width, cropRectangle.Top);
-            var bottomRectangle = new NativeRect(0, cropRectangle.Top + cropRectangle.Height, Image.Size.Width, Image.Size.Height - cropRectangle.Top - cropRectangle.Height);
+            if (!IsCropPossible(ref cropRectangle, cropMode)) return false;
+
+            bool horizontal = cropMode == CropContainer.CropModes.Horizontal;
+            int cutStart = horizontal ? cropRectangle.Top : cropRectangle.Left;
+            int cutSize = horizontal ? cropRectangle.Height : cropRectangle.Width;
+            int imageLength = horizontal ? Image.Height : Image.Width;
+
+            // Only a cut in the middle has a joint to mark, the gap of the mark keeps a part of the strip
+            CutMarkContainer cutMark = null;
+            if (cutMarkStyle != CutMarkStyle.None && cutStart > 0 && cutStart + cutSize < imageLength)
+            {
+                // The shadow comes from the torn edge effect, the tooth sizes are the last used ones unless settings are given
+                var shadowSettings = edgeSettings ?? IniConfigRegistry.GetSection<IEditorConfiguration>()?.TornEdgeEffectSettings ?? new TornEdgeEffect();
+                cutMark = new CutMarkContainer(this, horizontal, shadowSettings);
+                if (edgeSettings != null)
+                {
+                    cutMark.SetToothSize(edgeSettings.ToothHeight, horizontal ? edgeSettings.HorizontalToothRange : edgeSettings.VerticalToothRange);
+                }
+
+                cutMark.SetFieldValue(FieldType.CUT_MARK_STYLE, cutMarkStyle);
+            }
+
+            int gap = cutMark != null ? Math.Min(cutSize, Math.Max(2, cutMark.ToothHeight)) : 0;
 
             Bitmap newImage;
             try
             {
-                newImage = new Bitmap(Image.Size.Width, Image.Size.Height - cropRectangle.Height);
-
-                using var graphics = Graphics.FromImage(newImage);
-
-                var insertPositionTop = 0;
-                if (topRectangle.Height > 0)
-                {
-                    graphics.DrawImage(Image, new NativeRect(0, insertPositionTop, topRectangle.Width, topRectangle.Height), topRectangle, GraphicsUnit.Pixel);
-                    insertPositionTop += topRectangle.Height;
-                }
-                if (bottomRectangle.Height > 0)
-                {
-                    graphics.DrawImage(Image, new NativeRect(0, insertPositionTop, bottomRectangle.Width, bottomRectangle.Height), bottomRectangle, GraphicsUnit.Pixel);
-                }
+                newImage = CutOutHelper.CutOut(Image, cutStart + gap, cutSize - gap, horizontal);
             }
             catch (Exception ex)
             {
+                cutMark?.Dispose();
                 ex.Data.Add("CropRectangle", cropRectangle);
                 ex.Data.Add("Width", Image.Width);
                 ex.Data.Add("Height", Image.Height);
                 ex.Data.Add("Pixelformat", Image.PixelFormat);
                 throw;
             }
-            var matrix = new Matrix();
-            matrix.Translate(0, -(cropRectangle.Top + cropRectangle.Height), MatrixOrder.Append);
-            // Make undoable
-            MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
 
-            // Do not dispose otherwise we can't undo the image!
-            SetImage(newImage, false);
-
-            _elements.Transform(matrix);
-            if (_surfaceSizeChanged != null && !imageRectangle.Equals(new NativeRect(NativePoint.Empty, newImage.Size)))
+            var movedElements = new List<IDrawableContainer>();
+            var removedElements = new DrawableContainerList(ID);
+            foreach (var element in _elements)
             {
-                _surfaceSizeChanged(this, null);
+                switch (GetCutOutPlacement(element.Bounds, cutStart, cutSize, horizontal))
+                {
+                    case CutOutPlacement.After:
+                        movedElements.Add(element);
+                        break;
+                    case CutOutPlacement.Inside:
+                        removedElements.Add(element);
+                        break;
+                }
             }
 
-            Invalidate();
+            var addedElements = new DrawableContainerList(ID);
+            if (cutMark != null)
+            {
+                int bandSize = CutMarkContainer.GetBandSize(cutMark.ToothHeight, gap);
+                int bandStart = cutStart + gap / 2 - bandSize / 2;
+                cutMark.Left = horizontal ? 0 : bandStart;
+                cutMark.Top = horizontal ? bandStart : 0;
+                cutMark.Width = horizontal ? newImage.Width : bandSize;
+                cutMark.Height = horizontal ? bandSize : newImage.Height;
+                addedElements.Add(cutMark);
+            }
+
+            int moveBy = cutSize - gap;
+            var offset = horizontal ? new NativePoint(0, -moveBy) : new NativePoint(-moveBy, 0);
+            // Make undoable, the memento takes the current image
+            MakeUndoable(new SurfaceCutOutMemento(this, Image, movedElements, new NativePoint(-offset.X, -offset.Y), removedElements, addedElements), false);
+
+            // Do not dispose otherwise we can't undo the image!
+            ApplyCutOutState(newImage, movedElements, offset, addedElements, removedElements);
             return true;
         }
 
         /// <summary>
-        /// Crop out the surface
-        /// Splits the image in 3 parts(left, middle, right). Crop out the middle and joins top and bottom.
+        /// Tear the edges of the capture, as an element which can be changed later. When there are torn edges already, these are selected.
         /// </summary>
-        /// <param name="cropRectangle">NativeRect of the middle part</param>
-        /// <returns>bool</returns>
-        private bool ApplyVerticalCrop(NativeRect cropRectangle)
+        /// <param name="settings">TornEdgeEffect with the settings for new torn edges</param>
+        /// <returns>TornEdgeContainer</returns>
+        public TornEdgeContainer AddTornEdges(TornEdgeEffect settings)
         {
-            if (!IsCropPossible(ref cropRectangle, CropContainer.CropModes.Vertical)) return false;
-
-            var imageRectangle = new NativeRect(NativePoint.Empty, Image.Size);
-            var leftRectangle = new NativeRect(0, 0, cropRectangle.Left, Image.Size.Height);
-            var rightRectangle = new NativeRect(cropRectangle.Left + cropRectangle.Width, 0, Image.Size.Width - cropRectangle.Width - cropRectangle.Left, Image.Size.Height);
-            Bitmap newImage;
-            try
+            // There is only one torn edge, which can be changed
+            var tornEdges = _elements.OfType<TornEdgeContainer>().FirstOrDefault();
+            if (tornEdges != null)
             {
-                newImage = new Bitmap(Image.Size.Width - cropRectangle.Width, Image.Size.Height);
+                DeselectAllElements();
+                SelectElement(tornEdges);
+                return tornEdges;
+            }
 
-                using var graphics = Graphics.FromImage(newImage);
+            settings ??= new TornEdgeEffect();
+            int margin = TornEdgeContainer.GetShadowMargin(settings);
+            tornEdges = new TornEdgeContainer(this, settings, margin);
+            DeselectAllElements();
+            if (margin == 0)
+            {
+                AddElement(tornEdges);
+            }
+            else
+            {
+                // Make room for the shadow like the torn edge effect does, the elements move with the image.
+                // The room is part of the torn off area, so it is transparent or the fill color.
+                Bitmap newImage = ExpandImage(Image, settings.BackgroundColor, new[] { margin, margin, margin, margin });
 
-                var insertPositionLeft = 0;
-                if (leftRectangle.Width > 0)
+                var movedElements = _elements.ToList();
+                var addedElements = new DrawableContainerList(ID) { tornEdges };
+                var offset = new NativePoint(margin, margin);
+                MakeUndoable(new SurfaceCutOutMemento(this, Image, movedElements, new NativePoint(-margin, -margin), new DrawableContainerList(ID), addedElements), false);
+                ApplyCutOutState(newImage, movedElements, offset, addedElements, new DrawableContainerList(ID));
+                // It was created for the old image size, this makes it cover the new one
+                tornEdges.MoveBy(0, 0);
+            }
+
+            SelectElement(tornEdges);
+            return tornEdges;
+        }
+
+        /// <summary>
+        /// Draw an element into the image and remove it, e.g. to keep the cut edges or torn edges before drawing on.
+        /// Only when the element needs transparency the image gets an alpha channel.
+        /// </summary>
+        /// <param name="element">IDrawableContainer on this surface</param>
+        /// <returns>true when it was applied</returns>
+        public bool ApplyElementToImage(IDrawableContainer element)
+        {
+            if (element is not DrawableContainer drawableContainer || !_elements.Contains(element))
+            {
+                return false;
+            }
+
+            bool needsAlpha = element is CutMarkContainer { HasTransparentGap: true } or TornEdgeContainer { HasTransparentEdge: true };
+            Bitmap newImage = ImageHelper.Clone(Image, needsAlpha ? PixelFormat.Format32bppArgb : PixelFormat.DontCare);
+            using (var graphics = Graphics.FromImage(newImage))
+            {
+                drawableContainer.Draw(graphics, RenderMode.EXPORT);
+            }
+
+            DeselectAllElements();
+            var removedElements = new DrawableContainerList(ID) { element };
+            var noElements = new List<IDrawableContainer>();
+            MakeUndoable(new SurfaceCutOutMemento(this, Image, noElements, NativePoint.Empty, removedElements, new DrawableContainerList(ID)), false);
+            ApplyCutOutState(newImage, noElements, NativePoint.Empty, new DrawableContainerList(ID), removedElements);
+            return true;
+        }
+
+        /// <summary>
+        /// Change the image and elements for a crop out, or the undo / redo of it.
+        /// This is called from the SurfaceCutOutMemento.
+        /// </summary>
+        /// <param name="image">Image the new image, the current one is not disposed</param>
+        /// <param name="movedElements">elements to move</param>
+        /// <param name="offset">NativePoint how far to move the elements</param>
+        /// <param name="elementsToAdd">elements to add</param>
+        /// <param name="elementsToRemove">elements to remove</param>
+        public void ApplyCutOutState(Image image, IEnumerable<IDrawableContainer> movedElements, NativePoint offset, IDrawableContainerList elementsToAdd, IDrawableContainerList elementsToRemove)
+        {
+            var imageSize = Image?.Size ?? Size.Empty;
+            SetImage(image, false);
+
+            using (var matrix = new Matrix())
+            {
+                matrix.Translate(offset.X, offset.Y, MatrixOrder.Append);
+                foreach (var element in movedElements)
                 {
-                    graphics.DrawImage(Image, new NativeRect(insertPositionLeft, 0, leftRectangle.Width, leftRectangle.Height), leftRectangle , GraphicsUnit.Pixel);
-                    insertPositionLeft += leftRectangle.Width;
-                }
-                
-                if (rightRectangle.Width > 0)
-                {
-                    graphics.DrawImage(Image, new NativeRect(insertPositionLeft, 0, rightRectangle.Width, rightRectangle.Height), rightRectangle,  GraphicsUnit.Pixel);
+                    element.Transform(matrix);
                 }
             }
-            catch (Exception ex)
+
+            foreach (var element in elementsToRemove.ToList())
             {
-                ex.Data.Add("CropRectangle", cropRectangle);
-                ex.Data.Add("Width", Image.Width);
-                ex.Data.Add("Height", Image.Height);
-                ex.Data.Add("Pixelformat", Image.PixelFormat);
-                throw;
+                RemoveElement(element, false, false, false);
             }
-            var matrix = new Matrix();
-            matrix.Translate(-cropRectangle.Left - cropRectangle.Width, 0, MatrixOrder.Append);
-            // Make undoable
-            MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
 
-            // Do not dispose otherwise we can't undo the image!
-            SetImage(newImage, false);
+            foreach (var element in elementsToAdd)
+            {
+                AddElement(element, false, false);
+            }
 
-            _elements.Transform(matrix);
-            if (_surfaceSizeChanged != null && !imageRectangle.Equals(new NativeRect(NativePoint.Empty, newImage.Size)))
+            if (_surfaceSizeChanged != null && imageSize != image.Size)
             {
                 _surfaceSizeChanged(this, null);
             }
 
             Invalidate();
-            return true;
         }
 
         /// <summary>
@@ -1708,7 +2194,11 @@ namespace Greenshot.Editor.Drawing
         private Image GetImage(RenderMode renderMode)
         {
             // Generate a copy of the original image with a dpi equal to the default...
-            Bitmap clone = ImageHelper.Clone(_image, PixelFormat.DontCare);
+            // A cut mark with a transparent gap or transparent torn edges need an alpha channel
+            var pixelFormat = renderMode == RenderMode.EXPORT && _elements.Any(element => element is CutMarkContainer { HasTransparentGap: true } or TornEdgeContainer { HasTransparentEdge: true })
+                ? PixelFormat.Format32bppArgb
+                : PixelFormat.DontCare;
+            Bitmap clone = ImageHelper.Clone(_image, pixelFormat);
             // otherwise we would have a problem drawing the image to the surface... :(
             using (Graphics graphics = Graphics.FromImage(clone))
             {
@@ -1978,11 +2468,10 @@ namespace Greenshot.Editor.Drawing
             SuspendLayout();
             foreach (var drawableContainer in cloned)
             {
-                RemoveElement(drawableContainer, false, false, false);
+                RemoveElement(drawableContainer, false, true, false);
             }
 
             ResumeLayout();
-            Invalidate();
             if (_movingElementChanged != null)
             {
                 SurfaceElementEventArgs eventArgs = new SurfaceElementEventArgs
@@ -2004,6 +2493,12 @@ namespace Greenshot.Editor.Drawing
         {
             DeselectElement(elementToRemove, generateEvents);
             _elements.Remove(elementToRemove);
+            // Invalidate only the area of the element, this needs to happen while it still has its parent
+            if (invalidate)
+            {
+                elementToRemove?.Invalidate();
+            }
+
             if (elementToRemove is DrawableContainer element)
             {
                 element.FieldChanged -= Element_FieldChanged;
@@ -2015,11 +2510,6 @@ namespace Greenshot.Editor.Drawing
             }
 
             // Do not dispose, the memento should!! element.Dispose();
-            if (invalidate)
-            {
-                Invalidate();
-            }
-
             if (makeUndoable && elementToRemove is { IsUndoable: true })
             {
                 MakeUndoable(new DeleteElementMemento(this, elementToRemove), false);
@@ -2052,11 +2542,10 @@ namespace Greenshot.Editor.Drawing
             foreach (var element in cloned)
             {
                 element.Selected = true;
-                AddElement(element, false, false);
+                AddElement(element, false);
             }
 
             ResumeLayout();
-            Invalidate();
         }
 
         /// <summary>
@@ -2092,10 +2581,7 @@ namespace Greenshot.Editor.Drawing
         public void CutSelectedElements()
         {
             if (!HasSelectedElements) return;
-
-            var serializedData = V2Helper.SerializeDrawableContainerList((DrawableContainerList)selectedElements);
-            ClipboardHelper.SetClipboardData(typeof(DrawableContainerListDto), serializedData);
-
+            DrawableContainerClipboard.Copy(selectedElements);
             RemoveSelectedElements();
         }
 
@@ -2105,9 +2591,7 @@ namespace Greenshot.Editor.Drawing
         public void CopySelectedElements()
         {
             if (!HasSelectedElements) return;
-
-            var serializedData = V2Helper.SerializeDrawableContainerList((DrawableContainerList)selectedElements);
-            ClipboardHelper.SetClipboardData(typeof(DrawableContainerListDto), serializedData);
+            DrawableContainerClipboard.Copy(selectedElements);
         }
 
         /// <summary>
@@ -2164,9 +2648,9 @@ namespace Greenshot.Editor.Drawing
 
                 _ = e.GetFieldValue(FieldType.CROPMODE) switch
                 {
-                    CropContainer.CropModes.Horizontal => ApplyHorizontalCrop(_cropContainer.Bounds),
-                    CropContainer.CropModes.Vertical => ApplyVerticalCrop(_cropContainer.Bounds),
-                    _ => ApplyCrop(_cropContainer.Bounds)
+                    CropContainer.CropModes.Horizontal => ApplyCutOut(_cropContainer.Bounds, CropContainer.CropModes.Horizontal, GetCutMarkStyle(e)),
+                    CropContainer.CropModes.Vertical => ApplyCutOut(_cropContainer.Bounds, CropContainer.CropModes.Vertical, GetCutMarkStyle(e)),
+                    _ => ApplyCrop(_cropContainer.Bounds, GetCutMarkStyle(e))
                 };
 
                 _cropContainer.Dispose();
@@ -2183,6 +2667,9 @@ namespace Greenshot.Editor.Drawing
             _movingElementChanged?.Invoke(this, new SurfaceElementEventArgs());
         }
 
+        private static CutMarkStyle GetCutMarkStyle(CropContainer cropContainer)
+            => cropContainer.GetFieldValue(FieldType.CUT_MARK_STYLE) is CutMarkStyle cutMarkStyle ? cutMarkStyle : CutMarkStyle.None;
+
         public void RemoveCropContainer()
         {
             if (_cropContainer == null) return;
@@ -2197,29 +2684,11 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         public void PasteElementFromClipboard()
         {
-            IDataObject clipboard = ClipboardHelper.GetDataObject();
-
-            var formats = ClipboardHelper.GetFormats(clipboard);
-            if (formats == null || formats.Count == 0)
+            // Copy the formats which are needed in one short clipboard session, decode afterwards
+            if (DrawableContainerClipboard.IsAvailable)
             {
-                return;
-            }
-
-            if (LOG.IsDebugEnabled)
-            {
-                LOG.Debug("List of clipboard formats available for pasting:");
-                foreach (string format in formats)
-                {
-                    LOG.Debug("\tgot format: " + format);
-                }
-            }
-
-            if (formats.Contains(typeof(DrawableContainerListDto).FullName))
-            {
-                var serializedData = ClipboardHelper.GetFromDataObject(clipboard, typeof(DrawableContainerListDto)) as string;
-
-                IDrawableContainerList dcs = V2Helper.DeserializeDrawableContainerList(serializedData);
-
+                var elementsSnapshot = ClipboardHelper.ReadSnapshot(new[] { DrawableContainerClipboard.Format }, DrawableContainerClipboard.MaxSize);
+                IDrawableContainerList dcs = DrawableContainerClipboard.Read(elementsSnapshot);
                 if (dcs != null)
                 {
                     // Make element(s) only move 10,10 if the surface is the same
@@ -2295,22 +2764,34 @@ namespace Greenshot.Editor.Drawing
                     FieldAggregator.BindElements(dcs);
                     DeselectAllElements();
                     SelectElements(dcs);
+                    return;
                 }
+                LOG.Warn("The Greenshot elements on the clipboard couldn't be read, pasting the other content.");
             }
-            else if (ClipboardHelper.ContainsImage(clipboard))
-            {
-                NativePoint pasteLocation = GetPasteLocation(0.1f, 0.1f);
 
-                foreach (var drawableContainer in ClipboardHelper.GetDrawables(clipboard))
-                {
-                    if (drawableContainer == null) continue;
-                    DeselectAllElements();
-                    drawableContainer.Left = pasteLocation.X;
-                    drawableContainer.Top = pasteLocation.Y; 
-                    AddElement(drawableContainer);
-                    SelectElement(drawableContainer);
-                    pasteLocation = pasteLocation.Offset(10, 10);
-                }
+            var clipboard = ClipboardHelper.ReadSnapshot(ClipboardHelper.SelectImageReadFormats().Concat(ClipboardHelper.TextReadFormats));
+            if (clipboard == null || clipboard.Formats.Count == 0)
+            {
+                return;
+            }
+
+            if (LOG.IsDebugEnabled)
+            {
+                LOG.Debug("List of clipboard formats available for pasting: " + string.Join(", ", clipboard.Formats));
+            }
+
+            // Loading tells if there is an image, a separate check would read the files and parse the HTML twice
+            var drawableContainers = ClipboardHelper.GetDrawables(clipboard).Where(drawableContainer => drawableContainer != null).ToList();
+            var imageUrls = drawableContainers.Count == 0 ? ClipboardHelper.GetHtmlImageUrls(clipboard) : Array.Empty<string>();
+            if (imageUrls.Count > 0)
+            {
+                // Only HTML with images: download them without blocking the UI
+                NativePoint pasteLocation = GetPasteLocation(0.1f, 0.1f);
+                AsyncCommand.Run(() => AddDownloadedOrFallbackAsync(imageUrls, drawableContainers, pasteLocation, pasteLocation, false, true), "Download the pasted image");
+            }
+            else if (drawableContainers.Count > 0)
+            {
+                AddDrawables(drawableContainers, GetPasteLocation(0.1f, 0.1f), false, true);
             }
             else if (ClipboardHelper.ContainsText(clipboard))
             {
@@ -2419,6 +2900,7 @@ namespace Greenshot.Editor.Drawing
             while (elements.Count > 0)
             {
                 var element = elements[0];
+                element.Invalidate();
                 DeselectElement(element, false);
             }
 
@@ -2430,8 +2912,6 @@ namespace Greenshot.Editor.Drawing
                 };
                 _movingElementChanged(this, eventArgs);
             }
-
-            Invalidate();
         }
 
         /// <summary>
@@ -2488,7 +2968,7 @@ namespace Greenshot.Editor.Drawing
             foreach (var drawableContainer in elements)
             {
                 var element = (DrawableContainer) drawableContainer;
-                SelectElement(element, false, false);
+                SelectElement(element, true, false);
             }
 
             if (_movingElementChanged != null)
@@ -2501,7 +2981,6 @@ namespace Greenshot.Editor.Drawing
             }
 
             ResumeLayout();
-            Invalidate();
         }
 
         /// <summary>

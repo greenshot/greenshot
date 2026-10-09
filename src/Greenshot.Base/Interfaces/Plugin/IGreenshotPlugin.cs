@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -20,62 +20,53 @@
  */
 
 using System;
-using Dapplo.Ini;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Greenshot.Base.Interfaces.Plugin
 {
     /// <summary>
-    /// This defines the plugin
+    /// A Greenshot plugin (roadmap section 5.4). The host creates it, lets it register what it offers, loads the configuration
+    /// and then starts all plugins in parallel with a timeout, without waiting for them: a slow or failing plugin is logged
+    /// and never blocks the startup.
     /// </summary>
-    public interface IGreenshotPlugin : IDisposable
+    public interface IGreenshotPlugin : IAsyncDisposable
     {
         /// <summary>
-        /// Phase 1 — called before the INI file is read.
-        /// The plugin receives the shared <see cref="Dapplo.Ini.IniConfig"/> and must register
-        /// its configuration section(s) by calling <c>iniConfig.AddSection(new XxxImpl())</c>.
-        /// Translations may also be registered here.
-        /// No file I/O has occurred at this point.
-        /// </summary>
-        /// <param name="iniConfig">The application-wide Dapplo.Ini config object.</param>
-        void RegisterConfiguration(IniConfig iniConfig);
-
-        /// <summary>
-        /// Phase 2 — called after the INI file has been loaded.
-        /// The plugin should register its services into the supplied DI container.
-        /// Configuration values are safe to read at this point.
-        /// </summary>
-        /// <param name="serviceLocator">The application-wide service locator.</param>
-        void RegisterServices(IServiceLocator serviceLocator);
-
-        /// <summary>
-        /// Phase 3 — called after all services have been registered.
-        /// The plugin may perform its remaining start-up work here; both configuration
-        /// and all registered services are guaranteed to be available.
-        /// </summary>
-        /// <returns>
-        /// <c>true</c> if the plugin started successfully and should be shown;
-        /// <c>false</c> to indicate that the plugin is not active.
-        /// </returns>
-        bool Start();
-
-        /// <summary>
-        /// Unload of the plugin
-        /// </summary>
-        void Shutdown();
-
-        /// <summary>
-        /// Open the Configuration Form, will/should not be called before handshaking is done
-        /// </summary>
-        void Configure();
-
-        /// <summary>
-        /// Define the name of the plugin
+        /// Name of the plugin
         /// </summary>
         string Name { get; }
 
         /// <summary>
-        /// Specifies if the plugin can be configured
+        /// Registration only: configuration sections, services, destinations, settings views. Synchronous and without I/O,
+        /// the configuration isn't loaded yet (use the factory overloads for what needs it).
         /// </summary>
-        bool IsConfigurable { get; }
+        /// <param name="services">IPluginServices</param>
+        void ConfigureServices(IPluginServices services);
+
+        /// <summary>
+        /// Start the plugin (e.g. add menu entries on the UI thread via the IUiDispatcher), the configuration is loaded.
+        /// </summary>
+        /// <param name="services">the services of the host (IUiDispatcher, IUserInteraction, IStaWorkerFactory, ...)</param>
+        /// <param name="cancellationToken">CancellationToken, cancelled when the start takes too long</param>
+        Task StartAsync(IServiceProvider services, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Stop the plugin (remove menu entries, unsubscribe events), called when Greenshot exits.
+        /// </summary>
+        /// <param name="cancellationToken">CancellationToken, cancelled when the stop takes too long</param>
+        Task StopAsync(CancellationToken cancellationToken);
+    }
+
+    /// <summary>
+    /// A plugin with settings: the host shows the view model with the view the plugin registered for it (IPluginServices.AddSettingsView).
+    /// </summary>
+    public interface IConfigurablePlugin
+    {
+        /// <summary>
+        /// The view model of the settings of the plugin
+        /// </summary>
+        /// <param name="services">the services of the host</param>
+        object CreateSettingsViewModel(IServiceProvider services);
     }
 }

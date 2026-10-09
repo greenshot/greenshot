@@ -122,6 +122,8 @@ public static class ConvertDomainToDto
             MetafileContainer metafileContainer => ToDto(metafileContainer),
             SvgContainer svgContainer => ToDto(svgContainer),
             EmojiContainer emojiContainer => ToDto(emojiContainer),
+            CutMarkContainer cutMarkContainer => ToDto(cutMarkContainer),
+            TornEdgeContainer tornEdgeContainer => ToDto(tornEdgeContainer),
             _ => throw new ArgumentException($"Unsupported IDrawableContainer type: {domain.GetType()}"),
         };
 
@@ -200,6 +202,51 @@ public static class ConvertDomainToDto
             Fields = domain.GetFields() == null ? [] : domain.GetFields().Select(ToDto).ToList(),
             Emoji = domain.Emoji,
             RotationAngle = domain.RotationAngle
+        };
+        return dto;
+    }
+
+    public static CutMarkContainerDto ToDto(CutMarkContainer domain)
+    {
+        if (domain == null) return null;
+
+        var settings = domain.GetSettings();
+        var dto = new CutMarkContainerDto
+        {
+            Left = domain.Left,
+            Top = domain.Top,
+            Width = domain.Width,
+            Height = domain.Height,
+            Fields = domain.GetFields() == null ? [] : domain.GetFields().Select(ToDto).ToList(),
+            Horizontal = domain.IsHorizontal,
+            Seed = domain.Seed,
+            ShadowDarkness = settings.Darkness,
+            ShadowSize = settings.ShadowSize,
+            ShadowOffsetX = settings.ShadowOffset.X,
+            ShadowOffsetY = settings.ShadowOffset.Y
+        };
+        return dto;
+    }
+
+    public static TornEdgeContainerDto ToDto(TornEdgeContainer domain)
+    {
+        if (domain == null) return null;
+
+        var settings = domain.GetSettings();
+        var dto = new TornEdgeContainerDto
+        {
+            Left = domain.Left,
+            Top = domain.Top,
+            Width = domain.Width,
+            Height = domain.Height,
+            Fields = domain.GetFields() == null ? [] : domain.GetFields().Select(ToDto).ToList(),
+            Seed = domain.Seed,
+            Edges = domain.Edges.ToList(),
+            Margins = domain.Margins.ToList(),
+            ShadowDarkness = settings.Darkness,
+            ShadowSize = settings.ShadowSize,
+            ShadowOffsetX = settings.ShadowOffset.X,
+            ShadowOffsetY = settings.ShadowOffset.Y
         };
         return dto;
     }
@@ -449,6 +496,7 @@ public static class ConvertDomainToDto
             FieldFlag fieldFlagValue => new FieldFlagFieldValueDto { Value = fieldFlagValue },
             PreparedFilter preparedFilterValue => new PreparedFilterFieldValueDto { Value = preparedFilterValue },
             StringAlignment stringAlignmentValue => new StringAlignmentFieldValueDto { Value = stringAlignmentValue },
+            CutMarkStyle cutMarkStyleValue => new CutMarkStyleFieldValueDto { Value = cutMarkStyleValue },
             _ => throw new ArgumentException($"Unsupported type: {value.GetType()}"),
         };
 

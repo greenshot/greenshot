@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -69,21 +70,41 @@ namespace Greenshot.Editor.Drawing.Fields
 
         public void BindElements(IDrawableContainerList dcs)
         {
+            bool anyBound = false;
             foreach (var dc in dcs)
             {
-                BindElement(dc);
+                anyBound |= Bind(dc);
+            }
+
+            // Once for all elements, not for each element
+            if (anyBound)
+            {
+                UpdateFromBoundElements();
             }
         }
 
         public void BindElement(IDrawableContainer dc)
         {
+            if (Bind(dc))
+            {
+                UpdateFromBoundElements();
+            }
+        }
+
+        private bool Bind(IDrawableContainer dc)
+        {
             if (!(dc is DrawableContainer container) || _boundContainers.Contains(container))
             {
-                return;
+                return false;
             }
 
             _boundContainers.Add(container);
-            container.ChildrenChanged += delegate { UpdateFromBoundElements(); };
+            container.ChildrenChanged += OnBoundElementChildrenChanged;
+            return true;
+        }
+
+        private void OnBoundElementChildrenChanged(object sender, EventArgs e)
+        {
             UpdateFromBoundElements();
         }
 
@@ -118,12 +139,23 @@ namespace Greenshot.Editor.Drawing.Fields
             if (!_boundContainers.Contains(dc)) return;
 
             _boundContainers.Remove(dc);
+            if (dc is DrawableContainer container)
+            {
+                container.ChildrenChanged -= OnBoundElementChildrenChanged;
+            }
             UpdateFromBoundElements();
         }
 
         public void Clear()
         {
             ClearFields();
+            foreach (var dc in _boundContainers)
+            {
+                if (dc is DrawableContainer container)
+                {
+                    container.ChildrenChanged -= OnBoundElementChildrenChanged;
+                }
+            }
             _boundContainers.Clear();
             UpdateFromBoundElements();
         }

@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026  Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026  Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -20,20 +20,22 @@
  */
 
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Windows.Forms;
-using System.Windows.Threading;
 using Dapplo.Windows.AppRestartManager;
-using Dapplo.Windows.Messages.Enumerations;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.FileFormatHandlers;
 using Greenshot.Editor.Forms;
+using Greenshot.Ipc;
 using log4net;
+using Greenshot.Base.Threading;
+using System.Threading.Tasks;
+using Greenshot.Base.Core.Export;
 
 namespace Greenshot.Helpers
 {
@@ -45,7 +47,6 @@ namespace Greenshot.Helpers
     internal static class RestartManagerHelper
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(RestartManagerHelper));
-        private static Dispatcher _dispatcher;
 
         /// <summary>
         /// Directory where editor state is stored for restore after a system restart.
@@ -53,35 +54,102 @@ namespace Greenshot.Helpers
         public static string StateDirectory => Path.Combine(Path.GetTempPath(), "Greenshot", "RestartState");
 
         /// <summary>
+        /// How long the end of the session waits for the editors to save their state
+        /// </summary>
+        private static readonly TimeSpan SaveStateTimeout = TimeSpan.FromSeconds(4);
+
+        private static IDisposable _endSessionSubscription;
+
+        /// <summary>
+        /// Creates the command line for the restart: <c>--restore</c>, and <c>--ini-directory</c> when one is active.
+        /// </summary>
+        /// <param name="iniDirectory">The active --ini-directory (absolute) or null</param>
+        internal static string CreateRestartArguments(string iniDirectory)
+        {
+            if (string.IsNullOrEmpty(iniDirectory))
+            {
+                return "--restore";
+            }
+
+            // A trailing backslash (e.g. D:\) would escape the closing quote, so double it
+            return $"--restore --ini-directory \"{(iniDirectory.EndsWith(@"\") ? iniDirectory + @"\" : iniDirectory)}\"";
+        }
+
+        /// <summary>
         /// Registers Greenshot for automatic restart by the Windows Restart Manager.
         /// When the Restart Manager restarts Greenshot, it will use the <c>--restore</c> argument
         /// so that Greenshot can restore any open image editors.
         /// </summary>
-        public static void RegisterForRestart()
+        /// <param name="iniDirectory">The active --ini-directory (absolute) or null, passed on so the restarted Greenshot uses the same greenshot.ini</param>
+        public static void RegisterForRestart(string iniDirectory)
         {
-            // Capture the current dispatcher for use in saving editor state during shutdown
-            _dispatcher = Dispatcher.CurrentDispatcher;
-
             // Register with the Windows Restart Manager so it can restart us after updates
             // Don't restart if the application crashes
-            ApplicationRestartManager.RegisterForRestart(commandLineArgs: "--restore");
+            ApplicationRestartManager.RegisterForRestart(commandLineArgs: CreateRestartArguments(iniDirectory));
 
-            ApplicationRestartManager.ListenForEndSession(
-                onQuerySession: (endSessionReason) => {
-                    // Accept that an update will take place and allow the session to end
-                    return true;
-                },
-                onEndSession: (endSessionReason) =>
-                {
-                    // Do the work, save state and exit Greenshot
-                    Debug.WriteLine($"Shutting down application due to {endSessionReason}");
-                    SaveEditorState();
-                    return true;
-                }
-                ).Subscribe(endSessionMessage =>
-                {
-                    Debug.WriteLine($"{endSessionMessage.Msg} with session reason: {endSessionMessage.EndSessionReason}");
-                });
+            // WM_QUERYENDSESSION is not answered, which allows the session to end (an update will take place).
+            // OnNext is called on the SharedMessageWindow thread, not on the UI thread.
+            _endSessionSubscription?.Dispose();
+            _endSessionSubscription = ApplicationRestartManager.ListenForEndSession()
+                .Where(endSessionMessage => endSessionMessage.IsSessionEnding)
+                .Subscribe(OnSessionEnding, ex => Log.Error("Error in the end session stream", ex));
+        }
+
+        /// <summary>
+        /// The session really ends, the process can be terminated as soon as this returns: save the state synchronously and exit Greenshot
+        /// </summary>
+        /// <param name="endSessionMessage">EndSessionMessage</param>
+        private static void OnSessionEnding(EndSessionMessage endSessionMessage)
+        {
+            Log.InfoFormat("Shutting down the application due to {0}", endSessionMessage.EndSessionReason);
+            // The Restart Manager closes Greenshot for an installer (update or uninstall): greenshot-mcp has to exit too,
+            // otherwise it keeps the installation directory locked
+            bool closedForInstaller = endSessionMessage.EndSessionReason.HasFlag(Dapplo.Windows.AppRestartManager.Enums.EndSessionReasons.ENDSESSION_CLOSEAPP);
+            NotifyClientsOfShutdown(closedForInstaller ? NamedPipeServer.ShutdownReasonUpdate : NamedPipeServer.ShutdownReasonSessionEnd);
+            SaveEditorState();
+            // Don't wait for the exit, the editors might want to ask the user something
+            UiDispatcher.Current.RunOnUiAsync(() =>
+            {
+                // Closes the WinForms forms (the editors)
+                Application.Exit();
+                SessionEndShutdown?.Invoke();
+                Environment.Exit(0);
+            }).FireAndLog("Exit after the end of the session", Log);
+        }
+
+        /// <summary>
+        /// Tells the named pipe clients that Greenshot exits, set by the GreenshotShell
+        /// </summary>
+        internal static Func<string, Task> ShutdownNotifier { get; set; }
+
+        /// <summary>
+        /// The essential cleanup when the session ends, without waiting for anything; set by the GreenshotShell, called on the UI thread
+        /// </summary>
+        internal static Action SessionEndShutdown { get; set; }
+
+        /// <summary>
+        /// How long the end of the session waits for the clients to get the shutdown message
+        /// </summary>
+        private static readonly TimeSpan NotifyTimeout = TimeSpan.FromSeconds(1);
+
+        private static void NotifyClientsOfShutdown(string reason)
+        {
+            var notifier = ShutdownNotifier;
+            if (notifier == null)
+            {
+                return;
+            }
+            try
+            {
+                // R1 exception: like SaveEditorState, this runs inside the window procedure for WM_ENDSESSION
+#pragma warning disable RS0030, VSTHRD002
+                notifier(reason).Wait(NotifyTimeout);
+#pragma warning restore RS0030, VSTHRD002
+            }
+            catch (Exception ex)
+            {
+                Log.Debug("Could not tell the named pipe clients that Greenshot exits.", ex);
+            }
         }
 
         /// <summary>
@@ -101,7 +169,7 @@ namespace Greenshot.Helpers
 
         /// <summary>
         /// Saves the state of all currently open image editors to the restart state directory
-        /// as <c>.greenshot</c> files, so they can be restored after a Restart Manager restart.
+        /// as <c>.gsa</c> files, so they can be restored after a Restart Manager restart.
         /// Any previously saved state is replaced.
         /// </summary>
         public static void SaveEditorState()
@@ -124,10 +192,11 @@ namespace Greenshot.Helpers
                     }
                 }
 
-                var editors = ImageEditorForm.Editors.ToArray();
-                _dispatcher.Invoke(() =>
+                // The editors live on the UI thread, but the end of the session is reported on the SharedMessageWindow thread
+                // and the process can be terminated as soon as it was handled: wait (limited) until the state is saved.
+                var saveTask = UiDispatcher.Current.RunOnUiAsync(() =>
                 {
-                    foreach (var editor in editors)
+                    foreach (var editor in ImageEditorForm.Editors.ToArray())
                     {
                         try
                         {
@@ -142,10 +211,16 @@ namespace Greenshot.Helpers
                             Log.Warn("Failed to save state for one editor.", ex);
                         }
                     }
-                    // Make sure the application exits after saving state
-                    Application.Exit();
-                    Environment.Exit(0);
                 });
+                // R1 exception: this runs inside the window procedure of the SharedMessageWindow for WM_ENDSESSION,
+                // Windows can terminate the process as soon as it returns, so there is nothing to await on.
+#pragma warning disable RS0030, VSTHRD002
+                bool saved = saveTask.Wait(SaveStateTimeout);
+#pragma warning restore RS0030, VSTHRD002
+                if (!saved)
+                {
+                    Log.WarnFormat("Saving the editor state didn't finish within {0}.", SaveStateTimeout);
+                }
             }
             catch (Exception ex)
             {
@@ -154,11 +229,40 @@ namespace Greenshot.Helpers
         }
 
         /// <summary>
-        /// Adds any <c>.greenshot</c> state files saved by <see cref="SaveEditorState"/> to the
-        /// supplied <paramref name="transport"/> as <see cref="CommandEnum.OpenFile"/> commands, so
-        /// that the editors will be restored when Greenshot starts with the <c>--restore</c> argument.
+        /// Open an editor with the saved state, the state file is removed when the editor shows it.
         /// </summary>
-        /// <param name="transport">Transport object to which restore commands are added.</param>
+        private static async Task RestoreEditorAsync(string filePath)
+        {
+            try
+            {
+                var greenshotFileFormatHandler = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>().OfType<GreenshotFileFormatHandler>().FirstOrDefault();
+                if (greenshotFileFormatHandler is null)
+                {
+                    throw new Exception($"No instance of {nameof(GreenshotFileFormatHandler)} found in service provider.");
+                }
+
+                ISurface surface = greenshotFileFormatHandler.LoadGreenshotSurface(filePath);
+                surface.CaptureDetails = new CaptureDetails();
+                var result = await DestinationExporter.ExportAsync(DestinationHelper.GetDestination(EditorDestination.DESIGNATION), surface, surface.CaptureDetails, true);
+                if (result.IsSucceeded)
+                {
+                    File.Delete(filePath);
+                }
+                else
+                {
+                    Log.WarnFormat("Couldn't open an editor with state file {0}: {1}", filePath, result.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Couldn't open an editor with state file: " + filePath, ex);
+            }
+        }
+
+        /// <summary>
+        /// Restores any <c>.gsa</c> state files saved by <see cref="SaveEditorState"/>
+        /// so that the editors will be restored when Greenshot starts with the <c>--restore</c> argument.
+        /// </summary>
         public static void RestoreState()
         {
             Log.InfoFormat("Greenshot started with a request to restore state.");
@@ -169,27 +273,11 @@ namespace Greenshot.Helpers
                 {
                     return;
                 }
-                var greenshotFileFormatHandler = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>().OfType<GreenshotFileFormatHandler>().FirstOrDefault();
-                if (greenshotFileFormatHandler is null)
-                {
-                    throw new Exception($"No instance of {nameof(GreenshotFileFormatHandler)} found in service provider.");
-                }
 
                 foreach (string filePath in Directory.GetFiles(stateDir, "*.gsa"))
                 {
-                    _dispatcher.Invoke(() => {                      
-                        ISurface surface = greenshotFileFormatHandler.LoadGreenshotSurface(filePath);
-                        surface.CaptureDetails = new CaptureDetails();
-                        try
-                        {
-                            DestinationHelper.GetDestination(EditorDestination.DESIGNATION).ExportCapture(true, surface, surface.CaptureDetails);
-                            File.Delete(filePath);
-                        }
-                        catch (Exception ex)
-                        {
-                            Log.Error("Couldn't open an editor with state file: " + filePath, ex);
-                        }
-                    });
+                    // Called on the UI thread (startup), the surface is created there
+                    RestoreEditorAsync(filePath).FireAndLog("Restore an editor", Log);
                     Log.InfoFormat("Queued restore of editor state from: {0}", filePath);
                 }
             }

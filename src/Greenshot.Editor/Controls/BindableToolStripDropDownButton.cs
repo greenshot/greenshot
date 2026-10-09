@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -21,7 +21,6 @@
 
 using System.ComponentModel;
 using System.Windows.Forms;
-using Greenshot.Base.Controls;
 
 namespace Greenshot.Editor.Controls
 {
@@ -30,12 +29,9 @@ namespace Greenshot.Editor.Controls
     /// Also, when a DropDownItem is selected, the DropDownButton adopts its Tag and Image.
     /// The selected tag can be accessed via SelectedTag property.
     /// </summary>
-    public class BindableToolStripDropDownButton : ToolStripDropDownButton, INotifyPropertyChanged, IGreenshotLanguageBindable
+    public class BindableToolStripDropDownButton : ToolStripDropDownButton, INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
-
-        [Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
-        public string LanguageKey { get; set; }
 
         public object SelectedTag
         {
@@ -62,18 +58,17 @@ namespace Greenshot.Editor.Controls
 
         private void AdoptFromTag(object tag)
         {
+            foreach (ToolStripItem item in DropDownItems)
+            {
+                if (item.Tag != null && item.Tag.Equals(tag))
+                {
+                    Image = item.Image;
+                    break;
+                }
+            }
+
             if (Tag == null || !Tag.Equals(tag))
             {
-                Tag = tag;
-                foreach (ToolStripItem item in DropDownItems)
-                {
-                    if (item.Tag != null && item.Tag.Equals(tag))
-                    {
-                        Image = item.Image;
-                        break;
-                    }
-                }
-
                 Tag = tag;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedTag"));
             }

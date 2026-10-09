@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -21,9 +21,9 @@
 
 using System;
 using System.IO;
-using System.Xml;
-using System.Xml.Serialization;
+using System.Xml.Linq;
 using Greenshot.Base.Core;
+using log4net;
 
 namespace Greenshot.Editor.Controls.Emoji
 {
@@ -32,22 +32,81 @@ namespace Greenshot.Editor.Controls.Emoji
     /// </summary>
     public static class EmojiData
     {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(EmojiData));
         private static readonly string EmojisXmlFilePath = Path.Combine(EnvironmentInfo.GetApplicationFolder(), "emojis.xml");
+        private static readonly Lazy<Emojis> LazyData = new(Load);
 
-        public static Emojis Data { get; private set; } = new();
+        /// <summary>
+        /// The emoji groups, these are loaded on first use (only the emoji picker needs them)
+        /// </summary>
+        public static Emojis Data => LazyData.Value;
 
-        public static void Load()
+        private static Emojis Load()
         {
-            var x = new XmlSerializer(typeof(Emojis));
+            var emojis = new Emojis();
+            if (!File.Exists(EmojisXmlFilePath))
+            {
+                Log.ErrorFormat("Missing {0}, the emoji picker will be empty.", EmojisXmlFilePath);
+                return emojis;
+            }
 
-            if (File.Exists(EmojisXmlFilePath))
+            var doc = XDocument.Load(EmojisXmlFilePath);
+            var gsElem = doc.Root?.Element("Gs");
+            if (gsElem != null)
             {
-                Data = (Emojis)x.Deserialize(new XmlTextReader(EmojisXmlFilePath));
+                foreach (var gElem in gsElem.Elements("G"))
+                {
+                    emojis.Groups.Add(ParseGroup(gElem));
+                }
             }
-            else
+            return emojis;
+        }
+
+        private static Emojis.Group ParseGroup(XElement gElem)
+        {
+            var group = new Emojis.Group
             {
-                throw new NotSupportedException($"Missing {EmojisXmlFilePath}, can't load ");
+                Name = (string)gElem.Attribute("N")
+            };
+
+            var sgElem = gElem.Element("Sg");
+            if (sgElem != null)
+            {
+                foreach (var subG in sgElem.Elements("G"))
+                {
+                    group.SubGroups.Add(ParseGroup(subG));
+                }
             }
+
+            var esElem = gElem.Element("Es");
+            if (esElem != null)
+            {
+                foreach (var eElem in esElem.Elements("E"))
+                {
+                    group.Emojis.Add(ParseEmoji(eElem));
+                }
+            }
+
+            return group;
+        }
+
+        private static Emojis.Emoji ParseEmoji(XElement eElem)
+        {
+            var emoji = new Emojis.Emoji
+            {
+                Text = (string)eElem.Attribute("T")
+            };
+
+            var vElem = eElem.Element("V");
+            if (vElem != null)
+            {
+                foreach (var subE in vElem.Elements("E"))
+                {
+                    emoji.Variations.Add(ParseEmoji(subE));
+                }
+            }
+
+            return emoji;
         }
     }
 }

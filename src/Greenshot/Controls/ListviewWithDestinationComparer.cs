@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright � 2004-2026  Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright � 2007-2026  Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -19,10 +19,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
 using System.Collections;
 using System.Windows.Forms;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Core;
 
 namespace Greenshot.Controls
 {
@@ -40,24 +40,12 @@ namespace Greenshot.Controls
                 return 0;
             }
 
-            IDestination firstDestination = listViewItemX.Tag as IDestination;
-
             if (listViewItemY.Tag is not IDestination secondDestination)
             {
                 return 1;
             }
 
-            if (firstDestination != null && firstDestination.Priority == secondDestination.Priority)
-            {
-                return string.Compare(firstDestination.Description, secondDestination.Description, StringComparison.Ordinal);
-            }
-
-            if (firstDestination != null)
-            {
-                return firstDestination.Priority - secondDestination.Priority;
-            }
-
-            return 0;
+            return listViewItemX.Tag is IDestination firstDestination ? DestinationComparer.Instance.Compare(firstDestination, secondDestination) : 0;
         }
     }
 }

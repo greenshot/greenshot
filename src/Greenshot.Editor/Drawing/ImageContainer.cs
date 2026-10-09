@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -35,9 +35,9 @@ using log4net;
 namespace Greenshot.Editor.Drawing
 {
     /// <summary>
-    /// Description of BitmapContainer.
+    /// The ImageContainer is a container that can hold an image, and is used to display images in the editor.
     /// </summary>
-    public class ImageContainer : DrawableContainer, IImageContainer
+    public class ImageContainer : DrawableContainer, IImageContainer, IHaveScaleOptions
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ImageContainer));
 
@@ -266,5 +266,14 @@ namespace Greenshot.Editor.Drawing
         public override bool HasDefaultSize => true;
 
         public override NativeSize DefaultSize => _image?.Size ?? new NativeSize(32, 32);
+
+        public ScaleOptions GetScaleOptions()
+        {
+            if (Tag is Greenshot.Base.Interfaces.Drawing.IDoubleClickHandler)
+            {
+                return ScaleOptions.Rational;
+            }
+            return Greenshot.Editor.Helpers.ScaleHelper.GetScaleOptions();
+        }
     }
 }

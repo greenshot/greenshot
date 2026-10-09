@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -22,6 +22,8 @@
 using System;
 using System.Drawing;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Dapplo.Ini;
 
@@ -29,24 +31,84 @@ namespace Greenshot.Plugin.ExternalCommand;
 
 public static class IconCache
 {
-    private static readonly IExternalCommandConfiguration config = IniConfigRegistry.GetSection<IExternalCommandConfiguration>();
+    private static IExternalCommandConfiguration Config
+    {
+        get
+        {
+            try
+            {
+                return IniConfigRegistry.GetSection<IExternalCommandConfiguration>();
+            }
+            catch
+            {
+                return null;
+            }
+        }
+    }
     private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(IconCache));
 
-    public static Image IconForCommand(string commandName)
+    /// <summary>
+    /// The icon of the command (cached, don't dispose it): the icon of the executable or the logo of the Windows App.
+    /// </summary>
+    public static async Task<Image> IconForCommandAsync(string commandName, CancellationToken cancellationToken = default)
     {
-        Image icon = null;
-        if (commandName != null)
+        if (string.IsNullOrEmpty(commandName))
         {
-            if (config.Commandline.ContainsKey(commandName) && File.Exists(config.Commandline[commandName]))
+            return null;
+        }
+
+        var configuration = Config;
+        string rawCommandLine = null;
+        if (configuration?.Commandline != null && configuration.Commandline.TryGetValue(commandName, out var cmdLine))
+        {
+            rawCommandLine = cmdLine;
+        }
+
+        string expanded = null;
+        if (!string.IsNullOrWhiteSpace(rawCommandLine))
+        {
+            try
             {
-                try
-                {
-                    icon = PluginUtils.GetCachedExeIcon(config.Commandline[commandName], 0);
-                }
-                catch (Exception ex)
-                {
-                    LOG.Warn("Problem loading icon for " + config.Commandline[commandName], ex);
-                }
+                expanded = FilenameHelper.FillVariables(rawCommandLine, true);
+                expanded = FilenameHelper.FillCmdVariables(expanded, true);
+            }
+            catch (Exception ex)
+            {
+                LOG.Warn("Problem expanding command line variables for " + rawCommandLine, ex);
+            }
+        }
+
+        Image icon = null;
+
+        // 1. Try loading from executable if path exists
+        string exePath = expanded;
+        if (!string.IsNullOrEmpty(exePath) && !File.Exists(exePath))
+        {
+            exePath = PluginUtils.GetExePath(exePath);
+        }
+
+        if (!string.IsNullOrEmpty(exePath) && File.Exists(exePath))
+        {
+            try
+            {
+                icon = await PluginUtils.GetCachedExeIconAsync(exePath, 0, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                LOG.Warn("Problem loading icon for " + exePath, ex);
+            }
+        }
+
+        // 2. Fallback: try Windows App logo (for AppExecutionAliases, packaged apps, or store apps)
+        if (icon == null)
+        {
+            try
+            {
+                icon = await WindowsAppHelper.GetAppLogoAsync(expanded ?? rawCommandLine, commandName, cancellationToken: cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                LOG.Warn("Problem loading Windows App icon for " + commandName, ex);
             }
         }
 

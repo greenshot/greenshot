@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -23,48 +23,43 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Windows.Forms;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.Enums;
 using Dapplo.Ini;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Threading;
+using Greenshot.Base.Languages;
+using Greenshot.Plugin.ExternalCommand.Destinations;
+using Greenshot.Plugin.ExternalCommand.Recipes;
+using Greenshot.Plugin.ExternalCommand.Views;
 
 namespace Greenshot.Plugin.ExternalCommand;
 
 /// <summary>
 /// An Plugin to run commands after an image was written
 /// </summary>
-public class ExternalCommandPlugin : IGreenshotPlugin
+public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvider
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ExternalCommandPlugin));
     private static ICoreConfiguration CoreConfig;
     private static IExternalCommandConfiguration ExternalCommandConfig;
-    private ToolStripMenuItem _itemPlugInRoot;
+    private TrayMenuEntry _itemPlugInRoot;
 
-    public void Dispose()
+    public ValueTask DisposeAsync()
     {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    private void Dispose(bool disposing)
-    {
-        if (!disposing) return;
-        if (_itemPlugInRoot == null) return;
-        _itemPlugInRoot.Dispose();
-        _itemPlugInRoot = null;
+        // The menu item is removed and disposed in StopAsync
+        return default;
     }
 
     /// <summary>
     /// Name of the plugin
     /// </summary>
     public string Name => "ExternalCommand";
-
-    /// <summary>
-    /// Specifies if the plugin can be configured
-    /// </summary>
-    public bool IsConfigurable => true;
 
     private IEnumerable<IDestination> Destinations()
     {
@@ -98,7 +93,7 @@ public class ExternalCommandPlugin : IGreenshotPlugin
 
         if (!ExternalCommandConfig.OutputFormat.ContainsKey(command))
         {
-            ExternalCommandConfig.OutputFormat.Add(command, OutputFormat.png);
+            ExternalCommandConfig.OutputFormat.Add(command, WellKnownFileFormats.Png);
         }
 
         if (!ExternalCommandConfig.Commandline.ContainsKey(command))
@@ -110,7 +105,9 @@ public class ExternalCommandPlugin : IGreenshotPlugin
         string commandline = FilenameHelper.FillVariables(ExternalCommandConfig.Commandline[command], true);
         commandline = FilenameHelper.FillCmdVariables(commandline, true);
 
-        if (!File.Exists(commandline))
+        if (!File.Exists(commandline) &&
+            PluginUtils.GetExePath(commandline) == null &&
+            WindowsAppHelper.FindPackage(commandline, command) == null)
         {
             Log.WarnFormat("Found 'invalid' commandline {0} for command {1}", ExternalCommandConfig.Commandline[command], command);
             return false;
@@ -119,21 +116,26 @@ public class ExternalCommandPlugin : IGreenshotPlugin
         return true;
     }
 
-    /// <summary>
-    /// Implementation of RegisterConfiguration phase: register INI sections before file is loaded.
-    /// </summary>
-    public void RegisterConfiguration(IniConfig iniConfig)
+    public void ConfigureServices(IPluginServices services)
     {
+        Texts.Register<IExternalCommandLanguage>(new ExternalCommandLanguageImpl());
         var externalCommandSection = new ExternalCommandConfigurationImpl();
-        iniConfig.AddSection(externalCommandSection);
+        services.AddConfiguration(externalCommandSection);
         ExternalCommandConfig = externalCommandSection;
-        // CoreConfiguration is registered by the host; retrieve it after Load() in RegisterServices.
+
+        services.AddService<IIconProvider>(new ExternalCommandIconProvider());
+        // The destinations come from the loaded configuration
+        services.AddServices(CreateDestinations);
+        services.AddRecipeStepProvider(this);
+        services.AddSettingsView<IExternalCommandConfiguration>(_ => new ExternalCommandConfigurationView());
     }
 
+    public object CreateSettingsViewModel(IServiceProvider services) => ExternalCommandConfig;
+
     /// <summary>
-    /// Implementation of RegisterServices phase: register DI services after config is loaded.
+    /// Remove the invalid commands from the configuration, create the destinations for the others.
     /// </summary>
-    public void RegisterServices(IServiceLocator serviceLocator)
+    private IEnumerable<IDestination> CreateDestinations()
     {
         CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
         var commandsToDelete = new List<string>();
@@ -150,23 +152,51 @@ public class ExternalCommandPlugin : IGreenshotPlugin
             ExternalCommandConfig.Delete(command);
         }
 
-        serviceLocator.AddService(Destinations());
+        return Destinations().ToList();
     }
 
     /// <summary>
-    /// Implementation of the IGreenshotPlugin.Start
+    /// Registers recipe step factories provided by the ExternalCommand plugin.
     /// </summary>
-    public bool Start()
+    /// <param name="registry">The step registry.</param>
+    public void RegisterSteps(IStepRegistry registry)
     {
-        _itemPlugInRoot = new ToolStripMenuItem();
+        if (registry == null) return;
+        registry.Register<ExternalCommandStep>(config => new ExternalCommandStep(config));
+    }
+
+    /// <summary>
+    /// Add the quick link to the context menu (on the UI thread)
+    /// </summary>
+    public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken) =>
+        services.GetRequiredService<IUiDispatcher>().RunOnUiAsync(Start, cancellationToken);
+
+    private void Start()
+    {
+        _itemPlugInRoot = new TrayMenuEntry();
         _itemPlugInRoot.Click += ConfigMenuClick;
         OnIconSizeChanged(this, new PropertyChangedEventArgs("IconSize"));
         OnLanguageChanged(this, null);
 
         PluginUtils.AddToContextMenu(_itemPlugInRoot);
-        Language.LanguageChanged += OnLanguageChanged;
+        _itemPlugInRoot.Visible = ExternalCommandConfig?.QuicklinkEnabled ?? false;
+        if (ExternalCommandConfig is INotifyPropertyChanged notify)
+        {
+            notify.PropertyChanged += OnConfigPropertyChanged;
+        }
+        Texts.Config.LanguageChanged += OnLanguageChanged;
         CoreConfig.PropertyChanged += OnIconSizeChanged;
-        return true;
+    }
+
+    private void OnConfigPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(IExternalCommandConfiguration.QuicklinkEnabled))
+        {
+            if (_itemPlugInRoot != null)
+            {
+                _itemPlugInRoot.Visible = ExternalCommandConfig?.QuicklinkEnabled ?? false;
+            }
+        }
     }
 
     /// <summary>
@@ -203,28 +233,28 @@ public class ExternalCommandPlugin : IGreenshotPlugin
     {
         if (_itemPlugInRoot != null)
         {
-            _itemPlugInRoot.Text = Language.GetString("externalcommand", "contextmenu_configure");
+            _itemPlugInRoot.Text = PluginUtils.GetQuicklinkText("External command");
         }
     }
 
-    public virtual void Shutdown()
-    {
-        Log.Debug("Shutdown");
-        Language.LanguageChanged -= OnLanguageChanged;
-        CoreConfig.PropertyChanged -= OnIconSizeChanged;
-    }
+    public Task StopAsync(CancellationToken cancellationToken) =>
+        UiDispatcher.Current.RunOnUiAsync(() =>
+        {
+            Log.Debug("Shutdown");
+            if (ExternalCommandConfig is INotifyPropertyChanged notify)
+            {
+                notify.PropertyChanged -= OnConfigPropertyChanged;
+            }
+
+            Texts.Config.LanguageChanged -= OnLanguageChanged;
+            CoreConfig.PropertyChanged -= OnIconSizeChanged;
+            _itemPlugInRoot?.Dispose();
+            _itemPlugInRoot = null;
+        }, cancellationToken);
 
     private void ConfigMenuClick(object sender, EventArgs eventArgs)
     {
-        Configure();
-    }
-
-    /// <summary>
-    /// Implementation of the IPlugin.Configure
-    /// </summary>
-    public virtual void Configure()
-    {
-        Log.Debug("Configure called");
-        new SettingsForm().ShowDialog();
+        // Show the settings of this plugin
+        SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true)?.ShowSetting(Name);
     }
 }

@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -22,7 +22,6 @@
 using System;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Threading;
 using Windows.Foundation.Collections;
 using Windows.Foundation.Metadata;
 using Windows.UI.Notifications;
@@ -31,6 +30,8 @@ using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using log4net;
 using Microsoft.Toolkit.Uwp.Notifications;
+using System.Threading.Tasks;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Plugin.Win10
 {
@@ -89,14 +90,19 @@ namespace Greenshot.Plugin.Win10
         /// <param name="onClosedAction">Action called when the toast is closed</param>
         private void ShowMessage(string message, TimeSpan? timeout = default, Action onClickAction = null, Action onClosedAction = null)
         {
+            ShowMessageAsync(message, timeout, onClickAction, onClosedAction).FireAndLog("Show a toast", Log);
+        }
+
+        private async Task ShowMessageAsync(string message, TimeSpan? timeout, Action onClickAction, Action onClosedAction)
+        {
             // Do not inform the user if this is disabled
             if (!CoreConfiguration.ShowTrayNotification)
             {
                 return;
             }
 
-            // Do not inform the user if ToastNotification is not enabled
-            if (!IsToastNotificationEnabled())
+            // Do not inform the user if ToastNotification is not enabled (the continuation returns to the caller's context)
+            if (!await IsToastNotificationEnabledAsync())
             {
                 return;
             }
@@ -204,46 +210,41 @@ namespace Greenshot.Plugin.Win10
             return null;
         }
 
-        private bool IsToastNotificationEnabled()
+        private static async Task<bool> IsToastNotificationEnabledAsync()
         {
             try
             {
-                var toastNotifierCreated = false;
-                var setting = NotificationSetting.DisabledForApplication;
-
-                var thread = new Thread(() =>
+                // The notifier is created on an STA worker, the setting is read with a timeout
+                var readSetting = StaWorkers.Get("Toast").RunAsync(() =>
                 {
                     // Prepare the toast notifier. Be sure to specify the AppUserModelId on your application's shortcut!
-                    ToastNotifierCompat toastNotifier = null;
                     try
                     {
-                        toastNotifier = ToastNotificationManagerCompat.CreateToastNotifier();
-                        toastNotifierCreated = true;
+                        var toastNotifier = ToastNotificationManagerCompat.CreateToastNotifier();
+                        return (Created: true, Setting: toastNotifier.Setting);
                     }
                     catch (Exception ex)
                     {
                         Log.Warn("Could not create a toast notifier.", ex);
-                        toastNotifierCreated = false;
+                        return (Created: false, Setting: NotificationSetting.DisabledForApplication);
                     }
-                    setting = toastNotifier.Setting;
                 });
-                thread.SetApartmentState(ApartmentState.STA);
-                thread.Start();
 
-                var completed = thread.Join(500);
-                if (!completed)
-                {
-                    Log.Warn("Timed out reading toast notification setting; skipping setting check.");
-                }
-                else if (!toastNotifierCreated)
+                var (toastNotifierCreated, setting) = await readSetting.WaitAsync(TimeSpan.FromMilliseconds(500));
+                if (!toastNotifierCreated)
                 {
                     return false;
                 }
-                else if (setting != NotificationSetting.Enabled)
+
+                if (setting != NotificationSetting.Enabled)
                 {
                     Log.DebugFormat("Ignored toast due to {0}", setting);
                     return false;
                 }
+            }
+            catch (TimeoutException)
+            {
+                Log.Warn("Timed out reading toast notification setting; skipping setting check.");
             }
             catch (Exception ex)
             {

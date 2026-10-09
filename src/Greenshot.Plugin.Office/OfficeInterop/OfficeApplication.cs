@@ -1,0 +1,108 @@
+// Greenshot - a free and open source screenshot tool
+// Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
+// 
+// For more information see: https://getgreenshot.org/
+// The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 1 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using Dapplo.Windows.Com;
+
+namespace Greenshot.Plugin.Office.OfficeInterop
+{
+    /// <summary>
+    /// The Office objects are used through our own small interfaces, which only list the members we call.
+    /// They are declared with the IID of IDispatch: casting asks Office only for IDispatch, and every call is
+    /// IDispatch.GetIDsOfNames (by member name) and IDispatch.Invoke. No Office type library is loaded, so a broken
+    /// type library registration (TYPE_E_CANTLOADLIBRARY, 0x80029C4A) can't break the export, and no interop assemblies are needed.
+    /// Collection items must be read with an Item method, an indexer doesn't work this way. Where Item is a property (Excel), use GetItem.
+    /// OneNote is the exception, see IOneNoteApplication.
+    /// Values Office returns are declared as the plain type it returns (int instead of an enum), enums are only passed in.
+    /// </summary>
+    internal static class OfficeApplication
+    {
+        /// <summary>
+        /// The IID of IDispatch, used by all the Office interfaces
+        /// </summary>
+        public const string IDispatchIid = "00020400-0000-0000-C000-000000000046";
+
+        private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OfficeApplication));
+
+        /// <summary>
+        /// The running instance of the application, null if there is none
+        /// </summary>
+        /// <param name="progId">e.g. Word.Application</param>
+        public static IDisposableCom<T> GetActive<T>(string progId) where T : class
+        {
+            try
+            {
+                return OleAut32Api.GetActiveObject<T>(progId);
+            }
+            catch (Exception ex)
+            {
+                LOG.Warn($"Unexpected error while getting the {progId} instance.", ex);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// The running instance of the application, or a new one
+        /// </summary>
+        /// <param name="progId">e.g. Word.Application</param>
+        public static IDisposableCom<T> GetOrCreate<T>(string progId) where T : class =>
+            GetActive<T>(progId) ?? DisposableCom.Create((T) Activator.CreateInstance(Type.GetTypeFromProgID(progId, true)));
+
+        /// <summary>
+        /// The items of a collection, each one is released when the loop moves on (or ends)
+        /// </summary>
+        /// <param name="count">Count of the collection</param>
+        /// <param name="getItem">Gets the item with the 1-based index</param>
+        public static IEnumerable<IDisposableCom<T>> Items<T>(int count, Func<int, T> getItem) where T : class
+        {
+            for (int i = 1; i <= count; i++)
+            {
+                using var item = DisposableCom.Create(getItem(i));
+                yield return item;
+            }
+        }
+
+        /// <summary>
+        /// An item of a collection whose Item is a property: an Item method on the interface would be called as a method,
+        /// which Office answers with DISP_E_MEMBERNOTFOUND.
+        /// </summary>
+        public static T GetItem<T>(object collection, int index) where T : class =>
+            (T) collection.GetType().InvokeMember("Item", BindingFlags.GetProperty, null, collection, new object[] { index });
+    }
+
+    /// <summary>
+    /// MsoTriState, the Office boolean
+    /// </summary>
+    public enum MsoTriState
+    {
+        msoTrue = -1,
+        msoFalse = 0
+    }
+
+    /// <summary>
+    /// MsoScaleFrom
+    /// </summary>
+    public enum MsoScaleFrom
+    {
+        msoScaleFromTopLeft = 0,
+        msoScaleFromMiddle = 1
+    }
+}

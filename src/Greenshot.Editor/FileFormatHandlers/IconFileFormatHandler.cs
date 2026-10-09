@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -202,10 +202,8 @@ namespace Greenshot.Editor.FileFormatHandlers
 
                     int iImageSize = BitConverter.ToInt32(srcBuf, sizeIconDir + sizeIconDirEntry * iIndex + 8);
                     int iImageOffset = BitConverter.ToInt32(srcBuf, sizeIconDir + sizeIconDirEntry * iIndex + 12);
-                    using MemoryStream destStream = new MemoryStream();
-                    destStream.Write(srcBuf, iImageOffset, iImageSize);
-                    destStream.Seek(0, SeekOrigin.Begin);
-                    bmpPngExtracted = new Bitmap(destStream); // This is PNG! :)
+                    // This is PNG! :) Not disposed: GDI+ needs the stream as long as the bitmap lives
+                    bmpPngExtracted = new Bitmap(new MemoryStream(srcBuf, iImageOffset, iImageSize));
                     break;
                 }
             }

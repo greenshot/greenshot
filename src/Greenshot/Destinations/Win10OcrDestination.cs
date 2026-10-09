@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -19,82 +19,100 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Drawing;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Windows.Media.Ocr;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
+using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Threading;
+using Greenshot.Base.Core.FileFormat;
 
 namespace Greenshot.Destinations
 {
     /// <summary>
-    /// This uses the Windows OcrEngine to perform OCR on the captured image.
+    /// This uses the Windows OcrEngine to perform OCR on the captured image, the text is placed on the clipboard.
     /// </summary>
-    public class Win10OcrDestination : AbstractDestination
+    public class Win10OcrDestination : DestinationBase
     {
         private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(Win10OcrDestination));
 
         public override string Designation { get; } = "Windows10OCR";
-        public override string Description { get; } = "Windows OCR";
-
-        public override int Priority => 3;
 
         /// <summary>
         /// Icon for the OCR function, the icon was found via: https://help4windows.com/windows_8_imageres_dll.shtml
         /// </summary>
-        public override Image DisplayIcon => PluginUtils.GetCachedExeIcon(FilenameHelper.FillCmdVariables(@"%windir%\system32\imageres.dll"), 97);
-
-        /// <summary>
-        /// Constructor, this is only debug information
-        /// </summary>
-        public Win10OcrDestination()
-        {
-            var languages = OcrEngine.AvailableRecognizerLanguages;
-            foreach (var language in languages)
-            {
-                Log.DebugFormat("Found language {0} {1}", language.NativeName, language.LanguageTag);
-            }
-        }
+        public override DestinationDescriptor Descriptor { get; } =
+            new DestinationDescriptor("Windows OCR", 3, DestinationIcons.Exe(FilenameHelper.FillCmdVariables(@"%windir%\system32\imageres.dll"), 97));
 
         /// <summary>
         /// Run the Windows OCR engine to process the text on the captured image
         /// </summary>
-        /// <param name="manuallyInitiated"></param>
-        /// <param name="surface"></param>
-        /// <param name="captureDetails"></param>
-        /// <returns>ExportInformation</returns>
-        public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+        public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
         {
-            var exportInformation = new ExportInformation(Designation, Description);
-            try
+            var captureDetails = request.Metadata;
+            // Background processing (OCR started with the capture) is awaited, not blocked on
+            if (captureDetails?.ProcessingTask != null)
             {
-                // TODO: Check if the OcrInformation is for the selected surface... otherwise discard & do it again
-                var ocrInformation = captureDetails.OcrInformation;
-                if (captureDetails.OcrInformation == null)
+                try
                 {
-                    var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
-                    ocrInformation = Task.Run(async () => await ocrProvider.DoOcrAsync(surface).ConfigureAwait(false)).Result;
+                    await captureDetails.ProcessingTask.WaitAsync(cancellationToken).ConfigureAwait(false);
                 }
-
-                // Check if we found text
-                if (!string.IsNullOrWhiteSpace(ocrInformation.Text))
+                catch (System.OperationCanceledException) when (cancellationToken.IsCancellationRequested)
                 {
-                    // Place the OCR text on the
-                    ClipboardHelper.SetClipboardData(ocrInformation.Text);
+                    throw;
                 }
-
-                exportInformation.ExportMade = true;
-            }
-            catch (Exception ex)
-            {
-                exportInformation.ExportMade = false;
-                exportInformation.ErrorMessage = ex.Message;
+                catch (System.Exception ex)
+                {
+                    Log.Error("Error waiting for background OCR processing in destination", ex);
+                }
             }
 
-            ProcessExport(exportInformation, surface);
-            return exportInformation;
+            List<IOcrLineFeature> ocrFeatures = new List<IOcrLineFeature>();
+            if (captureDetails != null)
+            {
+                lock (captureDetails.Features)
+                {
+                    ocrFeatures = captureDetails.Features.OfType<IOcrLineFeature>().ToList();
+                }
+            }
+
+            if (!ocrFeatures.Any())
+            {
+                var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>(isOptional: true);
+                if (ocrProvider != null)
+                {
+                    using var lease = await request.Source.RenderAsync(new SurfaceOutputSettings(WellKnownFileFormats.Png, 100, false) { DisableReduceColors = true }, cancellationToken).ConfigureAwait(false);
+                    var ocrLines = await ocrProvider.DoOcrAsync(lease.Image).ConfigureAwait(false);
+                    if (ocrLines != null && ocrLines.Any())
+                    {
+                        if (captureDetails != null)
+                        {
+                            lock (captureDetails.Features)
+                            {
+                                captureDetails.Features.AddRange(ocrLines);
+                            }
+                        }
+
+                        ocrFeatures = ocrLines;
+                    }
+                }
+            }
+
+            // Check if we found text
+            if (ocrFeatures.Any())
+            {
+                var fullText = string.Join(System.Environment.NewLine, ocrFeatures.Select(line => line.Text));
+                if (!string.IsNullOrWhiteSpace(fullText))
+                {
+                    // Place the OCR text on the Clipboard
+                    await ClipboardService.Current.SetTextAsync(fullText, cancellationToken).ConfigureAwait(false);
+                }
+            }
+
+            return ExportResult.Succeeded();
         }
     }
 }

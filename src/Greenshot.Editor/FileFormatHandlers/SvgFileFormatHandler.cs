@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Plugin;
@@ -40,11 +41,24 @@ namespace Greenshot.Editor.FileFormatHandlers
         private static readonly ILog Log = LogManager.GetLogger(typeof(SvgFileFormatHandler));
         private readonly IReadOnlyCollection<string> _ourExtensions = new[] { ".svg" };
 
+        static SvgFileFormatHandler()
+        {
+            // Restrict Svg.NET from resolving external resources (images, elements, entities)
+            // to prevent outbound network requests and unauthorized file access when opening untrusted SVGs.
+            SvgDocument.ResolveExternalImages = ExternalType.None;
+            SvgDocument.ResolveExternalElements = ExternalType.None;
+            SvgDocument.ResolveExternalXmlEntites = ExternalType.None;
+        }
+
+        public override void RegisterFileFormats(IFileFormatRegistry registry)
+        {
+            RegisterFileFormat(registry, "svg", _ourExtensions, Array.Empty<string>(), "svg", "image/svg+xml", null, "Scalable Vector Graphics");
+        }
+
         public SvgFileFormatHandler()
         {
             SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = _ourExtensions;
             SupportedExtensions[FileFormatHandlerActions.LoadFromStream] = _ourExtensions;
-            SupportedExtensions[FileFormatHandlerActions.SaveToFile] = _ourExtensions;
             SupportedExtensions[FileFormatHandlerActions.LoadFromFile] = _ourExtensions;
         }
 

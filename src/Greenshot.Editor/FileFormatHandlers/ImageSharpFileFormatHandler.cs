@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using SixLabors.ImageSharp;
@@ -47,13 +48,22 @@ namespace Greenshot.Editor.FileFormatHandlers
     public class ImageSharpFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
         private readonly IReadOnlyCollection<string> _ourExtensions = new[] { ".png", ".bmp", ".gif", ".jpg", ".jpeg", ".tiff", ".tif", ".tga", ".pbm", ".webp" };
+        // No TIFF loading: the ImageSharp 2.x TIFF decoder has an unfixed advisory (GHSA-wmxv-xphr-5c9g), WIC loads .tif instead
+        private readonly IReadOnlyCollection<string> _loadExtensions = new[] { ".png", ".bmp", ".gif", ".jpg", ".jpeg", ".tga", ".pbm", ".webp" };
         public ImageSharpFileFormatHandler()
         {
-            SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = _ourExtensions;
-            SupportedExtensions[FileFormatHandlerActions.LoadFromStream] = _ourExtensions;
+            SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = _loadExtensions;
+            SupportedExtensions[FileFormatHandlerActions.LoadFromStream] = _loadExtensions;
             SupportedExtensions[FileFormatHandlerActions.SaveToStream] = _ourExtensions;
             SupportedExtensions[FileFormatHandlerActions.SaveToFile] = _ourExtensions;
-            SupportedExtensions[FileFormatHandlerActions.LoadFromFile] = _ourExtensions;
+            SupportedExtensions[FileFormatHandlerActions.LoadFromFile] = _loadExtensions;
+        }
+
+        public override void RegisterFileFormats(IFileFormatRegistry registry)
+        {
+            RegisterFileFormat(registry, "tga", [".tga"], [".tga"], "tga", "image/x-tga", null, "Targa");
+            RegisterFileFormat(registry, "pbm", [".pbm"], [".pbm"], "pbm", "image/x-portable-bitmap", null, "Portable Bitmap");
+            RegisterFileFormat(registry, "webp", [".webp"], [".webp"], "webp", "image/webp", null, "WebP");
         }
 
         /// <inheritdoc />
@@ -70,7 +80,7 @@ namespace Greenshot.Editor.FileFormatHandlers
             var versionString = "Greenshot " + EnvironmentInfo.GetGreenshotVersion(true);
             if (extension == ".png")
             {
-                surfaceOutputSettings ??= new SurfaceOutputSettings(Base.Core.Enums.OutputFormat.png);
+                surfaceOutputSettings ??= new SurfaceOutputSettings(WellKnownFileFormats.Png);
                 // Access the PNG-specific metadata
                 var pngMetadata = image.Metadata.GetPngMetadata();
                 // Add or update the "Software" text chunk
@@ -130,8 +140,6 @@ namespace Greenshot.Editor.FileFormatHandlers
                 ".gif" => new GifDecoder(),
                 ".jpg" => new JpegDecoder(),
                 ".jpeg" => new JpegDecoder(),
-                ".tiff" => new TiffDecoder(),
-                ".tif" => new TiffDecoder(),
                 ".tga" => new TgaDecoder(),
                 ".pbm" => new PbmDecoder(),
                 ".webp" => new WebpDecoder(),
@@ -142,8 +150,16 @@ namespace Greenshot.Editor.FileFormatHandlers
                 bitmap = null;
                 return false;
             }
-            using (var image = Image.Load(stream, decoder))
+            // Decode straight into the pixel layout of the GDI+ bitmap, this saves a converted copy of the whole image.
+            // JPEG has no transparency, it stays 24 bit.
+            if (decoder is JpegDecoder)
             {
+                using var image = Image.Load<SixLabors.ImageSharp.PixelFormats.Bgr24>(stream, decoder);
+                bitmap = ImageSharpHelper.ToBitmap(image);
+            }
+            else
+            {
+                using var image = Image.Load<SixLabors.ImageSharp.PixelFormats.Bgra32>(stream, decoder);
                 bitmap = ImageSharpHelper.ToBitmap(image);
             }
             return true;

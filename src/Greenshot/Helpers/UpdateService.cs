@@ -1,5 +1,5 @@
-﻿// Greenshot - a free and open source screenshot tool
-// Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+// Greenshot - a free and open source screenshot tool
+// Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
 //
 // For more information see: https://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -27,22 +27,38 @@ using Dapplo.HttpExtensions.JsonNet;
 using Greenshot.Base.Core;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
-using Greenshot.Configuration;
 using Greenshot.Helpers.Entities;
 using log4net;
+using Greenshot.Base.Threading;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Helpers
 {
     /// <summary>
     ///     This processes the information, if there are updates available.
     /// </summary>
-    public class UpdateService
+    public class UpdateService : IDisposable
     {
+        private bool _disposed;
+        private readonly object _lifecycleLock = new object();
         private static readonly ILog Log = LogManager.GetLogger(typeof(UpdateService));
         private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
         private static readonly Uri UpdateFeed = new Uri("https://getgreenshot.org/update-feed.json");
         private static readonly Uri Downloads = new Uri("https://getgreenshot.org/downloads");
-        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+
+        /// <summary>
+        /// URI pointing to the Greenshot downloads webpage, for any other edition than Full with ?edition=light (etc.)
+        /// so the page can offer that edition's download
+        /// </summary>
+        public static Uri DownloadsUri => EditionInfo.IsFull ? Downloads : new Uri($"{Downloads.AbsoluteUri}?edition={Uri.EscapeDataString(EditionInfo.Name.ToLowerInvariant())}");
+
+        /// <summary>
+        /// The downloads page for this edition: the one the update feed names for it, otherwise DownloadsUri
+        /// </summary>
+        public Uri DownloadsUrl => _editionDownloads ?? DownloadsUri;
+
+        private Uri _editionDownloads;
 
         /// <summary>
         /// Provides the current version
@@ -62,12 +78,17 @@ namespace Greenshot.Helpers
         /// <summary>
         /// Checks if there is an release update available
         /// </summary>
-        public bool IsUpdateAvailable => LatestReleaseVersion > CurrentVersion;
+        public bool IsUpdateAvailable => LatestReleaseVersion != null && LatestReleaseVersion > CurrentVersion;
 
         /// <summary>
         /// Checks if there is an beta update available
         /// </summary>
-        public bool IsBetaUpdateAvailable => LatestBetaVersion > CurrentVersion;
+        public bool IsBetaUpdateAvailable => LatestBetaVersion != null && LatestBetaVersion > CurrentVersion;
+
+        /// <summary>
+        /// Indicates whether the background update check task is currently running.
+        /// </summary>
+        public bool IsRunning { get; private set; }
 
         /// <summary>
         /// Keep track of when the update was shown, so it won't be every few minutes
@@ -77,11 +98,44 @@ namespace Greenshot.Helpers
         /// <summary>
         /// Constructor with dependencies
         /// </summary>
-        public UpdateService()
+        public UpdateService() : this(null)
+        {
+        }
+
+        /// <summary>
+        /// Constructor allowing explicit CurrentVersion (useful for unit testing and dependency injection)
+        /// </summary>
+        /// <param name="currentVersion">Current version override</param>
+        public UpdateService(Version currentVersion)
         {
             JsonNetJsonSerializer.RegisterGlobally();
-            var version = FileVersionInfo.GetVersionInfo(GetType().Assembly.Location);
-            LatestReleaseVersion = CurrentVersion = new Version(version.FileMajorPart, version.FileMinorPart, version.FileBuildPart);
+
+            if (currentVersion != null)
+            {
+                CurrentVersion = currentVersion;
+            }
+            else
+            {
+                try
+                {
+                    var location = GetType().Assembly.Location;
+                    if (!string.IsNullOrEmpty(location))
+                    {
+                        var version = FileVersionInfo.GetVersionInfo(location);
+                        CurrentVersion = new Version(version.FileMajorPart, version.FileMinorPart, version.FileBuildPart);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Warn("Could not determine current version from assembly file info", ex);
+                }
+
+                if (CurrentVersion == null)
+                {
+                    var ver = GetType().Assembly.GetName().Version;
+                    CurrentVersion = ver != null ? new Version(ver.Major, ver.Minor, Math.Max(0, ver.Build)) : new Version(1, 0, 0);
+                }
+            }
         }
 
         /// <summary>
@@ -89,7 +143,41 @@ namespace Greenshot.Helpers
         /// </summary>
         public void Startup()
         {
-            _ = BackgroundTask(() => TimeSpan.FromDays(CoreConfig.UpdateCheckInterval), UpdateCheck, _cancellationTokenSource.Token);
+            lock (_lifecycleLock)
+            {
+                if (IsRunning)
+                {
+                    return;
+                }
+
+                if (_disposed)
+                {
+                    _cancellationTokenSource = new CancellationTokenSource();
+                    _disposed = false;
+                }
+
+                IsRunning = true;
+                var interval = CoreConfig?.UpdateCheckInterval ?? 14;
+                BackgroundTaskAsync(() => TimeSpan.FromDays(interval), ct => CheckForUpdatesAsync(true, ct), _cancellationTokenSource.Token).FireAndLog("Update check", Log);
+            }
+        }
+
+        /// <summary>
+        /// Cancels the background task and releases resources.
+        /// </summary>
+        public void Dispose()
+        {
+            lock (_lifecycleLock)
+            {
+                if (_disposed)
+                {
+                    return;
+                }
+
+                _disposed = true;
+                _cancellationTokenSource.Cancel();
+                _cancellationTokenSource.Dispose();
+            }
         }
 
         /// <summary>
@@ -99,85 +187,116 @@ namespace Greenshot.Helpers
         /// <param name="reoccurringTask">Func which returns a task</param>
         /// <param name="cancellationToken">CancellationToken</param>
         /// <returns>Task</returns>
-        private async Task BackgroundTask(Func<TimeSpan> intervalFactory, Func<CancellationToken, Task> reoccurringTask, CancellationToken cancellationToken = default)
+        private async Task BackgroundTaskAsync(Func<TimeSpan> intervalFactory, Func<CancellationToken, Task> reoccurringTask, CancellationToken cancellationToken = default)
         {
-            // Initial delay, to make sure this doesn't happen at the startup
-            await Task.Delay(20000, cancellationToken);
-            Log.Info("Starting background task to check for updates");
-            await Task.Run(async () =>
+            try
             {
-                while (!cancellationToken.IsCancellationRequested)
+                // Initial delay, to make sure this doesn't happen at the startup
+                await Task.Delay(20000, cancellationToken).ConfigureAwait(false);
+                Log.Info("Starting background task to check for updates");
+                // Task.Delay with ConfigureAwait(false) continues on the thread pool
                 {
-                    var interval = intervalFactory();
-                    var task = reoccurringTask;
-
-                    // If the check is disabled, handle that here
-                    var checkIsDisabled = TimeSpan.Zero == interval;
-                    var nextCheckIsInTheFuture = CoreConfig.LastUpdateCheck.Add(interval) > DateTime.Now;
-
-                    // If we have an invalid interval
-                    if (interval.TotalSeconds < 0)
-                    {
-                        // Just wait for 10 minutes, maybe the configuration will change
-                        interval = TimeSpan.FromDays(1);
-                    }
-
-                    if (checkIsDisabled || nextCheckIsInTheFuture)
-                    {
-                        // Just wait for 30 minutes, maybe the configuration will change
-                        interval = TimeSpan.FromMinutes(30);
-                        task = c => Task.FromResult(true);
-                    }
-
                     try
                     {
-                        await task(cancellationToken).ConfigureAwait(false);
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error("Error occurred when trying to check for updates.", ex);
-                    }
+                        while (!cancellationToken.IsCancellationRequested)
+                        {
+                            var interval = intervalFactory();
+                            var task = reoccurringTask;
 
-                    try
-                    {
-                        // Use duration to get an absolute time and can't be negative.
-                        await Task.Delay(interval.Duration(), cancellationToken).ConfigureAwait(false);
+                            // If the check is disabled, handle that here
+                            var checkIsDisabled = TimeSpan.Zero == interval;
+                            var nextCheckIsInTheFuture = CoreConfig != null && CoreConfig.LastUpdateCheck.Add(interval) > DateTime.Now;
+
+                            // If we have an invalid interval
+                            if (interval.TotalSeconds < 0)
+                            {
+                                // Just wait for longer time, maybe the configuration will change
+                                interval = TimeSpan.FromDays(1);
+                            }
+
+                            if (checkIsDisabled || nextCheckIsInTheFuture)
+                            {
+                                // Just wait for 30 minutes, maybe the configuration will change
+                                interval = TimeSpan.FromMinutes(30);
+                                task = c => Task.FromResult(true);
+                            }
+
+                            try
+                            {
+                                await task(cancellationToken).ConfigureAwait(false);
+                            }
+                            catch (Exception ex)
+                            {
+                                Log.Error("Error occurred when trying to check for updates.", ex);
+                            }
+
+                            try
+                            {
+                                // Use duration to get an absolute time and can't be negative.
+                                await Task.Delay(interval.Duration(), cancellationToken).ConfigureAwait(false);
+                            }
+                            catch (TaskCanceledException)
+                            {
+                                // Ignore, this always happens
+                            }
+                            catch (Exception ex)
+                            {
+                                Log.Error("Error occurred await for the next background interval check.", ex);
+                                // Safety pause, to avoid a potential tight loop if something is really wrong with the configuration or the update feed.
+                                await Task.Delay(TimeSpan.FromDays(1), cancellationToken).ConfigureAwait(false);
+                            }
+                        }
                     }
-                    catch (TaskCanceledException)
+                    finally
                     {
-                        // Ignore, this always happens
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error("Error occurred await for the next background interval check.", ex);
-                        // Safety pause, to avoid a potential tight loop if something is really wrong with the configuration or the update feed.
-                        await Task.Delay(TimeSpan.FromDays(1), cancellationToken).ConfigureAwait(false);
+                        Log.Info("Stopping background task to check for updates");
                     }
                 }
-            }, cancellationToken).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+            }
+            finally
+            {
+                lock (_lifecycleLock)
+                {
+                    IsRunning = false;
+                }
+            }
         }
 
         /// <summary>
-        /// Do the actual update check
+        /// Check for updates asynchronously from the Greenshot update feed.
         /// </summary>
-        /// <param name="cancellationToken">CancellationToken</param>
-        /// <returns>Task</returns>
-        private async Task UpdateCheck(CancellationToken cancellationToken = default)
+        /// <param name="showNotification">Whether to show a toast notification if an update is found.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>True if the update check completed successfully, false if an error occurred (e.g. offline).</returns>
+        public async Task<bool> CheckForUpdatesAsync(bool showNotification = false, CancellationToken cancellationToken = default)
         {
             Log.InfoFormat("Checking for updates from {0}", UpdateFeed);
 
-            CoreConfig.LastUpdateCheck = DateTime.Now;
-
-            var updateFeed = await UpdateFeed.GetAsAsync<UpdateFeed>(cancellationToken);
-            if (updateFeed == null)
+            try
             {
-                return;
+                if (CoreConfig != null)
+                {
+                    CoreConfig.LastUpdateCheck = DateTime.Now;
+                }
+
+                var updateFeed = await UpdateFeed.GetAsAsync<UpdateFeed>(cancellationToken).ConfigureAwait(false);
+                if (updateFeed == null)
+                {
+                    return false;
+                }
+
+                ProcessFeed(updateFeed);
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Error occurred when checking for updates.", ex);
+                return false;
             }
 
-            ProcessFeed(updateFeed);
-
-            // Only show if the update was shown >24 hours ago.
-            if (DateTimeOffset.Now.AddDays(-1) > LastUpdateShown)
+            if (showNotification && DateTimeOffset.Now.AddDays(-1) > LastUpdateShown)
             {
                 if (IsBetaUpdateAvailable)
                 {
@@ -190,8 +309,9 @@ namespace Greenshot.Helpers
                     ShowUpdate(LatestReleaseVersion);
                 }
             }
-        }
 
+            return true;
+        }
 
         /// <summary>
         /// This takes care of creating the toast view model, publishing it, and disposing afterwards
@@ -199,27 +319,70 @@ namespace Greenshot.Helpers
         /// <param name="newVersion">Version</param>
         private void ShowUpdate(Version newVersion)
         {
-            var notificationService = SimpleServiceProvider.Current.GetInstance<INotificationService>();
-            var message = Language.GetFormattedString(LangKey.update_found, newVersion.ToString());
-            notificationService.ShowInfoMessage(message, TimeSpan.FromHours(1), () => Process.Start(Downloads.AbsoluteUri));
+            try
+            {
+                var notificationService = SimpleServiceProvider.Current?.GetInstance<INotificationService>(isOptional: true);
+                if (notificationService == null) return;
+
+                var message = string.Format(Texts.Core.UpdateFound, newVersion.ToString());
+                notificationService.ShowInfoMessage(message, TimeSpan.FromHours(1), () =>
+                {
+                    try
+                    {
+                        Process.Start(new ProcessStartInfo(DownloadsUrl.AbsoluteUri) { UseShellExecute = true });
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error($"Failed to launch download URL: {DownloadsUrl.AbsoluteUri}", ex);
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Could not display update notification.", ex);
+            }
         }
 
         /// <summary>
         /// Process the update feed to get the latest version
         /// </summary>
-        /// <param name="updateFeed"></param>
-        private void ProcessFeed(UpdateFeed updateFeed)
+        /// <param name="updateFeed">Update feed entity</param>
+        public void ProcessFeed(UpdateFeed updateFeed)
         {
-            var latestReleaseString = Regex.Replace(updateFeed.CurrentReleaseVersion, "[a-zA-Z\\-]*", "");
-            if (Version.TryParse(latestReleaseString, out var latestReleaseVersion))
+            if (updateFeed == null)
             {
-                LatestReleaseVersion = latestReleaseVersion;
+                return;
             }
 
-            var latestBetaString = Regex.Replace(updateFeed.CurrentBetaVersion, "[a-zA-Z\\-]*", "");
-            if (Version.TryParse(latestBetaString, out var latestBetaVersion))
+            if (!string.IsNullOrEmpty(updateFeed.CurrentReleaseVersion))
             {
-                LatestBetaVersion = latestBetaVersion;
+                var latestReleaseString = Regex.Replace(updateFeed.CurrentReleaseVersion, "[a-zA-Z\\-]*", "");
+                if (Version.TryParse(latestReleaseString, out var latestReleaseVersion))
+                {
+                    LatestReleaseVersion = latestReleaseVersion;
+                }
+            }
+
+            if (updateFeed.Downloads != null && !EditionInfo.IsFull)
+            {
+                var edition = EditionInfo.Name.ToLowerInvariant();
+                foreach (var download in updateFeed.Downloads)
+                {
+                    if (string.Equals(download.Key, edition, StringComparison.OrdinalIgnoreCase)
+                        && Uri.TryCreate(download.Value, UriKind.Absolute, out var downloadsUri) && downloadsUri.Scheme == Uri.UriSchemeHttps)
+                    {
+                        _editionDownloads = downloadsUri;
+                    }
+                }
+            }
+
+            if (!string.IsNullOrEmpty(updateFeed.CurrentBetaVersion))
+            {
+                var latestBetaString = Regex.Replace(updateFeed.CurrentBetaVersion, "[a-zA-Z\\-]*", "");
+                if (Version.TryParse(latestBetaString, out var latestBetaVersion))
+                {
+                    LatestBetaVersion = latestBetaVersion;
+                }
             }
         }
     }

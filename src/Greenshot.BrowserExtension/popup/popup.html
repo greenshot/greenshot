@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Greenshot Companion</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="header">
+    <div class="brand">
+      <object type="image/svg+xml" data="..\icons\g.svg" width="16" height="16">Fallback text</object>
+      <span class="title">Greenshot</span>
+    </div>
+    <div id="statusIndicator" class="status-indicator offline" title="Connection status">
+      <span class="status-dot"></span>
+      <span id="statusText" class="status-text">Connecting...</span>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button id="btnCaptureVisible" class="btn primary">
+      <object type="image/svg+xml" data="..\icons\g.svg" width="16" height="16">Fallback text</object>
+      Capture Visible Page
+    </button>
+  </div>
+
+  <div id="feedbackMessage" class="feedback-msg hidden"></div>
+
+  <div class="footer">
+    <div class="qa-info">
+      <span class="qa-label">QA URL Tracking:</span>
+      <span id="qaTrackingStatus" class="qa-badge">Active</span>
+    </div>
+    <a href="#" id="linkOptions" class="options-link">Settings</a>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

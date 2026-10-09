@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026  Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026  Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -21,8 +21,7 @@
 
 using System;
 using System.Windows.Forms;
-using Dapplo.Windows.Common.Enums;
-using Dapplo.Windows.Messages.Enumerations;
+using Dapplo.Windows.Messages.Enums;
 using log4net;
 
 namespace Greenshot.Base.Core;
@@ -47,7 +46,8 @@ public static class WndProcDefaults
         {
             case WindowsMessages.WM_QUERYENDSESSION:
             case WindowsMessages.WM_ENDSESSION:
-                message.Result = (IntPtr)HResult.S_FALSE; // Don't repond to the session end, we will handle it ourselves via the Restart Manager
+                // A BOOL, not an HRESULT: TRUE allows the session to end. The state is saved via ApplicationRestartManager.ListenForEndSession (RestartManagerHelper)
+                message.Result = new IntPtr(1);
                 return true;
             case WindowsMessages.WM_INPUTLANGCHANGEREQUEST:
             case WindowsMessages.WM_INPUTLANGCHANGE:

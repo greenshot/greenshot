@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -21,11 +21,12 @@
 
 using System;
 using System.Drawing;
-using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace Greenshot.Editor.Drawing.Filters
 {
@@ -40,47 +41,26 @@ namespace Greenshot.Editor.Drawing.Filters
             AddField(GetType(), FieldType.FILL_COLOR, Color.Yellow);
         }
 
-        /// <summary>
-        /// Implements the Apply code for the Brightness Filet
-        /// </summary>
-        /// <param name="graphics"></param>
-        /// <param name="applyBitmap"></param>
-        /// <param name="rect">NativeRect</param>
-        /// <param name="renderMode"></param>
-        public override void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode)
+        protected override void ApplyFilter(Graphics graphics, Bitmap applyBitmap, NativeRect applyRect, RenderMode renderMode)
         {
-            var applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
-
-            if (applyRect.Width == 0 || applyRect.Height == 0)
+            using Bitmap highlighted = ImageHelper.CloneArea(applyBitmap, applyRect, PixelFormat.Format32bppArgb);
+            Color highlightColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
+            BitmapPixels.ProcessPixelRows<Bgra32>(highlighted, pixels =>
             {
-                // nothing to do
-                return;
-            }
-
-            GraphicsState state = graphics.Save();
-            if (Invert)
-            {
-                graphics.SetClip(applyRect);
-                graphics.ExcludeClip(rect);
-            }
-
-            using (IFastBitmap fastBitmap = FastBitmap.CreateCloneOf(applyBitmap, applyRect))
-            {
-                Color highlightColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
-                for (int y = fastBitmap.Top; y < fastBitmap.Bottom; y++)
+                for (int y = 0; y < pixels.Height; y++)
                 {
-                    for (int x = fastBitmap.Left; x < fastBitmap.Right; x++)
+                    var row = pixels.GetRowSpan(y);
+                    for (int x = 0; x < row.Length; x++)
                     {
-                        Color color = fastBitmap.GetColorAt(x, y);
-                        color = Color.FromArgb(color.A, Math.Min(highlightColor.R, color.R), Math.Min(highlightColor.G, color.G), Math.Min(highlightColor.B, color.B));
-                        fastBitmap.SetColorAt(x, y, color);
+                        ref Bgra32 pixel = ref row[x];
+                        pixel.R = Math.Min(highlightColor.R, pixel.R);
+                        pixel.G = Math.Min(highlightColor.G, pixel.G);
+                        pixel.B = Math.Min(highlightColor.B, pixel.B);
                     }
                 }
+            });
 
-                fastBitmap.DrawTo(graphics, applyRect.Location);
-            }
-
-            graphics.Restore(state);
+            graphics.DrawImage(highlighted, applyRect, new Rectangle(0, 0, highlighted.Width, highlighted.Height), GraphicsUnit.Pixel);
         }
     }
 }

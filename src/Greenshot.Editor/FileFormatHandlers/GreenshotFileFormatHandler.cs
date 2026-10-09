@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -96,6 +96,12 @@ public sealed class GreenshotFileFormatHandler : AbstractFileFormatHandler, IFil
         bitmap = null;
         return false;
     }
+
+    /// <summary>
+    /// <inheritdoc />
+    /// </summary>
+    /// <remarks>This implementation loads the <see cref="GreenshotFile"/> from stream and creates a <see cref="ISurface"/>.</remarks>
+    public override ISurface LoadSurface(Stream surfaceFileStream) => GreenshotFileVersionHandler.CreateSurfaceFromStream(surfaceFileStream);
 
     /// <summary>
     /// Load a <see cref="ISurface"/> from file path

@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -24,9 +24,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
-using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
+using Greenshot.Base.Threading;
 using log4net;
 using Newtonsoft.Json;
 
@@ -39,8 +40,6 @@ namespace Greenshot.Base.Core.OAuth
     public class LocalJsonReceiver
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(LocalJsonReceiver));
-        private readonly ManualResetEvent _ready = new ManualResetEvent(true);
-        private IDictionary<string, string> _returnValues;
 
         /// <summary>
         /// The url format for the website to post to. Expects one port parameter.
@@ -59,7 +58,7 @@ namespace Greenshot.Base.Core.OAuth
             {
                 if (string.IsNullOrEmpty(_listeningUri))
                 {
-                    _listeningUri = string.Format(ListeningUrlFormat, GetRandomUnusedPort());
+                    _listeningUri = string.Format(ListeningUrlFormat, LocalServerCodeReceiver.GetRandomUnusedPort());
                 }
 
                 return _listeningUri;
@@ -82,121 +81,82 @@ namespace Greenshot.Base.Core.OAuth
         public TimeSpan Timeout { get; set; } = TimeSpan.FromMinutes(4);
 
         /// <summary>
-        /// The OAuth code receiver
+        /// The OAuth code receiver: opens the browser and waits (without blocking a thread) for the website to post the values.
         /// </summary>
         /// <param name="oauth2Settings">OAuth2Settings</param>
-        /// <returns>Dictionary with values</returns>
-        public IDictionary<string, string> ReceiveCode(OAuth2Settings oauth2Settings)
+        /// <param name="cancellationToken">CancellationToken</param>
+        /// <returns>Dictionary with values, null when the website didn't respond within the timeout</returns>
+        public async Task<IDictionary<string, string>> ReceiveCodeAsync(OAuth2Settings oauth2Settings, CancellationToken cancellationToken)
         {
             using var listener = new HttpListener();
             // Make sure the port is stored in the state, so the website can process this.
             oauth2Settings.State = new Uri(ListeningUri).Port.ToString();
             listener.Prefixes.Add(ListeningUri);
+            listener.Start();
             try
             {
-                listener.Start();
-                _ready.Reset();
-
-                listener.BeginGetContext(ListenerCallback, listener);
                 OpenUriAction(oauth2Settings.FormattedAuthUrl);
-                _ready.WaitOne(Timeout, true);
+                return await ReceiveValuesAsync(listener, cancellationToken).WaitAsync(Timeout, cancellationToken).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch (TimeoutException)
             {
-                // Make sure we can clean up, also if the thead is aborted
-                _ready.Set();
-                throw;
+                Log.WarnFormat("No response within {0}", Timeout);
+                return null;
             }
             finally
             {
                 listener.Close();
             }
-
-            return _returnValues;
         }
 
         /// <summary>
-        /// Handle a connection async, this allows us to break the waiting
+        /// Handle requests until one has the values (a CORS preflight comes first)
         /// </summary>
-        /// <param name="result">IAsyncResult</param>
-        private void ListenerCallback(IAsyncResult result)
+        private static async Task<IDictionary<string, string>> ReceiveValuesAsync(HttpListener listener, CancellationToken cancellationToken)
         {
-            HttpListener listener = (HttpListener) result.AsyncState;
-
-            //If not listening return immediately as this method is called one last time after Close()
-            if (!listener.IsListening)
+            while (true)
             {
-                return;
-            }
+                HttpListenerContext context = await LocalServerCodeReceiver.GetContextAsync(listener, cancellationToken).ConfigureAwait(false);
+                HttpListenerRequest request = context.Request;
+                IDictionary<string, string> returnValues = null;
 
-            // Use EndGetContext to complete the asynchronous operation.
-            HttpListenerContext context = listener.EndGetContext(result);
-
-            // Handle request
-            HttpListenerRequest request = context.Request;
-
-            if (request.HasEntityBody)
-            {
-                // Process the body
-                using var body = request.InputStream;
-                using var reader = new StreamReader(body, request.ContentEncoding);
-                using var jsonTextReader = new JsonTextReader(reader);
-                var serializer = new JsonSerializer();
-                _returnValues = serializer.Deserialize<Dictionary<string, string>>(jsonTextReader);
-            }
-
-            // Create the response.
-            using (HttpListenerResponse response = context.Response)
-            {
-                if (request.HttpMethod == "OPTIONS")
-                {
-                    response.AddHeader("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With");
-                    response.AddHeader("Access-Control-Allow-Methods", "POST");
-                    response.AddHeader("Access-Control-Max-Age", "1728000");
-                }
-
-                response.AppendHeader("Access-Control-Allow-Origin", "*");
                 if (request.HasEntityBody)
                 {
-                    response.ContentType = "application/json";
-                    // currently only return the version, more can be added later
-                    string jsonContent = "{\"version\": \"" + EnvironmentInfo.GetGreenshotVersion(true) + "\"}";
-
-                    // Write a "close" response.
-                    byte[] buffer = Encoding.UTF8.GetBytes(jsonContent);
-                    // Write to response stream.
-                    response.ContentLength64 = buffer.Length;
-                    using var stream = response.OutputStream;
-                    stream.Write(buffer, 0, buffer.Length);
+                    // Process the body
+                    using var body = request.InputStream;
+                    using var reader = new StreamReader(body, request.ContentEncoding);
+                    string json = await reader.ReadToEndAsync().ConfigureAwait(false);
+                    returnValues = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
                 }
-            }
 
-            if (_returnValues != null)
-            {
-                _ready.Set();
-            }
-            else
-            {
-                // Make sure the next request is processed
-                listener.BeginGetContext(ListenerCallback, listener);
-            }
-        }
+                // Create the response.
+                using (HttpListenerResponse response = context.Response)
+                {
+                    if (request.HttpMethod == "OPTIONS")
+                    {
+                        response.AddHeader("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With");
+                        response.AddHeader("Access-Control-Allow-Methods", "POST");
+                        response.AddHeader("Access-Control-Max-Age", "1728000");
+                    }
 
-        /// <summary>
-        /// Returns a random, unused port.
-        /// </summary>
-        /// <returns>port to use</returns>
-        private static int GetRandomUnusedPort()
-        {
-            var listener = new TcpListener(IPAddress.Loopback, 0);
-            try
-            {
-                listener.Start();
-                return ((IPEndPoint) listener.LocalEndpoint).Port;
-            }
-            finally
-            {
-                listener.Stop();
+                    response.AppendHeader("Access-Control-Allow-Origin", "*");
+                    if (request.HasEntityBody)
+                    {
+                        response.ContentType = "application/json";
+                        // currently only return the version, more can be added later
+                        string jsonContent = "{\"version\": \"" + EnvironmentInfo.GetGreenshotVersion(true) + "\"}";
+
+                        byte[] buffer = Encoding.UTF8.GetBytes(jsonContent);
+                        response.ContentLength64 = buffer.Length;
+                        using var stream = response.OutputStream;
+                        await stream.WriteAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false);
+                    }
+                }
+
+                if (returnValues != null)
+                {
+                    return returnValues;
+                }
             }
         }
     }

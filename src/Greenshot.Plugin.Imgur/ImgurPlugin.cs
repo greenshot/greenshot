@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -21,47 +21,35 @@
 
 using System;
 using System.ComponentModel;
-using System.Drawing;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
-using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Plugin.Imgur.Forms;
+using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Threading;
+using Greenshot.Plugin.Imgur.Destinations;
+using System.Threading;
+using System.Threading.Tasks;
+using Greenshot.Base.Languages;
+using Greenshot.Plugin.Imgur.Recipes;
+using Greenshot.Plugin.Imgur.Views;
 
 namespace Greenshot.Plugin.Imgur;
 
 /// <summary>
 /// This is the ImgurPlugin code
 /// </summary>
-public class ImgurPlugin : IGreenshotPlugin
+public class ImgurPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvider
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ImgurPlugin));
     private static IImgurConfiguration _config;
-    private ComponentResourceManager _resources;
     private ToolStripMenuItem _historyMenuItem;
-    private ToolStripMenuItem _itemPlugInConfig;
+    private TrayMenuEntry _itemPlugInConfig;
 
-    public void Dispose()
+    public ValueTask DisposeAsync()
     {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    private void Dispose(bool disposing)
-    {
-        if (!disposing) return;
-        if (_historyMenuItem != null)
-        {
-            _historyMenuItem.Dispose();
-            _historyMenuItem = null;
-        }
-
-        if (_itemPlugInConfig != null)
-        {
-            _itemPlugInConfig.Dispose();
-            _itemPlugInConfig = null;
-        }
+        // The menu items are removed and disposed in StopAsync
+        return default;
     }
 
     /// <summary>
@@ -69,61 +57,77 @@ public class ImgurPlugin : IGreenshotPlugin
     /// </summary>
     public string Name => "Imgur";
 
-    /// <summary>
-    /// Specifies if the plugin can be configured
-    /// </summary>
-    public bool IsConfigurable => true;
-
-    /// <summary>
-    /// Implementation of RegisterConfiguration phase: register INI section before file is loaded.
-    /// </summary>
-    public void RegisterConfiguration(IniConfig iniConfig)
+    public void ConfigureServices(IPluginServices services)
     {
+        Texts.Register<IImgurLanguage>(new ImgurLanguageImpl());
         var section = new ImgurConfigurationImpl();
-        iniConfig.AddSection(section);
+        services.AddConfiguration(section);
         _config = section;
+
+        services.AddService<IIconProvider>(ImgurDestination.Icons);
+        services.AddService<IDestination>(new ImgurDestination());
+        services.AddRecipeStepProvider(this);
+        services.AddSettingsView<IImgurConfiguration>(config => new ImgurConfigurationView(config));
+    }
+
+    public object CreateSettingsViewModel(IServiceProvider services) => _config;
+
+    /// <summary>
+    /// Registers recipe step factories provided by the Imgur plugin.
+    /// </summary>
+    /// <param name="registry">The step registry.</param>
+    public void RegisterSteps(IStepRegistry registry)
+    {
+        if (registry == null) return;
+        registry.Register<ImgurStep>(config => new ImgurStep(config));
     }
 
     /// <summary>
-    /// Implementation of RegisterServices phase: register DI services after config is loaded.
+    /// Add the quick link to the context menu (on the UI thread)
     /// </summary>
-    public void RegisterServices(IServiceLocator serviceLocator)
-    {
-        _resources = new ComponentResourceManager(typeof(ImgurPlugin));
-    }
+    public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken) =>
+        services.GetRequiredService<IUiDispatcher>().RunOnUiAsync(Start, cancellationToken);
 
-    /// <summary>
-    /// Implementation of the IGreenshotPlugin.Start
-    /// </summary>
-    /// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-    public bool Start()
+    private void Start()
     {
-        ToolStripMenuItem itemPlugInRoot = new ToolStripMenuItem("Imgur")
+        _itemPlugInConfig = new TrayMenuEntry(PluginUtils.GetQuicklinkText("Imgur"))
         {
-            Image = (Image) _resources.GetObject("Imgur")
+            Image = EmbeddedResources.GetImage(typeof(ImgurPlugin), "Imgur"),
+            Visible = _config?.QuicklinkEnabled ?? false
         };
+        _itemPlugInConfig.Click += delegate { ShowSettings(); };
 
-        _itemPlugInConfig = new ToolStripMenuItem(Language.GetString("imgur", LangKey.configure));
-        _itemPlugInConfig.Click += delegate { ShowConfigDialog(); };
-        itemPlugInRoot.DropDownItems.Add(_itemPlugInConfig);
-
-        PluginUtils.AddToContextMenu(itemPlugInRoot);
-        Language.LanguageChanged += OnLanguageChanged;
+        PluginUtils.AddToContextMenu(_itemPlugInConfig);
+        Texts.Config.LanguageChanged += OnLanguageChanged;
+        if (_config is INotifyPropertyChanged notify)
+        {
+            notify.PropertyChanged += OnConfigPropertyChanged;
+        }
 
         UpdateHistoryMenuItem();
-        return true;
+    }
+
+    private void OnConfigPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(IImgurConfiguration.QuicklinkEnabled))
+        {
+            if (_itemPlugInConfig != null)
+            {
+                _itemPlugInConfig.Visible = _config?.QuicklinkEnabled ?? false;
+            }
+        }
     }
 
     public void OnLanguageChanged(object sender, EventArgs e)
     {
         if (_itemPlugInConfig != null)
         {
-            _itemPlugInConfig.Text = Language.GetString("imgur", LangKey.configure);
+            _itemPlugInConfig.Text = PluginUtils.GetQuicklinkText("Imgur");
         }
 
         if (_historyMenuItem != null)
         {
-            _historyMenuItem.Text = Language.GetString("imgur", LangKey.history);
+            _historyMenuItem.Text = Texts.Get<IImgurLanguage>().History;
         }
     }
 
@@ -136,8 +140,7 @@ public class ImgurPlugin : IGreenshotPlugin
 
         try
         {
-            var form = SimpleServiceProvider.Current.GetInstance<Form>();
-            form.BeginInvoke((MethodInvoker) delegate
+            UiDispatcher.Current.InvokeAsync(() =>
             {
                 var historyMenuItem = _historyMenuItem;
                 if (historyMenuItem == null)
@@ -153,7 +156,7 @@ public class ImgurPlugin : IGreenshotPlugin
                 {
                     historyMenuItem.Enabled = false;
                 }
-            });
+            }).FireAndLog("Update the Imgur history menu item", Log);
         }
         catch (Exception ex)
         {
@@ -161,26 +164,27 @@ public class ImgurPlugin : IGreenshotPlugin
         }
     }
 
-    public virtual void Shutdown()
-    {
-        Log.Debug("Imgur Plugin shutdown.");
-        Language.LanguageChanged -= OnLanguageChanged;
-    }
+    public Task StopAsync(CancellationToken cancellationToken) =>
+        UiDispatcher.Current.RunOnUiAsync(() =>
+        {
+            Log.Debug("Imgur Plugin shutdown.");
+            Texts.Config.LanguageChanged -= OnLanguageChanged;
+            if (_config is INotifyPropertyChanged notify)
+            {
+                notify.PropertyChanged -= OnConfigPropertyChanged;
+            }
+
+            _historyMenuItem?.Dispose();
+            _historyMenuItem = null;
+            _itemPlugInConfig?.Dispose();
+            _itemPlugInConfig = null;
+        }, cancellationToken);
 
     /// <summary>
-    /// Implementation of the IPlugin.Configure
+    /// Show the settings of this plugin
     /// </summary>
-    public virtual void Configure()
+    private void ShowSettings()
     {
-        ShowConfigDialog();
-    }
-
-    /// <summary>
-    /// Opens the Imgur settings dialog.
-    /// </summary>
-    /// <returns>true if OK was pressed; false if cancelled</returns>
-    private bool ShowConfigDialog()
-    {
-        return new SettingsForm().ShowDialog() == DialogResult.OK;
+        SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true)?.ShowSetting(Name);
     }
 }

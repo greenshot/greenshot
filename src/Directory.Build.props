@@ -1,6 +1,6 @@
 ﻿<Project>
   <PropertyGroup>
-    <Copyright>Copyright © Greenshot 2004-2026</Copyright>
+    <Copyright>Copyright © Greenshot 2007-2026</Copyright>
     <Authors>Greenshot</Authors>
     <PackageIconUrl>https://getgreenshot.org/favicon.ico</PackageIconUrl>
     <RepositoryUrl>https://github.com/greenshot/greenshot</RepositoryUrl>
@@ -24,8 +24,35 @@
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     <CompilerGeneratedFilesOutputPath>$(MSBuildProjectDirectory)/obj/generated</CompilerGeneratedFilesOutputPath>
   </PropertyGroup>
-  
-  <PropertyGroup Condition="'$(Configuration)' != 'Debug' And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">
+
+  <!--
+    The Greenshot edition: Full (the default) or Light, set with /p:GreenshotEdition=Light or with the DebugLight / ReleaseLight
+    configurations of Greenshot.csproj (the "Debug Light" / "Release Light" solution configurations in Visual Studio).
+    GreenshotBaseConfiguration is Debug or Release for those too, use it instead of $(Configuration) in conditions.
+  -->
+  <PropertyGroup>
+    <GreenshotBaseConfiguration>$(Configuration)</GreenshotBaseConfiguration>
+    <GreenshotBaseConfiguration Condition="'$(Configuration)' == ''">Debug</GreenshotBaseConfiguration>
+    <GreenshotBaseConfiguration Condition="'$(Configuration)' == 'DebugLight'">Debug</GreenshotBaseConfiguration>
+    <GreenshotBaseConfiguration Condition="'$(Configuration)' == 'ReleaseLight'">Release</GreenshotBaseConfiguration>
+    <GreenshotEdition Condition="'$(GreenshotEdition)' == '' And $(Configuration.EndsWith('Light'))">Light</GreenshotEdition>
+    <GreenshotEdition Condition="'$(GreenshotEdition)' == ''">Full</GreenshotEdition>
+  </PropertyGroup>
+
+  <!--
+    NuGet audit warnings that don't apply to Greenshot, see "Known vulnerability warnings" in README.md for the reasons.
+    Remove an entry when the package that caused it is updated.
+  -->
+  <ItemGroup>
+    <!-- SixLabors.ImageSharp 2.1.13, fixed only in 4.1.2 which doesn't support .NET Framework -->
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-gwg2-r3hj-4w44" />
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-j3p4-wp97-rph4" />
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-j9gm-c75j-xc9q" />
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-jjfr-hcj7-qf5w" />
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-wmxv-xphr-5c9g" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(GreenshotBaseConfiguration)' != 'Debug' And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <IsPackable>true</IsPackable>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
@@ -36,7 +63,7 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+  <PropertyGroup Condition="'$(GreenshotBaseConfiguration)' == 'Debug'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugSymbols>True</DebugSymbols>
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
@@ -44,18 +71,41 @@
     <Optimize>false</Optimize>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+  <PropertyGroup Condition="'$(GreenshotBaseConfiguration)' == 'Release'">
     <Optimize>true</Optimize>
     <DebugType>embedded</DebugType>
     <DebugSymbols>True</DebugSymbols>
   </PropertyGroup>
 
   <ItemGroup Condition="!$(MSBuildProjectName.Contains('Tests')) And $(MSBuildProjectName.StartsWith('Greenshot'))">
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.9.50">
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.10.94">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.103" PrivateAssets="All"/>
+    <!-- SourceLink is only needed for the build, its dependency System.IO.Hashing (the tasks bring their own copy) shouldn't end up in the output -->
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.401" PrivateAssets="All" ExcludeAssets="compile;runtime"/>
+  </ItemGroup>
+
+  <!-- HttpClient (NetworkHelper.HttpClient) is part of the framework, but not referenced by default -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net480' And '$(MSBuildProjectExtension)' == '.csproj'">
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+
+  <!-- Async & threading guardrails, see docs/async-threading-roadmap.md (section 3 and Phase 0).
+       Test and build-task projects are excluded: tests may block on tasks, build tasks run inside MSBuild. -->
+  <PropertyGroup Condition="!$(MSBuildProjectName.Contains('Tests')) And $(MSBuildProjectName.StartsWith('Greenshot')) And '$(MSBuildProjectName)' != 'Greenshot.BuildTasks'">
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+  </PropertyGroup>
+  <ItemGroup Condition="!$(MSBuildProjectName.Contains('Tests')) And $(MSBuildProjectName.StartsWith('Greenshot')) And '$(MSBuildProjectName)' != 'Greenshot.BuildTasks'">
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.14.15">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="4.14.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)BannedSymbols.txt" Link="BannedSymbols.txt" />
   </ItemGroup>
 
   <!-- Exclude the Roslyn-generated *.g.cs files from the normal compilation glob so they are
@@ -95,15 +145,15 @@
     IF NOT EXIST &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(TargetName)&quot; (&#xD;&#xA;
             mkdir &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(TargetName)&quot;&#xD;&#xA;
         )&#xD;&#xA;
-    xcopy /f /y /d &quot;$(TargetDir)$(TargetName).*&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)\Plugins\$(TargetName)&quot;&#xD;&#xA;
-    xcopy /f /y /d &quot;$(TargetDir)*.dll&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)\Plugins\$(TargetName)&quot;&#xD;&#xA;
+    xcopy /q /y /d &quot;$(TargetDir)$(TargetName).*&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)\Plugins\$(TargetName)&quot;&#xD;&#xA;
+    xcopy /q /y /d &quot;$(TargetDir)*.dll&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)\Plugins\$(TargetName)&quot;&#xD;&#xA;
     IF EXIST &quot;$(TargetDir)Languages&quot; (&#xD;&#xA;
-        IF NOT EXIST &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages\$(TargetName)&quot; (&#xD;&#xA;
-            mkdir &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages\$(TargetName)&quot;&#xD;&#xA;
+        IF NOT EXIST &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages&quot; (&#xD;&#xA;
+            mkdir &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages&quot;&#xD;&#xA;
         )&#xD;&#xA;
-        xcopy /f /y /d &quot;$(TargetDir)Languages\*en-US.xml&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages\$(TargetName)&quot;&#xD;&#xA;
+        xcopy /q /y /d &quot;$(TargetDir)Languages\*.ini&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages&quot;&#xD;&#xA;
 	  )
-    for /f &quot;tokens=*&quot; %%F in ('dir /b /A-D $(SolutionDir)$(SolutionName)\$(OutDir)') do if EXIST &quot;$(SolutionDir)$(SolutionName)\$(OutDir)\Plugins\$(TargetName)\%%F&quot; (&#xD;&#xA;echo %%F&#xD;&#xA;del &quot;$(SolutionDir)$(SolutionName)\$(OutDir)\Plugins\$(TargetName)\%%F&quot;&#xD;&#xA;)&#xD;&#xA;
+    for /f &quot;tokens=*&quot; %%F in ('dir /b /A-D $(SolutionDir)$(SolutionName)\$(OutDir)') do if EXIST &quot;$(SolutionDir)$(SolutionName)\$(OutDir)\Plugins\$(TargetName)\%%F&quot; (&#xD;&#xA;del &quot;$(SolutionDir)$(SolutionName)\$(OutDir)\Plugins\$(TargetName)\%%F&quot;&#xD;&#xA;)&#xD;&#xA;
   " />
   </Target>
 </Project>

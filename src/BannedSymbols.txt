@@ -1,0 +1,58 @@
+# Async & threading rules, see docs/async-threading-roadmap.md section 3.
+# A justified exception is marked in code with "#pragma warning disable RS0030" and a comment naming the rule.
+# R1: no blocking waits
+M:System.Threading.Thread.Sleep(System.Int32);R1: use await Task.Delay
+M:System.Threading.Thread.Sleep(System.TimeSpan);R1: use await Task.Delay
+M:System.Windows.Forms.Application.DoEvents;R1: re-entrancy hazard, make the work async instead
+M:System.Threading.WaitHandle.WaitOne;R1: use a TaskCompletionSource (Tcs.Create) and await it
+M:System.Threading.WaitHandle.WaitOne(System.Int32);R1: use a TaskCompletionSource (Tcs.Create) and await it
+M:System.Threading.WaitHandle.WaitOne(System.TimeSpan);R1: use a TaskCompletionSource (Tcs.Create) and await it
+M:System.Threading.WaitHandle.WaitOne(System.Int32,System.Boolean);R1: use a TaskCompletionSource (Tcs.Create) and await it
+M:System.Threading.WaitHandle.WaitOne(System.TimeSpan,System.Boolean);R1: use a TaskCompletionSource (Tcs.Create) and await it
+M:System.Threading.Tasks.Task.Wait;R1: await the task
+M:System.Threading.Tasks.Task.Wait(System.Int32);R1: await the task
+M:System.Threading.Tasks.Task.Wait(System.TimeSpan);R1: await the task
+M:System.Threading.Tasks.Task.Wait(System.Threading.CancellationToken);R1: await the task
+M:System.Threading.Tasks.Task.Wait(System.Int32,System.Threading.CancellationToken);R1: await the task
+M:System.Threading.Tasks.Task.WaitAll(System.Threading.Tasks.Task[]);R1: await Task.WhenAll
+M:System.Threading.Tasks.Task.WaitAny(System.Threading.Tasks.Task[]);R1: await Task.WhenAny
+P:System.Threading.Tasks.Task`1.Result;R1: await the task
+M:System.Runtime.CompilerServices.TaskAwaiter.GetResult;R1: await the task
+M:System.Runtime.CompilerServices.TaskAwaiter`1.GetResult;R1: await the task
+M:System.Runtime.CompilerServices.ConfiguredTaskAwaitable.ConfiguredTaskAwaiter.GetResult;R1: await the task
+M:System.Runtime.CompilerServices.ConfiguredTaskAwaitable`1.ConfiguredTaskAwaiter.GetResult;R1: await the task
+# R4: continuations of a TaskCompletionSource must not run inline on the completing thread
+M:System.Threading.Tasks.TaskCompletionSource`1.#ctor;R4: use Tcs.Create<T>()
+M:System.Threading.Tasks.TaskCompletionSource`1.#ctor(System.Object);R4: use Tcs.Create<T>()
+# R5: only IUiDispatcher knows how to reach the UI thread
+M:System.Threading.SynchronizationContext.Send(System.Threading.SendOrPostCallback,System.Object);R5: use await IUiDispatcher.InvokeAsync
+M:System.Windows.Forms.Control.Invoke(System.Delegate);R5: use await IUiDispatcher.InvokeAsync
+M:System.Windows.Forms.Control.Invoke(System.Delegate,System.Object[]);R5: use await IUiDispatcher.InvokeAsync
+P:System.Windows.Forms.Control.InvokeRequired;R5: raise events on the UI thread or marshal with IUiDispatcher, don't check the thread in the handler
+M:System.Windows.Threading.Dispatcher.Invoke(System.Action);R5: use await IUiDispatcher.InvokeAsync
+M:System.Windows.Threading.Dispatcher.Invoke(System.Action,System.Windows.Threading.DispatcherPriority);R5: use await IUiDispatcher.InvokeAsync
+M:System.Windows.Threading.Dispatcher.Invoke(System.Delegate,System.Object[]);R5: use await IUiDispatcher.InvokeAsync
+M:System.Windows.Threading.Dispatcher.Invoke(System.Delegate,System.Windows.Threading.DispatcherPriority,System.Object[]);R5: use await IUiDispatcher.InvokeAsync
+M:System.Windows.Threading.Dispatcher.Invoke``1(System.Func{``0});R5: use await IUiDispatcher.InvokeAsync
+T:System.Windows.Forms.WindowsFormsSynchronizationContext;R5: use IUiDispatcher
+T:System.Windows.Threading.DispatcherSynchronizationContext;R5: use IUiDispatcher
+# R9: Progress<T> reports on the SynchronizationContext of the thread which creates it
+M:System.Progress`1.#ctor;R9: construct Progress<T> only in UI code, or use IUserInteraction.RunWithProgressAsync
+M:System.Progress`1.#ctor(System.Action{`0});R9: construct Progress<T> only in UI code, or use IUserInteraction.RunWithProgressAsync
+# R10: Task.Run only at the documented boundaries (flow runner, AsyncCommand, "// PARALLEL:" branches)
+M:System.Threading.Tasks.Task.Run(System.Action);R10: Task.Run only in the flow runner, AsyncCommand or documented PARALLEL branches
+M:System.Threading.Tasks.Task.Run(System.Action,System.Threading.CancellationToken);R10: Task.Run only in the flow runner, AsyncCommand or documented PARALLEL branches
+M:System.Threading.Tasks.Task.Run(System.Func{System.Threading.Tasks.Task});R10: Task.Run only in the flow runner, AsyncCommand or documented PARALLEL branches
+M:System.Threading.Tasks.Task.Run(System.Func{System.Threading.Tasks.Task},System.Threading.CancellationToken);R10: Task.Run only in the flow runner, AsyncCommand or documented PARALLEL branches
+M:System.Threading.Tasks.Task.Run``1(System.Func{``0});R10: Task.Run only in the flow runner, AsyncCommand or documented PARALLEL branches
+M:System.Threading.Tasks.Task.Run``1(System.Func{``0},System.Threading.CancellationToken);R10: Task.Run only in the flow runner, AsyncCommand or documented PARALLEL branches
+M:System.Threading.Tasks.Task.Run``1(System.Func{System.Threading.Tasks.Task{``0}});R10: Task.Run only in the flow runner, AsyncCommand or documented PARALLEL branches
+M:System.Threading.Tasks.Task.Run``1(System.Func{System.Threading.Tasks.Task{``0}},System.Threading.CancellationToken);R10: Task.Run only in the flow runner, AsyncCommand or documented PARALLEL branches
+M:System.Threading.Tasks.TaskFactory.StartNew(System.Action);R10: use Task.Run at a documented boundary, StartNew is easy to misuse
+M:System.Threading.Tasks.TaskFactory.StartNew``1(System.Func{``0});R10: use Task.Run at a documented boundary, StartNew is easy to misuse
+M:System.Threading.Tasks.TaskFactory.StartNew``1(System.Func{``0},System.Threading.CancellationToken,System.Threading.Tasks.TaskCreationOptions,System.Threading.Tasks.TaskScheduler);R10: use Task.Run at a documented boundary, StartNew is easy to misuse
+# Ad-hoc threads: use the thread pool, the UI thread (IUiDispatcher) or an IStaWorker
+M:System.Threading.Thread.#ctor(System.Threading.ThreadStart);Use the pool, IUiDispatcher or an IStaWorker instead of an own thread
+M:System.Threading.Thread.#ctor(System.Threading.ThreadStart,System.Int32);Use the pool, IUiDispatcher or an IStaWorker instead of an own thread
+M:System.Threading.Thread.#ctor(System.Threading.ParameterizedThreadStart);Use the pool, IUiDispatcher or an IStaWorker instead of an own thread
+M:System.Threading.Thread.#ctor(System.Threading.ParameterizedThreadStart,System.Int32);Use the pool, IUiDispatcher or an IStaWorker instead of an own thread

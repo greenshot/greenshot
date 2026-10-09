@@ -1,0 +1,112 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:wpf="clr-namespace:Greenshot.Base.Wpf">
+    <!-- The themed menus (tray menu, destination picker), used through ThemedMenu. The brushes and corner radius are resources which
+         ThemedMenu puts on each menu: the palette of the windows, or for the tray menu the one of the taskbar. -->
+
+    <Style x:Key="GreenshotContextMenuStyle" TargetType="ContextMenu">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+        <Setter Property="HasDropShadow" Value="True"/>
+        <Setter Property="Grid.IsSharedSizeScope" Value="True"/>
+        <Setter Property="FontFamily" Value="{x:Static SystemFonts.MenuFontFamily}"/>
+        <Setter Property="FontSize" Value="{x:Static SystemFonts.MenuFontSize}"/>
+        <Setter Property="Foreground" Value="{DynamicResource GreenshotMenu.Foreground}"/>
+        <Setter Property="Background" Value="{DynamicResource GreenshotMenu.Background}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GreenshotMenu.Border}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContextMenu">
+                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource GreenshotMenu.CornerRadius}" Padding="2,4">
+                        <ScrollViewer CanContentScroll="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                            <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Cycle"/>
+                        </ScrollViewer>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="GreenshotMenuSeparatorStyle" TargetType="Separator">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Separator">
+                    <Border Height="1" Margin="8,4" Background="{DynamicResource GreenshotMenu.Border}"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="GreenshotMenuItemStyle" TargetType="MenuItem">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Foreground" Value="{DynamicResource GreenshotMenu.Foreground}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="MenuItem">
+                    <Border x:Name="ItemBorder" Background="Transparent" CornerRadius="{DynamicResource GreenshotMenu.ItemCornerRadius}" Margin="2,0" Padding="0,3">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" SharedSizeGroup="GreenshotMenuIcon"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto" SharedSizeGroup="GreenshotMenuShortcut"/>
+                                <ColumnDefinition Width="16"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0" MinWidth="20" Margin="4,0,8,0" VerticalAlignment="Center">
+                                <Border x:Name="CheckBackground" Visibility="Collapsed" CornerRadius="2" Margin="-2"
+                                        Background="{DynamicResource GreenshotMenu.CheckBackground}"
+                                        BorderBrush="{DynamicResource GreenshotMenu.Accent}" BorderThickness="1"/>
+                                <ContentPresenter x:Name="IconPresenter" ContentSource="Icon" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Path x:Name="CheckGlyph" Visibility="Collapsed" Data="M 0,5 L 3.5,8.5 L 10,1.5" Stroke="{TemplateBinding Foreground}" StrokeThickness="1.6"
+                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Grid>
+                            <ContentPresenter Grid.Column="1" ContentSource="Header" RecognizesAccessKey="False" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                            <TextBlock x:Name="ShortcutText" Grid.Column="2" Text="{TemplateBinding InputGestureText}" VerticalAlignment="Center" Margin="0,0,4,0"
+                                       Foreground="{DynamicResource GreenshotMenu.Muted}"/>
+                            <Path x:Name="SubmenuArrow" Grid.Column="3" Visibility="Collapsed" Data="M 0,0 L 4,4 L 0,8 Z" Fill="{TemplateBinding Foreground}"
+                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Popup x:Name="PART_Popup" Placement="Right" HorizontalOffset="0" VerticalOffset="-5" AllowsTransparency="True" Focusable="False"
+                                   PopupAnimation="Fade" IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}">
+                                <Border Background="{DynamicResource GreenshotMenu.Background}"
+                                        BorderBrush="{DynamicResource GreenshotMenu.Border}"
+                                        BorderThickness="1" CornerRadius="{DynamicResource GreenshotMenu.CornerRadius}" Padding="2,4">
+                                    <ScrollViewer CanContentScroll="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                        <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Cycle" Grid.IsSharedSizeScope="True"/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Role" Value="SubmenuHeader">
+                            <Setter TargetName="SubmenuArrow" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="ShortcutText" Property="Visibility" Value="Collapsed"/>
+                        </Trigger>
+                        <Trigger Property="IsHighlighted" Value="True">
+                            <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource GreenshotMenu.Hover}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource GreenshotMenu.HoverForeground}"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="CheckBackground" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsChecked" Value="True"/>
+                                <Condition Property="Icon" Value="{x:Null}"/>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="CheckBackground" Property="Visibility" Value="Collapsed"/>
+                            <Setter TargetName="CheckGlyph" Property="Visibility" Value="Visible"/>
+                        </MultiTrigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{DynamicResource GreenshotMenu.Muted}"/>
+                            <Setter TargetName="IconPresenter" Property="Opacity" Value="0.5"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

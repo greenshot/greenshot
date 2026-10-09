@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -21,39 +21,35 @@
 
 using System;
 using System.ComponentModel;
-using System.Drawing;
-using System.Windows.Forms;
-using Greenshot.Base.Controls;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using Greenshot.Base.Core;
-using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Plugin.Dropbox.Forms;
+using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Threading;
+using Greenshot.Plugin.Dropbox.Api;
+using Greenshot.Plugin.Dropbox.Destinations;
+using Greenshot.Base.Languages;
+using Greenshot.Plugin.Dropbox.Recipes;
+using Greenshot.Plugin.Dropbox.Views;
 
 namespace Greenshot.Plugin.Dropbox;
 
 /// <summary>
 /// This is the Dropbox base code
 /// </summary>
-public class DropboxPlugin : IGreenshotPlugin
+public class DropboxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvider
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(DropboxPlugin));
     private static IDropboxConfiguration _config;
-    private ComponentResourceManager _resources;
-    private ToolStripMenuItem _itemPlugInConfig;
+    private TrayMenuEntry _itemPlugInConfig;
 
-    public void Dispose()
+    public ValueTask DisposeAsync()
     {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    private void Dispose(bool disposing)
-    {
-        if (!disposing) return;
-        if (_itemPlugInConfig == null) return;
-        _itemPlugInConfig.Dispose();
-        _itemPlugInConfig = null;
+        // The menu item is removed and disposed in StopAsync
+        return default;
     }
 
     /// <summary>
@@ -61,103 +57,104 @@ public class DropboxPlugin : IGreenshotPlugin
     /// </summary>
     public string Name => "Dropbox";
 
-    /// <summary>
-    /// Specifies if the plugin can be configured
-    /// </summary>
-    public bool IsConfigurable => true;
-
-    /// <summary>
-    /// Implementation of RegisterConfiguration phase: register INI section before file is loaded.
-    /// </summary>
-    public void RegisterConfiguration(IniConfig iniConfig)
+    public void ConfigureServices(IPluginServices services)
     {
+        Texts.Register<IDropboxLanguage>(new DropboxLanguageImpl());
         var section = new DropboxConfigurationImpl();
-        iniConfig.AddSection(section);
+        services.AddConfiguration(section);
         _config = section;
+
+        services.AddService<IIconProvider>(DropboxDestination.Icons);
+        services.AddService<IDestination>(new DropboxDestination(this));
+        services.AddRecipeStepProvider(this);
+        services.AddSettingsView<IDropboxConfiguration>(config => new DropboxConfigurationView(config));
+    }
+
+    public object CreateSettingsViewModel(IServiceProvider services) => _config;
+
+    /// <summary>
+    /// Registers recipe step factories provided by the Dropbox plugin.
+    /// </summary>
+    /// <param name="registry">The step registry.</param>
+    public void RegisterSteps(IStepRegistry registry)
+    {
+        if (registry == null) return;
+        registry.Register<DropboxStep>(config => new DropboxStep(config, this));
     }
 
     /// <summary>
-    /// Implementation of RegisterServices phase: register DI services after config is loaded.
+    /// Add the quick link to the context menu (on the UI thread)
     /// </summary>
-    public void RegisterServices(IServiceLocator serviceLocator)
-    {
-        _resources = new ComponentResourceManager(typeof(DropboxPlugin));
-        serviceLocator.AddService<IDestination>(new DropboxDestination(this));
-    }
+    public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken) =>
+        services.GetRequiredService<IUiDispatcher>().RunOnUiAsync(Start, cancellationToken);
 
-    /// <summary>
-    /// Implementation of the IGreenshotPlugin.Start
-    /// </summary>
-    public bool Start()
+    private void Start()
     {
-        _itemPlugInConfig = new ToolStripMenuItem
+        _itemPlugInConfig = new TrayMenuEntry
         {
-            Text = Language.GetString("dropbox", LangKey.Configure),
-            Image = (Image) _resources.GetObject("Dropbox")
+            Text = PluginUtils.GetQuicklinkText("Dropbox"),
+            Image = EmbeddedResources.GetImage(typeof(DropboxPlugin), "Dropbox"),
+            Visible = _config?.QuicklinkEnabled ?? false
         };
         _itemPlugInConfig.Click += ConfigMenuClick;
 
         PluginUtils.AddToContextMenu(_itemPlugInConfig);
-        Language.LanguageChanged += OnLanguageChanged;
-        return true;
+        Texts.Config.LanguageChanged += OnLanguageChanged;
+        if (_config is INotifyPropertyChanged notify)
+        {
+            notify.PropertyChanged += OnConfigPropertyChanged;
+        }
+    }
+
+    private void OnConfigPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(IDropboxConfiguration.QuicklinkEnabled))
+        {
+            if (_itemPlugInConfig != null)
+            {
+                _itemPlugInConfig.Visible = _config?.QuicklinkEnabled ?? false;
+            }
+        }
     }
 
     public void OnLanguageChanged(object sender, EventArgs e)
     {
         if (_itemPlugInConfig != null)
         {
-            _itemPlugInConfig.Text = Language.GetString("dropbox", LangKey.Configure);
+            _itemPlugInConfig.Text = PluginUtils.GetQuicklinkText("Dropbox");
         }
     }
 
-    public void Shutdown()
-    {
-        Log.Debug("Dropbox Plugin shutdown.");
-        Language.LanguageChanged -= OnLanguageChanged;
-    }
-
-    /// <summary>
-    /// Implementation of the IPlugin.Configure
-    /// </summary>
-    public void Configure()
-    {
-        ShowConfigDialog();
-    }
-
-    public void ConfigMenuClick(object sender, EventArgs eventArgs)
-    {
-        ShowConfigDialog();
-    }
-
-    /// <summary>
-    /// Opens the Dropbox settings dialog.
-    /// </summary>
-    /// <returns>true if OK was pressed; false if cancelled</returns>
-    private bool ShowConfigDialog()
-    {
-        return new SettingsForm().ShowDialog() == DialogResult.OK;
-    }
-
-    /// <summary>
-    /// This will be called when the menu item in the Editor is clicked
-    /// </summary>
-    public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadUrl)
-    {
-        uploadUrl = null;
-        SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
-        try
+    public Task StopAsync(CancellationToken cancellationToken) =>
+        UiDispatcher.Current.RunOnUiAsync(() =>
         {
-            bool result = false;
-            new PleaseWaitForm().ShowAndWait("Dropbox", Language.GetString("dropbox", LangKey.communication_wait),
-                delegate { result = DropboxUtils.UploadToDropbox(surfaceToUpload, outputSettings, captureDetails); }
-            );
-            return result;
-        }
-        catch (Exception e)
-        {
-            Log.Error(e);
-            MessageBox.Show(Language.GetString("dropbox", LangKey.upload_failure) + " " + e.Message);
-            return false;
-        }
+            Log.Debug("Dropbox Plugin shutdown.");
+            Texts.Config.LanguageChanged -= OnLanguageChanged;
+            if (_config is INotifyPropertyChanged notify)
+            {
+                notify.PropertyChanged -= OnConfigPropertyChanged;
+            }
+
+            _itemPlugInConfig?.Dispose();
+            _itemPlugInConfig = null;
+        }, cancellationToken);
+
+    private void ConfigMenuClick(object sender, EventArgs eventArgs)
+    {
+        // Show the settings of this plugin
+        SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true)?.ShowSetting(Name);
+    }
+
+    /// <summary>
+    /// Upload the capture to Dropbox, shows the progress to the user.
+    /// </summary>
+    /// <returns>true when uploaded, false when Dropbox didn't accept it, null when the user didn't authorize</returns>
+    public async Task<bool?> UploadAsync(IExportSource source, ICaptureDetails captureDetails, IUserInteraction userInteraction, CancellationToken cancellationToken)
+    {
+        var outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
+        string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
+        var image = await source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
+        return await userInteraction.RunWithProgressAsync(Texts.Get<IDropboxLanguage>().CommunicationWait,
+            (progress, token) => DropboxUtils.UploadToDropboxAsync(image, filename, userInteraction, progress, token), cancellationToken).ConfigureAwait(false);
     }
 }

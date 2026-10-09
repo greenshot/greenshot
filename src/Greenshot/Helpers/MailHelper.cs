@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -24,13 +24,15 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Windows.Forms;
 using Greenshot.Base.Core;
 using Dapplo.Ini;
+using Dapplo.Windows.Desktop;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Interfaces.Plugin;
+using System.Threading.Tasks;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Helpers
 {
@@ -48,13 +50,15 @@ namespace Greenshot.Helpers
         private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         /// <summary>
-        /// Helper Method for creating an Email with Attachment
+        /// Create an e-mail with the file as attachment: the MAPI dialog is started on the "MAPI" STA worker, this returns when the
+        /// message was handed to MAPI (the dialog itself can stay open for a long time, nobody waits for it).
         /// </summary>
         /// <param name="fullPath">Path to file</param>
-        /// <param name="title"></param>
-        public static void SendImage(string fullPath, string title)
+        /// <param name="title">Subject of the e-mail</param>
+        /// <param name="cancellationToken">CancellationToken</param>
+        public static async Task SendImageAsync(string fullPath, string title, CancellationToken cancellationToken = default)
         {
-            using MapiMailMessage message = new MapiMailMessage(title, null);
+            var message = new MapiMailMessage(title, null);
             message.Files.Add(fullPath);
             if (!string.IsNullOrEmpty(CoreConfig.MailApiTo))
             {
@@ -71,42 +75,44 @@ namespace Greenshot.Helpers
                 message.Recipients.Add(new Recipient(CoreConfig.MailApiBCC, RecipientType.BCC));
             }
 
-            message.ShowDialog();
-        }
-
-
-        /// <summary>
-        /// Helper Method for creating an Email with Image Attachment
-        /// </summary>
-        /// <param name="surface">The image to send</param>
-        /// <param name="captureDetails">ICaptureDetails</param>
-        public static void SendImage(ISurface surface, ICaptureDetails captureDetails)
-        {
-            string tmpFile = ImageIO.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings());
-
-            if (tmpFile == null) return;
-
             // Store the list of currently active windows, so we can make sure we show the email window later!
-            var windowsBefore = WindowDetails.GetVisibleWindows();
-            SendImage(tmpFile, captureDetails.Title);
-            WindowDetails.ActiveNewerWindows(windowsBefore);
-        }
+            var windowsBefore = WindowHelper.GetVisibleWindows();
+            // Every mail gets its own STA worker: MAPISendMail blocks until the compose dialog closes, a second mail mustn't wait for it
+            var worker = new StaWorker("MAPI mail");
+            var mailTask = worker.RunAsync(message.ShowMail, CancellationToken.None);
+            // The message owns its interop allocations until the MAPI call returned
+            CleanupAsync().FireAndLog("MAPI e-mail", Log);
 
-        /// <summary>
-        /// Helper Method for creating an Email with a pre-rendered Image Attachment,
-        /// avoiding a redundant surface render pass.
-        /// </summary>
-        /// <param name="preRenderedImage">Pre-rendered bitmap; not disposed by this method.</param>
-        /// <param name="captureDetails">ICaptureDetails</param>
-        public static void SendImage(System.Drawing.Image preRenderedImage, ICaptureDetails captureDetails)
-        {
-            string tmpFile = ImageIO.SaveNamedTmpFile(preRenderedImage, captureDetails, new SurfaceOutputSettings());
+            // Only wait until the message was handed to MAPI, not for the dialog
+            var completed = await Task.WhenAny(message._messageHandedOver.Task, mailTask).WaitAsync(TimeSpan.FromSeconds(60), cancellationToken).ConfigureAwait(false);
+            if (completed == mailTask)
+            {
+                // The call ended before the hand-over: propagate its failure
+                await mailTask.ConfigureAwait(false);
+            }
 
-            if (tmpFile == null) return;
+            // Bring the windows which MAPI opened (e.g. the compose window) to the front
+            foreach (var window in WindowHelper.GetVisibleWindows().Where(window => !windowsBefore.Contains(window)))
+            {
+                await window.ToForegroundAsync().ConfigureAwait(false);
+            }
 
-            var windowsBefore = WindowDetails.GetVisibleWindows();
-            SendImage(tmpFile, captureDetails.Title);
-            WindowDetails.ActiveNewerWindows(windowsBefore);
+            async Task CleanupAsync()
+            {
+                try
+                {
+                    await mailTask.ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("Error sending the MAPI e-mail", ex);
+                }
+                finally
+                {
+                    message.Dispose();
+                    await worker.DisposeAsync().ConfigureAwait(false);
+                }
+            }
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
@@ -141,7 +147,8 @@ namespace Greenshot.Helpers
             BCC = 3
         };
 
-        private readonly ManualResetEvent _manualResetEvent;
+        // Completed when the message was handed to MAPI, the dialog can stay open after that
+        private readonly TaskCompletionSource<bool> _messageHandedOver = Tcs.Create<bool>();
 
         /// <summary>
         /// Creates a blank mail message.
@@ -150,7 +157,6 @@ namespace Greenshot.Helpers
         {
             Files = new List<string>();
             Recipients = new RecipientCollection();
-            _manualResetEvent = new ManualResetEvent(false);
         }
 
         /// <summary>
@@ -182,26 +188,6 @@ namespace Greenshot.Helpers
         /// </summary>
         public List<string> Files { get; }
 
-        /// <summary>
-        /// Displays the mail message dialog asynchronously.
-        /// </summary>
-        public void ShowDialog()
-        {
-            // Create the mail message in an STA thread
-            var thread = new Thread(ShowMail)
-            {
-                IsBackground = true,
-                Name = "Create MAPI mail"
-            };
-            thread.SetApartmentState(ApartmentState.STA);
-            thread.Start();
-
-            // only return when the new thread has built it's interop representation
-            // Use a timeout to prevent indefinite hang if the thread throws an exception
-            _manualResetEvent.WaitOne(TimeSpan.FromSeconds(60));
-            _manualResetEvent.Reset();
-        }
-
         public void Dispose()
         {
             Dispose(true);
@@ -215,11 +201,11 @@ namespace Greenshot.Helpers
                 return;
             }
 
-            _manualResetEvent?.Close();
+            _messageHandedOver.TrySetResult(false);
         }
 
         /// <summary>
-        /// Sends the mail message.
+        /// Sends the mail message, runs on the "MAPI" STA worker.
         /// </summary>
         private void ShowMail()
         {
@@ -241,8 +227,8 @@ namespace Greenshot.Helpers
                     message.Files = AllocAttachments(out message.FileCount);
                 }
 
-                // Signal the creating thread (make the remaining code async)
-                _manualResetEvent.Set();
+                // Signal the creating code (the remaining code is async)
+                _messageHandedOver.TrySetResult(true);
 
                 const int MAPI_DIALOG = 0x8;
                 //const int MAPI_LOGON_UI = 0x1;
@@ -264,7 +250,8 @@ namespace Greenshot.Helpers
 
                 string errorText = GetMapiError(errorCode);
                 Log.Error("Error sending MAPI Email. Error: " + errorText + " (code = " + errorCode + ").");
-                MessageBox.Show(errorText, "Mail (MAPI) destination", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                // Nobody waits for the dialog anymore: tell the user with a notification
+                UserInteraction.Current.NotifyAsync(new Notification(NotificationKind.Error, $"Mail (MAPI) destination: {errorText}")).FireAndLog("MAPI error notification", Log);
                 // Recover from bad settings, show again
                 if (errorCode != MAPI_CODES.INVALID_RECIPS)
                 {

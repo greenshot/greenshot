@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -23,7 +23,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.Enums;
 
 namespace Greenshot.Plugin.ExternalCommand;
 
@@ -71,14 +70,19 @@ public partial class ExternalCommandConfigurationImpl : IExternalCommandConfigur
         Commandline.Remove(command);
         Argument.Remove(command);
         RunInbackground.Remove(command);
+        OutputFormat.Remove(command);
+        RedirectStandardErrorCommand?.Remove(command);
+        RedirectStandardOutputCommand?.Remove(command);
+        ShowStandardOutputInLogCommand?.Remove(command);
+        ParseOutputForUriCommand?.Remove(command);
+        OutputToClipboardCommand?.Remove(command);
+        UriToClipboardCommand?.Remove(command);
 
         if (MsPaint.Equals(command) || PaintDotNet.Equals(command))
         {
             if (!DeletedBuildInCommands.Contains(command))
             {
                 DeletedBuildInCommands.Add(command);
-                // Re-assign to trigger SetRawValue dirty tracking for the in-place Add
-                DeletedBuildInCommands = DeletedBuildInCommands;
             }
         }
         MarkAsDirty();
@@ -90,7 +94,13 @@ public partial class ExternalCommandConfigurationImpl : IExternalCommandConfigur
         Commandline ??= new Dictionary<string, string>();
         Argument ??= new Dictionary<string, string>();
         RunInbackground ??= new Dictionary<string, bool>();
-        OutputFormat ??= new Dictionary<string, OutputFormat>();
+        OutputFormat ??= new Dictionary<string, string>();
+        RedirectStandardErrorCommand ??= new Dictionary<string, bool>();
+        RedirectStandardOutputCommand ??= new Dictionary<string, bool>();
+        ShowStandardOutputInLogCommand ??= new Dictionary<string, bool>();
+        ParseOutputForUriCommand ??= new Dictionary<string, bool>();
+        OutputToClipboardCommand ??= new Dictionary<string, bool>();
+        UriToClipboardCommand ??= new Dictionary<string, bool>();
         DeletedBuildInCommands ??= new List<string>();
 
         // Check if we need to add MsPaint

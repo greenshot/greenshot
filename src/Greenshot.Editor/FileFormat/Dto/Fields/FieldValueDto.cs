@@ -39,6 +39,7 @@ namespace Greenshot.Editor.FileFormat.Dto.Fields;
 [JsonDerivedType(typeof(FieldFlagFieldValueDto), "FieldFlag")]
 [JsonDerivedType(typeof(PreparedFilterFieldValueDto), "PreparedFilter")]
 [JsonDerivedType(typeof(StringAlignmentFieldValueDto), "StringAlignment")]
+[JsonDerivedType(typeof(CutMarkStyleFieldValueDto), "CutMarkStyle")]
 public abstract class FieldValueDto
 {
     public abstract object GetValue();

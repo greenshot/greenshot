@@ -48,6 +48,8 @@ namespace Greenshot.Editor.FileFormat.Dto.Container;
 [JsonDerivedType(typeof(StepLabelContainerDto), "StepLabel")]
 [JsonDerivedType(typeof(SvgContainerDto), "Svg")]
 [JsonDerivedType(typeof(EmojiContainerDto), "Emoji")]
+[JsonDerivedType(typeof(CutMarkContainerDto), "CutMark")]
+[JsonDerivedType(typeof(TornEdgeContainerDto), "TornEdge")]
 public abstract class DrawableContainerDto 
 {
   

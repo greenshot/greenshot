@@ -1,114 +1,20 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="Languages\greenshot*.ini">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
+    <PackageReference Include="Dapplo.Windows.Com" Version="3.11.2" />
   </ItemGroup>
-  <Target Name="EmbeddingOutlook" AfterTargets="ResolveReferences" BeforeTargets="FindReferenceAssembliesForReferences">
-    <PropertyGroup>
-      <_InteropAssemblyFileName>Microsoft.Office.Interop.Outlook</_InteropAssemblyFileName>
-    </PropertyGroup>
-    <ItemGroup>
-      <ReferencePath Condition=" '%(FileName)' == '$(_InteropAssemblyFileName)' AND '%(ReferencePath.NuGetPackageId)' == '$(_InteropAssemblyFileName)' ">
-        <EmbedInteropTypes>true</EmbedInteropTypes>
-      </ReferencePath>
-    </ItemGroup>
-  </Target>
-  <Target Name="EmbeddingOneNote" AfterTargets="ResolveReferences" BeforeTargets="FindReferenceAssembliesForReferences">
-    <PropertyGroup>
-      <_InteropAssemblyFileName>Interop.Microsoft.Office.Interop.OneNote</_InteropAssemblyFileName>
-    </PropertyGroup>
-    <ItemGroup>
-      <ReferencePath Condition=" '%(FileName)' == '$(_InteropAssemblyFileName)' AND '%(ReferencePath.NuGetPackageId)' == '$(_InteropAssemblyFileName)' ">
-        <EmbedInteropTypes>true</EmbedInteropTypes>
-      </ReferencePath>
-    </ItemGroup>
-  </Target>
-  <Target Name="EmbeddingExcel" AfterTargets="ResolveReferences" BeforeTargets="FindReferenceAssembliesForReferences">
-    <PropertyGroup>
-      <_InteropAssemblyFileName>Microsoft.Office.Interop.Excel</_InteropAssemblyFileName>
-    </PropertyGroup>
-    <ItemGroup>
-      <ReferencePath Condition=" '%(FileName)' == '$(_InteropAssemblyFileName)' AND '%(ReferencePath.NuGetPackageId)' == '$(_InteropAssemblyFileName)' ">
-        <EmbedInteropTypes>true</EmbedInteropTypes>
-      </ReferencePath>
-    </ItemGroup>
-  </Target>
-  <Target Name="EmbeddingPowerPoint" AfterTargets="ResolveReferences" BeforeTargets="FindReferenceAssembliesForReferences">
-    <PropertyGroup>
-      <_InteropAssemblyFileName>Microsoft.Office.Interop.PowerPoint</_InteropAssemblyFileName>
-    </PropertyGroup>
-    <ItemGroup>
-      <ReferencePath Condition=" '%(FileName)' == '$(_InteropAssemblyFileName)' AND '%(ReferencePath.NuGetPackageId)' == '$(_InteropAssemblyFileName)' ">
-        <EmbedInteropTypes>true</EmbedInteropTypes>
-      </ReferencePath>
-    </ItemGroup>
-  </Target>
-  <Target Name="EmbeddingWord" AfterTargets="ResolveReferences" BeforeTargets="FindReferenceAssembliesForReferences">
-    <PropertyGroup>
-      <_InteropAssemblyFileName>Microsoft.Office.Interop.Word</_InteropAssemblyFileName>
-    </PropertyGroup>
-    <ItemGroup>
-      <ReferencePath Condition=" '%(FileName)' == '$(_InteropAssemblyFileName)' AND '%(ReferencePath.NuGetPackageId)' == '$(_InteropAssemblyFileName)' ">
-        <EmbedInteropTypes>true</EmbedInteropTypes>
-      </ReferencePath>
-    </ItemGroup>
-  </Target>
-  <Target Name="EmbeddingMsHtml" AfterTargets="ResolveReferences" BeforeTargets="FindReferenceAssembliesForReferences">
-    <PropertyGroup>
-      <_InteropAssemblyFileName>Unofficial.Microsoft.mshtml</_InteropAssemblyFileName>
-    </PropertyGroup>
-    <ItemGroup>
-      <ReferencePath Condition=" '%(FileName)' == '$(_InteropAssemblyFileName)' AND '%(ReferencePath.NuGetPackageId)' == '$(_InteropAssemblyFileName)' ">
-        <EmbedInteropTypes>true</EmbedInteropTypes>
-      </ReferencePath>
-    </ItemGroup>
-  </Target>
-  <Target Name="EmbeddingMicrosoftOfficeCore" AfterTargets="ResolveReferences" BeforeTargets="FindReferenceAssembliesForReferences">
-    <ItemGroup>
-      <!-- MicrosoftOfficeCore NuGet ships Office.dll (not MicrosoftOfficeCore.dll), so the filename
-           filter must be 'Office'. Without this match the type library is not embedded and Office 2007
-           users get a FileNotFoundException for 'office, Version=15.0.0.0' at runtime. -->
-      <ReferencePath Condition=" '%(FileName)' == 'Office' AND '%(ReferencePath.NuGetPackageId)' == 'MicrosoftOfficeCore' ">
-        <EmbedInteropTypes>true</EmbedInteropTypes>
-      </ReferencePath>
-    </ItemGroup>
-  </Target>
   <ItemGroup>
-    <PackageReference Include="Interop.Microsoft.Office.Interop.OneNote" Version="1.1.0.2">
-      <EmbedInteropTypes>true</EmbedInteropTypes>
-      <ExcludeAssets>runtime</ExcludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Office.Interop.Excel" Version="15.0.4795.1001">
-      <EmbedInteropTypes>true</EmbedInteropTypes>
-      <ExcludeAssets>runtime</ExcludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Office.Interop.Outlook" Version="15.0.4797.1004">
-      <EmbedInteropTypes>true</EmbedInteropTypes>
-      <ExcludeAssets>runtime</ExcludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Office.Interop.PowerPoint" Version="15.0.4420.1018">
-      <EmbedInteropTypes>true</EmbedInteropTypes>
-      <ExcludeAssets>runtime</ExcludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Office.Interop.Word" Version="15.0.4797.1004">
-      <EmbedInteropTypes>true</EmbedInteropTypes>
-      <ExcludeAssets>runtime</ExcludeAssets>
-    </PackageReference>
-    <PackageReference Include="MicrosoftOfficeCore" Version="15.0.0">
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-      <ExcludeAssets>runtime</ExcludeAssets>
-    </PackageReference>
-    <PackageReference Include="Unofficial.Microsoft.mshtml" Version="7.0.3300">
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-      <ExcludeAssets>runtime</ExcludeAssets>
-    </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="CustomMarshalers" />
+    <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0" />
+    <PackageReference Update="Microsoft.VisualStudio.Threading.Analyzers" Version="18.7.23" />
   </ItemGroup>
 
 </Project>

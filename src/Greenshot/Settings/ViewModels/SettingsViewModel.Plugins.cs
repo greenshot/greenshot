@@ -1,0 +1,120 @@
+/*
+ * Greenshot - a free and open source screenshot tool
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * 
+ * For more information see: https://getgreenshot.org/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 1 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Reflection;
+using System.Windows;
+using Greenshot.Base.Core;
+using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Plugins.ViewModels;
+
+namespace Greenshot.Settings.ViewModels
+{
+    /// <summary>
+    /// The plugins tab. Not in Greenshot Light, which has no plugins.
+    /// </summary>
+    public partial class SettingsViewModel
+    {
+        private PluginViewModel _selectedPlugin;
+
+        public ObservableCollection<UIElement> PluginControls { get; } = new ObservableCollection<UIElement>();
+
+        public ObservableCollection<PluginViewModel> Plugins { get; private set; }
+
+        public PluginViewModel SelectedPlugin
+        {
+            get => _selectedPlugin;
+            set
+            {
+                if (_selectedPlugin != value)
+                {
+                    _selectedPlugin = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(CanConfigureSelectedPlugin));
+                    OnPropertyChanged(nameof(SelectedPluginControl));
+                    OnPropertyChanged(nameof(HasSelectedPluginControl));
+                    OnPropertyChanged(nameof(SelectedPluginControlVisibility));
+                    OnPropertyChanged(nameof(NoSelectedPluginControlVisibility));
+                }
+            }
+        }
+
+        public UIElement SelectedPluginControl => SelectedPlugin?.GetConfigurationControl();
+        public bool HasSelectedPluginControl => SelectedPluginControl != null;
+        public Visibility SelectedPluginControlVisibility => HasSelectedPluginControl ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility NoSelectedPluginControlVisibility => HasSelectedPluginControl ? Visibility.Collapsed : Visibility.Visible;
+
+        public void SelectPluginByName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name) || Plugins == null) return;
+            var item = Plugins.FirstOrDefault(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase));
+            if (item != null)
+            {
+                SelectedPlugin = item;
+            }
+        }
+
+        public bool CanConfigureSelectedPlugin => SelectedPlugin?.IsConfigurable == true;
+
+        public void ConfigureSelectedPlugin()
+        {
+            if (CanConfigureSelectedPlugin)
+            {
+                SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true)?.ShowSetting(SelectedPlugin?.Name);
+            }
+        }
+
+        private void InitializePlugins()
+        {
+            Plugins = new ObservableCollection<PluginViewModel>();
+            try
+            {
+                var plugins = SimpleServiceProvider.Current.GetAllInstances<IGreenshotPlugin>();
+                if (plugins != null)
+                {
+                    foreach (var plugin in plugins)
+                    {
+                        var assembly = plugin.GetType().Assembly;
+                        var company = assembly.GetCustomAttribute<AssemblyCompanyAttribute>()?.Company ?? string.Empty;
+                        var version = assembly.GetName().Version?.ToString() ?? string.Empty;
+                        var location = assembly.Location ?? string.Empty;
+
+                        Plugins.Add(new PluginViewModel
+                        {
+                            Plugin = plugin,
+                            Name = plugin.Name,
+                            Version = version,
+                            Company = company,
+                            Location = location
+                        });
+                    }
+                }
+            }
+            catch
+            {
+                // In some test scenarios SimpleServiceProvider might not have plugins registered
+            }
+        }
+    }
+}

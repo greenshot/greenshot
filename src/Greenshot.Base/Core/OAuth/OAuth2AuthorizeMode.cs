@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -28,7 +28,6 @@ namespace Greenshot.Base.Core.OAuth
     {
         Unknown, // Will give an exception, caller needs to specify another value
         LocalServer, // Will specify a redirect URL to http://localhost:port/authorize, while having a HttpListener
-        JsonReceiver, // Will start a local HttpListener and wait for a Json post
-        EmbeddedBrowser // Will open into an embedded _browser (OAuthLoginForm), and catch the redirect
+        JsonReceiver // Will start a local HttpListener and wait for a Json post
     }
 }

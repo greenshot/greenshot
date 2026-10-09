@@ -27,6 +27,7 @@ using System.Linq;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Icons;
 using Greenshot.Base.Core;
+using Greenshot.Base.Effects;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing;
@@ -141,6 +142,8 @@ public static class ConvertDtoToDomain
             MetafileContainerDto metafileContainerDto => ToDomain(metafileContainerDto, parentSurface),
             SvgContainerDto svgContainerDto => ToDomain(svgContainerDto, parentSurface),
             EmojiContainerDto emojiContainerDto => ToDomain(emojiContainerDto, parentSurface),
+            CutMarkContainerDto cutMarkContainerDto => ToDomain(cutMarkContainerDto, parentSurface),
+            TornEdgeContainerDto tornEdgeContainerDto => ToDomain(tornEdgeContainerDto, parentSurface),
             _ => throw new ArgumentException($"Unsupported IDrawableContainerDto type: {dto.GetType()}")
         };
     }
@@ -201,6 +204,46 @@ public static class ConvertDtoToDomain
         var domain = new EmojiContainer((Surface)parentSurface, dto.Emoji);
         domain.RotationAngle = dto.RotationAngle;
 
+        return InitDrawableContainer(domain, dto);
+    }
+
+    public static CutMarkContainer ToDomain(CutMarkContainerDto dto, ISurface parentSurface)
+    {
+        if (dto == null) return null;
+
+        parentSurface = CheckOrCreateParentSurface(parentSurface);
+
+        var shadowSettings = new TornEdgeEffect
+        {
+            Darkness = dto.ShadowDarkness,
+            ShadowSize = dto.ShadowSize,
+            ShadowOffset = new NativePoint(dto.ShadowOffsetX, dto.ShadowOffsetY)
+        };
+        var domain = InitDrawableContainer(new CutMarkContainer(parentSurface, dto.Horizontal, shadowSettings), dto);
+        // A changed tooth height moves the band to keep the gap, restore the stored bounds
+        domain.Left = dto.Left;
+        domain.Top = dto.Top;
+        domain.Width = dto.Width;
+        domain.Height = dto.Height;
+        domain.SetSeed(dto.Seed);
+        return domain;
+    }
+
+    public static TornEdgeContainer ToDomain(TornEdgeContainerDto dto, ISurface parentSurface)
+    {
+        if (dto == null) return null;
+
+        parentSurface = CheckOrCreateParentSurface(parentSurface);
+
+        var settings = new TornEdgeEffect
+        {
+            Darkness = dto.ShadowDarkness,
+            ShadowSize = dto.ShadowSize,
+            ShadowOffset = new NativePoint(dto.ShadowOffsetX, dto.ShadowOffsetY)
+        };
+        var domain = new TornEdgeContainer(parentSurface, settings, dto.Margins?.ToArray(), CutMarkStyle.Torn);
+        domain.SetLayout(dto.Edges?.ToArray(), dto.Margins?.ToArray());
+        domain.SetSeed(dto.Seed);
         return InitDrawableContainer(domain, dto);
     }
 
