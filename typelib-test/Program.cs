@@ -14,6 +14,7 @@ internal static class Program
         failures += Run("typed (embedded PIA, as Greenshot does today)", app => ((Word.Application)app).Documents.Count);
         failures += Run("dynamic", app => (int)((dynamic)app).Documents.Count);
         failures += Run("IDispatch by name (what a DispatchProxy would do)", app => (int)DispatchGet(DispatchGet(app, "Documents"), "Count"));
+        failures += Run("own typed interfaces over IDispatch (no library, no type information)", app => ((IWordApplication)app).Documents.Count);
         return failures;
     }
 
@@ -47,4 +48,18 @@ internal static class Program
     // Type.InvokeMember on a COM object calls IDispatch.GetIDsOfNames and IDispatch.Invoke, no type information
     private static object DispatchGet(object target, string name) => target.GetType().InvokeMember(name, BindingFlags.GetProperty, null, target, null);
     private static void DispatchCall(object target, string name, params object[] args) => target.GetType().InvokeMember(name, BindingFlags.InvokeMethod, null, target, args);
+}
+
+// Own small interfaces, typed for us, late bound for Office: the IID is IDispatch's, so the cast is a QueryInterface
+// for IDispatch only, and each call is IDispatch.GetIDsOfNames (by member name) + IDispatch.Invoke.
+[ComImport, Guid("00020400-0000-0000-C000-000000000046"), InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
+public interface IWordApplication
+{
+    IWordDocuments Documents { get; }
+}
+
+[ComImport, Guid("00020400-0000-0000-C000-000000000046"), InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
+public interface IWordDocuments
+{
+    int Count { get; }
 }
