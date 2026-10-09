@@ -26,6 +26,8 @@
     <PackageReference Include="HtmlAgilityPack" Version="1.13.0" />
     <PackageReference Include="log4net" version="3.5.0" />
     <PackageReference Include="Svg" Version="3.4.8" />
+    <!-- Newer than the one Dapplo.Windows brings, here so Greenshot and every plugin get the same System.Reactive.dll -->
+    <PackageReference Include="System.Reactive" Version="7.0.0" />
     <PackageReference Include="Dapplo.Ini" Version="1.1.11" />
     <PackageReference Include="Dapplo.Ini.Generator" Version="1.1.11" />
     <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.28000.2705" />
