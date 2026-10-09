@@ -19,8 +19,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -30,21 +32,59 @@ using Greenshot.Base.Core.Export;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Threading;
+using Dapplo.Windows.Com;
+using Microsoft.Win32;
 
 namespace Greenshot.Plugin.Office.Destinations
 {
     /// <summary>
-    /// What the Office destinations share: the COM calls run on the "Office" STA worker (with the OLE message filter),
-    /// the capture is handed over as a file.
+    /// What the Office destinations share: the COM calls run on an STA worker per Office application (with the OLE message filter),
+    /// so a hanging Outlook doesn't block Word, the capture is handed over as a file.
     /// </summary>
     public abstract class OfficeDestinationBase : DestinationBase
     {
         private static readonly Regex ImageFileRegex = new Regex(@".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$", RegexOptions.Compiled);
 
         /// <summary>
-        /// The STA thread for all Office COM calls
+        /// The STA thread for the COM calls of this Office application
         /// </summary>
-        protected static IStaWorker Office => StaWorkers.Get("Office");
+        protected IStaWorker Office => StaWorkers.Get(Designation);
+
+        /// <summary>
+        /// The executable of the COM server registered for the ProgID, e.g. "Word.Application", null when it's not registered.
+        /// This is the registration COM activation uses, so it works for every kind of Office installation (MSI or Click-to-Run).
+        /// </summary>
+        internal static string GetComServerPath(string progId)
+        {
+            var classId = Ole32Api.ClassIdFromProgId(progId);
+            if (!classId.HasValue)
+            {
+                return null;
+            }
+
+            // A 32-bit Office registers its classes in the 32-bit view
+            foreach (var view in new[] { RegistryView.Registry64, RegistryView.Registry32 })
+            {
+                using var classesRoot = RegistryKey.OpenBaseKey(RegistryHive.ClassesRoot, view);
+                using var localServer = classesRoot.OpenSubKey($@"CLSID\{classId.Value:B}\LocalServer32", false);
+                // e.g. "C:\...\WINWORD.EXE" /Automation
+                string command = (localServer?.GetValue(null) as string)?.Trim();
+                if (string.IsNullOrEmpty(command))
+                {
+                    continue;
+                }
+
+                // The path is quoted, or ends at ".exe"
+                int exeEnd = command.IndexOf(".exe", StringComparison.OrdinalIgnoreCase);
+                string path = command.StartsWith("\"") ? command.Split('"')[1] : exeEnd >= 0 ? command.Substring(0, exeEnd + 4) : command;
+                if (File.Exists(path))
+                {
+                    return path;
+                }
+            }
+
+            return null;
+        }
 
         /// <summary>
         /// The icon of an Office application (or of its documents)
@@ -52,9 +92,9 @@ namespace Greenshot.Plugin.Office.Destinations
         protected static string IconKeyFor(string exePath, int index) => DestinationIcons.Exe(exePath, index);
 
         /// <summary>
-        /// Run the COM code on the Office STA worker
+        /// Run the COM code on the STA worker of this Office application
         /// </summary>
-        protected static Task<T> RunOnOfficeAsync<T>(System.Func<T> comCall, CancellationToken cancellationToken) => Office.RunAsync(comCall, cancellationToken);
+        protected Task<T> RunOnOfficeAsync<T>(System.Func<T> comCall, CancellationToken cancellationToken) => Office.RunAsync(comCall, cancellationToken);
 
         /// <summary>
         /// A file with the capture: the file it was loaded from when it's unchanged, else a new temporary file.
@@ -101,7 +141,7 @@ namespace Greenshot.Plugin.Office.Destinations
         /// <summary>
         /// The dynamic destinations, created from the names the COM call returned
         /// </summary>
-        protected static async ValueTask<IReadOnlyList<IDestination>> GetDynamicDestinationsAsync(System.Func<IEnumerable<string>> getNames, System.Func<string, IDestination> create, CancellationToken cancellationToken)
+        protected async ValueTask<IReadOnlyList<IDestination>> GetDynamicDestinationsAsync(System.Func<IEnumerable<string>> getNames, System.Func<string, IDestination> create, CancellationToken cancellationToken)
         {
             // Materialize on the STA thread, the COM enumeration must not leave it
             var names = await RunOnOfficeAsync(() => getNames().ToList(), cancellationToken).ConfigureAwait(false);

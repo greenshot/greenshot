@@ -20,7 +20,6 @@
  */
 
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -41,18 +40,9 @@ namespace Greenshot.Plugin.Office.Destinations
     {
         private const int ICON_APPLICATION = 0;
         public const string DESIGNATION = "OneNote";
-        private static readonly string exePath;
+        private static readonly string exePath = GetComServerPath("OneNote.Application");
         private readonly OneNotePage page;
         private readonly OneNoteExporter _oneNoteExporter = new OneNoteExporter();
-
-        static OneNoteDestination()
-        {
-            exePath = OfficeUtils.GetOfficeExePath("ONENOTE.EXE") ?? PluginUtils.GetExePath("ONENOTE.EXE");
-            if (exePath != null && !File.Exists(exePath))
-            {
-                exePath = null;
-            }
-        }
 
         public OneNoteDestination()
         {

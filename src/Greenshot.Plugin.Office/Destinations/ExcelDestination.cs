@@ -20,7 +20,6 @@
  */
 
 using System.Collections.Generic;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
@@ -37,18 +36,8 @@ namespace Greenshot.Plugin.Office.Destinations
     {
         private const int IconApplication = 0;
         private const int IconWorkbook = 1;
-        private static readonly string ExePath;
+        private static readonly string ExePath = GetComServerPath("Excel.Application");
         private readonly string _workbookName;
-
-        static ExcelDestination()
-        {
-            ExePath = OfficeUtils.GetOfficeExePath("EXCEL.EXE") ?? PluginUtils.GetExePath("EXCEL.EXE");
-
-            if (ExePath != null && !File.Exists(ExePath))
-            {
-                ExePath = null;
-            }
-        }
 
         public ExcelDestination()
         {
@@ -75,19 +64,12 @@ namespace Greenshot.Plugin.Office.Destinations
         {
             var imageSize = await GetImageSizeAsync(request, cancellationToken).ConfigureAwait(false);
             var (imageFile, createdFile) = await GetImageFileAsync(request, cancellationToken).ConfigureAwait(false);
+            bool exported;
             try
             {
-                await Office.RunAsync(() =>
-                {
-                    if (_workbookName != null)
-                    {
-                        ExcelExporter.InsertIntoExistingWorkbook(_workbookName, imageFile, imageSize);
-                    }
-                    else
-                    {
-                        ExcelExporter.InsertIntoNewWorkbook(imageFile, imageSize);
-                    }
-                }, cancellationToken).ConfigureAwait(false);
+                exported = await RunOnOfficeAsync(() => _workbookName != null
+                    ? ExcelExporter.InsertIntoExistingWorkbook(_workbookName, imageFile, imageSize)
+                    : ExcelExporter.InsertIntoNewWorkbook(imageFile, imageSize), cancellationToken).ConfigureAwait(false);
             }
             finally
             {
@@ -98,7 +80,7 @@ namespace Greenshot.Plugin.Office.Destinations
                 }
             }
 
-            return ExportResult.Succeeded();
+            return exported ? ExportResult.Succeeded() : ExportResult.Failed("Export to Excel failed");
         }
     }
 }
