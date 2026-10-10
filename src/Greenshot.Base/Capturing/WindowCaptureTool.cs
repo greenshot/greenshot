@@ -189,7 +189,6 @@ namespace Greenshot.Base.Capturing
             _areasCancellation?.Cancel();
             var cancellation = _areasCancellation = new CancellationTokenSource();
             _areasPending = handle;
-            _areasTime.Restart();
             StartBusyMark();
             try
             {
@@ -222,16 +221,22 @@ namespace Greenshot.Base.Capturing
         private bool IsReadingAreas => _areasPending != IntPtr.Zero && _areasPending == _selectedWindow?.Handle;
 
         /// <summary>
+        /// True while the busy mark is shown, a derived tool can add its own background work and call <see cref="StartBusyMark"/> when it starts
+        /// </summary>
+        protected virtual bool IsBusy => IsReadingAreas;
+
+        /// <summary>
         /// Some applications (e.g. a browser after its start) need a moment for their areas, a mark next to the cursor turns until they arrive
         /// </summary>
-        private void StartBusyMark()
+        protected void StartBusyMark()
         {
+            _areasTime.Restart();
             if (_busyTimer == null)
             {
                 _busyTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(40) };
                 _busyTimer.Tick += (_, _) =>
                 {
-                    if (!IsReadingAreas || Host.ActiveTool != this)
+                    if (!IsBusy || Host.ActiveTool != this)
                     {
                         _busyTimer.Stop();
                     }
@@ -246,7 +251,7 @@ namespace Greenshot.Base.Capturing
         /// </summary>
         public override void Draw(DrawingContext drawingContext)
         {
-            if (!IsReadingAreas || _areasTime.Elapsed < BusyMarkDelay)
+            if (!IsBusy || _areasTime.Elapsed < BusyMarkDelay)
             {
                 return;
             }
