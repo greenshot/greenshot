@@ -19,13 +19,30 @@ if (-not (Test-Path $pluginsDir)) {
     return
 }
 
+function Get-Sha256Hash([string]$path) {
+    $stream = [System.IO.File]::OpenRead($path)
+    try {
+        $sha256 = [System.Security.Cryptography.SHA256]::Create()
+        try {
+            $hash = $sha256.ComputeHash($stream)
+            return [System.BitConverter]::ToString($hash).Replace('-', '').ToLowerInvariant()
+        }
+        finally {
+            $sha256.Dispose()
+        }
+    }
+    finally {
+        $stream.Dispose()
+    }
+}
+
 $removed = 0
 foreach ($file in Get-ChildItem -Path $pluginsDir -Recurse -File) {
     $mainFile = Join-Path $OutputDir $file.Name
     if (-not (Test-Path $mainFile -PathType Leaf)) {
         continue
     }
-    if ((Get-FileHash $file.FullName -Algorithm SHA256).Hash -eq (Get-FileHash $mainFile -Algorithm SHA256).Hash) {
+    if ((Get-Sha256Hash $file.FullName) -eq (Get-Sha256Hash $mainFile)) {
         Remove-Item $file.FullName -Force
         $removed++
     }
