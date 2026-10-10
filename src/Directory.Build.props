@@ -25,6 +25,13 @@
     <CompilerGeneratedFilesOutputPath>$(MSBuildProjectDirectory)/obj/generated</CompilerGeneratedFilesOutputPath>
   </PropertyGroup>
 
+  <!-- Solution properties are supplied by Visual Studio/MSBuild when building the solution, but not
+       when a project is built directly (for example, stand alone PowerShell). Keep post-build paths valid. -->
+  <PropertyGroup>
+    <SolutionDir Condition="'$(SolutionDir)' == ''">$(MSBuildThisFileDirectory)</SolutionDir>
+    <SolutionName Condition="'$(SolutionName)' == ''">Greenshot</SolutionName>
+  </PropertyGroup>
+
   <!--
     The Greenshot edition: Full (the default) or Light, set with /p:GreenshotEdition=Light or with the DebugLight / ReleaseLight
     configurations of Greenshot.csproj (the "Debug Light" / "Release Light" solution configurations in Visual Studio).
