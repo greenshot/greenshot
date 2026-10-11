@@ -149,8 +149,11 @@ background image, omitting the separate brightness and grayscale containers as
 requested; its old-app validation is still pending. Cursor writing is
 implemented, including both bitmap layers and cursor dimensions/hotspot, and
 has a standalone generated artifact; old-app validation of that artifact is
-pending. Template writing also remains open. Normal application saves remain
-V2-only, and V1 writing is not yet complete.
+pending. Template writing also remains open. Normal application saves can
+select V2 with `.gsa` or V1.04 with `.greenshot`. The V1 writer is integrated
+with the application save handler for supported container types; newer
+container types that have no V1 representation fail with an unsupported-type
+error.
 
 ### Writer implementation sequence
 

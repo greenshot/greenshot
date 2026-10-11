@@ -60,7 +60,7 @@ public sealed class GreenshotFileVersionHandler
     /// The first part is <see cref="GreenshotFileFormatVersion"/>. This decides wich serializer/ binary data structure is used.<br/>
     /// The second part is schema version <see cref="GreenshotFileVersionHandler.CurrentSchemaVersion"/>. This defines the data tansfer object DTO structure.<br/>
     /// <br/>
-    /// See ../FileFormat/readme.md for more information about the file format and versioning.
+    /// See ../../../docs/greenshot-fileformat.md for more information about the file format and versioning.
     /// </remarks>
     public enum GreenshotFileFormatVersion
     {
@@ -83,7 +83,7 @@ public sealed class GreenshotFileVersionHandler
     /// After incrementing this version, you need to extend <see cref="GreenshotFileV2.MigrateToCurrentVersion"/>.
     /// 
     /// <para>
-    /// see ../FileFormat/readme.md for more information about the file format and versioning.
+    /// see ../../../docs/greenshot-fileformat.md for more information about the file format and versioning.
     /// </para></remarks>
     public const int CurrentSchemaVersion = 1;
 
@@ -113,6 +113,29 @@ public sealed class GreenshotFileVersionHandler
     /// </summary>
     public static bool SaveToStreamInCurrentVersion( ISurface surface, Stream stream) =>
         SaveToStream(CreateGreenshotFile(surface), stream);
+
+    /// <summary>
+    /// Saves the surface using the format associated with the selected file extension.
+    /// </summary>
+    /// <param name="surface">The surface to save.</param>
+    /// <param name="stream">The destination stream.</param>
+    /// <param name="extension">The selected file extension, including its leading period.</param>
+    /// <returns><see langword="true"/> if the surface was saved successfully.</returns>
+    /// <exception cref="ArgumentException">Thrown when the extension is not a supported Greenshot editor format.</exception>
+    public static bool SaveToStreamInDedicatedFormat(ISurface surface, Stream stream, string extension)
+    {
+        if (string.Equals(extension, ".gsa", StringComparison.OrdinalIgnoreCase))
+        {
+            return SaveToStreamInCurrentVersion(surface, stream);
+        }
+
+        if (string.Equals(extension, ".greenshot", StringComparison.OrdinalIgnoreCase))
+        {
+            return GreenshotFileV1.SaveToStream(surface, stream);
+        }
+
+        throw new ArgumentException($"Unsupported Greenshot editor file extension: {extension}", nameof(extension));
+    }
 
     /// <summary>
     /// Saves the <see cref="GreenshotFile"/> as the current file format version.<br/>
@@ -237,4 +260,27 @@ public sealed class GreenshotFileVersionHandler
     /// </summary>
     public static ISurface CreateSurfaceFromStream(Stream stream) =>
         CreateSurface(LoadFromStream(stream));
+
+    /// <summary>
+    /// Loads a Greenshot editor surface from a file path, detecting its format version.
+    /// </summary>
+    /// <param name="fullPath">The path to the Greenshot editor file.</param>
+    /// <returns>The loaded surface, or <see langword="null"/> when no path was provided.</returns>
+    public static ISurface LoadGreenshotSurface(string fullPath)
+    {
+        if (string.IsNullOrEmpty(fullPath))
+        {
+            Log.Warn("No file path provided for loading Greenshot surface.");
+            return null;
+        }
+
+        Log.InfoFormat("Loading surface data from file {0}", fullPath);
+        using Stream greenshotFileStream = File.OpenRead(fullPath);
+        ISurface surface = CreateSurfaceFromStream(greenshotFileStream);
+
+        Log.InfoFormat("Information about file {0}: {1}x{2}-{3} Resolution {4}x{5}", fullPath, surface.Image.Width, surface.Image.Height,
+            surface.Image.PixelFormat, surface.Image.HorizontalResolution, surface.Image.VerticalResolution);
+
+        return surface;
+    }
 }

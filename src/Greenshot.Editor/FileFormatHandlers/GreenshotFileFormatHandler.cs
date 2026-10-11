@@ -37,8 +37,8 @@ namespace Greenshot.Editor.FileFormatHandlers;
 public sealed class GreenshotFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
 {
     private static readonly ILog Log = LogManager.GetLogger(typeof(GreenshotFileFormatHandler));
-    private readonly IReadOnlyCollection<string> _saveExtensions = [".gsa"];
-    private readonly IReadOnlyCollection<string> _loadExtensions = [".greenshot",".gsa"];
+    private readonly IReadOnlyCollection<string> _saveExtensions = [".gsa", ".greenshot"];
+    private readonly IReadOnlyCollection<string> _loadExtensions = [".greenshot", ".gsa"];
     public GreenshotFileFormatHandler()
     {
         SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = _loadExtensions;
@@ -63,8 +63,8 @@ public sealed class GreenshotFileFormatHandler : AbstractFileFormatHandler, IFil
 
         try
         {
-            //ignore the given bitmap, in .greenshot file we always use the original surface image
-            return GreenshotFileVersionHandler.SaveToStreamInCurrentVersion(surface, stream);
+            // Ignore the given bitmap: editor files always contain the original surface image.
+            return GreenshotFileVersionHandler.SaveToStreamInDedicatedFormat(surface, stream, extension);
         }
         catch (Exception ex)
         {
@@ -104,27 +104,11 @@ public sealed class GreenshotFileFormatHandler : AbstractFileFormatHandler, IFil
     public override ISurface LoadSurface(Stream surfaceFileStream) => GreenshotFileVersionHandler.CreateSurfaceFromStream(surfaceFileStream);
 
     /// <summary>
-    /// Load a <see cref="ISurface"/> from file path
+    /// Loads a surface from a Greenshot editor file.
     /// </summary>
-    /// <remarks>This implementation loads the <see cref="GreenshotFile"/> from file. Creates a <see cref="ISurface"/>.</remarks>
-    /// <param name="fullPath"></param>
-    /// <returns></returns>
-    public ISurface LoadGreenshotSurface(string fullPath)
-    {
-        if (string.IsNullOrEmpty(fullPath))
-        {
-            Log.Warn("No file path provided for loading Greenshot surface.");
-            return null;
-        }
-        Log.InfoFormat("Loading surface data from file {0}", fullPath);
+    /// <param name="fullPath">The path to the Greenshot editor file.</param>
+    /// <returns>The loaded surface, or <see langword="null"/> when no path was provided.</returns>
+    public ISurface LoadGreenshotSurface(string fullPath) => GreenshotFileVersionHandler.LoadGreenshotSurface(fullPath);
 
-        using Stream greenshotFileStream = File.OpenRead(fullPath);
-        ISurface returnSurface = GreenshotFileVersionHandler.CreateSurfaceFromStream(greenshotFileStream);
-
-        Log.InfoFormat("Information about file {0}: {1}x{2}-{3} Resolution {4}x{5}", fullPath, returnSurface.Image.Width, returnSurface.Image.Height,
-                returnSurface.Image.PixelFormat, returnSurface.Image.HorizontalResolution, returnSurface.Image.VerticalResolution);
-
-        return returnSurface;
-    }
 }
 

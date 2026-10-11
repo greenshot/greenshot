@@ -24,16 +24,17 @@ using System.IO;
 using System.ServiceModel.Security;
 using System.Text;
 using Greenshot.Base.Core;
+using Greenshot.Base.Interfaces;
 using Greenshot.Editor.FileFormat.V1.Legacy;
 using log4net;
 
 namespace Greenshot.Editor.FileFormat.V1;
 
 /// <summary>
-/// Provides methods for loading Greenshot file format version V1.
+/// Provides methods for reading and writing Greenshot file format version V1.
 /// </summary>
 /// <remarks>Greenshot file format version V1 supports Greenshot file versions 01.02, 01.03 and 01.04.
-/// Saving to this format is not supported anymore.</remarks>
+/// New saves use the V1.04 wire format for compatibility with older Greenshot releases.</remarks>
 internal static class GreenshotFileV1
 {
     private static readonly ILog Log = LogManager.GetLogger(typeof(GreenshotFileV1));
@@ -174,5 +175,24 @@ internal static class GreenshotFileV1
         }
 
         return returnGreenshotFile;
+    }
+
+    /// <summary>
+    /// Saves a surface in the legacy V1.04 .greenshot format.
+    /// </summary>
+    internal static bool SaveToStream(ISurface surface, Stream stream)
+    {
+        if (surface == null)
+        {
+            throw new ArgumentNullException(nameof(surface));
+        }
+
+        if (surface.Image is not Bitmap image)
+        {
+            throw new ArgumentException("The surface image must be a bitmap.", nameof(surface));
+        }
+
+        LegacyNrbfWriter.WriteEditorFile(stream, image, ConvertDomainToLegacy.ToLegacy(surface.Elements));
+        return true;
     }
 }

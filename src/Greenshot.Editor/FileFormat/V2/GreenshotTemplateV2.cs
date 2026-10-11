@@ -84,7 +84,7 @@ internal static class GreenshotTemplateV2
     /// - meta.json: Contains file metadata (format version, schema version, capture date, etc.) <see cref="GreenshotTemplate.MetaInformation"/><br/>
     /// - content.json: containers <br/>
     /// - different subfolder: Contains image files<br/>
-    /// ../../FileFormat/readme.md for more information<br/>
+    /// ../../../../docs/greenshot-fileformat.md for more information<br/>
     /// The corresponding loading method is <see cref="LoadFromStream"/>
     /// </remarks>
     internal static bool SaveToStream(GreenshotTemplate greenshotTemplate, Stream stream)

@@ -85,7 +85,7 @@ public static class GreenshotFileV2
     /// - meta.json: Contains file metadata (format version, schema version, capture date, etc.) <see cref="GreenshotFile.MetaInformation"/><br/>
     /// - content.json: Contains the main content (containers and other data)<br/>
     /// - different subfolder: Contains image files<br/>
-    /// ../../FileFormat/readme.md for more information<br/>
+    /// ../../../../docs/greenshot-fileformat.md for more information<br/>
     /// The corresponding loading method is <see cref="LoadFromStream"/>
     /// </remarks>
     public static bool SaveToStream(GreenshotFile greenshotFile, Stream stream)

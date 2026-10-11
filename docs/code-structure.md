@@ -19,16 +19,14 @@ and inside a feature by kind (Views, ViewModels, Tools, Steps, ...). The namespa
 
 ## Frozen: do not move or rename
 
-The `.greenshot` file stores the drawing surface with the BinaryFormatter, which writes full type names (see `BinaryFormatterHelper`).
-Moving these types breaks opening existing files:
+The legacy `.greenshot` format stores the drawing surface as NRBF and includes full type names. The current reader uses a restricted parser and the writer emits records directly; neither uses `BinaryFormatter`. Keep the legacy type names and assembly identities stable because older files and applications depend on them:
 
 - `Greenshot.Editor/Drawing/**` (containers, fields, filters, adorners, emoji, `Surface`) and `EmojiPicker`
 - `Greenshot.Base/Interfaces/Drawing/**`, `ISurface` and the surface event types
-- `Greenshot.Editor/Helpers/BinaryFormatterHelper.cs` and the editor file format handlers
+- the editor file format handlers and V1 legacy file-format types
 - the assembly names
 
-The Zxing `BarcodeContainer` is not in the `BinaryFormatterHelper` allow-list, so barcodes are not part of `.greenshot` files today;
-once it is added there, its type names (`Greenshot.Plugin.Zxing.Drawing`) are frozen too.
+The Zxing `BarcodeContainer` is not supported by the legacy `.greenshot` writer, so barcodes cannot be saved in that format today; its type names (`Greenshot.Plugin.Zxing.Drawing`) would also need to remain stable if support is added.
 
 Also kept as they are: the plugin classes (`…Plugin`, recipe requirements match their full type name, embedded resources are named after them),
 `Greenshot.Base.Interfaces.Capture` (capture tool plugin API) and the pack URIs of `Greenshot.Base/Wpf/Styles`.
