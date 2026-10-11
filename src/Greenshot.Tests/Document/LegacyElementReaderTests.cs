@@ -298,7 +298,7 @@ namespace Greenshot.Tests.Document
         [Fact]
         public void Read_Garbage_ThrowsLegacyFormatException()
         {
-            using var stream = new MemoryStream(Enumerable.Range(0, 200).Select(i => (byte)(i * 7)).ToArray());
+            using var stream = new MemoryStream(Enumerable.Range(0, 200).Select(i => unchecked((byte)(i * 7))).ToArray());
 
             Assert.Throws<LegacyFormatException>(() => LegacyElementReader.Read(stream));
         }

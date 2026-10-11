@@ -157,7 +157,8 @@ namespace Greenshot.Document.Legacy
         /// </summary>
         private static ElementStyle ToStyle(LegacyElement legacy)
         {
-            Stroke stroke = Find(legacy, "LINE_COLOR") is LegacyColor lineColor && Find(legacy, "LINE_THICKNESS") != null
+            // Like the editor, which adds a missing line thickness of 0 to step labels of older files
+            Stroke stroke = Find(legacy, "LINE_COLOR") is LegacyColor lineColor
                 ? new Stroke(ToRgba(lineColor), Int(legacy, "LINE_THICKNESS", 0))
                 : null;
             Fill fill = legacy.Kind != LegacyElementKind.Highlight && Find(legacy, "FILL_COLOR") is LegacyColor fillColor ? new Fill(ToRgba(fillColor)) : null;
@@ -172,10 +173,12 @@ namespace Greenshot.Document.Legacy
         }
 
         /// <summary>
-        /// The value of the field of the element, or of one of its filters
+        /// The value of the field of the element, or of one of its filters. Some files have a field twice, like the
+        /// editor the last one wins.
         /// </summary>
         private static object Find(LegacyElement legacy, string fieldTypeName) =>
-            legacy.Fields.Concat(legacy.Filters.SelectMany(filter => filter.Fields)).FirstOrDefault(field => field.FieldTypeName == fieldTypeName)?.Value;
+            (legacy.Fields.LastOrDefault(field => field.FieldTypeName == fieldTypeName)
+             ?? legacy.Filters.SelectMany(filter => filter.Fields).LastOrDefault(field => field.FieldTypeName == fieldTypeName))?.Value;
 
         private static int Int(LegacyElement legacy, string fieldTypeName, int defaultValue) =>
             Find(legacy, fieldTypeName) switch

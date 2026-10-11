@@ -45,8 +45,21 @@ namespace Greenshot.Tests.Document
             TestEnvironment.EnsureInitialized();
         }
 
+        /// <summary>
+        /// Files the current loader can't read: it loses the image of 1.02 image containers, and refuses metafiles
+        /// </summary>
+        private static readonly string[] NotReadableByTheBinaryFormatter =
+        {
+            Path.Combine("Greenshotfile", "File_Version_1.02", "ImageContainer_lt_300_200_wh_100_100.greenshot"),
+            Path.Combine("Greenshotfile", "File_Version_1.02", "Surface_with_11_different_DrawableContainer.greenshot"),
+            Path.Combine("Greenshotfile", "File_Version_1.03", "MetafileContainer_lt_300_200_wh_120_100.greenshot"),
+            Path.Combine("Greenshotfile", "File_Version_1.03", "Surface_with_14_different_DrawableContainer.greenshot")
+        };
+
         public static IEnumerable<object[]> GreenshotFiles() => Directory.GetFiles(Path.Combine(TestDataDirectory, "Greenshotfile"), "*.greenshot", SearchOption.AllDirectories)
-            .Select(file => new object[] { file.Substring(TestDataDirectory.Length + 1) });
+            .Select(file => file.Substring(TestDataDirectory.Length + 1))
+            .Except(NotReadableByTheBinaryFormatter)
+            .Select(file => new object[] { file });
 
         private static GreenshotDocument LoadWithBinaryFormatter(Stream stream)
         {
@@ -61,11 +74,15 @@ namespace Greenshot.Tests.Document
         }
 
         /// <summary>
-        /// Ids are new on every mapping, and the image bytes are encoded again by the Surface: compare without them
+        /// Ids are new on every mapping, and the image bytes are encoded again by the Surface: compare without them.
+        /// The current loader also replaces the filters of highlights and obfuscations with new ones from the settings,
+        /// so their parameters are compared in their own tests.
         /// </summary>
         private static Element WithoutIds(Element element) =>
             (element switch
             {
+                HighlightElement highlight => new HighlightElement(Guid.Empty, highlight.Area, highlight.Mode) { Style = highlight.Style },
+                ObfuscateElement obfuscate => obfuscate with { Size = 0 },
                 ImageElement image => image with { Resource = Guid.Empty },
                 CursorElement cursor => cursor with { Resource = Guid.Empty, MaskResource = cursor.MaskResource.HasValue ? Guid.Empty : (Guid?)null },
                 FreehandElement freehand => freehand with { Points = null },
@@ -102,6 +119,35 @@ namespace Greenshot.Tests.Document
                     Assert.Equal(expectedFreehand.Points, ((FreehandElement)actualElements[i]).Points);
                 }
             }
+        }
+
+        [Theory]
+        [MemberData(nameof(NotReadableByTheBinaryFormatterFiles))]
+        public void ReadGreenshotFile_ReadsTheImagesTheBinaryFormatterLoses(string relativePath)
+        {
+            using var stream = File.OpenRead(Path.Combine(TestDataDirectory, relativePath));
+
+            var document = LegacyToDocument.ReadGreenshotFile(stream);
+
+            var images = document.Layers[1].Elements.OfType<ImageElement>().ToList();
+            Assert.NotEmpty(images);
+            Assert.All(images, image => Assert.NotEmpty(document.Resources[image.Resource].Data));
+        }
+
+        public static IEnumerable<object[]> NotReadableByTheBinaryFormatterFiles() => NotReadableByTheBinaryFormatter.Select(file => new object[] { file });
+
+        [Fact]
+        public void ReadGreenshotFile_KeepsTheFilterParameters()
+        {
+            var directory = Path.Combine(TestDataDirectory, "Greenshotfile", "File_Version_1.03");
+            using var blurStream = File.OpenRead(Path.Combine(directory, "ObfuscateContainer_BlurFilter_lt_130_70_wh_180_70.greenshot"));
+            using var highlightStream = File.OpenRead(Path.Combine(directory, "HighlightContainer_TextFilter_lt_310_70_wh_195_60.greenshot"));
+
+            var blur = Assert.IsType<ObfuscateElement>(Assert.Single(LegacyToDocument.ReadGreenshotFile(blurStream).Layers[1].Elements));
+            var highlight = Assert.IsType<HighlightElement>(Assert.Single(LegacyToDocument.ReadGreenshotFile(highlightStream).Layers[1].Elements));
+
+            Assert.Equal(new ObfuscateElement(blur.Id, new RectD(130, 70, 180, 70), ObfuscateMode.Blur, 12) { Style = blur.Style }, blur);
+            Assert.Equal(new Rgba(255, 0, 0, 255), highlight.Color);
         }
 
         [Fact]
