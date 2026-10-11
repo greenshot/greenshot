@@ -31,6 +31,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- The package tests open the zip themselves -->
+    <Reference Include="System.IO.Compression" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
     <ProjectReference Include="..\Greenshot.Editor\Greenshot.Editor.csproj" />
     <ProjectReference Include="..\Greenshot.Document\Greenshot.Document.csproj" />
