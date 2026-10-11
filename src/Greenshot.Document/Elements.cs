@@ -104,11 +104,16 @@ namespace Greenshot.Document
     }
 
     /// <summary>
-    /// Highlights an area: Text and Area use Color, Magnify uses Magnification.
+    /// Highlights an area: Text uses Color, Area darkens (Brightness) and blurs (BlurRadius) everything outside of it,
+    /// Magnify uses Magnification.
     /// </summary>
     public sealed record HighlightElement(Guid Id, RectD Area, HighlightMode Mode) : Element(Id)
     {
         public Rgba Color { get; init; } = new(255, 255, 0, 255);
+
+        public double Brightness { get; init; } = 0.9;
+
+        public int BlurRadius { get; init; } = 3;
 
         public int Magnification { get; init; } = 2;
 

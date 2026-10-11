@@ -21,6 +21,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="Greenshot.Document.Editor" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="Controls\BindableToolStripButton.cs">
       <SubType>Component</SubType>
     </Compile>

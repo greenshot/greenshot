@@ -51,7 +51,7 @@ namespace Greenshot.Document
     public sealed record TextStyle(FontSpec Font, Rgba Color, TextAlignment Horizontal = TextAlignment.Center, TextAlignment Vertical = TextAlignment.Center);
 
     /// <summary>
-    /// The style of an element, a part which is null isn't drawn.
+    /// The style of an element, a part which is null (or a stroke with width 0) isn't drawn.
     /// </summary>
     public sealed record ElementStyle(Stroke Stroke = null, Fill Fill = null, Shadow Shadow = null, TextStyle Text = null)
     {
