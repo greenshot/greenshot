@@ -1,3 +1,3 @@
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("Greenshot.Test")]
+[assembly: InternalsVisibleTo("Greenshot.Tests")]

@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="System.IO.Compression" />
     <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
     <ProjectReference Include="..\Greenshot.Editor\Greenshot.Editor.csproj" />
     <ProjectReference Include="..\Greenshot\Greenshot.csproj" />
@@ -39,5 +40,11 @@
     <ProjectReference Include="..\Greenshot.Plugin.Office\Greenshot.Plugin.Office.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.Pdf\Greenshot.Plugin.Pdf.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.RecipeEditor\Greenshot.Plugin.RecipeEditor.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="TestData\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>
