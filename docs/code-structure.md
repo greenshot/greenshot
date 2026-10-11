@@ -48,6 +48,6 @@ Also kept as they are: the plugin classes (`…Plugin`, recipe requirements matc
 | `Greenshot.Base/Recipes` | `Pipeline`, `Contracts`, `Sources`, `Triggers`, `Expressions` |
 | `Greenshot.Base/Wpf` | Shared WPF helpers, styles, `Views`, `ViewModels`, the themed menus (`ThemedMenu`) and the destination picker |
 | `Greenshot.Editor/Views` | WPF windows of the editor (the editor itself is still WinForms in `Forms`) |
-| `Greenshot.Document` | Experimental document model (`GreenshotDocument`: canvas, layers, elements, resources), platform-neutral (netstandard2.0, no System.Drawing, WinForms or Dapplo.Windows). Runs in parallel with `Surface`/`DrawableContainer`, only the tests use it for now |
+| `Greenshot.Document` | Experimental document model (`GreenshotDocument`: canvas, layers, elements, resources), platform-neutral (netstandard2.0, no System.Drawing, WinForms or Dapplo.Windows). Runs in parallel with `Surface`/`DrawableContainer`, only the tests use it for now, see [document-model.md](document-model.md) |
 | `Greenshot.Document.Editor` | Maps the editor `Surface` to a `GreenshotDocument` (experimental, only the tests use it for now) |
 | `Greenshot.Plugin.*` | Root: the plugin class, its configuration and language interfaces. `Destinations`, `Recipes` (steps), `Views`, `Api` (the web service client and its entities), `Images`; Jira also `Monitoring`, Zxing `Drawing` (barcode container) and `Processing` (detection, generation) |
