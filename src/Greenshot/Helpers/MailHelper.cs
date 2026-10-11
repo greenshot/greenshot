@@ -94,7 +94,7 @@ namespace Greenshot.Helpers
             // Bring the windows which MAPI opened (e.g. the compose window) to the front
             foreach (var window in WindowHelper.GetVisibleWindows().Where(window => !windowsBefore.Contains(window)))
             {
-                await window.ToForegroundAsync().ConfigureAwait(false);
+                await window.ToForegroundAsync(cancellationToken).ConfigureAwait(false);
             }
 
             async Task CleanupAsync()

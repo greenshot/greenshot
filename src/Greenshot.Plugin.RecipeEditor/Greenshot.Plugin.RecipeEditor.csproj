@@ -6,8 +6,8 @@
 
   <ItemGroup>
     <PackageReference Include="Nodify" Version="7.3.0" />
-    <PackageReference Include="Dapplo.Ini" Version="1.1.9" />
-    <PackageReference Include="Dapplo.Ini.Generator" Version="1.1.9" />
+    <PackageReference Include="Dapplo.Ini" Version="1.1.11" />
+    <PackageReference Include="Dapplo.Ini.Generator" Version="1.1.11" />
   </ItemGroup>
 
   <ItemGroup>

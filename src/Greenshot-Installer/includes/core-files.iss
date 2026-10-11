@@ -39,7 +39,6 @@ Source: {#ReleaseDir}\System.IO.Pipelines.dll; DestDir: {app}; Components: green
 Source: {#ReleaseDir}\System.Memory.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\System.Numerics.Vectors.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\System.Reactive.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
-Source: {#ReleaseDir}\System.Reactive.Linq.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\System.Reflection.Metadata.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\System.Reflection.TypeExtensions.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\System.Runtime.CompilerServices.Unsafe.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}

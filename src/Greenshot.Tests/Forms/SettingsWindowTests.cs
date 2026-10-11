@@ -28,7 +28,6 @@ using Greenshot.Plugins.Views;
 using Greenshot.Settings.ViewModels;
 using Greenshot.Settings.Views;
 using Xunit;
-using Xunit.Abstractions;
 using Greenshot.Base.Languages;
 using Greenshot.Plugin.Box;
 using Greenshot.Plugin.Dropbox;

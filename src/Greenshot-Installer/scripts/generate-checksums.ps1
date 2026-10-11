@@ -29,6 +29,23 @@ function Test-Excluded([string]$name) {
     return $false
 }
 
+function Get-Sha256Hash([string]$path) {
+    $stream = [System.IO.File]::OpenRead($path)
+    try {
+        $sha256 = [System.Security.Cryptography.SHA256]::Create()
+        try {
+            $hash = $sha256.ComputeHash($stream)
+            return [System.BitConverter]::ToString($hash).Replace('-', '').ToLowerInvariant()
+        }
+        finally {
+            $sha256.Dispose()
+        }
+    }
+    finally {
+        $stream.Dispose()
+    }
+}
+
 $files = @()
 $files += Get-ChildItem -Path $OutputDir -File |
     Where-Object { $mainExtensions -contains $_.Extension.ToLowerInvariant() -and -not (Test-Excluded $_.Name) }
@@ -39,7 +56,7 @@ if (Test-Path $pluginsDir) {
 
 $lines = foreach ($file in $files) {
     $relative = $file.FullName.Substring($OutputDir.Length + 1).Replace('\', '/')
-    '{0}  {1}' -f (Get-FileHash $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant(), $relative
+    '{0}  {1}' -f (Get-Sha256Hash $file.FullName), $relative
 }
 $lines = $lines | Sort-Object { $_.Substring(66) }
 [System.IO.File]::WriteAllText($checksumFile, (($lines -join "`n") + "`n"))
