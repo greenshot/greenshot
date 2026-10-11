@@ -31,7 +31,7 @@ using Xunit;
 
 namespace Greenshot.Tests.Editor.FileFormat.Dto.DomainToDto;
 
-[Collection("DefaultCollection")]
+[Collection(TestCollections.FileFormat)]
 public class ConvertStepLabelContainerToDtoTests
 {
     [Fact]

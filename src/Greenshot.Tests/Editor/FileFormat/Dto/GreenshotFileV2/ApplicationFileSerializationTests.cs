@@ -29,7 +29,7 @@ using EditorV2 = Greenshot.Editor.FileFormat.V2;
 
 namespace Greenshot.Tests.Editor.FileFormat.Dto.GreenshotFileV2;
 
-[Collection("DefaultCollection")]
+[Collection(TestCollections.FileFormat)]
 public class ApplicationFileSerializationTests
 {
     /// <summary>

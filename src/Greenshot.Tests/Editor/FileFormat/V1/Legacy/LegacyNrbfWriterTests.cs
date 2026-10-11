@@ -29,7 +29,7 @@ using Xunit;
 
 namespace Greenshot.Tests.Editor.FileFormat.V1.Legacy;
 
-[Collection("DefaultCollection")]
+[Collection(TestCollections.FileFormat)]
 public class LegacyNrbfWriterTests
 {
     [Fact]

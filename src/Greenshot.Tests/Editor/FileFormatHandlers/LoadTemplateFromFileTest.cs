@@ -42,7 +42,7 @@ namespace Greenshot.Tests.Editor.FileFormatHandlers;
 /// <remarks>Every test methode uses a .gst file from the TestData folder, which is expected to be present.
 /// For every test method there is a .gst file in every supported Greenshot file version.
 /// </remarks>
-[Collection("DefaultCollection")]
+[Collection(TestCollections.FileFormat)]
 public class LoadTemplateFromFileTest
 {
     private readonly GreenshotTemplateFormatHandler _greenshotTemplateFormatHandler = new();
@@ -80,7 +80,7 @@ public class LoadTemplateFromFileTest
         var resultFirstElement = resultSurface.Elements.FirstOrDefault();
 
         Assert.NotNull(resultElementList);
-        Assert.Equal(1, resultElementList.Count);
+        Assert.Single(resultElementList);
 
         Assert.NotNull(resultFirstElement);
         Assert.IsType<ArrowContainer>(resultFirstElement);
@@ -149,7 +149,7 @@ public class LoadTemplateFromFileTest
         var resultFirstElement = resultSurface.Elements.FirstOrDefault();
 
         Assert.NotNull(resultElementList);
-        Assert.Equal(1, resultElementList.Count);
+        Assert.Single(resultElementList);
 
         Assert.NotNull(resultFirstElement);
         Assert.IsType<RectangleContainer>(resultFirstElement);
@@ -219,7 +219,7 @@ public class LoadTemplateFromFileTest
         var resultFirstElement = resultSurface.Elements.FirstOrDefault();
 
         Assert.NotNull(resultElementList);
-        Assert.Equal(1, resultElementList.Count);
+        Assert.Single(resultElementList);
 
         Assert.NotNull(resultFirstElement);
         Assert.IsType<LineContainer>(resultFirstElement);
@@ -285,7 +285,7 @@ public class LoadTemplateFromFileTest
         var resultFirstElement = resultSurface.Elements.FirstOrDefault();
 
         Assert.NotNull(resultElementList);
-        Assert.Equal(1, resultElementList.Count);
+        Assert.Single(resultElementList);
 
         Assert.NotNull(resultFirstElement);
         Assert.IsType<EllipseContainer>(resultFirstElement);
@@ -360,7 +360,7 @@ public class LoadTemplateFromFileTest
         var resultFirstElement = resultSurface.Elements.FirstOrDefault();
 
         Assert.NotNull(resultElementList);
-        Assert.Equal(1, resultElementList.Count);
+        Assert.Single(resultElementList);
 
         Assert.NotNull(resultFirstElement);
         Assert.IsType<FreehandContainer>(resultFirstElement);
@@ -428,7 +428,7 @@ public class LoadTemplateFromFileTest
         var resultFirstElement = resultSurface.Elements.FirstOrDefault();
 
         Assert.NotNull(resultElementList);
-        Assert.Equal(1, resultElementList.Count);
+        Assert.Single(resultElementList);
 
         Assert.NotNull(resultFirstElement);
         Assert.IsType<TextContainer>(resultFirstElement);
@@ -538,7 +538,7 @@ public class LoadTemplateFromFileTest
         var resultFirstElement = resultSurface.Elements.FirstOrDefault();
 
         Assert.NotNull(resultElementList);
-        Assert.Equal(1, resultElementList.Count);
+        Assert.Single(resultElementList);
 
         Assert.NotNull(resultFirstElement);
         Assert.IsType<SpeechbubbleContainer>(resultFirstElement);
@@ -641,7 +641,7 @@ public class LoadTemplateFromFileTest
         var resultFirstElement = resultSurface.Elements.FirstOrDefault();
 
         Assert.NotNull(resultElementList);
-        Assert.Equal(1, resultElementList.Count);
+        Assert.Single(resultElementList);
 
         Assert.NotNull(resultFirstElement);
         Assert.IsType<HighlightContainer>(resultFirstElement);
@@ -665,7 +665,7 @@ public class LoadTemplateFromFileTest
 
         // Check the actual filter applied based on the prepared filter
         Assert.NotNull(highlightContainer.Filters);
-        Assert.Equal(1, highlightContainer.Filters.Count);
+        Assert.Single(highlightContainer.Filters);
         Assert.IsType<HighlightFilter>(highlightContainer.Filters[0]);
     }
 
@@ -698,7 +698,7 @@ public class LoadTemplateFromFileTest
         var resultFirstElement = resultSurface.Elements.FirstOrDefault();
 
         Assert.NotNull(resultElementList);
-        Assert.Equal(1, resultElementList.Count);
+        Assert.Single(resultElementList);
 
         Assert.NotNull(resultFirstElement);
         Assert.IsType<ObfuscateContainer>(resultFirstElement);
@@ -734,7 +734,7 @@ public class LoadTemplateFromFileTest
 
         // Check the actual filter applied based on the prepared filter
         Assert.NotNull(obfuscateContainer.Filters);
-        Assert.Equal(1, obfuscateContainer.Filters.Count);
+        Assert.Single(obfuscateContainer.Filters);
         Assert.IsType<BlurFilter>(obfuscateContainer.Filters[0]);
     }
 
@@ -764,7 +764,7 @@ public class LoadTemplateFromFileTest
         var resultFirstElement = resultSurface.Elements.FirstOrDefault();
 
         Assert.NotNull(resultElementList);
-        Assert.Equal(1, resultElementList.Count);
+        Assert.Single(resultElementList);
 
         Assert.NotNull(resultFirstElement);
         Assert.IsType<IconContainer>(resultFirstElement);
@@ -810,7 +810,7 @@ public class LoadTemplateFromFileTest
         var resultFirstElement = resultSurface.Elements.FirstOrDefault();
 
         Assert.NotNull(resultElementList);
-        Assert.Equal(1, resultElementList.Count);
+        Assert.Single(resultElementList);
 
         Assert.NotNull(resultFirstElement);
         Assert.IsType<CursorContainer>(resultFirstElement);
@@ -939,7 +939,7 @@ public class LoadTemplateFromFileTest
         var resultFirstElement = resultSurface.Elements.FirstOrDefault();
 
         Assert.NotNull(resultElementList);
-        Assert.Equal(1, resultElementList.Count);
+        Assert.Single(resultElementList);
 
         Assert.NotNull(resultFirstElement);
         Assert.IsType<ImageContainer>(resultFirstElement);
@@ -984,7 +984,7 @@ public class LoadTemplateFromFileTest
         var resultFirstElement = resultSurface.Elements.FirstOrDefault();
 
         Assert.NotNull(resultElementList);
-        Assert.Equal(1, resultElementList.Count);
+        Assert.Single(resultElementList);
 
         Assert.NotNull(resultFirstElement);
         Assert.IsType<SvgContainer>(resultFirstElement);
@@ -1029,7 +1029,7 @@ public class LoadTemplateFromFileTest
         var resultFirstElement = resultSurface.Elements.FirstOrDefault();
 
         Assert.NotNull(resultElementList);
-        Assert.Equal(1, resultElementList.Count);
+        Assert.Single(resultElementList);
 
         Assert.NotNull(resultFirstElement);
         Assert.IsType<MetafileContainer>(resultFirstElement);

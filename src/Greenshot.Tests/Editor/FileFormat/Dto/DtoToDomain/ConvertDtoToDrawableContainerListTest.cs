@@ -26,7 +26,7 @@ using Xunit;
 
 namespace Greenshot.Tests.Editor.FileFormat.Dto.DtoToDomain;
 
-[Collection("DefaultCollection")]
+[Collection(TestCollections.FileFormat)]
 public class ConvertDtoToDrawableContainerListTest
 {
     [Fact]

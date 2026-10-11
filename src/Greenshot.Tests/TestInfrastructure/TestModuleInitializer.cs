@@ -22,7 +22,7 @@
 using System.Runtime.CompilerServices;
 using Greenshot.Base.Core;
 
-namespace Greenshot.Tests
+namespace Greenshot.Tests.TestInfrastructure
 {
     /// <summary>
     /// Runs once when the test assembly is loaded, before any test.

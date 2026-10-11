@@ -34,7 +34,7 @@ namespace Greenshot.Tests.Editor.FileFormatHandlers;
 /// <summary>
 /// Tests for the <see cref="GreenshotTemplateFormatHandler"/> class.
 /// </summary>
-[Collection("DefaultCollection")]
+[Collection(TestCollections.FileFormat)]
 public class GreenshotTemplateFormatHandlerTests
 {
     /// <summary>

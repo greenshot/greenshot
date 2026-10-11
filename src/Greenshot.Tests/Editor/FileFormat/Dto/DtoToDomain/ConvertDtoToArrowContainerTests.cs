@@ -29,7 +29,7 @@ using static Greenshot.Editor.Drawing.ArrowContainer;
 
 namespace Greenshot.Tests.Editor.FileFormat.Dto.DtoToDomain;
 
-[Collection("DefaultCollection")]
+[Collection(TestCollections.FileFormat)]
 public class ConvertDtoToArrowContainerTests
 {
     [Fact]

@@ -39,16 +39,16 @@ namespace Greenshot.Tests.Editor.FileFormatHandlers;
 /// <remarks>Every test methode uses a .greenshot file from the TestData folder, which is expected to be present.
 /// For every test method there is a .greenshot file in every supported Greenshot file version.
 /// </remarks>
-[Collection("DefaultCollection")]
+[Collection(TestCollections.FileFormat)]
 public class LoadGreenshotSurfaceTests
 {
     private readonly GreenshotFileFormatHandler _greenshotFileFormatHandler = new();
 
     public static IEnumerable<object[]> ImageSurfaceTestData()
     {
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.02", "Surface_with_Image_800x400.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.03", "Surface_with_Image_800x400.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "Surface_with_Image_800x400.gsa")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.02", "Surface_with_Image_800x400.greenshot")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.03", "Surface_with_Image_800x400.greenshot")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_2.01", "Surface_with_Image_800x400.gsa")];
     }
 
     [Theory]
@@ -68,7 +68,7 @@ public class LoadGreenshotSurfaceTests
         Assert.Equal(imageSizeInTestfile, resultSurface.Image.Size);
 
         Assert.NotNull(resultElementList);
-        Assert.Equal(0, resultElementList.Count);
+        Assert.Empty(resultElementList);
     }
 
     [Theory]
@@ -97,9 +97,9 @@ public class LoadGreenshotSurfaceTests
 
     public static IEnumerable<object[]> RectangleContainerTestData()
     {
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.02", "RectangleContainer_lt_100_200_wh_150_80.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.03", "RectangleContainer_lt_100_200_wh_150_80.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "RectangleContainer_lt_100_200_wh_150_80.gsa")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.02", "RectangleContainer_lt_100_200_wh_150_80.greenshot")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.03", "RectangleContainer_lt_100_200_wh_150_80.greenshot")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_2.01", "RectangleContainer_lt_100_200_wh_150_80.gsa")];
     }
 
     [Theory]
@@ -125,7 +125,7 @@ public class LoadGreenshotSurfaceTests
         Assert.Equal(imageSizeInTestfile, resultSurface.Image.Size);
 
         Assert.NotNull(resultElementList);
-        Assert.Equal(1, resultElementList.Count);
+        Assert.Single(resultElementList);
 
         Assert.NotNull(resultFirstElement);
         Assert.IsType<RectangleContainer>(resultFirstElement);
@@ -167,9 +167,9 @@ public class LoadGreenshotSurfaceTests
 
     public static IEnumerable<object[]> LineContainerTestData()
     {
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.02", "LineContainer_lt_200_200_w_400.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.03", "LineContainer_lt_200_200_w_400.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "LineContainer_lt_200_200_w_400.gsa")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.02", "LineContainer_lt_200_200_w_400.greenshot")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.03", "LineContainer_lt_200_200_w_400.greenshot")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_2.01", "LineContainer_lt_200_200_w_400.gsa")];
     }
 
     [Theory]
@@ -195,7 +195,7 @@ public class LoadGreenshotSurfaceTests
         Assert.Equal(imageSizeInTestfile, resultSurface.Image.Size);
 
         Assert.NotNull(resultElementList);
-        Assert.Equal(1, resultElementList.Count);
+        Assert.Single(resultElementList);
 
         Assert.NotNull(resultFirstElement);
         Assert.IsType<LineContainer>(resultFirstElement);
@@ -233,9 +233,9 @@ public class LoadGreenshotSurfaceTests
 
     public static IEnumerable<object[]> ArrowContainerTestData()
     {
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.02", "ArrowContainer_lt_100_200_wh_400_100.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.03", "ArrowContainer_lt_100_200_wh_400_100.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "ArrowContainer_lt_100_200_wh_400_100.gsa")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.02", "ArrowContainer_lt_100_200_wh_400_100.greenshot")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.03", "ArrowContainer_lt_100_200_wh_400_100.greenshot")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_2.01", "ArrowContainer_lt_100_200_wh_400_100.gsa")];
     }
 
     [Theory]
@@ -262,7 +262,7 @@ public class LoadGreenshotSurfaceTests
         Assert.Equal(imageSizeInTestfile, resultSurface.Image.Size);
 
         Assert.NotNull(resultElementList);
-        Assert.Equal(1, resultElementList.Count);
+        Assert.Single(resultElementList);
 
         Assert.NotNull(resultFirstElement);
         Assert.IsType<ArrowContainer>(resultFirstElement);
@@ -303,9 +303,9 @@ public class LoadGreenshotSurfaceTests
 
     public static IEnumerable<object[]> EllipseContainerTestData()
     {
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.02", "EllipseContainer_lt_200_200_wh_400_100.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.03", "EllipseContainer_lt_200_200_wh_400_100.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "EllipseContainer_lt_200_200_wh_400_100.gsa")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.02", "EllipseContainer_lt_200_200_wh_400_100.greenshot")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.03", "EllipseContainer_lt_200_200_wh_400_100.greenshot")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_2.01", "EllipseContainer_lt_200_200_wh_400_100.gsa")];
     }
 
     [Theory]
@@ -331,7 +331,7 @@ public class LoadGreenshotSurfaceTests
         Assert.Equal(imageSizeInTestfile, resultSurface.Image.Size);
 
         Assert.NotNull(resultElementList);
-        Assert.Equal(1, resultElementList.Count);
+        Assert.Single(resultElementList);
 
         Assert.NotNull(resultFirstElement);
         Assert.IsType<EllipseContainer>(resultFirstElement);
@@ -373,9 +373,9 @@ public class LoadGreenshotSurfaceTests
 
     public static IEnumerable<object[]> FreehandContainerTestData()
     {
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.02", "FreehandContainer_with_4_points.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.03", "FreehandContainer_with_4_points.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "FreehandContainer_with_4_points.gsa")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.02", "FreehandContainer_with_4_points.greenshot")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.03", "FreehandContainer_with_4_points.greenshot")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_2.01", "FreehandContainer_with_4_points.gsa")];
     }
 
     [Theory]
@@ -407,7 +407,7 @@ public class LoadGreenshotSurfaceTests
         Assert.Equal(imageSizeInTestfile, resultSurface.Image.Size);
 
         Assert.NotNull(resultElementList);
-        Assert.Equal(1, resultElementList.Count);
+        Assert.Single(resultElementList);
 
         Assert.NotNull(resultFirstElement);
         Assert.IsType<FreehandContainer>(resultFirstElement);
@@ -441,9 +441,9 @@ public class LoadGreenshotSurfaceTests
 
     public static IEnumerable<object[]> TextContainerTestData()
     {
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.02", "TextContainer_lt_300_200_wh_300_100.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.03", "TextContainer_lt_300_200_wh_300_100.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "TextContainer_lt_300_200_wh_300_100.gsa")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.02", "TextContainer_lt_300_200_wh_300_100.greenshot")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.03", "TextContainer_lt_300_200_wh_300_100.greenshot")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_2.01", "TextContainer_lt_300_200_wh_300_100.gsa")];
     }
 
     [Theory]
@@ -476,7 +476,7 @@ public class LoadGreenshotSurfaceTests
         Assert.Equal(imageSizeInTestfile, resultSurface.Image.Size);
 
         Assert.NotNull(resultElementList);
-        Assert.Equal(1, resultElementList.Count);
+        Assert.Single(resultElementList);
 
         Assert.NotNull(resultFirstElement);
         Assert.IsType<TextContainer>(resultFirstElement);
@@ -550,9 +550,9 @@ public class LoadGreenshotSurfaceTests
 
     public static IEnumerable<object[]> SpeechbubbleContainerTestData()
     {
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.02", "SpeechbubbleContainer_lt_200_200_wh_150_80.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.03", "SpeechbubbleContainer_lt_200_200_wh_150_80.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "SpeechbubbleContainer_lt_200_200_wh_150_80.gsa")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.02", "SpeechbubbleContainer_lt_200_200_wh_150_80.greenshot")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.03", "SpeechbubbleContainer_lt_200_200_wh_150_80.greenshot")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_2.01", "SpeechbubbleContainer_lt_200_200_wh_150_80.gsa")];
     }
 
     [Theory]
@@ -586,7 +586,7 @@ public class LoadGreenshotSurfaceTests
         Assert.Equal(imageSizeInTestfile, resultSurface.Image.Size);
 
         Assert.NotNull(resultElementList);
-        Assert.Equal(1, resultElementList.Count);
+        Assert.Single(resultElementList);
 
         Assert.NotNull(resultFirstElement);
         Assert.IsType<SpeechbubbleContainer>(resultFirstElement);
@@ -664,9 +664,9 @@ public class LoadGreenshotSurfaceTests
 
     public static IEnumerable<object[]> HighlightContainerTestData()
     {
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.02", "HighlightContainer_TextFilter_lt_310_70_wh_195_60.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.03", "HighlightContainer_TextFilter_lt_310_70_wh_195_60.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "HighlightContainer_TextFilter_lt_310_70_wh_195_60.gsa")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.02", "HighlightContainer_TextFilter_lt_310_70_wh_195_60.greenshot")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.03", "HighlightContainer_TextFilter_lt_310_70_wh_195_60.greenshot")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_2.01", "HighlightContainer_TextFilter_lt_310_70_wh_195_60.gsa")];
     }
 
     [Theory]
@@ -689,7 +689,7 @@ public class LoadGreenshotSurfaceTests
         Assert.Equal(imageSizeInTestfile, resultSurface.Image.Size);
 
         Assert.NotNull(resultElementList);
-        Assert.Equal(1, resultElementList.Count);
+        Assert.Single(resultElementList);
 
         Assert.NotNull(resultFirstElement);
         Assert.IsType<HighlightContainer>(resultFirstElement);
@@ -713,15 +713,15 @@ public class LoadGreenshotSurfaceTests
 
         // Check the actual filter applied based on the prepared filter
         Assert.NotNull(highlightContainer.Filters);
-        Assert.Equal(1, highlightContainer.Filters.Count);
+        Assert.Single(highlightContainer.Filters);
         Assert.IsType<HighlightFilter>(highlightContainer.Filters[0]);
     }
 
     public static IEnumerable<object[]> ObfuscateContainerTestData()
     {
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.02", "ObfuscateContainer_BlurFilter_lt_130_70_wh_180_70.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.03", "ObfuscateContainer_BlurFilter_lt_130_70_wh_180_70.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "ObfuscateContainer_BlurFilter_lt_130_70_wh_180_70.gsa")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.02", "ObfuscateContainer_BlurFilter_lt_130_70_wh_180_70.greenshot")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.03", "ObfuscateContainer_BlurFilter_lt_130_70_wh_180_70.greenshot")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_2.01", "ObfuscateContainer_BlurFilter_lt_130_70_wh_180_70.gsa")];
     }
 
     [Theory]
@@ -746,7 +746,7 @@ public class LoadGreenshotSurfaceTests
         Assert.Equal(imageSizeInTestfile, resultSurface.Image.Size);
 
         Assert.NotNull(resultElementList);
-        Assert.Equal(1, resultElementList.Count);
+        Assert.Single(resultElementList);
 
         Assert.NotNull(resultFirstElement);
         Assert.IsType<ObfuscateContainer>(resultFirstElement);
@@ -782,15 +782,15 @@ public class LoadGreenshotSurfaceTests
 
         // Check the actual filter applied based on the prepared filter
         Assert.NotNull(obfuscateContainer.Filters);
-        Assert.Equal(1, obfuscateContainer.Filters.Count);
+        Assert.Single(obfuscateContainer.Filters);
         Assert.IsType<BlurFilter>(obfuscateContainer.Filters[0]);
     }
 
     public static IEnumerable<object[]> IconContainerTestData()
     {
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.02", "IconContainer_lt_400_200_wh_32_32.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.03", "IconContainer_lt_400_200_wh_32_32.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "IconContainer_lt_400_200_wh_32_32.gsa")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.02", "IconContainer_lt_400_200_wh_32_32.greenshot")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.03", "IconContainer_lt_400_200_wh_32_32.greenshot")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_2.01", "IconContainer_lt_400_200_wh_32_32.gsa")];
     }
 
     [Theory]
@@ -812,7 +812,7 @@ public class LoadGreenshotSurfaceTests
         Assert.Equal(imageSizeInTestfile, resultSurface.Image.Size);
 
         Assert.NotNull(resultElementList);
-        Assert.Equal(1, resultElementList.Count);
+        Assert.Single(resultElementList);
 
         Assert.NotNull(resultFirstElement);
         Assert.IsType<IconContainer>(resultFirstElement);
@@ -834,10 +834,10 @@ public class LoadGreenshotSurfaceTests
 
     public static IEnumerable<object[]> StepLabelContainerTestData()
     {
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.02", "StepLabelContainer_lt_200_200_lt_500_300.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.03", "StepLabelContainer_lt_200_200_lt_500_300.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.04", "StepLabelContainer_lt_200_200_lt_500_300.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "StepLabelContainer_lt_200_200_lt_500_300.gsa")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.02", "StepLabelContainer_lt_200_200_lt_500_300.greenshot")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.03", "StepLabelContainer_lt_200_200_lt_500_300.greenshot")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.04", "StepLabelContainer_lt_200_200_lt_500_300.greenshot")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_2.01", "StepLabelContainer_lt_200_200_lt_500_300.gsa")];
     }
 
     [Theory]
@@ -939,9 +939,9 @@ public class LoadGreenshotSurfaceTests
 
     public static IEnumerable<object[]> ImageContainerTestData()
     {
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.02", "ImageContainer_lt_300_200_wh_100_100.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.03", "ImageContainer_lt_300_200_wh_100_100.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "ImageContainer_lt_300_200_wh_100_100.gsa")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.02", "ImageContainer_lt_300_200_wh_100_100.greenshot")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.03", "ImageContainer_lt_300_200_wh_100_100.greenshot")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_2.01", "ImageContainer_lt_300_200_wh_100_100.gsa")];
     }
 
     [Theory]
@@ -970,7 +970,7 @@ public class LoadGreenshotSurfaceTests
         Assert.Equal(imageSizeInTestfile, resultSurface.Image.Size);
 
         Assert.NotNull(resultElementList);
-        Assert.Equal(1, resultElementList.Count);
+        Assert.Single(resultElementList);
 
         Assert.NotNull(resultFirstElement);
         Assert.IsType<ImageContainer>(resultFirstElement);
@@ -992,8 +992,8 @@ public class LoadGreenshotSurfaceTests
 
     public static IEnumerable<object[]> SvgContainerTestData()
     {
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.03", "SvgContainer_lt_300_200_wh_120_100.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "SvgContainer_lt_300_200_wh_120_100.gsa")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.03", "SvgContainer_lt_300_200_wh_120_100.greenshot")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_2.01", "SvgContainer_lt_300_200_wh_120_100.gsa")];
     }
 
     [Theory]
@@ -1015,7 +1015,7 @@ public class LoadGreenshotSurfaceTests
         Assert.Equal(imageSizeInTestfile, resultSurface.Image.Size);
 
         Assert.NotNull(resultElementList);
-        Assert.Equal(1, resultElementList.Count);
+        Assert.Single(resultElementList);
 
         Assert.NotNull(resultFirstElement);
         Assert.IsType<SvgContainer>(resultFirstElement);
@@ -1037,8 +1037,8 @@ public class LoadGreenshotSurfaceTests
 
     public static IEnumerable<object[]> EmojiContainerTestData()
     {
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.04", "EmojiContainer_lt_100_200_wh_64_64.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "EmojiContainer_lt_100_200_wh_64_64.gsa")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.04", "EmojiContainer_lt_100_200_wh_64_64.greenshot")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_2.01", "EmojiContainer_lt_100_200_wh_64_64.gsa")];
     }
 
     [Theory]
@@ -1060,7 +1060,7 @@ public class LoadGreenshotSurfaceTests
         Assert.Equal(imageSizeInTestfile, resultSurface.Image.Size);
 
         Assert.NotNull(resultElementList);
-        Assert.Equal(1, resultElementList.Count);
+        Assert.Single(resultElementList);
 
         var resultFirstElement = resultElementList[0];
         Assert.NotNull(resultFirstElement);
@@ -1076,8 +1076,8 @@ public class LoadGreenshotSurfaceTests
 
     public static IEnumerable<object[]> CursorContainerTestData()
     {
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.04", "CursorContainer_lt_600_100_wh_64_64.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "CursorContainer_lt_600_100_wh_64_64.gsa")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.04", "CursorContainer_lt_600_100_wh_64_64.greenshot")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_2.01", "CursorContainer_lt_600_100_wh_64_64.gsa")];
     }
 
     [Theory]
@@ -1099,7 +1099,7 @@ public class LoadGreenshotSurfaceTests
         Assert.Equal(imageSizeInTestfile, resultSurface.Image.Size);
 
         Assert.NotNull(resultElementList);
-        Assert.Equal(1, resultElementList.Count);
+        Assert.Single(resultElementList);
 
         Assert.NotNull(resultFirstElement);
         Assert.IsType<CursorContainer>(resultFirstElement);
@@ -1125,8 +1125,8 @@ public class LoadGreenshotSurfaceTests
 
     public static IEnumerable<object[]> MetafileContainerTestData()
     {
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.03", "MetafileContainer_lt_300_200_wh_120_100.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "MetafileContainer_lt_300_200_wh_120_100.gsa")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.03", "MetafileContainer_lt_300_200_wh_120_100.greenshot")];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_2.01", "MetafileContainer_lt_300_200_wh_120_100.gsa")];
     }
 
     [Theory]
@@ -1148,7 +1148,7 @@ public class LoadGreenshotSurfaceTests
         Assert.Equal(imageSizeInTestfile, resultSurface.Image.Size);
 
         Assert.NotNull(resultElementList);
-        Assert.Equal(1, resultElementList.Count);
+        Assert.Single(resultElementList);
 
         Assert.NotNull(resultFirstElement);
         Assert.IsType<MetafileContainer>(resultFirstElement);
@@ -1177,7 +1177,7 @@ public class LoadGreenshotSurfaceTests
     public void LoadFromV0102GreenshotFileWithDifferentContainer()
     {
         // Arrange
-        string filePath = Path.Combine("TestData", "Greenshotfile", "File_Version_1.02", "Surface_with_11_different_DrawableContainer.greenshot");
+        string filePath = Path.Combine("TestData", "GreenshotFile", "File_Version_1.02", "Surface_with_11_different_DrawableContainer.greenshot");
 
         // Act
         var resultSurface = _greenshotFileFormatHandler.LoadGreenshotSurface(filePath);
@@ -1212,7 +1212,7 @@ public class LoadGreenshotSurfaceTests
     public void LoadFromV0103GreenshotFileWithDifferentContainer()
     {
         // Arrange
-        string filePath = Path.Combine("TestData", "Greenshotfile", "File_Version_1.03", "Surface_with_14_different_DrawableContainer.greenshot");
+        string filePath = Path.Combine("TestData", "GreenshotFile", "File_Version_1.03", "Surface_with_14_different_DrawableContainer.greenshot");
 
         // Act
         var resultSurface = _greenshotFileFormatHandler.LoadGreenshotSurface(filePath);
@@ -1250,7 +1250,7 @@ public class LoadGreenshotSurfaceTests
     public void LoadFromV0104GreenshotFileWithDifferentContainer()
     {
         // Arrange
-        string filePath = Path.Combine("TestData", "Greenshotfile", "File_Version_1.04", "Surface_with_11_different_DrawableContainer.greenshot");
+        string filePath = Path.Combine("TestData", "GreenshotFile", "File_Version_1.04", "Surface_with_11_different_DrawableContainer.greenshot");
 
         // Act
         var resultSurface = _greenshotFileFormatHandler.LoadGreenshotSurface(filePath);
@@ -1285,7 +1285,7 @@ public class LoadGreenshotSurfaceTests
     public void LoadFromV0201GreenshotFileWithDifferentContainer()
     {
         // Arrange
-        string filePath = Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "Surface_with_14_different_DrawableContainer.gsa");
+        string filePath = Path.Combine("TestData", "GreenshotFile", "File_Version_2.01", "Surface_with_14_different_DrawableContainer.gsa");
 
         // Act
         var resultSurface = _greenshotFileFormatHandler.LoadGreenshotSurface(filePath);

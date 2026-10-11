@@ -30,7 +30,7 @@ using static Greenshot.Editor.Drawing.FilterContainer;
 
 namespace Greenshot.Tests.Editor.FileFormat.Dto.DomainToDto;
 
-[Collection("DefaultCollection")]
+[Collection(TestCollections.FileFormat)]
 public class ConvertFieldToDtoTests
 {
     /// <summary>

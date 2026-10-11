@@ -32,7 +32,7 @@ using static Greenshot.Editor.Drawing.FilterContainer;
 
 namespace Greenshot.Tests.Editor.FileFormat.Dto.GreenshotFileV2;
 
-[Collection("DefaultCollection")]
+[Collection(TestCollections.FileFormat)]
 public class FieldSerializationTests
 {
     /// <summary>

@@ -31,7 +31,7 @@ using Xunit;
 
 namespace Greenshot.Tests.Editor.FileFormat.V2;
 
-[Collection("DefaultCollection")]
+[Collection(TestCollections.FileFormat)]
 public class GreenshotFileV2SaveToStreamTests
 {
     [Fact]

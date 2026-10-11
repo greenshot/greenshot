@@ -32,7 +32,7 @@ namespace Greenshot.Tests.Editor.FileFormat.V1.Legacy;
 /// <summary>
 /// Tests for the restricted NRBF reader used for legacy Greenshot files.
 /// </summary>
-[Collection("DefaultCollection")]
+[Collection(TestCollections.FileFormat)]
 public class LegacyNrbfReaderTests
 {
     /// <summary>
@@ -64,12 +64,12 @@ public class LegacyNrbfReaderTests
 
     public static IEnumerable<object[]> HistoricalRootFixtureData()
     {
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.02", "Surface_with_11_different_DrawableContainer.greenshot"), "Greenshot.Drawing.DrawableContainerList", "Greenshot, Version=1.2.0.0", "Greenshot.Plugin.Drawing.IDrawableContainer[]", 11, "Greenshot01.02"];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.02", "Surface_with_11_different_DrawableContainer.greenshot"), "Greenshot.Drawing.DrawableContainerList", "Greenshot, Version=1.2.0.0", "Greenshot.Plugin.Drawing.IDrawableContainer[]", 11, "Greenshot01.02"];
         yield return [Path.Combine("TestData", "GreenshotTemplate", "File_Version_1.02", "Surface_with_11_different_DrawableContainer.gst"), "Greenshot.Drawing.DrawableContainerList", "Greenshot, Version=1.2.0.0", "Greenshot.Plugin.Drawing.IDrawableContainer[]", 11, null];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.03", "Surface_with_14_different_DrawableContainer.greenshot"), "Greenshot.Editor.Drawing.DrawableContainerList", "Greenshot.Editor, Version=1.3.0.0", "Greenshot.Base.Interfaces.Drawing.IDrawableContainer[]", 14, "Greenshot01.03"];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.03", "Surface_with_14_different_DrawableContainer.greenshot"), "Greenshot.Editor.Drawing.DrawableContainerList", "Greenshot.Editor, Version=1.3.0.0", "Greenshot.Base.Interfaces.Drawing.IDrawableContainer[]", 14, "Greenshot01.03"];
         yield return [Path.Combine("TestData", "GreenshotTemplate", "File_Version_1.03", "Surface_with_14_different_DrawableContainer.gst"), "Greenshot.Editor.Drawing.DrawableContainerList", "Greenshot.Editor, Version=1.3.0.0", "Greenshot.Base.Interfaces.Drawing.IDrawableContainer[]", 14, null];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.04", "Surface_with_11_different_DrawableContainer.greenshot"), "Greenshot.Editor.Drawing.DrawableContainerList", "Greenshot.Editor, Version=1.4.0.0", "Greenshot.Base.Interfaces.Drawing.IDrawableContainer[]", 11, "Greenshot01.04"];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.04", "CursorContainer_lt_600_100_wh_64_64.greenshot"), "Greenshot.Editor.Drawing.DrawableContainerList", "Greenshot.Editor, Version=1.4.0.0", "Greenshot.Base.Interfaces.Drawing.IDrawableContainer[]", 1, "Greenshot01.04"];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.04", "Surface_with_11_different_DrawableContainer.greenshot"), "Greenshot.Editor.Drawing.DrawableContainerList", "Greenshot.Editor, Version=1.4.0.0", "Greenshot.Base.Interfaces.Drawing.IDrawableContainer[]", 11, "Greenshot01.04"];
+        yield return [Path.Combine("TestData", "GreenshotFile", "File_Version_1.04", "CursorContainer_lt_600_100_wh_64_64.greenshot"), "Greenshot.Editor.Drawing.DrawableContainerList", "Greenshot.Editor, Version=1.4.0.0", "Greenshot.Base.Interfaces.Drawing.IDrawableContainer[]", 1, "Greenshot01.04"];
         yield return [Path.Combine("TestData", "GreenshotTemplate", "File_Version_1.04", "CursorContainer_lt_600_100_wh_64_64.gst"), "Greenshot.Editor.Drawing.DrawableContainerList", "Greenshot.Editor, Version=1.4.0.0", "Greenshot.Base.Interfaces.Drawing.IDrawableContainer[]", 1, null];
     }
 
