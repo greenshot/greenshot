@@ -17,9 +17,9 @@ keep their settings in untyped field bags (`FieldType.LINE_COLOR`, ...), and are
 
 ```mermaid
 flowchart BT
-    Document["Greenshot.Document<br/>netstandard2.0, no references<br/>model (later: new file format)"]
+    Document["Greenshot.Document<br/>netstandard2.0, System.Text.Json<br/>model and new file format"]
     Legacy["Greenshot.Document.Legacy<br/>netstandard2.0, System.Formats.Nrbf<br/>.greenshot / .gst of 1.2-1.4 → document"]
-    EditorMap["Greenshot.Document.Editor<br/>net48<br/>Surface ⇄ document"]
+    EditorMap["Greenshot.Document.Editor<br/>net48<br/>Surface ⇄ document, document → bitmap"]
     Editor["Greenshot.Editor<br/>Surface, DrawableContainer"]
     Base["Greenshot.Base"]
     Tests["Greenshot.Tests"]
@@ -30,20 +30,18 @@ flowchart BT
     Editor --> Base
     Tests --> EditorMap
     Tests --> Legacy
-
-    classDef planned stroke-dasharray: 5 5
-    ```
+```
 
 Arrows point to the referenced project.
 
-- **Greenshot.Document** holds only the model. It targets netstandard2.0, so one binary loads in .NET Framework 4.8 and
-  in .NET 10, with no multi-targeting. It has no references, so neither System.Drawing nor Windows code can creep in.
-  The new file format (zip + JSON) goes here too, because it is the model's own format.
+- **Greenshot.Document** holds the model and its file format (`GreenshotPackage`, zip + JSON). It targets
+  netstandard2.0, so one binary loads in .NET Framework 4.8 and in .NET 10, with no multi-targeting. Its only reference
+  is System.Text.Json (part of .NET 10), so neither System.Drawing nor Windows code can creep in.
 - **Greenshot.Document.Legacy** reads the BinaryFormatter files of Greenshot 1.2 - 1.4 without BinaryFormatter.
   It is its own project so that the model doesn't carry the NRBF reader or the frozen 1.x schema, and so that legacy
   support can later be removed by deleting one project. If writing 1.3 files is ever wanted, it goes here as well.
-- **Greenshot.Document.Editor** is the bridge to the current editor. It maps `Surface` to a document now, and the
-  document back to a `Surface` later.
+- **Greenshot.Document.Editor** is the bridge to the current editor. It maps a `Surface` to a document and back, and
+  renders a document to a bitmap through a `Surface` until there is a renderer of its own.
 - Only the tests reference these projects. Later, `Greenshot.csproj` references them in Debug builds only, and they
   register through `[assembly: GreenshotModule]`. The installer doesn't list them.
 
@@ -131,7 +129,7 @@ Rules:
 | `CursorContainer` | `CursorElement` | `Area`, `Resource` (color layer), `MaskResource`, `Hotspot` |
 | `CutMarkContainer` | `CutMarkElement` | `Area`, `Horizontal`, `CutStyle`, `Seed`, `ToothHeight`, `ToothRange` |
 | `TornEdgeContainer` | `TornEdgeElement` | `Area`, `CutStyle`, `Seed`, `Edges`, `Margins`, `ToothHeight`, `ToothRange` |
-| containers of plugins (e.g. the barcode) | `UnknownElement` | `Type` (CLR type name), `Fallback` (resource with a PNG rendering) |
+| containers of plugins (e.g. the barcode) | `UnknownElement` | `TypeName` (CLR type name), `Fallback` (resource with a PNG rendering) |
 | `CropContainer` | — | a tool, never part of the document |
 
 Effects such as cut marks and torn edges stay elements that can still be edited; they are never baked into the image.
@@ -149,9 +147,10 @@ flowchart LR
 and member name; it never creates objects by type name. Unknown types become `UnknownElement` instead of failing
 the whole file.
 
-### New .greenshot package (planned)
+### New .greenshot package
 
-A zip file. The full spec is in the project plan (`greenshot-document-format.md`).
+A zip file, read and written by `GreenshotPackage`. The full spec is in the project plan (`greenshot-document-format.md`);
+so far the package has `mimetype`, `document.json` and `resources/`, the other parts follow.
 
 ```mermaid
 flowchart LR
@@ -165,10 +164,13 @@ flowchart LR
     Zip --> Extensions["extensions/{plugin-id}.json (optional)<br/>kept on re-save, even without the plugin"]
 ```
 
-- `document.json` is the model as JSON (System.Text.Json, camelCase). The element type is written as a short name
-  (`"type": "arrow"`), never as a CLR type name.
-- Readers ignore parts and properties they don't know, and keep unknown elements when they save again.
-- Readers have limits: number of entries, uncompressed size, compression ratio, pixels per image, JSON depth.
+- `document.json` is the model as JSON (System.Text.Json, camelCase) with a `version` (now 1); newer versions are
+  refused. The element type is written as a short name (`"type": "arrow"`), never as a CLR type name. Enums are
+  camelCase names, colors `#RRGGBBAA`, derived values (bounds) aren't written. The resource table maps each resource
+  id to its path and media type, the bytes are in `resources/{id}.{ext}`.
+- Readers ignore properties they don't know.
+- Readers have limits: number of entries (10,000) and size per entry (256 MB).
+- Open: keeping elements of unknown types (they fail the read today), and the optional parts.
 
 ## Conversions
 
@@ -182,9 +184,9 @@ flowchart LR
 
     Surface -->|"SurfaceToDocument (done)"| Doc
     OldFile -->|"LegacyToDocument (done)"| Doc
-    Doc -->|"DocumentToSurface"| Surface
-    Doc <-->|"package reader / writer"| NewFile
-    Doc -->|"renderer (via Surface first)"| Bitmap
+    Doc -->|"DocumentToSurface (done)"| Surface
+    Doc <-->|"GreenshotPackage (done)"| NewFile
+    Doc -->|"DocumentToSurface.ToImage (later: own renderer)"| Bitmap
     OldFile -.->|"today: BinaryFormatter"| Surface
 ```
 
@@ -195,10 +197,18 @@ flowchart LR
 | 1 | Model (`Greenshot.Document`) | done |
 | 2 | Surface → document (`SurfaceToDocument`) | done |
 | 3 | Legacy file → document (`LegacyToDocument`); tested against today's loader via step 2 | done |
-| 4 | Document → Surface, and document → bitmap through the Surface | |
-| 5 | New file format | |
+| 4 | Document → Surface, and document → bitmap through the Surface (`DocumentToSurface`) | done |
+| 5 | New file format (`GreenshotPackage`): document.json and resources | done |
 | 6 | The capture pipeline carries the document next to the Surface | |
 | 7 | Recipes add elements to the document | |
 | 8 | Renderer without the editor | |
 | 9 | Experimental editor UI (optional) | |
 | — | Writing 1.3 files | parked (read-only decided) |
+
+## Not in the model yet
+
+- The shadow settings of cut marks and torn edges (darkness, size, offset): they come from the torn edge settings when
+  a document becomes a `Surface`.
+- Metafiles are PNG, so a document doesn't give the EMF/WMF back.
+- Elements of unknown types in `document.json` fail the read; a plugin's element becomes an image of its fallback in
+  the `Surface`.

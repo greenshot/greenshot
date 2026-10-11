@@ -145,7 +145,7 @@ namespace Greenshot.Tests.Document
             var document = SurfaceToDocument.ToDocument(surface);
 
             var unknown = Assert.IsType<UnknownElement>(Assert.Single(document.Layers[1].Elements));
-            Assert.Equal(typeof(PluginContainer).FullName, unknown.Type);
+            Assert.Equal(typeof(PluginContainer).FullName, unknown.TypeName);
             var drawingBounds = container.DrawingBounds;
             Assert.Equal(new RectD(drawingBounds.X, drawingBounds.Y, drawingBounds.Width, drawingBounds.Height), unknown.Area);
             Assert.Equal("image/png", document.Resources[unknown.Fallback.Value].MediaType);

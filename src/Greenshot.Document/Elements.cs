@@ -225,9 +225,9 @@ namespace Greenshot.Document
 
     /// <summary>
     /// An element this version doesn't know, for example from a plugin which isn't installed.
-    /// Type identifies it, Fallback is an optional resource with a rendered image of it.
+    /// TypeName identifies it, Fallback is an optional resource with a rendered image of it.
     /// </summary>
-    public sealed record UnknownElement(Guid Id, RectD Area, string Type) : Element(Id)
+    public sealed record UnknownElement(Guid Id, RectD Area, string TypeName) : Element(Id)
     {
         public Guid? Fallback { get; init; }
 
