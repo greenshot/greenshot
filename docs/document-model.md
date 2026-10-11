@@ -32,15 +32,14 @@ flowchart BT
     Tests --> Legacy
 
     classDef planned stroke-dasharray: 5 5
-    class Legacy planned
-```
+    ```
 
-Dashed: planned. Arrows point to the referenced project.
+Arrows point to the referenced project.
 
 - **Greenshot.Document** holds only the model. It targets netstandard2.0, so one binary loads in .NET Framework 4.8 and
   in .NET 10, with no multi-targeting. It has no references, so neither System.Drawing nor Windows code can creep in.
   The new file format (zip + JSON) goes here too, because it is the model's own format.
-- **Greenshot.Document.Legacy** will read the BinaryFormatter files of Greenshot 1.2 - 1.4 without BinaryFormatter.
+- **Greenshot.Document.Legacy** reads the BinaryFormatter files of Greenshot 1.2 - 1.4 without BinaryFormatter.
   It is its own project so that the model doesn't carry the NRBF reader or the frozen 1.x schema, and so that legacy
   support can later be removed by deleting one project. If writing 1.3 files is ever wanted, it goes here as well.
 - **Greenshot.Document.Editor** is the bridge to the current editor. It maps `Surface` to a document now, and the
@@ -182,7 +181,7 @@ flowchart LR
     Bitmap["Bitmap"]
 
     Surface -->|"SurfaceToDocument (done)"| Doc
-    OldFile -->|"legacy reader"| Doc
+    OldFile -->|"LegacyToDocument (done)"| Doc
     Doc -->|"DocumentToSurface"| Surface
     Doc <-->|"package reader / writer"| NewFile
     Doc -->|"renderer (via Surface first)"| Bitmap
@@ -195,7 +194,7 @@ flowchart LR
 |---|---|---|
 | 1 | Model (`Greenshot.Document`) | done |
 | 2 | Surface → document (`SurfaceToDocument`) | done |
-| 3 | Legacy file → document; tested against today's loader via step 2 | next |
+| 3 | Legacy file → document (`LegacyToDocument`); tested against today's loader via step 2 | done |
 | 4 | Document → Surface, and document → bitmap through the Surface | |
 | 5 | New file format | |
 | 6 | The capture pipeline carries the document next to the Surface | |
