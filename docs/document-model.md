@@ -124,7 +124,7 @@ Rules:
 | `StepLabelContainer` | `StepLabelElement` | `Area` (the number is derived) |
 | `HighlightContainer` | `HighlightElement` | `Mode` (text, area, grayscale, magnify), `Color`, `Brightness`, `BlurRadius`, `Magnification` |
 | `ObfuscateContainer` | `ObfuscateElement` | `Mode` (pixelate, blur), `Size` (pixel size or blur radius) |
-| `ImageContainer`, `IconContainer`, `SvgContainer`, `MetafileContainer` | `ImageElement` | `Area`, `Resource`, `Rotation`. Metafiles are stored as PNG, because GDI+ can't write EMF/WMF |
+| `ImageContainer`, `IconContainer`, `SvgContainer`, `MetafileContainer` | `ImageElement` | `Area`, `Resource`, `Rotation`. Metafiles keep the EMF/WMF file they were loaded from (`image/emf`, `image/wmf`); a metafile from an old .greenshot file is only a PNG there |
 | `EmojiContainer` | `EmojiElement` | `Area`, `Emoji`, `Rotation` |
 | `CursorContainer` | `CursorElement` | `Area`, `Resource` (color layer), `MaskResource`, `Hotspot` |
 | `CutMarkContainer` | `CutMarkElement` | `Area`, `Horizontal`, `CutStyle`, `Seed`, `ToothHeight`, `ToothRange` |
@@ -209,6 +209,6 @@ flowchart LR
 
 - The shadow settings of cut marks and torn edges (darkness, size, offset): they come from the torn edge settings when
   a document becomes a `Surface`.
-- Metafiles are PNG, so a document doesn't give the EMF/WMF back.
+- Only Windows can draw EMF/WMF; other platforms will need a PNG rendering next to the metafile.
 - Elements of unknown types in `document.json` fail the read; a plugin's element becomes an image of its fallback in
   the `Surface`.

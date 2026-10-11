@@ -144,6 +144,8 @@ namespace Greenshot.Document
             "image/jpeg" => ".jpg",
             "image/svg+xml" => ".svg",
             "image/x-icon" => ".ico",
+            "image/emf" => ".emf",
+            "image/wmf" => ".wmf",
             _ => ".bin"
         };
 

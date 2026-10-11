@@ -73,9 +73,13 @@ namespace Greenshot.Editor.FileFormatHandlers
         /// <inheritdoc />
         public override IEnumerable<IDrawableContainer> LoadDrawablesFromStream(Stream stream, string extension, ISurface surface = null)
         {
-            if (Image.FromStream(stream, true, true) is Metafile metaFile)
+            // Keep the bytes, the metafile can't be saved as EMF/WMF again
+            var data = new MemoryStream();
+            stream.CopyTo(data);
+            data.Position = 0;
+            if (Image.FromStream(data, true, true) is Metafile metaFile)
             {
-                yield return new MetafileContainer(metaFile, surface);
+                yield return new MetafileContainer(metaFile, surface, data.ToArray());
             }
         }
     }

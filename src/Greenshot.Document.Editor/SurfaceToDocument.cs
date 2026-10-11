@@ -94,8 +94,10 @@ namespace Greenshot.Document.Editor
                     ImageContainer imageContainer => new ImageElement(id, area, AddImage(resources, imageContainer.Image)),
                     IconContainer icon => new ImageElement(id, area, AddIcon(resources, icon.Icon)),
                     SvgContainer svg => new ImageElement(id, area, AddResource(resources, "image/svg+xml", svg.SvgData)) { Rotation = svg.RotationAngle },
-                    // GDI+ can't write EMF/WMF, the metafile is kept as PNG in its own size
-                    MetafileContainer metafile => new ImageElement(id, area, AddImage(resources, metafile.Metafile)) { Rotation = metafile.RotationAngle },
+                    // The EMF/WMF file when it is known, GDI+ can't write EMF/WMF so otherwise the metafile is kept as PNG in its own size
+                    MetafileContainer metafile => new ImageElement(id, area, metafile.MetafileData == null
+                        ? AddImage(resources, metafile.Metafile)
+                        : AddResource(resources, metafile.Metafile.GetMetafileHeader().IsWmf() ? "image/wmf" : "image/emf", metafile.MetafileData)) { Rotation = metafile.RotationAngle },
                     EmojiContainer emoji => new EmojiElement(id, area, emoji.Emoji) { Rotation = emoji.RotationAngle },
                     CursorContainer cursor => new CursorElement(id, area, AddImage(resources, cursor.Cursor.ColorLayer))
                     {

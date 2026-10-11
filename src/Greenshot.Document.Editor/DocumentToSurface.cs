@@ -255,6 +255,9 @@ namespace Greenshot.Document.Editor
                     return new SvgContainer(new MemoryStream(resource.Data), surface) { RotationAngle = rotation };
                 case "image/x-icon":
                     return new IconContainer(surface, new MemoryStream(resource.Data));
+                case "image/emf":
+                case "image/wmf":
+                    return new MetafileContainer(new Metafile(new MemoryStream(resource.Data)), surface, resource.Data) { RotationAngle = rotation };
                 default:
                     using (var image = LoadImage(resource))
                     using (var rotated = rotation == 0 ? null : image.Rotate(rotation))

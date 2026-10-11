@@ -22,11 +22,14 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using Greenshot.Document;
 using Greenshot.Document.Editor;
 using Greenshot.Document.Legacy;
+using Greenshot.Editor.Drawing;
+using Greenshot.Editor.FileFormatHandlers;
 using Xunit;
 
 namespace Greenshot.Tests.Document
@@ -94,6 +97,51 @@ namespace Greenshot.Tests.Document
             Assert.Equal(new Size(100, 50), image.Size);
             Assert.Equal(Color.Red.ToArgb(), image.GetPixel(20, 20).ToArgb());
             Assert.Equal(Color.White.ToArgb(), image.GetPixel(60, 40).ToArgb());
+        }
+
+        /// <summary>
+        /// An EMF with a rectangle, recorded with GDI+
+        /// </summary>
+        private static byte[] CreateEmf()
+        {
+            using var stream = new MemoryStream();
+            using (var reference = Graphics.FromHwnd(IntPtr.Zero))
+            {
+                var hdc = reference.GetHdc();
+                try
+                {
+                    using var metafile = new Metafile(stream, hdc, EmfType.EmfPlusDual);
+                    using var graphics = Graphics.FromImage(metafile);
+                    graphics.FillRectangle(Brushes.Blue, 10, 10, 80, 40);
+                }
+                finally
+                {
+                    reference.ReleaseHdc(hdc);
+                }
+            }
+
+            return stream.ToArray();
+        }
+
+        [Fact]
+        public void Metafile_KeepsTheEmfFile()
+        {
+            byte[] emf = CreateEmf();
+            using var surface = new Surface(new Bitmap(200, 100));
+            var container = Assert.IsType<MetafileContainer>(Assert.Single(new MetaFileFormatHandler().LoadDrawablesFromStream(new MemoryStream(emf), ".emf", surface)));
+            surface.AddElement(container, false, false);
+
+            var document = SurfaceToDocument.ToDocument(surface);
+            var image = Assert.IsType<ImageElement>(Assert.Single(document.Layers[1].Elements));
+            Assert.Equal("image/emf", document.Resources[image.Resource].MediaType);
+            Assert.Equal(emf, document.Resources[image.Resource].Data);
+
+            using var mappedSurface = DocumentToSurface.ToSurface(document);
+            var mapped = Assert.IsType<MetafileContainer>(Assert.Single(mappedSurface.Elements));
+            var mappedBack = SurfaceToDocument.ToDocument(mappedSurface);
+            var mappedImage = (ImageElement)Assert.Single(mappedBack.Layers[1].Elements);
+            Assert.Equal(emf, mappedBack.Resources[mappedImage.Resource].Data);
+            Assert.Equal(new Rectangle(container.Left, container.Top, container.Width, container.Height), new Rectangle(mapped.Left, mapped.Top, mapped.Width, mapped.Height));
         }
     }
 }
