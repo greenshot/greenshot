@@ -61,8 +61,8 @@ public class ConvertDtoToCursorContainerTests
         Assert.NotNull(result.Cursor);
         Assert.Equal(dto.HotspotX, result.Cursor.HotSpot.X);
         Assert.Equal(dto.HotspotY, result.Cursor.HotSpot.Y);
-        Assert.Equal(dto.Width, result.Cursor.Size.Width);
-        Assert.Equal(dto.Height, result.Cursor.Size.Height);
+        Assert.Equal(dto.CursorWidth, result.Cursor.Size.Width);
+        Assert.Equal(dto.CursorHeight, result.Cursor.Size.Height);
     }
 
     [Fact]
@@ -121,8 +121,8 @@ public class ConvertDtoToCursorContainerTests
         Assert.NotNull(result.Cursor);
         Assert.Equal(dto.HotspotX, result.Cursor.HotSpot.X);
         Assert.Equal(dto.HotspotY, result.Cursor.HotSpot.Y);
-        Assert.Equal(dto.Width, result.Cursor.Size.Width);
-        Assert.Equal(dto.Height, result.Cursor.Size.Height);
+        Assert.Equal(dto.CursorWidth, result.Cursor.Size.Width);
+        Assert.Equal(dto.CursorHeight, result.Cursor.Size.Height);
         
         Assert.NotNull(result.Cursor.ColorLayer);
         Assert.Equal(32, result.Cursor.ColorLayer.Width);

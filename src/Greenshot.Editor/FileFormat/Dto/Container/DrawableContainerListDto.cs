@@ -18,7 +18,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using Greenshot.Editor.Drawing;
 
 namespace Greenshot.Editor.FileFormat.Dto.Container;
@@ -28,5 +30,8 @@ namespace Greenshot.Editor.FileFormat.Dto.Container;
 /// </summary>
 public sealed class DrawableContainerListDto 
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public Guid? ParentID { get; set; }
+
     public List<DrawableContainerDto> ContainerList { get; set; } = [];
 }

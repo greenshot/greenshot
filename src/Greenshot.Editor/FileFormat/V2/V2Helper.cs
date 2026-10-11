@@ -374,6 +374,7 @@ public static class V2Helper
     public static string SerializeDrawableContainerList(DrawableContainerList drawableContainerList)
     {
         var dto = ConvertDomainToDto.ToDto(drawableContainerList);
+        dto.ParentID = drawableContainerList.ParentID;
         var json = SerializeDto(dto);
         return json;
     }
@@ -413,6 +414,13 @@ public static class V2Helper
     {
         var dto = DeserializeDto<DrawableContainerListDto>(jsonData);
         var containerList = ConvertDtoToDomain.ToDomain(dto);
+        if (dto.ParentID.HasValue)
+        {
+            var result = new DrawableContainerList(dto.ParentID.Value);
+            result.AddRange(containerList);
+            return result;
+        }
+
         return containerList;
     }
 }
