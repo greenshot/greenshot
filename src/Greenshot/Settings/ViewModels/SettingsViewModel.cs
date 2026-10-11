@@ -253,6 +253,45 @@ namespace Greenshot.Settings.ViewModels
             }
         }
 
+        public int KeyboardMovementStandard
+        {
+            get { return _coreConfiguration.KeyboardMovementStandard; }
+            set
+            {
+                if (_coreConfiguration.KeyboardMovementStandard != value)
+                {
+                    _coreConfiguration.KeyboardMovementStandard = value;
+                    OnPropertyChanged(nameof(KeyboardMovementStandard));
+                }
+            }
+        }
+
+        public int KeyboardMovementFast
+        {
+            get { return _coreConfiguration.KeyboardMovementFast; }
+            set
+            {
+                if (_coreConfiguration.KeyboardMovementFast != value)
+                {
+                    _coreConfiguration.KeyboardMovementFast = value;
+                    OnPropertyChanged(nameof(KeyboardMovementFast));
+                }
+            }
+        }
+
+        public int KeyboardMovementShift
+        {
+            get { return _coreConfiguration.KeyboardMovementShift; }
+            set
+            {
+                if (_coreConfiguration.KeyboardMovementShift != value)
+                {
+                    _coreConfiguration.KeyboardMovementShift = value;
+                    OnPropertyChanged(nameof(KeyboardMovementShift));
+                }
+            }
+        }
+
         public List<ImageFormatViewModel> ImageFormats { get; private set; }
 
         public int IconSize
