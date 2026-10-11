@@ -35,6 +35,17 @@ namespace Greenshot.Base.Core
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(CoreConfigurationImpl));
 
+        // --- NEW KEYBOARD MOVEMENT SETTINGS ---
+        [IniProperty("Core", "KeyboardMovementStandard", DefaultValue = 10)]
+        public int KeyboardMovementStandard { get; set; }
+
+        [IniProperty("Core", "KeyboardMovementShift", DefaultValue = 50)]
+        public int KeyboardMovementShift { get; set; }
+
+        [IniProperty("Core", "KeyboardMovementControl", DefaultValue = 100)]
+        public int KeyboardMovementControl { get; set; }
+        // --------------------------------------
+
         /// <summary>
         /// This should have been Math.Clamp, but it's not available for .NET Framework 4.8
         /// </summary>

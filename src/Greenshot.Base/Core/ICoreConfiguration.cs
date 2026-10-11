@@ -40,6 +40,10 @@ namespace Greenshot.Base.Core
         [Description("The language in IETF format (e.g. en-US)")]
         string Language { get; set; }
 
+        int KeyboardMovementStandard { get; set; }
+        int KeyboardMovementShift { get; set; }
+        int KeyboardMovementControl { get; set; }
+
         [DataMember(Name = "BetaTester")]
         [Description("The user wants to be beta-tester, this enables some features not available otherwise.")]
         bool IsBetaTester { get; set; }
