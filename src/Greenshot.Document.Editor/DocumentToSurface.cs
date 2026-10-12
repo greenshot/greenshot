@@ -244,7 +244,7 @@ namespace Greenshot.Document.Editor
 
         /// <summary>
         /// The opposite of SurfaceToDocument.ToStyle, for the resolved style: a stroke which is off is a line of width 0, a
-        /// fill which is off is transparent. The editor draws text in the line color.
+        /// fill which is off has its color without alpha. The editor draws text in the line color.
         /// </summary>
         private static void ApplyStyle(DrawableContainer container, Style style)
         {
@@ -261,7 +261,9 @@ namespace Greenshot.Document.Editor
 
             if (style.Fill != null && container is not HighlightContainer)
             {
-                SetField(container, FieldType.FILL_COLOR, ToColor(style.Fill.Enabled == false ? Rgba.Transparent : style.Fill.Color ?? Rgba.Transparent));
+                // Off is the color without alpha, so a transparent color (e.g. #FFFFFF00 from 1.3) comes back unchanged
+                var fillColor = style.Fill.Color ?? Rgba.Transparent;
+                SetField(container, FieldType.FILL_COLOR, ToColor(style.Fill.Enabled == false ? fillColor with { A = 0 } : fillColor));
             }
 
             SetField(container, FieldType.SHADOW, style.Shadow?.Enabled == true);
