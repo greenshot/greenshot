@@ -335,8 +335,8 @@ it is an optional `metadata.json` in the package, not part of `document.json`: s
 the file out, and tools can read it without knowing the model. Today it is the editor's `CaptureDetails` (title, time,
 file name, capture mode, DPI and a key/value list).
 
-It belongs to a capture, so it is keyed by resource id (a document can hold several captures), with a small section for
-the document:
+It belongs to a capture, so `metadata.json` is keyed by resource id (a document can hold several captures), with a
+small section about the whole file. This is the content of `metadata.json`, not of `document.json`:
 
 ```json
 {
