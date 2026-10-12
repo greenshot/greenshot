@@ -118,8 +118,11 @@ Rules:
 - **Immutable**: all types are records. A change makes a new instance (`element with { Area = ... }`) with the same id.
   Undo can keep earlier documents, since unchanged parts are shared.
 - **Order**: `Layers[0]` is drawn first (bottom). Within a layer, `Elements[0]` is drawn first. A layer owns its
-  elements, there is no z-index. Numbering order is separate from drawing order: it is the order of a series'
-  `steps`, so reordering steps changes only that list and moving an element up or down never renumbers.
+  elements, there is no z-index or order field (decided): one source of truth, no duplicates or gaps, and "bring to
+  front" is moving within the list. Recipes place an element with a command ("to front", "above an element") when they
+  add it. An optional `z` can come later if edits from several places ever have to be merged; readers which ignore it
+  still have the list order. Numbering order is separate from drawing order: it is the member order of a steps group
+  (see "Groups, styles and defaults"), so moving an element up or down never renumbers.
 - **Ids**: new ids are UUID version 7 (`Uuid7.CreateVersion7`, replaced by `Guid.CreateVersion7` on .NET 10). They
   start with the creation time, so `Uuid7.TryGetTimestamp` gives the date a document, element or resource was created.
   Ids are kept on read and write; ids from elsewhere (e.g. `Surface.ID`) can be any version.
@@ -127,15 +130,14 @@ Rules:
 - **Colors**: `Rgba`, written as `#RRGGBBAA`.
 - **Style**: optional parts. A part that is `null`, or a stroke of width 0, isn't drawn. Text uses its own color
   (for text, speech bubbles and step labels this is today's line color).
-- **Shared styles**: `Styles` holds named styles. An element refers to one with `styleId`; the parts its own `style`
-  has (stroke, fill, shadow, text) replace those of the shared style, the others come from it, so changing the shared
-  style changes every element using it. To remove a part of the shared style, the element sets it (e.g. a stroke of
-  width 0). `GreenshotDocument.StyleOf(element)` gives the style to draw with; an unknown `styleId` is ignored.
-- **Step label series**: a `StepSeries` numbers step labels. `steps` lists the ids of its labels in numbering order;
-  the label at place n (from 0) shows `start + n` in its `format` (`numbers`, `lowerLetters` a..z aa, `upperLetters`,
-  `lowerRoman`, `upperRoman`). A document can have several series (e.g. 1-2-3 and A-B-C). A step label without a
-  `styleId` of its own uses the series' `styleId`. `GreenshotDocument.LabelOf(stepLabel)` gives the text; a label in
-  no series has none. The counter start belongs to the series, not to the canvas.
+- **Shared styles and step label series (built, to be replaced)**: the code has a `Styles` list (an element refers to
+  one with `styleId`) and `StepSeries` (`steps` lists the label ids in numbering order, with `start`, `format` and a
+  `styleId`); the counter start is no longer on the canvas. Both become groups, see "Groups, styles and defaults".
+- **Visibility** (decided): only layers have it. A hidden layer isn't drawn in exports, but it stays in the saved
+  file. Groups have no visibility ("hide all in this group" is an editor command), elements have none for now (see
+  "Groups, styles and defaults").
+- **Redaction**: a `.greenshot` file always contains the original capture, blur and pixelate are elements on top. A
+  redaction is only safe in a flattened export (PNG, JPG, ...), never in the `.greenshot` file. The same is true for 1.3.
 - **Resources**: the original bytes with their media type (`image/png`, `image/jpeg`, `image/webp`, `image/svg+xml`, ...).
   An image loaded from a file keeps that file, in every format a file format handler reads; only an image which
   didn't come from a file (or was changed) is stored as PNG. Elements reference them by id, so the same bytes can be shared.
@@ -215,17 +217,92 @@ All coordinates are canvas pixels (`double`), origin top-left, x to the right, y
   of style becomes a new optional part, readers which don't know it ignore it and still draw the rest. So a document
   written by a newer Greenshot doesn't lose them on save, unknown properties of a style (and of an element) are kept
   and written back unchanged. Style settings only one plugin understands go in the plugin element's data, or under a key with the plugin's name
-  (`"zxing.quietZone"`) so they never collide with core names. Shared styles are built, see the rules above.
+  (`"zxing.quietZone"`) so they never collide with core names. Shared styles: decided, see "Groups, styles and defaults".
 - **Speech bubble tail with anchors**: decided, see "What is anchored": the text box and the tail have their own
   anchors. The same anchors on `start` and `end` turn a line or arrow into a connector between two elements.
 - **Text in elements**: not through anchors. An anchor only positions; text inside a rectangle must also wrap and
   resize with it. Instead, rectangles, ellipses and lines get an optional `text`, drawn inside the `Area` and rotated with it (on a line at
   `labelPosition`, 0 to 1 from start to end, default 0.5) with the text style that already exists. A speech bubble is then a rectangle with a text and a tail.
-- **Grouping** (as in PowerPoint or Visio: select a rectangle, an arrow and a text, "Group", and from then on they are
-  selected, moved, copied and deleted as one): a group element with its own id and a list of child elements; its `Bounds` are the union of the
-  children's. Children keep absolute coordinates (no nested transforms), so every child is still drawn correctly on
-  its own. Moving or rotating the group changes the children. Anchors can target a group; a child can't anchor to its
-  own group.
+- **Grouping**: decided, see "Groups, styles and defaults" (the `set` type).
+
+### Groups, styles and defaults (agreed, not built yet)
+
+One concept for everything that belongs together: step label numbering, shared styles and PowerPoint-like grouping.
+
+```json
+"groups": [
+  { "id": "…", "type": "steps", "name": "Steps", "properties": { "start": 1, "format": "numbers" },
+    "style": { "fill": { "color": "#0000FFFF" } }, "members": ["<a>", null, "<c>"] },
+  { "id": "…", "type": "style", "name": "Red marker", "style": { "stroke": { "color": "#FF0000FF", "width": 3 } },
+    "members": ["<arrow>"] },
+  { "id": "…", "type": "set", "name": "Callout 1", "members": ["<rectangle>", "<arrow>"] },
+  { "id": "…", "type": "zxing.barcodes", "properties": { }, "extensions": { }, "members": [] }
+]
+```
+
+- **A group** has an id, a `type`, an optional `name`, `style`, `properties` (defined by the type), `extensions` and
+  its `members` (element ids). The document has a list of groups next to its layers. Elements don't mention their
+  groups in the file; the model builds the lookup element → groups when it reads the document.
+- **Members**: an element can be in several groups, and members can be in different layers. An element is in at most
+  one `steps` group and at most one group with a style, checked when it joins (this can be relaxed later, the reverse
+  would break documents). No groups inside groups for now. Writing is the gate, as for resources: member ids which no
+  longer exist are dropped (an empty group can go too).
+- **Types** decide the behaviour:
+
+  | type | style for its members | numbering | selected / moved together |
+  |---|---|---|---|
+  | `steps` | optional | yes | no |
+  | `style` | yes | no | no |
+  | `set` | optional | no | yes (selected, moved, copied, deleted as one) |
+  | a plugin type | defined by the plugin | | |
+
+  In the UI they are named by what they do ("Numbering", "Style", "Group"). A group of an unknown type (a plugin which
+  isn't installed, a newer Greenshot) is kept and written back unchanged; its members behave as in no group. Unknown
+  properties of a known type are kept too.
+- **Steps**: `properties` has `start` (the counter start, which is not on the canvas) and `format` (`numbers`,
+  `lowerLetters` a..z aa, `upperLetters`, `lowerRoman`, `upperRoman`). The member order is the numbering order: the
+  entry at place n (from 0) shows `start + n`. A `null` entry skips a number (`[a, null, c]` gives 1 and 3) and is kept
+  on write. Deleting a step label removes it from the list (the following numbers move up, as today); "delete, keep the
+  number" leaves a `null`. A step label in no steps group is numbered 1, 2, 3 in drawing order. The legacy reader makes
+  one steps group of all labels, in the order of their stored number, with the stored counter start.
+- **Layers stay separate**: a layer contains its elements, each element is in exactly one layer, and the layer's list
+  is the drawing order. Groups are memberships on top of that. In code both can share a small base (id, name,
+  extensions).
+
+**Style.** One `Style` type, the same on an element and on a group, with the parts `stroke`, `fill`, `shadow` and
+`text` and `extensions`. Every value is optional: a value which isn't written is inherited, a written value is that
+value. Only a whole part can be switched off, with `enabled: false` (e.g. `"fill": { "enabled": false }` means no fill,
+even when the group has one); single values (width, size, colour, alignment) never need "off". In code every value is
+nullable, `null` means "not set here", a JSON `null` is the same as a missing value.
+
+- **Merging**, value by value, bottom to top: built-in default for the element type → the style of its group →
+  the element's own style. A resolver gives the full style to draw with, renderers never see the partial one.
+  Example: the group has a red stroke of 3 px, an arrow in it sets only `"stroke": { "width": 5 }`: it is drawn red,
+  5 px; when the group turns blue, the arrow turns blue and stays 5 px.
+- **Joining a group**: the element takes the group's look: its own values for what the group's style sets are
+  removed. Changes afterwards are overrides on that element; "Reset to group style" removes them.
+- **Leaving a group** (or the group is deleted): the element keeps its look, the values it inherited are copied into
+  its own style.
+- **Changing the group's style**: every member follows, except for the values it overrides.
+- **An element in no group** has its full style itself, as today and as files of 1.2 - 1.4 are read.
+
+**Defaults per element type.**
+
+- **Built-in defaults** (e.g. a step label's fill, an arrow's 2 px red stroke) are fixed in the model's code and
+  documented per format version, so a file looks the same on every machine and in every later Greenshot. Changing one
+  means a new format version whose reader writes the old value into older files.
+- **The user's last-used values** (`LastUsedFieldValues` in greenshot.ini, one per tool and value, see
+  `EditorConfigurationHelper.CreateField`) are only used when an element is created, and written into it. A document
+  never depends on someone's settings.
+- **Document defaults per type** ("every arrow in this capture is blue", a recipe making all step labels green) can
+  later be a style group with an "applies to type" property, not a separate table. Merging is then: built-in default
+  → groups which apply to the type → the element's group → the element. Plugin types the same way under their kind.
+  Not until a recipe or the editor needs it.
+
+**Visibility of elements**: not for now. A forgotten hidden blur or pixelate would uncover what it covers in an export;
+a small layer does the same job and stays visible in the layer list. If it comes later: an optional `visible`
+(missing = visible), drawn = layer visible and element visible, with a warning on export when a hidden element is a
+redaction. Older files are not affected.
 
 ### Anchors (agreed, not built yet)
 
@@ -346,7 +423,6 @@ flowchart LR
 - Only Windows can draw EMF/WMF; other platforms will need a PNG rendering next to the metafile.
 - The editor has one counter and no shared styles. A document becomes a `Surface` with each element's resolved style
   and the first series (its start, its label order); back from the `Surface` there is one series and every element
-  has its full style without `styleId`. A 1.2 - 1.4 file has one series with all its labels in the order of their
-  stored number.
+  has its full style. The same will hold for groups until the editor knows them.
 - No plugin has an `IPluginElementConverter` yet (the barcode would be the first); until then a plugin's element is kept
   with only its fallback.
