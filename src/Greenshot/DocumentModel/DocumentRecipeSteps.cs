@@ -58,7 +58,7 @@ namespace Greenshot.DocumentModel
     /// </summary>
     [StepInfo("AddElements", "Add Elements", "Adds elements, written like the elements of a .greenshot document, to the capture.", "Annotations")]
     [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required, VisualMutation = PayloadEffect.AddsAnnotations)]
-    [StepParameter("Elements", ContractDataType.Object, Required = true, Description = "The elements, e.g. [{\"type\": \"rectangle\", \"id\": \"...\", \"area\": {\"x\": 10, \"y\": 10, \"width\": 100, \"height\": 50}}]")]
+    [StepParameter("Elements", ContractDataType.Object, Required = true, Description = "The elements, e.g. [{\"type\": \"rectangle\", \"area\": {\"x\": 0, \"y\": 0, \"width\": 100, \"height\": 50}, \"anchor\": {\"x\": {\"target\": \"end\", \"self\": \"end\", \"offset\": -10}}}]")]
     public sealed class AddElementsStep : ICaptureStep
     {
         public AddElementsStep(RecipeNodeConfig config)
@@ -79,9 +79,9 @@ namespace Greenshot.DocumentModel
                 return Task.CompletedTask;
             }
 
-            // An element without id gets a new one
-            var elements = GreenshotPackage.ReadElements(JsonConvert.SerializeObject(value))
-                .Select(element => element.Id == Guid.Empty ? element with { Id = Uuid7.CreateVersion7() } : element);
+            // An element without id gets a new one, anchored elements are placed relative to the capture and to each other
+            var elements = DocumentToSurface.Place(surface, GreenshotPackage.ReadElements(JsonConvert.SerializeObject(value))
+                .Select(element => element.Id == Guid.Empty ? element with { Id = Uuid7.CreateVersion7() } : element));
             var document = new GreenshotDocument(surface.ID, new Canvas(surface.Image.Width, surface.Image.Height), Array.Empty<Layer>(), new Dictionary<Guid, Resource>());
             var added = DocumentToSurface.AddElements(surface, document, elements, true);
             if (added.Count > 0)

@@ -184,6 +184,61 @@ namespace Greenshot.Tests.Document
         }
 
         [Fact]
+        public void TheIdsOfTheCaptureAndTheLayers_SurviveTheEditor()
+        {
+            var document = WithElements(new Dictionary<Guid, Resource>());
+
+            using var surface = DocumentToSurface.ToSurface(document);
+            var mappedBack = SurfaceToDocument.ToDocument(surface);
+
+            Assert.Equal(document.Layers.Select(layer => layer.Id), mappedBack.Layers.Select(layer => layer.Id));
+            Assert.Equal(document.Layers[0].Elements[0].Id, mappedBack.Layers[0].Elements[0].Id);
+            Assert.Equal(Anchors.CaptureId(document), Anchors.CaptureId(mappedBack));
+
+            // A surface which didn't come from a document keeps the ids it got first
+            using var capture = new Surface(new Bitmap(20, 10));
+            Assert.Equal(Anchors.CaptureId(SurfaceToDocument.ToDocument(capture)), Anchors.CaptureId(SurfaceToDocument.ToDocument(capture)));
+        }
+
+        [Fact]
+        public void AnchorsExtensionsAndGroups_SurviveTheEditor()
+        {
+            var box = new RectangleElement(Uuid7.CreateVersion7(), new RectD(10, 10, 30, 30))
+            {
+                Anchor = new Anchor { X = new AxisAnchor(AnchorLine.End, AnchorLine.End, -10) },
+                Extensions = new RawJson("{\"test\":1}")
+            };
+            var arrow = new ArrowElement(Uuid7.CreateVersion7(), new PointD(50, 50), new PointD(90, 60)) { EndAnchor = new Anchor { Target = box.Id, X = new AxisAnchor(AnchorLine.Start) } };
+            var style = new Group(Uuid7.CreateVersion7(), GroupTypes.Style, new Guid?[] { box.Id, arrow.Id }) { Name = "Red", Style = new Style { Stroke = StrokeStyle.Of(new Rgba(255, 0, 0, 255), 3) } };
+            var document = WithElements(new Dictionary<Guid, Resource>(), box, arrow) with { Groups = new[] { style } };
+
+            using var surface = DocumentToSurface.ToSurface(document);
+            var mappedBack = SurfaceToDocument.ToDocument(surface);
+
+            var elements = mappedBack.Layers[1].Elements;
+            Assert.Equal(box.Anchor, elements[0].Anchor);
+            Assert.Equal(box.Extensions, elements[0].Extensions);
+            Assert.Equal(arrow.EndAnchor, Assert.IsType<ArrowElement>(elements[1]).EndAnchor);
+            var keptStyle = Assert.Single(mappedBack.Groups);
+            Assert.Equal(style with { Members = null }, keptStyle with { Members = null });
+            Assert.Equal(style.Members, keptStyle.Members);
+        }
+
+        [Fact]
+        public void Place_PutsTheElementsOfARecipeRelativeToTheCapture()
+        {
+            using var surface = new Surface(new Bitmap(200, 100));
+            var label = new RectangleElement(Guid.NewGuid(), new RectD(0, 0, 50, 20))
+            {
+                Anchor = new Anchor { X = new AxisAnchor(AnchorLine.End, AnchorLine.End, -10), Y = new AxisAnchor(AnchorLine.End, AnchorLine.End, -10) }
+            };
+
+            var placed = Assert.IsType<RectangleElement>(Assert.Single(DocumentToSurface.Place(surface, new[] { label })));
+
+            Assert.Equal(new RectD(140, 70, 50, 20), placed.Area);
+        }
+
+        [Fact]
         public void UnknownElement_IsKeptWithTheSurface()
         {
             var linked = Png(2, 2);

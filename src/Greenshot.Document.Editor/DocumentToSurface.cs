@@ -62,11 +62,17 @@ namespace Greenshot.Document.Editor
                 CounterStart = steps == null ? 1 : StepNumbering.Of(steps).Start
             };
 
+            var kept = KeptElements.DocumentOf(surface);
+            kept.CaptureId = capture?.Id ?? kept.CaptureId;
+            kept.CaptureLayerId = document.Layers.FirstOrDefault(layer => layer.Kind == LayerKind.Capture)?.Id ?? kept.CaptureLayerId;
+            kept.AnnotationsLayerId = document.Layers.FirstOrDefault(layer => layer.Kind != LayerKind.Capture)?.Id ?? kept.AnnotationsLayerId;
+            kept.Groups = document.Groups;
+
             var stepLabels = AddElements(surface, document, document.Layers.Where(layer => layer.Kind != LayerKind.Capture && layer.Visible).SelectMany(layer => layer.Elements))
                 .OfType<StepLabelContainer>().ToList();
             foreach (var step in steps?.Members ?? Array.Empty<Guid?>())
             {
-                var stepLabel = stepLabels.FirstOrDefault(container => KeptElements.Ids.TryGetValue(container, out var id) && id.Value == step);
+                var stepLabel = stepLabels.FirstOrDefault(container => KeptElements.Originals.TryGetValue(container, out var original) && original.Id == step);
                 if (stepLabel != null)
                 {
                     surface.RemoveStepLabel(stepLabel);
@@ -91,17 +97,32 @@ namespace Greenshot.Document.Editor
                     : ToContainer(surface, document, element);
                 if (container != null)
                 {
-                    KeptElements.Ids.Add(container, new StrongBox<Guid>(element.Id));
+                    KeptElements.Originals.Add(container, element);
                     surface.AddElement(container, makeUndoable, false);
                     added.Add(container);
                 }
                 else if (element is PluginElement or UnknownElement)
                 {
-                    KeptElements.BySurface.GetOrCreateValue(surface).Add(Keep(document, element));
+                    KeptElements.DocumentOf(surface).Elements.Add(Keep(document, element));
                 }
             }
 
             return added;
+        }
+
+        /// <summary>
+        /// The elements placed by their anchors, e.g. those of a recipe: relative to the capture of the surface and to each other
+        /// </summary>
+        public static IReadOnlyList<Element> Place(Surface surface, IEnumerable<Element> elements)
+        {
+            var kept = KeptElements.DocumentOf(surface);
+            var capture = new ImageElement(kept.CaptureId, new RectD(0, 0, surface.Image.Width, surface.Image.Height), Guid.Empty);
+            var document = new GreenshotDocument(surface.ID, new Canvas(surface.Image.Width, surface.Image.Height), new List<Layer>
+            {
+                new(kept.CaptureLayerId, "Capture", LayerKind.Capture, new List<Element> { capture }),
+                new(kept.AnnotationsLayerId, "Annotations", LayerKind.Annotations, elements.ToList())
+            }, new Dictionary<Guid, Resource>());
+            return Anchors.Apply(document).Layers[1].Elements;
         }
 
         /// <summary>
@@ -211,6 +232,9 @@ namespace Greenshot.Document.Editor
                     break;
                 case ArrowElement arrow:
                     SetLine(container, arrow.Start, arrow.End);
+                    break;
+                case SpeechBubbleElement speechBubble:
+                    SetBounds(container, speechBubble.Area);
                     break;
                 default:
                     SetBounds(container, element.Bounds);

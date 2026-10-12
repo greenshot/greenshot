@@ -63,10 +63,18 @@ namespace Greenshot.Tests.Document
                 new RectangleElement(Guid.NewGuid(), area) { Style = style },
                 new EllipseElement(Guid.NewGuid(), area),
                 new LineElement(Guid.NewGuid(), new PointD(1, 2), new PointD(3, 4)),
-                new ArrowElement(Guid.NewGuid(), new PointD(1, 2), new PointD(3, 4), ArrowHeads.Both),
+                new ArrowElement(Guid.NewGuid(), new PointD(1, 2), new PointD(3, 4), ArrowHeads.Both)
+                {
+                    StartAnchor = new Anchor { Target = Guid.NewGuid(), X = new AxisAnchor(AnchorLine.End, AnchorLine.Center, -2.5) },
+                    EndAnchor = new Anchor { Y = new AxisAnchor(AnchorLine.Center) }
+                },
                 new FreehandElement(Guid.NewGuid(), new List<PointD> { new(1, 2), new(3, 4), new(5, 6) }),
                 new TextElement(Guid.NewGuid(), area, "Text\nwith \"quotes\" and ü") { Style = style },
-                new SpeechBubbleElement(Guid.NewGuid(), area, "Bubble", new PointD(100, 200)),
+                new SpeechBubbleElement(Guid.NewGuid(), area, "Bubble", new PointD(100, 200))
+                {
+                    Anchor = new Anchor { X = new AxisAnchor(AnchorLine.Start, AnchorLine.End, 8) },
+                    TailAnchor = new Anchor { Target = Guid.NewGuid(), Y = new AxisAnchor(AnchorLine.End) }
+                },
                 stepLabel,
                 new HighlightElement(Guid.NewGuid(), area, HighlightMode.Area) { Color = red, Brightness = 0.5, BlurRadius = 7, Magnification = 4 },
                 new ObfuscateElement(Guid.NewGuid(), area, ObfuscateMode.Blur, 12),

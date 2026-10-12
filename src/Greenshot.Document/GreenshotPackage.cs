@@ -63,7 +63,7 @@ namespace Greenshot.Document
 
         /// <summary>
         /// Writes the document with the resources its elements link to, other resources are left out.
-        /// A link to a missing resource, or a resource without a file extension, is refused.
+        /// A link to a missing resource, a resource without a file extension, or anchors which make a loop are refused.
         /// </summary>
         /// <param name="document">GreenshotDocument</param>
         /// <param name="stream">Stream to write the zip to</param>
@@ -74,6 +74,7 @@ namespace Greenshot.Document
                 .Select(id => document.Resources.TryGetValue(id, out var resource) ? resource : throw new InvalidDataException($"An element links to the missing resource {id}"))
                 .ToList();
             var entries = linked.ToDictionary(resource => resource.Id, resource => new ResourceEntry($"resources/{resource.Id:D}.{Extension(resource, extensionFor)}", resource.MediaType));
+            Anchors.CheckLoops(document);
             // Members which no longer exist are dropped, gaps (null) are kept
             var elementIds = new HashSet<Guid>(document.Layers.SelectMany(layer => layer.Elements).Select(element => element.Id));
             var groups = document.Groups.Select(group => group with { Members = group.Members.Where(id => id == null || elementIds.Contains(id.Value)).ToList() }).ToList();

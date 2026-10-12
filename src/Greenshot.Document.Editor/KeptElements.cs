@@ -28,9 +28,10 @@ using Greenshot.Base.Interfaces.Drawing;
 namespace Greenshot.Document.Editor
 {
     /// <summary>
-    /// What the editor doesn't hold itself: the id of the element each container was made from, so ids survive a trip
-    /// through the editor, and the elements the editor can't edit, kept with the container which shows them (a plugin element without its plugin)
-    /// or with the surface (an element of an unknown type), so they are written back unchanged
+    /// What the editor doesn't hold itself: the element each container was made from, so its id and anchors survive a
+    /// trip through the editor; the ids of the capture and the layers and the groups of the document; and the elements
+    /// the editor can't edit, kept with the container which shows them (a plugin element without its plugin) or with the
+    /// surface (an element of an unknown type), so they are written back unchanged
     /// </summary>
     internal static class KeptElements
     {
@@ -47,10 +48,28 @@ namespace Greenshot.Document.Editor
             public IReadOnlyList<Resource> Resources { get; }
         }
 
-        internal static readonly ConditionalWeakTable<IDrawableContainer, StrongBox<Guid>> Ids = new();
+        internal sealed class KeptDocument
+        {
+            public Guid CaptureId { get; set; } = Uuid7.CreateVersion7();
+
+            public Guid CaptureLayerId { get; set; } = Uuid7.CreateVersion7();
+
+            public Guid AnnotationsLayerId { get; set; } = Uuid7.CreateVersion7();
+
+            public IReadOnlyList<Group> Groups { get; set; } = Array.Empty<Group>();
+
+            public List<Kept> Elements { get; } = new();
+        }
+
+        internal static readonly ConditionalWeakTable<IDrawableContainer, Element> Originals = new();
 
         internal static readonly ConditionalWeakTable<IDrawableContainer, Kept> ByContainer = new();
 
-        internal static readonly ConditionalWeakTable<ISurface, List<Kept>> BySurface = new();
+        private static readonly ConditionalWeakTable<ISurface, KeptDocument> Documents = new();
+
+        /// <summary>
+        /// What is kept for the surface, new ids for a surface which didn't come from a document, which stay for all of its documents
+        /// </summary>
+        internal static KeptDocument DocumentOf(ISurface surface) => Documents.GetValue(surface, _ => new KeptDocument());
     }
 }

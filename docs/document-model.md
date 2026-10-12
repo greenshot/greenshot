@@ -198,8 +198,8 @@ All coordinates are canvas pixels (`double`), origin top-left, x to the right, y
   rotation and including points like the tail, without stroke width or shadow. Every element has it. It is used for
   what needs one box per element: the edges an anchor refers to when the target is a line or freehand, the selection
   frame, finding the element under the mouse (first test), which part of the canvas to redraw, "fit the canvas to the
-  content", and the box of a group. Today `Bounds` doesn't include the rotation and the tail yet; that
-  comes with the anchors.
+  content", and the box of a group. The tail of a speech bubble is included; the rotation of images and emojis isn't
+  yet (its rule is still a proposal, see below).
 
 ### Design proposals (not decided)
 
@@ -301,7 +301,13 @@ a small layer does the same job and stays visible in the layer list. If it comes
 (missing = visible), drawn = layer visible and element visible, with a warning on export when a hidden element is a
 redaction. Older files are not affected.
 
-### Anchors (agreed, not built yet)
+### Anchors
+
+Built in the model: `Anchor` and `AxisAnchor` on the parts below, `Anchors.Apply` (places every anchored part),
+`Anchors.MakesLoop` (the check when an anchor is set) and the loop check when a document is written. The "Add Elements"
+recipe step places its elements with them (`DocumentToSurface.Place`, relative to the capture and to each other).
+Today's editor keeps the anchors of an element (and its extensions and the groups of the document) through a trip, but
+doesn't apply them again when something moves; the dragging rules below come with an editor which knows anchors.
 
 An element can be anchored to another element, the target. Without a target it is anchored to the capture image, so
 elements follow the capture when the canvas grows (e.g. a border) or the capture moves.
@@ -310,9 +316,12 @@ elements follow the capture when the canvas grows (e.g. a border) or the capture
   anchor for its `Area`. Lines and arrows have one for `start` and one for `end`, so each end can follow a different
   element (or none). A speech bubble has one for its `Area` (the text box) and one for its `tail`, so it can point at
   something while the box sits beside the capture. Freehand has one for all its points together.
-- **Shape**: an optional anchor (on the element for its `Area`, or on a point) with `target` (an element id, missing = the capture image). Per axis
-  (x, y): a line on the target (`start`, `center`, `end`), a line on the element itself (`start`, `center`, `end`) and
-  an offset in pixels. An axis without an entry isn't anchored.
+- **Shape**: `anchor` on the element (its `Area`; all points of lines, arrows and freehand), `startAnchor` and
+  `endAnchor` on lines and arrows, `tailAnchor` on a speech bubble. Each has `target` (an element id, missing = the
+  capture image, the first image of the capture layer) and per axis `x`, `y`: a line on the target (`start`, `center`,
+  `end`), a line on the element itself (`self`, for points not used) and an `offset` in pixels. An axis without an entry
+  isn't anchored. A speech bubble is placed by its text box and its tail moves with it, unless the tail has its own anchor.
+  `{"anchor": {"x": {"target": "end", "self": "end", "offset": -10}}}`
   - Inside the target, 10 px from its right edge: x target `end`, self `end`, offset -10.
   - Outside, a caption below the target: y target `end`, self `start`, offset 8.
   - Centred on the target: target `center`, self `center`.
@@ -325,7 +334,8 @@ elements follow the capture when the canvas grows (e.g. a border) or the capture
   anchor, then come back down and apply each anchor in turn. Every element is placed once.
 - **Loops**: setting an anchor which would make a loop (A to B, B to A, or longer) is refused when the anchor is set,
   and checked again when the document is written.
-- **Deleted target**: the anchor is removed, the element stays where it is.
+- **Deleted target**: the anchor is removed, the element stays where it is. Until then a target which doesn't exist
+  leaves the part where it is.
 - **Dragging** (agreed): the anchor stays and only its offset changes, the element lands where it is dropped. A free
   axis just moves. Resizing: moving the anchored edge changes the offset, resizing from the other side doesn't. On drop
   the anchor switches to the nearest line of the target (start, center, end) and the offset is recalculated, nothing
@@ -333,9 +343,10 @@ elements follow the capture when the canvas grows (e.g. a border) or the capture
   element is anchored to. Changing or removing an anchor is always deliberate ("Anchor to…", "Detach" in the context
   menu); only the end of a line or arrow, or the tail of a bubble, dropped onto a highlighted element anchors to it.
   The move and the anchor change are one undo step.
-- **Recipes**: the "Add Elements" step takes the same anchor; the anchor, margin and offset parameters of the
-  annotation step map onto it.
-- **Needed first**: the capture image element keeps its id through the editor (today it gets a new one every time).
+- **Recipes**: the "Add Elements" step takes the same anchor; its elements can be anchored to the capture and to each
+  other. The anchor, margin and offset parameters of the annotation step can map onto it.
+- **Ids**: the capture image element and the layers keep their ids through the editor, also for a surface which didn't
+  come from a document (it gets them once).
 
 ## File formats
 
@@ -419,7 +430,8 @@ flowchart LR
   a document becomes a `Surface`.
 - Only Windows can draw EMF/WMF; other platforms will need a PNG rendering next to the metafile.
 - The editor has one counter and no groups. A document becomes a `Surface` with each element's resolved style and the
-  first steps group (its start, its label order); back from the `Surface` there is one steps group and every element
-  has its full style.
+  first steps group (its start, its label order); back from the `Surface` there is one steps group (the other steps
+  groups are merged into it), the other groups are kept, and every element has its full style. Hidden layers don't
+  reach the `Surface` yet.
 - No plugin has an `IPluginElementConverter` yet (the barcode would be the first); until then a plugin's element is kept
   with only its fallback.

@@ -19,6 +19,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
+
 namespace Greenshot.Document
 {
     /// <summary>
@@ -44,6 +46,14 @@ namespace Greenshot.Document
             double top = a.Y < b.Y ? a.Y : b.Y;
             return new RectD(left, top, (a.X < b.X ? b.X : a.X) - left, (a.Y < b.Y ? b.Y : a.Y) - top);
         }
+
+        /// <summary>
+        /// The smallest area containing both areas
+        /// </summary>
+        public static RectD Union(RectD a, RectD b) =>
+            FromPoints(new PointD(Math.Min(a.X, b.X), Math.Min(a.Y, b.Y)), new PointD(Math.Max(a.Right, b.Right), Math.Max(a.Bottom, b.Bottom)));
+
+        public RectD Offset(double dx, double dy) => this with { X = X + dx, Y = Y + dy };
     }
 
     /// <summary>

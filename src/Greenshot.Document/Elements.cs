@@ -41,7 +41,14 @@ namespace Greenshot.Document
         public RawJson Extensions { get; init; }
 
         /// <summary>
-        /// The area the element covers, without stroke width or shadow. Derived for elements defined by points.
+        /// Keeps the element at its place relative to another element (the capture when it has no target): for a
+        /// box-shaped element its Area, for lines and freehand all their points. The stored position stays absolute.
+        /// </summary>
+        public Anchor Anchor { get; init; }
+
+        /// <summary>
+        /// The area the element covers, without stroke width or shadow. Derived for elements defined by points, a
+        /// speech bubble includes its tail.
         /// </summary>
         public abstract RectD Bounds { get; }
     }
@@ -58,6 +65,10 @@ namespace Greenshot.Document
 
     public sealed record LineElement(Guid Id, PointD Start, PointD End) : Element(Id)
     {
+        public Anchor StartAnchor { get; init; }
+
+        public Anchor EndAnchor { get; init; }
+
         public override RectD Bounds => RectD.FromPoints(Start, End);
     }
 
@@ -71,6 +82,10 @@ namespace Greenshot.Document
 
     public sealed record ArrowElement(Guid Id, PointD Start, PointD End, ArrowHeads Heads = ArrowHeads.End) : Element(Id)
     {
+        public Anchor StartAnchor { get; init; }
+
+        public Anchor EndAnchor { get; init; }
+
         public override RectD Bounds => RectD.FromPoints(Start, End);
     }
 
@@ -92,7 +107,12 @@ namespace Greenshot.Document
     /// </summary>
     public sealed record SpeechBubbleElement(Guid Id, RectD Area, string Text, PointD Tail) : Element(Id)
     {
-        public override RectD Bounds => Area;
+        /// <summary>
+        /// Keeps the tail at its place relative to another element, without it the tail moves with the Area
+        /// </summary>
+        public Anchor TailAnchor { get; init; }
+
+        public override RectD Bounds => RectD.Union(Area, new RectD(Tail.X, Tail.Y, 0, 0));
     }
 
     /// <summary>

@@ -47,36 +47,62 @@ namespace Greenshot.Document.Editor
         {
             var resources = new Dictionary<Guid, Resource>();
             var image = surface.Image;
-            var captureLayer = new Layer(Uuid7.CreateVersion7(), "Capture", LayerKind.Capture,
-                new List<Element> { new ImageElement(Uuid7.CreateVersion7(), new RectD(0, 0, image.Width, image.Height), AddImage(resources, image)) })
+            var kept = KeptElements.DocumentOf(surface);
+            var captureLayer = new Layer(kept.CaptureLayerId, "Capture", LayerKind.Capture,
+                new List<Element> { new ImageElement(kept.CaptureId, new RectD(0, 0, image.Width, image.Height), AddImage(resources, image)) })
             {
                 Locked = true
             };
-            var containers = surface.Elements.Cast<DrawableContainer>().Select(container => (Container: container, Element: ToElement(container, resources)))
+            var containers = surface.Elements.Cast<DrawableContainer>().Select(container => (Container: container, Element: WithAnchors(ToElement(container, resources), container)))
                 .Where(pair => pair.Element != null).ToList();
             var elements = containers.Select(pair => pair.Element).ToList();
-            if (KeptElements.BySurface.TryGetValue(surface, out var kept))
-            {
-                elements.AddRange(kept.Select(keptElement => AddKept(resources, keptElement)));
-            }
+            elements.AddRange(kept.Elements.Select(keptElement => AddKept(resources, keptElement)));
 
-            var annotationsLayer = new Layer(Uuid7.CreateVersion7(), "Annotations", LayerKind.Annotations, elements);
+            var annotationsLayer = new Layer(kept.AnnotationsLayerId, "Annotations", LayerKind.Annotations, elements);
 
-            // The editor has one steps group, numbered in its own order of the step labels
+            // The editor has one steps group, numbered in its own order of the step labels; the other groups are kept
             var steps = containers.Where(pair => pair.Container is StepLabelContainer)
                 .OrderBy(pair => surface is Surface editorSurface ? editorSurface.CountStepLabels(pair.Container) : 0).Select(pair => (Guid?)pair.Element.Id).ToList();
+            var keptSteps = kept.Groups.FirstOrDefault(group => group.Type == GroupTypes.Steps);
+            var groups = kept.Groups.Where(group => group.Type != GroupTypes.Steps).ToList();
+            if (steps.Count > 0)
+            {
+                groups.Insert(0, (keptSteps ?? new Group(Uuid7.CreateVersion7(), GroupTypes.Steps, steps)) with
+                {
+                    Members = steps,
+                    Properties = new StepNumbering(surface.CounterStart, keptSteps == null ? StepFormat.Numbers : StepNumbering.Of(keptSteps).Format).ToProperties()
+                });
+            }
 
             return new GreenshotDocument(surface.ID, new Canvas(image.Width, image.Height), new List<Layer> { captureLayer, annotationsLayer }, resources)
             {
-                Groups = steps.Count == 0
-                    ? Array.Empty<Group>()
-                    : new[] { new Group(Uuid7.CreateVersion7(), GroupTypes.Steps, steps) { Properties = new StepNumbering(surface.CounterStart).ToProperties() } }
+                Groups = groups
+            };
+        }
+
+        /// <summary>
+        /// The element with the anchors and extensions of the element the container was made from, the editor doesn't know them
+        /// </summary>
+        private static Element WithAnchors(Element element, DrawableContainer container)
+        {
+            if (element == null || !KeptElements.Originals.TryGetValue(container, out var original))
+            {
+                return element;
+            }
+
+            element = element with { Anchor = original.Anchor, Extensions = original.Extensions };
+            return (element, original) switch
+            {
+                (LineElement line, LineElement from) => line with { StartAnchor = from.StartAnchor, EndAnchor = from.EndAnchor },
+                (ArrowElement arrow, ArrowElement from) => arrow with { StartAnchor = from.StartAnchor, EndAnchor = from.EndAnchor },
+                (SpeechBubbleElement bubble, SpeechBubbleElement from) => bubble with { TailAnchor = from.TailAnchor },
+                _ => element
             };
         }
 
         private static Element ToElement(DrawableContainer container, IDictionary<Guid, Resource> resources)
         {
-            var id = KeptElements.Ids.TryGetValue(container, out var knownId) ? knownId.Value : Uuid7.CreateVersion7();
+            var id = KeptElements.Originals.TryGetValue(container, out var original) ? original.Id : Uuid7.CreateVersion7();
             var area = new RectD(container.Left, container.Top, container.Width, container.Height);
             var start = new PointD(container.Left, container.Top);
             var end = new PointD(container.Left + container.Width, container.Top + container.Height);
