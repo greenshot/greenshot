@@ -218,8 +218,9 @@ and stored again.
 - **`scaling`**: how the image is drawn when its size differs from `source`: `smooth` (bilinear or bicubic, the
   default) or `pixelated` (nearest neighbour, text and lines of 1 px stay crisp when zoomed). Each renderer maps it to
   its own modes.
-- **Today's editor** (Surface) always draws the whole image smoothly; `source` and `scaling` are kept through a trip
-  through it, but it doesn't show them yet.
+- **Today's editor** (Surface): the `ImageContainer` draws the `source` part of a bitmap with its `scaling`. A rotated
+  bitmap is turned in its pixels there, so its part is cut out before and the trip back has no `source`. SVG, icons
+  and metafiles are shown whole, their `source` and `scaling` are kept through the trip.
 
 ### Design proposals (not decided)
 

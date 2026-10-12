@@ -355,6 +355,28 @@ namespace Greenshot.Tests.Document
             Assert.Equal(Color.White.ToArgb(), image.GetPixel(60, 40).ToArgb());
         }
 
+        [Fact]
+        public void ToImage_DrawsThePartOfTheResource_Pixelated()
+        {
+            // Two pixels, red and blue
+            using var bitmap = new Bitmap(2, 1);
+            bitmap.SetPixel(0, 0, Color.Red);
+            bitmap.SetPixel(1, 0, Color.Blue);
+            using var stream = new MemoryStream();
+            bitmap.Save(stream, ImageFormat.Png);
+            var pixels = new Resource(Guid.NewGuid(), "image/png", stream.ToArray());
+            var whole = new ImageElement(Guid.NewGuid(), new RectD(10, 10, 40, 20), pixels.Id) { Scaling = ImageScaling.Pixelated };
+            var blue = new ImageElement(Guid.NewGuid(), new RectD(60, 10, 40, 20), pixels.Id) { Source = new RectD(0.5, 0, 0.5, 1), Scaling = ImageScaling.Pixelated };
+            var document = WithElements(new Dictionary<Guid, Resource> { [pixels.Id] = pixels }, whole, blue);
+
+            using var image = (Bitmap)DocumentToSurface.ToImage(document);
+
+            Assert.Equal(Color.Red.ToArgb(), image.GetPixel(15, 20).ToArgb());
+            Assert.Equal(Color.Blue.ToArgb(), image.GetPixel(45, 20).ToArgb());
+            Assert.Equal(Color.Blue.ToArgb(), image.GetPixel(65, 20).ToArgb());
+            Assert.Equal(Color.Blue.ToArgb(), image.GetPixel(95, 20).ToArgb());
+        }
+
         /// <summary>
         /// An EMF with a rectangle, recorded with GDI+
         /// </summary>

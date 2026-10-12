@@ -148,7 +148,7 @@ namespace Greenshot.Document.Editor
                 StepLabelElement => new StepLabelContainer(surface),
                 HighlightElement => new HighlightContainer(surface),
                 ObfuscateElement => new ObfuscateContainer(surface),
-                ImageElement image => ToImageContainer(surface, document.Resources[image.Resource], image.Rotation),
+                ImageElement image => ToImageContainer(surface, document.Resources[image.Resource], image.Rotation, image.Source, image.Scaling == ImageScaling.Pixelated),
                 EmojiElement emoji => new EmojiContainer(surface, emoji.Emoji) { RotationAngle = emoji.Rotation },
                 CursorElement cursor => new CursorContainer(surface)
                 {
@@ -163,7 +163,7 @@ namespace Greenshot.Document.Editor
                 CutMarkElement cutMark => new CutMarkContainer(surface, cutMark.Horizontal, null),
                 TornEdgeElement tornEdge => new TornEdgeContainer(surface, null,
                     new[] { tornEdge.Margins.Top, tornEdge.Margins.Right, tornEdge.Margins.Bottom, tornEdge.Margins.Left }, (CutMarkStyle)(int)tornEdge.CutStyle),
-                PluginElement { Fallback: Guid fallback } plugin => KeepWith(ToImageContainer(surface, document.Resources[fallback], 0), document, plugin),
+                PluginElement { Fallback: Guid fallback } plugin => KeepWith(ToImageContainer(surface, document.Resources[fallback], 0, null, false), document, plugin),
                 _ => null
             };
             if (container == null)
@@ -330,7 +330,8 @@ namespace Greenshot.Document.Editor
             container.Height = Round(end.Y - start.Y);
         }
 
-        private static DrawableContainer ToImageContainer(Surface surface, Resource resource, int rotation)
+        // The editor shows the source part of bitmaps only, svg, icons and metafiles are shown whole
+        private static DrawableContainer ToImageContainer(Surface surface, Resource resource, int rotation, RectD? source, bool pixelated)
         {
             switch (resource.MediaType)
             {
@@ -343,10 +344,14 @@ namespace Greenshot.Document.Editor
                     return new MetafileContainer(new Metafile(new MemoryStream(resource.Data)), surface, resource.Data) { RotationAngle = rotation };
                 default:
                     using (var image = LoadImage(resource))
-                    using (var rotated = rotation == 0 ? null : image.Rotate(rotation))
                     {
+                        var part = source is RectD s ? new RectangleF((float)(s.X * image.Width), (float)(s.Y * image.Height), (float)(s.Width * image.Width), (float)(s.Height * image.Height)) : (RectangleF?)null;
+                        // A rotated image is turned in the bitmap, so the part is cut out before
+                        using var cut = rotation == 0 || part == null ? null : image.Clone(part.Value, image.PixelFormat);
+                        using var rotated = rotation == 0 ? null : (cut ?? image).Rotate(rotation);
                         // The setter makes its own copy
                         var imageContainer = new ImageContainer(surface) { Image = rotated ?? image };
+                        imageContainer.SetSource(rotated == null ? part : null, pixelated);
                         if (rotated == null)
                         {
                             imageContainer.SetOriginal(resource.Data, resource.MediaType);
