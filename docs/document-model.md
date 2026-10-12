@@ -178,21 +178,22 @@ All coordinates are canvas pixels (`double`), origin top-left, x to the right, y
 
 ### Design proposals (not decided)
 
-- **Rotation**: one rule for all box-shaped elements: `rotation` in degrees, clockwise, around the centre of the
+- **Rotation**: one rule for all box-shaped elements: `rotation` in degrees (a `double`), clockwise, around the centre of the
   `Area`; the `Area` stays unrotated. Today only images and emojis have it. Elements defined by points don't need it,
   rotating them changes their points.
 - **Styles beyond the current set**: an element's style has optional parts (stroke, fill, shadow, text). A new kind
   of style becomes a new optional part, readers which don't know it ignore it and still draw the rest. So a document
   written by a newer Greenshot doesn't lose them on save, unknown properties of a style (and of an element) are kept
-  and written back unchanged. Style settings only one plugin understands go in the plugin element's data. Named,
+  and written back unchanged. Style settings only one plugin understands go in the plugin element's data, or under a key with the plugin's name
+  (`"zxing.quietZone"`) so they never collide with core names. Named,
   shared styles (a document-level list an element refers to, with its own overrides) can come later on top.
 - **Speech bubble tail with anchors**: an anchor moves the whole element, so anchoring a bubble moves its `Area` and
   its tail together. A tail that must keep pointing at something while the bubble moves (what the editor does when
   you drag a bubble today) gets its own anchor on the point: the same shape (target, lines, offset) on `tail`. The same
   point anchors on `start` and `end` turn a line or arrow into a connector between two elements.
 - **Text in elements**: not through anchors. An anchor only positions; text inside a rectangle must also wrap and
-  resize with it. Instead, rectangles, ellipses and lines get an optional `text`, drawn inside the `Area` (or at the
-  middle of a line) with the text style that already exists. A speech bubble is then a rectangle with a text and a tail.
+  resize with it. Instead, rectangles, ellipses and lines get an optional `text`, drawn inside the `Area` and rotated with it (on a line at
+  `labelPosition`, 0 to 1 from start to end, default 0.5) with the text style that already exists. A speech bubble is then a rectangle with a text and a tail.
 - **Grouping**: a group element with its own id and a list of child elements; its `Bounds` are the union of the
   children's. Children keep absolute coordinates (no nested transforms), so every child is still drawn correctly on
   its own. Moving or rotating the group changes the children. Anchors can target a group; a child can't anchor to its
