@@ -335,13 +335,14 @@ it is an optional `metadata.json` in the package, not part of `document.json`: s
 the file out, and tools can read it without knowing the model. Today it is the editor's `CaptureDetails` (title, time,
 file name, capture mode, DPI and a key/value list).
 
-It belongs to a capture, so `metadata.json` is keyed by resource id (a document can hold several captures), with a
-small section about the whole file. This is the content of `metadata.json`, not of `document.json`:
+`metadata.json` is a separate file in the package next to `document.json`; its only link to the document is the
+resource ids. It belongs to a capture, so `captures` is keyed by the id of each captured image (a document can hold
+several, an image which wasn't captured has no entry), and `file` says who made the file:
 
 ```json
 {
-  "document": { "created": "2026-10-12T16:20:00Z", "application": "Greenshot 2.0.1", "recipe": "region-blue-border" },
-  "resources": {
+  "file": { "created": "2026-10-12T16:20:00Z", "application": "Greenshot 2.0.1", "recipe": "region-blue-border" },
+  "captures": {
     "01a130e9-ef80-783b-a89b-b2d54bafa78f": {
       "capturedAt": "2026-10-12T16:20:00+02:00",
       "mode": "window",
