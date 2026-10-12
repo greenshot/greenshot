@@ -143,5 +143,44 @@ namespace Greenshot.Tests.Document
             Assert.Equal(emf, mappedBack.Resources[mappedImage.Resource].Data);
             Assert.Equal(new Rectangle(container.Left, container.Top, container.Width, container.Height), new Rectangle(mapped.Left, mapped.Top, mapped.Width, mapped.Height));
         }
+
+        [Theory]
+        [InlineData(".jpg", "image/jpeg")]
+        [InlineData(".gif", "image/gif")]
+        [InlineData(".bmp", "image/bmp")]
+        public void Image_KeepsTheFile(string extension, string mediaType)
+        {
+            byte[] file;
+            using (var bitmap = new Bitmap(40, 30))
+            using (var stream = new MemoryStream())
+            {
+                using (var graphics = Graphics.FromImage(bitmap))
+                {
+                    graphics.Clear(Color.CornflowerBlue);
+                }
+
+                bitmap.Save(stream, extension == ".jpg" ? ImageFormat.Jpeg : extension == ".gif" ? ImageFormat.Gif : ImageFormat.Bmp);
+                file = stream.ToArray();
+            }
+
+            using var surface = new Surface(new Bitmap(200, 100));
+            var container = Assert.IsType<ImageContainer>(Assert.Single(new DefaultFileFormatHandler().LoadDrawablesFromStream(new MemoryStream(file), extension, surface)));
+            surface.AddElement(container, false, false);
+
+            var document = SurfaceToDocument.ToDocument(surface);
+            var image = Assert.IsType<ImageElement>(Assert.Single(document.Layers[1].Elements));
+            Assert.Equal(mediaType, document.Resources[image.Resource].MediaType);
+            Assert.Equal(file, document.Resources[image.Resource].Data);
+
+            using var packageStream = new MemoryStream();
+            GreenshotPackage.Write(document, packageStream);
+            packageStream.Position = 0;
+            using var mappedSurface = DocumentToSurface.ToSurface(GreenshotPackage.Read(packageStream));
+            Assert.IsType<ImageContainer>(Assert.Single(mappedSurface.Elements));
+            var mappedBack = SurfaceToDocument.ToDocument(mappedSurface);
+            var mappedImage = (ImageElement)Assert.Single(mappedBack.Layers[1].Elements);
+            Assert.Equal(mediaType, mappedBack.Resources[mappedImage.Resource].MediaType);
+            Assert.Equal(file, mappedBack.Resources[mappedImage.Resource].Data);
+        }
     }
 }

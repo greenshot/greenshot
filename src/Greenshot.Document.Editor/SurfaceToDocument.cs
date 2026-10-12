@@ -91,7 +91,10 @@ namespace Greenshot.Document.Editor
                     LineContainer => new LineElement(id, start, end),
                     FreehandContainer freehand => new FreehandElement(id, freehand.CapturePoints.Select(p => new PointD(p.X, p.Y)).ToList()),
                     StepLabelContainer => new StepLabelElement(id, area),
-                    ImageContainer imageContainer => new ImageElement(id, area, AddImage(resources, imageContainer.Image)),
+                    // The file the image came from when it is known, otherwise PNG
+                    ImageContainer imageContainer => new ImageElement(id, area, imageContainer.OriginalData == null
+                        ? AddImage(resources, imageContainer.Image)
+                        : AddResource(resources, imageContainer.OriginalMediaType, imageContainer.OriginalData)),
                     IconContainer icon => new ImageElement(id, area, AddIcon(resources, icon.Icon)),
                     SvgContainer svg => new ImageElement(id, area, AddResource(resources, "image/svg+xml", svg.SvgData)) { Rotation = svg.RotationAngle },
                     // The EMF/WMF file when it is known, GDI+ can't write EMF/WMF so otherwise the metafile is kept as PNG in its own size

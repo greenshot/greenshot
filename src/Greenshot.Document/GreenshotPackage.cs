@@ -142,8 +142,15 @@ namespace Greenshot.Document
         {
             "image/png" => ".png",
             "image/jpeg" => ".jpg",
+            "image/gif" => ".gif",
+            "image/bmp" => ".bmp",
+            "image/tiff" => ".tiff",
+            "image/webp" => ".webp",
+            "image/vnd.ms-photo" => ".jxr",
+            "image/x-tga" => ".tga",
+            "image/x-portable-bitmap" => ".pbm",
             "image/svg+xml" => ".svg",
-            "image/x-icon" => ".ico",
+            "image/x-icon" or "image/vnd.microsoft.icon" => ".ico",
             "image/emf" => ".emf",
             "image/wmf" => ".wmf",
             _ => ".bin"

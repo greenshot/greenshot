@@ -105,8 +105,9 @@ Rules:
 - **Colors**: `Rgba`, written as `#RRGGBBAA`.
 - **Style**: optional parts. A part that is `null`, or a stroke of width 0, isn't drawn. Text uses its own color
   (for text, speech bubbles and step labels this is today's line color).
-- **Resources**: the original bytes with their media type (`image/png`, `image/svg+xml`, `image/x-icon`, ...).
-  Elements reference them by id, so the same bytes can be shared.
+- **Resources**: the original bytes with their media type (`image/png`, `image/jpeg`, `image/webp`, `image/svg+xml`, ...).
+  An image loaded from a file keeps that file, in every format a file format handler reads; only an image which
+  didn't come from a file (or was changed) is stored as PNG. Elements reference them by id, so the same bytes can be shared.
 - **Derived values aren't stored**: the bounds of lines, arrows and freehand lines come from their points, and step
   label numbers come from element order plus `Canvas.CounterStart`.
 - A document made from a `Surface` has a locked **Capture** layer with the image and an **Annotations** layer with

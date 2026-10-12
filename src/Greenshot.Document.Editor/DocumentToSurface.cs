@@ -27,6 +27,7 @@ using System.Linq;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Icons;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Emoji;
@@ -263,18 +264,25 @@ namespace Greenshot.Document.Editor
                     using (var rotated = rotation == 0 ? null : image.Rotate(rotation))
                     {
                         // The setter makes its own copy
-                        return new ImageContainer(surface) { Image = rotated ?? image };
+                        var imageContainer = new ImageContainer(surface) { Image = rotated ?? image };
+                        if (rotated == null)
+                        {
+                            imageContainer.SetOriginal(resource.Data, resource.MediaType);
+                        }
+
+                        return imageContainer;
                     }
             }
         }
 
         /// <summary>
-        /// A bitmap which doesn't need the stream anymore
+        /// A bitmap which doesn't need the stream anymore, read by the file format handler for the media type (e.g. webp)
         /// </summary>
         private static Bitmap LoadImage(Resource resource)
         {
+            var format = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true)?.GetByMimeType(resource.MediaType);
             using var stream = new MemoryStream(resource.Data);
-            using var image = Image.FromStream(stream, true, true);
+            using var image = ImageIO.FromStream(stream, format?.PreferredExtension) ?? throw new InvalidDataException($"Can't read the {resource.MediaType} resource {resource.Id}");
             return ImageHelper.Clone(image) as Bitmap;
         }
 

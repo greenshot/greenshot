@@ -225,6 +225,8 @@ namespace Greenshot.Document.Legacy
                 ? Edges.All
                 : (edges[0] ? Edges.Top : Edges.None) | (edges[1] ? Edges.Right : Edges.None) | (edges[2] ? Edges.Bottom : Edges.None) | (edges[3] ? Edges.Left : Edges.None);
 
+        private static bool StartsWith(byte[] data, params byte[] prefix) => data.Length > prefix.Length && !prefix.Where((value, index) => data[index] != value).Any();
+
         private static bool IsPng(byte[] data) => data.Length > 24 && data[0] == 0x89 && data[1] == (byte)'P' && data[2] == (byte)'N' && data[3] == (byte)'G';
 
         /// <summary>
@@ -235,6 +237,10 @@ namespace Greenshot.Document.Legacy
             mediaType ??= data == null ? "application/octet-stream"
                 : IsPng(data) ? "image/png"
                 : data.Length > 4 && data[0] == 0 && data[1] == 0 && data[2] == 1 && data[3] == 0 ? "image/x-icon"
+                : StartsWith(data, 0xFF, 0xD8, 0xFF) ? "image/jpeg"
+                : StartsWith(data, (byte)'G', (byte)'I', (byte)'F', (byte)'8') ? "image/gif"
+                : StartsWith(data, (byte)'B', (byte)'M') ? "image/bmp"
+                : StartsWith(data, (byte)'I', (byte)'I', 42, 0) || StartsWith(data, (byte)'M', (byte)'M', 0, 42) ? "image/tiff"
                 : "application/octet-stream";
             var resource = new Resource(Guid.NewGuid(), mediaType, data);
             resources.Add(resource.Id, resource);
