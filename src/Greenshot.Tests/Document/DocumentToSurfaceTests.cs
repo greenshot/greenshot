@@ -25,6 +25,8 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using Greenshot.Base.Core;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Document;
 using Greenshot.Document.Editor;
 using Greenshot.Document.Legacy;
@@ -173,7 +175,8 @@ namespace Greenshot.Tests.Document
             Assert.Equal(file, document.Resources[image.Resource].Data);
 
             using var packageStream = new MemoryStream();
-            GreenshotPackage.Write(document, packageStream);
+            var registry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>();
+            GreenshotPackage.Write(document, packageStream, media => registry.GetByMimeType(media)?.PreferredExtension);
             packageStream.Position = 0;
             using var mappedSurface = DocumentToSurface.ToSurface(GreenshotPackage.Read(packageStream));
             Assert.IsType<ImageContainer>(Assert.Single(mappedSurface.Elements));

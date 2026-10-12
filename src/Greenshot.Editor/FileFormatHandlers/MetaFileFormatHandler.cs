@@ -24,6 +24,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Plugin;
@@ -43,6 +44,12 @@ namespace Greenshot.Editor.FileFormatHandlers
             SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = _ourExtensions;
             SupportedExtensions[FileFormatHandlerActions.LoadFromStream] = _ourExtensions;
             SupportedExtensions[FileFormatHandlerActions.LoadFromFile] = _ourExtensions;
+        }
+
+        public override void RegisterFileFormats(IFileFormatRegistry registry)
+        {
+            RegisterFileFormat(registry, "emf", [".emf"], [], "emf", "image/emf", ["image/x-emf"], "Enhanced Metafile");
+            RegisterFileFormat(registry, "wmf", [".wmf"], [], "wmf", "image/wmf", ["image/x-wmf"], "Windows Metafile");
         }
 
         /// <inheritdoc />

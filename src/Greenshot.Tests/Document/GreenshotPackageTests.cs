@@ -46,7 +46,7 @@ namespace Greenshot.Tests.Document
             var red = new Rgba(255, 0, 0, 255);
             var image = new Resource(Guid.NewGuid(), "image/png", new byte[] { 0x89, 0x50, 0x4E, 0x47, 1, 2, 3 });
             var svg = new Resource(Guid.NewGuid(), "image/svg+xml", Encoding.UTF8.GetBytes("<svg/>"));
-            var mask = new Resource(Guid.NewGuid(), "application/octet-stream", new byte[] { 0, 255 });
+            var mask = new Resource(Guid.NewGuid(), "image/bmp", new byte[] { (byte)'B', (byte)'M', 0, 255 });
             var style = new ElementStyle(new Stroke(red, 2.5), new Fill(new Rgba(1, 2, 3, 128)), Shadow.Default,
                 new TextStyle(new FontSpec("Segoe UI", 12.5, true, true), red, TextAlignment.Near, TextAlignment.Far));
             var area = new RectD(10.5, 20, 30, 40);
@@ -79,10 +79,27 @@ namespace Greenshot.Tests.Document
                 new Dictionary<Guid, Resource> { [image.Id] = image, [svg.Id] = svg, [mask.Id] = mask });
         }
 
+        /// <summary>
+        /// Like the file format registry: the extension of a supported media type, otherwise null
+        /// </summary>
+        private static string ExtensionFor(string mediaType) => mediaType switch
+        {
+            "image/png" => "png",
+            "image/jpeg" => "jpg",
+            "image/gif" => "gif",
+            "image/bmp" => "bmp",
+            "image/tiff" => "tiff",
+            "image/svg+xml" => "svg",
+            "image/x-icon" => "ico",
+            "image/emf" => "emf",
+            "image/wmf" => "wmf",
+            _ => null
+        };
+
         private static GreenshotDocument RoundTrip(GreenshotDocument document)
         {
             using var stream = new MemoryStream();
-            GreenshotPackage.Write(document, stream);
+            GreenshotPackage.Write(document, stream, ExtensionFor);
             stream.Position = 0;
             return GreenshotPackage.Read(stream);
         }
@@ -146,7 +163,7 @@ namespace Greenshot.Tests.Document
         public void Write_PutsTheMimetypeFirstAndUsesShortNames()
         {
             using var stream = new MemoryStream();
-            GreenshotPackage.Write(AllElements(), stream);
+            GreenshotPackage.Write(AllElements(), stream, ExtensionFor);
             stream.Position = 0;
 
             using var zip = new ZipArchive(stream, ZipArchiveMode.Read);
@@ -158,6 +175,37 @@ namespace Greenshot.Tests.Document
             Assert.DoesNotContain("Greenshot.Document", json);
             Assert.DoesNotContain("bounds", json);
             Assert.Equal(3, zip.Entries.Count(entry => entry.FullName.StartsWith("resources/")));
+        }
+
+        [Fact]
+        public void Write_LeavesOutResourcesNoElementLinksTo()
+        {
+            var document = AllElements();
+            var unused = new Resource(Guid.NewGuid(), "image/png", new byte[] { 1 });
+            var resources = document.Resources.Values.Append(unused).ToDictionary(resource => resource.Id);
+
+            var written = RoundTrip(document with { Resources = resources });
+
+            Assert.False(written.Resources.ContainsKey(unused.Id));
+            Assert.Equal(document.Resources.Count, written.Resources.Count);
+        }
+
+        [Fact]
+        public void Write_RefusesALinkToAMissingResource()
+        {
+            var document = AllElements();
+            var layers = document.Layers.Select(layer => layer with { Elements = layer.Elements.Append(new ImageElement(Guid.NewGuid(), new RectD(0, 0, 1, 1), Guid.NewGuid())).ToList() }).ToList();
+
+            Assert.Throws<InvalidDataException>(() => RoundTrip(document with { Layers = layers }));
+        }
+
+        [Fact]
+        public void Write_RefusesAnUnsupportedMediaType()
+        {
+            var document = AllElements();
+            var resources = document.Resources.Values.Select(resource => resource.MediaType == "image/bmp" ? resource with { MediaType = "application/octet-stream" } : resource).ToDictionary(resource => resource.Id);
+
+            Assert.Throws<InvalidDataException>(() => RoundTrip(document with { Resources = resources }));
         }
 
         [Fact]

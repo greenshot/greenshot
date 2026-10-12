@@ -169,6 +169,10 @@ flowchart LR
   refused. The element type is written as a short name (`"type": "arrow"`), never as a CLR type name. Enums are
   camelCase names, colors `#RRGGBBAA`, derived values (bounds) aren't written. The resource table maps each resource
   id to its path and media type, the bytes are in `resources/{id}.{ext}`.
+- Writing is the gate for resources: only resources an element links to are written, a link to a missing resource
+  or a media type the file format registry doesn't know (it gives the `{ext}`) is refused. A resource can be linked
+  more than once; an action which changes an image (e.g. crop) either keeps the original and stores the operation,
+  or adds a new resource in a format the registry supports.
 - Readers ignore properties they don't know.
 - Readers have limits: number of entries (10,000) and size per entry (256 MB).
 - Open: keeping elements of unknown types (they fail the read today), and the optional parts.

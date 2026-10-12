@@ -98,19 +98,43 @@ namespace Greenshot.Document
             }
         }
 
-        public static void Write(GreenshotDocument document, Stream stream)
+        /// <summary>
+        /// Writes the document with the resources its elements link to, other resources are left out.
+        /// A link to a missing resource, or a resource without a file extension, is refused.
+        /// </summary>
+        /// <param name="document">GreenshotDocument</param>
+        /// <param name="stream">Stream to write the zip to</param>
+        /// <param name="extensionFor">The file extension of a media type (e.g. from the file format registry), null when the media type isn't supported</param>
+        public static void Write(GreenshotDocument document, Stream stream, Func<string, string> extensionFor)
         {
-            var entries = document.Resources.Values.ToDictionary(resource => resource.Id, resource => new ResourceEntry($"resources/{resource.Id:D}{Extension(resource.MediaType)}", resource.MediaType));
+            var linked = document.Layers.SelectMany(layer => layer.Elements).SelectMany(Links).Distinct()
+                .Select(id => document.Resources.TryGetValue(id, out var resource) ? resource : throw new InvalidDataException($"An element links to the missing resource {id}"))
+                .ToList();
+            var entries = linked.ToDictionary(resource => resource.Id, resource => new ResourceEntry($"resources/{resource.Id:D}.{Extension(resource, extensionFor)}", resource.MediaType));
             var json = new DocumentJson(Version, document.Id, document.Canvas, document.Layers, entries);
 
             using var zip = new ZipArchive(stream, ZipArchiveMode.Create, true);
             WriteEntry(zip, "mimetype", Encoding.ASCII.GetBytes(MediaType), CompressionLevel.NoCompression);
             WriteEntry(zip, "document.json", JsonSerializer.SerializeToUtf8Bytes(json, Options), CompressionLevel.Optimal);
-            foreach (var resource in document.Resources.Values)
+            foreach (var resource in linked)
             {
                 WriteEntry(zip, entries[resource.Id].Path, resource.Data, CompressionLevel.Optimal);
             }
         }
+
+        /// <summary>
+        /// The resources an element links to
+        /// </summary>
+        private static IEnumerable<Guid> Links(Element element) => element switch
+        {
+            ImageElement image => new[] { image.Resource },
+            CursorElement cursor => cursor.MaskResource.HasValue ? new[] { cursor.Resource, cursor.MaskResource.Value } : new[] { cursor.Resource },
+            UnknownElement { Fallback: { } fallback } => new[] { fallback },
+            _ => Array.Empty<Guid>()
+        };
+
+        private static string Extension(Resource resource, Func<string, string> extensionFor) =>
+            extensionFor(resource.MediaType)?.TrimStart('.') ?? throw new InvalidDataException($"The resource {resource.Id} has the unsupported media type {resource.MediaType}");
 
         /// <summary>
         /// Reads a package written by Write, throws an InvalidDataException (or JsonException) for anything else
@@ -137,24 +161,6 @@ namespace Greenshot.Document
             var resources = json.Resources.ToDictionary(pair => pair.Key, pair => new Resource(pair.Key, pair.Value.MediaType, ReadEntry(zip, pair.Value.Path)));
             return new GreenshotDocument(json.Id, json.Canvas, json.Layers, resources);
         }
-
-        private static string Extension(string mediaType) => mediaType switch
-        {
-            "image/png" => ".png",
-            "image/jpeg" => ".jpg",
-            "image/gif" => ".gif",
-            "image/bmp" => ".bmp",
-            "image/tiff" => ".tiff",
-            "image/webp" => ".webp",
-            "image/vnd.ms-photo" => ".jxr",
-            "image/x-tga" => ".tga",
-            "image/x-portable-bitmap" => ".pbm",
-            "image/svg+xml" => ".svg",
-            "image/x-icon" or "image/vnd.microsoft.icon" => ".ico",
-            "image/emf" => ".emf",
-            "image/wmf" => ".wmf",
-            _ => ".bin"
-        };
 
         private static void WriteEntry(ZipArchive zip, string path, byte[] data, CompressionLevel compressionLevel)
         {
