@@ -434,7 +434,10 @@ resource, which has no results until it is analysed again.
 - **Barcodes** keep their four corner points, so a tilted code is described exactly; the bounds follow from them.
 - **Areas** (optional, a setting) are the windows and UI elements under the capture, read at capture time with their
   bounds, title or name, role and z-order; `parent` builds the tree. Unlike OCR and barcodes they can't be found again
-  later, so they are only there when stored at capture time. They let the editor snap to them and recipes point at them.
+  later, so they are only there when stored at capture time, converted from screen coordinates to the image's pixels.
+  Off by default (titles and names can be private), limited to visible elements and a depth like the area snapping of
+  the window capture tool, which reads them already. An element can also keep its `automationId`. They let the editor
+  snap to them, recipes point at them (`{ "role": "button", "name": "Save" }`) and a redaction cover a whole element.
 - **Uses**: reopening restores hotspots and tooltips without scanning again; recipes can test the text or anchor to a
   word or an area; a capture history can search the text; a PDF export can write the text as a searchable layer.
 - Only the image itself is analysed, not the rendered result: text elements are in the document already. A barcode
