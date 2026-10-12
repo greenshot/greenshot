@@ -25,9 +25,11 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
+using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Emoji;
 using Greenshot.Editor.Drawing.Fields;
@@ -50,11 +52,12 @@ namespace Greenshot.Document.Editor
             var kept = KeptElements.DocumentOf(surface);
             // While the editor has the image it got for a canvas which isn't just the capture, the capture layers and the canvas come back as they were
             bool standIn = kept.StandIn != null && ReferenceEquals(image, kept.StandIn);
+            var captureResource = standIn ? Guid.Empty : AddImage(resources, image);
             var captureLayers = standIn
                 ? kept.CaptureLayers.ToList()
                 : new List<Layer>
                 {
-                    new(kept.CaptureLayerId, "Capture", LayerKind.Capture, new List<Element> { new ImageElement(kept.CaptureId, new RectD(0, 0, image.Width, image.Height), AddImage(resources, image)) })
+                    new(kept.CaptureLayerId, "Capture", LayerKind.Capture, new List<Element> { new ImageElement(kept.CaptureId, new RectD(0, 0, image.Width, image.Height), captureResource) })
                     {
                         Locked = true
                     }
@@ -90,9 +93,16 @@ namespace Greenshot.Document.Editor
                 });
             }
 
+            var analysis = kept.Analysis.Where(pair => resources.ContainsKey(pair.Key)).ToDictionary(pair => pair.Key, pair => pair.Value);
+            if (!standIn && AnalysisOf(surface, kept) is { } captureAnalysis)
+            {
+                analysis[captureResource] = captureAnalysis;
+            }
+
             return new GreenshotDocument(surface.ID, standIn ? kept.Canvas : new Canvas(), captureLayers.Append(annotationsLayer).ToList(), resources)
             {
                 Groups = groups,
+                Analysis = analysis,
                 Extensions = kept.Extensions
             };
         }
@@ -294,6 +304,41 @@ namespace Greenshot.Document.Editor
             }
             return AddImage(resources, bitmap);
         }
+
+        /// <summary>
+        /// The OCR text and barcodes the editor has for its image, null when there are none
+        /// </summary>
+        private static ImageAnalysis AnalysisOf(ISurface surface, KeptElements.KeptDocument kept)
+        {
+            if (surface.CaptureDetails == null)
+            {
+                return kept.CaptureAnalysis;
+            }
+
+            List<IDetectedFeature> features;
+            lock (surface.CaptureDetails.Features)
+            {
+                features = surface.CaptureDetails.Features.Where(feature => feature is IOcrLineFeature or IBarcodeFeature).ToList();
+            }
+
+            if (kept.CaptureAnalysis != null && features.SequenceEqual(kept.RestoredFeatures))
+            {
+                return kept.CaptureAnalysis;
+            }
+
+            var lines = features.OfType<IOcrLineFeature>()
+                .Select(line => new OcrLine(line.Text, ToRectD(line.Bounds), line.Words.Select(word => new OcrWord(word.Text, ToRectD(word.Bounds))).ToList())).ToList();
+            var barcodes = features.OfType<IBarcodeFeature>()
+                .Select(barcode => new BarcodeResult(barcode.Format, barcode.RawText, BarcodeResult.Corners(ToRectD(barcode.Bounds)))).ToList();
+            var analysis = (kept.CaptureAnalysis ?? new ImageAnalysis()) with
+            {
+                Ocr = lines.Count == 0 ? null : new OcrResult(lines),
+                Barcodes = barcodes.Count == 0 ? null : barcodes
+            };
+            return analysis.IsEmpty ? null : analysis;
+        }
+
+        private static RectD ToRectD(NativeRect rect) => new(rect.X, rect.Y, rect.Width, rect.Height);
 
         private static Guid AddImage(IDictionary<Guid, Resource> resources, Image image)
         {

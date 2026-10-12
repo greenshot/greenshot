@@ -393,11 +393,14 @@ information is the editor's `CaptureDetails` (title, time, file name, capture mo
   resource later.
 - Legacy files have no metadata, their package has no `metadata.json`.
 
-### Analysis (decided, not built)
+### Analysis
 
 What was found in an image: OCR text, barcodes and, optionally, the windows and UI areas on the screen at capture time.
-Today these are `CaptureDetails.Features` (`IDetectedFeature`: OCR lines with words, barcodes, windows), kept only in
-memory: they are lost on save and OCR runs again every time.
+Built: `GreenshotDocument.Analysis` (`ImageAnalysis` per resource id with `OcrResult`, `BarcodeResult`, `AreaResult`),
+written and read as `analysis.json` by `GreenshotPackage`, and carried through today's editor for OCR and barcodes. Not
+built yet: collecting the areas at capture time, and leaving the file out when saving without metadata.
+In the editor these are `CaptureDetails.Features` (`IDetectedFeature`: OCR lines with words, barcodes, windows), kept
+only in memory.
 
 They describe the pixels of one image, so they are an optional `analysis.json` in the package next to `document.json`,
 keyed by resource id, with coordinates in that image's own pixels. A resource never changes, so the results can't go
@@ -446,6 +449,11 @@ resource, which has no results until it is analysed again.
 - **Privacy**: OCR text, titles and names are easier to search and leak than pixels, so saving or sharing without
   metadata also leaves out `analysis.json`.
 - A plugin's own results go into the `extensions` of the resource entry, keyed by its id.
+- **Today's editor**: when the capture is the editor's image, its OCR lines and barcodes become features (hotspots and
+  tooltips without scanning again). While the editor still has exactly those features, the analysis comes back as it
+  was; after a new OCR run it is made from the features, which have no engine or language, and a barcode's corners come
+  from its bounds. With a canvas other than the capture (the stand-in image) the analysis is kept unchanged and not
+  shown. The editor doesn't move features when its image is cropped, as before.
 
 ### Design proposals (not decided)
 
@@ -615,7 +623,7 @@ instead of failing the whole file.
 ### New .greenshot package
 
 A zip file, read and written by `GreenshotPackage`. The full spec is in the project plan (`greenshot-document-format.md`);
-`mimetype`, `document.json` and `resources/` are built; `metadata.json` and `analysis.json` are decided,
+`mimetype`, `document.json`, `resources/` and `analysis.json` are built; `metadata.json` is decided,
 `thumbnail.png` and `extensions/` designed, none of those built yet. Optional parts are left out when they are empty or
 switched off; readers ignore parts they don't know.
 
@@ -625,7 +633,7 @@ flowchart LR
     Zip --> Mimetype["mimetype<br/>application/vnd.greenshot.document+zip<br/>first entry, stored"]
     Zip --> DocumentJson["document.json<br/>canvas, layers, elements, resource table"]
     Zip --> Metadata["metadata.json (optional, not built)<br/>title, dates, source, session"]
-    Zip --> Analysis["analysis.json (optional, not built)<br/>per resource: OCR, barcodes, windows and UI areas"]
+    Zip --> Analysis["analysis.json (optional)<br/>per resource: OCR, barcodes, windows and UI areas"]
     Zip --> Thumbnail["thumbnail.png (not built)<br/>small flattened preview"]
     Zip --> Resources["resources/{uuid}.{ext}<br/>original bytes: capture, images, cursor, svg"]
     Zip --> Extensions["extensions/{plugin-id}.json (optional, not built)<br/>kept on re-save, even without the plugin"]
@@ -657,7 +665,9 @@ flowchart LR
   written back unchanged.
 - Readers have limits: number of entries (10,000) and size per entry (256 MB).
 - `metadata.json` (see "Metadata") and `analysis.json` (see "Analysis") are about the document and its images, never
-  needed for drawing. Saving or sharing without metadata leaves out both. Decided, not built yet.
+  needed for drawing. Saving or sharing without metadata leaves out both. `analysis.json` is built, `metadata.json` not
+  yet. Like the resources, the analysis of a resource which isn't written is left out; kinds of results a reader
+  doesn't know are written back unchanged.
 - Open: `thumbnail.png` and the `extensions/` files.
 
 ## Conversions

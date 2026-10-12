@@ -25,6 +25,7 @@ using System.Drawing;
 using System.Runtime.CompilerServices;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
+using Greenshot.Base.Interfaces.Plugin;
 
 namespace Greenshot.Document.Editor
 {
@@ -60,6 +61,16 @@ namespace Greenshot.Document.Editor
             public IReadOnlyList<Group> Groups { get; set; } = Array.Empty<Group>();
 
             public RawJson Extensions { get; set; }
+
+            public IReadOnlyDictionary<Guid, ImageAnalysis> Analysis { get; set; } = new Dictionary<Guid, ImageAnalysis>();
+
+            /// <summary>
+            /// The analysis of the capture and the features the editor got from it: while the editor still has exactly
+            /// these features, the analysis comes back unchanged (with engine, language and corner points)
+            /// </summary>
+            public ImageAnalysis CaptureAnalysis { get; set; }
+
+            public List<IDetectedFeature> RestoredFeatures { get; } = new();
 
             /// <summary>
             /// The image the editor got when the capture doesn't simply fill the canvas: the capture layers drawn onto the

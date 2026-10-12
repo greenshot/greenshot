@@ -40,6 +40,8 @@ namespace Greenshot.Document
     {
         public const string MediaType = "application/vnd.greenshot.document+zip";
 
+        private const string AnalysisEntry = "analysis.json";
+
         /// <summary>
         /// The version of document.json this code writes, newer versions are refused.
         /// </summary>
@@ -88,6 +90,13 @@ namespace Greenshot.Document
             {
                 WriteEntry(zip, entries[resource.Id].Path, resource.Data, CompressionLevel.Optimal);
             }
+
+            // Like the resources: only the analysis of written resources
+            var analysis = document.Analysis.Where(pair => entries.ContainsKey(pair.Key) && pair.Value != null && !pair.Value.IsEmpty).ToDictionary(pair => pair.Key, pair => pair.Value);
+            if (analysis.Count > 0)
+            {
+                WriteEntry(zip, AnalysisEntry, JsonSerializer.SerializeToUtf8Bytes(analysis, Options), CompressionLevel.Optimal);
+            }
         }
 
         /// <summary>
@@ -123,8 +132,13 @@ namespace Greenshot.Document
 
             var resources = json.Resources.ToDictionary(pair => pair.Key,
                 pair => WithSize(new Resource(pair.Key, pair.Value.MediaType, ReadEntry(zip, pair.Value.Path)) { Width = pair.Value.Width, Height = pair.Value.Height, Extensions = pair.Value.Extensions }));
+            var analysis = zip.GetEntry(AnalysisEntry) == null
+                ? new Dictionary<Guid, ImageAnalysis>()
+                : (JsonSerializer.Deserialize<Dictionary<Guid, ImageAnalysis>>(ReadEntry(zip, AnalysisEntry), Options) ?? new Dictionary<Guid, ImageAnalysis>())
+                    .Where(pair => resources.ContainsKey(pair.Key) && pair.Value != null).ToDictionary(pair => pair.Key, pair => pair.Value);
             return new GreenshotDocument(json.Id, json.Canvas, json.Layers, resources)
             {
+                Analysis = analysis,
                 Groups = (json.Groups ?? Array.Empty<Group>()).Select(group => group.Members == null ? group with { Members = Array.Empty<Guid?>() } : group).ToList(),
                 Extensions = json.Extensions
             };

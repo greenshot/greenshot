@@ -26,10 +26,12 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
+using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Document;
 using Greenshot.Document.Editor;
 using Greenshot.Document.Legacy;
@@ -385,6 +387,43 @@ namespace Greenshot.Tests.Document
             Assert.Equal(captureLayer.Elements, mappedBack.Layers[0].Elements);
             Assert.Equal(new RectD(10, 60, 80, 20), mappedBack.Layers[1].Elements.Single().Bounds);
             Assert.Equal(png.Data, mappedBack.Resources[png.Id].Data);
+        }
+
+        [Fact]
+        public void TheAnalysisOfTheCapture_IsShownAsFeatures_AndComesBack()
+        {
+            var document = WithElements(new Dictionary<Guid, Resource>());
+            var capture = (ImageElement)document.Layers[0].Elements[0];
+            var analysis = new ImageAnalysis
+            {
+                Ocr = new OcrResult(new[] { new OcrLine("Save", new RectD(10, 20, 40, 12), new[] { new OcrWord("Save", new RectD(10, 20, 40, 12)) }) })
+                {
+                    Engine = "Windows.Media.Ocr", Language = "en-US"
+                },
+                Barcodes = new[] { new BarcodeResult("QR_CODE", "https://getgreenshot.org", new[] { new PointD(100, 10), new PointD(150, 15), new PointD(145, 65), new PointD(95, 60) }) }
+            };
+            document = document with { Analysis = new Dictionary<Guid, ImageAnalysis> { [capture.Resource] = analysis } };
+
+            using var surface = DocumentToSurface.ToSurface(document);
+            var features = surface.CaptureDetails.Features;
+            Assert.Equal(("Save", new NativeRect(10, 20, 40, 12)), features.OfType<IOcrLineFeature>().Select(line => (line.Text, line.Bounds)).Single());
+            Assert.Equal("https://getgreenshot.org", features.OfType<IBarcodeFeature>().Single().RawText);
+
+            // Unchanged in the editor: the analysis comes back as it was, with engine and corner points
+            var unchanged = SurfaceToDocument.ToDocument(surface);
+            Assert.Same(analysis, unchanged.Analysis[((ImageElement)unchanged.Layers[0].Elements[0]).Resource]);
+
+            // OCR again in the editor: the new text, the barcode from its bounds
+            lock (features)
+            {
+                features.RemoveAll(feature => feature is IOcrLineFeature);
+                features.Add(new DetectedOcrLine(new NativeRect(1, 2, 3, 4), "Cancel", new List<OcrWordInfo>()));
+            }
+
+            var changed = SurfaceToDocument.ToDocument(surface).Analysis.Values.Single();
+            Assert.Equal("Cancel", changed.Ocr.Lines.Single().Text);
+            Assert.Null(changed.Ocr.Engine);
+            Assert.Equal(new RectD(95, 10, 55, 55), changed.Barcodes.Single().Bounds);
         }
 
         [Fact]

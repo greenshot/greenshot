@@ -283,6 +283,65 @@ namespace Greenshot.Tests.Document
         }
 
         [Fact]
+        public void RoundTrip_KeepsTheAnalysisOfAWrittenResource_AndUnknownKinds()
+        {
+            var png = new Resource(Guid.NewGuid(), "image/png", new byte[] { 0x89, 0x50, 0x4E, 0x47, 1, 2, 3 });
+            var unlinked = new Resource(Guid.NewGuid(), "image/png", new byte[] { 0x89, 0x50, 0x4E, 0x47, 4 });
+            var ocr = new OcrResult(new[] { new OcrLine("Save changes", new RectD(12, 40, 300, 18), new[] { new OcrWord("Save", new RectD(12, 40, 60, 18)) { Confidence = 0.97 } }) })
+            {
+                Engine = "Windows.Media.Ocr", Language = "en-US", TextAngle = 0
+            };
+            var barcode = new BarcodeResult("QR_CODE", "https://getgreenshot.org", BarcodeResult.Corners(new RectD(400, 80, 80, 80)));
+            var document = new GreenshotDocument(Guid.NewGuid(), new Canvas(), new List<Layer>
+            {
+                new(Guid.NewGuid(), "Capture", LayerKind.Capture, new List<Element> { new ImageElement(Guid.NewGuid(), new RectD(0, 0, 10, 10), png.Id) })
+            }, new Dictionary<Guid, Resource> { [png.Id] = png, [unlinked.Id] = unlinked })
+            {
+                Analysis = new Dictionary<Guid, ImageAnalysis>
+                {
+                    [png.Id] = new() { Ocr = ocr, Barcodes = new[] { barcode } },
+                    [unlinked.Id] = new() { Barcodes = new[] { barcode } }
+                }
+            };
+            using var stream = new MemoryStream();
+            GreenshotPackage.Write(document, stream, ExtensionFor);
+
+            // A newer Greenshot adds a kind this version doesn't know
+            stream.Position = 0;
+            using (var zip = new ZipArchive(stream, ZipArchiveMode.Update, true))
+            {
+                var entry = zip.GetEntry("analysis.json");
+                string json;
+                using (var reader = new StreamReader(entry.Open()))
+                {
+                    json = reader.ReadToEnd();
+                }
+
+                entry.Delete();
+                using var writer = new StreamWriter(zip.CreateEntry("analysis.json").Open());
+                writer.Write(json.Replace("\"barcodes\"", "\"faces\": [ { \"x\": 1 } ], \"barcodes\""));
+            }
+
+            stream.Position = 0;
+            var read = GreenshotPackage.Read(stream);
+            Assert.False(read.Analysis.ContainsKey(unlinked.Id));
+            var analysis = read.Analysis[png.Id];
+            Assert.Equal("Windows.Media.Ocr", analysis.Ocr.Engine);
+            Assert.Equal("en-US", analysis.Ocr.Language);
+            Assert.Equal(new RectD(12, 40, 300, 18), analysis.Ocr.Lines[0].Bounds);
+            Assert.Equal(0.97, analysis.Ocr.Lines[0].Words[0].Confidence);
+            Assert.Null(analysis.Ocr.Lines[0].Confidence);
+            Assert.Equal(barcode.Points, analysis.Barcodes[0].Points);
+            Assert.Equal(new RectD(400, 80, 80, 80), analysis.Barcodes[0].Bounds);
+            Assert.Equal(1, analysis.Unknown["faces"][0].GetProperty("x").GetInt32());
+
+            using var again = new MemoryStream();
+            GreenshotPackage.Write(read, again, ExtensionFor);
+            again.Position = 0;
+            Assert.True(GreenshotPackage.Read(again).Analysis[png.Id].Unknown.ContainsKey("faces"));
+        }
+
+        [Fact]
         public void Read_KeepsAnElementOfAnUnknownType()
         {
             var document = AllElements();

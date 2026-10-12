@@ -99,6 +99,11 @@ namespace Greenshot.Document
         public IReadOnlyList<Group> Groups { get; init; } = Array.Empty<Group>();
 
         /// <summary>
+        /// What was found in the resources (OCR, barcodes, areas), keyed by resource id
+        /// </summary>
+        public IReadOnlyDictionary<Guid, ImageAnalysis> Analysis { get; init; } = new Dictionary<Guid, ImageAnalysis>();
+
+        /// <summary>
         /// Values of plugins (keyed by plugin id), written back unchanged
         /// </summary>
         public RawJson Extensions { get; init; }

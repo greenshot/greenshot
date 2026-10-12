@@ -32,6 +32,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
+using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Emoji;
 using Greenshot.Editor.Drawing.Fields;
@@ -86,6 +87,17 @@ namespace Greenshot.Document.Editor
             kept.AnnotationsLayerId = document.Layers.FirstOrDefault(layer => layer.Kind != LayerKind.Capture)?.Id ?? kept.AnnotationsLayerId;
             kept.Groups = document.Groups;
             kept.Extensions = document.Extensions;
+            kept.Analysis = document.Analysis;
+            // The editor shows the OCR text and barcodes of its image as features, they are in the pixels of the capture
+            if (!standIn && capture != null && document.Analysis.TryGetValue(capture.Resource, out var analysis))
+            {
+                kept.CaptureAnalysis = analysis;
+                kept.RestoredFeatures.AddRange(ToFeatures(analysis));
+                lock (surface.CaptureDetails.Features)
+                {
+                    surface.CaptureDetails.Features.AddRange(kept.RestoredFeatures);
+                }
+            }
             if (standIn)
             {
                 kept.StandIn = surface.Image;
@@ -328,6 +340,41 @@ namespace Greenshot.Document.Editor
                 SetField(container, FieldType.TEXT_HORIZONTAL_ALIGNMENT, (StringAlignment)(int)(text.Horizontal ?? TextAlignment.Center));
                 SetField(container, FieldType.TEXT_VERTICAL_ALIGNMENT, (StringAlignment)(int)(text.Vertical ?? TextAlignment.Center));
             }
+        }
+
+        internal static IEnumerable<IDetectedFeature> ToFeatures(ImageAnalysis analysis) =>
+            (analysis.Ocr?.Lines ?? Array.Empty<OcrLine>())
+            .Select(line => (IDetectedFeature)new DetectedOcrLine(ToNativeRect(line.Bounds), line.Text,
+                (line.Words ?? Array.Empty<OcrWord>()).Select(word => new OcrWordInfo { Bounds = ToNativeRect(word.Bounds), Text = word.Text }).ToList()))
+            .Concat((analysis.Barcodes ?? Array.Empty<BarcodeResult>()).Select(barcode => new KeptBarcode(ToNativeRect(barcode.Bounds), barcode.Format, barcode.Text)));
+
+        private static NativeRect ToNativeRect(RectD rect) => new(Round(rect.X), Round(rect.Y), Round(rect.Width), Round(rect.Height));
+
+        /// <summary>
+        /// A barcode of the analysis, as the barcode plugin shows it
+        /// </summary>
+        private sealed class KeptBarcode : IBarcodeFeature
+        {
+            public KeptBarcode(NativeRect bounds, string format, string rawText)
+            {
+                Bounds = bounds;
+                Format = format;
+                RawText = rawText;
+            }
+
+            public NativeRect Bounds { get; private set; }
+
+            public string FeatureType => "Barcode";
+
+            public string Text => RawText;
+
+            public string ToolTipText => RawText;
+
+            public string Format { get; }
+
+            public string RawText { get; }
+
+            public void Offset(int x, int y) => Bounds = new NativeRect(Bounds.X + x, Bounds.Y + y, Bounds.Width, Bounds.Height);
         }
 
         /// <summary>
