@@ -330,37 +330,68 @@ back unchanged.
 
 ### Metadata (proposal, not built)
 
-Metadata says how a capture came about (when, which window, which screen); it never changes how anything is drawn. So
-it is an optional `metadata.json` in the package, not part of `document.json`: saving or sharing without metadata leaves
-the file out, and tools can read it without knowing the model. Today it is the editor's `CaptureDetails` (title, time,
-file name, capture mode, DPI and a key/value list).
-
-It belongs to a capture, so `metadata.json` is keyed by resource id (a document can hold several captures), with a
-small section about the whole file. This is the content of `metadata.json`, not of `document.json`:
+Metadata describes the document and where its picture came from; it never changes how anything is drawn. It is an
+optional `metadata.json` in the package next to `document.json`, written when the setting to store capture information is
+on (useful most of all with a central capture store). Saving or sharing without metadata leaves the file out. Today the
+information is the editor's `CaptureDetails` (title, time, file name, capture mode, DPI and a key/value list).
 
 ```json
 {
-  "document": { "created": "2026-10-12T16:20:00Z", "application": "Greenshot 2.0.1", "recipe": "region-blue-border" },
-  "resources": {
-    "01a130e9-ef80-783b-a89b-b2d54bafa78f": {
-      "capturedAt": "2026-10-12T16:20:00+02:00",
-      "mode": "window",
-      "window": { "title": "Settings", "process": "notepad.exe" },
-      "url": "https://…",
-      "screen": { "bounds": { "x": 0, "y": 0, "width": 1920, "height": 1080 }, "dpi": 144 },
-      "source": { "file": "C:\\…\\input.png" }
-    }
-  }
+  "title": "Checkout dialog",
+  "description": "",
+  "tags": ["bug-report"],
+  "created": "2026-10-12T16:20:00+02:00",
+  "modified": "2026-10-12T16:25:00+02:00",
+  "generator": "Greenshot 2.0.1",
+  "revision": 3,
+  "source": {
+    "type": "capture",
+    "mode": "window",
+    "date": "2026-10-12T16:20:00+02:00",
+    "window": {
+      "title": "Checkout",
+      "bounds": { "x": 0, "y": 0, "width": 1280, "height": 800 },
+      "application": { "name": "Notepad", "publisher": "Microsoft Corporation", "version": "11.2408.12.0", "id": "notepad.exe" }
+    },
+    "screens": [ { "name": "DISPLAY1", "bounds": { "x": 0, "y": 0, "width": 1920, "height": 1080 }, "dpi": 144 } ],
+    "recipe": "region-blue-border"
+  },
+  "session": {
+    "id": "01a13a2c-…",
+    "name": "PROD-1042 Checkout times out",
+    "workItem": { "provider": "jira", "key": "PROD-1042", "title": "Checkout times out", "url": "https://jira.example.com/browse/PROD-1042" }
+  },
+  "extensions": { }
 }
 ```
 
-- The document id (UUID v7) carries when the document was made; `capturedAt` can differ (an older file opened later).
-- Analysis results (`ocr.json`, `barcodes.json`) are keyed by resource id the same way; a result for one element (the text
-  under a highlight) is an element extension.
+- **Top level** is about the document, with the names most formats share (Dublin Core, as in OpenDocument `meta.xml`,
+  Office `core.xml`, EPUB, XMP): `title` (what `${title}` uses), `description`, `tags`, `created`, `modified`,
+  `generator`, `revision`. `modified` and `revision` change on every save. The user name (`creator`) is left out unless
+  the user sets it. The same names map to PNG text chunks and XMP when an export writes metadata (off by default).
+- **`source`** is how the picture came about. `type` says from where, `mode` how; only the fields that apply are written.
+  Its `date` is when the picture was taken (like EXIF `DateTimeOriginal`), which differs from `created` for an opened
+  file.
+
+  | type | fields |
+  |---|---|
+  | `capture` | `mode` (`region`, `fullscreen`, `window`, or what a capture tool reports), `date`, `region` (desktop coordinates), `window`, `screens` (only those the capture touches), `recipe` |
+  | `browser` | `mode` (`visible`, `fullPage`, `element`, `selection`), `date`, `url`, `title`, `browser` (name, version), `viewport` (width, height, device pixel ratio) |
+  | `file` | `name`, `date` (the file's date) |
+  | `clipboard` | `date`, `format` |
+
+  A capture tool's own details go into `extensions` keyed by its id, so the format needs no fields for one tool.
+- **Privacy**: an application is stored by `name`, `publisher` and `version` from the executable's version info and an
+  `id` (the AppUserModelID of a packaged app, otherwise the executable name), not by its path; a full path only on
+  request, with the profile folder as `%USERPROFILE%`. A URL is stored without its query string unless asked.
+- **`session`** is the work session the user picked when the capture was made (see the work sessions plan). The session
+  itself (start, end, options) lives in the capture history; the file keeps id, name and work item, so a file opened
+  elsewhere still knows where it belongs.
+- **Not in the file**: what happened to the file later (exports, favourite) belongs to the capture history; work items
+  detected in the picture are derived data, the history can find them again from `source`.
+- A document with a second captured image (two screenshots side by side) is rare; that image's source can go on its
+  resource later.
 - Legacy files have no metadata, their package has no `metadata.json`.
-- Writing metadata into an exported image (PNG text chunks, EXIF/XMP) is an option, off by default.
-- Capture information of a plugin or a recipe goes in the extensions of the resource or the document, so
-  `metadata.json` stays a small fixed set.
 
 ### Design proposals (not decided)
 
