@@ -157,7 +157,7 @@ namespace Greenshot.Document.Editor
                     CursorContainer cursor => new CursorElement(id, area, AddImage(resources, cursor.Cursor.ColorLayer))
                     {
                         MaskResource = cursor.Cursor.MaskLayer == null ? null : AddImage(resources, cursor.Cursor.MaskLayer),
-                        Hotspot = new PointD(cursor.Cursor.HotSpot.X, cursor.Cursor.HotSpot.Y)
+                        Hotspot = CursorElement.Fraction(cursor.Cursor.HotSpot.X, cursor.Cursor.HotSpot.Y, cursor.Cursor.Size.Width, cursor.Cursor.Size.Height)
                     },
                     CutMarkContainer cutMark => new CutMarkElement(id, area, cutMark.IsHorizontal, (CutStyle)Convert.ToInt32(cutMark.GetFieldValue(FieldType.CUT_MARK_STYLE)), cutMark.Seed)
                     {

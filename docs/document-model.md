@@ -153,7 +153,7 @@ Rules:
 | `ObfuscateContainer` | `ObfuscateElement` | `Mode` (pixelate, blur), `Size` (pixel size or blur radius) |
 | `ImageContainer`, `IconContainer`, `SvgContainer`, `MetafileContainer` | `ImageElement` | `Area`, `Resource`, `Rotation`. Metafiles keep the EMF/WMF file they were loaded from (`image/emf`, `image/wmf`); a metafile from an old .greenshot file is only a PNG there |
 | `EmojiContainer` | `EmojiElement` | `Area`, `Emoji`, `Rotation` |
-| `CursorContainer` | `CursorElement` | `Area`, `Resource` (color layer), `MaskResource`, `Hotspot` |
+| `CursorContainer` | `CursorElement` | `Area`, `Resource` (color layer), `MaskResource`, `Hotspot` (the tip as a fraction 0..1 of `Area`, so it stays right when the cursor is resized) |
 | `CutMarkContainer` | `CutMarkElement` | `Area`, `Horizontal`, `CutStyle`, `Seed`, `ToothHeight`, `ToothRange` |
 | `TornEdgeContainer` | `TornEdgeElement` | `Area`, `CutStyle`, `Seed`, `Edges`, `Margins`, `ToothHeight`, `ToothRange` |
 | containers of plugins (e.g. the barcode) | `PluginElement` | `Area`, `Kind`, `Version`, `Data` (JSON), `Resources`, `Fallback` (see below) |
@@ -319,12 +319,17 @@ elements follow the capture when the canvas grows (e.g. a border) or the capture
 - **Shape**: `anchor` on the element (its `Area`; all points of lines, arrows and freehand), `startAnchor` and
   `endAnchor` on lines and arrows, `tailAnchor` on a speech bubble. Each has `target` (an element id, missing = the
   capture image, the first image of the capture layer) and per axis `x`, `y`: a line on the target (`start`, `center`,
-  `end`), a line on the element itself (`self`, for points not used) and an `offset` in pixels. An axis without an entry
-  isn't anchored. A speech bubble is placed by its text box and its tail moves with it, unless the tail has its own anchor.
+  `end` of its `Bounds`, or `point`), a line on the element itself (`self`, for points not used) and an `offset` in
+  pixels. An axis without an entry isn't anchored, except that a point anchor (`startAnchor`, `endAnchor`, `tailAnchor`)
+  without any axis uses `point` on both. A speech bubble is placed by its text box and its tail moves with it, unless the tail has its own anchor.
   `{"anchor": {"x": {"target": "end", "self": "end", "offset": -10}}}`
   - Inside the target, 10 px from its right edge: x target `end`, self `end`, offset -10.
   - Outside, a caption below the target: y target `end`, self `start`, offset 8.
   - Centred on the target: target `center`, self `center`.
+  - An arrow pointing at the tip of the mouse cursor: `{"endAnchor": {"target": "<id of the cursor>"}}`.
+- **Anchor point**: `point` is the calculated `AnchorPoint` of the target (document, never stored): the tip of a cursor,
+  the end of a line or arrow, the tail of a speech bubble, otherwise the centre of `Bounds`. Each axis picks its own
+  line, so x can follow the tip of a cursor while y follows the bottom of its box.
 - **The position stays absolute**: the element keeps its normal position and size; the anchor is only the rule to apply
   again when the target moves or changes size. A reader which ignores anchors still draws everything in place.
 - **When**: anchors are applied again when the target's bounds change (moved, resized, cropped, canvas grown). They use

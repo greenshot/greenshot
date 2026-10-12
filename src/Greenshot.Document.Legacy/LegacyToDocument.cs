@@ -114,7 +114,7 @@ namespace Greenshot.Document.Legacy
                 LegacyCursorElement { ColorLayerData: not null } cursor => new CursorElement(id, area, AddResource(resources, cursor.ColorLayerData))
                 {
                     MaskResource = cursor.MaskLayerData == null ? null : AddResource(resources, cursor.MaskLayerData),
-                    Hotspot = new PointD(cursor.HotspotX, cursor.HotspotY)
+                    Hotspot = CursorElement.Fraction(cursor.HotspotX, cursor.HotspotY, cursor.CursorWidth, cursor.CursorHeight)
                 },
                 LegacyCutMarkElement cutMark => new CutMarkElement(id, area, cutMark.Horizontal, (CutStyle)Int(legacy, "CUT_MARK_STYLE", (int)CutStyle.Torn), cutMark.Seed)
                 {

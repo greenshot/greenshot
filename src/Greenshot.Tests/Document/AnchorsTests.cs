@@ -106,6 +106,27 @@ namespace Greenshot.Tests.Document
         }
 
         [Fact]
+        public void Apply_PointsAtTheTipOfACursor_AlsoAfterItWasResized()
+        {
+            // A 32 x 32 cursor image with its tip at 8, 4
+            var cursor = new CursorElement(Guid.NewGuid(), new RectD(200, 100, 32, 32), Guid.NewGuid()) { Hotspot = CursorElement.Fraction(8, 4, 32, 32) };
+            var arrow = new ArrowElement(Guid.NewGuid(), new PointD(0, 0), new PointD(1, 1)) { EndAnchor = new Anchor { Target = cursor.Id } };
+            // The label's top-left corner 4 px right of the tip, its top at the bottom of the cursor
+            var label = new TextElement(Guid.NewGuid(), new RectD(0, 0, 50, 20), "Click")
+            {
+                Anchor = new Anchor { Target = cursor.Id, X = new AxisAnchor(AnchorLine.Point, Offset: 4), Y = new AxisAnchor(AnchorLine.End) }
+            };
+
+            var document = WithCapture(new RectD(0, 0, 800, 600), cursor, arrow, label);
+            Assert.Equal(new PointD(208, 104), Placed<ArrowElement>(document, arrow.Id).End);
+            Assert.Equal(new RectD(212, 132, 50, 20), Placed<TextElement>(document, label.Id).Area);
+
+            var resized = WithCapture(new RectD(0, 0, 800, 600), cursor with { Area = new RectD(200, 100, 64, 64) }, arrow, label);
+            Assert.Equal(new PointD(216, 108), Placed<ArrowElement>(resized, arrow.Id).End);
+            Assert.Equal(new RectD(220, 164, 50, 20), Placed<TextElement>(resized, label.Id).Area);
+        }
+
+        [Fact]
         public void Apply_LeavesAPartWithAMissingTargetWhereItIs()
         {
             var box = new RectangleElement(Guid.NewGuid(), new RectD(5, 6, 7, 8)) { Anchor = new Anchor { Target = Guid.NewGuid(), X = new AxisAnchor(AnchorLine.End) } };

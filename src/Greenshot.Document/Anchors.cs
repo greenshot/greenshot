@@ -27,24 +27,28 @@ using System.Linq;
 namespace Greenshot.Document
 {
     /// <summary>
-    /// A line of an area along one axis: left, centre or right (top, centre or bottom)
+    /// A line of an area along one axis: left, centre or right (top, centre or bottom). Point is the AnchorPoint of the
+    /// target on that axis, e.g. the tip of a cursor.
     /// </summary>
     public enum AnchorLine
     {
         Start,
         Center,
-        End
+        End,
+        Point
     }
 
     /// <summary>
     /// One axis of an anchor: the line Self of the element lies Offset pixels from the line Target of the target.
-    /// For a point (the start or end of a line, the tail of a speech bubble) only Target and Offset count.
+    /// For a point (the start or end of a line, the tail of a speech bubble) only Target and Offset count. Self can't be
+    /// Point, it counts as Start.
     /// </summary>
     public sealed record AxisAnchor(AnchorLine Target, AnchorLine Self = AnchorLine.Start, double Offset = 0);
 
     /// <summary>
-    /// Keeps a part of an element at its place relative to the Bounds of the target element, the capture when Target is
-    /// missing. An axis without an AxisAnchor isn't anchored.
+    /// Keeps a part of an element at its place relative to the Bounds or AnchorPoint of the target element, the capture
+    /// when Target is missing. An axis without an AxisAnchor isn't anchored, but an anchor of a point without any axis
+    /// puts the point on the AnchorPoint of the target.
     /// </summary>
     public sealed record Anchor
     {
@@ -153,6 +157,13 @@ namespace Greenshot.Document
             _ => start
         };
 
+        private static double TargetLine(Element target, bool x, AnchorLine line) =>
+            line == AnchorLine.Point
+                ? x ? target.AnchorPoint.X : target.AnchorPoint.Y
+                : x ? Line(target.Bounds.X, target.Bounds.Width, line) : Line(target.Bounds.Y, target.Bounds.Height, line);
+
+        private static readonly AxisAnchor OnPoint = new(AnchorLine.Point);
+
         private sealed class Placer
         {
             private readonly Guid? _captureId;
@@ -179,11 +190,11 @@ namespace Greenshot.Document
                 }
 
                 placed = element;
-                if (TargetBounds(element.Anchor, element.Id) is RectD target)
+                if (Target(element.Anchor, element.Id) is Element target)
                 {
                     // A speech bubble is placed by its text box, the tail follows
                     var box = element is SpeechBubbleElement bubble ? bubble.Area : element.Bounds;
-                    placed = Move(element, Delta(element.Anchor.X, target.X, target.Width, box.X, box.Width), Delta(element.Anchor.Y, target.Y, target.Height, box.Y, box.Height));
+                    placed = Move(element, Delta(element.Anchor.X, target, true, box.X, box.Width), Delta(element.Anchor.Y, target, false, box.Y, box.Height));
                 }
 
                 placed = placed switch
@@ -199,17 +210,23 @@ namespace Greenshot.Document
                 return placed;
             }
 
-            private RectD? TargetBounds(Anchor anchor, Guid elementId) =>
-                anchor != null && TargetId(anchor, _captureId, elementId) is Guid id && _byId.TryGetValue(id, out var target) ? Place(target).Bounds : null;
+            private Element Target(Anchor anchor, Guid elementId) =>
+                anchor != null && TargetId(anchor, _captureId, elementId) is Guid id && _byId.TryGetValue(id, out var target) ? Place(target) : null;
 
-            private PointD PlacePoint(Anchor anchor, Guid elementId, PointD point) =>
-                TargetBounds(anchor, elementId) is RectD target
-                    ? new PointD(anchor.X == null ? point.X : Line(target.X, target.Width, anchor.X.Target) + anchor.X.Offset,
-                        anchor.Y == null ? point.Y : Line(target.Y, target.Height, anchor.Y.Target) + anchor.Y.Offset)
-                    : point;
+            private PointD PlacePoint(Anchor anchor, Guid elementId, PointD point)
+            {
+                if (Target(anchor, elementId) is not Element target)
+                {
+                    return point;
+                }
 
-            private static double Delta(AxisAnchor axis, double targetStart, double targetLength, double start, double length) =>
-                axis == null ? 0 : Line(targetStart, targetLength, axis.Target) + axis.Offset - Line(start, length, axis.Self);
+                var (x, y) = anchor.X == null && anchor.Y == null ? (OnPoint, OnPoint) : (anchor.X, anchor.Y);
+                return new PointD(x == null ? point.X : TargetLine(target, true, x.Target) + x.Offset,
+                    y == null ? point.Y : TargetLine(target, false, y.Target) + y.Offset);
+            }
+
+            private static double Delta(AxisAnchor axis, Element target, bool x, double start, double length) =>
+                axis == null ? 0 : TargetLine(target, x, axis.Target) + axis.Offset - Line(start, length, axis.Self);
         }
 
         /// <summary>

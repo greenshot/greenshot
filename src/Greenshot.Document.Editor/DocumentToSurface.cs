@@ -157,7 +157,7 @@ namespace Greenshot.Document.Editor
                         ColorLayer = LoadImage(document.Resources[cursor.Resource]),
                         MaskLayer = cursor.MaskResource.HasValue ? LoadImage(document.Resources[cursor.MaskResource.Value]) : null,
                         Size = new NativeSize(Round(cursor.Area.Width), Round(cursor.Area.Height)),
-                        HotSpot = new NativePoint(Round(cursor.Hotspot.X), Round(cursor.Hotspot.Y))
+                        HotSpot = new NativePoint(Round(cursor.Hotspot.X * cursor.Area.Width), Round(cursor.Hotspot.Y * cursor.Area.Height))
                     }
                 },
                 CutMarkElement cutMark => new CutMarkContainer(surface, cutMark.Horizontal, null),

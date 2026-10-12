@@ -51,6 +51,12 @@ namespace Greenshot.Document
         /// speech bubble includes its tail.
         /// </summary>
         public abstract RectD Bounds { get; }
+
+        /// <summary>
+        /// The point an anchor with the line Point refers to: the centre of Bounds, the end of a line or arrow, the tail
+        /// of a speech bubble, the tip of a cursor. Derived, never stored.
+        /// </summary>
+        public virtual PointD AnchorPoint => new(Bounds.X + Bounds.Width / 2, Bounds.Y + Bounds.Height / 2);
     }
 
     public sealed record RectangleElement(Guid Id, RectD Area) : Element(Id)
@@ -70,6 +76,8 @@ namespace Greenshot.Document
         public Anchor EndAnchor { get; init; }
 
         public override RectD Bounds => RectD.FromPoints(Start, End);
+
+        public override PointD AnchorPoint => End;
     }
 
     public enum ArrowHeads
@@ -87,6 +95,8 @@ namespace Greenshot.Document
         public Anchor EndAnchor { get; init; }
 
         public override RectD Bounds => RectD.FromPoints(Start, End);
+
+        public override PointD AnchorPoint => End;
     }
 
     public sealed record FreehandElement(Guid Id, IReadOnlyList<PointD> Points) : Element(Id)
@@ -113,6 +123,8 @@ namespace Greenshot.Document
         public Anchor TailAnchor { get; init; }
 
         public override RectD Bounds => RectD.Union(Area, new RectD(Tail.X, Tail.Y, 0, 0));
+
+        public override PointD AnchorPoint => Tail;
     }
 
     /// <summary>
@@ -192,9 +204,20 @@ namespace Greenshot.Document
     {
         public Guid? MaskResource { get; init; }
 
+        /// <summary>
+        /// The tip of the cursor as a fraction (0..1) of the width and height of Area, so it stays right when Area is resized
+        /// </summary>
         public PointD Hotspot { get; init; }
 
         public override RectD Bounds => Area;
+
+        public override PointD AnchorPoint => new(Area.X + Hotspot.X * Area.Width, Area.Y + Hotspot.Y * Area.Height);
+
+        /// <summary>
+        /// The Hotspot of a tip in the pixels of a cursor image of the given size
+        /// </summary>
+        public static PointD Fraction(double x, double y, double width, double height) =>
+            new(width > 0 ? x / width : 0, height > 0 ? y / height : 0);
     }
 
     public enum CutStyle
