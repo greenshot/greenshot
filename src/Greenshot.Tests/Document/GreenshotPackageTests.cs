@@ -122,7 +122,7 @@ namespace Greenshot.Tests.Document
                 new EmojiElement(Guid.NewGuid(), area, "👍") { Rotation = 45 },
                 new CursorElement(Guid.NewGuid(), area, image.Id) { MaskResource = mask.Id, Hotspot = new PointD(0.25, 0.5) },
                 new CutMarkElement(Guid.NewGuid(), area, true, CutStyle.ZigZag, 42) { ToothHeight = 5, ToothRange = 6 },
-                new TornEdgeElement(Guid.NewGuid(), area, CutStyle.Torn, 43) { Edges = Edges.Top | Edges.Left, Margins = new Margins(1, 2, 3, 4), ToothHeight = 5, ToothRange = 6 },
+                new FrameElement(Guid.NewGuid(), area, CutStyle.Torn, 43) { Edges = Edges.Top | Edges.Left, Margins = new Margins(1, 2, 3, 4), ToothHeight = 5, ToothRange = 6 },
                 new PluginElement(Guid.NewGuid(), area, "greenshot.barcode") { Version = 2, Data = "{\"text\":\"Greenshot\",\"size\":[1,2]}", Resources = new[] { svg.Id }, Fallback = image.Id }
             };
             var layers = new List<Layer>

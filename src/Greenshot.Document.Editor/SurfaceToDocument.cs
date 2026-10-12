@@ -242,7 +242,7 @@ namespace Greenshot.Document.Editor
                         ToothHeight = cutMark.ToothHeight,
                         ToothRange = cutMark.ToothRange
                     },
-                    TornEdgeContainer tornEdge => new TornEdgeElement(id, area, (CutStyle)(int)tornEdge.Style, tornEdge.Seed)
+                    TornEdgeContainer tornEdge => new FrameElement(id, area, (CutStyle)(int)tornEdge.Style, tornEdge.Seed)
                     {
                         Edges = ToEdges(tornEdge.Edges),
                         Margins = new Margins(tornEdge.Margins[0], tornEdge.Margins[1], tornEdge.Margins[2], tornEdge.Margins[3]),

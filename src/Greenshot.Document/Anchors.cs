@@ -281,7 +281,7 @@ namespace Greenshot.Document
                 EmojiElement e => e with { Area = e.Area.Offset(dx, dy) },
                 CursorElement e => e with { Area = e.Area.Offset(dx, dy) },
                 CutMarkElement e => e with { Area = e.Area.Offset(dx, dy) },
-                TornEdgeElement e => e with { Area = e.Area.Offset(dx, dy) },
+                FrameElement e => e with { Area = e.Area.Offset(dx, dy) },
                 PluginElement e => e with { Area = e.Area.Offset(dx, dy) },
                 _ => element
             };

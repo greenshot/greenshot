@@ -228,7 +228,7 @@ namespace Greenshot.Document
                 ["emoji"] = typeof(EmojiElement),
                 ["cursor"] = typeof(CursorElement),
                 ["cutMark"] = typeof(CutMarkElement),
-                ["tornEdge"] = typeof(TornEdgeElement),
+                ["frame"] = typeof(FrameElement),
                 ["plugin"] = typeof(PluginElement)
             };
 

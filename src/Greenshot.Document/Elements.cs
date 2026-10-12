@@ -290,10 +290,11 @@ namespace Greenshot.Document
     public readonly record struct Margins(int Top, int Right, int Bottom, int Left);
 
     /// <summary>
-    /// Torn (or otherwise cut) edges of the capture in Area, Margins is the room outside of the edges for the shadow.
-    /// The shape of the edges is generated from Seed, so it stays the same.
+    /// The frame of the capture in Area: the shape of its edges (straight, zig-zag, wave, torn), with a line and a
+    /// shadow from the style. Margins is the room outside of the edges for the shadow. The shape of the edges is
+    /// generated from Seed, so it stays the same.
     /// </summary>
-    public sealed record TornEdgeElement(Guid Id, RectD Area, CutStyle CutStyle, int Seed) : Element(Id)
+    public sealed record FrameElement(Guid Id, RectD Area, CutStyle CutStyle, int Seed) : Element(Id)
     {
         public Edges Edges { get; init; } = Edges.All;
 

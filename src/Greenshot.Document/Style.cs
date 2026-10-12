@@ -239,7 +239,7 @@ namespace Greenshot.Document
             // The number is drawn in the line color
             StepLabelElement => Lines(new Rgba(255, 255, 255, 255), 0, false, new Rgba(139, 0, 0, 255)) with { Text = new TextStyle { Color = new Rgba(255, 255, 255, 255) } },
             HighlightElement or ObfuscateElement => Lines(Red, 0, false),
-            CutMarkElement or TornEdgeElement => Lines(new Rgba(105, 105, 105, 255), 0, true, Transparent),
+            CutMarkElement or FrameElement => Lines(new Rgba(105, 105, 105, 255), 0, true, Transparent),
             _ => new Style { Shadow = new ShadowStyle { Enabled = false } }
         };
     }

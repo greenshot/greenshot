@@ -166,7 +166,7 @@ Rules:
 | `EmojiContainer` | `EmojiElement` | `Area`, `Emoji`, `Rotation` |
 | `CursorContainer` | `CursorElement` | `Area`, `Resource` (color layer), `MaskResource`, `Hotspot` (the tip as a fraction 0..1 of `Area`, so it stays right when the cursor is resized) |
 | `CutMarkContainer` | `CutMarkElement` | `Area`, `Horizontal`, `CutStyle`, `Seed`, `ToothHeight`, `ToothRange` |
-| `TornEdgeContainer` | `TornEdgeElement` | `Area`, `CutStyle`, `Seed`, `Edges`, `Margins`, `ToothHeight`, `ToothRange` |
+| `TornEdgeContainer` | `FrameElement` | `Area`, `CutStyle`, `Seed`, `Edges`, `Margins`, `ToothHeight`, `ToothRange` |
 | containers of plugins (e.g. the barcode) | `PluginElement` | `Area`, `Kind`, `Version`, `Data` (JSON), `Resources`, `Fallback` (see below) |
 | — | `UnknownElement` | an element of a type this version doesn't know (e.g. from a newer Greenshot): `TypeName`, `Area`, `Json` |
 | `CropContainer` | — | a tool, never part of the document |
@@ -201,7 +201,7 @@ All coordinates are canvas pixels (`double`), origin top-left, x to the right, y
 
 - **`Area`** (stored): the rectangle of a box-shaped element, **before rotation**: `x`, `y` (top-left), `width`,
   `height`. It is what the user draws and edits. Box-shaped are rectangle, ellipse, text, speech bubble, step label,
-  highlight, obfuscate, image, emoji, cursor, cut mark, torn edge, plugin and unknown elements. In `document.json` it is
+  highlight, obfuscate, image, emoji, cursor, cut mark, frame, plugin and unknown elements. In `document.json` it is
   `"area": {"x": 10, "y": 20, "width": 100, "height": 50}`.
 - **Points** (stored): elements defined by points store those instead of an `Area`: `start` and `end` for lines and
   arrows, `points` for freehand, and the `tail` of a speech bubble (next to its `Area`).

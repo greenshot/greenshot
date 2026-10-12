@@ -211,7 +211,7 @@ namespace Greenshot.Document.Editor
                     }
                 },
                 CutMarkElement cutMark => new CutMarkContainer(surface, cutMark.Horizontal, null),
-                TornEdgeElement tornEdge => new TornEdgeContainer(surface, null,
+                FrameElement tornEdge => new TornEdgeContainer(surface, null,
                     new[] { tornEdge.Margins.Top, tornEdge.Margins.Right, tornEdge.Margins.Bottom, tornEdge.Margins.Left }, (CutMarkStyle)(int)tornEdge.CutStyle),
                 PluginElement { Fallback: Guid fallback } plugin => KeepWith(ToImageContainer(surface, document.Resources[fallback], 0, null, false), document, plugin),
                 _ => null
@@ -260,7 +260,7 @@ namespace Greenshot.Document.Editor
                     container.SetFieldValue(FieldType.TOOTH_RANGE, cutMark.ToothRange);
                     ((CutMarkContainer)container).SetSeed(cutMark.Seed);
                     break;
-                case TornEdgeElement tornEdge:
+                case FrameElement tornEdge:
                     container.SetFieldValue(FieldType.TOOTH_HEIGHT, tornEdge.ToothHeight);
                     container.SetFieldValue(FieldType.TOOTH_RANGE, tornEdge.ToothRange);
                     var tornEdgeContainer = (TornEdgeContainer)container;

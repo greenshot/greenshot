@@ -121,7 +121,7 @@ namespace Greenshot.Document.Legacy
                     ToothHeight = Int(legacy, "TOOTH_HEIGHT", 12),
                     ToothRange = Int(legacy, "TOOTH_RANGE", 20)
                 },
-                LegacyTornEdgeElement tornEdge => new TornEdgeElement(id, area, (CutStyle)Int(legacy, "CUT_MARK_STYLE", (int)CutStyle.Torn), tornEdge.Seed)
+                LegacyTornEdgeElement tornEdge => new FrameElement(id, area, (CutStyle)Int(legacy, "CUT_MARK_STYLE", (int)CutStyle.Torn), tornEdge.Seed)
                 {
                     Edges = ToEdges(tornEdge.Edges),
                     Margins = tornEdge.Margins is { Count: 4 } margins ? new Margins(margins[0], margins[1], margins[2], margins[3]) : default,
