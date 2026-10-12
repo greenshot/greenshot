@@ -85,6 +85,12 @@ namespace Greenshot.Document
             }
         }
 
+        /// <summary>
+        /// Elements written like those in document.json (a JSON array), e.g. in a recipe
+        /// </summary>
+        public static IReadOnlyList<Element> ReadElements(string json) =>
+            JsonSerializer.Deserialize<List<Element>>(json, Options) ?? throw new InvalidDataException("No elements");
+
         private static string Extension(Resource resource, Func<string, string> extensionFor) =>
             extensionFor(resource.MediaType)?.TrimStart('.') ?? throw new InvalidDataException($"The resource {resource.Id} has the unsupported media type {resource.MediaType}");
 

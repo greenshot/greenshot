@@ -184,6 +184,8 @@ namespace Greenshot.Shell
             var supportedFileFormatRegistry = new FileFormatRegistry();
             SimpleServiceProvider.Current.AddService<IFileFormatRegistry>(supportedFileFormatRegistry);
             CoreFileFormats.RegisterCoreFileFormats(supportedFileFormatRegistry);
+            // The recipe steps of the optional parts (see GreenshotModuleAttribute)
+            SimpleServiceProvider.Current.AddService<IRecipeStepProvider>(GreenshotModules.Create<IRecipeStepProvider>());
 
             // Load all the plugins, their configuration sections are filled from the already loaded greenshot.ini
             // The plugins start in parallel, the shell doesn't wait for them. Greenshot Light has no plugins.

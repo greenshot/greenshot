@@ -219,6 +219,16 @@ namespace Greenshot.Tests.Document
         }
 
         [Fact]
+        public void ReadElements_ReadsElementsLikeDocumentJson()
+        {
+            var elements = GreenshotPackage.ReadElements("[{\"type\": \"rectangle\", \"id\": \"01a12eae-5fab-7ead-81e1-92243258dacb\", \"area\": {\"x\": 10, \"y\": 20, \"width\": 30, \"height\": 40}}," +
+                "{\"type\": \"text\", \"area\": {\"x\": 1, \"y\": 2, \"width\": 3, \"height\": 4}, \"text\": \"Greenshot\"}]");
+
+            Assert.Equal(new RectangleElement(Guid.Parse("01a12eae-5fab-7ead-81e1-92243258dacb"), new RectD(10, 20, 30, 40)), elements[0]);
+            Assert.Equal("Greenshot", Assert.IsType<TextElement>(elements[1]).Text);
+        }
+
+        [Fact]
         public void Write_LeavesOutResourcesNoElementLinksTo()
         {
             var document = AllElements();

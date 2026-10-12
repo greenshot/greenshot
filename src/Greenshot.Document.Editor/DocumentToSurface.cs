@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -59,7 +60,18 @@ namespace Greenshot.Document.Editor
                 CounterStart = document.Canvas.CounterStart
             };
 
-            foreach (var element in document.Layers.Where(layer => layer.Kind != LayerKind.Capture && layer.Visible).SelectMany(layer => layer.Elements))
+            AddElements(surface, document, document.Layers.Where(layer => layer.Kind != LayerKind.Capture && layer.Visible).SelectMany(layer => layer.Elements));
+            return surface;
+        }
+
+        /// <summary>
+        /// Adds elements to a surface, e.g. those of a recipe; their resources are in the document
+        /// </summary>
+        /// <returns>The containers which were added</returns>
+        public static IReadOnlyList<IDrawableContainer> AddElements(Surface surface, GreenshotDocument document, IEnumerable<Element> elements, bool makeUndoable = false)
+        {
+            var added = new List<IDrawableContainer>();
+            foreach (var element in elements)
             {
                 IDrawableContainer container = element is PluginElement plugin && Converter(plugin) is { } converter
                     ? converter.ToContainer(surface, plugin, document.Resources)
@@ -67,7 +79,8 @@ namespace Greenshot.Document.Editor
                 if (container != null)
                 {
                     KeptElements.Ids.Add(container, new StrongBox<Guid>(element.Id));
-                    surface.AddElement(container, false, false);
+                    surface.AddElement(container, makeUndoable, false);
+                    added.Add(container);
                 }
                 else if (element is PluginElement or UnknownElement)
                 {
@@ -75,7 +88,7 @@ namespace Greenshot.Document.Editor
                 }
             }
 
-            return surface;
+            return added;
         }
 
         /// <summary>
