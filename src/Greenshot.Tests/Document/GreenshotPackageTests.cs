@@ -342,6 +342,86 @@ namespace Greenshot.Tests.Document
         }
 
         [Fact]
+        public void RoundTrip_WritesTheMetadataAsSaved_AndKeepsUnknownValues()
+        {
+            var png = new Resource(Guid.NewGuid(), "image/png", new byte[] { 0x89, 0x50, 0x4E, 0x47, 1, 2, 3 });
+            var created = new DateTimeOffset(2026, 10, 12, 16, 20, 0, TimeSpan.FromHours(2));
+            var document = new GreenshotDocument(Guid.NewGuid(), new Canvas(), new List<Layer>
+            {
+                new(Guid.NewGuid(), "Capture", LayerKind.Capture, new List<Element> { new ImageElement(Guid.NewGuid(), new RectD(0, 0, 10, 10), png.Id) })
+            }, new Dictionary<Guid, Resource> { [png.Id] = png });
+            using (var withoutMetadata = new MemoryStream())
+            {
+                GreenshotPackage.Write(document, withoutMetadata, ExtensionFor);
+                withoutMetadata.Position = 0;
+                using var zip = new ZipArchive(withoutMetadata, ZipArchiveMode.Read);
+                Assert.Null(zip.GetEntry("metadata.json"));
+            }
+
+            document = document with
+            {
+                Metadata = new DocumentMetadata
+                {
+                    Title = "Checkout dialog",
+                    Tags = new[] { "bug-report" },
+                    Created = created,
+                    Revision = 2,
+                    Source = new MetadataSource(SourceTypes.Capture)
+                    {
+                        Mode = "window",
+                        Date = created,
+                        Window = new WindowInfo { Title = "Checkout", Application = new ApplicationInfo { Name = "Notepad", Id = "notepad.exe" } },
+                        Screens = new[] { new ScreenInfo { Name = "DISPLAY1", Bounds = new RectD(0, 0, 1920, 1080), Dpi = 144 } }
+                    },
+                    Session = new SessionInfo(Guid.NewGuid()) { Name = "PROD-1042", WorkItem = new WorkItem("jira", "PROD-1042") { Title = "Checkout times out" } }
+                }
+            };
+            using var stream = new MemoryStream();
+            GreenshotPackage.Write(document, stream, ExtensionFor);
+
+            // A newer Greenshot adds values this version doesn't know
+            stream.Position = 0;
+            using (var zip = new ZipArchive(stream, ZipArchiveMode.Update, true))
+            {
+                var entry = zip.GetEntry("metadata.json");
+                string json;
+                using (var reader = new StreamReader(entry.Open()))
+                {
+                    json = reader.ReadToEnd();
+                }
+
+                entry.Delete();
+                using var writer = new StreamWriter(zip.CreateEntry("metadata.json").Open());
+                writer.Write(json.Replace("\"title\": \"Checkout dialog\"", "\"rights\": \"CC-BY\", \"title\": \"Checkout dialog\"").Replace("\"mode\"", "\"viewport\": { \"width\": 1280 }, \"mode\""));
+            }
+
+            stream.Position = 0;
+            var read = GreenshotPackage.Read(stream).Metadata;
+            Assert.Equal("Checkout dialog", read.Title);
+            Assert.Equal(new[] { "bug-report" }, read.Tags);
+            Assert.Equal(created, read.Created);
+            Assert.Equal(3, read.Revision);
+            Assert.NotNull(read.Modified);
+            Assert.Equal("notepad.exe", read.Source.Window.Application.Id);
+            Assert.Equal(144, read.Source.Screens[0].Dpi);
+            Assert.Equal("Checkout times out", read.Session.WorkItem.Title);
+            Assert.Equal(document.Metadata.Session.Id, read.Session.Id);
+            Assert.Equal("CC-BY", read.Unknown["rights"].GetString());
+            Assert.Equal(1280, read.Source.Unknown["viewport"].GetProperty("width").GetInt32());
+
+            var again = RoundTrip(GreenshotPackage.Read(Rewind(stream))).Metadata;
+            Assert.Equal(4, again.Revision);
+            Assert.True(again.Unknown.ContainsKey("rights"));
+            Assert.True(again.Source.Unknown.ContainsKey("viewport"));
+        }
+
+        private static Stream Rewind(Stream stream)
+        {
+            stream.Position = 0;
+            return stream;
+        }
+
+        [Fact]
         public void Read_KeepsAnElementOfAnUnknownType()
         {
             var document = AllElements();

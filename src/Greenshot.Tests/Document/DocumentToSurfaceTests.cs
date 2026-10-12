@@ -427,6 +427,48 @@ namespace Greenshot.Tests.Document
         }
 
         [Fact]
+        public void TheMetadata_GivesTheEditorItsTitle_AndComesBack()
+        {
+            var metadata = new DocumentMetadata
+            {
+                Title = "Checkout dialog",
+                Created = new DateTimeOffset(2026, 10, 12, 16, 20, 0, TimeSpan.FromHours(2)),
+                Session = new SessionInfo(Guid.NewGuid()) { Name = "PROD-1042" }
+            };
+            var document = WithElements(new Dictionary<Guid, Resource>()) with { Metadata = metadata };
+
+            using var surface = DocumentToSurface.ToSurface(document);
+            Assert.Equal("Checkout dialog", surface.CaptureDetails.Title);
+            Assert.Equal(metadata.Created.Value.LocalDateTime, surface.CaptureDetails.DateTime);
+
+            surface.CaptureDetails.Title = "Payment dialog";
+            var written = SurfaceToDocument.ToDocument(surface).Metadata;
+            Assert.Equal("Payment dialog", written.Title);
+            Assert.Equal(metadata.Created, written.Created);
+            Assert.Same(metadata.Session, written.Session);
+            Assert.StartsWith("Greenshot ", written.Generator);
+        }
+
+        [Fact]
+        public void TheCaptureDetails_BecomeTheMetadata_OfADocumentWithoutAny()
+        {
+            using var surface = DocumentToSurface.ToSurface(WithElements(new Dictionary<Guid, Resource>()));
+            surface.CaptureDetails.CaptureMode = CaptureMode.Window;
+            surface.CaptureDetails.Title = "Checkout";
+
+            var metadata = SurfaceToDocument.ToDocument(surface).Metadata;
+            Assert.Equal("Checkout", metadata.Title);
+            Assert.Equal(SourceTypes.Capture, metadata.Source.Type);
+            Assert.Equal("window", metadata.Source.Mode);
+            Assert.Equal("Checkout", metadata.Source.Window.Title);
+            Assert.Equal(new DateTimeOffset(surface.CaptureDetails.DateTime), metadata.Source.Date);
+
+            surface.CaptureDetails.CaptureMode = CaptureMode.File;
+            surface.CaptureDetails.AddMetaData("file", Path.Combine("C:", "Users", "someone", "checkout.png"));
+            Assert.Equal("checkout.png", SurfaceToDocument.ToDocument(surface).Metadata.Source.Name);
+        }
+
+        [Fact]
         public void ToImage_DrawsThePartOfTheResource_Pixelated()
         {
             // Two pixels, red and blue

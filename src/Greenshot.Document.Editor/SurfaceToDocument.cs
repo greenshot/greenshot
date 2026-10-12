@@ -103,9 +103,32 @@ namespace Greenshot.Document.Editor
             {
                 Groups = groups,
                 Analysis = analysis,
-                Extensions = kept.Extensions
+                Extensions = kept.Extensions,
+                Metadata = MetadataOf(surface.CaptureDetails, kept.Metadata)
             };
         }
+
+        /// <summary>
+        /// The metadata the document came with, otherwise that of the capture, with the title the editor has
+        /// </summary>
+        private static DocumentMetadata MetadataOf(ICaptureDetails details, DocumentMetadata metadata)
+        {
+            metadata ??= new DocumentMetadata { Created = details == null ? null : new DateTimeOffset(details.DateTime), Source = details == null ? null : SourceOf(details) };
+            return metadata with { Title = details?.Title ?? metadata.Title, Generator = "Greenshot " + EnvironmentInfo.GetGreenshotVersion(true) };
+        }
+
+        /// <summary>
+        /// Where the capture came from, a file only by its name
+        /// </summary>
+        private static MetadataSource SourceOf(ICaptureDetails details) => details.CaptureMode switch
+        {
+            CaptureMode.Region or CaptureMode.LastRegion => new MetadataSource(SourceTypes.Capture) { Mode = "region", Date = details.DateTime },
+            CaptureMode.FullScreen => new MetadataSource(SourceTypes.Capture) { Mode = "fullscreen", Date = details.DateTime },
+            CaptureMode.Window or CaptureMode.ActiveWindow => new MetadataSource(SourceTypes.Capture) { Mode = "window", Date = details.DateTime, Window = new WindowInfo { Title = details.Title } },
+            CaptureMode.Clipboard => new MetadataSource(SourceTypes.Clipboard) { Date = details.DateTime },
+            CaptureMode.File or CaptureMode.Import => new MetadataSource(SourceTypes.File) { Name = details.MetaData.TryGetValue("file", out var file) ? Path.GetFileName(file) : null },
+            _ => null
+        };
 
         /// <summary>
         /// The element with the anchors and extensions of the element the container was made from, the editor doesn't know them

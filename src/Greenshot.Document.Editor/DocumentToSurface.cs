@@ -88,6 +88,16 @@ namespace Greenshot.Document.Editor
             kept.Groups = document.Groups;
             kept.Extensions = document.Extensions;
             kept.Analysis = document.Analysis;
+            kept.Metadata = document.Metadata;
+            if (document.Metadata != null)
+            {
+                surface.CaptureDetails.Title = document.Metadata.Title;
+                if ((document.Metadata.Source?.Date ?? document.Metadata.Created) is { } date)
+                {
+                    surface.CaptureDetails.DateTime = date.LocalDateTime;
+                }
+            }
+
             // The editor shows the OCR text and barcodes of its image as features, they are in the pixels of the capture
             if (!standIn && capture != null && document.Analysis.TryGetValue(capture.Resource, out var analysis))
             {

@@ -62,6 +62,8 @@ namespace Greenshot.Document.Editor
 
             public RawJson Extensions { get; set; }
 
+            public DocumentMetadata Metadata { get; set; }
+
             public IReadOnlyDictionary<Guid, ImageAnalysis> Analysis { get; set; } = new Dictionary<Guid, ImageAnalysis>();
 
             /// <summary>

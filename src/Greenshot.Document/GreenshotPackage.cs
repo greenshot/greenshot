@@ -34,13 +34,15 @@ namespace Greenshot.Document
 {
     /// <summary>
     /// Reads and writes a GreenshotDocument as a .greenshot package: a zip with the entries "mimetype" (first),
-    /// "document.json" and the resources in "resources/".
+    /// "document.json", the resources in "resources/", and the optional "metadata.json" and "analysis.json".
     /// </summary>
     public static class GreenshotPackage
     {
         public const string MediaType = "application/vnd.greenshot.document+zip";
 
         private const string AnalysisEntry = "analysis.json";
+
+        private const string MetadataEntry = "metadata.json";
 
         /// <summary>
         /// The version of document.json this code writes, newer versions are refused.
@@ -64,7 +66,8 @@ namespace Greenshot.Document
         };
 
         /// <summary>
-        /// Writes the document with the resources its elements link to, other resources are left out.
+        /// Writes the document with the resources its elements link to, other resources are left out. The metadata is
+        /// written as it is saved now (DocumentMetadata.Saved), without metadata (null) there is no metadata.json.
         /// A link to a missing resource, a resource without a file extension, or anchors which make a loop are refused.
         /// </summary>
         /// <param name="document">GreenshotDocument</param>
@@ -86,6 +89,11 @@ namespace Greenshot.Document
             using var zip = new ZipArchive(stream, ZipArchiveMode.Create, true);
             WriteEntry(zip, "mimetype", Encoding.ASCII.GetBytes(MediaType), CompressionLevel.NoCompression);
             WriteEntry(zip, "document.json", JsonSerializer.SerializeToUtf8Bytes(json, Options), CompressionLevel.Optimal);
+            if (document.Metadata != null)
+            {
+                WriteEntry(zip, MetadataEntry, JsonSerializer.SerializeToUtf8Bytes(document.Metadata.Saved(DateTimeOffset.Now), Options), CompressionLevel.Optimal);
+            }
+
             foreach (var resource in linked)
             {
                 WriteEntry(zip, entries[resource.Id].Path, resource.Data, CompressionLevel.Optimal);
@@ -139,6 +147,7 @@ namespace Greenshot.Document
             return new GreenshotDocument(json.Id, json.Canvas, json.Layers, resources)
             {
                 Analysis = analysis,
+                Metadata = zip.GetEntry(MetadataEntry) == null ? null : JsonSerializer.Deserialize<DocumentMetadata>(ReadEntry(zip, MetadataEntry), Options),
                 Groups = (json.Groups ?? Array.Empty<Group>()).Select(group => group.Members == null ? group with { Members = Array.Empty<Guid?>() } : group).ToList(),
                 Extensions = json.Extensions
             };

@@ -109,6 +109,11 @@ namespace Greenshot.Document
         public RawJson Extensions { get; init; }
 
         /// <summary>
+        /// What the document is and where its picture came from, null when it has none
+        /// </summary>
+        public DocumentMetadata Metadata { get; init; }
+
+        /// <summary>
         /// The area of the canvas in the coordinates of the elements, after Anchors.Apply it includes anchored elements
         /// where they belong
         /// </summary>

@@ -328,7 +328,7 @@ back unchanged.
   the image it got, the extensions of the other layers are lost.
 - Open: a style's extensions replace those of its group as a whole, not per key.
 
-### Metadata (decided, not built)
+### Metadata
 
 Metadata describes the document and where its picture came from; it never changes how anything is drawn. It is an
 optional `metadata.json` in the package next to `document.json`, written when the setting to store capture information is
@@ -393,12 +393,22 @@ information is the editor's `CaptureDetails` (title, time, file name, capture mo
   resource later.
 - Legacy files have no metadata, their package has no `metadata.json`.
 
+Built: `GreenshotDocument.Metadata` (`DocumentMetadata` with `MetadataSource`, `WindowInfo`, `ApplicationInfo`,
+`ScreenInfo`, `SessionInfo`, `WorkItem`), written and read as `metadata.json` by `GreenshotPackage`. Writing sets
+`modified`, the next `revision`, and `created` when it is missing (`DocumentMetadata.Saved`); a document without
+metadata (null) has no `metadata.json`. Values a reader doesn't know (such as the `browser` fields) are written back
+unchanged. Today's editor gets the title and time from it, and a document which comes back from the editor keeps its
+metadata with the editor's title; without any, it is made from `CaptureDetails`: `title`, `created`, `generator` and the
+`source` (`capture` with mode region, fullscreen or window and the window title; `clipboard`; `file` with the name
+only). Not built yet: the setting which decides whether metadata is saved, the window's application, the region and
+the screens (the editor doesn't have them), the recipe, the session (work sessions) and the browser source.
+
 ### Analysis
 
 What was found in an image: OCR text, barcodes and, optionally, the windows and UI areas on the screen at capture time.
 Built: `GreenshotDocument.Analysis` (`ImageAnalysis` per resource id with `OcrResult`, `BarcodeResult`, `AreaResult`),
 written and read as `analysis.json` by `GreenshotPackage`, and carried through today's editor for OCR and barcodes. Not
-built yet: collecting the areas at capture time, and leaving the file out when saving without metadata.
+built yet: collecting the areas at capture time, and leaving the file out when saving without metadata (the setting).
 In the editor these are `CaptureDetails.Features` (`IDetectedFeature`: OCR lines with words, barcodes, windows), kept
 only in memory.
 
@@ -623,8 +633,8 @@ instead of failing the whole file.
 ### New .greenshot package
 
 A zip file, read and written by `GreenshotPackage`. The full spec is in the project plan (`greenshot-document-format.md`);
-`mimetype`, `document.json`, `resources/` and `analysis.json` are built; `metadata.json` is decided,
-`thumbnail.png` and `extensions/` designed, none of those built yet. Optional parts are left out when they are empty or
+`mimetype`, `document.json`, `resources/`, `metadata.json` and `analysis.json` are built; `thumbnail.png` and
+`extensions/` are designed, not built yet. Optional parts are left out when they are empty or
 switched off; readers ignore parts they don't know.
 
 ```mermaid
@@ -632,7 +642,7 @@ flowchart LR
     Zip(["example.greenshot (zip)"])
     Zip --> Mimetype["mimetype<br/>application/vnd.greenshot.document+zip<br/>first entry, stored"]
     Zip --> DocumentJson["document.json<br/>canvas, layers, elements, resource table"]
-    Zip --> Metadata["metadata.json (optional, not built)<br/>title, dates, source, session"]
+    Zip --> Metadata["metadata.json (optional)<br/>title, dates, source, session"]
     Zip --> Analysis["analysis.json (optional)<br/>per resource: OCR, barcodes, windows and UI areas"]
     Zip --> Thumbnail["thumbnail.png (not built)<br/>small flattened preview"]
     Zip --> Resources["resources/{uuid}.{ext}<br/>original bytes: capture, images, cursor, svg"]
@@ -665,8 +675,7 @@ flowchart LR
   written back unchanged.
 - Readers have limits: number of entries (10,000) and size per entry (256 MB).
 - `metadata.json` (see "Metadata") and `analysis.json` (see "Analysis") are about the document and its images, never
-  needed for drawing. Saving or sharing without metadata leaves out both. `analysis.json` is built, `metadata.json` not
-  yet. Like the resources, the analysis of a resource which isn't written is left out; kinds of results a reader
+  needed for drawing. Saving or sharing without metadata leaves out both (the setting isn't built yet). Like the resources, the analysis of a resource which isn't written is left out; kinds of results a reader
   doesn't know are written back unchanged.
 - Open: `thumbnail.png` and the `extensions/` files.
 
