@@ -22,7 +22,6 @@ using System;
 using System.Collections.Generic;
 using System.Formats.Nrbf;
 using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.ServiceModel.Security;
 using Greenshot.Editor.FileFormat.V1.Legacy;
 using Xunit;
@@ -40,16 +39,11 @@ public class LegacyNrbfReaderTests
     /// </summary>
     /// <remarks>This covers the vulnerability attack created with ysoserial. #579 </remarks>
     [Fact]
-    public void Deserialize_UnmappedType_ThrowsSecurityAccessDeniedException()
+    public void Deserialize_UnknownClassFile_ThrowsSecurityAccessDeniedException()
     {
-        // Arrange
-        var unmappedObject = new UnmappedTestClass { Value = "Test Value" };
-        var binaryFormatter = new BinaryFormatter();
-        
-        // Serialize the object without a custom binder
-        using var memoryStream = new MemoryStream();
-        binaryFormatter.Serialize(memoryStream, unmappedObject);
-        memoryStream.Position = 0;
+        // Arrange: use the checked-in serialized fixture without deserializing it.
+        var testFilePath = Path.Combine(AppContext.BaseDirectory, "TestData", "GreenshotFile", "File_Version_1.04", "BinaryFormatterUnknownClass.bin");
+        using var memoryStream = File.OpenRead(testFilePath);
             
         // Act & Assert
         // The legacy reader must reject this type without creating it.
@@ -59,7 +53,7 @@ public class LegacyNrbfReaderTests
         // Verify the exception message contains information about the suspicious type
         Assert.Contains("Suspicious type", exception.Message);
         // ReSharper disable once AssignNullToNotNullAttribute
-        Assert.Contains(typeof(UnmappedTestClass).FullName, exception.Message);
+        Assert.Contains("UnknownClass", exception.Message);
     }
 
     public static IEnumerable<object[]> HistoricalRootFixtureData()
@@ -106,14 +100,5 @@ public class LegacyNrbfReaderTests
         var items = Assert.IsAssignableFrom<SerializationRecord>(root.GetRawValue("List`1+_items"));
         Assert.Equal(itemType, items.TypeName.FullName);
         Assert.Equal(count, Convert.ToInt32(root.GetRawValue("List`1+_size")));
-    }
-
-    /// <summary>
-    /// A test class that is intentionally not included in the legacy type allowlist.
-    /// </summary>
-    [Serializable]
-    private class UnmappedTestClass
-    {
-        public string Value { get; set; }
     }
 }
