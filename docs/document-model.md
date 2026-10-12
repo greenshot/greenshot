@@ -544,13 +544,18 @@ flowchart LR
     Zip --> Extensions["extensions/{plugin-id}.json (optional)<br/>kept on re-save, even without the plugin"]
 ```
 
-- `mimetype` is the first entry, stored (not compressed) and without an extra field, so its content starts at a fixed
-  place: the file starts with the zip signature `PK\x03\x04`, bytes 30-37 are the name `mimetype` and from byte 38 on
-  is `application/vnd.greenshot.document+zip`. A tool (or `file`/libmagic, a shell thumbnail handler, a web server)
-  recognises a Greenshot document by reading these first 76 bytes, without unzipping. Other zip based formats work
-  the same way: OpenDocument (`.odt`, `.ods`, `application/vnd.oasis.opendocument.text`), EPUB
-  (`application/epub+zip`) and OpenRaster (`.ora`, `image/openraster`). `Write_PutsTheMimetypeFirstAndUsesShortNames`
-  checks the bytes. The reader itself opens the zip and compares the `mimetype` entry, so it doesn't depend on the place.
+- `mimetype` is the first entry, stored (method 0, not compressed), without an extra field and without a data
+  descriptor. Its content is exactly `application/vnd.greenshot.document+zip`, no line break. A zip local file header is
+  30 bytes followed by the file name, so the file starts with the zip signature `PK\x03\x04`, bytes 30-37 are the name
+  `mimetype` and from byte 38 on is the media type. A tool (`file`/libmagic, a shell thumbnail handler, an upload
+  filter) recognises a Greenshot document from the first 76 bytes, without unzipping or inflating anything. Other zip
+  based formats work the same way: EPUB (`application/epub+zip`), OpenDocument (`.odt`, `.ods`, `.odp`,
+  `application/vnd.oasis.opendocument.*`) and OpenRaster (`.ora`, `image/openraster`).
+- Readers still find the entry by name and compare its content (a package re-zipped by another tool is valid without the
+  fixed place), and refuse the package when it is missing or different. `GreenshotPackage.Read` does this.
+- Open: `ZipArchive` on .NET (Core) stores an entry written with `CompressionLevel.NoCompression`, .NET Framework 4.8
+  deflates it (an uncompressed deflate block, so the text starts a few bytes later). Packages written by the .NET
+  Framework build don't have the fixed place; the writer is Debug only, so no released file has it.
 
 - `document.json` is the model as JSON (System.Text.Json, camelCase) with a `version` (now 1); newer versions are
   refused. The element type is written as a short name (`"type": "arrow"`), never as a CLR type name. Enums are
