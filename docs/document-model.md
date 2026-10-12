@@ -615,15 +615,16 @@ instead of failing the whole file.
 ### New .greenshot package
 
 A zip file, read and written by `GreenshotPackage`. The full spec is in the project plan (`greenshot-document-format.md`);
-so far the package has `mimetype`, `document.json` and `resources/`, the other parts follow.
+so far the package has `mimetype`, `document.json` and `resources/`, the other parts follow. Optional parts are left
+out when they are empty or switched off; readers ignore parts they don't know.
 
 ```mermaid
 flowchart LR
     Zip(["example.greenshot (zip)"])
     Zip --> Mimetype["mimetype<br/>application/vnd.greenshot.document+zip<br/>first entry, stored"]
     Zip --> DocumentJson["document.json<br/>canvas, layers, elements, resource table"]
-    Zip --> Metadata["metadata.json (optional)<br/>what, when, where was captured"]
-    Zip --> Analysis["ocr.json, barcodes.json (optional)"]
+    Zip --> Metadata["metadata.json (optional, proposal)<br/>title, dates, source, session"]
+    Zip --> Analysis["analysis.json (optional, proposal)<br/>per resource: ocr, barcodes, areas"]
     Zip --> Thumbnail["thumbnail.png<br/>small flattened preview"]
     Zip --> Resources["resources/{uuid}.{ext}<br/>original bytes: capture, images, cursor, svg"]
     Zip --> Extensions["extensions/{plugin-id}.json (optional)<br/>kept on re-save, even without the plugin"]
@@ -654,7 +655,9 @@ flowchart LR
 - Readers ignore properties they don't know. An element with an unknown `type` becomes an `UnknownElement`, which is
   written back unchanged.
 - Readers have limits: number of entries (10,000) and size per entry (256 MB).
-- Open: the optional parts.
+- `metadata.json` (see "Metadata") and `analysis.json` (see "Analysis") are about the document and its images, never
+  needed for drawing. Saving or sharing without metadata leaves out both. They are proposals, not built yet.
+- Open: `thumbnail.png` and the `extensions/` files.
 
 ## Conversions
 
