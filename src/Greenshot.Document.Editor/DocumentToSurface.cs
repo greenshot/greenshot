@@ -211,8 +211,9 @@ namespace Greenshot.Document.Editor
                     }
                 },
                 CutMarkElement cutMark => new CutMarkContainer(surface, cutMark.Horizontal, null),
-                FrameElement tornEdge => new TornEdgeContainer(surface, null,
-                    new[] { tornEdge.Margins.Top, tornEdge.Margins.Right, tornEdge.Margins.Bottom, tornEdge.Margins.Left }, (CutMarkStyle)(int)tornEdge.CutStyle),
+                // The editor's frame covers the whole image, with the room for the shadow outside of its edges; it has one shape, no rounded corners and no target
+                FrameElement frame when ShowsFrame(surface, frame) =>
+                    new TornEdgeContainer(surface, null, new[] { Round(frame.Area.Y), Round(surface.Image.Width - frame.Area.Right), Round(surface.Image.Height - frame.Area.Bottom), Round(frame.Area.X) }, (CutMarkStyle)(int)frame.Shape.Style),
                 PluginElement { Fallback: Guid fallback } plugin => KeepWith(ToImageContainer(surface, document.Resources[fallback], 0, null, false), document, plugin),
                 _ => null
             };
@@ -255,20 +256,25 @@ namespace Greenshot.Document.Editor
                     SetField(container, obfuscate.Mode == ObfuscateMode.Blur ? FieldType.BLUR_RADIUS : FieldType.PIXEL_SIZE, obfuscate.Size);
                     break;
                 case CutMarkElement cutMark:
-                    container.SetFieldValue(FieldType.CUT_MARK_STYLE, (CutMarkStyle)(int)cutMark.CutStyle);
-                    container.SetFieldValue(FieldType.TOOTH_HEIGHT, cutMark.ToothHeight);
-                    container.SetFieldValue(FieldType.TOOTH_RANGE, cutMark.ToothRange);
+                    container.SetFieldValue(FieldType.CUT_MARK_STYLE, (CutMarkStyle)(int)cutMark.Shape.Style);
+                    container.SetFieldValue(FieldType.TOOTH_HEIGHT, cutMark.Shape.Height);
+                    container.SetFieldValue(FieldType.TOOTH_RANGE, cutMark.Shape.Range);
                     ((CutMarkContainer)container).SetSeed(cutMark.Seed);
                     break;
-                case FrameElement tornEdge:
-                    container.SetFieldValue(FieldType.TOOTH_HEIGHT, tornEdge.ToothHeight);
-                    container.SetFieldValue(FieldType.TOOTH_RANGE, tornEdge.ToothRange);
-                    var tornEdgeContainer = (TornEdgeContainer)container;
-                    tornEdgeContainer.SetLayout(
-                        new[] { tornEdge.Edges.HasFlag(Edges.Top), tornEdge.Edges.HasFlag(Edges.Right), tornEdge.Edges.HasFlag(Edges.Bottom), tornEdge.Edges.HasFlag(Edges.Left) },
-                        tornEdgeContainer.Margins);
-                    tornEdgeContainer.SetSeed(tornEdge.Seed);
-                    // Torn edges always cover the whole image
+                case FrameElement frame:
+                    var frameContainer = (TornEdgeContainer)container;
+                    // The shadow on or off and the fill come from the style already
+                    var settings = frameContainer.GetSettings();
+                    settings.Edges = new[] { Edges.Top, Edges.Right, Edges.Bottom, Edges.Left }.Select(side => frame.ShapeOf(side).Style != EdgeStyle.None).ToArray();
+                    settings.ToothHeight = frame.Shape.Height;
+                    settings.HorizontalToothRange = settings.VerticalToothRange = frame.Shape.Range;
+                    var shadow = document.StyleOf(frame).Shadow;
+                    settings.ShadowSize = shadow?.Size is double size ? Round(size) : settings.ShadowSize;
+                    settings.Darkness = shadow?.Darkness is double darkness ? (float)darkness : settings.Darkness;
+                    settings.ShadowOffset = shadow?.Offset is PointD offset ? new NativePoint(Round(offset.X), Round(offset.Y)) : settings.ShadowOffset;
+                    frameContainer.ApplySettings(settings);
+                    frameContainer.SetSeed(frame.Seed);
+                    // The frame always covers the whole image
                     return container;
                 case FreehandElement:
                     // The points are the position
@@ -485,5 +491,9 @@ namespace Greenshot.Document.Editor
         private static Color ToColor(Rgba rgba) => Color.FromArgb(rgba.ToArgb());
 
         private static int Round(double value) => (int)Math.Round(value);
+
+        private static bool ShowsFrame(Surface surface, FrameElement frame) =>
+            frame.Target == null && frame.CornerRadius == 0 && frame.Area.X >= 0 && frame.Area.Y >= 0 && frame.Area.Right <= surface.Image.Width && frame.Area.Bottom <= surface.Image.Height &&
+            new[] { Edges.Top, Edges.Right, Edges.Bottom, Edges.Left }.All(side => frame.ShapeOf(side) is var shape && (shape.Style == EdgeStyle.None || shape == frame.Shape));
     }
 }

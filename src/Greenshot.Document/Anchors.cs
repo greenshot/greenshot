@@ -217,6 +217,12 @@ namespace Greenshot.Document
                     _ => placed
                 };
 
+                // A frame has the bounds of its target
+                if (placed is FrameElement { Target: Guid targetId } frame && targetId != frame.Id && _byId.TryGetValue(targetId, out var framed))
+                {
+                    placed = frame with { Area = Place(framed).Bounds };
+                }
+
                 _placing.Remove(element.Id);
                 _placed[element.Id] = placed;
                 return placed;

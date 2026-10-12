@@ -237,23 +237,37 @@ namespace Greenshot.Document.Editor
                         MaskResource = cursor.Cursor.MaskLayer == null ? null : AddImage(resources, cursor.Cursor.MaskLayer),
                         Hotspot = CursorElement.Fraction(cursor.Cursor.HotSpot.X, cursor.Cursor.HotSpot.Y, cursor.Cursor.Size.Width, cursor.Cursor.Size.Height)
                     },
-                    CutMarkContainer cutMark => new CutMarkElement(id, area, cutMark.IsHorizontal, (CutStyle)Convert.ToInt32(cutMark.GetFieldValue(FieldType.CUT_MARK_STYLE)), cutMark.Seed)
+                    CutMarkContainer cutMark => new CutMarkElement(id, area, cutMark.IsHorizontal, cutMark.Seed)
                     {
-                        ToothHeight = cutMark.ToothHeight,
-                        ToothRange = cutMark.ToothRange
+                        Shape = new EdgeShape((EdgeStyle)Convert.ToInt32(cutMark.GetFieldValue(FieldType.CUT_MARK_STYLE))) { Height = cutMark.ToothHeight, Range = cutMark.ToothRange }
                     },
-                    TornEdgeContainer tornEdge => new FrameElement(id, area, (CutStyle)(int)tornEdge.Style, tornEdge.Seed)
+                    // The editor's frame covers the whole image, the frame is the part inside of the room for the shadow
+                    TornEdgeContainer frame => new FrameElement(id, new RectD(area.X + frame.Margins[3], area.Y + frame.Margins[0],
+                        area.Width - frame.Margins[1] - frame.Margins[3], area.Height - frame.Margins[0] - frame.Margins[2]), frame.Seed)
                     {
-                        Edges = ToEdges(tornEdge.Edges),
-                        Margins = new Margins(tornEdge.Margins[0], tornEdge.Margins[1], tornEdge.Margins[2], tornEdge.Margins[3]),
-                        ToothHeight = tornEdge.ToothHeight,
-                        ToothRange = tornEdge.ToothRange
+                        Shape = new EdgeShape((EdgeStyle)(int)frame.Style) { Height = frame.ToothHeight, Range = frame.ToothRange },
+                        Sides = FrameSides.Except(ToEdges(frame.Edges))
                     },
                     // The crop container is a tool, not part of the document
                     _ => null
                 };
             }
-            return element == null ? null : element with { Style = ToStyle(container) };
+            if (element == null)
+            {
+                return null;
+            }
+
+            var style = ToStyle(container);
+            if (container is TornEdgeContainer frameContainer)
+            {
+                var settings = frameContainer.GetSettings();
+                style = style with
+                {
+                    Shadow = (style.Shadow ?? new ShadowStyle()) with { Size = settings.ShadowSize, Darkness = settings.Darkness, Offset = new PointD(settings.ShadowOffset.X, settings.ShadowOffset.Y) }
+                };
+            }
+
+            return element with { Style = style };
         }
 
         private static HighlightElement ToHighlight(Guid id, RectD area, HighlightContainer highlight) =>

@@ -73,13 +73,31 @@ namespace Greenshot.Document
     }
 
     /// <summary>
-    /// The drop shadow, the renderer decides how it looks.
+    /// The drop shadow, what isn't set the renderer decides.
     /// </summary>
     public sealed record ShadowStyle
     {
         public bool? Enabled { get; init; }
 
-        public ShadowStyle Over(ShadowStyle lower) => lower == null ? this : new() { Enabled = Enabled ?? lower.Enabled };
+        /// <summary>
+        /// How far the shadow fades out, in canvas pixels
+        /// </summary>
+        public double? Size { get; init; }
+
+        /// <summary>
+        /// 0..1
+        /// </summary>
+        public double? Darkness { get; init; }
+
+        public PointD? Offset { get; init; }
+
+        public ShadowStyle Over(ShadowStyle lower) => lower == null ? this : new()
+        {
+            Enabled = Enabled ?? lower.Enabled,
+            Size = Size ?? lower.Size,
+            Darkness = Darkness ?? lower.Darkness,
+            Offset = Offset ?? lower.Offset
+        };
     }
 
     public enum TextAlignment

@@ -427,6 +427,35 @@ namespace Greenshot.Tests.Document
         }
 
         [Fact]
+        public void AFrame_IsTheEditorsTornEdge_AndComesBack_OneWithRoundedCornersIsKept()
+        {
+            var frame = new FrameElement(Guid.NewGuid(), new RectD(10, 5, 180, 90), 7)
+            {
+                Shape = new EdgeShape(EdgeStyle.Wave) { Height = 6, Range = 16 },
+                Sides = FrameSides.Except(Edges.Bottom | Edges.Right),
+                Style = new Style { Shadow = new ShadowStyle { Enabled = true, Size = 4, Darkness = 0.5, Offset = new PointD(2, 3) } }
+            };
+            var rounded = new FrameElement(Guid.NewGuid(), new RectD(10, 5, 180, 90), 8) { CornerRadius = 8 };
+
+            using var surface = DocumentToSurface.ToSurface(WithElements(new Dictionary<Guid, Resource>(), frame, rounded));
+            var container = Assert.IsType<TornEdgeContainer>(Assert.Single(surface.Elements));
+            Assert.Equal(new[] { 5, 10, 5, 10 }, container.Margins);
+            Assert.Equal(new[] { false, true, true, false }, container.Edges);
+            Assert.Equal(CutMarkStyle.Wave, container.Style);
+            Assert.Equal(4, container.GetSettings().ShadowSize);
+
+            var elements = SurfaceToDocument.ToDocument(surface).Layers[1].Elements;
+            var back = Assert.IsType<FrameElement>(elements[0]);
+            Assert.Equal(frame.Area, back.Area);
+            Assert.Equal(frame.Shape, back.Shape);
+            Assert.Equal(frame.Sides, back.Sides);
+            Assert.Equal(7, back.Seed);
+            Assert.Equal(new PointD(2, 3), back.Style.Shadow.Offset);
+            Assert.Equal(0.5, back.Style.Shadow.Darkness.Value, 3);
+            Assert.Equal(rounded, elements[1]);
+        }
+
+        [Fact]
         public void TheMetadata_GivesTheEditorItsTitle_AndComesBack()
         {
             var metadata = new DocumentMetadata

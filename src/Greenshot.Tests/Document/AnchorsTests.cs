@@ -70,6 +70,16 @@ namespace Greenshot.Tests.Document
         }
 
         [Fact]
+        public void Apply_GivesAFrameTheBoundsOfItsTarget()
+        {
+            var box = new RectangleElement(Guid.NewGuid(), new RectD(0, 0, 100, 50)) { Anchor = new Anchor { X = new AxisAnchor(AnchorLine.Start, AnchorLine.Start, 10) } };
+            var frame = new FrameElement(Guid.NewGuid(), default, 1) { Target = box.Id };
+            var document = WithCapture(new RectD(30, 40, 800, 600), frame, box);
+
+            Assert.Equal(new RectD(40, 0, 100, 50), Placed<FrameElement>(document, frame.Id).Area);
+        }
+
+        [Fact]
         public void Apply_PlacesEachEndOfAnArrow()
         {
             var from = new RectangleElement(Guid.NewGuid(), new RectD(100, 100, 50, 50));

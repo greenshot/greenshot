@@ -121,8 +121,14 @@ namespace Greenshot.Tests.Document
                 new ImageElement(Guid.NewGuid(), area, svg.Id),
                 new EmojiElement(Guid.NewGuid(), area, "👍") { Rotation = 45 },
                 new CursorElement(Guid.NewGuid(), area, image.Id) { MaskResource = mask.Id, Hotspot = new PointD(0.25, 0.5) },
-                new CutMarkElement(Guid.NewGuid(), area, true, CutStyle.ZigZag, 42) { ToothHeight = 5, ToothRange = 6 },
-                new FrameElement(Guid.NewGuid(), area, CutStyle.Torn, 43) { Edges = Edges.Top | Edges.Left, Margins = new Margins(1, 2, 3, 4), ToothHeight = 5, ToothRange = 6 },
+                new CutMarkElement(Guid.NewGuid(), area, true, 42) { Shape = new EdgeShape(EdgeStyle.ZigZag) { Height = 5, Range = 6 } },
+                new FrameElement(Guid.NewGuid(), area, 43)
+                {
+                    Shape = new EdgeShape(EdgeStyle.Torn) { Height = 5, Range = 6 },
+                    Sides = new FrameSides { Bottom = new EdgeShape(EdgeStyle.Wave), Right = new EdgeShape(EdgeStyle.None) },
+                    CornerRadius = 8,
+                    Style = new Style { Shadow = new ShadowStyle { Enabled = true, Size = 6, Darkness = 0.6, Offset = new PointD(3, 3) } }
+                },
                 new PluginElement(Guid.NewGuid(), area, "greenshot.barcode") { Version = 2, Data = "{\"text\":\"Greenshot\",\"size\":[1,2]}", Resources = new[] { svg.Id }, Fallback = image.Id }
             };
             var layers = new List<Layer>

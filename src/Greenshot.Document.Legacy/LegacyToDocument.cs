@@ -116,17 +116,14 @@ namespace Greenshot.Document.Legacy
                     MaskResource = cursor.MaskLayerData == null ? null : AddResource(resources, cursor.MaskLayerData),
                     Hotspot = CursorElement.Fraction(cursor.HotspotX, cursor.HotspotY, cursor.CursorWidth, cursor.CursorHeight)
                 },
-                LegacyCutMarkElement cutMark => new CutMarkElement(id, area, cutMark.Horizontal, (CutStyle)Int(legacy, "CUT_MARK_STYLE", (int)CutStyle.Torn), cutMark.Seed)
+                LegacyCutMarkElement cutMark => new CutMarkElement(id, area, cutMark.Horizontal, cutMark.Seed) { Shape = EdgeShapeOf(legacy) },
+                // The torn edge covered the whole image, the frame is the part inside of the room for the shadow
+                LegacyTornEdgeElement tornEdge => new FrameElement(id, tornEdge.Margins is { Count: 4 } margins
+                    ? new RectD(area.X + margins[3], area.Y + margins[0], area.Width - margins[1] - margins[3], area.Height - margins[0] - margins[2])
+                    : area, tornEdge.Seed)
                 {
-                    ToothHeight = Int(legacy, "TOOTH_HEIGHT", 12),
-                    ToothRange = Int(legacy, "TOOTH_RANGE", 20)
-                },
-                LegacyTornEdgeElement tornEdge => new FrameElement(id, area, (CutStyle)Int(legacy, "CUT_MARK_STYLE", (int)CutStyle.Torn), tornEdge.Seed)
-                {
-                    Edges = ToEdges(tornEdge.Edges),
-                    Margins = tornEdge.Margins is { Count: 4 } margins ? new Margins(margins[0], margins[1], margins[2], margins[3]) : default,
-                    ToothHeight = Int(legacy, "TOOTH_HEIGHT", 12),
-                    ToothRange = Int(legacy, "TOOTH_RANGE", 20)
+                    Shape = EdgeShapeOf(legacy),
+                    Sides = FrameSides.Except(ToEdges(tornEdge.Edges))
                 },
                 _ => legacy.Kind switch
                 {
@@ -241,6 +238,9 @@ namespace Greenshot.Document.Legacy
             "WhiteSmoke", "Yellow", "YellowGreen", "ButtonFace", "ButtonHighlight", "ButtonShadow", "GradientActiveCaption", "GradientInactiveCaption",
             "MenuBar", "MenuHighlight"
         };
+
+        private static EdgeShape EdgeShapeOf(LegacyElement legacy) =>
+            new((EdgeStyle)Int(legacy, "CUT_MARK_STYLE", (int)EdgeStyle.Torn)) { Height = Int(legacy, "TOOTH_HEIGHT", 12), Range = Int(legacy, "TOOTH_RANGE", 20) };
 
         private static Edges ToEdges(IReadOnlyList<bool> edges) =>
             edges is not { Count: 4 }

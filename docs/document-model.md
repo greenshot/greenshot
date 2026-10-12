@@ -165,13 +165,42 @@ Rules:
 | `ImageContainer`, `IconContainer`, `SvgContainer`, `MetafileContainer` | `ImageElement` | `Area`, `Resource`, `Rotation`, `Source`, `Scaling` (see "Images" below). Metafiles keep the EMF/WMF file they were loaded from (`image/emf`, `image/wmf`); a metafile from an old .greenshot file is only a PNG there |
 | `EmojiContainer` | `EmojiElement` | `Area`, `Emoji`, `Rotation` |
 | `CursorContainer` | `CursorElement` | `Area`, `Resource` (color layer), `MaskResource`, `Hotspot` (the tip as a fraction 0..1 of `Area`, so it stays right when the cursor is resized) |
-| `CutMarkContainer` | `CutMarkElement` | `Area`, `Horizontal`, `CutStyle`, `Seed`, `ToothHeight`, `ToothRange` |
-| `TornEdgeContainer` | `FrameElement` | `Area`, `CutStyle`, `Seed`, `Edges`, `Margins`, `ToothHeight`, `ToothRange` |
+| `CutMarkContainer` | `CutMarkElement` | `Area`, `Horizontal`, `Shape`, `Seed` |
+| `TornEdgeContainer` | `FrameElement` | `Area`, `Target`, `Shape`, `Sides`, `CornerRadius`, `Seed` (see "Frames" below) |
 | containers of plugins (e.g. the barcode) | `PluginElement` | `Area`, `Kind`, `Version`, `Data` (JSON), `Resources`, `Fallback` (see below) |
 | — | `UnknownElement` | an element of a type this version doesn't know (e.g. from a newer Greenshot): `TypeName`, `Area`, `Json` |
 | `CropContainer` | — | a tool, never part of the document |
 
 Effects such as cut marks and torn edges stay elements that can still be edited; they are never baked into the image.
+
+### Frames
+
+A frame shapes the outline of an element, normally the capture: torn edges, a wavy or zig-zag edge, a plain border,
+rounded corners, a drop shadow. The frame cuts its target to its shape, then draws the line along the edges and the
+shadow; elements above the target are not cut, so an arrow can still point out of the screenshot.
+
+```json
+{ "type": "frame", "id": "…", "area": { "x": 0, "y": 0, "width": 800, "height": 600 }, "seed": 48211,
+  "target": "…",
+  "shape": { "style": "torn", "height": 12, "range": 20 },
+  "sides": { "bottom": { "style": "wave", "height": 8, "range": 24 }, "left": { "style": "none" } },
+  "cornerRadius": 8,
+  "style": { "stroke": { "color": "#000000FF", "width": 1 }, "shadow": { "enabled": true, "size": 6, "darkness": 0.6, "offset": { "x": 3, "y": 3 } },
+             "fill": { "color": "#FFFFFF00" } } }
+```
+
+- `shape` is the edge of all sides (`EdgeShape`: `style` none, line, zigZag, wave or torn, `height` how deep the teeth
+  or waves go, `range` how wide one is); `sides` only has the sides which differ. `none` leaves a side as it is. The
+  cut mark uses the same `EdgeShape`. The shape comes from `seed`, so it stays the same.
+- `target`: the frame follows that element; `Anchors.Apply` sets `area` to the target's bounds. Without a target `area`
+  is where the frame is (today's editor and old files: the capture without the room for the shadow).
+- The style gives the line along the edges, the shadow (`size`, `darkness`, `offset` in `ShadowStyle`) and the fill
+  outside of the edges (transparent by default).
+- The bounds are `area`, like other elements the shadow isn't in them; a content canvas needs padding for it.
+- **Today's editor** shows a frame without a target and without rounded corners, with one shape (sides may only be
+  `none`), inside the image, as its torn edge (`TornEdgeContainer`, which covers the whole image with the room for the
+  shadow as margins). Other frames are kept and written back unchanged, but not shown.
+- Later: the torn edge, border and drop shadow effects can become frames, so they stay editable.
 
 ### Plugin elements
 
@@ -714,8 +743,8 @@ flowchart LR
 
 ## Not in the model yet
 
-- The shadow settings of cut marks and torn edges (darkness, size, offset): they come from the torn edge settings when
-  a document becomes a `Surface`.
+- The shadow settings of cut marks (darkness, size, offset) and those of torn edges in 1.3 and 1.4 files: the editor's
+  torn edge settings are used.
 - Only Windows can draw EMF/WMF; other platforms will need a PNG rendering next to the metafile.
 - The editor has one counter and no groups. A document becomes a `Surface` with each element's resolved style and the
   first steps group (its start, its label order); back from the `Surface` there is one steps group (the other steps

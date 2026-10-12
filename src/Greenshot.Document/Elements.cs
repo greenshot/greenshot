@@ -252,7 +252,10 @@ namespace Greenshot.Document
             new(width > 0 ? x / width : 0, height > 0 ? y / height : 0);
     }
 
-    public enum CutStyle
+    /// <summary>
+    /// The style of an edge: None leaves it as it is (straight, without a line)
+    /// </summary>
+    public enum EdgeStyle
     {
         None,
         Line,
@@ -262,13 +265,21 @@ namespace Greenshot.Document
     }
 
     /// <summary>
+    /// The shape of an edge: its style, how deep the teeth or waves go into the image (Height) and how wide one is (Range)
+    /// </summary>
+    public sealed record EdgeShape(EdgeStyle Style)
+    {
+        public int Height { get; init; } = 12;
+
+        public int Range { get; init; } = 20;
+    }
+
+    /// <summary>
     /// Marks where a band of the capture was cut out. The shape of the edge is generated from Seed, so it stays the same.
     /// </summary>
-    public sealed record CutMarkElement(Guid Id, RectD Area, bool Horizontal, CutStyle CutStyle, int Seed) : Element(Id)
+    public sealed record CutMarkElement(Guid Id, RectD Area, bool Horizontal, int Seed) : Element(Id)
     {
-        public int ToothHeight { get; init; } = 12;
-
-        public int ToothRange { get; init; } = 20;
+        public EdgeShape Shape { get; init; } = new(EdgeStyle.Torn);
 
         public override RectD Bounds => Area;
     }
@@ -285,24 +296,70 @@ namespace Greenshot.Document
     }
 
     /// <summary>
-    /// Room around the capture, in canvas pixels.
+    /// The sides of a frame which have another shape than the frame, a missing side has the frame's shape
     /// </summary>
-    public readonly record struct Margins(int Top, int Right, int Bottom, int Left);
+    public sealed record FrameSides
+    {
+        public EdgeShape Top { get; init; }
+
+        public EdgeShape Right { get; init; }
+
+        public EdgeShape Bottom { get; init; }
+
+        public EdgeShape Left { get; init; }
+
+        /// <summary>
+        /// The sides which aren't in edges are left as they are, null when all are
+        /// </summary>
+        public static FrameSides Except(Edges edges)
+        {
+            if (edges == Edges.All)
+            {
+                return null;
+            }
+
+            var none = new EdgeShape(EdgeStyle.None);
+            return new FrameSides
+            {
+                Top = edges.HasFlag(Edges.Top) ? null : none,
+                Right = edges.HasFlag(Edges.Right) ? null : none,
+                Bottom = edges.HasFlag(Edges.Bottom) ? null : none,
+                Left = edges.HasFlag(Edges.Left) ? null : none
+            };
+        }
+    }
 
     /// <summary>
-    /// The frame of the capture in Area: the shape of its edges (straight, zig-zag, wave, torn), with a line and a
-    /// shadow from the style. Margins is the room outside of the edges for the shadow. The shape of the edges is
-    /// generated from Seed, so it stays the same.
+    /// A frame around Area, normally the capture: the shape of its edges (straight, zig-zag, wave, torn) and rounded
+    /// corners; the style gives the line along the edges, the shadow and the fill outside of them. The frame cuts its
+    /// target to its shape, elements above the target are not cut. With a Target, Area is the bounds of the target.
+    /// The shape of the edges is generated from Seed, so it stays the same.
     /// </summary>
-    public sealed record FrameElement(Guid Id, RectD Area, CutStyle CutStyle, int Seed) : Element(Id)
+    public sealed record FrameElement(Guid Id, RectD Area, int Seed) : Element(Id)
     {
-        public Edges Edges { get; init; } = Edges.All;
+        /// <summary>
+        /// The id of the element the frame follows (moved, resized or cropped)
+        /// </summary>
+        public Guid? Target { get; init; }
 
-        public Margins Margins { get; init; }
+        public EdgeShape Shape { get; init; } = new(EdgeStyle.Torn);
 
-        public int ToothHeight { get; init; } = 12;
+        public FrameSides Sides { get; init; }
 
-        public int ToothRange { get; init; } = 20;
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public double CornerRadius { get; init; }
+
+        /// <summary>
+        /// The shape of one side
+        /// </summary>
+        public EdgeShape ShapeOf(Edges side) => side switch
+        {
+            Edges.Top => Sides?.Top,
+            Edges.Right => Sides?.Right,
+            Edges.Bottom => Sides?.Bottom,
+            Edges.Left => Sides?.Left,
+            _ => null
+        } ?? Shape;
 
         public override RectD Bounds => Area;
     }
