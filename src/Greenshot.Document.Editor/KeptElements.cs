@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Greenshot.Base.Interfaces;
@@ -27,7 +28,8 @@ using Greenshot.Base.Interfaces.Drawing;
 namespace Greenshot.Document.Editor
 {
     /// <summary>
-    /// Elements the editor can't edit, kept with the container which shows them (a plugin element without its plugin)
+    /// What the editor doesn't hold itself: the id of the element each container was made from, so ids survive a trip
+    /// through the editor, and the elements the editor can't edit, kept with the container which shows them (a plugin element without its plugin)
     /// or with the surface (an element of an unknown type), so they are written back unchanged
     /// </summary>
     internal static class KeptElements
@@ -44,6 +46,8 @@ namespace Greenshot.Document.Editor
 
             public IReadOnlyList<Resource> Resources { get; }
         }
+
+        internal static readonly ConditionalWeakTable<IDrawableContainer, StrongBox<Guid>> Ids = new();
 
         internal static readonly ConditionalWeakTable<IDrawableContainer, Kept> ByContainer = new();
 

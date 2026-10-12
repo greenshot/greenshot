@@ -165,6 +165,24 @@ namespace Greenshot.Tests.Document
         }
 
         [Fact]
+        public void ElementIds_SurviveTheEditor()
+        {
+            var document = WithElements(new Dictionary<Guid, Resource>(),
+                new RectangleElement(Uuid7.CreateVersion7(), new RectD(1, 2, 30, 40)),
+                new TextElement(Uuid7.CreateVersion7(), new RectD(10, 20, 30, 40), "Greenshot"));
+
+            using var surface = DocumentToSurface.ToSurface(document);
+            surface.AddElement(new EllipseContainer(surface), false, false);
+            var mappedBack = SurfaceToDocument.ToDocument(surface);
+
+            Assert.Equal(document.Id, mappedBack.Id);
+            var ids = mappedBack.Layers[1].Elements.Select(element => element.Id).ToList();
+            Assert.Equal(document.Layers[1].Elements.Select(element => element.Id), ids.Take(2));
+            // A new element gets a new id
+            Assert.DoesNotContain(ids[2], ids.Take(2));
+        }
+
+        [Fact]
         public void UnknownElement_IsKeptWithTheSurface()
         {
             var linked = Png(2, 2);

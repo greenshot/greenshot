@@ -66,7 +66,7 @@ namespace Greenshot.Document.Editor
 
         private static Element ToElement(DrawableContainer container, IDictionary<Guid, Resource> resources)
         {
-            var id = Uuid7.CreateVersion7();
+            var id = KeptElements.Ids.TryGetValue(container, out var knownId) ? knownId.Value : Uuid7.CreateVersion7();
             var area = new RectD(container.Left, container.Top, container.Width, container.Height);
             var start = new PointD(container.Left, container.Top);
             var end = new PointD(container.Left + container.Width, container.Top + container.Height);

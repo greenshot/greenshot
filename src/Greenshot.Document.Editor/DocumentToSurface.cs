@@ -24,6 +24,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Icons;
 using Greenshot.Base.Core;
@@ -65,6 +66,7 @@ namespace Greenshot.Document.Editor
                     : ToContainer(surface, document, element);
                 if (container != null)
                 {
+                    KeptElements.Ids.Add(container, new StrongBox<Guid>(element.Id));
                     surface.AddElement(container, false, false);
                 }
                 else if (element is PluginElement or UnknownElement)
