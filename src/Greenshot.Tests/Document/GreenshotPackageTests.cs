@@ -78,7 +78,7 @@ namespace Greenshot.Tests.Document
                 stepLabel,
                 new HighlightElement(Guid.NewGuid(), area, HighlightMode.Area) { Color = red, Brightness = 0.5, BlurRadius = 7, Magnification = 4 },
                 new ObfuscateElement(Guid.NewGuid(), area, ObfuscateMode.Blur, 12),
-                new ImageElement(Guid.NewGuid(), area, image.Id) { Rotation = 90 },
+                new ImageElement(Guid.NewGuid(), area, image.Id) { Rotation = 90, Source = new RectD(0.25, 0.1, 0.5, 0.25), Scaling = ImageScaling.Pixelated },
                 new ImageElement(Guid.NewGuid(), area, svg.Id),
                 new EmojiElement(Guid.NewGuid(), area, "👍") { Rotation = 45 },
                 new CursorElement(Guid.NewGuid(), area, image.Id) { MaskResource = mask.Id, Hotspot = new PointD(0.25, 0.5) },

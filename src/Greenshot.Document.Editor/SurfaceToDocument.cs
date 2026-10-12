@@ -96,6 +96,8 @@ namespace Greenshot.Document.Editor
                 (LineElement line, LineElement from) => line with { StartAnchor = from.StartAnchor, EndAnchor = from.EndAnchor },
                 (ArrowElement arrow, ArrowElement from) => arrow with { StartAnchor = from.StartAnchor, EndAnchor = from.EndAnchor },
                 (SpeechBubbleElement bubble, SpeechBubbleElement from) => bubble with { TailAnchor = from.TailAnchor },
+                // The editor shows the whole image, the part of it and how it's drawn are kept
+                (ImageElement image, ImageElement from) => image with { Source = from.Source, Scaling = from.Scaling },
                 _ => element
             };
         }

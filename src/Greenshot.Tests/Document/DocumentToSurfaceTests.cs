@@ -210,7 +210,9 @@ namespace Greenshot.Tests.Document
             };
             var arrow = new ArrowElement(Uuid7.CreateVersion7(), new PointD(50, 50), new PointD(90, 60)) { EndAnchor = new Anchor { Target = box.Id, X = new AxisAnchor(AnchorLine.Start) } };
             var style = new Group(Uuid7.CreateVersion7(), GroupTypes.Style, new Guid?[] { box.Id, arrow.Id }) { Name = "Red", Style = new Style { Stroke = StrokeStyle.Of(new Rgba(255, 0, 0, 255), 3) } };
-            var document = WithElements(new Dictionary<Guid, Resource>(), box, arrow) with { Groups = new[] { style } };
+            var png = Png(40, 20);
+            var image = new ImageElement(Uuid7.CreateVersion7(), new RectD(100, 10, 40, 40), png.Id) { Source = new RectD(0.5, 0, 0.5, 1), Scaling = ImageScaling.Pixelated };
+            var document = WithElements(new Dictionary<Guid, Resource> { [png.Id] = png }, box, arrow, image) with { Groups = new[] { style } };
 
             using var surface = DocumentToSurface.ToSurface(document);
             var mappedBack = SurfaceToDocument.ToDocument(surface);
@@ -219,6 +221,9 @@ namespace Greenshot.Tests.Document
             Assert.Equal(box.Anchor, elements[0].Anchor);
             Assert.Equal(box.Extensions, elements[0].Extensions);
             Assert.Equal(arrow.EndAnchor, Assert.IsType<ArrowElement>(elements[1]).EndAnchor);
+            var keptImage = Assert.IsType<ImageElement>(elements[2]);
+            Assert.Equal(image.Source, keptImage.Source);
+            Assert.Equal(image.Scaling, keptImage.Scaling);
             var keptStyle = Assert.Single(mappedBack.Groups);
             Assert.Equal(style with { Members = null }, keptStyle with { Members = null });
             Assert.Equal(style.Members, keptStyle.Members);

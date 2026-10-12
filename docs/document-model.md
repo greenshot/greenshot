@@ -131,6 +131,8 @@ Rules:
   "Groups, styles and defaults").
 - **Redaction**: a `.greenshot` file always contains the original capture, blur and pixelate are elements on top. A
   redaction is only safe in a flattened export (PNG, JPG, ...), never in the `.greenshot` file. The same is true for 1.3.
+  The same goes for an image element with a `source`: the part outside of it is still in the resource, so a crop done
+  that way only removes pixels in a flattened export.
 - **Resources**: the original bytes with their media type (`image/png`, `image/jpeg`, `image/webp`, `image/svg+xml`, ...).
   An image loaded from a file keeps that file, in every format a file format handler reads; only an image which
   didn't come from a file (or was changed) is stored as PNG. Elements reference them by id, so the same bytes can be shared.
@@ -151,7 +153,7 @@ Rules:
 | `StepLabelContainer` | `StepLabelElement` | `Area` (the number is derived) |
 | `HighlightContainer` | `HighlightElement` | `Mode` (text, area, grayscale, magnify), `Color`, `Brightness`, `BlurRadius`, `Magnification` |
 | `ObfuscateContainer` | `ObfuscateElement` | `Mode` (pixelate, blur), `Size` (pixel size or blur radius) |
-| `ImageContainer`, `IconContainer`, `SvgContainer`, `MetafileContainer` | `ImageElement` | `Area`, `Resource`, `Rotation`. Metafiles keep the EMF/WMF file they were loaded from (`image/emf`, `image/wmf`); a metafile from an old .greenshot file is only a PNG there |
+| `ImageContainer`, `IconContainer`, `SvgContainer`, `MetafileContainer` | `ImageElement` | `Area`, `Resource`, `Rotation`, `Source`, `Scaling` (see "Images" below). Metafiles keep the EMF/WMF file they were loaded from (`image/emf`, `image/wmf`); a metafile from an old .greenshot file is only a PNG there |
 | `EmojiContainer` | `EmojiElement` | `Area`, `Emoji`, `Rotation` |
 | `CursorContainer` | `CursorElement` | `Area`, `Resource` (color layer), `MaskResource`, `Hotspot` (the tip as a fraction 0..1 of `Area`, so it stays right when the cursor is resized) |
 | `CutMarkContainer` | `CutMarkElement` | `Area`, `Horizontal`, `CutStyle`, `Seed`, `ToothHeight`, `ToothRange` |
@@ -200,6 +202,24 @@ All coordinates are canvas pixels (`double`), origin top-left, x to the right, y
   frame, finding the element under the mouse (first test), which part of the canvas to redraw, "fit the canvas to the
   content", and the box of a group. The tail of a speech bubble is included; the rotation of images and emojis isn't
   yet (its rule is still a proposal, see below).
+
+### Images
+
+An `ImageElement` shows its resource in its `Area`. Resizing only changes the `Area`, the resource is never resampled
+and stored again.
+
+- **`source`**: the part of the resource that is shown, stretched into `Area`, as a fraction (0..1) of the resource's
+  width and height, so the document doesn't have to decode the image to know its size and it also works for SVG and
+  metafiles. Missing means the whole image. Rotation is applied after the part is fitted into `Area`.
+- **Shared resources**: several image elements can use the same resource with different parts, e.g. a zoom inset next
+  to the capture showing a detail of it larger. The bytes are stored once.
+- **Crop that keeps the original**: a crop of an image changes its `source` and `Area`, so it can be widened again
+  later. The pixels outside of `source` stay in the file, see the redaction rule.
+- **`scaling`**: how the image is drawn when its size differs from `source`: `smooth` (bilinear or bicubic, the
+  default) or `pixelated` (nearest neighbour, text and lines of 1 px stay crisp when zoomed). Each renderer maps it to
+  its own modes.
+- **Today's editor** (Surface) always draws the whole image smoothly; `source` and `scaling` are kept through a trip
+  through it, but it doesn't show them yet.
 
 ### Design proposals (not decided)
 

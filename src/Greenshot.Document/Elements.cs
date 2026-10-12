@@ -175,12 +175,34 @@ namespace Greenshot.Document
     }
 
     /// <summary>
+    /// How an image is drawn when its size differs from the part of the resource it shows. A renderer maps it to its own modes.
+    /// </summary>
+    public enum ImageScaling
+    {
+        /// <summary>Bilinear or bicubic</summary>
+        Smooth,
+
+        /// <summary>Nearest neighbour, text and lines of 1 px stay crisp</summary>
+        Pixelated
+    }
+
+    /// <summary>
     /// An image (bitmap, icon, svg, metafile) shown in Area, the bytes are in the resource with the id Resource.
+    /// Several elements can show (parts of) the same resource.
     /// </summary>
     public sealed record ImageElement(Guid Id, RectD Area, Guid Resource) : Element(Id)
     {
         /// <summary>
-        /// Rotation in degrees, clockwise.
+        /// The part of the resource which is shown, stretched into Area, as a fraction (0..1) of its width and height,
+        /// so it works without knowing the size of the image (also for svg and metafiles). Null shows the whole image.
+        /// The pixels outside of it are still in the resource.
+        /// </summary>
+        public RectD? Source { get; init; }
+
+        public ImageScaling Scaling { get; init; }
+
+        /// <summary>
+        /// Rotation in degrees, clockwise, applied after Source is fitted into Area.
         /// </summary>
         public int Rotation { get; init; }
 
