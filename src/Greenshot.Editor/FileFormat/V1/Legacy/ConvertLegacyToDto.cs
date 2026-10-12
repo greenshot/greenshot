@@ -26,6 +26,7 @@ using System.Linq;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing;
+using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.FileFormat.Dto.Container;
 using Greenshot.Editor.FileFormat.Dto.Fields;
 
@@ -104,8 +105,60 @@ internal static class ConvertLegacyToDto
         };
     }
 
-    public static RectangleContainerDto ToDto(LegacyRectangleContainer container)
+    public static DrawableContainerDto ToDto(LegacyRectangleContainer container)
     {
+        var kind = ReadMetadata<string>(container, LegacyV1ContainerMetadata.ContainerKind, required: false);
+        if (kind == LegacyV1ContainerMetadata.CutMark)
+        {
+            var style = ReadStyle(container);
+            return new CutMarkContainerDto
+            {
+                Left = container.Left,
+                Top = container.Top,
+                Width = container.Width,
+                Height = container.Height,
+                Fields = ToContainerFields(container, style),
+                Horizontal = ReadMetadata<bool>(container, LegacyV1ContainerMetadata.Horizontal),
+                Seed = ReadMetadata<int>(container, LegacyV1ContainerMetadata.Seed),
+                ShadowDarkness = ReadMetadata<float>(container, LegacyV1ContainerMetadata.ShadowDarkness),
+                ShadowSize = ReadMetadata<int>(container, LegacyV1ContainerMetadata.ShadowSize),
+                ShadowOffsetX = ReadMetadata<int>(container, LegacyV1ContainerMetadata.ShadowOffsetX),
+                ShadowOffsetY = ReadMetadata<int>(container, LegacyV1ContainerMetadata.ShadowOffsetY)
+            };
+        }
+
+        if (kind == LegacyV1ContainerMetadata.TornEdge)
+        {
+            var style = ReadStyle(container);
+            return new TornEdgeContainerDto
+            {
+                Left = container.Left,
+                Top = container.Top,
+                Width = container.Width,
+                Height = container.Height,
+                Fields = ToContainerFields(container, style),
+                Seed = ReadMetadata<int>(container, LegacyV1ContainerMetadata.Seed),
+                ShadowDarkness = ReadMetadata<float>(container, LegacyV1ContainerMetadata.ShadowDarkness),
+                ShadowSize = ReadMetadata<int>(container, LegacyV1ContainerMetadata.ShadowSize),
+                ShadowOffsetX = ReadMetadata<int>(container, LegacyV1ContainerMetadata.ShadowOffsetX),
+                ShadowOffsetY = ReadMetadata<int>(container, LegacyV1ContainerMetadata.ShadowOffsetY),
+                Edges =
+                [
+                    ReadMetadata<bool>(container, LegacyV1ContainerMetadata.EdgeTop),
+                    ReadMetadata<bool>(container, LegacyV1ContainerMetadata.EdgeRight),
+                    ReadMetadata<bool>(container, LegacyV1ContainerMetadata.EdgeBottom),
+                    ReadMetadata<bool>(container, LegacyV1ContainerMetadata.EdgeLeft)
+                ],
+                Margins =
+                [
+                    ReadMetadata<int>(container, LegacyV1ContainerMetadata.MarginTop),
+                    ReadMetadata<int>(container, LegacyV1ContainerMetadata.MarginRight),
+                    ReadMetadata<int>(container, LegacyV1ContainerMetadata.MarginBottom),
+                    ReadMetadata<int>(container, LegacyV1ContainerMetadata.MarginLeft)
+                ]
+            };
+        }
+
         return new RectangleContainerDto
         {
             Left = container.Left,
@@ -114,6 +167,46 @@ internal static class ConvertLegacyToDto
             Height = container.Height,
             Fields = ToFieldDtos(container.Fields)
         };
+    }
+
+    private static List<FieldDto> ToContainerFields(LegacyRectangleContainer container, CutMarkStyle style)
+    {
+        var fields = ToFieldDtos(container.Fields?.Where(field => field.Scope != LegacyV1ContainerMetadata.Scope).ToList());
+        fields.Add(new FieldDto
+        {
+            FieldTypeName = FieldType.CUT_MARK_STYLE.Name,
+            Scope = ReadMetadata<string>(container, LegacyV1ContainerMetadata.StyleScope),
+            Value = new CutMarkStyleFieldValueDto { Value = style }
+        });
+        return fields;
+    }
+
+    private static CutMarkStyle ReadStyle(LegacyRectangleContainer container)
+    {
+        var style = (CutMarkStyle)ReadMetadata<int>(container, LegacyV1ContainerMetadata.Style);
+        if (!Enum.IsDefined(typeof(CutMarkStyle), style))
+        {
+            throw new InvalidDataException($"The V1 container metadata contains an unsupported cut mark style value {(int)style}.");
+        }
+
+        return style;
+    }
+
+    private static T ReadMetadata<T>(LegacyRectangleContainer container, string name, bool required = true)
+    {
+        var field = container.Fields?.FirstOrDefault(candidate =>
+            candidate.Scope == LegacyV1ContainerMetadata.Scope && candidate.FieldType?.Name == name);
+        if (field?.Value is T value)
+        {
+            return value;
+        }
+
+        if (!required && field == null)
+        {
+            return default;
+        }
+
+        throw new InvalidDataException($"The V1 container metadata field '{name}' is missing or has an invalid value.");
     }
 
     public static EllipseContainerDto ToDto(LegacyEllipseContainer container)

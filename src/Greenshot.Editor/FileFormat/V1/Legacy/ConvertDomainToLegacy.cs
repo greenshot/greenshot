@@ -19,8 +19,10 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing;
+using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Drawing.Filters;
 using Greenshot.Editor.FileFormat.Dto;
 using Greenshot.Editor.FileFormat.Dto.Container;
@@ -66,6 +68,8 @@ internal static class ConvertDomainToLegacy
             SvgContainerDto => new LegacySvgContainer(),
             EmojiContainerDto => new LegacyEmojiContainer(),
             StepLabelContainerDto => new LegacyStepLabelContainer(),
+            CutMarkContainerDto => new LegacyRectangleContainer(),
+            TornEdgeContainerDto => new LegacyRectangleContainer(),
             _ => throw new NotSupportedException($"The V1 .greenshot format does not support {dto?.GetType().Name ?? "null"}.")
         };
 
@@ -73,10 +77,44 @@ internal static class ConvertDomainToLegacy
         legacy.Top = dto.Top;
         legacy.Width = dto.Width;
         legacy.Height = dto.Height;
-        legacy.Fields = ToLegacyFields(dto.Fields);
+        var fields = dto.Fields;
+        if (dto is CutMarkContainerDto or TornEdgeContainerDto)
+        {
+            fields = dto.Fields?.Where(field => field.FieldTypeName != FieldType.CUT_MARK_STYLE.Name).ToList();
+        }
+        legacy.Fields = ToLegacyFields(fields);
 
         switch (dto)
         {
+            case CutMarkContainerDto cutMark:
+                AddMetadataField(legacy.Fields, LegacyV1ContainerMetadata.ContainerKind, LegacyV1ContainerMetadata.CutMark);
+                AddMetadataField(legacy.Fields, LegacyV1ContainerMetadata.Horizontal, cutMark.Horizontal);
+                AddMetadataField(legacy.Fields, LegacyV1ContainerMetadata.Seed, cutMark.Seed);
+                AddMetadataField(legacy.Fields, LegacyV1ContainerMetadata.Style, (int)GetCutMarkStyle(dto));
+                AddMetadataField(legacy.Fields, LegacyV1ContainerMetadata.StyleScope, GetCutMarkStyleScope(dto));
+                AddMetadataField(legacy.Fields, LegacyV1ContainerMetadata.ShadowDarkness, cutMark.ShadowDarkness);
+                AddMetadataField(legacy.Fields, LegacyV1ContainerMetadata.ShadowSize, cutMark.ShadowSize);
+                AddMetadataField(legacy.Fields, LegacyV1ContainerMetadata.ShadowOffsetX, cutMark.ShadowOffsetX);
+                AddMetadataField(legacy.Fields, LegacyV1ContainerMetadata.ShadowOffsetY, cutMark.ShadowOffsetY);
+                break;
+            case TornEdgeContainerDto tornEdge:
+                AddMetadataField(legacy.Fields, LegacyV1ContainerMetadata.ContainerKind, LegacyV1ContainerMetadata.TornEdge);
+                AddMetadataField(legacy.Fields, LegacyV1ContainerMetadata.Seed, tornEdge.Seed);
+                AddMetadataField(legacy.Fields, LegacyV1ContainerMetadata.Style, (int)GetCutMarkStyle(dto));
+                AddMetadataField(legacy.Fields, LegacyV1ContainerMetadata.StyleScope, GetCutMarkStyleScope(dto));
+                AddMetadataField(legacy.Fields, LegacyV1ContainerMetadata.ShadowDarkness, tornEdge.ShadowDarkness);
+                AddMetadataField(legacy.Fields, LegacyV1ContainerMetadata.ShadowSize, tornEdge.ShadowSize);
+                AddMetadataField(legacy.Fields, LegacyV1ContainerMetadata.ShadowOffsetX, tornEdge.ShadowOffsetX);
+                AddMetadataField(legacy.Fields, LegacyV1ContainerMetadata.ShadowOffsetY, tornEdge.ShadowOffsetY);
+                AddMetadataField(legacy.Fields, LegacyV1ContainerMetadata.EdgeTop, tornEdge.Edges.ElementAtOrDefault(0));
+                AddMetadataField(legacy.Fields, LegacyV1ContainerMetadata.EdgeRight, tornEdge.Edges.ElementAtOrDefault(1));
+                AddMetadataField(legacy.Fields, LegacyV1ContainerMetadata.EdgeBottom, tornEdge.Edges.ElementAtOrDefault(2));
+                AddMetadataField(legacy.Fields, LegacyV1ContainerMetadata.EdgeLeft, tornEdge.Edges.ElementAtOrDefault(3));
+                AddMetadataField(legacy.Fields, LegacyV1ContainerMetadata.MarginTop, tornEdge.Margins.ElementAtOrDefault(0));
+                AddMetadataField(legacy.Fields, LegacyV1ContainerMetadata.MarginRight, tornEdge.Margins.ElementAtOrDefault(1));
+                AddMetadataField(legacy.Fields, LegacyV1ContainerMetadata.MarginBottom, tornEdge.Margins.ElementAtOrDefault(2));
+                AddMetadataField(legacy.Fields, LegacyV1ContainerMetadata.MarginLeft, tornEdge.Margins.ElementAtOrDefault(3));
+                break;
             case TextContainerDto text:
                 ((LegacyTextContainer)legacy).Text = text.Text;
                 break;
@@ -125,6 +163,26 @@ internal static class ConvertDomainToLegacy
         }
 
         return legacy;
+    }
+
+    private static CutMarkStyle GetCutMarkStyle(DrawableContainerDto dto)
+    {
+        var styleField = dto.Fields?.FirstOrDefault(field => field.FieldTypeName == FieldType.CUT_MARK_STYLE.Name);
+        return styleField?.Value?.GetValue() is CutMarkStyle style ? style : CutMarkStyle.None;
+    }
+
+    private static string GetCutMarkStyleScope(DrawableContainerDto dto) =>
+        dto.Fields?.FirstOrDefault(field => field.FieldTypeName == FieldType.CUT_MARK_STYLE.Name)?.Scope ?? string.Empty;
+
+    private static void AddMetadataField(IList<LegacyField> fields, string name, object value)
+    {
+        var field = new LegacyField
+        {
+            FieldType = new LegacyFieldType { Name = name },
+            Scope = LegacyV1ContainerMetadata.Scope
+        };
+        field.ResetValue(value);
+        fields.Add(field);
     }
 
     private static void CopyChildren(DrawableContainer source, LegacyDrawableContainer destination)

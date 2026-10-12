@@ -16,10 +16,13 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
+using Greenshot.Base.Effects;
 using Greenshot.Base.Interfaces;
 using Greenshot.Editor.Drawing;
+using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.FileFormatHandlers;
 using Xunit;
 
@@ -124,5 +127,183 @@ public class SaveGreenshotSurfaceRoundTripTests
                 }
             }
         }
+    }
+
+    [Fact]
+    public void SaveAndLoadGsaFile_RoundTripsCutMarkContainer()
+    {
+        using var surface = (Surface)SimpleServiceProvider.Current.GetInstance<Func<ISurface>>().Invoke();
+        surface.Image = new Bitmap(100, 100);
+        var settings = new TornEdgeEffect
+        {
+            GenerateShadow = false,
+            ToothHeight = 8,
+            HorizontalToothRange = 16,
+            VerticalToothRange = 18,
+            Darkness = 0.45f,
+            BackgroundColor = Color.FromArgb(64, 10, 20, 30)
+        };
+
+        Assert.True(surface.ApplyCutOut(new NativeRect(0, 30, 100, 30), CropContainer.CropModes.Horizontal, CutMarkStyle.Wave, settings));
+        var cutMark = Assert.Single(surface.Elements.OfType<CutMarkContainer>());
+
+        using var loadedSurface = SaveAndLoadFile(surface, ".gsa");
+
+        var loadedCutMark = Assert.Single(loadedSurface.Elements.OfType<CutMarkContainer>());
+        Assert.Equal(cutMark.Seed, loadedCutMark.Seed);
+        Assert.Equal(cutMark.IsHorizontal, loadedCutMark.IsHorizontal);
+        Assert.Equal(cutMark.Left, loadedCutMark.Left);
+        Assert.Equal(cutMark.Top, loadedCutMark.Top);
+        Assert.Equal(cutMark.Width, loadedCutMark.Width);
+        Assert.Equal(cutMark.Height, loadedCutMark.Height);
+        Assert.Equal(cutMark.ToothHeight, loadedCutMark.ToothHeight);
+        Assert.Equal(cutMark.ToothRange, loadedCutMark.ToothRange);
+        Assert.Equal(cutMark.GetFieldValue(FieldType.CUT_MARK_STYLE), loadedCutMark.GetFieldValue(FieldType.CUT_MARK_STYLE));
+        AssertTornEdgeSettingsEqual(cutMark.GetSettings(), loadedCutMark.GetSettings());
+        Assert.Equal(
+            ((Color)cutMark.GetFieldValue(FieldType.FILL_COLOR)).ToArgb(),
+            ((Color)loadedCutMark.GetFieldValue(FieldType.FILL_COLOR)).ToArgb());
+    }
+
+    [Fact]
+    public void SaveAndLoadGsaFile_RoundTripsTornEdgeContainer()
+    {
+        using var surface = (Surface)SimpleServiceProvider.Current.GetInstance<Func<ISurface>>().Invoke();
+        surface.Image = new Bitmap(100, 100);
+        var settings = new TornEdgeEffect
+        {
+            GenerateShadow = false,
+            ToothHeight = 9,
+            HorizontalToothRange = 15,
+            VerticalToothRange = 17,
+            Edges = [true, false, true, false],
+            BackgroundColor = Color.FromArgb(64, 40, 50, 60)
+        };
+        var tornEdges = surface.AddTornEdges(settings);
+
+        using var loadedSurface = SaveAndLoadFile(surface, ".gsa");
+
+        var loadedTornEdges = Assert.Single(loadedSurface.Elements.OfType<TornEdgeContainer>());
+        Assert.Equal(tornEdges.Seed, loadedTornEdges.Seed);
+        Assert.Equal(tornEdges.Left, loadedTornEdges.Left);
+        Assert.Equal(tornEdges.Top, loadedTornEdges.Top);
+        Assert.Equal(tornEdges.Width, loadedTornEdges.Width);
+        Assert.Equal(tornEdges.Height, loadedTornEdges.Height);
+        Assert.Equal(tornEdges.ToothHeight, loadedTornEdges.ToothHeight);
+        Assert.Equal(tornEdges.ToothRange, loadedTornEdges.ToothRange);
+        Assert.Equal(tornEdges.Style, loadedTornEdges.Style);
+        Assert.Equal(tornEdges.Edges, loadedTornEdges.Edges);
+        Assert.Equal(tornEdges.Margins, loadedTornEdges.Margins);
+        AssertTornEdgeSettingsEqual(tornEdges.GetSettings(), loadedTornEdges.GetSettings());
+        Assert.Equal(
+            ((Color)tornEdges.GetFieldValue(FieldType.FILL_COLOR)).ToArgb(),
+            ((Color)loadedTornEdges.GetFieldValue(FieldType.FILL_COLOR)).ToArgb());
+    }
+
+    [Fact]
+    public void SaveAndLoadGreenshotFile_RoundTripsCutMarkContainer()
+    {
+        using var surface = (Surface)SimpleServiceProvider.Current.GetInstance<Func<ISurface>>().Invoke();
+        surface.Image = new Bitmap(100, 100);
+        var settings = new TornEdgeEffect
+        {
+            GenerateShadow = false,
+            ToothHeight = 8,
+            HorizontalToothRange = 16,
+            VerticalToothRange = 18,
+            Darkness = 0.45f,
+            BackgroundColor = Color.FromArgb(64, 10, 20, 30)
+        };
+        Assert.True(surface.ApplyCutOut(new NativeRect(0, 30, 100, 30), CropContainer.CropModes.Horizontal, CutMarkStyle.Wave, settings));
+        var cutMark = Assert.Single(surface.Elements.OfType<CutMarkContainer>());
+
+        using var loadedSurface = SaveAndLoadFile(surface, ".greenshot");
+
+        var loadedCutMark = Assert.Single(loadedSurface.Elements.OfType<CutMarkContainer>());
+        Assert.Equal(cutMark.Seed, loadedCutMark.Seed);
+        Assert.Equal(cutMark.IsHorizontal, loadedCutMark.IsHorizontal);
+        Assert.Equal(cutMark.Left, loadedCutMark.Left);
+        Assert.Equal(cutMark.Top, loadedCutMark.Top);
+        Assert.Equal(cutMark.Width, loadedCutMark.Width);
+        Assert.Equal(cutMark.Height, loadedCutMark.Height);
+        Assert.Equal(cutMark.ToothHeight, loadedCutMark.ToothHeight);
+        Assert.Equal(cutMark.ToothRange, loadedCutMark.ToothRange);
+        Assert.Equal(cutMark.GetFieldValue(FieldType.CUT_MARK_STYLE), loadedCutMark.GetFieldValue(FieldType.CUT_MARK_STYLE));
+        AssertTornEdgeSettingsEqual(cutMark.GetSettings(), loadedCutMark.GetSettings());
+        Assert.Equal(
+            ((Color)cutMark.GetFieldValue(FieldType.FILL_COLOR)).ToArgb(),
+            ((Color)loadedCutMark.GetFieldValue(FieldType.FILL_COLOR)).ToArgb());
+    }
+
+    [Fact]
+    public void SaveAndLoadGreenshotFile_RoundTripsTornEdgeContainer()
+    {
+        using var surface = (Surface)SimpleServiceProvider.Current.GetInstance<Func<ISurface>>().Invoke();
+        surface.Image = new Bitmap(100, 100);
+        var settings = new TornEdgeEffect
+        {
+            GenerateShadow = false,
+            ToothHeight = 9,
+            HorizontalToothRange = 15,
+            VerticalToothRange = 17,
+            Edges = [true, false, true, false],
+            BackgroundColor = Color.FromArgb(64, 40, 50, 60)
+        };
+        var tornEdges = surface.AddTornEdges(settings);
+
+        using var loadedSurface = SaveAndLoadFile(surface, ".greenshot");
+
+        var loadedTornEdges = Assert.Single(loadedSurface.Elements.OfType<TornEdgeContainer>());
+        Assert.Equal(tornEdges.Seed, loadedTornEdges.Seed);
+        Assert.Equal(tornEdges.Left, loadedTornEdges.Left);
+        Assert.Equal(tornEdges.Top, loadedTornEdges.Top);
+        Assert.Equal(tornEdges.Width, loadedTornEdges.Width);
+        Assert.Equal(tornEdges.Height, loadedTornEdges.Height);
+        Assert.Equal(tornEdges.ToothHeight, loadedTornEdges.ToothHeight);
+        Assert.Equal(tornEdges.ToothRange, loadedTornEdges.ToothRange);
+        Assert.Equal(tornEdges.Style, loadedTornEdges.Style);
+        Assert.Equal(tornEdges.Edges, loadedTornEdges.Edges);
+        Assert.Equal(tornEdges.Margins, loadedTornEdges.Margins);
+        AssertTornEdgeSettingsEqual(tornEdges.GetSettings(), loadedTornEdges.GetSettings());
+        Assert.Equal(
+            ((Color)tornEdges.GetFieldValue(FieldType.FILL_COLOR)).ToArgb(),
+            ((Color)loadedTornEdges.GetFieldValue(FieldType.FILL_COLOR)).ToArgb());
+    }
+
+    private static ISurface SaveAndLoadFile(ISurface surface, string extension)
+    {
+        var filePath = Path.Combine(Path.GetTempPath(), $"greenshot_container_roundtrip_{Guid.NewGuid():N}{extension}");
+        try
+        {
+            var handler = new GreenshotFileFormatHandler();
+            using (var output = File.Create(filePath))
+            {
+                Assert.True(handler.TrySaveToStream((Bitmap)surface.Image, output, extension, surface));
+            }
+
+            return handler.LoadGreenshotSurface(filePath);
+        }
+        finally
+        {
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+            }
+        }
+    }
+
+    private static void AssertTornEdgeSettingsEqual(TornEdgeEffect expected, TornEdgeEffect actual)
+    {
+        Assert.Equal(expected.Darkness, actual.Darkness);
+        Assert.Equal(expected.ShadowSize, actual.ShadowSize);
+        Assert.Equal(expected.ShadowOffset.X, actual.ShadowOffset.X);
+        Assert.Equal(expected.ShadowOffset.Y, actual.ShadowOffset.Y);
+        Assert.Equal(expected.ToothHeight, actual.ToothHeight);
+        Assert.Equal(expected.HorizontalToothRange, actual.HorizontalToothRange);
+        Assert.Equal(expected.VerticalToothRange, actual.VerticalToothRange);
+        Assert.Equal(expected.GenerateShadow, actual.GenerateShadow);
+        Assert.Equal(expected.BackgroundColor.ToArgb(), actual.BackgroundColor.ToArgb());
+        Assert.Equal(expected.Edges, actual.Edges);
+        Assert.Equal(expected.Seed, actual.Seed);
     }
 }
