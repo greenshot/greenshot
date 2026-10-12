@@ -544,6 +544,14 @@ flowchart LR
     Zip --> Extensions["extensions/{plugin-id}.json (optional)<br/>kept on re-save, even without the plugin"]
 ```
 
+- `mimetype` is the first entry, stored (not compressed) and without an extra field, so its content starts at a fixed
+  place: the file starts with the zip signature `PK\x03\x04`, bytes 30-37 are the name `mimetype` and from byte 38 on
+  is `application/vnd.greenshot.document+zip`. A tool (or `file`/libmagic, a shell thumbnail handler, a web server)
+  recognises a Greenshot document by reading these first 76 bytes, without unzipping. Other zip based formats work
+  the same way: OpenDocument (`.odt`, `.ods`, `application/vnd.oasis.opendocument.text`), EPUB
+  (`application/epub+zip`) and OpenRaster (`.ora`, `image/openraster`). `Write_PutsTheMimetypeFirstAndUsesShortNames`
+  checks the bytes. The reader itself opens the zip and compares the `mimetype` entry, so it doesn't depend on the place.
+
 - `document.json` is the model as JSON (System.Text.Json, camelCase) with a `version` (now 1); newer versions are
   refused. The element type is written as a short name (`"type": "arrow"`), never as a CLR type name. Enums are
   camelCase names, colors `#RRGGBBAA`, derived values (bounds, the canvas area) aren't written, nor are values which

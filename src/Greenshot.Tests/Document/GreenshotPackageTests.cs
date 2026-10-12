@@ -234,6 +234,10 @@ namespace Greenshot.Tests.Document
         {
             using var stream = new MemoryStream();
             GreenshotPackage.Write(AllElements(), stream, ExtensionFor);
+            // Stored without an extra field, so the media type can be read at offset 38 without unzipping
+            string head = Encoding.ASCII.GetString(stream.ToArray(), 0, 38 + GreenshotPackage.MediaType.Length);
+            Assert.StartsWith("PK\u0003\u0004", head);
+            Assert.Equal("mimetype" + GreenshotPackage.MediaType, head.Substring(30));
             stream.Position = 0;
 
             using var zip = new ZipArchive(stream, ZipArchiveMode.Read);
