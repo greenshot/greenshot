@@ -56,15 +56,15 @@ namespace Greenshot.Document.Legacy
             // Width and height of the PNG are in the IHDR chunk, big endian
             int width = (png[16] << 24) | (png[17] << 16) | (png[18] << 8) | png[19];
             int height = (png[20] << 24) | (png[21] << 16) | (png[22] << 8) | png[23];
-            var captureLayer = new Layer(Guid.NewGuid(), "Capture", LayerKind.Capture,
-                new List<Element> { new ImageElement(Guid.NewGuid(), new RectD(0, 0, width, height), AddResource(resources, png)) })
+            var captureLayer = new Layer(Uuid7.CreateVersion7(), "Capture", LayerKind.Capture,
+                new List<Element> { new ImageElement(Uuid7.CreateVersion7(), new RectD(0, 0, width, height), AddResource(resources, png)) })
             {
                 Locked = true
             };
-            var annotationsLayer = new Layer(Guid.NewGuid(), "Annotations", LayerKind.Annotations, ToElements(legacyElements, resources));
+            var annotationsLayer = new Layer(Uuid7.CreateVersion7(), "Annotations", LayerKind.Annotations, ToElements(legacyElements, resources));
             int counterStart = legacyElements.OfType<LegacyStepLabelElement>().Select(stepLabel => stepLabel.CounterStart).FirstOrDefault();
 
-            return new GreenshotDocument(Guid.NewGuid(), new Canvas(width, height) { CounterStart = counterStart == 0 ? 1 : counterStart },
+            return new GreenshotDocument(Uuid7.CreateVersion7(), new Canvas(width, height) { CounterStart = counterStart == 0 ? 1 : counterStart },
                 new List<Layer> { captureLayer, annotationsLayer }, resources);
         }
 
@@ -80,7 +80,7 @@ namespace Greenshot.Document.Legacy
 
         private static Element ToElement(LegacyElement legacy, IDictionary<Guid, Resource> resources)
         {
-            var id = Guid.NewGuid();
+            var id = Uuid7.CreateVersion7();
             var area = new RectD(legacy.Left, legacy.Top, legacy.Width, legacy.Height);
             var start = new PointD(legacy.Left, legacy.Top);
             var end = new PointD(legacy.Left + legacy.Width, legacy.Top + legacy.Height);
@@ -243,7 +243,7 @@ namespace Greenshot.Document.Legacy
                 : StartsWith(data, (byte)'B', (byte)'M') ? "image/bmp"
                 : StartsWith(data, (byte)'I', (byte)'I', 42, 0) || StartsWith(data, (byte)'M', (byte)'M', 0, 42) ? "image/tiff"
                 : "application/octet-stream";
-            var resource = new Resource(Guid.NewGuid(), mediaType, data);
+            var resource = new Resource(Uuid7.CreateVersion7(), mediaType, data);
             resources.Add(resource.Id, resource);
             return resource.Id;
         }

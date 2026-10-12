@@ -47,8 +47,8 @@ namespace Greenshot.Document.Editor
         {
             var resources = new Dictionary<Guid, Resource>();
             var image = surface.Image;
-            var captureLayer = new Layer(Guid.NewGuid(), "Capture", LayerKind.Capture,
-                new List<Element> { new ImageElement(Guid.NewGuid(), new RectD(0, 0, image.Width, image.Height), AddImage(resources, image)) })
+            var captureLayer = new Layer(Uuid7.CreateVersion7(), "Capture", LayerKind.Capture,
+                new List<Element> { new ImageElement(Uuid7.CreateVersion7(), new RectD(0, 0, image.Width, image.Height), AddImage(resources, image)) })
             {
                 Locked = true
             };
@@ -58,7 +58,7 @@ namespace Greenshot.Document.Editor
                 elements.AddRange(kept.Select(keptElement => AddKept(resources, keptElement)));
             }
 
-            var annotationsLayer = new Layer(Guid.NewGuid(), "Annotations", LayerKind.Annotations, elements);
+            var annotationsLayer = new Layer(Uuid7.CreateVersion7(), "Annotations", LayerKind.Annotations, elements);
 
             return new GreenshotDocument(surface.ID, new Canvas(image.Width, image.Height) { CounterStart = surface.CounterStart },
                 new List<Layer> { captureLayer, annotationsLayer }, resources);
@@ -66,7 +66,7 @@ namespace Greenshot.Document.Editor
 
         private static Element ToElement(DrawableContainer container, IDictionary<Guid, Resource> resources)
         {
-            var id = Guid.NewGuid();
+            var id = Uuid7.CreateVersion7();
             var area = new RectD(container.Left, container.Top, container.Width, container.Height);
             var start = new PointD(container.Left, container.Top);
             var end = new PointD(container.Left + container.Width, container.Top + container.Height);
@@ -225,7 +225,7 @@ namespace Greenshot.Document.Editor
 
         private static Guid AddResource(IDictionary<Guid, Resource> resources, string mediaType, byte[] data)
         {
-            var resource = new Resource(Guid.NewGuid(), mediaType, data);
+            var resource = new Resource(Uuid7.CreateVersion7(), mediaType, data);
             resources.Add(resource.Id, resource);
             return resource.Id;
         }

@@ -101,6 +101,9 @@ Rules:
   Undo can keep earlier documents, since unchanged parts are shared.
 - **Order**: `Layers[0]` is drawn first (bottom). Within a layer, `Elements[0]` is drawn first. A layer owns its
   elements, there is no z-index.
+- **Ids**: new ids are UUID version 7 (`Uuid7.CreateVersion7`, replaced by `Guid.CreateVersion7` on .NET 10). They
+  start with the creation time, so `Uuid7.TryGetTimestamp` gives the date a document, element or resource was created.
+  Ids are kept on read and write; ids from elsewhere (e.g. `Surface.ID`) can be any version.
 - **Coordinates**: canvas pixels as `double`, origin top-left (`PointD`, `RectD`).
 - **Colors**: `Rgba`, written as `#RRGGBBAA`.
 - **Style**: optional parts. A part that is `null`, or a stroke of width 0, isn't drawn. Text uses its own color
