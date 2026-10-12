@@ -161,6 +161,28 @@ annotations when the surface becomes a document again.
 Plugin elements of old .greenshot files only have the CLR type name: their data can't be read without the plugin's
 types, so they become a `PluginElement` without data or fallback.
 
+### Anchors (agreed, not built yet)
+
+An element can be anchored to another element, the target. Without a target it is anchored to the capture image, so
+elements follow the capture when the canvas grows (e.g. a border) or the capture moves.
+
+- **Shape**: an optional `anchor` on the element with `target` (an element id, missing = the capture image). Per axis
+  (x, y): a line on the target (`start`, `center`, `end`), a line on the element itself (`start`, `center`, `end`) and
+  an offset in pixels. An axis without an entry isn't anchored.
+  - Inside the target, 10 px from its right edge: x target `end`, self `end`, offset -10.
+  - Outside, a caption below the target: y target `end`, self `start`, offset 8.
+  - Centred on the target: target `center`, self `center`.
+- **The position stays absolute**: the element keeps its normal position and size; the anchor is only the rule to apply
+  again when the target moves or changes size. A reader which ignores anchors still draws everything in place.
+- **Resolving**: to place an element, first place its target: follow the targets up the chain to an element without
+  anchor, then come back down and apply each anchor in turn. Every element is placed once.
+- **Loops**: setting an anchor which would make a loop (A to B, B to A, or longer) is refused when the anchor is set.
+- **Deleted target**: the anchor is removed, the element stays where it is.
+- **Editor**: dragging an anchored element keeps the anchor and changes its offset.
+- **Recipes**: the "Add Elements" step takes the same anchor; the anchor, margin and offset parameters of the
+  annotation step map onto it.
+- **Needed first**: the capture image element keeps its id through the editor (today it gets a new one every time).
+
 ## File formats
 
 ### Legacy .greenshot (1.2 - 1.4)
