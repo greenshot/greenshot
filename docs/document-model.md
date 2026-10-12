@@ -161,6 +161,43 @@ annotations when the surface becomes a document again.
 Plugin elements of old .greenshot files only have the CLR type name: their data can't be read without the plugin's
 types, so they become a `PluginElement` without data or fallback.
 
+### Geometry: Area and Bounds
+
+All coordinates are canvas pixels (`double`), origin top-left, x to the right, y down.
+
+- **`Area`** (stored): the rectangle of a box-shaped element, **before rotation**: `x`, `y` (top-left), `width`,
+  `height`. It is what the user draws and edits. Box-shaped are rectangle, ellipse, text, speech bubble, step label,
+  highlight, obfuscate, image, emoji, cursor, cut mark, torn edge, plugin and unknown elements. In `document.json` it is
+  `"area": {"x": 10, "y": 20, "width": 100, "height": 50}`.
+- **Points** (stored): elements defined by points store those instead of an `Area`: `start` and `end` for lines and
+  arrows, `points` for freehand, and the `tail` of a speech bubble (next to its `Area`).
+- **`Bounds`** (calculated, never stored): the smallest axis-aligned rectangle around the shape of the element, after
+  rotation and including points like the tail, without stroke width or shadow. Every element has it. Anchors, hit
+  testing, selection and "fit to content" use it. Today `Bounds` doesn't include the rotation and the tail yet; that
+  comes with the anchors.
+
+### Design proposals (not decided)
+
+- **Rotation**: one rule for all box-shaped elements: `rotation` in degrees, clockwise, around the centre of the
+  `Area`; the `Area` stays unrotated. Today only images and emojis have it. Elements defined by points don't need it,
+  rotating them changes their points.
+- **Styles beyond the current set**: an element's style has optional parts (stroke, fill, shadow, text). A new kind
+  of style becomes a new optional part, readers which don't know it ignore it and still draw the rest. So a document
+  written by a newer Greenshot doesn't lose them on save, unknown properties of a style (and of an element) are kept
+  and written back unchanged. Style settings only one plugin understands go in the plugin element's data. Named,
+  shared styles (a document-level list an element refers to, with its own overrides) can come later on top.
+- **Speech bubble tail with anchors**: an anchor moves the whole element, so anchoring a bubble moves its `Area` and
+  its tail together. A tail that must keep pointing at something while the bubble moves (what the editor does when
+  you drag a bubble today) gets its own anchor on the point: the same shape (target, lines, offset) on `tail`. The same
+  point anchors on `start` and `end` turn a line or arrow into a connector between two elements.
+- **Text in elements**: not through anchors. An anchor only positions; text inside a rectangle must also wrap and
+  resize with it. Instead, rectangles, ellipses and lines get an optional `text`, drawn inside the `Area` (or at the
+  middle of a line) with the text style that already exists. A speech bubble is then a rectangle with a text and a tail.
+- **Grouping**: a group element with its own id and a list of child elements; its `Bounds` are the union of the
+  children's. Children keep absolute coordinates (no nested transforms), so every child is still drawn correctly on
+  its own. Moving or rotating the group changes the children. Anchors can target a group; a child can't anchor to its
+  own group.
+
 ### Anchors (agreed, not built yet)
 
 An element can be anchored to another element, the target. Without a target it is anchored to the capture image, so
