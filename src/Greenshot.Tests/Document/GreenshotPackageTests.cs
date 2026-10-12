@@ -262,6 +262,29 @@ namespace Greenshot.Tests.Document
         }
 
         [Fact]
+        public void RoundTrip_KeepsTheExtensionsOfTheDocument_ALayer_AndAResource()
+        {
+            var png = new Resource(Guid.NewGuid(), "image/png", new byte[] { 0x89, 0x50, 0x4E, 0x47, 1, 2, 3 }) { Extensions = new RawJson("{\"greenshot.ocr\":{\"text\":\"Save\"}}") };
+            var layer = new Layer(Guid.NewGuid(), "Capture", LayerKind.Capture, new List<Element> { new ImageElement(Guid.NewGuid(), new RectD(0, 0, 10, 10), png.Id) })
+            {
+                Extensions = new RawJson("{\"export\":{\"blend\":\"multiply\"}}")
+            };
+            var document = new GreenshotDocument(Guid.NewGuid(), new Canvas(), new List<Layer> { layer }, new Dictionary<Guid, Resource> { [png.Id] = png })
+            {
+                Extensions = new RawJson("{\"confluence\":{\"pageId\":\"123456\"}}")
+            };
+            using var stream = new MemoryStream();
+
+            GreenshotPackage.Write(document, stream, ExtensionFor);
+            stream.Position = 0;
+            var read = GreenshotPackage.Read(stream);
+
+            Assert.Equal("123456", JsonDocument.Parse(read.Extensions.Json).RootElement.GetProperty("confluence").GetProperty("pageId").GetString());
+            Assert.Equal("multiply", JsonDocument.Parse(read.Layers[0].Extensions.Json).RootElement.GetProperty("export").GetProperty("blend").GetString());
+            Assert.Equal("Save", JsonDocument.Parse(read.Resources[png.Id].Extensions.Json).RootElement.GetProperty("greenshot.ocr").GetProperty("text").GetString());
+        }
+
+        [Fact]
         public void Read_KeepsAnElementOfAnUnknownType()
         {
             var document = AllElements();

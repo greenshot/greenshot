@@ -92,7 +92,8 @@ namespace Greenshot.Document.Editor
 
             return new GreenshotDocument(surface.ID, standIn ? kept.Canvas : new Canvas(), captureLayers.Append(annotationsLayer).ToList(), resources)
             {
-                Groups = groups
+                Groups = groups,
+                Extensions = kept.Extensions
             };
         }
 

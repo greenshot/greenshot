@@ -54,5 +54,10 @@ namespace Greenshot.Document
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public bool Locked { get; init; }
+
+        /// <summary>
+        /// Values of plugins (keyed by plugin id), written back unchanged
+        /// </summary>
+        public RawJson Extensions { get; init; }
     }
 }

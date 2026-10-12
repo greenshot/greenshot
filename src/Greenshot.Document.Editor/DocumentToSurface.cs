@@ -85,6 +85,7 @@ namespace Greenshot.Document.Editor
             kept.CaptureLayerId = document.Layers.FirstOrDefault(layer => layer.Kind == LayerKind.Capture)?.Id ?? kept.CaptureLayerId;
             kept.AnnotationsLayerId = document.Layers.FirstOrDefault(layer => layer.Kind != LayerKind.Capture)?.Id ?? kept.AnnotationsLayerId;
             kept.Groups = document.Groups;
+            kept.Extensions = document.Extensions;
             if (standIn)
             {
                 kept.StandIn = surface.Image;

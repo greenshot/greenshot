@@ -48,9 +48,9 @@ namespace Greenshot.Document
         private const int MaxEntries = 10_000;
         private const long MaxEntrySize = 256L * 1024 * 1024;
 
-        private sealed record ResourceEntry(string Path, string MediaType, int? Width = null, int? Height = null);
+        private sealed record ResourceEntry(string Path, string MediaType, int? Width = null, int? Height = null, RawJson Extensions = null);
 
-        private sealed record DocumentJson(int Version, Guid Id, Canvas Canvas, IReadOnlyList<Layer> Layers, IReadOnlyList<Group> Groups, IReadOnlyDictionary<Guid, ResourceEntry> Resources);
+        private sealed record DocumentJson(int Version, Guid Id, Canvas Canvas, IReadOnlyList<Layer> Layers, IReadOnlyList<Group> Groups, IReadOnlyDictionary<Guid, ResourceEntry> Resources, RawJson Extensions = null);
 
         private static readonly JsonSerializerOptions Options = new()
         {
@@ -74,12 +74,12 @@ namespace Greenshot.Document
                 .Select(id => document.Resources.TryGetValue(id, out var resource) ? resource : throw new InvalidDataException($"An element links to the missing resource {id}"))
                 .ToList();
             var entries = linked.Select(WithSize).ToDictionary(resource => resource.Id,
-                resource => new ResourceEntry($"resources/{resource.Id:D}.{Extension(resource, extensionFor)}", resource.MediaType, resource.Width, resource.Height));
+                resource => new ResourceEntry($"resources/{resource.Id:D}.{Extension(resource, extensionFor)}", resource.MediaType, resource.Width, resource.Height, resource.Extensions));
             Anchors.CheckLoops(document);
             // Members which no longer exist are dropped, gaps (null) are kept
             var elementIds = new HashSet<Guid>(document.Layers.SelectMany(layer => layer.Elements).Select(element => element.Id));
             var groups = document.Groups.Select(group => group with { Members = group.Members.Where(id => id == null || elementIds.Contains(id.Value)).ToList() }).ToList();
-            var json = new DocumentJson(Version, document.Id, document.Canvas, document.Layers, groups, entries);
+            var json = new DocumentJson(Version, document.Id, document.Canvas, document.Layers, groups, entries, document.Extensions);
 
             using var zip = new ZipArchive(stream, ZipArchiveMode.Create, true);
             WriteEntry(zip, "mimetype", Encoding.ASCII.GetBytes(MediaType), CompressionLevel.NoCompression);
@@ -122,10 +122,11 @@ namespace Greenshot.Document
             }
 
             var resources = json.Resources.ToDictionary(pair => pair.Key,
-                pair => WithSize(new Resource(pair.Key, pair.Value.MediaType, ReadEntry(zip, pair.Value.Path)) { Width = pair.Value.Width, Height = pair.Value.Height }));
+                pair => WithSize(new Resource(pair.Key, pair.Value.MediaType, ReadEntry(zip, pair.Value.Path)) { Width = pair.Value.Width, Height = pair.Value.Height, Extensions = pair.Value.Extensions }));
             return new GreenshotDocument(json.Id, json.Canvas, json.Layers, resources)
             {
-                Groups = (json.Groups ?? Array.Empty<Group>()).Select(group => group.Members == null ? group with { Members = Array.Empty<Guid?>() } : group).ToList()
+                Groups = (json.Groups ?? Array.Empty<Group>()).Select(group => group.Members == null ? group with { Members = Array.Empty<Guid?>() } : group).ToList(),
+                Extensions = json.Extensions
             };
         }
 

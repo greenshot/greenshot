@@ -59,6 +59,8 @@ namespace Greenshot.Document.Editor
 
             public IReadOnlyList<Group> Groups { get; set; } = Array.Empty<Group>();
 
+            public RawJson Extensions { get; set; }
+
             /// <summary>
             /// The image the editor got when the capture doesn't simply fill the canvas: the capture layers drawn onto the
             /// canvas. While the editor still has it, the capture layers, the canvas and the coordinates come back unchanged.

@@ -56,6 +56,7 @@ classDiagram
         IReadOnlyList~Layer~ Layers
         IReadOnlyDictionary Resources
         IReadOnlyList~Group~ Groups
+        RawJson Extensions
     }
     class Canvas {
         CanvasFit Fit
@@ -80,6 +81,7 @@ classDiagram
         IReadOnlyList~Element~ Elements
         bool Visible
         bool Locked
+        RawJson Extensions
     }
     class Resource {
         Guid Id
@@ -87,6 +89,7 @@ classDiagram
         byte[] Data
         int? Width
         int? Height
+        RawJson Extensions
     }
     class Element {
         <<abstract>>
@@ -286,6 +289,78 @@ height, wrap and outline; the list and these values are kept through a trip thro
 Fonts aren't embedded. A font can be used without installing it (GDI+ `PrivateFontCollection`, WPF and SkiaSharp
 load fonts from a stream), but most font licences, those of the Windows fonts too, don't allow passing them on; a
 font would only be embedded when the user asks and its licence (`fsType` in the font) allows it.
+
+### Extensions
+
+Extensions are data someone other than the core attaches to an object. The core never interprets them and writes them
+back unchanged.
+
+```json
+"extensions": {
+  "greenshot.ocr": { "text": "Save changes", "confidence": 0.97 },
+  "jira": { "issue": "GS-123" }
+}
+```
+
+- **Where**: on the document, a layer, a resource, an element, a style and a group. Not on values (anchors, areas,
+  colours); the element they belong to holds such data.
+- **Key**: the owner's namespace, a plugin id or a reverse domain (`greenshot.ocr`, `zxing`, `jira`), one key per
+  owner, the value is any JSON. `greenshot.*` is for Greenshot's own optional features.
+- **Only the owner writes its key**: it adds, changes and removes its own key and nothing outside it. Everyone else (the
+  core, the editor, other plugins) leaves the key alone, also when they don't understand it.
+- **Never needed for drawing**: a reader without the owner draws the document correctly. Anything that changes the look
+  is a plugin element (with its fallback) or a generated resource.
+- **No binary data inline**: it is stored as a resource and linked by id; the extension lists the resource ids it links
+  to, so the write gate keeps them (not built yet).
+- **Lifecycle**: deleting an object deletes its extensions; copying copies them, unless the owner's data says
+  `"copy": false`; merging documents keeps each object's own extensions; removing all extensions is an explicit choice of
+  the user (e.g. a privacy option when saving or sharing). Unknown extensions are never dropped on read or write, and
+  their size counts against the package limits.
+- **Group `properties` vs `extensions`**: `properties` belong to the group's `type` and are defined by its owner (`start`
+  and `format` for `steps`, a plugin for its own type); `extensions` are additions by anyone, on a group of any type.
+  Type and properties say what a thing is, extensions what someone else wants to remember about it.
+- **Examples**: OCR text under a highlight (element), the recipe that added an element so a re-run replaces it
+  (element, `greenshot.recipe`), a hand-drawn look a plugin renderer uses (style, the normal renderer draws clean
+  lines), the page a set of callouts was uploaded to (group), a blend mode for an export (layer), the OCR or barcode
+  result of one image (resource), the recipe which made the document (document).
+- **Today's editor** keeps the extensions of the document, of elements and of groups through a trip. It has one image and
+  one annotation layer: the capture layers and their resources come back with their extensions while the editor still has
+  the image it got, the extensions of the other layers are lost.
+- Open: a style's extensions replace those of its group as a whole, not per key.
+
+### Metadata (proposal, not built)
+
+Metadata says how a capture came about (when, which window, which screen); it never changes how anything is drawn. So
+it is an optional `metadata.json` in the package, not part of `document.json`: saving or sharing without metadata leaves
+the file out, and tools can read it without knowing the model. Today it is the editor's `CaptureDetails` (title, time,
+file name, capture mode, DPI and a key/value list).
+
+It belongs to a capture, so it is keyed by resource id (a document can hold several captures), with a small section for
+the document:
+
+```json
+{
+  "document": { "created": "2026-10-12T16:20:00Z", "application": "Greenshot 2.0.1", "recipe": "region-blue-border" },
+  "resources": {
+    "01a130e9-ef80-783b-a89b-b2d54bafa78f": {
+      "capturedAt": "2026-10-12T16:20:00+02:00",
+      "mode": "window",
+      "window": { "title": "Settings", "process": "notepad.exe" },
+      "url": "https://…",
+      "screen": { "bounds": { "x": 0, "y": 0, "width": 1920, "height": 1080 }, "dpi": 144 },
+      "source": { "file": "C:\\…\\input.png" }
+    }
+  }
+}
+```
+
+- The document id (UUID v7) carries when the document was made; `capturedAt` can differ (an older file opened later).
+- Analysis results (`ocr.json`, `barcodes.json`) are keyed by resource id the same way; a result for one element (the text
+  under a highlight) is an element extension.
+- Legacy files have no metadata, their package has no `metadata.json`.
+- Writing metadata into an exported image (PNG text chunks, EXIF/XMP) is an option, off by default.
+- Capture information of a plugin or a recipe goes in the extensions of the resource or the document, so
+  `metadata.json` stays a small fixed set.
 
 ### Design proposals (not decided)
 

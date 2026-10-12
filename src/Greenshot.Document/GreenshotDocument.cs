@@ -80,6 +80,11 @@ namespace Greenshot.Document
         public int? Width { get; init; }
 
         public int? Height { get; init; }
+
+        /// <summary>
+        /// Values of plugins (keyed by plugin id), written back unchanged
+        /// </summary>
+        public RawJson Extensions { get; init; }
     }
 
     /// <summary>
@@ -92,6 +97,11 @@ namespace Greenshot.Document
         /// The groups, e.g. steps which number step labels, styles elements share and sets which move together
         /// </summary>
         public IReadOnlyList<Group> Groups { get; init; } = Array.Empty<Group>();
+
+        /// <summary>
+        /// Values of plugins (keyed by plugin id), written back unchanged
+        /// </summary>
+        public RawJson Extensions { get; init; }
 
         /// <summary>
         /// The area of the canvas in the coordinates of the elements, after Anchors.Apply it includes anchored elements
