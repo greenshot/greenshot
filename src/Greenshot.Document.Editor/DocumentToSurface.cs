@@ -28,6 +28,7 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Icons;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Emoji;
@@ -39,7 +40,9 @@ namespace Greenshot.Document.Editor
     /// <summary>
     /// Creates a Surface from a GreenshotDocument: the first image of the capture layer becomes the image of the surface,
     /// the elements of the other visible layers become containers, in the same order.
-    /// UnknownElements become an image of their fallback, as the surface can't hold them otherwise.
+    /// A plugin element becomes the container of its plugin, without the plugin (or with an older one) an image of its
+    /// fallback which keeps the element. Elements the surface can't show are kept with the surface. Both are written
+    /// back unchanged by SurfaceToDocument.
     /// </summary>
     public static class DocumentToSurface
     {
@@ -57,10 +60,16 @@ namespace Greenshot.Document.Editor
 
             foreach (var element in document.Layers.Where(layer => layer.Kind != LayerKind.Capture && layer.Visible).SelectMany(layer => layer.Elements))
             {
-                var container = ToContainer(surface, document, element);
+                IDrawableContainer container = element is PluginElement plugin && Converter(plugin) is { } converter
+                    ? converter.ToContainer(surface, plugin, document.Resources)
+                    : ToContainer(surface, document, element);
                 if (container != null)
                 {
                     surface.AddElement(container, false, false);
+                }
+                else if (element is PluginElement or UnknownElement)
+                {
+                    KeptElements.BySurface.GetOrCreateValue(surface).Add(Keep(document, element));
                 }
             }
 
@@ -105,7 +114,7 @@ namespace Greenshot.Document.Editor
                 CutMarkElement cutMark => new CutMarkContainer(surface, cutMark.Horizontal, null),
                 TornEdgeElement tornEdge => new TornEdgeContainer(surface, null,
                     new[] { tornEdge.Margins.Top, tornEdge.Margins.Right, tornEdge.Margins.Bottom, tornEdge.Margins.Left }, (CutMarkStyle)(int)tornEdge.CutStyle),
-                UnknownElement { Fallback: Guid fallback } => ToImageContainer(surface, document.Resources[fallback], 0),
+                PluginElement { Fallback: Guid fallback } plugin => KeepWith(ToImageContainer(surface, document.Resources[fallback], 0), document, plugin),
                 _ => null
             };
             if (container == null)
@@ -187,6 +196,21 @@ namespace Greenshot.Document.Editor
                 speechbubble.SetTailLocation(Round(bubble.Tail.X), Round(bubble.Tail.Y));
             }
 
+            return container;
+        }
+
+        /// <summary>
+        /// The converter of the plugin which reads the version of the element
+        /// </summary>
+        private static IPluginElementConverter Converter(PluginElement plugin) =>
+            SimpleServiceProvider.Current.GetAllInstances<IPluginElementConverter>().FirstOrDefault(converter => converter.Kind == plugin.Kind && converter.Version >= plugin.Version);
+
+        private static KeptElements.Kept Keep(GreenshotDocument document, Element element) =>
+            new(element, document.Links(element).Where(document.Resources.ContainsKey).Select(id => document.Resources[id]).ToList());
+
+        private static DrawableContainer KeepWith(DrawableContainer container, GreenshotDocument document, Element element)
+        {
+            KeptElements.ByContainer.Add(container, Keep(document, element));
             return container;
         }
 

@@ -125,7 +125,8 @@ namespace Greenshot.Document.Legacy
                     LegacyElementKind.Obfuscate => Int(legacy, "PREPARED_FILTER_OBFUSCATE", PreparedFilterPixelize) == PreparedFilterBlur
                         ? new ObfuscateElement(id, area, ObfuscateMode.Blur, Int(legacy, "BLUR_RADIUS", 3))
                         : new ObfuscateElement(id, area, ObfuscateMode.Pixelate, Int(legacy, "PIXEL_SIZE", 5)),
-                    LegacyElementKind.Unknown => new UnknownElement(id, area, legacy.TypeName),
+                    // Plugin data can't be read without the plugin's types, only which type it was
+                    LegacyElementKind.Unknown => new PluginElement(id, area, legacy.TypeName),
                     _ => null
                 }
             };

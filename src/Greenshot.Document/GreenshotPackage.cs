@@ -27,8 +27,8 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
-using System.Text.Json.Serialization.Metadata;
 
 namespace Greenshot.Document
 {
@@ -57,46 +57,9 @@ namespace Greenshot.Document
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             IgnoreReadOnlyProperties = true,
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-            AllowOutOfOrderMetadataProperties = true,
             WriteIndented = true,
-            Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase), new RgbaConverter() },
-            TypeInfoResolver = new DefaultJsonTypeInfoResolver { Modifiers = { AddElementTypes } }
+            Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase), new RgbaConverter(), new ElementConverter() }
         };
-
-        /// <summary>
-        /// Elements are written with a short "type" name, never with a CLR type name
-        /// </summary>
-        private static void AddElementTypes(JsonTypeInfo typeInfo)
-        {
-            if (typeInfo.Type != typeof(Element))
-            {
-                return;
-            }
-
-            typeInfo.PolymorphismOptions = new JsonPolymorphismOptions { TypeDiscriminatorPropertyName = "type" };
-            foreach (var derivedType in new[]
-                     {
-                         new JsonDerivedType(typeof(RectangleElement), "rectangle"),
-                         new JsonDerivedType(typeof(EllipseElement), "ellipse"),
-                         new JsonDerivedType(typeof(LineElement), "line"),
-                         new JsonDerivedType(typeof(ArrowElement), "arrow"),
-                         new JsonDerivedType(typeof(FreehandElement), "freehand"),
-                         new JsonDerivedType(typeof(TextElement), "text"),
-                         new JsonDerivedType(typeof(SpeechBubbleElement), "speechBubble"),
-                         new JsonDerivedType(typeof(StepLabelElement), "stepLabel"),
-                         new JsonDerivedType(typeof(HighlightElement), "highlight"),
-                         new JsonDerivedType(typeof(ObfuscateElement), "obfuscate"),
-                         new JsonDerivedType(typeof(ImageElement), "image"),
-                         new JsonDerivedType(typeof(EmojiElement), "emoji"),
-                         new JsonDerivedType(typeof(CursorElement), "cursor"),
-                         new JsonDerivedType(typeof(CutMarkElement), "cutMark"),
-                         new JsonDerivedType(typeof(TornEdgeElement), "tornEdge"),
-                         new JsonDerivedType(typeof(UnknownElement), "unknown")
-                     })
-            {
-                typeInfo.PolymorphismOptions.DerivedTypes.Add(derivedType);
-            }
-        }
 
         /// <summary>
         /// Writes the document with the resources its elements link to, other resources are left out.
@@ -107,7 +70,7 @@ namespace Greenshot.Document
         /// <param name="extensionFor">The file extension of a media type (e.g. from the file format registry), null when the media type isn't supported</param>
         public static void Write(GreenshotDocument document, Stream stream, Func<string, string> extensionFor)
         {
-            var linked = document.Layers.SelectMany(layer => layer.Elements).SelectMany(Links).Distinct()
+            var linked = document.Layers.SelectMany(layer => layer.Elements).SelectMany(document.Links).Distinct()
                 .Select(id => document.Resources.TryGetValue(id, out var resource) ? resource : throw new InvalidDataException($"An element links to the missing resource {id}"))
                 .ToList();
             var entries = linked.ToDictionary(resource => resource.Id, resource => new ResourceEntry($"resources/{resource.Id:D}.{Extension(resource, extensionFor)}", resource.MediaType));
@@ -121,17 +84,6 @@ namespace Greenshot.Document
                 WriteEntry(zip, entries[resource.Id].Path, resource.Data, CompressionLevel.Optimal);
             }
         }
-
-        /// <summary>
-        /// The resources an element links to
-        /// </summary>
-        private static IEnumerable<Guid> Links(Element element) => element switch
-        {
-            ImageElement image => new[] { image.Resource },
-            CursorElement cursor => cursor.MaskResource.HasValue ? new[] { cursor.Resource, cursor.MaskResource.Value } : new[] { cursor.Resource },
-            UnknownElement { Fallback: { } fallback } => new[] { fallback },
-            _ => Array.Empty<Guid>()
-        };
 
         private static string Extension(Resource resource, Func<string, string> extensionFor) =>
             extensionFor(resource.MediaType)?.TrimStart('.') ?? throw new InvalidDataException($"The resource {resource.Id} has the unsupported media type {resource.MediaType}");
@@ -199,6 +151,78 @@ namespace Greenshot.Document
         /// <summary>
         /// Colors are written as "#RRGGBBAA"
         /// </summary>
+        /// <summary>
+        /// Elements are written with a short "type" name, never with a CLR type name. An element of a type this version
+        /// doesn't know is read as UnknownElement and written back unchanged. The data of a plugin element is JSON.
+        /// </summary>
+        private sealed class ElementConverter : JsonConverter<Element>
+        {
+            private static readonly Dictionary<string, Type> Types = new()
+            {
+                ["rectangle"] = typeof(RectangleElement),
+                ["ellipse"] = typeof(EllipseElement),
+                ["line"] = typeof(LineElement),
+                ["arrow"] = typeof(ArrowElement),
+                ["freehand"] = typeof(FreehandElement),
+                ["text"] = typeof(TextElement),
+                ["speechBubble"] = typeof(SpeechBubbleElement),
+                ["stepLabel"] = typeof(StepLabelElement),
+                ["highlight"] = typeof(HighlightElement),
+                ["obfuscate"] = typeof(ObfuscateElement),
+                ["image"] = typeof(ImageElement),
+                ["emoji"] = typeof(EmojiElement),
+                ["cursor"] = typeof(CursorElement),
+                ["cutMark"] = typeof(CutMarkElement),
+                ["tornEdge"] = typeof(TornEdgeElement),
+                ["plugin"] = typeof(PluginElement)
+            };
+
+            private static readonly Dictionary<Type, string> Names = Types.ToDictionary(pair => pair.Value, pair => pair.Key);
+
+            public override Element Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                var json = JsonNode.Parse(ref reader) as JsonObject ?? throw new JsonException("An element is not a JSON object");
+                string name = json["type"] is JsonValue type && type.TryGetValue(out string value) ? value : null;
+                if (name == null || !Types.TryGetValue(name, out var elementType))
+                {
+                    var id = json["id"] is JsonValue idValue && idValue.TryGetValue(out string idText) && Guid.TryParse(idText, out var guid) ? guid : Guid.Empty;
+                    var area = json["area"] is JsonObject areaObject ? areaObject.Deserialize<RectD>(options) : default;
+                    return new UnknownElement(id, area, name, json.ToJsonString());
+                }
+
+                var data = json["data"];
+                json.Remove("data");
+                var element = (Element)json.Deserialize(elementType, options);
+                return element is PluginElement plugin ? plugin with { Data = data?.ToJsonString() } : element;
+            }
+
+            public override void Write(Utf8JsonWriter writer, Element value, JsonSerializerOptions options)
+            {
+                if (value is UnknownElement unknown)
+                {
+                    writer.WriteRawValue(unknown.Json);
+                    return;
+                }
+
+                writer.WriteStartObject();
+                writer.WriteString("type", Names[value.GetType()]);
+                foreach (var property in JsonSerializer.SerializeToElement(value, value.GetType(), options).EnumerateObject())
+                {
+                    if (value is PluginElement plugin && property.NameEquals("data"))
+                    {
+                        writer.WritePropertyName(property.Name);
+                        writer.WriteRawValue(plugin.Data);
+                    }
+                    else
+                    {
+                        property.WriteTo(writer);
+                    }
+                }
+
+                writer.WriteEndObject();
+            }
+        }
+
         private sealed class RgbaConverter : JsonConverter<Rgba>
         {
             public override Rgba Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

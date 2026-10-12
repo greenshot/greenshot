@@ -78,7 +78,7 @@ namespace Greenshot.Tests.Document
                 new List<Element>
                 {
                     new StepLabelElement(Guid.NewGuid(), new RectD(10, 10, 30, 30)),
-                    new UnknownElement(Guid.NewGuid(), new RectD(50, 50, 100, 100), "zxing.barcode")
+                    new PluginElement(Guid.NewGuid(), new RectD(50, 50, 100, 100), "greenshot.barcode")
                 });
 
             var document = new GreenshotDocument(Guid.NewGuid(), new Canvas(800, 600), new List<Layer> { captureLayer, annotations },

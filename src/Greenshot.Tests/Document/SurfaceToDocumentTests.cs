@@ -137,18 +137,19 @@ namespace Greenshot.Tests.Document
         }
 
         [Fact]
-        public void ToDocument_MapsAPluginContainerToAnUnknownElementWithARendering()
+        public void ToDocument_MapsAPluginContainerWithoutConverterToAPluginElementWithARendering()
         {
             using var surface = new Surface(new Bitmap(100, 100));
             var container = Add(surface, new PluginContainer(surface), 10, 10, 30, 20);
 
             var document = SurfaceToDocument.ToDocument(surface);
 
-            var unknown = Assert.IsType<UnknownElement>(Assert.Single(document.Layers[1].Elements));
-            Assert.Equal(typeof(PluginContainer).FullName, unknown.TypeName);
+            var plugin = Assert.IsType<PluginElement>(Assert.Single(document.Layers[1].Elements));
+            Assert.Equal(typeof(PluginContainer).FullName, plugin.Kind);
+            Assert.Null(plugin.Data);
             var drawingBounds = container.DrawingBounds;
-            Assert.Equal(new RectD(drawingBounds.X, drawingBounds.Y, drawingBounds.Width, drawingBounds.Height), unknown.Area);
-            Assert.Equal("image/png", document.Resources[unknown.Fallback.Value].MediaType);
+            Assert.Equal(new RectD(drawingBounds.X, drawingBounds.Y, drawingBounds.Width, drawingBounds.Height), plugin.Area);
+            Assert.Equal("image/png", document.Resources[plugin.Fallback.Value].MediaType);
         }
 
         [Fact]

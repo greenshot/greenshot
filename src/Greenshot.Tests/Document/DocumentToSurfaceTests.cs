@@ -25,8 +25,11 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
+using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Document;
 using Greenshot.Document.Editor;
 using Greenshot.Document.Legacy;
@@ -38,11 +41,142 @@ namespace Greenshot.Tests.Document
 {
     public class DocumentToSurfaceTests
     {
+        /// <summary>
+        /// Stands in for the container of a plugin which has a converter
+        /// </summary>
+        private sealed class TextPluginContainer : RectangleContainer
+        {
+            public TextPluginContainer(ISurface parent) : base(parent)
+            {
+            }
+
+            public string Text { get; set; }
+        }
+
+        private sealed class TextPluginConverter : IPluginElementConverter
+        {
+            public string Kind => "greenshot.test.text";
+
+            public int Version => 2;
+
+            public bool CanConvert(IDrawableContainer container) => container is TextPluginContainer;
+
+            public PluginElement ToElement(IDrawableContainer container, PluginElement element, IDictionary<Guid, Resource> resources) =>
+                element with { Data = JsonSerializer.Serialize(new { text = ((TextPluginContainer)container).Text }) };
+
+            public IDrawableContainer ToContainer(ISurface surface, PluginElement element, IReadOnlyDictionary<Guid, Resource> resources)
+            {
+                using var data = JsonDocument.Parse(element.Data);
+                return new TextPluginContainer(surface)
+                {
+                    Text = data.RootElement.GetProperty("text").GetString(),
+                    Left = (int)element.Area.X,
+                    Top = (int)element.Area.Y,
+                    Width = (int)element.Area.Width,
+                    Height = (int)element.Area.Height
+                };
+            }
+        }
+
+        private static readonly object RegisterLock = new();
+        private static bool _registered;
+
         private static readonly string TestDataDirectory = Path.Combine(AppContext.BaseDirectory, "TestData", "LegacyFormat");
 
         public DocumentToSurfaceTests()
         {
             TestEnvironment.EnsureInitialized();
+            lock (RegisterLock)
+            {
+                if (!_registered)
+                {
+                    SimpleServiceProvider.Current.AddService<IPluginElementConverter>(new TextPluginConverter());
+                    _registered = true;
+                }
+            }
+        }
+
+        private static Resource Png(int width, int height)
+        {
+            using var bitmap = new Bitmap(width, height);
+            using var stream = new MemoryStream();
+            bitmap.Save(stream, ImageFormat.Png);
+            return new Resource(Guid.NewGuid(), "image/png", stream.ToArray());
+        }
+
+        private static GreenshotDocument WithElements(IReadOnlyDictionary<Guid, Resource> resources, params Element[] elements)
+        {
+            var capture = Png(200, 100);
+            var all = resources.Values.Append(capture).ToDictionary(resource => resource.Id);
+            return new GreenshotDocument(Guid.NewGuid(), new Canvas(200, 100), new List<Layer>
+            {
+                new(Guid.NewGuid(), "Capture", LayerKind.Capture, new List<Element> { new ImageElement(Guid.NewGuid(), new RectD(0, 0, 200, 100), capture.Id) }),
+                new(Guid.NewGuid(), "Annotations", LayerKind.Annotations, elements)
+            }, all);
+        }
+
+        [Fact]
+        public void PluginElement_WithItsConverter_IsTheContainerOfThePlugin()
+        {
+            using var surface = new Surface(new Bitmap(200, 100));
+            var container = new TextPluginContainer(surface) { Text = "Greenshot", Left = 10, Top = 20, Width = 30, Height = 40 };
+            surface.AddElement(container, false, false);
+
+            var document = SurfaceToDocument.ToDocument(surface);
+            var plugin = Assert.IsType<PluginElement>(Assert.Single(document.Layers[1].Elements));
+            Assert.Equal("greenshot.test.text", plugin.Kind);
+            Assert.Equal(2, plugin.Version);
+            Assert.Equal("image/png", document.Resources[plugin.Fallback.Value].MediaType);
+
+            using var mappedSurface = DocumentToSurface.ToSurface(document);
+            var mapped = Assert.IsType<TextPluginContainer>(Assert.Single(mappedSurface.Elements));
+            Assert.Equal("Greenshot", mapped.Text);
+        }
+
+        [Fact]
+        public void PluginElement_WithoutItsPlugin_IsWrittenBackUnchanged()
+        {
+            var fallback = Png(30, 40);
+            var linked = Png(2, 2);
+            var plugin = new PluginElement(Guid.NewGuid(), new RectD(10, 20, 30, 40), "greenshot.test.missing")
+            {
+                Version = 3,
+                Data = "{\"value\":42}",
+                Resources = new[] { linked.Id },
+                Fallback = fallback.Id
+            };
+            // A newer version than the converter reads is the same as a missing plugin
+            var newer = new PluginElement(Guid.NewGuid(), new RectD(50, 20, 30, 40), "greenshot.test.text") { Version = 3, Data = "{}", Fallback = fallback.Id };
+            var document = WithElements(new Dictionary<Guid, Resource> { [fallback.Id] = fallback, [linked.Id] = linked }, plugin, newer);
+
+            using var surface = DocumentToSurface.ToSurface(document);
+            var containers = surface.Elements.Cast<DrawableContainer>().ToList();
+            Assert.Equal(2, containers.Count);
+            Assert.All(containers, container => Assert.IsType<ImageContainer>(container));
+            containers[0].Left += 5;
+            var mappedBack = SurfaceToDocument.ToDocument(surface);
+
+            var mapped = Assert.IsType<PluginElement>(mappedBack.Layers[1].Elements[0]);
+            Assert.Equal(plugin with { Area = new RectD(15, 20, 30, 40), Resources = null }, mapped with { Resources = null });
+            Assert.Equal(plugin.Resources, mapped.Resources);
+            Assert.Equal(linked.Data, mappedBack.Resources[linked.Id].Data);
+            Assert.Equal(fallback.Data, mappedBack.Resources[fallback.Id].Data);
+            Assert.Equal(newer, mappedBack.Layers[1].Elements[1]);
+        }
+
+        [Fact]
+        public void UnknownElement_IsKeptWithTheSurface()
+        {
+            var linked = Png(2, 2);
+            var unknown = new UnknownElement(Guid.NewGuid(), new RectD(1, 2, 3, 4), "hologram", $"{{\"type\":\"hologram\",\"source\":\"{linked.Id}\"}}");
+            var document = WithElements(new Dictionary<Guid, Resource> { [linked.Id] = linked }, unknown);
+
+            using var surface = DocumentToSurface.ToSurface(document);
+            Assert.Empty(surface.Elements);
+            var mappedBack = SurfaceToDocument.ToDocument(surface);
+
+            Assert.Equal(unknown, Assert.Single(mappedBack.Layers[1].Elements));
+            Assert.Equal(linked.Data, mappedBack.Resources[linked.Id].Data);
         }
 
         public static IEnumerable<object[]> GreenshotFiles() => Directory.GetFiles(Path.Combine(TestDataDirectory, "Greenshotfile"), "*.greenshot", SearchOption.AllDirectories)

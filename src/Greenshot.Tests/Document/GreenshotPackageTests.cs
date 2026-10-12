@@ -25,6 +25,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using Greenshot.Document;
 using Greenshot.Document.Legacy;
 using Xunit;
@@ -68,7 +69,7 @@ namespace Greenshot.Tests.Document
                 new CursorElement(Guid.NewGuid(), area, image.Id) { MaskResource = mask.Id, Hotspot = new PointD(3, 4) },
                 new CutMarkElement(Guid.NewGuid(), area, true, CutStyle.ZigZag, 42) { ToothHeight = 5, ToothRange = 6 },
                 new TornEdgeElement(Guid.NewGuid(), area, CutStyle.Torn, 43) { Edges = Edges.Top | Edges.Left, Margins = new Margins(1, 2, 3, 4), ToothHeight = 5, ToothRange = 6 },
-                new UnknownElement(Guid.NewGuid(), area, "zxing.barcode") { Fallback = image.Id }
+                new PluginElement(Guid.NewGuid(), area, "greenshot.barcode") { Version = 2, Data = "{\"text\":\"Greenshot\",\"size\":[1,2]}", Resources = new[] { svg.Id }, Fallback = image.Id }
             };
             var layers = new List<Layer>
             {
@@ -120,7 +121,13 @@ namespace Greenshot.Tests.Document
                 Assert.Equal(expectedElements.Count, actualElements.Count);
                 for (int i = 0; i < expectedElements.Count; i++)
                 {
-                    if (expectedElements[i] is FreehandElement expectedFreehand)
+                    if (expectedElements[i] is PluginElement expectedPlugin)
+                    {
+                        var actualPlugin = Assert.IsType<PluginElement>(actualElements[i]);
+                        Assert.Equal(expectedPlugin.Resources, actualPlugin.Resources);
+                        Assert.Equal(expectedPlugin with { Resources = null }, actualPlugin with { Resources = null });
+                    }
+                    else if (expectedElements[i] is FreehandElement expectedFreehand)
                     {
                         var actualFreehand = Assert.IsType<FreehandElement>(actualElements[i]);
                         Assert.Equal(expectedFreehand.Points, actualFreehand.Points);
@@ -175,6 +182,40 @@ namespace Greenshot.Tests.Document
             Assert.DoesNotContain("Greenshot.Document", json);
             Assert.DoesNotContain("bounds", json);
             Assert.Equal(3, zip.Entries.Count(entry => entry.FullName.StartsWith("resources/")));
+        }
+
+        [Fact]
+        public void Write_KeepsThePluginDataAsJson()
+        {
+            using var stream = new MemoryStream();
+            GreenshotPackage.Write(AllElements(), stream, ExtensionFor);
+            stream.Position = 0;
+
+            using var zip = new ZipArchive(stream, ZipArchiveMode.Read);
+            using var reader = new StreamReader(zip.GetEntry("document.json").Open());
+            using var json = JsonDocument.Parse(reader.ReadToEnd());
+            var plugin = json.RootElement.GetProperty("layers")[1].GetProperty("elements").EnumerateArray().Single(element => element.GetProperty("type").GetString() == "plugin");
+            Assert.Equal("Greenshot", plugin.GetProperty("data").GetProperty("text").GetString());
+        }
+
+        [Fact]
+        public void Read_KeepsAnElementOfAnUnknownType()
+        {
+            var document = AllElements();
+            var resource = document.Resources.Values.Single(r => r.MediaType == "image/svg+xml");
+            string unknownJson = $"{{\"type\":\"hologram\",\"id\":\"{Guid.NewGuid()}\",\"area\":{{\"x\":1,\"y\":2,\"width\":3,\"height\":4}},\"source\":\"{resource.Id}\",\"depth\":{{\"z\":[1,2]}}}}";
+            using var json = JsonDocument.Parse(unknownJson);
+            var unknown = new UnknownElement(Guid.Empty, default, "hologram", unknownJson);
+            // Only the unknown element links the svg
+            var layers = document.Layers.Select(layer => layer with { Elements = layer.Elements.Where(element => !(element is ImageElement { Rotation: 0 } image && image.Resource == resource.Id) && element is not PluginElement).Append(unknown).ToList() }).ToList();
+
+            var read = RoundTrip(document with { Layers = layers });
+
+            var readUnknown = Assert.IsType<UnknownElement>(read.Layers[1].Elements.Last());
+            Assert.Equal("hologram", readUnknown.TypeName);
+            Assert.Equal(new RectD(1, 2, 3, 4), readUnknown.Area);
+            Assert.True(JsonElement.DeepEquals(json.RootElement, JsonDocument.Parse(readUnknown.Json).RootElement));
+            Assert.Equal(resource.Data, read.Resources[resource.Id].Data);
         }
 
         [Fact]

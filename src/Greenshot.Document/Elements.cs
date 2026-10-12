@@ -224,13 +224,29 @@ namespace Greenshot.Document
     }
 
     /// <summary>
-    /// An element this version doesn't know, for example from a plugin which isn't installed.
-    /// TypeName identifies it, Fallback is an optional resource with a rendered image of it.
+    /// An element of a plugin. Kind is a stable name the plugin owns (e.g. "greenshot.barcode"), Version the version of
+    /// its Data, which is JSON only the plugin reads. Resources are the resources Data links to, Fallback is a rendered
+    /// image of the element, so it can be shown and exported without the plugin.
     /// </summary>
-    public sealed record UnknownElement(Guid Id, RectD Area, string TypeName) : Element(Id)
+    public sealed record PluginElement(Guid Id, RectD Area, string Kind) : Element(Id)
     {
+        public int Version { get; init; }
+
+        public string Data { get; init; }
+
+        public IReadOnlyList<Guid> Resources { get; init; } = Array.Empty<Guid>();
+
         public Guid? Fallback { get; init; }
 
+        public override RectD Bounds => Area;
+    }
+
+    /// <summary>
+    /// An element of a type this version doesn't know, e.g. written by a newer Greenshot. Json is the element as it
+    /// was read, it is written back unchanged.
+    /// </summary>
+    public sealed record UnknownElement(Guid Id, RectD Area, string TypeName, string Json) : Element(Id)
+    {
         public override RectD Bounds => Area;
     }
 }

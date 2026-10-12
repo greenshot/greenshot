@@ -25,6 +25,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing;
@@ -36,8 +37,9 @@ namespace Greenshot.Document.Editor
 {
     /// <summary>
     /// Creates a GreenshotDocument from a Surface: the image of the surface goes on a capture layer, the elements on an
-    /// annotations layer, in the same order. Containers which don't come from the editor (plugins) become UnknownElements
-    /// with a rendered image of the container as fallback.
+    /// annotations layer, in the same order. Containers which don't come from the editor (plugins) become PluginElements
+    /// with a rendered image of the container as fallback, and the data from the converter of the plugin when there is one.
+    /// Elements DocumentToSurface kept (plugins which aren't installed, unknown types) are written back unchanged.
     /// </summary>
     public static class SurfaceToDocument
     {
@@ -51,6 +53,11 @@ namespace Greenshot.Document.Editor
                 Locked = true
             };
             var elements = surface.Elements.Cast<DrawableContainer>().Select(container => ToElement(container, resources)).Where(element => element != null).ToList();
+            if (KeptElements.BySurface.TryGetValue(surface, out var kept))
+            {
+                elements.AddRange(kept.Select(keptElement => AddKept(resources, keptElement)));
+            }
+
             var annotationsLayer = new Layer(Guid.NewGuid(), "Annotations", LayerKind.Annotations, elements);
 
             return new GreenshotDocument(surface.ID, new Canvas(image.Width, image.Height) { CounterStart = surface.CounterStart },
@@ -65,13 +72,22 @@ namespace Greenshot.Document.Editor
             var end = new PointD(container.Left + container.Width, container.Top + container.Height);
 
             Element element;
+            if (KeptElements.ByContainer.TryGetValue(container, out var kept))
+            {
+                // Moved or resized, but otherwise as it was read
+                return AddKept(resources, kept) is PluginElement plugin ? plugin with { Area = area } : kept.Element;
+            }
+
             if (container.GetType().Assembly != typeof(DrawableContainer).Assembly)
             {
                 var drawingBounds = container.DrawingBounds;
-                element = new UnknownElement(id, new RectD(drawingBounds.X, drawingBounds.Y, drawingBounds.Width, drawingBounds.Height), container.GetType().FullName)
+                var converter = SimpleServiceProvider.Current.GetAllInstances<IPluginElementConverter>().FirstOrDefault(pluginConverter => pluginConverter.CanConvert(container));
+                var plugin = new PluginElement(id, new RectD(drawingBounds.X, drawingBounds.Y, drawingBounds.Width, drawingBounds.Height), converter?.Kind ?? container.GetType().FullName)
                 {
+                    Version = converter?.Version ?? 0,
                     Fallback = AddRendering(resources, container)
                 };
+                return converter == null ? plugin : converter.ToElement(container, plugin, resources);
             }
             else
             {
@@ -170,6 +186,16 @@ namespace Greenshot.Document.Editor
 
         private static Edges ToEdges(bool[] edges) =>
             (edges[0] ? Edges.Top : Edges.None) | (edges[1] ? Edges.Right : Edges.None) | (edges[2] ? Edges.Bottom : Edges.None) | (edges[3] ? Edges.Left : Edges.None);
+
+        private static Element AddKept(IDictionary<Guid, Resource> resources, KeptElements.Kept kept)
+        {
+            foreach (var resource in kept.Resources)
+            {
+                resources[resource.Id] = resource;
+            }
+
+            return kept.Element;
+        }
 
         private static Guid AddRendering(IDictionary<Guid, Resource> resources, DrawableContainer container)
         {

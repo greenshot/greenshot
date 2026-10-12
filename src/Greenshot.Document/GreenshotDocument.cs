@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Greenshot.Document
 {
@@ -46,5 +47,19 @@ namespace Greenshot.Document
     /// A Greenshot document: a canvas with layers of elements and the resources they reference.
     /// The first layer is drawn first (bottom). Documents are immutable, a change creates a new document.
     /// </summary>
-    public sealed record GreenshotDocument(Guid Id, Canvas Canvas, IReadOnlyList<Layer> Layers, IReadOnlyDictionary<Guid, Resource> Resources);
+    public sealed record GreenshotDocument(Guid Id, Canvas Canvas, IReadOnlyList<Layer> Layers, IReadOnlyDictionary<Guid, Resource> Resources)
+    {
+        /// <summary>
+        /// The ids of the resources the element links to
+        /// </summary>
+        public IEnumerable<Guid> Links(Element element) => element switch
+        {
+            ImageElement image => new[] { image.Resource },
+            CursorElement cursor => cursor.MaskResource.HasValue ? new[] { cursor.Resource, cursor.MaskResource.Value } : new[] { cursor.Resource },
+            PluginElement plugin => plugin.Fallback.HasValue ? plugin.Resources.Append(plugin.Fallback.Value) : plugin.Resources,
+            // The ids are unique, so a resource linked by an element of an unknown type is found in its JSON
+            UnknownElement unknown => Resources.Keys.Where(id => unknown.Json.IndexOf(id.ToString("D"), StringComparison.OrdinalIgnoreCase) >= 0),
+            _ => Array.Empty<Guid>()
+        };
+    }
 }

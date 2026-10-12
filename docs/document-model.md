@@ -130,10 +130,33 @@ Rules:
 | `CursorContainer` | `CursorElement` | `Area`, `Resource` (color layer), `MaskResource`, `Hotspot` |
 | `CutMarkContainer` | `CutMarkElement` | `Area`, `Horizontal`, `CutStyle`, `Seed`, `ToothHeight`, `ToothRange` |
 | `TornEdgeContainer` | `TornEdgeElement` | `Area`, `CutStyle`, `Seed`, `Edges`, `Margins`, `ToothHeight`, `ToothRange` |
-| containers of plugins (e.g. the barcode) | `UnknownElement` | `TypeName` (CLR type name), `Fallback` (resource with a PNG rendering) |
+| containers of plugins (e.g. the barcode) | `PluginElement` | `Area`, `Kind`, `Version`, `Data` (JSON), `Resources`, `Fallback` (see below) |
+| — | `UnknownElement` | an element of a type this version doesn't know (e.g. from a newer Greenshot): `TypeName`, `Area`, `Json` |
 | `CropContainer` | — | a tool, never part of the document |
 
 Effects such as cut marks and torn edges stay elements that can still be edited; they are never baked into the image.
+
+### Plugin elements
+
+The core doesn't know the elements of plugins, it has one generic `PluginElement` for all of them:
+
+- `Kind`: a stable name the plugin owns, e.g. `greenshot.barcode`, never a CLR type name. Nothing in a file says which
+  class to create.
+- `Version` and `Data`: the plugin's own data as JSON, in the version of the plugin; only the plugin reads it.
+- `Resources`: the resources the data links to, so writing keeps them.
+- `Fallback`: a PNG rendering of the element, so it can be shown and exported without the plugin.
+
+A plugin registers an `IPluginElementConverter` (SimpleServiceProvider) for its `Kind`: container to element and back.
+Without the plugin, or when the element has a newer `Version` than the plugin reads, the `Surface` shows the fallback
+image; it can be moved, resized or deleted, and is written back unchanged (with its new area). A plugin container
+without a converter becomes a `PluginElement` with the CLR type name as `Kind`, only the fallback and no data.
+
+An element of an unknown type (`UnknownElement`) keeps its JSON as it was read and is written back unchanged, with
+the resources it links to. The `Surface` can't show it; it is kept with the surface and added at the end of the
+annotations when the surface becomes a document again.
+
+Plugin elements of old .greenshot files only have the CLR type name: their data can't be read without the plugin's
+types, so they become a `PluginElement` without data or fallback.
 
 ## File formats
 
@@ -145,8 +168,8 @@ flowchart LR
 ```
 
 `.gst` templates are only the NRBF stream. The reader walks the NRBF records with `System.Formats.Nrbf`, by type
-and member name; it never creates objects by type name. Unknown types become `UnknownElement` instead of failing
-the whole file.
+and member name; it never creates objects by type name. Unknown types become a `PluginElement` with the type name
+instead of failing the whole file.
 
 ### New .greenshot package
 
@@ -173,9 +196,10 @@ flowchart LR
   or a media type the file format registry doesn't know (it gives the `{ext}`) is refused. A resource can be linked
   more than once; an action which changes an image (e.g. crop) either keeps the original and stores the operation,
   or adds a new resource in a format the registry supports.
-- Readers ignore properties they don't know.
+- Readers ignore properties they don't know. An element with an unknown `type` becomes an `UnknownElement`, which is
+  written back unchanged.
 - Readers have limits: number of entries (10,000) and size per entry (256 MB).
-- Open: keeping elements of unknown types (they fail the read today), and the optional parts.
+- Open: the optional parts.
 
 ## Conversions
 
@@ -215,5 +239,5 @@ flowchart LR
 - The shadow settings of cut marks and torn edges (darkness, size, offset): they come from the torn edge settings when
   a document becomes a `Surface`.
 - Only Windows can draw EMF/WMF; other platforms will need a PNG rendering next to the metafile.
-- Elements of unknown types in `document.json` fail the read; a plugin's element becomes an image of its fallback in
-  the `Surface`.
+- No plugin has an `IPluginElementConverter` yet (the barcode would be the first); until then a plugin's element is kept
+  with only its fallback.
