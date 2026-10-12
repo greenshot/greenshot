@@ -369,10 +369,12 @@ namespace Greenshot.Tests.Document
             {
                 Anchor = new Anchor { X = new AxisAnchor(AnchorLine.Center, AnchorLine.Center), Y = new AxisAnchor(AnchorLine.End, AnchorLine.Start, 10) }
             };
+            // The editor can't show it, it comes back where it was
+            var rounded = new FrameElement(Uuid7.CreateVersion7(), new RectD(0, 0, 50, 25), 1) { CornerRadius = 4 };
             var document = new GreenshotDocument(Uuid7.CreateVersion7(), new Canvas { Fit = CanvasFit.Content, Padding = 20, Background = new Rgba(255, 255, 255, 255) }, new List<Layer>
             {
                 captureLayer,
-                new(Uuid7.CreateVersion7(), "Annotations", LayerKind.Annotations, new List<Element> { footer })
+                new(Uuid7.CreateVersion7(), "Annotations", LayerKind.Annotations, new List<Element> { footer, rounded })
             }, new Dictionary<Guid, Resource> { [png.Id] = png });
 
             using var surface = DocumentToSurface.ToSurface(document);
@@ -385,7 +387,8 @@ namespace Greenshot.Tests.Document
             Assert.Equal(document.Canvas, mappedBack.Canvas);
             Assert.Equal(captureLayer with { Elements = null }, mappedBack.Layers[0] with { Elements = null });
             Assert.Equal(captureLayer.Elements, mappedBack.Layers[0].Elements);
-            Assert.Equal(new RectD(10, 60, 80, 20), mappedBack.Layers[1].Elements.Single().Bounds);
+            Assert.Equal(new RectD(10, 60, 80, 20), mappedBack.Layers[1].Elements[0].Bounds);
+            Assert.Equal(rounded, mappedBack.Layers[1].Elements[1]);
             Assert.Equal(png.Data, mappedBack.Resources[png.Id].Data);
         }
 

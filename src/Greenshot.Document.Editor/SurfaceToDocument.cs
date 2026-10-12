@@ -75,7 +75,7 @@ namespace Greenshot.Document.Editor
                 .Select(container => (Container: container, Element: WithAnchors(ToElement(container, resources), container) is Element element ? Anchors.Move(element, origin.X, origin.Y) : null))
                 .Where(pair => pair.Element != null).ToList();
             var elements = containers.Select(pair => pair.Element).ToList();
-            elements.AddRange(kept.Elements.Select(keptElement => AddKept(resources, keptElement)));
+            elements.AddRange(kept.Elements.Select(keptElement => Anchors.Move(AddKept(resources, keptElement), origin.X, origin.Y)));
 
             var annotationsLayer = new Layer(kept.AnnotationsLayerId, "Annotations", LayerKind.Annotations, elements);
 

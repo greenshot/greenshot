@@ -151,7 +151,7 @@ namespace Greenshot.Document.Editor
                     surface.AddElement(container, makeUndoable, false);
                     added.Add(container);
                 }
-                else if (element is PluginElement or UnknownElement)
+                else
                 {
                     KeptElements.DocumentOf(surface).Elements.Add(Keep(document, element));
                 }
