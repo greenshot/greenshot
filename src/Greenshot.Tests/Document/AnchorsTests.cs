@@ -31,7 +31,7 @@ namespace Greenshot.Tests.Document
     public class AnchorsTests
     {
         private static GreenshotDocument WithCapture(RectD captureArea, params Element[] elements) =>
-            new(Guid.NewGuid(), new Canvas(1000, 1000), new List<Layer>
+            new(Guid.NewGuid(), Canvas.Fixed(1000, 1000), new List<Layer>
             {
                 new(Guid.NewGuid(), "Capture", LayerKind.Capture, new List<Element> { new ImageElement(Guid.NewGuid(), captureArea, Guid.NewGuid()) }),
                 new(Guid.NewGuid(), "Annotations", LayerKind.Annotations, elements)
@@ -124,6 +124,50 @@ namespace Greenshot.Tests.Document
             var resized = WithCapture(new RectD(0, 0, 800, 600), cursor with { Area = new RectD(200, 100, 64, 64) }, arrow, label);
             Assert.Equal(new PointD(216, 108), Placed<ArrowElement>(resized, arrow.Id).End);
             Assert.Equal(new RectD(220, 164, 50, 20), Placed<TextElement>(resized, label.Id).Area);
+        }
+
+        // The start of a PNG: the signature and the IHDR chunk with the size, enough to know the size
+        private static Resource PngHeader(int width, int height) =>
+            new(Guid.NewGuid(), "image/png", new byte[] { 0x89, (byte)'P', (byte)'N', (byte)'G', 13, 10, 26, 10, 0, 0, 0, 13, (byte)'I', (byte)'H', (byte)'D', (byte)'R',
+                (byte)(width >> 24), (byte)((width >> 16) & 0xFF), (byte)((width >> 8) & 0xFF), (byte)(width & 0xFF),
+                (byte)(height >> 24), (byte)((height >> 16) & 0xFF), (byte)((height >> 8) & 0xFF), (byte)(height & 0xFF) });
+
+        [Fact]
+        public void Apply_ScalesTheCapture_AndAFooterStaysCenteredBelowIt_InACanvasAroundBoth()
+        {
+            var png = PngHeader(1920, 1080);
+            var capture = new ImageElement(Guid.NewGuid(), new RectD(0, 0, 1, 1), png.Id) { Scale = 0.5 };
+            var footer = new TextElement(Guid.NewGuid(), new RectD(0, 0, 400, 30), "Figure 1")
+            {
+                Anchor = new Anchor { X = new AxisAnchor(AnchorLine.Center, AnchorLine.Center), Y = new AxisAnchor(AnchorLine.End, AnchorLine.Start, 10) }
+            };
+            var document = new GreenshotDocument(Guid.NewGuid(), new Canvas { Fit = CanvasFit.Content, Padding = 20 }, new List<Layer>
+            {
+                new(Guid.NewGuid(), "Capture", LayerKind.Capture, new List<Element> { capture }),
+                new(Guid.NewGuid(), "Footer", LayerKind.Custom, new List<Element> { footer })
+            }, new Dictionary<Guid, Resource> { [png.Id] = png });
+
+            var placed = Anchors.Apply(document);
+
+            Assert.Equal(new RectD(0, 0, 960, 540), Assert.IsType<ImageElement>(placed.Layers[0].Elements[0]).Area);
+            Assert.Equal(new RectD(280, 550, 400, 30), Assert.IsType<TextElement>(placed.Layers[1].Elements[0]).Area);
+            Assert.Equal(new RectD(-20, -20, 1000, 620), placed.CanvasArea());
+        }
+
+        [Fact]
+        public void Apply_CentersTheCaptureOnAFixedCanvas_OtherCanvasesAreNoTarget()
+        {
+            var capture = new ImageElement(Guid.NewGuid(), new RectD(0, 0, 800, 600), Guid.NewGuid())
+            {
+                Anchor = new Anchor { Target = Anchors.Canvas, X = new AxisAnchor(AnchorLine.Center, AnchorLine.Center), Y = new AxisAnchor(AnchorLine.Center, AnchorLine.Center) }
+            };
+            GreenshotDocument On(Canvas canvas) => new(Guid.NewGuid(), canvas, new List<Layer>
+            {
+                new(Guid.NewGuid(), "Capture", LayerKind.Capture, new List<Element> { capture })
+            }, new Dictionary<Guid, Resource>());
+
+            Assert.Equal(new RectD(560, 240, 800, 600), Assert.IsType<ImageElement>(Anchors.Apply(On(Canvas.Fixed(1920, 1080))).Layers[0].Elements[0]).Area);
+            Assert.Equal(capture.Area, Assert.IsType<ImageElement>(Anchors.Apply(On(new Canvas { Fit = CanvasFit.Content })).Layers[0].Elements[0]).Area);
         }
 
         [Fact]

@@ -58,8 +58,10 @@ classDiagram
         IReadOnlyList~Group~ Groups
     }
     class Canvas {
-        int Width
-        int Height
+        CanvasFit Fit
+        double Padding
+        int? Width
+        int? Height
         Rgba Background
     }
     class Group {
@@ -83,6 +85,8 @@ classDiagram
         Guid Id
         string MediaType
         byte[] Data
+        int? Width
+        int? Height
     }
     class Element {
         <<abstract>>
@@ -122,7 +126,9 @@ Rules:
 - **Ids**: new ids are UUID version 7 (`Uuid7.CreateVersion7`, replaced by `Guid.CreateVersion7` on .NET 10). They
   start with the creation time, so `Uuid7.TryGetTimestamp` gives the date a document, element or resource was created.
   Ids are kept on read and write; ids from elsewhere (e.g. `Surface.ID`) can be any version.
-- **Coordinates**: canvas pixels as `double`, origin top-left (`PointD`, `RectD`).
+- **Coordinates**: canvas pixels as `double`, origin top-left (`PointD`, `RectD`). The capture normally is at 0, 0;
+  the canvas is a rule (see "Canvas"), so an element left of the capture has a negative x and nothing moves when the
+  canvas changes.
 - **Colors**: `Rgba`, written as `#RRGGBBAA`.
 - **Style**: every part and value is optional and inherited when it isn't set, see "Groups, styles and defaults".
   Text uses its own color (for text, speech bubbles and step labels this is today's line color).
@@ -218,9 +224,68 @@ and stored again.
 - **`scaling`**: how the image is drawn when its size differs from `source`: `smooth` (bilinear or bicubic, the
   default) or `pixelated` (nearest neighbour, text and lines of 1 px stay crisp when zoomed). Each renderer maps it to
   its own modes.
+- **`scale`**: shows the image at a factor of the size of the part it shows (`0.5` is half the size), so another
+  screenshot in its place keeps it. Like an anchor it is a rule: `Area` is still written as the result, and resizing in
+  the editor removes it. It needs the size of the resource, which the resource table has (`width`, `height`; read from
+  the header of a PNG when it's missing).
 - **Today's editor** (Surface): the `ImageContainer` draws the `source` part of a bitmap with its `scaling`. A rotated
   bitmap is turned in its pixels there, so its part is cut out before and the trip back has no `source`. SVG, icons
   and metafiles are shown whole, their `source` and `scaling` are kept through the trip.
+
+### Canvas
+
+The canvas is the area which is drawn and exported. It is a rule, not a stored size:
+
+| `fit` | the canvas is | stored |
+|---|---|---|
+| `capture` (default) | the Bounds of the capture image (the first image of a capture layer), plus `padding` | `padding` |
+| `content` | the union of the Bounds of all elements of visible layers, plus `padding` | `padding` |
+| `fixed` | `width` x `height` from 0, 0 | `width`, `height` |
+
+`GreenshotDocument.CanvasArea()` works it out (after `Anchors.Apply`, so anchored elements are where they belong).
+`background` fills what no element covers, transparent by default (`#00000000`); an export to a format without alpha
+(JPG, BMP) needs a fill colour. On a `fixed` canvas elements can be anchored to it with `"target": "canvas"`, e.g. to
+centre the capture; the other canvases depend on the elements, so there `canvas` is no target.
+
+A screenshot at half size with a footer centred below it, on white with 20 px around both:
+
+```json
+"canvas": { "fit": "content", "padding": 20, "background": "#FFFFFFFF" },
+"layers": [
+  { "id": "…", "name": "Capture", "kind": "capture", "locked": true, "elements": [
+    { "type": "image", "id": "…", "resource": "<id>", "scale": 0.5, "area": { "x": 0, "y": 0, "width": 960, "height": 540 } } ] },
+  { "id": "…", "name": "Footer", "kind": "custom", "elements": [
+    { "type": "text", "id": "…", "text": "Figure 1", "area": { "x": 280, "y": 550, "width": 400, "height": 30 },
+      "anchor": { "x": { "target": "center", "self": "center" }, "y": { "target": "end", "self": "start", "offset": 10 } } } ] }
+],
+"resources": { "<id>": { "path": "resources/<id>.png", "mediaType": "image/png", "width": 1920, "height": 1080 } }
+```
+
+Today's editor (Surface) has no canvas of its own, its image is the canvas. When the capture doesn't simply fill the
+canvas, the editor gets the capture layers drawn onto the canvas and the elements moved by the start of the canvas; as
+long as the editor keeps that image, the capture layers, the canvas and the coordinates come back unchanged. An effect
+which changes the image (border, crop, resize) bakes the canvas into a new capture at 0, 0.
+
+### Text
+
+The `text` part of a style:
+
+- `family`: font families separated by commas, the first which is available is used, e.g.
+  `"Segoe UI, Arial, sans-serif"`. It can end with a generic family: `sans-serif`, `serif` or `monospace`. Segoe UI
+  doesn't exist on Linux or macOS, so a list keeps documents portable.
+- `size` in canvas pixels, not points (the editor creates its fonts with `GraphicsUnit.Pixel`).
+- `weight` 100 - 900 (400 normal, 700 bold), `italic`, `underline`, `strikeout`, `color`.
+- `horizontal`, `vertical`: `near`, `center`, `far`.
+- `lineHeight`: the distance of lines as a multiple of the size, without it the font decides.
+- `wrap`: text which is too long for its `Area` continues on the next line.
+- `outline`: a stroke around each letter (`color`, `width`), so text on a screenshot is readable on any background.
+
+Today's editor uses the first installed family, bold for a weight from 600 and none of underline, strikeout, line
+height, wrap and outline; the list and these values are kept through a trip through the editor.
+
+Fonts aren't embedded. A font can be used without installing it (GDI+ `PrivateFontCollection`, WPF and SkiaSharp
+load fonts from a stream), but most font licences, those of the Windows fonts too, don't allow passing them on; a
+font would only be embedded when the user asks and its licence (`fsType` in the font) allows it.
 
 ### Design proposals (not decided)
 
@@ -406,8 +471,9 @@ flowchart LR
 
 - `document.json` is the model as JSON (System.Text.Json, camelCase) with a `version` (now 1); newer versions are
   refused. The element type is written as a short name (`"type": "arrow"`), never as a CLR type name. Enums are
-  camelCase names, colors `#RRGGBBAA`, derived values (bounds) aren't written. The resource table maps each resource
-  id to its path and media type, the bytes are in `resources/{id}.{ext}`.
+  camelCase names, colors `#RRGGBBAA`, derived values (bounds, the canvas area) aren't written, nor are values which
+  are the default (`scaling`, `rotation`, an empty `style`, an `offset` of 0, `locked` false). The resource table maps
+  each resource id to its path, media type and size in pixels, the bytes are in `resources/{id}.{ext}`.
 - Writing is the gate for resources: only resources an element links to are written, a link to a missing resource
   or a media type the file format registry doesn't know (it gives the `{ext}`) is refused. A resource can be linked
   more than once; an action which changes an image (e.g. crop) either keeps the original and stores the operation,

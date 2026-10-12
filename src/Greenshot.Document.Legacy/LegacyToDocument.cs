@@ -67,7 +67,7 @@ namespace Greenshot.Document.Legacy
             var stepLabels = converted.Where(pair => pair.Legacy is LegacyStepLabelElement).OrderBy(pair => ((LegacyStepLabelElement)pair.Legacy).Number).ToList();
             int counterStart = stepLabels.Select(pair => ((LegacyStepLabelElement)pair.Legacy).CounterStart).FirstOrDefault();
 
-            return new GreenshotDocument(Uuid7.CreateVersion7(), new Canvas(width, height), new List<Layer> { captureLayer, annotationsLayer }, resources)
+            return new GreenshotDocument(Uuid7.CreateVersion7(), new Canvas(), new List<Layer> { captureLayer, annotationsLayer }, resources)
             {
                 Groups = stepLabels.Count == 0
                     ? Array.Empty<Group>()
@@ -184,7 +184,7 @@ namespace Greenshot.Document.Legacy
                     Enabled = true,
                     Family = family,
                     Size = Find(legacy, "FONT_SIZE") is IConvertible size ? Convert.ToDouble(size) : 11,
-                    Bold = Find(legacy, "FONT_BOLD") is true,
+                    Weight = Find(legacy, "FONT_BOLD") is true ? 700 : 400,
                     Italic = Find(legacy, "FONT_ITALIC") is true,
                     Color = stroke?.Color ?? Rgba.Transparent,
                     Horizontal = (TextAlignment)Int(legacy, "TEXT_HORIZONTAL_ALIGNMENT", (int)TextAlignment.Center),

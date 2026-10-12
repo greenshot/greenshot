@@ -23,6 +23,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Greenshot.Document
 {
@@ -43,15 +45,16 @@ namespace Greenshot.Document
     /// For a point (the start or end of a line, the tail of a speech bubble) only Target and Offset count. Self can't be
     /// Point, it counts as Start.
     /// </summary>
-    public sealed record AxisAnchor(AnchorLine Target, AnchorLine Self = AnchorLine.Start, double Offset = 0);
+    public sealed record AxisAnchor(AnchorLine Target, [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] AnchorLine Self = AnchorLine.Start, [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] double Offset = 0);
 
     /// <summary>
     /// Keeps a part of an element at its place relative to the Bounds or AnchorPoint of the target element, the capture
-    /// when Target is missing. An axis without an AxisAnchor isn't anchored, but an anchor of a point without any axis
-    /// puts the point on the AnchorPoint of the target.
+    /// when Target is missing, the canvas when Target is Anchors.Canvas ("canvas"). An axis without an AxisAnchor isn't
+    /// anchored, but an anchor of a point without any axis puts the point on the AnchorPoint of the target.
     /// </summary>
     public sealed record Anchor
     {
+        [JsonConverter(typeof(TargetConverter))]
         public Guid? Target { get; init; }
 
         public AxisAnchor X { get; init; }
@@ -65,6 +68,12 @@ namespace Greenshot.Document
     /// </summary>
     public static class Anchors
     {
+        /// <summary>
+        /// The target of an anchor to the canvas, written as "canvas". Only a Fixed canvas can be a target, the others
+        /// depend on the elements.
+        /// </summary>
+        public static readonly Guid Canvas = Guid.Empty;
+
         /// <summary>
         /// The id of the capture, the target of an anchor without one: the first image of a capture layer
         /// </summary>
@@ -171,8 +180,11 @@ namespace Greenshot.Document
             private readonly Dictionary<Guid, Element> _placed = new();
             private readonly HashSet<Guid> _placing = new();
 
+            private readonly GreenshotDocument _document;
+
             public Placer(GreenshotDocument document)
             {
+                _document = document;
                 _captureId = CaptureId(document);
                 _byId = ById(document);
             }
@@ -189,12 +201,12 @@ namespace Greenshot.Document
                     throw new InvalidDataException($"The anchors of element {element.Id} make a loop");
                 }
 
-                placed = element;
+                placed = Scaled(element);
                 if (Target(element.Anchor, element.Id) is Element target)
                 {
                     // A speech bubble is placed by its text box, the tail follows
-                    var box = element is SpeechBubbleElement bubble ? bubble.Area : element.Bounds;
-                    placed = Move(element, Delta(element.Anchor.X, target, true, box.X, box.Width), Delta(element.Anchor.Y, target, false, box.Y, box.Height));
+                    var box = placed is SpeechBubbleElement bubble ? bubble.Area : placed.Bounds;
+                    placed = Move(placed, Delta(element.Anchor.X, target, true, box.X, box.Width), Delta(element.Anchor.Y, target, false, box.Y, box.Height));
                 }
 
                 placed = placed switch
@@ -210,8 +222,21 @@ namespace Greenshot.Document
                 return placed;
             }
 
-            private Element Target(Anchor anchor, Guid elementId) =>
-                anchor != null && TargetId(anchor, _captureId, elementId) is Guid id && _byId.TryGetValue(id, out var target) ? Place(target) : null;
+            private Element Target(Anchor anchor, Guid elementId)
+            {
+                if (anchor?.Target == Canvas)
+                {
+                    return _document.Canvas.Fit == CanvasFit.Fixed ? new RectangleElement(Canvas, _document.CanvasArea()) : null;
+                }
+
+                return anchor != null && TargetId(anchor, _captureId, elementId) is Guid id && _byId.TryGetValue(id, out var target) ? Place(target) : null;
+            }
+
+            // An image with a Scale gets the size of the part of its resource it shows times Scale, when the size of the resource is known
+            private Element Scaled(Element element) =>
+                element is ImageElement { Scale: double scale } image && _document.Resources.TryGetValue(image.Resource, out var resource) && GreenshotPackage.WithSize(resource) is { Width: int width, Height: int height }
+                    ? image with { Area = image.Area with { Width = width * (image.Source?.Width ?? 1) * scale, Height = height * (image.Source?.Height ?? 1) * scale } }
+                    : element;
 
             private PointD PlacePoint(Anchor anchor, Guid elementId, PointD point)
             {
@@ -260,6 +285,31 @@ namespace Greenshot.Document
                 PluginElement e => e with { Area = e.Area.Offset(dx, dy) },
                 _ => element
             };
+        }
+    }
+
+    /// <summary>
+    /// Writes the target of an anchor as its id, or "canvas"
+    /// </summary>
+    internal sealed class TargetConverter : JsonConverter<Guid?>
+    {
+        private const string CanvasName = "canvas";
+
+        public override Guid? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
+            reader.TokenType == JsonTokenType.Null ? null
+            : reader.GetString() is CanvasName ? Anchors.Canvas
+            : reader.GetGuid();
+
+        public override void Write(Utf8JsonWriter writer, Guid? value, JsonSerializerOptions options)
+        {
+            if (value == Anchors.Canvas)
+            {
+                writer.WriteStringValue(CanvasName);
+            }
+            else
+            {
+                writer.WriteStringValue(value.Value);
+            }
         }
     }
 }

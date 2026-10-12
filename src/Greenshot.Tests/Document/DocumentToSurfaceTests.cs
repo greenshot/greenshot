@@ -109,7 +109,7 @@ namespace Greenshot.Tests.Document
         {
             var capture = Png(200, 100);
             var all = resources.Values.Append(capture).ToDictionary(resource => resource.Id);
-            return new GreenshotDocument(Guid.NewGuid(), new Canvas(200, 100), new List<Layer>
+            return new GreenshotDocument(Guid.NewGuid(), new Canvas(), new List<Layer>
             {
                 new(Guid.NewGuid(), "Capture", LayerKind.Capture, new List<Element> { new ImageElement(Guid.NewGuid(), new RectD(0, 0, 200, 100), capture.Id) }),
                 new(Guid.NewGuid(), "Annotations", LayerKind.Annotations, elements)
@@ -342,7 +342,7 @@ namespace Greenshot.Tests.Document
             white.Save(png, System.Drawing.Imaging.ImageFormat.Png);
             var capture = new Resource(Guid.NewGuid(), "image/png", png.ToArray());
             var rectangle = new RectangleElement(Guid.NewGuid(), new RectD(10, 10, 20, 20)) { Style = new Style { Fill = FillStyle.Of(new Rgba(255, 0, 0, 255)) } };
-            var document = new GreenshotDocument(Guid.NewGuid(), new Canvas(100, 50), new List<Layer>
+            var document = new GreenshotDocument(Guid.NewGuid(), new Canvas(), new List<Layer>
             {
                 new(Guid.NewGuid(), "Capture", LayerKind.Capture, new List<Element> { new ImageElement(Guid.NewGuid(), new RectD(0, 0, 100, 50), capture.Id) }),
                 new(Guid.NewGuid(), "Annotations", LayerKind.Annotations, new List<Element> { rectangle })
@@ -353,6 +353,38 @@ namespace Greenshot.Tests.Document
             Assert.Equal(new Size(100, 50), image.Size);
             Assert.Equal(Color.Red.ToArgb(), image.GetPixel(20, 20).ToArgb());
             Assert.Equal(Color.White.ToArgb(), image.GetPixel(60, 40).ToArgb());
+        }
+
+        [Fact]
+        public void ACanvasAroundTheCapture_GoesToTheEditorAsOneImage_AndComesBackAsItWas()
+        {
+            var png = Png(200, 100);
+            var captureLayer = new Layer(Uuid7.CreateVersion7(), "Capture", LayerKind.Capture, new List<Element>
+            {
+                new ImageElement(Uuid7.CreateVersion7(), new RectD(0, 0, 100, 50), png.Id) { Scale = 0.5 }
+            }) { Locked = true };
+            var footer = new TextElement(Uuid7.CreateVersion7(), new RectD(0, 0, 80, 20), "Figure 1")
+            {
+                Anchor = new Anchor { X = new AxisAnchor(AnchorLine.Center, AnchorLine.Center), Y = new AxisAnchor(AnchorLine.End, AnchorLine.Start, 10) }
+            };
+            var document = new GreenshotDocument(Uuid7.CreateVersion7(), new Canvas { Fit = CanvasFit.Content, Padding = 20, Background = new Rgba(255, 255, 255, 255) }, new List<Layer>
+            {
+                captureLayer,
+                new(Uuid7.CreateVersion7(), "Annotations", LayerKind.Annotations, new List<Element> { footer })
+            }, new Dictionary<Guid, Resource> { [png.Id] = png });
+
+            using var surface = DocumentToSurface.ToSurface(document);
+            var mappedBack = SurfaceToDocument.ToDocument(surface);
+
+            // The canvas is the capture and the footer below it, with 20 px around them
+            Assert.Equal(new Size(140, 120), surface.Image.Size);
+            var container = surface.Elements.Cast<DrawableContainer>().Single();
+            Assert.Equal((30, 80, 80, 20), (container.Left, container.Top, container.Width, container.Height));
+            Assert.Equal(document.Canvas, mappedBack.Canvas);
+            Assert.Equal(captureLayer with { Elements = null }, mappedBack.Layers[0] with { Elements = null });
+            Assert.Equal(captureLayer.Elements, mappedBack.Layers[0].Elements);
+            Assert.Equal(new RectD(10, 60, 80, 20), mappedBack.Layers[1].Elements.Single().Bounds);
+            Assert.Equal(png.Data, mappedBack.Resources[png.Id].Data);
         }
 
         [Fact]

@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Greenshot.Document
 {
@@ -51,6 +52,7 @@ namespace Greenshot.Document
     {
         public bool Visible { get; init; } = true;
 
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public bool Locked { get; init; }
     }
 }

@@ -69,7 +69,8 @@ namespace Greenshot.Tests.Document
             var document = SurfaceToDocument.ToDocument(surface);
 
             Assert.Equal(surface.ID, document.Id);
-            Assert.Equal(new Canvas(200, 100), document.Canvas);
+            Assert.Equal(new Canvas(), document.Canvas);
+            Assert.Equal(new RectD(0, 0, 200, 100), document.CanvasArea());
             Assert.Equal(2, document.Layers.Count);
             var capture = Assert.IsType<ImageElement>(Assert.Single(document.Layers[0].Elements));
             Assert.Equal(new RectD(0, 0, 200, 100), capture.Area);
@@ -110,7 +111,7 @@ namespace Greenshot.Tests.Document
             var element = Assert.IsType<TextElement>(Assert.Single(SurfaceToDocument.ToDocument(surface).Layers[1].Elements));
 
             Assert.Equal("Hello", element.Text);
-            Assert.True(element.Style.Text.Bold);
+            Assert.Equal(700, element.Style.Text.Weight);
             Assert.Equal(11, element.Style.Text.Size);
             Assert.Equal(TextAlignment.Near, element.Style.Text.Horizontal);
             Assert.Equal(TextAlignment.Center, element.Style.Text.Vertical);

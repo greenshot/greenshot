@@ -81,7 +81,7 @@ namespace Greenshot.Tests.Document
                     new PluginElement(Guid.NewGuid(), new RectD(50, 50, 100, 100), "greenshot.barcode")
                 });
 
-            var document = new GreenshotDocument(Guid.NewGuid(), new Canvas(800, 600), new List<Layer> { captureLayer, annotations },
+            var document = new GreenshotDocument(Guid.NewGuid(), Canvas.Fixed(800, 600), new List<Layer> { captureLayer, annotations },
                 new Dictionary<Guid, Resource> { [capture.Id] = capture });
 
             var image = Assert.IsType<ImageElement>(Assert.Single(document.Layers[0].Elements));
@@ -102,7 +102,7 @@ namespace Greenshot.Tests.Document
             {
                 Style = new Style { Stroke = StrokeStyle.Of(red, 3), Fill = FillStyle.Of(blue) }
             };
-            var document = new GreenshotDocument(Guid.NewGuid(), new Canvas(10, 10), new List<Layer>(), new Dictionary<Guid, Resource>()) { Groups = new[] { marker } };
+            var document = new GreenshotDocument(Guid.NewGuid(), Canvas.Fixed(10, 10), new List<Layer>(), new Dictionary<Guid, Resource>()) { Groups = new[] { marker } };
 
             var arrowStyle = document.StyleOf(arrow);
             Assert.Equal(StrokeStyle.Of(red, 5), arrowStyle.Stroke);
@@ -125,7 +125,7 @@ namespace Greenshot.Tests.Document
             var single = new StepLabelElement(Guid.NewGuid(), new RectD(0, 0, 10, 10));
             var alone = new StepLabelElement(Guid.NewGuid(), new RectD(0, 0, 10, 10));
             var layer = new Layer(Guid.NewGuid(), "Annotations", LayerKind.Annotations, new List<Element> { first, single, second, other, alone });
-            var document = new GreenshotDocument(Guid.NewGuid(), new Canvas(10, 10), new List<Layer> { layer }, new Dictionary<Guid, Resource>())
+            var document = new GreenshotDocument(Guid.NewGuid(), Canvas.Fixed(10, 10), new List<Layer> { layer }, new Dictionary<Guid, Resource>())
             {
                 Groups = new[]
                 {

@@ -108,8 +108,8 @@ namespace Greenshot.Tests.Document
 
             var actual = LegacyToDocument.ReadGreenshotFile(stream);
 
-            Assert.Equal(expected.Canvas.Width, actual.Canvas.Width);
-            Assert.Equal(expected.Canvas.Height, actual.Canvas.Height);
+            Assert.Equal(expected.Canvas, actual.Canvas);
+            Assert.Equal(expected.CanvasArea(), actual.CanvasArea());
             var expectedElements = expected.Layers[1].Elements;
             var actualElements = actual.Layers[1].Elements;
             Assert.Equal(expectedElements.Count, actualElements.Count);
@@ -162,7 +162,8 @@ namespace Greenshot.Tests.Document
 
             var document = LegacyToDocument.ReadGreenshotFile(stream);
 
-            Assert.Equal(new Canvas(800, 400), document.Canvas);
+            Assert.Equal(new Canvas(), document.Canvas);
+            Assert.Equal(new RectD(0, 0, 800, 400), document.CanvasArea());
             var capture = Assert.IsType<ImageElement>(Assert.Single(document.Layers[0].Elements));
             Assert.Equal(new RectD(0, 0, 800, 400), capture.Area);
             Assert.Equal("image/png", document.Resources[capture.Resource].MediaType);

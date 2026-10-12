@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 
 namespace Greenshot.Document
 {
@@ -199,11 +200,19 @@ namespace Greenshot.Document
         /// </summary>
         public RectD? Source { get; init; }
 
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public ImageScaling Scaling { get; init; }
+
+        /// <summary>
+        /// Shows the image at this factor of the size of the part it shows (0.5 is half the size), its Area is set to
+        /// the result when anchors are applied. It needs the size of the resource.
+        /// </summary>
+        public double? Scale { get; init; }
 
         /// <summary>
         /// Rotation in degrees, clockwise, applied after Source is fitted into Area.
         /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public int Rotation { get; init; }
 
         public override RectD Bounds => Area;
@@ -214,6 +223,7 @@ namespace Greenshot.Document
         /// <summary>
         /// Rotation in degrees, clockwise.
         /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public int Rotation { get; init; }
 
         public override RectD Bounds => Area;

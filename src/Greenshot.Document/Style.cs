@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Linq;
 
 namespace Greenshot.Document
 {
@@ -88,17 +89,39 @@ namespace Greenshot.Document
         Far
     }
 
+    /// <summary>
+    /// How text is drawn.
+    /// </summary>
     public sealed record TextStyle
     {
+        /// <summary>
+        /// The generic families which can end the Family list
+        /// </summary>
+        public const string SansSerif = "sans-serif", Serif = "serif", Monospace = "monospace";
+
         public bool? Enabled { get; init; }
 
+        /// <summary>
+        /// Font families separated by commas, the first one which is available is used, e.g. "Segoe UI, Arial, sans-serif".
+        /// A list can end with a generic family: sans-serif, serif or monospace.
+        /// </summary>
         public string Family { get; init; }
 
+        /// <summary>
+        /// The size in canvas pixels (not points)
+        /// </summary>
         public double? Size { get; init; }
 
-        public bool? Bold { get; init; }
+        /// <summary>
+        /// 100 - 900, 400 is normal, 700 is bold
+        /// </summary>
+        public int? Weight { get; init; }
 
         public bool? Italic { get; init; }
+
+        public bool? Underline { get; init; }
+
+        public bool? Strikeout { get; init; }
 
         public Rgba? Color { get; init; }
 
@@ -106,16 +129,42 @@ namespace Greenshot.Document
 
         public TextAlignment? Vertical { get; init; }
 
+        /// <summary>
+        /// The distance of lines as a multiple of the font size, without it the font decides
+        /// </summary>
+        public double? LineHeight { get; init; }
+
+        /// <summary>
+        /// Text which is too long for its Area continues on the next line
+        /// </summary>
+        public bool? Wrap { get; init; }
+
+        /// <summary>
+        /// A line around each letter, so text on a screenshot stays readable on any background
+        /// </summary>
+        public StrokeStyle Outline { get; init; }
+
+        /// <summary>
+        /// The families of Family, in order
+        /// </summary>
+        public static string[] Families(string family) =>
+            (family ?? string.Empty).Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(name => name.Trim().Trim('"', '\'')).Where(name => name.Length > 0).ToArray();
+
         public TextStyle Over(TextStyle lower) => lower == null ? this : new()
         {
             Enabled = Enabled ?? lower.Enabled,
             Family = Family ?? lower.Family,
             Size = Size ?? lower.Size,
-            Bold = Bold ?? lower.Bold,
+            Weight = Weight ?? lower.Weight,
             Italic = Italic ?? lower.Italic,
+            Underline = Underline ?? lower.Underline,
+            Strikeout = Strikeout ?? lower.Strikeout,
             Color = Color ?? lower.Color,
             Horizontal = Horizontal ?? lower.Horizontal,
-            Vertical = Vertical ?? lower.Vertical
+            Vertical = Vertical ?? lower.Vertical,
+            LineHeight = LineHeight ?? lower.LineHeight,
+            Wrap = Wrap ?? lower.Wrap,
+            Outline = Outline?.Over(lower.Outline) ?? lower.Outline
         };
     }
 
@@ -162,7 +211,7 @@ namespace Greenshot.Document
     {
         private static readonly Rgba Red = new(255, 0, 0, 255);
         private static readonly Rgba Transparent = Rgba.Transparent;
-        private const string SansSerif = "Microsoft Sans Serif";
+        private const string SansSerif = "Microsoft Sans Serif, sans-serif";
 
         private static Style Lines(Rgba color, double width, bool shadow, Rgba? fill = null) => new()
         {
@@ -175,8 +224,8 @@ namespace Greenshot.Document
         {
             Text = new TextStyle
             {
-                Enabled = true, Family = SansSerif, Size = size, Bold = bold, Italic = false, Color = style.Stroke.Color,
-                Horizontal = TextAlignment.Center, Vertical = TextAlignment.Center
+                Enabled = true, Family = SansSerif, Size = size, Weight = bold ? 700 : 400, Italic = false, Underline = false, Strikeout = false,
+                Color = style.Stroke.Color, Horizontal = TextAlignment.Center, Vertical = TextAlignment.Center, Wrap = true, Outline = new StrokeStyle { Enabled = false }
             }
         };
 

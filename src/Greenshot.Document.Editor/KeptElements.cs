@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Runtime.CompilerServices;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
@@ -57,6 +58,23 @@ namespace Greenshot.Document.Editor
             public Guid AnnotationsLayerId { get; set; } = Uuid7.CreateVersion7();
 
             public IReadOnlyList<Group> Groups { get; set; } = Array.Empty<Group>();
+
+            /// <summary>
+            /// The image the editor got when the capture doesn't simply fill the canvas: the capture layers drawn onto the
+            /// canvas. While the editor still has it, the capture layers, the canvas and the coordinates come back unchanged.
+            /// </summary>
+            public Image StandIn { get; set; }
+
+            public IReadOnlyList<Layer> CaptureLayers { get; set; }
+
+            public IReadOnlyList<Resource> CaptureResources { get; set; }
+
+            public Canvas Canvas { get; set; }
+
+            /// <summary>
+            /// Where the canvas starts in the coordinates of the document, the editor's 0, 0
+            /// </summary>
+            public PointD Origin { get; set; }
 
             public List<Kept> Elements { get; } = new();
         }

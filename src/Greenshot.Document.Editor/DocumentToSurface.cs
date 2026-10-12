@@ -50,10 +50,28 @@ namespace Greenshot.Document.Editor
     {
         public static Surface ToSurface(GreenshotDocument document)
         {
-            var capture = document.Layers.Where(layer => layer.Kind == LayerKind.Capture).SelectMany(layer => layer.Elements).OfType<ImageElement>().FirstOrDefault();
-            var image = capture == null
-                ? ImageHelper.CreateEmpty(document.Canvas.Width, document.Canvas.Height, PixelFormat.Format32bppArgb, ToColor(document.Canvas.Background))
-                : LoadImage(document.Resources[capture.Resource]);
+            document = Anchors.Apply(document);
+            var area = document.CanvasArea();
+            var captureLayers = document.Layers.Where(layer => layer.Kind == LayerKind.Capture).ToList();
+            var capture = captureLayers.SelectMany(layer => layer.Elements).OfType<ImageElement>().FirstOrDefault();
+            // The editor's image is its canvas: the capture when it fills the canvas as it is, otherwise the capture layers drawn onto the canvas
+            var image = capture != null && capture.Area == area && capture.Source == null && capture.Rotation == 0 && captureLayers.Sum(layer => layer.Elements.Count) == 1
+                ? LoadImage(document.Resources[capture.Resource])
+                : null;
+            if (image != null && (image.Width != Round(area.Width) || image.Height != Round(area.Height)))
+            {
+                image.Dispose();
+                image = null;
+            }
+
+            bool standIn = image == null;
+            if (standIn)
+            {
+                using var canvas = new Surface(ImageHelper.CreateEmpty(Round(area.Width), Round(area.Height), PixelFormat.Format32bppArgb, ToColor(document.Canvas.Background)));
+                AddElements(canvas, document, captureLayers.Where(layer => layer.Visible).SelectMany(layer => layer.Elements).Select(element => Anchors.Move(element, -area.X, -area.Y)));
+                image = canvas.GetImageForExport();
+            }
+
             // The editor has one steps group, it numbers its step labels in the order they were added
             var steps = document.Groups.FirstOrDefault(group => group.Type == GroupTypes.Steps);
             var surface = new Surface(image)
@@ -67,8 +85,17 @@ namespace Greenshot.Document.Editor
             kept.CaptureLayerId = document.Layers.FirstOrDefault(layer => layer.Kind == LayerKind.Capture)?.Id ?? kept.CaptureLayerId;
             kept.AnnotationsLayerId = document.Layers.FirstOrDefault(layer => layer.Kind != LayerKind.Capture)?.Id ?? kept.AnnotationsLayerId;
             kept.Groups = document.Groups;
+            if (standIn)
+            {
+                kept.StandIn = surface.Image;
+                kept.CaptureLayers = captureLayers;
+                kept.CaptureResources = captureLayers.SelectMany(layer => layer.Elements).SelectMany(element => Keep(document, element).Resources).ToList();
+                kept.Canvas = document.Canvas;
+                kept.Origin = new PointD(area.X, area.Y);
+            }
 
-            var stepLabels = AddElements(surface, document, document.Layers.Where(layer => layer.Kind != LayerKind.Capture && layer.Visible).SelectMany(layer => layer.Elements))
+            var stepLabels = AddElements(surface, document, document.Layers.Where(layer => layer.Kind != LayerKind.Capture && layer.Visible).SelectMany(layer => layer.Elements)
+                    .Select(element => Anchors.Move(element, -area.X, -area.Y)))
                 .OfType<StepLabelContainer>().ToList();
             foreach (var step in steps?.Members ?? Array.Empty<Guid?>())
             {
@@ -117,7 +144,7 @@ namespace Greenshot.Document.Editor
         {
             var kept = KeptElements.DocumentOf(surface);
             var capture = new ImageElement(kept.CaptureId, new RectD(0, 0, surface.Image.Width, surface.Image.Height), Guid.Empty);
-            var document = new GreenshotDocument(surface.ID, new Canvas(surface.Image.Width, surface.Image.Height), new List<Layer>
+            var document = new GreenshotDocument(surface.ID, Canvas.Fixed(surface.Image.Width, surface.Image.Height), new List<Layer>
             {
                 new(kept.CaptureLayerId, "Capture", LayerKind.Capture, new List<Element> { capture }),
                 new(kept.AnnotationsLayerId, "Annotations", LayerKind.Annotations, elements.ToList())
@@ -293,13 +320,37 @@ namespace Greenshot.Document.Editor
             SetField(container, FieldType.SHADOW, style.Shadow?.Enabled == true);
             if (style.Text is { } text)
             {
-                SetField(container, FieldType.FONT_FAMILY, text.Family);
+                SetField(container, FieldType.FONT_FAMILY, FontFamilyOf(text.Family));
                 SetField(container, FieldType.FONT_SIZE, (float)(text.Size ?? 11));
-                SetField(container, FieldType.FONT_BOLD, text.Bold == true);
+                SetField(container, FieldType.FONT_BOLD, text.Weight >= 600);
                 SetField(container, FieldType.FONT_ITALIC, text.Italic == true);
                 SetField(container, FieldType.TEXT_HORIZONTAL_ALIGNMENT, (StringAlignment)(int)(text.Horizontal ?? TextAlignment.Center));
                 SetField(container, FieldType.TEXT_VERTICAL_ALIGNMENT, (StringAlignment)(int)(text.Vertical ?? TextAlignment.Center));
             }
+        }
+
+        /// <summary>
+        /// The first family of the list which is installed, for a generic family the one GDI+ has for it
+        /// </summary>
+        internal static string FontFamilyOf(string family)
+        {
+            var installed = new HashSet<string>(FontFamily.Families.Select(fontFamily => fontFamily.Name), StringComparer.OrdinalIgnoreCase);
+            foreach (var name in TextStyle.Families(family))
+            {
+                var generic = name switch
+                {
+                    TextStyle.SansSerif => FontFamily.GenericSansSerif,
+                    TextStyle.Serif => FontFamily.GenericSerif,
+                    TextStyle.Monospace => FontFamily.GenericMonospace,
+                    _ => null
+                };
+                if (generic != null || installed.Contains(name))
+                {
+                    return generic?.Name ?? name;
+                }
+            }
+
+            return FontFamily.GenericSansSerif.Name;
         }
 
         // SetFieldValue and HasField of the container (not of AbstractFieldHolder) also reach the fields of its filters

@@ -82,7 +82,7 @@ namespace Greenshot.DocumentModel
             // An element without id gets a new one, anchored elements are placed relative to the capture and to each other
             var elements = DocumentToSurface.Place(surface, GreenshotPackage.ReadElements(JsonConvert.SerializeObject(value))
                 .Select(element => element.Id == Guid.Empty ? element with { Id = Uuid7.CreateVersion7() } : element));
-            var document = new GreenshotDocument(surface.ID, new Canvas(surface.Image.Width, surface.Image.Height), Array.Empty<Layer>(), new Dictionary<Guid, Resource>());
+            var document = new GreenshotDocument(surface.ID, new Canvas(), Array.Empty<Layer>(), new Dictionary<Guid, Resource>());
             var added = DocumentToSurface.AddElements(surface, document, elements, true);
             if (added.Count > 0)
             {

@@ -42,6 +42,41 @@ namespace Greenshot.Tests.Document
         /// <summary>
         /// A document with every element type, and values which aren't the defaults
         /// </summary>
+        [Fact]
+        public void Write_LeavesOutDefaults_AndWritesTheSizeOfAResource_AndTheCanvasAsTarget()
+        {
+            var png = new Resource(Guid.NewGuid(), "image/png", new byte[] { 0x89, (byte)'P', (byte)'N', (byte)'G', 13, 10, 26, 10, 0, 0, 0, 13, (byte)'I', (byte)'H', (byte)'D', (byte)'R', 0, 0, 7, 128, 0, 0, 4, 56 });
+            var capture = new ImageElement(Guid.NewGuid(), new RectD(0, 0, 960, 540), png.Id) { Anchor = new Anchor { Target = Anchors.Canvas, X = new AxisAnchor(AnchorLine.Center, AnchorLine.Center) } };
+            var document = new GreenshotDocument(Guid.NewGuid(), Canvas.Fixed(1920, 1080), new List<Layer>
+            {
+                new(Guid.NewGuid(), "Capture", LayerKind.Capture, new List<Element> { capture })
+            }, new Dictionary<Guid, Resource> { [png.Id] = png });
+            using var stream = new MemoryStream();
+
+            GreenshotPackage.Write(document, stream, _ => "png");
+
+            stream.Position = 0;
+            using (var zip = new ZipArchive(stream, ZipArchiveMode.Read, true))
+            using (var reader = new StreamReader(zip.GetEntry("document.json")!.Open()))
+            {
+                string json = reader.ReadToEnd();
+                Assert.DoesNotContain("\"scaling\"", json);
+                Assert.DoesNotContain("\"rotation\"", json);
+                Assert.DoesNotContain("\"style\"", json);
+                Assert.DoesNotContain("\"offset\"", json);
+                Assert.DoesNotContain("\"locked\"", json);
+                Assert.Contains("\"target\": \"canvas\"", json);
+                Assert.Contains("\"width\": 1920", json);
+            }
+
+            stream.Position = 0;
+            var read = GreenshotPackage.Read(stream);
+            Assert.Equal(1920, read.Resources[png.Id].Width);
+            Assert.Equal(1080, read.Resources[png.Id].Height);
+            Assert.Equal(capture, read.Layers[0].Elements[0]);
+            Assert.Equal(document.Canvas, read.Canvas);
+        }
+
         private static GreenshotDocument AllElements()
         {
             var red = new Rgba(255, 0, 0, 255);
@@ -53,7 +88,11 @@ namespace Greenshot.Tests.Document
                 Stroke = StrokeStyle.Of(red, 2.5),
                 Fill = FillStyle.Of(new Rgba(1, 2, 3, 128)),
                 Shadow = new ShadowStyle { Enabled = true },
-                Text = new TextStyle { Enabled = true, Family = "Segoe UI", Size = 12.5, Bold = true, Italic = true, Color = red, Horizontal = TextAlignment.Near, Vertical = TextAlignment.Far },
+                Text = new TextStyle
+                {
+                    Enabled = true, Family = "Segoe UI, Arial, sans-serif", Size = 12.5, Weight = 600, Italic = true, Underline = true, Strikeout = false, Color = red,
+                    Horizontal = TextAlignment.Near, Vertical = TextAlignment.Far, LineHeight = 1.5, Wrap = false, Outline = StrokeStyle.Of(new Rgba(255, 255, 255, 255), 2)
+                },
                 Extensions = new RawJson("{\"zxing\":{\"quietZone\":4}}")
             };
             var area = new RectD(10.5, 20, 30, 40);
@@ -91,7 +130,7 @@ namespace Greenshot.Tests.Document
                 new(Guid.NewGuid(), "Capture", LayerKind.Capture, new List<Element> { new ImageElement(Guid.NewGuid(), new RectD(0, 0, 800, 600), image.Id) }) { Locked = true },
                 new(Guid.NewGuid(), "Annotations", LayerKind.Annotations, elements) { Visible = false }
             };
-            return new GreenshotDocument(Guid.NewGuid(), new Canvas(800, 600) { Background = red }, layers,
+            return new GreenshotDocument(Guid.NewGuid(), new Canvas { Fit = CanvasFit.Content, Padding = 20, Background = red }, layers,
                 new Dictionary<Guid, Resource> { [image.Id] = image, [svg.Id] = svg, [mask.Id] = mask })
             {
                 Groups = new[]

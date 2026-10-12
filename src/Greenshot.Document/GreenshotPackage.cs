@@ -48,7 +48,7 @@ namespace Greenshot.Document
         private const int MaxEntries = 10_000;
         private const long MaxEntrySize = 256L * 1024 * 1024;
 
-        private sealed record ResourceEntry(string Path, string MediaType);
+        private sealed record ResourceEntry(string Path, string MediaType, int? Width = null, int? Height = null);
 
         private sealed record DocumentJson(int Version, Guid Id, Canvas Canvas, IReadOnlyList<Layer> Layers, IReadOnlyList<Group> Groups, IReadOnlyDictionary<Guid, ResourceEntry> Resources);
 
@@ -73,7 +73,8 @@ namespace Greenshot.Document
             var linked = document.Layers.SelectMany(layer => layer.Elements).SelectMany(document.Links).Distinct()
                 .Select(id => document.Resources.TryGetValue(id, out var resource) ? resource : throw new InvalidDataException($"An element links to the missing resource {id}"))
                 .ToList();
-            var entries = linked.ToDictionary(resource => resource.Id, resource => new ResourceEntry($"resources/{resource.Id:D}.{Extension(resource, extensionFor)}", resource.MediaType));
+            var entries = linked.Select(WithSize).ToDictionary(resource => resource.Id,
+                resource => new ResourceEntry($"resources/{resource.Id:D}.{Extension(resource, extensionFor)}", resource.MediaType, resource.Width, resource.Height));
             Anchors.CheckLoops(document);
             // Members which no longer exist are dropped, gaps (null) are kept
             var elementIds = new HashSet<Guid>(document.Layers.SelectMany(layer => layer.Elements).Select(element => element.Id));
@@ -120,11 +121,28 @@ namespace Greenshot.Document
                 throw new InvalidDataException($"The document has version {json.Version}, this Greenshot reads up to version {Version}");
             }
 
-            var resources = json.Resources.ToDictionary(pair => pair.Key, pair => new Resource(pair.Key, pair.Value.MediaType, ReadEntry(zip, pair.Value.Path)));
+            var resources = json.Resources.ToDictionary(pair => pair.Key,
+                pair => WithSize(new Resource(pair.Key, pair.Value.MediaType, ReadEntry(zip, pair.Value.Path)) { Width = pair.Value.Width, Height = pair.Value.Height }));
             return new GreenshotDocument(json.Id, json.Canvas, json.Layers, resources)
             {
                 Groups = (json.Groups ?? Array.Empty<Group>()).Select(group => group.Members == null ? group with { Members = Array.Empty<Guid?>() } : group).ToList()
             };
+        }
+
+        /// <summary>
+        /// The resource with its size, read from the header of a PNG when it isn't known
+        /// </summary>
+        public static Resource WithSize(Resource resource)
+        {
+            var data = resource.Data;
+            // The signature, then the IHDR chunk: length, "IHDR", width and height big endian
+            if (resource.Width != null || data == null || data.Length < 24 || data[0] != 0x89 || data[1] != 'P' || data[2] != 'N' || data[3] != 'G' || data[12] != 'I' || data[13] != 'H' || data[14] != 'D' || data[15] != 'R')
+            {
+                return resource;
+            }
+
+            static int BigEndian(byte[] bytes, int offset) => (bytes[offset] << 24) | (bytes[offset + 1] << 16) | (bytes[offset + 2] << 8) | bytes[offset + 3];
+            return resource with { Width = BigEndian(data, 16), Height = BigEndian(data, 20) };
         }
 
         private static void WriteEntry(ZipArchive zip, string path, byte[] data, CompressionLevel compressionLevel)
@@ -221,6 +239,12 @@ namespace Greenshot.Document
                 writer.WriteString("type", Names[value.GetType()]);
                 foreach (var property in JsonSerializer.SerializeToElement(value, value.GetType(), options).EnumerateObject())
                 {
+                    // An element without its own style leaves it out
+                    if (property.NameEquals("style") && property.Value.ValueKind == JsonValueKind.Object && !property.Value.EnumerateObject().Any())
+                    {
+                        continue;
+                    }
+
                     if (value is PluginElement plugin && property.NameEquals("data"))
                     {
                         writer.WritePropertyName(property.Name);

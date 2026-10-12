@@ -48,12 +48,28 @@ namespace Greenshot.Document.Editor
             var resources = new Dictionary<Guid, Resource>();
             var image = surface.Image;
             var kept = KeptElements.DocumentOf(surface);
-            var captureLayer = new Layer(kept.CaptureLayerId, "Capture", LayerKind.Capture,
-                new List<Element> { new ImageElement(kept.CaptureId, new RectD(0, 0, image.Width, image.Height), AddImage(resources, image)) })
+            // While the editor has the image it got for a canvas which isn't just the capture, the capture layers and the canvas come back as they were
+            bool standIn = kept.StandIn != null && ReferenceEquals(image, kept.StandIn);
+            var captureLayers = standIn
+                ? kept.CaptureLayers.ToList()
+                : new List<Layer>
+                {
+                    new(kept.CaptureLayerId, "Capture", LayerKind.Capture, new List<Element> { new ImageElement(kept.CaptureId, new RectD(0, 0, image.Width, image.Height), AddImage(resources, image)) })
+                    {
+                        Locked = true
+                    }
+                };
+            if (standIn)
             {
-                Locked = true
-            };
-            var containers = surface.Elements.Cast<DrawableContainer>().Select(container => (Container: container, Element: WithAnchors(ToElement(container, resources), container)))
+                foreach (var resource in kept.CaptureResources)
+                {
+                    resources[resource.Id] = resource;
+                }
+            }
+
+            var origin = standIn ? kept.Origin : default;
+            var containers = surface.Elements.Cast<DrawableContainer>()
+                .Select(container => (Container: container, Element: WithAnchors(ToElement(container, resources), container) is Element element ? Anchors.Move(element, origin.X, origin.Y) : null))
                 .Where(pair => pair.Element != null).ToList();
             var elements = containers.Select(pair => pair.Element).ToList();
             elements.AddRange(kept.Elements.Select(keptElement => AddKept(resources, keptElement)));
@@ -74,7 +90,7 @@ namespace Greenshot.Document.Editor
                 });
             }
 
-            return new GreenshotDocument(surface.ID, new Canvas(image.Width, image.Height), new List<Layer> { captureLayer, annotationsLayer }, resources)
+            return new GreenshotDocument(surface.ID, standIn ? kept.Canvas : new Canvas(), captureLayers.Append(annotationsLayer).ToList(), resources)
             {
                 Groups = groups
             };
@@ -90,15 +106,41 @@ namespace Greenshot.Document.Editor
                 return element;
             }
 
-            element = element with { Anchor = original.Anchor, Extensions = original.Extensions };
+            element = element with { Anchor = original.Anchor, Extensions = original.Extensions, Style = element.Style with { Text = KeepText(element.Style.Text, original.Style.Text) } };
             return (element, original) switch
             {
                 (LineElement line, LineElement from) => line with { StartAnchor = from.StartAnchor, EndAnchor = from.EndAnchor },
                 (ArrowElement arrow, ArrowElement from) => arrow with { StartAnchor = from.StartAnchor, EndAnchor = from.EndAnchor },
                 (SpeechBubbleElement bubble, SpeechBubbleElement from) => bubble with { TailAnchor = from.TailAnchor },
                 // The editor gets a rotated image turned in its bitmap, the part of it is cut out there
-                (ImageElement image, ImageElement from) => image with { Source = from.Rotation == 0 ? from.Source : null, Scaling = from.Scaling },
+                (ImageElement image, ImageElement from) => image with
+                {
+                    Source = from.Rotation == 0 ? from.Source : null,
+                    Scaling = from.Scaling,
+                    // Resized in the editor: the size is the one it has now
+                    Scale = Math.Abs(image.Area.Width - from.Area.Width) < 1 && Math.Abs(image.Area.Height - from.Area.Height) < 1 ? from.Scale : null
+                },
                 _ => element
+            };
+        }
+
+        // The editor has one family, bold or not and none of the other text values: they are kept from the original
+        private static TextStyle KeepText(TextStyle text, TextStyle original)
+        {
+            if (text == null || original == null)
+            {
+                return text;
+            }
+
+            return text with
+            {
+                Family = original.Family != null && DocumentToSurface.FontFamilyOf(original.Family) == text.Family ? original.Family : text.Family,
+                Weight = original.Weight != null && original.Weight >= 600 == text.Weight >= 600 ? original.Weight : text.Weight,
+                Underline = original.Underline,
+                Strikeout = original.Strikeout,
+                LineHeight = original.LineHeight,
+                Wrap = original.Wrap,
+                Outline = original.Outline
             };
         }
 
@@ -212,7 +254,7 @@ namespace Greenshot.Document.Editor
                     Enabled = true,
                     Family = (string)container.GetField(FieldType.FONT_FAMILY).Value,
                     Size = Convert.ToDouble(container.GetField(FieldType.FONT_SIZE).Value),
-                    Bold = (bool)container.GetField(FieldType.FONT_BOLD).Value,
+                    Weight = (bool)container.GetField(FieldType.FONT_BOLD).Value ? 700 : 400,
                     Italic = (bool)container.GetField(FieldType.FONT_ITALIC).Value,
                     Color = stroke?.Color ?? Rgba.Transparent,
                     Horizontal = (TextAlignment)Convert.ToInt32(container.GetField(FieldType.TEXT_HORIZONTAL_ALIGNMENT).Value),
