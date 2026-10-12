@@ -52,7 +52,9 @@ namespace Greenshot.Document.Editor
             {
                 Locked = true
             };
-            var elements = surface.Elements.Cast<DrawableContainer>().Select(container => ToElement(container, resources)).Where(element => element != null).ToList();
+            var containers = surface.Elements.Cast<DrawableContainer>().Select(container => (Container: container, Element: ToElement(container, resources)))
+                .Where(pair => pair.Element != null).ToList();
+            var elements = containers.Select(pair => pair.Element).ToList();
             if (KeptElements.BySurface.TryGetValue(surface, out var kept))
             {
                 elements.AddRange(kept.Select(keptElement => AddKept(resources, keptElement)));
@@ -60,8 +62,14 @@ namespace Greenshot.Document.Editor
 
             var annotationsLayer = new Layer(Uuid7.CreateVersion7(), "Annotations", LayerKind.Annotations, elements);
 
-            return new GreenshotDocument(surface.ID, new Canvas(image.Width, image.Height) { CounterStart = surface.CounterStart },
-                new List<Layer> { captureLayer, annotationsLayer }, resources);
+            // The editor has one series, numbered in its own order of the step labels
+            var steps = containers.Where(pair => pair.Container is StepLabelContainer)
+                .OrderBy(pair => surface is Surface editorSurface ? editorSurface.CountStepLabels(pair.Container) : 0).Select(pair => pair.Element.Id).ToList();
+
+            return new GreenshotDocument(surface.ID, new Canvas(image.Width, image.Height), new List<Layer> { captureLayer, annotationsLayer }, resources)
+            {
+                Series = steps.Count == 0 ? Array.Empty<StepSeries>() : new[] { new StepSeries(Uuid7.CreateVersion7(), steps) { Start = surface.CounterStart } }
+            };
         }
 
         private static Element ToElement(DrawableContainer container, IDictionary<Guid, Resource> resources)

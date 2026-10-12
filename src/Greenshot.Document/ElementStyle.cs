@@ -19,6 +19,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
+
 namespace Greenshot.Document
 {
     /// <summary>
@@ -52,9 +54,20 @@ namespace Greenshot.Document
 
     /// <summary>
     /// The style of an element, a part which is null (or a stroke with width 0) isn't drawn.
+    /// With a shared style, a part which is null is taken from the shared style.
     /// </summary>
     public sealed record ElementStyle(Stroke Stroke = null, Fill Fill = null, Shadow Shadow = null, TextStyle Text = null)
     {
         public static readonly ElementStyle None = new();
+
+        /// <summary>
+        /// This style, with the parts it doesn't have taken from the shared style
+        /// </summary>
+        public ElementStyle Over(ElementStyle shared) => new(Stroke ?? shared.Stroke, Fill ?? shared.Fill, Shadow ?? shared.Shadow, Text ?? shared.Text);
     }
+
+    /// <summary>
+    /// A style elements share by its id, changing it changes all of them.
+    /// </summary>
+    public sealed record SharedStyle(Guid Id, string Name, ElementStyle Style);
 }

@@ -61,11 +61,18 @@ namespace Greenshot.Document.Legacy
             {
                 Locked = true
             };
-            var annotationsLayer = new Layer(Uuid7.CreateVersion7(), "Annotations", LayerKind.Annotations, ToElements(legacyElements, resources));
-            int counterStart = legacyElements.OfType<LegacyStepLabelElement>().Select(stepLabel => stepLabel.CounterStart).FirstOrDefault();
+            var converted = legacyElements.Select(legacyElement => (Legacy: legacyElement, Element: ToElement(legacyElement, resources))).Where(pair => pair.Element != null).ToList();
+            var annotationsLayer = new Layer(Uuid7.CreateVersion7(), "Annotations", LayerKind.Annotations, converted.Select(pair => pair.Element).ToList());
+            // The surface had one counter, its labels were numbered in the order of their number
+            var stepLabels = converted.Where(pair => pair.Legacy is LegacyStepLabelElement).OrderBy(pair => ((LegacyStepLabelElement)pair.Legacy).Number).ToList();
+            int counterStart = stepLabels.Select(pair => ((LegacyStepLabelElement)pair.Legacy).CounterStart).FirstOrDefault();
 
-            return new GreenshotDocument(Uuid7.CreateVersion7(), new Canvas(width, height) { CounterStart = counterStart == 0 ? 1 : counterStart },
-                new List<Layer> { captureLayer, annotationsLayer }, resources);
+            return new GreenshotDocument(Uuid7.CreateVersion7(), new Canvas(width, height), new List<Layer> { captureLayer, annotationsLayer }, resources)
+            {
+                Series = stepLabels.Count == 0
+                    ? Array.Empty<StepSeries>()
+                    : new[] { new StepSeries(Uuid7.CreateVersion7(), stepLabels.Select(pair => pair.Element.Id).ToList()) { Start = counterStart == 0 ? 1 : counterStart } }
+            };
         }
 
         /// <summary>

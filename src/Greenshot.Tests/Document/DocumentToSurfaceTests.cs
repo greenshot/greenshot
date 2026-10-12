@@ -34,6 +34,7 @@ using Greenshot.Document;
 using Greenshot.Document.Editor;
 using Greenshot.Document.Legacy;
 using Greenshot.Editor.Drawing;
+using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.FileFormatHandlers;
 using Xunit;
 
@@ -225,6 +226,40 @@ namespace Greenshot.Tests.Document
             Assert.Equal(document.Canvas, mappedBack.Canvas);
             Assert.Equal(document.Layers[1].Elements.Select(element => Comparable(document, element)),
                 mappedBack.Layers[1].Elements.Select(element => Comparable(mappedBack, element)));
+            Assert.Equal(document.Series.Select(series => (series.Start, string.Join(",", series.Steps))), mappedBack.Series.Select(series => (series.Start, string.Join(",", series.Steps))));
+        }
+
+        [Fact]
+        public void StepLabels_AreNumberedInTheOrderOfTheirSeries()
+        {
+            var first = new StepLabelElement(Guid.NewGuid(), new RectD(10, 10, 30, 30));
+            var second = new StepLabelElement(Guid.NewGuid(), new RectD(50, 10, 30, 30));
+            var document = WithElements(new Dictionary<Guid, Resource>(), first, second) with
+            {
+                Series = new[] { new StepSeries(Guid.NewGuid(), new[] { second.Id, first.Id }) { Start = 7 } }
+            };
+
+            using var surface = DocumentToSurface.ToSurface(document);
+            var containers = surface.Elements.Cast<StepLabelContainer>().ToList();
+            Assert.Equal(8, surface.CountStepLabels(containers[0]));
+            Assert.Equal(7, surface.CountStepLabels(containers[1]));
+
+            var series = Assert.Single(SurfaceToDocument.ToDocument(surface).Series);
+            Assert.Equal(7, series.Start);
+            Assert.Equal(new[] { second.Id, first.Id }, series.Steps);
+        }
+
+        [Fact]
+        public void SharedStyle_IsDrawnByTheEditor()
+        {
+            var shared = new SharedStyle(Guid.NewGuid(), "Red", new ElementStyle(new Stroke(new Rgba(255, 0, 0, 255), 4)));
+            var rectangle = new RectangleElement(Guid.NewGuid(), new RectD(10, 10, 30, 30)) { StyleId = shared.Id };
+            var document = WithElements(new Dictionary<Guid, Resource>(), rectangle) with { Styles = new[] { shared } };
+
+            using var surface = DocumentToSurface.ToSurface(document);
+            var container = (DrawableContainer)Assert.Single(surface.Elements);
+            Assert.Equal(4, container.GetFieldValueAsInt(FieldType.LINE_THICKNESS));
+            Assert.Equal(Color.FromArgb(255, 255, 0, 0).ToArgb(), ((Color)container.GetFieldValue(FieldType.LINE_COLOR)).ToArgb());
         }
 
         [Fact]

@@ -51,6 +51,8 @@ namespace Greenshot.Tests.Document
             var style = new ElementStyle(new Stroke(red, 2.5), new Fill(new Rgba(1, 2, 3, 128)), Shadow.Default,
                 new TextStyle(new FontSpec("Segoe UI", 12.5, true, true), red, TextAlignment.Near, TextAlignment.Far));
             var area = new RectD(10.5, 20, 30, 40);
+            var shared = new SharedStyle(Guid.NewGuid(), "Shared", style);
+            var stepLabel = new StepLabelElement(Guid.NewGuid(), area) { StyleId = shared.Id, Style = new ElementStyle(Fill: new Fill(red)) };
             var elements = new List<Element>
             {
                 new RectangleElement(Guid.NewGuid(), area) { Style = style },
@@ -60,7 +62,7 @@ namespace Greenshot.Tests.Document
                 new FreehandElement(Guid.NewGuid(), new List<PointD> { new(1, 2), new(3, 4), new(5, 6) }),
                 new TextElement(Guid.NewGuid(), area, "Text\nwith \"quotes\" and ü") { Style = style },
                 new SpeechBubbleElement(Guid.NewGuid(), area, "Bubble", new PointD(100, 200)),
-                new StepLabelElement(Guid.NewGuid(), area),
+                stepLabel,
                 new HighlightElement(Guid.NewGuid(), area, HighlightMode.Area) { Color = red, Brightness = 0.5, BlurRadius = 7, Magnification = 4 },
                 new ObfuscateElement(Guid.NewGuid(), area, ObfuscateMode.Blur, 12),
                 new ImageElement(Guid.NewGuid(), area, image.Id) { Rotation = 90 },
@@ -76,8 +78,12 @@ namespace Greenshot.Tests.Document
                 new(Guid.NewGuid(), "Capture", LayerKind.Capture, new List<Element> { new ImageElement(Guid.NewGuid(), new RectD(0, 0, 800, 600), image.Id) }) { Locked = true },
                 new(Guid.NewGuid(), "Annotations", LayerKind.Annotations, elements) { Visible = false }
             };
-            return new GreenshotDocument(Guid.NewGuid(), new Canvas(800, 600) { Background = red, CounterStart = 5 }, layers,
-                new Dictionary<Guid, Resource> { [image.Id] = image, [svg.Id] = svg, [mask.Id] = mask });
+            return new GreenshotDocument(Guid.NewGuid(), new Canvas(800, 600) { Background = red }, layers,
+                new Dictionary<Guid, Resource> { [image.Id] = image, [svg.Id] = svg, [mask.Id] = mask })
+            {
+                Styles = new[] { shared },
+                Series = new[] { new StepSeries(Guid.NewGuid(), new[] { stepLabel.Id }) { Start = 5, Format = StepFormat.LowerRoman, StyleId = shared.Id } }
+            };
         }
 
         /// <summary>
@@ -112,6 +118,9 @@ namespace Greenshot.Tests.Document
         {
             Assert.Equal(expected.Id, actual.Id);
             Assert.Equal(expected.Canvas, actual.Canvas);
+            Assert.Equal(expected.Styles, actual.Styles);
+            Assert.Equal(expected.Series.Select(series => series with { Steps = null }), actual.Series.Select(series => series with { Steps = null }));
+            Assert.Equal(expected.Series.SelectMany(series => series.Steps), actual.Series.SelectMany(series => series.Steps));
             Assert.Equal(expected.Layers.Count, actual.Layers.Count);
             for (int layer = 0; layer < expected.Layers.Count; layer++)
             {

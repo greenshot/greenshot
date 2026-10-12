@@ -54,13 +54,26 @@ namespace Greenshot.Document.Editor
             var image = capture == null
                 ? ImageHelper.CreateEmpty(document.Canvas.Width, document.Canvas.Height, PixelFormat.Format32bppArgb, ToColor(document.Canvas.Background))
                 : LoadImage(document.Resources[capture.Resource]);
+            // The editor has one series, it numbers its step labels in the order they were added
+            var series = document.Series.FirstOrDefault();
             var surface = new Surface(image)
             {
                 ID = document.Id,
-                CounterStart = document.Canvas.CounterStart
+                CounterStart = series?.Start ?? 1
             };
 
-            AddElements(surface, document, document.Layers.Where(layer => layer.Kind != LayerKind.Capture && layer.Visible).SelectMany(layer => layer.Elements));
+            var stepLabels = AddElements(surface, document, document.Layers.Where(layer => layer.Kind != LayerKind.Capture && layer.Visible).SelectMany(layer => layer.Elements))
+                .OfType<StepLabelContainer>().ToList();
+            foreach (var step in series?.Steps ?? Array.Empty<Guid>())
+            {
+                var stepLabel = stepLabels.FirstOrDefault(container => KeptElements.Ids.TryGetValue(container, out var id) && id.Value == step);
+                if (stepLabel != null)
+                {
+                    surface.RemoveStepLabel(stepLabel);
+                    surface.AddStepLabel(stepLabel);
+                }
+            }
+
             return surface;
         }
 
@@ -154,7 +167,7 @@ namespace Greenshot.Document.Editor
                     break;
             }
 
-            ApplyStyle(container, element.Style);
+            ApplyStyle(container, document.StyleOf(element));
 
             switch (element)
             {

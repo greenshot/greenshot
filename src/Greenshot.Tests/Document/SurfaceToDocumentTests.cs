@@ -69,7 +69,7 @@ namespace Greenshot.Tests.Document
             var document = SurfaceToDocument.ToDocument(surface);
 
             Assert.Equal(surface.ID, document.Id);
-            Assert.Equal(new Canvas(200, 100) { CounterStart = 3 }, document.Canvas);
+            Assert.Equal(new Canvas(200, 100), document.Canvas);
             Assert.Equal(2, document.Layers.Count);
             var capture = Assert.IsType<ImageElement>(Assert.Single(document.Layers[0].Elements));
             Assert.Equal(new RectD(0, 0, 200, 100), capture.Area);
@@ -89,6 +89,9 @@ namespace Greenshot.Tests.Document
             Assert.Equal(ArrowHeads.End, arrow.Heads);
 
             var stepLabel = Assert.IsType<StepLabelElement>(elements[2]);
+            var series = Assert.Single(document.Series);
+            Assert.Equal(3, series.Start);
+            Assert.Equal(new[] { stepLabel.Id }, series.Steps);
             Assert.Equal(0, stepLabel.Style.Stroke.Width);
             Assert.Equal(Rgba.FromArgb(Color.DarkRed.ToArgb()), stepLabel.Style.Fill.Color);
         }

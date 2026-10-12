@@ -86,9 +86,70 @@ namespace Greenshot.Tests.Document
 
             var image = Assert.IsType<ImageElement>(Assert.Single(document.Layers[0].Elements));
             Assert.Same(capture, document.Resources[image.Resource]);
-            Assert.Equal(1, document.Canvas.CounterStart);
+            Assert.Empty(document.Series);
+            Assert.Empty(document.Styles);
             Assert.True(document.Layers[0].Locked);
             Assert.True(document.Layers[1].Visible);
+        }
+
+        [Fact]
+        public void StyleOf_TakesTheMissingPartsFromTheSharedStyle()
+        {
+            var red = new Stroke(new Rgba(255, 0, 0, 255), 2);
+            var blue = new Stroke(new Rgba(0, 0, 255, 255), 3);
+            var fill = new Fill(new Rgba(1, 2, 3, 255));
+            var shared = new SharedStyle(Guid.NewGuid(), "Callout", new ElementStyle(red, fill, Shadow.Default));
+            var own = new RectangleElement(Guid.NewGuid(), new RectD(0, 0, 10, 10)) { StyleId = shared.Id, Style = new ElementStyle(blue) };
+            var unknown = new RectangleElement(Guid.NewGuid(), new RectD(0, 0, 10, 10)) { StyleId = Guid.NewGuid(), Style = new ElementStyle(blue) };
+            var document = new GreenshotDocument(Guid.NewGuid(), new Canvas(10, 10), new List<Layer>(), new Dictionary<Guid, Resource>())
+            {
+                Styles = new[] { shared }
+            };
+
+            Assert.Equal(new ElementStyle(blue, fill, Shadow.Default), document.StyleOf(own));
+            Assert.Same(unknown.Style, document.StyleOf(unknown));
+        }
+
+        [Fact]
+        public void StepLabels_AreNumberedByTheirSeries_AndUseItsStyle()
+        {
+            var style = new SharedStyle(Guid.NewGuid(), "Steps", new ElementStyle(Fill: new Fill(new Rgba(1, 2, 3, 255))));
+            var first = new StepLabelElement(Guid.NewGuid(), new RectD(0, 0, 10, 10));
+            var second = new StepLabelElement(Guid.NewGuid(), new RectD(0, 0, 10, 10));
+            var other = new StepLabelElement(Guid.NewGuid(), new RectD(0, 0, 10, 10));
+            var single = new StepLabelElement(Guid.NewGuid(), new RectD(0, 0, 10, 10));
+            var document = new GreenshotDocument(Guid.NewGuid(), new Canvas(10, 10), new List<Layer>(), new Dictionary<Guid, Resource>())
+            {
+                Styles = new[] { style },
+                Series = new[]
+                {
+                    // The order of the steps is the numbering, not the order of the elements
+                    new StepSeries(Guid.NewGuid(), new[] { second.Id, first.Id }) { Start = 3, StyleId = style.Id },
+                    new StepSeries(Guid.NewGuid(), new[] { other.Id }) { Format = StepFormat.UpperLetters }
+                }
+            };
+
+            Assert.Equal("3", document.LabelOf(second));
+            Assert.Equal("4", document.LabelOf(first));
+            Assert.Equal("A", document.LabelOf(other));
+            Assert.Null(document.LabelOf(single));
+            Assert.Equal(style.Style, document.StyleOf(first));
+            Assert.Same(other.Style, document.StyleOf(other));
+        }
+
+        [Theory]
+        [InlineData(1, StepFormat.Numbers, "1")]
+        [InlineData(0, StepFormat.LowerLetters, "0")]
+        [InlineData(1, StepFormat.LowerLetters, "a")]
+        [InlineData(26, StepFormat.UpperLetters, "Z")]
+        [InlineData(27, StepFormat.UpperLetters, "AA")]
+        [InlineData(703, StepFormat.LowerLetters, "aaa")]
+        [InlineData(4, StepFormat.LowerRoman, "iv")]
+        [InlineData(1994, StepFormat.UpperRoman, "MCMXCIV")]
+        [InlineData(4000, StepFormat.UpperRoman, "4000")]
+        public void StepSeries_ToText(int number, StepFormat format, string expected)
+        {
+            Assert.Equal(expected, StepSeries.ToText(number, format));
         }
     }
 }

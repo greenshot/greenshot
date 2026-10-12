@@ -50,7 +50,8 @@ namespace Greenshot.Document
 
         private sealed record ResourceEntry(string Path, string MediaType);
 
-        private sealed record DocumentJson(int Version, Guid Id, Canvas Canvas, IReadOnlyList<Layer> Layers, IReadOnlyDictionary<Guid, ResourceEntry> Resources);
+        private sealed record DocumentJson(int Version, Guid Id, Canvas Canvas, IReadOnlyList<SharedStyle> Styles, IReadOnlyList<StepSeries> Series,
+            IReadOnlyList<Layer> Layers, IReadOnlyDictionary<Guid, ResourceEntry> Resources);
 
         private static readonly JsonSerializerOptions Options = new()
         {
@@ -74,7 +75,7 @@ namespace Greenshot.Document
                 .Select(id => document.Resources.TryGetValue(id, out var resource) ? resource : throw new InvalidDataException($"An element links to the missing resource {id}"))
                 .ToList();
             var entries = linked.ToDictionary(resource => resource.Id, resource => new ResourceEntry($"resources/{resource.Id:D}.{Extension(resource, extensionFor)}", resource.MediaType));
-            var json = new DocumentJson(Version, document.Id, document.Canvas, document.Layers, entries);
+            var json = new DocumentJson(Version, document.Id, document.Canvas, document.Styles, document.Series, document.Layers, entries);
 
             using var zip = new ZipArchive(stream, ZipArchiveMode.Create, true);
             WriteEntry(zip, "mimetype", Encoding.ASCII.GetBytes(MediaType), CompressionLevel.NoCompression);
@@ -117,7 +118,11 @@ namespace Greenshot.Document
             }
 
             var resources = json.Resources.ToDictionary(pair => pair.Key, pair => new Resource(pair.Key, pair.Value.MediaType, ReadEntry(zip, pair.Value.Path)));
-            return new GreenshotDocument(json.Id, json.Canvas, json.Layers, resources);
+            return new GreenshotDocument(json.Id, json.Canvas, json.Layers, resources)
+            {
+                Styles = json.Styles ?? Array.Empty<SharedStyle>(),
+                Series = json.Series ?? Array.Empty<StepSeries>()
+            };
         }
 
         private static void WriteEntry(ZipArchive zip, string path, byte[] data, CompressionLevel compressionLevel)

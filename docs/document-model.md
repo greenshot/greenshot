@@ -55,12 +55,25 @@ classDiagram
         Canvas Canvas
         IReadOnlyList~Layer~ Layers
         IReadOnlyDictionary Resources
+        IReadOnlyList~SharedStyle~ Styles
+        IReadOnlyList~StepSeries~ Series
     }
     class Canvas {
         int Width
         int Height
         Rgba Background
-        int CounterStart
+    }
+    class SharedStyle {
+        Guid Id
+        string Name
+        ElementStyle Style
+    }
+    class StepSeries {
+        Guid Id
+        IReadOnlyList~Guid~ Steps
+        int Start
+        StepFormat Format
+        Guid? StyleId
     }
     class Layer {
         Guid Id
@@ -79,6 +92,7 @@ classDiagram
         <<abstract>>
         Guid Id
         ElementStyle Style
+        Guid? StyleId
         RectD Bounds
     }
     class ElementStyle {
@@ -90,6 +104,10 @@ classDiagram
     GreenshotDocument *-- Canvas
     GreenshotDocument *-- "1..*" Layer
     GreenshotDocument *-- "*" Resource
+    GreenshotDocument *-- "*" SharedStyle
+    GreenshotDocument *-- "*" StepSeries
+    Element ..> SharedStyle : StyleId
+    StepSeries ..> Element : Steps, step label ids
     Layer *-- "*" Element
     Element *-- ElementStyle
     Element ..> Resource : references by id
@@ -100,7 +118,8 @@ Rules:
 - **Immutable**: all types are records. A change makes a new instance (`element with { Area = ... }`) with the same id.
   Undo can keep earlier documents, since unchanged parts are shared.
 - **Order**: `Layers[0]` is drawn first (bottom). Within a layer, `Elements[0]` is drawn first. A layer owns its
-  elements, there is no z-index.
+  elements, there is no z-index. Numbering order is separate from drawing order: it is the order of a series'
+  `steps`, so reordering steps changes only that list and moving an element up or down never renumbers.
 - **Ids**: new ids are UUID version 7 (`Uuid7.CreateVersion7`, replaced by `Guid.CreateVersion7` on .NET 10). They
   start with the creation time, so `Uuid7.TryGetTimestamp` gives the date a document, element or resource was created.
   Ids are kept on read and write; ids from elsewhere (e.g. `Surface.ID`) can be any version.
@@ -108,11 +127,20 @@ Rules:
 - **Colors**: `Rgba`, written as `#RRGGBBAA`.
 - **Style**: optional parts. A part that is `null`, or a stroke of width 0, isn't drawn. Text uses its own color
   (for text, speech bubbles and step labels this is today's line color).
+- **Shared styles**: `Styles` holds named styles. An element refers to one with `styleId`; the parts its own `style`
+  has (stroke, fill, shadow, text) replace those of the shared style, the others come from it, so changing the shared
+  style changes every element using it. To remove a part of the shared style, the element sets it (e.g. a stroke of
+  width 0). `GreenshotDocument.StyleOf(element)` gives the style to draw with; an unknown `styleId` is ignored.
+- **Step label series**: a `StepSeries` numbers step labels. `steps` lists the ids of its labels in numbering order;
+  the label at place n (from 0) shows `start + n` in its `format` (`numbers`, `lowerLetters` a..z aa, `upperLetters`,
+  `lowerRoman`, `upperRoman`). A document can have several series (e.g. 1-2-3 and A-B-C). A step label without a
+  `styleId` of its own uses the series' `styleId`. `GreenshotDocument.LabelOf(stepLabel)` gives the text; a label in
+  no series has none. The counter start belongs to the series, not to the canvas.
 - **Resources**: the original bytes with their media type (`image/png`, `image/jpeg`, `image/webp`, `image/svg+xml`, ...).
   An image loaded from a file keeps that file, in every format a file format handler reads; only an image which
   didn't come from a file (or was changed) is stored as PNG. Elements reference them by id, so the same bytes can be shared.
 - **Derived values aren't stored**: the bounds of lines, arrows and freehand lines come from their points, and step
-  label numbers come from element order plus `Canvas.CounterStart`.
+  label numbers come from their place in their series.
 - A document made from a `Surface` has a locked **Capture** layer with the image and an **Annotations** layer with
   the elements.
 
@@ -187,8 +215,7 @@ All coordinates are canvas pixels (`double`), origin top-left, x to the right, y
   of style becomes a new optional part, readers which don't know it ignore it and still draw the rest. So a document
   written by a newer Greenshot doesn't lose them on save, unknown properties of a style (and of an element) are kept
   and written back unchanged. Style settings only one plugin understands go in the plugin element's data, or under a key with the plugin's name
-  (`"zxing.quietZone"`) so they never collide with core names. Named,
-  shared styles (a document-level list an element refers to, with its own overrides) can come later on top.
+  (`"zxing.quietZone"`) so they never collide with core names. Shared styles are built, see the rules above.
 - **Speech bubble tail with anchors**: decided, see "What is anchored": the text box and the tail have their own
   anchors. The same anchors on `start` and `end` turn a line or arrow into a connector between two elements.
 - **Text in elements**: not through anchors. An anchor only positions; text inside a rectangle must also wrap and
@@ -317,5 +344,9 @@ flowchart LR
 - The shadow settings of cut marks and torn edges (darkness, size, offset): they come from the torn edge settings when
   a document becomes a `Surface`.
 - Only Windows can draw EMF/WMF; other platforms will need a PNG rendering next to the metafile.
+- The editor has one counter and no shared styles. A document becomes a `Surface` with each element's resolved style
+  and the first series (its start, its label order); back from the `Surface` there is one series and every element
+  has its full style without `styleId`. A 1.2 - 1.4 file has one series with all its labels in the order of their
+  stored number.
 - No plugin has an `IPluginElementConverter` yet (the barcode would be the first); until then a plugin's element is kept
   with only its fallback.

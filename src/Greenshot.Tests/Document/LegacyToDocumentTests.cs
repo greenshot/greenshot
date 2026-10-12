@@ -89,6 +89,9 @@ namespace Greenshot.Tests.Document
                 _ => element
             }) with { Id = Guid.Empty };
 
+        private static IEnumerable<(int, string)> Steps(GreenshotDocument document) =>
+            document.Series.Select(series => (series.Start, string.Join(",", series.Steps.Select(id => document.Layers[1].Elements.ToList().FindIndex(element => element.Id == id)))));
+
         private static string MediaTypes(GreenshotDocument document, Element element) => element switch
         {
             ImageElement image => document.Resources[image.Resource].MediaType,
@@ -110,6 +113,8 @@ namespace Greenshot.Tests.Document
             var expectedElements = expected.Layers[1].Elements;
             var actualElements = actual.Layers[1].Elements;
             Assert.Equal(expectedElements.Count, actualElements.Count);
+            // The step labels are numbered in the same order, from the same start
+            Assert.Equal(Steps(expected), Steps(actual));
             for (int i = 0; i < expectedElements.Count; i++)
             {
                 Assert.Equal(WithoutIds(expectedElements[i]), WithoutIds(actualElements[i]));

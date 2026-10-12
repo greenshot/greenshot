@@ -33,6 +33,11 @@ namespace Greenshot.Document
         public ElementStyle Style { get; init; } = ElementStyle.None;
 
         /// <summary>
+        /// The id of the shared style, the parts Style has replace those of the shared style
+        /// </summary>
+        public Guid? StyleId { get; init; }
+
+        /// <summary>
         /// The area the element covers, without stroke width or shadow. Derived for elements defined by points.
         /// </summary>
         public abstract RectD Bounds { get; }
@@ -88,7 +93,7 @@ namespace Greenshot.Document
     }
 
     /// <summary>
-    /// A numbered label, the number is not stored: it follows from the order of the step labels and the CounterStart of the canvas.
+    /// A numbered label, the number is not stored: it follows from the place of the label in its StepSeries.
     /// </summary>
     public sealed record StepLabelElement(Guid Id, RectD Area) : Element(Id)
     {

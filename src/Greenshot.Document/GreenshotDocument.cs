@@ -31,11 +31,6 @@ namespace Greenshot.Document
     public sealed record Canvas(int Width, int Height)
     {
         public Rgba Background { get; init; } = Rgba.Transparent;
-
-        /// <summary>
-        /// The number of the first step label.
-        /// </summary>
-        public int CounterStart { get; init; } = 1;
     }
 
     /// <summary>
@@ -49,6 +44,37 @@ namespace Greenshot.Document
     /// </summary>
     public sealed record GreenshotDocument(Guid Id, Canvas Canvas, IReadOnlyList<Layer> Layers, IReadOnlyDictionary<Guid, Resource> Resources)
     {
+        /// <summary>
+        /// The styles elements share
+        /// </summary>
+        public IReadOnlyList<SharedStyle> Styles { get; init; } = Array.Empty<SharedStyle>();
+
+        /// <summary>
+        /// The series which number the step labels
+        /// </summary>
+        public IReadOnlyList<StepSeries> Series { get; init; } = Array.Empty<StepSeries>();
+
+        /// <summary>
+        /// The style the element is drawn with: its own parts over those of its shared style.
+        /// A step label without a shared style of its own uses the one of its series. An unknown style id is ignored.
+        /// </summary>
+        public ElementStyle StyleOf(Element element)
+        {
+            var styleId = element.StyleId ?? (element is StepLabelElement stepLabel ? SeriesOf(stepLabel)?.StyleId : null);
+            var shared = Styles.FirstOrDefault(style => style.Id == styleId);
+            return shared == null ? element.Style : element.Style.Over(shared.Style);
+        }
+
+        /// <summary>
+        /// The series the step label is in, null when it is in none
+        /// </summary>
+        public StepSeries SeriesOf(StepLabelElement stepLabel) => Series.FirstOrDefault(series => series.Steps.Contains(stepLabel.Id));
+
+        /// <summary>
+        /// The text of the step label, e.g. "3" or "c", null when it is in no series
+        /// </summary>
+        public string LabelOf(StepLabelElement stepLabel) => SeriesOf(stepLabel) is { } series ? series.Label(stepLabel.Id) : null;
+
         /// <summary>
         /// The ids of the resources the element links to
         /// </summary>
