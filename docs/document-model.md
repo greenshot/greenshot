@@ -328,7 +328,7 @@ back unchanged.
   the image it got, the extensions of the other layers are lost.
 - Open: a style's extensions replace those of its group as a whole, not per key.
 
-### Metadata (proposal, not built)
+### Metadata (decided, not built)
 
 Metadata describes the document and where its picture came from; it never changes how anything is drawn. It is an
 optional `metadata.json` in the package next to `document.json`, written when the setting to store capture information is
@@ -393,7 +393,7 @@ information is the editor's `CaptureDetails` (title, time, file name, capture mo
   resource later.
 - Legacy files have no metadata, their package has no `metadata.json`.
 
-### Analysis (proposal, not built)
+### Analysis (decided, not built)
 
 What was found in an image: OCR text, barcodes and, optionally, the windows and UI areas on the screen at capture time.
 Today these are `CaptureDetails.Features` (`IDetectedFeature`: OCR lines with words, barcodes, windows), kept only in
@@ -615,19 +615,20 @@ instead of failing the whole file.
 ### New .greenshot package
 
 A zip file, read and written by `GreenshotPackage`. The full spec is in the project plan (`greenshot-document-format.md`);
-so far the package has `mimetype`, `document.json` and `resources/`, the other parts follow. Optional parts are left
-out when they are empty or switched off; readers ignore parts they don't know.
+`mimetype`, `document.json` and `resources/` are built; `metadata.json` and `analysis.json` are decided,
+`thumbnail.png` and `extensions/` designed, none of those built yet. Optional parts are left out when they are empty or
+switched off; readers ignore parts they don't know.
 
 ```mermaid
 flowchart LR
     Zip(["example.greenshot (zip)"])
     Zip --> Mimetype["mimetype<br/>application/vnd.greenshot.document+zip<br/>first entry, stored"]
     Zip --> DocumentJson["document.json<br/>canvas, layers, elements, resource table"]
-    Zip --> Metadata["metadata.json (optional, proposal)<br/>title, dates, source, session"]
-    Zip --> Analysis["analysis.json (optional, proposal)<br/>per resource: ocr, barcodes, areas"]
-    Zip --> Thumbnail["thumbnail.png<br/>small flattened preview"]
+    Zip --> Metadata["metadata.json (optional, not built)<br/>title, dates, source, session"]
+    Zip --> Analysis["analysis.json (optional, not built)<br/>per resource: OCR, barcodes, windows and UI areas"]
+    Zip --> Thumbnail["thumbnail.png (not built)<br/>small flattened preview"]
     Zip --> Resources["resources/{uuid}.{ext}<br/>original bytes: capture, images, cursor, svg"]
-    Zip --> Extensions["extensions/{plugin-id}.json (optional)<br/>kept on re-save, even without the plugin"]
+    Zip --> Extensions["extensions/{plugin-id}.json (optional, not built)<br/>kept on re-save, even without the plugin"]
 ```
 
 - `mimetype` is the first entry, stored (method 0, not compressed), without an extra field and without a data
@@ -656,7 +657,7 @@ flowchart LR
   written back unchanged.
 - Readers have limits: number of entries (10,000) and size per entry (256 MB).
 - `metadata.json` (see "Metadata") and `analysis.json` (see "Analysis") are about the document and its images, never
-  needed for drawing. Saving or sharing without metadata leaves out both. They are proposals, not built yet.
+  needed for drawing. Saving or sharing without metadata leaves out both. Decided, not built yet.
 - Open: `thumbnail.png` and the `extensions/` files.
 
 ## Conversions
