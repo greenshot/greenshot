@@ -55,25 +55,21 @@ classDiagram
         Canvas Canvas
         IReadOnlyList~Layer~ Layers
         IReadOnlyDictionary Resources
-        IReadOnlyList~SharedStyle~ Styles
-        IReadOnlyList~StepSeries~ Series
+        IReadOnlyList~Group~ Groups
     }
     class Canvas {
         int Width
         int Height
         Rgba Background
     }
-    class SharedStyle {
+    class Group {
         Guid Id
+        string Type
+        IReadOnlyList~Guid?~ Members
         string Name
-        ElementStyle Style
-    }
-    class StepSeries {
-        Guid Id
-        IReadOnlyList~Guid~ Steps
-        int Start
-        StepFormat Format
-        Guid? StyleId
+        Style Style
+        RawJson Properties
+        RawJson Extensions
     }
     class Layer {
         Guid Id
@@ -91,25 +87,25 @@ classDiagram
     class Element {
         <<abstract>>
         Guid Id
-        ElementStyle Style
-        Guid? StyleId
+        Style Style
+        RawJson Extensions
         RectD Bounds
     }
-    class ElementStyle {
-        Stroke Stroke
-        Fill Fill
-        Shadow Shadow
+    class Style {
+        StrokeStyle Stroke
+        FillStyle Fill
+        ShadowStyle Shadow
         TextStyle Text
+        RawJson Extensions
     }
     GreenshotDocument *-- Canvas
     GreenshotDocument *-- "1..*" Layer
     GreenshotDocument *-- "*" Resource
-    GreenshotDocument *-- "*" SharedStyle
-    GreenshotDocument *-- "*" StepSeries
-    Element ..> SharedStyle : StyleId
-    StepSeries ..> Element : Steps, step label ids
+    GreenshotDocument *-- "*" Group
+    Group ..> Element : Members, element ids
+    Group *-- Style
     Layer *-- "*" Element
-    Element *-- ElementStyle
+    Element *-- Style
     Element ..> Resource : references by id
 ```
 
@@ -128,11 +124,8 @@ Rules:
   Ids are kept on read and write; ids from elsewhere (e.g. `Surface.ID`) can be any version.
 - **Coordinates**: canvas pixels as `double`, origin top-left (`PointD`, `RectD`).
 - **Colors**: `Rgba`, written as `#RRGGBBAA`.
-- **Style**: optional parts. A part that is `null`, or a stroke of width 0, isn't drawn. Text uses its own color
-  (for text, speech bubbles and step labels this is today's line color).
-- **Shared styles and step label series (built, to be replaced)**: the code has a `Styles` list (an element refers to
-  one with `styleId`) and `StepSeries` (`steps` lists the label ids in numbering order, with `start`, `format` and a
-  `styleId`); the counter start is no longer on the canvas. Both become groups, see "Groups, styles and defaults".
+- **Style**: every part and value is optional and inherited when it isn't set, see "Groups, styles and defaults".
+  Text uses its own color (for text, speech bubbles and step labels this is today's line color).
 - **Visibility** (decided): only layers have it. A hidden layer isn't drawn in exports, but it stays in the saved
   file. Groups have no visibility ("hide all in this group" is an editor command), elements have none for now (see
   "Groups, styles and defaults").
@@ -225,7 +218,11 @@ All coordinates are canvas pixels (`double`), origin top-left, x to the right, y
   `labelPosition`, 0 to 1 from start to end, default 0.5) with the text style that already exists. A speech bubble is then a rectangle with a text and a tail.
 - **Grouping**: decided, see "Groups, styles and defaults" (the `set` type).
 
-### Groups, styles and defaults (agreed, not built yet)
+### Groups, styles and defaults
+
+Built in the model: groups with members, the steps numbering (`StepNumbering`, `GreenshotDocument.LabelOf`), the
+`Style` type with merging (`GreenshotDocument.StyleOf`, `StyleDefaults`), extensions and the write gate. Not built yet,
+they come with an editor which knows groups: joining and leaving, the checks on joining, what a `set` does.
 
 One concept for everything that belongs together: step label numbering, shared styles and PowerPoint-like grouping.
 
@@ -421,8 +418,8 @@ flowchart LR
 - The shadow settings of cut marks and torn edges (darkness, size, offset): they come from the torn edge settings when
   a document becomes a `Surface`.
 - Only Windows can draw EMF/WMF; other platforms will need a PNG rendering next to the metafile.
-- The editor has one counter and no shared styles. A document becomes a `Surface` with each element's resolved style
-  and the first series (its start, its label order); back from the `Surface` there is one series and every element
-  has its full style. The same will hold for groups until the editor knows them.
+- The editor has one counter and no groups. A document becomes a `Surface` with each element's resolved style and the
+  first steps group (its start, its label order); back from the `Surface` there is one steps group and every element
+  has its full style.
 - No plugin has an `IPluginElementConverter` yet (the barcode would be the first); until then a plugin's element is kept
   with only its fallback.

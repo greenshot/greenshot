@@ -45,35 +45,38 @@ namespace Greenshot.Document
     public sealed record GreenshotDocument(Guid Id, Canvas Canvas, IReadOnlyList<Layer> Layers, IReadOnlyDictionary<Guid, Resource> Resources)
     {
         /// <summary>
-        /// The styles elements share
+        /// The groups, e.g. steps which number step labels, styles elements share and sets which move together
         /// </summary>
-        public IReadOnlyList<SharedStyle> Styles { get; init; } = Array.Empty<SharedStyle>();
+        public IReadOnlyList<Group> Groups { get; init; } = Array.Empty<Group>();
 
         /// <summary>
-        /// The series which number the step labels
+        /// The groups the element is a member of
         /// </summary>
-        public IReadOnlyList<StepSeries> Series { get; init; } = Array.Empty<StepSeries>();
+        public IEnumerable<Group> GroupsOf(Guid elementId) => Groups.Where(group => group.Members.Contains(elementId));
 
         /// <summary>
-        /// The style the element is drawn with: its own parts over those of its shared style.
-        /// A step label without a shared style of its own uses the one of its series. An unknown style id is ignored.
+        /// The full style the element is drawn with: value by value its own style, over the style of its group, over
+        /// the default of its type
         /// </summary>
-        public ElementStyle StyleOf(Element element)
+        public Style StyleOf(Element element) =>
+            element.Style.Over(GroupsOf(element.Id).Select(group => group.Style).FirstOrDefault(style => style != null)).Over(StyleDefaults.For(element));
+
+        /// <summary>
+        /// The text of the step label, e.g. "3" or "c": from its steps group, otherwise 1, 2, 3 in drawing order of
+        /// the step labels in no steps group
+        /// </summary>
+        public string LabelOf(StepLabelElement stepLabel)
         {
-            var styleId = element.StyleId ?? (element is StepLabelElement stepLabel ? SeriesOf(stepLabel)?.StyleId : null);
-            var shared = Styles.FirstOrDefault(style => style.Id == styleId);
-            return shared == null ? element.Style : element.Style.Over(shared.Style);
+            var steps = GroupsOf(stepLabel.Id).FirstOrDefault(group => group.Type == GroupTypes.Steps);
+            if (steps != null)
+            {
+                return StepNumbering.Of(steps).Label(steps.Members.ToList().IndexOf(stepLabel.Id));
+            }
+
+            var ungrouped = Layers.SelectMany(layer => layer.Elements).OfType<StepLabelElement>()
+                .Where(label => !GroupsOf(label.Id).Any(group => group.Type == GroupTypes.Steps)).Select(label => label.Id).ToList();
+            return (ungrouped.IndexOf(stepLabel.Id) + 1).ToString();
         }
-
-        /// <summary>
-        /// The series the step label is in, null when it is in none
-        /// </summary>
-        public StepSeries SeriesOf(StepLabelElement stepLabel) => Series.FirstOrDefault(series => series.Steps.Contains(stepLabel.Id));
-
-        /// <summary>
-        /// The text of the step label, e.g. "3" or "c", null when it is in no series
-        /// </summary>
-        public string LabelOf(StepLabelElement stepLabel) => SeriesOf(stepLabel) is { } series ? series.Label(stepLabel.Id) : null;
 
         /// <summary>
         /// The ids of the resources the element links to

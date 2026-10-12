@@ -48,11 +48,16 @@ namespace Greenshot.Tests.Document
             var image = new Resource(Guid.NewGuid(), "image/png", new byte[] { 0x89, 0x50, 0x4E, 0x47, 1, 2, 3 });
             var svg = new Resource(Guid.NewGuid(), "image/svg+xml", Encoding.UTF8.GetBytes("<svg/>"));
             var mask = new Resource(Guid.NewGuid(), "image/bmp", new byte[] { (byte)'B', (byte)'M', 0, 255 });
-            var style = new ElementStyle(new Stroke(red, 2.5), new Fill(new Rgba(1, 2, 3, 128)), Shadow.Default,
-                new TextStyle(new FontSpec("Segoe UI", 12.5, true, true), red, TextAlignment.Near, TextAlignment.Far));
+            var style = new Style
+            {
+                Stroke = StrokeStyle.Of(red, 2.5),
+                Fill = FillStyle.Of(new Rgba(1, 2, 3, 128)),
+                Shadow = new ShadowStyle { Enabled = true },
+                Text = new TextStyle { Enabled = true, Family = "Segoe UI", Size = 12.5, Bold = true, Italic = true, Color = red, Horizontal = TextAlignment.Near, Vertical = TextAlignment.Far },
+                Extensions = new RawJson("{\"zxing\":{\"quietZone\":4}}")
+            };
             var area = new RectD(10.5, 20, 30, 40);
-            var shared = new SharedStyle(Guid.NewGuid(), "Shared", style);
-            var stepLabel = new StepLabelElement(Guid.NewGuid(), area) { StyleId = shared.Id, Style = new ElementStyle(Fill: new Fill(red)) };
+            var stepLabel = new StepLabelElement(Guid.NewGuid(), area) { Style = new Style { Fill = new FillStyle { Enabled = false } }, Extensions = new RawJson("{\"plugin\":[1,2]}") };
             var elements = new List<Element>
             {
                 new RectangleElement(Guid.NewGuid(), area) { Style = style },
@@ -81,8 +86,11 @@ namespace Greenshot.Tests.Document
             return new GreenshotDocument(Guid.NewGuid(), new Canvas(800, 600) { Background = red }, layers,
                 new Dictionary<Guid, Resource> { [image.Id] = image, [svg.Id] = svg, [mask.Id] = mask })
             {
-                Styles = new[] { shared },
-                Series = new[] { new StepSeries(Guid.NewGuid(), new[] { stepLabel.Id }) { Start = 5, Format = StepFormat.LowerRoman, StyleId = shared.Id } }
+                Groups = new[]
+                {
+                    new Group(Guid.NewGuid(), GroupTypes.Steps, new Guid?[] { null, stepLabel.Id }) { Name = "Steps", Style = style, Properties = new StepNumbering(5, StepFormat.LowerRoman).ToProperties() },
+                    new Group(Guid.NewGuid(), "zxing.barcodes", new Guid?[] { stepLabel.Id }) { Properties = new RawJson("{\"x\":1}"), Extensions = new RawJson("{}") }
+                }
             };
         }
 
@@ -118,9 +126,8 @@ namespace Greenshot.Tests.Document
         {
             Assert.Equal(expected.Id, actual.Id);
             Assert.Equal(expected.Canvas, actual.Canvas);
-            Assert.Equal(expected.Styles, actual.Styles);
-            Assert.Equal(expected.Series.Select(series => series with { Steps = null }), actual.Series.Select(series => series with { Steps = null }));
-            Assert.Equal(expected.Series.SelectMany(series => series.Steps), actual.Series.SelectMany(series => series.Steps));
+            Assert.Equal(expected.Groups.Select(group => group with { Members = null }), actual.Groups.Select(group => group with { Members = null }));
+            Assert.Equal(expected.Groups.Select(group => string.Join(",", group.Members)), actual.Groups.Select(group => string.Join(",", group.Members)));
             Assert.Equal(expected.Layers.Count, actual.Layers.Count);
             for (int layer = 0; layer < expected.Layers.Count; layer++)
             {
@@ -248,6 +255,18 @@ namespace Greenshot.Tests.Document
 
             Assert.False(written.Resources.ContainsKey(unused.Id));
             Assert.Equal(document.Resources.Count, written.Resources.Count);
+        }
+
+        [Fact]
+        public void Write_DropsMembersWhichNoLongerExist_AndKeepsGaps()
+        {
+            var document = AllElements();
+            var deleted = Guid.NewGuid();
+            var steps = document.Groups[0];
+
+            var written = RoundTrip(document with { Groups = new[] { steps with { Members = steps.Members.Append(deleted).ToList() } } });
+
+            Assert.Equal(steps.Members, Assert.Single(written.Groups).Members);
         }
 
         [Fact]

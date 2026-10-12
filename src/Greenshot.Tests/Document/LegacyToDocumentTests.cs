@@ -90,7 +90,7 @@ namespace Greenshot.Tests.Document
             }) with { Id = Guid.Empty };
 
         private static IEnumerable<(int, string)> Steps(GreenshotDocument document) =>
-            document.Series.Select(series => (series.Start, string.Join(",", series.Steps.Select(id => document.Layers[1].Elements.ToList().FindIndex(element => element.Id == id)))));
+            document.Groups.Select(group => (StepNumbering.Of(group).Start, string.Join(",", group.Members.Select(id => document.Layers[1].Elements.ToList().FindIndex(element => element.Id == id)))));
 
         private static string MediaTypes(GreenshotDocument document, Element element) => element switch
         {

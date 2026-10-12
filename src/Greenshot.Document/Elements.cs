@@ -30,12 +30,15 @@ namespace Greenshot.Document
     /// </summary>
     public abstract record Element(Guid Id)
     {
-        public ElementStyle Style { get; init; } = ElementStyle.None;
+        /// <summary>
+        /// The values the element sets itself, over the style of its group and the default of its type
+        /// </summary>
+        public Style Style { get; init; } = Style.Empty;
 
         /// <summary>
-        /// The id of the shared style, the parts Style has replace those of the shared style
+        /// Values of plugins (keyed by plugin id), written back unchanged
         /// </summary>
-        public Guid? StyleId { get; init; }
+        public RawJson Extensions { get; init; }
 
         /// <summary>
         /// The area the element covers, without stroke width or shadow. Derived for elements defined by points.
@@ -93,7 +96,7 @@ namespace Greenshot.Document
     }
 
     /// <summary>
-    /// A numbered label, the number is not stored: it follows from the place of the label in its StepSeries.
+    /// A numbered label, the number is not stored: it follows from the place of the label in its steps group.
     /// </summary>
     public sealed record StepLabelElement(Guid Id, RectD Area) : Element(Id)
     {

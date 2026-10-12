@@ -21,11 +21,51 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
+using System.Text.Json;
 
 namespace Greenshot.Document
 {
+    /// <summary>
+    /// The group types the core knows, a plugin uses its own (e.g. "zxing.barcodes")
+    /// </summary>
+    public static class GroupTypes
+    {
+        /// <summary>
+        /// Numbers its step labels in member order, with "start" and "format" in the properties
+        /// </summary>
+        public const string Steps = "steps";
+
+        /// <summary>
+        /// Only gives its members a style
+        /// </summary>
+        public const string Style = "style";
+
+        /// <summary>
+        /// Its members are selected, moved, copied and deleted together
+        /// </summary>
+        public const string Set = "set";
+    }
+
+    /// <summary>
+    /// Elements which belong together. The group lists its members, an element can be in several groups (at most one
+    /// steps group and one group with a style). A null member is a gap, e.g. a skipped step number.
+    /// Properties are defined by the type and, like the extensions and groups of an unknown type, kept unchanged.
+    /// </summary>
+    public sealed record Group(Guid Id, string Type, IReadOnlyList<Guid?> Members)
+    {
+        public string Name { get; init; }
+
+        /// <summary>
+        /// The style of the members, below their own
+        /// </summary>
+        public Style Style { get; init; }
+
+        public RawJson Properties { get; init; }
+
+        public RawJson Extensions { get; init; }
+    }
+
     public enum StepFormat
     {
         /// <summary>1, 2, 3</summary>
@@ -45,28 +85,27 @@ namespace Greenshot.Document
     }
 
     /// <summary>
-    /// Numbers step labels: the label at place n (from 0) of Steps shows Start + n in Format.
-    /// The number isn't stored on the label, so reordering Steps renumbers without changing the labels.
+    /// The numbering of a steps group: the member at place n (from 0) shows Start + n in Format.
     /// </summary>
-    public sealed record StepSeries(Guid Id, IReadOnlyList<Guid> Steps)
+    public sealed record StepNumbering(int Start = 1, StepFormat Format = StepFormat.Numbers)
     {
-        public int Start { get; init; } = 1;
-
-        public StepFormat Format { get; init; } = StepFormat.Numbers;
+        private static readonly JsonSerializerOptions Options = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter(JsonNamingPolicy.CamelCase) } };
 
         /// <summary>
-        /// The shared style of the step labels of the series which have none of their own
+        /// The numbering in the properties of a steps group, missing values are the defaults
         /// </summary>
-        public Guid? StyleId { get; init; }
+        public static StepNumbering Of(Group group) =>
+            group.Properties == null ? new StepNumbering() : JsonSerializer.Deserialize<StepNumbering>(group.Properties.Json, Options) ?? new StepNumbering();
 
         /// <summary>
-        /// The text of the step label with the id, null when it isn't in the series
+        /// The properties of a steps group with this numbering
         /// </summary>
-        public string Label(Guid stepLabelId)
-        {
-            int index = Steps.ToList().IndexOf(stepLabelId);
-            return index < 0 ? null : ToText(Start + index, Format);
-        }
+        public RawJson ToProperties() => new(JsonSerializer.Serialize(this, Options));
+
+        /// <summary>
+        /// The text of the member at the index
+        /// </summary>
+        public string Label(int index) => ToText(Start + index, Format);
 
         /// <summary>
         /// The number in the format, letters and roman numerals only from 1 (roman up to 3999), otherwise the number

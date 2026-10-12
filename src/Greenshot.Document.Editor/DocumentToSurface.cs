@@ -54,17 +54,17 @@ namespace Greenshot.Document.Editor
             var image = capture == null
                 ? ImageHelper.CreateEmpty(document.Canvas.Width, document.Canvas.Height, PixelFormat.Format32bppArgb, ToColor(document.Canvas.Background))
                 : LoadImage(document.Resources[capture.Resource]);
-            // The editor has one series, it numbers its step labels in the order they were added
-            var series = document.Series.FirstOrDefault();
+            // The editor has one steps group, it numbers its step labels in the order they were added
+            var steps = document.Groups.FirstOrDefault(group => group.Type == GroupTypes.Steps);
             var surface = new Surface(image)
             {
                 ID = document.Id,
-                CounterStart = series?.Start ?? 1
+                CounterStart = steps == null ? 1 : StepNumbering.Of(steps).Start
             };
 
             var stepLabels = AddElements(surface, document, document.Layers.Where(layer => layer.Kind != LayerKind.Capture && layer.Visible).SelectMany(layer => layer.Elements))
                 .OfType<StepLabelContainer>().ToList();
-            foreach (var step in series?.Steps ?? Array.Empty<Guid>())
+            foreach (var step in steps?.Members ?? Array.Empty<Guid?>())
             {
                 var stepLabel = stepLabels.FirstOrDefault(container => KeptElements.Ids.TryGetValue(container, out var id) && id.Value == step);
                 if (stepLabel != null)
@@ -243,10 +243,10 @@ namespace Greenshot.Document.Editor
         }
 
         /// <summary>
-        /// The opposite of SurfaceToDocument.ToStyle: a missing stroke is a line of width 0, a missing fill is transparent.
-        /// The editor draws text in the line color.
+        /// The opposite of SurfaceToDocument.ToStyle, for the resolved style: a stroke which is off is a line of width 0, a
+        /// fill which is off is transparent. The editor draws text in the line color.
         /// </summary>
-        private static void ApplyStyle(DrawableContainer container, ElementStyle style)
+        private static void ApplyStyle(DrawableContainer container, Style style)
         {
             var lineColor = style.Text?.Color ?? style.Stroke?.Color;
             if (lineColor.HasValue)
@@ -254,21 +254,25 @@ namespace Greenshot.Document.Editor
                 SetField(container, FieldType.LINE_COLOR, ToColor(lineColor.Value));
             }
 
-            SetField(container, FieldType.LINE_THICKNESS, style.Stroke == null ? 0 : Round(style.Stroke.Width));
-            if (container is not HighlightContainer)
+            if (style.Stroke != null)
             {
-                SetField(container, FieldType.FILL_COLOR, ToColor(style.Fill?.Color ?? Rgba.Transparent));
+                SetField(container, FieldType.LINE_THICKNESS, style.Stroke.Enabled == false ? 0 : Round(style.Stroke.Width ?? 0));
             }
 
-            SetField(container, FieldType.SHADOW, style.Shadow != null);
+            if (style.Fill != null && container is not HighlightContainer)
+            {
+                SetField(container, FieldType.FILL_COLOR, ToColor(style.Fill.Enabled == false ? Rgba.Transparent : style.Fill.Color ?? Rgba.Transparent));
+            }
+
+            SetField(container, FieldType.SHADOW, style.Shadow?.Enabled == true);
             if (style.Text is { } text)
             {
-                SetField(container, FieldType.FONT_FAMILY, text.Font.Family);
-                SetField(container, FieldType.FONT_SIZE, (float)text.Font.Size);
-                SetField(container, FieldType.FONT_BOLD, text.Font.Bold);
-                SetField(container, FieldType.FONT_ITALIC, text.Font.Italic);
-                SetField(container, FieldType.TEXT_HORIZONTAL_ALIGNMENT, (StringAlignment)(int)text.Horizontal);
-                SetField(container, FieldType.TEXT_VERTICAL_ALIGNMENT, (StringAlignment)(int)text.Vertical);
+                SetField(container, FieldType.FONT_FAMILY, text.Family);
+                SetField(container, FieldType.FONT_SIZE, (float)(text.Size ?? 11));
+                SetField(container, FieldType.FONT_BOLD, text.Bold == true);
+                SetField(container, FieldType.FONT_ITALIC, text.Italic == true);
+                SetField(container, FieldType.TEXT_HORIZONTAL_ALIGNMENT, (StringAlignment)(int)(text.Horizontal ?? TextAlignment.Center));
+                SetField(container, FieldType.TEXT_VERTICAL_ALIGNMENT, (StringAlignment)(int)(text.Vertical ?? TextAlignment.Center));
             }
         }
 

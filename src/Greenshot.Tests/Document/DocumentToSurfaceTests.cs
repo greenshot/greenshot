@@ -226,7 +226,8 @@ namespace Greenshot.Tests.Document
             Assert.Equal(document.Canvas, mappedBack.Canvas);
             Assert.Equal(document.Layers[1].Elements.Select(element => Comparable(document, element)),
                 mappedBack.Layers[1].Elements.Select(element => Comparable(mappedBack, element)));
-            Assert.Equal(document.Series.Select(series => (series.Start, string.Join(",", series.Steps))), mappedBack.Series.Select(series => (series.Start, string.Join(",", series.Steps))));
+            Assert.Equal(document.Groups.Select(group => (group.Type, group.Properties, string.Join(",", group.Members))),
+                mappedBack.Groups.Select(group => (group.Type, group.Properties, string.Join(",", group.Members))));
         }
 
         [Fact]
@@ -236,7 +237,7 @@ namespace Greenshot.Tests.Document
             var second = new StepLabelElement(Guid.NewGuid(), new RectD(50, 10, 30, 30));
             var document = WithElements(new Dictionary<Guid, Resource>(), first, second) with
             {
-                Series = new[] { new StepSeries(Guid.NewGuid(), new[] { second.Id, first.Id }) { Start = 7 } }
+                Groups = new[] { new Group(Guid.NewGuid(), GroupTypes.Steps, new Guid?[] { second.Id, first.Id }) { Properties = new StepNumbering(7).ToProperties() } }
             };
 
             using var surface = DocumentToSurface.ToSurface(document);
@@ -244,22 +245,28 @@ namespace Greenshot.Tests.Document
             Assert.Equal(8, surface.CountStepLabels(containers[0]));
             Assert.Equal(7, surface.CountStepLabels(containers[1]));
 
-            var series = Assert.Single(SurfaceToDocument.ToDocument(surface).Series);
-            Assert.Equal(7, series.Start);
-            Assert.Equal(new[] { second.Id, first.Id }, series.Steps);
+            var steps = Assert.Single(SurfaceToDocument.ToDocument(surface).Groups);
+            Assert.Equal(7, StepNumbering.Of(steps).Start);
+            Assert.Equal(new Guid?[] { second.Id, first.Id }, steps.Members);
         }
 
         [Fact]
-        public void SharedStyle_IsDrawnByTheEditor()
+        public void GroupStyle_IsDrawnByTheEditor_UnderTheOwnValues()
         {
-            var shared = new SharedStyle(Guid.NewGuid(), "Red", new ElementStyle(new Stroke(new Rgba(255, 0, 0, 255), 4)));
-            var rectangle = new RectangleElement(Guid.NewGuid(), new RectD(10, 10, 30, 30)) { StyleId = shared.Id };
-            var document = WithElements(new Dictionary<Guid, Resource>(), rectangle) with { Styles = new[] { shared } };
+            var group = new Group(Guid.NewGuid(), GroupTypes.Style, new Guid?[] { Guid.Empty })
+            {
+                Style = new Style { Stroke = new StrokeStyle { Color = new Rgba(0, 0, 255, 255), Width = 4 }, Fill = FillStyle.Of(new Rgba(0, 255, 0, 255)) }
+            };
+            var rectangle = new RectangleElement(Guid.NewGuid(), new RectD(10, 10, 30, 30)) { Style = new Style { Stroke = new StrokeStyle { Width = 6 } } };
+            var document = WithElements(new Dictionary<Guid, Resource>(), rectangle) with { Groups = new[] { group with { Members = new Guid?[] { rectangle.Id } } } };
 
             using var surface = DocumentToSurface.ToSurface(document);
             var container = (DrawableContainer)Assert.Single(surface.Elements);
-            Assert.Equal(4, container.GetFieldValueAsInt(FieldType.LINE_THICKNESS));
-            Assert.Equal(Color.FromArgb(255, 255, 0, 0).ToArgb(), ((Color)container.GetFieldValue(FieldType.LINE_COLOR)).ToArgb());
+            Assert.Equal(6, container.GetFieldValueAsInt(FieldType.LINE_THICKNESS));
+            Assert.Equal(Color.FromArgb(255, 0, 0, 255).ToArgb(), ((Color)container.GetFieldValue(FieldType.LINE_COLOR)).ToArgb());
+            Assert.Equal(Color.FromArgb(255, 0, 255, 0).ToArgb(), ((Color)container.GetFieldValue(FieldType.FILL_COLOR)).ToArgb());
+            // The default of a rectangle
+            Assert.True((bool)container.GetFieldValue(FieldType.SHADOW));
         }
 
         [Fact]
@@ -274,7 +281,7 @@ namespace Greenshot.Tests.Document
             using var png = new MemoryStream();
             white.Save(png, System.Drawing.Imaging.ImageFormat.Png);
             var capture = new Resource(Guid.NewGuid(), "image/png", png.ToArray());
-            var rectangle = new RectangleElement(Guid.NewGuid(), new RectD(10, 10, 20, 20)) { Style = new ElementStyle(Fill: new Fill(new Rgba(255, 0, 0, 255))) };
+            var rectangle = new RectangleElement(Guid.NewGuid(), new RectD(10, 10, 20, 20)) { Style = new Style { Fill = FillStyle.Of(new Rgba(255, 0, 0, 255)) } };
             var document = new GreenshotDocument(Guid.NewGuid(), new Canvas(100, 50), new List<Layer>
             {
                 new(Guid.NewGuid(), "Capture", LayerKind.Capture, new List<Element> { new ImageElement(Guid.NewGuid(), new RectD(0, 0, 100, 50), capture.Id) }),

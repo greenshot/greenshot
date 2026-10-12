@@ -69,9 +69,15 @@ namespace Greenshot.Document.Legacy
 
             return new GreenshotDocument(Uuid7.CreateVersion7(), new Canvas(width, height), new List<Layer> { captureLayer, annotationsLayer }, resources)
             {
-                Series = stepLabels.Count == 0
-                    ? Array.Empty<StepSeries>()
-                    : new[] { new StepSeries(Uuid7.CreateVersion7(), stepLabels.Select(pair => pair.Element.Id).ToList()) { Start = counterStart == 0 ? 1 : counterStart } }
+                Groups = stepLabels.Count == 0
+                    ? Array.Empty<Group>()
+                    : new[]
+                    {
+                        new Group(Uuid7.CreateVersion7(), GroupTypes.Steps, stepLabels.Select(pair => (Guid?)pair.Element.Id).ToList())
+                        {
+                            Properties = new StepNumbering(counterStart == 0 ? 1 : counterStart).ToProperties()
+                        }
+                    }
             };
         }
 
@@ -161,23 +167,31 @@ namespace Greenshot.Document.Legacy
             };
 
         /// <summary>
-        /// The same rules as the editor mapping: a part is there when the element (or one of its filters) has its fields
+        /// The same rules as the editor mapping: a part is there when the element (or one of its filters) has its fields,
+        /// 1.3 has no groups so every element has its full style
         /// </summary>
-        private static ElementStyle ToStyle(LegacyElement legacy)
+        private static Style ToStyle(LegacyElement legacy)
         {
             // Like the editor, which adds a missing line thickness of 0 to step labels of older files
-            Stroke stroke = Find(legacy, "LINE_COLOR") is LegacyColor lineColor
-                ? new Stroke(ToRgba(lineColor), Int(legacy, "LINE_THICKNESS", 0))
+            StrokeStyle stroke = Find(legacy, "LINE_COLOR") is LegacyColor lineColor
+                ? StrokeStyle.Of(ToRgba(lineColor), Int(legacy, "LINE_THICKNESS", 0))
                 : null;
-            Fill fill = legacy.Kind != LegacyElementKind.Highlight && Find(legacy, "FILL_COLOR") is LegacyColor fillColor ? new Fill(ToRgba(fillColor)) : null;
-            Shadow shadow = Find(legacy, "SHADOW") is true ? Shadow.Default : null;
+            FillStyle fill = legacy.Kind != LegacyElementKind.Highlight && Find(legacy, "FILL_COLOR") is LegacyColor fillColor ? FillStyle.Of(ToRgba(fillColor)) : null;
+            var shadow = new ShadowStyle { Enabled = Find(legacy, "SHADOW") is true };
             TextStyle text = Find(legacy, "FONT_FAMILY") is string family
-                ? new TextStyle(new FontSpec(family, Find(legacy, "FONT_SIZE") is IConvertible size ? Convert.ToDouble(size) : 11, Find(legacy, "FONT_BOLD") is true, Find(legacy, "FONT_ITALIC") is true),
-                    stroke?.Color ?? Rgba.Transparent,
-                    (TextAlignment)Int(legacy, "TEXT_HORIZONTAL_ALIGNMENT", (int)TextAlignment.Center),
-                    (TextAlignment)Int(legacy, "TEXT_VERTICAL_ALIGNMENT", (int)TextAlignment.Center))
+                ? new TextStyle
+                {
+                    Enabled = true,
+                    Family = family,
+                    Size = Find(legacy, "FONT_SIZE") is IConvertible size ? Convert.ToDouble(size) : 11,
+                    Bold = Find(legacy, "FONT_BOLD") is true,
+                    Italic = Find(legacy, "FONT_ITALIC") is true,
+                    Color = stroke?.Color ?? Rgba.Transparent,
+                    Horizontal = (TextAlignment)Int(legacy, "TEXT_HORIZONTAL_ALIGNMENT", (int)TextAlignment.Center),
+                    Vertical = (TextAlignment)Int(legacy, "TEXT_VERTICAL_ALIGNMENT", (int)TextAlignment.Center)
+                }
                 : null;
-            return new ElementStyle(stroke, fill, shadow, text);
+            return new Style { Stroke = stroke, Fill = fill, Shadow = shadow, Text = text };
         }
 
         /// <summary>

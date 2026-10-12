@@ -58,7 +58,7 @@ namespace Greenshot.Tests.Document
         {
             var rectangle = new RectangleElement(Guid.NewGuid(), new RectD(10, 10, 100, 50))
             {
-                Style = new ElementStyle(Stroke: new Stroke(Rgba.FromArgb(unchecked((int)0xFFFF0000)), 2), Shadow: Shadow.Default)
+                Style = new Style { Stroke = StrokeStyle.Of(Rgba.FromArgb(unchecked((int)0xFFFF0000)), 2), Shadow = new ShadowStyle { Enabled = true } }
             };
             var moved = rectangle with { Area = new RectD(20, 20, 100, 50) };
 
@@ -86,55 +86,61 @@ namespace Greenshot.Tests.Document
 
             var image = Assert.IsType<ImageElement>(Assert.Single(document.Layers[0].Elements));
             Assert.Same(capture, document.Resources[image.Resource]);
-            Assert.Empty(document.Series);
-            Assert.Empty(document.Styles);
+            Assert.Empty(document.Groups);
             Assert.True(document.Layers[0].Locked);
             Assert.True(document.Layers[1].Visible);
         }
 
         [Fact]
-        public void StyleOf_TakesTheMissingPartsFromTheSharedStyle()
+        public void StyleOf_IsTheOwnValues_OverTheGroupStyle_OverTheDefault()
         {
-            var red = new Stroke(new Rgba(255, 0, 0, 255), 2);
-            var blue = new Stroke(new Rgba(0, 0, 255, 255), 3);
-            var fill = new Fill(new Rgba(1, 2, 3, 255));
-            var shared = new SharedStyle(Guid.NewGuid(), "Callout", new ElementStyle(red, fill, Shadow.Default));
-            var own = new RectangleElement(Guid.NewGuid(), new RectD(0, 0, 10, 10)) { StyleId = shared.Id, Style = new ElementStyle(blue) };
-            var unknown = new RectangleElement(Guid.NewGuid(), new RectD(0, 0, 10, 10)) { StyleId = Guid.NewGuid(), Style = new ElementStyle(blue) };
-            var document = new GreenshotDocument(Guid.NewGuid(), new Canvas(10, 10), new List<Layer>(), new Dictionary<Guid, Resource>())
+            var red = new Rgba(255, 0, 0, 255);
+            var blue = new Rgba(0, 0, 255, 255);
+            var arrow = new ArrowElement(Guid.NewGuid(), new PointD(0, 0), new PointD(10, 10)) { Style = new Style { Stroke = new StrokeStyle { Width = 5 } } };
+            var hidden = new RectangleElement(Guid.NewGuid(), new RectD(0, 0, 10, 10)) { Style = new Style { Fill = new FillStyle { Enabled = false } } };
+            var marker = new Group(Guid.NewGuid(), GroupTypes.Style, new Guid?[] { arrow.Id, hidden.Id })
             {
-                Styles = new[] { shared }
+                Style = new Style { Stroke = StrokeStyle.Of(red, 3), Fill = FillStyle.Of(blue) }
             };
+            var document = new GreenshotDocument(Guid.NewGuid(), new Canvas(10, 10), new List<Layer>(), new Dictionary<Guid, Resource>()) { Groups = new[] { marker } };
 
-            Assert.Equal(new ElementStyle(blue, fill, Shadow.Default), document.StyleOf(own));
-            Assert.Same(unknown.Style, document.StyleOf(unknown));
+            var arrowStyle = document.StyleOf(arrow);
+            Assert.Equal(StrokeStyle.Of(red, 5), arrowStyle.Stroke);
+            // Not set by the arrow or its group: the default of an arrow
+            Assert.Equal(new ShadowStyle { Enabled = true }, arrowStyle.Shadow);
+
+            Assert.Equal(new FillStyle { Enabled = false, Color = blue }, document.StyleOf(hidden).Fill);
+
+            // When the group changes, the members follow except for their own values
+            var changed = document with { Groups = new[] { marker with { Style = new Style { Stroke = StrokeStyle.Of(blue, 3) } } } };
+            Assert.Equal(StrokeStyle.Of(blue, 5), changed.StyleOf(arrow).Stroke);
         }
 
         [Fact]
-        public void StepLabels_AreNumberedByTheirSeries_AndUseItsStyle()
+        public void StepLabels_AreNumberedByTheirStepsGroup()
         {
-            var style = new SharedStyle(Guid.NewGuid(), "Steps", new ElementStyle(Fill: new Fill(new Rgba(1, 2, 3, 255))));
             var first = new StepLabelElement(Guid.NewGuid(), new RectD(0, 0, 10, 10));
             var second = new StepLabelElement(Guid.NewGuid(), new RectD(0, 0, 10, 10));
             var other = new StepLabelElement(Guid.NewGuid(), new RectD(0, 0, 10, 10));
             var single = new StepLabelElement(Guid.NewGuid(), new RectD(0, 0, 10, 10));
-            var document = new GreenshotDocument(Guid.NewGuid(), new Canvas(10, 10), new List<Layer>(), new Dictionary<Guid, Resource>())
+            var alone = new StepLabelElement(Guid.NewGuid(), new RectD(0, 0, 10, 10));
+            var layer = new Layer(Guid.NewGuid(), "Annotations", LayerKind.Annotations, new List<Element> { first, single, second, other, alone });
+            var document = new GreenshotDocument(Guid.NewGuid(), new Canvas(10, 10), new List<Layer> { layer }, new Dictionary<Guid, Resource>())
             {
-                Styles = new[] { style },
-                Series = new[]
+                Groups = new[]
                 {
-                    // The order of the steps is the numbering, not the order of the elements
-                    new StepSeries(Guid.NewGuid(), new[] { second.Id, first.Id }) { Start = 3, StyleId = style.Id },
-                    new StepSeries(Guid.NewGuid(), new[] { other.Id }) { Format = StepFormat.UpperLetters }
+                    // The member order is the numbering, not the order of the elements, null skips a number
+                    new Group(Guid.NewGuid(), GroupTypes.Steps, new Guid?[] { second.Id, null, first.Id }) { Properties = new StepNumbering(3).ToProperties() },
+                    new Group(Guid.NewGuid(), GroupTypes.Steps, new Guid?[] { other.Id }) { Properties = new RawJson("{\"format\":\"upperLetters\",\"newer\":true}") }
                 }
             };
 
             Assert.Equal("3", document.LabelOf(second));
-            Assert.Equal("4", document.LabelOf(first));
+            Assert.Equal("5", document.LabelOf(first));
             Assert.Equal("A", document.LabelOf(other));
-            Assert.Null(document.LabelOf(single));
-            Assert.Equal(style.Style, document.StyleOf(first));
-            Assert.Same(other.Style, document.StyleOf(other));
+            // In no steps group: 1, 2, 3 in drawing order
+            Assert.Equal("1", document.LabelOf(single));
+            Assert.Equal("2", document.LabelOf(alone));
         }
 
         [Theory]
@@ -147,9 +153,9 @@ namespace Greenshot.Tests.Document
         [InlineData(4, StepFormat.LowerRoman, "iv")]
         [InlineData(1994, StepFormat.UpperRoman, "MCMXCIV")]
         [InlineData(4000, StepFormat.UpperRoman, "4000")]
-        public void StepSeries_ToText(int number, StepFormat format, string expected)
+        public void StepNumbering_ToText(int number, StepFormat format, string expected)
         {
-            Assert.Equal(expected, StepSeries.ToText(number, format));
+            Assert.Equal(expected, StepNumbering.ToText(number, format));
         }
     }
 }

@@ -50,8 +50,7 @@ namespace Greenshot.Document
 
         private sealed record ResourceEntry(string Path, string MediaType);
 
-        private sealed record DocumentJson(int Version, Guid Id, Canvas Canvas, IReadOnlyList<SharedStyle> Styles, IReadOnlyList<StepSeries> Series,
-            IReadOnlyList<Layer> Layers, IReadOnlyDictionary<Guid, ResourceEntry> Resources);
+        private sealed record DocumentJson(int Version, Guid Id, Canvas Canvas, IReadOnlyList<Layer> Layers, IReadOnlyList<Group> Groups, IReadOnlyDictionary<Guid, ResourceEntry> Resources);
 
         private static readonly JsonSerializerOptions Options = new()
         {
@@ -75,7 +74,10 @@ namespace Greenshot.Document
                 .Select(id => document.Resources.TryGetValue(id, out var resource) ? resource : throw new InvalidDataException($"An element links to the missing resource {id}"))
                 .ToList();
             var entries = linked.ToDictionary(resource => resource.Id, resource => new ResourceEntry($"resources/{resource.Id:D}.{Extension(resource, extensionFor)}", resource.MediaType));
-            var json = new DocumentJson(Version, document.Id, document.Canvas, document.Styles, document.Series, document.Layers, entries);
+            // Members which no longer exist are dropped, gaps (null) are kept
+            var elementIds = new HashSet<Guid>(document.Layers.SelectMany(layer => layer.Elements).Select(element => element.Id));
+            var groups = document.Groups.Select(group => group with { Members = group.Members.Where(id => id == null || elementIds.Contains(id.Value)).ToList() }).ToList();
+            var json = new DocumentJson(Version, document.Id, document.Canvas, document.Layers, groups, entries);
 
             using var zip = new ZipArchive(stream, ZipArchiveMode.Create, true);
             WriteEntry(zip, "mimetype", Encoding.ASCII.GetBytes(MediaType), CompressionLevel.NoCompression);
@@ -120,8 +122,7 @@ namespace Greenshot.Document
             var resources = json.Resources.ToDictionary(pair => pair.Key, pair => new Resource(pair.Key, pair.Value.MediaType, ReadEntry(zip, pair.Value.Path)));
             return new GreenshotDocument(json.Id, json.Canvas, json.Layers, resources)
             {
-                Styles = json.Styles ?? Array.Empty<SharedStyle>(),
-                Series = json.Series ?? Array.Empty<StepSeries>()
+                Groups = (json.Groups ?? Array.Empty<Group>()).Select(group => group.Members == null ? group with { Members = Array.Empty<Guid?>() } : group).ToList()
             };
         }
 

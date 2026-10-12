@@ -62,13 +62,15 @@ namespace Greenshot.Document.Editor
 
             var annotationsLayer = new Layer(Uuid7.CreateVersion7(), "Annotations", LayerKind.Annotations, elements);
 
-            // The editor has one series, numbered in its own order of the step labels
+            // The editor has one steps group, numbered in its own order of the step labels
             var steps = containers.Where(pair => pair.Container is StepLabelContainer)
-                .OrderBy(pair => surface is Surface editorSurface ? editorSurface.CountStepLabels(pair.Container) : 0).Select(pair => pair.Element.Id).ToList();
+                .OrderBy(pair => surface is Surface editorSurface ? editorSurface.CountStepLabels(pair.Container) : 0).Select(pair => (Guid?)pair.Element.Id).ToList();
 
             return new GreenshotDocument(surface.ID, new Canvas(image.Width, image.Height), new List<Layer> { captureLayer, annotationsLayer }, resources)
             {
-                Series = steps.Count == 0 ? Array.Empty<StepSeries>() : new[] { new StepSeries(Uuid7.CreateVersion7(), steps) { Start = surface.CounterStart } }
+                Groups = steps.Count == 0
+                    ? Array.Empty<Group>()
+                    : new[] { new Group(Uuid7.CreateVersion7(), GroupTypes.Steps, steps) { Properties = new StepNumbering(surface.CounterStart).ToProperties() } }
             };
         }
 
@@ -164,27 +166,32 @@ namespace Greenshot.Document.Editor
             };
 
         /// <summary>
-        /// The style from the fields of the container (and its filters): a part is there when the container has its fields,
-        /// so a stroke with width 0 keeps the color, which is also the color of the text.
+        /// The full style from the fields of the container (and its filters), the editor has no groups: a part is there
+        /// when the container has its fields, so a stroke with width 0 keeps the color, which is also the color of the text.
         /// </summary>
-        private static ElementStyle ToStyle(DrawableContainer container)
+        private static Style ToStyle(DrawableContainer container)
         {
-            Stroke stroke = container.HasField(FieldType.LINE_COLOR) && container.HasField(FieldType.LINE_THICKNESS)
-                ? new Stroke(ToRgba((Color)container.GetField(FieldType.LINE_COLOR).Value), IntField(container, FieldType.LINE_THICKNESS))
+            StrokeStyle stroke = container.HasField(FieldType.LINE_COLOR) && container.HasField(FieldType.LINE_THICKNESS)
+                ? StrokeStyle.Of(ToRgba((Color)container.GetField(FieldType.LINE_COLOR).Value), IntField(container, FieldType.LINE_THICKNESS))
                 : null;
-            Fill fill = container is not HighlightContainer && container.HasField(FieldType.FILL_COLOR)
-                ? new Fill(ToRgba((Color)container.GetField(FieldType.FILL_COLOR).Value))
+            FillStyle fill = container is not HighlightContainer && container.HasField(FieldType.FILL_COLOR)
+                ? FillStyle.Of(ToRgba((Color)container.GetField(FieldType.FILL_COLOR).Value))
                 : null;
-            Shadow shadow = container.HasField(FieldType.SHADOW) && (bool)container.GetField(FieldType.SHADOW).Value ? Shadow.Default : null;
+            var shadow = new ShadowStyle { Enabled = container.HasField(FieldType.SHADOW) && (bool)container.GetField(FieldType.SHADOW).Value };
             TextStyle text = container.HasField(FieldType.FONT_FAMILY)
-                ? new TextStyle(
-                    new FontSpec((string)container.GetField(FieldType.FONT_FAMILY).Value, Convert.ToDouble(container.GetField(FieldType.FONT_SIZE).Value),
-                        (bool)container.GetField(FieldType.FONT_BOLD).Value, (bool)container.GetField(FieldType.FONT_ITALIC).Value),
-                    stroke?.Color ?? Rgba.Transparent,
-                    (TextAlignment)Convert.ToInt32(container.GetField(FieldType.TEXT_HORIZONTAL_ALIGNMENT).Value),
-                    (TextAlignment)Convert.ToInt32(container.GetField(FieldType.TEXT_VERTICAL_ALIGNMENT).Value))
+                ? new TextStyle
+                {
+                    Enabled = true,
+                    Family = (string)container.GetField(FieldType.FONT_FAMILY).Value,
+                    Size = Convert.ToDouble(container.GetField(FieldType.FONT_SIZE).Value),
+                    Bold = (bool)container.GetField(FieldType.FONT_BOLD).Value,
+                    Italic = (bool)container.GetField(FieldType.FONT_ITALIC).Value,
+                    Color = stroke?.Color ?? Rgba.Transparent,
+                    Horizontal = (TextAlignment)Convert.ToInt32(container.GetField(FieldType.TEXT_HORIZONTAL_ALIGNMENT).Value),
+                    Vertical = (TextAlignment)Convert.ToInt32(container.GetField(FieldType.TEXT_VERTICAL_ALIGNMENT).Value)
+                }
                 : null;
-            return new ElementStyle(stroke, fill, shadow, text);
+            return new Style { Stroke = stroke, Fill = fill, Shadow = shadow, Text = text };
         }
 
         // GetField of the container (not of AbstractFieldHolder) also finds the fields of its filters

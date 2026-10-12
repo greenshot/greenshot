@@ -79,9 +79,9 @@ namespace Greenshot.Tests.Document
             Assert.Equal(3, elements.Count);
             var rectangle = Assert.IsType<RectangleElement>(elements[0]);
             Assert.Equal(new RectD(10, 10, 50, 20), rectangle.Area);
-            Assert.Equal(new Stroke(Rgba.FromArgb(Color.Red.ToArgb()), 2), rectangle.Style.Stroke);
-            Assert.Equal(new Fill(Rgba.FromArgb(Color.Transparent.ToArgb())), rectangle.Style.Fill);
-            Assert.Same(Shadow.Default, rectangle.Style.Shadow);
+            Assert.Equal(StrokeStyle.Of(Rgba.FromArgb(Color.Red.ToArgb()), 2), rectangle.Style.Stroke);
+            Assert.Equal(FillStyle.Of(Rgba.FromArgb(Color.Transparent.ToArgb())), rectangle.Style.Fill);
+            Assert.Equal(new ShadowStyle { Enabled = true }, rectangle.Style.Shadow);
 
             var arrow = Assert.IsType<ArrowElement>(elements[1]);
             Assert.Equal(new PointD(100, 80), arrow.Start);
@@ -89,9 +89,11 @@ namespace Greenshot.Tests.Document
             Assert.Equal(ArrowHeads.End, arrow.Heads);
 
             var stepLabel = Assert.IsType<StepLabelElement>(elements[2]);
-            var series = Assert.Single(document.Series);
-            Assert.Equal(3, series.Start);
-            Assert.Equal(new[] { stepLabel.Id }, series.Steps);
+            var steps = Assert.Single(document.Groups);
+            Assert.Equal(GroupTypes.Steps, steps.Type);
+            Assert.Equal(3, StepNumbering.Of(steps).Start);
+            Assert.Equal(new Guid?[] { stepLabel.Id }, steps.Members);
+            Assert.Equal("3", document.LabelOf(stepLabel));
             Assert.Equal(0, stepLabel.Style.Stroke.Width);
             Assert.Equal(Rgba.FromArgb(Color.DarkRed.ToArgb()), stepLabel.Style.Fill.Color);
         }
@@ -108,8 +110,8 @@ namespace Greenshot.Tests.Document
             var element = Assert.IsType<TextElement>(Assert.Single(SurfaceToDocument.ToDocument(surface).Layers[1].Elements));
 
             Assert.Equal("Hello", element.Text);
-            Assert.True(element.Style.Text.Font.Bold);
-            Assert.Equal(11, element.Style.Text.Font.Size);
+            Assert.True(element.Style.Text.Bold);
+            Assert.Equal(11, element.Style.Text.Size);
             Assert.Equal(TextAlignment.Near, element.Style.Text.Horizontal);
             Assert.Equal(TextAlignment.Center, element.Style.Text.Vertical);
             Assert.Equal(element.Style.Stroke.Color, element.Style.Text.Color);
