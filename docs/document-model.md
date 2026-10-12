@@ -174,11 +174,15 @@ elements follow the capture when the canvas grows (e.g. a border) or the capture
   - Centred on the target: target `center`, self `center`.
 - **The position stays absolute**: the element keeps its normal position and size; the anchor is only the rule to apply
   again when the target moves or changes size. A reader which ignores anchors still draws everything in place.
+- **When**: anchors are applied again when the target's bounds change (moved, resized, cropped, canvas grown). They use
+  the calculated `Bounds` of the target and move the element by shifting what it stores (`Area`, or the points of
+  lines and freehand), so they work for every element type.
 - **Resolving**: to place an element, first place its target: follow the targets up the chain to an element without
   anchor, then come back down and apply each anchor in turn. Every element is placed once.
-- **Loops**: setting an anchor which would make a loop (A to B, B to A, or longer) is refused when the anchor is set.
+- **Loops**: setting an anchor which would make a loop (A to B, B to A, or longer) is refused when the anchor is set,
+  and checked again when the document is written.
 - **Deleted target**: the anchor is removed, the element stays where it is.
-- **Editor**: dragging an anchored element keeps the anchor and changes its offset.
+- **Editor**: dragging an anchored element keeps the anchor and changes its offset; "detach" removes the anchor.
 - **Recipes**: the "Add Elements" step takes the same anchor; the anchor, margin and offset parameters of the
   annotation step map onto it.
 - **Needed first**: the capture image element keeps its id through the editor (today it gets a new one every time).
