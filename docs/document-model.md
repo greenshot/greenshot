@@ -393,6 +393,57 @@ information is the editor's `CaptureDetails` (title, time, file name, capture mo
   resource later.
 - Legacy files have no metadata, their package has no `metadata.json`.
 
+### Analysis (proposal, not built)
+
+What was found in an image: OCR text, barcodes and, optionally, the windows and UI areas on the screen at capture time.
+Today these are `CaptureDetails.Features` (`IDetectedFeature`: OCR lines with words, barcodes, windows), kept only in
+memory: they are lost on save and OCR runs again every time.
+
+They describe the pixels of one image, so they are an optional `analysis.json` in the package next to `document.json`,
+keyed by resource id, with coordinates in that image's own pixels. A resource never changes, so the results can't go
+stale: moving, scaling or cropping the image element maps them through its `Area` and `Source`. Changed pixels are a new
+resource, which has no results until it is analysed again.
+
+```json
+{
+  "01a130e9-ef80-783b-a89b-b2d54bafa78f": {
+    "ocr": {
+      "engine": "Windows.Media.Ocr", "language": "en-US", "date": "2026-10-12T16:20:02+02:00", "textAngle": 0,
+      "lines": [
+        { "text": "Save changes", "bounds": { "x": 12, "y": 40, "width": 300, "height": 18 },
+          "words": [ { "text": "Save", "bounds": { "x": 12, "y": 40, "width": 60, "height": 18 } },
+                     { "text": "changes", "bounds": { "x": 80, "y": 40, "width": 120, "height": 18 }, "confidence": 0.97 } ] }
+      ]
+    },
+    "barcodes": [
+      { "format": "QR_CODE", "text": "https://getgreenshot.org",
+        "points": [ { "x": 400, "y": 80 }, { "x": 480, "y": 80 }, { "x": 480, "y": 160 }, { "x": 400, "y": 160 } ] }
+    ],
+    "areas": [
+      { "id": 1, "type": "window", "title": "Settings", "bounds": { "x": 0, "y": 0, "width": 1280, "height": 800 }, "z": 0 },
+      { "id": 2, "parent": 1, "type": "element", "role": "button", "name": "Save", "bounds": { "x": 1100, "y": 740, "width": 90, "height": 30 } }
+    ],
+    "extensions": { }
+  }
+}
+```
+
+- **OCR** keeps the `engine`, `language`, `date` and `textAngle` (the skew Windows OCR reports), so it is reproducible and
+  a better engine can run again. `confidence` is optional per word and line, written only by an engine that has it
+  (Windows.Media.Ocr has none, Tesseract and the Windows AI text recognizer do); a missing value means unknown.
+- **Barcodes** keep their four corner points, so a tilted code is described exactly; the bounds follow from them.
+- **Areas** (optional, a setting) are the windows and UI elements under the capture, read at capture time with their
+  bounds, title or name, role and z-order; `parent` builds the tree. Unlike OCR and barcodes they can't be found again
+  later, so they are only there when stored at capture time. They let the editor snap to them and recipes point at them.
+- **Uses**: reopening restores hotspots and tooltips without scanning again; recipes can test the text or anchor to a
+  word or an area; a capture history can search the text; a PDF export can write the text as a searchable layer.
+- Only the image itself is analysed, not the rendered result: text elements are in the document already. A barcode
+  Greenshot generates is an element, not analysis. A result for one element (the text under a highlight) is an element
+  extension (`greenshot.ocr`).
+- **Privacy**: OCR text, titles and names are easier to search and leak than pixels, so saving or sharing without
+  metadata also leaves out `analysis.json`.
+- A plugin's own results go into the `extensions` of the resource entry, keyed by its id.
+
 ### Design proposals (not decided)
 
 - **Rotation**: one rule for all box-shaped elements: `rotation` in degrees (a `double`), clockwise, around the centre of the
