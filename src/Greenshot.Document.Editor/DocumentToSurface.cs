@@ -55,7 +55,7 @@ namespace Greenshot.Document.Editor
             var captureLayers = document.Layers.Where(layer => layer.Kind == LayerKind.Capture).ToList();
             var capture = captureLayers.SelectMany(layer => layer.Elements).OfType<ImageElement>().FirstOrDefault();
             // The editor's image is its canvas: the capture when it fills the canvas as it is, otherwise the capture layers drawn onto the canvas
-            var image = capture != null && capture.Area == area && capture.Source == null && capture.Rotation == 0 && captureLayers.Sum(layer => layer.Elements.Count) == 1
+            Image image = capture != null && capture.Area == area && capture.Source == null && capture.Rotation == 0 && captureLayers.Sum(layer => layer.Elements.Count) == 1
                 ? LoadImage(document.Resources[capture.Resource])
                 : null;
             if (image != null && (image.Width != Round(area.Width) || image.Height != Round(area.Height)))
