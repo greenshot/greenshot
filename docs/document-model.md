@@ -172,8 +172,10 @@ All coordinates are canvas pixels (`double`), origin top-left, x to the right, y
 - **Points** (stored): elements defined by points store those instead of an `Area`: `start` and `end` for lines and
   arrows, `points` for freehand, and the `tail` of a speech bubble (next to its `Area`).
 - **`Bounds`** (calculated, never stored): the smallest axis-aligned rectangle around the shape of the element, after
-  rotation and including points like the tail, without stroke width or shadow. Every element has it. Anchors, hit
-  testing, selection and "fit to content" use it. Today `Bounds` doesn't include the rotation and the tail yet; that
+  rotation and including points like the tail, without stroke width or shadow. Every element has it. It is used for
+  what needs one box per element: the edges an anchor refers to when the target is a line or freehand, the selection
+  frame, finding the element under the mouse (first test), which part of the canvas to redraw, "fit the canvas to the
+  content", and the box of a group. Today `Bounds` doesn't include the rotation and the tail yet; that
   comes with the anchors.
 
 ### Design proposals (not decided)
@@ -187,14 +189,13 @@ All coordinates are canvas pixels (`double`), origin top-left, x to the right, y
   and written back unchanged. Style settings only one plugin understands go in the plugin element's data, or under a key with the plugin's name
   (`"zxing.quietZone"`) so they never collide with core names. Named,
   shared styles (a document-level list an element refers to, with its own overrides) can come later on top.
-- **Speech bubble tail with anchors**: an anchor moves the whole element, so anchoring a bubble moves its `Area` and
-  its tail together. A tail that must keep pointing at something while the bubble moves (what the editor does when
-  you drag a bubble today) gets its own anchor on the point: the same shape (target, lines, offset) on `tail`. The same
-  point anchors on `start` and `end` turn a line or arrow into a connector between two elements.
+- **Speech bubble tail with anchors**: decided, see "What is anchored": the text box and the tail have their own
+  anchors. The same anchors on `start` and `end` turn a line or arrow into a connector between two elements.
 - **Text in elements**: not through anchors. An anchor only positions; text inside a rectangle must also wrap and
   resize with it. Instead, rectangles, ellipses and lines get an optional `text`, drawn inside the `Area` and rotated with it (on a line at
   `labelPosition`, 0 to 1 from start to end, default 0.5) with the text style that already exists. A speech bubble is then a rectangle with a text and a tail.
-- **Grouping**: a group element with its own id and a list of child elements; its `Bounds` are the union of the
+- **Grouping** (as in PowerPoint or Visio: select a rectangle, an arrow and a text, "Group", and from then on they are
+  selected, moved, copied and deleted as one): a group element with its own id and a list of child elements; its `Bounds` are the union of the
   children's. Children keep absolute coordinates (no nested transforms), so every child is still drawn correctly on
   its own. Moving or rotating the group changes the children. Anchors can target a group; a child can't anchor to its
   own group.
@@ -204,7 +205,11 @@ All coordinates are canvas pixels (`double`), origin top-left, x to the right, y
 An element can be anchored to another element, the target. Without a target it is anchored to the capture image, so
 elements follow the capture when the canvas grows (e.g. a border) or the capture moves.
 
-- **Shape**: an optional `anchor` on the element with `target` (an element id, missing = the capture image). Per axis
+- **What is anchored**: the parts of an element that have a position, each on its own. A box-shaped element has an
+  anchor for its `Area`. Lines and arrows have one for `start` and one for `end`, so each end can follow a different
+  element (or none). A speech bubble has one for its `Area` (the text box) and one for its `tail`, so it can point at
+  something while the box sits beside the capture. Freehand has one for all its points together.
+- **Shape**: an optional anchor (on the element for its `Area`, or on a point) with `target` (an element id, missing = the capture image). Per axis
   (x, y): a line on the target (`start`, `center`, `end`), a line on the element itself (`start`, `center`, `end`) and
   an offset in pixels. An axis without an entry isn't anchored.
   - Inside the target, 10 px from its right edge: x target `end`, self `end`, offset -10.
@@ -220,7 +225,13 @@ elements follow the capture when the canvas grows (e.g. a border) or the capture
 - **Loops**: setting an anchor which would make a loop (A to B, B to A, or longer) is refused when the anchor is set,
   and checked again when the document is written.
 - **Deleted target**: the anchor is removed, the element stays where it is.
-- **Editor**: dragging an anchored element keeps the anchor and changes its offset; "detach" removes the anchor.
+- **Dragging** (agreed): the anchor stays and only its offset changes, the element lands where it is dropped. A free
+  axis just moves. Resizing: moving the anchored edge changes the offset, resizing from the other side doesn't. On drop
+  the anchor switches to the nearest line of the target (start, center, end) and the offset is recalculated, nothing
+  visible changes. Dragging the target moves everything anchored to it. While dragging, a thin line shows the edge the
+  element is anchored to. Changing or removing an anchor is always deliberate ("Anchor to…", "Detach" in the context
+  menu); only the end of a line or arrow, or the tail of a bubble, dropped onto a highlighted element anchors to it.
+  The move and the anchor change are one undo step.
 - **Recipes**: the "Add Elements" step takes the same anchor; the anchor, margin and offset parameters of the
   annotation step map onto it.
 - **Needed first**: the capture image element keeps its id through the editor (today it gets a new one every time).
