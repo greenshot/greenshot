@@ -136,7 +136,7 @@ A client has to read its replies: a frame that is not read within 2 minutes (`Na
 #### Command line of `Greenshot.exe`
 `Greenshot.exe [startup options] [command]`
 
-* Startup options, used only by `Greenshot.exe` itself and only at the start of the command line: `--language <code>`, `--ini-directory <dir>`, `--no-run`, `--restore` (Restart Manager) and `--help`.
+* Startup options, used only by `Greenshot.exe` itself and only at the start of the command line: `--language <code>`, `--ini-directory <dir>`, `--no-run`, `--restore` (Restart Manager), `-Embedding` (added by COM when Windows starts Greenshot for a click on a notification) and `--help`.
 * Everything after them is a command in the syntax of `greenshot-cli.exe` (e.g. `image.png`, `--file image.png`, `--recipe ocr`, `--reload`, `--exit`). `Greenshot.exe` checks it with the same parser (`CliCommandParser`) and sends it unchanged as a `CLI` request (source `cli`), exactly like `greenshot-cli.exe`. When Greenshot is not running it starts and sends the request to itself once its pipe server listens; `--exit` and `--reload` then do nothing.
 * `Greenshot.exe` shows no output of the command; use `greenshot-cli.exe` for that.
 

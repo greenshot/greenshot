@@ -29,6 +29,11 @@ namespace Greenshot.Base.Interfaces
     public interface INotificationService
     {
         /// <summary>
+        /// Shows the notification to the user
+        /// </summary>
+        void ShowNotification(Notification notification);
+
+        /// <summary>
         /// This will show a warning message to the user
         /// </summary>
         /// <param name="message">string</param>

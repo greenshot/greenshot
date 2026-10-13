@@ -72,3 +72,6 @@ Name: {app}; Type: dirifempty;
 [UninstallDelete]
 // greenshot-mcp.exe is a separate download, extracted next to Greenshot.exe: the uninstaller removes it too (it was closed first, see code.iss)
 Type: files; Name: "{app}\greenshot-mcp.exe"
+// The icon and the kept captures of the toasts (notifications), which Greenshot writes when it runs
+Type: files; Name: "{localappdata}\Greenshot\greenshot.png"
+Type: filesandordirs; Name: "{localappdata}\Greenshot\Notifications"

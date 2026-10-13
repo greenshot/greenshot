@@ -36,6 +36,9 @@ using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Threading;
 using Greenshot.Destinations;
 using Greenshot.Editor.Destinations;
+#if !GREENSHOT_LIGHT
+using Greenshot.Notifications;
+#endif
 using log4net;
 
 namespace Greenshot.Recipes.Pipeline
@@ -305,6 +308,17 @@ namespace Greenshot.Recipes.Pipeline
         {
             if (string.IsNullOrEmpty(eventArgs?.Message)) return;
 
+            string captureId = null;
+            string thumbnailPath = null;
+#if !GREENSHOT_LIGHT
+            // What went to the destination is kept, so the notification shows it and opens it in the editor, also after a restart
+            if (eventArgs.MessageType != SurfaceMessageTyp.Info)
+            {
+                captureId = NotificationCaptures.Store(eventArgs.Surface);
+                thumbnailPath = captureId == null ? null : NotificationCaptures.GetThumbnailPath(captureId);
+            }
+#endif
+
             Notification notification;
             switch (eventArgs.MessageType)
             {
@@ -315,14 +329,14 @@ namespace Greenshot.Recipes.Pipeline
                         {
                             DestinationHelper.StartExport(EditorDestination.DESIGNATION, eventArgs.Surface, false);
                         }
-                    });
+                    }, captureId, thumbnailPath);
                     break;
                 case SurfaceMessageTyp.Info:
                     notification = new Notification(NotificationKind.Info, eventArgs.Message, TimeSpan.FromHours(1), () => Log.Info("Clicked!"));
                     break;
                 case SurfaceMessageTyp.FileSaved:
                 case SurfaceMessageTyp.UploadedUri:
-                    notification = new Notification(NotificationKind.Info, eventArgs.Message, TimeSpan.FromHours(1), () => OpenCaptureOnClick(eventArgs));
+                    notification = new Notification(NotificationKind.Info, eventArgs.Message, TimeSpan.FromHours(1), () => OpenCaptureOnClick(eventArgs), captureId, thumbnailPath);
                     break;
                 default:
                     return;

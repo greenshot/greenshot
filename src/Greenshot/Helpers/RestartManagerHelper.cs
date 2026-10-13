@@ -227,9 +227,9 @@ namespace Greenshot.Helpers
         }
 
         /// <summary>
-        /// Open an editor with the saved state, the state file is removed when the editor shows it.
+        /// Open an editor with the .greenshot file (a saved state, or the capture of a notification), the file is removed when the editor shows it.
         /// </summary>
-        private static async Task RestoreEditorAsync(string filePath)
+        internal static async Task OpenInEditorAsync(string filePath)
         {
             try
             {
@@ -270,7 +270,7 @@ namespace Greenshot.Helpers
                 foreach (string filePath in Directory.GetFiles(stateDir, "*.greenshot"))
                 {
                     // Called on the UI thread (startup), the surface is created there
-                    RestoreEditorAsync(filePath).FireAndLog("Restore an editor", Log);
+                    OpenInEditorAsync(filePath).FireAndLog("Restore an editor", Log);
                     Log.InfoFormat("Queued restore of editor state from: {0}", filePath);
                 }
             }

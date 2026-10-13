@@ -39,6 +39,18 @@ namespace Greenshot.Shell
         }
 
         /// <inheritdoc />
+        public void ShowNotification(Notification notification)
+        {
+            var level = notification.Kind switch
+            {
+                NotificationKind.Error => TrayBalloonLevel.Error,
+                NotificationKind.Warning => TrayBalloonLevel.Warning,
+                _ => TrayBalloonLevel.Info
+            };
+            ShowMessage(notification.Message, level, notification.OnClick, null);
+        }
+
+        /// <inheritdoc />
         public void ShowWarningMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
         {
             ShowMessage(message, TrayBalloonLevel.Warning, onClickAction, onClosedAction);

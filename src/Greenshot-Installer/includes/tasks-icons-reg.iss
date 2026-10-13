@@ -30,6 +30,10 @@ Root: HKCU; Subkey: Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\
 ; Create the startup entries if requested to do so
 Root: HKA; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: {#ExeName}; ValueData: """{app}\{#ExeName}.exe"""; Flags: uninsdeletevalue noerror; Tasks: startup
 
+; Greenshot registers its app id for toasts (notifications) when it runs, with the COM class which receives their clicks (ToastActivator)
+Root: HKCU; Subkey: Software\Classes\AppUserModelId\Greenshot; Flags: uninsdeletekey dontcreatekey noerror
+Root: HKCU; Subkey: Software\Classes\CLSID\{{DD8B2638-A274-4988-9CC7-23A6D40BACEB}; Flags: uninsdeletekey dontcreatekey noerror
+
 ; File types. Every file is opened through greenshot-proxy.exe --file, Greenshot then runs the recipes whose OpenFile trigger
 ; matches the extension (the built-in "Open file" recipe opens it in the editor).
 ; The ProgIDs must not be called "greenshot": registry keys are case-insensitive, that key is the greenshot: URL protocol.

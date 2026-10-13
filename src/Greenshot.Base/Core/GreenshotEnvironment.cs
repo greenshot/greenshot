@@ -19,6 +19,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.IO;
+
 namespace Greenshot.Base.Core
 {
     /// <summary>
@@ -40,5 +43,22 @@ namespace Greenshot.Base.Core
         /// it is correct even when read before the initial <c>Load()</c> call completes.
         /// </summary>
         public static string ConfigLocation => Dapplo.Ini.IniConfigRegistry.Get()?.LoadedFromPath ?? string.Empty;
+
+        /// <summary>
+        /// The directory for the files Greenshot keeps on this computer: %LocalAppData%\Greenshot. The PortableApp, and the .zip
+        /// (greenshot.ini next to Greenshot.exe), use the directory of greenshot.ini, so they leave no files on the system.
+        /// </summary>
+        public static string LocalDataDirectory
+        {
+            get
+            {
+                string configLocation = ConfigLocation;
+                string configDirectory = string.IsNullOrEmpty(configLocation) ? null : Path.GetDirectoryName(configLocation);
+                bool portable = IsPortable || string.Equals(configDirectory?.TrimEnd('\\'), AppContext.BaseDirectory.TrimEnd('\\'), StringComparison.OrdinalIgnoreCase);
+                return portable && configDirectory != null
+                    ? configDirectory
+                    : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Greenshot");
+            }
+        }
     }
 }

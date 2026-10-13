@@ -158,12 +158,14 @@ namespace Greenshot.Base.Interfaces
     /// </summary>
     public sealed class Notification
     {
-        public Notification(NotificationKind kind, string message, TimeSpan? timeout = null, Action onClick = null)
+        public Notification(NotificationKind kind, string message, TimeSpan? timeout = null, Action onClick = null, string captureId = null, string imagePath = null)
         {
             Kind = kind;
             Message = message;
             Timeout = timeout;
             OnClick = onClick;
+            CaptureId = captureId;
+            ImagePath = imagePath;
         }
 
         public NotificationKind Kind { get; }
@@ -173,5 +175,15 @@ namespace Greenshot.Base.Interfaces
         public TimeSpan? Timeout { get; }
 
         public Action OnClick { get; }
+
+        /// <summary>
+        /// The id of the capture kept for the notification, which it opens in the editor (also after a restart), or null
+        /// </summary>
+        public string CaptureId { get; }
+
+        /// <summary>
+        /// An image file the notification shows, or null
+        /// </summary>
+        public string ImagePath { get; }
     }
 }
