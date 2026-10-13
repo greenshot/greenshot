@@ -194,7 +194,7 @@ internal static class ConvertDomainToLegacy
 
         foreach (var child in source.Children)
         {
-            LegacyFieldHolder legacyChild = child switch
+            LegacyAbstractFilter legacyChild = child switch
             {
                 HighlightFilter => new LegacyHighlightFilter(),
                 BlurFilter => new LegacyBlurFilter(),
@@ -205,6 +205,7 @@ internal static class ConvertDomainToLegacy
                 _ => throw new NotSupportedException($"The V1 .greenshot format does not support filter {child.GetType().Name}.")
             };
 
+            legacyChild.Invert = ((IFilter)child).Invert;
             legacyChild.Fields = ToLegacyFields(child.GetFields());
             destination.Children.Add(legacyChild);
         }

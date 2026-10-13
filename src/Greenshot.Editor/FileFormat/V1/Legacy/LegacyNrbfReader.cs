@@ -204,7 +204,7 @@ internal static class LegacyNrbfReader
                 throw SuspiciousType(childRecord.TypeName.FullName);
             }
 
-            LegacyFieldHolder child = type == typeof(LegacyHighlightFilter) ? new LegacyHighlightFilter()
+            LegacyAbstractFilter child = type == typeof(LegacyHighlightFilter) ? new LegacyHighlightFilter()
                 : type == typeof(LegacyBlurFilter) ? new LegacyBlurFilter()
                 : type == typeof(LegacyBrightnessFilter) ? new LegacyBrightnessFilter()
                 : type == typeof(LegacyGrayscaleFilter) ? new LegacyGrayscaleFilter()
@@ -212,6 +212,7 @@ internal static class LegacyNrbfReader
                 : type == typeof(LegacyPixelizationFilter) ? new LegacyPixelizationFilter()
                 : throw SuspiciousType(childRecord.TypeName.FullName);
 
+            child.Invert = Convert.ToBoolean(GetValue(childRecord, "AbstractFilter+invert"));
             child.Fields = ReadFields(childRecord, "AbstractFieldHolder+fields");
             result.Add(child);
         }

@@ -350,7 +350,7 @@ public class LegacyNrbfWriterTests
                     Fields =
                     [
                         CreateField("LINE_THICKNESS", 1, "HighlightContainer"),
-                        CreateField("LINE_COLOR", Color.Lime, "HighlightContainer"),
+                        CreateField("LINE_COLOR", Color.DeepPink, "HighlightContainer"),
                         CreateField("SHADOW", false, "HighlightContainer"),
                         CreateField("PREPARED_FILTER_HIGHLIGHT", FilterContainer.PreparedFilter.TEXT_HIGHTLIGHT, "HighlightContainer")
                     ],
@@ -371,7 +371,7 @@ public class LegacyNrbfWriterTests
                     Fields =
                     [
                         CreateField("LINE_THICKNESS", 1, "ObfuscateContainer"),
-                        CreateField("LINE_COLOR", Color.Lime, "ObfuscateContainer"),
+                        CreateField("LINE_COLOR", Color.Gold, "ObfuscateContainer"),
                         CreateField("SHADOW", false, "ObfuscateContainer"),
                         CreateField("PREPARED_FILTER_OBFUSCATE", FilterContainer.PreparedFilter.BLUR, "ObfuscateContainer")
                     ],
@@ -919,19 +919,32 @@ public class LegacyNrbfWriterTests
                 "PREPARED_FILTER_OBFUSCATE", FilterContainer.PreparedFilter.PIXELIZE, "ObfuscateContainer",
                 new LegacyPixelizationFilter { Fields = [CreateField("PIXEL_SIZE", 16, "PixelizationFilter")] })
         };
-        var brightnessContainer = new LegacyDrawableContainerList
+        var areaHighlightContainer = new LegacyDrawableContainerList
         {
             CreateFilterTestContainer(
                 new LegacyHighlightContainer { Left = 80, Top = 100, Width = 360, Height = 200 },
                 "PREPARED_FILTER_HIGHLIGHT", FilterContainer.PreparedFilter.AREA_HIGHLIGHT, "HighlightContainer",
-                new LegacyBrightnessFilter { Fields = [CreateField("BRIGHTNESS", 0.35d, "BrightnessFilter")] })
+                new LegacyBrightnessFilter
+                {
+                    Invert = true,
+                    Fields = [CreateField("BRIGHTNESS", 0.9d, "BrightnessFilter")]
+                },
+                new LegacyBlurFilter
+                {
+                    Invert = true,
+                    Fields =
+                    [
+                        CreateField("BLUR_RADIUS", 3, "BlurFilter"),
+                        CreateField("PREVIEW_QUALITY", 1d, "BlurFilter")
+                    ]
+                })
         };
         var grayscaleContainer = new LegacyDrawableContainerList
         {
             CreateFilterTestContainer(
                 new LegacyHighlightContainer { Left = 80, Top = 100, Width = 360, Height = 200 },
                 "PREPARED_FILTER_HIGHLIGHT", FilterContainer.PreparedFilter.GRAYSCALE, "HighlightContainer",
-                new LegacyGrayscaleFilter())
+                new LegacyGrayscaleFilter { Invert = true })
         };
 
         WriteFilterTestArtifact(
@@ -940,15 +953,48 @@ public class LegacyNrbfWriterTests
             ["Highlight", "Magnifier", "Blur", "Pixelization"],
             new Size(620, 455));
         WriteFilterTestArtifact(
-            Path.Combine(outputDirectory, "V1WriterManualBrightnessFilter.greenshot"),
-            brightnessContainer,
-            ["Brightness"],
+            Path.Combine(outputDirectory, "V1WriterManualAreaHighlight.greenshot"),
+            areaHighlightContainer,
+            ["Area highlight (invert)"],
             new Size(520, 360));
         WriteFilterTestArtifact(
             Path.Combine(outputDirectory, "V1WriterManualGrayscaleFilter.greenshot"),
             grayscaleContainer,
-            ["Grayscale"],
+            ["Grayscale (invert)"],
             new Size(520, 360));
+    }
+
+    [Fact]
+    public void WriteEditorFileWithPinkBorderBlueHighlight_CreatesDedicatedCompatibilityArtifact()
+    {
+        var outputDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestResults");
+        Directory.CreateDirectory(outputDirectory);
+        var outputPath = Path.Combine(outputDirectory, "V1WriterManualPinkBorderBlueHighlight.greenshot");
+        var containers = new LegacyDrawableContainerList
+        {
+            CreateFilterTestContainer(
+                new LegacyHighlightContainer { Left = 80, Top = 100, Width = 360, Height = 200 },
+                "PREPARED_FILTER_HIGHLIGHT", FilterContainer.PreparedFilter.TEXT_HIGHTLIGHT, "HighlightContainer",
+                new LegacyHighlightFilter { Fields = [CreateField("FILL_COLOR", Color.Blue, "HighlightFilter")] })
+        };
+
+        WriteFilterTestArtifact(
+            outputPath,
+            containers,
+            ["Highlight: pink border, blue fill"],
+            new Size(520, 360));
+
+        using var stream = File.OpenRead(outputPath);
+        stream.Seek(-22, SeekOrigin.End);
+        using var reader = new BinaryReader(stream, System.Text.Encoding.ASCII, true);
+        var payloadLength = reader.ReadInt64();
+        stream.Seek(-(payloadLength + 22), SeekOrigin.End);
+        var highlight = Assert.IsType<LegacyHighlightContainer>(Assert.Single(LegacyNrbfReader.ReadContainerList(stream)));
+        Assert.Equal(2, highlight.Fields[0].Value);
+        Assert.Equal(Color.DeepPink, highlight.Fields[1].Value);
+        Assert.Equal(FilterContainer.PreparedFilter.TEXT_HIGHTLIGHT, highlight.Fields[3].Value);
+        var filter = Assert.IsType<LegacyHighlightFilter>(Assert.Single(highlight.Children));
+        Assert.Equal(Color.Blue, Assert.Single(filter.Fields).Value);
     }
 
     private static void WriteFilterTestArtifact(string outputPath, LegacyDrawableContainerList containers, string[] filterLabels, Size screenshotSize)
@@ -985,7 +1031,14 @@ public class LegacyNrbfWriterTests
         Assert.Equal(containers.Count, roundTripped.Count);
         for (var index = 0; index < containers.Count; index++)
         {
-            Assert.IsType(containers[index].Children[0].GetType(), Assert.Single(roundTripped[index].Children));
+            Assert.Equal(containers[index].Children.Count, roundTripped[index].Children.Count);
+            for (var filterIndex = 0; filterIndex < containers[index].Children.Count; filterIndex++)
+            {
+                var expectedFilter = Assert.IsAssignableFrom<LegacyAbstractFilter>(containers[index].Children[filterIndex]);
+                var actualFilter = Assert.IsAssignableFrom<LegacyAbstractFilter>(roundTripped[index].Children[filterIndex]);
+                Assert.IsType(expectedFilter.GetType(), actualFilter);
+                Assert.Equal(expectedFilter.Invert, actualFilter.Invert);
+            }
         }
     }
 
@@ -1471,16 +1524,16 @@ public class LegacyNrbfWriterTests
         string presetFieldName,
         FilterContainer.PreparedFilter preset,
         string scope,
-        LegacyFieldHolder filter)
+        params LegacyAbstractFilter[] filters)
     {
         container.Fields =
         [
             CreateField("LINE_THICKNESS", 2, scope),
-            CreateField("LINE_COLOR", Color.Lime, scope),
+            CreateField("LINE_COLOR", Color.DeepPink, scope),
             CreateField("SHADOW", false, scope),
             CreateField(presetFieldName, preset, scope)
         ];
-        container.Children = [filter];
+        container.Children = [.. filters];
         return container;
     }
 

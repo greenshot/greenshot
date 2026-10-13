@@ -23,6 +23,7 @@ using Greenshot.Base.Effects;
 using Greenshot.Base.Interfaces;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Fields;
+using Greenshot.Editor.FileFormat.V1.Legacy;
 using Greenshot.Editor.FileFormatHandlers;
 using Xunit;
 
@@ -127,6 +128,40 @@ public class SaveGreenshotSurfaceRoundTripTests
                 }
             }
         }
+    }
+
+    [Theory]
+    [InlineData(FilterContainer.PreparedFilter.TEXT_HIGHTLIGHT, 1, false)]
+    [InlineData(FilterContainer.PreparedFilter.AREA_HIGHLIGHT, 2, true)]
+    [InlineData(FilterContainer.PreparedFilter.GRAYSCALE, 1, true)]
+    [InlineData(FilterContainer.PreparedFilter.MAGNIFICATION, 1, false)]
+    public void SaveGreenshotFile_PreservesHighlightFilterInversion(FilterContainer.PreparedFilter preset, int filterCount, bool expectedInvert)
+    {
+        using var surface = SimpleServiceProvider.Current.GetInstance<Func<ISurface>>().Invoke();
+        surface.Image = new Bitmap(120, 80);
+        var highlight = new HighlightContainer(surface)
+        {
+            Left = 17,
+            Top = 12,
+            Width = 53,
+            Height = 31
+        };
+        highlight.SetFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT, preset);
+        surface.Elements.Add(highlight);
+        Assert.Equal(filterCount, highlight.Filters.Count);
+        Assert.All(highlight.Filters, filter => Assert.Equal(expectedInvert, filter.Invert));
+
+        using var output = new MemoryStream();
+        Assert.True(new GreenshotFileFormatHandler().TrySaveToStream((Bitmap)surface.Image, output, ".greenshot", surface));
+
+        output.Seek(-22, SeekOrigin.End);
+        using var reader = new BinaryReader(output, Encoding.ASCII, true);
+        var payloadLength = reader.ReadInt64();
+        Assert.Equal("Greenshot01.04", Encoding.ASCII.GetString(reader.ReadBytes(14)));
+        output.Seek(-(payloadLength + 22), SeekOrigin.End);
+        var savedHighlight = Assert.IsType<LegacyHighlightContainer>(Assert.Single(LegacyNrbfReader.ReadContainerList(output)));
+        Assert.Equal(filterCount, savedHighlight.Children.Count);
+        Assert.All(savedHighlight.Children, filter => Assert.Equal(expectedInvert, Assert.IsAssignableFrom<LegacyAbstractFilter>(filter).Invert));
     }
 
     [Fact]

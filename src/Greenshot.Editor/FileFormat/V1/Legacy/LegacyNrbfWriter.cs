@@ -707,7 +707,7 @@ internal static class LegacyNrbfWriter
             writer.Write(0d);
         }
         writer.Write(ObjectNull);
-        writer.Write(false);
+        writer.Write(((LegacyAbstractFilter)filter.Filter).Invert);
         writer.Write(ObjectNull);
         WriteFieldList(writer, filter.Fields, filter.FieldsArrayId);
     }

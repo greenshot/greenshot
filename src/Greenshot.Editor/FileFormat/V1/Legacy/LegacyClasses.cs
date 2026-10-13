@@ -526,7 +526,22 @@ internal class LegacyStepLabelContainer : LegacyDrawableContainer
 #region FilterContainer
 
 [Serializable]
-internal class LegacyHighlightFilter : LegacyFieldHolder
+internal abstract class LegacyAbstractFilter : LegacyFieldHolder
+{
+    public bool Invert { get; set; }
+
+    protected LegacyAbstractFilter()
+    {
+    }
+
+    protected LegacyAbstractFilter(SerializationInfo info, StreamingContext context) : base(info, context)
+    {
+        Invert = info.GetBoolean("AbstractFilter+invert");
+    }
+}
+
+[Serializable]
+internal class LegacyHighlightFilter : LegacyAbstractFilter
 {
     internal LegacyHighlightFilter()
     {
@@ -536,7 +551,7 @@ internal class LegacyHighlightFilter : LegacyFieldHolder
 }
 
 [Serializable]
-internal class LegacyBlurFilter : LegacyFieldHolder
+internal class LegacyBlurFilter : LegacyAbstractFilter
 {
     internal LegacyBlurFilter()
     {
@@ -546,7 +561,7 @@ internal class LegacyBlurFilter : LegacyFieldHolder
 }
 
 [Serializable]
-internal class LegacyBrightnessFilter : LegacyFieldHolder
+internal class LegacyBrightnessFilter : LegacyAbstractFilter
 {
     internal LegacyBrightnessFilter()
     {
@@ -556,7 +571,7 @@ internal class LegacyBrightnessFilter : LegacyFieldHolder
 }
 
 [Serializable]
-internal class LegacyGrayscaleFilter : LegacyFieldHolder
+internal class LegacyGrayscaleFilter : LegacyAbstractFilter
 {
     internal LegacyGrayscaleFilter()
     {
@@ -566,7 +581,7 @@ internal class LegacyGrayscaleFilter : LegacyFieldHolder
 }
 
 [Serializable]
-internal class LegacyMagnifierFilter : LegacyFieldHolder
+internal class LegacyMagnifierFilter : LegacyAbstractFilter
 {
     internal LegacyMagnifierFilter()
     {
@@ -576,7 +591,7 @@ internal class LegacyMagnifierFilter : LegacyFieldHolder
 }
 
 [Serializable]
-internal class LegacyPixelizationFilter : LegacyFieldHolder
+internal class LegacyPixelizationFilter : LegacyAbstractFilter
 {
     internal LegacyPixelizationFilter()
     {
