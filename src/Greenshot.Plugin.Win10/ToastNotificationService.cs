@@ -218,6 +218,7 @@ namespace Greenshot.Plugin.Win10
                     try
                     {
                         toastNotifier = ToastNotificationManagerCompat.CreateToastNotifier();
+                        setting = toastNotifier.Setting;
                         toastNotifierCreated = true;
                     }
                     catch (Exception ex)
@@ -225,7 +226,6 @@ namespace Greenshot.Plugin.Win10
                         Log.Warn("Could not create a toast notifier.", ex);
                         toastNotifierCreated = false;
                     }
-                    setting = toastNotifier.Setting;
                 });
                 thread.SetApartmentState(ApartmentState.STA);
                 thread.Start();
