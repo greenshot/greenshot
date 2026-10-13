@@ -558,7 +558,7 @@ resource, which has no results until it is analysed again.
 
 ### Rotation and labels
 
-Built in the model (rules R35 - R47). What rotation is for: placing text the way the user wants it, and covering OCR
+Built in the model (rules R35 - R53). What rotation is for: placing text the way the user wants it, and covering OCR
 text which is at an angle. A label is text which belongs to an element: a caption below an image, the text in a
 rectangle, the text on a line.
 
@@ -578,9 +578,10 @@ rectangle, the text on a line.
   text is drawn with the element's `style.text`; for more text, a text element anchored to the element.
 - OCR at an angle: `OcrResult.OnCanvas` gives the area and rotation on the canvas of a line or word (R42), so an
   obfuscate or highlight element covers it exactly.
-- Open: turning the whole capture. Today's editor turns the image in 90° steps and moves the elements with it
-  (`RotateEffect`), the boxes stay upright. With rotation the elements could turn with it: box-shaped elements get
-  their centre moved and the angle added, point elements get their points turned, text would be sideways too.
+- Turning the whole capture (R48 - R54): `CaptureTurn.Apply(document, 90)` gives the capture image a `rotation` and
+  takes every element along, so the document is never "rotated" as a whole and nothing in the root says so. Only
+  elements whose content has a direction get a `rotation`, a box without one swaps width and height. Text turns too,
+  unless the user chooses to keep it upright. Today's editor still turns the pixels with `RotateEffect`.
 
 ### Groups, styles and defaults
 
@@ -815,6 +816,18 @@ A rule marked **(not built yet)** is decided, the code doesn't do it yet.
 | R40 | a turned element goes through today's editor | images and emojis turn in the editor; other turned elements are shown upright over their `Bounds` and come back with their area and rotation while unchanged; moved or resized, they come back upright with the new area | bridge | kept while unchanged | `ATurnedElement_IsShownUprightOverItsBounds_AndComesBackTurned_LabelsAreKept` |
 | R41 | a frame's target is turned | the frame is drawn along the turned area of its target; its `area` stays the target's `Bounds` (R19) | renderers (not built yet) | untouched | – |
 | R42 | OCR text is at an angle | the bounds of lines and words are those of the straightened text; turned by `textAngle` around the centre of the image they are where the text is. `OcrResult.OnCanvas` gives the area and rotation on the canvas (through the image element's area, source and rotation) | resolver | untouched | `OcrText_AtAnAngle_IsCoveredExactly` |
+
+**Turning the capture**
+
+| # | when | outcome | enforced | stored data | test |
+|---|---|---|---|---|---|
+| R48 | the capture is turned | in multiples of 90°, as one change of the document (`CaptureTurn.Apply`); the capture image gets the turn added to its `rotation`, its resource is never changed, so its analysis stays valid (R42); the page keeps its top left corner, a fixed canvas swaps width and height | edit | rotations, areas and points changed | `ATurnedCapture_KeepsItsPixels_EverythingStaysOnItsSpot_AndTurnsBackExactly` |
+| R49 | an element goes with the turned capture | it stays on the same spot of the capture: lines, arrows, freehand and the tail of a speech bubble turn their points; rectangles, ellipses, highlights, obfuscates, cut marks and frames swap width and height around their turned centre and keep their `rotation` (a box turned by 90° is the swapped box), a cut mark switches `horizontal`, the sides of a frame turn with it; images, plugins, text, speech bubbles, emojis and rectangles or ellipses with a label get the turn added to their `rotation`; step labels and cursors only move (they don't turn, R35); unknown elements stay as they are; a line label `along` the line follows it, a `horizontal` one stays horizontal | edit | areas, points and rotations changed | `ATurnedCapture_KeepsItsPixels_EverythingStaysOnItsSpot_AndTurnsBackExactly` |
+| R50 | the capture is turned with "keep text upright" | text, speech bubbles and emojis only move, their size and `rotation` stay; a rectangle or ellipse with a label is swapped and its label keeps its side of the box (below becomes left); images turn anyway, their label with them. Text which only moves may cover something or stick out, so this is the user's choice, never the default | edit | areas changed | `ATurnedCapture_WithTextUpright_MovesTheText_ButRedactionAndImagesStillTurn` |
+| R51 | an obfuscate or highlight goes with the turned capture | it covers the same pixels as before, whatever the user chose | edit | area changed | `ATurnedCapture_WithTextUpright_MovesTheText_ButRedactionAndImagesStillTurn` |
+| R52 | an anchored element goes with the turned capture | its anchors turn with it: the new x axis is the old y axis mirrored (start and end swapped, offset negated), the new y axis the old x axis; then `Anchors.Apply` places it, so a caption below the capture is left of it after a quarter turn | edit | anchors changed | `AnElementAnchoredBelowTheCapture_IsLeftOfItAfterAQuarterTurn` |
+| R53 | a turned capture is turned back | the opposite turn gives every element back exactly; analysis, metadata, groups and styles never change with a turn, a shadow `offset` stays in canvas coordinates (R37) | edit | as before the turn | `ATurnedCapture_KeepsItsPixels_EverythingStaysOnItsSpot_AndTurnsBackExactly` |
+| R54 | the user turns the capture (not built yet) | the editor uses R48; it asks whether text stays upright only when the capture has text, speech bubbles, emojis or labels, there is no setting for it; a recipe step and the command line pass it as an option | editor, recipes | – | – |
 
 **Labels**
 

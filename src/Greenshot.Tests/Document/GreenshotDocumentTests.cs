@@ -116,6 +116,95 @@ namespace Greenshot.Tests.Document
             Assert.Equal(new RectD(0, 0, 100, 0), line.Bounds);
         }
 
+        private static GreenshotDocument Page(Canvas canvas, params Element[] annotations) =>
+            new(Guid.NewGuid(), canvas, new List<Layer>
+            {
+                new(Guid.NewGuid(), "Capture", LayerKind.Capture, new List<Element> { new ImageElement(Guid.NewGuid(), new RectD(0, 0, 200, 100), Guid.NewGuid()) }),
+                new(Guid.NewGuid(), "Annotations", LayerKind.Annotations, annotations)
+            }, new Dictionary<Guid, Resource>());
+
+        [Fact]
+        public void ATurnedCapture_KeepsItsPixels_EverythingStaysOnItsSpot_AndTurnsBackExactly()
+        {
+            var document = Page(new Canvas(),
+                new ArrowElement(Guid.NewGuid(), new PointD(10, 10), new PointD(50, 10)),
+                new ObfuscateElement(Guid.NewGuid(), new RectD(20, 60, 40, 20), ObfuscateMode.Pixelate, 8),
+                new TextElement(Guid.NewGuid(), new RectD(100, 20, 60, 20), "Hi"),
+                new RectangleElement(Guid.NewGuid(), new RectD(100, 60, 40, 20)) { Rotation = 30 });
+
+            var turned = CaptureTurn.Apply(document, 90);
+            var capture = (ImageElement)turned.Layers[0].Elements[0];
+            var elements = turned.Layers[1].Elements;
+
+            // A point x, y of the 200 x 100 capture is at 100 - y, x of the 100 x 200 one
+            Assert.Equal(new RectD(-50, 50, 200, 100), capture.Area);
+            Assert.Equal(90, capture.Rotation);
+            Assert.Equal(((ImageElement)document.Layers[0].Elements[0]).Resource, capture.Resource);
+            Assert.Equal(new RectD(0, 0, 100, 200), turned.CanvasArea());
+            Assert.Equal(new PointD(90, 10), ((ArrowElement)elements[0]).Start);
+            Assert.Equal(new PointD(90, 50), ((ArrowElement)elements[0]).End);
+            Assert.Equal(new RectD(20, 20, 20, 40), elements[1].Bounds);
+            Assert.Equal(0, elements[1].Rotation);
+            Assert.Equal(new RectD(40, 120, 60, 20), ((TextElement)elements[2]).Area);
+            Assert.Equal(90, elements[2].Rotation);
+            Assert.Equal(new RectD(20, 100, 20, 40), ((RectangleElement)elements[3]).Area);
+            Assert.Equal(30, elements[3].Rotation);
+
+            var back = CaptureTurn.Apply(turned, -90);
+            for (int layer = 0; layer < 2; layer++)
+            {
+                Assert.Equal(document.Layers[layer].Elements, back.Layers[layer].Elements);
+            }
+
+            Assert.Same(document, CaptureTurn.Apply(document, 360));
+            Assert.Throws<ArgumentOutOfRangeException>(() => CaptureTurn.Apply(document, 45));
+        }
+
+        [Fact]
+        public void ATurnedCapture_WithTextUpright_MovesTheText_ButRedactionAndImagesStillTurn()
+        {
+            var document = Page(Canvas.Fixed(200, 100),
+                new TextElement(Guid.NewGuid(), new RectD(100, 20, 60, 20), "Hi"),
+                new RectangleElement(Guid.NewGuid(), new RectD(100, 60, 40, 20)) { Label = new BoxLabel("Login") { Y = LabelPlace.After } },
+                new ObfuscateElement(Guid.NewGuid(), new RectD(20, 60, 40, 20), ObfuscateMode.Pixelate, 8),
+                new ImageElement(Guid.NewGuid(), new RectD(10, 10, 20, 10), Guid.NewGuid()),
+                new FrameElement(Guid.NewGuid(), new RectD(0, 0, 200, 100), 1) { Sides = FrameSides.Except(Edges.Bottom) },
+                new CutMarkElement(Guid.NewGuid(), new RectD(0, 40, 200, 20), true, 1));
+
+            var turned = CaptureTurn.Apply(document, 90, keepTextUpright: true);
+            var elements = turned.Layers[1].Elements;
+
+            Assert.Equal(new Canvas { Fit = CanvasFit.Fixed, Width = 100, Height = 200 }, turned.Canvas);
+            Assert.Equal(new RectD(40, 120, 60, 20), elements[0].Bounds);
+            Assert.Equal(0, elements[0].Rotation);
+            // The rectangle is swapped, its label stays readable and goes from below to the left, as the bottom side does
+            var rectangle = (RectangleElement)elements[1];
+            Assert.Equal(new RectD(20, 100, 20, 40), rectangle.Area);
+            Assert.Equal(new BoxLabel("Login") { X = LabelPlace.Before, Y = LabelPlace.Center }, rectangle.Label);
+            Assert.Equal(new RectD(20, 20, 20, 40), elements[2].Bounds);
+            Assert.Equal(90, elements[3].Rotation);
+            Assert.Equal(new RectD(0, 0, 100, 200), elements[4].Bounds);
+            // Only the bottom side was torn, now the left one is
+            Assert.Null(((FrameElement)elements[4]).Sides.Left);
+            Assert.Equal(new EdgeShape(EdgeStyle.None), ((FrameElement)elements[4]).Sides.Bottom);
+            Assert.False(((CutMarkElement)elements[5]).Horizontal);
+            Assert.Equal(new RectD(40, 0, 20, 200), elements[5].Bounds);
+        }
+
+        [Fact]
+        public void AnElementAnchoredBelowTheCapture_IsLeftOfItAfterAQuarterTurn()
+        {
+            var caption = new TextElement(Guid.NewGuid(), new RectD(70, 108, 60, 20), "Caption")
+            {
+                Anchor = new Anchor { X = new AxisAnchor(AnchorLine.Center, AnchorLine.Center), Y = new AxisAnchor(AnchorLine.End, AnchorLine.Start, 8) }
+            };
+
+            var turned = (TextElement)CaptureTurn.Apply(Page(new Canvas(), caption), 90).Layers[1].Elements[0];
+
+            Assert.Equal(new Anchor { X = new AxisAnchor(AnchorLine.Start, AnchorLine.End, -8), Y = new AxisAnchor(AnchorLine.Center, AnchorLine.Center) }, turned.Anchor);
+            Assert.Equal(new RectD(-28, 70, 20, 60), turned.Bounds);
+        }
+
         [Fact]
         public void ALabel_IsInTheVisualBounds_NotInTheBounds_AndTurnsWithItsElement()
         {
