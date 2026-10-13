@@ -21,7 +21,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text.Json.Serialization;
 
 namespace Greenshot.Document
@@ -70,9 +72,10 @@ namespace Greenshot.Document
     }
 
     /// <summary>
-    /// Bytes an element references by id, in their original format (e.g. image/png, image/svg+xml).
+    /// Bytes an element references by id, in their original format (e.g. image/png, image/svg+xml). The bytes can't be
+    /// changed, so documents share them.
     /// </summary>
-    public sealed record Resource(Guid Id, string MediaType, byte[] Data)
+    public sealed record Resource(Guid Id, string MediaType, ReadOnlyMemory<byte> Data)
     {
         /// <summary>
         /// The size of the image in pixels, when it's known
@@ -85,6 +88,21 @@ namespace Greenshot.Document
         /// Values of plugins (keyed by plugin id), written back unchanged
         /// </summary>
         public RawJson Extensions { get; init; }
+
+        /// <summary>
+        /// The bytes as a read-only stream, without a copy
+        /// </summary>
+        public Stream OpenRead()
+        {
+            var bytes = ArrayOf(Data);
+            return new MemoryStream(bytes.Array, bytes.Offset, bytes.Count, false);
+        }
+
+        /// <summary>
+        /// The array behind the bytes, a copy only when they aren't in an array
+        /// </summary>
+        public static ArraySegment<byte> ArrayOf(ReadOnlyMemory<byte> data) =>
+            MemoryMarshal.TryGetArray(data, out var segment) ? segment : new ArraySegment<byte>(data.ToArray());
     }
 
     /// <summary>

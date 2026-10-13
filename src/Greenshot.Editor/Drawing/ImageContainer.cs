@@ -53,7 +53,7 @@ namespace Greenshot.Editor.Drawing
         [NonSerialized] private Image _shadowBitmap;
 
         // The file the image was loaded from, so it can be kept unchanged. Not in the .greenshot file, which stores the image as PNG
-        [NonSerialized] private byte[] _originalData;
+        [NonSerialized] private ReadOnlyMemory<byte> _originalData;
         [NonSerialized] private string _originalMediaType;
 
         // The part of the image which is shown and how it's scaled, from the document model. Not in the .greenshot file of 1.3
@@ -94,16 +94,16 @@ namespace Greenshot.Editor.Drawing
                 DisposeImage();
                 DisposeShadow();
                 _image = ImageHelper.Clone(value);
-                _originalData = null;
+                _originalData = default;
                 _originalMediaType = null;
             }
             get { return _image; }
         }
 
         /// <summary>
-        /// The file the image was loaded from, null when the image didn't come from a file or was changed
+        /// The file the image was loaded from, empty when the image didn't come from a file or was changed
         /// </summary>
-        internal byte[] OriginalData => _originalData;
+        internal ReadOnlyMemory<byte> OriginalData => _originalData;
 
         /// <summary>
         /// The media type of OriginalData, e.g. image/webp
@@ -113,9 +113,9 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// Remember the file the current image was loaded from
         /// </summary>
-        internal void SetOriginal(byte[] data, string mediaType)
+        internal void SetOriginal(ReadOnlyMemory<byte> data, string mediaType)
         {
-            _originalData = mediaType == null ? null : data;
+            _originalData = mediaType == null ? default : data;
             _originalMediaType = mediaType;
         }
 

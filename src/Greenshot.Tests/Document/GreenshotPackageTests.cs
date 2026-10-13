@@ -159,8 +159,6 @@ namespace Greenshot.Tests.Document
             "image/tiff" => "tiff",
             "image/svg+xml" => "svg",
             "image/x-icon" => "ico",
-            "image/emf" => "emf",
-            "image/wmf" => "wmf",
             _ => null
         };
 
@@ -213,7 +211,7 @@ namespace Greenshot.Tests.Document
             foreach (var resource in expected.Resources.Values)
             {
                 Assert.Equal(resource.MediaType, actual.Resources[resource.Id].MediaType);
-                Assert.Equal(resource.Data, actual.Resources[resource.Id].Data);
+                Assert.Equal(resource.Data.ToArray(), actual.Resources[resource.Id].Data.ToArray());
             }
         }
 
@@ -444,7 +442,7 @@ namespace Greenshot.Tests.Document
             Assert.Equal("hologram", readUnknown.TypeName);
             Assert.Equal(new RectD(1, 2, 3, 4), readUnknown.Area);
             Assert.True(JsonElement.DeepEquals(json.RootElement, JsonDocument.Parse(readUnknown.Json).RootElement));
-            Assert.Equal(resource.Data, read.Resources[resource.Id].Data);
+            Assert.Equal(resource.Data.ToArray(), read.Resources[resource.Id].Data.ToArray());
         }
 
         [Fact]

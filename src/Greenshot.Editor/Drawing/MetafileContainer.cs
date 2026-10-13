@@ -37,27 +37,13 @@ namespace Greenshot.Editor.Drawing
     {
         private readonly Metafile _metafile;
 
-        // The bytes of the EMF/WMF file, not in the .greenshot file which stores the metafile as PNG
-        [NonSerialized]
-        private readonly byte[] _metafileData;
-
         public MetafileContainer(Metafile metafile, ISurface parent) : base(parent)
         {
             _metafile = metafile;
             Size = new NativeSize(metafile.Width/4, metafile.Height/4);
         }
-
-        public MetafileContainer(Metafile metafile, ISurface parent, byte[] metafileData) : this(metafile, parent)
-        {
-            _metafileData = metafileData;
-        }
         
         internal Metafile Metafile => _metafile;
-
-        /// <summary>
-        /// The EMF/WMF file the metafile was loaded from, null when it isn't known (e.g. loaded from a .greenshot file)
-        /// </summary>
-        internal byte[] MetafileData => _metafileData;
 
         protected override Image ComputeBitmap()
         {

@@ -136,7 +136,7 @@ namespace Greenshot.Tests.Document
 
             var images = document.Layers[1].Elements.OfType<ImageElement>().ToList();
             Assert.NotEmpty(images);
-            Assert.All(images, image => Assert.NotEmpty(document.Resources[image.Resource].Data));
+            Assert.All(images, image => Assert.False(document.Resources[image.Resource].Data.IsEmpty));
         }
 
         public static IEnumerable<object[]> NotReadableByTheBinaryFormatterFiles() => NotReadableByTheBinaryFormatter.Select(file => new object[] { file });

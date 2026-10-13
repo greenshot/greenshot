@@ -158,21 +158,22 @@ namespace Greenshot.Document
         /// </summary>
         public static Resource WithSize(Resource resource)
         {
-            var data = resource.Data;
+            var data = resource.Data.Span;
             // The signature, then the IHDR chunk: length, "IHDR", width and height big endian
-            if (resource.Width != null || data == null || data.Length < 24 || data[0] != 0x89 || data[1] != 'P' || data[2] != 'N' || data[3] != 'G' || data[12] != 'I' || data[13] != 'H' || data[14] != 'D' || data[15] != 'R')
+            if (resource.Width != null || data.Length < 24 || data[0] != 0x89 || data[1] != 'P' || data[2] != 'N' || data[3] != 'G' || data[12] != 'I' || data[13] != 'H' || data[14] != 'D' || data[15] != 'R')
             {
                 return resource;
             }
 
-            static int BigEndian(byte[] bytes, int offset) => (bytes[offset] << 24) | (bytes[offset + 1] << 16) | (bytes[offset + 2] << 8) | bytes[offset + 3];
+            static int BigEndian(ReadOnlySpan<byte> bytes, int offset) => (bytes[offset] << 24) | (bytes[offset + 1] << 16) | (bytes[offset + 2] << 8) | bytes[offset + 3];
             return resource with { Width = BigEndian(data, 16), Height = BigEndian(data, 20) };
         }
 
-        private static void WriteEntry(ZipArchive zip, string path, byte[] data, CompressionLevel compressionLevel)
+        private static void WriteEntry(ZipArchive zip, string path, ReadOnlyMemory<byte> data, CompressionLevel compressionLevel)
         {
             using var entryStream = zip.CreateEntry(path, compressionLevel).Open();
-            entryStream.Write(data, 0, data.Length);
+            var bytes = Resource.ArrayOf(data);
+            entryStream.Write(bytes.Array, bytes.Offset, bytes.Count);
         }
 
         /// <summary>

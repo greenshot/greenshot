@@ -162,8 +162,8 @@ namespace Greenshot.Tests.Document
             var mapped = Assert.IsType<PluginElement>(mappedBack.Layers[1].Elements[0]);
             Assert.Equal(plugin with { Area = new RectD(15, 20, 30, 40), Resources = null }, mapped with { Resources = null });
             Assert.Equal(plugin.Resources, mapped.Resources);
-            Assert.Equal(linked.Data, mappedBack.Resources[linked.Id].Data);
-            Assert.Equal(fallback.Data, mappedBack.Resources[fallback.Id].Data);
+            Assert.Equal(linked.Data.ToArray(), mappedBack.Resources[linked.Id].Data.ToArray());
+            Assert.Equal(fallback.Data.ToArray(), mappedBack.Resources[fallback.Id].Data.ToArray());
             Assert.Equal(newer, mappedBack.Layers[1].Elements[1]);
         }
 
@@ -257,7 +257,7 @@ namespace Greenshot.Tests.Document
             var mappedBack = SurfaceToDocument.ToDocument(surface);
 
             Assert.Equal(unknown, Assert.Single(mappedBack.Layers[1].Elements));
-            Assert.Equal(linked.Data, mappedBack.Resources[linked.Id].Data);
+            Assert.Equal(linked.Data.ToArray(), mappedBack.Resources[linked.Id].Data.ToArray());
         }
 
         public static IEnumerable<object[]> GreenshotFiles() => Directory.GetFiles(Path.Combine(TestDataDirectory, "Greenshotfile"), "*.greenshot", SearchOption.AllDirectories)
@@ -389,7 +389,7 @@ namespace Greenshot.Tests.Document
             Assert.Equal(captureLayer.Elements, mappedBack.Layers[0].Elements);
             Assert.Equal(new RectD(10, 60, 80, 20), mappedBack.Layers[1].Elements[0].Bounds);
             Assert.Equal(rounded, mappedBack.Layers[1].Elements[1]);
-            Assert.Equal(png.Data, mappedBack.Resources[png.Id].Data);
+            Assert.Equal(png.Data.ToArray(), mappedBack.Resources[png.Id].Data.ToArray());
         }
 
         [Fact]
@@ -547,23 +547,18 @@ namespace Greenshot.Tests.Document
         }
 
         [Fact]
-        public void Metafile_KeepsTheEmfFile()
+        public void Metafile_BecomesAPng()
         {
-            byte[] emf = CreateEmf();
             using var surface = new Surface(new Bitmap(200, 100));
-            var container = Assert.IsType<MetafileContainer>(Assert.Single(new MetaFileFormatHandler().LoadDrawablesFromStream(new MemoryStream(emf), ".emf", surface)));
+            var container = Assert.IsType<MetafileContainer>(Assert.Single(new MetaFileFormatHandler().LoadDrawablesFromStream(new MemoryStream(CreateEmf()), ".emf", surface)));
             surface.AddElement(container, false, false);
 
             var document = SurfaceToDocument.ToDocument(surface);
             var image = Assert.IsType<ImageElement>(Assert.Single(document.Layers[1].Elements));
-            Assert.Equal("image/emf", document.Resources[image.Resource].MediaType);
-            Assert.Equal(emf, document.Resources[image.Resource].Data);
+            Assert.Equal("image/png", document.Resources[image.Resource].MediaType);
 
             using var mappedSurface = DocumentToSurface.ToSurface(document);
-            var mapped = Assert.IsType<MetafileContainer>(Assert.Single(mappedSurface.Elements));
-            var mappedBack = SurfaceToDocument.ToDocument(mappedSurface);
-            var mappedImage = (ImageElement)Assert.Single(mappedBack.Layers[1].Elements);
-            Assert.Equal(emf, mappedBack.Resources[mappedImage.Resource].Data);
+            var mapped = Assert.IsType<ImageContainer>(Assert.Single(mappedSurface.Elements));
             Assert.Equal(new Rectangle(container.Left, container.Top, container.Width, container.Height), new Rectangle(mapped.Left, mapped.Top, mapped.Width, mapped.Height));
         }
 
@@ -593,7 +588,7 @@ namespace Greenshot.Tests.Document
             var document = SurfaceToDocument.ToDocument(surface);
             var image = Assert.IsType<ImageElement>(Assert.Single(document.Layers[1].Elements));
             Assert.Equal(mediaType, document.Resources[image.Resource].MediaType);
-            Assert.Equal(file, document.Resources[image.Resource].Data);
+            Assert.Equal(file, document.Resources[image.Resource].Data.ToArray());
 
             using var packageStream = new MemoryStream();
             var registry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>();
@@ -604,7 +599,7 @@ namespace Greenshot.Tests.Document
             var mappedBack = SurfaceToDocument.ToDocument(mappedSurface);
             var mappedImage = (ImageElement)Assert.Single(mappedBack.Layers[1].Elements);
             Assert.Equal(mediaType, mappedBack.Resources[mappedImage.Resource].MediaType);
-            Assert.Equal(file, mappedBack.Resources[mappedImage.Resource].Data);
+            Assert.Equal(file, mappedBack.Resources[mappedImage.Resource].Data.ToArray());
         }
     }
 }

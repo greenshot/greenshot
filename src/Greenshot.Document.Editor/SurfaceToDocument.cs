@@ -222,15 +222,13 @@ namespace Greenshot.Document.Editor
                     FreehandContainer freehand => new FreehandElement(id, freehand.CapturePoints.Select(p => new PointD(p.X, p.Y)).ToList()),
                     StepLabelContainer => new StepLabelElement(id, area),
                     // The file the image came from when it is known, otherwise PNG
-                    ImageContainer imageContainer => new ImageElement(id, area, imageContainer.OriginalData == null
+                    ImageContainer imageContainer => new ImageElement(id, area, imageContainer.OriginalData.IsEmpty
                         ? AddImage(resources, imageContainer.Image)
                         : AddResource(resources, imageContainer.OriginalMediaType, imageContainer.OriginalData)),
                     IconContainer icon => new ImageElement(id, area, AddIcon(resources, icon.Icon)),
                     SvgContainer svg => new ImageElement(id, area, AddResource(resources, "image/svg+xml", svg.SvgData)) { Rotation = svg.RotationAngle },
-                    // The EMF/WMF file when it is known, GDI+ can't write EMF/WMF so otherwise the metafile is kept as PNG in its own size
-                    MetafileContainer metafile => new ImageElement(id, area, metafile.MetafileData == null
-                        ? AddImage(resources, metafile.Metafile)
-                        : AddResource(resources, metafile.Metafile.GetMetafileHeader().IsWmf() ? "image/wmf" : "image/emf", metafile.MetafileData)) { Rotation = metafile.RotationAngle },
+                    // The document has no EMF/WMF, the metafile becomes a PNG in its own size
+                    MetafileContainer metafile => new ImageElement(id, area, AddImage(resources, metafile.Metafile)) { Rotation = metafile.RotationAngle },
                     EmojiContainer emoji => new EmojiElement(id, area, emoji.Emoji) { Rotation = emoji.RotationAngle },
                     CursorContainer cursor => new CursorElement(id, area, AddImage(resources, cursor.Cursor.ColorLayer))
                     {
@@ -377,21 +375,22 @@ namespace Greenshot.Document.Editor
 
         private static RectD ToRectD(NativeRect rect) => new(rect.X, rect.Y, rect.Width, rect.Height);
 
+        // Encoded in pooled buffers, so only the result is a new array
         private static Guid AddImage(IDictionary<Guid, Resource> resources, Image image)
         {
-            using var stream = new MemoryStream();
+            using var stream = RecyclableMemoryStreamFactory.GetStream();
             image.Save(stream, ImageFormat.Png);
             return AddResource(resources, "image/png", stream.ToArray());
         }
 
         private static Guid AddIcon(IDictionary<Guid, Resource> resources, Icon icon)
         {
-            using var stream = new MemoryStream();
+            using var stream = RecyclableMemoryStreamFactory.GetStream();
             icon.Save(stream);
             return AddResource(resources, "image/x-icon", stream.ToArray());
         }
 
-        private static Guid AddResource(IDictionary<Guid, Resource> resources, string mediaType, byte[] data)
+        private static Guid AddResource(IDictionary<Guid, Resource> resources, string mediaType, ReadOnlyMemory<byte> data)
         {
             var resource = new Resource(Uuid7.CreateVersion7(), mediaType, data);
             resources.Add(resource.Id, resource);

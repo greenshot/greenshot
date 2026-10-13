@@ -86,7 +86,7 @@ classDiagram
     class Resource {
         Guid Id
         string MediaType
-        byte[] Data
+        ReadOnlyMemory~byte~ Data
         int? Width
         int? Height
         RawJson Extensions
@@ -162,7 +162,7 @@ Rules:
 | `StepLabelContainer` | `StepLabelElement` | `Area` (the number is derived) |
 | `HighlightContainer` | `HighlightElement` | `Mode` (text, area, grayscale, magnify), `Color`, `Brightness`, `BlurRadius`, `Magnification` |
 | `ObfuscateContainer` | `ObfuscateElement` | `Mode` (pixelate, blur), `Size` (pixel size or blur radius) |
-| `ImageContainer`, `IconContainer`, `SvgContainer`, `MetafileContainer` | `ImageElement` | `Area`, `Resource`, `Rotation`, `Source`, `Scaling` (see "Images" below). Metafiles keep the EMF/WMF file they were loaded from (`image/emf`, `image/wmf`); a metafile from an old .greenshot file is only a PNG there |
+| `ImageContainer`, `IconContainer`, `SvgContainer`, `MetafileContainer` | `ImageElement` | `Area`, `Resource`, `Rotation`, `Source`, `Scaling` (see "Images" below). A metafile becomes a PNG: the document has no EMF/WMF |
 | `EmojiContainer` | `EmojiElement` | `Area`, `Emoji`, `Rotation` |
 | `CursorContainer` | `CursorElement` | `Area`, `Resource` (color layer), `MaskResource`, `Hotspot` (the tip as a fraction 0..1 of `Area`, so it stays right when the cursor is resized) |
 | `CutMarkContainer` | `CutMarkElement` | `Area`, `Horizontal`, `Shape`, `Seed` |
@@ -247,8 +247,8 @@ An `ImageElement` shows its resource in its `Area`. Resizing only changes the `A
 and stored again.
 
 - **`source`**: the part of the resource that is shown, stretched into `Area`, as a fraction (0..1) of the resource's
-  width and height, so the document doesn't have to decode the image to know its size and it also works for SVG and
-  metafiles. Missing means the whole image. Rotation is applied after the part is fitted into `Area`.
+  width and height, so the document doesn't have to decode the image to know its size and it also works for SVG.
+  Missing means the whole image. Rotation is applied after the part is fitted into `Area`.
 - **Shared resources**: several image elements can use the same resource with different parts, e.g. a zoom inset next
   to the capture showing a detail of it larger. The bytes are stored once.
 - **Crop that keeps the original**: a crop of an image changes its `source` and `Area`, so it can be widened again
@@ -261,8 +261,8 @@ and stored again.
   the editor removes it. It needs the size of the resource, which the resource table has (`width`, `height`; read from
   the header of a PNG when it's missing).
 - **Today's editor** (Surface): the `ImageContainer` draws the `source` part of a bitmap with its `scaling`. A rotated
-  bitmap is turned in its pixels there, so its part is cut out before and the trip back has no `source`. SVG, icons
-  and metafiles are shown whole, their `source` and `scaling` are kept through the trip.
+  bitmap is turned in its pixels there, so its part is cut out before and the trip back has no `source`. SVG and icons
+  are shown whole, their `source` and `scaling` are kept through the trip.
 
 ### Canvas
 
@@ -745,7 +745,10 @@ flowchart LR
 
 - The shadow settings of cut marks (darkness, size, offset) and those of torn edges in 1.3 and 1.4 files: the editor's
   torn edge settings are used.
-- Only Windows can draw EMF/WMF; other platforms will need a PNG rendering next to the metafile.
+- EMF/WMF on purpose (decided 2026-10-13): a proprietary Windows format, a metafile becomes a PNG. A converter can be
+  offered or pointed to later.
+- A resource's bytes are encoded in pooled buffers and then copied once into their own array; reusing an unchanged
+  capture and encoding only when the bytes are needed is not built yet.
 - The editor has one counter and no groups. A document becomes a `Surface` with each element's resolved style and the
   first steps group (its start, its label order); back from the `Surface` there is one steps group (the other steps
   groups are merged into it), the other groups are kept, and every element has its full style. Hidden layers don't

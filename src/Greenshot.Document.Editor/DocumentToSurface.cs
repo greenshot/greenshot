@@ -451,12 +451,9 @@ namespace Greenshot.Document.Editor
             switch (resource.MediaType)
             {
                 case "image/svg+xml":
-                    return new SvgContainer(new MemoryStream(resource.Data), surface) { RotationAngle = rotation };
+                    return new SvgContainer(resource.OpenRead(), surface) { RotationAngle = rotation };
                 case "image/x-icon":
-                    return new IconContainer(surface, new MemoryStream(resource.Data));
-                case "image/emf":
-                case "image/wmf":
-                    return new MetafileContainer(new Metafile(new MemoryStream(resource.Data)), surface, resource.Data) { RotationAngle = rotation };
+                    return new IconContainer(surface, resource.OpenRead());
                 default:
                     using (var image = LoadImage(resource))
                     {
@@ -483,7 +480,7 @@ namespace Greenshot.Document.Editor
         private static Bitmap LoadImage(Resource resource)
         {
             var format = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true)?.GetByMimeType(resource.MediaType);
-            using var stream = new MemoryStream(resource.Data);
+            using var stream = resource.OpenRead();
             using var image = ImageIO.FromStream(stream, format?.PreferredExtension) ?? throw new InvalidDataException($"Can't read the {resource.MediaType} resource {resource.Id}");
             return ImageHelper.Clone(image) as Bitmap;
         }
