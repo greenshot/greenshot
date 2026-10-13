@@ -33,6 +33,7 @@ using Greenshot.Base.Languages;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Wpf;
 using Greenshot.SelfService.ViewModels;
+using Greenshot.ViewModels;
 using log4net;
 using Microsoft.Win32;
 
@@ -65,7 +66,7 @@ namespace Greenshot.Views
         /// <summary>
         /// The capture hotkeys of the user with what they do
         /// </summary>
-        public IReadOnlyList<WelcomeBasic> Basics { get; private set; }
+        public IReadOnlyList<WelcomeHotkeyViewModel> Basics { get; private set; }
 
         public string CurrentTip { get; private set; }
 
@@ -141,10 +142,10 @@ namespace Greenshot.Views
             var config = CoreConfiguration;
             Basics = new[]
                 {
-                    new WelcomeBasic(config.RegionHotkey, texts.BasicsRegion),
-                    new WelcomeBasic(config.WindowHotkey, texts.BasicsWindow),
-                    new WelcomeBasic(config.FullscreenHotkey, texts.BasicsFullscreen),
-                    new WelcomeBasic(config.LastregionHotkey, texts.BasicsLastregion)
+                    new WelcomeHotkeyViewModel(config.RegionHotkey, texts.BasicsRegion),
+                    new WelcomeHotkeyViewModel(config.WindowHotkey, texts.BasicsWindow),
+                    new WelcomeHotkeyViewModel(config.FullscreenHotkey, texts.BasicsFullscreen),
+                    new WelcomeHotkeyViewModel(config.LastregionHotkey, texts.BasicsLastregion)
                 }
                 .Where(basic => basic.Keys != null)
                 .ToList();
@@ -320,25 +321,5 @@ namespace Greenshot.Views
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-    }
-
-    /// <summary>
-    /// A hotkey of the user and what it does, for the basics of the welcome window
-    /// </summary>
-    public sealed class WelcomeBasic
-    {
-        public WelcomeBasic(string hotkey, string description)
-        {
-            string keys = HotkeyManager.GetLocalizedHotkeyStringFromString(hotkey);
-            Keys = keys == "None" ? null : keys;
-            Description = description;
-        }
-
-        /// <summary>
-        /// The keys to press, null when there is no hotkey for it
-        /// </summary>
-        public string Keys { get; }
-
-        public string Description { get; }
     }
 }

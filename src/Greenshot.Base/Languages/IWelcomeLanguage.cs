@@ -112,7 +112,7 @@ namespace Greenshot.Base.Languages
         string SetupTrayFix { get; }
 
         /// <summary>
-        /// Windows hides the Greenshot icon in the overflow of the taskbar. Show it next to the clock, so Greenshot is always one click away.
+        /// Windows hides the Greenshot icon behind the arrow (^) next to the clock. To always see it: open the taskbar settings, expand &quot;Other system tray icons&quot; and switch Greenshot on. You can also drag the icon from behind the arrow onto the taskbar.
         /// </summary>
         string SetupTrayHidden { get; }
 
