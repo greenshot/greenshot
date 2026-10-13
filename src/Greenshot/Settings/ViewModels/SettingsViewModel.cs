@@ -77,7 +77,10 @@ namespace Greenshot.Settings.ViewModels
             
             // Initialize destinations
             InitializeDestinations();
-            
+
+            // The freely configurable hotkey shortcuts (hotkey + capture function + one or more destinations)
+            InitializeHotkeyShortcuts();
+
             // The options of the recipes (Greenshot Light: those of the built-in recipes)
             InitializeRecipeOptions();
 

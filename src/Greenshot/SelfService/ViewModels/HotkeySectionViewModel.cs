@@ -26,9 +26,9 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
-using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
+using Greenshot.Helpers;
 using Greenshot.Recipes.Triggers;
 using log4net;
 using Microsoft.Win32;
@@ -74,7 +74,6 @@ namespace Greenshot.SelfService.ViewModels
     public class HotkeySectionViewModel : SelfServiceSectionViewModel
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(HotkeySectionViewModel));
-        private static readonly ICoreConfiguration Config = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         public override string Id => "hotkeys";
         public override string Title
@@ -188,11 +187,11 @@ namespace Greenshot.SelfService.ViewModels
         {
             Hotkeys.Clear();
 
-            AddHotkeyItem(Texts.Core.ContextmenuCapturearea ?? "Capture Region", "RegionHotkey", Config?.RegionHotkey);
-            AddHotkeyItem(Texts.Core.ContextmenuCapturewindow ?? "Capture Window", "WindowHotkey", Config?.WindowHotkey);
-            AddHotkeyItem(Texts.Core.ContextmenuCapturefullscreen ?? "Capture Fullscreen", "FullscreenHotkey", Config?.FullscreenHotkey);
-            AddHotkeyItem(Texts.Core.ContextmenuCapturelastregion ?? "Capture Last Region", "LastregionHotkey", Config?.LastregionHotkey);
-            AddHotkeyItem(Texts.Core.ContextmenuCaptureclipboard ?? "Capture Clipboard", "ClipboardHotkey", Config?.ClipboardHotkey);
+            AddHotkeyItem(Texts.Core.ContextmenuCapturearea ?? "Capture Region", "RegionHotkey", HotkeyShortcutManager.GetDisplayHotkeyFor(HotkeyCaptureFunctions.Region));
+            AddHotkeyItem(Texts.Core.ContextmenuCapturewindow ?? "Capture Window", "WindowHotkey", HotkeyShortcutManager.GetDisplayHotkeyFor(HotkeyCaptureFunctions.Window));
+            AddHotkeyItem(Texts.Core.ContextmenuCapturefullscreen ?? "Capture Fullscreen", "FullscreenHotkey", HotkeyShortcutManager.GetDisplayHotkeyFor(HotkeyCaptureFunctions.Fullscreen));
+            AddHotkeyItem(Texts.Core.ContextmenuCapturelastregion ?? "Capture Last Region", "LastregionHotkey", HotkeyShortcutManager.GetDisplayHotkeyFor(HotkeyCaptureFunctions.LastRegion));
+            AddHotkeyItem(Texts.Core.ContextmenuCaptureclipboard ?? "Capture Clipboard", "ClipboardHotkey", HotkeyShortcutManager.GetDisplayHotkeyFor(HotkeyCaptureFunctions.Clipboard));
         }
 
         private void AddHotkeyItem(string actionName, string configKey, string hotkeyValue)

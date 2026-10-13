@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Collections.Generic;
 using Dapplo.Windows.Input.Enums;
 using Greenshot.Base.Core;
 using Greenshot.Base.Recipes.Triggers;
@@ -36,6 +37,13 @@ namespace Greenshot.Recipes.Triggers
 
         private int _registrationId = -1;
         public string HotkeyString { get; set; }
+
+        /// <summary>
+        /// Extra parameters passed into the pipeline's CaptureFlowContext.Properties when this hotkey fires (e.g.
+        /// "OverrideDestinations" with a List&lt;string&gt; of destination designations, used by hotkey shortcuts to
+        /// send a capture to specific destinations without changing the target recipe's own configured destinations).
+        /// </summary>
+        public IDictionary<string, object> ExtraParameters { get; set; }
 
         public HotkeyTrigger(string id, string name, string hotkeyString, string targetRecipeId)
             : base(id, name, targetRecipeId)
@@ -68,7 +76,7 @@ namespace Greenshot.Recipes.Triggers
             {
                 Log.DebugFormat("Hotkey '{0}' pressed for trigger '{1}' -> recipe '{2}'", HotkeyString, Name, TargetRecipeId);
                 // Raise the trigger on the UI thread (posted, the keyboard hook must return quickly)
-                ui.InvokeAsync(() => OnTriggered()).FireAndLog($"Hotkey trigger {Name}", Log);
+                ui.InvokeAsync(() => OnTriggered(ExtraParameters)).FireAndLog($"Hotkey trigger {Name}", Log);
             });
 
             if (_registrationId >= 0)

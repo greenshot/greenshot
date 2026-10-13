@@ -631,6 +631,46 @@ namespace Greenshot.Base.Languages
         string Shownotify { get; }
 
         /// <summary>
+        /// Shortcuts
+        /// </summary>
+        string Shortcuts { get; }
+
+        /// <summary>
+        /// Add shortcut
+        /// </summary>
+        string ShortcutsAdd { get; }
+
+        /// <summary>
+        /// Delete
+        /// </summary>
+        string ShortcutsDelete { get; }
+
+        /// <summary>
+        /// Destinations
+        /// </summary>
+        string ShortcutsDestinations { get; }
+
+        /// <summary>
+        /// Capture function
+        /// </summary>
+        string ShortcutsFunction { get; }
+
+        /// <summary>
+        /// Hotkey
+        /// </summary>
+        string ShortcutsHotkey { get; }
+
+        /// <summary>
+        /// Remove this shortcut
+        /// </summary>
+        string ShortcutsRemove { get; }
+
+        /// <summary>
+        /// The following shortcuts were not saved because they are invalid:\n{0}
+        /// </summary>
+        string ShortcutsSkippedWarning { get; }
+
+        /// <summary>
         /// Storage location
         /// </summary>
         string Storagelocation { get; }

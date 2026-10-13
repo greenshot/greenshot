@@ -28,6 +28,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Triggers;
+using Greenshot.Helpers;
 using log4net;
 
 namespace Greenshot.Recipes.Triggers
@@ -72,24 +73,10 @@ namespace Greenshot.Recipes.Triggers
         {
             if (CoreConfig == null) return;
 
-            // Register hotkeys from legacy config as default hotkey triggers
-            RegisterDefaultHotkeyTrigger("trigger_hotkey_region", "Region Hotkey", CoreConfig.RegionHotkey, RecipeManager.RecipeIdRegion);
-            string windowRecipe = CoreConfig.CaptureWindowsInteractive ? RecipeManager.RecipeIdWindow : RecipeManager.RecipeIdActiveWindow;
-            RegisterDefaultHotkeyTrigger("trigger_hotkey_window", "Window Hotkey", CoreConfig.WindowHotkey, windowRecipe);
-            RegisterDefaultHotkeyTrigger("trigger_hotkey_fullscreen", "Fullscreen Hotkey", CoreConfig.FullscreenHotkey, RecipeManager.RecipeIdFullScreen);
-            RegisterDefaultHotkeyTrigger("trigger_hotkey_lastregion", "Last Region Hotkey", CoreConfig.LastregionHotkey, RecipeManager.RecipeIdLastRegion);
-            RegisterDefaultHotkeyTrigger("trigger_hotkey_clipboard", "Clipboard Hotkey", CoreConfig.ClipboardHotkey, RecipeManager.RecipeIdClipboard);
-        }
-
-        private void RegisterDefaultHotkeyTrigger(string id, string name, string hotkey, string recipeId)
-        {
-            if (string.IsNullOrEmpty(hotkey))
-            {
-                // The hotkey could have been removed in the settings
-                UnregisterTrigger(id);
-                return;
-            }
-            RegisterTrigger(new HotkeyTrigger(id, name, hotkey, recipeId));
+            // User-configured hotkey shortcuts (hotkey -> capture function -> one or more destinations). Replaces the
+            // legacy fixed RegionHotkey/WindowHotkey/FullscreenHotkey/LastregionHotkey/ClipboardHotkey fields, which
+            // are migrated into these shortcuts once (see CoreConfigurationImpl.OnAfterLoad) and then kept empty.
+            HotkeyShortcutManager.RegisterAll(this);
         }
 
         /// <summary>

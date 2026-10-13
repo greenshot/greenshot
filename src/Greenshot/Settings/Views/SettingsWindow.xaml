@@ -461,60 +461,6 @@
                             </StackPanel>
                         </GroupBox>
                         
-                        <!-- Hotkeys -->
-                        <GroupBox Header="{wpf:Text Core.Hotkeys}">
-                            <StackPanel>
-                                <Grid Margin="0,5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    
-                                    <Label Grid.Row="0" Grid.Column="0" Content="{wpf:Text Core.ContextmenuCapturefullscreen}" VerticalAlignment="Center"/>
-                                    <views:HotkeyDisplayView Grid.Row="0" Grid.Column="1"
-                                                                  HeaderText="{wpf:Text Core.ContextmenuCapturefullscreen}"
-                                                                  HotkeyString="{Binding CoreConfiguration.FullscreenHotkey, Mode=TwoWay}"
-                                                                  IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=FullscreenHotkey}"
-                                                                  EditRequested="HotkeyDisplayControl_EditRequested"/>
-                                    
-                                    <Label Grid.Row="1" Grid.Column="0" Content="{wpf:Text Core.ContextmenuCapturewindow}" VerticalAlignment="Center" Margin="0,4,0,0"/>
-                                    <views:HotkeyDisplayView Grid.Row="1" Grid.Column="1" Margin="0,4,0,0"
-                                                                  HeaderText="{wpf:Text Core.ContextmenuCapturewindow}"
-                                                                  HotkeyString="{Binding CoreConfiguration.WindowHotkey, Mode=TwoWay}"
-                                                                  IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=WindowHotkey}"
-                                                                  EditRequested="HotkeyDisplayControl_EditRequested"/>
-                                    
-                                    <Label Grid.Row="2" Grid.Column="0" Content="{wpf:Text Core.ContextmenuCapturearea}" VerticalAlignment="Center" Margin="0,4,0,0"/>
-                                    <views:HotkeyDisplayView Grid.Row="2" Grid.Column="1" Margin="0,4,0,0"
-                                                                  HeaderText="{wpf:Text Core.ContextmenuCapturearea}"
-                                                                  HotkeyString="{Binding CoreConfiguration.RegionHotkey, Mode=TwoWay}"
-                                                                  IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=RegionHotkey}"
-                                                                  EditRequested="HotkeyDisplayControl_EditRequested"/>
-                                    
-                                    <Label Grid.Row="3" Grid.Column="0" Content="{wpf:Text Core.ContextmenuCapturelastregion}" VerticalAlignment="Center" Margin="0,4,0,0"/>
-                                    <views:HotkeyDisplayView Grid.Row="3" Grid.Column="1" Margin="0,4,0,0"
-                                                                  HeaderText="{wpf:Text Core.ContextmenuCapturelastregion}"
-                                                                  HotkeyString="{Binding CoreConfiguration.LastregionHotkey, Mode=TwoWay}"
-                                                                  IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=LastregionHotkey}"
-                                                                  EditRequested="HotkeyDisplayControl_EditRequested"/>
-                                    
-                                    <Label Grid.Row="4" Grid.Column="0" Content="{wpf:Text Core.ContextmenuCaptureclipboard}" VerticalAlignment="Center" Margin="0,4,0,0"/>
-                                    <views:HotkeyDisplayView Grid.Row="4" Grid.Column="1" Margin="0,4,0,0"
-                                                                  HeaderText="{wpf:Text Core.ContextmenuCaptureclipboard}"
-                                                                  HotkeyString="{Binding CoreConfiguration.ClipboardHotkey, Mode=TwoWay}"
-                                                                  IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ClipboardHotkey}"
-                                                                  EditRequested="HotkeyDisplayControl_EditRequested"/>
-                                </Grid>
-                            </StackPanel>
-                        </GroupBox>
-                        
                         <!-- Network Settings -->
                         <GroupBox Header="{wpf:Text Settings.Network}">
                             <StackPanel>
@@ -535,6 +481,71 @@
                         </GroupBox>
                     </StackPanel>
                 </ScrollViewer>
+            </TabItem>
+            
+            <!-- Shortcuts Tab: freely configurable hotkeys, each with a capture function and one or more destinations -->
+            <TabItem Header="{wpf:Text Settings.Shortcuts}">
+                <Grid Margin="8">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <ListView x:Name="ShortcutsListView"
+                              Grid.Row="0"
+                              ItemsSource="{Binding HotkeyShortcuts}"
+                              Style="{DynamicResource ThemeListView}"
+                              ItemContainerStyle="{DynamicResource ThemeListViewItem}"
+                              ScrollViewer.VerticalScrollBarVisibility="Visible"
+                              ScrollViewer.CanContentScroll="False">
+                        <ListView.View>
+                            <GridView ColumnHeaderContainerStyle="{DynamicResource ThemeGridViewColumnHeader}">
+                                <GridViewColumn Header="{wpf:Text Settings.ShortcutsHotkey}" Width="260">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                <views:HotkeyDisplayView HotkeyString="{Binding Hotkey, Mode=TwoWay}"
+                                                                          HeaderText="{Binding CaptureFunctionDisplayName}"
+                                                                          EditRequested="ShortcutHotkey_EditRequested"/>
+                                                <Button Content="{wpf:Text Settings.ShortcutsDelete}"
+                                                        ToolTip="{wpf:Text Settings.ShortcutsRemove}"
+                                                        Margin="6,0,0,0"
+                                                        Padding="8,3"
+                                                        Click="ShortcutRemove_Click"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="{wpf:Text Settings.ShortcutsFunction}" Width="150">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <ComboBox ItemsSource="{Binding DataContext.AvailableCaptureFunctions, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                      DisplayMemberPath="DisplayName"
+                                                      SelectedValuePath="Id"
+                                                      SelectedValue="{Binding CaptureFunctionId, Mode=TwoWay}"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="{wpf:Text Settings.ShortcutsDestinations}" Width="200">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <ComboBox ItemsSource="{Binding DataContext.AvailableDestinations, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                      DisplayMemberPath="DisplayName"
+                                                      SelectedValuePath="Designation"
+                                                      SelectedValue="{Binding DestinationId, Mode=TwoWay}"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+
+                    <Button Grid.Row="1"
+                            Content="{wpf:Text Settings.ShortcutsAdd}"
+                            HorizontalAlignment="Left"
+                            Margin="0,8,0,0"
+                            Click="ShortcutAdd_Click"/>
+                </Grid>
             </TabItem>
             
             <!-- Capture Tab -->
