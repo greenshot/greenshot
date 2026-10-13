@@ -188,11 +188,29 @@ namespace Greenshot.Document
         public IEnumerable<Group> GroupsOf(Guid elementId) => Groups.Where(group => group.Members.Contains(elementId));
 
         /// <summary>
-        /// The full style the element is drawn with: value by value its own style, over the style of its group, over
-        /// the default of its type
+        /// The full style the element is drawn with: the cascade, a framed element has no shadow, its frame draws the
+        /// shadow of the framed shape
         /// </summary>
-        public Style StyleOf(Element element) =>
+        public Style StyleOf(Element element)
+        {
+            var style = CascadeOf(element);
+            return FrameOf(element) == null ? style : style with { Shadow = (style.Shadow ?? new ShadowStyle()) with { Enabled = false } };
+        }
+
+        /// <summary>
+        /// Value by value the element's own style, over the style of its group, over the default of its type. For a
+        /// renderer which doesn't draw the frames of elements (today's editor).
+        /// </summary>
+        public Style CascadeOf(Element element) =>
             element.Style.Over(GroupsOf(element.Id).Select(group => group.Style).FirstOrDefault(style => style != null)).Over(StyleDefaults.For(element));
+
+        /// <summary>
+        /// The frame which is drawn for the element: the first frame with it as target in drawing order. Lines, arrows,
+        /// freehand and frames have no area to frame. Other frames with the same target are kept, but not drawn.
+        /// </summary>
+        public FrameElement FrameOf(Element element) => element is LineElement or ArrowElement or FreehandElement or FrameElement
+            ? null
+            : Layers.SelectMany(layer => layer.Elements).OfType<FrameElement>().FirstOrDefault(frame => frame.Target == element.Id);
 
         /// <summary>
         /// Where the element draws: its Bounds (a frame's outer edge) with the part of the line and the shadow outside of

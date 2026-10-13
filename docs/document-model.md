@@ -219,6 +219,24 @@ shadow; elements above the target are not cut, so an arrow can still point out o
 | torn paper | outside | 16 px, white | torn | the whole screenshot on paper with a torn outer edge |
 | rounded screenshot | inside | none | none, `cornerRadius` | the corners cut round, optionally with a shadow |
 
+**Rules of frames.** Each says when it applies, what happens, where it is enforced and what it does to the stored
+data. "Kept" means the value stays in the document unchanged and is written back.
+
+| # | when | outcome | enforced | stored data |
+|---|---|---|---|---|
+| F1 | a frame has a `target` | the frame's `area` is the target's `Bounds` | `Anchors.Apply` | `area` updated |
+| F2 | the target is a line, arrow, freehand or frame | no area to frame: the frame isn't drawn | refused when set (editor, recipes); `FrameOf` when drawing | kept |
+| F3 | two or more frames have the same target | the first in drawing order is drawn, the others aren't | refused when set; `FrameOf` when drawing | kept |
+| F4 | an element is framed (F2, F3 pass) | its own shadow isn't drawn, the frame draws the shadow of the framed shape; without the frame its shadow is back | `StyleOf` (renderers only get resolved styles) | the element's `shadow` kept |
+| F5 | the target is deleted | the frame is deleted with it | editor; on write a frame whose target doesn't exist is dropped | frame removed |
+| F6 | the target is copied | its frame is copied with it, targeting the copy | editor | new frame |
+| F7 | the target is rotated (image, emoji) | the frame frames its `Bounds`; following the rotation comes with the rotation rule (open) | `Anchors.Apply` | – |
+| F8 | elements lie above the target | they aren't cut by the frame | renderer | – |
+| F9 | a frame has no `band` | `placement` doesn't matter | renderer | `placement` kept |
+
+`StyleOf` is the style to draw with. `CascadeOf` is the cascade without F4, for a renderer which doesn't draw frames on
+elements: today's editor, so a framed image keeps its own shadow there.
+
 - **Today's editor** shows a frame without a target, band and rounded corners, with one shape (sides may only be
   `none`), inside the image, as its torn edge (`TornEdgeContainer`, which covers the whole image with the room for the
   shadow as margins); its line is drawn centred, the position and placement are kept. Other frames are kept and

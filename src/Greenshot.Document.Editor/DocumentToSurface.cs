@@ -245,7 +245,8 @@ namespace Greenshot.Document.Editor
                     break;
             }
 
-            ApplyStyle(container, document.StyleOf(element));
+            // The editor draws no frame on an element, so the element keeps its own shadow
+            ApplyStyle(container, document.CascadeOf(element));
 
             switch (element)
             {

@@ -85,6 +85,27 @@ namespace Greenshot.Tests.Document
         }
 
         [Fact]
+        public void AFramedElement_HasNoShadowOfItsOwn_OnlyTheFirstFrameCounts_ALineIsNeverFramed()
+        {
+            var shadow = new Style { Shadow = new ShadowStyle { Enabled = true, Size = 4 } };
+            var image = new ImageElement(Guid.NewGuid(), new RectD(0, 0, 100, 50), Guid.NewGuid()) { Style = shadow };
+            var line = new LineElement(Guid.NewGuid(), new PointD(0, 0), new PointD(10, 10)) { Style = shadow };
+            var first = new FrameElement(Guid.NewGuid(), image.Area, 1) { Target = image.Id };
+            var second = new FrameElement(Guid.NewGuid(), image.Area, 2) { Target = image.Id };
+            var onLine = new FrameElement(Guid.NewGuid(), line.Bounds, 3) { Target = line.Id };
+            var document = new GreenshotDocument(Guid.NewGuid(), new Canvas(), new List<Layer>
+            {
+                new(Guid.NewGuid(), "Elements", LayerKind.Custom, new List<Element> { image, line, first, second, onLine })
+            }, new Dictionary<Guid, Resource>());
+
+            Assert.Same(first, document.FrameOf(image));
+            Assert.False(document.StyleOf(image).Shadow.Enabled);
+            Assert.True(document.CascadeOf(image).Shadow.Enabled);
+            Assert.Null(document.FrameOf(line));
+            Assert.True(document.StyleOf(line).Shadow.Enabled);
+        }
+
+        [Fact]
         public void PointElements_DeriveBounds()
         {
             var arrow = new ArrowElement(Guid.NewGuid(), new PointD(400, 300), new PointD(100, 350));

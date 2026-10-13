@@ -39,6 +39,25 @@ namespace Greenshot.Tests.Document
         public static IEnumerable<object[]> GreenshotFiles() => Directory.GetFiles(Path.Combine(TestDataDirectory, "Greenshotfile"), "*.greenshot", SearchOption.AllDirectories)
             .Select(file => new object[] { file.Substring(TestDataDirectory.Length + 1) });
 
+        [Fact]
+        public void Write_DropsAFrameWhoseTargetIsGone()
+        {
+            var box = new RectangleElement(Guid.NewGuid(), new RectD(0, 0, 10, 10));
+            var kept = new FrameElement(Guid.NewGuid(), box.Area, 1) { Target = box.Id };
+            var orphan = new FrameElement(Guid.NewGuid(), box.Area, 2) { Target = Guid.NewGuid() };
+            var free = new FrameElement(Guid.NewGuid(), box.Area, 3);
+            var document = new GreenshotDocument(Guid.NewGuid(), new Canvas(), new List<Layer>
+            {
+                new(Guid.NewGuid(), "Elements", LayerKind.Custom, new List<Element> { box, kept, orphan, free })
+            }, new Dictionary<Guid, Resource>());
+            using var stream = new MemoryStream();
+
+            GreenshotPackage.Write(document, stream, _ => "png");
+
+            stream.Position = 0;
+            Assert.Equal(new[] { box.Id, kept.Id, free.Id }, GreenshotPackage.Read(stream).Layers[0].Elements.Select(element => element.Id));
+        }
+
         /// <summary>
         /// A document with every element type, and values which aren't the defaults
         /// </summary>

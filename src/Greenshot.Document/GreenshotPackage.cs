@@ -84,7 +84,9 @@ namespace Greenshot.Document
             // Members which no longer exist are dropped, gaps (null) are kept
             var elementIds = new HashSet<Guid>(document.Layers.SelectMany(layer => layer.Elements).Select(element => element.Id));
             var groups = document.Groups.Select(group => group with { Members = group.Members.Where(id => id == null || elementIds.Contains(id.Value)).ToList() }).ToList();
-            var json = new DocumentJson(Version, document.Id, document.Canvas, document.Layers, groups, entries, document.Extensions);
+            // A frame goes with its target
+            var layers = document.Layers.Select(layer => layer with { Elements = layer.Elements.Where(element => element is not FrameElement { Target: Guid target } || elementIds.Contains(target)).ToList() }).ToList();
+            var json = new DocumentJson(Version, document.Id, document.Canvas, layers, groups, entries, document.Extensions);
 
             using var zip = new ZipArchive(stream, ZipArchiveMode.Create, true);
             WriteEntry(zip, "mimetype", Encoding.ASCII.GetBytes(MediaType), CompressionLevel.NoCompression);
