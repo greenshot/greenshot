@@ -74,6 +74,7 @@ namespace Greenshot.Plugin.Win10
         {
             if (GreenshotEnvironment.LeavesNoTraces)
             {
+                Log.Info("Portable or .zip, the tray icon shows the notifications.");
                 return null;
             }
 

@@ -311,12 +311,9 @@ namespace Greenshot.Recipes.Pipeline
             string captureId = null;
             string thumbnailPath = null;
 #if !GREENSHOT_LIGHT
-            // What went to the destination is kept, so the notification shows it and opens it in the editor, also after a restart
-            if (eventArgs.MessageType != SurfaceMessageTyp.Info)
-            {
-                captureId = NotificationCaptures.Store(eventArgs.Surface);
-                thumbnailPath = captureId == null ? null : NotificationCaptures.GetThumbnailPath(captureId);
-            }
+            // What went to the destination is kept, so the notification shows it and offers it in the destination picker, also after a restart
+            captureId = NotificationCaptures.Store(eventArgs.Surface);
+            thumbnailPath = captureId == null ? null : NotificationCaptures.GetThumbnailPath(captureId);
 #endif
 
             Notification notification;
@@ -332,7 +329,8 @@ namespace Greenshot.Recipes.Pipeline
                     }, captureId, thumbnailPath);
                     break;
                 case SurfaceMessageTyp.Info:
-                    notification = new Notification(NotificationKind.Info, eventArgs.Message, TimeSpan.FromHours(1), () => Log.Info("Clicked!"));
+                    // Nothing to open (e.g. the clipboard), a click offers the capture in the destination picker
+                    notification = new Notification(NotificationKind.Info, eventArgs.Message, TimeSpan.FromHours(1), null, captureId, thumbnailPath);
                     break;
                 case SurfaceMessageTyp.FileSaved:
                 case SurfaceMessageTyp.UploadedUri:
