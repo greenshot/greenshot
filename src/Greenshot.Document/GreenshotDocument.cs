@@ -243,6 +243,31 @@ namespace Greenshot.Document
         private static RectD? LabelBounds(Element element, TextStyle text)
         {
             double size = text?.Size ?? 11, lineHeight = size * (text?.LineHeight ?? 1.2);
+            string[] lines = LabelOf(element)?.Split('\n');
+            return lines != null && LabelPlacement(element, lines.Max(line => line.Length) * size * 0.6, lines.Length * lineHeight) is var (box, rotation, pivot)
+                ? box.Turned(rotation, pivot)
+                : null;
+        }
+
+        /// <summary>
+        /// The text of the element's label, null without one
+        /// </summary>
+        public static string LabelOf(Element element) => element switch
+        {
+            RectangleElement e => e.Label?.Text,
+            EllipseElement e => e.Label?.Text,
+            ImageElement e => e.Label?.Text,
+            LineElement e => e.Label?.Text,
+            ArrowElement e => e.Label?.Text,
+            _ => null
+        };
+
+        /// <summary>
+        /// Where the element's label of the given size is: its box before it turns, turned by Rotation around Pivot. A
+        /// box label has the width of its box unless it has a Width, a label along a line is never upside down.
+        /// </summary>
+        public static (RectD Box, double Rotation, PointD Pivot)? LabelPlacement(Element element, double width, double height)
+        {
             var (boxLabel, area) = element switch
             {
                 RectangleElement e => (e.Label, e.Area),
@@ -252,7 +277,7 @@ namespace Greenshot.Document
             };
             if (boxLabel != null)
             {
-                return boxLabel.AreaIn(area, boxLabel.Text.Split('\n').Length * lineHeight).Turned(element.Rotation, area.Center);
+                return (boxLabel.AreaIn(area, height), element.Rotation, area.Center);
             }
 
             var (lineLabel, start, end) = element switch
@@ -266,15 +291,14 @@ namespace Greenshot.Document
                 return null;
             }
 
-            var lines = lineLabel.Text.Split('\n');
-            double width = lines.Max(line => line.Length) * size * 0.6, height = lines.Length * lineHeight;
             double dx = end.X - start.X, dy = end.Y - start.Y, length = Math.Sqrt(dx * dx + dy * dy);
             // Above a line from left to right, the offset is from the line to the nearest edge of the label
             var normal = length == 0 ? new PointD(0, -1) : new PointD(dy / length, -dx / length);
             double distance = lineLabel.Offset == 0 ? 0 : lineLabel.Offset + Math.Sign(lineLabel.Offset) * height / 2;
             var center = new PointD(start.X + dx * lineLabel.At + normal.X * distance, start.Y + dy * lineLabel.At + normal.Y * distance);
-            var box = new RectD(center.X - width / 2, center.Y - height / 2, width, height);
-            return lineLabel.Orientation == LabelOrientation.Along ? box.Turned(Math.Atan2(dy, dx) * 180 / Math.PI) : box;
+            double angle = Math.Atan2(dy, dx) * 180 / Math.PI;
+            angle = angle > 90 ? angle - 180 : angle <= -90 ? angle + 180 : angle;
+            return (new RectD(center.X - width / 2, center.Y - height / 2, width, height), lineLabel.Orientation == LabelOrientation.Along ? angle : 0, center);
         }
 
         /// <summary>

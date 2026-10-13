@@ -41,6 +41,7 @@
     <ProjectReference Include="..\Greenshot.Document\Greenshot.Document.csproj" />
     <ProjectReference Include="..\Greenshot.Document.Editor\Greenshot.Document.Editor.csproj" />
     <ProjectReference Include="..\Greenshot.Document.Legacy\Greenshot.Document.Legacy.csproj" />
+    <ProjectReference Include="..\Greenshot.Document.Rendering\Greenshot.Document.Rendering.csproj" />
     <ProjectReference Include="..\Greenshot\Greenshot.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.ExternalCommand\Greenshot.Plugin.ExternalCommand.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.Zxing\Greenshot.Plugin.Zxing.csproj" />

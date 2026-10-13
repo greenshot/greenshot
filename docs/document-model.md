@@ -20,6 +20,7 @@ flowchart BT
     Document["Greenshot.Document<br/>netstandard2.0, System.Text.Json<br/>model and new file format"]
     Legacy["Greenshot.Document.Legacy<br/>netstandard2.0, System.Formats.Nrbf<br/>.greenshot / .gst of 1.2-1.4 → document"]
     EditorMap["Greenshot.Document.Editor<br/>net48<br/>Surface ⇄ document, document → bitmap"]
+    Rendering["Greenshot.Document.Rendering<br/>netstandard2.0, ImageSharp.Drawing<br/>document → image"]
     Editor["Greenshot.Editor<br/>Surface, DrawableContainer"]
     Base["Greenshot.Base"]
     Tests["Greenshot.Tests"]
@@ -27,9 +28,11 @@ flowchart BT
     Legacy --> Document
     EditorMap --> Document
     EditorMap --> Editor
+    Rendering --> Document
     Editor --> Base
     Tests --> EditorMap
     Tests --> Legacy
+    Tests --> Rendering
 ```
 
 Arrows point to the referenced project.
@@ -41,7 +44,13 @@ Arrows point to the referenced project.
   It is its own project so that the model doesn't carry the NRBF reader or the frozen 1.x schema, and so that legacy
   support can later be removed by deleting one project. If writing 1.3 files is ever wanted, it goes here as well.
 - **Greenshot.Document.Editor** is the bridge to the current editor. It maps a `Surface` to a document and back, and
-  renders a document to a bitmap through a `Surface` until there is a renderer of its own.
+  renders a document to a bitmap through a `Surface`.
+- **Greenshot.Document.Rendering** draws a document without the editor (`DocumentRenderer.Render`), with
+  ImageSharp.Drawing, which already ships with Greenshot. It draws what today's editor can't: turned elements, frames
+  with a band or rounded corners, frames along a turned target, labels. Shapes, shadows, arrow heads, highlight and
+  pixelate follow the editor's drawing; pixelate is the editor's algorithm with its noise, copied until both use one.
+  Not drawn the editor's way yet: freehand is a polyline (no curves), emojis are monochrome glyphs, cursors without
+  their mask, underline and strikeout, the shadow of a cut mark; SVG and metafile resources aren't drawn.
 - Only the tests reference these projects. Later, `Greenshot.csproj` references them in Debug builds only, and they
   register through `[assembly: GreenshotModule]`. The installer doesn't list them.
 
@@ -780,7 +789,7 @@ A rule marked **(not built yet)** is decided, the code doesn't do it yet.
 | R19 | a frame has a `target` | its `area` is the target's Bounds; for a turned target that is the box around it (R41) | resolver `Anchors.Apply` | `area` updated | `Apply_GivesAFrameTheBoundsOfItsTarget` |
 | R20 | a frame is drawn | only for a target with an area (not a line, arrow, freehand or frame) and only the first frame of a target in drawing order; refused when set (not built yet) | resolver `FrameOf` | the others kept | `AFramedElement_HasNoShadowOfItsOwn_OnlyTheFirstFrameCounts_ALineIsNeverFramed` |
 | R21 | the target is deleted or copied | the frame is deleted or copied with it (not built yet); writing drops a frame whose target doesn't exist | edit; write | frame removed | `Write_DropsAFrameWhoseTargetIsGone` |
-| R22 | a frame is drawn | the band lies by `placement` (none: `placement` doesn't matter); the teeth cut inward from the outer edge; elements above the target aren't cut; line and shadow follow the outer edge | resolver `OuterEdge`, renderers (not built yet) | untouched | `AFrame_DrawsItsBandWhereItIsPlaced_AndTheShadowOutsideOfIt` |
+| R22 | a frame is drawn | the band lies by `placement` (none: `placement` doesn't matter); the teeth cut inward from the outer edge; elements above the target aren't cut; line and shadow follow the outer edge | resolver `OuterEdge`, renderer `DocumentRenderer` | untouched | `AFrame_DrawsItsBandWhereItIsPlaced_AndTheShadowOutsideOfIt`, `AFrameBand_LiesByItsPlacement_TheTeethCutInward` |
 
 **Data, files and sharing**
 
@@ -810,11 +819,11 @@ A rule marked **(not built yet)** is decided, the code doesn't do it yet.
 |---|---|---|---|---|---|
 | R35 | an element has a `rotation` | degrees, clockwise, around the centre of `Area`; `Area` stays unturned, 0 isn't written. Box-shaped elements turn: rectangle, ellipse, text, speech bubble (its box, the tail is a point on the canvas), highlight, obfuscate, image, emoji, plugin. Lines, arrows and freehand turn by changing their points; cursors, step labels, cut marks and frames stay upright (R5) | resolver | kept | `ATurnedElement_HasTheBoxAroundItAsBounds_ALineKeepsItsPoints`, `RoundTrip_KeepsEveryElement` |
 | R36 | a turned element is measured | `Bounds` is the axis-aligned box around the turned area; anchors, the canvas and groups use it (R8) | resolver `Bounds` | untouched | `ATurnedElement_HasTheBoxAroundItAsBounds_ALineKeepsItsPoints` |
-| R37 | a turned element is drawn | everything of the shape turns: outline, fill, text, image (after `source` and `scale`), label; the shadow `offset` is in canvas coordinates and doesn't turn, the light comes from the same side for every element | renderers (not built yet); resolver `VisualBounds` for the label | untouched | `ALabel_IsInTheVisualBounds_NotInTheBounds_AndTurnsWithItsElement` |
-| R38 | an obfuscate or highlight is turned | the effect is worked out in canvas pixels and cut to the turned shape, pixelate blocks stay on the pixel grid | renderers (not built yet) | untouched | – |
+| R37 | a turned element is drawn | everything of the shape turns: outline, fill, text, image (after `source` and `scale`), label; the shadow `offset` is in canvas coordinates and doesn't turn, the light comes from the same side for every element | renderer `DocumentRenderer`; resolver `VisualBounds` for the label | untouched | `ALabel_IsInTheVisualBounds_NotInTheBounds_AndTurnsWithItsElement`, `ATurnedElement_IsDrawnTurned_ItsShadowFallsTheSameWay`, `TurnedText_StaysInItsTurnedBox` |
+| R38 | an obfuscate or highlight is turned | the effect is worked out in canvas pixels and cut to the turned shape, pixelate blocks stay on the pixel grid | renderer `DocumentRenderer` | untouched | `ATurnedObfuscate_ChangesOnlyThePixelsOfItsTurnedShape` |
 | R39 | a renderer can't turn an obfuscate or highlight | it covers the element's `Bounds`, more, never less | renderers, bridge | rotation kept | `ATurnedElement_IsShownUprightOverItsBounds_AndComesBackTurned_LabelsAreKept` |
 | R40 | a turned element goes through today's editor | images and emojis turn in the editor; other turned elements are shown upright over their `Bounds` and come back with their area and rotation while unchanged; moved or resized, they come back upright with the new area | bridge | kept while unchanged | `ATurnedElement_IsShownUprightOverItsBounds_AndComesBackTurned_LabelsAreKept` |
-| R41 | a frame's target is turned | the frame is drawn along the turned area of its target; its `area` stays the target's `Bounds` (R19) | renderers (not built yet) | untouched | – |
+| R41 | a frame's target is turned | the frame is drawn along the turned area of its target; its `area` stays the target's `Bounds` (R19) | renderer `DocumentRenderer` | untouched | `AFrame_FollowsItsTurnedTarget` |
 | R42 | OCR text is at an angle | the bounds of lines and words are those of the straightened text; turned by `textAngle` around the centre of the image they are where the text is. `OcrResult.OnCanvas` gives the area and rotation on the canvas (through the image element's area, source and rotation) | resolver | untouched | `OcrText_AtAnAngle_IsCoveredExactly` |
 
 **Turning the capture**
@@ -940,7 +949,7 @@ flowchart LR
 | 5 | New file format (`GreenshotPackage`): document.json and resources | done |
 | 6 | The capture pipeline carries the document next to the Surface | |
 | 7 | Recipes add elements to the document | |
-| 8 | Renderer without the editor | |
+| 8 | Renderer without the editor (`DocumentRenderer`) | started: every element, rules R22, R37, R38, R41 |
 | 9 | Experimental editor UI (optional) | |
 | — | Writing 1.3 files | parked (read-only decided) |
 
