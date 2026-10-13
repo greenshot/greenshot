@@ -20,10 +20,12 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
+using Greenshot.Base.Interfaces;
 
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
@@ -34,10 +36,10 @@ using log4net;
 namespace Greenshot.Recipes.Steps
 {
     /// <summary>
-    /// Pipeline step that enables or dispatches completion notifications (e.g. tray balloon / toast).
+    /// Pipeline step that shows the completion notification (toast or tray balloon) for the exports before it.
     /// Dynamically evaluates whether notifications are enabled based on CoreConfig if not pre-defined.
     /// </summary>
-    [StepInfo(WellKnownStepTypes.Notification, "Notification", "Enables or disables the notification shown when the flow completes.", "Feedback")]
+    [StepInfo(WellKnownStepTypes.Notification, "Notification", "Shows the notification for the exports before it.", "Feedback")]
     [StepParameter("ShowNotification", ContractDataType.Boolean, Description = "Show the completion notification (default: settings)")]
     [StepInputVariable("ShowNotification", ContractDataType.Boolean, Description = "Overrides the ShowNotification parameter")]
     [StepOutputVariable("EnableCompletionNotification", ContractDataType.Boolean, "Whether the completion notification is shown")]
@@ -60,14 +62,10 @@ namespace Greenshot.Recipes.Steps
             bool showNotification = ResolveShowNotification(context);
             context.Properties["EnableCompletionNotification"] = showNotification;
 
-            if (showNotification && context.Payload != null)
+            // The messages of the exports before this step, one notification shows them; the surfaces are used on the UI thread
+            if (showNotification && context.Properties.TryGetValue(DestinationDispatcher.ExportMessagesProperty, out var value) && value is List<SurfaceMessageEventArgs> messages)
             {
-                var surface = context.Payload.EnsureSurface();
-                if (surface != null)
-                {
-                    surface.SurfaceMessage -= DestinationDispatcher.SurfaceMessageReceived;
-                    surface.SurfaceMessage += DestinationDispatcher.SurfaceMessageReceived;
-                }
+                return context.Ui.InvokeAsync(() => DestinationDispatcher.Notify(messages), cancellationToken);
             }
 
             return Task.CompletedTask;

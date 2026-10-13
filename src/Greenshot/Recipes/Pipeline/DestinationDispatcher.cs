@@ -35,7 +35,6 @@ using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Threading;
 using Greenshot.Destinations;
-using Greenshot.Editor.Destinations;
 #if !GREENSHOT_LIGHT
 using Greenshot.Notifications;
 #endif
@@ -52,6 +51,12 @@ namespace Greenshot.Recipes.Pipeline
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(DestinationDispatcher));
         private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
+
+        /// <summary>
+        /// The context property with the messages of the exports (a list of <see cref="SurfaceMessageEventArgs"/>), the
+        /// Notification step shows them
+        /// </summary>
+        public const string ExportMessagesProperty = "ExportMessages";
 
         public async Task DispatchAsync(
             CaptureFlowContext context,
@@ -76,16 +81,25 @@ namespace Greenshot.Recipes.Pipeline
                 return;
             }
 
-            // Register completion notification events if enabled
-            bool showNotify = context.Properties.TryGetValue("EnableCompletionNotification", out var notifObj) && notifObj is bool en
-                ? en
-                : CoreConfig.ShowTrayNotification && !CoreConfig.HideTrayicon;
-            if (showNotify)
+            // The messages of the exports are collected, the Notification step after the export shows them
+            var messages = new List<SurfaceMessageEventArgs>();
+            context.Properties[ExportMessagesProperty] = messages;
+            SurfaceMessageEventHandler record = (sender, eventArgs) => messages.Add(eventArgs);
+            surface.SurfaceMessage += record;
+            try
             {
-                surface.SurfaceMessage -= SurfaceMessageReceived;
-                surface.SurfaceMessage += SurfaceMessageReceived;
+                await ExportAllAsync(context, destinationList, captureDetails, record, cancellationToken).ConfigureAwait(false);
             }
+            finally
+            {
+                surface.SurfaceMessage -= record;
+            }
+        }
 
+        private static async Task ExportAllAsync(CaptureFlowContext context, List<IDestination> destinationList, ICaptureDetails captureDetails,
+            SurfaceMessageEventHandler record, CancellationToken cancellationToken)
+        {
+            var payload = context.Payload;
             var userInteraction = context.UserInteraction;
             var source = await payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
 
@@ -98,7 +112,7 @@ namespace Greenshot.Recipes.Pipeline
             {
                 // The picked destination must be known before the extensions run, so the picker is shown here
                 context.LogStep("Dispatching to Picker destination, with extensions per destination.");
-                await PickAndExportAsync(context, source, captureDetails, userInteraction, showNotify, cancellationToken).ConfigureAwait(false);
+                await PickAndExportAsync(context, source, captureDetails, userInteraction, record, cancellationToken).ConfigureAwait(false);
                 return;
             }
             if (picker != null)
@@ -159,7 +173,7 @@ namespace Greenshot.Recipes.Pipeline
 
                 context.LogStep($"Calling destination: {destination.Descriptor?.DisplayName}");
                 Log.InfoFormat("Calling destination {0}", destination.Designation);
-                var result = await ExportWithChainsAsync(context, destinationToUse, destination.Designation, source, captureDetails, userInteraction, copies, showNotify, false, cancellationToken).ConfigureAwait(false);
+                var result = await ExportWithChainsAsync(context, destinationToUse, destination.Designation, source, captureDetails, userInteraction, copies, record, false, cancellationToken).ConfigureAwait(false);
                 if (result.Status == ExportStatus.Failed)
                 {
                     // Keep the capture, so the user can open it in the editor (notification click)
@@ -180,7 +194,7 @@ namespace Greenshot.Recipes.Pipeline
         /// Shows the destination picker until an export succeeds or the user closes it; the extensions run for the picked destination
         /// </summary>
         private static async Task PickAndExportAsync(CaptureFlowContext context, IExportSource source, ICaptureDetails captureDetails, IUserInteraction userInteraction,
-            bool showNotify, CancellationToken cancellationToken)
+            SurfaceMessageEventHandler record, CancellationToken cancellationToken)
         {
             var copies = new Dictionary<string, PreparedCopy>();
             var choices = DestinationHelper.GetAllDestinations()
@@ -195,7 +209,7 @@ namespace Greenshot.Recipes.Pipeline
                     return;
                 }
 
-                var result = await ExportWithChainsAsync(context, picked, picked.Designation, source, captureDetails, userInteraction, copies, showNotify, true, cancellationToken).ConfigureAwait(false);
+                var result = await ExportWithChainsAsync(context, picked, picked.Designation, source, captureDetails, userInteraction, copies, record, true, cancellationToken).ConfigureAwait(false);
                 if (result.IsSucceeded)
                 {
                     return;
@@ -248,7 +262,7 @@ namespace Greenshot.Recipes.Pipeline
         /// extensions share one copy (<paramref name="copies"/>), so the extensions run once per combination.
         /// </summary>
         private static async Task<ExportResult> ExportWithChainsAsync(CaptureFlowContext context, IDestination destination, string designation, IExportSource source, ICaptureDetails captureDetails,
-            IUserInteraction userInteraction, IDictionary<string, PreparedCopy> copies, bool showNotify, bool manuallyInitiated, CancellationToken cancellationToken)
+            IUserInteraction userInteraction, IDictionary<string, PreparedCopy> copies, SurfaceMessageEventHandler record, bool manuallyInitiated, CancellationToken cancellationToken)
         {
             var applicable = ChainsFor(context, designation);
             if (applicable.Count == 0)
@@ -264,10 +278,10 @@ namespace Greenshot.Recipes.Pipeline
                 if (copyContext != null)
                 {
                     var copySurface = copyContext.Payload?.EnsureSurface();
-                    if (showNotify && copySurface != null)
+                    if (copySurface != null)
                     {
-                        copySurface.SurfaceMessage -= SurfaceMessageReceived;
-                        copySurface.SurfaceMessage += SurfaceMessageReceived;
+                        // The copy is disposed with the flow
+                        copySurface.SurfaceMessage += record;
                     }
                     prepared = new PreparedCopy
                     {
@@ -302,44 +316,26 @@ namespace Greenshot.Recipes.Pipeline
         }
 
         /// <summary>
-        /// Turns surface messages into notifications, raised on the UI thread (see ExportResultHandler).
+        /// Shows one notification for the messages of the exports of a flow, on the UI thread (see the Notification step)
         /// </summary>
-        public static void SurfaceMessageReceived(object sender, SurfaceMessageEventArgs eventArgs)
+        public static void Notify(IReadOnlyList<SurfaceMessageEventArgs> messages)
         {
-            if (string.IsNullOrEmpty(eventArgs?.Message)) return;
+            var shown = messages.Where(m => !string.IsNullOrEmpty(m?.Message)).ToList();
+            if (shown.Count == 0) return;
 
+            var last = shown[shown.Count - 1];
             string captureId = null;
             string thumbnailPath = null;
 #if !GREENSHOT_LIGHT
-            // What went to the destination is kept, so the notification shows it and offers it in the destination picker, also after a restart
-            captureId = NotificationCaptures.Store(eventArgs.Surface);
+            // What went to the (last) destination is kept, a click on the toast offers it in the destination picker, also after a restart
+            captureId = NotificationCaptures.Store(last.Surface);
             thumbnailPath = captureId == null ? null : NotificationCaptures.GetThumbnailPath(captureId);
 #endif
-
-            Notification notification;
-            switch (eventArgs.MessageType)
-            {
-                case SurfaceMessageTyp.Error:
-                    notification = new Notification(NotificationKind.Error, eventArgs.Message, TimeSpan.FromHours(1), () =>
-                    {
-                        if (eventArgs.Surface != null)
-                        {
-                            DestinationHelper.StartExport(EditorDestination.DESIGNATION, eventArgs.Surface, false);
-                        }
-                    }, captureId, thumbnailPath);
-                    break;
-                case SurfaceMessageTyp.Info:
-                    // Nothing to open (e.g. the clipboard), a click offers the capture in the destination picker
-                    notification = new Notification(NotificationKind.Info, eventArgs.Message, TimeSpan.FromHours(1), null, captureId, thumbnailPath);
-                    break;
-                case SurfaceMessageTyp.FileSaved:
-                case SurfaceMessageTyp.UploadedUri:
-                    notification = new Notification(NotificationKind.Info, eventArgs.Message, TimeSpan.FromHours(1), () => OpenCaptureOnClick(eventArgs), captureId, thumbnailPath);
-                    break;
-                default:
-                    return;
-            }
-
+            // Without a toast (tray balloon, Light) a click opens the saved file or the upload
+            var opens = shown.LastOrDefault(m => m.MessageType == SurfaceMessageTyp.FileSaved || m.MessageType == SurfaceMessageTyp.UploadedUri);
+            var notification = new Notification(last.MessageType == SurfaceMessageTyp.Error ? NotificationKind.Error : NotificationKind.Info,
+                string.Join(Environment.NewLine, shown.Select(m => m.Message)), TimeSpan.FromHours(1),
+                opens == null ? (Action)null : () => OpenCaptureOnClick(opens), captureId, thumbnailPath);
             UserInteraction.Current.NotifyAsync(notification).FireAndLog("Export notification", Log);
         }
 
