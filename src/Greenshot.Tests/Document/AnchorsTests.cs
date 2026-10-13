@@ -161,7 +161,8 @@ namespace Greenshot.Tests.Document
 
             Assert.Equal(new RectD(0, 0, 960, 540), Assert.IsType<ImageElement>(placed.Layers[0].Elements[0]).Area);
             Assert.Equal(new RectD(280, 550, 400, 30), Assert.IsType<TextElement>(placed.Layers[1].Elements[0]).Area);
-            Assert.Equal(new RectD(-20, -20, 1000, 620), placed.CanvasArea());
+            // The line of the footer is 2 px, centred
+            Assert.Equal(new RectD(-20, -20, 1000, 621), placed.CanvasArea());
         }
 
         [Fact]

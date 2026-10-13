@@ -496,7 +496,7 @@ namespace Greenshot.Document.Editor
         private static int Round(double value) => (int)Math.Round(value);
 
         private static bool ShowsFrame(Surface surface, FrameElement frame) =>
-            frame.Target == null && frame.CornerRadius == 0 && frame.Area.X >= 0 && frame.Area.Y >= 0 && frame.Area.Right <= surface.Image.Width && frame.Area.Bottom <= surface.Image.Height &&
+            frame.Target == null && frame.CornerRadius == 0 && frame.Band == null && frame.Area.X >= 0 && frame.Area.Y >= 0 && frame.Area.Right <= surface.Image.Width && frame.Area.Bottom <= surface.Image.Height &&
             new[] { Edges.Top, Edges.Right, Edges.Bottom, Edges.Left }.All(side => frame.ShapeOf(side) is var shape && (shape.Style == EdgeStyle.None || shape == frame.Shape));
     }
 }

@@ -54,6 +54,11 @@ namespace Greenshot.Document
             FromPoints(new PointD(Math.Min(a.X, b.X), Math.Min(a.Y, b.Y)), new PointD(Math.Max(a.Right, b.Right), Math.Max(a.Bottom, b.Bottom)));
 
         public RectD Offset(double dx, double dy) => this with { X = X + dx, Y = Y + dy };
+
+        /// <summary>
+        /// The area grown by the amount on every side
+        /// </summary>
+        public RectD Inflate(double amount) => new(X - amount, Y - amount, Width + 2 * amount, Height + 2 * amount);
     }
 
     /// <summary>

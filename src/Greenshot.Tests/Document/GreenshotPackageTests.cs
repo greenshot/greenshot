@@ -85,13 +85,13 @@ namespace Greenshot.Tests.Document
             var mask = new Resource(Guid.NewGuid(), "image/bmp", new byte[] { (byte)'B', (byte)'M', 0, 255 });
             var style = new Style
             {
-                Stroke = StrokeStyle.Of(red, 2.5),
+                Stroke = StrokeStyle.Of(red, 2.5) with { Position = StrokePosition.Inside },
                 Fill = FillStyle.Of(new Rgba(1, 2, 3, 128)),
                 Shadow = new ShadowStyle { Enabled = true },
                 Text = new TextStyle
                 {
                     Enabled = true, Family = "Segoe UI, Arial, sans-serif", Size = 12.5, Weight = 600, Italic = true, Underline = true, Strikeout = false, Color = red,
-                    Horizontal = TextAlignment.Near, Vertical = TextAlignment.Far, LineHeight = 1.5, Wrap = false, Outline = StrokeStyle.Of(new Rgba(255, 255, 255, 255), 2)
+                    Horizontal = TextAlignment.Start, Vertical = TextAlignment.End, LineHeight = 1.5, Wrap = false, Outline = StrokeStyle.Of(new Rgba(255, 255, 255, 255), 2)
                 },
                 Extensions = new RawJson("{\"zxing\":{\"quietZone\":4}}")
             };
@@ -127,6 +127,8 @@ namespace Greenshot.Tests.Document
                     Shape = new EdgeShape(EdgeStyle.Torn) { Height = 5, Range = 6 },
                     Sides = new FrameSides { Bottom = new EdgeShape(EdgeStyle.Wave), Right = new EdgeShape(EdgeStyle.None) },
                     CornerRadius = 8,
+                    Placement = FramePlacement.Center,
+                    Band = new FrameBand(16, new Rgba(255, 255, 255, 255)),
                     Style = new Style { Shadow = new ShadowStyle { Enabled = true, Size = 6, Darkness = 0.6, Offset = new PointD(3, 3) } }
                 },
                 new PluginElement(Guid.NewGuid(), area, "greenshot.barcode") { Version = 2, Data = "{\"text\":\"Greenshot\",\"size\":[1,2]}", Resources = new[] { svg.Id }, Fallback = image.Id }
@@ -246,6 +248,10 @@ namespace Greenshot.Tests.Document
             Assert.Contains("\"color\": \"#FF0000FF\"", json);
             Assert.DoesNotContain("Greenshot.Document", json);
             Assert.DoesNotContain("bounds", json);
+            Assert.DoesNotContain("outerEdge", json);
+            Assert.Contains("\"position\": \"inside\"", json);
+            Assert.Contains("\"horizontal\": \"start\"", json);
+            Assert.Contains("\"placement\": \"center\"", json);
             Assert.Equal(3, zip.Entries.Count(entry => entry.FullName.StartsWith("resources/")));
         }
 

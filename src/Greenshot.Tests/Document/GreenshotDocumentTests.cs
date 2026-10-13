@@ -43,6 +43,47 @@ namespace Greenshot.Tests.Document
             Assert.Equal("#E53935FF", Rgba.FromArgb(unchecked((int)0xFFE53935)).ToString());
         }
 
+        [Theory]
+        [InlineData(StrokePosition.Center, -5, 110)]
+        [InlineData(StrokePosition.Inside, 0, 100)]
+        [InlineData(StrokePosition.Outside, -10, 120)]
+        public void VisualBounds_HaveThePartOfTheLineOutsideOfTheShape(StrokePosition position, double start, double size)
+        {
+            var line = new Style { Stroke = StrokeStyle.Of(new Rgba(255, 0, 0, 255), 10) with { Position = position }, Shadow = new ShadowStyle { Enabled = false } };
+            var rectangle = new RectangleElement(Guid.NewGuid(), new RectD(0, 0, 100, 100)) { Style = line };
+            // A line has no inside or outside, its line is always centred
+            var arrow = new ArrowElement(Guid.NewGuid(), new PointD(0, 0), new PointD(100, 0)) { Style = line };
+            var document = new GreenshotDocument(Guid.NewGuid(), new Canvas(), new List<Layer>(), new Dictionary<Guid, Resource>());
+
+            Assert.Equal(new RectD(start, start, size, size), document.VisualBounds(rectangle));
+            Assert.Equal(new RectD(0, 0, 100, 100), rectangle.Bounds);
+            Assert.Equal(new RectD(-5, -5, 110, 10), document.VisualBounds(arrow));
+        }
+
+        [Theory]
+        [InlineData(FramePlacement.Inside, 0)]
+        [InlineData(FramePlacement.Center, -8)]
+        [InlineData(FramePlacement.Outside, -16)]
+        public void AFrame_DrawsItsBandWhereItIsPlaced_AndTheShadowOutsideOfIt(FramePlacement placement, double start)
+        {
+            var frame = new FrameElement(Guid.NewGuid(), new RectD(0, 0, 200, 100), 1)
+            {
+                Placement = placement,
+                Band = new FrameBand(16, new Rgba(255, 255, 255, 255)),
+                Style = new Style { Shadow = new ShadowStyle { Enabled = true, Size = 2, Offset = new PointD(3, 3) } }
+            };
+            var document = new GreenshotDocument(Guid.NewGuid(), new Canvas { Fit = CanvasFit.Content }, new List<Layer>
+            {
+                new(Guid.NewGuid(), "Frame", LayerKind.Custom, new List<Element> { frame })
+            }, new Dictionary<Guid, Resource>());
+
+            Assert.Equal(new RectD(start, start, 200 - 2 * start, 100 - 2 * start), frame.OuterEdge);
+            Assert.Equal(new RectD(0, 0, 200, 100), frame.Bounds);
+            Assert.Equal(new RectD(start, start, 200 - 2 * start + 5, 100 - 2 * start + 5), document.CanvasArea());
+            // Without a band there is nothing to place
+            Assert.Equal(frame.Area, (frame with { Band = null }).OuterEdge);
+        }
+
         [Fact]
         public void PointElements_DeriveBounds()
         {

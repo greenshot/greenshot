@@ -177,7 +177,7 @@ namespace Greenshot.Document
             var elements = Canvas.Fit == CanvasFit.Content
                 ? Layers.Where(layer => layer.Visible).SelectMany(layer => layer.Elements)
                 : Layers.Where(layer => layer.Kind == LayerKind.Capture).SelectMany(layer => layer.Elements).OfType<ImageElement>().Take(1);
-            var area = elements.Select(element => element.Bounds).Aggregate((RectD?)null, (union, bounds) => union is RectD known ? RectD.Union(known, bounds) : bounds) ?? default;
+            var area = elements.Select(element => Canvas.Fit == CanvasFit.Content ? VisualBounds(element) : element.Bounds).Aggregate((RectD?)null, (union, bounds) => union is RectD known ? RectD.Union(known, bounds) : bounds) ?? default;
             double padding = Canvas.Padding;
             return new RectD(area.X - padding, area.Y - padding, area.Width + 2 * padding, area.Height + 2 * padding);
         }
@@ -193,6 +193,29 @@ namespace Greenshot.Document
         /// </summary>
         public Style StyleOf(Element element) =>
             element.Style.Over(GroupsOf(element.Id).Select(group => group.Style).FirstOrDefault(style => style != null)).Over(StyleDefaults.For(element));
+
+        /// <summary>
+        /// Where the element draws: its Bounds (a frame's outer edge) with the part of the line and the shadow outside of
+        /// them. A content canvas uses it, the anchors use the Bounds.
+        /// </summary>
+        public RectD VisualBounds(Element element)
+        {
+            var style = StyleOf(element);
+            var bounds = element is FrameElement frame ? frame.OuterEdge : element.Bounds;
+            if (style.Stroke is { Enabled: not false, Width: > 0 and double width } stroke)
+            {
+                var position = element is LineElement or ArrowElement or FreehandElement ? StrokePosition.Center : stroke.Position ?? StrokePosition.Center;
+                bounds = bounds.Inflate(position switch { StrokePosition.Outside => width, StrokePosition.Inside => 0, _ => width / 2 });
+            }
+
+            if (style.Shadow is { Enabled: true } shadow)
+            {
+                var offset = shadow.Offset ?? default;
+                bounds = RectD.Union(bounds, bounds.Inflate(shadow.Size ?? 0).Offset(offset.X, offset.Y));
+            }
+
+            return bounds;
+        }
 
         /// <summary>
         /// The text of the step label, e.g. "3" or "c": from its steps group, otherwise 1, 2, 3 in drawing order of

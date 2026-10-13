@@ -25,6 +25,16 @@ using System.Linq;
 namespace Greenshot.Document
 {
     /// <summary>
+    /// Where a line lies on the outline it follows: centred on it, within the shape or around it
+    /// </summary>
+    public enum StrokePosition
+    {
+        Center,
+        Inside,
+        Outside
+    }
+
+    /// <summary>
     /// How lines are drawn. Every value is optional: a value which isn't set is inherited.
     /// </summary>
     public sealed record StrokeStyle
@@ -39,6 +49,12 @@ namespace Greenshot.Document
         public double? Width { get; init; }
 
         /// <summary>
+        /// Where the line lies on the outline, Center when not set. Open shapes (line, arrow, freehand) have no inside
+        /// or outside, they draw it centred; a renderer which can't draw it draws it centred, the value is kept.
+        /// </summary>
+        public StrokePosition? Position { get; init; }
+
+        /// <summary>
         /// A full stroke, a width of 0 draws no line
         /// </summary>
         public static StrokeStyle Of(Rgba color, double width) => new() { Enabled = width > 0, Color = color, Width = width };
@@ -47,7 +63,8 @@ namespace Greenshot.Document
         {
             Enabled = Enabled ?? lower.Enabled,
             Color = Color ?? lower.Color,
-            Width = Width ?? lower.Width
+            Width = Width ?? lower.Width,
+            Position = Position ?? lower.Position
         };
     }
 
@@ -100,11 +117,14 @@ namespace Greenshot.Document
         };
     }
 
+    /// <summary>
+    /// Where text lies in its area, start is left or top (right for right-to-left text)
+    /// </summary>
     public enum TextAlignment
     {
-        Near,
+        Start,
         Center,
-        Far
+        End
     }
 
     /// <summary>

@@ -166,7 +166,7 @@ Rules:
 | `EmojiContainer` | `EmojiElement` | `Area`, `Emoji`, `Rotation` |
 | `CursorContainer` | `CursorElement` | `Area`, `Resource` (color layer), `MaskResource`, `Hotspot` (the tip as a fraction 0..1 of `Area`, so it stays right when the cursor is resized) |
 | `CutMarkContainer` | `CutMarkElement` | `Area`, `Horizontal`, `Shape`, `Seed` |
-| `TornEdgeContainer` | `FrameElement` | `Area`, `Target`, `Shape`, `Sides`, `CornerRadius`, `Seed` (see "Frames" below) |
+| `TornEdgeContainer` | `FrameElement` | `Area`, `Target`, `Shape`, `Sides`, `CornerRadius`, `Placement`, `Band`, `Seed` (see "Frames" below) |
 | containers of plugins (e.g. the barcode) | `PluginElement` | `Area`, `Kind`, `Version`, `Data` (JSON), `Resources`, `Fallback` (see below) |
 | — | `UnknownElement` | an element of a type this version doesn't know (e.g. from a newer Greenshot): `TypeName`, `Area`, `Json` |
 | `CropContainer` | — | a tool, never part of the document |
@@ -175,31 +175,54 @@ Effects such as cut marks and torn edges stay elements that can still be edited;
 
 ### Frames
 
-A frame shapes the outline of an element, normally the capture: torn edges, a wavy or zig-zag edge, a plain border,
-rounded corners, a drop shadow. The frame cuts its target to its shape, then draws the line along the edges and the
+A frame shapes the outline of an element, normally the capture: torn edges, a wavy or zig-zag edge, a border or paper
+band, rounded corners, a drop shadow. It cuts its target to its shape, then draws the line along the outer edge and the
 shadow; elements above the target are not cut, so an arrow can still point out of the screenshot.
 
 ```json
 { "type": "frame", "id": "…", "area": { "x": 0, "y": 0, "width": 800, "height": 600 }, "seed": 48211,
   "target": "…",
+  "placement": "outside", "band": { "width": 16, "color": "#FFFFFFFF" },
   "shape": { "style": "torn", "height": 12, "range": 20 },
   "sides": { "bottom": { "style": "wave", "height": 8, "range": 24 }, "left": { "style": "none" } },
   "cornerRadius": 8,
-  "style": { "stroke": { "color": "#000000FF", "width": 1 }, "shadow": { "enabled": true, "size": 6, "darkness": 0.6, "offset": { "x": 3, "y": 3 } },
+  "style": { "stroke": { "color": "#000000FF", "width": 1, "position": "outside" },
+             "shadow": { "enabled": true, "size": 6, "darkness": 0.6, "offset": { "x": 3, "y": 3 } },
              "fill": { "color": "#FFFFFF00" } } }
 ```
 
-- `shape` is the edge of all sides (`EdgeShape`: `style` none, line, zigZag, wave or torn, `height` how deep the teeth
-  or waves go, `range` how wide one is); `sides` only has the sides which differ. `none` leaves a side as it is. The
-  cut mark uses the same `EdgeShape`. The shape comes from `seed`, so it stays the same.
-- `target`: the frame follows that element; `Anchors.Apply` sets `area` to the target's bounds. Without a target `area`
-  is where the frame is (today's editor and old files: the capture without the room for the shadow).
-- The style gives the line along the edges, the shadow (`size`, `darkness`, `offset` in `ShadowStyle`) and the fill
-  outside of the edges (transparent by default).
-- The bounds are `area`, like other elements the shadow isn't in them; a content canvas needs padding for it.
-- **Today's editor** shows a frame without a target and without rounded corners, with one shape (sides may only be
+- `area` is what the frame frames: with a `target` the frame follows that element and `Anchors.Apply` sets `area` to
+  the target's bounds. Without a target `area` is where the frame is (today's editor and old files: the capture
+  without the room for the shadow).
+- `band` (optional): a band of `width` pixels in `color`, like a border, a mat or paper. `placement` says where it
+  lies: `inside` (the default) over the edge of the target, `outside` around it (nothing of the target is covered,
+  the frame reaches `width` further), `center` half and half. Without a band there is nothing to place and
+  `placement` doesn't matter. The **outer edge** is `area` grown by the part of the band around it
+  (`FrameElement.OuterEdge`).
+- `shape` is the outer edge of all sides (`EdgeShape`: `style` none, line, zigZag, wave or torn, `height` how deep the
+  teeth or waves go, `range` how wide one is); `sides` only has the sides which differ, `none` leaves a side straight.
+  The teeth always cut **inward** from the outer edge, into the band or, without one, into the target; nothing
+  reaches past the outer edge. `cornerRadius` rounds the outer edge. The shape comes from `seed`, so it stays the
+  same. The cut mark uses the same `EdgeShape`.
+- The style: `fill` colours what the teeth cut off (transparent by default, the torn edge's background colour in the
+  editor), `stroke` the line along the outer edge with its `position`, `shadow` the shadow, always outside the outer
+  edge. A frame has no stroke by default.
+- The Bounds are `area`, the visual bounds add the band around it, the line and the shadow (see Geometry), so a
+  content canvas grows with them.
+
+| what you want | placement | band | shape | result |
+|---|---|---|---|---|
+| drop shadow only | – | none | none | the screenshot unchanged, a shadow around it |
+| today's torn edge | inside | none | torn | the teeth cut into the screenshot, the shadow falls into the torn-off part |
+| classic border | outside | 8 px, colour | none | an 8 px border around the screenshot, no pixels lost, the canvas grows |
+| mat over the edge | inside | 8 px, colour | none | an 8 px band over the screenshot's edge, the size stays |
+| torn paper | outside | 16 px, white | torn | the whole screenshot on paper with a torn outer edge |
+| rounded screenshot | inside | none | none, `cornerRadius` | the corners cut round, optionally with a shadow |
+
+- **Today's editor** shows a frame without a target, band and rounded corners, with one shape (sides may only be
   `none`), inside the image, as its torn edge (`TornEdgeContainer`, which covers the whole image with the room for the
-  shadow as margins). Other frames are kept and written back unchanged, but not shown.
+  shadow as margins); its line is drawn centred, the position and placement are kept. Other frames are kept and
+  written back unchanged, but not shown.
 - Later: the torn edge, border and drop shadow effects can become frames, so they stay editable.
 
 ### Plugin elements
@@ -237,8 +260,12 @@ All coordinates are canvas pixels (`double`), origin top-left, x to the right, y
 - **`Bounds`** (calculated, never stored): the smallest axis-aligned rectangle around the shape of the element, after
   rotation and including points like the tail, without stroke width or shadow. Every element has it. It is used for
   what needs one box per element: the edges an anchor refers to when the target is a line or freehand, the selection
-  frame, finding the element under the mouse (first test), which part of the canvas to redraw, "fit the canvas to the
-  content", and the box of a group. The tail of a speech bubble is included; the rotation of images and emojis isn't
+  frame, finding the element under the mouse (first test) and the box of a group. Changing a line's width or position
+  never moves an anchored element.
+- **Visual bounds** (calculated, `GreenshotDocument.VisualBounds`): where the element draws: the Bounds (a frame's
+  outer edge) with the part of the line outside of them (`center` half the width, `outside` the width, `inside`
+  nothing) and the shadow with its `size` and `offset`. Used for "fit the canvas to the content" and which part of the
+  canvas to redraw. The tail of a speech bubble is included; the rotation of images and emojis isn't
   yet (its rule is still a proposal, see below).
 
 ### Images
@@ -271,7 +298,7 @@ The canvas is the area which is drawn and exported. It is a rule, not a stored s
 | `fit` | the canvas is | stored |
 |---|---|---|
 | `capture` (default) | the Bounds of the capture image (the first image of a capture layer), plus `padding` | `padding` |
-| `content` | the union of the Bounds of all elements of visible layers, plus `padding` | `padding` |
+| `content` | the union of the visual bounds of all elements of visible layers (line and shadow included), plus `padding` | `padding` |
 | `fixed` | `width` x `height` from 0, 0 | `width`, `height` |
 
 `GreenshotDocument.CanvasArea()` works it out (after `Anchors.Apply`, so anchored elements are where they belong).
@@ -307,7 +334,8 @@ The `text` part of a style:
   doesn't exist on Linux or macOS, so a list keeps documents portable.
 - `size` in canvas pixels, not points (the editor creates its fonts with `GraphicsUnit.Pixel`).
 - `weight` 100 - 900 (400 normal, 700 bold), `italic`, `underline`, `strikeout`, `color`.
-- `horizontal`, `vertical`: `near`, `center`, `far`.
+- `horizontal`, `vertical`: `start`, `center`, `end`, the words the anchors use (start is left or top, right for
+  right-to-left text).
 - `lineHeight`: the distance of lines as a multiple of the size, without it the font decides.
 - `wrap`: text which is too long for its `Area` continues on the next line.
 - `outline`: a stroke around each letter (`color`, `width`), so text on a screenshot is readable on any background.
@@ -581,6 +609,22 @@ One concept for everything that belongs together: step label numbering, shared s
 value. Only a whole part can be switched off, with `enabled: false` (e.g. `"fill": { "enabled": false }` means no fill,
 even when the group has one); single values (width, size, colour, alignment) never need "off". In code every value is
 nullable, `null` means "not set here", a JSON `null` is the same as a missing value.
+
+Each part only has the values which make sense for it, so nothing like "a shadow inside" can be written:
+
+- `stroke`: `color`, `width`, `position`: where the line lies on the outline it follows, `center` (half inside, half
+  outside, the default and what the editor draws), `inside` (within the shape, it covers its edge) or `outside`
+  (around the shape, it covers nothing of it). For a 100 x 100 rectangle with a 10 px line: center looks 110 x 110,
+  inside 100 x 100, outside 120 x 120. A renderer draws any outline that way by drawing the line twice as wide and
+  clipping it to the inside or outside of the outline (GDI+, ImageSharp and Skia can).
+- `fill`: `color`.
+- `shadow`: `size`, `darkness`, `offset`; always outside and behind the shape.
+- `text`: see Text.
+
+A value which doesn't apply is ignored, kept and not offered: lines, arrows and freehand have no inside or outside and
+draw their line centred (a group style "Red marker" with `outside` can style rectangles and arrows); a renderer which
+can't draw a value draws the default and keeps the value. Today's editor draws every line centred and keeps the
+position of each element.
 
 - **Merging**, value by value, bottom to top: built-in default for the element type → the style of its group →
   the element's own style. A resolver gives the full style to draw with, renderers never see the partial one.

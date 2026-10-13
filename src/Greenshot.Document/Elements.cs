@@ -330,9 +330,25 @@ namespace Greenshot.Document
     }
 
     /// <summary>
-    /// A frame around Area, normally the capture: the shape of its edges (straight, zig-zag, wave, torn) and rounded
-    /// corners; the style gives the line along the edges, the shadow and the fill outside of them. The frame cuts its
-    /// target to its shape, elements above the target are not cut. With a Target, Area is the bounds of the target.
+    /// Where the band of a frame lies: over the edge of what it frames, half over it or around it
+    /// </summary>
+    public enum FramePlacement
+    {
+        Inside,
+        Center,
+        Outside
+    }
+
+    /// <summary>
+    /// The band of a frame, like a border or paper around a screenshot: how deep it is and its colour
+    /// </summary>
+    public sealed record FrameBand(double Width, Rgba Color);
+
+    /// <summary>
+    /// A frame around Area, normally the capture: an optional band, the shape of its outer edge (straight, zig-zag, wave,
+    /// torn) and rounded corners; the style gives the line along the outer edge, the shadow outside of it and the fill of
+    /// what the edge cuts off. The teeth cut inward from the outer edge, into the band or, without one, into the target.
+    /// Elements above the target are not cut. With a Target, Area is the bounds of the target.
     /// The shape of the edges is generated from Seed, so it stays the same.
     /// </summary>
     public sealed record FrameElement(Guid Id, RectD Area, int Seed) : Element(Id)
@@ -348,6 +364,25 @@ namespace Greenshot.Document
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public double CornerRadius { get; init; }
+
+        /// <summary>
+        /// Where the band lies, without a band it doesn't matter
+        /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public FramePlacement Placement { get; init; }
+
+        public FrameBand Band { get; init; }
+
+        /// <summary>
+        /// The rectangle of the outer edge, before the shape cuts into it: Area with the part of the band around it
+        /// </summary>
+        [JsonIgnore]
+        public RectD OuterEdge => Area.Inflate(Placement switch
+        {
+            FramePlacement.Outside => Band?.Width ?? 0,
+            FramePlacement.Center => (Band?.Width ?? 0) / 2,
+            _ => 0
+        });
 
         /// <summary>
         /// The shape of one side

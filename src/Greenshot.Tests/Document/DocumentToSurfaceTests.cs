@@ -208,7 +208,8 @@ namespace Greenshot.Tests.Document
             var box = new RectangleElement(Uuid7.CreateVersion7(), new RectD(10, 10, 30, 30))
             {
                 Anchor = new Anchor { X = new AxisAnchor(AnchorLine.End, AnchorLine.End, -10) },
-                Extensions = new RawJson("{\"test\":1}")
+                Extensions = new RawJson("{\"test\":1}"),
+                Style = new Style { Stroke = new StrokeStyle { Position = StrokePosition.Outside } }
             };
             var arrow = new ArrowElement(Uuid7.CreateVersion7(), new PointD(50, 50), new PointD(90, 60)) { EndAnchor = new Anchor { Target = box.Id, X = new AxisAnchor(AnchorLine.Start) } };
             var style = new Group(Uuid7.CreateVersion7(), GroupTypes.Style, new Guid?[] { box.Id, arrow.Id }) { Name = "Red", Style = new Style { Stroke = StrokeStyle.Of(new Rgba(255, 0, 0, 255), 3) } };
@@ -222,6 +223,7 @@ namespace Greenshot.Tests.Document
             var elements = mappedBack.Layers[1].Elements;
             Assert.Equal(box.Anchor, elements[0].Anchor);
             Assert.Equal(box.Extensions, elements[0].Extensions);
+            Assert.Equal(StrokePosition.Outside, elements[0].Style.Stroke.Position);
             Assert.Equal(arrow.EndAnchor, Assert.IsType<ArrowElement>(elements[1]).EndAnchor);
             var keptImage = Assert.IsType<ImageElement>(elements[2]);
             Assert.Equal(image.Source, keptImage.Source);
@@ -380,8 +382,8 @@ namespace Greenshot.Tests.Document
             using var surface = DocumentToSurface.ToSurface(document);
             var mappedBack = SurfaceToDocument.ToDocument(surface);
 
-            // The canvas is the capture and the footer below it, with 20 px around them
-            Assert.Equal(new Size(140, 120), surface.Image.Size);
+            // The canvas is the capture and the footer below it with its line, with 20 px around them
+            Assert.Equal(new Size(140, 121), surface.Image.Size);
             var container = surface.Elements.Cast<DrawableContainer>().Single();
             Assert.Equal((30, 80, 80, 20), (container.Left, container.Top, container.Width, container.Height));
             Assert.Equal(document.Canvas, mappedBack.Canvas);
@@ -430,17 +432,22 @@ namespace Greenshot.Tests.Document
         }
 
         [Fact]
-        public void AFrame_IsTheEditorsTornEdge_AndComesBack_OneWithRoundedCornersIsKept()
+        public void AFrame_IsTheEditorsTornEdge_AndComesBack_OnesWithRoundedCornersOrABandAreKept()
         {
             var frame = new FrameElement(Guid.NewGuid(), new RectD(10, 5, 180, 90), 7)
             {
                 Shape = new EdgeShape(EdgeStyle.Wave) { Height = 6, Range = 16 },
                 Sides = FrameSides.Except(Edges.Bottom | Edges.Right),
-                Style = new Style { Shadow = new ShadowStyle { Enabled = true, Size = 4, Darkness = 0.5, Offset = new PointD(2, 3) } }
+                Style = new Style
+                {
+                    Stroke = new StrokeStyle { Position = StrokePosition.Outside },
+                    Shadow = new ShadowStyle { Enabled = true, Size = 4, Darkness = 0.5, Offset = new PointD(2, 3) }
+                }
             };
             var rounded = new FrameElement(Guid.NewGuid(), new RectD(10, 5, 180, 90), 8) { CornerRadius = 8 };
+            var paper = new FrameElement(Guid.NewGuid(), new RectD(10, 5, 180, 90), 9) { Placement = FramePlacement.Outside, Band = new FrameBand(16, new Rgba(255, 255, 255, 255)) };
 
-            using var surface = DocumentToSurface.ToSurface(WithElements(new Dictionary<Guid, Resource>(), frame, rounded));
+            using var surface = DocumentToSurface.ToSurface(WithElements(new Dictionary<Guid, Resource>(), frame, rounded, paper));
             var container = Assert.IsType<TornEdgeContainer>(Assert.Single(surface.Elements));
             Assert.Equal(new[] { 5, 10, 5, 10 }, container.Margins);
             Assert.Equal(new[] { false, true, true, false }, container.Edges);
@@ -455,7 +462,9 @@ namespace Greenshot.Tests.Document
             Assert.Equal(7, back.Seed);
             Assert.Equal(new PointD(2, 3), back.Style.Shadow.Offset);
             Assert.Equal(0.5, back.Style.Shadow.Darkness.Value, 3);
+            Assert.Equal(StrokePosition.Outside, back.Style.Stroke.Position);
             Assert.Equal(rounded, elements[1]);
+            Assert.Equal(paper, elements[2]);
         }
 
         [Fact]

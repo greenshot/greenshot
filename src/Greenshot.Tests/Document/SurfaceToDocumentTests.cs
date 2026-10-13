@@ -113,7 +113,7 @@ namespace Greenshot.Tests.Document
             Assert.Equal("Hello", element.Text);
             Assert.Equal(700, element.Style.Text.Weight);
             Assert.Equal(11, element.Style.Text.Size);
-            Assert.Equal(TextAlignment.Near, element.Style.Text.Horizontal);
+            Assert.Equal(TextAlignment.Start, element.Style.Text.Horizontal);
             Assert.Equal(TextAlignment.Center, element.Style.Text.Vertical);
             Assert.Equal(element.Style.Stroke.Color, element.Style.Text.Color);
         }

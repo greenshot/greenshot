@@ -142,12 +142,15 @@ namespace Greenshot.Document.Editor
                 return element;
             }
 
-            element = element with { Anchor = original.Anchor, Extensions = original.Extensions, Style = element.Style with { Text = KeepText(element.Style.Text, original.Style.Text) } };
+            // The editor draws every line centred, the position comes from the original
+            var stroke = element.Style.Stroke == null ? null : element.Style.Stroke with { Position = original.Style?.Stroke?.Position };
+            element = element with { Anchor = original.Anchor, Extensions = original.Extensions, Style = element.Style with { Stroke = stroke, Text = KeepText(element.Style.Text, original.Style?.Text) } };
             return (element, original) switch
             {
                 (LineElement line, LineElement from) => line with { StartAnchor = from.StartAnchor, EndAnchor = from.EndAnchor },
                 (ArrowElement arrow, ArrowElement from) => arrow with { StartAnchor = from.StartAnchor, EndAnchor = from.EndAnchor },
                 (SpeechBubbleElement bubble, SpeechBubbleElement from) => bubble with { TailAnchor = from.TailAnchor },
+                (FrameElement frame, FrameElement from) => frame with { Placement = from.Placement },
                 // The editor gets a rotated image turned in its bitmap, the part of it is cut out there
                 (ImageElement image, ImageElement from) => image with
                 {
