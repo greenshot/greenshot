@@ -8,7 +8,7 @@ a check of the setup and a tip. It's meant to make people feel good about the ch
 - **Once per user**, at the start of Greenshot, as long as the core setting `WelcomeShown` in greenshot.ini is `False` (the default).
   Greenshot sets it to `True` when it shows the window. That includes users who update from a version before the welcome window:
   they don't have the setting yet, so they see it once too.
-- **On request**: the named pipe command `FIRST_LAUNCH` (greenshot-cli) opens it again, without looking at `WelcomeShown`.
+- **On request**: the named pipe command `FIRST_LAUNCH` opens it again, without looking at `WelcomeShown`. greenshot-cli has no option for it (yet).
 - To see it again while testing: set `WelcomeShown=False` in the `[Core]` section of greenshot.ini, or start without a greenshot.ini.
   An administrator can set `WelcomeShown=True` in greenshot-defaults.ini (or greenshot-fixed.ini) to never show it.
 
