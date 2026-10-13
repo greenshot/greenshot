@@ -569,7 +569,8 @@ Proposed rules, they become R35 and on in "Rules" when agreed:
 - **P2 What it means**: degrees as a `double`, clockwise, around the centre of `Area`; the `Area` stays unrotated, so
   resizing and text wrapping work in the element's own coordinates. Written in 0 ..< 360, 0 isn't written. Today
   images and emojis have an `int`; it becomes a `double` for all.
-- **P3 What turns**: everything the element draws: its outline, fill, text, image and the line along it. The shadow
+- **P3 What turns**: everything the element draws (the shadow `offset` is in canvas coordinates, a new rule with
+  rotation): its outline, fill, text, image and the line along it. The shadow
   keeps its `offset` in canvas coordinates, the light comes from the same side for every element. An effect (blur,
   pixelate, highlight) is worked out in canvas pixels and cut to the turned shape, so pixelate blocks stay on the
   screen's pixel grid. A speech bubble's
@@ -591,11 +592,13 @@ Proposed rules, they become R35 and on in "Rules" when agreed:
 - **Today's editor**: only images and emojis turn. Other turned elements are shown upright and kept (R5, R30), an
   obfuscate or highlight covers its `Bounds` (P6).
 
-**Text along a path** (proposal, independent of rotation): lines, arrows and freehand get an optional `label`, drawn along
-their path with the text style that exists: `text`, `position` 0 to 1 from start to end (default 0.5), `side` above,
-on or below the line and `offset` from it. The angle comes from the path at each letter, the element draws it;
-nothing is stored about it. Text is never upside down: on a line going right to left it is turned over. The label
-belongs to its element (moved, copied, deleted with it, part of its visual bounds).
+**Label on a line** (proposal, independent of rotation), like the edge labels of diagram tools (draw.io, Visio,
+Excalidraw): lines and arrows get an optional `label` with the text style that exists:
+`"label": { "text": "max 20 ms", "at": 0.5, "offset": 6, "orientation": "horizontal" }`. `at` is 0 to 1 from start to
+end (default 0.5), `offset` the distance from the line (negative is the other side), `orientation` `horizontal` (the
+default) or `along` the line, never upside down. The label belongs to its line (moved, copied, deleted with it, part of
+its visual bounds). Freehand gets none: text bent along a curve is a design tool feature; a text element anchored to
+the line does the job.
 
 ### Groups, styles and defaults
 
