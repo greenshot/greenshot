@@ -591,11 +591,6 @@ namespace Greenshot.Base.Languages
         string QuicksettingsDestinationFile { get; }
 
         /// <summary>
-        /// Right-click here or press the {0} key.
-        /// </summary>
-        string TooltipFirststart { get; }
-
-        /// <summary>
         /// A newer version of Greenshot is available! Do you want to download Greenshot {0}?
         /// </summary>
         string UpdateFound { get; }

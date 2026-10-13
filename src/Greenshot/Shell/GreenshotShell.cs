@@ -284,10 +284,10 @@ namespace Greenshot.Shell
             {
                 RestartManagerHelper.RestoreState();
             }
-            // Check if it's the first time launch?
-            if (_conf.IsFirstLaunch)
+            // Welcome everybody who hasn't seen the welcome window yet
+            if (!_conf.WelcomeShown)
             {
-                ApplicationStartupHelper.FirstLaunch();
+                ApplicationStartupHelper.ShowWelcome();
             }
 
             if (startupCommand != null)
@@ -391,7 +391,7 @@ namespace Greenshot.Shell
                 this,
                 Exit,
                 ApplicationStartupHelper.ReloadConfig,
-                ApplicationStartupHelper.FirstLaunch,
+                ApplicationStartupHelper.ShowWelcome,
                 ApplicationStartupHelper.OpenFile).ConfigureAwait(false);
         }
 
