@@ -20,6 +20,9 @@
  */
 
 using System;
+using System.Drawing;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Threading;
 using Dapplo.Ini;
@@ -41,6 +44,13 @@ namespace Greenshot.Shell
     internal sealed class TrayIcon : ITrayIcon, IDisposable
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(TrayIcon));
+
+        /// <summary>
+        /// The id the previous WinForms tray icon registered with. Windows 11 remembers
+        /// "show this icon on the taskbar" per executable and id, so a different id is a new
+        /// icon and stays in the overflow.
+        /// </summary>
+        internal const uint LegacyTrayIconId = 1;
 
         private readonly IGreenshotShell _shell;
         private readonly TrayMenu _trayMenu;
@@ -69,20 +79,166 @@ namespace Greenshot.Shell
                 OnClick(CoreConfig.LeftClickAction);
             };
 
-            _taskbarIcon = new TaskbarIcon
+            // The icon id and the tooltip have to be stored before the icon is added: Windows 11
+            // identifies the icon by them, and a new identity stays in the overflow.
+            _taskbarIcon = CreateTaskbarIcon(GreenshotResources.GetGreenshotIcon(), BuildToolTip());
+            // Startup can still be inside the call that added the icon. Apply the version again
+            // once the dispatcher is idle, after that call has returned.
+            _ = _taskbarIcon.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(ApplyNotifyVersion));
+
+            _taskbarIcon.PreviewTrayContextMenuOpen += OnPreviewTrayContextMenuOpen;
+            // MenuActivation matches a right click and then does nothing with it. The menu is
+            // opened from the right-button-up. A context-menu message can follow that up, and
+            // opening a second time would close the menu that just opened.
+            _taskbarIcon.TrayRightMouseUp += OnTrayRightMouseUp;
+            _taskbarIcon.TrayLeftMouseUp += OnTrayLeftMouseUp;
+            _taskbarIcon.TrayBalloonTipClicked += OnBalloonTipClicked;
+            _taskbarIcon.TrayBalloonTipClosed += OnBalloonTipClosed;
+        }
+
+        /// <summary>
+        /// Creates the notification-area icon. The icon handle has to be assigned before the icon is shown,
+        /// see the constructor.
+        /// </summary>
+        internal static TaskbarIcon CreateTaskbarIcon(Icon icon, string toolTip)
+        {
+            var taskbarIcon = new TaskbarIcon
             {
-                Icon = GreenshotResources.GetGreenshotIcon(),
+                Visibility = Visibility.Collapsed,
+                Icon = icon,
                 // Our own menu on a right click, see OnPreviewTrayContextMenuOpen
                 MenuActivation = PopupActivationMode.RightClick,
                 // The left click is handled here, with our own double click test
                 NoLeftClickDelay = true
             };
-            UpdateToolTip();
+            if (!TrySetIconId(taskbarIcon, LegacyTrayIconId))
+            {
+                Log.Warn("The tray icon keeps the library's icon id. Windows 11 will treat it as a new icon and hide it in the overflow.");
+            }
 
-            _taskbarIcon.PreviewTrayContextMenuOpen += OnPreviewTrayContextMenuOpen;
-            _taskbarIcon.TrayLeftMouseUp += OnTrayLeftMouseUp;
-            _taskbarIcon.TrayBalloonTipClicked += OnBalloonTipClicked;
-            _taskbarIcon.TrayBalloonTipClosed += OnBalloonTipClosed;
+            if (toolTip != null)
+            {
+                taskbarIcon.ToolTipText = toolTip;
+            }
+
+            taskbarIcon.Visibility = Visibility.Visible;
+            if (!taskbarIcon.IsTaskbarIconCreated)
+            {
+                Log.Error("The notification area icon was not created.");
+                return taskbarIcon;
+            }
+
+            // A new icon has no IsPromoted value, so Windows 11 leaves it in the overflow.
+            // Explorer reads the value when the icon is added.
+            if (TrayIconPromotion.PromoteIfUndecided(LegacyTrayIconId))
+            {
+                taskbarIcon.Visibility = Visibility.Collapsed;
+                taskbarIcon.Visibility = Visibility.Visible;
+                Log.Info("The tray icon is shown on the taskbar.");
+            }
+
+            // The library's own add switches the icon to NOTIFYICON_VERSION_4, including the add just above.
+            KeepWindows2000NotifyMessages(taskbarIcon);
+            return taskbarIcon;
+        }
+
+        /// <summary>
+        /// NOTIFYICON_VERSION_4 is accepted, and the icon and its tooltip show, but Windows 11 then
+        /// delivers no click to the icon. NOTIFYICON_VERSION (Windows 2000) delivers the button-up,
+        /// which is what opens the menu. Balloon tips are part of that version.
+        /// </summary>
+        private void ApplyNotifyVersion()
+        {
+            if (_taskbarIcon != null && _taskbarIcon.IsTaskbarIconCreated)
+            {
+                KeepWindows2000NotifyMessages(_taskbarIcon);
+            }
+        }
+
+        /// <summary>
+        /// NIM_SETVERSION. The struct only has to identify the icon and carry the version.
+        /// </summary>
+        [DllImport("shell32.dll", CharSet = CharSet.Unicode, EntryPoint = "Shell_NotifyIcon")]
+        private static extern bool ShellNotifyIcon(uint message, ref NotifyIconVersionData data);
+
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        private struct NotifyIconVersionData
+        {
+            public int cbSize;
+            public IntPtr WindowHandle;
+            public uint TaskbarIconId;
+            public uint ValidMembers;
+            public uint CallbackMessageId;
+            public IntPtr IconHandle;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
+            public string ToolTipText;
+            public uint IconState;
+            public uint StateMask;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+            public string BalloonText;
+            public uint VersionOrTimeout;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
+            public string BalloonTitle;
+            public uint BalloonFlags;
+            public Guid GuidItem;
+            public IntPtr CustomBalloonIconHandle;
+        }
+
+        private static void KeepWindows2000NotifyMessages(TaskbarIcon taskbarIcon)
+        {
+            const uint windows2000 = 3;
+            const uint setVersion = 4;
+            object data = typeof(TaskbarIcon).GetField("iconData", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(taskbarIcon);
+            var window = data?.GetType().GetField("WindowHandle")?.GetValue(data);
+            var id = data?.GetType().GetField("TaskbarIconId")?.GetValue(data);
+            if (!(window is IntPtr hwnd) || !(id is uint iconId))
+            {
+                Log.Warn("The tray icon stays on the Vista notify messages. A right click will not open the menu.");
+                return;
+            }
+
+            var request = new NotifyIconVersionData
+            {
+                cbSize = Marshal.SizeOf(typeof(NotifyIconVersionData)),
+                WindowHandle = hwnd,
+                TaskbarIconId = iconId,
+                VersionOrTimeout = windows2000
+            };
+            if (!ShellNotifyIcon(setVersion, ref request))
+            {
+                Log.Warn("The tray icon could not switch to the Windows 2000 notify messages. A right click will not open the menu.");
+                return;
+            }
+
+            var sink = typeof(TaskbarIcon).GetField("messageSink", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(taskbarIcon);
+            var version = sink?.GetType().GetProperty("Version");
+            if (version == null)
+            {
+                Log.Warn("The tray icon's message window still expects Vista messages. A left click will not be reported.");
+                return;
+            }
+
+            version.SetValue(sink, Enum.ToObject(version.PropertyType, windows2000));
+        }
+
+        private static bool TrySetIconId(TaskbarIcon taskbarIcon, uint iconId)
+        {
+            var dataField = typeof(TaskbarIcon).GetField("iconData", BindingFlags.Instance | BindingFlags.NonPublic);
+            if (dataField == null)
+            {
+                return false;
+            }
+
+            object data = dataField.GetValue(taskbarIcon);
+            var idField = data?.GetType().GetField("TaskbarIconId");
+            if (idField == null)
+            {
+                return false;
+            }
+
+            idField.SetValue(data, iconId);
+            dataField.SetValue(taskbarIcon, data);
+            return true;
         }
 
         /// <summary>
@@ -98,9 +254,16 @@ namespace Greenshot.Shell
             get => _taskbarIcon?.Visibility == Visibility.Visible;
             set
             {
-                if (_taskbarIcon != null)
+                if (_taskbarIcon == null)
                 {
-                    _taskbarIcon.Visibility = value ? Visibility.Visible : Visibility.Collapsed;
+                    return;
+                }
+
+                _taskbarIcon.Visibility = value ? Visibility.Visible : Visibility.Collapsed;
+                // Showing the icon again makes the library select Vista messages.
+                if (value && _taskbarIcon.IsTaskbarIconCreated)
+                {
+                    KeepWindows2000NotifyMessages(_taskbarIcon);
                 }
             }
         }
@@ -115,13 +278,18 @@ namespace Greenshot.Shell
                 return;
             }
 
+            _taskbarIcon.ToolTipText = BuildToolTip();
+        }
+
+        private static string BuildToolTip()
+        {
             string applicationTitle = Texts.Core.ApplicationTitle;
-            if (applicationTitle.StartsWith("Greenshot", StringComparison.Ordinal))
+            if (applicationTitle != null && applicationTitle.StartsWith("Greenshot", StringComparison.Ordinal))
             {
                 applicationTitle = GreenshotEdition.ProductName + applicationTitle.Substring("Greenshot".Length);
             }
 
-            _taskbarIcon.ToolTipText = NotifyIconTextHelper.ToNotifyIconText(applicationTitle);
+            return NotifyIconTextHelper.ToNotifyIconText(applicationTitle);
         }
 
         /// <inheritdoc />
@@ -206,6 +374,16 @@ namespace Greenshot.Shell
             }
         }
 
+        private void OnTrayRightMouseUp(object sender, RoutedEventArgs e)
+        {
+            if (_trayMenu.IsOpen)
+            {
+                return;
+            }
+
+            OpenTrayMenu();
+        }
+
         /// <summary>
         /// wpf-notifyicon raises this before it opens its own context menu; we have none and open the tray menu instead.
         /// It is placed by WPF at the cursor, on the monitor under it with that monitor's DPI.
@@ -213,6 +391,17 @@ namespace Greenshot.Shell
         private void OnPreviewTrayContextMenuOpen(object sender, RoutedEventArgs e)
         {
             e.Handled = true;
+            // The right-button-up already opened it. Opening again would close that menu and build another.
+            if (_trayMenu.IsOpen)
+            {
+                return;
+            }
+
+            OpenTrayMenu();
+        }
+
+        private void OpenTrayMenu()
+        {
             try
             {
                 _trayMenu.Show();
