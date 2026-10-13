@@ -34,6 +34,12 @@ public class DetectedOcrLine : IOcrLineFeature
     public string ToolTipText => Text;
     public List<OcrWordInfo> Words { get; }
 
+    /// <summary>
+    /// The angle of the text in degrees, clockwise, 0 for horizontal text.
+    /// Bounds is the union of the word bounds, the axis-aligned boxes around the rotated words.
+    /// </summary>
+    public double Angle { get; set; }
+
     public DetectedOcrLine(NativeRect bounds, string text, List<OcrWordInfo> words)
     {
         Bounds = bounds;

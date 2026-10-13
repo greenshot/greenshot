@@ -51,6 +51,13 @@ namespace Greenshot.Plugin.Win10
         // Very small images are padded to this size, the engine finds no text on them otherwise
         private const int MinWidth = 130;
         private const int MinHeight = 130;
+        /// <summary>
+        /// For rotated text the engine reports the word rects deskewed, see ToImageBounds. Below this OcrResult.TextAngle (degrees) the rects are used as reported.
+        /// The engine reports 0 for text that is (nearly) horizontal, a reported angle is used for the deskewing, even a small one like 1.5 degrees:
+        /// rotated back, those rects are where the text is, without that they are off by about angle * distance to the centre (35 pixels for 3 degrees, 650 pixels from it).
+        /// So this only skips the rotation for floating point noise.
+        /// </summary>
+        internal const double MinTextAngle = 0.01;
 
         /// <summary>
         /// Constructor, logs the available languages when debug logging is on (the provider is created at startup)
@@ -170,6 +177,11 @@ namespace Greenshot.Plugin.Win10
         private static List<IOcrLineFeature> CreateOcrLines(OcrResult ocrResult, OcrImage ocrImage, bool withoutSpaces)
         {
             var result = new List<IOcrLineFeature>();
+            double angle = ocrResult.TextAngle ?? 0d;
+            if (Math.Abs(angle) < MinTextAngle)
+            {
+                angle = 0d;
+            }
 
             foreach (var ocrLine in ocrResult.Lines)
             {
@@ -179,12 +191,13 @@ namespace Greenshot.Plugin.Win10
                 for (var index = 0; index < ocrLine.Words.Count; index++)
                 {
                     var ocrWord = ocrLine.Words[index];
-                    var wordBounds = ocrImage.ToImageBounds(ocrWord.BoundingRect);
+                    var wordBounds = ocrImage.ToImageBounds(ocrWord.BoundingRect, angle);
 
                     words.Add(new OcrWordInfo
                     {
                         Bounds = wordBounds,
-                        Text = ocrWord.Text
+                        Text = ocrWord.Text,
+                        Angle = angle
                     });
 
                     lineBounds = index == 0 ? wordBounds : lineBounds.Union(wordBounds);
@@ -193,11 +206,60 @@ namespace Greenshot.Plugin.Win10
                 if (!lineBounds.IsEmpty)
                 {
                     var text = withoutSpaces ? string.Concat(words.Select(word => word.Text)) : ocrLine.Text;
-                    result.Add(new DetectedOcrLine(lineBounds, text, words));
+                    result.Add(new DetectedOcrLine(lineBounds, text, words) { Angle = angle });
                 }
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Map a rect reported by the engine to the coordinates of the original image.
+        /// For rotated text the engine reports the rects deskewed, as if the text were horizontal: the 4 corners are rotated back by the angle
+        /// around the centre of the bitmap the engine read, the result is the axis-aligned box around them.
+        /// </summary>
+        /// <param name="x">X of the reported rect, in the coordinates of the bitmap the engine read</param>
+        /// <param name="y">Y of the reported rect</param>
+        /// <param name="width">Width of the reported rect</param>
+        /// <param name="height">Height of the reported rect</param>
+        /// <param name="angle">OcrResult.TextAngle in degrees, clockwise, 0 for horizontal text</param>
+        /// <param name="bitmapWidth">Width of the bitmap the engine read, padding included</param>
+        /// <param name="bitmapHeight">Height of the bitmap the engine read, padding included</param>
+        /// <param name="scale">How the original image was scaled for the engine</param>
+        /// <param name="paddingX">Padding left (and right) of the original image</param>
+        /// <param name="paddingY">Padding above (and below) the original image</param>
+        /// <returns>NativeRect in the coordinates of the original image</returns>
+        internal static NativeRect ToImageBounds(double x, double y, double width, double height, double angle, double bitmapWidth, double bitmapHeight, double scale, int paddingX, int paddingY)
+        {
+            double left = x, top = y, right = x + width, bottom = y + height;
+            if (angle != 0d)
+            {
+                double radians = angle * Math.PI / 180d;
+                double cos = Math.Cos(radians);
+                double sin = Math.Sin(radians);
+                double centerX = bitmapWidth / 2d;
+                double centerY = bitmapHeight / 2d;
+                left = top = double.MaxValue;
+                right = bottom = double.MinValue;
+                foreach (var (cornerX, cornerY) in new[] { (x, y), (x + width, y), (x, y + height), (x + width, y + height) })
+                {
+                    // y points down, so a positive angle rotates clockwise on the screen
+                    double dx = cornerX - centerX;
+                    double dy = cornerY - centerY;
+                    double rotatedX = centerX + dx * cos - dy * sin;
+                    double rotatedY = centerY + dx * sin + dy * cos;
+                    left = Math.Min(left, rotatedX);
+                    top = Math.Min(top, rotatedY);
+                    right = Math.Max(right, rotatedX);
+                    bottom = Math.Max(bottom, rotatedY);
+                }
+            }
+
+            int imageLeft = (int)Math.Floor((left - paddingX) / scale);
+            int imageTop = (int)Math.Floor((top - paddingY) / scale);
+            int imageRight = (int)Math.Ceiling((right - paddingX) / scale);
+            int imageBottom = (int)Math.Ceiling((bottom - paddingY) / scale);
+            return new NativeRect(imageLeft, imageTop, imageRight - imageLeft, imageBottom - imageTop);
         }
 
         /// <summary>
@@ -224,14 +286,10 @@ namespace Greenshot.Plugin.Win10
             /// <summary>
             /// Bounds reported by the engine, in the coordinates of the original image
             /// </summary>
-            public NativeRect ToImageBounds(WinRtRect rect)
-            {
-                int left = (int)Math.Floor((rect.X - PaddingX) / Scale);
-                int top = (int)Math.Floor((rect.Y - PaddingY) / Scale);
-                int right = (int)Math.Ceiling((rect.X + rect.Width - PaddingX) / Scale);
-                int bottom = (int)Math.Ceiling((rect.Y + rect.Height - PaddingY) / Scale);
-                return new NativeRect(left, top, right - left, bottom - top);
-            }
+            /// <param name="rect">Rect reported by the engine</param>
+            /// <param name="angle">Angle of the text in degrees clockwise, 0 when the rect is used as reported</param>
+            public NativeRect ToImageBounds(WinRtRect rect, double angle) =>
+                Win10OcrProvider.ToImageBounds(rect.X, rect.Y, rect.Width, rect.Height, angle, Bitmap.PixelWidth, Bitmap.PixelHeight, Scale, PaddingX, PaddingY);
 
             public static OcrImage Create(Image image)
             {

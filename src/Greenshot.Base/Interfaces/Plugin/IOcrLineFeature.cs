@@ -51,4 +51,10 @@ public class OcrWordInfo
     /// The text content of the word.
     /// </summary>
     public string Text { get; set; }
+
+    /// <summary>
+    /// The angle of the text in degrees, clockwise, 0 for horizontal text.
+    /// When it is not 0, Bounds is the axis-aligned box around the rotated word, so a little larger than the word.
+    /// </summary>
+    public double Angle { get; set; }
 }
