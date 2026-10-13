@@ -562,15 +562,17 @@ a separate thing (below): the text follows the path of its element and needs no 
 
 Proposed rules, they become R35 and on in "Rules" when agreed:
 
-- **P1 Which elements**: every box-shaped element has `rotation`: rectangle, ellipse, text, speech bubble, step
-  label, highlight, obfuscate, image, emoji, cursor, plugin and unknown elements. Not lines, arrows and freehand:
-  rotating them is an edit of their points, they store no angle. Not cut marks (a band across the capture) and not
-  frames (P5).
+- **P1 Which elements**: the box-shaped elements have `rotation`: rectangle, ellipse, text, speech bubble, highlight,
+  obfuscate, image, emoji, plugin and unknown elements. Not lines, arrows and freehand: rotating them is an edit of
+  their points, they store no angle. Not cut marks (a band across the capture), frames (P5), cursors (upright as
+  captured) and step labels (a circle, the number stays upright).
 - **P2 What it means**: degrees as a `double`, clockwise, around the centre of `Area`; the `Area` stays unrotated, so
   resizing and text wrapping work in the element's own coordinates. Written in 0 ..< 360, 0 isn't written. Today
   images and emojis have an `int`; it becomes a `double` for all.
 - **P3 What turns**: everything the element draws: its outline, fill, text, image and the line along it. The shadow
-  keeps its `offset` in canvas coordinates, the light comes from the same side for every element. A speech bubble's
+  keeps its `offset` in canvas coordinates, the light comes from the same side for every element. An effect (blur,
+  pixelate, highlight) is worked out in canvas pixels and cut to the turned shape, so pixelate blocks stay on the
+  screen's pixel grid. A speech bubble's
   box turns, its tail stays the point it is (it points at something on the canvas).
 - **P4 Bounds**: the axis-aligned box around the turned `Area` (and the tail). Anchors, the canvas and groups keep
   using `Bounds` (R8), so an anchored caption sits below the turned element. Hit testing and the selection use the
@@ -589,9 +591,11 @@ Proposed rules, they become R35 and on in "Rules" when agreed:
 - **Today's editor**: only images and emojis turn. Other turned elements are shown upright and kept (R5, R30), an
   obfuscate or highlight covers its `Bounds` (P6).
 
-**Text along a path** (proposal, independent of rotation): lines, arrows and freehand get an optional `text`, drawn along
-their path with the text style that exists, at `position` 0 to 1 from start to end (default 0.5), above, on or below
-the line. The angle comes from the path at each letter, the element draws it; nothing is stored about it.
+**Text along a path** (proposal, independent of rotation): lines, arrows and freehand get an optional `label`, drawn along
+their path with the text style that exists: `text`, `position` 0 to 1 from start to end (default 0.5), `side` above,
+on or below the line and `offset` from it. The angle comes from the path at each letter, the element draws it;
+nothing is stored about it. Text is never upside down: on a line going right to left it is turned over. The label
+belongs to its element (moved, copied, deleted with it, part of its visual bounds).
 
 ### Groups, styles and defaults
 
