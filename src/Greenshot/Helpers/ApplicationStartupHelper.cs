@@ -52,7 +52,7 @@ namespace Greenshot.Helpers
             var notifyIconClassicMessageHandler = SimpleServiceProvider.Current.GetInstance<INotificationService>();
 
             notifyIconClassicMessageHandler.ShowInfoMessage(
-                string.Format(Texts.Core.TooltipFirststart, HotkeyManager.GetLocalizedHotkeyStringFromString(config.RegionHotkey)),
+                string.Format(Texts.Core.TooltipFirststart, HotkeyManager.GetLocalizedHotkeyStringFromString(HotkeyShortcutManager.GetDisplayHotkeyFor(HotkeyCaptureFunctions.Region))),
                 TimeSpan.FromMinutes(10),
                 () =>
                 {

@@ -337,6 +337,66 @@ namespace Greenshot.Base.Core
             AiToolsExcludedProcesses ??= new List<string>();
             AiToolsAllowedClients ??= new List<string>();
             AiToolsMcpServerPaths ??= new List<string>();
+
+            // One-time migration of the legacy single hotkey fields into the new, freely configurable hotkey shortcut list
+            if (!HotkeyShortcutsMigrated)
+            {
+                MigrateLegacyHotkeysToShortcuts();
+                HotkeyShortcutsMigrated = true;
+                MarkAsDirty();
+            }
+        }
+
+        /// <summary>
+        /// Converts every non-empty legacy hotkey field (RegionHotkey, WindowHotkey, FullscreenHotkey, LastregionHotkey,
+        /// ClipboardHotkey) into its own entry in <see cref="HotkeyShortcutsJson"/>, using the current OutputDestinations
+        /// as the entry's destinations (that was the only possible destination set for these hotkeys before). Afterwards
+        /// the legacy fields are cleared, so they are never read again and this method stays idempotent/safe to re-run.
+        /// Runs once per configuration file, guarded by <see cref="HotkeyShortcutsMigrated"/>.
+        /// </summary>
+        private void MigrateLegacyHotkeysToShortcuts()
+        {
+            try
+            {
+                var existing = HotkeyShortcutConfig.ParseList(HotkeyShortcutsJson);
+                var defaultDestinations = (OutputDestinations != null && OutputDestinations.Count > 0)
+                    ? new List<string>(OutputDestinations)
+                    : new List<string> { "Picker" };
+
+                void AddIfSet(string hotkey, string captureFunctionId)
+                {
+                    if (string.IsNullOrWhiteSpace(hotkey))
+                    {
+                        return;
+                    }
+
+                    existing.Add(HotkeyShortcutConfig.Create(hotkey, captureFunctionId, defaultDestinations));
+                }
+
+                AddIfSet(RegionHotkey, HotkeyCaptureFunctions.Region);
+                AddIfSet(WindowHotkey, HotkeyCaptureFunctions.Window);
+                AddIfSet(FullscreenHotkey, HotkeyCaptureFunctions.Fullscreen);
+                AddIfSet(LastregionHotkey, HotkeyCaptureFunctions.LastRegion);
+                AddIfSet(ClipboardHotkey, HotkeyCaptureFunctions.Clipboard);
+
+                HotkeyShortcutsJson = HotkeyShortcutConfig.ToJson(existing);
+            }
+            catch (Exception ex)
+            {
+                // A failed migration must never prevent the application from starting: worst case the user keeps using
+                // the (still present) legacy fields and can re-create the shortcuts by hand in the new settings tab.
+                Log.Warn("Could not migrate the legacy hotkey settings to hotkey shortcuts", ex);
+            }
+            finally
+            {
+                // Cleared unconditionally (even on error, there is nothing more that can be read from them): avoids
+                // ever registering both the legacy hotkeys and the migrated shortcuts for the same action.
+                RegionHotkey = null;
+                WindowHotkey = null;
+                FullscreenHotkey = null;
+                LastregionHotkey = null;
+                ClipboardHotkey = null;
+            }
         }
 
         public bool OnBeforeSave()

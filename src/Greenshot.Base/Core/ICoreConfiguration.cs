@@ -63,6 +63,14 @@ namespace Greenshot.Base.Core
         [Description("Hotkey for opening the clipboard contents into the editor")]
         string ClipboardHotkey { get; set; }
 
+        [Description("User-configured hotkey shortcuts (hotkey + capture function + one or more destinations), stored as a JSON array of HotkeyShortcutConfig. Replaces the single RegionHotkey/WindowHotkey/FullscreenHotkey/LastregionHotkey/ClipboardHotkey fields above, which are migrated into this list once (see HotkeyShortcutsMigrated) and then kept empty.")]
+        [DefaultValue("[]")]
+        string HotkeyShortcutsJson { get; set; }
+
+        [Description("Internal migration flag: true once the legacy RegionHotkey/WindowHotkey/FullscreenHotkey/LastregionHotkey/ClipboardHotkey settings were migrated into HotkeyShortcutsJson.")]
+        [DefaultValue(false)]
+        bool HotkeyShortcutsMigrated { get; set; }
+
         [Description("Is this the first time launch?")]
         [DefaultValue(true)]
         bool IsFirstLaunch { get; set; }

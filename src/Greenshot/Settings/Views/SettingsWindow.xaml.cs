@@ -126,22 +126,26 @@ namespace Greenshot.Settings.Views
                 case "general":
                     SettingsTabControl.SelectedIndex = 0;
                     break;
-                case "capture":
+                case "shortcuts":
+                case "hotkeys":
                     SettingsTabControl.SelectedIndex = 1;
                     break;
-                case "output":
+                case "capture":
                     SettingsTabControl.SelectedIndex = 2;
+                    break;
+                case "output":
+                    SettingsTabControl.SelectedIndex = 3;
                     break;
                 case "destination":
                 case "destinations":
-                    SettingsTabControl.SelectedIndex = 3;
+                    SettingsTabControl.SelectedIndex = 4;
                     break;
                 case "editor":
-                    SettingsTabControl.SelectedIndex = 4;
+                    SettingsTabControl.SelectedIndex = 5;
                     break;
                 case "printer":
                 case "print":
-                    SettingsTabControl.SelectedIndex = 5;
+                    SettingsTabControl.SelectedIndex = 6;
                     break;
                 case "plugin":
                 case "plugins":
@@ -292,6 +296,17 @@ namespace Greenshot.Settings.Views
             
             _viewModel.CoreConfiguration.OutputDestinations = destinations;
 
+            // Save the freely configurable hotkey shortcuts; any entry that failed validation (empty/invalid hotkey,
+            // unknown capture function, no destination, or a duplicate hotkey) is skipped, not saved, and reported
+            // so it never silently disappears, but it never blocks saving the rest of the Settings window either.
+            var skippedShortcuts = _viewModel.SaveHotkeyShortcuts();
+            if (skippedShortcuts.Count > 0)
+            {
+                string message = (Texts.Settings.ShortcutsSkippedWarning ?? "The following shortcuts were not saved because they are invalid:\n{0}")
+                    .Replace("{0}", string.Join("\n", skippedShortcuts));
+                MessageBox.Show(this, message, Title, MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+
             _viewModel.SaveRecipeOptions();
 
 #if !GREENSHOT_LIGHT
@@ -376,15 +391,38 @@ namespace Greenshot.Settings.Views
             scopeWindow.ShowDialog();
         }
 
-        private void HotkeyDisplayControl_EditRequested(object sender, EventArgs e)
+        private void ShortcutAdd_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is Greenshot.Base.Wpf.Views.HotkeyDisplayView displayControl)
+            _viewModel.AddHotkeyShortcut();
+        }
+
+        private void ShortcutRemove_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as FrameworkElement)?.DataContext is HotkeyShortcutItemViewModel item)
             {
-                HotkeyModal.Open(displayControl.HeaderText, displayControl.HotkeyString, newHotkey =>
-                {
-                    displayControl.HotkeyString = newHotkey;
-                });
+                _viewModel.RemoveHotkeyShortcut(item);
             }
+        }
+
+        private void ShortcutHotkey_EditRequested(object sender, EventArgs e)
+        {
+            if (!(sender is Greenshot.Base.Wpf.Views.HotkeyDisplayView displayControl) ||
+                !(displayControl.DataContext is HotkeyShortcutItemViewModel item))
+            {
+                return;
+            }
+
+            HotkeyModal.Open(item.CaptureFunctionDisplayName, item.Hotkey, newHotkey =>
+            {
+                if (_viewModel.ValidateHotkeyShortcut(item, newHotkey, out string error))
+                {
+                    item.Hotkey = newHotkey;
+                }
+                else
+                {
+                    MessageBox.Show(this, error, Title, MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+            });
         }
     }
 }

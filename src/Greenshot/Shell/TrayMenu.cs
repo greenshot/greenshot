@@ -158,14 +158,14 @@ namespace Greenshot.Shell
 
             // Captures
             var captureArea = AddItem(menu, Texts.Core.ContextmenuCapturearea, "contextmenu_capturearea.Image", () => CaptureHelper.CaptureRegion(false));
-            captureArea.InputGestureText = HotkeyText(conf.RegionHotkey);
+            captureArea.InputGestureText = HotkeyText(HotkeyShortcutManager.GetDisplayHotkeyFor(HotkeyCaptureFunctions.Region));
 
             var lastRegion = AddItem(menu, Texts.Core.ContextmenuCapturelastregion, "contextmenu_capturelastregion.Image", () => CaptureHelper.CaptureLastRegion(false));
-            lastRegion.InputGestureText = HotkeyText(conf.LastregionHotkey);
+            lastRegion.InputGestureText = HotkeyText(HotkeyShortcutManager.GetDisplayHotkeyFor(HotkeyCaptureFunctions.LastRegion));
             lastRegion.IsEnabled = conf.LastCapturedRegion != NativeRect.Empty;
 
             var captureWindow = AddItem(menu, Texts.Core.ContextmenuCapturewindow, "contextmenu_capturewindow.Image", () => CaptureHelper.CaptureWindowInteractive(false));
-            captureWindow.InputGestureText = HotkeyText(conf.WindowHotkey);
+            captureWindow.InputGestureText = HotkeyText(HotkeyShortcutManager.GetDisplayHotkeyFor(HotkeyCaptureFunctions.Window));
 
             menu.Items.Add(CreateFullscreenItem(conf));
             menu.Items.Add(ThemedMenu.CreateSeparator());
@@ -181,7 +181,7 @@ namespace Greenshot.Shell
 
             // Other sources
             var clipboardItem = AddItem(menu, Texts.Core.ContextmenuCaptureclipboard, "contextmenu_captureclipboard.Image", () => CaptureHelper.CaptureClipboard());
-            string clipboardHotkey = HotkeyText(conf.ClipboardHotkey);
+            string clipboardHotkey = HotkeyText(HotkeyShortcutManager.GetDisplayHotkeyFor(HotkeyCaptureFunctions.Clipboard));
             if (!string.IsNullOrEmpty(clipboardHotkey) && !"None".Equals(clipboardHotkey))
             {
                 clipboardItem.InputGestureText = clipboardHotkey;
@@ -291,12 +291,12 @@ namespace Greenshot.Shell
             {
                 var single = ThemedMenu.CreateItem(Texts.Core.ContextmenuCapturefullscreen, GetIcon("contextmenu_capturefullscreen.Image"),
                     () => RunLater(() => CaptureHelper.CaptureFullscreen(false, conf.ScreenCaptureMode)));
-                single.InputGestureText = HotkeyText(conf.FullscreenHotkey);
+                single.InputGestureText = HotkeyText(HotkeyShortcutManager.GetDisplayHotkeyFor(HotkeyCaptureFunctions.Fullscreen));
                 return single;
             }
 
             var fullscreen = ThemedMenu.CreateItem(Texts.Core.ContextmenuCapturefullscreen, GetIcon("contextmenu_capturefullscreen.Image"));
-            fullscreen.InputGestureText = HotkeyText(conf.FullscreenHotkey);
+            fullscreen.InputGestureText = HotkeyText(HotkeyShortcutManager.GetDisplayHotkeyFor(HotkeyCaptureFunctions.Fullscreen));
             AddItem(fullscreen, Texts.Core.ContextmenuCapturefullscreenAll, null, () => CaptureHelper.CaptureFullscreen(false, ScreenCaptureMode.FullScreen));
 
             var allScreensBounds = DisplayInfo.ScreenBounds;
