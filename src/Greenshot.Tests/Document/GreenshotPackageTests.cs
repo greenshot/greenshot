@@ -264,6 +264,55 @@ namespace Greenshot.Tests.Document
         }
 
         [Fact]
+        public void Strict_KeepsOnlyWhatIsDrawn()
+        {
+            var extensions = new RawJson("{\"other.plugin\":{\"secret\":1}}");
+            var png = new Resource(Guid.NewGuid(), "image/png", new byte[] { 0x89, 0x50, 0x4E, 0x47, 1 }) { Extensions = extensions };
+            var fallback = new Resource(Guid.NewGuid(), "image/png", new byte[] { 0x89, 0x50, 0x4E, 0x47, 2 });
+            var hidden = new Resource(Guid.NewGuid(), "image/png", new byte[] { 0x89, 0x50, 0x4E, 0x47, 3 });
+            var rectangle = new RectangleElement(Guid.NewGuid(), new RectD(1, 2, 3, 4)) { Extensions = extensions, Style = new Style { Extensions = extensions } };
+            var plugin = new PluginElement(Guid.NewGuid(), new RectD(5, 6, 7, 8), "greenshot.barcode") { Data = "{\"text\":\"secret\"}", Fallback = fallback.Id };
+            var withoutFallback = new PluginElement(Guid.NewGuid(), new RectD(5, 6, 7, 8), "other.plugin") { Data = "{}" };
+            var unknown = new UnknownElement(Guid.NewGuid(), new RectD(1, 1, 1, 1), "hologram", $"{{\"type\":\"hologram\",\"source\":\"{hidden.Id}\"}}");
+            var document = new GreenshotDocument(Guid.NewGuid(), new Canvas(), new List<Layer>
+            {
+                new(Guid.NewGuid(), "Capture", LayerKind.Capture, new List<Element> { new ImageElement(Guid.NewGuid(), new RectD(0, 0, 10, 10), png.Id) }) { Extensions = extensions },
+                new(Guid.NewGuid(), "Annotations", LayerKind.Annotations, new List<Element> { rectangle, plugin, withoutFallback, unknown })
+            }, new Dictionary<Guid, Resource> { [png.Id] = png, [fallback.Id] = fallback, [hidden.Id] = hidden })
+            {
+                Extensions = extensions,
+                Metadata = new DocumentMetadata { Title = "Secret" },
+                Analysis = new Dictionary<Guid, ImageAnalysis> { [png.Id] = new() { Ocr = new OcrResult(new[] { new OcrLine("secret", default, new List<OcrWord>()) }) } },
+                Groups = new List<Group>
+                {
+                    new(Guid.NewGuid(), GroupTypes.Set, new Guid?[] { rectangle.Id }) { Extensions = extensions },
+                    new(Guid.NewGuid(), "other.tracking", new Guid?[] { rectangle.Id })
+                }
+            };
+
+            var read = RoundTrip(document.Strict());
+
+            Assert.Null(read.Metadata);
+            Assert.Empty(read.Analysis);
+            Assert.Null(read.Extensions);
+            Assert.Null(read.Layers[0].Extensions);
+            Assert.Null(read.Resources[png.Id].Extensions);
+            Assert.False(read.Resources.ContainsKey(hidden.Id));
+            var elements = read.Layers[1].Elements;
+            Assert.Equal(2, elements.Count);
+            var strictRectangle = Assert.IsType<RectangleElement>(elements[0]);
+            Assert.Null(strictRectangle.Extensions);
+            Assert.Null(strictRectangle.Style.Extensions);
+            Assert.Equal(new ImageElement(plugin.Id, plugin.Area, fallback.Id), elements[1]);
+            var group = Assert.Single(read.Groups);
+            Assert.Equal(GroupTypes.Set, group.Type);
+            Assert.Null(group.Extensions);
+
+            // The default keeps everything
+            Assert.Equal("Secret", RoundTrip(document).Metadata.Title);
+        }
+
+        [Fact]
         public void RoundTrip_KeepsTheExtensionsOfTheDocument_ALayer_AndAResource()
         {
             var png = new Resource(Guid.NewGuid(), "image/png", new byte[] { 0x89, 0x50, 0x4E, 0x47, 1, 2, 3 }) { Extensions = new RawJson("{\"greenshot.ocr\":{\"text\":\"Save\"}}") };

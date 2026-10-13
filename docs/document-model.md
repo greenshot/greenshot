@@ -357,6 +357,23 @@ back unchanged.
   the image it got, the extensions of the other layers are lost.
 - Open: a style's extensions replace those of its group as a whole, not per key.
 
+### Security and privacy
+
+- **Untrusted input**: extensions, unknown elements, plugin data, metadata and analysis are data from the file. The core
+  never runs them and never creates a type from a name in the file; it reads them as JSON within the package limits
+  and writes them back unchanged. A plugin validates its own data like any input.
+- **Keys are namespaces**: `greenshot.*` or a plugin id avoids collisions, it doesn't say who wrote the data.
+- **Fallbacks**: without its plugin, a plugin element shows its fallback image, which could differ from its data. An
+  installed plugin draws from its data and makes the fallback again.
+- **Hidden data**: a file can carry what the editor doesn't show (extensions, unknown elements and their resources,
+  metadata, analysis). A normal save keeps it, so nothing is lost with an older Greenshot or without a plugin.
+  `GreenshotDocument.Strict()` keeps only what is drawn: no metadata, analysis or extensions, no elements or groups of
+  unknown types, a plugin element becomes an image of its fallback; writing it leaves out the resources nothing links
+  to. Built: `Strict()`. Not built: the save option ("clean for sharing"), a setting to always save strictly (off by
+  default), and a view that lists the hidden data of a file.
+- **Original pixels**: a .greenshot keeps the capture under obfuscate and highlight elements and the parts a crop with
+  a source hides, also in a strict save. Only an export to an image file contains just the drawn pixels.
+
 ### Metadata
 
 Metadata describes the document and where its picture came from; it never changes how anything is drawn. It is an
