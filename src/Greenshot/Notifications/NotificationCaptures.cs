@@ -26,6 +26,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
@@ -38,7 +39,7 @@ using log4net;
 namespace Greenshot.Notifications
 {
     /// <summary>
-    /// The captures which notifications (toasts) show and open in the editor, also after a restart: what went to the destination,
+    /// The captures which notifications (toasts) show and offer in the destination picker, also after a restart: what went to the destination,
     /// kept as .greenshot file with a thumbnail. Both are named by an id (UUID v7), which is the tag of the toast. They are
     /// removed when the capture is opened, and once their toast is no longer in the notification center. Not in Greenshot Light.
     /// </summary>
@@ -95,10 +96,10 @@ namespace Greenshot.Notifications
         }
 
         /// <summary>
-        /// Opens the capture in the editor, on the UI thread
+        /// Shows the destination picker for the capture, on the UI thread
         /// </summary>
         /// <returns>false when there is no capture with the id</returns>
-        public static async Task<bool> OpenInEditorAsync(string id)
+        public static async Task<bool> PickDestinationAsync(string id)
         {
             // The id comes from the toast arguments, only an id may name a file
             if (!Guid.TryParseExact(id, "D", out _) || !File.Exists(GetCapturePath(id)))
@@ -106,8 +107,8 @@ namespace Greenshot.Notifications
                 return false;
             }
 
-            await RestartManagerHelper.OpenInEditorAsync(GetCapturePath(id));
-            // The .greenshot file is removed when the editor shows it, else it is kept for another try
+            await RestartManagerHelper.ExportFileAsync(GetCapturePath(id), nameof(WellKnownDestinations.Picker));
+            // The .greenshot file is removed when it was exported, else it is kept for another try
             if (!File.Exists(GetCapturePath(id)))
             {
                 Delete(id);

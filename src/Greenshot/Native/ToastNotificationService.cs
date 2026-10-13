@@ -43,7 +43,7 @@ namespace Greenshot.Plugin.Win10
 {
     /// <summary>
     /// Informs the user with toasts. A click on a toast runs its click action while Greenshot runs; a toast with a capture
-    /// opens the capture in the editor, also when Windows starts Greenshot for the click.
+    /// offers the capture in the destination picker, also when Windows starts Greenshot for the click.
     /// </summary>
     public class ToastNotificationService : INotificationService
     {
@@ -53,7 +53,7 @@ namespace Greenshot.Plugin.Win10
         public const string AppId = "Greenshot";
 
         private const string OpenVerb = "open:";
-        private const string EditVerb = "edit:";
+        private const string PickVerb = "pick:";
 
         private static readonly ILog Log = LogManager.GetLogger(typeof(ToastNotificationService));
         private static readonly ICoreConfiguration CoreConfiguration = IniConfigRegistry.GetSection<ICoreConfiguration>();
@@ -128,7 +128,7 @@ namespace Greenshot.Plugin.Win10
             }
             if (notification.CaptureId != null)
             {
-                content.AddButton(Texts.Settings.DestinationEditor, EditVerb + toastTag);
+                content.AddButton(Texts.Settings.Destination, PickVerb + toastTag);
             }
 
             try
@@ -169,8 +169,8 @@ namespace Greenshot.Plugin.Win10
 #if GREENSHOT_LIGHT
                 return Task.FromResult(false);
 #else
-                // The click action is gone after a restart: the toast opens its capture instead, like its button
-                return NotificationCaptures.OpenInEditorAsync(tag);
+                // The click action is gone after a restart: the toast offers its capture in the destination picker, like its button
+                return NotificationCaptures.PickDestinationAsync(tag);
 #endif
             }).FireAndLog("Toast click", Log);
         }

@@ -227,28 +227,33 @@ namespace Greenshot.Helpers
         }
 
         /// <summary>
-        /// Open an editor with the .greenshot file (a saved state, or the capture of a notification), the file is removed when the editor shows it.
+        /// Exports the .greenshot file (a saved state, or the capture of a notification) to the destination,
+        /// the file is removed when the export succeeded.
         /// </summary>
-        internal static async Task OpenInEditorAsync(string filePath)
+        internal static async Task ExportFileAsync(string filePath, string designation)
         {
             try
             {
                 ISurface surface = new Surface();
                 surface = ImageIO.LoadGreenshotSurface(filePath, surface);
                 surface.CaptureDetails = new CaptureDetails();
-                var result = await DestinationExporter.ExportAsync(DestinationHelper.GetDestination(EditorDestination.DESIGNATION), surface, surface.CaptureDetails, true);
+                var result = await DestinationExporter.ExportAsync(DestinationHelper.GetDestination(designation), surface, surface.CaptureDetails, true);
                 if (result.IsSucceeded)
                 {
                     File.Delete(filePath);
                 }
                 else
                 {
-                    Log.WarnFormat("Couldn't open an editor with state file {0}: {1}", filePath, result.Error);
+                    Log.WarnFormat("Couldn't export {0} to {1}: {2}", filePath, designation, result.Error);
+                }
+                if (!result.KeepsCapture)
+                {
+                    surface.Dispose();
                 }
             }
             catch (Exception ex)
             {
-                Log.Error("Couldn't open an editor with state file: " + filePath, ex);
+                Log.Error($"Couldn't export {filePath} to {designation}", ex);
             }
         }
 
@@ -270,7 +275,7 @@ namespace Greenshot.Helpers
                 foreach (string filePath in Directory.GetFiles(stateDir, "*.greenshot"))
                 {
                     // Called on the UI thread (startup), the surface is created there
-                    OpenInEditorAsync(filePath).FireAndLog("Restore an editor", Log);
+                    ExportFileAsync(filePath, EditorDestination.DESIGNATION).FireAndLog("Restore an editor", Log);
                     Log.InfoFormat("Queued restore of editor state from: {0}", filePath);
                 }
             }
