@@ -36,6 +36,8 @@ using Windows.Graphics.Imaging;
 using Windows.Media.Ocr;
 using BitmapData = System.Drawing.Imaging.BitmapData;
 using WinRtRect = Windows.Foundation.Rect;
+using WpfPoint = System.Windows.Point;
+using WpfRect = System.Windows.Rect;
 
 namespace Greenshot.Plugin.Win10
 {
@@ -50,7 +52,7 @@ namespace Greenshot.Plugin.Win10
         private const int MinWidth = 130;
         private const int MinHeight = 130;
         /// <summary>
-        /// For rotated text the engine reports the word rects deskewed, see ToImageRect. Below this OcrResult.TextAngle (degrees) the rects are used as reported.
+        /// For rotated text the engine reports the word rects deskewed, see CreateOcrLines. Below this OcrResult.TextAngle (degrees) the rects are used as reported.
         /// The engine reports 0 for text that is (nearly) horizontal, a reported angle is used for the deskewing, even a small one like 1.5 degrees:
         /// rotated back, those rects are where the text is, without that they are off by about angle * distance to the centre (35 pixels for 3 degrees, 650 pixels from it).
         /// So this only skips the rotation for floating point noise.
@@ -181,23 +183,18 @@ namespace Greenshot.Plugin.Win10
                 angle = 0d;
             }
 
+            // For rotated text the engine reports the rects deskewed, as if the text were horizontal:
+            // the text is where the rect is after rotating it by the angle around the centre of the bitmap the engine read
+            var rotationCenter = ocrImage.RotationCenter;
+
             foreach (var ocrLine in ocrResult.Lines)
             {
-                var words = new List<OcrWordInfo>();
-                var lineBounds = default(RotatedRect);
-
-                foreach (var ocrWord in ocrLine.Words)
+                var words = ocrLine.Words.Select(ocrWord => new OcrWordInfo(ocrWord.Text, ocrImage.ToImageRect(ocrWord.BoundingRect), angle, rotationCenter)).ToList();
+                var text = withoutSpaces ? string.Concat(words.Select(word => word.Text)) : ocrLine.Text;
+                var line = new DetectedOcrLine(text, words, angle, rotationCenter);
+                if (!line.Bounds.IsEmpty)
                 {
-                    var wordBounds = ocrImage.ToImageRect(ocrWord.BoundingRect, angle);
-                    words.Add(new OcrWordInfo(ocrWord.Text, wordBounds));
-                    // All words have the same rotation, the line is rotated like them
-                    lineBounds = lineBounds.Union(wordBounds);
-                }
-
-                if (!lineBounds.IsEmpty)
-                {
-                    var text = withoutSpaces ? string.Concat(words.Select(word => word.Text)) : ocrLine.Text;
-                    result.Add(new DetectedOcrLine(lineBounds, text, words));
+                    result.Add(line);
                 }
             }
 
@@ -205,24 +202,31 @@ namespace Greenshot.Plugin.Win10
         }
 
         /// <summary>
-        /// Map a rect reported by the engine to the coordinates of the original image.
-        /// For rotated text the engine reports the rects deskewed, as if the text were horizontal: the text is where the rect is
-        /// after rotating it by the angle around the centre of the bitmap the engine read. The rect and that centre are mapped to the original image,
-        /// removing the padding and the scale doesn't change the rotation.
+        /// Map a rect reported by the engine to the coordinates of the original image, removing the padding and the scale
         /// </summary>
         /// <param name="x">X of the reported rect, in the coordinates of the bitmap the engine read</param>
         /// <param name="y">Y of the reported rect</param>
         /// <param name="width">Width of the reported rect</param>
         /// <param name="height">Height of the reported rect</param>
-        /// <param name="angle">OcrResult.TextAngle in degrees, clockwise, 0 for horizontal text</param>
+        /// <param name="scale">How the original image was scaled for the engine</param>
+        /// <param name="paddingX">Padding left (and right) of the original image</param>
+        /// <param name="paddingY">Padding above (and below) the original image</param>
+        /// <returns>Rect in the coordinates of the original image</returns>
+        internal static WpfRect ToImageRect(double x, double y, double width, double height, double scale, int paddingX, int paddingY) =>
+            new((x - paddingX) / scale, (y - paddingY) / scale, width / scale, height / scale);
+
+        /// <summary>
+        /// The centre of the bitmap the engine read, around which it deskews rotated text, in the coordinates of the original image.
+        /// Removing the padding and the scale doesn't change the rotation.
+        /// </summary>
         /// <param name="bitmapWidth">Width of the bitmap the engine read, padding included</param>
         /// <param name="bitmapHeight">Height of the bitmap the engine read, padding included</param>
         /// <param name="scale">How the original image was scaled for the engine</param>
         /// <param name="paddingX">Padding left (and right) of the original image</param>
         /// <param name="paddingY">Padding above (and below) the original image</param>
-        /// <returns>RotatedRect in the coordinates of the original image</returns>
-        internal static RotatedRect ToImageRect(double x, double y, double width, double height, double angle, double bitmapWidth, double bitmapHeight, double scale, int paddingX, int paddingY) =>
-            new((x - paddingX) / scale, (y - paddingY) / scale, width / scale, height / scale, angle, (bitmapWidth / 2d - paddingX) / scale, (bitmapHeight / 2d - paddingY) / scale);
+        /// <returns>Point in the coordinates of the original image</returns>
+        internal static WpfPoint ToImageRotationCenter(double bitmapWidth, double bitmapHeight, double scale, int paddingX, int paddingY) =>
+            new((bitmapWidth / 2d - paddingX) / scale, (bitmapHeight / 2d - paddingY) / scale);
 
         /// <summary>
         /// The image the engine reads: a copy of the pixels, scaled down when larger than the engine supports and padded when very small
@@ -249,9 +253,12 @@ namespace Greenshot.Plugin.Win10
             /// Bounds reported by the engine, in the coordinates of the original image
             /// </summary>
             /// <param name="rect">Rect reported by the engine</param>
-            /// <param name="angle">Angle of the text in degrees clockwise, 0 when the rect is used as reported</param>
-            public RotatedRect ToImageRect(WinRtRect rect, double angle) =>
-                Win10OcrProvider.ToImageRect(rect.X, rect.Y, rect.Width, rect.Height, angle, Bitmap.PixelWidth, Bitmap.PixelHeight, Scale, PaddingX, PaddingY);
+            public WpfRect ToImageRect(WinRtRect rect) => Win10OcrProvider.ToImageRect(rect.X, rect.Y, rect.Width, rect.Height, Scale, PaddingX, PaddingY);
+
+            /// <summary>
+            /// The centre of the rotation of rotated text, in the coordinates of the original image
+            /// </summary>
+            public WpfPoint RotationCenter => ToImageRotationCenter(Bitmap.PixelWidth, Bitmap.PixelHeight, Scale, PaddingX, PaddingY);
 
             public static OcrImage Create(Image image)
             {
