@@ -1,22 +1,22 @@
 /*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
+- Greenshot - a free and open source screenshot tool
+- Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
- * For more information see: https://getgreenshot.org/
- * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+- For more information see: https://getgreenshot.org/
+- The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
+- This program is free software: you can redistribute it and/or modify
+- it under the terms of the GNU General Public License as published by
+- the Free Software Foundation, either version 1 of the License, or
+- (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+- This program is distributed in the hope that it will be useful,
+- but WITHOUT ANY WARRANTY; without even the implied warranty of
+- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+- You should have received a copy of the GNU General Public License
+- along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 using System;
@@ -846,9 +846,9 @@ namespace Greenshot.Editor.Drawing
                 clonedSurface.LoadElementsFromStream(ms);
 
                 /* TODO: LoadElementsFromStream() selects all Elements, we don't want that in the clone.
-                * It should be changed there but that would be a breaking change, e.g. for copy/paste.
-                */
-                clonedSurface.DeselectAllElements(); 
+                 * It should be changed there but that would be a breaking change, e.g. for copy/paste.
+                 */
+                clonedSurface.DeselectAllElements();
             }
 
             return clonedSurface;
@@ -1397,14 +1397,14 @@ namespace Greenshot.Editor.Drawing
                 cropRectangle = new NativeRect(cropRectangle.Left, cropRectangle.Top, cropRectangle.Width, Image.Height - cropRectangle.Top);
             }
 
-            // special condition for vertical 
+            // special condition for vertical
             if(cropMode == CropContainer.CropModes.Vertical && cropRectangle.Width == Image.Width)
             {
                 //crop out the hole image is not allowed
                 return false;
             }
 
-            // special condition for vertical 
+            // special condition for vertical
             if (cropMode == CropContainer.CropModes.Horizontal && cropRectangle.Height == Image.Height)
             {
                 //crop out the hole image is not allowed
@@ -1941,7 +1941,7 @@ namespace Greenshot.Editor.Drawing
                 foreach (IAdorner adorner in drawableContainer.Adorners)
                 {
                     if (!adorner.IsActive && !adorner.HitTest(mouseEventArgs.Location)) continue;
-                    
+
                     if (adorner.Cursor != null)
                     {
                         Cursor = adorner.Cursor;
@@ -2671,8 +2671,8 @@ namespace Greenshot.Editor.Drawing
             // create new collection so that we can iterate safely (selectedElements might change due with confirm/cancel)
             List<IDrawableContainer> selectedDCs = new List<IDrawableContainer>(selectedElements);
             foreach (IDrawableContainer dc in selectedDCs.Where(c => c.IsConfirmable))
-            {                
-                throw new NotImplementedException($"No confirm/cancel defined for Container type {dc.GetType()}");               
+            {
+                throw new NotImplementedException($"No confirm/cancel defined for Container type {dc.GetType()}");
             }
 
             // maybe the undo button has to be enabled
@@ -2687,7 +2687,7 @@ namespace Greenshot.Editor.Drawing
         public void ConfirmCrop(bool confirm)
         {
             if (_cropContainer is not CropContainer e) return;
-                    
+
             if (confirm && selectedElements.Count > 0)
             {
                 // No undo memento for the cropcontainer itself, only for the effect
@@ -3040,24 +3040,43 @@ namespace Greenshot.Editor.Drawing
             if (selectedElements.Count <= 0 && k != Keys.Escape) return false;
 
             bool shiftModifier = (ModifierKeys & Keys.Shift) == Keys.Shift;
-            int px = shiftModifier ? 10 : 1;
+            bool ctrlModifier = (ModifierKeys & Keys.Control) == Keys.Control;
+
+            int px = conf.KeyboardMovementStandard;
+            if (ctrlModifier)
+            {
+                px = conf.KeyboardMovementFast;
+            }
+            else if (shiftModifier)
+            {
+                px = conf.KeyboardMovementShift;
+            }
+
             NativePoint moveBy = NativePoint.Empty;
             switch (k)
             {
                 case Keys.Left:
                 case Keys.Left | Keys.Shift:
+                case Keys.Left | Keys.Control:
+                case Keys.Left | Keys.Control | Keys.Shift:
                     moveBy = new NativePoint(-px, 0);
                     break;
                 case Keys.Up:
                 case Keys.Up | Keys.Shift:
+                case Keys.Up | Keys.Control:
+                case Keys.Up | Keys.Control | Keys.Shift:
                     moveBy = new NativePoint(0, -px);
                     break;
                 case Keys.Right:
                 case Keys.Right | Keys.Shift:
+                case Keys.Right | Keys.Control:
+                case Keys.Right | Keys.Control | Keys.Shift:
                     moveBy = new NativePoint(px, 0);
                     break;
                 case Keys.Down:
                 case Keys.Down | Keys.Shift:
+                case Keys.Down | Keys.Control:
+                case Keys.Down | Keys.Control | Keys.Shift:
                     moveBy = new NativePoint(0, px);
                     break;
                 case Keys.PageUp:
