@@ -18,25 +18,19 @@ Greenshot features a modular, recipe-driven capture pipeline powered by a **Dire
 Recipes can be written in code or provided as external `.json` (`.gsrecipe.json`) files. External JSON recipes can create new custom capture workflows or securely override Greenshot's built-in recipes.
 
 > [!IMPORTANT]
-> **Experimental Feature Notice & Activation**:
-> Capture Recipes, the DAG workflow execution engine, the Visual Recipe Editor, and external recipe loading are **experimental features** primarily intended for technical, tech-affine users and power users. We do not know yet if or in what format this capability will be made available in future public releases.
+> **Experimental**: recipes, the recipe editor and recipe files are for experts for now. We don't know yet in what form recipes will be available to everyone else, and the format can still change.
 >
-> ### How to Enable Capture Recipes in Greenshot:
-> To enable external recipes, context menu triggers, the Recipe Importer, and the Visual Recipe Editor:
-> 1. Open your `greenshot.ini` configuration file (located in `%APPDATA%\Greenshot\greenshot.ini` or in the application directory if portable).
-> 2. Under the `[Core]` section, find and enable EnableRecipeFeature by setting it to true:
->    ```ini
->    [Core]
->    EnableRecipeFeature=True
->    ```
-> 3. Restart Greenshot.
-> 4. Right-click the Greenshot system tray icon to reveal the new **Recipes** menu:
->    - **Recipes $\rightarrow$ [Configured Recipe Triggers]**: Runs recipe workflows with a single click.
->    - **Recipes $\rightarrow$ Import Recipe...**: Imports and installs `.gsrecipe.json` recipe files.
->    - **Recipes $\rightarrow$ Reload Recipes**: Hot-reloads all recipes from disk without restarting Greenshot.
->    - **Recipes $\rightarrow$ Recipe Editor...**: Opens the visual node-based Recipe Editor.
+> ### Using recipes
+> Recipes are on as soon as the Recipe Editor plug-in is installed. To switch them off, set `EnableRecipeFeature=False` in the `[Recipe]` section of `greenshot.ini` (`%APPDATA%\Greenshot\greenshot.ini`, or next to Greenshot.exe when portable). Greenshot Light only has the built-in recipes.
 >
-> Custom recipes are stored in `%APPDATA%\Greenshot\Recipes\*.gsrecipe.json`.
+> Right-click the Greenshot tray icon and open **Recipes**:
+> - **your recipes' menu entries**: run them with a single click.
+> - **Import Recipe...**: approve a `.gsrecipe.json` file and add it to your recipes.
+> - **Reload Recipes**: read the recipe files again.
+> - **Recipe Manager...** and **Recipe Editor...**: manage, create and change recipes.
+>
+> Greenshot doesn't scan a folder for recipe files: it only loads the files listed in `RecipeFiles` in the `[Recipe]` section, which Import and the recipe editor fill in for you.
+
 
 ### Approving recipe files
 

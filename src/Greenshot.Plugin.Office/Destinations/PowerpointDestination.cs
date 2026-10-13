@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -20,13 +20,10 @@
  */
 
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Plugin.Office.OfficeExport;
 
 namespace Greenshot.Plugin.Office.Destinations
@@ -39,18 +36,9 @@ namespace Greenshot.Plugin.Office.Destinations
         private const int IconApplication = 0;
         private const int IconPresentation = 1;
 
-        private static readonly string ExePath;
+        private static readonly string ExePath = GetComServerPath("PowerPoint.Application");
         private readonly string _presentationName;
         private readonly PowerpointExporter _powerpointExporter = new PowerpointExporter();
-
-        static PowerpointDestination()
-        {
-            ExePath = OfficeUtils.GetOfficeExePath("POWERPNT.EXE") ?? PluginUtils.GetExePath("POWERPNT.EXE");
-            if (ExePath != null && !File.Exists(ExePath))
-            {
-                ExePath = null;
-            }
-        }
 
         public PowerpointDestination()
         {

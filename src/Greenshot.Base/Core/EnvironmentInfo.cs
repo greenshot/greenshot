@@ -24,9 +24,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
-using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.User32;
-using Dapplo.Windows.Common.Extensions;
 using Greenshot.Base.Interfaces.Plugin;
 using System.Linq;
 

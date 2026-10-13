@@ -24,7 +24,6 @@ using System.IO;
 using System.IO.Pipes;
 using System.Security.Principal;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Ipc;
 using Greenshot.Ipc.BrowserExtension;

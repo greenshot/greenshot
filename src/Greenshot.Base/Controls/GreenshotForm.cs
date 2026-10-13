@@ -26,7 +26,6 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
-using Dapplo.Ini;
 using Greenshot.Base.Core;
 using log4net;
 using Greenshot.Base.Threading;
@@ -194,7 +193,7 @@ namespace Greenshot.Base.Controls
             base.OnShown(e);
             if (ToFront)
             {
-                WindowDetails.ToForeground(Handle);
+                WindowHelper.ToForeground(Handle);
             }
         }
 

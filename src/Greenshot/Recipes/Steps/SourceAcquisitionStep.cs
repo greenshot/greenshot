@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -22,7 +22,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,11 +29,10 @@ using System.Windows.Forms;
 using Dapplo.Ini;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Desktop;
 using Dapplo.Windows.User32;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
-using Contracts = Greenshot.Base.Recipes.Contracts;
 
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
@@ -273,7 +271,7 @@ namespace Greenshot.Recipes.Steps
             }
             if (AiToolCapture.IsAiToolRun(context))
             {
-                string processName = AiToolCapture.GetProcessName(window);
+                string processName = window.GetProcessName();
                 if (AiToolAccess.IsProcessExcluded(processName))
                 {
                     context.Fail($"Windows of '{processName}' are excluded from AI tools.");
@@ -285,7 +283,7 @@ namespace Greenshot.Recipes.Steps
             if (capture?.Image == null)
             {
                 capture?.Dispose();
-                context.Fail($"Capturing the window '{window.Text}' failed.");
+                context.Fail($"Capturing the window '{window.GetCaption()}' failed.");
                 return;
             }
 

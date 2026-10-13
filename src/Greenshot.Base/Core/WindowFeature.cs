@@ -21,6 +21,7 @@
 
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Desktop;
 using Greenshot.Base.Interfaces.Plugin;
 
 namespace Greenshot.Base.Core
@@ -37,15 +38,15 @@ namespace Greenshot.Base.Core
         public string FeatureType => "Window";
 
         /// <inheritdoc />
-        public string Text => Window?.Text;
+        public string Text => Window?.GetCaption();
 
         /// <inheritdoc />
-        public string ToolTipText => Window?.Text;
+        public string ToolTipText => Window?.GetCaption();
 
         /// <summary>
-        /// The underlying WindowDetails object
+        /// The window
         /// </summary>
-        public WindowDetails Window { get; }
+        public IInteropWindow Window { get; }
 
         /// <summary>
         /// Z-index of the window at the time of enumeration
@@ -55,12 +56,12 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="window">The WindowDetails to wrap</param>
+        /// <param name="window">The IInteropWindow to wrap</param>
         /// <param name="zIndex">The Z-index</param>
-        public WindowFeature(WindowDetails window, int zIndex)
+        public WindowFeature(IInteropWindow window, int zIndex)
         {
             Window = window;
-            Bounds = window.WindowRectangle;
+            Bounds = window.GetInfo().Bounds;
             ZIndex = zIndex;
         }
 

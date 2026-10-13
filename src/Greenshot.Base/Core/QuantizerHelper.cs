@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using log4net;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace Greenshot.Base.Core
 {
@@ -166,52 +167,64 @@ namespace Greenshot.Base.Core
             }
 
             // Use a bitmap to store the initial match, which is just as good as an array and saves us 2x the storage
-            using IFastBitmap sourceFastBitmap = FastBitmap.Create(sourceBitmap);
-            IFastBitmapWithBlend sourceFastBitmapWithBlend = sourceFastBitmap as IFastBitmapWithBlend;
-            sourceFastBitmap.Lock();
-            using FastChunkyBitmap destinationFastBitmap = FastBitmap.CreateEmpty(sourceBitmap.Size, PixelFormat.Format8bppIndexed, Color.White) as FastChunkyBitmap;
-            destinationFastBitmap.Lock();
-            for (int y = 0; y < sourceFastBitmap.Height; y++)
+            resultBitmap = ImageHelper.CreateEmpty(sourceBitmap.Width, sourceBitmap.Height, PixelFormat.Format8bppIndexed, Color.White);
+            int foundColors = 0;
+            BitmapPixels.ProcessPixelRows<Bgra32, byte>(sourceBitmap, ImageLockMode.ReadOnly, resultBitmap, ImageLockMode.WriteOnly, (source, destination) =>
             {
-                for (int x = 0; x < sourceFastBitmap.Width; x++)
+                for (int y = 0; y < source.Height; y++)
                 {
-                    Color color;
-                    if (sourceFastBitmapWithBlend == null)
+                    var sourceRow = source.GetRowSpan(y);
+                    var destinationRow = destination.GetRowSpan(y);
+                    for (int x = 0; x < sourceRow.Length; x++)
                     {
-                        color = sourceFastBitmap.GetColorAt(x, y);
+                        Color color = GetBlendedColor(sourceRow[x]);
+
+                        // To count the colors
+                        int index = color.ToArgb() & 0x00ffffff;
+                        // Check if we already have this color
+                        if (!bitArray.Get(index))
+                        {
+                            // If not, add 1 to the single colors
+                            foundColors++;
+                            bitArray.Set(index, true);
+                        }
+
+                        int indexRed = (color.R >> 3) + 1;
+                        int indexGreen = (color.G >> 3) + 1;
+                        int indexBlue = (color.B >> 3) + 1;
+
+                        weights[indexRed, indexGreen, indexBlue]++;
+                        momentsRed[indexRed, indexGreen, indexBlue] += color.R;
+                        momentsGreen[indexRed, indexGreen, indexBlue] += color.G;
+                        momentsBlue[indexRed, indexGreen, indexBlue] += color.B;
+                        moments[indexRed, indexGreen, indexBlue] += table[color.R] + table[color.G] + table[color.B];
+
+                        // Store the initial "match"
+                        int paletteIndex = (indexRed << 10) + (indexRed << 6) + indexRed + (indexGreen << 5) + indexGreen + indexBlue;
+                        destinationRow[x] = (byte) (paletteIndex & 0xff);
                     }
-                    else
-                    {
-                        color = sourceFastBitmapWithBlend.GetBlendedColorAt(x, y);
-                    }
-
-                    // To count the colors
-                    int index = color.ToArgb() & 0x00ffffff;
-                    // Check if we already have this color
-                    if (!bitArray.Get(index))
-                    {
-                        // If not, add 1 to the single colors
-                        colorCount++;
-                        bitArray.Set(index, true);
-                    }
-
-                    int indexRed = (color.R >> 3) + 1;
-                    int indexGreen = (color.G >> 3) + 1;
-                    int indexBlue = (color.B >> 3) + 1;
-
-                    weights[indexRed, indexGreen, indexBlue]++;
-                    momentsRed[indexRed, indexGreen, indexBlue] += color.R;
-                    momentsGreen[indexRed, indexGreen, indexBlue] += color.G;
-                    momentsBlue[indexRed, indexGreen, indexBlue] += color.B;
-                    moments[indexRed, indexGreen, indexBlue] += table[color.R] + table[color.G] + table[color.B];
-
-                    // Store the initial "match"
-                    int paletteIndex = (indexRed << 10) + (indexRed << 6) + indexRed + (indexGreen << 5) + indexGreen + indexBlue;
-                    destinationFastBitmap.SetColorIndexAt(x, y, (byte) (paletteIndex & 0xff));
                 }
+            });
+            colorCount = foundColors;
+        }
+
+        /// <summary>
+        /// The color of the pixel without alpha: blended onto white when it's not opaque
+        /// </summary>
+        private static Color GetBlendedColor(Bgra32 pixel)
+        {
+            int red = pixel.R;
+            int green = pixel.G;
+            int blue = pixel.B;
+            if (pixel.A < 255)
+            {
+                int rem = 255 - pixel.A;
+                red = (red * pixel.A + 255 * rem) / 255;
+                green = (green * pixel.A + 255 * rem) / 255;
+                blue = (blue * pixel.A + 255 * rem) / 255;
             }
 
-            resultBitmap = destinationFastBitmap.UnlockAndReturnBitmap();
+            return Color.FromArgb(255, red, green, blue);
         }
 
         /// <summary>
@@ -230,43 +243,26 @@ namespace Greenshot.Base.Core
         {
             List<Color> colors = new List<Color>();
             Dictionary<Color, byte> lookup = new Dictionary<Color, byte>();
-            using (FastChunkyBitmap bbbDest = FastBitmap.Create(resultBitmap) as FastChunkyBitmap)
+            BitmapPixels.ProcessPixelRows<Bgra32, byte>(sourceBitmap, ImageLockMode.ReadOnly, resultBitmap, ImageLockMode.WriteOnly, (source, destination) =>
             {
-                bbbDest.Lock();
-                using IFastBitmap bbbSrc = FastBitmap.Create(sourceBitmap);
-                IFastBitmapWithBlend bbbSrcBlend = bbbSrc as IFastBitmapWithBlend;
-
-                bbbSrc.Lock();
-                byte index;
-                for (int y = 0; y < bbbSrc.Height; y++)
+                for (int y = 0; y < source.Height; y++)
                 {
-                    for (int x = 0; x < bbbSrc.Width; x++)
+                    var sourceRow = source.GetRowSpan(y);
+                    var destinationRow = destination.GetRowSpan(y);
+                    for (int x = 0; x < sourceRow.Length; x++)
                     {
-                        Color color;
-                        if (bbbSrcBlend != null)
-                        {
-                            color = bbbSrcBlend.GetBlendedColorAt(x, y);
-                        }
-                        else
-                        {
-                            color = bbbSrc.GetColorAt(x, y);
-                        }
-
-                        if (lookup.ContainsKey(color))
-                        {
-                            index = lookup[color];
-                        }
-                        else
+                        Color color = GetBlendedColor(sourceRow[x]);
+                        if (!lookup.TryGetValue(color, out byte index))
                         {
                             colors.Add(color);
                             index = (byte) (colors.Count - 1);
                             lookup.Add(color, index);
                         }
 
-                        bbbDest.SetColorIndexAt(x, y, index);
+                        destinationRow[x] = index;
                     }
                 }
-            }
+            });
 
             // generates palette
             ColorPalette imagePalette = resultBitmap.Palette;
@@ -383,35 +379,25 @@ namespace Greenshot.Base.Core
 
             LOG.Info("Starting bitmap reconstruction...");
 
-            using (FastChunkyBitmap dest = FastBitmap.Create(resultBitmap) as FastChunkyBitmap)
+            Dictionary<Color, byte> lookup = new Dictionary<Color, byte>();
+            BitmapPixels.ProcessPixelRows<Bgra32, byte>(sourceBitmap, ImageLockMode.ReadOnly, resultBitmap, ImageLockMode.ReadWrite, (source, destination) =>
             {
-                using IFastBitmap src = FastBitmap.Create(sourceBitmap);
-                IFastBitmapWithBlend srcBlend = src as IFastBitmapWithBlend;
-                Dictionary<Color, byte> lookup = new Dictionary<Color, byte>();
-                for (int y = 0; y < src.Height; y++)
+                for (int y = 0; y < source.Height; y++)
                 {
-                    for (int x = 0; x < src.Width; x++)
+                    var sourceRow = source.GetRowSpan(y);
+                    var destinationRow = destination.GetRowSpan(y);
+                    for (int x = 0; x < sourceRow.Length; x++)
                     {
-                        Color color;
-                        if (srcBlend != null)
-                        {
-                            // WithoutAlpha, this makes it possible to ignore the alpha
-                            color = srcBlend.GetBlendedColorAt(x, y);
-                        }
-                        else
-                        {
-                            color = src.GetColorAt(x, y);
-                        }
+                        // Without alpha, this makes it possible to ignore the alpha
+                        Color color = GetBlendedColor(sourceRow[x]);
 
                         // Check if we already matched the color
-                        byte bestMatch;
-                        if (!lookup.ContainsKey(color))
+                        if (!lookup.TryGetValue(color, out byte bestMatch))
                         {
                             // If not we need to find the best match
 
                             // First get initial match
-                            bestMatch = dest.GetColorIndexAt(x, y);
-                            bestMatch = tag[bestMatch];
+                            bestMatch = tag[destinationRow[x]];
 
                             int bestDistance = 100000000;
                             for (int lookupIndex = 0; lookupIndex < allowedColorCount; lookupIndex++)
@@ -434,22 +420,16 @@ namespace Greenshot.Base.Core
 
                             lookup.Add(color, bestMatch);
                         }
-                        else
-                        {
-                            // Already matched, so we just use the lookup
-                            bestMatch = lookup[color];
-                        }
 
                         reds[bestMatch] += color.R;
                         greens[bestMatch] += color.G;
                         blues[bestMatch] += color.B;
                         sums[bestMatch]++;
 
-                        dest.SetColorIndexAt(x, y, bestMatch);
+                        destinationRow[x] = bestMatch;
                     }
                 }
-            }
-
+            });
 
             // generates palette
             ColorPalette imagePalette = resultBitmap.Palette;

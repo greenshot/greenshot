@@ -22,7 +22,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Triggers;
 
 namespace Greenshot.Base.Recipes.Pipeline

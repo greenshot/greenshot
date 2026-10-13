@@ -34,12 +34,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Core.FileFormatHandlers;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
-using Greenshot.Base.Interfaces.Plugin;
 using log4net;
 
 namespace Greenshot.Base.Core

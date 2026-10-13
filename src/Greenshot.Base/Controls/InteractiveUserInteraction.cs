@@ -89,6 +89,10 @@ namespace Greenshot.Base.Controls
             return ModalAsync(() =>
             {
                 var saveImageFileDialog = new SaveImageFileDialog(request?.CaptureDetails);
+                if (!string.IsNullOrWhiteSpace(request?.Format))
+                {
+                    saveImageFileDialog.Extension = request.Format;
+                }
                 return saveImageFileDialog.ShowDialog() ? saveImageFileDialog.FileNameWithExtension : null;
             }, cancellationToken);
         }

@@ -21,7 +21,6 @@
 
 using System.Windows;
 using System.Windows.Controls;
-using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces.Plugin;

@@ -33,7 +33,6 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using Dapplo.Windows.Clipboard;
 using Dapplo.Windows.User32;
-using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
 using log4net;
 using Greenshot.Base.Threading;

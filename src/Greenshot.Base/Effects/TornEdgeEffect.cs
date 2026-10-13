@@ -84,10 +84,8 @@ namespace Greenshot.Base.Effects
             Image tornImage = ImageHelper.CreateTornEdge(sourceImage, ToothHeight, HorizontalToothRange, VerticalToothRange, Edges, Seed);
             if (GenerateShadow)
             {
-                using (tornImage)
-                {
-                    tornImage = ImageHelper.CreateShadow(tornImage, Darkness, ShadowSize, ShadowOffset, matrix, PixelFormat.Format32bppArgb);
-                }
+                using var withoutShadow = tornImage;
+                tornImage = ImageHelper.CreateShadow(withoutShadow, Darkness, ShadowSize, ShadowOffset, matrix, PixelFormat.Format32bppArgb);
             }
 
             if (BackgroundColor.A == 0)

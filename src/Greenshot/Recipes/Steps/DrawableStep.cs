@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -24,15 +24,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Icons;
-using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
-using Contracts = Greenshot.Base.Recipes.Contracts;
 
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
@@ -41,7 +38,6 @@ using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Emoji;
 using Greenshot.Editor.Drawing.Fields;
-using Greenshot.Editor.Helpers;
 using log4net;
 using Newtonsoft.Json.Linq;
 

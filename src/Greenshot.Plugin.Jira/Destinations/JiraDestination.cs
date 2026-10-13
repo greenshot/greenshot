@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -34,7 +34,6 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Languages;
-using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Plugin.Jira.Api;
 
 namespace Greenshot.Plugin.Jira.Destinations;

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -24,7 +24,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
-using Contracts = Greenshot.Base.Recipes.Contracts;
 
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;

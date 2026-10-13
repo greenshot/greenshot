@@ -202,10 +202,8 @@ namespace Greenshot.Editor.FileFormatHandlers
 
                     int iImageSize = BitConverter.ToInt32(srcBuf, sizeIconDir + sizeIconDirEntry * iIndex + 8);
                     int iImageOffset = BitConverter.ToInt32(srcBuf, sizeIconDir + sizeIconDirEntry * iIndex + 12);
-                    using MemoryStream destStream = new MemoryStream();
-                    destStream.Write(srcBuf, iImageOffset, iImageSize);
-                    destStream.Seek(0, SeekOrigin.Begin);
-                    bmpPngExtracted = new Bitmap(destStream); // This is PNG! :)
+                    // This is PNG! :) Not disposed: GDI+ needs the stream as long as the bitmap lives
+                    bmpPngExtracted = new Bitmap(new MemoryStream(srcBuf, iImageOffset, iImageSize));
                     break;
                 }
             }

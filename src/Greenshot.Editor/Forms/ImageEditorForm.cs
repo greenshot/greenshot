@@ -32,6 +32,7 @@ using Dapplo.Ini;
 using Dapplo.Windows.Clipboard;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.User32;
@@ -39,7 +40,6 @@ using Dapplo.Windows.User32.Enums;
 using Dapplo.Windows.User32.Structs;
 using Greenshot.Base;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Effects;
 using Greenshot.Base.Help;
@@ -52,7 +52,6 @@ using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Controls;
-using Greenshot.Editor.Controls.Emoji;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Emoji;
@@ -63,9 +62,7 @@ using Greenshot.Base.Threading;
 using Greenshot.Editor.Views;
 using log4net;
 using System.Threading.Tasks;
-using System.Threading;
 using Greenshot.Base.Core.Export;
-using Greenshot.Base.Controls;
 using Greenshot.Base.Languages;
 
 namespace Greenshot.Editor.Forms
@@ -169,8 +166,6 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         AlignCanvasPositionAfterResize();
     }));
 }
-
-            UpdateUi();
         }
 
         private bool? _matchSizeToCapture;
@@ -403,11 +398,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             var placement = EditorConfigurationHelper.GetEditorPlacement(EditorConfiguration);
             bool maximized = placement.ShowCmd == ShowWindowCommands.Maximize;
             placement.ShowCmd = ShowWindowCommands.Hide;
-            // ReSharper disable once UnusedVariable
-            WindowDetails thisForm = new(Handle)
-            {
-                WindowPlacement = placement
-            };
+            InteropWindowFactory.CreateFor(Handle).SetPlacement(placement);
             if (maximized)
             {
                 WindowState = FormWindowState.Maximized;
@@ -525,7 +516,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             }
 
             Activate();
-            WindowDetails.ToForeground(Handle);
+            WindowHelper.ToForeground(Handle);
         }
 
         private void UpdateUi()
@@ -1268,7 +1259,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             if (_surface.Modified && !EditorConfiguration.SuppressSaveDialogAtClose)
             {
                 // Make sure the editor is visible
-                WindowDetails.ToForeground(Handle);
+                WindowHelper.ToForeground(Handle);
 
                 MessageBoxButtons buttons = MessageBoxButtons.YesNoCancel;
                 // Disallow "CANCEL" if the application needs to shutdown
@@ -1297,7 +1288,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             }
 
             // persist our geometry string.
-            EditorConfigurationHelper.SetEditorPlacement(EditorConfiguration, new WindowDetails(Handle).WindowPlacement);
+            EditorConfigurationHelper.SetEditorPlacement(EditorConfiguration, InteropWindowFactory.CreateFor(Handle).GetPlacement());
             IniConfigRegistry.Get().Save();
 
             // remove from the editor list
@@ -1729,8 +1720,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 }
 
                 // The cut edges are for crop and crop out, or for selected cut or torn edges
-                cutMarkLabel.Visible = cutMarkStyleButton.Visible = props.HasFieldValue(FieldType.CUT_MARK_STYLE) &&
-                                             (!cropping || cropMode != CropContainer.CropModes.AutoCrop);
+                cutMarkLabel.Visible = cutMarkStyleButton.Visible = props.HasFieldValue(FieldType.CUT_MARK_STYLE);
                 highlightModeButton.Visible = props.HasFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT);
             }
             else
@@ -2238,10 +2228,10 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         private void Contextmenu_window_Click(object sender, EventArgs e)
         {
             var clickedItem = (ToolStripMenuItem)sender;
-            AsyncCommand.Run(() => CaptureWindowIntoEditorAsync((WindowDetails)clickedItem.Tag), "Capture a window into the editor");
+            AsyncCommand.Run(() => CaptureWindowIntoEditorAsync((IInteropWindow)clickedItem.Tag), "Capture a window into the editor");
         }
 
-        private async Task CaptureWindowIntoEditorAsync(WindowDetails windowToCapture)
+        private async Task CaptureWindowIntoEditorAsync(IInteropWindow windowToCapture)
         {
             try
             {
@@ -2264,7 +2254,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                     }
 
                     Activate();
-                    WindowDetails.ToForeground(Handle);
+                    WindowHelper.ToForeground(Handle);
                 }
 
                 capture?.Dispose();

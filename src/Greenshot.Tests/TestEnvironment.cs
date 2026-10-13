@@ -24,6 +24,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Threading;
 using Greenshot.Editor;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Drawing;
@@ -56,11 +57,13 @@ namespace Greenshot.Tests
                 }
                 CoreFileFormats.RegisterCoreFileFormats(supportedFileFormatRegistry);
 
-                CapturePayload.DefaultSurfaceFactory = capture => new Surface(capture) { Modified = true };
+                // Like CapturePipeline: a Surface created on a pool thread must not install the WinForms SynchronizationContext there,
+                // an await in the test would continue on a message loop which never runs (xunit.v3 runs the tests without a context)
+                CapturePayload.DefaultSurfaceFactory = capture => WinFormsContextGuard.CreateWithoutContext<ISurface>(() => new Surface(capture) { Modified = true });
 
                 if (SimpleServiceProvider.Current.GetInstance<Func<ISurface>>(isOptional: true) == null)
                 {
-                    SimpleServiceProvider.Current.AddService<Func<ISurface>>(() => new Surface());
+                    SimpleServiceProvider.Current.AddService<Func<ISurface>>(() => WinFormsContextGuard.CreateWithoutContext<ISurface>(() => new Surface()));
                 }
 
                 EditorInitialize.Initialize();
@@ -75,6 +78,7 @@ namespace Greenshot.Tests
                 Texts.Register<Greenshot.Plugin.Imgur.IImgurLanguage>(new Greenshot.Plugin.Imgur.ImgurLanguageImpl());
                 Texts.Register<Greenshot.Plugin.Jira.IJiraLanguage>(new Greenshot.Plugin.Jira.JiraLanguageImpl());
                 Texts.Register<Greenshot.Plugin.Office.IOfficeLanguage>(new Greenshot.Plugin.Office.OfficeLanguageImpl());
+                Texts.Register<Greenshot.Plugin.Pdf.IPdfLanguage>(new Greenshot.Plugin.Pdf.PdfLanguageImpl());
 
                 _initialized = true;
             }

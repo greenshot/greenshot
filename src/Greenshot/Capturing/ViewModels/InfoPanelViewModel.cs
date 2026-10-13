@@ -20,18 +20,10 @@
  */
 
 
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using System.Windows.Input;
-using System.Windows.Threading;
-using Dapplo.Ini;
-using Dapplo.Windows.Common.Structs;
-using Greenshot.Base.Core;
-using Greenshot.Base.Interfaces.Capture;
 using Greenshot.Base.Languages;
 
 namespace Greenshot.Capturing.ViewModels

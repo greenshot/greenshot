@@ -22,8 +22,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Greenshot.Base.Core.Enums;
-using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes.Expressions;
 using Greenshot.Base.Recipes.Pipeline;
 using Newtonsoft.Json.Linq;

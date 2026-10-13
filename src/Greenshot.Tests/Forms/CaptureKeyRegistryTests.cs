@@ -108,6 +108,20 @@ public class CaptureKeyRegistryTests
     }
 
     [Fact]
+    public void KeyForSomeTools_OnlyWorksAndShowsForThem()
+    {
+        var registry = new CaptureKeyRegistry();
+        var region = new FakeTool();
+        var window = new FakeTool();
+        var zoomer = registry.Register(new CaptureKeyBinding(Window, null, Key.Z, ModifierKeys.None, () => "zoomer", () => { }, tool => tool == region));
+
+        Assert.Same(zoomer, registry.Find(Key.Z, ModifierKeys.None, region));
+        Assert.Null(registry.Find(Key.Z, ModifierKeys.None, window));
+        Assert.True(zoomer.IsActiveFor(region));
+        Assert.False(zoomer.IsActiveFor(window));
+    }
+
+    [Fact]
     public void Find_WithShift_FallsBackToTheKeyWithoutShift()
     {
         var registry = new CaptureKeyRegistry();

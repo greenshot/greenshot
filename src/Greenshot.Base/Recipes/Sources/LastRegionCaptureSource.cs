@@ -22,7 +22,9 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Ini;
+using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Desktop;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes.Pipeline;
@@ -52,11 +54,11 @@ namespace Greenshot.Base.Recipes.Sources
 
             // Attempt to resolve window title from visible window at center of last region
             NativePoint centerPoint = new NativePoint(lastRegion.X + lastRegion.Width / 2, lastRegion.Y + lastRegion.Height / 2);
-            foreach (WindowDetails window in WindowDetails.GetVisibleWindows())
+            foreach (var window in WindowHelper.GetVisibleWindows())
             {
-                if (window.Contains(centerPoint))
+                if (window.GetInfo().Bounds.Contains(centerPoint))
                 {
-                    capture.CaptureDetails.Title = window.Text;
+                    capture.CaptureDetails.Title = window.GetCaption();
                     context.Properties["SelectedWindow"] = window;
                     break;
                 }

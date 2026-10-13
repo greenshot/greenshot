@@ -8,7 +8,6 @@ using System.Windows;
 using System.Windows.Input;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
-using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Triggers;
@@ -2470,6 +2469,18 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     break;
                 case "Office":
                     dict["Application"] = "Word";
+                    break;
+                case "Pdf":
+                    dict["PageSize"] = "Image";
+                    dict["MeasurementUnit"] = "Mm";
+                    dict["PageWidthMm"] = 210.0;
+                    dict["PageHeightMm"] = 297.0;
+                    dict["MarginTopMm"] = 0.0;
+                    dict["MarginBottomMm"] = 0.0;
+                    dict["MarginLeftMm"] = 0.0;
+                    dict["MarginRightMm"] = 0.0;
+                    dict["ScalingMode"] = "OnlyShrinkToFit";
+                    dict["ShowSaveDialog"] = true;
                     break;
                 case "BarcodeScan":
                     dict["SetVariable"] = "barcode_text";

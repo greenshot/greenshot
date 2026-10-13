@@ -1,14 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using System.Windows.Media;
 using Dapplo.Windows.Input.Enums;
 using Greenshot.Base.Core;
-using Greenshot.Base.Wpf;
 
 namespace Greenshot.Base.Wpf.ViewModels
 {
@@ -17,7 +11,8 @@ namespace Greenshot.Base.Wpf.ViewModels
         private readonly HotkeyEditorViewModel _parent;
         private readonly int _index;
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        // All properties are fixed, a changed step gets a new view model. The interface stays so WPF binding does not fall back to PropertyDescriptor (which leaks)
+        public event PropertyChangedEventHandler PropertyChanged { add { } remove { } }
 
         public ChordStepViewModel(HotkeyEditorViewModel parent, int index, KeyChord chord, bool isSelected)
         {

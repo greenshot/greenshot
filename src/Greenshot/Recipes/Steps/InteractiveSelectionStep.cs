@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -25,16 +25,16 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using Dapplo.Ini;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Desktop;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
-using Contracts = Greenshot.Base.Recipes.Contracts;
 
+using Greenshot.Base.Interfaces.Capture;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Pipeline;
@@ -50,6 +50,7 @@ namespace Greenshot.Recipes.Steps
     [StepInfo(WellKnownStepTypes.InteractiveSelection, "Interactive Selection", "Lets the user select a region, a window or text on a capture of the screen. A capture that was handed to the flow, or that is not a screen capture, is used as a whole.", "Interaction")]
     [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Optional, VisualMutation = PayloadEffect.MutatesPixels)]
     [StepParameter("SelectionMode", ContractDataType.Enum, DefaultValue = "Region", Description = "Initial selection mode; Text also extracts the text of the selection", AllowedValues = new[] { "Region", "Window", "Text" })]
+    [StepParameter("SelectionTool", ContractDataType.String, Description = "Id of the capture tool to start with, e.g. one of a plugin; when it is not there, the tool of the SelectionMode")]
     [StepParameter("AllowWindowSnapping", ContractDataType.Boolean, DefaultValue = true, Description = "Snap the selection to windows")]
     [StepInputVariable("PreSuppliedRegion", ContractDataType.Object, Description = "When set, the selection is skipped")]
     [StepOutputVariable("SelectedWindow", ContractDataType.Object, "The window that was selected", Conditional = true)]
@@ -100,10 +101,10 @@ namespace Greenshot.Recipes.Steps
             context.State = CaptureFlowState.Selecting;
 
             bool allowSnapping = Config.GetParameter("AllowWindowSnapping", true);
-            List<WindowDetails> snapWindows = new List<WindowDetails>();
+            List<IInteropWindow> snapWindows = new List<IInteropWindow>();
 
             // Started by the acquire step next to the capture, see GetSnapWindowsAsync
-            Task<List<WindowDetails>> snapWindowsTask = null;
+            Task<List<IInteropWindow>> snapWindowsTask = null;
             bool started = _selector is ICaptureWindowPreparer preparer && preparer.TryTakeSnapWindows(out snapWindowsTask);
             if (allowSnapping)
             {
@@ -128,7 +129,9 @@ namespace Greenshot.Recipes.Steps
 
             CaptureMode initialMode = Config.GetParameter("SelectionMode", CaptureMode.Region);
 
-            var selection = await _selector.SelectAsync(payload.RawCapture, snapWindows, initialMode, cancellationToken).ConfigureAwait(false);
+            string initialTool = Config.GetParameter<string>("SelectionTool");
+
+            var selection = await _selector.SelectAsync(payload.RawCapture, snapWindows, initialMode, initialTool, cancellationToken).ConfigureAwait(false);
 
             if (selection == null)
             {
@@ -138,7 +141,7 @@ namespace Greenshot.Recipes.Steps
 
             if (selection.SelectedWindow != null)
             {
-                payload.RawCapture.CaptureDetails.Title = selection.SelectedWindow.Text;
+                payload.RawCapture.CaptureDetails.Title = selection.SelectedWindow.GetCaption();
                 context.Properties["SelectedWindow"] = selection.SelectedWindow;
             }
 
@@ -152,6 +155,21 @@ namespace Greenshot.Recipes.Steps
                     payload.RawCapture.ScreenBounds.Location.Y);
                 // Configuration is written on the UI thread (single writer, its change events have UI subscribers)
                 context.Ui.InvokeAsync(() => CoreConfig.LastCapturedRegion = screenOffsetRect, CancellationToken.None).FireAndLog("Store the last captured region", Log);
+
+                // A tool which takes its own image of the selection, e.g. of a plugin
+                if (selection.Tool is ISelectionCaptureTool selectionCaptureTool)
+                {
+                    context.State = CaptureFlowState.Acquiring;
+                    var image = await selectionCaptureTool.CaptureSelectionAsync(selection, screenOffsetRect, context.Ui, cancellationToken).ConfigureAwait(false);
+                    if (image == null)
+                    {
+                        context.Abort($"User cancelled the capture of tool {selectionCaptureTool.Id}.");
+                        return;
+                    }
+                    // The cursor was somewhere on the screen, not in the new image
+                    payload.RawCapture.CursorVisible = false;
+                    payload.RawCapture.Image = image;
+                }
             }
 
             if (selection.FinalMode == CaptureMode.Text)
@@ -165,7 +183,7 @@ namespace Greenshot.Recipes.Steps
         /// the selection takes it from there. They are the windows of the moment of the capture as before.
         /// </summary>
         /// <param name="cancellationToken">CancellationToken</param>
-        internal static Task<List<WindowDetails>> GetSnapWindowsAsync(CancellationToken cancellationToken)
+        internal static Task<List<IInteropWindow>> GetSnapWindowsAsync(CancellationToken cancellationToken)
         {
 #pragma warning disable RS0030 // R10: the Win32 window enumeration runs next to the capture
             var task = Task.Run(() => EnumerateSnapWindows(cancellationToken), cancellationToken);
@@ -175,14 +193,14 @@ namespace Greenshot.Recipes.Steps
             return task;
         }
 
-        private static List<WindowDetails> EnumerateSnapWindows(CancellationToken cancellationToken)
+        private static List<IInteropWindow> EnumerateSnapWindows(CancellationToken cancellationToken)
         {
-            var snapWindows = new List<WindowDetails>();
-            foreach (var window in WindowDetails.GetVisibleWindows())
+            var snapWindows = new List<IInteropWindow>();
+            foreach (var window in WindowHelper.GetVisibleWindows())
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                window.FreezeDetails();
-                window.GetChildren(1);
+                // Dapplo.Windows caches the values, so the windows describe the screen of the capture, also the child windows
+                window.GetChildren(allLevels: true);
                 snapWindows.Add(window);
             }
             return snapWindows;

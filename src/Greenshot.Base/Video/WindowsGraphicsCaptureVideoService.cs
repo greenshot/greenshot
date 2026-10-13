@@ -24,7 +24,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Interfaces.Video;
 using log4net;
-using Windows.Graphics.Capture;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Native;
 

@@ -22,7 +22,6 @@
 using System;
 using System.Runtime.InteropServices;
 using Greenshot.Base.Core;
-using Greenshot.Base.Interfaces;
 using Xunit;
 
 namespace Greenshot.Tests.Core

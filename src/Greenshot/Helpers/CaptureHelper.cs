@@ -23,7 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Dapplo.Windows.Common.Structs;
-using Greenshot.Base.Core;
+using Dapplo.Windows.Desktop;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
@@ -98,7 +98,7 @@ namespace Greenshot.Helpers
         /// <summary>
         /// Capture the window, e.g. one picked from the tray menu
         /// </summary>
-        public static void CaptureWindow(WindowDetails windowToCapture) => Start(RecipeManager.RecipeIdActiveWindow, configure: ctx => ctx.Properties["TargetWindow"] = windowToCapture);
+        public static void CaptureWindow(IInteropWindow windowToCapture) => Start(RecipeManager.RecipeIdActiveWindow, configure: ctx => ctx.Properties["TargetWindow"] = windowToCapture);
 
         /// <summary>
         /// Let the user select the window to capture

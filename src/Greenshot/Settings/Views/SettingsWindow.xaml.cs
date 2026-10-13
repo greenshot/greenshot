@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -21,25 +21,19 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Windows;
-using System.Windows.Forms;
 using Dapplo.Ini;
 using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Wpf;
-using Greenshot.Base.Wpf.Views;
-using Greenshot.Configuration;
 using Greenshot.Helpers;
 using Greenshot.Base.Languages;
 using Greenshot.Recipes.Triggers;
 using Greenshot.Recipes.Views;
 using Greenshot.Settings.ViewModels;
 using Greenshot.Views;
-using MessageBox = System.Windows.MessageBox;
 #if !GREENSHOT_LIGHT
 using Greenshot.Ai.Views;
 using Greenshot.Plugins.Views;

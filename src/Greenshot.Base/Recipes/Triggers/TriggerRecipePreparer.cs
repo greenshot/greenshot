@@ -22,7 +22,6 @@
 using System;
 using System.Linq;
 using Greenshot.Base.Core.Enums;
-using Greenshot.Base.Recipes;
 using log4net;
 
 namespace Greenshot.Base.Recipes.Triggers
@@ -70,7 +69,8 @@ namespace Greenshot.Base.Recipes.Triggers
             public bool IsEnabled { get; set; }
             public void Start() { }
             public void Stop() { }
-            public event EventHandler<TriggerEventArgs> Triggered;
+            // A test run is started directly, never by this trigger
+            public event EventHandler<TriggerEventArgs> Triggered { add { } remove { } }
             string ITrigger.TargetRecipeId { get; set; }
             public void Dispose() { }
         }

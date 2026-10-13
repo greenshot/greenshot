@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -24,13 +24,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Windows.Forms;
 using Greenshot.Base.Core;
 using Dapplo.Ini;
+using Dapplo.Windows.Desktop;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Interfaces.Plugin;
 using System.Threading.Tasks;
 using Greenshot.Base.Threading;
 
@@ -76,7 +76,7 @@ namespace Greenshot.Helpers
             }
 
             // Store the list of currently active windows, so we can make sure we show the email window later!
-            var windowsBefore = WindowDetails.GetVisibleWindows();
+            var windowsBefore = WindowHelper.GetVisibleWindows();
             // Every mail gets its own STA worker: MAPISendMail blocks until the compose dialog closes, a second mail mustn't wait for it
             var worker = new StaWorker("MAPI mail");
             var mailTask = worker.RunAsync(message.ShowMail, CancellationToken.None);
@@ -91,7 +91,11 @@ namespace Greenshot.Helpers
                 await mailTask.ConfigureAwait(false);
             }
 
-            WindowDetails.ActiveNewerWindows(windowsBefore);
+            // Bring the windows which MAPI opened (e.g. the compose window) to the front
+            foreach (var window in WindowHelper.GetVisibleWindows().Where(window => !windowsBefore.Contains(window)))
+            {
+                await window.ToForegroundAsync(cancellationToken).ConfigureAwait(false);
+            }
 
             async Task CleanupAsync()
             {

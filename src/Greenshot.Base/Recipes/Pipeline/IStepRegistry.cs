@@ -21,7 +21,6 @@
 
 using System;
 using System.Collections.Generic;
-using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
 
 namespace Greenshot.Base.Recipes.Pipeline

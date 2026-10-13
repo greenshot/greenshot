@@ -21,6 +21,7 @@
 
 using System;
 using System.Drawing;
+using System.Drawing.Imaging;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Gdi32;
 using Greenshot.Base.Core;
@@ -50,6 +51,9 @@ namespace Greenshot.Editor.Drawing.Filters
             AddField(GetType(), FieldType.PREVIEW_QUALITY, 1.0d);
         }
 
+        // The box blur runs twice, so a pixel is influenced by pixels up to twice the radius away
+        protected override int ClipMargin => 2 * GetFieldValueAsInt(FieldType.BLUR_RADIUS);
+
         protected override void ApplyFilter(Graphics graphics, Bitmap applyBitmap, NativeRect applyRect, RenderMode renderMode)
         {
             int blurRadius = GetFieldValueAsInt(FieldType.BLUR_RADIUS);
@@ -59,11 +63,11 @@ namespace Greenshot.Editor.Drawing.Filters
             }
             else
             {
-                using (IFastBitmap fastBitmap = FastBitmap.CreateCloneOf(applyBitmap, applyRect))
-                {
-                    ImageHelper.ApplyBoxBlur(fastBitmap, blurRadius);
-                    fastBitmap.DrawTo(graphics, applyRect);
-                }
+                // Blurring premultiplied pixels keeps the color of transparent pixels out of the visible ones
+                var pixelFormat = Image.IsAlphaPixelFormat(applyBitmap.PixelFormat) ? PixelFormat.Format32bppPArgb : PixelFormat.DontCare;
+                using Bitmap blurred = ImageHelper.CloneArea(applyBitmap, applyRect, pixelFormat);
+                ImageHelper.ApplyBoxBlur(blurred, blurRadius);
+                graphics.DrawImage(blurred, applyRect, new Rectangle(0, 0, blurred.Width, blurred.Height), GraphicsUnit.Pixel);
             }
         }
     }

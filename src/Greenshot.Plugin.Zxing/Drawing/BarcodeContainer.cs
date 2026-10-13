@@ -25,9 +25,7 @@ using System.Drawing.Drawing2D;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing;
-using Greenshot.Editor.Helpers;
 using Greenshot.Plugin.Zxing.Processing;
-using ZXing;
 
 namespace Greenshot.Plugin.Zxing.Drawing
 {

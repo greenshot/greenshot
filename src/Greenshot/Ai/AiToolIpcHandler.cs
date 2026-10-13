@@ -25,11 +25,10 @@ using System.Drawing;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapplo.Windows.Desktop;
 using Dapplo.Windows.User32;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
-using Greenshot.Base.Interfaces;
-using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
@@ -78,34 +77,34 @@ namespace Greenshot.Ai
                 return;
             }
 
-            IntPtr activeHandle = WindowDetails.GetActiveWindow()?.Handle ?? IntPtr.Zero;
+            IntPtr activeHandle = WindowHelper.GetActiveWindow()?.Handle ?? IntPtr.Zero;
             var windows = new List<object>();
             int excludedCount = 0;
-            foreach (var window in WindowDetails.GetTopLevelWindows())
+            foreach (var window in WindowHelper.GetTopLevelWindows())
             {
-                string processName = AiToolCapture.GetProcessName(window);
+                string processName = window.GetProcessName();
                 if (AiToolAccess.IsProcessExcluded(processName))
                 {
                     excludedCount++;
                     continue;
                 }
-                int processId = window.ProcessId;
+                int processId = window.GetProcessId();
                 if (processId == 0)
                 {
                     continue;
                 }
-                var bounds = window.WindowRectangle;
+                var bounds = window.GetInfo().Bounds;
                 windows.Add(new
                 {
                     id = AiWindowRefs.Register(context.AiClient, window.Handle, processId),
-                    title = window.Text,
+                    title = window.GetCaption(),
                     process = processName,
-                    @class = window.ClassName,
+                    @class = window.GetClassname(),
                     x = bounds.X,
                     y = bounds.Y,
                     width = bounds.Width,
                     height = bounds.Height,
-                    minimized = window.Iconic,
+                    minimized = window.IsMinimized(),
                     active = window.Handle == activeHandle
                 });
             }

@@ -22,7 +22,6 @@
 using System;
 using System.IO;
 using System.Threading;
-using System.Windows;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
 using Greenshot.SelfService.ViewModels;

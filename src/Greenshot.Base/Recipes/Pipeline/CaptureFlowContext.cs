@@ -24,7 +24,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
-using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Interfaces;

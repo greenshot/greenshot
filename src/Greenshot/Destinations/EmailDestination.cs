@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -27,7 +27,6 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Core.Export;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Configuration;
 using Greenshot.Helpers;
 using Microsoft.Win32;
 using Greenshot.Base.Languages;
@@ -41,10 +40,6 @@ namespace Greenshot.Destinations
     {
         private static readonly bool HasMapiClient;
         private static readonly string MapiClient;
-        private static readonly Lazy<bool> OutlookPluginHandlesMail = new Lazy<bool>(() =>
-            MapiClient != null
-            && MapiClient.IndexOf("outlook", StringComparison.OrdinalIgnoreCase) >= 0
-            && Type.GetType("Greenshot.Plugin.Office.Destinations.OutlookDestination,Greenshot.Plugin.Office", false) != null);
 
         static EmailDestination()
         {
@@ -61,9 +56,13 @@ namespace Greenshot.Destinations
             MapiClient ?? Texts.Editor.Email, 3, DestinationIcons.Resource("Email.Image"), "Ctrl+E");
 
         /// <summary>
-        /// Only with a MAPI client, and not when the Office plugin handles Outlook
+        /// Only with a MAPI client, and not when the Outlook destination of the Office plugin handles Outlook
         /// </summary>
-        public override bool IsAvailableFor(ICaptureDetails metadata) => base.IsAvailableFor(metadata) && HasMapiClient && !OutlookPluginHandlesMail.Value;
+        public override bool IsAvailableFor(ICaptureDetails metadata) => base.IsAvailableFor(metadata) && HasMapiClient && !OutlookDestinationHandlesMail(metadata);
+
+        private static bool OutlookDestinationHandlesMail(ICaptureDetails metadata) =>
+            MapiClient.IndexOf("outlook", StringComparison.OrdinalIgnoreCase) >= 0
+            && DestinationHelper.GetDestination("Outlook")?.IsAvailableFor(metadata) == true;
 
         public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
         {

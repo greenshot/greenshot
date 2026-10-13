@@ -38,7 +38,6 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Wpf;
-using Greenshot.Configuration;
 using Greenshot.Editor.Destinations;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Languages;

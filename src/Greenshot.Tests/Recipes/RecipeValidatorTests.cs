@@ -27,7 +27,6 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Triggers;
-using Greenshot.Plugin.ExternalCommand;
 using Greenshot.Plugin.ExternalCommand.Destinations;
 using Greenshot.Plugin.ExternalCommand.Recipes;
 using Greenshot.Recipes.Steps;

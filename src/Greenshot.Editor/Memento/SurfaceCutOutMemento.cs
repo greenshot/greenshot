@@ -23,7 +23,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Drawing;
 using Dapplo.Windows.Common.Structs;
-using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing;
 
@@ -42,6 +41,11 @@ namespace Greenshot.Editor.Memento
         private IDrawableContainerList _elementsToAdd;
         private IDrawableContainerList _elementsToRemove;
         private IList<TornEdgeLayout> _edgeLayouts;
+
+        /// <summary>
+        /// The image this memento restores, used to limit the memory of the undo stack
+        /// </summary>
+        internal Image Image => _image;
 
         /// <summary>
         /// Which sides of torn edges have an edge, and the room outside of them

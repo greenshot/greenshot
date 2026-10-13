@@ -24,7 +24,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Threading;
 using log4net;

@@ -28,7 +28,6 @@ using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Helpers;
-using Greenshot.Ipc;
 using Greenshot.Ipc.BrowserExtension;
 using log4net;
 

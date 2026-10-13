@@ -27,7 +27,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;

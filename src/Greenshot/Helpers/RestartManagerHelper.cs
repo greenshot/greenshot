@@ -23,7 +23,6 @@ using System;
 using System.IO;
 using System.Reactive.Linq;
 using System.Windows.Forms;
-using System.Windows.Threading;
 using Dapplo.Windows.AppRestartManager;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;

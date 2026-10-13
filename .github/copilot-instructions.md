@@ -5,7 +5,7 @@
 **Greenshot** is a free, open-source screenshot tool for Windows optimized for productivity. It allows users to capture screenshots, annotate them, and export to various destinations (file, printer, clipboard, email, cloud services).
 
 - **Repository Size**: ~13MB, ~1,100 files
-- **Primary Language**: C# (.NET Framework 4.8.0)
+- **Primary Language**: C# (.NET Framework 4.8, target `net480`); `Greenshot.Mcp` targets .NET 10
 - **Project Type**: Windows Desktop Application (WinForms/WPF)
 - **Build System**: MSBuild (requires Visual Studio or MSBuild Tools for Windows)
 - **Versioning**: Nerdbank.GitVersioning (version base: 1.4.x)
@@ -22,15 +22,15 @@
 
 ### Prerequisites
 - **Operating System**: Windows (Linux/Mac not supported for building)
-- **Build Tools**: MSBuild (from Visual Studio 2019+ or MSBuild Tools for Windows)
-- **.NET SDK**: .NET 7.x SDK (for NuGet restore, see release.yml line 38-39)
-- **Target Framework**: .NET Framework 4.8.0
+- **Build Tools**: Visual Studio 2026 with the Desktop development with C++ workload, MSVC v145 x64/x86 build tools, Windows 10 SDK, and the .NET Framework 4.8 Developer Pack
+- **.NET SDK**: .NET SDK 10.0.100 or newer (the MCP server targets .NET 10)
+- **Target Frameworks**: Most projects target .NET Framework 4.8 (`net480`); `Greenshot.Mcp` targets `net10.0-windows`
 - **Git Clone**: MUST use full clone with history (NOT shallow clone) due to Nerdbank.GitVersioning requirements
 
 ### Critical Build Notes
-- **DO NOT use `dotnet build`** - It will fail with CodeTaskFactory errors. The project uses MSBuild-specific tasks that require full MSBuild (not .NET SDK's MSBuild).
-- **ALWAYS use `msbuild` directly** from Visual Studio installation or MSBuild Tools.
-- Shallow git clones will cause build failures with "Shallow clone lacks the objects" error. Use `git fetch --unshallow` if needed.
+- Build the solution with Visual Studio's full `MSBuild.exe`, not `dotnet build` or `dotnet msbuild`. The solution contains C++ projects and MSBuild-specific tasks.
+- Do not assume `msbuild` is on `PATH`; run from a Visual Studio Developer PowerShell or use the full path to `MSBuild\Current\Bin\MSBuild.exe`.
+- Nerdbank.GitVersioning needs Git history. Avoid shallow clones; if the checkout is shallow, use `git fetch --unshallow`.
 
 ## Build & Validation Commands
 
@@ -38,15 +38,15 @@
 ```powershell
 msbuild src/Greenshot.sln /p:Configuration=Release /restore /t:PrepareForBuild
 ```
-**Time**: ~10-30 seconds  
-**Note**: Run this BEFORE building. Environment variables for API credentials may be needed (see Secrets section).
+**Note**: This is the restore/preparation step used by the release workflow. OAuth credentials are optional for local builds.
 
 ### Build Solution
 ```powershell
 msbuild src/Greenshot.sln /p:Configuration=Release /t:Rebuild /v:normal
 ```
-**Time**: ~1-3 minutes  
-**Output**: `src/Greenshot/bin/Release/net481/` (main executable and plugins)
+**Output**: `src/Greenshot/bin/Release/net480/` (main executable and plugins)
+
+**Note**: Release also builds Greenshot Light, installers, checksums, SBOMs, portable ZIPs, and the MCP server. It requires the C++ build tools and .NET 10 SDK.
 
 ### Build for Debug
 ```powershell
@@ -58,17 +58,23 @@ msbuild src/Greenshot.sln /p:Configuration=Debug /t:Rebuild /v:normal
 msbuild src/Greenshot.sln /t:Clean /p:Configuration=Release
 ```
 
-### No Automated Tests
-There are NO automated test projects in this repository. Do not attempt to run tests.
+### Run the Tests
+The repository has an xUnit v3 test project at `src/Greenshot.Tests/Greenshot.Tests.csproj`. First build with Visual Studio MSBuild (the solution includes MSBuild-specific tasks and C++ projects), then run the test project without rebuilding. From the repository root, use:
+```powershell
+msbuild src/Greenshot.sln /m /t:Build /p:Configuration=Debug /p:Restore=true /v:minimal
+dotnet test src/Greenshot.Tests/Greenshot.Tests.csproj --configuration Debug --no-build
+```
+For Release, change the MSBuild property to `/p:Configuration=Release` and use `--configuration Release` with `dotnet test`. To run a subset, add a VSTest filter, for example `--filter "FullyQualifiedName~Ipc"`. Tests that require clipboard or desktop interaction need an active, unlocked Windows session; interactive-desktop tests are skipped when the session is unavailable.
 
 ## Project Structure & Architecture
 
 ### Root Directory Files
 - **src/** - All source code (solution and projects)
-- **installer/** - Inno Setup installer configuration
-- **docs/** - Documentation (release-management.md)
+- **installer/** - Generated installers and portable ZIP artifacts
+- **src/Greenshot-Installer/** - Inno Setup scripts and release packaging targets
+- **docs/** - Project documentation, including `release-management.md`
 - **build-and-deploy.ps1** - Manual release script (for signed releases)
-- **prepare-portable.ps1** - Creates portable ZIP package
+- **prepare-portable.ps1** - Prepares a portable folder from build artifacts
 - **.github/workflows/** - CI/CD workflows (release.yml is main build workflow)
 
 ### Source Directory (`src/`)
@@ -82,7 +88,11 @@ src/
 ├── Greenshot/                 # Main application project
 ├── Greenshot.Base/            # Core/shared library
 ├── Greenshot.Editor/          # Image editor component
-└── Greenshot.Plugin.*/        # Plugin projects (Box, Dropbox, Imgur, etc.)
+├── Greenshot.Tests/           # xUnit v3 test project
+├── Greenshot.Mcp/             # .NET 10 MCP server
+├── greenshot-proxy/           # Native C++ proxy and CLI projects
+├── Greenshot-Installer/       # Release packaging and installer targets
+└── Greenshot.Plugin.*/        # Plugin projects
 ```
 
 ### Main Application
@@ -95,9 +105,9 @@ src/
 ### Plugins Architecture
 Each plugin follows a consistent structure:
 - Located in `src/Greenshot.Plugin.{Name}/`
-- Has language files in `Languages/language_{plugin}*.xml`
-- Build output goes to `src/Greenshot/bin/{Configuration}/net481/Plugins/{PluginName}/`
-- Post-build events (in Directory.Build.props) copy plugins to main app output
+- Has INI language files in `Languages/greenshot.{plugin}.{locale}.ini`
+- Build output goes to `src/Greenshot/bin/{Configuration}/net480/Plugins/{PluginName}/`
+- A post-build target in `src/Directory.Build.props` copies plugins to the main app output
 
 ### Key Configuration Files
 - **src/.editorconfig** - Code style (Allman braces, 4 spaces, `_camelCase` fields)
@@ -111,18 +121,18 @@ Each plugin follows a consistent structure:
 **Triggers**: Push to `main` or `release/1.*` branches (excluding docs/config changes)
 
 **Build Process**:
-1. **Setup**: Windows runner, MSBuild, .NET 7.x SDK
+1. **Setup**: Windows runner, MSBuild, .NET 10 SDK, and a full-history checkout
 2. **Restore**: `msbuild src/Greenshot.sln /p:Configuration=Release /restore /t:PrepareForBuild`
 3. **Build**: `msbuild src/Greenshot.sln /p:Configuration=Release /t:Rebuild /v:normal`
 4. **Package Installer**: Copies from `installer/Greenshot-INSTALLER-*.exe`
 5. **Package Portable**: Runs `prepare-portable.ps1`, creates ZIP
 6. **Deploy**: Creates GitHub release with installer and portable ZIP
 
-**Important**: CI requires GitHub secrets for OAuth API credentials (Box, Dropbox, Flickr, Imgur, Photobucket, Picasa).
+**OAuth credentials**: The build templates currently consume Box, Dropbox, and Imgur credentials. They are optional for local builds; without them, those integrations use placeholder credentials.
 
 ### Build Artifacts
-- **Installer**: `installer/Greenshot-INSTALLER-{version}-RELEASE.exe`
-- **Portable**: `Greenshot-PORTABLE-{version}-UNSTABLE-UNSIGNED.zip`
+- **Installers**: `installer/Greenshot-INSTALLER-*.exe` and `installer/Greenshot-Light-INSTALLER-*.exe` (unsigned/unstable names for local builds; signing depends on the configured certificate)
+- **Portable**: `installer/Greenshot-PORTABLE-*.zip` and `installer/Greenshot-Light-PORTABLE-*.zip`
 
 ## Coding Conventions
 
@@ -143,29 +153,32 @@ See `CONTRIBUTING.md` for complete style guide.
 
 ## Common Issues & Workarounds
 
-### Issue 1: Build Fails with "CodeTaskFactory not supported"
-**Symptoms**: Error MSB4801 when using `dotnet build`  
-**Cause**: .NET SDK's MSBuild doesn't support CodeTaskFactory used in Directory.Build.targets  
-**Solution**: Use `msbuild` from Visual Studio or MSBuild Tools for Windows, NOT `dotnet build`
+### Issue 1: Solution Build Fails Under .NET SDK MSBuild
+**Symptoms**: Build errors from MSBuild tasks or native C++ projects when using `dotnet build`  
+**Cause**: The solution depends on full Visual Studio MSBuild and the C++ toolchain  
+**Solution**: Build the solution with Visual Studio's `MSBuild.exe`, not `dotnet build` or `dotnet msbuild`.
 
 ### Issue 2: "Shallow clone lacks the objects required"
 **Symptoms**: Nerdbank.GitVersioning error during build  
 **Cause**: Git clone is shallow (doesn't have full history)  
-**Solution**: 
+**Solution**:
 ```bash
 git fetch --unshallow
 ```
 Or ensure initial clone uses: `git clone --depth=0` or full clone without `--depth`
 
 ### Issue 3: Missing API Credentials
-**Symptoms**: Build succeeds but plugins may have empty OAuth credentials  
+**Symptoms**: Box, Dropbox, or Imgur authorization is not configured in a local build  
 **Cause**: Environment variables for API keys not set  
-**Context**: Credentials are templated via Directory.Build.targets for plugins (Box, Dropbox, Flickr, Imgur, Photobucket, Picasa)  
-**Solution for Local Dev**: Credentials are optional for building. Set environment variables if needed:
+**Context**: Build templates replace credentials for the Box, Dropbox, and Imgur plugins  
+**Solution for Local Dev**: Credentials are optional for building. Set the relevant environment variables if you need to test those integrations:
 ```powershell
 $env:Box13_ClientId = "your_id"
 $env:Box13_ClientSecret = "your_secret"
-# (repeat for other services)
+$env:DropBox13_ClientId = "your_id"
+$env:DropBox13_ClientSecret = "your_secret"
+$env:Imgur13_ClientId = "your_id"
+$env:Imgur13_ClientSecret = "your_secret"
 ```
 
 ### Issue 4: Installer Not Built
@@ -180,7 +193,7 @@ $env:Box13_ClientSecret = "your_secret"
 2. **Build**: `msbuild src/Greenshot.sln /p:Configuration=Debug /t:Build /v:minimal`
 3. **Make Changes**: Edit C# files following conventions
 4. **Rebuild**: `msbuild src/Greenshot.sln /p:Configuration=Debug /t:Rebuild /v:minimal` (incremental)
-5. **Test Manually**: Run `src/Greenshot/bin/Debug/net481/Greenshot.exe`
+5. **Test Manually**: Run `src/Greenshot/bin/Debug/net480/Greenshot.exe`
 
 ### Adding New Features
 - Core functionality: `src/Greenshot.Base/` or `src/Greenshot/`
@@ -188,6 +201,7 @@ $env:Box13_ClientSecret = "your_secret"
 - New plugins: Create new `Greenshot.Plugin.{Name}` project following existing plugin structure
 - Where code goes and how it is named (Views/ViewModels, `Forms` only for WinForms, Recipes, optional parts, frozen .greenshot types): see `docs/code-structure.md`
 - UI changes: WPF in the `Views`/`ViewModels` folders of the feature, WinForms in `src/Greenshot/Forms/` or `src/Greenshot.Editor/Forms/`
+- New plugin language packs use INI format: `Languages/greenshot.{plugin}.{locale}.ini`
 
 ### Modifying Plugins
 Each plugin in `src/Greenshot.Plugin.*/` is self-contained. Changes are automatically copied to main output via post-build events.
@@ -197,8 +211,8 @@ Each plugin in `src/Greenshot.Plugin.*/` is self-contained. Changes are automati
 **Whenever UI messages are added, changed or removed, all translations should be updated accordingly. For ALL translation-related tasks, delegate to the translation-manager custom agent.**
 
 The translation-manager agent is a specialized expert with comprehensive knowledge of:
-- Translation file structure and format (XML with UTF-8 BOM encoding)
-- All 39 supported languages and their language files
+- Translation file structure and format (UTF-8 INI language packs)
+- All 40 supported languages and their language files
 - Translation glossary, workflow checklists, and validation tools
 - Best practices for high-quality translations
 
@@ -216,10 +230,11 @@ The translation-manager agent is a specialized expert with comprehensive knowled
 ## Validation Checklist
 
 Before submitting changes:
-- [ ] Build succeeds: `msbuild src/Greenshot.sln /p:Configuration=Release /t:Rebuild`
+- [ ] Build succeeds with Visual Studio MSBuild: `msbuild src/Greenshot.sln /m /p:Configuration=Debug /t:Build`
+- [ ] Tests pass: `dotnet test src/Greenshot.Tests/Greenshot.Tests.csproj --configuration Debug --no-build` after building the solution
 - [ ] Code follows style conventions (see .editorconfig and CONTRIBUTING.md)
 - [ ] No new TODO/HACK/FIXME without justification
-- [ ] Manual testing of affected features (no automated tests available)
+- [ ] Manually test affected UI or capture features as appropriate
 - [ ] Consider impact on CI workflow (`.github/workflows/release.yml`)
 
 ## Additional Resources

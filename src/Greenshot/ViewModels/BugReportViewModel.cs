@@ -23,10 +23,7 @@ using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Input;
 using Greenshot.Base.Core;
-using Greenshot.Base.Wpf;
 using Greenshot.Helpers;
 using Greenshot.Base.Threading;
 

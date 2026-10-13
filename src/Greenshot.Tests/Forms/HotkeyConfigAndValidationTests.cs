@@ -24,7 +24,6 @@ using System.Linq;
 using System.Threading;
 using Dapplo.Windows.Input.Enums;
 using Greenshot.Base.Core;
-using Greenshot.Base.Wpf;
 using Greenshot.Base.Wpf.ViewModels;
 using Greenshot.Base.Wpf.Views;
 using Xunit;

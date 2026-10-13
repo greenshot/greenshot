@@ -31,7 +31,6 @@ using Greenshot.Base.Core.Export;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Threading;
-using Greenshot.Configuration;
 using Greenshot.Settings.Views;
 using log4net;
 

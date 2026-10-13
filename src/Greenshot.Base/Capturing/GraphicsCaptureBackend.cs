@@ -23,7 +23,7 @@ using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Windows.Common.Structs;
-using Greenshot.Base.Core;
+using Dapplo.Windows.Desktop;
 using Greenshot.Base.Native;
 
 namespace Greenshot.Base.Capturing
@@ -55,7 +55,7 @@ namespace Greenshot.Base.Capturing
         }
 
         /// <inheritdoc />
-        public Task<Bitmap> CaptureWindowAsync(WindowDetails window, CancellationToken cancellationToken = default)
+        public Task<Bitmap> CaptureWindowAsync(IInteropWindow window, CancellationToken cancellationToken = default)
         {
             // Restores a minimized window and handles child windows itself
             return WindowsGraphicsCaptureInterop.CaptureWindowToBitmapAsync(window.Handle, cancellationToken);

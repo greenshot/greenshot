@@ -1,7 +1,5 @@
-using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Windows.Input;
 using Greenshot.Base.Wpf;
 
 namespace Greenshot.Plugin.RecipeEditor.ViewModels

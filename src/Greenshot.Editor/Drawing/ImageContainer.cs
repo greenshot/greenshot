@@ -32,7 +32,6 @@ using Greenshot.Base.Effects;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
-using Greenshot.Editor.Helpers;
 using log4net;
 
 namespace Greenshot.Editor.Drawing

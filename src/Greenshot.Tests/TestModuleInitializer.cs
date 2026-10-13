@@ -36,6 +36,10 @@ namespace Greenshot.Tests
             // low-level keyboard hook of Dapplo.Windows: when the test host exits after all tests passed, the hook's
             // thread throws and the test run is reported as crashed. The tests feed keys with HandleKeyboardEvent instead.
             HotkeyManager.UseKeyboardHook = false;
+
+            // Many classes read their configuration section in a static field. xunit.v3 runs the tests in a random order, so the
+            // configuration has to exist before the first test: a type initializer that failed stays broken for the whole run.
+            IniConfigHelper.EnsureInitialized();
         }
     }
 }

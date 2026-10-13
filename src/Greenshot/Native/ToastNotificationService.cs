@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -22,7 +22,6 @@
 using System;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Threading;
 using Windows.Foundation.Collections;
 using Windows.Foundation.Metadata;
 using Windows.UI.Notifications;

@@ -19,16 +19,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
 using Greenshot.Base.Core;
-using Greenshot.Base.Interfaces;
-using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
-using Greenshot.Plugin.ExternalCommand;
 using Greenshot.Plugin.RecipeEditor;
-using Greenshot.Plugin.Zxing;
 using Greenshot.Recipes;
 using Xunit;
 using System.Linq;

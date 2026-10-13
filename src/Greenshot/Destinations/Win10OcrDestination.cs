@@ -24,12 +24,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Threading;
-using Windows.Media.Ocr;
 using Greenshot.Base.Core.FileFormat;
 
 namespace Greenshot.Destinations

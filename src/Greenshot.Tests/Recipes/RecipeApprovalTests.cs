@@ -27,6 +27,7 @@ using System.Text;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Triggers;
+using Greenshot.Plugin.ExternalCommand.Recipes;
 using Greenshot.Recipes;
 using Greenshot.Recipes.Approval;
 using Xunit;
@@ -43,6 +44,8 @@ namespace Greenshot.Tests.Recipes
         public RecipeApprovalTests()
         {
             TestEnvironment.EnsureInitialized();
+            // The tests with an ExternalCommand step need its contract (gate, risk), which the plugin registers
+            StepRegistry.Instance.Register<ExternalCommandStep>(config => new ExternalCommandStep(config));
         }
 
         [Fact]

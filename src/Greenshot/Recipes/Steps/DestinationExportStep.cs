@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,7 +13,6 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Forms;
 using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
-using Contracts = Greenshot.Base.Recipes.Contracts;
 
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;

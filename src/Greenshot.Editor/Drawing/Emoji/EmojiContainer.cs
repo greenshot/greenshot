@@ -28,7 +28,6 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Controls.Emoji;
-using Greenshot.Editor.Helpers;
 using Image = System.Drawing.Image;
 
 namespace Greenshot.Editor.Drawing.Emoji
@@ -105,6 +104,7 @@ namespace Greenshot.Editor.Drawing.Emoji
             _emojiPickerHost = _parent.Controls.Find("EmojiPickerHost", false).OfType<ElementHost>().FirstOrDefault();
             if (_emojiPickerHost != null)
             {
+                _emojiPicker = (EmojiPicker)_emojiPickerHost.Child;
                 return;
             }
 
@@ -121,6 +121,20 @@ namespace Greenshot.Editor.Drawing.Emoji
                 Dock = DockStyle.None,
                 Child = _emojiPicker,
                 Name = "EmojiPickerHost"
+            };
+
+            // Don't keep a closed editor alive through the static fields
+            var pickerHost = _emojiPickerHost;
+            pickerHost.Disposed += (_, _) =>
+            {
+                if (_emojiPickerHost != pickerHost)
+                {
+                    return;
+                }
+
+                _emojiPickerHost = null;
+                _emojiPicker = null;
+                _currentContainer = null;
             };
 
             _parent.Controls.Add(_emojiPickerHost);

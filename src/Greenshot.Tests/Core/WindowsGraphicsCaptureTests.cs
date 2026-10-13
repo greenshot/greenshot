@@ -24,12 +24,12 @@ using System.Threading.Tasks;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 using Dapplo.Windows.User32;
-using Greenshot.Base.Native;
-using Greenshot.Base.Native.DirectX;
 using Xunit;
-using Xunit.Abstractions;
+using Greenshot.Base.Native.DirectX;
+using Greenshot.Base.Native;
 
 namespace Greenshot.Tests.Core;
 
@@ -40,7 +40,7 @@ namespace Greenshot.Tests.Core;
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 public sealed class HdrFactAttribute : FactAttribute
 {
-    public HdrFactAttribute()
+    public HdrFactAttribute([CallerFilePath] string sourceFilePath = null, [CallerLineNumber] int sourceLineNumber = -1) : base(sourceFilePath, sourceLineNumber)
     {
         try
         {

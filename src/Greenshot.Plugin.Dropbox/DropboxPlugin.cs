@@ -21,16 +21,12 @@
 
 using System;
 using System.ComponentModel;
-using System.Drawing;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using Greenshot.Base.Core;
-using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Threading;
 using Greenshot.Plugin.Dropbox.Api;

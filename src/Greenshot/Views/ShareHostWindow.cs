@@ -21,7 +21,6 @@
 
 using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
@@ -153,7 +152,7 @@ namespace Greenshot.Views
         private void OnContentRendered(object sender, EventArgs e)
         {
             var handle = new WindowInteropHelper(this).Handle;
-            WindowDetails.ToForeground(handle);
+            WindowHelper.ToForeground(handle);
 
             if (_dtmInterop == null)
             {

@@ -1,6 +1,4 @@
 using System.Windows;
-using Greenshot.Base.Interfaces;
-using Greenshot.Base.Recipes;
 using Greenshot.Plugin.RecipeEditor.ViewModels;
 
 namespace Greenshot.Plugin.RecipeEditor.Views

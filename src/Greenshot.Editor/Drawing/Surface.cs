@@ -34,7 +34,6 @@ using Dapplo.Windows.Clipboard;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Icons;
-using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
 using Dapplo.Ini;
@@ -721,7 +720,52 @@ namespace Greenshot.Editor.Drawing
                     }
 
                     _undoStack.Push(memento);
+                    LimitUndoImages();
                 }
+            }
+        }
+
+        /// <summary>
+        /// Every effect or crop keeps the previous image for undo, drop the oldest steps when they use more than this
+        /// </summary>
+        private const long UndoImagesBudget = 256L * 1024 * 1024;
+
+        private void LimitUndoImages()
+        {
+            // Newest first, always keep the last step
+            var mementos = _undoStack.ToArray();
+            long imageBytes = 0;
+            for (int i = 0; i < mementos.Length; i++)
+            {
+                var image = mementos[i] switch
+                {
+                    SurfaceBackgroundChangeMemento backgroundChangeMemento => backgroundChangeMemento.Image,
+                    SurfaceCutOutMemento cutOutMemento => cutOutMemento.Image,
+                    _ => null
+                };
+                if (image != null)
+                {
+                    imageBytes += (long)image.Width * image.Height * System.Drawing.Image.GetPixelFormatSize(image.PixelFormat) / 8;
+                }
+
+                if (i == 0 || imageBytes <= UndoImagesBudget)
+                {
+                    continue;
+                }
+
+                _undoStack.Clear();
+                for (int keep = i - 1; keep >= 0; keep--)
+                {
+                    _undoStack.Push(mementos[keep]);
+                }
+
+                for (int drop = i; drop < mementos.Length; drop++)
+                {
+                    mementos[drop].Dispose();
+                }
+
+                LOG.InfoFormat("Dropped {0} undo steps to limit the memory use", mementos.Length - i);
+                return;
             }
         }
 
@@ -2471,11 +2515,10 @@ namespace Greenshot.Editor.Drawing
             SuspendLayout();
             foreach (var drawableContainer in cloned)
             {
-                RemoveElement(drawableContainer, false, false, false);
+                RemoveElement(drawableContainer, false, true, false);
             }
 
             ResumeLayout();
-            Invalidate();
             if (_movingElementChanged != null)
             {
                 SurfaceElementEventArgs eventArgs = new SurfaceElementEventArgs
@@ -2497,6 +2540,12 @@ namespace Greenshot.Editor.Drawing
         {
             DeselectElement(elementToRemove, generateEvents);
             _elements.Remove(elementToRemove);
+            // Invalidate only the area of the element, this needs to happen while it still has its parent
+            if (invalidate)
+            {
+                elementToRemove?.Invalidate();
+            }
+
             if (elementToRemove is DrawableContainer element)
             {
                 element.FieldChanged -= Element_FieldChanged;
@@ -2508,11 +2557,6 @@ namespace Greenshot.Editor.Drawing
             }
 
             // Do not dispose, the memento should!! element.Dispose();
-            if (invalidate)
-            {
-                Invalidate();
-            }
-
             if (makeUndoable && elementToRemove is { IsUndoable: true })
             {
                 MakeUndoable(new DeleteElementMemento(this, elementToRemove), false);
@@ -2545,11 +2589,10 @@ namespace Greenshot.Editor.Drawing
             foreach (var element in cloned)
             {
                 element.Selected = true;
-                AddElement(element, false, false);
+                AddElement(element, false);
             }
 
             ResumeLayout();
-            Invalidate();
         }
 
         /// <summary>
@@ -2784,21 +2827,18 @@ namespace Greenshot.Editor.Drawing
                 LOG.Debug("List of clipboard formats available for pasting: " + string.Join(", ", clipboard.Formats));
             }
 
-            if (ClipboardHelper.ContainsImage(clipboard))
+            // Loading tells if there is an image, a separate check would read the files and parse the HTML twice
+            var drawableContainers = ClipboardHelper.GetDrawables(clipboard).Where(drawableContainer => drawableContainer != null).ToList();
+            var imageUrls = drawableContainers.Count == 0 ? ClipboardHelper.GetHtmlImageUrls(clipboard) : Array.Empty<string>();
+            if (imageUrls.Count > 0)
             {
+                // Only HTML with images: download them without blocking the UI
                 NativePoint pasteLocation = GetPasteLocation(0.1f, 0.1f);
-
-                var drawableContainers = ClipboardHelper.GetDrawables(clipboard).Where(drawableContainer => drawableContainer != null).ToList();
-                var imageUrls = drawableContainers.Count == 0 ? ClipboardHelper.GetHtmlImageUrls(clipboard) : Array.Empty<string>();
-                if (imageUrls.Count > 0)
-                {
-                    // Only HTML with images: download them without blocking the UI
-                    AsyncCommand.Run(() => AddDownloadedOrFallbackAsync(imageUrls, drawableContainers, pasteLocation, pasteLocation, false, true), "Download the pasted image");
-                }
-                else
-                {
-                    AddDrawables(drawableContainers, pasteLocation, false, true);
-                }
+                AsyncCommand.Run(() => AddDownloadedOrFallbackAsync(imageUrls, drawableContainers, pasteLocation, pasteLocation, false, true), "Download the pasted image");
+            }
+            else if (drawableContainers.Count > 0)
+            {
+                AddDrawables(drawableContainers, GetPasteLocation(0.1f, 0.1f), false, true);
             }
             else if (ClipboardHelper.ContainsText(clipboard))
             {
@@ -2907,6 +2947,7 @@ namespace Greenshot.Editor.Drawing
             while (elements.Count > 0)
             {
                 var element = elements[0];
+                element.Invalidate();
                 DeselectElement(element, false);
             }
 
@@ -2918,8 +2959,6 @@ namespace Greenshot.Editor.Drawing
                 };
                 _movingElementChanged(this, eventArgs);
             }
-
-            Invalidate();
         }
 
         /// <summary>
@@ -2976,7 +3015,7 @@ namespace Greenshot.Editor.Drawing
             foreach (var drawableContainer in elements)
             {
                 var element = (DrawableContainer) drawableContainer;
-                SelectElement(element, false, false);
+                SelectElement(element, true, false);
             }
 
             if (_movingElementChanged != null)
@@ -2989,7 +3028,6 @@ namespace Greenshot.Editor.Drawing
             }
 
             ResumeLayout();
-            Invalidate();
         }
 
         /// <summary>

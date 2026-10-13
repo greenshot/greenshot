@@ -21,19 +21,15 @@
 
 using System;
 using System.ComponentModel;
-using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.WinForms.ContentConverter;
 using Dapplo.Jira.SvgWinForms.Converters;
 using Dapplo.Log;
 using Greenshot.Base.Core;
-using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Threading;
 using Greenshot.Plugin.Jira.Api;

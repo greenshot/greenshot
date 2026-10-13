@@ -22,7 +22,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Dapplo.Windows.Input.Enums;
 
 namespace Greenshot.Base.Core

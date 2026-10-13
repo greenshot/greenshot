@@ -33,10 +33,10 @@ using System.Windows.Media.Imaging;
 using Dapplo.Ini;
 using Dapplo.Ini.Interfaces;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Desktop;
 using Dapplo.Windows.User32;
 using Greenshot.Base;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Help;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Languages;
@@ -363,14 +363,13 @@ namespace Greenshot.Shell
             // Only show the preview when enabled and DWM is there
             bool thumbnailPreview = conf.ThumnailPreview;
 
-            foreach (var window in WindowDetails.GetTopLevelWindows())
+            foreach (var window in WindowHelper.GetTopLevelWindows())
             {
+                string title = window.GetCaption();
                 if (Log.IsDebugEnabled)
                 {
-                    Log.Debug(window.ToString());
+                    Log.Debug($"Window {window.Handle} '{title}' ({window.GetClassname()})");
                 }
-
-                string title = window.Text;
                 if (string.IsNullOrEmpty(title))
                 {
                     continue;
@@ -382,7 +381,7 @@ namespace Greenshot.Shell
                 }
 
                 ImageSource icon;
-                using (var displayIcon = window.DisplayIcon)
+                using (var displayIcon = window.GetDisplayIcon())
                 {
                     icon = ThemedMenu.ToImageSource(displayIcon);
                 }
@@ -405,7 +404,7 @@ namespace Greenshot.Shell
         /// <summary>
         /// Show the thumbnail of the window above (or under) the sub menu with the windows
         /// </summary>
-        private void ShowThumbnail(MenuItem item, WindowDetails window)
+        private void ShowThumbnail(MenuItem item, IInteropWindow window)
         {
             try
             {
