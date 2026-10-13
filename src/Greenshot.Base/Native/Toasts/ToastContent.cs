@@ -27,13 +27,12 @@ using Windows.Data.Xml.Dom;
 namespace Greenshot.Base.Native.Toasts
 {
     /// <summary>
-    /// The content of a toast (the ToastGeneric template): texts, an image and buttons. A click on the toast or a button
-    /// passes its arguments to <see cref="ToastActivator.Activated"/>.
+    /// The content of a toast (the ToastGeneric template): texts and an image. A click on the toast passes its arguments to
+    /// <see cref="ToastActivator.Activated"/>.
     /// </summary>
     public sealed class ToastContent
     {
         private readonly XElement _binding = new XElement("binding", new XAttribute("template", "ToastGeneric"));
-        private readonly XElement _actions = new XElement("actions");
         private readonly string _arguments;
 
         /// <param name="arguments">The arguments of a click on the toast</param>
@@ -57,19 +56,9 @@ namespace Greenshot.Base.Native.Toasts
             return this;
         }
 
-        public ToastContent AddButton(string text, string arguments)
-        {
-            _actions.Add(new XElement("action", new XAttribute("content", text), new XAttribute("arguments", arguments)));
-            return this;
-        }
-
         public XmlDocument ToXml()
         {
             var toast = new XElement("toast", new XAttribute("launch", _arguments), new XElement("visual", _binding));
-            if (_actions.HasElements)
-            {
-                toast.Add(_actions);
-            }
             var document = new XmlDocument();
             document.LoadXml(toast.ToString(SaveOptions.DisableFormatting));
             return document;

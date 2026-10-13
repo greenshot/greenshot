@@ -177,7 +177,7 @@ namespace Greenshot.Base.Interfaces
         public Action OnClick { get; }
 
         /// <summary>
-        /// The id of the capture kept for the notification, which it opens in the editor (also after a restart), or null
+        /// The id of the capture kept for the notification, which a click offers in the destination picker (also after a restart), or null
         /// </summary>
         public string CaptureId { get; }
 

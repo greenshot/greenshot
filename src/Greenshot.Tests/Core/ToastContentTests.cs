@@ -32,31 +32,19 @@ namespace Greenshot.Tests.Core
     public class ToastContentTests
     {
         [Fact]
-        public void ToXml_WithImageAndButton_WritesTheToastGenericTemplate()
+        public void ToXml_WithImage_WritesTheToastGenericTemplate()
         {
-            var toast = XElement.Parse(new ToastContent("open:1")
+            var toast = XElement.Parse(new ToastContent("1")
                 .AddText("Saved")
                 .AddImage(@"C:\Temp\a b.png")
-                .AddButton("Edit", "edit:1")
                 .ToXml()
                 .GetXml());
 
-            Assert.Equal("open:1", (string)toast.Attribute("launch"));
+            Assert.Equal("1", (string)toast.Attribute("launch"));
             var binding = toast.Element("visual")?.Element("binding");
             Assert.Equal("ToastGeneric", (string)binding?.Attribute("template"));
             Assert.Equal("Saved", (string)binding?.Element("text"));
             Assert.Equal("file:///C:/Temp/a%20b.png", (string)binding?.Element("image")?.Attribute("src"));
-            var action = toast.Element("actions")?.Element("action");
-            Assert.Equal("Edit", (string)action?.Attribute("content"));
-            Assert.Equal("edit:1", (string)action?.Attribute("arguments"));
-        }
-
-        [Fact]
-        public void ToXml_WithoutButtons_HasNoActions()
-        {
-            var toast = XElement.Parse(new ToastContent("open:1").AddText("Saved").ToXml().GetXml());
-
-            Assert.Null(toast.Element("actions"));
         }
     }
 }

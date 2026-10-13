@@ -30,7 +30,6 @@ using System.Windows.Forms;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Languages;
 using Greenshot.Base.Native.Toasts;
 using Greenshot.Base.Threading;
 using log4net;
@@ -42,8 +41,8 @@ using Greenshot.Notifications;
 namespace Greenshot.Plugin.Win10
 {
     /// <summary>
-    /// Informs the user with toasts. A click on a toast runs its click action while Greenshot runs; a toast with a capture
-    /// offers the capture in the destination picker, also when Windows starts Greenshot for the click.
+    /// Informs the user with toasts. A click on a toast with a capture offers the capture in the destination picker, also when
+    /// Windows starts Greenshot for the click; other toasts run their click action while Greenshot runs.
     /// </summary>
     public class ToastNotificationService : INotificationService
     {
@@ -51,9 +50,6 @@ namespace Greenshot.Plugin.Win10
         /// The app id of Greenshot, the same as the one of the start menu shortcut (see tasks-icons-reg.iss)
         /// </summary>
         public const string AppId = "Greenshot";
-
-        private const string OpenVerb = "open:";
-        private const string PickVerb = "pick:";
 
         private static readonly ILog Log = LogManager.GetLogger(typeof(ToastNotificationService));
         private static readonly ICoreConfiguration CoreConfiguration = IniConfigRegistry.GetSection<ICoreConfiguration>();
@@ -127,14 +123,10 @@ namespace Greenshot.Plugin.Win10
             }
 
             string toastTag = notification.CaptureId ?? Guid.NewGuid().ToString("D");
-            var content = new ToastContent(OpenVerb + toastTag).AddText(notification.Message);
+            var content = new ToastContent(toastTag).AddText(notification.Message);
             if (notification.ImagePath != null)
             {
                 content.AddImage(notification.ImagePath);
-            }
-            if (notification.CaptureId != null)
-            {
-                content.AddButton(Texts.Settings.Destination, PickVerb + toastTag);
             }
 
             try
@@ -144,7 +136,7 @@ namespace Greenshot.Plugin.Win10
                 {
                     _clickActions.TryRemove(tag, out _);
                 }
-                if (notification.OnClick != null)
+                if (notification.CaptureId == null && notification.OnClick != null)
                 {
                     _clickActions[toastTag] = notification.OnClick;
                 }
@@ -160,14 +152,13 @@ namespace Greenshot.Plugin.Win10
         }
 
         /// <summary>
-        /// A click on a toast or its button, called by Windows on a COM thread
+        /// A click on a toast, with its tag, called by Windows on a COM thread
         /// </summary>
-        private void OnActivated(string arguments)
+        private void OnActivated(string tag)
         {
-            string tag = arguments?.Substring(arguments.IndexOf(':') + 1);
             UiDispatcher.Current.InvokeAsync(() =>
             {
-                if (arguments?.StartsWith(OpenVerb, StringComparison.Ordinal) == true && _clickActions.TryRemove(tag, out var onClick))
+                if (tag != null && _clickActions.TryRemove(tag, out var onClick))
                 {
                     onClick();
                     return Task.FromResult(true);
@@ -175,7 +166,7 @@ namespace Greenshot.Plugin.Win10
 #if GREENSHOT_LIGHT
                 return Task.FromResult(false);
 #else
-                // The click action is gone after a restart: the toast offers its capture in the destination picker, like its button
+                // A toast with a capture offers it in the destination picker, also after a restart
                 return NotificationCaptures.PickDestinationAsync(tag);
 #endif
             }).FireAndLog("Toast click", Log);
