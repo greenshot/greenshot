@@ -25,23 +25,24 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
-using System.Threading.Tasks;
-using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Native.Toasts;
-using Greenshot.Helpers;
+using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Editor.Drawing;
 using Greenshot.Plugin.Win10;
+using Greenshot.Recipes;
+using Greenshot.Recipes.Pipeline;
 using log4net;
 
 namespace Greenshot.Notifications
 {
     /// <summary>
-    /// The captures which notifications (toasts) show and offer in the destination picker, also after a restart: what went to the destination,
+    /// The captures which notifications (toasts) show and offer in the destination flyout (a recipe), also after a restart: what went to the destination,
     /// kept as .greenshot file with a thumbnail. Both are named by an id (UUID v7), which is the tag of the toast. They are
-    /// removed when the capture is opened, and once their toast is no longer in the notification center. Not in Greenshot Light.
+    /// removed when the toast is clicked, and once their toast is no longer in the notification center. Not in Greenshot Light.
     /// </summary>
     internal static class NotificationCaptures
     {
@@ -96,10 +97,11 @@ namespace Greenshot.Notifications
         }
 
         /// <summary>
-        /// Shows the destination picker for the capture, on the UI thread
+        /// Runs the notification recipe (the destination flyout) for the capture, on the UI thread. The capture file is removed,
+        /// its toast is gone with the click.
         /// </summary>
         /// <returns>false when there is no capture with the id</returns>
-        public static async Task<bool> PickDestinationAsync(string id)
+        public static bool OfferCapture(string id)
         {
             // The id comes from the toast arguments, only an id may name a file
             if (!Guid.TryParseExact(id, "D", out _) || !File.Exists(GetCapturePath(id)))
@@ -107,12 +109,42 @@ namespace Greenshot.Notifications
                 return false;
             }
 
-            await RestartManagerHelper.ExportFileAsync(GetCapturePath(id), nameof(WellKnownDestinations.Picker));
-            // The .greenshot file is removed when it was exported, else it is kept for another try
-            if (!File.Exists(GetCapturePath(id)))
+            ISurface surface;
+            try
+            {
+                surface = ImageIO.LoadGreenshotSurface(GetCapturePath(id), new Surface());
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Couldn't load the capture of the notification.", ex);
+                return false;
+            }
+            finally
             {
                 Delete(id);
             }
+
+            var recipe = RecipeManager.Instance.GetRecipeById(NotificationRecipes.RecipeIdNotification);
+            if (recipe?.IsEnabled != true)
+            {
+                surface.Dispose();
+                return false;
+            }
+
+            surface.CaptureDetails ??= new CaptureDetails();
+            var payload = new CapturePayload
+            {
+                Surface = surface,
+                RawCapture = new Capture(surface.GetImageForExport())
+                {
+                    CaptureDetails = surface.CaptureDetails
+                }
+            };
+            CaptureFlowRunner.Current.Start(recipe, configure: context =>
+            {
+                context.Payload = payload;
+                context.IsPayloadPreSupplied = true;
+            });
             return true;
         }
 

@@ -41,7 +41,7 @@ using Greenshot.Notifications;
 namespace Greenshot.Plugin.Win10
 {
     /// <summary>
-    /// Informs the user with toasts. A click on a toast with a capture offers the capture in the destination picker, also when
+    /// Informs the user with toasts. A click on a toast with a capture offers the capture in the destination flyout, also when
     /// Windows starts Greenshot for the click; other toasts run their click action while Greenshot runs.
     /// </summary>
     public class ToastNotificationService : INotificationService
@@ -166,8 +166,8 @@ namespace Greenshot.Plugin.Win10
 #if GREENSHOT_LIGHT
                 return Task.FromResult(false);
 #else
-                // A toast with a capture offers it in the destination picker, also after a restart
-                return NotificationCaptures.PickDestinationAsync(tag);
+                // A toast with a capture offers it in the destination flyout, also after a restart
+                return Task.FromResult(NotificationCaptures.OfferCapture(tag));
 #endif
             }).FireAndLog("Toast click", Log);
         }
