@@ -98,6 +98,12 @@ namespace Greenshot.Document.Editor
                 }
             }
 
+            if (!standIn && capture != null)
+            {
+                kept.CaptureImage = surface.Image;
+                kept.CaptureResource = document.Resources[capture.Resource];
+            }
+
             // The editor shows the OCR text and barcodes of its image as features, they are in the pixels of the capture
             if (!standIn && capture != null && document.Analysis.TryGetValue(capture.Resource, out var analysis))
             {

@@ -459,6 +459,21 @@ namespace Greenshot.Tests.Document
         }
 
         [Fact]
+        public void AnUnchangedCapture_ComesBackAsItWas_AChangedOneIsEncoded()
+        {
+            var document = WithElements(new Dictionary<Guid, Resource>());
+            var capture = document.Resources[((ImageElement)document.Layers[0].Elements[0]).Resource];
+
+            using var surface = DocumentToSurface.ToSurface(document);
+            var unchanged = SurfaceToDocument.ToDocument(surface);
+            Assert.Same(capture, unchanged.Resources[((ImageElement)unchanged.Layers[0].Elements[0]).Resource]);
+
+            surface.Image = new Bitmap(200, 100);
+            var changed = SurfaceToDocument.ToDocument(surface);
+            Assert.NotEqual(capture.Id, ((ImageElement)changed.Layers[0].Elements[0]).Resource);
+        }
+
+        [Fact]
         public void TheMetadata_GivesTheEditorItsTitle_AndComesBack()
         {
             var metadata = new DocumentMetadata

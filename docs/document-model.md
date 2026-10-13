@@ -747,8 +747,9 @@ flowchart LR
   torn edge settings are used.
 - EMF/WMF on purpose (decided 2026-10-13): a proprietary Windows format, a metafile becomes a PNG. A converter can be
   offered or pointed to later.
-- A resource's bytes are encoded in pooled buffers and then copied once into their own array; reusing an unchanged
-  capture and encoding only when the bytes are needed is not built yet.
+- A resource's bytes are encoded in pooled buffers and then copied once into their own array. While the editor still has
+  the image it got from the capture resource, that resource comes back as it was (no encoding, same id and format);
+  encoding only when the bytes are written is not built yet.
 - The editor has one counter and no groups. A document becomes a `Surface` with each element's resolved style and the
   first steps group (its start, its label order); back from the `Surface` there is one steps group (the other steps
   groups are merged into it), the other groups are kept, and every element has its full style. Hidden layers don't

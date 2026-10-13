@@ -52,7 +52,9 @@ namespace Greenshot.Document.Editor
             var kept = KeptElements.DocumentOf(surface);
             // While the editor has the image it got for a canvas which isn't just the capture, the capture layers and the canvas come back as they were
             bool standIn = kept.StandIn != null && ReferenceEquals(image, kept.StandIn);
-            var captureResource = standIn ? Guid.Empty : AddImage(resources, image);
+            var captureResource = standIn ? Guid.Empty
+                : ReferenceEquals(image, kept.CaptureImage) ? AddResource(resources, kept.CaptureResource)
+                : AddImage(resources, image);
             var captureLayers = standIn
                 ? kept.CaptureLayers.ToList()
                 : new List<Layer>
@@ -390,10 +392,12 @@ namespace Greenshot.Document.Editor
             return AddResource(resources, "image/x-icon", stream.ToArray());
         }
 
-        private static Guid AddResource(IDictionary<Guid, Resource> resources, string mediaType, ReadOnlyMemory<byte> data)
+        private static Guid AddResource(IDictionary<Guid, Resource> resources, string mediaType, ReadOnlyMemory<byte> data) =>
+            AddResource(resources, new Resource(Uuid7.CreateVersion7(), mediaType, data));
+
+        private static Guid AddResource(IDictionary<Guid, Resource> resources, Resource resource)
         {
-            var resource = new Resource(Uuid7.CreateVersion7(), mediaType, data);
-            resources.Add(resource.Id, resource);
+            resources[resource.Id] = resource;
             return resource.Id;
         }
     }

@@ -75,6 +75,14 @@ namespace Greenshot.Document.Editor
             public List<IDetectedFeature> RestoredFeatures { get; } = new();
 
             /// <summary>
+            /// The editor's image and the resource it was loaded from: while the editor still has this image, the resource
+            /// comes back as it was (no encoding, the same id and format)
+            /// </summary>
+            public Image CaptureImage { get; set; }
+
+            public Resource CaptureResource { get; set; }
+
+            /// <summary>
             /// The image the editor got when the capture doesn't simply fill the canvas: the capture layers drawn onto the
             /// canvas. While the editor still has it, the capture layers, the canvas and the coordinates come back unchanged.
             /// </summary>
