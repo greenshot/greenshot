@@ -285,7 +285,7 @@ namespace Greenshot.Recipes.Steps
 
             foreach (var line in ocrLines)
             {
-                if (!bounds.IsEmpty && (line.Bounds.IsEmpty || !line.Bounds.IntersectsWith(bounds))) continue;
+                if (!bounds.IsEmpty && !line.RotatedBounds.IntersectsWith(bounds)) continue;
 
                 if (line.Words != null && line.Words.Count > 0)
                 {
@@ -293,7 +293,7 @@ namespace Greenshot.Recipes.Steps
                     for (var i = 0; i < line.Words.Count; i++)
                     {
                         var word = line.Words[i];
-                        if (!bounds.IsEmpty && !word.Bounds.IntersectsWith(bounds)) continue;
+                        if (!bounds.IsEmpty && !word.RotatedBounds.IntersectsWith(bounds)) continue;
                         if (lineHasWords && word.Text.Length > 0)
                         {
                             textResult.Append(' ');

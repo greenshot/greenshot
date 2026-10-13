@@ -39,19 +39,19 @@ namespace Greenshot.Tests.Native
     public class Win10OcrProviderTests
     {
         [Fact]
-        public void ToImageBounds_NoAngle_RemovesPaddingAndScale()
+        public void ToImageRect_NoAngle_RemovesPaddingAndScale()
         {
-            var bounds = Win10OcrProvider.ToImageBounds(30, 20, 40, 10, 0, 200, 100, 0.5, 10, 5);
+            var bounds = Win10OcrProvider.ToImageRect(30, 20, 40, 10, 0, 200, 100, 0.5, 10, 5).Bounds;
 
             Assert.Equal(new NativeRect(40, 30, 80, 20), bounds);
         }
 
         [Fact]
-        public void ToImageBounds_90Degrees_RotatesClockwiseAroundTheBitmapCentre()
+        public void ToImageRect_90Degrees_RotatesClockwiseAroundTheBitmapCentre()
         {
             // Centre (100, 50). Rotating clockwise by 90 degrees (y points down): (x, y) -> (100 - (y - 50), 50 + (x - 100))
             // The corners (110, 50), (150, 50), (110, 60), (150, 60) become (100, 60), (100, 100), (90, 60), (90, 100)
-            var bounds = Win10OcrProvider.ToImageBounds(110, 50, 40, 10, 90, 200, 100, 1, 0, 0);
+            var bounds = Win10OcrProvider.ToImageRect(110, 50, 40, 10, 90, 200, 100, 1, 0, 0).Bounds;
 
             Assert.Equal(new NativeRect(90, 60, 10, 40), bounds);
         }
@@ -60,23 +60,29 @@ namespace Greenshot.Tests.Native
         [InlineData(30d)]
         [InlineData(-25d)]
         [InlineData(10d)]
-        public void ToImageBounds_Angle_ContainsTheRotatedCorners(double angle)
+        public void ToImageRect_Angle_ContainsTheRotatedCorners(double angle)
         {
             const double x = 300, y = 80, width = 120, height = 24, bitmapWidth = 640, bitmapHeight = 360, scale = 0.5;
             const int paddingX = 7, paddingY = 3;
 
-            var bounds = Win10OcrProvider.ToImageBounds(x, y, width, height, angle, bitmapWidth, bitmapHeight, scale, paddingX, paddingY);
+            var rotatedRect = Win10OcrProvider.ToImageRect(x, y, width, height, angle, bitmapWidth, bitmapHeight, scale, paddingX, paddingY);
+            var bounds = rotatedRect.Bounds;
+            var corners = rotatedRect.Corners;
 
             double radians = angle * Math.PI / 180;
             double centerX = bitmapWidth / 2, centerY = bitmapHeight / 2;
             double minX = double.MaxValue, minY = double.MaxValue, maxX = double.MinValue, maxY = double.MinValue;
-            foreach (var (cornerX, cornerY) in new[] { (x, y), (x + width, y), (x, y + height), (x + width, y + height) })
+            var expectedCorners = new[] { (x, y), (x + width, y), (x + width, y + height), (x, y + height) };
+            for (int i = 0; i < expectedCorners.Length; i++)
             {
+                var (cornerX, cornerY) = expectedCorners[i];
                 // Rotate in the coordinates of the bitmap the engine read, then remove the padding and the scale
                 double rotatedX = centerX + (cornerX - centerX) * Math.Cos(radians) - (cornerY - centerY) * Math.Sin(radians);
                 double rotatedY = centerY + (cornerX - centerX) * Math.Sin(radians) + (cornerY - centerY) * Math.Cos(radians);
                 double imageX = (rotatedX - paddingX) / scale;
                 double imageY = (rotatedY - paddingY) / scale;
+                Assert.Equal(imageX, corners[i].X, 9);
+                Assert.Equal(imageY, corners[i].Y, 9);
                 Assert.InRange(imageX, bounds.Left, bounds.Right);
                 Assert.InRange(imageY, bounds.Top, bounds.Bottom);
                 minX = Math.Min(minX, imageX);
@@ -129,12 +135,32 @@ namespace Greenshot.Tests.Native
             var lines = await provider.DoOcrAsync(image, language.LanguageTag);
 
             var line = Assert.Single(lines.OfType<DetectedOcrLine>(), l => l.Text == middleLine);
-            Assert.True(Contains(line.Bounds, centerX, centerY), $"{line.Bounds} doesn't contain the centre of the text ({centerX}, {centerY}), angle {line.Angle}");
+            Assert.True(Contains(line.Bounds, centerX, centerY), $"{line.Bounds} doesn't contain the centre of the text ({centerX}, {centerY}), {line.RotatedBounds}");
             // Not far off either: the centre of the bounds is close to the centre of the text
             Assert.InRange(line.Bounds.Left + line.Bounds.Width / 2, centerX - 15, centerX + 15);
             Assert.InRange(line.Bounds.Top + line.Bounds.Height / 2, centerY - 15, centerY + 15);
-            Assert.InRange(line.Angle, angle - 5, angle + 5);
-            Assert.All(line.Words, word => Assert.Equal(line.Angle, word.Angle));
+            Assert.InRange(line.RotatedBounds.Angle, angle - 5, angle + 5);
+            Assert.All(line.Words, word => Assert.Equal(line.RotatedBounds.Angle, word.RotatedBounds.Angle));
+            // The rotated line is tight: its centre is where the text is drawn, and it contains the centre of each word
+            var lineCenter = Center(line.RotatedBounds);
+            Assert.InRange(lineCenter.X, centerX - 10, centerX + 10);
+            Assert.InRange(lineCenter.Y, centerY - 10, centerY + 10);
+            Assert.All(line.Words, word =>
+            {
+                var wordCenter = Center(word.RotatedBounds);
+                Assert.True(line.RotatedBounds.Contains(wordCenter.X, wordCenter.Y));
+            });
+            if (middleLine != text)
+            {
+                // The other lines are above and below: their rotated bounds don't contain the centre of the middle line, their axis-aligned bounds can
+                Assert.All(lines.Where(l => l != line), other => Assert.False(other.RotatedBounds.Contains(centerX, centerY)));
+            }
+        }
+
+        private static System.Windows.Point Center(RotatedRect rect)
+        {
+            var corners = rect.Corners;
+            return new System.Windows.Point((corners[0].X + corners[2].X) / 2, (corners[0].Y + corners[2].Y) / 2);
         }
 
         private static bool Contains(NativeRect rect, int x, int y) => x >= rect.Left && x < rect.Right && y >= rect.Top && y < rect.Bottom;

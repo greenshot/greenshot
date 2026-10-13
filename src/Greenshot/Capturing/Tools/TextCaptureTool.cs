@@ -104,13 +104,12 @@ namespace Greenshot.Capturing.Tools
             var highlightBrush = (Brush)Host.FindResource("OcrHighlightBrush");
             foreach (var line in GetOcrLines())
             {
-                var lineBounds = line.Bounds;
+                var lineBounds = line.RotatedBounds;
                 if (lineBounds.IsEmpty)
                 {
                     continue;
                 }
-                var lineRect = new Rect(lineBounds.X, lineBounds.Y, lineBounds.Width, lineBounds.Height);
-                drawingContext.DrawRectangle(null, linePen, new Rect(lineRect.X + 0.5, lineRect.Y + 0.5, lineRect.Width, lineRect.Height));
+                DrawRotatedRect(drawingContext, null, linePen, lineBounds, true);
                 if (IsSelecting)
                 {
                     // Highlight the words which are selected
@@ -120,17 +119,45 @@ namespace Greenshot.Capturing.Tools
                     }
                     foreach (var word in line.Words)
                     {
-                        if (word.Bounds.IntersectsWith(Selection))
+                        if (word.RotatedBounds.IntersectsWith(Selection))
                         {
-                            drawingContext.DrawRectangle(highlightBrush, null, new Rect(word.Bounds.X, word.Bounds.Y, word.Bounds.Width, word.Bounds.Height));
+                            DrawRotatedRect(drawingContext, highlightBrush, null, word.RotatedBounds, false);
                         }
                     }
                 }
                 else if (line == _hoveredLine)
                 {
-                    drawingContext.DrawRectangle(highlightBrush, null, lineRect);
+                    DrawRotatedRect(drawingContext, highlightBrush, null, lineBounds, false);
                 }
             }
+        }
+
+        /// <summary>
+        /// Text which is not rotated as a rectangle on the pixels, rotated text as the rotated rectangle around it
+        /// </summary>
+        /// <param name="drawingContext">DrawingContext</param>
+        /// <param name="brush">Brush to fill with, or null</param>
+        /// <param name="pen">Pen for the outline, or null</param>
+        /// <param name="rotatedRect">RotatedRect</param>
+        /// <param name="outline">true to draw a 1 pixel outline on the pixels instead of between them</param>
+        private static void DrawRotatedRect(DrawingContext drawingContext, Brush brush, Pen pen, RotatedRect rotatedRect, bool outline)
+        {
+            if (rotatedRect.Angle == 0)
+            {
+                var bounds = rotatedRect.Bounds;
+                double offset = outline ? 0.5 : 0;
+                drawingContext.DrawRectangle(brush, pen, new Rect(bounds.X + offset, bounds.Y + offset, bounds.Width, bounds.Height));
+                return;
+            }
+            var corners = rotatedRect.Corners;
+            var geometry = new StreamGeometry();
+            using (var context = geometry.Open())
+            {
+                context.BeginFigure(corners[0], brush != null, true);
+                context.PolyLineTo(corners.Skip(1).ToList(), true, true);
+            }
+            geometry.Freeze();
+            drawingContext.DrawGeometry(brush, pen, geometry);
         }
 
         private List<IOcrLineFeature> GetOcrLines()
@@ -142,7 +169,7 @@ namespace Greenshot.Capturing.Tools
             }
         }
 
-        private IOcrLineFeature FindOcrLine(NativePoint location) => GetOcrLines().FirstOrDefault(line => line.Bounds.Contains(location));
+        private IOcrLineFeature FindOcrLine(NativePoint location) => GetOcrLines().FirstOrDefault(line => line.RotatedBounds.Contains(location.X + 0.5, location.Y + 0.5));
 
         /// <summary>
         /// Start the OCR when there are no text lines yet, and it isn't running in the background already

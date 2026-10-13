@@ -20,7 +20,6 @@
  */
 
 using System.Collections.Generic;
-using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces.Plugin;
 
@@ -28,32 +27,33 @@ namespace Greenshot.Base.Core;
 
 public class DetectedOcrLine : IOcrLineFeature
 {
-    public NativeRect Bounds { get; private set; }
+    public RotatedRect RotatedBounds { get; private set; }
+    public NativeRect Bounds => RotatedBounds.Bounds;
     public string FeatureType => "OcrLine";
     public string Text { get; }
     public string ToolTipText => Text;
     public List<OcrWordInfo> Words { get; }
 
     /// <summary>
-    /// The angle of the text in degrees, clockwise, 0 for horizontal text.
-    /// Bounds is the union of the word bounds, the axis-aligned boxes around the rotated words.
+    /// A line of text
     /// </summary>
-    public double Angle { get; set; }
-
-    public DetectedOcrLine(NativeRect bounds, string text, List<OcrWordInfo> words)
+    /// <param name="rotatedBounds">Where the line is, rotated like the text: for the OCR the union of the words</param>
+    /// <param name="text">The text of the line</param>
+    /// <param name="words">The words of the line</param>
+    public DetectedOcrLine(RotatedRect rotatedBounds, string text, List<OcrWordInfo> words)
     {
-        Bounds = bounds;
+        RotatedBounds = rotatedBounds;
         Text = text;
         Words = words;
     }
 
     public void Offset(int x, int y)
     {
-        Bounds = Bounds.Offset(x, y);
+        RotatedBounds = RotatedBounds.Offset(x, y);
 
         foreach (var word in Words)
         {
-            word.Bounds = word.Bounds.Offset(x, y);
+            word.Offset(x, y);
         }
     }
 }
