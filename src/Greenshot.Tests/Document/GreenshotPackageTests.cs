@@ -290,6 +290,7 @@ namespace Greenshot.Tests.Document
                 }
             };
 
+            Assert.False(document.Strict().Resources.ContainsKey(hidden.Id));
             var read = RoundTrip(document.Strict());
 
             Assert.Null(read.Metadata);

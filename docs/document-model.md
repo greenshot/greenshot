@@ -368,8 +368,8 @@ back unchanged.
 - **Hidden data**: a file can carry what the editor doesn't show (extensions, unknown elements and their resources,
   metadata, analysis). A normal save keeps it, so nothing is lost with an older Greenshot or without a plugin.
   `GreenshotDocument.Strict()` keeps only what is drawn: no metadata, analysis or extensions, no elements or groups of
-  unknown types, a plugin element becomes an image of its fallback; writing it leaves out the resources nothing links
-  to. Built: `Strict()`. Not built: the save option ("clean for sharing"), a setting to always save strictly (off by
+  unknown types, a plugin element becomes an image of its fallback, and only the resources the elements link to (a new
+  document, the bytes are shared). Built: `Strict()`. Not built: the save option ("clean for sharing"), a setting to always save strictly (off by
   default), and a view that lists the hidden data of a file.
 - **Original pixels**: a .greenshot keeps the capture under obfuscate and highlight elements and the parts a crop with
   a source hides, also in a strict save. Only an export to an image file contains just the drawn pixels.

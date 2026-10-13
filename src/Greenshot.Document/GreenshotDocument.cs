@@ -134,17 +134,25 @@ namespace Greenshot.Document
         /// <summary>
         /// Only what is drawn, e.g. to share the document: no metadata, analysis or extensions, no elements and groups of
         /// types this version doesn't know. A plugin element becomes an image of its fallback (without one it is left out).
+        /// Only the resources the elements link to are kept, their bytes are shared.
         /// </summary>
-        public GreenshotDocument Strict() => this with
+        public GreenshotDocument Strict()
         {
-            Metadata = null,
-            Analysis = new Dictionary<Guid, ImageAnalysis>(),
-            Extensions = null,
-            Resources = Resources.ToDictionary(pair => pair.Key, pair => pair.Value with { Extensions = null }),
-            Layers = Layers.Select(layer => layer with { Extensions = null, Elements = layer.Elements.Select(StrictElement).Where(element => element != null).ToList() }).ToList(),
-            Groups = Groups.Where(group => group.Type is GroupTypes.Steps or GroupTypes.Style or GroupTypes.Set)
-                .Select(group => group with { Extensions = null, Style = group.Style == null ? null : group.Style with { Extensions = null } }).ToList()
-        };
+            var strict = this with
+            {
+                Metadata = null,
+                Analysis = new Dictionary<Guid, ImageAnalysis>(),
+                Extensions = null,
+                Layers = Layers.Select(layer => layer with { Extensions = null, Elements = layer.Elements.Select(StrictElement).Where(element => element != null).ToList() }).ToList(),
+                Groups = Groups.Where(group => group.Type is GroupTypes.Steps or GroupTypes.Style or GroupTypes.Set)
+                    .Select(group => group with { Extensions = null, Style = group.Style == null ? null : group.Style with { Extensions = null } }).ToList()
+            };
+            var linked = new HashSet<Guid>(strict.Layers.SelectMany(layer => layer.Elements).SelectMany(strict.Links));
+            return strict with
+            {
+                Resources = Resources.Where(pair => linked.Contains(pair.Key)).ToDictionary(pair => pair.Key, pair => pair.Value with { Extensions = null })
+            };
+        }
 
         private static Element StrictElement(Element element) =>
             (element switch
