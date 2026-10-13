@@ -602,6 +602,24 @@ namespace Greenshot.Tests.Document
             Assert.Throws<InvalidDataException>(() => GreenshotPackage.Read(stream));
         }
 
+        [Fact]
+        public void Read_RefusesMoreThanTenThousandEntries()
+        {
+            using var stream = new MemoryStream();
+            using (var zip = new ZipArchive(stream, ZipArchiveMode.Create, true))
+            {
+                Write(zip, "mimetype", "application/vnd.greenshot.document+zip");
+                for (int i = 0; i < 10_000; i++)
+                {
+                    zip.CreateEntry($"resources/{i}.png");
+                }
+            }
+
+            stream.Position = 0;
+
+            Assert.Contains("entries", Assert.Throws<InvalidDataException>(() => GreenshotPackage.Read(stream)).Message);
+        }
+
         private static void Write(ZipArchive zip, string path, string content)
         {
             using var writer = new StreamWriter(zip.CreateEntry(path).Open());

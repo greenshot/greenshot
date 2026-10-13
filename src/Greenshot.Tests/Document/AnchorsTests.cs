@@ -190,6 +190,27 @@ namespace Greenshot.Tests.Document
         }
 
         [Fact]
+        public void AHiddenLayer_IsNotInAContentCanvas_ButItsElementsAreStillTargets()
+        {
+            var note = new RectangleElement(Guid.NewGuid(), new RectD(500, 0, 50, 50)) { Style = new Style { Stroke = new StrokeStyle { Enabled = false }, Shadow = new ShadowStyle { Enabled = false } } };
+            var label = new RectangleElement(Guid.NewGuid(), new RectD(0, 0, 10, 10))
+            {
+                Anchor = new Anchor { Target = note.Id, X = new AxisAnchor(AnchorLine.Start) },
+                Style = note.Style
+            };
+            var document = new GreenshotDocument(Guid.NewGuid(), new Canvas { Fit = CanvasFit.Content }, new List<Layer>
+            {
+                new(Guid.NewGuid(), "Notes", LayerKind.Custom, new List<Element> { note }) { Visible = false },
+                new(Guid.NewGuid(), "Labels", LayerKind.Custom, new List<Element> { label })
+            }, new Dictionary<Guid, Resource>());
+
+            var placed = Anchors.Apply(document);
+
+            Assert.Equal(new RectD(500, 0, 10, 10), placed.Layers[1].Elements[0].Bounds);
+            Assert.Equal(new RectD(500, 0, 10, 10), placed.CanvasArea());
+        }
+
+        [Fact]
         public void Loops_AreRefusedWhenSet_AndWhenWritten()
         {
             var first = new RectangleElement(Guid.NewGuid(), new RectD(0, 0, 10, 10));

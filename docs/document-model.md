@@ -116,7 +116,7 @@ classDiagram
     Element ..> Resource : references by id
 ```
 
-Rules:
+Basics (the numbered rules are in "Rules" below):
 
 - **Immutable**: all types are records. A change makes a new instance (`element with { Area = ... }`) with the same id.
   Undo can keep earlier documents, since unchanged parts are shared.
@@ -135,8 +135,7 @@ Rules:
 - **Colors**: `Rgba`, written as `#RRGGBBAA`.
 - **Style**: every part and value is optional and inherited when it isn't set, see "Groups, styles and defaults".
   Text uses its own color (for text, speech bubbles and step labels this is today's line color).
-- **Visibility** (decided): only layers have it. A hidden layer isn't drawn in exports, but it stays in the saved
-  file. Groups have no visibility ("hide all in this group" is an editor command), elements have none for now (see
+- **Visibility** (decided): only layers have it (R10). Groups have no visibility ("hide all in this group" is an editor command), elements have none for now (see
   "Groups, styles and defaults").
 - **Redaction**: a `.greenshot` file always contains the original capture, blur and pixelate are elements on top. A
   redaction is only safe in a flattened export (PNG, JPG, ...), never in the `.greenshot` file. The same is true for 1.3.
@@ -219,23 +218,7 @@ shadow; elements above the target are not cut, so an arrow can still point out o
 | torn paper | outside | 16 px, white | torn | the whole screenshot on paper with a torn outer edge |
 | rounded screenshot | inside | none | none, `cornerRadius` | the corners cut round, optionally with a shadow |
 
-**Rules of frames.** Each says when it applies, what happens, where it is enforced and what it does to the stored
-data. "Kept" means the value stays in the document unchanged and is written back.
-
-| # | when | outcome | enforced | stored data |
-|---|---|---|---|---|
-| F1 | a frame has a `target` | the frame's `area` is the target's `Bounds` | `Anchors.Apply` | `area` updated |
-| F2 | the target is a line, arrow, freehand or frame | no area to frame: the frame isn't drawn | refused when set (editor, recipes); `FrameOf` when drawing | kept |
-| F3 | two or more frames have the same target | the first in drawing order is drawn, the others aren't | refused when set; `FrameOf` when drawing | kept |
-| F4 | an element is framed (F2, F3 pass) | its own shadow isn't drawn, the frame draws the shadow of the framed shape; without the frame its shadow is back | `StyleOf` (renderers only get resolved styles) | the element's `shadow` kept |
-| F5 | the target is deleted | the frame is deleted with it | editor; on write a frame whose target doesn't exist is dropped | frame removed |
-| F6 | the target is copied | its frame is copied with it, targeting the copy | editor | new frame |
-| F7 | the target is rotated (image, emoji) | the frame frames its `Bounds`; following the rotation comes with the rotation rule (open) | `Anchors.Apply` | – |
-| F8 | elements lie above the target | they aren't cut by the frame | renderer | – |
-| F9 | a frame has no `band` | `placement` doesn't matter | renderer | `placement` kept |
-
-`StyleOf` is the style to draw with. `CascadeOf` is the cascade without F4, for a renderer which doesn't draw frames on
-elements: today's editor, so a framed image keeps its own shadow there.
+Rules: R3 (the shadow), R19 - R22 (see "Rules").
 
 - **Today's editor** shows a frame without a target, band and rounded corners, with one shape (sides may only be
   `none`), inside the image, as its torn edge (`TornEdgeContainer`, which covers the whole image with the room for the
@@ -319,7 +302,7 @@ The canvas is the area which is drawn and exported. It is a rule, not a stored s
 | `content` | the union of the visual bounds of all elements of visible layers (line and shadow included), plus `padding` | `padding` |
 | `fixed` | `width` x `height` from 0, 0 | `width`, `height` |
 
-`GreenshotDocument.CanvasArea()` works it out (after `Anchors.Apply`, so anchored elements are where they belong).
+`GreenshotDocument.CanvasArea()` works it out (R9, after `Anchors.Apply`, so anchored elements are where they belong).
 `background` fills what no element covers, transparent by default (`#00000000`); an export to a format without alpha
 (JPG, BMP) needs a fill colour. On a `fixed` canvas elements can be anchored to it with `"target": "canvas"`, e.g. to
 centre the capture; the other canvases depend on the elements, so there `canvas` is no target.
@@ -413,7 +396,7 @@ back unchanged.
   installed plugin draws from its data and makes the fallback again.
 - **Hidden data**: a file can carry what the editor doesn't show (extensions, unknown elements and their resources,
   metadata, analysis). A normal save keeps it, so nothing is lost with an older Greenshot or without a plugin.
-  `GreenshotDocument.Strict()` keeps only what is drawn: no metadata, analysis or extensions, no elements or groups of
+  `GreenshotDocument.Strict()` keeps only what is drawn (R28): no metadata, analysis or extensions, no elements or groups of
   unknown types, a plugin element becomes an image of its fallback, and only the resources the elements link to (a new
   document, the bytes are shared). Built: `Strict()`. Not built: the save option ("clean for sharing"), a setting to always save strictly (off by
   default), and a view that lists the hidden data of a file.
@@ -597,9 +580,8 @@ One concept for everything that belongs together: step label numbering, shared s
   its `members` (element ids). The document has a list of groups next to its layers. Elements don't mention their
   groups in the file; the model builds the lookup element → groups when it reads the document.
 - **Members**: an element can be in several groups, and members can be in different layers. An element is in at most
-  one `steps` group and at most one group with a style, checked when it joins (this can be relaxed later, the reverse
-  would break documents). No groups inside groups for now. Writing is the gate, as for resources: member ids which no
-  longer exist are dropped (an empty group can go too).
+  one `steps` group and at most one group with a style (R16; this can be relaxed later, the reverse would break
+  documents). No groups inside groups for now. Member ids which no longer exist are dropped on write (R25).
 - **Types** decide the behaviour:
 
   | type | style for its members | numbering | selected / moved together |
@@ -639,30 +621,22 @@ Each part only has the values which make sense for it, so nothing like "a shadow
 - `shadow`: `size`, `darkness`, `offset`; always outside and behind the shape.
 - `text`: see Text.
 
-A value which doesn't apply is ignored, kept and not offered: lines, arrows and freehand have no inside or outside and
-draw their line centred (a group style "Red marker" with `outside` can style rectangles and arrows); a renderer which
-can't draw a value draws the default and keeps the value. Today's editor draws every line centred and keeps the
-position of each element.
+Values which don't apply: R4, R5 (a group style "Red marker" with `outside` can style rectangles and arrows). Today's
+editor draws every line centred and keeps the position of each element (R30).
 
-- **Merging**, value by value, bottom to top: built-in default for the element type → the style of its group →
-  the element's own style. A resolver gives the full style to draw with, renderers never see the partial one.
+- **Merging**: R1, R2. A resolver gives the full style to draw with, renderers never see the partial one.
   Example: the group has a red stroke of 3 px, an arrow in it sets only `"stroke": { "width": 5 }`: it is drawn red,
   5 px; when the group turns blue, the arrow turns blue and stays 5 px.
-- **Joining a group**: the element takes the group's look: its own values for what the group's style sets are
-  removed. Changes afterwards are overrides on that element; "Reset to group style" removes them.
-- **Leaving a group** (or the group is deleted): the element keeps its look, the values it inherited are copied into
-  its own style.
-- **Changing the group's style**: every member follows, except for the values it overrides.
+- **Joining and leaving a group**: R17. Changes after joining are overrides on that element; "Reset to group style"
+  removes them.
+- **Changing the group's style**: every member follows, except for the values it overrides (R1).
 - **An element in no group** has its full style itself, as today and as files of 1.2 - 1.4 are read.
 
 **Defaults per element type.**
 
-- **Built-in defaults** (e.g. a step label's fill, an arrow's 2 px red stroke) are fixed in the model's code and
-  documented per format version, so a file looks the same on every machine and in every later Greenshot. Changing one
-  means a new format version whose reader writes the old value into older files.
-- **The user's last-used values** (`LastUsedFieldValues` in greenshot.ini, one per tool and value, see
-  `EditorConfigurationHelper.CreateField`) are only used when an element is created, and written into it. A document
-  never depends on someone's settings.
+- **Built-in defaults** (e.g. a step label's fill, an arrow's 2 px red stroke): R6, so a file looks the same on every
+  machine and in every later Greenshot.
+- **The user's last-used values** (`LastUsedFieldValues` in greenshot.ini, see `EditorConfigurationHelper.CreateField`): R7.
 - **Document defaults per type** ("every arrow in this capture is blue", a recipe making all step labels green) can
   later be a style group with an "applies to type" property, not a separate table. Merging is then: built-in default
   → groups which apply to the type → the element's group → the element. Plugin types the same way under their kind.
@@ -707,13 +681,9 @@ elements follow the capture when the canvas grows (e.g. a border) or the capture
 - **When**: anchors are applied again when the target's bounds change (moved, resized, cropped, canvas grown). They use
   the calculated `Bounds` of the target and move the element by shifting what it stores (`Area`, or the points of
   lines and freehand), so they work for every element type.
-- **Resolving**: to place an element, first place its target: follow the targets up the chain to an element without
-  anchor, then come back down and apply each anchor in turn. Every element is placed once.
-- **Loops**: setting an anchor which would make a loop (A to B, B to A, or longer) is refused when the anchor is set,
-  and checked again when the document is written.
-- **Deleted target**: the anchor is removed, the element stays where it is. Until then a target which doesn't exist
-  leaves the part where it is.
-- **Dragging** (agreed): the anchor stays and only its offset changes, the element lands where it is dropped. A free
+- **Resolving**: R11, following the targets up the chain to an element without anchor, then back down.
+- **Loops** (A to B, B to A, or longer): R13. **Deleted or missing target**: R14.
+- **Dragging** (R15): the anchor stays and only its offset changes, the element lands where it is dropped. A free
   axis just moves. Resizing: moving the anchored edge changes the offset, resizing from the other side doesn't. On drop
   the anchor switches to the nearest line of the target (start, center, end) and the offset is recalculated, nothing
   visible changes. Dragging the target moves everything anchored to it. While dragging, a thin line shows the edge the
@@ -724,6 +694,97 @@ elements follow the capture when the canvas grows (e.g. a border) or the capture
   other. The anchor, margin and offset parameters of the annotation step can map onto it.
 - **Ids**: the capture image element and the layers keep their ids through the editor, also for a surface which didn't
   come from a document (it gets them once).
+
+## Rules
+
+Every rule the model follows, in one place. A rule keeps its number for good: a removed rule leaves a gap, a new one
+gets the next number. Each says when it applies, what happens, where it is enforced and what it does to the stored data,
+and names the test which proves it (`Greenshot.Tests/Document`). Where it is enforced:
+
+- **resolver**: when a document is drawn or measured (`StyleOf`, `CascadeOf`, `VisualBounds`, `CanvasArea`, `FrameOf`,
+  `LabelOf`, `Anchors.Apply`). It never changes the stored data.
+- **edit**: when the editor or a recipe changes the document. **write** / **read**: `GreenshotPackage`.
+  **bridge**: the editor (`DocumentToSurface`, `SurfaceToDocument`).
+- **kept**: the value stays in the document and is written back unchanged, also when it isn't used.
+
+A rule marked **(not built yet)** is decided, the code doesn't do it yet.
+
+**Style**
+
+| # | when | outcome | enforced | stored data | test |
+|---|---|---|---|---|---|
+| R1 | an element is drawn | value by value: its own style, over the style of its group, over the built-in default of its type; a missing value is inherited | resolver `CascadeOf` | untouched | `StyleOf_IsTheOwnValues_OverTheGroupStyle_OverTheDefault` |
+| R2 | a part has `enabled: false` | the whole part is off, whatever is below; single values have no "off" | resolver `CascadeOf` | untouched | `StyleOf_IsTheOwnValues_OverTheGroupStyle_OverTheDefault` |
+| R3 | an element is framed (R20) | its own shadow isn't drawn, the frame draws the shadow of the framed shape; without the frame it is back | resolver `StyleOf`, after R1 and R2 | the element's `shadow` kept | `AFramedElement_HasNoShadowOfItsOwn_OnlyTheFirstFrameCounts_ALineIsNeverFramed` |
+| R4 | a line, arrow or freehand has a stroke `position` | drawn centred, they have no inside or outside | resolver, renderers | kept | `VisualBounds_HaveThePartOfTheLineOutsideOfTheShape` |
+| R5 | a value doesn't apply to an element, or a renderer can't draw it | ignored, the default is drawn, the editor doesn't offer it | resolver, renderers, bridge | kept | `AnchorsExtensionsAndGroups_SurviveTheEditor`, `AFrame_IsTheEditorsTornEdge_AndComesBack_OnesWithRoundedCornersOrABandAreKept` |
+| R6 | a built-in default is needed | fixed in `StyleDefaults` per format version (the 1.3 editor defaults); changing one means a new version whose reader writes the old value into older documents | resolver | untouched | `StyleOf_IsTheOwnValues_OverTheGroupStyle_OverTheDefault` |
+| R7 | an element is created | the user's last-used values (greenshot.ini) are written into it; a document never depends on someone's settings | edit (today's editor) | written into the element | – (editor) |
+
+**Geometry and canvas**
+
+| # | when | outcome | enforced | stored data | test |
+|---|---|---|---|---|---|
+| R8 | one box per element is needed | `Bounds` (the shape, no line or shadow) for anchors, selection, hit test and groups; the visual bounds (with the line outside of the shape, a frame's band and the shadow) for a content canvas and redrawing | resolver `VisualBounds` | untouched | `VisualBounds_HaveThePartOfTheLineOutsideOfTheShape`, `AFrame_DrawsItsBandWhereItIsPlaced_AndTheShadowOutsideOfIt` |
+| R9 | the canvas is worked out | `capture`: the capture image's Bounds; `content`: the union of the visual bounds of the visible layers' elements; `fixed`: width x height from 0, 0; plus `padding` except for fixed; after R11 | resolver `CanvasArea` | untouched | `ToDocument_PutsTheImageOnACaptureLayer_AndTheElementsInOrderOnAnAnnotationsLayer`, `Apply_ScalesTheCapture_AndAFooterStaysCenteredBelowIt_InACanvasAroundBoth`, `AFrame_DrawsItsBandWhereItIsPlaced_AndTheShadowOutsideOfIt` |
+| R10 | a layer is hidden | not drawn in exports and not in a content canvas; its elements still are anchor targets; only layers have visibility | resolver, renderers | kept | `AHiddenLayer_IsNotInAContentCanvas_ButItsElementsAreStillTargets`; the editor doesn't get hidden layers yet (not built yet) |
+
+**Anchors**
+
+| # | when | outcome | enforced | stored data | test |
+|---|---|---|---|---|---|
+| R11 | anchors are applied | the target is placed first, every element once; an anchor without target follows the capture image | resolver `Anchors.Apply` | `area` or points updated | `Apply_PlacesTheTargetFirst_AndAnAxisWithoutAnchorStays`, `Apply_PlacesABoxRelativeToTheCapture` |
+| R12 | an anchor targets `canvas` | only a `fixed` canvas is a target, on the others the part stays | resolver | untouched | `Apply_CentersTheCaptureOnAFixedCanvas_OtherCanvasesAreNoTarget` |
+| R13 | an anchor would make a loop | refused | edit (`Anchors.MakesLoop`), write (`Anchors.CheckLoops`) | not written | `Loops_AreRefusedWhenSet_AndWhenWritten` |
+| R14 | the target doesn't exist | the part stays where it is; deleting a target removes the anchors to it (not built yet) | resolver; edit | kept | `Apply_LeavesAPartWithAMissingTargetWhereItIs` |
+| R15 | an anchored element is dragged | the anchor stays, its offset changes; on drop the nearest line of the target is picked; the target drags what is anchored to it (not built yet) | edit | offset changed | – |
+
+**Groups**
+
+| # | when | outcome | enforced | stored data | test |
+|---|---|---|---|---|---|
+| R16 | an element joins a group | refused when it is in a `steps` group and joins another one, or is in a group with a style and joins another one with a style (not built yet) | edit | – | – |
+| R17 | an element joins or leaves a style group | joining removes its own values for what the group sets; leaving (or deleting the group) copies the inherited values into its own style (not built yet) | edit | the element's style changed | – |
+| R18 | step labels are numbered | the member order of their `steps` group, from `start`, a `null` member skips a number; a label in no steps group is numbered in drawing order | resolver `LabelOf` | untouched | `StepLabels_AreNumberedByTheirStepsGroup` |
+
+**Frames**
+
+| # | when | outcome | enforced | stored data | test |
+|---|---|---|---|---|---|
+| R19 | a frame has a `target` | its `area` is the target's Bounds; for a rotated target that is the box around it (following the rotation comes with the rotation rule) | resolver `Anchors.Apply` | `area` updated | `Apply_GivesAFrameTheBoundsOfItsTarget` |
+| R20 | a frame is drawn | only for a target with an area (not a line, arrow, freehand or frame) and only the first frame of a target in drawing order; refused when set (not built yet) | resolver `FrameOf` | the others kept | `AFramedElement_HasNoShadowOfItsOwn_OnlyTheFirstFrameCounts_ALineIsNeverFramed` |
+| R21 | the target is deleted or copied | the frame is deleted or copied with it (not built yet); writing drops a frame whose target doesn't exist | edit; write | frame removed | `Write_DropsAFrameWhoseTargetIsGone` |
+| R22 | a frame is drawn | the band lies by `placement` (none: `placement` doesn't matter); the teeth cut inward from the outer edge; elements above the target aren't cut; line and shadow follow the outer edge | resolver `OuterEdge`, renderers (not built yet) | untouched | `AFrame_DrawsItsBandWhereItIsPlaced_AndTheShadowOutsideOfIt` |
+
+**Data, files and sharing**
+
+| # | when | outcome | enforced | stored data | test |
+|---|---|---|---|---|---|
+| R23 | a reader doesn't know something | unknown properties, extensions, element types (`UnknownElement`), group types, metadata values and analysis kinds are kept; the core never runs them or creates a type from a name in the file | read, write | kept | `Read_KeepsAnElementOfAnUnknownType`, `RoundTrip_KeepsEveryElement`, `RoundTrip_KeepsTheExtensionsOfTheDocument_ALayer_AndAResource`, `RoundTrip_WritesTheMetadataAsSaved_AndKeepsUnknownValues`, `RoundTrip_KeepsTheAnalysisOfAWrittenResource_AndUnknownKinds` |
+| R24 | an extension is written | only its owner writes its key; it is never needed for drawing | convention, can't be enforced | – | – |
+| R25 | a document is written | only the resources elements link to; a link to a missing resource or an unknown media type is refused; group members which don't exist are dropped (gaps kept); the analysis of a resource which isn't written is dropped; R21; values which are the default are left out | write | as described | `Write_LeavesOutResourcesNoElementLinksTo`, `Write_RefusesALinkToAMissingResource`, `Write_RefusesAnUnsupportedMediaType`, `Write_DropsMembersWhichNoLongerExist_AndKeepsGaps`, `RoundTrip_KeepsTheAnalysisOfAWrittenResource_AndUnknownKinds`, `Write_LeavesOutDefaults_AndWritesTheSizeOfAResource_AndTheCanvasAsTarget` |
+| R26 | a package is read | refused when the `mimetype` differs, the `version` is newer, or it has more than 10,000 entries or an entry over 256 MB | read | – | `Read_RefusesAnotherZip`, `Read_RefusesANewerVersion`, `Read_RefusesMoreThanTenThousandEntries` |
+| R27 | a document with metadata is written | `modified` is now, `revision` + 1, `created` set when missing | write | metadata changed | `RoundTrip_WritesTheMetadataAsSaved_AndKeepsUnknownValues` |
+| R28 | a document is shared strictly | `Strict()` gives a new document with only what is drawn: no metadata, analysis or extensions, no elements or groups of unknown types, a plugin element becomes an image of its fallback, only linked resources | edit (the save option: not built yet) | new document | `Strict_KeepsOnlyWhatIsDrawn` |
+| R29 | something is redacted or cropped | the .greenshot keeps the original pixels (also strictly); only an image export contains just the drawn pixels | by design | kept | – |
+
+**Today's editor**
+
+| # | when | outcome | enforced | stored data | test |
+|---|---|---|---|---|---|
+| R30 | the editor can't show something | it is kept and comes back unchanged: unknown and plugin elements without their plugin, frames it can't show, anchors, extensions, groups, text values, stroke positions, frame placements | bridge | kept | `UnknownElement_IsKeptWithTheSurface`, `PluginElement_WithoutItsPlugin_IsWrittenBackUnchanged`, `AnchorsExtensionsAndGroups_SurviveTheEditor`, `AFrame_IsTheEditorsTornEdge_AndComesBack_OnesWithRoundedCornersOrABandAreKept` |
+| R31 | a document goes through the editor | the ids of the elements, the capture image and the layers stay | bridge | kept | `ElementIds_SurviveTheEditor`, `TheIdsOfTheCaptureAndTheLayers_SurviveTheEditor` |
+| R32 | the capture comes back unchanged | it is the original resource (same id, bytes and format), a changed one is encoded as PNG | bridge | kept | `AnUnchangedCapture_ComesBackAsItWas_AChangedOneIsEncoded` |
+| R33 | the editor has a metafile | it becomes a PNG, the document has no EMF/WMF | bridge | PNG | `Metafile_BecomesAPng` |
+| R34 | the editor gets an element's style | `CascadeOf`, not `StyleOf`: it draws no frames on elements, so a framed image keeps its own shadow there | bridge | untouched | `AFramedElement_HasNoShadowOfItsOwn_OnlyTheFirstFrameCounts_ALineIsNeverFramed` |
+
+**When rules meet**
+
+- Style: R1, then R2, then R3; R4 and R5 decide what a renderer does with the result.
+- Placing and measuring: R11 (and R19) first, then R8 and R9.
+- Writing: R13 refuses before anything is written, then R25 decides what is written. What the editor keeps (R30) still
+  passes R25.
+- Strict (R28) is applied before writing, so R25 runs on the strict document.
 
 ## File formats
 
@@ -775,13 +836,13 @@ flowchart LR
   camelCase names, colors `#RRGGBBAA`, derived values (bounds, the canvas area) aren't written, nor are values which
   are the default (`scaling`, `rotation`, an empty `style`, an `offset` of 0, `locked` false). The resource table maps
   each resource id to its path, media type and size in pixels, the bytes are in `resources/{id}.{ext}`.
-- Writing is the gate for resources: only resources an element links to are written, a link to a missing resource
-  or a media type the file format registry doesn't know (it gives the `{ext}`) is refused. A resource can be linked
+- Writing is the gate (R25): only resources an element links to are written, a link to a missing resource or a media
+  type the file format registry doesn't know (it gives the `{ext}`) is refused. A resource can be linked
   more than once; an action which changes an image (e.g. crop) either keeps the original and stores the operation,
   or adds a new resource in a format the registry supports.
 - Readers ignore properties they don't know. An element with an unknown `type` becomes an `UnknownElement`, which is
   written back unchanged.
-- Readers have limits: number of entries (10,000) and size per entry (256 MB).
+- Readers have limits (R26): number of entries (10,000) and size per entry (256 MB).
 - `metadata.json` (see "Metadata") and `analysis.json` (see "Analysis") are about the document and its images, never
   needed for drawing. Saving or sharing without metadata leaves out both (the setting isn't built yet). Like the resources, the analysis of a resource which isn't written is left out; kinds of results a reader
   doesn't know are written back unchanged.
