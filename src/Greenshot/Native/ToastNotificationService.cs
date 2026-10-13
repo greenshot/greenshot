@@ -68,10 +68,15 @@ namespace Greenshot.Plugin.Win10
         }
 
         /// <summary>
-        /// Registers Greenshot for toasts, null when Windows can't show them
+        /// Registers Greenshot for toasts, null when Windows can't show them or for the PortableApp and the .zip, which don't write the registration
         /// </summary>
         public static ToastNotificationService Create()
         {
+            if (GreenshotEnvironment.LeavesNoTraces)
+            {
+                return null;
+            }
+
             if (!ApiInformation.IsTypePresent("Windows.ApplicationModel.Background.ToastNotificationActionTrigger"))
             {
                 Log.Warn("ToastNotificationActionTrigger not available.");

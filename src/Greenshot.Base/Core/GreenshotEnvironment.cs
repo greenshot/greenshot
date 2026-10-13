@@ -45,19 +45,20 @@ namespace Greenshot.Base.Core
         public static string ConfigLocation => Dapplo.Ini.IniConfigRegistry.Get()?.LoadedFromPath ?? string.Empty;
 
         /// <summary>
-        /// The directory for the files Greenshot keeps on this computer: %LocalAppData%\Greenshot. The PortableApp, and the .zip
-        /// (greenshot.ini next to Greenshot.exe), use the directory of greenshot.ini, so they leave no files on the system.
+        /// The directory for the files Greenshot keeps on this computer: %LocalAppData%\Greenshot
         /// </summary>
-        public static string LocalDataDirectory
+        public static string LocalDataDirectory => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Greenshot");
+
+        /// <summary>
+        /// True for the PortableApp and the .zip (greenshot.ini next to Greenshot.exe), these leave nothing on the system
+        /// </summary>
+        public static bool LeavesNoTraces
         {
             get
             {
                 string configLocation = ConfigLocation;
-                string configDirectory = string.IsNullOrEmpty(configLocation) ? null : Path.GetDirectoryName(configLocation);
-                bool portable = IsPortable || string.Equals(configDirectory?.TrimEnd('\\'), AppContext.BaseDirectory.TrimEnd('\\'), StringComparison.OrdinalIgnoreCase);
-                return portable && configDirectory != null
-                    ? configDirectory
-                    : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Greenshot");
+                return IsPortable || (!string.IsNullOrEmpty(configLocation)
+                    && string.Equals(Path.GetDirectoryName(configLocation)?.TrimEnd('\\'), AppContext.BaseDirectory.TrimEnd('\\'), StringComparison.OrdinalIgnoreCase));
             }
         }
     }
