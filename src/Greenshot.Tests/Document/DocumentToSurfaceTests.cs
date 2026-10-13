@@ -468,6 +468,27 @@ namespace Greenshot.Tests.Document
         }
 
         [Fact]
+        public void ATurnedElement_IsShownUprightOverItsBounds_AndComesBackTurned_LabelsAreKept()
+        {
+            var box = new RectangleElement(Uuid7.CreateVersion7(), new RectD(50, 20, 60, 20)) { Rotation = 90, Label = new BoxLabel("Login") };
+            var redaction = new ObfuscateElement(Uuid7.CreateVersion7(), new RectD(100, 40, 40, 10), ObfuscateMode.Pixelate, 5) { Rotation = 90 };
+            var line = new LineElement(Uuid7.CreateVersion7(), new PointD(10, 10), new PointD(90, 10)) { Label = new LineLabel("20 ms") };
+
+            using var surface = DocumentToSurface.ToSurface(WithElements(new Dictionary<Guid, Resource>(), box, redaction, line));
+            var containers = surface.Elements.Cast<DrawableContainer>().ToList();
+            Assert.Equal((70, 0, 20, 60), (containers[0].Left, containers[0].Top, containers[0].Width, containers[0].Height));
+            // The obfuscation covers all of the turned area
+            Assert.Equal((115, 25, 10, 40), (containers[1].Left, containers[1].Top, containers[1].Width, containers[1].Height));
+
+            var elements = SurfaceToDocument.ToDocument(surface).Layers[1].Elements;
+            var backBox = Assert.IsType<RectangleElement>(elements[0]);
+            Assert.Equal((box.Area, 90.0, box.Label), (backBox.Area, backBox.Rotation, backBox.Label));
+            var backRedaction = Assert.IsType<ObfuscateElement>(elements[1]);
+            Assert.Equal((redaction.Area, 90.0), (backRedaction.Area, backRedaction.Rotation));
+            Assert.Equal(line.Label, Assert.IsType<LineElement>(elements[2]).Label);
+        }
+
+        [Fact]
         public void AnUnchangedCapture_ComesBackAsItWas_AChangedOneIsEncoded()
         {
             var document = WithElements(new Dictionary<Guid, Resource>());

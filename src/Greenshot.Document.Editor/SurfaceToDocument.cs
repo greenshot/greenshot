@@ -145,10 +145,19 @@ namespace Greenshot.Document.Editor
             // The editor draws every line centred, the position comes from the original
             var stroke = element.Style.Stroke == null ? null : element.Style.Stroke with { Position = original.Style?.Stroke?.Position };
             element = element with { Anchor = original.Anchor, Extensions = original.Extensions, Style = element.Style with { Stroke = stroke, Text = KeepText(element.Style.Text, original.Style?.Text) } };
+            // A turned element the editor showed upright over its bounds gets its area and rotation back while it is unchanged
+            if (original.Rotation != 0 && element is not (ImageElement or EmojiElement) && SameBounds(element.Bounds, original.Bounds))
+            {
+                element = WithAreaOf(element, original) with { Rotation = original.Rotation };
+            }
+
             return (element, original) switch
             {
-                (LineElement line, LineElement from) => line with { StartAnchor = from.StartAnchor, EndAnchor = from.EndAnchor },
-                (ArrowElement arrow, ArrowElement from) => arrow with { StartAnchor = from.StartAnchor, EndAnchor = from.EndAnchor },
+                // The editor has no labels
+                (RectangleElement rectangle, RectangleElement from) => rectangle with { Label = from.Label },
+                (EllipseElement ellipse, EllipseElement from) => ellipse with { Label = from.Label },
+                (LineElement line, LineElement from) => line with { StartAnchor = from.StartAnchor, EndAnchor = from.EndAnchor, Label = from.Label },
+                (ArrowElement arrow, ArrowElement from) => arrow with { StartAnchor = from.StartAnchor, EndAnchor = from.EndAnchor, Label = from.Label },
                 (SpeechBubbleElement bubble, SpeechBubbleElement from) => bubble with { TailAnchor = from.TailAnchor },
                 (FrameElement frame, FrameElement from) => frame with { Placement = from.Placement },
                 // The editor gets a rotated image turned in its bitmap, the part of it is cut out there
@@ -157,11 +166,28 @@ namespace Greenshot.Document.Editor
                     Source = from.Rotation == 0 ? from.Source : null,
                     Scaling = from.Scaling,
                     // Resized in the editor: the size is the one it has now
-                    Scale = Math.Abs(image.Area.Width - from.Area.Width) < 1 && Math.Abs(image.Area.Height - from.Area.Height) < 1 ? from.Scale : null
+                    Scale = Math.Abs(image.Area.Width - from.Area.Width) < 1 && Math.Abs(image.Area.Height - from.Area.Height) < 1 ? from.Scale : null,
+                    Label = from.Label
                 },
                 _ => element
             };
         }
+
+        // The editor has whole pixels
+        private static bool SameBounds(RectD a, RectD b) =>
+            Math.Abs(a.X - b.X) < 1 && Math.Abs(a.Y - b.Y) < 1 && Math.Abs(a.Width - b.Width) < 1 && Math.Abs(a.Height - b.Height) < 1;
+
+        private static Element WithAreaOf(Element element, Element original) => (element, original) switch
+        {
+            (RectangleElement e, RectangleElement from) => e with { Area = from.Area },
+            (EllipseElement e, EllipseElement from) => e with { Area = from.Area },
+            (TextElement e, TextElement from) => e with { Area = from.Area },
+            (SpeechBubbleElement e, SpeechBubbleElement from) => e with { Area = from.Area },
+            (HighlightElement e, HighlightElement from) => e with { Area = from.Area },
+            (ObfuscateElement e, ObfuscateElement from) => e with { Area = from.Area },
+            (PluginElement e, PluginElement from) => e with { Area = from.Area },
+            _ => element
+        };
 
         // The editor has one family, bold or not and none of the other text values: they are kept from the original
         private static TextStyle KeepText(TextStyle text, TextStyle original)

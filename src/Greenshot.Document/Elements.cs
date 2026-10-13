@@ -48,8 +48,15 @@ namespace Greenshot.Document
         public Anchor Anchor { get; init; }
 
         /// <summary>
-        /// The area the element covers, without stroke width or shadow. Derived for elements defined by points, a
-        /// speech bubble includes its tail.
+        /// Degrees, clockwise, around the centre of the Area, which stays unturned. Only box-shaped elements turn
+        /// (rectangle, ellipse, text, speech bubble, highlight, obfuscate, image, emoji, plugin), the others keep it.
+        /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public double Rotation { get; init; }
+
+        /// <summary>
+        /// The area the element covers, without stroke width or shadow: the box around a turned element. Derived for
+        /// elements defined by points, a speech bubble includes its tail.
         /// </summary>
         public abstract RectD Bounds { get; }
 
@@ -60,18 +67,91 @@ namespace Greenshot.Document
         public virtual PointD AnchorPoint => new(Bounds.X + Bounds.Width / 2, Bounds.Y + Bounds.Height / 2);
     }
 
+    /// <summary>
+    /// Where a label lies on one axis of its element: Start, Center and End inside the box, Before and After outside of it
+    /// </summary>
+    public enum LabelPlace
+    {
+        Before,
+        Start,
+        Center,
+        End,
+        After
+    }
+
+    /// <summary>
+    /// A text which belongs to a box-shaped element, e.g. a caption below an image or the text in a rectangle. Inside it
+    /// wraps in the box, outside it is as wide as the box unless it has a Width. Offset is the distance to the box.
+    /// </summary>
+    public sealed record BoxLabel(string Text)
+    {
+        public LabelPlace X { get; init; } = LabelPlace.Center;
+
+        public LabelPlace Y { get; init; } = LabelPlace.Center;
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public double Offset { get; init; }
+
+        public double? Width { get; init; }
+
+        /// <summary>
+        /// The box of the label next to or in the area of its element, before the element is turned
+        /// </summary>
+        public RectD AreaIn(RectD area, double height)
+        {
+            double width = Width ?? area.Width;
+            return new RectD(Place(X, area.X, area.Width, width), Place(Y, area.Y, area.Height, height), width, height);
+        }
+
+        private double Place(LabelPlace place, double start, double length, double size) => place switch
+        {
+            LabelPlace.Before => start - Offset - size,
+            LabelPlace.Start => start + Offset,
+            LabelPlace.End => start + length - Offset - size,
+            LabelPlace.After => start + length + Offset,
+            _ => start + (length - size) / 2
+        };
+    }
+
+    public enum LabelOrientation
+    {
+        Horizontal,
+        Along
+    }
+
+    /// <summary>
+    /// A text which belongs to a line or arrow: At is 0 to 1 from start to end, Offset the distance from the line
+    /// (positive above a line from left to right, negative on the other side). Along the line it is never upside down.
+    /// </summary>
+    public sealed record LineLabel(string Text)
+    {
+        public double At { get; init; } = 0.5;
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public double Offset { get; init; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public LabelOrientation Orientation { get; init; }
+    }
+
     public sealed record RectangleElement(Guid Id, RectD Area) : Element(Id)
     {
-        public override RectD Bounds => Area;
+        public BoxLabel Label { get; init; }
+
+        public override RectD Bounds => Area.Turned(Rotation);
     }
 
     public sealed record EllipseElement(Guid Id, RectD Area) : Element(Id)
     {
-        public override RectD Bounds => Area;
+        public BoxLabel Label { get; init; }
+
+        public override RectD Bounds => Area.Turned(Rotation);
     }
 
     public sealed record LineElement(Guid Id, PointD Start, PointD End) : Element(Id)
     {
+        public LineLabel Label { get; init; }
+
         public Anchor StartAnchor { get; init; }
 
         public Anchor EndAnchor { get; init; }
@@ -91,6 +171,8 @@ namespace Greenshot.Document
 
     public sealed record ArrowElement(Guid Id, PointD Start, PointD End, ArrowHeads Heads = ArrowHeads.End) : Element(Id)
     {
+        public LineLabel Label { get; init; }
+
         public Anchor StartAnchor { get; init; }
 
         public Anchor EndAnchor { get; init; }
@@ -110,7 +192,7 @@ namespace Greenshot.Document
 
     public sealed record TextElement(Guid Id, RectD Area, string Text) : Element(Id)
     {
-        public override RectD Bounds => Area;
+        public override RectD Bounds => Area.Turned(Rotation);
     }
 
     /// <summary>
@@ -123,7 +205,7 @@ namespace Greenshot.Document
         /// </summary>
         public Anchor TailAnchor { get; init; }
 
-        public override RectD Bounds => RectD.Union(Area, new RectD(Tail.X, Tail.Y, 0, 0));
+        public override RectD Bounds => RectD.Union(Area.Turned(Rotation), new RectD(Tail.X, Tail.Y, 0, 0));
 
         public override PointD AnchorPoint => Tail;
     }
@@ -158,7 +240,7 @@ namespace Greenshot.Document
 
         public int Magnification { get; init; } = 2;
 
-        public override RectD Bounds => Area;
+        public override RectD Bounds => Area.Turned(Rotation);
     }
 
     public enum ObfuscateMode
@@ -172,7 +254,7 @@ namespace Greenshot.Document
     /// </summary>
     public sealed record ObfuscateElement(Guid Id, RectD Area, ObfuscateMode Mode, int Size) : Element(Id)
     {
-        public override RectD Bounds => Area;
+        public override RectD Bounds => Area.Turned(Rotation);
     }
 
     /// <summary>
@@ -209,24 +291,17 @@ namespace Greenshot.Document
         /// </summary>
         public double? Scale { get; init; }
 
-        /// <summary>
-        /// Rotation in degrees, clockwise, applied after Source is fitted into Area.
-        /// </summary>
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public int Rotation { get; init; }
+        public BoxLabel Label { get; init; }
 
-        public override RectD Bounds => Area;
+        /// <summary>
+        /// The Rotation is applied after Source is fitted into Area
+        /// </summary>
+        public override RectD Bounds => Area.Turned(Rotation);
     }
 
     public sealed record EmojiElement(Guid Id, RectD Area, string Emoji) : Element(Id)
     {
-        /// <summary>
-        /// Rotation in degrees, clockwise.
-        /// </summary>
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public int Rotation { get; init; }
-
-        public override RectD Bounds => Area;
+        public override RectD Bounds => Area.Turned(Rotation);
     }
 
     /// <summary>
@@ -414,7 +489,7 @@ namespace Greenshot.Document
 
         public Guid? Fallback { get; init; }
 
-        public override RectD Bounds => Area;
+        public override RectD Bounds => Area.Turned(Rotation);
     }
 
     /// <summary>

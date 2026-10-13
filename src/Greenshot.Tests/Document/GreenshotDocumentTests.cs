@@ -106,6 +106,61 @@ namespace Greenshot.Tests.Document
         }
 
         [Fact]
+        public void ATurnedElement_HasTheBoxAroundItAsBounds_ALineKeepsItsPoints()
+        {
+            var box = new RectangleElement(Guid.NewGuid(), new RectD(0, 0, 100, 50)) { Rotation = 90 };
+            var line = new LineElement(Guid.NewGuid(), new PointD(0, 0), new PointD(100, 0)) { Rotation = 90 };
+
+            Assert.Equal(new RectD(25, -25, 50, 100), box.Bounds);
+            Assert.Equal(new RectD(0, 0, 100, 50), box.Area);
+            Assert.Equal(new RectD(0, 0, 100, 0), line.Bounds);
+        }
+
+        [Fact]
+        public void ALabel_IsInTheVisualBounds_NotInTheBounds_AndTurnsWithItsElement()
+        {
+            var text = new Style { Text = new TextStyle { Size = 10, LineHeight = 1.5 } };
+            var image = new ImageElement(Guid.NewGuid(), new RectD(0, 0, 200, 100), Guid.NewGuid())
+            {
+                Label = new BoxLabel("Figure 1") { Y = LabelPlace.After, Offset = 8 },
+                Style = text
+            };
+            var line = new LineElement(Guid.NewGuid(), new PointD(0, 0), new PointD(100, 0))
+            {
+                Label = new LineLabel("abc") { Offset = 4 },
+                Style = new Style { Text = new TextStyle { Size = 10, LineHeight = 1 } }
+            };
+            var turned = new RectangleElement(Guid.NewGuid(), new RectD(0, 0, 100, 50))
+            {
+                Rotation = 90,
+                Label = new BoxLabel("Login") { Y = LabelPlace.After },
+                Style = new Style { Text = new TextStyle { Size = 10, LineHeight = 1 } }
+            };
+            var document = new GreenshotDocument(Guid.NewGuid(), new Canvas(), new List<Layer>(), new Dictionary<Guid, Resource>());
+
+            // A caption below the image, 8 px away and one line of 15 px high
+            Assert.Equal(new RectD(0, 0, 200, 123), document.VisualBounds(image));
+            Assert.Equal(new RectD(0, 0, 200, 100), image.Bounds);
+            // 4 px above the 2 px line: three letters of 6 px, 10 px high
+            Assert.Equal(new RectD(-1, -14, 102, 15), document.VisualBounds(line));
+            // Below the rectangle before it turns, left of it after
+            Assert.Equal(new RectD(15, -26, 61, 102), document.VisualBounds(turned));
+        }
+
+        [Fact]
+        public void OcrText_AtAnAngle_IsCoveredExactly()
+        {
+            var image = new ImageElement(Guid.NewGuid(), new RectD(0, 0, 200, 200), Guid.NewGuid());
+            var ocr = new OcrResult(new List<OcrLine>()) { TextAngle = 90 };
+
+            // The straightened word at the left middle of the 400 x 400 image is at the top middle, the image is shown at half its size
+            var (area, rotation) = ocr.OnCanvas(new RectD(0, 190, 20, 20), image, 400, 400);
+
+            Assert.Equal(new RectD(95, 0, 10, 10), area);
+            Assert.Equal(90, rotation);
+        }
+
+        [Fact]
         public void PointElements_DeriveBounds()
         {
             var arrow = new ArrowElement(Guid.NewGuid(), new PointD(400, 300), new PointD(100, 350));

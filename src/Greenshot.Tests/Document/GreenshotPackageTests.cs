@@ -118,9 +118,9 @@ namespace Greenshot.Tests.Document
             var stepLabel = new StepLabelElement(Guid.NewGuid(), area) { Style = new Style { Fill = new FillStyle { Enabled = false } }, Extensions = new RawJson("{\"plugin\":[1,2]}") };
             var elements = new List<Element>
             {
-                new RectangleElement(Guid.NewGuid(), area) { Style = style },
+                new RectangleElement(Guid.NewGuid(), area) { Style = style, Rotation = 30.5, Label = new BoxLabel("Login") { X = LabelPlace.Start, Y = LabelPlace.After, Offset = 4, Width = 80 } },
                 new EllipseElement(Guid.NewGuid(), area),
-                new LineElement(Guid.NewGuid(), new PointD(1, 2), new PointD(3, 4)),
+                new LineElement(Guid.NewGuid(), new PointD(1, 2), new PointD(3, 4)) { Label = new LineLabel("20 ms") { At = 0.25, Offset = -6, Orientation = LabelOrientation.Along } },
                 new ArrowElement(Guid.NewGuid(), new PointD(1, 2), new PointD(3, 4), ArrowHeads.Both)
                 {
                     StartAnchor = new Anchor { Target = Guid.NewGuid(), X = new AxisAnchor(AnchorLine.End, AnchorLine.Center, -2.5) },

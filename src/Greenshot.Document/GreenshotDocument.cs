@@ -213,8 +213,9 @@ namespace Greenshot.Document
             : Layers.SelectMany(layer => layer.Elements).OfType<FrameElement>().FirstOrDefault(frame => frame.Target == element.Id);
 
         /// <summary>
-        /// Where the element draws: its Bounds (a frame's outer edge) with the part of the line and the shadow outside of
-        /// them. A content canvas uses it, the anchors use the Bounds.
+        /// Where the element draws: its Bounds (a frame's outer edge) with the part of the line, the shadow and the label
+        /// outside of them. A content canvas uses it, the anchors use the Bounds. The size of a label is estimated from its
+        /// text style, the model doesn't measure fonts.
         /// </summary>
         public RectD VisualBounds(Element element)
         {
@@ -232,7 +233,48 @@ namespace Greenshot.Document
                 bounds = RectD.Union(bounds, bounds.Inflate(shadow.Size ?? 0).Offset(offset.X, offset.Y));
             }
 
-            return bounds;
+            return LabelBounds(element, style.Text) is RectD label ? RectD.Union(bounds, label) : bounds;
+        }
+
+        /// <summary>
+        /// The estimated box of the element's label: a line of text is its size times the line height high, a letter 0.6
+        /// of the size wide
+        /// </summary>
+        private static RectD? LabelBounds(Element element, TextStyle text)
+        {
+            double size = text?.Size ?? 11, lineHeight = size * (text?.LineHeight ?? 1.2);
+            var (boxLabel, area) = element switch
+            {
+                RectangleElement e => (e.Label, e.Area),
+                EllipseElement e => (e.Label, e.Area),
+                ImageElement e => (e.Label, e.Area),
+                _ => (null, default)
+            };
+            if (boxLabel != null)
+            {
+                return boxLabel.AreaIn(area, boxLabel.Text.Split('\n').Length * lineHeight).Turned(element.Rotation, area.Center);
+            }
+
+            var (lineLabel, start, end) = element switch
+            {
+                LineElement e => (e.Label, e.Start, e.End),
+                ArrowElement e => (e.Label, e.Start, e.End),
+                _ => (null, default, default)
+            };
+            if (lineLabel == null)
+            {
+                return null;
+            }
+
+            var lines = lineLabel.Text.Split('\n');
+            double width = lines.Max(line => line.Length) * size * 0.6, height = lines.Length * lineHeight;
+            double dx = end.X - start.X, dy = end.Y - start.Y, length = Math.Sqrt(dx * dx + dy * dy);
+            // Above a line from left to right, the offset is from the line to the nearest edge of the label
+            var normal = length == 0 ? new PointD(0, -1) : new PointD(dy / length, -dx / length);
+            double distance = lineLabel.Offset == 0 ? 0 : lineLabel.Offset + Math.Sign(lineLabel.Offset) * height / 2;
+            var center = new PointD(start.X + dx * lineLabel.At + normal.X * distance, start.Y + dy * lineLabel.At + normal.Y * distance);
+            var box = new RectD(center.X - width / 2, center.Y - height / 2, width, height);
+            return lineLabel.Orientation == LabelOrientation.Along ? box.Turned(Math.Atan2(dy, dx) * 180 / Math.PI) : box;
         }
 
         /// <summary>

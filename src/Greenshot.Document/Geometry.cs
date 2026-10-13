@@ -20,13 +20,26 @@
  */
 
 using System;
+using System.Linq;
 
 namespace Greenshot.Document
 {
     /// <summary>
     /// A point on the canvas, in canvas pixels with the origin top-left.
     /// </summary>
-    public readonly record struct PointD(double X, double Y);
+    public readonly record struct PointD(double X, double Y)
+    {
+        /// <summary>
+        /// The point turned clockwise by degrees around a center, multiples of 90 degrees are exact
+        /// </summary>
+        public PointD Turned(double degrees, PointD center)
+        {
+            double radians = degrees * Math.PI / 180;
+            double cos = Math.Round(Math.Cos(radians), 15), sin = Math.Round(Math.Sin(radians), 15);
+            double dx = X - center.X, dy = Y - center.Y;
+            return new PointD(center.X + dx * cos - dy * sin, center.Y + dx * sin + dy * cos);
+        }
+    }
 
     /// <summary>
     /// An area on the canvas, in canvas pixels with the origin top-left.
@@ -54,6 +67,27 @@ namespace Greenshot.Document
             FromPoints(new PointD(Math.Min(a.X, b.X), Math.Min(a.Y, b.Y)), new PointD(Math.Max(a.Right, b.Right), Math.Max(a.Bottom, b.Bottom)));
 
         public RectD Offset(double dx, double dy) => this with { X = X + dx, Y = Y + dy };
+
+        public PointD Center => new(X + Width / 2, Y + Height / 2);
+
+        /// <summary>
+        /// The axis-aligned box around this area turned clockwise by degrees around its centre
+        /// </summary>
+        public RectD Turned(double degrees) => Turned(degrees, Center);
+
+        /// <summary>
+        /// The axis-aligned box around this area turned clockwise by degrees around a point
+        /// </summary>
+        public RectD Turned(double degrees, PointD center)
+        {
+            if (degrees % 360 == 0)
+            {
+                return this;
+            }
+
+            var corners = new[] { new PointD(X, Y), new PointD(Right, Y), new PointD(Right, Bottom), new PointD(X, Bottom) }.Select(corner => corner.Turned(degrees, center)).ToList();
+            return FromPoints(new PointD(corners.Min(p => p.X), corners.Min(p => p.Y)), new PointD(corners.Max(p => p.X), corners.Max(p => p.Y)));
+        }
 
         /// <summary>
         /// The area grown by the amount on every side

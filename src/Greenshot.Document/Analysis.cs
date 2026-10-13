@@ -69,9 +69,26 @@ namespace Greenshot.Document
         public DateTimeOffset? Date { get; init; }
 
         /// <summary>
-        /// The angle of the text in degrees, when the engine reports it
+        /// The angle of the text in degrees, clockwise, when the engine reports it. The bounds of lines and words are
+        /// those of the straightened text: turned by TextAngle around the centre of the image they are where the text is.
         /// </summary>
         public double? TextAngle { get; init; }
+
+        /// <summary>
+        /// The area and rotation on the canvas of a line or word (its Bounds) the OCR found in the image the image element
+        /// shows, e.g. for an obfuscate or highlight element which covers it exactly. Width and Height are the size of the image.
+        /// </summary>
+        public (RectD Area, double Rotation) OnCanvas(RectD bounds, ImageElement image, int width, int height)
+        {
+            double angle = TextAngle ?? 0;
+            var center = bounds.Center.Turned(angle, new PointD(width / 2.0, height / 2.0));
+            var source = image.Source ?? new RectD(0, 0, 1, 1);
+            double scaleX = image.Area.Width / (source.Width * width), scaleY = image.Area.Height / (source.Height * height);
+            var onCanvas = new PointD(image.Area.X + (center.X - source.X * width) * scaleX, image.Area.Y + (center.Y - source.Y * height) * scaleY)
+                .Turned(image.Rotation, image.Area.Center);
+            double areaWidth = bounds.Width * scaleX, areaHeight = bounds.Height * scaleY;
+            return (new RectD(onCanvas.X - areaWidth / 2, onCanvas.Y - areaHeight / 2, areaWidth, areaHeight), angle + image.Rotation);
+        }
     }
 
     public sealed record OcrLine(string Text, RectD Bounds, IReadOnlyList<OcrWord> Words)

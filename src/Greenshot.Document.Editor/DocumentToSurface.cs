@@ -204,8 +204,8 @@ namespace Greenshot.Document.Editor
                 StepLabelElement => new StepLabelContainer(surface),
                 HighlightElement => new HighlightContainer(surface),
                 ObfuscateElement => new ObfuscateContainer(surface),
-                ImageElement image => ToImageContainer(surface, document.Resources[image.Resource], image.Rotation, image.Source, image.Scaling == ImageScaling.Pixelated),
-                EmojiElement emoji => new EmojiContainer(surface, emoji.Emoji) { RotationAngle = emoji.Rotation },
+                ImageElement image => ToImageContainer(surface, document.Resources[image.Resource], Round(image.Rotation), image.Source, image.Scaling == ImageScaling.Pixelated),
+                EmojiElement emoji => new EmojiContainer(surface, emoji.Emoji) { RotationAngle = Round(emoji.Rotation) },
                 CursorElement cursor => new CursorContainer(surface)
                 {
                     Cursor = new CapturedCursor
@@ -297,8 +297,16 @@ namespace Greenshot.Document.Editor
                     SetLine(container, arrow.Start, arrow.End);
                     break;
                 case SpeechBubbleElement speechBubble:
-                    SetBounds(container, speechBubble.Area);
+                    SetBounds(container, speechBubble.Area.Turned(speechBubble.Rotation));
                     break;
+                // The editor turns images and emojis itself
+                case ImageElement image:
+                    SetBounds(container, image.Area);
+                    break;
+                case EmojiElement emoji:
+                    SetBounds(container, emoji.Area);
+                    break;
+                // Other turned elements are shown upright over their bounds, an obfuscate covers more, never less
                 default:
                     SetBounds(container, element.Bounds);
                     break;

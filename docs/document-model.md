@@ -163,6 +163,9 @@ Basics (the numbered rules are in "Rules" below):
 | `ObfuscateContainer` | `ObfuscateElement` | `Mode` (pixelate, blur), `Size` (pixel size or blur radius) |
 | `ImageContainer`, `IconContainer`, `SvgContainer`, `MetafileContainer` | `ImageElement` | `Area`, `Resource`, `Rotation`, `Source`, `Scaling` (see "Images" below). A metafile becomes a PNG: the document has no EMF/WMF |
 | `EmojiContainer` | `EmojiElement` | `Area`, `Emoji`, `Rotation` |
+
+Box-shaped elements can have a `rotation`, rectangles, ellipses and images a box label, lines and arrows a line label
+(see "Rotation and labels").
 | `CursorContainer` | `CursorElement` | `Area`, `Resource` (color layer), `MaskResource`, `Hotspot` (the tip as a fraction 0..1 of `Area`, so it stays right when the cursor is resized) |
 | `CutMarkContainer` | `CutMarkElement` | `Area`, `Horizontal`, `Shape`, `Seed` |
 | `TornEdgeContainer` | `FrameElement` | `Area`, `Target`, `Shape`, `Sides`, `CornerRadius`, `Placement`, `Band`, `Seed` (see "Frames" below) |
@@ -266,8 +269,7 @@ All coordinates are canvas pixels (`double`), origin top-left, x to the right, y
 - **Visual bounds** (calculated, `GreenshotDocument.VisualBounds`): where the element draws: the Bounds (a frame's
   outer edge) with the part of the line outside of them (`center` half the width, `outside` the width, `inside`
   nothing) and the shadow with its `size` and `offset`. Used for "fit the canvas to the content" and which part of the
-  canvas to redraw. The tail of a speech bubble is included; the rotation of images and emojis isn't
-  yet (its rule is still a proposal, see below).
+  canvas to redraw. The tail of a speech bubble and a label outside of the element are included (R46).
 
 ### Images
 
@@ -542,7 +544,7 @@ resource, which has no results until it is analysed again.
 
 ### Design proposals (not decided)
 
-- **Rotation**: see "Rotation (proposal)" below.
+- **Rotation**: built, see "Rotation and labels" below.
 - **Styles beyond the current set**: an element's style has optional parts (stroke, fill, shadow, text). A new kind
   of style becomes a new optional part, readers which don't know it ignore it and still draw the rest. So a document
   written by a newer Greenshot doesn't lose them on save, unknown properties of a style (and of an element) are kept
@@ -550,55 +552,35 @@ resource, which has no results until it is analysed again.
   (`"zxing.quietZone"`) so they never collide with core names. Shared styles: decided, see "Groups, styles and defaults".
 - **Speech bubble tail with anchors**: decided, see "What is anchored": the text box and the tail have their own
   anchors. The same anchors on `start` and `end` turn a line or arrow into a connector between two elements.
-- **Text in elements**: not through anchors. An anchor only positions; text inside a rectangle must also wrap and
-  resize with it. Instead, rectangles, ellipses and lines get an optional `text`, drawn inside the `Area` and rotated with it (on a line along
-  its path, see "Text along a path") with the text style that already exists. A speech bubble is then a rectangle with a text and a tail.
+- **Text in elements**: built as labels, see "Rotation and labels". A speech bubble stays its own type, its text is its
+  content.
 - **Grouping**: decided, see "Groups, styles and defaults" (the `set` type).
 
-### Rotation (proposal)
+### Rotation and labels
 
-What it is for: placing text the way the user wants it, and covering OCR text which is at an angle. Text along a line is
-a separate thing (below): the text follows the path of its element and needs no rotation.
+Built in the model (rules R35 - R47). What rotation is for: placing text the way the user wants it, and covering OCR
+text which is at an angle. A label is text which belongs to an element: a caption below an image, the text in a
+rectangle, the text on a line.
 
-Proposed rules, they become R35 and on in "Rules" when agreed:
+```json
+{ "type": "rectangle", "id": "…", "area": { "x": 50, "y": 20, "width": 120, "height": 40 }, "rotation": 15,
+  "label": { "text": "Login", "x": "center", "y": "center" } }
+{ "type": "image", "id": "…", "resource": "<id>", "area": { "x": 0, "y": 0, "width": 800, "height": 600 },
+  "label": { "text": "Figure 1: the settings dialog", "x": "center", "y": "after", "offset": 8 } }
+{ "type": "arrow", "id": "…", "start": { "x": 10, "y": 10 }, "end": { "x": 200, "y": 10 },
+  "label": { "text": "max 20 ms", "at": 0.5, "offset": 6, "orientation": "along" } }
+```
 
-- **P1 Which elements**: the box-shaped elements have `rotation`: rectangle, ellipse, text, speech bubble, highlight,
-  obfuscate, image, emoji, plugin and unknown elements. Not lines, arrows and freehand: rotating them is an edit of
-  their points, they store no angle. Not cut marks (a band across the capture), frames (P5), cursors (upright as
-  captured) and step labels (a circle, the number stays upright).
-- **P2 What it means**: degrees as a `double`, clockwise, around the centre of `Area`; the `Area` stays unrotated, so
-  resizing and text wrapping work in the element's own coordinates. Written in 0 ..< 360, 0 isn't written. Today
-  images and emojis have an `int`; it becomes a `double` for all.
-- **P3 What turns**: everything the element draws (the shadow `offset` is in canvas coordinates, a new rule with
-  rotation): its outline, fill, text, image and the line along it. The shadow
-  keeps its `offset` in canvas coordinates, the light comes from the same side for every element. An effect (blur,
-  pixelate, highlight) is worked out in canvas pixels and cut to the turned shape, so pixelate blocks stay on the
-  screen's pixel grid. A speech bubble's
-  box turns, its tail stays the point it is (it points at something on the canvas).
-- **P4 Bounds**: the axis-aligned box around the turned `Area` (and the tail). Anchors, the canvas and groups keep
-  using `Bounds` (R8), so an anchored caption sits below the turned element. Hit testing and the selection use the
-  turned shape.
-- **P5 Frames**: a frame turns with its target; its outer edge is the target's turned `Area` (replaces the limit in
-  R19).
-- **P6 Redaction**: an obfuscate or highlight is never smaller than what it covers. A renderer which can't turn it
-  (today's editor) covers its `Bounds`, the whole turned area, instead of the unturned `Area`; the rotation is kept.
-- **P7 OCR at an angle**: `textAngle` is per OCR result today. A word or line which is at an angle gets an optional
-  `angle` with its `bounds` being the unturned box around its centre, so an obfuscate element can be made from it
-  exactly (same centre, size and angle). Without it, the axis-aligned `bounds` are covered, which is safe but bigger.
-- **P8 Turning the whole capture** (open): today's editor turns the image in 90° steps and moves the elements with
-  it (`RotateEffect`), the boxes themselves stay upright. With P1 the elements could also turn with it: box-shaped
-  elements get their centre moved and the angle added, point elements get their points turned. Text would then be
-  sideways as well.
-- **Today's editor**: only images and emojis turn. Other turned elements are shown upright and kept (R5, R30), an
-  obfuscate or highlight covers its `Bounds` (P6).
-
-**Label on a line** (proposal, independent of rotation), like the edge labels of diagram tools (draw.io, Visio,
-Excalidraw): lines and arrows get an optional `label` with the text style that exists:
-`"label": { "text": "max 20 ms", "at": 0.5, "offset": 6, "orientation": "horizontal" }`. `at` is 0 to 1 from start to
-end (default 0.5), `offset` the distance from the line (negative is the other side), `orientation` `horizontal` (the
-default) or `along` the line, never upside down. The label belongs to its line (moved, copied, deleted with it, part of
-its visual bounds). Freehand gets none: text bent along a curve is a design tool feature; a text element anchored to
-the line does the job.
+- `rotation` is on every element (`Element.Rotation`), only the box-shaped ones turn (R35). `Area` stays unturned,
+  `Bounds` is the box around the turned area (R36).
+- A box label (`BoxLabel`) has `x` and `y`: `before`, `start`, `center`, `end`, `after`; `start` to `end` are inside the
+  box, `before` and `after` outside. A line label (`LineLabel`) has `at`, `offset` and `orientation` (R44, R45). Its
+  text is drawn with the element's `style.text`; for more text, a text element anchored to the element.
+- OCR at an angle: `OcrResult.OnCanvas` gives the area and rotation on the canvas of a line or word (R42), so an
+  obfuscate or highlight element covers it exactly.
+- Open: turning the whole capture. Today's editor turns the image in 90° steps and moves the elements with it
+  (`RotateEffect`), the boxes stay upright. With rotation the elements could turn with it: box-shaped elements get
+  their centre moved and the angle added, point elements get their points turned, text would be sideways too.
 
 ### Groups, styles and defaults
 
@@ -794,7 +776,7 @@ A rule marked **(not built yet)** is decided, the code doesn't do it yet.
 
 | # | when | outcome | enforced | stored data | test |
 |---|---|---|---|---|---|
-| R19 | a frame has a `target` | its `area` is the target's Bounds; for a rotated target that is the box around it (following the rotation comes with the rotation rule) | resolver `Anchors.Apply` | `area` updated | `Apply_GivesAFrameTheBoundsOfItsTarget` |
+| R19 | a frame has a `target` | its `area` is the target's Bounds; for a turned target that is the box around it (R41) | resolver `Anchors.Apply` | `area` updated | `Apply_GivesAFrameTheBoundsOfItsTarget` |
 | R20 | a frame is drawn | only for a target with an area (not a line, arrow, freehand or frame) and only the first frame of a target in drawing order; refused when set (not built yet) | resolver `FrameOf` | the others kept | `AFramedElement_HasNoShadowOfItsOwn_OnlyTheFirstFrameCounts_ALineIsNeverFramed` |
 | R21 | the target is deleted or copied | the frame is deleted or copied with it (not built yet); writing drops a frame whose target doesn't exist | edit; write | frame removed | `Write_DropsAFrameWhoseTargetIsGone` |
 | R22 | a frame is drawn | the band lies by `placement` (none: `placement` doesn't matter); the teeth cut inward from the outer edge; elements above the target aren't cut; line and shadow follow the outer edge | resolver `OuterEdge`, renderers (not built yet) | untouched | `AFrame_DrawsItsBandWhereItIsPlaced_AndTheShadowOutsideOfIt` |
@@ -815,11 +797,34 @@ A rule marked **(not built yet)** is decided, the code doesn't do it yet.
 
 | # | when | outcome | enforced | stored data | test |
 |---|---|---|---|---|---|
-| R30 | the editor can't show something | it is kept and comes back unchanged: unknown and plugin elements without their plugin, frames it can't show, anchors, extensions, groups, text values, stroke positions, frame placements | bridge | kept | `UnknownElement_IsKeptWithTheSurface`, `PluginElement_WithoutItsPlugin_IsWrittenBackUnchanged`, `AnchorsExtensionsAndGroups_SurviveTheEditor`, `AFrame_IsTheEditorsTornEdge_AndComesBack_OnesWithRoundedCornersOrABandAreKept` |
+| R30 | the editor can't show something | it is kept and comes back unchanged: unknown and plugin elements without their plugin, frames it can't show, anchors, extensions, groups, text values, stroke positions, frame placements, labels (R47), rotations (R40) | bridge | kept | `UnknownElement_IsKeptWithTheSurface`, `PluginElement_WithoutItsPlugin_IsWrittenBackUnchanged`, `AnchorsExtensionsAndGroups_SurviveTheEditor`, `AFrame_IsTheEditorsTornEdge_AndComesBack_OnesWithRoundedCornersOrABandAreKept` |
 | R31 | a document goes through the editor | the ids of the elements, the capture image and the layers stay | bridge | kept | `ElementIds_SurviveTheEditor`, `TheIdsOfTheCaptureAndTheLayers_SurviveTheEditor` |
 | R32 | the capture comes back unchanged | it is the original resource (same id, bytes and format), a changed one is encoded as PNG | bridge | kept | `AnUnchangedCapture_ComesBackAsItWas_AChangedOneIsEncoded` |
 | R33 | the editor has a metafile | it becomes a PNG, the document has no EMF/WMF | bridge | PNG | `Metafile_BecomesAPng` |
 | R34 | the editor gets an element's style | `CascadeOf`, not `StyleOf`: it draws no frames on elements, so a framed image keeps its own shadow there | bridge | untouched | `AFramedElement_HasNoShadowOfItsOwn_OnlyTheFirstFrameCounts_ALineIsNeverFramed` |
+
+**Rotation**
+
+| # | when | outcome | enforced | stored data | test |
+|---|---|---|---|---|---|
+| R35 | an element has a `rotation` | degrees, clockwise, around the centre of `Area`; `Area` stays unturned, 0 isn't written. Box-shaped elements turn: rectangle, ellipse, text, speech bubble (its box, the tail is a point on the canvas), highlight, obfuscate, image, emoji, plugin. Lines, arrows and freehand turn by changing their points; cursors, step labels, cut marks and frames stay upright (R5) | resolver | kept | `ATurnedElement_HasTheBoxAroundItAsBounds_ALineKeepsItsPoints`, `RoundTrip_KeepsEveryElement` |
+| R36 | a turned element is measured | `Bounds` is the axis-aligned box around the turned area; anchors, the canvas and groups use it (R8) | resolver `Bounds` | untouched | `ATurnedElement_HasTheBoxAroundItAsBounds_ALineKeepsItsPoints` |
+| R37 | a turned element is drawn | everything of the shape turns: outline, fill, text, image (after `source` and `scale`), label; the shadow `offset` is in canvas coordinates and doesn't turn, the light comes from the same side for every element | renderers (not built yet); resolver `VisualBounds` for the label | untouched | `ALabel_IsInTheVisualBounds_NotInTheBounds_AndTurnsWithItsElement` |
+| R38 | an obfuscate or highlight is turned | the effect is worked out in canvas pixels and cut to the turned shape, pixelate blocks stay on the pixel grid | renderers (not built yet) | untouched | – |
+| R39 | a renderer can't turn an obfuscate or highlight | it covers the element's `Bounds`, more, never less | renderers, bridge | rotation kept | `ATurnedElement_IsShownUprightOverItsBounds_AndComesBackTurned_LabelsAreKept` |
+| R40 | a turned element goes through today's editor | images and emojis turn in the editor; other turned elements are shown upright over their `Bounds` and come back with their area and rotation while unchanged; moved or resized, they come back upright with the new area | bridge | kept while unchanged | `ATurnedElement_IsShownUprightOverItsBounds_AndComesBackTurned_LabelsAreKept` |
+| R41 | a frame's target is turned | the frame is drawn along the turned area of its target; its `area` stays the target's `Bounds` (R19) | renderers (not built yet) | untouched | – |
+| R42 | OCR text is at an angle | the bounds of lines and words are those of the straightened text; turned by `textAngle` around the centre of the image they are where the text is. `OcrResult.OnCanvas` gives the area and rotation on the canvas (through the image element's area, source and rotation) | resolver | untouched | `OcrText_AtAnAngle_IsCoveredExactly` |
+
+**Labels**
+
+| # | when | outcome | enforced | stored data | test |
+|---|---|---|---|---|---|
+| R43 | an element has a `label` | rectangles, ellipses and images have a box label, lines and arrows a line label; not text, speech bubbles (their text is their content), step labels, cursors, emojis, freehand and obfuscate. One label per element; it moves, turns, copies and is deleted with its element; its text style is the element's `style.text` | edit, resolver | kept | `RoundTrip_KeepsEveryElement` |
+| R44 | a box label is placed | per axis `before` / `after` outside the box at `offset`, `start` / `end` inside at `offset`, `center` in the middle; inside it wraps in the box, outside it is as wide as the box unless it has a `width` | resolver `BoxLabel.AreaIn` | untouched | `ALabel_IsInTheVisualBounds_NotInTheBounds_AndTurnsWithItsElement` |
+| R45 | a line label is placed | at `at` (0 to 1) from start to end, `offset` from the line to the nearest edge of the label (positive above a line from left to right), `horizontal` or `along` the line, never upside down | resolver, renderers | untouched | `ALabel_IsInTheVisualBounds_NotInTheBounds_AndTurnsWithItsElement` |
+| R46 | an element with a label is measured | the label is in the visual bounds, not in `Bounds`; its size is estimated from the text style (a line is size x line height high, a letter 0.6 of the size wide), a renderer measures it | resolver `VisualBounds` | untouched | `ALabel_IsInTheVisualBounds_NotInTheBounds_AndTurnsWithItsElement` |
+| R47 | an element with a label goes through today's editor | the editor has no labels, the label is kept and comes back | bridge | kept | `ATurnedElement_IsShownUprightOverItsBounds_AndComesBackTurned_LabelsAreKept` |
 
 **When rules meet**
 
@@ -828,6 +833,8 @@ A rule marked **(not built yet)** is decided, the code doesn't do it yet.
 - Writing: R13 refuses before anything is written, then R25 decides what is written. What the editor keeps (R30) still
   passes R25.
 - Strict (R28) is applied before writing, so R25 runs on the strict document.
+- Redaction: R39 goes before any other way of showing a turned element (R40): an obfuscate or highlight is never
+  smaller than what it covers.
 
 ## File formats
 
