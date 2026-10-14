@@ -48,6 +48,12 @@ namespace Greenshot.Base.Interfaces
     public interface INotificationService
     {
         /// <summary>
+        /// False while the user doesn't want notifications (Greenshot's setting, or Windows turned them off for Greenshot, for the
+        /// user or by a policy): then every Show call does nothing, no other implementation takes over
+        /// </summary>
+        bool IsEnabled { get; }
+
+        /// <summary>
         /// True when a notification can show the capture of <see cref="Notification.CaptureId"/> and a click offers it again,
         /// also after Greenshot exited. Only then Greenshot keeps the capture for the notification.
         /// </summary>

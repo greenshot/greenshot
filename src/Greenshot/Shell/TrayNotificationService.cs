@@ -46,6 +46,9 @@ namespace Greenshot.Shell
     internal sealed class TrayNotificationService : INotificationService
     {
         /// <inheritdoc />
+        public bool IsEnabled => IniConfigRegistry.GetSection<ICoreConfiguration>().ShowTrayNotification;
+
+        /// <inheritdoc />
         public bool ShowsCaptures => false;
 
         /// <inheritdoc />
@@ -95,7 +98,7 @@ namespace Greenshot.Shell
         private void ShowMessage(string message, TrayBalloonLevel level, Action onClickAction, Action onClosedAction)
         {
             // Do not inform the user if this is disabled
-            if (!IniConfigRegistry.GetSection<ICoreConfiguration>().ShowTrayNotification)
+            if (!IsEnabled)
             {
                 return;
             }

@@ -40,7 +40,8 @@ using NotificationSetting = Windows.UI.Notifications.NotificationSetting;
 namespace Greenshot.Plugin.Win10
 {
     /// <summary>
-    /// The toasts of Windows, preferred over the balloons of the tray icon where they are available
+    /// The toasts of Windows, preferred over the balloons of the tray icon where they are available. When the user or a policy
+    /// turned them off in Windows, Greenshot shows nothing, the balloons don't take over.
     /// </summary>
     public sealed class ToastNotificationServiceProvider : INotificationServiceProvider
     {
@@ -76,7 +77,7 @@ namespace Greenshot.Plugin.Win10
         }
 
         /// <summary>
-        /// Registers Greenshot for toasts, null when Windows can't or won't show them (then the tray icon shows the notifications)
+        /// Registers Greenshot for toasts, null when Windows can't show them (then the tray icon shows the notifications)
         /// or for the PortableApp and the .zip, which don't write the registration
         /// </summary>
         public static ToastNotificationService Create()
@@ -99,13 +100,6 @@ namespace Greenshot.Plugin.Win10
             try
             {
                 DesktopToasts.Register(AppId, "Greenshot", WriteIcon(), $"\"{Application.ExecutablePath}\"");
-                var setting = DesktopToasts.GetSetting(AppId);
-                if (setting != NotificationSetting.Enabled)
-                {
-                    ToastActivator.Activated -= service.OnActivated;
-                    Log.InfoFormat("Windows doesn't show Greenshot's toasts ({0}), the tray icon shows the notifications.", setting);
-                    return null;
-                }
                 return service;
             }
             catch (Exception ex)
@@ -132,6 +126,28 @@ namespace Greenshot.Plugin.Win10
         }
 
         /// <inheritdoc />
+        /// <remarks>Asked each time, the user can turn the toasts on and off in Windows while Greenshot runs</remarks>
+        public bool IsEnabled
+        {
+            get
+            {
+                if (!CoreConfiguration.ShowTrayNotification)
+                {
+                    return false;
+                }
+                try
+                {
+                    return DesktopToasts.GetSetting(AppId) == NotificationSetting.Enabled;
+                }
+                catch (Exception ex)
+                {
+                    Log.Warn("Couldn't read whether Windows shows Greenshot's toasts.", ex);
+                    return false;
+                }
+            }
+        }
+
+        /// <inheritdoc />
         public bool ShowsCaptures => true;
 
         /// <inheritdoc />
@@ -143,8 +159,8 @@ namespace Greenshot.Plugin.Win10
         /// <inheritdoc />
         public void ShowNotification(Notification notification)
         {
-            // Do not inform the user if this is disabled
-            if (!CoreConfiguration.ShowTrayNotification)
+            // Do not inform the user if this is disabled, in Greenshot or in Windows
+            if (!IsEnabled)
             {
                 return;
             }

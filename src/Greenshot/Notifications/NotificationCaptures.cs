@@ -79,9 +79,9 @@ namespace Greenshot.Notifications
         /// <returns>The id, null when it couldn't be kept</returns>
         public static string Store(ISurface surface)
         {
-            // Only a notification which shows the capture needs it (a toast, not the balloon of the tray icon)
+            // Only a notification which is shown and shows the capture needs it (a toast, not the balloon of the tray icon)
             var notificationService = SimpleServiceProvider.Current.GetInstance<INotificationService>(isOptional: true);
-            if (surface?.Image == null || notificationService?.ShowsCaptures != true)
+            if (surface?.Image == null || notificationService?.ShowsCaptures != true || !notificationService.IsEnabled)
             {
                 return null;
             }

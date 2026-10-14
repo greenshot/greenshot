@@ -84,6 +84,8 @@ namespace Greenshot.Tests.Core
 
         private sealed class FakeService : INotificationService
         {
+            public bool IsEnabled => true;
+
             public bool ShowsCaptures => false;
 
             public IReadOnlyCollection<string> GetShownCaptureIds() => Array.Empty<string>();
