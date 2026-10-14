@@ -49,12 +49,6 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         private Image _shadowBitmap;
 
-        /// <summary>
-        /// This is the offset for the shadow version of the bitmap
-        /// Do not serialize, as the offset is recreated
-        /// </summary>
-        private NativePoint _shadowOffset = new NativePoint(-1, -1);
-
         public ImageContainer(ISurface parent, string filename) : this(parent)
         {
             Load(filename);
