@@ -42,8 +42,11 @@ namespace Greenshot.Notifications
                 RecipeIdNotification,
                 "Capture of a notification",
                 "Offer the capture of a clicked notification in the destination flyout")
+                // The click hands over the kept capture, the source passes it on (it reads the variable Filename otherwise)
+                .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.File, captureMouse: false))
                 .AddNode(RecipeStepConfig.CreateDynamicDestination("export"));
-            notificationRecipe.Flow = new RecipeFlowConfig("export");
+            notificationRecipe.Flow = new RecipeFlowConfig("acquire")
+                .AddTransition("acquire", "export");
             yield return notificationRecipe;
         }
     }

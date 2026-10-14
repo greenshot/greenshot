@@ -172,7 +172,10 @@ namespace Greenshot.Shell
             SimpleServiceProvider.Current.AddService<ICaptureFlowRunner>(_flowRunner);
 
             // Windows specific services
+#if !GREENSHOT_LIGHT
+            // Greenshot Light has no toasts, the tray icon shows its notifications (see TrayNotificationService below)
             SimpleServiceProvider.Current.AddService<INotificationService>(ToastNotificationService.Create());
+#endif
             // Set this as IOcrProvider
             SimpleServiceProvider.Current.AddService<IOcrProvider>(new Win10OcrProvider());
 

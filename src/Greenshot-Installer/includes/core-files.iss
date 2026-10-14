@@ -58,8 +58,11 @@ Source: {#ReleaseDir}\emojis.xml; DestDir: {app}; Components: greenshot; Flags: 
 Source: additional_files\installer.txt; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: additional_files\license.txt; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: additional_files\readme.txt; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
+#ifndef IsLightEdition
+; Not in Greenshot Light: it opens files with Greenshot.exe (see tasks-icons-reg.iss)
 Source: {#ReleaseDir}\greenshot-proxy.exe; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\greenshot-cli.exe; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
+#endif
 
 ; Core language files
 Source: {#LanguagesDir}\*nl-NL*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: greenshot; Flags: {#DefaultInstallFlags};

@@ -3,6 +3,9 @@
 #ifdef IsLightEdition
 // Light edition strips all plugins so an installation over Full is completely clean
 Type: filesandordirs; Name: "{app}\Plugins"
+// Greenshot Light has no command line and no proxy, it opens files with Greenshot.exe
+Type: files; Name: "{app}\greenshot-proxy.exe"
+Type: files; Name: "{app}\greenshot-cli.exe"
 #endif
 
 // Libraries of an earlier version that this version no longer uses (e.g. Nodify.dll and Fizzler.dll, which were once
