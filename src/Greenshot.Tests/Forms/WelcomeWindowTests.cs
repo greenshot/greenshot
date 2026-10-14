@@ -43,33 +43,48 @@ namespace Greenshot.Tests.Forms
         }
 
         [Fact]
-        public void IsHiddenInOverflow_FollowsIsPromoted()
+        public void IsHiddenInOverflow_FollowsIsPromoted_OfTheIconWithTheId()
         {
             string testRoot = $@"Software\Greenshot.Tests\{Guid.NewGuid():N}";
             using var root = Registry.CurrentUser.CreateSubKey(testRoot);
             try
             {
                 // Windows 10: no NotifyIconSettings
-                Assert.False(WelcomeWindow.IsHiddenInOverflow(root, ProgramFilesGreenshot));
+                Assert.False(WelcomeWindow.IsHiddenInOverflow(root, ProgramFilesGreenshot, 0));
+                Assert.False(WelcomeWindow.ShowNextToClock(root, ProgramFilesGreenshot, 0));
 
                 using var settings = root.CreateSubKey(@"Control Panel\NotifyIconSettings");
                 using (var other = settings.CreateSubKey("1"))
                 {
                     other.SetValue("ExecutablePath", @"C:\Windows\explorer.exe");
+                    other.SetValue("UID", 0, RegistryValueKind.DWord);
                 }
-                // Greenshot has no icon (yet)
-                Assert.False(WelcomeWindow.IsHiddenInOverflow(root, ProgramFilesGreenshot));
+                // The icon of an older version (WinForms used id 1) was shown, that doesn't count for the current one
+                using (var old = settings.CreateSubKey("2"))
+                {
+                    old.SetValue("ExecutablePath", @"{6D809377-6AF0-444B-8957-A3773F02200E}\Greenshot\Greenshot.exe");
+                    old.SetValue("UID", 1, RegistryValueKind.DWord);
+                    old.SetValue("IsPromoted", 1, RegistryValueKind.DWord);
+                }
+                // Greenshot's icon with id 0 has no key (yet)
+                Assert.False(WelcomeWindow.IsHiddenInOverflow(root, ProgramFilesGreenshot, 0));
+                Assert.False(WelcomeWindow.ShowNextToClock(root, ProgramFilesGreenshot, 0));
 
-                using var icon = settings.CreateSubKey("2");
+                using var icon = settings.CreateSubKey("3");
                 icon.SetValue("ExecutablePath", @"{6D809377-6AF0-444B-8957-A3773F02200E}\Greenshot\Greenshot.exe");
+                icon.SetValue("UID", 0, RegistryValueKind.DWord);
                 // A new icon is hidden until the user shows it
-                Assert.True(WelcomeWindow.IsHiddenInOverflow(root, ProgramFilesGreenshot));
+                Assert.True(WelcomeWindow.IsHiddenInOverflow(root, ProgramFilesGreenshot, 0));
 
                 icon.SetValue("IsPromoted", 0, RegistryValueKind.DWord);
-                Assert.True(WelcomeWindow.IsHiddenInOverflow(root, ProgramFilesGreenshot));
+                Assert.True(WelcomeWindow.IsHiddenInOverflow(root, ProgramFilesGreenshot, 0));
 
-                icon.SetValue("IsPromoted", 1, RegistryValueKind.DWord);
-                Assert.False(WelcomeWindow.IsHiddenInOverflow(root, ProgramFilesGreenshot));
+                Assert.True(WelcomeWindow.ShowNextToClock(root, ProgramFilesGreenshot, 0));
+                Assert.Equal(1, icon.GetValue("IsPromoted"));
+                Assert.False(WelcomeWindow.IsHiddenInOverflow(root, ProgramFilesGreenshot, 0));
+
+                using var explorer = settings.OpenSubKey("1");
+                Assert.Null(explorer.GetValue("IsPromoted"));
             }
             finally
             {

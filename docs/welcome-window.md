@@ -20,10 +20,13 @@ It doesn't touch the thank-you page on the website: that one opens on its own, i
 2. **The basics**: the hotkeys for region, window, full screen and last region, read from the user's configuration, each with what it does.
    A hotkey which isn't set is left out. Below are two lines about the tray menu and where captures go.
 3. **Your setup**: only the problems which are there, each with a button to fix it, or "Everything looks good":
-   - **Tray icon hidden** (Windows 11): Windows keeps a key per notification icon in `HKCU\Control Panel\NotifyIconSettings`,
-     `IsPromoted=1` means it's shown next to the clock. When Greenshot has an icon there and none of its icons is promoted, the hint explains
-     where to switch it on, and the button opens the taskbar settings (`ms-settings:taskbar`). The key is only read, never written:
-     the choice is the user's. Windows 10 has no such key, there the check reports nothing.
+   - **Tray icon hidden** (Windows 11): Windows keeps a key per executable and icon id in `HKCU\Control Panel\NotifyIconSettings`,
+     its name is a number Windows makes up. Greenshot finds its own key by `ExecutablePath` (Greenshot.exe, a known folder written as its GUID)
+     and `UID` (the id of its tray icon, 0 with Hardcodet.NotifyIcon.Wpf; the WinForms icon of 1.3 had 1, so that key is an old one).
+     `IsPromoted=1` means the icon is shown next to the clock; without it, it's hidden behind the arrow.
+     The button "Show it next to the clock" writes `IsPromoted=1` into that key, the same as the switch in the taskbar settings,
+     and Windows shows the icon right away. This isn't documented, so it's only done when the user clicks the button;
+     when it can't be written, the button opens the taskbar settings (`ms-settings:taskbar`) instead. Windows 10 has no such key, there the check reports nothing.
    - **Print key opens the Snipping Tool** and **OneDrive takes the Print key**: the same checks and fixes as the Hotkeys section of the
      Self-Service window (`HotkeySectionViewModel`).
 

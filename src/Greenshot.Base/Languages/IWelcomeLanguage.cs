@@ -107,12 +107,12 @@ namespace Greenshot.Base.Languages
         string SetupTitle { get; }
 
         /// <summary>
-        /// Open the taskbar settings
+        /// Show it next to the clock
         /// </summary>
         string SetupTrayFix { get; }
 
         /// <summary>
-        /// Windows hides the Greenshot icon behind the arrow (^) next to the clock. To always see it: open the taskbar settings, expand &quot;Other system tray icons&quot; and switch Greenshot on. You can also drag the icon from behind the arrow onto the taskbar.
+        /// Windows hides the Greenshot icon behind the arrow (^) next to the clock. Greenshot can show it next to the clock for you, or you can switch it on yourself under &quot;Other system tray icons&quot; in the taskbar settings.
         /// </summary>
         string SetupTrayHidden { get; }
 

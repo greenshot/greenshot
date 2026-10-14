@@ -175,7 +175,7 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="{wpf:Text Welcome.SetupTrayHidden}" Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                            <Button Grid.Column="1" Content="{wpf:Text Welcome.SetupTrayFix}" Style="{StaticResource SecondaryButtonStyle}" Click="OnOpenTaskbarSettingsClicked" VerticalAlignment="Center"/>
+                            <Button Grid.Column="1" Content="{wpf:Text Welcome.SetupTrayFix}" Style="{StaticResource SecondaryButtonStyle}" Click="OnShowTrayIconClicked" VerticalAlignment="Center"/>
                         </Grid>
                         <Grid Visibility="{Binding SnippingToolVisibility}" Margin="0,0,0,8">
                             <Grid.ColumnDefinitions>

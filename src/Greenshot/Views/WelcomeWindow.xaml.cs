@@ -47,6 +47,8 @@ namespace Greenshot.Views
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(WelcomeWindow));
         private static WelcomeWindow _currentInstance;
+        // Hardcodet.NotifyIcon.Wpf adds every icon with id 0, see Shell/TrayIcon.cs
+        private const int TrayIconId = 0;
         private readonly HotkeySectionViewModel _hotkeyChecks = new();
         private readonly Random _rand = new();
         private int _tipIndex;
@@ -174,7 +176,7 @@ namespace Greenshot.Views
         {
             try
             {
-                IsTrayIconHidden = IsHiddenInOverflow(Registry.CurrentUser, System.Windows.Forms.Application.ExecutablePath);
+                IsTrayIconHidden = IsHiddenInOverflow(Registry.CurrentUser, System.Windows.Forms.Application.ExecutablePath, TrayIconId);
             }
             catch (Exception ex)
             {
@@ -193,38 +195,59 @@ namespace Greenshot.Views
 
         /// <summary>
         /// Windows 11 remembers per notification icon if it's shown next to the clock (IsPromoted 1) or hidden in the overflow,
-        /// in HKCU\Control Panel\NotifyIconSettings. A new icon is hidden until the user shows it. Only read here, the choice is the user's.
-        /// Windows 10 has no such key, there it's never reported as hidden.
+        /// in HKCU\Control Panel\NotifyIconSettings\{a number of Windows}, one key per executable and icon id (UID).
+        /// A new icon is hidden until the user shows it. Windows 10 has no such key, there it's never reported as hidden.
         /// </summary>
         /// <param name="currentUser">HKEY_CURRENT_USER</param>
         /// <param name="executablePath">The path of Greenshot.exe</param>
-        /// <returns>True when Greenshot has an icon there and none of its icons is shown</returns>
-        internal static bool IsHiddenInOverflow(RegistryKey currentUser, string executablePath)
+        /// <param name="iconId">The id Greenshot adds its icon with</param>
+        /// <returns>True when Windows has the icon and hides it</returns>
+        internal static bool IsHiddenInOverflow(RegistryKey currentUser, string executablePath, int iconId)
         {
-            using var notifyIconSettings = currentUser.OpenSubKey(@"Control Panel\NotifyIconSettings");
-            if (notifyIconSettings == null)
+            using var iconKey = OpenIconSettings(currentUser, executablePath, iconId, false);
+            return iconKey != null && !(iconKey.GetValue("IsPromoted") is int isPromoted && isPromoted == 1);
+        }
+
+        /// <summary>
+        /// Show the icon next to the clock, like the switch of the icon in the taskbar settings does: Windows applies it right away.
+        /// This isn't documented and only done when the user asks for it.
+        /// </summary>
+        /// <returns>False when Windows has no settings for the icon</returns>
+        internal static bool ShowNextToClock(RegistryKey currentUser, string executablePath, int iconId)
+        {
+            using var iconKey = OpenIconSettings(currentUser, executablePath, iconId, true);
+            if (iconKey == null)
             {
                 return false;
             }
 
-            bool found = false;
-            foreach (var iconKeyName in notifyIconSettings.GetSubKeyNames())
-            {
-                using var iconKey = notifyIconSettings.OpenSubKey(iconKeyName);
-                if (iconKey?.GetValue("ExecutablePath") is not string registeredPath || !IsSameExecutable(registeredPath, executablePath))
-                {
-                    continue;
-                }
+            iconKey.SetValue("IsPromoted", 1, RegistryValueKind.DWord);
+            return true;
+        }
 
-                // An older version may have left an icon with another id, one shown icon is enough
-                if (iconKey.GetValue("IsPromoted") is int isPromoted && isPromoted == 1)
-                {
-                    return false;
-                }
-                found = true;
+        /// <summary>
+        /// The key Windows keeps for the icon with this id of this executable, null when there is none
+        /// </summary>
+        private static RegistryKey OpenIconSettings(RegistryKey currentUser, string executablePath, int iconId, bool writable)
+        {
+            using var notifyIconSettings = currentUser.OpenSubKey(@"Control Panel\NotifyIconSettings");
+            if (notifyIconSettings == null)
+            {
+                return null;
             }
 
-            return found;
+            foreach (var iconKeyName in notifyIconSettings.GetSubKeyNames())
+            {
+                var iconKey = notifyIconSettings.OpenSubKey(iconKeyName, writable);
+                if (iconKey?.GetValue("ExecutablePath") is string registeredPath && IsSameExecutable(registeredPath, executablePath)
+                    && iconKey.GetValue("UID") is int uid && uid == iconId)
+                {
+                    return iconKey;
+                }
+                iconKey?.Dispose();
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -247,8 +270,22 @@ namespace Greenshot.Views
             return string.Equals(registeredPath, executablePath, StringComparison.OrdinalIgnoreCase);
         }
 
-        private void OnOpenTaskbarSettingsClicked(object sender, RoutedEventArgs e)
+        private void OnShowTrayIconClicked(object sender, RoutedEventArgs e)
         {
+            try
+            {
+                if (ShowNextToClock(Registry.CurrentUser, System.Windows.Forms.Application.ExecutablePath, TrayIconId))
+                {
+                    RefreshSetup();
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Couldn't show the notification area icon next to the clock", ex);
+            }
+
+            // Windows wouldn't take it, the user can still switch it on in the taskbar settings
             try
             {
                 Process.Start(new ProcessStartInfo("ms-settings:taskbar") { UseShellExecute = true })?.Dispose();
