@@ -40,47 +40,22 @@ using NotificationSetting = Windows.UI.Notifications.NotificationSetting;
 namespace Greenshot.Plugin.Win10
 {
     /// <summary>
-    /// The toasts of Windows, preferred over the balloons of the tray icon where they are available. When the user or a policy
-    /// turned them off in Windows, Greenshot shows nothing, the balloons don't take over.
+    /// Initializes the toasts of Windows, preferred over the balloons of the tray icon where they are available: checks whether
+    /// Windows can show them and registers Greenshot for them (its app id, the COM class which receives the clicks and the command
+    /// line Windows starts for a click while Greenshot isn't running, see <see cref="DesktopToasts.Register"/>).
+    /// When the user or a policy turned them off in Windows, Greenshot shows nothing, the balloons don't take over.
     /// </summary>
     public sealed class ToastNotificationServiceProvider : INotificationServiceProvider
     {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(ToastNotificationServiceProvider));
+
         /// <inheritdoc />
         public int Priority => 100;
 
         /// <inheritdoc />
-        public INotificationService TryCreate() => ToastNotificationService.Create();
-    }
-
-    /// <summary>
-    /// Informs the user with toasts. A click on a toast with a capture raises <see cref="CaptureActivated"/>, also when Windows
-    /// starts Greenshot for the click; other toasts run their click action while Greenshot runs.
-    /// Not in Greenshot Light, which has no toasts.
-    /// </summary>
-    public sealed class ToastNotificationService : INotificationService
-    {
-        /// <summary>
-        /// The app id of Greenshot, the same as the one of the start menu shortcut (see tasks-icons-reg.iss)
-        /// </summary>
-        public const string AppId = "Greenshot";
-
-        private static readonly ILog Log = LogManager.GetLogger(typeof(ToastNotificationService));
-        private static readonly ICoreConfiguration CoreConfiguration = IniConfigRegistry.GetSection<ICoreConfiguration>();
-
-        /// <summary>
-        /// The click actions of the toasts, by their tag: they only live as long as Greenshot runs
-        /// </summary>
-        private readonly ConcurrentDictionary<string, Action> _clickActions = new ConcurrentDictionary<string, Action>();
-
-        private ToastNotificationService()
-        {
-        }
-
-        /// <summary>
-        /// Registers Greenshot for toasts, null when Windows can't show them (then the tray icon shows the notifications)
-        /// or for the PortableApp and the .zip, which don't write the registration
-        /// </summary>
-        public static ToastNotificationService Create()
+        /// <returns>null when Windows can't show toasts (then the tray icon shows the notifications), or for the PortableApp and
+        /// the .zip, which don't write the registration</returns>
+        public INotificationService TryCreate()
         {
             if (GreenshotEnvironment.LeavesNoTraces)
             {
@@ -96,15 +71,15 @@ namespace Greenshot.Plugin.Win10
 
             // Subscribed before the registration: when Windows started Greenshot for a click, the click comes right after it
             var service = new ToastNotificationService();
-            ToastActivator.Activated += service.OnActivated;
+            ToastActivator.Activated += service.HandleClick;
             try
             {
-                DesktopToasts.Register(AppId, "Greenshot", WriteIcon(), $"\"{Application.ExecutablePath}\"");
-                var setting = DesktopToasts.GetSetting(AppId);
+                DesktopToasts.Register(ToastNotificationService.AppId, "Greenshot", WriteIcon(), $"\"{Application.ExecutablePath}\"");
+                var setting = DesktopToasts.GetSetting(ToastNotificationService.AppId);
                 if (setting == NotificationSetting.DisabledByManifest)
                 {
                     // Not a choice of the user, like the other settings (see IsEnabled): this Greenshot can't show toasts at all
-                    ToastActivator.Activated -= service.OnActivated;
+                    ToastActivator.Activated -= service.HandleClick;
                     Log.InfoFormat("Windows can't show Greenshot's toasts ({0}), the tray icon shows the notifications.", setting);
                     return null;
                 }
@@ -116,7 +91,7 @@ namespace Greenshot.Plugin.Win10
             }
             catch (Exception ex)
             {
-                ToastActivator.Activated -= service.OnActivated;
+                ToastActivator.Activated -= service.HandleClick;
                 Log.Warn("Couldn't register for toasts, the tray icon shows the notifications.", ex);
                 return null;
             }
@@ -135,6 +110,31 @@ namespace Greenshot.Plugin.Win10
                 greenshotImage.Save(iconPath, ImageFormat.Png);
             }
             return iconPath;
+        }
+    }
+
+    /// <summary>
+    /// Informs the user with toasts, initialized by <see cref="ToastNotificationServiceProvider"/>. A click on a toast with a capture
+    /// raises <see cref="CaptureActivated"/>, also when Windows starts Greenshot for the click; other toasts run their click action
+    /// while Greenshot runs. Not in Greenshot Light, which has no toasts.
+    /// </summary>
+    public sealed class ToastNotificationService : INotificationService
+    {
+        /// <summary>
+        /// The app id of Greenshot, the same as the one of the start menu shortcut (see tasks-icons-reg.iss)
+        /// </summary>
+        public const string AppId = "Greenshot";
+
+        private static readonly ILog Log = LogManager.GetLogger(typeof(ToastNotificationService));
+        private static readonly ICoreConfiguration CoreConfiguration = IniConfigRegistry.GetSection<ICoreConfiguration>();
+
+        /// <summary>
+        /// The click actions of the toasts, by their tag: they only live as long as Greenshot runs
+        /// </summary>
+        private readonly ConcurrentDictionary<string, Action> _clickActions = new ConcurrentDictionary<string, Action>();
+
+        internal ToastNotificationService()
+        {
         }
 
         /// <inheritdoc />
@@ -207,10 +207,10 @@ namespace Greenshot.Plugin.Win10
         }
 
         /// <summary>
-        /// A click on a toast, with its tag, called by Windows on a COM thread. Handled on the UI thread: when Windows started
-        /// Greenshot for the click, that is after the startup, which subscribes to <see cref="CaptureActivated"/>.
+        /// A click on a toast, with its tag, called by Windows on a COM thread (see <see cref="ToastActivator.Activated"/>). Handled on
+        /// the UI thread: when Windows started Greenshot for the click, that is after the startup, which subscribes to <see cref="CaptureActivated"/>.
         /// </summary>
-        private void OnActivated(string tag)
+        internal void HandleClick(string tag)
         {
             if (tag == null)
             {
