@@ -80,7 +80,7 @@ sequenceDiagram
     W->>AS: user logs on
     AS->>AS: HKLM Version 1,0 > HKCU Version (missing)?
     AS->>G: run StubPath, wait for it
-    G->>R: Greenshot = "C:\Program Files\Greenshot\Greenshot.exe"
+    G->>R: Greenshot = C:\Program Files\Greenshot\Greenshot.exe
     G-->>AS: exit
     AS->>AS: HKCU Version = 1,0
     W->>E: show the desktop
