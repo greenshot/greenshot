@@ -67,6 +67,16 @@ namespace Greenshot.Base.Languages
         string BasicsWindow { get; }
 
         /// <summary>
+        /// Back
+        /// </summary>
+        string ButtonBack { get; }
+
+        /// <summary>
+        /// Next
+        /// </summary>
+        string ButtonNext { get; }
+
+        /// <summary>
         /// Open the settings
         /// </summary>
         string ButtonSettings { get; }
@@ -75,6 +85,21 @@ namespace Greenshot.Base.Languages
         /// Let's go!
         /// </summary>
         string ButtonStart { get; }
+
+        /// <summary>
+        /// That's all you need to start. Greenshot waits next to the clock, and everything else can be changed in the settings whenever you like.
+        /// </summary>
+        string Done { get; }
+
+        /// <summary>
+        /// You're all set
+        /// </summary>
+        string DoneTitle { get; }
+
+        /// <summary>
+        /// In a few steps you'll see how capturing works, and Greenshot checks that everything is set up well.
+        /// </summary>
+        string Intro { get; }
 
         /// <summary>
         /// Everything looks good, Greenshot is ready.

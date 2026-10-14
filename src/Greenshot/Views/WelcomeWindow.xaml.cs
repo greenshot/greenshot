@@ -26,6 +26,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
@@ -52,6 +53,9 @@ namespace Greenshot.Views
         private readonly HotkeySectionViewModel _hotkeyChecks = new();
         private readonly Random _rand = new();
         private int _tipIndex;
+        // The steps of the wizard, in their order; a new step is a panel in the XAML and an entry here
+        private readonly FrameworkElement[] _steps;
+        private int _currentStep;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -74,6 +78,16 @@ namespace Greenshot.Views
 
         public bool IsTrayIconHidden { get; private set; }
 
+        /// <summary>
+        /// One dot per step, the current one in the accent color
+        /// </summary>
+        public IReadOnlyList<SolidColorBrush> StepDots =>
+            _steps.Select((_, index) => index == _currentStep ? AccentBrush : BadgeBackgroundBrush).ToList();
+
+        public Visibility BackVisibility => _currentStep > 0 ? Visibility.Visible : Visibility.Hidden;
+
+        public string NextText => _currentStep == _steps.Length - 1 ? Texts.Welcome.ButtonStart : Texts.Welcome.ButtonNext;
+
         public Visibility TrayIconHiddenVisibility => IsTrayIconHidden ? Visibility.Visible : Visibility.Collapsed;
         public Visibility SnippingToolVisibility => _hotkeyChecks.IsSnippingToolHijackEnabled ? Visibility.Visible : Visibility.Collapsed;
         public Visibility OneDriveVisibility => _hotkeyChecks.IsOneDriveBlocking ? Visibility.Visible : Visibility.Collapsed;
@@ -86,6 +100,7 @@ namespace Greenshot.Views
         public WelcomeWindow()
         {
             InitializeComponent();
+            _steps = new FrameworkElement[] { StepWelcome, StepBasics, StepSetup, StepDone };
             DataContext = this;
 
             _tipIndex = _rand.Next(Tips().Length);
@@ -153,6 +168,21 @@ namespace Greenshot.Views
                 .ToList();
             ShowTip(_tipIndex);
             OnPropertyChanged(nameof(Basics));
+            OnPropertyChanged(nameof(NextText));
+        }
+
+        private void ShowStep(int step)
+        {
+            _currentStep = Math.Max(0, Math.Min(step, _steps.Length - 1));
+            for (int index = 0; index < _steps.Length; index++)
+            {
+                // Hidden keeps the size of the window the same for every step
+                _steps[index].Visibility = index == _currentStep ? Visibility.Visible : Visibility.Hidden;
+            }
+
+            OnPropertyChanged(nameof(StepDots));
+            OnPropertyChanged(nameof(BackVisibility));
+            OnPropertyChanged(nameof(NextText));
         }
 
         private void ShowTip(int index)
@@ -318,9 +348,29 @@ namespace Greenshot.Views
             SimpleServiceProvider.Current.GetInstance<IGreenshotShell>()?.ShowSetting();
         }
 
-        private void OnStartClicked(object sender, RoutedEventArgs e)
+        private void OnBackClicked(object sender, RoutedEventArgs e)
         {
-            Close();
+            ShowStep(_currentStep - 1);
+        }
+
+        private void OnNextClicked(object sender, RoutedEventArgs e)
+        {
+            if (_currentStep == _steps.Length - 1)
+            {
+                Close();
+                return;
+            }
+
+            ShowStep(_currentStep + 1);
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+            if (e.Key == Key.Escape)
+            {
+                Close();
+            }
         }
 
         private void OnLanguageChanged(object sender, EventArgs e)
@@ -339,6 +389,7 @@ namespace Greenshot.Views
             OnPropertyChanged(nameof(AccentBrush));
             OnPropertyChanged(nameof(BadgeBackgroundBrush));
             OnPropertyChanged(nameof(WarningTextBrush));
+            OnPropertyChanged(nameof(StepDots));
         }
 
         private void OnWindowUnloaded(object sender, RoutedEventArgs e)

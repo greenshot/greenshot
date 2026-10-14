@@ -1,4 +1,4 @@
-<!-- The welcome window: Greenshot says hello at its first start, explains the basics and checks the setup -->
+<!-- The welcome window: a wizard in which Greenshot says hello at its first start, explains the basics and checks the setup -->
 <Window x:Class="Greenshot.Views.WelcomeWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -136,85 +136,112 @@
                     </StackPanel>
                 </Grid>
 
-                <!-- The basics: the user's own hotkeys -->
-                <Border Style="{StaticResource CardStyle}">
-                    <StackPanel>
-                        <TextBlock Text="{wpf:Text Welcome.BasicsTitle}" Style="{StaticResource CardTitleStyle}"/>
-                        <ItemsControl ItemsSource="{Binding Basics}" Margin="0,0,0,6">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid Margin="0,2,0,4">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="170"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Border Grid.Column="0" HorizontalAlignment="Left" CornerRadius="4" Padding="8,2"
-                                                Background="{Binding DataContext.BadgeBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}">
-                                            <TextBlock Text="{Binding Keys}" FontWeight="SemiBold"
-                                                       Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                                        </Border>
-                                        <TextBlock Grid.Column="1" Text="{Binding Description}" VerticalAlignment="Center" TextWrapping="Wrap"
-                                                   Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                        <TextBlock Text="{wpf:Text Welcome.BasicsMenu}" Style="{StaticResource BodyTextStyle}" Margin="0,0,0,4"/>
-                        <TextBlock Text="{wpf:Text Welcome.BasicsAfter}" Style="{StaticResource BodyTextStyle}"/>
+                <!-- The steps of the wizard share one cell: the hidden ones keep their size, so the window doesn't jump.
+                     A new step is a panel here and an entry in WelcomeWindow._steps -->
+                <Grid>
+                    <!-- Step: welcome -->
+                    <StackPanel x:Name="StepWelcome">
+                        <Border Style="{StaticResource CardStyle}">
+                            <TextBlock Text="{wpf:Text Welcome.Intro}" FontSize="14" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap"/>
+                        </Border>
                     </StackPanel>
-                </Border>
 
-                <!-- The setup: what keeps Greenshot from working as expected, with a fix -->
-                <Border Style="{StaticResource CardStyle}">
-                    <StackPanel>
-                        <TextBlock Text="{wpf:Text Welcome.SetupTitle}" Style="{StaticResource CardTitleStyle}"/>
-                        <TextBlock Text="{wpf:Text Welcome.SetupOk}" Foreground="{Binding AccentBrush}" TextWrapping="Wrap" Visibility="{Binding SetupOkVisibility}"/>
-                        <Grid Visibility="{Binding TrayIconHiddenVisibility}" Margin="0,0,0,8">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="{wpf:Text Welcome.SetupTrayHidden}" Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                            <Button Grid.Column="1" Content="{wpf:Text Welcome.SetupTrayFix}" Style="{StaticResource SecondaryButtonStyle}" Click="OnShowTrayIconClicked" VerticalAlignment="Center"/>
-                        </Grid>
-                        <Grid Visibility="{Binding SnippingToolVisibility}" Margin="0,0,0,8">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="{wpf:Text Welcome.SetupSnipping}" Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                            <Button Grid.Column="1" Content="{wpf:Text Welcome.SetupSnippingFix}" Style="{StaticResource SecondaryButtonStyle}" Click="OnFixSnippingToolClicked" VerticalAlignment="Center"/>
-                        </Grid>
-                        <Grid Visibility="{Binding OneDriveVisibility}" Margin="0,0,0,8">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="{wpf:Text Welcome.SetupOnedrive}" Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                            <Button Grid.Column="1" Content="{wpf:Text Welcome.SetupOnedriveFix}" Style="{StaticResource SecondaryButtonStyle}" Click="OnFixOneDriveClicked" VerticalAlignment="Center"/>
-                        </Grid>
+                    <!-- Step: the basics -->
+                    <StackPanel x:Name="StepBasics" Visibility="Hidden">
+                        <!-- The basics: the user's own hotkeys -->
+                        <Border Style="{StaticResource CardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="{wpf:Text Welcome.BasicsTitle}" Style="{StaticResource CardTitleStyle}"/>
+                                <ItemsControl ItemsSource="{Binding Basics}" Margin="0,0,0,6">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,2,0,4">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="170"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Border Grid.Column="0" HorizontalAlignment="Left" CornerRadius="4" Padding="8,2"
+                                                        Background="{Binding DataContext.BadgeBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}">
+                                                    <TextBlock Text="{Binding Keys}" FontWeight="SemiBold"
+                                                               Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                </Border>
+                                                <TextBlock Grid.Column="1" Text="{Binding Description}" VerticalAlignment="Center" TextWrapping="Wrap"
+                                                           Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <TextBlock Text="{wpf:Text Welcome.BasicsMenu}" Style="{StaticResource BodyTextStyle}" Margin="0,0,0,4"/>
+                                <TextBlock Text="{wpf:Text Welcome.BasicsAfter}" Style="{StaticResource BodyTextStyle}"/>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
-                </Border>
 
-                <!-- A tip, from the set of tips in the language file -->
-                <Border Style="{StaticResource CardStyle}">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="💡" FontSize="20" VerticalAlignment="Top" Margin="0,0,12,0"/>
-                        <StackPanel Grid.Column="1">
-                            <TextBlock Text="{wpf:Text Welcome.TipTitle}" Style="{StaticResource CardTitleStyle}" Margin="0,0,0,4"/>
-                            <TextBlock Text="{Binding CurrentTip}" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,0,0,6"/>
-                            <TextBlock>
-                                <Hyperlink Click="OnNextTipClicked">
-                                    <TextBlock Text="{wpf:Text Welcome.TipNext}"/>
-                                </Hyperlink>
-                            </TextBlock>
-                        </StackPanel>
-                    </Grid>
-                </Border>
+                    <!-- Step: the setup -->
+                    <StackPanel x:Name="StepSetup" Visibility="Hidden">
+                        <!-- The setup: what keeps Greenshot from working as expected, with a fix -->
+                        <Border Style="{StaticResource CardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="{wpf:Text Welcome.SetupTitle}" Style="{StaticResource CardTitleStyle}"/>
+                                <TextBlock Text="{wpf:Text Welcome.SetupOk}" Foreground="{Binding AccentBrush}" TextWrapping="Wrap" Visibility="{Binding SetupOkVisibility}"/>
+                                <Grid Visibility="{Binding TrayIconHiddenVisibility}" Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{wpf:Text Welcome.SetupTrayHidden}" Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                    <Button Grid.Column="1" Content="{wpf:Text Welcome.SetupTrayFix}" Style="{StaticResource SecondaryButtonStyle}" Click="OnShowTrayIconClicked" VerticalAlignment="Center"/>
+                                </Grid>
+                                <Grid Visibility="{Binding SnippingToolVisibility}" Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{wpf:Text Welcome.SetupSnipping}" Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                    <Button Grid.Column="1" Content="{wpf:Text Welcome.SetupSnippingFix}" Style="{StaticResource SecondaryButtonStyle}" Click="OnFixSnippingToolClicked" VerticalAlignment="Center"/>
+                                </Grid>
+                                <Grid Visibility="{Binding OneDriveVisibility}" Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{wpf:Text Welcome.SetupOnedrive}" Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                    <Button Grid.Column="1" Content="{wpf:Text Welcome.SetupOnedriveFix}" Style="{StaticResource SecondaryButtonStyle}" Click="OnFixOneDriveClicked" VerticalAlignment="Center"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Step: done, with a tip -->
+                    <StackPanel x:Name="StepDone" Visibility="Hidden">
+                        <Border Style="{StaticResource CardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="{wpf:Text Welcome.DoneTitle}" Style="{StaticResource CardTitleStyle}"/>
+                                <TextBlock Text="{wpf:Text Welcome.Done}" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                                <Button Content="{wpf:Text Welcome.ButtonSettings}" Style="{StaticResource SecondaryButtonStyle}" HorizontalAlignment="Left" Click="OnSettingsClicked"/>
+                            </StackPanel>
+                        </Border>
+                        <!-- A tip, from the set of tips in the language file -->
+                        <Border Style="{StaticResource CardStyle}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="💡" FontSize="20" VerticalAlignment="Top" Margin="0,0,12,0"/>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="{wpf:Text Welcome.TipTitle}" Style="{StaticResource CardTitleStyle}" Margin="0,0,0,4"/>
+                                    <TextBlock Text="{Binding CurrentTip}" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                                    <TextBlock>
+                                        <Hyperlink Click="OnNextTipClicked">
+                                            <TextBlock Text="{wpf:Text Welcome.TipNext}"/>
+                                        </Hyperlink>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </Grid>
             </StackPanel>
 
             <!-- Footer -->
@@ -227,19 +254,36 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <Button Grid.Column="0" HorizontalAlignment="Left"
-                            Content="{wpf:Text Welcome.ButtonSettings}"
-                            Style="{StaticResource SecondaryButtonStyle}"
-                            Click="OnSettingsClicked"/>
+                    <!-- Where the user is: one dot per step -->
+                    <ItemsControl Grid.Column="0" ItemsSource="{Binding StepDots}" VerticalAlignment="Center">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Ellipse Width="8" Height="8" Margin="0,0,6,0" Fill="{Binding}"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                     <Button Grid.Column="1"
-                            Content="{wpf:Text Welcome.ButtonStart}"
+                            Content="{wpf:Text Welcome.ButtonBack}"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Visibility="{Binding BackVisibility}"
+                            MinWidth="80"
+                            Height="32"
+                            Margin="0,0,8,0"
+                            Click="OnBackClicked"/>
+                    <Button Grid.Column="2"
+                            Content="{Binding NextText}"
                             Style="{StaticResource PrimaryButtonStyle}"
                             IsDefault="True"
-                            IsCancel="True"
                             MinWidth="110"
                             Height="32"
-                            Click="OnStartClicked"/>
+                            Click="OnNextClicked"/>
                 </Grid>
             </Border>
         </Grid>

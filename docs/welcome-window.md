@@ -16,7 +16,11 @@ It doesn't touch the thank-you page on the website: that one opens on its own, i
 
 ## What it shows
 
-1. **Hello**: the animated Greenshot "G" (`Views/AnimatedLogo.xaml`, the same control the About window uses), the title and a thank-you line.
+The window is a wizard. On top it always shows the animated Greenshot "G" (`Views/AnimatedLogo.xaml`, the same control the About window uses),
+the title and a thank-you line. Below that is one step at a time; "Next" and "Back" move between them, the dots show where the user is.
+On the last step "Next" reads "Let's go!" and closes the window, Esc closes it on any step.
+
+1. **Welcome**: one line about what comes next.
 2. **The basics**: the hotkeys for region, window, full screen and last region, read from the user's configuration, each with what it does.
    A hotkey which isn't set is left out. Below are two lines about the tray menu and where captures go.
 3. **Your setup**: only the problems which are there, each with a button to fix it, or "Everything looks good":
@@ -31,7 +35,13 @@ It doesn't touch the thank-you page on the website: that one opens on its own, i
      Self-Service window (`HotkeySectionViewModel`).
 
    The checks run again whenever the window is activated, so coming back from the Windows settings updates them.
-4. **A tip**: one tip from the set, picked at random when the window opens; "Another tip" shows the next one.
+4. **Done**: a few words that everything is ready, a button to the settings, and a tip from the set,
+   picked at random when the window opens; "Another tip" shows the next one.
+
+### Adding a step
+
+A step is a panel in the grid of steps in `WelcomeWindow.xaml` (start it with `Visibility="Hidden"`, so it keeps its size)
+and an entry in `_steps` in the constructor of `WelcomeWindow`, at the place where it should show. The dots and the buttons follow on their own.
 
 ## Changing the content
 
