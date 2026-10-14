@@ -20,6 +20,8 @@ and inside a feature by kind (Views, ViewModels, Tools, Steps, ...). The namespa
   `NotificationServiceFactory` (`Greenshot/Shell`) takes the first available one by priority: `ToastNotificationServiceProvider`
   (`Greenshot/Native`), then `TrayNotificationServiceProvider`. Another platform (macOS, Linux) is another provider. Code that needs
   more than a text asks for `ShowsCaptures` (e.g. `NotificationCaptures`) and handles clicks after a restart with `CaptureActivated`.
+  A platform which can't show notifications returns no service and the next one is used; one where the user or a group policy
+  turned them off stays and shows nothing while they are off (`IsEnabled`), there is no fallback to the balloons then.
 - **Greenshot.exe of the full version is x64, Greenshot Light is AnyCPU.** COM doesn't give a toast click to a Greenshot it starts for it
   when the exe is AnyCPU (its PE header says 32-bit, although it runs as a 64-bit process). Light has no toasts (the tray icon shows its
   notifications), no `greenshot-cli.exe` and no `greenshot-proxy.exe` (its installer opens files with `Greenshot.exe --file`), so it

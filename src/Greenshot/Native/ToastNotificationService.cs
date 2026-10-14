@@ -100,6 +100,18 @@ namespace Greenshot.Plugin.Win10
             try
             {
                 DesktopToasts.Register(AppId, "Greenshot", WriteIcon(), $"\"{Application.ExecutablePath}\"");
+                var setting = DesktopToasts.GetSetting(AppId);
+                if (setting == NotificationSetting.DisabledByManifest)
+                {
+                    // Not a choice of the user, like the other settings (see IsEnabled): this Greenshot can't show toasts at all
+                    ToastActivator.Activated -= service.OnActivated;
+                    Log.InfoFormat("Windows can't show Greenshot's toasts ({0}), the tray icon shows the notifications.", setting);
+                    return null;
+                }
+                if (setting != NotificationSetting.Enabled)
+                {
+                    Log.InfoFormat("Notifications are turned off ({0}), Greenshot shows none while they are off.", setting);
+                }
                 return service;
             }
             catch (Exception ex)
