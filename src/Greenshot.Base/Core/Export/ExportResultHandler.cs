@@ -42,6 +42,8 @@ namespace Greenshot.Base.Core.Export
                 return Task.CompletedTask;
             }
 
+            // The message is about the destination which really exported (e.g. the one picked in the picker), its icon shows in the notification
+            destination = result.ExportedBy ?? destination;
             string target = result.Target ?? destination.Descriptor?.DisplayName ?? destination.Designation;
             return source.UseSurfaceAsync(surface =>
             {
