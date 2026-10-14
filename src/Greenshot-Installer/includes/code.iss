@@ -141,10 +141,25 @@ begin
   Exec(ExpandConstant('{sys}\taskkill.exe'), '/F /IM greenshot-mcp.exe', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
 end;
 
+// Greenshot.exe --enable-autostart wrote the Run value, only this user's can be removed: Windows skips the ones of other users
+// when the file is gone. Another Greenshot, e.g. a portable one, keeps its value.
+procedure RemoveAutostart();
+var
+  RunValue: String;
+begin
+  if RegQueryStringValue(HKCU, 'Software\Microsoft\Windows\CurrentVersion\Run', '{#ExeName}', RunValue) then
+    if Pos(Lowercase(ExpandConstant('{app}\{#ExeName}.exe')), Lowercase(RunValue)) > 0 then
+      RegDeleteValue(HKCU, 'Software\Microsoft\Windows\CurrentVersion\Run', '{#ExeName}');
+  RegDeleteKeyIncludingSubkeys(HKCU, 'Software\Microsoft\Active Setup\Installed Components\{{#AutostartComponentGuid}}');
+end;
+
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 begin
   if CurUninstallStep = usUninstall then
+  begin
     CloseMcpServer();
+    RemoveAutostart();
+  end;
 end;
 
 function PrepareToInstall(var NeedsRestart: Boolean): String;

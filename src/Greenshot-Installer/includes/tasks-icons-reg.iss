@@ -1,5 +1,13 @@
+; The GUID of the Active Setup component, in [Registry] and [Run] as {{{#AutostartComponentGuid}} (a single "{" starts a constant)
+#define AutostartComponentGuid "17A6D9DC-E818-4278-992A-167EF0FAC433"
+; Raise it only to set up the start with Windows for every user once more, also for those who switched it off since
+#define AutostartComponentVersion "1,0"
+
 [Tasks]
 Name: startup; Description: {cm:startup}
+; For an all-users install: every user gets the start with Windows at the next logon and can switch it off in the settings of Greenshot
+Name: startup\allusers; Description: {cm:startupallusers}; Flags: exclusive; Check: IsAdminInstallMode
+Name: startup\currentuser; Description: {cm:startupcurrentuser}; Flags: exclusive unchecked; Check: IsAdminInstallMode
 
 [Icons]
 Name: {group}\{#ExeName}; Filename: {app}\{#ExeName}.exe; WorkingDir: {app}; AppUserModelID: "{#ExeName}"
@@ -27,8 +35,14 @@ Root: HKLM; Subkey: Software\Classes\.greenshot; ValueType: none; ValueName: "";
 ; A choice made in "Open with > Always" still names the old ProgID; without it Explorer falls back to Greenshot.File
 Root: HKCU; Subkey: Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.greenshot\UserChoice; Flags: deletekey noerror
 
-; Create the startup entries if requested to do so
-Root: HKA; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: {#ExeName}; ValueData: """{app}\{#ExeName}.exe"""; Flags: uninsdeletevalue noerror; Tasks: startup
+; The start with Windows is always in the Run key of the user: Greenshot.exe --enable-autostart writes it, see [Run] and docs/autostart.md.
+; For every user Active Setup runs it once per user, at the next logon. Without that task the key is removed, so no new user gets it.
+Root: HKLM; Subkey: Software\Microsoft\Active Setup\Installed Components\{{{#AutostartComponentGuid}}; Flags: deletekey noerror; Check: IsAdminInstallMode
+Root: HKLM; Subkey: Software\Microsoft\Active Setup\Installed Components\{{{#AutostartComponentGuid}}; ValueType: string; ValueName: ""; ValueData: "{#ExeName}"; Flags: uninsdeletekey; Tasks: startup\allusers
+Root: HKLM; Subkey: Software\Microsoft\Active Setup\Installed Components\{{{#AutostartComponentGuid}}; ValueType: string; ValueName: "ComponentID"; ValueData: "{#ExeName}"; Tasks: startup\allusers
+Root: HKLM; Subkey: Software\Microsoft\Active Setup\Installed Components\{{{#AutostartComponentGuid}}; ValueType: string; ValueName: "StubPath"; ValueData: """{app}\{#ExeName}.exe"" --enable-autostart"; Tasks: startup\allusers
+Root: HKLM; Subkey: Software\Microsoft\Active Setup\Installed Components\{{{#AutostartComponentGuid}}; ValueType: string; ValueName: "Version"; ValueData: "{#AutostartComponentVersion}"; Tasks: startup\allusers
+Root: HKLM; Subkey: Software\Microsoft\Active Setup\Installed Components\{{{#AutostartComponentGuid}}; ValueType: dword; ValueName: "IsInstalled"; ValueData: "1"; Tasks: startup\allusers
 
 ; File types. Every file is opened through greenshot-proxy.exe --file, Greenshot then runs the recipes whose OpenFile trigger
 ; matches the extension (the built-in "Open file" recipe opens it in the editor).
@@ -112,6 +126,10 @@ Root: HKCU; Subkey: Control Panel\Keyboard; ValueType: dword; ValueName: "PrintS
 [Run]
 ; Native images (NGen) for Greenshot and the assemblies it references: less JIT at startup. Needs admin rights; queued, the .NET optimization service compiles them right away.
 Filename: "{dotnet40}\ngen.exe"; Parameters: "install ""{app}\{#ExeName}.exe"" /queue:1 /nologo"; Flags: runhidden waituntilterminated; Check: IsAdminInstallMode
+; The start with Windows for the user who started the setup, the HKCU of an administrator who elevated it may be another user's.
+; With Active Setup, also mark it as done for that user, so the next logon doesn't do it again.
+Filename: "{app}\{#ExeName}.exe"; Parameters: "--enable-autostart"; WorkingDir: "{app}"; Flags: runasoriginaluser waituntilterminated; Tasks: startup
+Filename: "{sys}\reg.exe"; Parameters: "add ""HKCU\Software\Microsoft\Active Setup\Installed Components\{{{#AutostartComponentGuid}}"" /v Version /t REG_SZ /d ""{#AutostartComponentVersion}"" /f"; Flags: runasoriginaluser runhidden waituntilterminated; Tasks: startup\allusers
 Filename: "{app}\{#ExeName}.exe"; Description: "{cm:startgreenshot}"; Parameters: "{code:GetParamsForGS}"; WorkingDir: "{app}"; Flags: nowait postinstall runasoriginaluser; Check: NotAlreadyRestarted
 Filename: "https://getgreenshot.org/thank-you/?language={language}&version={#Version}"; Flags: shellexec runasoriginaluser
 
@@ -121,6 +139,8 @@ Filename: "{dotnet40}\ngen.exe"; Parameters: "uninstall ""{app}\{#ExeName}.exe""
 [CustomMessages]
 default=Default installation
 startup=Start {#ExeName} with Windows start
+startupallusers=For every user of this computer (each can switch it off in the settings)
+startupcurrentuser=Only for me
 startgreenshot=Start {#ExeName}
 UninstallIconDescription=Uninstall
 ShowLicense=Show license
@@ -130,6 +150,8 @@ disablewin11snippingtool=Disable Win11 default PrtScr snipping tool
 en.default=Default installation
 en.startgreenshot=Start {#ExeName}
 en.startup=Start {#ExeName} with Windows start
+en.startupallusers=For every user of this computer (each can switch it off in the settings)
+en.startupcurrentuser=Only for me
 en.UninstallIconDescription=Uninstall
 en.ShowLicense=Show license
 en.ShowReadme=Show Readme
@@ -138,6 +160,8 @@ en.disablewin11snippingtool=Disable Win11 default PrtScr snipping tool
 de.default=Standard installation
 de.startgreenshot={#ExeName} starten
 de.startup={#ExeName} starten wenn Windows hochfährt
+de.startupallusers=Für jeden Benutzer dieses Computers (jeder kann es in den Einstellungen abschalten)
+de.startupcurrentuser=Nur für mich
 de.disablewin11snippingtool=Deaktiviere das Standard Windows 11 Snipping Tool auf "Druck"
 
 es.startgreenshot=Lanzar {#ExeName}
