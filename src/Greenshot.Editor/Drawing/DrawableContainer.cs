@@ -326,7 +326,7 @@ namespace Greenshot.Editor.Drawing
             {
                 foreach (IFilter filter in Filters)
                 {
-                    if (filter.Invert)
+                    if (filter.Invert && _parent?.Image != null)
                     {
                         return new NativeRect(Point.Empty, _parent.Image.Size);
                     }
