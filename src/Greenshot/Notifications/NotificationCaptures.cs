@@ -161,8 +161,9 @@ namespace Greenshot.Notifications
             try
             {
                 var shownIds = DesktopToasts.GetTags(ToastNotificationService.AppId);
-                // A capture which was just kept can still wait for its toast
-                var keptBefore = DateTime.UtcNow - TimeSpan.FromMinutes(1);
+                // A clicked toast is gone from the notification center before Greenshot handles the click (also when Windows starts
+                // Greenshot for it), so a capture is kept as long as its toast lives (an hour, see DestinationDispatcher.Notify)
+                var keptBefore = DateTime.UtcNow - TimeSpan.FromHours(1);
                 foreach (var file in Directory.GetFiles(StoreDirectory))
                 {
                     string id = Path.GetFileNameWithoutExtension(file);
