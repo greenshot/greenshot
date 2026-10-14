@@ -103,8 +103,9 @@ namespace Greenshot.Helpers
         };
 
         /// <summary>
-        /// Added by COM when Windows starts Greenshot for a click on a toast while Greenshot isn't running.
-        /// Greenshot starts as usual, the click is passed to it afterwards (see ToastActivator).
+        /// Added by Windows (COM) to the command line of every program it starts for a COM call, here a click on a toast while
+        /// Greenshot isn't running. Greenshot doesn't choose it and ignores it: it is only accepted so the start isn't rejected.
+        /// The click itself arrives over COM after the start (see ToastActivator).
         /// </summary>
         private static readonly Option<bool> EmbeddingOption = new Option<bool>("-Embedding")
         {

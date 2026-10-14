@@ -80,7 +80,8 @@ installed over the full version.
 
 * **Greenshot runs:** Windows calls `ToastActivator.Activate` with the `launch` argument of the toast. A toast without a capture
   runs its click action (e.g. open the saved file or the upload); a toast with a capture raises `CaptureActivated`.
-* **Greenshot isn't running:** COM starts `Greenshot.exe -Embedding` (`-Embedding` is a startup option of `Greenshot.exe`, see
+* **Greenshot isn't running:** COM starts `Greenshot.exe -Embedding`. Windows appends `-Embedding` to every program it starts for a
+  COM call (an old OLE name); Greenshot ignores it and only accepts it, so the start isn't rejected (see
   [greenshot-proxy-and-integration.md](greenshot-proxy-and-integration.md)) and calls `Activate` as soon as Greenshot registered
   the class. The click arrives a fraction of a second after the start, before the startup is finished: the provider subscribes
   the click handler before the registration, and the handler runs on the UI thread, after the startup subscribed to
