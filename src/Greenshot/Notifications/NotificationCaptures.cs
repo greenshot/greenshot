@@ -38,9 +38,10 @@ using log4net;
 namespace Greenshot.Notifications
 {
     /// <summary>
-    /// The captures which notifications (toasts) show and offer in the destination flyout (a recipe), also after a restart: what went to the destination,
-    /// kept as .greenshot file with a thumbnail. Both are named by an id (UUID v7), which is the tag of the toast. They are
-    /// removed when the toast is clicked, and once their toast is no longer in the notification center. Not in Greenshot Light.
+    /// The captures which notifications show and offer in the destination flyout (a recipe), also after a restart: what went to the
+    /// destination, kept as .greenshot file with a thumbnail. Both are named by an id (UUID v7), the <see cref="Notification.CaptureId"/>.
+    /// Only for a notification service which <see cref="INotificationService.ShowsCaptures"/> (the toasts, not the balloons of the tray
+    /// icon). They are removed when the notification is clicked, and once it is gone. Not in Greenshot Light.
     /// </summary>
     internal static class NotificationCaptures
     {
@@ -57,6 +58,20 @@ namespace Greenshot.Notifications
         public static string GetThumbnailPath(string id) => Path.Combine(StoreDirectory, id + ".png");
 
         private static string GetCapturePath(string id) => Path.Combine(StoreDirectory, id + ".greenshot");
+
+        /// <summary>
+        /// At startup, for the notifications which show captures: offers the capture of a clicked notification (also when the click
+        /// started Greenshot) and removes the captures of the notifications which are gone
+        /// </summary>
+        public static void Initialize(INotificationService notificationService)
+        {
+            if (notificationService?.ShowsCaptures != true)
+            {
+                return;
+            }
+            notificationService.CaptureActivated += (sender, args) => OfferCapture(args.CaptureId);
+            RemoveUnused(notificationService);
+        }
 
         /// <summary>
         /// Keeps the capture for a notification

@@ -15,6 +15,11 @@ and inside a feature by kind (Views, ViewModels, Tools, Steps, ...). The namespa
   and plugin loading (`Greenshot/Plugins`) are left out of Greenshot Light by excluding their folders in `Greenshot.csproj`.
   They plug in through `[assembly: GreenshotModule(typeof(...))]` in their folder, implementing `IIpcCommandExtension` (IPC commands) or `IBuiltInRecipeProvider` (built-in recipes).
   `CheckLightAssembly` fails the Light build when one of their type names is still in Greenshot.exe.
+- **Notifications go through `INotificationService`, created by an `INotificationServiceProvider`** (both in `Greenshot.Base/Interfaces`).
+  A provider checks whether its platform is available and initializes it (the toasts register Greenshot with Windows);
+  `NotificationServiceFactory` (`Greenshot/Shell`) takes the first available one by priority: `ToastNotificationServiceProvider`
+  (`Greenshot/Native`), then `TrayNotificationServiceProvider`. Another platform (macOS, Linux) is another provider. Code that needs
+  more than a text asks for `ShowsCaptures` (e.g. `NotificationCaptures`) and handles clicks after a restart with `CaptureActivated`.
 - **Greenshot.exe of the full version is x64, Greenshot Light is AnyCPU.** COM doesn't give a toast click to a Greenshot it starts for it
   when the exe is AnyCPU (its PE header says 32-bit, although it runs as a 64-bit process). Light has no toasts (the tray icon shows its
   notifications), no `greenshot-cli.exe` and no `greenshot-proxy.exe` (its installer opens files with `Greenshot.exe --file`), so it

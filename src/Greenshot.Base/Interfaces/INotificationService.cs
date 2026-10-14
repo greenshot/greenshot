@@ -25,9 +25,25 @@ using System.Collections.Generic;
 namespace Greenshot.Base.Interfaces
 {
     /// <summary>
+    /// The click on a notification with a capture, see <see cref="INotificationService.CaptureActivated"/>
+    /// </summary>
+    public sealed class NotificationActivatedEventArgs : EventArgs
+    {
+        public NotificationActivatedEventArgs(string captureId)
+        {
+            CaptureId = captureId;
+        }
+
+        /// <summary>
+        /// The <see cref="Notification.CaptureId"/> of the clicked notification
+        /// </summary>
+        public string CaptureId { get; }
+    }
+
+    /// <summary>
     /// How Greenshot informs the user, one implementation per platform: Windows toasts, or balloons at the tray icon where
-    /// there are no toasts (Greenshot Light, the portable version). Greenshot picks and initializes one at startup, see
-    /// NotificationServiceFactory.
+    /// there are no toasts (Greenshot Light, the portable version). It is created and initialized by its
+    /// <see cref="INotificationServiceProvider"/>, Greenshot takes the first available one at startup (NotificationServiceFactory).
     /// </summary>
     public interface INotificationService
     {
@@ -41,6 +57,12 @@ namespace Greenshot.Base.Interfaces
         /// The capture ids of the notifications the user can still click, their kept captures are still needed
         /// </summary>
         IReadOnlyCollection<string> GetShownCaptureIds();
+
+        /// <summary>
+        /// Raised on the UI thread for a click on a notification with a <see cref="Notification.CaptureId"/>, instead of its click
+        /// action; also when Greenshot was started for the click. Only raised when <see cref="ShowsCaptures"/>.
+        /// </summary>
+        event EventHandler<NotificationActivatedEventArgs> CaptureActivated;
 
         /// <summary>
         /// Shows the notification to the user

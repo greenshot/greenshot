@@ -28,6 +28,18 @@ using Greenshot.Base.Interfaces;
 namespace Greenshot.Shell
 {
     /// <summary>
+    /// The balloons of the tray icon: always available, used where there are no other notifications
+    /// </summary>
+    internal sealed class TrayNotificationServiceProvider : INotificationServiceProvider
+    {
+        /// <inheritdoc />
+        public int Priority => 0;
+
+        /// <inheritdoc />
+        public INotificationService TryCreate() => new TrayNotificationService();
+    }
+
+    /// <summary>
     /// Notify the user with balloons at the tray icon, used where there are no toasts. A balloon shows no capture and can't be
     /// clicked after Greenshot exited.
     /// </summary>
@@ -38,6 +50,14 @@ namespace Greenshot.Shell
 
         /// <inheritdoc />
         public IReadOnlyCollection<string> GetShownCaptureIds() => Array.Empty<string>();
+
+        /// <inheritdoc />
+        /// <remarks>Never raised, see <see cref="ShowsCaptures"/></remarks>
+        public event EventHandler<NotificationActivatedEventArgs> CaptureActivated
+        {
+            add { }
+            remove { }
+        }
 
         /// <inheritdoc />
         public void ShowNotification(Notification notification)

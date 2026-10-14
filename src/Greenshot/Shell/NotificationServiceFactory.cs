@@ -27,23 +27,20 @@ using Greenshot.Plugin.Win10;
 namespace Greenshot.Shell
 {
     /// <summary>
-    /// Picks how Greenshot informs the user and initializes it, once at startup. Every other part only uses
-    /// <see cref="INotificationService"/>; the implementation of another platform is added here.
+    /// Picks how Greenshot informs the user and initializes it, once at startup: the first available of the providers, by their
+    /// priority. Every other part only uses <see cref="INotificationService"/>; another platform (macOS, Linux) is another provider here.
     /// </summary>
     internal static class NotificationServiceFactory
     {
-        public static INotificationService Create()
+        public static INotificationService Create() => NotificationServiceProviders.CreateService(new INotificationServiceProvider[]
         {
 #if !GREENSHOT_LIGHT
-            // Windows toasts, null where they aren't available or for the portable version, which writes no registration
-            var toasts = ToastNotificationService.Create();
-            if (toasts != null)
-            {
-                return toasts;
-            }
+            // Windows toasts, not available on old Windows versions or for the portable version, which writes no registration.
+            // Greenshot Light has no toasts.
+            new ToastNotificationServiceProvider(),
 #endif
-            // Greenshot Light has no toasts
-            return new TrayNotificationService();
-        }
+            // Always available
+            new TrayNotificationServiceProvider()
+        });
     }
 }

@@ -36,16 +36,27 @@ using Greenshot.Base.Threading;
 using log4net;
 using Windows.Foundation.Metadata;
 using NotificationSetting = Windows.UI.Notifications.NotificationSetting;
-using Greenshot.Notifications;
 
 namespace Greenshot.Plugin.Win10
 {
     /// <summary>
-    /// Informs the user with toasts. A click on a toast with a capture offers the capture in the destination flyout, also when
-    /// Windows starts Greenshot for the click; other toasts run their click action while Greenshot runs.
+    /// The toasts of Windows, preferred over the balloons of the tray icon where they are available
+    /// </summary>
+    public sealed class ToastNotificationServiceProvider : INotificationServiceProvider
+    {
+        /// <inheritdoc />
+        public int Priority => 100;
+
+        /// <inheritdoc />
+        public INotificationService TryCreate() => ToastNotificationService.Create();
+    }
+
+    /// <summary>
+    /// Informs the user with toasts. A click on a toast with a capture raises <see cref="CaptureActivated"/>, also when Windows
+    /// starts Greenshot for the click; other toasts run their click action while Greenshot runs.
     /// Not in Greenshot Light, which has no toasts.
     /// </summary>
-    public class ToastNotificationService : INotificationService
+    public sealed class ToastNotificationService : INotificationService
     {
         /// <summary>
         /// The app id of Greenshot, the same as the one of the start menu shortcut (see tasks-icons-reg.iss)
@@ -82,23 +93,24 @@ namespace Greenshot.Plugin.Win10
                 return null;
             }
 
+            // Subscribed before the registration: when Windows started Greenshot for a click, the click comes right after it
+            var service = new ToastNotificationService();
+            ToastActivator.Activated += service.OnActivated;
             try
             {
                 DesktopToasts.Register(AppId, "Greenshot", WriteIcon(), $"\"{Application.ExecutablePath}\"");
                 var setting = DesktopToasts.GetSetting(AppId);
                 if (setting != NotificationSetting.Enabled)
                 {
+                    ToastActivator.Activated -= service.OnActivated;
                     Log.InfoFormat("Windows doesn't show Greenshot's toasts ({0}), the tray icon shows the notifications.", setting);
                     return null;
                 }
-                // The clicks are dispatched by the message loop of this (the UI) thread, none comes in before this subscription
-                var service = new ToastNotificationService();
-                ToastActivator.Activated += service.OnActivated;
-                NotificationCaptures.RemoveUnused(service);
                 return service;
             }
             catch (Exception ex)
             {
+                ToastActivator.Activated -= service.OnActivated;
                 Log.Warn("Couldn't register for toasts, the tray icon shows the notifications.", ex);
                 return null;
             }
@@ -124,6 +136,9 @@ namespace Greenshot.Plugin.Win10
 
         /// <inheritdoc />
         public IReadOnlyCollection<string> GetShownCaptureIds() => DesktopToasts.GetTags(AppId);
+
+        /// <inheritdoc />
+        public event EventHandler<NotificationActivatedEventArgs> CaptureActivated;
 
         /// <inheritdoc />
         public void ShowNotification(Notification notification)
@@ -164,19 +179,27 @@ namespace Greenshot.Plugin.Win10
         }
 
         /// <summary>
-        /// A click on a toast, with its tag, called by Windows on a COM thread
+        /// A click on a toast, with its tag, called by Windows on a COM thread. Handled on the UI thread: when Windows started
+        /// Greenshot for the click, that is after the startup, which subscribes to <see cref="CaptureActivated"/>.
         /// </summary>
         private void OnActivated(string tag)
         {
+            if (tag == null)
+            {
+                return;
+            }
             UiDispatcher.Current.InvokeAsync(() =>
             {
-                if (tag != null && _clickActions.TryRemove(tag, out var onClick))
+                if (_clickActions.TryRemove(tag, out var onClick))
                 {
                     onClick();
-                    return Task.FromResult(true);
                 }
-                // A toast with a capture offers it in the destination flyout, also after a restart
-                return Task.FromResult(NotificationCaptures.OfferCapture(tag));
+                else
+                {
+                    // A toast with a capture (its tag is the capture id), also after a restart
+                    CaptureActivated?.Invoke(this, new NotificationActivatedEventArgs(tag));
+                }
+                return Task.FromResult(true);
             }).FireAndLog("Toast click", Log);
         }
 

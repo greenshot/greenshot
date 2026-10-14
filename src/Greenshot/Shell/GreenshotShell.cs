@@ -59,6 +59,7 @@ using Greenshot.Settings.Views;
 using Greenshot.Views;
 using log4net;
 #if !GREENSHOT_LIGHT
+using Greenshot.Notifications;
 using Greenshot.Plugins;
 #endif
 using WpfWindow = System.Windows.Window;
@@ -172,7 +173,12 @@ namespace Greenshot.Shell
             SimpleServiceProvider.Current.AddService<ICaptureFlowRunner>(_flowRunner);
 
             // Toasts, or the balloons of the tray icon
-            SimpleServiceProvider.Current.AddService<INotificationService>(NotificationServiceFactory.Create());
+            var notificationService = NotificationServiceFactory.Create();
+            SimpleServiceProvider.Current.AddService(notificationService);
+#if !GREENSHOT_LIGHT
+            // The kept captures of the notifications: a click on one offers its capture, also when the click started Greenshot
+            NotificationCaptures.Initialize(notificationService);
+#endif
             // Windows specific services
             // Set this as IOcrProvider
             SimpleServiceProvider.Current.AddService<IOcrProvider>(new Win10OcrProvider());
