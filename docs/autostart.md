@@ -14,7 +14,7 @@ Three parts work together:
 
 ```mermaid
 flowchart LR
-    Setup["Installer<br/>task: Start Greenshot with Windows"] -->|"--enable-autostart<br/>as the user who started the setup"| Run[("HKCU\…\Run<br/>Greenshot = &quot;…\Greenshot.exe&quot;")]
+    Setup["Installer<br/>task: Start Greenshot with Windows"] -->|"--enable-autostart<br/>as the user who started the setup"| Run[("HKCU\…\Run<br/>Greenshot = …\Greenshot.exe")]
     Setup -->|"for every user"| AS[("HKLM\…\Active Setup<br/>Installed Components<br/>{17A6D9DC-…}")]
     AS -->|"next logon of each user, once"| Run
     Settings["Greenshot settings<br/>Launch Greenshot on startup"] <-->|"read / write"| Run
@@ -38,7 +38,7 @@ flowchart TD
     C --> D{"Task: start with Windows?"}
     D -- no --> Z[Done, nobody gets it]
     D -- yes --> E{"For every user?<br/>(all-users install only)"}
-    E -- yes --> F["[Registry] create the Active Setup key:<br/>StubPath = &quot;…\Greenshot.exe&quot; --enable-autostart<br/>Version = 1,0"]
+    E -- yes --> F["[Registry] create the Active Setup key:<br/>StubPath = …\Greenshot.exe --enable-autostart<br/>Version = 1,0"]
     F --> G
     E -- "only for me" --> G["[Run] Greenshot.exe --enable-autostart<br/>as the user who started the setup (runasoriginaluser)"]
     G --> H{"For every user?"}
@@ -108,7 +108,7 @@ flowchart TD
     F --> G["open HKCU and both views of HKLM"]
     G --> H{"does an all-users entry of an older installer<br/>start this Greenshot already?"}
     H -- yes --> X[exit]
-    H -- no --> I["write HKCU\…\Run Greenshot = &quot;…\Greenshot.exe&quot;"]
+    H -- no --> I["write HKCU\…\Run Greenshot = …\Greenshot.exe"]
     I --> J["remove a 'switched off' of Windows for it<br/>(StartupApproved)"]
     J --> X
 ```
