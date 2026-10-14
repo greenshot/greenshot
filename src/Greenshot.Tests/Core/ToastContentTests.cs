@@ -79,6 +79,25 @@ namespace Greenshot.Tests.Core
         }
 
         [Fact]
+        public void ToXml_WithAppLogo_WritesOneAppLogoOverride()
+        {
+            var binding = XElement.Parse(new ToastContent("1")
+                .AddText("Window title")
+                .SetAppLogo(@"C:\Icons\clipboard.png")
+                .SetAppLogo(@"C:\Icons\word.png")
+                .AddImage(@"C:\Temp\thumbnail.png")
+                .ToXml()
+                .GetXml()).Element("visual")?.Element("binding");
+
+            var logos = binding?.Elements("image").Where(i => (string)i.Attribute("placement") == "appLogoOverride").ToList();
+            Assert.NotNull(logos);
+            Assert.Single(logos);
+            Assert.Equal("file:///C:/Icons/word.png", (string)logos[0].Attribute("src"));
+            // The thumbnail stays an inline image
+            Assert.Contains(binding.Elements("image"), i => i.Attribute("placement") == null && (string)i.Attribute("src") == "file:///C:/Temp/thumbnail.png");
+        }
+
+        [Fact]
         public void NotificationIcons_GetFileName_IsAStableFileNameForEveryIconKey()
         {
             var resource = Greenshot.Notifications.NotificationIcons.GetFileName("resource:Clipboard.Image");

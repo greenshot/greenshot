@@ -21,6 +21,7 @@
 
 
 using System;
+using System.Linq;
 using System.Xml.Linq;
 using Windows.Data.Xml.Dom;
 
@@ -53,6 +54,17 @@ namespace Greenshot.Base.Native.Toasts
         public ToastContent AddImage(string path)
         {
             _binding.Add(new XElement("image", new XAttribute("src", new Uri(path).AbsoluteUri)));
+            return this;
+        }
+
+        /// <summary>
+        /// The big image left of the texts instead of the icon of the app (appLogoOverride): it stays visible when the toast is
+        /// collapsed in the notification center, the app's name and icon stay in the header
+        /// </summary>
+        public ToastContent SetAppLogo(string path)
+        {
+            _binding.Elements("image").Where(i => (string)i.Attribute("placement") == "appLogoOverride").Remove();
+            _binding.AddFirst(new XElement("image", new XAttribute("placement", "appLogoOverride"), new XAttribute("src", new Uri(path).AbsoluteUri)));
             return this;
         }
 

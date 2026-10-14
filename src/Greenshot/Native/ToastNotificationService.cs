@@ -208,6 +208,12 @@ namespace Greenshot.Plugin.Win10
                 {
                     content.AddRow(line.IconPath, line.Text);
                 }
+                // The icon of the last destination as the big image: visible also when the toast is collapsed in the notification center
+                var logo = notification.Lines.LastOrDefault(line => line.IconPath != null)?.IconPath;
+                if (logo != null)
+                {
+                    content.SetAppLogo(logo);
+                }
             }
             else
             {
