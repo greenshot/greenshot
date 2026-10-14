@@ -202,11 +202,12 @@ namespace Greenshot.Plugin.Win10
             var content = new ToastContent(toastTag);
             if (notification.Lines.Count > 0)
             {
-                // A row per line (e.g. per destination), with its icon
+                // A row per line (e.g. per destination), with its icon when there are several: one row would repeat the big image
                 content.AddText(notification.Title ?? "Greenshot");
+                bool rowIcons = notification.Lines.Count > 1;
                 foreach (var line in notification.Lines)
                 {
-                    content.AddRow(line.IconPath, line.Text);
+                    content.AddRow(rowIcons ? line.IconPath : null, line.Text);
                 }
                 // The icon of the last destination as the big image: visible also when the toast is collapsed in the notification center
                 var logo = notification.Lines.LastOrDefault(line => line.IconPath != null)?.IconPath;
