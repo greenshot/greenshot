@@ -76,8 +76,10 @@ namespace Greenshot.Notifications
         /// <summary>
         /// Keeps the capture for a notification
         /// </summary>
+        /// <param name="surface">The capture</param>
+        /// <param name="withThumbnail">Also writes the thumbnail the notification shows (see <see cref="GetThumbnailPath"/>)</param>
         /// <returns>The id, null when it couldn't be kept</returns>
-        public static string Store(ISurface surface)
+        public static string Store(ISurface surface, bool withThumbnail = true)
         {
             // Only a notification which is shown and shows the capture needs it (a toast, not the balloon of the tray icon)
             var notificationService = SimpleServiceProvider.Current.GetInstance<INotificationService>(isOptional: true);
@@ -95,9 +97,10 @@ namespace Greenshot.Notifications
                 {
                     ImageIO.SaveToStream(surface, stream, new SurfaceOutputSettings(WellKnownFileFormats.Greenshot));
                 }
-                using (var image = surface.GetImageForExport())
-                using (var thumbnail = ImageHelper.CreateThumbnail(image, Math.Min(image.Width, ThumbnailWidth), -1, ThumbnailWidth, ThumbnailHeight))
+                if (withThumbnail)
                 {
+                    using var image = surface.GetImageForExport();
+                    using var thumbnail = ImageHelper.CreateThumbnail(image, Math.Min(image.Width, ThumbnailWidth), -1, ThumbnailWidth, ThumbnailHeight);
                     thumbnail.Save(GetThumbnailPath(id), ImageFormat.Png);
                 }
                 return id;

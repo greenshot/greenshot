@@ -73,7 +73,8 @@ The Notification step of a recipe shows one notification for the exports before 
   unlike the rows and the thumbnail stays visible when the toast is collapsed in the notification center, and the row is the text
   only; with several destinations the big image stays Greenshot's icon and every row has the icon of its destination in a small
   column beside the text. Greenshot's name and icon are always in the header,
-* the thumbnail of the kept capture below (see [Kept captures](#kept-captures-and-the-destination-flyout)).
+* the thumbnail of the kept capture below (see [Kept captures](#kept-captures-and-the-destination-flyout)), unless
+  `ShowNotificationThumbnail` is off; the capture is kept anyway, a click still offers it.
 
 A toast only shows image files, so `NotificationIcons` (`Greenshot/Notifications`, not in Light) writes the icon of each destination
 once as a png to `%LocalAppData%\Greenshot\Notifications\Icons` (named by a hash of the icon key; dynamic destinations like a
@@ -132,11 +133,22 @@ an hour, the lifetime of the toasts; a clicked toast leaves the notification cen
 Greenshot runs (`ShowsCaptures` is false, `CaptureActivated` is never raised). It needs no registration. The tray icon is created
 after the services; a notification before it isn't shown.
 
+## Settings
+
+| greenshot.ini | Settings window (Capture tab) | |
+| :--- | :--- | :--- |
+| `ShowTrayNotification` | "Notifications": None turns it off | the switch, also in the tray menu |
+| `NotificationLevel` | "Notifications": All, Warnings and errors, Errors only | which `NotificationKind`s are shown (`NotificationLevel.Shows`); None turns all off |
+| `ShowNotificationThumbnail` | "Show a thumbnail of the capture in the notification", only offered where the service `ShowsCaptures` | the thumbnail of a toast |
+
+Both implementations filter by the level in their `Show…` calls; the Notification step of a recipe checks it before it keeps a
+capture. Choosing None in the settings window keeps the level, so the tray menu turns the notifications on again with it.
+
 ## Turned off by the user or a policy
 
 `IsEnabled` is false while notifications are turned off, and every `Show…` call does nothing then; the balloons don't take over:
 
-* in Greenshot: `ShowTrayNotification` in `greenshot.ini` (both implementations),
+* in Greenshot: `ShowTrayNotification` off or `NotificationLevel` None in `greenshot.ini` (both implementations),
 * in Windows, for the toasts: Greenshot's notifications turned off (`DisabledForApplication`), all notifications turned off
   (`DisabledForUser`) or a group policy (`DisabledByGroupPolicy`). The toast service asks Windows each time
   (`DesktopToasts.GetSetting`), so turning them on again works without a restart. No capture is kept while they are off.

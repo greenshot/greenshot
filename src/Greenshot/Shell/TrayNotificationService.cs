@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
 
 namespace Greenshot.Shell
@@ -45,8 +46,10 @@ namespace Greenshot.Shell
     /// </summary>
     internal sealed class TrayNotificationService : INotificationService
     {
+        private static ICoreConfiguration CoreConfiguration => IniConfigRegistry.GetSection<ICoreConfiguration>();
+
         /// <inheritdoc />
-        public bool IsEnabled => IniConfigRegistry.GetSection<ICoreConfiguration>().ShowTrayNotification;
+        public bool IsEnabled => CoreConfiguration.ShowTrayNotification && CoreConfiguration.NotificationLevel != NotificationLevel.None;
 
         /// <inheritdoc />
         public bool ShowsCaptures => false;
@@ -65,43 +68,44 @@ namespace Greenshot.Shell
         /// <inheritdoc />
         public void ShowNotification(Notification notification)
         {
-            var level = notification.Kind switch
-            {
-                NotificationKind.Error => TrayBalloonLevel.Error,
-                NotificationKind.Warning => TrayBalloonLevel.Warning,
-                _ => TrayBalloonLevel.Info
-            };
-            ShowMessage(notification.Message, level, notification.OnClick, null);
+            ShowMessage(notification.Message, notification.Kind, notification.OnClick, null);
         }
 
         /// <inheritdoc />
         public void ShowWarningMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
         {
-            ShowMessage(message, TrayBalloonLevel.Warning, onClickAction, onClosedAction);
+            ShowMessage(message, NotificationKind.Warning, onClickAction, onClosedAction);
         }
 
         /// <inheritdoc />
         public void ShowErrorMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
         {
-            ShowMessage(message, TrayBalloonLevel.Error, onClickAction, onClosedAction);
+            ShowMessage(message, NotificationKind.Error, onClickAction, onClosedAction);
         }
 
         /// <inheritdoc />
         public void ShowInfoMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
         {
-            ShowMessage(message, TrayBalloonLevel.Info, onClickAction, onClosedAction);
+            ShowMessage(message, NotificationKind.Info, onClickAction, onClosedAction);
         }
 
         /// <summary>
         /// Show the message, the timeout is up to Windows (it ignores the one of a balloon since Vista)
         /// </summary>
-        private void ShowMessage(string message, TrayBalloonLevel level, Action onClickAction, Action onClosedAction)
+        private void ShowMessage(string message, NotificationKind kind, Action onClickAction, Action onClosedAction)
         {
-            // Do not inform the user if this is disabled
-            if (!IsEnabled)
+            // Do not inform the user if this is disabled, or the level doesn't show this kind
+            if (!IsEnabled || !CoreConfiguration.NotificationLevel.Shows(kind))
             {
                 return;
             }
+
+            var level = kind switch
+            {
+                NotificationKind.Error => TrayBalloonLevel.Error,
+                NotificationKind.Warning => TrayBalloonLevel.Warning,
+                _ => TrayBalloonLevel.Info
+            };
 
             // The tray icon is created after the services, a notification before it isn't shown
             SimpleServiceProvider.Current.GetInstance<ITrayIcon>(isOptional: true)?.ShowBalloon("Greenshot", message, level, onClickAction, onClosedAction);

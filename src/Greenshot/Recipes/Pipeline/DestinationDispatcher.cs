@@ -28,6 +28,7 @@ using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Base;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.Export;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
@@ -327,12 +328,17 @@ namespace Greenshot.Recipes.Pipeline
             if (shown.Count == 0) return;
 
             var last = shown[shown.Count - 1];
+            var kind = shown.Any(m => m.MessageType == SurfaceMessageTyp.Error) ? NotificationKind.Error : NotificationKind.Info;
+            // Nothing is kept for a notification the level doesn't show
+            if (!CoreConfig.ShowTrayNotification || !CoreConfig.NotificationLevel.Shows(kind)) return;
+
             string captureId = null;
             string thumbnailPath = null;
 #if !GREENSHOT_LIGHT
             // What went to the (last) destination is kept, a click on the toast offers it in the destination picker, also after a restart
-            captureId = NotificationCaptures.Store(last.Surface);
-            thumbnailPath = captureId == null ? null : NotificationCaptures.GetThumbnailPath(captureId);
+            bool withThumbnail = CoreConfig.ShowNotificationThumbnail;
+            captureId = NotificationCaptures.Store(last.Surface, withThumbnail);
+            thumbnailPath = captureId == null || !withThumbnail ? null : NotificationCaptures.GetThumbnailPath(captureId);
 #endif
             // Without a toast (tray balloon, Light) a click opens the saved file or the upload
             var opens = shown.LastOrDefault(m => m.MessageType == SurfaceMessageTyp.FileSaved || m.MessageType == SurfaceMessageTyp.UploadedUri);
@@ -348,7 +354,7 @@ namespace Greenshot.Recipes.Pipeline
             }).ToList();
             // Above the lines: what was captured (e.g. the title of the window), else Greenshot
             var title = last.Surface?.CaptureDetails?.Title;
-            var notification = new Notification(last.MessageType == SurfaceMessageTyp.Error ? NotificationKind.Error : NotificationKind.Info,
+            var notification = new Notification(kind,
                 string.Join(Environment.NewLine, shown.Select(m => m.Message)), TimeSpan.FromHours(1),
                 opens == null ? (Action)null : () => OpenCaptureOnClick(opens), captureId, thumbnailPath,
                 string.IsNullOrWhiteSpace(title) ? "Greenshot" : title, lines);

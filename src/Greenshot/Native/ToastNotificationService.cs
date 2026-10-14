@@ -30,6 +30,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Native.Toasts;
 using Greenshot.Base.Threading;
@@ -164,7 +165,7 @@ namespace Greenshot.Plugin.Win10
         {
             get
             {
-                if (!CoreConfiguration.ShowTrayNotification)
+                if (!CoreConfiguration.ShowTrayNotification || CoreConfiguration.NotificationLevel == NotificationLevel.None)
                 {
                     return false;
                 }
@@ -192,8 +193,8 @@ namespace Greenshot.Plugin.Win10
         /// <inheritdoc />
         public void ShowNotification(Notification notification)
         {
-            // Do not inform the user if this is disabled, in Greenshot or in Windows
-            if (!IsEnabled)
+            // Do not inform the user if this is disabled, in Greenshot or in Windows, or the level doesn't show this kind
+            if (!CoreConfiguration.NotificationLevel.Shows(notification.Kind) || !IsEnabled)
             {
                 return;
             }
