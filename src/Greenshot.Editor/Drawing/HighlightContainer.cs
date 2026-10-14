@@ -48,7 +48,12 @@ namespace Greenshot.Editor.Drawing
         private void Init()
         {
             FieldChanged += HighlightContainer_OnFieldChanged;
-            ConfigurePreparedFilters();
+            // A loaded container already has its filters, with the values from the file
+            if (Filters.Count == 0)
+            {
+                ConfigurePreparedFilters();
+            }
+
             CreateDefaultAdorners();
         }
 

@@ -71,6 +71,9 @@ namespace Greenshot.Shell
 
             _taskbarIcon = new TaskbarIcon
             {
+                // The constructor adds the icon without icon and tooltip, Windows 11 (26200) never shows such an icon.
+                // Removed here, it is added again with both when the shell sets Visible.
+                Visibility = Visibility.Collapsed,
                 Icon = GreenshotResources.GetGreenshotIcon(),
                 // Our own menu on a right click, see OnPreviewTrayContextMenuOpen
                 MenuActivation = PopupActivationMode.RightClick,
