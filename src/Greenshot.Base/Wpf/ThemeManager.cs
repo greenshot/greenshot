@@ -397,6 +397,10 @@ namespace Greenshot.Base.Wpf
             var dict = new ResourceDictionary();
             dict.MergedDictionaries.Add(new ResourceDictionary
             {
+                Source = new Uri("/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml", UriKind.Relative)
+            });
+            dict.MergedDictionaries.Add(new ResourceDictionary
+            {
                 Source = new Uri("/Greenshot.Base;component/Wpf/Styles/ScrollBarStyles.xaml", UriKind.Relative)
             });
             dict.MergedDictionaries.Add(new ResourceDictionary
