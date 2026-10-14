@@ -25,11 +25,13 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Threading;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Forms;
 using Greenshot.Recipes;
@@ -72,7 +74,7 @@ namespace Greenshot.Notifications
             }
             notificationService.CaptureActivated += (sender, args) => OfferCapture(args.CaptureId);
             notificationService.ButtonActivated += (sender, args) => NotificationButtons.Run(args);
-            RemoveUnused(notificationService);
+            RemoveUnusedInBackground(notificationService);
         }
 
         /// <summary>
@@ -90,7 +92,7 @@ namespace Greenshot.Notifications
                 return null;
             }
 
-            RemoveUnused(notificationService);
+            RemoveUnusedInBackground(notificationService);
             string id = CreateId();
             try
             {
@@ -207,6 +209,13 @@ namespace Greenshot.Notifications
                 Delete(id);
             }
         }
+
+        /// <summary>
+        /// Removes the captures of the notifications the user can no longer click, without the startup or the notification waiting
+        /// for it (only files older than an hour are removed, never the one which is being kept)
+        /// </summary>
+        private static void RemoveUnusedInBackground(INotificationService notificationService) =>
+            Task.Run(() => RemoveUnused(notificationService)).FireAndLog("Removing the captures of the notifications", Log);
 
         /// <summary>
         /// Removes the captures of the notifications the user can no longer click
