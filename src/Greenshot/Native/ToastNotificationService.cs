@@ -75,6 +75,7 @@ namespace Greenshot.Plugin.Win10
             try
             {
                 DesktopToasts.Register(ToastNotificationService.AppId, "Greenshot", WriteIcon(), $"\"{Application.ExecutablePath}\"");
+                RemoveOtherRegistrations();
                 var setting = DesktopToasts.GetSetting(ToastNotificationService.AppId);
                 if (setting == NotificationSetting.DisabledByManifest)
                 {
@@ -94,6 +95,25 @@ namespace Greenshot.Plugin.Win10
                 ToastActivator.Activated -= service.HandleClick;
                 Log.Warn("Couldn't register for toasts, the tray icon shows the notifications.", ex);
                 return null;
+            }
+        }
+
+        /// <summary>
+        /// Removes the registrations Greenshot 1.3 left with the Windows Community Toolkit, otherwise Windows lists Greenshot twice in
+        /// its notification settings
+        /// </summary>
+        private static void RemoveOtherRegistrations()
+        {
+            try
+            {
+                foreach (var appId in DesktopToasts.RemoveOtherRegistrations(ToastNotificationService.AppId, Path.GetFileName(Application.ExecutablePath)))
+                {
+                    Log.InfoFormat("Removed the old toast registration {0}.", appId);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Couldn't remove the old toast registrations.", ex);
             }
         }
 

@@ -58,7 +58,11 @@ Otherwise it writes the icon of the toasts (`%LocalAppData%\Greenshot\greenshot.
 
 The process gets the app id `Greenshot` (`SetCurrentProcessExplicitAppUserModelID`, the same as the start menu shortcut, see
 `tasks-icons-reg.iss`) and registers the COM class `ToastActivator` (`INotificationActivationCallback`), which receives the
-clicks. The toast XML is built by `ToastContent` (template `ToastGeneric`, `launch` = the tag, a text and an optional image).
+clicks. Then it removes the registrations Greenshot 1.3 left with the Windows Community Toolkit
+(`DesktopToasts.RemoveOtherRegistrations`): every other app id under `AppUserModelId` whose `CustomActivator` starts a
+`Greenshot.exe`, its `CLSID` key and its icon folder under `%LocalAppData%\ToastNotificationManagerCompat`. Without that, Windows
+lists Greenshot twice in its notification settings. The toast XML is built by `ToastContent`
+(template `ToastGeneric`, `launch` = the tag, a text and an optional image).
 
 The uninstaller removes both keys, the icon and the kept captures (`cleanup.iss`); the Light installer removes them when it is
 installed over the full version.

@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Microsoft.Win32;
@@ -68,6 +69,56 @@ namespace Greenshot.Base.Native.Toasts
                 key.SetValue(null, clickCommandLine);
             }
             ToastActivator.RegisterForClicks();
+        }
+
+        /// <summary>
+        /// Removes the registrations of other app ids whose clicks start an exe with the same file name, like the ones the
+        /// Windows Community Toolkit wrote for Greenshot 1.3: Windows lists each of them as an app in its notification settings.
+        /// </summary>
+        /// <param name="appId">The app id which stays</param>
+        /// <param name="exeFileName">The file name of the exe, e.g. Greenshot.exe</param>
+        /// <returns>The removed app ids</returns>
+        public static IReadOnlyCollection<string> RemoveOtherRegistrations(string appId, string exeFileName)
+        {
+            var removed = new List<string>();
+            using var appIds = Registry.CurrentUser.OpenSubKey(@"Software\Classes\AppUserModelId", true);
+            if (appIds == null)
+            {
+                return removed;
+            }
+            foreach (var otherAppId in appIds.GetSubKeyNames().Where(name => !string.Equals(name, appId, StringComparison.OrdinalIgnoreCase)))
+            {
+                string clsid;
+                string iconPath;
+                using (var key = appIds.OpenSubKey(otherAppId))
+                {
+                    clsid = key?.GetValue("CustomActivator") as string;
+                    iconPath = key?.GetValue("IconUri") as string;
+                }
+                if (string.IsNullOrEmpty(clsid) || string.Equals(clsid.Trim('{', '}'), ToastActivator.Clsid, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+                string commandLine;
+                using (var key = Registry.CurrentUser.OpenSubKey($@"Software\Classes\CLSID\{clsid}\LocalServer32"))
+                {
+                    commandLine = key?.GetValue(null) as string;
+                }
+                if (commandLine == null || commandLine.IndexOf(exeFileName, StringComparison.OrdinalIgnoreCase) < 0)
+                {
+                    continue;
+                }
+                Registry.CurrentUser.DeleteSubKeyTree($@"Software\Classes\CLSID\{clsid}", false);
+                appIds.DeleteSubKeyTree(otherAppId, false);
+                // The Toolkit kept the icon in a folder of its own
+                var iconDirectory = iconPath == null ? null : Path.GetDirectoryName(iconPath);
+                if (iconDirectory?.IndexOf("ToastNotificationManagerCompat", StringComparison.OrdinalIgnoreCase) >= 0 && Directory.Exists(iconDirectory))
+                {
+                    Directory.Delete(iconDirectory, true);
+                }
+                removed.Add(otherAppId);
+            }
+            return removed;
         }
 
         /// <summary>
