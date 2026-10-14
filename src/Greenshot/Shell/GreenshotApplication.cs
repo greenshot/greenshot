@@ -158,11 +158,12 @@ namespace Greenshot.Shell
                     return;
                 }
 
-                StartJitProfile();
-
                 // This is the Greenshot instance which runs: read greenshot.ini now, before anything (the language, the plugins,
                 // the shell) uses the configuration. The plugins add their sections later, they are filled from the loaded content.
                 IniConfigRegistry.Get().Load();
+
+                // After the configuration is loaded: where it was loaded from tells whether this is the .zip (LeavesNoTraces)
+                StartJitProfile();
 
                 // Apply the command line language before the language is used the first time
                 if (options.Language != null)
@@ -248,15 +249,15 @@ namespace Greenshot.Shell
         /// </summary>
         private static void StartJitProfile()
         {
-            // The portable app (PAF) leaves no files outside its own directory
-            if (GreenshotEnvironment.IsPortable)
+            // The portable app (PAF) and the .zip leave no files outside their own directory
+            if (GreenshotEnvironment.LeavesNoTraces)
             {
                 return;
             }
 
             try
             {
-                var profileRoot = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Greenshot");
+                var profileRoot = GreenshotEnvironment.LocalDataDirectory;
                 Directory.CreateDirectory(profileRoot);
                 ProfileOptimization.SetProfileRoot(profileRoot);
                 ProfileOptimization.StartProfile("Startup.profile");

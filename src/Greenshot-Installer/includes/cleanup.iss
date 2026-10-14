@@ -6,6 +6,9 @@ Type: filesandordirs; Name: "{app}\Plugins"
 // Greenshot Light has no command line and no proxy, it opens files with Greenshot.exe
 Type: files; Name: "{app}\greenshot-proxy.exe"
 Type: files; Name: "{app}\greenshot-cli.exe"
+// Greenshot Light has no toasts: the icon and the kept captures of the toasts of the full version (see tasks-icons-reg.iss for the registration)
+Type: files; Name: "{localappdata}\Greenshot\greenshot.png"
+Type: filesandordirs; Name: "{localappdata}\Greenshot\Notifications"
 #endif
 
 // Libraries of an earlier version that this version no longer uses (e.g. Nodify.dll and Fizzler.dll, which were once
@@ -78,3 +81,5 @@ Type: files; Name: "{app}\greenshot-mcp.exe"
 // The icon and the kept captures of the toasts (notifications), which Greenshot writes when it runs
 Type: files; Name: "{localappdata}\Greenshot\greenshot.png"
 Type: filesandordirs; Name: "{localappdata}\Greenshot\Notifications"
+// The multi-core JIT profile, which Greenshot writes when it runs
+Type: files; Name: "{localappdata}\Greenshot\Startup.profile"
