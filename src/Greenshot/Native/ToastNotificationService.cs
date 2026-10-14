@@ -74,8 +74,9 @@ namespace Greenshot.Plugin.Win10
             ToastActivator.Activated += service.HandleClick;
             try
             {
+                // Before the registration, which replaces the CustomActivator the Toolkit wrote for our app id
+                RemoveOldRegistrations();
                 DesktopToasts.Register(ToastNotificationService.AppId, "Greenshot", WriteIcon(), $"\"{Application.ExecutablePath}\"");
-                RemoveOtherRegistrations();
                 var setting = DesktopToasts.GetSetting(ToastNotificationService.AppId);
                 if (setting == NotificationSetting.DisabledByManifest)
                 {
@@ -99,14 +100,14 @@ namespace Greenshot.Plugin.Win10
         }
 
         /// <summary>
-        /// Removes the registrations Greenshot 1.3 left with the Windows Community Toolkit, otherwise Windows lists Greenshot twice in
-        /// its notification settings
+        /// Removes the registrations earlier versions left with the Windows Community Toolkit (one per exe path, otherwise Windows lists
+        /// Greenshot several times in its notification settings, and a COM class of its own for our app id)
         /// </summary>
-        private static void RemoveOtherRegistrations()
+        private static void RemoveOldRegistrations()
         {
             try
             {
-                foreach (var appId in DesktopToasts.RemoveOtherRegistrations(ToastNotificationService.AppId, Path.GetFileName(Application.ExecutablePath)))
+                foreach (var appId in DesktopToasts.RemoveOldRegistrations(ToastNotificationService.AppId, Path.GetFileName(Application.ExecutablePath)))
                 {
                     Log.InfoFormat("Removed the old toast registration {0}.", appId);
                 }

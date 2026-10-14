@@ -58,11 +58,20 @@ Otherwise it writes the icon of the toasts (`%LocalAppData%\Greenshot\greenshot.
 
 The process gets the app id `Greenshot` (`SetCurrentProcessExplicitAppUserModelID`, the same as the start menu shortcut, see
 `tasks-icons-reg.iss`) and registers the COM class `ToastActivator` (`INotificationActivationCallback`), which receives the
-clicks. Then it removes the registrations Greenshot 1.3 left with the Windows Community Toolkit
-(`DesktopToasts.RemoveOtherRegistrations`): every other app id under `AppUserModelId` whose `CustomActivator` starts a
-`Greenshot.exe`, its `CLSID` key and its icon folder under `%LocalAppData%\ToastNotificationManagerCompat`. Without that, Windows
-lists Greenshot twice in its notification settings. The toast XML is built by `ToastContent`
-(template `ToastGeneric`, `launch` = the tag, a text and an optional image).
+clicks. The toast XML is built by `ToastContent` (template `ToastGeneric`, `launch` = the tag, a text and an optional image).
+
+Before the registration, the provider removes what earlier versions left with the Windows Community Toolkit
+(`DesktopToasts.RemoveOldRegistrations`), otherwise Windows lists Greenshot several times in its notification settings. It
+looks at every app id under `AppUserModelId` whose `CustomActivator` is another COM class, whose `LocalServer32` starts an exe
+named like ours (`Greenshot.exe`, compared by file name):
+
+* the COM class (`CLSID\{…}`) and the Toolkit's icon folder (`%LocalAppData%\ToastNotificationManagerCompat\Apps\{…}`) are removed,
+* from the app id the Toolkit's values (`CustomActivator`, `IconBackgroundColor`, `Has7.0.1Fix`) are removed; the key of an app id
+  the Toolkit created (one per exe path of Greenshot up to 1.4, e.g. `C:/…/Greenshot.exe`) goes when nothing else is left in it,
+* the own app id `Greenshot` is kept (the Toolkit of Greenshot 1.4 builds used it too, with a COM class of its own), and so are the
+  values of another app: the Toolkit sometimes wrote its `CustomActivator` into the app id of another app (e.g. a Windows package).
+
+When an older Greenshot with the Toolkit starts again, it registers itself again; the next start of this version removes it again.
 
 The uninstaller removes both keys, the icon and the kept captures (`cleanup.iss`); the Light installer removes them when it is
 installed over the full version.

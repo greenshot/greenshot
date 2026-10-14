@@ -72,13 +72,26 @@ namespace Greenshot.Base.Native.Toasts
         }
 
         /// <summary>
-        /// Removes the registrations of other app ids whose clicks start an exe with the same file name, like the ones the
-        /// Windows Community Toolkit wrote for Greenshot 1.3: Windows lists each of them as an app in its notification settings.
+        /// The values the Windows Community Toolkit wrote next to its CustomActivator, which nothing else uses
         /// </summary>
-        /// <param name="appId">The app id which stays</param>
+        private static readonly string[] ToolkitValues = { "CustomActivator", "IconBackgroundColor", "Has7.0.1Fix" };
+
+        /// <summary>
+        /// The values of a key which the Toolkit created for an app id of its own, the key is removed when only these are left
+        /// </summary>
+        private static readonly string[] ToolkitKeyValues = { "DisplayName", "IconUri", "HasSentNotification" };
+
+        /// <summary>
+        /// Removes the toast registrations whose clicks start another COM class in an exe with the same file name, like the ones the
+        /// Windows Community Toolkit wrote for Greenshot up to 1.4: one per exe path (Windows lists each of them as an app in its
+        /// notification settings), a CustomActivator of its own for <paramref name="appId"/>, and sometimes its CustomActivator in the
+        /// app id of another app. Removed are the COM class, the values the Toolkit wrote (the whole key of an app id it created) and
+        /// its icon folder. Call it before <see cref="Register"/>, which then writes the own registration.
+        /// </summary>
+        /// <param name="appId">The own app id: it is kept, only the Toolkit's values are removed from it</param>
         /// <param name="exeFileName">The file name of the exe, e.g. Greenshot.exe</param>
-        /// <returns>The removed app ids</returns>
-        public static IReadOnlyCollection<string> RemoveOtherRegistrations(string appId, string exeFileName)
+        /// <returns>The app ids whose registration was removed</returns>
+        public static IReadOnlyCollection<string> RemoveOldRegistrations(string appId, string exeFileName)
         {
             var removed = new List<string>();
             using var appIds = Registry.CurrentUser.OpenSubKey(@"Software\Classes\AppUserModelId", true);
@@ -86,39 +99,87 @@ namespace Greenshot.Base.Native.Toasts
             {
                 return removed;
             }
-            foreach (var otherAppId in appIds.GetSubKeyNames().Where(name => !string.Equals(name, appId, StringComparison.OrdinalIgnoreCase)))
+            foreach (var otherAppId in appIds.GetSubKeyNames())
             {
-                string clsid;
-                string iconPath;
-                using (var key = appIds.OpenSubKey(otherAppId))
-                {
-                    clsid = key?.GetValue("CustomActivator") as string;
-                    iconPath = key?.GetValue("IconUri") as string;
-                }
+                using var key = appIds.OpenSubKey(otherAppId, true);
+                var clsid = key?.GetValue("CustomActivator") as string;
                 if (string.IsNullOrEmpty(clsid) || string.Equals(clsid.Trim('{', '}'), ToastActivator.Clsid, StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
                 string commandLine;
-                using (var key = Registry.CurrentUser.OpenSubKey($@"Software\Classes\CLSID\{clsid}\LocalServer32"))
+                using (var server = Registry.CurrentUser.OpenSubKey($@"Software\Classes\CLSID\{clsid}\LocalServer32"))
                 {
-                    commandLine = key?.GetValue(null) as string;
+                    commandLine = server?.GetValue(null) as string;
                 }
-                if (commandLine == null || commandLine.IndexOf(exeFileName, StringComparison.OrdinalIgnoreCase) < 0)
+                if (!string.Equals(GetExeFileName(commandLine), exeFileName, StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
+
                 Registry.CurrentUser.DeleteSubKeyTree($@"Software\Classes\CLSID\{clsid}", false);
-                appIds.DeleteSubKeyTree(otherAppId, false);
-                // The Toolkit kept the icon in a folder of its own
-                var iconDirectory = iconPath == null ? null : Path.GetDirectoryName(iconPath);
-                if (iconDirectory?.IndexOf("ToastNotificationManagerCompat", StringComparison.OrdinalIgnoreCase) >= 0 && Directory.Exists(iconDirectory))
+                var iconPath = key.GetValue("IconUri") as string;
+                foreach (var value in ToolkitValues)
                 {
-                    Directory.Delete(iconDirectory, true);
+                    key.DeleteValue(value, false);
                 }
+                bool ownAppId = string.Equals(otherAppId, appId, StringComparison.OrdinalIgnoreCase);
+                if (!ownAppId && key.SubKeyCount == 0 && key.GetValueNames().All(name => ToolkitKeyValues.Contains(name, StringComparer.OrdinalIgnoreCase)))
+                {
+                    key.Dispose();
+                    appIds.DeleteSubKeyTree(otherAppId, false);
+                }
+                DeleteToolkitIconDirectory(iconPath);
                 removed.Add(otherAppId);
             }
             return removed;
+        }
+
+        /// <summary>
+        /// The file name of the exe a command line starts, e.g. Greenshot.exe for "C:\Program Files\Greenshot\Greenshot.exe" -ToastActivated
+        /// </summary>
+        internal static string GetExeFileName(string commandLine)
+        {
+            var trimmed = commandLine?.Trim();
+            if (string.IsNullOrEmpty(trimmed))
+            {
+                return null;
+            }
+            string exePath;
+            if (trimmed[0] == '"')
+            {
+                int end = trimmed.IndexOf('"', 1);
+                exePath = end < 0 ? trimmed.Substring(1) : trimmed.Substring(1, end - 1);
+            }
+            else
+            {
+                int end = trimmed.IndexOf(' ');
+                exePath = end < 0 ? trimmed : trimmed.Substring(0, end);
+            }
+            try
+            {
+                return Path.GetFileName(exePath);
+            }
+            catch (ArgumentException)
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// The Toolkit kept the icon in a folder of its own: %LocalAppData%\ToastNotificationManagerCompat\Apps\{id}\Icon.png
+        /// </summary>
+        private static void DeleteToolkitIconDirectory(string iconPath)
+        {
+            var iconDirectory = string.IsNullOrEmpty(iconPath) ? null : Path.GetDirectoryName(iconPath);
+            var appsDirectory = iconDirectory == null ? null : Path.GetDirectoryName(iconDirectory);
+            if (appsDirectory == null || !string.Equals(Path.GetFileName(appsDirectory), "Apps", StringComparison.OrdinalIgnoreCase)
+                || !string.Equals(Path.GetFileName(Path.GetDirectoryName(appsDirectory)), "ToastNotificationManagerCompat", StringComparison.OrdinalIgnoreCase)
+                || !Directory.Exists(iconDirectory))
+            {
+                return;
+            }
+            Directory.Delete(iconDirectory, true);
         }
 
         /// <summary>
