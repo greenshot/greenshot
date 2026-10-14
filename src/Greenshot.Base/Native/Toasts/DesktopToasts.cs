@@ -71,6 +71,11 @@ namespace Greenshot.Base.Native.Toasts
         }
 
         /// <summary>
+        /// Whether Windows shows the toasts of the registered app id, or why not (turned off by the user or a group policy)
+        /// </summary>
+        public static NotificationSetting GetSetting(string appId) => ToastNotificationManager.CreateToastNotifier(appId).Setting;
+
+        /// <summary>
         /// Shows the toast, it stays in the notification center until it expires or the user removes it
         /// </summary>
         /// <param name="appId">The registered app id</param>

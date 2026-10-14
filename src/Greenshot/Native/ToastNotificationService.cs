@@ -35,6 +35,7 @@ using Greenshot.Base.Native.Toasts;
 using Greenshot.Base.Threading;
 using log4net;
 using Windows.Foundation.Metadata;
+using NotificationSetting = Windows.UI.Notifications.NotificationSetting;
 using Greenshot.Notifications;
 
 namespace Greenshot.Plugin.Win10
@@ -64,7 +65,8 @@ namespace Greenshot.Plugin.Win10
         }
 
         /// <summary>
-        /// Registers Greenshot for toasts, null when Windows can't show them or for the PortableApp and the .zip, which don't write the registration
+        /// Registers Greenshot for toasts, null when Windows can't or won't show them (then the tray icon shows the notifications)
+        /// or for the PortableApp and the .zip, which don't write the registration
         /// </summary>
         public static ToastNotificationService Create()
         {
@@ -83,6 +85,12 @@ namespace Greenshot.Plugin.Win10
             try
             {
                 DesktopToasts.Register(AppId, "Greenshot", WriteIcon(), $"\"{Application.ExecutablePath}\"");
+                var setting = DesktopToasts.GetSetting(AppId);
+                if (setting != NotificationSetting.Enabled)
+                {
+                    Log.InfoFormat("Windows doesn't show Greenshot's toasts ({0}), the tray icon shows the notifications.", setting);
+                    return null;
+                }
                 // The clicks are dispatched by the message loop of this (the UI) thread, none comes in before this subscription
                 var service = new ToastNotificationService();
                 ToastActivator.Activated += service.OnActivated;
