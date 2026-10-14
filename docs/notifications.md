@@ -76,6 +76,25 @@ The Notification step of a recipe shows one notification for the exports before 
 * the thumbnail of the kept capture below (see [Kept captures](#kept-captures-and-the-destination-flyout)), unless
   `ShowNotificationThumbnail` is off; the capture is kept anyway, a click still offers it.
 
+### Buttons
+
+Below the content a toast of an export has buttons (`Notification.Buttons`, `ToastContent.AddButton`, built by
+`NotificationButtons.Create` in `Greenshot/Notifications`, not in Light):
+
+| Button | When | Does |
+| :--- | :--- | :--- |
+| Edit | a capture is kept | opens the kept capture in the editor |
+| Open | saved to a file / uploaded (no file) | opens the file with its app / the link in the browser |
+| Show in folder | saved to a file | opens Explorer with the file selected |
+| Copy link | uploaded | copies the link to the clipboard |
+
+A click on a button works like a click on the toast, also when Windows has to start Greenshot for it: the arguments of a button
+are a query string (`ToastArguments`: `button=<action>&capture=<id>&value=<file or link>`), the launch argument of the toast stays
+its tag. The service raises `ButtonActivated`, `NotificationCaptures.Initialize` subscribes `NotificationButtons.Run`. Since a
+local process can call the COM class with any arguments, `Run` checks them: a file must exist and not be a program, a link must be
+http(s), and the capture id must be a UUID. After the click the kept capture is removed, the toast is gone. The balloons of the tray
+icon show no buttons.
+
 A toast only shows image files, so `NotificationIcons` (`Greenshot/Notifications`, not in Light) writes the icon of each destination
 once as a png to `%LocalAppData%\Greenshot\Notifications\Icons` (named by a hash of the icon key; dynamic destinations like a
 Word document have their own key), before the step switches to the UI thread. The balloons of the tray icon show `Notification.Message`,

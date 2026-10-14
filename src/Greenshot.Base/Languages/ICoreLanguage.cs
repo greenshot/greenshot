@@ -471,6 +471,26 @@ namespace Greenshot.Base.Languages
         string ExportedToError { get; }
 
         /// <summary>
+        /// Edit
+        /// </summary>
+        string NotificationButtonEdit { get; }
+
+        /// <summary>
+        /// Open
+        /// </summary>
+        string NotificationButtonOpen { get; }
+
+        /// <summary>
+        /// Show in folder
+        /// </summary>
+        string NotificationButtonFolder { get; }
+
+        /// <summary>
+        /// Copy link
+        /// </summary>
+        string NotificationButtonCopylink { get; }
+
+        /// <summary>
         /// Greenshot Help
         /// </summary>
         string HelpTitle { get; }

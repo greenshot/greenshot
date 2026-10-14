@@ -173,13 +173,43 @@ namespace Greenshot.Base.Interfaces
     }
 
     /// <summary>
+    /// A button of a notification. A click raises <see cref="INotificationService.ButtonActivated"/> with the action and the value,
+    /// also after Greenshot exited: they are all a handler gets, so the value must name what the button acts on (e.g. a file)
+    /// </summary>
+    public sealed class NotificationButton
+    {
+        public NotificationButton(string text, string action, string value = null)
+        {
+            Text = text;
+            Action = action;
+            Value = value;
+        }
+
+        /// <summary>
+        /// The text of the button
+        /// </summary>
+        public string Text { get; }
+
+        /// <summary>
+        /// What the button does, e.g. "open", see NotificationButtons in Greenshot
+        /// </summary>
+        public string Action { get; }
+
+        /// <summary>
+        /// What it acts on, e.g. the path of a file, or null
+        /// </summary>
+        public string Value { get; }
+    }
+
+    /// <summary>
     /// A notification for the user, the click action runs on the UI thread.
     /// </summary>
     public sealed class Notification
     {
         public Notification(NotificationKind kind, string message, TimeSpan? timeout = null, Action onClick = null, string captureId = null, string imagePath = null,
-            string title = null, IReadOnlyList<NotificationLine> lines = null)
+            string title = null, IReadOnlyList<NotificationLine> lines = null, IReadOnlyList<NotificationButton> buttons = null)
         {
+            Buttons = buttons ?? Array.Empty<NotificationButton>();
             Kind = kind;
             Message = message;
             Timeout = timeout;
@@ -206,6 +236,11 @@ namespace Greenshot.Base.Interfaces
         /// The lines with their icons, e.g. one per destination; empty when the notification is just the <see cref="Message"/>
         /// </summary>
         public IReadOnlyList<NotificationLine> Lines { get; }
+
+        /// <summary>
+        /// The buttons, only shown by a service which <see cref="INotificationService.ShowsCaptures"/> (the toasts)
+        /// </summary>
+        public IReadOnlyList<NotificationButton> Buttons { get; }
 
         public TimeSpan? Timeout { get; }
 

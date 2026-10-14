@@ -34,6 +34,7 @@ namespace Greenshot.Base.Native.Toasts
     public sealed class ToastContent
     {
         private readonly XElement _binding = new XElement("binding", new XAttribute("template", "ToastGeneric"));
+        private readonly XElement _actions = new XElement("actions");
         private readonly string _arguments;
 
         /// <param name="arguments">The arguments of a click on the toast</param>
@@ -87,9 +88,23 @@ namespace Greenshot.Base.Native.Toasts
             return this;
         }
 
+        /// <summary>
+        /// A button below the content, Windows shows up to 5. A click passes its arguments to <see cref="ToastActivator.Activated"/>,
+        /// like a click on the toast, also when Windows has to start Greenshot for it.
+        /// </summary>
+        public ToastContent AddButton(string text, string arguments)
+        {
+            _actions.Add(new XElement("action", new XAttribute("content", text), new XAttribute("arguments", arguments)));
+            return this;
+        }
+
         public XmlDocument ToXml()
         {
             var toast = new XElement("toast", new XAttribute("launch", _arguments), new XElement("visual", _binding));
+            if (_actions.HasElements)
+            {
+                toast.Add(_actions);
+            }
             var document = new XmlDocument();
             document.LoadXml(toast.ToString(SaveOptions.DisableFormatting));
             return document;

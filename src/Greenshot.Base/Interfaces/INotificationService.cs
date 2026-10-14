@@ -41,6 +41,34 @@ namespace Greenshot.Base.Interfaces
     }
 
     /// <summary>
+    /// The click on a button of a notification, see <see cref="INotificationService.ButtonActivated"/>
+    /// </summary>
+    public sealed class NotificationButtonEventArgs : EventArgs
+    {
+        public NotificationButtonEventArgs(string action, string value, string captureId)
+        {
+            Action = action;
+            Value = value;
+            CaptureId = captureId;
+        }
+
+        /// <summary>
+        /// The <see cref="NotificationButton.Action"/>
+        /// </summary>
+        public string Action { get; }
+
+        /// <summary>
+        /// The <see cref="NotificationButton.Value"/>, or null
+        /// </summary>
+        public string Value { get; }
+
+        /// <summary>
+        /// The <see cref="Notification.CaptureId"/> of the notification, or null
+        /// </summary>
+        public string CaptureId { get; }
+    }
+
+    /// <summary>
     /// How Greenshot informs the user, one implementation per platform: Windows toasts, or balloons at the tray icon where
     /// there are no toasts (Greenshot Light, the portable version). It is created and initialized by its
     /// <see cref="INotificationServiceProvider"/>, Greenshot takes the first available one at startup (NotificationServiceFactory).
@@ -69,6 +97,12 @@ namespace Greenshot.Base.Interfaces
         /// action; also when Greenshot was started for the click. Only raised when <see cref="ShowsCaptures"/>.
         /// </summary>
         event EventHandler<NotificationActivatedEventArgs> CaptureActivated;
+
+        /// <summary>
+        /// Raised on the UI thread for a click on one of the <see cref="Notification.Buttons"/>, also when Greenshot was started for
+        /// the click. Only raised when <see cref="ShowsCaptures"/>, other notifications show no buttons.
+        /// </summary>
+        event EventHandler<NotificationButtonEventArgs> ButtonActivated;
 
         /// <summary>
         /// Shows the notification to the user

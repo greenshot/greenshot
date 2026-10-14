@@ -66,6 +66,14 @@ namespace Greenshot.Shell
         }
 
         /// <inheritdoc />
+        /// <remarks>Never raised, a balloon has no buttons</remarks>
+        public event EventHandler<NotificationButtonEventArgs> ButtonActivated
+        {
+            add { }
+            remove { }
+        }
+
+        /// <inheritdoc />
         public void ShowNotification(Notification notification)
         {
             ShowMessage(notification.Message, notification.Kind, notification.OnClick, null);

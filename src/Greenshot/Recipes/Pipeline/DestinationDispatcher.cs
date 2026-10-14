@@ -352,12 +352,19 @@ namespace Greenshot.Recipes.Pipeline
                 }
                 return new NotificationLine(m.Message, iconPath);
             }).ToList();
+            IReadOnlyList<NotificationButton> buttons = null;
+#if !GREENSHOT_LIGHT
+            // Only the toasts show them, the balloons of the tray icon (Light) don't
+            var savedFile = shown.LastOrDefault(m => m.MessageType == SurfaceMessageTyp.FileSaved)?.Surface?.LastSaveFullPath;
+            var uploadUrl = shown.LastOrDefault(m => m.MessageType == SurfaceMessageTyp.UploadedUri)?.Surface?.UploadUrl;
+            buttons = NotificationButtons.Create(captureId, savedFile, uploadUrl);
+#endif
             // Above the lines: what was captured (e.g. the title of the window), else Greenshot
             var title = last.Surface?.CaptureDetails?.Title;
             var notification = new Notification(kind,
                 string.Join(Environment.NewLine, shown.Select(m => m.Message)), TimeSpan.FromHours(1),
                 opens == null ? (Action)null : () => OpenCaptureOnClick(opens), captureId, thumbnailPath,
-                string.IsNullOrWhiteSpace(title) ? "Greenshot" : title, lines);
+                string.IsNullOrWhiteSpace(title) ? "Greenshot" : title, lines, buttons);
             UserInteraction.Current.NotifyAsync(notification).FireAndLog("Export notification", Log);
         }
 

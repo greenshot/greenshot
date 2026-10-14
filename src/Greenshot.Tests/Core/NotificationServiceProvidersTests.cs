@@ -96,6 +96,12 @@ namespace Greenshot.Tests.Core
                 remove { }
             }
 
+            public event EventHandler<NotificationButtonEventArgs> ButtonActivated
+            {
+                add { }
+                remove { }
+            }
+
             public void ShowNotification(Notification notification)
             {
             }

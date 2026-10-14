@@ -191,6 +191,9 @@ namespace Greenshot.Plugin.Win10
         public event EventHandler<NotificationActivatedEventArgs> CaptureActivated;
 
         /// <inheritdoc />
+        public event EventHandler<NotificationButtonEventArgs> ButtonActivated;
+
+        /// <inheritdoc />
         public void ShowNotification(Notification notification)
         {
             // Do not inform the user if this is disabled, in Greenshot or in Windows, or the level doesn't show this kind
@@ -232,6 +235,11 @@ namespace Greenshot.Plugin.Win10
             {
                 content.AddImage(notification.ImagePath);
             }
+            // Windows shows up to 5 buttons
+            foreach (var button in notification.Buttons.Take(5))
+            {
+                content.AddButton(button.Text, ToastArguments.FormatButton(button.Action, button.Value, notification.CaptureId));
+            }
 
             try
             {
@@ -259,14 +267,20 @@ namespace Greenshot.Plugin.Win10
         /// A click on a toast, with its tag, called by Windows on a COM thread (see <see cref="ToastActivator.Activated"/>). Handled on
         /// the UI thread: when Windows started Greenshot for the click, that is after the startup, which subscribes to <see cref="CaptureActivated"/>.
         /// </summary>
-        internal void HandleClick(string tag)
+        internal void HandleClick(string arguments)
         {
-            if (tag == null)
+            if (arguments == null)
             {
                 return;
             }
             UiDispatcher.Current.InvokeAsync(() =>
             {
+                if (ToastArguments.TryParseButton(arguments, out var action, out var value, out var captureId))
+                {
+                    ButtonActivated?.Invoke(this, new NotificationButtonEventArgs(action, value, captureId));
+                    return Task.FromResult(true);
+                }
+                var tag = arguments;
                 if (_clickActions.TryRemove(tag, out var onClick))
                 {
                     onClick();
@@ -293,6 +307,47 @@ namespace Greenshot.Plugin.Win10
         public void ShowInfoMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
         {
             ShowNotification(new Notification(NotificationKind.Info, message, timeout, onClickAction));
+        }
+    }
+
+    /// <summary>
+    /// The arguments Windows passes back for a click: the tag for a click on the toast, a query string for a button (all a click
+    /// after a restart has)
+    /// </summary>
+    internal static class ToastArguments
+    {
+        private const string ButtonPrefix = "button=";
+
+        public static string FormatButton(string action, string value, string captureId) =>
+            $"{ButtonPrefix}{Uri.EscapeDataString(action)}&capture={Uri.EscapeDataString(captureId ?? "")}&value={Uri.EscapeDataString(value ?? "")}";
+
+        /// <returns>false for the arguments of a click on the toast itself</returns>
+        public static bool TryParseButton(string arguments, out string action, out string value, out string captureId)
+        {
+            action = value = captureId = null;
+            if (arguments == null || !arguments.StartsWith(ButtonPrefix, StringComparison.Ordinal))
+            {
+                return false;
+            }
+            foreach (var pair in arguments.Split('&'))
+            {
+                int separator = pair.IndexOf('=');
+                if (separator < 0) continue;
+                var text = Uri.UnescapeDataString(pair.Substring(separator + 1));
+                switch (pair.Substring(0, separator))
+                {
+                    case "button":
+                        action = text;
+                        break;
+                    case "capture":
+                        captureId = text.Length == 0 ? null : text;
+                        break;
+                    case "value":
+                        value = text.Length == 0 ? null : text;
+                        break;
+                }
+            }
+            return !string.IsNullOrEmpty(action);
         }
     }
 }

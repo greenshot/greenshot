@@ -31,6 +31,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Editor.Drawing;
+using Greenshot.Editor.Forms;
 using Greenshot.Recipes;
 using Greenshot.Recipes.Pipeline;
 using log4net;
@@ -70,6 +71,7 @@ namespace Greenshot.Notifications
                 return;
             }
             notificationService.CaptureActivated += (sender, args) => OfferCapture(args.CaptureId);
+            notificationService.ButtonActivated += (sender, args) => NotificationButtons.Run(args);
             RemoveUnused(notificationService);
         }
 
@@ -114,31 +116,34 @@ namespace Greenshot.Notifications
         }
 
         /// <summary>
+        /// Opens the capture in the editor, on the UI thread (the Edit button of a toast). The capture file is removed, its toast is
+        /// gone with the click.
+        /// </summary>
+        /// <returns>false when there is no capture with the id</returns>
+        public static bool EditCapture(string id)
+        {
+            var surface = Load(id);
+            if (surface == null)
+            {
+                return false;
+            }
+            var editor = new ImageEditorForm(surface, true);
+            editor.Show();
+            editor.Activate();
+            return true;
+        }
+
+        /// <summary>
         /// Runs the notification recipe (the destination flyout) for the capture, on the UI thread. The capture file is removed,
         /// its toast is gone with the click.
         /// </summary>
         /// <returns>false when there is no capture with the id</returns>
         public static bool OfferCapture(string id)
         {
-            // The id comes from the toast arguments, only an id may name a file
-            if (!Guid.TryParseExact(id, "D", out _) || !File.Exists(GetCapturePath(id)))
+            var surface = Load(id);
+            if (surface == null)
             {
                 return false;
-            }
-
-            ISurface surface;
-            try
-            {
-                surface = ImageIO.LoadGreenshotSurface(GetCapturePath(id), new Surface());
-            }
-            catch (Exception ex)
-            {
-                Log.Warn("Couldn't load the capture of the notification.", ex);
-                return false;
-            }
-            finally
-            {
-                Delete(id);
             }
 
             var recipe = RecipeManager.Instance.GetRecipeById(NotificationRecipes.RecipeIdNotification);
@@ -163,6 +168,44 @@ namespace Greenshot.Notifications
                 context.IsPayloadPreSupplied = true;
             });
             return true;
+        }
+
+        /// <summary>
+        /// Removes the kept capture, e.g. after another button of its toast was clicked: the toast is gone
+        /// </summary>
+        public static void Discard(string id)
+        {
+            if (Guid.TryParseExact(id, "D", out _))
+            {
+                Delete(id);
+            }
+        }
+
+        /// <summary>
+        /// Loads the kept capture and removes its files
+        /// </summary>
+        /// <returns>null when there is no capture with the id</returns>
+        private static ISurface Load(string id)
+        {
+            // The id comes from the toast arguments, only an id may name a file
+            if (!Guid.TryParseExact(id, "D", out _) || !File.Exists(GetCapturePath(id)))
+            {
+                return null;
+            }
+
+            try
+            {
+                return ImageIO.LoadGreenshotSurface(GetCapturePath(id), new Surface());
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Couldn't load the capture of the notification.", ex);
+                return null;
+            }
+            finally
+            {
+                Delete(id);
+            }
         }
 
         /// <summary>
