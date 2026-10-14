@@ -65,13 +65,14 @@ clicks. The toast XML is built by `ToastContent` (template `ToastGeneric`, `laun
 The Notification step of a recipe shows one notification for the exports before it (`DestinationDispatcher.Notify`):
 
 * the title: what was captured (`CaptureDetails.Title`, e.g. the title of the window), else "Greenshot",
-* one row per destination (`Notification.Lines`, `ToastContent.AddRow`: an adaptive group with the icon in a small column beside
-  the text), e.g. "Exported to: Clipboard" with the clipboard icon. The destination of a message is `SurfaceMessageEventArgs.Destination`,
-  set by `ExportResultHandler`, its icon `DestinationDescriptor.IconKey`. With the destination picker (and the document choice of the
-  Office destinations) it is the picked destination (`ExportResult.ExportedBy`), not the picker,
-* the icon of the last destination as the big image left of the texts (`ToastContent.SetAppLogo`, `appLogoOverride`): unlike the
-  rows and the thumbnail it stays visible when the toast is collapsed in the notification center; Greenshot's name and icon stay in
-  the header,
+* one row per destination (`Notification.Lines`, `ToastContent.AddRow`: an adaptive group), e.g. "Exported to: Clipboard". The
+  destination of a message is `SurfaceMessageEventArgs.Destination`, set by `ExportResultHandler`, its icon `DestinationDescriptor.IconKey`.
+  With the destination picker (and the document choice of the Office destinations) it is the picked destination
+  (`ExportResult.ExportedBy`), not the picker,
+* the icons: with one destination its icon is the big image left of the texts (`ToastContent.SetAppLogo`, `appLogoOverride`), which
+  unlike the rows and the thumbnail stays visible when the toast is collapsed in the notification center, and the row is the text
+  only; with several destinations the big image stays Greenshot's icon and every row has the icon of its destination in a small
+  column beside the text. Greenshot's name and icon are always in the header,
 * the thumbnail of the kept capture below (see [Kept captures](#kept-captures-and-the-destination-flyout)).
 
 A toast only shows image files, so `NotificationIcons` (`Greenshot/Notifications`, not in Light) writes the icon of each destination
