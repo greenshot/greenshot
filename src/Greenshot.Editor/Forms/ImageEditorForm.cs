@@ -1159,10 +1159,12 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             {
                 // The same as the clipboard destination (Ctrl+Shift+C), the export runs in the background
                 DestinationHelper.StartExport(WellKnownDestinations.Clipboard, _surface);
-                return;
+            }
+            else
+            {
+                _surface.CopySelectedElements();
             }
 
-            _surface.CopySelectedElements();
             UpdateClipboardSurfaceDependencies();
         }
 
