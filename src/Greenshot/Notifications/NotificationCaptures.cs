@@ -21,10 +21,12 @@
 
 
 using System;
+using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
@@ -74,46 +76,85 @@ namespace Greenshot.Notifications
             }
             notificationService.CaptureActivated += (sender, args) => OfferCapture(args.CaptureId);
             notificationService.ButtonActivated += (sender, args) => NotificationButtons.Run(args);
-            RemoveUnusedInBackground(notificationService);
+            // PARALLEL: the cleanup runs next to the startup, which may be for a click on a toast; it only removes the files of toasts
+            // which are gone (see RemoveUnused), not the one clicked
+#pragma warning disable RS0030 // R10: documented parallel branch
+            Task.Run(() => RemoveUnused(notificationService)).FireAndLog("Removing the captures of the notifications", Log);
+#pragma warning restore RS0030
         }
 
         /// <summary>
-        /// Keeps the capture for a notification
+        /// Whether a capture is kept for the notification: only a notification which is shown and shows the capture needs it (a
+        /// toast, not the balloon of the tray icon)
         /// </summary>
-        /// <param name="surface">The capture</param>
-        /// <param name="withThumbnail">Also writes the thumbnail the notification shows (see <see cref="GetThumbnailPath"/>)</param>
-        /// <returns>The id, null when it couldn't be kept</returns>
-        public static string Store(ISurface surface, bool withThumbnail = true)
+        public static bool KeepsCaptures
         {
-            // Only a notification which is shown and shows the capture needs it (a toast, not the balloon of the tray icon)
-            var notificationService = SimpleServiceProvider.Current.GetInstance<INotificationService>(isOptional: true);
-            if (surface?.Image == null || notificationService?.ShowsCaptures != true || !notificationService.IsEnabled)
+            get
             {
-                return null;
+                var notificationService = SimpleServiceProvider.Current.GetInstance<INotificationService>(isOptional: true);
+                return notificationService?.ShowsCaptures == true && notificationService.IsEnabled;
             }
+        }
 
-            RemoveUnusedInBackground(notificationService);
-            string id = CreateId();
+        /// <summary>
+        /// The id for a capture to keep, a UUID v7
+        /// </summary>
+        public static string NewId() => CreateId();
+
+        /// <summary>
+        /// Writes the thumbnail the notification shows, on any thread (see <see cref="GetThumbnailPath"/>)
+        /// </summary>
+        /// <param name="id">The id of the capture</param>
+        /// <param name="image">The exported capture</param>
+        /// <returns>The thumbnail file, null when it couldn't be written</returns>
+        public static string WriteThumbnail(string id, Image image)
+        {
             try
             {
                 Directory.CreateDirectory(StoreDirectory);
-                using (var stream = File.Create(GetCapturePath(id)))
-                {
-                    ImageIO.SaveToStream(surface, stream, new SurfaceOutputSettings(WellKnownFileFormats.Greenshot));
-                }
-                if (withThumbnail)
-                {
-                    using var image = surface.GetImageForExport();
-                    using var thumbnail = ImageHelper.CreateThumbnail(image, Math.Min(image.Width, ThumbnailWidth), -1, ThumbnailWidth, ThumbnailHeight);
-                    thumbnail.Save(GetThumbnailPath(id), ImageFormat.Png);
-                }
-                return id;
+                using var thumbnail = ImageHelper.CreateThumbnail(image, Math.Min(image.Width, ThumbnailWidth), -1, ThumbnailWidth, ThumbnailHeight);
+                thumbnail.Save(GetThumbnailPath(id), ImageFormat.Png);
+                return GetThumbnailPath(id);
             }
             catch (Exception ex)
             {
+                Log.Warn("Couldn't write the thumbnail for the notification.", ex);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Keeps the capture for its notification, after the notification is shown: the user doesn't wait for it. The elements are
+        /// serialized on the UI thread, the file is written and the captures of the notifications which are gone are removed on a
+        /// pool thread.
+        /// </summary>
+        public static async Task WriteCaptureAsync(string id, ISurface surface, IUiDispatcher ui, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var bytes = await ui.InvokeAsync(() =>
+                {
+                    using var stream = new MemoryStream();
+                    ImageIO.SaveToStream(surface, stream, new SurfaceOutputSettings(WellKnownFileFormats.Greenshot));
+                    return stream.ToArray();
+                }, cancellationToken).ConfigureAwait(false);
+                // Back on the pool thread of the flow
+                Directory.CreateDirectory(StoreDirectory);
+                using (var file = new FileStream(GetCapturePath(id), FileMode.Create, FileAccess.Write, FileShare.None, 81920, useAsync: true))
+                {
+                    await file.WriteAsync(bytes, 0, bytes.Length, cancellationToken).ConfigureAwait(false);
+                }
+                var notificationService = SimpleServiceProvider.Current.GetInstance<INotificationService>(isOptional: true);
+                if (notificationService != null)
+                {
+                    RemoveUnused(notificationService);
+                }
+            }
+            catch (Exception ex)
+            {
+                // The toast then only shows the capture, a click on it does nothing
                 Log.Warn("Couldn't keep the capture for the notification.", ex);
                 Delete(id);
-                return null;
             }
         }
 
@@ -209,13 +250,6 @@ namespace Greenshot.Notifications
                 Delete(id);
             }
         }
-
-        /// <summary>
-        /// Removes the captures of the notifications the user can no longer click, without the startup or the notification waiting
-        /// for it (only files older than an hour are removed, never the one which is being kept)
-        /// </summary>
-        private static void RemoveUnusedInBackground(INotificationService notificationService) =>
-            Task.Run(() => RemoveUnused(notificationService)).FireAndLog("Removing the captures of the notifications", Log);
 
         /// <summary>
         /// Removes the captures of the notifications the user can no longer click

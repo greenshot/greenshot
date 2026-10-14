@@ -143,8 +143,21 @@ For a service which `ShowsCaptures` (the toasts), the Notification step of a rec
 `%LocalAppData%\Greenshot\Notifications`, named by a UUID v7, the `CaptureId` of the notification and the tag of the toast.
 `NotificationCaptures.Initialize` subscribes to `CaptureActivated`: a click offers the capture with the built-in recipe
 `recipe_notification` ("Capture of a notification": a file source which passes the capture on, and the dynamic destination
-flyout). The files are removed when the toast is clicked, and once their toast is gone (`GetShownCaptureIds`) and older than
-an hour, the lifetime of the toasts; a clicked toast leaves the notification center before Greenshot handles the click.
+flyout).
+
+Nothing of this delays the toast: the Notification step writes only the thumbnail before the toast is shown (the export image is
+rendered on the UI thread, the thumbnail is written on the pool thread of the flow), and the `.greenshot` file after it (the
+elements are serialized on the UI thread, like every export to the greenshot format, the file is written on the pool thread).
+
+Windows doesn't tell an app which isn't packaged when the user removes a toast from the notification center (only a packaged app
+gets a background task for that, `ToastNotificationHistoryChangedTrigger`), and the `Dismissed` event of a toast only fires while
+Greenshot runs. So the files are removed
+
+* when the toast or one of its buttons is clicked,
+* by `RemoveUnused`: after a capture was kept (on the pool thread of the flow) and at startup (next to it, a "PARALLEL" branch),
+  for every toast which is gone (`GetShownCaptureIds`) and older than an hour, the lifetime of the toasts: a clicked toast leaves
+  the notification center before Greenshot handles the click, so a younger capture is kept,
+* by the uninstaller.
 
 ## Balloons of the tray icon
 

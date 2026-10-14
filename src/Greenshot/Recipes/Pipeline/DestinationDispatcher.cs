@@ -317,29 +317,36 @@ namespace Greenshot.Recipes.Pipeline
         }
 
         /// <summary>
+        /// The messages of the exports of a flow which its notification shows: empty when there are none, or the notification level
+        /// doesn't show it (then nothing is kept for it either)
+        /// </summary>
+        public static IReadOnlyList<SurfaceMessageEventArgs> GetNotifiedMessages(IReadOnlyList<SurfaceMessageEventArgs> messages)
+        {
+            var shown = messages.Where(m => !string.IsNullOrEmpty(m?.Message)).ToList();
+            if (shown.Count == 0 || !CoreConfig.ShowTrayNotification || !CoreConfig.NotificationLevel.Shows(GetKind(shown)))
+            {
+                return Array.Empty<SurfaceMessageEventArgs>();
+            }
+            return shown;
+        }
+
+        private static NotificationKind GetKind(IEnumerable<SurfaceMessageEventArgs> shown) =>
+            shown.Any(m => m.MessageType == SurfaceMessageTyp.Error) ? NotificationKind.Error : NotificationKind.Info;
+
+        /// <summary>
         /// Shows one notification for the messages of the exports of a flow, on the UI thread (see the Notification step): a line per
         /// message, with the icon of its destination
         /// </summary>
-        /// <param name="messages">The messages of the exports</param>
+        /// <param name="shown">The messages of the exports, see <see cref="GetNotifiedMessages"/></param>
         /// <param name="iconPaths">The icon files of the destinations by their icon key, null or empty for no icons</param>
-        public static void Notify(IReadOnlyList<SurfaceMessageEventArgs> messages, IReadOnlyDictionary<string, string> iconPaths = null)
+        /// <param name="captureId">The capture kept for the notification, which a click offers in the destination picker, or null</param>
+        /// <param name="thumbnailPath">The thumbnail of the capture, or null</param>
+        public static void Notify(IReadOnlyList<SurfaceMessageEventArgs> shown, IReadOnlyDictionary<string, string> iconPaths = null, string captureId = null, string thumbnailPath = null)
         {
-            var shown = messages.Where(m => !string.IsNullOrEmpty(m?.Message)).ToList();
             if (shown.Count == 0) return;
 
             var last = shown[shown.Count - 1];
-            var kind = shown.Any(m => m.MessageType == SurfaceMessageTyp.Error) ? NotificationKind.Error : NotificationKind.Info;
-            // Nothing is kept for a notification the level doesn't show
-            if (!CoreConfig.ShowTrayNotification || !CoreConfig.NotificationLevel.Shows(kind)) return;
-
-            string captureId = null;
-            string thumbnailPath = null;
-#if !GREENSHOT_LIGHT
-            // What went to the (last) destination is kept, a click on the toast offers it in the destination picker, also after a restart
-            bool withThumbnail = CoreConfig.ShowNotificationThumbnail;
-            captureId = NotificationCaptures.Store(last.Surface, withThumbnail);
-            thumbnailPath = captureId == null || !withThumbnail ? null : NotificationCaptures.GetThumbnailPath(captureId);
-#endif
+            var kind = GetKind(shown);
             // Without a toast (tray balloon, Light) a click opens the saved file or the upload
             var opens = shown.LastOrDefault(m => m.MessageType == SurfaceMessageTyp.FileSaved || m.MessageType == SurfaceMessageTyp.UploadedUri);
             var lines = shown.Select(m =>

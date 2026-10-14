@@ -66,15 +66,45 @@ namespace Greenshot.Recipes.Steps
             context.Properties["EnableCompletionNotification"] = showNotification;
 
             // The messages of the exports before this step, one notification shows them; the surfaces are used on the UI thread
-            if (showNotification && context.Properties.TryGetValue(DestinationDispatcher.ExportMessagesProperty, out var value) && value is List<SurfaceMessageEventArgs> messages)
+            if (!showNotification || !context.Properties.TryGetValue(DestinationDispatcher.ExportMessagesProperty, out var value) || value is not List<SurfaceMessageEventArgs> messages)
             {
-                IReadOnlyDictionary<string, string> iconPaths = null;
-#if !GREENSHOT_LIGHT
-                // The icons of the destinations as files, before the UI thread: the toast shows one row per destination with its icon
-                iconPaths = await NotificationIcons.GetIconPathsAsync(messages, cancellationToken).ConfigureAwait(false);
-#endif
-                await context.Ui.InvokeAsync(() => DestinationDispatcher.Notify(messages, iconPaths), cancellationToken).ConfigureAwait(false);
+                return;
             }
+            var shown = DestinationDispatcher.GetNotifiedMessages(messages);
+            if (shown.Count == 0)
+            {
+                return;
+            }
+
+            IReadOnlyDictionary<string, string> iconPaths = null;
+            string captureId = null;
+            string thumbnailPath = null;
+#if !GREENSHOT_LIGHT
+            // The icons of the destinations as files, before the UI thread: the toast shows one row per destination with its icon
+            iconPaths = await NotificationIcons.GetIconPathsAsync(shown, cancellationToken).ConfigureAwait(false);
+            // What went to the (last) destination is kept, a click on the toast offers it in the destination picker, also after a
+            // restart. Before the toast only its thumbnail is written, the capture itself after it.
+            var surface = shown[shown.Count - 1].Surface;
+            if (surface != null && NotificationCaptures.KeepsCaptures)
+            {
+                captureId = NotificationCaptures.NewId();
+                if (CoreConfig.ShowNotificationThumbnail)
+                {
+                    var image = await context.Ui.InvokeAsync(() => surface.GetImageForExport(), cancellationToken).ConfigureAwait(false);
+                    using (image)
+                    {
+                        thumbnailPath = NotificationCaptures.WriteThumbnail(captureId, image);
+                    }
+                }
+            }
+#endif
+            await context.Ui.InvokeAsync(() => DestinationDispatcher.Notify(shown, iconPaths, captureId, thumbnailPath), cancellationToken).ConfigureAwait(false);
+#if !GREENSHOT_LIGHT
+            if (captureId != null)
+            {
+                await NotificationCaptures.WriteCaptureAsync(captureId, surface, context.Ui, cancellationToken).ConfigureAwait(false);
+            }
+#endif
         }
 
         private bool ResolveShowNotification(CaptureFlowContext context)
