@@ -1,27 +1,76 @@
 # Starting Greenshot with Windows
 
-Greenshot starts with Windows through one registry value: `Greenshot` in the Run key of the user,
+## In short
+
+What makes Greenshot start with Windows is one registry value per user: `Greenshot` in the Run key of that user,
 `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`, with the quoted path of Greenshot.exe.
-Every user decides for themselves, with the checkbox "Launch Greenshot on startup" in the settings; it needs no administrator rights.
+Windows reads it at every logon of that user and starts Greenshot. Nothing else starts Greenshot with Windows.
 
-Three parts work together:
+Everything below is only about **who writes that value, and when**:
 
-| Part | When | What it does |
-| --- | --- | --- |
-| Installer | install, update, uninstall | asks if and for whom, sets it up for the user who runs the setup, registers Active Setup for every other user |
-| Active Setup (Windows) | the next logon of every user | runs the registered command once per user, which writes that user's Run value |
-| Greenshot | the checkbox in the settings | reads and changes the Run value of the user |
+| Who | Runs as | When | Does |
+| --- | --- | --- | --- |
+| **Installer** | the administrator who elevated it | install / update | asks *whether* and *for whom*. For every user: registers Greenshot in Active Setup (HKLM), so Windows will write the value for each user later |
+| **Installer** | the user who is logged on (`runasoriginaluser`) | install / update, at the end | writes the value for that user right away, with the autostart helper |
+| **Windows, Active Setup** | each user | the next logon of each user, **once** | runs the autostart helper for that user, which writes the value |
+| **Windows, Run key** | each user | **every** logon | starts Greenshot.exe if the value is there |
+| **Greenshot** | the user | when the checkbox "Launch Greenshot on startup" in the settings is changed | writes or removes the value of that user. The user's own decision, no administrator rights needed |
+| **Uninstaller** | the administrator / the user | uninstall | removes the Active Setup registration and the value of the uninstalling user |
+
+The **autostart helper** is `Greenshot.exe --enable-autostart`: it writes the value for the current user and exits.
+It doesn't start Greenshot; the installer and Active Setup call it, nobody else.
+(See [the alternatives](#alternatives-for---enable-autostart): it could be the small native `greenshot-proxy.exe` instead.)
+
+### Example: an administrator installs Greenshot on a family member's computer
+
+Anna is logged on, Bob types his administrator password when the setup asks for it, and chooses "for every user of this computer".
 
 ```mermaid
-flowchart LR
-    Setup["Installer<br/>task: Start Greenshot with Windows"] -->|"--enable-autostart<br/>as the user who started the setup"| Run[("HKCU\…\Run<br/>Greenshot = …\Greenshot.exe")]
-    Setup -->|"for every user"| AS[("HKLM\…\Active Setup<br/>Installed Components<br/>{17A6D9DC-…}")]
-    AS -->|"next logon of each user, once"| Run
-    Settings["Greenshot settings<br/>Launch Greenshot on startup"] <-->|"read / write"| Run
-    Run -->|"every logon"| Greenshot["Greenshot.exe starts"]
+sequenceDiagram
+    actor Bob as Bob (administrator)
+    participant Setup as Installer
+    participant Helper as autostart helper
+    participant Reg as Registry
+    participant Win as Windows
+    participant GS as Greenshot
+
+    rect rgba(128,128,128,0.1)
+    Note over Bob,GS: Installation, while Anna is logged on
+    Bob->>Setup: elevate, choose: start with Windows, for every user
+    Setup->>Reg: as Bob (admin): HKLM Active Setup key, StubPath = helper
+    Setup->>Helper: start as Anna (runasoriginaluser)
+    Helper->>Reg: Anna's HKCU Run: Greenshot = …\Greenshot.exe
+    Setup->>Reg: as Anna: HKCU Active Setup marker, Anna is done
+    Setup->>GS: start Greenshot now (finish page)
+    end
+
+    rect rgba(128,128,128,0.1)
+    Note over Bob,GS: Anna logs on the next time
+    Win->>Reg: Active Setup: Anna has the marker, nothing to do
+    Win->>Reg: read Anna's Run key
+    Win->>GS: start Greenshot
+    end
+
+    rect rgba(128,128,128,0.1)
+    Note over Bob,GS: Carl, another user of the computer, logs on for the first time after the installation
+    Win->>Reg: Active Setup: Carl has no marker
+    Win->>Helper: run the StubPath as Carl, wait for it
+    Helper->>Reg: Carl's HKCU Run: Greenshot = …\Greenshot.exe
+    Win->>Reg: HKCU Active Setup marker, Carl is done
+    Win->>Reg: read Carl's Run key
+    Win->>GS: start Greenshot
+    end
+
+    rect rgba(128,128,128,0.1)
+    Note over Bob,GS: Carl doesn't want it
+    GS->>Reg: settings, checkbox off: remove Carl's Run value
+    Note over Win,Reg: next logons of Carl: marker is there, no Run value, Greenshot doesn't start
+    end
 ```
 
-## The installer
+With "only for me", the Active Setup part is left out: only Anna gets the value, Carl has to switch it on in the settings himself.
+
+## The installer in detail
 
 The task "Start Greenshot with Windows start" sets it up for the user who started the setup. An all-users install has two choices below it:
 
@@ -31,18 +80,21 @@ The task "Start Greenshot with Windows start" sets it up for the user who starte
 
 A per-user install only has the task, for the current user.
 
+The steps in the order the setup does them. The `[Registry]` steps run as the account of the setup (the administrator for an all-users install),
+the `[Run]` steps marked "as the logged-on user" run as the user who started the setup:
+
 ```mermaid
 flowchart TD
-    A[Setup starts installing] --> B["[Registry] remove the old Greenshot values<br/>from the Run keys of HKCU and HKLM, both views"]
-    B --> C["[Registry] remove the Active Setup key (all-users install)"]
+    A[Setup starts installing] --> B["[Registry] as admin: remove the old Greenshot values<br/>from the Run keys of HKCU and HKLM, both views"]
+    B --> C["[Registry] as admin: remove the Active Setup key<br/>(all-users install)"]
     C --> D{"Task: start with Windows?"}
     D -- no --> Z[Done, nobody gets it]
     D -- yes --> E{"For every user?<br/>(all-users install only)"}
-    E -- yes --> F["[Registry] create the Active Setup key:<br/>StubPath = …\Greenshot.exe --enable-autostart<br/>Version = 1,0"]
+    E -- yes --> F["[Registry] as admin: create the Active Setup key:<br/>StubPath = …\Greenshot.exe --enable-autostart<br/>Version = 1,0"]
     F --> G
-    E -- "only for me" --> G["[Run] Greenshot.exe --enable-autostart<br/>as the user who started the setup (runasoriginaluser)"]
+    E -- "only for me" --> G["[Run] as the logged-on user:<br/>autostart helper, writes the Run value"]
     G --> H{"For every user?"}
-    H -- yes --> I["[Run] reg.exe add HKCU\…\Active Setup\…<br/>{17A6D9DC-…} Version = 1,0: this user is done already"]
+    H -- yes --> I["[Run] as the logged-on user: reg.exe add HKCU\…\Active Setup\…<br/>{17A6D9DC-…} Version = 1,0: this user is done already"]
     H -- no --> Z2[Done]
     I --> Z2
 ```
@@ -136,8 +188,9 @@ and clearing a Windows "switched off" isn't needed for a user who never had the 
 the setup and the Active Setup `StubPath` call `"…\greenshot-proxy.exe" --enable-autostart`, and Greenshot.exe loses the option.
 The checks of `StartupHelper` stay in Greenshot, for the checkbox in the settings.
 
-## Greenshot
+## Greenshot: the checkbox in the settings
 
+This is the only part of Greenshot itself which takes part (apart from the autostart helper, which is just a mode of Greenshot.exe).
 `StartupHelper` reads and writes the entries for the checkbox in the settings:
 
 - **Is it on?** When the Run key of the user, or the one of the machine (64-bit and 32-bit view, from an older installer), starts this Greenshot.exe,
