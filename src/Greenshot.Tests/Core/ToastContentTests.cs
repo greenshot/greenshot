@@ -20,6 +20,7 @@
  */
 
 
+using System.Linq;
 using System.Xml.Linq;
 using Greenshot.Base.Native.Toasts;
 using Xunit;
@@ -45,6 +46,48 @@ namespace Greenshot.Tests.Core
             Assert.Equal("ToastGeneric", (string)binding?.Attribute("template"));
             Assert.Equal("Saved", (string)binding?.Element("text"));
             Assert.Equal("file:///C:/Temp/a%20b.png", (string)binding?.Element("image")?.Attribute("src"));
+        }
+
+        [Fact]
+        public void ToXml_WithRows_WritesAGroupPerRow_WithTheIconBesideTheText()
+        {
+            var binding = XElement.Parse(new ToastContent("1")
+                .AddText("Window title")
+                .AddRow(@"C:\Icons\clipboard.png", "Exported to: Clipboard")
+                .AddRow(null, "Exported to: File")
+                .ToXml()
+                .GetXml()).Element("visual")?.Element("binding");
+
+            var rows = binding?.Elements("group").ToList();
+            Assert.NotNull(rows);
+            Assert.Equal(2, rows.Count);
+
+            var withIcon = rows[0].Elements("subgroup").ToList();
+            Assert.Equal(2, withIcon.Count);
+            Assert.Equal("file:///C:/Icons/clipboard.png", (string)withIcon[0].Element("image")?.Attribute("src"));
+            Assert.Equal("true", (string)withIcon[0].Element("image")?.Attribute("hint-removeMargin"));
+            Assert.Equal("Exported to: Clipboard", (string)withIcon[1].Element("text"));
+            Assert.Equal("true", (string)withIcon[1].Element("text")?.Attribute("hint-wrap"));
+
+            // Without an icon only the text
+            var withoutIcon = rows[1].Elements("subgroup").ToList();
+            Assert.Single(withoutIcon);
+            Assert.Equal("Exported to: File", (string)withoutIcon[0].Element("text"));
+
+            // The title stays the first text of the toast
+            Assert.Equal("Window title", (string)binding.Element("text"));
+        }
+
+        [Fact]
+        public void NotificationIcons_GetFileName_IsAStableFileNameForEveryIconKey()
+        {
+            var resource = Greenshot.Notifications.NotificationIcons.GetFileName("resource:Clipboard.Image");
+            var exe = Greenshot.Notifications.NotificationIcons.GetFileName(@"exe:0:C:\Program Files\Microsoft Office\root\Office16\WINWORD.EXE");
+
+            Assert.Equal(resource, Greenshot.Notifications.NotificationIcons.GetFileName("resource:Clipboard.Image"));
+            Assert.NotEqual(resource, exe);
+            Assert.EndsWith(".png", exe);
+            Assert.Equal(-1, exe.IndexOfAny(System.IO.Path.GetInvalidFileNameChars()));
         }
     }
 }

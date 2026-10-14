@@ -199,7 +199,20 @@ namespace Greenshot.Plugin.Win10
             }
 
             string toastTag = notification.CaptureId ?? Guid.NewGuid().ToString("D");
-            var content = new ToastContent(toastTag).AddText(notification.Message);
+            var content = new ToastContent(toastTag);
+            if (notification.Lines.Count > 0)
+            {
+                // A row per line (e.g. per destination), with its icon
+                content.AddText(notification.Title ?? "Greenshot");
+                foreach (var line in notification.Lines)
+                {
+                    content.AddRow(line.IconPath, line.Text);
+                }
+            }
+            else
+            {
+                content.AddText(notification.Message);
+            }
             if (notification.ImagePath != null)
             {
                 content.AddImage(notification.ImagePath);

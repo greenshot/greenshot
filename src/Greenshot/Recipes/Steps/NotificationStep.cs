@@ -32,6 +32,9 @@ using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Recipes.Pipeline;
 using log4net;
+#if !GREENSHOT_LIGHT
+using Greenshot.Notifications;
+#endif
 
 namespace Greenshot.Recipes.Steps
 {
@@ -57,7 +60,7 @@ namespace Greenshot.Recipes.Steps
             Name = config.Name ?? "NotificationStep";
         }
 
-        public Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
+        public async Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
         {
             bool showNotification = ResolveShowNotification(context);
             context.Properties["EnableCompletionNotification"] = showNotification;
@@ -65,10 +68,13 @@ namespace Greenshot.Recipes.Steps
             // The messages of the exports before this step, one notification shows them; the surfaces are used on the UI thread
             if (showNotification && context.Properties.TryGetValue(DestinationDispatcher.ExportMessagesProperty, out var value) && value is List<SurfaceMessageEventArgs> messages)
             {
-                return context.Ui.InvokeAsync(() => DestinationDispatcher.Notify(messages), cancellationToken);
+                IReadOnlyDictionary<string, string> iconPaths = null;
+#if !GREENSHOT_LIGHT
+                // The icons of the destinations as files, before the UI thread: the toast shows one row per destination with its icon
+                iconPaths = await NotificationIcons.GetIconPathsAsync(messages, cancellationToken).ConfigureAwait(false);
+#endif
+                await context.Ui.InvokeAsync(() => DestinationDispatcher.Notify(messages, iconPaths), cancellationToken).ConfigureAwait(false);
             }
-
-            return Task.CompletedTask;
         }
 
         private bool ResolveShowNotification(CaptureFlowContext context)

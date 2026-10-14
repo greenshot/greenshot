@@ -316,9 +316,12 @@ namespace Greenshot.Recipes.Pipeline
         }
 
         /// <summary>
-        /// Shows one notification for the messages of the exports of a flow, on the UI thread (see the Notification step)
+        /// Shows one notification for the messages of the exports of a flow, on the UI thread (see the Notification step): a line per
+        /// message, with the icon of its destination
         /// </summary>
-        public static void Notify(IReadOnlyList<SurfaceMessageEventArgs> messages)
+        /// <param name="messages">The messages of the exports</param>
+        /// <param name="iconPaths">The icon files of the destinations by their icon key, null or empty for no icons</param>
+        public static void Notify(IReadOnlyList<SurfaceMessageEventArgs> messages, IReadOnlyDictionary<string, string> iconPaths = null)
         {
             var shown = messages.Where(m => !string.IsNullOrEmpty(m?.Message)).ToList();
             if (shown.Count == 0) return;
@@ -333,9 +336,22 @@ namespace Greenshot.Recipes.Pipeline
 #endif
             // Without a toast (tray balloon, Light) a click opens the saved file or the upload
             var opens = shown.LastOrDefault(m => m.MessageType == SurfaceMessageTyp.FileSaved || m.MessageType == SurfaceMessageTyp.UploadedUri);
+            var lines = shown.Select(m =>
+            {
+                string iconPath = null;
+                var iconKey = m.Destination?.Descriptor?.IconKey;
+                if (iconKey != null)
+                {
+                    iconPaths?.TryGetValue(iconKey, out iconPath);
+                }
+                return new NotificationLine(m.Message, iconPath);
+            }).ToList();
+            // Above the lines: what was captured (e.g. the title of the window), else Greenshot
+            var title = last.Surface?.CaptureDetails?.Title;
             var notification = new Notification(last.MessageType == SurfaceMessageTyp.Error ? NotificationKind.Error : NotificationKind.Info,
                 string.Join(Environment.NewLine, shown.Select(m => m.Message)), TimeSpan.FromHours(1),
-                opens == null ? (Action)null : () => OpenCaptureOnClick(opens), captureId, thumbnailPath);
+                opens == null ? (Action)null : () => OpenCaptureOnClick(opens), captureId, thumbnailPath,
+                string.IsNullOrWhiteSpace(title) ? "Greenshot" : title, lines);
             UserInteraction.Current.NotifyAsync(notification).FireAndLog("Export notification", Log);
         }
 

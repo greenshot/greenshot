@@ -27,7 +27,7 @@ using Windows.Data.Xml.Dom;
 namespace Greenshot.Base.Native.Toasts
 {
     /// <summary>
-    /// The content of a toast (the ToastGeneric template): texts and an image. A click on the toast passes its arguments to
+    /// The content of a toast (the ToastGeneric template): texts, rows with an icon and an image. A click on the toast passes its arguments to
     /// <see cref="ToastActivator.Activated"/>.
     /// </summary>
     public sealed class ToastContent
@@ -53,6 +53,25 @@ namespace Greenshot.Base.Native.Toasts
         public ToastContent AddImage(string path)
         {
             _binding.Add(new XElement("image", new XAttribute("src", new Uri(path).AbsoluteUri)));
+            return this;
+        }
+
+        /// <summary>
+        /// A row with a small icon and a text next to it (an adaptive group), e.g. what a destination did
+        /// </summary>
+        /// <param name="iconPath">A local image file, null for a row with the text only</param>
+        /// <param name="text">The text, it wraps</param>
+        public ToastContent AddRow(string iconPath, string text)
+        {
+            var row = new XElement("group");
+            if (!string.IsNullOrEmpty(iconPath))
+            {
+                row.Add(new XElement("subgroup", new XAttribute("hint-weight", "1"),
+                    new XElement("image", new XAttribute("src", new Uri(iconPath).AbsoluteUri), new XAttribute("hint-removeMargin", "true"))));
+            }
+            row.Add(new XElement("subgroup", new XAttribute("hint-weight", "8"), new XAttribute("hint-textStacking", "center"),
+                new XElement("text", new XAttribute("hint-wrap", "true"), text)));
+            _binding.Add(row);
             return this;
         }
 

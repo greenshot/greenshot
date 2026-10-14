@@ -58,7 +58,22 @@ Otherwise it writes the icon of the toasts (`%LocalAppData%\Greenshot\greenshot.
 
 The process gets the app id `Greenshot` (`SetCurrentProcessExplicitAppUserModelID`, the same as the start menu shortcut, see
 `tasks-icons-reg.iss`) and registers the COM class `ToastActivator` (`INotificationActivationCallback`), which receives the
-clicks. The toast XML is built by `ToastContent` (template `ToastGeneric`, `launch` = the tag, a text and an optional image).
+clicks. The toast XML is built by `ToastContent` (template `ToastGeneric`, `launch` = the tag, a text, rows and an optional image).
+
+### What a toast shows
+
+The Notification step of a recipe shows one notification for the exports before it (`DestinationDispatcher.Notify`):
+
+* the title: what was captured (`CaptureDetails.Title`, e.g. the title of the window), else "Greenshot",
+* one row per destination (`Notification.Lines`, `ToastContent.AddRow`: an adaptive group with the icon in a small column beside
+  the text), e.g. "Exported to: Clipboard" with the clipboard icon. The destination of a message is `SurfaceMessageEventArgs.Destination`,
+  set by `ExportResultHandler`, its icon `DestinationDescriptor.IconKey`,
+* the thumbnail of the kept capture below (see [Kept captures](#kept-captures-and-the-destination-flyout)).
+
+A toast only shows image files, so `NotificationIcons` (`Greenshot/Notifications`, not in Light) writes the icon of each destination
+once as a png to `%LocalAppData%\Greenshot\Notifications\Icons` (named by a hash of the icon key; dynamic destinations like a
+Word document have their own key), before the step switches to the UI thread. The balloons of the tray icon show `Notification.Message`,
+the text of all rows.
 
 Before the registration, the provider removes what earlier versions left with the Windows Community Toolkit
 (`DesktopToasts.RemoveOldRegistrations`), otherwise Windows lists Greenshot several times in its notification settings. It

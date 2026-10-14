@@ -1434,7 +1434,9 @@ namespace Greenshot.Editor.Drawing
             {
                 Message = message,
                 MessageType = messageType,
-                Surface = this
+                Surface = this,
+                // The export of a destination sends its result (ExportResultHandler)
+                Destination = source as IDestination
             };
             _surfaceMessage(source, eventArgs);
         }

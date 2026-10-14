@@ -154,11 +154,31 @@ namespace Greenshot.Base.Interfaces
     }
 
     /// <summary>
+    /// A line of a notification, e.g. what a destination did, with the icon of the destination
+    /// </summary>
+    public sealed class NotificationLine
+    {
+        public NotificationLine(string text, string iconPath = null)
+        {
+            Text = text;
+            IconPath = iconPath;
+        }
+
+        public string Text { get; }
+
+        /// <summary>
+        /// An image file with the icon shown next to the text, or null
+        /// </summary>
+        public string IconPath { get; }
+    }
+
+    /// <summary>
     /// A notification for the user, the click action runs on the UI thread.
     /// </summary>
     public sealed class Notification
     {
-        public Notification(NotificationKind kind, string message, TimeSpan? timeout = null, Action onClick = null, string captureId = null, string imagePath = null)
+        public Notification(NotificationKind kind, string message, TimeSpan? timeout = null, Action onClick = null, string captureId = null, string imagePath = null,
+            string title = null, IReadOnlyList<NotificationLine> lines = null)
         {
             Kind = kind;
             Message = message;
@@ -166,11 +186,26 @@ namespace Greenshot.Base.Interfaces
             OnClick = onClick;
             CaptureId = captureId;
             ImagePath = imagePath;
+            Title = title;
+            Lines = lines ?? Array.Empty<NotificationLine>();
         }
 
         public NotificationKind Kind { get; }
 
+        /// <summary>
+        /// The whole text, also of the <see cref="Lines"/>: what an implementation shows which can't show lines with icons
+        /// </summary>
         public string Message { get; }
+
+        /// <summary>
+        /// A heading above the <see cref="Lines"/>, or null
+        /// </summary>
+        public string Title { get; }
+
+        /// <summary>
+        /// The lines with their icons, e.g. one per destination; empty when the notification is just the <see cref="Message"/>
+        /// </summary>
+        public IReadOnlyList<NotificationLine> Lines { get; }
 
         public TimeSpan? Timeout { get; }
 
