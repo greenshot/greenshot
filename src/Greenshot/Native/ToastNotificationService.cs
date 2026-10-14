@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
@@ -34,15 +35,14 @@ using Greenshot.Base.Native.Toasts;
 using Greenshot.Base.Threading;
 using log4net;
 using Windows.Foundation.Metadata;
-#if !GREENSHOT_LIGHT
 using Greenshot.Notifications;
-#endif
 
 namespace Greenshot.Plugin.Win10
 {
     /// <summary>
     /// Informs the user with toasts. A click on a toast with a capture offers the capture in the destination flyout, also when
     /// Windows starts Greenshot for the click; other toasts run their click action while Greenshot runs.
+    /// Not in Greenshot Light, which has no toasts.
     /// </summary>
     public class ToastNotificationService : INotificationService
     {
@@ -86,9 +86,7 @@ namespace Greenshot.Plugin.Win10
                 // The clicks are dispatched by the message loop of this (the UI) thread, none comes in before this subscription
                 var service = new ToastNotificationService();
                 ToastActivator.Activated += service.OnActivated;
-#if !GREENSHOT_LIGHT
-                NotificationCaptures.RemoveUnused();
-#endif
+                NotificationCaptures.RemoveUnused(service);
                 return service;
             }
             catch (Exception ex)
@@ -112,6 +110,12 @@ namespace Greenshot.Plugin.Win10
             }
             return iconPath;
         }
+
+        /// <inheritdoc />
+        public bool ShowsCaptures => true;
+
+        /// <inheritdoc />
+        public IReadOnlyCollection<string> GetShownCaptureIds() => DesktopToasts.GetTags(AppId);
 
         /// <inheritdoc />
         public void ShowNotification(Notification notification)
@@ -163,12 +167,8 @@ namespace Greenshot.Plugin.Win10
                     onClick();
                     return Task.FromResult(true);
                 }
-#if GREENSHOT_LIGHT
-                return Task.FromResult(false);
-#else
                 // A toast with a capture offers it in the destination flyout, also after a restart
                 return Task.FromResult(NotificationCaptures.OfferCapture(tag));
-#endif
             }).FireAndLog("Toast click", Log);
         }
 

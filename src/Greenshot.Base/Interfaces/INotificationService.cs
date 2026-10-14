@@ -20,14 +20,28 @@
  */
 
 using System;
+using System.Collections.Generic;
 
 namespace Greenshot.Base.Interfaces
 {
     /// <summary>
-    /// This is the interface for the different notification service implementations
+    /// How Greenshot informs the user, one implementation per platform: Windows toasts, or balloons at the tray icon where
+    /// there are no toasts (Greenshot Light, the portable version). Greenshot picks and initializes one at startup, see
+    /// NotificationServiceFactory.
     /// </summary>
     public interface INotificationService
     {
+        /// <summary>
+        /// True when a notification can show the capture of <see cref="Notification.CaptureId"/> and a click offers it again,
+        /// also after Greenshot exited. Only then Greenshot keeps the capture for the notification.
+        /// </summary>
+        bool ShowsCaptures { get; }
+
+        /// <summary>
+        /// The capture ids of the notifications the user can still click, their kept captures are still needed
+        /// </summary>
+        IReadOnlyCollection<string> GetShownCaptureIds();
+
         /// <summary>
         /// Shows the notification to the user
         /// </summary>

@@ -29,10 +29,8 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.Native.Toasts;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Editor.Drawing;
-using Greenshot.Plugin.Win10;
 using Greenshot.Recipes;
 using Greenshot.Recipes.Pipeline;
 using log4net;
@@ -66,13 +64,14 @@ namespace Greenshot.Notifications
         /// <returns>The id, null when it couldn't be kept</returns>
         public static string Store(ISurface surface)
         {
-            // Only a toast shows the capture, the balloon of the tray icon can't
-            if (surface?.Image == null || !(SimpleServiceProvider.Current.GetInstance<INotificationService>(isOptional: true) is ToastNotificationService))
+            // Only a notification which shows the capture needs it (a toast, not the balloon of the tray icon)
+            var notificationService = SimpleServiceProvider.Current.GetInstance<INotificationService>(isOptional: true);
+            if (surface?.Image == null || notificationService?.ShowsCaptures != true)
             {
                 return null;
             }
 
-            RemoveUnused();
+            RemoveUnused(notificationService);
             string id = CreateId();
             try
             {
@@ -149,9 +148,9 @@ namespace Greenshot.Notifications
         }
 
         /// <summary>
-        /// Removes the captures of the toasts which are no longer in the notification center
+        /// Removes the captures of the notifications the user can no longer click
         /// </summary>
-        public static void RemoveUnused()
+        public static void RemoveUnused(INotificationService notificationService)
         {
             if (!Directory.Exists(StoreDirectory))
             {
@@ -160,7 +159,7 @@ namespace Greenshot.Notifications
 
             try
             {
-                var shownIds = DesktopToasts.GetTags(ToastNotificationService.AppId);
+                var shownIds = notificationService.GetShownCaptureIds();
                 // A clicked toast is gone from the notification center before Greenshot handles the click (also when Windows starts
                 // Greenshot for it), so a capture is kept as long as its toast lives (an hour, see DestinationDispatcher.Notify)
                 var keptBefore = DateTime.UtcNow - TimeSpan.FromHours(1);

@@ -171,11 +171,9 @@ namespace Greenshot.Shell
             _flowRunner = new CaptureFlowRunner(CapturePipeline.Instance, UiDispatcher, CapturePipeline.Instance.Selector);
             SimpleServiceProvider.Current.AddService<ICaptureFlowRunner>(_flowRunner);
 
+            // Toasts, or the balloons of the tray icon
+            SimpleServiceProvider.Current.AddService<INotificationService>(NotificationServiceFactory.Create());
             // Windows specific services
-#if !GREENSHOT_LIGHT
-            // Greenshot Light has no toasts, the tray icon shows its notifications (see TrayNotificationService below)
-            SimpleServiceProvider.Current.AddService<INotificationService>(ToastNotificationService.Create());
-#endif
             // Set this as IOcrProvider
             SimpleServiceProvider.Current.AddService<IOcrProvider>(new Win10OcrProvider());
 
@@ -250,13 +248,6 @@ namespace Greenshot.Shell
             // Set the Greenshot icon visibility depending on the configuration. (Added for feature #3521446)
             _trayIcon.Visible = !_conf.HideTrayicon;
             SimpleServiceProvider.Current.AddService<ITrayIcon>(_trayIcon);
-
-            // Check to see if there is already another INotificationService
-            if (!SimpleServiceProvider.Current.GetAllInstances<INotificationService>().Any())
-            {
-                // If not we add the balloons of the tray icon
-                SimpleServiceProvider.Current.AddService<INotificationService>(new TrayNotificationService(_trayIcon));
-            }
 
             // Make sure we never capture our own windows
             WindowHelper.RegisterIgnoreHandle(SharedMessageWindow.Handle);

@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
@@ -27,16 +28,16 @@ using Greenshot.Base.Interfaces;
 namespace Greenshot.Shell
 {
     /// <summary>
-    /// Notify the user with balloons at the tray icon, used when Windows has no toast notifications
+    /// Notify the user with balloons at the tray icon, used where there are no toasts. A balloon shows no capture and can't be
+    /// clicked after Greenshot exited.
     /// </summary>
     internal sealed class TrayNotificationService : INotificationService
     {
-        private readonly ITrayIcon _trayIcon;
+        /// <inheritdoc />
+        public bool ShowsCaptures => false;
 
-        public TrayNotificationService(ITrayIcon trayIcon)
-        {
-            _trayIcon = trayIcon;
-        }
+        /// <inheritdoc />
+        public IReadOnlyCollection<string> GetShownCaptureIds() => Array.Empty<string>();
 
         /// <inheritdoc />
         public void ShowNotification(Notification notification)
@@ -79,7 +80,8 @@ namespace Greenshot.Shell
                 return;
             }
 
-            _trayIcon.ShowBalloon("Greenshot", message, level, onClickAction, onClosedAction);
+            // The tray icon is created after the services, a notification before it isn't shown
+            SimpleServiceProvider.Current.GetInstance<ITrayIcon>(isOptional: true)?.ShowBalloon("Greenshot", message, level, onClickAction, onClosedAction);
         }
     }
 }
