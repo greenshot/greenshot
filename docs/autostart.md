@@ -137,7 +137,12 @@ a dialog "Older Greenshot found" shows the version and both folders, explains wh
 
 - **Remove it:** Greenshot releases its single instance mutex (the old uninstaller refuses to run while it exists, `AppMutex` of its setup),
   runs the old uninstaller silently as the user, and takes the mutex again. When the Run value was there before and the old uninstaller removed it,
-  it writes it again for this Greenshot. If the uninstaller fails, a message says so and points to Settings > Apps.
+  it writes it again for this Greenshot. The same for `PrintScreenKeyForSnippingEnabled` in `HKCU\Control Panel\Keyboard`: the 1.3 setup set it
+  (component "disablesnippingtool", the default on Windows 11), its uninstaller removes it, and the Print key would open the Snipping Tool again.
+  If the uninstaller fails, a message says so and points to Settings > Apps.
+  Everything else the 1.3 uninstaller removes is its own: its folder, its Start menu shortcuts in the profile, its uninstall key, and its file type
+  entries in `HKCU\Software\Classes` (`.greenshot` → `Greenshot`), which would otherwise hide the ones of this Greenshot.
+  Checked in Windows Sandbox by comparing the files and registry entries of both installations before and after.
 - **Keep it:** the folder is added to `KeptOlderInstallations` in greenshot.ini, the user isn't asked again for it.
 
 This happens for the one who is logged on right after the setup (the setup starts Greenshot) and for every other user at their first start of the new Greenshot.

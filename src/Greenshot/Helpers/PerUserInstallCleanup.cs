@@ -86,6 +86,7 @@ namespace Greenshot.Helpers
             }
 
             bool hadAutostart = HasRunValue(Registry.CurrentUser);
+            object printScreenForSnipping = GetValue(Registry.CurrentUser, KeyboardKey, PrintScreenForSnippingValue);
             bool removed;
             releaseMutex();
             try
@@ -109,6 +110,24 @@ namespace Greenshot.Helpers
                 Log.Info("The start with Windows was removed by the old uninstaller, it starts this Greenshot again.");
                 StartupHelper.EnableAutostart();
             }
+
+            // The setup of 1.3 switched the Print key of the Snipping Tool off for the user (component "disablesnippingtool", the default on Windows 11),
+            // its uninstaller removes that value again: the Print key would open the Snipping Tool instead of this Greenshot
+            if (printScreenForSnipping != null && GetValue(Registry.CurrentUser, KeyboardKey, PrintScreenForSnippingValue) == null)
+            {
+                Log.Info("The old uninstaller gave the Print key back to the Snipping Tool, it's set as it was.");
+                using var keyboardKey = Registry.CurrentUser.CreateSubKey(KeyboardKey);
+                keyboardKey.SetValue(PrintScreenForSnippingValue, printScreenForSnipping, RegistryValueKind.DWord);
+            }
+        }
+
+        private const string KeyboardKey = @"Control Panel\Keyboard";
+        private const string PrintScreenForSnippingValue = "PrintScreenKeyForSnippingEnabled";
+
+        private static object GetValue(RegistryKey root, string keyPath, string valueName)
+        {
+            using var key = root.OpenSubKey(keyPath, false);
+            return key?.GetValue(valueName);
         }
 
         /// <summary>
