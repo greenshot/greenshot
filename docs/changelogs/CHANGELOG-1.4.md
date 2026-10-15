@@ -163,16 +163,13 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 #### 🔔 Notifications
 
-**Toasts with a preview, also after Greenshot exited** (#1516)
-- Greenshot's own toast code replaces the Microsoft.Toolkit.Uwp.Notifications package (one registration instead of one per exe path; the old registrations of 1.3 are removed, so Windows lists Greenshot only once in its notification settings)
-- A toast shows a thumbnail of the capture; a click offers the capture again in the destination flyout (the built-in recipe "Capture of a notification"), also when Greenshot was closed: Windows starts Greenshot for the click
-- One toast per capture flow, from the Notification step of the recipe, with a row per destination showing its icon and what it did; the kept captures are removed when the toast is clicked or gone
-- Notifications turned off in Windows (for Greenshot, for all apps, or by a group policy) or in Greenshot show nothing; where Windows can't show toasts (portable version, older Windows) the tray icon shows balloons
-- Buttons on the toast of an export: Edit (the capture in the editor), Show in folder, Copy link (with several links a drop-down chooses which); they also work after Greenshot was closed
-- The toast lists every export of the flow, also of the Box, Dropbox, External command, Confluence, Jira, Office and PDF steps, and the barcodes (QR codes) found in the capture; a link of a barcode is shown completely and can only be copied
-- A notification level in the settings (All, Warnings and errors, Errors only, None; `NotificationLevel` in greenshot.ini), and a switch for the thumbnail of the toast (`ShowNotificationThumbnail`), offered only where toasts are used
-- Greenshot.exe of the full version is now a 64-bit exe, which Windows needs to start it for a toast click; see [notifications.md](../notifications.md)
-- Greenshot Light has no toasts (tray balloons only) and no `greenshot-cli.exe` / `greenshot-proxy.exe`, and still runs on 32-bit Windows
+**Better notifications** (#1516)
+- After a capture you get one notification that shows a small preview and lists where the capture went
+- Click the notification to send the capture somewhere else, even after Greenshot was closed
+- Buttons on the notification let you edit the capture, open its folder or copy the link of an upload
+- If an export fails, the notification says which one and why
+- Choose in the settings which notifications you want to see (all, warnings and errors, errors only, or none) and whether they show a preview
+- The full version now needs 64-bit Windows; on 32-bit Windows use Greenshot Light
 
 ### Bug Fixes & Improvements
 
@@ -447,7 +444,7 @@ If you're upgrading from 1.3 to a 1.4 continuous build:
 3. **Install 1.4 build**: Install the latest 1.4 continuous build
 4. **Test thoroughly**: As these are development builds, test your usual workflows
 5. **Update command line scripts**: If you use Greenshot with command line arguments, update from `/` style (e.g., `/exit`, `/reload`) to `--` style (e.g., `--exit`, `--reload`)
-6. **64-bit Windows for the full version**: Greenshot.exe of the full version (installer and portable .zip) is a 64-bit exe; the installer refuses 32-bit Windows. On 32-bit Windows use Greenshot Light, which has no plugins, no toasts and no command line (`greenshot-cli.exe`)
+6. **64-bit Windows for the full version**: the full version only installs on 64-bit Windows. On 32-bit Windows use Greenshot Light
 
 ### Plugin API changes (clipboard)
 
