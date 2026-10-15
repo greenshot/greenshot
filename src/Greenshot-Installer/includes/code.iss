@@ -79,6 +79,53 @@ var
 	GreenshotWasRunning: Boolean;
 	GreenshotCanBeRestartedByRM: Boolean;
 
+const
+  GreenshotMutexes = 'F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08,Global\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08,Local\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08';
+
+function HasCommandLineSwitch(Switch: String): Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+  for I := 1 to ParamCount do
+    if CompareText(ParamStr(I), Switch) = 0 then
+      Result := True;
+end;
+
+// Asks the running Greenshot to exit, like a click on Exit in its menu: it saves its settings and asks about unsaved editors.
+// Greenshot up to 1.3 takes /exit, newer ones --exit. Returns True when no Greenshot runs anymore (waits up to 10 seconds).
+function CloseRunningGreenshot(ExePath, Version: String): Boolean;
+var
+  ExitArgument: String;
+  ResultCode, Waited: Integer;
+begin
+  Result := not CheckForMutexes(GreenshotMutexes);
+  if Result then
+    exit;
+  if (Pos('0.', Version) = 1) or (Pos('1.0', Version) = 1) or (Pos('1.1', Version) = 1) or (Pos('1.2', Version) = 1) or (Pos('1.3', Version) = 1) then
+    ExitArgument := '/exit'
+  else
+    ExitArgument := '--exit';
+  if not FileExists(ExePath) then
+  begin
+    Log('Greenshot runs, but ' + ExePath + ' is missing, it can not be asked to exit.');
+    exit;
+  end;
+  Log('Asking the running Greenshot to exit: ' + ExePath + ' ' + ExitArgument);
+  ExecAsOriginalUser(ExePath, ExitArgument, '', SW_HIDE, ewNoWait, ResultCode);
+  Waited := 0;
+  while (Waited < 10000) and CheckForMutexes(GreenshotMutexes) do
+  begin
+    Sleep(250);
+    Waited := Waited + 250;
+  end;
+  Result := not CheckForMutexes(GreenshotMutexes);
+  if Result then
+    Log('Greenshot exited.')
+  else
+    Log('Greenshot still runs after 10 seconds.');
+end;
+
 function InitializeSetup(): Boolean;
 var
   PrevAppDir: String;
@@ -114,10 +161,14 @@ begin
 
   // If Greenshot is running AND it is an old version that doesn't support the Restart Manager, abort.
   // We use a loop with the built-in translated msgSetupAppRunningError so the user can close it and click OK.
-  while IsOldVersion and CheckForMutexes('F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08,Global\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08,Local\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08') do
+  // Unattended nobody can close it: it's asked to exit. With /SUPPRESSMSGBOXES the message box answers Cancel, the setup ends instead of waiting.
+  if IsOldVersion and (HasCommandLineSwitch('/SILENT') or HasCommandLineSwitch('/VERYSILENT')) then
+    CloseRunningGreenshot(PrevAppDir + '\Greenshot.exe', '1.3');
+  while IsOldVersion and CheckForMutexes(GreenshotMutexes) do
   begin
-    if MsgBox(FmtMessage(SetupMessage(msgSetupAppRunningError), ['Greenshot']), mbError, MB_OKCANCEL) = IDCANCEL then
+    if SuppressibleMsgBox(FmtMessage(SetupMessage(msgSetupAppRunningError), ['Greenshot']), mbError, MB_OKCANCEL, IDCANCEL) = IDCANCEL then
     begin
+      Log('Greenshot runs and was not closed, the setup ends.');
       Result := False;
       Exit;
     end;
@@ -162,16 +213,6 @@ begin
   end;
 end;
 
-function HasCommandLineSwitch(Switch: String): Boolean;
-var
-  I: Integer;
-begin
-  Result := False;
-  for I := 1 to ParamCount do
-    if CompareText(ParamStr(I), Switch) = 0 then
-      Result := True;
-end;
-
 // Greenshot 1.3 installed for the current user by default (in the profile). An installation for all users doesn't replace it, Inno Setup
 // only finds the previous installation in the registry of the install mode it runs in. Both would stay, and uninstalling the old one later
 // removes the Run value and the Print key setting of this one. So it's removed first, when the user agrees: this installation writes both
@@ -204,6 +245,10 @@ begin
     exit;
   end;
 
+  // The user wants it gone: a Greenshot which still runs is asked to exit, its uninstaller refuses to run otherwise (AppMutex).
+  // If it doesn't exit, the old uninstaller asks the user to close it (not when very silent).
+  CloseRunningGreenshot(AddBackslash(Location) + 'Greenshot.exe', Version);
+
   // Not very silent while this setup shows something: the old uninstaller can ask to close a Greenshot which still runs
   if HasCommandLineSwitch('/VERYSILENT') then
     Parameters := '/VERYSILENT /NORESTART'
@@ -227,7 +272,7 @@ begin
 	// We must check if Greenshot is running HERE at the handoff point before installation.
 	// This prevents a stale snapshot if the user closes/starts Greenshot while sitting on the wizard pages.
 	// PrepareToInstall fires right before the Restart Manager checks for locked files.
-	GreenshotWasRunning := CheckForMutexes('F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08,Global\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08,Local\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08');
+	GreenshotWasRunning := CheckForMutexes(GreenshotMutexes);
 	Result := '';
 end;
 

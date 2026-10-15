@@ -135,6 +135,12 @@ and folder, the folder of the new installation, and why the older one isn't need
 and it could be started instead), and that the settings (`%APPDATA%\Greenshot`) stay. With **Yes** its uninstaller runs (`/SILENT`, or `/VERYSILENT`
 when the setup is very silent; with `/SUPPRESSMSGBOXES` the answer is Yes). If that fails, a message points to Settings > Apps.
 
+If the older Greenshot still runs, it's asked to exit first, like a click on Exit (`CloseRunningGreenshot`: `Greenshot.exe /exit` up to 1.3,
+`--exit` for newer ones, then up to 10 seconds until the single instance mutex is gone); its uninstaller refuses to run otherwise (`AppMutex`).
+Independent of that, the setup already waits for a running Greenshot up to 1.3.315 when it starts (`InitializeSetup`, it doesn't support the
+Restart Manager): interactive it asks the user to close it, with `/SILENT` or `/VERYSILENT` it asks Greenshot to exit, and with `/SUPPRESSMSGBOXES`
+the setup ends instead of waiting for an answer nobody can give.
+
 The old uninstaller removes everything of its own, also the `Greenshot` Run value and `PrintScreenKeyForSnippingEnabled` in `HKCU\Control Panel\Keyboard`
 (the 1.3 setup switched the Print key of the Snipping Tool off, the default on Windows 11), and its file types in `HKCU\Software\Classes`,
 which would hide the ones of the new installation. Because it runs before the installation, the new one writes the Run value (task "startup")
