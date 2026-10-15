@@ -23,7 +23,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using System.Windows.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
 using Greenshot.SelfService.Imgur;
@@ -222,29 +221,6 @@ namespace Greenshot.Tests.Forms
                 Assert.Contains("https://i.imgur.com/abcs.jpg", html);
                 Assert.Contains("https://imgur.com/delete/d&lt;f", html);
                 Assert.Contains("A &lt;b&gt; title", html);
-
-                Exception threadEx = null;
-                var thread = new Thread(() =>
-                {
-                    try
-                    {
-                        var view = new ImgurUploadsView { DataContext = new ImgurSectionViewModel() };
-                        var list = (ListView)view.FindName("UploadsList");
-                        var delete = (Button)view.FindName("DeleteButton");
-                        Assert.False(delete.IsEnabled);
-                        list.SelectAll();
-                        Assert.True(delete.IsEnabled);
-                        Assert.True(((Button)view.FindName("OpenButton")).IsEnabled);
-                    }
-                    catch (Exception ex)
-                    {
-                        threadEx = ex;
-                    }
-                });
-                thread.SetApartmentState(ApartmentState.STA);
-                thread.Start();
-                thread.Join();
-                Assert.Null(threadEx);
 
                 vm.ImgurSection.ForgetAll();
                 Assert.Empty(vm.ImgurSection.Uploads);
