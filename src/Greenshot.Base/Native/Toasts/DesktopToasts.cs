@@ -37,9 +37,6 @@ namespace Greenshot.Base.Native.Toasts
     /// </summary>
     public static class DesktopToasts
     {
-        [DllImport("shell32.dll", CharSet = CharSet.Unicode, PreserveSig = false)]
-        private static extern void SetCurrentProcessExplicitAppUserModelID(string appId);
-
         /// <summary>
         /// Gives this process the app id, registers it and receives the clicks. Call it before the app shows a window,
         /// the taskbar groups the windows by the app id.
@@ -50,7 +47,7 @@ namespace Greenshot.Base.Native.Toasts
         /// <param name="clickCommandLine">What Windows starts for a click when the app isn't running</param>
         public static void Register(string appId, string displayName, string iconPath, string clickCommandLine)
         {
-            SetCurrentProcessExplicitAppUserModelID(appId);
+            AppUserModelId.SetForCurrentProcess(appId);
             using (var key = Registry.CurrentUser.CreateSubKey($@"Software\Classes\AppUserModelId\{appId}"))
             {
                 key.SetValue("DisplayName", displayName);

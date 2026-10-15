@@ -83,3 +83,6 @@ Type: files; Name: "{localappdata}\Greenshot\greenshot.png"
 Type: filesandordirs; Name: "{localappdata}\Greenshot\Notifications"
 // The multi-core JIT profile, which Greenshot writes when it runs
 Type: files; Name: "{localappdata}\Greenshot\Startup.profile"
+// The log with its rolled files (Greenshot.log.1 to .3, see log4net-release.xml); greenshot.ini in %AppData% is kept
+Type: files; Name: "{localappdata}\Greenshot\Greenshot.log*"
+Type: dirifempty; Name: "{localappdata}\Greenshot"

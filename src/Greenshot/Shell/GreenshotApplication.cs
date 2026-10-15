@@ -33,6 +33,7 @@ using Dapplo.Ini;
 using Dapplo.Windows.Kernel32;
 using Greenshot.Base.Core;
 using Greenshot.Base.Languages;
+using Greenshot.Base.Native;
 using Greenshot.Helpers;
 using Greenshot.Ipc;
 using Greenshot.Ipc.Cli;
@@ -59,6 +60,10 @@ namespace Greenshot.Shell
         {
             try
             {
+                // Every edition and variant, before a window or the tray icon: otherwise Windows registers an app id of its own
+                // for the tray icon (also for the .zip, which leaves nothing behind)
+                AppUserModelId.SetForCurrentProcess(AppUserModelId.Greenshot);
+
                 // Fix for Bug 2495900, Multi-user Environment
                 // check whether there's an local instance running already
                 _applicationMutex = ResourceMutex.Create("F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08", "Greenshot", false);

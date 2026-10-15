@@ -194,3 +194,8 @@ Windows itself doesn't show the balloons while the user turned the notifications
   Greenshot.exe). It writes no registration, stays AnyCPU (32-bit Windows, native on ARM64) and ships without
   `greenshot-cli.exe` and `greenshot-proxy.exe`.
 * **The portable version** (.zip, PortableApp) is the full Greenshot.exe, but writes no registration and uses the balloons.
+
+Every Greenshot process gets the app id `Greenshot` at the start (`AppUserModelId.SetForCurrentProcess` in
+`GreenshotApplication.Start`), which writes nothing. Without an app id Windows registers one of its own for the tray icon
+(`AppUserModelId\NotifyIconGeneratedAumid_…` with an icon in Temp). What Windows keeps for every app which notifies,
+`Notifications\Settings\Greenshot` (the user's settings for its notifications), is written by Windows in all variants.
