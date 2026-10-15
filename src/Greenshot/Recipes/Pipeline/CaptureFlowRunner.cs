@@ -181,6 +181,11 @@ namespace Greenshot.Recipes.Pipeline
             {
                 return;
             }
+            // The notification of the exports showed the failure already (see CapturePipeline)
+            if (result.Context?.Properties.TryGetValue(ExportNotification.FailureShownProperty, out var shown) == true && shown is true)
+            {
+                return;
+            }
 
             string message = result.Reason ?? result.Error?.Message ?? "Capture flow failed.";
             _ui.InvokeAsync(() => notifyService.ShowErrorMessage(message)).FireAndLog("Notify flow failure", Log);

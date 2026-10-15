@@ -15,6 +15,15 @@ and inside a feature by kind (Views, ViewModels, Tools, Steps, ...). The namespa
   and plugin loading (`Greenshot/Plugins`) are left out of Greenshot Light by excluding their folders in `Greenshot.csproj`.
   They plug in through `[assembly: GreenshotModule(typeof(...))]` in their folder, implementing `IIpcCommandExtension` (IPC commands) or `IBuiltInRecipeProvider` (built-in recipes).
   `CheckLightAssembly` fails the Light build when one of their type names is still in Greenshot.exe.
+- **Notifications go through `INotificationService`, created by an `INotificationServiceProvider`** (both in `Greenshot.Base/Interfaces`).
+  The provider checks whether its platform is available and initializes it (the toasts register Greenshot with Windows),
+  `NotificationServiceFactory` (`Greenshot/Shell`) takes the first available one: the toasts, else the balloons of the tray icon.
+  See [notifications.md](notifications.md).
+- **Greenshot.exe of the full version is x64, Greenshot Light is AnyCPU.** COM doesn't give a toast click to a Greenshot it starts for it
+  when the exe is AnyCPU (its PE header says 32-bit, although it runs as a 64-bit process), see [notifications.md](notifications.md).
+  Light has no toasts (the tray icon shows its notifications), no `greenshot-cli.exe` and no `greenshot-proxy.exe` (its installer
+  opens files with `Greenshot.exe --file`), so it also runs on 32-bit Windows and natively on ARM64. The libraries and plugins stay
+  AnyCPU, Full and Light load them; the solution platform stays "Any CPU" (the output paths are `bin\<Configuration>\net480`).
 - A namespace must not shadow a type it uses: the capture folder is `Capturing`, because a `Greenshot.Capture` namespace would hide `Greenshot.Base.Core.Capture`.
 
 ## Frozen: do not move or rename

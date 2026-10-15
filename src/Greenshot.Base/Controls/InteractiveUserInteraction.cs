@@ -209,21 +209,7 @@ namespace Greenshot.Base.Controls
             }
 
             // Notifications are shown on the UI thread, but nobody waits for the user
-            return _ui.InvokeAsync(() =>
-            {
-                switch (notification.Kind)
-                {
-                    case NotificationKind.Error:
-                        notificationService.ShowErrorMessage(notification.Message, notification.Timeout, notification.OnClick);
-                        break;
-                    case NotificationKind.Warning:
-                        notificationService.ShowWarningMessage(notification.Message, notification.Timeout, notification.OnClick);
-                        break;
-                    default:
-                        notificationService.ShowInfoMessage(notification.Message, notification.Timeout, notification.OnClick);
-                        break;
-                }
-            });
+            return _ui.InvokeAsync(() => notificationService.ShowNotification(notification));
         }
 
         public Task<bool?> ConfirmAsync(string title, string message, bool isError, CancellationToken cancellationToken)

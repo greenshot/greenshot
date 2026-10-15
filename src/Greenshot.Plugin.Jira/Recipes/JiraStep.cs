@@ -140,6 +140,8 @@ namespace Greenshot.Plugin.Jira.Recipes
                 var destination = new JiraDestination();
                 var result = await DestinationExporter.ExportAsync(destination, source, captureDetails, false, context.UserInteraction, cancellationToken).ConfigureAwait(false);
                 await ExportResultHandler.ApplyAsync(destination, result, source, cancellationToken).ConfigureAwait(false);
+                // The Notification step shows it
+                context.RecordExport(destination, result, captureDetails, source);
                 if (result.Uri != null)
                 {
                     context.Properties["Jira.UploadUrl"] = result.Uri.AbsoluteUri;
