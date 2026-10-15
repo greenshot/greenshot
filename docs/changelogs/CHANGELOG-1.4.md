@@ -171,7 +171,6 @@ Continuous builds are automatically created for every commit to the `main` branc
 - QR codes found in a capture are shown on the notification, and their links can be copied
 - Greenshot appears only once in the Windows notification settings
 - Choose in the settings which notifications you want to see (all, warnings and errors, errors only, or none) and whether they show a preview
-- The full version now needs 64-bit Windows; on 32-bit Windows use Greenshot Light
 
 ### Bug Fixes & Improvements
 
@@ -446,7 +445,6 @@ If you're upgrading from 1.3 to a 1.4 continuous build:
 3. **Install 1.4 build**: Install the latest 1.4 continuous build
 4. **Test thoroughly**: As these are development builds, test your usual workflows
 5. **Update command line scripts**: If you use Greenshot with command line arguments, update from `/` style (e.g., `/exit`, `/reload`) to `--` style (e.g., `--exit`, `--reload`)
-6. **64-bit Windows for the full version**: the full version only installs on 64-bit Windows. On 32-bit Windows use Greenshot Light
 
 ### Plugin API changes (clipboard)
 
