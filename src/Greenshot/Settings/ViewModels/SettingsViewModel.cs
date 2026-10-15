@@ -62,7 +62,7 @@ namespace Greenshot.Settings.ViewModels
             CoreConfiguration = IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
             EditorConfiguration = IniConfigHelper.EnsureSection<IEditorConfiguration>(() => new EditorConfigurationImpl());
             _expertModeEnabled = !CoreConfiguration.HideExpertSettings;
-            _autoStartEnabled = StartupHelper.HasRunUser() || StartupHelper.HasRunAll();
+            _autoStartEnabled = StartupHelper.IsAutostartEnabled();
             
             // Initialize language
             _selectedLanguage = Texts.Config.CurrentLanguage;

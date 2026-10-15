@@ -307,31 +307,17 @@ namespace Greenshot.Settings.Views
                     .ToList();
             }
 
-            try
+            // Only when the checkbox was changed: saving other settings leaves the entries alone, e.g. the one of another Greenshot
+            if (_viewModel.AutoStartEnabled != StartupHelper.IsAutostartEnabled())
             {
                 if (_viewModel.AutoStartEnabled)
                 {
-                    if (!StartupHelper.HasRunAll())
-                    {
-                        StartupHelper.SetRunUser();
-                    }
+                    StartupHelper.EnableAutostart();
                 }
                 else
                 {
-                    if (StartupHelper.HasRunAll())
-                    {
-                        StartupHelper.DeleteRunAll();
-                    }
-
-                    if (StartupHelper.HasRunUser())
-                    {
-                        StartupHelper.DeleteRunUser();
-                    }
+                    StartupHelper.DisableAutostart();
                 }
-            }
-            catch
-            {
-                // ignored
             }
             
             // Force save of all configuration sections
