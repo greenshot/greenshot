@@ -40,6 +40,7 @@ information or a shortcut to whatever the user is doing, without changing how th
 | `RegionCaptureTool` | `Region` | Space toggles | Drag or Enter/Enter for a rectangle, includes the pixel under the cursor |
 | `WindowCaptureTool` | `Window` | Space toggles | The selection animates to the (child) window under the cursor, D for debug info. For beta testers it also follows the UI Automation areas inside a window (e.g. the parts of a browser page), PageUp/PageDown select the larger/smaller area; a turning mark next to the cursor shows when reading the areas takes longer than 200 ms. In `Greenshot.Base` (`Greenshot.Base.Capturing`), a plugin can derive from it, and override `SelectsAreas` to select whole windows only |
 | `TextCaptureTool` | `Text` | T | Extends the region tool: shows the OCR lines, a click selects a line |
+| `FixedSizeCaptureTool` | `Region` | F | A rectangle of a chosen size follows the cursor (its middle), a click or Enter captures it. Its edges snap to the window under the cursor, the windows it is in and the monitor, unless Alt is held. A panel lists the sizes of `FixedCaptureSizes` and below them the sizes of the last region captures (`RecentCaptureSizes`, remembered by the region tool and this tool); 1-9 pick one, PageUp/PageDown step through the list. It starts with the size of its last capture (`FixedCaptureSize`). Id `FixedSize` for a recipe |
 
 ## Adding a tool, step by step
 
@@ -193,6 +194,8 @@ The keys of the window and the built-in tools:
 | M, Z | Window | Captured mouse cursor, zoomer |
 | Esc | Window | Cancel |
 | T | Text tool | Switch to the text tool |
+| F | Fixed size tool | Switch to the fixed size tool |
+| Enter, 1-9, PgUp, PgDn | Fixed size tool | Capture the area, pick a size, the size above or below in the list |
 | Enter | Region and text tool | Start or finish the selection |
 | Enter, D | Window tool | Capture the window, window details |
 | F1 | Help overlay | Show or hide the keys |
@@ -202,7 +205,7 @@ The keys of the window and the built-in tools:
 
 The help is a built-in overlay (`src/Greenshot/Capturing/Overlays/HelpOverlay.cs`): F1 shows a panel with the keys which work now,
 the keys of the active tool first, as key caps like the hotkey settings show them. Keys with the same description share a row
-(the four arrow keys, left and right Shift). Because it reads `Host.KeyBindings`, keys of plugin tools and overlays are in it too,
+(the four arrow keys, left and right Shift), more than four show as a range (1–9). Because it reads `Host.KeyBindings`, keys of plugin tools and overlays are in it too,
 and the descriptions are read when the panel is shown, in the current language. When the tool changes, the panel is shown again
 with the keys of the new tool. Whether it is shown is remembered in the configuration (`CaptureHelpVisible` in `greenshot.ini`, on by default),
 so it comes back with every capture until F1 hides it. The info overlay does the same with `CaptureInfoVisible`.

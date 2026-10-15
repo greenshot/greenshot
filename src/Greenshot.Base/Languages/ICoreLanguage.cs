@@ -285,6 +285,46 @@ namespace Greenshot.Base.Languages
         string CaptureKeyText { get; }
 
         /// <summary>
+        /// Capture a fixed size
+        /// </summary>
+        string CaptureKeyFixedSize { get; }
+
+        /// <summary>
+        /// Capture the area
+        /// </summary>
+        string CaptureKeyFixedSizeAccept { get; }
+
+        /// <summary>
+        /// Pick a size from the list
+        /// </summary>
+        string CaptureKeyFixedSizePick { get; }
+
+        /// <summary>
+        /// The size above in the list
+        /// </summary>
+        string CaptureKeyFixedSizePrevious { get; }
+
+        /// <summary>
+        /// The size below in the list
+        /// </summary>
+        string CaptureKeyFixedSizeNext { get; }
+
+        /// <summary>
+        /// Sizes
+        /// </summary>
+        string CaptureFixedSizesTitle { get; }
+
+        /// <summary>
+        /// Recently captured
+        /// </summary>
+        string CaptureFixedSizesRecent { get; }
+
+        /// <summary>
+        /// Hold Alt to place it without snapping
+        /// </summary>
+        string CaptureFixedSizesNoSnap { get; }
+
+        /// <summary>
         /// Start or finish the selection
         /// </summary>
         string CaptureKeyRegionSelect { get; }

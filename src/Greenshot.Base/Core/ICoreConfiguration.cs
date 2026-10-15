@@ -383,6 +383,16 @@ namespace Greenshot.Base.Core
         [Description("The last used region, for reuse in the capture last region")]
         NativeRect LastCapturedRegion { get; set; }
 
+        [Description("The sizes of the fixed size capture (F in the region selection), width x height separated by commas")]
+        [DefaultValue("640x480,800x600,1024x768,1280x720,1920x1080")]
+        List<string> FixedCaptureSizes { get; set; }
+
+        [Description("The sizes of the last region captures, the fixed size capture offers them below its own sizes")]
+        List<string> RecentCaptureSizes { get; set; }
+
+        [Description("The size of the last fixed size capture, the fixed size capture starts with it")]
+        NativeSize FixedCaptureSize { get; set; }
+
         [DataMember(Name = "BaseIconSize")]
         [Description("Defines the base size of the icons (e.g. for the buttons in the editor), default value 16,16 and it's scaled to the current DPI")]
         [DefaultValue("16,16")]

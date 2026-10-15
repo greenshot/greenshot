@@ -109,6 +109,15 @@ namespace Greenshot.Capturing.Overlays
                     rows[index].Keys.Add(binding.KeyText);
                 }
             }
+            // Many keys which do the same (the number keys which pick a size) show as a range, e.g. 1–9
+            for (int i = 0; i < rows.Count; i++)
+            {
+                var keys = rows[i].Keys;
+                if (keys.Count > 4)
+                {
+                    rows[i] = (new List<string> { $"{keys[0]}–{keys[keys.Count - 1]}" }, rows[i].Description);
+                }
+            }
             return rows;
         }
 

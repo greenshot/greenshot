@@ -37,6 +37,7 @@ using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Wpf;
+using Greenshot.Capturing.Tools;
 using Greenshot.Editor.Configuration;
 using Greenshot.Helpers;
 using Greenshot.Base.Threading;
@@ -254,6 +255,23 @@ namespace Greenshot.Settings.ViewModels
         }
 
         public List<ImageFormatViewModel> ImageFormats { get; private set; }
+
+        /// <summary>
+        /// The sizes of the fixed size capture as they are typed, e.g. "1280x720, 32x32"; what isn't a size is dropped
+        /// </summary>
+        public string FixedCaptureSizes
+        {
+            get => string.Join(", ", CoreConfiguration.FixedCaptureSizes ?? new List<string>());
+            set
+            {
+                CoreConfiguration.FixedCaptureSizes = (value ?? string.Empty).Split(',', ';')
+                    .Select(FixedSizeCaptureTool.ParseSize)
+                    .Where(size => !size.IsEmpty)
+                    .Select(FixedSizeCaptureTool.FormatSize)
+                    .ToList();
+                OnPropertyChanged();
+            }
+        }
 
         public int IconSize
         {

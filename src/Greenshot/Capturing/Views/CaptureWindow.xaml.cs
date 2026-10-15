@@ -583,7 +583,7 @@ namespace Greenshot.Capturing.Views
         /// </summary>
         private IList<ICaptureTool> CreateTools()
         {
-            var tools = new List<ICaptureTool> { _regionTool, _windowTool, new TextCaptureTool() };
+            var tools = new List<ICaptureTool> { _regionTool, _windowTool, new TextCaptureTool(), new FixedSizeCaptureTool() };
             foreach (var provider in SimpleServiceProvider.Current.GetAllInstances<ICaptureToolProvider>())
             {
                 try

@@ -66,6 +66,13 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 #### 📸 Capture Improvements
 
+**Capture a fixed size** (#152, #1525)
+- Press F while selecting a region to capture an area of a fixed size, e.g. 1280 × 720 or 32 × 32
+- The area follows the mouse and lines up with the edges of windows and the screen; hold Alt to place it freely
+- A list shows the sizes: pick one with 1 to 9, or go through them with Page Up and Page Down
+- The sizes of your last region captures are in the list too, so you can capture the same size again
+- Set your own sizes in the settings, on the Capture tab
+
 **New Capture Technology** (#932)
 - Implemented new capture technology for better screenshot quality
 - Improved compatibility with modern Windows applications

@@ -173,4 +173,19 @@ public class CaptureKeyRegistryTests
         Assert.Equal(new[] { "↑", "↓" }, rows[1].Keys);
         Assert.Equal(new[] { "Shift" }, rows[2].Keys);
     }
+
+    [Fact]
+    public void HelpRows_ManyKeysWithTheSameDescription_ShowAsARange()
+    {
+        var registry = new CaptureKeyRegistry();
+        var tool = new FakeTool();
+        for (int i = 0; i < 9; i++)
+        {
+            registry.Register(ForTool(tool, Key.D1 + i, "Pick"));
+        }
+
+        var rows = HelpOverlay.GetRows(registry.Bindings, tool);
+
+        Assert.Equal(new[] { "1–9" }, rows.Single().Keys);
+    }
 }
