@@ -176,8 +176,8 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 **Imgur uploads removed, delete your old ones in Self-Service**
 - Greenshot no longer uploads to Imgur: Imgur would only allow it with paid or capped access for all Greenshot users
-- If you uploaded images with an earlier Greenshot, Self-Service lists them so you can delete them from Imgur
-- Save the list as a web page to keep the links of your uploads
+- If you uploaded images anonymously with an earlier Greenshot, it still has their delete keys: Self-Service lists those images so you can delete them from Imgur
+- Save the delete links as a web page to keep them
 
 ### Bug Fixes & Improvements
 

@@ -102,12 +102,12 @@ namespace Greenshot.Base.Languages
         string CategoryHotkeysSub { get; }
 
         /// <summary>
-        /// Imgur Uploads
+        /// Delete old Imgur uploads
         /// </summary>
         string CategoryImgur { get; }
 
         /// <summary>
-        /// Delete the images you uploaded to Imgur with Greenshot
+        /// Greenshot still has the delete keys of your earlier anonymous uploads
         /// </summary>
         string CategoryImgurSub { get; }
 
@@ -912,7 +912,7 @@ namespace Greenshot.Base.Languages
         string ImgurDeleteQuestion { get; }
 
         /// <summary>
-        /// Save list
+        /// Save delete links
         /// </summary>
         string ImgurExport { get; }
 
@@ -922,12 +922,12 @@ namespace Greenshot.Base.Languages
         string ImgurExportDelete { get; }
 
         /// <summary>
-        /// Forget the list
+        /// Forget the delete keys
         /// </summary>
         string ImgurForget { get; }
 
         /// <summary>
-        /// Greenshot forgets these uploads and can no longer delete them for you, the images stay on Imgur. Save the list first to keep the links. Continue?
+        /// Greenshot forgets the delete keys and can no longer delete these images for you, the images stay on Imgur. Save the delete links first to keep them. Continue?
         /// </summary>
         string ImgurForgetQuestion { get; }
 
@@ -937,12 +937,12 @@ namespace Greenshot.Base.Languages
         string ImgurOpen { get; }
 
         /// <summary>
-        /// Greenshot no longer uploads to Imgur. The images you uploaded earlier stay online until they are deleted, and Imgur only lets Greenshot delete them for you.
+        /// Greenshot no longer uploads to Imgur. For the images you uploaded anonymously with an earlier Greenshot it still has the delete keys, so it can delete them for you. Only Greenshot can do that, Imgur has no other way for anonymous uploads.
         /// </summary>
         string ImgurSub { get; }
 
         /// <summary>
-        /// Your Imgur uploads
+        /// Delete your old Imgur uploads
         /// </summary>
         string ImgurTitle { get; }
 
