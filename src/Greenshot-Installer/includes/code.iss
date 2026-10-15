@@ -162,9 +162,68 @@ begin
   end;
 end;
 
+function HasCommandLineSwitch(Switch: String): Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+  for I := 1 to ParamCount do
+    if CompareText(ParamStr(I), Switch) = 0 then
+      Result := True;
+end;
+
+// Greenshot 1.3 installed for the current user by default (in the profile). An installation for all users doesn't replace it, Inno Setup
+// only finds the previous installation in the registry of the install mode it runs in. Both would stay, and uninstalling the old one later
+// removes the Run value and the Print key setting of this one. So it's removed first, when the user agrees: this installation writes both
+// values again afterwards (task "startup", component "disablesnippingtool"). See docs/autostart.md.
+procedure RemoveOlderPerUserInstallation();
+var
+  UninstallKey, Location, Version, Uninstaller, Parameters: String;
+  ResultCode: Integer;
+begin
+  if not IsAdminInstallMode then
+    exit;
+  UninstallKey := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\Greenshot_is1';
+  if not RegQueryStringValue(HKCU, UninstallKey, 'InstallLocation', Location) then
+    exit;
+  if not RegQueryStringValue(HKCU, UninstallKey, 'UninstallString', Uninstaller) then
+    exit;
+  Uninstaller := RemoveQuotes(Uninstaller);
+  if not FileExists(Uninstaller) then
+  begin
+    Log('The older installation for the current user in ' + Location + ' has no uninstaller, it is left alone.');
+    exit;
+  end;
+  if not RegQueryStringValue(HKCU, UninstallKey, 'DisplayVersion', Version) then
+    Version := '';
+
+  // With /SUPPRESSMSGBOXES the answer is Yes
+  if SuppressibleMsgBox(FmtMessage(CustomMessage('removeolderperuser'), [Version, Location, ExpandConstant('{app}')]), mbConfirmation, MB_YESNO, IDYES) <> IDYES then
+  begin
+    Log('The user keeps the older installation in ' + Location);
+    exit;
+  end;
+
+  // Not very silent while this setup shows something: the old uninstaller can ask to close a Greenshot which still runs
+  if HasCommandLineSwitch('/VERYSILENT') then
+    Parameters := '/VERYSILENT /NORESTART'
+  else
+    Parameters := '/SILENT /NORESTART';
+  if HasCommandLineSwitch('/SUPPRESSMSGBOXES') then
+    Parameters := Parameters + ' /SUPPRESSMSGBOXES';
+  Log('Removing the older installation for the current user: ' + Uninstaller + ' ' + Parameters);
+  if not Exec(Uninstaller, Parameters, '', SW_SHOW, ewWaitUntilTerminated, ResultCode) or (ResultCode <> 0)
+     or RegKeyExists(HKCU, UninstallKey) then
+  begin
+    Log('The older installation was not removed, exit code ' + IntToStr(ResultCode));
+    SuppressibleMsgBox(FmtMessage(CustomMessage('removeolderperuserfailed'), [Location]), mbInformation, MB_OK, IDOK);
+  end;
+end;
+
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 begin
 	CloseMcpServer();
+	RemoveOlderPerUserInstallation();
 	// We must check if Greenshot is running HERE at the handoff point before installation.
 	// This prevents a stale snapshot if the user closes/starts Greenshot while sitting on the wizard pages.
 	// PrepareToInstall fires right before the Restart Manager checks for locked files.

@@ -10,12 +10,11 @@ Everything below is only about **who writes that value, and when**:
 
 | Who | Runs as | When | Does |
 | --- | --- | --- | --- |
-| **Installer** | the administrator who elevated it | install / update | asks *whether* and *for whom*. For every user: registers Greenshot in Active Setup (HKLM), so Windows will write the value for each user later |
+| **Installer** | the administrator who elevated it | install / update | offers to remove an older Greenshot installed "for me only" ([below](#an-older-greenshot-installed-for-me-only)), asks *whether* and *for whom*. For every user: registers Greenshot in Active Setup (HKLM), so Windows will write the value for each user later |
 | **Installer** | the user who is logged on (`runasoriginaluser`) | install / update, at the end | writes the value for that user right away, with the autostart command |
 | **Windows, Active Setup** | each user | the next logon of each user, **once** | runs the autostart command for that user, which writes the value |
 | **Windows, Run key** | each user | **every** logon | starts Greenshot.exe if the value is there |
 | **Greenshot** | the user | when the checkbox "Launch Greenshot on startup" in the settings is changed | writes or removes the value of that user. The user's own decision, no administrator rights needed |
-| **Greenshot** | the user | its first start after the setup | offers to remove an older Greenshot the user installed "for me only", see [below](#an-older-greenshot-installed-for-me-only) |
 | **Uninstaller** | the administrator / the user | uninstall | removes the Active Setup registration and the value of the uninstalling user |
 
 The **autostart command** writes the value for the current user, nothing else; Greenshot isn't involved:
@@ -130,37 +129,29 @@ installation: Inno Setup only finds the previous installation in the registry of
 HKCU for one user). Without help both would stay installed, and uninstalling the old one later would remove the `Greenshot` Run value,
 also when it starts the new Greenshot already.
 
-So Greenshot itself asks the user (`PerUserInstallCleanup`), after its start: when it runs from the folder of the installation for all users
-(`InstallLocation` in `HKLM\…\Uninstall\Greenshot_is1`) and the user still has a different one in `HKCU\…\Uninstall\Greenshot_is1`,
-a dialog "Older Greenshot found" shows the version and both folders, explains why the older one isn't needed
-(in the profile every program the user runs can change its files, and it could be started instead), and offers **Remove it** or **Keep it**.
+So the setup for all users removes it first, when the user agrees (`RemoveOlderPerUserInstallation` in `code.iss`, in `PrepareToInstall`,
+before anything is installed): when the user who runs the setup has a Greenshot in `HKCU\…\Uninstall\Greenshot_is1`, a question shows its version
+and folder, the folder of the new installation, and why the older one isn't needed (in the profile every program the user runs can change its files,
+and it could be started instead), and that the settings (`%APPDATA%\Greenshot`) stay. With **Yes** its uninstaller runs (`/SILENT`, or `/VERYSILENT`
+when the setup is very silent; with `/SUPPRESSMSGBOXES` the answer is Yes). If that fails, a message points to Settings > Apps.
 
-- **Remove it:** Greenshot releases its single instance mutex (the old uninstaller refuses to run while it exists, `AppMutex` of its setup),
-  runs the old uninstaller silently as the user, and takes the mutex again. When the Run value was there before and the old uninstaller removed it,
-  it writes it again for this Greenshot. The same for `PrintScreenKeyForSnippingEnabled` in `HKCU\Control Panel\Keyboard`: the 1.3 setup set it
-  (component "disablesnippingtool", the default on Windows 11), its uninstaller removes it, and the Print key would open the Snipping Tool again.
-  If the uninstaller fails, a message says so and points to Settings > Apps.
-  Everything else the 1.3 uninstaller removes is its own: its folder, its Start menu shortcuts in the profile, its uninstall key, and its file type
-  entries in `HKCU\Software\Classes` (`.greenshot` → `Greenshot`), which would otherwise hide the ones of this Greenshot.
-  Checked in Windows Sandbox by comparing the files and registry entries of both installations before and after.
-- **Keep it:** the folder is added to `KeptOlderInstallations` in greenshot.ini, the user isn't asked again for it.
-
-This happens for the one who is logged on right after the setup (the setup starts Greenshot) and for every other user at their first start of the new Greenshot.
-The settings (`%APPDATA%\Greenshot`) stay, the uninstaller of 1.3 doesn't remove them.
+The old uninstaller removes everything of its own, also the `Greenshot` Run value and `PrintScreenKeyForSnippingEnabled` in `HKCU\Control Panel\Keyboard`
+(the 1.3 setup switched the Print key of the Snipping Tool off, the default on Windows 11), and its file types in `HKCU\Software\Classes`,
+which would hide the ones of the new installation. Because it runs before the installation, the new one writes the Run value (task "startup")
+and the Print key value (component "disablesnippingtool") again afterwards, nothing has to be repaired.
 
 ```mermaid
 flowchart TD
-    A[Greenshot has started] --> C{"this Greenshot is the one installed for all users,<br/>and the user has another one in HKCU<br/>which they didn't keep?"}
-    C -- no --> Z[nothing]
-    C -- yes --> Q{"dialog: Older Greenshot found"}
-    Q -- "Keep it" --> K["remember the folder<br/>(KeptOlderInstallations)"]
-    Q -- "Remove it" --> D["release the mutex, run its uninstaller silently<br/>as the user, take the mutex again"]
-    D --> E{"was there a Run value before,<br/>and is it gone now?"}
-    E -- yes --> F["write it again for this Greenshot"]
-    E -- no --> Z
-    F --> Z
-    K --> Z
+    A["Setup for all users: PrepareToInstall"] --> C{"the user running the setup<br/>has Greenshot in HKCU\…\Uninstall?"}
+    C -- no --> I
+    C -- yes --> Q{"remove the older Greenshot?"}
+    Q -- no --> I
+    Q -- yes --> D["run its uninstaller<br/>(removes its files, shortcuts, Run value, Print key value)"]
+    D --> I["install: files, file types, then Run value<br/>and Print key value for this Greenshot"]
 ```
+
+Not covered: an administrator who elevates the setup with another account (the HKCU of the setup is the administrator's), and other users of the computer.
+Their older copies stay; the Self-Service troubleshooter is meant to show them later.
 
 ### Uninstall
 

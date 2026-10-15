@@ -516,31 +516,6 @@ namespace Greenshot.Base.Languages
         string Ok { get; }
 
         /// <summary>
-        /// The older Greenshot in {0} couldn't be removed. You can uninstall it in the Windows settings, under Apps.
-        /// </summary>
-        string OlderGreenshotFailed { get; }
-
-        /// <summary>
-        /// Keep it
-        /// </summary>
-        string OlderGreenshotKeep { get; }
-
-        /// <summary>
-        /// Remove it
-        /// </summary>
-        string OlderGreenshotRemove { get; }
-
-        /// <summary>
-        /// An older Greenshot {0} is still installed for you only, in {1}.\n\nThis Greenshot is installed for all users, in {2}. The older one isn't needed anymore: in your profile every program you run can change its files, and it could be started instead of this one.\n\nRemove the older Greenshot now? Your settings stay.
-        /// </summary>
-        string OlderGreenshotText { get; }
-
-        /// <summary>
-        /// Older Greenshot found
-        /// </summary>
-        string OlderGreenshotTitle { get; }
-
-        /// <summary>
         /// An error ocurred while trying to print.
         /// </summary>
         string PrintError { get; }

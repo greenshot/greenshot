@@ -52,11 +52,6 @@ namespace Greenshot.Shell
         private static ResourceMutex _applicationMutex;
 
         /// <summary>
-        /// The single instance mutex, the same since 1.3, also the AppMutex of the setup
-        /// </summary>
-        private const string ApplicationMutexId = "F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08";
-
-        /// <summary>
         /// Application entry-point, called from <see cref="GreenshotMain"/> after the
         /// <see cref="IniConfigRegistry"/> has been set up and command-line arguments
         /// have been parsed.
@@ -71,7 +66,7 @@ namespace Greenshot.Shell
 
                 // Fix for Bug 2495900, Multi-user Environment
                 // check whether there's an local instance running already
-                _applicationMutex = ResourceMutex.Create(ApplicationMutexId, "Greenshot", false);
+                _applicationMutex = ResourceMutex.Create("F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08", "Greenshot", false);
 
                 var isAlreadyRunning = !_applicationMutex.IsLocked;
 
@@ -275,22 +270,6 @@ namespace Greenshot.Shell
             catch (Exception ex)
             {
                 Log.Debug("Couldn't start the multi-core JIT profile", ex);
-            }
-        }
-
-        /// <summary>
-        /// Take the single instance mutex again after FreeMutex, on the thread which released it
-        /// </summary>
-        internal static void AcquireMutex()
-        {
-            if (_applicationMutex != null)
-            {
-                return;
-            }
-            _applicationMutex = ResourceMutex.Create(ApplicationMutexId, "Greenshot", false);
-            if (!_applicationMutex.IsLocked)
-            {
-                Log.Warn("Another Greenshot started while the mutex was released.");
             }
         }
 

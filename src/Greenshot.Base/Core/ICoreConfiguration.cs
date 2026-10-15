@@ -67,9 +67,6 @@ namespace Greenshot.Base.Core
         [DefaultValue(true)]
         bool IsFirstLaunch { get; set; }
 
-        [Description("Folders of older Greenshot installations for this user only, which the user wants to keep: Greenshot doesn't offer to remove them again")]
-        List<string> KeptOlderInstallations { get; set; }
-
         [DataMember(Name = "Destinations")]
         [Description("Which destinations? Possible options (more might be added by plugins) are: Editor, FileDefault, FileWithDialog, Clipboard, Printer, EMail, Picker")]
         [DefaultValue("Picker")]
