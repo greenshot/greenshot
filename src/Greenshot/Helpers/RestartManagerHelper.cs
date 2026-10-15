@@ -81,8 +81,9 @@ namespace Greenshot.Helpers
         /// <param name="iniDirectory">The active --ini-directory (absolute) or null, passed on so the restarted Greenshot uses the same greenshot.ini</param>
         public static void RegisterForRestart(string iniDirectory)
         {
-            // Register with the Windows Restart Manager so it can restart us after updates
-            // Don't restart if the application crashes
+            // Register with the Windows Restart Manager so it can restart us after updates (the setup, a Windows update with a reboot).
+            // Without flags Windows also restarts Greenshot after it crashed or hung and was ended, when it ran at least 60 seconds;
+            // that's wanted: Greenshot comes back and restores the editors (RestartNoCrash / RestartNoHang would switch it off).
             ApplicationRestartManager.RegisterForRestart(commandLineArgs: CreateRestartArguments(iniDirectory));
 
             // WM_QUERYENDSESSION is not answered, which allows the session to end (an update will take place).
