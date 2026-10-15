@@ -63,9 +63,8 @@ namespace Greenshot.Base.Core
         [Description("Hotkey for opening the clipboard contents into the editor")]
         string ClipboardHotkey { get; set; }
 
-        [Description("Is this the first time launch?")]
-        [DefaultValue(true)]
-        bool IsFirstLaunch { get; set; }
+        [Description("Was the welcome window shown? Greenshot shows it once, at its first start")]
+        bool WelcomeShown { get; set; }
 
         [DataMember(Name = "Destinations")]
         [Description("Which destinations? Possible options (more might be added by plugins) are: Editor, FileDefault, FileWithDialog, Clipboard, Printer, EMail, Picker")]

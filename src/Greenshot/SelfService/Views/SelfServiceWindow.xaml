@@ -20,6 +20,10 @@
         Foreground="{Binding TextPrimaryBrush}">
 
     <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 
         <!-- Modern Action Button Style -->
@@ -248,6 +252,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        </ResourceDictionary>
     </Window.Resources>
 
     <Grid>
@@ -493,6 +498,75 @@
                                              Foreground="{Binding TextPrimaryBrush}"
                                              Padding="8"/>
                                 </Border>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- Your setup: the same checks as the "Your setup" step of the welcome window (SetupSectionViewModel) -->
+                <ScrollViewer x:Name="SetupPanel"
+                              VerticalScrollBarVisibility="Auto"
+                              Padding="22,18"
+                              Visibility="Collapsed">
+                    <StackPanel>
+                        <StackPanel Margin="0,0,0,16">
+                            <TextBlock Text="{wpf:Text Welcome.SetupTitle}" FontSize="18" FontWeight="SemiBold" Foreground="{Binding TextPrimaryBrush}"/>
+                            <TextBlock Text="{wpf:Text Welcome.SetupSub}" FontSize="12" Foreground="{Binding TextSecondaryBrush}" Margin="0,3,0,0"/>
+                        </StackPanel>
+                        <Border Style="{StaticResource CardBorderStyle}">
+                            <StackPanel>
+                                <TextBlock Visibility="{Binding SetupSection.VersionPendingVisibility}" Text="{Binding SetupSection.VersionText}" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                <TextBlock Visibility="{Binding SetupSection.VersionOkVisibility}" TextWrapping="Wrap" Margin="0,0,0,8">
+                                    <Run Text="✓ " Foreground="{Binding AccentBrush}" FontWeight="Bold"/><Run Text="{Binding SetupSection.VersionText, Mode=OneWay}"/>
+                                </TextBlock>
+                                <Grid Visibility="{Binding SetupSection.VersionOldVisibility}" Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding SetupSection.VersionText}" Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                    <Button Grid.Column="1" Style="{StaticResource WarningButtonStyle}" Click="OnDownloadClicked" VerticalAlignment="Center">
+                                        <TextBlock Text="{wpf:Text Welcome.SetupVersionDownload}"/>
+                                    </Button>
+                                </Grid>
+                                <TextBlock Visibility="{Binding SetupSection.TrayIconOkVisibility}" TextWrapping="Wrap" Margin="0,0,0,8">
+                                    <Run Text="✓ " Foreground="{Binding AccentBrush}" FontWeight="Bold"/><Run Text="{wpf:Text Welcome.SetupTrayOk}"/>
+                                </TextBlock>
+                                <Grid Visibility="{Binding SetupSection.TrayIconHiddenVisibility}" Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{wpf:Text Welcome.SetupTrayHidden}" Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                    <Button Grid.Column="1" Style="{StaticResource WarningButtonStyle}" Click="OnShowTrayIconClicked" VerticalAlignment="Center">
+                                        <TextBlock Text="{wpf:Text Welcome.SetupTrayFix}"/>
+                                    </Button>
+                                </Grid>
+                                <TextBlock Visibility="{Binding SetupSection.PrintKeyOkVisibility}" TextWrapping="Wrap" Margin="0,0,0,8">
+                                    <Run Text="✓ " Foreground="{Binding AccentBrush}" FontWeight="Bold"/><Run Text="{wpf:Text Welcome.SetupPrintOk}"/>
+                                </TextBlock>
+                                <Grid Visibility="{Binding SetupSection.SnippingToolVisibility}" Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{wpf:Text Welcome.SetupSnipping}" Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                    <Button Grid.Column="1" Style="{StaticResource WarningButtonStyle}" Click="OnFixSetupSnippingToolClicked" VerticalAlignment="Center">
+                                        <TextBlock Text="{wpf:Text Welcome.SetupSnippingFix}"/>
+                                    </Button>
+                                </Grid>
+                                <Grid Visibility="{Binding SetupSection.OneDriveVisibility}" Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{wpf:Text Welcome.SetupOnedrive}" Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                    <Button Grid.Column="1" Style="{StaticResource WarningButtonStyle}" Click="OnFixSetupOneDriveClicked" VerticalAlignment="Center">
+                                        <TextBlock Text="{wpf:Text Welcome.SetupOnedriveFix}"/>
+                                    </Button>
+                                </Grid>
+                                <!-- The same switch as in the settings: only this user's own entry, see docs/autostart.md -->
+                                <CheckBox Content="{wpf:Text Settings.Autostartshortcut}" IsChecked="{Binding SetupSection.IsAutostartEnabled, Mode=TwoWay}" Margin="0,4,0,0"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>
