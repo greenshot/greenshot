@@ -147,6 +147,30 @@ namespace Greenshot.Tests.Core
         }
 
         [Fact]
+        public void StatusIcons_Write_TheErrorAndWarningIconOfWindowsAsPng()
+        {
+            var directory = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "greenshot-status-icons-" + System.Guid.NewGuid().ToString("N"));
+            try
+            {
+                foreach (var kind in new[] { Greenshot.Base.Interfaces.NotificationKind.Error, Greenshot.Base.Interfaces.NotificationKind.Warning })
+                {
+                    var path = Greenshot.Native.StatusIcons.Write(directory, kind);
+                    Assert.NotNull(path);
+                    using var image = System.Drawing.Image.FromFile(path);
+                    Assert.True(image.Width >= 48, $"{kind}: {image.Width}px");
+                }
+                Assert.Null(Greenshot.Native.StatusIcons.Write(directory, Greenshot.Base.Interfaces.NotificationKind.Info));
+            }
+            finally
+            {
+                if (System.IO.Directory.Exists(directory))
+                {
+                    System.IO.Directory.Delete(directory, true);
+                }
+            }
+        }
+
+        [Fact]
         public void ToXml_WithoutButtons_WritesNoActions()
         {
             var toast = XElement.Parse(new ToastContent("1").AddText("Saved").ToXml().GetXml());

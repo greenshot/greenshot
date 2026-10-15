@@ -34,6 +34,7 @@ using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Native.Toasts;
 using Greenshot.Base.Threading;
+using Greenshot.Native;
 using log4net;
 using Windows.Foundation.Metadata;
 using NotificationSetting = Windows.UI.Notifications.NotificationSetting;
@@ -204,10 +205,16 @@ namespace Greenshot.Plugin.Win10
 
             string toastTag = notification.CaptureId ?? Guid.NewGuid().ToString("D");
             var content = new ToastContent(toastTag);
+            // An error or a warning has the icon of Windows for it as the big image, like the balloon of the tray icon
+            var statusIcon = StatusIcons.Write(GreenshotEnvironment.LocalDataDirectory, notification.Kind);
+            if (statusIcon != null)
+            {
+                content.SetAppLogo(statusIcon);
+            }
             if (notification.Lines.Count > 0)
             {
                 content.AddText(notification.Title ?? "Greenshot");
-                if (notification.Lines.Count == 1)
+                if (notification.Lines.Count == 1 && statusIcon == null)
                 {
                     // One destination: its icon is the big image (visible also when the toast is collapsed in the notification
                     // center), the row is the text only
@@ -220,7 +227,8 @@ namespace Greenshot.Plugin.Win10
                 }
                 else
                 {
-                    // Several destinations: the big image stays Greenshot's icon, each row has the icon of its destination
+                    // Several destinations, or an error or a warning: the big image is Greenshot's icon (or that of the error), each row has
+                    // the icon of its destination
                     foreach (var line in notification.Lines)
                     {
                         content.AddRow(line.IconPath, line.Text);

@@ -56,6 +56,7 @@
     <Compile Remove="Plugins\**\*.cs" />
     <Compile Remove="Notifications\**\*.cs" />
     <Compile Remove="Native\ToastNotificationService.cs" />
+    <Compile Remove="Native\StatusIcons.cs" />
     <Page Remove="Ai\**\*.xaml" />
     <Page Remove="Plugins\**\*.xaml" />
   </ItemGroup>
@@ -90,7 +91,7 @@
     </Task>
   </UsingTask>
   <Target Name="CheckLightAssembly" AfterTargets="CoreCompile" Condition="'$(GreenshotEdition)' == 'Light'">
-    <CheckLightAssembly Assembly="@(IntermediateAssembly->'%(FullPath)')" ForbiddenNames="PluginHelper;LoadPluginsAsync;AiToolIpcHandler;AiRecipeIpcHandler;AiToolCaller;AiToolClient;AiToolAccess;AiToolCapture;AiWindowRefs;McpServerStatus;RegisterAiToolRecipes;ImportCaptureDecoder;BrowserContextTracker;ExtensionOriginPolicy;HandleImportCaptureAsync;AiToolsSettingsPage;PluginsSettingsPage;AiToolsIpcExtension;AiToolRecipes;BrowserExtensionIpcExtension;BrowserExtensionRecipes;NotificationCaptures;NotificationIcons;NotificationButtons;ToastArguments;ToastNotificationService;ToastActivator;DesktopToasts" />
+    <CheckLightAssembly Assembly="@(IntermediateAssembly->'%(FullPath)')" ForbiddenNames="PluginHelper;LoadPluginsAsync;AiToolIpcHandler;AiRecipeIpcHandler;AiToolCaller;AiToolClient;AiToolAccess;AiToolCapture;AiWindowRefs;McpServerStatus;RegisterAiToolRecipes;ImportCaptureDecoder;BrowserContextTracker;ExtensionOriginPolicy;HandleImportCaptureAsync;AiToolsSettingsPage;PluginsSettingsPage;AiToolsIpcExtension;AiToolRecipes;BrowserExtensionIpcExtension;BrowserExtensionRecipes;NotificationCaptures;NotificationIcons;NotificationButtons;ToastArguments;ToastNotificationService;ToastActivator;DesktopToasts;StatusIcons" />
   </Target>
   <PropertyGroup Condition="'$(GreenshotBaseConfiguration)' == 'Release'">
     <DebugType>none</DebugType>

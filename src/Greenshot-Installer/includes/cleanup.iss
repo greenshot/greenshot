@@ -8,6 +8,7 @@ Type: files; Name: "{app}\greenshot-proxy.exe"
 Type: files; Name: "{app}\greenshot-cli.exe"
 // Greenshot Light has no toasts: the icon and the kept captures of the toasts of the full version (see tasks-icons-reg.iss for the registration)
 Type: files; Name: "{localappdata}\Greenshot\greenshot.png"
+Type: files; Name: "{localappdata}\Greenshot\notification-*.png"
 Type: filesandordirs; Name: "{localappdata}\Greenshot\Notifications"
 #endif
 
@@ -78,8 +79,9 @@ Name: {app}; Type: dirifempty;
 [UninstallDelete]
 // greenshot-mcp.exe is a separate download, extracted next to Greenshot.exe: the uninstaller removes it too (it was closed first, see code.iss)
 Type: files; Name: "{app}\greenshot-mcp.exe"
-// The icon and the kept captures of the toasts (notifications), which Greenshot writes when it runs
+// The icons and the kept captures of the toasts (notifications), which Greenshot writes when it runs
 Type: files; Name: "{localappdata}\Greenshot\greenshot.png"
+Type: files; Name: "{localappdata}\Greenshot\notification-*.png"
 Type: filesandordirs; Name: "{localappdata}\Greenshot\Notifications"
 // The multi-core JIT profile, which Greenshot writes when it runs
 Type: files; Name: "{localappdata}\Greenshot\Startup.profile"

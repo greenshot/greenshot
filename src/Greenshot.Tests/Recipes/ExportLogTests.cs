@@ -29,7 +29,6 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Recipes.Pipeline;
-using Greenshot.Recipes.Steps;
 using Xunit;
 
 namespace Greenshot.Tests.Recipes
@@ -140,8 +139,8 @@ namespace Greenshot.Tests.Recipes
             var upload = new ExportOutcome(Destination("Imgur"), ExportResult.Succeeded(uri: new Uri("https://example.com/a")), null, null);
             var failed = new ExportOutcome(Destination("Jira"), ExportResult.Failed("offline"), null, null);
 
-            var shown = NotificationStep.GetShownExports(new[] { file, upload, failed });
-            var notification = NotificationStep.CreateNotification(shown, null, null, null, "0192a5a4-0000-7000-8000-000000000000", null);
+            var shown = ExportNotification.GetShownExports(new[] { file, upload, failed });
+            var notification = ExportNotification.CreateNotification(shown, null, null, null, "0192a5a4-0000-7000-8000-000000000000", null);
 
             Assert.Equal(3, notification.Lines.Count);
             Assert.Contains("a.png", notification.Lines[0].Text);
@@ -161,7 +160,7 @@ namespace Greenshot.Tests.Recipes
             var box = new ExportOutcome(Destination("Box"), ExportResult.Succeeded(uri: new Uri("https://box.example/a")), null, null);
             var dropbox = new ExportOutcome(Destination("Dropbox"), ExportResult.Succeeded(uri: new Uri("https://dropbox.example/b")), null, null);
 
-            var notification = NotificationStep.CreateNotification(new[] { box, dropbox }, null, null, null, null, null);
+            var notification = ExportNotification.CreateNotification(new[] { box, dropbox }, null, null, null, null, null);
 
             var copy = Assert.Single(notification.Buttons);
             Assert.Equal("copy-link", copy.Action);
@@ -180,7 +179,7 @@ namespace Greenshot.Tests.Recipes
                 new TestBarcode("https://\u0430pple.com/login?x=1"), new TestBarcode("WIFI:S:home;T:WPA;P:secret;;", "QR_CODE"), new TestBarcode("javascript:alert(1)", "CODE_128")
             };
 
-            var notification = NotificationStep.CreateNotification(new[] { clipboard }, barcodes, null, null, null, null);
+            var notification = ExportNotification.CreateNotification(new[] { clipboard }, barcodes, null, null, null, null);
 
             Assert.Equal(4, notification.Lines.Count);
             Assert.Contains("https://xn--pple-43d.com/login?x=1", notification.Lines[1].Text);
@@ -194,13 +193,26 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
+        public void CreateNotification_FailedFlow_TheExportsBeforeAndTheFailure()
+        {
+            // The flow failed after its exports, not in one of them (that would be the row of the export)
+            var file = new ExportOutcome(Destination("FileNoDialog"), ExportResult.Succeeded(filePath: @"C:\Captures\a.png", target: "a.png"), null, null);
+
+            var notification = ExportNotification.CreateNotification(new[] { file }, null, null, null, null, null, "The OCR failed");
+
+            Assert.Equal(NotificationKind.Error, notification.Kind);
+            Assert.Equal(2, notification.Lines.Count);
+            Assert.Equal("The OCR failed", notification.Lines[1].Text);
+        }
+
+        [Fact]
         public void GetBarcodes_FromTheFeaturesOfTheCapture()
         {
             var details = new CaptureDetails();
             details.Features.Add(new TestBarcode("https://example.com"));
             details.Features.Add(new TestBarcode("https://example.com"));
 
-            Assert.Equal(new[] { "https://example.com" }, NotificationStep.GetBarcodes(details).Select(b => b.RawText));
+            Assert.Equal(new[] { "https://example.com" }, ExportNotification.GetBarcodes(details).Select(b => b.RawText));
         }
 
         private sealed class TestBarcode : Greenshot.Base.Interfaces.Plugin.IBarcodeFeature

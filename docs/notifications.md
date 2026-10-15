@@ -66,7 +66,7 @@ Every export of a flow is added to its export log (`ExportLog` in `Greenshot.Bas
 the destination, the `ExportResult`, the capture details and the export source which was exported): by the `DestinationDispatcher`
 (destination steps, the destination picker, also the copies with the extensions of a destination) and by the plugin steps which
 export (Box, Confluence, Dropbox, External command, Jira, Office, PDF), with the same result as their destination. The log is in `CaptureFlowContext.Properties` from the start, so the
-contexts of the nodes and of parallel branches add to the same log. The Notification step (`NotificationStep`) shows one notification
+contexts of the nodes and of parallel branches add to the same log. The Notification step (`NotificationStep`, composed by `ExportNotification`) shows one notification
 for the exports since the previous Notification step (`ExportLog.TakeUnnotified`), so a recipe with Destination A, Destination B and a
 Notification step shows both, and two Notification steps don't show an export twice:
 
@@ -75,7 +75,14 @@ Notification step shows both, and two Notification steps don't show an export tw
   (`ExportResultHandler.GetMessage`, the same text the editor shows in its status bar). The destination of a row is the one which
   exported: with the destination picker (and the document choice of the Office destinations) the picked one
   (`ExportResult.ExportedBy`), not the picker; its icon is `DestinationDescriptor.IconKey`,
-* the kind: an error when an export failed (for the notification level),
+* the kind: an error when an export failed (for the notification level). A toast with an error or a warning has the error or
+  warning icon of Windows as its big image (`StatusIcons`, written once to `%LocalAppData%\Greenshot\notification-error.png` /
+  `notification-warning.png`), like the balloon of the tray icon, and every row the icon of its destination,
+* a failed flow: when an export fails, the destination step fails the flow (`DestinationExportException`), which then doesn't get to
+  its Notification step. `CapturePipeline` shows the notification of the exports which weren't shown (`ExportNotification.ShowAsync`,
+  the same as the Notification step, before the context and its export sources are disposed): the exports which succeeded and the
+  one which failed; when the flow failed elsewhere, its error is a row of its own. `CaptureFlowRunner` then shows no other message
+  (`ExportNotification.FailureShownProperty`), without exports it shows the error as before,
 * the icons: with one destination its icon is the big image left of the texts (`ToastContent.SetAppLogo`, `appLogoOverride`), which
   unlike the rows and the thumbnail stays visible when the toast is collapsed in the notification center, and the row is the text
   only; with several destinations the big image stays Greenshot's icon and every row has the icon of its destination in a small
