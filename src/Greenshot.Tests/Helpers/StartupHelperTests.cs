@@ -77,7 +77,7 @@ namespace Greenshot.Tests.Helpers
 
             StartupHelper.EnableAutostart(_locations, Installed);
 
-            Assert.Equal($"\"{Installed}\"", GetValue(_user, StartupHelper.RunKey));
+            Assert.Equal(StartupHelper.CreateRunValue(Installed), GetValue(_user, StartupHelper.RunKey));
             Assert.True(StartupHelper.IsAutostartEnabled(_locations, Installed));
             Assert.False(StartupHelper.IsAutostartEnabled(_locations, Portable));
         }
@@ -89,7 +89,7 @@ namespace Greenshot.Tests.Helpers
 
             StartupHelper.EnableAutostart(_locations, Installed);
 
-            Assert.Equal($"\"{Installed}\"", GetValue(_user, StartupHelper.RunKey));
+            Assert.Equal(StartupHelper.CreateRunValue(Installed), GetValue(_user, StartupHelper.RunKey));
         }
 
         [Fact]
@@ -135,7 +135,7 @@ namespace Greenshot.Tests.Helpers
 
             StartupHelper.EnableAutostart(_locations, Installed);
 
-            Assert.Equal($"\"{Installed}\"", GetValue(_user, StartupHelper.RunKey));
+            Assert.Equal(StartupHelper.CreateRunValue(Installed), GetValue(_user, StartupHelper.RunKey));
         }
 
         [Fact]

@@ -1,5 +1,8 @@
 [InstallDelete]
 // processed as the first step of installation.
+// The start with Windows is the Run value (see docs/autostart.md): a Greenshot link in a Startup folder would start it a second time at every logon
+Type: files; Name: "{userstartup}\Greenshot.lnk"; Tasks: startup
+Type: files; Name: "{commonstartup}\Greenshot.lnk"; Tasks: startup; Check: IsAdminInstallMode
 #ifdef IsLightEdition
 // Light edition strips all plugins so an installation over Full is completely clean
 Type: filesandordirs; Name: "{app}\Plugins"

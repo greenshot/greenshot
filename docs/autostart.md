@@ -3,7 +3,7 @@
 ## In short
 
 What makes Greenshot start with Windows is one registry value per user: `Greenshot` in the Run key of that user,
-`HKCU\Software\Microsoft\Windows\CurrentVersion\Run`, with the quoted path of Greenshot.exe.
+`HKCU\Software\Microsoft\Windows\CurrentVersion\Run`, with the quoted path of Greenshot.exe and `--autostart`.
 Windows reads it at every logon of that user and starts Greenshot. Nothing else starts Greenshot with Windows.
 
 Everything below is only about **who writes that value, and when**:
@@ -114,6 +114,15 @@ Notes:
 - `AutostartComponentVersion` in `tasks-icons-reg.iss` is the Active Setup version. Raise it only to set up the start with Windows for every user
   once more, also for those who switched it off since.
 - The `reg.exe` for the marker is a console program, the setup runs it hidden (`runhidden`).
+- With the task, the setup also deletes `Greenshot.lnk` in the Startup folder of the user (and of all users, for an all-users install):
+  such a link, from an old version or made by hand, would start Greenshot a second time at every logon.
+
+### Only one Greenshot at the logon
+
+The Run value is `"…\Greenshot.exe" --autostart`. When a start with `--autostart`, or with `--restore` (Windows restarting its apps after an update),
+finds a Greenshot running already, it ends silently with a line in the log, instead of showing "Greenshot is already running".
+So a second start at the logon, wherever it comes from (a link in a Startup folder, another Run value, Windows restarting its apps,
+an older copy), goes unnoticed. A start by hand still shows it.
 
 ### Installed "for me only"
 
@@ -207,7 +216,7 @@ Signature="$Windows NT$"
 AddReg=Autostart.AddReg
 
 [Autostart.AddReg]
-HKCU,"Software\Microsoft\Windows\CurrentVersion\Run","Greenshot",0x00000000,"""%01%\Greenshot.exe"""
+HKCU,"Software\Microsoft\Windows\CurrentVersion\Run","Greenshot",0x00000000,"""%01%\Greenshot.exe"" --autostart"
 ```
 
 `%01%` is the folder of the INF file, which is the folder of Greenshot.exe, so the file has no path in it and works for every install folder.

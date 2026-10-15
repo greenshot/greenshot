@@ -109,6 +109,15 @@ namespace Greenshot.Shell
                     return;
                 }
 
+                // Started by Windows (the Run value, or restarted by Windows) while Greenshot runs already: another start at the logon
+                // (a link in the Startup folder, another Run value, Windows restarting its apps) was first, nobody needs to be told
+                if (isAlreadyRunning && (options.Autostart || options.Restore))
+                {
+                    Log.Info($"Greenshot runs already, this start by Windows ({(options.Autostart ? "--autostart" : "--restore")}) ends.");
+                    FreeMutex();
+                    return;
+                }
+
                 if (isAlreadyRunning)
                 {
                     var instances = new List<RunningInstanceViewModel>();

@@ -51,6 +51,12 @@ namespace Greenshot.Helpers
         internal const string ValueName = "Greenshot";
 
         /// <summary>
+        /// The Run value: the quoted path with --autostart, so a second start at the logon ends silently (see GreenshotApplication.Start).
+        /// The same as autostart.inf of the installer writes.
+        /// </summary>
+        internal static string CreateRunValue(string executablePath) => $"\"{executablePath}\" --autostart";
+
+        /// <summary>
         /// Does this Greenshot start with Windows? An entry for another Greenshot.exe doesn't count, nor one switched off in Windows.
         /// </summary>
         public static bool IsAutostartEnabled()
@@ -127,7 +133,7 @@ namespace Greenshot.Helpers
             var user = locations.User;
             using (var runKey = user.Root.CreateSubKey(user.RunKeyPath))
             {
-                runKey.SetValue(ValueName, $"\"{executablePath}\"");
+                runKey.SetValue(ValueName, CreateRunValue(executablePath));
             }
 
             // Switched off in the Task Manager earlier: without the value Windows starts it
