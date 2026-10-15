@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Reads the .greenshot and .gst files written by Greenshot 1.2, 1.3 and 1.4 (BinaryFormatter / NRBF payloads) into a
+    GreenshotDocument, WITHOUT BinaryFormatter: System.Formats.Nrbf decodes the records, nothing is instantiated by type name.
+    Experimental, nothing in a release build uses it yet. On purpose without System.Drawing, WinForms or the editor.
+  -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <UseWPF>false</UseWPF>
+    <UseWindowsForms>false</UseWindowsForms>
+    <RuntimeIdentifiers></RuntimeIdentifiers>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Formats.Nrbf" Version="10.0.12" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Greenshot.Document\Greenshot.Document.csproj" />
+  </ItemGroup>
+</Project>

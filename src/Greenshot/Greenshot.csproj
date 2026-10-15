@@ -126,6 +126,14 @@
     <ProjectReference Include="..\Greenshot.BuildTasks\Greenshot.BuildTasks.csproj" ReferenceOutputAssembly="false" ExcludeAssets="all" UndefineProperties="GreenshotEdition" SetConfiguration="Configuration=$(GreenshotBaseConfiguration)" />
   </ItemGroup>
 
+  <!-- The document model (docs/document-model.md) is only in Debug builds until it is ready: Release builds and the installer leave it out -->
+  <ItemGroup Condition="'$(GreenshotBaseConfiguration)' == 'Debug'">
+    <ProjectReference Include="..\Greenshot.Document.Editor\Greenshot.Document.Editor.csproj" UndefineProperties="GreenshotEdition" SetConfiguration="Configuration=$(GreenshotBaseConfiguration)" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(GreenshotBaseConfiguration)' != 'Debug'">
+    <Compile Remove="DocumentModel\**\*.cs" />
+  </ItemGroup>
+
   <ItemGroup>
     <None Update="log4net-release.xml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
