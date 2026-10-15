@@ -183,7 +183,24 @@ namespace Greenshot.Base.Interfaces
             Text = text;
             Action = action;
             Value = value;
+            Choices = Array.Empty<NotificationChoice>();
         }
+
+        /// <summary>
+        /// A button which acts on one of several values: the notification shows a drop-down with the choices, the chosen value is
+        /// the <see cref="NotificationButtonEventArgs.Value"/> of the click
+        /// </summary>
+        public NotificationButton(string text, string action, IReadOnlyList<NotificationChoice> choices)
+        {
+            Text = text;
+            Action = action;
+            Choices = choices ?? Array.Empty<NotificationChoice>();
+        }
+
+        /// <summary>
+        /// The values to choose from, empty for a button with its <see cref="Value"/>
+        /// </summary>
+        public IReadOnlyList<NotificationChoice> Choices { get; }
 
         /// <summary>
         /// The text of the button
@@ -196,7 +213,29 @@ namespace Greenshot.Base.Interfaces
         public string Action { get; }
 
         /// <summary>
-        /// What it acts on, e.g. the path of a file, or null
+        /// What it acts on, e.g. the path of a file, or null (also for a button with <see cref="Choices"/>)
+        /// </summary>
+        public string Value { get; }
+    }
+
+    /// <summary>
+    /// One of the values a <see cref="NotificationButton"/> can act on, e.g. a link
+    /// </summary>
+    public sealed class NotificationChoice
+    {
+        public NotificationChoice(string text, string value)
+        {
+            Text = text;
+            Value = value;
+        }
+
+        /// <summary>
+        /// What the drop-down shows, e.g. "Box: https://…"
+        /// </summary>
+        public string Text { get; }
+
+        /// <summary>
+        /// The value, e.g. the link
         /// </summary>
         public string Value { get; }
     }

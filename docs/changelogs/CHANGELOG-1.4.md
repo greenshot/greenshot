@@ -168,7 +168,8 @@ Continuous builds are automatically created for every commit to the `main` branc
 - A toast shows a thumbnail of the capture; a click offers the capture again in the destination flyout (the built-in recipe "Capture of a notification"), also when Greenshot was closed: Windows starts Greenshot for the click
 - One toast per capture flow, from the Notification step of the recipe, with a row per destination showing its icon and what it did; the kept captures are removed when the toast is clicked or gone
 - Notifications turned off in Windows (for Greenshot, for all apps, or by a group policy) or in Greenshot show nothing; where Windows can't show toasts (portable version, older Windows) the tray icon shows balloons
-- Buttons on the toast of an export: Edit (the capture in the editor), Open (the file or the upload), Show in folder, Copy link; they also work after Greenshot was closed
+- Buttons on the toast of an export: Edit (the capture in the editor), Show in folder, Copy link (with several links a drop-down chooses which); they also work after Greenshot was closed
+- The toast lists every export of the flow, also of the Box, Dropbox, External command, Confluence, Jira, Office and PDF steps, and the barcodes (QR codes) found in the capture; a link of a barcode is shown completely and can only be copied
 - A notification level in the settings (All, Warnings and errors, Errors only, None; `NotificationLevel` in greenshot.ini), and a switch for the thumbnail of the toast (`ShowNotificationThumbnail`), offered only where toasts are used
 - Greenshot.exe of the full version is now a 64-bit exe, which Windows needs to start it for a toast click; see [notifications.md](../notifications.md)
 - Greenshot Light has no toasts (tray balloons only) and no `greenshot-cli.exe` / `greenshot-proxy.exe`, and still runs on 32-bit Windows

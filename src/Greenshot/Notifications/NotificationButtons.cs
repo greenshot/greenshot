@@ -21,7 +21,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Greenshot.Base.Core;
@@ -32,19 +31,18 @@ using log4net;
 namespace Greenshot.Notifications
 {
     /// <summary>
-    /// The buttons of the notification of an export (see DestinationDispatcher.Notify): edit the kept capture, open the saved file or
-    /// the upload, show the file in its folder, copy the link. A click can come after a restart, so a button carries what it acts on
-    /// (<see cref="NotificationButton.Value"/>); as the arguments of a toast can come from any local process, it is checked before
-    /// it is used. Not in Greenshot Light, which has no toasts.
+    /// The buttons of the notification of the exports (see the Notification step): what acts on the capture (edit the kept capture,
+    /// show the saved file in its folder) and what acts on an export (copy its link; with several links a drop-down chooses which).
+    /// Nothing opens a file or a link: that only asks Windows for the app, and a link of a QR code may be anything. A click can come
+    /// after a restart, so a button carries what it acts on (<see cref="NotificationButton.Value"/>); as the arguments of a toast can
+    /// come from any local process, it is checked before it is used. Not in Greenshot Light, which has no toasts.
     /// </summary>
     internal static class NotificationButtons
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(NotificationButtons));
 
         internal const string Edit = "edit";
-        internal const string OpenFile = "open-file";
         internal const string ShowInFolder = "show-in-folder";
-        internal const string OpenLink = "open-link";
         internal const string CopyLink = "copy-link";
 
         /// <summary>
@@ -52,8 +50,8 @@ namespace Greenshot.Notifications
         /// </summary>
         /// <param name="captureId">The kept capture, null for none</param>
         /// <param name="savedFile">The file the capture was saved to, null for none</param>
-        /// <param name="uploadUrl">The link of the upload, null for none</param>
-        public static IReadOnlyList<NotificationButton> Create(string captureId, string savedFile, string uploadUrl)
+        /// <param name="links">The links of the exports (and of the QR codes), with the text the drop-down shows</param>
+        public static IReadOnlyList<NotificationButton> Create(string captureId, string savedFile, IReadOnlyList<NotificationChoice> links)
         {
             var buttons = new List<NotificationButton>();
             if (captureId != null)
@@ -62,16 +60,16 @@ namespace Greenshot.Notifications
             }
             if (!string.IsNullOrEmpty(savedFile))
             {
-                buttons.Add(new NotificationButton(Texts.Core.NotificationButtonOpen, OpenFile, savedFile));
                 buttons.Add(new NotificationButton(Texts.Core.NotificationButtonFolder, ShowInFolder, savedFile));
             }
-            else if (IsWebLink(uploadUrl))
+            var webLinks = (links ?? Array.Empty<NotificationChoice>()).Where(l => IsWebLink(l.Value)).GroupBy(l => l.Value).Select(g => g.First()).ToList();
+            if (webLinks.Count == 1)
             {
-                buttons.Add(new NotificationButton(Texts.Core.NotificationButtonOpen, OpenLink, uploadUrl));
+                buttons.Add(new NotificationButton(Texts.Core.NotificationButtonCopylink, CopyLink, webLinks[0].Value));
             }
-            if (IsWebLink(uploadUrl))
+            else if (webLinks.Count > 1)
             {
-                buttons.Add(new NotificationButton(Texts.Core.NotificationButtonCopylink, CopyLink, uploadUrl));
+                buttons.Add(new NotificationButton(Texts.Core.NotificationButtonCopylink, CopyLink, webLinks));
             }
             return buttons;
         }
@@ -88,14 +86,8 @@ namespace Greenshot.Notifications
                     case Edit:
                         NotificationCaptures.EditCapture(args.CaptureId);
                         return;
-                    case OpenFile when File.Exists(args.Value) && !IsProgram(args.Value):
-                        Process.Start(new ProcessStartInfo(args.Value) { UseShellExecute = true });
-                        break;
                     case ShowInFolder when File.Exists(args.Value):
                         ExplorerHelper.OpenInExplorer(args.Value);
-                        break;
-                    case OpenLink when IsWebLink(args.Value):
-                        Process.Start(new ProcessStartInfo(args.Value) { UseShellExecute = true });
                         break;
                     case CopyLink when IsWebLink(args.Value):
                         ClipboardHelper.SetClipboardData(args.Value);
@@ -114,20 +106,9 @@ namespace Greenshot.Notifications
         }
 
         /// <summary>
-        /// Greenshot saves images and documents, a button never starts a program
+        /// Only http and https are links: no file:, javascript: or the protocol of an app
         /// </summary>
-        private static bool IsProgram(string path)
-        {
-            var extension = Path.GetExtension(path);
-            if (string.IsNullOrEmpty(extension))
-            {
-                return true;
-            }
-            var programs = (Environment.GetEnvironmentVariable("PATHEXT") ?? "") + ";.LNK;.SCR;.MSI;.MSP;.PS1;.URL;.PIF;.HTA;.CPL";
-            return programs.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Any(p => string.Equals(p, extension, StringComparison.OrdinalIgnoreCase));
-        }
-
-        private static bool IsWebLink(string value) =>
+        internal static bool IsWebLink(string value) =>
             Uri.TryCreate(value, UriKind.Absolute, out var uri) && (uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == Uri.UriSchemeHttp);
     }
 }

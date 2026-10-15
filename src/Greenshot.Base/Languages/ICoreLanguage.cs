@@ -476,9 +476,9 @@ namespace Greenshot.Base.Languages
         string NotificationButtonEdit { get; }
 
         /// <summary>
-        /// Open
+        /// Barcode: {0}
         /// </summary>
-        string NotificationButtonOpen { get; }
+        string NotificationBarcode { get; }
 
         /// <summary>
         /// Show in folder

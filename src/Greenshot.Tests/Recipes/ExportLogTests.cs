@@ -141,16 +141,84 @@ namespace Greenshot.Tests.Recipes
             var failed = new ExportOutcome(Destination("Jira"), ExportResult.Failed("offline"), null, null);
 
             var shown = NotificationStep.GetShownExports(new[] { file, upload, failed });
-            var notification = NotificationStep.CreateNotification(shown, null, "0192a5a4-0000-7000-8000-000000000000", null);
+            var notification = NotificationStep.CreateNotification(shown, null, null, null, "0192a5a4-0000-7000-8000-000000000000", null);
 
             Assert.Equal(3, notification.Lines.Count);
             Assert.Contains("a.png", notification.Lines[0].Text);
             Assert.Contains("offline", notification.Lines[2].Text);
             // One export failed
             Assert.Equal(NotificationKind.Error, notification.Kind);
-            // The buttons act on the file and on the link of their own export
-            Assert.Contains(notification.Buttons, b => b.Value == @"C:\Captures\a.png");
-            Assert.Contains(notification.Buttons, b => b.Value == "https://example.com/a");
+            // Edit and Show in folder act on the capture, Copy link on the one link, nothing opens anything
+            Assert.Equal(new[] { "edit", "show-in-folder", "copy-link" }, notification.Buttons.Select(b => b.Action));
+            Assert.Equal(@"C:\Captures\a.png", notification.Buttons[1].Value);
+            Assert.Equal("https://example.com/a", notification.Buttons[2].Value);
+            Assert.Empty(notification.Buttons[2].Choices);
+        }
+
+        [Fact]
+        public void CreateNotification_SeveralLinks_ADropDownChoosesWhichIsCopied()
+        {
+            var box = new ExportOutcome(Destination("Box"), ExportResult.Succeeded(uri: new Uri("https://box.example/a")), null, null);
+            var dropbox = new ExportOutcome(Destination("Dropbox"), ExportResult.Succeeded(uri: new Uri("https://dropbox.example/b")), null, null);
+
+            var notification = NotificationStep.CreateNotification(new[] { box, dropbox }, null, null, null, null, null);
+
+            var copy = Assert.Single(notification.Buttons);
+            Assert.Equal("copy-link", copy.Action);
+            Assert.Null(copy.Value);
+            Assert.Equal(new[] { "https://box.example/a", "https://dropbox.example/b" }, copy.Choices.Select(c => c.Value));
+            Assert.StartsWith("Box: ", copy.Choices[0].Text);
+        }
+
+        [Fact]
+        public void CreateNotification_Barcodes_ShowTheFullLinkWithThePunycodeHost_AndAreOnlyCopied()
+        {
+            var clipboard = new ExportOutcome(Destination("Clipboard"), ExportResult.Succeeded(), null, null);
+            // The first a is the Cyrillic а
+            var barcodes = new[] { "https://\u0430pple.com/login?x=1", "WIFI:S:home;T:WPA;P:secret;;", "javascript:alert(1)" };
+
+            var notification = NotificationStep.CreateNotification(new[] { clipboard }, barcodes, null, null, null, null);
+
+            Assert.Equal(4, notification.Lines.Count);
+            Assert.Contains("https://xn--pple-43d.com/login?x=1", notification.Lines[1].Text);
+            // Only the http(s) link can be copied, nothing else becomes a link
+            var copy = Assert.Single(notification.Buttons);
+            Assert.Equal("copy-link", copy.Action);
+            Assert.Contains("xn--pple-43d.com", copy.Value);
+        }
+
+        [Fact]
+        public void GetBarcodes_FromTheFeaturesOfTheCapture()
+        {
+            var details = new CaptureDetails();
+            details.Features.Add(new TestBarcode("https://example.com"));
+            details.Features.Add(new TestBarcode("https://example.com"));
+
+            Assert.Equal(new[] { "https://example.com" }, NotificationStep.GetBarcodes(details));
+        }
+
+        private sealed class TestBarcode : Greenshot.Base.Interfaces.Plugin.IBarcodeFeature
+        {
+            public TestBarcode(string rawText)
+            {
+                RawText = rawText;
+            }
+
+            public string RawText { get; }
+
+            public string Format => "QR_CODE";
+
+            public Dapplo.Windows.Common.Structs.NativeRect Bounds => Dapplo.Windows.Common.Structs.NativeRect.Empty;
+
+            public string FeatureType => "Barcode";
+
+            public string Text => RawText;
+
+            public string ToolTipText => RawText;
+
+            public void Offset(int x, int y)
+            {
+            }
         }
     }
 }

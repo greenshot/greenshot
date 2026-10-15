@@ -21,6 +21,8 @@
 
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using log4net;
 
@@ -40,9 +42,10 @@ namespace Greenshot.Base.Native.Toasts
         private static readonly ILog Log = LogManager.GetLogger(typeof(ToastActivator));
 
         /// <summary>
-        /// Raised with the arguments of the clicked toast or button, on a COM thread
+        /// Raised with the arguments of the clicked toast or button and the user inputs of the toast (e.g. the chosen value of a
+        /// drop-down, by the id of the input), on a COM thread
         /// </summary>
-        public static event Action<string> Activated;
+        public static event Action<string, IReadOnlyDictionary<string, string>> Activated;
 
         /// <summary>
         /// Makes this process the one Windows calls for the clicks, until it exits
@@ -55,12 +58,23 @@ namespace Greenshot.Base.Native.Toasts
         public void Activate(string appUserModelId, string invokedArgs, NotificationUserInputData[] data, uint count)
         {
             Log.DebugFormat("Toast activated with '{0}'", invokedArgs);
-            Activated?.Invoke(invokedArgs);
+            var inputs = new Dictionary<string, string>(StringComparer.Ordinal);
+            if (data != null)
+            {
+                foreach (var input in data.Take((int)Math.Min(count, (uint)data.Length)))
+                {
+                    if (input.Key != null)
+                    {
+                        inputs[input.Key] = input.Value;
+                    }
+                }
+            }
+            Activated?.Invoke(invokedArgs, inputs);
         }
     }
 
     /// <summary>
-    /// A value the user entered in the toast (Greenshot's toasts have no inputs)
+    /// A value the user entered or chose in the toast, e.g. in a drop-down (see ToastContent.AddSelection)
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct NotificationUserInputData

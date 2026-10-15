@@ -21,6 +21,7 @@
 
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using Windows.Data.Xml.Dom;
@@ -35,6 +36,7 @@ namespace Greenshot.Base.Native.Toasts
     {
         private readonly XElement _binding = new XElement("binding", new XAttribute("template", "ToastGeneric"));
         private readonly XElement _actions = new XElement("actions");
+        private readonly List<XElement> _inputs = new List<XElement>();
         private readonly string _arguments;
 
         /// <param name="arguments">The arguments of a click on the toast</param>
@@ -98,12 +100,36 @@ namespace Greenshot.Base.Native.Toasts
             return this;
         }
 
+        /// <summary>
+        /// A drop-down above the buttons (Windows shows up to 5 choices, only when the toast is expanded): the chosen value is passed
+        /// with a click of a button as the user input with the id (<see cref="ToastActivator.Activated"/>)
+        /// </summary>
+        /// <param name="id">The id of the input</param>
+        /// <param name="choices">The text and the value of each choice, the first is chosen</param>
+        public ToastContent AddSelection(string id, IEnumerable<(string Text, string Value)> choices)
+        {
+            var input = new XElement("input", new XAttribute("id", id), new XAttribute("type", "selection"));
+            string first = null;
+            foreach (var (text, value) in choices.Take(5))
+            {
+                first ??= value;
+                input.Add(new XElement("selection", new XAttribute("id", value), new XAttribute("content", text)));
+            }
+            if (first != null)
+            {
+                input.Add(new XAttribute("defaultInput", first));
+                // The inputs come before the buttons
+                _inputs.Add(input);
+            }
+            return this;
+        }
+
         public XmlDocument ToXml()
         {
             var toast = new XElement("toast", new XAttribute("launch", _arguments), new XElement("visual", _binding));
-            if (_actions.HasElements)
+            if (_actions.HasElements || _inputs.Count > 0)
             {
-                toast.Add(_actions);
+                toast.Add(new XElement("actions", _inputs, _actions.Elements()));
             }
             var document = new XmlDocument();
             document.LoadXml(toast.ToString(SaveOptions.DisableFormatting));

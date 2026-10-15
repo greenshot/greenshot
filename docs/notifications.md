@@ -65,7 +65,7 @@ clicks. The toast XML is built by `ToastContent` (template `ToastGeneric`, `laun
 Every export of a flow is added to its export log (`ExportLog` in `Greenshot.Base/Recipes/Pipeline`, an `ExportOutcome` per export:
 the destination, the `ExportResult`, the capture details and the export source which was exported): by the `DestinationDispatcher`
 (destination steps, the destination picker, also the copies with the extensions of a destination) and by the plugin steps which
-export to a destination (Confluence, Jira, Office, PDF). The log is in `CaptureFlowContext.Properties` from the start, so the
+export (Box, Confluence, Dropbox, External command, Jira, Office, PDF), with the same result as their destination. The log is in `CaptureFlowContext.Properties` from the start, so the
 contexts of the nodes and of parallel branches add to the same log. The Notification step (`NotificationStep`) shows one notification
 for the exports since the previous Notification step (`ExportLog.TakeUnnotified`), so a recipe with Destination A, Destination B and a
 Notification step shows both, and two Notification steps don't show an export twice:
@@ -86,21 +86,31 @@ Notification step shows both, and two Notification steps don't show an export tw
 ### Buttons
 
 Below the content a toast of an export has buttons (`Notification.Buttons`, `ToastContent.AddButton`, built by
-`NotificationButtons.Create` in `Greenshot/Notifications`, not in Light):
+`NotificationButtons.Create` in `Greenshot/Notifications`, not in Light). Some act on the capture, one on the exports:
 
 | Button | When | Does |
 | :--- | :--- | :--- |
 | Edit | a capture is kept | opens the kept capture in the editor |
-| Open | saved to a file / uploaded (no file) | opens the file with its app / the link in the browser |
-| Show in folder | saved to a file | opens Explorer with the file selected |
-| Copy link | uploaded | copies the link to the clipboard |
+| Show in folder | saved to a file | opens Explorer with the (last) saved file selected |
+| Copy link | an export has a link (an upload), or a barcode is a link | copies the link; with more than one link a drop-down above the buttons chooses which (`NotificationButton.Choices`, `ToastContent.AddSelection`, up to 5, e.g. "Box: https://…") |
+
+Nothing opens a file or a link: opening a file only asks Windows for the app, and a link of a barcode is someone else's content.
 
 A click on a button works like a click on the toast, also when Windows has to start Greenshot for it: the arguments of a button
-are a query string (`ToastArguments`: `button=<action>&capture=<id>&value=<file or link>`), the launch argument of the toast stays
-its tag. The service raises `ButtonActivated`, `NotificationCaptures.Initialize` subscribes `NotificationButtons.Run`. Since a
-local process can call the COM class with any arguments, `Run` checks them: a file must exist and not be a program, a link must be
-http(s), and the capture id must be a UUID. After the click the kept capture is removed, the toast is gone. The balloons of the tray
-icon show no buttons.
+are a query string (`ToastArguments`: `button=<action>&capture=<id>&value=<file or link>&input=<drop-down>`), the launch argument
+of the toast stays its tag. The chosen value of a drop-down comes with the click as user input (`ToastActivator.Activated`), the
+service puts it into the value of the button. The service raises `ButtonActivated`, `NotificationCaptures.Initialize` subscribes
+`NotificationButtons.Run`. Since a local process can call the COM class with any arguments, `Run` checks them: a file must exist, a
+link must be http(s), and the capture id must be a UUID. After the click the kept capture is removed, the toast is gone. The balloons
+of the tray icon show no buttons.
+
+### Barcodes
+
+The barcodes found in the capture (`IBarcodeFeature` in `CaptureDetails.Features`, by the barcode scanner step, the ZXing processor
+or the QR destination) get a row each, up to 3, also without an export (a recipe which scans and notifies): "Barcode: …". A barcode
+is someone else's content: a link (only http and https) is shown completely, with its host as the DNS sees it (`Uri.IdnHost`, a
+look-alike letter of another alphabet shows as `xn--…`), and can only be copied, the copied text is the shown one. Other text
+(e.g. `WIFI:…`, `javascript:…`) is shortened and is no link.
 
 A toast only shows image files, so `NotificationIcons` (`Greenshot/Notifications`, not in Light) writes the icon of each destination
 once as a png to `%LocalAppData%\Greenshot\Notifications\Icons` (named by a hash of the icon key; dynamic destinations like a

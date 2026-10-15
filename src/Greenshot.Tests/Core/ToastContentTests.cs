@@ -115,6 +115,38 @@ namespace Greenshot.Tests.Core
         }
 
         [Fact]
+        public void ToXml_WithSelection_WritesTheInputBeforeTheButtons()
+        {
+            var toast = XElement.Parse(new ToastContent("1")
+                .AddText("Saved")
+                .AddButton("Edit", "button=edit")
+                .AddSelection("choice1", new[] { ("Box: https://box.example/a", "https://box.example/a"), ("Dropbox: https://dropbox.example/b", "https://dropbox.example/b") })
+                .AddButton("Copy link", "button=copy-link&input=choice1")
+                .ToXml()
+                .GetXml());
+
+            var actions = toast.Element("actions");
+            Assert.NotNull(actions);
+            Assert.Equal(new[] { "input", "action", "action" }, actions.Elements().Select(e => e.Name.LocalName));
+            var input = actions.Element("input");
+            Assert.Equal("choice1", (string)input?.Attribute("id"));
+            Assert.Equal("selection", (string)input?.Attribute("type"));
+            Assert.Equal("https://box.example/a", (string)input?.Attribute("defaultInput"));
+            Assert.Equal(new[] { "https://box.example/a", "https://dropbox.example/b" }, input.Elements("selection").Select(s => (string)s.Attribute("id")));
+        }
+
+        [Fact]
+        public void ToastArguments_ButtonWithInput_RoundTripsTheInputId()
+        {
+            var arguments = Greenshot.Plugin.Win10.ToastArguments.FormatButton("copy-link", null, null, "choice1");
+
+            Assert.True(Greenshot.Plugin.Win10.ToastArguments.TryParseButton(arguments, out var action, out var value, out _, out var inputId));
+            Assert.Equal("copy-link", action);
+            Assert.Null(value);
+            Assert.Equal("choice1", inputId);
+        }
+
+        [Fact]
         public void ToXml_WithoutButtons_WritesNoActions()
         {
             var toast = XElement.Parse(new ToastContent("1").AddText("Saved").ToXml().GetXml());

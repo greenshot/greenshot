@@ -235,10 +235,18 @@ namespace Greenshot.Plugin.Win10
             {
                 content.AddImage(notification.ImagePath);
             }
-            // Windows shows up to 5 buttons
+            // Windows shows up to 5 buttons; a button with choices gets a drop-down, whose chosen value comes with the click
+            int index = 0;
             foreach (var button in notification.Buttons.Take(5))
             {
-                content.AddButton(button.Text, ToastArguments.FormatButton(button.Action, button.Value, notification.CaptureId));
+                string inputId = null;
+                if (button.Choices.Count > 0)
+                {
+                    inputId = "choice" + index;
+                    content.AddSelection(inputId, button.Choices.Select(c => (c.Text, c.Value)));
+                }
+                content.AddButton(button.Text, ToastArguments.FormatButton(button.Action, button.Value, notification.CaptureId, inputId));
+                index++;
             }
 
             try
@@ -267,7 +275,7 @@ namespace Greenshot.Plugin.Win10
         /// A click on a toast, with its tag, called by Windows on a COM thread (see <see cref="ToastActivator.Activated"/>). Handled on
         /// the UI thread: when Windows started Greenshot for the click, that is after the startup, which subscribes to <see cref="CaptureActivated"/>.
         /// </summary>
-        internal void HandleClick(string arguments)
+        internal void HandleClick(string arguments, IReadOnlyDictionary<string, string> inputs)
         {
             if (arguments == null)
             {
@@ -275,8 +283,13 @@ namespace Greenshot.Plugin.Win10
             }
             UiDispatcher.Current.InvokeAsync(() =>
             {
-                if (ToastArguments.TryParseButton(arguments, out var action, out var value, out var captureId))
+                if (ToastArguments.TryParseButton(arguments, out var action, out var value, out var captureId, out var inputId))
                 {
+                    // A button with a drop-down acts on the chosen value
+                    if (inputId != null && inputs != null && inputs.TryGetValue(inputId, out var chosen))
+                    {
+                        value = chosen;
+                    }
                     ButtonActivated?.Invoke(this, new NotificationButtonEventArgs(action, value, captureId));
                     return Task.FromResult(true);
                 }
@@ -318,13 +331,21 @@ namespace Greenshot.Plugin.Win10
     {
         private const string ButtonPrefix = "button=";
 
-        public static string FormatButton(string action, string value, string captureId) =>
-            $"{ButtonPrefix}{Uri.EscapeDataString(action)}&capture={Uri.EscapeDataString(captureId ?? "")}&value={Uri.EscapeDataString(value ?? "")}";
+        /// <param name="action">What the button does</param>
+        /// <param name="value">What it acts on, or null</param>
+        /// <param name="captureId">The kept capture of the toast, or null</param>
+        /// <param name="inputId">The drop-down whose chosen value the button acts on, or null</param>
+        public static string FormatButton(string action, string value, string captureId, string inputId = null) =>
+            $"{ButtonPrefix}{Uri.EscapeDataString(action)}&capture={Uri.EscapeDataString(captureId ?? "")}&value={Uri.EscapeDataString(value ?? "")}&input={Uri.EscapeDataString(inputId ?? "")}";
 
         /// <returns>false for the arguments of a click on the toast itself</returns>
-        public static bool TryParseButton(string arguments, out string action, out string value, out string captureId)
+        public static bool TryParseButton(string arguments, out string action, out string value, out string captureId) =>
+            TryParseButton(arguments, out action, out value, out captureId, out _);
+
+        /// <returns>false for the arguments of a click on the toast itself</returns>
+        public static bool TryParseButton(string arguments, out string action, out string value, out string captureId, out string inputId)
         {
-            action = value = captureId = null;
+            action = value = captureId = inputId = null;
             if (arguments == null || !arguments.StartsWith(ButtonPrefix, StringComparison.Ordinal))
             {
                 return false;
@@ -344,6 +365,9 @@ namespace Greenshot.Plugin.Win10
                         break;
                     case "value":
                         value = text.Length == 0 ? null : text;
+                        break;
+                    case "input":
+                        inputId = text.Length == 0 ? null : text;
                         break;
                 }
             }
