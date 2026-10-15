@@ -62,8 +62,6 @@ namespace Greenshot.Plugin.RecipeEditor.Converters
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#1f6feb")); // Boundary blue
                 case "UserPrompt":
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#1a7f37")); // Forest Green
-                case "Imgur":
-                    return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2da44e")); // Imgur Green
                 case "Jira":
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#0052cc")); // Jira Blue
                 case "Confluence":
@@ -122,7 +120,6 @@ namespace Greenshot.Plugin.RecipeEditor.Converters
                 case "In": return "▶";
                 case "Out": return "⏏";
                 case "UserPrompt": return "❓";
-                case "Imgur": return "🖼️";
                 case "Jira": return "🎯";
                 case "Confluence": return "📄";
                 case "Office": return "📊";

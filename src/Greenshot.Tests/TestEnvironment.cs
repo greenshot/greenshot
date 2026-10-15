@@ -75,7 +75,6 @@ namespace Greenshot.Tests
                 Texts.Register<Greenshot.Plugin.Confluence.IConfluenceLanguage>(new Greenshot.Plugin.Confluence.ConfluenceLanguageImpl());
                 Texts.Register<Greenshot.Plugin.Dropbox.IDropboxLanguage>(new Greenshot.Plugin.Dropbox.DropboxLanguageImpl());
                 Texts.Register<Greenshot.Plugin.ExternalCommand.IExternalCommandLanguage>(new Greenshot.Plugin.ExternalCommand.ExternalCommandLanguageImpl());
-                Texts.Register<Greenshot.Plugin.Imgur.IImgurLanguage>(new Greenshot.Plugin.Imgur.ImgurLanguageImpl());
                 Texts.Register<Greenshot.Plugin.Jira.IJiraLanguage>(new Greenshot.Plugin.Jira.JiraLanguageImpl());
                 Texts.Register<Greenshot.Plugin.Office.IOfficeLanguage>(new Greenshot.Plugin.Office.OfficeLanguageImpl());
                 Texts.Register<Greenshot.Plugin.Pdf.IPdfLanguage>(new Greenshot.Plugin.Pdf.PdfLanguageImpl());

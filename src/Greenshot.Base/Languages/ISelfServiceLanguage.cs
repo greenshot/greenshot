@@ -102,6 +102,16 @@ namespace Greenshot.Base.Languages
         string CategoryHotkeysSub { get; }
 
         /// <summary>
+        /// Delete old Imgur uploads
+        /// </summary>
+        string CategoryImgur { get; }
+
+        /// <summary>
+        /// Greenshot still has the delete keys of your earlier anonymous uploads
+        /// </summary>
+        string CategoryImgurSub { get; }
+
+        /// <summary>
         /// System &amp; Hardware
         /// </summary>
         string CategorySystem { get; }
@@ -880,6 +890,61 @@ namespace Greenshot.Base.Languages
         /// Updated at {0}
         /// </summary>
         string HotkeysUpdatedAt { get; }
+
+        /// <summary>
+        /// Uploaded
+        /// </summary>
+        string ImgurColumnDate { get; }
+
+        /// <summary>
+        /// Image
+        /// </summary>
+        string ImgurColumnImage { get; }
+
+        /// <summary>
+        /// Delete from Imgur
+        /// </summary>
+        string ImgurDelete { get; }
+
+        /// <summary>
+        /// Delete {0} image(s) from Imgur? This can't be undone.
+        /// </summary>
+        string ImgurDeleteQuestion { get; }
+
+        /// <summary>
+        /// Save delete links
+        /// </summary>
+        string ImgurExport { get; }
+
+        /// <summary>
+        /// Delete this image
+        /// </summary>
+        string ImgurExportDelete { get; }
+
+        /// <summary>
+        /// Forget the delete keys
+        /// </summary>
+        string ImgurForget { get; }
+
+        /// <summary>
+        /// Greenshot forgets the delete keys and can no longer delete these images for you, the images stay on Imgur. Save the delete links first to keep them. Continue?
+        /// </summary>
+        string ImgurForgetQuestion { get; }
+
+        /// <summary>
+        /// Open
+        /// </summary>
+        string ImgurOpen { get; }
+
+        /// <summary>
+        /// Greenshot no longer uploads to Imgur. For the images you uploaded anonymously with an earlier Greenshot it still has the delete keys, so it can delete them for you. Only Greenshot can do that, Imgur has no other way for anonymous uploads.
+        /// </summary>
+        string ImgurSub { get; }
+
+        /// <summary>
+        /// Delete your old Imgur uploads
+        /// </summary>
+        string ImgurTitle { get; }
 
         /// <summary>
         /// Copied entire log content to clipboard ({0:N0} characters)

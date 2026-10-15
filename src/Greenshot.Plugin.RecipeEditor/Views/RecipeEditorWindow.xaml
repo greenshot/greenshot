@@ -832,9 +832,6 @@
                             <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="ExternalCommand">
                                 <TextBlock Text="⚡ External Command"/>
                             </Button>
-                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Imgur">
-                                <TextBlock Text="🖼️ Imgur Upload"/>
-                            </Button>
                             <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Jira">
                                 <TextBlock Text="🎯 Atlassian Jira"/>
                             </Button>
@@ -2872,7 +2869,7 @@
                                             <TextBox Text="{Binding SelectedNode.CustomDestinationId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
                                                      Padding="6,4" Margin="0,0,0,8"/>
-                                            <TextBlock Text="Enter the designation of a destination (e.g. Imgur, Jira, Box, Dropbox, Word, ZxingQrDestination, or External &lt;command name&gt;)."
+                                            <TextBlock Text="Enter the designation of a destination (e.g. Jira, Box, Dropbox, Word, ZxingQrDestination, or External &lt;command name&gt;)."
                                                        FontSize="10" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
                                         </StackPanel>
 
@@ -2914,7 +2911,7 @@
                                             <TextBox Text="{Binding SelectedNode.CustomDestinationsText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
                                                      Padding="6,4" Margin="0,0,0,4"/>
-                                            <TextBlock Text="Example: Imgur, Jira, Confluence, Dropbox, ExternalCommand" FontSize="10" Foreground="{Binding TextSecondaryBrush}"/>
+                                            <TextBlock Text="Example: Jira, Confluence, Dropbox, ExternalCommand" FontSize="10" Foreground="{Binding TextSecondaryBrush}"/>
                                         </StackPanel>
 
                                         <!-- 18b. WPF Dynamic Destination Step Inspector -->
@@ -3012,22 +3009,6 @@
                                             <TextBox Text="{Binding SelectedNode.ExternalCommandSetExitCodeVariable, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
                                                      Padding="6,4" Margin="0,0,0,8"/>
-                                        </StackPanel>
-
-                                        <!-- 20. Imgur Inspector -->
-                                        <StackPanel Visibility="{Binding SelectedNode.IsImgur, Converter={StaticResource BoolToVis}}">
-                                            <TextBlock Text="Upload Image Format" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                            <ComboBox ItemsSource="{Binding DataContext.OutputFormatOptions, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
-                                                      DisplayMemberPath="DisplayNameWithPreferredExtension" SelectedValuePath="Id"
-                                                      SelectedValue="{Binding SelectedNode.ImgurFormat, Mode=TwoWay}"
-                                                      Margin="0,0,0,6">
-                                            </ComboBox>
-
-                                            <Border Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="8" Margin="0,0,0,6">
-                                                <StackPanel>
-                                                    <CheckBox Content="Copy upload link to clipboard" IsChecked="{Binding SelectedNode.ImgurCopyLinkToClipboard, Mode=TwoWay}" Foreground="{Binding TextPrimaryBrush}" Margin="0,2"/>
-                                                </StackPanel>
-                                            </Border>
                                         </StackPanel>
 
                                         <!-- 21. Jira Inspector -->

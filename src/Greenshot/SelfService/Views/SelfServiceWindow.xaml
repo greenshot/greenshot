@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
         xmlns:local="clr-namespace:Greenshot.SelfService.ViewModels"
+        xmlns:views="clr-namespace:Greenshot.SelfService.Views"
         mc:Ignorable="d"
         Title="{Binding WindowTitle}"
         Width="940"
@@ -1564,6 +1565,12 @@
                         </Border>
                     </StackPanel>
                 </ScrollViewer>
+
+                <!-- Imgur uploads, only when there are some: the same view as in the welcome wizard -->
+                <views:ImgurUploadsView x:Name="ImgurPanel"
+                                        DataContext="{Binding ImgurSection}"
+                                        Visibility="Collapsed"
+                                        Margin="22,18"/>
 
                 <!-- Section 6 (DEBUG only): Browser Extension & IPC Integration Debugger -->
                 <ScrollViewer x:Name="IntegrationDebugPanel" 
