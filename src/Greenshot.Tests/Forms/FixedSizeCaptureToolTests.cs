@@ -20,7 +20,9 @@
  */
 
 using System.Linq;
+using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Capturing.Tools;
 using Xunit;
 
@@ -65,6 +67,21 @@ public class FixedSizeCaptureToolTests
         // Too far away
         var free = new NativeRect(120, 120, 50, 50);
         Assert.Equal(free, FixedSizeCaptureTool.Snap(free, new[] { window }, 8));
+    }
+
+    [Theory]
+    [InlineData(FixedCaptureAnchor.TopLeft, 100, 200)]
+    [InlineData(FixedCaptureAnchor.TopRight, 41, 200)]
+    [InlineData(FixedCaptureAnchor.BottomRight, 41, 161)]
+    [InlineData(FixedCaptureAnchor.BottomLeft, 100, 161)]
+    [InlineData(FixedCaptureAnchor.Center, 70, 180)]
+    public void Place_TheCursorPixelIsTheCornerPixelOfTheArea(FixedCaptureAnchor anchor, int left, int top)
+    {
+        var rect = FixedSizeCaptureTool.Place(new NativePoint(100, 200), new NativeSize(60, 40), anchor);
+
+        Assert.Equal(new NativeRect(left, top, 60, 40), rect);
+        // The cursor is on the area
+        Assert.True(rect.Contains(new NativePoint(100, 200)));
     }
 
     [Fact]

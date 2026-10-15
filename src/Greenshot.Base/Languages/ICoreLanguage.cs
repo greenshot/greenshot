@@ -300,14 +300,39 @@ namespace Greenshot.Base.Languages
         string CaptureKeyFixedSizePick { get; }
 
         /// <summary>
-        /// The size above in the list
+        /// The previous or next size in the list
         /// </summary>
-        string CaptureKeyFixedSizePrevious { get; }
+        string CaptureKeyFixedSizeStep { get; }
 
         /// <summary>
-        /// The size below in the list
+        /// Hold the area at another corner or in the middle
         /// </summary>
-        string CaptureKeyFixedSizeNext { get; }
+        string CaptureKeyFixedSizeCorner { get; }
+
+        /// <summary>
+        /// Cursor at the top left corner
+        /// </summary>
+        string CaptureFixedSizesAnchorTopLeft { get; }
+
+        /// <summary>
+        /// Cursor at the top right corner
+        /// </summary>
+        string CaptureFixedSizesAnchorTopRight { get; }
+
+        /// <summary>
+        /// Cursor at the bottom right corner
+        /// </summary>
+        string CaptureFixedSizesAnchorBottomRight { get; }
+
+        /// <summary>
+        /// Cursor at the bottom left corner
+        /// </summary>
+        string CaptureFixedSizesAnchorBottomLeft { get; }
+
+        /// <summary>
+        /// Cursor in the middle
+        /// </summary>
+        string CaptureFixedSizesAnchorCenter { get; }
 
         /// <summary>
         /// Sizes

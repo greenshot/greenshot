@@ -393,6 +393,10 @@ namespace Greenshot.Base.Core
         [Description("The size of the last fixed size capture, the fixed size capture starts with it")]
         NativeSize FixedCaptureSize { get; set; }
 
+        [Description("Where the cursor holds the area of the fixed size capture: TopLeft, TopRight, BottomRight, BottomLeft or Center, C changes it")]
+        [DefaultValue("TopLeft")]
+        FixedCaptureAnchor FixedCaptureAnchor { get; set; }
+
         [DataMember(Name = "BaseIconSize")]
         [Description("Defines the base size of the icons (e.g. for the buttons in the editor), default value 16,16 and it's scaled to the current DPI")]
         [DefaultValue("16,16")]

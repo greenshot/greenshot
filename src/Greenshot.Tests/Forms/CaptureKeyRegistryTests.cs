@@ -175,6 +175,19 @@ public class CaptureKeyRegistryTests
     }
 
     [Fact]
+    public void HelpRows_TheKeyWhichSwitchesToTheActiveTool_IsNotShown()
+    {
+        var registry = new CaptureKeyRegistry();
+        var fixedSize = new FakeTool();
+        var region = new FakeTool();
+        registry.Register(Always(fixedSize, Key.F, "Fixed size"));
+        registry.Register(Always(Window, Key.Escape, "Cancel"));
+
+        Assert.Equal(new[] { "Cancel" }, HelpOverlay.GetRows(registry.Bindings, fixedSize).Select(row => row.Description));
+        Assert.Equal(new[] { "Fixed size", "Cancel" }, HelpOverlay.GetRows(registry.Bindings, region).Select(row => row.Description));
+    }
+
+    [Fact]
     public void HelpRows_ManyKeysWithTheSameDescription_ShowAsARange()
     {
         var registry = new CaptureKeyRegistry();

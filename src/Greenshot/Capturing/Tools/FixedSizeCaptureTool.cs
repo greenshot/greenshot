@@ -24,12 +24,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 using Dapplo.Ini;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Desktop;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces.Capture;
 using Greenshot.Base.Languages;
 using CaptureMode = Greenshot.Base.Interfaces.CaptureMode;
@@ -37,7 +39,8 @@ using CaptureMode = Greenshot.Base.Interfaces.CaptureMode;
 namespace Greenshot.Capturing.Tools
 {
     /// <summary>
-    /// A rectangle of a chosen size follows the mouse, a click or Enter captures it. Its edges snap to the edges of the windows under the cursor
+    /// A rectangle of a chosen size follows the mouse, a click or Enter captures it. The cursor holds it at a corner (or in the middle,
+    /// C changes it, FixedCaptureAnchor), so the zoomer shows that corner. Its edges snap to the edges of the windows under the cursor
     /// and of the monitor, with Alt held it is placed freely. The sizes are those of the settings (FixedCaptureSizes), followed by the sizes
     /// of the last region captures (RecentCaptureSizes); a panel lists them, 1-9 pick one, PageUp and PageDown go up and down the list.
     /// </summary>
@@ -70,8 +73,9 @@ namespace Greenshot.Capturing.Tools
                 int index = i;
                 host.RegisterToolKey(this, Key.D1 + i, ModifierKeys.None, () => Texts.Core.CaptureKeyFixedSizePick, () => PickSize(index));
             }
-            host.RegisterToolKey(this, Key.PageUp, ModifierKeys.None, () => Texts.Core.CaptureKeyFixedSizePrevious, () => StepSize(-1));
-            host.RegisterToolKey(this, Key.PageDown, ModifierKeys.None, () => Texts.Core.CaptureKeyFixedSizeNext, () => StepSize(1));
+            host.RegisterToolKey(this, Key.PageUp, ModifierKeys.None, () => Texts.Core.CaptureKeyFixedSizeStep, () => StepSize(-1));
+            host.RegisterToolKey(this, Key.PageDown, ModifierKeys.None, () => Texts.Core.CaptureKeyFixedSizeStep, () => StepSize(1));
+            host.RegisterToolKey(this, Key.C, ModifierKeys.None, () => Texts.Core.CaptureKeyFixedSizeCorner, NextAnchor);
         }
 
         public override void Activate(ICaptureToolHost host)
@@ -105,10 +109,7 @@ namespace Greenshot.Capturing.Tools
             {
                 return;
             }
-            var size = _sizes[_index].Size;
-            var cursor = Host.CursorPosition;
-            // The cursor holds the middle of the area
-            var rect = new NativeRect(cursor.X - size.Width / 2, cursor.Y - size.Height / 2, size.Width, size.Height);
+            var rect = Place(Host.CursorPosition, _sizes[_index].Size, Conf.FixedCaptureAnchor);
             if ((Keyboard.Modifiers & ModifierKeys.Alt) == 0)
             {
                 rect = Snap(rect, GetSnapBounds(), (int)Math.Round(Host.ToolStyle?.Scale(SnapDistance) ?? SnapDistance));
@@ -154,6 +155,38 @@ namespace Greenshot.Capturing.Tools
             {
                 PickSize((_index + change + _sizes.Count) % _sizes.Count);
             }
+        }
+
+        /// <summary>
+        /// C: the cursor holds the area at the next corner, after the corners in the middle
+        /// </summary>
+        private void NextAnchor()
+        {
+            int count = Enum.GetValues(typeof(FixedCaptureAnchor)).Length;
+            Conf.FixedCaptureAnchor = (FixedCaptureAnchor)(((int)Conf.FixedCaptureAnchor + 1) % count);
+            ShowSizes();
+            OnMouseMove();
+        }
+
+        /// <summary>
+        /// The area of the size with the cursor at the anchor: at a corner the cursor's pixel is the corner pixel of the area,
+        /// so the zoomer shows exactly where the area starts or ends
+        /// </summary>
+        public static NativeRect Place(NativePoint cursor, NativeSize size, FixedCaptureAnchor anchor)
+        {
+            int left = anchor switch
+            {
+                FixedCaptureAnchor.TopRight or FixedCaptureAnchor.BottomRight => cursor.X - size.Width + 1,
+                FixedCaptureAnchor.Center => cursor.X - size.Width / 2,
+                _ => cursor.X
+            };
+            int top = anchor switch
+            {
+                FixedCaptureAnchor.BottomLeft or FixedCaptureAnchor.BottomRight => cursor.Y - size.Height + 1,
+                FixedCaptureAnchor.Center => cursor.Y - size.Height / 2,
+                _ => cursor.Y
+            };
+            return new NativeRect(left, top, size.Width, size.Height);
         }
 
         /// <summary>
@@ -284,6 +317,12 @@ namespace Greenshot.Capturing.Tools
             var title = style.CreateText(Texts.Core.CaptureFixedSizesTitle, 10, bold: true);
             var recentTitle = style.CreateText(Texts.Core.CaptureFixedSizesRecent, 9, style.MutedForeground);
             var hint = style.CreateText(Texts.Core.CaptureFixedSizesNoSnap, 9, style.MutedForeground);
+            var anchor = Conf.FixedCaptureAnchor;
+            var anchorText = style.CreateText(GetAnchorText(anchor), 9);
+            var anchorKeyCapSize = style.MeasureKeyCap("C");
+            double iconWidth = style.Scale(20), iconHeight = style.Scale(14);
+            double anchorWidth = anchorKeyCapSize.Width + gap + iconWidth + gap + anchorText.Width;
+            double anchorHeight = Math.Max(anchorKeyCapSize.Height, Math.Max(iconHeight, anchorText.Height));
             var keyCapSize = style.MeasureKeyCap("9");
             double rowHeight = keyCapSize.Height + style.Scale(4);
             var texts = _sizes.Select((entry, index) => index == _index
@@ -291,8 +330,8 @@ namespace Greenshot.Capturing.Tools
                 : style.CreateText($"{entry.Size.Width} × {entry.Size.Height}", 9)).ToList();
             bool hasRecent = _sizes.Any(entry => entry.Recent);
 
-            double width = new[] { title.Width, hint.Width, hasRecent ? recentTitle.Width : 0, keyCapSize.Width + gap + texts.Select(text => text.Width).DefaultIfEmpty(0).Max() }.Max();
-            double height = title.Height + gap + _sizes.Count * rowHeight + (hasRecent ? recentTitle.Height + gap / 2 : 0) + gap + hint.Height;
+            double width = new[] { title.Width, hint.Width, anchorWidth, hasRecent ? recentTitle.Width : 0, keyCapSize.Width + gap + texts.Select(text => text.Width).DefaultIfEmpty(0).Max() }.Max();
+            double height = title.Height + gap + _sizes.Count * rowHeight + (hasRecent ? recentTitle.Height + gap / 2 : 0) + gap + anchorHeight + gap + hint.Height;
 
             Host.ShowPanel(this, new Size(width, height), dc =>
             {
@@ -312,8 +351,28 @@ namespace Greenshot.Capturing.Tools
                     dc.DrawText(texts[i], new Point(keyCapSize.Width + gap, y + (rowHeight - texts[i].Height) / 2));
                     y += rowHeight;
                 }
+                // C and where the cursor holds the area: a small rectangle with a dot there
+                y += gap;
+                style.DrawKeyCap(dc, "C", new Point(0, y + (anchorHeight - anchorKeyCapSize.Height) / 2));
+                var icon = new Rect(anchorKeyCapSize.Width + gap, y + (anchorHeight - iconHeight) / 2, iconWidth, iconHeight);
+                dc.DrawRectangle(null, new Pen(style.MutedForeground, style.Scale(1)), icon);
+                var dot = new Point(
+                    anchor is FixedCaptureAnchor.TopLeft or FixedCaptureAnchor.BottomLeft ? icon.Left : anchor == FixedCaptureAnchor.Center ? icon.Left + icon.Width / 2 : icon.Right,
+                    anchor is FixedCaptureAnchor.TopLeft or FixedCaptureAnchor.TopRight ? icon.Top : anchor == FixedCaptureAnchor.Center ? icon.Top + icon.Height / 2 : icon.Bottom);
+                dc.DrawEllipse(style.Accent, null, dot, style.Scale(3), style.Scale(3));
+                dc.DrawText(anchorText, new Point(icon.Right + gap, y + (anchorHeight - anchorText.Height) / 2));
+                y += anchorHeight;
                 dc.DrawText(hint, new Point(0, y + gap));
             });
         }
+
+        private static string GetAnchorText(FixedCaptureAnchor anchor) => anchor switch
+        {
+            FixedCaptureAnchor.TopRight => Texts.Core.CaptureFixedSizesAnchorTopRight,
+            FixedCaptureAnchor.BottomRight => Texts.Core.CaptureFixedSizesAnchorBottomRight,
+            FixedCaptureAnchor.BottomLeft => Texts.Core.CaptureFixedSizesAnchorBottomLeft,
+            FixedCaptureAnchor.Center => Texts.Core.CaptureFixedSizesAnchorCenter,
+            _ => Texts.Core.CaptureFixedSizesAnchorTopLeft
+        };
     }
 }

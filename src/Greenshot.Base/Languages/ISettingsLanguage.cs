@@ -753,9 +753,24 @@ namespace Greenshot.Base.Languages
         string FixedCaptureSizes { get; }
 
         /// <summary>
-        /// The sizes F offers in the region selection, width x height separated by commas, e.g. 1280x720, 32x32. The sizes of the last region captures are offered below them.
+        /// The sizes F offers in the region selection, in this order: 1 picks the first. The sizes of the last region captures are offered below them.
         /// </summary>
         string TooltipFixedCaptureSizes { get; }
+
+        /// <summary>
+        /// Add a size
+        /// </summary>
+        string FixedCaptureSizesAdd { get; }
+
+        /// <summary>
+        /// Width
+        /// </summary>
+        string FixedCaptureSizesWidth { get; }
+
+        /// <summary>
+        /// Height
+        /// </summary>
+        string FixedCaptureSizesHeight { get; }
 
         /// <summary>
         /// Window capture
