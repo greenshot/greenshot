@@ -112,7 +112,7 @@ namespace Greenshot.Base.Languages
         string SetupOnedriveFix { get; }
 
         /// <summary>
-        /// The Print key starts Greenshot.
+        /// The Print key starts a capture with Greenshot.
         /// </summary>
         string SetupPrintOk { get; }
 
