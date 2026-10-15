@@ -136,18 +136,24 @@ namespace Greenshot.Recipes.Steps
         /// <summary>
         /// The texts of the barcodes (e.g. QR codes) found in the capture, by any step or processor (see <see cref="IBarcodeFeature"/>)
         /// </summary>
-        internal static IReadOnlyList<string> GetBarcodes(ICaptureDetails captureDetails)
+        internal static IReadOnlyList<IBarcodeFeature> GetBarcodes(ICaptureDetails captureDetails)
         {
             if (captureDetails?.Features == null)
             {
-                return Array.Empty<string>();
+                return Array.Empty<IBarcodeFeature>();
             }
             lock (captureDetails.Features)
             {
-                return captureDetails.Features.OfType<IBarcodeFeature>().Select(b => b.RawText).Where(t => !string.IsNullOrWhiteSpace(t))
-                    .Distinct(StringComparer.Ordinal).Take(MaxBarcodes).ToList();
+                return captureDetails.Features.OfType<IBarcodeFeature>().Where(b => !string.IsNullOrWhiteSpace(b.RawText))
+                    .GroupBy(b => b.RawText, StringComparer.Ordinal).Select(g => g.First()).Take(MaxBarcodes).ToList();
             }
         }
+
+        /// <summary>
+        /// "QR code: …" for a QR code (ZXing's format QR_CODE), else "Barcode: …"
+        /// </summary>
+        private static string FormatBarcode(IBarcodeFeature barcode, string displayText) =>
+            string.Format(string.Equals(barcode.Format, "QR_CODE", StringComparison.OrdinalIgnoreCase) ? Texts.Core.NotificationQrcode : Texts.Core.NotificationBarcode, displayText);
 
         private const int MaxBarcodes = 3;
         private const int MaxBarcodeText = 120;
@@ -178,7 +184,7 @@ namespace Greenshot.Recipes.Steps
         /// <param name="iconPaths">The icon files of the destinations by their icon key, null or empty for no icons</param>
         /// <param name="captureId">The capture kept for the notification, which a click offers in the destination picker, or null</param>
         /// <param name="thumbnailPath">The thumbnail of the capture, or null</param>
-        internal static Notification CreateNotification(IReadOnlyList<ExportOutcome> shown, IReadOnlyList<string> barcodes, ICaptureDetails captureDetails,
+        internal static Notification CreateNotification(IReadOnlyList<ExportOutcome> shown, IReadOnlyList<IBarcodeFeature> barcodes, ICaptureDetails captureDetails,
             IReadOnlyDictionary<string, string> iconPaths, string captureId, string thumbnailPath)
         {
             var lines = shown.Select(e =>
@@ -196,10 +202,10 @@ namespace Greenshot.Recipes.Steps
             var links = shown.Where(e => e.Result.IsSucceeded && e.Result.Uri != null)
                 .Select(e => new NotificationChoice($"{e.Destination.Descriptor?.DisplayName ?? e.Destination.Designation}: {e.Result.Uri.AbsoluteUri}", e.Result.Uri.AbsoluteUri))
                 .ToList();
-            foreach (var barcode in barcodes ?? Array.Empty<string>())
+            foreach (var barcode in barcodes ?? Array.Empty<IBarcodeFeature>())
             {
-                var displayText = GetBarcodeDisplayText(barcode, out var link);
-                var text = string.Format(Texts.Core.NotificationBarcode, displayText);
+                var displayText = GetBarcodeDisplayText(barcode.RawText, out var link);
+                var text = FormatBarcode(barcode, displayText);
                 lines.Add(new NotificationLine(text));
                 if (link != null)
                 {

@@ -481,6 +481,11 @@ namespace Greenshot.Base.Languages
         string NotificationBarcode { get; }
 
         /// <summary>
+        /// QR code: {0}
+        /// </summary>
+        string NotificationQrcode { get; }
+
+        /// <summary>
         /// Show in folder
         /// </summary>
         string NotificationButtonFolder { get; }

@@ -175,12 +175,18 @@ namespace Greenshot.Tests.Recipes
         {
             var clipboard = new ExportOutcome(Destination("Clipboard"), ExportResult.Succeeded(), null, null);
             // The first a is the Cyrillic а
-            var barcodes = new[] { "https://\u0430pple.com/login?x=1", "WIFI:S:home;T:WPA;P:secret;;", "javascript:alert(1)" };
+            var barcodes = new Greenshot.Base.Interfaces.Plugin.IBarcodeFeature[]
+            {
+                new TestBarcode("https://\u0430pple.com/login?x=1"), new TestBarcode("WIFI:S:home;T:WPA;P:secret;;", "QR_CODE"), new TestBarcode("javascript:alert(1)", "CODE_128")
+            };
 
             var notification = NotificationStep.CreateNotification(new[] { clipboard }, barcodes, null, null, null, null);
 
             Assert.Equal(4, notification.Lines.Count);
             Assert.Contains("https://xn--pple-43d.com/login?x=1", notification.Lines[1].Text);
+            // A QR code says so, another barcode is a barcode
+            Assert.StartsWith("QR code: ", notification.Lines[2].Text);
+            Assert.StartsWith("Barcode: ", notification.Lines[3].Text);
             // Only the http(s) link can be copied, nothing else becomes a link
             var copy = Assert.Single(notification.Buttons);
             Assert.Equal("copy-link", copy.Action);
@@ -194,19 +200,20 @@ namespace Greenshot.Tests.Recipes
             details.Features.Add(new TestBarcode("https://example.com"));
             details.Features.Add(new TestBarcode("https://example.com"));
 
-            Assert.Equal(new[] { "https://example.com" }, NotificationStep.GetBarcodes(details));
+            Assert.Equal(new[] { "https://example.com" }, NotificationStep.GetBarcodes(details).Select(b => b.RawText));
         }
 
         private sealed class TestBarcode : Greenshot.Base.Interfaces.Plugin.IBarcodeFeature
         {
-            public TestBarcode(string rawText)
+            public TestBarcode(string rawText, string format = "QR_CODE")
             {
                 RawText = rawText;
+                Format = format;
             }
 
             public string RawText { get; }
 
-            public string Format => "QR_CODE";
+            public string Format { get; }
 
             public Dapplo.Windows.Common.Structs.NativeRect Bounds => Dapplo.Windows.Common.Structs.NativeRect.Empty;
 

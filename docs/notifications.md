@@ -107,7 +107,8 @@ of the tray icon show no buttons.
 ### Barcodes
 
 The barcodes found in the capture (`IBarcodeFeature` in `CaptureDetails.Features`, by the barcode scanner step, the ZXing processor
-or the QR destination) get a row each, up to 3, also without an export (a recipe which scans and notifies): "Barcode: …". A barcode
+or the QR destination) get a row each, up to 3, also without an export (a recipe which scans and notifies): "QR code: …" for a QR
+code (`IBarcodeFeature.Format` QR_CODE), else "Barcode: …". A barcode
 is someone else's content: a link (only http and https) is shown completely, with its host as the DNS sees it (`Uri.IdnHost`, a
 look-alike letter of another alphabet shows as `xn--…`), and can only be copied, the copied text is the shown one. Other text
 (e.g. `WIFI:…`, `javascript:…`) is shortened and is no link.
