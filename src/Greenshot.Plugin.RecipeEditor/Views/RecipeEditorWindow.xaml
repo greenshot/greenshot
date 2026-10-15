@@ -33,6 +33,7 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Nodify;component/Themes/generic.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
@@ -43,62 +44,6 @@
             <conv:BoolToStatusBrushConverter x:Key="BoolToStatusBrushConv"/>
             <conv:StringToVisibilityConverter x:Key="StringToVis"/>
             <conv:StringToBrushConverter x:Key="StringToBrushConv"/>
-
-        <!-- Modern Themed CheckBox Style -->
-        <Style TargetType="{x:Type CheckBox}">
-            <Setter Property="Foreground" Value="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type CheckBox}">
-                        <Grid Background="Transparent">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Border x:Name="checkBorder" Grid.Column="0"
-                                    Width="16" Height="16"
-                                    CornerRadius="3"
-                                    Background="{Binding DataContext.CardBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
-                                    BorderBrush="{Binding DataContext.CardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}"
-                                    BorderThickness="1.5"
-                                    VerticalAlignment="Center"
-                                    HorizontalAlignment="Center"
-                                    SnapsToDevicePixels="True">
-                                <Path x:Name="checkMark"
-                                      Data="M 3,8 L 6.5,11.5 L 12.5,4.5"
-                                      Stroke="{Binding DataContext.AccentBrush, RelativeSource={RelativeSource AncestorType=Window}}"
-                                      StrokeThickness="2"
-                                      StrokeStartLineCap="Round"
-                                      StrokeEndLineCap="Round"
-                                      StrokeLineJoin="Round"
-                                      Visibility="Collapsed"
-                                      SnapsToDevicePixels="True"/>
-                            </Border>
-                            <ContentPresenter Grid.Column="1"
-                                              Margin="6,0,0,0"
-                                              VerticalAlignment="Center"
-                                              HorizontalAlignment="Left"
-                                              RecognizesAccessKey="True"/>
-                        </Grid>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="checkMark" Property="Visibility" Value="Visible"/>
-                                <Setter TargetName="checkBorder" Property="BorderBrush" Value="{Binding DataContext.AccentBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                            </Trigger>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="checkBorder" Property="BorderBrush" Value="{Binding DataContext.AccentBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.4"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
 
         <!-- Base Toolbar Button Style -->
         <Style x:Key="ToolbarBtn" TargetType="Button">
@@ -3663,4 +3608,3 @@
         </Grid>
     </Border>
 </Window>
-
