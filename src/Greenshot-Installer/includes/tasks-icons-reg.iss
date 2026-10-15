@@ -156,6 +156,13 @@ Filename: "https://getgreenshot.org/thank-you/?language={language}&version={#Ver
 [UninstallRun]
 Filename: "{dotnet40}\ngen.exe"; Parameters: "uninstall ""{app}\{#ExeName}.exe"" /nologo"; Flags: runhidden waituntilterminated; RunOnceId: "NgenUninstall"; Check: IsAdminInstallMode
 
+[Messages]
+; The choice "for all users" or "for me only" when the setup starts: Greenshot belongs in Program Files, where only administrators
+; can change its files. Installed for one user it's in the profile, where every program the user runs can change or replace them.
+en.PrivilegesRequiredOverrideText1=%1 can be installed for all users (requires administrative privileges), or for you only.%n%nInstalled for you only, %1 is in your user profile, where every program you run can change its files. Only choose this if you can't install it for all users.
+en.PrivilegesRequiredOverrideCurrentUser=Install for &me only (less secure)
+de.PrivilegesRequiredOverrideText1=%1 kann für alle Benutzer (erfordert Administrationsrechte) oder nur für Sie installiert werden.%n%nNur für Sie installiert, liegt %1 in Ihrem Benutzerprofil, wo jedes Programm, das Sie ausführen, seine Dateien ändern kann. Wählen Sie das nur, wenn Sie es nicht für alle Benutzer installieren können.
+de.PrivilegesRequiredOverrideCurrentUser=Installation nur für &Sie (weniger sicher)
 [CustomMessages]
 default=Default installation
 startup=Start {#ExeName} with Windows start

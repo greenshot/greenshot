@@ -52,6 +52,11 @@ namespace Greenshot.Shell
         private static ResourceMutex _applicationMutex;
 
         /// <summary>
+        /// The single instance mutex, the same since 1.3, also the AppMutex of the setup
+        /// </summary>
+        private const string ApplicationMutexId = "F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08";
+
+        /// <summary>
         /// Application entry-point, called from <see cref="GreenshotMain"/> after the
         /// <see cref="IniConfigRegistry"/> has been set up and command-line arguments
         /// have been parsed.
@@ -64,9 +69,16 @@ namespace Greenshot.Shell
                 // for the tray icon (also for the .zip, which leaves nothing behind)
                 AppUserModelId.SetForCurrentProcess(AppUserModelId.Greenshot);
 
+                // An older Greenshot installed for this user only goes, when this one is installed for all users.
+                // Before the mutex: its uninstaller refuses to run while a Greenshot holds it.
+                if (!options.NoRun)
+                {
+                    PerUserInstallCleanup.RemoveOldPerUserInstallation(@"Local\" + ApplicationMutexId);
+                }
+
                 // Fix for Bug 2495900, Multi-user Environment
                 // check whether there's an local instance running already
-                _applicationMutex = ResourceMutex.Create("F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08", "Greenshot", false);
+                _applicationMutex = ResourceMutex.Create(ApplicationMutexId, "Greenshot", false);
 
                 var isAlreadyRunning = !_applicationMutex.IsLocked;
 

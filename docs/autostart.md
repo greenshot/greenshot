@@ -15,6 +15,7 @@ Everything below is only about **who writes that value, and when**:
 | **Windows, Active Setup** | each user | the next logon of each user, **once** | runs the autostart command for that user, which writes the value |
 | **Windows, Run key** | each user | **every** logon | starts Greenshot.exe if the value is there |
 | **Greenshot** | the user | when the checkbox "Launch Greenshot on startup" in the settings is changed | writes or removes the value of that user. The user's own decision, no administrator rights needed |
+| **Greenshot** | the user | its first start after the setup, once | removes an older Greenshot the user installed "for me only", see [below](#an-older-greenshot-installed-for-me-only) |
 | **Uninstaller** | the administrator / the user | uninstall | removes the Active Setup registration and the value of the uninstalling user |
 
 The **autostart command** writes the value for the current user, nothing else; Greenshot isn't involved:
@@ -114,6 +115,40 @@ Notes:
 - `AutostartComponentVersion` in `tasks-icons-reg.iss` is the Active Setup version. Raise it only to set up the start with Windows for every user
   once more, also for those who switched it off since.
 - The `reg.exe` for the marker is a console program, the setup runs it hidden (`runhidden`).
+
+### Installed "for me only"
+
+The setup still offers to install Greenshot for the current user only (the dialog at the start, `/CURRENTUSER` unattended),
+for people who can't install for all users. The dialog warns about it (English and German texts in `[Messages]` of `tasks-icons-reg.iss`):
+installed for one user, Greenshot is in the profile, where every program the user runs can change or replace its files;
+in Program Files only administrators can.
+
+### An older Greenshot installed "for me only"
+
+Greenshot 1.3 installed for the current user by default (`%LOCALAPPDATA%\Programs\Greenshot`). The setup for all users doesn't see such an
+installation: Inno Setup only finds the previous installation in the registry of the install mode it runs in (HKLM for all users,
+HKCU for one user). Without help both would stay installed, and uninstalling the old one later would remove the `Greenshot` Run value,
+also when it starts the new Greenshot already.
+
+So Greenshot itself removes it (`PerUserInstallCleanup`), at its start, before the single instance check: when it runs from the folder
+of the installation for all users (`InstallLocation` in `HKLM\…\Uninstall\Greenshot_is1`) and the user still has a different one in
+`HKCU\…\Uninstall\Greenshot_is1`, it runs that uninstaller silently, as the user. When the Run value was there before and the old uninstaller removed it,
+it writes it again for this Greenshot. This happens once per user, for the one who is logged on right after the setup (the setup starts Greenshot)
+and for every other user at their next logon. The settings (`%APPDATA%\Greenshot`) stay, the uninstaller of 1.3 doesn't remove them.
+It's skipped while another Greenshot runs: the old uninstaller refuses to run then (`AppMutex`), it's tried again at the next start.
+
+```mermaid
+flowchart TD
+    A[Greenshot starts] --> B{"another Greenshot running?<br/>(mutex)"}
+    B -- yes --> Z[nothing, the usual single instance check]
+    B -- no --> C{"this Greenshot is the one installed for all users,<br/>and the user has another one in HKCU?"}
+    C -- no --> Z
+    C -- yes --> D["run its uninstaller silently, as the user"]
+    D --> E{"was there a Run value before,<br/>and is it gone now?"}
+    E -- yes --> F["write it again for this Greenshot"]
+    E -- no --> Z
+    F --> Z
+```
 
 ### Uninstall
 
