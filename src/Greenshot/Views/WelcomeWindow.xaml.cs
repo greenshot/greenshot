@@ -200,6 +200,11 @@ namespace Greenshot.Views
             Setup.Refresh();
         }
 
+        private void OnDownloadClicked(object sender, RoutedEventArgs e)
+        {
+            Setup.OpenDownloads();
+        }
+
         private void OnShowTrayIconClicked(object sender, RoutedEventArgs e)
         {
             Setup.ShowTrayIcon();

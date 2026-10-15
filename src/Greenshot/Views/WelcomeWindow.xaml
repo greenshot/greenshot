@@ -189,6 +189,18 @@
                             <StackPanel>
                                 <TextBlock Text="{wpf:Text Welcome.SetupTitle}" Style="{StaticResource CardTitleStyle}"/>
                                 <TextBlock Text="{wpf:Text Welcome.SetupSub}" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                                <TextBlock Visibility="{Binding Setup.VersionPendingVisibility}" Text="{Binding Setup.VersionText}" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                <TextBlock Visibility="{Binding Setup.VersionOkVisibility}" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8">
+                                    <Run Text="✓ " Foreground="{Binding AccentBrush}" FontWeight="Bold"/><Run Text="{Binding Setup.VersionText, Mode=OneWay}"/>
+                                </TextBlock>
+                                <Grid Visibility="{Binding Setup.VersionOldVisibility}" Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding Setup.VersionText}" Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                    <Button Grid.Column="1" Content="{wpf:Text Welcome.SetupVersionDownload}" Style="{StaticResource SecondaryButtonStyle}" Click="OnDownloadClicked" VerticalAlignment="Center"/>
+                                </Grid>
                                 <TextBlock Visibility="{Binding Setup.TrayIconOkVisibility}" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8">
                                     <Run Text="✓ " Foreground="{Binding AccentBrush}" FontWeight="Bold"/><Run Text="{wpf:Text Welcome.SetupTrayOk}"/>
                                 </TextBlock>

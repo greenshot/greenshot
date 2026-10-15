@@ -284,6 +284,11 @@ namespace Greenshot.SelfService.Views
         }
 
         // Your setup actions, the same checks as in the welcome window
+        private void OnDownloadClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.SetupSection.OpenDownloads();
+        }
+
         private void OnShowTrayIconClicked(object sender, RoutedEventArgs e)
         {
             ViewModel?.SetupSection.ShowTrayIcon();

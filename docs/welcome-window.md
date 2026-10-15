@@ -25,6 +25,9 @@ On the last step "Next" reads "Let's go!" and closes the window, Esc closes it o
    A hotkey which isn't set is left out. Below are two lines about the tray menu and where captures go.
 3. **Your setup**: every check as one line, with ✓ when it's fine, or what's wrong with a button to fix it; a fix turns its line into ✓.
    The checks are in `SetupSectionViewModel`, which is also the "Your setup" section of the Self-Service window, with the same lines:
+   - **Version**: the same update feed as the update check of Greenshot (`UpdateService`), read once when the step or section is shown.
+     It says that this is the latest version, or which newer one there is with a button to the downloads page of this edition;
+     while it checks, or when it can't (offline), it says so without a check mark.
    - **Tray icon hidden** (Windows 11): Windows keeps a key per executable and icon id in `HKCU\Control Panel\NotifyIconSettings`,
      its name is a number Windows makes up. Greenshot finds its own key by `ExecutablePath` (Greenshot.exe, a known folder written as its GUID)
      and `UID` (the id of its tray icon, 0 with Hardcodet.NotifyIcon.Wpf; the WinForms icon of 1.3 had 1, so that key is an old one).

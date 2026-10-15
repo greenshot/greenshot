@@ -152,6 +152,31 @@ namespace Greenshot.Base.Languages
         string SetupTrayOk { get; }
 
         /// <summary>
+        /// Greenshot is checking for a newer version…
+        /// </summary>
+        string SetupVersionChecking { get; }
+
+        /// <summary>
+        /// Download it
+        /// </summary>
+        string SetupVersionDownload { get; }
+
+        /// <summary>
+        /// You have the latest version of Greenshot, {0}.
+        /// </summary>
+        string SetupVersionOk { get; }
+
+        /// <summary>
+        /// Greenshot {0} is available, you have {1}.
+        /// </summary>
+        string SetupVersionOld { get; }
+
+        /// <summary>
+        /// Greenshot couldn't check for a newer version right now.
+        /// </summary>
+        string SetupVersionUnknown { get; }
+
+        /// <summary>
         /// Thank you for installing Greenshot! It's running now and waits for you in the notification area, next to the clock.
         /// </summary>
         string Thanks { get; }

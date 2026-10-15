@@ -21,8 +21,11 @@
 
 using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using System.Windows;
+using Greenshot.Base.Core;
 using Greenshot.Base.Languages;
+using Greenshot.Base.Threading;
 using Greenshot.Base.Wpf;
 using Greenshot.Helpers;
 using log4net;
@@ -31,7 +34,7 @@ using Microsoft.Win32;
 namespace Greenshot.SelfService.ViewModels
 {
     /// <summary>
-    /// What Greenshot needs to work as expected: its icon next to the clock, the Print key and the start with Windows.
+    /// What Greenshot needs to work as expected: the latest version, its icon next to the clock, the Print key and the start with Windows.
     /// The "Your setup" step of the welcome window and the section of the Self-Service window show the same checks.
     /// </summary>
     public class SetupSectionViewModel : SelfServiceSectionViewModel
@@ -40,6 +43,9 @@ namespace Greenshot.SelfService.ViewModels
         // Hardcodet.NotifyIcon.Wpf adds every icon with id 0, see Shell/TrayIcon.cs
         private const int TrayIconId = 0;
         private readonly HotkeySectionViewModel _hotkeyChecks = new();
+        private UpdateService _updateService;
+        private bool _isCheckingVersion;
+        private bool _versionCheckFailed;
 
         public override string Id => "setup";
         public override string Title => Texts.Welcome.SetupTitle;
@@ -52,6 +58,40 @@ namespace Greenshot.SelfService.ViewModels
 
         public bool IsOneDriveTakingPrintKey => _hotkeyChecks.IsOneDriveBlocking;
 
+        /// <summary>
+        /// A newer release of Greenshot than this one is available
+        /// </summary>
+        public bool IsOutdated => _updateService?.IsUpdateAvailable == true;
+
+        /// <summary>
+        /// The line about the version: checking, the latest, a newer one or couldn't check
+        /// </summary>
+        public string VersionText
+        {
+            get
+            {
+                var texts = Texts.Welcome;
+                if (_updateService == null || _isCheckingVersion)
+                {
+                    return texts.SetupVersionChecking;
+                }
+
+                if (_versionCheckFailed || _updateService.LatestReleaseVersion == null)
+                {
+                    return texts.SetupVersionUnknown;
+                }
+
+                return IsOutdated
+                    ? string.Format(texts.SetupVersionOld, _updateService.LatestReleaseVersion, _updateService.CurrentVersion)
+                    : string.Format(texts.SetupVersionOk, _updateService.CurrentVersion);
+            }
+        }
+
+        private bool IsVersionKnown => _updateService?.LatestReleaseVersion != null && !_isCheckingVersion && !_versionCheckFailed;
+
+        public Visibility VersionOkVisibility => IsVersionKnown && !IsOutdated ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility VersionOldVisibility => IsVersionKnown && IsOutdated ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility VersionPendingVisibility => IsVersionKnown ? Visibility.Collapsed : Visibility.Visible;
         public Visibility TrayIconOkVisibility => IsTrayIconHidden ? Visibility.Collapsed : Visibility.Visible;
         public Visibility TrayIconHiddenVisibility => IsTrayIconHidden ? Visibility.Visible : Visibility.Collapsed;
         public Visibility PrintKeyOkVisibility => IsSnippingToolTakingPrintKey || IsOneDriveTakingPrintKey ? Visibility.Collapsed : Visibility.Visible;
@@ -106,11 +146,15 @@ namespace Greenshot.SelfService.ViewModels
 
             _hotkeyChecks.CheckSnippingToolStatus();
             _hotkeyChecks.CheckOneDriveStatus();
+            if (_updateService == null)
+            {
+                // Once, the feed doesn't change while the window is open
+                _updateService = SimpleServiceProvider.Current.GetInstance<UpdateService>(isOptional: true) ?? new UpdateService();
+                CheckVersionAsync().FireAndLog("Check for a newer version", Log);
+            }
 
-            int issues = (IsTrayIconHidden ? 1 : 0) + (IsSnippingToolTakingPrintKey ? 1 : 0) + (IsOneDriveTakingPrintKey ? 1 : 0);
-            BadgeText = issues > 0 ? issues.ToString() : null;
-            BadgeBrush = issues > 0 ? WpfThemeHelper.WarningBackground : null;
-
+            UpdateBadge();
+            OnVersionChanged();
             OnPropertyChanged(nameof(IsTrayIconHidden));
             OnPropertyChanged(nameof(IsSnippingToolTakingPrintKey));
             OnPropertyChanged(nameof(IsOneDriveTakingPrintKey));
@@ -120,6 +164,56 @@ namespace Greenshot.SelfService.ViewModels
             OnPropertyChanged(nameof(SnippingToolVisibility));
             OnPropertyChanged(nameof(OneDriveVisibility));
             OnPropertyChanged(nameof(IsAutostartEnabled));
+        }
+
+        private async Task CheckVersionAsync()
+        {
+            _isCheckingVersion = true;
+            OnVersionChanged();
+            try
+            {
+                _versionCheckFailed = !await _updateService.CheckForUpdatesAsync(showNotification: false).ConfigureAwait(false);
+            }
+            finally
+            {
+                _isCheckingVersion = false;
+                OnVersionChanged();
+                UpdateBadge();
+            }
+        }
+
+        /// <summary>
+        /// The number of problems, next to the section in the Self-Service window
+        /// </summary>
+        private void UpdateBadge()
+        {
+            int issues = (IsOutdated ? 1 : 0) + (IsTrayIconHidden ? 1 : 0) + (IsSnippingToolTakingPrintKey ? 1 : 0) + (IsOneDriveTakingPrintKey ? 1 : 0);
+            BadgeText = issues > 0 ? issues.ToString() : null;
+            BadgeBrush = issues > 0 ? WpfThemeHelper.WarningBackground : null;
+        }
+
+        private void OnVersionChanged()
+        {
+            OnPropertyChanged(nameof(IsOutdated));
+            OnPropertyChanged(nameof(VersionText));
+            OnPropertyChanged(nameof(VersionOkVisibility));
+            OnPropertyChanged(nameof(VersionOldVisibility));
+            OnPropertyChanged(nameof(VersionPendingVisibility));
+        }
+
+        /// <summary>
+        /// Open the downloads page of this edition
+        /// </summary>
+        public void OpenDownloads()
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo((_updateService?.DownloadsUrl ?? UpdateService.DownloadsUri).AbsoluteUri) { UseShellExecute = true })?.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Couldn't open the downloads page", ex);
+            }
         }
 
         /// <summary>

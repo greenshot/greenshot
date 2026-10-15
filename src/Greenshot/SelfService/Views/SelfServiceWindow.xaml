@@ -514,6 +514,20 @@
                         </StackPanel>
                         <Border Style="{StaticResource CardBorderStyle}">
                             <StackPanel>
+                                <TextBlock Visibility="{Binding SetupSection.VersionPendingVisibility}" Text="{Binding SetupSection.VersionText}" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                <TextBlock Visibility="{Binding SetupSection.VersionOkVisibility}" TextWrapping="Wrap" Margin="0,0,0,8">
+                                    <Run Text="✓ " Foreground="{Binding AccentBrush}" FontWeight="Bold"/><Run Text="{Binding SetupSection.VersionText, Mode=OneWay}"/>
+                                </TextBlock>
+                                <Grid Visibility="{Binding SetupSection.VersionOldVisibility}" Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding SetupSection.VersionText}" Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                    <Button Grid.Column="1" Style="{StaticResource WarningButtonStyle}" Click="OnDownloadClicked" VerticalAlignment="Center">
+                                        <TextBlock Text="{wpf:Text Welcome.SetupVersionDownload}"/>
+                                    </Button>
+                                </Grid>
                                 <TextBlock Visibility="{Binding SetupSection.TrayIconOkVisibility}" TextWrapping="Wrap" Margin="0,0,0,8">
                                     <Run Text="✓ " Foreground="{Binding AccentBrush}" FontWeight="Bold"/><Run Text="{wpf:Text Welcome.SetupTrayOk}"/>
                                 </TextBlock>
