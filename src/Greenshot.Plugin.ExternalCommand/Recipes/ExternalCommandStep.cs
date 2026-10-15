@@ -31,6 +31,7 @@ using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
@@ -283,6 +284,15 @@ namespace Greenshot.Plugin.ExternalCommand.Recipes
                     context.LogStep($"Copied extracted URL '{matchedUri}' to clipboard.");
                 }
             }
+
+            // The same result as the external command destination, before a reload replaces the capture: the Notification step shows it
+            var exportSource = await context.Payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
+            var result = exitCode == 0
+                ? ExportResult.Succeeded(fullPath, Uri.TryCreate(matchedUri, UriKind.Absolute, out var uri) ? uri : null, clearsModified: false)
+                : ExportResult.Failed(string.IsNullOrEmpty(error) ? $"Exit code {exitCode}" : error);
+            var destination = new ExternalCommandDestination(commandName ?? Path.GetFileNameWithoutExtension(resolvedCommandLine));
+            await ExportResultHandler.ApplyAsync(destination, result, exportSource, cancellationToken).ConfigureAwait(false);
+            context.RecordExport(destination, result, captureDetails, exportSource);
 
             // 5. Reload modified image if requested (e.g. for in-place optimizers like OptiPNG)
             if (reloadAfterExecution && File.Exists(fullPath))

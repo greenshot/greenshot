@@ -1,3 +1,9 @@
+#ifdef IsLightEdition
+  #define FileOpener "Greenshot.exe"
+#else
+  #define FileOpener "greenshot-proxy.exe"
+#endif
+
 [Tasks]
 Name: startup; Description: {cm:startup}
 
@@ -30,7 +36,19 @@ Root: HKCU; Subkey: Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\
 ; Create the startup entries if requested to do so
 Root: HKA; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: {#ExeName}; ValueData: """{app}\{#ExeName}.exe"""; Flags: uninsdeletevalue noerror; Tasks: startup
 
-; File types. Every file is opened through greenshot-proxy.exe --file, Greenshot then runs the recipes whose OpenFile trigger
+#ifndef IsLightEdition
+; Greenshot registers its app id for toasts (notifications) when it runs, with the COM class which receives their clicks (ToastActivator)
+Root: HKCU; Subkey: Software\Classes\AppUserModelId\Greenshot; Flags: uninsdeletekey dontcreatekey noerror
+Root: HKCU; Subkey: Software\Classes\CLSID\{{DD8B2638-A274-4988-9CC7-23A6D40BACEB}; Flags: uninsdeletekey dontcreatekey noerror
+#else
+; Greenshot Light has no toasts: remove the registration of a full version installed before, and its "Open with" entry of the proxy
+Root: HKCU; Subkey: Software\Classes\AppUserModelId\Greenshot; Flags: deletekey noerror
+Root: HKCU; Subkey: Software\Classes\CLSID\{{DD8B2638-A274-4988-9CC7-23A6D40BACEB}; Flags: deletekey noerror
+Root: HKA; Subkey: Software\Classes\Applications\greenshot-proxy.exe; Flags: deletekey noerror
+#endif
+
+; File types. Every file is opened through greenshot-proxy.exe --file (Greenshot Light: Greenshot.exe --file, it has no proxy),
+; Greenshot then runs the recipes whose OpenFile trigger
 ; matches the extension (the built-in "Open file" recipe opens it in the editor).
 ; The ProgIDs must not be called "greenshot": registry keys are case-insensitive, that key is the greenshot: URL protocol.
 ; Greenshot.File: our own .greenshot format, Greenshot is its default application.
@@ -38,13 +56,13 @@ Root: HKA; Subkey: Software\Classes\.greenshot; ValueType: string; ValueName: ""
 Root: HKA; Subkey: Software\Classes\.greenshot\OpenWithProgids; ValueType: string; ValueName: "Greenshot.File"; ValueData: ""; Flags: uninsdeletevalue uninsdeletekeyifempty noerror
 Root: HKA; Subkey: Software\Classes\Greenshot.File; ValueType: string; ValueName: ""; ValueData: "Greenshot File"; Flags: uninsdeletekey noerror
 Root: HKA; Subkey: Software\Classes\Greenshot.File\DefaultIcon; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.exe"",0"; Flags: noerror
-Root: HKA; Subkey: Software\Classes\Greenshot.File\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\greenshot-proxy.exe"" --file ""%1"""; Flags: noerror
+Root: HKA; Subkey: Software\Classes\Greenshot.File\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\{#FileOpener}"" --file ""%1"""; Flags: noerror
 ; Greenshot.Image: the image formats Greenshot can open. Greenshot is only added to "Open with" of these types, it does not take
 ; over their default application; the user can choose Greenshot as default in Settings > Default apps (see Capabilities below).
 Root: HKA; Subkey: Software\Classes\Greenshot.Image; ValueType: string; ValueName: ""; ValueData: "Image (Greenshot)"; Flags: uninsdeletekey noerror
 Root: HKA; Subkey: Software\Classes\Greenshot.Image\DefaultIcon; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.exe"",0"; Flags: noerror
 Root: HKA; Subkey: Software\Classes\Greenshot.Image\shell\open; ValueType: string; ValueName: "FriendlyAppName"; ValueData: "Greenshot"; Flags: noerror
-Root: HKA; Subkey: Software\Classes\Greenshot.Image\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\greenshot-proxy.exe"" --file ""%1"""; Flags: noerror
+Root: HKA; Subkey: Software\Classes\Greenshot.Image\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\{#FileOpener}"" --file ""%1"""; Flags: noerror
 Root: HKA; Subkey: Software\Classes\.png\OpenWithProgids; ValueType: string; ValueName: "Greenshot.Image"; ValueData: ""; Flags: uninsdeletevalue uninsdeletekeyifempty noerror
 Root: HKA; Subkey: Software\Classes\.jpg\OpenWithProgids; ValueType: string; ValueName: "Greenshot.Image"; ValueData: ""; Flags: uninsdeletevalue uninsdeletekeyifempty noerror
 Root: HKA; Subkey: Software\Classes\.jpeg\OpenWithProgids; ValueType: string; ValueName: "Greenshot.Image"; ValueData: ""; Flags: uninsdeletevalue uninsdeletekeyifempty noerror
@@ -61,26 +79,26 @@ Root: HKA; Subkey: Software\Classes\.emf\OpenWithProgids; ValueType: string; Val
 Root: HKA; Subkey: Software\Classes\.wmf\OpenWithProgids; ValueType: string; ValueName: "Greenshot.Image"; ValueData: ""; Flags: uninsdeletevalue uninsdeletekeyifempty noerror
 Root: HKA; Subkey: Software\Classes\.tga\OpenWithProgids; ValueType: string; ValueName: "Greenshot.Image"; ValueData: ""; Flags: uninsdeletevalue uninsdeletekeyifempty noerror
 
-; "Open with > Choose another app": shows the proxy as "Greenshot", only for the supported types
-Root: HKA; Subkey: Software\Classes\Applications\greenshot-proxy.exe; ValueType: string; ValueName: "FriendlyAppName"; ValueData: "Greenshot"; Flags: uninsdeletekey noerror
-Root: HKA; Subkey: Software\Classes\Applications\greenshot-proxy.exe\DefaultIcon; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.exe"",0"; Flags: noerror
-Root: HKA; Subkey: Software\Classes\Applications\greenshot-proxy.exe\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\greenshot-proxy.exe"" --file ""%1"""; Flags: noerror
-Root: HKA; Subkey: Software\Classes\Applications\greenshot-proxy.exe\SupportedTypes; ValueType: string; ValueName: ".greenshot"; ValueData: ""; Flags: noerror
-Root: HKA; Subkey: Software\Classes\Applications\greenshot-proxy.exe\SupportedTypes; ValueType: string; ValueName: ".png"; ValueData: ""; Flags: noerror
-Root: HKA; Subkey: Software\Classes\Applications\greenshot-proxy.exe\SupportedTypes; ValueType: string; ValueName: ".jpg"; ValueData: ""; Flags: noerror
-Root: HKA; Subkey: Software\Classes\Applications\greenshot-proxy.exe\SupportedTypes; ValueType: string; ValueName: ".jpeg"; ValueData: ""; Flags: noerror
-Root: HKA; Subkey: Software\Classes\Applications\greenshot-proxy.exe\SupportedTypes; ValueType: string; ValueName: ".bmp"; ValueData: ""; Flags: noerror
-Root: HKA; Subkey: Software\Classes\Applications\greenshot-proxy.exe\SupportedTypes; ValueType: string; ValueName: ".gif"; ValueData: ""; Flags: noerror
-Root: HKA; Subkey: Software\Classes\Applications\greenshot-proxy.exe\SupportedTypes; ValueType: string; ValueName: ".tif"; ValueData: ""; Flags: noerror
-Root: HKA; Subkey: Software\Classes\Applications\greenshot-proxy.exe\SupportedTypes; ValueType: string; ValueName: ".tiff"; ValueData: ""; Flags: noerror
-Root: HKA; Subkey: Software\Classes\Applications\greenshot-proxy.exe\SupportedTypes; ValueType: string; ValueName: ".webp"; ValueData: ""; Flags: noerror
-Root: HKA; Subkey: Software\Classes\Applications\greenshot-proxy.exe\SupportedTypes; ValueType: string; ValueName: ".ico"; ValueData: ""; Flags: noerror
-Root: HKA; Subkey: Software\Classes\Applications\greenshot-proxy.exe\SupportedTypes; ValueType: string; ValueName: ".svg"; ValueData: ""; Flags: noerror
-Root: HKA; Subkey: Software\Classes\Applications\greenshot-proxy.exe\SupportedTypes; ValueType: string; ValueName: ".jxr"; ValueData: ""; Flags: noerror
-Root: HKA; Subkey: Software\Classes\Applications\greenshot-proxy.exe\SupportedTypes; ValueType: string; ValueName: ".wdp"; ValueData: ""; Flags: noerror
-Root: HKA; Subkey: Software\Classes\Applications\greenshot-proxy.exe\SupportedTypes; ValueType: string; ValueName: ".emf"; ValueData: ""; Flags: noerror
-Root: HKA; Subkey: Software\Classes\Applications\greenshot-proxy.exe\SupportedTypes; ValueType: string; ValueName: ".wmf"; ValueData: ""; Flags: noerror
-Root: HKA; Subkey: Software\Classes\Applications\greenshot-proxy.exe\SupportedTypes; ValueType: string; ValueName: ".tga"; ValueData: ""; Flags: noerror
+; "Open with > Choose another app": shows the proxy (Light: Greenshot.exe) as "Greenshot", only for the supported types
+Root: HKA; Subkey: Software\Classes\Applications\{#FileOpener}; ValueType: string; ValueName: "FriendlyAppName"; ValueData: "Greenshot"; Flags: uninsdeletekey noerror
+Root: HKA; Subkey: Software\Classes\Applications\{#FileOpener}\DefaultIcon; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.exe"",0"; Flags: noerror
+Root: HKA; Subkey: Software\Classes\Applications\{#FileOpener}\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\{#FileOpener}"" --file ""%1"""; Flags: noerror
+Root: HKA; Subkey: Software\Classes\Applications\{#FileOpener}\SupportedTypes; ValueType: string; ValueName: ".greenshot"; ValueData: ""; Flags: noerror
+Root: HKA; Subkey: Software\Classes\Applications\{#FileOpener}\SupportedTypes; ValueType: string; ValueName: ".png"; ValueData: ""; Flags: noerror
+Root: HKA; Subkey: Software\Classes\Applications\{#FileOpener}\SupportedTypes; ValueType: string; ValueName: ".jpg"; ValueData: ""; Flags: noerror
+Root: HKA; Subkey: Software\Classes\Applications\{#FileOpener}\SupportedTypes; ValueType: string; ValueName: ".jpeg"; ValueData: ""; Flags: noerror
+Root: HKA; Subkey: Software\Classes\Applications\{#FileOpener}\SupportedTypes; ValueType: string; ValueName: ".bmp"; ValueData: ""; Flags: noerror
+Root: HKA; Subkey: Software\Classes\Applications\{#FileOpener}\SupportedTypes; ValueType: string; ValueName: ".gif"; ValueData: ""; Flags: noerror
+Root: HKA; Subkey: Software\Classes\Applications\{#FileOpener}\SupportedTypes; ValueType: string; ValueName: ".tif"; ValueData: ""; Flags: noerror
+Root: HKA; Subkey: Software\Classes\Applications\{#FileOpener}\SupportedTypes; ValueType: string; ValueName: ".tiff"; ValueData: ""; Flags: noerror
+Root: HKA; Subkey: Software\Classes\Applications\{#FileOpener}\SupportedTypes; ValueType: string; ValueName: ".webp"; ValueData: ""; Flags: noerror
+Root: HKA; Subkey: Software\Classes\Applications\{#FileOpener}\SupportedTypes; ValueType: string; ValueName: ".ico"; ValueData: ""; Flags: noerror
+Root: HKA; Subkey: Software\Classes\Applications\{#FileOpener}\SupportedTypes; ValueType: string; ValueName: ".svg"; ValueData: ""; Flags: noerror
+Root: HKA; Subkey: Software\Classes\Applications\{#FileOpener}\SupportedTypes; ValueType: string; ValueName: ".jxr"; ValueData: ""; Flags: noerror
+Root: HKA; Subkey: Software\Classes\Applications\{#FileOpener}\SupportedTypes; ValueType: string; ValueName: ".wdp"; ValueData: ""; Flags: noerror
+Root: HKA; Subkey: Software\Classes\Applications\{#FileOpener}\SupportedTypes; ValueType: string; ValueName: ".emf"; ValueData: ""; Flags: noerror
+Root: HKA; Subkey: Software\Classes\Applications\{#FileOpener}\SupportedTypes; ValueType: string; ValueName: ".wmf"; ValueData: ""; Flags: noerror
+Root: HKA; Subkey: Software\Classes\Applications\{#FileOpener}\SupportedTypes; ValueType: string; ValueName: ".tga"; ValueData: ""; Flags: noerror
 
 ; Settings > Default apps: lets the user make Greenshot the default application for these types
 Root: HKA; Subkey: Software\Greenshot\Capabilities; ValueType: string; ValueName: "ApplicationName"; ValueData: "Greenshot"; Flags: uninsdeletekey noerror

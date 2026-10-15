@@ -108,6 +108,14 @@ namespace Greenshot.Base.Core
         [DefaultValue(true)]
         bool ShowTrayNotification { get; set; }
 
+        [Description("Which notifications are shown: All, Warnings (warnings and errors), Errors or None. With ShowTrayNotification=False none are shown.")]
+        [DefaultValue("All")]
+        NotificationLevel NotificationLevel { get; set; }
+
+        [Description("Show a thumbnail of the capture in the notification, only the toasts of Windows can show it.")]
+        [DefaultValue(true)]
+        bool ShowNotificationThumbnail { get; set; }
+
         [Description("Output file path.")]
         string OutputFilePath { get; set; }
 

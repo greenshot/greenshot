@@ -50,7 +50,8 @@ flowchart TD
 ```
 
 ### Dual Binaries Architecture (`greenshot-proxy.exe` & `greenshot-cli.exe`)
-Greenshot provides two small native binaries built from one C code base (`src/greenshot-proxy`). They share the
+Greenshot provides two small native binaries built from one C code base (`src/greenshot-proxy`), x64 like Greenshot.exe of the
+full version; Greenshot Light ships without them (see [code-structure.md](code-structure.md)). They share the
 connection, framing and HELLO code and differ in their entry point (`main_cli.c`, `main_proxy.c`) and Windows PE subsystem.
 Both are built **without the C runtime** (Win32 API only, about 10 KB of code each) and contain no parsing logic:
 they only decide the connection source from how they were started, forward the raw arguments (or relay the browser's
@@ -136,7 +137,7 @@ A client has to read its replies: a frame that is not read within 2 minutes (`Na
 #### Command line of `Greenshot.exe`
 `Greenshot.exe [startup options] [command]`
 
-* Startup options, used only by `Greenshot.exe` itself and only at the start of the command line: `--language <code>`, `--ini-directory <dir>`, `--no-run`, `--restore` (Restart Manager) and `--help`.
+* Startup options, used only by `Greenshot.exe` itself and only at the start of the command line: `--language <code>`, `--ini-directory <dir>`, `--no-run`, `--restore` (Restart Manager), `-Embedding` (added by Windows when it starts Greenshot for a click on a notification, ignored by Greenshot, see [notifications.md](notifications.md)) and `--help`.
 * Everything after them is a command in the syntax of `greenshot-cli.exe` (e.g. `image.png`, `--file image.png`, `--recipe ocr`, `--reload`, `--exit`). `Greenshot.exe` checks it with the same parser (`CliCommandParser`) and sends it unchanged as a `CLI` request (source `cli`), exactly like `greenshot-cli.exe`. When Greenshot is not running it starts and sends the request to itself once its pipe server listens; `--exit` and `--reload` then do nothing.
 * `Greenshot.exe` shows no output of the command; use `greenshot-cli.exe` for that.
 
@@ -262,7 +263,9 @@ Enables recipes to handle files opened from Windows Explorer (double-click, "Ope
 | `Software\Greenshot\Capabilities` + `RegisteredApplications` | Greenshot is listed in Settings > Default apps, where the user can make it the default per type (Windows does not allow an application to set itself as default). |
 | `Applications\greenshot-proxy.exe` (`FriendlyAppName`, `SupportedTypes`) | "Open with > Choose another app" shows the proxy as "Greenshot", only for the supported types. |
 
-All of them start `greenshot-proxy.exe --file "%1"`, which passes the file to Greenshot (connection source `open_with`). The ProgIDs are not called `greenshot`: registry keys are case-insensitive, and `Software\Classes\greenshot` is the `greenshot:` URL protocol.
+All of them start `greenshot-proxy.exe --file "%1"`, which passes the file to Greenshot (connection source `open_with`). Greenshot Light
+has no proxy: its installer registers `Greenshot.exe --file "%1"` instead (and `Applications\Greenshot.exe`), which sends the file as a
+`CLI` request (source `cli`) to the running Greenshot, or starts it. The ProgIDs are not called `greenshot`: registry keys are case-insensitive, and `Software\Classes\greenshot` is the `greenshot:` URL protocol.
 
 ### 4.2 Passing Variables & Dynamic Context
 External callers can supply runtime context that becomes variables inside the recipe's execution environment:

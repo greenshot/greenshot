@@ -134,6 +134,8 @@ namespace Greenshot.Plugin.Confluence.Recipes
                 var destination = new ConfluenceDestination();
                 var result = await DestinationExporter.ExportAsync(destination, source, captureDetails, false, context.UserInteraction, cancellationToken).ConfigureAwait(false);
                 await ExportResultHandler.ApplyAsync(destination, result, source, cancellationToken).ConfigureAwait(false);
+                // The Notification step shows it
+                context.RecordExport(destination, result, captureDetails, source);
                 if (result.Uri != null)
                 {
                     context.Properties["Confluence.UploadUrl"] = result.Uri.AbsoluteUri;
