@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const statusIndicator = document.getElementById("statusIndicator");
   const statusText = document.getElementById("statusText");
   const btnCaptureVisible = document.getElementById("btnCaptureVisible");
+  const btnCaptureScrollable = document.getElementById("btnCaptureScrollable");
   const feedbackMessage = document.getElementById("feedbackMessage");
   const qaTrackingStatus = document.getElementById("qaTrackingStatus");
   const linkOptions = document.getElementById("linkOptions");
@@ -21,11 +22,13 @@ document.addEventListener("DOMContentLoaded", () => {
       statusIndicator.className = "status-indicator online";
       statusText.textContent = "Ready";
       btnCaptureVisible.disabled = false;
+      btnCaptureScrollable.disabled = false;
       btnCaptureVisible.title = "Capture visible page and send to Greenshot";
     } else {
       statusIndicator.className = "status-indicator offline";
       statusText.textContent = "Offline";
       btnCaptureVisible.disabled = true;
+      btnCaptureScrollable.disabled = true;
       btnCaptureVisible.title = "Greenshot is offline. Please start Greenshot to capture.";
     }
 
@@ -63,6 +66,27 @@ document.addEventListener("DOMContentLoaded", () => {
         showFeedback("Sent to Greenshot!");
       } else {
         showFeedback(response?.error || "Failed to capture tab.", true);
+      }
+    });
+  });
+
+  btnCaptureScrollable.addEventListener("click", () => {
+    btnCaptureVisible.disabled = true;
+    btnCaptureScrollable.disabled = true;
+    btnCaptureScrollable.textContent = "Capturing...";
+
+    chrome.runtime.sendMessage({ action: "CAPTURE_SCROLLABLE" }, (response) => {
+      const lastError = chrome.runtime.lastError;
+      btnCaptureScrollable.textContent = "Capture Scrollable Page";
+      btnCaptureVisible.disabled = false;
+      btnCaptureScrollable.disabled = false;
+
+      if (lastError) {
+        showFeedback(lastError.message, true);
+      } else if (response && response.success) {
+        showFeedback("Sent to Greenshot!");
+      } else {
+        showFeedback(response?.error || "Failed to capture the scrollable page.", true);
       }
     });
   });

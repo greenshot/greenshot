@@ -104,6 +104,21 @@ body {
   cursor: not-allowed;
 }
 
+.btn.secondary {
+  background-color: #f1f3f4;
+  color: #202124;
+}
+
+.btn.secondary:hover {
+  background-color: #e8eaed;
+}
+
+.btn.secondary:disabled {
+  background-color: #f1f3f4;
+  color: #80868b;
+  cursor: not-allowed;
+}
+
 .feedback-msg {
   margin-top: 8px;
   padding: 6px 8px;

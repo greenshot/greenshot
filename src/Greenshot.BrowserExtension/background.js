@@ -4,6 +4,10 @@
  * handshake/configuration sync, retries, capture ingestion, and QA tab URL tracking.
  */
 
+if (typeof importScripts === "function") {
+  importScripts("capture-scrollable.js");
+}
+
 const NATIVE_HOST_NAME = "org.greenshot.proxy";
 const RETRY_BASE_DELAY_MS = 5000;
 const RETRY_MAX_DELAY_MS = 60000;
@@ -140,15 +144,17 @@ function scheduleReconnect() {
 function sendNativeMessage(payload) {
   if (!nativePort) {
     connectNativeHost();
-    return;
+    return false;
   }
 
   try {
     nativePort.postMessage(payload);
+    return true;
   } catch (err) {
     console.warn("Failed to send message over native port:", err);
     isConnected = false;
     scheduleReconnect();
+    return false;
   }
 }
 
@@ -274,6 +280,19 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
   if (request.action === "CAPTURE_VISIBLE") {
     captureCurrentTab()
+      .then((res) => sendResponse(res))
+      .catch((err) => sendResponse({ success: false, error: err.message }));
+    return true;
+  }
+
+  if (request.action === "CAPTURE_SCROLLABLE") {
+    GreenshotScrollableCapture.captureScrollablePage({
+      isConnected,
+      nativePort,
+      sendNativeMessage,
+      getBrowserName,
+      connectNativeHost
+    })
       .then((res) => sendResponse(res))
       .catch((err) => sendResponse({ success: false, error: err.message }));
     return true;

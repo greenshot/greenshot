@@ -12,6 +12,7 @@
   "permissions": [
     "activeTab",
     "tabs",
+    "scripting",
     "nativeMessaging",
     "storage"
   ],
@@ -21,6 +22,7 @@
   "background": {
     "service_worker": "background.js",
     "scripts": [
+      "capture-scrollable.js",
       "background.js"
     ]
   },

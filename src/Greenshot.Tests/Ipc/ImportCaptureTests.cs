@@ -156,13 +156,43 @@ namespace Greenshot.Tests.Ipc
             Assert.Contains("not ready", reply.Value<string>("stderr"));
         }
 
-        private static async Task<JObject> DispatchImportAsync(string payload)
+        [Fact]
+        public async Task Dispatcher_ValidCaptureListWithoutUi_RepliesNotReady()
+        {
+            var captureList = new JObject
+            {
+                ["version"] = 1,
+                ["coordinateUnit"] = "css-pixels",
+                ["devicePixelRatio"] = 1,
+                ["documentWidth"] = 20,
+                ["documentHeight"] = 20,
+                ["screenshots"] = new JArray
+                {
+                    new JObject
+                    {
+                        ["x"] = 0,
+                        ["y"] = 0,
+                        ["viewportWidth"] = 20,
+                        ["viewportHeight"] = 20,
+                        ["imageBase64"] = EncodeImage(20, 20, ImageFormat.Png)
+                    }
+                }
+            };
+            string payload = Convert.ToBase64String(Encoding.UTF8.GetBytes(captureList.ToString(Newtonsoft.Json.Formatting.None)));
+
+            var reply = await DispatchImportAsync(payload, CaptureListDecoder.MimeType);
+            Assert.Equal("error", reply.Value<string>("status"));
+            Assert.Equal("IMPORT_CAPTURE", reply.Value<string>("reply_to"));
+            Assert.Contains("not ready", reply.Value<string>("stderr"));
+        }
+
+        private static async Task<JObject> DispatchImportAsync(string payload, string mimeType = "image/png")
         {
             var envelope = new IpcEnvelope
             {
                 Source = IpcSources.NativeMessaging,
                 Command = "IMPORT_CAPTURE",
-                Data = new IpcCaptureData { MimeType = "image/png", Encoding = "base64", Payload = payload }
+                Data = new IpcCaptureData { MimeType = mimeType, Encoding = "base64", Payload = payload }
             };
             using (var ms = new MemoryStream())
             {
