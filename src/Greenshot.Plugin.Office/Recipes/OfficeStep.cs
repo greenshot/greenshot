@@ -101,6 +101,8 @@ namespace Greenshot.Plugin.Office.Recipes
             var source = await context.Payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
             var result = await DestinationExporter.ExportAsync(destination, source, captureDetails, false, context.UserInteraction, cancellationToken).ConfigureAwait(false);
             await ExportResultHandler.ApplyAsync(destination, result, source, cancellationToken).ConfigureAwait(false);
+            // The Notification step shows it
+            context.RecordExport(destination, result, captureDetails, source);
             switch (result.Status)
             {
                 case ExportStatus.Succeeded:
