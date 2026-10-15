@@ -2,7 +2,6 @@
 #include "confluence.iss"
 #include "dropbox.iss"
 #include "externalcommand.iss"
-#include "imgur.iss"
 #include "jira.iss"
 #include "office.iss"
 #include "pdf.iss"

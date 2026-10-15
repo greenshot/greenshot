@@ -199,7 +199,7 @@ Ask the AI tool in your own words, for example:
 
 * "Look at my Visual Studio window and tell me what the error says." (`list_windows`, then `capture_window`)
 * "Take a screenshot of the region with the chart and read the numbers." (`capture_region` with OCR)
-* "Make a recipe: Ctrl+Shift+U captures a region, adds a red border and uploads it to Imgur." The AI tool writes the
+* "Make a recipe: Ctrl+Shift+U captures a region, adds a red border and copies it to the clipboard." The AI tool writes the
   recipe, checks it and proposes it; Greenshot shows it and you decide (see [Recipes written by AI tools](#recipes-written-by-ai-tools)).
 * "Add a tool that captures the active window and returns the text." The AI tool proposes a recipe with an AI tool
   trigger; after you approve it, the AI tool has the new tool.

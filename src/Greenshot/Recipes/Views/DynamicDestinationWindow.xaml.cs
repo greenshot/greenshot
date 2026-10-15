@@ -352,8 +352,6 @@ namespace Greenshot.Recipes.Views
                     return ("Dropbox", "Upload & copy link");
                 case "box":
                     return ("Box", "Upload & copy link");
-                case "imgur":
-                    return ("Imgur", "Upload & copy link");
                 case "jira":
                     return ("Jira", "Attach to issue");
                 case "confluence":

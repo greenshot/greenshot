@@ -153,7 +153,7 @@ namespace Greenshot.Tests.Forms
                     Assert.NotNull(window);
                     Assert.NotNull(window.DataContext);
 
-                    var windowWithPlugin = new SettingsWindow("Imgur");
+                    var windowWithPlugin = new SettingsWindow("Jira");
                     Assert.NotNull(windowWithPlugin);
                 }
                 catch (Exception ex)

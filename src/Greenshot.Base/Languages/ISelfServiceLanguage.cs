@@ -102,6 +102,16 @@ namespace Greenshot.Base.Languages
         string CategoryHotkeysSub { get; }
 
         /// <summary>
+        /// Imgur Uploads
+        /// </summary>
+        string CategoryImgur { get; }
+
+        /// <summary>
+        /// Delete the images you uploaded to Imgur with Greenshot
+        /// </summary>
+        string CategoryImgurSub { get; }
+
+        /// <summary>
         /// System &amp; Hardware
         /// </summary>
         string CategorySystem { get; }
@@ -880,6 +890,61 @@ namespace Greenshot.Base.Languages
         /// Updated at {0}
         /// </summary>
         string HotkeysUpdatedAt { get; }
+
+        /// <summary>
+        /// Uploaded
+        /// </summary>
+        string ImgurColumnDate { get; }
+
+        /// <summary>
+        /// Image
+        /// </summary>
+        string ImgurColumnImage { get; }
+
+        /// <summary>
+        /// Delete from Imgur
+        /// </summary>
+        string ImgurDelete { get; }
+
+        /// <summary>
+        /// Delete {0} image(s) from Imgur? This can't be undone.
+        /// </summary>
+        string ImgurDeleteQuestion { get; }
+
+        /// <summary>
+        /// Save list
+        /// </summary>
+        string ImgurExport { get; }
+
+        /// <summary>
+        /// Delete this image
+        /// </summary>
+        string ImgurExportDelete { get; }
+
+        /// <summary>
+        /// Forget the list
+        /// </summary>
+        string ImgurForget { get; }
+
+        /// <summary>
+        /// Greenshot forgets these uploads and can no longer delete them for you, the images stay on Imgur. Save the list first to keep the links. Continue?
+        /// </summary>
+        string ImgurForgetQuestion { get; }
+
+        /// <summary>
+        /// Open
+        /// </summary>
+        string ImgurOpen { get; }
+
+        /// <summary>
+        /// Greenshot no longer uploads to Imgur. The images you uploaded earlier stay online until they are deleted, and Imgur only lets Greenshot delete them for you.
+        /// </summary>
+        string ImgurSub { get; }
+
+        /// <summary>
+        /// Your Imgur uploads
+        /// </summary>
+        string ImgurTitle { get; }
 
         /// <summary>
         /// Copied entire log content to clipboard ({0:N0} characters)

@@ -75,7 +75,7 @@ Check which keys of English are missing in a language, and which keys of the lan
 #!/bin/bash
 # compare_keys.sh <language-code> [module]
 # Example: ./compare_keys.sh de-DE          (core language pack)
-#          ./compare_keys.sh de-DE imgur    (Imgur plugin language pack)
+#          ./compare_keys.sh de-DE jira     (Jira plugin language pack)
 
 LANG_CODE=$1
 MODULE=$2

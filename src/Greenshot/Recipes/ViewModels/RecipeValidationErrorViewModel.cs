@@ -48,7 +48,7 @@ namespace Greenshot.Recipes.ViewModels
             // Check if unknown or plugin stepType was used
             if (rawError.IndexOf("which is not available because the required extension/plugin is not installed or active", StringComparison.OrdinalIgnoreCase) >= 0)
             {
-                item.DiagnosticHint = "The stepType specified is not registered in core Greenshot. If it is provided by a plugin or extension (e.g. Jira, Imgur, OCR, etc.), verify that the plugin is installed in the Plugins folder and enabled under Greenshot Settings > Plugins.";
+                item.DiagnosticHint = "The stepType specified is not registered in core Greenshot. If it is provided by a plugin or extension (e.g. Jira, OCR, etc.), verify that the plugin is installed in the Plugins folder and enabled under Greenshot Settings > Plugins.";
             }
             // Check for SourceType issues
             else if (rawError.IndexOf("Unknown SourceType", StringComparison.OrdinalIgnoreCase) >= 0)

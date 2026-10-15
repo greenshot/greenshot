@@ -172,6 +172,13 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Greenshot appears only once in the Windows notification settings
 - Choose in the settings which notifications you want to see (all, warnings and errors, errors only, or none) and whether they show a preview
 
+#### 🖼️ Imgur
+
+**Imgur uploads removed, delete your old ones in Self-Service**
+- Greenshot no longer uploads to Imgur: Imgur would only allow it with paid or capped access for all Greenshot users
+- If you uploaded images with an earlier Greenshot, Self-Service lists them so you can delete them from Imgur
+- Save the list as a web page to keep the links of your uploads
+
 ### Bug Fixes & Improvements
 
 #### 🐛 Critical Fixes

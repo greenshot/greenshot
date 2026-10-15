@@ -20,22 +20,16 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Windows.Controls;
 using System.Windows.Threading;
-using Greenshot.Base.Core;
-using Greenshot.Plugin.Imgur;
-using Greenshot.Plugin.Imgur.Api;
-using Greenshot.Plugin.Imgur.Views;
 using Greenshot.Plugin.Jira.Views;
 using Xunit;
 
 namespace Greenshot.Tests.Forms
 {
     /// <summary>
-    /// The WPF windows of the Imgur and Jira plugins
+    /// The WPF windows of the Jira plugin
     /// </summary>
     [Collection(TestCollections.WpfThemeState)]
     public class PluginWindowsTests
@@ -69,50 +63,6 @@ namespace Greenshot.Tests.Forms
             if (threadEx != null)
             {
                 throw new Exception("Failed on the STA thread", threadEx);
-            }
-        }
-
-        [Fact]
-        public void ImgurHistoryWindow_ListsTheUploadsNewestFirst_AndEnablesTheActionsForASelection()
-        {
-            var config = IniConfigHelper.EnsureSection<IImgurConfiguration>(() => new ImgurConfigurationImpl());
-            var previousHistory = config.RuntimeImgurHistory;
-            try
-            {
-                config.RuntimeImgurHistory = new Dictionary<string, ImgurInfo>
-                {
-                    ["old"] = new ImgurInfo { Hash = "old", Title = "Old capture", Timestamp = new DateTime(2025, 1, 1, 10, 0, 0) },
-                    ["new"] = new ImgurInfo { Hash = "new", Title = "New capture", Timestamp = new DateTime(2026, 9, 30, 8, 30, 0) }
-                };
-
-                RunOnSta(() =>
-                {
-                    var window = new ImgurHistoryWindow();
-                    var list = (ListView)window.FindName("UploadsList");
-                    var rows = list.Items.Cast<ImgurHistoryWindow.HistoryRow>().ToList();
-                    Assert.Equal(new[] { "new", "old" }, rows.Select(r => r.Hash));
-                    Assert.Equal("2026-09-30 08:30:00", rows[0].Date);
-
-                    // The newest is selected when the window opens
-                    Assert.Same(rows[0], list.SelectedItem);
-                    Assert.True(((Button)window.FindName("DeleteButton")).IsEnabled);
-
-                    list.SelectAll();
-                    Assert.True(((Button)window.FindName("OpenButton")).IsEnabled);
-                    Assert.True(((Button)window.FindName("ClipboardButton")).IsEnabled);
-                    // A preview only for a single upload
-                    Assert.Null(((System.Windows.Controls.Image)window.FindName("Thumbnail")).Source);
-
-                    list.UnselectAll();
-                    Assert.False(((Button)window.FindName("DeleteButton")).IsEnabled);
-                    Assert.False(((Button)window.FindName("OpenButton")).IsEnabled);
-                    Assert.False(((Button)window.FindName("ClipboardButton")).IsEnabled);
-                    window.Close();
-                });
-            }
-            finally
-            {
-                config.RuntimeImgurHistory = previousHistory;
             }
         }
 
