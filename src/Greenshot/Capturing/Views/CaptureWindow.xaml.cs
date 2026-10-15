@@ -1149,6 +1149,7 @@ namespace Greenshot.Capturing.Views
         public void HideSelection()
         {
             SelectionPath.Visibility = Visibility.Collapsed;
+            UpdateZoomerSelection();
         }
 
         /// <inheritdoc />
@@ -1265,6 +1266,7 @@ namespace Greenshot.Capturing.Views
                 return;
             }
             SelectionSize = size;
+            UpdateZoomerSelection();
 
             int width = size.Width;
             int height = size.Height;
@@ -1428,6 +1430,7 @@ namespace Greenshot.Capturing.Views
             {
                 ResizeZoomer(zoomSize);
             }
+            UpdateZoomerSelection();
 
             var offset = ZoomerPlacement.GetOffset(_cursorPos, _zoomOffset, zoomSize, screenBounds, GetZoomerAvoids());
             if (offset.Equals(_zoomOffset))
@@ -1448,6 +1451,25 @@ namespace Greenshot.Capturing.Views
             moveY.To = offset.Y;
             ZoomerOffset.BeginAnimation(TranslateTransform.XProperty, moveX);
             ZoomerOffset.BeginAnimation(TranslateTransform.YProperty, moveY);
+        }
+
+        /// <summary>
+        /// The selection in the zoomer, with the size the labels show (the region tool includes the pixel under the cursor)
+        /// </summary>
+        private void UpdateZoomerSelection()
+        {
+            var size = SelectionSize.IsEmpty ? _selectionRect.Size : SelectionSize;
+            if (!_zoomerShown || _zoomSize == 0 || !IsSelectionVisible || IsSelectionAnimating || size.IsEmpty)
+            {
+                ZoomerSelection.Visibility = Visibility.Collapsed;
+                return;
+            }
+            double pixel = (double)_zoomSize / ZoomSourceSize;
+            Canvas.SetLeft(ZoomerSelection, (_selectionRect.X - _cursorPos.X + ZoomSourceSize / 2) * pixel);
+            Canvas.SetTop(ZoomerSelection, (_selectionRect.Y - _cursorPos.Y + ZoomSourceSize / 2) * pixel);
+            ZoomerSelection.Width = size.Width * pixel;
+            ZoomerSelection.Height = size.Height * pixel;
+            ZoomerSelection.Visibility = Visibility.Visible;
         }
 
         /// <summary>
@@ -1483,6 +1505,7 @@ namespace Greenshot.Capturing.Views
             crosshair.Children.Add(new RectangleGeometry(new Rect(end + pixel, start, zoomSize - end - 2 * pixel, pixel)));
             crosshair.Freeze();
             ZoomerCrosshair.Data = crosshair;
+            ZoomerSelectionLayer.Clip = new EllipseGeometry(new Rect(0, 0, zoomSize, zoomSize));
             ZoomerCrosshair.Opacity = Conf.ZoomerOpacity;
         }
 

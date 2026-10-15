@@ -568,7 +568,7 @@ A tool which wants its own look can ignore all of this and draw with its own bru
 
 The color picker needs the pixel under the cursor, shows it next to the cursor whatever tool is active, and copies it as `#RRGGBB`
 with C. That makes it an overlay: the user can select a region as usual, and press C when they want the color instead.
-H hides the swatch. The zoomer of the region tool already magnifies the pixels around the cursor and marks the one under it.
+H hides the swatch. The zoomer of the region tool already magnifies the pixels around the cursor, marks the one under it and shows the edges of the selection (with `SelectionSize`, so the region tool's pixel under the cursor is inside).
 
 ```csharp
 using System.Collections.Generic;

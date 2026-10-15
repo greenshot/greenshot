@@ -70,6 +70,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Press F while selecting a region to capture an area of a fixed size, e.g. 1280 × 720 or 32 × 32
 - The area follows the mouse and lines up with the edges of windows and the screen; hold Alt to place it freely
 - The mouse holds the area at its top left corner, so the magnifier shows exactly where it starts; press C for another corner or the middle
+- The magnifier shows the edges of the area (and of a region you drag), so even a 16 × 16 area can be placed to the pixel
 - A list shows the sizes: pick one with 1 to 9, or go through them with Page Up and Page Down
 - The sizes of your last region captures are in the list too, so you can capture the same size again
 - Add and remove your own sizes in the settings, on the Capture tab
