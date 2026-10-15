@@ -15,7 +15,7 @@ Everything below is only about **who writes that value, and when**:
 | **Windows, Active Setup** | each user | the next logon of each user, **once** | runs the autostart command for that user, which writes the value |
 | **Windows, Run key** | each user | **every** logon | starts Greenshot.exe if the value is there |
 | **Greenshot** | the user | when the checkbox "Launch Greenshot on startup" in the settings is changed | writes or removes the value of that user. The user's own decision, no administrator rights needed |
-| **Greenshot** | the user | its first start after the setup, once | removes an older Greenshot the user installed "for me only", see [below](#an-older-greenshot-installed-for-me-only) |
+| **Greenshot** | the user | its first start after the setup | offers to remove an older Greenshot the user installed "for me only", see [below](#an-older-greenshot-installed-for-me-only) |
 | **Uninstaller** | the administrator / the user | uninstall | removes the Active Setup registration and the value of the uninstalling user |
 
 The **autostart command** writes the value for the current user, nothing else; Greenshot isn't involved:
@@ -130,24 +130,31 @@ installation: Inno Setup only finds the previous installation in the registry of
 HKCU for one user). Without help both would stay installed, and uninstalling the old one later would remove the `Greenshot` Run value,
 also when it starts the new Greenshot already.
 
-So Greenshot itself removes it (`PerUserInstallCleanup`), at its start, before the single instance check: when it runs from the folder
-of the installation for all users (`InstallLocation` in `HKLM\…\Uninstall\Greenshot_is1`) and the user still has a different one in
-`HKCU\…\Uninstall\Greenshot_is1`, it runs that uninstaller silently, as the user. When the Run value was there before and the old uninstaller removed it,
-it writes it again for this Greenshot. This happens once per user, for the one who is logged on right after the setup (the setup starts Greenshot)
-and for every other user at their next logon. The settings (`%APPDATA%\Greenshot`) stay, the uninstaller of 1.3 doesn't remove them.
-It's skipped while another Greenshot runs: the old uninstaller refuses to run then (`AppMutex`), it's tried again at the next start.
+So Greenshot itself asks the user (`PerUserInstallCleanup`), after its start: when it runs from the folder of the installation for all users
+(`InstallLocation` in `HKLM\…\Uninstall\Greenshot_is1`) and the user still has a different one in `HKCU\…\Uninstall\Greenshot_is1`,
+a dialog "Older Greenshot found" shows the version and both folders, explains why the older one isn't needed
+(in the profile every program the user runs can change its files, and it could be started instead), and offers **Remove it** or **Keep it**.
+
+- **Remove it:** Greenshot releases its single instance mutex (the old uninstaller refuses to run while it exists, `AppMutex` of its setup),
+  runs the old uninstaller silently as the user, and takes the mutex again. When the Run value was there before and the old uninstaller removed it,
+  it writes it again for this Greenshot. If the uninstaller fails, a message says so and points to Settings > Apps.
+- **Keep it:** the folder is added to `KeptOlderInstallations` in greenshot.ini, the user isn't asked again for it.
+
+This happens for the one who is logged on right after the setup (the setup starts Greenshot) and for every other user at their first start of the new Greenshot.
+The settings (`%APPDATA%\Greenshot`) stay, the uninstaller of 1.3 doesn't remove them.
 
 ```mermaid
 flowchart TD
-    A[Greenshot starts] --> B{"another Greenshot running?<br/>(mutex)"}
-    B -- yes --> Z[nothing, the usual single instance check]
-    B -- no --> C{"this Greenshot is the one installed for all users,<br/>and the user has another one in HKCU?"}
-    C -- no --> Z
-    C -- yes --> D["run its uninstaller silently, as the user"]
+    A[Greenshot has started] --> C{"this Greenshot is the one installed for all users,<br/>and the user has another one in HKCU<br/>which they didn't keep?"}
+    C -- no --> Z[nothing]
+    C -- yes --> Q{"dialog: Older Greenshot found"}
+    Q -- "Keep it" --> K["remember the folder<br/>(KeptOlderInstallations)"]
+    Q -- "Remove it" --> D["release the mutex, run its uninstaller silently<br/>as the user, take the mutex again"]
     D --> E{"was there a Run value before,<br/>and is it gone now?"}
     E -- yes --> F["write it again for this Greenshot"]
     E -- no --> Z
     F --> Z
+    K --> Z
 ```
 
 ### Uninstall

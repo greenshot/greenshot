@@ -290,6 +290,12 @@ namespace Greenshot.Shell
                 ApplicationStartupHelper.FirstLaunch();
             }
 
+            // An older Greenshot installed for this user only, while this one is installed for all users: the user decides, once
+            UiDispatcher.RunOnUiAsync(() => AsyncCommand.Run(
+                    () => PerUserInstallCleanup.OfferRemovalAsync(_conf, GreenshotApplication.FreeMutex, GreenshotApplication.AcquireMutex),
+                    "Offer to remove an older Greenshot installed for this user only"))
+                .FireAndLog("Offer to remove an older Greenshot", Log);
+
             if (startupCommand != null)
             {
                 // The command Greenshot was started with takes the same way as one from greenshot-cli.exe, now that the pipe server listens

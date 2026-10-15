@@ -69,13 +69,6 @@ namespace Greenshot.Shell
                 // for the tray icon (also for the .zip, which leaves nothing behind)
                 AppUserModelId.SetForCurrentProcess(AppUserModelId.Greenshot);
 
-                // An older Greenshot installed for this user only goes, when this one is installed for all users.
-                // Before the mutex: its uninstaller refuses to run while a Greenshot holds it.
-                if (!options.NoRun)
-                {
-                    PerUserInstallCleanup.RemoveOldPerUserInstallation(@"Local\" + ApplicationMutexId);
-                }
-
                 // Fix for Bug 2495900, Multi-user Environment
                 // check whether there's an local instance running already
                 _applicationMutex = ResourceMutex.Create(ApplicationMutexId, "Greenshot", false);
@@ -282,6 +275,22 @@ namespace Greenshot.Shell
             catch (Exception ex)
             {
                 Log.Debug("Couldn't start the multi-core JIT profile", ex);
+            }
+        }
+
+        /// <summary>
+        /// Take the single instance mutex again after FreeMutex, on the thread which released it
+        /// </summary>
+        internal static void AcquireMutex()
+        {
+            if (_applicationMutex != null)
+            {
+                return;
+            }
+            _applicationMutex = ResourceMutex.Create(ApplicationMutexId, "Greenshot", false);
+            if (!_applicationMutex.IsLocked)
+            {
+                Log.Warn("Another Greenshot started while the mutex was released.");
             }
         }
 

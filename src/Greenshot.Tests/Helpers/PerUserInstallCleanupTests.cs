@@ -63,6 +63,7 @@ namespace Greenshot.Tests.Helpers
             using var key = root.CreateSubKey(PerUserInstallCleanup.UninstallKey);
             key.SetValue("InstallLocation", location);
             key.SetValue("UninstallString", $"\"{uninstaller ?? Path.Combine(location, "unins000.exe")}\"");
+            key.SetValue("DisplayVersion", "1.3.312");
         }
 
         [Fact]
@@ -71,8 +72,17 @@ namespace Greenshot.Tests.Helpers
             Register(_machine, AllUsers);
             Register(_user, _oldInstallation, _oldUninstaller);
 
-            Assert.Equal(_oldInstallation, PerUserInstallCleanup.FindOldPerUserInstallation(_user, _machine, AllUsers, out string uninstaller));
+            Assert.Equal(_oldInstallation, PerUserInstallCleanup.FindOldPerUserInstallation(_user, _machine, AllUsers, out string uninstaller, out string version));
             Assert.Equal(_oldUninstaller, uninstaller);
+            Assert.Equal("1.3.312", version);
+        }
+
+        [Fact]
+        public void IsKept_ComparesTheFolders()
+        {
+            Assert.True(PerUserInstallCleanup.IsKept([@"C:\Users\anna\AppData\Local\Programs\Greenshot"], @"c:\users\anna\appdata\local\programs\greenshot\"));
+            Assert.False(PerUserInstallCleanup.IsKept([@"C:\Users\carl\AppData\Local\Programs\Greenshot\"], @"C:\Users\anna\AppData\Local\Programs\Greenshot\"));
+            Assert.False(PerUserInstallCleanup.IsKept(null, @"C:\Users\anna\AppData\Local\Programs\Greenshot\"));
         }
 
         [Fact]
@@ -80,7 +90,7 @@ namespace Greenshot.Tests.Helpers
         {
             Register(_machine, AllUsers);
 
-            Assert.Null(PerUserInstallCleanup.FindOldPerUserInstallation(_user, _machine, AllUsers, out _));
+            Assert.Null(PerUserInstallCleanup.FindOldPerUserInstallation(_user, _machine, AllUsers, out _, out _));
         }
 
         [Theory]
@@ -91,7 +101,7 @@ namespace Greenshot.Tests.Helpers
             Register(_machine, AllUsers);
             Register(_user, _oldInstallation, _oldUninstaller);
 
-            Assert.Null(PerUserInstallCleanup.FindOldPerUserInstallation(_user, _machine, runningDirectory, out _));
+            Assert.Null(PerUserInstallCleanup.FindOldPerUserInstallation(_user, _machine, runningDirectory, out _, out _));
         }
 
         [Fact]
@@ -99,7 +109,7 @@ namespace Greenshot.Tests.Helpers
         {
             Register(_user, _oldInstallation, _oldUninstaller);
 
-            Assert.Null(PerUserInstallCleanup.FindOldPerUserInstallation(_user, _machine, _oldInstallation, out _));
+            Assert.Null(PerUserInstallCleanup.FindOldPerUserInstallation(_user, _machine, _oldInstallation, out _, out _));
         }
 
         [Fact]
@@ -108,7 +118,7 @@ namespace Greenshot.Tests.Helpers
             Register(_machine, AllUsers);
             Register(_user, @"C:\Users\Nobody\AppData\Local\Programs\Greenshot\");
 
-            Assert.Null(PerUserInstallCleanup.FindOldPerUserInstallation(_user, _machine, AllUsers, out string uninstaller));
+            Assert.Null(PerUserInstallCleanup.FindOldPerUserInstallation(_user, _machine, AllUsers, out string uninstaller, out _));
             Assert.Null(uninstaller);
         }
 
