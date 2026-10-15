@@ -35,6 +35,8 @@ On the last step "Next" reads "Let's go!" and closes the window, Esc closes it o
      Self-Service window (`HotkeySectionViewModel`).
 
    The checks run again whenever the window is activated, so coming back from the Windows settings updates them.
+   Below them is the switch "Launch Greenshot on startup", the same as in the settings (`StartupHelper`): it shows whether this
+   Greenshot starts with Windows for the user and changes only the user's own entry, see [autostart.md](autostart.md).
 4. **Done**: a few words that everything is ready, a button to the settings, and a tip from the set,
    picked at random when the window opens; "Another tip" shows the next one.
 

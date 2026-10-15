@@ -33,6 +33,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Languages;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Wpf;
+using Greenshot.Helpers;
 using Greenshot.SelfService.ViewModels;
 using Greenshot.ViewModels;
 using log4net;
@@ -87,6 +88,32 @@ namespace Greenshot.Views
         public Visibility BackVisibility => _currentStep > 0 ? Visibility.Visible : Visibility.Hidden;
 
         public string NextText => _currentStep == _steps.Length - 1 ? Texts.Welcome.ButtonStart : Texts.Welcome.ButtonNext;
+
+        /// <summary>
+        /// Does this Greenshot start with Windows for the current user? Changing it changes the user's own entry, like the settings do.
+        /// </summary>
+        public bool IsAutostartEnabled
+        {
+            get => StartupHelper.IsAutostartEnabled();
+            set
+            {
+                if (value == StartupHelper.IsAutostartEnabled())
+                {
+                    return;
+                }
+
+                if (value)
+                {
+                    StartupHelper.EnableAutostart();
+                }
+                else
+                {
+                    StartupHelper.DisableAutostart();
+                }
+
+                OnPropertyChanged();
+            }
+        }
 
         public Visibility TrayIconHiddenVisibility => IsTrayIconHidden ? Visibility.Visible : Visibility.Collapsed;
         public Visibility SnippingToolVisibility => _hotkeyChecks.IsSnippingToolHijackEnabled ? Visibility.Visible : Visibility.Collapsed;
@@ -228,6 +255,7 @@ namespace Greenshot.Views
             OnPropertyChanged(nameof(SnippingToolVisibility));
             OnPropertyChanged(nameof(OneDriveVisibility));
             OnPropertyChanged(nameof(SetupOkVisibility));
+            OnPropertyChanged(nameof(IsAutostartEnabled));
         }
 
         /// <summary>

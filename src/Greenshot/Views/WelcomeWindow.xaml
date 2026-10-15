@@ -15,6 +15,10 @@
         Background="{Binding WindowBackgroundBrush}">
 
     <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         <!-- Modern Primary Button Style -->
         <Style x:Key="PrimaryButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="{Binding AccentBrush}"/>
@@ -110,6 +114,7 @@
             <Setter Property="Foreground" Value="{Binding TextSecondaryBrush}"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
         </Style>
+        </ResourceDictionary>
     </Window.Resources>
 
     <Border BorderThickness="1" BorderBrush="{Binding CardBorderBrush}" Background="{Binding WindowBackgroundBrush}">
@@ -208,6 +213,8 @@
                                     <TextBlock Grid.Column="0" Text="{wpf:Text Welcome.SetupOnedrive}" Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0"/>
                                     <Button Grid.Column="1" Content="{wpf:Text Welcome.SetupOnedriveFix}" Style="{StaticResource SecondaryButtonStyle}" Click="OnFixOneDriveClicked" VerticalAlignment="Center"/>
                                 </Grid>
+                                <!-- The same switch as in the settings: only this user's own entry, see docs/autostart.md -->
+                                <CheckBox Content="{wpf:Text Settings.Autostartshortcut}" IsChecked="{Binding IsAutostartEnabled, Mode=TwoWay}" Margin="0,4,0,0"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>
