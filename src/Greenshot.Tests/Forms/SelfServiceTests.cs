@@ -45,13 +45,14 @@ namespace Greenshot.Tests.Forms
 
             Assert.NotNull(vm.Sections);
 #if DEBUG
-            Assert.Equal(6, vm.Sections.Count);
+            Assert.Equal(7, vm.Sections.Count);
             Assert.NotNull(vm.IntegrationDebugSection);
 #else
-            Assert.Equal(5, vm.Sections.Count);
+            Assert.Equal(6, vm.Sections.Count);
 #endif
 
             Assert.NotNull(vm.SystemInfoSection);
+            Assert.NotNull(vm.SetupSection);
             Assert.NotNull(vm.FileInfoSection);
             Assert.NotNull(vm.ClipboardSection);
             Assert.NotNull(vm.HotkeySection);

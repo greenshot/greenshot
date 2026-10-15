@@ -184,12 +184,15 @@
 
                     <!-- Step: the setup -->
                     <StackPanel x:Name="StepSetup" Visibility="Hidden">
-                        <!-- The setup: what keeps Greenshot from working as expected, with a fix -->
+                        <!-- The setup: every check with ✓, or what keeps Greenshot from working as expected with a fix (SetupSectionViewModel, also in the Self-Service window) -->
                         <Border Style="{StaticResource CardStyle}">
                             <StackPanel>
                                 <TextBlock Text="{wpf:Text Welcome.SetupTitle}" Style="{StaticResource CardTitleStyle}"/>
-                                <TextBlock Text="{wpf:Text Welcome.SetupOk}" Foreground="{Binding AccentBrush}" TextWrapping="Wrap" Visibility="{Binding SetupOkVisibility}"/>
-                                <Grid Visibility="{Binding TrayIconHiddenVisibility}" Margin="0,0,0,8">
+                                <TextBlock Text="{wpf:Text Welcome.SetupSub}" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                                <TextBlock Visibility="{Binding Setup.TrayIconOkVisibility}" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8">
+                                    <Run Text="✓ " Foreground="{Binding AccentBrush}" FontWeight="Bold"/><Run Text="{wpf:Text Welcome.SetupTrayOk}"/>
+                                </TextBlock>
+                                <Grid Visibility="{Binding Setup.TrayIconHiddenVisibility}" Margin="0,0,0,8">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
@@ -197,7 +200,10 @@
                                     <TextBlock Grid.Column="0" Text="{wpf:Text Welcome.SetupTrayHidden}" Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0"/>
                                     <Button Grid.Column="1" Content="{wpf:Text Welcome.SetupTrayFix}" Style="{StaticResource SecondaryButtonStyle}" Click="OnShowTrayIconClicked" VerticalAlignment="Center"/>
                                 </Grid>
-                                <Grid Visibility="{Binding SnippingToolVisibility}" Margin="0,0,0,8">
+                                <TextBlock Visibility="{Binding Setup.PrintKeyOkVisibility}" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8">
+                                    <Run Text="✓ " Foreground="{Binding AccentBrush}" FontWeight="Bold"/><Run Text="{wpf:Text Welcome.SetupPrintOk}"/>
+                                </TextBlock>
+                                <Grid Visibility="{Binding Setup.SnippingToolVisibility}" Margin="0,0,0,8">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
@@ -205,7 +211,7 @@
                                     <TextBlock Grid.Column="0" Text="{wpf:Text Welcome.SetupSnipping}" Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0"/>
                                     <Button Grid.Column="1" Content="{wpf:Text Welcome.SetupSnippingFix}" Style="{StaticResource SecondaryButtonStyle}" Click="OnFixSnippingToolClicked" VerticalAlignment="Center"/>
                                 </Grid>
-                                <Grid Visibility="{Binding OneDriveVisibility}" Margin="0,0,0,8">
+                                <Grid Visibility="{Binding Setup.OneDriveVisibility}" Margin="0,0,0,8">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
@@ -214,7 +220,7 @@
                                     <Button Grid.Column="1" Content="{wpf:Text Welcome.SetupOnedriveFix}" Style="{StaticResource SecondaryButtonStyle}" Click="OnFixOneDriveClicked" VerticalAlignment="Center"/>
                                 </Grid>
                                 <!-- The same switch as in the settings: only this user's own entry, see docs/autostart.md -->
-                                <CheckBox Content="{wpf:Text Settings.Autostartshortcut}" IsChecked="{Binding IsAutostartEnabled, Mode=TwoWay}" Margin="0,4,0,0"/>
+                                <CheckBox Content="{wpf:Text Settings.Autostartshortcut}" IsChecked="{Binding Setup.IsAutostartEnabled, Mode=TwoWay}" Margin="0,4,0,0"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>

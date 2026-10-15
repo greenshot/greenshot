@@ -22,7 +22,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -33,11 +32,9 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Languages;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Wpf;
-using Greenshot.Helpers;
 using Greenshot.SelfService.ViewModels;
 using Greenshot.ViewModels;
 using log4net;
-using Microsoft.Win32;
 
 namespace Greenshot.Views
 {
@@ -49,9 +46,6 @@ namespace Greenshot.Views
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(WelcomeWindow));
         private static WelcomeWindow _currentInstance;
-        // Hardcodet.NotifyIcon.Wpf adds every icon with id 0, see Shell/TrayIcon.cs
-        private const int TrayIconId = 0;
-        private readonly HotkeySectionViewModel _hotkeyChecks = new();
         private readonly Random _rand = new();
         private int _tipIndex;
         // The steps of the wizard, in their order; a new step is a panel in the XAML and an entry here
@@ -77,7 +71,10 @@ namespace Greenshot.Views
 
         public string CurrentTip { get; private set; }
 
-        public bool IsTrayIconHidden { get; private set; }
+        /// <summary>
+        /// The checks of the "Your setup" step, the same as in the Self-Service window
+        /// </summary>
+        public SetupSectionViewModel Setup { get; } = new();
 
         /// <summary>
         /// One dot per step, the current one in the accent color
@@ -88,39 +85,6 @@ namespace Greenshot.Views
         public Visibility BackVisibility => _currentStep > 0 ? Visibility.Visible : Visibility.Hidden;
 
         public string NextText => _currentStep == _steps.Length - 1 ? Texts.Welcome.ButtonStart : Texts.Welcome.ButtonNext;
-
-        /// <summary>
-        /// Does this Greenshot start with Windows for the current user? Changing it changes the user's own entry, like the settings do.
-        /// </summary>
-        public bool IsAutostartEnabled
-        {
-            get => StartupHelper.IsAutostartEnabled();
-            set
-            {
-                if (value == StartupHelper.IsAutostartEnabled())
-                {
-                    return;
-                }
-
-                if (value)
-                {
-                    StartupHelper.EnableAutostart();
-                }
-                else
-                {
-                    StartupHelper.DisableAutostart();
-                }
-
-                OnPropertyChanged();
-            }
-        }
-
-        public Visibility TrayIconHiddenVisibility => IsTrayIconHidden ? Visibility.Visible : Visibility.Collapsed;
-        public Visibility SnippingToolVisibility => _hotkeyChecks.IsSnippingToolHijackEnabled ? Visibility.Visible : Visibility.Collapsed;
-        public Visibility OneDriveVisibility => _hotkeyChecks.IsOneDriveBlocking ? Visibility.Visible : Visibility.Collapsed;
-
-        public Visibility SetupOkVisibility =>
-            IsTrayIconHidden || _hotkeyChecks.IsSnippingToolHijackEnabled || _hotkeyChecks.IsOneDriveBlocking ? Visibility.Collapsed : Visibility.Visible;
 
         private static ICoreConfiguration CoreConfiguration => IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
 
@@ -233,144 +197,22 @@ namespace Greenshot.Views
         protected override void OnActivated(EventArgs e)
         {
             base.OnActivated(e);
-            RefreshSetup();
-        }
-
-        private void RefreshSetup()
-        {
-            try
-            {
-                IsTrayIconHidden = IsHiddenInOverflow(Registry.CurrentUser, System.Windows.Forms.Application.ExecutablePath, TrayIconId);
-            }
-            catch (Exception ex)
-            {
-                Log.Warn("Couldn't check if the notification area icon is shown", ex);
-                IsTrayIconHidden = false;
-            }
-
-            _hotkeyChecks.CheckSnippingToolStatus();
-            _hotkeyChecks.CheckOneDriveStatus();
-            OnPropertyChanged(nameof(IsTrayIconHidden));
-            OnPropertyChanged(nameof(TrayIconHiddenVisibility));
-            OnPropertyChanged(nameof(SnippingToolVisibility));
-            OnPropertyChanged(nameof(OneDriveVisibility));
-            OnPropertyChanged(nameof(SetupOkVisibility));
-            OnPropertyChanged(nameof(IsAutostartEnabled));
-        }
-
-        /// <summary>
-        /// Windows 11 remembers per notification icon if it's shown next to the clock (IsPromoted 1) or hidden in the overflow,
-        /// in HKCU\Control Panel\NotifyIconSettings\{a number of Windows}, one key per executable and icon id (UID).
-        /// A new icon is hidden until the user shows it. Windows 10 has no such key, there it's never reported as hidden.
-        /// </summary>
-        /// <param name="currentUser">HKEY_CURRENT_USER</param>
-        /// <param name="executablePath">The path of Greenshot.exe</param>
-        /// <param name="iconId">The id Greenshot adds its icon with</param>
-        /// <returns>True when Windows has the icon and hides it</returns>
-        internal static bool IsHiddenInOverflow(RegistryKey currentUser, string executablePath, int iconId)
-        {
-            using var iconKey = OpenIconSettings(currentUser, executablePath, iconId, false);
-            return iconKey != null && !(iconKey.GetValue("IsPromoted") is int isPromoted && isPromoted == 1);
-        }
-
-        /// <summary>
-        /// Show the icon next to the clock, like the switch of the icon in the taskbar settings does: Windows applies it right away.
-        /// This isn't documented and only done when the user asks for it.
-        /// </summary>
-        /// <returns>False when Windows has no settings for the icon</returns>
-        internal static bool ShowNextToClock(RegistryKey currentUser, string executablePath, int iconId)
-        {
-            using var iconKey = OpenIconSettings(currentUser, executablePath, iconId, true);
-            if (iconKey == null)
-            {
-                return false;
-            }
-
-            iconKey.SetValue("IsPromoted", 1, RegistryValueKind.DWord);
-            return true;
-        }
-
-        /// <summary>
-        /// The key Windows keeps for the icon with this id of this executable, null when there is none
-        /// </summary>
-        private static RegistryKey OpenIconSettings(RegistryKey currentUser, string executablePath, int iconId, bool writable)
-        {
-            using var notifyIconSettings = currentUser.OpenSubKey(@"Control Panel\NotifyIconSettings");
-            if (notifyIconSettings == null)
-            {
-                return null;
-            }
-
-            foreach (var iconKeyName in notifyIconSettings.GetSubKeyNames())
-            {
-                var iconKey = notifyIconSettings.OpenSubKey(iconKeyName, writable);
-                if (iconKey?.GetValue("ExecutablePath") is string registeredPath && IsSameExecutable(registeredPath, executablePath)
-                    && iconKey.GetValue("UID") is int uid && uid == iconId)
-                {
-                    return iconKey;
-                }
-                iconKey?.Dispose();
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// The path of an executable in a known folder starts with the GUID of the folder,
-        /// e.g. {6D809377-6AF0-444B-8957-A3773F02200E}\Greenshot\Greenshot.exe for C:\Program Files\Greenshot\Greenshot.exe
-        /// </summary>
-        internal static bool IsSameExecutable(string registeredPath, string executablePath)
-        {
-            if (string.IsNullOrEmpty(registeredPath) || string.IsNullOrEmpty(executablePath))
-            {
-                return false;
-            }
-
-            int knownFolderEnd = registeredPath.StartsWith("{", StringComparison.Ordinal) ? registeredPath.IndexOf('}') : -1;
-            if (knownFolderEnd > 0)
-            {
-                return executablePath.EndsWith(registeredPath.Substring(knownFolderEnd + 1), StringComparison.OrdinalIgnoreCase);
-            }
-
-            return string.Equals(registeredPath, executablePath, StringComparison.OrdinalIgnoreCase);
+            Setup.Refresh();
         }
 
         private void OnShowTrayIconClicked(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                if (ShowNextToClock(Registry.CurrentUser, System.Windows.Forms.Application.ExecutablePath, TrayIconId))
-                {
-                    RefreshSetup();
-                    return;
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Warn("Couldn't show the notification area icon next to the clock", ex);
-            }
-
-            // Windows wouldn't take it, the user can still switch it on in the taskbar settings
-            try
-            {
-                Process.Start(new ProcessStartInfo("ms-settings:taskbar") { UseShellExecute = true })?.Dispose();
-            }
-            catch (Exception ex)
-            {
-                Log.Warn("Couldn't open the taskbar settings", ex);
-            }
+            Setup.ShowTrayIcon();
         }
 
         private void OnFixSnippingToolClicked(object sender, RoutedEventArgs e)
         {
-            _hotkeyChecks.DisableSnippingToolTakeover();
-            RefreshSetup();
+            Setup.FixSnippingTool();
         }
 
         private void OnFixOneDriveClicked(object sender, RoutedEventArgs e)
         {
-            _hotkeyChecks.DisableOneDriveHotkey();
-            RefreshSetup();
+            Setup.FixOneDrive();
         }
 
         private void OnNextTipClicked(object sender, RoutedEventArgs e)

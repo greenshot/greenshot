@@ -79,6 +79,7 @@ namespace Greenshot.SelfService.Views
             string sectionId = ViewModel?.CurrentSectionId ?? "system";
 
             SystemInfoPanel.Visibility = sectionId == "system" ? Visibility.Visible : Visibility.Collapsed;
+            SetupPanel.Visibility = sectionId == "setup" ? Visibility.Visible : Visibility.Collapsed;
             FileInfoPanel.Visibility = sectionId == "files" ? Visibility.Visible : Visibility.Collapsed;
             ClipboardPanel.Visibility = sectionId == "clipboard" ? Visibility.Visible : Visibility.Collapsed;
             HotkeysPanel.Visibility = sectionId == "hotkeys" ? Visibility.Visible : Visibility.Collapsed;
@@ -280,6 +281,22 @@ namespace Greenshot.SelfService.Views
         {
             ViewModel?.ClipboardSection.ClearLog();
             UpdateStatusText(Texts.SelfService.ClipboardLogCleared ?? "Monitor log cleared");
+        }
+
+        // Your setup actions, the same checks as in the welcome window
+        private void OnShowTrayIconClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.SetupSection.ShowTrayIcon();
+        }
+
+        private void OnFixSetupSnippingToolClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.SetupSection.FixSnippingTool();
+        }
+
+        private void OnFixSetupOneDriveClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.SetupSection.FixOneDrive();
         }
 
         // Section 4 actions

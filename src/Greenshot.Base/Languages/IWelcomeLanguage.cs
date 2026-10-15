@@ -102,11 +102,6 @@ namespace Greenshot.Base.Languages
         string Intro { get; }
 
         /// <summary>
-        /// Everything looks good, Greenshot is ready.
-        /// </summary>
-        string SetupOk { get; }
-
-        /// <summary>
         /// OneDrive takes the Print key to save screenshots itself.
         /// </summary>
         string SetupOnedrive { get; }
@@ -117,6 +112,11 @@ namespace Greenshot.Base.Languages
         string SetupOnedriveFix { get; }
 
         /// <summary>
+        /// The Print key starts Greenshot.
+        /// </summary>
+        string SetupPrintOk { get; }
+
+        /// <summary>
         /// The Print key opens the Windows Snipping Tool instead of Greenshot.
         /// </summary>
         string SetupSnipping { get; }
@@ -125,6 +125,11 @@ namespace Greenshot.Base.Languages
         /// Let Greenshot have the Print key
         /// </summary>
         string SetupSnippingFix { get; }
+
+        /// <summary>
+        /// What Greenshot needs to work as expected, with a fix where something is off
+        /// </summary>
+        string SetupSub { get; }
 
         /// <summary>
         /// Your setup
@@ -140,6 +145,11 @@ namespace Greenshot.Base.Languages
         /// Windows hides the Greenshot icon behind the arrow (^) next to the clock. Greenshot can show it next to the clock for you, or you can switch it on yourself under &quot;Other system tray icons&quot; in the taskbar settings.
         /// </summary>
         string SetupTrayHidden { get; }
+
+        /// <summary>
+        /// The Greenshot icon is shown next to the clock.
+        /// </summary>
+        string SetupTrayOk { get; }
 
         /// <summary>
         /// Thank you for installing Greenshot! It's running now and waits for you in the notification area, next to the clock.
