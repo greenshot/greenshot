@@ -28,10 +28,5 @@ namespace Greenshot.Base.Interfaces
         public SurfaceMessageTyp MessageType { get; set; }
         public string Message { get; set; }
         public ISurface Surface { get; set; }
-
-        /// <summary>
-        /// The destination the message is about (e.g. a toast shows its icon), null when it didn't come from a destination
-        /// </summary>
-        public IDestination Destination { get; set; }
     }
 }

@@ -45,10 +45,10 @@ namespace Greenshot.Notifications
         private static string IconDirectory => Path.Combine(GreenshotEnvironment.LocalDataDirectory, "Notifications", "Icons");
 
         /// <summary>
-        /// The icon files of the destinations of the messages, by the icon key of the destination
+        /// The icon files of the destinations, by the icon key of the destination
         /// </summary>
         /// <returns>Empty when the notifications don't show images (e.g. the balloons of the tray icon) or are turned off</returns>
-        public static async Task<IReadOnlyDictionary<string, string>> GetIconPathsAsync(IEnumerable<SurfaceMessageEventArgs> messages, CancellationToken cancellationToken = default)
+        public static async Task<IReadOnlyDictionary<string, string>> GetIconPathsAsync(IEnumerable<IDestination> destinations, CancellationToken cancellationToken = default)
         {
             var paths = new Dictionary<string, string>(StringComparer.Ordinal);
             var notificationService = SimpleServiceProvider.Current.GetInstance<INotificationService>(isOptional: true);
@@ -57,7 +57,7 @@ namespace Greenshot.Notifications
                 return paths;
             }
 
-            var iconKeys = messages.Select(m => m?.Destination?.Descriptor?.IconKey).Where(k => !string.IsNullOrEmpty(k)).Distinct(StringComparer.Ordinal);
+            var iconKeys = destinations.Select(d => d?.Descriptor?.IconKey).Where(k => !string.IsNullOrEmpty(k)).Distinct(StringComparer.Ordinal);
             foreach (var iconKey in iconKeys)
             {
                 var path = await GetIconPathAsync(iconKey, cancellationToken).ConfigureAwait(false);

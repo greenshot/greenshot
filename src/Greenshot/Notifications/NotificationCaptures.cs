@@ -102,19 +102,26 @@ namespace Greenshot.Notifications
         public static string NewId() => CreateId();
 
         /// <summary>
-        /// Writes the thumbnail the notification shows, on any thread (see <see cref="GetThumbnailPath"/>)
+        /// Writes the thumbnail the notification shows, from the rendered capture (see <see cref="GetThumbnailPath"/>)
         /// </summary>
         /// <param name="id">The id of the capture</param>
-        /// <param name="image">The exported capture</param>
+        /// <param name="source">What was exported</param>
+        /// <param name="cancellationToken">CancellationToken</param>
         /// <returns>The thumbnail file, null when it couldn't be written</returns>
-        public static string WriteThumbnail(string id, Image image)
+        public static async Task<string> WriteThumbnailAsync(string id, IExportSource source, CancellationToken cancellationToken)
         {
             try
             {
+                using var lease = await source.RenderAsync(new SurfaceOutputSettings(), cancellationToken).ConfigureAwait(false);
+                var image = lease.Image;
                 Directory.CreateDirectory(StoreDirectory);
                 using var thumbnail = ImageHelper.CreateThumbnail(image, Math.Min(image.Width, ThumbnailWidth), -1, ThumbnailWidth, ThumbnailHeight);
                 thumbnail.Save(GetThumbnailPath(id), ImageFormat.Png);
                 return GetThumbnailPath(id);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
@@ -124,25 +131,20 @@ namespace Greenshot.Notifications
         }
 
         /// <summary>
-        /// Keeps the capture for its notification, after the notification is shown: the user doesn't wait for it. The elements are
-        /// serialized on the UI thread, the file is written and the captures of the notifications which are gone are removed on a
-        /// pool thread.
+        /// Keeps the capture for its notification, after the notification is shown: the user doesn't wait for it. The export source
+        /// encodes it in the greenshot format (the elements are serialized on the UI thread), the file is written and the captures
+        /// of the notifications which are gone are removed on the pool thread of the flow.
         /// </summary>
-        public static async Task WriteCaptureAsync(string id, ISurface surface, IUiDispatcher ui, CancellationToken cancellationToken)
+        public static async Task WriteCaptureAsync(string id, IExportSource source, CancellationToken cancellationToken)
         {
             try
             {
-                var bytes = await ui.InvokeAsync(() =>
-                {
-                    using var stream = new MemoryStream();
-                    ImageIO.SaveToStream(surface, stream, new SurfaceOutputSettings(WellKnownFileFormats.Greenshot));
-                    return stream.ToArray();
-                }, cancellationToken).ConfigureAwait(false);
-                // Back on the pool thread of the flow
+                var encoded = await source.EncodeAsync(new SurfaceOutputSettings(WellKnownFileFormats.Greenshot), cancellationToken).ConfigureAwait(false);
                 Directory.CreateDirectory(StoreDirectory);
                 using (var file = new FileStream(GetCapturePath(id), FileMode.Create, FileAccess.Write, FileShare.None, 81920, useAsync: true))
+                using (var stream = encoded.OpenRead())
                 {
-                    await file.WriteAsync(bytes, 0, bytes.Length, cancellationToken).ConfigureAwait(false);
+                    await stream.CopyToAsync(file, 81920, cancellationToken).ConfigureAwait(false);
                 }
                 var notificationService = SimpleServiceProvider.Current.GetInstance<INotificationService>(isOptional: true);
                 if (notificationService != null)

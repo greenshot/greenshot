@@ -29,7 +29,8 @@ namespace Greenshot.Base.Core.Export
 {
     /// <summary>
     /// Turns an export result into surface state (upload link, last saved path, modified flag) and the surface message,
-    /// which the editor shows in its status bar and the notification handler as notification. Runs on the UI thread,
+    /// which the editor shows in its status bar. The notification of a flow is made from its export log instead
+    /// (see Recipes.Pipeline.ExportLog), the text is the same (<see cref="GetMessage"/>). Runs on the UI thread,
     /// through the export source (what AbstractDestination.ProcessExport did inside every destination).
     /// </summary>
     public static class ExportResultHandler
@@ -42,7 +43,7 @@ namespace Greenshot.Base.Core.Export
                 return Task.CompletedTask;
             }
 
-            // The message is about the destination which really exported (e.g. the one picked in the picker), its icon shows in the notification
+            // The message is about the destination which really exported (e.g. the one picked in the picker)
             destination = result.ExportedBy ?? destination;
             string target = result.Target ?? destination.Descriptor?.DisplayName ?? destination.Designation;
             return source.UseSurfaceAsync(surface =>
@@ -52,6 +53,27 @@ namespace Greenshot.Base.Core.Export
             }, cancellationToken);
         }
 
+        /// <summary>
+        /// What an export tells the user, e.g. "Exported to: Clipboard": in the status bar of the editor and in the notification
+        /// </summary>
+        /// <returns>null for nothing to tell: declined, or failed without an error</returns>
+        public static string GetMessage(ExportResult result, string target)
+        {
+            if (result == null)
+            {
+                return null;
+            }
+            if (result.IsSucceeded)
+            {
+                return string.Format(Texts.Core.ExportedTo, target);
+            }
+            if (result.Status == ExportStatus.Failed && !string.IsNullOrEmpty(result.Error))
+            {
+                return string.Format(Texts.Core.ExportedToError, target) + " " + result.Error;
+            }
+            return null;
+        }
+
         private static void Apply(IDestination destination, ExportResult result, ISurface surface, string target)
         {
             if (surface == null)
@@ -59,31 +81,30 @@ namespace Greenshot.Base.Core.Export
                 return;
             }
 
+            string message = GetMessage(result, target);
             if (result.IsSucceeded)
             {
+                SurfaceMessageTyp messageType = SurfaceMessageTyp.Info;
                 if (result.Uri != null)
                 {
                     surface.UploadUrl = result.Uri.AbsoluteUri;
-                    surface.SendMessageEvent(destination, SurfaceMessageTyp.UploadedUri, string.Format(Texts.Core.ExportedTo, target));
+                    messageType = SurfaceMessageTyp.UploadedUri;
                 }
                 else if (!string.IsNullOrEmpty(result.FilePath))
                 {
                     surface.LastSaveFullPath = result.FilePath;
-                    surface.SendMessageEvent(destination, SurfaceMessageTyp.FileSaved, string.Format(Texts.Core.ExportedTo, target));
+                    messageType = SurfaceMessageTyp.FileSaved;
                 }
-                else
-                {
-                    surface.SendMessageEvent(destination, SurfaceMessageTyp.Info, string.Format(Texts.Core.ExportedTo, target));
-                }
+                surface.SendMessageEvent(destination, messageType, message);
 
                 if (result.ClearsModified)
                 {
                     surface.Modified = false;
                 }
             }
-            else if (!string.IsNullOrEmpty(result.Error))
+            else if (message != null)
             {
-                surface.SendMessageEvent(destination, SurfaceMessageTyp.Error, string.Format(Texts.Core.ExportedToError, target) + " " + result.Error);
+                surface.SendMessageEvent(destination, SurfaceMessageTyp.Error, message);
             }
         }
     }

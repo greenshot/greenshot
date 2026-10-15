@@ -21,16 +21,19 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.Export;
 using Greenshot.Base.Interfaces;
-
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Pipeline;
-using Greenshot.Recipes.Pipeline;
+using Greenshot.Base.Threading;
 using log4net;
 #if !GREENSHOT_LIGHT
 using Greenshot.Notifications;
@@ -65,12 +68,10 @@ namespace Greenshot.Recipes.Steps
             bool showNotification = ResolveShowNotification(context);
             context.Properties["EnableCompletionNotification"] = showNotification;
 
-            // The messages of the exports before this step, one notification shows them; the surfaces are used on the UI thread
-            if (!showNotification || !context.Properties.TryGetValue(DestinationDispatcher.ExportMessagesProperty, out var value) || value is not List<SurfaceMessageEventArgs> messages)
-            {
-                return;
-            }
-            var shown = DestinationDispatcher.GetNotifiedMessages(messages);
+            // The exports since the previous Notification step (of all destination and plugin steps, also of parallel branches),
+            // one notification shows them
+            var exports = context.GetExportLog().TakeUnnotified();
+            var shown = showNotification ? GetShownExports(exports) : Array.Empty<ExportOutcome>();
             if (shown.Count == 0)
             {
                 return;
@@ -79,32 +80,99 @@ namespace Greenshot.Recipes.Steps
             IReadOnlyDictionary<string, string> iconPaths = null;
             string captureId = null;
             string thumbnailPath = null;
+            var last = shown[shown.Count - 1];
 #if !GREENSHOT_LIGHT
-            // The icons of the destinations as files, before the UI thread: the toast shows one row per destination with its icon
-            iconPaths = await NotificationIcons.GetIconPathsAsync(shown, cancellationToken).ConfigureAwait(false);
+            // The icons of the destinations as files: the toast shows one row per destination with its icon
+            iconPaths = await NotificationIcons.GetIconPathsAsync(shown.Select(e => e.Destination), cancellationToken).ConfigureAwait(false);
             // What went to the (last) destination is kept, a click on the toast offers it in the destination picker, also after a
             // restart. Before the toast only its thumbnail is written, the capture itself after it.
-            var surface = shown[shown.Count - 1].Surface;
-            if (surface != null && NotificationCaptures.KeepsCaptures)
+            if (last.Source != null && NotificationCaptures.KeepsCaptures)
             {
                 captureId = NotificationCaptures.NewId();
                 if (CoreConfig.ShowNotificationThumbnail)
                 {
-                    var image = await context.Ui.InvokeAsync(() => surface.GetImageForExport(), cancellationToken).ConfigureAwait(false);
-                    using (image)
-                    {
-                        thumbnailPath = NotificationCaptures.WriteThumbnail(captureId, image);
-                    }
+                    thumbnailPath = await NotificationCaptures.WriteThumbnailAsync(captureId, last.Source, cancellationToken).ConfigureAwait(false);
                 }
             }
 #endif
-            await context.Ui.InvokeAsync(() => DestinationDispatcher.Notify(shown, iconPaths, captureId, thumbnailPath), cancellationToken).ConfigureAwait(false);
+            var notification = CreateNotification(shown, iconPaths, captureId, thumbnailPath);
+            await context.Ui.InvokeAsync(() => UserInteraction.Current.NotifyAsync(notification).FireAndLog("Export notification", Log), cancellationToken).ConfigureAwait(false);
 #if !GREENSHOT_LIGHT
             if (captureId != null)
             {
-                await NotificationCaptures.WriteCaptureAsync(captureId, surface, context.Ui, cancellationToken).ConfigureAwait(false);
+                await NotificationCaptures.WriteCaptureAsync(captureId, last.Source, cancellationToken).ConfigureAwait(false);
             }
 #endif
+        }
+
+        /// <summary>
+        /// The exports a notification shows: those with something to tell (see <see cref="ExportResultHandler.GetMessage"/>), none when
+        /// the notification level doesn't show their kind (then nothing is kept for them either)
+        /// </summary>
+        internal static IReadOnlyList<ExportOutcome> GetShownExports(IEnumerable<ExportOutcome> exports)
+        {
+            var shown = exports.Where(e => GetMessage(e) != null).ToList();
+            if (shown.Count == 0 || !CoreConfig.ShowTrayNotification || !CoreConfig.NotificationLevel.Shows(GetKind(shown)))
+            {
+                return Array.Empty<ExportOutcome>();
+            }
+            return shown;
+        }
+
+        private static string GetMessage(ExportOutcome export) => ExportResultHandler.GetMessage(export.Result, export.Target);
+
+        internal static NotificationKind GetKind(IEnumerable<ExportOutcome> shown) =>
+            shown.Any(e => e.Result.Status == ExportStatus.Failed) ? NotificationKind.Error : NotificationKind.Info;
+
+        /// <summary>
+        /// One notification for the exports: a line per export, with the icon of its destination
+        /// </summary>
+        /// <param name="shown">The exports, see <see cref="GetShownExports"/></param>
+        /// <param name="iconPaths">The icon files of the destinations by their icon key, null or empty for no icons</param>
+        /// <param name="captureId">The capture kept for the notification, which a click offers in the destination picker, or null</param>
+        /// <param name="thumbnailPath">The thumbnail of the capture, or null</param>
+        internal static Notification CreateNotification(IReadOnlyList<ExportOutcome> shown, IReadOnlyDictionary<string, string> iconPaths, string captureId, string thumbnailPath)
+        {
+            var last = shown[shown.Count - 1];
+            var lines = shown.Select(e =>
+            {
+                string iconPath = null;
+                var iconKey = e.Destination.Descriptor?.IconKey;
+                if (iconKey != null)
+                {
+                    iconPaths?.TryGetValue(iconKey, out iconPath);
+                }
+                return new NotificationLine(GetMessage(e), iconPath);
+            }).ToList();
+
+            // Each export has its own file or link
+            var savedFile = shown.LastOrDefault(e => e.Result.IsSucceeded && e.Result.Uri == null && !string.IsNullOrEmpty(e.Result.FilePath))?.Result.FilePath;
+            var uploadUrl = shown.LastOrDefault(e => e.Result.IsSucceeded && e.Result.Uri != null)?.Result.Uri.AbsoluteUri;
+            // Without a toast (tray balloon, Light) a click opens the saved file or the upload, the one which was exported last
+            var opens = shown.LastOrDefault(e => e.Result.IsSucceeded && (e.Result.Uri != null || !string.IsNullOrEmpty(e.Result.FilePath)))?.Result;
+            IReadOnlyList<NotificationButton> buttons = null;
+#if !GREENSHOT_LIGHT
+            // Only the toasts show them, the balloons of the tray icon (Light) don't
+            buttons = NotificationButtons.Create(captureId, savedFile, uploadUrl);
+#endif
+            // Above the lines: what was captured (e.g. the title of the window), else Greenshot
+            var title = last.CaptureDetails?.Title;
+            return new Notification(GetKind(shown),
+                string.Join(Environment.NewLine, lines.Select(l => l.Text)), TimeSpan.FromHours(1),
+                opens == null ? (Action)null : () => Open(opens), captureId, thumbnailPath,
+                string.IsNullOrWhiteSpace(title) ? "Greenshot" : title, lines, buttons);
+        }
+
+        private static void Open(ExportResult result)
+        {
+            if (result.Uri != null)
+            {
+                Process.Start(result.Uri.AbsoluteUri);
+            }
+            else
+            {
+                ExplorerHelper.OpenInExplorer(result.FilePath);
+            }
         }
 
         private bool ResolveShowNotification(CaptureFlowContext context)

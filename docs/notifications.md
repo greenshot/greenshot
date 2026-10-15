@@ -62,13 +62,20 @@ clicks. The toast XML is built by `ToastContent` (template `ToastGeneric`, `laun
 
 ### What a toast shows
 
-The Notification step of a recipe shows one notification for the exports before it (`DestinationDispatcher.Notify`):
+Every export of a flow is added to its export log (`ExportLog` in `Greenshot.Base/Recipes/Pipeline`, an `ExportOutcome` per export:
+the destination, the `ExportResult`, the capture details and the export source which was exported): by the `DestinationDispatcher`
+(destination steps, the destination picker, also the copies with the extensions of a destination) and by the plugin steps which
+export to a destination (Confluence, Jira, Office, PDF). The log is in `CaptureFlowContext.Properties` from the start, so the
+contexts of the nodes and of parallel branches add to the same log. The Notification step (`NotificationStep`) shows one notification
+for the exports since the previous Notification step (`ExportLog.TakeUnnotified`), so a recipe with Destination A, Destination B and a
+Notification step shows both, and two Notification steps don't show an export twice:
 
 * the title: what was captured (`CaptureDetails.Title`, e.g. the title of the window), else "Greenshot",
-* one row per destination (`Notification.Lines`, `ToastContent.AddRow`: an adaptive group), e.g. "Exported to: Clipboard". The
-  destination of a message is `SurfaceMessageEventArgs.Destination`, set by `ExportResultHandler`, its icon `DestinationDescriptor.IconKey`.
-  With the destination picker (and the document choice of the Office destinations) it is the picked destination
-  (`ExportResult.ExportedBy`), not the picker,
+* one row per export (`Notification.Lines`, `ToastContent.AddRow`: an adaptive group), e.g. "Exported to: Clipboard"
+  (`ExportResultHandler.GetMessage`, the same text the editor shows in its status bar). The destination of a row is the one which
+  exported: with the destination picker (and the document choice of the Office destinations) the picked one
+  (`ExportResult.ExportedBy`), not the picker; its icon is `DestinationDescriptor.IconKey`,
+* the kind: an error when an export failed (for the notification level),
 * the icons: with one destination its icon is the big image left of the texts (`ToastContent.SetAppLogo`, `appLogoOverride`), which
   unlike the rows and the thumbnail stays visible when the toast is collapsed in the notification center, and the row is the text
   only; with several destinations the big image stays Greenshot's icon and every row has the icon of its destination in a small
@@ -145,9 +152,11 @@ For a service which `ShowsCaptures` (the toasts), the Notification step of a rec
 `recipe_notification` ("Capture of a notification": a file source which passes the capture on, and the dynamic destination
 flyout).
 
-Nothing of this delays the toast: the Notification step writes only the thumbnail before the toast is shown (the export image is
-rendered on the UI thread, the thumbnail is written on the pool thread of the flow), and the `.greenshot` file after it (the
-elements are serialized on the UI thread, like every export to the greenshot format, the file is written on the pool thread).
+Nothing of this delays the toast: the Notification step writes only the thumbnail before the toast is shown, and the `.greenshot`
+file after it. Both come from the export source of the last export (`ExportOutcome.Source`, what went to that destination, also the
+copy with its extensions): the thumbnail from its render (`IExportSource.RenderAsync`, cached and shared with the destinations), the
+file from its encoding in the greenshot format (`EncodeAsync`, the elements are serialized on the UI thread, like every export to the
+greenshot format); the files are written on the pool thread of the flow.
 
 Windows doesn't tell an app which isn't packaged when the user removes a toast from the notification center (only a packaged app
 gets a background task for that, `ToastNotificationHistoryChangedTrigger`), and the `Dismissed` event of a toast only fires while
