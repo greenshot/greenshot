@@ -125,6 +125,32 @@
     </div>
   </div>
 
+  <div class="section">
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">Calculate tile overlap</div>
+        <div class="setting-desc">Automatically overlap page tiles to help avoid gaps and repeated sticky headers in the stitched capture.</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="chkCalculateOverlap" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">Start capture at current position</div>
+        <div class="setting-desc">Begin at the tab's current scroll position instead of capturing from the top-left of the page.</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="chkCaptureFromCurrentPosition">
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+
   <div class="status-box" id="savedIndicator">Settings saved.</div>
 
   <script src="options.js"></script>

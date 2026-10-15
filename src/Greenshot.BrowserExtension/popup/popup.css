@@ -119,6 +119,21 @@ body {
   cursor: not-allowed;
 }
 
+.btn.stop {
+  background-color: #d93025;
+  color: #ffffff;
+}
+
+.btn.stop:hover {
+  background-color: #b3261e;
+}
+
+.btn.stop:disabled {
+  background-color: #dadce0;
+  color: #80868b;
+  cursor: wait;
+}
+
 .feedback-msg {
   margin-top: 8px;
   padding: 6px 8px;

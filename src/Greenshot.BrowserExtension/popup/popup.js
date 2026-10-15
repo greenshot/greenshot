@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const statusText = document.getElementById("statusText");
   const btnCaptureVisible = document.getElementById("btnCaptureVisible");
   const btnCaptureScrollable = document.getElementById("btnCaptureScrollable");
+  const btnStopScrollable = document.getElementById("btnStopScrollable");
   const feedbackMessage = document.getElementById("feedbackMessage");
   const qaTrackingStatus = document.getElementById("qaTrackingStatus");
   const linkOptions = document.getElementById("linkOptions");
@@ -74,19 +75,38 @@ document.addEventListener("DOMContentLoaded", () => {
     btnCaptureVisible.disabled = true;
     btnCaptureScrollable.disabled = true;
     btnCaptureScrollable.textContent = "Capturing...";
+    btnStopScrollable.disabled = false;
+    btnStopScrollable.textContent = "Stop and Send Captured Area";
+    btnStopScrollable.classList.remove("hidden");
 
     chrome.runtime.sendMessage({ action: "CAPTURE_SCROLLABLE" }, (response) => {
       const lastError = chrome.runtime.lastError;
       btnCaptureScrollable.textContent = "Capture Scrollable Page";
+      btnStopScrollable.classList.add("hidden");
+      btnStopScrollable.disabled = false;
+      btnStopScrollable.textContent = "Stop and Send Captured Area";
       btnCaptureVisible.disabled = false;
       btnCaptureScrollable.disabled = false;
 
       if (lastError) {
         showFeedback(lastError.message, true);
       } else if (response && response.success) {
-        showFeedback("Sent to Greenshot!");
+        showFeedback(response.stoppedEarly ? "Partial capture sent to Greenshot." : "Sent to Greenshot!");
       } else {
         showFeedback(response?.error || "Failed to capture the scrollable page.", true);
+      }
+    });
+  });
+
+  btnStopScrollable.addEventListener("click", () => {
+    btnStopScrollable.disabled = true;
+    btnStopScrollable.textContent = "Stopping after this tile...";
+    chrome.runtime.sendMessage({ action: "STOP_SCROLLABLE_CAPTURE" }, (response) => {
+      const lastError = chrome.runtime.lastError;
+      if (lastError) {
+        showFeedback(lastError.message, true);
+      } else if (!response || !response.success) {
+        showFeedback("No scrollable-page capture is currently running.", true);
       }
     });
   });

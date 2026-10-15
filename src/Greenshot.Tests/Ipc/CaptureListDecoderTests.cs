@@ -49,6 +49,44 @@ namespace Greenshot.Tests.Ipc
         }
 
         [Fact]
+        public void TryDecode_Overlap_DoesNotDrawRepeatedStickyHeader()
+        {
+            JObject captureList = CreateCaptureList(2, 3, 1,
+                new JObject
+                {
+                    ["x"] = 0,
+                    ["y"] = 0,
+                    ["viewportWidth"] = 2,
+                    ["viewportHeight"] = 2,
+                    ["imageBase64"] = CreateSolidImage(2, 2, Color.Red)
+                },
+                new JObject
+                {
+                    ["x"] = 0,
+                    ["y"] = 1,
+                    ["viewportWidth"] = 2,
+                    ["viewportHeight"] = 2,
+                    ["imageBase64"] = CreateSolidImage(2, 2, Color.Blue),
+                    ["overlays"] = new JArray
+                    {
+                        new JObject { ["edge"] = "top", ["x"] = 0, ["y"] = 0, ["width"] = 2, ["height"] = 1 }
+                    }
+                });
+            captureList["overlapEnabled"] = true;
+            captureList["overlapX"] = 0;
+            captureList["overlapY"] = 1;
+
+            Assert.True(CaptureListDecoder.TryDecode(Encode(captureList), out Bitmap bitmap, out string error), error);
+            using (bitmap)
+            {
+                Assert.Equal(2, bitmap.Width);
+                Assert.Equal(3, bitmap.Height);
+                Assert.Equal(Color.Red.ToArgb(), bitmap.GetPixel(0, 1).ToArgb());
+                Assert.Equal(Color.Blue.ToArgb(), bitmap.GetPixel(0, 2).ToArgb());
+            }
+        }
+
+        [Fact]
         public void TryDecode_RejectsPayloadOver20MiB()
         {
             string payload = new string('A', CaptureListDecoder.MaxPayloadCharacters + 1);
@@ -86,7 +124,21 @@ namespace Greenshot.Tests.Ipc
 
         private static JObject CreateTile(double x, Color color)
         {
-            using (var bitmap = new Bitmap(4, 4))
+            string imageBase64 = CreateSolidImage(4, 4, color);
+            return new JObject
+            {
+                ["x"] = x,
+                ["y"] = 0,
+                ["viewportWidth"] = 2,
+                ["viewportHeight"] = 2,
+                ["imageFormat"] = "png",
+                ["imageBase64"] = imageBase64
+            };
+        }
+
+        private static string CreateSolidImage(int width, int height, Color color)
+        {
+            using (var bitmap = new Bitmap(width, height))
             using (var stream = new MemoryStream())
             {
                 using (Graphics graphics = Graphics.FromImage(bitmap))
@@ -94,16 +146,7 @@ namespace Greenshot.Tests.Ipc
                     graphics.Clear(color);
                 }
                 bitmap.Save(stream, ImageFormat.Png);
-
-                return new JObject
-                {
-                    ["x"] = x,
-                    ["y"] = 0,
-                    ["viewportWidth"] = 2,
-                    ["viewportHeight"] = 2,
-                    ["imageFormat"] = "png",
-                    ["imageBase64"] = Convert.ToBase64String(stream.ToArray())
-                };
+                return Convert.ToBase64String(stream.ToArray());
             }
         }
 

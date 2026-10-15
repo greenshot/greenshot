@@ -50,6 +50,16 @@ namespace Greenshot.Ipc.BrowserExtension
             public double Y { get; set; }
             public double ViewportWidth { get; set; }
             public double ViewportHeight { get; set; }
+            public List<CaptureOverlay> Overlays { get; set; }
+        }
+
+        private sealed class CaptureOverlay
+        {
+            public string Edge { get; set; }
+            public double X { get; set; }
+            public double Y { get; set; }
+            public double Width { get; set; }
+            public double Height { get; set; }
         }
 
         /// <summary>
@@ -122,6 +132,28 @@ namespace Greenshot.Ipc.BrowserExtension
                 return false;
             }
 
+            bool overlapEnabled = false;
+            JToken overlapEnabledToken = captureList["overlapEnabled"];
+            if (overlapEnabledToken != null)
+            {
+                if (overlapEnabledToken.Type != JTokenType.Boolean)
+                {
+                    error = "the capture-list overlapEnabled field must be a boolean";
+                    return false;
+                }
+                overlapEnabled = overlapEnabledToken.Value<bool>();
+            }
+
+            double overlapX = 0;
+            double overlapY = 0;
+            if (overlapEnabled &&
+                (!TryGetNonNegativeNumber(captureList, "overlapX", out overlapX) ||
+                 !TryGetNonNegativeNumber(captureList, "overlapY", out overlapY)))
+            {
+                error = "the capture-list overlap dimensions are invalid";
+                return false;
+            }
+
             int outputWidth;
             int outputHeight;
             if (!TryGetOutputSize(documentWidth, documentHeight, devicePixelRatio, out outputWidth, out outputHeight, out error))
@@ -146,7 +178,8 @@ namespace Greenshot.Ipc.BrowserExtension
                         !TryGetNonNegativeNumber(screenshot, "y", out double y) ||
                         !TryGetPositiveNumber(screenshot, "viewportWidth", out double viewportWidth) ||
                         !TryGetPositiveNumber(screenshot, "viewportHeight", out double viewportHeight) ||
-                        x >= documentWidth || y >= documentHeight)
+                        x >= documentWidth || y >= documentHeight ||
+                        (overlapEnabled && (overlapX > viewportWidth || overlapY > viewportHeight)))
                     {
                         error = $"screenshot {index + 1} has invalid coordinates or viewport dimensions";
                         return false;
@@ -166,8 +199,15 @@ namespace Greenshot.Ipc.BrowserExtension
                         X = x,
                         Y = y,
                         ViewportWidth = viewportWidth,
-                        ViewportHeight = viewportHeight
+                        ViewportHeight = viewportHeight,
+                        Overlays = ParseOverlays(screenshot, viewportWidth, viewportHeight, out error)
                     });
+                    if (tiles[tiles.Count - 1].Overlays == null)
+                    {
+                        image.Dispose();
+                        tiles.RemoveAt(tiles.Count - 1);
+                        return false;
+                    }
                 }
 
                 composedBitmap = new Bitmap(outputWidth, outputHeight, PixelFormat.Format32bppArgb);
@@ -178,14 +218,42 @@ namespace Greenshot.Ipc.BrowserExtension
                     graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
                     graphics.PixelOffsetMode = PixelOffsetMode.Half;
 
-                    foreach (CaptureTile tile in tiles)
+                    for (int index = 0; index < tiles.Count; index++)
                     {
+                        CaptureTile tile = tiles[index];
                         int left = (int)Math.Round(tile.X * devicePixelRatio);
                         int top = (int)Math.Round(tile.Y * devicePixelRatio);
                         int right = (int)Math.Round((tile.X + tile.ViewportWidth) * devicePixelRatio);
                         int bottom = (int)Math.Round((tile.Y + tile.ViewportHeight) * devicePixelRatio);
                         var destination = Rectangle.FromLTRB(left, top, Math.Max(left + 1, right), Math.Max(top + 1, bottom));
-                        graphics.DrawImage(tile.Image, destination);
+
+                        using (var drawRegion = new Region(destination))
+                        {
+                            if (overlapEnabled && index > 0)
+                            {
+                                foreach (CaptureOverlay overlay in tile.Overlays)
+                                {
+                                    bool repeatedTopOverlay = string.Equals(overlay.Edge, "top", StringComparison.Ordinal) &&
+                                        tile.Y > 0 && overlay.Y >= 0 && overlay.Y + overlay.Height <= overlapY;
+                                    bool repeatedLeftOverlay = string.Equals(overlay.Edge, "left", StringComparison.Ordinal) &&
+                                        tile.X > 0 && overlay.X >= 0 && overlay.X + overlay.Width <= overlapX;
+                                    if (!repeatedTopOverlay && !repeatedLeftOverlay)
+                                    {
+                                        continue;
+                                    }
+
+                                    int overlayLeft = (int)Math.Round((tile.X + overlay.X) * devicePixelRatio);
+                                    int overlayTop = (int)Math.Round((tile.Y + overlay.Y) * devicePixelRatio);
+                                    int overlayRight = (int)Math.Round((tile.X + overlay.X + overlay.Width) * devicePixelRatio);
+                                    int overlayBottom = (int)Math.Round((tile.Y + overlay.Y + overlay.Height) * devicePixelRatio);
+                                    drawRegion.Exclude(Rectangle.FromLTRB(overlayLeft, overlayTop, overlayRight, overlayBottom));
+                                }
+                            }
+
+                            graphics.SetClip(drawRegion, CombineMode.Replace);
+                            graphics.DrawImage(tile.Image, destination);
+                            graphics.ResetClip();
+                        }
                     }
                 }
 
@@ -261,6 +329,56 @@ namespace Greenshot.Ipc.BrowserExtension
             {
                 return false;
             }
+        }
+
+        private static List<CaptureOverlay> ParseOverlays(JObject screenshot, double viewportWidth, double viewportHeight, out string error)
+        {
+            var overlays = new List<CaptureOverlay>();
+            JToken overlayToken = screenshot["overlays"];
+            if (overlayToken == null)
+            {
+                error = null;
+                return overlays;
+            }
+            if (!(overlayToken is JArray overlayArray) || overlayArray.Count > 1024)
+            {
+                error = "the screenshot overlay list is invalid";
+                return null;
+            }
+
+            foreach (JToken item in overlayArray)
+            {
+                if (!(item is JObject overlay))
+                {
+                    error = "the screenshot contains an invalid overlay rectangle";
+                    return null;
+                }
+
+                JToken edgeToken = overlay["edge"];
+                string edge = edgeToken?.Type == JTokenType.String ? edgeToken.Value<string>() : null;
+                if ((edge != "top" && edge != "left") ||
+                    !TryGetNumber(overlay, "x", out double x) ||
+                    !TryGetNumber(overlay, "y", out double y) ||
+                    !TryGetPositiveNumber(overlay, "width", out double width) ||
+                    !TryGetPositiveNumber(overlay, "height", out double height) ||
+                    x < -viewportWidth || y < -viewportHeight || x > viewportWidth || y > viewportHeight)
+                {
+                    error = "the screenshot contains an invalid overlay rectangle";
+                    return null;
+                }
+
+                overlays.Add(new CaptureOverlay
+                {
+                    Edge = overlay.Value<string>("edge"),
+                    X = x,
+                    Y = y,
+                    Width = width,
+                    Height = height
+                });
+            }
+
+            error = null;
+            return overlays;
         }
     }
 }

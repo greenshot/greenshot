@@ -19,7 +19,9 @@ let retryTimerId = null;
 
 let extensionConfig = {
   track_tab_urls: true,
-  capture_format: "png"
+  capture_format: "png",
+  calculate_overlap: true,
+  capture_from_current_position: false
 };
 
 // Initialize configuration from storage
@@ -291,10 +293,17 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       nativePort,
       sendNativeMessage,
       getBrowserName,
-      connectNativeHost
+      connectNativeHost,
+      calculateOverlap: extensionConfig.calculate_overlap !== false,
+      captureFromCurrentPosition: extensionConfig.capture_from_current_position === true
     })
       .then((res) => sendResponse(res))
       .catch((err) => sendResponse({ success: false, error: err.message }));
+    return true;
+  }
+
+  if (request.action === "STOP_SCROLLABLE_CAPTURE") {
+    sendResponse({ success: GreenshotScrollableCapture.requestStop() });
     return true;
   }
 
