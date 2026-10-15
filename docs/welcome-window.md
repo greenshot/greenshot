@@ -61,6 +61,8 @@ The tips are the keys `tip1` to `tip10`.
 - **Change a tip**: edit its line, as above.
 - **Add a tip**: add `tip11=...` to greenshot.en-US.ini, the property `string Tip11 { get; }` to `IWelcomeLanguage`,
   and `texts.Tip11` to the list in `WelcomeWindow.Tips()` (`src/Greenshot/Views/WelcomeWindow.xaml.cs`).
+- **A tip for some editions only**: like `tip_notification`, which is only shown where a notification offers its capture again
+  (`INotificationService.ShowsCaptures`: not in Greenshot Light, the portable version, or on Windows without toasts), add it in `Tips()` behind that check.
 - **Remove a tip**: remove it from those three places. An empty tip, e.g. a translation which leaves one out on purpose, is skipped.
 
 Keep tips short, one or two sentences, and only about what every edition has: Greenshot Light has no plugins, OCR or AI tools.

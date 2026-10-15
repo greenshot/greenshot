@@ -202,6 +202,11 @@ namespace Greenshot.Base.Languages
         string TipNext { get; }
 
         /// <summary>
+        /// Clicked away a notification of Greenshot? It waits in the Windows notification center: a click on it lets you choose again where the capture goes, even after Greenshot was closed.
+        /// </summary>
+        string TipNotification { get; }
+
+        /// <summary>
         /// Did you know?
         /// </summary>
         string TipTitle { get; }

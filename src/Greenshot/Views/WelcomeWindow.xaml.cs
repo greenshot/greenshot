@@ -141,16 +141,23 @@ namespace Greenshot.Views
         }
 
         /// <summary>
-        /// The tips of the language file, a new one only needs a key there and a property in IWelcomeLanguage
+        /// The tips of the language file, a new one needs a key there, a property in IWelcomeLanguage and an entry here
         /// </summary>
         private static string[] Tips()
         {
             var texts = Texts.Welcome;
-            return new[]
+            var tips = new List<string>
             {
                 texts.Tip1, texts.Tip2, texts.Tip3, texts.Tip4, texts.Tip5,
                 texts.Tip6, texts.Tip7, texts.Tip8, texts.Tip9, texts.Tip10
-            }.Where(tip => !string.IsNullOrWhiteSpace(tip)).ToArray();
+            };
+            // Only where a notification offers its capture again: not in Greenshot Light, the portable version or without toasts
+            if (SimpleServiceProvider.Current.GetInstance<INotificationService>(isOptional: true)?.ShowsCaptures == true)
+            {
+                tips.Add(texts.TipNotification);
+            }
+
+            return tips.Where(tip => !string.IsNullOrWhiteSpace(tip)).ToArray();
         }
 
         private void InitializeLanguage()
