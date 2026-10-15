@@ -19,13 +19,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Runtime.Serialization;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Adorners;
+using log4net;
 
 namespace Greenshot.Editor.Drawing
 {
@@ -33,11 +32,17 @@ namespace Greenshot.Editor.Drawing
     /// This is the base container for vector graphics, these ae graphics which can resize without loss of quality.
     /// Examples for this are SVG, WMF or EMF, but also graphics based on fonts (e.g. Emoji)
     /// </summary>
-    [Serializable]
     public abstract class VectorGraphicsContainer : DrawableContainer
     {
+        private static readonly ILog LOG = LogManager.GetLogger(typeof(VectorGraphicsContainer));
+
+        /// <inheritdoc cref="RotationAngle"/>
         private int _rotationAngle;
-        protected int RotationAngle
+
+        /// /// <summary>
+        /// This is the rotation angle of the vector graphics. It is used to rotate the graphics when rendering in <see cref="ComputeBitmap"/>.
+        /// </summary>
+        public int RotationAngle
         {
             get => _rotationAngle;
             set => _rotationAngle = value;
@@ -47,37 +52,26 @@ namespace Greenshot.Editor.Drawing
         /// This is the cached version of the bitmap, pre-rendered to save performance
         /// Do not serialized, it can be rebuild with other information.
         /// </summary>
-        [NonSerialized]
         private Image _cachedImage;
 
         /// <summary>
-        /// Constructor takes care of calling Init 
+        /// Constructor takes care of creating adorners
         /// </summary>
         /// <param name="parent">ISurface</param>
-        public VectorGraphicsContainer(ISurface parent) : base(parent)
+        protected VectorGraphicsContainer(ISurface parent) : base(parent)
         {
-            Init();
+            InitAdorners();
         }
 
         /// <summary>
-        /// Make sure Init is called after deserializing
+        /// For vector graphics the <see cref="DrawableContainer.CreateDefaultAdorners"/> are not used. so we need to initialize the adorners here.
         /// </summary>
-        /// <param name="streamingContext">StreamingContext</param>
-        protected override void OnDeserialized(StreamingContext streamingContext)
-        {
-            base.OnDeserialized(streamingContext);
-            Init();
-        }
-
-        /// <summary>
-        /// Init is called after creating the instance, and from OnDeserialized
-        /// This is the place to generate your adorners
-        /// </summary>
-        protected virtual void Init()
+        private void InitAdorners()
         {
             // Check if the adorners are already defined!
             if (Adorners.Count > 0)
             {
+                LOG.Warn("Adorners are already defined!");
                 return;
             }
 
@@ -93,7 +87,6 @@ namespace Greenshot.Editor.Drawing
         /// When disposing==true all non-managed resources should be freed too!
         /// </summary>
         /// <param name="disposing"></param>
-
         protected override void Dispose(bool disposing)
         {
             if (disposing)

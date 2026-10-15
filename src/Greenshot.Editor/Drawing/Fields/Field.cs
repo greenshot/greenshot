@@ -29,10 +29,9 @@ namespace Greenshot.Editor.Drawing.Fields
     /// Represents a single field of a drawable element, i.e. 
     /// line thickness of a rectangle.
     /// </summary>
-    [Serializable]
     public class Field : IField
     {
-        [field: NonSerialized] public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
 
         private object _myValue;
 

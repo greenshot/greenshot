@@ -31,6 +31,7 @@ using Greenshot.Editor.Drawing;
 using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
 using Greenshot.Editor.Drawing.Fields;
+using Greenshot.Editor.FileFormat.V2;
 using Greenshot.Editor.Helpers;
 using Xunit;
 
@@ -263,11 +264,9 @@ namespace Greenshot.Tests.Editor
             surface.ApplyCutOut(new NativeRect(0, 30, 100, 30), CropContainer.CropModes.Horizontal, CutMarkStyle.Wave, CreateEdgeSettings());
             var cutMark = surface.Elements.OfType<CutMarkContainer>().Single();
 
-            using var stream = new MemoryStream();
-            surface.SaveElementsToStream(stream);
-            stream.Position = 0;
+            string json = V2Helper.SerializeDrawableContainerList(new DrawableContainerList(surface.Elements));
             using var loadedSurface = new Surface(new Bitmap(100, 82));
-            loadedSurface.LoadElementsFromStream(stream);
+            loadedSurface.LoadElements(V2Helper.DeserializeDrawableContainerList(json));
 
             var loaded = Assert.Single(loadedSurface.Elements.OfType<CutMarkContainer>());
             Assert.Equal(cutMark.Seed, loaded.Seed);
@@ -487,11 +486,9 @@ namespace Greenshot.Tests.Editor
             using var surface = CreateRedSurface();
             var tornEdges = surface.AddTornEdges(CreateEdgeSettings());
 
-            using var stream = new MemoryStream();
-            surface.SaveElementsToStream(stream);
-            stream.Position = 0;
+            string json = V2Helper.SerializeDrawableContainerList(new DrawableContainerList(surface.Elements));
             using var loadedSurface = new Surface(new Bitmap(100, 100));
-            loadedSurface.LoadElementsFromStream(stream);
+            loadedSurface.LoadElements(V2Helper.DeserializeDrawableContainerList(json));
 
             var loaded = Assert.Single(loadedSurface.Elements.OfType<TornEdgeContainer>());
             Assert.Equal(tornEdges.Seed, loaded.Seed);

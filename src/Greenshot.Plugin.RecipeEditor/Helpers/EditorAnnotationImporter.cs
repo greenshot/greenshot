@@ -33,6 +33,7 @@ using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Drawing.Filters;
+using Greenshot.Editor.FileFormatHandlers;
 using Greenshot.Plugin.RecipeEditor.ViewModels;
 
 namespace Greenshot.Plugin.RecipeEditor.Helpers
@@ -320,8 +321,7 @@ namespace Greenshot.Plugin.RecipeEditor.Helpers
                 throw new FileNotFoundException("Greenshot file not found", filePath);
             }
 
-            ISurface surface = SimpleServiceProvider.Current.GetInstance<Func<ISurface>>()?.Invoke() ?? new Surface();
-            return ImageIO.LoadGreenshotSurface(filePath, surface);
+            return new GreenshotFileFormatHandler().LoadGreenshotSurface(filePath);
         }
 
         /// <summary>

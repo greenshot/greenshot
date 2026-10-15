@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
+    <Reference Include="System.IO.Compression" />
   </ItemGroup>
 
   <ItemGroup>
@@ -121,6 +122,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="10.0.2" />
+    <PackageReference Include="System.Formats.Nrbf" Version="10.0.12" />
     <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0" />
     <PackageReference Update="Microsoft.VisualStudio.Threading.Analyzers" Version="18.7.23" />
   </ItemGroup>
