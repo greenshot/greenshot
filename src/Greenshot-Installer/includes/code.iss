@@ -141,7 +141,7 @@ begin
   Exec(ExpandConstant('{sys}\taskkill.exe'), '/F /IM greenshot-mcp.exe', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
 end;
 
-// Greenshot.exe --enable-autostart wrote the Run value, only this user's can be removed: Windows skips the ones of other users
+// autostart.inf wrote the Run value, only this user's can be removed: Windows skips the ones of other users
 // when the file is gone. Another Greenshot, e.g. a portable one, keeps its value.
 procedure RemoveAutostart();
 var

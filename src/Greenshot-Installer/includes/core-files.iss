@@ -58,6 +58,8 @@ Source: {#ReleaseDir}\emojis.xml; DestDir: {app}; Components: greenshot; Flags: 
 Source: additional_files\installer.txt; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: additional_files\license.txt; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: additional_files\readme.txt; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
+; Writes the start with Windows for the current user, see tasks-icons-reg.iss
+Source: additional_files\autostart.inf; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 #ifndef IsLightEdition
 ; Not in Greenshot Light: it opens files with Greenshot.exe (see tasks-icons-reg.iss)
 Source: {#ReleaseDir}\greenshot-proxy.exe; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}

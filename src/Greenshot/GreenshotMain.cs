@@ -106,13 +106,6 @@ public class GreenshotMain
             return;
         }
 
-        // From the installer, also at the logon of every user (Active Setup): quick, Windows waits for it before showing the desktop
-        if (options.EnableAutostart)
-        {
-            StartupHelper.EnableAutostart();
-            return;
-        }
-
         // Register custom value converters (NativeRect, Color, etc.) before building the registry.
         IniValueConverters.Register();
         Editor.EditorInitialize.RegisterValueConverters();

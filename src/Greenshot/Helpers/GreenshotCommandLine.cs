@@ -60,12 +60,6 @@ namespace Greenshot.Helpers
         public bool Restore { get; set; }
 
         /// <summary>
-        /// When true, let this Greenshot start with Windows for the current user and exit, without starting Greenshot.
-        /// The installer uses it, also through Active Setup at the next logon of every user.
-        /// </summary>
-        public bool EnableAutostart { get; set; }
-
-        /// <summary>
         /// The arguments after the startup options: a Greenshot command in the syntax of greenshot-cli.exe
         /// (e.g. <c>--file a.png</c>, <c>a.png</c>, <c>--recipe ocr</c>, <c>--reload</c>, <c>--exit</c>).
         /// It is sent to the running Greenshot exactly as greenshot-cli.exe sends it; empty when there is none.
@@ -75,7 +69,7 @@ namespace Greenshot.Helpers
 
     /// <summary>
     /// Parses Greenshot.exe's command line: leading startup options, which only Greenshot.exe itself uses
-    /// (--language, --ini-directory, --no-run, --restore, --enable-autostart, --help), followed by an optional Greenshot command.
+    /// (--language, --ini-directory, --no-run, --restore, --help), followed by an optional Greenshot command.
     /// The command is not interpreted here: it is parsed by <see cref="CliCommandParser"/>, like every
     /// command that reaches Greenshot through greenshot-cli.exe or greenshot-proxy.exe.
     /// </summary>
@@ -108,11 +102,6 @@ namespace Greenshot.Helpers
             Description = "[Reserved] Called by the Windows Restart Manager to restore the application after a system restart. Not intended for manual use."
         };
 
-        private static readonly Option<bool> EnableAutostartOption = new Option<bool>("--enable-autostart")
-        {
-            Description = "Let Greenshot start with Windows for the current user and exit, without starting Greenshot."
-        };
-
         /// <summary>
         /// Added by Windows (COM) to the command line of every program it starts for a COM call, here a click on a toast while
         /// Greenshot isn't running. Greenshot doesn't choose it and ignores it: it is only accepted so the start isn't rejected.
@@ -128,7 +117,7 @@ namespace Greenshot.Helpers
         private static readonly HashSet<string> OptionsWithValue = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "--language", "--ini-directory" };
 
         /// <summary>Startup options without a value, including the help options.</summary>
-        private static readonly HashSet<string> Flags = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "--no-run", "--restore", "--enable-autostart", "-Embedding", "--help", "-h", "-?" };
+        private static readonly HashSet<string> Flags = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "--no-run", "--restore", "-Embedding", "--help", "-h", "-?" };
 
         /// <summary>
         /// Parses the given command line arguments.
@@ -191,7 +180,6 @@ namespace Greenshot.Helpers
                     Language = parseResult.GetValue(LanguageOption),
                     IniDirectory = parseResult.GetValue(IniDirectoryOption),
                     Restore = parseResult.GetValue(RestoreOption),
-                    EnableAutostart = parseResult.GetValue(EnableAutostartOption),
                     CommandArguments = commandArguments
                 };
             });
@@ -250,7 +238,6 @@ namespace Greenshot.Helpers
             rootCommand.Options.Add(LanguageOption);
             rootCommand.Options.Add(IniDirectoryOption);
             rootCommand.Options.Add(RestoreOption);
-            rootCommand.Options.Add(EnableAutostartOption);
             rootCommand.Options.Add(EmbeddingOption);
 
             return rootCommand;

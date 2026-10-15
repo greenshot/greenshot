@@ -69,7 +69,7 @@ namespace Greenshot.Helpers
 
         /// <summary>
         /// Let this Greenshot start with Windows, for the current user.
-        /// The installer calls this with --enable-autostart, for every user through Active Setup.
+        /// The installer writes the same value with autostart.inf, also for every user through Active Setup.
         /// </summary>
         public static void EnableAutostart()
         {

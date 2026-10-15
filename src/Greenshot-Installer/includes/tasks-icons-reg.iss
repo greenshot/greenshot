@@ -2,6 +2,8 @@
 #define AutostartComponentGuid "17A6D9DC-E818-4278-992A-167EF0FAC433"
 ; Raise it only to set up the start with Windows for every user once more, also for those who switched it off since
 #define AutostartComponentVersion "1,0"
+; rundll32.exe with these parameters writes the Run value of the current user from autostart.inf: no window, no administrator rights, see docs/autostart.md
+#define AutostartParameters 'advpack.dll,LaunchINFSectionEx ""{app}\autostart.inf"",DefaultInstall,,4'
 
 #ifdef IsLightEdition
   #define FileOpener "Greenshot.exe"
@@ -41,12 +43,12 @@ Root: HKLM; Subkey: Software\Classes\.greenshot; ValueType: none; ValueName: "";
 ; A choice made in "Open with > Always" still names the old ProgID; without it Explorer falls back to Greenshot.File
 Root: HKCU; Subkey: Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.greenshot\UserChoice; Flags: deletekey noerror
 
-; The start with Windows is always in the Run key of the user: Greenshot.exe --enable-autostart writes it, see [Run] and docs/autostart.md.
+; The start with Windows is always in the Run key of the user: autostart.inf in {app} writes it, see AutostartParameters, [Run] and docs/autostart.md.
 ; For every user Active Setup runs it once per user, at the next logon. Without that task the key is removed, so no new user gets it.
 Root: HKLM; Subkey: Software\Microsoft\Active Setup\Installed Components\{{{#AutostartComponentGuid}}; Flags: deletekey noerror; Check: IsAdminInstallMode
 Root: HKLM; Subkey: Software\Microsoft\Active Setup\Installed Components\{{{#AutostartComponentGuid}}; ValueType: string; ValueName: ""; ValueData: "{#ExeName}"; Flags: uninsdeletekey; Tasks: startup\allusers
 Root: HKLM; Subkey: Software\Microsoft\Active Setup\Installed Components\{{{#AutostartComponentGuid}}; ValueType: string; ValueName: "ComponentID"; ValueData: "{#ExeName}"; Tasks: startup\allusers
-Root: HKLM; Subkey: Software\Microsoft\Active Setup\Installed Components\{{{#AutostartComponentGuid}}; ValueType: string; ValueName: "StubPath"; ValueData: """{app}\{#ExeName}.exe"" --enable-autostart"; Tasks: startup\allusers
+Root: HKLM; Subkey: Software\Microsoft\Active Setup\Installed Components\{{{#AutostartComponentGuid}}; ValueType: string; ValueName: "StubPath"; ValueData: """{sys}\rundll32.exe"" {#AutostartParameters}"; Tasks: startup\allusers
 Root: HKLM; Subkey: Software\Microsoft\Active Setup\Installed Components\{{{#AutostartComponentGuid}}; ValueType: string; ValueName: "Version"; ValueData: "{#AutostartComponentVersion}"; Tasks: startup\allusers
 Root: HKLM; Subkey: Software\Microsoft\Active Setup\Installed Components\{{{#AutostartComponentGuid}}; ValueType: dword; ValueName: "IsInstalled"; ValueData: "1"; Tasks: startup\allusers
 
@@ -146,7 +148,7 @@ Root: HKCU; Subkey: Control Panel\Keyboard; ValueType: dword; ValueName: "PrintS
 Filename: "{dotnet40}\ngen.exe"; Parameters: "install ""{app}\{#ExeName}.exe"" /queue:1 /nologo"; Flags: runhidden waituntilterminated; Check: IsAdminInstallMode
 ; The start with Windows for the user who started the setup, the HKCU of an administrator who elevated it may be another user's.
 ; With Active Setup, also mark it as done for that user, so the next logon doesn't do it again.
-Filename: "{app}\{#ExeName}.exe"; Parameters: "--enable-autostart"; WorkingDir: "{app}"; Flags: runasoriginaluser waituntilterminated; Tasks: startup
+Filename: "{sys}\rundll32.exe"; Parameters: "{#AutostartParameters}"; WorkingDir: "{app}"; Flags: runasoriginaluser waituntilterminated; Tasks: startup
 Filename: "{sys}\reg.exe"; Parameters: "add ""HKCU\Software\Microsoft\Active Setup\Installed Components\{{{#AutostartComponentGuid}}"" /v Version /t REG_SZ /d ""{#AutostartComponentVersion}"" /f"; Flags: runasoriginaluser runhidden waituntilterminated; Tasks: startup\allusers
 Filename: "{app}\{#ExeName}.exe"; Description: "{cm:startgreenshot}"; Parameters: "{code:GetParamsForGS}"; WorkingDir: "{app}"; Flags: nowait postinstall runasoriginaluser; Check: NotAlreadyRestarted
 Filename: "https://getgreenshot.org/thank-you/?language={language}&version={#Version}"; Flags: shellexec runasoriginaluser
