@@ -24,9 +24,12 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Export;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Plugin.Dropbox.Destinations;
 using log4net;
 
 namespace Greenshot.Plugin.Dropbox.Recipes
@@ -84,11 +87,15 @@ namespace Greenshot.Plugin.Dropbox.Recipes
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                // Same behaviour as the other upload steps: the flow continues, the failure is logged
+                // Same behaviour as the other upload steps: the flow continues, the failure is logged and shown in the notification
                 context.LogStep($"DropboxStep: Upload to Dropbox failed: {ex.Message}");
                 Log.Error("DropboxStep: Upload to Dropbox failed.", ex);
+                await ApplyAsync(context, ExportResult.Failed(ex.Message, ex), source, captureDetails, cancellationToken).ConfigureAwait(false);
                 return;
             }
+
+            // The same result as the Dropbox destination, the Notification step shows it
+            await ApplyAsync(context, DropboxDestination.ToResult(success), source, captureDetails, cancellationToken).ConfigureAwait(false);
 
             if (success == true)
             {
@@ -99,6 +106,13 @@ namespace Greenshot.Plugin.Dropbox.Recipes
                 context.LogStep("DropboxStep: Upload to Dropbox failed or was declined.");
                 Log.Warn("DropboxStep: Upload to Dropbox failed.");
             }
+        }
+
+        private async Task ApplyAsync(CaptureFlowContext context, ExportResult result, IExportSource source, ICaptureDetails captureDetails, CancellationToken cancellationToken)
+        {
+            var destination = new DropboxDestination(_plugin);
+            await ExportResultHandler.ApplyAsync(destination, result, source, cancellationToken).ConfigureAwait(false);
+            context.RecordExport(destination, result, captureDetails, source);
         }
     }
 }

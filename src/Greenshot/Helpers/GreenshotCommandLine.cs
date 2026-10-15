@@ -102,11 +102,22 @@ namespace Greenshot.Helpers
             Description = "[Reserved] Called by the Windows Restart Manager to restore the application after a system restart. Not intended for manual use."
         };
 
+        /// <summary>
+        /// Added by Windows (COM) to the command line of every program it starts for a COM call, here a click on a toast while
+        /// Greenshot isn't running. Greenshot doesn't choose it and ignores it: it is only accepted so the start isn't rejected.
+        /// The click itself arrives over COM after the start (see ToastActivator).
+        /// </summary>
+        private static readonly Option<bool> EmbeddingOption = new Option<bool>("-Embedding")
+        {
+            Hidden = true,
+            Description = "[Reserved] Called by Windows for a click on a notification. Not intended for manual use."
+        };
+
         /// <summary>Startup options that take a value.</summary>
         private static readonly HashSet<string> OptionsWithValue = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "--language", "--ini-directory" };
 
         /// <summary>Startup options without a value, including the help options.</summary>
-        private static readonly HashSet<string> Flags = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "--no-run", "--restore", "--help", "-h", "-?" };
+        private static readonly HashSet<string> Flags = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "--no-run", "--restore", "-Embedding", "--help", "-h", "-?" };
 
         /// <summary>
         /// Parses the given command line arguments.
@@ -227,6 +238,7 @@ namespace Greenshot.Helpers
             rootCommand.Options.Add(LanguageOption);
             rootCommand.Options.Add(IniDirectoryOption);
             rootCommand.Options.Add(RestoreOption);
+            rootCommand.Options.Add(EmbeddingOption);
 
             return rootCommand;
         }

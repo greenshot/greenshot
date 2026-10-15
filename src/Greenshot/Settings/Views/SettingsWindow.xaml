@@ -549,13 +549,31 @@
                                 <CheckBox Content="{wpf:Text Settings.Playsound}"
                                           IsChecked="{Binding CoreConfiguration.PlayCameraSound, Mode=TwoWay}"
                                           IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=PlayCameraSound}"/>
-                                <CheckBox Content="{wpf:Text Settings.Shownotify}"
-                                          IsChecked="{Binding CoreConfiguration.ShowTrayNotification, Mode=TwoWay}"
-                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ShowTrayNotification}"/>
                                 <CheckBox Content="{wpf:Text Settings.Zoom}"
                                           IsChecked="{Binding CoreConfiguration.ZoomerEnabled, Mode=TwoWay}"
                                            IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ZoomerEnabled}"/>
-                                
+
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Content="{wpf:Text Settings.Notifications}"/>
+                                    <ComboBox Grid.Column="1"
+                                              ItemsSource="{Binding NotificationLevels}"
+                                              DisplayMemberPath="DisplayName"
+                                              SelectedValuePath="Level"
+                                              SelectedValue="{Binding SelectedNotificationLevel, Mode=TwoWay}"
+                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ShowTrayNotification}"/>
+                                </Grid>
+                                <!-- Only the toasts show a capture, not the balloons of the tray icon -->
+                                <StackPanel IsEnabled="{Binding AreNotificationsShown}"
+                                            Visibility="{Binding CanShowNotificationThumbnail, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <CheckBox Content="{wpf:Text Settings.NotificationThumbnail}"
+                                              IsChecked="{Binding CoreConfiguration.ShowNotificationThumbnail, Mode=TwoWay}"
+                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ShowNotificationThumbnail}"/>
+                                </StackPanel>
+
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
