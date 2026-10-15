@@ -91,7 +91,14 @@ namespace Greenshot.Views
         public WelcomeWindow()
         {
             InitializeComponent();
-            _steps = new FrameworkElement[] { StepWelcome, StepBasics, StepSetup, StepDone };
+            var steps = new List<FrameworkElement> { StepWelcome, StepBasics, StepSetup };
+            if (ImgurSectionViewModel.HasUploads)
+            {
+                ImgurUploads.DataContext = new ImgurSectionViewModel();
+                steps.Add(StepImgur);
+            }
+            steps.Add(StepDone);
+            _steps = steps.ToArray();
             DataContext = this;
 
             _tipIndex = _rand.Next(Tips().Length);
@@ -176,6 +183,12 @@ namespace Greenshot.Views
             {
                 // Hidden keeps the size of the window the same for every step
                 _steps[index].Visibility = index == _currentStep ? Visibility.Visible : Visibility.Hidden;
+            }
+
+            if (_steps[_currentStep] == StepImgur)
+            {
+                // Gets the dates and thumbnails from Imgur, the first time only
+                (ImgurUploads.DataContext as ImgurSectionViewModel)?.OnNavigatedTo();
             }
 
             OnPropertyChanged(nameof(StepDots));

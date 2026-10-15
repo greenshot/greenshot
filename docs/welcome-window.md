@@ -41,7 +41,10 @@ On the last step "Next" reads "Let's go!" and closes the window, Esc closes it o
    The checks run again whenever the window is activated, so coming back from the Windows settings updates them.
    Below them is the switch "Launch Greenshot on startup", the same as in the settings (`StartupHelper`): it shows whether this
    Greenshot starts with Windows for the user and changes only the user's own entry, see [autostart.md](autostart.md).
-4. **Done**: a few words that everything is ready, a button to the settings, and a tip from the set,
+4. **Delete your old Imgur uploads**, only when greenshot.ini still has the delete keys of images uploaded anonymously
+   with an earlier Greenshot (`ImgurSectionViewModel.HasUploads`): the same `ImgurUploadsView` as the Imgur section of the Self-Service window.
+   Greenshot no longer uploads to Imgur; the step gets the dates and thumbnails from Imgur when it's shown.
+5. **Done**: a few words that everything is ready, a button to the settings, and a tip from the set,
    picked at random when the window opens; "Another tip" shows the next one.
 
 ### Adding a step

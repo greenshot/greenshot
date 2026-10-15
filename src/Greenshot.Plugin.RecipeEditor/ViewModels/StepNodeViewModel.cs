@@ -1461,8 +1461,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         public bool IsExternalCommand => IsStepType("ExternalCommand");
 
-        public bool IsImgur => IsStepType("Imgur");
-
         public bool IsJira => IsStepType("Jira");
 
         public bool IsConfluence => IsStepType("Confluence");
@@ -3392,19 +3390,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetParamOrRemoveIfEmpty("SetExitCodeVariable", value); OnPropertyChanged(nameof(ExternalCommandSetExitCodeVariable)); }
         }
 
-        // --- 14. Imgur Step ---
-        public string ImgurFormat
-        {
-            get => GetParam("Format", "png");
-            set { SetParam("Format", value); OnPropertyChanged(nameof(ImgurFormat)); }
-        }
-
-        public bool ImgurCopyLinkToClipboard
-        {
-            get => GetParamBool("CopyLinkToClipboard", true);
-            set { SetParam("CopyLinkToClipboard", value); OnPropertyChanged(nameof(ImgurCopyLinkToClipboard)); }
-        }
-
         // --- 15. Jira Step ---
         public string JiraIssueKey
         {
@@ -3816,8 +3801,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                         return $"Record Video: {recTarget} ({recFps} FPS, {recPreset})";
                     case var _ when IsExternalCommand:
                         return !string.IsNullOrWhiteSpace(ExternalCommandLine) ? $"Run: {System.IO.Path.GetFileName(ExternalCommandLine)} {ExternalCommandArguments}".Trim() : "Execute Command";
-                    case var _ when IsImgur:
-                        return "Upload to Imgur";
                     case var _ when IsJira:
                         return !string.IsNullOrWhiteSpace(JiraIssueKey) ? $"Attach to Jira: {JiraIssueKey}" : "Attach to Jira Issue";
                     case var _ when IsConfluence:
@@ -3850,7 +3833,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(DisplayName));
             OnPropertyChanged(nameof(Name));
             OnPropertyChanged(nameof(IsExternalCommand));
-            OnPropertyChanged(nameof(IsImgur));
             OnPropertyChanged(nameof(IsJira));
             OnPropertyChanged(nameof(IsConfluence));
             OnPropertyChanged(nameof(IsOffice));
@@ -3921,8 +3903,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(ExternalCommandWorkingDirectory));
             OnPropertyChanged(nameof(ExternalCommandSetOutputVariable));
             OnPropertyChanged(nameof(ExternalCommandSetExitCodeVariable));
-            OnPropertyChanged(nameof(ImgurFormat));
-            OnPropertyChanged(nameof(ImgurCopyLinkToClipboard));
             OnPropertyChanged(nameof(JiraIssueKey));
             OnPropertyChanged(nameof(JiraFormat));
             OnPropertyChanged(nameof(JiraJpegQuality));

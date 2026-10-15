@@ -145,7 +145,6 @@ docs/translation/
 | Confluence Plugin | 21 | 25 | INI |
 | Dropbox Plugin | 20 | 10 | INI |
 | ExternalCommand Plugin | 21 | 21 | INI |
-| Imgur Plugin | 22 | 23 | INI |
 | Jira Plugin | 21 | 22 | INI |
 | Office Plugin | 4 | 19 | INI |
 

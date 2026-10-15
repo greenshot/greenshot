@@ -95,7 +95,7 @@ Make sure to deliver high-quality translation by:
 
 ## Keys and Code
 
-Every key with a fixed name is a property on a language interface (e.g. `src/Greenshot.Base/Languages/IEditorLanguage.cs`, `src/Greenshot.Plugin.Imgur/IImgurLanguage.cs`). Adding, renaming or removing a key in en-US therefore needs the matching change in the interface, which is code: point it out to the developer instead of changing it. Translating existing keys needs no code change.
+Every key with a fixed name is a property on a language interface (e.g. `src/Greenshot.Base/Languages/IEditorLanguage.cs`, `src/Greenshot.Plugin.Jira/IJiraLanguage.cs`). Adding, renaming or removing a key in en-US therefore needs the matching change in the interface, which is code: point it out to the developer instead of changing it. Translating existing keys needs no code change.
 
 ## Communication
 

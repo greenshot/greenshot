@@ -30,9 +30,6 @@ src/
 ├── Greenshot.Plugin.ExternalCommand/
 │   └── Languages/
 │       └── greenshot.externalcommand.{ietf}.ini    (21 languages)
-├── Greenshot.Plugin.Imgur/
-│   └── Languages/
-│       └── greenshot.imgur.{ietf}.ini    (22 languages)
 ├── Greenshot.Plugin.Jira/
 │   └── Languages/
 │       └── greenshot.jira.{ietf}.ini    (21 languages)
@@ -54,7 +51,7 @@ Arabic (ar-SY), Catalan (ca-CA), Czech (cs-CZ), Danish (da-DK), German (de-DE), 
 **Most plugins support 20-22 languages:**
 cs-CZ, de-DE, en-US, fr-FR, id-ID, it-IT, ja-JP, kab-DZ, ko-KR, lv-LV, pl-PL, pt-BR, pt-PT, ru-RU, sr-RS, sv-SE, tr-TR, uk-UA, zh-CN, zh-TW
 
-**Some plugins also include:** nl-NL (Confluence, Imgur, Jira), sk-SK (ExternalCommand, Imgur)
+**Some plugins also include:** nl-NL (Confluence, Jira), sk-SK (ExternalCommand)
 
 **NOTE:** The Office plugin has only 4 languages (de-DE, en-US, pt-BR, tr-TR).
 
@@ -90,14 +87,14 @@ Every key must be inside a section. A key in the wrong section is not found. Wri
 
 ### Plugin Language Pack
 
-File name: `greenshot.{module}.{ietf}.ini`, for example `greenshot.imgur.de-DE.ini`. The modules are `box`, `confluence`, `dropbox`, `externalcommand`, `imgur`, `jira` and `office`. A plugin pack has one section named after the plugin: `[Box]`, `[Confluence]`, `[Dropbox]`, `[ExternalCommand]`, `[Imgur]`, `[Jira]`, `[Office]`. Example from `greenshot.imgur.de-DE.ini`:
+File name: `greenshot.{module}.{ietf}.ini`, for example `greenshot.jira.de-DE.ini`. The modules are `box`, `confluence`, `dropbox`, `externalcommand`, `jira` and `office`. A plugin pack has one section named after the plugin: `[Box]`, `[Confluence]`, `[Dropbox]`, `[ExternalCommand]`, `[Jira]`, `[Office]`. Example from `greenshot.jira.de-DE.ini`:
 
 ```ini
-[Imgur]
-upload_menu_item=Zu Imgur hochladen
-settings_title=Imgur-Einstellungen
-delete_question=Sind Sie sicher, dass Sie das Bild {0} von Imgur löschen möchten?
-history=Verlauf...
+[Jira]
+upload_menu_item=Zu Jira hochladen
+column_assignee=Bearbeiter
+column_created=Erstellt
+column_id=ID
 ```
 
 ### Lines and Values
@@ -186,7 +183,7 @@ Every key with a fixed name is a typed string property on a language interface:
 | `[Settings]` | `src/Greenshot.Base/Languages/ISettingsLanguage.cs` | `Texts.Settings.Language` |
 | `[SelfService]` | `src/Greenshot.Base/Languages/ISelfServiceLanguage.cs` | `Texts.SelfService.Title` |
 | `[Recipe]` | `src/Greenshot.Base/Languages/IRecipeLanguage.cs` | `Texts.Recipe.ImportTitle` |
-| `[Imgur]` etc. | `src/Greenshot.Plugin.Imgur/IImgurLanguage.cs` etc. | `Texts.Get<IImgurLanguage>().History` |
+| `[Jira]` etc. | `src/Greenshot.Plugin.Jira/IJiraLanguage.cs` etc. | `Texts.Get<IJiraLanguage>().UploadMenuItem` |
 
 In XAML a text is used as `{wpf:Text Editor.Undo}`.
 
@@ -205,38 +202,38 @@ A plugin brings its own language packs, but it can use every text of Greenshot i
 
 **Shared texts:** use `Texts.Core.Ok` and `Texts.Core.Cancel` (`{wpf:Text Core.Ok}`, `{wpf:Text Core.Cancel}` in XAML) for the OK and Cancel buttons instead of adding own keys. They are translated in all languages, and translators don't have to translate them again for every plugin. Other texts which look the same (Close, URL, Image format, ...) stay in the plugin: their translation often differs per context.
 
-**Own texts**, using Imgur as example:
+**Own texts**, using Jira as example:
 
 1. **Language pack:** create `Languages/greenshot.{module}.en-US.ini` in the plugin project, with one section named after the plugin. The module name is the lower-case plugin name:
    ```ini
-   [Imgur]
-   history=History...
-   delete_question=Are you sure you want to delete the image {0} from Imgur?
+   [Jira]
+   upload_menu_item=Upload to Jira
+   column_assignee=Assignee
    ```
-   Translations go next to it as `greenshot.imgur.de-DE.ini` etc. A missing translation shows English.
+   Translations go next to it as `greenshot.jira.de-DE.ini` etc. A missing translation shows English.
 
-2. **Interface:** add an interface with a string property per key. The source generator of Dapplo.Ini, which comes with the reference to Greenshot.Base, generates the implementation `ImgurLanguageImpl`:
+2. **Interface:** add an interface with a string property per key. The source generator of Dapplo.Ini, which comes with the reference to Greenshot.Base, generates the implementation `JiraLanguageImpl`:
    ```csharp
-   [IniLanguageSection("Imgur", ModuleName = "imgur")]
-   public interface IImgurLanguage : INotifyPropertyChanged
+   [IniLanguageSection("Jira", ModuleName = "jira")]
+   public interface IJiraLanguage : INotifyPropertyChanged
    {
        /// <summary>
-       /// History...
+       /// Upload to Jira
        /// </summary>
-       string History { get; }
+       string UploadMenuItem { get; }
    }
    ```
-   The section name must match the `[Imgur]` of the pack, `ModuleName` the `imgur` of the file name.
+   The section name must match the `[Jira]` of the pack, `ModuleName` the `jira` of the file name.
 
 3. **Register** the section as the first thing in `ConfigureServices` of the plugin, so the texts can be used from then on:
    ```csharp
    public void ConfigureServices(IPluginServices services)
    {
-       Texts.Register<IImgurLanguage>(new ImgurLanguageImpl());
+       Texts.Register<IJiraLanguage>(new JiraLanguageImpl());
        ...
    }
    ```
-   In code the texts are then available as `Texts.Get<IImgurLanguage>().History`.
+   In code the texts are then available as `Texts.Get<IJiraLanguage>().UploadMenuItem`.
 
 4. **Project file:** copy the packs to the output; the build copies them from there into the `Languages` folder of Greenshot:
    ```xml
@@ -247,7 +244,7 @@ A plugin brings its own language packs, but it can use every text of Greenshot i
 
 5. **Installer:** add the packs to the plugin's file in `src/Greenshot-Installer/includes/plugins/`, installed flat into `{app}\Languages`:
    ```
-   Source: {#SolutionDir}\Greenshot.Plugin.Imgur\Languages\greenshot.imgur.*.ini; DestDir: {app}\Languages; Components: plugins\imgur; Flags: {#DefaultInstallFlags};
+   Source: {#SolutionDir}\Greenshot.Plugin.Jira\Languages\greenshot.jira.*.ini; DestDir: {app}\Languages; Components: plugins\jira; Flags: {#DefaultInstallFlags};
    ```
 
 6. **XAML:** add the namespace and use `{wpf:Text Section.Property}`:

@@ -84,6 +84,7 @@ namespace Greenshot.SelfService.Views
             ClipboardPanel.Visibility = sectionId == "clipboard" ? Visibility.Visible : Visibility.Collapsed;
             HotkeysPanel.Visibility = sectionId == "hotkeys" ? Visibility.Visible : Visibility.Collapsed;
             ChecksumPanel.Visibility = sectionId == "checksum" ? Visibility.Visible : Visibility.Collapsed;
+            ImgurPanel.Visibility = sectionId == "imgur" ? Visibility.Visible : Visibility.Collapsed;
 #if DEBUG
             if (IntegrationDebugPanel != null)
             {

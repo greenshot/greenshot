@@ -168,9 +168,9 @@ git fetch --unshallow
 Or ensure initial clone uses: `git clone --depth=0` or full clone without `--depth`
 
 ### Issue 3: Missing API Credentials
-**Symptoms**: Box, Dropbox, or Imgur authorization is not configured in a local build  
+**Symptoms**: Box or Dropbox authorization, or the deletion of Imgur uploads, is not configured in a local build  
 **Cause**: Environment variables for API keys not set  
-**Context**: Build templates replace credentials for the Box, Dropbox, and Imgur plugins  
+**Context**: Build templates replace credentials for the Box and Dropbox plugins and the Imgur client id of Greenshot (Self-Service deletes earlier Imgur uploads)  
 **Solution for Local Dev**: Credentials are optional for building. Set the relevant environment variables if you need to test those integrations:
 ```powershell
 $env:Box13_ClientId = "your_id"
@@ -178,7 +178,6 @@ $env:Box13_ClientSecret = "your_secret"
 $env:DropBox13_ClientId = "your_id"
 $env:DropBox13_ClientSecret = "your_secret"
 $env:Imgur13_ClientId = "your_id"
-$env:Imgur13_ClientSecret = "your_secret"
 ```
 
 ### Issue 4: Installer Not Built
