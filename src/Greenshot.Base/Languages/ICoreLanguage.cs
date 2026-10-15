@@ -285,6 +285,71 @@ namespace Greenshot.Base.Languages
         string CaptureKeyText { get; }
 
         /// <summary>
+        /// Capture a fixed size
+        /// </summary>
+        string CaptureKeyFixedSize { get; }
+
+        /// <summary>
+        /// Capture the area
+        /// </summary>
+        string CaptureKeyFixedSizeAccept { get; }
+
+        /// <summary>
+        /// Pick a size from the list
+        /// </summary>
+        string CaptureKeyFixedSizePick { get; }
+
+        /// <summary>
+        /// The previous or next size in the list
+        /// </summary>
+        string CaptureKeyFixedSizeStep { get; }
+
+        /// <summary>
+        /// Hold the area at another corner or in the middle
+        /// </summary>
+        string CaptureKeyFixedSizeCorner { get; }
+
+        /// <summary>
+        /// Cursor at the top left corner
+        /// </summary>
+        string CaptureFixedSizesAnchorTopLeft { get; }
+
+        /// <summary>
+        /// Cursor at the top right corner
+        /// </summary>
+        string CaptureFixedSizesAnchorTopRight { get; }
+
+        /// <summary>
+        /// Cursor at the bottom right corner
+        /// </summary>
+        string CaptureFixedSizesAnchorBottomRight { get; }
+
+        /// <summary>
+        /// Cursor at the bottom left corner
+        /// </summary>
+        string CaptureFixedSizesAnchorBottomLeft { get; }
+
+        /// <summary>
+        /// Cursor in the middle
+        /// </summary>
+        string CaptureFixedSizesAnchorCenter { get; }
+
+        /// <summary>
+        /// Sizes
+        /// </summary>
+        string CaptureFixedSizesTitle { get; }
+
+        /// <summary>
+        /// Recently captured
+        /// </summary>
+        string CaptureFixedSizesRecent { get; }
+
+        /// <summary>
+        /// Hold Alt to place it without snapping
+        /// </summary>
+        string CaptureFixedSizesNoSnap { get; }
+
+        /// <summary>
         /// Start or finish the selection
         /// </summary>
         string CaptureKeyRegionSelect { get; }

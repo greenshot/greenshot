@@ -94,7 +94,10 @@ namespace Greenshot.Capturing.Overlays
         public static IList<(IList<string> Keys, string Description)> GetRows(IEnumerable<CaptureKeyBinding> bindings, ICaptureTool activeTool)
         {
             var rows = new List<(IList<string> Keys, string Description)>();
-            var active = (bindings ?? Enumerable.Empty<CaptureKeyBinding>()).Where(binding => binding.IsActiveFor(activeTool)).ToList();
+            // The key which switches to the active tool (e.g. F for the fixed size) does nothing new while it is active
+            var active = (bindings ?? Enumerable.Empty<CaptureKeyBinding>())
+                .Where(binding => binding.IsActiveFor(activeTool) && !(binding.Tool == null && activeTool != null && binding.Owner == activeTool))
+                .ToList();
             // The keys of the tool first, they change with the tool; OrderBy is stable, so the order of registration stays
             foreach (var binding in active.OrderBy(binding => binding.Tool == null ? 1 : 0))
             {
@@ -107,6 +110,15 @@ namespace Greenshot.Capturing.Overlays
                 else if (!rows[index].Keys.Contains(binding.KeyText))
                 {
                     rows[index].Keys.Add(binding.KeyText);
+                }
+            }
+            // Many keys which do the same (the number keys which pick a size) show as a range, e.g. 1–9
+            for (int i = 0; i < rows.Count; i++)
+            {
+                var keys = rows[i].Keys;
+                if (keys.Count > 4)
+                {
+                    rows[i] = (new List<string> { $"{keys[0]}–{keys[keys.Count - 1]}" }, rows[i].Description);
                 }
             }
             return rows;

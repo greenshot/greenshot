@@ -583,7 +583,7 @@ namespace Greenshot.Capturing.Views
         /// </summary>
         private IList<ICaptureTool> CreateTools()
         {
-            var tools = new List<ICaptureTool> { _regionTool, _windowTool, new TextCaptureTool() };
+            var tools = new List<ICaptureTool> { _regionTool, _windowTool, new TextCaptureTool(), new FixedSizeCaptureTool() };
             foreach (var provider in SimpleServiceProvider.Current.GetAllInstances<ICaptureToolProvider>())
             {
                 try
@@ -621,7 +621,7 @@ namespace Greenshot.Capturing.Views
         /// </summary>
         private void RegisterWindowKeys()
         {
-            // Moving the cursor by a pixel, fixing the direction and the zoomer only make sense for tools which select pixels,
+            // Moving the cursor by a pixel and the zoomer only make sense for tools which select pixels,
             // not e.g. for the window tool: those tools show the zoomer
             static bool SelectsPixels(ICaptureTool tool) => tool?.ShowsZoomer == true;
             CaptureKeyBinding RegisterPixelKey(Key key, ModifierKeys modifiers, Func<string> description, Action execute) =>
@@ -638,16 +638,17 @@ namespace Greenshot.Capturing.Views
             {
                 RegisterPixelKey(key, ModifierKeys.Control, () => Texts.Core.CaptureKeyMoveFast, () => MoveCursor(dx, dy));
             }
+            // Fixing the direction is for dragging a rectangle (the region and the text tool), not for an area which follows the cursor
             foreach (var key in new[] { Key.LeftShift, Key.RightShift })
             {
-                RegisterPixelKey(key, ModifierKeys.None, () => Texts.Core.CaptureKeyFixDirection, () =>
+                _keys.Register(new CaptureKeyBinding(this, null, key, ModifierKeys.None, () => Texts.Core.CaptureKeyFixDirection, () =>
                 {
                     // Fix mode: keep the selection to one direction, until Shift is released
                     if (_fixMode == FixMode.None)
                     {
                         _fixMode = FixMode.Initiated;
                     }
-                });
+                }, tool => tool is RegionCaptureTool));
             }
             RegisterKey(this, Key.M, ModifierKeys.None, () => Texts.Core.CaptureKeyMouseCursor, () =>
             {

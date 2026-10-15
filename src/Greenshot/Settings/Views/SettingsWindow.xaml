@@ -17,6 +17,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/PillStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         <wpf:ExpertVisibilityConverter x:Key="ExpertVisibilityConverter"/>
         <wpf:FixedToEnabledConverter x:Key="FixedToEnabledConverter"/>
@@ -589,6 +590,82 @@
                                              Text="{Binding CoreConfiguration.CaptureDelay, Mode=TwoWay}"
                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureDelay}"/>
                                 </Grid>
+
+                                <!-- The sizes of the fixed size capture: pills with an "x", the "+" opens a small popup for width and height -->
+                                <StackPanel Margin="0,5"
+                                            IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=FixedCaptureSizes}">
+                                    <TextBlock Text="{wpf:Text Settings.FixedCaptureSizes}"
+                                               TextWrapping="Wrap"
+                                               Margin="0,0,0,6"
+                                               ToolTip="{wpf:Text Settings.TooltipFixedCaptureSizes}"
+                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                    <WrapPanel ToolTip="{wpf:Text Settings.TooltipFixedCaptureSizes}">
+                                        <ItemsControl ItemsSource="{Binding FixedCaptureSizes}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <WrapPanel/>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border Style="{StaticResource PillStyle}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock VerticalAlignment="Center" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}">
+                                                                <TextBlock.Text>
+                                                                    <MultiBinding StringFormat="{}{0} × {1}">
+                                                                        <Binding Path="Width"/>
+                                                                        <Binding Path="Height"/>
+                                                                    </MultiBinding>
+                                                                </TextBlock.Text>
+                                                            </TextBlock>
+                                                            <Button Style="{StaticResource RemoveEntryButtonStyle}" Margin="4,0,0,0"
+                                                                    Click="RemoveFixedCaptureSize_Click"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        <Button x:Name="AddFixedCaptureSizeButton"
+                                                Style="{StaticResource AddPillButtonStyle}"
+                                                ToolTip="{wpf:Text Settings.FixedCaptureSizesAdd}"
+                                                Click="AddFixedCaptureSize_Click"/>
+                                    </WrapPanel>
+                                    <Popup x:Name="AddFixedCaptureSizePopup"
+                                           PlacementTarget="{Binding ElementName=AddFixedCaptureSizeButton}"
+                                           Placement="Bottom"
+                                           StaysOpen="False"
+                                           AllowsTransparency="True"
+                                           Opened="AddFixedCaptureSizePopup_Opened">
+                                        <Border Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"
+                                                BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
+                                                BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,4,0,0"
+                                                KeyDown="AddFixedCaptureSizePopup_KeyDown">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="70"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="70"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+                                                <TextBlock Text="{wpf:Text Settings.FixedCaptureSizesWidth}" FontSize="11" Margin="0,0,0,3"
+                                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                                <TextBlock Grid.Column="2" Text="{wpf:Text Settings.FixedCaptureSizesHeight}" FontSize="11" Margin="0,0,0,3"
+                                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                                <TextBox x:Name="FixedCaptureSizeWidth" Grid.Row="1" TextAlignment="Right"/>
+                                                <TextBlock Grid.Row="1" Grid.Column="1" Text="×" Margin="6,0" VerticalAlignment="Center"
+                                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                                <TextBox x:Name="FixedCaptureSizeHeight" Grid.Row="1" Grid.Column="2" TextAlignment="Right"/>
+                                                <Button Grid.Row="1" Grid.Column="3" Content="+" Margin="8,0,0,0" Padding="10,2"
+                                                        ToolTip="{wpf:Text Settings.FixedCaptureSizesAdd}"
+                                                        Click="AddFixedCaptureSizeConfirm_Click"/>
+                                            </Grid>
+                                        </Border>
+                                    </Popup>
+                                </StackPanel>
                             </StackPanel>
                         </GroupBox>
                         
