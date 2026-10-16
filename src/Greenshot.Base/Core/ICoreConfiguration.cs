@@ -339,6 +339,10 @@ namespace Greenshot.Base.Core
         [DefaultValue(true)]
         bool CaptureSelectionPreviewVisible { get; set; }
 
+        [Description("Sets if the preview of the selection is shown in the place of the zoomer (next to the cursor) instead of in a corner, P switches between a corner, the zoomer's place and off")]
+        [DefaultValue(false)]
+        bool ZoomerShowsPreview { get; set; }
+
         [Description("Specify the transparency for the zoomer, from 0-1 (where 1 is no transparency and 0 is complete transparent. An useful setting would be 0.7)")]
         [DefaultValue(1)]
         float ZoomerOpacity { get; set; }

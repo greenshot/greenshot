@@ -138,7 +138,11 @@ to the built-in recipes when the recipes are loaded after the plugins registered
      and `InfoOverlay` (I, a WPF panel bound to a view model: screen resolution, selection, window under the mouse, mouse position),
      and `SelectionPreviewOverlay` (P, a drawn panel with the selected area scaled to fit 320 × 200: enlarged by a whole number
      so pixels stay square and crisp, reduced with high quality scaling; the window passes it the frozen capture and calls its `Update`
-     whenever the labels or the selection change, also for changes from keys without a mouse move).
+     whenever the labels or the selection change, also for changes from keys without a mouse move). P goes through a corner panel,
+     the place of the zoomer, and off (`CaptureSelectionPreviewVisible`, `ZoomerShowsPreview`). The zoomer belongs to the window, so
+     an overlay can't take its place through `ICaptureToolHost`: the window shows either its magnifier or a layer the overlay draws
+     (`DrawInZoomer`), with the preview's width and height for `ZoomerPlacement`, so placement, avoiding the panels and the
+     animations stay the zoomer's. Where the zoomer isn't shown (Z, or a tool without it) the preview uses the corner panel.
 
 | Call | When |
 |---|---|
@@ -203,7 +207,7 @@ The keys of the window and the built-in tools:
 | Enter, D | Window tool | Capture the window, window details |
 | F1 | Help overlay | Show or hide the keys |
 | I | Info overlay | Show or hide the info (screen, selection, window, mouse) |
-| P | Selection preview overlay | Show or hide the preview of the selection |
+| P | Selection preview overlay | Preview of the selection: in a corner, in the place of the zoomer, off |
 
 ### Example: the help overlay
 

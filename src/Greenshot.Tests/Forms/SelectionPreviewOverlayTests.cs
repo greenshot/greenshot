@@ -56,4 +56,14 @@ public class SelectionPreviewOverlayTests
     {
         Assert.Equal(expected, SelectionPreviewOverlay.GetScale(new NativeSize(width, height), 320, 200), 3);
     }
+
+    [Fact]
+    public void GetZoomerSize_KeepsTheProportions_InsideTheZoomer()
+    {
+        // 216 zoomer, a frame of 2 pixels: 212 inside
+        Assert.Equal(new NativeSize(212, 212), SelectionPreviewOverlay.GetZoomerSize(new NativeSize(16, 16), 216, out double small));
+        Assert.Equal(13, small);
+        Assert.Equal(new NativeSize(216, 123), SelectionPreviewOverlay.GetZoomerSize(new NativeSize(1280, 720), 216, out double large));
+        Assert.Equal(212.0 / 1280, large, 6);
+    }
 }

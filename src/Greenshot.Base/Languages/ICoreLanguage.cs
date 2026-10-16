@@ -385,7 +385,7 @@ namespace Greenshot.Base.Languages
         string CaptureKeyInfo { get; }
 
         /// <summary>
-        /// Show or hide the preview of the selection
+        /// Preview of the selection: in a corner, at the cursor, off
         /// </summary>
         string CaptureKeySelectionPreview { get; }
 
