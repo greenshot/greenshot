@@ -20,10 +20,15 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Windows;
+using Dapplo.Ini;
 using Greenshot.Base.Core;
+using Greenshot.Base.Wpf;
 using Greenshot.SelfService.Views;
 using log4net;
 using Greenshot.Base.Languages;
@@ -33,6 +38,7 @@ namespace Greenshot.SelfService.ViewModels
     public class FileInfoSectionViewModel : SelfServiceSectionViewModel
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(FileInfoSectionViewModel));
+        private static ICoreConfiguration CoreConfig => IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         public override string Id => "files";
         public override string Title
@@ -77,6 +83,18 @@ namespace Greenshot.SelfService.ViewModels
         public bool ConfigFileExists { get => _configFileExists; private set { _configFileExists = value; OnPropertyChanged(); } }
         public string ConfigFileSizeText { get => _configFileSizeText; private set { _configFileSizeText = value; OnPropertyChanged(); } }
         public string ConfigFileModifiedText { get => _configFileModifiedText; private set { _configFileModifiedText = value; OnPropertyChanged(); } }
+
+        // Output folder check
+        private string _outputConfiguredPath;
+        private string _outputExpandedPath;
+        private string _outputExampleFile;
+        private IList<OutputPathCheckRow> _outputChecks = new List<OutputPathCheckRow>();
+
+        public string OutputConfiguredPath { get => _outputConfiguredPath; private set { _outputConfiguredPath = value; OnPropertyChanged(); } }
+        public string OutputExpandedPath { get => _outputExpandedPath; private set { _outputExpandedPath = value; OnPropertyChanged(); } }
+        public string OutputExampleFile { get => _outputExampleFile; private set { _outputExampleFile = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasOutputExampleFile)); } }
+        public bool HasOutputExampleFile => !string.IsNullOrEmpty(OutputExampleFile);
+        public IList<OutputPathCheckRow> OutputChecks { get => _outputChecks; private set { _outputChecks = value; OnPropertyChanged(); } }
 
         public string RecentLogContent { get => _recentLogContent; private set { _recentLogContent = value; OnPropertyChanged(); } }
         public string StatusMessage { get => _statusMessage; set { _statusMessage = value; OnPropertyChanged(); } }
@@ -127,6 +145,8 @@ namespace Greenshot.SelfService.ViewModels
                     ConfigFileModifiedText = "N/A";
                 }
 
+                CheckOutputPath();
+
                 // Brief preview snippet
                 LoadRecentLog();
 
@@ -143,6 +163,60 @@ namespace Greenshot.SelfService.ViewModels
         {
             base.OnLanguageChanged();
             Refresh();
+        }
+
+        /// <summary>
+        /// Checks where screenshots are saved, the result is shown and logged (a helpdesk asks for the log)
+        /// </summary>
+        public void CheckOutputPath()
+        {
+            var result = OutputPathCheck.Run(CoreConfig.OutputFilePath, CoreConfig.OutputFileFilenamePattern, CoreConfig.OutputFileFormat);
+            OutputConfiguredPath = result.ConfiguredPath;
+            OutputExpandedPath = result.ExpandedPath ?? string.Empty;
+            OutputExampleFile = result.ExampleFile;
+            OutputChecks = result.Items.Select(item => new OutputPathCheckRow(item)).ToList();
+            // The section shows in the navigation when screenshots probably don't end up where the user expects them
+            bool problem = result.Worst >= OutputPathSeverity.Warning;
+            BadgeText = problem ? (result.Worst == OutputPathSeverity.Error ? "❌" : "⚠️") : null;
+            BadgeBrush = problem ? WpfThemeHelper.ErrorBackground : null;
+            Log.Info($"Output folder check: '{result.ConfiguredPath}' -> '{result.ExpandedPath}': {string.Join(", ", result.Items.Select(i => i.Finding + (i.Detail == null ? string.Empty : $" ({i.Detail})")))}");
+        }
+
+        public void OpenOutputFolder()
+        {
+            OpenPathInExplorer(OutputExpandedPath, "Screenshot folder");
+        }
+
+        public void CopyOutputPath()
+        {
+            CopyText(OutputExpandedPath, "Screenshot folder copied to clipboard.");
+        }
+
+        /// <summary>
+        /// The screenshot folder becomes the default folder again (the Desktop, or the portable folder)
+        /// </summary>
+        public void ResetOutputPath()
+        {
+            string previous = CoreConfig.OutputFilePath;
+            CoreConfig.OutputFilePath = null;
+            CoreConfig.ValidateAndCorrectOutputFilePath();
+            Log.Info($"The user reset the screenshot folder in Self-Service: '{previous}' -> '{CoreConfig.OutputFilePath}'");
+            CheckOutputPath();
+            StatusMessage = string.Format(Texts.SelfService.FilesOutputResetDone, CoreConfig.OutputFilePath);
+        }
+
+        /// <summary>
+        /// The filename pattern becomes the default pattern again
+        /// </summary>
+        public void ResetFilenamePattern()
+        {
+            string previous = CoreConfig.OutputFileFilenamePattern;
+            string defaultPattern = typeof(ICoreConfiguration).GetProperty(nameof(ICoreConfiguration.OutputFileFilenamePattern))?
+                .GetCustomAttributes(typeof(DefaultValueAttribute), false).OfType<DefaultValueAttribute>().FirstOrDefault()?.Value as string;
+            CoreConfig.OutputFileFilenamePattern = defaultPattern;
+            Log.Info($"The user reset the filename pattern in Self-Service: '{previous}' -> '{defaultPattern}'");
+            CheckOutputPath();
+            StatusMessage = string.Format(Texts.SelfService.FilesOutputResetDone, defaultPattern);
         }
 
         public void LoadRecentLog()

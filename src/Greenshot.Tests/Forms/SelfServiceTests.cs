@@ -156,6 +156,11 @@ namespace Greenshot.Tests.Forms
             // Test loading recent log doesn't crash even if file does or doesn't exist
             fileInfo.LoadRecentLog();
             Assert.NotNull(fileInfo.RecentLogContent);
+
+            // The screenshot folder is checked, each finding has a text
+            Assert.NotNull(fileInfo.OutputConfiguredPath);
+            Assert.NotEmpty(fileInfo.OutputChecks);
+            Assert.All(fileInfo.OutputChecks, row => Assert.False(string.IsNullOrEmpty(row.Text)));
         }
 
         [Fact]

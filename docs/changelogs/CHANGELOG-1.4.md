@@ -188,6 +188,13 @@ Continuous builds are automatically created for every commit to the `main` branc
 - If you uploaded images anonymously with an earlier Greenshot, it still has their delete keys: Self-Service lists those images so you can delete them from Imgur
 - Save the delete links as a web page to keep them
 
+#### 🩺 Self-Service
+
+**Check where screenshots are saved**
+- Self-Service shows whether the screenshot folder exists, whether Greenshot can write to it, and whether it's a network or OneDrive folder
+- It tells why Greenshot would save to the Desktop instead (a missing folder, a network folder which can't be reached, variables in the folder), and if the filename pattern gives no valid name
+- The folder and the filename pattern can be reset to the default with one click
+
 ### Bug Fixes & Improvements
 
 #### 🐛 Critical Fixes
