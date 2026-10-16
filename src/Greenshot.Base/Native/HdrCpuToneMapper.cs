@@ -33,7 +33,7 @@ namespace Greenshot.Base.Native;
 /// <remarks>
 /// The values are scaled with the display's SDR white level, so SDR content (the desktop, most windows) sits at 1.0.
 /// A capture without anything brighter than that keeps every color as it is on the screen.
-/// When the capture shows brighter (HDR) content, everything above the knee is compressed so the brightest pixel
+/// When the capture shows brighter (HDR) content, everything above <see cref="Knee"/> is compressed so the brightest pixel
 /// becomes white (or what the display can show at most, if that is less): highlights keep their detail and hue instead of being cut off, at the cost of SDR white becoming a little darker.
 /// The color of a pixel is scaled as a whole (by its largest channel), so the hue stays.
 /// </remarks>
@@ -42,19 +42,13 @@ internal static class HdrCpuToneMapper
     private static readonly ILog Log = LogManager.GetLogger(typeof(HdrCpuToneMapper));
 
     /// <summary>
-    /// Brightness (1.0 = SDR white) up to which colors stay as they are when the capture has a few HDR highlights:
-    /// SDR white stays almost white
+    /// Brightness (1.0 = SDR white) up to which colors stay as they are when the capture has HDR content
     /// </summary>
     internal const float Knee = 0.8f;
 
     /// <summary>
-    /// The knee when much of the capture is brighter than SDR white (an HDR video or game): the highlights get more of the 8-bit steps,
-    /// at the cost of SDR white becoming darker
-    /// </summary>
-    internal const float HighlightKnee = 0.5f;
-
-    /// <summary>
-    /// Share of pixels brighter than SDR white from which the knee moves from <see cref="Knee"/> towards <see cref="HighlightKnee"/>, and where it reaches it
+    /// Share of pixels brighter than SDR white from which the whole capture is darkened as well, and where it is darkened so far that the peak fits without compression.
+    /// Compressing a capture which is mostly highlights (an HDR video or game) would flatten its detail, darkening keeps all contrast; SDR white becomes grey for it.
     /// </summary>
     private const float FewHighlights = 0.05f;
     private const float MostlyHighlights = 0.25f;
@@ -94,14 +88,18 @@ internal static class HdrCpuToneMapper
         float peak = Math.Min(pixelPeak, displayPeak);
         bool hasHdrContent = peak > SdrPeak;
         float highlightShare = (float)brighterThanSdrWhite / ((long)width * height);
-        float knee = Knee - (Knee - HighlightKnee) * Math.Min(Math.Max((highlightShare - FewHighlights) / (MostlyHighlights - FewHighlights), 0), 1);
+        float darken = Math.Min(Math.Max((highlightShare - FewHighlights) / (MostlyHighlights - FewHighlights), 0), 1);
+        float exposure = hasHdrContent ? 1.0f / (1.0f + (peak - 1.0f) * darken) : 1.0f;
+        scale *= exposure;
+        peak *= exposure;
+        bool compress = peak > SdrPeak;
         // Above the knee the curve runs from the knee (slope 1) to 1.0 at the peak, see Compress
-        float whitePoint = (peak - knee) / (1.0f - knee);
-        float inverseWhitePointSquared = hasHdrContent ? 1.0f / (whitePoint * whitePoint) : 0;
-        Log.Info($"HDR tone mapping {width}x{height}: SDR white {sdrWhiteLevelInNits} nits, brightest pixel {pixelPeak * sdrWhiteLevelInNits:F0} nits, display peak {displayPeakInNits:F0} nits{(hasHdrContent ? $", highlights compressed above {knee:F2} ({highlightShare:P0} brighter than SDR white)" : ", SDR only")}.");
+        float whitePoint = (peak - Knee) / (1.0f - Knee);
+        float inverseWhitePointSquared = compress ? 1.0f / (whitePoint * whitePoint) : 0;
+        Log.Info($"HDR tone mapping {width}x{height}: SDR white {sdrWhiteLevelInNits} nits, brightest pixel {pixelPeak * sdrWhiteLevelInNits:F0} nits, display peak {displayPeakInNits:F0} nits{(hasHdrContent ? $", {highlightShare:P0} brighter than SDR white, SDR white at {exposure:P0}{(compress ? ", highlights compressed" : "")}" : ", SDR only")}.");
 
-        // SDR only: values above 1.0 are FP16 rounding, cut them
-        float compressAbove = hasHdrContent ? knee : 1.0f;
+        // Without compression values above 1.0 are FP16 rounding, cut them
+        float compressAbove = compress ? Knee : 1.0f;
 
         var bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
         var bmpData = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, bitmap.PixelFormat);
@@ -132,7 +130,7 @@ internal static class HdrCpuToneMapper
                     float max = Math.Max(r, Math.Max(g, b));
                     if (max > compressAbove)
                     {
-                        float target = hasHdrContent ? Compress(max, knee, inverseWhitePointSquared) : Math.Min(max, 1.0f);
+                        float target = compress ? Compress(max, inverseWhitePointSquared) : Math.Min(max, 1.0f);
                         float toTarget = target / max;
                         r *= toTarget;
                         g *= toTarget;
@@ -160,10 +158,10 @@ internal static class HdrCpuToneMapper
     /// <summary>
     /// Extended Reinhard above the knee: slope 1 at the knee (no visible edge), 1.0 at the peak
     /// </summary>
-    internal static float Compress(float value, float knee, float inverseWhitePointSquared)
+    internal static float Compress(float value, float inverseWhitePointSquared)
     {
-        float x = (value - knee) / (1.0f - knee);
-        return knee + (1.0f - knee) * Math.Min(x * (1.0f + x * inverseWhitePointSquared) / (1.0f + x), 1.0f);
+        float x = (value - Knee) / (1.0f - Knee);
+        return Knee + (1.0f - Knee) * Math.Min(x * (1.0f + x * inverseWhitePointSquared) / (1.0f + x), 1.0f);
     }
 
     /// <summary>

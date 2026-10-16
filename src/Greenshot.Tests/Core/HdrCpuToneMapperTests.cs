@@ -90,7 +90,7 @@ public class HdrCpuToneMapperTests
     }
 
     [Fact]
-    public void MostlyHighlights_GetMoreSteps()
+    public void MostlyHighlights_AreDarkenedInsteadOfCompressed()
     {
         // An HDR video frame: most pixels between SDR white and 2 x SDR white
         var pixels = Enumerable.Range(0, 20).Select(i => Rgba((1 + i / 20f) * SdrWhite, (1 + i / 20f) * SdrWhite, (1 + i / 20f) * SdrWhite)).ToList();
@@ -100,10 +100,11 @@ public class HdrCpuToneMapperTests
 
         int StepsBetweenSdrWhiteAndTwice(Bitmap bitmap) => Enumerable.Range(0, 20).Select(x => bitmap.GetPixel(x, 0).R).Distinct().Count();
 
-        // The video frame spreads its highlights over more of the 8-bit values, SDR white gets darker for it
+        // The video frame is darkened so its peak (4 x SDR white) fits: its highlights keep their contrast, SDR white becomes grey
         Assert.True(StepsBetweenSdrWhiteAndTwice(video) > StepsBetweenSdrWhiteAndTwice(desktop),
             $"{StepsBetweenSdrWhiteAndTwice(video)} steps for the video, {StepsBetweenSdrWhiteAndTwice(desktop)} for the desktop");
-        Assert.InRange(video.GetPixel(0, 0).R, 215, 235);
+        Assert.InRange(video.GetPixel(0, 0).R, 130, 145);
+        Assert.Equal(255, video.GetPixel(20, 0).R);
         Assert.InRange(desktop.GetPixel(0, 0).R, 235, 254);
     }
 
@@ -140,14 +141,14 @@ public class HdrCpuToneMapperTests
         float previous = 0;
         for (float value = HdrCpuToneMapper.Knee; value <= 10; value += 0.05f)
         {
-            float compressed = HdrCpuToneMapper.Compress(value, HdrCpuToneMapper.Knee, 1 / (46f * 46f));
+            float compressed = HdrCpuToneMapper.Compress(value, 1 / (46f * 46f));
             Assert.True(compressed >= previous, $"{value} became {compressed}, below {previous}");
             Assert.True(compressed <= 1.0f);
             previous = compressed;
         }
-        Assert.Equal(HdrCpuToneMapper.Knee, HdrCpuToneMapper.Compress(HdrCpuToneMapper.Knee, HdrCpuToneMapper.Knee, 0.01f), 5);
+        Assert.Equal(HdrCpuToneMapper.Knee, HdrCpuToneMapper.Compress(HdrCpuToneMapper.Knee, 0.01f), 5);
         // The peak (here 10, white point (10 - 0.8) / 0.2 = 46) becomes white
-        Assert.Equal(1.0f, HdrCpuToneMapper.Compress(10, HdrCpuToneMapper.Knee, 1 / (46f * 46f)), 4);
+        Assert.Equal(1.0f, HdrCpuToneMapper.Compress(10, 1 / (46f * 46f)), 4);
     }
 
     [Fact]
@@ -198,8 +199,8 @@ public class HdrCpuToneMapperTests
 
             using var bitmap = WindowsGraphicsCaptureInterop.ToneMapHdrTextureToBitmap(texture, device, context, SdrWhiteNits);
 
-            // Half of this frame is highlight, so SDR white makes more room
-            Assert.InRange(bitmap.GetPixel(0, 0).R, 215, 235);
+            // Half of this frame is highlight, so it is darkened until the 10 x peak fits
+            Assert.InRange(bitmap.GetPixel(0, 0).R, 85, 93);
             Assert.Equal(Color.FromArgb(255, 255, 188, 0), bitmap.GetPixel(1, 0));
         }
         finally
