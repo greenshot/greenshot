@@ -135,7 +135,10 @@ to the built-in recipes when the recipes are loaded after the plugins registered
    - **In a plugin:** implement `ICaptureOverlayProvider`, which returns new instances for every window that opens, and register it
      in the plugin's `Initialize` with `SimpleServiceProvider.Current.AddService<ICaptureOverlayProvider>(...)`.
    - **In Greenshot:** add it to `CreateOverlays` in `CaptureWindow.xaml.cs`, like the built-in `HelpOverlay` (F1, a drawn panel)
-     and `InfoOverlay` (I, a WPF panel bound to a view model: screen resolution, selection, window under the mouse, mouse position).
+     and `InfoOverlay` (I, a WPF panel bound to a view model: screen resolution, selection, window under the mouse, mouse position),
+     and `SelectionPreviewOverlay` (P, a drawn panel with the selected area scaled to fit 320 × 200: enlarged by a whole number
+     so pixels stay square and crisp, reduced with high quality scaling; the window passes it the frozen capture and calls its `Update`
+     whenever the labels or the selection change, also for changes from keys without a mouse move).
 
 | Call | When |
 |---|---|
@@ -200,6 +203,7 @@ The keys of the window and the built-in tools:
 | Enter, D | Window tool | Capture the window, window details |
 | F1 | Help overlay | Show or hide the keys |
 | I | Info overlay | Show or hide the info (screen, selection, window, mouse) |
+| P | Selection preview overlay | Show or hide the preview of the selection |
 
 ### Example: the help overlay
 
@@ -209,7 +213,8 @@ the keys of the active tool first, as key caps like the hotkey settings show the
 (e.g. F) isn't shown while that tool is active. Because it reads `Host.KeyBindings`, keys of plugin tools and overlays are in it too,
 and the descriptions are read when the panel is shown, in the current language. When the tool changes, the panel is shown again
 with the keys of the new tool. Whether it is shown is remembered in the configuration (`CaptureHelpVisible` in `greenshot.ini`, on by default),
-so it comes back with every capture until F1 hides it. The info overlay does the same with `CaptureInfoVisible`.
+so it comes back with every capture until F1 hides it. The info overlay does the same with `CaptureInfoVisible`, the selection preview
+with `CaptureSelectionPreviewVisible`.
 
 ```csharp
 using System;

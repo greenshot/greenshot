@@ -335,6 +335,10 @@ namespace Greenshot.Base.Core
         [DefaultValue(true)]
         bool CaptureInfoVisible { get; set; }
 
+        [Description("Sets if the preview of the selection (enlarged when small, reduced when large) is shown in the interactive capture, P shows or hides it")]
+        [DefaultValue(true)]
+        bool CaptureSelectionPreviewVisible { get; set; }
+
         [Description("Specify the transparency for the zoomer, from 0-1 (where 1 is no transparency and 0 is complete transparent. An useful setting would be 0.7)")]
         [DefaultValue(1)]
         float ZoomerOpacity { get; set; }

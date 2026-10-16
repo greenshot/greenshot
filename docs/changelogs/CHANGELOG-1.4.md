@@ -74,6 +74,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 - A list shows the sizes: pick one with 1 to 9, or go through them with Page Up and Page Down
 - The sizes of your last region captures are in the list too, so you can capture the same size again
 - Add and remove your own sizes in the settings, on the Capture tab
+- A preview in a corner shows what will be captured, enlarged when it is small and reduced when it is large; this works for regions and windows too, P hides or shows it
 
 **New Capture Technology** (#932)
 - Implemented new capture technology for better screenshot quality

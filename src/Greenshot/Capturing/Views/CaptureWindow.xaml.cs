@@ -86,6 +86,8 @@ namespace Greenshot.Capturing.Views
         // Remote desktop: no animations and no crosshair, every repaint of the screen costs bandwidth (OptimizeForRDP / DisableRDPOptimizing as before)
         private readonly bool _isRemoteSession = !Conf.DisableRDPOptimizing && (Conf.OptimizeForRDP || SystemParameters.IsRemoteSession);
         private BitmapSource _screenImage;
+        // The preview of the selection, told about every change of the selection (also those from keys, without a mouse move)
+        private SelectionPreviewOverlay _selectionPreview;
         private readonly Typeface _labelTypeface;
         private readonly Typeface _boldLabelTypeface;
 
@@ -711,6 +713,8 @@ namespace Greenshot.Capturing.Views
 
             Add(new HelpOverlay());
             Add(new InfoOverlay());
+            _selectionPreview = new SelectionPreviewOverlay(_screenImage);
+            Add(_selectionPreview);
             foreach (var provider in SimpleServiceProvider.Current.GetAllInstances<ICaptureOverlayProvider>())
             {
                 try
@@ -1150,6 +1154,7 @@ namespace Greenshot.Capturing.Views
         {
             SelectionPath.Visibility = Visibility.Collapsed;
             UpdateZoomerSelection();
+            UpdateSelectionPreview();
         }
 
         /// <inheritdoc />
@@ -1201,6 +1206,7 @@ namespace Greenshot.Capturing.Views
         {
             SelectionSize = NativeSize.Empty;
             LabelLayer.Clear();
+            UpdateSelectionPreview();
         }
 
         /// <inheritdoc />
@@ -1267,6 +1273,7 @@ namespace Greenshot.Capturing.Views
             }
             SelectionSize = size;
             UpdateZoomerSelection();
+            UpdateSelectionPreview();
 
             int width = size.Width;
             int height = size.Height;
@@ -1451,6 +1458,21 @@ namespace Greenshot.Capturing.Views
             moveY.To = offset.Y;
             ZoomerOffset.BeginAnimation(TranslateTransform.XProperty, moveX);
             ZoomerOffset.BeginAnimation(TranslateTransform.YProperty, moveY);
+        }
+
+        /// <summary>
+        /// The preview shows the selection as it is now, an error is logged and doesn't stop the capture
+        /// </summary>
+        private void UpdateSelectionPreview()
+        {
+            try
+            {
+                _selectionPreview?.Update();
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Error updating the selection preview", ex);
+            }
         }
 
         /// <summary>
