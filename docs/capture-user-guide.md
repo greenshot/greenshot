@@ -189,7 +189,7 @@ A panel lists the sizes:
 
 - **The sizes** are your own sizes from the settings (Capture tab, *Fixed capture sizes*), followed by the sizes of your last
   region captures under *Recently captured*. Greenshot keeps the last five; a size which is already in your own list isn't repeated.
-- **`1` – `9`** pick a size from the list, **`PgUp`** and **`PgDn`** go to the previous or next size (after the last one comes the first again).
+- **`1` – `9`** (also on the number pad) pick a size from the list, **`PgUp`** and **`PgDn`** go to the previous or next size (after the last one comes the first again).
 - **Where the mouse holds the rectangle:** at the top left corner at first. **`C`** changes it to the top right corner, the bottom right,
   the bottom left, the middle, and back to the top left. At a corner the pixel under the mouse is the corner pixel of the capture, so the
   zoomer shows you exactly where the capture starts or ends. The panel shows the current choice as a dot in a small rectangle.
@@ -359,7 +359,7 @@ The **Keys** panel (`F1`) always shows the keys which work at that moment. This 
 | Key | What it does |
 |---|---|
 | `Enter` | Capture the area |
-| `1` – `9` | Pick a size from the list |
+| `1` – `9` | Pick a size from the list (also on the number pad) |
 | `PgUp` / `PgDn` | The previous or next size |
 | `C` | Hold the area at another corner or in the middle |
 | hold `Alt` | Place the area without snapping |

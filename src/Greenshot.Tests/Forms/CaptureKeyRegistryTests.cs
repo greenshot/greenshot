@@ -137,6 +137,22 @@ public class CaptureKeyRegistryTests
     }
 
     [Fact]
+    public void Find_NumberPadDigit_DoesWhatTheDigitDoes_UnlessItHasItsOwn()
+    {
+        var registry = new CaptureKeyRegistry();
+        var tool = new FakeTool();
+        var one = registry.Register(ForTool(tool, Key.D1, "Pick"));
+        var two = registry.Register(ForTool(tool, Key.D2, "Pick"));
+        var numPadTwo = registry.Register(ForTool(tool, Key.NumPad2, "Own"));
+
+        Assert.Same(one, registry.Find(Key.NumPad1, ModifierKeys.None, tool));
+        Assert.Same(numPadTwo, registry.Find(Key.NumPad2, ModifierKeys.None, tool));
+        Assert.Same(two, registry.Find(Key.D2, ModifierKeys.None, tool));
+        Assert.Null(registry.Find(Key.NumPad3, ModifierKeys.None, tool));
+        Assert.Null(registry.Find(Key.NumPad1, ModifierKeys.None, new FakeTool()));
+    }
+
+    [Fact]
     public void Description_IsReadWhenAsked()
     {
         string text = "before";
