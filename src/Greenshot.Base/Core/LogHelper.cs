@@ -156,6 +156,8 @@ namespace Greenshot.Base.Core
     /// Writes a log entry so that only its first line starts at the beginning of a line: every further line, of the message
     /// (e.g. a window title or a value from a link) or of the exception, is indented.
     /// So no text in an entry can look like the start of another entry, in the file or in the log viewer.
+    /// Control characters and invisible formatting characters are escaped (<see cref="LogSanitizer.EscapeUnsafeCharacters"/>),
+    /// and a very long entry is cut (<see cref="LogSanitizer.MaxEntryLength"/>).
     /// </summary>
     public sealed class EntryLayout : ILayout
     {
@@ -174,13 +176,26 @@ namespace Greenshot.Base.Core
         public string ContentType => _layout.ContentType;
         public string Header => _layout.Header;
         public string Footer => _layout.Footer;
-        public bool IgnoresException => _layout.IgnoresException;
+        // The exception is always written here, so it is indented and escaped like the rest of the entry
+        public bool IgnoresException => false;
 
         public void Format(TextWriter writer, LoggingEvent loggingEvent)
         {
             var entry = new StringWriter();
             _layout.Format(entry, loggingEvent);
-            writer.Write(IndentFollowingLines(entry.ToString()));
+            if (_layout.IgnoresException && loggingEvent.ExceptionObject != null)
+            {
+                // A layout without %exception: the appender would add the exception as it is
+                entry.WriteLine(loggingEvent.GetExceptionString());
+            }
+
+            string text = LogSanitizer.EscapeUnsafeCharacters(entry.ToString());
+            if (text.Length > LogSanitizer.MaxEntryLength)
+            {
+                // The cut entry still ends with a line break, the next entry starts on its own line
+                text = LogSanitizer.Limit(text) + Environment.NewLine;
+            }
+            writer.Write(IndentFollowingLines(text));
         }
 
         /// <summary>

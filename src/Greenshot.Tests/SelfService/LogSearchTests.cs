@@ -19,9 +19,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using Greenshot.Base.Core;
 using Greenshot.SelfService;
 using log4net.Core;
+using log4net.Repository.Hierarchy;
 using Xunit;
 
 namespace Greenshot.Tests.SelfService
@@ -96,6 +98,7 @@ namespace Greenshot.Tests.SelfService
         [Fact]
         public void LogViewerAppender_CollectsEntries_OnlyWhileAttached()
         {
+            using var configured = new ConfiguredRepository();
             var logger = log4net.LogManager.GetLogger(typeof(LogSearchTests));
             var appender = LogViewerAppender.Attach();
             try
@@ -148,6 +151,7 @@ namespace Greenshot.Tests.SelfService
         [Fact]
         public void RootLevel_Change_AppliesToTheLoggers()
         {
+            using var configured = new ConfiguredRepository();
             var original = LogHelper.RootLevel;
             try
             {
@@ -162,6 +166,24 @@ namespace Greenshot.Tests.SelfService
             {
                 LogHelper.RootLevel = original;
             }
+        }
+
+        /// <summary>
+        /// log4net logs nothing before it is configured, which depends on the tests that ran before:
+        /// marks the repository as configured for one test
+        /// </summary>
+        private sealed class ConfiguredRepository : IDisposable
+        {
+            private readonly Hierarchy _hierarchy = (Hierarchy) log4net.LogManager.GetRepository();
+            private readonly bool _wasConfigured;
+
+            public ConfiguredRepository()
+            {
+                _wasConfigured = _hierarchy.Configured;
+                _hierarchy.Configured = true;
+            }
+
+            public void Dispose() => _hierarchy.Configured = _wasConfigured;
         }
     }
 }

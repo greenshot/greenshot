@@ -72,7 +72,8 @@ namespace Greenshot.SelfService.Views
         public string LogText
         {
             get => _logText;
-            set { _logText = value; OnPropertyChanged(); }
+            // Logs of earlier versions can contain control characters or right-to-left overrides (e.g. from a window title): shown as \uXXXX
+            set { _logText = LogSanitizer.EscapeUnsafeCharacters(value); OnPropertyChanged(); }
         }
 
         public string LogInfoText
@@ -205,7 +206,8 @@ namespace Greenshot.SelfService.Views
         {
             _searchTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(300) };
             _searchTimer.Tick += (_, _) => ApplySearch();
-            _searchText = search?.Trim() ?? string.Empty;
+            // The search text of a link is shown and matched like the log: unsafe characters escaped
+            _searchText = LogSanitizer.EscapeUnsafeCharacters(search?.Trim()) ?? string.Empty;
 
             InitializeComponent();
 
