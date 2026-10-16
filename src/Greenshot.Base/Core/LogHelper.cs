@@ -26,6 +26,7 @@ using System.Windows.Forms;
 using log4net;
 using log4net.Appender;
 using log4net.Config;
+using log4net.Core;
 using log4net.Repository.Hierarchy;
 using log4net.Util;
 
@@ -40,6 +41,20 @@ namespace Greenshot.Base.Core
         private const string InitMessage = "Greenshot initialization of log system failed";
 
         public static bool IsInitialized => _isLog4NetConfigured;
+
+        /// <summary>
+        /// The level of the root logger. A change applies until Greenshot restarts, log4net.xml stays as it is.
+        /// </summary>
+        public static Level RootLevel
+        {
+            get => ((Hierarchy) LogManager.GetRepository()).Root.Level;
+            set
+            {
+                var hierarchy = (Hierarchy) LogManager.GetRepository();
+                hierarchy.Root.Level = value;
+                hierarchy.RaiseConfigurationChanged(EventArgs.Empty);
+            }
+        }
 
         // Initialize Log4J
         public static string InitializeLog4Net()

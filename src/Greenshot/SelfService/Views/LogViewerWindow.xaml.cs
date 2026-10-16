@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
@@ -28,9 +29,11 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
 using log4net;
+using log4net.Core;
 using Greenshot.Base.Languages;
 
 namespace Greenshot.SelfService.Views
@@ -50,6 +53,8 @@ namespace Greenshot.SelfService.Views
         private bool _wrapText;
         private long _actualStartOffset;
         private long _totalFileLength;
+        private string _searchText = string.Empty;
+        private readonly DispatcherTimer _searchTimer;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -103,6 +108,52 @@ namespace Greenshot.SelfService.Views
             }
         }
 
+        /// <summary>
+        /// Only the log entries with this text are shown, from the whole log file. Empty shows the end of the log.
+        /// </summary>
+        public string SearchText
+        {
+            get => _searchText;
+            set
+            {
+                value ??= string.Empty;
+                if (_searchText == value)
+                {
+                    return;
+                }
+                _searchText = value;
+                OnPropertyChanged();
+                // Search when the typing pauses, not for every key
+                _searchTimer.Stop();
+                _searchTimer.Start();
+            }
+        }
+
+        /// <summary>
+        /// The log levels that can be chosen, from the fewest to the most log entries
+        /// </summary>
+        public IReadOnlyList<string> LogLevels { get; } = new[] { Level.Error.Name, Level.Warn.Name, Level.Info.Name, Level.Debug.Name };
+
+        /// <summary>
+        /// The level of the log, a change applies until Greenshot restarts
+        /// </summary>
+        public string SelectedLogLevel
+        {
+            get => LogHelper.RootLevel?.Name;
+            set
+            {
+                var level = string.IsNullOrEmpty(value) ? null : LogManager.GetRepository().LevelMap[value];
+                if (level == null || level == LogHelper.RootLevel)
+                {
+                    return;
+                }
+                // Written with the old level, so it is in the log also when the new level is less detailed
+                Log.Info($"Log level changed from {LogHelper.RootLevel?.Name} to {level.Name} in the log viewer, until Greenshot restarts");
+                LogHelper.RootLevel = level;
+                OnPropertyChanged();
+            }
+        }
+
         public TextWrapping TextWrappingMode => WrapText ? TextWrapping.Wrap : TextWrapping.NoWrap;
 
         // Theme brushes forwarding
@@ -116,8 +167,14 @@ namespace Greenshot.SelfService.Views
         public string ThemeToggleIcon => WpfThemeHelper.IsDarkMode ? "☀️" : "🌙";
         public string ThemeToggleToolTip => WpfThemeHelper.IsDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode";
 
-        public LogViewerWindow(string logFilePath = null)
+        /// <param name="logFilePath">The log file, null for the log of this Greenshot</param>
+        /// <param name="search">Show only the log entries with this text, e.g. from a greenshot://log?search= link</param>
+        public LogViewerWindow(string logFilePath = null, string search = null)
         {
+            _searchTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(300) };
+            _searchTimer.Tick += (_, _) => ApplySearch();
+            _searchText = search?.Trim() ?? string.Empty;
+
             InitializeComponent();
 
             try
@@ -141,7 +198,59 @@ namespace Greenshot.SelfService.Views
             KeyDown += OnWindowKeyDown;
         }
 
+        /// <summary>
+        /// Shows the end of the log, or the search result when there is a search text
+        /// </summary>
         public void LoadLog(int initialChunkBytes = DefaultChunkBytes)
+        {
+            if (!string.IsNullOrEmpty(SearchText) && File.Exists(LogFilePath))
+            {
+                ApplySearch();
+                return;
+            }
+            LoadTail(initialChunkBytes);
+        }
+
+        /// <summary>
+        /// Shows the log entries with the search text from the whole log file, or the end of the log without a search text
+        /// </summary>
+        public void ApplySearch()
+        {
+            _searchTimer.Stop();
+            if (string.IsNullOrEmpty(SearchText) || !File.Exists(LogFilePath))
+            {
+                LoadTail(DefaultChunkBytes);
+                return;
+            }
+
+            try
+            {
+                var fi = new FileInfo(LogFilePath);
+                string text;
+                using (var fs = new FileStream(LogFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
+                using (var reader = new StreamReader(fs, Encoding.UTF8))
+                {
+                    text = reader.ReadToEnd();
+                }
+
+                LogText = LogSearch.Filter(text, SearchText, out int matchCount, out int entryCount);
+                _totalFileLength = fi.Length;
+                _actualStartOffset = 0;
+                CanLoadMore = false;
+                ChunkStatusText = string.Empty;
+                string matchesTemplate = Texts.SelfService.LogviewerSearchMatches;
+                LogInfoText = string.Format(string.IsNullOrEmpty(matchesTemplate) ? "{0:N0} of {1:N0} log entries contain \"{2}\"" : matchesTemplate, matchCount, entryCount, SearchText);
+                StatusMessage = $"Searched at {DateTime.Now:HH:mm:ss} | Last modified: {fi.LastWriteTime:yyyy-MM-dd HH:mm:ss}";
+                LogTextBox?.ScrollToEnd();
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Error searching log file", ex);
+                StatusMessage = $"Error: {ex.Message}";
+            }
+        }
+
+        private void LoadTail(int initialChunkBytes)
         {
             try
             {
@@ -395,6 +504,7 @@ namespace Greenshot.SelfService.Views
         private void OnWindowClosed(object sender, EventArgs e)
         {
             WpfThemeHelper.ThemeChanged -= OnThemeChanged;
+            _searchTimer.Stop();
         }
 
         private void OnWindowKeyDown(object sender, KeyEventArgs e)
@@ -409,7 +519,13 @@ namespace Greenshot.SelfService.Views
                     LoadLog();
                     e.Handled = true;
                     break;
-                case Key.T:
+                case Key.F when Keyboard.Modifiers == ModifierKeys.Control:
+                    SearchTextBox.Focus();
+                    SearchTextBox.SelectAll();
+                    e.Handled = true;
+                    break;
+                // Not while typing a search text
+                case Key.T when !Equals(e.OriginalSource, SearchTextBox):
                     WpfThemeHelper.ToggleTheme();
                     e.Handled = true;
                     break;

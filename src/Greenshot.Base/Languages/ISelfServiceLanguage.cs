@@ -962,6 +962,11 @@ namespace Greenshot.Base.Languages
         string LogviewerEmpty { get; }
 
         /// <summary>
+        /// Log level
+        /// </summary>
+        string LogviewerLevel { get; }
+
+        /// <summary>
         /// Load Earlier (+64 KB)
         /// </summary>
         string LogviewerLoadEarlier { get; }
@@ -975,6 +980,16 @@ namespace Greenshot.Base.Languages
         /// Refresh Tail (F5)
         /// </summary>
         string LogviewerRefresh { get; }
+
+        /// <summary>
+        /// Search
+        /// </summary>
+        string LogviewerSearch { get; }
+
+        /// <summary>
+        /// {0:N0} of {1:N0} log entries contain "{2}"
+        /// </summary>
+        string LogviewerSearchMatches { get; }
 
         /// <summary>
         /// Loaded complete log file: {0} ({1:N0} bytes, {2} lines)
@@ -1002,6 +1017,11 @@ namespace Greenshot.Base.Languages
         string LogviewerTitle { get; }
 
         /// <summary>
+        /// How much Greenshot writes to the log, until Greenshot restarts. Debug writes the most.
+        /// </summary>
+        string LogviewerTooltipLevel { get; }
+
+        /// <summary>
         /// Load previous 64 KB chunk of log lines
         /// </summary>
         string LogviewerTooltipLoadEarlier { get; }
@@ -1010,6 +1030,11 @@ namespace Greenshot.Base.Languages
         /// Load all remaining earlier log lines
         /// </summary>
         string LogviewerTooltipLoadEntire { get; }
+
+        /// <summary>
+        /// Shows only the log entries that contain this text, from the whole log file (Ctrl+F)
+        /// </summary>
+        string LogviewerTooltipSearch { get; }
 
         /// <summary>
         /// Wrap text

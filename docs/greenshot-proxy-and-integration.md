@@ -148,7 +148,7 @@ When a client invokes `greenshot-proxy.exe` while Greenshot is not running:
 3. **Pipe Polling**: The proxy polls `WaitNamedPipeW` with 250ms backoff until the server is ready, connects, and dispatches the payload.
 
 ### 2.3 URL Protocol Scheme (`greenshot:`)
-Greenshot registers the `greenshot:` protocol in the Windows Registry (`Software\Classes\greenshot`). Like the Native Messaging host of the browser extension, it is not released yet: the installer only registers both when `includes\browser-extension.iss` is included in `setup.iss` (the `#include` is commented out). For development, the self-service debug page registers them for the current user.
+The installer registers the `greenshot:` protocol in the Windows Registry (`Software\Classes\greenshot`, see `includes\url-protocol.iss`). The Light edition and the portable build don't register it. The Native Messaging host of the browser extension is not released yet: the installer only registers it when `includes\browser-extension.iss` is included in `setup.iss` (the `#include` is commented out). For development, the self-service debug page registers both for the current user.
 Both opaque (`greenshot:<action>`) and hierarchical (`greenshot://<action>`) URIs are supported:
 
 | URI Pattern | Target UI / Action | Supported Parameters |
@@ -156,11 +156,12 @@ Both opaque (`greenshot:<action>`) and hierarchical (`greenshot://<action>`) URI
 | `greenshot:settings` | WPF Settings Dialog | `?tab=general\|capture\|output\|destination\|editor\|printer\|plugins\|expert`<br>`?plugin=<PluginName>` |
 | `greenshot:about` | About Dialog | — |
 | `greenshot:self-service` | Diagnostics & Self-Service | `?section=debug` |
+| `greenshot:log` | Log viewer, showing only the log entries with the search text | `?search=<text>` (at most 200 characters) |
 | `greenshot:recipe-editor` | Visual Recipe Editor | `?recipe=<recipe-id>` |
 | `greenshot:recipe-manager` | Recipe Manager Window | — |
 | `greenshot:recipe/<id>` | Executes a specific recipe | Arbitrary query parameters passed as recipe variables |
 
-Any web page can open a `greenshot:` URL, so only the commands listed above are accepted from this source (e.g. `greenshot://exit` is rejected). A recipe can only be started via `greenshot:recipe/<id>` (or from the browser extension) when its Commandline trigger sets `"AllowBrowserInvocation": true`.
+Any web page can open a `greenshot:` URL, so only the commands listed above are accepted from this source (e.g. `greenshot://exit` is rejected). A link never changes a setting: `greenshot:log` only filters the log, the log level is changed only in the log viewer itself. A recipe can only be started via `greenshot:recipe/<id>` (or from the browser extension) when its Commandline trigger sets `"AllowBrowserInvocation": true`.
 
 ---
 

@@ -74,6 +74,7 @@ namespace Greenshot.Ipc
             "SETTINGS",
             "ABOUT",
             "SELF_SERVICE",
+            "LOG_VIEWER",
             "RECIPE_EDITOR",
             "RECIPE_MANAGER"
         };
@@ -269,6 +270,8 @@ namespace Greenshot.Ipc
                 "SETTINGS",
                 "ABOUT",
                 "SELF_SERVICE",
+                // Only shows the log, filtered on a search text: the log level is changed only in the log viewer itself
+                "LOG_VIEWER",
                 "RECIPE_EDITOR",
                 "RECIPE_MANAGER"
             },
@@ -431,6 +434,10 @@ namespace Greenshot.Ipc
 
                 case "SELF_SERVICE":
                     await HandleSelfServiceAsync(context, shell).ConfigureAwait(false);
+                    break;
+
+                case "LOG_VIEWER":
+                    await HandleLogViewerAsync(context, shell).ConfigureAwait(false);
                     break;
 
                 case "RECIPE_EDITOR":
@@ -1465,6 +1472,36 @@ namespace Greenshot.Ipc
             }).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// The longest search text a greenshot://log?search= link can pass, longer texts are cut
+        /// </summary>
+        internal const int MaxLogSearchLength = 200;
+
+        private static async Task HandleLogViewerAsync(IpcRequestContext context, IGreenshotShell shell)
+        {
+            string search = null;
+            context.Envelope.Parsed?.Parameters?.TryGetValue("search", out search);
+            if (string.IsNullOrEmpty(search) && context.Envelope.Parameters != null) context.Envelope.Parameters.TryGetValue("search", out search);
+            if (search?.Length > MaxLogSearchLength)
+            {
+                search = search.Substring(0, MaxLogSearchLength);
+            }
+
+            RunOnUi(shell, new Action(() =>
+            {
+                var viewer = new LogViewerWindow(search: search);
+                viewer.Show();
+                viewer.Activate();
+            }));
+
+            await context.ReplyAsync(new
+            {
+                status = "ok",
+                exit_code = 0,
+                stdout = "Log viewer displayed."
+            }).ConfigureAwait(false);
+        }
+
         private static async Task HandleRecipeEditorAsync(IpcRequestContext context, IGreenshotShell shell)
         {
             string recipe = null;
@@ -1558,6 +1595,11 @@ namespace Greenshot.Ipc
                 if (string.Equals(pathAndAction, "self-service", StringComparison.OrdinalIgnoreCase))
                 {
                     return "SELF_SERVICE";
+                }
+
+                if (string.Equals(pathAndAction, "log", StringComparison.OrdinalIgnoreCase))
+                {
+                    return "LOG_VIEWER";
                 }
 
                 if (string.Equals(pathAndAction, "recipe-editor", StringComparison.OrdinalIgnoreCase))

@@ -181,6 +181,14 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Greenshot appears only once in the Windows notification settings
 - Choose in the settings which notifications you want to see (all, warnings and errors, errors only, or none) and whether they show a preview
 
+#### 🩺 Help with problems
+
+**Log viewer in Self-Service**
+- Read Greenshot's log in its own window and copy it, for example for an issue report
+- Search the log: only the entries with your text are shown, including the details of an error
+- Choose how much Greenshot writes to the log, until Greenshot restarts
+- Links like `greenshot://log?search=HDR` open the log viewer with that search, a link never changes a setting
+
 #### 🖼️ Imgur
 
 **Imgur uploads removed, delete your old ones in Self-Service**

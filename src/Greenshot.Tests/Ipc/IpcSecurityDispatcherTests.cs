@@ -586,6 +586,7 @@ namespace Greenshot.Tests.Ipc
         [InlineData("greenshot:about", "ABOUT", null)]
         [InlineData("greenshot://about", "ABOUT", null)]
         [InlineData("greenshot:self-service?section=debug", "SELF_SERVICE", "debug")]
+        [InlineData("greenshot://log?search=HDR%20tone", "LOG_VIEWER", "HDR tone")]
         [InlineData("greenshot://recipe-editor?recipe=ocr", "RECIPE_EDITOR", "ocr")]
         [InlineData("greenshot:recipe/my-task?destination=clipboard", "RUN_RECIPE", null)]
         public async Task SecurityDispatcher_UrlScheme_ParsesAndExecutesCorrectly(string url, string expectedCommand, string expectedParam)

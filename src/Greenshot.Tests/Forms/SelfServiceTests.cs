@@ -480,6 +480,66 @@ namespace Greenshot.Tests.Forms
         }
 
         [Fact]
+        public void LogViewerWindow_Search_ShowsOnlyMatchingEntriesFromTheWholeLog()
+        {
+            string tempLog = Path.Combine(Path.GetTempPath(), $"greenshot_search_test_{Guid.NewGuid():N}.log");
+            try
+            {
+                using (var writer = new StreamWriter(tempLog, false, System.Text.Encoding.UTF8))
+                {
+                    writer.WriteLine("2026-10-16 09:00:00,000 [1] INFO  - [Capture] HDR tone mapping 2560x1440");
+                    for (int i = 0; i < 2000; i++)
+                    {
+                        writer.WriteLine($"2026-10-16 09:00:01,000 [1] INFO  - [Other] Filler line {i:D4} with padding to make the log bigger than one chunk.");
+                    }
+                    writer.WriteLine("2026-10-16 09:00:02,000 [1] WARN  - [Capture] Capture failed");
+                    writer.WriteLine("System.Exception: hdr texture lost");
+                }
+
+                Exception threadEx = null;
+                var thread = new Thread(() =>
+                {
+                    try
+                    {
+                        // Like a greenshot://log?search=hdr link: the first entry is far before the tail chunk
+                        var window = new LogViewerWindow(tempLog, "hdr");
+                        Assert.Contains("HDR tone mapping", window.LogText);
+                        // The exception line belongs to the entry before it
+                        Assert.Contains("Capture failed", window.LogText);
+                        Assert.Contains("hdr texture lost", window.LogText);
+                        Assert.DoesNotContain("Filler line", window.LogText);
+                        Assert.False(window.CanLoadMore);
+                        Assert.Contains(2002.ToString("N0"), window.LogInfoText);
+
+                        // Clearing the search shows the end of the log again
+                        window.SearchText = string.Empty;
+                        window.ApplySearch();
+                        Assert.Contains("Filler line 1999", window.LogText);
+                        Assert.True(window.CanLoadMore);
+
+                        window.Close();
+                    }
+                    catch (Exception ex)
+                    {
+                        threadEx = ex;
+                    }
+                });
+                thread.SetApartmentState(ApartmentState.STA);
+                thread.Start();
+                thread.Join();
+
+                Assert.Null(threadEx);
+            }
+            finally
+            {
+                if (File.Exists(tempLog))
+                {
+                    try { File.Delete(tempLog); } catch { }
+                }
+            }
+        }
+
+        [Fact]
         public void SelfService_LanguageChanged_UpdatesViewModels()
         {
             var vm = new SelfServiceViewModel();
