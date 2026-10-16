@@ -22,6 +22,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Threading.Tasks;
 using log4net;
 
 namespace Greenshot.Base.Native;
@@ -54,6 +55,11 @@ internal static class HdrCpuToneMapper
     private static readonly byte[] SrgbTable = CreateSrgbTable();
 
     /// <summary>
+    /// Every half-float as float: a lookup is much faster than converting the bits, for 4 channels of a screen full of pixels
+    /// </summary>
+    private static readonly float[] HalfTable = CreateHalfTable();
+
+    /// <summary>
     /// Tone-maps an FP16 (R16G16B16A16_FLOAT, premultiplied scRGB) mapped texture to a 32bpp ARGB bitmap.
     /// </summary>
     /// <param name="mappedData">Pointer to the mapped staging texture data.</param>
@@ -67,7 +73,7 @@ internal static class HdrCpuToneMapper
         // scRGB 1.0 is 80 nits, SDR white is at sdrWhiteLevelInNits
         float scale = sdrWhiteLevelInNits > 0 ? 80.0f / sdrWhiteLevelInNits : 1.0f;
 
-        float peak = FindPeak((byte*)mappedData, rowPitch, width, height) * scale;
+        float peak = FindPeak(mappedData, rowPitch, width, height) * scale;
         bool hasHdrContent = peak > SdrPeak;
         // Above the knee the curve runs from the knee (slope 1) to 1.0 at the peak, see Compress
         float whitePoint = (peak - Knee) / (1.0f - Knee);
@@ -78,18 +84,19 @@ internal static class HdrCpuToneMapper
         var bmpData = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, bitmap.PixelFormat);
         try
         {
-            byte* srcRow = (byte*)mappedData;
-            byte* dstRow = (byte*)bmpData.Scan0;
-            for (int y = 0; y < height; y++)
+            IntPtr destination = bmpData.Scan0;
+            int stride = bmpData.Stride;
+            // PARALLEL: rows are independent, a monitor full of pixels takes noticeably long on one core
+            Parallel.For(0, height, y =>
             {
-                ushort* src = (ushort*)srcRow;
-                byte* dst = dstRow;
+                ushort* src = (ushort*)((byte*)mappedData + (long)y * rowPitch);
+                byte* dst = (byte*)destination + (long)y * stride;
                 for (int x = 0; x < width; x++)
                 {
-                    float r = HalfHelper.HalfToFloat(src[0]);
-                    float g = HalfHelper.HalfToFloat(src[1]);
-                    float b = HalfHelper.HalfToFloat(src[2]);
-                    float a = HalfHelper.HalfToFloat(src[3]);
+                    float r = HalfTable[src[0]];
+                    float g = HalfTable[src[1]];
+                    float b = HalfTable[src[2]];
+                    float a = HalfTable[src[3]];
                     // NaN fails the comparison and becomes transparent
                     a = a > 0 ? Math.Min(a, 1f) : 0f;
 
@@ -118,9 +125,7 @@ internal static class HdrCpuToneMapper
                     src += 4;
                     dst += 4;
                 }
-                srcRow += rowPitch;
-                dstRow += bmpData.Stride;
-            }
+            });
         }
         finally
         {
@@ -141,26 +146,35 @@ internal static class HdrCpuToneMapper
     /// <summary>
     /// The largest color channel (un-premultiplied) in the texture, NaN and infinity are ignored
     /// </summary>
-    private static unsafe float FindPeak(byte* data, int rowPitch, int width, int height)
+    private static unsafe float FindPeak(IntPtr data, int rowPitch, int width, int height)
     {
         float peak = 0;
-        for (int y = 0; y < height; y++)
+        object peakLock = new object();
+        // PARALLEL: rows are independent, each worker keeps its own peak and merges it once
+        Parallel.For(0, height, () => 0f, (y, _, localPeak) =>
         {
-            ushort* src = (ushort*)(data + (long)y * rowPitch);
+            ushort* src = (ushort*)((byte*)data + (long)y * rowPitch);
             for (int x = 0; x < width; x++, src += 4)
             {
-                float max = Math.Max(HalfHelper.HalfToFloat(src[0]), Math.Max(HalfHelper.HalfToFloat(src[1]), HalfHelper.HalfToFloat(src[2])));
-                float a = HalfHelper.HalfToFloat(src[3]);
+                float max = Math.Max(HalfTable[src[0]], Math.Max(HalfTable[src[1]], HalfTable[src[2]]));
+                float a = HalfTable[src[3]];
                 if (a > 0.0001f && a < 1.0f)
                 {
                     max /= a;
                 }
-                if (max > peak && !float.IsInfinity(max))
+                if (max > localPeak && !float.IsInfinity(max))
                 {
-                    peak = max;
+                    localPeak = max;
                 }
             }
-        }
+            return localPeak;
+        }, localPeak =>
+        {
+            lock (peakLock)
+            {
+                peak = Math.Max(peak, localPeak);
+            }
+        });
         return peak;
     }
 
@@ -185,6 +199,16 @@ internal static class HdrCpuToneMapper
             double c = (double)i / (SrgbTableSize - 1);
             double srgb = c <= 0.0031308 ? c * 12.92 : 1.055 * Math.Pow(c, 1.0 / 2.4) - 0.055;
             table[i] = (byte)(srgb * 255.0 + 0.5);
+        }
+        return table;
+    }
+
+    private static float[] CreateHalfTable()
+    {
+        var table = new float[ushort.MaxValue + 1];
+        for (int i = 0; i <= ushort.MaxValue; i++)
+        {
+            table[i] = HalfHelper.HalfToFloat((ushort)i);
         }
         return table;
     }
