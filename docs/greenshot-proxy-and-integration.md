@@ -177,7 +177,7 @@ Every link written out, for testing after an install. Click a link in a Markdown
 | [greenshot://settings?tab=printer](greenshot://settings?tab=printer) | Settings, Printer tab |
 | [greenshot://settings?tab=plugins](greenshot://settings?tab=plugins) | Settings, Plugins tab |
 | [greenshot://settings?tab=recipes](greenshot://settings?tab=recipes) | Settings, Recipes tab |
-| [greenshot://settings?tab=expert](greenshot://settings?tab=expert) | Settings, Expert, only when the expert settings are shown tab |
+| [greenshot://settings?tab=expert](greenshot://settings?tab=expert) | Settings, Expert tab, only when the expert settings are shown |
 | [greenshot://settings?plugin=Box](greenshot://settings?plugin=Box) | Settings, Plugins tab with Box selected |
 | [greenshot://settings?plugin=Confluence](greenshot://settings?plugin=Confluence) | Settings, Plugins tab with Confluence selected |
 | [greenshot://settings?plugin=Dropbox](greenshot://settings?plugin=Dropbox) | Settings, Plugins tab with Dropbox selected |
