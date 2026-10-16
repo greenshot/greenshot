@@ -21,6 +21,7 @@
 
 using System;
 using System.Drawing;
+using System.Linq;
 using System.Runtime.InteropServices;
 using Greenshot.Base.Native;
 using Greenshot.Base.Native.DirectX;
@@ -68,10 +69,11 @@ public class HdrCpuToneMapperTests
     [Fact]
     public void HdrHighlights_AreCompressedWithTheirHue()
     {
-        using var bitmap = ToneMap(SdrWhiteNits,
+        // A small highlight on an SDR desktop: the black pixels keep the share of highlights low
+        using var bitmap = ToneMap(SdrWhiteNits, WithBlack(20,
             Rgba(SdrWhite, SdrWhite, SdrWhite),
             Rgba(10 * SdrWhite, 5 * SdrWhite, 0),
-            Rgba(Grey128 * SdrWhite, Grey128 * SdrWhite, Grey128 * SdrWhite));
+            Rgba(Grey128 * SdrWhite, Grey128 * SdrWhite, Grey128 * SdrWhite)));
 
         var white = bitmap.GetPixel(0, 0);
         var highlight = bitmap.GetPixel(1, 0);
@@ -85,6 +87,24 @@ public class HdrCpuToneMapperTests
         Assert.Equal(white.R, white.B);
         // Below the knee nothing changes
         Assert.Equal(Color.FromArgb(255, 128, 128, 128), grey);
+    }
+
+    [Fact]
+    public void MostlyHighlights_GetMoreSteps()
+    {
+        // An HDR video frame: most pixels between SDR white and 2 x SDR white
+        var pixels = Enumerable.Range(0, 20).Select(i => Rgba((1 + i / 20f) * SdrWhite, (1 + i / 20f) * SdrWhite, (1 + i / 20f) * SdrWhite)).ToList();
+        pixels.Add(Rgba(4 * SdrWhite, 4 * SdrWhite, 4 * SdrWhite));
+        using var video = ToneMap(SdrWhiteNits, pixels.ToArray());
+        using var desktop = ToneMap(SdrWhiteNits, WithBlack(500, pixels.ToArray()));
+
+        int StepsBetweenSdrWhiteAndTwice(Bitmap bitmap) => Enumerable.Range(0, 20).Select(x => bitmap.GetPixel(x, 0).R).Distinct().Count();
+
+        // The video frame spreads its highlights over more of the 8-bit values, SDR white gets darker for it
+        Assert.True(StepsBetweenSdrWhiteAndTwice(video) > StepsBetweenSdrWhiteAndTwice(desktop),
+            $"{StepsBetweenSdrWhiteAndTwice(video)} steps for the video, {StepsBetweenSdrWhiteAndTwice(desktop)} for the desktop");
+        Assert.InRange(video.GetPixel(0, 0).R, 215, 235);
+        Assert.InRange(desktop.GetPixel(0, 0).R, 235, 254);
     }
 
     [Fact]
@@ -120,14 +140,14 @@ public class HdrCpuToneMapperTests
         float previous = 0;
         for (float value = HdrCpuToneMapper.Knee; value <= 10; value += 0.05f)
         {
-            float compressed = HdrCpuToneMapper.Compress(value, 1 / (46f * 46f));
+            float compressed = HdrCpuToneMapper.Compress(value, HdrCpuToneMapper.Knee, 1 / (46f * 46f));
             Assert.True(compressed >= previous, $"{value} became {compressed}, below {previous}");
             Assert.True(compressed <= 1.0f);
             previous = compressed;
         }
-        Assert.Equal(HdrCpuToneMapper.Knee, HdrCpuToneMapper.Compress(HdrCpuToneMapper.Knee, 0.01f), 5);
+        Assert.Equal(HdrCpuToneMapper.Knee, HdrCpuToneMapper.Compress(HdrCpuToneMapper.Knee, HdrCpuToneMapper.Knee, 0.01f), 5);
         // The peak (here 10, white point (10 - 0.8) / 0.2 = 46) becomes white
-        Assert.Equal(1.0f, HdrCpuToneMapper.Compress(10, 1 / (46f * 46f)), 4);
+        Assert.Equal(1.0f, HdrCpuToneMapper.Compress(10, HdrCpuToneMapper.Knee, 1 / (46f * 46f)), 4);
     }
 
     [Fact]
@@ -178,7 +198,8 @@ public class HdrCpuToneMapperTests
 
             using var bitmap = WindowsGraphicsCaptureInterop.ToneMapHdrTextureToBitmap(texture, device, context, SdrWhiteNits);
 
-            Assert.InRange(bitmap.GetPixel(0, 0).R, 235, 254);
+            // Half of this frame is highlight, so SDR white makes more room
+            Assert.InRange(bitmap.GetPixel(0, 0).R, 215, 235);
             Assert.Equal(Color.FromArgb(255, 255, 188, 0), bitmap.GetPixel(1, 0));
         }
         finally
@@ -200,6 +221,11 @@ public class HdrCpuToneMapperTests
     }
 
     private static float[] Rgba(float r, float g, float b, float a = 1) => new[] { r, g, b, a };
+
+    /// <summary>
+    /// The pixels followed by black ones
+    /// </summary>
+    private static float[][] WithBlack(int black, params float[][] pixels) => pixels.Concat(Enumerable.Repeat(Rgba(0, 0, 0), black)).ToArray();
 
     /// <summary>
     /// Tone map one row of pixels

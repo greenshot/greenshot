@@ -33,7 +33,7 @@ namespace Greenshot.Base.Native;
 /// <remarks>
 /// The values are scaled with the display's SDR white level, so SDR content (the desktop, most windows) sits at 1.0.
 /// A capture without anything brighter than that keeps every color as it is on the screen.
-/// When the capture shows brighter (HDR) content, everything above <see cref="Knee"/> is compressed so the brightest pixel
+/// When the capture shows brighter (HDR) content, everything above the knee is compressed so the brightest pixel
 /// becomes white (or what the display can show at most, if that is less): highlights keep their detail and hue instead of being cut off, at the cost of SDR white becoming a little darker.
 /// The color of a pixel is scaled as a whole (by its largest channel), so the hue stays.
 /// </remarks>
@@ -42,9 +42,22 @@ internal static class HdrCpuToneMapper
     private static readonly ILog Log = LogManager.GetLogger(typeof(HdrCpuToneMapper));
 
     /// <summary>
-    /// Brightness (1.0 = SDR white) up to which colors stay as they are when the capture has HDR content
+    /// Brightness (1.0 = SDR white) up to which colors stay as they are when the capture has a few HDR highlights:
+    /// SDR white stays almost white
     /// </summary>
     internal const float Knee = 0.8f;
+
+    /// <summary>
+    /// The knee when much of the capture is brighter than SDR white (an HDR video or game): the highlights get more of the 8-bit steps,
+    /// at the cost of SDR white becoming darker
+    /// </summary>
+    internal const float HighlightKnee = 0.5f;
+
+    /// <summary>
+    /// Share of pixels brighter than SDR white from which the knee moves from <see cref="Knee"/> towards <see cref="HighlightKnee"/>, and where it reaches it
+    /// </summary>
+    private const float FewHighlights = 0.05f;
+    private const float MostlyHighlights = 0.25f;
 
     /// <summary>
     /// A capture whose brightest pixel stays below this is SDR only, the small margin covers FP16 rounding
@@ -74,15 +87,21 @@ internal static class HdrCpuToneMapper
         // scRGB 1.0 is 80 nits, SDR white is at sdrWhiteLevelInNits
         float scale = sdrWhiteLevelInNits > 0 ? 80.0f / sdrWhiteLevelInNits : 1.0f;
 
-        float pixelPeak = FindPeak(mappedData, rowPitch, width, height) * scale;
+        var (rawPeak, brighterThanSdrWhite) = FindPeak(mappedData, rowPitch, width, height, SdrPeak / scale);
+        float pixelPeak = rawPeak * scale;
         // A display peak below SDR white is not plausible, 10000 nits is the limit of HDR10
         float displayPeak = displayPeakInNits > sdrWhiteLevelInNits && displayPeakInNits <= 10000 ? displayPeakInNits / sdrWhiteLevelInNits : float.MaxValue;
         float peak = Math.Min(pixelPeak, displayPeak);
         bool hasHdrContent = peak > SdrPeak;
+        float highlightShare = (float)brighterThanSdrWhite / ((long)width * height);
+        float knee = Knee - (Knee - HighlightKnee) * Math.Min(Math.Max((highlightShare - FewHighlights) / (MostlyHighlights - FewHighlights), 0), 1);
         // Above the knee the curve runs from the knee (slope 1) to 1.0 at the peak, see Compress
-        float whitePoint = (peak - Knee) / (1.0f - Knee);
+        float whitePoint = (peak - knee) / (1.0f - knee);
         float inverseWhitePointSquared = hasHdrContent ? 1.0f / (whitePoint * whitePoint) : 0;
-        Log.Info($"HDR tone mapping {width}x{height}: SDR white {sdrWhiteLevelInNits} nits, brightest pixel {pixelPeak * sdrWhiteLevelInNits:F0} nits, display peak {displayPeakInNits:F0} nits{(hasHdrContent ? ", highlights compressed" : ", SDR only")}.");
+        Log.Info($"HDR tone mapping {width}x{height}: SDR white {sdrWhiteLevelInNits} nits, brightest pixel {pixelPeak * sdrWhiteLevelInNits:F0} nits, display peak {displayPeakInNits:F0} nits{(hasHdrContent ? $", highlights compressed above {knee:F2} ({highlightShare:P0} brighter than SDR white)" : ", SDR only")}.");
+
+        // SDR only: values above 1.0 are FP16 rounding, cut them
+        float compressAbove = hasHdrContent ? knee : 1.0f;
 
         var bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
         var bmpData = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, bitmap.PixelFormat);
@@ -111,9 +130,9 @@ internal static class HdrCpuToneMapper
                     b = Math.Max(b * factor, 0f);
 
                     float max = Math.Max(r, Math.Max(g, b));
-                    if (max > Knee)
+                    if (max > compressAbove)
                     {
-                        float target = hasHdrContent ? Compress(max, inverseWhitePointSquared) : Math.Min(max, 1.0f);
+                        float target = hasHdrContent ? Compress(max, knee, inverseWhitePointSquared) : Math.Min(max, 1.0f);
                         float toTarget = target / max;
                         r *= toTarget;
                         g *= toTarget;
@@ -141,21 +160,23 @@ internal static class HdrCpuToneMapper
     /// <summary>
     /// Extended Reinhard above the knee: slope 1 at the knee (no visible edge), 1.0 at the peak
     /// </summary>
-    internal static float Compress(float value, float inverseWhitePointSquared)
+    internal static float Compress(float value, float knee, float inverseWhitePointSquared)
     {
-        float x = (value - Knee) / (1.0f - Knee);
-        return Knee + (1.0f - Knee) * Math.Min(x * (1.0f + x * inverseWhitePointSquared) / (1.0f + x), 1.0f);
+        float x = (value - knee) / (1.0f - knee);
+        return knee + (1.0f - knee) * Math.Min(x * (1.0f + x * inverseWhitePointSquared) / (1.0f + x), 1.0f);
     }
 
     /// <summary>
-    /// The largest color channel (un-premultiplied) in the texture, NaN and infinity are ignored
+    /// The largest color channel (un-premultiplied) in the texture, NaN and infinity are ignored,
+    /// and the number of pixels whose largest channel is above the threshold
     /// </summary>
-    private static unsafe float FindPeak(IntPtr data, int rowPitch, int width, int height)
+    private static unsafe (float Peak, long AboveThreshold) FindPeak(IntPtr data, int rowPitch, int width, int height, float threshold)
     {
         float peak = 0;
-        object peakLock = new object();
-        // PARALLEL: rows are independent, each worker keeps its own peak and merges it once
-        Parallel.For(0, height, () => 0f, (y, _, localPeak) =>
+        long aboveThreshold = 0;
+        object resultLock = new object();
+        // PARALLEL: rows are independent, each worker keeps its own result and merges it once
+        Parallel.For(0, height, () => (Peak: 0f, AboveThreshold: 0L), (y, _, local) =>
         {
             ushort* src = (ushort*)((byte*)data + (long)y * rowPitch);
             for (int x = 0; x < width; x++, src += 4)
@@ -166,20 +187,29 @@ internal static class HdrCpuToneMapper
                 {
                     max /= a;
                 }
-                if (max > localPeak && !float.IsInfinity(max))
+                if (float.IsInfinity(max))
                 {
-                    localPeak = max;
+                    continue;
+                }
+                if (max > local.Peak)
+                {
+                    local.Peak = max;
+                }
+                if (max > threshold)
+                {
+                    local.AboveThreshold++;
                 }
             }
-            return localPeak;
-        }, localPeak =>
+            return local;
+        }, local =>
         {
-            lock (peakLock)
+            lock (resultLock)
             {
-                peak = Math.Max(peak, localPeak);
+                peak = Math.Max(peak, local.Peak);
+                aboveThreshold += local.AboveThreshold;
             }
         });
-        return peak;
+        return (peak, aboveThreshold);
     }
 
     private static byte ToSrgb(float linear)
