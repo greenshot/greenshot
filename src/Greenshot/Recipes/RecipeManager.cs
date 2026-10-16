@@ -739,10 +739,8 @@ namespace Greenshot.Recipes
             }
             SetupWatcherForFile(fullPath);
 
-            if (approval != null)
-            {
-                RecipeApprovalPolicy.Apply(recipe, approval);
-            }
+            // Without an approval (an invalid recipe, saved as work in progress) none of its triggers is approved until it is loaded again
+            RecipeApprovalPolicy.Apply(recipe, approval);
             recipe.ProposedBy = null;
             lock (_recipes)
             {
