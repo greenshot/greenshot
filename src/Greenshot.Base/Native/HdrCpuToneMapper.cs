@@ -34,7 +34,7 @@ namespace Greenshot.Base.Native;
 /// The values are scaled with the display's SDR white level, so SDR content (the desktop, most windows) sits at 1.0.
 /// A capture without anything brighter than that keeps every color as it is on the screen.
 /// When the capture shows brighter (HDR) content, everything above <see cref="Knee"/> is compressed so the brightest pixel
-/// becomes white: highlights keep their detail and hue instead of being cut off, at the cost of SDR white becoming a little darker.
+/// becomes white (or what the display can show at most, if that is less): highlights keep their detail and hue instead of being cut off, at the cost of SDR white becoming a little darker.
 /// The color of a pixel is scaled as a whole (by its largest channel), so the hue stays.
 /// </remarks>
 internal static class HdrCpuToneMapper
@@ -67,18 +67,22 @@ internal static class HdrCpuToneMapper
     /// <param name="width">Texture width in pixels.</param>
     /// <param name="height">Texture height in pixels.</param>
     /// <param name="sdrWhiteLevelInNits">The SDR white level in nits for this display.</param>
+    /// <param name="displayPeakInNits">The brightest the display can show, 0 if unknown: content brighter than this looks the same on the screen, so it becomes white too.</param>
     /// <returns>A new Bitmap in Format32bppArgb with tone-mapped pixel data.</returns>
-    public static unsafe Bitmap ToneMapFp16ToBitmap(IntPtr mappedData, int rowPitch, int width, int height, float sdrWhiteLevelInNits)
+    public static unsafe Bitmap ToneMapFp16ToBitmap(IntPtr mappedData, int rowPitch, int width, int height, float sdrWhiteLevelInNits, float displayPeakInNits = 0)
     {
         // scRGB 1.0 is 80 nits, SDR white is at sdrWhiteLevelInNits
         float scale = sdrWhiteLevelInNits > 0 ? 80.0f / sdrWhiteLevelInNits : 1.0f;
 
-        float peak = FindPeak(mappedData, rowPitch, width, height) * scale;
+        float pixelPeak = FindPeak(mappedData, rowPitch, width, height) * scale;
+        // A display peak below SDR white is not plausible, 10000 nits is the limit of HDR10
+        float displayPeak = displayPeakInNits > sdrWhiteLevelInNits && displayPeakInNits <= 10000 ? displayPeakInNits / sdrWhiteLevelInNits : float.MaxValue;
+        float peak = Math.Min(pixelPeak, displayPeak);
         bool hasHdrContent = peak > SdrPeak;
         // Above the knee the curve runs from the knee (slope 1) to 1.0 at the peak, see Compress
         float whitePoint = (peak - Knee) / (1.0f - Knee);
         float inverseWhitePointSquared = hasHdrContent ? 1.0f / (whitePoint * whitePoint) : 0;
-        Log.Info($"HDR tone mapping {width}x{height}: SDR white {sdrWhiteLevelInNits} nits, brightest pixel {peak * sdrWhiteLevelInNits:F0} nits{(hasHdrContent ? ", highlights compressed" : ", SDR only")}.");
+        Log.Info($"HDR tone mapping {width}x{height}: SDR white {sdrWhiteLevelInNits} nits, brightest pixel {pixelPeak * sdrWhiteLevelInNits:F0} nits, display peak {displayPeakInNits:F0} nits{(hasHdrContent ? ", highlights compressed" : ", SDR only")}.");
 
         var bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
         var bmpData = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, bitmap.PixelFormat);

@@ -88,6 +88,33 @@ public class HdrCpuToneMapperTests
     }
 
     [Fact]
+    public void BrighterThanTheDisplay_BecomesWhite()
+    {
+        // The display shows at most 5 x SDR white: the 10 x highlight looks the same as that on the screen
+        using var bitmap = ToneMap(SdrWhiteNits, 5 * SdrWhiteNits,
+            Rgba(SdrWhite, SdrWhite, SdrWhite),
+            Rgba(5 * SdrWhite, 5 * SdrWhite, 5 * SdrWhite),
+            Rgba(10 * SdrWhite, 10 * SdrWhite, 10 * SdrWhite));
+        using var withoutDisplayPeak = ToneMap(SdrWhiteNits,
+            Rgba(SdrWhite, SdrWhite, SdrWhite),
+            Rgba(5 * SdrWhite, 5 * SdrWhite, 5 * SdrWhite),
+            Rgba(10 * SdrWhite, 10 * SdrWhite, 10 * SdrWhite));
+
+        Assert.Equal(Color.FromArgb(255, 255, 255, 255), bitmap.GetPixel(1, 0));
+        Assert.Equal(Color.FromArgb(255, 255, 255, 255), bitmap.GetPixel(2, 0));
+        // Without the display peak only the 10 x highlight is white
+        Assert.True(withoutDisplayPeak.GetPixel(1, 0).R < 255);
+    }
+
+    [Fact]
+    public void ImplausibleDisplayPeak_IsIgnored()
+    {
+        using var bitmap = ToneMap(SdrWhiteNits, 100f, Rgba(SdrWhite, SdrWhite, SdrWhite), Rgba(10 * SdrWhite, 5 * SdrWhite, 0));
+
+        Assert.Equal(Color.FromArgb(255, 255, 188, 0), bitmap.GetPixel(1, 0));
+    }
+
+    [Fact]
     public void BrighterInput_IsNeverDarker()
     {
         float previous = 0;
@@ -177,13 +204,15 @@ public class HdrCpuToneMapperTests
     /// <summary>
     /// Tone map one row of pixels
     /// </summary>
-    private static Bitmap ToneMap(float sdrWhiteLevelInNits, params float[][] pixels)
+    private static Bitmap ToneMap(float sdrWhiteLevelInNits, params float[][] pixels) => ToneMap(sdrWhiteLevelInNits, 0, pixels);
+
+    private static Bitmap ToneMap(float sdrWhiteLevelInNits, float displayPeakInNits, params float[][] pixels)
     {
         var halfs = ToHalfs(pixels);
         var handle = GCHandle.Alloc(halfs, GCHandleType.Pinned);
         try
         {
-            return HdrCpuToneMapper.ToneMapFp16ToBitmap(handle.AddrOfPinnedObject(), pixels.Length * 8, pixels.Length, 1, sdrWhiteLevelInNits);
+            return HdrCpuToneMapper.ToneMapFp16ToBitmap(handle.AddrOfPinnedObject(), pixels.Length * 8, pixels.Length, 1, sdrWhiteLevelInNits, displayPeakInNits);
         }
         finally
         {

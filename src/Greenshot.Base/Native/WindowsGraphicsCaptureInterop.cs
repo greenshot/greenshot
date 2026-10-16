@@ -547,7 +547,7 @@ namespace Greenshot.Base.Native
         /// <summary>
         /// Tone maps an FP16 HDR texture to an 8-bit SDR bitmap: copies it to CPU-readable memory, see HdrCpuToneMapper
         /// </summary>
-        internal static Bitmap ToneMapHdrTextureToBitmap(ID3D11Texture2D hdrTexture, ID3D11Device device, ID3D11DeviceContext context, float sdrWhiteLevelInNits)
+        internal static Bitmap ToneMapHdrTextureToBitmap(ID3D11Texture2D hdrTexture, ID3D11Device device, ID3D11DeviceContext context, float sdrWhiteLevelInNits, float displayPeakInNits = 0)
         {
             hdrTexture.GetDesc(out D3D11_TEXTURE2D_DESC desc);
             int width = desc.Width;
@@ -581,7 +581,7 @@ namespace Greenshot.Base.Native
                 {
                     return HdrCpuToneMapper.ToneMapFp16ToBitmap(
                         mappedResource.pData, mappedResource.RowPitch,
-                        width, height, sdrWhiteLevelInNits);
+                        width, height, sdrWhiteLevelInNits, displayPeakInNits);
                 }
                 finally
                 {
@@ -766,6 +766,7 @@ namespace Greenshot.Base.Native
             public TaskCompletionSource<bool> FrameArrived { get; } = Tcs.Create<bool>();
             public bool IsHdr { get; set; }
             public float SdrWhiteLevelInNits { get; set; } = 80.0f;
+            public float DisplayPeakInNits { get; set; }
             /// <summary>
             /// When set, an SDR frame is copied directly into this bitmap (TargetSourceRect at TargetLocation) instead of a bitmap of its own
             /// </summary>
@@ -888,6 +889,7 @@ namespace Greenshot.Base.Native
             IntPtr hMonitor = request.GetMonitor();
             request.IsHdr = HdrDisplayInfo.IsHdrActiveForMonitor(hMonitor);
             request.SdrWhiteLevelInNits = request.IsHdr ? HdrDisplayInfo.GetSdrWhiteLevelInNits(hMonitor) : 80.0f;
+            request.DisplayPeakInNits = request.IsHdr ? HdrDisplayInfo.GetMaxLuminanceInNits(hMonitor) : 0;
             var pixelFormat = request.IsHdr
                 ? DirectXPixelFormat.R16G16B16A16Float
                 : DirectXPixelFormat.B8G8R8A8UIntNormalized;
@@ -931,7 +933,7 @@ namespace Greenshot.Base.Native
 
                 if (request.IsHdr)
                 {
-                    return ToneMapHdrTextureToBitmap(texture, d3d11Device, context, request.SdrWhiteLevelInNits);
+                    return ToneMapHdrTextureToBitmap(texture, d3d11Device, context, request.SdrWhiteLevelInNits, request.DisplayPeakInNits);
                 }
 
                 if (request.Target != null)
