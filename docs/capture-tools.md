@@ -6,6 +6,7 @@ What the user can do on it comes from **capture tools**: the region, window and 
 e.g. a color picker which shows the color under the cursor while a region is selected. Plugins can add both.
 This document explains how to write them, in Greenshot itself or in a plugin, and what is possible and what is not,
 with a color picker as the example.
+What the user sees and can do (modes, keys, panels, settings) is described in the user guide [capture-user-guide.md](capture-user-guide.md).
 
 The interfaces are in `Greenshot.Base` (`src/Greenshot.Base/Interfaces/Capture`, namespace `Greenshot.Base.Interfaces.Capture`):
 `ICaptureTool` with its base class `CaptureTool`, `ICaptureOverlay` with its base class `CaptureOverlay`, `ICaptureToolHost`
