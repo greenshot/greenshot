@@ -685,6 +685,28 @@ namespace Greenshot.Tests.Ipc
         }
 
         [Theory]
+        [InlineData("greenshot://cli")]
+        [InlineData("greenshot:url_scheme")]
+        public async Task SecurityDispatcher_UrlScheme_CommandsCarryingTheLink_AreNoTarget(string url)
+        {
+            var envelope = new IpcEnvelope
+            {
+                Source = "url_scheme",
+                Command = "URL_SCHEME",
+                RawInput = url
+            };
+
+            using (var ms = new MemoryStream())
+            {
+                var context = new IpcRequestContext(envelope, ms);
+                await IpcSecurityDispatcher.DispatchAsync(context, null, () => { }, () => { }, () => { }, f => { });
+
+                var resp = ReadFirstFrame(ms);
+                Assert.Equal("error", resp.Value<string>("status"));
+            }
+        }
+
+        [Theory]
         [InlineData("EXIT")]
         [InlineData("RELOAD_CONFIG")]
         [InlineData("OPEN_FILE")]

@@ -172,6 +172,33 @@ namespace Greenshot.SelfService.Views
         public string ThemeToggleIcon => WpfThemeHelper.IsDarkMode ? "☀️" : "🌙";
         public string ThemeToggleToolTip => WpfThemeHelper.IsDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode";
 
+        // The log viewer opened by greenshot://log links: a link reuses it, so a web page can't open window after window
+        private static LogViewerWindow _linkInstance;
+
+        /// <summary>
+        /// Shows the log of this Greenshot for a greenshot://log link, in the window of an earlier link when it is still open
+        /// </summary>
+        /// <param name="search">The search text of the link, null or empty shows the end of the log</param>
+        public static void ShowForLink(string search)
+        {
+            if (_linkInstance == null || !_linkInstance.IsLoaded)
+            {
+                _linkInstance = new LogViewerWindow(search: search);
+                _linkInstance.Closed += (_, _) => _linkInstance = null;
+                _linkInstance.Show();
+            }
+            else
+            {
+                _linkInstance.SearchText = search?.Trim() ?? string.Empty;
+                _linkInstance.ApplySearch();
+                if (_linkInstance.WindowState == WindowState.Minimized)
+                {
+                    _linkInstance.WindowState = WindowState.Normal;
+                }
+            }
+            _linkInstance.Activate();
+        }
+
         /// <param name="logFilePath">The log file, null for the log of this Greenshot</param>
         /// <param name="search">Show only the log entries with this text, e.g. from a greenshot://log?search= link</param>
         public LogViewerWindow(string logFilePath = null, string search = null)

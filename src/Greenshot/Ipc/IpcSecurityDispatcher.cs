@@ -1487,12 +1487,7 @@ namespace Greenshot.Ipc
                 search = search.Substring(0, MaxLogSearchLength);
             }
 
-            RunOnUi(shell, new Action(() =>
-            {
-                var viewer = new LogViewerWindow(search: search);
-                viewer.Show();
-                viewer.Activate();
-            }));
+            RunOnUi(shell, new Action(() => LogViewerWindow.ShowForLink(search)));
 
             await context.ReplyAsync(new
             {
@@ -1612,7 +1607,10 @@ namespace Greenshot.Ipc
                     return "RECIPE_MANAGER";
                 }
 
-                return pathAndAction.ToUpperInvariant();
+                // Other paths are checked against the whitelist of the source, e.g. greenshot://exit is refused there.
+                // The commands which carry a link are never its target: greenshot://cli or greenshot://url_scheme lead nowhere.
+                string command = pathAndAction.ToUpperInvariant();
+                return command is "CLI" or "URL_SCHEME" ? null : command;
             }
             catch (Exception ex)
             {
