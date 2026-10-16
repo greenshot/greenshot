@@ -115,6 +115,36 @@ namespace Greenshot.Tests.SelfService
             Assert.Equal(string.Empty, appender.TakeEntries());
         }
 
+        [Theory]
+        [InlineData("one line\n", "one line\n")]
+        [InlineData("title\n2026-10-16 09:00:00,000 [1] ERROR - fake\n", "title\n    2026-10-16 09:00:00,000 [1] ERROR - fake\n")]
+        [InlineData("a\r\nb\r\n", "a\r\n    b\r\n")]
+        [InlineData("a\rb\n", "a\r    b\n")]
+        [InlineData("no line break", "no line break")]
+        public void EntryLayout_IndentsEveryFollowingLine(string entry, string expected)
+        {
+            Assert.Equal(expected, EntryLayout.IndentFollowingLines(entry));
+        }
+
+        [Fact]
+        public void EntryLayout_TextInAMessage_CantStartAnotherEntry()
+        {
+            var layout = new log4net.Layout.PatternLayout("%date{ISO8601} [%thread] %-5level - [%logger] %m%n%exception");
+            layout.ActivateOptions();
+            var entryLayout = new EntryLayout(layout);
+            var loggingEvent = new LoggingEvent(typeof(LogSearchTests), null, "Greenshot.Capture", Level.Info,
+                "Captured window 'Report\n2026-10-16 09:00:00,000 [1] ERROR - [Fake] injected'", null);
+
+            var writer = new System.IO.StringWriter();
+            entryLayout.Format(writer, loggingEvent);
+            string written = writer.ToString();
+
+            Assert.Contains("\n" + EntryLayout.Indent + "2026-10-16 09:00:00,000 [1] ERROR - [Fake] injected", written);
+            LogSearch.Filter(written, "injected", out int matches, out int entries);
+            Assert.Equal(1, entries);
+            Assert.Equal(1, matches);
+        }
+
         [Fact]
         public void RootLevel_Change_AppliesToTheLoggers()
         {

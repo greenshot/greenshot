@@ -22,6 +22,7 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Text;
+using Greenshot.Base.Core;
 using log4net;
 using log4net.Appender;
 using log4net.Core;
@@ -47,7 +48,7 @@ namespace Greenshot.SelfService
         public static LogViewerAppender Attach()
         {
             var fileLayout = Hierarchy.Root.Appenders.OfType<FileAppender>().FirstOrDefault()?.Layout;
-            var appender = new LogViewerAppender { Layout = fileLayout ?? CreateDefaultLayout() };
+            var appender = new LogViewerAppender { Layout = fileLayout ?? new EntryLayout(CreateDefaultLayout()) };
             Hierarchy.Root.AddAppender(appender);
             return appender;
         }

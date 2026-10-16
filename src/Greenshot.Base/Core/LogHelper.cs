@@ -21,12 +21,14 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using log4net;
 using log4net.Appender;
 using log4net.Config;
 using log4net.Core;
+using log4net.Layout;
 using log4net.Repository.Hierarchy;
 using log4net.Util;
 
@@ -102,6 +104,8 @@ namespace Greenshot.Base.Core
 
             if (_isLog4NetConfigured)
             {
+                KeepEntriesApart();
+
                 // Get the logfile name
                 try
                 {
@@ -124,6 +128,83 @@ namespace Greenshot.Base.Core
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Every appender writes its entries with <see cref="EntryLayout"/>
+        /// </summary>
+        private static void KeepEntriesApart()
+        {
+            try
+            {
+                foreach (var appender in LogManager.GetRepository().GetAppenders().OfType<AppenderSkeleton>())
+                {
+                    if (appender.Layout != null && appender.Layout is not EntryLayout)
+                    {
+                        appender.Layout = new EntryLayout(appender.Layout);
+                    }
+                }
+            }
+            catch
+            {
+                // ignored, the log keeps its layout
+            }
+        }
+    }
+
+    /// <summary>
+    /// Writes a log entry so that only its first line starts at the beginning of a line: every further line, of the message
+    /// (e.g. a window title or a value from a link) or of the exception, is indented.
+    /// So no text in an entry can look like the start of another entry, in the file or in the log viewer.
+    /// </summary>
+    public sealed class EntryLayout : ILayout
+    {
+        /// <summary>
+        /// Put in front of every line of an entry after its first one
+        /// </summary>
+        public const string Indent = "    ";
+
+        private readonly ILayout _layout;
+
+        public EntryLayout(ILayout layout)
+        {
+            _layout = layout ?? throw new ArgumentNullException(nameof(layout));
+        }
+
+        public string ContentType => _layout.ContentType;
+        public string Header => _layout.Header;
+        public string Footer => _layout.Footer;
+        public bool IgnoresException => _layout.IgnoresException;
+
+        public void Format(TextWriter writer, LoggingEvent loggingEvent)
+        {
+            var entry = new StringWriter();
+            _layout.Format(entry, loggingEvent);
+            writer.Write(IndentFollowingLines(entry.ToString()));
+        }
+
+        /// <summary>
+        /// Indents every line after the first one; a line break (\r\n, \n or \r) at the very end stays as it is
+        /// </summary>
+        public static string IndentFollowingLines(string entry)
+        {
+            if (string.IsNullOrEmpty(entry) || entry.IndexOfAny(new[] { '\r', '\n' }) < 0)
+            {
+                return entry;
+            }
+
+            var result = new System.Text.StringBuilder(entry.Length + 32);
+            for (int i = 0; i < entry.Length; i++)
+            {
+                char c = entry[i];
+                result.Append(c);
+                bool lineBreak = c == '\n' || (c == '\r' && (i + 1 >= entry.Length || entry[i + 1] != '\n'));
+                if (lineBreak && i + 1 < entry.Length)
+                {
+                    result.Append(Indent);
+                }
+            }
+            return result.ToString();
         }
     }
 
