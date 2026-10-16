@@ -59,6 +59,7 @@ flowchart LR
 Greenshot takes a picture of all your monitors first, then shows it on top of everything. What you see is a frozen picture:
 nothing on the screen changes while you select, so a tooltip or an open menu stays where it was.
 You choose what to capture in this picture, and only that part is used.
+To select on the live screen instead, see [Without freezing the screen](#without-freezing-the-screen).
 
 On top of the picture you see:
 
@@ -93,6 +94,23 @@ An example of how it can look, while a region is selected (the places change, se
 
 `Esc` closes the capture screen without capturing anything. Clicking or pressing `Enter` (depending on the mode) captures the
 selection, and Greenshot sends it to your destinations (the editor, a file, the clipboard, ...) as it always does.
+
+### Without freezing the screen
+
+Turn off *Freeze the screen while selecting* on the Capture tab of the settings, and the capture screen is see-through: what is on
+the screen keeps moving while you select, a video keeps playing. Greenshot takes no picture first, so the capture screen appears
+at once, and only what you selected is captured, at the moment you release the mouse (or press `Enter`). Bright HDR content
+looks the same while you select as on the screen.
+
+The selection, snapping to windows, the keys, the zoomer and the panels work as with the frozen picture. The differences:
+
+- **The moment of the capture** is when you finish the selection, not when you started the capture.
+- **The program below keeps the focus**, so it looks active in the capture. Your keys go to the capture screen until it closes.
+- **Open menus and tooltips** usually close when you click, use the frozen screen (the default) for them.
+- **No text mode and no QR codes:** both need the picture of the screen. *Capture text* (OCR) and recipes which select text
+  always freeze the screen, as do AI tools.
+- **No preview of the selection**, there is no picture to show it from.
+- Needs Windows 10 version 2004 or newer, older Windows versions always freeze the screen.
 
 ## The modes
 
@@ -404,6 +422,7 @@ So if the keys panel is gone, it isn't lost: you hid it with `F1` once, and `F1`
 | Capture tab | *Capture mousepointer* | Whether the mouse cursor is in the capture. `M` changes it for one capture. Also in the tray menu under quick settings. |
 | Capture tab | *Play camera sound* | A camera sound when a capture is taken. |
 | Capture tab | *Show magnifier* | The zoomer, the same as `Z`. |
+| Capture tab | *Freeze the screen while selecting* | On (the default): you select on a picture of the screen. Off: you select on the live screen, see [Without freezing the screen](#without-freezing-the-screen). |
 | Capture tab | *Milliseconds to wait before capture* | Time to wait before the picture is taken, e.g. so a menu of the tray icon can close. At the default of 100 a hotkey doesn't wait, there is no menu to close. |
 | Capture tab | *Fixed capture sizes* | Your own sizes for the fixed size mode, in the order `1` – `9` pick them. Add a size with width and height, remove one from the list. |
 | Capture tab, *Window capture* | *Use interactive window capture mode* | Whether the window hotkey opens the capture screen in the window mode, or captures the active window right away (the default). |
@@ -441,7 +460,7 @@ All of these are in the `[Core]` section, unless said otherwise.
 - **Another window took the focus** (e.g. after `Alt` + `Tab`, or a message of another program): the capture screen stays on top, but the
   keys go to the other window. Move the mouse once and the keys work again.
 - **Nothing changes while you select:** the capture screen shows the picture taken when the capture started. To capture something which
-  only appears later, set a wait time in the settings, or start the capture when it is visible.
+  only appears later, set a wait time in the settings, start the capture when it is visible, or turn off freezing the screen.
 - **High DPI:** the panels, texts and the zoomer scale with the DPI of your monitor, sizes and positions are always in real pixels.
 
 For developers: how the modes and helpers are built and how a plugin can add its own is described in [capture-tools.md](capture-tools.md).

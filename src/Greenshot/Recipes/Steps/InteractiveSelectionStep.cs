@@ -29,6 +29,7 @@ using Dapplo.Ini;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Desktop;
+using Greenshot.Base.Capturing;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
@@ -60,15 +61,24 @@ namespace Greenshot.Recipes.Steps
         private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         private readonly IInteractiveCaptureSelector _selector;
+        private readonly Func<NativeRect, CancellationToken, Task<ScreenCaptureResult>> _captureArea;
 
         public string Name { get; }
         public RecipeNodeConfig Config { get; }
 
-        public InteractiveSelectionStep(RecipeNodeConfig config, IInteractiveCaptureSelector selector = null)
+        public InteractiveSelectionStep(RecipeNodeConfig config, IInteractiveCaptureSelector selector = null) : this(config, selector, null)
+        {
+        }
+
+        /// <param name="config">RecipeNodeConfig</param>
+        /// <param name="selector">IInteractiveCaptureSelector, default the capture window</param>
+        /// <param name="captureArea">Captures an area of the screen for a selection on the live screen, default ScreenCapture</param>
+        internal InteractiveSelectionStep(RecipeNodeConfig config, IInteractiveCaptureSelector selector, Func<NativeRect, CancellationToken, Task<ScreenCaptureResult>> captureArea)
         {
             Config = config ?? throw new ArgumentNullException(nameof(config));
             Name = config.Name ?? "InteractiveSelectionStep";
             _selector = selector ?? new InteractiveCaptureSelector();
+            _captureArea = captureArea ?? ScreenCapture.CaptureRectangleAsync;
         }
 
         public async Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
@@ -145,14 +155,30 @@ namespace Greenshot.Recipes.Steps
                 context.Properties["SelectedWindow"] = selection.SelectedWindow;
             }
 
+            // Selected on the live screen: nothing was captured yet
+            bool live = payload.RawCapture.Image == null;
             if (selection.SelectedRegion.Width > 0 && selection.SelectedRegion.Height > 0)
             {
-                payload.RawCapture.Crop(selection.SelectedRegion);
-
                 // Offset back to screen coordinates
                 NativeRect screenOffsetRect = selection.SelectedRegion.Offset(
                     payload.RawCapture.ScreenBounds.Location.X,
                     payload.RawCapture.ScreenBounds.Location.Y);
+
+                if (!live)
+                {
+                    payload.RawCapture.Crop(selection.SelectedRegion);
+                }
+                else if (selection.Tool is ISelectionCaptureTool)
+                {
+                    // The tool takes the image, the capture is placed like a cropped one
+                    payload.RawCapture.Location = selection.SelectedRegion.Location;
+                    payload.RawCapture.MoveMouseLocation(-selection.SelectedRegion.X, -selection.SelectedRegion.Y);
+                }
+                else if (!await CaptureLiveAsync(context, selection.SelectedRegion, cancellationToken).ConfigureAwait(false))
+                {
+                    return;
+                }
+
                 // Configuration is written on the UI thread (single writer, its change events have UI subscribers)
                 context.Ui.InvokeAsync(() => CoreConfig.LastCapturedRegion = screenOffsetRect, CancellationToken.None).FireAndLog("Store the last captured region", Log);
 
@@ -171,11 +197,58 @@ namespace Greenshot.Recipes.Steps
                     payload.RawCapture.Image = image;
                 }
             }
+            else if (live)
+            {
+                // Nothing selected (e.g. a window outside of the screen): the whole screen, as from a frozen capture
+                if (!await CaptureLiveAsync(context, NativeRect.Empty, cancellationToken).ConfigureAwait(false))
+                {
+                    return;
+                }
+            }
 
             if (selection.FinalMode == CaptureMode.Text)
             {
                 await ExtractOcrTextAsync(context, cancellationToken).ConfigureAwait(false);
             }
+        }
+
+        /// <summary>
+        /// Capture the selection of the live screen, the capture looks like a cropped capture of the whole screen
+        /// </summary>
+        /// <param name="context">CaptureFlowContext</param>
+        /// <param name="area">The selection in coordinates of the capture, empty for the whole screen</param>
+        /// <param name="cancellationToken">CancellationToken</param>
+        /// <returns>false when nothing could be captured, the flow is aborted</returns>
+        private async Task<bool> CaptureLiveAsync(CaptureFlowContext context, NativeRect area, CancellationToken cancellationToken)
+        {
+            context.State = CaptureFlowState.Acquiring;
+            var capture = context.Payload.RawCapture;
+            var screenBounds = capture.ScreenBounds;
+            var screenArea = area.IsEmpty ? screenBounds : area.Offset(screenBounds.X, screenBounds.Y);
+            var result = await _captureArea(screenArea, cancellationToken).ConfigureAwait(false);
+            if (result == null)
+            {
+                context.Abort($"Capturing the selection {screenArea} failed.");
+                return false;
+            }
+            if (capture.CaptureDetails.DpiX > 0 && capture.CaptureDetails.DpiY > 0 && result.Image is System.Drawing.Bitmap bitmap)
+            {
+                // Set by the acquire step for the screen
+                bitmap.SetResolution(capture.CaptureDetails.DpiX, capture.CaptureDetails.DpiY);
+            }
+            capture.Image = result.Image;
+            if (area.IsEmpty)
+            {
+                capture.Location = result.Location;
+            }
+            else
+            {
+                // Like Crop
+                capture.Location = area.Location;
+                capture.MoveMouseLocation(-area.X, -area.Y);
+            }
+            capture.CaptureDetails.AddMetaData(ScreenCapture.CaptureMethodKey, result.Backend.Name);
+            return true;
         }
 
         /// <summary>

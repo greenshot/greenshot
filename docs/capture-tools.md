@@ -111,10 +111,10 @@ to the built-in recipes when the recipes are loaded after the plugins registered
 
 | Member | Use |
 |---|---|
-| `Capture` | The `ICapture` of the whole screen: the image, its `CaptureDetails` (title, metadata, detected features). |
+| `Capture` | The `ICapture` of the whole screen: the image, its `CaptureDetails` (title, metadata, detected features). On the live screen (freezing turned off) `Capture.Image` is null, see below. |
 | `ScreenBounds` | Where the capture is on the virtual screen, to convert to screen coordinates. |
 | `CursorPosition` | The cursor in capture pixels, already corrected for the fix mode (shift keeps it to one direction). |
-| `GetPixelColor(point)` | The color of a pixel of the frozen capture (a 1x1 copy, cheap enough for every mouse move). |
+| `GetPixelColor(point)` | The color of a pixel of the frozen capture (a 1x1 copy, cheap enough for every mouse move), on the live screen of the screen. |
 | `GetMonitorBounds()` | The monitor under the cursor, in capture pixels. |
 | `ShowPanel(owner, contentSize, drawContent)`, `HidePanel(owner)` | A panel in Greenshot's style in a free corner, moved (animated) out of the way, see Positioning. |
 | `ShowPanel(owner, content)` | The same panel with WPF content (a `UserControl`, bindings, a view model), see WPF content and binding. |
@@ -688,8 +688,8 @@ This example was compiled against the current code, but not run.
 
 Points to note:
 
-- **The pixel:** `Host.GetPixelColor` reads the frozen capture, not the live screen, so it is the color of what was captured.
-  Outside of the capture it returns transparent. Areas between monitors of different sizes are part of the capture, with whatever the capture has there.
+- **The pixel:** `Host.GetPixelColor` reads the frozen capture, so it is the color of what was captured; when the user turned freezing
+  off, it reads the screen. Outside of the capture it returns transparent. Areas between monitors of different sizes are part of the capture, with whatever the capture has there.
 - **Redrawing on every move** is fine for a few shapes: the layer is a `DrawingVisual`, there is no layout pass. Keep `Draw` small,
   it redraws the whole layer.
 - **The result:** neither tools nor overlays can return a color, see the restrictions below. The color picker therefore
@@ -714,6 +714,11 @@ Points to note:
   `src/Greenshot.Tests/Forms/RegionCaptureToolTests.cs`. They need WPF, so they run on Windows only.
 
 ## Restrictions
+
+- **The live screen:** with *Freeze the screen while selecting* turned off the window is see-through and nothing is captured before the
+  selection: `Capture.Image` is null and there are no detected features but the windows. The flow captures the selected area when the
+  window closed (`InteractiveSelectionStep`). The window doesn't take the focus, its keys come from the keyboard hook. The text tool
+  isn't there, a tool which needs the pixels of the screen should not offer itself when `Capture.Image` is null.
 
 - **The result is a rectangle and a window.** `Accept` fills the `SelectionResult` of the flow (`SelectedRegion`, `SelectedWindow`,
   `FinalMode`). The flow crops the capture to the rectangle and, for `Text`, extracts the text. A tool with another kind of result
