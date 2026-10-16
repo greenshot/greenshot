@@ -35,7 +35,7 @@ namespace Greenshot.Tests.Core;
 
 /// <summary>
 /// A custom xUnit Fact attribute that dynamically marks the test as Skipped
-/// when HDR is not enabled on the primary display.
+/// when no display has HDR enabled.
 /// </summary>
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 public sealed class HdrFactAttribute : FactAttribute
@@ -44,10 +44,9 @@ public sealed class HdrFactAttribute : FactAttribute
     {
         try
         {
-            IntPtr primaryMonitor = HdrDisplayInfo.GetMonitorForWindow(IntPtr.Zero);
-            if (!HdrDisplayInfo.IsHdrActiveForMonitor(primaryMonitor))
+            if (FindHdrMonitor() == IntPtr.Zero)
             {
-                Skip = "HDR is not currently enabled on the display.";
+                Skip = "HDR is not currently enabled on any display.";
             }
         }
         catch (Exception ex)
@@ -55,6 +54,12 @@ public sealed class HdrFactAttribute : FactAttribute
             Skip = $"Failed to query display HDR status: {ex.Message}";
         }
     }
+
+    /// <summary>
+    /// The first monitor with HDR enabled, IntPtr.Zero when there is none
+    /// </summary>
+    public static IntPtr FindHdrMonitor() =>
+        DisplayInfo.AllDisplayInfos.Select(display => display.MonitorHandle).FirstOrDefault(HdrDisplayInfo.IsHdrActiveForMonitor);
 }
 
 public class WindowsGraphicsCaptureTests
@@ -79,10 +84,10 @@ public class WindowsGraphicsCaptureTests
     [HdrFact]
     public async Task TestCaptureHdrMonitor()
     {
-        IntPtr primaryMonitor = HdrDisplayInfo.GetMonitorForWindow(IntPtr.Zero);
-        _output.WriteLine($"Capturing monitor {primaryMonitor}...");
+        IntPtr hdrMonitor = HdrFactAttribute.FindHdrMonitor();
+        _output.WriteLine($"Capturing monitor {hdrMonitor}...");
 
-        using var bitmap = await WindowsGraphicsCaptureInterop.CaptureMonitorToBitmapAsync(primaryMonitor);
+        using var bitmap = await WindowsGraphicsCaptureInterop.CaptureMonitorToBitmapAsync(hdrMonitor);
         _output.WriteLine($"Capture result: {(bitmap != null ? $"{bitmap.Width}x{bitmap.Height}" : "null")}");
         Assert.NotNull(bitmap);
     }
