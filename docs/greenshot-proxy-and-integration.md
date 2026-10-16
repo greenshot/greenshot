@@ -153,9 +153,9 @@ Both opaque (`greenshot:<action>`) and hierarchical (`greenshot://<action>`) URI
 
 | URI Pattern | Target UI / Action | Supported Parameters |
 | :--- | :--- | :--- |
-| `greenshot:settings` | WPF Settings Dialog | `?tab=general\|capture\|output\|destination\|editor\|printer\|plugins\|expert`<br>`?plugin=<PluginName>` |
+| `greenshot:settings` | WPF Settings Dialog | `?tab=general\|capture\|output\|destination\|editor\|printer\|plugins\|recipes\|expert` (`expert` only when the expert settings are shown, another name selects that plugin)<br>`?plugin=<PluginName>` |
 | `greenshot:about` | About Dialog | — |
-| `greenshot:self-service` | Diagnostics & Self-Service | `?section=debug` |
+| `greenshot:self-service` | Diagnostics & Self-Service | `?section=system\|setup\|files\|clipboard\|hotkeys\|checksum\|imgur` (`imgur` only with earlier Imgur uploads, `debug_integration` only in Debug builds; an unknown section opens the first) |
 | `greenshot:log` | Log viewer, showing only the log entries with the search text | `?search=<text>` (at most 200 characters) |
 | `greenshot:recipe-editor` | Visual Recipe Editor | `?recipe=<recipe-id>` |
 | `greenshot:recipe-manager` | Recipe Manager Window | — |
