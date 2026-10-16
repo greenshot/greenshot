@@ -22,21 +22,39 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using log4net;
 
 namespace Greenshot.Base.Native;
 
 /// <summary>
-/// CPU-based tone mapper for converting FP16 HDR textures to 8-bit SDR bitmaps.
+/// Tone maps FP16 HDR pixels (scRGB) to an 8-bit sRGB bitmap.
 /// </summary>
 /// <remarks>
-/// Normalizes scRGB linear values using the display's SDR white level, preserves standard
-/// SDR content at 1:1 luminance, smoothly rolls off HDR highlights > 1.0, and applies
-/// the standard IEC 61966-2-1 sRGB transfer function.
+/// The values are scaled with the display's SDR white level, so SDR content (the desktop, most windows) sits at 1.0.
+/// A capture without anything brighter than that keeps every color as it is on the screen.
+/// When the capture shows brighter (HDR) content, everything above <see cref="Knee"/> is compressed so the brightest pixel
+/// becomes white: highlights keep their detail and hue instead of being cut off, at the cost of SDR white becoming a little darker.
+/// The color of a pixel is scaled as a whole (by its largest channel), so the hue stays.
 /// </remarks>
 internal static class HdrCpuToneMapper
 {
+    private static readonly ILog Log = LogManager.GetLogger(typeof(HdrCpuToneMapper));
+
     /// <summary>
-    /// Tone-maps an FP16 (R16G16B16A16_FLOAT) mapped texture to a 32bpp ARGB bitmap.
+    /// Brightness (1.0 = SDR white) up to which colors stay as they are when the capture has HDR content
+    /// </summary>
+    internal const float Knee = 0.8f;
+
+    /// <summary>
+    /// A capture whose brightest pixel stays below this is SDR only, the small margin covers FP16 rounding
+    /// </summary>
+    private const float SdrPeak = 1.01f;
+
+    private const int SrgbTableSize = 16384;
+    private static readonly byte[] SrgbTable = CreateSrgbTable();
+
+    /// <summary>
+    /// Tone-maps an FP16 (R16G16B16A16_FLOAT, premultiplied scRGB) mapped texture to a 32bpp ARGB bitmap.
     /// </summary>
     /// <param name="mappedData">Pointer to the mapped staging texture data.</param>
     /// <param name="rowPitch">The row pitch (stride) of the mapped data in bytes.</param>
@@ -44,104 +62,130 @@ internal static class HdrCpuToneMapper
     /// <param name="height">Texture height in pixels.</param>
     /// <param name="sdrWhiteLevelInNits">The SDR white level in nits for this display.</param>
     /// <returns>A new Bitmap in Format32bppArgb with tone-mapped pixel data.</returns>
-    public static unsafe Bitmap ToneMapFp16ToBitmap(
-        IntPtr mappedData, int rowPitch,
-        int width, int height, float sdrWhiteLevelInNits)
+    public static unsafe Bitmap ToneMapFp16ToBitmap(IntPtr mappedData, int rowPitch, int width, int height, float sdrWhiteLevelInNits)
     {
-        // whiteScale = sdrWhiteLevelInNits / 80.0f (the scRGB value that represents SDR white)
-        float whiteScale = sdrWhiteLevelInNits / 80.0f;
-        float invScale = whiteScale > 0.0001f ? 1.0f / whiteScale : 1.0f;
+        // scRGB 1.0 is 80 nits, SDR white is at sdrWhiteLevelInNits
+        float scale = sdrWhiteLevelInNits > 0 ? 80.0f / sdrWhiteLevelInNits : 1.0f;
+
+        float peak = FindPeak((byte*)mappedData, rowPitch, width, height) * scale;
+        bool hasHdrContent = peak > SdrPeak;
+        // Above the knee the curve runs from the knee (slope 1) to 1.0 at the peak, see Compress
+        float whitePoint = (peak - Knee) / (1.0f - Knee);
+        float inverseWhitePointSquared = hasHdrContent ? 1.0f / (whitePoint * whitePoint) : 0;
+        Log.Info($"HDR tone mapping {width}x{height}: SDR white {sdrWhiteLevelInNits} nits, brightest pixel {peak * sdrWhiteLevelInNits:F0} nits{(hasHdrContent ? ", highlights compressed" : ", SDR only")}.");
 
         var bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
-        var bmpData = bitmap.LockBits(
-            new Rectangle(0, 0, width, height),
-            ImageLockMode.WriteOnly,
-            bitmap.PixelFormat);
-
+        var bmpData = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, bitmap.PixelFormat);
         try
         {
             byte* srcRow = (byte*)mappedData;
             byte* dstRow = (byte*)bmpData.Scan0;
-
             for (int y = 0; y < height; y++)
             {
                 ushort* src = (ushort*)srcRow;
                 byte* dst = dstRow;
-
                 for (int x = 0; x < width; x++)
                 {
-                    // Read RGBA as 4 half-floats (R16G16B16A16_FLOAT)
                     float r = HalfHelper.HalfToFloat(src[0]);
                     float g = HalfHelper.HalfToFloat(src[1]);
                     float b = HalfHelper.HalfToFloat(src[2]);
                     float a = HalfHelper.HalfToFloat(src[3]);
+                    // NaN fails the comparison and becomes transparent
+                    a = a > 0 ? Math.Min(a, 1f) : 0f;
 
-                    // Un-premultiply alpha (WGC provides premultiplied scRGB)
-                    if (a > 0.0001f)
+                    // Un-premultiply and scale, negative (out of gamut) values are clamped
+                    float factor = a > 0.0001f ? scale / a : scale;
+                    r = Math.Max(r * factor, 0f);
+                    g = Math.Max(g * factor, 0f);
+                    b = Math.Max(b * factor, 0f);
+
+                    float max = Math.Max(r, Math.Max(g, b));
+                    if (max > Knee)
                     {
-                        r /= a;
-                        g /= a;
-                        b /= a;
+                        float target = hasHdrContent ? Compress(max, inverseWhitePointSquared) : Math.Min(max, 1.0f);
+                        float toTarget = target / max;
+                        r *= toTarget;
+                        g *= toTarget;
+                        b *= toTarget;
                     }
 
-                    // Normalize by SDR white level so standard SDR desktop UI sits at 1.0
-                    r *= invScale;
-                    g *= invScale;
-                    b *= invScale;
+                    // Format32bppArgb is BGRA in memory
+                    dst[0] = ToSrgb(b);
+                    dst[1] = ToSrgb(g);
+                    dst[2] = ToSrgb(r);
+                    dst[3] = (byte)(a * 255f + 0.5f);
 
-                    // Clamp out-of-gamut negative values
-                    r = Math.Max(r, 0f);
-                    g = Math.Max(g, 0f);
-                    b = Math.Max(b, 0f);
-
-                    // Tone-map with SDR-preservation:
-                    // Values <= 1.0 remain strictly untouched so standard SDR UI white = 255.
-                    // Values > 1.0 (HDR specular highlights) compress smoothly without clipping.
-                    r = r <= 1.0f ? r : 1.0f + (r - 1.0f) / (1.0f + (r - 1.0f));
-                    g = g <= 1.0f ? g : 1.0f + (g - 1.0f) / (1.0f + (g - 1.0f));
-                    b = b <= 1.0f ? b : 1.0f + (b - 1.0f) / (1.0f + (b - 1.0f));
-
-                    // Encode from linear space to standard sRGB display gamma
-                    r = LinearToSrgb(Math.Min(r, 1.0f));
-                    g = LinearToSrgb(Math.Min(g, 1.0f));
-                    b = LinearToSrgb(Math.Min(b, 1.0f));
-
-                    // Clamp alpha to [0, 1]
-                    a = Math.Min(Math.Max(a, 0f), 1f);
-
-                    // Write as BGRA (Format32bppArgb stores pixels as BGRA in memory)
-                    dst[0] = (byte)(b * 255f + 0.5f); // B
-                    dst[1] = (byte)(g * 255f + 0.5f); // G
-                    dst[2] = (byte)(r * 255f + 0.5f); // R
-                    dst[3] = (byte)(a * 255f + 0.5f); // A
-
-                    src += 4; // Next pixel (4 half-floats = 8 bytes)
-                    dst += 4; // Next pixel (4 bytes)
+                    src += 4;
+                    dst += 4;
                 }
-
                 srcRow += rowPitch;
                 dstRow += bmpData.Stride;
             }
         }
-        catch
+        finally
         {
             bitmap.UnlockBits(bmpData);
-            bitmap.Dispose();
-            throw;
         }
-
-        bitmap.UnlockBits(bmpData);
         return bitmap;
     }
 
     /// <summary>
-    /// Converts a linear color channel value in [0, 1] to sRGB gamma space
-    /// using the standard IEC 61966-2-1 transfer function.
+    /// Extended Reinhard above the knee: slope 1 at the knee (no visible edge), 1.0 at the peak
     /// </summary>
-    private static float LinearToSrgb(float c)
+    internal static float Compress(float value, float inverseWhitePointSquared)
     {
-        return c <= 0.0031308f
-            ? c * 12.92f
-            : 1.055f * (float)Math.Pow(c, 1.0 / 2.4) - 0.055f;
+        float x = (value - Knee) / (1.0f - Knee);
+        return Knee + (1.0f - Knee) * Math.Min(x * (1.0f + x * inverseWhitePointSquared) / (1.0f + x), 1.0f);
+    }
+
+    /// <summary>
+    /// The largest color channel (un-premultiplied) in the texture, NaN and infinity are ignored
+    /// </summary>
+    private static unsafe float FindPeak(byte* data, int rowPitch, int width, int height)
+    {
+        float peak = 0;
+        for (int y = 0; y < height; y++)
+        {
+            ushort* src = (ushort*)(data + (long)y * rowPitch);
+            for (int x = 0; x < width; x++, src += 4)
+            {
+                float max = Math.Max(HalfHelper.HalfToFloat(src[0]), Math.Max(HalfHelper.HalfToFloat(src[1]), HalfHelper.HalfToFloat(src[2])));
+                float a = HalfHelper.HalfToFloat(src[3]);
+                if (a > 0.0001f && a < 1.0f)
+                {
+                    max /= a;
+                }
+                if (max > peak && !float.IsInfinity(max))
+                {
+                    peak = max;
+                }
+            }
+        }
+        return peak;
+    }
+
+    private static byte ToSrgb(float linear)
+    {
+        // NaN fails the comparison and becomes black
+        if (!(linear > 0))
+        {
+            return 0;
+        }
+        return SrgbTable[(int)(Math.Min(linear, 1.0f) * (SrgbTableSize - 1) + 0.5f)];
+    }
+
+    /// <summary>
+    /// IEC 61966-2-1 sRGB transfer function, as a table: Math.Pow per channel is too slow for a screen full of pixels
+    /// </summary>
+    private static byte[] CreateSrgbTable()
+    {
+        var table = new byte[SrgbTableSize];
+        for (int i = 0; i < SrgbTableSize; i++)
+        {
+            double c = (double)i / (SrgbTableSize - 1);
+            double srgb = c <= 0.0031308 ? c * 12.92 : 1.055 * Math.Pow(c, 1.0 / 2.4) - 0.055;
+            table[i] = (byte)(srgb * 255.0 + 0.5);
+        }
+        return table;
     }
 }

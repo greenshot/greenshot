@@ -88,6 +88,10 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Enable this by turning on the `IsBetaTester` flag in Greenshot's configuration
 - By @Lakritzator
 
+**Better screenshots on HDR screens** (#542)
+- Bright parts of HDR games and videos keep their color and detail instead of turning washed out or white
+- Screenshots without HDR content keep their colors exactly as on the screen
+
 **Improved Cursor Capture** (#863)
 - Enhanced cursor capture logic to reflect real cursor size
 - More accurate cursor representation in screenshots

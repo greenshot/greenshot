@@ -184,7 +184,6 @@ namespace Greenshot.Base.Native
         private static ID3D11Device _cachedD3D11Device;
         private static ID3D11DeviceContext _cachedContext;
         private static IDirect3DDevice _cachedDirect3DDevice;
-        private static HdrToneMapper _cachedToneMapper;
 
         /// <summary>
         /// Gets or creates the cached Direct3D 11 device, context, and WinRT Direct3D device.
@@ -232,17 +231,12 @@ namespace Greenshot.Base.Native
         }
 
         /// <summary>
-        /// Invalidates and releases all cached Direct3D and Direct2D resources.
+        /// Invalidates and releases all cached Direct3D resources.
         /// </summary>
         public static void InvalidateCachedDevice()
         {
             lock (DeviceLock)
             {
-                if (_cachedToneMapper != null)
-                {
-                    try { _cachedToneMapper.Dispose(); } catch { }
-                    _cachedToneMapper = null;
-                }
                 if (_cachedDirect3DDevice != null)
                 {
                     try { (_cachedDirect3DDevice as IDisposable)?.Dispose(); } catch { }
@@ -422,7 +416,7 @@ namespace Greenshot.Base.Native
         /// Transforms a Direct3D 11 texture into a .NET Bitmap object in 32bpp ARGB format.
         /// </summary>
         /// <remarks>
-        /// Windows Graphics Capture (and Direct2D) deliver premultiplied BGRA, Format32bppArgb is straight alpha:
+        /// Windows Graphics Capture delivers premultiplied BGRA, Format32bppArgb is straight alpha:
         /// the colors of partly transparent pixels are un-premultiplied while copying. Otherwise those pixels are too dark,
         /// e.g. a dark fringe at the rounded corners of Windows 11 windows.
         /// </remarks>
@@ -551,77 +545,13 @@ namespace Greenshot.Base.Native
         }
 
         /// <summary>
-        /// Tone-maps an FP16 HDR texture to a standard 8-bit SDR bitmap.
-        /// Tries GPU-accelerated D2D tone mapping first, falling back to CPU if that fails.
+        /// Tone maps an FP16 HDR texture to an 8-bit SDR bitmap: copies it to CPU-readable memory, see HdrCpuToneMapper
         /// </summary>
-        /// <param name="hdrTexture">The captured FP16 (R16G16B16A16_FLOAT) texture.</param>
-        /// <param name="device">The D3D11 device used for creating resources.</param>
-        /// <param name="context">The D3D11 device context for copy/map operations.</param>
-        /// <param name="sdrWhiteLevelInNits">The SDR white level in nits for the display.</param>
-        /// <returns>A Bitmap with tone-mapped SDR content, or null if both paths fail.</returns>
-        private static Bitmap ToneMapHdrTextureToBitmap(
-            ID3D11Texture2D hdrTexture, ID3D11Device device,
-            ID3D11DeviceContext context, float sdrWhiteLevelInNits)
+        internal static Bitmap ToneMapHdrTextureToBitmap(ID3D11Texture2D hdrTexture, ID3D11Device device, ID3D11DeviceContext context, float sdrWhiteLevelInNits)
         {
-            D3D11_TEXTURE2D_DESC desc;
-            hdrTexture.GetDesc(out desc);
+            hdrTexture.GetDesc(out D3D11_TEXTURE2D_DESC desc);
             int width = desc.Width;
             int height = desc.Height;
-
-            // Try GPU path first (Direct2D WhiteLevelAdjustment effect)
-            try
-            {
-                lock (DeviceLock)
-                {
-                    _cachedToneMapper ??= new HdrToneMapper(device);
-                }
-
-                var sdrTexture = _cachedToneMapper.ToneMapToSdr(hdrTexture, device, sdrWhiteLevelInNits, width, height);
-                try
-                {
-                    return TransformTextureToBitmap(sdrTexture, device, context);
-                }
-                finally
-                {
-                    if (sdrTexture != null) Marshal.ReleaseComObject(sdrTexture);
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Warn($"GPU HDR tone mapping failed, falling back to CPU: {ex.Message}", ex);
-                lock (DeviceLock)
-                {
-                    if (_cachedToneMapper != null)
-                    {
-                        try { _cachedToneMapper.Dispose(); } catch { }
-                        _cachedToneMapper = null;
-                    }
-                }
-            }
-
-            // CPU fallback
-            try
-            {
-                return CpuToneMapFp16(hdrTexture, device, context, sdrWhiteLevelInNits, width, height);
-            }
-            catch (Exception ex)
-            {
-                Log.Warn($"CPU HDR tone mapping also failed: {ex.Message}", ex);
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// CPU-based tone mapping: stages the FP16 texture to CPU-readable memory,
-        /// then applies Reinhard tone mapping + gamma 2.2 per pixel.
-        /// </summary>
-        internal static Bitmap CpuToneMapFp16(
-            ID3D11Texture2D hdrTexture, ID3D11Device device,
-            ID3D11DeviceContext context, float sdrWhiteLevelInNits,
-            int width, int height)
-        {
-            D3D11_TEXTURE2D_DESC desc;
-            hdrTexture.GetDesc(out desc);
 
             // Create a staging texture to copy FP16 data to CPU
             var stagingDesc = new D3D11_TEXTURE2D_DESC
@@ -962,7 +892,7 @@ namespace Greenshot.Base.Native
                 ? DirectXPixelFormat.R16G16B16A16Float
                 : DirectXPixelFormat.B8G8R8A8UIntNormalized;
 
-            Log.Debug($"{request.Description}: HDR={request.IsHdr}, SDR white level={request.SdrWhiteLevelInNits} nits, format={pixelFormat}.");
+            Log.Info($"{request.Description}: HDR={request.IsHdr}, SDR white level={request.SdrWhiteLevelInNits} nits, format={pixelFormat}.");
 
             request.FramePool = Direct3D11CaptureFramePool.CreateFreeThreaded(device, pixelFormat, numberOfBuffers, captureItem.Size);
             request.Session = request.FramePool.CreateCaptureSession(captureItem);
