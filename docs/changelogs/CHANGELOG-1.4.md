@@ -85,12 +85,9 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Greenshot can now use the modern Windows Graphics Capture (WGC) API for full-screen and region captures
 - Produces higher-quality screenshots by capturing each monitor individually and stitching them together
 - More compatible with modern Windows applications compared to the legacy GDI-based capture method
+- On HDR screens, bright parts of HDR games and videos keep their color and detail (#542)
 - Enable this by turning on the `IsBetaTester` flag in Greenshot's configuration
 - By @Lakritzator
-
-**Better screenshots on HDR screens** (#542)
-- Bright parts of HDR games and videos keep their color and detail instead of turning washed out or white
-- Screenshots without HDR content keep their colors exactly as on the screen
 
 **Improved Cursor Capture** (#863)
 - Enhanced cursor capture logic to reflect real cursor size
