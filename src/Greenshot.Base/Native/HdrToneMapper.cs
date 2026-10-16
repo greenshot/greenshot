@@ -89,6 +89,7 @@ internal sealed class HdrToneMapper : IDisposable
     // D2D1_PROPERTY_TYPE
     private const int D2D1_PROPERTY_TYPE_UNKNOWN = 0;
     private const int D2D1_PROPERTY_TYPE_FLOAT = 5;
+    private const int D2D1_PROPERTY_TYPE_ENUM = 11;
 
     // D3D11_BIND_FLAG
     private const int D3D11_BIND_RENDER_TARGET = 0x20;
@@ -98,9 +99,12 @@ internal sealed class HdrToneMapper : IDisposable
     private const uint D2D1_WHITELEVELADJUSTMENT_PROP_INPUT_WHITE_LEVEL = 0;
     private const uint D2D1_WHITELEVELADJUSTMENT_PROP_OUTPUT_WHITE_LEVEL = 1;
 
-    // D2D1_HDRTONEMAP_PROP, the display mode stays at its default D2D1_HDRTONEMAP_DISPLAY_MODE_SDR
+    // D2D1_HDRTONEMAP_PROP
     private const uint D2D1_HDRTONEMAP_PROP_INPUT_MAX_LUMINANCE = 0;
     private const uint D2D1_HDRTONEMAP_PROP_OUTPUT_MAX_LUMINANCE = 1;
+    private const uint D2D1_HDRTONEMAP_PROP_DISPLAY_MODE = 2;
+    // D2D1_HDRTONEMAP_DISPLAY_MODE_HDR: only compresses above the output maximum, the default SDR mode also brightens the midtones
+    private const uint D2D1_HDRTONEMAP_DISPLAY_MODE_HDR = 1;
 
     // Vtable slot indices (0-indexed from IUnknown)
     //
@@ -325,6 +329,9 @@ internal sealed class HdrToneMapper : IDisposable
                     hr = setToneMapValueFn(pToneMapEffect, D2D1_HDRTONEMAP_PROP_INPUT_MAX_LUMINANCE, D2D1_PROPERTY_TYPE_FLOAT, (IntPtr)(&peakInNits), sizeof(float));
                     Marshal.ThrowExceptionForHR(hr);
                     hr = setToneMapValueFn(pToneMapEffect, D2D1_HDRTONEMAP_PROP_OUTPUT_MAX_LUMINANCE, D2D1_PROPERTY_TYPE_FLOAT, (IntPtr)(&whiteLevelInNits), sizeof(float));
+                    Marshal.ThrowExceptionForHR(hr);
+                    uint displayMode = D2D1_HDRTONEMAP_DISPLAY_MODE_HDR;
+                    hr = setToneMapValueFn(pToneMapEffect, D2D1_HDRTONEMAP_PROP_DISPLAY_MODE, D2D1_PROPERTY_TYPE_ENUM, (IntPtr)(&displayMode), sizeof(uint));
                     Marshal.ThrowExceptionForHR(hr);
                 }
                 GetVtableDelegate<EffectSetInputDelegate>(pToneMapEffect, VT_D2D1Effect_SetInput)(pToneMapEffect, 0, pSourceBitmap, 1 /* TRUE = invalidate */);
