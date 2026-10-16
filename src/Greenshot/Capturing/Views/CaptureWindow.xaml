@@ -133,14 +133,23 @@
                     <TranslateTransform x:Name="ZoomerPosition" />
                 </TransformGroup>
             </Canvas.RenderTransform>
-            <Ellipse x:Name="ZoomerBackground" Fill="{StaticResource CheckerboardBrush}" />
-            <Ellipse x:Name="ZoomerLens" RenderOptions.EdgeMode="Unspecified">
-                <Ellipse.Fill>
-                    <ImageBrush x:Name="ZoomBrush" ViewboxUnits="Absolute" Stretch="Fill" RenderOptions.BitmapScalingMode="NearestNeighbor" />
-                </Ellipse.Fill>
-            </Ellipse>
-            <Path x:Name="ZoomerCrosshair" Fill="Black" Stroke="White" StrokeThickness="1" />
-            <Ellipse x:Name="ZoomerRing" Stroke="White" StrokeThickness="2" RenderOptions.EdgeMode="Unspecified" />
+            <!-- The magnifier: the pixels around the cursor -->
+            <Canvas x:Name="ZoomerMagnifier">
+                <Ellipse x:Name="ZoomerBackground" Fill="{StaticResource CheckerboardBrush}" />
+                <Ellipse x:Name="ZoomerLens" RenderOptions.EdgeMode="Unspecified">
+                    <Ellipse.Fill>
+                        <ImageBrush x:Name="ZoomBrush" ViewboxUnits="Absolute" Stretch="Fill" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                    </Ellipse.Fill>
+                </Ellipse>
+                <!-- The selection in the zoomer, inside the lens: a small selection can be placed pixel exact -->
+                <Canvas x:Name="ZoomerSelectionLayer">
+                    <Rectangle x:Name="ZoomerSelection" Fill="{StaticResource SelectionFillBrush}" Stroke="{StaticResource SelectionBorderBrush}" StrokeThickness="2" Visibility="Collapsed" />
+                </Canvas>
+                <Path x:Name="ZoomerCrosshair" Fill="Black" Stroke="White" StrokeThickness="1" />
+                <Ellipse x:Name="ZoomerRing" Stroke="White" StrokeThickness="2" RenderOptions.EdgeMode="Unspecified" />
+            </Canvas>
+            <!-- Or, chosen with P, the preview of the selection in its place (SelectionPreviewOverlay.DrawInZoomer) -->
+            <capture:DrawingLayer x:Name="ZoomerPreview" Visibility="Collapsed" />
         </Canvas>
     </Canvas>
 </Window>

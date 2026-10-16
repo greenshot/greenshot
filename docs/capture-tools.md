@@ -135,7 +135,14 @@ to the built-in recipes when the recipes are loaded after the plugins registered
    - **In a plugin:** implement `ICaptureOverlayProvider`, which returns new instances for every window that opens, and register it
      in the plugin's `Initialize` with `SimpleServiceProvider.Current.AddService<ICaptureOverlayProvider>(...)`.
    - **In Greenshot:** add it to `CreateOverlays` in `CaptureWindow.xaml.cs`, like the built-in `HelpOverlay` (F1, a drawn panel)
-     and `InfoOverlay` (I, a WPF panel bound to a view model: screen resolution, selection, window under the mouse, mouse position).
+     and `InfoOverlay` (I, a WPF panel bound to a view model: screen resolution, selection, window under the mouse, mouse position),
+     and `SelectionPreviewOverlay` (P, a drawn panel with the selected area scaled to fit 320 × 200: enlarged by a whole number
+     so pixels stay square and crisp, reduced with high quality scaling; the window passes it the frozen capture and calls its `Update`
+     whenever the labels or the selection change, also for changes from keys without a mouse move). P goes through a corner panel,
+     the place of the zoomer, and off (`CaptureSelectionPreviewVisible`, `ZoomerShowsPreview`). The zoomer belongs to the window, so
+     an overlay can't take its place through `ICaptureToolHost`: the window shows either its magnifier or a layer the overlay draws
+     (`DrawInZoomer`), with the preview's width and height for `ZoomerPlacement`, so placement, avoiding the panels and the
+     animations stay the zoomer's. Where the zoomer isn't shown (Z, or a tool without it) the preview uses the corner panel.
 
 | Call | When |
 |---|---|
@@ -200,6 +207,7 @@ The keys of the window and the built-in tools:
 | Enter, D | Window tool | Capture the window, window details |
 | F1 | Help overlay | Show or hide the keys |
 | I | Info overlay | Show or hide the info (screen, selection, window, mouse) |
+| P | Selection preview overlay | Preview of the selection: in a corner, in the place of the zoomer, off |
 
 ### Example: the help overlay
 
@@ -209,7 +217,8 @@ the keys of the active tool first, as key caps like the hotkey settings show the
 (e.g. F) isn't shown while that tool is active. Because it reads `Host.KeyBindings`, keys of plugin tools and overlays are in it too,
 and the descriptions are read when the panel is shown, in the current language. When the tool changes, the panel is shown again
 with the keys of the new tool. Whether it is shown is remembered in the configuration (`CaptureHelpVisible` in `greenshot.ini`, on by default),
-so it comes back with every capture until F1 hides it. The info overlay does the same with `CaptureInfoVisible`.
+so it comes back with every capture until F1 hides it. The info overlay does the same with `CaptureInfoVisible`, the selection preview
+with `CaptureSelectionPreviewVisible`.
 
 ```csharp
 using System;
@@ -568,7 +577,7 @@ A tool which wants its own look can ignore all of this and draw with its own bru
 
 The color picker needs the pixel under the cursor, shows it next to the cursor whatever tool is active, and copies it as `#RRGGBB`
 with C. That makes it an overlay: the user can select a region as usual, and press C when they want the color instead.
-H hides the swatch. The zoomer of the region tool already magnifies the pixels around the cursor and marks the one under it.
+H hides the swatch. The zoomer of the region tool already magnifies the pixels around the cursor, marks the one under it and shows the edges of the selection (with `SelectionSize`, so the region tool's pixel under the cursor is inside).
 
 ```csharp
 using System.Collections.Generic;

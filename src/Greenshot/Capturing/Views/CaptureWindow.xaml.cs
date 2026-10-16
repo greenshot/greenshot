@@ -86,6 +86,12 @@ namespace Greenshot.Capturing.Views
         // Remote desktop: no animations and no crosshair, every repaint of the screen costs bandwidth (OptimizeForRDP / DisableRDPOptimizing as before)
         private readonly bool _isRemoteSession = !Conf.DisableRDPOptimizing && (Conf.OptimizeForRDP || SystemParameters.IsRemoteSession);
         private BitmapSource _screenImage;
+        // The preview of the selection, told about every change of the selection (also those from keys, without a mouse move)
+        private SelectionPreviewOverlay _selectionPreview;
+        // What the zoomer shows in its place: the magnifier (square) or the preview, which was drawn for this area and size
+        private NativeSize _zoomerSlotSize = NativeSize.Empty;
+        private NativeRect _zoomerPreviewArea = NativeRect.Empty;
+        private NativeSize _zoomerPreviewSize = NativeSize.Empty;
         private readonly Typeface _labelTypeface;
         private readonly Typeface _boldLabelTypeface;
 
@@ -711,6 +717,9 @@ namespace Greenshot.Capturing.Views
 
             Add(new HelpOverlay());
             Add(new InfoOverlay());
+            // P can put the preview in the place of the zoomer, which belongs to the window
+            _selectionPreview = new SelectionPreviewOverlay(_screenImage, () => _zoomerShown, UpdateZoomer);
+            Add(_selectionPreview);
             foreach (var provider in SimpleServiceProvider.Current.GetAllInstances<ICaptureOverlayProvider>())
             {
                 try
@@ -1149,6 +1158,8 @@ namespace Greenshot.Capturing.Views
         public void HideSelection()
         {
             SelectionPath.Visibility = Visibility.Collapsed;
+            UpdateZoomerSelection();
+            UpdateSelectionPreview();
         }
 
         /// <inheritdoc />
@@ -1200,6 +1211,7 @@ namespace Greenshot.Capturing.Views
         {
             SelectionSize = NativeSize.Empty;
             LabelLayer.Clear();
+            UpdateSelectionPreview();
         }
 
         /// <inheritdoc />
@@ -1265,6 +1277,8 @@ namespace Greenshot.Capturing.Views
                 return;
             }
             SelectionSize = size;
+            UpdateZoomerSelection();
+            UpdateSelectionPreview();
 
             int width = size.Width;
             int height = size.Height;
@@ -1401,6 +1415,8 @@ namespace Greenshot.Capturing.Views
                 return;
             }
             _zoomerShown = show;
+            // Without the zoomer the preview of the selection goes back to its corner, and the other way round
+            UpdateSelectionPreview();
             if (_isRemoteSession)
             {
                 ZoomerScale.ScaleX = ZoomerScale.ScaleY = show ? 1 : 0;
@@ -1428,8 +1444,21 @@ namespace Greenshot.Capturing.Views
             {
                 ResizeZoomer(zoomSize);
             }
+            UpdateZoomerSelection();
 
-            var offset = ZoomerPlacement.GetOffset(_cursorPos, _zoomOffset, zoomSize, screenBounds, GetZoomerAvoids());
+            var slotSize = UpdateZoomerContent(zoomSize);
+            if (slotSize != _zoomerSlotSize)
+            {
+                // The magnifier and the preview differ in size: keep the corner, at the same distance from the cursor
+                _zoomerSlotSize = slotSize;
+                _zoomOffset = ZoomerPlacement.Resize(_zoomOffset, slotSize);
+                ZoomerOffset.BeginAnimation(TranslateTransform.XProperty, null);
+                ZoomerOffset.BeginAnimation(TranslateTransform.YProperty, null);
+                ZoomerOffset.X = _zoomOffset.X;
+                ZoomerOffset.Y = _zoomOffset.Y;
+            }
+
+            var offset = ZoomerPlacement.GetOffset(_cursorPos, _zoomOffset, slotSize, screenBounds, GetZoomerAvoids());
             if (offset.Equals(_zoomOffset))
             {
                 return;
@@ -1448,6 +1477,72 @@ namespace Greenshot.Capturing.Views
             moveY.To = offset.Y;
             ZoomerOffset.BeginAnimation(TranslateTransform.XProperty, moveX);
             ZoomerOffset.BeginAnimation(TranslateTransform.YProperty, moveY);
+        }
+
+        /// <summary>
+        /// The preview shows the selection as it is now, an error is logged and doesn't stop the capture
+        /// </summary>
+        private void UpdateSelectionPreview()
+        {
+            try
+            {
+                _selectionPreview?.Update();
+                if (_selectionPreview?.ShowsInZoomer == true)
+                {
+                    // E.g. another size from a key, without a mouse move
+                    UpdateZoomer();
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Error updating the selection preview", ex);
+            }
+        }
+
+        /// <summary>
+        /// The zoomer shows the magnifier, or (P) the preview of the selection when there is one
+        /// </summary>
+        /// <returns>The size of what it shows, for the placement</returns>
+        private NativeSize UpdateZoomerContent(int zoomSize)
+        {
+            var area = _selectionPreview?.ShowsInZoomer == true ? _selectionPreview.CurrentArea : NativeRect.Empty;
+            if (area.IsEmpty)
+            {
+                ZoomerMagnifier.Visibility = Visibility.Visible;
+                ZoomerPreview.Visibility = Visibility.Collapsed;
+                _zoomerPreviewArea = NativeRect.Empty;
+                return new NativeSize(zoomSize, zoomSize);
+            }
+            var size = SelectionPreviewOverlay.GetZoomerSize(area.Size, zoomSize, out double scale);
+            if (area != _zoomerPreviewArea || size != _zoomerPreviewSize)
+            {
+                _zoomerPreviewArea = area;
+                _zoomerPreviewSize = size;
+                using var dc = ZoomerPreview.Open();
+                _selectionPreview.DrawInZoomer(dc, area, size, scale);
+            }
+            ZoomerMagnifier.Visibility = Visibility.Collapsed;
+            ZoomerPreview.Visibility = Visibility.Visible;
+            return size;
+        }
+
+        /// <summary>
+        /// The selection in the zoomer, with the size the labels show (the region tool includes the pixel under the cursor)
+        /// </summary>
+        private void UpdateZoomerSelection()
+        {
+            var size = SelectionSize.IsEmpty ? _selectionRect.Size : SelectionSize;
+            if (!_zoomerShown || _zoomSize == 0 || !IsSelectionVisible || IsSelectionAnimating || size.IsEmpty)
+            {
+                ZoomerSelection.Visibility = Visibility.Collapsed;
+                return;
+            }
+            double pixel = (double)_zoomSize / ZoomSourceSize;
+            Canvas.SetLeft(ZoomerSelection, (_selectionRect.X - _cursorPos.X + ZoomSourceSize / 2) * pixel);
+            Canvas.SetTop(ZoomerSelection, (_selectionRect.Y - _cursorPos.Y + ZoomSourceSize / 2) * pixel);
+            ZoomerSelection.Width = size.Width * pixel;
+            ZoomerSelection.Height = size.Height * pixel;
+            ZoomerSelection.Visibility = Visibility.Visible;
         }
 
         /// <summary>
@@ -1483,6 +1578,7 @@ namespace Greenshot.Capturing.Views
             crosshair.Children.Add(new RectangleGeometry(new Rect(end + pixel, start, zoomSize - end - 2 * pixel, pixel)));
             crosshair.Freeze();
             ZoomerCrosshair.Data = crosshair;
+            ZoomerSelectionLayer.Clip = new EllipseGeometry(new Rect(0, 0, zoomSize, zoomSize));
             ZoomerCrosshair.Opacity = Conf.ZoomerOpacity;
         }
 

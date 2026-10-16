@@ -80,4 +80,21 @@ public class ZoomerPlacementTests
         var offset = ZoomerPlacement.GetOffset(new NativePoint(500, 500), new NativePoint(5000, 5000), Size, Screen, Screen);
         Assert.Equal(BottomRight, offset);
     }
+
+    [Fact]
+    public void Offset_ForAWideZoomer_UsesItsWidthAndHeight()
+    {
+        // The preview of a wide selection in the place of the zoomer, at the bottom right corner of the screen
+        var size = new NativeSize(216, 60);
+        var offset = ZoomerPlacement.GetOffset(new NativePoint(1900, 1070), BottomRight, size, Screen, new NativeRect[0]);
+        Assert.Equal(new NativePoint(-ZoomerPlacement.Distance - 216, -ZoomerPlacement.Distance - 60), offset);
+    }
+
+    [Fact]
+    public void Resize_KeepsTheCornerAndTheDistanceToTheCursor()
+    {
+        var topLeft = new NativePoint(-ZoomerPlacement.Distance - Size, -ZoomerPlacement.Distance - Size);
+        Assert.Equal(new NativePoint(-ZoomerPlacement.Distance - 100, -ZoomerPlacement.Distance - 50), ZoomerPlacement.Resize(topLeft, new NativeSize(100, 50)));
+        Assert.Equal(BottomRight, ZoomerPlacement.Resize(BottomRight, new NativeSize(100, 50)));
+    }
 }
