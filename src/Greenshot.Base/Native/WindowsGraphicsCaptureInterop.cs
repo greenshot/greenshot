@@ -416,7 +416,7 @@ namespace Greenshot.Base.Native
         /// Transforms a Direct3D 11 texture into a .NET Bitmap object in 32bpp ARGB format.
         /// </summary>
         /// <remarks>
-        /// Windows Graphics Capture delivers premultiplied BGRA, Format32bppArgb is straight alpha:
+        /// Windows Graphics Capture (and Direct2D) deliver premultiplied BGRA, Format32bppArgb is straight alpha:
         /// the colors of partly transparent pixels are un-premultiplied while copying. Otherwise those pixels are too dark,
         /// e.g. a dark fringe at the rounded corners of Windows 11 windows.
         /// </remarks>
@@ -545,52 +545,31 @@ namespace Greenshot.Base.Native
         }
 
         /// <summary>
-        /// Tone maps an FP16 HDR texture to an 8-bit SDR bitmap: copies it to CPU-readable memory, see HdrCpuToneMapper
+        /// Tone maps an FP16 HDR texture to a standard 8-bit SDR bitmap with Direct2D, see HdrToneMapper
         /// </summary>
-        internal static Bitmap ToneMapHdrTextureToBitmap(ID3D11Texture2D hdrTexture, ID3D11Device device, ID3D11DeviceContext context, float sdrWhiteLevelInNits, float displayPeakInNits = 0)
+        /// <param name="hdrTexture">The captured FP16 (R16G16B16A16_FLOAT) texture.</param>
+        /// <param name="device">The D3D11 device used for creating resources.</param>
+        /// <param name="context">The D3D11 device context for copy/map operations.</param>
+        /// <param name="sdrWhiteLevelInNits">The SDR white level in nits for the display.</param>
+        /// <param name="displayPeakInNits">The brightest the display can show, 0 if unknown.</param>
+        /// <returns>A Bitmap with tone-mapped SDR content.</returns>
+        internal static Bitmap ToneMapHdrTextureToBitmap(
+            ID3D11Texture2D hdrTexture, ID3D11Device device,
+            ID3D11DeviceContext context, float sdrWhiteLevelInNits, float displayPeakInNits = 0)
         {
-            hdrTexture.GetDesc(out D3D11_TEXTURE2D_DESC desc);
-            int width = desc.Width;
-            int height = desc.Height;
+            D3D11_TEXTURE2D_DESC desc;
+            hdrTexture.GetDesc(out desc);
 
-            // Create a staging texture to copy FP16 data to CPU
-            var stagingDesc = new D3D11_TEXTURE2D_DESC
-            {
-                Width = width,
-                Height = height,
-                MipLevels = 1,
-                ArraySize = 1,
-                Format = desc.Format, // R16G16B16A16_FLOAT
-                SampleDesc = new DXGI_SAMPLE_DESC { Count = 1, Quality = 0 },
-                Usage = D3D11_USAGE.D3D11_USAGE_STAGING,
-                BindFlags = 0,
-                CPUAccessFlags = D3D11_CPU_ACCESS_FLAG.D3D11_CPU_ACCESS_READ,
-                MiscFlags = 0
-            };
-
-            device.CreateTexture2D(ref stagingDesc, IntPtr.Zero, out var stagingTexture);
-
+            // Not cached: creating it takes a few milliseconds, and it belongs to the device it was created with
+            using var toneMapper = new HdrToneMapper(device);
+            var sdrTexture = toneMapper.ToneMapToSdr(hdrTexture, device, sdrWhiteLevelInNits, displayPeakInNits, desc.Width, desc.Height);
             try
             {
-                context.CopyResource(stagingTexture, hdrTexture);
-
-                int hr = context.Map(stagingTexture, 0, D3D11_MAP.D3D11_MAP_READ, 0, out var mappedResource);
-                if (hr != 0) Marshal.ThrowExceptionForHR(hr);
-
-                try
-                {
-                    return HdrCpuToneMapper.ToneMapFp16ToBitmap(
-                        mappedResource.pData, mappedResource.RowPitch,
-                        width, height, sdrWhiteLevelInNits, displayPeakInNits);
-                }
-                finally
-                {
-                    context.Unmap(stagingTexture, 0);
-                }
+                return TransformTextureToBitmap(sdrTexture, device, context);
             }
             finally
             {
-                if (stagingTexture != null) Marshal.ReleaseComObject(stagingTexture);
+                Marshal.ReleaseComObject(sdrTexture);
             }
         }
 
@@ -894,7 +873,7 @@ namespace Greenshot.Base.Native
                 ? DirectXPixelFormat.R16G16B16A16Float
                 : DirectXPixelFormat.B8G8R8A8UIntNormalized;
 
-            Log.Info($"{request.Description}: HDR={request.IsHdr}, SDR white level={request.SdrWhiteLevelInNits} nits, format={pixelFormat}.");
+            Log.Info($"{request.Description}: HDR={request.IsHdr}, SDR white level={request.SdrWhiteLevelInNits} nits, peak={request.DisplayPeakInNits} nits, format={pixelFormat}.");
 
             request.FramePool = Direct3D11CaptureFramePool.CreateFreeThreaded(device, pixelFormat, numberOfBuffers, captureItem.Size);
             request.Session = request.FramePool.CreateCaptureSession(captureItem);
