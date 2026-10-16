@@ -186,6 +186,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 **Log viewer in Self-Service**
 - Read Greenshot's log in its own window and copy it, for example for an issue report
 - Search the log: only the entries with your text are shown, including the details of an error
+- New entries appear while the log viewer is open, also in a search
 - Choose how much Greenshot writes to the log, until Greenshot restarts
 - Links like `greenshot://log?search=HDR` open the log viewer with that search, a link never changes a setting
 

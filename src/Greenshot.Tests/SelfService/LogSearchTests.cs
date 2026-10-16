@@ -94,6 +94,28 @@ namespace Greenshot.Tests.SelfService
         }
 
         [Fact]
+        public void LogViewerAppender_CollectsEntries_OnlyWhileAttached()
+        {
+            var logger = log4net.LogManager.GetLogger(typeof(LogSearchTests));
+            var appender = LogViewerAppender.Attach();
+            try
+            {
+                logger.Error("Log viewer appender test entry");
+                string entries = appender.TakeEntries();
+                Assert.Contains("Log viewer appender test entry", entries);
+                Assert.Contains("ERROR", entries);
+                Assert.Equal(string.Empty, appender.TakeEntries());
+            }
+            finally
+            {
+                appender.Detach();
+            }
+
+            logger.Error("Written after the log viewer closed");
+            Assert.Equal(string.Empty, appender.TakeEntries());
+        }
+
+        [Fact]
         public void RootLevel_Change_AppliesToTheLoggers()
         {
             var original = LogHelper.RootLevel;

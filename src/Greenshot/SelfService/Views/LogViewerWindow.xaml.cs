@@ -55,6 +55,11 @@ namespace Greenshot.SelfService.Views
         private long _totalFileLength;
         private string _searchText = string.Empty;
         private readonly DispatcherTimer _searchTimer;
+        private int _searchMatchCount;
+        private int _searchEntryCount;
+        // While the window is open: the entries Greenshot logs, added to the view without reading the file again
+        private LogViewerAppender _liveAppender;
+        private DispatcherTimer _liveTimer;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -233,13 +238,14 @@ namespace Greenshot.SelfService.Views
                     text = reader.ReadToEnd();
                 }
 
-                LogText = LogSearch.Filter(text, SearchText, out int matchCount, out int entryCount);
+                // The entries collected until now are in the file
+                _liveAppender?.TakeEntries();
+                LogText = LogSearch.Filter(text, SearchText, out _searchMatchCount, out _searchEntryCount);
                 _totalFileLength = fi.Length;
                 _actualStartOffset = 0;
                 CanLoadMore = false;
                 ChunkStatusText = string.Empty;
-                string matchesTemplate = Texts.SelfService.LogviewerSearchMatches;
-                LogInfoText = string.Format(string.IsNullOrEmpty(matchesTemplate) ? "{0:N0} of {1:N0} log entries contain \"{2}\"" : matchesTemplate, matchCount, entryCount, SearchText);
+                UpdateSearchInfo();
                 StatusMessage = $"Searched at {DateTime.Now:HH:mm:ss} | Last modified: {fi.LastWriteTime:yyyy-MM-dd HH:mm:ss}";
                 LogTextBox?.ScrollToEnd();
             }
@@ -247,6 +253,49 @@ namespace Greenshot.SelfService.Views
             {
                 Log.Error("Error searching log file", ex);
                 StatusMessage = $"Error: {ex.Message}";
+            }
+        }
+
+        private void UpdateSearchInfo()
+        {
+            string matchesTemplate = Texts.SelfService.LogviewerSearchMatches;
+            LogInfoText = string.Format(string.IsNullOrEmpty(matchesTemplate) ? "{0:N0} of {1:N0} log entries contain \"{2}\"" : matchesTemplate, _searchMatchCount, _searchEntryCount, SearchText);
+        }
+
+        /// <summary>
+        /// Adds the entries Greenshot logged since the last time, filtered when there is a search text
+        /// </summary>
+        private void OnLiveTick(object sender, EventArgs e)
+        {
+            string added = _liveAppender?.TakeEntries();
+            if (string.IsNullOrEmpty(added))
+            {
+                return;
+            }
+
+            bool followEnd = LogTextBox == null || LogTextBox.VerticalOffset + LogTextBox.ViewportHeight >= LogTextBox.ExtentHeight - 2;
+            if (string.IsNullOrEmpty(SearchText))
+            {
+                LogText += added;
+                _totalFileLength += Encoding.UTF8.GetByteCount(added);
+                UpdateLogDisplayMetrics(DateTime.Now);
+            }
+            else
+            {
+                string matches = LogSearch.Filter(added, SearchText, out int matchCount, out int entryCount);
+                _searchMatchCount += matchCount;
+                _searchEntryCount += entryCount;
+                UpdateSearchInfo();
+                if (matches.Length == 0)
+                {
+                    return;
+                }
+                LogText += matches;
+            }
+
+            if (followEnd)
+            {
+                LogTextBox?.ScrollToEnd();
             }
         }
 
@@ -307,6 +356,8 @@ namespace Greenshot.SelfService.Views
                 _actualStartOffset = readOffset + startByte;
                 CanLoadMore = _actualStartOffset > 0;
 
+                // The entries collected until now are in the file
+                _liveAppender?.TakeEntries();
                 string text = Encoding.UTF8.GetString(buffer, startByte, bytesRead - startByte);
                 LogText = string.IsNullOrWhiteSpace(text) ? "(No log entries in chunk)" : text;
 
@@ -499,12 +550,24 @@ namespace Greenshot.SelfService.Views
         private void OnWindowLoaded(object sender, RoutedEventArgs e)
         {
             ApplyImmersiveDarkMode();
+
+            // Follow the log of this Greenshot, another log file is shown as it is
+            if (!string.IsNullOrEmpty(LogFilePath) && string.Equals(LogFilePath, GreenshotMain.LogFileLocation, StringComparison.OrdinalIgnoreCase))
+            {
+                _liveAppender = LogViewerAppender.Attach();
+                _liveTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
+                _liveTimer.Tick += OnLiveTick;
+                _liveTimer.Start();
+            }
         }
 
         private void OnWindowClosed(object sender, EventArgs e)
         {
             WpfThemeHelper.ThemeChanged -= OnThemeChanged;
             _searchTimer.Stop();
+            _liveTimer?.Stop();
+            _liveAppender?.Detach();
+            _liveAppender = null;
         }
 
         private void OnWindowKeyDown(object sender, KeyEventArgs e)
