@@ -36,13 +36,15 @@ namespace Greenshot.SelfService
         Ok,
         /// <summary>No folder is configured, Greenshot saves to the default folder</summary>
         NotConfigured,
-        /// <summary>The folder contains variables like ${YYYY}: Greenshot checks the folder before filling them in, doesn't find it and switches to the default folder</summary>
+        /// <summary>The folder contains variables like ${YYYY}, Greenshot fills them in (and creates the folder) when it saves</summary>
         ContainsVariables,
-        /// <summary>The folder doesn't exist: at the next save Greenshot switches to the default folder, without a message</summary>
+        /// <summary>The folder doesn't exist yet, Greenshot creates it at the next save</summary>
         Missing,
+        /// <summary>The drive or network share of the folder isn't there: Greenshot saves to the default folder until it is, and says so</summary>
+        DriveMissing,
         /// <summary>Greenshot can't write to the folder (permissions, or Windows Defender's controlled folder access)</summary>
         NotWritable,
-        /// <summary>A network folder: when it's not reachable (e.g. without VPN), Greenshot switches to the default folder</summary>
+        /// <summary>A network folder: when it's not reachable (e.g. without VPN), Greenshot saves to the default folder for that time and says so</summary>
         Network,
         /// <summary>A folder synchronized by OneDrive (also the Desktop, when OneDrive backs it up)</summary>
         OneDrive,
@@ -160,10 +162,9 @@ namespace Greenshot.SelfService
             }
             result.ExpandedPath = expanded;
 
-            // ValidateAndCorrectOutputFilePath checks the configured value, before the variables are filled in
-            if (configuredPath.Contains("${") && !Directory.Exists(configuredPath))
+            if (configuredPath.Contains("${"))
             {
-                result.Items.Add(new OutputPathCheckItem(OutputPathFinding.ContainsVariables, OutputPathSeverity.Error));
+                result.Items.Add(new OutputPathCheckItem(OutputPathFinding.ContainsVariables, OutputPathSeverity.Info));
             }
 
             bool isNetwork = IsNetworkPath(expanded);
@@ -179,7 +180,16 @@ namespace Greenshot.SelfService
             bool exists = SafeDirectoryExists(expanded);
             if (!exists)
             {
-                result.Items.Add(new OutputPathCheckItem(OutputPathFinding.Missing, OutputPathSeverity.Error));
+                // GetOutputDirectory creates a missing folder, but not a missing drive or share
+                string root = SafeGetRoot(expanded);
+                if (string.IsNullOrEmpty(root) || !SafeDirectoryExists(root))
+                {
+                    result.Items.Add(new OutputPathCheckItem(OutputPathFinding.DriveMissing, OutputPathSeverity.Error, root));
+                }
+                else
+                {
+                    result.Items.Add(new OutputPathCheckItem(OutputPathFinding.Missing, OutputPathSeverity.Warning));
+                }
             }
             else
             {
@@ -311,6 +321,18 @@ namespace Greenshot.SelfService
             foreach (var variable in new[] { "OneDrive", "OneDriveConsumer", "OneDriveCommercial" })
             {
                 yield return Environment.GetEnvironmentVariable(variable);
+            }
+        }
+
+        private static string SafeGetRoot(string path)
+        {
+            try
+            {
+                return Path.GetPathRoot(path);
+            }
+            catch
+            {
+                return null;
             }
         }
 

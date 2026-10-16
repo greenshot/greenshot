@@ -677,9 +677,14 @@ namespace Greenshot.Base.Languages
         string FilesOutputConfigured { get; }
 
         /// <summary>
-        /// The folder contains variables like ${YYYY}: Greenshot checks the folder before it fills them in, doesn't find it and saves to the default folder (Desktop) instead.
+        /// The folder contains variables like ${YYYY}: Greenshot fills them in when it saves, and creates the folder.
         /// </summary>
         string FilesOutputContainsVariables { get; }
+
+        /// <summary>
+        /// The drive or network share {0} isn't available: until it is, Greenshot saves to the default folder (Desktop) and shows a notification.
+        /// </summary>
+        string FilesOutputDriveMissing { get; }
 
         /// <summary>
         /// Next file, for example
@@ -697,12 +702,12 @@ namespace Greenshot.Base.Languages
         string FilesOutputInvalidFilename { get; }
 
         /// <summary>
-        /// The folder doesn't exist: at the next save Greenshot switches to the default folder (Desktop), without a message.
+        /// The folder doesn't exist yet: Greenshot creates it at the next save.
         /// </summary>
         string FilesOutputMissing { get; }
 
         /// <summary>
-        /// A network folder: when it can't be reached (e.g. without VPN), Greenshot switches to the default folder (Desktop).
+        /// A network folder: when it can't be reached (e.g. without VPN), Greenshot saves to the default folder (Desktop) for that time and shows a notification.
         /// </summary>
         string FilesOutputNetwork { get; }
 

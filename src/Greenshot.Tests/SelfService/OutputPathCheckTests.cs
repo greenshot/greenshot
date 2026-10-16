@@ -22,6 +22,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using Greenshot.Base.Core;
 using Greenshot.SelfService;
 using Xunit;
 
@@ -68,21 +69,95 @@ namespace Greenshot.Tests.SelfService
         }
 
         [Fact]
-        public void MissingFolder_IsAnError()
+        public void MissingFolder_IsAWarning_BecauseGreenshotCreatesIt()
         {
             var result = OutputPathCheck.Run(Path.Combine(_folder, "missing"), Pattern, "png", NoOneDrive);
 
-            Assert.Contains(result.Items, i => i.Finding == OutputPathFinding.Missing && i.Severity == OutputPathSeverity.Error);
+            Assert.Contains(result.Items, i => i.Finding == OutputPathFinding.Missing && i.Severity == OutputPathSeverity.Warning);
             Assert.DoesNotContain(result.Items, i => i.Finding == OutputPathFinding.Ok);
         }
 
         [Fact]
-        public void FolderWithVariables_IsAnError_BecauseGreenshotResetsIt()
+        public void FolderOnAMissingDrive_IsAnError()
+        {
+            string drive = GetUnusedDrive();
+
+            var result = OutputPathCheck.Run(drive + @"Screenshots", Pattern, "png", NoOneDrive);
+
+            Assert.Contains(result.Items, i => i.Finding == OutputPathFinding.DriveMissing && i.Severity == OutputPathSeverity.Error && i.Detail == drive);
+        }
+
+        [Fact]
+        public void FolderWithVariables_IsInformation_AndShowsTheFilledInFolder()
         {
             var result = OutputPathCheck.Run(Path.Combine(_folder, "${YYYY}"), Pattern, "png", NoOneDrive);
 
-            Assert.Contains(result.Items, i => i.Finding == OutputPathFinding.ContainsVariables);
-            Assert.DoesNotContain("${YYYY}", result.ExpandedPath);
+            Assert.Contains(result.Items, i => i.Finding == OutputPathFinding.ContainsVariables && i.Severity == OutputPathSeverity.Info);
+            Assert.Equal(Path.Combine(_folder, DateTime.Now.Year.ToString()), result.ExpandedPath);
+        }
+
+        [Fact]
+        public void GetOutputDirectory_FolderWithVariables_IsFilledInAndCreated_TheSettingStays()
+        {
+            // A configuration of its own: the tests don't touch the user's greenshot.ini
+            var configuration = new CoreConfigurationImpl { OutputFilePath = Path.Combine(_folder, "${YYYY}") };
+
+            string directory = configuration.GetOutputDirectory(out string problem);
+
+            Assert.Null(problem);
+            Assert.Equal(Path.Combine(_folder, DateTime.Now.Year.ToString()), directory);
+            Assert.True(Directory.Exists(directory));
+            Assert.Equal(Path.Combine(_folder, "${YYYY}"), configuration.OutputFilePath);
+        }
+
+        [Fact]
+        public void GetOutputDirectory_MissingFolder_IsCreated()
+        {
+            string folder = Path.Combine(_folder, "deleted", "Screenshots");
+            var configuration = new CoreConfigurationImpl { OutputFilePath = folder };
+
+            Assert.Equal(folder, configuration.GetOutputDirectory(out string problem));
+            Assert.Null(problem);
+            Assert.True(Directory.Exists(folder));
+        }
+
+        [Fact]
+        public void GetOutputDirectory_MissingDrive_UsesTheDefaultFolderOnce_TheSettingStays()
+        {
+            string folder = GetUnusedDrive() + "Screenshots";
+            var configuration = new CoreConfigurationImpl { OutputFilePath = folder };
+
+            string directory = configuration.GetOutputDirectory(out string problem);
+
+            Assert.NotNull(problem);
+            Assert.NotEqual(folder, directory);
+            Assert.True(Directory.Exists(directory));
+            // The next save tries the configured folder again, e.g. when the network drive is back
+            Assert.Equal(folder, configuration.OutputFilePath);
+        }
+
+        [Fact]
+        public void ValidateAndCorrectOutputFilePath_KeepsAMissingFolder_SetsTheDefaultWhenEmpty()
+        {
+            string folder = GetUnusedDrive() + "Screenshots";
+            var configuration = new CoreConfigurationImpl { OutputFilePath = folder };
+
+            configuration.ValidateAndCorrectOutputFilePath();
+            Assert.Equal(folder, configuration.OutputFilePath);
+
+            configuration.OutputFilePath = null;
+            configuration.ValidateAndCorrectOutputFilePath();
+            Assert.False(string.IsNullOrEmpty(configuration.OutputFilePath));
+        }
+
+        /// <summary>
+        /// A drive letter which isn't used on this PC, e.g. "Q:\"
+        /// </summary>
+        private static string GetUnusedDrive()
+        {
+            var used = DriveInfo.GetDrives().Select(d => char.ToUpperInvariant(d.Name[0])).ToList();
+            char letter = "QRSTUVWXYZJKLMNOP".First(c => !used.Contains(c));
+            return letter + @":\";
         }
 
         [Theory]

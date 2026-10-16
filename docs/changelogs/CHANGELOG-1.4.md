@@ -190,9 +190,13 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 #### 🩺 Self-Service
 
+**Screenshots no longer end up on the Desktop unnoticed**
+- When the screenshot folder couldn't be found, Greenshot switched it to the Desktop for good, without a message: e.g. a network drive without VPN, a renamed folder, or a folder with variables like ${YYYY}
+- Now a missing folder is created, variables are filled in first, and only when the folder really can't be used (e.g. the network drive isn't there), Greenshot saves that one screenshot to the Desktop and says so: the setting stays
+
 **Check where screenshots are saved**
 - Self-Service shows whether the screenshot folder exists, whether Greenshot can write to it, and whether it's a network or OneDrive folder
-- It tells why Greenshot would save to the Desktop instead (a missing folder, a network folder which can't be reached, variables in the folder), and if the filename pattern gives no valid name
+- It also tells if the drive of the folder is missing, or the filename pattern gives no valid name
 - The folder and the filename pattern can be reset to the default with one click
 
 ### Bug Fixes & Improvements

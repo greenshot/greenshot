@@ -53,6 +53,7 @@ namespace Greenshot.SelfService.ViewModels
                 OutputPathFinding.NotConfigured => texts.FilesOutputNotConfigured,
                 OutputPathFinding.ContainsVariables => texts.FilesOutputContainsVariables,
                 OutputPathFinding.Missing => texts.FilesOutputMissing,
+                OutputPathFinding.DriveMissing => string.Format(texts.FilesOutputDriveMissing, detail),
                 OutputPathFinding.NotWritable => string.Format(texts.FilesOutputNotWritable, detail),
                 OutputPathFinding.Network => texts.FilesOutputNetwork,
                 OutputPathFinding.OneDrive => texts.FilesOutputOnedrive,

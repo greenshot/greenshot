@@ -28,6 +28,7 @@ using Greenshot.Base.Core.Export;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Languages;
+using Greenshot.Base.Threading;
 using Greenshot.Plugin.Pdf.Configuration;
 using Greenshot.Plugin.Pdf.FileFormatHandlers;
 using log4net;
@@ -62,7 +63,7 @@ public sealed class PdfDestination : DestinationBase
         string suggestedPath;
         try
         {
-            suggestedPath = CreateFilename(request.Metadata);
+            suggestedPath = CreateFilename(request.Metadata, request.Ui);
         }
         catch (Exception exception)
         {
@@ -109,7 +110,7 @@ public sealed class PdfDestination : DestinationBase
         }
     }
 
-    private static string CreateFilename(ICaptureDetails captureDetails)
+    private static string CreateFilename(ICaptureDetails captureDetails, IUserInteraction userInteraction)
     {
         string pattern = CoreConfiguration.OutputFileFilenamePattern;
         if (string.IsNullOrWhiteSpace(pattern))
@@ -118,8 +119,12 @@ public sealed class PdfDestination : DestinationBase
         }
 
         string filename = FilenameHelper.GetFilenameFromPattern(pattern, PdfFileFormatHandler.FormatId, captureDetails);
-        CoreConfiguration.ValidateAndCorrectOutputFilePath();
-        string directory = FilenameHelper.FillVariables(CoreConfiguration.OutputFilePath, false);
+        string directory = CoreConfiguration.GetOutputDirectory(out string folderProblem);
+        if (folderProblem != null)
+        {
+            string message = string.Format(Texts.Core.ErrorOutputfolderFallback, CoreConfiguration.OutputFilePath, folderProblem, directory);
+            userInteraction?.NotifyAsync(new Notification(NotificationKind.Warning, message)).FireAndLog("Screenshot folder fallback notification", Log);
+        }
         return Path.Combine(directory, Path.ChangeExtension(filename, ".pdf"));
     }
 }
