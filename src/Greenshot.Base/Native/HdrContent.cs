@@ -40,8 +40,8 @@ internal static class HdrContent
     /// <summary>
     /// Share of pixels brighter than SDR white up to which SDR white stays white, and from which the display's peak is white
     /// </summary>
-    private const float FewHighlights = 0.05f;
-    private const float MostlyHighlights = 0.25f;
+    private const float FewHighlights = 0.02f;
+    private const float MostlyHighlights = 0.10f;
 
     /// <summary>
     /// A pixel within this factor of SDR white is SDR, the margin covers FP16 rounding

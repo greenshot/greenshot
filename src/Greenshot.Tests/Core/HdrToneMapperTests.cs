@@ -77,7 +77,7 @@ public class HdrToneMapperTests
     [InlineData(2000f, 0.5f, 1000f)] // brighter than the display: the display's peak becomes white
     [InlineData(800f, 0.01f, SdrWhiteNits)] // a small highlight on an SDR desktop: SDR white stays white
     [InlineData(SdrWhiteNits, 0.5f, SdrWhiteNits)] // SDR only
-    [InlineData(800f, 0.15f, 500f)] // in between
+    [InlineData(800f, 0.06f, 500f)] // in between
     public void WhiteLevel_FollowsTheHighlights(float peakInNits, float highlightShare, float expectedWhiteLevel)
     {
         Assert.Equal(expectedWhiteLevel, HdrContent.WhiteLevelInNits(SdrWhiteNits, 1000f, peakInNits, highlightShare), 1);
