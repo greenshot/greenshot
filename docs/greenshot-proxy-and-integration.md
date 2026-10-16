@@ -206,10 +206,6 @@ Every link written out, for testing after an install. Paste one into the address
 | `greenshot://recipe-editor?recipe=recipe_region` | Recipe editor with the region capture recipe |
 | `greenshot://recipe-manager` | Recipe manager |
 | `greenshot://recipe/my-task?destination=clipboard` | Runs the recipe with the command line trigger my-task, when it allows browser links and that is approved; refused otherwise |
-| `greenshot://exit` | Refused, Greenshot logs a [SECURITY] warning |
-| `greenshot://reload_config` | Refused, Greenshot logs a [SECURITY] warning |
-| `greenshot://first_launch` | Refused, Greenshot logs a [SECURITY] warning |
-| `greenshot://open_file?path=C:\temp\a.png` | Refused, Greenshot logs a [SECURITY] warning |
 
 ---
 
