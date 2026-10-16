@@ -545,7 +545,7 @@ namespace Greenshot.Base.Native
         }
 
         /// <summary>
-        /// Tone maps an FP16 HDR texture to a standard 8-bit SDR bitmap with Direct2D, see HdrToneMapper
+        /// Tone maps an FP16 HDR texture to a standard 8-bit SDR bitmap with Direct2D, see HdrContent and HdrToneMapper
         /// </summary>
         /// <param name="hdrTexture">The captured FP16 (R16G16B16A16_FLOAT) texture.</param>
         /// <param name="device">The D3D11 device used for creating resources.</param>
@@ -560,9 +560,13 @@ namespace Greenshot.Base.Native
             D3D11_TEXTURE2D_DESC desc;
             hdrTexture.GetDesc(out desc);
 
+            var (peakInNits, highlightShare) = HdrContent.Measure(hdrTexture, device, context, sdrWhiteLevelInNits);
+            float whiteLevelInNits = HdrContent.WhiteLevelInNits(sdrWhiteLevelInNits, displayPeakInNits, peakInNits, highlightShare);
+            Log.Info($"HDR tone mapping {desc.Width}x{desc.Height}: SDR white {sdrWhiteLevelInNits} nits, display peak {displayPeakInNits:F0} nits, brightest pixel {peakInNits:F0} nits, {highlightShare:P0} brighter than SDR white, white at {whiteLevelInNits:F0} nits.");
+
             // Not cached: creating it takes a few milliseconds, and it belongs to the device it was created with
             using var toneMapper = new HdrToneMapper(device);
-            var sdrTexture = toneMapper.ToneMapToSdr(hdrTexture, device, sdrWhiteLevelInNits, displayPeakInNits, desc.Width, desc.Height);
+            var sdrTexture = toneMapper.ToneMapToSdr(hdrTexture, device, whiteLevelInNits, peakInNits, desc.Width, desc.Height);
             try
             {
                 return TransformTextureToBitmap(sdrTexture, device, context);

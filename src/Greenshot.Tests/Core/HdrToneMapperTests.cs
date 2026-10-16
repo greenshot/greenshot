@@ -38,20 +38,55 @@ public class HdrToneMapperTests
     private const float SdrWhiteNits = 200f;
     private const float SdrWhite = SdrWhiteNits / 80f;
 
+    // The linear value of sRGB 128
+    private static readonly float Grey128 = (float)Math.Pow((128 / 255.0 + 0.055) / 1.055, 2.4);
+
     [Fact]
-    public void HdrHighlights_KeepTheirHue()
+    public void SdrOnly_KeepsEveryColor()
     {
+        using var bitmap = ToneMapOnWarp(SdrWhiteNits, 1000f,
+            Rgba(SdrWhite, SdrWhite, SdrWhite),
+            Rgba(Grey128 * SdrWhite, Grey128 * SdrWhite, Grey128 * SdrWhite),
+            Rgba(0, 0, 0),
+            Rgba(SdrWhite, 0, 0));
+
+        Assert.Equal(Color.FromArgb(255, 255, 255, 255), bitmap.GetPixel(0, 0));
+        Assert.InRange(bitmap.GetPixel(1, 0).R, 127, 129);
+        Assert.Equal(Color.FromArgb(255, 0, 0, 0), bitmap.GetPixel(2, 0));
+        Assert.Equal(Color.FromArgb(255, 255, 0, 0), bitmap.GetPixel(3, 0));
+    }
+
+    [Fact]
+    public void MostlyHighlights_AreScaledWithTheirHue()
+    {
+        // Half of the frame is an orange highlight at 4 x SDR white: it becomes the white level, SDR white becomes grey
         using var bitmap = ToneMapOnWarp(SdrWhiteNits, 1000f,
             Rgba(SdrWhite, SdrWhite, SdrWhite),
             Rgba(4 * SdrWhite, 2 * SdrWhite, 0));
 
-        var white = bitmap.GetPixel(0, 0);
+        Assert.InRange(bitmap.GetPixel(0, 0).R, 130, 145);
         var highlight = bitmap.GetPixel(1, 0);
-        Assert.InRange(white.R, 200, 255);
         // Orange stays orange: not cut to yellow per channel
-        Assert.InRange(highlight.R, 230, 255);
-        Assert.InRange(highlight.G, 100, highlight.R - 20);
-        Assert.InRange(highlight.B, 0, 20);
+        Assert.InRange(highlight.R, 250, 255);
+        Assert.InRange(highlight.G, 180, 196);
+        Assert.InRange(highlight.B, 0, 5);
+    }
+
+    [Theory]
+    [InlineData(800f, 0.5f, 800f)] // mostly highlights: the brightest pixel becomes white
+    [InlineData(2000f, 0.5f, 1000f)] // brighter than the display: the display's peak becomes white
+    [InlineData(800f, 0.01f, SdrWhiteNits)] // a small highlight on an SDR desktop: SDR white stays white
+    [InlineData(SdrWhiteNits, 0.5f, SdrWhiteNits)] // SDR only
+    [InlineData(800f, 0.15f, 500f)] // in between
+    public void WhiteLevel_FollowsTheHighlights(float peakInNits, float highlightShare, float expectedWhiteLevel)
+    {
+        Assert.Equal(expectedWhiteLevel, HdrContent.WhiteLevelInNits(SdrWhiteNits, 1000f, peakInNits, highlightShare), 1);
+    }
+
+    [Fact]
+    public void ImplausibleDisplayPeak_IsIgnored()
+    {
+        Assert.Equal(800f, HdrContent.WhiteLevelInNits(SdrWhiteNits, 100f, 800f, 0.5f), 1);
     }
 
     [Fact]
