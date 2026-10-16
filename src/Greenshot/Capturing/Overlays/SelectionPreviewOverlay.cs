@@ -162,8 +162,11 @@ namespace Greenshot.Capturing.Overlays
                         Viewbox = new Rect(area.X, area.Y, area.Width, area.Height),
                         Stretch = Stretch.Fill
                     };
-                    RenderOptions.SetBitmapScalingMode(brush, scale >= 1 ? BitmapScalingMode.NearestNeighbor : BitmapScalingMode.HighQuality);
-                    dc.DrawRectangle(brush, null, target);
+                    // The scaling mode works on a DrawingGroup, not on a brush drawn directly: enlarged pixels stay blocks (nearest neighbor)
+                    var drawing = new DrawingGroup();
+                    RenderOptions.SetBitmapScalingMode(drawing, scale >= 1 ? BitmapScalingMode.NearestNeighbor : BitmapScalingMode.HighQuality);
+                    drawing.Children.Add(new GeometryDrawing(brush, null, new RectangleGeometry(target)));
+                    dc.DrawDrawing(drawing);
                 }
                 dc.DrawRectangle(null, pen, new Rect(target.X - 0.5, target.Y - 0.5, target.Width + 1, target.Height + 1));
                 double y = height + gap;
