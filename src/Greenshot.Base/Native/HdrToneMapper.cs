@@ -32,10 +32,11 @@ namespace Greenshot.Base.Native;
 /// <remarks>
 /// <para>
 /// Creates a D2D device and device context from the same D3D11 device used for capture,
-/// then applies the built-in <c>CLSID_D2D1WhiteLevelAdjustment</c> effect to scale scRGB
-/// linear content by the SDR white level ratio, rendering the result into an 8-bit
-/// <c>B8G8R8A8_UNORM</c> texture. D2D automatically applies the sRGB transfer function
-/// when rendering to the 8-bit target.
+/// then applies Microsoft's built-in effects, as their HDR samples do:
+/// <c>CLSID_D2D1HdrToneMap</c> fits content brighter than the target white level into it (only when there is such content),
+/// then <c>CLSID_D2D1WhiteLevelAdjustment</c> scales the target white level to 1.0, rendering the result into an 8-bit
+/// <c>B8G8R8A8_UNORM_SRGB</c> texture. The target white level comes from <see cref="HdrContent"/>.
+/// D2D applies the sRGB transfer function when rendering to the 8-bit target.
 /// </para>
 /// <para>
 /// Because ID2D1DeviceContext inherits from ID2D1RenderTarget (53+ methods), declaring
@@ -60,6 +61,8 @@ internal sealed class HdrToneMapper : IDisposable
     // From d2d1effects_2.h (Windows SDK 10.0.22621.0):
     // DEFINE_GUID(CLSID_D2D1WhiteLevelAdjustment, 0x44a1cadb, 0x6cdd, 0x4818, 0x8f, 0xf4, 0x26, 0xc1, 0xcf, 0xe9, 0x5b, 0xdb);
     private static readonly Guid CLSID_D2D1WhiteLevelAdjustment = new Guid("44a1cadb-6cdd-4818-8ff4-26c1cfe95bdb");
+    // DEFINE_GUID(CLSID_D2D1HdrToneMap, 0x7b0b748d, 0x4610, 0x4486, 0xa9, 0x0c, 0x99, 0x9d, 0x9a, 0x2e, 0x2b, 0x11);
+    private static readonly Guid CLSID_D2D1HdrToneMap = new Guid("7b0b748d-4610-4486-a90c-999d9a2e2b11");
 
     #endregion
 
@@ -86,6 +89,7 @@ internal sealed class HdrToneMapper : IDisposable
     // D2D1_PROPERTY_TYPE
     private const int D2D1_PROPERTY_TYPE_UNKNOWN = 0;
     private const int D2D1_PROPERTY_TYPE_FLOAT = 5;
+    private const int D2D1_PROPERTY_TYPE_ENUM = 11;
 
     // D3D11_BIND_FLAG
     private const int D3D11_BIND_RENDER_TARGET = 0x20;
@@ -94,6 +98,13 @@ internal sealed class HdrToneMapper : IDisposable
     // D2D1_WHITELEVELADJUSTMENT_PROP
     private const uint D2D1_WHITELEVELADJUSTMENT_PROP_INPUT_WHITE_LEVEL = 0;
     private const uint D2D1_WHITELEVELADJUSTMENT_PROP_OUTPUT_WHITE_LEVEL = 1;
+
+    // D2D1_HDRTONEMAP_PROP
+    private const uint D2D1_HDRTONEMAP_PROP_INPUT_MAX_LUMINANCE = 0;
+    private const uint D2D1_HDRTONEMAP_PROP_OUTPUT_MAX_LUMINANCE = 1;
+    private const uint D2D1_HDRTONEMAP_PROP_DISPLAY_MODE = 2;
+    // D2D1_HDRTONEMAP_DISPLAY_MODE_HDR: only compresses above the output maximum, the default SDR mode also brightens the midtones
+    private const uint D2D1_HDRTONEMAP_DISPLAY_MODE_HDR = 1;
 
     // Vtable slot indices (0-indexed from IUnknown)
     //
@@ -224,23 +235,26 @@ internal sealed class HdrToneMapper : IDisposable
     }
 
     /// <summary>
-    /// Tone-maps an FP16 HDR texture to an 8-bit SDR texture using the D2D1 WhiteLevelAdjustment effect.
+    /// Tone-maps an FP16 HDR texture to an 8-bit SDR texture using the D2D1 HdrToneMap and WhiteLevelAdjustment effects.
     /// </summary>
     /// <param name="hdrTexture">The captured FP16 (<c>R16G16B16A16_FLOAT</c>) texture.</param>
     /// <param name="d3dDevice">The D3D11 device to create the render target texture on.</param>
-    /// <param name="sdrWhiteLevelInNits">The SDR white level in nits for the captured display.</param>
+    /// <param name="whiteLevelInNits">The brightness in nits which becomes white, see <see cref="HdrContent.WhiteLevelInNits"/>.</param>
+    /// <param name="peakInNits">The brightest pixel in nits: when it is brighter than the white level, it is compressed into it.</param>
     /// <param name="width">Texture width in pixels.</param>
     /// <param name="height">Texture height in pixels.</param>
     /// <returns>A new <c>B8G8R8A8_UNORM</c> texture containing the tone-mapped SDR result.
     /// The caller owns this texture and must release it via <c>Marshal.ReleaseComObject</c>.</returns>
     public ID3D11Texture2D ToneMapToSdr(
         ID3D11Texture2D hdrTexture, ID3D11Device d3dDevice,
-        float sdrWhiteLevelInNits, int width, int height)
+        float whiteLevelInNits, float peakInNits, int width, int height)
     {
         IntPtr pHdrSurface = IntPtr.Zero;
         IntPtr pSdrSurface = IntPtr.Zero;
         IntPtr pSourceBitmap = IntPtr.Zero;
         IntPtr pTargetBitmap = IntPtr.Zero;
+        IntPtr pToneMapEffect = IntPtr.Zero;
+        IntPtr pToneMapOutput = IntPtr.Zero;
         IntPtr pEffect = IntPtr.Zero;
         IntPtr pEffectOutput = IntPtr.Zero;
         ID3D11Texture2D sdrTexture = null;
@@ -300,18 +314,41 @@ internal sealed class HdrToneMapper : IDisposable
             hr = createBitmapFn(_pDeviceContext, pSdrSurface, ref targetProps, out pTargetBitmap);
             Marshal.ThrowExceptionForHR(hr);
 
-            // 4. Create the WhiteLevelAdjustment effect
-            Guid clsid = CLSID_D2D1WhiteLevelAdjustment;
             var createEffectFn = GetVtableDelegate<CreateEffectDelegate>(_pDeviceContext, VT_D2D1DC_CreateEffect);
+
+            // 4. HdrToneMap effect, only for content brighter than the white level (scRGB, 1.0 = 80 nits)
+            IntPtr pWhiteLevelInput = pSourceBitmap;
+            if (peakInNits > whiteLevelInNits * 1.01f)
+            {
+                Guid toneMapClsid = CLSID_D2D1HdrToneMap;
+                hr = createEffectFn(_pDeviceContext, ref toneMapClsid, out pToneMapEffect);
+                Marshal.ThrowExceptionForHR(hr);
+                unsafe
+                {
+                    var setToneMapValueFn = GetVtableDelegate<EffectSetValueDelegate>(pToneMapEffect, VT_D2D1Effect_SetValue);
+                    hr = setToneMapValueFn(pToneMapEffect, D2D1_HDRTONEMAP_PROP_INPUT_MAX_LUMINANCE, D2D1_PROPERTY_TYPE_FLOAT, (IntPtr)(&peakInNits), sizeof(float));
+                    Marshal.ThrowExceptionForHR(hr);
+                    hr = setToneMapValueFn(pToneMapEffect, D2D1_HDRTONEMAP_PROP_OUTPUT_MAX_LUMINANCE, D2D1_PROPERTY_TYPE_FLOAT, (IntPtr)(&whiteLevelInNits), sizeof(float));
+                    Marshal.ThrowExceptionForHR(hr);
+                    uint displayMode = D2D1_HDRTONEMAP_DISPLAY_MODE_HDR;
+                    hr = setToneMapValueFn(pToneMapEffect, D2D1_HDRTONEMAP_PROP_DISPLAY_MODE, D2D1_PROPERTY_TYPE_ENUM, (IntPtr)(&displayMode), sizeof(uint));
+                    Marshal.ThrowExceptionForHR(hr);
+                }
+                GetVtableDelegate<EffectSetInputDelegate>(pToneMapEffect, VT_D2D1Effect_SetInput)(pToneMapEffect, 0, pSourceBitmap, 1 /* TRUE = invalidate */);
+                GetVtableDelegate<EffectGetOutputDelegate>(pToneMapEffect, VT_D2D1Effect_GetOutput)(pToneMapEffect, out pToneMapOutput);
+                pWhiteLevelInput = pToneMapOutput;
+            }
+
+            // 5. WhiteLevelAdjustment effect: the white level becomes 1.0, which is white in the 8-bit target
+            Guid clsid = CLSID_D2D1WhiteLevelAdjustment;
             hr = createEffectFn(_pDeviceContext, ref clsid, out pEffect);
             Marshal.ThrowExceptionForHR(hr);
 
-            // 5. Configure effect: input white level = display SDR nits, output = 80 nits (sRGB reference)
             var setValueFn = GetVtableDelegate<EffectSetValueDelegate>(pEffect, VT_D2D1Effect_SetValue);
             unsafe
             {
                 float inputWhiteLevel = 80.0f;
-                float outputWhiteLevel = sdrWhiteLevelInNits;
+                float outputWhiteLevel = whiteLevelInNits;
 
                 hr = setValueFn(pEffect, D2D1_WHITELEVELADJUSTMENT_PROP_INPUT_WHITE_LEVEL, D2D1_PROPERTY_TYPE_FLOAT, (IntPtr)(&inputWhiteLevel), sizeof(float));
                 Marshal.ThrowExceptionForHR(hr);
@@ -320,9 +357,9 @@ internal sealed class HdrToneMapper : IDisposable
                 Marshal.ThrowExceptionForHR(hr);
             }
 
-            // 6. Wire effect input → source bitmap
+            // 6. Wire effect input → source bitmap or tone map output
             var setInputFn = GetVtableDelegate<EffectSetInputDelegate>(pEffect, VT_D2D1Effect_SetInput);
-            setInputFn(pEffect, 0, pSourceBitmap, 1 /* TRUE = invalidate */);
+            setInputFn(pEffect, 0, pWhiteLevelInput, 1 /* TRUE = invalidate */);
 
             // 7. Get effect output image
             var getOutputFn = GetVtableDelegate<EffectGetOutputDelegate>(pEffect, VT_D2D1Effect_GetOutput);
@@ -346,7 +383,7 @@ internal sealed class HdrToneMapper : IDisposable
             hr = endDrawFn(_pDeviceContext, IntPtr.Zero, IntPtr.Zero);
             Marshal.ThrowExceptionForHR(hr);
 
-            Log.Debug($"GPU tone-mapping completed: {width}x{height}, SDR white = {sdrWhiteLevelInNits} nits.");
+            Log.Debug($"GPU tone-mapping completed: {width}x{height}, white = {whiteLevelInNits} nits, peak = {peakInNits} nits.");
 
             // 9. Transfer ownership to caller
             var result = sdrTexture;
@@ -369,6 +406,8 @@ internal sealed class HdrToneMapper : IDisposable
             }
             if (pEffectOutput != IntPtr.Zero) Marshal.Release(pEffectOutput);
             if (pEffect != IntPtr.Zero) Marshal.Release(pEffect);
+            if (pToneMapOutput != IntPtr.Zero) Marshal.Release(pToneMapOutput);
+            if (pToneMapEffect != IntPtr.Zero) Marshal.Release(pToneMapEffect);
             if (pTargetBitmap != IntPtr.Zero) Marshal.Release(pTargetBitmap);
             if (pSourceBitmap != IntPtr.Zero) Marshal.Release(pSourceBitmap);
             if (pSdrSurface != IntPtr.Zero) Marshal.Release(pSdrSurface);
