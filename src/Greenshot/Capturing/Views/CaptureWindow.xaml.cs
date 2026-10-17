@@ -1112,7 +1112,7 @@ namespace Greenshot.Capturing.Views
             var key = KeyInterop.KeyFromVirtualKey((int)e.Key);
             var modifiers = (e.IsShift ? ModifierKeys.Shift : ModifierKeys.None) | (e.IsControl ? ModifierKeys.Control : ModifierKeys.None) | (e.IsAlt ? ModifierKeys.Alt : ModifierKeys.None);
             bool isKeyDown = e.IsKeyDown;
-            Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() =>
+            Dispatcher.InvokeAsync(() =>
             {
                 if (_closed)
                 {
@@ -1126,7 +1126,7 @@ namespace Greenshot.Capturing.Views
                 {
                     HandleKeyUp(key);
                 }
-            }));
+            }, DispatcherPriority.Input).Task.FireAndLog("Handle a key of the live capture", Log);
         }
 
         private void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
