@@ -73,7 +73,8 @@ namespace Greenshot.Base.Http
             var handler = new HttpClientHandler
             {
                 AllowAutoRedirect = true,
-                UseDefaultCredentials = true,
+                // Windows credentials only go to the proxy (below), never to a server which asks for them
+                UseDefaultCredentials = false,
                 UseProxy = config?.UseProxy ?? true,
                 ServerCertificateCustomValidationCallback = (message, certificate, chain, errors) => CertificateValidator.Validate(message?.RequestUri, certificate, chain, errors)
             };
