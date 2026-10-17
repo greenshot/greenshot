@@ -26,15 +26,16 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
+using Greenshot.Base.Http;
 using Xunit;
 
-namespace Greenshot.Tests.Core
+namespace Greenshot.Tests.Http
 {
-    public class NetworkHelperSecurityTests
+    public class CertificateValidatorTests
     {
         private static readonly X509Certificate2 SampleCert;
 
-        static NetworkHelperSecurityTests()
+        static CertificateValidatorTests()
         {
             using (var rsa = RSA.Create(2048))
             {
@@ -45,7 +46,7 @@ namespace Greenshot.Tests.Core
 
         private readonly ICoreConfiguration _config;
 
-        public NetworkHelperSecurityTests()
+        public CertificateValidatorTests()
         {
             TestEnvironment.EnsureInitialized();
             _config = IniConfigRegistry.GetSection<ICoreConfiguration>();
@@ -54,7 +55,7 @@ namespace Greenshot.Tests.Core
         [Fact]
         public void ValidateServerCertificate_NoError_ReturnsTrue()
         {
-            bool result = NetworkHelper.ValidateServerCertificate(
+            bool result = CertificateValidator.Validate(
                 "https://api.imgur.com",
                 SampleCert,
                 null,
@@ -66,7 +67,7 @@ namespace Greenshot.Tests.Core
         [Fact]
         public void ValidateServerCertificate_NullCertificate_ReturnsFalse()
         {
-            bool result = NetworkHelper.ValidateServerCertificate(
+            bool result = CertificateValidator.Validate(
                 "https://api.imgur.com",
                 null,
                 null,
@@ -81,7 +82,7 @@ namespace Greenshot.Tests.Core
             _config.AllowedUntrustedCertificateHosts = new List<string>();
             _config.AllowedCertificateThumbprints = new List<string>();
 
-            bool result = NetworkHelper.ValidateServerCertificate(
+            bool result = CertificateValidator.Validate(
                 "https://api.imgur.com",
                 SampleCert,
                 null,
@@ -96,7 +97,7 @@ namespace Greenshot.Tests.Core
             _config.AllowedUntrustedCertificateHosts = new List<string> { "jira.mycompany.local" };
             _config.AllowedCertificateThumbprints = new List<string>();
 
-            bool result = NetworkHelper.ValidateServerCertificate(
+            bool result = CertificateValidator.Validate(
                 "https://jira.mycompany.local/rest/api",
                 SampleCert,
                 null,
@@ -111,7 +112,7 @@ namespace Greenshot.Tests.Core
             _config.AllowedUntrustedCertificateHosts = new List<string> { "jira.mycompany.local" };
             _config.AllowedCertificateThumbprints = new List<string>();
 
-            bool result = NetworkHelper.ValidateServerCertificate(
+            bool result = CertificateValidator.Validate(
                 "https://api.imgur.com/oauth2/token",
                 SampleCert,
                 null,
@@ -126,7 +127,7 @@ namespace Greenshot.Tests.Core
             _config.AllowedUntrustedCertificateHosts = new List<string> { "*.corp.internal" };
             _config.AllowedCertificateThumbprints = new List<string>();
 
-            bool result = NetworkHelper.ValidateServerCertificate(
+            bool result = CertificateValidator.Validate(
                 "https://confluence.corp.internal:8443",
                 SampleCert,
                 null,
@@ -143,7 +144,7 @@ namespace Greenshot.Tests.Core
             _config.AllowedUntrustedCertificateHosts = new List<string>();
             _config.AllowedCertificateThumbprints = new List<string> { thumbprint };
 
-            bool result = NetworkHelper.ValidateServerCertificate(
+            bool result = CertificateValidator.Validate(
                 "https://untrusted-host.example.com",
                 SampleCert,
                 null,
@@ -158,7 +159,7 @@ namespace Greenshot.Tests.Core
             _config.AllowedUntrustedCertificateHosts = new List<string>();
             _config.AllowedCertificateThumbprints = new List<string> { "00112233445566778899AABBCCDDEEFF00112233" };
 
-            bool result = NetworkHelper.ValidateServerCertificate(
+            bool result = CertificateValidator.Validate(
                 "https://untrusted-host.example.com",
                 SampleCert,
                 null,
@@ -182,7 +183,7 @@ namespace Greenshot.Tests.Core
         [InlineData("jira.corp.internal", null, false)]
         public void IsHostMatch_HandlesPatternsCorrectly(string host, string pattern, bool expected)
         {
-            bool actual = NetworkHelper.IsHostMatch(host, pattern);
+            bool actual = CertificateValidator.IsHostMatch(host, pattern);
             Assert.Equal(expected, actual);
         }
     }

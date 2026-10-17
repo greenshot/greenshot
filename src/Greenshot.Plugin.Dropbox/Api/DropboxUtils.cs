@@ -28,6 +28,7 @@ using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.OAuth;
 using Dapplo.Ini;
+using Greenshot.Base.Http;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Threading;
 using Newtonsoft.Json;
@@ -85,10 +86,10 @@ public static class DropboxUtils
             }
 
             request.Headers.Add("Dropbox-API-Arg", encodedArgs);
-            var content = NetworkHelper.CreateContent(image, progress);
+            var content = HttpContents.Upload(image, progress);
             content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
             request.Content = content;
-            var responseString = await NetworkHelper.SendAsync(request, cancellationToken).ConfigureAwait(false);
+            var responseString = (await HttpService.Current.SendAsync(request, cancellationToken).ConfigureAwait(false)).EnsureSuccess().Content;
             Log.DebugFormat("Upload response: {0}", responseString);
             var response = JsonConvert.DeserializeObject<IDictionary<string, object>>(responseString);
             return response.ContainsKey("id");
