@@ -103,6 +103,17 @@ public class HdrToneMapperTests
     }
 
     [Fact]
+    public void SingleBrightPixel_IsThePeak()
+    {
+        // A thin bright line or a small light: one pixel, in an odd column, must set the peak or it is cut off
+        var pixels = Enumerable.Range(0, 9).Select(x => x == 5 ? Rgba(8 * SdrWhite, 8 * SdrWhite, 8 * SdrWhite) : Rgba(SdrWhite, SdrWhite, SdrWhite)).ToArray();
+        var (peakInNits, highlightShare) = OnWarp(pixels, (texture, device, context) => HdrContent.Measure(texture, device, context, SdrWhiteNits));
+
+        Assert.Equal(8 * SdrWhiteNits, peakInNits, 1);
+        Assert.Equal(1 / 9f, highlightShare, 3);
+    }
+
+    [Fact]
     public void UnknownDisplayPeak_StillToneMaps()
     {
         using var bitmap = ToneMapOnWarp(SdrWhiteNits, 0, Rgba(SdrWhite, SdrWhite, SdrWhite), Rgba(10 * SdrWhite, 10 * SdrWhite, 10 * SdrWhite));
@@ -114,6 +125,14 @@ public class HdrToneMapperTests
     /// The way a captured frame goes: FP16 texture, Direct2D effects, 8-bit texture, bitmap
     /// </summary>
     private static Bitmap ToneMapOnWarp(float sdrWhiteLevelInNits, float displayPeakInNits, params float[][] pixels)
+    {
+        return OnWarp(pixels, (texture, device, context) => WindowsGraphicsCaptureInterop.ToneMapHdrTextureToBitmap(texture, device, context, sdrWhiteLevelInNits, displayPeakInNits));
+    }
+
+    /// <summary>
+    /// Calls the function with a one row FP16 texture of the pixels on the WARP device
+    /// </summary>
+    private static T OnWarp<T>(float[][] pixels, Func<ID3D11Texture2D, ID3D11Device, ID3D11DeviceContext, T> function)
     {
         int hr = WindowsGraphicsCaptureInterop.CreateD3D11Device(WindowsGraphicsCaptureInterop.WarpDriverType, out var device, out var context);
         Assert.Equal(0, hr);
@@ -138,7 +157,7 @@ public class HdrToneMapperTests
                 MiscFlags = 0
             };
             device.CreateTexture2D(ref desc, initialDataHandle.AddrOfPinnedObject(), out texture);
-            return WindowsGraphicsCaptureInterop.ToneMapHdrTextureToBitmap(texture, device, context, sdrWhiteLevelInNits, displayPeakInNits);
+            return function(texture, device, context);
         }
         finally
         {
