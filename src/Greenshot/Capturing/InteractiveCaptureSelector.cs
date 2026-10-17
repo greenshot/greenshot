@@ -196,6 +196,14 @@ namespace Greenshot.Capturing
             {
                 captureWindow.SetCapture(fullscreenCapture, windows, initialTool);
             }
+            else if (fullscreenCapture is { Image: null })
+            {
+                // The live screen: shown without ShowDialog, which would take the focus from the application below
+                captureWindow = new CaptureWindow(fullscreenCapture.ScreenBounds);
+                SetOwner(captureWindow);
+                captureWindow.Prepare();
+                captureWindow.SetCapture(fullscreenCapture, windows, initialTool);
+            }
             else
             {
                 captureWindow = new CaptureWindow(fullscreenCapture, windows, initialTool);
