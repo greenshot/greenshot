@@ -76,13 +76,17 @@
 
         <wpf:ThemedTitleBar Grid.Row="0" ShowThemeToggle="True"/>
 
-        <!-- Action Bar with Refresh Glance and Copy Log -->
+        <!-- Action Bar with Refresh, Copy Log, Search and Log level -->
         <Border Grid.Row="1" 
                 Background="{Binding CardBackgroundBrush}" 
                 BorderBrush="{Binding CardBorderBrush}" 
                 BorderThickness="0,0,0,1" 
                 Padding="14,6">
             <Grid VerticalAlignment="Center">
+                <Grid.Resources>
+                    <!-- The themed TextBox and ComboBox for search and log level, the buttons keep their own style -->
+                    <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/DialogStyles.xaml"/>
+                </Grid.Resources>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
@@ -114,12 +118,35 @@
                               FontSize="12"/>
                 </StackPanel>
 
-                <!-- Right Status: Line count and size -->
-                <TextBlock Grid.Column="2" 
-                           Text="{Binding LogInfoText}" 
-                           FontSize="11.5" 
-                           Foreground="{Binding TextSecondaryBrush}" 
-                           VerticalAlignment="Center"/>
+                <!-- Search: only the log entries with this text, from the whole log file -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,16,0">
+                    <TextBlock Text="{wpf:Text SelfService.LogviewerSearch}"
+                               FontSize="12"
+                               Foreground="{Binding TextPrimaryBrush}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,6,0"/>
+                    <TextBox x:Name="SearchTextBox"
+                             Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="{wpf:Text SelfService.LogviewerTooltipSearch}"
+                             Width="200"
+                             FontSize="12"
+                             VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Log level: changed only here, never by a greenshot://log link -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="{wpf:Text SelfService.LogviewerLevel}"
+                               FontSize="12"
+                               Foreground="{Binding TextPrimaryBrush}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,6,0"/>
+                    <ComboBox ItemsSource="{Binding LogLevels}"
+                              SelectedItem="{Binding SelectedLogLevel, Mode=TwoWay}"
+                              ToolTip="{wpf:Text SelfService.LogviewerTooltipLevel}"
+                              Width="90"
+                              FontSize="12"
+                              VerticalAlignment="Center"/>
+                </StackPanel>
             </Grid>
         </Border>
 
@@ -191,11 +218,26 @@
                 BorderBrush="{Binding CardBorderBrush}" 
                 BorderThickness="0,1,0,0" 
                 Padding="14,0">
-            <TextBlock x:Name="StatusMessageText" 
-                       Text="{Binding StatusMessage}" 
-                       FontSize="11" 
-                       Foreground="{Binding TextSecondaryBrush}" 
-                       VerticalAlignment="Center"/>
+            <Grid VerticalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="StatusMessageText" 
+                           Grid.Column="0"
+                           Text="{Binding StatusMessage}" 
+                           FontSize="11" 
+                           Foreground="{Binding TextSecondaryBrush}" 
+                           TextTrimming="CharacterEllipsis"
+                           VerticalAlignment="Center"/>
+                <!-- Line count and size, or the number of search matches -->
+                <TextBlock Grid.Column="1" 
+                           Text="{Binding LogInfoText}" 
+                           FontSize="11" 
+                           Foreground="{Binding TextSecondaryBrush}" 
+                           Margin="12,0,0,0"
+                           VerticalAlignment="Center"/>
+            </Grid>
         </Border>
     </Grid>
 </Window>

@@ -165,9 +165,10 @@ namespace Greenshot.Shell
 
             SimpleServiceProvider.Current.AddService<IGreenshotShell>(this);
             SimpleServiceProvider.Current.AddService<ITriggerManager>(TriggerManager.Instance);
-            SimpleServiceProvider.Current.AddService<IRecipeManager>(RecipeManager.Instance);
+            // The pipeline registers the built-in step types: before the recipe manager, which checks its built-in extensions with them
             SimpleServiceProvider.Current.AddService<IStepRegistry>(StepRegistry.Instance);
             SimpleServiceProvider.Current.AddService<ICapturePipeline>(CapturePipeline.Instance);
+            SimpleServiceProvider.Current.AddService<IRecipeManager>(RecipeManager.Instance);
             // Every flow is started, tracked and cancelled through the flow runner
             _flowRunner = new CaptureFlowRunner(CapturePipeline.Instance, UiDispatcher, CapturePipeline.Instance.Selector);
             SimpleServiceProvider.Current.AddService<ICaptureFlowRunner>(_flowRunner);

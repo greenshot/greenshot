@@ -42,10 +42,16 @@ namespace Greenshot.SelfService.ViewModels
         public string ConfigKey { get; set; }
         public string HotkeyText { get; set; }
         public bool IsRegistered { get; set; }
-        public string StatusText => IsRegistered 
-            ? (Texts.SelfService.HotkeysStatusOk ?? "Registered") 
-            : (Texts.SelfService.HotkeysStatusFailed ?? "Not Registered / Conflict");
-        public Brush StatusBrush => IsRegistered ? WpfThemeHelper.Accent : WpfThemeHelper.WarningText;
+        /// <summary>
+        /// No hotkey is set for this capture
+        /// </summary>
+        public bool IsDisabled => string.Equals(HotkeyText, "None", StringComparison.OrdinalIgnoreCase);
+        public string StatusText => IsDisabled
+            ? (Texts.SelfService.HotkeysStatusDisabled ?? "Disabled")
+            : IsRegistered
+                ? (Texts.SelfService.HotkeysStatusOk ?? "Registered")
+                : (Texts.SelfService.HotkeysStatusFailed ?? "Not Registered / Conflict");
+        public Brush StatusBrush => IsDisabled ? WpfThemeHelper.TextSecondary : IsRegistered ? WpfThemeHelper.Accent : WpfThemeHelper.WarningText;
     }
 
     public class ContenderAppViewModel
@@ -167,7 +173,7 @@ namespace Greenshot.SelfService.ViewModels
             int totalIssues = 0;
             if (IsOneDriveBlocking) totalIssues++;
             if (IsSnippingToolHijackEnabled) totalIssues++;
-            if (Hotkeys.Any(h => !h.IsRegistered && !string.Equals(h.HotkeyText, "None", StringComparison.OrdinalIgnoreCase))) totalIssues++;
+            if (Hotkeys.Any(h => !h.IsRegistered && !h.IsDisabled)) totalIssues++;
 
             if (totalIssues > 0)
             {
@@ -199,19 +205,16 @@ namespace Greenshot.SelfService.ViewModels
         {
             string displayValue = string.IsNullOrWhiteSpace(hotkeyValue) ? "None" : hotkeyValue;
             bool isRegistered = false;
-
             if (!string.Equals(displayValue, "None", StringComparison.OrdinalIgnoreCase))
             {
-                // In Greenshot, if HotkeyManager registered sequences exist, assume registered unless error
-                // Test parsing sequence
                 try
                 {
-                    var seq = HotkeySequence.Parse(displayValue);
-                    isRegistered = seq != null;
+                    // Registered means Greenshot really listens for it, not only that the text is a valid hotkey
+                    isRegistered = HotkeyManager.IsRegistered(HotkeySequence.Parse(displayValue));
                 }
-                catch
+                catch (Exception ex)
                 {
-                    isRegistered = false;
+                    Log.Warn($"Couldn't read the hotkey '{displayValue}' of {configKey}", ex);
                 }
             }
 

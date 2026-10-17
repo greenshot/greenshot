@@ -148,19 +148,64 @@ When a client invokes `greenshot-proxy.exe` while Greenshot is not running:
 3. **Pipe Polling**: The proxy polls `WaitNamedPipeW` with 250ms backoff until the server is ready, connects, and dispatches the payload.
 
 ### 2.3 URL Protocol Scheme (`greenshot:`)
-Greenshot registers the `greenshot:` protocol in the Windows Registry (`Software\Classes\greenshot`). Like the Native Messaging host of the browser extension, it is not released yet: the installer only registers both when `includes\browser-extension.iss` is included in `setup.iss` (the `#include` is commented out). For development, the self-service debug page registers them for the current user.
+The installer registers the `greenshot:` protocol in the Windows Registry (`Software\Classes\greenshot`, see `includes\url-protocol.iss`). The Light edition and the portable build don't register it. The Native Messaging host of the browser extension is not released yet: the installer only registers it when `includes\browser-extension.iss` is included in `setup.iss` (the `#include` is commented out). For development, the self-service debug page registers both for the current user.
 Both opaque (`greenshot:<action>`) and hierarchical (`greenshot://<action>`) URIs are supported:
 
 | URI Pattern | Target UI / Action | Supported Parameters |
 | :--- | :--- | :--- |
-| `greenshot:settings` | WPF Settings Dialog | `?tab=general\|capture\|output\|destination\|editor\|printer\|plugins\|expert`<br>`?plugin=<PluginName>` |
+| `greenshot:settings` | WPF Settings Dialog | `?tab=general\|capture\|output\|destination\|editor\|printer\|plugins\|recipes\|expert` (`expert` only when the expert settings are shown, another name selects that plugin)<br>`?plugin=<PluginName>` |
 | `greenshot:about` | About Dialog | — |
-| `greenshot:self-service` | Diagnostics & Self-Service | `?section=debug` |
+| `greenshot:self-service` | Diagnostics & Self-Service | `?section=system\|setup\|files\|clipboard\|hotkeys\|checksum\|imgur` (`imgur` only with earlier Imgur uploads, `debug_integration` only in Debug builds; an unknown section opens the first) |
+| `greenshot:log` | Log viewer, showing only the log entries with the search text | `?search=<text>` (at most 200 characters) |
 | `greenshot:recipe-editor` | Visual Recipe Editor | `?recipe=<recipe-id>` |
 | `greenshot:recipe-manager` | Recipe Manager Window | — |
 | `greenshot:recipe/<id>` | Executes a specific recipe | Arbitrary query parameters passed as recipe variables |
 
-Any web page can open a `greenshot:` URL, so only the commands listed above are accepted from this source (e.g. `greenshot://exit` is rejected). A recipe can only be started via `greenshot:recipe/<id>` (or from the browser extension) when its Commandline trigger sets `"AllowBrowserInvocation": true`.
+Any web page can open a `greenshot:` URL, so only the commands listed above are accepted from this source (e.g. `greenshot://exit` is rejected). A link never changes a setting: `greenshot:log` only filters the log, the log level is changed only in the log viewer itself. A recipe can only be started via `greenshot:recipe/<id>` (or from the browser extension) when its Commandline trigger sets `"AllowBrowserInvocation": true`.
+
+#### Test links
+Every link written out, for testing after an install. Click a link in a Markdown preview that opens other link types, like the one of Visual Studio or VS Code; github.com removes `greenshot:` links, there paste one into Win+R or the address bar of a browser. The browser asks before it opens Greenshot. `greenshot:settings` and `greenshot://settings` are the same.
+
+| Link | Opens |
+| :--- | :--- |
+| [greenshot://settings](greenshot://settings) | Settings, first tab |
+| [greenshot://settings?tab=general](greenshot://settings?tab=general) | Settings, General tab |
+| [greenshot://settings?tab=capture](greenshot://settings?tab=capture) | Settings, Capture tab |
+| [greenshot://settings?tab=output](greenshot://settings?tab=output) | Settings, Output tab |
+| [greenshot://settings?tab=destination](greenshot://settings?tab=destination) | Settings, Destinations tab |
+| [greenshot://settings?tab=editor](greenshot://settings?tab=editor) | Settings, Editor tab |
+| [greenshot://settings?tab=printer](greenshot://settings?tab=printer) | Settings, Printer tab |
+| [greenshot://settings?tab=plugins](greenshot://settings?tab=plugins) | Settings, Plugins tab |
+| [greenshot://settings?tab=recipes](greenshot://settings?tab=recipes) | Settings, Recipes tab |
+| [greenshot://settings?tab=expert](greenshot://settings?tab=expert) | Settings, Expert tab, only when the expert settings are shown |
+| [greenshot://settings?plugin=Box](greenshot://settings?plugin=Box) | Settings, Plugins tab with Box selected |
+| [greenshot://settings?plugin=Confluence](greenshot://settings?plugin=Confluence) | Settings, Plugins tab with Confluence selected |
+| [greenshot://settings?plugin=Dropbox](greenshot://settings?plugin=Dropbox) | Settings, Plugins tab with Dropbox selected |
+| [greenshot://settings?plugin=ExternalCommand](greenshot://settings?plugin=ExternalCommand) | Settings, Plugins tab with ExternalCommand selected |
+| [greenshot://settings?plugin=Jira](greenshot://settings?plugin=Jira) | Settings, Plugins tab with Jira selected |
+| [greenshot://settings?plugin=Office](greenshot://settings?plugin=Office) | Settings, Plugins tab with Office selected |
+| [greenshot://settings?plugin=PDF](greenshot://settings?plugin=PDF) | Settings, Plugins tab with PDF selected |
+| [greenshot://settings?plugin=RecipeEditor](greenshot://settings?plugin=RecipeEditor) | Settings, Plugins tab with RecipeEditor selected |
+| [greenshot://settings?plugin=Zxing](greenshot://settings?plugin=Zxing) | Settings, Plugins tab with Zxing selected |
+| [greenshot://settings?tab=Jira](greenshot://settings?tab=Jira) | Settings, Plugins tab with Jira selected (an unknown tab name is taken as a plugin name) |
+| [greenshot://about](greenshot://about) | About |
+| [greenshot://self-service](greenshot://self-service) | Self-Service, System section |
+| [greenshot://self-service?section=system](greenshot://self-service?section=system) | Self-Service, System |
+| [greenshot://self-service?section=setup](greenshot://self-service?section=setup) | Self-Service, Setup |
+| [greenshot://self-service?section=files](greenshot://self-service?section=files) | Self-Service, Files |
+| [greenshot://self-service?section=clipboard](greenshot://self-service?section=clipboard) | Self-Service, Clipboard |
+| [greenshot://self-service?section=hotkeys](greenshot://self-service?section=hotkeys) | Self-Service, Hotkeys |
+| [greenshot://self-service?section=checksum](greenshot://self-service?section=checksum) | Self-Service, Checksum |
+| [greenshot://self-service?section=imgur](greenshot://self-service?section=imgur) | Self-Service, Imgur, only with earlier Imgur uploads, otherwise System |
+| [greenshot://self-service?section=debug_integration](greenshot://self-service?section=debug_integration) | Self-Service, Integration debug, only in Debug builds, otherwise System |
+| [greenshot://self-service?section=unknown](greenshot://self-service?section=unknown) | Self-Service, System (unknown section) |
+| [greenshot://log](greenshot://log) | Log viewer, end of the log |
+| [greenshot://log?search=HDR](greenshot://log?search=HDR) | Log viewer, only the entries with HDR |
+| [greenshot://log?search=No%20step%20factory](greenshot://log?search=No%20step%20factory) | Log viewer, only the entries with "No step factory" (a space as %20) |
+| [greenshot://recipe-editor](greenshot://recipe-editor) | Recipe editor |
+| [greenshot://recipe-editor?recipe=recipe_region](greenshot://recipe-editor?recipe=recipe_region) | Recipe editor with the region capture recipe |
+| [greenshot://recipe-manager](greenshot://recipe-manager) | Recipe manager |
+| [greenshot://recipe/my-task?destination=clipboard](greenshot://recipe/my-task?destination=clipboard) | Runs the recipe with the command line trigger my-task, when it allows browser links and that is approved; refused otherwise |
 
 ---
 

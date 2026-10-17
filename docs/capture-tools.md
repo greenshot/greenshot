@@ -187,6 +187,8 @@ public override void Attach(ICaptureToolHost host)
 - **Not allowed:** Ctrl, Alt or Windows alone (an `ArgumentException`): they only work together with another key.
 - **Shift:** the window uses Shift (held) to keep the selection to one direction. When Shift is held and nothing is registered
   for the key with Shift, the binding without Shift is used, so the arrow keys work while Shift is held.
+- **Number pad:** a digit of the number pad (Num Lock on) that has no binding of its own uses the binding of the digit above the
+  letters, so register `Key.D1` and both work. With Num Lock off the number pad sends the arrow keys, PgUp, PgDn and so on.
 - **Querying:** `Host.KeyBindings` lists all registrations in order. Each `CaptureKeyBinding` has `Key`, `Modifiers`,
   `KeyText` (e.g. "Ctrl+↑"), `Description`, `Owner`, `Tool` (null for always active) and `IsActiveFor(Host.ActiveTool)`.
 - Keys stay registered as long as the window is open; there is no unregistering. A handler which doesn't apply in some
