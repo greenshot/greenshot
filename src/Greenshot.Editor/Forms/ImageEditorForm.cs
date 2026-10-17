@@ -1150,9 +1150,21 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             CutToolStripMenuItemClick(sender, e);
         }
 
+        /// <summary>
+        /// Copy the selected elements, or the image when nothing is selected (Edit > Copy, Ctrl+C).
+        /// </summary>
         private void CopyToolStripMenuItemClick(object sender, EventArgs e)
         {
-            _surface.CopySelectedElements();
+            if (EditorCopyHelper.GetCopyTarget(_surface.HasSelectedElements) == EditorCopyTarget.Image)
+            {
+                // The same as the clipboard destination (Ctrl+Shift+C), the export runs in the background
+                DestinationHelper.StartExport(WellKnownDestinations.Clipboard, _surface);
+            }
+            else
+            {
+                _surface.CopySelectedElements();
+            }
+
             UpdateClipboardSurfaceDependencies();
         }
 
@@ -1476,6 +1488,12 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             // disable default key handling if surface has requested a lock
             if (!_surface.KeysLocked)
             {
+                // Edit > Copy is always enabled, its Ctrl+C must not take the key from a text field (e.g. the font or the zoom in the toolbar)
+                if (keys == (Keys.Control | Keys.C) && EditorCopyHelper.IsTextInput(EditorCopyHelper.GetFocusedControl()))
+                {
+                    return false;
+                }
+
                 // Go through the destinations to check the EditorShortcut Keys
                 // this way the menu entries don't need to be enabled.
                 // This also fixes bugs #3526974 & #3527020
@@ -1541,14 +1559,15 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             bool hasItems = _surface.HasSelectedElements;
             bool actionAllowedForSelection = hasItems && !_controlsDisabledDueToConfirmable;
 
+            // Copy always works (button and menu): without a selection it copies the image. Only a confirmable element (e.g. the crop) blocks it, like the whole menu.
             // buttons
             btnCut.Enabled = actionAllowedForSelection;
-            btnCopy.Enabled = actionAllowedForSelection;
+            btnCopy.Enabled = !_controlsDisabledDueToConfirmable;
             btnDelete.Enabled = actionAllowedForSelection;
 
             // menus
             removeObjectToolStripMenuItem.Enabled = actionAllowedForSelection;
-            copyToolStripMenuItem.Enabled = actionAllowedForSelection;
+            copyToolStripMenuItem.Enabled = !_controlsDisabledDueToConfirmable;
             cutToolStripMenuItem.Enabled = actionAllowedForSelection;
             duplicateToolStripMenuItem.Enabled = actionAllowedForSelection;
 
