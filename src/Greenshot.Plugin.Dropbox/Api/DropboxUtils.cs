@@ -90,7 +90,6 @@ public static class DropboxUtils
             content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
             request.Content = content;
             var responseString = (await HttpService.Current.SendAsync(request, cancellationToken).ConfigureAwait(false)).EnsureSuccess().Content;
-            Log.DebugFormat("Upload response: {0}", responseString);
             var response = JsonConvert.DeserializeObject<IDictionary<string, object>>(responseString);
             return response.ContainsKey("id");
         }

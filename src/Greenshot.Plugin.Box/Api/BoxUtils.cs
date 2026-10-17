@@ -41,7 +41,6 @@ namespace Greenshot.Plugin.Box.Api;
 /// </summary>
 public static class BoxUtils
 {
-    private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(BoxUtils));
     private static readonly IBoxConfiguration Config = IniConfigRegistry.GetSection<IBoxConfiguration>();
     private const string UploadFileUri = "https://upload.box.com/api/2.0/files/content";
     private const string FilesUri = "https://www.box.com/api/2.0/files/{0}";
@@ -87,8 +86,6 @@ public static class BoxUtils
                 { "parent_id", Config.FolderId }
             }, progress);
             var response = (await HttpService.Current.SendAsync(request, cancellationToken).ConfigureAwait(false)).EnsureSuccess().Content;
-
-            Log.DebugFormat("Box response: {0}", response);
 
             var upload = JsonSerializer.Deserialize<Upload>(response);
             if (upload?.Entries == null || upload.Entries.Count == 0) return null;
