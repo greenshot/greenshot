@@ -29,6 +29,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.OAuth;
+using Greenshot.Base.Http;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Threading;
 using Dapplo.Ini;
@@ -81,11 +82,11 @@ public static class BoxUtils
                 return null;
             }
 
-            request.Content = NetworkHelper.CreateMultipartContent("file", image, filename, new Dictionary<string, object>
+            request.Content = HttpContents.Multipart("file", image, filename, new Dictionary<string, string>
             {
                 { "parent_id", Config.FolderId }
             }, progress);
-            var response = await NetworkHelper.SendAsync(request, cancellationToken).ConfigureAwait(false);
+            var response = (await HttpService.Current.SendAsync(request, cancellationToken).ConfigureAwait(false)).EnsureSuccess().Content;
 
             Log.DebugFormat("Box response: {0}", response);
 
@@ -101,7 +102,7 @@ public static class BoxUtils
                 }
 
                 putRequest.Content = new StringContent("{\"shared_link\": {\"access\": \"open\"}}", Encoding.UTF8, "application/json");
-                string filesResponse = await NetworkHelper.SendAsync(putRequest, cancellationToken).ConfigureAwait(false);
+                string filesResponse = (await HttpService.Current.SendAsync(putRequest, cancellationToken).ConfigureAwait(false)).EnsureSuccess().Content;
                 var file = JsonSerializer.Deserialize<FileEntry>(filesResponse);
                 return file.SharedLink.Url;
             }

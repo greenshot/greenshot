@@ -30,7 +30,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using System.Xml;
-using Greenshot.Base.Core;
+using Greenshot.Base.Http;
 
 namespace Greenshot.SelfService.Imgur
 {
@@ -47,16 +47,15 @@ namespace Greenshot.SelfService.Imgur
         /// </summary>
         public static async Task<(string Title, DateTime? Uploaded)?> GetDetailsAsync(string hash, CancellationToken cancellationToken)
         {
-            using var request = CreateRequest(HttpMethod.Get, ApiUrl + hash + ".xml");
-            using var response = await NetworkHelper.HttpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
-            if (response.StatusCode == HttpStatusCode.NotFound)
+            var result = await HttpService.Current.SendAsync(CreateRequest(HttpMethod.Get, ApiUrl + hash + ".xml"), cancellationToken).ConfigureAwait(false);
+            if (result.StatusCode == HttpStatusCode.NotFound)
             {
                 return null;
             }
 
-            response.EnsureSuccessStatusCode();
+            result.EnsureSuccess();
             var document = new XmlDocument();
-            document.LoadXml(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
+            document.LoadXml(result.Content);
             string title = document.GetElementsByTagName("title").Item(0)?.InnerText;
             DateTime? uploaded = null;
             if (long.TryParse(document.GetElementsByTagName("datetime").Item(0)?.InnerText, NumberStyles.Integer, CultureInfo.InvariantCulture, out long seconds))
@@ -72,8 +71,7 @@ namespace Greenshot.SelfService.Imgur
         /// </summary>
         public static async Task<BitmapSource> GetThumbnailAsync(string hash, CancellationToken cancellationToken)
         {
-            byte[] bytes = await NetworkHelper.HttpClient.GetByteArrayAsync(ThumbnailUrl(hash)).ConfigureAwait(false);
-            cancellationToken.ThrowIfCancellationRequested();
+            byte[] bytes = await HttpService.Current.GetBytesAsync(ThumbnailUrl(hash), cancellationToken).ConfigureAwait(false);
             var thumbnail = new BitmapImage();
             thumbnail.BeginInit();
             thumbnail.CacheOption = BitmapCacheOption.OnLoad;
@@ -88,11 +86,10 @@ namespace Greenshot.SelfService.Imgur
         /// </summary>
         public static async Task<bool> DeleteAsync(string deleteHash, CancellationToken cancellationToken)
         {
-            using var request = CreateRequest(HttpMethod.Delete, ApiUrl + deleteHash + ".xml");
-            using var response = await NetworkHelper.HttpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
-            if (response.StatusCode != HttpStatusCode.BadRequest)
+            var result = await HttpService.Current.SendAsync(CreateRequest(HttpMethod.Delete, ApiUrl + deleteHash + ".xml"), cancellationToken).ConfigureAwait(false);
+            if (result.StatusCode != HttpStatusCode.BadRequest)
             {
-                response.EnsureSuccessStatusCode();
+                result.EnsureSuccess();
             }
 
             return true;

@@ -22,8 +22,6 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapplo.HttpExtensions;
-using Dapplo.HttpExtensions.JsonNet;
 using Greenshot.Base.Core;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
@@ -31,6 +29,7 @@ using Greenshot.Helpers.Entities;
 using log4net;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Languages;
+using Greenshot.Base.Http;
 
 namespace Greenshot.Helpers
 {
@@ -108,8 +107,6 @@ namespace Greenshot.Helpers
         /// <param name="currentVersion">Current version override</param>
         public UpdateService(Version currentVersion)
         {
-            JsonNetJsonSerializer.RegisterGlobally();
-
             if (currentVersion != null)
             {
                 CurrentVersion = currentVersion;
@@ -282,7 +279,7 @@ namespace Greenshot.Helpers
                     CoreConfig.LastUpdateCheck = DateTime.Now;
                 }
 
-                var updateFeed = await UpdateFeed.GetAsAsync<UpdateFeed>(cancellationToken).ConfigureAwait(false);
+                var updateFeed = await HttpService.Current.GetJsonAsync<UpdateFeed>(UpdateFeed, cancellationToken).ConfigureAwait(false);
                 if (updateFeed == null)
                 {
                     return false;
