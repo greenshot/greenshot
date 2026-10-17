@@ -90,11 +90,11 @@ public class CustomUploaderPlugin : IGreenshotPlugin, IConfigurablePlugin, IReci
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
     /// <summary>
-    /// The uploaders and uploads of the configuration
+    /// The uploaders and uploads of the configuration, empty before the plugin registered it
     /// </summary>
     internal static UploaderStore CreateStore()
     {
-        var config = _config ?? IniConfigRegistry.GetSection<ICustomUploaderConfiguration>();
+        var config = _config;
         if (config == null)
         {
             return new UploaderStore(new Dictionary<string, string>(), new Dictionary<string, string>(), null);
