@@ -22,6 +22,7 @@ and inside a feature by kind (Views, ViewModels, Tools, Steps, ...). The namespa
 - **HTTP goes through `HttpService.Current`** (`Greenshot.Base/Http`): one HttpClient with the proxy setting, the certificate exceptions
   of the configuration and the user agent. It logs method, host and status only; headers, path, query and content can hold tokens and are not logged.
   Upload content with progress comes from `HttpContents`. Jira uses Dapplo.Jira, which gets the certificate exceptions through `CertificateValidator.RegisterGlobally`.
+  See [http.md](http.md).
 - **Greenshot.exe of the full version is x64, Greenshot Light is AnyCPU.** COM doesn't give a toast click to a Greenshot it starts for it
   when the exe is AnyCPU (its PE header says 32-bit, although it runs as a 64-bit process), see [notifications.md](notifications.md).
   Light has no toasts (the tray icon shows its notifications), no `greenshot-cli.exe` and no `greenshot-proxy.exe` (its installer
