@@ -46,13 +46,13 @@ public partial class CustomUploaderSettingsView : UserControl
         InitializeComponent();
     }
 
-    private static ICustomUploaderLanguage Language => Texts.Get<ICustomUploaderLanguage>();
+    private static ICustomUploaderLanguage UploaderTexts => Texts.Get<ICustomUploaderLanguage>();
 
     private void Import_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new OpenFileDialog
         {
-            Filter = Language.ImportFileFilter,
+            Filter = UploaderTexts.ImportFileFilter,
             CheckFileExists = true,
             Multiselect = false
         };
@@ -65,13 +65,13 @@ public partial class CustomUploaderSettingsView : UserControl
         var definition = CustomUploaderSettingsViewModel.ReadFile(dialog.FileName, out string error);
         if (definition == null)
         {
-            ThemedMessageBox.Show(window, string.Format(Language.ImportFailed, Path.GetFileName(dialog.FileName), error), Language.ImportTitle, MessageBoxButton.OK, MessageBoxImage.Warning);
+            ThemedMessageBox.Show(window, string.Format(UploaderTexts.ImportFailed, Path.GetFileName(dialog.FileName), error), UploaderTexts.ImportTitle, MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
 
         // The gate of the import: Cancel is the default, the buttons only react after a moment, so a double click doesn't import
-        int choice = ThemedMessageBox.ShowChoice(window, Language.ImportTitle, _viewModel.DescribeImport(definition), MessageBoxImage.Warning,
-            new[] { Language.ImportButton, Texts.Core.Cancel }, defaultIndex: 1, cancelIndex: 1, armDelay: ImportArmDelay);
+        int choice = ThemedMessageBox.ShowChoice(window, UploaderTexts.ImportTitle, _viewModel.DescribeImport(definition), MessageBoxImage.Warning,
+            new[] { UploaderTexts.ImportButton, Texts.Core.Cancel }, defaultIndex: 1, cancelIndex: 1, armDelay: ImportArmDelay);
         if (choice == 0)
         {
             _viewModel.Import(definition);
@@ -82,7 +82,7 @@ public partial class CustomUploaderSettingsView : UserControl
     {
         var uploader = _viewModel.SelectedUploader;
         if (uploader == null) return;
-        if (ThemedMessageBox.Show(Window.GetWindow(this), string.Format(Language.RemoveQuestion, uploader.Name), Language.UploadersTitle, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+        if (ThemedMessageBox.Show(Window.GetWindow(this), string.Format(UploaderTexts.RemoveQuestion, uploader.Name), UploaderTexts.UploadersTitle, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
         {
             _viewModel.RemoveSelectedUploader();
         }
@@ -98,7 +98,7 @@ public partial class CustomUploaderSettingsView : UserControl
         var upload = _viewModel.SelectedUpload;
         if (upload?.DeletionUrl == null) return;
         // The service decides how its deletion link works, most show a page which deletes the upload
-        if (ThemedMessageBox.Show(Window.GetWindow(this), string.Format(Language.DeleteQuestion, upload.Url), Language.UploadsTitle, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+        if (ThemedMessageBox.Show(Window.GetWindow(this), string.Format(UploaderTexts.DeleteQuestion, upload.Url), UploaderTexts.UploadsTitle, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
         {
             CustomUploaderSettingsViewModel.OpenInBrowser(upload.DeletionUrl);
         }
@@ -107,7 +107,7 @@ public partial class CustomUploaderSettingsView : UserControl
     private void Forget_Click(object sender, RoutedEventArgs e)
     {
         if (_viewModel.SelectedUpload == null) return;
-        if (ThemedMessageBox.Show(Window.GetWindow(this), Language.ForgetQuestion, Language.UploadsTitle, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+        if (ThemedMessageBox.Show(Window.GetWindow(this), UploaderTexts.ForgetQuestion, UploaderTexts.UploadsTitle, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
         {
             _viewModel.ForgetSelectedUpload();
         }
