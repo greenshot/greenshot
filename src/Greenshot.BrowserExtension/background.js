@@ -4,6 +4,10 @@
  * handshake/configuration sync, retries, capture ingestion, and QA tab URL tracking.
  */
 
+if (typeof importScripts === "function") {
+  importScripts("capture-scrollable.js");
+}
+
 const NATIVE_HOST_NAME = "org.greenshot.proxy";
 const RETRY_BASE_DELAY_MS = 5000;
 const RETRY_MAX_DELAY_MS = 60000;
@@ -15,7 +19,9 @@ let retryTimerId = null;
 
 let extensionConfig = {
   track_tab_urls: true,
-  capture_format: "png"
+  capture_format: "png",
+  calculate_overlap: true,
+  capture_from_current_position: false
 };
 
 // Initialize configuration from storage
@@ -140,15 +146,17 @@ function scheduleReconnect() {
 function sendNativeMessage(payload) {
   if (!nativePort) {
     connectNativeHost();
-    return;
+    return false;
   }
 
   try {
     nativePort.postMessage(payload);
+    return true;
   } catch (err) {
     console.warn("Failed to send message over native port:", err);
     isConnected = false;
     scheduleReconnect();
+    return false;
   }
 }
 
@@ -276,6 +284,26 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     captureCurrentTab()
       .then((res) => sendResponse(res))
       .catch((err) => sendResponse({ success: false, error: err.message }));
+    return true;
+  }
+
+  if (request.action === "CAPTURE_SCROLLABLE") {
+    GreenshotScrollableCapture.captureScrollablePage({
+      isConnected,
+      nativePort,
+      sendNativeMessage,
+      getBrowserName,
+      connectNativeHost,
+      calculateOverlap: extensionConfig.calculate_overlap !== false,
+      captureFromCurrentPosition: extensionConfig.capture_from_current_position === true
+    })
+      .then((res) => sendResponse(res))
+      .catch((err) => sendResponse({ success: false, error: err.message }));
+    return true;
+  }
+
+  if (request.action === "STOP_SCROLLABLE_CAPTURE") {
+    sendResponse({ success: GreenshotScrollableCapture.requestStop() });
     return true;
   }
 
