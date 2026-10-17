@@ -239,6 +239,30 @@ namespace Greenshot.SelfService.Views
             UpdateStatusText(ViewModel?.FileInfoSection.StatusMessage);
         }
 
+        private void OnOpenOutputFolderClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.FileInfoSection.OpenOutputFolder();
+            UpdateStatusText(ViewModel?.FileInfoSection.StatusMessage);
+        }
+
+        private void OnCopyOutputPathClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.FileInfoSection.CopyOutputPath();
+            UpdateStatusText(ViewModel?.FileInfoSection.StatusMessage);
+        }
+
+        private void OnResetOutputPathClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.FileInfoSection.ResetOutputPath();
+            UpdateStatusText(ViewModel?.FileInfoSection.StatusMessage);
+        }
+
+        private void OnResetFilenamePatternClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.FileInfoSection.ResetFilenamePattern();
+            UpdateStatusText(ViewModel?.FileInfoSection.StatusMessage);
+        }
+
         private void OnCopyLogPathClicked(object sender, RoutedEventArgs e)
         {
             ViewModel?.FileInfoSection.CopyLogPath();

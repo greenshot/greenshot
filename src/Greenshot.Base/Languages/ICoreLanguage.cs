@@ -514,6 +514,11 @@ namespace Greenshot.Base.Languages
         /// Could not open link '{0}'.
         /// </summary>
         string ErrorOpenlink { get; }
+        /// <summary>
+        /// The screenshot folder {0} can't be used: {1}
+        /// This screenshot was saved to {2}. Self-Service (Files &amp; Configuration) shows why.
+        /// </summary>
+        string ErrorOutputfolderFallback { get; }
 
         /// <summary>
         /// Could not save screenshot, please find a suitable location.
