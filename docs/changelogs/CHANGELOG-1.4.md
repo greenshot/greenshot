@@ -76,6 +76,10 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Add and remove your own sizes in the settings, on the Capture tab
 - A preview in a corner shows what will be captured, enlarged when it is small and reduced when it is large; this works for regions and windows too. Press P to move it next to the mouse in place of the magnifier, and again to turn it off
 
+**Capture without freezing the screen**
+- Turn off *Freeze the screen while selecting* on the Capture tab to select on the live screen: videos keep playing and HDR content keeps its brightness
+- The selection appears at once and only the selected area is captured, when you finish the selection
+
 **New Capture Technology** (#932)
 - Implemented new capture technology for better screenshot quality
 - Improved compatibility with modern Windows applications

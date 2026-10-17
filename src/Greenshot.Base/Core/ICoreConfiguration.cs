@@ -327,6 +327,10 @@ namespace Greenshot.Base.Core
         [DefaultValue(true)]
         bool ZoomerEnabled { get; set; }
 
+        [Description("Sets if the screen is frozen while a region or window is selected. When false the screen stays live and only the selection is captured, when it is made (Windows 10 2004 or newer, else the screen is frozen).")]
+        [DefaultValue(true)]
+        bool CaptureFreezeScreen { get; set; }
+
         [Description("Sets if the keys are shown (help panel) in the interactive capture, F1 shows or hides them")]
         [DefaultValue(true)]
         bool CaptureHelpVisible { get; set; }
