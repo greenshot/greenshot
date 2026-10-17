@@ -389,6 +389,22 @@ public static class HotkeyManager
     }
 
     /// <summary>
+    /// True when this hotkey sequence is registered and the keyboard hook which delivers it is active
+    /// </summary>
+    public static bool IsRegistered(HotkeySequence sequence)
+    {
+        if (sequence == null || sequence.IsEmpty)
+        {
+            return false;
+        }
+
+        lock (RegisteredHotkeys)
+        {
+            return (_keyboardSubscription != null || !UseKeyboardHook) && RegisteredHotkeys.Exists(x => x.Sequence.Equals(sequence));
+        }
+    }
+
+    /// <summary>
     /// Unregisters all currently registered global hotkeys and releases associated resources.
     /// </summary>
     public static void UnregisterHotkeys()

@@ -1147,7 +1147,7 @@ namespace Greenshot.Base.Languages
         string SidebarNavigationHeader { get; }
 
         /// <summary>
-        /// Press 1-5 to navigate tabs, F5 to refresh, and T to toggle Dark/Light mode.
+        /// Press the number of a section (1 is the first) to open it, F5 to refresh, and T to toggle Dark/Light mode.
         /// </summary>
         string SidebarNavigationTip { get; }
 
