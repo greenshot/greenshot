@@ -137,8 +137,9 @@ meanwhile.
 For "Print does nothing" or "Print opens something else".
 
 - **Greenshot Configured Shortcuts**: the five capture hotkeys from the settings (region, window, full screen, last region,
-  clipboard) and their status. *Re-register Greenshot Hotkeys* registers them again, e.g. after you closed the program
-  which had taken them.
+  clipboard) and their status: *Registered* when Greenshot listens for the hotkey, *Not Registered / Conflict* when it
+  doesn't (e.g. a key name in `greenshot.ini` it can't read), *Disabled* when no hotkey is set. *Re-register Greenshot
+  Hotkeys* registers them again, e.g. after you closed a program which had taken the keys.
 - **Microsoft OneDrive**: OneDrive can save screenshots itself (*Automatically save screenshots I capture to OneDrive*) and
   takes the Print key for that. *Disable OneDrive Screenshot Interception* switches it off in the OneDrive settings of your
   user.
@@ -195,11 +196,12 @@ the same list as a step when there are uploads.
 | `Esc` | Closes the window |
 | `F5` | Checks the selected section again |
 | `T` | Switches between the dark and the light theme |
-| `1` or `E` | System & Hardware |
-| `2`, `F`, `L` or `I` | Files & Configuration |
-| `3` or `C` | Clipboard Diagnostics |
-| `4` or `H` | Hotkeys & Conflicts |
-| `5`, `K` or `V` | Installation Integrity |
+| `1` to `9` (also on the number pad) | The section at that place in the sidebar: `1` System & Hardware, `2` Your setup, `3` Files & Configuration, `4` Clipboard Diagnostics, `5` Hotkeys & Conflicts, `6` Installation Integrity, then *Delete old Imgur uploads* when it is there |
+| `E` | System & Hardware |
+| `F`, `L` or `I` | Files & Configuration |
+| `C` | Clipboard Diagnostics |
+| `H` | Hotkeys & Conflicts |
+| `K` or `V` | Installation Integrity |
 
 The keys don't work while you type in a text box (e.g. the search of *Installation Integrity*), except `Esc`.
 
@@ -449,8 +451,8 @@ Then in `SelfServiceWindow.xaml.cs`:
   ```
 
   A Debug-only section needs its handlers in the `#else` branch too (empty), because the XAML is the same in every build.
-- `OnWindowKeyDown()`: a key to jump to the section, when it is a common one. Update `sidebar_navigation_tip` and the
-  [key table](#keys) when you do.
+- `OnWindowKeyDown()`: the number keys already select the section by its place in the sidebar. Add a letter only for a
+  common section, and add it to the [key table](#keys).
 
 ### 4. Texts
 
