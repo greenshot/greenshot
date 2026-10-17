@@ -1,5 +1,6 @@
 #include "box.iss"
 #include "confluence.iss"
+#include "customuploader.iss"
 #include "dropbox.iss"
 #include "externalcommand.iss"
 #include "jira.iss"

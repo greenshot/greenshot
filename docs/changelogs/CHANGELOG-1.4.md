@@ -197,6 +197,11 @@ Continuous builds are automatically created for every commit to the `main` branc
 - If you uploaded images anonymously with an earlier Greenshot, it still has their delete keys: Self-Service lists those images so you can delete them from Imgur
 - Save the delete links as a web page to keep them
 
+**Upload to a service of your choice** (Beta)
+- Import the uploader file (.sxcu) a service offers, the same file ShareX uses, and upload captures there: the link goes to the clipboard
+- Greenshot shows where your captures will go before it imports a file, and keeps the file encrypted for your Windows account
+- Your uploads are listed in the settings of the plugin, with their delete links
+
 #### 🩺 Self-Service
 
 **Screenshots no longer end up on the Desktop unnoticed**

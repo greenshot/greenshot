@@ -46,6 +46,7 @@ Type: filesandordirs; Name: "{app}\Plugins\GreenshotPicasaPlugin"
 // Removed first, so no file of an older version stays behind.
 Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.Box"
 Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.Confluence"
+Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.CustomUploader"
 Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.Dropbox"
 Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.ExternalCommand"
 Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.Flickr"

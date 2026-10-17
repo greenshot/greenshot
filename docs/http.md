@@ -86,6 +86,9 @@ request.Content = HttpContents.Multipart("file", image, filename, new Dictionary
 `progress` is an `IProgress<ProgressInfo>`, usually the one the destination gets for the upload, it receives the percentage
 as the bytes go out. The bytes of the capture are not copied.
 
+The custom uploader plugin builds both kinds of request from an uploader file of the user, with the import checks a
+request to a server someone else chose needs: see [custom-uploader.md](custom-uploader.md#for-developers).
+
 ### An OAuth 2 service
 
 `OAuth2Helper.CreateOAuth2RequestAsync` authorizes (once, in the browser) or refreshes the token when needed and returns a
