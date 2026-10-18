@@ -6,16 +6,18 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ListViewStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BoolToVis"/>
             <Style TargetType="TextBlock">
                 <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
             </Style>
-            <Style TargetType="ListBox">
-                <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBackgroundBrush}"/>
-                <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
-                <Setter Property="BorderThickness" Value="1"/>
+            <!-- The section titles name the lists, the columns need no header -->
+            <Style x:Key="NoColumnHeader" TargetType="GridViewColumnHeader" BasedOn="{StaticResource ThemeGridViewColumnHeader}">
+                <Setter Property="Visibility" Value="Collapsed"/>
+            </Style>
+            <Style x:Key="UploaderList" TargetType="ListView" BasedOn="{StaticResource ThemeListView}">
+                <Setter Property="ItemContainerStyle" Value="{StaticResource ThemeListViewItem}"/>
                 <Setter Property="MinHeight" Value="80"/>
                 <Setter Property="MaxHeight" Value="180"/>
             </Style>
@@ -27,20 +29,33 @@
 
         <!-- The uploaders -->
         <TextBlock Text="{wpf:Text CustomUploader.UploadersTitle}" FontWeight="SemiBold" Margin="0,0,0,4"/>
-        <ListBox ItemsSource="{Binding Uploaders}" SelectedItem="{Binding SelectedUploader, Mode=TwoWay}"
-                 Visibility="{Binding HasUploaders, Converter={StaticResource BoolToVis}}">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel Orientation="Horizontal" Margin="4,2">
-                        <Image Source="{Binding Icon}" Width="16" Height="16" Margin="0,0,6,0" VerticalAlignment="Center"
-                               RenderOptions.BitmapScalingMode="HighQuality"/>
-                        <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis"/>
-                        <TextBlock Text="{Binding Description}" Margin="12,0,0,0"
-                                   Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
-                    </StackPanel>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+        <ListView ItemsSource="{Binding Uploaders}" SelectedItem="{Binding SelectedUploader, Mode=TwoWay}" SelectionMode="Single"
+                  Style="{StaticResource UploaderList}"
+                  Visibility="{Binding HasUploaders, Converter={StaticResource BoolToVis}}">
+            <ListView.View>
+                <GridView ColumnHeaderContainerStyle="{StaticResource NoColumnHeader}">
+                    <GridViewColumn Width="220">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="{Binding Icon}" Width="16" Height="16" Margin="0,0,6,0" VerticalAlignment="Center"
+                                           RenderOptions.BitmapScalingMode="HighQuality"/>
+                                    <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Width="300">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Description}" TextTrimming="CharacterEllipsis"
+                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
         <TextBlock Text="{wpf:Text CustomUploader.NoUploaders}" TextWrapping="Wrap"
                    Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}">
             <TextBlock.Style>
@@ -60,21 +75,40 @@
 
         <!-- The uploads -->
         <TextBlock Text="{wpf:Text CustomUploader.UploadsTitle}" FontWeight="SemiBold" Margin="0,0,0,4"/>
-        <ListBox ItemsSource="{Binding Uploads}" SelectedItem="{Binding SelectedUpload, Mode=TwoWay}"
-                 Visibility="{Binding HasUploads, Converter={StaticResource BoolToVis}}">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel Orientation="Horizontal" Margin="4,2">
-                        <TextBlock Text="{Binding Date}" Width="130"
-                                   Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
-                        <Image Source="{Binding Icon}" Width="16" Height="16" Margin="0,0,6,0" VerticalAlignment="Center"
-                               RenderOptions.BitmapScalingMode="HighQuality"/>
-                        <TextBlock Text="{Binding Uploader}" Width="120" TextTrimming="CharacterEllipsis"/>
-                        <TextBlock Text="{Binding Url}" TextTrimming="CharacterEllipsis"/>
-                    </StackPanel>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+        <ListView ItemsSource="{Binding Uploads}" SelectedItem="{Binding SelectedUpload, Mode=TwoWay}" SelectionMode="Single"
+                  Style="{StaticResource UploaderList}"
+                  Visibility="{Binding HasUploads, Converter={StaticResource BoolToVis}}">
+            <ListView.View>
+                <GridView ColumnHeaderContainerStyle="{StaticResource NoColumnHeader}">
+                    <GridViewColumn Width="130">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Date}"
+                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Width="140">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="{Binding Icon}" Width="16" Height="16" Margin="0,0,6,0" VerticalAlignment="Center"
+                                           RenderOptions.BitmapScalingMode="HighQuality"/>
+                                    <TextBlock Text="{Binding Uploader}" TextTrimming="CharacterEllipsis"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Width="260">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Url}" TextTrimming="CharacterEllipsis"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
         <TextBlock Text="{wpf:Text CustomUploader.NoUploads}"
                    Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}">
             <TextBlock.Style>
