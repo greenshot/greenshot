@@ -35,7 +35,7 @@ namespace Greenshot.Editor.Views
     public partial class ResizeSettingsWindow : Window
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(ResizeSettingsWindow));
-        private const double MaximumDimension = int.MaxValue;
+        private const int MaximumDimension = 30_000; // picking a random number. Probably the underlying image library and memory has a limit. On my PC GDI+ stops at round about 25k
         private readonly ResizeEffect _effect;
         private readonly string _valuePixel;
         private readonly string _valuePercent;
@@ -198,11 +198,107 @@ namespace Greenshot.Editor.Views
             UpdateOkButton();
         }
 
+        private void DimensionTextBox_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (e.Delta == 0 || !(sender is TextBox textBox))
+            {
+                return;
+            }
+
+            bool isWidth = textBox == WidthTextBox;
+            ComboBox unitComboBox = isWidth ? WidthUnitComboBox : HeightUnitComboBox;
+            int originalDimension = isWidth ? _effect.Width : _effect.Height;
+            if (!TryParseInput(textBox.Text, out double currentValue))
+            {
+                e.Handled = true;
+                return;
+            }
+
+            double maximumInput = GetMaximumInputValue(isWidth, unitComboBox.SelectedItem, originalDimension);
+            double minimumInput = GetMinimumInputValue(isWidth, unitComboBox.SelectedItem, originalDimension);
+            if (maximumInput <= 0 || minimumInput > maximumInput ||
+                double.IsNaN(maximumInput) || double.IsInfinity(maximumInput))
+            {
+                e.Handled = true;
+                return;
+            }
+
+            double step = (Keyboard.Modifiers & ModifierKeys.Shift) != 0 ? 10 : 1;
+            double nextValue = currentValue + Math.Sign(e.Delta) * step;
+            nextValue = Math.Max(minimumInput, Math.Min(nextValue, maximumInput));
+            string nextText = nextValue.ToString("G", CultureInfo.InvariantCulture);
+
+            if (!TryGetDimension(nextText, unitComboBox.SelectedItem, originalDimension, out double dimension) ||
+                !IsAspectRatioDimensionValid(isWidth, dimension))
+            {
+                e.Handled = true;
+                return;
+            }
+
+            textBox.Text = nextText;
+            e.Handled = true;
+        }
+
+        private double GetMaximumInputValue(bool isWidth, object selectedUnit, int originalDimension)
+        {
+            double maximumDimension = MaximumDimension;
+            if (MaintainAspectRatioCheckBox.IsChecked == true && _effect.Width > 0 && _effect.Height > 0)
+            {
+                double maximumForOtherDimension = isWidth
+                    ? MaximumDimension * _effect.Width / _effect.Height
+                    : MaximumDimension * _effect.Height / _effect.Width;
+                maximumDimension = Math.Min(maximumDimension, maximumForOtherDimension);
+            }
+
+            return _valuePercent.Equals(selectedUnit)
+                ? (originalDimension > 0 ? maximumDimension * 100.0 / originalDimension : 0)
+                : maximumDimension;
+        }
+
+        private double GetMinimumInputValue(bool isWidth, object selectedUnit, int originalDimension)
+        {
+            const double minimumRoundedDimension = 0.500001;
+            double minimumDimension = minimumRoundedDimension;
+            if (MaintainAspectRatioCheckBox.IsChecked == true && _effect.Width > 0 && _effect.Height > 0)
+            {
+                double minimumForOtherDimension = isWidth
+                    ? minimumRoundedDimension * _effect.Width / _effect.Height
+                    : minimumRoundedDimension * _effect.Height / _effect.Width;
+                minimumDimension = Math.Max(minimumDimension, minimumForOtherDimension);
+            }
+
+            if (_valuePercent.Equals(selectedUnit))
+            {
+                return originalDimension > 0 ? minimumDimension * 100.0 / originalDimension : double.PositiveInfinity;
+            }
+
+            return Math.Ceiling(minimumDimension);
+        }
+
+        private bool IsAspectRatioDimensionValid(bool isWidth, double dimension)
+        {
+            if (MaintainAspectRatioCheckBox.IsChecked != true)
+            {
+                return true;
+            }
+
+            if (isWidth && _effect.Width > 0)
+            {
+                return IsValidDimension(_effect.Height * (dimension / _effect.Width));
+            }
+
+            if (!isWidth && _effect.Height > 0)
+            {
+                return IsValidDimension(_effect.Width * (dimension / _effect.Height));
+            }
+
+            return true;
+        }
+
         private bool TryGetDimension(string text, object selectedUnit, int originalDimension, out double dimension)
         {
             dimension = 0;
-            if (!double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out double input) &&
-                !double.TryParse(text, NumberStyles.Float, CultureInfo.CurrentCulture, out input))
+            if (!TryParseInput(text, out double input))
             {
                 return false;
             }
@@ -217,6 +313,12 @@ namespace Greenshot.Editor.Views
                 : input;
 
             return IsValidDimension(dimension);
+        }
+
+        private static bool TryParseInput(string text, out double input)
+        {
+            return double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out input) ||
+                double.TryParse(text, NumberStyles.Float, CultureInfo.CurrentCulture, out input);
         }
 
         private static bool IsValidDimension(double dimension)

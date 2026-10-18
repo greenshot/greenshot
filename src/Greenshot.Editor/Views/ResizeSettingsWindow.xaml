@@ -229,7 +229,8 @@
                            Text="{wpf:Text Editor.ResizeWidth}"
                            VerticalAlignment="Center" Margin="0,6"
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                <TextBox Grid.Row="0" Grid.Column="1" x:Name="WidthTextBox" Margin="0,6,8,6" MaxLength="5"/>
+                <TextBox Grid.Row="0" Grid.Column="1" x:Name="WidthTextBox" Margin="0,6,8,6" MaxLength="10"
+                         PreviewMouseWheel="DimensionTextBox_PreviewMouseWheel"/>
                 <ComboBox Grid.Row="0" Grid.Column="2" x:Name="WidthUnitComboBox" Margin="0,6"/>
 
                 <!-- Height -->
@@ -237,7 +238,8 @@
                            Text="{wpf:Text Editor.ResizeHeight}"
                            VerticalAlignment="Center" Margin="0,6"
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                <TextBox Grid.Row="1" Grid.Column="1" x:Name="HeightTextBox" Margin="0,6,8,6" MaxLength="5"/>
+                <TextBox Grid.Row="1" Grid.Column="1" x:Name="HeightTextBox" Margin="0,6,8,6" MaxLength="10"
+                         PreviewMouseWheel="DimensionTextBox_PreviewMouseWheel"/>
                 <ComboBox Grid.Row="1" Grid.Column="2" x:Name="HeightUnitComboBox" Margin="0,6"/>
 
                 <!-- Maintain Aspect Ratio -->
