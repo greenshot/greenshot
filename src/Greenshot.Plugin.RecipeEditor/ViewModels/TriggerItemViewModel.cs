@@ -127,8 +127,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         }
 
         public bool IsHotkey => string.Equals(TriggerType, TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase);
-        public bool IsContextMenu => string.Equals(TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase) ||
-                                     string.Equals(TriggerType, TriggerConfig.TypeSystray, StringComparison.OrdinalIgnoreCase);
+        public bool IsContextMenu => string.Equals(TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase);
         public bool IsEditor => string.Equals(TriggerType, TriggerConfig.TypeEditor, StringComparison.OrdinalIgnoreCase);
         public bool IsClipboard => string.Equals(TriggerType, TriggerConfig.TypeClipboard, StringComparison.OrdinalIgnoreCase);
         public bool IsManual => string.Equals(TriggerType, TriggerConfig.TypeManual, StringComparison.OrdinalIgnoreCase);

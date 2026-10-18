@@ -63,17 +63,18 @@ go through the same window, see [mcp-server.md](mcp-server.md#recipes-written-by
 ## 1. Core Architecture: Decoupling Triggers from Recipes
 
 In Greenshot:
-- **A Trigger** defines *when and how* a capture is initiated (e.g. pressing a hotkey like `PrintScreen`, clicking a systray menu item, or receiving a clipboard image).
+- **A Trigger** defines *when and how* a capture is initiated (e.g. pressing a hotkey like `PrintScreen`, clicking an item in the context menu opened from Greenshot's system tray icon, or receiving a clipboard image).
 - **A Recipe** defines *what DAG workflow of nodes* executes once triggered (e.g. acquiring pixels, showing an interactive selection rectangle, evaluating environment variables, branching to parallel feedback and watermark steps, running OCR, stamping drawables, and exporting to destinations).
 
 Triggers and recipes are decoupled. Any trigger can run any recipe, and a single recipe can be executed by multiple triggers or invoked manually.
 
 ### Menu trigger groups
 
-`ContextMenu`/`Systray` and `Editor` triggers can set `parameters.Group` to place their menu items in a submenu. The default
-group, `Recipes` (also used when `Group` is empty or omitted), keeps the item directly in the Recipes menu; a different
-group name creates a submenu. The default `Recipes` items appear first; named submenus are sorted alphabetically. `Order`
-sorts items within each group, with the recipe name as the tie-breaker. For example:
+`ContextMenu` triggers add items to the **Recipes** menu in the context menu opened from Greenshot's system tray icon; 
+`Editor` triggers add items to the image editor's **Recipes** menu. 
+Both trigger types can set `parameters.Group` to place their menu items in a submenu. The default group, `Recipes`, keeps the item directly in that menu.
+The default `Recipes` items appear first and named submenus are sorted alphabetically. `parameters.Order` sorts items within each group. 
+For example:
 
 ```json
 "triggers": [

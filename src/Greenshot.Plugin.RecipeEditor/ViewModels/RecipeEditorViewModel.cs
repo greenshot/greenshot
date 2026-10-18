@@ -2136,8 +2136,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                         string hotkey = t.GetParameter<string>("Hotkey", "Shortcut");
                         tLabel = $"⚡ Hotkey: {hotkey}";
                     }
-                    else if (string.Equals(t.TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase) ||
-                             string.Equals(t.TriggerType, TriggerConfig.TypeSystray, StringComparison.OrdinalIgnoreCase))
+                    else if (string.Equals(t.TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase))
                     {
                         string menuText = t.GetParameter<string>("MenuItemText", t.Name ?? "Context Menu");
                         tLabel = $"🖱️ Menu: {menuText}";

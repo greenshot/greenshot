@@ -661,10 +661,9 @@ namespace Greenshot.Recipes.Views
                     {
                         label = $"⌨ Hotkey: {trigger.GetParameter<string>("Hotkey", "None")}";
                     }
-                    else if (string.Equals(trigger.TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase) ||
-                             string.Equals(trigger.TriggerType, TriggerConfig.TypeSystray, StringComparison.OrdinalIgnoreCase))
+                    else if (string.Equals(trigger.TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase))
                     {
-                        label = $"📋 Systray: \"{trigger.GetParameter<string>("MenuItemText", recipe.Name)}\"";
+                        label = $"📋 Context menu: \"{trigger.GetParameter<string>("MenuItemText", recipe.Name)}\"";
                     }
                     else if (string.Equals(trigger.TriggerType, TriggerConfig.TypeEditor, StringComparison.OrdinalIgnoreCase))
                     {

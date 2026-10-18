@@ -104,7 +104,6 @@ namespace Greenshot.Base.Recipes
         {
             Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeHotkey,
             Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeContextMenu,
-            Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeSystray,
             Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeClipboard,
             Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeEditor,
             Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeManual,

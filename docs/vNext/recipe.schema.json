@@ -55,7 +55,7 @@
     },
     "triggers": {
       "type": "array",
-      "description": "Optional modular triggers attached to this recipe (e.g. Hotkey, ContextMenu, Clipboard).",
+      "description": "Optional modular triggers attached to this recipe (e.g. Hotkey, ContextMenu for Greenshot's system tray menu, Clipboard).",
       "items": {
         "$ref": "#/definitions/TriggerConfig"
       }
@@ -843,7 +843,7 @@
           "enum": [
             "Hotkey",
             "ContextMenu",
-            "Systray",
+            "Editor",
             "Clipboard",
             "Manual",
             "Schedule",
@@ -872,12 +872,12 @@
             },
             "MenuItemText": {
               "type": "string",
-              "description": "Custom label displayed for a ContextMenu (Systray), or Editor menu trigger."
+              "description": "Custom label displayed in the Greenshot system tray context menu (ContextMenu trigger) or the image editor menu (Editor trigger)."
             },
             "Group": {
               "type": "string",
               "default": "Recipes",
-              "description": "Submenu group in the systray or image editor menu. The default or empty 'Recipes' group is shown directly and first; named groups are submenus sorted alphabetically."
+              "description": "Submenu group in the Greenshot system tray context menu (ContextMenu trigger) or image editor menu (Editor trigger). The default or empty 'Recipes' group is shown directly and first; named groups are submenus sorted alphabetically."
             },
             "Order": {
               "type": "integer",

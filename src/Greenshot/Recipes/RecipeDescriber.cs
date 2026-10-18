@@ -139,7 +139,7 @@ namespace Greenshot.Recipes
             {
                 return new RecipeTriggerDescription { Label = $"Hotkey {trigger.GetParameter("Hotkey", "(none)")}" };
             }
-            if (Is(type, TriggerConfig.TypeContextMenu) || Is(type, TriggerConfig.TypeSystray))
+            if (Is(type, TriggerConfig.TypeContextMenu))
             {
                 return new RecipeTriggerDescription { Label = $"Entry \"{menuText}\" in the Greenshot menu" };
             }
