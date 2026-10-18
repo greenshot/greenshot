@@ -259,6 +259,7 @@ namespace Greenshot.Tests.Recipes
         {
         }
 
+        // docs/vNext/examples is three levels below the repository
         private static string FindRepositoryDirectory() => Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(FindExamplesDirectory())));
 
         private static string FindExamplesDirectory()
