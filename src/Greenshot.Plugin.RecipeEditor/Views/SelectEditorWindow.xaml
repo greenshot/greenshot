@@ -12,64 +12,11 @@
         Background="{x:Static wpf:WpfThemeHelper.WindowBackground}">
 
     <Window.Resources>
-        <!-- Dialog Button Style -->
-        <Style x:Key="DialogBtn" TargetType="Button">
-            <Setter Property="Background" Value="{x:Static wpf:WpfThemeHelper.CardBackground}"/>
-            <Setter Property="Foreground" Value="{x:Static wpf:WpfThemeHelper.TextPrimary}"/>
-            <Setter Property="BorderBrush" Value="{x:Static wpf:WpfThemeHelper.CardBorder}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="14,6"/>
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="4" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="{x:Static wpf:WpfThemeHelper.BadgeBackground}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Opacity" Value="0.8"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Dialog Primary Button -->
-        <Style x:Key="DialogPrimaryBtn" TargetType="Button" BasedOn="{StaticResource DialogBtn}">
-            <Setter Property="Background" Value="{x:Static wpf:WpfThemeHelper.Accent}"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="{x:Static wpf:WpfThemeHelper.Accent}"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="4" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Opacity" Value="0.9"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Opacity" Value="0.75"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Window.Resources>
 
     <!-- Outer Window Border -->
@@ -254,8 +201,8 @@
                     <TextBlock x:Name="StatusTextBlock" Text="0 editors available" FontSize="11" Foreground="{x:Static wpf:WpfThemeHelper.TextSecondary}" VerticalAlignment="Center"/>
 
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
-                        <Button Content="Cancel" Style="{StaticResource DialogBtn}" Margin="0,0,8,0" IsCancel="True" Click="CancelButton_Click"/>
-                        <Button x:Name="OkButton" Content="Import Annotations" Style="{StaticResource DialogPrimaryBtn}" IsDefault="True" Click="OkButton_Click"/>
+                        <Button Content="Cancel" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,0" IsCancel="True" Click="CancelButton_Click"/>
+                        <Button x:Name="OkButton" Content="Import Annotations" Style="{StaticResource PrimaryButtonStyle}" IsDefault="True" Click="OkButton_Click"/>
                     </StackPanel>
                 </Grid>
             </Border>
