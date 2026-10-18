@@ -126,6 +126,11 @@ public sealed class CustomUploaderSettingsViewModel : INotifyPropertyChanged
     /// <summary>
     /// Read and check the uploader file, null with the reason when it can't be imported.
     /// </summary>
+    /// <summary>
+    /// True when the uploads can't be deleted from Greenshot: the import offers the reminder before each upload
+    /// </summary>
+    internal static bool HasNoDeletion(UploaderDefinition definition) => string.IsNullOrWhiteSpace(definition.DeletionURL);
+
     internal static UploaderDefinition ReadFile(string path, out string error)
     {
         error = null;
@@ -164,7 +169,7 @@ public sealed class CustomUploaderSettingsViewModel : INotifyPropertyChanged
             text.Append("\n\n").Append(string.Format(Language.ImportHeaders, string.Join(", ", headers)));
         }
 
-        if (string.IsNullOrWhiteSpace(definition.DeletionURL))
+        if (HasNoDeletion(definition))
         {
             text.Append("\n\n").Append(string.Format(Language.ImportNoDeletion, UploaderFile.DescribeServer(definition)));
         }
@@ -181,9 +186,11 @@ public sealed class CustomUploaderSettingsViewModel : INotifyPropertyChanged
     /// <summary>
     /// Add the confirmed uploader, it replaces the one with the same name.
     /// </summary>
-    internal void Import(UploaderDefinition definition)
+    /// <param name="definition">the checked uploader</param>
+    /// <param name="remindBeforeUpload">show the capture and ask before each upload (the uploads can't be deleted)</param>
+    internal void Import(UploaderDefinition definition, bool remindBeforeUpload = false)
     {
-        string id = _store.Add(definition);
+        string id = _store.Add(definition, remindBeforeUpload);
         Log.InfoFormat("Imported the uploader {0} for {1}", definition.Name, UploaderFile.DescribeServer(definition));
         Refresh();
         SelectedUploader = Uploaders.FirstOrDefault(item => item.Id == id);

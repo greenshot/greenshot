@@ -32,6 +32,7 @@ using Greenshot.Base.Http;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Languages;
+using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Plugin.CustomUploader.Destinations;
 using Greenshot.Plugin.CustomUploader.Recipes;
@@ -107,7 +108,7 @@ public class CustomUploaderPlugin : IGreenshotPlugin, IConfigurablePlugin, IReci
             config.MarkChanged();
             // Saved at once: an import is confirmed, and a deletion link must not get lost
             IniConfigRegistry.Get()?.Save();
-        }, icons: config.UploaderIcons);
+        }, icons: config.UploaderIcons, reminders: config.UploadReminders);
     }
 
     /// <summary>
@@ -124,6 +125,11 @@ public class CustomUploaderPlugin : IGreenshotPlugin, IConfigurablePlugin, IReci
         if (definition == null) throw new ArgumentNullException(nameof(definition));
 
         var outputSettings = new SurfaceOutputSettings().PreventGreenshotFormat();
+        if (!await ConfirmUploadAsync(source, definition, outputSettings, userInteraction, cancellationToken).ConfigureAwait(false))
+        {
+            return ExportResult.Declined;
+        }
+
         string filename = Path.GetFileName(FilenameHelper.GetFilename(outputSettings.Format, captureDetails));
         var image = await source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
 
@@ -161,6 +167,45 @@ public class CustomUploaderPlugin : IGreenshotPlugin, IConfigurablePlugin, IReci
         await ClipboardService.Current.SetTextAsync(response.Url.AbsoluteUri, cancellationToken).ConfigureAwait(false);
         return ExportResult.Succeeded(uri: response.Url);
     }
+
+    /// <summary>
+    /// The reminder before an upload which can't be deleted, when the user asked for it at the import: the capture as it is
+    /// uploaded, Upload or Cancel, "don't remind me again". Only for an interactive export, a recipe was approved for the server.
+    /// </summary>
+    /// <returns>true to upload</returns>
+    private static async Task<bool> ConfirmUploadAsync(IExportSource source, UploaderDefinition definition, SurfaceOutputSettings outputSettings, IUserInteraction userInteraction,
+        CancellationToken cancellationToken)
+    {
+        var store = CreateStore();
+        var uploader = store.Find(definition.Name);
+        if (uploader == null || !store.RemindsBeforeUpload(uploader.Id) || !userInteraction.IsInteractive)
+        {
+            return true;
+        }
+
+        using var preview = await source.RenderAsync(outputSettings, cancellationToken).ConfigureAwait(false);
+        string server = UploaderFile.DescribeServer(definition);
+        var request = new PreviewPromptRequest(string.Format(Language.ReminderTitle, definition.Name), string.Format(Language.ReminderMessage, server), preview.Image,
+            new[]
+            {
+                new PromptChoice(UploadChoice, Language.ReminderUpload, "Primary"),
+                new PromptChoice("Cancel", Texts.Core.Cancel, "Secondary", isDefault: true, isCancel: true)
+            }, string.Format(Language.ReminderStop, definition.Name));
+        var result = await userInteraction.ShowDialogAsync(request, cancellationToken).ConfigureAwait(false);
+        if (result?.ChoiceKey != UploadChoice)
+        {
+            return false;
+        }
+
+        if (result.IsChecked)
+        {
+            store.StopReminding(uploader.Id);
+        }
+
+        return true;
+    }
+
+    private const string UploadChoice = "Upload";
 
     /// <summary>
     /// Send the capture and read the response, without UI (tests take their own HttpService).

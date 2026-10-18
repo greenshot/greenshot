@@ -76,7 +76,10 @@ The settings of the plugin list your last 100 uploads, newest first: the date, t
   link Greenshot can't delete it later.
 
 Without a delete link only the service decides how long an upload stays online (Litterbox: the time in the file, catbox.moe:
-for good). The import question says so, and the list says it when such an upload is selected.
+for good). The import question says so, and the list says it when such an upload is selected. For such an uploader the
+import also offers *Import and remind me*: before each upload Greenshot then shows the capture and asks, *Upload* or
+*Cancel*. *Don't remind me again* in that question turns it off, importing the file again turns it on. A recipe running
+without you doesn't ask, you approved the server for it.
 
 The list is stored encrypted like the uploaders, the delete links are secrets too.
 
@@ -128,7 +131,10 @@ rules and the logging rules apply.
    greenshot.ini at once.
 2. **Read**: `UploaderStore.GetUploaders` decrypts each uploader and runs it through `UploaderFile.Read` again, so a changed
    entry is checked like a file. One which can't be decrypted or doesn't pass has a null `Definition` and is only listed.
-3. **Upload** (thread pool): `UploaderRequest.Create` fills the placeholders of the request and builds it, it refuses to send
+3. **Upload** (thread pool): with the reminder of the import (`UploaderStore.RemindsBeforeUpload`) and an interactive
+   export, `ConfirmUploadAsync` first asks with a `PreviewPromptRequest` (`IUserInteraction.ShowDialogAsync`), the generic
+   question with a preview of the capture which Greenshot shows in the window of the recipe step *User prompt*.
+   `UploaderRequest.Create` fills the placeholders of the request and builds it, it refuses to send
    to another server than `GetServer`. `HttpService.SendAsync` sends it. `UploaderResponse.From` reads the result. Only
    http and https links are accepted, a link is opened and put on the clipboard.
 4. **Keep**: the link and the deletion link go into the upload history (`UploaderStore.AddUpload`, the newest 100).

@@ -76,6 +76,7 @@ internal sealed class UploaderStore
     private readonly IDictionary<string, string> _uploaders;
     private readonly IDictionary<string, string> _uploads;
     private readonly IDictionary<string, string> _icons;
+    private readonly IDictionary<string, string> _reminders;
     private readonly Action _changed;
     private readonly Func<string, string> _protect;
     private readonly Func<string, string> _unprotect;
@@ -86,10 +87,12 @@ internal sealed class UploaderStore
     /// <param name="protect">Encrypts, null: <see cref="UserProtection.Protect"/></param>
     /// <param name="unprotect">Decrypts, null: <see cref="UserProtection.Unprotect"/></param>
     /// <param name="icons">id of the uploader to its encrypted icon, null: not kept</param>
+    /// <param name="reminders">ids of the uploaders with a reminder before each upload, null: not kept</param>
     public UploaderStore(IDictionary<string, string> uploaders, IDictionary<string, string> uploads, Action changed, Func<string, string> protect = null, Func<string, string> unprotect = null,
-        IDictionary<string, string> icons = null)
+        IDictionary<string, string> icons = null, IDictionary<string, string> reminders = null)
     {
         _icons = icons ?? new Dictionary<string, string>();
+        _reminders = reminders ?? new Dictionary<string, string>();
         _uploaders = uploaders ?? throw new ArgumentNullException(nameof(uploaders));
         _uploads = uploads ?? throw new ArgumentNullException(nameof(uploads));
         _changed = changed ?? (() => { });
@@ -121,8 +124,10 @@ internal sealed class UploaderStore
     /// <summary>
     /// Add the checked uploader, it replaces the one with the same name.
     /// </summary>
+    /// <param name="definition">the checked uploader</param>
+    /// <param name="remindBeforeUpload">show a reminder with a preview before each upload</param>
     /// <returns>the id</returns>
-    public string Add(UploaderDefinition definition)
+    public string Add(UploaderDefinition definition, bool remindBeforeUpload = false)
     {
         if (definition == null) throw new ArgumentNullException(nameof(definition));
         lock (Lock)
@@ -132,6 +137,14 @@ internal sealed class UploaderStore
             _uploaders[id] = _protect(JsonConvert.SerializeObject(definition));
             // The icon belonged to the old file, maybe another server: fetched again
             _icons.Remove(id);
+            if (remindBeforeUpload)
+            {
+                _reminders[id] = bool.TrueString;
+            }
+            else
+            {
+                _reminders.Remove(id);
+            }
         }
 
         OnChanged();
@@ -147,6 +160,7 @@ internal sealed class UploaderStore
             if (removed)
             {
                 _icons.Remove(id);
+                _reminders.Remove(id);
             }
         }
 
@@ -197,6 +211,34 @@ internal sealed class UploaderStore
         }
 
         OnChanged();
+    }
+
+    /// <summary>
+    /// True when the uploader shows a reminder with a preview before each upload
+    /// </summary>
+    public bool RemindsBeforeUpload(string id)
+    {
+        lock (Lock)
+        {
+            return id != null && _reminders.ContainsKey(id);
+        }
+    }
+
+    /// <summary>
+    /// No reminder before the uploads of the uploader anymore ("don't remind me again")
+    /// </summary>
+    public void StopReminding(string id)
+    {
+        bool removed;
+        lock (Lock)
+        {
+            removed = id != null && _reminders.Remove(id);
+        }
+
+        if (removed)
+        {
+            OnChanged();
+        }
     }
 
     /// <summary>

@@ -127,7 +127,7 @@ public interface ICustomUploaderLanguage : INotifyPropertyChanged
     string ImportReplaces { get; }
 
     /// <summary>
-    /// Uploads with it can't be deleted from Greenshot, {0} decides how long they stay online.
+    /// Uploads with it can't be deleted from Greenshot, {0} decides how long they stay online. With "Import and remind me" Greenshot shows you the capture before each upload and asks.
     /// </summary>
     string ImportNoDeletion { get; }
 
@@ -140,6 +140,31 @@ public interface ICustomUploaderLanguage : INotifyPropertyChanged
     /// Import
     /// </summary>
     string ImportButton { get; }
+
+    /// <summary>
+    /// Import and remind me
+    /// </summary>
+    string ImportWithReminder { get; }
+
+    /// <summary>
+    /// Upload with {0}?
+    /// </summary>
+    string ReminderTitle { get; }
+
+    /// <summary>
+    /// This capture goes to {0}. It can't be deleted from Greenshot afterwards, {0} decides how long it stays online.
+    /// </summary>
+    string ReminderMessage { get; }
+
+    /// <summary>
+    /// Upload
+    /// </summary>
+    string ReminderUpload { get; }
+
+    /// <summary>
+    /// Don't remind me again for {0}
+    /// </summary>
+    string ReminderStop { get; }
 
     /// <summary>
     /// "{0}" can't be imported: {1}

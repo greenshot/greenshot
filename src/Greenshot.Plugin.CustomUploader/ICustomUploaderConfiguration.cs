@@ -36,6 +36,9 @@ public interface ICustomUploaderConfiguration : IIniSection, IAfterLoad
     [Description("The icons of the services of the uploaders, fetched at the import, each encrypted for the Windows user.")]
     Dictionary<string, string> UploaderIcons { get; set; }
 
+    [Description("The uploaders (ids) which show a reminder with a preview before each upload, their uploads can't be deleted.")]
+    Dictionary<string, string> UploadReminders { get; set; }
+
     [Description("The uploads with their deletion links, each encrypted for the Windows user.")]
     Dictionary<string, string> UploadHistory { get; set; }
 

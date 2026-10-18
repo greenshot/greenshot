@@ -124,6 +124,7 @@ namespace Greenshot.Shell
             var userInteraction = new InteractiveUserInteraction(UiDispatcher);
             userInteraction.Register<PrintRequest, bool>(PrintRequest.Print);
             userInteraction.Register<ShareRequest, string>(ShareHostWindow.Show);
+            userInteraction.Register<PreviewPromptRequest, PreviewPromptResult>(global::Greenshot.Recipes.Views.RecipeUserPromptWindow.Show);
             SimpleServiceProvider.Current.AddService<IUserInteraction>(userInteraction);
             SimpleServiceProvider.Current.AddService<IDialogViewRegistry>(userInteraction);
 #if DEBUG

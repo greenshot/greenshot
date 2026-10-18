@@ -70,11 +70,17 @@ public partial class CustomUploaderSettingsView : UserControl
         }
 
         // The gate of the import: Cancel is the default, the buttons only react after a moment, so a double click doesn't import
+        // Uploads which can't be deleted: the user can have the capture shown before each upload
+        bool offerReminder = CustomUploaderSettingsViewModel.HasNoDeletion(definition);
+        var buttons = offerReminder
+            ? new[] { UploaderTexts.ImportWithReminder, UploaderTexts.ImportButton, Texts.Core.Cancel }
+            : new[] { UploaderTexts.ImportButton, Texts.Core.Cancel };
+        int cancel = buttons.Length - 1;
         int choice = ThemedMessageBox.ShowChoice(window, UploaderTexts.ImportTitle, _viewModel.DescribeImport(definition), MessageBoxImage.Warning,
-            new[] { UploaderTexts.ImportButton, Texts.Core.Cancel }, defaultIndex: 1, cancelIndex: 1, armDelay: ImportArmDelay);
-        if (choice == 0)
+            buttons, defaultIndex: cancel, cancelIndex: cancel, armDelay: ImportArmDelay);
+        if (choice >= 0 && choice < cancel)
         {
-            _viewModel.Import(definition);
+            _viewModel.Import(definition, remindBeforeUpload: offerReminder && choice == 0);
         }
     }
 

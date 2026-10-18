@@ -30,6 +30,7 @@ public partial class CustomUploaderConfigurationImpl : ICustomUploaderConfigurat
         Uploaders ??= new Dictionary<string, string>();
         UploadHistory ??= new Dictionary<string, string>();
         UploaderIcons ??= new Dictionary<string, string>();
+        UploadReminders ??= new Dictionary<string, string>();
     }
 
     public void MarkChanged() => MarkAsDirty();
