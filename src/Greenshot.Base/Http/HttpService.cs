@@ -46,7 +46,8 @@ namespace Greenshot.Base.Http
         /// </summary>
         public static readonly TimeSpan DefaultTimeout = TimeSpan.FromMinutes(10);
 
-        private static readonly Lazy<HttpService> SharedService = new Lazy<HttpService>(() => new HttpService(CreateHandler(), DefaultTimeout));
+        private static readonly Lazy<HttpService> SharedService = new Lazy<HttpService>(() => new HttpService(CreateHandler(true), DefaultTimeout));
+        private static readonly Lazy<HttpService> SharedServiceWithoutRedirects = new Lazy<HttpService>(() => new HttpService(CreateHandler(false), DefaultTimeout));
 
         private readonly HttpClient _httpClient;
 
@@ -54,6 +55,13 @@ namespace Greenshot.Base.Http
         /// The HttpService of Greenshot, configured from the core configuration.
         /// </summary>
         public static HttpService Current => SharedService.Value;
+
+        /// <summary>
+        /// Like <see cref="Current"/>, but a redirect is not followed and comes back as the 3xx result.
+        /// For requests with headers or content of the caller (keys, tokens): HttpClientHandler would send them to whatever host
+        /// the redirect names, on .NET Framework even from https to http.
+        /// </summary>
+        public static HttpService WithoutRedirects => SharedServiceWithoutRedirects.Value;
 
         /// <summary>
         /// An HttpService over the handler, for tests or a special handler.
@@ -67,12 +75,12 @@ namespace Greenshot.Base.Http
             _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd($"Greenshot/{EnvironmentInfo.GetGreenshotVersion(true)}");
         }
 
-        private static HttpMessageHandler CreateHandler()
+        internal static HttpClientHandler CreateHandler(bool followRedirects)
         {
             var config = IniConfigRegistry.GetSection<ICoreConfiguration>();
             var handler = new HttpClientHandler
             {
-                AllowAutoRedirect = true,
+                AllowAutoRedirect = followRedirects,
                 // Windows credentials only go to the proxy (below), never to a server which asks for them
                 UseDefaultCredentials = false,
                 UseProxy = config?.UseProxy ?? true,

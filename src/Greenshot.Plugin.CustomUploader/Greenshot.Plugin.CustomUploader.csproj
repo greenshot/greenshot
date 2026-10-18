@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup>
+    <!-- Not delivered yet: only Debug builds put it into Plugins, so installer, portable and release leave it out -->
+    <GreenshotDeliverPlugin Condition="'$(Configuration)' != 'Debug'">false</GreenshotDeliverPlugin>
+    <RootNamespace>Greenshot.Plugin.CustomUploader</RootNamespace>
+    <AssemblyName>Greenshot.Plugin.CustomUploader</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="Languages\greenshot*.ini">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Loaded with EmbeddedResources.GetImage(typeof(CustomUploaderPlugin), "Upload"), when a service has no icon -->
+    <EmbeddedResource Include="Images\Upload.png" LogicalName="Greenshot.Plugin.CustomUploader.CustomUploaderPlugin.Upload" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0" />
+    <PackageReference Update="Microsoft.VisualStudio.Threading.Analyzers" Version="18.7.23" />
+  </ItemGroup>
+</Project>

@@ -144,7 +144,7 @@
     <PackageReference Include="MSBuildTasks" Version="1.5.0.235" GeneratePathProperty="true" DevelopmentDependency="true" />
   </ItemGroup>
 
-  <Target Name="PostBuild" BeforeTargets="PostBuildEvent" Condition="$(MSBuildProjectName.StartsWith('Greenshot.Plugin.'))">
+  <Target Name="PostBuild" BeforeTargets="PostBuildEvent" Condition="$(MSBuildProjectName.StartsWith('Greenshot.Plugin.')) And '$(GreenshotDeliverPlugin)' != 'false'">
     <Exec Command="
     IF NOT EXIST &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(TargetName)&quot; (&#xD;&#xA;
             mkdir &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(TargetName)&quot;&#xD;&#xA;

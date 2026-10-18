@@ -19,6 +19,7 @@ exceptions of the configuration and the logging rules apply everywhere without e
 | `HttpContents` | Request content for a capture: `Upload` (the encoded bytes with their MIME type) and `Multipart` (multipart/form-data with text fields and the file). Both report the upload progress. |
 | `CertificateValidator` | The certificate rules (platform validation plus the allowed hosts and thumbprints of the configuration). |
 | `ImageDownloader` | Downloads an image from a url (HTML on the clipboard, a drop on the editor). |
+| `SiteIcon` | The icon of a web site as 32x32 PNG, e.g. for a destination: `favicon.ico` below the site, else the icon link of its start page (same scheme and host), optionally the same for the parent domain. ICO, PNG, GIF and JPEG by their first bytes, 256 KB and 45 seconds at most, null when there is none. Used by the Jira destination and the custom uploader. |
 | `OAuth2Helper` (`Greenshot.Base/Core/OAuth`) | The OAuth 2 authorization (browser, local listener) and the token refresh, on top of `HttpService`. |
 
 ## Using it
@@ -89,6 +90,9 @@ is sent completely as `filename*` too. Servers which only read `filename` (PHP) 
 `progress` is an `IProgress<ProgressInfo>`, usually the one the destination gets for the upload, it receives the percentage
 as the bytes go out. The bytes of the capture are not copied.
 
+The custom uploader plugin builds both kinds of request from an uploader file of the user, with the import checks a
+request to a server someone else chose needs: see [custom-uploader.md](custom-uploader.md#for-developers).
+
 ### An OAuth 2 service
 
 `OAuth2Helper.CreateOAuth2RequestAsync` authorizes (once, in the browser) or refreshes the token when needed and returns a
@@ -117,6 +121,9 @@ A service needs a registered client id; keep it out of the repository (the `*.Cr
 - **Secrets are stored encrypted** for the Windows user, never in clear text in greenshot.ini, and never written to an export
   or a bug report.
 - **Escape what goes into a url** (`Uri.EscapeDataString`) and don't put user text into header values unchecked.
+- **Requests with your own headers or content don't follow redirects.** `HttpService.Current` follows them, and
+  HttpClientHandler sends every header with them to the new host (on .NET Framework even from https to http). Send
+  keys, tokens and captures through `HttpService.WithoutRedirects`; a redirect then comes back as the 3xx result.
 - **Pass the cancellation token on.** A user who closes the progress dialog cancels the upload.
 - **A recipe step or destination which sends data over the network declares it**: implement `IRequiresRecipeAuthorization`
   and return a `RecipeGatedAction(RecipeGateType.NetworkAccess, host)` per host, so the user approves it before a recipe runs it.

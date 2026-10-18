@@ -31,6 +31,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Wpf;
 using Greenshot.Recipes.ViewModels;
@@ -55,6 +56,23 @@ namespace Greenshot.Recipes.Views
         public string PromptMessage { get; set; } = "Please select how you would like to proceed:";
         public BitmapSource PreviewImageSource { get; set; }
         public Visibility PreviewVisibility => PreviewImageSource != null ? Visibility.Visible : Visibility.Collapsed;
+
+        public string CheckBoxText { get; set; }
+        public Visibility CheckBoxVisibility => string.IsNullOrEmpty(CheckBoxText) ? Visibility.Collapsed : Visibility.Visible;
+        public bool IsChecked { get; set; }
+
+        /// <summary>
+        /// The view of a <see cref="PreviewPromptRequest"/> (registered for ShowDialogAsync), on the UI thread
+        /// </summary>
+        public static PreviewPromptResult Show(PreviewPromptRequest request)
+        {
+            var window = new RecipeUserPromptWindow(request.Title, request.Message, request.Choices, request.Preview)
+            {
+                CheckBoxText = request.CheckBoxText
+            };
+            window.ShowDialog();
+            return new PreviewPromptResult(window.SelectedChoiceKey, window.CheckBoxVisibility == Visibility.Visible && window.IsChecked);
+        }
 
         public ObservableCollection<PromptButtonViewModel> ActionButtons { get; } = new ObservableCollection<PromptButtonViewModel>();
 
