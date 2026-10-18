@@ -79,6 +79,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 **Capture without freezing the screen**
 - Turn off *Freeze the screen while selecting* on the Capture tab to select on the live screen: videos keep playing and HDR content keeps its brightness
 - The selection appears at once and only the selected area is captured, when you finish the selection
+- Press L while selecting to switch between the frozen and the live screen
 
 **New Capture Technology** (#932)
 - Implemented new capture technology for better screenshot quality

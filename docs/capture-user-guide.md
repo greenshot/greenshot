@@ -102,15 +102,20 @@ the screen keeps moving while you select, a video keeps playing. Greenshot takes
 at once, and only what you selected is captured, at the moment you release the mouse (or press `Enter`). Bright HDR content
 looks the same while you select as on the screen.
 
+Press `L` while selecting to switch between the frozen picture and the live screen, the setting only decides how the capture
+screen starts. Switching to the live screen throws the picture away, switching back takes a new picture of the screen as it is
+then. Your selection stays.
+
 The selection, snapping to windows, the keys, the zoomer and the panels work as with the frozen picture. The differences:
 
 - **The moment of the capture** is when you finish the selection, not when you started the capture.
 - **The program below keeps the focus**, so it looks active in the capture. Your keys go to the capture screen until it closes.
 - **Open menus and tooltips** usually close when you click, use the frozen screen (the default) for them.
 - **No text mode and no QR codes:** both need the picture of the screen. *Capture text* (OCR) and recipes which select text
-  always freeze the screen, as do AI tools.
+  always start frozen, `T` on the live screen freezes it first. QR codes are only found on the picture the capture started with.
+  AI tools always freeze the screen, `L` doesn't work for them.
 - **No preview of the selection**, there is no picture to show it from.
-- Needs Windows 10 version 2004 or newer, older Windows versions always freeze the screen.
+- Needs Windows 10 version 2004 or newer, older Windows versions always freeze the screen and have no `L`.
 
 ## The modes
 
@@ -344,6 +349,7 @@ The **Keys** panel (`F1`) always shows the keys which work at that moment. This 
 | `F` | Capture a fixed size |
 | `T` | Capture text (OCR) |
 | `M` | Show or hide the mouse cursor in the capture |
+| `L` | Switch between the frozen and the live screen, see [Without freezing the screen](#without-freezing-the-screen) |
 | `F1` | Show or hide the keys |
 | `I` | Show or hide the info |
 | `P` | Preview of the selection: in a corner, at the cursor, off |
@@ -407,6 +413,7 @@ greenshot.ini, so you can also set them there (see [Settings](#settings-which-ch
 | The sizes of your last region captures (five) | capturing a region or a fixed size | yes, listed under *Recently captured* | `RecentCaptureSizes` |
 | The area of your last capture | any capture with the capture screen | yes, for *Capture last region* | `LastCapturedRegion` |
 | Mouse cursor shown or hidden | `M` | no, only for this capture | starts from `CaptureMousepointer` |
+| Frozen or live screen | `L` | no, only for this capture | starts from `CaptureFreezeScreen` |
 | Window details | `D` | no | |
 | The mode | `Space`, `F`, `T` | no, each capture starts in the mode you started it with | |
 
@@ -422,7 +429,7 @@ So if the keys panel is gone, it isn't lost: you hid it with `F1` once, and `F1`
 | Capture tab | *Capture mousepointer* | Whether the mouse cursor is in the capture. `M` changes it for one capture. Also in the tray menu under quick settings. |
 | Capture tab | *Play camera sound* | A camera sound when a capture is taken. |
 | Capture tab | *Show magnifier* | The zoomer, the same as `Z`. |
-| Capture tab | *Freeze the screen while selecting* | On (the default): you select on a picture of the screen. Off: you select on the live screen, see [Without freezing the screen](#without-freezing-the-screen). |
+| Capture tab | *Freeze the screen while selecting* | On (the default): you select on a picture of the screen. Off: you select on the live screen, see [Without freezing the screen](#without-freezing-the-screen). `L` switches while selecting. |
 | Capture tab | *Milliseconds to wait before capture* | Time to wait before the picture is taken, e.g. so a menu of the tray icon can close. At the default of 100 a hotkey doesn't wait, there is no menu to close. |
 | Capture tab | *Fixed capture sizes* | Your own sizes for the fixed size mode, in the order `1` – `9` pick them. Add a size with width and height, remove one from the list. |
 | Capture tab, *Window capture* | *Use interactive window capture mode* | Whether the window hotkey opens the capture screen in the window mode, or captures the active window right away (the default). |

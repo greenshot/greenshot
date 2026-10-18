@@ -49,7 +49,7 @@ namespace Greenshot.Capturing.Overlays
         private const double MaxWidth = 320;
         private const double MaxHeight = 200;
 
-        private readonly BitmapSource _image;
+        private BitmapSource _image;
         private readonly Func<bool> _isZoomerShown;
         private readonly Action _modeChanged;
         private bool _panelShown;
@@ -63,6 +63,16 @@ namespace Greenshot.Capturing.Overlays
             _image = image;
             _isZoomerShown = isZoomerShown ?? (() => false);
             _modeChanged = modeChanged;
+        }
+
+        /// <summary>
+        /// The capture changed (L switches between the frozen and the live screen), null: there is nothing to preview
+        /// </summary>
+        public void SetImage(BitmapSource image)
+        {
+            _image = image;
+            _shownArea = NativeRect.Empty;
+            Update();
         }
 
         /// <summary>

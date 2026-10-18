@@ -48,6 +48,12 @@ namespace Greenshot.Base.Recipes.Sources
             }
         }
 
+        /// <summary>
+        /// Metadata of a capture which the selection must not take again, e.g. one where windows were blacked out for an AI tool:
+        /// the selection can't switch to the live screen
+        /// </summary>
+        public const string FrozenOnlyKey = "frozen_only";
+
         public string Name => "LiveScreenCaptureSource";
 
         public Task<ICapturePayload> AcquireAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)

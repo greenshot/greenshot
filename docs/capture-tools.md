@@ -718,10 +718,13 @@ Points to note:
 
 ## Restrictions
 
-- **The live screen:** with *Freeze the screen while selecting* turned off the window is see-through and nothing is captured before the
-  selection: `Capture.Image` is null and there are no detected features but the windows. The flow captures the selected area when the
-  window closed (`InteractiveSelectionStep`). The window doesn't take the focus, its keys come from the keyboard hook. The text tool
-  isn't there, a tool which needs the pixels of the screen should not offer itself when `Capture.Image` is null.
+- **The live screen:** with *Freeze the screen while selecting* turned off, or after `L`, the window is see-through and nothing is
+  captured before the selection: `Capture.Image` is null and there are no detected features but the windows. The flow captures the
+  selected area when the window closed (`InteractiveSelectionStep`). The window doesn't take the focus, its keys come from the keyboard
+  hook. `L` switches while the window is open: to the live screen it disposes `Capture.Image` and removes the features found on it,
+  back to the frozen screen it captures the whole screen again into `Capture.Image`. So read `Capture.Image` when you need it, don't
+  keep it. Activating the text tool on the live screen freezes it first. A capture with the metadata `LiveScreenCaptureSource.FrozenOnlyKey`
+  (AI tool runs, where windows were blacked out) can't switch.
 
 - **The result is a rectangle and a window.** `Accept` fills the `SelectionResult` of the flow (`SelectedRegion`, `SelectedWindow`,
   `FinalMode`). The flow crops the capture to the rectangle and, for `Text`, extracts the text. A tool with another kind of result
