@@ -17,6 +17,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         <!-- Modern GroupBox Style -->
         <Style TargetType="GroupBox">
@@ -200,43 +201,6 @@
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.5"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Standard Button Style -->
-        <Style TargetType="Button">
-            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="14,6"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Name="Border"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="4"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonPressedBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.4"/>
-                                <Setter Property="Cursor" Value="Arrow"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -591,6 +555,7 @@
                                     CornerRadius="3"
                                     VerticalAlignment="Center"/>
                             <Button Grid.Column="1"
+                                    Style="{StaticResource SecondaryButtonStyle}"
                                     Content="Foreground"
                                     Margin="6,0,0,0"
                                     Padding="10,4"
@@ -606,6 +571,7 @@
                                     CornerRadius="3"
                                     VerticalAlignment="Center"/>
                             <Button Grid.Column="4"
+                                    Style="{StaticResource SecondaryButtonStyle}"
                                     Content="Background"
                                     Margin="6,0,0,0"
                                     Padding="10,4"
@@ -649,6 +615,7 @@
                                 HorizontalAlignment="Right"
                                 Margin="0,6,0,0">
                         <Button x:Name="BtnInsert"
+                                Style="{StaticResource PrimaryButtonStyle}"
                                 Content="Insert"
                                 Width="100"
                                 Height="34"
@@ -657,6 +624,7 @@
                                 Click="BtnInsert_Click"
                                 Margin="0,0,8,0"/>
                         <Button x:Name="BtnCancel"
+                                Style="{StaticResource SecondaryButtonStyle}"
                                 Content="Cancel"
                                 Width="90"
                                 Height="34"

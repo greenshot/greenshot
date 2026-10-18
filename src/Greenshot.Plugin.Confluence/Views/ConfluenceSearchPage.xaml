@@ -4,6 +4,13 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
     Loaded="Page_Loaded">
+	<Page.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
+			</ResourceDictionary.MergedDictionaries>
+		</ResourceDictionary>
+	</Page.Resources>
 	<Grid MaxHeight="500">
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="100" />
@@ -19,7 +26,7 @@
 		<ComboBox Grid.Row="0" Grid.Column="1" Name="SpaceComboBox" ItemsSource="{Binding Path=Spaces}" DisplayMemberPath="Name" SelectedValuePath="Key"/>
         <Label Grid.Row="1" Grid.Column="0" Content="{wpf:Text Confluence.SearchText}" />
 		<TextBox Grid.Row="1" Grid.Column="1" Name="searchText" Text="" KeyDown="SearchText_KeyDown" TextChanged="SearchText_TextChanged"/>
-        <Button Grid.Row="2" Grid.ColumnSpan="2" Name="Search" Content="{wpf:Text Confluence.Search}" Click="Search_Click" IsEnabled="False"/>
+        <Button Grid.Row="2" Grid.ColumnSpan="2" Name="Search" Content="{wpf:Text Confluence.Search}" Style="{StaticResource SecondaryButtonStyle}" Click="Search_Click" IsEnabled="False"/>
 		<ListView Grid.Row="3" Grid.ColumnSpan="2" Name="PageListView" SelectionMode="Single" ItemsSource="{Binding Path=Pages}" SelectionChanged="PageListView_SelectionChanged">
 			<ListView.ItemTemplate>
 				<DataTemplate>

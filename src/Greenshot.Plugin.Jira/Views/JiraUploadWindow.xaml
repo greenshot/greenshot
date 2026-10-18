@@ -79,7 +79,7 @@
                 <Label Grid.Row="4" Grid.Column="0" Content="{wpf:Text Jira.LabelJira}" Margin="0,8,12,0"/>
                 <DockPanel Grid.Row="4" Grid.Column="1" Margin="0,8,0,0" LastChildFill="False">
                     <TextBox x:Name="KeyBox" Width="160" DockPanel.Dock="Left" TextChanged="KeyBox_TextChanged"/>
-                    <Button DockPanel.Dock="Right" Content="{wpf:Text Core.Cancel}" IsCancel="True" Click="CancelButton_Click" Margin="8,0,0,0"/>
+                    <Button DockPanel.Dock="Right" Content="{wpf:Text Core.Cancel}" Style="{StaticResource SecondaryButtonStyle}" IsCancel="True" Click="CancelButton_Click" Margin="8,0,0,0"/>
                     <Button x:Name="UploadButton" DockPanel.Dock="Right" Content="{wpf:Text Jira.Upload}" IsDefault="True"
                             Click="UploadButton_Click" Style="{StaticResource PrimaryButtonStyle}"/>
                 </DockPanel>
