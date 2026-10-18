@@ -147,6 +147,41 @@ public interface ICustomUploaderLanguage : INotifyPropertyChanged
     string ImportWithReminder { get; }
 
     /// <summary>
+    /// Your values for "{0}"
+    /// </summary>
+    string ValuesTitle { get; }
+
+    /// <summary>
+    /// Fill in what the service gave you, e.g. the API key of your account where the file says something like "YOUR_API_KEY". Next, Greenshot shows you where the captures go.
+    /// </summary>
+    string ValuesIntro { get; }
+
+    /// <summary>
+    /// Address
+    /// </summary>
+    string ValuesRequestUrl { get; }
+
+    /// <summary>
+    /// Address parameter {0}
+    /// </summary>
+    string ValuesParameter { get; }
+
+    /// <summary>
+    /// Header {0}
+    /// </summary>
+    string ValuesHeader { get; }
+
+    /// <summary>
+    /// Form field {0}
+    /// </summary>
+    string ValuesArgument { get; }
+
+    /// <summary>
+    /// Next
+    /// </summary>
+    string ValuesNext { get; }
+
+    /// <summary>
     /// Upload with {0}?
     /// </summary>
     string ReminderTitle { get; }

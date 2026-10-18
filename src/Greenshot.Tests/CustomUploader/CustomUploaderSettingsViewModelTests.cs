@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Greenshot.Base.Languages;
 using Greenshot.Plugin.CustomUploader;
 using Greenshot.Plugin.CustomUploader.Sxcu;
@@ -67,6 +68,48 @@ namespace Greenshot.Tests.CustomUploader
             Assert.Null(viewModel.NoDeletionHint);
             viewModel.SelectedUpload = viewModel.Uploads[1];
             Assert.Equal(string.Format(Language.NoDeletionLink, "Litterbox"), viewModel.NoDeletionHint);
+        }
+
+        private static UploaderDefinition Shared() =>
+            UploaderFile.Read(UploaderFileTests.File(@"""Name"": ""ImgBB"", ""DestinationType"": ""ImageUploader"", ""RequestURL"": ""https://api.imgbb.com/1/upload"", ""FileFormName"": ""image"", ""URL"": ""{json:data.url}"",
+                ""Parameters"": { ""key"": ""<API KEY HERE (https://api.imgbb.com/)>"" }, ""Headers"": { ""X-Client"": ""Greenshot"" }, ""Arguments"": { ""expiration"": ""600"" }"));
+
+        [Fact]
+        public void GetValues_ListsTheAddressParametersHeadersAndFormFields()
+        {
+            var values = CustomUploaderSettingsViewModel.GetValues(Shared());
+
+            Assert.Equal(new string[] { null, "key", "X-Client", "expiration" }, values.Select(value => value.Name));
+            Assert.Equal("https://api.imgbb.com/1/upload", values[0].Value);
+            Assert.Equal(string.Format(Language.ValuesParameter, "key"), values[1].Label);
+            Assert.Equal(string.Format(Language.ValuesHeader, "X-Client"), values[2].Label);
+        }
+
+        [Fact]
+        public void WithValues_TheKeyOfTheUser_ReplacesTheTextOfTheFile()
+        {
+            var definition = Shared();
+            var values = CustomUploaderSettingsViewModel.GetValues(definition);
+            values[1].Value = "my-key";
+
+            var withKey = CustomUploaderSettingsViewModel.WithValues(definition, values);
+
+            Assert.Equal("my-key", withKey.Parameters["key"]);
+            Assert.Equal("Greenshot", withKey.Headers["X-Client"]);
+            Assert.Equal("<API KEY HERE (https://api.imgbb.com/)>", definition.Parameters["key"]);
+        }
+
+        [Theory]
+        [InlineData(1, "{prompt}")]
+        [InlineData(2, "a\r\nX-Injected: 1")]
+        [InlineData(0, "http://api.imgbb.com/1/upload")]
+        public void WithValues_ValueTheImportRefuses_Throws(int index, string value)
+        {
+            var definition = Shared();
+            var values = CustomUploaderSettingsViewModel.GetValues(definition);
+            values[index].Value = value;
+
+            Assert.Throws<UploaderFileException>(() => CustomUploaderSettingsViewModel.WithValues(definition, values));
         }
     }
 }
