@@ -275,6 +275,11 @@ namespace Greenshot.Base.Languages
         string CaptureKeyZoomer { get; }
 
         /// <summary>
+        /// Switch between the frozen and the live screen
+        /// </summary>
+        string CaptureKeyLive { get; }
+
+        /// <summary>
         /// Switch between region and window
         /// </summary>
         string CaptureKeyRegionWindow { get; }

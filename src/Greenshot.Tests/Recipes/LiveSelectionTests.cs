@@ -28,6 +28,7 @@ using Dapplo.Windows.Desktop;
 using Greenshot.Base.Capturing;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Sources;
@@ -103,6 +104,14 @@ namespace Greenshot.Tests.Recipes
             }
         }
 
+        private sealed class FoundFeature : IDetectedFeature
+        {
+            public NativeRect Bounds => new NativeRect(1, 2, 3, 4);
+            public string FeatureType => "Found";
+            public string Text => "found";
+            public string ToolTipText => "found";
+        }
+
         private static CaptureFlowContext CreateLiveContext()
         {
             var capture = new Capture { ScreenBounds = ScreenBounds, Location = ScreenBounds.Location, CursorLocation = new NativePoint(50, 60) };
@@ -160,6 +169,32 @@ namespace Greenshot.Tests.Recipes
 
             Assert.True(context.IsAborted);
             Assert.Null(context.Payload.RawCapture.Image);
+        }
+
+        [Fact]
+        public async Task LiveSelection_AfterTheFrozenScreen_DropsWhatWasFoundOnIt()
+        {
+            using var context = CreateLiveContext();
+            var details = context.Payload.RawCapture.CaptureDetails;
+            details.Features.Add(new WindowFeature(InteropWindowQuery.GetDesktopWindow(), 0));
+            details.Features.Add(new FoundFeature());
+            // A processor of the frozen capture (before L) which is still running
+            var processing = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            details.ProcessingTask = processing.Task.ContinueWith(_ =>
+            {
+                lock (details.Features)
+                {
+                    details.Features.Add(new FoundFeature());
+                }
+            }, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
+
+            var selecting = SelectAsync(context, new NativeRect(10, 20, 30, 40), new AreaCapture());
+            processing.SetResult(true);
+            await selecting;
+
+            Assert.False(context.IsAborted);
+            var feature = Assert.Single(details.Features);
+            Assert.IsType<WindowFeature>(feature);
         }
 
         [Fact]

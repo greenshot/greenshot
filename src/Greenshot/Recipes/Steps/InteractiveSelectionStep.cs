@@ -248,6 +248,8 @@ namespace Greenshot.Recipes.Steps
                 capture.MoveMouseLocation(-area.X, -area.Y);
             }
             capture.CaptureDetails.AddMetaData(ScreenCapture.CaptureMethodKey, result.Backend.Name);
+            // Switched from the frozen screen (L): what the processors found on that image doesn't belong to this one
+            await ImageFeatures.RemoveWhenProcessedAsync(capture.CaptureDetails).ConfigureAwait(false);
             return true;
         }
 

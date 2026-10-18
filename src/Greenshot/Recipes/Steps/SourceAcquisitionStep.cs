@@ -317,6 +317,8 @@ namespace Greenshot.Recipes.Steps
             {
                 return;
             }
+            // A new capture of the screen (L in the selection) would show the excluded windows
+            payload.RawCapture.CaptureDetails.AddMetaData(LiveScreenCaptureSource.FrozenOnlyKey, "true");
             int redacted = AiToolCapture.RedactExcludedWindows(payload.RawCapture.Image, payload.RawCapture.Location);
             if (redacted > 0)
             {

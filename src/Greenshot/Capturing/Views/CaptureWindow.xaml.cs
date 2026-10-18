@@ -25,6 +25,7 @@ using DrawingPixelFormat = System.Drawing.Imaging.PixelFormat;
 using ImageLockMode = System.Drawing.Imaging.ImageLockMode;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -50,6 +51,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Capture;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Languages;
+using Greenshot.Base.Recipes.Sources;
 using Greenshot.Base.Threading;
 using Greenshot.Capturing.Controls;
 using Greenshot.Capturing.Overlays;
@@ -64,7 +66,8 @@ namespace Greenshot.Capturing.Views
     /// Lets the user select something on the frozen capture of the screen with one of the capture tools (region, window, text),
     /// or, for a capture without an image, on the live screen (see ApplyLiveMode).
     /// Takes care of what the tools share: the cursor and its keys, the crosshair, the zoomer, the hotspots, the selection and its labels.
-    /// Space switches between region and window, the shortcut key of a tool (T for text) to that tool, Escape cancels.
+    /// Space switches between region and window, the shortcut key of a tool (T for text) to that tool, L between the frozen and the live screen,
+    /// Escape cancels.
     /// </summary>
     public partial class CaptureWindow : Window, ICaptureToolHost
     {
@@ -93,6 +96,10 @@ namespace Greenshot.Capturing.Views
         private BitmapSource _screenImage;
         // The screen isn't frozen: the window is see-through, takes no focus and is left out of every capture of the screen, see ApplyLiveMode
         private bool _live;
+        // L can switch between the frozen and the live screen
+        private bool _liveAllowed;
+        private bool _switching;
+        private IntPtr _previousForeground;
         private bool _liveApplied;
         private IDisposable _keyboardSubscription;
         private SafeRegionHandle _transparentRegion;
@@ -482,10 +489,18 @@ namespace Greenshot.Capturing.Views
                 }
             }
             _live = capture.Image == null;
+            _liveAllowed = LiveScreenCaptureSource.IsSupported && !capture.CaptureDetails.MetaData.ContainsKey(LiveScreenCaptureSource.FrozenOnlyKey);
+            // Not shown yet: the application below has the focus, it gets it back when L switches to the live screen
+            _previousForeground = User32Api.GetForegroundWindow();
             _tools = CreateTools();
             var initialMode = capture.CaptureDetails.CaptureMode;
             _activeTool = _tools.FirstOrDefault(tool => string.Equals(tool.Id, initialTool, StringComparison.OrdinalIgnoreCase))
                           ?? _tools.FirstOrDefault(tool => tool.Mode == initialMode) ?? _tools[0];
+            if (_live && _activeTool is TextCaptureTool)
+            {
+                // The text needs a capture of the screen, T freezes it later
+                _activeTool = _regionTool;
+            }
             _usedCaptureMode = _activeTool.Mode;
 
             if (windows != null)
@@ -502,20 +517,15 @@ namespace Greenshot.Capturing.Views
                 }
             }
 
-            if (_live)
-            {
-                _livePixels = new WriteableBitmap(ZoomSourceSize, ZoomSourceSize, 96, 96, PixelFormats.Bgr32, null);
-                ZoomBrush.ImageSource = _livePixels;
-                if (_handleCreated)
-                {
-                    ApplyLiveMode();
-                }
-            }
-            else
+            if (!_live)
             {
                 _screenImage = CreateBitmapSource(capture.Image, true);
                 ScreenImage.Source = _screenImage;
                 ZoomBrush.ImageSource = _screenImage;
+            }
+            else if (_handleCreated)
+            {
+                ShowLive(true);
             }
             ShowCapturedCursor();
             DrawCrosshairLines();
@@ -552,11 +562,6 @@ namespace Greenshot.Capturing.Views
             if (_handleCreated)
             {
                 PrepareContent();
-            }
-            if (_live)
-            {
-                // The window doesn't get the focus, the keys come from the keyboard hook
-                _keyboardSubscription = KeyboardHook.KeyboardEvents.Subscribe(OnLiveKey);
             }
             if (_prepared)
             {
@@ -627,11 +632,8 @@ namespace Greenshot.Capturing.Views
         private IList<ICaptureTool> CreateTools()
         {
             var tools = new List<ICaptureTool> { _regionTool, _windowTool };
-            // The text of the selection is recognized on the capture of the screen
-            if (!_live)
-            {
-                tools.Add(new TextCaptureTool());
-            }
+            // The text of the selection is recognized on the capture of the screen, on the live screen T freezes it first (see SwitchTool)
+            tools.Add(new TextCaptureTool());
             tools.Add(new FixedSizeCaptureTool());
             foreach (var provider in SimpleServiceProvider.Current.GetAllInstances<ICaptureToolProvider>())
             {
@@ -709,6 +711,10 @@ namespace Greenshot.Capturing.Views
                 Conf.ZoomerEnabled = !Conf.ZoomerEnabled;
                 UpdateZoomerVisibility();
             });
+            if (_liveAllowed)
+            {
+                RegisterKey(this, Key.L, ModifierKeys.None, () => Texts.Core.CaptureKeyLive, ToggleLive);
+            }
             RegisterKey(this, Key.Escape, ModifierKeys.None, () => Texts.Core.CaptureKeyCancel, Cancel);
         }
 
@@ -806,6 +812,15 @@ namespace Greenshot.Capturing.Views
             {
                 return;
             }
+            if (_live && tool is TextCaptureTool)
+            {
+                // The text is recognized on a capture of the screen
+                if (_liveAllowed)
+                {
+                    FreezeAsync(tool).FireAndLog("Freeze the screen for the text tool", Log);
+                }
+                return;
+            }
             _activeTool.Deactivate();
             _activeTool = tool;
             _usedCaptureMode = tool.Mode;
@@ -837,7 +852,7 @@ namespace Greenshot.Capturing.Views
             {
                 if (_live)
                 {
-                    ApplyLiveMode();
+                    ShowLive(true);
                 }
                 PrepareContent();
             }
@@ -846,7 +861,8 @@ namespace Greenshot.Capturing.Views
         /// <summary>
         /// The live screen: the window is see-through but still gets every click (it isn't a layered window, so DWM composes its alpha without
         /// hit testing it), it doesn't take the focus from the application below, and Windows leaves it out of every capture of the screen
-        /// (also the one of the selection and the pixels of the zoomer), so it never has to be hidden.
+        /// (also the one of the selection, the pixels of the zoomer and a new frozen capture), so it never has to be hidden.
+        /// Done once, the frozen screen covers the window with an opaque image.
         /// </summary>
         private void ApplyLiveMode()
         {
@@ -860,11 +876,8 @@ namespace Greenshot.Capturing.Views
             {
                 Log.Warn("Couldn't leave the capture window out of the capture of the screen, it may show in the capture.");
             }
-            var exStyle = (ExtendedWindowStyleFlags)User32Api.GetWindowLongWrapper(handle, WindowLongIndex.GWL_EXSTYLE);
-            User32Api.SetWindowLongWrapper(handle, WindowLongIndex.GWL_EXSTYLE, new IntPtr((uint)(exStyle | ExtendedWindowStyleFlags.WS_EX_NOACTIVATE)));
 
             // WPF renders with alpha, DWM uses it for a window with "blur behind" on an empty region: Windows 8 and newer don't blur, only blend
-            Background = Brushes.Transparent;
             var hwndSource = HwndSource.FromHwnd(handle);
             if (hwndSource?.CompositionTarget != null)
             {
@@ -882,6 +895,7 @@ namespace Greenshot.Capturing.Views
                 Log.Warn($"Couldn't make the capture window see-through: {result}");
             }
 
+            _livePixels = new WriteableBitmap(ZoomSourceSize, ZoomSourceSize, 96, 96, PixelFormats.Bgr32, null);
             // The zoomer follows what moves on the screen, also while the mouse doesn't
             _livePixelsTimer = new DispatcherTimer(DispatcherPriority.Render, Dispatcher) { Interval = TimeSpan.FromMilliseconds(50) };
             _livePixelsTimer.Tick += (sender, args) =>
@@ -891,7 +905,143 @@ namespace Greenshot.Capturing.Views
                     CopyLivePixels();
                 }
             };
-            _livePixelsTimer.Start();
+        }
+
+        /// <summary>
+        /// Show the live or the frozen screen, see ApplyLiveMode
+        /// </summary>
+        private void ShowLive(bool live)
+        {
+            ApplyLiveMode();
+            var handle = new WindowInteropHelper(this).Handle;
+            var exStyle = (ExtendedWindowStyleFlags)User32Api.GetWindowLongWrapper(handle, WindowLongIndex.GWL_EXSTYLE);
+            exStyle = live ? exStyle | ExtendedWindowStyleFlags.WS_EX_NOACTIVATE : exStyle & ~ExtendedWindowStyleFlags.WS_EX_NOACTIVATE;
+            User32Api.SetWindowLongWrapper(handle, WindowLongIndex.GWL_EXSTYLE, new IntPtr((uint)exStyle));
+            Background = live ? Brushes.Transparent : Brushes.Black;
+            ScreenImage.Source = live ? null : _screenImage;
+            ZoomBrush.ImageSource = live ? _livePixels : _screenImage;
+            _selectionPreview?.SetImage(live ? null : _screenImage);
+            if (live)
+            {
+                _livePixelsTimer.Start();
+                // The window doesn't get the focus, the keys come from the keyboard hook
+                _keyboardSubscription ??= KeyboardHook.KeyboardEvents.Subscribe(OnLiveKey);
+            }
+            else
+            {
+                _livePixelsTimer.Stop();
+                _keyboardSubscription?.Dispose();
+                _keyboardSubscription = null;
+            }
+        }
+
+        /// <summary>
+        /// L: switch between the frozen and the live screen
+        /// </summary>
+        private void ToggleLive()
+        {
+            if (_switching)
+            {
+                return;
+            }
+            if (_live)
+            {
+                FreezeAsync(null).FireAndLog("Freeze the screen", Log);
+            }
+            else
+            {
+                GoLive();
+            }
+        }
+
+        /// <summary>
+        /// From the frozen to the live screen: the capture is thrown away, the selection step captures the selection when it is done
+        /// </summary>
+        private void GoLive()
+        {
+            if (_activeTool is TextCaptureTool)
+            {
+                SwitchTool(_regionTool);
+            }
+            _live = true;
+            // Disposes the capture of the whole screen
+            _capture.Image = null;
+            _screenImage = null;
+            ImageFeatures.Remove(_capture.CaptureDetails);
+            bool hadFocus = IsActive;
+            ShowLive(true);
+            if (hadFocus && _previousForeground != IntPtr.Zero)
+            {
+                WindowHelper.ToForeground(_previousForeground);
+            }
+            RefreshCapture();
+        }
+
+        /// <summary>
+        /// From the live to the frozen screen: capture the whole screen again, the window isn't in it (see ApplyLiveMode)
+        /// </summary>
+        /// <param name="tool">The tool to switch to when frozen, null: keep the tool</param>
+        private async Task FreezeAsync(ICaptureTool tool)
+        {
+            if (_switching)
+            {
+                return;
+            }
+            _switching = true;
+            try
+            {
+                var result = await ScreenCapture.CaptureRectangleAsync(_screenBounds).ConfigureAwait(true);
+                if (result == null)
+                {
+                    Log.Warn("Capturing the screen to freeze it failed, the screen stays live.");
+                    return;
+                }
+                if (_closed || !_live)
+                {
+                    result.Image.Dispose();
+                    return;
+                }
+                // Processors which still looked at the old capture (e.g. a QR code) found it on that image
+                await ImageFeatures.RemoveWhenProcessedAsync(_capture.CaptureDetails).ConfigureAwait(true);
+                if (_closed)
+                {
+                    result.Image.Dispose();
+                    return;
+                }
+                if (_capture.CaptureDetails.DpiX > 0 && _capture.CaptureDetails.DpiY > 0)
+                {
+                    // Set by the acquire step for the screen
+                    result.Image.SetResolution(_capture.CaptureDetails.DpiX, _capture.CaptureDetails.DpiY);
+                }
+                _capture.Image = result.Image;
+                _capture.Location = result.Location;
+                _capture.CaptureDetails.AddMetaData(ScreenCapture.CaptureMethodKey, result.Backend.Name);
+                _live = false;
+                _screenImage = CreateBitmapSource(result.Image, true);
+                ShowLive(false);
+                _lostFocus = false;
+                Activate();
+                WindowHelper.ToForeground(new WindowInteropHelper(this).Handle);
+                RefreshCapture();
+            }
+            finally
+            {
+                _switching = false;
+            }
+            SwitchTool(tool);
+        }
+
+        /// <summary>
+        /// The capture changed between frozen and live: the hotspots, the selection and the zoomer show the new one
+        /// </summary>
+        private void RefreshCapture()
+        {
+            RebuildFeatureHotspots();
+            DrawFeatures();
+            UpdateZoomer();
+            UpdateSelection();
+            Redraw();
+            ForEachOverlay(Redraw);
         }
 
         /// <summary>
@@ -1007,6 +1157,11 @@ namespace Greenshot.Capturing.Views
             lock (_capture.CaptureDetails.Features)
             {
                 features = new List<IDetectedFeature>(_capture.CaptureDetails.Features);
+            }
+            if (_live)
+            {
+                // A processor of a frozen capture before L may still add what it found on that image
+                features.RemoveAll(feature => feature is not WindowFeature);
             }
             _windows = features.OfType<WindowFeature>().OrderBy(f => f.ZIndex).Select(f => f.Window).ToList();
 
