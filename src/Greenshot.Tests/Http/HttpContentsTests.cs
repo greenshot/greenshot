@@ -68,10 +68,39 @@ namespace Greenshot.Tests.Http
             Assert.Contains("name=\"parent_id\"", body);
             Assert.Contains("42", body);
             Assert.Contains("name=\"file\"; filename=\"capture 1.png\"", body);
+            // An ASCII name has no filename*
+            Assert.DoesNotContain("filename*", body);
             Assert.Contains("Content-Type: image/png", body);
             Assert.Contains("PNGDATA", body);
             // The fields come before the file, some servers need the parent before the content
             Assert.True(body.IndexOf("parent_id", StringComparison.Ordinal) < body.IndexOf("PNGDATA", StringComparison.Ordinal));
+        }
+
+        [Fact]
+        public void FileDisposition_NonAsciiName_HasAnAsciiNameAndTheRealOneAsFilenameStar()
+        {
+            string header = HttpContents.CreateFileDisposition("file", "2026-10-18 Claude \u2013 Gr\u00fcn.png").ToString();
+
+            Assert.Contains("filename=\"2026-10-18 Claude _ Gr_n.png\"", header);
+            Assert.Contains("filename*=utf-8''2026-10-18%20Claude%20%E2%80%93%20Gr%C3%BCn.png", header);
+            // No MIME encoded name and no quotes inside filename*: servers would lose the extension
+            Assert.DoesNotContain("=?utf-8?", header);
+            Assert.DoesNotContain("%22", header);
+        }
+
+        [Fact]
+        public void FileDisposition_AsciiName_IsQuotedWithoutFilenameStar()
+        {
+            Assert.Equal("form-data; name=\"file\"; filename=\"capture 1.png\"", HttpContents.CreateFileDisposition("file", "capture 1.png").ToString());
+        }
+
+        [Fact]
+        public void FileDisposition_QuoteInTheName_IsReplacedInTheAsciiName()
+        {
+            string header = HttpContents.CreateFileDisposition("file", "say \"hi\".png").ToString();
+
+            Assert.Contains("filename=\"say _hi_.png\"", header);
+            Assert.Contains("filename*=utf-8''say%20%22hi%22.png", header);
         }
 
         private sealed class RecordingProgress : IProgress<ProgressInfo>

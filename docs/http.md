@@ -83,6 +83,9 @@ request.Content = HttpContents.Multipart("file", image, filename, new Dictionary
 }, progress);
 ```
 
+The file name goes into `filename` in ASCII (other characters become `_`, the extension stays), a name with other characters
+is sent completely as `filename*` too. Servers which only read `filename` (PHP) keep the extension that way.
+
 `progress` is an `IProgress<ProgressInfo>`, usually the one the destination gets for the upload, it receives the percentage
 as the bytes go out. The bytes of the capture are not copied.
 

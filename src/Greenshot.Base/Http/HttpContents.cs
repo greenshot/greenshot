@@ -26,6 +26,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading.Tasks;
 using Greenshot.Base.Interfaces;
 
@@ -69,8 +70,38 @@ namespace Greenshot.Base.Http
                 }
             }
 
-            multipart.Add(Upload(image, progress), Quote(fileFieldName), Quote(filename));
+            // Not Add(content, name, fileName): on .NET Framework that MIME encodes a non-ASCII name (filename="=?utf-8?B?...?=")
+            // and writes filename* with the quotes encoded into it, either way a server (catbox.moe) loses the extension.
+            var file = Upload(image, progress);
+            file.Headers.ContentDisposition = CreateFileDisposition(fileFieldName, filename);
+            multipart.Add(file);
             return multipart;
+        }
+
+        /// <summary>
+        /// The Content-Disposition of the file part: the name in printable ASCII (others, quotes and backslashes replaced by _,
+        /// the extension stays; .NET rejects a quote in it), plus the real name as filename* (RFC 5987) when it differs.
+        /// </summary>
+        internal static ContentDispositionHeaderValue CreateFileDisposition(string fileFieldName, string filename)
+        {
+            filename ??= string.Empty;
+            var ascii = new StringBuilder(filename.Length);
+            foreach (char c in filename)
+            {
+                ascii.Append(c >= ' ' && c < 127 && c != '"' && c != '\\' ? c : '_');
+            }
+
+            var disposition = new ContentDispositionHeaderValue("form-data")
+            {
+                Name = Quote(fileFieldName),
+                FileName = Quote(ascii.ToString())
+            };
+            if (ascii.ToString() != filename)
+            {
+                disposition.FileNameStar = filename;
+            }
+
+            return disposition;
         }
 
         /// <summary>
