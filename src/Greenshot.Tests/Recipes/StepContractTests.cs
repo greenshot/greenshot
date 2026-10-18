@@ -266,11 +266,11 @@ namespace Greenshot.Tests.Recipes
             var directory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
             while (directory != null)
             {
-                string candidate = Path.Combine(directory.FullName, "docs", "examples");
+                string candidate = Path.Combine(directory.FullName, "docs", "vNext", "examples");
                 if (Directory.Exists(candidate)) return candidate;
                 directory = directory.Parent;
             }
-            throw new DirectoryNotFoundException("docs/examples not found above " + AppDomain.CurrentDomain.BaseDirectory);
+            throw new DirectoryNotFoundException("docs/vNext/examples not found above " + AppDomain.CurrentDomain.BaseDirectory);
         }
 
         // --- Graph analysis ------------------------------------------------------------------------------------

@@ -44,7 +44,7 @@ namespace Greenshot.Plugin.CustomUploader;
 
 /// <summary>
 /// Uploads captures with the uploader files (.sxcu) of a service, a beta feature: without "beta tester" nothing is registered.
-/// See docs/custom-uploader.md.
+/// See docs/vNext/custom-uploader.md.
 /// </summary>
 public class CustomUploaderPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvider
 {

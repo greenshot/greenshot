@@ -216,7 +216,7 @@ end;
 // Greenshot 1.3 installed for the current user by default (in the profile). An installation for all users doesn't replace it, Inno Setup
 // only finds the previous installation in the registry of the install mode it runs in. Both would stay, and uninstalling the old one later
 // removes the Run value and the Print key setting of this one. So it's removed first, when the user agrees: this installation writes both
-// values again afterwards (task "startup", component "disablesnippingtool"). See docs/autostart.md.
+// values again afterwards (task "startup", component "disablesnippingtool"). See docs/vNext/autostart.md.
 procedure RemoveOlderPerUserInstallation();
 var
   UninstallKey, Location, Version, Uninstaller, Parameters: String;

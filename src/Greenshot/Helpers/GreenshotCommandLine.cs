@@ -60,7 +60,7 @@ namespace Greenshot.Helpers
         public bool Restore { get; set; }
 
         /// <summary>
-        /// When true, Windows started Greenshot at the logon (the Run value, see docs/autostart.md).
+        /// When true, Windows started Greenshot at the logon (the Run value, see docs/vNext/autostart.md).
         /// If Greenshot runs already, this start ends silently instead of showing that Greenshot is running.
         /// </summary>
         public bool Autostart { get; set; }

@@ -233,7 +233,7 @@ Recipe inputs are the trigger inputs plus required step inputs that no node prod
 
 * Before a step runs, the engine checks its required parameters and required input variables. A missing one fails the node with a clear message (error transitions apply).
 * After a step ran, debug builds compare what it did with its contract: variables set without being declared, declared (non-conditional) outputs not set, an image that should have been created. They are logged as `[CONTRACT]` warnings; `DagExecutionEngine.ContractViolation` lets tests collect them. Release builds do not check.
-* Tests make sure every registered step type has a contract implemented by the class its factory creates, every `WellKnownStepTypes` name is registered, and the built-in recipes and `docs/examples` produce no warnings.
+* Tests make sure every registered step type has a contract implemented by the class its factory creates, every `WellKnownStepTypes` name is registered, and the built-in recipes and `docs/vNext/examples` produce no warnings.
 
 ---
 

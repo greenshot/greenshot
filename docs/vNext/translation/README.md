@@ -127,7 +127,7 @@ src/Greenshot.Plugin.*/Languages/
 
 ### Documentation
 ```
-docs/translation/
+docs/vNext/translation/
 ├── README.md                     ← This file (documentation index)
 ├── TRANSLATION_GUIDE.md          ← Comprehensive guide
 ├── TRANSLATION_GLOSSARY.md       ← Standard terms

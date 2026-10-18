@@ -1,6 +1,6 @@
 ; The greenshot: URL protocol, e.g. greenshot://log?search=HDR opens the log viewer filtered on HDR.
 ; greenshot-proxy.exe passes the URL to Greenshot (or starts it), which only accepts the commands a web page may run
-; (see IpcSecurityDispatcher and docs/greenshot-proxy-and-integration.md).
+; (see IpcSecurityDispatcher and docs/vNext/greenshot-proxy-and-integration.md).
 ; Registry keys are case-insensitive: the file type ProgIDs must never be called "greenshot"
 
 [Registry]

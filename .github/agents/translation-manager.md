@@ -23,19 +23,19 @@ be helpful to understand the context of a message.
 
 **ALWAYS refer to these documentation files before starting translation work:**
 
-1. **`docs/translation/TRANSLATION_GUIDE.md`** - Comprehensive guide covering:
+1. **`docs/vNext/translation/TRANSLATION_GUIDE.md`** - Comprehensive guide covering:
    - Repository structure and language coverage
    - Translation file format (INI language packs)
    - Translation workflow and best practices
    - Common issues and validation methods
 
-2. **`docs/translation/TRANSLATION_GLOSSARY.md`** - Project-specific terminology:
+2. **`docs/vNext/translation/TRANSLATION_GLOSSARY.md`** - Project-specific terminology:
    - Standard translations for common terms (Screenshot, Capture, Region, etc.)
    - Consistency rules across languages
    - Plugin/service name handling
    - UI element conventions
 
-3. **`docs/translation/TRANSLATION_WORKFLOW.md`** - Step-by-step checklists for:
+3. **`docs/vNext/translation/TRANSLATION_WORKFLOW.md`** - Step-by-step checklists for:
    - Adding new translation strings
    - Translating new strings
    - Updating changed strings
@@ -43,7 +43,7 @@ be helpful to understand the context of a message.
    - Adding a new language
    - Reviewing translations
 
-4. **`docs/translation/TRANSLATION_TOOLS.md`** - Validation and automation:
+4. **`docs/vNext/translation/TRANSLATION_TOOLS.md`** - Validation and automation:
    - Manual validation commands (section and key checks)
    - Automated validation scripts (Python, PowerShell)
    - Integration with build process
@@ -108,16 +108,16 @@ Every key with a fixed name is a property on a language interface (e.g. `src/Gre
 ## Workflow Integration
 
 Before starting translation work:
-1. Review the appropriate checklist in `docs/translation/TRANSLATION_WORKFLOW.md`
-2. Check `docs/translation/TRANSLATION_GLOSSARY.md` for standard terms
-3. Validate changes using tools described in `docs/translation/TRANSLATION_TOOLS.md`
-4. Follow the structure and conventions in `docs/translation/TRANSLATION_GUIDE.md`
+1. Review the appropriate checklist in `docs/vNext/translation/TRANSLATION_WORKFLOW.md`
+2. Check `docs/vNext/translation/TRANSLATION_GLOSSARY.md` for standard terms
+3. Validate changes using tools described in `docs/vNext/translation/TRANSLATION_TOOLS.md`
+4. Follow the structure and conventions in `docs/vNext/translation/TRANSLATION_GUIDE.md`
 
 ## File Locations
 
 - **Main app**: `src/Greenshot/Languages/greenshot.{locale}.ini`
 - **Plugins**: `src/Greenshot.Plugin.{Name}/Languages/greenshot.{plugin}.{locale}.ini`
 - **Installer and website** translations are separate XML files in `src/Greenshot/Languages/installer` and `website`
-- **Documentation**: `docs/translation/` (see `docs/translation/README.md` for index)
-- **Tools**: `docs/translation/TRANSLATION_TOOLS.md` (validation scripts and commands)
+- **Documentation**: `docs/vNext/translation/` (see `docs/vNext/translation/README.md` for index)
+- **Tools**: `docs/vNext/translation/TRANSLATION_TOOLS.md` (validation scripts and commands)
   
