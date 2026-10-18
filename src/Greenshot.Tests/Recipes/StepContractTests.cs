@@ -259,7 +259,7 @@ namespace Greenshot.Tests.Recipes
         {
         }
 
-        private static string FindRepositoryDirectory() => Path.GetDirectoryName(Path.GetDirectoryName(FindExamplesDirectory()));
+        private static string FindRepositoryDirectory() => Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(FindExamplesDirectory())));
 
         private static string FindExamplesDirectory()
         {
