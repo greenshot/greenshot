@@ -14,8 +14,9 @@ files. The plugin is `Greenshot.Plugin.CustomUploader`, a **beta** feature of th
 ### Turn it on
 
 The custom uploaders are only there for beta testers: in the settings, *Expert*, check *Enable to enable beta-test
-features* (`BetaTester=True` in `[Core]` of greenshot.ini) and restart Greenshot. The installer installs the plugin with the full and
-custom installation, it is listed as *Custom uploader plug-in (beta)*.
+features* (`BetaTester=True` in `[Core]` of greenshot.ini) and restart Greenshot. The plugin is not delivered yet: only a Debug build puts it into the `Plugins` folder, the
+installer and the portable version don't have it (`GreenshotDeliverPlugin` in the csproj, the commented out
+`customuploader.iss` in `all-plugins.iss`). To deliver it, change both.
 
 ### Get an uploader file
 

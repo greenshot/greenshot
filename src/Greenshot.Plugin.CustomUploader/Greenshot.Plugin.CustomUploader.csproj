@@ -4,6 +4,8 @@
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
   <PropertyGroup>
+    <!-- Not delivered yet: only Debug builds put it into Plugins, so installer, portable and release leave it out -->
+    <GreenshotDeliverPlugin Condition="'$(Configuration)' != 'Debug'">false</GreenshotDeliverPlugin>
     <RootNamespace>Greenshot.Plugin.CustomUploader</RootNamespace>
     <AssemblyName>Greenshot.Plugin.CustomUploader</AssemblyName>
   </PropertyGroup>
