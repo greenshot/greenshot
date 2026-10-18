@@ -16,89 +16,14 @@
 
     <Window.Resources>
         <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
             <conv:BoolToVisibilityConverter x:Key="BoolToVis"/>
             <conv:BoolToVisibilityConverter x:Key="InvertBoolToVis" Invert="True"/>
             <conv:BoolToStatusBrushConverter x:Key="BoolToStatusBrush"/>
 
-            <!-- Standard Toolbar Button Style -->
-            <Style x:Key="DlgBtn" TargetType="Button">
-                <Setter Property="Background" Value="{x:Static ui:WpfThemeHelper.CardBackground}"/>
-                <Setter Property="Foreground" Value="{x:Static ui:WpfThemeHelper.TextPrimary}"/>
-                <Setter Property="BorderBrush" Value="{x:Static ui:WpfThemeHelper.CardBorder}"/>
-                <Setter Property="BorderThickness" Value="1"/>
-                <Setter Property="Padding" Value="12,6"/>
-                <Setter Property="FontSize" Value="11"/>
-                <Setter Property="Cursor" Value="Hand"/>
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="border" Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    CornerRadius="4" Padding="{TemplateBinding Padding}">
-                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="border" Property="Background" Value="{x:Static ui:WpfThemeHelper.BadgeBackground}"/>
-                                </Trigger>
-                                <Trigger Property="IsPressed" Value="True">
-                                    <Setter TargetName="border" Property="Opacity" Value="0.8"/>
-                                </Trigger>
-                                <Trigger Property="IsEnabled" Value="False">
-                                    <Setter TargetName="border" Property="Opacity" Value="0.4"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-
-            <!-- Primary Accent Button -->
-            <Style x:Key="DlgPrimaryBtn" TargetType="Button" BasedOn="{StaticResource DlgBtn}">
-                <Setter Property="Background" Value="{x:Static ui:WpfThemeHelper.Accent}"/>
-                <Setter Property="BorderBrush" Value="{x:Static ui:WpfThemeHelper.Accent}"/>
-                <Setter Property="Foreground" Value="White"/>
-                <Setter Property="FontWeight" Value="SemiBold"/>
-            </Style>
-
-            <!-- Danger Button -->
-            <Style x:Key="DlgDangerBtn" TargetType="Button" BasedOn="{StaticResource DlgBtn}">
-                <Setter Property="Background" Value="#1AEC2B2B"/>
-                <Setter Property="BorderBrush" Value="#66EC2B2B"/>
-                <Setter Property="Foreground" Value="#FFEC2B2B"/>
-                <Setter Property="FontWeight" Value="SemiBold"/>
-            </Style>
-
-            <!-- Filter Chip Button Style -->
-            <Style x:Key="FilterChipStyle" TargetType="RadioButton">
-                <Setter Property="Foreground" Value="{x:Static ui:WpfThemeHelper.TextSecondary}"/>
-                <Setter Property="FontSize" Value="11"/>
-                <Setter Property="FontWeight" Value="SemiBold"/>
-                <Setter Property="Cursor" Value="Hand"/>
-                <Setter Property="Margin" Value="0,0,6,0"/>
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="RadioButton">
-                            <Border x:Name="b" Background="{x:Static ui:WpfThemeHelper.CardBackground}"
-                                    BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}"
-                                    BorderThickness="1" CornerRadius="12" Padding="10,4">
-                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsChecked" Value="True">
-                                    <Setter TargetName="b" Property="Background" Value="{x:Static ui:WpfThemeHelper.Accent}"/>
-                                    <Setter TargetName="b" Property="BorderBrush" Value="{x:Static ui:WpfThemeHelper.Accent}"/>
-                                    <Setter Property="Foreground" Value="White"/>
-                                </Trigger>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="b" Property="BorderBrush" Value="{x:Static ui:WpfThemeHelper.Accent}"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
                 <DataTemplate x:Key="RecipeItemTemplate" DataType="{x:Type vm:RecipeManagerItemViewModel}">
                             <Border Background="{x:Static ui:WpfThemeHelper.CardBackground}"
                                     BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}"
@@ -113,7 +38,7 @@
 
                                     <!-- Active / Deactivate Toggle Switch -->
                                     <StackPanel Grid.Column="0" Margin="0,0,14,0" VerticalAlignment="Center" Width="85" HorizontalAlignment="Center">
-                                        <Button Style="{StaticResource DlgBtn}" Command="{Binding ToggleActiveCommand}"
+                                        <Button Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ToggleActiveCommand}"
                                                 Padding="6,4" HorizontalAlignment="Stretch" ToolTip="Click to toggle Activate / Deactivate">
                                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                                 <Ellipse Width="8" Height="8" Margin="0,0,5,0" VerticalAlignment="Center"
@@ -183,16 +108,16 @@
 
                                     <!-- Actions Column -->
                                     <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
-                                        <Button Content="✏️ Edit" Style="{StaticResource DlgPrimaryBtn}" Command="{Binding EditCommand}"
+                                        <Button Content="✏️ Edit" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding EditCommand}"
                                                 ToolTip="Open recipe in Visual Editor canvas" Margin="0,0,6,0"/>
-                                        <Button Content="▶ Test Run" Style="{StaticResource DlgBtn}" Command="{Binding TestRunCommand}"
+                                        <Button Content="▶ Test Run" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding TestRunCommand}"
                                                 ToolTip="Test execute capture recipe in Greenshot" Margin="0,0,6,0"/>
-                                        <Button Content="ℹ Details" Style="{StaticResource DlgBtn}" Command="{Binding DetailsCommand}"
+                                        <Button Content="ℹ Details" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding DetailsCommand}"
                                                 ToolTip="What the recipe does, its triggers, its approval and the changes against the built-in recipe" Margin="0,0,6,0"/>
-                                        <Button Content="🛡 Permissions" Style="{StaticResource DlgBtn}" Command="{Binding ReviewApprovalCommand}"
+                                        <Button Content="🛡 Permissions" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ReviewApprovalCommand}"
                                                 ToolTip="Switch the recipe's triggers and permissions on or off"
                                                 Visibility="{Binding HasFilePath, Converter={StaticResource BoolToVis}}" Margin="0,0,6,0"/>
-                                        <Button Content="{Binding UnloadButtonText}" Style="{StaticResource DlgDangerBtn}" Command="{Binding UnloadCommand}"
+                                        <Button Content="{Binding UnloadButtonText}" Style="{StaticResource ErrorButtonStyle}" Command="{Binding UnloadCommand}"
                                                 ToolTip="{Binding UnloadToolTip}"
                                                 Visibility="{Binding CanUnload, Converter={StaticResource BoolToVis}}"/>
                                     </StackPanel>
@@ -248,30 +173,30 @@
 
                         <!-- Actions: Load Recipe from Disk, Create New, Reload -->
                         <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                            <Button Content="➕ Load Recipe..." Style="{StaticResource DlgPrimaryBtn}" Command="{Binding LoadRecipeFromFileCommand}"
+                            <Button Content="➕ Load Recipe..." Style="{StaticResource PrimaryButtonStyle}" Command="{Binding LoadRecipeFromFileCommand}"
                                     ToolTip="Load and register a .gsrecipe.json file into Greenshot" Margin="0,0,6,0"/>
-                            <Button Content="✨ New Recipe" Style="{StaticResource DlgBtn}" Command="{Binding CreateNewRecipeCommand}"
+                            <Button Content="✨ New Recipe" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding CreateNewRecipeCommand}"
                                     ToolTip="Create a new capture recipe in the Visual Editor" Margin="0,0,6,0"/>
-                            <Button Content="🔄 Reload All" Style="{StaticResource DlgBtn}" Command="{Binding ReloadAllCommand}"
+                            <Button Content="🔄 Reload All" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ReloadAllCommand}"
                                     ToolTip="Reload configured recipe files from disk" Margin="0,0,6,0"/>
-                            <Button Content="↩ Reset All" Style="{StaticResource DlgBtn}" Command="{Binding ResetAllCommand}"
+                            <Button Content="↩ Reset All" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ResetAllCommand}"
                                     ToolTip="Bring back the built-in version of every recipe a file replaces"/>
                         </StackPanel>
                     </Grid>
 
                     <!-- Filter Category Chips -->
                     <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center">
-                        <RadioButton Content="All" Style="{StaticResource FilterChipStyle}" IsChecked="True"
+                        <RadioButton Content="All" Style="{StaticResource FilterChipRadioButtonStyle}" IsChecked="True"
                                      Click="OnFilterAllClicked"/>
-                        <RadioButton Content="Active" Style="{StaticResource FilterChipStyle}"
+                        <RadioButton Content="Active" Style="{StaticResource FilterChipRadioButtonStyle}"
                                      Click="OnFilterActiveClicked"/>
-                        <RadioButton Content="Deactivated" Style="{StaticResource FilterChipStyle}"
+                        <RadioButton Content="Deactivated" Style="{StaticResource FilterChipRadioButtonStyle}"
                                      Click="OnFilterDeactivatedClicked"/>
-                        <RadioButton Content="Built-in" Style="{StaticResource FilterChipStyle}"
+                        <RadioButton Content="Built-in" Style="{StaticResource FilterChipRadioButtonStyle}"
                                      Click="OnFilterBuiltInClicked"/>
-                        <RadioButton Content="Custom" Style="{StaticResource FilterChipStyle}"
+                        <RadioButton Content="Custom" Style="{StaticResource FilterChipRadioButtonStyle}"
                                      Click="OnFilterCustomClicked"/>
-                        <RadioButton Content="AI" Style="{StaticResource FilterChipStyle}" ToolTip="Recipes written by AI tools"
+                        <RadioButton Content="AI" Style="{StaticResource FilterChipRadioButtonStyle}" ToolTip="Recipes written by AI tools"
                                      Click="OnFilterAiClicked"/>
                     </StackPanel>
                 </Grid>
@@ -312,7 +237,7 @@
                                    Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}"/>
                     </StackPanel>
 
-                    <Button Grid.Column="1" Content="Close" Style="{StaticResource DlgBtn}" Command="{Binding CloseCommand}"
+                    <Button Grid.Column="1" Content="Close" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding CloseCommand}"
                             Padding="16,6" HorizontalAlignment="Right"/>
                 </Grid>
             </Border>
