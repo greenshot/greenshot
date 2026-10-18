@@ -55,6 +55,7 @@ using Greenshot.Processors;
 using Greenshot.Recipes;
 using Greenshot.Recipes.Pipeline;
 using Greenshot.Recipes.Triggers;
+using Greenshot.Recipes.Views;
 using Greenshot.Settings.Views;
 using Greenshot.Views;
 using log4net;
@@ -124,7 +125,7 @@ namespace Greenshot.Shell
             var userInteraction = new InteractiveUserInteraction(UiDispatcher);
             userInteraction.Register<PrintRequest, bool>(PrintRequest.Print);
             userInteraction.Register<ShareRequest, string>(ShareHostWindow.Show);
-            userInteraction.Register<PreviewPromptRequest, PreviewPromptResult>(global::Greenshot.Recipes.Views.RecipeUserPromptWindow.Show);
+            userInteraction.Register<PreviewPromptRequest, PreviewPromptResult>(RecipeUserPromptWindow.Show);
             SimpleServiceProvider.Current.AddService<IUserInteraction>(userInteraction);
             SimpleServiceProvider.Current.AddService<IDialogViewRegistry>(userInteraction);
 #if DEBUG
