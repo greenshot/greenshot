@@ -260,16 +260,22 @@ namespace Greenshot.SelfService.ViewModels
         /// <summary>
         /// Windows 11 remembers per notification icon if it's shown next to the clock (IsPromoted 1) or hidden in the overflow,
         /// in HKCU\Control Panel\NotifyIconSettings\{a number of Windows}, one key per executable and icon id (UID).
-        /// A new icon is hidden until the user shows it. Windows 10 has no such key, there it's never reported as hidden.
+        /// A new icon is hidden until the user shows it, also before Windows wrote its key. Windows 10 has no NotifyIconSettings, there it's never reported as hidden.
         /// </summary>
         /// <param name="currentUser">HKEY_CURRENT_USER</param>
         /// <param name="executablePath">The path of Greenshot.exe</param>
         /// <param name="iconId">The id Greenshot adds its icon with</param>
-        /// <returns>True when Windows has the icon and hides it</returns>
+        /// <returns>True when Windows 11 doesn't show the icon next to the clock</returns>
         internal static bool IsHiddenInOverflow(RegistryKey currentUser, string executablePath, int iconId)
         {
+            using var notifyIconSettings = currentUser.OpenSubKey(@"Control Panel\NotifyIconSettings");
+            if (notifyIconSettings == null)
+            {
+                return false;
+            }
+
             using var iconKey = OpenIconSettings(currentUser, executablePath, iconId, false);
-            return iconKey != null && !(iconKey.GetValue("IsPromoted") is int isPromoted && isPromoted == 1);
+            return !(iconKey?.GetValue("IsPromoted") is int isPromoted && isPromoted == 1);
         }
 
         /// <summary>
