@@ -237,6 +237,10 @@ namespace Greenshot.Tests.Forms
                     var resizeWindow = new Greenshot.Editor.Views.ResizeSettingsWindow();
                     Assert.NotNull(resizeWindow);
 
+                    var largeResizeWindow = new Greenshot.Editor.Views.ResizeSettingsWindow(
+                        new Greenshot.Base.Effects.ResizeEffect(int.MaxValue, int.MaxValue, true));
+                    Assert.NotNull(largeResizeWindow);
+
                     var textObfuscationWindow = new Greenshot.Editor.Views.TextObfuscationWindow();
                     Assert.NotNull(textObfuscationWindow);
                 }
