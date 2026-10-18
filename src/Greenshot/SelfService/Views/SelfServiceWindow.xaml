@@ -466,7 +466,7 @@
                                         <TextBlock Text="{wpf:Text Welcome.SetupOnedriveFix}"/>
                                     </Button>
                                 </Grid>
-                                <!-- The same switch as in the settings: only this user's own entry, see docs/autostart.md -->
+                                <!-- The same switch as in the settings: only this user's own entry, see docs/vNext/autostart.md -->
                                 <CheckBox Content="{wpf:Text Settings.Autostartshortcut}" IsChecked="{Binding SetupSection.IsAutostartEnabled, Mode=TwoWay}" Margin="0,4,0,0"/>
                             </StackPanel>
                         </Border>

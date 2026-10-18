@@ -170,7 +170,7 @@
                                     <TextBlock Grid.Column="0" Text="{wpf:Text Welcome.SetupOnedrive}" Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0"/>
                                     <Button Grid.Column="1" Content="{wpf:Text Welcome.SetupOnedriveFix}" Style="{StaticResource SecondaryButtonStyle}" Click="OnFixOneDriveClicked" VerticalAlignment="Center"/>
                                 </Grid>
-                                <!-- The same switch as in the settings: only this user's own entry, see docs/autostart.md -->
+                                <!-- The same switch as in the settings: only this user's own entry, see docs/vNext/autostart.md -->
                                 <CheckBox Content="{wpf:Text Settings.Autostartshortcut}" IsChecked="{Binding Setup.IsAutostartEnabled, Mode=TwoWay}" Margin="0,4,0,0"/>
                             </StackPanel>
                         </Border>

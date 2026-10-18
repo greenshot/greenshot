@@ -364,7 +364,7 @@ The result is in `src/Greenshot.Mcp/bin/Release/net10.0-windows/win-x64/publish`
 
 * `src/Greenshot.Mcp`: the MCP server (ModelContextProtocol SDK, stdio). `GreenshotTools` (`list_windows`) and
   `RecipeAuthoringTools` (schema, catalog, validate, propose, update) are fixed tools; `RecipeToolSync` turns the
-  recipes with an AI tool trigger into tools (`RecipeTool`). The recipe schema and examples are embedded from `docs/`.
+  recipes with an AI tool trigger into tools (`RecipeTool`). The recipe schema and examples are embedded from `docs/vNext/`.
 * Each tool call is one request over Greenshot's named pipe (`GreenshotConnection`), with the source `mcp`. On the
   Greenshot side `IpcSecurityDispatcher` checks the whitelist and the consent, `AiToolIpcHandler` handles windows and
   AI tool recipes, `AiRecipeIpcHandler` the recipe catalog and proposals.

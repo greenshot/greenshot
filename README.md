@@ -37,6 +37,11 @@ About this repository
 ---------------------
 This is the ongoing development branch for future Greenshot releases. 
 
+Documentation
+-------------
+
+The [documentation](docs/README.md) in `docs/` describes Greenshot 1.3, the current release. What is new in Greenshot 1.4, which is developed here, is described in [docs/vNext](docs/vNext/README.md).
+
 Releases
 --------
 
