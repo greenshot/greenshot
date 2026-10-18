@@ -497,6 +497,10 @@
                                 <CheckBox Content="{wpf:Text Settings.Zoom}"
                                           IsChecked="{Binding CoreConfiguration.ZoomerEnabled, Mode=TwoWay}"
                                            IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ZoomerEnabled}"/>
+                                <CheckBox Content="{wpf:Text Settings.FreezeScreen}"
+                                          ToolTip="{wpf:Text Settings.TooltipFreezeScreen}"
+                                          IsChecked="{Binding CoreConfiguration.CaptureFreezeScreen, Mode=TwoWay}"
+                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureFreezeScreen}"/>
 
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>

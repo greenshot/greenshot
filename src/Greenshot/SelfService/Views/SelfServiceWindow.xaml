@@ -504,6 +504,79 @@
                             </Button>
                         </Grid>
 
+                        <!-- Screenshot Folder Card: where Greenshot saves, and why screenshots "disappear" -->
+                        <Border Style="{StaticResource CardBorderStyle}">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <TextBlock Text="🖼️ " FontSize="15" Margin="0,0,4,0"/>
+                                    <TextBlock Text="{wpf:Text SelfService.FilesOutputTitle}" FontWeight="SemiBold" FontSize="13"/>
+                                </StackPanel>
+
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{wpf:Text SelfService.FilesOutputConfigured}" FontSize="11.5" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,10,4"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding FileInfoSection.OutputConfiguredPath}" FontFamily="Consolas, monospace" FontSize="11.5" TextWrapping="Wrap" Margin="0,0,0,4"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="{wpf:Text SelfService.FilesOutputExpanded}" FontSize="11.5" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,10,4"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding FileInfoSection.OutputExpandedPath}" FontFamily="Consolas, monospace" FontSize="11.5" TextWrapping="Wrap" Margin="0,0,0,4"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="{wpf:Text SelfService.FilesOutputExample}" FontSize="11.5" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,10,0"
+                                               Visibility="{Binding FileInfoSection.HasOutputExampleFile, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding FileInfoSection.OutputExampleFile}" FontFamily="Consolas, monospace" FontSize="11.5" TextWrapping="Wrap"
+                                               Visibility="{Binding FileInfoSection.HasOutputExampleFile, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                </Grid>
+
+                                <!-- The findings of the check -->
+                                <ItemsControl ItemsSource="{Binding FileInfoSection.OutputChecks}" Margin="0,0,0,10">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,2">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding Icon}" Margin="0,0,6,0"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Text}" TextWrapping="Wrap" FontSize="12"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <WrapPanel>
+                                    <Button Style="{StaticResource SecondaryButtonStyle}" Click="OnOpenOutputFolderClicked" Margin="0,0,6,6">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="📂 "/>
+                                            <TextBlock Text="{wpf:Text SelfService.BtnOpenFolder}"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Style="{StaticResource SecondaryButtonStyle}" Click="OnCopyOutputPathClicked" Margin="0,0,6,6">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="📋 "/>
+                                            <TextBlock Text="{wpf:Text SelfService.BtnCopyPath}"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Style="{StaticResource SecondaryButtonStyle}" Click="OnResetOutputPathClicked" Margin="0,0,6,6">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="↩️ "/>
+                                            <TextBlock Text="{wpf:Text SelfService.BtnResetOutputPath}"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Style="{StaticResource SecondaryButtonStyle}" Click="OnResetFilenamePatternClicked" Margin="0,0,6,6">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="↩️ "/>
+                                            <TextBlock Text="{wpf:Text SelfService.BtnResetFilenamePattern}"/>
+                                        </StackPanel>
+                                    </Button>
+                                </WrapPanel>
+                            </StackPanel>
+                        </Border>
+
                         <!-- Log File Card -->
                         <Border Style="{StaticResource CardBorderStyle}">
                             <Grid>

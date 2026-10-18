@@ -70,8 +70,8 @@ internal static class HdrContent
     }
 
     /// <summary>
-    /// The brightest pixel in nits and the share of pixels brighter than SDR white, from every second pixel of every second row:
-    /// enough for these two numbers and a quarter of the work
+    /// The brightest pixel in nits and the share of pixels brighter than SDR white, of every pixel:
+    /// a single bright pixel (a thin line, a small light) must not be missed, it sets the input range of the tone mapping
     /// </summary>
     internal static unsafe (float PeakInNits, float HighlightShare) Measure(ID3D11Texture2D hdrTexture, ID3D11Device device, ID3D11DeviceContext context, float sdrWhiteLevelInNits)
     {
@@ -108,10 +108,10 @@ internal static class HdrContent
                 long counted = 0;
                 object resultLock = new object();
                 // PARALLEL: rows are independent, each worker keeps its own result and merges it once
-                Parallel.For(0, (height + 1) / 2, () => (Peak: 0f, Brighter: 0L, Counted: 0L), (row, _, local) =>
+                Parallel.For(0, height, () => (Peak: 0f, Brighter: 0L, Counted: 0L), (row, _, local) =>
                 {
-                    ushort* src = (ushort*)((byte*)data + (long)row * 2 * rowPitch);
-                    for (int x = 0; x < width; x += 2, src += 8)
+                    ushort* src = (ushort*)((byte*)data + (long)row * rowPitch);
+                    for (int x = 0; x < width; x++, src += 4)
                     {
                         float max = Math.Max(HalfTable[src[0]], Math.Max(HalfTable[src[1]], HalfTable[src[2]]));
                         float a = HalfTable[src[3]];

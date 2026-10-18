@@ -42,6 +42,11 @@ namespace Greenshot.Base.Languages
         string BtnCopySysinfo { get; }
 
         /// <summary>
+        /// Open Folder
+        /// </summary>
+        string BtnOpenFolder { get; }
+
+        /// <summary>
         /// Open Log Viewer
         /// </summary>
         string BtnOpenLogviewer { get; }
@@ -50,6 +55,16 @@ namespace Greenshot.Base.Languages
         /// Refresh (F5)
         /// </summary>
         string BtnRefresh { get; }
+
+        /// <summary>
+        /// Reset Filename Pattern
+        /// </summary>
+        string BtnResetFilenamePattern { get; }
+
+        /// <summary>
+        /// Reset Folder to Default
+        /// </summary>
+        string BtnResetOutputPath { get; }
 
         /// <summary>
         /// Self-Service [S]
@@ -657,6 +672,86 @@ namespace Greenshot.Base.Languages
         string FilesNotFound { get; }
 
         /// <summary>
+        /// Configured folder
+        /// </summary>
+        string FilesOutputConfigured { get; }
+
+        /// <summary>
+        /// The folder contains variables like ${YYYY}: Greenshot fills them in when it saves, and creates the folder.
+        /// </summary>
+        string FilesOutputContainsVariables { get; }
+
+        /// <summary>
+        /// The drive or network share {0} isn't available: until it is, Greenshot saves to the default folder (Desktop) and shows a notification.
+        /// </summary>
+        string FilesOutputDriveMissing { get; }
+
+        /// <summary>
+        /// Next file, for example
+        /// </summary>
+        string FilesOutputExample { get; }
+
+        /// <summary>
+        /// Folder used
+        /// </summary>
+        string FilesOutputExpanded { get; }
+
+        /// <summary>
+        /// The filename pattern doesn't give a valid filename. {0}
+        /// </summary>
+        string FilesOutputInvalidFilename { get; }
+
+        /// <summary>
+        /// The folder doesn't exist yet: Greenshot creates it at the next save.
+        /// </summary>
+        string FilesOutputMissing { get; }
+
+        /// <summary>
+        /// A network folder: when it can't be reached (e.g. without VPN), Greenshot saves to the default folder (Desktop) for that time and shows a notification.
+        /// </summary>
+        string FilesOutputNetwork { get; }
+
+        /// <summary>
+        /// No folder configured: Greenshot saves to the default folder (Desktop).
+        /// </summary>
+        string FilesOutputNotConfigured { get; }
+
+        /// <summary>
+        /// Greenshot can't write to the folder: {0} Check the permissions, or whether the controlled folder access of Windows Security blocks Greenshot.
+        /// </summary>
+        string FilesOutputNotWritable { get; }
+
+        /// <summary>
+        /// The folder exists and Greenshot can write to it.
+        /// </summary>
+        string FilesOutputOk { get; }
+
+        /// <summary>
+        /// OneDrive synchronizes the folder (also the Desktop, when OneDrive backs it up): files can be online only, or show sync conflicts.
+        /// </summary>
+        string FilesOutputOnedrive { get; }
+
+        /// <summary>
+        /// The filename pattern creates subfolders.
+        /// </summary>
+        string FilesOutputPatternFolders { get; }
+
+        /// <summary>
+        /// Reset to: {0}
+        /// </summary>
+        string FilesOutputResetDone { get; }
+
+        /// <summary>
+        /// Screenshot Folder (where Greenshot saves)
+        /// </summary>
+        string FilesOutputTitle { get; }
+
+        /// <summary>
+        /// The full path of a file has {0} characters, more than the {1} that Windows allows by default.
+        /// </summary>
+        string FilesOutputTooLong { get; }
+
+        /// <summary>
         /// Open the dedicated Log Viewer window to scroll, search, refresh, or copy the complete recent log entries with clear scrollbars.
         /// </summary>
         string FilesQuickglanceDesc { get; }
@@ -1052,7 +1147,7 @@ namespace Greenshot.Base.Languages
         string SidebarNavigationHeader { get; }
 
         /// <summary>
-        /// Press 1-5 to navigate tabs, F5 to refresh, and T to toggle Dark/Light mode.
+        /// Press the number of a section (1 is the first) to open it, F5 to refresh, and T to toggle Dark/Light mode.
         /// </summary>
         string SidebarNavigationTip { get; }
 

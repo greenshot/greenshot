@@ -327,6 +327,10 @@ namespace Greenshot.Base.Core
         [DefaultValue(true)]
         bool ZoomerEnabled { get; set; }
 
+        [Description("Sets if the screen is frozen while a region or window is selected. When false the screen stays live and only the selection is captured, when it is made (Windows 10 2004 or newer, else the screen is frozen).")]
+        [DefaultValue(true)]
+        bool CaptureFreezeScreen { get; set; }
+
         [Description("Sets if the keys are shown (help panel) in the interactive capture, F1 shows or hides them")]
         [DefaultValue(true)]
         bool CaptureHelpVisible { get; set; }
@@ -441,8 +445,14 @@ namespace Greenshot.Base.Core
         [DefaultValue(true)]
         bool AiToolsNotifyOnCapture { get; set; }
 
-        /// <summary>Validates <see cref="OutputFilePath"/>; resets it to the default output folder when the path no longer exists.</summary>
+        /// <summary>Normalizes <see cref="OutputFilePath"/>; sets the default output folder when none is configured. A configured folder which doesn't exist stays.</summary>
         void ValidateAndCorrectOutputFilePath();
+
+        /// <summary>
+        /// The folder for a new screenshot: <see cref="OutputFilePath"/> with its variables filled in, created when it doesn't exist.
+        /// When it can't be used, the default output folder for this save only, <paramref name="problem"/> tells why.
+        /// </summary>
+        string GetOutputDirectory(out string problem);
 
         /// <summary>Validates <see cref="OutputFileAsFullpath"/>; resets it to a default full-path dummy when the directory no longer exists.</summary>
         void ValidateAndCorrectOutputFileAsFullpath();

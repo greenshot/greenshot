@@ -781,5 +781,15 @@ namespace Greenshot.Base.Languages
         /// Show magnifier
         /// </summary>
         string Zoom { get; }
+
+        /// <summary>
+        /// Freeze the screen while selecting
+        /// </summary>
+        string FreezeScreen { get; }
+
+        /// <summary>
+        /// Off: what is on the screen keeps moving while you select, only the selection is captured, when you make it
+        /// </summary>
+        string TooltipFreezeScreen { get; }
     }
 }

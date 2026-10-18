@@ -188,29 +188,34 @@ namespace Greenshot.SelfService.Views
                     ViewModel?.ToggleTheme();
                     e.Handled = true;
                     break;
-                case Key.D1:
+                case >= Key.D1 and <= Key.D9:
+                case >= Key.NumPad1 and <= Key.NumPad9:
+                    // The number of a section in the sidebar, the sections differ per build and setup (e.g. Imgur)
+                    int index = e.Key >= Key.NumPad1 ? e.Key - Key.NumPad1 : e.Key - Key.D1;
+                    if (ViewModel != null && index < ViewModel.Sections.Count)
+                    {
+                        ViewModel.SelectedSection = ViewModel.Sections[index];
+                        e.Handled = true;
+                    }
+                    break;
                 case Key.E:
                     ViewModel?.SelectSection("system");
                     e.Handled = true;
                     break;
-                case Key.D2:
                 case Key.F:
                 case Key.L:
                 case Key.I:
                     ViewModel?.SelectSection("files");
                     e.Handled = true;
                     break;
-                case Key.D3:
                 case Key.C:
                     ViewModel?.SelectSection("clipboard");
                     e.Handled = true;
                     break;
-                case Key.D4:
                 case Key.H:
                     ViewModel?.SelectSection("hotkeys");
                     e.Handled = true;
                     break;
-                case Key.D5:
                 case Key.K:
                 case Key.V:
                     ViewModel?.SelectSection("checksum");
@@ -236,6 +241,30 @@ namespace Greenshot.SelfService.Views
         private void OnOpenLogInExplorerClicked(object sender, RoutedEventArgs e)
         {
             ViewModel?.FileInfoSection.OpenLogInExplorer();
+            UpdateStatusText(ViewModel?.FileInfoSection.StatusMessage);
+        }
+
+        private void OnOpenOutputFolderClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.FileInfoSection.OpenOutputFolder();
+            UpdateStatusText(ViewModel?.FileInfoSection.StatusMessage);
+        }
+
+        private void OnCopyOutputPathClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.FileInfoSection.CopyOutputPath();
+            UpdateStatusText(ViewModel?.FileInfoSection.StatusMessage);
+        }
+
+        private void OnResetOutputPathClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.FileInfoSection.ResetOutputPath();
+            UpdateStatusText(ViewModel?.FileInfoSection.StatusMessage);
+        }
+
+        private void OnResetFilenamePatternClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.FileInfoSection.ResetFilenamePattern();
             UpdateStatusText(ViewModel?.FileInfoSection.StatusMessage);
         }
 

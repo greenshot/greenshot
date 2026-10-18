@@ -76,6 +76,10 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Add and remove your own sizes in the settings, on the Capture tab
 - A preview in a corner shows what will be captured, enlarged when it is small and reduced when it is large; this works for regions and windows too. Press P to move it next to the mouse in place of the magnifier, and again to turn it off
 
+**Capture without freezing the screen**
+- Turn off *Freeze the screen while selecting* on the Capture tab to select on the live screen: videos keep playing and HDR content keeps its brightness
+- The selection appears at once and only the selected area is captured, when you finish the selection
+
 **New Capture Technology** (#932)
 - Implemented new capture technology for better screenshot quality
 - Improved compatibility with modern Windows applications
@@ -196,6 +200,17 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Greenshot no longer uploads to Imgur: Imgur would only allow it with paid or capped access for all Greenshot users
 - If you uploaded images anonymously with an earlier Greenshot, it still has their delete keys: Self-Service lists those images so you can delete them from Imgur
 - Save the delete links as a web page to keep them
+
+#### 🩺 Self-Service
+
+**Screenshots no longer end up on the Desktop unnoticed**
+- When the screenshot folder couldn't be found, Greenshot switched it to the Desktop for good, without a message: e.g. a network drive without VPN, a renamed folder, or a folder with variables like ${YYYY}
+- Now a missing folder is created, variables are filled in first, and only when the folder really can't be used (e.g. the network drive isn't there), Greenshot saves that one screenshot to the Desktop and says so: the setting stays
+
+**Check where screenshots are saved**
+- Self-Service shows whether the screenshot folder exists, whether Greenshot can write to it, and whether it's a network or OneDrive folder
+- It also tells if the drive of the folder is missing, or the filename pattern gives no valid name
+- The folder and the filename pattern can be reset to the default with one click
 
 ### Bug Fixes & Improvements
 
