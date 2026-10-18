@@ -52,7 +52,8 @@ internal sealed class CustomUploaderDestination : DestinationBase, IRequiresReci
     public override string Designation => DesignationName;
 
     public override DestinationDescriptor Descriptor =>
-        new DestinationDescriptor(Texts.Get<ICustomUploaderLanguage>().UploadMenuItem, hasDynamicDestinations: true, useDynamicsOnly: true, isLinkable: true);
+        new DestinationDescriptor(Texts.Get<ICustomUploaderLanguage>().UploadMenuItem, iconKey: CustomUploaderIconProvider.GenericKey, hasDynamicDestinations: true,
+            useDynamicsOnly: true, isLinkable: true);
 
     /// <summary>
     /// Only shown when there is an uploader
@@ -107,7 +108,7 @@ internal sealed class UploaderDestination : DestinationBase, IRequiresRecipeAuth
 
     public override string Designation => CustomUploaderDestination.DesignationName + ":" + Definition.Name;
 
-    public override DestinationDescriptor Descriptor => new DestinationDescriptor(Definition.Name, isLinkable: true);
+    public override DestinationDescriptor Descriptor => new DestinationDescriptor(Definition.Name, iconKey: CustomUploaderIconProvider.KeyFor(Definition.Name), isLinkable: true);
 
     public IEnumerable<RecipeGatedAction> GetGatedActions()
     {

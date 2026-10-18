@@ -13,6 +13,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <!-- Loaded with EmbeddedResources.GetImage(typeof(CustomUploaderPlugin), "Upload"), when a service has no icon -->
+    <EmbeddedResource Include="Images\Upload.png" LogicalName="Greenshot.Plugin.CustomUploader.CustomUploaderPlugin.Upload" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
   </ItemGroup>
   <ItemGroup>

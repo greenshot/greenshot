@@ -32,6 +32,7 @@ namespace Greenshot.Tests.CustomUploader
     {
         private readonly Dictionary<string, string> _uploaders = new Dictionary<string, string>();
         private readonly Dictionary<string, string> _uploads = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> _icons = new Dictionary<string, string>();
         private int _changes;
 
         public UploaderStoreTests()
@@ -39,7 +40,7 @@ namespace Greenshot.Tests.CustomUploader
             TestEnvironment.EnsureInitialized();
         }
 
-        private UploaderStore CreateStore() => new UploaderStore(_uploaders, _uploads, () => _changes++);
+        private UploaderStore CreateStore() => new UploaderStore(_uploaders, _uploads, () => _changes++, icons: _icons);
 
         private static UploaderDefinition Uploader(string name, string host = "example.com") =>
             UploaderFile.Read(UploaderFileTests.File($@"""Name"": ""{name}"", ""DestinationType"": ""ImageUploader"", ""RequestURL"": ""https://{host}/upload"", ""FileFormName"": ""file"", ""Headers"": {{ ""Authorization"": ""Bearer s3cret"" }}"));
@@ -69,6 +70,39 @@ namespace Greenshot.Tests.CustomUploader
 
             Assert.Equal(id, again);
             Assert.Equal(new Uri("https://other.example.com"), UploaderFile.GetServer(Assert.Single(store.GetUploaders()).Definition));
+        }
+
+        [Fact]
+        public void SetIcon_IsKeptEncryptedPerUploader()
+        {
+            var store = CreateStore();
+            string id = store.Add(Uploader("Mine"));
+            byte[] png = { 0x89, (byte)'P', (byte)'N', (byte)'G', 1, 2, 3 };
+
+            store.SetIcon(id, png);
+
+            Assert.Equal(png, CreateStore().GetIcon(id));
+            Assert.DoesNotContain(Convert.ToBase64String(png), _icons[id]);
+            Assert.Null(store.GetIcon("other"));
+        }
+
+        [Fact]
+        public void Icon_GoesWithTheUploader_AndIsFetchedAgainOnAReimport()
+        {
+            var store = CreateStore();
+            string id = store.Add(Uploader("Mine"));
+            store.SetIcon(id, new byte[] { 1 });
+
+            store.Add(Uploader("Mine", "other.example.com"));
+            Assert.Null(store.GetIcon(id));
+
+            store.SetIcon(id, new byte[] { 2 });
+            store.Remove(id);
+            Assert.Empty(_icons);
+
+            // The icon of an uploader removed while it was fetched isn't kept
+            store.SetIcon(id, new byte[] { 3 });
+            Assert.Empty(_icons);
         }
 
         [Fact]

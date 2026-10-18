@@ -73,6 +73,7 @@ public class CustomUploaderPlugin : IGreenshotPlugin, IConfigurablePlugin, IReci
 
         // Decided with the loaded configuration: nothing is registered for a user who isn't a beta tester
         services.AddServices<IDestination>(() => IsEnabled ? new IDestination[] { new CustomUploaderDestination(this) } : Array.Empty<IDestination>());
+        services.AddService<IIconProvider>(new CustomUploaderIconProvider());
         services.AddRecipeStepProvider(this);
         services.AddSettingsView<CustomUploaderSettingsViewModel>(viewModel => new CustomUploaderSettingsView(viewModel));
     }
@@ -106,7 +107,7 @@ public class CustomUploaderPlugin : IGreenshotPlugin, IConfigurablePlugin, IReci
             config.MarkChanged();
             // Saved at once: an import is confirmed, and a deletion link must not get lost
             IniConfigRegistry.Get()?.Save();
-        });
+        }, icons: config.UploaderIcons);
     }
 
     /// <summary>

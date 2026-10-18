@@ -61,7 +61,7 @@ internal sealed class UploadRecord
 }
 
 /// <summary>
-/// The uploaders and the uploads in the [CustomUploader] section, each value encrypted for the Windows user.
+/// The uploaders, their icons and the uploads in the [CustomUploader] section, each value encrypted for the Windows user.
 /// Used from the settings (UI thread) and the uploads (thread pool), so every access is locked (one lock for all instances,
 /// they share the dictionaries of the configuration).
 /// </summary>
@@ -75,6 +75,7 @@ internal sealed class UploaderStore
     private static readonly object Lock = new object();
     private readonly IDictionary<string, string> _uploaders;
     private readonly IDictionary<string, string> _uploads;
+    private readonly IDictionary<string, string> _icons;
     private readonly Action _changed;
     private readonly Func<string, string> _protect;
     private readonly Func<string, string> _unprotect;
@@ -84,8 +85,11 @@ internal sealed class UploaderStore
     /// <param name="changed">Called after a change, saves the configuration</param>
     /// <param name="protect">Encrypts, null: <see cref="UserProtection.Protect"/></param>
     /// <param name="unprotect">Decrypts, null: <see cref="UserProtection.Unprotect"/></param>
-    public UploaderStore(IDictionary<string, string> uploaders, IDictionary<string, string> uploads, Action changed, Func<string, string> protect = null, Func<string, string> unprotect = null)
+    /// <param name="icons">id of the uploader to its encrypted icon, null: not kept</param>
+    public UploaderStore(IDictionary<string, string> uploaders, IDictionary<string, string> uploads, Action changed, Func<string, string> protect = null, Func<string, string> unprotect = null,
+        IDictionary<string, string> icons = null)
     {
+        _icons = icons ?? new Dictionary<string, string>();
         _uploaders = uploaders ?? throw new ArgumentNullException(nameof(uploaders));
         _uploads = uploads ?? throw new ArgumentNullException(nameof(uploads));
         _changed = changed ?? (() => { });
@@ -126,6 +130,8 @@ internal sealed class UploaderStore
             var existing = Find(definition.Name);
             string id = existing?.Id ?? Guid.NewGuid().ToString("N");
             _uploaders[id] = _protect(JsonConvert.SerializeObject(definition));
+            // The icon belonged to the old file, maybe another server: fetched again
+            _icons.Remove(id);
         }
 
         OnChanged();
@@ -138,12 +144,59 @@ internal sealed class UploaderStore
         lock (Lock)
         {
             removed = id != null && _uploaders.Remove(id);
+            if (removed)
+            {
+                _icons.Remove(id);
+            }
         }
 
         if (removed)
         {
             OnChanged();
         }
+    }
+
+    /// <summary>
+    /// The icon of the uploader (PNG), null when there is none or it can't be decrypted
+    /// </summary>
+    public byte[] GetIcon(string id)
+    {
+        lock (Lock)
+        {
+            if (id == null || !_icons.TryGetValue(id, out var protectedIcon))
+            {
+                return null;
+            }
+
+            string base64 = _unprotect(protectedIcon);
+            try
+            {
+                return base64 == null ? null : Convert.FromBase64String(base64);
+            }
+            catch (FormatException)
+            {
+                return null;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Keep the icon of the uploader, when it is still there (it can be removed while the icon is fetched)
+    /// </summary>
+    public void SetIcon(string id, byte[] png)
+    {
+        if (png == null || png.Length == 0) return;
+        lock (Lock)
+        {
+            if (id == null || !_uploaders.ContainsKey(id))
+            {
+                return;
+            }
+
+            _icons[id] = _protect(Convert.ToBase64String(png));
+        }
+
+        OnChanged();
     }
 
     /// <summary>

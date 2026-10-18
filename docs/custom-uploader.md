@@ -41,6 +41,10 @@ The *Import* button reacts after a moment, Enter and Escape cancel. Nothing is s
 
 An uploader with the same name as one you already have replaces it, Greenshot says so in the question.
 
+After the import Greenshot gets the icon of the service once, from the server of the uploader (or the website it belongs
+to, e.g. `example.com` for `api.example.com`), and shows it in the destination menus. Only the icon is requested, nothing of
+the uploader is sent. A service without an icon gets the generic upload icon.
+
 The uploader is stored in greenshot.ini, encrypted for your Windows account: another user, or the same greenshot.ini on
 another computer (e.g. the portable Greenshot on a USB stick), can't read it. The list then shows *Can't be read on this
 Windows account, import it again*: remove it and import the file again.
@@ -104,7 +108,8 @@ Everything is in `src/Greenshot.Plugin.CustomUploader`:
 | `Sxcu/PlaceholderSyntax.cs` | The `{name:parameter\|parameter}` syntax of ShareX 13.7 and later |
 | `Sxcu/UploaderRequest.cs` | The request: url with parameters, headers, multipart or binary body with `HttpContents` |
 | `Sxcu/UploaderResponse.cs` | Link, thumbnail, deletion link and error from the response |
-| `UploaderStore.cs`, `UserProtection.cs` | The uploaders and uploads in `[CustomUploader]`, each value encrypted with DPAPI for the Windows user |
+| `UploaderStore.cs`, `UserProtection.cs` | The uploaders, their icons and the uploads in `[CustomUploader]`, each value encrypted with DPAPI for the Windows user |
+| `ServiceIcon.cs`, `Destinations/CustomUploaderIconProvider.cs` | The icon of the service, fetched at the import; the generic `Images/Upload.png` without one |
 | `Destinations/CustomUploaderDestination.cs` | *Custom uploader* with one dynamic destination per uploader |
 | `Recipes/CustomUploaderStep.cs` | The recipe step, `Uploader` parameter, `CustomUploader.Url` output |
 | `ViewModels/`, `Views/` | The settings page: import (with the confirmation), remove, the uploads |
@@ -124,6 +129,13 @@ rules and the logging rules apply.
    to another server than `GetServer`. `HttpService.SendAsync` sends it. `UploaderResponse.From` reads the result. Only
    http and https links are accepted, a link is opened and put on the clipboard.
 4. **Keep**: the link and the deletion link go into the upload history (`UploaderStore.AddUpload`, the newest 100).
+
+**Icon** (after the import, thread pool): `ServiceIcon.FetchAsync` tries the server of the uploader, then its parent domain
+(one label less, not for IP addresses or `localhost`): `/favicon.ico`, else the first `<link rel="icon">` of the start page
+which stays on that host. A plain GET with no header or value of the uploader, 10 seconds and 256 KB at most. Only ICO, PNG,
+GIF and JPEG (by their first bytes) are read, through the file format handlers, and stored as a 32x32 PNG
+(`UploaderStore.SetIcon`). `CustomUploaderIconProvider` gives `customuploader:name` the stored icon, else the generic one.
+A re-import fetches it again; an uploader imported before this has the generic icon until it is imported again.
 
 ### Supported placeholders
 

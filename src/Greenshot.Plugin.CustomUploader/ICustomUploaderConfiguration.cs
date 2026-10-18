@@ -33,6 +33,9 @@ public interface ICustomUploaderConfiguration : IIniSection, IAfterLoad
     [Description("The imported uploaders, each encrypted for the Windows user. Import them again in the settings, they can't be edited here.")]
     Dictionary<string, string> Uploaders { get; set; }
 
+    [Description("The icons of the services of the uploaders, fetched at the import, each encrypted for the Windows user.")]
+    Dictionary<string, string> UploaderIcons { get; set; }
+
     [Description("The uploads with their deletion links, each encrypted for the Windows user.")]
     Dictionary<string, string> UploadHistory { get; set; }
 
