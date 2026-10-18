@@ -64,6 +64,8 @@
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal" Margin="4,2">
+                        <Image Source="{Binding Icon}" Width="16" Height="16" Margin="0,0,6,0" VerticalAlignment="Center"
+                               RenderOptions.BitmapScalingMode="HighQuality"/>
                         <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis"/>
                         <TextBlock Text="{Binding Description}" Margin="12,0,0,0"
                                    Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
@@ -97,6 +99,8 @@
                     <StackPanel Orientation="Horizontal" Margin="4,2">
                         <TextBlock Text="{Binding Date}" Width="130"
                                    Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                        <Image Source="{Binding Icon}" Width="16" Height="16" Margin="0,0,6,0" VerticalAlignment="Center"
+                               RenderOptions.BitmapScalingMode="HighQuality"/>
                         <TextBlock Text="{Binding Uploader}" Width="120" TextTrimming="CharacterEllipsis"/>
                         <TextBlock Text="{Binding Url}" TextTrimming="CharacterEllipsis"/>
                     </StackPanel>

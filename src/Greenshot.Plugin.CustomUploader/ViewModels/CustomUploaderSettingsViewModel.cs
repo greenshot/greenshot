@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -28,6 +29,9 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using Greenshot.Base.Core;
 using Greenshot.Base.Languages;
 using Greenshot.Plugin.CustomUploader.Sxcu;
 using log4net;
@@ -102,21 +106,63 @@ public sealed class CustomUploaderSettingsViewModel : INotifyPropertyChanged
         string selectedUploader = SelectedUploader?.Id;
         string selectedUpload = SelectedUpload?.Id;
         Uploaders.Clear();
+        var icons = new Dictionary<string, ImageSource>(StringComparer.OrdinalIgnoreCase);
         foreach (var uploader in _store.GetUploaders())
         {
-            Uploaders.Add(new UploaderItem(uploader));
+            var icon = LoadIcon(_store.GetIcon(uploader.Id));
+            if (uploader.Name != null)
+            {
+                icons[uploader.Name] = icon;
+            }
+
+            Uploaders.Add(new UploaderItem(uploader, icon));
         }
 
         Uploads.Clear();
         foreach (var upload in _store.GetUploads())
         {
-            Uploads.Add(new UploadItem(upload.Key, upload.Value));
+            // An upload of a removed uploader has the generic icon
+            Uploads.Add(new UploadItem(upload.Key, upload.Value, upload.Value.Uploader != null && icons.TryGetValue(upload.Value.Uploader, out var icon) ? icon : GenericIcon.Value));
         }
 
         SelectedUploader = Uploaders.FirstOrDefault(item => item.Id == selectedUploader);
         SelectedUpload = Uploads.FirstOrDefault(item => item.Id == selectedUpload);
         OnPropertyChanged(nameof(HasUploaders));
         OnPropertyChanged(nameof(HasUploads));
+    }
+
+    private static readonly Lazy<ImageSource> GenericIcon = new Lazy<ImageSource>(() =>
+    {
+        using var image = EmbeddedResources.GetImage(typeof(CustomUploaderPlugin), "Upload");
+        var source = image.ToBitmapSource();
+        source?.Freeze();
+        return source;
+    });
+
+    /// <summary>
+    /// The icon of the service (PNG), the generic one without it
+    /// </summary>
+    private static ImageSource LoadIcon(byte[] png)
+    {
+        if (png == null)
+        {
+            return GenericIcon.Value;
+        }
+
+        try
+        {
+            var image = new BitmapImage();
+            image.BeginInit();
+            image.CacheOption = BitmapCacheOption.OnLoad;
+            image.StreamSource = new MemoryStream(png);
+            image.EndInit();
+            image.Freeze();
+            return image;
+        }
+        catch (Exception ex) when (ex is NotSupportedException or FileFormatException or ArgumentException)
+        {
+            return GenericIcon.Value;
+        }
     }
 
     /// <summary>
@@ -241,8 +287,9 @@ public sealed class CustomUploaderSettingsViewModel : INotifyPropertyChanged
 /// </summary>
 public sealed class UploaderItem
 {
-    internal UploaderItem(StoredUploader uploader)
+    internal UploaderItem(StoredUploader uploader, ImageSource icon)
     {
+        Icon = icon;
         Id = uploader.Id;
         IsReadable = uploader.Definition != null;
         Name = uploader.Definition?.Name ?? Texts.Get<ICustomUploaderLanguage>().Unreadable;
@@ -259,6 +306,11 @@ public sealed class UploaderItem
     public string Description { get; }
 
     public bool IsReadable { get; }
+
+    /// <summary>
+    /// The icon of the service, the generic one without it
+    /// </summary>
+    public ImageSource Icon { get; }
 }
 
 /// <summary>
@@ -266,8 +318,9 @@ public sealed class UploaderItem
 /// </summary>
 public sealed class UploadItem
 {
-    internal UploadItem(string id, UploadRecord upload)
+    internal UploadItem(string id, UploadRecord upload, ImageSource icon)
     {
+        Icon = icon;
         Id = id;
         Uploader = upload.Uploader;
         Url = upload.Url;
@@ -287,4 +340,9 @@ public sealed class UploadItem
     internal string DeletionUrl { get; }
 
     public string Date { get; }
+
+    /// <summary>
+    /// The icon of the uploader's service
+    /// </summary>
+    public ImageSource Icon { get; }
 }

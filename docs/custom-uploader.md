@@ -42,7 +42,7 @@ The *Import* button reacts after a moment, Enter and Escape cancel. Nothing is s
 An uploader with the same name as one you already have replaces it, Greenshot says so in the question.
 
 After the import Greenshot gets the icon of the service once, from the server of the uploader (or the website it belongs
-to, e.g. `example.com` for `api.example.com`), and shows it in the destination menus. Only the icon is requested, nothing of
+to, e.g. `example.com` for `api.example.com`), and shows it in the destination menus and in the lists of the plugin's settings. Only the icon is requested, nothing of
 the uploader is sent. A service without an icon gets the generic upload icon, Greenshot tries again after the next start.
 
 The uploader is stored in greenshot.ini, encrypted for your Windows account: another user, or the same greenshot.ini on
