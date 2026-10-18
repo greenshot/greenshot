@@ -85,6 +85,18 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set => SetParam("Group", value);
         }
 
+        public int Order
+        {
+            get => Config.GetParameter<int>("Order", 0);
+            set
+            {
+                if (Config.GetParameter<int>("Order", 0) != value)
+                {
+                    SetParam("Order", value);
+                }
+            }
+        }
+
         public string FormatFilter
         {
             get => GetParam("FormatFilter", "");

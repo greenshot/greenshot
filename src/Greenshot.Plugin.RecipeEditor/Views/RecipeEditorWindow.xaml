@@ -3235,6 +3235,11 @@
                                                                      Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                      Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                      Padding="4,2" Margin="0,2,0,0"/>
+                                                            <TextBlock Text="Menu Item Order (lower values first)" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}" Margin="0,4,0,0"/>
+                                                            <TextBox Text="{Binding Order, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                                                     Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Padding="4,2" Margin="0,2,0,0"/>
                                                         </StackPanel>
 
                                                         <!-- 3. Editor Menu -->
@@ -3246,6 +3251,11 @@
                                                                      Padding="4,2" Margin="0,2,0,4"/>
                                                             <TextBlock Text="Editor Menu Group" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
                                                             <TextBox Text="{Binding Group, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                     Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Padding="4,2" Margin="0,2,0,0"/>
+                                                            <TextBlock Text="Editor Menu Item Order (lower values first)" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}" Margin="0,4,0,0"/>
+                                                            <TextBox Text="{Binding Order, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
                                                                      Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                      Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                      Padding="4,2" Margin="0,2,0,0"/>
