@@ -48,7 +48,10 @@ namespace Greenshot.Editor.Tabs
         private bool _hotClose;
         private int _pressedCloseIndex = -1;
         private MouseButtons _pressedCloseButton;
+        // Where a tab from another window lands, the tabs make room for it there
         private int _dropIndex = -1;
+        // The tab which is dragged out of this strip, it leaves a gap
+        private EditorTab _draggedTab;
         private EditorTabDrag _drag;
 
         public EditorTabStrip()
@@ -128,7 +131,8 @@ namespace Greenshot.Editor.Tabs
         }
 
         /// <summary>
-        /// Show where a tab, which is dragged over this strip, would be inserted, -1 hides the mark
+        /// Show where a tab, which is dragged over this strip, lands: the strip is marked and the tabs make room at the index.
+        /// -1 removes the mark.
         /// </summary>
         internal void ShowDropIndex(int index)
         {
@@ -139,6 +143,52 @@ namespace Greenshot.Editor.Tabs
 
             _dropIndex = index;
             Invalidate();
+        }
+
+        /// <summary>
+        /// The tab which is dragged out of this strip, it is shown as a gap until it is dropped somewhere else
+        /// </summary>
+        internal EditorTab DraggedTab
+        {
+            get => _draggedTab;
+            set
+            {
+                if (_draggedTab == value)
+                {
+                    return;
+                }
+
+                _draggedTab = value;
+                Invalidate();
+            }
+        }
+
+        /// <summary>
+        /// The place (screen coordinates) of the room the tabs make for a dropped tab
+        /// </summary>
+        internal Rectangle DropBounds => RectangleToScreen(GetSlotBounds(_dropIndex));
+
+        /// <summary>
+        /// The size of a tab of this strip
+        /// </summary>
+        internal Size TabSize => GetSlotBounds(0).Size;
+
+        /// <summary>
+        /// Cancel the drag of a tab, it goes back to its place
+        /// </summary>
+        /// <returns>true when a tab was dragged</returns>
+        internal bool CancelDrag()
+        {
+            if (_drag == null)
+            {
+                return false;
+            }
+
+            var drag = _drag;
+            _drag = null;
+            drag.Cancel();
+            Capture = false;
+            return true;
         }
 
         private void ResetMouseState()
@@ -159,18 +209,20 @@ namespace Greenshot.Editor.Tabs
             Parent?.PerformLayout(this, nameof(Height));
         }
 
-        private int TabWidth
-        {
-            get
-            {
-                if (_tabs.Count == 0)
-                {
-                    return 0;
-                }
+        // The room for a dropped tab is a slot like a tab
+        private int SlotCount => _tabs.Count + (_dropIndex >= 0 ? 1 : 0);
 
-                int available = Width - 2 * Scale(TabMargin);
-                return Math.Min(Scale(MaximumTabWidth), Math.Max(Scale(MinimumTabWidth), available / _tabs.Count));
+        private int TabWidth => GetTabWidth(SlotCount);
+
+        private int GetTabWidth(int slotCount)
+        {
+            if (slotCount == 0)
+            {
+                return Scale(MaximumTabWidth);
             }
+
+            int available = Width - 2 * Scale(TabMargin);
+            return Math.Min(Scale(MaximumTabWidth), Math.Max(Scale(MinimumTabWidth), available / slotCount));
         }
 
         /// <summary>
@@ -178,10 +230,12 @@ namespace Greenshot.Editor.Tabs
         /// </summary>
         internal int FirstTabLeft => Scale(TabMargin);
 
-        private Rectangle GetTabBounds(int index)
+        private Rectangle GetTabBounds(int index) => GetSlotBounds(_dropIndex >= 0 && index >= _dropIndex ? index + 1 : index);
+
+        private Rectangle GetSlotBounds(int slot)
         {
             int top = Scale(TabMargin);
-            return new Rectangle(Scale(TabMargin) + index * TabWidth, top, TabWidth, Height - top);
+            return new Rectangle(Scale(TabMargin) + slot * TabWidth, top, TabWidth, Height - top);
         }
 
         private bool ShowsClose(int index) =>
@@ -205,8 +259,13 @@ namespace Greenshot.Editor.Tabs
             }
 
             int x = location.X - Scale(TabMargin);
-            int index = x < 0 ? -1 : x / TabWidth;
-            return index < _tabs.Count ? index : -1;
+            int slot = x < 0 ? -1 : x / TabWidth;
+            if (_dropIndex >= 0 && slot >= _dropIndex)
+            {
+                slot = slot == _dropIndex ? -1 : slot - 1;
+            }
+
+            return slot < _tabs.Count ? slot : -1;
         }
 
         /// <summary>
@@ -224,20 +283,12 @@ namespace Greenshot.Editor.Tabs
         }
 
         /// <summary>
-        /// The index a tab from another window is inserted at: before the tab whose middle is right of the location
+        /// The index a tab from another window is inserted at: the slot under the mouse, when the tabs made room for one more tab
         /// </summary>
         internal int GetInsertIndex(Point location)
         {
-            for (int index = 0; index < _tabs.Count; index++)
-            {
-                var tabBounds = GetTabBounds(index);
-                if (location.X < tabBounds.Left + tabBounds.Width / 2)
-                {
-                    return index;
-                }
-            }
-
-            return _tabs.Count;
+            int index = (location.X - Scale(TabMargin)) / GetTabWidth(_tabs.Count + 1);
+            return Math.Max(0, Math.Min(index, _tabs.Count));
         }
 
         /// <summary>
@@ -253,23 +304,64 @@ namespace Greenshot.Editor.Tabs
         protected override void OnPaint(PaintEventArgs e)
         {
             var graphics = e.Graphics;
-            graphics.Clear(BackColor);
+            bool dropping = _dropIndex >= 0;
+            // A tab can be dropped here: the strip takes a tint of the highlight color
+            graphics.Clear(dropping ? Blend(BackColor, SystemColors.Highlight, 0.25) : BackColor);
             using var borderPen = new Pen(SystemColors.ControlDark);
             // The line between the tabs and the canvas, the selected tab is open to the canvas
             graphics.DrawLine(borderPen, 0, Height - 1, Width, Height - 1);
 
             for (int index = 0; index < _tabs.Count; index++)
             {
+                if (_tabs[index] == _draggedTab)
+                {
+                    PaintGap(graphics, GetTabBounds(index), SystemColors.ControlDark);
+                    continue;
+                }
+
                 PaintTab(graphics, borderPen, index);
             }
 
-            if (_dropIndex >= 0 && _tabs.Count > 0)
+            if (dropping)
             {
-                int x = _dropIndex < _tabs.Count ? GetTabBounds(_dropIndex).Left : GetTabBounds(_tabs.Count - 1).Right;
-                int width = Scale(2);
-                using var dropBrush = new SolidBrush(SystemColors.Highlight);
-                graphics.FillRectangle(dropBrush, x - width / 2, Scale(TabMargin), width, Height - Scale(TabMargin));
+                PaintGap(graphics, GetSlotBounds(_dropIndex), SystemColors.Highlight);
+                using var dropPen = new Pen(SystemColors.Highlight, Scale(2));
+                graphics.DrawRectangle(dropPen, Scale(1), Scale(1), Width - Scale(2), Height - Scale(2));
             }
+        }
+
+        /// <summary>
+        /// The place of a tab which isn't there: the room for a dropped tab, or the place of the tab which is dragged out
+        /// </summary>
+        private void PaintGap(Graphics graphics, Rectangle bounds, Color color)
+        {
+            using var gapPen = new Pen(color, Math.Max(1, Scale(1)))
+            {
+                DashStyle = System.Drawing.Drawing2D.DashStyle.Dash
+            };
+            graphics.DrawRectangle(gapPen, bounds.Left + Scale(1), bounds.Top, bounds.Width - Scale(3), bounds.Height - Scale(2));
+        }
+
+        private static Color Blend(Color background, Color color, double amount) => Color.FromArgb(
+            (int)(background.R + (color.R - background.R) * amount),
+            (int)(background.G + (color.G - background.G) * amount),
+            (int)(background.B + (color.B - background.B) * amount));
+
+        /// <summary>
+        /// Paint the tab as the selected tab of this strip, for the image of a dragged tab
+        /// </summary>
+        internal void PaintTabImage(Graphics graphics, Rectangle bounds, EditorTab tab)
+        {
+            graphics.FillRectangle(SystemBrushes.Window, bounds);
+            graphics.DrawRectangle(SystemPens.ControlDark, bounds.Left, bounds.Top, bounds.Width - 1, bounds.Height - 1);
+            PaintTitle(graphics, new Rectangle(bounds.Left, bounds.Top, bounds.Width - Scale(6), bounds.Height), tab, SystemColors.WindowText);
+        }
+
+        private void PaintTitle(Graphics graphics, Rectangle bounds, EditorTab tab, Color color)
+        {
+            var textBounds = new Rectangle(bounds.Left + Scale(8), bounds.Top, Math.Max(0, bounds.Width - Scale(8)), bounds.Height);
+            TextRenderer.DrawText(graphics, tab.Title, Font, textBounds, color,
+                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
         }
 
         private void PaintTab(Graphics graphics, Pen borderPen, int index)
@@ -304,9 +396,8 @@ namespace Greenshot.Editor.Tabs
 
             bool showsClose = ShowsClose(index);
             int textRight = showsClose ? GetCloseBounds(index).Left - Scale(2) : bounds.Right - Scale(6);
-            var textBounds = new Rectangle(bounds.Left + Scale(8), bounds.Top, Math.Max(0, textRight - bounds.Left - Scale(8)), bounds.Height);
-            TextRenderer.DrawText(graphics, tab.Title, Font, textBounds, selected ? SystemColors.WindowText : SystemColors.ControlText,
-                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
+            PaintTitle(graphics, new Rectangle(bounds.Left, bounds.Top, textRight - bounds.Left, bounds.Height), tab,
+                selected ? SystemColors.WindowText : SystemColors.ControlText);
 
             if (showsClose)
             {
@@ -409,15 +500,23 @@ namespace Greenshot.Editor.Tabs
         }
 
         /// <summary>
-        /// The mouse capture can also end without a mouse up (e.g. another window was activated), the tab stays where it is
+        /// The mouse capture can also end without a mouse up (e.g. another window was activated), the tab then goes back
         /// </summary>
         protected override void OnMouseCaptureChanged(EventArgs e)
         {
             base.OnMouseCaptureChanged(e);
-            if (_drag != null)
+            if (_drag == null)
+            {
+                return;
+            }
+
+            if ((MouseButtons & MouseButtons.Left) == 0)
             {
                 FinishDrag();
+                return;
             }
+
+            CancelDrag();
         }
 
         private void FinishDrag()

@@ -1739,6 +1739,12 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keys)
         {
+            // Escape cancels the drag of a tab
+            if (keys == Keys.Escape && tabStrip.CancelDrag())
+            {
+                return true;
+            }
+
             // disable default key handling if surface has requested a lock
             if (_surface?.KeysLocked == false)
             {

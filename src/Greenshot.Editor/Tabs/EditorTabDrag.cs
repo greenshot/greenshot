@@ -32,8 +32,10 @@ namespace Greenshot.Editor.Tabs
 {
     /// <summary>
     /// A tab which is dragged with the mouse, like in a browser. Inside its strip it changes its place. Dragged out of the strip
-    /// the tab gets its own window (a window with only this tab is moved itself), which follows the mouse. Released over the tabs
-    /// of another editor window, the tab moves into that window.
+    /// an image of the tab follows the mouse and the tab leaves a gap:
+    /// over the tabs of another editor window these make room and the image shows the tab where it lands,
+    /// anywhere else the image shows the tab with a picture of the capture, there the tab gets its own window.
+    /// Nothing moves before the mouse button is released, Escape cancels.
     /// The strip keeps the mouse capture during the whole drag, so all the mouse moves arrive at the strip.
     /// </summary>
     internal sealed class EditorTabDrag
@@ -41,19 +43,20 @@ namespace Greenshot.Editor.Tabs
         private readonly EditorTabStrip _sourceStrip;
         private readonly EditorTab _tab;
         private readonly Point _startLocation;
+        private readonly int _startIndex;
         // Where the mouse is on the tab
         private readonly Point _grabOffset;
         private bool _started;
-        private ImageEditorForm _movingWindow;
-        // Where the mouse is on the moving window
-        private Point _windowOffset;
+        private EditorTabDragImage _image;
         private EditorTabStrip _dropTarget;
+        private int _dropIndex;
 
         public EditorTabDrag(EditorTabStrip sourceStrip, EditorTab tab, Point startLocation, Point grabOffset)
         {
             _sourceStrip = sourceStrip;
             _tab = tab;
             _startLocation = startLocation;
+            _startIndex = sourceStrip.IndexOf(tab);
             _grabOffset = grabOffset;
         }
 
@@ -73,20 +76,28 @@ namespace Greenshot.Editor.Tabs
                 _started = true;
             }
 
-            if (_movingWindow == null)
+            var stripLocation = _sourceStrip.PointToClient(location);
+            if (_sourceStrip.IsNear(stripLocation))
             {
-                var stripLocation = _sourceStrip.PointToClient(location);
-                if (_sourceStrip.IsNear(stripLocation))
-                {
-                    _sourceStrip.MoveTab(_tab, _sourceStrip.GetMoveIndex(stripLocation));
-                    return;
-                }
-
-                StartMovingWindow(location);
+                // Back in its own strip: the tab itself moves
+                HideImage();
+                SetDropTarget(null);
+                _sourceStrip.MoveTab(_tab, _sourceStrip.GetMoveIndex(stripLocation));
+                return;
             }
 
-            _movingWindow.Location = new Point(location.X - _windowOffset.X, location.Y - _windowOffset.Y);
-            UpdateDropTarget(location);
+            _sourceStrip.DraggedTab = _tab;
+            _image ??= new EditorTabDragImage(_tab);
+            SetDropTarget(FindTabStripAt(location));
+            if (_dropTarget != null)
+            {
+                _dropIndex = _dropTarget.GetInsertIndex(_dropTarget.PointToClient(location));
+                _dropTarget.ShowDropIndex(_dropIndex);
+                _image.ShowInStrip(_dropTarget, _dropTarget.DropBounds);
+                return;
+            }
+
+            _image.ShowAsWindow(_sourceStrip, _sourceStrip.TabSize, new Point(location.X - _grabOffset.X, location.Y - _grabOffset.Y));
         }
 
         /// <summary>
@@ -94,67 +105,86 @@ namespace Greenshot.Editor.Tabs
         /// </summary>
         public void Finish(Point location)
         {
-            if (_movingWindow == null)
+            bool outside = _image is { Visible: true };
+            var dropTarget = _dropTarget;
+            End();
+            if (!outside)
             {
                 return;
             }
 
-            if (_dropTarget != null)
+            var sourceWindow = _sourceStrip.Window;
+            if (dropTarget != null)
             {
-                _dropTarget.ShowDropIndex(-1);
-                var targetWindow = _dropTarget.Window;
-                _movingWindow.MoveTab(_tab, targetWindow, _dropTarget.GetInsertIndex(_dropTarget.PointToClient(location)));
+                var targetWindow = dropTarget.Window;
+                sourceWindow.MoveTab(_tab, targetWindow, _dropIndex);
                 targetWindow.Activate();
                 return;
             }
 
-            _movingWindow.Activate();
-        }
-
-        /// <summary>
-        /// The tab leaves its strip: move its window when it is the only tab, else move the tab into a new window
-        /// </summary>
-        private void StartMovingWindow(Point location)
-        {
-            var sourceWindow = _sourceStrip.Window;
-            bool onlyTab = sourceWindow.Tabs.Count == 1;
-            if (onlyTab && sourceWindow.WindowState == FormWindowState.Maximized)
-            {
-                // The window itself is moved, it gets its normal size again
-                sourceWindow.WindowState = FormWindowState.Normal;
-            }
-
-            // The mouse stays on the tab, which is the first tab of the moving window (a new window has the same layout)
+            // The tab of the new window is where the image of the tab was
             var stripOrigin = _sourceStrip.PointToScreen(Point.Empty);
-            _windowOffset = new Point(stripOrigin.X - sourceWindow.Left + _sourceStrip.FirstTabLeft + _grabOffset.X, stripOrigin.Y - sourceWindow.Top + _grabOffset.Y);
-            var windowLocation = new Point(location.X - _windowOffset.X, location.Y - _windowOffset.Y);
-
-            _movingWindow = onlyTab ? sourceWindow : sourceWindow.DetachTab(_tab, windowLocation);
-        }
-
-        /// <summary>
-        /// Mark where the tab would be inserted, when the mouse is over the tabs of another editor window
-        /// </summary>
-        private void UpdateDropTarget(Point location)
-        {
-            var target = FindTabStripAt(location);
-            if (target != _dropTarget)
+            var windowLocation = new Point(location.X - _grabOffset.X - _sourceStrip.FirstTabLeft - (stripOrigin.X - sourceWindow.Left),
+                location.Y - _grabOffset.Y - (stripOrigin.Y - sourceWindow.Top));
+            if (sourceWindow.Tabs.Count == 1)
             {
-                _dropTarget?.ShowDropIndex(-1);
-                _dropTarget = target;
+                // The only tab: the window itself moves there
+                if (sourceWindow.WindowState == FormWindowState.Maximized)
+                {
+                    sourceWindow.WindowState = FormWindowState.Normal;
+                }
+
+                sourceWindow.Location = windowLocation;
+                sourceWindow.Activate();
+                return;
             }
 
-            _dropTarget?.ShowDropIndex(_dropTarget.GetInsertIndex(_dropTarget.PointToClient(location)));
+            sourceWindow.DetachTab(_tab, windowLocation).Activate();
         }
 
         /// <summary>
-        /// The tab strip of another editor window at the location, which isn't covered by another window
+        /// The drag was cancelled, the tab goes back to where it was
+        /// </summary>
+        public void Cancel()
+        {
+            End();
+            _sourceStrip.MoveTab(_tab, _startIndex);
+        }
+
+        private void End()
+        {
+            SetDropTarget(null);
+            _sourceStrip.DraggedTab = null;
+            _image?.Dispose();
+            _image = null;
+        }
+
+        private void HideImage()
+        {
+            _sourceStrip.DraggedTab = null;
+            _image?.Hide();
+        }
+
+        private void SetDropTarget(EditorTabStrip target)
+        {
+            if (target == _dropTarget)
+            {
+                return;
+            }
+
+            _dropTarget?.ShowDropIndex(-1);
+            _dropTarget = target;
+        }
+
+        /// <summary>
+        /// The tab strip of another editor window at the location (or close to it), which isn't covered by another window
         /// </summary>
         private EditorTabStrip FindTabStripAt(Point location)
         {
+            var sourceWindow = _sourceStrip.Window;
             var candidates = ImageEditorForm.OpenWindows
-                .Where(window => window != _movingWindow && window.Visible && window.WindowState != FormWindowState.Minimized
-                                 && window.TabStrip.RectangleToScreen(window.TabStrip.ClientRectangle).Contains(location))
+                .Where(window => window != sourceWindow && window.Visible && window.WindowState != FormWindowState.Minimized
+                                 && window.TabStrip.IsNear(window.TabStrip.PointToClient(location)))
                 .ToList();
             if (candidates.Count == 0)
             {
@@ -165,7 +195,7 @@ namespace Greenshot.Editor.Tabs
             var point = new NativePoint(location.X, location.Y);
             foreach (var window in InteropWindowQuery.GetTopWindows())
             {
-                if (window.Handle == _movingWindow.Handle || !window.IsVisible() || !window.GetInfo().Bounds.Contains(point))
+                if (window.Handle == _image?.Handle || !window.IsVisible() || !window.GetInfo().Bounds.Contains(point))
                 {
                     continue;
                 }
