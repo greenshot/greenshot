@@ -134,7 +134,7 @@ namespace Greenshot.Recipes.Views
             }
 
             var primaryStyle = FindResource("PrimaryButtonStyle") as Style;
-            var dangerStyle = FindResource("DangerButtonStyle") as Style;
+            var dangerStyle = FindResource("ErrorButtonStyle") as Style;
             var secondaryStyle = FindResource("SecondaryButtonStyle") as Style;
 
             if (choices != null)

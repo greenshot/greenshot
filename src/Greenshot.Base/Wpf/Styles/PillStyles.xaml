@@ -13,7 +13,7 @@
         <Setter Property="Margin" Value="0,0,6,6"/>
     </Style>
 
-    <!-- A small round "x" to remove an entry -->
+    <!-- A small round "x" to remove an entry; turns red on hover to signal removal. -->
     <Style x:Key="RemoveEntryButtonStyle" TargetType="Button">
         <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
         <Setter Property="Cursor" Value="Hand"/>
@@ -38,7 +38,7 @@
         </Setter>
     </Style>
 
-    <!-- A pill with a "+" at the end of the list, which adds an entry -->
+    <!-- A pill with a "+" at the end of the list, which adds an entry. -->
     <Style x:Key="AddPillButtonStyle" TargetType="Button">
         <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
         <Setter Property="Cursor" Value="Hand"/>
