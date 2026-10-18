@@ -120,6 +120,9 @@ A service needs a registered client id; keep it out of the repository (the `*.Cr
 - **Secrets are stored encrypted** for the Windows user, never in clear text in greenshot.ini, and never written to an export
   or a bug report.
 - **Escape what goes into a url** (`Uri.EscapeDataString`) and don't put user text into header values unchecked.
+- **Requests with your own headers or content don't follow redirects.** `HttpService.Current` follows them, and
+  HttpClientHandler sends every header with them to the new host (on .NET Framework even from https to http). Send
+  keys, tokens and captures through `HttpService.WithoutRedirects`; a redirect then comes back as the 3xx result.
 - **Pass the cancellation token on.** A user who closes the progress dialog cancels the upload.
 - **A recipe step or destination which sends data over the network declares it**: implement `IRequiresRecipeAuthorization`
   and return a `RecipeGatedAction(RecipeGateType.NetworkAccess, host)` per host, so the user approves it before a recipe runs it.

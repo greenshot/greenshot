@@ -98,6 +98,9 @@ The list is stored encrypted like the uploaders, the delete links are secrets to
 | has a header with a line break or an invalid name | It could add headers you didn't see |
 | is larger than 256 KB | Uploader files are a few KB |
 
+An upload doesn't follow redirects: when the server answers with another address (a 3xx status), the upload fails with
+that status, so your capture and the headers of the file (the key) never go to a server you didn't approve.
+
 ---
 
 ## For developers
@@ -153,7 +156,7 @@ A re-import fetches it again. Without an icon (the fetch failed, an uploader imp
 | `{filename}` | yes | yes |
 | `{base64:text}` | yes | yes |
 | `{response}` | | the response text |
-| `{responseurl}` | | the url which answered, after redirects |
+| `{responseurl}` | | the url which answered (the request url, redirects are not followed) |
 | `{header:name}` | | a response header |
 | `{json:path}`, `{json:input\|path}` | | JSONPath, `$.` in front is optional (`data.link`, `[0].url`) |
 | `{xml:xpath}`, `{xml:input\|xpath}` | | the text of the first node; no DTD, no external entities |
@@ -173,6 +176,8 @@ the boundary); `Content-Length` is always computed.
   A response which doesn't fit logs the exception type only.
 - **The server is fixed and approved.** No placeholder in the server part, HTTPS (HTTP to loopback only), and
   `UploaderRequest.Create` checks it again. The recipe gate is `NetworkAccess` with `name (server)`.
+- **No redirects.** Uploads go through `HttpService.WithoutRedirects`: a redirect would carry the headers of the file to
+  another host. A 3xx is a failed upload with its status (`{header:Location}` is readable in `ErrorMessage`).
 - **No questions per upload.** Placeholders which ask the user or pick at random are refused at import.
 - **Encrypted at rest.** Everything in `[CustomUploader]` is DPAPI (CurrentUser) with the plugin's own entropy, never clear
   text and never in an export. A value which can't be decrypted is shown as unreadable, never repaired.

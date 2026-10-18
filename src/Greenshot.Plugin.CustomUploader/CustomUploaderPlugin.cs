@@ -137,7 +137,7 @@ public class CustomUploaderPlugin : IGreenshotPlugin, IConfigurablePlugin, IReci
         try
         {
             response = await userInteraction.RunWithProgressAsync(string.Format(Language.CommunicationWait, definition.Name),
-                (progress, token) => SendAsync(HttpService.Current, definition, image, filename, progress, token), cancellationToken).ConfigureAwait(false);
+                (progress, token) => SendAsync(HttpService.WithoutRedirects, definition, image, filename, progress, token), cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is HttpRequestException or TimeoutException)
         {
