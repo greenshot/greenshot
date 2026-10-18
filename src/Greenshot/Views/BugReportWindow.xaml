@@ -22,122 +22,13 @@
         Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}">
 
     <Window.Resources>
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-
-        <!-- Primary Action Button Style -->
-        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"/>
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentForegroundBrush}"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="14,7"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" 
-                                Background="{TemplateBinding Background}" 
-                                CornerRadius="5" 
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Opacity" Value="0.9"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Opacity" Value="0.8"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Warning / Update Action Button Style -->
-        <Style x:Key="WarningButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=WarningBrush}"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="12,6"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" 
-                                Background="{TemplateBinding Background}" 
-                                CornerRadius="5" 
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Opacity" Value="0.9"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Opacity" Value="0.8"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Secondary Button Style -->
-        <Style x:Key="SecondaryButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="12,6"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" 
-                                Background="{TemplateBinding Background}" 
-                                BorderBrush="{TemplateBinding BorderBrush}" 
-                                BorderThickness="{TemplateBinding BorderThickness}" 
-                                CornerRadius="5" 
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonPressedBrush}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Subtle Ghost / Text Button Style -->
-        <Style x:Key="GhostButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="6,4"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ScrollBarStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        </ResourceDictionary>
     </Window.Resources>
 
     <Border BorderThickness="1" BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}">
@@ -151,7 +42,10 @@
             <wpf:ThemedTitleBar Grid.Row="0" ShowMinimize="False" ShowMaximize="False"/>
 
             <!-- Main Content Area -->
-            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <ScrollViewer Grid.Row="1"
+                          Style="{DynamicResource ThemedScrollViewer}"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled">
                 <StackPanel Margin="24,18,24,20">
 
                     <!-- Header & Friendly Explanation -->
@@ -215,7 +109,7 @@
 
                             <!-- Upgrade Button when Outdated -->
                             <Button Grid.Column="1"
-                                    Style="{StaticResource WarningButtonStyle}"
+                                    Style="{StaticResource WarnButtonStyle}"
                                     Visibility="{Binding IsOutdated, Converter={StaticResource BooleanToVisibilityConverter}}"
                                     Click="OnUpgradeClicked"
                                     VerticalAlignment="Center"
@@ -255,7 +149,7 @@
                                     
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <!-- Stylized Hash Badge -->
-                                        <Border Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBackgroundBrush}"
+                                        <Border Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=GroupBoxBrush}"
                                                 BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
                                                 BorderThickness="1"
                                                 CornerRadius="4"
@@ -299,7 +193,7 @@
                     </Border>
 
                     <!-- Error Message Summary -->
-                    <Border Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBackgroundBrush}"
+                    <Border Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=GroupBoxBrush}"
                             BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
                             BorderThickness="1"
                             CornerRadius="6"
@@ -318,7 +212,7 @@
 
                     <!-- Dedicated Stack Trace Card -->
                     <Border Visibility="{Binding HasStackTrace, Converter={StaticResource BooleanToVisibilityConverter}}"
-                            Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBackgroundBrush}"
+                            Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=GroupBoxBrush}"
                             BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
                             BorderThickness="1"
                             CornerRadius="6"
@@ -336,7 +230,7 @@
                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
                                            VerticalAlignment="Center"/>
                                 <Button DockPanel.Dock="Right"
-                                        Style="{StaticResource GhostButtonStyle}"
+                                        Style="{StaticResource SecondaryTextButtonStyle}"
                                         Padding="4,2"
                                         Click="OnCopyStackTraceClicked"
                                         ToolTip="Copy Stack Trace to Clipboard">
@@ -347,7 +241,7 @@
                                 </Button>
                             </DockPanel>
                             <Border Grid.Row="1"
-                                    Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}"
+                                    Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=GroupBoxBrush}"
                                     BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
                                     BorderThickness="1"
                                     CornerRadius="4"
@@ -369,53 +263,61 @@
                         </Grid>
                     </Border>
 
-                    <!-- Collapsible Details Header -->
-                    <Grid Margin="0,4,0,4">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <Button Grid.Column="0"
-                                Style="{StaticResource GhostButtonStyle}"
-                                HorizontalAlignment="Left"
-                                Click="OnToggleDetailsClicked">
-                            <TextBlock Text="{Binding ToggleDetailsText}"
-                                       FontWeight="SemiBold"
-                                       FontSize="12"/>
-                        </Button>
-
-                        <Button Grid.Column="1"
-                                Style="{StaticResource SecondaryButtonStyle}"
-                                Click="OnCopyReportClicked">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="📋 " Margin="0,0,4,0"/>
-                                <TextBlock Text="{Binding CopyButtonText}"/>
-                            </StackPanel>
-                        </Button>
-                    </Grid>
-
-                    <!-- Collapsible Technical Report Text Box -->
-                    <Border Visibility="{Binding IsDetailsExpanded, Converter={StaticResource BooleanToVisibilityConverter}}"
-                            Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}"
+                    <!-- Collapsible Technical Details Card -->
+                    <Border Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=GroupBoxBrush}"
                             BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
                             BorderThickness="1"
                             CornerRadius="6"
-                            Margin="0,8,0,0"
-                            Padding="2">
-                        <TextBox Text="{Binding FullReport, Mode=OneWay}"
-                                 IsReadOnly="True"
-                                 TextWrapping="NoWrap"
-                                 AcceptsReturn="True"
-                                 VerticalScrollBarVisibility="Auto"
-                                 HorizontalScrollBarVisibility="Auto"
-                                 Height="220"
-                                 FontFamily="Consolas, Cascadia Code, Courier New"
-                                 FontSize="11.5"
-                                 BorderThickness="0"
-                                 Background="Transparent"
-                                 Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
-                                 Padding="8"/>
+                            Margin="0,4,0,4"
+                            Padding="12,10">
+                        <StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Button Grid.Column="0"
+                                        Style="{StaticResource SecondaryTextButtonStyle}"
+                                        HorizontalAlignment="Left"
+                                        Click="OnToggleDetailsClicked">
+                                    <TextBlock Text="{Binding ToggleDetailsText}"
+                                               FontWeight="SemiBold"
+                                               FontSize="12"/>
+                                </Button>
+
+                                <Button Grid.Column="1"
+                                        Style="{StaticResource SecondaryTextButtonStyle}"
+                                        Click="OnCopyReportClicked">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="📋 " Margin="0,0,4,0"/>
+                                        <TextBlock Text="{Binding CopyButtonText}"/>
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+
+                            <Border Visibility="{Binding IsDetailsExpanded, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                    Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=GroupBoxBrush}"
+                                    BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="4"
+                                    Margin="0,8,0,0"
+                                    Padding="4">
+                                <TextBox Text="{Binding FullReport, Mode=OneWay}"
+                                         IsReadOnly="True"
+                                         TextWrapping="NoWrap"
+                                         AcceptsReturn="True"
+                                         VerticalScrollBarVisibility="Auto"
+                                         HorizontalScrollBarVisibility="Auto"
+                                         Height="220"
+                                         FontFamily="Consolas, Cascadia Code, Courier New"
+                                         FontSize="11.5"
+                                         BorderThickness="0"
+                                         Background="Transparent"
+                                         Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
+                                         Padding="8"/>
+                            </Border>
+                        </StackPanel>
                     </Border>
 
                     <!-- Bottom Action Buttons -->
@@ -447,7 +349,7 @@
                         </Button>
 
                         <Button Grid.Column="3"
-                                Style="{StaticResource SecondaryButtonStyle}"
+                                Style="{StaticResource PrimaryButtonStyle}"
                                 Click="OnCloseClicked"
                                 IsCancel="True"
                                 MinWidth="90">
