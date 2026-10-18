@@ -76,8 +76,9 @@ Notification step shows both, and two Notification steps don't show an export tw
   exported: with the destination picker (and the document choice of the Office destinations) the picked one
   (`ExportResult.ExportedBy`), not the picker; its icon is `DestinationDescriptor.IconKey`,
 * the kind: an error when an export failed (for the notification level). A toast with an error or a warning has the error or
-  warning icon of Windows as its big image (`StatusIcons`, written once to `%LocalAppData%\Greenshot\notification-error.png` /
-  `notification-warning.png`), like the balloon of the tray icon, and every row the icon of its destination,
+  warning icon of Windows as its big image, like the balloon of the tray icon, and every row the icon of its destination. The icons
+  of Windows have the icon key `stock:Id` (`DestinationIcons.Stock`, `StockIcons` of Dapplo.Windows.Icons, 96 px);
+  `NotificationIcons.GetStatusIconPath` writes them once to `Notifications\Icons` like the icons of the destinations,
 * a failed flow: when an export fails, the destination step fails the flow (`DestinationExportException`), which then doesn't get to
   its Notification step. `CapturePipeline` shows the notification of the exports which weren't shown (`ExportNotification.ShowAsync`,
   the same as the Notification step, before the context and its export sources are disposed): the exports which succeeded and the
