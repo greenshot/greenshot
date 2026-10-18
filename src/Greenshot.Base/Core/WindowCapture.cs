@@ -77,8 +77,8 @@ namespace Greenshot.Base.Core
                 capture = new Capture();
             }
 
-            CapturedCursor capturedCursor;
-            if (CursorHelper.TryGetCurrentCursor(out capturedCursor))
+            // Trimmed: only the visible pointer, not the mostly empty cursor canvas
+            if (CursorHelper.TryGetCurrentCursor(out var capturedCursor, trim: true))
             {
                 NativePoint cursorLocation = User32Api.GetCursorLocation();
                 // Align cursor location to Bitmap coordinates (instead of Screen coordinates)
