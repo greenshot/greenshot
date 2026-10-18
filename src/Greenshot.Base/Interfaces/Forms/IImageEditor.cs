@@ -24,7 +24,7 @@ using System.Drawing;
 namespace Greenshot.Base.Interfaces.Forms
 {
     /// <summary>
-    /// The IImageEditor is the Interface that the Greenshot ImageEditor has to implement
+    /// A capture which is open in the editor, a tab of an editor window
     /// </summary>
     public interface IImageEditor
     {

@@ -162,6 +162,11 @@ namespace Greenshot.Base.Languages
         string CloseOnSaveTitle { get; }
 
         /// <summary>
+        /// Close tab
+        /// </summary>
+        string CloseTab { get; }
+
+        /// <summary>
         /// Confirm
         /// </summary>
         string Confirm { get; }
