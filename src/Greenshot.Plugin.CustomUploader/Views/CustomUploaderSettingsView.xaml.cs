@@ -106,8 +106,10 @@ public partial class CustomUploaderSettingsView : UserControl
 
     private void Forget_Click(object sender, RoutedEventArgs e)
     {
-        if (_viewModel.SelectedUpload == null) return;
-        if (ThemedMessageBox.Show(Window.GetWindow(this), UploaderTexts.ForgetQuestion, UploaderTexts.UploadsTitle, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+        var upload = _viewModel.SelectedUpload;
+        if (upload == null) return;
+        string question = upload.DeletionUrl == null ? UploaderTexts.ForgetQuestion : UploaderTexts.ForgetQuestion + "\n\n" + UploaderTexts.ForgetLosesDeletion;
+        if (ThemedMessageBox.Show(Window.GetWindow(this), question, UploaderTexts.UploadsTitle, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
         {
             _viewModel.ForgetSelectedUpload();
         }

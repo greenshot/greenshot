@@ -72,8 +72,11 @@ The settings of the plugin list your last 100 uploads, newest first: the date, t
 - *Delete...* opens the delete link of the upload in the browser, after asking. Only uploaders whose service returns a
   delete link (`DeletionURL` in the file) have it. What happens then is up to the service, most show a page which deletes
   the upload.
-- *Forget* removes the upload from the list, the upload stays on the service. Without the delete link Greenshot can't
-  delete it later.
+- *Remove from list* removes the upload from Greenshot's list, the upload stays online at the service. Without the delete
+  link Greenshot can't delete it later.
+
+Without a delete link only the service decides how long an upload stays online (Litterbox: the time in the file, catbox.moe:
+for good). The import question says so, and the list says it when such an upload is selected.
 
 The list is stored encrypted like the uploaders, the delete links are secrets too.
 

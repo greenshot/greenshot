@@ -120,5 +120,18 @@
             <Button Content="{wpf:Text CustomUploader.Delete}" Click="Delete_Click" IsEnabled="{Binding CanDeleteSelectedUpload}"/>
             <Button Content="{wpf:Text CustomUploader.Forget}" Click="Forget_Click" IsEnabled="{Binding HasSelectedUpload}"/>
         </StackPanel>
+        <!-- Delete is off: the service has no delete link, Greenshot can't remove it either -->
+        <TextBlock Text="{Binding NoDeletionHint}" TextWrapping="Wrap" Margin="0,6,0,0"
+                   Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}">
+            <TextBlock.Style>
+                <Style TargetType="TextBlock">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding NoDeletionHint}" Value="{x:Null}">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
     </StackPanel>
 </UserControl>

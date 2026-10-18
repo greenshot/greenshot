@@ -92,7 +92,7 @@ public interface ICustomUploaderLanguage : INotifyPropertyChanged
     string Delete { get; }
 
     /// <summary>
-    /// Forget
+    /// Remove from list
     /// </summary>
     string Forget { get; }
 
@@ -127,6 +127,11 @@ public interface ICustomUploaderLanguage : INotifyPropertyChanged
     string ImportReplaces { get; }
 
     /// <summary>
+    /// Uploads with it can't be deleted from Greenshot, {0} decides how long they stay online.
+    /// </summary>
+    string ImportNoDeletion { get; }
+
+    /// <summary>
     /// Only import uploader files from a service you trust: the file decides where your captures go, and it can hold the key to your account there.
     /// </summary>
     string ImportTrust { get; }
@@ -152,9 +157,19 @@ public interface ICustomUploaderLanguage : INotifyPropertyChanged
     string DeleteQuestion { get; }
 
     /// <summary>
-    /// Forget this upload? Greenshot then has no link to delete it.
+    /// Remove this upload from the list? It stays online at the service.
     /// </summary>
     string ForgetQuestion { get; }
+
+    /// <summary>
+    /// Greenshot then no longer has the link to delete it.
+    /// </summary>
+    string ForgetLosesDeletion { get; }
+
+    /// <summary>
+    /// {0} doesn't offer a way to delete uploads, only the service decides how long this upload stays online.
+    /// </summary>
+    string NoDeletionLink { get; }
 
     /// <summary>
     /// The file is too large for an uploader file.

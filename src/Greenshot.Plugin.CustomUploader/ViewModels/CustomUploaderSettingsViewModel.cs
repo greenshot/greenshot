@@ -88,12 +88,18 @@ public sealed class CustomUploaderSettingsViewModel : INotifyPropertyChanged
             OnPropertyChanged();
             OnPropertyChanged(nameof(HasSelectedUpload));
             OnPropertyChanged(nameof(CanDeleteSelectedUpload));
+            OnPropertyChanged(nameof(NoDeletionHint));
         }
     }
 
     public bool HasSelectedUpload => SelectedUpload != null;
 
     public bool CanDeleteSelectedUpload => SelectedUpload?.DeletionUrl != null;
+
+    /// <summary>
+    /// Why Delete is off for the selected upload: the service gave no delete link. Null otherwise.
+    /// </summary>
+    public string NoDeletionHint => SelectedUpload != null && SelectedUpload.DeletionUrl == null ? string.Format(Language.NoDeletionLink, SelectedUpload.Uploader) : null;
 
     public void Refresh()
     {
@@ -156,6 +162,11 @@ public sealed class CustomUploaderSettingsViewModel : INotifyPropertyChanged
         if (headers?.Count > 0)
         {
             text.Append("\n\n").Append(string.Format(Language.ImportHeaders, string.Join(", ", headers)));
+        }
+
+        if (string.IsNullOrWhiteSpace(definition.DeletionURL))
+        {
+            text.Append("\n\n").Append(string.Format(Language.ImportNoDeletion, UploaderFile.DescribeServer(definition)));
         }
 
         if (_store.Find(definition.Name) != null)
