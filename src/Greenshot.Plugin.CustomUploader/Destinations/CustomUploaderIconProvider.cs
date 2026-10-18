@@ -21,6 +21,7 @@
 
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
@@ -30,7 +31,7 @@ namespace Greenshot.Plugin.CustomUploader.Destinations;
 
 /// <summary>
 /// The icons of the destinations: the icon of the service, fetched at the import, else the generic upload icon.
-/// Key "customuploader:" (generic) or "customuploader:name".
+/// Key "customuploader:" ("Custom uploader": the icon of the only uploader, else the generic one) or "customuploader:name".
 /// </summary>
 internal sealed class CustomUploaderIconProvider : IIconProvider
 {
@@ -47,7 +48,8 @@ internal sealed class CustomUploaderIconProvider : IIconProvider
     {
         string name = iconKey.Substring(Prefix.Length);
         var store = CustomUploaderPlugin.CreateStore();
-        var uploader = name.Length == 0 ? null : store.Find(name);
+        // "Custom uploader" itself: with one uploader that is what it uploads with, so it gets its icon
+        var uploader = name.Length > 0 ? store.Find(name) : SingleUploader(store);
         byte[] png = store.GetIcon(uploader?.Id);
         if (png == null && uploader?.Definition != null)
         {
@@ -56,6 +58,12 @@ internal sealed class CustomUploaderIconProvider : IIconProvider
         }
 
         return Task.FromResult(png == null ? GenericIcon() : FromPng(png) ?? GenericIcon());
+    }
+
+    private static StoredUploader SingleUploader(UploaderStore store)
+    {
+        var uploaders = store.GetUploaders().Where(uploader => uploader.Definition != null).ToList();
+        return uploaders.Count == 1 ? uploaders[0] : null;
     }
 
     private static Image GenericIcon() => EmbeddedResources.GetImage(typeof(CustomUploaderPlugin), "Upload");
