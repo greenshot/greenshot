@@ -46,9 +46,8 @@ After the import Greenshot gets the icon of the service once, from the server of
 to, e.g. `example.com` for `api.example.com`), and shows it in the destination menus and in the lists of the plugin's settings. Only the icon is requested, nothing of
 the uploader is sent. A service without an icon gets the generic upload icon, Greenshot tries again after the next start.
 
-The uploader is stored in greenshot.ini, encrypted for your Windows account: another user, or the same greenshot.ini on
-another computer (e.g. the portable Greenshot on a USB stick), can't read it. The list then shows *Can't be read on this
-Windows account, import it again*: remove it and import the file again.
+The uploader is stored encrypted in greenshot.ini. When a stored uploader can't be read (e.g. greenshot.ini was changed
+by hand), the list shows *Can't be read, import it again*: remove it and import the file again.
 
 ### Upload
 
@@ -118,7 +117,7 @@ Everything is in `src/Greenshot.Plugin.CustomUploader`:
 | `Sxcu/PlaceholderSyntax.cs` | The `{name:parameter\|parameter}` syntax of ShareX 13.7 and later |
 | `Sxcu/UploaderRequest.cs` | The request: url with parameters, headers, multipart or binary body with `HttpContents` |
 | `Sxcu/UploaderResponse.cs` | Link, thumbnail, deletion link and error from the response |
-| `UploaderStore.cs`, `UserProtection.cs` | The uploaders, their icons and the uploads in `[CustomUploader]`, each value encrypted with DPAPI for the Windows user |
+| `UploaderStore.cs` | The uploaders, their icons and the uploads in `[CustomUploader]`, uploaders and uploads encrypted with `StringExtensions.Encrypt` |
 | `ServiceIcon.cs`, `Destinations/CustomUploaderIconProvider.cs` | The icon of the service, fetched at the import; the generic `Images/Upload.png` without one |
 | `Destinations/CustomUploaderDestination.cs` | *Custom uploader* with one dynamic destination per uploader |
 | `Recipes/CustomUploaderStep.cs` | The recipe step, `Uploader` parameter, `CustomUploader.Url` output |
@@ -180,8 +179,10 @@ the boundary); `Content-Length` is always computed.
 - **No redirects.** Uploads go through `HttpService.WithoutRedirects`: a redirect would carry the headers of the file to
   another host. A 3xx is a failed upload with its status (`{header:Location}` is readable in `ErrorMessage`).
 - **No questions per upload.** Placeholders which ask the user or pick at random are refused at import.
-- **Encrypted at rest.** Everything in `[CustomUploader]` is DPAPI (CurrentUser) with the plugin's own entropy, never clear
-  text and never in an export. A value which can't be decrypted is shown as unreadable, never repaired.
+- **Encrypted at rest.** Uploaders and uploads in `[CustomUploader]` go through `StringExtensions.Encrypt`/`Decrypt`, the
+  encryption of all Greenshot secrets (the icons are the public favicons, plain base64), never in an export. That
+  encryption keeps ASCII only, so the stored JSON escapes everything else (`AsciiJson`). `Decrypt` gives back what it
+  can't decrypt, the JSON then can't be read: such a value is shown as unreadable, never repaired.
 - **Only web links leave the plugin.** A link from a response is opened in the browser and put on the clipboard only when
   it is an absolute http or https url (`file:`, `javascript:` and others are dropped).
 - **Beta.** `CustomUploaderPlugin.IsEnabled` (`IsBetaTester`) decides at startup: without it there is no destination, no
@@ -205,4 +206,4 @@ Greenshot doesn't offer. A new body goes into `UploaderFile.Check` (accept it), 
 
 `src/Greenshot.Tests/CustomUploader`: the import checks (`UploaderFileTests`), the syntax (`PlaceholderSyntaxTests`),
 requests and responses with `FakeHttpHandler` (`UploaderRequestTests`, see [http.md](http.md#testing)), and the encrypted
-store (`UploaderStoreTests`, DPAPI of the user who runs the tests). The tests never send anything over the network.
+store (`UploaderStoreTests`). The tests never send anything over the network.

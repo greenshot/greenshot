@@ -22,13 +22,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Greenshot.Base.Core;
 using Greenshot.Plugin.CustomUploader.Sxcu;
 using Newtonsoft.Json;
 
 namespace Greenshot.Plugin.CustomUploader;
 
 /// <summary>
-/// An imported uploader, <see cref="Definition"/> is null when it can't be decrypted on this Windows account.
+/// An imported uploader, <see cref="Definition"/> is null when it can't be decrypted.
 /// </summary>
 internal sealed class StoredUploader
 {
@@ -61,7 +62,7 @@ internal sealed class UploadRecord
 }
 
 /// <summary>
-/// The uploaders, their icons and the uploads in the [CustomUploader] section, each value encrypted for the Windows user.
+/// The uploaders, their icons and the uploads in the [CustomUploader] section, the uploaders and uploads encrypted (<see cref="StringExtensions.Encrypt"/>).
 /// Used from the settings (UI thread) and the uploads (thread pool), so every access is locked (one lock for all instances,
 /// they share the dictionaries of the configuration).
 /// </summary>
@@ -81,12 +82,15 @@ internal sealed class UploaderStore
     private readonly Func<string, string> _protect;
     private readonly Func<string, string> _unprotect;
 
+    // StringExtensions.Encrypt only keeps ASCII: the JSON escapes everything else
+    private static readonly JsonSerializerSettings AsciiJson = new JsonSerializerSettings { StringEscapeHandling = StringEscapeHandling.EscapeNonAscii };
+
     /// <param name="uploaders">id to encrypted uploader</param>
     /// <param name="uploads">id to encrypted upload</param>
     /// <param name="changed">Called after a change, saves the configuration</param>
-    /// <param name="protect">Encrypts, null: <see cref="UserProtection.Protect"/></param>
-    /// <param name="unprotect">Decrypts, null: <see cref="UserProtection.Unprotect"/></param>
-    /// <param name="icons">id of the uploader to its encrypted icon, null: not kept</param>
+    /// <param name="protect">Encrypts, null: <see cref="StringExtensions.Encrypt"/></param>
+    /// <param name="unprotect">Decrypts, null: <see cref="StringExtensions.Decrypt"/> (which gives back what it can't decrypt, the JSON then can't be read)</param>
+    /// <param name="icons">id of the uploader to its icon (base64 PNG, the public favicon of the service), null: not kept</param>
     /// <param name="reminders">ids of the uploaders with a reminder before each upload, null: not kept</param>
     public UploaderStore(IDictionary<string, string> uploaders, IDictionary<string, string> uploads, Action changed, Func<string, string> protect = null, Func<string, string> unprotect = null,
         IDictionary<string, string> icons = null, IDictionary<string, string> reminders = null)
@@ -96,8 +100,8 @@ internal sealed class UploaderStore
         _uploaders = uploaders ?? throw new ArgumentNullException(nameof(uploaders));
         _uploads = uploads ?? throw new ArgumentNullException(nameof(uploads));
         _changed = changed ?? (() => { });
-        _protect = protect ?? UserProtection.Protect;
-        _unprotect = unprotect ?? UserProtection.Unprotect;
+        _protect = protect ?? (text => text.Encrypt());
+        _unprotect = unprotect ?? (text => string.IsNullOrEmpty(text) ? null : text.Decrypt());
     }
 
     /// <summary>
@@ -134,7 +138,7 @@ internal sealed class UploaderStore
         {
             var existing = Find(definition.Name);
             string id = existing?.Id ?? Guid.NewGuid().ToString("N");
-            _uploaders[id] = _protect(JsonConvert.SerializeObject(definition));
+            _uploaders[id] = _protect(JsonConvert.SerializeObject(definition, AsciiJson));
             // The icon belonged to the old file, maybe another server: fetched again
             _icons.Remove(id);
             if (remindBeforeUpload)
@@ -171,21 +175,20 @@ internal sealed class UploaderStore
     }
 
     /// <summary>
-    /// The icon of the uploader (PNG), null when there is none or it can't be decrypted
+    /// The icon of the uploader (PNG), null when there is none or it can't be read
     /// </summary>
     public byte[] GetIcon(string id)
     {
         lock (Lock)
         {
-            if (id == null || !_icons.TryGetValue(id, out var protectedIcon))
+            if (id == null || !_icons.TryGetValue(id, out var base64))
             {
                 return null;
             }
 
-            string base64 = _unprotect(protectedIcon);
             try
             {
-                return base64 == null ? null : Convert.FromBase64String(base64);
+                return Convert.FromBase64String(base64);
             }
             catch (FormatException)
             {
@@ -207,7 +210,7 @@ internal sealed class UploaderStore
                 return;
             }
 
-            _icons[id] = _protect(Convert.ToBase64String(png));
+            _icons[id] = Convert.ToBase64String(png);
         }
 
         OnChanged();
@@ -261,7 +264,7 @@ internal sealed class UploaderStore
         if (upload == null) throw new ArgumentNullException(nameof(upload));
         lock (Lock)
         {
-            _uploads[Guid.NewGuid().ToString("N")] = _protect(JsonConvert.SerializeObject(upload));
+            _uploads[Guid.NewGuid().ToString("N")] = _protect(JsonConvert.SerializeObject(upload, AsciiJson));
             // The oldest go first, and what can't be read anymore
             var keep = new HashSet<string>(GetUploads().Take(MaximumUploads).Select(entry => entry.Key));
             foreach (string id in _uploads.Keys.Where(id => !keep.Contains(id)).ToList())

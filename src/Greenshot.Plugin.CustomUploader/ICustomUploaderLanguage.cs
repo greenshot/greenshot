@@ -47,7 +47,7 @@ public interface ICustomUploaderLanguage : INotifyPropertyChanged
     string NoLink { get; }
 
     /// <summary>
-    /// Upload your captures to a service of your choice: import the uploader file (.sxcu) the service offers, the same file ShareX uses. Greenshot asks before it imports a file, and keeps it encrypted for your Windows account.
+    /// Upload your captures to a service of your choice: import the uploader file (.sxcu) the service offers, the same file ShareX uses. Greenshot asks before it imports a file, and keeps it encrypted.
     /// </summary>
     string SettingsDescription { get; }
 
@@ -97,7 +97,7 @@ public interface ICustomUploaderLanguage : INotifyPropertyChanged
     string Forget { get; }
 
     /// <summary>
-    /// Can't be read on this Windows account, import it again
+    /// Can't be read, import it again
     /// </summary>
     string Unreadable { get; }
 

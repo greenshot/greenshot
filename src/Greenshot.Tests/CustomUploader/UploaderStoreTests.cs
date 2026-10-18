@@ -74,7 +74,7 @@ namespace Greenshot.Tests.CustomUploader
         }
 
         [Fact]
-        public void SetIcon_IsKeptEncryptedPerUploader()
+        public void SetIcon_IsKeptPerUploader()
         {
             var store = CreateStore();
             string id = store.Add(Uploader("Mine"));
@@ -83,8 +83,9 @@ namespace Greenshot.Tests.CustomUploader
             store.SetIcon(id, png);
 
             Assert.Equal(png, CreateStore().GetIcon(id));
-            Assert.DoesNotContain(Convert.ToBase64String(png), _icons[id]);
             Assert.Null(store.GetIcon("other"));
+            _icons[id] = "not base64!";
+            Assert.Null(store.GetIcon(id));
         }
 
         [Fact]
@@ -185,14 +186,28 @@ namespace Greenshot.Tests.CustomUploader
         }
 
         [Fact]
-        public void UserProtection_RoundTrip_AndOtherDataIsNotReadable()
+        public void Add_NonAsciiText_SurvivesTheEncryption()
         {
-            string protectedText = UserProtection.Protect("https://example.com/delete/k1");
+            // StringExtensions.Encrypt keeps ASCII only, the stored JSON escapes the rest
+            var store = CreateStore();
+            store.Add(Uploader("Grün – 画像"));
+            store.AddUpload(new UploadRecord { Uploader = "Grün – 画像", Url = "https://i.example.com/ü.png", Uploaded = DateTimeOffset.Now });
 
-            Assert.Equal("https://example.com/delete/k1", UserProtection.Unprotect(protectedText));
-            Assert.Null(UserProtection.Unprotect("not base64!"));
-            Assert.Null(UserProtection.Unprotect(Convert.ToBase64String(new byte[] { 1, 2, 3 })));
-            Assert.Null(UserProtection.Unprotect(null));
+            Assert.Equal("Grün – 画像", Assert.Single(CreateStore().GetUploaders()).Name);
+            Assert.Equal("https://i.example.com/ü.png", Assert.Single(CreateStore().GetUploads()).Value.Url);
+        }
+
+        [Fact]
+        public void Read_ValueWhichCantBeDecrypted_IsUnreadable()
+        {
+            var store = CreateStore();
+            string id = store.Add(Uploader("Mine"));
+            // Decrypt gives back what it can't decrypt: base64 of other bytes
+            _uploaders[id] = Convert.ToBase64String(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 });
+            _uploads["broken"] = "not encrypted";
+
+            Assert.Null(Assert.Single(store.GetUploaders()).Definition);
+            Assert.Empty(store.GetUploads());
         }
     }
 }

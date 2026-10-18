@@ -22,10 +22,6 @@
     <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <!-- ProtectedData (DPAPI) for the stored uploaders and uploads -->
-    <Reference Include="System.Security" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0" />
     <PackageReference Update="Microsoft.VisualStudio.Threading.Analyzers" Version="18.7.23" />
   </ItemGroup>
