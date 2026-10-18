@@ -21,7 +21,6 @@
 
 using System.Diagnostics;
 using System.Net;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
@@ -29,6 +28,7 @@ using log4net;
 using Greenshot.Base.Languages;
 using System.IO;
 using System.Linq;
+using Greenshot.Base.Http;
 
 namespace Greenshot.Base.Help
 {
@@ -111,22 +111,6 @@ namespace Greenshot.Base.Help
             return ret;
         }
 
-        private static async Task<HttpStatusCode?> GetHttpStatusAsync(string url, CancellationToken cancellationToken)
-        {
-            try
-            {
-                using var response = await NetworkHelper.HttpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                return response.StatusCode;
-            }
-            catch (HttpRequestException)
-            {
-                return null;
-            }
-            catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested)
-            {
-                // Timeout
-                return null;
-            }
-        }
+        private static Task<HttpStatusCode?> GetHttpStatusAsync(string url, CancellationToken cancellationToken) => HttpService.Current.GetStatusAsync(url, cancellationToken);
     }
 }
