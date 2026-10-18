@@ -16,6 +16,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/DialogStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="VisibleWhenTrue"/>
         </ResourceDictionary>
     </Window.Resources>
 
@@ -39,9 +40,30 @@
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
                                         <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto" SharedSizeGroup="Show"/>
                                     </Grid.ColumnDefinitions>
                                     <Label Content="{Binding Label}" Margin="0,0,12,0"/>
-                                    <TextBox Grid.Column="1" Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBox Grid.Column="1" Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                        <TextBox.Style>
+                                            <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsMasked}" Value="True">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBox.Style>
+                                    </TextBox>
+                                    <!-- Keys and tokens are masked until the user asks to see them -->
+                                    <PasswordBox Grid.Column="1" IsVisibleChanged="Secret_IsVisibleChanged" PasswordChanged="Secret_PasswordChanged"
+                                                 Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
+                                                 Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}"
+                                                 BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBorderBrush}"
+                                                 CaretBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
+                                                 Visibility="{Binding IsMasked, Converter={StaticResource VisibleWhenTrue}}"/>
+                                    <CheckBox Grid.Column="2" Content="{wpf:Text CustomUploader.ValuesShow}" Margin="8,0,0,0" VerticalAlignment="Center"
+                                              IsChecked="{Binding IsRevealed, Mode=TwoWay}"
+                                              Visibility="{Binding IsSecret, Converter={StaticResource VisibleWhenTrue}}"/>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

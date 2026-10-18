@@ -29,6 +29,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Greenshot.Base.Core;
@@ -403,13 +404,59 @@ internal enum UploaderValueKind
 /// <summary>
 /// A value of the uploader the user can change before the import
 /// </summary>
-public sealed class UploaderValue
+public sealed class UploaderValue : INotifyPropertyChanged
 {
+    // Names under which services expect a key: the value is masked
+    private static readonly Regex SecretName = new Regex("key|token|secret|password|auth", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant, TimeSpan.FromSeconds(1));
+
+    // The texts shared files put where the key of the user belongs: <API KEY HERE>, [insert key], YOUR_TOKEN, "Your key goes here"
+    private static readonly Regex PlaceholderText = new Regex(@"<[^<>]*>|\[[^\[\]]*\]|\byour[\s_-]|\binsert\b|\bhere\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant, TimeSpan.FromSeconds(1));
+
+    private bool _isRevealed;
+
     internal UploaderValue(UploaderValueKind kind, string name, string value)
     {
         Kind = kind;
         Name = name;
         Value = value;
+        IsSecret = kind != UploaderValueKind.RequestUrl && name != null && SecretName.IsMatch(name);
+    }
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    /// <summary>The value is a key: shown masked unless the user reveals it</summary>
+    public bool IsSecret { get; }
+
+    public bool IsRevealed
+    {
+        get => _isRevealed;
+        set
+        {
+            _isRevealed = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsRevealed)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsMasked)));
+        }
+    }
+
+    /// <summary>The PasswordBox is shown instead of the TextBox</summary>
+    public bool IsMasked => IsSecret && !IsRevealed;
+
+    /// <summary>
+    /// The value still looks like the text a shared file has where the key belongs (the user asked once before going on)
+    /// </summary>
+    internal bool LooksLikePlaceholder
+    {
+        get
+        {
+            try
+            {
+                return !string.IsNullOrEmpty(Value) && PlaceholderText.IsMatch(Value);
+            }
+            catch (RegexMatchTimeoutException)
+            {
+                return false;
+            }
+        }
     }
 
     internal UploaderValueKind Kind { get; }

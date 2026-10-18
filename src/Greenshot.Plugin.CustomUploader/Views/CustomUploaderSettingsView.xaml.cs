@@ -21,6 +21,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using Greenshot.Base.Languages;
@@ -114,6 +115,14 @@ public partial class CustomUploaderSettingsView : UserControl
             if (valuesWindow.ShowDialog() != true)
             {
                 return null;
+            }
+
+            // Ask once when a value still looks like the text of the file (YOUR_API_KEY), No goes back to the values
+            var placeholders = values.Where(value => value.LooksLikePlaceholder).Select(value => value.Label).ToList();
+            if (placeholders.Count > 0 && ThemedMessageBox.Show(owner, string.Format(UploaderTexts.ValuesPlaceholderQuestion, string.Join(", ", placeholders)),
+                    UploaderTexts.ImportTitle, MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+            {
+                continue;
             }
 
             try

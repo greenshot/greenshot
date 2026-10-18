@@ -111,5 +111,32 @@ namespace Greenshot.Tests.CustomUploader
 
             Assert.Throws<UploaderFileException>(() => CustomUploaderSettingsViewModel.WithValues(definition, values));
         }
+        [Fact]
+        public void GetValues_KeysAndTokens_AreMasked()
+        {
+            var values = CustomUploaderSettingsViewModel.GetValues(Shared());
+
+            Assert.Equal(new[] { false, true, false, false }, values.Select(value => value.IsSecret));
+            Assert.True(values[1].IsMasked);
+            values[1].IsRevealed = true;
+            Assert.False(values[1].IsMasked);
+        }
+
+        [Theory]
+        [InlineData("<API KEY HERE (https://api.imgbb.com/)>", true)]
+        [InlineData("[insert key]", true)]
+        [InlineData("YOUR_TOKEN", true)]
+        [InlineData("Token YOUR-TOKEN", true)]
+        [InlineData("Paste your key here", true)]
+        [InlineData("my-key", false)]
+        [InlineData("600", false)]
+        [InlineData("", false)]
+        public void LooksLikePlaceholder_TheTextOfSharedFiles(string value, bool expected)
+        {
+            var values = CustomUploaderSettingsViewModel.GetValues(Shared());
+            values[1].Value = value;
+
+            Assert.Equal(expected, values[1].LooksLikePlaceholder);
+        }
     }
 }

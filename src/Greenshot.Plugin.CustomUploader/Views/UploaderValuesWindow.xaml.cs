@@ -21,6 +21,7 @@
 
 using System.Collections.Generic;
 using System.Windows;
+using System.Windows.Controls;
 using Greenshot.Plugin.CustomUploader.ViewModels;
 
 namespace Greenshot.Plugin.CustomUploader.Views;
@@ -36,6 +37,26 @@ public partial class UploaderValuesWindow : Window
         InitializeComponent();
         Title = title;
         ValueList.ItemsSource = values;
+    }
+
+    // Each time the mask comes back, it takes over what the user typed while the value was shown
+    private void Secret_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        var passwordBox = (PasswordBox)sender;
+        if (!passwordBox.IsVisible) return;
+        if (passwordBox.DataContext is UploaderValue value && passwordBox.Password != (value.Value ?? string.Empty))
+        {
+            passwordBox.Password = value.Value ?? string.Empty;
+        }
+    }
+
+    private void Secret_PasswordChanged(object sender, RoutedEventArgs e)
+    {
+        var passwordBox = (PasswordBox)sender;
+        if (passwordBox.DataContext is UploaderValue value)
+        {
+            value.Value = passwordBox.Password;
+        }
     }
 
     private void Next_Click(object sender, RoutedEventArgs e)

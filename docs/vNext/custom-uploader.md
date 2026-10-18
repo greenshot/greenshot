@@ -38,8 +38,10 @@ In the settings, *Plugins*, select *CustomUploader* and *Configure*, then *Impor
 Greenshot first checks the file and refuses it when it can't upload safely with it (the message says why, see
 [What Greenshot refuses](#what-greenshot-refuses)). Then it shows the values of the uploader: the address, the address
 parameters, the headers and the form fields. Shared files often have a text like `YOUR_API_KEY` or `<API KEY HERE>` where
-your key belongs: put the key the service gave you there (no need to edit the file). With *Next* Greenshot checks the
-values like the file. Then it asks: it shows the name of the uploader, the server your
+your key belongs: put the key the service gave you there (no need to edit the file). Values whose name says key, token,
+secret, password or auth (like *Authorization*) are masked, *Show* reveals them. When a value still looks like the text
+of the file (`<…>`, `[…]`, `YOUR_…`, "insert", "here"), *Next* asks once whether to go on; *No* goes back to the values.
+With *Next* Greenshot checks the values like the file. Then it asks: it shows the name of the uploader, the server your
 captures go to, and the names of the headers which go with them (often *Authorization*, the key). The values aren't shown.
 The *Import* button reacts after a moment, Enter and Escape cancel. Nothing is stored before you click *Import*.
 
@@ -133,7 +135,8 @@ rules and the logging rules apply.
 
 1. **Import** (settings, UI thread): `UploaderFile.Read` parses the JSON into `UploaderDefinition`, normalizes it (method,
    body of old files, name) and checks it. `UploaderValuesWindow` shows `GetValues` (request url, parameters, headers,
-   arguments) for the user to fill in, `WithValues` puts them into a copy and runs it through `UploaderFile.Read` again.
+   arguments) for the user to fill in (`UploaderValue.IsSecret` masks keys in a `PasswordBox`, `LooksLikePlaceholder`
+   makes the view ask once), `WithValues` puts them into a copy and runs it through `UploaderFile.Read` again.
    The view asks with `DescribeImport` and `ThemedMessageBox.ShowChoice` (Cancel is
    the default, the buttons are armed after a second). `UploaderStore.Add` stores the normalized JSON encrypted and saves
    greenshot.ini at once.

@@ -182,6 +182,16 @@ public interface ICustomUploaderLanguage : INotifyPropertyChanged
     string ValuesNext { get; }
 
     /// <summary>
+    /// Show
+    /// </summary>
+    string ValuesShow { get; }
+
+    /// <summary>
+    /// These values still look like the text of the file, not like your own: {0}\n\nGo on anyway?
+    /// </summary>
+    string ValuesPlaceholderQuestion { get; }
+
+    /// <summary>
     /// Upload with {0}?
     /// </summary>
     string ReminderTitle { get; }
