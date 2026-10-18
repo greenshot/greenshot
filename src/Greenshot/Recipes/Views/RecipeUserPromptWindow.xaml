@@ -20,9 +20,10 @@
         Background="{Binding WindowBackgroundBrush}">
 
     <Window.Resources>
+        <!-- The buttons are items (their DataContext is the PromptButtonViewModel): the brushes come from the window -->
         <!-- Modern Primary Button Style -->
         <Style x:Key="PrimaryButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="{Binding AccentBrush}"/>
+            <Setter Property="Background" Value="{Binding DataContext.AccentBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
             <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentForegroundBrush}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -82,9 +83,9 @@
 
         <!-- Secondary Button Style -->
         <Style x:Key="SecondaryButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="{Binding CardBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{Binding TextPrimaryBrush}"/>
-            <Setter Property="BorderBrush" Value="{Binding CardBorderBrush}"/>
+            <Setter Property="Background" Value="{Binding DataContext.CardBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+            <Setter Property="Foreground" Value="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+            <Setter Property="BorderBrush" Value="{Binding DataContext.CardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="18,7"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -101,7 +102,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="{Binding BadgeBackgroundBrush}"/>
+                                <Setter TargetName="border" Property="Background" Value="{Binding DataContext.BadgeBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="border" Property="Opacity" Value="0.8"/>

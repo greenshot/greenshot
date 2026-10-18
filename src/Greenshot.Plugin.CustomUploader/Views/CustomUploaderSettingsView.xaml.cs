@@ -24,8 +24,10 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using Greenshot.Base.Languages;
+using Greenshot.Base.Threading;
 using Greenshot.Base.Wpf;
 using Greenshot.Plugin.CustomUploader.ViewModels;
+using log4net;
 using Microsoft.Win32;
 
 namespace Greenshot.Plugin.CustomUploader.Views;
@@ -36,6 +38,7 @@ namespace Greenshot.Plugin.CustomUploader.Views;
 /// </summary>
 public partial class CustomUploaderSettingsView : UserControl
 {
+    private static readonly ILog Log = LogManager.GetLogger(typeof(CustomUploaderSettingsView));
     private static readonly TimeSpan ImportArmDelay = TimeSpan.FromSeconds(1);
     private readonly CustomUploaderSettingsViewModel _viewModel;
 
@@ -44,6 +47,14 @@ public partial class CustomUploaderSettingsView : UserControl
         _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
         DataContext = viewModel;
         InitializeComponent();
+        // An upload while the page is open shows up in the list
+        Loaded += (_, _) => UploaderStore.Changed += OnStoreChanged;
+        Unloaded += (_, _) => UploaderStore.Changed -= OnStoreChanged;
+    }
+
+    private void OnStoreChanged(object sender, EventArgs e)
+    {
+        Dispatcher.InvokeAsync(_viewModel.Refresh).Task.FireAndLog("Refresh the custom uploader settings", Log);
     }
 
     private static ICustomUploaderLanguage UploaderTexts => Texts.Get<ICustomUploaderLanguage>();

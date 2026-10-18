@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -37,6 +38,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.Http;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Threading;
 using Greenshot.Plugin.CustomUploader.Sxcu;
 using log4net;
 
@@ -56,10 +58,43 @@ internal static class ServiceIcon
     /// <summary>A favicon or start page larger than this isn't read</summary>
     public const int MaximumLength = 256 * 1024;
 
-    private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(10);
+    // Background work, some services answer slowly (catbox.moe took 20 seconds and more)
+    private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(45);
+
+    // The uploaders (ids) whose icon was fetched since Greenshot started: one try per start, not one per menu
+    private static readonly ConcurrentDictionary<string, bool> Fetched = new ConcurrentDictionary<string, bool>();
 
     private static readonly Regex LinkTag = new Regex(@"<link\b[^>]*>", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant, TimeSpan.FromSeconds(1));
     private static readonly Regex Attribute = new Regex(@"(?<![\w-])(?<name>rel|href)\s*=\s*(?:""(?<value>[^""]*)""|'(?<value>[^']*)'|(?<value>[^\s>]+))", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant, TimeSpan.FromSeconds(1));
+
+    /// <summary>
+    /// Fetch and keep the icon of the uploader in the background when it has none: after the import (again = true),
+    /// or the first time Greenshot needs it (an import whose fetch failed, an uploader imported before icons existed).
+    /// </summary>
+    public static void FetchInBackground(UploaderStore store, string id, UploaderDefinition definition, bool again = false)
+    {
+        if (id == null || definition == null) return;
+        if (again)
+        {
+            Fetched.TryRemove(id, out _);
+        }
+
+        if (!Fetched.TryAdd(id, true) || store.GetIcon(id) != null)
+        {
+            return;
+        }
+
+        FetchAndKeepAsync(store, id, definition).FireAndLog($"The icon of the uploader {definition.Name}", Log);
+    }
+
+    private static async Task FetchAndKeepAsync(UploaderStore store, string id, UploaderDefinition definition)
+    {
+        // UI event → background work, like an export (the proxy lookup of the first request can take a while)
+        await ThreadPoolSwitch.SwitchToThreadPoolAsync();
+        var png = await FetchAsync(HttpService.Current, definition, CancellationToken.None).ConfigureAwait(false);
+        store.SetIcon(id, png);
+        Log.InfoFormat("Icon of the uploader {0}: {1}", definition.Name, png == null ? "none found, the generic one is used" : "from the service");
+    }
 
     /// <summary>
     /// The icon as PNG, null when the service has none Greenshot can read. Never throws, except for the cancellation.
@@ -92,12 +127,12 @@ internal static class ServiceIcon
             }
             catch (OperationCanceledException)
             {
-                Log.DebugFormat("No icon for {0}: it took too long", site.Host);
+                Log.InfoFormat("No icon for {0}: it took longer than {1}", site.Host, Timeout);
                 return null;
             }
             catch (Exception ex) when (ex is HttpRequestException or TimeoutException)
             {
-                Log.DebugFormat("No icon from {0}: {1}", site.Host, ex.GetType().Name);
+                Log.InfoFormat("No icon from {0}: {1}", site.Host, ex.GetType().Name);
             }
         }
 
@@ -221,11 +256,18 @@ internal static class ServiceIcon
         try
         {
             var bytes = await httpService.GetBytesAsync(uri.AbsoluteUri, cancellationToken).ConfigureAwait(false);
-            return bytes.Length > MaximumLength ? null : bytes;
+            if (bytes.Length > MaximumLength)
+            {
+                Log.InfoFormat("No icon from {0}: {1} bytes are too many", uri.Host, bytes.Length);
+                return null;
+            }
+
+            return bytes;
         }
         catch (Exception ex) when (ex is HttpRequestException or UnauthorizedAccessException)
         {
-            // 404 and the like, or no connection: no icon there
+            // 404 and the like, or no connection: no icon there. Logged: the host and the status, not the path (http.md)
+            Log.InfoFormat("No icon from {0}: {1}", uri.Host, ex.Message);
             return null;
         }
     }

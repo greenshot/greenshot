@@ -47,7 +47,14 @@ internal sealed class CustomUploaderIconProvider : IIconProvider
     {
         string name = iconKey.Substring(Prefix.Length);
         var store = CustomUploaderPlugin.CreateStore();
-        byte[] png = name.Length == 0 ? null : store.GetIcon(store.Find(name)?.Id);
+        var uploader = name.Length == 0 ? null : store.Find(name);
+        byte[] png = store.GetIcon(uploader?.Id);
+        if (png == null && uploader?.Definition != null)
+        {
+            // Shown later, the menus ask again the next time
+            ServiceIcon.FetchInBackground(store, uploader.Id, uploader.Definition);
+        }
+
         return Task.FromResult(png == null ? GenericIcon() : FromPng(png) ?? GenericIcon());
     }
 

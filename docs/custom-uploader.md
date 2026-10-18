@@ -43,7 +43,7 @@ An uploader with the same name as one you already have replaces it, Greenshot sa
 
 After the import Greenshot gets the icon of the service once, from the server of the uploader (or the website it belongs
 to, e.g. `example.com` for `api.example.com`), and shows it in the destination menus. Only the icon is requested, nothing of
-the uploader is sent. A service without an icon gets the generic upload icon.
+the uploader is sent. A service without an icon gets the generic upload icon, Greenshot tries again after the next start.
 
 The uploader is stored in greenshot.ini, encrypted for your Windows account: another user, or the same greenshot.ini on
 another computer (e.g. the portable Greenshot on a USB stick), can't read it. The list then shows *Can't be read on this
@@ -141,10 +141,10 @@ rules and the logging rules apply.
 
 **Icon** (after the import, thread pool): `ServiceIcon.FetchAsync` tries the server of the uploader, then its parent domain
 (one label less, not for IP addresses or `localhost`): `/favicon.ico`, else the first `<link rel="icon">` of the start page
-which stays on that host. A plain GET with no header or value of the uploader, 10 seconds and 256 KB at most. Only ICO, PNG,
+which stays on that host. A plain GET with no header or value of the uploader, 45 seconds for all and 256 KB per file at most; the outcome is logged (host and status). Only ICO, PNG,
 GIF and JPEG (by their first bytes) are read, through the file format handlers, and stored as a 32x32 PNG
 (`UploaderStore.SetIcon`). `CustomUploaderIconProvider` gives `customuploader:name` the stored icon, else the generic one.
-A re-import fetches it again; an uploader imported before this has the generic icon until it is imported again.
+A re-import fetches it again. Without an icon (the fetch failed, an uploader imported before icons existed) the first menu which shows the uploader after a start of Greenshot tries once more in the background.
 
 ### Supported placeholders
 

@@ -28,11 +28,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Greenshot.Base.Http;
 using Greenshot.Base.Languages;
-using Greenshot.Base.Threading;
 using Greenshot.Plugin.CustomUploader.Sxcu;
 using log4net;
 
@@ -194,19 +190,7 @@ public sealed class CustomUploaderSettingsViewModel : INotifyPropertyChanged
         Log.InfoFormat("Imported the uploader {0} for {1}", definition.Name, UploaderFile.DescribeServer(definition));
         Refresh();
         SelectedUploader = Uploaders.FirstOrDefault(item => item.Id == id);
-        FetchIconAsync(id, definition).FireAndLog($"The icon of the uploader {definition.Name}", Log);
-    }
-
-    /// <summary>
-    /// The icon of the service, once at the import; without it the destination has the generic upload icon
-    /// </summary>
-    private async Task FetchIconAsync(string id, UploaderDefinition definition)
-    {
-        // UI event → background work, like an export (the proxy lookup of the first request can take a while)
-        await ThreadPoolSwitch.SwitchToThreadPoolAsync();
-        var png = await ServiceIcon.FetchAsync(HttpService.Current, definition, CancellationToken.None).ConfigureAwait(false);
-        _store.SetIcon(id, png);
-        Log.DebugFormat("Icon of the uploader {0}: {1}", definition.Name, png == null ? "none, the generic one is used" : "from the service");
+        ServiceIcon.FetchInBackground(_store, id, definition, again: true);
     }
 
     public void RemoveSelectedUploader()

@@ -326,5 +326,14 @@ internal sealed class UploaderStore
         }
     }
 
-    private void OnChanged() => _changed();
+    /// <summary>
+    /// After any change of any store (an upload on the thread pool, an icon), e.g. for the settings page to show it
+    /// </summary>
+    public static event EventHandler Changed;
+
+    private void OnChanged()
+    {
+        _changed();
+        Changed?.Invoke(null, EventArgs.Empty);
+    }
 }
