@@ -10,7 +10,6 @@
   
   <ItemGroup>
     <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0" />
-    <PackageReference Update="Microsoft.VisualStudio.Threading.Analyzers" Version="18.7.23" />
   </ItemGroup>
   
   <Target Name="GenerateSbom" BeforeTargets="Generate hashes" DependsOnTargets="PrunePluginFiles;SignFiles" Condition="'$(Configuration)' == 'Release'">

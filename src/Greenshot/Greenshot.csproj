@@ -133,7 +133,6 @@
 
   <ItemGroup>
     <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0" />
-    <PackageReference Update="Microsoft.VisualStudio.Threading.Analyzers" Version="18.7.23" />
     <PackageReference Update="MSBuildTasks" Version="1.5.0.235">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

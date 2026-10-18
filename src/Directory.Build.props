@@ -90,7 +90,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <!-- SourceLink is only needed for the build, its dependency System.IO.Hashing (the tasks bring their own copy) shouldn't end up in the output -->
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.401" PrivateAssets="All" ExcludeAssets="compile;runtime"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.402" PrivateAssets="All" ExcludeAssets="compile;runtime"/>
   </ItemGroup>
 
   <!-- HttpClient (NetworkHelper.HttpClient) is part of the framework, but not referenced by default -->
@@ -104,7 +104,7 @@
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
   </PropertyGroup>
   <ItemGroup Condition="!$(MSBuildProjectName.Contains('Tests')) And $(MSBuildProjectName.StartsWith('Greenshot')) And '$(MSBuildProjectName)' != 'Greenshot.BuildTasks'">
-    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.14.15">
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="18.12.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
