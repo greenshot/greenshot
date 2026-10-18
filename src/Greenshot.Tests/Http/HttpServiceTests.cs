@@ -188,6 +188,18 @@ namespace Greenshot.Tests.Http
         }
 
         [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void CreateHandler_FollowsRedirectsOnlyWhenAsked_AndNeverSendsWindowsCredentials(bool followRedirects)
+        {
+            using var handler = HttpService.CreateHandler(followRedirects);
+
+            Assert.Equal(followRedirects, handler.AllowAutoRedirect);
+            Assert.False(handler.UseDefaultCredentials);
+            Assert.Null(handler.Credentials);
+        }
+
+        [Theory]
         [InlineData("https://discord.com/api/webhooks/123/token?wait=true", "https://discord.com")]
         [InlineData("https://example.com:8443/upload?key=secret", "https://example.com:8443")]
         public void Describe_LeavesOutPathAndQuery(string url, string expected)

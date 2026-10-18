@@ -199,6 +199,7 @@ namespace Greenshot.Editor.Controls
                 // Only one: the item itself becomes that destination, without a sub menu
                 menuItem.Tag = validSubDestinations[0];
                 menuItem.Text = validSubDestinations[0].Descriptor.DisplayName;
+                AssignIcon(menuItem, validSubDestinations[0].Descriptor.IconKey);
                 return;
             }
 
