@@ -142,7 +142,7 @@ rules and the logging rules apply.
    http and https links are accepted, a link is opened and put on the clipboard.
 4. **Keep**: the link and the deletion link go into the upload history (`UploaderStore.AddUpload`, the newest 100).
 
-**Icon** (after the import, thread pool): `ServiceIcon.FetchAsync` tries the server of the uploader, then its parent domain
+**Icon** (after the import, thread pool): `ServiceIcon.FetchAsync` asks `SiteIcon` (Greenshot.Base, see [http.md](http.md)) for the server of the uploader, then its parent domain
 (one label less, not for IP addresses or `localhost`): `/favicon.ico`, else the first `<link rel="icon">` of the start page
 which stays on that host. A plain GET with no header or value of the uploader, 45 seconds for all and 256 KB per file at most; the outcome is logged (host and status). Only ICO, PNG,
 GIF and JPEG (by their first bytes) are read, through the file format handlers, and stored as a 32x32 PNG

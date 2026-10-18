@@ -95,7 +95,7 @@ namespace Greenshot.Tests.CustomUploader
             var png = await ServiceIcon.FetchAsync(Service(handler), Uploader("https://upload.example.com/api/{filename}"), CancellationToken.None);
 
             Assert.NotNull(png);
-            Assert.Equal(new Size(ServiceIcon.Size, ServiceIcon.Size), SizeOf(png));
+            Assert.Equal(new Size(SiteIcon.Size, SiteIcon.Size), SizeOf(png));
             Assert.Equal(new Uri("https://upload.example.com/favicon.ico"), Assert.Single(handler.Requests).Uri);
         }
 
@@ -145,27 +145,6 @@ namespace Greenshot.Tests.CustomUploader
 
             Assert.Null(png);
             Assert.DoesNotContain(handler.Requests, request => request.Uri.Host == "tracker.example.net");
-        }
-
-        [Fact]
-        public void ToPng_TooLargeOrNoImage_IsNull()
-        {
-            var tooLarge = new byte[ServiceIcon.MaximumLength + 1];
-            CreatePng(1, 1).CopyTo(tooLarge, 0);
-
-            Assert.Null(ServiceIcon.ToPng(tooLarge));
-            Assert.Null(ServiceIcon.ToPng(new byte[] { 0x89, (byte)'P', (byte)'N', (byte)'G', 0, 0, 0, 0, 0 }));
-            Assert.Null(ServiceIcon.ToPng(null));
-        }
-
-        [Theory]
-        [InlineData("https://api.upload.example.com", "https://api.upload.example.com/|https://upload.example.com/")]
-        [InlineData("https://example.com", "https://example.com/")]
-        [InlineData("http://localhost:8080", "http://localhost:8080/")]
-        [InlineData("https://192.168.1.10", "https://192.168.1.10/")]
-        public void GetSites_ServerThenParentDomain(string server, string expected)
-        {
-            Assert.Equal(expected, string.Join("|", ServiceIcon.GetSites(new Uri(server)).Select(site => site.AbsoluteUri)));
         }
 
         [Fact]
