@@ -100,6 +100,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 **Improved Cursor Capture** (#863)
 - Enhanced cursor capture logic to reflect real cursor size
 - More accurate cursor representation in screenshots
+- The captured cursor is only as big as the visible pointer, without the empty space around it
 - By @Lakritzator
 
 **Windows 11 Capture Behavior** (#771)
