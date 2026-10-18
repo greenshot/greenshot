@@ -66,8 +66,8 @@ namespace Greenshot.Tests.Forms
                     old.SetValue("UID", 1, RegistryValueKind.DWord);
                     old.SetValue("IsPromoted", 1, RegistryValueKind.DWord);
                 }
-                // Greenshot's icon with id 0 has no key (yet)
-                Assert.False(SetupSectionViewModel.IsHiddenInOverflow(root, ProgramFilesGreenshot, 0));
+                // Greenshot's icon with id 0 has no key (yet): hidden, and the button can only open the taskbar settings
+                Assert.True(SetupSectionViewModel.IsHiddenInOverflow(root, ProgramFilesGreenshot, 0));
                 Assert.False(SetupSectionViewModel.ShowNextToClock(root, ProgramFilesGreenshot, 0));
 
                 using var icon = settings.CreateSubKey("3");
