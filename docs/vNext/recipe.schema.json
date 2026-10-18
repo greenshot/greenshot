@@ -872,17 +872,17 @@
             },
             "MenuItemText": {
               "type": "string",
-              "description": "Custom label displayed in the systray context menu."
+              "description": "Custom label displayed for a ContextMenu (Systray), or Editor menu trigger."
             },
             "Group": {
               "type": "string",
               "default": "Recipes",
-              "description": "Submenu group in the systray context menu."
+              "description": "Submenu group in the systray or image editor menu. The default or empty 'Recipes' group is shown directly and first; named groups are submenus sorted alphabetically."
             },
             "Order": {
               "type": "integer",
               "default": 0,
-              "description": "Sort order within the menu group."
+              "description": "Sort order within the menu group; recipe name breaks ties."
             },
             "OnImageCopied": {
               "type": "boolean",

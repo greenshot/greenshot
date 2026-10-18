@@ -68,6 +68,20 @@ In Greenshot:
 
 Triggers and recipes are decoupled. Any trigger can run any recipe, and a single recipe can be executed by multiple triggers or invoked manually.
 
+### Menu trigger groups
+
+`ContextMenu`/`Systray` and `Editor` triggers can set `parameters.Group` to place their menu items in a submenu. The default
+group, `Recipes` (also used when `Group` is empty or omitted), keeps the item directly in the Recipes menu; a different
+group name creates a submenu. The default `Recipes` items appear first; named submenus are sorted alphabetically. `Order`
+sorts items within each group, with the recipe name as the tie-breaker. For example:
+
+```json
+"triggers": [
+  { "triggerType": "Editor", "parameters": { "MenuItemText": "Add watermark", "Group": "Templates", "Order": 10 } },
+  { "triggerType": "Editor", "parameters": { "MenuItemText": "Redact", "Group": "Privacy", "Order": 20 } }
+]
+```
+
 ---
 
 ## 2. Directed Acyclic Graph (DAG) Workflow Engine

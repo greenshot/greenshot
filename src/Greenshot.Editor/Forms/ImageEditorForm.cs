@@ -2914,16 +2914,41 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
             int count = 0;
             var editorTriggers = triggerManager.GetEditorTriggers();
+            var menuGroups = new Dictionary<string, ToolStripMenuItem>(StringComparer.OrdinalIgnoreCase);
             if (editorTriggers != null)
             {
-                foreach (var trigger in editorTriggers)
-                {
-                    var recipe = recipeManager.GetRecipeById(trigger.TargetRecipeId);
-                    if (recipe == null || !recipe.IsEnabled) continue;
+                var menuEntries = editorTriggers
+                    .Select(trigger => new
+                    {
+                        Trigger = trigger,
+                        Recipe = recipeManager.GetRecipeById(trigger.TargetRecipeId),
+                        Group = string.IsNullOrWhiteSpace(trigger.Group) ? "Recipes" : trigger.Group.Trim()
+                    })
+                    .Where(entry => entry.Recipe != null && entry.Recipe.IsEnabled)
+                    .OrderBy(entry => string.Equals(entry.Group, "Recipes", StringComparison.OrdinalIgnoreCase) ? 0 : 10)
+                    .ThenBy(entry => entry.Group, StringComparer.CurrentCultureIgnoreCase)
+                    .ThenBy(entry => entry.Trigger.Order)
+                    .ThenBy(entry => entry.Recipe.Name, StringComparer.CurrentCultureIgnoreCase);
 
+                foreach (var entry in menuEntries)
+                {
+                    var trigger = entry.Trigger;
                     string menuText = !string.IsNullOrWhiteSpace(trigger.MenuItemText)
                         ? trigger.MenuItemText
-                        : (!string.IsNullOrWhiteSpace(trigger.Name) ? trigger.Name : recipe.Name);
+                        : (!string.IsNullOrWhiteSpace(trigger.Name) ? trigger.Name : entry.Recipe.Name);
+
+                    ToolStripItemCollection parentItems = recipesToolStripMenuItem.DropDownItems;
+                    string group = entry.Group;
+                    if (!string.Equals(group, "Recipes", StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (!menuGroups.TryGetValue(group, out var groupItem))
+                        {
+                            groupItem = new ToolStripMenuItem(group);
+                            menuGroups.Add(group, groupItem);
+                            recipesToolStripMenuItem.DropDownItems.Add(groupItem);
+                        }
+                        parentItems = groupItem.DropDownItems;
+                    }
 
                     var item = new ToolStripMenuItem(menuText);
                     item.Click += (s, ev) =>
@@ -2931,7 +2956,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                         trigger.Fire(this);
                     };
 
-                    recipesToolStripMenuItem.DropDownItems.Add(item);
+                    parentItems.Add(item);
                     count++;
                 }
             }
