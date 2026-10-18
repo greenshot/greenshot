@@ -37,6 +37,7 @@ using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Wpf;
+using Greenshot.Capturing.Tools;
 using Greenshot.Editor.Configuration;
 using Greenshot.Helpers;
 using Greenshot.Base.Threading;
@@ -62,7 +63,7 @@ namespace Greenshot.Settings.ViewModels
             CoreConfiguration = IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
             EditorConfiguration = IniConfigHelper.EnsureSection<IEditorConfiguration>(() => new EditorConfigurationImpl());
             _expertModeEnabled = !CoreConfiguration.HideExpertSettings;
-            _autoStartEnabled = StartupHelper.HasRunUser() || StartupHelper.HasRunAll();
+            _autoStartEnabled = StartupHelper.IsAutostartEnabled();
             
             // Initialize language
             _selectedLanguage = Texts.Config.CurrentLanguage;
@@ -72,7 +73,9 @@ namespace Greenshot.Settings.ViewModels
             
             // Initialize image formats
             InitializeImageFormats();
-            
+
+            FixedCaptureSizes = new ObservableCollection<NativeSize>(FixedSizeCaptureTool.GetSizes(CoreConfiguration.FixedCaptureSizes, null).Select(entry => entry.Size));
+
             // Initialize window capture modes
             
             // Initialize destinations
@@ -254,6 +257,35 @@ namespace Greenshot.Settings.ViewModels
         }
 
         public List<ImageFormatViewModel> ImageFormats { get; private set; }
+
+        /// <summary>
+        /// The sizes of the fixed size capture, in the order the number keys pick them, written back on save
+        /// </summary>
+        public ObservableCollection<NativeSize> FixedCaptureSizes { get; }
+
+        /// <summary>
+        /// Adds a size at the end; false when it isn't a size or is already there
+        /// </summary>
+        public bool AddFixedCaptureSize(NativeSize size)
+        {
+            if (size.Width <= 0 || size.Height <= 0 || FixedCaptureSizes.Contains(size))
+            {
+                return false;
+            }
+            FixedCaptureSizes.Add(size);
+            return true;
+        }
+
+        /// <summary>
+        /// Writes the sizes of the fixed size capture back to the configuration
+        /// </summary>
+        public void SaveFixedCaptureSizes()
+        {
+            if (!CoreConfiguration.IsConstant(nameof(ICoreConfiguration.FixedCaptureSizes)))
+            {
+                CoreConfiguration.FixedCaptureSizes = FixedCaptureSizes.Select(FixedSizeCaptureTool.FormatSize).ToList();
+            }
+        }
 
         public int IconSize
         {

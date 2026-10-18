@@ -41,10 +41,16 @@ namespace Greenshot.SelfService.ViewModels
         public ObservableCollection<SelfServiceSectionViewModel> Sections { get; } = new ObservableCollection<SelfServiceSectionViewModel>();
 
         public SystemInfoSectionViewModel SystemInfoSection { get; }
+        public SetupSectionViewModel SetupSection { get; }
         public FileInfoSectionViewModel FileInfoSection { get; }
         public ClipboardSectionViewModel ClipboardSection { get; }
         public HotkeySectionViewModel HotkeySection { get; }
         public ChecksumSectionViewModel ChecksumSection { get; }
+
+        /// <summary>
+        /// The earlier Imgur uploads, null (no section) when there are none
+        /// </summary>
+        public ImgurSectionViewModel ImgurSection { get; }
 #if DEBUG
         public IntegrationDebugSectionViewModel IntegrationDebugSection { get; }
 #else
@@ -95,22 +101,30 @@ namespace Greenshot.SelfService.ViewModels
         public SolidColorBrush TextSecondaryBrush => WpfThemeHelper.TextSecondary;
         public SolidColorBrush AccentBrush => WpfThemeHelper.Accent;
         public SolidColorBrush BadgeBackgroundBrush => WpfThemeHelper.BadgeBackground;
+        public SolidColorBrush WarningTextBrush => WpfThemeHelper.WarningText;
         public string ThemeToggleIcon => WpfThemeHelper.IsDarkMode ? "☀️" : "🌙";
         public string ThemeToggleToolTip => WpfThemeHelper.IsDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode";
 
         public SelfServiceViewModel(string initialSectionId = null)
         {
             SystemInfoSection = new SystemInfoSectionViewModel();
+            SetupSection = new SetupSectionViewModel();
             FileInfoSection = new FileInfoSectionViewModel();
             ClipboardSection = new ClipboardSectionViewModel();
             HotkeySection = new HotkeySectionViewModel();
             ChecksumSection = new ChecksumSectionViewModel();
 
             Sections.Add(SystemInfoSection);
+            Sections.Add(SetupSection);
             Sections.Add(FileInfoSection);
             Sections.Add(ClipboardSection);
             Sections.Add(HotkeySection);
             Sections.Add(ChecksumSection);
+            if (ImgurSectionViewModel.HasUploads)
+            {
+                ImgurSection = new ImgurSectionViewModel();
+                Sections.Add(ImgurSection);
+            }
 #if DEBUG
             IntegrationDebugSection = new IntegrationDebugSectionViewModel();
             Sections.Add(IntegrationDebugSection);
@@ -156,6 +170,7 @@ namespace Greenshot.SelfService.ViewModels
             OnPropertyChanged(nameof(TextSecondaryBrush));
             OnPropertyChanged(nameof(AccentBrush));
             OnPropertyChanged(nameof(BadgeBackgroundBrush));
+            OnPropertyChanged(nameof(WarningTextBrush));
             OnPropertyChanged(nameof(ThemeToggleIcon));
             OnPropertyChanged(nameof(ThemeToggleToolTip));
         }

@@ -1,11 +1,13 @@
 # Capture tools and overlays: extending the interactive capture
 
-The interactive capture shows a frozen capture of the whole screen in the `CaptureWindow` (WPF, `src/Greenshot/Capturing/Views`).
+The interactive capture shows a frozen capture of the whole screen in the `CaptureWindow` (WPF, `src/Greenshot/Capturing/Views`),
+or, when the user turned *Freeze the screen while selecting* off, a see-through window over the live screen (see Restrictions).
 What the user can do on it comes from **capture tools**: the region, window and text selections are each one tool class in
 `src/Greenshot/Capturing/Tools`. One tool is active at a time. Next to it, **overlays** can run for as long as the window is open,
 e.g. a color picker which shows the color under the cursor while a region is selected. Plugins can add both.
 This document explains how to write them, in Greenshot itself or in a plugin, and what is possible and what is not,
 with a color picker as the example.
+What the user sees and can do (modes, keys, panels, settings) is described in the user guide [capture-user-guide.md](capture-user-guide.md).
 
 The interfaces are in `Greenshot.Base` (`src/Greenshot.Base/Interfaces/Capture`, namespace `Greenshot.Base.Interfaces.Capture`):
 `ICaptureTool` with its base class `CaptureTool`, `ICaptureOverlay` with its base class `CaptureOverlay`, `ICaptureToolHost`
@@ -15,7 +17,7 @@ The interfaces are in `Greenshot.Base` (`src/Greenshot.Base/Interfaces/Capture`,
 
 ```
 CaptureWindow (ICaptureToolHost)                 ICaptureTool (derive from CaptureTool)
- - frozen capture, cursor, fix mode (shift)       - Mode
+ - frozen capture or live screen, cursor, shift   - Mode
  - crosshair, zoomer, hotspots (QR codes...)      - ShowsZoomer, ShowsCrosshair
  - selection rectangle + its animation            - Attach (register keys)
  - size rulers and labels                         - Activate / Deactivate
@@ -40,6 +42,7 @@ information or a shortcut to whatever the user is doing, without changing how th
 | `RegionCaptureTool` | `Region` | Space toggles | Drag or Enter/Enter for a rectangle, includes the pixel under the cursor |
 | `WindowCaptureTool` | `Window` | Space toggles | The selection animates to the (child) window under the cursor, D for debug info. For beta testers it also follows the UI Automation areas inside a window (e.g. the parts of a browser page), PageUp/PageDown select the larger/smaller area; a turning mark next to the cursor shows when reading the areas takes longer than 200 ms. In `Greenshot.Base` (`Greenshot.Base.Capturing`), a plugin can derive from it, and override `SelectsAreas` to select whole windows only |
 | `TextCaptureTool` | `Text` | T | Extends the region tool: shows the OCR lines, a click selects a line |
+| `FixedSizeCaptureTool` | `Region` | F | A rectangle of a chosen size follows the cursor, a click or Enter captures it. The cursor holds it at a corner, so the zoomer shows that corner pixel; C goes through the corners and the middle (`FixedCaptureAnchor`, top left by default). Its edges snap to the window under the cursor, the windows it is in and the monitor, unless Alt is held. A panel lists the sizes of `FixedCaptureSizes` and below them the sizes of the last region captures (`RecentCaptureSizes`, remembered by the region tool and this tool); 1-9 pick one, PageUp/PageDown step through the list. It starts with the size of its last capture (`FixedCaptureSize`). Id `FixedSize` for a recipe |
 
 ## Adding a tool, step by step
 
@@ -79,7 +82,7 @@ The tools of the plugins come after the built-in ones, in the order the plugins 
 
 ### A tool which takes its own image
 
-Normally the flow crops the frozen capture to the selection. A tool which implements `ISelectionCaptureTool` takes a new image instead:
+Normally the flow crops the frozen capture to the selection (on the live screen it captures the selected area). A tool which implements `ISelectionCaptureTool` takes a new image instead:
 after the window closed, the interactive selection step calls `CaptureSelectionAsync(selection, screenArea, ui, cancellationToken)`
 on a pool thread, and the image it returns replaces the capture (null cancels the flow). This is for a tool which has to change
 the window to capture it. `WindowCaptureSession` (`Greenshot.Base.Capturing`) captures one window over many frames
@@ -109,10 +112,10 @@ to the built-in recipes when the recipes are loaded after the plugins registered
 
 | Member | Use |
 |---|---|
-| `Capture` | The `ICapture` of the whole screen: the image, its `CaptureDetails` (title, metadata, detected features). |
+| `Capture` | The `ICapture` of the whole screen: the image, its `CaptureDetails` (title, metadata, detected features). On the live screen (freezing turned off) `Capture.Image` is null, see below. |
 | `ScreenBounds` | Where the capture is on the virtual screen, to convert to screen coordinates. |
 | `CursorPosition` | The cursor in capture pixels, already corrected for the fix mode (shift keeps it to one direction). |
-| `GetPixelColor(point)` | The color of a pixel of the frozen capture (a 1x1 copy, cheap enough for every mouse move). |
+| `GetPixelColor(point)` | The color of a pixel of the frozen capture (a 1x1 copy, cheap enough for every mouse move); on the live screen it is read from the screen. |
 | `GetMonitorBounds()` | The monitor under the cursor, in capture pixels. |
 | `ShowPanel(owner, contentSize, drawContent)`, `HidePanel(owner)` | A panel in Greenshot's style in a free corner, moved (animated) out of the way, see Positioning. |
 | `ShowPanel(owner, content)` | The same panel with WPF content (a `UserControl`, bindings, a view model), see WPF content and binding. |
@@ -134,7 +137,14 @@ to the built-in recipes when the recipes are loaded after the plugins registered
    - **In a plugin:** implement `ICaptureOverlayProvider`, which returns new instances for every window that opens, and register it
      in the plugin's `Initialize` with `SimpleServiceProvider.Current.AddService<ICaptureOverlayProvider>(...)`.
    - **In Greenshot:** add it to `CreateOverlays` in `CaptureWindow.xaml.cs`, like the built-in `HelpOverlay` (F1, a drawn panel)
-     and `InfoOverlay` (I, a WPF panel bound to a view model: screen resolution, selection, window under the mouse, mouse position).
+     and `InfoOverlay` (I, a WPF panel bound to a view model: screen resolution, selection, window under the mouse, mouse position),
+     and `SelectionPreviewOverlay` (P, a drawn panel with the selected area scaled to fit 320 × 200: enlarged by a whole number
+     so pixels stay square and crisp, reduced with high quality scaling; the window passes it the frozen capture (none on the live screen, so no preview there) and calls its `Update`
+     whenever the labels or the selection change, also for changes from keys without a mouse move). P goes through a corner panel,
+     the place of the zoomer, and off (`CaptureSelectionPreviewVisible`, `ZoomerShowsPreview`). The zoomer belongs to the window, so
+     an overlay can't take its place through `ICaptureToolHost`: the window shows either its magnifier or a layer the overlay draws
+     (`DrawInZoomer`), with the preview's width and height for `ZoomerPlacement`, so placement, avoiding the panels and the
+     animations stay the zoomer's. Where the zoomer isn't shown (Z, or a tool without it) the preview uses the corner panel.
 
 | Call | When |
 |---|---|
@@ -178,6 +188,8 @@ public override void Attach(ICaptureToolHost host)
 - **Not allowed:** Ctrl, Alt or Windows alone (an `ArgumentException`): they only work together with another key.
 - **Shift:** the window uses Shift (held) to keep the selection to one direction. When Shift is held and nothing is registered
   for the key with Shift, the binding without Shift is used, so the arrow keys work while Shift is held.
+- **Number pad:** a digit of the number pad (Num Lock on) that has no binding of its own uses the binding of the digit above the
+  letters, so register `Key.D1` and both work. With Num Lock off the number pad sends the arrow keys, PgUp, PgDn and so on.
 - **Querying:** `Host.KeyBindings` lists all registrations in order. Each `CaptureKeyBinding` has `Key`, `Modifiers`,
   `KeyText` (e.g. "Ctrl+↑"), `Description`, `Owner`, `Tool` (null for always active) and `IsActiveFor(Host.ActiveTool)`.
 - Keys stay registered as long as the window is open; there is no unregistering. A handler which doesn't apply in some
@@ -189,23 +201,28 @@ The keys of the window and the built-in tools:
 |---|---|---|
 | Space | Window | Switch between region and window (from every other tool: back to region) |
 | ↑ ↓ ← →, Ctrl+↑ ↓ ← → | Window | Move the cursor one pixel, 10 pixels |
-| Shift (held) | Window | Keep the selection to one direction |
+| Shift (held) | Window | Keep the selection to one direction (region and text tool only) |
 | M, Z | Window | Captured mouse cursor, zoomer |
 | Esc | Window | Cancel |
 | T | Text tool | Switch to the text tool |
+| F | Fixed size tool | Switch to the fixed size tool |
+| Enter, 1-9, PgUp, PgDn, C | Fixed size tool | Capture the area, pick a size, the previous or next size, the corner the cursor holds |
 | Enter | Region and text tool | Start or finish the selection |
 | Enter, D | Window tool | Capture the window, window details |
 | F1 | Help overlay | Show or hide the keys |
 | I | Info overlay | Show or hide the info (screen, selection, window, mouse) |
+| P | Selection preview overlay | Preview of the selection: in a corner, in the place of the zoomer, off |
 
 ### Example: the help overlay
 
 The help is a built-in overlay (`src/Greenshot/Capturing/Overlays/HelpOverlay.cs`): F1 shows a panel with the keys which work now,
 the keys of the active tool first, as key caps like the hotkey settings show them. Keys with the same description share a row
-(the four arrow keys, left and right Shift). Because it reads `Host.KeyBindings`, keys of plugin tools and overlays are in it too,
+(the four arrow keys, left and right Shift), more than four show as a range (1–9). The key a tool registered to switch to itself
+(e.g. F) isn't shown while that tool is active. Because it reads `Host.KeyBindings`, keys of plugin tools and overlays are in it too,
 and the descriptions are read when the panel is shown, in the current language. When the tool changes, the panel is shown again
 with the keys of the new tool. Whether it is shown is remembered in the configuration (`CaptureHelpVisible` in `greenshot.ini`, on by default),
-so it comes back with every capture until F1 hides it. The info overlay does the same with `CaptureInfoVisible`.
+so it comes back with every capture until F1 hides it. The info overlay does the same with `CaptureInfoVisible`, the selection preview
+with `CaptureSelectionPreviewVisible`.
 
 ```csharp
 using System;
@@ -564,7 +581,7 @@ A tool which wants its own look can ignore all of this and draw with its own bru
 
 The color picker needs the pixel under the cursor, shows it next to the cursor whatever tool is active, and copies it as `#RRGGBB`
 with C. That makes it an overlay: the user can select a region as usual, and press C when they want the color instead.
-H hides the swatch. The zoomer of the region tool already magnifies the pixels around the cursor and marks the one under it.
+H hides the swatch. The zoomer of the region tool already magnifies the pixels around the cursor, marks the one under it and shows the edges of the selection (with `SelectionSize`, so the region tool's pixel under the cursor is inside).
 
 ```csharp
 using System.Collections.Generic;
@@ -674,8 +691,8 @@ This example was compiled against the current code, but not run.
 
 Points to note:
 
-- **The pixel:** `Host.GetPixelColor` reads the frozen capture, not the live screen, so it is the color of what was captured.
-  Outside of the capture it returns transparent. Areas between monitors of different sizes are part of the capture, with whatever the capture has there.
+- **The pixel:** `Host.GetPixelColor` reads the frozen capture, so it is the color of what was captured; when the user turned freezing
+  off, it reads the screen. Outside of the capture it returns transparent. Areas between monitors of different sizes are part of the capture, with whatever the capture has there.
 - **Redrawing on every move** is fine for a few shapes: the layer is a `DrawingVisual`, there is no layout pass. Keep `Draw` small,
   it redraws the whole layer.
 - **The result:** neither tools nor overlays can return a color, see the restrictions below. The color picker therefore
@@ -700,6 +717,14 @@ Points to note:
   `src/Greenshot.Tests/Forms/RegionCaptureToolTests.cs`. They need WPF, so they run on Windows only.
 
 ## Restrictions
+
+- **The live screen:** with *Freeze the screen while selecting* turned off, or after `L`, the window is see-through and nothing is
+  captured before the selection: `Capture.Image` is null and there are no detected features but the windows. The flow captures the
+  selected area when the window closed (`InteractiveSelectionStep`). The window doesn't take the focus, its keys come from the keyboard
+  hook. `L` switches while the window is open: to the live screen it disposes `Capture.Image` and removes the features found on it,
+  back to the frozen screen it captures the whole screen again into `Capture.Image`. So read `Capture.Image` when you need it, don't
+  keep it. Activating the text tool on the live screen freezes it first. A capture with the metadata `LiveScreenCaptureSource.FrozenOnlyKey`
+  (AI tool runs, where windows were blacked out) can't switch.
 
 - **The result is a rectangle and a window.** `Accept` fills the `SelectionResult` of the flow (`SelectedRegion`, `SelectedWindow`,
   `FinalMode`). The flow crops the capture to the rectangle and, for `Text`, extracts the text. A tool with another kind of result

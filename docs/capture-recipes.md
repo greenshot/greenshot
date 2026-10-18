@@ -910,7 +910,6 @@ If a recipe references a step type provided by a plugin that is **not installed 
 | `ExternalCommand` | `Greenshot.Plugin.ExternalCommand` | Saves the capture to a file and runs an external command with it. `command` runs a command configured in `greenshot.ini`. | `command`, `commandLine`, `arguments`, `workingDirectory`, `verb`, `format`, `jpegQuality`, `runInBackground`, `outputToClipboard`, `uriToClipboard`, `reloadAfterExecution`, `setOutputVariable`, `setExitCodeVariable` |
 | `Box` | `Greenshot.Plugin.Box` | Uploads the capture to Box; sets `Box.UploadUrl`. | (account settings) |
 | `Dropbox` | `Greenshot.Plugin.Dropbox` | Uploads the capture to Dropbox; sets `Dropbox.UploadUrl`. | (account settings) |
-| `Imgur` | `Greenshot.Plugin.Imgur` | Uploads the capture to Imgur; sets `Imgur.UploadUrl`, `Imgur.Hash`, `Imgur.DeleteHash`. | `format`, `jpegQuality`, `title`, `description`, `copyLinkToClipboard` |
 | `Jira` | `Greenshot.Plugin.Jira` | Attaches the capture to a Jira issue; sets `Jira.UploadUrl`, `Jira.IssueKey`. | `issueKey` (default: variable `Jira.IssueKey`), `format`, `jpegQuality`, `reduceColors` |
 | `Confluence` | `Greenshot.Plugin.Confluence` | Attaches the capture to a Confluence page; sets `Confluence.PageId`, `Confluence.UploadUrl`. | `pageId`, `format`, `jpegQuality`, `reduceColors` |
 | `Office` | `Greenshot.Plugin.Office` | Sends the capture to an Office application. | `application`: `Word` (default), `Excel`, `PowerPoint`, `OneNote`, `Outlook` |

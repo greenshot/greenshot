@@ -586,6 +586,7 @@ namespace Greenshot.Tests.Ipc
         [InlineData("greenshot:about", "ABOUT", null)]
         [InlineData("greenshot://about", "ABOUT", null)]
         [InlineData("greenshot:self-service?section=debug", "SELF_SERVICE", "debug")]
+        [InlineData("greenshot://log?search=HDR%20tone", "LOG_VIEWER", "HDR tone")]
         [InlineData("greenshot://recipe-editor?recipe=ocr", "RECIPE_EDITOR", "ocr")]
         [InlineData("greenshot:recipe/my-task?destination=clipboard", "RUN_RECIPE", null)]
         public async Task SecurityDispatcher_UrlScheme_ParsesAndExecutesCorrectly(string url, string expectedCommand, string expectedParam)
@@ -680,6 +681,28 @@ namespace Greenshot.Tests.Ipc
                 var resp = ReadFirstFrame(ms);
                 Assert.Equal("error", resp.Value<string>("status"));
                 Assert.Contains("[SECURITY]", resp.Value<string>("stderr"));
+            }
+        }
+
+        [Theory]
+        [InlineData("greenshot://cli")]
+        [InlineData("greenshot:url_scheme")]
+        public async Task SecurityDispatcher_UrlScheme_CommandsCarryingTheLink_AreNoTarget(string url)
+        {
+            var envelope = new IpcEnvelope
+            {
+                Source = "url_scheme",
+                Command = "URL_SCHEME",
+                RawInput = url
+            };
+
+            using (var ms = new MemoryStream())
+            {
+                var context = new IpcRequestContext(envelope, ms);
+                await IpcSecurityDispatcher.DispatchAsync(context, null, () => { }, () => { }, () => { }, f => { });
+
+                var resp = ReadFirstFrame(ms);
+                Assert.Equal("error", resp.Value<string>("status"));
             }
         }
 

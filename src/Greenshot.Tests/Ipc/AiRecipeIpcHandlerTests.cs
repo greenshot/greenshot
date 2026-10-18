@@ -33,8 +33,10 @@ using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Ipc;
+using Greenshot.Plugin.ExternalCommand.Recipes;
 using Greenshot.Recipes;
 using Greenshot.Recipes.Approval;
+using Greenshot.Recipes.Pipeline;
 using Greenshot.Tests.Recipes;
 using Newtonsoft.Json.Linq;
 using Xunit;
@@ -57,6 +59,10 @@ namespace Greenshot.Tests.Ipc
         public AiRecipeIpcHandlerTests()
         {
             TestEnvironment.EnsureInitialized();
+            // The catalog lists the registered step types: the built-in ones are registered by the pipeline (at startup in the app),
+            // ExternalCommand by its plugin; without this the tests depend on which other test ran first
+            _ = CapturePipeline.Instance;
+            StepRegistry.Instance.Register<ExternalCommandStep>(config => new ExternalCommandStep(config));
         }
 
         [Theory]

@@ -223,6 +223,24 @@ namespace Greenshot.Recipes.Pipeline
                     PsApi.EmptyWorkingSet();
                 }
 
+                // A failed flow didn't get to its Notification step: what it exported is shown with the failure, while the export
+                // sources still exist (the kept capture of the toast comes from them). CaptureFlowRunner then shows no other message.
+                if (context.State == CaptureFlowState.Failed)
+                {
+                    try
+                    {
+                        string flowError = context.Error?.Message ?? context.AbortReason;
+                        if (await ExportNotification.ShowAsync(context, flowError, CancellationToken.None).ConfigureAwait(false))
+                        {
+                            context.Properties[ExportNotification.FailureShownProperty] = true;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Warn("The notification of the failed flow failed", ex);
+                    }
+                }
+
                 // The caller's last look at the result, while the payload still exists
                 if (context.FlowFinishedAsync != null)
                 {

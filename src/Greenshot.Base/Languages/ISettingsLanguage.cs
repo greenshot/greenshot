@@ -631,6 +631,36 @@ namespace Greenshot.Base.Languages
         string Shownotify { get; }
 
         /// <summary>
+        /// Notifications
+        /// </summary>
+        string Notifications { get; }
+
+        /// <summary>
+        /// All
+        /// </summary>
+        string NotificationsAll { get; }
+
+        /// <summary>
+        /// Warnings and errors
+        /// </summary>
+        string NotificationsWarnings { get; }
+
+        /// <summary>
+        /// Errors only
+        /// </summary>
+        string NotificationsErrors { get; }
+
+        /// <summary>
+        /// None
+        /// </summary>
+        string NotificationsNone { get; }
+
+        /// <summary>
+        /// Show a thumbnail of the capture in the notification
+        /// </summary>
+        string NotificationThumbnail { get; }
+
+        /// <summary>
         /// Storage location
         /// </summary>
         string Storagelocation { get; }
@@ -718,6 +748,31 @@ namespace Greenshot.Base.Languages
         string Waittime { get; }
 
         /// <summary>
+        /// Fixed capture sizes
+        /// </summary>
+        string FixedCaptureSizes { get; }
+
+        /// <summary>
+        /// The sizes F offers in the region selection, in this order: 1 picks the first. The sizes of the last region captures are offered below them.
+        /// </summary>
+        string TooltipFixedCaptureSizes { get; }
+
+        /// <summary>
+        /// Add a size
+        /// </summary>
+        string FixedCaptureSizesAdd { get; }
+
+        /// <summary>
+        /// Width
+        /// </summary>
+        string FixedCaptureSizesWidth { get; }
+
+        /// <summary>
+        /// Height
+        /// </summary>
+        string FixedCaptureSizesHeight { get; }
+
+        /// <summary>
         /// Window capture
         /// </summary>
         string Windowscapture { get; }
@@ -726,5 +781,15 @@ namespace Greenshot.Base.Languages
         /// Show magnifier
         /// </summary>
         string Zoom { get; }
+
+        /// <summary>
+        /// Freeze the screen while selecting
+        /// </summary>
+        string FreezeScreen { get; }
+
+        /// <summary>
+        /// Off: what is on the screen keeps moving while you select, only the selection is captured, when you make it
+        /// </summary>
+        string TooltipFreezeScreen { get; }
     }
 }

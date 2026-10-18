@@ -24,6 +24,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapplo.HttpExtensions;
+using Dapplo.HttpExtensions.JsonNet;
 using Dapplo.HttpExtensions.WinForms.ContentConverter;
 using Dapplo.Jira.SvgWinForms.Converters;
 using Dapplo.Log;
@@ -111,6 +112,8 @@ public class JiraPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProv
             HttpExtensionsGlobals.HttpContentConverters.Add(SvgBitmapHttpContentConverter.Instance.Value);
         }
         BitmapHttpContentConverter.RegisterGlobally();
+        // Dapplo.Jira (de)serializes with Json.NET, this was registered by the update check before it moved to the HttpService
+        JsonNetJsonSerializer.RegisterGlobally();
 
         if (Log.IsDebugEnabled)
         {

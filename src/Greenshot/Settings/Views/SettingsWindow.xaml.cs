@@ -23,7 +23,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Input;
 using Dapplo.Ini;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
@@ -273,6 +275,69 @@ namespace Greenshot.Settings.Views
             }
         }
 
+        private void RemoveFixedCaptureSize_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as FrameworkElement)?.DataContext is NativeSize size)
+            {
+                _viewModel.FixedCaptureSizes.Remove(size);
+            }
+        }
+
+        private void AddFixedCaptureSize_Click(object sender, RoutedEventArgs e)
+        {
+            AddFixedCaptureSizePopup.IsOpen = true;
+        }
+
+        // The popup starts empty, the cursor in the width
+        private void AddFixedCaptureSizePopup_Opened(object sender, EventArgs e)
+        {
+            FixedCaptureSizeWidth.Text = string.Empty;
+            FixedCaptureSizeHeight.Text = string.Empty;
+            _ = Dispatcher.BeginInvoke(new Action(() => FixedCaptureSizeWidth.Focus()), System.Windows.Threading.DispatcherPriority.Input);
+        }
+
+        // Enter adds the size, Esc closes the popup
+        private void AddFixedCaptureSizePopup_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                AddFixedCaptureSize();
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Escape)
+            {
+                AddFixedCaptureSizePopup.IsOpen = false;
+                e.Handled = true;
+            }
+        }
+
+        private void AddFixedCaptureSizeConfirm_Click(object sender, RoutedEventArgs e)
+        {
+            AddFixedCaptureSize();
+        }
+
+        /// <summary>
+        /// Adds the size of the popup and closes it, a value which isn't a positive number keeps it open with that box focused
+        /// </summary>
+        private void AddFixedCaptureSize()
+        {
+            if (!int.TryParse(FixedCaptureSizeWidth.Text.Trim(), out int width) || width <= 0)
+            {
+                FixedCaptureSizeWidth.Focus();
+                FixedCaptureSizeWidth.SelectAll();
+                return;
+            }
+            if (!int.TryParse(FixedCaptureSizeHeight.Text.Trim(), out int height) || height <= 0)
+            {
+                FixedCaptureSizeHeight.Focus();
+                FixedCaptureSizeHeight.SelectAll();
+                return;
+            }
+            _viewModel.AddFixedCaptureSize(new NativeSize(width, height));
+            AddFixedCaptureSizePopup.IsOpen = false;
+            AddFixedCaptureSizeButton.Focus();
+        }
+
         private void SaveSettings()
         {
             // Save destinations
@@ -293,6 +358,7 @@ namespace Greenshot.Settings.Views
             _viewModel.CoreConfiguration.OutputDestinations = destinations;
 
             _viewModel.SaveRecipeOptions();
+            _viewModel.SaveFixedCaptureSizes();
 
 #if !GREENSHOT_LIGHT
             _viewModel.SaveAiToolSettings();
@@ -307,31 +373,17 @@ namespace Greenshot.Settings.Views
                     .ToList();
             }
 
-            try
+            // Only when the checkbox was changed: saving other settings leaves the entries alone, e.g. the one of another Greenshot
+            if (_viewModel.AutoStartEnabled != StartupHelper.IsAutostartEnabled())
             {
                 if (_viewModel.AutoStartEnabled)
                 {
-                    if (!StartupHelper.HasRunAll())
-                    {
-                        StartupHelper.SetRunUser();
-                    }
+                    StartupHelper.EnableAutostart();
                 }
                 else
                 {
-                    if (StartupHelper.HasRunAll())
-                    {
-                        StartupHelper.DeleteRunAll();
-                    }
-
-                    if (StartupHelper.HasRunUser())
-                    {
-                        StartupHelper.DeleteRunUser();
-                    }
+                    StartupHelper.DisableAutostart();
                 }
-            }
-            catch
-            {
-                // ignored
             }
             
             // Force save of all configuration sections

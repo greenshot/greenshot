@@ -37,8 +37,6 @@ using Greenshot.Plugin.Dropbox;
 using Greenshot.Plugin.Dropbox.Views;
 using Greenshot.Plugin.ExternalCommand;
 using Greenshot.Plugin.ExternalCommand.Views;
-using Greenshot.Plugin.Imgur;
-using Greenshot.Plugin.Imgur.Views;
 using Greenshot.Plugin.Jira;
 using Greenshot.Plugin.Jira.Views;
 using Greenshot.Plugin.Zxing;
@@ -121,10 +119,6 @@ namespace Greenshot.Tests.Forms
                     var dropboxConfig = IniConfigHelper.EnsureSection<IDropboxConfiguration>(() => new DropboxConfigurationImpl());
                     var dropboxControl = new DropboxConfigurationView(dropboxConfig);
                     Assert.NotNull(dropboxControl);
-
-                    var imgurConfig = IniConfigHelper.EnsureSection<IImgurConfiguration>(() => new ImgurConfigurationImpl());
-                    var imgurControl = new ImgurConfigurationView(imgurConfig);
-                    Assert.NotNull(imgurControl);
 
                     var jiraConfig = IniConfigHelper.EnsureSection<IJiraConfiguration>(() => new JiraConfigurationImpl());
                     var jiraControl = new JiraConfigurationView(jiraConfig);
@@ -319,9 +313,6 @@ namespace Greenshot.Tests.Forms
         {
             var extCmd = IniConfigHelper.EnsureSection<IExternalCommandConfiguration>(() => new ExternalCommandConfigurationImpl());
             Assert.False(extCmd.QuicklinkEnabled);
-
-            var imgur = IniConfigHelper.EnsureSection<IImgurConfiguration>(() => new ImgurConfigurationImpl());
-            Assert.False(imgur.QuicklinkEnabled);
 
             var dropbox = IniConfigHelper.EnsureSection<IDropboxConfiguration>(() => new DropboxConfigurationImpl());
             Assert.False(dropbox.QuicklinkEnabled);

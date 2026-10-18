@@ -27,105 +27,10 @@
     </WindowChrome.WindowChrome>
 
     <Window.Resources>
-        <!-- Modern Caption Theme Toggle Button Style -->
-        <Style x:Key="CaptionBtnStyle" TargetType="Button">
-            <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
-            <Setter Property="Focusable" Value="False"/>
-            <Setter Property="Width" Value="44"/>
-            <Setter Property="Height" Value="42"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Foreground" Value="{Binding TextPrimaryBrush}"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#26888888"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#40888888"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Modern Caption Close Button Style -->
-        <Style x:Key="CaptionCloseButtonStyle" TargetType="Button">
-            <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
-            <Setter Property="Focusable" Value="False"/>
-            <Setter Property="Width" Value="44"/>
-            <Setter Property="Height" Value="42"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Foreground" Value="{Binding TextSecondaryBrush}"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}">
-                            <Path HorizontalAlignment="Center" VerticalAlignment="Center"
-                                  Width="10" Height="10" Stretch="Uniform"
-                                  Stroke="{TemplateBinding Foreground}" StrokeThickness="1.2"
-                                  Data="M 0,0 L 10,10 M 10,0 L 0,10"
-                                  SnapsToDevicePixels="True"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#E81123"/>
-                                <Setter Property="Foreground" Value="White"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#C42B1C"/>
-                                <Setter Property="Foreground" Value="White"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Compact Destination Tile Button Style (34px height) -->
-        <Style x:Key="CompactDestinationTileStyle" TargetType="Button">
-            <Setter Property="Background" Value="{Binding Path=DataContext.CardBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-            <Setter Property="BorderBrush" Value="{Binding Path=DataContext.CardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-            <Setter Property="Foreground" Value="{Binding Path=DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="8,2"/>
-            <Setter Property="Margin" Value="2"/>
-            <Setter Property="Height" Value="34"/>
-            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" 
-                                Background="{TemplateBinding Background}" 
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="5" 
-                                Padding="{TemplateBinding Padding}"
-                                SnapsToDevicePixels="True">
-                            <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="BorderBrush" Value="{Binding Path=DataContext.AccentBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                                <Setter TargetName="border" Property="Background" Value="{Binding Path=DataContext.HoverBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="{Binding Path=DataContext.PressedBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
 
         <!-- Modern ComboBoxItem Style -->
         <Style TargetType="ComboBoxItem">
@@ -243,6 +148,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        </ResourceDictionary>
     </Window.Resources>
 
     <Grid>
@@ -250,7 +156,7 @@
         <Border BorderBrush="{Binding CardBorderBrush}" BorderThickness="1" CornerRadius="8">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="42"/> <!-- Row 0: Modern Title Bar -->
+                    <RowDefinition Height="36"/> <!-- Row 0: Modern Title Bar -->
                     <RowDefinition Height="Auto"/> <!-- Row 1: Error Banner -->
                     <RowDefinition Height="*"/>   <!-- Row 2: Main Split Content Area -->
                     <RowDefinition Height="Auto"/> <!-- Row 3: Status / Dismiss Footer -->
@@ -277,10 +183,10 @@
 
                     <!-- Caption Buttons: Theme Toggle & Close -->
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
-                        <Button Style="{StaticResource CaptionBtnStyle}" Click="OnThemeToggleClicked" ToolTip="{Binding ThemeToggleToolTip}">
+                        <Button Style="{StaticResource TitleBarButtonStyle}" Click="OnThemeToggleClicked" ToolTip="{Binding ThemeToggleToolTip}">
                             <TextBlock Text="{Binding ThemeToggleIcon}" FontSize="13" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                         </Button>
-                        <Button Style="{StaticResource CaptionCloseButtonStyle}" Click="CloseButton_Click" ToolTip="{Binding CloseButtonToolTip}"/>
+                        <Button Style="{StaticResource TitleCloseButtonStyle}" Click="CloseButton_Click" ToolTip="{Binding CloseButtonToolTip}"/>
                     </StackPanel>
                 </Grid>
 
@@ -349,7 +255,7 @@
                             <ItemsControl ItemsSource="{Binding CoreDestinationTiles}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Button Style="{StaticResource CompactDestinationTileStyle}" Click="DestinationTile_Click" Tag="{Binding}">
+                                        <Button Style="{StaticResource ToolboxButtonStyle}" Click="DestinationTile_Click" Tag="{Binding}">
                                             <Grid HorizontalAlignment="Stretch">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto"/>
@@ -438,7 +344,7 @@
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Button Style="{StaticResource CompactDestinationTileStyle}" Click="DestinationTile_Click" Tag="{Binding}">
+                                        <Button Style="{StaticResource ToolboxButtonStyle}" Click="DestinationTile_Click" Tag="{Binding}">
                                             <Grid HorizontalAlignment="Stretch">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto"/>
@@ -489,6 +395,7 @@
                                           Style="{StaticResource ModernComboBoxStyle}"/>
 
                                 <Button Grid.Column="1" Content="{Binding RunRecipeButtonText}"
+                                        Style="{StaticResource PrimaryButtonStyle}"
                                         Background="{Binding AccentBrush}" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentForegroundBrush}"
                                         FontWeight="SemiBold" Padding="12,5" Height="32"
                                         BorderThickness="0" Cursor="Hand"
@@ -528,6 +435,7 @@
                                    FontSize="11.5" Foreground="{Binding TextSecondaryBrush}"/>
 
                         <Button Grid.Column="1" Content="{Binding DismissButtonText}" Padding="16,4" Height="28"
+                                Style="{StaticResource SecondaryButtonStyle}"
                                 Background="Transparent" BorderBrush="{Binding CardBorderBrush}"
                                 BorderThickness="1" Foreground="{Binding TextSecondaryBrush}"
                                 Cursor="Hand" Click="CloseButton_Click">
@@ -579,7 +487,7 @@
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                         <TextBlock Text="{Binding FullscreenReturnHintText}" FontSize="11" 
                                    Foreground="#C0C0C0" VerticalAlignment="Center" Margin="0,0,16,0"/>
-                        <Button Style="{StaticResource CaptionCloseButtonStyle}" Click="FullPreviewClose_Click" ToolTip="{Binding CloseButtonToolTip}"/>
+                        <Button Style="{StaticResource TitleCloseButtonStyle}" Click="FullPreviewClose_Click" ToolTip="{Binding CloseButtonToolTip}"/>
                     </StackPanel>
                 </Grid>
             </Border>

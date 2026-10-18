@@ -150,6 +150,14 @@ namespace Greenshot.Capturing.Tools
         /// <summary>
         /// Close the window with the selected rectangle
         /// </summary>
-        protected virtual void AcceptSelection(NativeRect rect) => Host.Accept(rect);
+        protected virtual void AcceptSelection(NativeRect rect)
+        {
+            // The fixed size capture offers the sizes of the last region captures
+            if (Mode == CaptureMode.Region)
+            {
+                FixedSizeCaptureTool.RememberSize(rect.Size);
+            }
+            Host.Accept(rect);
+        }
     }
 }

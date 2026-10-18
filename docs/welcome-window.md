@@ -1,0 +1,89 @@
+# Welcome window
+
+The welcome window is the first thing a new user sees: a thank you for installing Greenshot, the basics with the user's own hotkeys,
+a check of the setup and a tip. It's meant to make people feel good about the choice they just made.
+
+## When it shows
+
+- **Once per user**, at the start of Greenshot, as long as the core setting `WelcomeShown` in greenshot.ini is `False` (the default).
+  Greenshot sets it to `True` when it shows the window. That includes users who update from a version before the welcome window:
+  they don't have the setting yet, so they see it once too.
+- **On request**: the named pipe command `FIRST_LAUNCH` opens it again, without looking at `WelcomeShown`. greenshot-cli has no option for it (yet).
+- To see it again while testing: set `WelcomeShown=False` in the `[Core]` section of greenshot.ini, or start without a greenshot.ini.
+  An administrator can set `WelcomeShown=True` in greenshot-defaults.ini (or greenshot-fixed.ini) to never show it.
+
+It doesn't touch the thank-you page on the website: that one opens on its own, independent of this window.
+
+## What it shows
+
+The window is a wizard. On top it always shows the animated Greenshot "G" (`Views/AnimatedLogo.xaml`, the same control the About window uses),
+the title and a thank-you line. Below that is one step at a time; "Next" and "Back" move between them, the dots show where the user is.
+On the last step "Next" reads "Let's go!" and closes the window, Esc closes it on any step.
+
+1. **Welcome**: one line about what comes next.
+2. **The basics**: the hotkeys for region, window, full screen and last region, read from the user's configuration, each with what it does.
+   A hotkey which isn't set is left out. Below are two lines about the tray menu and where captures go.
+3. **Your setup**: every check as one line, with ✓ when it's fine, or what's wrong with a button to fix it; a fix turns its line into ✓.
+   The checks are in `SetupSectionViewModel`, which is also the "Your setup" section of the Self-Service window, with the same lines:
+   - **Version**: the same update feed as the update check of Greenshot (`UpdateService`), read once when the step or section is shown.
+     It says that this is the latest version, or which newer one there is with a button to the downloads page of this edition;
+     while it checks, or when it can't (offline), it says so without a check mark.
+   - **Tray icon hidden** (Windows 11): Windows keeps a key per executable and icon id in `HKCU\Control Panel\NotifyIconSettings`,
+     its name is a number Windows makes up. Greenshot finds its own key by `ExecutablePath` (Greenshot.exe, a known folder written as its GUID)
+     and `UID` (the id of its tray icon, 0 with Hardcodet.NotifyIcon.Wpf; the WinForms icon of 1.3 had 1, so that key is an old one).
+     `IsPromoted=1` means the icon is shown next to the clock; without it, it's hidden behind the arrow.
+     The button "Show it next to the clock" writes `IsPromoted=1` into that key, the same as the switch in the taskbar settings,
+     and Windows shows the icon right away. This isn't documented, so it's only done when the user clicks the button;
+     when it can't be written, the button opens the taskbar settings (`ms-settings:taskbar`) instead. Windows 10 has no such key, there the line shows ✓.
+   - **Print key opens the Snipping Tool** and **OneDrive takes the Print key**: the same checks and fixes as the Hotkeys section of the
+     Self-Service window (`HotkeySectionViewModel`).
+
+   The checks run again whenever the window is activated, so coming back from the Windows settings updates them.
+   Below them is the switch "Launch Greenshot on startup", the same as in the settings (`StartupHelper`): it shows whether this
+   Greenshot starts with Windows for the user and changes only the user's own entry, see [autostart.md](autostart.md).
+4. **Delete your old Imgur uploads**, only when greenshot.ini still has the delete keys of images uploaded anonymously
+   with an earlier Greenshot (`ImgurSectionViewModel.HasUploads`): the same `ImgurUploadsView` as the Imgur section of the Self-Service window.
+   Greenshot no longer uploads to Imgur; the step gets the dates and thumbnails from Imgur when it's shown.
+5. **Done**: a few words that everything is ready, a button to the settings, and a tip from the set,
+   picked at random when the window opens; "Another tip" shows the next one.
+
+### Adding a step
+
+A step is a panel in the grid of steps in `WelcomeWindow.xaml` (start it with `Visibility="Hidden"`, so it keeps its size)
+and an entry in `_steps` in the constructor of `WelcomeWindow`, at the place where it should show. The dots and the buttons follow on their own.
+
+## Changing the content
+
+All texts are in the `[Welcome]` section of the language files, `src/Greenshot/Languages/greenshot.{language}.ini`.
+English (`greenshot.en-US.ini`) is the base: a text missing in a translation is shown in English.
+Each key has a property in `src/Greenshot.Base/Languages/IWelcomeLanguage.cs`, named after the key (`setup_tray_hidden` is `SetupTrayHidden`),
+with the English text as its comment. The XAML binds them with `{wpf:Text Welcome.SetupTrayHidden}`.
+
+- **Change a text**: edit it in greenshot.en-US.ini and update the comment in `IWelcomeLanguage`; translators pick the change up from there.
+- **Add a text**: add the key to greenshot.en-US.ini and the property to `IWelcomeLanguage`. `LanguagePackTests` fails when a property has no
+  English text or the XAML references one which doesn't exist.
+
+### Tips
+
+The tips are the keys `tip1` to `tip10`.
+
+- **Change a tip**: edit its line, as above.
+- **Add a tip**: add `tip11=...` to greenshot.en-US.ini, the property `string Tip11 { get; }` to `IWelcomeLanguage`,
+  and `texts.Tip11` to the list in `WelcomeWindow.Tips()` (`src/Greenshot/Views/WelcomeWindow.xaml.cs`).
+- **A tip for some editions only**: like `tip_notification`, which is only shown where a notification offers its capture again
+  (`INotificationService.ShowsCaptures`: not in Greenshot Light, the portable version, or on Windows without toasts), add it in `Tips()` behind that check.
+- **Remove a tip**: remove it from those three places. An empty tip, e.g. a translation which leaves one out on purpose, is skipped.
+
+Keep tips short, one or two sentences, and only about what every edition has: Greenshot Light has no plugins, OCR or AI tools.
+
+## Code
+
+| What | Where |
+|------|-------|
+| Window | `src/Greenshot/Views/WelcomeWindow.xaml(.cs)` |
+| A hotkey row | `src/Greenshot/ViewModels/WelcomeHotkeyViewModel.cs` |
+| Animated "G" | `src/Greenshot/Views/AnimatedLogo.xaml(.cs)` |
+| Shown at the start | `GreenshotShell` (checks `WelcomeShown`) calls `ApplicationStartupHelper.ShowWelcome` |
+| Setting | `ICoreConfiguration.WelcomeShown` |
+| Texts | `[Welcome]` in the language files, `IWelcomeLanguage` |
+| Tests | `src/Greenshot.Tests/Forms/WelcomeWindowTests.cs` (tray icon check) |

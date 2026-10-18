@@ -81,6 +81,8 @@ namespace Greenshot.Base.Languages
 
         public static IRecipeLanguage Recipe => Get<IRecipeLanguage>();
 
+        public static IWelcomeLanguage Welcome => Get<IWelcomeLanguage>();
+
         /// <summary>
         /// The language section of type T, a core section or one a plugin registered
         /// </summary>
@@ -154,7 +156,8 @@ namespace Greenshot.Base.Languages
                 .RegisterSection<IEditorLanguage>(new EditorLanguageImpl())
                 .RegisterSection<ISettingsLanguage>(new SettingsLanguageImpl())
                 .RegisterSection<ISelfServiceLanguage>(new SelfServiceLanguageImpl())
-                .RegisterSection<IRecipeLanguage>(new RecipeLanguageImpl());
+                .RegisterSection<IRecipeLanguage>(new RecipeLanguageImpl())
+                .RegisterSection<IWelcomeLanguage>(new WelcomeLanguageImpl());
             foreach (var searchPath in _searchPaths)
             {
                 builder.AddSearchPath(searchPath);
@@ -179,6 +182,7 @@ namespace Greenshot.Base.Languages
                     .RegisterSection<ISettingsLanguage>(new SettingsLanguageImpl())
                     .RegisterSection<ISelfServiceLanguage>(new SelfServiceLanguageImpl())
                     .RegisterSection<IRecipeLanguage>(new RecipeLanguageImpl())
+                    .RegisterSection<IWelcomeLanguage>(new WelcomeLanguageImpl())
                     .Create();
             }
 

@@ -1,279 +1,210 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
- * 
+ *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Windows.Forms;
 using log4net;
 using Microsoft.Win32;
-using System.IO;
 
 namespace Greenshot.Helpers
 {
     /// <summary>
-    /// A helper class for the startup registry
+    /// Starting Greenshot with Windows: the "Greenshot" value in the Run key of the current user.
+    /// Older installers wrote it to the Run key of the machine (all users), that one is still recognized, see docs/autostart.md
     /// </summary>
     public static class StartupHelper
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(StartupHelper));
 
-        private const string RunKey6432 = @"Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Run";
-        private const string RunKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
-
-        private const string ApplicationName = "Greenshot";
-
-        private static string GetExecutablePath()
-        {
-            return "\"" + Application.ExecutablePath + "\"";
-        }
+        internal const string RunKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
 
         /// <summary>
-        /// Return true if the current user can write the RUN key of the local machine.
+        /// Windows (Task Manager, Settings > Apps > Startup) keeps here if a Run entry is switched off, the entry itself stays
         /// </summary>
-        /// <returns>true if Greenshot can write key</returns>
-        public static bool CanWriteRunAll()
+        internal const string StartupApprovedRunKey = @"Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run";
+
+        /// <summary>
+        /// The same for the entries of the 32-bit Run key of the machine, it's in the 64-bit view
+        /// </summary>
+        internal const string StartupApprovedRun32Key = @"Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run32";
+
+        internal const string ValueName = "Greenshot";
+
+        /// <summary>
+        /// The Run value: the quoted path with --autostart, so a second start at the logon ends silently (see GreenshotApplication.Start).
+        /// The same as autostart.inf of the installer writes.
+        /// </summary>
+        internal static string CreateRunValue(string executablePath) => $"\"{executablePath}\" --autostart";
+
+        /// <summary>
+        /// Does this Greenshot start with Windows? An entry for another Greenshot.exe doesn't count, nor one switched off in Windows.
+        /// </summary>
+        public static bool IsAutostartEnabled()
         {
             try
             {
-                using (Registry.LocalMachine.OpenSubKey(RunKey, true))
-                {
-                }
+                using var locations = RunLocations.Open();
+                return IsAutostartEnabled(locations, Application.ExecutablePath);
             }
-            catch
+            catch (Exception ex)
             {
+                Log.Error("Couldn't check if Greenshot starts with Windows", ex);
                 return false;
             }
-
-            return true;
         }
 
         /// <summary>
-        /// Return true if the current user can write the RUN key of the current user.
+        /// Let this Greenshot start with Windows, for the current user.
+        /// The installer writes the same value with autostart.inf, also for every user through Active Setup.
         /// </summary>
-        /// <returns>true if Greenshot can write key</returns>
-        public static bool CanWriteRunUser()
+        public static void EnableAutostart()
         {
             try
             {
-                using (Registry.CurrentUser.OpenSubKey(RunKey, true))
-                {
-                }
+                using var locations = RunLocations.Open();
+                EnableAutostart(locations, Application.ExecutablePath);
             }
-            catch
+            catch (Exception ex)
             {
-                return false;
+                Log.Error("Couldn't let Greenshot start with Windows", ex);
             }
-
-            return true;
         }
 
         /// <summary>
-        /// Return the RUN key value of the local machine
+        /// Don't start this Greenshot with Windows anymore
         /// </summary>
-        /// <returns>the RUN key value of the local machine</returns>
-        public static object GetRunAllValue()
-        {
-            using (var key = Registry.LocalMachine.OpenSubKey(RunKey, false))
-            {
-                object runValue = key?.GetValue(ApplicationName);
-                if (runValue != null)
-                {
-                    return runValue;
-                }
-            }
-
-            // for 64-bit systems we need to check the 32-bit keys too
-            if (IntPtr.Size != 8)
-            {
-                return null;
-            }
-
-            using (var key = Registry.LocalMachine.OpenSubKey(RunKey6432, false))
-            {
-                object runValue = key?.GetValue(ApplicationName);
-                if (runValue != null)
-                {
-                    return runValue;
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Return the RUN key value of the current user
-        /// </summary>
-        /// <returns>the RUN key value of the current user</returns>
-        public static object GetRunUserValue()
-        {
-            using (var key = Registry.CurrentUser.OpenSubKey(RunKey, false))
-            {
-                object runValue = key?.GetValue(ApplicationName);
-                if (runValue != null)
-                {
-                    return runValue;
-                }
-            }
-
-            // for 64-bit systems we need to check the 32-bit keys too
-            if (IntPtr.Size != 8)
-            {
-                return null;
-            }
-
-            using (var key = Registry.CurrentUser.OpenSubKey(RunKey6432, false))
-            {
-                object runValue = key?.GetValue(ApplicationName);
-                if (runValue != null)
-                {
-                    return runValue;
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Return true if the local machine has a RUN entry for Greenshot
-        /// </summary>
-        /// <returns>true if there is a run key</returns>
-        public static bool HasRunAll()
+        public static void DisableAutostart()
         {
             try
             {
-                return GetRunAllValue() != null;
+                using var locations = RunLocations.Open();
+                DisableAutostart(locations, Application.ExecutablePath);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Log.Error("Error retrieving RunAllValue", e);
+                Log.Error("Couldn't stop Greenshot from starting with Windows", ex);
             }
+        }
 
+        internal static bool IsAutostartEnabled(RunLocations locations, string executablePath)
+        {
+            foreach (var location in locations.All)
+            {
+                if (location.StartsExecutable(executablePath) && location.IsApproved())
+                {
+                    return true;
+                }
+            }
             return false;
         }
 
-        /// <summary>
-        /// Return true if the current user has a RUN entry for Greenshot
-        /// </summary>
-        /// <returns>true if there is a run key</returns>
-        public static bool HasRunUser()
+        internal static void EnableAutostart(RunLocations locations, string executablePath)
         {
-            object runValue = null;
-            try
+            // An entry for all users, from an older installer, already starts it: a second one would start Greenshot twice
+            foreach (var machineLocation in locations.Machine)
             {
-                runValue = GetRunUserValue();
-            }
-            catch (Exception e)
-            {
-                Log.Error("Error retrieving RunUserValue", e);
-            }
-
-            return runValue != null;
-        }
-
-        /// <summary>
-        /// Delete the RUN key for the localmachine ("ALL")
-        /// </summary>
-        public static void DeleteRunAll()
-        {
-            if (!HasRunAll())
-            {
-                return;
-            }
-
-            try
-            {
-                using var key = Registry.LocalMachine.OpenSubKey(RunKey, true);
-                key?.DeleteValue(ApplicationName);
-            }
-            catch (Exception e)
-            {
-                Log.Error("Error in deleteRunAll.", e);
-            }
-
-            try
-            {
-                // for 64-bit systems we need to delete the 32-bit keys too
-                if (IntPtr.Size != 8)
+                if (machineLocation.StartsExecutable(executablePath) && machineLocation.IsApproved())
                 {
+                    Log.Info("Greenshot already starts with Windows for all users.");
                     return;
                 }
+            }
 
-                using var key = Registry.LocalMachine.OpenSubKey(RunKey6432, false);
-                key?.DeleteValue(ApplicationName);
-            }
-            catch (Exception e)
+            var user = locations.User;
+            using (var runKey = user.Root.CreateSubKey(user.RunKeyPath))
             {
-                Log.Error("Error in deleteRunAll.", e);
+                runKey.SetValue(ValueName, CreateRunValue(executablePath));
             }
+
+            // Switched off in the Task Manager earlier: without the value Windows starts it
+            using (var approvedKey = user.ApprovedRoot.OpenSubKey(user.ApprovedKeyPath, true))
+            {
+                if (approvedKey?.GetValue(ValueName) != null && !user.IsApproved())
+                {
+                    approvedKey.DeleteValue(ValueName, false);
+                }
+            }
+            Log.InfoFormat("Greenshot starts with Windows: {0}", executablePath);
         }
 
-        /// <summary>
-        /// Delete the RUN key for the current user
-        /// </summary>
-        public static void DeleteRunUser()
+        internal static void DisableAutostart(RunLocations locations, string executablePath)
         {
-            if (!HasRunUser())
+            foreach (var location in locations.All)
             {
-                return;
-            }
-
-            try
-            {
-                using var key = Registry.CurrentUser.OpenSubKey(RunKey, true);
-                key?.DeleteValue(ApplicationName);
-            }
-            catch (Exception e)
-            {
-                Log.Error("Error in deleteRunUser.", e);
-            }
-
-            try
-            {
-                // for 64-bit systems we need to delete the 32-bit keys too
-                if (IntPtr.Size != 8)
+                if (!location.StartsExecutable(executablePath))
                 {
-                    return;
+                    continue;
                 }
 
-                using var key = Registry.CurrentUser.OpenSubKey(RunKey6432, false);
-                key?.DeleteValue(ApplicationName);
-            }
-            catch (Exception e)
-            {
-                Log.Error("Error in deleteRunUser.", e);
+                try
+                {
+                    using var runKey = location.Root.OpenSubKey(location.RunKeyPath, true);
+                    runKey?.DeleteValue(ValueName, false);
+                    Log.InfoFormat("Removed the start with Windows from {0}", location);
+                }
+                catch (Exception ex) when (ex is UnauthorizedAccessException or System.Security.SecurityException)
+                {
+                    // The entry for all users of an older installer, only an administrator can remove it
+                    Log.Warn($"Couldn't remove the start with Windows from {location}, that needs administrator rights.", ex);
+                }
             }
         }
 
         /// <summary>
-        /// Set the RUN key for the current user
+        /// The executable a Run value starts: the part in quotes, or up to ".exe" without them
         /// </summary>
-        public static void SetRunUser()
+        internal static string GetExecutable(string runValue)
         {
+            if (string.IsNullOrWhiteSpace(runValue))
+            {
+                return null;
+            }
+
+            string value = Environment.ExpandEnvironmentVariables(runValue.Trim());
+            if (value.StartsWith("\"", StringComparison.Ordinal))
+            {
+                int end = value.IndexOf('"', 1);
+                return end > 1 ? value.Substring(1, end - 1) : null;
+            }
+
+            int exeEnd = value.IndexOf(".exe", StringComparison.OrdinalIgnoreCase);
+            return exeEnd > 0 ? value.Substring(0, exeEnd + 4) : value;
+        }
+
+        internal static bool IsSameExecutable(string path, string executablePath)
+        {
+            if (string.IsNullOrEmpty(path) || string.IsNullOrEmpty(executablePath))
+            {
+                return false;
+            }
+
             try
             {
-                using var key = Registry.CurrentUser.OpenSubKey(RunKey, true);
-                key?.SetValue(ApplicationName, GetExecutablePath());
+                return string.Equals(Path.GetFullPath(path), Path.GetFullPath(executablePath), StringComparison.OrdinalIgnoreCase);
             }
-            catch (Exception e)
+            catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException)
             {
-                Log.Error("Error in setRunUser.", e);
+                return false;
             }
         }
 
@@ -312,6 +243,101 @@ namespace Greenshot.Helpers
             }
 
             return false;
+        }
+    }
+
+    /// <summary>
+    /// One Run key Windows starts programs from, with the key where Windows keeps if its entries are switched off
+    /// </summary>
+    internal sealed class RunLocation
+    {
+        public RunLocation(string name, RegistryKey root, string runKeyPath, RegistryKey approvedRoot, string approvedKeyPath)
+        {
+            Name = name;
+            Root = root;
+            RunKeyPath = runKeyPath;
+            ApprovedRoot = approvedRoot;
+            ApprovedKeyPath = approvedKeyPath;
+        }
+
+        public string Name { get; }
+        public RegistryKey Root { get; }
+        public string RunKeyPath { get; }
+        public RegistryKey ApprovedRoot { get; }
+        public string ApprovedKeyPath { get; }
+
+        public string GetRunValue()
+        {
+            using var runKey = Root.OpenSubKey(RunKeyPath, false);
+            return runKey?.GetValue(StartupHelper.ValueName) as string;
+        }
+
+        public bool StartsExecutable(string executablePath) =>
+            StartupHelper.IsSameExecutable(StartupHelper.GetExecutable(GetRunValue()), executablePath);
+
+        /// <summary>
+        /// Not switched off in Windows: the first byte of the StartupApproved value is even (2 or 6), odd (3 or 7) when switched off.
+        /// No value means it's on.
+        /// </summary>
+        public bool IsApproved()
+        {
+            using var approvedKey = ApprovedRoot.OpenSubKey(ApprovedKeyPath, false);
+            return approvedKey?.GetValue(StartupHelper.ValueName) is not byte[] { Length: > 0 } state || (state[0] & 1) == 0;
+        }
+
+        public override string ToString() => Name;
+    }
+
+    /// <summary>
+    /// The Run keys Greenshot uses or used: the current user's, and the machine's in the 64-bit and the 32-bit view
+    /// </summary>
+    internal sealed class RunLocations : IDisposable
+    {
+        private readonly IList<RegistryKey> _ownedKeys;
+
+        public RunLocations(RegistryKey currentUser, RegistryKey machine64, RegistryKey machine32, IList<RegistryKey> ownedKeys = null)
+        {
+            _ownedKeys = ownedKeys ?? new List<RegistryKey>();
+            User = new RunLocation("the Run key of the current user", currentUser, StartupHelper.RunKey, currentUser, StartupHelper.StartupApprovedRunKey);
+            Machine = new[]
+            {
+                new RunLocation("the Run key of the machine", machine64, StartupHelper.RunKey, machine64, StartupHelper.StartupApprovedRunKey),
+                new RunLocation("the 32-bit Run key of the machine", machine32, StartupHelper.RunKey, machine64, StartupHelper.StartupApprovedRun32Key)
+            };
+        }
+
+        public RunLocation User { get; }
+
+        public IReadOnlyList<RunLocation> Machine { get; }
+
+        public IEnumerable<RunLocation> All
+        {
+            get
+            {
+                yield return User;
+                foreach (var location in Machine)
+                {
+                    yield return location;
+                }
+            }
+        }
+
+        /// <summary>
+        /// The real registry. A 32-bit Greenshot would only see the 32-bit view of the machine without RegistryView.Registry64.
+        /// </summary>
+        public static RunLocations Open()
+        {
+            var machine64 = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, Environment.Is64BitOperatingSystem ? RegistryView.Registry64 : RegistryView.Default);
+            var machine32 = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32);
+            return new RunLocations(Registry.CurrentUser, machine64, machine32, new[] { machine64, machine32 });
+        }
+
+        public void Dispose()
+        {
+            foreach (var key in _ownedKeys)
+            {
+                key.Dispose();
+            }
         }
     }
 }

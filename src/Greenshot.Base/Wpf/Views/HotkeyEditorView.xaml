@@ -7,51 +7,16 @@
              xmlns:views="clr-namespace:Greenshot.Base.Wpf.Views"
              xmlns:core="clr-namespace:Greenshot.Base.Core"
              mc:Ignorable="d" 
-             d:DesignHeight="500" d:DesignWidth="520"
+             d:DesignHeight="600" d:DesignWidth="520"
              PreviewKeyDown="HotkeyEditorModal_PreviewKeyDown"
              PreviewKeyUp="HotkeyEditorModal_PreviewKeyUp">
     <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-
-        <!-- Modal Action Button Style to prevent clipping -->
-        <Style x:Key="ModalButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="14,6"/>
-            <Setter Property="MinHeight" Value="32"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Name="Border"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="4"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonPressedBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.4"/>
-                                <Setter Property="Cursor" Value="Arrow"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
 
         <!-- Modern GroupBox Style -->
         <Style TargetType="GroupBox">
@@ -82,62 +47,6 @@
                                 <ContentPresenter Grid.Row="1"/>
                             </Grid>
                         </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Modern CheckBox Style -->
-        <Style TargetType="CheckBox">
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="CheckBox">
-                        <Grid Background="Transparent">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Border x:Name="checkBorder" Grid.Column="0"
-                                    Width="16" Height="16"
-                                    CornerRadius="3"
-                                    Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}"
-                                    BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
-                                    BorderThickness="1.5"
-                                    VerticalAlignment="Center"
-                                    HorizontalAlignment="Center"
-                                    SnapsToDevicePixels="True">
-                                <Path x:Name="checkMark"
-                                      Data="M 3,8 L 6.5,11.5 L 12.5,4.5"
-                                      Stroke="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
-                                      StrokeThickness="2"
-                                      StrokeStartLineCap="Round"
-                                      StrokeEndLineCap="Round"
-                                      StrokeLineJoin="Round"
-                                      Visibility="Collapsed"
-                                      SnapsToDevicePixels="True"/>
-                            </Border>
-                            <ContentPresenter Grid.Column="1"
-                                              Margin="6,0,0,0"
-                                              VerticalAlignment="Center"
-                                              HorizontalAlignment="Left"
-                                              RecognizesAccessKey="True"/>
-                        </Grid>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="checkMark" Property="Visibility" Value="Visible"/>
-                                <Setter TargetName="checkBorder" Property="BorderBrush" Value="#0078D7"/>
-                            </Trigger>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="checkBorder" Property="BorderBrush" Value="#0078D7"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.4"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -286,6 +195,8 @@
         <Style x:Key="LocationComboBoxStyle" TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
             <Setter Property="Width" Value="92"/>
         </Style>
+
+        </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid Background="#80000000" Focusable="False">
@@ -420,7 +331,7 @@
                             <Button Grid.Column="1"
                                     Content="+ Add Step"
                                     Command="{Binding AddStepCommand}"
-                                    Style="{StaticResource ModalButtonStyle}"
+                                    Style="{StaticResource SecondaryButtonStyle}"
                                     FontSize="11"
                                     Padding="10,4"
                                     MinHeight="28"
@@ -477,7 +388,7 @@
                             <Button Grid.Column="1"
                                     Content="Clear / Reset"
                                     Command="{Binding ClearCommand}"
-                                    Style="{StaticResource ModalButtonStyle}"
+                                    Style="{StaticResource LightErrorButtonStyle}"
                                     FontSize="11"
                                     Padding="10,4"
                                     MinHeight="28"/>
@@ -513,16 +424,16 @@
 
                 <!-- Action Buttons -->
                 <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Content="Cancel"
-                            Command="{Binding CancelCommand}"
-                            Style="{StaticResource ModalButtonStyle}"
-                            MinWidth="85"
-                            Margin="0,0,8,0"/>
                     <Button Content="Save / Apply"
                             Command="{Binding SaveCommand}"
-                            Style="{StaticResource ModalButtonStyle}"
-                            MinWidth="110"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            MinWidth="100"
                             FontWeight="SemiBold"/>
+                    <Button Content="Cancel"
+                            Command="{Binding CancelCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            MinWidth="100"
+                            Margin="0,0,8,0"/>
                 </StackPanel>
             </Grid>
         </Border>

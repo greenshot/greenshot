@@ -22,62 +22,11 @@
     </WindowChrome.WindowChrome>
 
     <Window.Resources>
-        <Style x:Key="TitleBarButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Width" Value="46"/>
-            <Setter Property="Height" Value="36"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" BorderThickness="0">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#E81123"/>
-                                <Setter Property="Foreground" Value="White"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style TargetType="Button">
-            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="14,6"/>
-            <Setter Property="Margin" Value="4"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Name="Border"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="4"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonPressedBrush}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
 
         <Style TargetType="TextBox">
             <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}"/>
@@ -216,10 +165,7 @@
             </Setter>
         </Style>
 
-        <Style TargetType="CheckBox">
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-        </Style>
+        </ResourceDictionary>
     </Window.Resources>
 
     <Border BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
@@ -258,9 +204,8 @@
                            WindowChrome.IsHitTestVisibleInChrome="False"/>
 
                 <Button Grid.Column="2"
-                        Content="✕" 
                         Click="CloseButton_Click"
-                        Style="{StaticResource TitleBarButtonStyle}"
+                        Style="{StaticResource TitleCloseButtonStyle}"
                         ToolTip="Close"
                         WindowChrome.IsHitTestVisibleInChrome="True"/>
             </Grid>
@@ -309,12 +254,16 @@
                     Padding="16,10">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Content="{wpf:Text Core.Ok}" 
+                            Style="{StaticResource PrimaryButtonStyle}"
                             IsDefault="True"
                             Width="80"
+                            Margin="5,0"
                             Click="OkButton_Click"/>
                     <Button Content="{wpf:Text Core.Cancel}" 
+                            Style="{StaticResource SecondaryButtonStyle}"
                             IsCancel="True"
                             Width="80"
+                            Margin="5,0"
                             Click="CancelButton_Click"/>
                 </StackPanel>
             </Border>

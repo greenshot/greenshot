@@ -4,17 +4,16 @@
              xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
              xmlns:interop="clr-namespace:Greenshot.Plugin.Office.OfficeInterop">
     <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         <wpf:EnumDisplayer Type="{x:Type interop:EmailFormat}" x:Key="emailFormats"/>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
 
         <Style TargetType="Label">
             <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
-
-        <Style TargetType="CheckBox">
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="Margin" Value="0,4"/>
         </Style>
 
         <Style TargetType="TextBox">
@@ -26,6 +25,8 @@
             <Setter Property="Height" Value="28"/>
             <Setter Property="Padding" Value="6,0"/>
         </Style>
+
+        </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid Margin="4">

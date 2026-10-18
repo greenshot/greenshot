@@ -33,6 +33,9 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ScrollBarStyles.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Nodify;component/Themes/generic.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
@@ -43,173 +46,6 @@
             <conv:BoolToStatusBrushConverter x:Key="BoolToStatusBrushConv"/>
             <conv:StringToVisibilityConverter x:Key="StringToVis"/>
             <conv:StringToBrushConverter x:Key="StringToBrushConv"/>
-
-        <!-- Modern Themed CheckBox Style -->
-        <Style TargetType="{x:Type CheckBox}">
-            <Setter Property="Foreground" Value="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type CheckBox}">
-                        <Grid Background="Transparent">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Border x:Name="checkBorder" Grid.Column="0"
-                                    Width="16" Height="16"
-                                    CornerRadius="3"
-                                    Background="{Binding DataContext.CardBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
-                                    BorderBrush="{Binding DataContext.CardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}"
-                                    BorderThickness="1.5"
-                                    VerticalAlignment="Center"
-                                    HorizontalAlignment="Center"
-                                    SnapsToDevicePixels="True">
-                                <Path x:Name="checkMark"
-                                      Data="M 3,8 L 6.5,11.5 L 12.5,4.5"
-                                      Stroke="{Binding DataContext.AccentBrush, RelativeSource={RelativeSource AncestorType=Window}}"
-                                      StrokeThickness="2"
-                                      StrokeStartLineCap="Round"
-                                      StrokeEndLineCap="Round"
-                                      StrokeLineJoin="Round"
-                                      Visibility="Collapsed"
-                                      SnapsToDevicePixels="True"/>
-                            </Border>
-                            <ContentPresenter Grid.Column="1"
-                                              Margin="6,0,0,0"
-                                              VerticalAlignment="Center"
-                                              HorizontalAlignment="Left"
-                                              RecognizesAccessKey="True"/>
-                        </Grid>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="checkMark" Property="Visibility" Value="Visible"/>
-                                <Setter TargetName="checkBorder" Property="BorderBrush" Value="{Binding DataContext.AccentBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                            </Trigger>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="checkBorder" Property="BorderBrush" Value="{Binding DataContext.AccentBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.4"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Base Toolbar Button Style -->
-        <Style x:Key="ToolbarBtn" TargetType="Button">
-            <Setter Property="Background" Value="{Binding CardBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{Binding TextPrimaryBrush}"/>
-            <Setter Property="BorderBrush" Value="{Binding CardBorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="10,4"/>
-            <Setter Property="Margin" Value="0,0,6,0"/>
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="4" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="{Binding BadgeBackgroundBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Opacity" Value="0.8"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="border" Property="Opacity" Value="0.4"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Danger / Delete Button Style -->
-        <Style x:Key="DangerBtn" TargetType="Button" BasedOn="{StaticResource ToolbarBtn}">
-            <Setter Property="Background" Value="#1AEC2B2B"/>
-            <Setter Property="BorderBrush" Value="#CCEC2B2B"/>
-            <Setter Property="Foreground" Value="#FFEC2B2B"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-        </Style>
-
-        <!-- Trigger Delete Button Style -->
-        <Style x:Key="TriggerDeleteBtn" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Foreground" Value="#FF6B6B"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Width" Value="24"/>
-            <Setter Property="Height" Value="24"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="b" Background="{TemplateBinding Background}" CornerRadius="4">
-                            <TextBlock Text="✕" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="11" FontWeight="Bold" Foreground="{TemplateBinding Foreground}"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="b" Property="Background" Value="#33FF6B6B"/>
-                                <Setter Property="Foreground" Value="#FFFF4444"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Item Delete Button Style (for Annotations, Variables, Branches, Choices) -->
-        <Style x:Key="ItemDeleteBtn" TargetType="Button">
-            <Setter Property="Background" Value="#1AE81123"/>
-            <Setter Property="BorderBrush" Value="#40E81123"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Foreground" Value="#FFE81123"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Width" Value="22"/>
-            <Setter Property="Height" Value="22"/>
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="Margin" Value="0"/>
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="ToolTip" Value="Delete"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="b" Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="4">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="b" Property="Background" Value="#FFE81123"/>
-                                <Setter TargetName="b" Property="BorderBrush" Value="#FFE81123"/>
-                                <Setter Property="Foreground" Value="#FFFFFF"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="b" Property="Background" Value="#FFC42B1C"/>
-                                <Setter TargetName="b" Property="BorderBrush" Value="#FFC42B1C"/>
-                                <Setter Property="Foreground" Value="#FFFFFF"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="b" Property="Opacity" Value="0.3"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
 
         <!-- Modern Themed Context Menu -->
         <Style TargetType="{x:Type ContextMenu}">
@@ -285,45 +121,7 @@
             </Setter>
         </Style>
 
-        <!-- Primary Accent Button -->
-        <Style x:Key="PrimaryBtn" TargetType="Button" BasedOn="{StaticResource ToolbarBtn}">
-            <Setter Property="Background" Value="{Binding AccentBrush}"/>
-            <Setter Property="BorderBrush" Value="{Binding AccentBrush}"/>
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentForegroundBrush}"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-        </Style>
-
-        <!-- Toolbox Item Button -->
-        <Style x:Key="ToolboxItemBtn" TargetType="Button">
-            <Setter Property="Background" Value="{Binding CardBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{Binding TextPrimaryBrush}"/>
-            <Setter Property="BorderBrush" Value="{Binding CardBorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="8,6"/>
-            <Setter Property="Margin" Value="0,2"/>
-            <Setter Property="HorizontalContentAlignment" Value="Left"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="4" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="{Binding BadgeBackgroundBrush}"/>
-                                <Setter TargetName="border" Property="BorderBrush" Value="{Binding AccentBrush}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Inspector TabItem Style -->
+     <!-- Inspector TabItem Style -->
         <Style x:Key="InspectorTabItem" TargetType="TabItem">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="{Binding TextSecondaryBrush}"/>
@@ -697,7 +495,7 @@
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="🛡 " FontSize="12" VerticalAlignment="Center"/>
                             <TextBlock Text="{Binding ApprovalNotice}" FontSize="11" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap" VerticalAlignment="Center"/>
-                            <Button Content="Review approval..." Style="{StaticResource ToolbarBtn}" Command="{Binding ReviewApprovalCommand}" Margin="10,0,0,0" Padding="8,2"
+                            <Button Content="Review approval..." Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ReviewApprovalCommand}" Margin="10,0,0,0" Padding="8,2"
                                     Visibility="{Binding CanReviewApproval, Converter={StaticResource BoolToVis}}" ToolTip="Switch triggers and permissions of this recipe on or off"/>
                         </StackPanel>
                     </Border>
@@ -730,7 +528,7 @@
                             </ComboBox>
 
                             <!-- Quick Active / Deactivate Toggle for Selected Recipe -->
-                            <Button Style="{StaticResource ToolbarBtn}" Command="{Binding ToggleActiveRecipeEnabledCommand}"
+                            <Button Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ToggleActiveRecipeEnabledCommand}"
                                     ToolTip="Click to activate or deactivate this recipe in Greenshot" Margin="0,0,6,0" Padding="8,4">
                                 <StackPanel Orientation="Horizontal">
                                     <Ellipse Width="7" Height="7" Margin="0,0,5,0" VerticalAlignment="Center"
@@ -740,14 +538,14 @@
                             </Button>
 
                             <!-- Quick Unload button if custom or overridden -->
-                            <Button Style="{StaticResource ToolbarBtn}" Command="{Binding UnloadActiveRecipeCommand}"
+                            <Button Style="{StaticResource SecondaryButtonStyle}" Command="{Binding UnloadActiveRecipeCommand}"
                                     Visibility="{Binding CanUnloadActiveRecipe, Converter={StaticResource BoolToVis}}"
                                     ToolTip="{Binding UnloadActiveRecipeToolTip}" Margin="0,0,6,0" Padding="8,4">
                                 <TextBlock Text="{Binding UnloadActiveRecipeText}" FontSize="10"/>
                             </Button>
 
                             <!-- Visual Recipe Manager Button -->
-                            <Button Style="{StaticResource ToolbarBtn}" Command="{Binding OpenRecipeManagerCommand}"
+                            <Button Style="{StaticResource SecondaryButtonStyle}" Command="{Binding OpenRecipeManagerCommand}"
                                     ToolTip="Open Visual Recipe Manager (Ctrl+M)" Margin="0,0,6,0" Padding="8,4">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="📋 " FontSize="11" VerticalAlignment="Center"/>
@@ -758,24 +556,24 @@
 
                         <!-- Actions Toolbar -->
                         <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left" Margin="15,0,0,0">
-                            <Button Content="New" Style="{StaticResource ToolbarBtn}" Command="{Binding NewRecipeCommand}" ToolTip="Create new recipe"/>
-                            <Button Content="New Automatic Step" Style="{StaticResource ToolbarBtn}" Command="{Binding NewExtensionCommand}"
+                            <Button Content="New" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding NewRecipeCommand}" ToolTip="Create new recipe"/>
+                            <Button Content="New Automatic Step" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding NewExtensionCommand}"
                                     ToolTip="Create a new automatic step: steps Greenshot adds to other recipes (like the built-in border)"/>
-                            <Button Content="Open..." Style="{StaticResource ToolbarBtn}" Command="{Binding OpenRecipeCommand}" ToolTip="Open recipe file from disk"/>
-                            <Button Content="Save" Style="{StaticResource ToolbarBtn}" Command="{Binding SaveRecipeCommand}" ToolTip="Save current recipe"/>
-                            <Button Content="Save As..." Style="{StaticResource ToolbarBtn}" Command="{Binding SaveAsCommand}" ToolTip="Save recipe to new file"/>
+                            <Button Content="Open..." Style="{StaticResource SecondaryButtonStyle}" Command="{Binding OpenRecipeCommand}" ToolTip="Open recipe file from disk"/>
+                            <Button Content="Save" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding SaveRecipeCommand}" ToolTip="Save current recipe"/>
+                            <Button Content="Save As..." Style="{StaticResource SecondaryButtonStyle}" Command="{Binding SaveAsCommand}" ToolTip="Save recipe to new file"/>
                             <Separator Width="1" Background="{Binding CardBorderBrush}" Margin="6,2"/>
-                            <Button Content="↶ Undo" Style="{StaticResource ToolbarBtn}" Command="{Binding UndoCommand}" ToolTip="Undo the last change (Ctrl+Z)"/>
-                            <Button Content="↷ Redo" Style="{StaticResource ToolbarBtn}" Command="{Binding RedoCommand}" ToolTip="Redo the change (Ctrl+Y)"/>
+                            <Button Content="↶ Undo" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding UndoCommand}" ToolTip="Undo the last change (Ctrl+Z)"/>
+                            <Button Content="↷ Redo" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding RedoCommand}" ToolTip="Redo the change (Ctrl+Y)"/>
                             <Separator Width="1" Background="{Binding CardBorderBrush}" Margin="6,2"/>
-                            <Button Content="Auto-Layout" Style="{StaticResource ToolbarBtn}" Command="{Binding AutoLayoutCommand}" ToolTip="Auto-organize DAG layout"/>
-                            <Button Content="{}{ } JSON" Style="{StaticResource ToolbarBtn}" Command="{Binding ToggleJsonViewCommand}" ToolTip="View / Edit Raw Recipe JSON"/>
-                            <Button Content="🧜 Mermaid" Style="{StaticResource ToolbarBtn}" Command="{Binding ToggleMermaidViewCommand}" ToolTip="Generate Mermaid Diagram DSL for documentation"/>
+                            <Button Content="Auto-Layout" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding AutoLayoutCommand}" ToolTip="Auto-organize DAG layout"/>
+                            <Button Content="{}{ } JSON" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ToggleJsonViewCommand}" ToolTip="View / Edit Raw Recipe JSON"/>
+                            <Button Content="🧜 Mermaid" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ToggleMermaidViewCommand}" ToolTip="Generate Mermaid Diagram DSL for documentation"/>
                         </StackPanel>
 
                         <!-- Right Action: Test Run -->
                         <StackPanel Orientation="Horizontal" Grid.Column="2">
-                            <Button Content="▶ Test Run Recipe" Style="{StaticResource PrimaryBtn}" Command="{Binding TestRunCommand}" ToolTip="Execute capture recipe in Greenshot"/>
+                            <Button Content="▶ Test Run Recipe" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding TestRunCommand}" ToolTip="Execute capture recipe in Greenshot"/>
                         </StackPanel>
                     </Grid>
                 </DockPanel>
@@ -791,7 +589,9 @@
 
                 <!-- Left Toolbox -->
                 <Border Grid.Column="0" Background="{Binding WindowBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="0,0,1,0" Padding="8">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <ScrollViewer Style="{DynamicResource ThemedScrollViewer}"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled">
                         <StackPanel>
                             <TextBlock Text="STEP TOOLBOX" FontWeight="Bold" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="4,4,0,2"/>
                             <TextBlock Text="Select a step or an arrow first: the new step goes right after it, or into the arrow." FontSize="10" TextWrapping="Wrap"
@@ -799,116 +599,113 @@
 
                             <!-- 1. Acquisition -->
                             <TextBlock Text="ACQUISITION" FontWeight="SemiBold" FontSize="10" Foreground="{Binding TextSecondaryBrush}" Margin="4,8,0,4"/>
-                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Source">
+                            <Button Style="{StaticResource ToolboxButtonStyle}" Command="{Binding AddStepCommand}" CommandParameter="Source">
                                 <TextBlock Text="📷 Source (Acquisition)"/>
                             </Button>
-                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="InteractiveSelection">
+                            <Button Style="{StaticResource ToolboxButtonStyle}" Command="{Binding AddStepCommand}" CommandParameter="InteractiveSelection">
                                 <TextBlock Text="🔲 Interactive Selection"/>
                             </Button>
-                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="RecordVideo">
+                            <Button Style="{StaticResource ToolboxButtonStyle}" Command="{Binding AddStepCommand}" CommandParameter="RecordVideo">
                                 <TextBlock Text="🎥 Record Video (WGC)"/>
                             </Button>
 
                             <!-- 2. Filters & Effects -->
                             <TextBlock Text="FILTERS &amp; EFFECTS" FontWeight="SemiBold" FontSize="10" Foreground="{Binding TextSecondaryBrush}" Margin="4,12,0,4"/>
-                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Effect">
+                            <Button Style="{StaticResource ToolboxButtonStyle}" Command="{Binding AddStepCommand}" CommandParameter="Effect">
                                 <TextBlock Text="✨ Effect (Border/Shadow/Filters)"/>
                             </Button>
-                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="TextEffect">
+                            <Button Style="{StaticResource ToolboxButtonStyle}" Command="{Binding AddStepCommand}" CommandParameter="TextEffect">
                                 <TextBlock Text="🛡️ Text Effect / DLP"/>
                             </Button>
 
                             <!-- 3. Annotations & Variables -->
                             <TextBlock Text="ANNOTATIONS &amp; DATA" FontWeight="SemiBold" FontSize="10" Foreground="{Binding TextSecondaryBrush}" Margin="4,12,0,4"/>
-                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Annotation">
+                            <Button Style="{StaticResource ToolboxButtonStyle}" Command="{Binding AddStepCommand}" CommandParameter="Annotation">
                                 <TextBlock Text="🎨 Annotation"/>
                             </Button>
-                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="SetVariable">
+                            <Button Style="{StaticResource ToolboxButtonStyle}" Command="{Binding AddStepCommand}" CommandParameter="SetVariable">
                                 <TextBlock Text="💲 Set Variable"/>
                             </Button>
 
                             <!-- 4. Execution & Logic -->
                             <TextBlock Text="FLOW &amp; FEEDBACK" FontWeight="SemiBold" FontSize="10" Foreground="{Binding TextSecondaryBrush}" Margin="4,12,0,4"/>
-                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="UserPrompt">
+                            <Button Style="{StaticResource ToolboxButtonStyle}" Command="{Binding AddStepCommand}" CommandParameter="UserPrompt">
                                 <TextBlock Text="❓ User Decision Prompt"/>
                             </Button>
-                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Conditional">
+                            <Button Style="{StaticResource ToolboxButtonStyle}" Command="{Binding AddStepCommand}" CommandParameter="Conditional">
                                 <TextBlock Text="🔀 Conditional Branch"/>
                             </Button>
-                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Slot"
+                            <Button Style="{StaticResource ToolboxButtonStyle}" Command="{Binding AddStepCommand}" CommandParameter="Slot"
                                     ToolTip="A place where automatic steps (border, drop shadow, caption, ...) are added">
                                 <TextBlock Text="🧩 Slot for Automatic Steps"/>
                             </Button>
-                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="ImmediateFeedback">
+                            <Button Style="{StaticResource ToolboxButtonStyle}" Command="{Binding AddStepCommand}" CommandParameter="ImmediateFeedback">
                                 <TextBlock Text="🔊 Shutter Sound"/>
                             </Button>
-                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Notification">
+                            <Button Style="{StaticResource ToolboxButtonStyle}" Command="{Binding AddStepCommand}" CommandParameter="Notification">
                                 <TextBlock Text="🔔 Notification"/>
                             </Button>
-                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Processors">
+                            <Button Style="{StaticResource ToolboxButtonStyle}" Command="{Binding AddStepCommand}" CommandParameter="Processors">
                                 <TextBlock Text="⚙️ Processors / OCR"/>
                             </Button>
-                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Stdout">
+                            <Button Style="{StaticResource ToolboxButtonStyle}" Command="{Binding AddStepCommand}" CommandParameter="Stdout">
                                 <TextBlock Text="📤 Standard Output (CLI)"/>
                             </Button>
-                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Stderr">
+                            <Button Style="{StaticResource ToolboxButtonStyle}" Command="{Binding AddStepCommand}" CommandParameter="Stderr">
                                 <TextBlock Text="⛔ Standard Error / Exit Code (CLI)"/>
                             </Button>
 
                             <!-- 5. Destinations & Output -->
                             <TextBlock Text="OUTPUT &amp; DESTINATIONS" FontWeight="SemiBold" FontSize="10" Foreground="{Binding TextSecondaryBrush}" Margin="4,12,0,4"/>
-                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="DynamicDestination">
+                            <Button Style="{StaticResource ToolboxButtonStyle}" Command="{Binding AddStepCommand}" CommandParameter="DynamicDestination">
                                 <TextBlock Text="🎯 Dynamic Destination (WPF)"/>
                             </Button>
-                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="SaveFile">
+                            <Button Style="{StaticResource ToolboxButtonStyle}" Command="{Binding AddStepCommand}" CommandParameter="SaveFile">
                                 <TextBlock Text="💾 Save to File"/>
                             </Button>
-                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Clipboard">
+                            <Button Style="{StaticResource ToolboxButtonStyle}" Command="{Binding AddStepCommand}" CommandParameter="Clipboard">
                                 <TextBlock Text="📋 System Clipboard"/>
                             </Button>
-                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Editor">
+                            <Button Style="{StaticResource ToolboxButtonStyle}" Command="{Binding AddStepCommand}" CommandParameter="Editor">
                                 <TextBlock Text="🎨 Image Editor"/>
                             </Button>
-                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Printer">
+                            <Button Style="{StaticResource ToolboxButtonStyle}" Command="{Binding AddStepCommand}" CommandParameter="Printer">
                                 <TextBlock Text="🖨️ Printer"/>
                             </Button>
-                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Email">
+                            <Button Style="{StaticResource ToolboxButtonStyle}" Command="{Binding AddStepCommand}" CommandParameter="Email">
                                 <TextBlock Text="📧 E-Mail"/>
                             </Button>
-                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="CustomDestination">
+                            <Button Style="{StaticResource ToolboxButtonStyle}" Command="{Binding AddStepCommand}" CommandParameter="CustomDestination">
                                 <TextBlock Text="↗️ Custom Destination"/>
                             </Button>
-                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Destinations">
+                            <Button Style="{StaticResource ToolboxButtonStyle}" Command="{Binding AddStepCommand}" CommandParameter="Destinations">
                                 <TextBlock Text="↗️ Multi-Destinations"/>
                             </Button>
 
                             <!-- 6. Extensions & Plugins -->
                             <TextBlock Text="PLUGINS" FontWeight="SemiBold" FontSize="10" Foreground="{Binding TextSecondaryBrush}" Margin="4,12,0,4"/>
-                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="ExternalCommand">
+                            <Button Style="{StaticResource ToolboxButtonStyle}" Command="{Binding AddStepCommand}" CommandParameter="ExternalCommand">
                                 <TextBlock Text="⚡ External Command"/>
                             </Button>
-                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Imgur">
-                                <TextBlock Text="🖼️ Imgur Upload"/>
-                            </Button>
-                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Jira">
+                            <Button Style="{StaticResource ToolboxButtonStyle}" Command="{Binding AddStepCommand}" CommandParameter="Jira">
                                 <TextBlock Text="🎯 Atlassian Jira"/>
                             </Button>
-                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Confluence">
+                            <Button Style="{StaticResource ToolboxButtonStyle}" Command="{Binding AddStepCommand}" CommandParameter="Confluence">
                                 <TextBlock Text="📄 Confluence Page"/>
                             </Button>
-                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Office">
+                            <Button Style="{StaticResource ToolboxButtonStyle}" Command="{Binding AddStepCommand}" CommandParameter="Office">
                                 <TextBlock Text="📊 Microsoft Office"/>
                             </Button>
-                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Pdf">
+                            <Button Style="{StaticResource ToolboxButtonStyle}" Command="{Binding AddStepCommand}" CommandParameter="Pdf">
                                 <TextBlock Text="💾 Save as PDF"/>
                             </Button>
-                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="BarcodeScan">
+                            <Button Style="{StaticResource ToolboxButtonStyle}" Command="{Binding AddStepCommand}" CommandParameter="BarcodeScan">
                                 <TextBlock Text="🔍 ZXing Barcode / QR"/>
                             </Button>
-                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Box">
+                            <Button Style="{StaticResource ToolboxButtonStyle}" Command="{Binding AddStepCommand}" CommandParameter="Box">
                                 <TextBlock Text="📦 Box Cloud Storage"/>
                             </Button>
-                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Dropbox">
+                            <Button Style="{StaticResource ToolboxButtonStyle}" Command="{Binding AddStepCommand}" CommandParameter="Dropbox">
                                 <TextBlock Text="📦 Dropbox"/>
                             </Button>
                         </StackPanel>
@@ -1001,8 +798,8 @@
                                      AcceptsReturn="True" AcceptsTab="True"
                                      VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
                             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
-                                <Button Content="Apply Changes" Style="{StaticResource PrimaryBtn}" Command="{Binding ApplyJsonCommand}"/>
-                                <Button Content="Close" Style="{StaticResource ToolbarBtn}" Command="{Binding ToggleJsonViewCommand}"/>
+                                <Button Content="Apply Changes" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding ApplyJsonCommand}"/>
+                                <Button Content="Close" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ToggleJsonViewCommand}"/>
                             </StackPanel>
                         </Grid>
                     </Border>
@@ -1035,8 +832,8 @@
                                      AcceptsReturn="True" AcceptsTab="True"
                                      VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
                             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
-                                <Button Content="📋 Copy Mermaid Code" Style="{StaticResource PrimaryBtn}" Command="{Binding CopyMermaidCommand}" Margin="0,0,8,0"/>
-                                <Button Content="Close" Style="{StaticResource ToolbarBtn}" Command="{Binding ToggleMermaidViewCommand}"/>
+                                <Button Content="📋 Copy Mermaid Code" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding CopyMermaidCommand}" Margin="0,0,8,0"/>
+                                <Button Content="Close" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ToggleMermaidViewCommand}"/>
                             </StackPanel>
                         </Grid>
                     </Border>
@@ -1048,7 +845,10 @@
                                  Background="Transparent" BorderThickness="0" Margin="4,4,4,4">
                         <!-- Tab 1: Step Inspector -->
                         <TabItem Header="⚙️ Step Inspector" Style="{StaticResource InspectorTabItem}">
-                            <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="6,8,6,8">
+                            <ScrollViewer Style="{DynamicResource ThemedScrollViewer}"
+                                          VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled"
+                                          Padding="6,8,6,8">
                                 <StackPanel>
                                     <!-- When a connection is selected -->
                                     <StackPanel Visibility="{Binding HasSelectedConnection, Converter={StaticResource BoolToVis}}">
@@ -1077,7 +877,7 @@
                                                         </StackPanel>
                                                     </Border>
                                                 </Grid>
-                                                <Button Content="🗑️ Delete Connection" Style="{StaticResource DangerBtn}"
+                                                <Button Content="🗑️ Delete Connection" Style="{StaticResource LightErrorButtonStyle}"
                                                         Command="{Binding SelectedConnection.DisconnectCommand}"
                                                         ToolTip="Remove this connection (or press Delete / Backspace)"/>
                                                 <TextBlock Text="Tip: Press Delete or Backspace key to remove the connection." FontSize="10" Foreground="{Binding TextSecondaryBrush}" Margin="0,8,0,0" TextWrapping="Wrap"/>
@@ -1105,15 +905,15 @@
                                                     </Border>
                                                 </Grid>
                                                 <WrapPanel Orientation="Horizontal">
-                                                    <Button Content="⭐ Mark as Start Step" Style="{StaticResource ToolbarBtn}" Margin="0,0,6,0"
+                                                    <Button Content="⭐ Mark as Start Step" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,6,0"
                                                             Command="{Binding SelectedNode.ToggleStartNodeCommand}"
                                                             Visibility="{Binding SelectedNode.IsStartNode, Converter={StaticResource InvertBoolToVis}}"
                                                             ToolTip="Add this step as a parallel entry point"/>
-                                                    <Button Content="⭐ Remove Start Step" Style="{StaticResource ToolbarBtn}" Margin="0,0,6,0"
+                                                    <Button Content="⭐ Remove Start Step" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,6,0"
                                                             Command="{Binding SelectedNode.ToggleStartNodeCommand}"
                                                             Visibility="{Binding SelectedNode.IsStartNode, Converter={StaticResource BoolToVis}}"
                                                             ToolTip="Remove this step from start steps"/>
-                                                    <Button Content="🗑️ Delete Step" Style="{StaticResource DangerBtn}"
+                                                    <Button Content="🗑️ Delete Step" Style="{StaticResource LightErrorButtonStyle}"
                                                             Command="{Binding DeleteSelectedCommand}"
                                                             ToolTip="Delete this step from the recipe"/>
                                                 </WrapPanel>
@@ -1643,7 +1443,7 @@
                                                     <TextBox Grid.Column="2" Text="{Binding SelectedNode.CanvasBackgroundColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                              Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
                                                              VerticalContentAlignment="Center" Padding="6,4"/>
-                                                    <Button Grid.Column="4" Content="🎨" Style="{StaticResource ToolbarBtn}" Margin="0" Height="26"
+                                                    <Button Grid.Column="4" Content="🎨" Style="{StaticResource SecondaryButtonStyle}" Margin="0" Height="26"
                                                             Command="{Binding SelectedNode.PickCanvasBackgroundColorCommand}" ToolTip="Pick Color..."/>
                                                 </Grid>
                                             </StackPanel>
@@ -1735,7 +1535,7 @@
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock Text="Variables (Key / Value)" FontWeight="SemiBold" FontSize="11" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center"/>
-                                                <Button Grid.Column="1" Content="+ Add Variable" Style="{StaticResource PrimaryBtn}" Padding="6,2" Command="{Binding SelectedNode.AddVariableCommand}"/>
+                                                <Button Grid.Column="1" Content="+ Add Variable" Style="{StaticResource PrimaryButtonStyle}" Padding="6,2" Command="{Binding SelectedNode.AddVariableCommand}"/>
                                             </Grid>
 
                                             <ItemsControl ItemsSource="{Binding SelectedNode.Variables}">
@@ -1762,7 +1562,7 @@
                                                                          Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                          Padding="4,2"/>
                                                                 <Button Grid.Column="3" Content="✕"
-                                                                        Style="{StaticResource ItemDeleteBtn}"
+                                                                        Style="{StaticResource LightErrorButtonStyle}"
                                                                         Command="{Binding RemoveCommand}" ToolTip="Delete Variable" Margin="4,0,0,0"/>
                                                             </Grid>
                                                         </Border>
@@ -1807,7 +1607,7 @@
                                                             <ComboBoxItem Content="Svg"/>
                                                             <ComboBoxItem Content="Text"/>
                                                         </ComboBox>
-                                                        <Button Content="+ Add Annotation" Style="{StaticResource PrimaryBtn}" Padding="6,2"
+                                                        <Button Content="+ Add Annotation" Style="{StaticResource PrimaryButtonStyle}" Padding="6,2"
                                                                 Command="{Binding SelectedNode.AddAnnotationCommand}"
                                                                 CommandParameter="{Binding SelectedItem.Content, ElementName=AnnotationTypeSelector}"/>
                                                     </StackPanel>
@@ -1816,9 +1616,9 @@
                                                 <!-- Template / Import Row -->
                                                 <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,6,0,2">
                                                     <TextBlock Text="Template:" FontSize="10" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                                    <Button Content="📷 From Editor..." Style="{StaticResource ToolbarBtn}" Padding="6,2" Margin="0,0,4,0"
+                                                    <Button Content="📷 From Editor..." Style="{StaticResource SecondaryButtonStyle}" Padding="6,2" Margin="0,0,4,0"
                                                             Command="{Binding SelectedNode.ImportFromEditorCommand}" ToolTip="Import annotations from open image editor"/>
-                                                    <Button Content="📁 From File..." Style="{StaticResource ToolbarBtn}" Padding="6,2" Margin="0"
+                                                    <Button Content="📁 From File..." Style="{StaticResource SecondaryButtonStyle}" Padding="6,2" Margin="0"
                                                             Command="{Binding SelectedNode.ImportFromGreenshotFileCommand}" ToolTip="Import annotations from .greenshot file"/>
                                                 </StackPanel>
                                             </Grid>
@@ -1861,7 +1661,7 @@
                                                                                Foreground="{Binding DataContext.AccentBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                                VerticalAlignment="Center" Margin="8,0,0,0" TextTrimming="CharacterEllipsis"/>
                                                                     <Button Grid.Column="2" Content="✕"
-                                                                            Style="{StaticResource ItemDeleteBtn}"
+                                                                            Style="{StaticResource LightErrorButtonStyle}"
                                                                             Command="{Binding RemoveCommand}" ToolTip="Delete Drawable"/>
                                                                 </Grid>
 
@@ -1911,7 +1711,7 @@
                                                                             <TextBlock Text="{Binding ConfigurationSummary}" FontSize="11" Margin="0,2,0,0" TextTrimming="CharacterEllipsis"
                                                                                        Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
                                                                         </StackPanel>
-                                                                        <Button Grid.Column="1" Content="⚙ Configure..." Style="{StaticResource ToolbarBtn}" Padding="8,3" Margin="6,0,0,0"
+                                                                        <Button Grid.Column="1" Content="⚙ Configure..." Style="{StaticResource SecondaryButtonStyle}" Padding="8,3" Margin="6,0,0,0"
                                                                                 Command="{Binding ConfigureCommand}" ToolTip="Open the plugin configuration editor"
                                                                                 VerticalAlignment="Center"/>
                                                                     </Grid>
@@ -2064,7 +1864,7 @@
                                                                                  Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                                  Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                                  Padding="4,2"/>
-                                                                        <Button Grid.Column="2" Content="Browse..." Style="{StaticResource ToolbarBtn}" Padding="6,2"
+                                                                        <Button Grid.Column="2" Content="Browse..." Style="{StaticResource SecondaryButtonStyle}" Padding="6,2"
                                                                                 Command="{Binding BrowseFileCommand}"/>
                                                                     </Grid>
                                                                 </StackPanel>
@@ -2093,7 +1893,7 @@
                                                                                  Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                                  Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                                  Padding="4,2"/>
-                                                                        <Button Grid.Column="2" Content="Browse..." Style="{StaticResource ToolbarBtn}" Padding="6,2"
+                                                                        <Button Grid.Column="2" Content="Browse..." Style="{StaticResource SecondaryButtonStyle}" Padding="6,2"
                                                                                 Command="{Binding BrowseFileCommand}"/>
                                                                     </Grid>
                                                                     <TextBlock Text="Inline SVG XML" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
@@ -2140,7 +1940,7 @@
                                                                                     <TextBlock Text="📦 Embedded Cursor Bitmap (Base64)" FontWeight="SemiBold" FontSize="10" Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
                                                                                     <TextBlock Text="Bitmap cursor is embedded directly in this recipe." FontSize="9" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
                                                                                 </StackPanel>
-                                                                                <Button Grid.Column="1" Content="Load File..." Style="{StaticResource ToolbarBtn}" Padding="6,2" Margin="4,0,0,0"
+                                                                                <Button Grid.Column="1" Content="Load File..." Style="{StaticResource SecondaryButtonStyle}" Padding="6,2" Margin="4,0,0,0"
                                                                                         Command="{Binding BrowseFileCommand}" ToolTip="Replace embedded bitmap from file"/>
                                                                             </Grid>
                                                                         </Border>
@@ -2158,7 +1958,7 @@
                                                                                  Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                                  Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                                  Padding="4,2"/>
-                                                                        <Button Grid.Column="2" Content="Browse..." Style="{StaticResource ToolbarBtn}" Padding="6,2"
+                                                                        <Button Grid.Column="2" Content="Browse..." Style="{StaticResource SecondaryButtonStyle}" Padding="6,2"
                                                                                 Command="{Binding BrowseFileCommand}"/>
                                                                     </Grid>
                                                                 </StackPanel>
@@ -2394,7 +2194,7 @@
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock Text="Condition Branches" FontWeight="Bold" FontSize="11" Foreground="{Binding TextPrimaryBrush}" VerticalAlignment="Center"/>
-                                                <Button Grid.Column="1" Content="+ Add Branch" Style="{StaticResource ToolbarBtn}"
+                                                <Button Grid.Column="1" Content="+ Add Branch" Style="{StaticResource SecondaryButtonStyle}"
                                                         Command="{Binding SelectedNode.AddConditionBranchCommand}" Padding="8,2" FontSize="10"/>
                                             </Grid>
 
@@ -2426,7 +2226,7 @@
                                                                              Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                              FontFamily="Consolas" FontSize="10" Padding="4,2" MaxLength="10"
                                                                              ToolTip="Branch identifier (e.g. A, B, True, False)"/>
-                                                                    <Button Grid.Column="2" Style="{StaticResource TriggerDeleteBtn}" Command="{Binding RemoveCommand}"
+                                                                    <Button Grid.Column="2"  Content="✕" Style="{StaticResource LightErrorButtonStyle}" Command="{Binding RemoveCommand}"
                                                                             ToolTip="Delete branch" Margin="4,0,0,0"/>
                                                                 </Grid>
                                                                 <TextBox Grid.Row="1" Text="{Binding Expression, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -2503,7 +2303,7 @@
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock Text="Decision Choices &amp; Buttons" FontWeight="Bold" FontSize="11" Foreground="{Binding TextPrimaryBrush}" VerticalAlignment="Center"/>
-                                                <Button Grid.Column="1" Content="+ Add Choice" Style="{StaticResource ToolbarBtn}"
+                                                <Button Grid.Column="1" Content="+ Add Choice" Style="{StaticResource SecondaryButtonStyle}"
                                                         Command="{Binding SelectedNode.AddPromptChoiceCommand}" Padding="8,2" FontSize="10"/>
                                             </Grid>
 
@@ -2531,7 +2331,7 @@
                                                                              Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                              FontFamily="Consolas" FontSize="10" Padding="4,2" MaxLength="15"
                                                                              ToolTip="Choice key (branch identifier)"/>
-                                                                    <Button Grid.Column="2" Style="{StaticResource TriggerDeleteBtn}" Command="{Binding RemoveCommand}"
+                                                                    <Button Grid.Column="2"  Content="✕" Style="{StaticResource LightErrorButtonStyle}" Command="{Binding RemoveCommand}"
                                                                             ToolTip="Delete choice" Margin="4,0,0,0"/>
                                                                 </Grid>
 
@@ -2583,10 +2383,10 @@
                                                 <TextBox Grid.Column="0" Text="{Binding SelectedNode.SoundFilePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                          Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
                                                          Padding="6,4" ToolTip="Path to custom .wav sound file or expression (leave empty for default)"/>
-                                                <Button Grid.Column="1" Content="..." Style="{StaticResource ToolbarBtn}"
+                                                <Button Grid.Column="1" Content="..." Style="{StaticResource SecondaryButtonStyle}"
                                                         Command="{Binding SelectedNode.BrowseSoundFileCommand}"
                                                         ToolTip="Browse for .wav audio file" Margin="4,0,0,0" Padding="8,4"/>
-                                                <Button Grid.Column="2" Content="▶️" Style="{StaticResource ToolbarBtn}"
+                                                <Button Grid.Column="2" Content="▶️" Style="{StaticResource SecondaryButtonStyle}"
                                                         Command="{Binding SelectedNode.PlaySoundPreviewCommand}"
                                                         ToolTip="Play preview sound" Margin="4,0,0,0" Padding="8,4"/>
                                             </Grid>
@@ -2739,7 +2539,7 @@
                                                 <TextBox Text="{Binding SelectedNode.SaveDirectory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                          Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
                                                          Padding="6,4"/>
-                                                <Button Grid.Column="1" Content="📁 Browse..." Style="{StaticResource ToolbarBtn}" Margin="6,0,0,0"
+                                                <Button Grid.Column="1" Content="📁 Browse..." Style="{StaticResource SecondaryButtonStyle}" Margin="6,0,0,0"
                                                         Command="{Binding SelectedNode.BrowseSaveDirectoryCommand}" ToolTip="Browse for storage folder"/>
                                             </Grid>
 
@@ -2927,7 +2727,7 @@
                                             <TextBox Text="{Binding SelectedNode.CustomDestinationId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
                                                      Padding="6,4" Margin="0,0,0,8"/>
-                                            <TextBlock Text="Enter the designation of a destination (e.g. Imgur, Jira, Box, Dropbox, Word, ZxingQrDestination, or External &lt;command name&gt;)."
+                                            <TextBlock Text="Enter the designation of a destination (e.g. Jira, Box, Dropbox, Word, ZxingQrDestination, or External &lt;command name&gt;)."
                                                        FontSize="10" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
                                         </StackPanel>
 
@@ -2955,7 +2755,7 @@
                                                     <TextBox Text="{Binding SelectedNode.SaveDirectory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                              Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
                                                              Padding="6,4"/>
-                                                    <Button Grid.Column="1" Content="📁 Browse..." Style="{StaticResource ToolbarBtn}" Margin="6,0,0,0"
+                                                    <Button Grid.Column="1" Content="📁 Browse..." Style="{StaticResource SecondaryButtonStyle}" Margin="6,0,0,0"
                                                             Command="{Binding SelectedNode.BrowseSaveDirectoryCommand}" ToolTip="Browse for storage folder"/>
                                                 </Grid>
 
@@ -2969,7 +2769,7 @@
                                             <TextBox Text="{Binding SelectedNode.CustomDestinationsText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
                                                      Padding="6,4" Margin="0,0,0,4"/>
-                                            <TextBlock Text="Example: Imgur, Jira, Confluence, Dropbox, ExternalCommand" FontSize="10" Foreground="{Binding TextSecondaryBrush}"/>
+                                            <TextBlock Text="Example: Jira, Confluence, Dropbox, ExternalCommand" FontSize="10" Foreground="{Binding TextSecondaryBrush}"/>
                                         </StackPanel>
 
                                         <!-- 18b. WPF Dynamic Destination Step Inspector -->
@@ -3023,7 +2823,7 @@
                                                 <TextBox Text="{Binding SelectedNode.ExternalCommandLine, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                          Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
                                                          Padding="6,4"/>
-                                                <Button Grid.Column="1" Content="📁 Browse..." Style="{StaticResource ToolbarBtn}" Margin="6,0,0,0"
+                                                <Button Grid.Column="1" Content="📁 Browse..." Style="{StaticResource SecondaryButtonStyle}" Margin="6,0,0,0"
                                                         Command="{Binding SelectedNode.BrowseExternalExecutableCommand}" ToolTip="Browse for executable or script"/>
                                             </Grid>
 
@@ -3067,22 +2867,6 @@
                                             <TextBox Text="{Binding SelectedNode.ExternalCommandSetExitCodeVariable, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
                                                      Padding="6,4" Margin="0,0,0,8"/>
-                                        </StackPanel>
-
-                                        <!-- 20. Imgur Inspector -->
-                                        <StackPanel Visibility="{Binding SelectedNode.IsImgur, Converter={StaticResource BoolToVis}}">
-                                            <TextBlock Text="Upload Image Format" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                            <ComboBox ItemsSource="{Binding DataContext.OutputFormatOptions, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
-                                                      DisplayMemberPath="DisplayNameWithPreferredExtension" SelectedValuePath="Id"
-                                                      SelectedValue="{Binding SelectedNode.ImgurFormat, Mode=TwoWay}"
-                                                      Margin="0,0,0,6">
-                                            </ComboBox>
-
-                                            <Border Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="8" Margin="0,0,0,6">
-                                                <StackPanel>
-                                                    <CheckBox Content="Copy upload link to clipboard" IsChecked="{Binding SelectedNode.ImgurCopyLinkToClipboard, Mode=TwoWay}" Foreground="{Binding TextPrimaryBrush}" Margin="0,2"/>
-                                                </StackPanel>
-                                            </Border>
                                         </StackPanel>
 
                                         <!-- 21. Jira Inspector -->
@@ -3211,7 +2995,10 @@
 
                         <!-- Tab 2: Recipe & Triggers -->
                         <TabItem Header="⚡ Recipe &amp; Triggers" Style="{StaticResource InspectorTabItem}">
-                            <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="6,8,6,8">
+                            <ScrollViewer Style="{DynamicResource ThemedScrollViewer}"
+                                          VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled"
+                                          Padding="6,8,6,8">
                                 <StackPanel>
                                     <TextBlock Text="RECIPE CONFIGURATION" FontWeight="Bold" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,10"/>
 
@@ -3224,7 +3011,7 @@
                                         <TextBox Text="{Binding RecipeId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                  Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
                                                  FontFamily="Consolas" Padding="6,4"/>
-                                        <Button Grid.Column="1" Content="📋 Copy" Style="{StaticResource ToolbarBtn}"
+                                        <Button Grid.Column="1" Content="📋 Copy" Style="{StaticResource SecondaryButtonStyle}"
                                                 Command="{Binding CopyRecipeIdCommand}" Margin="4,0,0,0" ToolTip="Copy Recipe ID to Clipboard"/>
                                     </Grid>
 
@@ -3275,7 +3062,7 @@
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock Text="OPTIONS" FontWeight="Bold" FontSize="10" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center"/>
-                                                <Button Grid.Column="1" Content="+ Option" Style="{StaticResource ToolbarBtn}" Command="{Binding AddOptionCommand}"/>
+                                                <Button Grid.Column="1" Content="+ Option" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding AddOptionCommand}"/>
                                             </Grid>
                                             <TextBlock Text="Values the user sets once in Settings &gt; Recipes (switches and choices also in the quick settings). The steps read them with ${option.key}."
                                                        FontSize="10" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,6"/>
@@ -3312,7 +3099,7 @@
                                                                 </Grid.Resources>
                                                                 <TextBlock Grid.Row="0" Text="Key"/>
                                                                 <DockPanel Grid.Row="0" Grid.Column="1">
-                                                                    <Button DockPanel.Dock="Right" Content="🗑" Style="{StaticResource ToolbarBtn}" Command="{Binding RemoveCommand}" ToolTip="Remove the option" Margin="4,0,0,0"/>
+                                                                    <Button DockPanel.Dock="Right" Content="🗑" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding RemoveCommand}" ToolTip="Remove the option" Margin="4,0,0,0"/>
                                                                     <TextBlock DockPanel.Dock="Right" Text="{Binding UsageText}" FontFamily="Consolas" FontSize="10" Margin="6,0,0,0"/>
                                                                     <TextBox Text="{Binding Key, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" FontFamily="Consolas"/>
                                                                 </DockPanel>
@@ -3388,15 +3175,15 @@
 
                                     <!-- Quick Add Buttons -->
                                     <WrapPanel Margin="0,0,0,10" Visibility="{Binding IsRecipeMode, Converter={StaticResource BoolToVis}}">
-                                        <Button Content="+ Hotkey" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="Hotkey" Margin="0,0,4,4"/>
-                                        <Button Content="+ Context Menu" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="ContextMenu" Margin="0,0,4,4"/>
-                                        <Button Content="+ Editor" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="Editor" Margin="0,0,4,4"/>
-                                        <Button Content="+ Clipboard" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="Clipboard" Margin="0,0,4,4"/>
-                                        <Button Content="+ CLI" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="Commandline" Margin="0,0,4,4" ToolTip="Add Command Line Trigger"/>
-                                        <Button Content="+ Open With" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="OpenFile" Margin="0,0,4,4" ToolTip="Add Open With File Trigger"/>
-                                        <Button Content="+ Browser extension" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="Extension" Margin="0,0,4,4" ToolTip="Add Browser Extension Trigger"/>
-                                        <Button Content="+ AI Tool" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="AiTool" Margin="0,0,4,4" ToolTip="Offer the recipe as a tool to AI tools (greenshot-mcp)"/>
-                                        <Button Content="+ Manual" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="Manual" Margin="0,0,0,4"/>
+                                        <Button Content="+ Hotkey" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding AddTriggerCommand}" CommandParameter="Hotkey" Margin="0,0,4,4"/>
+                                        <Button Content="+ Context Menu" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding AddTriggerCommand}" CommandParameter="ContextMenu" Margin="0,0,4,4"/>
+                                        <Button Content="+ Editor" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding AddTriggerCommand}" CommandParameter="Editor" Margin="0,0,4,4"/>
+                                        <Button Content="+ Clipboard" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding AddTriggerCommand}" CommandParameter="Clipboard" Margin="0,0,4,4"/>
+                                        <Button Content="+ CLI" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding AddTriggerCommand}" CommandParameter="Commandline" Margin="0,0,4,4" ToolTip="Add Command Line Trigger"/>
+                                        <Button Content="+ Open With" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding AddTriggerCommand}" CommandParameter="OpenFile" Margin="0,0,4,4" ToolTip="Add Open With File Trigger"/>
+                                        <Button Content="+ Browser extension" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding AddTriggerCommand}" CommandParameter="Extension" Margin="0,0,4,4" ToolTip="Add Browser Extension Trigger"/>
+                                        <Button Content="+ AI Tool" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding AddTriggerCommand}" CommandParameter="AiTool" Margin="0,0,4,4" ToolTip="Offer the recipe as a tool to AI tools (greenshot-mcp)"/>
+                                        <Button Content="+ Manual" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding AddTriggerCommand}" CommandParameter="Manual" Margin="0,0,0,4"/>
                                     </WrapPanel>
 
                                     <!-- Triggers List -->
@@ -3420,7 +3207,7 @@
                                                             <CheckBox Grid.Column="1" Content="Enabled" IsChecked="{Binding Enabled, Mode=TwoWay}"
                                                                       Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                       FontSize="10" VerticalAlignment="Center" Margin="6,0"/>
-                                                            <Button Grid.Column="2" Style="{StaticResource TriggerDeleteBtn}"
+                                                            <Button Grid.Column="2" Content="✕" Style="{StaticResource LightErrorButtonStyle}"
                                                                     Command="{Binding DataContext.RemoveTriggerCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                     CommandParameter="{Binding}"
                                                                     ToolTip="Delete Trigger"/>
@@ -3574,7 +3361,7 @@
                                     <TextBlock Text="Define what should happen when a step fails (e.g. clipboard lock, network timeout). Route the capture to a fallback step or another recipe."
                                                FontSize="10" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
 
-                                    <Button Content="+ Add Error Fallback Route" Style="{StaticResource ToolbarBtn}" Command="{Binding AddErrorTransitionCommand}" Margin="0,0,0,10" HorizontalAlignment="Left"/>
+                                    <Button Content="+ Add Error Fallback Route" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding AddErrorTransitionCommand}" Margin="0,0,0,10" HorizontalAlignment="Left"/>
 
                                     <!-- Error Transitions List -->
                                     <ItemsControl ItemsSource="{Binding ErrorTransitions}">
@@ -3597,7 +3384,7 @@
                                                                          Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                          Padding="3,1" ToolTip="Node ID or * for any step in this recipe"/>
                                                             </StackPanel>
-                                                            <Button Grid.Column="1" Content="🗑️" Style="{StaticResource DangerBtn}"
+                                                            <Button Grid.Column="1" Content="🗑️" Style="{StaticResource LightErrorButtonStyle}"
                                                                     Command="{Binding DeleteCommand}" Padding="4,1" FontSize="10" ToolTip="Remove this error route"/>
                                                         </Grid>
 
@@ -3663,4 +3450,3 @@
         </Grid>
     </Border>
 </Window>
-

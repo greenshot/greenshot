@@ -158,6 +158,7 @@ namespace Greenshot.Base.Wpf
                     // Only one: the item itself becomes that destination, without a sub menu
                     target.Destination = validSubDestinations[0];
                     item.Header = validSubDestinations[0].Descriptor.DisplayName;
+                    ThemedMenu.AssignIcon(item, validSubDestinations[0].Descriptor.IconKey);
                     return;
                 }
 
