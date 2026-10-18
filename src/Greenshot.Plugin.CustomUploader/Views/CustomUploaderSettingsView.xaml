@@ -4,6 +4,9 @@
              xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base">
     <UserControl.Resources>
         <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BoolToVis"/>
             <Style TargetType="TextBlock">
                 <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
@@ -15,41 +18,6 @@
                 <Setter Property="BorderThickness" Value="1"/>
                 <Setter Property="MinHeight" Value="80"/>
                 <Setter Property="MaxHeight" Value="180"/>
-            </Style>
-            <Style TargetType="Button">
-                <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonBackgroundBrush}"/>
-                <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
-                <Setter Property="BorderThickness" Value="1"/>
-                <Setter Property="Padding" Value="12,4"/>
-                <Setter Property="Height" Value="28"/>
-                <Setter Property="Margin" Value="0,0,6,0"/>
-                <Setter Property="Cursor" Value="Hand"/>
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="Button">
-                            <Border Name="Border"
-                                    Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    CornerRadius="4"
-                                    Padding="{TemplateBinding Padding}">
-                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="Border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
-                                </Trigger>
-                                <Trigger Property="IsPressed" Value="True">
-                                    <Setter TargetName="Border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonPressedBrush}"/>
-                                </Trigger>
-                                <Trigger Property="IsEnabled" Value="False">
-                                    <Setter TargetName="Border" Property="Opacity" Value="0.5"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
             </Style>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -86,8 +54,8 @@
             </TextBlock.Style>
         </TextBlock>
         <StackPanel Orientation="Horizontal" Margin="0,6,0,16">
-            <Button Content="{wpf:Text CustomUploader.Import}" Click="Import_Click"/>
-            <Button Content="{wpf:Text CustomUploader.Remove}" Click="Remove_Click" IsEnabled="{Binding HasSelectedUploader}"/>
+            <Button Content="{wpf:Text CustomUploader.Import}" Click="Import_Click" Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,6,0"/>
+            <Button Content="{wpf:Text CustomUploader.Remove}" Click="Remove_Click" IsEnabled="{Binding HasSelectedUploader}" Style="{StaticResource LightErrorButtonStyle}"/>
         </StackPanel>
 
         <!-- The uploads -->
@@ -120,9 +88,9 @@
             </TextBlock.Style>
         </TextBlock>
         <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-            <Button Content="{wpf:Text CustomUploader.Open}" Click="Open_Click" IsEnabled="{Binding HasSelectedUpload}"/>
-            <Button Content="{wpf:Text CustomUploader.Delete}" Click="Delete_Click" IsEnabled="{Binding CanDeleteSelectedUpload}"/>
-            <Button Content="{wpf:Text CustomUploader.Forget}" Click="Forget_Click" IsEnabled="{Binding HasSelectedUpload}"/>
+            <Button Content="{wpf:Text CustomUploader.Open}" Click="Open_Click" IsEnabled="{Binding HasSelectedUpload}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,6,0"/>
+            <Button Content="{wpf:Text CustomUploader.Delete}" Click="Delete_Click" IsEnabled="{Binding CanDeleteSelectedUpload}" Style="{StaticResource LightErrorButtonStyle}" Margin="0,0,6,0"/>
+            <Button Content="{wpf:Text CustomUploader.Forget}" Click="Forget_Click" IsEnabled="{Binding HasSelectedUpload}" Style="{StaticResource SecondaryButtonStyle}"/>
         </StackPanel>
         <!-- Delete is off: the service has no delete link, Greenshot can't remove it either -->
         <TextBlock Text="{Binding NoDeletionHint}" TextWrapping="Wrap" Margin="0,6,0,0"
