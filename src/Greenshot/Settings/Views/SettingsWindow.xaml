@@ -583,13 +583,14 @@
                                       Margin="5" DockPanel.Dock="Top"/>
                             <ListView ItemsSource="{Binding Destinations}" 
                                       AutomationProperties.Name="{wpf:Text Settings.Destination}"
+                                      KeyboardNavigation.TabNavigation="Continue"
                                       Style="{DynamicResource ThemeListView}"
                                       Margin="5" 
                                       ScrollViewer.VerticalScrollBarVisibility="Visible"
                                       ScrollViewer.CanContentScroll="False"
                                       IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputDestinations}">
                                 <ListView.ItemContainerStyle>
-                                    <!-- The rows take no focus: the arrow keys go from check box to check box, Space switches one, Tab leaves the list -->
+                                    <!-- The rows take no focus: Tab (and the arrow keys) go from check box to check box, Space switches one -->
                                     <Style TargetType="ListViewItem" BasedOn="{StaticResource ThemeListViewItem}">
                                         <Setter Property="Focusable" Value="False"/>
                                     </Style>
