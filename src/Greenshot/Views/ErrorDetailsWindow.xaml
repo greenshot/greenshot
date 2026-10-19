@@ -29,12 +29,12 @@
             </StackPanel>
 
             <StackPanel Margin="14,10,14,12">
-                <TextBlock x:Name="MessageText" TextWrapping="Wrap"
+                <TextBlock x:Name="MessageText" TextWrapping="Wrap" wpf:LiveRegion.Mode="Assertive"
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                 <TextBlock x:Name="NoteText" TextWrapping="Wrap" Margin="0,10,0,0"
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                 <Expander x:Name="DetailsExpander" Header="{wpf:Text Core.ErrorDetails}" Style="{StaticResource ExpanderStyle}" Margin="0,10,0,0">
-                    <TextBox x:Name="DetailsText" IsReadOnly="True" TextWrapping="Wrap" FontFamily="Consolas" MaxHeight="240"
+                    <TextBox x:Name="DetailsText" AutomationProperties.Name="{wpf:Text Core.ErrorDetails}" IsReadOnly="True" TextWrapping="Wrap" FontFamily="Consolas" MaxHeight="240"
                              VerticalScrollBarVisibility="Auto" Margin="0,6,0,0"/>
                 </Expander>
             </StackPanel>

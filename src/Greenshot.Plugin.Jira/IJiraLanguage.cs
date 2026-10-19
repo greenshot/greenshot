@@ -77,6 +77,11 @@ namespace Greenshot.Plugin.Jira
         string LabelFilename { get; }
 
         /// <summary>
+        /// Issues
+        /// </summary>
+        string LabelIssues { get; }
+
+        /// <summary>
         /// JIRA
         /// </summary>
         string LabelJira { get; }

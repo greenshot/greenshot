@@ -102,6 +102,17 @@ namespace Greenshot.Editor.Forms
         // whether part of the editor controls are disabled depending on selected item(s)
         private bool _controlsDisabledDueToConfirmable;
 
+        // A number field or the font list of a tool bar has the focus, the keys go there
+        private bool _toolBarFieldFocused;
+
+        // The context menu of the tabs (Apps key or Shift+F10 on the tab strip, or a right click): what is done there with the mouse
+        private ContextMenuStrip _tabContextMenu;
+        private ToolStripMenuItem _newImageTabMenuItem;
+        private ToolStripMenuItem _closeTabTabMenuItem;
+        private ToolStripMenuItem _moveTabLeftMenuItem;
+        private ToolStripMenuItem _moveTabRightMenuItem;
+        private ToolStripMenuItem _moveTabToNewWindowMenuItem;
+
         // Used for tracking the mouse scroll wheel changes
         private DateTime _zoomStartTime = DateTime.Now;
 
@@ -399,6 +410,8 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             //
             InitializeComponent();
             ApplyImages();
+            // Before the texts are applied
+            CreateTabContextMenu();
             timing.Mark("InitializeComponent");
             InitializeLanguage();
             timing.Mark("InitializeLanguage");
@@ -441,9 +454,10 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
             tabStrip.TabSelected += (s, e) => SelectTab(e.Tab);
             tabStrip.TabCloseRequested += (s, e) => CloseTabAsync(e.Tab).FireAndLog("Close a tab of the editor", Log);
-            // Nothing to save before something is drawn on the new image
-            tabStrip.NewTabRequested += (s, e) => AddTab(CreateNewImage(), outputMade: true, fitWindow: false);
+            tabStrip.NewTabRequested += (s, e) => AddNewImageTab();
             Activated += (s, e) => _lastActiveWindow = this;
+            // The keys reach the canvas without F6
+            Shown += (s, e) => FocusCanvas(fromKeyboard: false);
             FormClosed += (s, e) => CloseAllTabs();
             // Also when the window is disposed without closing it
             Disposed += (s, e) => RemoveFromOpenWindows();
@@ -639,6 +653,93 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             // Activating the window later shows it in front of the others
             window._showWithoutActivation = false;
             return window;
+        }
+
+        /// <summary>
+        /// A new image (the size and the color are in the settings) as a new tab, like the "+" after the tabs
+        /// </summary>
+        private void AddNewImageTab()
+        {
+            // Nothing to save before something is drawn on the new image
+            AddTab(CreateNewImage(), outputMade: true, fitWindow: false);
+        }
+
+        /// <summary>
+        /// Move the selected tab one place to the left (-1) or to the right (+1), like dragging it there
+        /// </summary>
+        private void MoveSelectedTab(int offset)
+        {
+            var tab = SelectedTab;
+            int index = tabStrip.IndexOf(tab) + offset;
+            if (tab == null || index < 0 || index >= Tabs.Count)
+            {
+                return;
+            }
+
+            lock (OpenWindowsLock)
+            {
+                tabStrip.MoveTab(tab, index);
+            }
+        }
+
+        /// <summary>
+        /// Move the selected tab into a new window, a bit below this one: like dragging it out of the window
+        /// </summary>
+        private void MoveSelectedTabToNewWindow()
+        {
+            var tab = SelectedTab;
+            if (tab == null || Tabs.Count < 2)
+            {
+                return;
+            }
+
+            var location = WindowState == FormWindowState.Normal ? Location : RestoreBounds.Location;
+            int offset = SystemInformation.CaptionHeight;
+            var window = DetachTab(tab, new Point(location.X + offset, location.Y + offset));
+            window.Activate();
+            window.FocusCanvas(fromKeyboard: true);
+        }
+
+        /// <summary>
+        /// The context menu of the tab strip, for the selected tab. It gives the keyboard what is done with the mouse on the tabs.
+        /// </summary>
+        private void CreateTabContextMenu()
+        {
+            _newImageTabMenuItem = new ToolStripMenuItem();
+            _newImageTabMenuItem.Click += (s, e) => AddNewImageTab();
+            _closeTabTabMenuItem = new ToolStripMenuItem
+            {
+                ShortcutKeys = Keys.Control | Keys.W
+            };
+            _closeTabTabMenuItem.Click += (s, e) => CloseTabAsync(SelectedTab).FireAndLog("Close a tab of the editor", Log);
+            _moveTabLeftMenuItem = new ToolStripMenuItem
+            {
+                ShortcutKeys = Keys.Control | Keys.Shift | Keys.PageUp
+            };
+            _moveTabLeftMenuItem.Click += (s, e) => MoveSelectedTab(-1);
+            _moveTabRightMenuItem = new ToolStripMenuItem
+            {
+                ShortcutKeys = Keys.Control | Keys.Shift | Keys.PageDown
+            };
+            _moveTabRightMenuItem.Click += (s, e) => MoveSelectedTab(1);
+            _moveTabToNewWindowMenuItem = new ToolStripMenuItem();
+            _moveTabToNewWindowMenuItem.Click += (s, e) => MoveSelectedTabToNewWindow();
+
+            _tabContextMenu = new ContextMenuStrip(components);
+            _tabContextMenu.Items.AddRange(new ToolStripItem[]
+            {
+                _newImageTabMenuItem, new ToolStripSeparator(), _moveTabLeftMenuItem, _moveTabRightMenuItem, _moveTabToNewWindowMenuItem,
+                new ToolStripSeparator(), _closeTabTabMenuItem
+            });
+            _tabContextMenu.Opening += (s, e) =>
+            {
+                int index = tabStrip.IndexOf(SelectedTab);
+                _closeTabTabMenuItem.Enabled = index >= 0;
+                _moveTabLeftMenuItem.Enabled = index > 0;
+                _moveTabRightMenuItem.Enabled = index >= 0 && index < Tabs.Count - 1;
+                _moveTabToNewWindowMenuItem.Enabled = index >= 0 && Tabs.Count > 1;
+            };
+            tabStrip.ContextMenuStrip = _tabContextMenu;
         }
 
         /// <summary>
@@ -867,9 +968,20 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 return;
             }
 
+            // Selected with the keys of the tab strip: the strip keeps the focus
+            bool tabStripFocused = tabStrip.Focused;
             HideSelectedTab();
             tabStrip.SelectedTab = tab;
             ShowSelectedTab();
+            if (tabStripFocused)
+            {
+                tabStrip.Select();
+            }
+            else
+            {
+                // The keys go to the shown surface, not to a tool bar control which got the focus from the hidden surface
+                FocusCanvas(fromKeyboard: false);
+            }
         }
 
         private void SelectTabAt(int index)
@@ -897,12 +1009,24 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
             ShowDrawingMode(_surface.DrawingMode);
             UpdateDestinationButtons();
-            ShowTabState(tab);
+            ShowTabState(tab, announce: false);
             RefreshEditorControls();
-            if (ContainsFocus)
+        }
+
+        /// <summary>
+        /// Give the keys to the canvas, the surface of the selected tab. In a window which isn't active the canvas gets the focus
+        /// when the window is activated.
+        /// </summary>
+        /// <param name="fromKeyboard">true for F6 or Esc: the canvas shows its focus frame at once</param>
+        internal void FocusCanvas(bool fromKeyboard)
+        {
+            if (fromKeyboard)
             {
-                // The keys go to the shown surface, not to a tool bar control which got the focus from the hidden surface
-                _surface.Focus();
+                _surface?.SelectFromKeyboard();
+            }
+            else
+            {
+                _surface?.Select();
             }
         }
 
@@ -992,21 +1116,23 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         /// </summary>
         private void TabChanged(object sender, EventArgs e)
         {
-            tabStrip.Invalidate();
+            tabStrip.UpdateTab((EditorTab)sender);
             if (sender == SelectedTab)
             {
-                ShowTabState(SelectedTab);
+                ShowTabState(SelectedTab, announce: true);
             }
         }
 
         /// <summary>
         /// Show the title and the status message of the tab
         /// </summary>
-        private void ShowTabState(EditorTab tab)
+        /// <param name="tab">EditorTab</param>
+        /// <param name="announce">true when the status message is new, a screen reader says it; not when another tab is shown</param>
+        private void ShowTabState(EditorTab tab, bool announce)
         {
             string description = tab.Surface.LastSaveFullPath ?? tab.Surface.CaptureDetails?.Title;
             Text = string.IsNullOrEmpty(description) ? Texts.Editor.Title : description + " - " + Texts.Editor.Title;
-            UpdateStatusLabel(tab.StatusText ?? string.Empty, tab.StatusIsFileSaved ? fileSavedStatusContextMenu : null, tab.StatusIsError);
+            UpdateStatusLabel(tab.StatusText ?? string.Empty, tab.StatusIsFileSaved ? fileSavedStatusContextMenu : null, tab.StatusIsError, announce);
         }
 
         private void UpdateUi()
@@ -1733,7 +1859,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             // LOG.Debug("Got key event "+e.KeyCode + ", " + e.Modifiers);
             // avoid conflict with other shortcuts and
             // make sure there's no selected element claiming input focus
-            if (e.Modifiers.Equals(Keys.None) && !_surface.KeysLocked)
+            if (e.Modifiers.Equals(Keys.None) && CanvasHasKeys)
             {
                 switch (e.KeyCode)
                 {
@@ -1882,15 +2008,82 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             panel1.Focus();
         }
 
-        protected override bool ProcessKeyPreview(ref Message msg)
+        /// <summary>
+        /// A text field has the focus: one of a tool bar, or the text of an element on the canvas. Its keys stay with it.
+        /// </summary>
+        private bool IsTyping => _toolBarFieldFocused || _surface?.KeysLocked == true;
+
+        /// <summary>
+        /// The menu, a tool bar or the tabs have the focus, they use the arrow keys, Enter and so on themselves
+        /// </summary>
+        private bool ToolBarsHaveFocus => menuStrip1.ContainsFocus || toolsToolStrip.ContainsFocus || propertiesToolStrip.ContainsFocus
+                                          || destinationsToolStrip.ContainsFocus || tabStrip.ContainsFocus;
+
+        /// <summary>
+        /// The single keys (the letters of the tools, the arrows, Enter, Esc...) go to the canvas, unless the focus is in a text field,
+        /// the menu, a tool bar or the tabs
+        /// </summary>
+        private bool CanvasHasKeys => _surface != null && !IsTyping && !ToolBarsHaveFocus;
+
+        /// <summary>
+        /// The keys which work while a text field has the focus: the combinations with Ctrl or Alt (Ctrl+Tab, Ctrl+W, the shortcuts of the
+        /// menu and the destinations) and the function keys (F6), but not the keys a text field uses itself.
+        /// </summary>
+        internal static bool WorksWhileTyping(Keys keys)
         {
-            // disable default key handling if surface has requested a lock
-            if (_surface?.KeysLocked != true)
+            var keyCode = keys & Keys.KeyCode;
+            var modifiers = keys & Keys.Modifiers;
+            if (keyCode is >= Keys.F1 and <= Keys.F24)
             {
-                return base.ProcessKeyPreview(ref msg);
+                return true;
             }
 
-            return false;
+            // AltGr is Ctrl+Alt, it types characters like @ or €
+            if ((modifiers & Keys.Control) == 0 || (modifiers & Keys.Alt) != 0)
+            {
+                return (modifiers & Keys.Alt) != 0 && (modifiers & Keys.Control) == 0;
+            }
+
+            switch (keyCode)
+            {
+                // Move and select by word, delete a word, copy and paste with Insert
+                case Keys.Left:
+                case Keys.Right:
+                case Keys.Up:
+                case Keys.Down:
+                case Keys.Home:
+                case Keys.End:
+                case Keys.Back:
+                case Keys.Delete:
+                case Keys.Insert:
+                    return false;
+                // Select all, copy, cut, paste, undo and redo of the text field
+                case Keys.A:
+                case Keys.C:
+                case Keys.V:
+                case Keys.X:
+                case Keys.Z:
+                case Keys.Y:
+                    return (modifiers & Keys.Shift) != 0;
+                default:
+                    return true;
+            }
+        }
+
+        protected override bool ProcessKeyPreview(ref Message msg)
+        {
+            // While a text field has the focus, the KeyDown handler of the window only gets the combinations which work while typing
+            if (IsTyping)
+            {
+                bool keyDown = msg.Msg is (int)Dapplo.Windows.Messages.Enums.WindowsMessages.WM_KEYDOWN or (int)Dapplo.Windows.Messages.Enums.WindowsMessages.WM_SYSKEYDOWN;
+                var keys = (Keys)unchecked((int)(long)msg.WParam) | ModifierKeys;
+                if (!keyDown || !WorksWhileTyping(keys))
+                {
+                    return false;
+                }
+            }
+
+            return base.ProcessKeyPreview(ref msg);
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keys)
@@ -1901,47 +2094,143 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 return true;
             }
 
-            // disable default key handling if surface has requested a lock
-            if (_surface?.KeysLocked == false)
+            if (_surface == null)
             {
-                if (ProcessTabKey(keys))
+                return false;
+            }
+
+            // F6 and Shift+F6 move between the menu, the tool bars, the canvas and the tabs
+            if (keys is Keys.F6 or (Keys.F6 | Keys.Shift))
+            {
+                FocusNextPart(keys == Keys.F6);
+                return true;
+            }
+
+            if (LeavesToolBar(keys, Control.FromChildHandle(msg.HWnd)))
+            {
+                FocusCanvas(fromKeyboard: true);
+                return true;
+            }
+
+            if (IsTyping && !WorksWhileTyping(keys))
+            {
+                // The key belongs to the text field
+                return false;
+            }
+
+            if (ProcessTabKey(keys))
+            {
+                return true;
+            }
+
+            // Go through the destinations to check the EditorShortcut Keys
+            // this way the menu entries don't need to be enabled.
+            // This also fixes bugs #3526974 & #3527020
+            foreach (IDestination destination in DestinationHelper.GetAllDestinations())
+            {
+                if (IgnoreDestinations.Contains(destination.Designation))
                 {
+                    continue;
+                }
+
+                if (!destination.IsAvailableFor(_surface.CaptureDetails))
+                {
+                    continue;
+                }
+
+                if (DestinationMenuBuilder.ToKeys(destination.Descriptor.Shortcut) == keys)
+                {
+                    ExportTo(destination);
                     return true;
-                }
-
-                // Go through the destinations to check the EditorShortcut Keys
-                // this way the menu entries don't need to be enabled.
-                // This also fixes bugs #3526974 & #3527020
-                foreach (IDestination destination in DestinationHelper.GetAllDestinations())
-                {
-                    if (IgnoreDestinations.Contains(destination.Designation))
-                    {
-                        continue;
-                    }
-
-                    if (!destination.IsAvailableFor(_surface.CaptureDetails))
-                    {
-                        continue;
-                    }
-
-                    if (DestinationMenuBuilder.ToKeys(destination.Descriptor.Shortcut) == keys)
-                    {
-                        ExportTo(destination);
-                        return true;
-                    }
-                }
-
-                if (!_surface.ProcessCmdKey(keys))
-                {
-                    return base.ProcessCmdKey(ref msg, keys);
                 }
             }
 
-            return false;
+            if (CanvasHasKeys && _surface.ProcessCmdKey(keys))
+            {
+                // The key also reaches the KeyDown handler of the window (Escape selects the cursor tool there)
+                return false;
+            }
+
+            return base.ProcessCmdKey(ref msg, keys);
         }
 
         /// <summary>
-        /// The keys of the tabs: Ctrl+W closes the tab, Ctrl+Tab and Ctrl+Page Down show the next tab, with Shift or Page Up the previous one
+        /// Esc in a tool bar or the tabs, or Enter in a number field (its value is taken when it loses the focus), go back to the canvas.
+        /// Not while the font list is open (Esc closes it) and not in the menu, which gives the focus back by itself.
+        /// </summary>
+        private bool LeavesToolBar(Keys keys, Control focused)
+        {
+            if (keys == Keys.Enter)
+            {
+                return _toolBarFieldFocused && FindParent<NumericUpDown>(focused) != null;
+            }
+
+            if (keys != Keys.Escape || _surface?.KeysLocked == true || menuStrip1.ContainsFocus || !ToolBarsHaveFocus)
+            {
+                return false;
+            }
+
+            return FindParent<ComboBox>(focused) is not { DroppedDown: true };
+        }
+
+        private static T FindParent<T>(Control control) where T : Control
+        {
+            for (; control != null; control = control.Parent)
+            {
+                if (control is T found)
+                {
+                    return found;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// F6 (forward) and Shift+F6 move the keyboard to the next part of the window: menu, tools, properties, destinations, canvas, tabs.
+        /// Parts which can't be used are skipped: the hidden tab strip, an empty properties bar.
+        /// </summary>
+        private void FocusNextPart(bool forward)
+        {
+            const int canvasIndex = 4;
+            var parts = new Control[] { menuStrip1, toolsToolStrip, propertiesToolStrip, destinationsToolStrip, _surface, tabStrip };
+            int current = Array.FindIndex(parts, part => part != null && part.ContainsFocus);
+            if (current < 0)
+            {
+                current = canvasIndex;
+            }
+
+            for (int step = 1; step < parts.Length; step++)
+            {
+                var part = parts[(current + (forward ? step : parts.Length - step)) % parts.Length];
+                if (part == null || !part.Visible)
+                {
+                    continue;
+                }
+
+                switch (part)
+                {
+                    case MenuStripEx menuStrip:
+                        menuStrip.SelectFirstItem();
+                        return;
+                    case ToolStripEx toolStrip when toolStrip.Items.Cast<ToolStripItem>().Any(item => item.Available && item.Enabled && item.CanSelect):
+                        toolStrip.SelectFirstItem();
+                        return;
+                    case ToolStripEx:
+                        continue;
+                    case EditorTabStrip:
+                        part.Select();
+                        return;
+                    default:
+                        FocusCanvas(fromKeyboard: true);
+                        return;
+                }
+            }
+        }
+
+        /// <summary>
+        /// The keys of the tabs: Ctrl+W closes the tab, Ctrl+Tab and Ctrl+Page Down show the next tab, with Shift or Page Up the previous one,
+        /// Ctrl+Shift+Page Up and Page Down move the tab to the left and to the right
         /// </summary>
         /// <returns>true when the key was handled</returns>
         private bool ProcessTabKey(Keys keys)
@@ -1959,6 +2248,12 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 case Keys.Control | Keys.Shift | Keys.Tab:
                 case Keys.Control | Keys.PageUp:
                     SelectTabAt(index - 1);
+                    return true;
+                case Keys.Control | Keys.Shift | Keys.PageUp:
+                    MoveSelectedTab(-1);
+                    return true;
+                case Keys.Control | Keys.Shift | Keys.PageDown:
+                    MoveSelectedTab(1);
                     return true;
                 default:
                     return false;
@@ -2068,8 +2363,19 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             }
         }
 
-        private void UpdateStatusLabel(string text, ContextMenuStrip contextMenu = null, bool isError = false)
+        /// <summary>
+        /// Show the message in the status bar
+        /// </summary>
+        /// <param name="text">string</param>
+        /// <param name="contextMenu">The menu of the status bar for the message, e.g. to open the folder of the saved file</param>
+        /// <param name="isError">An error is red, and a screen reader says it at once</param>
+        /// <param name="announce">true when the message is new, a screen reader says it</param>
+        private void UpdateStatusLabel(string text, ContextMenuStrip contextMenu = null, bool isError = false, bool announce = true)
         {
+            // The status bar is a live region, the change of the text is announced
+            statusLabel.LiveSetting = !announce ? System.Windows.Forms.Automation.AutomationLiveSetting.Off
+                : isError ? System.Windows.Forms.Automation.AutomationLiveSetting.Assertive
+                : System.Windows.Forms.Automation.AutomationLiveSetting.Polite;
             statusLabel.Text = text;
             statusLabel.ForeColor = isError ? Color.DarkRed : SystemColors.ControlText;
             statusStrip1.ContextMenuStrip = contextMenu;
@@ -2408,18 +2714,12 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
         private void ToolBarFocusableElementGotFocus(object sender, EventArgs e)
         {
-            if (_surface != null)
-            {
-                _surface.KeysLocked = true;
-            }
+            _toolBarFieldFocused = true;
         }
 
         private void ToolBarFocusableElementLostFocus(object sender, EventArgs e)
         {
-            if (_surface != null)
-            {
-                _surface.KeysLocked = false;
-            }
+            _toolBarFieldFocused = false;
         }
 
         private void SaveElementsToolStripMenuItemClick(object sender, EventArgs e)
@@ -2581,7 +2881,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                     //not AutoCrop possible automatic switch to default crop mode
                     _surface.DrawingMode = DrawingModes.Crop;
                     _surface.FieldAggregator.GetField(FieldType.CROPMODE).Value = CropContainer.CropModes.Default;
-                    this.statusLabel.Text = Texts.Editor.AutocropNotPossible;
+                    UpdateStatusLabel(Texts.Editor.AutocropNotPossible);
                 }
             }
             else
@@ -3309,6 +3609,8 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             this.btnCropHorizontal.Text = Texts.Editor.CropmodeHorizontal;
             this.btnCropAuto.Text = Texts.Editor.CropmodeAuto;
             this.cutMarkLabel.Text = Texts.Editor.CutMark;
+            // The button shows only the picture of the style, the text is its name for a screen reader
+            this.cutMarkStyleButton.Text = Texts.Editor.CutMark;
             this.cutMarkStyleButton.ToolTipText = Texts.Editor.CutMark;
             this.cutMarkNoneMenuItem.Text = Texts.Editor.CutMarkNone;
             this.cutMarkLineMenuItem.Text = Texts.Editor.CutMarkLine;
@@ -3360,14 +3662,40 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             this.alignRightToolStripMenuItem.Text = Texts.Editor.AlignRight;
             this.closeTabToolStripMenuItem.Text = Texts.Editor.CloseTab;
             tabStrip.NewTabText = Texts.Editor.NewImage;
+            tabStrip.AccessibleName = Texts.Editor.TabList;
+            _newImageTabMenuItem.Text = Texts.Editor.NewImage;
+            _closeTabTabMenuItem.Text = Texts.Editor.CloseTab;
+            _moveTabLeftMenuItem.Text = Texts.Editor.MoveTabLeft;
+            _moveTabRightMenuItem.Text = Texts.Editor.MoveTabRight;
+            _moveTabToNewWindowMenuItem.Text = Texts.Editor.MoveTabToNewWindow;
+
+            // The fields of the tool bars are named by their labels, which a screen reader doesn't connect to them
+            NameByLabel(counterUpDown, counterLabel);
+            NameByLabel(lineThicknessUpDown, lineThicknessLabel);
+            NameByLabel(toothHeightUpDown, toothHeightLabel);
+            NameByLabel(toothRangeUpDown, toothRangeLabel);
+            NameByLabel(fontSizeUpDown, fontSizeLabel);
+            NameByLabel(blurRadiusUpDown, blurRadiusLabel);
+            NameByLabel(brightnessUpDown, brightnessLabel);
+            NameByLabel(previewQualityUpDown, previewQualityLabel);
+            NameByLabel(magnificationFactorUpDown, magnificationFactorLabel);
+            NameByLabel(pixelSizeUpDown, pixelSizeLabel);
+            this.fontFamilyComboBox.Control.AccessibleName = Texts.Editor.FontFamily;
+            this.btnFillColor.AccessibleDescription = ColorDescription.Describe(this.btnFillColor.SelectedColor);
+            this.btnLineColor.AccessibleDescription = ColorDescription.Describe(this.btnLineColor.SelectedColor);
             if (SelectedTab != null)
             {
-                ShowTabState(SelectedTab);
+                ShowTabState(SelectedTab, announce: false);
             }
             else
             {
                 this.Text = Texts.Editor.Title;
             }
+        }
+
+        private static void NameByLabel(ToolStripControlHost field, ToolStripLabel label)
+        {
+            field.Control.AccessibleName = label.Text;
         }
 
         /// <summary>

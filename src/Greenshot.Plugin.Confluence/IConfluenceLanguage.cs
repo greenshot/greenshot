@@ -122,6 +122,11 @@ namespace Greenshot.Plugin.Confluence
         string SearchText { get; }
 
         /// <summary>
+        /// Space
+        /// </summary>
+        string Space { get; }
+
+        /// <summary>
         /// Upload
         /// </summary>
         string Upload { get; }

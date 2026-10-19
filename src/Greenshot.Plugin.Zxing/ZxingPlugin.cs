@@ -61,6 +61,7 @@ public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
 
     public void ConfigureServices(IPluginServices services)
     {
+        Texts.Register<IZxingLanguage>(new ZxingLanguageImpl());
         var section = new ZxingConfigurationImpl();
         services.AddConfiguration(section);
         _config = section;

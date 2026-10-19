@@ -42,9 +42,19 @@ namespace Greenshot.Plugin.ExternalCommand
         string LabelArgument { get; }
 
         /// <summary>
+        /// Choose the program
+        /// </summary>
+        string LabelBrowse { get; }
+
+        /// <summary>
         /// Command
         /// </summary>
         string LabelCommand { get; }
+
+        /// <summary>
+        /// Commands
+        /// </summary>
+        string LabelCommands { get; }
 
         /// <summary>
         /// {0} is the filename of your screenshot

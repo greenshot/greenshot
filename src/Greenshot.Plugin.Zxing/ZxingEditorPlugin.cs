@@ -23,6 +23,7 @@ using System;
 using System.Windows.Forms;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Languages;
 using Greenshot.Plugin.Zxing.Drawing;
 
 namespace Greenshot.Plugin.Zxing;
@@ -38,7 +39,7 @@ public class ZxingEditorPlugin : IEditorPlugin
 
     public void InitializeEditor(Form editorForm, ToolStripMenuItem pluginMenu, Func<ISurface> currentSurface)
     {
-        var menuItem = new ToolStripMenuItem("Insert QR / Barcode...", null, (s, e) =>
+        var menuItem = new ToolStripMenuItem(Texts.Get<IZxingLanguage>().EditorMenu, null, (s, e) =>
         {
             var window = new Views.ZxingEditorWindow();
             if (window.ShowDialog(editorForm) == true && window.GeneratedBitmap != null)

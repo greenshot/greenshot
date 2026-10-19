@@ -10,7 +10,8 @@
         Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"
         Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
         WindowStyle="None"
-        AllowsTransparency="False">
+        AllowsTransparency="False"
+        FocusManager.FocusedElement="{Binding ElementName=LanguageComboBox}">
 
     <Window.Resources>
         <ResourceDictionary>
@@ -34,15 +35,24 @@
 
             <!-- Content -->
             <StackPanel Grid.Row="1" Margin="24,20,24,16">
-                <TextBlock Text="{wpf:Text Settings.Language}"
-                           FontSize="13"
+                <TextBlock x:Name="LanguageLabel"
+                           Text="{wpf:Text Settings.Language}"
+                           FontSize="{wpf:FontSize 13}"
                            FontWeight="SemiBold"
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                            Margin="0,0,0,8"/>
                 <ComboBox x:Name="LanguageComboBox"
+                          AutomationProperties.LabeledBy="{Binding ElementName=LanguageLabel}"
                           DisplayMemberPath="DisplayName"
                           SelectedValuePath="Ietf"
-                          Height="32"/>
+                          Height="32">
+                    <ComboBox.ItemContainerStyle>
+                        <!-- A screen reader says the language instead of the class name of the item -->
+                        <Style TargetType="ComboBoxItem" BasedOn="{StaticResource DefaultComboBoxItemStyle}">
+                            <Setter Property="AutomationProperties.Name" Value="{Binding DisplayName, TargetNullValue=''}"/>
+                        </Style>
+                    </ComboBox.ItemContainerStyle>
+                </ComboBox>
             </StackPanel>
 
             <!-- Buttons -->
@@ -58,6 +68,13 @@
                             Width="80"
                             Margin="4"
                             Click="OkButton_Click"/>
+                    <!-- Escape: keeps the language which was selected when the window opened -->
+                    <Button Content="{wpf:Text Core.Cancel}"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            IsCancel="True"
+                            Width="80"
+                            Margin="4"
+                            Click="CancelButton_Click"/>
                 </StackPanel>
             </Border>
         </Grid>

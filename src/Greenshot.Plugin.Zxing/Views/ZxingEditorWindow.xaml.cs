@@ -27,6 +27,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
 using Greenshot.Base.Core;
+using Greenshot.Base.Languages;
 using Greenshot.Base.Wpf;
 using Greenshot.Editor.Views;
 using Greenshot.Plugin.Zxing.Drawing;
@@ -40,6 +41,8 @@ namespace Greenshot.Plugin.Zxing.Views
 {
     public partial class ZxingEditorWindow : Window
     {
+        private static IZxingLanguage ZxingTexts => Texts.Get<IZxingLanguage>();
+
         private readonly ZxingModel _model;
         private Color _foreColor = Color.Black;
         private Color _backColor = Color.White;
@@ -73,13 +76,13 @@ namespace Greenshot.Plugin.Zxing.Views
 
             if (_model != null)
             {
-                BtnInsert.Content = "Apply";
-                Title = "Edit QR / Barcode";
+                BtnInsert.Content = ZxingTexts.Apply;
+                Title = ZxingTexts.EditorTitleEdit;
                 LoadFromModel(_model);
             }
             else
             {
-                Title = "Insert QR / Barcode";
+                Title = ZxingTexts.EditorTitleInsert;
                 CmbFormat.SelectedIndex = 0; // QR Code by default
                 CmbQrCategory.SelectedIndex = 0; // Text / URL by default
                 CmbMargin.SelectedIndex = 1; // Margin 1 by default
@@ -108,19 +111,19 @@ namespace Greenshot.Plugin.Zxing.Views
             CmbFormat.Items.Add("MSI (1D)");
             CmbFormat.Items.Add("Plessey (1D)");
 
-            CmbQrCategory.Items.Add("Text / URL");
-            CmbQrCategory.Items.Add("WiFi Network");
-            CmbQrCategory.Items.Add("vCard Contact");
-            CmbQrCategory.Items.Add("EPC SEPA Transfer");
-            CmbQrCategory.Items.Add("Email");
-            CmbQrCategory.Items.Add("Calendar Event");
-            CmbQrCategory.Items.Add("Phone Call");
-            CmbQrCategory.Items.Add("SMS");
-            CmbQrCategory.Items.Add("Geo Location");
+            CmbQrCategory.Items.Add(ZxingTexts.CategoryText);
+            CmbQrCategory.Items.Add(ZxingTexts.CategoryWifi);
+            CmbQrCategory.Items.Add(ZxingTexts.CategoryVcard);
+            CmbQrCategory.Items.Add(ZxingTexts.CategoryEpc);
+            CmbQrCategory.Items.Add(ZxingTexts.CategoryEmail);
+            CmbQrCategory.Items.Add(ZxingTexts.CategoryCalendar);
+            CmbQrCategory.Items.Add(ZxingTexts.CategoryPhone);
+            CmbQrCategory.Items.Add(ZxingTexts.CategorySms);
+            CmbQrCategory.Items.Add(ZxingTexts.CategoryGeo);
 
             CmbWifiEncryption.Items.Add("WPA/WPA2");
             CmbWifiEncryption.Items.Add("WEP");
-            CmbWifiEncryption.Items.Add("Unencrypted (None)");
+            CmbWifiEncryption.Items.Add(ZxingTexts.WifiUnencrypted);
             CmbWifiEncryption.SelectedIndex = 0;
 
             for (int i = 0; i <= 10; i++)
@@ -308,7 +311,7 @@ namespace Greenshot.Plugin.Zxing.Views
             if (!isQr)
             {
                 PnlRawText.Visibility = Visibility.Visible;
-                GrpInputs.Header = "Text / Number Value";
+                GrpInputs.Header = ZxingTexts.InputsValue;
                 return;
             }
 
@@ -316,43 +319,43 @@ namespace Greenshot.Plugin.Zxing.Views
             {
                 case 0:
                     PnlRawText.Visibility = Visibility.Visible;
-                    GrpInputs.Header = "Raw Text or URL Details";
+                    GrpInputs.Header = ZxingTexts.InputsText;
                     break;
                 case 1:
                     PnlWifi.Visibility = Visibility.Visible;
-                    GrpInputs.Header = "WiFi Network Connection Details";
+                    GrpInputs.Header = ZxingTexts.InputsWifi;
                     break;
                 case 2:
                     PnlVcard.Visibility = Visibility.Visible;
-                    GrpInputs.Header = "vCard Contact Card Details";
+                    GrpInputs.Header = ZxingTexts.InputsVcard;
                     break;
                 case 3:
                     PnlEpc.Visibility = Visibility.Visible;
-                    GrpInputs.Header = "EPC SEPA Credit Transfer Details";
+                    GrpInputs.Header = ZxingTexts.InputsEpc;
                     break;
                 case 4:
                     PnlEmail.Visibility = Visibility.Visible;
-                    GrpInputs.Header = "Email Message Details";
+                    GrpInputs.Header = ZxingTexts.InputsEmail;
                     break;
                 case 5:
                     PnlCalendar.Visibility = Visibility.Visible;
-                    GrpInputs.Header = "Calendar Event (iCal) Details";
+                    GrpInputs.Header = ZxingTexts.InputsCalendar;
                     break;
                 case 6:
                     PnlPhone.Visibility = Visibility.Visible;
-                    GrpInputs.Header = "Phone Call Details";
+                    GrpInputs.Header = ZxingTexts.InputsPhone;
                     break;
                 case 7:
                     PnlSms.Visibility = Visibility.Visible;
-                    GrpInputs.Header = "SMS Text Message Details";
+                    GrpInputs.Header = ZxingTexts.InputsSms;
                     break;
                 case 8:
                     PnlGeo.Visibility = Visibility.Visible;
-                    GrpInputs.Header = "Geo Location Details";
+                    GrpInputs.Header = ZxingTexts.InputsGeo;
                     break;
                 default:
                     PnlRawText.Visibility = Visibility.Visible;
-                    GrpInputs.Header = "Inputs";
+                    GrpInputs.Header = ZxingTexts.Inputs;
                     break;
             }
         }
@@ -432,7 +435,7 @@ namespace Greenshot.Plugin.Zxing.Views
                 GeneratedBitmap = null;
                 BtnInsert.IsEnabled = false;
                 TxtStatus.Foreground = ThemeManager.Instance.ErrorBrush;
-                TxtStatus.Text = "Error generating barcode:\n" + ex.Message;
+                TxtStatus.Text = ZxingTexts.ErrorGenerating + "\n" + ex.Message;
             }
         }
 
@@ -440,21 +443,21 @@ namespace Greenshot.Plugin.Zxing.Views
         {
             if (CmbFormat.SelectedIndex != 0)
             {
-                return "Please enter a value to generate the barcode.";
+                return ZxingTexts.HintValue;
             }
 
             switch (CmbQrCategory.SelectedIndex)
             {
-                case 0: return "Please enter text or a URL.";
-                case 1: return "Please enter network name (SSID).";
-                case 2: return "Please enter contact name or details.";
-                case 3: return "Please enter recipient name and IBAN.";
-                case 4: return "Please enter recipient email address.";
-                case 5: return "Please enter event title.";
-                case 6: return "Please enter a phone number.";
-                case 7: return "Please enter recipient number.";
-                case 8: return "Please enter latitude and longitude coordinates.";
-                default: return "Please enter required input on the left.";
+                case 0: return ZxingTexts.HintText;
+                case 1: return ZxingTexts.HintWifi;
+                case 2: return ZxingTexts.HintVcard;
+                case 3: return ZxingTexts.HintEpc;
+                case 4: return ZxingTexts.HintEmail;
+                case 5: return ZxingTexts.HintCalendar;
+                case 6: return ZxingTexts.HintPhone;
+                case 7: return ZxingTexts.HintSms;
+                case 8: return ZxingTexts.HintGeo;
+                default: return ZxingTexts.HintDefault;
             }
         }
 

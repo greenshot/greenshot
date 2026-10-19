@@ -31,6 +31,8 @@ namespace Greenshot.Editor.Tabs
     /// The tabs of an editor window, like the tabs of a browser: a click selects a tab, the cross or the middle mouse button closes it,
     /// dragging moves it to another place, into another editor window or out into a new window. The "+" after the tabs adds a new image.
     /// Drawn with the system colors, so it follows high contrast.
+    /// F6 brings the keyboard here (it isn't a Tab stop): Left, Right, Home and End select a tab, Delete closes it, the context menu
+    /// (Apps key or Shift+F10) has what is done with the mouse. A screen reader sees a tab list (<see cref="EditorTabStripAccessibleObject"/>).
     /// </summary>
     public sealed class EditorTabStrip : Control
     {
@@ -58,7 +60,8 @@ namespace Greenshot.Editor.Tabs
         public EditorTabStrip()
         {
             SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.ResizeRedraw, true);
-            SetStyle(ControlStyles.Selectable, false);
+            // Focused with F6 or a screen reader, a click doesn't take the focus from the canvas
+            SetStyle(ControlStyles.Selectable, true);
             TabStop = false;
             BackColor = SystemColors.Control;
             // Docked at the top, the layout takes the height from GetPreferredSize
@@ -80,6 +83,16 @@ namespace Greenshot.Editor.Tabs
             {
                 _selectedTab = value;
                 Invalidate();
+                // The window sets null while it changes the tab, the new tab is announced
+                int index = _tabs.IndexOf(value);
+                if (index >= 0 && IsHandleCreated)
+                {
+                    AccessibilityNotifyClients(AccessibleEvents.Selection, index);
+                    if (Focused)
+                    {
+                        AccessibilityNotifyClients(AccessibleEvents.Focus, index);
+                    }
+                }
             }
         }
 
@@ -114,6 +127,7 @@ namespace Greenshot.Editor.Tabs
         {
             _tabs.Insert(Math.Max(0, Math.Min(index, _tabs.Count)), tab);
             ResetMouseState();
+            NotifyTabsChanged();
         }
 
         internal void Remove(EditorTab tab)
@@ -125,6 +139,7 @@ namespace Greenshot.Editor.Tabs
             }
 
             ResetMouseState();
+            NotifyTabsChanged();
         }
 
         internal void MoveTab(EditorTab tab, int index)
@@ -139,6 +154,106 @@ namespace Greenshot.Editor.Tabs
             _tabs.RemoveAt(currentIndex);
             _tabs.Insert(index, tab);
             ResetMouseState();
+            NotifyTabsChanged();
+        }
+
+        /// <summary>
+        /// The title or the state of the tab changed, it is drawn again and a screen reader gets its new name
+        /// </summary>
+        internal void UpdateTab(EditorTab tab)
+        {
+            Invalidate();
+            int index = _tabs.IndexOf(tab);
+            if (index >= 0 && IsHandleCreated)
+            {
+                AccessibilityNotifyClients(AccessibleEvents.NameChange, index);
+            }
+        }
+
+        // A screen reader reads the tabs again
+        private void NotifyTabsChanged()
+        {
+            if (IsHandleCreated)
+            {
+                AccessibilityNotifyClients(AccessibleEvents.Reorder, -1);
+            }
+        }
+
+        /// <summary>
+        /// Select the tab at the index, like a click on it
+        /// </summary>
+        internal void SelectTabAt(int index)
+        {
+            if (index >= 0 && index < _tabs.Count && _tabs[index] != _selectedTab)
+            {
+                TabSelected?.Invoke(this, new EditorTabEventArgs(_tabs[index]));
+            }
+        }
+
+        /// <summary>
+        /// Close the tab at the index, like a click on its cross
+        /// </summary>
+        internal void CloseTabAt(int index)
+        {
+            if (index >= 0 && index < _tabs.Count)
+            {
+                TabCloseRequested?.Invoke(this, new EditorTabEventArgs(_tabs[index]));
+            }
+        }
+
+        /// <summary>
+        /// Add a new image, like a click on the "+"
+        /// </summary>
+        internal void RequestNewTab() => NewTabRequested?.Invoke(this, EventArgs.Empty);
+
+        protected override AccessibleObject CreateAccessibilityInstance() => new EditorTabStripAccessibleObject(this);
+
+        /// <summary>
+        /// The keys of the focused tab strip, they come before the keys of the window (Delete would delete the selected elements)
+        /// </summary>
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (Focused && _drag == null)
+            {
+                int index = _tabs.IndexOf(_selectedTab);
+                switch (keyData)
+                {
+                    case Keys.Left:
+                        SelectTabAt(index - 1);
+                        return true;
+                    case Keys.Right:
+                        SelectTabAt(index + 1);
+                        return true;
+                    case Keys.Home:
+                        SelectTabAt(0);
+                        return true;
+                    case Keys.End:
+                        SelectTabAt(_tabs.Count - 1);
+                        return true;
+                    case Keys.Delete:
+                        CloseTabAt(index);
+                        return true;
+                }
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
+        protected override void OnGotFocus(EventArgs e)
+        {
+            base.OnGotFocus(e);
+            Invalidate();
+            int index = _tabs.IndexOf(_selectedTab);
+            if (index >= 0)
+            {
+                AccessibilityNotifyClients(AccessibleEvents.Focus, index);
+            }
+        }
+
+        protected override void OnLostFocus(EventArgs e)
+        {
+            base.OnLostFocus(e);
+            Invalidate();
         }
 
         /// <summary>
@@ -245,12 +360,12 @@ namespace Greenshot.Editor.Tabs
         /// </summary>
         internal int FirstTabLeft => Scale(TabMargin);
 
-        private Rectangle GetTabBounds(int index) => GetSlotBounds(_dropIndex >= 0 && index >= _dropIndex ? index + 1 : index);
+        internal Rectangle GetTabBounds(int index) => GetSlotBounds(_dropIndex >= 0 && index >= _dropIndex ? index + 1 : index);
 
         /// <summary>
         /// The "+" after the tabs
         /// </summary>
-        private Rectangle NewTabBounds =>
+        internal Rectangle NewTabBounds =>
             new(Scale(TabMargin) + SlotCount * TabWidth + Scale(TabMargin), Scale(TabMargin) + Scale(1), NewTabSize, NewTabSize);
 
         private int NewTabSize => Math.Max(0, Height - Scale(TabMargin) - Scale(3));
@@ -261,11 +376,12 @@ namespace Greenshot.Editor.Tabs
             return new Rectangle(Scale(TabMargin) + slot * TabWidth, top, TabWidth, Height - top);
         }
 
-        // A very narrow tab has no room for the cross, the middle mouse button or Ctrl+W close it
-        private bool ShowsClose(int index) =>
-            TabWidth >= Scale(AlwaysShowCloseWidth) || (TabWidth >= Scale(CloseSize + 12) && (index == _hotIndex || _tabs[index] == _selectedTab));
+        // A very narrow tab has no room for the cross, the middle mouse button, Delete or Ctrl+W close it
+        internal bool ShowsClose(int index) =>
+            TabWidth >= Scale(AlwaysShowCloseWidth)
+            || (TabWidth >= Scale(CloseSize + 12) && index >= 0 && index < _tabs.Count && (index == _hotIndex || _tabs[index] == _selectedTab));
 
-        private Rectangle GetCloseBounds(int index)
+        internal Rectangle GetCloseBounds(int index)
         {
             var tabBounds = GetTabBounds(index);
             int size = Scale(CloseSize);
@@ -423,6 +539,12 @@ namespace Greenshot.Editor.Tabs
             int textRight = showsClose ? GetCloseBounds(index).Left - Scale(2) : bounds.Right - Scale(6);
             PaintTitle(graphics, new Rectangle(bounds.Left, bounds.Top, textRight - bounds.Left, bounds.Height), tab,
                 selected ? SystemColors.WindowText : SystemColors.ControlText);
+            if (selected && Focused)
+            {
+                // Only the keyboard focuses the strip, so the frame is always shown
+                var focusBounds = new Rectangle(bounds.Left + Scale(3), bounds.Top + Scale(3), Math.Max(0, textRight - bounds.Left - Scale(3)), Math.Max(0, bounds.Height - Scale(6)));
+                ControlPaint.DrawFocusRectangle(graphics, focusBounds, SystemColors.WindowText, SystemColors.Window);
+            }
 
             if (showsClose)
             {
@@ -479,6 +601,13 @@ namespace Greenshot.Editor.Tabs
             {
                 _pressedCloseIndex = index;
                 _pressedCloseButton = e.Button;
+                return;
+            }
+
+            if (e.Button == MouseButtons.Right)
+            {
+                // The context menu is about the selected tab
+                SelectTabAt(index);
                 return;
             }
 

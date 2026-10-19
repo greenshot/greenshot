@@ -166,6 +166,7 @@ and press `Enter` again to capture.
 ### Window
 
 The selection follows the window under the mouse: it slides from window to window as you move. Click, or press `Enter`, to capture it.
+Without a mouse, `Tab` selects the next window (the top one first) and `Shift` + `Tab` the previous one.
 
 - Greenshot selects the innermost window under the mouse, e.g. a panel or a toolbar inside a program, when the program is built from
   several windows. Move to the outer edge of a program window to select the whole window.
@@ -376,6 +377,7 @@ The **Keys** panel (`F1`) always shows the keys which work at that moment. This 
 | Key | What it does |
 |---|---|
 | `Enter` | Capture the window |
+| `Tab` / `Shift` + `Tab` | Select the next or the previous window |
 | `D` | Show or hide window details |
 | `PgUp` | Select the larger area around it (beta testers) |
 | `PgDn` | Select the smaller area inside it (beta testers) |
@@ -466,10 +468,23 @@ All of these are in the `[Core]` section, unless said otherwise.
 
 - **Several monitors:** the capture screen covers all of them, and you can select across monitors. The panels and the zoomer stay on
   the monitor with the mouse and follow it to another monitor.
-- **Another window took the focus** (e.g. after `Alt` + `Tab`, or a message of another program): the capture screen stays on top, but the
-  keys go to the other window. Move the mouse once and the keys work again.
+- **Another window took the focus** (e.g. after `Alt` + `Tab`, or a message of another program): the capture screen takes it back, so
+  the keys keep working. On the live screen the program below has the focus anyway. If a program keeps taking the focus, move the
+  mouse once and the keys work again.
 - **Nothing changes while you select:** the capture screen shows the picture taken when the capture started. To capture something which
   only appears later, set a wait time in the settings, start the capture when it is visible, or turn off freezing the screen.
 - **High DPI:** the panels, texts and the zoomer scale with the DPI of your monitor, sizes and positions are always in real pixels.
+  The texts also grow with the *Text size* of Windows (Settings, Accessibility).
+- **Screen readers:** when the capture screen opens or the mode changes, a screen reader (Narrator, NVDA, JAWS) says the mode and its
+  main keys; the selected window and the size of a selection are said once they stop changing. While a screen reader runs, the
+  screen is frozen for the selection, because nothing is said on the live screen (`L` still switches to it), and a region capture
+  starts as a window capture. Window capture (its own hotkey, or `Space`) selects the window under the cursor right away and says its
+  title: `Enter` captures it, `Tab` selects the next window, `Space` switches to the region. On the live screen the `Insert` and
+  `Caps Lock` keys, and the keys pressed with them, stay with the screen reader.
+- **Destination picker:** every destination has a fixed letter, underlined in the menu (for example `C` for the clipboard, `S` to
+  save). The letter stays the same whatever other destinations are there, so you can learn it.
+- **Animations:** with *Animation effects* off in Windows (Settings, Accessibility, Visual effects) the selection, the zoomer and the
+  panels jump to their place instead of sliding, as in a remote desktop session.
+- **High contrast:** with a contrast theme of Windows the selection, the rulers and the crosshair use the colors of that theme.
 
 For developers: how the modes and helpers are built and how a plugin can add its own is described in [capture-tools.md](capture-tools.md).

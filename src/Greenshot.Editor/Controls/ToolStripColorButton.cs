@@ -66,6 +66,8 @@ namespace Greenshot.Editor.Controls
 
                 // cleanup GDI Object
                 brush.Dispose();
+                // The color is only drawn, a screen reader reads it from the description
+                AccessibleDescription = ColorDescription.Describe(value);
                 Invalidate();
             }
         }

@@ -28,8 +28,10 @@
         <TextBlock Text="{wpf:Text CustomUploader.SettingsDescription}" TextWrapping="Wrap" Margin="0,0,0,12"/>
 
         <!-- The uploaders -->
-        <TextBlock Text="{wpf:Text CustomUploader.UploadersTitle}" FontWeight="SemiBold" Margin="0,0,0,4"/>
+        <TextBlock x:Name="UploadersTitleText" Text="{wpf:Text CustomUploader.UploadersTitle}" FontWeight="SemiBold" Margin="0,0,0,4"/>
+        <!-- The rows are read with the ToString of the items -->
         <ListView ItemsSource="{Binding Uploaders}" SelectedItem="{Binding SelectedUploader, Mode=TwoWay}" SelectionMode="Single"
+                  AutomationProperties.LabeledBy="{Binding ElementName=UploadersTitleText}"
                   Style="{StaticResource UploaderList}"
                   Visibility="{Binding HasUploaders, Converter={StaticResource BoolToVis}}">
             <ListView.View>
@@ -74,8 +76,9 @@
         </StackPanel>
 
         <!-- The uploads -->
-        <TextBlock Text="{wpf:Text CustomUploader.UploadsTitle}" FontWeight="SemiBold" Margin="0,0,0,4"/>
+        <TextBlock x:Name="UploadsTitleText" Text="{wpf:Text CustomUploader.UploadsTitle}" FontWeight="SemiBold" Margin="0,0,0,4"/>
         <ListView ItemsSource="{Binding Uploads}" SelectedItem="{Binding SelectedUpload, Mode=TwoWay}" SelectionMode="Single"
+                  AutomationProperties.LabeledBy="{Binding ElementName=UploadsTitleText}"
                   Style="{StaticResource UploaderList}"
                   Visibility="{Binding HasUploads, Converter={StaticResource BoolToVis}}">
             <ListView.View>
@@ -127,7 +130,7 @@
             <Button Content="{wpf:Text CustomUploader.Forget}" Click="Forget_Click" IsEnabled="{Binding HasSelectedUpload}" Style="{StaticResource SecondaryButtonStyle}"/>
         </StackPanel>
         <!-- Delete is off: the service has no delete link, Greenshot can't remove it either -->
-        <TextBlock Text="{Binding NoDeletionHint}" TextWrapping="Wrap" Margin="0,6,0,0"
+        <TextBlock Text="{Binding NoDeletionHint}" TextWrapping="Wrap" Margin="0,6,0,0" wpf:LiveRegion.Mode="Polite"
                    Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}">
             <TextBlock.Style>
                 <Style TargetType="TextBlock">

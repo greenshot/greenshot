@@ -61,6 +61,11 @@ namespace Greenshot.SelfService.ViewModels
             }
         }
 
+        /// <summary>
+        /// The name a screen reader says for the row in the uploads list
+        /// </summary>
+        public override string ToString() => string.IsNullOrEmpty(Title) ? Link : Title;
+
         public DateTime? Uploaded
         {
             get => _uploaded;

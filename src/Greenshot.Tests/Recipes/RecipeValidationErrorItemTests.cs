@@ -26,6 +26,12 @@ namespace Greenshot.Tests.Recipes
 {
     public class RecipeValidationErrorItemTests
     {
+        // The hints come from the language packs, the tests check the English texts
+        public RecipeValidationErrorItemTests()
+        {
+            TestEnvironment.EnsureInitialized();
+        }
+
         [Fact]
         public void Create_UnknownStepTypePluginError_ReturnsPluginHint()
         {

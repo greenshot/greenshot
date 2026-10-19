@@ -52,7 +52,7 @@
                                     </Grid.RowDefinitions>
                                     <TextBlock Text="{TemplateBinding Header}"
                                                FontWeight="SemiBold"
-                                               FontSize="13"
+                                               FontSize="{wpf:FontSize 13}"
                                                Foreground="{TemplateBinding Foreground}"
                                                Margin="0,0,0,8"/>
                                     <ContentPresenter Grid.Row="1"/>
@@ -73,7 +73,7 @@
             <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
 
-        <Style TargetType="Slider">
+        <Style TargetType="wpf:ValueSlider">
             <Setter Property="Margin" Value="0,2"/>
         </Style>
 
@@ -116,14 +116,14 @@
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                            VerticalAlignment="Center"
                            Margin="8,0,0,0"
-                           FontSize="13"
+                           FontSize="{wpf:FontSize 13}"
                            FontWeight="SemiBold"
                            WindowChrome.IsHitTestVisibleInChrome="False"/>
 
                 <Button Grid.Column="2"
                         Click="CloseButton_Click"
                         Style="{StaticResource TitleCloseButtonStyle}"
-                        ToolTip="Close"
+                        ToolTip="{wpf:Text Core.AccessibleClose}"
                         WindowChrome.IsHitTestVisibleInChrome="True"/>
             </Grid>
 
@@ -138,7 +138,7 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBox Grid.Column="0" x:Name="SearchTextBox" TextChanged="SearchInput_Changed"/>
+                                <TextBox Grid.Column="0" x:Name="SearchTextBox" AutomationProperties.Name="{wpf:Text Editor.ObfuscateTextSearch}" TextChanged="SearchInput_Changed"/>
                                 <Button Grid.Column="1" Content="{wpf:Text Editor.ObfuscateTextSearchButton}" 
                                         Margin="6,0,0,0" Padding="12,4" Click="SearchButton_Click"/>
                             </Grid>
@@ -153,13 +153,13 @@
                                     <ColumnDefinition Width="140"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="{wpf:Text Editor.ObfuscateTextSearchScope}" VerticalAlignment="Center"
+                                <TextBlock x:Name="SearchScopeLabel" Grid.Column="0" Text="{wpf:Text Editor.ObfuscateTextSearchScope}" VerticalAlignment="Center"
                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                                <ComboBox Grid.Column="1" x:Name="SearchScopeComboBox" SelectionChanged="SearchInput_Changed"/>
+                                <ComboBox Grid.Column="1" x:Name="SearchScopeComboBox" AutomationProperties.LabeledBy="{Binding ElementName=SearchScopeLabel}" SelectionChanged="SearchInput_Changed"/>
                             </Grid>
 
                             <!-- Match Count Status -->
-                            <TextBlock x:Name="MatchCountTextBlock" Margin="0,6,0,2" FontWeight="SemiBold"
+                            <TextBlock x:Name="MatchCountTextBlock" wpf:LiveRegion.Mode="Polite" Margin="0,6,0,2" FontWeight="SemiBold"
                                        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                         </StackPanel>
                     </GroupBox>
@@ -172,9 +172,9 @@
                                     <ColumnDefinition Width="140"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Effect:" VerticalAlignment="Center"
+                                <TextBlock x:Name="EffectLabel" Grid.Column="0" Text="{wpf:Text Editor.ObfuscateTextEffect}" VerticalAlignment="Center"
                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                                <ComboBox Grid.Column="1" x:Name="EffectComboBox" SelectionChanged="EffectComboBox_SelectionChanged"/>
+                                <ComboBox Grid.Column="1" x:Name="EffectComboBox" AutomationProperties.LabeledBy="{Binding ElementName=EffectLabel}" SelectionChanged="EffectComboBox_SelectionChanged"/>
                             </Grid>
 
                             <!-- Dynamic Effect Parameter Controls -->
@@ -184,11 +184,11 @@
                                     <ColumnDefinition Width="140"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Pixel size:" VerticalAlignment="Center"
+                                <TextBlock x:Name="PixelSizeLabel" Grid.Column="0" Text="{wpf:Text Editor.ObfuscateTextPixelSize}" VerticalAlignment="Center"
                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Slider x:Name="PixelSizeSlider" Minimum="1" Maximum="50" Value="10" Width="170" VerticalAlignment="Center" ValueChanged="Setting_Changed"/>
-                                    <TextBlock Text="{Binding ElementName=PixelSizeSlider, Path=Value, StringFormat={}{0:0} px}"
+                                    <wpf:ValueSlider x:Name="PixelSizeSlider" ValueFormat="{}{0:0} px" AutomationProperties.LabeledBy="{Binding ElementName=PixelSizeLabel}" Minimum="1" Maximum="50" Value="10" Width="170" VerticalAlignment="Center" ValueChanged="Setting_Changed"/>
+                                    <TextBlock Text="{Binding ElementName=PixelSizeSlider, Path=ValueText}"
                                                Margin="10,0,0,0" VerticalAlignment="Center" MinWidth="45"
                                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                                 </StackPanel>
@@ -200,11 +200,11 @@
                                     <ColumnDefinition Width="140"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Blur radius:" VerticalAlignment="Center"
+                                <TextBlock x:Name="BlurRadiusLabel" Grid.Column="0" Text="{wpf:Text Editor.ObfuscateTextBlurRadius}" VerticalAlignment="Center"
                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Slider x:Name="BlurRadiusSlider" Minimum="1" Maximum="30" Value="10" Width="170" VerticalAlignment="Center" ValueChanged="Setting_Changed"/>
-                                    <TextBlock Text="{Binding ElementName=BlurRadiusSlider, Path=Value, StringFormat={}{0:0} px}"
+                                    <wpf:ValueSlider x:Name="BlurRadiusSlider" ValueFormat="{}{0:0} px" AutomationProperties.LabeledBy="{Binding ElementName=BlurRadiusLabel}" Minimum="1" Maximum="30" Value="10" Width="170" VerticalAlignment="Center" ValueChanged="Setting_Changed"/>
+                                    <TextBlock Text="{Binding ElementName=BlurRadiusSlider, Path=ValueText}"
                                                Margin="10,0,0,0" VerticalAlignment="Center" MinWidth="45"
                                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                                 </StackPanel>
@@ -216,13 +216,13 @@
                                     <ColumnDefinition Width="140"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Color:" VerticalAlignment="Center"
+                                <TextBlock Grid.Column="0" Text="{wpf:Text Editor.ObfuscateTextColor}" VerticalAlignment="Center"
                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                                 <StackPanel Grid.Column="1" Orientation="Horizontal">
                                     <Border x:Name="ColorPreviewBorder" Width="40" Height="26" CornerRadius="4" BorderThickness="1"
                                             BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
                                             Background="#FFFF00" Margin="0,0,8,0"/>
-                                    <Button Content="Pick Color..." Click="PickColorButton_Click" Padding="12,4"/>
+                                    <Button Content="{wpf:Text Editor.ObfuscateTextPickColor}" Click="PickColorButton_Click" Padding="12,4"/>
                                 </StackPanel>
                             </Grid>
 
@@ -232,11 +232,11 @@
                                     <ColumnDefinition Width="140"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Magnification:" VerticalAlignment="Center"
+                                <TextBlock x:Name="MagnificationLabel" Grid.Column="0" Text="{wpf:Text Editor.ObfuscateTextMagnification}" VerticalAlignment="Center"
                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Slider x:Name="MagnificationSlider" Minimum="1" Maximum="10" Value="2" Width="170" VerticalAlignment="Center" ValueChanged="Setting_Changed"/>
-                                    <TextBlock Text="{Binding ElementName=MagnificationSlider, Path=Value, StringFormat={}{0:0}x}"
+                                    <wpf:ValueSlider x:Name="MagnificationSlider" ValueFormat="{}{0:0}x" AutomationProperties.LabeledBy="{Binding ElementName=MagnificationLabel}" Minimum="1" Maximum="10" Value="2" Width="170" VerticalAlignment="Center" ValueChanged="Setting_Changed"/>
+                                    <TextBlock Text="{Binding ElementName=MagnificationSlider, Path=ValueText}"
                                                Margin="10,0,0,0" VerticalAlignment="Center" MinWidth="45"
                                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                                 </StackPanel>
@@ -261,38 +261,38 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Horizontal padding:" VerticalAlignment="Center" Margin="0,4"
+                                <TextBlock x:Name="HorizontalPaddingLabel" Grid.Row="0" Grid.Column="0" Text="{wpf:Text Editor.ObfuscateTextHorizontalPadding}" VerticalAlignment="Center" Margin="0,4"
                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                                 <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,4">
-                                    <Slider x:Name="HorizontalPaddingSlider" Minimum="-50" Maximum="100" Value="0" Width="150" ValueChanged="Setting_Changed"/>
-                                    <TextBlock Text="{Binding ElementName=HorizontalPaddingSlider, Path=Value, StringFormat={}{0:0} %}"
+                                    <wpf:ValueSlider x:Name="HorizontalPaddingSlider" ValueFormat="{}{0:0} %" AutomationProperties.LabeledBy="{Binding ElementName=HorizontalPaddingLabel}" Minimum="-50" Maximum="100" Value="0" Width="150" ValueChanged="Setting_Changed"/>
+                                    <TextBlock Text="{Binding ElementName=HorizontalPaddingSlider, Path=ValueText}"
                                                Margin="10,0,0,0" VerticalAlignment="Center" MinWidth="45"
                                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                                 </StackPanel>
 
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Vertical padding:" VerticalAlignment="Center" Margin="0,4"
+                                <TextBlock x:Name="VerticalPaddingLabel" Grid.Row="1" Grid.Column="0" Text="{wpf:Text Editor.ObfuscateTextVerticalPadding}" VerticalAlignment="Center" Margin="0,4"
                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                                 <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,4">
-                                    <Slider x:Name="VerticalPaddingSlider" Minimum="-50" Maximum="100" Value="0" Width="150" ValueChanged="Setting_Changed"/>
-                                    <TextBlock Text="{Binding ElementName=VerticalPaddingSlider, Path=Value, StringFormat={}{0:0} %}"
+                                    <wpf:ValueSlider x:Name="VerticalPaddingSlider" ValueFormat="{}{0:0} %" AutomationProperties.LabeledBy="{Binding ElementName=VerticalPaddingLabel}" Minimum="-50" Maximum="100" Value="0" Width="150" ValueChanged="Setting_Changed"/>
+                                    <TextBlock Text="{Binding ElementName=VerticalPaddingSlider, Path=ValueText}"
                                                Margin="10,0,0,0" VerticalAlignment="Center" MinWidth="45"
                                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                                 </StackPanel>
 
-                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Horizontal offset:" VerticalAlignment="Center" Margin="0,4"
+                                <TextBlock x:Name="HorizontalOffsetLabel" Grid.Row="2" Grid.Column="0" Text="{wpf:Text Editor.ObfuscateTextHorizontalOffset}" VerticalAlignment="Center" Margin="0,4"
                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                                 <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,4">
-                                    <Slider x:Name="HorizontalOffsetSlider" Minimum="-100" Maximum="100" Value="0" Width="150" ValueChanged="Setting_Changed"/>
-                                    <TextBlock Text="{Binding ElementName=HorizontalOffsetSlider, Path=Value, StringFormat={}{0:0} px}"
+                                    <wpf:ValueSlider x:Name="HorizontalOffsetSlider" ValueFormat="{}{0:0} px" AutomationProperties.LabeledBy="{Binding ElementName=HorizontalOffsetLabel}" Minimum="-100" Maximum="100" Value="0" Width="150" ValueChanged="Setting_Changed"/>
+                                    <TextBlock Text="{Binding ElementName=HorizontalOffsetSlider, Path=ValueText}"
                                                Margin="10,0,0,0" VerticalAlignment="Center" MinWidth="45"
                                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                                 </StackPanel>
 
-                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Vertical offset:" VerticalAlignment="Center" Margin="0,4"
+                                <TextBlock x:Name="VerticalOffsetLabel" Grid.Row="3" Grid.Column="0" Text="{wpf:Text Editor.ObfuscateTextVerticalOffset}" VerticalAlignment="Center" Margin="0,4"
                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                                 <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,4">
-                                    <Slider x:Name="VerticalOffsetSlider" Minimum="-100" Maximum="100" Value="0" Width="150" ValueChanged="Setting_Changed"/>
-                                    <TextBlock Text="{Binding ElementName=VerticalOffsetSlider, Path=Value, StringFormat={}{0:0} px}"
+                                    <wpf:ValueSlider x:Name="VerticalOffsetSlider" ValueFormat="{}{0:0} px" AutomationProperties.LabeledBy="{Binding ElementName=VerticalOffsetLabel}" Minimum="-100" Maximum="100" Value="0" Width="150" ValueChanged="Setting_Changed"/>
+                                    <TextBlock Text="{Binding ElementName=VerticalOffsetSlider, Path=ValueText}"
                                                Margin="10,0,0,0" VerticalAlignment="Center" MinWidth="45"
                                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                                 </StackPanel>

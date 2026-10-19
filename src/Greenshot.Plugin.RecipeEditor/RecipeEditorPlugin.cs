@@ -51,6 +51,7 @@ public class RecipeEditorPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipe
 
     public void ConfigureServices(IPluginServices services)
     {
+        Texts.Register<IRecipeEditorLanguage>(new RecipeEditorLanguageImpl());
         var section = new RecipeConfigurationImpl();
         services.AddConfiguration(section);
         _config = section;

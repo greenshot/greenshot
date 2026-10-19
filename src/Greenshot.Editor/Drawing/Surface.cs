@@ -41,6 +41,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Drawing.Adorners;
 using Greenshot.Editor.Configuration;
+using Greenshot.Editor.Drawing.Adorners;
 using Greenshot.Editor.Drawing.Emoji;
 using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Helpers;
@@ -213,6 +214,21 @@ namespace Greenshot.Editor.Drawing
         /// are we in a mouse down, do not serialize
         /// </summary>
         [NonSerialized] private bool _mouseDown;
+
+        /// <summary>
+        /// The focus frame is shown while the canvas has the focus from the keyboard (Tab, F6, a key pressed on it), not after a click
+        /// </summary>
+        [NonSerialized] private bool _showFocusFrame;
+
+        /// <summary>
+        /// Where the focus frame was painted last, in client coordinates, so it can be repainted when the visible part changes
+        /// </summary>
+        [NonSerialized] private Rectangle _focusFrame = Rectangle.Empty;
+
+        /// <summary>
+        /// The parent whose size changes the visible part of the canvas, and so the focus frame
+        /// </summary>
+        [NonSerialized] private Control _parentWithResize;
 
         /// <summary>
         /// The selected element for the mouse down, do not serialize
@@ -523,7 +539,8 @@ namespace Greenshot.Editor.Drawing
             _elements.Parent = this;
             // Make sure we are visible
             Visible = true;
-            TabStop = false;
+            // The canvas is reached with Tab (and F6 in the editor), it takes the keys to draw and select elements
+            TabStop = true;
             // Enable double buffering
             DoubleBuffered = true;
             SetStyle(
@@ -2011,45 +2028,14 @@ namespace Greenshot.Editor.Drawing
 
             _mouseDown = true;
             _isSurfaceMoveMadeUndoable = false;
+            // The mouse is used, the focus frame is for the keyboard
+            HideFocusFrame();
 
-            if (_cropContainer != null && ((_undrawnElement == null) || (_undrawnElement != null && DrawingMode != DrawingModes.Crop)))
-            {
-                RemoveElement(_cropContainer, false);
-                _cropContainer = null;
-                _drawingElement = null;
-            }
+            RemoveDrawnCropContainer();
 
             if (_drawingElement == null && DrawingMode != DrawingModes.None)
             {
-                if (_undrawnElement == null)
-                {
-                    DeselectAllElements();
-                    if (_undrawnElement == null)
-                    {
-                        CreateUndrawnElement();
-                    }
-                }
-
-                _drawingElement = _undrawnElement;
-                // if a new element has been drawn, set location and register it
-                if (_drawingElement != null)
-                {
-                    if (_undrawnElement != null)
-                    {
-                        _drawingElement.Status = _undrawnElement.DefaultEditMode;
-                    }
-
-                    if (!_drawingElement.HandleMouseDown(_mouseStart.X, _mouseStart.Y))
-                    {
-                        _drawingElement.Left = _mouseStart.X;
-                        _drawingElement.Top = _mouseStart.Y;
-                    }
-
-                    AddElement(_drawingElement);
-                    _drawingElement.Selected = true;
-                }
-
-                _undrawnElement = null;
+                StartDrawingElement(_mouseStart);
             }
             else
             {
@@ -2135,27 +2121,86 @@ namespace Greenshot.Editor.Drawing
 
             if (_drawingElement != null)
             {
-                if (!_drawingElement.InitContent())
-                {
-                    _elements.Remove(_drawingElement);
-                    _drawingElement.Invalidate();
-                }
-                else
-                {
-                    _drawingElement.HandleMouseUp(currentMouse.X, currentMouse.Y);
-                    _drawingElement.Invalidate();
-                    if (Math.Abs(_drawingElement.Width) < 5 && Math.Abs(_drawingElement.Height) < 5)
-                    {
-                        _drawingElement.Width = 25;
-                        _drawingElement.Height = 25;
-                    }
-
-                    SelectElement(_drawingElement);
-                    _drawingElement.Selected = true;
-                }
-
-                _drawingElement = null;
+                FinishDrawingElement(currentMouse);
             }
+        }
+
+        /// <summary>
+        /// A crop rectangle which was drawn but not confirmed is removed when something else is drawn, or a new crop rectangle
+        /// </summary>
+        private void RemoveDrawnCropContainer()
+        {
+            if (_cropContainer == null || (_undrawnElement != null && DrawingMode == DrawingModes.Crop))
+            {
+                return;
+            }
+
+            RemoveElement(_cropContainer, false);
+            _cropContainer = null;
+            _drawingElement = null;
+        }
+
+        /// <summary>
+        /// Start drawing an element of the current drawing mode at the location, with the mouse or the keyboard
+        /// </summary>
+        /// <param name="start">Point in image coordinates</param>
+        private void StartDrawingElement(Point start)
+        {
+            if (_undrawnElement == null)
+            {
+                DeselectAllElements();
+                // Deselecting can change the fields, which may create the undrawn element already
+                if (_undrawnElement == null)
+                {
+                    CreateUndrawnElement();
+                }
+            }
+
+            _drawingElement = _undrawnElement;
+            // if a new element has been drawn, set location and register it
+            if (_drawingElement != null)
+            {
+                _drawingElement.Status = _drawingElement.DefaultEditMode;
+
+                if (!_drawingElement.HandleMouseDown(start.X, start.Y))
+                {
+                    _drawingElement.Left = start.X;
+                    _drawingElement.Top = start.Y;
+                }
+
+                AddElement(_drawingElement);
+                _drawingElement.Selected = true;
+            }
+
+            _undrawnElement = null;
+        }
+
+        /// <summary>
+        /// Finish drawing the element at the location, with the mouse or the keyboard
+        /// </summary>
+        /// <param name="end">Point in image coordinates</param>
+        private void FinishDrawingElement(Point end)
+        {
+            if (!_drawingElement.InitContent())
+            {
+                _elements.Remove(_drawingElement);
+                _drawingElement.Invalidate();
+            }
+            else
+            {
+                _drawingElement.HandleMouseUp(end.X, end.Y);
+                _drawingElement.Invalidate();
+                if (Math.Abs(_drawingElement.Width) < 5 && Math.Abs(_drawingElement.Height) < 5)
+                {
+                    _drawingElement.Width = 25;
+                    _drawingElement.Height = 25;
+                }
+
+                SelectElement(_drawingElement);
+                _drawingElement.Selected = true;
+            }
+
+            _drawingElement = null;
         }
 
         /// <summary>
@@ -2404,7 +2449,137 @@ namespace Greenshot.Editor.Drawing
                     adorner.Paint(paintEventArgs);
                 }
             }
+
+            PaintFocusFrame(targetGraphics);
         }
+
+        /// <summary>
+        /// Width of the focus frame in pixels
+        /// </summary>
+        private const int FocusFrameWidth = 2;
+
+        /// <summary>
+        /// A 2px dotted frame in the system colors (high contrast follows) around the visible part of the canvas while it has the
+        /// focus from the keyboard
+        /// </summary>
+        private void PaintFocusFrame(Graphics graphics)
+        {
+            _focusFrame = Focused && _showFocusFrame ? GetVisibleArea() : Rectangle.Empty;
+            if (_focusFrame.Width <= 2 * FocusFrameWidth || _focusFrame.Height <= 2 * FocusFrameWidth)
+            {
+                return;
+            }
+
+            var frame = _focusFrame;
+            for (int i = 0; i < FocusFrameWidth; i++)
+            {
+                // DrawFocusRectangle includes the right and bottom line in the rectangle
+                ControlPaint.DrawFocusRectangle(graphics, new Rectangle(frame.X + i, frame.Y + i, frame.Width - 2 * i, frame.Height - 2 * i), SystemColors.ControlText, SystemColors.Control);
+            }
+        }
+
+        /// <summary>
+        /// Repaint the focus frame where it was and where it is now, e.g. after scrolling or when the focus changed
+        /// </summary>
+        private void InvalidateFocusFrame()
+        {
+            InvalidateFrame(_focusFrame);
+            if (Focused && _showFocusFrame)
+            {
+                InvalidateFrame(GetVisibleArea());
+            }
+        }
+
+        private void InvalidateFrame(Rectangle frame)
+        {
+            if (frame.IsEmpty)
+            {
+                return;
+            }
+
+            Invalidate(new Rectangle(frame.Left, frame.Top, frame.Width, FocusFrameWidth));
+            Invalidate(new Rectangle(frame.Left, frame.Bottom - FocusFrameWidth, frame.Width, FocusFrameWidth));
+            Invalidate(new Rectangle(frame.Left, frame.Top, FocusFrameWidth, frame.Height));
+            Invalidate(new Rectangle(frame.Right - FocusFrameWidth, frame.Top, FocusFrameWidth, frame.Height));
+        }
+
+        private void HideFocusFrame()
+        {
+            if (!_showFocusFrame)
+            {
+                return;
+            }
+
+            _showFocusFrame = false;
+            InvalidateFocusFrame();
+        }
+
+        /// <summary>
+        /// The part of the canvas which can be seen in the scrolled editor panel, in client coordinates
+        /// </summary>
+        private Rectangle GetVisibleArea()
+        {
+            var visible = ClientRectangle;
+            if (Parent != null)
+            {
+                visible.Intersect(new Rectangle(-Left, -Top, Parent.ClientSize.Width, Parent.ClientSize.Height));
+            }
+
+            return visible;
+        }
+
+        /// <summary>
+        /// Give the canvas the focus from the keyboard, e.g. with F6 or Esc in the tool bar: the focus frame shows at once
+        /// </summary>
+        public void SelectFromKeyboard()
+        {
+            Select();
+            if (Focused && !_showFocusFrame)
+            {
+                _showFocusFrame = true;
+                InvalidateFocusFrame();
+            }
+        }
+
+        protected override void OnGotFocus(EventArgs e)
+        {
+            base.OnGotFocus(e);
+            // Tab shows the focus cues of the window; the focus which the canvas gets when the editor opens or after a click doesn't
+            _showFocusFrame = MouseButtons == MouseButtons.None && ShowFocusCues;
+            InvalidateFocusFrame();
+            NotifyAccessibleFocus();
+        }
+
+        protected override void OnLostFocus(EventArgs e)
+        {
+            base.OnLostFocus(e);
+            InvalidateFocusFrame();
+        }
+
+        protected override void OnMove(EventArgs e)
+        {
+            base.OnMove(e);
+            // Scrolling the panel moves the canvas, the frame follows the visible part
+            InvalidateFocusFrame();
+        }
+
+        protected override void OnParentChanged(EventArgs e)
+        {
+            if (_parentWithResize != null)
+            {
+                _parentWithResize.Resize -= OnParentResize;
+            }
+
+            _parentWithResize = Parent;
+            if (_parentWithResize != null)
+            {
+                _parentWithResize.Resize += OnParentResize;
+            }
+
+            base.OnParentChanged(e);
+        }
+
+        private void OnParentResize(object sender, EventArgs e) => InvalidateFocusFrame();
 
         private void DrawSmoothImage(Graphics targetGraphics, Image image, NativeRect imageClipRectangle)
         {
@@ -2489,6 +2664,7 @@ namespace Greenshot.Editor.Drawing
                 MakeUndoable(new AddElementMemento(this, element), false);
             }
 
+            NotifyAccessibleReorder();
             _modified = true;
         }
 
@@ -2540,7 +2716,11 @@ namespace Greenshot.Editor.Drawing
         public void RemoveElement(IDrawableContainer elementToRemove, bool makeUndoable = true, bool invalidate = true, bool generateEvents = true)
         {
             DeselectElement(elementToRemove, generateEvents);
-            _elements.Remove(elementToRemove);
+            if (_elements.Remove(elementToRemove))
+            {
+                NotifyAccessibleReorder();
+            }
+
             // Invalidate only the area of the element, this needs to happen while it still has its parent
             if (invalidate)
             {
@@ -2922,7 +3102,11 @@ namespace Greenshot.Editor.Drawing
         public void DeselectElement(IDrawableContainer container, bool generateEvents = true)
         {
             container.Selected = false;
-            selectedElements.Remove(container);
+            if (selectedElements.Remove(container))
+            {
+                NotifyAccessibleClients(container, AccessibleEvents.SelectionRemove);
+            }
+
             FieldAggregator.UnbindElement(container);
             if (generateEvents && _movingElementChanged != null)
             {
@@ -2983,6 +3167,12 @@ namespace Greenshot.Editor.Drawing
             selectedElements.Add(container);
             container.Selected = true;
             FieldAggregator.BindElement(container);
+            if (Focused)
+            {
+                NotifyAccessibleClients(container, AccessibleEvents.Focus);
+            }
+
+            NotifyAccessibleClients(container, selectedElements.Count == 1 ? AccessibleEvents.Selection : AccessibleEvents.SelectionAdd);
             if (generateEvents && _movingElementChanged != null)
             {
                 SurfaceElementEventArgs eventArgs = new SurfaceElementEventArgs
@@ -3040,11 +3230,29 @@ namespace Greenshot.Editor.Drawing
         {
             if (selectedElements.Count <= 0 && k != Keys.Escape) return false;
 
-            bool shiftModifier = (ModifierKeys & Keys.Shift) == Keys.Shift;
+            bool shiftModifier = (k & Keys.Shift) == Keys.Shift;
             int px = shiftModifier ? 10 : 1;
             NativePoint moveBy = NativePoint.Empty;
+            int resizeX = 0, resizeY = 0;
             switch (k)
             {
+                // Ctrl+arrows make the selected elements narrower, wider, lower or higher, with Shift in steps of 10
+                case Keys.Left | Keys.Control:
+                case Keys.Left | Keys.Shift | Keys.Control:
+                    resizeX = -px;
+                    break;
+                case Keys.Right | Keys.Control:
+                case Keys.Right | Keys.Shift | Keys.Control:
+                    resizeX = px;
+                    break;
+                case Keys.Up | Keys.Control:
+                case Keys.Up | Keys.Shift | Keys.Control:
+                    resizeY = -px;
+                    break;
+                case Keys.Down | Keys.Control:
+                case Keys.Down | Keys.Shift | Keys.Control:
+                    resizeY = px;
+                    break;
                 case Keys.Left:
                 case Keys.Left | Keys.Shift:
                     moveBy = new NativePoint(-px, 0);
@@ -3141,6 +3349,12 @@ namespace Greenshot.Editor.Drawing
             {
                 selectedElements.MakeBoundsChangeUndoable(true);
                 selectedElements.MoveBy(moveBy.X, moveBy.Y);
+                NotifyAccessibleBoundsChange();
+            }
+
+            if (resizeX != 0 || resizeY != 0)
+            {
+                ResizeSelectedElements(resizeX, resizeY);
             }
 
             return true;
@@ -3175,6 +3389,352 @@ namespace Greenshot.Editor.Drawing
             var shadow = selectedElements.FlipShadow();
             UpdateShadowEvent(this, shadow);
             selectedElements.Invalidate();
+        }
+
+        /// <summary>
+        /// The size of an element drawn with the keyboard, in pixels of the image, at most half of the visible part
+        /// </summary>
+        private static readonly Size KeyboardElementSize = new Size(160, 80);
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            // Only the keys pressed on the canvas itself, the text box of a text element is a child and passes its keys here too
+            if (Focused)
+            {
+                if (!_showFocusFrame && (keyData & Keys.KeyCode) is not (Keys.ShiftKey or Keys.ControlKey or Keys.Menu))
+                {
+                    _showFocusFrame = true;
+                    InvalidateFocusFrame();
+                }
+
+                if (ProcessCanvasKey(keyData))
+                {
+                    return true;
+                }
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
+        /// <summary>
+        /// The arrow keys move or resize the selected elements, they must not move the focus to another control
+        /// </summary>
+        protected override bool IsInputKey(Keys keyData)
+        {
+            return (keyData & Keys.KeyCode) switch
+            {
+                Keys.Left or Keys.Right or Keys.Up or Keys.Down => true,
+                _ => base.IsInputKey(keyData)
+            };
+        }
+
+        /// <summary>
+        /// The keys which only work while the canvas has the focus, the other keys of the surface are in <see cref="ProcessCmdKey(Keys)"/>:
+        /// Tab and Shift+Tab select the next or previous element, Enter draws an element of the current tool (or edits the selected text),
+        /// Esc clears the selection.
+        /// </summary>
+        /// <param name="keys">Keys with modifiers</param>
+        /// <returns>true when the key was handled</returns>
+        public bool ProcessCanvasKey(Keys keys)
+        {
+            // Not while a text is typed, or while a mouse button is down: the mouse draws or moves an element, or drags a tab
+            // (Esc must reach the window, which cancels the drag of the tab)
+            if (KeysLocked || MouseButtons != MouseButtons.None)
+            {
+                return false;
+            }
+
+            switch (keys)
+            {
+                case Keys.Tab:
+                    return SelectNextElement(true);
+                case Keys.Tab | Keys.Shift:
+                    return SelectNextElement(false);
+                case Keys.Enter:
+                    return DrawElementWithKeyboard() || EditSelectedElement();
+                case Keys.Escape:
+                    if (DrawingMode == DrawingModes.Crop || !HasSelectedElements)
+                    {
+                        // Esc cancels the crop in ProcessCmdKey(Keys)
+                        return false;
+                    }
+
+                    DeselectAllElements();
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        /// <summary>
+        /// Draw an element of the current tool without the mouse: in its default size in the middle of the visible part of the canvas,
+        /// selected, and a text element is open for typing like after a click
+        /// </summary>
+        /// <returns>true if an element was drawn</returns>
+        public bool DrawElementWithKeyboard()
+        {
+            switch (DrawingMode)
+            {
+                case DrawingModes.None:
+                // A freehand line needs a path, an image comes from a file or the clipboard
+                case DrawingModes.Path:
+                case DrawingModes.Bitmap:
+                    return false;
+                case DrawingModes.Crop when _cropContainer != null && _undrawnElement != _cropContainer:
+                    // The crop rectangle is there, Enter confirms it in ProcessCmdKey(Keys)
+                    return false;
+            }
+
+            if (_drawingElement != null)
+            {
+                // The mouse is drawing
+                return false;
+            }
+
+            RemoveDrawnCropContainer();
+
+            NativeRect area = ToImageCoordinates(GetVisibleArea());
+            if (area.Width <= 0 || area.Height <= 0)
+            {
+                area = new NativeRect(0, 0, Image.Width, Image.Height);
+            }
+
+            var center = new Point(area.Left + area.Width / 2, area.Top + area.Height / 2);
+            var size = DrawingMode == DrawingModes.Crop
+                ? new Size(area.Width / 2, area.Height / 2)
+                : new Size(Math.Min(KeyboardElementSize.Width, area.Width / 2), Math.Min(KeyboardElementSize.Height, area.Height / 2));
+
+            Point start, end;
+            switch (DrawingMode)
+            {
+                case DrawingModes.StepLabel:
+                case DrawingModes.Emoji:
+                    // These have their size and are placed with their middle at the mouse
+                    start = center;
+                    end = center;
+                    break;
+                case DrawingModes.Line:
+                case DrawingModes.Arrow:
+                    start = new Point(center.X - size.Width / 2, center.Y);
+                    end = new Point(start.X + size.Width, center.Y);
+                    break;
+                default:
+                    start = new Point(center.X - size.Width / 2, center.Y - size.Height / 2);
+                    end = new Point(start.X + size.Width, start.Y + size.Height);
+                    break;
+            }
+
+            // The same steps as drawing with the mouse: down, move, up
+            StartDrawingElement(start);
+            if (_drawingElement == null)
+            {
+                return false;
+            }
+
+            _drawingElement.HandleMouseMove(end.X, end.Y);
+            _elements.Status = EditStatus.IDLE;
+            FinishDrawingElement(end);
+            _modified = true;
+            return true;
+        }
+
+        /// <summary>
+        /// Enter on one selected element does what a double click does, e.g. edit the text or choose another emoji
+        /// </summary>
+        private bool EditSelectedElement()
+        {
+            if (DrawingMode != DrawingModes.None || selectedElements.Count != 1)
+            {
+                return false;
+            }
+
+            selectedElements.OnDoubleClick();
+            selectedElements.Invalidate();
+            return true;
+        }
+
+        /// <summary>
+        /// Select the next or previous element in z-order (the order they are drawn in). After the last one nothing is selected and
+        /// the key moves the focus on, so the keyboard isn't trapped on the canvas.
+        /// </summary>
+        /// <param name="forward">false for the previous element</param>
+        /// <returns>true if an element is selected</returns>
+        public bool SelectNextElement(bool forward)
+        {
+            if (DrawingMode == DrawingModes.Crop)
+            {
+                return false;
+            }
+
+            var elements = _elements.Where(element => element != _cropContainer).ToList();
+            // forward continues after the last selected element, backward before the first
+            int current = -1;
+            for (int i = 0; i < elements.Count; i++)
+            {
+                if (!selectedElements.Contains(elements[i]))
+                {
+                    continue;
+                }
+
+                current = i;
+                if (!forward)
+                {
+                    break;
+                }
+            }
+
+            int next = current < 0 ? (forward ? 0 : elements.Count - 1) : current + (forward ? 1 : -1);
+            DeselectAllElements();
+            if (next < 0 || next >= elements.Count)
+            {
+                return false;
+            }
+
+            SelectElement(elements[next]);
+            return true;
+        }
+
+        /// <summary>
+        /// Make the selected elements wider or narrower, higher or lower, undoable like a move
+        /// </summary>
+        /// <param name="dx">pixels to add to the width</param>
+        /// <param name="dy">pixels to add to the height</param>
+        private void ResizeSelectedElements(int dx, int dy)
+        {
+            selectedElements.MakeBoundsChangeUndoable(true);
+            selectedElements.Invalidate();
+            foreach (var element in selectedElements)
+            {
+                ResizeElement(element, dx, dy);
+            }
+
+            selectedElements.Invalidate();
+            _modified = true;
+            NotifyAccessibleBoundsChange();
+        }
+
+        /// <summary>
+        /// Resize an element in a direction it has grippers for, e.g. a horizontal cut has none for the width.
+        /// An element drawn from right to left or bottom to top has a negative size: its magnitude grows or shrinks, it never flips.
+        /// </summary>
+        private static void ResizeElement(IDrawableContainer element, int dx, int dy)
+        {
+            if ((dx != 0 && !CanResize(element, true)) || (dy != 0 && !CanResize(element, false)))
+            {
+                return;
+            }
+
+            int width = element.Width;
+            int height = element.Height;
+            int newWidth = ResizeLength(width, dx);
+            int newHeight = ResizeLength(height, dy);
+            bool keepAspectRatio = element is IHaveScaleOptions scalable && (scalable.GetScaleOptions() & ScaleOptions.Rational) == ScaleOptions.Rational;
+            if (keepAspectRatio && width != 0 && height != 0)
+            {
+                if (dx != 0)
+                {
+                    newHeight = (int) Math.Round((double) newWidth * height / width);
+                }
+                else
+                {
+                    newWidth = (int) Math.Round((double) newHeight * width / height);
+                }
+            }
+
+            element.ApplyBounds(new NativeRectFloat(element.Left, element.Top, newWidth, newHeight));
+        }
+
+        private static int ResizeLength(int length, int change)
+        {
+            int magnitude = Math.Abs(length) + change;
+            if (magnitude < 1)
+            {
+                // Not smaller than one pixel, a line which is level stays level
+                return length == 0 ? 0 : Math.Sign(length);
+            }
+
+            return length < 0 ? -magnitude : magnitude;
+        }
+
+        /// <summary>
+        /// Does the element have a gripper (or line end) to change its width (horizontal) or height
+        /// </summary>
+        private static bool CanResize(IDrawableContainer element, bool horizontal)
+            => element.Adorners.Any(adorner => adorner switch
+            {
+                ResizeAdorner resizeAdorner => IsGripperFor(resizeAdorner.Position, horizontal),
+                MoveAdorner moveAdorner => IsGripperFor(moveAdorner.Position, horizontal),
+                _ => false
+            });
+
+        private static bool IsGripperFor(Positions position, bool horizontal)
+            => horizontal ? position is not (Positions.TopCenter or Positions.BottomCenter) : position is not (Positions.MiddleLeft or Positions.MiddleRight);
+
+        /// <summary>
+        /// The element a screen reader sees as focused: the last selected one, while the canvas has the focus
+        /// </summary>
+        internal IDrawableContainer FocusedElement => Focused && selectedElements.Count > 0 ? selectedElements[selectedElements.Count - 1] : null;
+
+        /// <summary>
+        /// Can the element be seen in the visible part of the canvas
+        /// </summary>
+        internal bool IsVisibleOnCanvas(IDrawableContainer element)
+            => GetVisibleArea().IntersectsWith(ToSurfaceCoordinates(element.Bounds));
+
+        protected override AccessibleObject CreateAccessibilityInstance() => new SurfaceAccessibleObject(this);
+
+        /// <summary>
+        /// Tell a screen reader about the element, the child id is its index in z-order
+        /// </summary>
+        private void NotifyAccessibleClients(IDrawableContainer element, AccessibleEvents accessibleEvent)
+        {
+            if (!IsHandleCreated)
+            {
+                return;
+            }
+
+            int index = _elements.IndexOf(element);
+            if (index >= 0)
+            {
+                AccessibilityNotifyClients(accessibleEvent, index);
+            }
+        }
+
+        /// <summary>
+        /// The canvas got the focus: a screen reader reads the selected element
+        /// </summary>
+        private void NotifyAccessibleFocus()
+        {
+            var focusedElement = FocusedElement;
+            if (focusedElement != null)
+            {
+                NotifyAccessibleClients(focusedElement, AccessibleEvents.Focus);
+            }
+        }
+
+        /// <summary>
+        /// The selected elements moved or changed size: their description (size and position) changed
+        /// </summary>
+        private void NotifyAccessibleBoundsChange()
+        {
+            foreach (var element in selectedElements)
+            {
+                NotifyAccessibleClients(element, AccessibleEvents.LocationChange);
+                NotifyAccessibleClients(element, AccessibleEvents.DescriptionChange);
+                NotifyAccessibleClients(element, AccessibleEvents.NameChange);
+            }
+        }
+
+        /// <summary>
+        /// Elements were added or removed: the children of the canvas changed
+        /// </summary>
+        private void NotifyAccessibleReorder()
+        {
+            if (IsHandleCreated)
+            {
+                // -1 is the canvas itself (CHILDID_SELF)
+                AccessibilityNotifyClients(AccessibleEvents.Reorder, -1);
+            }
         }
 
         /// <summary>

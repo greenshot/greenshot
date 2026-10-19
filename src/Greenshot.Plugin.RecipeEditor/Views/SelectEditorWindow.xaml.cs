@@ -28,6 +28,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Greenshot.Base.Languages;
 using Greenshot.Base.Interfaces.Forms;
 using Greenshot.Base.Wpf;
 
@@ -50,12 +51,12 @@ namespace Greenshot.Plugin.RecipeEditor.Views
             public EditorItem(IImageEditor editor)
             {
                 Editor = editor;
-                Title = editor.CaptureDetails?.Title ?? editor.Surface?.CaptureDetails?.Title ?? "Untitled Image";
+                Title = editor.CaptureDetails?.Title ?? editor.Surface?.CaptureDetails?.Title ?? Texts.Get<IRecipeEditorLanguage>().EditorUntitled;
                 ElementCount = editor.Surface?.Elements?.Count ?? 0;
                 int w = editor.Surface?.Image?.Width ?? 0;
                 int h = editor.Surface?.Image?.Height ?? 0;
-                Dimensions = (w > 0 && h > 0) ? $"{w} × {h} px" : "Unknown size";
-                Description = $"{Dimensions} • {ElementCount} annotation{(ElementCount == 1 ? "" : "s")}";
+                Dimensions = (w > 0 && h > 0) ? $"{w} × {h} px" : Texts.Get<IRecipeEditorLanguage>().EditorUnknownSize;
+                Description = $"{Dimensions} • " + string.Format(ElementCount == 1 ? Texts.Get<IRecipeEditorLanguage>().AnnotationCountOne : Texts.Get<IRecipeEditorLanguage>().AnnotationCountMany, ElementCount);
                 PreviewImage = CreatePreview(editor);
             }
 
@@ -150,22 +151,22 @@ namespace Greenshot.Plugin.RecipeEditor.Views
             {
                 PreviewTitleTextBlock.Text = item.Title;
                 PreviewDimensionsBadge.Text = item.Dimensions;
-                PreviewCountBadge.Text = $"{item.ElementCount} annotation{(item.ElementCount == 1 ? "" : "s")}";
+                PreviewCountBadge.Text = string.Format(item.ElementCount == 1 ? Texts.Get<IRecipeEditorLanguage>().AnnotationCountOne : Texts.Get<IRecipeEditorLanguage>().AnnotationCountMany, item.ElementCount);
                 PreviewImage.Source = item.PreviewImage;
                 PreviewImage.Visibility = item.PreviewImage != null ? Visibility.Visible : Visibility.Collapsed;
                 NoPreviewTextBlock.Visibility = item.PreviewImage == null ? Visibility.Visible : Visibility.Collapsed;
-                StatusTextBlock.Text = $"Editor {EditorListBox.SelectedIndex + 1} of {EditorListBox.Items.Count} selected";
+                StatusTextBlock.Text = string.Format(Texts.Get<IRecipeEditorLanguage>().EditorSelectedOf, EditorListBox.SelectedIndex + 1, EditorListBox.Items.Count);
                 OkButton.IsEnabled = true;
             }
             else
             {
-                PreviewTitleTextBlock.Text = "No editor selected";
+                PreviewTitleTextBlock.Text = Texts.Get<IRecipeEditorLanguage>().EditorNoneSelected;
                 PreviewDimensionsBadge.Text = "0 × 0 px";
-                PreviewCountBadge.Text = "0 annotations";
+                PreviewCountBadge.Text = string.Format(Texts.Get<IRecipeEditorLanguage>().AnnotationCountMany, 0);
                 PreviewImage.Source = null;
                 PreviewImage.Visibility = Visibility.Collapsed;
                 NoPreviewTextBlock.Visibility = Visibility.Visible;
-                StatusTextBlock.Text = "No editor selected";
+                StatusTextBlock.Text = Texts.Get<IRecipeEditorLanguage>().EditorNoneSelected;
                 OkButton.IsEnabled = false;
             }
         }

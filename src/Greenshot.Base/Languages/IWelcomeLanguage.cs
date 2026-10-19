@@ -177,6 +177,11 @@ namespace Greenshot.Base.Languages
         string SetupVersionUnknown { get; }
 
         /// <summary>
+        /// Step {0} of {1}
+        /// </summary>
+        string StepOf { get; }
+
+        /// <summary>
         /// Thank you for installing Greenshot! It's running now and waits for you in the notification area, next to the clock.
         /// </summary>
         string Thanks { get; }

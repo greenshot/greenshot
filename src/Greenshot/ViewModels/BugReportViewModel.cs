@@ -24,6 +24,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
+using Greenshot.Base.Languages;
 using Greenshot.Helpers;
 using Greenshot.Base.Threading;
 
@@ -41,7 +42,7 @@ namespace Greenshot.ViewModels
         private string _searchGitHubUrl;
         private string _newIssueUrl;
         private bool _isDetailsExpanded;
-        private string _copyButtonText = "Copy Details";
+        private string _copyButtonText = Texts.Core.ErrorCopyDetails;
 
         // Version check properties
         private string _currentVersion;
@@ -119,7 +120,7 @@ namespace Greenshot.ViewModels
             }
             if (string.IsNullOrWhiteSpace(_exceptionMessage))
             {
-                _exceptionMessage = "An unexpected error occurred.";
+                _exceptionMessage = Texts.Core.BugreportUnexpected;
             }
 
             if (string.IsNullOrWhiteSpace(_stackTrace) && !string.IsNullOrWhiteSpace(_fullReport))
@@ -222,7 +223,7 @@ namespace Greenshot.ViewModels
                 else
                 {
                     VersionCheckFailed = true;
-                    LatestReleaseVersion = "Unavailable";
+                    LatestReleaseVersion = Texts.Core.BugreportUnavailable;
                 }
             }
             catch
@@ -230,7 +231,7 @@ namespace Greenshot.ViewModels
                 VersionCheckFailed = true;
                 if (LatestReleaseVersion == null)
                 {
-                    LatestReleaseVersion = "Unavailable";
+                    LatestReleaseVersion = Texts.Core.BugreportUnavailable;
                 }
             }
             finally
@@ -313,7 +314,7 @@ namespace Greenshot.ViewModels
 
         public bool HasStackTraceHash => !string.IsNullOrWhiteSpace(_stackTraceHash);
 
-        public string FormattedHashDisplay => HasStackTraceHash ? $"[{_stackTraceHash}]" : "[No Stack]";
+        public string FormattedHashDisplay => HasStackTraceHash ? $"[{_stackTraceHash}]" : $"[{Texts.Core.BugreportNoStack}]";
 
         public string SearchGitHubUrl => _searchGitHubUrl;
 
@@ -341,10 +342,16 @@ namespace Greenshot.ViewModels
                 {
                     _latestReleaseVersion = value;
                     OnPropertyChanged();
+                    OnPropertyChanged(nameof(LatestReleaseVersionText));
                     OnPropertyChanged(nameof(VersionComparisonText));
                 }
             }
         }
+
+        /// <summary>
+        /// The latest release, "Checking..." until it is known
+        /// </summary>
+        public string LatestReleaseVersionText => _latestReleaseVersion ?? Texts.Core.BugreportChecking;
 
         public bool IsCheckingVersion
         {
@@ -403,13 +410,13 @@ namespace Greenshot.ViewModels
         {
             get
             {
-                if (_isOutdated && !string.IsNullOrEmpty(_latestReleaseVersion) && _latestReleaseVersion != "Unavailable")
+                if (_isOutdated && !string.IsNullOrEmpty(_latestReleaseVersion) && _latestReleaseVersion != Texts.Core.BugreportUnavailable)
                 {
-                    return $"A newer version ({_latestReleaseVersion}) is available online. Upgrading may already resolve this issue!";
+                    return string.Format(Texts.Core.BugreportNewerVersion, _latestReleaseVersion);
                 }
-                if (!string.IsNullOrEmpty(_latestReleaseVersion) && _latestReleaseVersion != "Unavailable")
+                if (!string.IsNullOrEmpty(_latestReleaseVersion) && _latestReleaseVersion != Texts.Core.BugreportUnavailable)
                 {
-                    return $"You are using the latest version ({_currentVersion}).";
+                    return string.Format(Texts.Core.BugreportLatestVersion, _currentVersion);
                 }
                 return string.Empty;
             }
@@ -429,7 +436,7 @@ namespace Greenshot.ViewModels
             }
         }
 
-        public string ToggleDetailsText => _isDetailsExpanded ? "▲ Hide Details" : "▼ Show Details";
+        public string ToggleDetailsText => _isDetailsExpanded ? "▲ " + Texts.Core.BugreportHideDetails : "▼ " + Texts.Core.BugreportShowDetails;
 
         public string CopyButtonText
         {
@@ -451,12 +458,12 @@ namespace Greenshot.ViewModels
                 if (!string.IsNullOrEmpty(_fullReport))
                 {
                     ClipboardHelper.SetClipboardData(_fullReport);
-                    CopyButtonText = "✓ Copied!";
+                    CopyButtonText = "✓ " + Texts.Core.BugreportCopied;
                 }
             }
             catch
             {
-                CopyButtonText = "Failed to copy";
+                CopyButtonText = Texts.Core.BugreportCopyFailed;
             }
         }
 

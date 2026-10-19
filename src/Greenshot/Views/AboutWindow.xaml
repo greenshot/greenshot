@@ -15,7 +15,7 @@
         ResizeMode="NoResize"
         ShowInTaskbar="True"
         FontFamily="Segoe UI, Segoe UI Variable Display, Tahoma, Arial"
-        FontSize="13"
+        FontSize="{wpf:FontSize 13}"
         Background="{Binding WindowBackgroundBrush}">
 
     <Window.Resources>
@@ -27,13 +27,9 @@
         <!-- Hyperlink Style -->
         <Style TargetType="Hyperlink">
             <Setter Property="Foreground" Value="{Binding AccentBrush}"/>
-            <Setter Property="TextDecorations" Value="None"/>
+            <!-- Always underlined: the color alone doesn't mark a link -->
+            <Setter Property="TextDecorations" Value="Underline"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="TextDecorations" Value="Underline"/>
-                </Trigger>
-            </Style.Triggers>
         </Style>
         </ResourceDictionary>
     </Window.Resources>
@@ -69,7 +65,7 @@
                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
                             <TextBlock Text="{Binding AppVersionTitle}"
-                                       FontSize="17"
+                                       FontSize="{wpf:FontSize 17}"
                                        FontWeight="Bold"
                                        Foreground="{Binding TextPrimaryBrush}"
                                        VerticalAlignment="Center"/>
@@ -78,20 +74,21 @@
                         <!-- Badges row -->
                         <WrapPanel Orientation="Horizontal" Margin="0,0,0,6">
                             <Border Background="{Binding BadgeBackgroundBrush}" CornerRadius="4" Padding="6,2" Margin="0,0,6,0">
-                                <TextBlock Text="{Binding BitnessText}" FontSize="11" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
+                                <TextBlock Text="{Binding BitnessText}" FontSize="{wpf:FontSize 11}" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
                             </Border>
                             <Border Background="{Binding BadgeBackgroundBrush}" CornerRadius="4" Padding="6,2" Margin="0,0,6,0" Visibility="{Binding PortableBadgeVisibility}">
-                                <TextBlock Text="Portable" FontSize="11" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
+                                <TextBlock Text="{wpf:Text Core.AboutPortable}" FontSize="{wpf:FontSize 11}" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
                             </Border>
-                            <Border Background="#238636" CornerRadius="4" Padding="6,2" Margin="0,0,6,0" Visibility="{Binding BetaTesterBadgeVisibility}">
-                                <TextBlock Text="BETA" FontSize="11" FontWeight="Bold" Foreground="White"/>
+                            <!-- The accent with its paired text color, both follow the theme and high contrast -->
+                            <Border Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.AccentBrush}" CornerRadius="4" Padding="6,2" Margin="0,0,6,0" Visibility="{Binding BetaTesterBadgeVisibility}">
+                                <TextBlock Text="{wpf:Text Core.AboutBeta}" FontSize="{wpf:FontSize 11}" FontWeight="Bold" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.AccentForegroundBrush}"/>
                             </Border>
                         </WrapPanel>
 
                         <!-- Homepage link -->
-                        <TextBlock FontSize="13">
+                        <TextBlock FontSize="{wpf:FontSize 13}">
                             <Hyperlink NavigateUri="{Binding WebsiteUrl}" RequestNavigate="OnHyperlinkRequestNavigate">
-                                <TextBlock Text="{Binding WebsiteDisplayUrl}"/>
+                                <Run Text="{Binding WebsiteDisplayUrl, Mode=OneWay}"/>
                             </Hyperlink>
                         </TextBlock>
                     </StackPanel>
@@ -111,14 +108,14 @@
                                    Foreground="{Binding TextPrimaryBrush}"
                                    TextWrapping="Wrap"
                                    Margin="0,0,0,4"/>
-                        <TextBlock Text="Released as free software under the GNU General Public License (GPLv3)."
+                        <TextBlock Text="{wpf:Text Core.AboutReleasedGpl}"
                                    Foreground="{Binding TextSecondaryBrush}"
-                                   FontSize="12"
+                                   FontSize="{wpf:FontSize 12}"
                                    TextWrapping="Wrap"
                                    Margin="0,0,0,6"/>
-                        <TextBlock FontSize="12">
+                        <TextBlock FontSize="{wpf:FontSize 12}">
                             <Hyperlink NavigateUri="https://www.gnu.org/licenses/gpl.html" RequestNavigate="OnHyperlinkRequestNavigate">
-                                <TextBlock Text="https://www.gnu.org/licenses/gpl.html"/>
+                                <Run Text="https://www.gnu.org/licenses/gpl.html"/>
                             </Hyperlink>
                         </TextBlock>
                     </StackPanel>
@@ -146,7 +143,7 @@
                                 <TextBlock Text="{Binding HostLabelText}" Foreground="{Binding TextSecondaryBrush}"/>
                                 <Run Text=" "/>
                                 <Hyperlink NavigateUri="https://github.com/greenshot/greenshot" RequestNavigate="OnHyperlinkRequestNavigate">
-                                    <TextBlock Text="https://github.com/greenshot/greenshot"/>
+                                    <Run Text="https://github.com/greenshot/greenshot"/>
                                 </Hyperlink>
                             </TextBlock>
                         </Grid>
@@ -165,7 +162,7 @@
                                 <TextBlock Text="{Binding BugsLabelText}" Foreground="{Binding TextSecondaryBrush}"/>
                                 <Run Text=" "/>
                                 <Hyperlink NavigateUri="{Binding BugsUrl}" RequestNavigate="OnHyperlinkRequestNavigate">
-                                    <TextBlock Text="https://getgreenshot.org/tickets"/>
+                                    <Run Text="https://getgreenshot.org/tickets"/>
                                 </Hyperlink>
                             </TextBlock>
                         </Grid>
@@ -184,7 +181,7 @@
                                 <TextBlock Text="{Binding DonationsLabelText}" Foreground="{Binding TextSecondaryBrush}"/>
                                 <Run Text=" "/>
                                 <Hyperlink NavigateUri="{Binding DonationsUrl}" RequestNavigate="OnHyperlinkRequestNavigate">
-                                    <TextBlock Text="https://getgreenshot.org/support"/>
+                                    <Run Text="https://getgreenshot.org/support"/>
                                 </Hyperlink>
                             </TextBlock>
                         </Grid>
@@ -203,7 +200,7 @@
                                 <TextBlock Text="{Binding IconsLabelText}" Foreground="{Binding TextSecondaryBrush}"/>
                                 <Run Text=" "/>
                                 <Hyperlink NavigateUri="https://p.yusukekamiyamane.com" RequestNavigate="OnHyperlinkRequestNavigate">
-                                    <TextBlock Text="https://p.yusukekamiyamane.com"/>
+                                    <Run Text="https://p.yusukekamiyamane.com"/>
                                 </Hyperlink>
                             </TextBlock>
                         </Grid>
@@ -242,10 +239,11 @@
                     <!-- Self-Service & Diagnostics Button -->
                     <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                         <Button Style="{StaticResource SecondaryButtonStyle}"
+                                AutomationProperties.Name="{Binding SelfServiceButtonText, TargetNullValue=''}"
                                 Click="OnOpenSelfServiceClicked"
                                 ToolTip="{Binding SelfServiceButtonToolTip}">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="🛠️" FontSize="12" Margin="0,0,6,0"/>
+                                <TextBlock Text="🛠️" FontSize="{wpf:FontSize 12}" Margin="0,0,6,0"/>
                                 <TextBlock Text="{Binding SelfServiceButtonText}" FontWeight="SemiBold"/>
                             </StackPanel>
                         </Button>

@@ -95,6 +95,29 @@ public partial class ConfluenceTreePickerPage
         }
     }
 
+    /// <summary>
+    /// A page selected with the keyboard is the target too, like a clicked one
+    /// </summary>
+    private void ConfluenceTreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+    {
+        // A space is no target: without this the page selected before would stay the target, while the space is shown selected
+        _confluenceUpload.SelectedPage = (e.NewValue as TreeViewItem)?.Tag as Page;
+    }
+
+    /// <summary>
+    /// Right arrow (expand) loads the child pages of the selected page, like the double click; Enter stays the upload
+    /// </summary>
+    private void ConfluenceTreeView_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key is not (Key.Right or Key.Add) || ConfluenceTreeView.SelectedItem is not TreeViewItem { Tag: Page page } selectedItem || selectedItem.HasItems)
+        {
+            return;
+        }
+
+        e.Handled = true;
+        AsyncCommand.Run(() => LoadChildPagesAsync(selectedItem, page), "Loading childpages for confluence page " + page.Title);
+    }
+
     private void PageTreeViewItem_Click(object sender, MouseButtonEventArgs eventArgs)
     {
         Log.Debug("pageTreeViewItem_PreviewMouseDoubleClick is called!");

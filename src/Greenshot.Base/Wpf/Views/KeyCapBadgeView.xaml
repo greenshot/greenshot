@@ -25,7 +25,7 @@
         </Border.Style>
         <TextBlock x:Name="KeyCapText"
                    Text="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=KeyText}"
-                   FontSize="12"
+                   FontSize="{wpf:FontSize 12}"
                    FontWeight="SemiBold"
                    FontFamily="Segoe UI, Consolas, monospace"
                    Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"

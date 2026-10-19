@@ -57,11 +57,11 @@ namespace Greenshot.Base.Wpf
             {
                 Text = text ?? "Greenshot",
                 FontWeight = FontWeights.SemiBold,
-                FontSize = 14,
                 TextWrapping = TextWrapping.Wrap,
                 Foreground = WpfThemeHelper.TextPrimary,
                 Margin = new Thickness(0, 0, 0, 10)
             };
+            header.SetBinding(TextBlock.FontSizeProperty, FontSizeExtension.CreateBinding(14));
             header.MouseLeftButtonDown += (s, e) => window.DragMove();
             return header;
         }

@@ -8,6 +8,7 @@ and which shared pieces to reuse so every window looks and behaves the same. Whe
 - [A new window](#a-new-window)
 - [Reuse the shared styles](#reuse-the-shared-styles)
 - [Texts and languages](#texts-and-languages)
+- [Accessibility](#accessibility)
 - [Settings and greenshot.ini](#settings-and-greenshotini)
 - [The settings window](#the-settings-window)
 - [Settings of a plugin](#settings-of-a-plugin)
@@ -123,6 +124,19 @@ Every text a user sees comes from a language pack, never from a string in the co
 - `LanguagePackTests` checks that every property has an English text, that every `{wpf:Text ...}` in the XAML names an existing property,
   that translations keep the placeholders (`{0}`) of English, and that a language switch notifies the changed texts.
 
+## Accessibility
+
+Every window works with a screen reader, the keyboard alone, high contrast and a larger Windows text size. The rules and how to check
+them are in [accessibility.md](accessibility.md); the short version for a new view:
+
+- Font sizes as `{wpf:FontSize 12}`, never a plain number.
+- Never `FocusVisualStyle="{x:Null}"`; the shared styles already show a focus frame.
+- A button with only an icon or glyph gets `AutomationProperties.Name="{wpf:Text …}"`; an input gets `Label Target` or `AutomationProperties.LabeledBy`.
+- List item view models override `ToString()` with the visible text.
+- Status and error text gets `wpf:LiveRegion.Mode="Polite"`.
+
+`AccessibilityXamlTests` checks the first three and that no text in the XAML is literal.
+
 ## Settings and greenshot.ini
 
 Settings are stored in greenshot.ini with Dapplo.Ini. Each `[Section]` is an interface:
@@ -208,6 +222,7 @@ The settings window shows the view (a `UserControl`, e.g. `JiraConfigurationView
 - [ ] `ThemedTitleBar`, theme brushes from `ThemeManager`, no colors in the XAML
 - [ ] Shared styles from `Greenshot.Base/Wpf/Styles`, no local copies
 - [ ] Every text from a language pack with `{wpf:Text ...}` or `Texts`, the English text added to the en-US pack and the interface
+- [ ] Accessible: keyboard, names, live regions, `{wpf:FontSize}`, checked with Narrator and high contrast (see [accessibility.md](accessibility.md))
 - [ ] Settings in a Dapplo.Ini section with description and default, fixed values disabled in the UI
 - [ ] Nothing blocks the UI thread
 - [ ] Checked in the light and the dark theme, and with another language

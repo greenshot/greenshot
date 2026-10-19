@@ -42,7 +42,7 @@
                                     </Grid.RowDefinitions>
                                     <TextBlock Text="{TemplateBinding Header}"
                                                FontWeight="SemiBold"
-                                               FontSize="13"
+                                               FontSize="{wpf:FontSize 13}"
                                                Foreground="{TemplateBinding Foreground}"
                                                Margin="0,0,0,8"/>
                                     <ContentPresenter Grid.Row="1"/>

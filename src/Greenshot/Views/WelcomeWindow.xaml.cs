@@ -82,6 +82,18 @@ namespace Greenshot.Views
         public IReadOnlyList<SolidColorBrush> StepDots =>
             _steps.Select((_, index) => index == _currentStep ? AccentBrush : BadgeBackgroundBrush).ToList();
 
+        /// <summary>
+        /// The step as text, "Step 2 of 5", for screen readers: the dots show it with color only
+        /// </summary>
+        public string StepText
+        {
+            get
+            {
+                string template = Texts.Welcome.StepOf;
+                return string.Format(string.IsNullOrEmpty(template) ? "Step {0} of {1}" : template, _currentStep + 1, _steps.Length);
+            }
+        }
+
         public Visibility BackVisibility => _currentStep > 0 ? Visibility.Visible : Visibility.Hidden;
 
         public string NextText => _currentStep == _steps.Length - 1 ? Texts.Welcome.ButtonStart : Texts.Welcome.ButtonNext;
@@ -99,6 +111,9 @@ namespace Greenshot.Views
             }
             steps.Add(StepDone);
             _steps = steps.ToArray();
+            // Never seen, a focus rectangle around them would be (see FocusStep)
+            StepReaderA.FocusVisualStyle = null;
+            StepReaderB.FocusVisualStyle = null;
             DataContext = this;
 
             _tipIndex = _rand.Next(Tips().Length);
@@ -107,6 +122,7 @@ namespace Greenshot.Views
             WpfThemeHelper.ThemeChanged += OnThemeChanged;
             Texts.Config.LanguageChanged += OnLanguageChanged;
             Unloaded += OnWindowUnloaded;
+            Loaded += (sender, args) => FocusStep();
         }
 
         /// <summary>
@@ -173,6 +189,7 @@ namespace Greenshot.Views
                 .ToList();
             ShowTip(_tipIndex);
             OnPropertyChanged(nameof(Basics));
+            OnPropertyChanged(nameof(StepText));
             OnPropertyChanged(nameof(NextText));
         }
 
@@ -192,8 +209,58 @@ namespace Greenshot.Views
             }
 
             OnPropertyChanged(nameof(StepDots));
+            OnPropertyChanged(nameof(StepText));
             OnPropertyChanged(nameof(BackVisibility));
             OnPropertyChanged(nameof(NextText));
+            FocusStep();
+        }
+
+        /// <summary>
+        /// A screen reader says what gets the focus, not the text of a step which appears: the focus goes to a hidden text with the step
+        /// number and all text of the step (a panel has no automation peer, a screen reader doesn't see it). Two of them, so the focus
+        /// changes also when Enter (Next is IsDefault) shows the next step. Tab goes on to the controls of the step.
+        /// After the layout, when the texts of the step (e.g. the hotkeys) are there.
+        /// </summary>
+        private void FocusStep()
+        {
+            Dispatcher.InvokeAsync(() =>
+            {
+                var step = _steps[_currentStep];
+                var texts = new List<string> { StepText };
+                if (_currentStep == 0)
+                {
+                    texts.Add(ThanksText.Text);
+                }
+                texts.AddRange(VisibleTexts(step));
+                var text = string.Join(" ", texts.Where(part => !string.IsNullOrWhiteSpace(part)));
+                var reader = ReferenceEquals(FocusManager.GetFocusedElement(this), StepReaderA) ? StepReaderB : StepReaderA;
+                System.Windows.Automation.AutomationProperties.SetName(reader, text);
+                reader.Focus();
+            }, System.Windows.Threading.DispatcherPriority.Loaded).Task.FireAndLog("Focus the welcome step", Log);
+        }
+
+        /// <summary>
+        /// The shown texts in the element, in order, without those of buttons and check boxes: they get the focus themselves
+        /// </summary>
+        private static IEnumerable<string> VisibleTexts(DependencyObject element)
+        {
+            for (int index = 0; index < VisualTreeHelper.GetChildrenCount(element); index++)
+            {
+                var child = VisualTreeHelper.GetChild(element, index);
+                if (child is UIElement { IsVisible: false } || child is System.Windows.Controls.Primitives.ButtonBase)
+                {
+                    continue;
+                }
+                if (child is System.Windows.Controls.TextBlock textBlock)
+                {
+                    yield return textBlock.Text;
+                    continue;
+                }
+                foreach (var text in VisibleTexts(child))
+                {
+                    yield return text;
+                }
+            }
         }
 
         private void ShowTip(int index)

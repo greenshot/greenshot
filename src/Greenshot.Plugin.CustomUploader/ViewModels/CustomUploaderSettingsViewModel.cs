@@ -358,6 +358,11 @@ public sealed class UploaderItem
     /// The icon of the service, the generic one without it
     /// </summary>
     public ImageSource Icon { get; }
+
+    /// <summary>
+    /// The text a screen reader reads for the row
+    /// </summary>
+    public override string ToString() => string.IsNullOrEmpty(Description) ? Name : $"{Name}, {Description}";
 }
 
 /// <summary>
@@ -392,6 +397,11 @@ public sealed class UploadItem
     /// The icon of the uploader's service
     /// </summary>
     public ImageSource Icon { get; }
+
+    /// <summary>
+    /// The text a screen reader reads for the row
+    /// </summary>
+    public override string ToString() => $"{Date}, {Uploader}, {Url}";
 }
 
 internal enum UploaderValueKind

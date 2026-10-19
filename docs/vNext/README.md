@@ -22,6 +22,7 @@ work differently there, and they can still change before the release. The docume
 | Document | What it is about |
 |---|---|
 | [code-structure.md](code-structure.md) | Where code goes and how it is named |
+| [accessibility.md](accessibility.md) | Rules for screen readers, keyboard, high contrast and text size, and how to check them |
 | [ui-how-to.md](ui-how-to.md) | Building windows and settings pages: styles, texts, settings |
 | [translation](translation/README.md) | Language packs and how to translate Greenshot |
 | [capture-tools.md](capture-tools.md) | How the capture modes and helpers are built, and how a plugin adds its own |

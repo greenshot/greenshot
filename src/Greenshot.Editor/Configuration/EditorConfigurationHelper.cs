@@ -36,6 +36,9 @@ namespace Greenshot.Editor.Configuration
     /// </summary>
     public static class EditorConfigurationHelper
     {
+        // Elements can be made on several threads at once (the tests do), the dictionary isn't thread safe
+        private static readonly object LastUsedFieldValuesLock = new object();
+
         /// <summary>
         /// Creates a field of the given type for <paramref name="requestingType"/>, reusing
         /// the last-used value from the configuration if one is stored.
@@ -51,22 +54,17 @@ namespace Greenshot.Editor.Configuration
             string requestedField = requestingTypeName + "." + fieldType.Name;
             object fieldValue = preferredDefaultValue;
 
-            config.LastUsedFieldValues ??= new Dictionary<string, object>();
-
-            if (config.LastUsedFieldValues.ContainsKey(requestedField))
+            lock (LastUsedFieldValuesLock)
             {
-                if (config.LastUsedFieldValues[requestedField] != null)
+                config.LastUsedFieldValues ??= new Dictionary<string, object>();
+                if (config.LastUsedFieldValues.TryGetValue(requestedField, out var lastUsedValue) && lastUsedValue != null)
                 {
-                    fieldValue = config.LastUsedFieldValues[requestedField];
+                    fieldValue = lastUsedValue;
                 }
                 else
                 {
                     config.LastUsedFieldValues[requestedField] = fieldValue;
                 }
-            }
-            else
-            {
-                config.LastUsedFieldValues.Add(requestedField, fieldValue);
             }
 
             return new Field(fieldType, requestingType)
@@ -85,15 +83,10 @@ namespace Greenshot.Editor.Configuration
         public static void UpdateLastFieldValue(IEditorConfiguration config, IField field)
         {
             string requestedField = field.Scope + "." + field.FieldType.Name;
-            config.LastUsedFieldValues ??= new Dictionary<string, object>();
-
-            if (config.LastUsedFieldValues.ContainsKey(requestedField))
+            lock (LastUsedFieldValuesLock)
             {
+                config.LastUsedFieldValues ??= new Dictionary<string, object>();
                 config.LastUsedFieldValues[requestedField] = field.Value;
-            }
-            else
-            {
-                config.LastUsedFieldValues.Add(requestedField, field.Value);
             }
         }
 

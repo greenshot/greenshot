@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.Windows;
+using System.Windows.Automation;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
@@ -216,9 +217,12 @@ namespace Greenshot.Editor.Views
                         Style = (Style)FindResource("PaletteSwatchStyle"),
                         Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(color.R, color.G, color.B)),
                         Tag = color,
-                        ToolTip = $"{ColorTranslator.ToHtml(color)} | R:{color.R}, G:{color.G}, B:{color.B}"
+                        ToolTip = Describe(color)
                     };
+                    AutomationProperties.SetName(btn, Describe(color));
                     btn.PreviewMouseLeftButtonDown += PaletteButton_PreviewMouseLeftButtonDown;
+                    btn.GotKeyboardFocus += Swatch_GotKeyboardFocus;
+                    btn.PreviewKeyDown += Swatch_PreviewKeyDown;
                     PaletteGrid.Children.Add(btn);
                 }
             }
@@ -248,6 +252,8 @@ namespace Greenshot.Editor.Views
                     IsEnabled = false
                 };
                 btn.PreviewMouseLeftButtonDown += RecentButton_PreviewMouseLeftButtonDown;
+                btn.GotKeyboardFocus += Swatch_GotKeyboardFocus;
+                btn.PreviewKeyDown += Swatch_PreviewKeyDown;
                 _recentButtons.Add(btn);
                 RecentColorsGrid.Children.Add(btn);
             }
@@ -266,6 +272,39 @@ namespace Greenshot.Editor.Views
             }
         }
 
+        /// <summary>
+        /// The text of a color swatch, shown as tooltip and read by a screen reader
+        /// </summary>
+        private static string Describe(Color color)
+        {
+            return $"{ColorTranslator.ToHtml(color)} | R:{color.R}, G:{color.G}, B:{color.B}";
+        }
+
+        /// <summary>
+        /// Moving through the colors with the arrow keys shows each one, like a click does
+        /// </summary>
+        private void Swatch_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            if (sender is Button { Tag: Color color })
+            {
+                PreviewColor(color);
+            }
+        }
+
+        /// <summary>
+        /// Enter on a color takes it, like a double click
+        /// </summary>
+        private void Swatch_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.Enter || sender is not Button { Tag: Color color })
+            {
+                return;
+            }
+            PreviewColor(color);
+            ApplyColor();
+            e.Handled = true;
+        }
+
         private void UpdateRecentColors()
         {
             if (EditorConfig?.RecentColors == null)
@@ -282,7 +321,8 @@ namespace Greenshot.Editor.Views
                     btn.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(c.A, c.R, c.G, c.B));
                     btn.IsEnabled = true;
                     btn.Tag = c;
-                    btn.ToolTip = $"{ColorTranslator.ToHtml(c)} | R:{c.R}, G:{c.G}, B:{c.B}";
+                    btn.ToolTip = Describe(c);
+                    AutomationProperties.SetName(btn, Describe(c));
                 }
                 else
                 {
@@ -290,6 +330,7 @@ namespace Greenshot.Editor.Views
                     btn.IsEnabled = false;
                     btn.Tag = null;
                     btn.ToolTip = null;
+                    btn.ClearValue(AutomationProperties.NameProperty);
                 }
             }
         }

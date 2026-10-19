@@ -7,12 +7,12 @@
         xmlns:vm="clr-namespace:Greenshot.Plugin.RecipeEditor.ViewModels"
         xmlns:conv="clr-namespace:Greenshot.Plugin.RecipeEditor.Converters"
         mc:Ignorable="d"
-        Title="Greenshot — Capture Recipe Manager"
+        Title="{ui:Text RecipeEditor.ManagerTitle}"
         Height="680" Width="920"
         MinHeight="480" MinWidth="720"
         WindowStartupLocation="CenterScreen"
         FontFamily="Segoe UI, Segoe UI Variable Display, Tahoma, Arial"
-        Background="{x:Static ui:WpfThemeHelper.WindowBackground}">
+        Background="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.WindowBackground}">
 
     <Window.Resources>
         <ResourceDictionary>
@@ -25,8 +25,8 @@
             <conv:BoolToStatusBrushConverter x:Key="BoolToStatusBrush"/>
 
                 <DataTemplate x:Key="RecipeItemTemplate" DataType="{x:Type vm:RecipeManagerItemViewModel}">
-                            <Border Background="{x:Static ui:WpfThemeHelper.CardBackground}"
-                                    BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}"
+                            <Border Background="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.CardBackground}"
+                                    BorderBrush="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}"
                                     BorderThickness="1" CornerRadius="6" Margin="0,0,0,10" Padding="14,12"
                                     SnapsToDevicePixels="True">
                                 <Grid>
@@ -38,12 +38,12 @@
 
                                     <!-- Active / Deactivate Toggle Switch -->
                                     <StackPanel Grid.Column="0" Margin="0,0,14,0" VerticalAlignment="Center" Width="85" HorizontalAlignment="Center">
-                                        <Button Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ToggleActiveCommand}"
-                                                Padding="6,4" HorizontalAlignment="Stretch" ToolTip="Click to toggle Activate / Deactivate">
+                                        <Button Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ToggleActiveCommand}" AutomationProperties.Name="{Binding StatusBadgeText, TargetNullValue=''}"
+                                                Padding="6,4" HorizontalAlignment="Stretch" ToolTip="{ui:Text RecipeEditor.ManagerToggleActiveTooltip}">
                                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                                 <Ellipse Width="8" Height="8" Margin="0,0,5,0" VerticalAlignment="Center"
                                                          Fill="{Binding IsEnabled, Converter={StaticResource BoolToStatusBrush}}"/>
-                                                <TextBlock Text="{Binding StatusBadgeText}" FontSize="10" FontWeight="Bold"
+                                                <TextBlock Text="{Binding StatusBadgeText}" FontSize="{ui:FontSize 10}" FontWeight="Bold"
                                                            Foreground="{Binding IsEnabled, Converter={StaticResource BoolToStatusBrush}}"/>
                                             </StackPanel>
                                         </Button>
@@ -53,69 +53,69 @@
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                         <!-- Header Row: Name, Version, Type Badges -->
                                         <WrapPanel Orientation="Horizontal" Margin="0,0,0,4">
-                                            <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="13"
-                                                       Foreground="{x:Static ui:WpfThemeHelper.TextPrimary}" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                                            <Border Background="{x:Static ui:WpfThemeHelper.BadgeBackground}"
-                                                    BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}"
+                                            <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="{ui:FontSize 13}"
+                                                       Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextPrimary}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                            <Border Background="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.BadgeBackground}"
+                                                    BorderBrush="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}"
                                                     BorderThickness="1" CornerRadius="3" Padding="5,1" Margin="0,0,6,0" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding RecipeTypeBadge}" FontSize="9" FontWeight="Bold"
-                                                           Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}"/>
+                                                <TextBlock Text="{Binding RecipeTypeBadge}" FontSize="{ui:FontSize 9}" FontWeight="Bold"
+                                                           Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}"/>
                                             </Border>
-                                            <Border Background="{x:Static ui:WpfThemeHelper.BadgeBackground}"
-                                                    BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}"
+                                            <Border Background="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.BadgeBackground}"
+                                                    BorderBrush="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}"
                                                     BorderThickness="1" CornerRadius="3" Padding="5,1" Margin="0,0,6,0" VerticalAlignment="Center"
                                                     Visibility="{Binding IsAiCreated, Converter={StaticResource BoolToVis}}"
-                                                    ToolTip="This recipe was written by an AI tool and approved by you">
-                                                <TextBlock Text="{Binding AiBadge}" FontSize="9" FontWeight="Bold"
-                                                           Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}"/>
+                                                    ToolTip="{ui:Text RecipeEditor.ManagerAiBadgeTooltip}">
+                                                <TextBlock Text="{Binding AiBadge}" FontSize="{ui:FontSize 9}" FontWeight="Bold"
+                                                           Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}"/>
                                             </Border>
-                                            <TextBlock Text="{Binding Version, StringFormat='v{0}'}" FontSize="10"
-                                                       Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                            <TextBlock Text="{Binding Id, StringFormat='({0})'}" FontSize="10" FontFamily="Consolas"
-                                                       Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding Version, StringFormat='v{0}'}" FontSize="{ui:FontSize 10}"
+                                                       Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                            <TextBlock Text="{Binding Id, StringFormat='({0})'}" FontSize="{ui:FontSize 10}" FontFamily="Consolas"
+                                                       Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}" VerticalAlignment="Center"/>
                                         </WrapPanel>
 
                                         <!-- Description -->
-                                        <TextBlock Text="{Binding Description}" FontSize="11"
-                                                   Foreground="{x:Static ui:WpfThemeHelper.TextPrimary}"
+                                        <TextBlock Text="{Binding Description}" FontSize="{ui:FontSize 11}"
+                                                   Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextPrimary}"
                                                    TextWrapping="Wrap" Margin="0,0,0,6"
                                                    Visibility="{Binding Description.Length, Converter={StaticResource BoolToVis}}"/>
 
                                         <!-- Triggers & Pipeline Summary Badges -->
                                         <WrapPanel Orientation="Horizontal" Margin="0,2,0,0">
-                                            <Border Background="{x:Static ui:WpfThemeHelper.BadgeBackground}"
-                                                    BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}"
+                                            <Border Background="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.BadgeBackground}"
+                                                    BorderBrush="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}"
                                                     BorderThickness="1" CornerRadius="3" Padding="6,2" Margin="0,0,6,4">
-                                                <TextBlock Text="{Binding TriggersSummary}" FontSize="10"
-                                                           Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}"/>
+                                                <TextBlock Text="{Binding TriggersSummary}" FontSize="{ui:FontSize 10}"
+                                                           Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}"/>
                                             </Border>
-                                            <Border Background="{x:Static ui:WpfThemeHelper.BadgeBackground}"
-                                                    BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}"
+                                            <Border Background="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.BadgeBackground}"
+                                                    BorderBrush="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}"
                                                     BorderThickness="1" CornerRadius="3" Padding="6,2" Margin="0,0,6,4">
-                                                <TextBlock Text="{Binding StepCount, StringFormat='{}{0} steps'}" FontSize="10"
-                                                           Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}"/>
+                                                <TextBlock FontSize="{ui:FontSize 10}"
+                                                           Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}"><Run Text="{Binding StepCount, Mode=OneWay}"/> <Run Text="{ui:Text RecipeEditor.ManagerSteps}"/></TextBlock>
                                             </Border>
-                                            <Border Background="{x:Static ui:WpfThemeHelper.BadgeBackground}"
-                                                    BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}"
+                                            <Border Background="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.BadgeBackground}"
+                                                    BorderBrush="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}"
                                                     BorderThickness="1" CornerRadius="3" Padding="6,2" Margin="0,0,6,4"
                                                     Visibility="{Binding HasFilePath, Converter={StaticResource BoolToVis}}"
                                                     ToolTip="{Binding FilePath}">
-                                                <TextBlock Text="{Binding FilePath}" FontSize="10" FontFamily="Consolas"
-                                                           Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}" MaxWidth="280" TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Text="{Binding FilePath}" FontSize="{ui:FontSize 10}" FontFamily="Consolas"
+                                                           Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}" MaxWidth="280" TextTrimming="CharacterEllipsis"/>
                                             </Border>
                                         </WrapPanel>
                                     </StackPanel>
 
                                     <!-- Actions Column -->
                                     <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
-                                        <Button Content="✏️ Edit" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding EditCommand}"
-                                                ToolTip="Open recipe in Visual Editor canvas" Margin="0,0,6,0"/>
-                                        <Button Content="▶ Test Run" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding TestRunCommand}"
-                                                ToolTip="Test execute capture recipe in Greenshot" Margin="0,0,6,0"/>
-                                        <Button Content="ℹ Details" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding DetailsCommand}"
-                                                ToolTip="What the recipe does, its triggers, its approval and the changes against the built-in recipe" Margin="0,0,6,0"/>
-                                        <Button Content="🛡 Permissions" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ReviewApprovalCommand}"
-                                                ToolTip="Switch the recipe's triggers and permissions on or off"
+                                        <Button Content="{ui:Text RecipeEditor.ManagerBtnEdit}" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding EditCommand}"
+                                                ToolTip="{ui:Text RecipeEditor.ManagerBtnEditTooltip}" Margin="0,0,6,0"/>
+                                        <Button Content="{ui:Text RecipeEditor.ManagerBtnTestRun}" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding TestRunCommand}"
+                                                ToolTip="{ui:Text RecipeEditor.ManagerBtnTestRunTooltip}" Margin="0,0,6,0"/>
+                                        <Button Content="{ui:Text RecipeEditor.ManagerBtnDetails}" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding DetailsCommand}"
+                                                ToolTip="{ui:Text RecipeEditor.ManagerBtnDetailsTooltip}" Margin="0,0,6,0"/>
+                                        <Button Content="{ui:Text RecipeEditor.ManagerBtnPermissions}" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ReviewApprovalCommand}"
+                                                ToolTip="{ui:Text RecipeEditor.ManagerBtnPermissionsTooltip}"
                                                 Visibility="{Binding HasFilePath, Converter={StaticResource BoolToVis}}" Margin="0,0,6,0"/>
                                         <Button Content="{Binding UnloadButtonText}" Style="{StaticResource ErrorButtonStyle}" Command="{Binding UnloadCommand}"
                                                 ToolTip="{Binding UnloadToolTip}"
@@ -127,7 +127,7 @@
     </ResourceDictionary>
     </Window.Resources>
 
-    <Border BorderThickness="1" BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}">
+    <Border BorderThickness="1" BorderBrush="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/> <!-- Title Bar -->
@@ -139,8 +139,8 @@
             <ui:ThemedTitleBar Grid.Row="0"/>
 
             <!-- Controls & Filter Header -->
-            <Border Grid.Row="1" Background="{x:Static ui:WpfThemeHelper.CardBackground}"
-                    BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}" BorderThickness="0,0,0,1" Padding="14,10">
+            <Border Grid.Row="1" Background="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.CardBackground}"
+                    BorderBrush="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}" BorderThickness="0,0,0,1" Padding="14,10">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -155,48 +155,48 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- Search Box -->
-                        <Border Grid.Column="0" Background="{x:Static ui:WpfThemeHelper.WindowBackground}"
-                                BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}" BorderThickness="1"
+                        <Border Grid.Column="0" Background="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.WindowBackground}"
+                                BorderBrush="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}" BorderThickness="1"
                                 CornerRadius="4" Padding="6,4" MaxWidth="360" HorizontalAlignment="Left">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="🔍 " FontSize="11" VerticalAlignment="Center" Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}"/>
-                                <TextBox Grid.Column="1" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                <TextBlock Text="🔍 " FontSize="{ui:FontSize 11}" VerticalAlignment="Center" Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}"/>
+                                <TextBox Grid.Column="1" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="{ui:Text RecipeEditor.ManagerSearch}"
                                          Background="Transparent" BorderThickness="0"
-                                         Foreground="{x:Static ui:WpfThemeHelper.TextPrimary}"
-                                         VerticalAlignment="Center" FontSize="11" Width="280"/>
+                                         Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextPrimary}"
+                                         VerticalAlignment="Center" FontSize="{ui:FontSize 11}" Width="280"/>
                             </Grid>
                         </Border>
 
                         <!-- Actions: Load Recipe from Disk, Create New, Reload -->
                         <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                            <Button Content="➕ Load Recipe..." Style="{StaticResource PrimaryButtonStyle}" Command="{Binding LoadRecipeFromFileCommand}"
-                                    ToolTip="Load and register a .gsrecipe.json file into Greenshot" Margin="0,0,6,0"/>
-                            <Button Content="✨ New Recipe" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding CreateNewRecipeCommand}"
-                                    ToolTip="Create a new capture recipe in the Visual Editor" Margin="0,0,6,0"/>
-                            <Button Content="🔄 Reload All" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ReloadAllCommand}"
-                                    ToolTip="Reload configured recipe files from disk" Margin="0,0,6,0"/>
-                            <Button Content="↩ Reset All" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ResetAllCommand}"
-                                    ToolTip="Bring back the built-in version of every recipe a file replaces"/>
+                            <Button Content="{ui:Text RecipeEditor.ManagerBtnLoad}" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding LoadRecipeFromFileCommand}"
+                                    ToolTip="{ui:Text RecipeEditor.ManagerBtnLoadTooltip}" Margin="0,0,6,0"/>
+                            <Button Content="{ui:Text RecipeEditor.ManagerBtnNew}" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding CreateNewRecipeCommand}"
+                                    ToolTip="{ui:Text RecipeEditor.ManagerBtnNewTooltip}" Margin="0,0,6,0"/>
+                            <Button Content="{ui:Text RecipeEditor.ManagerBtnReloadAll}" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ReloadAllCommand}"
+                                    ToolTip="{ui:Text RecipeEditor.ManagerBtnReloadAllTooltip}" Margin="0,0,6,0"/>
+                            <Button Content="{ui:Text RecipeEditor.ManagerBtnResetAll}" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ResetAllCommand}"
+                                    ToolTip="{ui:Text RecipeEditor.ManagerBtnResetAllTooltip}"/>
                         </StackPanel>
                     </Grid>
 
                     <!-- Filter Category Chips -->
                     <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center">
-                        <RadioButton Content="All" Style="{StaticResource FilterChipRadioButtonStyle}" IsChecked="True"
+                        <RadioButton Content="{ui:Text RecipeEditor.ManagerFilterAll}" Style="{StaticResource FilterChipRadioButtonStyle}" IsChecked="True"
                                      Click="OnFilterAllClicked"/>
-                        <RadioButton Content="Active" Style="{StaticResource FilterChipRadioButtonStyle}"
+                        <RadioButton Content="{ui:Text RecipeEditor.ManagerFilterActive}" Style="{StaticResource FilterChipRadioButtonStyle}"
                                      Click="OnFilterActiveClicked"/>
-                        <RadioButton Content="Deactivated" Style="{StaticResource FilterChipRadioButtonStyle}"
+                        <RadioButton Content="{ui:Text RecipeEditor.ManagerFilterDeactivated}" Style="{StaticResource FilterChipRadioButtonStyle}"
                                      Click="OnFilterDeactivatedClicked"/>
-                        <RadioButton Content="Built-in" Style="{StaticResource FilterChipRadioButtonStyle}"
+                        <RadioButton Content="{ui:Text RecipeEditor.ManagerFilterBuiltIn}" Style="{StaticResource FilterChipRadioButtonStyle}"
                                      Click="OnFilterBuiltInClicked"/>
-                        <RadioButton Content="Custom" Style="{StaticResource FilterChipRadioButtonStyle}"
+                        <RadioButton Content="{ui:Text RecipeEditor.ManagerFilterCustom}" Style="{StaticResource FilterChipRadioButtonStyle}"
                                      Click="OnFilterCustomClicked"/>
-                        <RadioButton Content="AI" Style="{StaticResource FilterChipRadioButtonStyle}" ToolTip="Recipes written by AI tools"
+                        <RadioButton Content="{ui:Text RecipeEditor.ManagerFilterAi}" Style="{StaticResource FilterChipRadioButtonStyle}" ToolTip="{ui:Text RecipeEditor.ManagerFilterAiTooltip}"
                                      Click="OnFilterAiClicked"/>
                     </StackPanel>
                 </Grid>
@@ -205,21 +205,21 @@
             <!-- Recipe List -->
             <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="14,10">
                 <StackPanel>
-                    <TextBlock Text="RECIPES" FontWeight="SemiBold" FontSize="10" Margin="2,0,0,6" Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}"/>
+                    <TextBlock Text="{ui:Text RecipeEditor.ManagerHeaderRecipes}" FontWeight="SemiBold" FontSize="{ui:FontSize 10}" Margin="2,0,0,6" Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}"/>
                     <ItemsControl ItemsSource="{Binding FilteredRecipes}" ItemTemplate="{StaticResource RecipeItemTemplate}"/>
                     <!-- Automatic steps (recipe extensions): they change other recipes, they have no triggers of their own -->
                     <StackPanel Visibility="{Binding HasFilteredExtensions, Converter={StaticResource BoolToVis}}">
-                        <TextBlock Text="AUTOMATIC STEPS" FontWeight="SemiBold" FontSize="10" Margin="2,8,0,2" Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}"/>
-                        <TextBlock Text="Steps Greenshot adds to the recipes with a fitting slot, switched in Settings &gt; Recipes." FontSize="10" Margin="2,0,0,6"
-                                   Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}"/>
+                        <TextBlock Text="{ui:Text RecipeEditor.ManagerHeaderAutomaticSteps}" FontWeight="SemiBold" FontSize="{ui:FontSize 10}" Margin="2,8,0,2" Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}"/>
+                        <TextBlock Text="{ui:Text RecipeEditor.ManagerAutomaticStepsHint}" FontSize="{ui:FontSize 10}" Margin="2,0,0,6"
+                                   Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}"/>
                         <ItemsControl ItemsSource="{Binding FilteredExtensions}" ItemTemplate="{StaticResource RecipeItemTemplate}"/>
                     </StackPanel>
                 </StackPanel>
             </ScrollViewer>
 
             <!-- Bottom Status Footer -->
-            <Border Grid.Row="3" Background="{x:Static ui:WpfThemeHelper.CardBackground}"
-                    BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}" BorderThickness="0,1,0,0" Padding="14,8">
+            <Border Grid.Row="3" Background="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.CardBackground}"
+                    BorderBrush="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}" BorderThickness="0,1,0,0" Padding="14,8">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -227,17 +227,18 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding TotalCount, StringFormat='Total: {0}'}" FontSize="11" FontWeight="SemiBold"
-                                   Foreground="{x:Static ui:WpfThemeHelper.TextPrimary}" Margin="0,0,12,0"/>
-                        <TextBlock Text="{Binding ActiveCount, StringFormat='Active: {0}'}" FontSize="11"
-                                   Foreground="#238636" FontWeight="SemiBold" Margin="0,0,12,0"/>
-                        <TextBlock Text="{Binding DeactivatedCount, StringFormat='Deactivated: {0}'}" FontSize="11"
-                                   Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}" Margin="0,0,16,0"/>
-                        <TextBlock Text="{Binding StatusMessage}" FontSize="11" FontStyle="Italic"
-                                   Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}"/>
+                        <TextBlock FontSize="{ui:FontSize 11}" FontWeight="SemiBold"
+                                   Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextPrimary}" Margin="0,0,12,0"><Run Text="{ui:Text RecipeEditor.ManagerTotal}"/> <Run Text="{Binding TotalCount, Mode=OneWay}"/></TextBlock>
+                        <TextBlock FontSize="{ui:FontSize 11}"
+                                   Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.SuccessBrush}" FontWeight="SemiBold" Margin="0,0,12,0"><Run Text="{ui:Text RecipeEditor.ManagerActive}"/> <Run Text="{Binding ActiveCount, Mode=OneWay}"/></TextBlock>
+                        <TextBlock FontSize="{ui:FontSize 11}"
+                                   Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}" Margin="0,0,16,0"><Run Text="{ui:Text RecipeEditor.ManagerDeactivated}"/> <Run Text="{Binding DeactivatedCount, Mode=OneWay}"/></TextBlock>
+                        <TextBlock Text="{Binding StatusMessage}" ui:LiveRegion.Mode="Polite" FontSize="{ui:FontSize 11}" FontStyle="Italic"
+                                   Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}"/>
                     </StackPanel>
 
-                    <Button Grid.Column="1" Content="Close" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding CloseCommand}"
+                    <!-- IsCancel: Escape closes the manager -->
+                    <Button Grid.Column="1" Content="{ui:Text Core.AccessibleClose}" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding CloseCommand}" IsCancel="True"
                             Padding="16,6" HorizontalAlignment="Right"/>
                 </Grid>
             </Border>

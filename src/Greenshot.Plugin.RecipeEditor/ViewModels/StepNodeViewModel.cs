@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using Greenshot.Base.Languages;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Forms;
 using Greenshot.Base.Recipes;
@@ -43,7 +44,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         public string Title
         {
-            get => _title ?? (IsInput ? "In" : "Out");
+            get => _title ?? (IsInput ? Texts.Get<IRecipeEditorLanguage>().NodeIn : Texts.Get<IRecipeEditorLanguage>().NodeOut);
             set => SetField(ref _title, value);
         }
 
@@ -447,12 +448,12 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         public bool HasAnyStandardColor => !IsQrCodeType && (HasFillColor || HasLineColor);
 
-        public string FillColorLabel => IsStepLabelType ? "Circle Color" :
-                                        IsHighlightType ? "Highlight Color" :
-                                        IsTextType ? "Background Color" : "Fill Color";
+        public string FillColorLabel => IsStepLabelType ? Texts.Get<IRecipeEditorLanguage>().ColorCircle :
+                                        IsHighlightType ? Texts.Get<IRecipeEditorLanguage>().ColorHighlight :
+                                        IsTextType ? Texts.Get<IRecipeEditorLanguage>().ColorBackground : Texts.Get<IRecipeEditorLanguage>().ColorFill;
 
-        public string LineColorLabel => IsStepLabelType ? "Number Color" :
-                                        IsTextType ? "Text Color" : "Line Color";
+        public string LineColorLabel => IsStepLabelType ? Texts.Get<IRecipeEditorLanguage>().ColorNumber :
+                                        IsTextType ? Texts.Get<IRecipeEditorLanguage>().ColorText : Texts.Get<IRecipeEditorLanguage>().ColorLine;
 
         public bool CanConfigure => RecipeDrawableRegistry.Instance.CanConfigureDrawable(_type);
 
@@ -463,9 +464,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 if (string.Equals(_type, "QRCode", StringComparison.OrdinalIgnoreCase) ||
                     string.Equals(_type, "Barcode", StringComparison.OrdinalIgnoreCase))
                 {
-                    string cat = _parameters.TryGetValue("QrType", out var q) && q != null ? q.ToString() : "Link / Text";
+                    string cat = _parameters.TryGetValue("QrType", out var q) && q != null ? q.ToString() : Texts.Get<IRecipeEditorLanguage>().QrLinkText;
                     string txt = _parameters.TryGetValue("Text", out var t) && t != null ? t.ToString() : _text;
-                    string dots = _parameters.TryGetValue("RoundedDots", out var rd) && rd is bool b && b ? " • Rounded Dots" : "";
+                    string dots = _parameters.TryGetValue("RoundedDots", out var rd) && rd is bool b && b ? " • " + Texts.Get<IRecipeEditorLanguage>().QrRoundedDots : "";
                     if (!string.IsNullOrWhiteSpace(txt))
                     {
                         if (txt.Length > 35) txt = txt.Substring(0, 32) + "...";
@@ -476,10 +477,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
                 if (_parameters.Count > 0)
                 {
-                    return $"{_parameters.Count} custom parameter(s) configured";
+                    return string.Format(Texts.Get<IRecipeEditorLanguage>().AnnotationCustomParameters, _parameters.Count);
                 }
 
-                return "Default configuration";
+                return Texts.Get<IRecipeEditorLanguage>().AnnotationDefaultConfiguration;
             }
         }
 
@@ -753,19 +754,19 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 if (IsCursorType)
                 {
-                    if (HasEmbeddedData) return "📦 Embedded Cursor (Bitmap)";
+                    if (HasEmbeddedData) return "📦 " + Texts.Get<IRecipeEditorLanguage>().AssetEmbeddedCursor;
                     if (HasLinkedFile) return $"🔗 {Path.GetFileName(_filePath)}";
-                    return $"Preset: {_cursorName ?? "Arrow"}";
+                    return string.Format(Texts.Get<IRecipeEditorLanguage>().AssetCursorPreset, _cursorName ?? "Arrow");
                 }
                 if (IsImageType)
                 {
-                    if (HasEmbeddedData) return "📦 Embedded Image";
+                    if (HasEmbeddedData) return "📦 " + Texts.Get<IRecipeEditorLanguage>().AssetEmbeddedImage;
                     if (HasLinkedFile) return $"🔗 {Path.GetFileName(_filePath)}";
                     return "";
                 }
                 if (IsSvgType)
                 {
-                    if (HasEmbeddedData) return "📦 Embedded SVG";
+                    if (HasEmbeddedData) return "📦 " + Texts.Get<IRecipeEditorLanguage>().AssetEmbeddedSvg;
                     if (HasLinkedFile) return $"🔗 {Path.GetFileName(_filePath)}";
                     return "";
                 }
@@ -999,18 +1000,18 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             var ofd = new Microsoft.Win32.OpenFileDialog();
             if (IsSvgType)
             {
-                ofd.Title = "Select SVG Vector Graphic";
-                ofd.Filter = "Scalable Vector Graphics (*.svg)|*.svg|All Files (*.*)|*.*";
+                ofd.Title = Texts.Get<IRecipeEditorLanguage>().TitleSelectSvg;
+                ofd.Filter = Texts.Get<IRecipeEditorLanguage>().FilterSvg + "|*.svg" + "|" + Texts.Get<IRecipeEditorLanguage>().FilterAllFiles + "|*.*";
             }
             else if (IsCursorType)
             {
-                ofd.Title = "Select Cursor or Image File";
-                ofd.Filter = "Cursor and Image Files (*.cur;*.ico;*.png)|*.cur;*.ico;*.png|All Files (*.*)|*.*";
+                ofd.Title = Texts.Get<IRecipeEditorLanguage>().TitleSelectCursor;
+                ofd.Filter = Texts.Get<IRecipeEditorLanguage>().FilterCursorImage + "|*.cur;*.ico;*.png" + "|" + Texts.Get<IRecipeEditorLanguage>().FilterAllFiles + "|*.*";
             }
             else
             {
-                ofd.Title = "Select Image File";
-                ofd.Filter = "Image Files (*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.ico)|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.ico|All Files (*.*)|*.*";
+                ofd.Title = Texts.Get<IRecipeEditorLanguage>().TitleSelectImage;
+                ofd.Filter = Texts.Get<IRecipeEditorLanguage>().FilterImage + "|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.ico" + "|" + Texts.Get<IRecipeEditorLanguage>().FilterAllFiles + "|*.*";
             }
 
             if (ofd.ShowDialog() == true)
@@ -1419,6 +1420,11 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         public string DisplayName => string.IsNullOrWhiteSpace(Name) ? StepType : Name;
 
+        /// <summary>
+        /// The title of the step, which screen readers announce for the step in lists (instead of the class name)
+        /// </summary>
+        public override string ToString() => DisplayName;
+
         public Point Location
         {
             get => _location;
@@ -1515,10 +1521,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 switch (RecipeSlots.Normalize(SlotName))
                 {
-                    case RecipeSlots.AfterCapture: return "After the capture and the selection, before the processors (OCR, ...).";
-                    case RecipeSlots.BeforeExport: return "When the image is final, once before all destinations.";
-                    case RecipeSlots.AfterExport: return "After the destinations, e.g. to do something with an upload link.";
-                    case RecipeSlots.BeforeDestination: return "Runs in the export steps for each destination, on its own copy: e.g. a border only for email. Where the slot node is doesn't matter.";
+                    case RecipeSlots.AfterCapture: return Texts.Get<IRecipeEditorLanguage>().SlotAfterCapture;
+                    case RecipeSlots.BeforeExport: return Texts.Get<IRecipeEditorLanguage>().SlotBeforeExport;
+                    case RecipeSlots.AfterExport: return Texts.Get<IRecipeEditorLanguage>().SlotAfterExport;
+                    case RecipeSlots.BeforeDestination: return Texts.Get<IRecipeEditorLanguage>().SlotBeforeDestination;
                     default: return null;
                 }
             }
@@ -1643,7 +1649,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             AddPromptChoiceCommand = new RelayCommand(() =>
             {
                 string nextKey = $"Choice{PromptChoices.Count + 1}";
-                string nextLabel = $"Option {PromptChoices.Count + 1}";
+                string nextLabel = string.Format(Texts.Get<IRecipeEditorLanguage>().PromptChoiceDefaultLabel, PromptChoices.Count + 1);
                 AddPromptChoice(nextKey, nextLabel, "Primary", false, false);
             });
 
@@ -1664,7 +1670,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 using (var dlg = new System.Windows.Forms.FolderBrowserDialog())
                 {
-                    dlg.Description = "Select Destination Folder for Captures";
+                    dlg.Description = Texts.Get<IRecipeEditorLanguage>().TitleSelectCaptureFolder;
                     dlg.ShowNewFolderButton = true;
                     if (!string.IsNullOrEmpty(SaveDirectory))
                     {
@@ -1685,8 +1691,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 var dlg = new Microsoft.Win32.OpenFileDialog
                 {
-                    Title = "Select Executable or Script for External Command",
-                    Filter = "Executable & Script Files (*.exe;*.cmd;*.bat;*.ps1;*.vbs)|*.exe;*.cmd;*.bat;*.ps1;*.vbs|All Files (*.*)|*.*",
+                    Title = Texts.Get<IRecipeEditorLanguage>().TitleSelectExecutable,
+                    Filter = Texts.Get<IRecipeEditorLanguage>().FilterExecutable + "|*.exe;*.cmd;*.bat;*.ps1;*.vbs" + "|" + Texts.Get<IRecipeEditorLanguage>().FilterAllFiles + "|*.*",
                     CheckFileExists = true
                 };
                 if (dlg.ShowDialog() == true)
@@ -1699,8 +1705,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 var dlg = new Microsoft.Win32.OpenFileDialog
                 {
-                    Title = "Select Feedback / Shutter Sound File (.wav)",
-                    Filter = "Wave Audio Files (*.wav)|*.wav|All Audio Files (*.wav;*.mp3)|*.wav;*.mp3|All Files (*.*)|*.*",
+                    Title = Texts.Get<IRecipeEditorLanguage>().TitleSelectSound,
+                    Filter = Texts.Get<IRecipeEditorLanguage>().FilterWave + "|*.wav" + "|" + Texts.Get<IRecipeEditorLanguage>().FilterAudio + "|*.wav;*.mp3" + "|" + Texts.Get<IRecipeEditorLanguage>().FilterAllFiles + "|*.*",
                     CheckFileExists = true
                 };
                 if (dlg.ShowDialog() == true)
@@ -2109,8 +2115,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             if (editors == null || editors.Count == 0)
             {
                 var result = ShowMessageBox(
-                    "No open image editors were found in Greenshot.\n\nWould you like to import annotations from a saved .greenshot file instead?",
-                    "No Open Editors Found",
+                    Texts.Get<IRecipeEditorLanguage>().ImportNoEditors + "\n\n" + Texts.Get<IRecipeEditorLanguage>().ImportAskGreenshotFile,
+                    Texts.Get<IRecipeEditorLanguage>().TitleNoEditors,
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Information);
 
@@ -2150,18 +2156,18 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
             if (chosenEditor?.Surface == null)
             {
-                ShowInfoMessage("Could not access the surface of the selected editor.", "Import Failed", MessageBoxImage.Warning);
+                ShowInfoMessage(Texts.Get<IRecipeEditorLanguage>().ImportNoSurface, Texts.Get<IRecipeEditorLanguage>().TitleImportFailed, MessageBoxImage.Warning);
                 return;
             }
 
             var items = EditorAnnotationImporter.AnalyzeSurfaceElements(chosenEditor.Surface);
             if (items.Count == 0)
             {
-                ShowInfoMessage("The selected image editor does not contain any annotations.", "No Annotations Found", MessageBoxImage.Information);
+                ShowInfoMessage(Texts.Get<IRecipeEditorLanguage>().ImportEditorNoAnnotations, Texts.Get<IRecipeEditorLanguage>().TitleNoAnnotations, MessageBoxImage.Information);
                 return;
             }
 
-            string sourceTitle = chosenEditor.CaptureDetails?.Title ?? chosenEditor.Surface?.CaptureDetails?.Title ?? "Image Editor";
+            string sourceTitle = chosenEditor.CaptureDetails?.Title ?? chosenEditor.Surface?.CaptureDetails?.Title ?? Texts.Get<IRecipeEditorLanguage>().ImportSourceImageEditor;
             string recipeName = RecipeNameProvider?.Invoke() ?? DisplayName;
 
             var ownerWin = GetActiveWindow();
@@ -2185,8 +2191,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         {
             var ofd = new Microsoft.Win32.OpenFileDialog
             {
-                Title = "Select Greenshot File to Import Annotations",
-                Filter = "Greenshot Files (*.greenshot)|*.greenshot|All Files (*.*)|*.*",
+                Title = Texts.Get<IRecipeEditorLanguage>().TitleSelectGreenshotFile,
+                Filter = Texts.Get<IRecipeEditorLanguage>().FilterGreenshot + "|*.greenshot" + "|" + Texts.Get<IRecipeEditorLanguage>().FilterAllFiles + "|*.*",
                 CheckFileExists = true
             };
 
@@ -2198,7 +2204,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     var items = EditorAnnotationImporter.AnalyzeSurfaceElements(surface);
                     if (items.Count == 0)
                     {
-                        ShowInfoMessage("No annotations were found in the selected .greenshot file.", "No Annotations Found", MessageBoxImage.Information);
+                        ShowInfoMessage(Texts.Get<IRecipeEditorLanguage>().ImportFileNoAnnotations, Texts.Get<IRecipeEditorLanguage>().TitleNoAnnotations, MessageBoxImage.Information);
                         return;
                     }
 
@@ -2223,7 +2229,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    ShowInfoMessage($"Failed to load .greenshot file:\n{ex.Message}", "Import Error", MessageBoxImage.Error);
+                    ShowInfoMessage(Texts.Get<IRecipeEditorLanguage>().ImportFileFailed + "\n" + ex.Message, Texts.Get<IRecipeEditorLanguage>().TitleImportError, MessageBoxImage.Error);
                 }
             }
         }
@@ -3715,35 +3721,35 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 switch (StepType)
                 {
                     case WellKnownStepTypes.Source:
-                        return $"Source: {SourceType}";
+                        return string.Format(Texts.Get<IRecipeEditorLanguage>().SummarySource, SourceType);
                     case WellKnownStepTypes.InteractiveSelection:
-                        return $"Mode: {SelectionMode}";
+                        return string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryMode, SelectionMode);
                     case WellKnownStepTypes.Effect:
-                        if (IsBorderEffect) return $"Border: {EffectBorderWidth}px {EffectBorderColor}";
-                        if (IsDropShadowEffect) return $"Shadow: {ShadowSize}px ({ShadowDarkness:0.#})";
-                        if (IsTornEdgeEffect) return $"TornEdge ({TornEdges})";
-                        if (IsRotateEffect) return $"Rotate: {RotateAngle}°";
-                        if (IsResizeEffect) return ResizePercentage != "0" && !string.IsNullOrEmpty(ResizePercentage) ? $"Resize: {ResizePercentage}%" : $"Resize: {ResizeWidth}x{ResizeHeight}";
-                        if (IsResizeCanvasEffect) return $"Canvas Padding: {CanvasMargin}px";
-                        if (IsMonochromeEffect) return $"Monochrome (Thresh: {MonochromeThreshold})";
-                        if (IsAdjustEffect) return $"Adjust (B:{AdjustBrightness} C:{AdjustContrast} G:{AdjustGamma})";
-                        if (IsReduceColorsEffect) return $"Reduce Colors ({ReduceColorsCount})";
-                        if (IsRemoveTransparencyEffect) return "Remove Transparency";
-                        if (IsGrayscaleEffect) return "Grayscale";
-                        if (IsInvertEffect) return "Invert Colors";
-                        return $"Effect: {EffectType}";
+                        if (IsBorderEffect) return string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryBorder, EffectBorderWidth, EffectBorderColor);
+                        if (IsDropShadowEffect) return string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryShadow, ShadowSize, ShadowDarkness.ToString("0.#"));
+                        if (IsTornEdgeEffect) return string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryTornEdge, TornEdges);
+                        if (IsRotateEffect) return string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryRotate, RotateAngle);
+                        if (IsResizeEffect) return ResizePercentage != "0" && !string.IsNullOrEmpty(ResizePercentage) ? string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryResizePercent, ResizePercentage) : string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryResizeSize, ResizeWidth, ResizeHeight);
+                        if (IsResizeCanvasEffect) return string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryCanvasPadding, CanvasMargin);
+                        if (IsMonochromeEffect) return string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryMonochrome, MonochromeThreshold);
+                        if (IsAdjustEffect) return string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryAdjust, AdjustBrightness, AdjustContrast, AdjustGamma);
+                        if (IsReduceColorsEffect) return string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryReduceColors, ReduceColorsCount);
+                        if (IsRemoveTransparencyEffect) return Texts.Get<IRecipeEditorLanguage>().SummaryRemoveTransparency;
+                        if (IsGrayscaleEffect) return Texts.Get<IRecipeEditorLanguage>().SummaryGrayscale;
+                        if (IsInvertEffect) return Texts.Get<IRecipeEditorLanguage>().SummaryInvert;
+                        return string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryEffect, EffectType);
                     case WellKnownStepTypes.TextEffect:
-                        return $"DLP: {TextEffectAction}";
+                        return string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryDlp, TextEffectAction);
                     case WellKnownStepTypes.Annotation:
-                        return Annotations.Count > 0 ? $"{Annotations.Count} item(s): {string.Join(", ", Annotations.Select(d => d.Type).Distinct())}" : "Annotations (0)";
+                        return Annotations.Count > 0 ? string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryAnnotations, Annotations.Count, string.Join(", ", Annotations.Select(d => d.Type).Distinct())) : Texts.Get<IRecipeEditorLanguage>().SummaryAnnotationsNone;
                     case WellKnownStepTypes.SetVariable:
-                        return Variables.Count > 0 ? string.Join(", ", Variables.Select(v => $"{v.Key}={v.Value}")) : "Variables (0)";
+                        return Variables.Count > 0 ? string.Join(", ", Variables.Select(v => $"{v.Key}={v.Value}")) : Texts.Get<IRecipeEditorLanguage>().SummaryVariablesNone;
                     case WellKnownStepTypes.ImmediateFeedback:
-                        return PlaySound ? "Sound: Enabled" : "Silent";
+                        return PlaySound ? Texts.Get<IRecipeEditorLanguage>().SummarySoundEnabled : Texts.Get<IRecipeEditorLanguage>().SummarySilent;
                     case WellKnownStepTypes.SaveFile:
-                        return !string.IsNullOrWhiteSpace(SaveDirectory) ? $"Save to: {SaveDirectory}" : "Save to File (Default)";
+                        return !string.IsNullOrWhiteSpace(SaveDirectory) ? string.Format(Texts.Get<IRecipeEditorLanguage>().SummarySaveTo, SaveDirectory) : Texts.Get<IRecipeEditorLanguage>().SummarySaveDefault;
                     case WellKnownStepTypes.Clipboard:
-                        if (string.Equals(ClipboardMode, "TextOnly", StringComparison.OrdinalIgnoreCase)) return "Clipboard: OCR Text only";
+                        if (string.Equals(ClipboardMode, "TextOnly", StringComparison.OrdinalIgnoreCase)) return Texts.Get<IRecipeEditorLanguage>().SummaryClipboardOcrText;
                         var fmtList = new List<string>();
                         if (ClipboardFormatPNG) fmtList.Add("PNG");
                         if (ClipboardFormatDIB) fmtList.Add("DIB");
@@ -3752,70 +3758,70 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                         if (ClipboardFormatHTML) fmtList.Add("HTML");
                         if (ClipboardFormatHTMLDataUrl) fmtList.Add("DataURL");
                         if (ClipboardFormatText || string.Equals(ClipboardMode, "ImageAndText", StringComparison.OrdinalIgnoreCase)) fmtList.Add("Text");
-                        return fmtList.Count > 0 ? $"Clipboard: {string.Join(", ", fmtList)}" : "Copy to Clipboard";
+                        return fmtList.Count > 0 ? string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryClipboard, string.Join(", ", fmtList)) : Texts.Get<IRecipeEditorLanguage>().SummaryCopyClipboard;
                     case WellKnownStepTypes.Editor:
-                        return "Open in Image Editor";
+                        return Texts.Get<IRecipeEditorLanguage>().SummaryEditor;
                     case WellKnownStepTypes.Printer:
-                        return "Send to Printer";
+                        return Texts.Get<IRecipeEditorLanguage>().SummaryPrinter;
                     case WellKnownStepTypes.Email:
-                        return "Send via E-Mail";
+                        return Texts.Get<IRecipeEditorLanguage>().SummaryEmail;
                     case WellKnownStepTypes.CustomDestination:
-                        return !string.IsNullOrWhiteSpace(CustomDestinationId) ? $"Custom: {CustomDestinationId}" : "Custom Destination";
+                        return !string.IsNullOrWhiteSpace(CustomDestinationId) ? string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryCustom, CustomDestinationId) : Texts.Get<IRecipeEditorLanguage>().SummaryCustomDestination;
                     case WellKnownStepTypes.Destinations:
                         var dests = GetDestinationList();
-                        return dests.Count > 0 ? $"To: {string.Join(", ", dests)}" : "Export targets";
+                        return dests.Count > 0 ? string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryTo, string.Join(", ", dests)) : Texts.Get<IRecipeEditorLanguage>().SummaryExportTargets;
                     case WellKnownStepTypes.DynamicDestination:
-                        string dDests = !string.IsNullOrWhiteSpace(DynamicDestinationSpecificDestinations) ? DynamicDestinationSpecificDestinations : "All Active";
-                        string dTime = DynamicDestinationTimeoutSeconds > 0 ? $"{DynamicDestinationTimeoutSeconds}s" : "Manual";
-                        return $"Dynamic Destination ({dDests}, {dTime})";
+                        string dDests = !string.IsNullOrWhiteSpace(DynamicDestinationSpecificDestinations) ? DynamicDestinationSpecificDestinations : Texts.Get<IRecipeEditorLanguage>().SummaryAllActive;
+                        string dTime = DynamicDestinationTimeoutSeconds > 0 ? $"{DynamicDestinationTimeoutSeconds}s" : Texts.Get<IRecipeEditorLanguage>().TriggerManual;
+                        return string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryDynamicDestination, dDests, dTime);
                     case WellKnownStepTypes.Notification:
-                        return NotificationShow ? "Notification: shown" : "Notification: hidden";
+                        return NotificationShow ? Texts.Get<IRecipeEditorLanguage>().SummaryNotificationShown : Texts.Get<IRecipeEditorLanguage>().SummaryNotificationHidden;
                     case RecipeEditorViewModel.InNodeId:
-                        return "Where the automatic step starts: connect it to the first step(s)";
+                        return Texts.Get<IRecipeEditorLanguage>().SummaryIn;
                     case RecipeExtension.OutNode:
-                        return "Where the automatic step ends and the recipe goes on";
+                        return Texts.Get<IRecipeEditorLanguage>().SummaryOut;
                     case WellKnownStepTypes.Slot:
                         return string.Equals(SlotAccept, RecipeSlots.AcceptAll, StringComparison.OrdinalIgnoreCase)
-                            ? $"Slot {SlotName}: automatic steps are added here"
-                            : $"Slot {SlotName}, accepts: {SlotAccept}";
+                            ? string.Format(Texts.Get<IRecipeEditorLanguage>().SummarySlotAll, SlotName)
+                            : string.Format(Texts.Get<IRecipeEditorLanguage>().SummarySlotAccepts, SlotName, SlotAccept);
                     case WellKnownStepTypes.Stdout:
                         return !string.IsNullOrWhiteSpace(OutputText) ? $"Stdout: {OutputText}" : "Stdout";
                     case WellKnownStepTypes.Stderr:
-                        return $"Stderr (exit {StderrExitCode}{(StderrAbort ? ", abort" : "")}): {OutputText}";
+                        return string.Format(StderrAbort ? Texts.Get<IRecipeEditorLanguage>().SummaryStderrAbort : Texts.Get<IRecipeEditorLanguage>().SummaryStderr, StderrExitCode, OutputText);
                     case WellKnownStepTypes.Conditional:
-                        return $"{ConditionBranches.Count} decision branch(es)";
+                        return string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryBranches, ConditionBranches.Count);
                     case WellKnownStepTypes.UserPrompt:
-                        return PromptChoices.Count > 0 ? $"Prompt: {string.Join(", ", PromptChoices.Select(c => c.Label))}" : "User Decision Prompt";
+                        return PromptChoices.Count > 0 ? string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryPrompt, string.Join(", ", PromptChoices.Select(c => c.Label))) : Texts.Get<IRecipeEditorLanguage>().SummaryPromptNone;
                     case WellKnownStepTypes.Processors:
-                        if (string.Equals(ProcessorMode, "OCR", StringComparison.OrdinalIgnoreCase)) return "Processors: Windows OCR";
+                        if (string.Equals(ProcessorMode, "OCR", StringComparison.OrdinalIgnoreCase)) return Texts.Get<IRecipeEditorLanguage>().SummaryProcessorsOcr;
                         if (string.Equals(ProcessorMode, "Selected", StringComparison.OrdinalIgnoreCase))
                         {
                             var active = new List<string>();
                             if (ProcessorRunOcr) active.Add("OCR");
                             if (ProcessorRunTitleFix) active.Add("TitleFix");
                             if (ProcessorRunPlugins) active.Add("Plugins");
-                            return active.Count > 0 ? $"Processors: {string.Join(", ", active)}" : "Processors (None)";
+                            return active.Count > 0 ? string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryProcessors, string.Join(", ", active)) : Texts.Get<IRecipeEditorLanguage>().SummaryProcessorsNone;
                         }
-                        return ProcessorTiming != "Any" && !string.IsNullOrEmpty(ProcessorTiming) ? $"Processors: All ({ProcessorTiming})" : "Processors: All Active";
+                        return ProcessorTiming != "Any" && !string.IsNullOrEmpty(ProcessorTiming) ? string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryProcessorsAllTiming, ProcessorTiming) : Texts.Get<IRecipeEditorLanguage>().SummaryProcessorsAll;
                     case WellKnownStepTypes.RecordVideo:
                         string recTarget = GetParam("SourceType", "ActiveWindow");
                         string recFps = GetParam("FrameRate", "30");
                         string recPreset = GetParam("Preset", "Balanced");
-                        return $"Record Video: {recTarget} ({recFps} FPS, {recPreset})";
+                        return string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryRecordVideo, recTarget, recFps, recPreset);
                     case var _ when IsExternalCommand:
-                        return !string.IsNullOrWhiteSpace(ExternalCommandLine) ? $"Run: {System.IO.Path.GetFileName(ExternalCommandLine)} {ExternalCommandArguments}".Trim() : "Execute Command";
+                        return !string.IsNullOrWhiteSpace(ExternalCommandLine) ? string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryRun, System.IO.Path.GetFileName(ExternalCommandLine), ExternalCommandArguments).Trim() : Texts.Get<IRecipeEditorLanguage>().SummaryExecuteCommand;
                     case var _ when IsJira:
-                        return !string.IsNullOrWhiteSpace(JiraIssueKey) ? $"Attach to Jira: {JiraIssueKey}" : "Attach to Jira Issue";
+                        return !string.IsNullOrWhiteSpace(JiraIssueKey) ? string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryJira, JiraIssueKey) : Texts.Get<IRecipeEditorLanguage>().SummaryJiraNone;
                     case var _ when IsConfluence:
-                        return !string.IsNullOrWhiteSpace(ConfluencePageId) ? $"Upload to Confluence: {ConfluencePageId}" : "Upload to Confluence Page";
+                        return !string.IsNullOrWhiteSpace(ConfluencePageId) ? string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryConfluence, ConfluencePageId) : Texts.Get<IRecipeEditorLanguage>().SummaryConfluenceNone;
                     case var _ when IsOffice:
-                        return $"Export to Microsoft {OfficeApplication}";
+                        return string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryOffice, OfficeApplication);
                     case var _ when IsZxing:
-                        return "Scan Barcode / QR Code";
+                        return Texts.Get<IRecipeEditorLanguage>().SummaryBarcode;
                     case var _ when IsBox:
-                        return "Upload to Box";
+                        return Texts.Get<IRecipeEditorLanguage>().SummaryBox;
                     case var _ when IsDropbox:
-                        return "Upload to Dropbox";
+                        return Texts.Get<IRecipeEditorLanguage>().SummaryDropbox;
                     default:
                         return StepType;
                 }

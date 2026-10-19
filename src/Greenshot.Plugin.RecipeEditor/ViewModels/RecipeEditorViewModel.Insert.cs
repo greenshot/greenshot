@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using Greenshot.Base.Languages;
 using Greenshot.Base.Wpf;
 
 namespace Greenshot.Plugin.RecipeEditor.ViewModels
@@ -86,7 +87,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             if (nearest != null)
             {
                 PutNodeIntoConnection(nearest, node);
-                StatusMessage = $"Inserted '{node.DisplayName}' between '{nearest.SourceNode.DisplayName}' and '{nearest.TargetNode.DisplayName}'";
+                StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusInsertedBetween, node.DisplayName, nearest.SourceNode.DisplayName, nearest.TargetNode.DisplayName);
             }
         }
 
