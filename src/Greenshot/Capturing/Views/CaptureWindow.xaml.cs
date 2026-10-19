@@ -48,7 +48,6 @@ using Dapplo.Windows.User32.Enums;
 using Greenshot.Base.Capturing;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Native;
 using Greenshot.Base.Interfaces.Capture;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Languages;
@@ -518,7 +517,7 @@ namespace Greenshot.Capturing.Views
                 // The text needs a capture of the screen, T freezes it later
                 _activeTool = _regionTool;
             }
-            if (initialTool == null && _activeTool == _regionTool && ScreenReader.IsRunning)
+            if (initialTool == null && _activeTool == _regionTool && User32Api.IsScreenReaderRunning())
             {
                 // A region can't be seen, a window is said by its title: start with window capture, Space still switches to the region
                 _activeTool = _windowTool;
