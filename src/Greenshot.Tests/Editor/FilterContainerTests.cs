@@ -24,6 +24,7 @@ using System.IO;
 using System.Linq;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Fields;
+using Greenshot.Editor.FileFormat;
 using Xunit;
 using static Greenshot.Editor.Drawing.FilterContainer;
 
@@ -42,10 +43,9 @@ namespace Greenshot.Tests.Editor
         private static T SaveAndLoad<T>(Surface surface) where T : DrawableContainer
         {
             using var stream = new MemoryStream();
-            surface.SaveElementsToStream(stream);
+            GreenshotFileVersionHandler.SaveToStreamInCurrentVersion(surface, stream);
             stream.Position = 0;
-            using var loadedSurface = new Surface(new Bitmap(100, 100));
-            loadedSurface.LoadElementsFromStream(stream);
+            using var loadedSurface = GreenshotFileVersionHandler.CreateSurfaceFromStream(stream);
             return Assert.Single(loadedSurface.Elements.OfType<T>());
         }
 

@@ -19,12 +19,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Runtime.Serialization;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
@@ -39,7 +37,6 @@ namespace Greenshot.Editor.Drawing
     /// <summary>
     /// The ImageContainer is a container that can hold an image, and is used to display images in the editor.
     /// </summary>
-    [Serializable]
     public class ImageContainer : DrawableContainer, IImageContainer, IHaveScaleOptions
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ImageContainer));
@@ -50,7 +47,7 @@ namespace Greenshot.Editor.Drawing
         /// This is the shadow version of the bitmap, rendered once to save performance
         /// Do not serialize, as the shadow is recreated from the original bitmap if it's not available
         /// </summary>
-        [NonSerialized] private Image _shadowBitmap;
+        private Image _shadowBitmap;
 
         public ImageContainer(ISurface parent, string filename) : this(parent)
         {
@@ -59,12 +56,6 @@ namespace Greenshot.Editor.Drawing
 
         public ImageContainer(ISurface parent) : base(parent)
         {
-            Init();
-        }
-
-        protected override void OnDeserialized(StreamingContext streamingContext)
-        {
-            base.OnDeserialized(streamingContext);
             Init();
         }
 

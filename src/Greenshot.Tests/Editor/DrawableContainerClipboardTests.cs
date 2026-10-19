@@ -19,10 +19,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System.Collections;
+using System;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
 using Greenshot.Base.Core;
 using Greenshot.Editor.Drawing;
 using Xunit;
@@ -67,10 +66,8 @@ namespace Greenshot.Tests.Editor
         public void Deserialize_TypeWhichIsNotAllowed_ReturnsNull()
         {
             // Another application can place anything in the format: only the types of a .greenshot file are created
-            using var stream = new MemoryStream();
-            new BinaryFormatter().Serialize(stream, new Hashtable { { "key", "value" } });
-
-            Assert.Null(DrawableContainerClipboard.Deserialize(stream.ToArray()));
+            var testFilePath = Path.Combine(AppContext.BaseDirectory, "TestData", "GreenshotFile", "File_Version_1.04", "BinaryFormatterUnknownClass.bin");
+            Assert.Null(DrawableContainerClipboard.Deserialize(File.ReadAllBytes(testFilePath)));
         }
 
         [Fact]

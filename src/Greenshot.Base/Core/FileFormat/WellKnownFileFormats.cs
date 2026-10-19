@@ -38,6 +38,7 @@ public static class WellKnownFileFormats
     public const string Tiff = "tiff";
     public const string Jxr = "jxr";
     public const string Greenshot = "greenshot";
+    public const string Gsa = "gsa";
     public const string Ico = "ico";
 
     public static bool IsEqualFormat(string wellKnownFileFormat, string compareFormat)
@@ -51,6 +52,15 @@ public static class WellKnownFileFormats
         return string.Equals(wellKnownFileFormat, compareFormat, StringComparison.OrdinalIgnoreCase);
     }
 
+    /// <summary>
+    /// True for the formats which store the surface with its elements: .greenshot and .gsa (Greenshot Archive)
+    /// </summary>
+    public static bool IsGreenshotFormat(string format)
+    {
+        return string.Equals(format, Greenshot, StringComparison.OrdinalIgnoreCase) ||
+               string.Equals(format, Gsa, StringComparison.OrdinalIgnoreCase);
+    }
+
     private static bool IsWellKnownFormat(string format)
     {
         return string.Equals(format, Bmp, StringComparison.OrdinalIgnoreCase) ||
@@ -60,6 +70,7 @@ public static class WellKnownFileFormats
                string.Equals(format, Tiff, StringComparison.OrdinalIgnoreCase) ||
                string.Equals(format, Jxr, StringComparison.OrdinalIgnoreCase) ||
                string.Equals(format, Greenshot, StringComparison.OrdinalIgnoreCase) ||
+               string.Equals(format, Gsa, StringComparison.OrdinalIgnoreCase) ||
                string.Equals(format, Ico, StringComparison.OrdinalIgnoreCase);
     }
 }

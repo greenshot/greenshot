@@ -20,20 +20,20 @@
  */
 
 using System;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
 using Dapplo.Windows.Clipboard;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Drawing;
-using Greenshot.Editor.Helpers;
+using Greenshot.Editor.FileFormat.V2;
 using log4net;
 
 namespace Greenshot.Editor.Drawing
 {
     /// <summary>
     /// Copy and paste of editor elements. The elements are placed as bytes in Greenshot's own registered clipboard format.
-    /// Any application can place data in that format, so on paste the bytes are untrusted: the size is limited, and only the types
-    /// which a .greenshot file may contain are deserialized (<see cref="BinaryFormatterHelper"/>).
+    /// The bytes are the UTF-8 JSON of the .gsa element list (<see cref="V2Helper.SerializeDrawableContainerList"/>).
+    /// Any application can place data in that format, so on paste the bytes are untrusted: the size is limited, and only the
+    /// element types known to the file format are created.
     /// </summary>
     public static class DrawableContainerClipboard
     {
@@ -66,9 +66,8 @@ namespace Greenshot.Editor.Drawing
                 throw new ArgumentNullException(nameof(elements));
             }
 
-            using var stream = new MemoryStream();
-            new BinaryFormatter().Serialize(stream, elements);
-            return stream.ToArray();
+            var drawableContainerList = elements as DrawableContainerList ?? new DrawableContainerList(elements);
+            return Encoding.UTF8.GetBytes(V2Helper.SerializeDrawableContainerList(drawableContainerList));
         }
 
         /// <summary>
@@ -85,16 +84,10 @@ namespace Greenshot.Editor.Drawing
 
             try
             {
-                using var stream = new MemoryStream(data, false);
-                var binaryFormatter = new BinaryFormatter
-                {
-                    Binder = new BinaryFormatterHelper()
-                };
-                return binaryFormatter.Deserialize(stream) as IDrawableContainerList;
+                return V2Helper.DeserializeDrawableContainerList(Encoding.UTF8.GetString(data));
             }
             catch (Exception ex)
             {
-                // Includes the SecurityAccessDeniedException of the binder for types which aren't allowed
                 Log.Warn("Couldn't read the Greenshot elements from the clipboard.", ex);
                 return null;
             }

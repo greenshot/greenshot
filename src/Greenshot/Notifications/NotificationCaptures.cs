@@ -35,6 +35,7 @@ using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Threading;
 using Greenshot.Editor.Drawing;
+using Greenshot.Editor.FileFormat;
 using Greenshot.Editor.Forms;
 using Greenshot.Recipes;
 using Greenshot.Recipes.Pipeline;
@@ -240,7 +241,7 @@ namespace Greenshot.Notifications
 
             try
             {
-                return ImageIO.LoadGreenshotSurface(GetCapturePath(id), new Surface());
+                return GreenshotFileVersionHandler.LoadGreenshotSurface(GetCapturePath(id));
             }
             catch (Exception ex)
             {

@@ -142,8 +142,8 @@ namespace Greenshot.Tests.Recipes
             };
             context.Properties["Destination.PromptQuality"] = false;
             context.Properties["Destination.CopyPathToClipboard"] = false;
-            // Same as OutputFileFormat=greenshot in the configuration
-            context.Properties["Destination.SurfaceOutputSettings"] = new SurfaceOutputSettings(WellKnownFileFormats.Greenshot);
+            // Same as OutputFileFormat=gsa in the configuration
+            context.Properties["Destination.SurfaceOutputSettings"] = new SurfaceOutputSettings(WellKnownFileFormats.Gsa);
             context.Payload.EnsureSurface();
             return context;
         }
@@ -157,7 +157,7 @@ namespace Greenshot.Tests.Recipes
         [Fact]
         public async Task Dispatch_FileDestinationWithGreenshotFormat_WritesLoadableFile()
         {
-            string path = Path.Combine(Path.GetTempPath(), $"dispatcher_{Guid.NewGuid():N}.greenshot");
+            string path = Path.Combine(Path.GetTempPath(), $"dispatcher_{Guid.NewGuid():N}.gsa");
             try
             {
                 using CaptureFlowContext context = CreateContext(path);
@@ -166,8 +166,9 @@ namespace Greenshot.Tests.Recipes
 
                 Assert.True(File.Exists(path), "File was not written");
                 byte[] bytes = File.ReadAllBytes(path);
-                Assert.True(bytes.Length > 14, $"File is {bytes.Length} bytes");
-                Assert.StartsWith("Greenshot", Encoding.ASCII.GetString(bytes, bytes.Length - 14, 14));
+                Assert.True(bytes.Length > 2, $"File is {bytes.Length} bytes");
+                // A .gsa file is a zip archive
+                Assert.Equal("PK", Encoding.ASCII.GetString(bytes, 0, 2));
             }
             finally
             {
@@ -226,7 +227,7 @@ namespace Greenshot.Tests.Recipes
         [Fact]
         public async Task Dispatch_FileAndEditorWithGreenshotFormat_DisposingPayloadKeepsSurfaceImage()
         {
-            string path = Path.Combine(Path.GetTempPath(), $"dispatcher_{Guid.NewGuid():N}.greenshot");
+            string path = Path.Combine(Path.GetTempPath(), $"dispatcher_{Guid.NewGuid():N}.gsa");
             try
             {
                 CaptureFlowContext context = CreateContext(path);

@@ -21,6 +21,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Windows.Forms;
 using Dapplo.Windows.AppRestartManager;
@@ -28,6 +29,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
+using Greenshot.Editor.FileFormatHandlers;
 using Greenshot.Editor.Forms;
 using Greenshot.Ipc;
 using log4net;
@@ -168,7 +170,7 @@ namespace Greenshot.Helpers
 
         /// <summary>
         /// Saves the state of all currently open image editors to the restart state directory
-        /// as <c>.greenshot</c> files, so they can be restored after a Restart Manager restart.
+        /// as <c>.gsa</c> files, so they can be restored after a Restart Manager restart.
         /// Any previously saved state is replaced.
         /// </summary>
         public static void SaveEditorState()
@@ -178,8 +180,8 @@ namespace Greenshot.Helpers
                 string stateDir = StateDirectory;
                 Directory.CreateDirectory(stateDir);
 
-                // Remove stale .greenshot files from any previous session
-                foreach (string oldFile in Directory.GetFiles(stateDir, "*.greenshot"))
+                // Remove stale .gsa files from any previous session
+                foreach (string oldFile in Directory.GetFiles(stateDir, "*.gsa"))
                 {
                     try
                     {
@@ -199,7 +201,7 @@ namespace Greenshot.Helpers
                     {
                         try
                         {
-                            string filename = Path.Combine(stateDir, editor.Surface.ID + ".greenshot");
+                            string filename = Path.Combine(stateDir, editor.Surface.ID + ".gsa");
                             if (editor.TrySaveState(filename))
                             {
                                 Log.InfoFormat("Saved editor state to: {0}", filename);
@@ -234,8 +236,13 @@ namespace Greenshot.Helpers
         {
             try
             {
-                ISurface surface = new Surface();
-                surface = ImageIO.LoadGreenshotSurface(filePath, surface);
+                var greenshotFileFormatHandler = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>().OfType<GreenshotFileFormatHandler>().FirstOrDefault();
+                if (greenshotFileFormatHandler is null)
+                {
+                    throw new Exception($"No instance of {nameof(GreenshotFileFormatHandler)} found in service provider.");
+                }
+
+                ISurface surface = greenshotFileFormatHandler.LoadGreenshotSurface(filePath);
                 surface.CaptureDetails = new CaptureDetails();
                 var result = await DestinationExporter.ExportAsync(DestinationHelper.GetDestination(EditorDestination.DESIGNATION), surface, surface.CaptureDetails, true);
                 if (result.IsSucceeded)
@@ -254,7 +261,7 @@ namespace Greenshot.Helpers
         }
 
         /// <summary>
-        /// Restores any <c>.greenshot</c> state files saved by <see cref="SaveEditorState"/>
+        /// Restores any <c>.gsa</c> state files saved by <see cref="SaveEditorState"/>
         /// so that the editors will be restored when Greenshot starts with the <c>--restore</c> argument.
         /// </summary>
         public static void RestoreState()
@@ -268,7 +275,7 @@ namespace Greenshot.Helpers
                     return;
                 }
 
-                foreach (string filePath in Directory.GetFiles(stateDir, "*.greenshot"))
+                foreach (string filePath in Directory.GetFiles(stateDir, "*.gsa"))
                 {
                     // Called on the UI thread (startup), the surface is created there
                     RestoreEditorAsync(filePath).FireAndLog("Restore an editor", Log);

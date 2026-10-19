@@ -23,7 +23,6 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
@@ -46,7 +45,6 @@ namespace Greenshot.Editor.Drawing
     /// transparent or filled with the fill color, with the shadow of the torn edge effect and optionally a line along the edges.
     /// The edges come from a stored seed, so they never change unless a new random edge is asked for.
     /// </summary>
-    [Serializable]
     public sealed class CutMarkContainer : DrawableContainer
     {
         private readonly bool _horizontal;
@@ -57,11 +55,11 @@ namespace Greenshot.Editor.Drawing
         private int _shadowOffsetY;
 
         // The tooth height the band was sized for, when it changes the band grows or shrinks so the gap keeps its size
-        [NonSerialized] private int _bandToothHeight;
+        private int _bandToothHeight;
 
         // The shadow only changes with the settings, so it is kept
-        [NonSerialized] private Bitmap _shadowCache;
-        [NonSerialized] private string _shadowCacheKey;
+        private Bitmap _shadowCache;
+        private string _shadowCacheKey;
 
         /// <summary>
         /// Create a cut mark, the tooth sizes are the last used ones
@@ -74,12 +72,6 @@ namespace Greenshot.Editor.Drawing
             _horizontal = horizontal;
             ApplyShadowSettings(shadowSettings ?? new TornEdgeEffect());
             NewSeed();
-            Init();
-        }
-
-        protected override void OnDeserialized(StreamingContext streamingContext)
-        {
-            base.OnDeserialized(streamingContext);
             Init();
         }
 

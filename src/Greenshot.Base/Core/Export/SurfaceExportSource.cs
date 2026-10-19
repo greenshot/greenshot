@@ -173,7 +173,7 @@ namespace Greenshot.Base.Core.Export
                 }
 
                 byte[] bytes;
-                if (WellKnownFileFormats.IsEqualFormat(WellKnownFileFormats.Greenshot, settings.Format))
+                if (WellKnownFileFormats.IsGreenshotFormat(settings.Format))
                 {
                     // The greenshot format serializes the elements of the surface: UI thread
                     bytes = await _ui.InvokeAsync(() =>

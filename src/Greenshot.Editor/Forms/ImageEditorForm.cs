@@ -59,6 +59,7 @@ using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Emoji;
 using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Drawing.Fields.Binding;
+using Greenshot.Editor.FileFormatHandlers;
 using Greenshot.Editor.Helpers;
 using Greenshot.Editor.Tabs;
 using Greenshot.Base.Threading;
@@ -2424,34 +2425,48 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
         private void SaveElementsToolStripMenuItemClick(object sender, EventArgs e)
         {
+            var greenshotTemplateFormatHandler = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>().OfType<GreenshotTemplateFormatHandler>().FirstOrDefault();
+            if (greenshotTemplateFormatHandler is null)
+            {
+                throw new Exception($"No instance of {nameof(GreenshotFileFormatHandler)} found in service provider.");
+            }
+
             SaveFileDialog saveFileDialog = new SaveFileDialog
             {
                 Filter = "Greenshot templates (*.gst)|*.gst",
                 FileName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(coreConfiguration.OutputFileFilenamePattern, _surface.CaptureDetails)
             };
+
             DialogResult dialogResult = saveFileDialog.ShowDialog();
-            if (dialogResult.Equals(DialogResult.OK))
+
+            if (!dialogResult.Equals(DialogResult.OK))
             {
-                using Stream streamWrite = File.OpenWrite(saveFileDialog.FileName);
-                _surface.SaveElementsToStream(streamWrite);
+                return;
             }
+
+            greenshotTemplateFormatHandler.SaveTemplateToFile(saveFileDialog.FileName, _surface);
+
         }
 
         private void LoadElementsToolStripMenuItemClick(object sender, EventArgs e)
         {
+            var greenshotTemplateFormatHandler = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>().OfType<GreenshotTemplateFormatHandler>().FirstOrDefault();
+            if (greenshotTemplateFormatHandler is null)
+            {
+                throw new Exception($"No instance of {nameof(GreenshotFileFormatHandler)} found in service provider.");
+            }
+
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
                 Filter = "Greenshot templates (*.gst)|*.gst"
             };
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            if (openFileDialog.ShowDialog() != DialogResult.OK)
             {
-                using (Stream streamRead = File.OpenRead(openFileDialog.FileName))
-                {
-                    _surface.LoadElementsFromStream(streamRead);
-                }
-
-                _surface.Refresh();
+                return;
             }
+
+            greenshotTemplateFormatHandler.LoadTemplateFromFile(openFileDialog.FileName, _surface);
+            _surface.Refresh();
         }
 
         private void DestinationToolStripMenuItemClick(object sender, EventArgs e)

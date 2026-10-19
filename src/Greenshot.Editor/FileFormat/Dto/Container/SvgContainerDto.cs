@@ -1,0 +1,49 @@
+/*
+ * Greenshot - a free and open source screenshot tool
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * 
+ * For more information see: https://getgreenshot.org/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 1 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+using System.Text.Json.Serialization;
+using Greenshot.Editor.Drawing;
+
+namespace Greenshot.Editor.FileFormat.Dto.Container;
+
+/// <summary>
+/// Data transfer object to serialize <see cref="SvgContainer"/> objects.
+/// Simplified version that supports properties from <see cref="VectorGraphicsContainer"/> as well.
+/// </summary>
+public sealed class SvgContainerDto : DrawableContainerDto
+{
+    /// <summary>
+    /// Main SVG data for this container.<br/>
+    /// The extension is always .svg for serialization to a zip file.
+    /// <inheritdoc cref="SvgContainer.SvgContent"/>
+    /// </summary>
+    [GreenshotImageData(pathPropertyName: nameof(SvgPath), staticExtension: "svg")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public byte[] SvgData { get; set; }
+
+    /// <summary>
+    /// Relative path to the SVG file within the archive. Is defined during serialization and used while deserialization.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [GreenshotImagePath(nameof(SvgData))]
+    public string SvgPath { get; set; }
+
+    public int RotationAngle { get; set; }
+}

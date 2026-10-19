@@ -24,7 +24,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
@@ -45,7 +44,6 @@ namespace Greenshot.Editor.Drawing
     /// The image keeps its size, the shadow falls into the torn off parts.
     /// The edges come from a stored seed, so they never change unless new random edges are asked for.
     /// </summary>
-    [Serializable]
     public sealed class TornEdgeContainer : DrawableContainer
     {
         private int _seed;
@@ -58,8 +56,8 @@ namespace Greenshot.Editor.Drawing
         private int _shadowOffsetY;
 
         // The shadow only changes with the settings, so it is kept
-        [NonSerialized] private Bitmap _shadowCache;
-        [NonSerialized] private string _shadowCacheKey;
+        private Bitmap _shadowCache;
+        private string _shadowCacheKey;
 
         /// <summary>
         /// Create torn edges for the whole image
@@ -86,12 +84,6 @@ namespace Greenshot.Editor.Drawing
             SetFieldValue(FieldType.CUT_MARK_STYLE, style);
             NewSeed();
             SpanImage();
-            Init();
-        }
-
-        protected override void OnDeserialized(StreamingContext streamingContext)
-        {
-            base.OnDeserialized(streamingContext);
             Init();
         }
 
@@ -218,6 +210,16 @@ namespace Greenshot.Editor.Drawing
         public void NewSeed()
         {
             _seed = CutOutHelper.NewSeed(_seed);
+            ClearShadowCache();
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Use the given seed for the edges, e.g. when loading
+        /// </summary>
+        internal void SetSeed(int seed)
+        {
+            _seed = seed;
             ClearShadowCache();
             Invalidate();
         }

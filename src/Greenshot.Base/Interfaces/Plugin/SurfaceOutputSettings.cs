@@ -63,7 +63,7 @@ namespace Greenshot.Base.Interfaces.Plugin
         public SurfaceOutputSettings PreventGreenshotFormat()
         {
             // If Format is Greenshot, use PNG instead.
-            if (WellKnownFileFormats.IsEqualFormat(WellKnownFileFormats.Greenshot, Format))
+            if (WellKnownFileFormats.IsGreenshotFormat(Format))
             {
                 Format = WellKnownFileFormats.Png;
             }

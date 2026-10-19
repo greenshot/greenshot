@@ -39,6 +39,7 @@ public static class CoreFileFormats
         registry.RegisterIfMissing(new FileFormatDefinition(WellKnownFileFormats.Tiff, ["tif", "tiff"], ["tif", "tiff"], "tiff", "image/tiff", null, "Tagged Image File Format"));
         registry.RegisterIfMissing(new FileFormatDefinition(WellKnownFileFormats.Jxr, ["jxr"], ["jxr"], "jxr", "image/vnd.ms-photo", null, "JPEG XR"));
         registry.RegisterIfMissing(new FileFormatDefinition(WellKnownFileFormats.Greenshot, ["greenshot"], ["greenshot"], "greenshot", "application/vnd.greenshot", null, "Greenshot Editor"));
+        registry.RegisterIfMissing(new FileFormatDefinition(WellKnownFileFormats.Gsa, ["gsa"], ["gsa"], "gsa", "application/vnd.greenshot.archive", null, "Greenshot Archive"));
         registry.RegisterIfMissing(new FileFormatDefinition(WellKnownFileFormats.Ico, ["ico"], ["ico"], "ico", "image/vnd.microsoft.icon", ["image/x-icon"], "Icon"));
     }
 }

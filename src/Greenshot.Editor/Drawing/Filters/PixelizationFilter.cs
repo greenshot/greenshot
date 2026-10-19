@@ -44,8 +44,8 @@ namespace Greenshot.Editor.Drawing.Filters
         }
 
         // Secret key and IV for the noise, generated once per filter and never stored, so every repaint and the export use the same noise
-        [NonSerialized] private byte[] _noiseKey;
-        [NonSerialized] private byte[] _noiseIv;
+        private byte[] _noiseKey;
+        private byte[] _noiseIv;
 
         /// <summary>
         /// Cryptographically secure random numbers (the AES-CBC encrypted zeros), the same key and IV give the same numbers
