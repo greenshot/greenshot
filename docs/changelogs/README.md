@@ -6,8 +6,8 @@ This directory contains comprehensive changelogs for all Greenshot releases.
 
 ### Stable Releases
 
-- **[1.3 Series](CHANGELOG-1.3.md)** - All stable releases from 1.3.290 to 1.3.323 (May 2025 - October 2026)
-  - 10 stable releases
+- **[1.3 Series](CHANGELOG-1.3.md)** - All stable releases from 1.3.290 to 1.3.328 (May 2025 - October 2026)
+  - 11 stable releases
   - Latest release for the 1.3 series
   - Includes security fixes, stability improvements, installation cleanup, and portable releases
 
@@ -22,8 +22,8 @@ This directory contains comprehensive changelogs for all Greenshot releases.
 ## Quick Navigation
 
 ### Latest Stable Release
-**[Greenshot 1.3.323](CHANGELOG-1.3.md#version-1323-october-8-2026)** (October 8, 2026)
-- Security fixes for TLS certificate validation, crafted clipboard data, and SVG external resource handling, plus dependency updates and editor/capture stability improvements
+**[Greenshot 1.3.328](CHANGELOG-1.3.md#version-1328-october-19-2026)** (October 19, 2026)
+- Security fix for Windows credentials being sent to arbitrary hosts, code signing of all shipped executables and DLLs, and a fix for a toast notification crash
 
 ### Latest Development Build
 **[Greenshot 1.4.108](CHANGELOG-1.4.md)** (March 14, 2026)
@@ -52,10 +52,10 @@ Our changelogs follow these principles:
 
 ### 1.3 Series (Stable)
 - **First Release**: 1.3.290 (May 23, 2025) - Initial stable release for the 1.3 series
-- **Latest Release**: 1.3.323 (October 8, 2026)
-- **Total Stable Releases**: 10
+- **Latest Release**: 1.3.328 (October 19, 2026)
+- **Total Stable Releases**: 11
 - **Key Features**:
-  - Security fixes (CVE-2023-34634, GHSA-8f7f-x7ww-xx5w, GHSA-7hvw-q8q5-gpmj, GHSA-f8v9-7fph-fr2j, and the security fixes in 1.3.323)
+  - Security fixes (CVE-2023-34634, GHSA-8f7f-x7ww-xx5w, GHSA-7hvw-q8q5-gpmj, GHSA-f8v9-7fph-fr2j, and the security fixes in 1.3.323 and 1.3.328)
   - Zoom functionality in editor
   - High-DPI support
   - Portable ZIP releases

@@ -4,6 +4,33 @@ This document contains changelogs for all stable releases in the Greenshot 1.3 s
 
 ---
 
+## Version 1.3.328 (October 19, 2026)
+
+Released: October 19, 2026
+
+### Security
+
+- Fixed a security issue where Greenshot sent the user's Windows credentials to any server it requested content from, so a malicious image URL could trigger an automatic NTLM authentication exchange. Reported by [@Y4k150b4](https://github.com/Y4k150b4); fixed by [@jklingen](https://github.com/jklingen) in [commit 5b7dca1](https://github.com/greenshot/greenshot/commit/5b7dca10d9b56dc5fef55189030879a1ddd29312). [GHSA-gjcr-pccx-w2vg](https://github.com/greenshot/greenshot/security/advisories/GHSA-gjcr-pccx-w2vg)
+
+### Installer & Upgrades
+
+- All executables and DLLs shipped with Greenshot, including plugins and third-party libraries, are now code-signed, so Windows Smart App Control no longer blocks unsigned files — by [@Lakritzator](https://github.com/Lakritzator) (Robin Krom) and [@jklingen](https://github.com/jklingen) in [PR #1505](https://github.com/greenshot/greenshot/pull/1505)
+
+### Bug Fixes
+
+- Fixed a crash that could occur when Windows could not create a toast notifier — by [@Lakritzator](https://github.com/Lakritzator) (Robin Krom) in [PR #1515](https://github.com/greenshot/greenshot/pull/1515)
+
+### Downloads
+- [Installer](https://github.com/greenshot/greenshot/releases/download/v1.3.328/Greenshot-INSTALLER-1.3.328-RELEASE.exe)
+- [Portable ZIP](https://github.com/greenshot/greenshot/releases/download/v1.3.328/Greenshot-PORTABLE-1.3.328-RELEASE.zip)
+
+### Technical Details
+
+- **Release scope**: This is the 11th stable release of the 1.3 series. Versions 1.3.324 to 1.3.327 were intermediate builds; their changes are rolled into this release.
+- **Full Changelog**: https://github.com/greenshot/greenshot/compare/v1.3.323...v1.3.328
+
+---
+
 ## Version 1.3.323 (October 8, 2026)
 
 Released: October 8, 2026
@@ -307,7 +334,7 @@ Released: May 23, 2025
 
 ## About Greenshot 1.3
 
-Greenshot 1.3 was built on the `release/1.3` branch and received multiple stable releases from May 2025 through October 2026. **Version 1.3.323 (October 8, 2026) is the latest stable release of the 1.3 series.** The series introduced significant improvements in:
+Greenshot 1.3 was built on the `release/1.3` branch and received multiple stable releases from May 2025 through October 2026. **Version 1.3.328 (October 19, 2026) is the latest stable release of the 1.3 series.** The series introduced significant improvements in:
 
 - **Security**: Multiple critical security fixes (CVE-2023-34634, GHSA-8f7f-x7ww-xx5w, GHSA-7hvw-q8q5-gpmj, GHSA-f8v9-7fph-fr2j)
 - **Editor functionality**: Zoom, keyboard shortcuts, better DPI support, and rendering fixes
