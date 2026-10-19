@@ -21,6 +21,7 @@
                 <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
                 <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ComboBoxStyles.xaml"/>
                 <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ExpanderStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ListViewStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         <wpf:ExpertVisibilityConverter x:Key="ExpertVisibilityConverter"/>
         <wpf:FixedToEnabledConverter x:Key="FixedToEnabledConverter"/>
@@ -553,14 +554,11 @@
                                             IsSnapToTickEnabled="True" 
                                             Value="{Binding CoreConfiguration.OutputFileJpegQuality, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFileJpegQuality}"/>
-                                    <TextBox Grid.Column="2" 
-                                             Text="{Binding CoreConfiguration.OutputFileJpegQuality, Mode=OneWay, StringFormat={}{0}%}" 
-                                             AutomationProperties.Name="{wpf:Text Settings.Jpegquality}"
-                                             IsReadOnly="True"
-                                             TextAlignment="Center"
-                                             Padding="2,4"
-                                             MinWidth="65"
-                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFileJpegQuality}"/>
+                                    <!-- Only shows the value, the slider says it to a screen reader: no tab stop -->
+                                    <TextBlock Grid.Column="2"
+                                               Text="{Binding ElementName=JpegQualitySlider, Path=ValueText}"
+                                               TextAlignment="Center"
+                                               VerticalAlignment="Center"/>
                                 </Grid>
                                 
                                 <CheckBox Content="{wpf:Text Settings.Alwaysshowqualitydialog}"
@@ -586,11 +584,16 @@
                             <ListView ItemsSource="{Binding Destinations}" 
                                       AutomationProperties.Name="{wpf:Text Settings.Destination}"
                                       Style="{DynamicResource ThemeListView}"
-                                      ItemContainerStyle="{DynamicResource ThemeListViewItem}"
                                       Margin="5" 
                                       ScrollViewer.VerticalScrollBarVisibility="Visible"
                                       ScrollViewer.CanContentScroll="False"
                                       IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputDestinations}">
+                                <ListView.ItemContainerStyle>
+                                    <!-- The rows take no focus: the arrow keys go from check box to check box, Space switches one, Tab leaves the list -->
+                                    <Style TargetType="ListViewItem" BasedOn="{StaticResource ThemeListViewItem}">
+                                        <Setter Property="Focusable" Value="False"/>
+                                    </Style>
+                                </ListView.ItemContainerStyle>
                                 <ListView.View>
                                     <GridView ColumnHeaderContainerStyle="{DynamicResource ThemeGridViewColumnHeader}">
                                         <GridViewColumn Width="50">

@@ -151,6 +151,10 @@ When you add a tool or a mode:
 - The destination picker takes the letters from `destination_picker_keys` in the `[Core]` language section (`designation:letter;…`).
   Each letter is used once in a language; a new destination gets its letter there. A letter that isn't in the name is shown after it,
   "Name (K)".
+- A list of check boxes (the destinations in the settings) gives the rows `Focusable="False"`: the arrow keys then go from check box to
+  check box, Space switches one and Tab leaves the list. A focusable row is one more stop which can't be switched.
+- A text next to a control which only shows its value (the percentage next to a slider) is a `TextBlock`, not a read-only `TextBox`:
+  a read-only box is a tab stop that can't be changed.
 
 ## What the tests check
 
