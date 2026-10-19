@@ -27,6 +27,7 @@ using log4net;
 using log4net.Appender;
 using log4net.Core;
 using log4net.Layout;
+using log4net.Repository;
 using log4net.Repository.Hierarchy;
 
 namespace Greenshot.SelfService
@@ -40,16 +41,29 @@ namespace Greenshot.SelfService
         private const string DefaultPattern = "%date{ISO8601} [%thread] %-5level - [%logger] %m%n%exception";
         private readonly ConcurrentQueue<string> _entries = new ConcurrentQueue<string>();
 
-        private static Hierarchy Hierarchy => (Hierarchy) LogManager.GetRepository();
+        private Hierarchy _hierarchy;
 
         /// <summary>
-        /// Creates the appender and attaches it to the root logger
+        /// Creates the appender and attaches it to the root logger of the application's repository
         /// </summary>
         public static LogViewerAppender Attach()
         {
-            var fileLayout = Hierarchy.Root.Appenders.OfType<FileAppender>().FirstOrDefault()?.Layout;
-            var appender = new LogViewerAppender { Layout = fileLayout ?? new EntryLayout(CreateDefaultLayout()) };
-            Hierarchy.Root.AddAppender(appender);
+            return Attach(LogManager.GetRepository());
+        }
+
+        /// <summary>
+        /// Creates the appender and attaches it to the root logger of the given repository
+        /// </summary>
+        public static LogViewerAppender Attach(ILoggerRepository repository)
+        {
+            var hierarchy = (Hierarchy) repository;
+            var fileLayout = hierarchy.Root.Appenders.OfType<FileAppender>().FirstOrDefault()?.Layout;
+            var appender = new LogViewerAppender
+            {
+                Layout = fileLayout ?? new EntryLayout(CreateDefaultLayout()),
+                _hierarchy = hierarchy
+            };
+            hierarchy.Root.AddAppender(appender);
             return appender;
         }
 
@@ -58,7 +72,7 @@ namespace Greenshot.SelfService
         /// </summary>
         public void Detach()
         {
-            Hierarchy.Root.RemoveAppender(this);
+            _hierarchy.Root.RemoveAppender(this);
             Close();
         }
 

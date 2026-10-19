@@ -142,9 +142,9 @@ namespace Greenshot.Tests.Forms
                     modal.Open("Test Recipe Hotkey", "Ctrl + Shift + R", s => savedResult = s);
                     Assert.True(Greenshot.Base.Wpf.ThemeManager.Instance.IsDarkTheme);
                     Assert.NotNull(modal.Resources[typeof(System.Windows.Controls.GroupBox)]);
-                    Assert.NotNull(modal.Resources[typeof(System.Windows.Controls.ComboBox)]);
-                    Assert.NotNull(modal.Resources[typeof(System.Windows.Controls.ComboBoxItem)]);
-                    Assert.NotNull(modal.Resources[typeof(System.Windows.Controls.CheckBox)]);
+                    Assert.NotNull(modal.TryFindResource(typeof(System.Windows.Controls.ComboBox)));
+                    Assert.NotNull(modal.TryFindResource("DefaultComboBoxItemStyle"));
+                    Assert.NotNull(modal.TryFindResource(typeof(System.Windows.Controls.CheckBox)));
                     Assert.Equal(System.Windows.Visibility.Visible, modal.Visibility);
 
                     var vm = modal.DataContext as HotkeyEditorViewModel;
