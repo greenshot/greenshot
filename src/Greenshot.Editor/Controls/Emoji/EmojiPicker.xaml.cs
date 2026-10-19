@@ -18,6 +18,8 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Editor.Controls.Emoji;
 
@@ -131,16 +133,18 @@ public partial class EmojiPicker : StackPanel
     {
         if (sender is not UIElement child || !child.IsVisible) return;
         _oldFocus = Keyboard.FocusedElement;
-
-        // Start on the tab of the category, Tab goes on to its emoji
-        child.UpdateLayout();
-        var tabs = FindChild<TabControl>(child);
-        if (tabs?.ItemContainerGenerator.ContainerFromIndex(Math.Max(0, tabs.SelectedIndex)) is TabItem tab && tab.Focus())
-        {
-            return;
-        }
-
         Keyboard.Focus(child);
+
+        // Start on the tab of the category, Tab goes on to its emoji.
+        // The tabs exist only after the popup's first layout, which must not be forced while the popup is still opening.
+        Dispatcher.InvokeAsync(() =>
+        {
+            var tabs = FindChild<TabControl>(child);
+            if (tabs?.ItemContainerGenerator.ContainerFromIndex(Math.Max(0, tabs.SelectedIndex)) is TabItem tab)
+            {
+                tab.Focus();
+            }
+        }, DispatcherPriority.Loaded).Task.FireAndLog("Focus the emoji category");
     }
 
     private void OnPopupClosed(object sender, EventArgs e)
@@ -223,8 +227,7 @@ public partial class EmojiPicker : StackPanel
     private void OnVariationPopupOpened(object sender, EventArgs e)
     {
         if (sender is not Popup { Child: UIElement child }) return;
-        child.UpdateLayout();
-        FindChild<ButtonBase>(child)?.Focus();
+        Dispatcher.InvokeAsync(() => FindChild<ButtonBase>(child)?.Focus(), DispatcherPriority.Loaded).Task.FireAndLog("Focus the emoji variation");
     }
 
     private void OnVariationKeyDown(object sender, KeyEventArgs e)
