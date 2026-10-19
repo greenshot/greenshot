@@ -243,7 +243,8 @@ namespace Greenshot.Views
 
         private void OpenSelfService(string sectionId = null)
         {
-            SelfServiceWindow.ShowSelfService(this, sectionId);
+            // No owner: the Self-Service window stays open when the about window closes
+            SelfServiceWindow.ShowSelfService(initialSection: sectionId);
         }
 
         private void OnWindowKeyDown(object sender, KeyEventArgs e)

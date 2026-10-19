@@ -447,19 +447,21 @@ namespace Greenshot.Shell
                 return;
             }
 
-            try
+            // Not modal: a dialog blocks every window of the UI thread, the editors too, also from the Self-Service window opened from here
+            var aboutWindow = new AboutWindow();
+            _ = new WindowInteropHelper(aboutWindow)
             {
-                _aboutWindow = new AboutWindow();
-                _ = new WindowInteropHelper(_aboutWindow)
+                Owner = OwnerHandle
+            };
+            aboutWindow.Closed += (sender, args) =>
+            {
+                if (ReferenceEquals(_aboutWindow, aboutWindow))
                 {
-                    Owner = OwnerHandle
-                };
-                _aboutWindow.ShowDialog();
-            }
-            finally
-            {
-                _aboutWindow = null;
-            }
+                    _aboutWindow = null;
+                }
+            };
+            _aboutWindow = aboutWindow;
+            aboutWindow.Show();
         }
 
         /// <summary>
