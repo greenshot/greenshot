@@ -48,6 +48,7 @@ using Dapplo.Windows.User32.Enums;
 using Greenshot.Base.Capturing;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Native;
 using Greenshot.Base.Interfaces.Capture;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Languages;
@@ -514,6 +515,13 @@ namespace Greenshot.Capturing.Views
                 // The text needs a capture of the screen, T freezes it later
                 _activeTool = _regionTool;
             }
+            // Someone who uses a screen reader can't see a region, but hears which window is selected:
+            // start with window capture and the window on top already selected, Enter captures it, Space still switches to the region
+            bool selectWindowForScreenReader = initialTool == null && _activeTool == _regionTool && ScreenReader.IsRunning;
+            if (selectWindowForScreenReader)
+            {
+                _activeTool = _windowTool;
+            }
             _usedCaptureMode = _activeTool.Mode;
 
             if (windows != null)
@@ -550,6 +558,10 @@ namespace Greenshot.Capturing.Views
             RegisterWindowKeys();
             AttachTools();
             _activeTool.Activate(this);
+            if (selectWindowForScreenReader)
+            {
+                _windowTool.SelectFirstWindow();
+            }
             CreateOverlays();
 
             _capture.CaptureDetails.FeaturesChanged += OnFeaturesChanged;

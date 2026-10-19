@@ -171,6 +171,17 @@ namespace Greenshot.Base.Capturing
             SelectWindow(windows[index]);
         }
 
+        /// <summary>
+        /// Select the window on top (the one which had the focus), as Tab would, unless a window is selected already
+        /// </summary>
+        public void SelectFirstWindow()
+        {
+            if (_selectedWindow == null)
+            {
+                SelectNextWindow(1);
+            }
+        }
+
         private void SelectWindow(IInteropWindow window)
         {
             if (!window.Equals(_selectedWindow))

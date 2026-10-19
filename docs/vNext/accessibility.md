@@ -9,6 +9,7 @@ It applies to people and to AI coding assistants alike: new UI is not done until
 - [WinForms (the editor)](#winforms-the-editor)
 - [Keyboard in the editor](#keyboard-in-the-editor)
 - [The capture window](#the-capture-window)
+- [Menus and lists to choose from](#menus-and-lists-to-choose-from)
 - [What the tests check](#what-the-tests-check)
 - [Checking by hand](#checking-by-hand)
 - [Review checklist](#review-checklist)
@@ -128,6 +129,16 @@ the selection size through its hidden `Announcement` live region. When you add a
 - Announce what the user would otherwise only see (`Announce(...)` in `CaptureWindow.xaml.cs`).
 - Keys a screen reader needs (Insert, Caps Lock and keys held with them) are never swallowed.
 - Use the high contrast colors when `SystemParameters.HighContrast` is on.
+- While a screen reader runs (`ScreenReader.IsRunning` in `Greenshot.Base/Native`), a region capture starts as window capture with the
+  top window selected: a region can't be seen, a window is said by its title.
+
+## Menus and lists to choose from
+
+- A choice that people make often gets a fixed letter, the same whatever else is in the list, so it can be learned. Numbers or letters
+  given by position change when the list changes.
+- The destination picker takes the letters from `destination_picker_keys` in the `[Core]` language section (`designation:letter;…`).
+  Each letter is used once in a language; a new destination gets its letter there. A letter that isn't in the name is shown after it,
+  "Name (K)".
 
 ## What the tests check
 

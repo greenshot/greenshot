@@ -169,6 +169,12 @@ namespace Greenshot.Base.Languages
         string AccessibleDestinationPicker { get; }
 
         /// <summary>
+        /// The letter of each destination in the destination picker, as designation:letter separated by ;
+        /// The letters stay the same whatever destinations are available, each letter is used once.
+        /// </summary>
+        string DestinationPickerKeys { get; }
+
+        /// <summary>
         /// Information
         /// </summary>
         string AccessibleInformation { get; }
