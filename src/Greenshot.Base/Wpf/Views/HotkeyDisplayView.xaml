@@ -14,8 +14,8 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
-        <!-- Badges container, its AutomationProperties.Name is the hotkey as text (set in UpdateBadges) -->
-        <ItemsControl x:Name="BadgesPanel" VerticalAlignment="Center" Margin="0,0,8,0">
+        <!-- Badges container, its AutomationProperties.Name is the hotkey as text (set in UpdateBadges). No tab stop, the edit button says the hotkey -->
+        <ItemsControl x:Name="BadgesPanel" VerticalAlignment="Center" Margin="0,0,8,0" Focusable="False" KeyboardNavigation.IsTabStop="False">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <WrapPanel Orientation="Horizontal" VerticalAlignment="Center"/>

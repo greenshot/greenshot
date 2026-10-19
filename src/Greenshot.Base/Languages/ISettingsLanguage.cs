@@ -833,9 +833,9 @@ namespace Greenshot.Base.Languages
         string HotkeyEdit { get; }
 
         /// <summary>
-        /// Edit: {0}
+        /// Edit {0}: {1}
         /// </summary>
-        string HotkeyEditAccessible { get; }
+        string HotkeyEditValueAccessible { get; }
 
         /// <summary>
         /// Change the hotkey

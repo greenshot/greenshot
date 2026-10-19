@@ -88,7 +88,7 @@ namespace Greenshot.Base.Wpf.Views
                 case nameof(ISettingsLanguage.HotkeyNone):
                 case nameof(ISettingsLanguage.HotkeyThen):
                 case nameof(ISettingsLanguage.HotkeyEdit):
-                case nameof(ISettingsLanguage.HotkeyEditAccessible):
+                case nameof(ISettingsLanguage.HotkeyEditValueAccessible):
                     UpdateBadges();
                     break;
             }
@@ -103,8 +103,8 @@ namespace Greenshot.Base.Wpf.Views
         }
 
         /// <summary>
-        /// The badges are only drawn, a screen reader gets the hotkey as the name of the panel and as the help text of the
-        /// edit button, whose name says which hotkey it edits ("Edit: Capture region")
+        /// The badges are only drawn and are no tab stop: the edit button says which hotkey it edits and what it is now
+        /// ("Edit Capture region: Ctrl + Print"), so one Tab per hotkey. The panel keeps the hotkey as name for reading the window.
         /// </summary>
         private void UpdateAccessibleNames()
         {
@@ -113,11 +113,10 @@ namespace Greenshot.Base.Wpf.Views
             {
                 return;
             }
-            var editFormat = Texts.Settings.HotkeyEditAccessible;
+            var editFormat = Texts.Settings.HotkeyEditValueAccessible;
             AutomationProperties.SetName(EditButton, string.IsNullOrEmpty(HeaderText) || string.IsNullOrEmpty(editFormat)
-                ? Texts.Settings.HotkeyEdit
-                : string.Format(editFormat, HeaderText));
-            AutomationProperties.SetHelpText(EditButton, AccessibleText);
+                ? $"{Texts.Settings.HotkeyEdit}: {AccessibleText}"
+                : string.Format(editFormat, HeaderText, AccessibleText));
         }
 
         private TextBlock CreateNoneText()
