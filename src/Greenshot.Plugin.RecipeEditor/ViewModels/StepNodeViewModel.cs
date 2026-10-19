@@ -11,6 +11,7 @@ using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Forms;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Wpf;
+using Greenshot.Editor.Views;
 using Greenshot.Plugin.RecipeEditor.Helpers;
 using Greenshot.Plugin.RecipeEditor.Views;
 using Newtonsoft.Json.Linq;
@@ -1757,14 +1758,16 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public static string PromptColorHelper(string currentColor)
         {
             var initialColor = ParseColorHelper(currentColor);
-            using (var cd = new Greenshot.Editor.Forms.ColorDialog { Color = initialColor })
+            var colorPicker = new ColorPickerWindow
             {
-                if (cd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                {
-                    if (cd.Color.A == 0) return "transparent";
-                    if (cd.Color.A == 255) return $"#{cd.Color.R:X2}{cd.Color.G:X2}{cd.Color.B:X2}";
-                    return $"#{cd.Color.A:X2}{cd.Color.R:X2}{cd.Color.G:X2}{cd.Color.B:X2}";
-                }
+                SelectedColor = initialColor
+            };
+            if (colorPicker.ShowDialog() == true)
+            {
+                var color = colorPicker.SelectedColor;
+                if (color.A == 0) return "transparent";
+                if (color.A == 255) return $"#{color.R:X2}{color.G:X2}{color.B:X2}";
+                return $"#{color.A:X2}{color.R:X2}{color.G:X2}{color.B:X2}";
             }
             return null;
         }

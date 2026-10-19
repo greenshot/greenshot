@@ -31,9 +31,6 @@
     <Compile Update="Controls\BindableToolStripDropDownButton.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Controls\ColorButton.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Update="Controls\FontFamilyComboBox.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -55,16 +52,10 @@
     <Compile Update="Controls\ToolStripNumericUpDown.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Forms\ColorPickerToolStripButton.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Update="Forms\EditorForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\ImageEditorForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="Forms\MovableShowColorForm.cs">
       <SubType>Form</SubType>
     </Compile>
   </ItemGroup>
