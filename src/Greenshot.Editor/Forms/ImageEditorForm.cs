@@ -148,14 +148,15 @@ namespace Greenshot.Editor.Forms
         /// should be used, else in a new editor window.
         /// </summary>
         /// <param name="surface">The capture, the editor takes it over</param>
-        /// <param name="useOpenEditor">true to add a tab to an open editor window, when there is one</param>
+        /// <param name="useOpenEditor">true to add a tab to an open editor window, when there is one; null to use the setting</param>
         /// <param name="matchSizeToCapture">null to use the setting</param>
         /// <returns>The tab of the capture</returns>
-        public static EditorTab Open(ISurface surface, bool useOpenEditor, bool? matchSizeToCapture = null)
+        public static EditorTab Open(ISurface surface, bool? useOpenEditor = null, bool? matchSizeToCapture = null)
         {
             ThreadAssert.IsUi(nameof(Open));
             // Without tabs every capture gets its own window
-            var window = useOpenEditor && EditorConfiguration.EditorTabs ? _lastActiveWindow ?? OpenWindows.LastOrDefault() : null;
+            bool addTab = (useOpenEditor ?? EditorConfiguration.OpenCaptureAsTab) && EditorConfiguration.EditorTabs;
+            var window = addTab ? _lastActiveWindow ?? OpenWindows.LastOrDefault() : null;
             // A window which is closing (its question or its saves are running) doesn't get new captures
             if (window == null || window.IsDisposed || window._closing)
             {
@@ -251,12 +252,10 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         private bool _closing;
         private bool MatchSizeToCapture => _matchSizeToCapture ?? EditorConfiguration.MatchSizeToCapture;
 
-        public ImageEditorForm()
-        {
-            Initialize(useStoredPlacement: true);
-            AddTab(CreateNewImage(), outputMade: false, fitWindow: true);
-            HideToolstripItems();
-        }
+        /// <summary>
+        /// Open a new image (the size and the color are in the settings) like a capture: as a tab or in its own window
+        /// </summary>
+        public static EditorTab OpenNewImage() => Open(CreateNewImage());
 
         /// <summary>
         /// A new image, with the size and the color from the settings

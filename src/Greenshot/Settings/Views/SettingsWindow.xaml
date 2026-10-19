@@ -786,7 +786,7 @@
                                 <CheckBox Content="{wpf:Text Settings.EditorTabs}"
                                           IsChecked="{Binding EditorConfiguration.EditorTabs, Mode=TwoWay}"
                                           IsEnabled="{Binding EditorConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=EditorTabs}"/>
-                                <CheckBox Content="{wpf:Text Settings.ExpertReuseeditorifpossible}" Margin="20,0,0,0"
+                                <CheckBox Content="{wpf:Text Settings.OpenCaptureAsTab}" Margin="20,0,0,0"
                                           IsChecked="{Binding EditorConfiguration.OpenCaptureAsTab, Mode=TwoWay}">
                                     <!-- Only with tabs -->
                                     <CheckBox.Style>

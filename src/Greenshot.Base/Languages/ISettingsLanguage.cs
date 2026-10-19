@@ -319,7 +319,7 @@ namespace Greenshot.Base.Languages
         /// <summary>
         /// Open new captures as a tab in the editor window used last
         /// </summary>
-        string ExpertReuseeditorifpossible { get; }
+        string OpenCaptureAsTab { get; }
 
         /// <summary>
         /// Show the captures of an editor window as tabs

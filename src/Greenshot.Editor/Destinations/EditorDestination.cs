@@ -44,7 +44,6 @@ namespace Greenshot.Editor.Destinations
     public class EditorDestination : DestinationBase
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(EditorDestination));
-        private static readonly IEditorConfiguration EditorConfiguration = IniConfigRegistry.GetSection<IEditorConfiguration>();
         public const string DESIGNATION = "Editor";
         private readonly IImageEditor _dedicatedEditor;
         private readonly bool _replaceSurfaceInDedicatedEditor;
@@ -129,9 +128,8 @@ namespace Greenshot.Editor.Destinations
 
             try
             {
-                // An open editor gets the capture as a new tab
-                bool useOpenEditor = _reuseAvailableEditor ?? EditorConfiguration.OpenCaptureAsTab;
-                var tab = ImageEditorForm.Open(surface, useOpenEditor, _matchSizeToCapture);
+                // As a tab of the editor window used last or in its own window, see the settings
+                var tab = ImageEditorForm.Open(surface, _reuseAvailableEditor, _matchSizeToCapture);
                 if (!string.IsNullOrEmpty(captureDetails?.Filename))
                 {
                     tab.SetImagePath(captureDetails.Filename);
