@@ -15,6 +15,7 @@
 
         <ControlTemplate x:Key="VariationPopupTemplate" TargetType="ContentControl">
             <ListView Name="VariationListView" ItemsSource="{Binding AllVariations}"
+                      KeyboardNavigation.TabNavigation="Cycle" PreviewKeyDown="OnVariationKeyDown"
                       BorderThickness="1" Height="Auto" Padding="0" Margin="1"
                       ScrollViewer.VerticalScrollBarVisibility="Auto"
                       ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -58,7 +59,7 @@
                     <Polygon Visibility="{Binding HasVariations, Converter={StaticResource BoolToVis}}"
                              Width="6" Height="6" VerticalAlignment="Bottom" HorizontalAlignment="Right"
                              Stretch="Fill" Points="0,1 1,1 1,0" Fill="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
-                    <Popup x:Name="VariationPopup" StaysOpen="False" AllowsTransparency="True" Margin="0"
+                    <Popup x:Name="VariationPopup" StaysOpen="False" AllowsTransparency="True" Margin="0" Opened="OnVariationPopupOpened"
                            IsOpen="{Binding IsChecked, ElementName=VariationButton, Mode=TwoWay}">
                         <ContentControl Template="{StaticResource ResourceKey=VariationPopupTemplate}"/>
                     </Popup>
@@ -76,7 +77,8 @@
            StaysOpen="False"
            KeyDown="OnPopupKeyDown" Loaded="OnPopupLoaded"
            AllowsTransparency="True" Margin="0">
-        <Border>
+        <!-- Tab goes between the categories and the emoji and stays in the picker, Esc closes it -->
+        <Border KeyboardNavigation.TabNavigation="Cycle">
             <StackPanel Orientation="Vertical">
                 <TabControl ItemsSource="{Binding EmojiGroups, ElementName=StackPanel_INTERNAL}" Padding="0">
                     <TabControl.ItemContainerStyle>
@@ -98,7 +100,9 @@
                     <TabControl.ContentTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Vertical">
+                                <!-- One Tab stop, the arrow keys move between the emoji -->
                                 <ListView Name="EmojiListView" ItemsSource="{Binding EmojiChunkList}"
+                                  Focusable="False" KeyboardNavigation.TabNavigation="Once" PreviewKeyDown="OnEmojiGridKeyDown"
                                   BorderThickness="0"
                                   MaxHeight="320" Height="Auto" Padding="0" Margin="1"
                                   VirtualizingStackPanel.IsVirtualizing="True"

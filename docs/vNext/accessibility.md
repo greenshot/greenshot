@@ -112,6 +112,7 @@ The editor still misses some of this (the canvas needs the mouse to draw). New e
 | Tab, Shift+Tab | canvas | Select the next or previous element (after the last one the focus moves on) |
 | Esc | canvas | Clear the selection |
 | Ctrl+arrows | canvas | Make the selection narrower, wider, lower or higher (with Shift: 10 px) |
+| Tab, arrows, Enter, Esc | emoji picker | Opens after an emoji is placed, or with Enter on a selected emoji. Tab goes between the categories and the emoji, the arrow keys move, Enter takes the emoji (one with a mark opens its variations), Esc closes the picker |
 
 ## The capture window
 

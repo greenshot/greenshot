@@ -94,6 +94,11 @@ namespace Greenshot.Editor.Drawing.Emoji
             _emojiPickerHost.Top = displayRectangle.Top;
 
             _emojiPicker.Selection = Emoji;
+
+            // The keys go to the picker while it is open, like to the text box of a text element.
+            // The focus has to be in the host first, otherwise the picker can't take it from the canvas.
+            InternalParent.KeysLocked = true;
+            _emojiPickerHost.Focus();
             _emojiPicker.ShowPopup(true);
         }
 
@@ -137,6 +142,21 @@ namespace Greenshot.Editor.Drawing.Emoji
                 _emojiPickerHost = null;
                 _emojiPicker = null;
                 _currentContainer = null;
+            };
+
+            // Give the keys and the focus back to the canvas, unless the user went somewhere else (e.g. clicked into a tool bar)
+            _emojiPicker.Closed += (_, _) =>
+            {
+                if (pickerHost.Parent is not Surface surface)
+                {
+                    return;
+                }
+
+                surface.KeysLocked = false;
+                if (pickerHost.ContainsFocus)
+                {
+                    surface.SelectFromKeyboard();
+                }
             };
 
             _parent.Controls.Add(_emojiPickerHost);
