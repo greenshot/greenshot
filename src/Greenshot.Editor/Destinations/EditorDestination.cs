@@ -130,7 +130,7 @@ namespace Greenshot.Editor.Destinations
             try
             {
                 // An open editor gets the capture as a new tab
-                bool useOpenEditor = _reuseAvailableEditor ?? EditorConfiguration.ReuseEditor;
+                bool useOpenEditor = _reuseAvailableEditor ?? EditorConfiguration.OpenCaptureAsTab;
                 var tab = ImageEditorForm.Open(surface, useOpenEditor, _matchSizeToCapture);
                 if (!string.IsNullOrEmpty(captureDetails?.Filename))
                 {

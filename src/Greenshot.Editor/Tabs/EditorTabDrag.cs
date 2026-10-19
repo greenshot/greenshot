@@ -26,6 +26,8 @@ using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Desktop;
+using Dapplo.Windows.DesktopWindowsManager;
+using Dapplo.Windows.DesktopWindowsManager.Enums;
 using Greenshot.Editor.Forms;
 
 namespace Greenshot.Editor.Tabs
@@ -35,7 +37,8 @@ namespace Greenshot.Editor.Tabs
     /// an image of the tab follows the mouse and the tab leaves a gap:
     /// over the tabs of another editor window these make room and the image shows the tab where it lands,
     /// anywhere else the image shows the tab with a picture of the capture, there the tab gets its own window.
-    /// Nothing moves before the mouse button is released, Escape cancels.
+    /// Nothing moves before the mouse button is released, Escape cancels. When the tab is the only one of its window, the window
+    /// is invisible while the tab is outside of it.
     /// The strip keeps the mouse capture during the whole drag, so all the mouse moves arrive at the strip.
     /// </summary>
     internal sealed class EditorTabDrag
@@ -50,6 +53,8 @@ namespace Greenshot.Editor.Tabs
         private EditorTabDragImage _image;
         private EditorTabStrip _dropTarget;
         private int _dropIndex;
+        // The window of the only tab is invisible during the drag
+        private bool _sourceWindowHidden;
 
         public EditorTabDrag(EditorTabStrip sourceStrip, EditorTab tab, Point startLocation, Point grabOffset)
         {
@@ -88,6 +93,11 @@ namespace Greenshot.Editor.Tabs
 
             _sourceStrip.DraggedTab = _tab;
             _image ??= new EditorTabDragImage(_tab);
+            if (_sourceStrip.Tabs.Count == 1)
+            {
+                HideSourceWindow(true);
+            }
+
             SetDropTarget(FindTabStripAt(location));
             if (_dropTarget != null)
             {
@@ -118,6 +128,8 @@ namespace Greenshot.Editor.Tabs
             {
                 var targetWindow = dropTarget.Window;
                 sourceWindow.MoveTab(_tab, targetWindow, _dropIndex);
+                // The window of the only tab closed, else it is shown again
+                HideSourceWindow(false);
                 targetWindow.Activate();
                 return;
             }
@@ -135,6 +147,7 @@ namespace Greenshot.Editor.Tabs
                 }
 
                 sourceWindow.Location = windowLocation;
+                HideSourceWindow(false);
                 sourceWindow.Activate();
                 return;
             }
@@ -148,6 +161,7 @@ namespace Greenshot.Editor.Tabs
         public void Cancel()
         {
             End();
+            HideSourceWindow(false);
             _sourceStrip.MoveTab(_tab, _startIndex);
         }
 
@@ -163,6 +177,24 @@ namespace Greenshot.Editor.Tabs
         {
             _sourceStrip.DraggedTab = null;
             _image?.Hide();
+            HideSourceWindow(false);
+        }
+
+        /// <summary>
+        /// Make the window of the strip invisible, or visible again. The desktop window manager hides (cloaks) it, for Windows
+        /// the window stays visible: it keeps the mouse capture and the drag goes on.
+        /// </summary>
+        private void HideSourceWindow(bool hide)
+        {
+            var sourceWindow = _sourceStrip.Window;
+            if (_sourceWindowHidden == hide || sourceWindow == null || sourceWindow.IsDisposed)
+            {
+                return;
+            }
+
+            _sourceWindowHidden = hide;
+            uint cloak = hide ? 1u : 0u;
+            DwmApi.DwmSetWindowAttribute(sourceWindow.Handle, DwmWindowAttributes.Cloak, ref cloak, sizeof(uint));
         }
 
         private void SetDropTarget(EditorTabStrip target)
@@ -195,7 +227,8 @@ namespace Greenshot.Editor.Tabs
             var point = new NativePoint(location.X, location.Y);
             foreach (var window in InteropWindowQuery.GetTopWindows())
             {
-                if (window.Handle == _image?.Handle || !window.IsVisible() || !window.GetInfo().Bounds.Contains(point))
+                bool hidden = window.Handle == _image?.Handle || (_sourceWindowHidden && window.Handle == sourceWindow.Handle);
+                if (hidden || !window.IsVisible() || !window.GetInfo().Bounds.Contains(point))
                 {
                     continue;
                 }

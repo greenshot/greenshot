@@ -29,7 +29,7 @@ namespace Greenshot.Editor.Tabs
 {
     /// <summary>
     /// The tabs of an editor window, like the tabs of a browser: a click selects a tab, the cross or the middle mouse button closes it,
-    /// dragging moves it to another place, into another editor window or out into a new window.
+    /// dragging moves it to another place, into another editor window or out into a new window. The "+" after the tabs adds a new image.
     /// Drawn with the system colors, so it follows high contrast.
     /// </summary>
     public sealed class EditorTabStrip : Control
@@ -48,6 +48,8 @@ namespace Greenshot.Editor.Tabs
         private bool _hotClose;
         private int _pressedCloseIndex = -1;
         private MouseButtons _pressedCloseButton;
+        private bool _hotNewTab;
+        private bool _pressedNewTab;
         // Where a tab from another window lands, the tabs make room for it there
         private int _dropIndex = -1;
         // The tab which is dragged out of this strip, it leaves a gap
@@ -88,6 +90,11 @@ namespace Greenshot.Editor.Tabs
         internal ImageEditorForm Window => FindForm() as ImageEditorForm;
 
         /// <summary>
+        /// The tooltip of the "+" after the tabs
+        /// </summary>
+        public string NewTabText { get; set; }
+
+        /// <summary>
         /// The user clicked on a tab which isn't selected
         /// </summary>
         public event EventHandler<EditorTabEventArgs> TabSelected;
@@ -96,6 +103,11 @@ namespace Greenshot.Editor.Tabs
         /// The user clicked on the cross of a tab, or with the middle mouse button on a tab
         /// </summary>
         public event EventHandler<EditorTabEventArgs> TabCloseRequested;
+
+        /// <summary>
+        /// The user clicked on the "+" after the tabs
+        /// </summary>
+        public event EventHandler NewTabRequested;
 
         internal int IndexOf(EditorTab tab) => _tabs.IndexOf(tab);
 
@@ -195,7 +207,9 @@ namespace Greenshot.Editor.Tabs
         {
             _hotIndex = -1;
             _hotClose = false;
+            _hotNewTab = false;
             _pressedCloseIndex = -1;
+            _pressedNewTab = false;
             Invalidate();
         }
 
@@ -221,7 +235,8 @@ namespace Greenshot.Editor.Tabs
                 return Scale(MaximumTabWidth);
             }
 
-            int available = Width - 2 * Scale(TabMargin);
+            // The "+" follows the tabs
+            int available = Width - 3 * Scale(TabMargin) - NewTabSize;
             return Math.Min(Scale(MaximumTabWidth), Math.Max(Scale(MinimumTabWidth), available / slotCount));
         }
 
@@ -231,6 +246,14 @@ namespace Greenshot.Editor.Tabs
         internal int FirstTabLeft => Scale(TabMargin);
 
         private Rectangle GetTabBounds(int index) => GetSlotBounds(_dropIndex >= 0 && index >= _dropIndex ? index + 1 : index);
+
+        /// <summary>
+        /// The "+" after the tabs
+        /// </summary>
+        private Rectangle NewTabBounds =>
+            new(Scale(TabMargin) + SlotCount * TabWidth + Scale(TabMargin), Scale(TabMargin) + Scale(1), NewTabSize, NewTabSize);
+
+        private int NewTabSize => Math.Max(0, Height - Scale(TabMargin) - Scale(3));
 
         private Rectangle GetSlotBounds(int slot)
         {
@@ -322,6 +345,7 @@ namespace Greenshot.Editor.Tabs
                 PaintTab(graphics, borderPen, index);
             }
 
+            PaintNewTab(graphics);
             if (dropping)
             {
                 PaintGap(graphics, GetSlotBounds(_dropIndex), SystemColors.Highlight);
@@ -405,6 +429,22 @@ namespace Greenshot.Editor.Tabs
             }
         }
 
+        private void PaintNewTab(Graphics graphics)
+        {
+            var bounds = NewTabBounds;
+            if (_hotNewTab)
+            {
+                graphics.FillRectangle(SystemBrushes.ControlLightLight, bounds);
+            }
+
+            int inset = bounds.Width / 4;
+            int middleX = bounds.Left + bounds.Width / 2;
+            int middleY = bounds.Top + bounds.Height / 2;
+            using var plusPen = new Pen(SystemColors.ControlText, Math.Max(1, Scale(1)));
+            graphics.DrawLine(plusPen, bounds.Left + inset, middleY, bounds.Right - inset - 1, middleY);
+            graphics.DrawLine(plusPen, middleX, bounds.Top + inset, middleX, bounds.Bottom - inset - 1);
+        }
+
         private void PaintClose(Graphics graphics, int index)
         {
             var closeBounds = GetCloseBounds(index);
@@ -422,6 +462,12 @@ namespace Greenshot.Editor.Tabs
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
+            if (e.Button == MouseButtons.Left && NewTabBounds.Contains(e.Location))
+            {
+                _pressedNewTab = true;
+                return;
+            }
+
             int index = HitTest(e.Location);
             if (index < 0)
             {
@@ -462,18 +508,20 @@ namespace Greenshot.Editor.Tabs
 
             int index = HitTest(e.Location);
             bool hotClose = index >= 0 && ShowsClose(index) && GetCloseBounds(index).Contains(e.Location);
-            if (index == _hotIndex && hotClose == _hotClose)
+            bool hotNewTab = NewTabBounds.Contains(e.Location);
+            if (index == _hotIndex && hotClose == _hotClose && hotNewTab == _hotNewTab)
             {
                 return;
             }
 
-            if (index != _hotIndex)
+            if (index != _hotIndex || hotNewTab != _hotNewTab)
             {
-                _toolTip.SetToolTip(this, index >= 0 ? _tabs[index].Description : null);
+                _toolTip.SetToolTip(this, index >= 0 ? _tabs[index].Description : hotNewTab ? NewTabText : null);
             }
 
             _hotIndex = index;
             _hotClose = hotClose;
+            _hotNewTab = hotNewTab;
             Invalidate();
         }
 
@@ -483,6 +531,17 @@ namespace Greenshot.Editor.Tabs
             if (_drag != null)
             {
                 FinishDrag();
+                return;
+            }
+
+            if (_pressedNewTab)
+            {
+                _pressedNewTab = false;
+                if (e.Button == MouseButtons.Left && NewTabBounds.Contains(e.Location))
+                {
+                    NewTabRequested?.Invoke(this, EventArgs.Empty);
+                }
+
                 return;
             }
 
@@ -529,10 +588,11 @@ namespace Greenshot.Editor.Tabs
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
-            if (_hotIndex >= 0)
+            if (_hotIndex >= 0 || _hotNewTab)
             {
                 _hotIndex = -1;
                 _hotClose = false;
+                _hotNewTab = false;
                 Invalidate();
             }
         }

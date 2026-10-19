@@ -783,13 +783,62 @@
                                 <CheckBox Content="{wpf:Text Editor.MatchCaptureSize}"
                                           IsChecked="{Binding EditorConfiguration.MatchSizeToCapture, Mode=TwoWay}"
                                           IsEnabled="{Binding EditorConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=MatchSizeToCapture}"/>
-                                <CheckBox Content="{wpf:Text Settings.ExpertReuseeditorifpossible}"
-                                          IsChecked="{Binding EditorConfiguration.ReuseEditor, Mode=TwoWay}"
-                                          IsEnabled="{Binding EditorConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ReuseEditor}"/>
+                                <CheckBox Content="{wpf:Text Settings.EditorTabs}"
+                                          IsChecked="{Binding EditorConfiguration.EditorTabs, Mode=TwoWay}"
+                                          IsEnabled="{Binding EditorConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=EditorTabs}"/>
+                                <CheckBox Content="{wpf:Text Settings.ExpertReuseeditorifpossible}" Margin="20,0,0,0"
+                                          IsChecked="{Binding EditorConfiguration.OpenCaptureAsTab, Mode=TwoWay}">
+                                    <!-- Only with tabs -->
+                                    <CheckBox.Style>
+                                        <Style TargetType="CheckBox" BasedOn="{StaticResource GreenshotCheckBoxStyle}">
+                                            <Setter Property="IsEnabled" Value="{Binding EditorConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OpenCaptureAsTab}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding EditorConfiguration.EditorTabs}" Value="False">
+                                                    <Setter Property="IsEnabled" Value="False"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </CheckBox.Style>
+                                </CheckBox>
                                 <CheckBox Content="{wpf:Text Settings.ExpertSuppresssavedialogatclose}"
                                           IsChecked="{Binding EditorConfiguration.SuppressSaveDialogAtClose, Mode=TwoWay}"
                                           IsEnabled="{Binding EditorConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=SuppressSaveDialogAtClose}"/>
                             </StackPanel>
+                        </GroupBox>
+
+                        <!-- The image of the "+" after the tabs, and of the editor without a capture -->
+                        <GroupBox Header="{wpf:Text Editor.NewImage}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="{wpf:Text Settings.NewImageSize}" VerticalAlignment="Center" Margin="0,4,12,4"
+                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="0,4"
+                                            IsEnabled="{Binding EditorConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=DefaultEditorSize}">
+                                    <TextBox Width="70" TextAlignment="Right" Text="{Binding NewImageWidth, Mode=TwoWay}"
+                                             ToolTip="{wpf:Text Settings.FixedCaptureSizesWidth}"/>
+                                    <TextBlock Text="×" Margin="6,0" VerticalAlignment="Center"
+                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                    <TextBox Width="70" TextAlignment="Right" Text="{Binding NewImageHeight, Mode=TwoWay}"
+                                             ToolTip="{wpf:Text Settings.FixedCaptureSizesHeight}"/>
+                                </StackPanel>
+                                <TextBlock Grid.Row="1" Text="{wpf:Text Settings.NewImageColor}" VerticalAlignment="Center" Margin="0,4,12,4"
+                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource SecondaryButtonStyle}"
+                                        HorizontalAlignment="Left" Margin="0,4" Padding="2"
+                                        ToolTip="{wpf:Text Settings.NewImageColor}"
+                                        IsEnabled="{Binding EditorConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=NewImageColor}"
+                                        Click="NewImageColor_Click">
+                                    <Border Width="40" Height="16" BorderThickness="1" Background="{Binding NewImageBrush}"
+                                            BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+                                </Button>
+                            </Grid>
                         </GroupBox>
                     </StackPanel>
                 </ScrollViewer>

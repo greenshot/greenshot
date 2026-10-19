@@ -154,7 +154,8 @@ namespace Greenshot.Editor.Forms
         public static EditorTab Open(ISurface surface, bool useOpenEditor, bool? matchSizeToCapture = null)
         {
             ThreadAssert.IsUi(nameof(Open));
-            var window = useOpenEditor ? _lastActiveWindow ?? OpenWindows.LastOrDefault() : null;
+            // Without tabs every capture gets its own window
+            var window = useOpenEditor && EditorConfiguration.EditorTabs ? _lastActiveWindow ?? OpenWindows.LastOrDefault() : null;
             if (window == null || window.IsDisposed)
             {
                 window = new ImageEditorForm(surface, !surface.Modified, matchSizeToCapture);
@@ -242,10 +243,21 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
         public ImageEditorForm()
         {
-            var image = ImageHelper.CreateEmpty(EditorConfiguration.DefaultEditorSize.Width, EditorConfiguration.DefaultEditorSize.Height, PixelFormat.Format32bppArgb, Color.White, 96f, 96f);
             Initialize(useStoredPlacement: true);
-            AddTab(new Surface(image), outputMade: false, fitWindow: true);
+            AddTab(CreateNewImage(), outputMade: false, fitWindow: true);
             HideToolstripItems();
+        }
+
+        /// <summary>
+        /// A new image, with the size and the color from the settings
+        /// </summary>
+        private static Surface CreateNewImage()
+        {
+            var size = EditorConfiguration.DefaultEditorSize;
+            var image = ImageHelper.CreateEmpty(Math.Max(1, size.Width), Math.Max(1, size.Height), PixelFormat.Format32bppArgb, EditorConfiguration.NewImageColor, 96f, 96f);
+            var surface = new Surface(image);
+            surface.CaptureDetails.Title = Texts.Editor.NewImage;
+            return surface;
         }
 
         public ImageEditorForm(ISurface surface, bool outputMade, bool? matchSizeToCapture = null)
@@ -419,6 +431,8 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
             tabStrip.TabSelected += (s, e) => SelectTab(e.Tab);
             tabStrip.TabCloseRequested += (s, e) => CloseTab(e.Tab, askToSave: true);
+            // Nothing to save before something is drawn on the new image
+            tabStrip.NewTabRequested += (s, e) => AddTab(CreateNewImage(), outputMade: true, fitWindow: false);
             Activated += (s, e) => _lastActiveWindow = this;
             FormClosed += (s, e) => CloseAllTabs();
             // Also when the window is disposed without closing it
@@ -548,7 +562,16 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
             tab.Window = this;
             tab.Changed += TabChanged;
+            UpdateTabStripVisibility();
             SelectTab(tab);
+        }
+
+        /// <summary>
+        /// Without tabs in the settings the tabs are hidden, unless the window has more than one (e.g. the setting was just changed)
+        /// </summary>
+        private void UpdateTabStripVisibility()
+        {
+            tabStrip.Visible = EditorConfiguration.EditorTabs || Tabs.Count > 1;
         }
 
         /// <summary>
@@ -569,6 +592,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 tabStrip.Remove(tab);
             }
 
+            UpdateTabStripVisibility();
             if (Tabs.Count > 0 && SelectedTab == null)
             {
                 SelectTab(Tabs[Math.Min(index, Tabs.Count - 1)]);
@@ -3198,6 +3222,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             this.alignCenterToolStripMenuItem.Text = Texts.Editor.AlignCenter;
             this.alignRightToolStripMenuItem.Text = Texts.Editor.AlignRight;
             this.closeTabToolStripMenuItem.Text = Texts.Editor.CloseTab;
+            tabStrip.NewTabText = Texts.Editor.NewImage;
             if (SelectedTab != null)
             {
                 ShowTabState(SelectedTab);

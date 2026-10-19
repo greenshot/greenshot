@@ -167,6 +167,11 @@ namespace Greenshot.Base.Languages
         string CloseTab { get; }
 
         /// <summary>
+        /// New image
+        /// </summary>
+        string NewImage { get; }
+
+        /// <summary>
         /// Confirm
         /// </summary>
         string Confirm { get; }
