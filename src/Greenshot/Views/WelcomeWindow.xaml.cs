@@ -111,11 +111,9 @@ namespace Greenshot.Views
             }
             steps.Add(StepDone);
             _steps = steps.ToArray();
-            foreach (var stepPanel in _steps)
-            {
-                // Gets the focus when it is shown, see FocusStep
-                stepPanel.Focusable = true;
-            }
+            // Never seen, a focus rectangle around them would be (see FocusStep)
+            StepReaderA.FocusVisualStyle = null;
+            StepReaderB.FocusVisualStyle = null;
             DataContext = this;
 
             _tipIndex = _rand.Next(Tips().Length);
@@ -218,8 +216,9 @@ namespace Greenshot.Views
         }
 
         /// <summary>
-        /// A screen reader says what gets the focus, not the text of a step which appears: the focus goes to the step itself, named by
-        /// its number and all its text. Enter still presses Next (IsDefault), Tab goes on to the controls of the step.
+        /// A screen reader says what gets the focus, not the text of a step which appears: the focus goes to a hidden text with the step
+        /// number and all text of the step (a panel has no automation peer, a screen reader doesn't see it). Two of them, so the focus
+        /// changes also when Enter (Next is IsDefault) shows the next step. Tab goes on to the controls of the step.
         /// After the layout, when the texts of the step (e.g. the hotkeys) are there.
         /// </summary>
         private void FocusStep()
@@ -233,8 +232,11 @@ namespace Greenshot.Views
                     texts.Add(ThanksText.Text);
                 }
                 texts.AddRange(VisibleTexts(step));
-                System.Windows.Automation.AutomationProperties.SetName(step, string.Join(" ", texts.Where(text => !string.IsNullOrWhiteSpace(text))));
-                step.Focus();
+                var text = string.Join(" ", texts.Where(part => !string.IsNullOrWhiteSpace(part)));
+                var reader = ReferenceEquals(FocusManager.GetFocusedElement(this), StepReaderA) ? StepReaderB : StepReaderA;
+                reader.Text = text;
+                System.Windows.Automation.AutomationProperties.SetName(reader, text);
+                reader.Focus();
             }, System.Windows.Threading.DispatcherPriority.Loaded).Task.FireAndLog("Focus the welcome step", Log);
         }
 

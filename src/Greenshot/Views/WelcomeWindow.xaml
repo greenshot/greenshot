@@ -76,6 +76,10 @@
                     </StackPanel>
                 </Grid>
 
+                <!-- Not drawn: what a screen reader says when a step is shown, the focus moves from one to the other, see FocusStep -->
+                <TextBlock x:Name="StepReaderA" Width="1" Height="1" Margin="0,-1,0,0" Opacity="0" IsHitTestVisible="False" Focusable="True"/>
+                <TextBlock x:Name="StepReaderB" Width="1" Height="1" Margin="0,-1,0,0" Opacity="0" IsHitTestVisible="False" Focusable="True"/>
+
                 <!-- The steps of the wizard share one cell: the hidden ones keep their size, so the window doesn't jump.
                      A new step is a panel here and an entry in WelcomeWindow._steps -->
                 <Grid>
