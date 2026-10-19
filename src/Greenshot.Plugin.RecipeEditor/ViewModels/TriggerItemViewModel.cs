@@ -85,6 +85,18 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set => SetParam("Group", value);
         }
 
+        public int Order
+        {
+            get => Config.GetParameter<int>("Order", 0);
+            set
+            {
+                if (Config.GetParameter<int>("Order", 0) != value)
+                {
+                    SetParam("Order", value);
+                }
+            }
+        }
+
         public string FormatFilter
         {
             get => GetParam("FormatFilter", "");
@@ -127,8 +139,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         }
 
         public bool IsHotkey => string.Equals(TriggerType, TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase);
-        public bool IsContextMenu => string.Equals(TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase) ||
-                                     string.Equals(TriggerType, TriggerConfig.TypeSystray, StringComparison.OrdinalIgnoreCase);
+        public bool IsContextMenu => string.Equals(TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase);
         public bool IsEditor => string.Equals(TriggerType, TriggerConfig.TypeEditor, StringComparison.OrdinalIgnoreCase);
         public bool IsClipboard => string.Equals(TriggerType, TriggerConfig.TypeClipboard, StringComparison.OrdinalIgnoreCase);
         public bool IsManual => string.Equals(TriggerType, TriggerConfig.TypeManual, StringComparison.OrdinalIgnoreCase);

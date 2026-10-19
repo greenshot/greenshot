@@ -454,16 +454,39 @@ namespace Greenshot.Shell
             var recipeManager = SimpleServiceProvider.Current.GetInstance<IRecipeManager>(isOptional: true) ?? RecipeManager.Instance;
 
             int recipeItemCount = 0;
-            foreach (var trigger in triggerManager.GetContextMenuTriggers().OrderBy(t => t.Order))
-            {
-                var recipe = recipeManager.GetRecipeById(trigger.TargetRecipeId);
-                if (recipe == null || !recipe.ShowInContextMenu || !recipe.IsEnabled)
+            var menuGroups = new Dictionary<string, MenuItem>(StringComparer.OrdinalIgnoreCase);
+            var menuEntries = triggerManager.GetContextMenuTriggers()
+                .Select(trigger => new
                 {
-                    continue;
-                }
+                    Trigger = trigger,
+                    Recipe = recipeManager.GetRecipeById(trigger.TargetRecipeId),
+                    Group = string.IsNullOrWhiteSpace(trigger.Group) ? "Recipes" : trigger.Group.Trim()
+                })
+                .Where(entry => entry.Recipe != null && entry.Recipe.ShowInContextMenu && entry.Recipe.IsEnabled)
+                .OrderBy(entry => string.Equals(entry.Group, "Recipes", StringComparison.OrdinalIgnoreCase) ? 0 : 10)
+                .ThenBy(entry => entry.Group, StringComparer.CurrentCultureIgnoreCase)
+                .ThenBy(entry => entry.Trigger.Order)
+                .ThenBy(entry => entry.Recipe.Name, StringComparer.CurrentCultureIgnoreCase);
+            foreach (var entry in menuEntries)
+            {
+                var trigger = entry.Trigger;
+                var recipe = entry.Recipe;
 
                 var menuTrigger = trigger;
-                var item = AddItem(recipesItem, trigger.MenuItemText ?? recipe.Name, null, () => menuTrigger.Fire());
+                string group = entry.Group;
+                ItemsControl parent = recipesItem;
+                if (!string.Equals(group, "Recipes", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (!menuGroups.TryGetValue(group, out var groupItem))
+                    {
+                        groupItem = ThemedMenu.CreateItem(group);
+                        menuGroups.Add(group, groupItem);
+                        recipesItem.Items.Add(groupItem);
+                    }
+                    parent = groupItem;
+                }
+
+                var item = AddItem(parent, trigger.MenuItemText ?? recipe.Name, null, () => menuTrigger.Fire());
                 var hotkeyTrigger = triggerManager.FindHotkeyTriggerForRecipe(recipe.Id);
                 if (hotkeyTrigger != null && !string.IsNullOrWhiteSpace(hotkeyTrigger.HotkeyString))
                 {
