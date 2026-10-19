@@ -111,6 +111,8 @@ namespace Greenshot.Base.Capturing
             // The selection grows out of the cursor
             Host.ShowSelection(new NativeRect(Host.CursorPosition, NativeSize.Empty));
             Host.ClearLabels();
+            // Switched to with Space: the window under the cursor right away (when the window opens, the windows aren't known yet)
+            SelectWindowUnderCursor();
         }
 
         public override void Deactivate()
@@ -172,13 +174,14 @@ namespace Greenshot.Base.Capturing
         }
 
         /// <summary>
-        /// Select the window on top (the one which had the focus), as Tab would, unless a window is selected already
+        /// Select the window under the cursor without a mouse move, so Enter captures it and Tab goes on from there
         /// </summary>
-        public void SelectFirstWindow()
+        public void SelectWindowUnderCursor()
         {
-            if (_selectedWindow == null)
+            var window = Host.FindWindowUnderCursor(true);
+            if (window != null)
             {
-                SelectNextWindow(1);
+                SelectWindow(window);
             }
         }
 

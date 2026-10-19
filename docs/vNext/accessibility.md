@@ -129,8 +129,8 @@ the selection size through its hidden `Announcement` live region. When you add a
 - Announce what the user would otherwise only see (`Announce(...)` in `CaptureWindow.xaml.cs`).
 - Keys a screen reader needs (Insert, Caps Lock and keys held with them) are never swallowed.
 - Use the high contrast colors when `SystemParameters.HighContrast` is on.
-- While a screen reader runs (`ScreenReader.IsRunning` in `Greenshot.Base/Native`), a region capture starts as window capture with the
-  top window selected: a region can't be seen, a window is said by its title.
+- Window capture selects the window under the cursor as soon as it starts, so a screen reader says its title without a mouse move.
+  Don't rely on the screen reader flag of Windows (`SPI_GETSCREENREADER`): applications leave it on, so it is no sign of a screen reader.
 
 ## Menus and lists to choose from
 

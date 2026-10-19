@@ -476,9 +476,8 @@ All of these are in the `[Core]` section, unless said otherwise.
   The texts also grow with the *Text size* of Windows (Settings, Accessibility).
 - **Screen readers:** when the capture screen opens or the mode changes, a screen reader (Narrator, NVDA, JAWS) says the mode and its
   main keys; the selected window and the size of a selection are said once they stop changing. On the live screen the `Insert` and
-  `Caps Lock` keys, and the keys pressed with them, stay with the screen reader. While a screen reader runs, a region capture starts
-  as a window capture with the window on top already selected: `Enter` captures it, `Tab` selects the next window, `Space` switches
-  to the region.
+  `Caps Lock` keys, and the keys pressed with them, stay with the screen reader. Window capture (its own hotkey, or `Space`) selects
+  the window under the cursor right away and says its title: `Enter` captures it, `Tab` selects the next window.
 - **Destination picker:** every destination has a fixed letter, underlined in the menu (for example `C` for the clipboard, `S` to
   save). The letter stays the same whatever other destinations are there, so you can learn it.
 - **Animations:** with *Animation effects* off in Windows (Settings, Accessibility, Visual effects) the selection, the zoomer and the
