@@ -239,6 +239,8 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         }
 
         private bool? _matchSizeToCapture;
+        // The user answered the question about the changed captures, the window closes without asking again
+        private bool _closeConfirmed;
         private bool MatchSizeToCapture => _matchSizeToCapture ?? EditorConfiguration.MatchSizeToCapture;
 
         public ImageEditorForm()
@@ -681,6 +683,83 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Ask once for all changed captures of the window: save all, discard all or cancel.
+        /// Saving stops at a capture which isn't saved (e.g. its file dialog was cancelled), the saved captures are closed, the others stay.
+        /// </summary>
+        private async Task ConfirmCloseAsync(IReadOnlyList<EditorTab> changedTabs)
+        {
+            const int saveAll = 0, cancel = 2;
+            // Out of the FormClosing event, so the window can be closed at the end
+            await Task.Yield();
+            // Show the first changed capture
+            SelectTab(changedTabs[0]);
+            WindowHelper.ToForeground(Handle);
+            const int maximumListed = 10;
+            var titles = changedTabs.Take(maximumListed).Select(tab => "• " + tab.Title);
+            if (changedTabs.Count > maximumListed)
+            {
+                titles = titles.Concat(new[] { "…" });
+            }
+
+            string text = Texts.Editor.CloseOnSaveAll + Environment.NewLine + Environment.NewLine + string.Join(Environment.NewLine, titles);
+            int choice = Greenshot.Base.Wpf.ThemedMessageBox.ShowChoice(Handle, Texts.Editor.CloseOnSaveAllTitle, text, System.Windows.MessageBoxImage.Question,
+                new[] { Texts.Editor.SaveAll, Texts.Editor.DiscardAll, Texts.Core.Cancel }, saveAll, cancel);
+            if (choice == cancel)
+            {
+                return;
+            }
+
+            if (choice == saveAll)
+            {
+                foreach (var tab in changedTabs)
+                {
+                    if (tab.Window != this || !tab.Surface.Modified)
+                    {
+                        // Closed, moved or saved in the meantime
+                        continue;
+                    }
+
+                    SelectTab(tab);
+                    if (!await SaveAsync(tab.Surface) || tab.Surface.Modified)
+                    {
+                        return;
+                    }
+
+                    CloseTab(tab, askToSave: false);
+                    if (IsDisposed)
+                    {
+                        return;
+                    }
+                }
+            }
+
+            if (IsDisposed)
+            {
+                return;
+            }
+
+            _closeConfirmed = true;
+            Close();
+        }
+
+        /// <summary>
+        /// Save the capture to its file, or with the file dialog when it has none
+        /// </summary>
+        /// <returns>true when it was saved</returns>
+        private static async Task<bool> SaveAsync(Surface surface)
+        {
+            var designation = surface.LastSaveFullPath == null ? WellKnownDestinations.FileDialog : WellKnownDestinations.FileNoDialog;
+            var destination = DestinationHelper.GetDestination(designation.ToString());
+            if (destination == null)
+            {
+                return false;
+            }
+
+            var result = await DestinationExporter.ExportAsync(destination, surface, surface.CaptureDetails, manuallyInitiated: true);
+            return result.IsSucceeded;
         }
 
         /// <summary>
@@ -1582,9 +1661,18 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         {
             // Disallow "CANCEL" if the application needs to shutdown
             bool allowCancel = e.CloseReason is not (CloseReason.ApplicationExitCall or CloseReason.WindowsShutDown or CloseReason.TaskManagerClosing);
+            var changedTabs = Tabs.Where(tab => tab.Surface.Modified).ToList();
+            if (!_closeConfirmed && allowCancel && changedTabs.Count > 1 && !EditorConfiguration.SuppressSaveDialogAtClose)
+            {
+                // One question for all changed captures, the saves run before the window closes
+                e.Cancel = true;
+                ConfirmCloseAsync(changedTabs).FireAndLog("Close the editor with changed captures", Log);
+                return;
+            }
+
             foreach (var tab in Tabs.ToList())
             {
-                if (!ConfirmClose(tab, allowCancel))
+                if (!_closeConfirmed && !ConfirmClose(tab, allowCancel))
                 {
                     e.Cancel = true;
                     return;

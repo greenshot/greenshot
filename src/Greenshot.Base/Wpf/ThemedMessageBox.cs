@@ -216,6 +216,34 @@ namespace Greenshot.Base.Wpf
             return choice >= 0 && choice < choices.Length ? choices[choice].Result : MessageBoxResult.None;
         }
 
+        /// <summary>
+        /// Shows the message with own button texts over a window which isn't a WPF window (e.g. a WinForms form);
+        /// returns the index of the chosen button, or cancelIndex when the box was closed.
+        /// </summary>
+        /// <param name="ownerHandle">The handle of the owner window, the box is centered on it</param>
+        /// <param name="caption">Caption</param>
+        /// <param name="text">The message</param>
+        /// <param name="icon">Icon</param>
+        /// <param name="buttons">The button texts</param>
+        /// <param name="defaultIndex">The button Enter presses, -1 for none</param>
+        /// <param name="cancelIndex">The button Escape presses and the result when the box is closed; -1: Escape does nothing</param>
+        public static int ShowChoice(IntPtr ownerHandle, string caption, string text, MessageBoxImage icon, IReadOnlyList<string> buttons, int defaultIndex = 0, int cancelIndex = -1)
+        {
+            var box = new ThemedMessageBox(caption, text, icon, buttons, defaultIndex, cancelIndex);
+            if (ownerHandle != IntPtr.Zero)
+            {
+                _ = new System.Windows.Interop.WindowInteropHelper(box) { Owner = ownerHandle };
+                box.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            }
+            else
+            {
+                box.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                box.Topmost = true;
+            }
+            box.ShowDialog();
+            return box._choice;
+        }
+
         private static Window FindOwner()
         {
             var windows = Application.Current?.Windows.OfType<Window>().Where(w => w.IsVisible && !(w is ThemedMessageBox)).ToList();
