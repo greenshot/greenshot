@@ -126,6 +126,7 @@ namespace Greenshot.Shell
             userInteraction.Register<PrintRequest, bool>(PrintRequest.Print);
             userInteraction.Register<ShareRequest, string>(ShareHostWindow.Show);
             userInteraction.Register<PreviewPromptRequest, PreviewPromptResult>(RecipeUserPromptWindow.Show);
+            userInteraction.Register<ErrorDetailsRequest, bool>(ErrorDetailsWindow.Show);
             SimpleServiceProvider.Current.AddService<IUserInteraction>(userInteraction);
             SimpleServiceProvider.Current.AddService<IDialogViewRegistry>(userInteraction);
 #if DEBUG

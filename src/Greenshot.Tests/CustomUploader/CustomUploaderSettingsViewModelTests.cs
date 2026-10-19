@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Languages;
 using Greenshot.Plugin.CustomUploader;
 using Greenshot.Plugin.CustomUploader.Sxcu;
@@ -53,6 +54,38 @@ namespace Greenshot.Tests.CustomUploader
 
             Assert.Contains(noDeletion, viewModel.DescribeImport(Uploader()));
             Assert.DoesNotContain(noDeletion, viewModel.DescribeImport(Uploader("{json:delete}")));
+        }
+
+        [Fact]
+        public void DescribeImport_SaysTheServiceIsntGreenshots()
+        {
+            var viewModel = new CustomUploaderSettingsViewModel(CreateStore());
+
+            Assert.Contains(string.Format(Language.ImportNotGreenshot, "Mine", "example.com"), viewModel.DescribeImport(Uploader()));
+        }
+
+        [Fact]
+        public void DescribeFailure_HasTheNamesOfWhatWasSentButNoValues()
+        {
+            var definition = CustomUploaderSettingsViewModel.WithValues(Shared(), CustomUploaderSettingsViewModel.GetValues(Shared()).Select(value =>
+            {
+                if (value.Name == "key") value.Value = "my-secret-key";
+                return value;
+            }).ToList());
+
+            string details = CustomUploaderPlugin.DescribeFailure(definition, "412 PreconditionFailed: No file!", new EncodedImage(new byte[] { 1, 2, 3 }, "png"),
+                "capture.png", new DateTimeOffset(2026, 10, 19, 8, 39, 25, TimeSpan.FromHours(2)));
+
+            Assert.Contains("Uploader: ImgBB", details);
+            Assert.Contains("Server: https://api.imgbb.com/", details);
+            Assert.Contains("fields expiration, file image (\"capture.png\"", details);
+            Assert.Contains("3 bytes", details);
+            Assert.Contains("Address parameters: key", details);
+            Assert.Contains("Headers: X-Client", details);
+            Assert.Contains("Answer: 412 PreconditionFailed: No file!", details);
+            Assert.Contains("Time: 2026-10-19 08:39:25 +02:00", details);
+            Assert.DoesNotContain("my-secret-key", details);
+            Assert.DoesNotContain("600", details);
         }
 
         [Fact]

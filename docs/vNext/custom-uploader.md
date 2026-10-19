@@ -43,6 +43,8 @@ secret, password or auth (like *Authorization*) are masked, *Show* reveals them.
 of the file (`<…>`, `[…]`, `YOUR_…`, "insert", "here"), *Next* asks once whether to go on; *No* goes back to the values.
 With *Next* Greenshot checks the values like the file. Then it asks: it shows the name of the uploader, the server your
 captures go to, and the names of the headers which go with them (often *Authorization*, the key). The values aren't shown.
+It also says that the uploader isn't part of Greenshot: whether uploads work depends on the service and the file, and when
+they fail the service or whoever made the file can help, not Greenshot.
 The *Import* button reacts after a moment, Enter and Escape cancel. Nothing is stored before you click *Import*.
 
 An uploader with the same name as one you already have replaces it, Greenshot says so in the question.
@@ -64,6 +66,10 @@ Greenshot uploads the capture in your output file format (PNG when that is the G
 puts the link to the upload on the clipboard. The notification shows the link too. When the upload fails, the notification
 says why: the error of the service when the uploader reads it, otherwise the status with the start of the answer when it is text (e.g.
 *500 Internal Server Error: Error: file too large*; an HTML error page gives the status only). The log gets the same.
+When you started the upload yourself, a window says it too, and that the service and the uploader file aren't part of
+Greenshot. *Details* opens what helps the service or the author of the file: the uploader, the server, the names of the
+address parameters, headers and form fields (not their values, they hold your key), the file name, type and size, the
+answer, the time and the Greenshot version. *Copy details* puts them on the clipboard. A recipe run shows no window.
 
 In a recipe, use the step *Upload with a custom uploader* (`CustomUploader`) with the name of the uploader in `Uploader`
 (empty when you have only one). The link is in the variable `CustomUploader.Url`. Like every step which sends data, the

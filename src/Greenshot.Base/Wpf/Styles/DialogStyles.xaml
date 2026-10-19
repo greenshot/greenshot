@@ -1,6 +1,6 @@
 <!--
     The styles of Greenshot's themed WPF windows (light and dark): text boxes, combo boxes, check boxes, buttons,
-    list views with a GridView and the title bar buttons. Merge it into the window's resources:
+    expanders, list views with a GridView and the title bar buttons. Merge it into the window's resources:
     <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/DialogStyles.xaml"/>
     The brushes are bound to ThemeManager.Instance, so a theme change updates the window.
 -->
@@ -13,6 +13,7 @@
         <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ScrollBarStyles.xaml"/>
         <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ComboBoxStyles.xaml"/>
         <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ListViewStyles.xaml"/>
+        <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ExpanderStyles.xaml"/>
     </ResourceDictionary.MergedDictionaries>
 
     <!-- The default template paints a disabled list in the system color, this one keeps the theme and dims it -->

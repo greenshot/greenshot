@@ -305,4 +305,24 @@ public interface ICustomUploaderLanguage : INotifyPropertyChanged
     /// The header {0} isn't valid.
     /// </summary>
     string ErrorHeader { get; }
+
+    /// <summary>
+    /// {0} isn't part of Greenshot: whether uploads work depends on the service and on this file. When they fail, {1} or whoever made the file can help, Greenshot can't.
+    /// </summary>
+    string ImportNotGreenshot { get; }
+
+    /// <summary>
+    /// Upload with {0} failed
+    /// </summary>
+    string UploadFailedTitle { get; }
+
+    /// <summary>
+    /// {0} didn't take the capture: {1}
+    /// </summary>
+    string UploadFailedMessage { get; }
+
+    /// <summary>
+    /// "{0}" isn't part of Greenshot: it comes from an uploader file you imported, ... ask {1} or whoever made the file, the details help them.
+    /// </summary>
+    string UploadFailedNote { get; }
 }

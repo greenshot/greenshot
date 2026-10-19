@@ -77,9 +77,10 @@ looks the same and a change of the design is made in one place. Merge the dictio
 
 | File | What it gives you |
 |---|---|
-| `DialogStyles.xaml` | The usual start for a window: merges the shared button, check box and list styles and themes `Label`, `TextBox`, `ComboBox` and the list views by default. |
+| `DialogStyles.xaml` | The usual start for a window: merges the shared button, check box, expander and list styles and themes `Label`, `TextBox`, `ComboBox` and the list views by default. |
 | `ButtonStyles.xaml` | `PrimaryButtonStyle` (the main action, e.g. OK), `SecondaryButtonStyle` (the other actions, e.g. Cancel), `WarnButtonStyle`, `ErrorButtonStyle` (strong red, destructive), `LightErrorButtonStyle` (a lighter delete), text-only buttons `PrimaryTextButtonStyle`, `SecondaryTextButtonStyle`, `LinkTextButtonStyle`, `ToolboxButtonStyle`, `PaletteSwatchStyle`, `DefaultRadioButtonStyle`, `FilterChipRadioButtonStyle`, and the caption buttons `TitleBarButtonStyle`, `TitleCloseButtonStyle`. |
 | `CheckBoxStyles.xaml` | `GreenshotCheckBoxStyle`, also the default style of every `CheckBox` in a window which merges it. |
+| `ExpanderStyles.xaml` | `ExpanderStyle`: a header with an arrow which turns when the content is shown (settings groups, error details). |
 | `ListViewStyles.xaml` | `ThemeListView`, `ThemeListViewItem`, `ThemeGridViewColumnHeader`. |
 | `PillStyles.xaml` | `PillStyle` (an entry shown as a pill), `RemoveEntryButtonStyle` (the small x in it), `AddPillButtonStyle` (the + at the end of the list). |
 | `MenuStyles.xaml` | `GreenshotContextMenuStyle`, `GreenshotMenuItemStyle`, `GreenshotMenuSeparatorStyle`; `ThemedMenu` uses them for the tray menu and the other menus. |
@@ -88,6 +89,10 @@ looks the same and a change of the design is made in one place. Merge the dictio
 <Button Content="{wpf:Text Core.Ok}" Style="{StaticResource PrimaryButtonStyle}" IsDefault="True"/>
 <Button Content="{wpf:Text Core.Cancel}" Style="{StaticResource SecondaryButtonStyle}" IsCancel="True"/>
 ```
+
+For an error with details for whoever has to fix it, a destination or step calls `ShowDialogAsync` with an
+`ErrorDetailsRequest` (title, message, note, details): Greenshot shows the message, the note and an expandable *Details*
+with *Copy details*.
 
 Other parts to reuse instead of building your own: `HotkeyEditorView` and `HotkeyDisplayView` (enter and show a hotkey),
 `KeyCapBadgeView` (a key as a key cap), `DestinationPicker`, `ProgressWindow`, `QualityWindow`, `ThumbnailWindow`,
