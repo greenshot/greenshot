@@ -81,6 +81,10 @@ namespace Greenshot.Tests.Ipc
             {
                 return "Greenshot is running and owns the pipe these tests need.";
             }
+            if (needsPipe && Process.GetProcessesByName("greenshot-mcp").Length > 0)
+            {
+                return "greenshot-mcp is running and connected to the pipe these tests need.";
+            }
             return null;
         }
     }
