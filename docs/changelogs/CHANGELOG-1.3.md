@@ -20,10 +20,6 @@ Released: October 19, 2026
 
 - Fixed a crash that could occur when Windows could not create a toast notifier — by [@Lakritzator](https://github.com/Lakritzator) (Robin Krom) in [PR #1515](https://github.com/greenshot/greenshot/pull/1515)
 
-### Downloads
-- [Installer](https://github.com/greenshot/greenshot/releases/download/v1.3.328/Greenshot-INSTALLER-1.3.328-RELEASE.exe)
-- [Portable ZIP](https://github.com/greenshot/greenshot/releases/download/v1.3.328/Greenshot-PORTABLE-1.3.328-RELEASE.zip)
-
 ### Technical Details
 
 - **Release scope**: This is the 11th stable release of the 1.3 series. Versions 1.3.324 to 1.3.327 were intermediate builds; their changes are rolled into this release.
