@@ -5,12 +5,18 @@
     xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
     Loaded="Page_Loaded">
 	<Grid Width="500">
+		<!-- Selecting and the right arrow work like the click and the double click, for the keyboard -->
 		<TreeView Name="ConfluenceTreeView" MaxHeight="500"
 			Height="Auto" Width="Auto" Margin="10,10,0,13"
-			VerticalAlignment="Top" HorizontalAlignment="Left" />
-		<Border Name="ShowBusy" BorderBrush="Black" BorderThickness="1" Background="#80000000" Visibility="Visible">
+			VerticalAlignment="Top" HorizontalAlignment="Left"
+			AutomationProperties.Name="{wpf:Text Confluence.BrowsePages}"
+			SelectedItemChanged="ConfluenceTreeView_SelectedItemChanged"
+			KeyDown="ConfluenceTreeView_KeyDown"/>
+		<!-- Opaque enough for readable text, announced while it shows -->
+		<Border Name="ShowBusy" BorderBrush="Black" BorderThickness="1" Background="#C0000000" Visibility="Visible">
 			<TextBlock Margin="0" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center"
-				FontSize="18" FontWeight="Bold" Foreground="#7EFFFFFF" Text="{wpf:Text Confluence.Loading}"/>
+				FontSize="{wpf:FontSize 18}" FontWeight="Bold" Foreground="White" Text="{wpf:Text Confluence.Loading}"
+				wpf:LiveRegion.Mode="Polite"/>
 		</Border>
 	</Grid>
 </Page>

@@ -24,7 +24,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Automation;
 using System.Windows.Controls;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Base.Wpf
 {
@@ -38,6 +40,7 @@ namespace Greenshot.Base.Wpf
         private readonly int _cancelIndex;
 
         private readonly List<Button> _buttons = new List<Button>();
+        private Button _defaultButton;
 
         private ThemedMessageBox(string caption, string text, MessageBoxImage icon, IReadOnlyList<string> buttons, int defaultIndex, int cancelIndex)
         {
@@ -48,15 +51,17 @@ namespace Greenshot.Base.Wpf
             MaxWidth = 640;
 
             var header = ThemedControls.CreateHeader(this, caption);
+            // A screen reader says the title and the focused button, the question itself only from here
+            AutomationProperties.SetHelpText(this, text ?? string.Empty);
 
             var message = new TextBlock
             {
                 Text = text ?? string.Empty,
                 TextWrapping = TextWrapping.Wrap,
-                FontSize = 12,
                 Foreground = WpfThemeHelper.TextPrimary,
                 VerticalAlignment = VerticalAlignment.Center
             };
+            message.SetBinding(TextBlock.FontSizeProperty, FontSizeExtension.CreateBinding(12));
 
             var body = new DockPanel { LastChildFill = true };
             string glyph = GetGlyph(icon);
@@ -72,6 +77,8 @@ namespace Greenshot.Base.Wpf
                         : icon == MessageBoxImage.Warning ? WpfThemeHelper.WarningText
                         : WpfThemeHelper.Accent
                 };
+                // Not the emoji: its meaning
+                AutomationProperties.SetName(iconText, GetIconName(icon));
                 DockPanel.SetDock(iconText, Dock.Left);
                 body.Children.Add(iconText);
             }
@@ -98,6 +105,7 @@ namespace Greenshot.Base.Wpf
                 _buttons.Add(button);
                 if (isDefault)
                 {
+                    _defaultButton = button;
                     Loaded += (s, e) => button.Focus();
                 }
             }
@@ -136,6 +144,9 @@ namespace Greenshot.Base.Wpf
                 {
                     button.IsEnabled = true;
                 }
+
+                // A disabled button can't take the focus when the window is shown: the keyboard starts on the default button now
+                _defaultButton?.Focus();
             };
             ContentRendered += (s, e) => timer.Start();
             Closed += (s, e) => timer.Stop();
@@ -216,10 +227,49 @@ namespace Greenshot.Base.Wpf
             return choice >= 0 && choice < choices.Length ? choices[choice].Result : MessageBoxResult.None;
         }
 
+        /// <summary>
+        /// Shows the message with own button texts over a window which isn't a WPF window (e.g. a WinForms form);
+        /// returns the index of the chosen button, or cancelIndex when the box was closed.
+        /// </summary>
+        /// <param name="ownerHandle">The handle of the owner window, the box is centered on it</param>
+        /// <param name="caption">Caption</param>
+        /// <param name="text">The message</param>
+        /// <param name="icon">Icon</param>
+        /// <param name="buttons">The button texts</param>
+        /// <param name="defaultIndex">The button Enter presses, -1 for none</param>
+        /// <param name="cancelIndex">The button Escape presses and the result when the box is closed; -1: Escape does nothing</param>
+        public static int ShowChoice(IntPtr ownerHandle, string caption, string text, MessageBoxImage icon, IReadOnlyList<string> buttons, int defaultIndex = 0, int cancelIndex = -1)
+        {
+            var box = new ThemedMessageBox(caption, text, icon, buttons, defaultIndex, cancelIndex);
+            if (ownerHandle != IntPtr.Zero)
+            {
+                _ = new System.Windows.Interop.WindowInteropHelper(box) { Owner = ownerHandle };
+                box.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            }
+            else
+            {
+                box.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                box.Topmost = true;
+            }
+            box.ShowDialog();
+            return box._choice;
+        }
+
         private static Window FindOwner()
         {
             var windows = Application.Current?.Windows.OfType<Window>().Where(w => w.IsVisible && !(w is ThemedMessageBox)).ToList();
             return windows?.FirstOrDefault(w => w.IsActive) ?? windows?.LastOrDefault();
+        }
+
+        private static string GetIconName(MessageBoxImage icon)
+        {
+            switch (icon)
+            {
+                case MessageBoxImage.Error: return Texts.Core.Error;
+                case MessageBoxImage.Warning: return Texts.Core.Warning;
+                case MessageBoxImage.Question: return Texts.Core.AccessibleQuestion;
+                default: return Texts.Core.AccessibleInformation;
+            }
         }
 
         private static string GetGlyph(MessageBoxImage icon)

@@ -259,18 +259,19 @@ namespace Greenshot.Tests.Recipes
         {
         }
 
-        private static string FindRepositoryDirectory() => Path.GetDirectoryName(Path.GetDirectoryName(FindExamplesDirectory()));
+        // docs/vNext/examples is three levels below the repository
+        private static string FindRepositoryDirectory() => Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(FindExamplesDirectory())));
 
         private static string FindExamplesDirectory()
         {
             var directory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
             while (directory != null)
             {
-                string candidate = Path.Combine(directory.FullName, "docs", "examples");
+                string candidate = Path.Combine(directory.FullName, "docs", "vNext", "examples");
                 if (Directory.Exists(candidate)) return candidate;
                 directory = directory.Parent;
             }
-            throw new DirectoryNotFoundException("docs/examples not found above " + AppDomain.CurrentDomain.BaseDirectory);
+            throw new DirectoryNotFoundException("docs/vNext/examples not found above " + AppDomain.CurrentDomain.BaseDirectory);
         }
 
         // --- Graph analysis ------------------------------------------------------------------------------------

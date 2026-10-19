@@ -98,9 +98,9 @@ namespace Greenshot.Tests.SelfService
         [Fact]
         public void LogViewerAppender_CollectsEntries_OnlyWhileAttached()
         {
-            using var configured = new ConfiguredRepository();
-            var logger = log4net.LogManager.GetLogger(typeof(LogSearchTests));
-            var appender = LogViewerAppender.Attach();
+            using var isolated = new IsolatedRepository();
+            var logger = log4net.LogManager.GetLogger(isolated.Repository.Name, typeof(LogSearchTests));
+            var appender = LogViewerAppender.Attach(isolated.Repository);
             try
             {
                 logger.Error("Log viewer appender test entry");
@@ -166,6 +166,22 @@ namespace Greenshot.Tests.SelfService
             {
                 LogHelper.RootLevel = original;
             }
+        }
+
+        /// <summary>
+        /// A log4net repository of its own, so the root logger is not shared with other tests or threads
+        /// </summary>
+        private sealed class IsolatedRepository : IDisposable
+        {
+            public IsolatedRepository()
+            {
+                Repository = (Hierarchy) log4net.LogManager.CreateRepository(Guid.NewGuid().ToString());
+                Repository.Configured = true;
+            }
+
+            public Hierarchy Repository { get; }
+
+            public void Dispose() => log4net.LogManager.ShutdownRepository(Repository.Name);
         }
 
         /// <summary>

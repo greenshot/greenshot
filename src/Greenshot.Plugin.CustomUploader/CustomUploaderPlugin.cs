@@ -44,7 +44,7 @@ namespace Greenshot.Plugin.CustomUploader;
 
 /// <summary>
 /// Uploads captures with the uploader files (.sxcu) of a service, a beta feature: without "beta tester" nothing is registered.
-/// See docs/custom-uploader.md.
+/// See docs/vNext/custom-uploader.md.
 /// </summary>
 public class CustomUploaderPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvider
 {
@@ -142,18 +142,21 @@ public class CustomUploaderPlugin : IGreenshotPlugin, IConfigurablePlugin, IReci
         catch (Exception ex) when (ex is HttpRequestException or TimeoutException)
         {
             Log.Warn($"Upload with {definition.Name} failed", ex);
+            await ShowFailureAsync(definition, ex.Message, image, filename, userInteraction, cancellationToken).ConfigureAwait(false);
             return ExportResult.Failed(ex.Message, ex);
         }
 
         if (!response.IsSuccess)
         {
-            Log.WarnFormat("Upload with {0} failed, the service didn't accept it", definition.Name);
+            Log.WarnFormat("Upload with {0} failed, the service didn't accept it: {1}", definition.Name, response.Error);
+            await ShowFailureAsync(definition, response.Error, image, filename, userInteraction, cancellationToken).ConfigureAwait(false);
             return ExportResult.Failed(response.Error);
         }
 
         if (response.Url == null)
         {
             Log.WarnFormat("Upload with {0}: the response has no link", definition.Name);
+            await ShowFailureAsync(definition, Language.NoLink, image, filename, userInteraction, cancellationToken).ConfigureAwait(false);
             return ExportResult.Failed(Language.NoLink);
         }
 
@@ -166,6 +169,47 @@ public class CustomUploaderPlugin : IGreenshotPlugin, IConfigurablePlugin, IReci
         });
         await ClipboardService.Current.SetTextAsync(response.Url.AbsoluteUri, cancellationToken).ConfigureAwait(false);
         return ExportResult.Succeeded(uri: response.Url);
+    }
+
+    /// <summary>
+    /// Tell the user why the upload failed and that the service and the uploader file aren't Greenshot's, with the details for
+    /// whoever can fix it. Only for an interactive export, a recipe run logs and notifies as before.
+    /// </summary>
+    private static Task ShowFailureAsync(UploaderDefinition definition, string error, EncodedImage image, string filename, IUserInteraction userInteraction,
+        CancellationToken cancellationToken)
+    {
+        if (!userInteraction.IsInteractive)
+        {
+            return Task.CompletedTask;
+        }
+
+        string server = UploaderFile.DescribeServer(definition);
+        var request = new ErrorDetailsRequest(string.Format(Language.UploadFailedTitle, definition.Name), string.Format(Language.UploadFailedMessage, server, error),
+            string.Format(Language.UploadFailedNote, definition.Name, server), DescribeFailure(definition, error, image, filename, DateTimeOffset.Now));
+        return userInteraction.ShowDialogAsync(request, cancellationToken);
+    }
+
+    /// <summary>
+    /// The details of a failed upload, to pass on to the service or the author of the uploader file: what was sent, by name only
+    /// (no values: they hold the keys), and what the service answered
+    /// </summary>
+    internal static string DescribeFailure(UploaderDefinition definition, string error, EncodedImage image, string filename, DateTimeOffset time)
+    {
+        static string Names(IDictionary<string, string> values) => values?.Count > 0 ? string.Join(", ", values.Keys) : "-";
+
+        string file = $"\"{filename}\", {image.MimeType}, {image.Length} bytes";
+        string body = definition.Body == "Binary"
+            ? $"Binary ({file})"
+            : $"MultipartFormData, fields {Names(definition.Arguments)}, file {definition.FileFormName} ({file})";
+        return string.Join(Environment.NewLine,
+            $"Uploader: {definition.Name} (ShareX {definition.Version ?? "-"})",
+            $"Server: {UploaderFile.GetServer(definition)}",
+            $"Request: {definition.RequestMethod}, {body}",
+            $"Address parameters: {Names(definition.Parameters)}",
+            $"Headers: {Names(definition.Headers)}",
+            $"Answer: {error}",
+            $"Time: {time:yyyy-MM-dd HH:mm:ss zzz}",
+            $"Greenshot: {EnvironmentInfo.GetGreenshotVersion()}");
     }
 
     /// <summary>

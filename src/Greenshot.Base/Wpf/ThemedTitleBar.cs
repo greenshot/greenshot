@@ -22,12 +22,14 @@
 using System;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Automation;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Shell;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Base.Wpf
 {
@@ -106,7 +108,8 @@ namespace Greenshot.Base.Wpf
             var titlePanel = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(10, 0, 8, 0) };
             _iconImage = new Image { Width = 16, Height = 16, Margin = new Thickness(0, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center };
             RenderOptions.SetBitmapScalingMode(_iconImage, BitmapScalingMode.HighQuality);
-            _titleText = new TextBlock { FontSize = 12, VerticalAlignment = VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis };
+            _titleText = new TextBlock { VerticalAlignment = VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis };
+            _titleText.SetBinding(TextBlock.FontSizeProperty, FontSizeExtension.CreateBinding(12));
             titlePanel.Children.Add(_iconImage);
             titlePanel.Children.Add(_titleText);
             _captionPart = new Grid();
@@ -127,6 +130,7 @@ namespace Greenshot.Base.Wpf
             _themeToggleButton.FontSize = 13;
             _themeToggleButton.Click += (s, e) => ThemeManager.Instance.ToggleTheme();
             _minimizeButton = CreateCaptionButton(MinimizeGlyph, false);
+            BindName(_minimizeButton, nameof(ICoreLanguage.AccessibleMinimize));
             _minimizeButton.Click += (s, e) => SystemCommands.MinimizeWindow(_window);
             _maximizeButton = CreateCaptionButton(MaximizeGlyph, false);
             _maximizeButton.Click += (s, e) =>
@@ -141,6 +145,7 @@ namespace Greenshot.Base.Wpf
                 }
             };
             _closeButton = CreateCaptionButton(CloseGlyph, true);
+            BindName(_closeButton, nameof(ICoreLanguage.AccessibleClose));
             _closeButton.Click += (s, e) => _window?.Close();
             buttons.Children.Add(_themeToggleButton);
             buttons.Children.Add(_minimizeButton);
@@ -307,7 +312,9 @@ namespace Greenshot.Base.Wpf
         {
             bool isDark = ThemeManager.Instance.IsDarkTheme;
             _themeToggleButton.Content = isDark ? "☀️" : "🌙";
-            _themeToggleButton.ToolTip = isDark ? "Switch to Light Mode" : "Switch to Dark Mode";
+            string text = isDark ? Texts.Core.AccessibleThemeLight : Texts.Core.AccessibleThemeDark;
+            _themeToggleButton.ToolTip = text;
+            AutomationProperties.SetName(_themeToggleButton, text);
         }
 
         /// <summary>
@@ -377,7 +384,9 @@ namespace Greenshot.Base.Wpf
             bool canMaximize = resizeMode == ResizeMode.CanResize || resizeMode == ResizeMode.CanResizeWithGrip;
             _minimizeButton.Visibility = (ShowMinimize ?? canMinimize) ? Visibility.Visible : Visibility.Collapsed;
             _maximizeButton.Visibility = (ShowMaximize ?? canMaximize) ? Visibility.Visible : Visibility.Collapsed;
-            _maximizeButton.Content = _window?.WindowState == WindowState.Maximized ? RestoreGlyph : MaximizeGlyph;
+            bool maximized = _window?.WindowState == WindowState.Maximized;
+            _maximizeButton.Content = maximized ? RestoreGlyph : MaximizeGlyph;
+            BindName(_maximizeButton, maximized ? nameof(ICoreLanguage.AccessibleRestore) : nameof(ICoreLanguage.AccessibleMaximize));
             _closeButton.Visibility = ShowClose ? Visibility.Visible : Visibility.Collapsed;
         }
 
@@ -400,6 +409,14 @@ namespace Greenshot.Base.Wpf
                 // No entry assembly (e.g. tests) or no icon: no icon in the title bar
                 return null;
             }
+        }
+
+        /// <summary>
+        /// The name a screen reader says for a button which only shows a glyph, it follows the language
+        /// </summary>
+        private static void BindName(Button button, string coreText)
+        {
+            button.SetBinding(AutomationProperties.NameProperty, new Binding(coreText) { Source = Texts.Core });
         }
 
         private void Bind(DependencyProperty property, string themeProperty)

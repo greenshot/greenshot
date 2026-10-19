@@ -147,6 +147,51 @@ public interface ICustomUploaderLanguage : INotifyPropertyChanged
     string ImportWithReminder { get; }
 
     /// <summary>
+    /// Your values for "{0}"
+    /// </summary>
+    string ValuesTitle { get; }
+
+    /// <summary>
+    /// Fill in what the service gave you, e.g. the API key of your account where the file says something like "YOUR_API_KEY". Next, Greenshot shows you where the captures go.
+    /// </summary>
+    string ValuesIntro { get; }
+
+    /// <summary>
+    /// Address
+    /// </summary>
+    string ValuesRequestUrl { get; }
+
+    /// <summary>
+    /// Address parameter {0}
+    /// </summary>
+    string ValuesParameter { get; }
+
+    /// <summary>
+    /// Header {0}
+    /// </summary>
+    string ValuesHeader { get; }
+
+    /// <summary>
+    /// Form field {0}
+    /// </summary>
+    string ValuesArgument { get; }
+
+    /// <summary>
+    /// Next
+    /// </summary>
+    string ValuesNext { get; }
+
+    /// <summary>
+    /// Show
+    /// </summary>
+    string ValuesShow { get; }
+
+    /// <summary>
+    /// These values still look like the text of the file, not like your own: {0}\n\nGo on anyway?
+    /// </summary>
+    string ValuesPlaceholderQuestion { get; }
+
+    /// <summary>
     /// Upload with {0}?
     /// </summary>
     string ReminderTitle { get; }
@@ -260,4 +305,24 @@ public interface ICustomUploaderLanguage : INotifyPropertyChanged
     /// The header {0} isn't valid.
     /// </summary>
     string ErrorHeader { get; }
+
+    /// <summary>
+    /// {0} isn't part of Greenshot: whether uploads work depends on the service and on this file. When they fail, {1} or whoever made the file can help, Greenshot can't.
+    /// </summary>
+    string ImportNotGreenshot { get; }
+
+    /// <summary>
+    /// Upload with {0} failed
+    /// </summary>
+    string UploadFailedTitle { get; }
+
+    /// <summary>
+    /// {0} didn't take the capture: {1}
+    /// </summary>
+    string UploadFailedMessage { get; }
+
+    /// <summary>
+    /// "{0}" isn't part of Greenshot: it comes from an uploader file you imported, ... ask {1} or whoever made the file, the details help them.
+    /// </summary>
+    string UploadFailedNote { get; }
 }

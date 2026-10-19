@@ -14,8 +14,8 @@
 
     <DockPanel>
         <StackPanel DockPanel.Dock="Top" Margin="0,0,0,12">
-            <TextBlock Text="{wpf:Text SelfService.ImgurTitle}" FontSize="18" FontWeight="SemiBold"/>
-            <TextBlock Text="{wpf:Text SelfService.ImgurSub}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"
+            <TextBlock Text="{wpf:Text SelfService.ImgurTitle}" FontSize="{wpf:FontSize 18}" FontWeight="SemiBold"/>
+            <TextBlock Text="{wpf:Text SelfService.ImgurSub}" FontSize="{wpf:FontSize 12}" TextWrapping="Wrap" Margin="0,3,0,0"
                        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
         </StackPanel>
 

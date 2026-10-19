@@ -110,6 +110,10 @@ namespace Greenshot.Tests.Recipes
             public string FeatureType => "Found";
             public string Text => "found";
             public string ToolTipText => "found";
+
+            public void Offset(int x, int y)
+            {
+            }
         }
 
         private static CaptureFlowContext CreateLiveContext()

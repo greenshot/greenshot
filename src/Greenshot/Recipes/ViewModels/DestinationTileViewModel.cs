@@ -59,7 +59,9 @@ namespace Greenshot.Recipes.ViewModels
         }
         public string BadgeText { get; set; }
         public Visibility BadgeVisibility => !string.IsNullOrEmpty(BadgeText) ? Visibility.Visible : Visibility.Collapsed;
-        public SolidColorBrush BadgeBackgroundBrush { get; set; } = new SolidColorBrush(System.Windows.Media.Color.FromRgb(220, 53, 69));
+        // The danger role with its paired text color: readable in every theme, system colors in high contrast
+        public SolidColorBrush BadgeBackgroundBrush { get; set; } = ThemeManager.Instance.CurrentPalette.DangerBrush;
+        public SolidColorBrush BadgeForegroundBrush { get; set; } = ThemeManager.Instance.CurrentPalette.DangerForegroundBrush;
 
         public SolidColorBrush TextPrimaryBrush => WpfThemeHelper.TextPrimary;
         public SolidColorBrush TextSecondaryBrush => WpfThemeHelper.TextSecondary;

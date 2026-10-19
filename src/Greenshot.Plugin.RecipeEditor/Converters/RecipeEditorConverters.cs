@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
+using Greenshot.Base.Wpf;
 
 namespace Greenshot.Plugin.RecipeEditor.Converters
 {
@@ -193,13 +194,12 @@ namespace Greenshot.Plugin.RecipeEditor.Converters
 
     public class BoolToStatusBrushConverter : IValueConverter
     {
-        private static readonly SolidColorBrush ActiveBrush = new SolidColorBrush(Color.FromRgb(0x23, 0x86, 0x36)); // Green
-        private static readonly SolidColorBrush InactiveBrush = new SolidColorBrush(Color.FromRgb(0x8A, 0x8A, 0x90)); // Gray
-
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             bool isEnabled = value is bool b && b;
-            return isEnabled ? ActiveBrush : InactiveBrush;
+            // The palette colors are readable as text on the theme's background, also in high contrast
+            var palette = ThemeManager.Instance.CurrentPalette;
+            return isEnabled ? palette.SuccessBrush : palette.MutedBrush;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();

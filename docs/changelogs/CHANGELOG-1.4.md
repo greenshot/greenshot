@@ -29,6 +29,13 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 #### 🎨 Editor Enhancements
 
+**Tabs in the editor**
+- An editor window can show several captures as tabs, like a browser
+- Drag a tab to change its place, into another editor window, or out of the window to open it in its own window
+- A new capture opens as a tab in the editor you used last, the settings can turn this or the tabs off
+- The "+" after the tabs adds a new image, its size and color are in the settings
+- Closing a window with several changed captures asks once: save all, discard all or cancel
+
 **Emoji Support** (#358)
 - Added a new "Emoji" object type to the editor
 - Insert emojis directly into your screenshots
@@ -95,6 +102,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 **Improved Cursor Capture** (#863)
 - Enhanced cursor capture logic to reflect real cursor size
 - More accurate cursor representation in screenshots
+- The captured cursor is only as big as the visible pointer, without the empty space around it
 - By @Lakritzator
 
 **Windows 11 Capture Behavior** (#771)
@@ -212,6 +220,14 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Self-Service shows whether the screenshot folder exists, whether Greenshot can write to it, and whether it's a network or OneDrive folder
 - It also tells if the drive of the folder is missing, or the filename pattern gives no valid name
 - The folder and the filename pattern can be reset to the default with one click
+
+#### ♿ Accessibility
+
+**Screen readers, keyboard, high contrast and text size** (settings, Self-Service, welcome, dialogs, plugins, recipe editor, capture)
+- Narrator and other screen readers can name the buttons, lists and fields, and hear status changes
+- The keyboard focus is always visible, also in dark mode
+- Greenshot follows the Windows "Text size" setting and the "Animation effects" switch
+- In the capture window, Tab and Shift+Tab select the next or previous window, and a screen reader hears the mode, window and size
 
 ### Bug Fixes & Improvements
 

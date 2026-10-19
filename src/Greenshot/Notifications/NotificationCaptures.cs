@@ -172,9 +172,9 @@ namespace Greenshot.Notifications
             {
                 return false;
             }
-            var editor = new ImageEditorForm(surface, true);
-            editor.Show();
-            editor.Activate();
+            // Like any capture: as a tab or in its own window, the capture was shown in the toast already (nothing to save)
+            surface.Modified = false;
+            ImageEditorForm.Open(surface);
             return true;
         }
 

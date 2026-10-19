@@ -139,13 +139,11 @@ namespace Greenshot.Shell
         }
 
         /// <summary>
-        /// Open an editor without a capture
+        /// Open a new image in the editor, like the "+" after the tabs
         /// </summary>
         public static void OpenEmptyEditor()
         {
-            var imageEditor = new ImageEditorForm();
-            imageEditor.Show();
-            imageEditor.Activate();
+            ImageEditorForm.OpenNewImage();
         }
 
         /// <summary>

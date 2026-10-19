@@ -1,6 +1,6 @@
 [InstallDelete]
 // processed as the first step of installation.
-// The start with Windows is the Run value (see docs/autostart.md): a Greenshot link in a Startup folder would start it a second time at every logon
+// The start with Windows is the Run value (see docs/vNext/autostart.md): a Greenshot link in a Startup folder would start it a second time at every logon
 Type: files; Name: "{userstartup}\Greenshot.lnk"; Tasks: startup
 Type: files; Name: "{commonstartup}\Greenshot.lnk"; Tasks: startup; Check: IsAdminInstallMode
 #ifdef IsLightEdition
@@ -9,8 +9,9 @@ Type: filesandordirs; Name: "{app}\Plugins"
 // Greenshot Light has no command line and no proxy, it opens files with Greenshot.exe
 Type: files; Name: "{app}\greenshot-proxy.exe"
 Type: files; Name: "{app}\greenshot-cli.exe"
-// Greenshot Light has no toasts: the icon and the kept captures of the toasts of the full version (see tasks-icons-reg.iss for the registration)
+// Greenshot Light has no toasts: the icon, the icons and the kept captures of the toasts of the full version (see tasks-icons-reg.iss for the registration)
 Type: files; Name: "{localappdata}\Greenshot\greenshot.png"
+// The error and warning icons of earlier 1.4 builds, they are in Notifications\Icons now
 Type: files; Name: "{localappdata}\Greenshot\notification-*.png"
 Type: filesandordirs; Name: "{localappdata}\Greenshot\Notifications"
 #endif
@@ -87,6 +88,7 @@ Name: {app}; Type: dirifempty;
 Type: files; Name: "{app}\greenshot-mcp.exe"
 // The icons and the kept captures of the toasts (notifications), which Greenshot writes when it runs
 Type: files; Name: "{localappdata}\Greenshot\greenshot.png"
+// The error and warning icons of earlier 1.4 builds, they are in Notifications\Icons now
 Type: files; Name: "{localappdata}\Greenshot\notification-*.png"
 Type: filesandordirs; Name: "{localappdata}\Greenshot\Notifications"
 // The multi-core JIT profile, which Greenshot writes when it runs

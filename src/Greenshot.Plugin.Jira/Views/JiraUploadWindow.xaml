@@ -42,13 +42,14 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <Label Grid.Row="0" Grid.Column="0" Content="{wpf:Text Jira.LabelJirafilter}" Margin="0,0,12,0"/>
+                <Label Grid.Row="0" Grid.Column="0" Content="{wpf:Text Jira.LabelJirafilter}" Margin="0,0,12,0" Target="{Binding ElementName=FilterBox}"/>
                 <ComboBox x:Name="FilterBox" Grid.Row="0" Grid.Column="1" DisplayMemberPath="Name"
                           SelectionChanged="FilterBox_SelectionChanged"/>
 
                 <!-- The issues of the filter -->
                 <ListView x:Name="IssueList" Grid.Row="1" Grid.Column="1" Margin="0,8,0,8"
                           SelectionMode="Single"
+                          AutomationProperties.Name="{wpf:Text Jira.LabelIssues}"
                           SelectionChanged="IssueList_SelectionChanged"
                           MouseDoubleClick="IssueList_MouseDoubleClick"
                           GridViewColumnHeader.Click="IssueList_HeaderClick">
@@ -57,7 +58,7 @@
                             <GridViewColumn Header="{wpf:Text Jira.ColumnIssueType}" Width="44">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Image Source="{Binding Icon}" Width="16" Height="16" ToolTip="{Binding IssueType}"/>
+                                        <Image Source="{Binding Icon}" Width="16" Height="16" ToolTip="{Binding IssueType}" AutomationProperties.Name="{Binding IssueType, TargetNullValue=''}"/>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
@@ -70,13 +71,13 @@
                     </ListView.View>
                 </ListView>
 
-                <Label Grid.Row="2" Grid.Column="0" Content="{wpf:Text Jira.LabelFilename}" Margin="0,0,12,0"/>
+                <Label Grid.Row="2" Grid.Column="0" Content="{wpf:Text Jira.LabelFilename}" Margin="0,0,12,0" Target="{Binding ElementName=FilenameBox}"/>
                 <TextBox x:Name="FilenameBox" Grid.Row="2" Grid.Column="1"/>
 
-                <Label Grid.Row="3" Grid.Column="0" Content="{wpf:Text Jira.LabelComment}" Margin="0,8,12,0"/>
+                <Label Grid.Row="3" Grid.Column="0" Content="{wpf:Text Jira.LabelComment}" Margin="0,8,12,0" Target="{Binding ElementName=CommentBox}"/>
                 <TextBox x:Name="CommentBox" Grid.Row="3" Grid.Column="1" Margin="0,8,0,0"/>
 
-                <Label Grid.Row="4" Grid.Column="0" Content="{wpf:Text Jira.LabelJira}" Margin="0,8,12,0"/>
+                <Label Grid.Row="4" Grid.Column="0" Content="{wpf:Text Jira.LabelJira}" Margin="0,8,12,0" Target="{Binding ElementName=KeyBox}"/>
                 <DockPanel Grid.Row="4" Grid.Column="1" Margin="0,8,0,0" LastChildFill="False">
                     <TextBox x:Name="KeyBox" Width="160" DockPanel.Dock="Left" TextChanged="KeyBox_TextChanged"/>
                     <Button DockPanel.Dock="Right" Content="{wpf:Text Core.Cancel}" Style="{StaticResource SecondaryButtonStyle}" IsCancel="True" Click="CancelButton_Click" Margin="8,0,0,0"/>

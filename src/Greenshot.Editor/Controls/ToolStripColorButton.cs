@@ -24,8 +24,9 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using System.Windows.Interop;
 using Dapplo.Windows.Common.Structs;
-using ColorDialog = Greenshot.Editor.Forms.ColorDialog;
+using Greenshot.Editor.Views;
 
 namespace Greenshot.Editor.Controls
 {
@@ -65,30 +66,37 @@ namespace Greenshot.Editor.Controls
 
                 // cleanup GDI Object
                 brush.Dispose();
+                // The color is only drawn, a screen reader reads it from the description
+                AccessibleDescription = ColorDescription.Describe(value);
                 Invalidate();
             }
         }
 
         private void ColorButtonClick(object sender, EventArgs e)
         {
-            var colorDialog = new ColorDialog
+            var colorPickerWindow = new ColorPickerWindow
             {
-                Color = SelectedColor
+                SelectedColor = SelectedColor
             };
-            // Using the parent to make sure the dialog doesn't show on another window
-            colorDialog.ShowDialog(Parent.Parent);
-            if (colorDialog.DialogResult == DialogResult.Cancel)
+
+            // Use the parent to make sure the dialog doesn't show on another window.
+            new WindowInteropHelper(colorPickerWindow)
+            {
+                Owner = Parent.Parent.Handle
+            };
+
+            if (colorPickerWindow.ShowDialog() != true)
             {
                 return;
             }
 
-            if (colorDialog.Color.Equals(SelectedColor))
+            if (colorPickerWindow.SelectedColor.Equals(SelectedColor))
             {
                 return;
             }
 
-            SelectedColor = colorDialog.Color;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedColor"));
+            SelectedColor = colorPickerWindow.SelectedColor;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedColor)));
         }
     }
 }

@@ -2,7 +2,7 @@
 #define AutostartComponentGuid "17A6D9DC-E818-4278-992A-167EF0FAC433"
 ; Raise it only to set up the start with Windows for every user once more, also for those who switched it off since
 #define AutostartComponentVersion "1,0"
-; rundll32.exe with these parameters writes the Run value of the current user from autostart.inf: no window, no administrator rights, see docs/autostart.md
+; rundll32.exe with these parameters writes the Run value of the current user from autostart.inf: no window, no administrator rights, see docs/vNext/autostart.md
 #define AutostartParameters 'advpack.dll,LaunchINFSectionEx ""{app}\autostart.inf"",DefaultInstall,,4'
 
 #ifdef IsLightEdition
@@ -43,7 +43,7 @@ Root: HKLM; Subkey: Software\Classes\.greenshot; ValueType: none; ValueName: "";
 ; A choice made in "Open with > Always" still names the old ProgID; without it Explorer falls back to Greenshot.File
 Root: HKCU; Subkey: Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.greenshot\UserChoice; Flags: deletekey noerror
 
-; The start with Windows is always in the Run key of the user: autostart.inf in {app} writes it, see AutostartParameters, [Run] and docs/autostart.md.
+; The start with Windows is always in the Run key of the user: autostart.inf in {app} writes it, see AutostartParameters, [Run] and docs/vNext/autostart.md.
 ; For every user Active Setup runs it once per user, at the next logon. Without that task the key is removed, so no new user gets it.
 Root: HKLM; Subkey: Software\Microsoft\Active Setup\Installed Components\{{{#AutostartComponentGuid}}; Flags: deletekey noerror; Check: IsAdminInstallMode
 Root: HKLM; Subkey: Software\Microsoft\Active Setup\Installed Components\{{{#AutostartComponentGuid}}; ValueType: string; ValueName: ""; ValueData: "{#ExeName}"; Flags: uninsdeletekey; Tasks: startup\allusers

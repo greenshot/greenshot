@@ -12,7 +12,7 @@
         ResizeMode="NoResize"
         ShowInTaskbar="True"
         FontFamily="Segoe UI, Segoe UI Variable Display, Tahoma, Arial"
-        FontSize="13"
+        FontSize="{wpf:FontSize 13}"
         Background="{Binding WindowBackgroundBrush}">
 
     <Window.Resources>
@@ -24,13 +24,9 @@
         <!-- Hyperlink Style -->
         <Style TargetType="Hyperlink">
             <Setter Property="Foreground" Value="{Binding AccentBrush}"/>
-            <Setter Property="TextDecorations" Value="None"/>
+            <!-- Always underlined: the color alone doesn't mark a link -->
+            <Setter Property="TextDecorations" Value="Underline"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="TextDecorations" Value="Underline"/>
-                </Trigger>
-            </Style.Triggers>
         </Style>
         <!-- A card of the window -->
         <Style x:Key="CardStyle" TargetType="Border">
@@ -43,7 +39,7 @@
         </Style>
 
         <Style x:Key="CardTitleStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontSize" Value="{wpf:FontSize 14}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="{Binding TextPrimaryBrush}"/>
             <Setter Property="Margin" Value="0,0,0,8"/>
@@ -75,18 +71,22 @@
                     </Grid.ColumnDefinitions>
                     <local:AnimatedLogo Grid.Column="0" Width="110" Height="110" VerticalAlignment="Center"/>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="18,0,0,0">
-                        <TextBlock Text="{wpf:Text Welcome.Title}" FontSize="24" FontWeight="Bold" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,0,0,6"/>
-                        <TextBlock Text="{wpf:Text Welcome.Thanks}" FontSize="14" Style="{StaticResource BodyTextStyle}"/>
+                        <TextBlock Text="{wpf:Text Welcome.Title}" FontSize="{wpf:FontSize 24}" FontWeight="Bold" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                        <TextBlock x:Name="ThanksText" Text="{wpf:Text Welcome.Thanks}" FontSize="{wpf:FontSize 14}" Style="{StaticResource BodyTextStyle}"/>
                     </StackPanel>
                 </Grid>
 
                 <!-- The steps of the wizard share one cell: the hidden ones keep their size, so the window doesn't jump.
                      A new step is a panel here and an entry in WelcomeWindow._steps -->
                 <Grid>
+                    <!-- Not drawn: what a screen reader says when a step is shown, only as name (a text would be one long line), as big as
+                         the step so the screen reader marks it. The focus moves from one to the other, Tab doesn't stop here, see FocusStep -->
+                    <TextBlock x:Name="StepReaderA" Opacity="0" IsHitTestVisible="False" Focusable="True" KeyboardNavigation.IsTabStop="False"/>
+                    <TextBlock x:Name="StepReaderB" Opacity="0" IsHitTestVisible="False" Focusable="True" KeyboardNavigation.IsTabStop="False"/>
                     <!-- Step: welcome -->
                     <StackPanel x:Name="StepWelcome">
                         <Border Style="{StaticResource CardStyle}">
-                            <TextBlock Text="{wpf:Text Welcome.Intro}" FontSize="14" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap"/>
+                            <TextBlock Text="{wpf:Text Welcome.Intro}" FontSize="{wpf:FontSize 14}" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap"/>
                         </Border>
                     </StackPanel>
 
@@ -170,7 +170,7 @@
                                     <TextBlock Grid.Column="0" Text="{wpf:Text Welcome.SetupOnedrive}" Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0"/>
                                     <Button Grid.Column="1" Content="{wpf:Text Welcome.SetupOnedriveFix}" Style="{StaticResource SecondaryButtonStyle}" Click="OnFixOneDriveClicked" VerticalAlignment="Center"/>
                                 </Grid>
-                                <!-- The same switch as in the settings: only this user's own entry, see docs/autostart.md -->
+                                <!-- The same switch as in the settings: only this user's own entry, see docs/vNext/autostart.md -->
                                 <CheckBox Content="{wpf:Text Settings.Autostartshortcut}" IsChecked="{Binding Setup.IsAutostartEnabled, Mode=TwoWay}" Margin="0,4,0,0"/>
                             </StackPanel>
                         </Border>
@@ -197,13 +197,13 @@
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="💡" FontSize="20" VerticalAlignment="Top" Margin="0,0,12,0"/>
+                                <TextBlock Grid.Column="0" Text="💡" FontSize="{wpf:FontSize 20}" VerticalAlignment="Top" Margin="0,0,12,0"/>
                                 <StackPanel Grid.Column="1">
                                     <TextBlock Text="{wpf:Text Welcome.TipTitle}" Style="{StaticResource CardTitleStyle}" Margin="0,0,0,4"/>
-                                    <TextBlock Text="{Binding CurrentTip}" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                                    <TextBlock Text="{Binding CurrentTip}" wpf:LiveRegion.Mode="Polite" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,0,0,6"/>
                                     <TextBlock>
                                         <Hyperlink Click="OnNextTipClicked">
-                                            <TextBlock Text="{wpf:Text Welcome.TipNext}"/>
+                                            <Run Text="{wpf:Text Welcome.TipNext}"/>
                                         </Hyperlink>
                                     </TextBlock>
                                 </StackPanel>
@@ -225,8 +225,9 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <!-- Where the user is: one dot per step -->
-                    <ItemsControl Grid.Column="0" ItemsSource="{Binding StepDots}" VerticalAlignment="Center">
+                    <!-- Where the user is: one dot per step, nothing to choose, so no tab stop: a screen reader hears "Step 2 of 5" with the step (see FocusStep) -->
+                    <ItemsControl x:Name="StepIndicator" Grid.Column="0" ItemsSource="{Binding StepDots}" VerticalAlignment="Center"
+                                  AutomationProperties.Name="{Binding StepText, TargetNullValue=''}" Focusable="False" KeyboardNavigation.IsTabStop="False">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <StackPanel Orientation="Horizontal"/>
@@ -238,7 +239,8 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-                    <Button Grid.Column="1"
+                    <Button x:Name="BackButton"
+                            Grid.Column="1"
                             Content="{wpf:Text Welcome.ButtonBack}"
                             Style="{StaticResource SecondaryButtonStyle}"
                             Visibility="{Binding BackVisibility}"
@@ -246,7 +248,8 @@
                             Height="32"
                             Margin="0,0,8,0"
                             Click="OnBackClicked"/>
-                    <Button Grid.Column="2"
+                    <Button x:Name="NextButton"
+                            Grid.Column="2"
                             Content="{Binding NextText}"
                             Style="{StaticResource PrimaryButtonStyle}"
                             IsDefault="True"

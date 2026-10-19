@@ -5,6 +5,7 @@
             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
             xmlns:emoji="clr-namespace:Greenshot.Editor.Controls.Emoji"
+            xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
             Orientation="Horizontal"
             mc:Ignorable="d">
 
@@ -12,8 +13,21 @@
 
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
 
+        <!-- The picker uses the system colors, not the Greenshot theme, so its focus frame does too -->
+        <Style x:Key="EmojiFocusVisual">
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Rectangle Margin="1" StrokeThickness="2" SnapsToDevicePixels="True"
+                                   Stroke="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <ControlTemplate x:Key="VariationPopupTemplate" TargetType="ContentControl">
             <ListView Name="VariationListView" ItemsSource="{Binding AllVariations}"
+                      KeyboardNavigation.TabNavigation="Cycle" PreviewKeyDown="OnVariationKeyDown"
                       BorderThickness="1" Height="Auto" Padding="0" Margin="1"
                       ScrollViewer.VerticalScrollBarVisibility="Auto"
                       ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -26,6 +40,7 @@
                 </ListView.ItemsPanel>
                 <ListView.ItemContainerStyle>
                     <Style TargetType="{x:Type ListViewItem}">
+                        <Setter Property="Focusable" Value="False"/>
                         <Setter Property="Padding" Value="0"/>
                         <Setter Property="Margin" Value="0"/>
                         <Setter Property="BorderThickness" Value="0"/>
@@ -33,7 +48,9 @@
                 </ListView.ItemContainerStyle>
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <Button Background="Transparent" BorderBrush="Transparent"
+                        <!-- A screen reader says the name of the emoji character itself -->
+                        <Button Background="Transparent" BorderBrush="Transparent" FocusVisualStyle="{StaticResource EmojiFocusVisual}"
+                                AutomationProperties.Name="{Binding Text, TargetNullValue=''}"
                                 Margin="0" Click="OnEmojiPicked"
                                 Width="40" Height="40">
                             <emoji:EmojiControl Height="24" Emoji="{Binding Path=Text}"  />
@@ -44,26 +61,27 @@
         </ControlTemplate>
 
         <DataTemplate x:Key="CellTemplate">
-            <ToggleButton Width="40" Height="40" Margin="0" Padding="2"
-                          x:Name="VariationButton" Background="Transparent" BorderBrush="Transparent"
-                          Click="OnEmojiPicked" Focusable="False" >
+            <!-- A plain button: a toggle button would be read as "off". With variations a click opens them, see OnEmojiPicked -->
+            <Button Width="40" Height="40" Margin="0" Padding="2"
+                          Background="Transparent" BorderBrush="Transparent" FocusVisualStyle="{StaticResource EmojiFocusVisual}"
+                          AutomationProperties.Name="{Binding Text, TargetNullValue=''}"
+                          Click="OnEmojiPicked" >
                 <Grid>
                     <emoji:EmojiControl Height="24" Margin="4" Emoji="{Binding Path=Text}" 
                            VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     <Polygon Visibility="{Binding HasVariations, Converter={StaticResource BoolToVis}}"
                              Width="6" Height="6" VerticalAlignment="Bottom" HorizontalAlignment="Right"
-                             Stretch="Fill" Points="0,1 1,1 1,0" Fill="Black"/>
-                    <Popup x:Name="VariationPopup" StaysOpen="False" AllowsTransparency="True" Margin="0"
-                           IsOpen="{Binding IsChecked, ElementName=VariationButton, Mode=TwoWay}">
+                             Stretch="Fill" Points="0,1 1,1 1,0" Fill="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+                    <Popup x:Name="VariationPopup" StaysOpen="False" AllowsTransparency="True" Margin="0" Opened="OnVariationPopupOpened">
                         <ContentControl Template="{StaticResource ResourceKey=VariationPopupTemplate}"/>
                     </Popup>
                 </Grid>
-            </ToggleButton>
+            </Button>
         </DataTemplate>
 
     </StackPanel.Resources>
 
-    <ToggleButton x:Name="Button_INTERNAL">
+    <ToggleButton x:Name="Button_INTERNAL" AutomationProperties.Name="{wpf:Text Editor.EmojiPicker}">
         <emoji:EmojiControl x:Name="Image" Emoji="{Binding ElementName=StackPanel_INTERNAL, Mode=OneWay, Path=Selection, UpdateSourceTrigger=PropertyChanged}"/>
     </ToggleButton>
 
@@ -71,9 +89,15 @@
            StaysOpen="False"
            KeyDown="OnPopupKeyDown" Loaded="OnPopupLoaded"
            AllowsTransparency="True" Margin="0">
-        <Border>
+        <!-- Tab goes between the categories and the emoji and stays in the picker, Esc closes it -->
+        <Border KeyboardNavigation.TabNavigation="Cycle">
             <StackPanel Orientation="Vertical">
                 <TabControl ItemsSource="{Binding EmojiGroups, ElementName=StackPanel_INTERNAL}" Padding="0">
+                    <TabControl.ItemContainerStyle>
+                        <Style TargetType="TabItem">
+                            <Setter Property="AutomationProperties.Name" Value="{Binding Name, TargetNullValue=''}"/>
+                        </Style>
+                    </TabControl.ItemContainerStyle>
                     <TabControl.ItemTemplate>
                         <DataTemplate>
                             <Grid>
@@ -88,7 +112,9 @@
                     <TabControl.ContentTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Vertical">
+                                <!-- One Tab stop, the arrow keys move between the emoji -->
                                 <ListView Name="EmojiListView" ItemsSource="{Binding EmojiChunkList}"
+                                  Focusable="False" KeyboardNavigation.TabNavigation="Once" PreviewKeyDown="OnEmojiGridKeyDown"
                                   BorderThickness="0"
                                   MaxHeight="320" Height="Auto" Padding="0" Margin="1"
                                   VirtualizingStackPanel.IsVirtualizing="True"
@@ -102,7 +128,8 @@
                                     </ListView.ItemsPanel>
                                     <ListView.ItemContainerStyle>
                                         <Style TargetType="{x:Type ListViewItem}">
-                                            <!-- Get rid of the ugly padding and margin in default ListViewItem -->
+                                            <!-- Get rid of the ugly padding and margin in default ListViewItem, the keyboard goes to the emoji buttons in the row -->
+                                            <Setter Property="Focusable" Value="False"/>
                                             <Setter Property="Padding" Value="0"/>
                                             <Setter Property="Margin" Value="0"/>
                                             <Setter Property="BorderThickness" Value="0"/>
@@ -119,7 +146,7 @@
                                     <!-- Now for our actual content -->
                                     <ListView.ItemTemplate>
                                         <DataTemplate>
-                                            <ItemsControl ItemsSource="{Binding}"
+                                            <ItemsControl ItemsSource="{Binding}" Focusable="False"
                                                   ItemTemplate="{StaticResource ResourceKey=CellTemplate}">
                                                 <ItemsControl.ItemsPanel>
                                                     <ItemsPanelTemplate>

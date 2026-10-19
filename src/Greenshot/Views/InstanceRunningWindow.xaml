@@ -36,7 +36,7 @@
             <!-- Description / Header -->
             <StackPanel Grid.Row="1" Margin="20,16,20,8">
                 <TextBlock Text="{wpf:Text Core.ErrorMultipleinstances}"
-                           FontSize="15"
+                           FontSize="{wpf:FontSize 15}"
                            FontWeight="SemiBold"
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                            Margin="0,0,0,4"/>
@@ -80,7 +80,7 @@
                                                ToolTip="{Binding Path}"
                                                TextTrimming="CharacterEllipsis"
                                                FontFamily="Consolas, Segoe UI Mono, Courier New, Segoe UI"
-                                               FontSize="12"
+                                               FontSize="{wpf:FontSize 12}"
                                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                                                Margin="0,0,12,0"/>
 
@@ -89,6 +89,7 @@
                                             Content="{wpf:Text Editor.Opendirinexplorer}"
                                             Click="ShowInExplorerButton_Click"
                                             Tag="{Binding Path}"
+                                            AutomationProperties.HelpText="{Binding Path, TargetNullValue=''}"
                                             VerticalAlignment="Center"
                                             Height="28"
                                             Padding="10,0"/>

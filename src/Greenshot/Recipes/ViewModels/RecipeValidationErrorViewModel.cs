@@ -20,6 +20,7 @@
  */
 
 using System;
+using Greenshot.Base.Languages;
 using Greenshot.Base.Recipes;
 
 namespace Greenshot.Recipes.ViewModels
@@ -48,45 +49,45 @@ namespace Greenshot.Recipes.ViewModels
             // Check if unknown or plugin stepType was used
             if (rawError.IndexOf("which is not available because the required extension/plugin is not installed or active", StringComparison.OrdinalIgnoreCase) >= 0)
             {
-                item.DiagnosticHint = "The stepType specified is not registered in core Greenshot. If it is provided by a plugin or extension (e.g. Jira, OCR, etc.), verify that the plugin is installed in the Plugins folder and enabled under Greenshot Settings > Plugins.";
+                item.DiagnosticHint = Texts.Recipe.ApprovalHintStepType;
             }
             // Check for SourceType issues
             else if (rawError.IndexOf("Unknown SourceType", StringComparison.OrdinalIgnoreCase) >= 0)
             {
-                item.DiagnosticHint = $"Valid SourceType values are: {string.Join(", ", Enum.GetNames(typeof(CaptureSourceType)))}.";
+                item.DiagnosticHint = string.Format(Texts.Recipe.ApprovalHintSourceType, string.Join(", ", Enum.GetNames(typeof(CaptureSourceType))));
             }
             // Check for Transition target issues
             else if (rawError.IndexOf("Transition targets node", StringComparison.OrdinalIgnoreCase) >= 0)
             {
-                item.DiagnosticHint = "Verify that the target node ID matches an existing node's 'id' in the recipe's 'nodes' pipeline list.";
+                item.DiagnosticHint = Texts.Recipe.ApprovalHintTransition;
             }
             // Check for duplicate node ID
             else if (rawError.IndexOf("Duplicate node id", StringComparison.OrdinalIgnoreCase) >= 0)
             {
-                item.DiagnosticHint = "Each node in the recipe pipeline must have a unique 'id' identifier.";
+                item.DiagnosticHint = Texts.Recipe.ApprovalHintDuplicateId;
             }
             // Check for circular transitions
             else if (rawError.IndexOf("Circular transition", StringComparison.OrdinalIgnoreCase) >= 0)
             {
-                item.DiagnosticHint = "Recipes must form a directed acyclic graph (DAG). Ensure transitions and fallbacks do not loop back to earlier nodes.";
+                item.DiagnosticHint = Texts.Recipe.ApprovalHintCircular;
             }
             // Check for missing nodes
             else if (rawError.IndexOf("must contain at least one node", StringComparison.OrdinalIgnoreCase) >= 0)
             {
-                item.DiagnosticHint = "Add at least one execution node to the 'nodes' array of the recipe.";
+                item.DiagnosticHint = Texts.Recipe.ApprovalHintNoNodes;
             }
             // Check for missing id or name
             else if (rawError.IndexOf("missing required 'id'", StringComparison.OrdinalIgnoreCase) >= 0 ||
                      rawError.IndexOf("missing required 'name'", StringComparison.OrdinalIgnoreCase) >= 0)
             {
-                item.DiagnosticHint = "Every recipe requires a unique 'id' and a descriptive 'name' property.";
+                item.DiagnosticHint = Texts.Recipe.ApprovalHintIdName;
             }
             // Check for JSON parser / deserializer syntax exceptions
             else if (rawError.IndexOf("JsonReaderException", StringComparison.OrdinalIgnoreCase) >= 0 ||
                      rawError.IndexOf("JsonSerializationException", StringComparison.OrdinalIgnoreCase) >= 0 ||
                      (rawError.IndexOf("line", StringComparison.OrdinalIgnoreCase) >= 0 && rawError.IndexOf("position", StringComparison.OrdinalIgnoreCase) >= 0))
             {
-                item.DiagnosticHint = "Check the recipe JSON syntax for unescaped quotes, trailing commas, or mismatched brackets.";
+                item.DiagnosticHint = Texts.Recipe.ApprovalHintJsonSyntax;
             }
 
             return item;

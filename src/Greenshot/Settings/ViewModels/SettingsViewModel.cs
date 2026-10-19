@@ -287,6 +287,64 @@ namespace Greenshot.Settings.ViewModels
             }
         }
 
+        /// <summary>
+        /// The largest width or height of a new image in the editor
+        /// </summary>
+        public const int MaximumNewImageSize = 10000;
+
+        /// <summary>
+        /// The width of a new image in the editor (the "+" after the tabs, or the editor without a capture)
+        /// </summary>
+        public int NewImageWidth
+        {
+            get => EditorConfiguration.DefaultEditorSize.Width;
+            set
+            {
+                if (value > 0 && value <= MaximumNewImageSize && value != NewImageWidth)
+                {
+                    EditorConfiguration.DefaultEditorSize = new NativeSize(value, NewImageHeight);
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// The height of a new image in the editor
+        /// </summary>
+        public int NewImageHeight
+        {
+            get => EditorConfiguration.DefaultEditorSize.Height;
+            set
+            {
+                if (value > 0 && value <= MaximumNewImageSize && value != NewImageHeight)
+                {
+                    EditorConfiguration.DefaultEditorSize = new NativeSize(NewImageWidth, value);
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// The color of a new image in the editor
+        /// </summary>
+        public System.Drawing.Color NewImageColor
+        {
+            get => EditorConfiguration.NewImageColor;
+            set
+            {
+                if (value == NewImageColor || EditorConfiguration.IsConstant(nameof(IEditorConfiguration.NewImageColor)))
+                {
+                    return;
+                }
+
+                EditorConfiguration.NewImageColor = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(NewImageBrush));
+            }
+        }
+
+        public Brush NewImageBrush => new SolidColorBrush(Color.FromArgb(NewImageColor.A, NewImageColor.R, NewImageColor.G, NewImageColor.B));
+
         public int IconSize
         {
             get => _iconSize;

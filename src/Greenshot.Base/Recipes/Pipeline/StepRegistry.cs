@@ -88,6 +88,16 @@ namespace Greenshot.Base.Recipes.Pipeline
 
         public bool IsRegistered(string stepType) => Find(stepType, true) != null;
 
+        /// <summary>
+        /// Determines whether a step exports the capture. Core step types are identified centrally;
+        /// plugin-provided export steps are identified by their registered Export category.
+        /// </summary>
+        public bool IsDestinationStep(string stepType)
+        {
+            if (WellKnownStepTypes.IsDestination(stepType)) return true;
+            return string.Equals(GetContract(stepType)?.Category, "Export", StringComparison.OrdinalIgnoreCase);
+        }
+
         public IReadOnlyCollection<string> RegisteredStepTypes
         {
             get

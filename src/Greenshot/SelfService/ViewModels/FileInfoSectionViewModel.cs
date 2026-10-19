@@ -150,12 +150,12 @@ namespace Greenshot.SelfService.ViewModels
                 // Brief preview snippet
                 LoadRecentLog();
 
-                StatusMessage = $"Updated at {DateTime.Now:HH:mm:ss}";
+                StatusMessage = string.Format(Texts.SelfService.StatusUpdatedAt, DateTime.Now.ToString("HH:mm:ss"));
             }
             catch (Exception ex)
             {
                 Log.Error("Error updating file information", ex);
-                StatusMessage = $"Error: {ex.Message}";
+                StatusMessage = string.Format(Texts.SelfService.StatusError, ex.Message);
             }
         }
 
@@ -184,12 +184,12 @@ namespace Greenshot.SelfService.ViewModels
 
         public void OpenOutputFolder()
         {
-            OpenPathInExplorer(OutputExpandedPath, "Screenshot folder");
+            OpenPathInExplorer(OutputExpandedPath, Texts.SelfService.FilesScreenshotFolder);
         }
 
         public void CopyOutputPath()
         {
-            CopyText(OutputExpandedPath, "Screenshot folder copied to clipboard.");
+            CopyText(OutputExpandedPath, Texts.SelfService.FilesScreenshotFolderCopied);
         }
 
         /// <summary>
@@ -253,18 +253,18 @@ namespace Greenshot.SelfService.ViewModels
             catch (Exception ex)
             {
                 Log.Error("Error reading log tail", ex);
-                RecentLogContent = $"Error reading log file:\n{ex.Message}";
+                RecentLogContent = string.Format(Texts.SelfService.LogviewerStatusError, ex.Message);
             }
         }
 
         public void OpenLogInExplorer()
         {
-            OpenPathInExplorer(LogFilePath, "Log file");
+            OpenPathInExplorer(LogFilePath, Texts.SelfService.FilesLogFile);
         }
 
         public void OpenConfigInExplorer()
         {
-            OpenPathInExplorer(ConfigFilePath, "Configuration file");
+            OpenPathInExplorer(ConfigFilePath, Texts.SelfService.FilesConfigFile);
         }
 
         private void OpenPathInExplorer(string path, string fileDescription)
@@ -273,7 +273,7 @@ namespace Greenshot.SelfService.ViewModels
             {
                 if (string.IsNullOrEmpty(path))
                 {
-                    StatusMessage = $"No path specified for {fileDescription}.";
+                    StatusMessage = string.Format(Texts.SelfService.FilesNoPath, fileDescription);
                     return;
                 }
 
@@ -281,7 +281,7 @@ namespace Greenshot.SelfService.ViewModels
                 {
                     // Use the ExplorerHelper!
                     ExplorerHelper.OpenInExplorer(path);
-                    StatusMessage = $"Opened Explorer for {fileDescription}.";
+                    StatusMessage = string.Format(Texts.SelfService.FilesOpenedExplorer, fileDescription);
                 }
                 else
                 {
@@ -290,18 +290,18 @@ namespace Greenshot.SelfService.ViewModels
                     if (!string.IsNullOrEmpty(dir) && Directory.Exists(dir))
                     {
                         ExplorerHelper.OpenInExplorer(dir);
-                        StatusMessage = $"File not found, opened containing folder: {dir}";
+                        StatusMessage = string.Format(Texts.SelfService.FilesOpenedFolder, dir);
                     }
                     else
                     {
-                        StatusMessage = $"{fileDescription} does not exist at: {path}";
+                        StatusMessage = string.Format(Texts.SelfService.FilesDoesNotExist, fileDescription, path);
                     }
                 }
             }
             catch (Exception ex)
             {
                 Log.Error($"Error opening {fileDescription} in Explorer", ex);
-                StatusMessage = $"Failed to open Explorer: {ex.Message}";
+                StatusMessage = string.Format(Texts.SelfService.FilesExplorerFailed, ex.Message);
             }
         }
 
@@ -315,23 +315,23 @@ namespace Greenshot.SelfService.ViewModels
                     viewer.Owner = owner;
                 }
                 viewer.Show();
-                StatusMessage = "Opened Log Viewer window.";
+                StatusMessage = Texts.SelfService.FilesLogviewerOpened;
             }
             catch (Exception ex)
             {
                 Log.Error("Error opening LogViewerWindow", ex);
-                StatusMessage = $"Could not open log viewer: {ex.Message}";
+                StatusMessage = string.Format(Texts.SelfService.FilesLogviewerFailed, ex.Message);
             }
         }
 
         public void CopyLogPath()
         {
-            CopyText(LogFilePath, "Log path copied to clipboard.");
+            CopyText(LogFilePath, Texts.SelfService.FilesLogPathCopied);
         }
 
         public void CopyConfigPath()
         {
-            CopyText(ConfigFilePath, "Config path copied to clipboard.");
+            CopyText(ConfigFilePath, Texts.SelfService.FilesConfigPathCopied);
         }
 
         private void CopyText(string text, string successMessage)
@@ -346,7 +346,7 @@ namespace Greenshot.SelfService.ViewModels
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Copy failed: {ex.Message}";
+                StatusMessage = string.Format(Texts.SelfService.StatusCopyFailed, ex.Message);
             }
         }
 
@@ -354,13 +354,13 @@ namespace Greenshot.SelfService.ViewModels
         {
             if (bytes >= 1024 * 1024)
             {
-                return $"{bytes / (1024.0 * 1024.0):F2} MB ({bytes:N0} bytes)";
+                return $"{bytes / (1024.0 * 1024.0):F2} MB ({string.Format(Texts.SelfService.FilesSizeBytes, bytes)})";
             }
             if (bytes >= 1024)
             {
-                return $"{bytes / 1024.0:F1} KB ({bytes:N0} bytes)";
+                return $"{bytes / 1024.0:F1} KB ({string.Format(Texts.SelfService.FilesSizeBytes, bytes)})";
             }
-            return $"{bytes} bytes";
+            return string.Format(Texts.SelfService.FilesSizeBytes, bytes);
         }
     }
 }

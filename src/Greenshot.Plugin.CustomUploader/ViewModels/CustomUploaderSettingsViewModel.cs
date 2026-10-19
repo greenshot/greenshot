@@ -29,12 +29,14 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Greenshot.Base.Core;
 using Greenshot.Base.Languages;
 using Greenshot.Plugin.CustomUploader.Sxcu;
 using log4net;
+using Newtonsoft.Json;
 
 namespace Greenshot.Plugin.CustomUploader.ViewModels;
 
@@ -166,13 +168,13 @@ public sealed class CustomUploaderSettingsViewModel : INotifyPropertyChanged
     }
 
     /// <summary>
-    /// Read and check the uploader file, null with the reason when it can't be imported.
-    /// </summary>
-    /// <summary>
     /// True when the uploads can't be deleted from Greenshot: the import offers the reminder before each upload
     /// </summary>
     internal static bool HasNoDeletion(UploaderDefinition definition) => string.IsNullOrWhiteSpace(definition.DeletionURL);
 
+    /// <summary>
+    /// Read and check the uploader file, null with the reason when it can't be imported.
+    /// </summary>
     internal static UploaderDefinition ReadFile(string path, out string error)
     {
         error = null;
@@ -199,6 +201,50 @@ public sealed class CustomUploaderSettingsViewModel : INotifyPropertyChanged
     }
 
     /// <summary>
+    /// The values the user can fill in before the import: shared files have a text like "YOUR_API_KEY" where the key of
+    /// the user belongs. The request url (the server is confirmed afterwards), then parameters, headers and form fields.
+    /// </summary>
+    internal static IReadOnlyList<UploaderValue> GetValues(UploaderDefinition definition)
+    {
+        var values = new List<UploaderValue> { new UploaderValue(UploaderValueKind.RequestUrl, null, definition.RequestURL) };
+        values.AddRange((definition.Parameters ?? new Dictionary<string, string>()).Select(entry => new UploaderValue(UploaderValueKind.Parameter, entry.Key, entry.Value)));
+        values.AddRange((definition.Headers ?? new Dictionary<string, string>()).Select(entry => new UploaderValue(UploaderValueKind.Header, entry.Key, entry.Value)));
+        values.AddRange((definition.Arguments ?? new Dictionary<string, string>()).Select(entry => new UploaderValue(UploaderValueKind.Argument, entry.Key, entry.Value)));
+        return values;
+    }
+
+    /// <summary>
+    /// The uploader with the values of the user, checked again like an imported file (a value can't add a placeholder
+    /// which asks, a line break to a header or a server without HTTPS).
+    /// </summary>
+    /// <exception cref="UploaderFileException">the values can't be used, the message says why</exception>
+    internal static UploaderDefinition WithValues(UploaderDefinition definition, IEnumerable<UploaderValue> values)
+    {
+        var copy = JsonConvert.DeserializeObject<UploaderDefinition>(JsonConvert.SerializeObject(definition));
+        foreach (var value in values)
+        {
+            string text = value.Value ?? string.Empty;
+            switch (value.Kind)
+            {
+                case UploaderValueKind.RequestUrl:
+                    copy.RequestURL = text;
+                    break;
+                case UploaderValueKind.Parameter:
+                    copy.Parameters[value.Name] = text;
+                    break;
+                case UploaderValueKind.Header:
+                    copy.Headers[value.Name] = text;
+                    break;
+                case UploaderValueKind.Argument:
+                    copy.Arguments[value.Name] = text;
+                    break;
+            }
+        }
+
+        return UploaderFile.Read(JsonConvert.SerializeObject(copy));
+    }
+
+    /// <summary>
     /// What the user confirms before the import: where the captures go, which headers go with them.
     /// The values of the headers and fields aren't shown, they are the keys.
     /// </summary>
@@ -221,6 +267,7 @@ public sealed class CustomUploaderSettingsViewModel : INotifyPropertyChanged
             text.Append("\n\n").Append(Language.ImportReplaces);
         }
 
+        text.Append("\n\n").Append(string.Format(Language.ImportNotGreenshot, definition.Name, UploaderFile.DescribeServer(definition)));
         text.Append("\n\n").Append(Language.ImportTrust);
         return text.ToString();
     }
@@ -311,6 +358,11 @@ public sealed class UploaderItem
     /// The icon of the service, the generic one without it
     /// </summary>
     public ImageSource Icon { get; }
+
+    /// <summary>
+    /// The text a screen reader reads for the row
+    /// </summary>
+    public override string ToString() => string.IsNullOrEmpty(Description) ? Name : $"{Name}, {Description}";
 }
 
 /// <summary>
@@ -345,4 +397,99 @@ public sealed class UploadItem
     /// The icon of the uploader's service
     /// </summary>
     public ImageSource Icon { get; }
+
+    /// <summary>
+    /// The text a screen reader reads for the row
+    /// </summary>
+    public override string ToString() => $"{Date}, {Uploader}, {Url}";
+}
+
+internal enum UploaderValueKind
+{
+    RequestUrl,
+    Parameter,
+    Header,
+    Argument
+}
+
+/// <summary>
+/// A value of the uploader the user can change before the import
+/// </summary>
+public sealed class UploaderValue : INotifyPropertyChanged
+{
+    // Names under which services expect a key: the value is masked
+    private static readonly Regex SecretName = new Regex("key|token|secret|password|auth", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant, TimeSpan.FromSeconds(1));
+
+    // The texts shared files put where the key of the user belongs: <API KEY HERE>, [insert key], YOUR_TOKEN, "Your key goes here"
+    private static readonly Regex PlaceholderText = new Regex(@"<[^<>]*>|\[[^\[\]]*\]|\byour[\s_-]|\binsert\b|\bhere\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant, TimeSpan.FromSeconds(1));
+
+    private bool _isRevealed;
+
+    internal UploaderValue(UploaderValueKind kind, string name, string value)
+    {
+        Kind = kind;
+        Name = name;
+        Value = value;
+        IsSecret = kind != UploaderValueKind.RequestUrl && name != null && SecretName.IsMatch(name);
+    }
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    /// <summary>The value is a key: shown masked unless the user reveals it</summary>
+    public bool IsSecret { get; }
+
+    public bool IsRevealed
+    {
+        get => _isRevealed;
+        set
+        {
+            _isRevealed = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsRevealed)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsMasked)));
+        }
+    }
+
+    /// <summary>The PasswordBox is shown instead of the TextBox</summary>
+    public bool IsMasked => IsSecret && !IsRevealed;
+
+    /// <summary>
+    /// The value still looks like the text a shared file has where the key belongs (the user asked once before going on)
+    /// </summary>
+    internal bool LooksLikePlaceholder
+    {
+        get
+        {
+            try
+            {
+                return !string.IsNullOrEmpty(Value) && PlaceholderText.IsMatch(Value);
+            }
+            catch (RegexMatchTimeoutException)
+            {
+                return false;
+            }
+        }
+    }
+
+    internal UploaderValueKind Kind { get; }
+
+    /// <summary>The name of the parameter, header or form field, null for the request url</summary>
+    public string Name { get; }
+
+    /// <summary>What the user sees: the kind and the name</summary>
+    public string Label
+    {
+        get
+        {
+            var language = Texts.Get<ICustomUploaderLanguage>();
+            return Kind switch
+            {
+                UploaderValueKind.RequestUrl => language.ValuesRequestUrl,
+                UploaderValueKind.Parameter => string.Format(language.ValuesParameter, Name),
+                UploaderValueKind.Header => string.Format(language.ValuesHeader, Name),
+                _ => string.Format(language.ValuesArgument, Name)
+            };
+        }
+    }
+
+    public string Value { get; set; }
 }

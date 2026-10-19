@@ -177,7 +177,7 @@ namespace Greenshot.SelfService.ViewModels
 
             if (totalIssues > 0)
             {
-                BadgeText = $"{totalIssues} Issue{(totalIssues > 1 ? "s" : "")}";
+                BadgeText = string.Format(totalIssues > 1 ? Texts.SelfService.HotkeysIssues : Texts.SelfService.HotkeysIssue, totalIssues);
                 BadgeBrush = WpfThemeHelper.WarningBackground;
             }
             else
@@ -434,7 +434,7 @@ namespace Greenshot.SelfService.ViewModels
             catch (Exception ex)
             {
                 Log.Error("Error disabling Snipping Tool takeover", ex);
-                StatusMessage = $"Could not update registry: {ex.Message}";
+                StatusMessage = string.Format(Texts.SelfService.HotkeysRegistryError, ex.Message);
             }
         }
 
@@ -447,7 +447,7 @@ namespace Greenshot.SelfService.ViewModels
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Could not open Windows Settings: {ex.Message}";
+                StatusMessage = string.Format(Texts.SelfService.HotkeysSettingsError, ex.Message);
             }
         }
 

@@ -22,7 +22,7 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <Label Grid.Column="0" Content="{wpf:Text Box.LabelUploadFormat}" Margin="0,0,12,0"/>
+            <Label Grid.Column="0" Content="{wpf:Text Box.LabelUploadFormat}" Margin="0,0,12,0" Target="{Binding ElementName=UploadFormatCombo}"/>
             <ComboBox x:Name="UploadFormatCombo" Grid.Column="1"
                       HorizontalAlignment="Right" Width="200"
                       DisplayMemberPath="DisplayNameWithPreferredExtension"

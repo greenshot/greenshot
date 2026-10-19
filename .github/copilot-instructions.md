@@ -12,7 +12,7 @@
 
 ## Specialised Agents & Skills
 
-- **translation-manager**: Always consult them about UI messages, esp. after addition/change/removal of UI messages (see `.github/agents/translation-manager.md` and `docs/translation/`).
+- **translation-manager**: Always consult them about UI messages, esp. after addition/change/removal of UI messages (see `.github/agents/translation-manager.md` and `docs/vNext/translation/`).
 - **release-documentation** (Skill with Visual Studio wrapper): The user may explicitly invoke this workflow when release notes, changelogs, or release blog posts need to be generated or updated. It is not automatically invoked by models (see `.github/skills/release-documentation/SKILL.md` and `.github/agents/release-documentation-specialist.agent.md`).
   - Changelogs are updated in `docs/changelogs/` and submitted as a PR against the original base branch (e.g. `main` or `release/1.3`).
   - Release blog posts are created under `_posts/` and submitted as a PR against the `gh-pages` branch.
@@ -198,8 +198,10 @@ $env:Imgur13_ClientId = "your_id"
 - Core functionality: `src/Greenshot.Base/` or `src/Greenshot/`
 - Editor features: `src/Greenshot.Editor/`
 - New plugins: Create new `Greenshot.Plugin.{Name}` project following existing plugin structure
-- Where code goes and how it is named (Views/ViewModels, `Forms` only for WinForms, Recipes, optional parts, frozen .greenshot types): see `docs/code-structure.md`
-- UI changes: WPF in the `Views`/`ViewModels` folders of the feature, WinForms in `src/Greenshot/Forms/` or `src/Greenshot.Editor/Forms/`
+- Where code goes and how it is named (Views/ViewModels, `Forms` only for WinForms, Recipes, optional parts, frozen .greenshot types): see `docs/vNext/code-structure.md`
+- Accessibility is part of every UI change: follow `docs/vNext/accessibility.md` (keyboard, names, live regions, theme colors, `{wpf:FontSize N}`, no literal texts); `AccessibilityXamlTests` must stay green, never weaken it
+- UI changes: WPF in the `Views`/`ViewModels` folders of the feature, WinForms in `src/Greenshot/Forms/` or `src/Greenshot.Editor/Forms/`; styles, texts and settings: see `docs/vNext/ui-how-to.md`
+- Documentation: `docs/` describes the released 1.3, `docs/vNext/` what is new in 1.4 (`main`); document new features in `docs/vNext/`
 - New plugin language packs use INI format: `Languages/greenshot.{plugin}.{locale}.ini`
 
 ### Modifying Plugins
@@ -222,7 +224,7 @@ The translation-manager agent is a specialized expert with comprehensive knowled
 - Validating translation file completeness and correctness
 - Reviewing translation quality
 
-**Documentation**: See `docs/translation/README.md` for comprehensive translation documentation.
+**Documentation**: See `docs/vNext/translation/README.md` for comprehensive translation documentation.
 
 **Do not** attempt translation tasks yourself. Always use the translation-manager agent for any work involving language files or translation documentation.
 
@@ -234,6 +236,7 @@ Before submitting changes:
 - [ ] Code follows style conventions (see .editorconfig and CONTRIBUTING.md)
 - [ ] No new TODO/HACK/FIXME without justification
 - [ ] Manually test affected UI or capture features as appropriate
+- [ ] UI changes meet `docs/vNext/accessibility.md` (keyboard only, Narrator, high contrast, text size 150 %)
 - [ ] Consider impact on CI workflow (`.github/workflows/release.yml`)
 
 ## Additional Resources

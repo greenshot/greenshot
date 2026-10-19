@@ -30,8 +30,8 @@
 			<Grid.RowDefinitions>
 				<RowDefinition Height="Auto"/>
 			</Grid.RowDefinitions>
-			<Label Grid.Row="0" Grid.Column="0" Content="{wpf:Text Confluence.Filename}" />
-			<TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Path=Filename}" />
+			<Label Grid.Row="0" Grid.Column="0" Content="{wpf:Text Confluence.Filename}" Target="{Binding ElementName=FilenameTextBox}" />
+			<TextBox x:Name="FilenameTextBox" Grid.Row="0" Grid.Column="1" Text="{Binding Path=Filename}" />
 		</Grid>
 		<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
 			<Button Name="Upload" Content="{wpf:Text Confluence.Upload}" Style="{StaticResource PrimaryButtonStyle}" IsDefault="True" IsEnabled="False" Click="Upload_Click" />

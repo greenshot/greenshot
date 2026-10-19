@@ -417,6 +417,7 @@ namespace Greenshot.Recipes.Steps
         /// <summary>
         /// Select on the live screen instead of a frozen capture: when the user turned freezing off, for a region or window selection
         /// of the user. Text (OCR) needs the capture of the screen, AI tools need it to black out excluded windows.
+        /// A screen reader only says the selection on the frozen screen.
         /// </summary>
         private static bool UseLiveSelection(CaptureFlowContext context, CaptureSourceType sourceType, bool hasTargetWindowConfig)
         {
@@ -438,6 +439,12 @@ namespace Greenshot.Recipes.Steps
             if (!LiveScreenCaptureSource.IsSupported)
             {
                 Log.Info("Selecting on the live screen needs Windows 10 2004 or newer, the screen is frozen.");
+                return false;
+            }
+            if (User32Api.IsScreenReaderRunning())
+            {
+                // The live screen can't take the focus from the application below, so a screen reader can't say the selection: frozen, L switches
+                Log.Info("A screen reader runs, the selection starts on the frozen screen.");
                 return false;
             }
             return true;

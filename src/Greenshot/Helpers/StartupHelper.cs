@@ -30,7 +30,7 @@ namespace Greenshot.Helpers
 {
     /// <summary>
     /// Starting Greenshot with Windows: the "Greenshot" value in the Run key of the current user.
-    /// Older installers wrote it to the Run key of the machine (all users), that one is still recognized, see docs/autostart.md
+    /// Older installers wrote it to the Run key of the machine (all users), that one is still recognized, see docs/vNext/autostart.md
     /// </summary>
     public static class StartupHelper
     {

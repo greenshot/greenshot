@@ -69,6 +69,157 @@ namespace Greenshot.Base.Languages
         string AboutTranslation { get; }
 
         /// <summary>
+        /// Portable
+        /// </summary>
+        string AboutPortable { get; }
+
+        /// <summary>
+        /// BETA
+        /// </summary>
+        string AboutBeta { get; }
+
+        /// <summary>
+        /// Released as free software under the GNU General Public License (GPLv3).
+        /// </summary>
+        string AboutReleasedGpl { get; }
+
+        /// <summary>
+        /// Greenshot - System Information
+        /// </summary>
+        string AboutSysinfoTitle { get; }
+
+        /// <summary>
+        /// Greenshot cannot find the log file, expected location: {0}
+        /// </summary>
+        string AboutLogNotFound { get; }
+
+        /// <summary>
+        /// Log File Not Found
+        /// </summary>
+        string AboutLogNotFoundTitle { get; }
+
+        /// <summary>
+        /// Could not open greenshot.log: {0}
+        /// </summary>
+        string AboutLogError { get; }
+
+        /// <summary>
+        /// Error Opening Log
+        /// </summary>
+        string AboutLogErrorTitle { get; }
+
+        /// <summary>
+        /// Greenshot cannot find greenshot.ini, expected location: {0}
+        /// </summary>
+        string AboutIniNotFound { get; }
+
+        /// <summary>
+        /// Settings File Not Found
+        /// </summary>
+        string AboutIniNotFoundTitle { get; }
+
+        /// <summary>
+        /// Could not open greenshot.ini: {0}
+        /// </summary>
+        string AboutIniError { get; }
+
+        /// <summary>
+        /// Error Opening Settings
+        /// </summary>
+        string AboutIniErrorTitle { get; }
+
+        /// <summary>
+        /// Add
+        /// </summary>
+        string AccessibleAdd { get; }
+
+        /// <summary>
+        /// Region capture: the arrow keys move the cursor, Enter starts and finishes the selection, Space switches to window capture, Esc cancels, F1 shows all keys
+        /// </summary>
+        string AccessibleCaptureRegion { get; }
+
+        /// <summary>
+        /// Selection {0} × {1} pixels
+        /// </summary>
+        string AccessibleCaptureSelection { get; }
+
+        /// <summary>
+        /// {0}, {1} × {2} pixels
+        /// </summary>
+        string AccessibleCaptureWindow { get; }
+
+        /// <summary>
+        /// Window capture: Tab selects the next window, Enter captures it, Space switches to region capture, Esc cancels, F1 shows all keys
+        /// </summary>
+        string AccessibleCaptureWindowMode { get; }
+
+        /// <summary>
+        /// Choose a color
+        /// </summary>
+        string AccessibleChooseColor { get; }
+
+        /// <summary>
+        /// Close
+        /// </summary>
+        string AccessibleClose { get; }
+
+        /// <summary>
+        /// Choose a destination
+        /// </summary>
+        string AccessibleDestinationPicker { get; }
+
+        /// <summary>
+        /// The letter of each destination in the destination picker, as designation:letter separated by ;
+        /// The letters stay the same whatever destinations are available, each letter is used once.
+        /// </summary>
+        string DestinationPickerKeys { get; }
+
+        /// <summary>
+        /// Information
+        /// </summary>
+        string AccessibleInformation { get; }
+
+        /// <summary>
+        /// Loading…
+        /// </summary>
+        string AccessibleLoading { get; }
+
+        /// <summary>
+        /// Maximize
+        /// </summary>
+        string AccessibleMaximize { get; }
+
+        /// <summary>
+        /// Minimize
+        /// </summary>
+        string AccessibleMinimize { get; }
+
+        /// <summary>
+        /// Question
+        /// </summary>
+        string AccessibleQuestion { get; }
+
+        /// <summary>
+        /// Remove
+        /// </summary>
+        string AccessibleRemove { get; }
+
+        /// <summary>
+        /// Restore
+        /// </summary>
+        string AccessibleRestore { get; }
+
+        /// <summary>
+        /// Switch to the dark theme
+        /// </summary>
+        string AccessibleThemeDark { get; }
+
+        /// <summary>
+        /// Switch to the light theme
+        /// </summary>
+        string AccessibleThemeLight { get; }
+
+        /// <summary>
         /// Greenshot - the revolutionary screenshot utility
         /// </summary>
         string ApplicationTitle { get; }
@@ -93,6 +244,126 @@ namespace Greenshot.Base.Languages
         /// Error
         /// </summary>
         string BugreportTitle { get; }
+
+        /// <summary>
+        /// Greenshot - An Unexpected Error Occurred
+        /// </summary>
+        string BugreportWindowTitle { get; }
+
+        /// <summary>
+        /// Something went wrong
+        /// </summary>
+        string BugreportHeading { get; }
+
+        /// <summary>
+        /// Greenshot encountered an error, but don't worry, your work is safe. You can check if this issue has already been reported or file a new bug report with the details below.
+        /// </summary>
+        string BugreportIntro { get; }
+
+        /// <summary>
+        /// Installed Version:
+        /// </summary>
+        string BugreportInstalledVersion { get; }
+
+        /// <summary>
+        /// Latest Release:
+        /// </summary>
+        string BugreportLatestRelease { get; }
+
+        /// <summary>
+        /// Checking...
+        /// </summary>
+        string BugreportChecking { get; }
+
+        /// <summary>
+        /// Unavailable
+        /// </summary>
+        string BugreportUnavailable { get; }
+
+        /// <summary>
+        /// A newer version ({0}) is available online. Upgrading may already resolve this issue!
+        /// </summary>
+        string BugreportNewerVersion { get; }
+
+        /// <summary>
+        /// You are using the latest version ({0}).
+        /// </summary>
+        string BugreportLatestVersion { get; }
+
+        /// <summary>
+        /// Download Update
+        /// </summary>
+        string BugreportDownloadUpdate { get; }
+
+        /// <summary>
+        /// Issue Identifier (Stack Trace Hash)
+        /// </summary>
+        string BugreportIssueIdentifier { get; }
+
+        /// <summary>
+        /// No Stack
+        /// </summary>
+        string BugreportNoStack { get; }
+
+        /// <summary>
+        /// Search Existing Issues
+        /// </summary>
+        string BugreportSearchIssues { get; }
+
+        /// <summary>
+        /// Searching GitHub for this hash helps avoid filing duplicate issues and lets you quickly see if a fix or workaround is already available.
+        /// </summary>
+        string BugreportSearchHint { get; }
+
+        /// <summary>
+        /// Error Message:
+        /// </summary>
+        string BugreportErrorMessage { get; }
+
+        /// <summary>
+        /// An unexpected error occurred.
+        /// </summary>
+        string BugreportUnexpected { get; }
+
+        /// <summary>
+        /// Stack Trace:
+        /// </summary>
+        string BugreportStackTrace { get; }
+
+        /// <summary>
+        /// Copy Stack Trace
+        /// </summary>
+        string BugreportCopyStackTrace { get; }
+
+        /// <summary>
+        /// Copy Stack Trace to Clipboard
+        /// </summary>
+        string BugreportCopyStackTraceTooltip { get; }
+
+        /// <summary>
+        /// Show Details
+        /// </summary>
+        string BugreportShowDetails { get; }
+
+        /// <summary>
+        /// Hide Details
+        /// </summary>
+        string BugreportHideDetails { get; }
+
+        /// <summary>
+        /// Copied!
+        /// </summary>
+        string BugreportCopied { get; }
+
+        /// <summary>
+        /// Failed to copy
+        /// </summary>
+        string BugreportCopyFailed { get; }
+
+        /// <summary>
+        /// Report on GitHub
+        /// </summary>
+        string BugreportReportGithub { get; }
 
         /// <summary>
         /// Cancel
@@ -140,6 +411,11 @@ namespace Greenshot.Base.Languages
         string ColorpickerHtmlcolor { get; }
 
         /// <summary>
+        /// Pick a color from the screen: drag from here with the mouse
+        /// </summary>
+        string ColorpickerPipette { get; }
+
+        /// <summary>
         /// Recently used colors
         /// </summary>
         string ColorpickerRecentcolors { get; }
@@ -158,6 +434,11 @@ namespace Greenshot.Base.Languages
         /// Transparent
         /// </summary>
         string ColorpickerTransparent { get; }
+
+        /// <summary>
+        /// Color under the mouse cursor
+        /// </summary>
+        string ColorpickerUnderCursor { get; }
 
         /// <summary>
         /// The destination {0} rejected Greenshot access, probably a dialog is open. Close the dialog and try again.
@@ -238,6 +519,11 @@ namespace Greenshot.Base.Languages
         /// Configure {0}
         /// </summary>
         string ContextmenuConfigurePlugin { get; }
+
+        /// <summary>
+        /// This plugin has no configurable options.
+        /// </summary>
+        string PluginsNoOptions { get; }
 
         /// <summary>
         /// Keys
@@ -378,6 +664,16 @@ namespace Greenshot.Base.Languages
         /// Select the smaller area inside it
         /// </summary>
         string CaptureKeyWindowSmaller { get; }
+
+        /// <summary>
+        /// Select the next window
+        /// </summary>
+        string CaptureKeyWindowNext { get; }
+
+        /// <summary>
+        /// Select the previous window
+        /// </summary>
+        string CaptureKeyWindowPrevious { get; }
 
         /// <summary>
         /// Show or hide the keys
@@ -594,6 +890,16 @@ namespace Greenshot.Base.Languages
         /// OK
         /// </summary>
         string Ok { get; }
+
+        /// <summary>
+        /// Details
+        /// </summary>
+        string ErrorDetails { get; }
+
+        /// <summary>
+        /// Copy details
+        /// </summary>
+        string ErrorCopyDetails { get; }
 
         /// <summary>
         /// An error ocurred while trying to print.

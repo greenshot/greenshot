@@ -13,7 +13,7 @@
         WindowStartupLocation="CenterOwner"
         ResizeMode="CanResizeWithGrip"
         FontFamily="Segoe UI, Segoe UI Variable Display, Tahoma, Arial"
-        FontSize="13"
+        FontSize="{wpf:FontSize 13}"
         Background="{Binding WindowBackgroundBrush}"
         Foreground="{Binding TextPrimaryBrush}">
 
@@ -63,7 +63,7 @@
 
                 <!-- Left Controls: Refresh & Copy -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button Style="{StaticResource SecondaryButtonStyle}" 
+                    <Button AutomationProperties.Name="{wpf:Text SelfService.LogviewerRefresh}" Style="{StaticResource SecondaryButtonStyle}" 
                             Margin="0,0,8,0" 
                             Click="OnRefreshLogClicked">
                         <StackPanel Orientation="Horizontal">
@@ -71,7 +71,7 @@
                             <TextBlock Text="{wpf:Text SelfService.LogviewerRefresh}"/>
                         </StackPanel>
                     </Button>
-                    <Button Style="{StaticResource SecondaryButtonStyle}" 
+                    <Button AutomationProperties.Name="{wpf:Text SelfService.LogviewerCopy}" Style="{StaticResource SecondaryButtonStyle}" 
                             Margin="0,0,12,0" 
                             Click="OnCopyLogClicked">
                         <StackPanel Orientation="Horizontal">
@@ -83,36 +83,40 @@
                               IsChecked="{Binding WrapText, Mode=TwoWay}" 
                               Foreground="{Binding TextPrimaryBrush}" 
                               VerticalAlignment="Center" 
-                              FontSize="12"/>
+                              FontSize="{wpf:FontSize 12}"/>
                 </StackPanel>
 
                 <!-- Search: only the log entries with this text, from the whole log file -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,16,0">
-                    <TextBlock Text="{wpf:Text SelfService.LogviewerSearch}"
-                               FontSize="12"
+                    <TextBlock x:Name="SearchLabel"
+                               Text="{wpf:Text SelfService.LogviewerSearch}"
+                               FontSize="{wpf:FontSize 12}"
                                Foreground="{Binding TextPrimaryBrush}"
                                VerticalAlignment="Center"
                                Margin="0,0,6,0"/>
                     <TextBox x:Name="SearchTextBox"
+                             AutomationProperties.LabeledBy="{Binding ElementName=SearchLabel}"
                              Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                              ToolTip="{wpf:Text SelfService.LogviewerTooltipSearch}"
                              Width="200"
-                             FontSize="12"
+                             FontSize="{wpf:FontSize 12}"
                              VerticalAlignment="Center"/>
                 </StackPanel>
 
                 <!-- Log level: changed only here, never by a greenshot://log link -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="{wpf:Text SelfService.LogviewerLevel}"
-                               FontSize="12"
+                    <TextBlock x:Name="LevelLabel"
+                               Text="{wpf:Text SelfService.LogviewerLevel}"
+                               FontSize="{wpf:FontSize 12}"
                                Foreground="{Binding TextPrimaryBrush}"
                                VerticalAlignment="Center"
                                Margin="0,0,6,0"/>
                     <ComboBox ItemsSource="{Binding LogLevels}"
+                              AutomationProperties.LabeledBy="{Binding ElementName=LevelLabel}"
                               SelectedItem="{Binding SelectedLogLevel, Mode=TwoWay}"
                               ToolTip="{wpf:Text SelfService.LogviewerTooltipLevel}"
                               Width="90"
-                              FontSize="12"
+                              FontSize="{wpf:FontSize 12}"
                               VerticalAlignment="Center"/>
                 </StackPanel>
             </Grid>
@@ -132,28 +136,28 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="ℹ️ " FontSize="12" Margin="0,0,4,0"/>
+                    <TextBlock Text="ℹ️ " FontSize="{wpf:FontSize 12}" Margin="0,0,4,0"/>
                     <TextBlock Text="{Binding ChunkStatusText}" 
-                               FontSize="11.5" 
+                               FontSize="{wpf:FontSize 11.5}" 
                                Foreground="{Binding TextSecondaryBrush}" 
                                VerticalAlignment="Center"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button Style="{StaticResource SecondaryButtonStyle}" 
+                    <Button AutomationProperties.Name="{wpf:Text SelfService.LogviewerLoadEarlier}" Style="{StaticResource SecondaryButtonStyle}" 
                             Margin="0,0,8,0" 
                             Click="OnLoadEarlierLinesClicked"
                             ToolTip="{wpf:Text SelfService.LogviewerTooltipLoadEarlier}">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="⬆ " FontSize="11" Margin="0,0,3,0"/>
+                            <TextBlock Text="⬆ " FontSize="{wpf:FontSize 11}" Margin="0,0,3,0"/>
                             <TextBlock Text="{wpf:Text SelfService.LogviewerLoadEarlier}"/>
                         </StackPanel>
                     </Button>
-                    <Button Style="{StaticResource SecondaryButtonStyle}" 
+                    <Button AutomationProperties.Name="{wpf:Text SelfService.LogviewerLoadEntire}" Style="{StaticResource SecondaryButtonStyle}" 
                             Click="OnLoadEntireLogClicked"
                             ToolTip="{wpf:Text SelfService.LogviewerTooltipLoadEntire}">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="⏬ " FontSize="11" Margin="0,0,3,0"/>
+                            <TextBlock Text="⏬ " FontSize="{wpf:FontSize 11}" Margin="0,0,3,0"/>
                             <TextBlock Text="{wpf:Text SelfService.LogviewerLoadEntire}"/>
                         </StackPanel>
                     </Button>
@@ -166,6 +170,7 @@
                 Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}" 
                 Padding="4">
             <TextBox x:Name="LogTextBox" 
+                     AutomationProperties.Name="{wpf:Text SelfService.LogviewerTitle}"
                      Text="{Binding LogText, Mode=OneWay}"
                      IsReadOnly="True"
                      TextWrapping="{Binding TextWrappingMode}"
@@ -173,7 +178,7 @@
                      VerticalScrollBarVisibility="Visible"
                      HorizontalScrollBarVisibility="Visible"
                      FontFamily="Consolas, Cascadia Code, Courier New"
-                     FontSize="11.5"
+                     FontSize="{wpf:FontSize 11.5}"
                      BorderThickness="0"
                      Background="Transparent"
                      Foreground="{Binding TextPrimaryBrush}"
@@ -192,16 +197,17 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock x:Name="StatusMessageText" 
+                           AutomationProperties.LiveSetting="Polite"
                            Grid.Column="0"
                            Text="{Binding StatusMessage}" 
-                           FontSize="11" 
+                           FontSize="{wpf:FontSize 11}" 
                            Foreground="{Binding TextSecondaryBrush}" 
                            TextTrimming="CharacterEllipsis"
                            VerticalAlignment="Center"/>
                 <!-- Line count and size, or the number of search matches -->
                 <TextBlock Grid.Column="1" 
                            Text="{Binding LogInfoText}" 
-                           FontSize="11" 
+                           FontSize="{wpf:FontSize 11}" 
                            Foreground="{Binding TextSecondaryBrush}" 
                            Margin="12,0,0,0"
                            VerticalAlignment="Center"/>

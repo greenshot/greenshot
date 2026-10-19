@@ -102,7 +102,7 @@ namespace Greenshot.Editor.Controls
                 {
                     if (fontFamily != null)
                     {
-                        DrawText(e.Graphics, fontFamily, fontStyle, e.Bounds, fontFamily.Name);
+                        DrawText(e.Graphics, fontFamily, fontStyle, e.Bounds, fontFamily.Name, e.ForeColor);
                     }
                 }
                 catch
@@ -110,13 +110,13 @@ namespace Greenshot.Editor.Controls
                     // If the drawing failed, BUG-1770 seems to have a weird case that causes: Font 'Lucida Sans Typewriter' does not support style 'Regular' 
                     if (fontFamily != null)
                     {
-                        DrawText(e.Graphics, FontFamily.GenericSansSerif, FontStyle.Regular, e.Bounds, fontFamily.Name);
+                        DrawText(e.Graphics, FontFamily.GenericSansSerif, FontStyle.Regular, e.Bounds, fontFamily.Name, e.ForeColor);
                     }
                 }
             }
 
-            // Uncomment this if you actually like the way the focus rectangle looks
-            //e.DrawFocusRectangle ();
+            // Shows the item with the keyboard focus
+            e.DrawFocusRectangle();
         }
 
         /// <summary>
@@ -127,7 +127,8 @@ namespace Greenshot.Editor.Controls
         /// <param name="fontStyle">FontStyle</param>
         /// <param name="bounds">NativeRect</param>
         /// <param name="text">string</param>
-        private void DrawText(Graphics graphics, FontFamily fontFamily, FontStyle fontStyle, NativeRect bounds, string text)
+        /// <param name="color">The text color of the item: highlighted, normal or high contrast</param>
+        private void DrawText(Graphics graphics, FontFamily fontFamily, FontStyle fontStyle, NativeRect bounds, string text, Color color)
         {
             using Font font = new Font(fontFamily, Font.Size + 5, fontStyle, GraphicsUnit.Pixel);
             // Make sure the text is visible by centering it in the line
@@ -135,7 +136,8 @@ namespace Greenshot.Editor.Controls
             {
                 LineAlignment = StringAlignment.Center
             };
-            graphics.DrawString(text, font, Brushes.Black, bounds, stringFormat);
+            using var brush = new SolidBrush(color);
+            graphics.DrawString(text, font, brush, bounds, stringFormat);
         }
 
         private void BindableToolStripComboBox_SelectedIndexChanged(object sender, EventArgs e)

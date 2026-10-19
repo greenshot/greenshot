@@ -27,6 +27,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Http;
+using Greenshot.Base.Interfaces;
 using Newtonsoft.Json;
 using Xunit;
 
@@ -205,6 +206,27 @@ namespace Greenshot.Tests.Http
         public void Describe_LeavesOutPathAndQuery(string url, string expected)
         {
             Assert.Equal(expected, HttpService.Describe(new Uri(url)));
+        }
+
+        [Fact]
+        public void DescribeContent_Form_HasTheNamesAndTheFileButNoValues()
+        {
+            using var content = HttpContents.Multipart("fileToUpload", new EncodedImage(Encoding.ASCII.GetBytes("PNGDATA"), "png"), "capture 1.png",
+                new Dictionary<string, string> { { "key", "my-secret-key" }, { "time", "1h" } });
+
+            string description = HttpService.DescribeContent(content);
+
+            Assert.Equal("multipart/form-data with key, time, fileToUpload (file \"capture 1.png\", image/png, 7 bytes)", description);
+            Assert.DoesNotContain("my-secret-key", description);
+        }
+
+        [Fact]
+        public void DescribeContent_Text_HasTheTypeAndTheLengthButNotTheText()
+        {
+            using var content = new StringContent("my-secret-key");
+
+            Assert.Equal("text/plain, 13 bytes", HttpService.DescribeContent(content));
+            Assert.Equal("no body", HttpService.DescribeContent(null));
         }
 
         private sealed class Feed

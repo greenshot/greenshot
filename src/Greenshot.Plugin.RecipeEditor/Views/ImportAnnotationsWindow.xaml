@@ -3,27 +3,28 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ui="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
         xmlns:helpers="clr-namespace:Greenshot.Plugin.RecipeEditor.Helpers"
-        Title="Greenshot — Import Annotations"
+        Title="{ui:Text RecipeEditor.ImportTitle}"
         Height="580" Width="720"
         MinHeight="460" MinWidth="560"
         WindowStartupLocation="CenterOwner"
         ShowInTaskbar="True"
         Topmost="True"
         FontFamily="Segoe UI, Segoe UI Variable Display, Tahoma, Arial"
-        Background="{x:Static ui:WpfThemeHelper.WindowBackground}">
+        Background="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.WindowBackground}">
 
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml"/>
                 <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ComboBoxStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BoolToVis"/>
         </ResourceDictionary>
     </Window.Resources>
 
     <!-- Outer Window Border -->
-    <Border BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}" BorderThickness="1">
+    <Border BorderBrush="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}" BorderThickness="1">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/> <!-- Title bar -->
@@ -42,13 +43,13 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock x:Name="SourceTextBlock" Text="Source: Image Editor" FontSize="11" Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}" VerticalAlignment="Center"/>
-                    <Button Grid.Column="1" x:Name="SortButton" Content="Sort A-Z ▲" Style="{StaticResource SecondaryButtonStyle}" Padding="8,3" FontSize="10" Click="OnSortClicked" ToolTip="Toggle alphabetical sort"/>
+                    <TextBlock x:Name="SourceTextBlock" FontSize="{ui:FontSize 11}" Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}" VerticalAlignment="Center"/>
+                    <Button Grid.Column="1" x:Name="SortButton" Content="{ui:Text RecipeEditor.ImportSortAscending}" Style="{StaticResource SecondaryButtonStyle}" Padding="8,3" FontSize="{ui:FontSize 10}" Click="OnSortClicked" ToolTip="{ui:Text RecipeEditor.ImportSortTooltip}"/>
                 </Grid>
 
                 <!-- Target Step Mode Selection -->
-                <Border Background="{x:Static ui:WpfThemeHelper.CardBackground}"
-                        BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}"
+                <Border Background="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.CardBackground}"
+                        BorderBrush="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}"
                         BorderThickness="1" CornerRadius="6" Padding="12,8">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -56,25 +57,25 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Target Step Mode:" FontWeight="SemiBold" FontSize="11"
-                                   Foreground="{x:Static ui:WpfThemeHelper.TextPrimary}" VerticalAlignment="Center" Margin="0,0,14,0"/>
-                        <Border x:Name="AppendCard" Grid.Column="1" Background="{x:Static ui:WpfThemeHelper.WindowBackground}"
-                                BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}" BorderThickness="1" CornerRadius="4" Padding="10,6" Margin="0,0,8,0"
+                        <TextBlock Grid.Column="0" Text="{ui:Text RecipeEditor.ImportTargetStepMode}" FontWeight="SemiBold" FontSize="{ui:FontSize 11}"
+                                   Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextPrimary}" VerticalAlignment="Center" Margin="0,0,14,0"/>
+                        <Border x:Name="AppendCard" Grid.Column="1" Background="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.WindowBackground}"
+                                BorderBrush="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}" BorderThickness="1" CornerRadius="4" Padding="10,6" Margin="0,0,8,0"
                                 PreviewMouseDown="OnAppendCardClicked" Cursor="Hand">
-                            <RadioButton Style="{StaticResource DefaultRadioButton}" x:Name="AppendRadio" GroupName="TargetStepMode" Content="Append to existing annotations" IsChecked="True"/>
+                            <RadioButton Style="{StaticResource DefaultRadioButtonStyle}" x:Name="AppendRadio" GroupName="TargetStepMode" Content="{ui:Text RecipeEditor.ImportModeAppend}" IsChecked="True"/>
                         </Border>
-                        <Border x:Name="ReplaceCard" Grid.Column="2" Background="{x:Static ui:WpfThemeHelper.WindowBackground}"
-                                BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}" BorderThickness="1" CornerRadius="4" Padding="10,6"
+                        <Border x:Name="ReplaceCard" Grid.Column="2" Background="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.WindowBackground}"
+                                BorderBrush="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}" BorderThickness="1" CornerRadius="4" Padding="10,6"
                                 PreviewMouseDown="OnReplaceCardClicked" Cursor="Hand">
-                            <RadioButton Style="{StaticResource DefaultRadioButton}" x:Name="ReplaceRadio" GroupName="TargetStepMode" Content="Replace existing annotations"/>
+                            <RadioButton Style="{StaticResource DefaultRadioButtonStyle}" x:Name="ReplaceRadio" GroupName="TargetStepMode" Content="{ui:Text RecipeEditor.ImportModeReplace}"/>
                         </Border>
                     </Grid>
                 </Border>
             </StackPanel>
 
             <!-- Elements List / Table -->
-            <Border Grid.Row="2" Background="{x:Static ui:WpfThemeHelper.CardBackground}"
-                    BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}"
+            <Border Grid.Row="2" Background="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.CardBackground}"
+                    BorderBrush="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}"
                     BorderThickness="1" CornerRadius="6" Padding="6" Margin="16,0,16,10">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -83,7 +84,7 @@
                     </Grid.RowDefinitions>
 
                     <!-- Table Header Bar -->
-                    <Border Grid.Row="0" BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}" BorderThickness="0,0,0,1" Padding="6,4,6,6" Margin="0,0,0,4">
+                    <Border Grid.Row="0" BorderBrush="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}" BorderThickness="0,0,0,1" Padding="6,4,6,6" Margin="0,0,0,4">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="36"/>
@@ -91,10 +92,10 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="180"/>
                             </Grid.ColumnDefinitions>
-                            <CheckBox x:Name="SelectAllCheckBox" Click="OnSelectAllClicked" IsChecked="True" ToolTip="Select / Deselect all" VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="1" Text="Type (A-Z)" FontWeight="SemiBold" FontSize="11" Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}"/>
-                            <TextBlock Grid.Column="2" Text="Description / Content" FontWeight="SemiBold" FontSize="11" Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}"/>
-                            <TextBlock Grid.Column="3" Text="Asset Storage" FontWeight="SemiBold" FontSize="11" Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}"/>
+                            <CheckBox x:Name="SelectAllCheckBox" AutomationProperties.Name="{ui:Text RecipeEditor.ImportSelectAll}" Click="OnSelectAllClicked" IsChecked="True" ToolTip="{ui:Text RecipeEditor.ImportSelectAll}" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="{ui:Text RecipeEditor.ImportColumnType}" FontWeight="SemiBold" FontSize="{ui:FontSize 11}" Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}"/>
+                            <TextBlock Grid.Column="2" Text="{ui:Text RecipeEditor.ImportColumnDescription}" FontWeight="SemiBold" FontSize="{ui:FontSize 11}" Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}"/>
+                            <TextBlock Grid.Column="3" Text="{ui:Text RecipeEditor.ImportColumnStorage}" FontWeight="SemiBold" FontSize="{ui:FontSize 11}" Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}"/>
                         </Grid>
                     </Border>
 
@@ -106,6 +107,8 @@
                             <Style TargetType="ListViewItem">
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                                 <Setter Property="Padding" Value="6,4"/>
+                                <!-- The template draws no focus, the shared frame shows the keyboard focus -->
+                                <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
                                 <Setter Property="Template">
                                     <Setter.Value>
                                         <ControlTemplate TargetType="ListViewItem">
@@ -117,7 +120,7 @@
                                 </Setter>
                                 <Style.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="{x:Static ui:WpfThemeHelper.BadgeBackground}"/>
+                                        <Setter Property="Background" Value="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.BadgeBackground}"/>
                                     </Trigger>
                                 </Style.Triggers>
                             </Style>
@@ -133,29 +136,29 @@
                                     </Grid.ColumnDefinitions>
 
                                     <!-- Checkbox -->
-                                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" Click="OnItemSelectionChanged" VerticalAlignment="Center"/>
+                                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" AutomationProperties.Name="{Binding TargetNullValue=''}" Click="OnItemSelectionChanged" VerticalAlignment="Center"/>
 
                                     <!-- Type Badge -->
-                                    <Border Grid.Column="1" Background="{x:Static ui:WpfThemeHelper.BadgeBackground}"
-                                            BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}"
+                                    <Border Grid.Column="1" Background="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.BadgeBackground}"
+                                            BorderBrush="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}"
                                             BorderThickness="1" CornerRadius="3" Padding="6,2" HorizontalAlignment="Left" VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding Type}" FontWeight="SemiBold" FontSize="10" Foreground="{x:Static ui:WpfThemeHelper.Accent}"/>
+                                        <TextBlock Text="{Binding Type}" FontWeight="SemiBold" FontSize="{ui:FontSize 10}" Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.Accent}"/>
                                     </Border>
 
                                     <!-- Description -->
-                                    <TextBlock Grid.Column="2" Text="{Binding Description}" FontSize="11"
-                                               Foreground="{x:Static ui:WpfThemeHelper.TextPrimary}"
+                                    <TextBlock Grid.Column="2" Text="{Binding Description}" FontSize="{ui:FontSize 11}"
+                                               Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextPrimary}"
                                                TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="0,0,10,0"/>
 
                                     <!-- Storage Mode (Embed vs File) -->
                                     <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center"
                                                 Visibility="{Binding CanSaveAsFile, Converter={StaticResource BoolToVis}}">
-                                        <ComboBox SelectedValue="{Binding StorageMode, Mode=TwoWay}"
+                                        <ComboBox SelectedValue="{Binding StorageMode, Mode=TwoWay}" AutomationProperties.Name="{ui:Text RecipeEditor.ImportColumnStorage}"
                                                   SelectedValuePath="Tag"
                                                   SelectionChanged="OnStorageModeChanged"
-                                                  Width="160" Height="24" FontSize="10">
-                                            <ComboBoxItem Content="📦 Embed (Base64)" Tag="{x:Static helpers:AssetStorageMode.EmbedBase64}"/>
-                                            <ComboBoxItem Content="💾 Save to File" Tag="{x:Static helpers:AssetStorageMode.SaveToFile}"/>
+                                                  Width="160" Height="24" FontSize="{ui:FontSize 10}">
+                                            <ComboBoxItem Content="{ui:Text RecipeEditor.ImportStorageEmbed}" Tag="{x:Static helpers:AssetStorageMode.EmbedBase64}"/>
+                                            <ComboBoxItem Content="{ui:Text RecipeEditor.ImportStorageFile}" Tag="{x:Static helpers:AssetStorageMode.SaveToFile}"/>
                                         </ComboBox>
                                     </StackPanel>
                                 </Grid>
@@ -166,13 +169,13 @@
             </Border>
 
             <!-- External Asset Output Section (Issue 3: Clear labels and explanation) -->
-            <Border x:Name="AssetOutputPanel" Grid.Row="3" Background="{x:Static ui:WpfThemeHelper.CardBackground}"
-                    BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}"
+            <Border x:Name="AssetOutputPanel" Grid.Row="3" Background="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.CardBackground}"
+                    BorderBrush="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}"
                     BorderThickness="1" CornerRadius="6" Padding="14,10" Margin="16,0,16,10"
                     Visibility="Collapsed">
                 <StackPanel>
-                    <TextBlock Text="💾 File Storage Destination (For elements set to 'Save to File'):"
-                               FontWeight="SemiBold" FontSize="11" Foreground="{x:Static ui:WpfThemeHelper.TextPrimary}" Margin="0,0,0,8"/>
+                    <TextBlock Text="{ui:Text RecipeEditor.ImportFileDestination}"
+                               FontWeight="SemiBold" FontSize="{ui:FontSize 11}" Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextPrimary}" Margin="0,0,0,8"/>
 
                     <!-- Directory Path Picker -->
                     <Grid Margin="0,0,0,6">
@@ -182,11 +185,11 @@
                             <ColumnDefinition Width="6"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Save to Folder:" FontSize="11" Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}" VerticalAlignment="Center"/>
-                        <TextBox x:Name="DirectoryTextBox" Grid.Column="1" FontSize="11" FontFamily="Consolas" VerticalContentAlignment="Center" Padding="6,3"
-                                 Background="{x:Static ui:WpfThemeHelper.WindowBackground}"
-                                 Foreground="{x:Static ui:WpfThemeHelper.TextPrimary}"/>
-                        <Button Grid.Column="3" Content="Browse..." Style="{StaticResource SecondaryButtonStyle}" Padding="10,4" Click="OnBrowseDirectoryClicked"/>
+                        <TextBlock x:Name="DirectoryLabel" Grid.Column="0" Text="{ui:Text RecipeEditor.ImportSaveToFolder}" FontSize="{ui:FontSize 11}" Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}" VerticalAlignment="Center"/>
+                        <TextBox x:Name="DirectoryTextBox" Grid.Column="1" AutomationProperties.LabeledBy="{Binding ElementName=DirectoryLabel}" FontSize="{ui:FontSize 11}" FontFamily="Consolas" VerticalContentAlignment="Center" Padding="6,3"
+                                 Background="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.WindowBackground}"
+                                 Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextPrimary}"/>
+                        <Button Grid.Column="3" Content="{ui:Text RecipeEditor.ImportBtnBrowse}" Style="{StaticResource SecondaryButtonStyle}" Padding="10,4" Click="OnBrowseDirectoryClicked"/>
                     </Grid>
 
                     <!-- Base Filename Prefix -->
@@ -195,33 +198,33 @@
                             <ColumnDefinition Width="110"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Filename Prefix:" FontSize="11" Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}" VerticalAlignment="Center"/>
-                        <TextBox x:Name="BaseFileNameTextBox" Grid.Column="1" FontSize="11" FontFamily="Consolas" VerticalContentAlignment="Center" Padding="6,3"
-                                 ToolTip="Prefix used for all exported asset files"
-                                 Background="{x:Static ui:WpfThemeHelper.WindowBackground}"
-                                 Foreground="{x:Static ui:WpfThemeHelper.TextPrimary}"/>
+                        <TextBlock x:Name="BaseFileNameLabel" Grid.Column="0" Text="{ui:Text RecipeEditor.ImportFilenamePrefix}" FontSize="{ui:FontSize 11}" Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}" VerticalAlignment="Center"/>
+                        <TextBox x:Name="BaseFileNameTextBox" Grid.Column="1" AutomationProperties.LabeledBy="{Binding ElementName=BaseFileNameLabel}" FontSize="{ui:FontSize 11}" FontFamily="Consolas" VerticalContentAlignment="Center" Padding="6,3"
+                                 ToolTip="{ui:Text RecipeEditor.ImportFilenamePrefixTooltip}"
+                                 Background="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.WindowBackground}"
+                                 Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextPrimary}"/>
                     </Grid>
 
                     <!-- Helper explanation -->
-                    <TextBlock Text="ℹ Exported files will be named: &lt;Folder&gt;\{prefix}_{type}_{number}.png (e.g., &quot;myrecipe_cursor_1.png&quot;)"
-                               FontSize="10" Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}" Margin="110,2,0,0"/>
+                    <TextBlock Text="{ui:Text RecipeEditor.ImportFileNamingHint}"
+                               FontSize="{ui:FontSize 10}" Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}" Margin="110,2,0,0"/>
                 </StackPanel>
             </Border>
 
             <!-- Footer Action Buttons -->
-            <Border Grid.Row="4" Background="{x:Static ui:WpfThemeHelper.CardBackground}"
-                    BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}" BorderThickness="0,1,0,0" Padding="16,10">
+            <Border Grid.Row="4" Background="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.CardBackground}"
+                    BorderBrush="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}" BorderThickness="0,1,0,0" Padding="16,10">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock x:Name="StatusTextBlock" Text="0 items selected" FontSize="11" Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="StatusTextBlock" ui:LiveRegion.Mode="Polite" FontSize="{ui:FontSize 11}" Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}" VerticalAlignment="Center"/>
 
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
-                        <Button Content="Cancel" Style="{StaticResource SecondaryButtonStyle}" Click="OnCancelClicked" Margin="0,0,8,0"/>
-                        <Button x:Name="ImportBtn" Content="Proceed Import" Style="{StaticResource PrimaryButtonStyle}" Click="OnProceedClicked"/>
+                        <Button Content="{ui:Text Core.Cancel}" Style="{StaticResource SecondaryButtonStyle}" Click="OnCancelClicked" IsCancel="True" Margin="0,0,8,0"/>
+                        <Button x:Name="ImportBtn" Content="{ui:Text RecipeEditor.ImportBtnProceed}" Style="{StaticResource PrimaryButtonStyle}" IsDefault="True" Click="OnProceedClicked"/>
                     </StackPanel>
                 </Grid>
             </Border>

@@ -258,7 +258,7 @@ namespace Greenshot.Editor.Views
 
             if (useRegex && !IsValidRegex(searchText))
             {
-                MatchCountTextBlock.Text = Texts.Editor.ObfuscateTextError + ": Invalid regex";
+                MatchCountTextBlock.Text = Texts.Editor.ObfuscateTextError + ": " + Texts.Editor.ObfuscateTextInvalidRegex;
                 return;
             }
 

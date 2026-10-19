@@ -317,9 +317,24 @@ namespace Greenshot.Base.Languages
         string ExpertOptimizeforrdp { get; }
 
         /// <summary>
-        /// Reuse editor if possible
+        /// Open new captures as a tab in the editor window used last
         /// </summary>
-        string ExpertReuseeditorifpossible { get; }
+        string OpenCaptureAsTab { get; }
+
+        /// <summary>
+        /// Show the captures of an editor window as tabs
+        /// </summary>
+        string EditorTabs { get; }
+
+        /// <summary>
+        /// Size of a new image
+        /// </summary>
+        string NewImageSize { get; }
+
+        /// <summary>
+        /// Color of a new image
+        /// </summary>
+        string NewImageColor { get; }
 
         /// <summary>
         /// Suppress the save dialog when closing the editor
@@ -791,5 +806,165 @@ namespace Greenshot.Base.Languages
         /// Off: what is on the screen keeps moving while you select, only the selection is captured, when you make it
         /// </summary>
         string TooltipFreezeScreen { get; }
+
+        /// <summary>
+        /// Larger icons
+        /// </summary>
+        string IconsizeIncrease { get; }
+
+        /// <summary>
+        /// Smaller icons
+        /// </summary>
+        string IconsizeDecrease { get; }
+
+        /// <summary>
+        /// Choose the storage location
+        /// </summary>
+        string StoragelocationBrowse { get; }
+
+        /// <summary>
+        /// Placeholders of the filename pattern
+        /// </summary>
+        string FilenamepatternHelp { get; }
+
+        /// <summary>
+        /// Edit
+        /// </summary>
+        string HotkeyEdit { get; }
+
+        /// <summary>
+        /// Edit {0}: {1}
+        /// </summary>
+        string HotkeyEditValueAccessible { get; }
+
+        /// <summary>
+        /// Change the hotkey
+        /// </summary>
+        string HotkeyChange { get; }
+
+        /// <summary>
+        /// None
+        /// </summary>
+        string HotkeyNone { get; }
+
+        /// <summary>
+        /// then
+        /// </summary>
+        string HotkeyThen { get; }
+
+        /// <summary>
+        /// Step {0}:
+        /// </summary>
+        string HotkeyStep { get; }
+
+        /// <summary>
+        /// Step {0}: {1}
+        /// </summary>
+        string HotkeyStepAccessible { get; }
+
+        /// <summary>
+        /// Step {0}: {1}, selected
+        /// </summary>
+        string HotkeyStepSelectedAccessible { get; }
+
+        /// <summary>
+        /// Configure Hotkey: {0}
+        /// </summary>
+        string HotkeyEditorTitle { get; }
+
+        /// <summary>
+        /// Modifiers
+        /// </summary>
+        string HotkeyModifiers { get; }
+
+        /// <summary>
+        /// Ctrl key, left or right
+        /// </summary>
+        string HotkeyCtrlLocation { get; }
+
+        /// <summary>
+        /// Alt key, left or right
+        /// </summary>
+        string HotkeyAltLocation { get; }
+
+        /// <summary>
+        /// Shift key, left or right
+        /// </summary>
+        string HotkeyShiftLocation { get; }
+
+        /// <summary>
+        /// Win key, left or right
+        /// </summary>
+        string HotkeyWinLocation { get; }
+
+        /// <summary>
+        /// Key Sequence Steps &amp; Capture
+        /// </summary>
+        string HotkeyStepsCapture { get; }
+
+        /// <summary>
+        /// Remove step
+        /// </summary>
+        string HotkeyRemoveStep { get; }
+
+        /// <summary>
+        /// + Add Step
+        /// </summary>
+        string HotkeyAddStep { get; }
+
+        /// <summary>
+        /// Add next chord step to this sequence
+        /// </summary>
+        string HotkeyAddStepTooltip { get; }
+
+        /// <summary>
+        /// Hotkey
+        /// </summary>
+        string HotkeyCapture { get; }
+
+        /// <summary>
+        /// Press the keys of the hotkey. Tab moves on, Esc cancels.
+        /// </summary>
+        string HotkeyCaptureHelp { get; }
+
+        /// <summary>
+        /// Click here to focus and press shortcut keys
+        /// </summary>
+        string HotkeyCaptureHint { get; }
+
+        /// <summary>
+        /// Listening... Press keys on your keyboard
+        /// </summary>
+        string HotkeyCaptureListening { get; }
+
+        /// <summary>
+        /// Click here and press key
+        /// </summary>
+        string HotkeyPressKey { get; }
+
+        /// <summary>
+        /// Clear / Reset
+        /// </summary>
+        string HotkeyClear { get; }
+
+        /// <summary>
+        /// Preview:
+        /// </summary>
+        string HotkeyPreview { get; }
+
+        /// <summary>
+        /// Save / Apply
+        /// </summary>
+        string HotkeySave { get; }
+
+        /// <summary>
+        /// Please choose a trigger key for the selected modifiers.
+        /// </summary>
+        string HotkeyErrorNoTrigger { get; }
+
+        /// <summary>
+        /// Step {0} requires a trigger key.
+        /// </summary>
+        string HotkeyErrorStepNoTrigger { get; }
     }
 }

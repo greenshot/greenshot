@@ -27,7 +27,7 @@ namespace Greenshot.Plugin.CustomUploader.Sxcu;
 /// <summary>
 /// An uploader as a ShareX custom uploader file (.sxcu) describes it, with the property names of that format.
 /// Only what Greenshot uses is read, the other properties of a file are ignored.
-/// See docs/custom-uploader.md for what is supported.
+/// See docs/vNext/custom-uploader.md for what is supported.
 /// </summary>
 internal sealed class UploaderDefinition
 {

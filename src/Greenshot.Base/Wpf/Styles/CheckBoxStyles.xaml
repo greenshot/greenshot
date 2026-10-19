@@ -4,7 +4,7 @@
     <!-- Shared checkbox appearance for all Greenshot WPF surfaces. -->
     <Style x:Key="GreenshotCheckBoxStyle" TargetType="{x:Type CheckBox}">
         <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontSize" Value="{wpf:FontSize 12}"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Margin" Value="0,4"/>

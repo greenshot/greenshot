@@ -38,8 +38,8 @@
                 <ColumnDefinition Width="100"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Label Grid.Column="0" Content="{wpf:Text Confluence.LabelUrl}"/>
-            <TextBox Grid.Column="1" Text="{Binding Url, UpdateSourceTrigger=PropertyChanged}"/>
+            <Label Grid.Column="0" Content="{wpf:Text Confluence.LabelUrl}" Target="{Binding ElementName=UrlTextBox}"/>
+            <TextBox x:Name="UrlTextBox" Grid.Column="1" Text="{Binding Url, UpdateSourceTrigger=PropertyChanged}"/>
         </Grid>
 
         <Grid Margin="0,4">
@@ -47,8 +47,8 @@
                 <ColumnDefinition Width="100"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Label Grid.Column="0" Content="{wpf:Text Confluence.LabelTimeout}"/>
-            <TextBox Grid.Column="1" Text="{Binding Timeout, UpdateSourceTrigger=PropertyChanged}"/>
+            <Label Grid.Column="0" Content="{wpf:Text Confluence.LabelTimeout}" Target="{Binding ElementName=TimeoutTextBox}"/>
+            <TextBox x:Name="TimeoutTextBox" Grid.Column="1" Text="{Binding Timeout, UpdateSourceTrigger=PropertyChanged}"/>
         </Grid>
 
         <Grid Margin="0,4">
@@ -56,7 +56,7 @@
                 <ColumnDefinition Width="100"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Label Grid.Column="0" Content="{wpf:Text Confluence.UploadFormat}"/>
+            <Label Grid.Column="0" Content="{wpf:Text Confluence.UploadFormat}" Target="{Binding ElementName=UploadFormatCombo}"/>
             <ComboBox x:Name="UploadFormatCombo" Grid.Column="1"
                       DisplayMemberPath="DisplayNameWithPreferredExtension"
                       SelectedValuePath="Id"

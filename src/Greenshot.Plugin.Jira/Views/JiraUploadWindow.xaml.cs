@@ -152,6 +152,11 @@ public partial class JiraUploadWindow : Window
         public string Reporter => Issue.Fields?.Reporter?.DisplayName;
 
         public string Summary => Issue.Fields?.Summary;
+
+        /// <summary>
+        /// The text a screen reader reads for the row
+        /// </summary>
+        public override string ToString() => $"{Key}: {Summary}";
     }
 
     private void SetConnected(bool connected)

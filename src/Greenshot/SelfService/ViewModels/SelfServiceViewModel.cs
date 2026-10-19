@@ -103,7 +103,7 @@ namespace Greenshot.SelfService.ViewModels
         public SolidColorBrush BadgeBackgroundBrush => WpfThemeHelper.BadgeBackground;
         public SolidColorBrush WarningTextBrush => WpfThemeHelper.WarningText;
         public string ThemeToggleIcon => WpfThemeHelper.IsDarkMode ? "☀️" : "🌙";
-        public string ThemeToggleToolTip => WpfThemeHelper.IsDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode";
+        public string ThemeToggleToolTip => WpfThemeHelper.IsDarkMode ? Texts.Core.AccessibleThemeLight : Texts.Core.AccessibleThemeDark;
 
         public SelfServiceViewModel(string initialSectionId = null)
         {

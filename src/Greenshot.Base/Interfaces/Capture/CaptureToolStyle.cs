@@ -108,7 +108,7 @@ namespace Greenshot.Base.Interfaces.Capture
         public double Scale(double units) => units * _dpiScale;
 
         /// <summary>
-        /// Text in the font of Greenshot, the size in points scaled like the rest of the UI
+        /// Text in the font of Greenshot, the size in points scaled like the rest of the UI (DPI and the "Text size" of Windows)
         /// </summary>
         /// <param name="text">The text</param>
         /// <param name="points">Size in points, 9 is the normal UI text</param>
@@ -117,7 +117,7 @@ namespace Greenshot.Base.Interfaces.Capture
         public FormattedText CreateText(string text, double points = 9, Brush brush = null, bool bold = false)
         {
             return new FormattedText(text ?? string.Empty, CultureInfo.CurrentCulture, FlowDirection.LeftToRight, bold ? _boldTypeface : _typeface,
-                points * 96 / 72 * _dpiScale, brush ?? Foreground, 1.0);
+                FontSizeExtension.Scale(points * 96 / 72 * _dpiScale), brush ?? Foreground, 1.0);
         }
 
         /// <summary>

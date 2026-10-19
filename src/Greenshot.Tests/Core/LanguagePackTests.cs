@@ -60,7 +60,9 @@ namespace Greenshot.Tests.Core
                 typeof(Greenshot.Plugin.ExternalCommand.IExternalCommandLanguage).Assembly,
                 typeof(Greenshot.Plugin.Jira.IJiraLanguage).Assembly,
                 typeof(Greenshot.Plugin.Office.IOfficeLanguage).Assembly,
-                typeof(Greenshot.Plugin.Pdf.IPdfLanguage).Assembly
+                typeof(Greenshot.Plugin.Pdf.IPdfLanguage).Assembly,
+                typeof(Greenshot.Plugin.RecipeEditor.IRecipeEditorLanguage).Assembly,
+                typeof(Greenshot.Plugin.Zxing.IZxingLanguage).Assembly
             };
             return assemblies
                 .SelectMany(a => a.GetTypes())
@@ -90,7 +92,8 @@ namespace Greenshot.Tests.Core
             var sections = LanguageSections()
                 .Select(o => (Type)o[0])
                 .ToDictionary(t => t.GetCustomAttribute<IniLanguageSectionAttribute>().SectionName, StringComparer.Ordinal);
-            var textReference = new Regex(@"\{wpf:Text\s+(\w+)\.(\w+)\s*\}");
+            // Any prefix the file maps to Greenshot.Base.Wpf (wpf:, ui:)
+            var textReference = new Regex(@"\{\w+:Text\s+(\w+)\.(\w+)\s*\}");
             var problems = new List<string>();
             int count = 0;
             foreach (string xamlFile in Directory.EnumerateFiles(FindSourceDirectory(), "*.xaml", SearchOption.AllDirectories)
@@ -247,7 +250,7 @@ namespace Greenshot.Tests.Core
             Assert.Equal("Title", Greenshot.Base.Recipes.RecipeText.Translate("Title"));
         }
 
-        private static string FindSourceDirectory()
+        internal static string FindSourceDirectory()
         {
             var directory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
             while (directory != null)

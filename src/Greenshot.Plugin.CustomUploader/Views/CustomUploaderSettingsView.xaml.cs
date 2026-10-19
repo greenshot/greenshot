@@ -21,11 +21,13 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using Greenshot.Base.Languages;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Wpf;
+using Greenshot.Plugin.CustomUploader.Sxcu;
 using Greenshot.Plugin.CustomUploader.ViewModels;
 using log4net;
 using Microsoft.Win32;
@@ -80,6 +82,12 @@ public partial class CustomUploaderSettingsView : UserControl
             return;
         }
 
+        definition = AskForValues(window, definition, Path.GetFileName(dialog.FileName));
+        if (definition == null)
+        {
+            return;
+        }
+
         // The gate of the import: Cancel is the default, the buttons only react after a moment, so a double click doesn't import
         // Uploads which can't be deleted: the user can have the capture shown before each upload
         bool offerReminder = CustomUploaderSettingsViewModel.HasNoDeletion(definition);
@@ -92,6 +100,39 @@ public partial class CustomUploaderSettingsView : UserControl
         if (choice >= 0 && choice < cancel)
         {
             _viewModel.Import(definition, remindBeforeUpload: offerReminder && choice == 0);
+        }
+    }
+
+    /// <summary>
+    /// Let the user fill in the values (keys) of the uploader, until they pass the checks. Null when the user cancels.
+    /// </summary>
+    private static UploaderDefinition AskForValues(Window owner, UploaderDefinition definition, string fileName)
+    {
+        var values = CustomUploaderSettingsViewModel.GetValues(definition);
+        while (true)
+        {
+            var valuesWindow = new UploaderValuesWindow(string.Format(UploaderTexts.ValuesTitle, definition.Name), values) { Owner = owner };
+            if (valuesWindow.ShowDialog() != true)
+            {
+                return null;
+            }
+
+            // Ask once when a value still looks like the text of the file (YOUR_API_KEY), No goes back to the values
+            var placeholders = values.Where(value => value.LooksLikePlaceholder).Select(value => value.Label).ToList();
+            if (placeholders.Count > 0 && ThemedMessageBox.Show(owner, string.Format(UploaderTexts.ValuesPlaceholderQuestion, string.Join(", ", placeholders)),
+                    UploaderTexts.ImportTitle, MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+            {
+                continue;
+            }
+
+            try
+            {
+                return CustomUploaderSettingsViewModel.WithValues(definition, values);
+            }
+            catch (UploaderFileException ex)
+            {
+                ThemedMessageBox.Show(owner, string.Format(UploaderTexts.ImportFailed, fileName, ex.Message), UploaderTexts.ImportTitle, MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
     }
 
