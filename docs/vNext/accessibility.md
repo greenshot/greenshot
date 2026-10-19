@@ -125,7 +125,8 @@ The editor still misses some of this (the canvas needs the mouse to draw). New e
 The capture window is drawn, not made of controls, so it speaks for itself: it announces the mode, the window under the selection and
 the selection size (see `Announce` in `CaptureWindow.xaml.cs`). On the frozen screen the text goes into one of two hidden elements and
 the focus moves to it, because a screen reader always says what gets the focus; Narrator said neither a live region nor a
-`LiveRegion.Notify` notification there. On the live screen the application below keeps the focus, so it uses `LiveRegion.Notify`.
+`LiveRegion.Notify` notification there. On the live screen the application below keeps the focus, and Narrator says nothing there either, so while the screen reader flag
+is on the selection starts on the frozen screen (`UseLiveSelection` in `SourceAcquisitionStep.cs`, L still switches).
 When you add a tool or a mode:
 
 - Register its keys with `RegisterToolKey`, so they work and show up in the F1 key panel, and add them to

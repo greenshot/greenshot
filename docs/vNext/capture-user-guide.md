@@ -475,10 +475,11 @@ All of these are in the `[Core]` section, unless said otherwise.
 - **High DPI:** the panels, texts and the zoomer scale with the DPI of your monitor, sizes and positions are always in real pixels.
   The texts also grow with the *Text size* of Windows (Settings, Accessibility).
 - **Screen readers:** when the capture screen opens or the mode changes, a screen reader (Narrator, NVDA, JAWS) says the mode and its
-  main keys; the selected window and the size of a selection are said once they stop changing. On the live screen the `Insert` and
-  `Caps Lock` keys, and the keys pressed with them, stay with the screen reader. While a screen reader runs, a region capture starts
-  as a window capture. Window capture (its own hotkey, or `Space`) selects the window under the cursor right away and says its title:
-  `Enter` captures it, `Tab` selects the next window, `Space` switches to the region.
+  main keys; the selected window and the size of a selection are said once they stop changing. While a screen reader runs, the
+  screen is frozen for the selection, because nothing is said on the live screen (`L` still switches to it), and a region capture
+  starts as a window capture. Window capture (its own hotkey, or `Space`) selects the window under the cursor right away and says its
+  title: `Enter` captures it, `Tab` selects the next window, `Space` switches to the region. On the live screen the `Insert` and
+  `Caps Lock` keys, and the keys pressed with them, stay with the screen reader.
 - **Destination picker:** every destination has a fixed letter, underlined in the menu (for example `C` for the clipboard, `S` to
   save). The letter stays the same whatever other destinations are there, so you can learn it.
 - **Animations:** with *Animation effects* off in Windows (Settings, Accessibility, Visual effects) the selection, the zoomer and the
