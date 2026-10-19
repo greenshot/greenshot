@@ -234,7 +234,6 @@ namespace Greenshot.Views
                 texts.AddRange(VisibleTexts(step));
                 var text = string.Join(" ", texts.Where(part => !string.IsNullOrWhiteSpace(part)));
                 var reader = ReferenceEquals(FocusManager.GetFocusedElement(this), StepReaderA) ? StepReaderB : StepReaderA;
-                reader.Text = text;
                 System.Windows.Automation.AutomationProperties.SetName(reader, text);
                 reader.Focus();
             }, System.Windows.Threading.DispatcherPriority.Loaded).Task.FireAndLog("Focus the welcome step", Log);
