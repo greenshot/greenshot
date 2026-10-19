@@ -181,6 +181,9 @@ namespace Greenshot.Capturing.Views
         private bool _handleCreated;
         private bool _closed;
         private bool _lostFocus;
+        private static readonly int OwnProcessId = GetOwnProcessId();
+        // When TakeFocusBack took the focus back the last time
+        private DateTime _focusTakenBack;
         private AnimationClock _selectionClock;
 
         /// <summary>
@@ -582,7 +585,12 @@ namespace Greenshot.Capturing.Views
                 }
                 UpdateSelection();
             };
-            Deactivated += (sender, args) => _lostFocus = !_closed;
+            Deactivated += (sender, args) =>
+            {
+                _lostFocus = !_closed;
+                // After the focus change is done, see TakeFocusBack
+                Dispatcher.InvokeAsync(TakeFocusBack, DispatcherPriority.Input).Task.FireAndLog("Take the focus back to the capture window", Log);
+            };
             MouseLeftButtonDown += OnMouseLeftButtonDown;
             MouseLeftButtonUp += OnMouseLeftButtonUp;
             if (_handleCreated)
@@ -594,6 +602,34 @@ namespace Greenshot.Capturing.Views
                 ShowActivated = !_live;
                 Show();
             }
+        }
+
+        /// <summary>
+        /// The frozen screen covers every screen and stays on top, another window can't be used while it's there, Esc is the way out.
+        /// When another application takes the focus (a notification, a program which pops up, Alt+Tab), the capture window takes it back,
+        /// a keyboard user couldn't get it back otherwise (the window isn't in Alt+Tab). Not on the live screen, where the application
+        /// below has the focus, not for a window of Greenshot itself, and not again within a second: no fight with a window that keeps taking it.
+        /// </summary>
+        private void TakeFocusBack()
+        {
+            if (_closed || _live || _switching || !IsVisible || IsActive || DateTime.UtcNow - _focusTakenBack < TimeSpan.FromSeconds(1))
+            {
+                return;
+            }
+            User32Api.GetWindowThreadProcessId(User32Api.GetForegroundWindow(), out int foregroundProcessId);
+            if (foregroundProcessId == OwnProcessId)
+            {
+                return;
+            }
+            _focusTakenBack = DateTime.UtcNow;
+            _lostFocus = false;
+            WindowHelper.ToForeground(new WindowInteropHelper(this).Handle);
+        }
+
+        private static int GetOwnProcessId()
+        {
+            using var process = System.Diagnostics.Process.GetCurrentProcess();
+            return process.Id;
         }
 
         /// <summary>

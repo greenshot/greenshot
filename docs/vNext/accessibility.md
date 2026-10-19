@@ -140,6 +140,8 @@ When you add a tool or a mode:
 - Keys a screen reader needs (Insert, Caps Lock and keys held with them) are never swallowed.
 - Use the high contrast colors when `SystemParameters.HighContrast` is on.
 - Window capture selects the window under the cursor as soon as it starts, so a screen reader says its title without a mouse move.
+- The frozen capture window takes the focus back when another application takes it (`TakeFocusBack`): it isn't in Alt+Tab, a
+  keyboard user couldn't return to it otherwise. Not on the live screen, not for Greenshot's own windows, at most once a second.
 - While the screen reader flag of Windows is on (`User32Api.IsScreenReaderRunning()` of Dapplo.Windows), a region capture starts as
   window capture. Applications can leave that flag on, so use it only for a default the user changes with one key (Space), never to
   turn something off.

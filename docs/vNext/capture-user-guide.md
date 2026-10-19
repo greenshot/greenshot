@@ -468,8 +468,9 @@ All of these are in the `[Core]` section, unless said otherwise.
 
 - **Several monitors:** the capture screen covers all of them, and you can select across monitors. The panels and the zoomer stay on
   the monitor with the mouse and follow it to another monitor.
-- **Another window took the focus** (e.g. after `Alt` + `Tab`, or a message of another program): the capture screen stays on top, but the
-  keys go to the other window. Move the mouse once and the keys work again.
+- **Another window took the focus** (e.g. after `Alt` + `Tab`, or a message of another program): the capture screen takes it back, so
+  the keys keep working. On the live screen the program below has the focus anyway. If a program keeps taking the focus, move the
+  mouse once and the keys work again.
 - **Nothing changes while you select:** the capture screen shows the picture taken when the capture started. To capture something which
   only appears later, set a wait time in the settings, start the capture when it is visible, or turn off freezing the screen.
 - **High DPI:** the panels, texts and the zoomer scale with the DPI of your monitor, sizes and positions are always in real pixels.
