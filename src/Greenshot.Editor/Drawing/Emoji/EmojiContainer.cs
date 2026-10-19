@@ -159,6 +159,9 @@ namespace Greenshot.Editor.Drawing.Emoji
                 }
             };
 
+            // F6 or a click moves the focus away: close the picker, otherwise it stays open and the canvas keys stay locked
+            pickerHost.Leave += (_, _) => _emojiPicker?.ShowPopup(false);
+
             _parent.Controls.Add(_emojiPickerHost);
         }
 

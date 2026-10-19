@@ -21,7 +21,6 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Greenshot.Editor.Controls.Emoji;
 
@@ -48,7 +47,7 @@ internal sealed class ChunkHelper<T> : IEnumerable<IEnumerable<T>>
         _hasMore = enumerator.MoveNext();
         while (_hasMore)
         {
-            yield return GetNextBatch(enumerator).ToList();
+            yield return new Row(GetNextBatch(enumerator));
         }
     }
 
@@ -66,4 +65,16 @@ internal sealed class ChunkHelper<T> : IEnumerable<IEnumerable<T>>
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    /// <summary>
+    /// A screen reader reads a row by its ToString: its emoji, not the type name of the list
+    /// </summary>
+    private sealed class Row : List<T>
+    {
+        public Row(IEnumerable<T> elements) : base(elements)
+        {
+        }
+
+        public override string ToString() => string.Join(" ", this);
+    }
 }

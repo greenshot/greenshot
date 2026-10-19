@@ -13,6 +13,18 @@
 
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
 
+        <!-- The picker uses the system colors, not the Greenshot theme, so its focus frame does too -->
+        <Style x:Key="EmojiFocusVisual">
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Rectangle Margin="1" StrokeThickness="2" SnapsToDevicePixels="True"
+                                   Stroke="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <ControlTemplate x:Key="VariationPopupTemplate" TargetType="ContentControl">
             <ListView Name="VariationListView" ItemsSource="{Binding AllVariations}"
                       KeyboardNavigation.TabNavigation="Cycle" PreviewKeyDown="OnVariationKeyDown"
@@ -37,7 +49,7 @@
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <!-- A screen reader says the name of the emoji character itself -->
-                        <Button Background="Transparent" BorderBrush="Transparent"
+                        <Button Background="Transparent" BorderBrush="Transparent" FocusVisualStyle="{StaticResource EmojiFocusVisual}"
                                 AutomationProperties.Name="{Binding Text}"
                                 Margin="0" Click="OnEmojiPicked"
                                 Width="40" Height="40">
@@ -50,7 +62,7 @@
 
         <DataTemplate x:Key="CellTemplate">
             <ToggleButton Width="40" Height="40" Margin="0" Padding="2"
-                          x:Name="VariationButton" Background="Transparent" BorderBrush="Transparent"
+                          x:Name="VariationButton" Background="Transparent" BorderBrush="Transparent" FocusVisualStyle="{StaticResource EmojiFocusVisual}"
                           AutomationProperties.Name="{Binding Text}"
                           Click="OnEmojiPicked" >
                 <Grid>
