@@ -5,6 +5,7 @@
             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
             xmlns:emoji="clr-namespace:Greenshot.Editor.Controls.Emoji"
+            xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
             Orientation="Horizontal"
             mc:Ignorable="d">
 
@@ -26,6 +27,7 @@
                 </ListView.ItemsPanel>
                 <ListView.ItemContainerStyle>
                     <Style TargetType="{x:Type ListViewItem}">
+                        <Setter Property="Focusable" Value="False"/>
                         <Setter Property="Padding" Value="0"/>
                         <Setter Property="Margin" Value="0"/>
                         <Setter Property="BorderThickness" Value="0"/>
@@ -33,7 +35,9 @@
                 </ListView.ItemContainerStyle>
                 <ListView.ItemTemplate>
                     <DataTemplate>
+                        <!-- A screen reader says the name of the emoji character itself -->
                         <Button Background="Transparent" BorderBrush="Transparent"
+                                AutomationProperties.Name="{Binding Text}"
                                 Margin="0" Click="OnEmojiPicked"
                                 Width="40" Height="40">
                             <emoji:EmojiControl Height="24" Emoji="{Binding Path=Text}"  />
@@ -46,13 +50,14 @@
         <DataTemplate x:Key="CellTemplate">
             <ToggleButton Width="40" Height="40" Margin="0" Padding="2"
                           x:Name="VariationButton" Background="Transparent" BorderBrush="Transparent"
-                          Click="OnEmojiPicked" Focusable="False" >
+                          AutomationProperties.Name="{Binding Text}"
+                          Click="OnEmojiPicked" >
                 <Grid>
                     <emoji:EmojiControl Height="24" Margin="4" Emoji="{Binding Path=Text}" 
                            VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     <Polygon Visibility="{Binding HasVariations, Converter={StaticResource BoolToVis}}"
                              Width="6" Height="6" VerticalAlignment="Bottom" HorizontalAlignment="Right"
-                             Stretch="Fill" Points="0,1 1,1 1,0" Fill="Black"/>
+                             Stretch="Fill" Points="0,1 1,1 1,0" Fill="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
                     <Popup x:Name="VariationPopup" StaysOpen="False" AllowsTransparency="True" Margin="0"
                            IsOpen="{Binding IsChecked, ElementName=VariationButton, Mode=TwoWay}">
                         <ContentControl Template="{StaticResource ResourceKey=VariationPopupTemplate}"/>
@@ -63,7 +68,7 @@
 
     </StackPanel.Resources>
 
-    <ToggleButton x:Name="Button_INTERNAL">
+    <ToggleButton x:Name="Button_INTERNAL" AutomationProperties.Name="{wpf:Text Editor.EmojiPicker}">
         <emoji:EmojiControl x:Name="Image" Emoji="{Binding ElementName=StackPanel_INTERNAL, Mode=OneWay, Path=Selection, UpdateSourceTrigger=PropertyChanged}"/>
     </ToggleButton>
 
@@ -74,6 +79,11 @@
         <Border>
             <StackPanel Orientation="Vertical">
                 <TabControl ItemsSource="{Binding EmojiGroups, ElementName=StackPanel_INTERNAL}" Padding="0">
+                    <TabControl.ItemContainerStyle>
+                        <Style TargetType="TabItem">
+                            <Setter Property="AutomationProperties.Name" Value="{Binding Name}"/>
+                        </Style>
+                    </TabControl.ItemContainerStyle>
                     <TabControl.ItemTemplate>
                         <DataTemplate>
                             <Grid>
@@ -102,7 +112,8 @@
                                     </ListView.ItemsPanel>
                                     <ListView.ItemContainerStyle>
                                         <Style TargetType="{x:Type ListViewItem}">
-                                            <!-- Get rid of the ugly padding and margin in default ListViewItem -->
+                                            <!-- Get rid of the ugly padding and margin in default ListViewItem, the keyboard goes to the emoji buttons in the row -->
+                                            <Setter Property="Focusable" Value="False"/>
                                             <Setter Property="Padding" Value="0"/>
                                             <Setter Property="Margin" Value="0"/>
                                             <Setter Property="BorderThickness" Value="0"/>

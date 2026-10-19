@@ -167,6 +167,11 @@ namespace Greenshot.Base.Languages
         string CloseTab { get; }
 
         /// <summary>
+        /// Choose an emoji
+        /// </summary>
+        string EmojiPicker { get; }
+
+        /// <summary>
         /// New image
         /// </summary>
         string NewImage { get; }

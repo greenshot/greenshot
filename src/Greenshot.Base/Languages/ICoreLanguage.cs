@@ -225,6 +225,11 @@ namespace Greenshot.Base.Languages
         string ColorpickerHtmlcolor { get; }
 
         /// <summary>
+        /// Pick a color from the screen: drag from here with the mouse
+        /// </summary>
+        string ColorpickerPipette { get; }
+
+        /// <summary>
         /// Recently used colors
         /// </summary>
         string ColorpickerRecentcolors { get; }

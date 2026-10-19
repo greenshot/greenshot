@@ -71,14 +71,14 @@
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                            VerticalAlignment="Center"
                            Margin="8,0,0,0"
-                           FontSize="13"
+                           FontSize="{wpf:FontSize 13}"
                            FontWeight="SemiBold"
                            WindowChrome.IsHitTestVisibleInChrome="False"/>
 
                 <Button Grid.Column="2"
                         Click="CloseButton_Click"
                         Style="{StaticResource TitleCloseButtonStyle}"
-                        ToolTip="Close"
+                        ToolTip="{wpf:Text Core.AccessibleClose}"
                         WindowChrome.IsHitTestVisibleInChrome="True"/>
             </Grid>
 
@@ -95,13 +95,13 @@
                 </Grid.RowDefinitions>
 
                 <!-- Thickness / Size -->
-                <TextBlock Grid.Row="0" Grid.Column="0"
+                <TextBlock x:Name="ThicknessLabel" Grid.Row="0" Grid.Column="0"
                            Text="{wpf:Text Editor.DropshadowThickness}"
                            VerticalAlignment="Center"
                            Margin="0,8"
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                 <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,8">
-                    <Slider x:Name="ThicknessSlider" Minimum="1" Maximum="20" Value="9" Width="170" VerticalAlignment="Center"/>
+                    <Slider x:Name="ThicknessSlider" AutomationProperties.LabeledBy="{Binding ElementName=ThicknessLabel}" Minimum="1" Maximum="20" Value="9" Width="170" VerticalAlignment="Center"/>
                     <TextBlock Text="{Binding ElementName=ThicknessSlider, Path=Value, StringFormat={}{0:0} px}"
                                Margin="10,0,0,0" VerticalAlignment="Center" MinWidth="45"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
@@ -115,17 +115,17 @@
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                 <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Vertical" Margin="0,8">
                     <StackPanel Orientation="Horizontal" Margin="0,2">
-                        <TextBlock Text="X:" VerticalAlignment="Center" Width="20"
+                        <TextBlock x:Name="OffsetXLabel" Text="X:" VerticalAlignment="Center" Width="20"
                                    Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                        <Slider x:Name="OffsetXSlider" Minimum="-20" Maximum="20" Value="0" Width="150" VerticalAlignment="Center"/>
+                        <Slider x:Name="OffsetXSlider" AutomationProperties.HelpText="{wpf:Text Editor.DropshadowOffset}" AutomationProperties.LabeledBy="{Binding ElementName=OffsetXLabel}" Minimum="-20" Maximum="20" Value="0" Width="150" VerticalAlignment="Center"/>
                         <TextBlock Text="{Binding ElementName=OffsetXSlider, Path=Value, StringFormat={}{0:0} px}"
                                    Margin="10,0,0,0" VerticalAlignment="Center" MinWidth="45"
                                    Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,2">
-                        <TextBlock Text="Y:" VerticalAlignment="Center" Width="20"
+                        <TextBlock x:Name="OffsetYLabel" Text="Y:" VerticalAlignment="Center" Width="20"
                                    Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                        <Slider x:Name="OffsetYSlider" Minimum="-20" Maximum="20" Value="0" Width="150" VerticalAlignment="Center"/>
+                        <Slider x:Name="OffsetYSlider" AutomationProperties.HelpText="{wpf:Text Editor.DropshadowOffset}" AutomationProperties.LabeledBy="{Binding ElementName=OffsetYLabel}" Minimum="-20" Maximum="20" Value="0" Width="150" VerticalAlignment="Center"/>
                         <TextBlock Text="{Binding ElementName=OffsetYSlider, Path=Value, StringFormat={}{0:0} px}"
                                    Margin="10,0,0,0" VerticalAlignment="Center" MinWidth="45"
                                    Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
@@ -133,13 +133,13 @@
                 </StackPanel>
 
                 <!-- Darkness -->
-                <TextBlock Grid.Row="2" Grid.Column="0"
+                <TextBlock x:Name="DarknessLabel" Grid.Row="2" Grid.Column="0"
                            Text="{wpf:Text Editor.DropshadowDarkness}"
                            VerticalAlignment="Center"
                            Margin="0,8"
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                 <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,8">
-                    <Slider x:Name="DarknessSlider" Minimum="1" Maximum="40" Value="40" Width="170" VerticalAlignment="Center"/>
+                    <Slider x:Name="DarknessSlider" AutomationProperties.LabeledBy="{Binding ElementName=DarknessLabel}" Minimum="1" Maximum="40" Value="40" Width="170" VerticalAlignment="Center"/>
                     <TextBlock Text="{Binding ElementName=DarknessSlider, Path=Value, StringFormat={}{0:0}}"
                                Margin="10,0,0,0" VerticalAlignment="Center" MinWidth="45"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
