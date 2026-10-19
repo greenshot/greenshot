@@ -70,7 +70,12 @@
     </Task>
   </UsingTask>
 
-  <Target Name="Generate hashes" BeforeTargets="PostBuildEvent">
+  <!-- Signs every unsigned exe and dll (plugins and third-party libraries included) before the hashes are made, so Smart App Control doesn't block them -->
+  <Target Name="SignFiles" Condition="'$(Configuration)' == 'Release' and '$(CertumThumbprint)' != ''">
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -Command &quot;Get-ChildItem -Path '$(OutDir)' -Recurse -Include *.dll,*.exe | Where-Object { (Get-AuthenticodeSignature $_.FullName).Status -eq 'NotSigned' } | ForEach-Object { signtool.exe sign /sha1 '$(CertumThumbprint)' /tr http://time.certum.pl /td sha256 /fd sha256 /v $_.FullName; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE } }&quot;" />
+  </Target>
+
+  <Target Name="Generate hashes" BeforeTargets="PostBuildEvent" DependsOnTargets="SignFiles">
     <GetFileHash Files="@(FilesToHash)" Algorithm="SHA256" HashEncoding="hex">
       <Output TaskParameter="Items" ItemName="FilesWithHashes" />
     </GetFileHash>
@@ -80,7 +85,6 @@
   <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Release'">
     <SetEnvironmentVariableTask Name="BuildVersionSimple" Value="$(BuildVersionSimple)" />
     <SetEnvironmentVariableTask Name="AssemblyInformationalVersion" Value="$(AssemblyInformationalVersion)" />
-    <Exec Command="if not &quot;$(CertumThumbprint)&quot; == &quot;&quot; signtool.exe sign /sha1 &quot;$(CertumThumbprint)&quot; /tr http://time.certum.pl /td sha256 /fd sha256 /v &quot;$(OutDir)Greenshot.exe&quot;" />
     <Exec Command="$(PkgTools_InnoSetup)\tools\ISCC.exe $(SolutionDir)\..\installer\innosetup\setup.iss" />
   </Target>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
