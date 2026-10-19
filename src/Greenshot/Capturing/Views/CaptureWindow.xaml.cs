@@ -444,6 +444,9 @@ namespace Greenshot.Capturing.Views
             _screenBounds = screenBounds;
 
             InitializeComponent();
+            // The hidden elements a screen reader reads (see Announce) are never seen, a focus rectangle around them would be
+            AnnouncementA.FocusVisualStyle = null;
+            AnnouncementB.FocusVisualStyle = null;
             _noAnimations = _isRemoteSession || !SystemParameters.ClientAreaAnimation;
             if (ThemeManager.Instance.IsHighContrast)
             {
@@ -1181,9 +1184,19 @@ namespace Greenshot.Capturing.Views
                 return;
             }
             _announced = text;
-            Announcement.Text = text;
-            // The live region of the hidden text isn't said by Narrator in this window, a notification is
-            LiveRegion.Notify(this, text, "GreenshotCapture");
+            if (_live)
+            {
+                // The application below keeps the focus: a notification, the newest replaces one which wasn't said yet
+                LiveRegion.Notify(this, text, "GreenshotCapture");
+                return;
+            }
+            // A screen reader always says the element which gets the focus (Narrator said neither live region nor notification here):
+            // the text goes into the hidden element which doesn't have the focus, then the focus moves to it.
+            // While the window isn't active yet this is the logical focus, said when the window is activated.
+            var target = ReferenceEquals(FocusManager.GetFocusedElement(this), AnnouncementA) ? AnnouncementB : AnnouncementA;
+            target.Text = text;
+            System.Windows.Automation.AutomationProperties.SetName(target, text);
+            target.Focus();
         }
 
         /// <summary>

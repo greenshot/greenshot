@@ -61,8 +61,9 @@ It applies to people and to AI coding assistants alike: new UI is not done until
 - Status lines, errors, search results and progress use the `LiveRegion` attached property (`Greenshot.Base/Wpf/LiveRegion.cs`):
   `wpf:LiveRegion.Mode="Polite"` (or `Assertive` for an error that blocks the user). It sets `AutomationProperties.LiveSetting` and raises
   the event a screen reader listens for whenever the text changes.
-- For text that is not on screen, call `LiveRegion.Notify(element, text, activityId)`: a UI Automation notification, which Narrator
-  says even though no element holds the text. A hidden live region `TextBlock` was not said in the capture window.
+- For text that is not on screen, `LiveRegion.Notify(element, text, activityId)` raises a UI Automation notification (the window
+  returns a `NotifyingWindowAutomationPeer`). It is not said in every window (not in the frozen capture window on Windows 11), so
+  check it with Narrator; moving the focus to an element with the text is what a screen reader always says.
 - Don't announce what changes many times a second (a live log tail, a drag). Announce the result.
 
 ### Colors and contrast
@@ -122,7 +123,10 @@ The editor still misses some of this (the canvas needs the mouse to draw). New e
 ## The capture window
 
 The capture window is drawn, not made of controls, so it speaks for itself: it announces the mode, the window under the selection and
-the selection size with `LiveRegion.Notify` (see `Announce` in `CaptureWindow.xaml.cs`). When you add a tool or a mode:
+the selection size (see `Announce` in `CaptureWindow.xaml.cs`). On the frozen screen the text goes into one of two hidden elements and
+the focus moves to it, because a screen reader always says what gets the focus; Narrator said neither a live region nor a
+`LiveRegion.Notify` notification there. On the live screen the application below keeps the focus, so it uses `LiveRegion.Notify`.
+When you add a tool or a mode:
 
 - Register its keys with `RegisterToolKey`, so they work and show up in the F1 key panel, and add them to
   [capture-user-guide.md](capture-user-guide.md).

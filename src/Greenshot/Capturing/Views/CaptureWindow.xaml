@@ -86,9 +86,11 @@
         </Storyboard>
     </Window.Resources>
 
-    <Canvas x:Name="Root" HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="True">
-        <!-- Not drawn: what a screen reader says about the mode and the selection, see Announce -->
-        <TextBlock x:Name="Announcement" Opacity="0" IsHitTestVisible="False" />
+    <Canvas x:Name="Root" HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="True"
+            KeyboardNavigation.TabNavigation="None" KeyboardNavigation.DirectionalNavigation="None">
+        <!-- Not drawn: what a screen reader says about the mode and the selection. The focus moves from one to the other, see Announce -->
+        <TextBlock x:Name="AnnouncementA" Width="1" Height="1" Opacity="0" IsHitTestVisible="False" Focusable="True" KeyboardNavigation.IsTabStop="False" />
+        <TextBlock x:Name="AnnouncementB" Width="1" Height="1" Opacity="0" IsHitTestVisible="False" Focusable="True" KeyboardNavigation.IsTabStop="False" />
 
         <!-- The frozen capture of the screen -->
         <Image x:Name="ScreenImage" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" />
