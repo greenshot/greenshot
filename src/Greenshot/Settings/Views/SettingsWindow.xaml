@@ -51,7 +51,7 @@
                                     </Grid.RowDefinitions>
                                     <TextBlock Text="{TemplateBinding Header}"
                                                FontWeight="SemiBold"
-                                               FontSize="13"
+                                               FontSize="{wpf:FontSize 13}"
                                                Foreground="{TemplateBinding Foreground}"
                                                Margin="0,0,0,8"/>
                                     <ContentPresenter Grid.Row="1"/>
@@ -78,7 +78,7 @@
             <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
             <Setter Property="Padding" Value="10,6"/>
             <Setter Property="Margin" Value="0,0,2,0"/>
-            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontSize" Value="{wpf:FontSize 12}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TabItem">
@@ -215,9 +215,9 @@
                                                  IsReadOnly="True"
                                                  IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=BaseIconSize}"/>
                                         <StackPanel Grid.Column="1" Orientation="Vertical" Margin="2,0,0,0" VerticalAlignment="Center">
-                                            <Button Content="▲" Click="IconSizeUp_Click" Padding="4,0" FontSize="8" MinWidth="20" Height="15" Margin="0,0,0,1"
+                                            <Button Content="▲" Click="IconSizeUp_Click" Padding="4,0" FontSize="{wpf:FontSize 8}" MinWidth="20" Height="15" Margin="0,0,0,1"
                                                     IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=BaseIconSize}"/>
-                                            <Button Content="▼" Click="IconSizeDown_Click" Padding="4,0" FontSize="8" MinWidth="20" Height="15" Margin="0,1,0,0"
+                                            <Button Content="▼" Click="IconSizeDown_Click" Padding="4,0" FontSize="{wpf:FontSize 8}" MinWidth="20" Height="15" Margin="0,1,0,0"
                                                     IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=BaseIconSize}"/>
                                         </StackPanel>
                                     </Grid>
@@ -422,9 +422,9 @@
                                                     <RowDefinition Height="Auto"/>
                                                     <RowDefinition Height="Auto"/>
                                                 </Grid.RowDefinitions>
-                                                <TextBlock Text="{wpf:Text Settings.FixedCaptureSizesWidth}" FontSize="11" Margin="0,0,0,3"
+                                                <TextBlock Text="{wpf:Text Settings.FixedCaptureSizesWidth}" FontSize="{wpf:FontSize 11}" Margin="0,0,0,3"
                                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
-                                                <TextBlock Grid.Column="2" Text="{wpf:Text Settings.FixedCaptureSizesHeight}" FontSize="11" Margin="0,0,0,3"
+                                                <TextBlock Grid.Column="2" Text="{wpf:Text Settings.FixedCaptureSizesHeight}" FontSize="{wpf:FontSize 11}" Margin="0,0,0,3"
                                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                                                 <TextBox x:Name="FixedCaptureSizeWidth" Grid.Row="1" TextAlignment="Right"/>
                                                 <TextBlock Grid.Row="1" Grid.Column="1" Text="×" Margin="6,0" VerticalAlignment="Center"

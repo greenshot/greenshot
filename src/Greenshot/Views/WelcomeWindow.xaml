@@ -12,7 +12,7 @@
         ResizeMode="NoResize"
         ShowInTaskbar="True"
         FontFamily="Segoe UI, Segoe UI Variable Display, Tahoma, Arial"
-        FontSize="13"
+        FontSize="{wpf:FontSize 13}"
         Background="{Binding WindowBackgroundBrush}">
 
     <Window.Resources>
@@ -43,7 +43,7 @@
         </Style>
 
         <Style x:Key="CardTitleStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontSize" Value="{wpf:FontSize 14}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="{Binding TextPrimaryBrush}"/>
             <Setter Property="Margin" Value="0,0,0,8"/>
@@ -75,8 +75,8 @@
                     </Grid.ColumnDefinitions>
                     <local:AnimatedLogo Grid.Column="0" Width="110" Height="110" VerticalAlignment="Center"/>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="18,0,0,0">
-                        <TextBlock Text="{wpf:Text Welcome.Title}" FontSize="24" FontWeight="Bold" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,0,0,6"/>
-                        <TextBlock Text="{wpf:Text Welcome.Thanks}" FontSize="14" Style="{StaticResource BodyTextStyle}"/>
+                        <TextBlock Text="{wpf:Text Welcome.Title}" FontSize="{wpf:FontSize 24}" FontWeight="Bold" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                        <TextBlock Text="{wpf:Text Welcome.Thanks}" FontSize="{wpf:FontSize 14}" Style="{StaticResource BodyTextStyle}"/>
                     </StackPanel>
                 </Grid>
 
@@ -86,7 +86,7 @@
                     <!-- Step: welcome -->
                     <StackPanel x:Name="StepWelcome">
                         <Border Style="{StaticResource CardStyle}">
-                            <TextBlock Text="{wpf:Text Welcome.Intro}" FontSize="14" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap"/>
+                            <TextBlock Text="{wpf:Text Welcome.Intro}" FontSize="{wpf:FontSize 14}" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap"/>
                         </Border>
                     </StackPanel>
 
@@ -197,7 +197,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="💡" FontSize="20" VerticalAlignment="Top" Margin="0,0,12,0"/>
+                                <TextBlock Grid.Column="0" Text="💡" FontSize="{wpf:FontSize 20}" VerticalAlignment="Top" Margin="0,0,12,0"/>
                                 <StackPanel Grid.Column="1">
                                     <TextBlock Text="{wpf:Text Welcome.TipTitle}" Style="{StaticResource CardTitleStyle}" Margin="0,0,0,4"/>
                                     <TextBlock Text="{Binding CurrentTip}" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,0,0,6"/>

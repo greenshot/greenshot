@@ -42,7 +42,7 @@
                                 </Grid.RowDefinitions>
                                 <TextBlock Text="{TemplateBinding Header}"
                                            FontWeight="SemiBold"
-                                           FontSize="12"
+                                           FontSize="{wpf:FontSize 12}"
                                            Foreground="{TemplateBinding Foreground}"
                                            Margin="0,0,0,8"/>
                                 <ContentPresenter Grid.Row="1"/>
@@ -81,7 +81,7 @@
                 <!-- Header -->
                 <TextBlock Grid.Row="0"
                            Text="{Binding ActionTitle, StringFormat='Configure Hotkey: {0}'}"
-                           FontSize="15"
+                           FontSize="{wpf:FontSize 15}"
                            FontWeight="Bold"
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                            Margin="0,0,0,16"/>
@@ -162,14 +162,14 @@
                                                     <MouseBinding MouseAction="LeftClick" Command="{Binding SelectCommand}"/>
                                                 </Border.InputBindings>
                                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                    <TextBlock Text="{Binding StepHeader}" FontWeight="SemiBold" FontSize="11" Foreground="{Binding TextBrush}" VerticalAlignment="Center"/>
-                                                    <TextBlock Text="{Binding StepText}" FontSize="11" Foreground="{Binding TextBrush}" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding StepHeader}" FontWeight="SemiBold" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextBrush}" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding StepText}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextBrush}" Margin="5,0,0,0" VerticalAlignment="Center"/>
                                                     <Button Content="✕"
                                                             Command="{Binding RemoveCommand}"
                                                             Visibility="{Binding CanRemove, Converter={StaticResource BooleanToVisibilityConverter}}"
                                                             Margin="6,0,0,0"
                                                             Padding="3,0"
-                                                            FontSize="10"
+                                                            FontSize="{wpf:FontSize 10}"
                                                             Cursor="Hand"
                                                             Background="Transparent"
                                                             BorderThickness="0"
@@ -185,7 +185,7 @@
                                     Content="+ Add Step"
                                     Command="{Binding AddStepCommand}"
                                     Style="{StaticResource SecondaryButtonStyle}"
-                                    FontSize="11"
+                                    FontSize="{wpf:FontSize 11}"
                                     Padding="10,4"
                                     MinHeight="28"
                                     ToolTip="Add next chord step to this sequence"
@@ -218,13 +218,13 @@
                             </Border.Style>
                             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding TriggerKeyDisplay}"
-                                           FontSize="14"
+                                           FontSize="{wpf:FontSize 14}"
                                            FontWeight="Bold"
                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                                            HorizontalAlignment="Center"/>
                                 <TextBlock x:Name="CaptureHintText"
                                            Text="Click here to focus and press shortcut keys"
-                                           FontSize="11"
+                                           FontSize="{wpf:FontSize 11}"
                                            FontStyle="Italic"
                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
                                            HorizontalAlignment="Center"
@@ -242,7 +242,7 @@
                                     Content="Clear / Reset"
                                     Command="{Binding ClearCommand}"
                                     Style="{StaticResource LightErrorButtonStyle}"
-                                    FontSize="11"
+                                    FontSize="{wpf:FontSize 11}"
                                     Padding="10,4"
                                     MinHeight="28"/>
                         </Grid>
@@ -252,7 +252,7 @@
                 <!-- Live Preview Badges -->
                 <StackPanel Grid.Row="3" Margin="0,0,0,8">
                     <TextBlock Text="Preview:"
-                               FontSize="11"
+                               FontSize="{wpf:FontSize 11}"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
                                Margin="0,0,0,4"/>
                     <views:HotkeyDisplayView x:Name="LivePreviewControl"
@@ -270,7 +270,7 @@
                         BorderThickness="1"
                         Visibility="{Binding HasValidationError, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <TextBlock Text="{Binding ValidationError}"
-                               FontSize="11"
+                               FontSize="{wpf:FontSize 11}"
                                Foreground="#FFD83B01"
                                TextWrapping="Wrap"/>
                 </Border>

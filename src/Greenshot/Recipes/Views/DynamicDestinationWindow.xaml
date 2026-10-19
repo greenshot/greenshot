@@ -15,7 +15,7 @@
         ShowActivated="True"
         ResizeMode="NoResize"
         FontFamily="Segoe UI, Segoe UI Variable Display, Tahoma, Arial"
-        FontSize="13"
+        FontSize="{wpf:FontSize 13}"
         Background="{Binding WindowBackgroundBrush}">
 
     <WindowChrome.WindowChrome>
@@ -55,13 +55,13 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
-                        <TextBlock Text="🎯" FontSize="14" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                        <TextBlock Text="{Binding HeaderTitle}" FontWeight="Bold" FontSize="13.5"
+                        <TextBlock Text="🎯" FontSize="{wpf:FontSize 14}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding HeaderTitle}" FontWeight="Bold" FontSize="{wpf:FontSize 13.5}"
                                    Foreground="{Binding TextPrimaryBrush}" VerticalAlignment="Center"/>
                         <Border Background="{Binding BadgeBackgroundBrush}" CornerRadius="4" 
                                 Padding="6,2" Margin="10,0,0,0" VerticalAlignment="Center"
                                 Visibility="{Binding ThumbnailVisibility}">
-                            <TextBlock Text="{Binding DimensionsText}" FontSize="11" 
+                            <TextBlock Text="{Binding DimensionsText}" FontSize="{wpf:FontSize 11}" 
                                        Foreground="{Binding TextSecondaryBrush}"/>
                         </Border>
                     </StackPanel>
@@ -69,7 +69,7 @@
                     <!-- Caption Buttons: Theme Toggle & Close -->
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
                         <Button Style="{StaticResource TitleBarButtonStyle}" Click="OnThemeToggleClicked" ToolTip="{Binding ThemeToggleToolTip}">
-                            <TextBlock Text="{Binding ThemeToggleIcon}" FontSize="13" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            <TextBlock Text="{Binding ThemeToggleIcon}" FontSize="{wpf:FontSize 13}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                         </Button>
                         <Button Style="{StaticResource TitleCloseButtonStyle}" Click="CloseButton_Click" ToolTip="{Binding CloseButtonToolTip}"/>
                     </StackPanel>
@@ -86,12 +86,12 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="⚠️" FontSize="18" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="0" Text="⚠️" FontSize="{wpf:FontSize 18}" Margin="0,0,12,0" VerticalAlignment="Center"/>
                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
                             <TextBlock Text="{Binding ErrorMessage}" FontWeight="SemiBold"
                                        Foreground="{Binding ErrorTextBrush}" TextWrapping="Wrap"/>
                             <TextBlock Text="{Binding ErrorSubtitleText}"
-                                       FontSize="11.5" Foreground="{Binding TextSecondaryBrush}" Margin="0,2,0,0"/>
+                                       FontSize="{wpf:FontSize 11.5}" Foreground="{Binding TextSecondaryBrush}" Margin="0,2,0,0"/>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -123,17 +123,17 @@
                                     <!-- Hover zoom badge -->
                                     <Border Background="#99000000" CornerRadius="3" Padding="5,2" 
                                             HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,5">
-                                        <TextBlock Text="🔍 Zoom Preview" FontSize="10" Foreground="White" FontWeight="Medium"/>
+                                        <TextBlock Text="🔍 Zoom Preview" FontSize="{wpf:FontSize 10}" Foreground="White" FontWeight="Medium"/>
                                     </Border>
                                 </Grid>
                             </Border>
 
                             <TextBlock Text="{Binding DimensionsText}" HorizontalAlignment="Center"
-                                       FontSize="10.5" Foreground="{Binding TextSecondaryBrush}" Margin="0,6,0,8"
+                                       FontSize="{wpf:FontSize 10.5}" Foreground="{Binding TextSecondaryBrush}" Margin="0,6,0,8"
                                        Visibility="{Binding ThumbnailVisibility}"/>
 
                             <!-- Core Destinations Header -->
-                            <TextBlock Text="{Binding CoreDestinationsHeaderText}" FontWeight="SemiBold" FontSize="11.5"
+                            <TextBlock Text="{Binding CoreDestinationsHeaderText}" FontWeight="SemiBold" FontSize="{wpf:FontSize 11.5}"
                                        Foreground="{Binding TextSecondaryBrush}" Margin="2,0,0,4"/>
 
                             <!-- Core Destinations List (Editor, Clipboard, Save As, Save, Print, OCR, Share) -->
@@ -156,7 +156,7 @@
                                                 <!-- Title -->
                                                 <TextBlock Grid.Column="1" Text="{Binding Title}" 
                                                            Foreground="{Binding Path=DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                           FontWeight="SemiBold" FontSize="12"
+                                                           FontWeight="SemiBold" FontSize="{wpf:FontSize 12}"
                                                            VerticalAlignment="Center"
                                                            TextTrimming="CharacterEllipsis"/>
 
@@ -165,7 +165,7 @@
                                                         CornerRadius="3" Padding="4,1" Margin="4,0,0,0"
                                                         VerticalAlignment="Center"
                                                         Visibility="{Binding BadgeVisibility}">
-                                                    <TextBlock Text="{Binding BadgeText}" FontSize="9.5" FontWeight="Bold" Foreground="White"/>
+                                                    <TextBlock Text="{Binding BadgeText}" FontSize="{wpf:FontSize 9.5}" FontWeight="Bold" Foreground="White"/>
                                                 </Border>
                                             </Grid>
                                         </Button>
@@ -191,9 +191,9 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Text="{Binding OtherDestinationsHeaderText}" FontWeight="SemiBold" FontSize="12.5"
+                                <TextBlock Text="{Binding OtherDestinationsHeaderText}" FontWeight="SemiBold" FontSize="{wpf:FontSize 12.5}"
                                            Foreground="{Binding TextPrimaryBrush}"/>
-                                <TextBlock Text="{Binding OtherDestinationCountText}" FontSize="11.5"
+                                <TextBlock Text="{Binding OtherDestinationCountText}" FontSize="{wpf:FontSize 11.5}"
                                            Foreground="{Binding TextSecondaryBrush}" Margin="6,0,0,0"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
@@ -207,13 +207,13 @@
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="🔍" FontSize="10" Margin="0,0,4,0" 
+                                    <TextBlock Grid.Column="0" Text="🔍" FontSize="{wpf:FontSize 10}" Margin="0,0,4,0" 
                                                VerticalAlignment="Center" Foreground="{Binding TextSecondaryBrush}"/>
                                     <TextBox Grid.Column="1" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                                              Background="Transparent" BorderThickness="0"
                                              Foreground="{Binding Path=DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                              CaretBrush="{Binding Path=DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
-                                             FontSize="11.5" VerticalAlignment="Center"/>
+                                             FontSize="{wpf:FontSize 11.5}" VerticalAlignment="Center"/>
                                 </Grid>
                             </Border>
                         </Grid>
@@ -245,7 +245,7 @@
                                                 <!-- Title -->
                                                 <TextBlock Grid.Column="1" Text="{Binding Title}" 
                                                            Foreground="{Binding Path=DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                           FontWeight="SemiBold" FontSize="12"
+                                                           FontWeight="SemiBold" FontSize="{wpf:FontSize 12}"
                                                            VerticalAlignment="Center"
                                                            TextTrimming="CharacterEllipsis"/>
 
@@ -254,7 +254,7 @@
                                                         CornerRadius="3" Padding="4,1" Margin="4,0,0,0"
                                                         VerticalAlignment="Center"
                                                         Visibility="{Binding BadgeVisibility}">
-                                                    <TextBlock Text="{Binding BadgeText}" FontSize="9.5" FontWeight="Bold" Foreground="White"/>
+                                                    <TextBlock Text="{Binding BadgeText}" FontSize="{wpf:FontSize 9.5}" FontWeight="Bold" Foreground="White"/>
                                                 </Border>
                                             </Grid>
                                         </Button>
@@ -265,7 +265,7 @@
 
                         <!-- Forward to Recipe Section -->
                         <StackPanel Grid.Row="2" Margin="0,10,0,0" Visibility="{Binding RecipeForwardingVisibility}">
-                            <TextBlock Text="{Binding ForwardToRecipeHeaderText}" FontWeight="SemiBold" FontSize="12"
+                            <TextBlock Text="{Binding ForwardToRecipeHeaderText}" FontWeight="SemiBold" FontSize="{wpf:FontSize 12}"
                                        Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,5"/>
 
                             <Grid>
@@ -317,7 +317,7 @@
                         </Grid.ColumnDefinitions>
 
                         <TextBlock Grid.Column="0" Text="{Binding TimeoutText}" VerticalAlignment="Center"
-                                   FontSize="11.5" Foreground="{Binding TextSecondaryBrush}"/>
+                                   FontSize="{wpf:FontSize 11.5}" Foreground="{Binding TextSecondaryBrush}"/>
 
                         <Button Grid.Column="1" Content="{Binding DismissButtonText}" Padding="16,4" Height="28"
                                 Style="{StaticResource SecondaryButtonStyle}"
@@ -362,15 +362,15 @@
                     Background="#80000000" Padding="16,8">
                 <Grid>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="🔍 " FontSize="13" Foreground="White" VerticalAlignment="Center"/>
-                        <TextBlock Text="{Binding HeaderTitle}" FontWeight="SemiBold" FontSize="13" Foreground="White" VerticalAlignment="Center"/>
+                        <TextBlock Text="🔍 " FontSize="{wpf:FontSize 13}" Foreground="White" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding HeaderTitle}" FontWeight="SemiBold" FontSize="{wpf:FontSize 13}" Foreground="White" VerticalAlignment="Center"/>
                         <Border Background="#40FFFFFF" CornerRadius="4" Padding="6,2" Margin="10,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding DimensionsText}" FontSize="11" Foreground="#E0E0E0"/>
+                            <TextBlock Text="{Binding DimensionsText}" FontSize="{wpf:FontSize 11}" Foreground="#E0E0E0"/>
                         </Border>
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding FullscreenReturnHintText}" FontSize="11" 
+                        <TextBlock Text="{Binding FullscreenReturnHintText}" FontSize="{wpf:FontSize 11}" 
                                    Foreground="#C0C0C0" VerticalAlignment="Center" Margin="0,0,16,0"/>
                         <Button Style="{StaticResource TitleCloseButtonStyle}" Click="FullPreviewClose_Click" ToolTip="{Binding CloseButtonToolTip}"/>
                     </StackPanel>

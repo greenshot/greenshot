@@ -16,7 +16,7 @@
         ShowActivated="True"
         ResizeMode="NoResize"
         FontFamily="Segoe UI, Segoe UI Variable Display, Tahoma, Arial"
-        FontSize="13"
+        FontSize="{wpf:FontSize 13}"
         Background="{Binding WindowBackgroundBrush}">
 
     <Window.Resources>
@@ -42,7 +42,7 @@
             <StackPanel>
                 <!-- Prompt Title -->
                 <TextBlock Text="{Binding PromptTitle}"
-                           FontSize="16"
+                           FontSize="{wpf:FontSize 16}"
                            FontWeight="SemiBold"
                            Foreground="{Binding TextPrimaryBrush}"
                            TextWrapping="Wrap"
@@ -50,7 +50,7 @@
 
                 <!-- Prompt Message -->
                 <TextBlock Text="{Binding PromptMessage}"
-                           FontSize="13"
+                           FontSize="{wpf:FontSize 13}"
                            Foreground="{Binding TextSecondaryBrush}"
                            TextWrapping="Wrap"
                            LineHeight="20"
@@ -82,7 +82,7 @@
                 <!-- Timeout Notice if active -->
                 <TextBlock Text="{Binding TimeoutText}"
                            Visibility="{Binding TimeoutVisibility}"
-                           FontSize="11"
+                           FontSize="{wpf:FontSize 11}"
                            Foreground="{Binding TextSecondaryBrush}"
                            FontStyle="Italic"
                            Margin="0,0,0,4"/>

@@ -24,7 +24,7 @@
                 Cursor="Hand"
                 ToolTip="Change Hotkey"
                 Content="Edit"
-                FontSize="11"
+                FontSize="{wpf:FontSize 11}"
                 FontWeight="SemiBold"
                 VerticalAlignment="Center">
             <Button.Style>

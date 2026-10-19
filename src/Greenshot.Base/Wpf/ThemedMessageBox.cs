@@ -24,7 +24,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Automation;
 using System.Windows.Controls;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Base.Wpf
 {
@@ -38,6 +40,7 @@ namespace Greenshot.Base.Wpf
         private readonly int _cancelIndex;
 
         private readonly List<Button> _buttons = new List<Button>();
+        private Button _defaultButton;
 
         private ThemedMessageBox(string caption, string text, MessageBoxImage icon, IReadOnlyList<string> buttons, int defaultIndex, int cancelIndex)
         {
@@ -48,15 +51,17 @@ namespace Greenshot.Base.Wpf
             MaxWidth = 640;
 
             var header = ThemedControls.CreateHeader(this, caption);
+            // A screen reader says the title and the focused button, the question itself only from here
+            AutomationProperties.SetHelpText(this, text ?? string.Empty);
 
             var message = new TextBlock
             {
                 Text = text ?? string.Empty,
                 TextWrapping = TextWrapping.Wrap,
-                FontSize = 12,
                 Foreground = WpfThemeHelper.TextPrimary,
                 VerticalAlignment = VerticalAlignment.Center
             };
+            message.SetBinding(TextBlock.FontSizeProperty, FontSizeExtension.CreateBinding(12));
 
             var body = new DockPanel { LastChildFill = true };
             string glyph = GetGlyph(icon);
@@ -72,6 +77,8 @@ namespace Greenshot.Base.Wpf
                         : icon == MessageBoxImage.Warning ? WpfThemeHelper.WarningText
                         : WpfThemeHelper.Accent
                 };
+                // Not the emoji: its meaning
+                AutomationProperties.SetName(iconText, GetIconName(icon));
                 DockPanel.SetDock(iconText, Dock.Left);
                 body.Children.Add(iconText);
             }
@@ -98,6 +105,7 @@ namespace Greenshot.Base.Wpf
                 _buttons.Add(button);
                 if (isDefault)
                 {
+                    _defaultButton = button;
                     Loaded += (s, e) => button.Focus();
                 }
             }
@@ -136,6 +144,9 @@ namespace Greenshot.Base.Wpf
                 {
                     button.IsEnabled = true;
                 }
+
+                // A disabled button can't take the focus when the window is shown: the keyboard starts on the default button now
+                _defaultButton?.Focus();
             };
             ContentRendered += (s, e) => timer.Start();
             Closed += (s, e) => timer.Stop();
@@ -248,6 +259,17 @@ namespace Greenshot.Base.Wpf
         {
             var windows = Application.Current?.Windows.OfType<Window>().Where(w => w.IsVisible && !(w is ThemedMessageBox)).ToList();
             return windows?.FirstOrDefault(w => w.IsActive) ?? windows?.LastOrDefault();
+        }
+
+        private static string GetIconName(MessageBoxImage icon)
+        {
+            switch (icon)
+            {
+                case MessageBoxImage.Error: return Texts.Core.Error;
+                case MessageBoxImage.Warning: return Texts.Core.Warning;
+                case MessageBoxImage.Question: return Texts.Core.AccessibleQuestion;
+                default: return Texts.Core.AccessibleInformation;
+            }
         }
 
         private static string GetGlyph(MessageBoxImage icon)

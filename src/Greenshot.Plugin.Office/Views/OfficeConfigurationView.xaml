@@ -74,7 +74,7 @@
                 <!-- Word Settings -->
                 <StackPanel Visibility="{Binding IsWordSelected, Converter={StaticResource BoolToVis}}">
                     <TextBlock Text="{wpf:Text Office.AppWord}"
-                               FontWeight="SemiBold" FontSize="14"
+                               FontWeight="SemiBold" FontSize="{wpf:FontSize 14}"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                                Margin="0,0,0,10"/>
                     <CheckBox IsChecked="{Binding Config.WordLockAspectRatio}"
@@ -84,7 +84,7 @@
                 <!-- PowerPoint Settings -->
                 <StackPanel Visibility="{Binding IsPowerPointSelected, Converter={StaticResource BoolToVis}}">
                     <TextBlock Text="{wpf:Text Office.AppPowerpoint}"
-                               FontWeight="SemiBold" FontSize="14"
+                               FontWeight="SemiBold" FontSize="{wpf:FontSize 14}"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                                Margin="0,0,0,10"/>
                     <CheckBox IsChecked="{Binding Config.PowerpointLockAspectRatio}"
@@ -105,7 +105,7 @@
                 <!-- Outlook Settings -->
                 <StackPanel Visibility="{Binding IsOutlookSelected, Converter={StaticResource BoolToVis}}">
                     <TextBlock Text="{wpf:Text Office.AppOutlook}"
-                               FontWeight="SemiBold" FontSize="14"
+                               FontWeight="SemiBold" FontSize="{wpf:FontSize 14}"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                                Margin="0,0,0,10"/>
 
@@ -165,25 +165,25 @@
                 <!-- Excel Settings -->
                 <StackPanel Visibility="{Binding IsExcelSelected, Converter={StaticResource BoolToVis}}">
                     <TextBlock Text="{wpf:Text Office.AppExcel}"
-                               FontWeight="SemiBold" FontSize="14"
+                               FontWeight="SemiBold" FontSize="{wpf:FontSize 14}"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                                Margin="0,0,0,10"/>
                     <TextBlock Text="{wpf:Text Office.ExcelInfo}"
                                TextWrapping="Wrap"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
-                               FontSize="12"/>
+                               FontSize="{wpf:FontSize 12}"/>
                 </StackPanel>
 
                 <!-- OneNote Settings -->
                 <StackPanel Visibility="{Binding IsOneNoteSelected, Converter={StaticResource BoolToVis}}">
                     <TextBlock Text="{wpf:Text Office.AppOnenote}"
-                               FontWeight="SemiBold" FontSize="14"
+                               FontWeight="SemiBold" FontSize="{wpf:FontSize 14}"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                                Margin="0,0,0,10"/>
                     <TextBlock Text="{wpf:Text Office.OnenoteInfo}"
                                TextWrapping="Wrap"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
-                               FontSize="12"/>
+                               FontSize="{wpf:FontSize 12}"/>
                 </StackPanel>
             </Grid>
         </Border>

@@ -6,16 +6,21 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:wpf="clr-namespace:Greenshot.Base.Wpf"
                     xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/FocusStyles.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
 
     <!-- Default themed button style for dialogs that do not choose a semantic style explicitly. -->
     <Style TargetType="Button">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
         <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonBackgroundBrush}"/>
         <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
         <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Padding" Value="14,6"/>
         <Setter Property="MinWidth" Value="88"/>
-        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontSize" Value="{wpf:FontSize 12}"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -49,6 +54,7 @@
 
     <!-- Filled semantic actions -->
     <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
         <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"/>
         <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentForegroundBrush}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
@@ -80,6 +86,7 @@
     </Style>
 
     <Style x:Key="SecondaryButtonStyle" TargetType="Button">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
         <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonBackgroundBrush}"/>
         <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
         <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
@@ -113,8 +120,9 @@
     </Style>
 
     <Style x:Key="WarnButtonStyle" TargetType="Button">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
         <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=WarningBrush}"/>
-        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.WarningForegroundBrush}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Padding" Value="12,6"/>
@@ -145,8 +153,9 @@
 
     <!-- Strong, filled red treatment for destructive actions (small X controls stay neutral). -->
     <Style x:Key="ErrorButtonStyle" TargetType="Button">
-        <Setter Property="Background" Value="#C42B1C"/>
-        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
+        <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.DangerBrush}"/>
+        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.DangerForegroundBrush}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Padding" Value="14,7"/>
@@ -160,10 +169,10 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="ButtonBorder" Property="Background" Value="#E81123"/>
+                            <Setter TargetName="ButtonBorder" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.DangerHoverBrush}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="ButtonBorder" Property="Background" Value="#A80000"/>
+                            <Setter TargetName="ButtonBorder" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.DangerPressedBrush}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Opacity" Value="0.5"/>
@@ -177,14 +186,15 @@
 
     <!-- Danger / Delete Button Style -->
     <Style x:Key="LightErrorButtonStyle" TargetType="Button" BasedOn="{StaticResource SecondaryButtonStyle}">
-        <Setter Property="Background" Value="#1AEC2B2B"/>
-        <Setter Property="BorderBrush" Value="#CCEC2B2B"/>
-        <Setter Property="Foreground" Value="#FFEC2B2B"/>
+        <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.ErrorBackground}"/>
+        <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.ErrorBorder}"/>
+        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.ErrorBrush}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
     </Style>
 
     <!-- Text-only actions: primary is accent colored, secondary is muted, links underline on hover. -->
     <Style x:Key="PrimaryTextButtonStyle" TargetType="Button">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"/>
         <Setter Property="BorderThickness" Value="0"/>
@@ -270,7 +280,8 @@
 
     <Style x:Key="TitleCloseButtonStyle" TargetType="Button" BasedOn="{StaticResource TitleBarButtonStyle}">
         <Setter Property="Content" Value="✕"/>
-        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="AutomationProperties.Name" Value="{wpf:Text Core.AccessibleClose}"/>
+        <Setter Property="FontSize" Value="{wpf:FontSize 12}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
@@ -279,12 +290,12 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="ButtonBorder" Property="Background" Value="#E81123"/>
-                            <Setter Property="Foreground" Value="White"/>
+                            <Setter TargetName="ButtonBorder" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.DangerHoverBrush}"/>
+                            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.DangerForegroundBrush}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="ButtonBorder" Property="Background" Value="#C42B1C"/>
-                            <Setter Property="Foreground" Value="White"/>
+                            <Setter TargetName="ButtonBorder" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.DangerBrush}"/>
+                            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.DangerForegroundBrush}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -293,6 +304,7 @@
     </Style>
 
     <Style x:Key="PaletteSwatchStyle" TargetType="Button">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="BorderBrush" Value="#80808080"/>
         <Setter Property="Cursor" Value="Hand"/>
@@ -350,8 +362,9 @@
 
     <!-- RadioButton Style -->
     <Style x:Key="DefaultRadioButtonStyle" TargetType="{x:Type RadioButton}">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
         <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.TextPrimary}"/>
-        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontSize" Value="{wpf:FontSize 11}"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Template">
@@ -398,8 +411,9 @@
 
     <!-- Filter Chip Button Style -->
     <Style x:Key="FilterChipRadioButtonStyle" TargetType="RadioButton">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
         <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}"/>
-        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontSize" Value="{wpf:FontSize 11}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Margin" Value="0,0,6,0"/>
@@ -427,3 +441,4 @@
     </Style>
 
 </ResourceDictionary>
+

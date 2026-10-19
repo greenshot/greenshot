@@ -15,7 +15,7 @@
         ResizeMode="NoResize"
         ShowInTaskbar="True"
         FontFamily="Segoe UI, Segoe UI Variable Display, Tahoma, Arial"
-        FontSize="13"
+        FontSize="{wpf:FontSize 13}"
         Background="{Binding WindowBackgroundBrush}">
 
     <Window.Resources>
@@ -69,7 +69,7 @@
                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
                             <TextBlock Text="{Binding AppVersionTitle}"
-                                       FontSize="17"
+                                       FontSize="{wpf:FontSize 17}"
                                        FontWeight="Bold"
                                        Foreground="{Binding TextPrimaryBrush}"
                                        VerticalAlignment="Center"/>
@@ -78,18 +78,18 @@
                         <!-- Badges row -->
                         <WrapPanel Orientation="Horizontal" Margin="0,0,0,6">
                             <Border Background="{Binding BadgeBackgroundBrush}" CornerRadius="4" Padding="6,2" Margin="0,0,6,0">
-                                <TextBlock Text="{Binding BitnessText}" FontSize="11" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
+                                <TextBlock Text="{Binding BitnessText}" FontSize="{wpf:FontSize 11}" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
                             </Border>
                             <Border Background="{Binding BadgeBackgroundBrush}" CornerRadius="4" Padding="6,2" Margin="0,0,6,0" Visibility="{Binding PortableBadgeVisibility}">
-                                <TextBlock Text="Portable" FontSize="11" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
+                                <TextBlock Text="Portable" FontSize="{wpf:FontSize 11}" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
                             </Border>
                             <Border Background="#238636" CornerRadius="4" Padding="6,2" Margin="0,0,6,0" Visibility="{Binding BetaTesterBadgeVisibility}">
-                                <TextBlock Text="BETA" FontSize="11" FontWeight="Bold" Foreground="White"/>
+                                <TextBlock Text="BETA" FontSize="{wpf:FontSize 11}" FontWeight="Bold" Foreground="White"/>
                             </Border>
                         </WrapPanel>
 
                         <!-- Homepage link -->
-                        <TextBlock FontSize="13">
+                        <TextBlock FontSize="{wpf:FontSize 13}">
                             <Hyperlink NavigateUri="{Binding WebsiteUrl}" RequestNavigate="OnHyperlinkRequestNavigate">
                                 <TextBlock Text="{Binding WebsiteDisplayUrl}"/>
                             </Hyperlink>
@@ -113,10 +113,10 @@
                                    Margin="0,0,0,4"/>
                         <TextBlock Text="Released as free software under the GNU General Public License (GPLv3)."
                                    Foreground="{Binding TextSecondaryBrush}"
-                                   FontSize="12"
+                                   FontSize="{wpf:FontSize 12}"
                                    TextWrapping="Wrap"
                                    Margin="0,0,0,6"/>
-                        <TextBlock FontSize="12">
+                        <TextBlock FontSize="{wpf:FontSize 12}">
                             <Hyperlink NavigateUri="https://www.gnu.org/licenses/gpl.html" RequestNavigate="OnHyperlinkRequestNavigate">
                                 <TextBlock Text="https://www.gnu.org/licenses/gpl.html"/>
                             </Hyperlink>
@@ -245,7 +245,7 @@
                                 Click="OnOpenSelfServiceClicked"
                                 ToolTip="{Binding SelfServiceButtonToolTip}">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="🛠️" FontSize="12" Margin="0,0,6,0"/>
+                                <TextBlock Text="🛠️" FontSize="{wpf:FontSize 12}" Margin="0,0,6,0"/>
                                 <TextBlock Text="{Binding SelfServiceButtonText}" FontWeight="SemiBold"/>
                             </StackPanel>
                         </Button>

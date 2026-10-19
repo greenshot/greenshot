@@ -35,7 +35,7 @@
                                        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                             <TextBlock Grid.Row="1"
                                        Text="{Binding Version}"
-                                       FontSize="11"
+                                       FontSize="{wpf:FontSize 11}"
                                        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                         </Grid>
                     </DataTemplate>

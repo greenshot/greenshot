@@ -17,7 +17,7 @@
         ShowActivated="True"
         ResizeMode="CanResizeWithGrip"
         FontFamily="Segoe UI, Segoe UI Variable Display, Tahoma, Arial"
-        FontSize="13"
+        FontSize="{wpf:FontSize 13}"
         Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"
         Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}">
 
@@ -50,7 +50,7 @@
 
                     <!-- Header & Friendly Explanation -->
                     <TextBlock Text="Something went wrong"
-                               FontSize="18"
+                               FontSize="{wpf:FontSize 18}"
                                FontWeight="SemiBold"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                                Margin="0,0,0,6"/>
@@ -78,30 +78,30 @@
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                     <TextBlock Text="Installed Version: "
                                                FontWeight="SemiBold"
-                                               FontSize="12.5"
+                                               FontSize="{wpf:FontSize 12.5}"
                                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                                     <TextBlock Text="{Binding CurrentVersion}"
                                                FontWeight="SemiBold"
-                                               FontSize="12.5"
+                                               FontSize="{wpf:FontSize 12.5}"
                                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
 
                                     <TextBlock Text="   |   Latest Release: "
                                                FontWeight="SemiBold"
-                                               FontSize="12.5"
+                                               FontSize="{wpf:FontSize 12.5}"
                                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                                     <TextBlock Text="{Binding LatestReleaseVersion, TargetNullValue='Checking...'}"
                                                FontWeight="SemiBold"
-                                               FontSize="12.5"
+                                               FontSize="{wpf:FontSize 12.5}"
                                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                                 </StackPanel>
 
                                 <!-- Outdated Version Alert Callout -->
                                 <StackPanel Orientation="Horizontal" Margin="0,6,0,0"
                                             Visibility="{Binding IsOutdated, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                    <TextBlock Text="⚠️ " FontSize="12"/>
+                                    <TextBlock Text="⚠️ " FontSize="{wpf:FontSize 12}"/>
                                     <TextBlock Text="{Binding VersionComparisonText}"
                                                FontWeight="SemiBold"
-                                               FontSize="12"
+                                               FontSize="{wpf:FontSize 12}"
                                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=WarningBrush}"
                                                TextWrapping="Wrap"/>
                                 </StackPanel>
@@ -143,7 +143,7 @@
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="Issue Identifier (Stack Trace Hash)"
                                                FontWeight="SemiBold"
-                                               FontSize="12"
+                                               FontSize="{wpf:FontSize 12}"
                                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
                                                Margin="0,0,0,4"/>
                                     
@@ -158,13 +158,13 @@
                                             <TextBlock Text="{Binding FormattedHashDisplay}"
                                                        FontFamily="Consolas, Cascadia Code, Courier New"
                                                        FontWeight="Bold"
-                                                       FontSize="13"
+                                                       FontSize="{wpf:FontSize 13}"
                                                        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"/>
                                         </Border>
 
                                         <TextBlock Text="{Binding ExceptionType}"
                                                    FontWeight="SemiBold"
-                                                   FontSize="12"
+                                                   FontSize="{wpf:FontSize 12}"
                                                    VerticalAlignment="Center"
                                                    TextTrimming="CharacterEllipsis"
                                                    MaxWidth="320"
@@ -186,7 +186,7 @@
                             <TextBlock Grid.Row="1"
                                        Text="Searching GitHub for this hash helps avoid filing duplicate issues and lets you quickly see if a fix or workaround is already available."
                                        TextWrapping="Wrap"
-                                       FontSize="11.5"
+                                       FontSize="{wpf:FontSize 11.5}"
                                        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
                                        Margin="0,10,0,0"/>
                         </Grid>
@@ -226,7 +226,7 @@
                             <DockPanel Grid.Row="0" LastChildFill="False" Margin="0,0,0,6">
                                 <TextBlock Text="Stack Trace:"
                                            FontWeight="SemiBold"
-                                           FontSize="11.5"
+                                           FontSize="{wpf:FontSize 11.5}"
                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
                                            VerticalAlignment="Center"/>
                                 <Button DockPanel.Dock="Right"
@@ -235,8 +235,8 @@
                                         Click="OnCopyStackTraceClicked"
                                         ToolTip="Copy Stack Trace to Clipboard">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="📋 " FontSize="10"/>
-                                        <TextBlock Text="Copy Stack Trace" FontSize="11"/>
+                                        <TextBlock Text="📋 " FontSize="{wpf:FontSize 10}"/>
+                                        <TextBlock Text="Copy Stack Trace" FontSize="{wpf:FontSize 11}"/>
                                     </StackPanel>
                                 </Button>
                             </DockPanel>
@@ -254,7 +254,7 @@
                                          HorizontalScrollBarVisibility="Auto"
                                          MaxHeight="150"
                                          FontFamily="Consolas, Cascadia Code, Courier New"
-                                         FontSize="11"
+                                         FontSize="{wpf:FontSize 11}"
                                          BorderThickness="0"
                                          Background="Transparent"
                                          Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
@@ -283,7 +283,7 @@
                                         Click="OnToggleDetailsClicked">
                                     <TextBlock Text="{Binding ToggleDetailsText}"
                                                FontWeight="SemiBold"
-                                               FontSize="12"/>
+                                               FontSize="{wpf:FontSize 12}"/>
                                 </Button>
 
                                 <Button Grid.Column="1"
@@ -311,7 +311,7 @@
                                          HorizontalScrollBarVisibility="Auto"
                                          Height="220"
                                          FontFamily="Consolas, Cascadia Code, Courier New"
-                                         FontSize="11.5"
+                                         FontSize="{wpf:FontSize 11.5}"
                                          BorderThickness="0"
                                          Background="Transparent"
                                          Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
@@ -335,7 +335,7 @@
                                 Click="OnOpenSelfServiceClicked"
                                 ToolTip="{wpf:Text SelfService.Tooltip}">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="🛠️ " FontSize="12" Margin="0,0,2,0"/>
+                                <TextBlock Text="🛠️ " FontSize="{wpf:FontSize 12}" Margin="0,0,2,0"/>
                                 <TextBlock Text="{wpf:Text SelfService.Title}" FontWeight="SemiBold"/>
                             </StackPanel>
                         </Button>

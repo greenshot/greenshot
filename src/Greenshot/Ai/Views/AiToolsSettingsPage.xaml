@@ -34,7 +34,7 @@
                                    Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                     </CheckBox>
                     <TextBlock Text="{wpf:Text Settings.AitoolsEnabledDescription}"
-                               TextWrapping="Wrap" Margin="22,4,0,0" FontSize="11"
+                               TextWrapping="Wrap" Margin="22,4,0,0" FontSize="{wpf:FontSize 11}"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                     <ItemsControl ItemsSource="{Binding McpServers}" Margin="22,10,0,0">
                         <ItemsControl.ItemTemplate>
@@ -61,14 +61,14 @@
                                     </TextBlock>
                                     <StackPanel Grid.Column="1">
                                         <TextBlock Text="{Binding Text}" TextWrapping="Wrap" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                                        <TextBlock Text="{Binding Path}" FontSize="11" TextTrimming="CharacterEllipsis"
+                                        <TextBlock Text="{Binding Path}" FontSize="{wpf:FontSize 11}" TextTrimming="CharacterEllipsis"
                                                    Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                                     </StackPanel>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-                    <TextBlock Margin="42,0,0,0" TextWrapping="Wrap" FontSize="11" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}">
+                    <TextBlock Margin="42,0,0,0" TextWrapping="Wrap" FontSize="{wpf:FontSize 11}" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -90,7 +90,7 @@
             <GroupBox Header="{wpf:Text Settings.AitoolsPrograms}">
                 <StackPanel>
                     <TextBlock Text="{wpf:Text Settings.AitoolsAllowed}"
-                               TextWrapping="Wrap" Margin="0,0,0,8" FontSize="11"
+                               TextWrapping="Wrap" Margin="0,0,0,8" FontSize="{wpf:FontSize 11}"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                     <TextBlock Text="{wpf:Text Settings.AitoolsNone}"
                                Margin="0,0,0,4" FontStyle="Italic"
@@ -109,9 +109,9 @@
                                         <StackPanel>
                                             <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold"
                                                        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                                            <TextBlock Text="{Binding Path}" FontSize="11" TextTrimming="CharacterEllipsis" ToolTip="{Binding Path}"
+                                            <TextBlock Text="{Binding Path}" FontSize="{wpf:FontSize 11}" TextTrimming="CharacterEllipsis" ToolTip="{Binding Path}"
                                                        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
-                                            <TextBlock Text="{Binding SignerText}" FontSize="11"
+                                            <TextBlock Text="{Binding SignerText}" FontSize="{wpf:FontSize 11}"
                                                        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                                         </StackPanel>
                                         <Button Grid.Column="1" Style="{StaticResource RemoveEntryButtonStyle}" VerticalAlignment="Center" Margin="8,0,0,0"
@@ -130,7 +130,7 @@
                       Visibility="{Binding HasDeniedAiToolClients, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <StackPanel>
                     <TextBlock Text="{wpf:Text Settings.AitoolsDeniedDescription}"
-                               TextWrapping="Wrap" Margin="0,0,0,8" FontSize="11"
+                               TextWrapping="Wrap" Margin="0,0,0,8" FontSize="{wpf:FontSize 11}"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                     <ItemsControl ItemsSource="{Binding DeniedAiToolClients}">
                         <ItemsControl.ItemTemplate>
@@ -144,9 +144,9 @@
                                         <StackPanel>
                                             <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold"
                                                        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                                            <TextBlock Text="{Binding Path}" FontSize="11" TextTrimming="CharacterEllipsis" ToolTip="{Binding Path}"
+                                            <TextBlock Text="{Binding Path}" FontSize="{wpf:FontSize 11}" TextTrimming="CharacterEllipsis" ToolTip="{Binding Path}"
                                                        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
-                                            <TextBlock Text="{Binding SignerText}" FontSize="11"
+                                            <TextBlock Text="{Binding SignerText}" FontSize="{wpf:FontSize 11}"
                                                        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                                         </StackPanel>
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
@@ -170,7 +170,7 @@
                         <TextBlock Text="{wpf:Text Settings.AitoolsProposals}" TextWrapping="Wrap" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                     </CheckBox>
                     <TextBlock Text="{wpf:Text Settings.AitoolsProposalsDescription}"
-                               TextWrapping="Wrap" Margin="22,2,0,8" FontSize="11"
+                               TextWrapping="Wrap" Margin="22,2,0,8" FontSize="{wpf:FontSize 11}"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                     <CheckBox IsChecked="{Binding CoreConfiguration.AiToolsNotifyOnCapture, Mode=TwoWay}"
                               IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=AiToolsNotifyOnCapture}">
@@ -182,7 +182,7 @@
             <GroupBox Header="{wpf:Text Settings.AitoolsExcluded}">
                 <StackPanel IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=AiToolsExcludedProcesses}">
                     <TextBlock Text="{wpf:Text Settings.AitoolsExcludedDescription}"
-                               TextWrapping="Wrap" Margin="0,0,0,8" FontSize="11"
+                               TextWrapping="Wrap" Margin="0,0,0,8" FontSize="{wpf:FontSize 11}"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                     <ItemsControl ItemsSource="{Binding AiToolsExcludedProcesses}">
                         <ItemsControl.ItemsPanel>
@@ -221,7 +221,7 @@
             <GroupBox Header="{wpf:Text Settings.Recipeapprovals}">
                 <StackPanel>
                     <TextBlock Text="{wpf:Text Settings.RecipeapprovalsDescription}"
-                               TextWrapping="Wrap" Margin="0,0,0,8" FontSize="11"
+                               TextWrapping="Wrap" Margin="0,0,0,8" FontSize="{wpf:FontSize 11}"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                     <ItemsControl ItemsSource="{Binding ApprovedRecipes}">
                         <ItemsControl.ItemTemplate>
@@ -239,7 +239,7 @@
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                             <TextBlock Text="{Binding Title}" FontWeight="SemiBold"
                                                        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                                            <TextBlock Text="{Binding Subtitle}" FontSize="11" TextWrapping="Wrap"
+                                            <TextBlock Text="{Binding Subtitle}" FontSize="{wpf:FontSize 11}" TextWrapping="Wrap"
                                                        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                                         </StackPanel>
                                         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">

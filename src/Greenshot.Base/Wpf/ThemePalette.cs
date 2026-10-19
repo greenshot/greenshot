@@ -81,7 +81,13 @@ namespace Greenshot.Base.Wpf
                 TitleBarBrush = Brush(isDarkTheme, 24, 24, 24, 240, 240, 240),
                 WarningBackground = Brush(isDarkTheme, 56, 36, 5, 255, 243, 205),
                 WarningBorder = Brush(isDarkTheme, 102, 66, 10, 255, 230, 156),
-                WarningBrush = Brush(isDarkTheme, 255, 186, 66, 102, 77, 3)
+                WarningBrush = Brush(isDarkTheme, 255, 186, 66, 102, 77, 3),
+                SuccessBrush = Brush(isDarkTheme, 108, 203, 95, 15, 123, 15),
+                InfoBrush = Brush(isDarkTheme, 96, 205, 255, 0, 95, 184),
+                DangerBrush = Brush(Color.FromRgb(196, 43, 28)),
+                DangerHoverBrush = Brush(Color.FromRgb(232, 17, 35)),
+                DangerPressedBrush = Brush(Color.FromRgb(168, 0, 0)),
+                DangerForegroundBrush = Brush(Colors.White)
             }.WithDerivedRoles(null);
         }
 
@@ -130,13 +136,22 @@ namespace Greenshot.Base.Wpf
                 TitleBarBrush = window,
                 WarningBackground = window,
                 WarningBorder = windowText,
-                WarningBrush = windowText
+                WarningBrush = windowText,
+                SuccessBrush = windowText,
+                InfoBrush = windowText,
+                // A destructive button looks like every other selected thing
+                DangerBrush = highlight,
+                DangerHoverBrush = highlight,
+                DangerPressedBrush = highlight,
+                DangerForegroundBrush = highlightText
             }.WithDerivedRoles(highlightText);
         }
 
         private ThemePalette WithDerivedRoles(SolidColorBrush highlightForeground)
         {
             HighlightForegroundBrush = highlightForeground ?? ForegroundBrush;
+            // Text on a warning filled background: in high contrast the warning is the text color, the background color is on top of it
+            WarningForegroundBrush = IsHighContrast ? BackgroundBrush : Brush(ReadableForeground(WarningBrush.Color));
             return this;
         }
 
@@ -226,6 +241,32 @@ namespace Greenshot.Base.Wpf
         public SolidColorBrush WarningBrush { get; private set; }
 
         public SolidColorBrush WarningText => WarningBrush;
+
+        /// <summary>
+        /// Text on a <see cref="WarningBrush"/> background, e.g. the warning buttons and badges
+        /// </summary>
+        public SolidColorBrush WarningForegroundBrush { get; private set; }
+
+        /// <summary>
+        /// Text and marks for something which went well, e.g. a matching checksum
+        /// </summary>
+        public SolidColorBrush SuccessBrush { get; private set; }
+
+        /// <summary>
+        /// Text and marks which inform without warning
+        /// </summary>
+        public SolidColorBrush InfoBrush { get; private set; }
+
+        /// <summary>
+        /// The background of a destructive action (delete, close), with <see cref="DangerForegroundBrush"/> on it
+        /// </summary>
+        public SolidColorBrush DangerBrush { get; private set; }
+
+        public SolidColorBrush DangerHoverBrush { get; private set; }
+
+        public SolidColorBrush DangerPressedBrush { get; private set; }
+
+        public SolidColorBrush DangerForegroundBrush { get; private set; }
 
         public SolidColorBrush WindowBackground => BackgroundBrush;
 

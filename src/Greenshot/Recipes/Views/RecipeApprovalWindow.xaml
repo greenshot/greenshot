@@ -16,7 +16,7 @@
         ShowActivated="True"
         ResizeMode="CanResizeWithGrip"
         FontFamily="Segoe UI, Segoe UI Variable Display, Tahoma, Arial"
-        FontSize="13"
+        FontSize="{wpf:FontSize 13}"
         Background="{Binding WindowBackgroundBrush}">
 
     <Window.Resources>
@@ -58,7 +58,7 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="{Binding HeaderTitle}" 
-                                   FontSize="18" FontWeight="SemiBold" 
+                                   FontSize="{wpf:FontSize 18}" FontWeight="SemiBold" 
                                    Foreground="{Binding TextPrimaryBrush}" VerticalAlignment="Center"/>
                         <Border Grid.Column="1" CornerRadius="4" Padding="8,3" 
                                 Background="{Binding StatusBadgeBackgroundBrush}" 
@@ -66,7 +66,7 @@
                                 BorderThickness="1"
                                 VerticalAlignment="Center">
                             <TextBlock Text="{Binding StatusBadgeText}" 
-                                       FontSize="11" FontWeight="Bold" 
+                                       FontSize="{wpf:FontSize 11}" FontWeight="Bold" 
                                        Foreground="{Binding StatusBadgeForegroundBrush}"/>
                         </Border>
                     </Grid>
@@ -100,7 +100,7 @@
                                               StrokeStartLineCap="Round" StrokeEndLineCap="Round"
                                               Data="M 5,5 L 11,11 M 11,5 L 5,11" />
                                     </Canvas>
-                                    <TextBlock Grid.Column="1" Text="Recipe Validation Failed" FontWeight="Bold" FontSize="13" Foreground="{Binding ErrorTextBrush}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1" Text="Recipe Validation Failed" FontWeight="Bold" FontSize="{wpf:FontSize 13}" Foreground="{Binding ErrorTextBrush}" VerticalAlignment="Center"/>
                                 </Grid>
                                 <TextBlock Text="This recipe could not be registered or loaded due to configuration errors. Review the issues and diagnostic hints below:" 
                                            Foreground="{Binding ErrorTextBrush}" TextWrapping="Wrap" Margin="0,0,0,10"/>
@@ -118,8 +118,8 @@
                                                             <ColumnDefinition Width="Auto"/>
                                                             <ColumnDefinition Width="*"/>
                                                         </Grid.ColumnDefinitions>
-                                                        <TextBlock Text="❌" FontSize="11" Margin="0,1,6,0" VerticalAlignment="Top"/>
-                                                        <TextBlock Grid.Column="1" Text="{Binding ErrorMessage}" FontWeight="SemiBold" FontSize="12"
+                                                        <TextBlock Text="❌" FontSize="{wpf:FontSize 11}" Margin="0,1,6,0" VerticalAlignment="Top"/>
+                                                        <TextBlock Grid.Column="1" Text="{Binding ErrorMessage}" FontWeight="SemiBold" FontSize="{wpf:FontSize 12}"
                                                                    Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                    TextWrapping="Wrap"/>
                                                     </Grid>
@@ -133,11 +133,11 @@
                                                                 <ColumnDefinition Width="Auto"/>
                                                                 <ColumnDefinition Width="*"/>
                                                             </Grid.ColumnDefinitions>
-                                                            <TextBlock Text="💡" Margin="0,1,6,0" FontSize="11" VerticalAlignment="Top"/>
+                                                            <TextBlock Text="💡" Margin="0,1,6,0" FontSize="{wpf:FontSize 11}" VerticalAlignment="Top"/>
                                                             <StackPanel Grid.Column="1">
-                                                                <TextBlock Text="Recommendation / Hint:" FontWeight="Bold" FontSize="11"
+                                                                <TextBlock Text="Recommendation / Hint:" FontWeight="Bold" FontSize="{wpf:FontSize 11}"
                                                                            Foreground="{Binding DataContext.AccentBrush, RelativeSource={RelativeSource AncestorType=Window}}" Margin="0,0,0,2"/>
-                                                                <TextBlock Text="{Binding DiagnosticHint}" FontSize="11"
+                                                                <TextBlock Text="{Binding DiagnosticHint}" FontSize="{wpf:FontSize 11}"
                                                                            Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                            TextWrapping="Wrap"/>
                                                             </StackPanel>
@@ -170,7 +170,7 @@
                                               Data="M 7.15,5.2 C 7.15,4.7 7.55,4.3 8.0,4.3 C 8.45,4.3 8.85,4.7 8.85,5.2 L 8.6,9.4 C 8.6,9.8 8.3,10.1 8.0,10.1 C 7.7,10.1 7.4,9.8 7.4,9.4 Z" />
                                         <Ellipse Fill="#18181B" Width="1.8" Height="1.8" Canvas.Left="7.1" Canvas.Top="11.4" />
                                     </Canvas>
-                                    <TextBlock Grid.Column="1" Text="File Content Modified on Disk" FontWeight="Bold" FontSize="13" Foreground="{Binding WarningTextBrush}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1" Text="File Content Modified on Disk" FontWeight="Bold" FontSize="{wpf:FontSize 13}" Foreground="{Binding WarningTextBrush}" VerticalAlignment="Center"/>
                                 </Grid>
                                 <TextBlock Text="This recipe was previously approved, but its file content on disk has changed since it was last approved. Verify the changes below before re-authorizing execution:" 
                                            Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
@@ -189,7 +189,7 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="Previous SHA-256:" FontWeight="SemiBold" Foreground="{Binding WarningTextBrush}"/>
-                                    <TextBlock Grid.Column="1" Text="{Binding PreviousFileHash}" FontFamily="Consolas, Courier New" FontSize="11" TextTrimming="CharacterEllipsis" ToolTip="{Binding PreviousFileHash}" Foreground="{Binding WarningTextBrush}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding PreviousFileHash}" FontFamily="Consolas, Courier New" FontSize="{wpf:FontSize 11}" TextTrimming="CharacterEllipsis" ToolTip="{Binding PreviousFileHash}" Foreground="{Binding WarningTextBrush}"/>
                                 </Grid>
                                 <Grid Margin="0,2,0,0">
                                     <Grid.ColumnDefinitions>
@@ -197,7 +197,7 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="New SHA-256:" FontWeight="SemiBold" Foreground="{Binding WarningTextBrush}"/>
-                                    <TextBlock Grid.Column="1" Text="{Binding FileHash}" FontFamily="Consolas, Courier New" FontSize="11" TextTrimming="CharacterEllipsis" ToolTip="{Binding FileHash}" Foreground="{Binding WarningTextBrush}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding FileHash}" FontFamily="Consolas, Courier New" FontSize="{wpf:FontSize 11}" TextTrimming="CharacterEllipsis" ToolTip="{Binding FileHash}" Foreground="{Binding WarningTextBrush}"/>
                                 </Grid>
 
                                 <!-- Quick Inspection Actions -->
@@ -207,8 +207,8 @@
                                             Click="OnOpenInExplorerClicked"
                                             ToolTip="Open recipe file location in Windows Explorer">
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="📁" Margin="0,0,6,0" FontSize="11" VerticalAlignment="Center"/>
-                                            <TextBlock Text="Show in Explorer" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                            <TextBlock Text="📁" Margin="0,0,6,0" FontSize="{wpf:FontSize 11}" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Show in Explorer" FontSize="{wpf:FontSize 11}" FontWeight="SemiBold" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                     <Button Style="{StaticResource SecondaryButtonStyle}" 
@@ -216,8 +216,8 @@
                                             Click="OnViewFileClicked"
                                             ToolTip="Inspect the raw recipe JSON definition inside this window">
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="{}{ } " FontFamily="Consolas" Margin="0,0,4,0" FontSize="11" VerticalAlignment="Center"/>
-                                            <TextBlock Text="View Recipe JSON" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{}{ } " FontFamily="Consolas" Margin="0,0,4,0" FontSize="{wpf:FontSize 11}" VerticalAlignment="Center"/>
+                                            <TextBlock Text="View Recipe JSON" FontSize="{wpf:FontSize 11}" FontWeight="SemiBold" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                     <Button Style="{StaticResource SecondaryButtonStyle}" 
@@ -225,7 +225,7 @@
                                             Click="OnViewChangesClicked"
                                             Visibility="{Binding DiffButtonVisibility}"
                                             ToolTip="Show the lines that changed since the last approval">
-                                        <TextBlock Text="View Changes" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                        <TextBlock Text="View Changes" FontSize="{wpf:FontSize 11}" FontWeight="SemiBold" VerticalAlignment="Center"/>
                                     </Button>
                                 </StackPanel>
                             </StackPanel>
@@ -238,23 +238,23 @@
                                 BorderThickness="1"
                                 Visibility="{Binding AiProposalVisibility}">
                             <StackPanel>
-                                <TextBlock Text="🤖 Written by an AI tool" FontWeight="Bold" FontSize="13" Foreground="{Binding WarningTextBrush}" Margin="0,0,0,4"/>
+                                <TextBlock Text="🤖 Written by an AI tool" FontWeight="Bold" FontSize="{wpf:FontSize 13}" Foreground="{Binding WarningTextBrush}" Margin="0,0,0,4"/>
                                 <TextBlock Text="{Binding ProposedByText}" Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap"/>
-                                <TextBlock Text="{Binding ProposedBySignerText}" FontSize="11" Foreground="{Binding WarningTextBrush}" Margin="0,0,0,8"/>
+                                <TextBlock Text="{Binding ProposedBySignerText}" FontSize="{wpf:FontSize 11}" Foreground="{Binding WarningTextBrush}" Margin="0,0,0,8"/>
                                 <StackPanel Visibility="{Binding AiRequestVisibility}" Margin="0,0,0,6">
-                                    <TextBlock Text="What the AI tool says you asked for (the AI's words):" FontWeight="SemiBold" FontSize="11" Foreground="{Binding WarningTextBrush}"/>
+                                    <TextBlock Text="What the AI tool says you asked for (the AI's words):" FontWeight="SemiBold" FontSize="{wpf:FontSize 11}" Foreground="{Binding WarningTextBrush}"/>
                                     <Border CornerRadius="4" Padding="8,6" Margin="0,2,0,0" Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1">
                                         <TextBlock Text="{Binding AiRequest}" FontStyle="Italic" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap"/>
                                     </Border>
                                 </StackPanel>
                                 <StackPanel Visibility="{Binding AiExplanationVisibility}">
-                                    <TextBlock Text="The AI tool's explanation (the AI's words):" FontWeight="SemiBold" FontSize="11" Foreground="{Binding WarningTextBrush}"/>
+                                    <TextBlock Text="The AI tool's explanation (the AI's words):" FontWeight="SemiBold" FontSize="{wpf:FontSize 11}" Foreground="{Binding WarningTextBrush}"/>
                                     <Border CornerRadius="4" Padding="8,6" Margin="0,2,0,0" Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1">
                                         <TextBlock Text="{Binding AiExplanation}" FontStyle="Italic" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap"/>
                                     </Border>
                                 </StackPanel>
                                 <TextBlock Text="Only &quot;What it does&quot; below comes from Greenshot itself, check it against what you asked for."
-                                           FontSize="11" Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                                           FontSize="{wpf:FontSize 11}" Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" Margin="0,8,0,0"/>
                             </StackPanel>
                         </Border>
 
@@ -265,7 +265,7 @@
                                 BorderThickness="1"
                                 Visibility="{Binding ChangesVisibility}">
                             <StackPanel>
-                                <TextBlock Text="{Binding ChangesTitle}" FontWeight="Bold" FontSize="13" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                                <TextBlock Text="{Binding ChangesTitle}" FontWeight="Bold" FontSize="{wpf:FontSize 13}" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,0,0,6"/>
                                 <ItemsControl ItemsSource="{Binding ChangeDescriptions}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
@@ -279,7 +279,7 @@
                                         Click="OnViewChangesClicked"
                                         Visibility="{Binding DiffButtonVisibility}"
                                         ToolTip="Show the changed lines of the recipe JSON">
-                                    <TextBlock Text="View changed lines" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                    <TextBlock Text="View changed lines" FontSize="{wpf:FontSize 11}" FontWeight="SemiBold" VerticalAlignment="Center"/>
                                 </Button>
                             </StackPanel>
                         </Border>
@@ -295,9 +295,9 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text="{Binding RecipeName}" FontWeight="Bold" FontSize="15" Foreground="{Binding TextPrimaryBrush}"/>
+                                    <TextBlock Text="{Binding RecipeName}" FontWeight="Bold" FontSize="{wpf:FontSize 15}" Foreground="{Binding TextPrimaryBrush}"/>
                                     <Border Grid.Column="1" CornerRadius="4" Padding="6,2" Background="{Binding BadgeBackgroundBrush}">
-                                        <TextBlock Text="{Binding RecipeVersion}" FontSize="11" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
+                                        <TextBlock Text="{Binding RecipeVersion}" FontSize="{wpf:FontSize 11}" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
                                     </Border>
                                 </Grid>
 
@@ -322,21 +322,21 @@
                                     <TextBlock Grid.Column="1" Text="{Binding FilePath}" TextTrimming="CharacterEllipsis" ToolTip="{Binding FilePath}" Foreground="{Binding TextPrimaryBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                                     <StackPanel Grid.Column="2" Orientation="Horizontal">
                                         <Button Style="{StaticResource SecondaryButtonStyle}" 
-                                                Padding="8,2" FontSize="11" Margin="0,0,4,0"
+                                                Padding="8,2" FontSize="{wpf:FontSize 11}" Margin="0,0,4,0"
                                                 Click="OnViewFileClicked"
                                                 ToolTip="Inspect the raw recipe JSON definition inside this window">
                                             <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="{}{ } " FontFamily="Consolas" Margin="0,0,3,0" FontSize="10" VerticalAlignment="Center"/>
-                                                <TextBlock Text="View JSON" FontSize="10" VerticalAlignment="Center"/>
+                                                <TextBlock Text="{}{ } " FontFamily="Consolas" Margin="0,0,3,0" FontSize="{wpf:FontSize 10}" VerticalAlignment="Center"/>
+                                                <TextBlock Text="View JSON" FontSize="{wpf:FontSize 10}" VerticalAlignment="Center"/>
                                             </StackPanel>
                                         </Button>
                                         <Button Style="{StaticResource SecondaryButtonStyle}" 
-                                                Padding="8,2" FontSize="11"
+                                                Padding="8,2" FontSize="{wpf:FontSize 11}"
                                                 Click="OnOpenInExplorerClicked"
                                                 ToolTip="Show this file in Windows Explorer">
                                             <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="📁" Margin="0,0,4,0" FontSize="10" VerticalAlignment="Center"/>
-                                                <TextBlock Text="Explorer" FontSize="10" VerticalAlignment="Center"/>
+                                                <TextBlock Text="📁" Margin="0,0,4,0" FontSize="{wpf:FontSize 10}" VerticalAlignment="Center"/>
+                                                <TextBlock Text="Explorer" FontSize="{wpf:FontSize 10}" VerticalAlignment="Center"/>
                                             </StackPanel>
                                         </Button>
                                     </StackPanel>
@@ -348,7 +348,7 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="SHA-256:" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
-                                    <TextBlock Grid.Column="1" Text="{Binding FileHash}" FontFamily="Consolas, Courier New" FontSize="11" Foreground="{Binding TextSecondaryBrush}" TextTrimming="CharacterEllipsis" ToolTip="{Binding FileHash}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding FileHash}" FontFamily="Consolas, Courier New" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" TextTrimming="CharacterEllipsis" ToolTip="{Binding FileHash}"/>
                                 </Grid>
                             </StackPanel>
                         </Border>
@@ -362,9 +362,9 @@
                                 BorderThickness="1"
                                 Visibility="{Binding ExtensionReachVisibility}">
                             <StackPanel>
-                                <TextBlock Text="Changes other recipes" FontWeight="Bold" FontSize="13" Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,2"/>
+                                <TextBlock Text="Changes other recipes" FontWeight="Bold" FontSize="{wpf:FontSize 13}" Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,2"/>
                                 <TextBlock Text="An automatic step adds its steps to other recipes, the built-in ones included. It has no triggers of its own."
-                                           FontSize="11" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                           FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
                                 <ItemsControl ItemsSource="{Binding ExtensionReachLines}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
@@ -383,9 +383,9 @@
                                 BorderThickness="1"
                                 Visibility="{Binding TriggersVisibility}">
                             <StackPanel>
-                                <TextBlock Text="What starts it" FontWeight="Bold" FontSize="13" Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,4"/>
+                                <TextBlock Text="What starts it" FontWeight="Bold" FontSize="{wpf:FontSize 13}" Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,4"/>
                                 <StackPanel Visibility="{Binding TriggerItemsVisibility}">
-                                    <TextBlock Text="{Binding TriggerHint}" FontSize="11" Foreground="{Binding TriggerHintBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                    <TextBlock Text="{Binding TriggerHint}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TriggerHintBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
                                     <ItemsControl ItemsSource="{Binding TriggerItems}" IsEnabled="{Binding IsEditable}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
@@ -394,10 +394,10 @@
                                                               Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}">
                                                         <TextBlock Text="{Binding Title}" TextWrapping="Wrap"/>
                                                     </CheckBox>
-                                                    <TextBlock Text="{Binding Explanation}" FontSize="11" TextWrapping="Wrap" Margin="20,2,0,0"
+                                                    <TextBlock Text="{Binding Explanation}" FontSize="{wpf:FontSize 11}" TextWrapping="Wrap" Margin="20,2,0,0"
                                                                Visibility="{Binding ExplanationVisibility}"
                                                                Foreground="{Binding DataContext.WarningTextBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                                                    <TextBlock Text="Off: it won't start the recipe until you tick it." FontSize="11" FontWeight="SemiBold" TextWrapping="Wrap" Margin="20,2,0,0"
+                                                    <TextBlock Text="Off: it won't start the recipe until you tick it." FontSize="{wpf:FontSize 11}" FontWeight="SemiBold" TextWrapping="Wrap" Margin="20,2,0,0"
                                                                Visibility="{Binding OffVisibility}"
                                                                Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
                                                 </StackPanel>
@@ -414,7 +414,7 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Border CornerRadius="12" Padding="8,4" Margin="0,0,6,6" Background="{Binding BackgroundBrush}" BorderBrush="{Binding BorderBrush}" BorderThickness="1">
-                                                <TextBlock Text="{Binding Text}" FontSize="12" Foreground="{Binding ForegroundBrush}"/>
+                                                <TextBlock Text="{Binding Text}" FontSize="{wpf:FontSize 12}" Foreground="{Binding ForegroundBrush}"/>
                                             </Border>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
@@ -429,8 +429,8 @@
                                 BorderThickness="1"
                                 Visibility="{Binding PipelineVisibility}">
                             <StackPanel>
-                                <TextBlock Text="What it does" FontWeight="Bold" FontSize="13" Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,2"/>
-                                <TextBlock Text="Described by Greenshot from the recipe itself." FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,8"/>
+                                <TextBlock Text="What it does" FontWeight="Bold" FontSize="{wpf:FontSize 13}" Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,2"/>
+                                <TextBlock Text="Described by Greenshot from the recipe itself." FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,8"/>
                                 <ItemsControl ItemsSource="{Binding StepDescriptions}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
@@ -439,7 +439,7 @@
                                                     <ColumnDefinition Width="24"/>
                                                     <ColumnDefinition Width="*"/>
                                                 </Grid.ColumnDefinitions>
-                                                <TextBlock Text="{Binding Icon}" FontSize="11" Foreground="{Binding DataContext.AccentBrush, RelativeSource={RelativeSource AncestorType=Window}}" VerticalAlignment="Top"/>
+                                                <TextBlock Text="{Binding Icon}" FontSize="{wpf:FontSize 11}" Foreground="{Binding DataContext.AccentBrush, RelativeSource={RelativeSource AncestorType=Window}}" VerticalAlignment="Top"/>
                                                 <TextBlock Grid.Column="1" Text="{Binding Text}" Foreground="{Binding Foreground}" FontWeight="{Binding FontWeight}" TextWrapping="Wrap"/>
                                             </Grid>
                                         </DataTemplate>
@@ -463,7 +463,7 @@
                                               Data="M 7.15,5.2 C 7.15,4.7 7.55,4.3 8.0,4.3 C 8.45,4.3 8.85,4.7 8.85,5.2 L 8.6,9.4 C 8.6,9.8 8.3,10.1 8.0,10.1 C 7.7,10.1 7.4,9.8 7.4,9.4 Z" />
                                         <Ellipse Fill="#18181B" Width="1.8" Height="1.8" Canvas.Left="7.1" Canvas.Top="11.4" />
                                     </Canvas>
-                                    <TextBlock Text="This recipe needs your permission" FontWeight="Bold" FontSize="13" Foreground="{Binding WarningTextBrush}" VerticalAlignment="Center"/>
+                                    <TextBlock Text="This recipe needs your permission" FontWeight="Bold" FontSize="{wpf:FontSize 13}" Foreground="{Binding WarningTextBrush}" VerticalAlignment="Center"/>
                                 </StackPanel>
                                 <TextBlock Text="Allow each of these, or reject the recipe:" 
                                            Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" Margin="0,0,0,6"/>
@@ -476,9 +476,9 @@
                                                           Foreground="{Binding DataContext.WarningTextBrush, RelativeSource={RelativeSource AncestorType=Window}}">
                                                     <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap"/>
                                                 </CheckBox>
-                                                <TextBlock Text="{Binding TargetsText}" FontFamily="Consolas, Courier New" FontSize="11" TextWrapping="Wrap" Margin="20,3,0,0"
+                                                <TextBlock Text="{Binding TargetsText}" FontFamily="Consolas, Courier New" FontSize="{wpf:FontSize 11}" TextWrapping="Wrap" Margin="20,3,0,0"
                                                            Foreground="{Binding DataContext.WarningTextBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                                                <TextBlock Text="{Binding Explanation}" FontSize="11" TextWrapping="Wrap" Margin="20,3,0,0"
+                                                <TextBlock Text="{Binding Explanation}" FontSize="{wpf:FontSize 11}" TextWrapping="Wrap" Margin="20,3,0,0"
                                                            Visibility="{Binding ExplanationVisibility}"
                                                            Foreground="{Binding DataContext.WarningTextBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
                                             </StackPanel>
@@ -582,13 +582,13 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Text="{}{ } " FontFamily="Consolas" FontWeight="Bold" FontSize="15" Foreground="{Binding AccentBrush}"/>
-                                <TextBlock Text="{Binding OverlayTitle}" FontWeight="Bold" FontSize="15" Foreground="{Binding TextPrimaryBrush}"/>
-                                <TextBlock Text="{Binding RecipeName, StringFormat=' — {0}'}" FontSize="13" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                <TextBlock Text="{}{ } " FontFamily="Consolas" FontWeight="Bold" FontSize="{wpf:FontSize 15}" Foreground="{Binding AccentBrush}"/>
+                                <TextBlock Text="{Binding OverlayTitle}" FontWeight="Bold" FontSize="{wpf:FontSize 15}" Foreground="{Binding TextPrimaryBrush}"/>
+                                <TextBlock Text="{Binding RecipeName, StringFormat=' — {0}'}" FontSize="{wpf:FontSize 13}" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
                             <Button Grid.Column="1" 
                                     Style="{StaticResource SecondaryButtonStyle}" 
-                                    Padding="10,4" FontSize="11"
+                                    Padding="10,4" FontSize="{wpf:FontSize 11}"
                                     Click="OnCloseJsonViewerClicked"
                                     ToolTip="Close JSON viewer (Esc)">
                                 <TextBlock Text="✕ Close" FontWeight="SemiBold" VerticalAlignment="Center"/>
@@ -598,7 +598,7 @@
                         <!-- JSON Content Text Box -->
                         <TextBox Grid.Row="1" 
                                  Text="{Binding RecipeJsonContent, Mode=OneWay}"
-                                 FontFamily="Consolas, Courier New" FontSize="12"
+                                 FontFamily="Consolas, Courier New" FontSize="{wpf:FontSize 12}"
                                  Background="{Binding WindowBackgroundBrush}" 
                                  Foreground="{Binding TextPrimaryBrush}"
                                  BorderBrush="{Binding CardBorderBrush}"
@@ -616,15 +616,15 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="{Binding FilePath}" TextTrimming="CharacterEllipsis" ToolTip="{Binding FilePath}" 
-                                       FontSize="11" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                       FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
                                 <Button Style="{StaticResource SecondaryButtonStyle}" 
                                         Padding="12,5" Margin="0,0,8,0"
                                         Click="OnCopyJsonClicked"
                                         ToolTip="Copy recipe JSON to clipboard">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="📋" Margin="0,0,6,0" FontSize="11" VerticalAlignment="Center"/>
-                                        <TextBlock Text="Copy to Clipboard" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                        <TextBlock Text="📋" Margin="0,0,6,0" FontSize="{wpf:FontSize 11}" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Copy to Clipboard" FontSize="{wpf:FontSize 11}" FontWeight="SemiBold" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
                                 <Button Style="{StaticResource PrimaryButtonStyle}" 

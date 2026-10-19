@@ -35,7 +35,7 @@
             <!-- Content -->
             <StackPanel Grid.Row="1" Margin="24,20,24,16">
                 <TextBlock Text="{wpf:Text Settings.Language}"
-                           FontSize="13"
+                           FontSize="{wpf:FontSize 13}"
                            FontWeight="SemiBold"
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                            Margin="0,0,0,8"/>

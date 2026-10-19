@@ -123,7 +123,7 @@
                             <Grid Grid.Row="0">
                                 <TextBlock Text="{wpf:Text ExternalCommand.SettingsDetailTitle}"
                                            FontWeight="SemiBold"
-                                           FontSize="13"
+                                           FontSize="{wpf:FontSize 13}"
                                            VerticalAlignment="Center"
                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                                 <Button Content="{wpf:Text ExternalCommand.SettingsDelete}"
@@ -171,7 +171,7 @@
                             <TextBlock Grid.Row="7" Margin="90,2,0,4"
                                        Text="{wpf:Text ExternalCommand.LabelInformation}"
                                        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
-                                       FontSize="11"/>
+                                       FontSize="{wpf:FontSize 11}"/>
 
                             <!-- Output Format -->
                             <Grid Grid.Row="9">
@@ -233,7 +233,7 @@
             <StackPanel>
                 <TextBlock Text="{wpf:Text ExternalCommand.SettingsGeneralTitle}"
                            FontWeight="SemiBold"
-                           FontSize="13"
+                           FontSize="{wpf:FontSize 13}"
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                            Margin="0,0,0,6"/>
                 <CheckBox IsChecked="{Binding QuicklinkEnabled}"

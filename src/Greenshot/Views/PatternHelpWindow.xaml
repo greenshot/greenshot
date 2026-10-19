@@ -43,7 +43,7 @@
                          BorderThickness="0"
                          Background="Transparent"
                          Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
-                         FontSize="13"
+                         FontSize="{wpf:FontSize 13}"
                          FontFamily="Consolas, Segoe UI Mono, Courier New, Segoe UI"/>
             </ScrollViewer>
         </Border>

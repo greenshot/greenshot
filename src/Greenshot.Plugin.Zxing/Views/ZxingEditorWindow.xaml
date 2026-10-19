@@ -45,7 +45,7 @@
                                     </Grid.RowDefinitions>
                                     <TextBlock Text="{TemplateBinding Header}"
                                                FontWeight="SemiBold"
-                                               FontSize="12"
+                                               FontSize="{wpf:FontSize 12}"
                                                Foreground="{TemplateBinding Foreground}"
                                                Margin="0,0,0,8"/>
                                     <ContentPresenter Grid.Row="1"/>
@@ -60,7 +60,7 @@
         <Style TargetType="Label">
             <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontSize" Value="{wpf:FontSize 12}"/>
             <Setter Property="Padding" Value="0,2"/>
         </Style>
 
@@ -70,7 +70,7 @@
             <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="6,4"/>
-            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontSize" Value="{wpf:FontSize 12}"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
 
@@ -471,7 +471,7 @@
                                Grid.Row="2"
                                Foreground="#E81123"
                                TextWrapping="Wrap"
-                               FontSize="11"
+                               FontSize="{wpf:FontSize 11}"
                                Margin="0,4,0,6"
                                VerticalAlignment="Top"/>
 

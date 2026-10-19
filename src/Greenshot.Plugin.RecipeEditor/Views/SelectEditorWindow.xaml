@@ -34,7 +34,7 @@
             <!-- Header Description -->
             <Border Grid.Row="1" Margin="16,10,16,10">
                 <TextBlock Text="Multiple image editors are open. Select an editor to preview its annotations and import them into the recipe step:"
-                           FontSize="11" Foreground="{x:Static wpf:WpfThemeHelper.TextSecondary}" TextWrapping="Wrap"/>
+                           FontSize="{wpf:FontSize 11}" Foreground="{x:Static wpf:WpfThemeHelper.TextSecondary}" TextWrapping="Wrap"/>
             </Border>
 
             <!-- Main Content: Left List & Right Preview -->
@@ -55,7 +55,7 @@
                         </Grid.RowDefinitions>
 
                         <Border Grid.Row="0" BorderBrush="{x:Static wpf:WpfThemeHelper.CardBorder}" BorderThickness="0,0,0,1" Padding="6,4,6,8" Margin="0,0,0,4">
-                            <TextBlock x:Name="ListHeaderTextBlock" Text="Open Editors" FontWeight="SemiBold" FontSize="11" Foreground="{x:Static wpf:WpfThemeHelper.TextSecondary}"/>
+                            <TextBlock x:Name="ListHeaderTextBlock" Text="Open Editors" FontWeight="SemiBold" FontSize="{wpf:FontSize 11}" Foreground="{x:Static wpf:WpfThemeHelper.TextSecondary}"/>
                         </Border>
 
                         <ListBox x:Name="EditorListBox" Grid.Row="1" Background="Transparent" BorderThickness="0"
@@ -109,19 +109,19 @@
                                                 BorderBrush="{x:Static wpf:WpfThemeHelper.CardBorder}"
                                                 BorderThickness="1" Margin="0,0,10,0"
                                                 VerticalAlignment="Center" HorizontalAlignment="Center">
-                                            <TextBlock Text="🖼️" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            <TextBlock Text="🖼️" FontSize="{wpf:FontSize 14}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </Border>
 
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="11"
+                                            <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="{wpf:FontSize 11}"
                                                        Foreground="{x:Static wpf:WpfThemeHelper.TextPrimary}"
                                                        TextTrimming="CharacterEllipsis"/>
-                                            <TextBlock Text="{Binding Description}" FontSize="10"
+                                            <TextBlock Text="{Binding Description}" FontSize="{wpf:FontSize 10}"
                                                        Foreground="{x:Static wpf:WpfThemeHelper.TextSecondary}"
                                                        Margin="0,2,0,0"/>
                                         </StackPanel>
 
-                                        <TextBlock Grid.Column="2" Text="➔" FontSize="11"
+                                        <TextBlock Grid.Column="2" Text="➔" FontSize="{wpf:FontSize 11}"
                                                    Foreground="{x:Static wpf:WpfThemeHelper.Accent}"
                                                    VerticalAlignment="Center" Margin="6,0,2,0"
                                                    FontWeight="Bold"/>
@@ -151,8 +151,8 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,8,0">
-                                <TextBlock Text="PREVIEW" FontSize="9" FontWeight="Bold" Foreground="{x:Static wpf:WpfThemeHelper.Accent}" Margin="0,0,0,2"/>
-                                <TextBlock x:Name="PreviewTitleTextBlock" Text="Selected Editor" FontWeight="Bold" FontSize="12"
+                                <TextBlock Text="PREVIEW" FontSize="{wpf:FontSize 9}" FontWeight="Bold" Foreground="{x:Static wpf:WpfThemeHelper.Accent}" Margin="0,0,0,2"/>
+                                <TextBlock x:Name="PreviewTitleTextBlock" Text="Selected Editor" FontWeight="Bold" FontSize="{wpf:FontSize 12}"
                                            Foreground="{x:Static wpf:WpfThemeHelper.TextPrimary}" TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
 
@@ -160,13 +160,13 @@
                                 <Border Background="{x:Static wpf:WpfThemeHelper.BadgeBackground}"
                                         BorderBrush="{x:Static wpf:WpfThemeHelper.CardBorder}"
                                         BorderThickness="1" CornerRadius="4" Padding="6,3" Margin="0,0,6,0">
-                                    <TextBlock x:Name="PreviewDimensionsBadge" Text="0 × 0 px" FontSize="10" Foreground="{x:Static wpf:WpfThemeHelper.TextPrimary}"/>
+                                    <TextBlock x:Name="PreviewDimensionsBadge" Text="0 × 0 px" FontSize="{wpf:FontSize 10}" Foreground="{x:Static wpf:WpfThemeHelper.TextPrimary}"/>
                                 </Border>
 
                                 <Border Background="{x:Static wpf:WpfThemeHelper.BadgeBackground}"
                                         BorderBrush="{x:Static wpf:WpfThemeHelper.CardBorder}"
                                         BorderThickness="1" CornerRadius="4" Padding="6,3">
-                                    <TextBlock x:Name="PreviewCountBadge" Text="0 annotations" FontSize="10" FontWeight="SemiBold" Foreground="{x:Static wpf:WpfThemeHelper.Accent}"/>
+                                    <TextBlock x:Name="PreviewCountBadge" Text="0 annotations" FontSize="{wpf:FontSize 10}" FontWeight="SemiBold" Foreground="{x:Static wpf:WpfThemeHelper.Accent}"/>
                                 </Border>
                             </StackPanel>
                         </Grid>
@@ -179,7 +179,7 @@
                             <Grid>
                                 <Image x:Name="PreviewImage" Stretch="Uniform" Margin="10" SnapsToDevicePixels="True"/>
                                 <TextBlock x:Name="NoPreviewTextBlock" Text="No preview available"
-                                           FontSize="11" Foreground="{x:Static wpf:WpfThemeHelper.TextSecondary}"
+                                           FontSize="{wpf:FontSize 11}" Foreground="{x:Static wpf:WpfThemeHelper.TextSecondary}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center"
                                            Visibility="Collapsed"/>
                             </Grid>
@@ -198,7 +198,7 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock x:Name="StatusTextBlock" Text="0 editors available" FontSize="11" Foreground="{x:Static wpf:WpfThemeHelper.TextSecondary}" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="StatusTextBlock" Text="0 editors available" FontSize="{wpf:FontSize 11}" Foreground="{x:Static wpf:WpfThemeHelper.TextSecondary}" VerticalAlignment="Center"/>
 
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
                         <Button Content="Cancel" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,0" IsCancel="True" Click="CancelButton_Click"/>

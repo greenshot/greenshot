@@ -69,6 +69,86 @@ namespace Greenshot.Base.Languages
         string AboutTranslation { get; }
 
         /// <summary>
+        /// Add
+        /// </summary>
+        string AccessibleAdd { get; }
+
+        /// <summary>
+        /// Region capture: move with the arrow keys, Enter starts and finishes the selection, Esc cancels, F1 shows all keys
+        /// </summary>
+        string AccessibleCaptureRegion { get; }
+
+        /// <summary>
+        /// Selection {0} × {1} pixels
+        /// </summary>
+        string AccessibleCaptureSelection { get; }
+
+        /// <summary>
+        /// Window capture: {0}, {1} × {2} pixels. Enter captures it, Space switches to region, Esc cancels
+        /// </summary>
+        string AccessibleCaptureWindow { get; }
+
+        /// <summary>
+        /// Choose a color
+        /// </summary>
+        string AccessibleChooseColor { get; }
+
+        /// <summary>
+        /// Close
+        /// </summary>
+        string AccessibleClose { get; }
+
+        /// <summary>
+        /// Choose a destination
+        /// </summary>
+        string AccessibleDestinationPicker { get; }
+
+        /// <summary>
+        /// Information
+        /// </summary>
+        string AccessibleInformation { get; }
+
+        /// <summary>
+        /// Loading…
+        /// </summary>
+        string AccessibleLoading { get; }
+
+        /// <summary>
+        /// Maximize
+        /// </summary>
+        string AccessibleMaximize { get; }
+
+        /// <summary>
+        /// Minimize
+        /// </summary>
+        string AccessibleMinimize { get; }
+
+        /// <summary>
+        /// Question
+        /// </summary>
+        string AccessibleQuestion { get; }
+
+        /// <summary>
+        /// Remove
+        /// </summary>
+        string AccessibleRemove { get; }
+
+        /// <summary>
+        /// Restore
+        /// </summary>
+        string AccessibleRestore { get; }
+
+        /// <summary>
+        /// Switch to the dark theme
+        /// </summary>
+        string AccessibleThemeDark { get; }
+
+        /// <summary>
+        /// Switch to the light theme
+        /// </summary>
+        string AccessibleThemeLight { get; }
+
+        /// <summary>
         /// Greenshot - the revolutionary screenshot utility
         /// </summary>
         string ApplicationTitle { get; }

@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Automation;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -55,6 +56,7 @@ namespace Greenshot.Base.Wpf
             var menu = ThemedMenu.CreateContextMenu();
             // A click somewhere else doesn't decline, the user might want to look at something first
             menu.StaysOpen = true;
+            AutomationProperties.SetName(menu, Texts.Core.AccessibleDestinationPicker);
 
             void Close()
             {
@@ -130,6 +132,8 @@ namespace Greenshot.Base.Wpf
             {
                 // Until the dynamic destinations arrive a placeholder shows that there is more
                 var placeholder = ThemedMenu.CreateItem("…");
+                // A screen reader would say "ellipsis"
+                AutomationProperties.SetName(placeholder, Texts.Core.AccessibleLoading);
                 placeholder.IsEnabled = false;
                 item.Items.Add(placeholder);
                 AddDynamicDestinationsAsync(item, target, captureDetails, onClick).FireAndLog($"Dynamic destinations of {destination.Designation}", Log);
