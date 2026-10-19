@@ -28,6 +28,7 @@ using System.Windows.Controls;
 using System.Windows.Interop;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
+using Greenshot.Editor.Views;
 using Greenshot.Plugin.Zxing.Drawing;
 using Greenshot.Plugin.Zxing.Processing;
 using ZXing;
@@ -358,29 +359,31 @@ namespace Greenshot.Plugin.Zxing.Views
 
         private void BtnForeColor_Click(object sender, RoutedEventArgs e)
         {
-            using (var cd = new Greenshot.Editor.Forms.ColorDialog { Color = _foreColor })
+            var colorPicker = new ColorPickerWindow
             {
-                var helper = new WindowInteropHelper(this);
-                if (cd.ShowDialog(new Win32WindowHandle(helper.Handle)) == System.Windows.Forms.DialogResult.OK)
-                {
-                    _foreColor = cd.Color;
-                    UpdateColorSwatches();
-                    UpdatePreview();
-                }
+                Owner = this,
+                SelectedColor = _foreColor
+            };
+            if (colorPicker.ShowDialog() == true)
+            {
+                _foreColor = colorPicker.SelectedColor;
+                UpdateColorSwatches();
+                UpdatePreview();
             }
         }
 
         private void BtnBackColor_Click(object sender, RoutedEventArgs e)
         {
-            using (var cd = new Greenshot.Editor.Forms.ColorDialog { Color = _backColor })
+            var colorPicker = new ColorPickerWindow
             {
-                var helper = new WindowInteropHelper(this);
-                if (cd.ShowDialog(new Win32WindowHandle(helper.Handle)) == System.Windows.Forms.DialogResult.OK)
-                {
-                    _backColor = cd.Color;
-                    UpdateColorSwatches();
-                    UpdatePreview();
-                }
+                Owner = this,
+                SelectedColor = _backColor
+            };
+            if (colorPicker.ShowDialog() == true)
+            {
+                _backColor = colorPicker.SelectedColor;
+                UpdateColorSwatches();
+                UpdatePreview();
             }
         }
 
@@ -626,12 +629,6 @@ namespace Greenshot.Plugin.Zxing.Views
                 case "Plessey (1D)": return BarcodeFormat.PLESSEY;
                 default: return BarcodeFormat.QR_CODE;
             }
-        }
-
-        private class Win32WindowHandle : System.Windows.Forms.IWin32Window
-        {
-            public IntPtr Handle { get; }
-            public Win32WindowHandle(IntPtr handle) => Handle = handle;
         }
     }
 }
