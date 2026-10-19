@@ -120,7 +120,9 @@ namespace Greenshot.Editor.Drawing.Emoji
             {
                 Dock = DockStyle.None,
                 Child = _emojiPicker,
-                Name = "EmojiPickerHost"
+                Name = "EmojiPickerHost",
+                // The host is only there for the popup, Tab on the canvas must not go into it
+                TabStop = false
             };
 
             // Don't keep a closed editor alive through the static fields

@@ -54,6 +54,12 @@ namespace Greenshot.Editor.Controls
             set { _clickThrough = value; }
         }
 
+        /// <summary>
+        /// Move the keyboard into the strip (F6 in the editor), like Tab into a tool bar: the strip takes the focus and its first
+        /// item is selected, the arrow keys move on, Enter uses the item.
+        /// </summary>
+        internal void SelectFirstItem() => Select(true, true);
+
         protected override void WndProc(ref Message m)
         {
             base.WndProc(ref m);

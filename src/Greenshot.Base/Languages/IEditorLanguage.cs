@@ -885,5 +885,150 @@ namespace Greenshot.Base.Languages
         /// Up to top
         /// </summary>
         string Uptotop { get; }
+
+        /// <summary>
+        /// Open images
+        /// </summary>
+        string TabList { get; }
+
+        /// <summary>
+        /// {0}, modified
+        /// </summary>
+        string TabModified { get; }
+
+        /// <summary>
+        /// Move tab left
+        /// </summary>
+        string MoveTabLeft { get; }
+
+        /// <summary>
+        /// Move tab right
+        /// </summary>
+        string MoveTabRight { get; }
+
+        /// <summary>
+        /// Move tab to a new window
+        /// </summary>
+        string MoveTabToNewWindow { get; }
+
+        /// <summary>
+        /// Font
+        /// </summary>
+        string FontFamily { get; }
+
+        /// <summary>
+        /// Color: {0}
+        /// </summary>
+        string ColorValue { get; }
+
+        /// <summary>
+        /// Color: {0}, opacity {1} %
+        /// </summary>
+        string ColorValueOpacity { get; }
+
+        /// <summary>
+        /// Transparent
+        /// </summary>
+        string ColorTransparent { get; }
+
+        /// <summary>
+        /// Canvas
+        /// </summary>
+        string Canvas { get; }
+
+        /// <summary>
+        /// {0} × {1} pixels
+        /// </summary>
+        string CanvasSize { get; }
+
+        /// <summary>
+        /// Arrow
+        /// </summary>
+        string ElementArrow { get; }
+
+        /// <summary>
+        /// {0} × {1} at {2}, {3}
+        /// </summary>
+        string ElementBounds { get; }
+
+        /// <summary>
+        /// Counter
+        /// </summary>
+        string ElementCounter { get; }
+
+        /// <summary>
+        /// Crop area
+        /// </summary>
+        string ElementCrop { get; }
+
+        /// <summary>
+        /// Mouse pointer
+        /// </summary>
+        string ElementCursor { get; }
+
+        /// <summary>
+        /// Cut edge
+        /// </summary>
+        string ElementCutMark { get; }
+
+        /// <summary>
+        /// Ellipse
+        /// </summary>
+        string ElementEllipse { get; }
+
+        /// <summary>
+        /// Emoji
+        /// </summary>
+        string ElementEmoji { get; }
+
+        /// <summary>
+        /// Freehand line
+        /// </summary>
+        string ElementFreehand { get; }
+
+        /// <summary>
+        /// Highlight
+        /// </summary>
+        string ElementHighlight { get; }
+
+        /// <summary>
+        /// Icon
+        /// </summary>
+        string ElementIcon { get; }
+
+        /// <summary>
+        /// Image
+        /// </summary>
+        string ElementImage { get; }
+
+        /// <summary>
+        /// Line
+        /// </summary>
+        string ElementLine { get; }
+
+        /// <summary>
+        /// Obfuscation
+        /// </summary>
+        string ElementObfuscate { get; }
+
+        /// <summary>
+        /// Rectangle
+        /// </summary>
+        string ElementRectangle { get; }
+
+        /// <summary>
+        /// Speech bubble
+        /// </summary>
+        string ElementSpeechbubble { get; }
+
+        /// <summary>
+        /// Text
+        /// </summary>
+        string ElementText { get; }
+
+        /// <summary>
+        /// {0}: {1}
+        /// </summary>
+        string ElementWithText { get; }
     }
 }

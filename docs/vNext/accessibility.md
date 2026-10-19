@@ -7,6 +7,7 @@ It applies to people and to AI coding assistants alike: new UI is not done until
 - [The rules in short](#the-rules-in-short)
 - [WPF](#wpf)
 - [WinForms (the editor)](#winforms-the-editor)
+- [Keyboard in the editor](#keyboard-in-the-editor)
 - [The capture window](#the-capture-window)
 - [What the tests check](#what-the-tests-check)
 - [Checking by hand](#checking-by-hand)
@@ -91,8 +92,26 @@ The editor is WinForms. Until it is reworked:
 - Shortcuts keep working when a toolbar box has the focus, and F6 moves between toolbar, canvas and tabs.
 - Colors come from `SystemColors` or the theme, not fixed values.
 
-The editor still misses some of this (the tab strip has no accessible object, the canvas needs the mouse to draw). New editor code
-doesn't add to that list.
+The editor still misses some of this (the canvas needs the mouse to draw). New editor code doesn't add to that list.
+
+## Keyboard in the editor
+
+| Key | Where | What it does |
+|---|---|---|
+| F6, Shift+F6 | anywhere | Next or previous part: menu, tools, properties, destinations, canvas, tabs. In a tool bar the arrow keys move and Enter uses the button |
+| Esc | tool bar, tabs | Back to the canvas |
+| Enter | number field of a tool bar | Takes the value and goes back to the canvas |
+| Ctrl and Alt combinations | number field or font list | Keep working (Ctrl+Tab, Ctrl+W, menu and destination shortcuts); the single keys and the editing keys of the field stay in the field |
+| Ctrl+Tab, Ctrl+Page Down | anywhere | Next tab (with Shift, or Ctrl+Page Up: previous tab) |
+| Ctrl+Shift+Page Up, Ctrl+Shift+Page Down | anywhere | Move the tab to the left or to the right |
+| Ctrl+W | anywhere | Close the tab |
+| Left, Right, Home, End | tabs | Select a tab |
+| Delete | tabs | Close the selected tab |
+| Apps key, Shift+F10 | tabs | Context menu: new image, move the tab left, right or to a new window, close the tab |
+| Enter | canvas | With a tool chosen: draw it in the middle of the view (crop: draw the crop area, Enter again applies it). With one element selected: edit it, like a double click |
+| Tab, Shift+Tab | canvas | Select the next or previous element (after the last one the focus moves on) |
+| Esc | canvas | Clear the selection |
+| Ctrl+arrows | canvas | Make the selection narrower, wider, lower or higher (with Shift: 10 px) |
 
 ## The capture window
 
