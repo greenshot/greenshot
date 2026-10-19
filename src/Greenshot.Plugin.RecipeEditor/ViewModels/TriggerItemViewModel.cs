@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Input;
+using Greenshot.Base.Languages;
 using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Base.Wpf;
 
@@ -75,7 +76,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         public string MenuItemText
         {
-            get => GetParam("MenuItemText", Config.Name ?? "Run Recipe");
+            get => GetParam("MenuItemText", Config.Name ?? Texts.Get<IRecipeEditorLanguage>().TriggerDefaultMenuItemText);
             set { SetParam("MenuItemText", value); OnPropertyChanged(nameof(DisplayTitle)); }
         }
 
@@ -194,15 +195,15 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         {
             get
             {
-                if (IsHotkey) return $"⌨ Hotkey: {Hotkey}";
-                if (IsContextMenu) return $"📋 Context Menu: {MenuItemText}";
-                if (IsEditor) return $"🎨 Editor Menu: {MenuItemText}";
-                if (IsClipboard) return string.IsNullOrEmpty(FormatFilter) ? "📋 Clipboard Monitor" : $"📋 Clipboard: {FormatFilter}";
-                if (IsCommandline) return $"💻 CLI: {Command}";
-                if (IsOpenFile) return string.IsNullOrEmpty(Filter) ? "📂 Open With File (All)" : $"📂 Open With: {Filter}";
-                if (IsExtension) return string.IsNullOrEmpty(Browser) ? "🌐 Browser Extension (All)" : $"🌐 Browser: {Browser}";
-                if (IsAiTool) return $"🤖 AI tool: {ToolName}";
-                return $"⚡ Trigger: {TriggerType}";
+                if (IsHotkey) return "⌨ " + string.Format(Texts.Get<IRecipeEditorLanguage>().TriggerTitleHotkey, Hotkey);
+                if (IsContextMenu) return "📋 " + string.Format(Texts.Get<IRecipeEditorLanguage>().TriggerTitleContextMenu, MenuItemText);
+                if (IsEditor) return "🎨 " + string.Format(Texts.Get<IRecipeEditorLanguage>().TriggerTitleEditor, MenuItemText);
+                if (IsClipboard) return string.IsNullOrEmpty(FormatFilter) ? "📋 " + Texts.Get<IRecipeEditorLanguage>().TriggerClipboardMonitor : "📋 " + string.Format(Texts.Get<IRecipeEditorLanguage>().TriggerTitleClipboard, FormatFilter);
+                if (IsCommandline) return "💻 " + string.Format(Texts.Get<IRecipeEditorLanguage>().TriggerTitleCli, Command);
+                if (IsOpenFile) return string.IsNullOrEmpty(Filter) ? "📂 " + Texts.Get<IRecipeEditorLanguage>().TriggerTitleOpenFileAll : "📂 " + string.Format(Texts.Get<IRecipeEditorLanguage>().TriggerTitleOpenFile, Filter);
+                if (IsExtension) return string.IsNullOrEmpty(Browser) ? "🌐 " + Texts.Get<IRecipeEditorLanguage>().TriggerTitleBrowserAll : "🌐 " + string.Format(Texts.Get<IRecipeEditorLanguage>().TriggerTitleBrowser, Browser);
+                if (IsAiTool) return "🤖 " + string.Format(Texts.Get<IRecipeEditorLanguage>().TriggerTitleAiTool, ToolName);
+                return "⚡ " + string.Format(Texts.Get<IRecipeEditorLanguage>().TriggerTitleOther, TriggerType);
             }
         }
 

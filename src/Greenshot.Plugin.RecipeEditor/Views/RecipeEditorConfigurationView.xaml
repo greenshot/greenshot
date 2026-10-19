@@ -30,7 +30,7 @@
         <CheckBox IsChecked="{Binding QuicklinkEnabled}"
                   Content="{wpf:Text Core.QuicklinkEnable}"/>
 
-        <Label Content="Configured Recipe Files (semicolon-separated):" Margin="0,8,0,2" Target="{Binding ElementName=RecipeFilesTextBox}"/>
+        <Label Content="{wpf:Text RecipeEditor.ConfigRecipeFiles}" Margin="0,8,0,2" Target="{Binding ElementName=RecipeFilesTextBox}"/>
         <TextBox x:Name="RecipeFilesTextBox" Text="{Binding RecipeFiles, UpdateSourceTrigger=PropertyChanged}"/>
     </StackPanel>
 </UserControl>

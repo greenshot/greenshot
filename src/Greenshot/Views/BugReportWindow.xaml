@@ -6,7 +6,7 @@
         xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
         xmlns:vm="clr-namespace:Greenshot.ViewModels"
         mc:Ignorable="d"
-        Title="Greenshot - An Unexpected Error Occurred"
+        Title="{wpf:Text Core.BugreportWindowTitle}"
         Icon="/icons/applicationIcon/icon.ico"
         Width="660"
         MinWidth="560"
@@ -49,13 +49,13 @@
                 <StackPanel Margin="24,18,24,20">
 
                     <!-- Header & Friendly Explanation -->
-                    <TextBlock Text="Something went wrong"
+                    <TextBlock Text="{wpf:Text Core.BugreportHeading}"
                                FontSize="{wpf:FontSize 18}"
                                FontWeight="SemiBold"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                                Margin="0,0,0,6"/>
 
-                    <TextBlock Text="Greenshot encountered an error, but don't worry—your work is safe. You can check if this issue has already been reported or file a new bug report with the details below."
+                    <TextBlock Text="{wpf:Text Core.BugreportIntro}"
                                TextWrapping="Wrap"
                                LineHeight="19"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
@@ -76,20 +76,18 @@
 
                             <StackPanel Grid.Column="0" VerticalAlignment="Center">
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock Text="Installed Version: "
-                                               FontWeight="SemiBold"
+                                    <TextBlock FontWeight="SemiBold"
                                                FontSize="{wpf:FontSize 12.5}"
-                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"><Run Text="{wpf:Text Core.BugreportInstalledVersion}"/><Run Text=" "/></TextBlock>
                                     <TextBlock Text="{Binding CurrentVersion}"
                                                FontWeight="SemiBold"
                                                FontSize="{wpf:FontSize 12.5}"
                                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
 
-                                    <TextBlock Text="   |   Latest Release: "
-                                               FontWeight="SemiBold"
+                                    <TextBlock FontWeight="SemiBold"
                                                FontSize="{wpf:FontSize 12.5}"
-                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
-                                    <TextBlock Text="{Binding LatestReleaseVersion, TargetNullValue='Checking...'}"
+                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"><Run Text="   |   "/><Run Text="{wpf:Text Core.BugreportLatestRelease}"/><Run Text=" "/></TextBlock>
+                                    <TextBlock Text="{Binding LatestReleaseVersionText}"
                                                wpf:LiveRegion.Mode="Polite"
                                                FontWeight="SemiBold"
                                                FontSize="{wpf:FontSize 12.5}"
@@ -113,11 +111,11 @@
                                     Style="{StaticResource WarnButtonStyle}"
                                     Visibility="{Binding IsOutdated, Converter={StaticResource BooleanToVisibilityConverter}}"
                                     Click="OnUpgradeClicked"
-                                    AutomationProperties.Name="Download Update"
+                                    AutomationProperties.Name="{wpf:Text Core.BugreportDownloadUpdate}"
                                     VerticalAlignment="Center"
                                     Margin="12,0,0,0">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="🚀 Download Update" Margin="0,0,2,0"/>
+                                    <TextBlock Margin="0,0,2,0"><Run Text="🚀 "/><Run Text="{wpf:Text Core.BugreportDownloadUpdate}"/></TextBlock>
                                 </StackPanel>
                             </Button>
                         </Grid>
@@ -143,7 +141,7 @@
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Issue Identifier (Stack Trace Hash)"
+                                    <TextBlock Text="{wpf:Text Core.BugreportIssueIdentifier}"
                                                FontWeight="SemiBold"
                                                FontSize="{wpf:FontSize 12}"
                                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
@@ -178,16 +176,16 @@
                                 <Button Grid.Column="1"
                                         Style="{StaticResource PrimaryButtonStyle}"
                                         Click="OnSearchGitHubClicked"
-                                        AutomationProperties.Name="Search Existing Issues"
+                                        AutomationProperties.Name="{wpf:Text Core.BugreportSearchIssues}"
                                         VerticalAlignment="Center">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="🔍 Search Existing Issues" Margin="0,0,2,0"/>
+                                        <TextBlock Margin="0,0,2,0"><Run Text="🔍 "/><Run Text="{wpf:Text Core.BugreportSearchIssues}"/></TextBlock>
                                     </StackPanel>
                                 </Button>
                             </Grid>
 
                             <TextBlock Grid.Row="1"
-                                       Text="Searching GitHub for this hash helps avoid filing duplicate issues and lets you quickly see if a fix or workaround is already available."
+                                       Text="{wpf:Text Core.BugreportSearchHint}"
                                        TextWrapping="Wrap"
                                        FontSize="{wpf:FontSize 11.5}"
                                        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
@@ -203,10 +201,9 @@
                             Padding="12,10"
                             Margin="0,0,0,12">
                         <DockPanel LastChildFill="True">
-                            <TextBlock Text="Error Message: "
-                                       FontWeight="SemiBold"
+                            <TextBlock FontWeight="SemiBold"
                                        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
-                                       DockPanel.Dock="Left"/>
+                                       DockPanel.Dock="Left"><Run Text="{wpf:Text Core.BugreportErrorMessage}"/><Run Text=" "/></TextBlock>
                             <TextBlock Text="{Binding ExceptionMessage}"
                                        TextWrapping="Wrap"
                                        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
@@ -227,7 +224,7 @@
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
                             <DockPanel Grid.Row="0" LastChildFill="False" Margin="0,0,0,6">
-                                <TextBlock Text="Stack Trace:"
+                                <TextBlock Text="{wpf:Text Core.BugreportStackTrace}"
                                            FontWeight="SemiBold"
                                            FontSize="{wpf:FontSize 11.5}"
                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
@@ -236,11 +233,11 @@
                                         Style="{StaticResource SecondaryTextButtonStyle}"
                                         Padding="4,2"
                                         Click="OnCopyStackTraceClicked"
-                                        AutomationProperties.Name="Copy Stack Trace"
-                                        ToolTip="Copy Stack Trace to Clipboard">
+                                        AutomationProperties.Name="{wpf:Text Core.BugreportCopyStackTrace}"
+                                        ToolTip="{wpf:Text Core.BugreportCopyStackTraceTooltip}">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="📋 " FontSize="{wpf:FontSize 10}"/>
-                                        <TextBlock Text="Copy Stack Trace" FontSize="{wpf:FontSize 11}"/>
+                                        <TextBlock Text="{wpf:Text Core.BugreportCopyStackTrace}" FontSize="{wpf:FontSize 11}"/>
                                     </StackPanel>
                                 </Button>
                             </DockPanel>
@@ -251,7 +248,7 @@
                                     CornerRadius="4"
                                     Padding="4">
                                 <TextBox Text="{Binding StackTrace, Mode=OneWay}"
-                                         AutomationProperties.Name="Stack Trace"
+                                         AutomationProperties.Name="{wpf:Text Core.BugreportStackTrace}"
                                          IsReadOnly="True"
                                          TextWrapping="NoWrap"
                                          AcceptsReturn="True"
@@ -310,7 +307,7 @@
                                     Margin="0,8,0,0"
                                     Padding="4">
                                 <TextBox Text="{Binding FullReport, Mode=OneWay}"
-                                         AutomationProperties.Name="Details"
+                                         AutomationProperties.Name="{wpf:Text Core.ErrorDetails}"
                                          IsReadOnly="True"
                                          TextWrapping="NoWrap"
                                          AcceptsReturn="True"
@@ -351,9 +348,9 @@
                         <Button Grid.Column="1"
                                 Style="{StaticResource SecondaryButtonStyle}"
                                 Click="OnReportIssueClicked"
-                                AutomationProperties.Name="Report on GitHub">
+                                AutomationProperties.Name="{wpf:Text Core.BugreportReportGithub}">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="🌐 Report on GitHub" Margin="0,0,2,0"/>
+                                <TextBlock Margin="0,0,2,0"><Run Text="🌐 "/><Run Text="{wpf:Text Core.BugreportReportGithub}"/></TextBlock>
                             </StackPanel>
                         </Button>
 
@@ -362,7 +359,7 @@
                                 Click="OnCloseClicked"
                                 IsCancel="True"
                                 MinWidth="90">
-                            <TextBlock Text="Close"/>
+                            <TextBlock Text="{wpf:Text Core.BugreportCancel}"/>
                         </Button>
                     </Grid>
 

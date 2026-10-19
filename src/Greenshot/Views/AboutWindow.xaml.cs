@@ -59,7 +59,7 @@ namespace Greenshot.Views
         public SolidColorBrush BadgeBackgroundBrush => WpfThemeHelper.BadgeBackground;
 
         public string ThemeToggleIcon => WpfThemeHelper.IsDarkMode ? "☀️" : "🌙";
-        public string ThemeToggleToolTip => WpfThemeHelper.IsDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode";
+        public string ThemeToggleToolTip => WpfThemeHelper.IsDarkMode ? Texts.Core.AccessibleThemeLight : Texts.Core.AccessibleThemeDark;
 
         // Window G Icon Source
         public ImageSource WindowIconSource { get; }
@@ -279,7 +279,7 @@ namespace Greenshot.Views
             try
             {
                 string info = EnvironmentInfo.EnvironmentToString(true);
-                MessageBox.Show(this, info, "Greenshot - System Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(this, info, Texts.Core.AboutSysinfoTitle, MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
@@ -299,15 +299,15 @@ namespace Greenshot.Views
                 }
                 else
                 {
-                    MessageBox.Show(this, "Greenshot cannot find the log file, expected location: " + GreenshotMain.LogFileLocation,
-                        "Log File Not Found", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show(this, string.Format(Texts.Core.AboutLogNotFound, GreenshotMain.LogFileLocation),
+                        Texts.Core.AboutLogNotFoundTitle, MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             }
             catch (Exception ex)
             {
                 Log.Error("Error opening log file", ex);
-                MessageBox.Show(this, "Could not open greenshot.log: " + ex.Message,
-                    "Error Opening Log", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(this, string.Format(Texts.Core.AboutLogError, ex.Message),
+                    Texts.Core.AboutLogErrorTitle, MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -323,15 +323,15 @@ namespace Greenshot.Views
                 }
                 else
                 {
-                    MessageBox.Show(this, "Greenshot cannot find greenshot.ini, expected location: " + GreenshotEnvironment.ConfigLocation,
-                        "Settings File Not Found", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show(this, string.Format(Texts.Core.AboutIniNotFound, GreenshotEnvironment.ConfigLocation),
+                        Texts.Core.AboutIniNotFoundTitle, MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             }
             catch (Exception ex)
             {
                 Log.Error("Error opening greenshot.ini", ex);
-                MessageBox.Show(this, "Could not open greenshot.ini: " + ex.Message,
-                    "Error Opening Settings", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(this, string.Format(Texts.Core.AboutIniError, ex.Message),
+                    Texts.Core.AboutIniErrorTitle, MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

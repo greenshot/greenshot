@@ -58,7 +58,7 @@
                 Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBackgroundBrush}"
                 Padding="8">
             <Grid>
-                <TextBlock Text="This plugin has no configurable options."
+                <TextBlock Text="{wpf:Text Core.PluginsNoOptions}"
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center"

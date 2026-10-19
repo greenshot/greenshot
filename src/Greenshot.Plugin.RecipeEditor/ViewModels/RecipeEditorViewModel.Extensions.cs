@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows;
+using Greenshot.Base.Languages;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Wpf;
@@ -128,7 +129,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 if (_extension == null) return null;
                 var view = BuildExtension(sync: false);
                 var recipes = (_recipeManager?.GetAllRecipes() ?? Array.Empty<CaptureRecipe>()).Where(r => RecipeComposer.CanExtend(view, r)).Select(r => r.Name ?? r.Id).ToList();
-                return recipes.Count == 0 ? "It fits no recipe now (none has this slot, or no recipe matches)." : $"It fits {recipes.Count} recipe(s) now: {string.Join(", ", recipes)}";
+                return recipes.Count == 0 ? Texts.Get<IRecipeEditorLanguage>().ExtensionReachNone : string.Format(Texts.Get<IRecipeEditorLanguage>().ExtensionReach, recipes.Count, string.Join(", ", recipes));
             }
         }
 
@@ -158,7 +159,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         {
             if (extension == null || !ConfirmDiscardChanges()) return;
             OpenExtensionCopy(extension, RecipeSerializer.Serialize(extension));
-            StatusMessage = $"Opened automatic step '{RecipeText.Translate(extension.Name ?? extension.Id)}'";
+            StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusOpenedExtension, RecipeText.Translate(extension.Name ?? extension.Id));
         }
 
         private void OpenExtensionCopy(RecipeExtension extension, string openedFromContent)
@@ -187,18 +188,18 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public void NewExtension()
         {
             if (!ConfirmDiscardChanges()) return;
-            var extension = new RecipeExtension($"ext_{Guid.NewGuid().ToString("N").Substring(0, 6)}", "New Automatic Step", "Changes every capture before it goes to a destination")
+            var extension = new RecipeExtension($"ext_{Guid.NewGuid().ToString("N").Substring(0, 6)}", Texts.Get<IRecipeEditorLanguage>().NewExtensionName, Texts.Get<IRecipeEditorLanguage>().NewExtensionDescription)
             {
                 Extends = new ExtensionTarget { Recipes = new List<string> { RecipeExtension.TargetCaptures }, Slot = RecipeSlots.BeforeDestination, Order = 500 }
             }
-                .AddOption(new RecipeOption { Key = RecipeExtension.EnabledOptionKey, Type = ContractDataType.Boolean, DefaultValue = true, Label = "On", QuickSettings = true })
+                .AddOption(new RecipeOption { Key = RecipeExtension.EnabledOptionKey, Type = ContractDataType.Boolean, DefaultValue = true, Label = Texts.Get<IRecipeEditorLanguage>().NewExtensionOptionOn, QuickSettings = true })
                 .AddNode(RecipeStepConfig.CreateBorder("border"));
             extension.Flow = new RecipeFlowConfig("border");
             OpenExtensionCopy(extension, null);
             // Never saved: unsaved until it is
             _savedContent = null;
             IsDirty = true;
-            StatusMessage = "Created a new automatic step: connect its steps between In and Out, set where it goes in the recipe tab.";
+            StatusMessage = Texts.Get<IRecipeEditorLanguage>().StatusNewExtension;
         }
 
         /// <summary>
@@ -248,8 +249,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             var result = _recipeManager.SaveExtensionToFile(extension, filePath);
             if (!result.IsValid)
             {
-                ThemedMessageBox.Show(string.Join("\n", result.Errors), "Automatic Step Not Saved", MessageBoxButton.OK, MessageBoxImage.Warning);
-                StatusMessage = "The automatic step was not saved.";
+                ThemedMessageBox.Show(string.Join("\n", result.Errors), Texts.Get<IRecipeEditorLanguage>().TitleExtensionNotSaved, MessageBoxButton.OK, MessageBoxImage.Warning);
+                StatusMessage = Texts.Get<IRecipeEditorLanguage>().StatusExtensionNotSaved;
                 return false;
             }
             ActiveRecipe.FilePath = extension.FilePath;
@@ -297,7 +298,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             RefreshUnsavedState();
             RaiseHistoryChanged();
             IsJsonViewVisible = false;
-            StatusMessage = "Applied the JSON of the automatic step.";
+            StatusMessage = Texts.Get<IRecipeEditorLanguage>().StatusExtensionJsonApplied;
         }
 
         /// <summary>
@@ -305,7 +306,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         /// </summary>
         private StepNodeViewModel CreateBoundaryNode(string id, Point location)
         {
-            var node = new StepNodeViewModel(new RecipeNodeConfig(id, id, id == InNodeId ? "In" : "Out"), location, null, DeleteNode, HandleNodeIdChanged, null);
+            var node = new StepNodeViewModel(new RecipeNodeConfig(id, id, id == InNodeId ? Texts.Get<IRecipeEditorLanguage>().NodeIn : Texts.Get<IRecipeEditorLanguage>().NodeOut), location, null, DeleteNode, HandleNodeIdChanged, null);
             return node;
         }
 

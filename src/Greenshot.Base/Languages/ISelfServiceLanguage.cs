@@ -262,6 +262,31 @@ namespace Greenshot.Base.Languages
         string ChecksumManifestLocation { get; }
 
         /// <summary>
+        /// Checksum validation canceled.
+        /// </summary>
+        string ChecksumCanceled { get; }
+
+        /// <summary>
+        /// Validation error: {0}
+        /// </summary>
+        string ChecksumValidationError { get; }
+
+        /// <summary>
+        /// Opened Explorer for: {0}
+        /// </summary>
+        string ChecksumOpenedExplorer { get; }
+
+        /// <summary>
+        /// Checksum file not found, opened containing folder: {0}
+        /// </summary>
+        string ChecksumOpenedFolder { get; }
+
+        /// <summary>
+        /// Failed to open file: {0}
+        /// </summary>
+        string ChecksumOpenFailed { get; }
+
+        /// <summary>
         /// MISMATCHED (CORRUPT)
         /// </summary>
         string ChecksumMetricCorrupt { get; }
@@ -390,6 +415,106 @@ namespace Greenshot.Base.Languages
         /// Clipboard may be busy or locked
         /// </summary>
         string ClipboardBusy { get; }
+
+        /// <summary>
+        /// None
+        /// </summary>
+        string ClipboardNone { get; }
+
+        /// <summary>
+        /// (No owner or system clipboard)
+        /// </summary>
+        string ClipboardNoOwner { get; }
+
+        /// <summary>
+        /// None (or system clipboard)
+        /// </summary>
+        string ClipboardNoneSystem { get; }
+
+        /// <summary>
+        /// Error checking clipboard status
+        /// </summary>
+        string ClipboardStatusError { get; }
+
+        /// <summary>
+        /// Unknown Process
+        /// </summary>
+        string ClipboardUnknownProcess { get; }
+
+        /// <summary>
+        /// (No Title)
+        /// </summary>
+        string ClipboardNoTitle { get; }
+
+        /// <summary>
+        /// Unknown Path
+        /// </summary>
+        string ClipboardUnknownPath { get; }
+
+        /// <summary>
+        /// Access Denied
+        /// </summary>
+        string ClipboardAccessDenied { get; }
+
+        /// <summary>
+        /// (Protected or Elevated Process)
+        /// </summary>
+        string ClipboardProtectedProcess { get; }
+
+        /// <summary>
+        /// Native clipboard data
+        /// </summary>
+        string ClipboardNativeData { get; }
+
+        /// <summary>
+        /// Text: "{0}"
+        /// </summary>
+        string ClipboardTextPreview { get; }
+
+        /// <summary>
+        /// {0:N0} chars
+        /// </summary>
+        string ClipboardChars { get; }
+
+        /// <summary>
+        /// (+{0} more)
+        /// </summary>
+        string ClipboardMoreFiles { get; }
+
+        /// <summary>
+        /// Files: {0}
+        /// </summary>
+        string ClipboardFilesPreview { get; }
+
+        /// <summary>
+        /// {0} files
+        /// </summary>
+        string ClipboardFilesCount { get; }
+
+        /// <summary>
+        /// Raster bitmap image data
+        /// </summary>
+        string ClipboardRasterImage { get; }
+
+        /// <summary>
+        /// Image
+        /// </summary>
+        string ClipboardImage { get; }
+
+        /// <summary>
+        /// PNG compressed image data
+        /// </summary>
+        string ClipboardPngImage { get; }
+
+        /// <summary>
+        /// HTML formatted text fragment
+        /// </summary>
+        string ClipboardHtmlFragment { get; }
+
+        /// <summary>
+        /// Idle
+        /// </summary>
+        string ClipboardIdle { get; }
 
         /// <summary>
         /// Current Clipboard Data Owner:
@@ -742,6 +867,76 @@ namespace Greenshot.Base.Languages
         string FilesOutputResetDone { get; }
 
         /// <summary>
+        /// Screenshot folder
+        /// </summary>
+        string FilesScreenshotFolder { get; }
+
+        /// <summary>
+        /// Screenshot folder copied to clipboard.
+        /// </summary>
+        string FilesScreenshotFolderCopied { get; }
+
+        /// <summary>
+        /// Log file
+        /// </summary>
+        string FilesLogFile { get; }
+
+        /// <summary>
+        /// Configuration file
+        /// </summary>
+        string FilesConfigFile { get; }
+
+        /// <summary>
+        /// No path specified for {0}.
+        /// </summary>
+        string FilesNoPath { get; }
+
+        /// <summary>
+        /// Opened Explorer for {0}.
+        /// </summary>
+        string FilesOpenedExplorer { get; }
+
+        /// <summary>
+        /// File not found, opened containing folder: {0}
+        /// </summary>
+        string FilesOpenedFolder { get; }
+
+        /// <summary>
+        /// {0} does not exist at: {1}
+        /// </summary>
+        string FilesDoesNotExist { get; }
+
+        /// <summary>
+        /// Failed to open Explorer: {0}
+        /// </summary>
+        string FilesExplorerFailed { get; }
+
+        /// <summary>
+        /// Opened Log Viewer window.
+        /// </summary>
+        string FilesLogviewerOpened { get; }
+
+        /// <summary>
+        /// Could not open log viewer: {0}
+        /// </summary>
+        string FilesLogviewerFailed { get; }
+
+        /// <summary>
+        /// Log path copied to clipboard.
+        /// </summary>
+        string FilesLogPathCopied { get; }
+
+        /// <summary>
+        /// Config path copied to clipboard.
+        /// </summary>
+        string FilesConfigPathCopied { get; }
+
+        /// <summary>
+        /// {0:N0} bytes
+        /// </summary>
+        string FilesSizeBytes { get; }
+
+        /// <summary>
         /// Screenshot Folder (where Greenshot saves)
         /// </summary>
         string FilesOutputTitle { get; }
@@ -987,6 +1182,26 @@ namespace Greenshot.Base.Languages
         string HotkeysUpdatedAt { get; }
 
         /// <summary>
+        /// {0} Issue
+        /// </summary>
+        string HotkeysIssue { get; }
+
+        /// <summary>
+        /// {0} Issues
+        /// </summary>
+        string HotkeysIssues { get; }
+
+        /// <summary>
+        /// Could not update registry: {0}
+        /// </summary>
+        string HotkeysRegistryError { get; }
+
+        /// <summary>
+        /// Could not open Windows Settings: {0}
+        /// </summary>
+        string HotkeysSettingsError { get; }
+
+        /// <summary>
         /// Uploaded
         /// </summary>
         string ImgurColumnDate { get; }
@@ -1117,6 +1332,76 @@ namespace Greenshot.Base.Languages
         string LogviewerTooltipLevel { get; }
 
         /// <summary>
+        /// Searched at {0} | Last modified: {1}
+        /// </summary>
+        string LogviewerSearchedAt { get; }
+
+        /// <summary>
+        /// Size: 0 KB | 0 lines
+        /// </summary>
+        string LogviewerInfoEmpty { get; }
+
+        /// <summary>
+        /// Empty log file | Last modified: {0}
+        /// </summary>
+        string LogviewerStatusEmpty { get; }
+
+        /// <summary>
+        /// (No log entries in chunk)
+        /// </summary>
+        string LogviewerNoEntries { get; }
+
+        /// <summary>
+        /// Read error
+        /// </summary>
+        string LogviewerReadError { get; }
+
+        /// <summary>
+        /// Loaded earlier chunk at {0}
+        /// </summary>
+        string LogviewerLoadedEarlier { get; }
+
+        /// <summary>
+        /// Error loading earlier chunk: {0}
+        /// </summary>
+        string LogviewerErrorEarlier { get; }
+
+        /// <summary>
+        /// Complete log loaded at {0}
+        /// </summary>
+        string LogviewerLoadedComplete { get; }
+
+        /// <summary>
+        /// Error loading entire log: {0}
+        /// </summary>
+        string LogviewerErrorComplete { get; }
+
+        /// <summary>
+        /// Showing ~{0:N0} lines ({1} of {2})
+        /// </summary>
+        string LogviewerInfoPartial { get; }
+
+        /// <summary>
+        /// Showing tail {0} of {1} total. Earlier log lines available.
+        /// </summary>
+        string LogviewerChunkPartial { get; }
+
+        /// <summary>
+        /// Complete log: ~{0:N0} lines ({1})
+        /// </summary>
+        string LogviewerInfoComplete { get; }
+
+        /// <summary>
+        /// All {0} loaded.
+        /// </summary>
+        string LogviewerChunkComplete { get; }
+
+        /// <summary>
+        /// Loaded at {0} | Last modified: {1}
+        /// </summary>
+        string LogviewerLoadedAt { get; }
+
+        /// <summary>
         /// Load previous 64 KB chunk of log lines
         /// </summary>
         string LogviewerTooltipLoadEarlier { get; }
@@ -1180,6 +1465,261 @@ namespace Greenshot.Base.Languages
         /// Full Environment Diagnostic Report
         /// </summary>
         string SysReportTitle { get; }
+
+        /// <summary>
+        /// Peak:
+        /// </summary>
+        string SysPeak { get; }
+
+        /// <summary>
+        /// Private:
+        /// </summary>
+        string SysPrivate { get; }
+
+        /// <summary>
+        /// Memory Load:
+        /// </summary>
+        string SysMemoryLoad { get; }
+
+        /// <summary>
+        /// {0} GB free of {1} GB
+        /// </summary>
+        string SysMemoryFree { get; }
+
+        /// <summary>
+        /// {0}% in use
+        /// </summary>
+        string SysMemoryInUse { get; }
+
+        /// <summary>
+        /// Unknown
+        /// </summary>
+        string SysUnknown { get; }
+
+        /// <summary>
+        /// PID: {0} | Threads: {1} | Handles: {2} | GDI: {3} | USER: {4}
+        /// </summary>
+        string SysProcessStats { get; }
+
+        /// <summary>
+        /// Failed to refresh metrics
+        /// </summary>
+        string SysRefreshFailed { get; }
+
+        /// <summary>
+        /// Updated at {0}
+        /// </summary>
+        string StatusUpdatedAt { get; }
+
+        /// <summary>
+        /// Copy failed: {0}
+        /// </summary>
+        string StatusCopyFailed { get; }
+
+        /// <summary>
+        /// Error: {0}
+        /// </summary>
+        string StatusError { get; }
+
+        /// <summary>
+        /// Ready
+        /// </summary>
+        string StatusReady { get; }
+
+        /// <summary>
+        /// System information ready
+        /// </summary>
+        string StatusSystemReady { get; }
+
+        /// <summary>
+        /// File locations ready
+        /// </summary>
+        string StatusFilesReady { get; }
+
+        /// <summary>
+        /// Clipboard diagnostics ready
+        /// </summary>
+        string StatusClipboardReady { get; }
+
+        /// <summary>
+        /// Hotkey diagnostics ready
+        /// </summary>
+        string StatusHotkeysReady { get; }
+
+        /// <summary>
+        /// Checksum validation ready
+        /// </summary>
+        string StatusChecksumReady { get; }
+
+        /// <summary>
+        /// Integration (Debug)
+        /// </summary>
+        string DebugTitle { get; }
+
+        /// <summary>
+        /// Register Native Messaging host &amp; URL scheme for current user (HKCU)
+        /// </summary>
+        string DebugSub { get; }
+
+        /// <summary>
+        /// Integration &amp; Extension Debugger
+        /// </summary>
+        string DebugHeader { get; }
+
+        /// <summary>
+        /// Configure and test local Native Messaging hosts &amp; greenshot:// URL protocol in HKCU
+        /// </summary>
+        string DebugHeaderSub { get; }
+
+        /// <summary>
+        /// Extension Folder
+        /// </summary>
+        string DebugExtensionFolder { get; }
+
+        /// <summary>
+        /// Registry &amp; Binary Status (Current User / HKCU)
+        /// </summary>
+        string DebugStatusTitle { get; }
+
+        /// <summary>
+        /// Proxy Executable:
+        /// </summary>
+        string DebugProxy { get; }
+
+        /// <summary>
+        /// Chrome Host (HKCU):
+        /// </summary>
+        string DebugChrome { get; }
+
+        /// <summary>
+        /// Edge Host (HKCU):
+        /// </summary>
+        string DebugEdge { get; }
+
+        /// <summary>
+        /// Firefox Host (HKCU):
+        /// </summary>
+        string DebugFirefox { get; }
+
+        /// <summary>
+        /// URL Protocol (greenshot://):
+        /// </summary>
+        string DebugUrlProtocol { get; }
+
+        /// <summary>
+        /// Browser Extension ID (Unpacked Developer Mode)
+        /// </summary>
+        string DebugExtensionIdTitle { get; }
+
+        /// <summary>
+        /// Chromium browsers (Chrome, Edge, Brave) enforce allowed_origins with the exact extension ID generated when loading an unpacked extension. Paste your extension ID below to update org.greenshot.proxy.json.
+        /// </summary>
+        string DebugExtensionIdDesc { get; }
+
+        /// <summary>
+        /// Extension ID
+        /// </summary>
+        string DebugExtensionId { get; }
+
+        /// <summary>
+        /// Save ID to Manifest
+        /// </summary>
+        string DebugSaveId { get; }
+
+        /// <summary>
+        /// Registry Actions
+        /// </summary>
+        string DebugActions { get; }
+
+        /// <summary>
+        /// Register Debug Host &amp; Protocol (HKCU)
+        /// </summary>
+        string DebugRegister { get; }
+
+        /// <summary>
+        /// Unregister from HKCU
+        /// </summary>
+        string DebugUnregister { get; }
+
+        /// <summary>
+        /// Test greenshot:// URL Scheme
+        /// </summary>
+        string DebugTestUrl { get; }
+
+        /// <summary>
+        /// Note: Registering in HKCU modifies only your user account (no admin privileges needed). Chrome, Edge, and Firefox will immediately detect this debug build's greenshot-proxy.
+        /// </summary>
+        string DebugNote { get; }
+
+        /// <summary>
+        /// Found: {0}
+        /// </summary>
+        string DebugProxyFound { get; }
+
+        /// <summary>
+        /// Missing in {0}
+        /// </summary>
+        string DebugProxyMissing { get; }
+
+        /// <summary>
+        /// Registered (HKCU): {0}
+        /// </summary>
+        string DebugRegistered { get; }
+
+        /// <summary>
+        /// Not registered in HKCU
+        /// </summary>
+        string DebugNotRegistered { get; }
+
+        /// <summary>
+        /// Successfully registered Chrome, Edge, Firefox Native Hosts and greenshot:// URL Scheme in HKCU!
+        /// </summary>
+        string DebugRegisterSuccess { get; }
+
+        /// <summary>
+        /// Registration failed: {0}
+        /// </summary>
+        string DebugRegisterFailed { get; }
+
+        /// <summary>
+        /// Removed debug native messaging hosts and greenshot:// protocol from HKCU.
+        /// </summary>
+        string DebugUnregisterSuccess { get; }
+
+        /// <summary>
+        /// Unregister failed: {0}
+        /// </summary>
+        string DebugUnregisterFailed { get; }
+
+        /// <summary>
+        /// Saved extension ID to org.greenshot.proxy.json!
+        /// </summary>
+        string DebugSaveIdSuccess { get; }
+
+        /// <summary>
+        /// Failed to save extension ID: {0}
+        /// </summary>
+        string DebugSaveIdFailed { get; }
+
+        /// <summary>
+        /// Launched 'greenshot://about'. The About dialog should open.
+        /// </summary>
+        string DebugTestUrlLaunched { get; }
+
+        /// <summary>
+        /// Failed to launch URL scheme: {0}
+        /// </summary>
+        string DebugTestUrlFailed { get; }
+
+        /// <summary>
+        /// Extension directory not found: {0}
+        /// </summary>
+        string DebugExtensionFolderMissing { get; }
+
+        /// <summary>
+        /// Error opening folder: {0}
+        /// </summary>
+        string DebugExtensionFolderError { get; }
 
         /// <summary>
         /// Detailed environment, memory utilization, screen layout, and process metrics.

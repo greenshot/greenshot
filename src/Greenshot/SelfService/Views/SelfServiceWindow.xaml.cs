@@ -109,22 +109,22 @@ namespace Greenshot.SelfService.Views
             switch (sectionId)
             {
                 case "system":
-                    FooterStatusText.Text = ViewModel?.SystemInfoSection.StatusMessage ?? "System information ready";
+                    FooterStatusText.Text = ViewModel?.SystemInfoSection.StatusMessage ?? Texts.SelfService.StatusSystemReady;
                     break;
                 case "files":
-                    FooterStatusText.Text = ViewModel?.FileInfoSection.StatusMessage ?? "File locations ready";
+                    FooterStatusText.Text = ViewModel?.FileInfoSection.StatusMessage ?? Texts.SelfService.StatusFilesReady;
                     break;
                 case "clipboard":
-                    FooterStatusText.Text = ViewModel?.ClipboardSection.StatusHeader ?? "Clipboard diagnostics ready";
+                    FooterStatusText.Text = ViewModel?.ClipboardSection.StatusHeader ?? Texts.SelfService.StatusClipboardReady;
                     break;
                 case "hotkeys":
-                    FooterStatusText.Text = ViewModel?.HotkeySection.StatusMessage ?? "Hotkey diagnostics ready";
+                    FooterStatusText.Text = ViewModel?.HotkeySection.StatusMessage ?? Texts.SelfService.StatusHotkeysReady;
                     break;
                 case "checksum":
-                    FooterStatusText.Text = ViewModel?.ChecksumSection.StatusMessage ?? "Checksum validation ready";
+                    FooterStatusText.Text = ViewModel?.ChecksumSection.StatusMessage ?? Texts.SelfService.StatusChecksumReady;
                     break;
                 default:
-                    FooterStatusText.Text = "Ready";
+                    FooterStatusText.Text = Texts.SelfService.StatusReady;
                     break;
             }
         }

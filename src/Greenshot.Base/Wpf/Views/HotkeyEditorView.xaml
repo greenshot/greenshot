@@ -82,14 +82,14 @@
 
                 <!-- Header -->
                 <TextBlock Grid.Row="0"
-                           Text="{Binding ActionTitle, StringFormat='Configure Hotkey: {0}'}"
+                           Text="{Binding HeaderText}"
                            FontSize="{wpf:FontSize 15}"
                            FontWeight="Bold"
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                            Margin="0,0,0,16"/>
 
                 <!-- Modifiers Section -->
-                <GroupBox Grid.Row="1" Header="Modifiers" Margin="0,0,0,12">
+                <GroupBox Grid.Row="1" Header="{wpf:Text Settings.HotkeyModifiers}" Margin="0,0,0,12">
                     <Grid Margin="0,6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -105,7 +105,7 @@
                             <CheckBox Content="Ctrl" IsChecked="{Binding Ctrl, Mode=TwoWay}" VerticalAlignment="Center" Margin="0,0,6,0" MinWidth="56"/>
                             <ComboBox ItemsSource="{Binding AvailableLocations}"
                                       SelectedItem="{Binding CtrlLocation, Mode=TwoWay}"
-                                      AutomationProperties.Name="Ctrl key, left or right"
+                                      AutomationProperties.Name="{wpf:Text Settings.HotkeyCtrlLocation}"
                                       IsEnabled="{Binding Ctrl}"/>
                         </StackPanel>
 
@@ -114,7 +114,7 @@
                             <CheckBox Content="Alt" IsChecked="{Binding Alt, Mode=TwoWay}" VerticalAlignment="Center" Margin="0,0,6,0" MinWidth="56"/>
                             <ComboBox ItemsSource="{Binding AvailableLocations}"
                                       SelectedItem="{Binding AltLocation, Mode=TwoWay}"
-                                      AutomationProperties.Name="Alt key, left or right"
+                                      AutomationProperties.Name="{wpf:Text Settings.HotkeyAltLocation}"
                                       IsEnabled="{Binding Alt}"/>
                         </StackPanel>
 
@@ -123,7 +123,7 @@
                             <CheckBox Content="Shift" IsChecked="{Binding Shift, Mode=TwoWay}" VerticalAlignment="Center" Margin="0,0,6,0" MinWidth="56"/>
                             <ComboBox ItemsSource="{Binding AvailableLocations}"
                                       SelectedItem="{Binding ShiftLocation, Mode=TwoWay}"
-                                      AutomationProperties.Name="Shift key, left or right"
+                                      AutomationProperties.Name="{wpf:Text Settings.HotkeyShiftLocation}"
                                       IsEnabled="{Binding Shift}"/>
                         </StackPanel>
 
@@ -132,14 +132,14 @@
                             <CheckBox Content="Win" IsChecked="{Binding Win, Mode=TwoWay}" VerticalAlignment="Center" Margin="0,0,6,0" MinWidth="56"/>
                             <ComboBox ItemsSource="{Binding AvailableLocations}"
                                       SelectedItem="{Binding WinLocation, Mode=TwoWay}"
-                                      AutomationProperties.Name="Win key, left or right"
+                                      AutomationProperties.Name="{wpf:Text Settings.HotkeyWinLocation}"
                                       IsEnabled="{Binding Win}"/>
                         </StackPanel>
                     </Grid>
                 </GroupBox>
 
                 <!-- Key Sequence Capture Area -->
-                <GroupBox Grid.Row="2" Header="Key Sequence Steps &amp; Capture" Margin="0,0,0,12">
+                <GroupBox Grid.Row="2" Header="{wpf:Text Settings.HotkeyStepsCapture}" Margin="0,0,0,12">
                     <StackPanel Margin="0,6">
                         <!-- Step Chips & + Add Next Step -->
                         <Grid Margin="0,0,0,10">
@@ -191,8 +191,8 @@
                                                             Background="Transparent"
                                                             BorderThickness="0"
                                                             Foreground="{Binding MutedBrush}"
-                                                            AutomationProperties.Name="Remove step"
-                                                            ToolTip="Remove step"
+                                                            AutomationProperties.Name="{wpf:Text Settings.HotkeyRemoveStep}"
+                                                            ToolTip="{wpf:Text Settings.HotkeyRemoveStep}"
                                                             FocusVisualStyle="{StaticResource GreenshotFocusVisual}"/>
                                                 </StackPanel>
                                             </Button>
@@ -202,13 +202,13 @@
                             </ScrollViewer>
 
                             <Button Grid.Column="1"
-                                    Content="+ Add Step"
+                                    Content="{wpf:Text Settings.HotkeyAddStep}"
                                     Command="{Binding AddStepCommand}"
                                     Style="{StaticResource SecondaryButtonStyle}"
                                     FontSize="{wpf:FontSize 11}"
                                     Padding="10,4"
                                     MinHeight="28"
-                                    ToolTip="Add next chord step to this sequence"
+                                    ToolTip="{wpf:Text Settings.HotkeyAddStepTooltip}"
                                     VerticalAlignment="Center"/>
                         </Grid>
 
@@ -220,8 +220,8 @@
                                 BorderThickness="2"
                                 MinHeight="54"
                                 Padding="12,8"
-                                AutomationProperties.Name="Hotkey"
-                                AutomationProperties.HelpText="Press the keys of the hotkey. Tab moves on, Esc cancels."
+                                AutomationProperties.Name="{wpf:Text Settings.HotkeyCapture}"
+                                AutomationProperties.HelpText="{wpf:Text Settings.HotkeyCaptureHelp}"
                                 MouseLeftButtonDown="KeyCaptureBorder_MouseLeftButtonDown"
                                 GotFocus="KeyCaptureBorder_GotFocus"
                                 LostFocus="KeyCaptureBorder_LostFocus">
@@ -244,7 +244,7 @@
                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                                            HorizontalAlignment="Center"/>
                                 <TextBlock x:Name="CaptureHintText"
-                                           Text="Click here to focus and press shortcut keys"
+                                           Text="{wpf:Text Settings.HotkeyCaptureHint}"
                                            FontSize="{wpf:FontSize 11}"
                                            FontStyle="Italic"
                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
@@ -260,7 +260,7 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <Button Grid.Column="1"
-                                    Content="Clear / Reset"
+                                    Content="{wpf:Text Settings.HotkeyClear}"
                                     Command="{Binding ClearCommand}"
                                     Style="{StaticResource LightErrorButtonStyle}"
                                     FontSize="{wpf:FontSize 11}"
@@ -272,7 +272,7 @@
 
                 <!-- Live Preview Badges -->
                 <StackPanel Grid.Row="3" Margin="0,0,0,8">
-                    <TextBlock Text="Preview:"
+                    <TextBlock Text="{wpf:Text Settings.HotkeyPreview}"
                                FontSize="{wpf:FontSize 11}"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
                                Margin="0,0,0,4"/>
@@ -299,12 +299,12 @@
 
                 <!-- Action Buttons -->
                 <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Content="Save / Apply"
+                    <Button Content="{wpf:Text Settings.HotkeySave}"
                             Command="{Binding SaveCommand}"
                             Style="{StaticResource PrimaryButtonStyle}"
                             MinWidth="100"
                             FontWeight="SemiBold"/>
-                    <Button Content="Cancel"
+                    <Button Content="{wpf:Text Core.Cancel}"
                             Command="{Binding CancelCommand}"
                             Style="{StaticResource SecondaryButtonStyle}"
                             MinWidth="100"

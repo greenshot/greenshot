@@ -5,6 +5,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using Dapplo.Windows.Input.Enums;
 using Greenshot.Base.Core;
+using Greenshot.Base.Languages;
 using Greenshot.Base.Wpf.ViewModels;
 
 namespace Greenshot.Base.Wpf.Views
@@ -128,7 +129,7 @@ namespace Greenshot.Base.Wpf.Views
             if (ViewModel != null) ViewModel.IsCapturing = true;
             if (CaptureHintText != null)
             {
-                CaptureHintText.Text = "🔴 Listening... Press keys on your keyboard";
+                CaptureHintText.Text = "🔴 " + Texts.Settings.HotkeyCaptureListening;
             }
         }
 
@@ -137,7 +138,7 @@ namespace Greenshot.Base.Wpf.Views
             if (ViewModel != null) ViewModel.IsCapturing = false;
             if (CaptureHintText != null)
             {
-                CaptureHintText.Text = "Click here to focus and press shortcut keys";
+                CaptureHintText.Text = Texts.Settings.HotkeyCaptureHint;
             }
         }
 

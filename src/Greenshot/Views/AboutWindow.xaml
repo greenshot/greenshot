@@ -77,11 +77,11 @@
                                 <TextBlock Text="{Binding BitnessText}" FontSize="{wpf:FontSize 11}" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
                             </Border>
                             <Border Background="{Binding BadgeBackgroundBrush}" CornerRadius="4" Padding="6,2" Margin="0,0,6,0" Visibility="{Binding PortableBadgeVisibility}">
-                                <TextBlock Text="Portable" FontSize="{wpf:FontSize 11}" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
+                                <TextBlock Text="{wpf:Text Core.AboutPortable}" FontSize="{wpf:FontSize 11}" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
                             </Border>
                             <!-- The accent with its paired text color, both follow the theme and high contrast -->
                             <Border Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.AccentBrush}" CornerRadius="4" Padding="6,2" Margin="0,0,6,0" Visibility="{Binding BetaTesterBadgeVisibility}">
-                                <TextBlock Text="BETA" FontSize="{wpf:FontSize 11}" FontWeight="Bold" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.AccentForegroundBrush}"/>
+                                <TextBlock Text="{wpf:Text Core.AboutBeta}" FontSize="{wpf:FontSize 11}" FontWeight="Bold" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.AccentForegroundBrush}"/>
                             </Border>
                         </WrapPanel>
 
@@ -108,7 +108,7 @@
                                    Foreground="{Binding TextPrimaryBrush}"
                                    TextWrapping="Wrap"
                                    Margin="0,0,0,4"/>
-                        <TextBlock Text="Released as free software under the GNU General Public License (GPLv3)."
+                        <TextBlock Text="{wpf:Text Core.AboutReleasedGpl}"
                                    Foreground="{Binding TextSecondaryBrush}"
                                    FontSize="{wpf:FontSize 12}"
                                    TextWrapping="Wrap"

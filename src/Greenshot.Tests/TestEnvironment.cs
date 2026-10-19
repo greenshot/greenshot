@@ -79,6 +79,8 @@ namespace Greenshot.Tests
                 Texts.Register<Greenshot.Plugin.Jira.IJiraLanguage>(new Greenshot.Plugin.Jira.JiraLanguageImpl());
                 Texts.Register<Greenshot.Plugin.Office.IOfficeLanguage>(new Greenshot.Plugin.Office.OfficeLanguageImpl());
                 Texts.Register<Greenshot.Plugin.Pdf.IPdfLanguage>(new Greenshot.Plugin.Pdf.PdfLanguageImpl());
+                Texts.Register<Greenshot.Plugin.RecipeEditor.IRecipeEditorLanguage>(new Greenshot.Plugin.RecipeEditor.RecipeEditorLanguageImpl());
+                Texts.Register<Greenshot.Plugin.Zxing.IZxingLanguage>(new Greenshot.Plugin.Zxing.ZxingLanguageImpl());
 
                 _initialized = true;
             }

@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ui="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
         xmlns:helpers="clr-namespace:Greenshot.Plugin.RecipeEditor.Helpers"
-        Title="Greenshot — Import Annotations"
+        Title="{ui:Text RecipeEditor.ImportTitle}"
         Height="580" Width="720"
         MinHeight="460" MinWidth="560"
         WindowStartupLocation="CenterOwner"
@@ -43,8 +43,8 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock x:Name="SourceTextBlock" Text="Source: Image Editor" FontSize="{ui:FontSize 11}" Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}" VerticalAlignment="Center"/>
-                    <Button Grid.Column="1" x:Name="SortButton" Content="Sort A-Z ▲" Style="{StaticResource SecondaryButtonStyle}" Padding="8,3" FontSize="{ui:FontSize 10}" Click="OnSortClicked" ToolTip="Toggle alphabetical sort"/>
+                    <TextBlock x:Name="SourceTextBlock" FontSize="{ui:FontSize 11}" Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}" VerticalAlignment="Center"/>
+                    <Button Grid.Column="1" x:Name="SortButton" Content="{ui:Text RecipeEditor.ImportSortAscending}" Style="{StaticResource SecondaryButtonStyle}" Padding="8,3" FontSize="{ui:FontSize 10}" Click="OnSortClicked" ToolTip="{ui:Text RecipeEditor.ImportSortTooltip}"/>
                 </Grid>
 
                 <!-- Target Step Mode Selection -->
@@ -57,17 +57,17 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Target Step Mode:" FontWeight="SemiBold" FontSize="{ui:FontSize 11}"
+                        <TextBlock Grid.Column="0" Text="{ui:Text RecipeEditor.ImportTargetStepMode}" FontWeight="SemiBold" FontSize="{ui:FontSize 11}"
                                    Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextPrimary}" VerticalAlignment="Center" Margin="0,0,14,0"/>
                         <Border x:Name="AppendCard" Grid.Column="1" Background="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.WindowBackground}"
                                 BorderBrush="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}" BorderThickness="1" CornerRadius="4" Padding="10,6" Margin="0,0,8,0"
                                 PreviewMouseDown="OnAppendCardClicked" Cursor="Hand">
-                            <RadioButton Style="{StaticResource DefaultRadioButtonStyle}" x:Name="AppendRadio" GroupName="TargetStepMode" Content="Append to existing annotations" IsChecked="True"/>
+                            <RadioButton Style="{StaticResource DefaultRadioButtonStyle}" x:Name="AppendRadio" GroupName="TargetStepMode" Content="{ui:Text RecipeEditor.ImportModeAppend}" IsChecked="True"/>
                         </Border>
                         <Border x:Name="ReplaceCard" Grid.Column="2" Background="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.WindowBackground}"
                                 BorderBrush="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}" BorderThickness="1" CornerRadius="4" Padding="10,6"
                                 PreviewMouseDown="OnReplaceCardClicked" Cursor="Hand">
-                            <RadioButton Style="{StaticResource DefaultRadioButtonStyle}" x:Name="ReplaceRadio" GroupName="TargetStepMode" Content="Replace existing annotations"/>
+                            <RadioButton Style="{StaticResource DefaultRadioButtonStyle}" x:Name="ReplaceRadio" GroupName="TargetStepMode" Content="{ui:Text RecipeEditor.ImportModeReplace}"/>
                         </Border>
                     </Grid>
                 </Border>
@@ -92,10 +92,10 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="180"/>
                             </Grid.ColumnDefinitions>
-                            <CheckBox x:Name="SelectAllCheckBox" AutomationProperties.Name="Select / Deselect all" Click="OnSelectAllClicked" IsChecked="True" ToolTip="Select / Deselect all" VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="1" Text="Type (A-Z)" FontWeight="SemiBold" FontSize="{ui:FontSize 11}" Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}"/>
-                            <TextBlock Grid.Column="2" Text="Description / Content" FontWeight="SemiBold" FontSize="{ui:FontSize 11}" Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}"/>
-                            <TextBlock Grid.Column="3" Text="Asset Storage" FontWeight="SemiBold" FontSize="{ui:FontSize 11}" Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}"/>
+                            <CheckBox x:Name="SelectAllCheckBox" AutomationProperties.Name="{ui:Text RecipeEditor.ImportSelectAll}" Click="OnSelectAllClicked" IsChecked="True" ToolTip="{ui:Text RecipeEditor.ImportSelectAll}" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="{ui:Text RecipeEditor.ImportColumnType}" FontWeight="SemiBold" FontSize="{ui:FontSize 11}" Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}"/>
+                            <TextBlock Grid.Column="2" Text="{ui:Text RecipeEditor.ImportColumnDescription}" FontWeight="SemiBold" FontSize="{ui:FontSize 11}" Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}"/>
+                            <TextBlock Grid.Column="3" Text="{ui:Text RecipeEditor.ImportColumnStorage}" FontWeight="SemiBold" FontSize="{ui:FontSize 11}" Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}"/>
                         </Grid>
                     </Border>
 
@@ -153,12 +153,12 @@
                                     <!-- Storage Mode (Embed vs File) -->
                                     <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center"
                                                 Visibility="{Binding CanSaveAsFile, Converter={StaticResource BoolToVis}}">
-                                        <ComboBox SelectedValue="{Binding StorageMode, Mode=TwoWay}" AutomationProperties.Name="Asset Storage"
+                                        <ComboBox SelectedValue="{Binding StorageMode, Mode=TwoWay}" AutomationProperties.Name="{ui:Text RecipeEditor.ImportColumnStorage}"
                                                   SelectedValuePath="Tag"
                                                   SelectionChanged="OnStorageModeChanged"
                                                   Width="160" Height="24" FontSize="{ui:FontSize 10}">
-                                            <ComboBoxItem Content="📦 Embed (Base64)" Tag="{x:Static helpers:AssetStorageMode.EmbedBase64}"/>
-                                            <ComboBoxItem Content="💾 Save to File" Tag="{x:Static helpers:AssetStorageMode.SaveToFile}"/>
+                                            <ComboBoxItem Content="{ui:Text RecipeEditor.ImportStorageEmbed}" Tag="{x:Static helpers:AssetStorageMode.EmbedBase64}"/>
+                                            <ComboBoxItem Content="{ui:Text RecipeEditor.ImportStorageFile}" Tag="{x:Static helpers:AssetStorageMode.SaveToFile}"/>
                                         </ComboBox>
                                     </StackPanel>
                                 </Grid>
@@ -174,7 +174,7 @@
                     BorderThickness="1" CornerRadius="6" Padding="14,10" Margin="16,0,16,10"
                     Visibility="Collapsed">
                 <StackPanel>
-                    <TextBlock Text="💾 File Storage Destination (For elements set to 'Save to File'):"
+                    <TextBlock Text="{ui:Text RecipeEditor.ImportFileDestination}"
                                FontWeight="SemiBold" FontSize="{ui:FontSize 11}" Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextPrimary}" Margin="0,0,0,8"/>
 
                     <!-- Directory Path Picker -->
@@ -185,11 +185,11 @@
                             <ColumnDefinition Width="6"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock x:Name="DirectoryLabel" Grid.Column="0" Text="Save to Folder:" FontSize="{ui:FontSize 11}" Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="DirectoryLabel" Grid.Column="0" Text="{ui:Text RecipeEditor.ImportSaveToFolder}" FontSize="{ui:FontSize 11}" Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}" VerticalAlignment="Center"/>
                         <TextBox x:Name="DirectoryTextBox" Grid.Column="1" AutomationProperties.LabeledBy="{Binding ElementName=DirectoryLabel}" FontSize="{ui:FontSize 11}" FontFamily="Consolas" VerticalContentAlignment="Center" Padding="6,3"
                                  Background="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.WindowBackground}"
                                  Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextPrimary}"/>
-                        <Button Grid.Column="3" Content="Browse..." Style="{StaticResource SecondaryButtonStyle}" Padding="10,4" Click="OnBrowseDirectoryClicked"/>
+                        <Button Grid.Column="3" Content="{ui:Text RecipeEditor.ImportBtnBrowse}" Style="{StaticResource SecondaryButtonStyle}" Padding="10,4" Click="OnBrowseDirectoryClicked"/>
                     </Grid>
 
                     <!-- Base Filename Prefix -->
@@ -198,15 +198,15 @@
                             <ColumnDefinition Width="110"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock x:Name="BaseFileNameLabel" Grid.Column="0" Text="Filename Prefix:" FontSize="{ui:FontSize 11}" Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="BaseFileNameLabel" Grid.Column="0" Text="{ui:Text RecipeEditor.ImportFilenamePrefix}" FontSize="{ui:FontSize 11}" Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}" VerticalAlignment="Center"/>
                         <TextBox x:Name="BaseFileNameTextBox" Grid.Column="1" AutomationProperties.LabeledBy="{Binding ElementName=BaseFileNameLabel}" FontSize="{ui:FontSize 11}" FontFamily="Consolas" VerticalContentAlignment="Center" Padding="6,3"
-                                 ToolTip="Prefix used for all exported asset files"
+                                 ToolTip="{ui:Text RecipeEditor.ImportFilenamePrefixTooltip}"
                                  Background="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.WindowBackground}"
                                  Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextPrimary}"/>
                     </Grid>
 
                     <!-- Helper explanation -->
-                    <TextBlock Text="ℹ Exported files will be named: &lt;Folder&gt;\{prefix}_{type}_{number}.png (e.g., &quot;myrecipe_cursor_1.png&quot;)"
+                    <TextBlock Text="{ui:Text RecipeEditor.ImportFileNamingHint}"
                                FontSize="{ui:FontSize 10}" Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}" Margin="110,2,0,0"/>
                 </StackPanel>
             </Border>
@@ -220,11 +220,11 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock x:Name="StatusTextBlock" ui:LiveRegion.Mode="Polite" Text="0 items selected" FontSize="{ui:FontSize 11}" Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="StatusTextBlock" ui:LiveRegion.Mode="Polite" FontSize="{ui:FontSize 11}" Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}" VerticalAlignment="Center"/>
 
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
-                        <Button Content="Cancel" Style="{StaticResource SecondaryButtonStyle}" Click="OnCancelClicked" IsCancel="True" Margin="0,0,8,0"/>
-                        <Button x:Name="ImportBtn" Content="Proceed Import" Style="{StaticResource PrimaryButtonStyle}" IsDefault="True" Click="OnProceedClicked"/>
+                        <Button Content="{ui:Text Core.Cancel}" Style="{StaticResource SecondaryButtonStyle}" Click="OnCancelClicked" IsCancel="True" Margin="0,0,8,0"/>
+                        <Button x:Name="ImportBtn" Content="{ui:Text RecipeEditor.ImportBtnProceed}" Style="{StaticResource PrimaryButtonStyle}" IsDefault="True" Click="OnProceedClicked"/>
                     </StackPanel>
                 </Grid>
             </Border>

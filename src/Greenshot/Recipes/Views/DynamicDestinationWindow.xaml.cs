@@ -97,7 +97,7 @@ namespace Greenshot.Recipes.Views
         }
 
         public string TimeoutText => _secondsRemaining > 0 
-            ? string.Format("Auto-closing in {0}s...", _secondsRemaining) 
+            ? string.Format(Texts.Recipe.PickerAutoClose, _secondsRemaining) 
             : "";
 
         public IDestination SelectedDestination { get; private set; }
@@ -105,20 +105,20 @@ namespace Greenshot.Recipes.Views
         public bool OpenInEditorRequested { get; private set; }
 
         // Localized UI text strings
-        public string CoreDestinationsHeaderText => "Core Destinations";
-        public string OtherDestinationsHeaderText => "Destinations";
+        public string CoreDestinationsHeaderText => Texts.Recipe.PickerCoreDestinations;
+        public string OtherDestinationsHeaderText => Texts.Recipe.PickerDestinations;
         public string ForwardToRecipeHeaderText => Texts.Core.ContextmenuRecipeeditor;
-        public string RunRecipeButtonText => "▶ Run Recipe";
+        public string RunRecipeButtonText => "▶ " + Texts.Recipe.PickerRunRecipe;
         public string DismissButtonText => Texts.Core.Cancel;
         public string CloseButtonToolTip => Texts.Editor.Close;
-        public string ClickToPreviewTooltip => "Click to view full preview (Esc to exit)";
-        public string FullscreenReturnHintText => "Click anywhere or press Esc to return";
-        public string ErrorSubtitleText => "Select an alternative destination below, forward to another recipe, or retry:";
+        public string ClickToPreviewTooltip => Texts.Recipe.PickerPreviewTooltip;
+        public string FullscreenReturnHintText => Texts.Recipe.PickerFullscreenHint;
+        public string ErrorSubtitleText => Texts.Recipe.PickerErrorSubtitle;
 
         public string ThemeToggleIcon => WpfThemeHelper.IsDarkMode ? "☀️" : "🌙";
         public string ThemeToggleToolTip => WpfThemeHelper.IsDarkMode 
-            ? "Switch to Light Mode (T)" 
-            : "Switch to Dark Mode (T)";
+            ? Texts.Recipe.PickerThemeLight
+            : Texts.Recipe.PickerThemeDark;
 
         // Theme brushes bound to XAML
         public SolidColorBrush WindowBackgroundBrush => WpfThemeHelper.WindowBackground;
@@ -194,7 +194,7 @@ namespace Greenshot.Recipes.Views
                     string badge = null;
                     if (!string.IsNullOrEmpty(errorMessage) && string.Equals(dest.Designation, "Clipboard", StringComparison.OrdinalIgnoreCase))
                     {
-                        badge = "Retry";
+                        badge = Texts.Recipe.PickerRetry;
                     }
 
                     var (destTitle, destSubtitle) = FormatDestinationNames(dest);
@@ -314,53 +314,53 @@ namespace Greenshot.Recipes.Views
             switch (des.ToLowerInvariant())
             {
                 case "clipboard":
-                    return (Texts.Settings.DestinationClipboard, "Copy image to clipboard");
+                    return (Texts.Settings.DestinationClipboard, Texts.Recipe.PickerClipboardSub);
                 case "editor":
-                    return (Texts.Editor.Title, "Annotate and export");
+                    return (Texts.Editor.Title, Texts.Recipe.PickerEditorSub);
                 case "fileno_dialog":
                 case "filenodialog":
                 case "file":
-                    return ("Save Directly", "Save to folder");
+                    return (Texts.Recipe.PickerFile, Texts.Recipe.PickerFileSub);
                 case "filedialog":
                 case "fileas":
-                    return ("Save As...", "Choose folder & format");
+                    return (Texts.Recipe.PickerFileas, Texts.Recipe.PickerFileasSub);
                 case "printer":
-                    return (Texts.Settings.DestinationPrinter, "Send to printer");
+                    return (Texts.Settings.DestinationPrinter, Texts.Recipe.PickerPrinterSub);
                 case "windows10ocr":
                 case "ocr":
-                    return ("OCR Text", "Extract text from image");
+                    return (Texts.Recipe.PickerOcr, Texts.Recipe.PickerOcrSub);
                 case "windows10share":
                 case "share":
-                    return ("Windows Share", "Share with apps & contacts");
+                    return (Texts.Recipe.PickerShare, Texts.Recipe.PickerShareSub);
                 case "mail":
                 case "outlook":
-                    return (Texts.Editor.Email, "New email attachment");
+                    return (Texts.Editor.Email, Texts.Recipe.PickerEmailSub);
                 case "word":
-                    return ("Microsoft Word", "Insert into document");
+                    return ("Microsoft Word", Texts.Recipe.PickerWordSub);
                 case "excel":
-                    return ("Microsoft Excel", "Insert into worksheet");
+                    return ("Microsoft Excel", Texts.Recipe.PickerExcelSub);
                 case "powerpoint":
-                    return ("PowerPoint", "Insert into presentation");
+                    return ("PowerPoint", Texts.Recipe.PickerPowerpointSub);
                 case "onenote":
-                    return ("OneNote", "Send to notebook");
+                    return ("OneNote", Texts.Recipe.PickerOnenoteSub);
                 case "zxing":
                 case "zxingqrdestination":
-                    return ("QR Code Actions", "Detect & decode QR codes");
+                    return (Texts.Recipe.PickerQr, Texts.Recipe.PickerQrSub);
                 case "paint":
-                    return ("MS Paint", "Open in Paint");
+                    return ("MS Paint", Texts.Recipe.PickerPaintSub);
                 case "dropbox":
-                    return ("Dropbox", "Upload & copy link");
+                    return ("Dropbox", Texts.Recipe.PickerUploadSub);
                 case "box":
-                    return ("Box", "Upload & copy link");
+                    return ("Box", Texts.Recipe.PickerUploadSub);
                 case "jira":
-                    return ("Jira", "Attach to issue");
+                    return ("Jira", Texts.Recipe.PickerJiraSub);
                 case "confluence":
-                    return ("Confluence", "Attach to page");
+                    return ("Confluence", Texts.Recipe.PickerConfluenceSub);
             }
 
             if (rawDesc.StartsWith("Upload to ", StringComparison.OrdinalIgnoreCase))
             {
-                return (rawDesc.Substring(10), "Cloud upload");
+                return (rawDesc.Substring(10), Texts.Recipe.PickerCloudSub);
             }
 
             int parenIdx = rawDesc.IndexOf('(');
@@ -371,7 +371,7 @@ namespace Greenshot.Recipes.Views
                 return (t, s);
             }
 
-            return (rawDesc, "Export destination");
+            return (rawDesc, Texts.Recipe.PickerExportSub);
         }
 
         private void UpdateFilteredDestinations()

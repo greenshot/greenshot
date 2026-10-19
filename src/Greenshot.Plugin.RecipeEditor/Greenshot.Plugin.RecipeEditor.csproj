@@ -5,6 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="Languages\greenshot*.ini">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Nodify" Version="7.3.0" />
     <PackageReference Include="Dapplo.Ini" Version="1.1.11" />
     <PackageReference Include="Dapplo.Ini.Generator" Version="1.1.11" />

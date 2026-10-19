@@ -341,7 +341,7 @@
                                 <StackPanel>
                                     <TextBlock Text="{wpf:Text SelfService.SysMemoryProcess}" FontSize="{wpf:FontSize 10.5}" FontWeight="Bold" Foreground="{Binding TextSecondaryBrush}"/>
                                     <TextBlock Text="{Binding SystemInfoSection.WorkingSetText}" FontSize="{wpf:FontSize 18}" FontWeight="Bold" Margin="0,6,0,2"/>
-                                    <TextBlock Text="{Binding SystemInfoSection.PeakWorkingSetText, StringFormat='Peak: {0}'}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}"/>
+                                    <TextBlock FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}"><Run Text="{wpf:Text SelfService.SysPeak}"/><Run Text=" "/><Run Text="{Binding SystemInfoSection.PeakWorkingSetText, Mode=OneWay}"/></TextBlock>
                                 </StackPanel>
                             </Border>
 
@@ -350,7 +350,7 @@
                                 <StackPanel>
                                     <TextBlock Text="{wpf:Text SelfService.SysMemoryGc}" FontSize="{wpf:FontSize 10.5}" FontWeight="Bold" Foreground="{Binding TextSecondaryBrush}"/>
                                     <TextBlock Text="{Binding SystemInfoSection.GcMemoryText}" FontSize="{wpf:FontSize 18}" FontWeight="Bold" Margin="0,6,0,2"/>
-                                    <TextBlock Text="{Binding SystemInfoSection.PrivateMemoryText, StringFormat='Private: {0}'}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}"/>
+                                    <TextBlock FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}"><Run Text="{wpf:Text SelfService.SysPrivate}"/><Run Text=" "/><Run Text="{Binding SystemInfoSection.PrivateMemoryText, Mode=OneWay}"/></TextBlock>
                                 </StackPanel>
                             </Border>
 
@@ -359,7 +359,7 @@
                                 <StackPanel>
                                     <TextBlock Text="{wpf:Text SelfService.SysMemoryRam}" FontSize="{wpf:FontSize 10.5}" FontWeight="Bold" Foreground="{Binding TextSecondaryBrush}"/>
                                     <TextBlock Text="{Binding SystemInfoSection.SystemMemoryText}" FontSize="{wpf:FontSize 14}" FontWeight="Bold" Margin="0,6,0,2"/>
-                                    <TextBlock Text="{Binding SystemInfoSection.MemoryLoadText, StringFormat='Memory Load: {0}'}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}"/>
+                                    <TextBlock FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}"><Run Text="{wpf:Text SelfService.SysMemoryLoad}"/><Run Text=" "/><Run Text="{Binding SystemInfoSection.MemoryLoadText, Mode=OneWay}"/></TextBlock>
                                 </StackPanel>
                             </Border>
                         </Grid>
@@ -1652,22 +1652,22 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="Integration &amp; Extension Debugger" 
+                                <TextBlock Text="{wpf:Text SelfService.DebugHeader}" 
                                            FontSize="{wpf:FontSize 18}" 
                                            FontWeight="SemiBold" 
                                            Foreground="{Binding TextPrimaryBrush}"/>
-                                <TextBlock Text="Configure and test local Native Messaging hosts &amp; greenshot:// URL protocol in HKCU" 
+                                <TextBlock Text="{wpf:Text SelfService.DebugHeaderSub}" 
                                            FontSize="{wpf:FontSize 12}" 
                                            Foreground="{Binding TextSecondaryBrush}" 
                                            Margin="0,3,0,0"/>
                             </StackPanel>
                             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                <Button AutomationProperties.Name="Extension Folder" Style="{StaticResource SecondaryButtonStyle}" 
+                                <Button AutomationProperties.Name="{wpf:Text SelfService.DebugExtensionFolder}" Style="{StaticResource SecondaryButtonStyle}" 
                                         Margin="0,0,8,0" 
                                         Click="OnOpenDebugExtensionFolderClicked">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="📁 "/>
-                                        <TextBlock Text="Extension Folder"/>
+                                        <TextBlock Text="{wpf:Text SelfService.DebugExtensionFolder}"/>
                                     </StackPanel>
                                 </Button>
                             </StackPanel>
@@ -1689,7 +1689,7 @@
                         <!-- Host & Proxy Status Overview Card -->
                         <Border Style="{StaticResource CardBorderStyle}" Padding="16" Margin="0,0,0,14">
                             <StackPanel>
-                                <TextBlock Text="Registry &amp; Binary Status (Current User / HKCU)" 
+                                <TextBlock Text="{wpf:Text SelfService.DebugStatusTitle}" 
                                            FontSize="{wpf:FontSize 13}" 
                                            FontWeight="SemiBold" 
                                            Foreground="{Binding TextPrimaryBrush}" 
@@ -1700,7 +1700,7 @@
                                         <ColumnDefinition Width="180"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Proxy Executable:" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
+                                    <TextBlock Grid.Column="0" Text="{wpf:Text SelfService.DebugProxy}" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
                                     <TextBlock Grid.Column="1" Text="{Binding IntegrationDebugSection.ProxyStatus}" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap"/>
                                 </Grid>
 
@@ -1709,7 +1709,7 @@
                                         <ColumnDefinition Width="180"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Chrome Host (HKCU):" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
+                                    <TextBlock Grid.Column="0" Text="{wpf:Text SelfService.DebugChrome}" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
                                     <TextBlock Grid.Column="1" Text="{Binding IntegrationDebugSection.ChromeStatus}" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap"/>
                                 </Grid>
 
@@ -1718,7 +1718,7 @@
                                         <ColumnDefinition Width="180"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Edge Host (HKCU):" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
+                                    <TextBlock Grid.Column="0" Text="{wpf:Text SelfService.DebugEdge}" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
                                     <TextBlock Grid.Column="1" Text="{Binding IntegrationDebugSection.EdgeStatus}" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap"/>
                                 </Grid>
 
@@ -1727,7 +1727,7 @@
                                         <ColumnDefinition Width="180"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Firefox Host (HKCU):" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
+                                    <TextBlock Grid.Column="0" Text="{wpf:Text SelfService.DebugFirefox}" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
                                     <TextBlock Grid.Column="1" Text="{Binding IntegrationDebugSection.FirefoxStatus}" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap"/>
                                 </Grid>
 
@@ -1736,7 +1736,7 @@
                                         <ColumnDefinition Width="180"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="URL Protocol (greenshot://):" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
+                                    <TextBlock Grid.Column="0" Text="{wpf:Text SelfService.DebugUrlProtocol}" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
                                     <TextBlock Grid.Column="1" Text="{Binding IntegrationDebugSection.UrlSchemeStatus}" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap"/>
                                 </Grid>
                             </StackPanel>
@@ -1745,12 +1745,12 @@
                         <!-- Extension ID Configuration Card -->
                         <Border Style="{StaticResource CardBorderStyle}" Padding="16" Margin="0,0,0,14">
                             <StackPanel>
-                                <TextBlock Text="Browser Extension ID (Unpacked Developer Mode)" 
+                                <TextBlock Text="{wpf:Text SelfService.DebugExtensionIdTitle}" 
                                            FontSize="{wpf:FontSize 13}" 
                                            FontWeight="SemiBold" 
                                            Foreground="{Binding TextPrimaryBrush}" 
                                            Margin="0,0,0,6"/>
-                                <TextBlock Text="Chromium browsers (Chrome, Edge, Brave) enforce allowed_origins with the exact extension ID generated when loading an unpacked extension. Paste your extension ID below to update org.greenshot.proxy.json." 
+                                <TextBlock Text="{wpf:Text SelfService.DebugExtensionIdDesc}" 
                                            FontSize="{wpf:FontSize 11.5}" 
                                            Foreground="{Binding TextSecondaryBrush}" 
                                            TextWrapping="Wrap" 
@@ -1769,7 +1769,7 @@
                                             Padding="8,6" 
                                             Margin="0,0,10,0">
                                         <TextBox Text="{Binding IntegrationDebugSection.ExtensionId, UpdateSourceTrigger=PropertyChanged}" 
-                                                 AutomationProperties.Name="Extension ID"
+                                                 AutomationProperties.Name="{wpf:Text SelfService.DebugExtensionId}"
                                                  Background="Transparent" 
                                                  BorderThickness="0" 
                                                  FontFamily="Consolas, monospace" 
@@ -1780,7 +1780,7 @@
                                     <Button Grid.Column="1" 
                                             Style="{StaticResource SecondaryButtonStyle}" 
                                             Click="OnSaveDebugExtensionIdClicked">
-                                        <TextBlock Text="Save ID to Manifest"/>
+                                        <TextBlock Text="{wpf:Text SelfService.DebugSaveId}"/>
                                     </Button>
                                 </Grid>
                             </StackPanel>
@@ -1789,42 +1789,42 @@
                         <!-- Actions Card -->
                         <Border Style="{StaticResource CardBorderStyle}" Padding="16">
                             <StackPanel>
-                                <TextBlock Text="Registry Actions" 
+                                <TextBlock Text="{wpf:Text SelfService.DebugActions}" 
                                            FontSize="{wpf:FontSize 13}" 
                                            FontWeight="SemiBold" 
                                            Foreground="{Binding TextPrimaryBrush}" 
                                            Margin="0,0,0,10"/>
                                 
                                 <WrapPanel Margin="0,0,0,10">
-                                    <Button AutomationProperties.Name="Register Debug Host &amp; Protocol (HKCU)" Style="{StaticResource PrimaryButtonStyle}" 
+                                    <Button AutomationProperties.Name="{wpf:Text SelfService.DebugRegister}" Style="{StaticResource PrimaryButtonStyle}" 
                                             Margin="0,0,10,6" 
                                             Click="OnRegisterDebugHkcuClicked">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="➕ "/>
-                                            <TextBlock Text="Register Debug Host &amp; Protocol (HKCU)"/>
+                                            <TextBlock Text="{wpf:Text SelfService.DebugRegister}"/>
                                         </StackPanel>
                                     </Button>
 
-                                    <Button AutomationProperties.Name="Unregister from HKCU" Style="{StaticResource SecondaryButtonStyle}" 
+                                    <Button AutomationProperties.Name="{wpf:Text SelfService.DebugUnregister}" Style="{StaticResource SecondaryButtonStyle}" 
                                             Margin="0,0,10,6" 
                                             Click="OnUnregisterDebugHkcuClicked">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="🗑️ "/>
-                                            <TextBlock Text="Unregister from HKCU"/>
+                                            <TextBlock Text="{wpf:Text SelfService.DebugUnregister}"/>
                                         </StackPanel>
                                     </Button>
 
-                                    <Button AutomationProperties.Name="Test greenshot:// URL Scheme" Style="{StaticResource SecondaryButtonStyle}" 
+                                    <Button AutomationProperties.Name="{wpf:Text SelfService.DebugTestUrl}" Style="{StaticResource SecondaryButtonStyle}" 
                                             Margin="0,0,0,6" 
                                             Click="OnTestDebugUrlSchemeClicked">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="🚀 "/>
-                                            <TextBlock Text="Test greenshot:// URL Scheme"/>
+                                            <TextBlock Text="{wpf:Text SelfService.DebugTestUrl}"/>
                                         </StackPanel>
                                     </Button>
                                 </WrapPanel>
 
-                                <TextBlock Text="Note: Registering in HKCU modifies only your user account (no admin privileges needed). Chrome, Edge, and Firefox will immediately detect this debug build's greenshot-proxy." 
+                                <TextBlock Text="{wpf:Text SelfService.DebugNote}" 
                                            FontSize="{wpf:FontSize 11}" 
                                            Foreground="{Binding TextSecondaryBrush}" 
                                            TextWrapping="Wrap"/>

@@ -509,12 +509,12 @@ namespace Greenshot.SelfService.ViewModels
             }
             catch (OperationCanceledException)
             {
-                StatusMessage = "Checksum validation canceled.";
+                StatusMessage = Texts.SelfService.ChecksumCanceled;
             }
             catch (Exception ex)
             {
                 Log.Error("Error during checksum validation", ex);
-                StatusMessage = $"Validation error: {ex.Message}";
+                StatusMessage = string.Format(Texts.SelfService.ChecksumValidationError, ex.Message);
             }
             finally
             {
@@ -669,7 +669,7 @@ namespace Greenshot.SelfService.ViewModels
                     {
                         Log.Error($"Failed to compute hash for file {fullPath}", ex);
                         item.Status = ChecksumStatus.Mismatch;
-                        item.ActualHash = $"Error: {ex.Message}";
+                        item.ActualHash = string.Format(Texts.SelfService.StatusError, ex.Message);
                         res.MismatchedCount++;
                     }
                 }
@@ -704,7 +704,7 @@ namespace Greenshot.SelfService.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    item.ActualHash = $"Error: {ex.Message}";
+                    item.ActualHash = string.Format(Texts.SelfService.StatusError, ex.Message);
                 }
 
                 res.UnlistedCount++;
@@ -1007,7 +1007,7 @@ namespace Greenshot.SelfService.ViewModels
             catch (Exception ex)
             {
                 Log.Error("Failed to copy integrity report to clipboard", ex);
-                StatusMessage = $"Copy failed: {ex.Message}";
+                StatusMessage = string.Format(Texts.SelfService.StatusCopyFailed, ex.Message);
             }
         }
 
@@ -1028,7 +1028,7 @@ namespace Greenshot.SelfService.ViewModels
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Copy failed: {ex.Message}";
+                StatusMessage = string.Format(Texts.SelfService.StatusCopyFailed, ex.Message);
             }
         }
 
@@ -1039,17 +1039,17 @@ namespace Greenshot.SelfService.ViewModels
                 if (File.Exists(ChecksumFilePath))
                 {
                     ExplorerHelper.OpenInExplorer(ChecksumFilePath);
-                    StatusMessage = $"Opened Explorer for: {ChecksumFilePath}";
+                    StatusMessage = string.Format(Texts.SelfService.ChecksumOpenedExplorer, ChecksumFilePath);
                 }
                 else if (Directory.Exists(BaseDirectory))
                 {
                     ExplorerHelper.OpenInExplorer(BaseDirectory);
-                    StatusMessage = $"Checksum file not found, opened containing folder: {BaseDirectory}";
+                    StatusMessage = string.Format(Texts.SelfService.ChecksumOpenedFolder, BaseDirectory);
                 }
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Failed to open file: {ex.Message}";
+                StatusMessage = string.Format(Texts.SelfService.ChecksumOpenFailed, ex.Message);
             }
         }
 

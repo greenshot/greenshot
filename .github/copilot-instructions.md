@@ -199,6 +199,7 @@ $env:Imgur13_ClientId = "your_id"
 - Editor features: `src/Greenshot.Editor/`
 - New plugins: Create new `Greenshot.Plugin.{Name}` project following existing plugin structure
 - Where code goes and how it is named (Views/ViewModels, `Forms` only for WinForms, Recipes, optional parts, frozen .greenshot types): see `docs/vNext/code-structure.md`
+- Accessibility is part of every UI change: follow `docs/vNext/accessibility.md` (keyboard, names, live regions, theme colors, `{wpf:FontSize N}`, no literal texts); `AccessibilityXamlTests` must stay green, never weaken it
 - UI changes: WPF in the `Views`/`ViewModels` folders of the feature, WinForms in `src/Greenshot/Forms/` or `src/Greenshot.Editor/Forms/`; styles, texts and settings: see `docs/vNext/ui-how-to.md`
 - Documentation: `docs/` describes the released 1.3, `docs/vNext/` what is new in 1.4 (`main`); document new features in `docs/vNext/`
 - New plugin language packs use INI format: `Languages/greenshot.{plugin}.{locale}.ini`
@@ -235,6 +236,7 @@ Before submitting changes:
 - [ ] Code follows style conventions (see .editorconfig and CONTRIBUTING.md)
 - [ ] No new TODO/HACK/FIXME without justification
 - [ ] Manually test affected UI or capture features as appropriate
+- [ ] UI changes meet `docs/vNext/accessibility.md` (keyboard only, Narrator, high contrast, text size 150 %)
 - [ ] Consider impact on CI workflow (`.github/workflows/release.yml`)
 
 ## Additional Resources

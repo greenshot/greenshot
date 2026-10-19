@@ -527,6 +527,61 @@ namespace Greenshot.Base.Languages
         string ObfuscateTextAdvanced { get; }
 
         /// <summary>
+        /// Effect:
+        /// </summary>
+        string ObfuscateTextEffect { get; }
+
+        /// <summary>
+        /// Pixel size:
+        /// </summary>
+        string ObfuscateTextPixelSize { get; }
+
+        /// <summary>
+        /// Blur radius:
+        /// </summary>
+        string ObfuscateTextBlurRadius { get; }
+
+        /// <summary>
+        /// Color:
+        /// </summary>
+        string ObfuscateTextColor { get; }
+
+        /// <summary>
+        /// Pick Color...
+        /// </summary>
+        string ObfuscateTextPickColor { get; }
+
+        /// <summary>
+        /// Magnification:
+        /// </summary>
+        string ObfuscateTextMagnification { get; }
+
+        /// <summary>
+        /// Horizontal padding:
+        /// </summary>
+        string ObfuscateTextHorizontalPadding { get; }
+
+        /// <summary>
+        /// Vertical padding:
+        /// </summary>
+        string ObfuscateTextVerticalPadding { get; }
+
+        /// <summary>
+        /// Horizontal offset:
+        /// </summary>
+        string ObfuscateTextHorizontalOffset { get; }
+
+        /// <summary>
+        /// Vertical offset:
+        /// </summary>
+        string ObfuscateTextVerticalOffset { get; }
+
+        /// <summary>
+        /// Invalid regex
+        /// </summary>
+        string ObfuscateTextInvalidRegex { get; }
+
+        /// <summary>
         /// Apply
         /// </summary>
         string ObfuscateTextApply { get; }

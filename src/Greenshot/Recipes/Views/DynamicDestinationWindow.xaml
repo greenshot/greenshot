@@ -129,7 +129,7 @@
                                     <!-- Hover zoom badge -->
                                     <Border Background="#99000000" CornerRadius="3" Padding="5,2" 
                                             HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,5">
-                                        <TextBlock Text="🔍 Zoom Preview" FontSize="{wpf:FontSize 10}" Foreground="White" FontWeight="Medium"/>
+                                        <TextBlock FontSize="{wpf:FontSize 10}" Foreground="White" FontWeight="Medium"><Run Text="🔍 "/><Run Text="{wpf:Text Recipe.PickerZoomPreview}"/></TextBlock>
                                     </Border>
                                 </Grid>
                             </Border>
@@ -220,7 +220,7 @@
                                     <TextBlock Grid.Column="0" Text="🔍" FontSize="{wpf:FontSize 10}" Margin="0,0,4,0" 
                                                VerticalAlignment="Center" Foreground="{Binding TextSecondaryBrush}"/>
                                     <TextBox Grid.Column="1" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                                             AutomationProperties.Name="Search destinations"
+                                             AutomationProperties.Name="{wpf:Text Recipe.PickerSearch}"
                                              Background="Transparent" BorderThickness="0"
                                              Foreground="{Binding Path=DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                              CaretBrush="{Binding Path=DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"

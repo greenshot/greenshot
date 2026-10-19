@@ -181,7 +181,7 @@ namespace Greenshot.SelfService.Views
         public SolidColorBrush AccentBrush => WpfThemeHelper.Accent;
         public SolidColorBrush BadgeBackgroundBrush => WpfThemeHelper.BadgeBackground;
         public string ThemeToggleIcon => WpfThemeHelper.IsDarkMode ? "☀️" : "🌙";
-        public string ThemeToggleToolTip => WpfThemeHelper.IsDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode";
+        public string ThemeToggleToolTip => WpfThemeHelper.IsDarkMode ? Texts.Core.AccessibleThemeLight : Texts.Core.AccessibleThemeDark;
 
         // The log viewer opened by greenshot://log links: a link reuses it, so a web page can't open window after window
         private static LogViewerWindow _linkInstance;
@@ -285,13 +285,13 @@ namespace Greenshot.SelfService.Views
                 CanLoadMore = false;
                 ChunkStatusText = string.Empty;
                 UpdateSearchInfo();
-                StatusMessage = $"Searched at {DateTime.Now:HH:mm:ss} | Last modified: {fi.LastWriteTime:yyyy-MM-dd HH:mm:ss}";
+                StatusMessage = string.Format(Texts.SelfService.LogviewerSearchedAt, DateTime.Now.ToString("HH:mm:ss"), fi.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss"));
                 LogTextBox?.ScrollToEnd();
             }
             catch (Exception ex)
             {
                 Log.Error("Error searching log file", ex);
-                StatusMessage = $"Error: {ex.Message}";
+                StatusMessage = string.Format(Texts.SelfService.StatusError, ex.Message);
             }
         }
 
@@ -372,8 +372,8 @@ namespace Greenshot.SelfService.Views
                     _actualStartOffset = 0;
                     CanLoadMore = false;
                     ChunkStatusText = string.Empty;
-                    LogInfoText = "Size: 0 KB | 0 lines";
-                    StatusMessage = $"Empty log file | Last modified: {fi.LastWriteTime:yyyy-MM-dd HH:mm:ss}";
+                    LogInfoText = Texts.SelfService.LogviewerInfoEmpty;
+                    StatusMessage = string.Format(Texts.SelfService.LogviewerStatusEmpty, fi.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss"));
                     return;
                 }
 
@@ -406,7 +406,7 @@ namespace Greenshot.SelfService.Views
                 // The entries collected until now are in the file
                 _liveAppender?.TakeEntries();
                 string text = Encoding.UTF8.GetString(buffer, startByte, bytesRead - startByte);
-                LogText = string.IsNullOrWhiteSpace(text) ? "(No log entries in chunk)" : text;
+                LogText = string.IsNullOrWhiteSpace(text) ? Texts.SelfService.LogviewerNoEntries : text;
 
                 UpdateLogDisplayMetrics(fi.LastWriteTime);
 
@@ -418,8 +418,8 @@ namespace Greenshot.SelfService.Views
                 Log.Error("Error reading log file", ex);
                 string errTemplate = Texts.SelfService.LogviewerStatusError;
                 LogText = string.Format(string.IsNullOrEmpty(errTemplate) ? "Error reading log file:\n{0}" : errTemplate, ex.Message);
-                LogInfoText = "Read error";
-                StatusMessage = $"Error: {ex.Message}";
+                LogInfoText = Texts.SelfService.LogviewerReadError;
+                StatusMessage = string.Format(Texts.SelfService.StatusError, ex.Message);
                 ChunkStatusText = string.Empty;
                 CanLoadMore = false;
             }
@@ -470,12 +470,12 @@ namespace Greenshot.SelfService.Views
                 }
 
                 UpdateLogDisplayMetrics(fi.LastWriteTime);
-                StatusMessage = $"Loaded earlier chunk at {DateTime.Now:HH:mm:ss}";
+                StatusMessage = string.Format(Texts.SelfService.LogviewerLoadedEarlier, DateTime.Now.ToString("HH:mm:ss"));
             }
             catch (Exception ex)
             {
                 Log.Error("Error loading earlier log chunk", ex);
-                StatusMessage = $"Error loading earlier chunk: {ex.Message}";
+                StatusMessage = string.Format(Texts.SelfService.LogviewerErrorEarlier, ex.Message);
             }
         }
 
@@ -505,12 +505,12 @@ namespace Greenshot.SelfService.Views
                 }
 
                 UpdateLogDisplayMetrics(fi.LastWriteTime);
-                StatusMessage = $"Complete log loaded at {DateTime.Now:HH:mm:ss}";
+                StatusMessage = string.Format(Texts.SelfService.LogviewerLoadedComplete, DateTime.Now.ToString("HH:mm:ss"));
             }
             catch (Exception ex)
             {
                 Log.Error("Error loading entire log", ex);
-                StatusMessage = $"Error loading entire log: {ex.Message}";
+                StatusMessage = string.Format(Texts.SelfService.LogviewerErrorComplete, ex.Message);
             }
         }
 
@@ -536,16 +536,16 @@ namespace Greenshot.SelfService.Views
 
             if (_actualStartOffset > 0)
             {
-                LogInfoText = $"Showing ~{lineCount:N0} lines ({loadedSizeText} of {totalSizeText})";
-                ChunkStatusText = $"Showing tail {loadedSizeText} of {totalSizeText} total. Earlier log lines available.";
+                LogInfoText = string.Format(Texts.SelfService.LogviewerInfoPartial, lineCount, loadedSizeText, totalSizeText);
+                ChunkStatusText = string.Format(Texts.SelfService.LogviewerChunkPartial, loadedSizeText, totalSizeText);
             }
             else
             {
-                LogInfoText = $"Complete log: ~{lineCount:N0} lines ({totalSizeText})";
-                ChunkStatusText = $"All {totalSizeText} loaded.";
+                LogInfoText = string.Format(Texts.SelfService.LogviewerInfoComplete, lineCount, totalSizeText);
+                ChunkStatusText = string.Format(Texts.SelfService.LogviewerChunkComplete, totalSizeText);
             }
 
-            StatusMessage = $"Loaded at {DateTime.Now:HH:mm:ss} | Last modified: {lastWriteTime:yyyy-MM-dd HH:mm:ss}";
+            StatusMessage = string.Format(Texts.SelfService.LogviewerLoadedAt, DateTime.Now.ToString("HH:mm:ss"), lastWriteTime.ToString("yyyy-MM-dd HH:mm:ss"));
         }
 
         private void OnLoadEarlierLinesClicked(object sender, RoutedEventArgs e)
@@ -576,7 +576,7 @@ namespace Greenshot.SelfService.Views
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Copy failed: {ex.Message}";
+                StatusMessage = string.Format(Texts.SelfService.StatusCopyFailed, ex.Message);
             }
         }
 

@@ -69,6 +69,66 @@ namespace Greenshot.Base.Languages
         string AboutTranslation { get; }
 
         /// <summary>
+        /// Portable
+        /// </summary>
+        string AboutPortable { get; }
+
+        /// <summary>
+        /// BETA
+        /// </summary>
+        string AboutBeta { get; }
+
+        /// <summary>
+        /// Released as free software under the GNU General Public License (GPLv3).
+        /// </summary>
+        string AboutReleasedGpl { get; }
+
+        /// <summary>
+        /// Greenshot - System Information
+        /// </summary>
+        string AboutSysinfoTitle { get; }
+
+        /// <summary>
+        /// Greenshot cannot find the log file, expected location: {0}
+        /// </summary>
+        string AboutLogNotFound { get; }
+
+        /// <summary>
+        /// Log File Not Found
+        /// </summary>
+        string AboutLogNotFoundTitle { get; }
+
+        /// <summary>
+        /// Could not open greenshot.log: {0}
+        /// </summary>
+        string AboutLogError { get; }
+
+        /// <summary>
+        /// Error Opening Log
+        /// </summary>
+        string AboutLogErrorTitle { get; }
+
+        /// <summary>
+        /// Greenshot cannot find greenshot.ini, expected location: {0}
+        /// </summary>
+        string AboutIniNotFound { get; }
+
+        /// <summary>
+        /// Settings File Not Found
+        /// </summary>
+        string AboutIniNotFoundTitle { get; }
+
+        /// <summary>
+        /// Could not open greenshot.ini: {0}
+        /// </summary>
+        string AboutIniError { get; }
+
+        /// <summary>
+        /// Error Opening Settings
+        /// </summary>
+        string AboutIniErrorTitle { get; }
+
+        /// <summary>
         /// Add
         /// </summary>
         string AccessibleAdd { get; }
@@ -178,6 +238,126 @@ namespace Greenshot.Base.Languages
         /// Error
         /// </summary>
         string BugreportTitle { get; }
+
+        /// <summary>
+        /// Greenshot - An Unexpected Error Occurred
+        /// </summary>
+        string BugreportWindowTitle { get; }
+
+        /// <summary>
+        /// Something went wrong
+        /// </summary>
+        string BugreportHeading { get; }
+
+        /// <summary>
+        /// Greenshot encountered an error, but don't worry, your work is safe. You can check if this issue has already been reported or file a new bug report with the details below.
+        /// </summary>
+        string BugreportIntro { get; }
+
+        /// <summary>
+        /// Installed Version:
+        /// </summary>
+        string BugreportInstalledVersion { get; }
+
+        /// <summary>
+        /// Latest Release:
+        /// </summary>
+        string BugreportLatestRelease { get; }
+
+        /// <summary>
+        /// Checking...
+        /// </summary>
+        string BugreportChecking { get; }
+
+        /// <summary>
+        /// Unavailable
+        /// </summary>
+        string BugreportUnavailable { get; }
+
+        /// <summary>
+        /// A newer version ({0}) is available online. Upgrading may already resolve this issue!
+        /// </summary>
+        string BugreportNewerVersion { get; }
+
+        /// <summary>
+        /// You are using the latest version ({0}).
+        /// </summary>
+        string BugreportLatestVersion { get; }
+
+        /// <summary>
+        /// Download Update
+        /// </summary>
+        string BugreportDownloadUpdate { get; }
+
+        /// <summary>
+        /// Issue Identifier (Stack Trace Hash)
+        /// </summary>
+        string BugreportIssueIdentifier { get; }
+
+        /// <summary>
+        /// No Stack
+        /// </summary>
+        string BugreportNoStack { get; }
+
+        /// <summary>
+        /// Search Existing Issues
+        /// </summary>
+        string BugreportSearchIssues { get; }
+
+        /// <summary>
+        /// Searching GitHub for this hash helps avoid filing duplicate issues and lets you quickly see if a fix or workaround is already available.
+        /// </summary>
+        string BugreportSearchHint { get; }
+
+        /// <summary>
+        /// Error Message:
+        /// </summary>
+        string BugreportErrorMessage { get; }
+
+        /// <summary>
+        /// An unexpected error occurred.
+        /// </summary>
+        string BugreportUnexpected { get; }
+
+        /// <summary>
+        /// Stack Trace:
+        /// </summary>
+        string BugreportStackTrace { get; }
+
+        /// <summary>
+        /// Copy Stack Trace
+        /// </summary>
+        string BugreportCopyStackTrace { get; }
+
+        /// <summary>
+        /// Copy Stack Trace to Clipboard
+        /// </summary>
+        string BugreportCopyStackTraceTooltip { get; }
+
+        /// <summary>
+        /// Show Details
+        /// </summary>
+        string BugreportShowDetails { get; }
+
+        /// <summary>
+        /// Hide Details
+        /// </summary>
+        string BugreportHideDetails { get; }
+
+        /// <summary>
+        /// Copied!
+        /// </summary>
+        string BugreportCopied { get; }
+
+        /// <summary>
+        /// Failed to copy
+        /// </summary>
+        string BugreportCopyFailed { get; }
+
+        /// <summary>
+        /// Report on GitHub
+        /// </summary>
+        string BugreportReportGithub { get; }
 
         /// <summary>
         /// Cancel
@@ -328,6 +508,11 @@ namespace Greenshot.Base.Languages
         /// Configure {0}
         /// </summary>
         string ContextmenuConfigurePlugin { get; }
+
+        /// <summary>
+        /// This plugin has no configurable options.
+        /// </summary>
+        string PluginsNoOptions { get; }
 
         /// <summary>
         /// Keys

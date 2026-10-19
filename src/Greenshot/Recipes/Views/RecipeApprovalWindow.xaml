@@ -5,7 +5,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Greenshot - Recipe Security Approval"
+        Title="{wpf:Text Recipe.ApprovalNewSubtitle}"
         SizeToContent="Height"
         Width="600"
         MinWidth="520"
@@ -100,9 +100,9 @@
                                               StrokeStartLineCap="Round" StrokeEndLineCap="Round"
                                               Data="M 5,5 L 11,11 M 11,5 L 5,11" />
                                     </Canvas>
-                                    <TextBlock Grid.Column="1" Text="Recipe Validation Failed" wpf:LiveRegion.Mode="Assertive" FontWeight="Bold" FontSize="{wpf:FontSize 13}" Foreground="{Binding ErrorTextBrush}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1" Text="{wpf:Text Recipe.ApprovalValidationFailed}" wpf:LiveRegion.Mode="Assertive" FontWeight="Bold" FontSize="{wpf:FontSize 13}" Foreground="{Binding ErrorTextBrush}" VerticalAlignment="Center"/>
                                 </Grid>
-                                <TextBlock Text="This recipe could not be registered or loaded due to configuration errors. Review the issues and diagnostic hints below:" 
+                                <TextBlock Text="{wpf:Text Recipe.ApprovalValidationInfo}" 
                                            Foreground="{Binding ErrorTextBrush}" TextWrapping="Wrap" Margin="0,0,0,10"/>
 
                                 <ItemsControl ItemsSource="{Binding ValidationErrors}">
@@ -135,7 +135,7 @@
                                                             </Grid.ColumnDefinitions>
                                                             <TextBlock Text="💡" Margin="0,1,6,0" FontSize="{wpf:FontSize 11}" VerticalAlignment="Top"/>
                                                             <StackPanel Grid.Column="1">
-                                                                <TextBlock Text="Recommendation / Hint:" FontWeight="Bold" FontSize="{wpf:FontSize 11}"
+                                                                <TextBlock Text="{wpf:Text Recipe.ApprovalHint}" FontWeight="Bold" FontSize="{wpf:FontSize 11}"
                                                                            Foreground="{Binding DataContext.AccentBrush, RelativeSource={RelativeSource AncestorType=Window}}" Margin="0,0,0,2"/>
                                                                 <TextBlock Text="{Binding DiagnosticHint}" FontSize="{wpf:FontSize 11}"
                                                                            Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
@@ -170,9 +170,9 @@
                                               Data="M 7.15,5.2 C 7.15,4.7 7.55,4.3 8.0,4.3 C 8.45,4.3 8.85,4.7 8.85,5.2 L 8.6,9.4 C 8.6,9.8 8.3,10.1 8.0,10.1 C 7.7,10.1 7.4,9.8 7.4,9.4 Z" />
                                         <Ellipse Fill="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.WarningForegroundBrush}" Width="1.8" Height="1.8" Canvas.Left="7.1" Canvas.Top="11.4" />
                                     </Canvas>
-                                    <TextBlock Grid.Column="1" Text="File Content Modified on Disk" FontWeight="Bold" FontSize="{wpf:FontSize 13}" Foreground="{Binding WarningTextBrush}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1" Text="{wpf:Text Recipe.ApprovalModifiedAlert}" FontWeight="Bold" FontSize="{wpf:FontSize 13}" Foreground="{Binding WarningTextBrush}" VerticalAlignment="Center"/>
                                 </Grid>
-                                <TextBlock Text="This recipe was previously approved, but its file content on disk has changed since it was last approved. Verify the changes below before re-authorizing execution:" 
+                                <TextBlock Text="{wpf:Text Recipe.ApprovalModifiedAlertText}" 
                                            Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
 
                                 <Grid Margin="0,2,0,2">
@@ -180,7 +180,7 @@
                                         <ColumnDefinition Width="140"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text="Previously Approved:" FontWeight="SemiBold" Foreground="{Binding WarningTextBrush}"/>
+                                    <TextBlock Text="{wpf:Text Recipe.ApprovalPreviouslyApproved}" FontWeight="SemiBold" Foreground="{Binding WarningTextBrush}"/>
                                     <TextBlock Grid.Column="1" Text="{Binding PreviousApprovalDate}" Foreground="{Binding WarningTextBrush}"/>
                                 </Grid>
                                 <Grid Margin="0,2,0,2">
@@ -188,7 +188,7 @@
                                         <ColumnDefinition Width="140"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text="Previous SHA-256:" FontWeight="SemiBold" Foreground="{Binding WarningTextBrush}"/>
+                                    <TextBlock Text="{wpf:Text Recipe.ApprovalPreviousSha}" FontWeight="SemiBold" Foreground="{Binding WarningTextBrush}"/>
                                     <TextBlock Grid.Column="1" Text="{Binding PreviousFileHash}" FontFamily="Consolas, Courier New" FontSize="{wpf:FontSize 11}" TextTrimming="CharacterEllipsis" ToolTip="{Binding PreviousFileHash}" Foreground="{Binding WarningTextBrush}"/>
                                 </Grid>
                                 <Grid Margin="0,2,0,0">
@@ -196,36 +196,36 @@
                                         <ColumnDefinition Width="140"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text="New SHA-256:" FontWeight="SemiBold" Foreground="{Binding WarningTextBrush}"/>
+                                    <TextBlock Text="{wpf:Text Recipe.ApprovalNewSha}" FontWeight="SemiBold" Foreground="{Binding WarningTextBrush}"/>
                                     <TextBlock Grid.Column="1" Text="{Binding FileHash}" FontFamily="Consolas, Courier New" FontSize="{wpf:FontSize 11}" TextTrimming="CharacterEllipsis" ToolTip="{Binding FileHash}" Foreground="{Binding WarningTextBrush}"/>
                                 </Grid>
 
                                 <!-- Quick Inspection Actions -->
                                 <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                                    <Button AutomationProperties.Name="Show in Explorer" Style="{StaticResource SecondaryButtonStyle}" 
+                                    <Button AutomationProperties.Name="{wpf:Text Recipe.ApprovalShowInExplorer}" Style="{StaticResource SecondaryButtonStyle}" 
                                             Padding="10,4" Margin="0,0,8,0"
                                             Click="OnOpenInExplorerClicked"
-                                            ToolTip="Open recipe file location in Windows Explorer">
+                                            ToolTip="{wpf:Text Recipe.ApprovalShowInExplorerTooltip}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="📁" Margin="0,0,6,0" FontSize="{wpf:FontSize 11}" VerticalAlignment="Center"/>
-                                            <TextBlock Text="Show in Explorer" FontSize="{wpf:FontSize 11}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{wpf:Text Recipe.ApprovalShowInExplorer}" FontSize="{wpf:FontSize 11}" FontWeight="SemiBold" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
-                                    <Button AutomationProperties.Name="View Recipe JSON" Style="{StaticResource SecondaryButtonStyle}" 
+                                    <Button AutomationProperties.Name="{wpf:Text Recipe.ApprovalViewRecipeJson}" Style="{StaticResource SecondaryButtonStyle}" 
                                             Padding="10,4"
                                             Click="OnViewFileClicked"
-                                            ToolTip="Inspect the raw recipe JSON definition inside this window">
+                                            ToolTip="{wpf:Text Recipe.ApprovalViewJsonTooltip}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="{}{ } " FontFamily="Consolas" Margin="0,0,4,0" FontSize="{wpf:FontSize 11}" VerticalAlignment="Center"/>
-                                            <TextBlock Text="View Recipe JSON" FontSize="{wpf:FontSize 11}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{wpf:Text Recipe.ApprovalViewRecipeJson}" FontSize="{wpf:FontSize 11}" FontWeight="SemiBold" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                     <Button Style="{StaticResource SecondaryButtonStyle}" 
                                             Padding="10,4" Margin="8,0,0,0"
                                             Click="OnViewChangesClicked"
                                             Visibility="{Binding DiffButtonVisibility}"
-                                            ToolTip="Show the lines that changed since the last approval">
-                                        <TextBlock Text="View Changes" FontSize="{wpf:FontSize 11}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                            ToolTip="{wpf:Text Recipe.ApprovalViewChangesTooltip}">
+                                        <TextBlock Text="{wpf:Text Recipe.ApprovalViewChanges}" FontSize="{wpf:FontSize 11}" FontWeight="SemiBold" VerticalAlignment="Center"/>
                                     </Button>
                                 </StackPanel>
                             </StackPanel>
@@ -238,22 +238,22 @@
                                 BorderThickness="1"
                                 Visibility="{Binding AiProposalVisibility}">
                             <StackPanel>
-                                <TextBlock Text="🤖 Written by an AI tool" FontWeight="Bold" FontSize="{wpf:FontSize 13}" Foreground="{Binding WarningTextBrush}" Margin="0,0,0,4"/>
+                                <TextBlock FontWeight="Bold" FontSize="{wpf:FontSize 13}" Foreground="{Binding WarningTextBrush}" Margin="0,0,0,4"><Run Text="🤖 "/><Run Text="{wpf:Text Recipe.ApprovalAiWritten}"/></TextBlock>
                                 <TextBlock Text="{Binding ProposedByText}" Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap"/>
                                 <TextBlock Text="{Binding ProposedBySignerText}" FontSize="{wpf:FontSize 11}" Foreground="{Binding WarningTextBrush}" Margin="0,0,0,8"/>
                                 <StackPanel Visibility="{Binding AiRequestVisibility}" Margin="0,0,0,6">
-                                    <TextBlock Text="What the AI tool says you asked for (the AI's words):" FontWeight="SemiBold" FontSize="{wpf:FontSize 11}" Foreground="{Binding WarningTextBrush}"/>
+                                    <TextBlock Text="{wpf:Text Recipe.ApprovalAiRequest}" FontWeight="SemiBold" FontSize="{wpf:FontSize 11}" Foreground="{Binding WarningTextBrush}"/>
                                     <Border CornerRadius="4" Padding="8,6" Margin="0,2,0,0" Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1">
                                         <TextBlock Text="{Binding AiRequest}" FontStyle="Italic" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap"/>
                                     </Border>
                                 </StackPanel>
                                 <StackPanel Visibility="{Binding AiExplanationVisibility}">
-                                    <TextBlock Text="The AI tool's explanation (the AI's words):" FontWeight="SemiBold" FontSize="{wpf:FontSize 11}" Foreground="{Binding WarningTextBrush}"/>
+                                    <TextBlock Text="{wpf:Text Recipe.ApprovalAiExplanation}" FontWeight="SemiBold" FontSize="{wpf:FontSize 11}" Foreground="{Binding WarningTextBrush}"/>
                                     <Border CornerRadius="4" Padding="8,6" Margin="0,2,0,0" Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1">
                                         <TextBlock Text="{Binding AiExplanation}" FontStyle="Italic" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap"/>
                                     </Border>
                                 </StackPanel>
-                                <TextBlock Text="Only &quot;What it does&quot; below comes from Greenshot itself, check it against what you asked for."
+                                <TextBlock Text="{wpf:Text Recipe.ApprovalAiCheck}"
                                            FontSize="{wpf:FontSize 11}" Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" Margin="0,8,0,0"/>
                             </StackPanel>
                         </Border>
@@ -278,8 +278,8 @@
                                         Padding="10,4" Margin="0,8,0,0"
                                         Click="OnViewChangesClicked"
                                         Visibility="{Binding DiffButtonVisibility}"
-                                        ToolTip="Show the changed lines of the recipe JSON">
-                                    <TextBlock Text="View changed lines" FontSize="{wpf:FontSize 11}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                        ToolTip="{wpf:Text Recipe.ApprovalViewChangedLinesTooltip}">
+                                    <TextBlock Text="{wpf:Text Recipe.ApprovalViewChangedLines}" FontSize="{wpf:FontSize 11}" FontWeight="SemiBold" VerticalAlignment="Center"/>
                                 </Button>
                             </StackPanel>
                         </Border>
@@ -308,7 +308,7 @@
                                         <ColumnDefinition Width="75"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text="Recipe ID:" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
+                                    <TextBlock Text="{wpf:Text Recipe.ApprovalRecipeId}" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
                                     <TextBlock Grid.Column="1" Text="{Binding RecipeId}" Foreground="{Binding TextPrimaryBrush}"/>
                                 </Grid>
 
@@ -318,25 +318,25 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text="File Path:" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{wpf:Text Recipe.ApprovalFilePath}" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center"/>
                                     <TextBlock Grid.Column="1" Text="{Binding FilePath}" TextTrimming="CharacterEllipsis" ToolTip="{Binding FilePath}" Foreground="{Binding TextPrimaryBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                                     <StackPanel Grid.Column="2" Orientation="Horizontal">
-                                        <Button AutomationProperties.Name="View JSON" Style="{StaticResource SecondaryButtonStyle}" 
+                                        <Button AutomationProperties.Name="{wpf:Text Recipe.ApprovalViewJson}" Style="{StaticResource SecondaryButtonStyle}" 
                                                 Padding="8,2" FontSize="{wpf:FontSize 11}" Margin="0,0,4,0"
                                                 Click="OnViewFileClicked"
-                                                ToolTip="Inspect the raw recipe JSON definition inside this window">
+                                                ToolTip="{wpf:Text Recipe.ApprovalViewJsonTooltip}">
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Text="{}{ } " FontFamily="Consolas" Margin="0,0,3,0" FontSize="{wpf:FontSize 10}" VerticalAlignment="Center"/>
-                                                <TextBlock Text="View JSON" FontSize="{wpf:FontSize 10}" VerticalAlignment="Center"/>
+                                                <TextBlock Text="{wpf:Text Recipe.ApprovalViewJson}" FontSize="{wpf:FontSize 10}" VerticalAlignment="Center"/>
                                             </StackPanel>
                                         </Button>
-                                        <Button AutomationProperties.Name="Explorer" Style="{StaticResource SecondaryButtonStyle}" 
+                                        <Button AutomationProperties.Name="{wpf:Text Recipe.ApprovalExplorer}" Style="{StaticResource SecondaryButtonStyle}" 
                                                 Padding="8,2" FontSize="{wpf:FontSize 11}"
                                                 Click="OnOpenInExplorerClicked"
-                                                ToolTip="Show this file in Windows Explorer">
+                                                ToolTip="{wpf:Text Recipe.ApprovalExplorerTooltip}">
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Text="📁" Margin="0,0,4,0" FontSize="{wpf:FontSize 10}" VerticalAlignment="Center"/>
-                                                <TextBlock Text="Explorer" FontSize="{wpf:FontSize 10}" VerticalAlignment="Center"/>
+                                                <TextBlock Text="{wpf:Text Recipe.ApprovalExplorer}" FontSize="{wpf:FontSize 10}" VerticalAlignment="Center"/>
                                             </StackPanel>
                                         </Button>
                                     </StackPanel>
@@ -362,8 +362,8 @@
                                 BorderThickness="1"
                                 Visibility="{Binding ExtensionReachVisibility}">
                             <StackPanel>
-                                <TextBlock Text="Changes other recipes" FontWeight="Bold" FontSize="{wpf:FontSize 13}" Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,2"/>
-                                <TextBlock Text="An automatic step adds its steps to other recipes, the built-in ones included. It has no triggers of its own."
+                                <TextBlock Text="{wpf:Text Recipe.ApprovalExtReachTitle}" FontWeight="Bold" FontSize="{wpf:FontSize 13}" Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,2"/>
+                                <TextBlock Text="{wpf:Text Recipe.ApprovalExtReachText}"
                                            FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
                                 <ItemsControl ItemsSource="{Binding ExtensionReachLines}">
                                     <ItemsControl.ItemTemplate>
@@ -383,7 +383,7 @@
                                 BorderThickness="1"
                                 Visibility="{Binding TriggersVisibility}">
                             <StackPanel>
-                                <TextBlock Text="What starts it" FontWeight="Bold" FontSize="{wpf:FontSize 13}" Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,4"/>
+                                <TextBlock Text="{wpf:Text Recipe.ApprovalWhatStartsIt}" FontWeight="Bold" FontSize="{wpf:FontSize 13}" Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,4"/>
                                 <StackPanel Visibility="{Binding TriggerItemsVisibility}">
                                     <TextBlock Text="{Binding TriggerHint}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TriggerHintBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
                                     <ItemsControl ItemsSource="{Binding TriggerItems}" IsEnabled="{Binding IsEditable}">
@@ -397,7 +397,7 @@
                                                     <TextBlock Text="{Binding Explanation}" FontSize="{wpf:FontSize 11}" TextWrapping="Wrap" Margin="20,2,0,0"
                                                                Visibility="{Binding ExplanationVisibility}"
                                                                Foreground="{Binding DataContext.WarningTextBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                                                    <TextBlock Text="Off: it won't start the recipe until you tick it." FontSize="{wpf:FontSize 11}" FontWeight="SemiBold" TextWrapping="Wrap" Margin="20,2,0,0"
+                                                    <TextBlock Text="{wpf:Text Recipe.ApprovalTriggerOff}" FontSize="{wpf:FontSize 11}" FontWeight="SemiBold" TextWrapping="Wrap" Margin="20,2,0,0"
                                                                Visibility="{Binding OffVisibility}"
                                                                Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
                                                 </StackPanel>
@@ -429,8 +429,8 @@
                                 BorderThickness="1"
                                 Visibility="{Binding PipelineVisibility}">
                             <StackPanel>
-                                <TextBlock Text="What it does" FontWeight="Bold" FontSize="{wpf:FontSize 13}" Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,2"/>
-                                <TextBlock Text="Described by Greenshot from the recipe itself." FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,8"/>
+                                <TextBlock Text="{wpf:Text Recipe.ApprovalWhatItDoes}" FontWeight="Bold" FontSize="{wpf:FontSize 13}" Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,2"/>
+                                <TextBlock Text="{wpf:Text Recipe.ApprovalDescribedBy}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,8"/>
                                 <ItemsControl ItemsSource="{Binding StepDescriptions}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
@@ -463,9 +463,9 @@
                                               Data="M 7.15,5.2 C 7.15,4.7 7.55,4.3 8.0,4.3 C 8.45,4.3 8.85,4.7 8.85,5.2 L 8.6,9.4 C 8.6,9.8 8.3,10.1 8.0,10.1 C 7.7,10.1 7.4,9.8 7.4,9.4 Z" />
                                         <Ellipse Fill="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.WarningForegroundBrush}" Width="1.8" Height="1.8" Canvas.Left="7.1" Canvas.Top="11.4" />
                                     </Canvas>
-                                    <TextBlock Text="This recipe needs your permission" FontWeight="Bold" FontSize="{wpf:FontSize 13}" Foreground="{Binding WarningTextBrush}" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{wpf:Text Recipe.ApprovalPermissionTitle}" FontWeight="Bold" FontSize="{wpf:FontSize 13}" Foreground="{Binding WarningTextBrush}" VerticalAlignment="Center"/>
                                 </StackPanel>
-                                <TextBlock Text="Allow each of these, or reject the recipe:" 
+                                <TextBlock Text="{wpf:Text Recipe.ApprovalPermissionText}" 
                                            Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" Margin="0,0,0,6"/>
 
                                 <ItemsControl ItemsSource="{Binding GateItems}" IsEnabled="{Binding IsEditable}">
@@ -498,7 +498,7 @@
                     </Grid.ColumnDefinitions>
 
                     <CheckBox x:Name="ChkOpenInEditor" Grid.Column="0" VerticalAlignment="Center"
-                              Content="Open in the recipe editor after saving"
+                              Content="{wpf:Text Recipe.ApprovalOpenInEditor}"
                               Foreground="{Binding TextSecondaryBrush}"
                               Visibility="{Binding OpenInEditorVisibility}"/>
 
@@ -511,12 +511,12 @@
                                 Visibility="{Binding DecisionVisibility}"
                                 Click="OnRejectClicked"/>
 
-                        <Button x:Name="BtnKeep" Content="Keep as Is"
+                        <Button x:Name="BtnKeep" Content="{wpf:Text Recipe.ApprovalBtnKeepAsIs}"
                                 Style="{StaticResource SecondaryButtonStyle}"
                                 IsCancel="True"
                                 MinWidth="110" Height="34" Margin="0,0,10,0" Padding="12,6"
                                 Visibility="{Binding KeepVisibility}"
-                                ToolTip="Close the review without changing anything"
+                                ToolTip="{wpf:Text Recipe.ApprovalKeepTooltip}"
                                 Click="OnCloseClicked"/>
 
                         <Button x:Name="BtnApprove" Content="{Binding ApproveButtonText}"
@@ -528,7 +528,7 @@
                                 Click="OnApproveClicked"/>
 
                         <!-- Details -->
-                        <Button Content="Close"
+                        <Button Content="{wpf:Text Core.AccessibleClose}"
                                 Style="{StaticResource PrimaryButtonStyle}"
                                 IsDefault="True" IsCancel="True"
                                 MinWidth="110" Height="34"
@@ -537,14 +537,14 @@
                                 Click="OnCloseClicked"/>
 
                         <!-- Validation Error Actions -->
-                        <Button Content="Edit Recipe File"
+                        <Button Content="{wpf:Text Recipe.ApprovalEditFile}"
                                 Style="{StaticResource SecondaryButtonStyle}"
                                 Width="130" Height="34" Margin="0,0,10,0"
                                 Visibility="{Binding ValidationErrorVisibility}"
                                 Click="OnEditFileClicked"
-                                ToolTip="Open recipe file in default editor to fix errors"/>
+                                ToolTip="{wpf:Text Recipe.ApprovalEditFileTooltip}"/>
 
-                        <Button Content="Close"
+                        <Button Content="{wpf:Text Core.AccessibleClose}"
                                 Style="{StaticResource PrimaryButtonStyle}"
                                 IsDefault="True" IsCancel="True"
                                 MinWidth="110" Height="34"
@@ -591,8 +591,8 @@
                                     Style="{StaticResource SecondaryButtonStyle}" 
                                     Padding="10,4" FontSize="{wpf:FontSize 11}"
                                     Click="OnCloseJsonViewerClicked"
-                                    ToolTip="Close JSON viewer (Esc)">
-                                <TextBlock Text="✕ Close" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                    ToolTip="{wpf:Text Recipe.ApprovalCloseViewerTooltip}">
+                                <TextBlock FontWeight="SemiBold" VerticalAlignment="Center"><Run Text="✕ "/><Run Text="{wpf:Text Core.AccessibleClose}"/></TextBlock>
                             </Button>
                         </Grid>
 
@@ -621,20 +621,20 @@
                             <TextBlock Text="{Binding FilePath}" TextTrimming="CharacterEllipsis" ToolTip="{Binding FilePath}" 
                                        FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                                <Button AutomationProperties.Name="Copy to Clipboard" Style="{StaticResource SecondaryButtonStyle}" 
+                                <Button AutomationProperties.Name="{wpf:Text Recipe.ApprovalCopyClipboard}" Style="{StaticResource SecondaryButtonStyle}" 
                                         Padding="12,5" Margin="0,0,8,0"
                                         Click="OnCopyJsonClicked"
-                                        ToolTip="Copy recipe JSON to clipboard">
+                                        ToolTip="{wpf:Text Recipe.ApprovalCopyJsonTooltip}">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="📋" Margin="0,0,6,0" FontSize="{wpf:FontSize 11}" VerticalAlignment="Center"/>
-                                        <TextBlock Text="Copy to Clipboard" FontSize="{wpf:FontSize 11}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{wpf:Text Recipe.ApprovalCopyClipboard}" FontSize="{wpf:FontSize 11}" FontWeight="SemiBold" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
                                 <Button Style="{StaticResource PrimaryButtonStyle}" 
                                         Padding="16,5"
                                         Click="OnCloseJsonViewerClicked"
-                                        ToolTip="Close JSON viewer">
-                                    <TextBlock Text="Done" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                        ToolTip="{wpf:Text Recipe.ApprovalCloseViewer}">
+                                    <TextBlock Text="{wpf:Text Recipe.ApprovalDone}" FontWeight="SemiBold" VerticalAlignment="Center"/>
                                 </Button>
                             </StackPanel>
                         </Grid>
