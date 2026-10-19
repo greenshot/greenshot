@@ -13,7 +13,8 @@
         ShowInTaskbar="True"
         FontFamily="Segoe UI, Segoe UI Variable Display, Tahoma, Arial"
         FontSize="{wpf:FontSize 13}"
-        Background="{Binding WindowBackgroundBrush}">
+        Background="{Binding WindowBackgroundBrush}"
+        FocusManager.FocusedElement="{Binding ElementName=NextButton}">
 
     <Window.Resources>
         <ResourceDictionary>
@@ -24,13 +25,9 @@
         <!-- Hyperlink Style -->
         <Style TargetType="Hyperlink">
             <Setter Property="Foreground" Value="{Binding AccentBrush}"/>
-            <Setter Property="TextDecorations" Value="None"/>
+            <!-- Always underlined: the color alone doesn't mark a link -->
+            <Setter Property="TextDecorations" Value="Underline"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="TextDecorations" Value="Underline"/>
-                </Trigger>
-            </Style.Triggers>
         </Style>
         <!-- A card of the window -->
         <Style x:Key="CardStyle" TargetType="Border">
@@ -200,10 +197,10 @@
                                 <TextBlock Grid.Column="0" Text="💡" FontSize="{wpf:FontSize 20}" VerticalAlignment="Top" Margin="0,0,12,0"/>
                                 <StackPanel Grid.Column="1">
                                     <TextBlock Text="{wpf:Text Welcome.TipTitle}" Style="{StaticResource CardTitleStyle}" Margin="0,0,0,4"/>
-                                    <TextBlock Text="{Binding CurrentTip}" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                                    <TextBlock Text="{Binding CurrentTip}" wpf:LiveRegion.Mode="Polite" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,0,0,6"/>
                                     <TextBlock>
                                         <Hyperlink Click="OnNextTipClicked">
-                                            <TextBlock Text="{wpf:Text Welcome.TipNext}"/>
+                                            <Run Text="{wpf:Text Welcome.TipNext}"/>
                                         </Hyperlink>
                                     </TextBlock>
                                 </StackPanel>
@@ -225,8 +222,10 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <!-- Where the user is: one dot per step -->
-                    <ItemsControl Grid.Column="0" ItemsSource="{Binding StepDots}" VerticalAlignment="Center">
+                    <!-- Where the user is: one dot per step, a screen reader says "Step 2 of 5" when the step changes -->
+                    <ItemsControl x:Name="StepIndicator" Grid.Column="0" ItemsSource="{Binding StepDots}" VerticalAlignment="Center"
+                                  AutomationProperties.Name="{Binding StepText}"
+                                  AutomationProperties.LiveSetting="Polite">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <StackPanel Orientation="Horizontal"/>
@@ -238,7 +237,8 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-                    <Button Grid.Column="1"
+                    <Button x:Name="BackButton"
+                            Grid.Column="1"
                             Content="{wpf:Text Welcome.ButtonBack}"
                             Style="{StaticResource SecondaryButtonStyle}"
                             Visibility="{Binding BackVisibility}"
@@ -246,7 +246,8 @@
                             Height="32"
                             Margin="0,0,8,0"
                             Click="OnBackClicked"/>
-                    <Button Grid.Column="2"
+                    <Button x:Name="NextButton"
+                            Grid.Column="2"
                             Content="{Binding NextText}"
                             Style="{StaticResource PrimaryButtonStyle}"
                             IsDefault="True"

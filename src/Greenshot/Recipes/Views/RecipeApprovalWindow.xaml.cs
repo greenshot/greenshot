@@ -54,6 +54,7 @@ namespace Greenshot.Recipes.Views
         private readonly string _content;
         private readonly string _diffText;
         private bool _isJsonViewerVisible;
+        private IInputElement _focusBeforeJsonViewer;
         private string _recipeJsonContent;
         private string _overlayTitle = "Recipe JSON Definition";
 
@@ -81,6 +82,17 @@ namespace Greenshot.Recipes.Views
                     _isJsonViewerVisible = value;
                     OnPropertyChanged(nameof(IsJsonViewerVisible));
                     OnPropertyChanged(nameof(JsonViewerVisibility));
+                    // The keyboard focus goes into the viewer and back to where it was, else it stays on the controls behind the overlay
+                    if (_isJsonViewerVisible)
+                    {
+                        _focusBeforeJsonViewer = System.Windows.Input.Keyboard.FocusedElement;
+                        JsonTextBox?.Focus();
+                    }
+                    else
+                    {
+                        _focusBeforeJsonViewer?.Focus();
+                        _focusBeforeJsonViewer = null;
+                    }
                 }
             }
         }

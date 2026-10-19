@@ -22,6 +22,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Media;
+using Greenshot.Base.Wpf;
 
 namespace Greenshot.SelfService.ViewModels
 {
@@ -64,9 +65,17 @@ namespace Greenshot.SelfService.ViewModels
                 {
                     _badgeBrush = value;
                     OnPropertyChanged();
+                    OnPropertyChanged(nameof(BadgeForeground));
                 }
             }
         }
+
+        /// <summary>
+        /// Black or white badge text, whichever is readable on the badge background (fixed white was invisible on light badges)
+        /// </summary>
+        public Brush BadgeForeground => _badgeBrush is SolidColorBrush solidBrush
+            ? new SolidColorBrush(ThemePalette.ReadableForeground(solidBrush.Color))
+            : ThemeManager.Instance.CurrentPalette.ForegroundBrush;
 
         public bool HasBadge => !string.IsNullOrEmpty(BadgeText);
 

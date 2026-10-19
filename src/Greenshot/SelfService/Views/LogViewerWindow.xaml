@@ -63,7 +63,7 @@
 
                 <!-- Left Controls: Refresh & Copy -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button Style="{StaticResource SecondaryButtonStyle}" 
+                    <Button AutomationProperties.Name="{wpf:Text SelfService.LogviewerRefresh}" Style="{StaticResource SecondaryButtonStyle}" 
                             Margin="0,0,8,0" 
                             Click="OnRefreshLogClicked">
                         <StackPanel Orientation="Horizontal">
@@ -71,7 +71,7 @@
                             <TextBlock Text="{wpf:Text SelfService.LogviewerRefresh}"/>
                         </StackPanel>
                     </Button>
-                    <Button Style="{StaticResource SecondaryButtonStyle}" 
+                    <Button AutomationProperties.Name="{wpf:Text SelfService.LogviewerCopy}" Style="{StaticResource SecondaryButtonStyle}" 
                             Margin="0,0,12,0" 
                             Click="OnCopyLogClicked">
                         <StackPanel Orientation="Horizontal">
@@ -88,12 +88,14 @@
 
                 <!-- Search: only the log entries with this text, from the whole log file -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,16,0">
-                    <TextBlock Text="{wpf:Text SelfService.LogviewerSearch}"
+                    <TextBlock x:Name="SearchLabel"
+                               Text="{wpf:Text SelfService.LogviewerSearch}"
                                FontSize="{wpf:FontSize 12}"
                                Foreground="{Binding TextPrimaryBrush}"
                                VerticalAlignment="Center"
                                Margin="0,0,6,0"/>
                     <TextBox x:Name="SearchTextBox"
+                             AutomationProperties.LabeledBy="{Binding ElementName=SearchLabel}"
                              Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                              ToolTip="{wpf:Text SelfService.LogviewerTooltipSearch}"
                              Width="200"
@@ -103,12 +105,14 @@
 
                 <!-- Log level: changed only here, never by a greenshot://log link -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="{wpf:Text SelfService.LogviewerLevel}"
+                    <TextBlock x:Name="LevelLabel"
+                               Text="{wpf:Text SelfService.LogviewerLevel}"
                                FontSize="{wpf:FontSize 12}"
                                Foreground="{Binding TextPrimaryBrush}"
                                VerticalAlignment="Center"
                                Margin="0,0,6,0"/>
                     <ComboBox ItemsSource="{Binding LogLevels}"
+                              AutomationProperties.LabeledBy="{Binding ElementName=LevelLabel}"
                               SelectedItem="{Binding SelectedLogLevel, Mode=TwoWay}"
                               ToolTip="{wpf:Text SelfService.LogviewerTooltipLevel}"
                               Width="90"
@@ -140,7 +144,7 @@
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button Style="{StaticResource SecondaryButtonStyle}" 
+                    <Button AutomationProperties.Name="{wpf:Text SelfService.LogviewerLoadEarlier}" Style="{StaticResource SecondaryButtonStyle}" 
                             Margin="0,0,8,0" 
                             Click="OnLoadEarlierLinesClicked"
                             ToolTip="{wpf:Text SelfService.LogviewerTooltipLoadEarlier}">
@@ -149,7 +153,7 @@
                             <TextBlock Text="{wpf:Text SelfService.LogviewerLoadEarlier}"/>
                         </StackPanel>
                     </Button>
-                    <Button Style="{StaticResource SecondaryButtonStyle}" 
+                    <Button AutomationProperties.Name="{wpf:Text SelfService.LogviewerLoadEntire}" Style="{StaticResource SecondaryButtonStyle}" 
                             Click="OnLoadEntireLogClicked"
                             ToolTip="{wpf:Text SelfService.LogviewerTooltipLoadEntire}">
                         <StackPanel Orientation="Horizontal">
@@ -166,6 +170,7 @@
                 Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}" 
                 Padding="4">
             <TextBox x:Name="LogTextBox" 
+                     AutomationProperties.Name="{wpf:Text SelfService.LogviewerTitle}"
                      Text="{Binding LogText, Mode=OneWay}"
                      IsReadOnly="True"
                      TextWrapping="{Binding TextWrappingMode}"
@@ -192,6 +197,7 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock x:Name="StatusMessageText" 
+                           AutomationProperties.LiveSetting="Polite"
                            Grid.Column="0"
                            Text="{Binding StatusMessage}" 
                            FontSize="{wpf:FontSize 11}" 

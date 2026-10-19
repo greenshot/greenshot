@@ -59,5 +59,10 @@ namespace Greenshot.Settings.ViewModels
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        /// The text a screen reader reads for the row of the destination list
+        /// </summary>
+        public override string ToString() => Description ?? base.ToString();
     }
 }

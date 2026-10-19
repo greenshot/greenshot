@@ -8,6 +8,8 @@
              xmlns:core="clr-namespace:Greenshot.Base.Core"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="520"
+             KeyboardNavigation.TabNavigation="Cycle"
+             KeyboardNavigation.ControlTabNavigation="Cycle"
              PreviewKeyDown="HotkeyEditorModal_PreviewKeyDown"
              PreviewKeyUp="HotkeyEditorModal_PreviewKeyUp">
     <UserControl.Resources>
@@ -103,6 +105,7 @@
                             <CheckBox Content="Ctrl" IsChecked="{Binding Ctrl, Mode=TwoWay}" VerticalAlignment="Center" Margin="0,0,6,0" MinWidth="56"/>
                             <ComboBox ItemsSource="{Binding AvailableLocations}"
                                       SelectedItem="{Binding CtrlLocation, Mode=TwoWay}"
+                                      AutomationProperties.Name="Ctrl key, left or right"
                                       IsEnabled="{Binding Ctrl}"/>
                         </StackPanel>
 
@@ -111,6 +114,7 @@
                             <CheckBox Content="Alt" IsChecked="{Binding Alt, Mode=TwoWay}" VerticalAlignment="Center" Margin="0,0,6,0" MinWidth="56"/>
                             <ComboBox ItemsSource="{Binding AvailableLocations}"
                                       SelectedItem="{Binding AltLocation, Mode=TwoWay}"
+                                      AutomationProperties.Name="Alt key, left or right"
                                       IsEnabled="{Binding Alt}"/>
                         </StackPanel>
 
@@ -119,6 +123,7 @@
                             <CheckBox Content="Shift" IsChecked="{Binding Shift, Mode=TwoWay}" VerticalAlignment="Center" Margin="0,0,6,0" MinWidth="56"/>
                             <ComboBox ItemsSource="{Binding AvailableLocations}"
                                       SelectedItem="{Binding ShiftLocation, Mode=TwoWay}"
+                                      AutomationProperties.Name="Shift key, left or right"
                                       IsEnabled="{Binding Shift}"/>
                         </StackPanel>
 
@@ -127,6 +132,7 @@
                             <CheckBox Content="Win" IsChecked="{Binding Win, Mode=TwoWay}" VerticalAlignment="Center" Margin="0,0,6,0" MinWidth="56"/>
                             <ComboBox ItemsSource="{Binding AvailableLocations}"
                                       SelectedItem="{Binding WinLocation, Mode=TwoWay}"
+                                      AutomationProperties.Name="Win key, left or right"
                                       IsEnabled="{Binding Win}"/>
                         </StackPanel>
                     </Grid>
@@ -151,16 +157,26 @@
                                     </ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Border Margin="0,0,6,0"
-                                                    CornerRadius="4"
-                                                    BorderThickness="1.5"
+                                            <!-- A button, so a step can be selected with the keyboard too; the name says which one is selected -->
+                                            <Button Margin="0,0,6,0"
                                                     Background="{Binding BackgroundBrush}"
                                                     BorderBrush="{Binding BorderBrush}"
                                                     Padding="8,4"
-                                                    Cursor="Hand">
-                                                <Border.InputBindings>
-                                                    <MouseBinding MouseAction="LeftClick" Command="{Binding SelectCommand}"/>
-                                                </Border.InputBindings>
+                                                    Cursor="Hand"
+                                                    Command="{Binding SelectCommand}"
+                                                    AutomationProperties.Name="{Binding AccessibleName}"
+                                                    FocusVisualStyle="{StaticResource GreenshotFocusVisual}">
+                                                <Button.Template>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border CornerRadius="4"
+                                                                BorderThickness="1.5"
+                                                                Background="{TemplateBinding Background}"
+                                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                                Padding="{TemplateBinding Padding}">
+                                                            <ContentPresenter VerticalAlignment="Center"/>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Button.Template>
                                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                                     <TextBlock Text="{Binding StepHeader}" FontWeight="SemiBold" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextBrush}" VerticalAlignment="Center"/>
                                                     <TextBlock Text="{Binding StepText}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextBrush}" Margin="5,0,0,0" VerticalAlignment="Center"/>
@@ -173,9 +189,12 @@
                                                             Cursor="Hand"
                                                             Background="Transparent"
                                                             BorderThickness="0"
-                                                            Foreground="{Binding MutedBrush}"/>
+                                                            Foreground="{Binding MutedBrush}"
+                                                            AutomationProperties.Name="Remove step"
+                                                            ToolTip="Remove step"
+                                                            FocusVisualStyle="{StaticResource GreenshotFocusVisual}"/>
                                                 </StackPanel>
-                                            </Border>
+                                            </Button>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
@@ -192,30 +211,31 @@
                                     VerticalAlignment="Center"/>
                         </Grid>
 
-                        <Border x:Name="KeyCaptureBorder"
+                        <!-- Takes the pressed keys (the handlers of the UserControl), for a screen reader a read-only field with the hotkey as value -->
+                        <views:HotkeyCaptureBox x:Name="KeyCaptureBorder"
                                 Focusable="True"
                                 Cursor="Hand"
                                 CornerRadius="5"
                                 BorderThickness="2"
-                                BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
-                                Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBackgroundBrush}"
                                 MinHeight="54"
                                 Padding="12,8"
+                                AutomationProperties.Name="Hotkey"
+                                AutomationProperties.HelpText="Press the keys of the hotkey. Tab moves on, Esc cancels."
                                 MouseLeftButtonDown="KeyCaptureBorder_MouseLeftButtonDown"
-                                PreviewKeyDown="KeyCaptureBorder_PreviewKeyDown"
-                                PreviewKeyUp="KeyCaptureBorder_PreviewKeyUp"
                                 GotFocus="KeyCaptureBorder_GotFocus"
                                 LostFocus="KeyCaptureBorder_LostFocus">
-                            <Border.Style>
-                                <Style TargetType="Border">
+                            <views:HotkeyCaptureBox.Style>
+                                <!-- The colors in the style, local values would win over the focus trigger -->
+                                <Style TargetType="views:HotkeyCaptureBox">
+                                    <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+                                    <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBackgroundBrush}"/>
                                     <Style.Triggers>
-                                        <Trigger Property="IsFocused" Value="True">
-                                            <Setter Property="BorderBrush" Value="#0078D7"/>
-                                            <Setter Property="Background" Value="#150078D7"/>
+                                        <Trigger Property="IsKeyboardFocused" Value="True">
+                                            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"/>
                                         </Trigger>
                                     </Style.Triggers>
                                 </Style>
-                            </Border.Style>
+                            </views:HotkeyCaptureBox.Style>
                             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding TriggerKeyDisplay}"
                                            FontSize="{wpf:FontSize 14}"
@@ -230,7 +250,7 @@
                                            HorizontalAlignment="Center"
                                            Margin="0,3,0,0"/>
                             </StackPanel>
-                        </Border>
+                        </views:HotkeyCaptureBox>
 
                         <!-- Multi-chord options -->
                         <Grid Margin="0,8,0,0">
@@ -265,14 +285,15 @@
                         Margin="0,0,0,16"
                         Padding="8,6"
                         CornerRadius="4"
-                        Background="#33D83B01"
-                        BorderBrush="#80D83B01"
+                        Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.ErrorBackground}"
+                        BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.ErrorBorder}"
                         BorderThickness="1"
                         Visibility="{Binding HasValidationError, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <TextBlock Text="{Binding ValidationError}"
                                FontSize="{wpf:FontSize 11}"
-                               Foreground="#FFD83B01"
-                               TextWrapping="Wrap"/>
+                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.ErrorBrush}"
+                               TextWrapping="Wrap"
+                               wpf:LiveRegion.Mode="Assertive"/>
                 </Border>
 
                 <!-- Action Buttons -->

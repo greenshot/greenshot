@@ -35,6 +35,9 @@ namespace Greenshot.Views
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(LanguageWindow));
 
+        // The language selected when the window opened, cancel goes back to it
+        private string _initialLanguage;
+
         public string SelectedLanguage => LanguageComboBox.SelectedValue?.ToString() ?? Texts.Config.CurrentLanguage;
 
         public LanguageWindow()
@@ -71,6 +74,7 @@ namespace Greenshot.Views
             {
                 LanguageComboBox.SelectedIndex = 0;
             }
+            _initialLanguage = LanguageComboBox.SelectedValue?.ToString();
 
             // Close again when there is only one language
             if (languages.Count == 1)
@@ -100,6 +104,13 @@ namespace Greenshot.Views
             Texts.SetLanguage(SelectedLanguage);
             DialogResult = true;
             Close();
+        }
+
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            // The caller uses SelectedLanguage in any case
+            LanguageComboBox.SelectedValue = _initialLanguage;
+            DialogResult = false;
         }
     }
 }

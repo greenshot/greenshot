@@ -1,8 +1,16 @@
 ﻿<Page x:Class="Greenshot.Plugin.Confluence.Views.ConfluencePagePickerPage"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
 	Loaded="Page_Loaded">
-	<ListView Name="PageListView" SelectionMode="Single" ItemsSource="{Binding}" SelectionChanged="PageListView_SelectionChanged" Width="480" Height="500">
+	<ListView Name="PageListView" SelectionMode="Single" ItemsSource="{Binding}" SelectionChanged="PageListView_SelectionChanged" Width="480" Height="500"
+	          AutomationProperties.Name="{wpf:Text Confluence.OpenPages}">
+        <!-- The page title for a screen reader, the item has no ToString -->
+        <ListView.ItemContainerStyle>
+            <Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">
+                <Setter Property="AutomationProperties.Name" Value="{Binding Title}"/>
+            </Style>
+        </ListView.ItemContainerStyle>
         <ListView.ItemTemplate>
             <DataTemplate>
                 <Label Content="{Binding Title}"/>

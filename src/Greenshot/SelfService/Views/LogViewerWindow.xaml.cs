@@ -60,6 +60,8 @@ namespace Greenshot.SelfService.Views
         // While the window is open: the entries Greenshot logs, added to the view without reading the file again
         private LogViewerAppender _liveAppender;
         private DispatcherTimer _liveTimer;
+        // The live updates change the status several times a second, a screen reader only says the status of the user's actions
+        private bool _isLiveUpdate;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -85,7 +87,15 @@ namespace Greenshot.SelfService.Views
         public string StatusMessage
         {
             get => _statusMessage;
-            set { _statusMessage = value; OnPropertyChanged(); }
+            set
+            {
+                _statusMessage = value;
+                OnPropertyChanged();
+                if (!_isLiveUpdate)
+                {
+                    LiveRegion.Announce(StatusMessageText);
+                }
+            }
         }
 
         public string ChunkStatusText
@@ -307,7 +317,15 @@ namespace Greenshot.SelfService.Views
             {
                 LogText += added;
                 _totalFileLength += Encoding.UTF8.GetByteCount(added);
-                UpdateLogDisplayMetrics(DateTime.Now);
+                _isLiveUpdate = true;
+                try
+                {
+                    UpdateLogDisplayMetrics(DateTime.Now);
+                }
+                finally
+                {
+                    _isLiveUpdate = false;
+                }
             }
             else
             {

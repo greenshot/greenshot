@@ -6,8 +6,15 @@
              xmlns:wpf="clr-namespace:Greenshot.Base.Wpf"
              mc:Ignorable="d" 
              d:DesignHeight="32" d:DesignWidth="300">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/FocusStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
     <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
-        <!-- Badges container -->
+        <!-- Badges container, its AutomationProperties.Name is the hotkey as text (set in UpdateBadges) -->
         <ItemsControl x:Name="BadgesPanel" VerticalAlignment="Center" Margin="0,0,8,0">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -22,8 +29,8 @@
                 Padding="8,3"
                 MinHeight="26"
                 Cursor="Hand"
-                ToolTip="Change Hotkey"
-                Content="Edit"
+                ToolTip="{wpf:Text Settings.HotkeyChange}"
+                Content="{wpf:Text Settings.HotkeyEdit}"
                 FontSize="{wpf:FontSize 11}"
                 FontWeight="SemiBold"
                 VerticalAlignment="Center">
@@ -33,6 +40,7 @@
                     <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                     <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
                     <Setter Property="BorderThickness" Value="1"/>
+                    <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="Button">

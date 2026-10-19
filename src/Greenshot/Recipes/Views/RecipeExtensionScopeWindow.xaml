@@ -69,13 +69,15 @@
                     <DockPanel>
                         <DockPanel DockPanel.Dock="Top" Margin="0,0,0,4">
                             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                                <Button Style="{StaticResource LinkTextButtonStyle}" Content="{wpf:Text Settings.RecipesScopeAll}" Click="CapturesAll_Click"/>
-                                <Button Style="{StaticResource LinkTextButtonStyle}" Content="{wpf:Text Settings.RecipesScopeNone}" Click="CapturesNone_Click"/>
+                                <Button Style="{StaticResource LinkTextButtonStyle}" Content="{wpf:Text Settings.RecipesScopeAll}" Click="CapturesAll_Click"
+                                        AutomationProperties.HelpText="{wpf:Text Settings.RecipesScopeCaptures}"/>
+                                <Button Style="{StaticResource LinkTextButtonStyle}" Content="{wpf:Text Settings.RecipesScopeNone}" Click="CapturesNone_Click"
+                                        AutomationProperties.HelpText="{wpf:Text Settings.RecipesScopeCaptures}"/>
                             </StackPanel>
                             <TextBlock Text="{wpf:Text Settings.RecipesScopeCaptures}" FontWeight="SemiBold" VerticalAlignment="Center"/>
                         </DockPanel>
                         <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="400">
-                            <ItemsControl x:Name="CapturesList" ItemTemplate="{StaticResource ScopeItemTemplate}"/>
+                            <ItemsControl x:Name="CapturesList" AutomationProperties.Name="{wpf:Text Settings.RecipesScopeCaptures}" ItemTemplate="{StaticResource ScopeItemTemplate}"/>
                         </ScrollViewer>
                     </DockPanel>
                 </Border>
@@ -83,13 +85,15 @@
                     <DockPanel>
                         <DockPanel DockPanel.Dock="Top" Margin="0,0,0,4">
                             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                                <Button Style="{StaticResource LinkTextButtonStyle}" Content="{wpf:Text Settings.RecipesScopeAll}" Click="DestinationsAll_Click"/>
-                                <Button Style="{StaticResource LinkTextButtonStyle}" Content="{wpf:Text Settings.RecipesScopeNone}" Click="DestinationsNone_Click"/>
+                                <Button Style="{StaticResource LinkTextButtonStyle}" Content="{wpf:Text Settings.RecipesScopeAll}" Click="DestinationsAll_Click"
+                                        AutomationProperties.HelpText="{wpf:Text Settings.RecipesScopeDestinations}"/>
+                                <Button Style="{StaticResource LinkTextButtonStyle}" Content="{wpf:Text Settings.RecipesScopeNone}" Click="DestinationsNone_Click"
+                                        AutomationProperties.HelpText="{wpf:Text Settings.RecipesScopeDestinations}"/>
                             </StackPanel>
                             <TextBlock Text="{wpf:Text Settings.RecipesScopeDestinations}" FontWeight="SemiBold" VerticalAlignment="Center"/>
                         </DockPanel>
                         <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="400">
-                            <ItemsControl x:Name="DestinationsList" ItemTemplate="{StaticResource ScopeItemTemplate}"/>
+                            <ItemsControl x:Name="DestinationsList" AutomationProperties.Name="{wpf:Text Settings.RecipesScopeDestinations}" ItemTemplate="{StaticResource ScopeItemTemplate}"/>
                         </ScrollViewer>
                     </DockPanel>
                 </Border>
@@ -100,7 +104,7 @@
                     BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
                     BorderThickness="0,1,0,0" Padding="16,10">
                 <DockPanel>
-                    <TextBlock x:Name="NoDestinationText" Text="{wpf:Text Settings.RecipesScopeNodestination}" VerticalAlignment="Center"
+                    <TextBlock x:Name="NoDestinationText" wpf:LiveRegion.Mode="Polite" Text="{wpf:Text Settings.RecipesScopeNodestination}" VerticalAlignment="Center"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}" Visibility="Collapsed"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <Button x:Name="OkButton" 

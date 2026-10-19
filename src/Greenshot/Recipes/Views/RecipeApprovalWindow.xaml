@@ -95,12 +95,12 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Canvas Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Center">
-                                        <Ellipse Fill="#DC2626" Width="16" Height="16" />
-                                        <Path Stroke="White" StrokeThickness="1.8"
+                                        <Ellipse Fill="{Binding ErrorTextBrush}" Width="16" Height="16" />
+                                        <Path Stroke="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}" StrokeThickness="1.8"
                                               StrokeStartLineCap="Round" StrokeEndLineCap="Round"
                                               Data="M 5,5 L 11,11 M 11,5 L 5,11" />
                                     </Canvas>
-                                    <TextBlock Grid.Column="1" Text="Recipe Validation Failed" FontWeight="Bold" FontSize="{wpf:FontSize 13}" Foreground="{Binding ErrorTextBrush}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1" Text="Recipe Validation Failed" wpf:LiveRegion.Mode="Assertive" FontWeight="Bold" FontSize="{wpf:FontSize 13}" Foreground="{Binding ErrorTextBrush}" VerticalAlignment="Center"/>
                                 </Grid>
                                 <TextBlock Text="This recipe could not be registered or loaded due to configuration errors. Review the issues and diagnostic hints below:" 
                                            Foreground="{Binding ErrorTextBrush}" TextWrapping="Wrap" Margin="0,0,0,10"/>
@@ -164,11 +164,11 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Canvas Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Center">
-                                        <Path Fill="#F59E0B"
+                                        <Path Fill="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.WarningBrush}"
                                               Data="M 8.87,1.82 C 8.48,1.15 7.52,1.15 7.13,1.82 L 0.22,13.82 C -0.17,14.5 0.31,15.35 1.09,15.35 H 14.91 C 15.69,15.35 16.17,14.5 15.78,13.82 Z" />
-                                        <Path Fill="#18181B"
+                                        <Path Fill="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.WarningForegroundBrush}"
                                               Data="M 7.15,5.2 C 7.15,4.7 7.55,4.3 8.0,4.3 C 8.45,4.3 8.85,4.7 8.85,5.2 L 8.6,9.4 C 8.6,9.8 8.3,10.1 8.0,10.1 C 7.7,10.1 7.4,9.8 7.4,9.4 Z" />
-                                        <Ellipse Fill="#18181B" Width="1.8" Height="1.8" Canvas.Left="7.1" Canvas.Top="11.4" />
+                                        <Ellipse Fill="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.WarningForegroundBrush}" Width="1.8" Height="1.8" Canvas.Left="7.1" Canvas.Top="11.4" />
                                     </Canvas>
                                     <TextBlock Grid.Column="1" Text="File Content Modified on Disk" FontWeight="Bold" FontSize="{wpf:FontSize 13}" Foreground="{Binding WarningTextBrush}" VerticalAlignment="Center"/>
                                 </Grid>
@@ -202,7 +202,7 @@
 
                                 <!-- Quick Inspection Actions -->
                                 <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                                    <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                    <Button AutomationProperties.Name="Show in Explorer" Style="{StaticResource SecondaryButtonStyle}" 
                                             Padding="10,4" Margin="0,0,8,0"
                                             Click="OnOpenInExplorerClicked"
                                             ToolTip="Open recipe file location in Windows Explorer">
@@ -211,7 +211,7 @@
                                             <TextBlock Text="Show in Explorer" FontSize="{wpf:FontSize 11}" FontWeight="SemiBold" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
-                                    <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                    <Button AutomationProperties.Name="View Recipe JSON" Style="{StaticResource SecondaryButtonStyle}" 
                                             Padding="10,4"
                                             Click="OnViewFileClicked"
                                             ToolTip="Inspect the raw recipe JSON definition inside this window">
@@ -321,7 +321,7 @@
                                     <TextBlock Text="File Path:" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center"/>
                                     <TextBlock Grid.Column="1" Text="{Binding FilePath}" TextTrimming="CharacterEllipsis" ToolTip="{Binding FilePath}" Foreground="{Binding TextPrimaryBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                                     <StackPanel Grid.Column="2" Orientation="Horizontal">
-                                        <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                        <Button AutomationProperties.Name="View JSON" Style="{StaticResource SecondaryButtonStyle}" 
                                                 Padding="8,2" FontSize="{wpf:FontSize 11}" Margin="0,0,4,0"
                                                 Click="OnViewFileClicked"
                                                 ToolTip="Inspect the raw recipe JSON definition inside this window">
@@ -330,7 +330,7 @@
                                                 <TextBlock Text="View JSON" FontSize="{wpf:FontSize 10}" VerticalAlignment="Center"/>
                                             </StackPanel>
                                         </Button>
-                                        <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                        <Button AutomationProperties.Name="Explorer" Style="{StaticResource SecondaryButtonStyle}" 
                                                 Padding="8,2" FontSize="{wpf:FontSize 11}"
                                                 Click="OnOpenInExplorerClicked"
                                                 ToolTip="Show this file in Windows Explorer">
@@ -457,11 +457,11 @@
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                                     <Canvas Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Center">
-                                        <Path Fill="#F59E0B"
+                                        <Path Fill="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.WarningBrush}"
                                               Data="M 8.87,1.82 C 8.48,1.15 7.52,1.15 7.13,1.82 L 0.22,13.82 C -0.17,14.5 0.31,15.35 1.09,15.35 H 14.91 C 15.69,15.35 16.17,14.5 15.78,13.82 Z" />
-                                        <Path Fill="#18181B"
+                                        <Path Fill="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.WarningForegroundBrush}"
                                               Data="M 7.15,5.2 C 7.15,4.7 7.55,4.3 8.0,4.3 C 8.45,4.3 8.85,4.7 8.85,5.2 L 8.6,9.4 C 8.6,9.8 8.3,10.1 8.0,10.1 C 7.7,10.1 7.4,9.8 7.4,9.4 Z" />
-                                        <Ellipse Fill="#18181B" Width="1.8" Height="1.8" Canvas.Left="7.1" Canvas.Top="11.4" />
+                                        <Ellipse Fill="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.WarningForegroundBrush}" Width="1.8" Height="1.8" Canvas.Left="7.1" Canvas.Top="11.4" />
                                     </Canvas>
                                     <TextBlock Text="This recipe needs your permission" FontWeight="Bold" FontSize="{wpf:FontSize 13}" Foreground="{Binding WarningTextBrush}" VerticalAlignment="Center"/>
                                 </StackPanel>
@@ -555,8 +555,9 @@
                 </Grid>
             </Grid>
 
-            <!-- In-Dialog JSON Viewer Full Overlay -->
+            <!-- In-Dialog JSON Viewer Full Overlay, Tab stays in it while it is open -->
             <Grid Grid.Row="1" 
+                  KeyboardNavigation.TabNavigation="Cycle"
                   Background="#99000000" 
                   Visibility="{Binding JsonViewerVisibility}">
                 <Border Background="{Binding CardBackgroundBrush}" 
@@ -596,7 +597,9 @@
                         </Grid>
 
                         <!-- JSON Content Text Box -->
-                        <TextBox Grid.Row="1" 
+                        <TextBox x:Name="JsonTextBox"
+                                 Grid.Row="1" 
+                                 AutomationProperties.Name="{Binding OverlayTitle}"
                                  Text="{Binding RecipeJsonContent, Mode=OneWay}"
                                  FontFamily="Consolas, Courier New" FontSize="{wpf:FontSize 12}"
                                  Background="{Binding WindowBackgroundBrush}" 
@@ -618,7 +621,7 @@
                             <TextBlock Text="{Binding FilePath}" TextTrimming="CharacterEllipsis" ToolTip="{Binding FilePath}" 
                                        FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                                <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                <Button AutomationProperties.Name="Copy to Clipboard" Style="{StaticResource SecondaryButtonStyle}" 
                                         Padding="12,5" Margin="0,0,8,0"
                                         Click="OnCopyJsonClicked"
                                         ToolTip="Copy recipe JSON to clipboard">

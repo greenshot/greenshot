@@ -397,6 +397,9 @@ namespace Greenshot.Shell
                 {
                     item.MouseEnter += (sender, args) => ShowThumbnail(item, windowToCapture);
                     item.MouseLeave += (sender, args) => _thumbnailWindow?.Hide();
+                    // Also for the item the arrow keys are on
+                    item.GotKeyboardFocus += (sender, args) => ShowThumbnail(item, windowToCapture);
+                    item.LostKeyboardFocus += (sender, args) => _thumbnailWindow?.Hide();
                 }
             }
         }

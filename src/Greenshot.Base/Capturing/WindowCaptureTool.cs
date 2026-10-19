@@ -34,6 +34,7 @@ using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Desktop;
 using Dapplo.Windows.User32;
+using Dapplo.Windows.User32.Enums;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Capture;
 using Greenshot.Base.Languages;
@@ -75,6 +76,8 @@ namespace Greenshot.Base.Capturing
         private NativeRect _windowSelection = NativeRect.Empty;
         private NativeRect _selection = NativeRect.Empty;
         private bool _showDebugInfo;
+        // Where the cursor was when Tab selected a window: until the mouse really moves, it doesn't select the window under the cursor again
+        private NativePoint? _cursorAtKeyboardSelection;
 
         public override CaptureMode Mode => CaptureMode.Window;
 
@@ -104,6 +107,7 @@ namespace Greenshot.Base.Capturing
             _areaLevel = 0;
             _windowSelection = NativeRect.Empty;
             _selection = NativeRect.Empty;
+            _cursorAtKeyboardSelection = null;
             // The selection grows out of the cursor
             Host.ShowSelection(new NativeRect(Host.CursorPosition, NativeSize.Empty));
             Host.ClearLabels();
@@ -126,12 +130,49 @@ namespace Greenshot.Base.Capturing
 
         public override void OnMouseMove()
         {
+            if (_cursorAtKeyboardSelection.HasValue && _cursorAtKeyboardSelection.Value.Equals(Host.CursorPosition))
+            {
+                return;
+            }
+            _cursorAtKeyboardSelection = null;
             var window = Host.FindWindowUnderCursor(true);
             if (window == null)
             {
                 return;
             }
 
+            SelectWindow(window);
+        }
+
+        /// <summary>
+        /// Without a mouse: Tab selects the next window in the order of the screen (the top one first), Shift+Tab the previous one
+        /// </summary>
+        private void SelectNextWindow(int step)
+        {
+            var windows = Host.Windows;
+            if (windows == null || windows.Count == 0)
+            {
+                return;
+            }
+
+            int index = -1;
+            for (int i = 0; i < windows.Count && _selectedWindow != null; i++)
+            {
+                // The selected window can be a child window, then it continues with the next top level window
+                if (windows[i].Equals(_selectedWindow) || windows[i].Handle == User32Api.GetAncestor(_selectedWindow.Handle, GetAncestorFlags.GA_ROOT))
+                {
+                    index = i;
+                    break;
+                }
+            }
+
+            index = index < 0 ? (step > 0 ? 0 : windows.Count - 1) : (index + step + windows.Count) % windows.Count;
+            _cursorAtKeyboardSelection = Host.CursorPosition;
+            SelectWindow(windows[index]);
+        }
+
+        private void SelectWindow(IInteropWindow window)
+        {
             if (!window.Equals(_selectedWindow))
             {
                 _selectedWindow = window;
@@ -156,6 +197,8 @@ namespace Greenshot.Base.Capturing
         {
             base.Attach(host);
             host.RegisterToolKey(this, Key.Return, ModifierKeys.None, () => Texts.Core.CaptureKeyWindowAccept, AcceptWindow);
+            host.RegisterToolKey(this, Key.Tab, ModifierKeys.None, () => Texts.Core.CaptureKeyWindowNext, () => SelectNextWindow(1));
+            host.RegisterToolKey(this, Key.Tab, ModifierKeys.Shift, () => Texts.Core.CaptureKeyWindowNext, () => SelectNextWindow(-1));
             host.RegisterToolKey(this, Key.D, ModifierKeys.None, () => Texts.Core.CaptureKeyWindowDetails, () =>
             {
                 _showDebugInfo = !_showDebugInfo;

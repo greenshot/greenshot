@@ -43,7 +43,8 @@
                                         <ColumnDefinition Width="Auto" SharedSizeGroup="Show"/>
                                     </Grid.ColumnDefinitions>
                                     <Label Content="{Binding Label}" Margin="0,0,12,0"/>
-                                    <TextBox Grid.Column="1" Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                    <TextBox Grid.Column="1" Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             AutomationProperties.Name="{Binding Label}">
                                         <TextBox.Style>
                                             <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
                                                 <Style.Triggers>
@@ -56,6 +57,7 @@
                                     </TextBox>
                                     <!-- Keys and tokens are masked until the user asks to see them -->
                                     <PasswordBox Grid.Column="1" IsVisibleChanged="Secret_IsVisibleChanged" PasswordChanged="Secret_PasswordChanged"
+                                                 AutomationProperties.Name="{Binding Label}"
                                                  Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                                                  Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}"
                                                  BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBorderBrush}"

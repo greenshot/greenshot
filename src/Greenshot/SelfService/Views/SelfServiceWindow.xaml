@@ -42,7 +42,10 @@
             <Setter Property="Margin" Value="0,3,0,3"/>
             <Setter Property="Padding" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <!-- Without a name a screen reader reads the view model class name, the badge is the status of the section -->
+            <Setter Property="AutomationProperties.Name" Value="{Binding Title}"/>
+            <Setter Property="AutomationProperties.ItemStatus" Value="{Binding BadgeText}"/>
+            <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
             <Setter Property="Foreground" Value="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -85,11 +88,14 @@
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Padding" Value="4,5"/>
             <Setter Property="Margin" Value="0,1"/>
+            <!-- The checksum rows: file name and status instead of the view model class name -->
+            <Setter Property="AutomationProperties.Name" Value="{Binding RelativePath}"/>
+            <Setter Property="AutomationProperties.ItemStatus" Value="{Binding StatusText}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -254,7 +260,7 @@
                                         <TextBlock Text="{Binding BadgeText}" 
                                                    FontSize="{wpf:FontSize 9.5}" 
                                                    FontWeight="Bold" 
-                                                   Foreground="White"/>
+                                                   Foreground="{Binding BadgeForeground}"/>
                                     </Border>
                                 </Grid>
                             </DataTemplate>
@@ -304,7 +310,7 @@
                                            Margin="0,3,0,0"/>
                             </StackPanel>
                             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                <Button AutomationProperties.Name="{wpf:Text SelfService.BtnRefresh}" Style="{StaticResource SecondaryButtonStyle}" 
                                         Margin="0,0,8,0" 
                                         Click="OnRefreshCurrentSectionClicked">
                                     <StackPanel Orientation="Horizontal">
@@ -312,7 +318,7 @@
                                         <TextBlock Text="{wpf:Text SelfService.BtnRefresh}"/>
                                     </StackPanel>
                                 </Button>
-                                <Button Style="{StaticResource PrimaryButtonStyle}" 
+                                <Button AutomationProperties.Name="{wpf:Text SelfService.BtnCopySysinfo}" Style="{StaticResource PrimaryButtonStyle}" 
                                         Click="OnCopySystemInfoClicked">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="📋 "/>
@@ -386,6 +392,7 @@
                                         CornerRadius="4" 
                                         Padding="2">
                                     <TextBox Text="{Binding SystemInfoSection.EnvironmentReport, Mode=OneWay}"
+                                             AutomationProperties.Name="{wpf:Text SelfService.SysReportTitle}"
                                              IsReadOnly="True"
                                              TextWrapping="NoWrap"
                                              AcceptsReturn="True"
@@ -494,7 +501,7 @@
                                            Foreground="{Binding TextSecondaryBrush}" 
                                            Margin="0,3,0,0"/>
                             </StackPanel>
-                            <Button Grid.Column="1" 
+                            <Button AutomationProperties.Name="{wpf:Text SelfService.BtnRefresh}" Grid.Column="1" 
                                     Style="{StaticResource SecondaryButtonStyle}" 
                                     Click="OnRefreshCurrentSectionClicked">
                                 <StackPanel Orientation="Horizontal">
@@ -549,25 +556,25 @@
                                 </ItemsControl>
 
                                 <WrapPanel>
-                                    <Button Style="{StaticResource SecondaryButtonStyle}" Click="OnOpenOutputFolderClicked" Margin="0,0,6,6">
+                                    <Button AutomationProperties.Name="{wpf:Text SelfService.BtnOpenFolder}" Style="{StaticResource SecondaryButtonStyle}" Click="OnOpenOutputFolderClicked" Margin="0,0,6,6">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="📂 "/>
                                             <TextBlock Text="{wpf:Text SelfService.BtnOpenFolder}"/>
                                         </StackPanel>
                                     </Button>
-                                    <Button Style="{StaticResource SecondaryButtonStyle}" Click="OnCopyOutputPathClicked" Margin="0,0,6,6">
+                                    <Button AutomationProperties.Name="{wpf:Text SelfService.BtnCopyPath}" Style="{StaticResource SecondaryButtonStyle}" Click="OnCopyOutputPathClicked" Margin="0,0,6,6">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="📋 "/>
                                             <TextBlock Text="{wpf:Text SelfService.BtnCopyPath}"/>
                                         </StackPanel>
                                     </Button>
-                                    <Button Style="{StaticResource SecondaryButtonStyle}" Click="OnResetOutputPathClicked" Margin="0,0,6,6">
+                                    <Button AutomationProperties.Name="{wpf:Text SelfService.BtnResetOutputPath}" Style="{StaticResource SecondaryButtonStyle}" Click="OnResetOutputPathClicked" Margin="0,0,6,6">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="↩️ "/>
                                             <TextBlock Text="{wpf:Text SelfService.BtnResetOutputPath}"/>
                                         </StackPanel>
                                     </Button>
-                                    <Button Style="{StaticResource SecondaryButtonStyle}" Click="OnResetFilenamePatternClicked" Margin="0,0,6,6">
+                                    <Button AutomationProperties.Name="{wpf:Text SelfService.BtnResetFilenamePattern}" Style="{StaticResource SecondaryButtonStyle}" Click="OnResetFilenamePatternClicked" Margin="0,0,6,6">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="↩️ "/>
                                             <TextBlock Text="{wpf:Text SelfService.BtnResetFilenamePattern}"/>
@@ -615,7 +622,7 @@
 
                                 <!-- Actions: Copy Path -->
                                 <StackPanel Grid.Row="2" Orientation="Horizontal">
-                                    <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                    <Button AutomationProperties.Name="{wpf:Text SelfService.BtnCopyPath}" Style="{StaticResource SecondaryButtonStyle}" 
                                             Click="OnCopyLogPathClicked">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="📋 "/>
@@ -664,7 +671,7 @@
 
                                 <!-- Actions: Copy Path -->
                                 <StackPanel Grid.Row="2" Orientation="Horizontal">
-                                    <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                    <Button AutomationProperties.Name="{wpf:Text SelfService.BtnCopyPath}" Style="{StaticResource SecondaryButtonStyle}" 
                                             Click="OnCopyConfigPathClicked">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="📋 "/>
@@ -696,7 +703,7 @@
                                                    FontSize="{wpf:FontSize 13}"/>
                                     </StackPanel>
                                     <!-- Magnifying Glass Button to open full log in separate window -->
-                                    <Button Grid.Column="1" 
+                                    <Button AutomationProperties.Name="{wpf:Text SelfService.BtnOpenLogviewer}" Grid.Column="1" 
                                             Style="{StaticResource PrimaryButtonStyle}" 
                                             Click="OnOpenLogViewerClicked" 
                                             ToolTip="{wpf:Text SelfService.TooltipOpenLogviewer}">
@@ -754,7 +761,7 @@
                                            Margin="0,3,0,0"/>
                             </StackPanel>
                             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                <Button AutomationProperties.Name="{wpf:Text SelfService.ClipboardRefresh}" Style="{StaticResource SecondaryButtonStyle}" 
                                         Margin="0,0,8,0" 
                                         Click="OnRefreshCurrentSectionClicked">
                                     <StackPanel Orientation="Horizontal">
@@ -762,7 +769,7 @@
                                         <TextBlock Text="{wpf:Text SelfService.ClipboardRefresh}"/>
                                     </StackPanel>
                                 </Button>
-                                <Button Style="{StaticResource PrimaryButtonStyle}" 
+                                <Button AutomationProperties.Name="{wpf:Text SelfService.ClipboardTestNow}" Style="{StaticResource PrimaryButtonStyle}" 
                                         Click="OnCheckClipboardNowClicked">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="🔍 "/>
@@ -872,6 +879,7 @@
                                         CornerRadius="4" 
                                         MaxHeight="160">
                                     <ListBox ItemsSource="{Binding ClipboardSection.MonitorLog}" 
+                                             AutomationProperties.Name="{wpf:Text SelfService.ClipboardLoopTitle}"
                                              Background="Transparent" 
                                              BorderThickness="0" 
                                              ScrollViewer.VerticalScrollBarVisibility="Auto">
@@ -901,6 +909,14 @@
                                                 </Grid>
                                             </DataTemplate>
                                         </ListBox.ItemTemplate>
+                                        <ListBox.ItemContainerStyle>
+                                            <Style TargetType="ListBoxItem">
+                                                <!-- Read the event instead of the class name -->
+                                                <Setter Property="AutomationProperties.Name" Value="{Binding Message}"/>
+                                                <Setter Property="AutomationProperties.HelpText" Value="{Binding ProcessDetails}"/>
+                                                <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
+                                            </Style>
+                                        </ListBox.ItemContainerStyle>
                                     </ListBox>
                                 </Border>
                             </StackPanel>
@@ -979,7 +995,7 @@
                                            Foreground="{Binding TextSecondaryBrush}" 
                                            Margin="0,3,0,0"/>
                             </StackPanel>
-                            <Button Grid.Column="1" 
+                            <Button AutomationProperties.Name="{wpf:Text SelfService.HotkeysBtnReregister}" Grid.Column="1" 
                                     Style="{StaticResource PrimaryButtonStyle}" 
                                     Click="OnReRegisterHotkeysClicked">
                                 <StackPanel Orientation="Horizontal">
@@ -1188,7 +1204,7 @@
                                            Margin="0,3,0,0"/>
                             </StackPanel>
                             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                <Button AutomationProperties.Name="{wpf:Text SelfService.ChecksumBtnValidate}" Style="{StaticResource SecondaryButtonStyle}" 
                                         Margin="0,0,8,0" 
                                         Click="OnRefreshChecksumsClicked">
                                     <StackPanel Orientation="Horizontal">
@@ -1196,7 +1212,7 @@
                                         <TextBlock Text="{wpf:Text SelfService.ChecksumBtnValidate}"/>
                                     </StackPanel>
                                 </Button>
-                                <Button Style="{StaticResource PrimaryButtonStyle}" 
+                                <Button AutomationProperties.Name="{wpf:Text SelfService.ChecksumBtnCopyReport}" Style="{StaticResource PrimaryButtonStyle}" 
                                         Click="OnCopyChecksumReportClicked">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="📋 "/>
@@ -1267,7 +1283,7 @@
                                                Margin="0,3,0,0"/>
                                 </StackPanel>
 
-                                <Button Grid.Column="2" 
+                                <Button AutomationProperties.Name="checksum.SHA256" Grid.Column="2" 
                                         Style="{StaticResource SecondaryButtonStyle}" 
                                         VerticalAlignment="Center" 
                                         Margin="12,0,0,0"
@@ -1301,32 +1317,32 @@
                             <!-- Valid (Matches) -->
                             <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}" Margin="4,0,4,0" Padding="10">
                                 <StackPanel>
-                                    <TextBlock Text="{wpf:Text SelfService.ChecksumMetricValid}" FontSize="{wpf:FontSize 9.5}" FontWeight="Bold" Foreground="#10B981"/>
-                                    <TextBlock Text="{Binding ChecksumSection.MatchedCount}" FontSize="{wpf:FontSize 18}" FontWeight="Bold" Foreground="#10B981" Margin="0,4,0,0"/>
+                                    <TextBlock Text="{wpf:Text SelfService.ChecksumMetricValid}" FontSize="{wpf:FontSize 9.5}" FontWeight="Bold" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.SuccessBrush}"/>
+                                    <TextBlock Text="{Binding ChecksumSection.MatchedCount}" FontSize="{wpf:FontSize 18}" FontWeight="Bold" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.SuccessBrush}" Margin="0,4,0,0"/>
                                 </StackPanel>
                             </Border>
 
                             <!-- Mismatched (Corrupt) -->
                             <Border Grid.Column="2" Style="{StaticResource CardBorderStyle}" Margin="4,0,4,0" Padding="10">
                                 <StackPanel>
-                                    <TextBlock Text="{wpf:Text SelfService.ChecksumMetricCorrupt}" FontSize="{wpf:FontSize 9.5}" FontWeight="Bold" Foreground="#EF4444"/>
-                                    <TextBlock Text="{Binding ChecksumSection.MismatchedCount}" FontSize="{wpf:FontSize 18}" FontWeight="Bold" Foreground="#EF4444" Margin="0,4,0,0"/>
+                                    <TextBlock Text="{wpf:Text SelfService.ChecksumMetricCorrupt}" FontSize="{wpf:FontSize 9.5}" FontWeight="Bold" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.ErrorBrush}"/>
+                                    <TextBlock Text="{Binding ChecksumSection.MismatchedCount}" FontSize="{wpf:FontSize 18}" FontWeight="Bold" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.ErrorBrush}" Margin="0,4,0,0"/>
                                 </StackPanel>
                             </Border>
 
                             <!-- Missing -->
                             <Border Grid.Column="3" Style="{StaticResource CardBorderStyle}" Margin="4,0,4,0" Padding="10">
                                 <StackPanel>
-                                    <TextBlock Text="{wpf:Text SelfService.ChecksumMetricMissing}" FontSize="{wpf:FontSize 9.5}" FontWeight="Bold" Foreground="#F97316"/>
-                                    <TextBlock Text="{Binding ChecksumSection.MissingCount}" FontSize="{wpf:FontSize 18}" FontWeight="Bold" Foreground="#F97316" Margin="0,4,0,0"/>
+                                    <TextBlock Text="{wpf:Text SelfService.ChecksumMetricMissing}" FontSize="{wpf:FontSize 9.5}" FontWeight="Bold" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.WarningBrush}"/>
+                                    <TextBlock Text="{Binding ChecksumSection.MissingCount}" FontSize="{wpf:FontSize 18}" FontWeight="Bold" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.WarningBrush}" Margin="0,4,0,0"/>
                                 </StackPanel>
                             </Border>
 
                             <!-- Unlisted -->
                             <Border Grid.Column="4" Style="{StaticResource CardBorderStyle}" Margin="4,0,0,0" Padding="10">
                                 <StackPanel>
-                                    <TextBlock Text="{wpf:Text SelfService.ChecksumMetricUnlisted}" FontSize="{wpf:FontSize 9.5}" FontWeight="Bold" Foreground="#3B82F6"/>
-                                    <TextBlock Text="{Binding ChecksumSection.UnlistedCount}" FontSize="{wpf:FontSize 18}" FontWeight="Bold" Foreground="#3B82F6" Margin="0,4,0,0"/>
+                                    <TextBlock Text="{wpf:Text SelfService.ChecksumMetricUnlisted}" FontSize="{wpf:FontSize 9.5}" FontWeight="Bold" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.InfoBrush}"/>
+                                    <TextBlock Text="{Binding ChecksumSection.UnlistedCount}" FontSize="{wpf:FontSize 18}" FontWeight="Bold" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.InfoBrush}" Margin="0,4,0,0"/>
                                 </StackPanel>
                             </Border>
                         </Grid>
@@ -1354,6 +1370,7 @@
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Grid.Column="0" Text="🔍 " FontSize="{wpf:FontSize 11}" VerticalAlignment="Center" Margin="0,0,4,0"/>
                                         <TextBox Grid.Column="1" 
+                                                 AutomationProperties.Name="{wpf:Text SelfService.ChecksumSearchPlaceholder}"
                                                  Text="{Binding ChecksumSection.SearchQuery, UpdateSourceTrigger=PropertyChanged}" 
                                                  Background="Transparent" 
                                                  BorderThickness="0" 
@@ -1511,7 +1528,7 @@
                                         <TextBlock Text="{Binding ChecksumSection.SelectedItem.StatusIcon}" FontSize="{wpf:FontSize 15}" Margin="0,0,6,0"/>
                                         <TextBlock Text="{Binding ChecksumSection.SelectedItem.RelativePath}" FontWeight="Bold" FontSize="{wpf:FontSize 13}" TextTrimming="CharacterEllipsis"/>
                                     </StackPanel>
-                                    <Button Grid.Column="1" 
+                                    <Button AutomationProperties.Name="{wpf:Text SelfService.ChecksumBtnCopySelected}" Grid.Column="1" 
                                             Style="{StaticResource SecondaryButtonStyle}" 
                                             Click="OnCopySelectedChecksumDetailsClicked">
                                         <StackPanel Orientation="Horizontal">
@@ -1562,6 +1579,7 @@
                                             Padding="6,3" 
                                             Margin="0,0,0,4">
                                         <TextBox Text="{Binding ChecksumSection.SelectedItem.ExpectedHash, Mode=OneWay}" 
+                                                 AutomationProperties.Name="{wpf:Text SelfService.ChecksumDetailExpected}"
                                                  IsReadOnly="True" 
                                                  Background="Transparent" 
                                                  BorderThickness="0" 
@@ -1585,6 +1603,7 @@
                                             Padding="6,3" 
                                             Margin="0,0,0,4">
                                         <TextBox Text="{Binding ChecksumSection.SelectedItem.ActualHash, Mode=OneWay}" 
+                                                 AutomationProperties.Name="{wpf:Text SelfService.ChecksumDetailActual}"
                                                  IsReadOnly="True" 
                                                  Background="Transparent" 
                                                  BorderThickness="0" 
@@ -1643,7 +1662,7 @@
                                            Margin="0,3,0,0"/>
                             </StackPanel>
                             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                <Button AutomationProperties.Name="Extension Folder" Style="{StaticResource SecondaryButtonStyle}" 
                                         Margin="0,0,8,0" 
                                         Click="OnOpenDebugExtensionFolderClicked">
                                     <StackPanel Orientation="Horizontal">
@@ -1750,6 +1769,7 @@
                                             Padding="8,6" 
                                             Margin="0,0,10,0">
                                         <TextBox Text="{Binding IntegrationDebugSection.ExtensionId, UpdateSourceTrigger=PropertyChanged}" 
+                                                 AutomationProperties.Name="Extension ID"
                                                  Background="Transparent" 
                                                  BorderThickness="0" 
                                                  FontFamily="Consolas, monospace" 
@@ -1776,7 +1796,7 @@
                                            Margin="0,0,0,10"/>
                                 
                                 <WrapPanel Margin="0,0,0,10">
-                                    <Button Style="{StaticResource PrimaryButtonStyle}" 
+                                    <Button AutomationProperties.Name="Register Debug Host &amp; Protocol (HKCU)" Style="{StaticResource PrimaryButtonStyle}" 
                                             Margin="0,0,10,6" 
                                             Click="OnRegisterDebugHkcuClicked">
                                         <StackPanel Orientation="Horizontal">
@@ -1785,7 +1805,7 @@
                                         </StackPanel>
                                     </Button>
 
-                                    <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                    <Button AutomationProperties.Name="Unregister from HKCU" Style="{StaticResource SecondaryButtonStyle}" 
                                             Margin="0,0,10,6" 
                                             Click="OnUnregisterDebugHkcuClicked">
                                         <StackPanel Orientation="Horizontal">
@@ -1794,7 +1814,7 @@
                                         </StackPanel>
                                     </Button>
 
-                                    <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                    <Button AutomationProperties.Name="Test greenshot:// URL Scheme" Style="{StaticResource SecondaryButtonStyle}" 
                                             Margin="0,0,0,6" 
                                             Click="OnTestDebugUrlSchemeClicked">
                                         <StackPanel Orientation="Horizontal">
@@ -1830,6 +1850,7 @@
                 <!-- Status message -->
                 <TextBlock Grid.Column="0" 
                            x:Name="FooterStatusText" 
+                           wpf:LiveRegion.Mode="Polite"
                            FontSize="{wpf:FontSize 11.5}" 
                            Foreground="{Binding TextSecondaryBrush}" 
                            VerticalAlignment="Center"/>

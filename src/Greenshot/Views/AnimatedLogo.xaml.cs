@@ -69,21 +69,36 @@ namespace Greenshot.Views
             Unloaded += OnUnloaded;
         }
 
+        /// <summary>
+        /// The bubbles only move when Windows shows animations ("Animation effects") and not over remote desktop, else the G is shown as it is
+        /// </summary>
+        private static bool IsAnimated => SystemParameters.ClientAreaAnimation && !SystemParameters.IsRemoteSession;
+
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
             _startupStoryboard = TryFindResource("StartupStoryboard") as Storyboard;
             _waveStoryboard = TryFindResource("WaveStoryboard") as Storyboard;
+            bool isAnimated = IsAnimated;
 
             if (_startupStoryboard != null)
             {
                 _startupStoryboard.Completed += (s, args) =>
                 {
+                    if (!IsAnimated)
+                    {
+                        return;
+                    }
                     _highlightTimer.Interval = TimeSpan.FromMilliseconds(2500 + _rand.Next(3000));
                     _highlightTimer.Start();
                 };
-                _startupStoryboard.Begin(this);
+                // Controllable, so the bubbles can be shown in their end state right away
+                _startupStoryboard.Begin(this, true);
+                if (!isAnimated)
+                {
+                    _startupStoryboard.SkipToFill(this);
+                }
             }
-            else
+            else if (isAnimated)
             {
                 _highlightTimer.Start();
             }
@@ -96,6 +111,13 @@ namespace Greenshot.Views
 
         private void OnHighlightTimerTick(object sender, EventArgs e)
         {
+            // The user may have switched off the animations of Windows meanwhile
+            if (!IsAnimated)
+            {
+                _highlightTimer.Stop();
+                return;
+            }
+
             // Reset timer with next randomized interval (between 3.5s and 7s)
             _highlightTimer.Interval = TimeSpan.FromMilliseconds(3500 + _rand.Next(3500));
 

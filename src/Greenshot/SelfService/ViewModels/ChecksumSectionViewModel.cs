@@ -33,6 +33,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using Greenshot.Base.Core;
+using Greenshot.Base.Wpf;
 using log4net;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Languages;
@@ -174,18 +175,20 @@ namespace Greenshot.SelfService.ViewModels
         {
             get
             {
+                // Palette roles: readable on light and dark, and the text color in high contrast
+                var palette = ThemeManager.Instance.CurrentPalette;
                 switch (Status)
                 {
                     case ChecksumStatus.Match:
-                        return new SolidColorBrush(Color.FromRgb(34, 197, 94)); // Emerald #22C55E
+                        return palette.SuccessBrush;
                     case ChecksumStatus.Mismatch:
-                        return new SolidColorBrush(Color.FromRgb(239, 68, 68)); // Red #EF4444
+                        return palette.ErrorBrush;
                     case ChecksumStatus.Missing:
-                        return new SolidColorBrush(Color.FromRgb(249, 115, 22)); // Orange #F97316
+                        return palette.WarningBrush;
                     case ChecksumStatus.Unlisted:
-                        return new SolidColorBrush(Color.FromRgb(59, 130, 246)); // Blue #3B82F6
+                        return palette.InfoBrush;
                     default:
-                        return new SolidColorBrush(Colors.Gray);
+                        return palette.MutedBrush;
                 }
             }
         }
@@ -402,11 +405,12 @@ namespace Greenshot.SelfService.ViewModels
         {
             get
             {
+                var palette = ThemeManager.Instance.CurrentPalette;
                 if (ChecksumFileNotFound || HasCorruptFiles)
-                    return new SolidColorBrush(Color.FromRgb(239, 68, 68)); // Red #EF4444
+                    return palette.ErrorBrush;
                 if (HasMissingFiles)
-                    return new SolidColorBrush(Color.FromRgb(249, 115, 22)); // Orange #F97316
-                return new SolidColorBrush(Color.FromRgb(34, 197, 94)); // Emerald #22C55E
+                    return palette.WarningBrush;
+                return palette.SuccessBrush;
             }
         }
 
@@ -910,17 +914,17 @@ namespace Greenshot.SelfService.ViewModels
             if (HasCorruptFiles || ChecksumFileNotFound)
             {
                 BadgeText = $"{MismatchedCount + (ChecksumFileNotFound ? 1 : 0)} ❌";
-                BadgeBrush = new SolidColorBrush(Color.FromRgb(239, 68, 68));
+                BadgeBrush = ThemeManager.Instance.CurrentPalette.ErrorBrush;
             }
             else if (HasMissingFiles)
             {
                 BadgeText = $"{MissingCount} ⚠️";
-                BadgeBrush = new SolidColorBrush(Color.FromRgb(249, 115, 22));
+                BadgeBrush = ThemeManager.Instance.CurrentPalette.WarningBrush;
             }
             else if (TotalCount > 0)
             {
                 BadgeText = "OK";
-                BadgeBrush = new SolidColorBrush(Color.FromRgb(34, 197, 94));
+                BadgeBrush = ThemeManager.Instance.CurrentPalette.SuccessBrush;
             }
             else
             {

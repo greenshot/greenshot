@@ -9,7 +9,7 @@
         ShowInTaskbar="True"
         Topmost="True"
         FontFamily="Segoe UI, Segoe UI Variable Display, Tahoma, Arial"
-        Background="{x:Static wpf:WpfThemeHelper.WindowBackground}">
+        Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.WindowBackground}">
 
     <Window.Resources>
         <ResourceDictionary>
@@ -20,7 +20,7 @@
     </Window.Resources>
 
     <!-- Outer Window Border -->
-    <Border BorderBrush="{x:Static wpf:WpfThemeHelper.CardBorder}" BorderThickness="1">
+    <Border BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}" BorderThickness="1">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/> <!-- Title bar -->
@@ -34,7 +34,7 @@
             <!-- Header Description -->
             <Border Grid.Row="1" Margin="16,10,16,10">
                 <TextBlock Text="Multiple image editors are open. Select an editor to preview its annotations and import them into the recipe step:"
-                           FontSize="{wpf:FontSize 11}" Foreground="{x:Static wpf:WpfThemeHelper.TextSecondary}" TextWrapping="Wrap"/>
+                           FontSize="{wpf:FontSize 11}" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}" TextWrapping="Wrap"/>
             </Border>
 
             <!-- Main Content: Left List & Right Preview -->
@@ -45,8 +45,8 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Left Column: Open Editors List -->
-                <Border Grid.Column="0" Background="{x:Static wpf:WpfThemeHelper.CardBackground}"
-                        BorderBrush="{x:Static wpf:WpfThemeHelper.CardBorder}"
+                <Border Grid.Column="0" Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.CardBackground}"
+                        BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}"
                         BorderThickness="1" CornerRadius="6" Padding="6">
                     <Grid>
                         <Grid.RowDefinitions>
@@ -54,8 +54,8 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
-                        <Border Grid.Row="0" BorderBrush="{x:Static wpf:WpfThemeHelper.CardBorder}" BorderThickness="0,0,0,1" Padding="6,4,6,8" Margin="0,0,0,4">
-                            <TextBlock x:Name="ListHeaderTextBlock" Text="Open Editors" FontWeight="SemiBold" FontSize="{wpf:FontSize 11}" Foreground="{x:Static wpf:WpfThemeHelper.TextSecondary}"/>
+                        <Border Grid.Row="0" BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}" BorderThickness="0,0,0,1" Padding="6,4,6,8" Margin="0,0,0,4">
+                            <TextBlock x:Name="ListHeaderTextBlock" Text="Open Editors" FontWeight="SemiBold" FontSize="{wpf:FontSize 11}" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}"/>
                         </Border>
 
                         <ListBox x:Name="EditorListBox" Grid.Row="1" Background="Transparent" BorderThickness="0"
@@ -68,12 +68,16 @@
                                     <Setter Property="Padding" Value="8,6"/>
                                     <Setter Property="Margin" Value="0,2"/>
                                     <Setter Property="Cursor" Value="Hand"/>
+                                    <!-- The template draws no focus, the shared frame shows the keyboard focus -->
+                                    <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
+                                    <!-- Screen readers announce the editor's title instead of the class name -->
+                                    <Setter Property="AutomationProperties.Name" Value="{Binding Title}"/>
                                     <Setter Property="Template">
                                         <Setter.Value>
                                             <ControlTemplate TargetType="ListBoxItem">
                                                 <Border x:Name="itemBorder"
                                                         Background="Transparent"
-                                                        BorderBrush="{x:Static wpf:WpfThemeHelper.CardBorder}"
+                                                        BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}"
                                                         BorderThickness="1"
                                                         CornerRadius="5"
                                                         Padding="{TemplateBinding Padding}"
@@ -82,11 +86,11 @@
                                                 </Border>
                                                 <ControlTemplate.Triggers>
                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter TargetName="itemBorder" Property="Background" Value="{x:Static wpf:WpfThemeHelper.BadgeBackground}"/>
+                                                        <Setter TargetName="itemBorder" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.BadgeBackground}"/>
                                                     </Trigger>
                                                     <Trigger Property="IsSelected" Value="True">
-                                                        <Setter TargetName="itemBorder" Property="Background" Value="{x:Static wpf:WpfThemeHelper.WindowBackground}"/>
-                                                        <Setter TargetName="itemBorder" Property="BorderBrush" Value="{x:Static wpf:WpfThemeHelper.Accent}"/>
+                                                        <Setter TargetName="itemBorder" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.WindowBackground}"/>
+                                                        <Setter TargetName="itemBorder" Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.Accent}"/>
                                                         <Setter TargetName="itemBorder" Property="BorderThickness" Value="1.5"/>
                                                     </Trigger>
                                                 </ControlTemplate.Triggers>
@@ -105,8 +109,8 @@
                                         </Grid.ColumnDefinitions>
 
                                         <Border Grid.Column="0" Width="32" Height="32" CornerRadius="4"
-                                                Background="{x:Static wpf:WpfThemeHelper.BadgeBackground}"
-                                                BorderBrush="{x:Static wpf:WpfThemeHelper.CardBorder}"
+                                                Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.BadgeBackground}"
+                                                BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}"
                                                 BorderThickness="1" Margin="0,0,10,0"
                                                 VerticalAlignment="Center" HorizontalAlignment="Center">
                                             <TextBlock Text="🖼️" FontSize="{wpf:FontSize 14}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -114,15 +118,15 @@
 
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                             <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="{wpf:FontSize 11}"
-                                                       Foreground="{x:Static wpf:WpfThemeHelper.TextPrimary}"
+                                                       Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.TextPrimary}"
                                                        TextTrimming="CharacterEllipsis"/>
                                             <TextBlock Text="{Binding Description}" FontSize="{wpf:FontSize 10}"
-                                                       Foreground="{x:Static wpf:WpfThemeHelper.TextSecondary}"
+                                                       Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}"
                                                        Margin="0,2,0,0"/>
                                         </StackPanel>
 
                                         <TextBlock Grid.Column="2" Text="➔" FontSize="{wpf:FontSize 11}"
-                                                   Foreground="{x:Static wpf:WpfThemeHelper.Accent}"
+                                                   Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.Accent}"
                                                    VerticalAlignment="Center" Margin="6,0,2,0"
                                                    FontWeight="Bold"/>
                                     </Grid>
@@ -134,8 +138,8 @@
 
                 <!-- Right Column: Live Preview Panel -->
                 <Border Grid.Column="1" Margin="12,0,0,0"
-                        Background="{x:Static wpf:WpfThemeHelper.CardBackground}"
-                        BorderBrush="{x:Static wpf:WpfThemeHelper.CardBorder}"
+                        Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.CardBackground}"
+                        BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}"
                         BorderThickness="1" CornerRadius="6" Padding="14">
                     <Grid>
                         <Grid.RowDefinitions>
@@ -151,35 +155,35 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,8,0">
-                                <TextBlock Text="PREVIEW" FontSize="{wpf:FontSize 9}" FontWeight="Bold" Foreground="{x:Static wpf:WpfThemeHelper.Accent}" Margin="0,0,0,2"/>
+                                <TextBlock Text="PREVIEW" FontSize="{wpf:FontSize 9}" FontWeight="Bold" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.Accent}" Margin="0,0,0,2"/>
                                 <TextBlock x:Name="PreviewTitleTextBlock" Text="Selected Editor" FontWeight="Bold" FontSize="{wpf:FontSize 12}"
-                                           Foreground="{x:Static wpf:WpfThemeHelper.TextPrimary}" TextTrimming="CharacterEllipsis"/>
+                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.TextPrimary}" TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
 
                             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                <Border Background="{x:Static wpf:WpfThemeHelper.BadgeBackground}"
-                                        BorderBrush="{x:Static wpf:WpfThemeHelper.CardBorder}"
+                                <Border Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.BadgeBackground}"
+                                        BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}"
                                         BorderThickness="1" CornerRadius="4" Padding="6,3" Margin="0,0,6,0">
-                                    <TextBlock x:Name="PreviewDimensionsBadge" Text="0 × 0 px" FontSize="{wpf:FontSize 10}" Foreground="{x:Static wpf:WpfThemeHelper.TextPrimary}"/>
+                                    <TextBlock x:Name="PreviewDimensionsBadge" Text="0 × 0 px" FontSize="{wpf:FontSize 10}" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.TextPrimary}"/>
                                 </Border>
 
-                                <Border Background="{x:Static wpf:WpfThemeHelper.BadgeBackground}"
-                                        BorderBrush="{x:Static wpf:WpfThemeHelper.CardBorder}"
+                                <Border Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.BadgeBackground}"
+                                        BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}"
                                         BorderThickness="1" CornerRadius="4" Padding="6,3">
-                                    <TextBlock x:Name="PreviewCountBadge" Text="0 annotations" FontSize="{wpf:FontSize 10}" FontWeight="SemiBold" Foreground="{x:Static wpf:WpfThemeHelper.Accent}"/>
+                                    <TextBlock x:Name="PreviewCountBadge" Text="0 annotations" FontSize="{wpf:FontSize 10}" FontWeight="SemiBold" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.Accent}"/>
                                 </Border>
                             </StackPanel>
                         </Grid>
 
                         <!-- Preview Display Surface -->
                         <Border Grid.Row="1"
-                                Background="{x:Static wpf:WpfThemeHelper.WindowBackground}"
-                                BorderBrush="{x:Static wpf:WpfThemeHelper.CardBorder}"
+                                Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.WindowBackground}"
+                                BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}"
                                 BorderThickness="1" CornerRadius="5" ClipToBounds="True">
                             <Grid>
-                                <Image x:Name="PreviewImage" Stretch="Uniform" Margin="10" SnapsToDevicePixels="True"/>
+                                <Image x:Name="PreviewImage" AutomationProperties.Name="Preview" Stretch="Uniform" Margin="10" SnapsToDevicePixels="True"/>
                                 <TextBlock x:Name="NoPreviewTextBlock" Text="No preview available"
-                                           FontSize="{wpf:FontSize 11}" Foreground="{x:Static wpf:WpfThemeHelper.TextSecondary}"
+                                           FontSize="{wpf:FontSize 11}" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center"
                                            Visibility="Collapsed"/>
                             </Grid>
@@ -189,8 +193,8 @@
             </Grid>
 
             <!-- Footer Action Buttons -->
-            <Border Grid.Row="3" Background="{x:Static wpf:WpfThemeHelper.CardBackground}"
-                    BorderBrush="{x:Static wpf:WpfThemeHelper.CardBorder}"
+            <Border Grid.Row="3" Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.CardBackground}"
+                    BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}"
                     BorderThickness="0,1,0,0" Padding="16,10">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -198,7 +202,7 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock x:Name="StatusTextBlock" Text="0 editors available" FontSize="{wpf:FontSize 11}" Foreground="{x:Static wpf:WpfThemeHelper.TextSecondary}" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="StatusTextBlock" wpf:LiveRegion.Mode="Polite" Text="0 editors available" FontSize="{wpf:FontSize 11}" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}" VerticalAlignment="Center"/>
 
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
                         <Button Content="Cancel" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,0" IsCancel="True" Click="CancelButton_Click"/>

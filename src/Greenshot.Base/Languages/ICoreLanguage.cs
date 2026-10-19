@@ -74,7 +74,7 @@ namespace Greenshot.Base.Languages
         string AccessibleAdd { get; }
 
         /// <summary>
-        /// Region capture: move with the arrow keys, Enter starts and finishes the selection, Esc cancels, F1 shows all keys
+        /// Region capture: the arrow keys move the cursor, Enter starts and finishes the selection, Space switches to window capture, Esc cancels, F1 shows all keys
         /// </summary>
         string AccessibleCaptureRegion { get; }
 
@@ -84,9 +84,14 @@ namespace Greenshot.Base.Languages
         string AccessibleCaptureSelection { get; }
 
         /// <summary>
-        /// Window capture: {0}, {1} × {2} pixels. Enter captures it, Space switches to region, Esc cancels
+        /// {0}, {1} × {2} pixels
         /// </summary>
         string AccessibleCaptureWindow { get; }
+
+        /// <summary>
+        /// Window capture: Tab selects the next window, Enter captures it, Space switches to region capture, Esc cancels, F1 shows all keys
+        /// </summary>
+        string AccessibleCaptureWindowMode { get; }
 
         /// <summary>
         /// Choose a color
@@ -458,6 +463,11 @@ namespace Greenshot.Base.Languages
         /// Select the smaller area inside it
         /// </summary>
         string CaptureKeyWindowSmaller { get; }
+
+        /// <summary>
+        /// Select the next window, with Shift the previous one
+        /// </summary>
+        string CaptureKeyWindowNext { get; }
 
         /// <summary>
         /// Show or hide the keys

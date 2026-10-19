@@ -82,6 +82,18 @@ namespace Greenshot.Views
         public IReadOnlyList<SolidColorBrush> StepDots =>
             _steps.Select((_, index) => index == _currentStep ? AccentBrush : BadgeBackgroundBrush).ToList();
 
+        /// <summary>
+        /// The step as text, "Step 2 of 5", for screen readers: the dots show it with color only
+        /// </summary>
+        public string StepText
+        {
+            get
+            {
+                string template = Texts.Welcome.StepOf;
+                return string.Format(string.IsNullOrEmpty(template) ? "Step {0} of {1}" : template, _currentStep + 1, _steps.Length);
+            }
+        }
+
         public Visibility BackVisibility => _currentStep > 0 ? Visibility.Visible : Visibility.Hidden;
 
         public string NextText => _currentStep == _steps.Length - 1 ? Texts.Welcome.ButtonStart : Texts.Welcome.ButtonNext;
@@ -173,6 +185,7 @@ namespace Greenshot.Views
                 .ToList();
             ShowTip(_tipIndex);
             OnPropertyChanged(nameof(Basics));
+            OnPropertyChanged(nameof(StepText));
             OnPropertyChanged(nameof(NextText));
         }
 
@@ -191,9 +204,18 @@ namespace Greenshot.Views
                 (ImgurUploads.DataContext as ImgurSectionViewModel)?.OnNavigatedTo();
             }
 
+            // The back button hides on the first step: the keyboard focus goes to the next button instead of nowhere
+            if (_currentStep == 0 && BackButton.IsKeyboardFocused)
+            {
+                NextButton.Focus();
+            }
+
             OnPropertyChanged(nameof(StepDots));
+            OnPropertyChanged(nameof(StepText));
             OnPropertyChanged(nameof(BackVisibility));
             OnPropertyChanged(nameof(NextText));
+            // The focus stays on the buttons, a screen reader says which step is shown now
+            LiveRegion.Announce(StepIndicator);
         }
 
         private void ShowTip(int index)

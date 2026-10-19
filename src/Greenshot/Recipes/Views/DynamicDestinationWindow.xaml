@@ -68,7 +68,8 @@
 
                     <!-- Caption Buttons: Theme Toggle & Close -->
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
-                        <Button Style="{StaticResource TitleBarButtonStyle}" Click="OnThemeToggleClicked" ToolTip="{Binding ThemeToggleToolTip}">
+                        <Button Style="{StaticResource TitleBarButtonStyle}" Click="OnThemeToggleClicked" ToolTip="{Binding ThemeToggleToolTip}"
+                                AutomationProperties.Name="{Binding ThemeToggleToolTip}">
                             <TextBlock Text="{Binding ThemeToggleIcon}" FontSize="{wpf:FontSize 13}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                         </Button>
                         <Button Style="{StaticResource TitleCloseButtonStyle}" Click="CloseButton_Click" ToolTip="{Binding CloseButtonToolTip}"/>
@@ -88,7 +89,7 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="⚠️" FontSize="{wpf:FontSize 18}" Margin="0,0,12,0" VerticalAlignment="Center"/>
                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding ErrorMessage}" FontWeight="SemiBold"
+                            <TextBlock Text="{Binding ErrorMessage}" FontWeight="SemiBold" wpf:LiveRegion.Mode="Assertive"
                                        Foreground="{Binding ErrorTextBrush}" TextWrapping="Wrap"/>
                             <TextBlock Text="{Binding ErrorSubtitleText}"
                                        FontSize="{wpf:FontSize 11.5}" Foreground="{Binding TextSecondaryBrush}" Margin="0,2,0,0"/>
@@ -110,13 +111,18 @@
                             BorderThickness="1" CornerRadius="8"
                             VerticalAlignment="Top">
                         <StackPanel>
-                            <!-- Clickable Thumbnail Container with Zoom Affordance -->
-                            <Border x:Name="ThumbnailBorder" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1" 
-                                    CornerRadius="6" Background="#0D000000" ClipToBounds="True" 
+                            <!-- Clickable Thumbnail Container with Zoom Affordance, a button so it also opens with the keyboard -->
+                            <Button x:Name="ThumbnailButton"
                                     MaxHeight="125" Cursor="Hand"
-                                    MouseDown="Thumbnail_MouseDown"
+                                    Click="Thumbnail_Click"
                                     ToolTip="{Binding ClickToPreviewTooltip}"
+                                    AutomationProperties.Name="{Binding ClickToPreviewTooltip}"
+                                    FocusVisualStyle="{StaticResource GreenshotFocusVisual}"
                                     Visibility="{Binding ThumbnailVisibility}">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                            <Border x:Name="ThumbnailBorder" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1" 
+                                    CornerRadius="6" Background="#0D000000" ClipToBounds="True">
                                 <Grid>
                                     <Image Source="{Binding PreviewImageSource}" Stretch="Uniform" 
                                            RenderOptions.BitmapScalingMode="HighQuality" HorizontalAlignment="Center"/>
@@ -127,6 +133,9 @@
                                     </Border>
                                 </Grid>
                             </Border>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
 
                             <TextBlock Text="{Binding DimensionsText}" HorizontalAlignment="Center"
                                        FontSize="{wpf:FontSize 10.5}" Foreground="{Binding TextSecondaryBrush}" Margin="0,6,0,8"
@@ -140,7 +149,8 @@
                             <ItemsControl ItemsSource="{Binding CoreDestinationTiles}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Button Style="{StaticResource ToolboxButtonStyle}" Click="DestinationTile_Click" Tag="{Binding}">
+                                        <Button Style="{StaticResource ToolboxButtonStyle}" Click="DestinationTile_Click" Tag="{Binding}"
+                                                AutomationProperties.Name="{Binding Title}" AutomationProperties.ItemStatus="{Binding BadgeText}">
                                             <Grid HorizontalAlignment="Stretch">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto"/>
@@ -165,7 +175,7 @@
                                                         CornerRadius="3" Padding="4,1" Margin="4,0,0,0"
                                                         VerticalAlignment="Center"
                                                         Visibility="{Binding BadgeVisibility}">
-                                                    <TextBlock Text="{Binding BadgeText}" FontSize="{wpf:FontSize 9.5}" FontWeight="Bold" Foreground="White"/>
+                                                    <TextBlock Text="{Binding BadgeText}" FontSize="{wpf:FontSize 9.5}" FontWeight="Bold" Foreground="{Binding BadgeForegroundBrush}"/>
                                                 </Border>
                                             </Grid>
                                         </Button>
@@ -210,6 +220,7 @@
                                     <TextBlock Grid.Column="0" Text="🔍" FontSize="{wpf:FontSize 10}" Margin="0,0,4,0" 
                                                VerticalAlignment="Center" Foreground="{Binding TextSecondaryBrush}"/>
                                     <TextBox Grid.Column="1" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                             AutomationProperties.Name="Search destinations"
                                              Background="Transparent" BorderThickness="0"
                                              Foreground="{Binding Path=DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                              CaretBrush="{Binding Path=DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
@@ -229,7 +240,8 @@
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Button Style="{StaticResource ToolboxButtonStyle}" Click="DestinationTile_Click" Tag="{Binding}">
+                                        <Button Style="{StaticResource ToolboxButtonStyle}" Click="DestinationTile_Click" Tag="{Binding}"
+                                                AutomationProperties.Name="{Binding Title}" AutomationProperties.ItemStatus="{Binding BadgeText}">
                                             <Grid HorizontalAlignment="Stretch">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto"/>
@@ -254,7 +266,7 @@
                                                         CornerRadius="3" Padding="4,1" Margin="4,0,0,0"
                                                         VerticalAlignment="Center"
                                                         Visibility="{Binding BadgeVisibility}">
-                                                    <TextBlock Text="{Binding BadgeText}" FontSize="{wpf:FontSize 9.5}" FontWeight="Bold" Foreground="White"/>
+                                                    <TextBlock Text="{Binding BadgeText}" FontSize="{wpf:FontSize 9.5}" FontWeight="Bold" Foreground="{Binding BadgeForegroundBrush}"/>
                                                 </Border>
                                             </Grid>
                                         </Button>
@@ -277,7 +289,15 @@
                                 <ComboBox Grid.Column="0" ItemsSource="{Binding AvailableRecipes}"
                                           SelectedItem="{Binding SelectedRecipe}"
                                           DisplayMemberPath="Name" Margin="0,0,8,0"
-                                          Style="{StaticResource DefaultComboBoxStyle}"/>
+                                          AutomationProperties.Name="{Binding ForwardToRecipeHeaderText}"
+                                          Style="{StaticResource DefaultComboBoxStyle}">
+                                    <ComboBox.ItemContainerStyle>
+                                        <!-- The recipe name instead of the class name for screen readers -->
+                                        <Style TargetType="ComboBoxItem" BasedOn="{StaticResource DefaultComboBoxItemStyle}">
+                                            <Setter Property="AutomationProperties.Name" Value="{Binding Name}"/>
+                                        </Style>
+                                    </ComboBox.ItemContainerStyle>
+                                </ComboBox>
 
                                 <Button Grid.Column="1" Content="{Binding RunRecipeButtonText}"
                                         Style="{StaticResource PrimaryButtonStyle}"
@@ -351,6 +371,7 @@
 
         <!-- Fullscreen / Window-filling Animated Preview Overlay -->
         <Grid x:Name="FullPreviewOverlay" Visibility="Collapsed" Background="#E6000000"
+              KeyboardNavigation.TabNavigation="Cycle"
               MouseDown="FullPreviewOverlay_MouseDown" Cursor="Hand"
               RenderTransformOrigin="0.5,0.5">
             <Grid.RenderTransform>
@@ -372,7 +393,7 @@
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                         <TextBlock Text="{Binding FullscreenReturnHintText}" FontSize="{wpf:FontSize 11}" 
                                    Foreground="#C0C0C0" VerticalAlignment="Center" Margin="0,0,16,0"/>
-                        <Button Style="{StaticResource TitleCloseButtonStyle}" Click="FullPreviewClose_Click" ToolTip="{Binding CloseButtonToolTip}"/>
+                        <Button x:Name="FullPreviewCloseButton" Style="{StaticResource TitleCloseButtonStyle}" Click="FullPreviewClose_Click" ToolTip="{Binding CloseButtonToolTip}"/>
                     </StackPanel>
                 </Grid>
             </Border>

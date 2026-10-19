@@ -53,6 +53,7 @@ using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Languages;
 using Greenshot.Base.Recipes.Sources;
 using Greenshot.Base.Threading;
+using Greenshot.Base.Wpf;
 using Greenshot.Capturing.Controls;
 using Greenshot.Capturing.Overlays;
 using Greenshot.Capturing.Tools;
@@ -93,6 +94,13 @@ namespace Greenshot.Capturing.Views
         private NativeRect _screenBounds;
         // Remote desktop: no animations and no crosshair, every repaint of the screen costs bandwidth (OptimizeForRDP / DisableRDPOptimizing as before)
         private readonly bool _isRemoteSession = !Conf.DisableRDPOptimizing && (Conf.OptimizeForRDP || SystemParameters.IsRemoteSession);
+        // No animations in a remote session, nor when "Animation effects" are off in Windows (motion can make people sick)
+        private readonly bool _noAnimations;
+        // What the screen reader said last, see Announce
+        private string _announced;
+        private DispatcherTimer _announceTimer;
+        // A screen reader key (Insert or Caps Lock) is held on the live screen: its keys belong to the screen reader, see OnLiveKey
+        private volatile bool _screenReaderKeyDown;
         private BitmapSource _screenImage;
         // The screen isn't frozen: the window is see-through, takes no focus and is left out of every capture of the screen, see ApplyLiveMode
         private bool _live;
@@ -362,7 +370,7 @@ namespace Greenshot.Capturing.Views
 
         private void MovePanel(TranslateTransform position, DependencyProperty property, double to, bool animate)
         {
-            if (!animate || _isRemoteSession)
+            if (!animate || _noAnimations)
             {
                 position.BeginAnimation(property, null);
                 position.SetValue(property, to);
@@ -378,7 +386,7 @@ namespace Greenshot.Capturing.Views
         /// </summary>
         private void Fade(UIElement element, double from, double to, Action completed)
         {
-            if (_isRemoteSession)
+            if (_noAnimations)
             {
                 element.BeginAnimation(OpacityProperty, null);
                 element.Opacity = to;
@@ -435,6 +443,11 @@ namespace Greenshot.Capturing.Views
             _screenBounds = screenBounds;
 
             InitializeComponent();
+            _noAnimations = _isRemoteSession || !SystemParameters.ClientAreaAnimation;
+            if (ThemeManager.Instance.IsHighContrast)
+            {
+                UseHighContrastColors();
+            }
             // The DPI of the primary monitor until the window is placed, see ApplyDpiScale
             _dpiScale = VisualTreeHelper.GetDpi(this).DpiScaleX;
             var labelFont = (FontFamily)FindResource("LabelFontFamily");
@@ -829,6 +842,7 @@ namespace Greenshot.Capturing.Views
             UpdateZoomerVisibility();
             UpdateSelection();
             Redraw();
+            AnnounceTool();
         }
 
         /// <summary>
@@ -1125,6 +1139,80 @@ namespace Greenshot.Capturing.Views
             }
             Activate();
             WindowHelper.ToForeground(new WindowInteropHelper(this).Handle);
+            AnnounceTool();
+        }
+
+        /// <summary>
+        /// Tell a screen reader how the built-in modes work, the keys of every mode are on F1
+        /// </summary>
+        private void AnnounceTool()
+        {
+            if (_activeTool == _regionTool)
+            {
+                Announce(Texts.Core.AccessibleCaptureRegion);
+            }
+            else if (_activeTool == _windowTool)
+            {
+                Announce(Texts.Core.AccessibleCaptureWindowMode);
+            }
+        }
+
+        /// <summary>
+        /// Let a screen reader say the text, without a visible change. The same text twice in a row is said once.
+        /// </summary>
+        private void Announce(string text)
+        {
+            if (string.IsNullOrEmpty(text) || text == _announced)
+            {
+                return;
+            }
+            _announced = text;
+            Announcement.Text = text;
+        }
+
+        /// <summary>
+        /// The size of the selection (and the window) is said once it stopped changing, not for every pixel the cursor moves
+        /// </summary>
+        private void AnnounceSelectionSoon()
+        {
+            if (_announceTimer == null)
+            {
+                _announceTimer = new DispatcherTimer(DispatcherPriority.Normal, Dispatcher) { Interval = TimeSpan.FromMilliseconds(500) };
+                _announceTimer.Tick += (sender, args) =>
+                {
+                    _announceTimer.Stop();
+                    var size = SelectionSize;
+                    if (_closed || size.Width <= 0 || size.Height <= 0)
+                    {
+                        return;
+                    }
+                    Announce(_activeTool is WindowCaptureTool
+                        ? string.Format(Texts.Core.AccessibleCaptureWindow, _capture?.CaptureDetails.Title, size.Width, size.Height)
+                        : string.Format(Texts.Core.AccessibleCaptureSelection, size.Width, size.Height));
+                };
+            }
+            _announceTimer.Stop();
+            _announceTimer.Start();
+        }
+
+        /// <summary>
+        /// Windows high contrast: the selection, rulers and crosshair in the colors the user chose, the green look doesn't fit every contrast theme
+        /// </summary>
+        private void UseHighContrastColors()
+        {
+            var highlight = SystemColors.HighlightColor;
+            Resources["SelectionFillBrush"] = Frozen(new SolidColorBrush(Color.FromArgb(0x40, highlight.R, highlight.G, highlight.B)));
+            Resources["SelectionBorderBrush"] = SystemColors.HighlightBrush;
+            Resources["RulerBackgroundBrush"] = SystemColors.WindowBrush;
+            Resources["RulerBrush"] = SystemColors.WindowTextBrush;
+            Resources["SizeTextBrush"] = SystemColors.HighlightBrush;
+            Resources["CrosshairBrush"] = SystemColors.HighlightBrush;
+
+            static Brush Frozen(Brush brush)
+            {
+                brush.Freeze();
+                return brush;
+            }
         }
 
         private void OnClosed(object sender, EventArgs e)
@@ -1137,6 +1225,7 @@ namespace Greenshot.Capturing.Views
                 _capture.CaptureDetails.FeaturesChanged -= OnFeaturesChanged;
             }
             _selectionSettleTimer?.Stop();
+            _announceTimer?.Stop();
             _livePixelsTimer?.Stop();
             _keyboardSubscription?.Dispose();
             _keyboardSubscription = null;
@@ -1255,11 +1344,21 @@ namespace Greenshot.Capturing.Views
 
         /// <summary>
         /// The live screen: the application below has the focus, the keys come from the keyboard hook. Called on the hook thread.
-        /// Every key is taken away from the application below while selecting, except the Windows key and its shortcuts.
+        /// Every key is taken away from the application below while selecting, except the Windows key and the keys of a screen reader.
         /// </summary>
         private void OnLiveKey(KeyboardHookEventArgs e)
         {
             if (_closed || e.IsWindows || e.Key is VirtualKeyCode.LeftWin or VirtualKeyCode.RightWin)
+            {
+                return;
+            }
+            // Insert and Caps Lock are the keys of screen readers (Narrator, NVDA, JAWS): they and the keys pressed with them stay theirs
+            if (e.Key is VirtualKeyCode.Insert or VirtualKeyCode.Capital)
+            {
+                _screenReaderKeyDown = e.IsKeyDown;
+                return;
+            }
+            if (_screenReaderKeyDown)
             {
                 return;
             }
@@ -1546,7 +1645,7 @@ namespace Greenshot.Capturing.Views
         {
             var animation = ((RectAnimation)FindResource("WindowSelectionAnimation")).Clone();
             animation.To = target;
-            if (_isRemoteSession)
+            if (_noAnimations)
             {
                 // Jump there, the completed handler still runs
                 animation.Duration = new Duration(TimeSpan.Zero);
@@ -1585,6 +1684,7 @@ namespace Greenshot.Capturing.Views
             SelectionSize = size;
             UpdateZoomerSelection();
             UpdateSelectionPreview();
+            AnnounceSelectionSoon();
 
             int width = size.Width;
             int height = size.Height;
@@ -1647,7 +1747,7 @@ namespace Greenshot.Capturing.Views
                 }
             }
 
-            if (fadeIn && !_isRemoteSession)
+            if (fadeIn && !_noAnimations)
             {
                 ((Storyboard)FindResource("ShowLabelsStoryboard")).Begin(this, true);
                 _labelsFading = true;
@@ -1723,7 +1823,7 @@ namespace Greenshot.Capturing.Views
             _zoomerShown = show;
             // Without the zoomer the preview of the selection goes back to its corner, and the other way round
             UpdateSelectionPreview();
-            if (_isRemoteSession)
+            if (_noAnimations)
             {
                 ZoomerScale.ScaleX = ZoomerScale.ScaleY = show ? 1 : 0;
                 return;
@@ -1777,7 +1877,7 @@ namespace Greenshot.Capturing.Views
                 return;
             }
             _zoomOffset = offset;
-            if (_isRemoteSession)
+            if (_noAnimations)
             {
                 ZoomerOffset.X = offset.X;
                 ZoomerOffset.Y = offset.Y;
@@ -1942,12 +2042,12 @@ namespace Greenshot.Capturing.Views
         }
 
         /// <summary>
-        /// Text in pixels, the size in points scaled like the rest of the UI
+        /// Text in pixels, the size in points scaled like the rest of the UI (DPI and the "Text size" of Windows)
         /// </summary>
         private FormattedText CreateText(string text, double points, Brush brush, bool bold = false)
         {
             return new FormattedText(text, CultureInfo.CurrentCulture, FlowDirection.LeftToRight, bold ? _boldLabelTypeface : _labelTypeface,
-                points * 96 / 72 * _dpiScale, brush, 1.0);
+                FontSizeExtension.Scale(points * 96 / 72 * _dpiScale), brush, 1.0);
         }
 
         /// <summary>

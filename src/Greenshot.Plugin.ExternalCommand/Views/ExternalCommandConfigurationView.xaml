@@ -69,7 +69,14 @@
                          Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBackgroundBrush}"
                          Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                          BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
-                         BorderThickness="1">
+                         BorderThickness="1"
+                         AutomationProperties.Name="{wpf:Text ExternalCommand.LabelCommands}">
+                    <!-- The command's name for a screen reader, the item has no ToString -->
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+                            <Setter Property="AutomationProperties.Name" Value="{Binding Name}"/>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" Margin="4,2">
@@ -141,8 +148,8 @@
                                     <ColumnDefinition Width="90"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Label Grid.Column="0" Content="{wpf:Text ExternalCommand.LabelName}"/>
-                                <TextBox Grid.Column="1" Text="{Binding SelectedCommand.Name, UpdateSourceTrigger=PropertyChanged}"/>
+                                <Label Grid.Column="0" Content="{wpf:Text ExternalCommand.LabelName}" Target="{Binding ElementName=CommandNameTextBox}"/>
+                                <TextBox x:Name="CommandNameTextBox" Grid.Column="1" Text="{Binding SelectedCommand.Name, UpdateSourceTrigger=PropertyChanged}"/>
                             </Grid>
 
                             <!-- Executable -->
@@ -152,9 +159,11 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <Label Grid.Column="0" Content="{wpf:Text ExternalCommand.LabelCommand}"/>
-                                <TextBox Grid.Column="1" Text="{Binding SelectedCommand.CommandLine, UpdateSourceTrigger=PropertyChanged}"/>
-                                <Button Grid.Column="2" Content="..." Style="{StaticResource SecondaryButtonStyle}" Width="28" Height="28" Margin="4,0,0,0" Padding="4,0" Click="Browse_Click"/>
+                                <Label Grid.Column="0" Content="{wpf:Text ExternalCommand.LabelCommand}" Target="{Binding ElementName=CommandLineTextBox}"/>
+                                <TextBox x:Name="CommandLineTextBox" Grid.Column="1" Text="{Binding SelectedCommand.CommandLine, UpdateSourceTrigger=PropertyChanged}"/>
+                                <Button Grid.Column="2" Content="..." Style="{StaticResource SecondaryButtonStyle}" Width="28" Height="28" Margin="4,0,0,0" Padding="4,0" Click="Browse_Click"
+                                        ToolTip="{wpf:Text ExternalCommand.LabelBrowse}"
+                                        AutomationProperties.Name="{wpf:Text ExternalCommand.LabelBrowse}"/>
                             </Grid>
 
                             <!-- Arguments -->
@@ -163,8 +172,8 @@
                                     <ColumnDefinition Width="90"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Label Grid.Column="0" Content="{wpf:Text ExternalCommand.LabelArgument}"/>
-                                <TextBox Grid.Column="1" Text="{Binding SelectedCommand.Arguments, UpdateSourceTrigger=PropertyChanged}"/>
+                                <Label Grid.Column="0" Content="{wpf:Text ExternalCommand.LabelArgument}" Target="{Binding ElementName=ArgumentsTextBox}"/>
+                                <TextBox x:Name="ArgumentsTextBox" Grid.Column="1" Text="{Binding SelectedCommand.Arguments, UpdateSourceTrigger=PropertyChanged}"/>
                             </Grid>
 
                             <!-- Placeholder info -->
@@ -179,8 +188,8 @@
                                     <ColumnDefinition Width="90"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Label Grid.Column="0" Content="{wpf:Text ExternalCommand.LabelOutputimageformat}"/>
-                                <ComboBox Grid.Column="1"
+                                <Label Grid.Column="0" Content="{wpf:Text ExternalCommand.LabelOutputimageformat}" Target="{Binding ElementName=OutputFormatCombo}"/>
+                                <ComboBox x:Name="OutputFormatCombo" Grid.Column="1"
                                           ItemsSource="{Binding SelectedCommand.OutputFormats}"
                                           DisplayMemberPath="DisplayNameWithPreferredExtension"
                                           SelectedValuePath="Id"

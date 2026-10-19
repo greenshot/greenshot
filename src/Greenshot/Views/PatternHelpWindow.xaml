@@ -38,6 +38,7 @@
                 Padding="12">
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                 <TextBox x:Name="HelpTextBox"
+                         AutomationProperties.Name="{wpf:Text Settings.Filenamepattern}"
                          IsReadOnly="True"
                          TextWrapping="Wrap"
                          BorderThickness="0"

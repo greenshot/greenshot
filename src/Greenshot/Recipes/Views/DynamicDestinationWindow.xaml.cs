@@ -463,9 +463,9 @@ namespace Greenshot.Recipes.Views
 
         #region Fullscreen Preview Zoom Transition
 
-        private void Thumbnail_MouseDown(object sender, MouseButtonEventArgs e)
+        private void Thumbnail_Click(object sender, RoutedEventArgs e)
         {
-            if (e.ChangedButton == MouseButton.Left && PreviewImageSource != null)
+            if (PreviewImageSource != null)
             {
                 OpenFullscreenPreview();
             }
@@ -501,6 +501,8 @@ namespace Greenshot.Recipes.Views
             FullPreviewOverlay.BeginAnimation(OpacityProperty, fadeAnim);
             PreviewScale.BeginAnimation(ScaleTransform.ScaleXProperty, scaleXAnim);
             PreviewScale.BeginAnimation(ScaleTransform.ScaleYProperty, scaleYAnim);
+            // The keyboard focus goes into the preview, else it stays on the hidden controls behind it
+            FullPreviewCloseButton.Focus();
         }
 
         private void CloseFullscreenPreview()
@@ -517,6 +519,7 @@ namespace Greenshot.Recipes.Views
             {
                 FullPreviewOverlay.Visibility = Visibility.Collapsed;
                 _isFullPreviewOpen = false;
+                ThumbnailButton.Focus();
             };
 
             FullPreviewOverlay.BeginAnimation(OpacityProperty, fadeAnim);

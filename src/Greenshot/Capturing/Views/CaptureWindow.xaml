@@ -11,7 +11,8 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:capture="clr-namespace:Greenshot.Capturing.Controls"
-        Title="Greenshot capture form"
+        xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
+        Title="Greenshot"
         WindowStyle="None"
         ResizeMode="NoResize"
         AllowsTransparency="False"
@@ -25,7 +26,7 @@
         TextOptions.TextFormattingMode="Display"
         RenderOptions.EdgeMode="Aliased">
     <Window.Resources>
-        <!-- The look of the selection -->
+        <!-- The look of the selection, in high contrast the system colors replace them (see UseHighContrastColors) -->
         <SolidColorBrush x:Key="SelectionFillBrush" Color="#323CB371" />
         <SolidColorBrush x:Key="SelectionBorderBrush" Color="#32000000" />
         <SolidColorBrush x:Key="RulerBackgroundBrush" Color="#C8D9F0E3" />
@@ -86,6 +87,9 @@
     </Window.Resources>
 
     <Canvas x:Name="Root" HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="True">
+        <!-- Not drawn: what a screen reader says about the mode and the selection, see Announce -->
+        <TextBlock x:Name="Announcement" Opacity="0" IsHitTestVisible="False" wpf:LiveRegion.Mode="Polite" />
+
         <!-- The frozen capture of the screen -->
         <Image x:Name="ScreenImage" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" />
 
@@ -99,7 +103,7 @@
         <capture:DrawingLayer x:Name="ToolLayer" />
 
         <!-- The selected region or window -->
-        <Path x:Name="SelectionPath" Fill="{StaticResource SelectionFillBrush}" Stroke="{StaticResource SelectionBorderBrush}" StrokeThickness="1" Visibility="Collapsed" IsHitTestVisible="False">
+        <Path x:Name="SelectionPath" Fill="{DynamicResource SelectionFillBrush}" Stroke="{DynamicResource SelectionBorderBrush}" StrokeThickness="1" Visibility="Collapsed" IsHitTestVisible="False">
             <Path.Data>
                 <RectangleGeometry x:Name="SelectionGeometry" />
             </Path.Data>
@@ -144,7 +148,7 @@
                 </Ellipse>
                 <!-- The selection in the zoomer, inside the lens: a small selection can be placed pixel exact -->
                 <Canvas x:Name="ZoomerSelectionLayer">
-                    <Rectangle x:Name="ZoomerSelection" Fill="{StaticResource SelectionFillBrush}" Stroke="{StaticResource SelectionBorderBrush}" StrokeThickness="2" Visibility="Collapsed" />
+                    <Rectangle x:Name="ZoomerSelection" Fill="{DynamicResource SelectionFillBrush}" Stroke="{DynamicResource SelectionBorderBrush}" StrokeThickness="2" Visibility="Collapsed" />
                 </Canvas>
                 <Path x:Name="ZoomerCrosshair" Fill="Black" Stroke="White" StrokeThickness="1" />
                 <Ellipse x:Name="ZoomerRing" Stroke="White" StrokeThickness="2" RenderOptions.EdgeMode="Unspecified" />

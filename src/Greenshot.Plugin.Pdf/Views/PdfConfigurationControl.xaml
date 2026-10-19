@@ -66,8 +66,8 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <Label Grid.Column="0" Content="{wpf:Text Pdf.LabelUnit}" Margin="0,0,12,0"/>
-                    <ComboBox Grid.Column="1" Width="200" HorizontalAlignment="Right"
+                    <Label Grid.Column="0" Content="{wpf:Text Pdf.LabelUnit}" Margin="0,0,12,0" Target="{Binding ElementName=UnitCombo}"/>
+                    <ComboBox x:Name="UnitCombo" Grid.Column="1" Width="200" HorizontalAlignment="Right"
                               ItemsSource="{Binding MeasurementUnits}"
                               DisplayMemberPath="Value"
                               SelectedValuePath="Key"
@@ -79,8 +79,8 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <Label Grid.Column="0" Content="{wpf:Text Pdf.LabelPageSize}" Margin="0,0,12,0"/>
-                    <ComboBox Grid.Column="1" Width="200" HorizontalAlignment="Right"
+                    <Label Grid.Column="0" Content="{wpf:Text Pdf.LabelPageSize}" Margin="0,0,12,0" Target="{Binding ElementName=PageSizeCombo}"/>
+                    <ComboBox x:Name="PageSizeCombo" Grid.Column="1" Width="200" HorizontalAlignment="Right"
                               ItemsSource="{Binding PageSizes}"
                               DisplayMemberPath="Value"
                               SelectedValuePath="Key"
@@ -97,8 +97,8 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <Label Grid.Column="0" Content="{wpf:Text Pdf.LabelPageHeight}"/>
-                        <TextBox Grid.Column="1" Width="90" Margin="4,0" IsEnabled="{Binding IsPageDimensionsEnabled}"
+                        <Label Grid.Column="0" Content="{wpf:Text Pdf.LabelPageHeight}" Target="{Binding ElementName=PageHeightTextBox}"/>
+                        <TextBox x:Name="PageHeightTextBox" Grid.Column="1" Width="90" Margin="4,0" IsEnabled="{Binding IsPageDimensionsEnabled}"
                                  Text="{Binding PageHeight, Mode=TwoWay, UpdateSourceTrigger=LostFocus, StringFormat={}{0:F2}}"
                                  ToolTip="1–10000"/>
                     </Grid>
@@ -107,8 +107,8 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <Label Grid.Column="0" Content="{wpf:Text Pdf.LabelPageWidth}"/>
-                        <TextBox Grid.Column="1" Width="90" Margin="4,0" IsEnabled="{Binding IsPageDimensionsEnabled}"
+                        <Label Grid.Column="0" Content="{wpf:Text Pdf.LabelPageWidth}" Target="{Binding ElementName=PageWidthTextBox}"/>
+                        <TextBox x:Name="PageWidthTextBox" Grid.Column="1" Width="90" Margin="4,0" IsEnabled="{Binding IsPageDimensionsEnabled}"
                                  Text="{Binding PageWidth, Mode=TwoWay, UpdateSourceTrigger=LostFocus, StringFormat={}{0:F2}}"
                                  ToolTip="1–10000"/>
                     </Grid>
@@ -119,8 +119,8 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <Label Grid.Column="0" Content="{wpf:Text Pdf.LabelScaling}" Margin="0,0,12,0"/>
-                    <ComboBox Grid.Column="1" Width="200" HorizontalAlignment="Right"
+                    <Label Grid.Column="0" Content="{wpf:Text Pdf.LabelScaling}" Margin="0,0,12,0" Target="{Binding ElementName=ScalingCombo}"/>
+                    <ComboBox x:Name="ScalingCombo" Grid.Column="1" Width="200" HorizontalAlignment="Right"
                               IsEnabled="{Binding IsFixedPage}"
                               ItemsSource="{Binding ScalingModes}"
                               DisplayMemberPath="Value"
@@ -145,32 +145,32 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <Label Grid.Column="0" Content="{wpf:Text Pdf.LabelTop}"/>
-                    <TextBox Grid.Column="1" Width="90" Margin="4" Text="{Binding MarginTop, Mode=TwoWay, UpdateSourceTrigger=LostFocus, StringFormat={}{0:F2}}" ToolTip="0–10000"/>
+                    <Label Grid.Column="0" Content="{wpf:Text Pdf.LabelTop}" Target="{Binding ElementName=TopTextBox}"/>
+                    <TextBox x:Name="TopTextBox" Grid.Column="1" Width="90" Margin="4" Text="{Binding MarginTop, Mode=TwoWay, UpdateSourceTrigger=LostFocus, StringFormat={}{0:F2}}" ToolTip="0–10000"/>
                 </Grid>
                 <Grid Grid.Row="0" Grid.Column="1">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <Label Grid.Column="0" Content="{wpf:Text Pdf.LabelBottom}"/>
-                    <TextBox Grid.Column="1" Width="90" Margin="4" Text="{Binding MarginBottom, Mode=TwoWay, UpdateSourceTrigger=LostFocus, StringFormat={}{0:F2}}" ToolTip="0–10000"/>
+                    <Label Grid.Column="0" Content="{wpf:Text Pdf.LabelBottom}" Target="{Binding ElementName=BottomTextBox}"/>
+                    <TextBox x:Name="BottomTextBox" Grid.Column="1" Width="90" Margin="4" Text="{Binding MarginBottom, Mode=TwoWay, UpdateSourceTrigger=LostFocus, StringFormat={}{0:F2}}" ToolTip="0–10000"/>
                 </Grid>
                 <Grid Grid.Row="1" Grid.Column="0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <Label Grid.Column="0" Content="{wpf:Text Pdf.LabelLeft}"/>
-                    <TextBox Grid.Column="1" Width="90" Margin="4" Text="{Binding MarginLeft, Mode=TwoWay, UpdateSourceTrigger=LostFocus, StringFormat={}{0:F2}}" ToolTip="0–10000"/>
+                    <Label Grid.Column="0" Content="{wpf:Text Pdf.LabelLeft}" Target="{Binding ElementName=LeftTextBox}"/>
+                    <TextBox x:Name="LeftTextBox" Grid.Column="1" Width="90" Margin="4" Text="{Binding MarginLeft, Mode=TwoWay, UpdateSourceTrigger=LostFocus, StringFormat={}{0:F2}}" ToolTip="0–10000"/>
                 </Grid>
                 <Grid Grid.Row="1" Grid.Column="1">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <Label Grid.Column="0" Content="{wpf:Text Pdf.LabelRight}"/>
-                    <TextBox Grid.Column="1" Width="90" Margin="4" Text="{Binding MarginRight, Mode=TwoWay, UpdateSourceTrigger=LostFocus, StringFormat={}{0:F2}}" ToolTip="0–10000"/>
+                    <Label Grid.Column="0" Content="{wpf:Text Pdf.LabelRight}" Target="{Binding ElementName=RightTextBox}"/>
+                    <TextBox x:Name="RightTextBox" Grid.Column="1" Width="90" Margin="4" Text="{Binding MarginRight, Mode=TwoWay, UpdateSourceTrigger=LostFocus, StringFormat={}{0:F2}}" ToolTip="0–10000"/>
                 </Grid>
             </Grid>
         </GroupBox>

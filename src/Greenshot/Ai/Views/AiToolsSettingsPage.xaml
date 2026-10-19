@@ -47,7 +47,7 @@
                                     <TextBlock Text="{Binding Symbol}" FontWeight="Bold" VerticalAlignment="Top">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="Foreground" Value="#2EA043"/>
+                                                <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.SuccessBrush}"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding IsOtherVersion}" Value="True">
                                                         <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=WarningBrush}"/>
@@ -116,6 +116,7 @@
                                         </StackPanel>
                                         <Button Grid.Column="1" Style="{StaticResource RemoveEntryButtonStyle}" VerticalAlignment="Center" Margin="8,0,0,0"
                                                 ToolTip="{wpf:Text Settings.AitoolsRemove}"
+                                                AutomationProperties.Name="{wpf:Text Settings.AitoolsRemove}"
                                                 Click="RemoveAiToolClient_Click"/>
                                     </Grid>
                                 </Border>
@@ -197,6 +198,7 @@
                                         <TextBlock Text="{Binding}" VerticalAlignment="Center" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                                         <Button Style="{StaticResource RemoveEntryButtonStyle}" Margin="4,0,0,0"
                                                 ToolTip="{wpf:Text Settings.AitoolsRemove}"
+                                                AutomationProperties.Name="{wpf:Text Settings.AitoolsRemove}"
                                                 Click="RemoveExcludedProcess_Click"/>
                                     </StackPanel>
                                 </Border>
@@ -209,6 +211,7 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBox Text="{Binding NewExcludedProcess, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 AutomationProperties.Name="{wpf:Text Settings.AitoolsExcluded}"
                                  ToolTip="{wpf:Text Settings.AitoolsExcludedAddTooltip}"
                                  KeyDown="NewExcludedProcess_KeyDown"/>
                         <Button Grid.Column="1" Content="{wpf:Text Settings.AitoolsAdd}" Margin="8,0,0,0" Padding="12,3" MinWidth="80"
@@ -234,6 +237,7 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Text="⚠" Margin="0,0,8,0" VerticalAlignment="Center"
+                                                   AutomationProperties.Name="{wpf:Text Core.Warning}"
                                                    Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=WarningBrush}"
                                                    Visibility="{Binding NeedsAttention, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center">

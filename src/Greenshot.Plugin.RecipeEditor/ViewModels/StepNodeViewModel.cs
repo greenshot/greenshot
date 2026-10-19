@@ -1418,6 +1418,11 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         public string DisplayName => string.IsNullOrWhiteSpace(Name) ? StepType : Name;
 
+        /// <summary>
+        /// The title of the step, which screen readers announce for the step in lists (instead of the class name)
+        /// </summary>
+        public override string ToString() => DisplayName;
+
         public Point Location
         {
             get => _location;

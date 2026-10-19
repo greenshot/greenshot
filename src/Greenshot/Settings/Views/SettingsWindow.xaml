@@ -79,6 +79,7 @@
             <Setter Property="Padding" Value="10,6"/>
             <Setter Property="Margin" Value="0,0,2,0"/>
             <Setter Property="FontSize" Value="{wpf:FontSize 12}"/>
+            <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TabItem">
@@ -98,11 +99,12 @@
                                 <Setter TargetName="Border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TabItemSelectedBrush}"/>
                                 <Setter Property="Panel.ZIndex" Value="100"/>
                             </Trigger>
+                            <!-- The muted text color instead of transparency, which keeps the contrast of the palette (and high contrast) -->
                             <Trigger Property="IsSelected" Value="False">
-                                <Setter TargetName="Border" Property="Opacity" Value="0.7"/>
+                                <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Border" Property="Opacity" Value="1"/>
+                                <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -176,8 +178,8 @@
                                         <ColumnDefinition Width="150"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <Label Content="{wpf:Text Settings.Language}"/>
-                                    <ComboBox Grid.Column="1" 
+                                    <Label Content="{wpf:Text Settings.Language}" Target="{Binding ElementName=LanguageComboBox}"/>
+                                    <ComboBox x:Name="LanguageComboBox" Grid.Column="1" 
                                               ItemsSource="{Binding SupportedLanguages}"
                                               DisplayMemberPath="DisplayName"
                                               SelectedValuePath="Ietf"
@@ -190,8 +192,8 @@
                                         <ColumnDefinition Width="150"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <Label Content="{wpf:Text Settings.Theme}"/>
-                                    <ComboBox Grid.Column="1"
+                                    <Label Content="{wpf:Text Settings.Theme}" Target="{Binding ElementName=ThemeComboBox}"/>
+                                    <ComboBox x:Name="ThemeComboBox" Grid.Column="1"
                                               ItemsSource="{Binding Themes}"
                                               DisplayMemberPath="DisplayName"
                                               SelectedValuePath="Theme"
@@ -204,20 +206,26 @@
                                         <ColumnDefinition Width="150"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <Label Content="{wpf:Text Settings.Iconsize}"/>
+                                    <Label Content="{wpf:Text Settings.Iconsize}" Target="{Binding ElementName=IconSizeTextBox}"/>
                                     <Grid Grid.Column="1">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBox Text="{Binding IconSize, Mode=TwoWay}" 
+                                        <TextBox x:Name="IconSizeTextBox"
+                                                 Text="{Binding IconSize, Mode=TwoWay}" 
                                                  TextAlignment="Right"
                                                  IsReadOnly="True"
                                                  IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=BaseIconSize}"/>
-                                        <StackPanel Grid.Column="1" Orientation="Vertical" Margin="2,0,0,0" VerticalAlignment="Center">
-                                            <Button Content="▲" Click="IconSizeUp_Click" Padding="4,0" FontSize="{wpf:FontSize 8}" MinWidth="20" Height="15" Margin="0,0,0,1"
+                                        <!-- Side by side, big enough to hit; named, the glyphs say nothing to a screen reader -->
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="2,0,0,0" VerticalAlignment="Center">
+                                            <Button Content="▲" Click="IconSizeUp_Click" Padding="4,0" FontSize="{wpf:FontSize 10}" MinWidth="26" MinHeight="26" Margin="0,0,2,0"
+                                                    ToolTip="{wpf:Text Settings.IconsizeIncrease}"
+                                                    AutomationProperties.Name="{wpf:Text Settings.IconsizeIncrease}"
                                                     IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=BaseIconSize}"/>
-                                            <Button Content="▼" Click="IconSizeDown_Click" Padding="4,0" FontSize="{wpf:FontSize 8}" MinWidth="20" Height="15" Margin="0,1,0,0"
+                                            <Button Content="▼" Click="IconSizeDown_Click" Padding="4,0" FontSize="{wpf:FontSize 10}" MinWidth="26" MinHeight="26"
+                                                    ToolTip="{wpf:Text Settings.IconsizeDecrease}"
+                                                    AutomationProperties.Name="{wpf:Text Settings.IconsizeDecrease}"
                                                     IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=BaseIconSize}"/>
                                         </StackPanel>
                                     </Grid>
@@ -294,8 +302,8 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <Label Content="{wpf:Text Settings.Checkperiod}"/>
-                                    <TextBox Grid.Column="1" HorizontalAlignment="Right" Width="80" TextAlignment="Right" Text="{Binding CoreConfiguration.UpdateCheckInterval}"
+                                    <Label Content="{wpf:Text Settings.Checkperiod}" Target="{Binding ElementName=CheckPeriodTextBox}"/>
+                                    <TextBox x:Name="CheckPeriodTextBox" Grid.Column="1" HorizontalAlignment="Right" Width="80" TextAlignment="Right" Text="{Binding CoreConfiguration.UpdateCheckInterval}"
                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=UpdateCheckInterval}"/>
                                 </Grid>
                             </StackPanel>
@@ -329,8 +337,8 @@
                                         <ColumnDefinition Width="150"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <Label Content="{wpf:Text Settings.Notifications}"/>
-                                    <ComboBox Grid.Column="1"
+                                    <Label Content="{wpf:Text Settings.Notifications}" Target="{Binding ElementName=NotificationsComboBox}"/>
+                                    <ComboBox x:Name="NotificationsComboBox" Grid.Column="1"
                                               ItemsSource="{Binding NotificationLevels}"
                                               DisplayMemberPath="DisplayName"
                                               SelectedValuePath="Level"
@@ -350,7 +358,8 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text="{wpf:Text Settings.Waittime}"
+                                    <TextBlock x:Name="WaitTimeLabel"
+                                               Text="{wpf:Text Settings.Waittime}"
                                                TextWrapping="Wrap"
                                                VerticalAlignment="Center"
                                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
@@ -359,6 +368,7 @@
                                              Width="70"
                                              TextAlignment="Right"
                                              Text="{Binding CoreConfiguration.CaptureDelay, Mode=TwoWay}"
+                                             AutomationProperties.LabeledBy="{Binding ElementName=WaitTimeLabel}"
                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureDelay}"/>
                                 </Grid>
 
@@ -399,6 +409,7 @@
                                         <Button x:Name="AddFixedCaptureSizeButton"
                                                 Style="{StaticResource AddPillButtonStyle}"
                                                 ToolTip="{wpf:Text Settings.FixedCaptureSizesAdd}"
+                                                AutomationProperties.Name="{wpf:Text Settings.FixedCaptureSizesAdd}"
                                                 Click="AddFixedCaptureSize_Click"/>
                                     </WrapPanel>
                                     <Popup x:Name="AddFixedCaptureSizePopup"
@@ -422,16 +433,19 @@
                                                     <RowDefinition Height="Auto"/>
                                                     <RowDefinition Height="Auto"/>
                                                 </Grid.RowDefinitions>
-                                                <TextBlock Text="{wpf:Text Settings.FixedCaptureSizesWidth}" FontSize="{wpf:FontSize 11}" Margin="0,0,0,3"
+                                                <TextBlock x:Name="FixedCaptureSizeWidthLabel" Text="{wpf:Text Settings.FixedCaptureSizesWidth}" FontSize="{wpf:FontSize 11}" Margin="0,0,0,3"
                                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
-                                                <TextBlock Grid.Column="2" Text="{wpf:Text Settings.FixedCaptureSizesHeight}" FontSize="{wpf:FontSize 11}" Margin="0,0,0,3"
+                                                <TextBlock x:Name="FixedCaptureSizeHeightLabel" Grid.Column="2" Text="{wpf:Text Settings.FixedCaptureSizesHeight}" FontSize="{wpf:FontSize 11}" Margin="0,0,0,3"
                                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
-                                                <TextBox x:Name="FixedCaptureSizeWidth" Grid.Row="1" TextAlignment="Right"/>
+                                                <TextBox x:Name="FixedCaptureSizeWidth" Grid.Row="1" TextAlignment="Right"
+                                                         AutomationProperties.LabeledBy="{Binding ElementName=FixedCaptureSizeWidthLabel}"/>
                                                 <TextBlock Grid.Row="1" Grid.Column="1" Text="×" Margin="6,0" VerticalAlignment="Center"
                                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                                                <TextBox x:Name="FixedCaptureSizeHeight" Grid.Row="1" Grid.Column="2" TextAlignment="Right"/>
+                                                <TextBox x:Name="FixedCaptureSizeHeight" Grid.Row="1" Grid.Column="2" TextAlignment="Right"
+                                                         AutomationProperties.LabeledBy="{Binding ElementName=FixedCaptureSizeHeightLabel}"/>
                                                 <Button Grid.Row="1" Grid.Column="3" Content="+" Margin="8,0,0,0" Padding="10,2"
                                                         ToolTip="{wpf:Text Settings.FixedCaptureSizesAdd}"
+                                                        AutomationProperties.Name="{wpf:Text Settings.FixedCaptureSizesAdd}"
                                                         Click="AddFixedCaptureSizeConfirm_Click"/>
                                             </Grid>
                                         </Border>
@@ -455,7 +469,8 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="{wpf:Text Settings.OcrLanguage}"
+                                <TextBlock x:Name="OcrLanguageLabel"
+                                           Text="{wpf:Text Settings.OcrLanguage}"
                                            TextWrapping="Wrap"
                                            VerticalAlignment="Center"
                                            ToolTip="{wpf:Text Settings.TooltipOcrLanguage}"
@@ -466,6 +481,7 @@
                                           DisplayMemberPath="DisplayName"
                                           SelectedValuePath="LanguageTag"
                                           SelectedValue="{Binding SelectedOcrLanguage, Mode=TwoWay}"
+                                          AutomationProperties.LabeledBy="{Binding ElementName=OcrLanguageLabel}"
                                           ToolTip="{wpf:Text Settings.TooltipOcrLanguage}"/>
                             </Grid>
                         </GroupBox>
@@ -491,20 +507,24 @@
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
                                     
-                                    <Label Grid.Row="0" Grid.Column="0" Content="{wpf:Text Settings.Storagelocation}" Margin="0,0,12,0"/>
-                                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding CoreConfiguration.OutputFilePath}"
+                                    <Label Grid.Row="0" Grid.Column="0" Content="{wpf:Text Settings.Storagelocation}" Margin="0,0,12,0" Target="{Binding ElementName=StorageLocationTextBox}"/>
+                                    <TextBox x:Name="StorageLocationTextBox" Grid.Row="0" Grid.Column="1" Text="{Binding CoreConfiguration.OutputFilePath}"
                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFilePath}"/>
                                     <Button Grid.Row="0" Grid.Column="2" Content="..." Style="{StaticResource SecondaryButtonStyle}" Margin="6,2,0,2" Click="BrowseStorageLocation_Click"
+                                            ToolTip="{wpf:Text Settings.StoragelocationBrowse}"
+                                            AutomationProperties.Name="{wpf:Text Settings.StoragelocationBrowse}"
                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFilePath}"/>
                                     
-                                    <Label Grid.Row="1" Grid.Column="0" Content="{wpf:Text Settings.Filenamepattern}" Margin="0,0,12,0"/>
-                                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding CoreConfiguration.OutputFileFilenamePattern}"
+                                    <Label Grid.Row="1" Grid.Column="0" Content="{wpf:Text Settings.Filenamepattern}" Margin="0,0,12,0" Target="{Binding ElementName=FilenamePatternTextBox}"/>
+                                    <TextBox x:Name="FilenamePatternTextBox" Grid.Row="1" Grid.Column="1" Text="{Binding CoreConfiguration.OutputFileFilenamePattern}"
                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFileFilenamePattern}"/>
                                     <Button Grid.Row="1" Grid.Column="2" Content="?" Style="{StaticResource SecondaryButtonStyle}" Margin="6,2,0,2" Click="ShowPatternHelp_Click"
+                                            ToolTip="{wpf:Text Settings.FilenamepatternHelp}"
+                                            AutomationProperties.Name="{wpf:Text Settings.FilenamepatternHelp}"
                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFileFilenamePattern}"/>
                                     
-                                    <Label Grid.Row="2" Grid.Column="0" Content="{wpf:Text Settings.Primaryimageformat}" Margin="0,0,12,0"/>
-                                    <ComboBox Grid.Row="2" Grid.Column="1"
+                                    <Label Grid.Row="2" Grid.Column="0" Content="{wpf:Text Settings.Primaryimageformat}" Margin="0,0,12,0" Target="{Binding ElementName=ImageFormatComboBox}"/>
+                                    <ComboBox x:Name="ImageFormatComboBox" Grid.Row="2" Grid.Column="1"
                                               ItemsSource="{Binding ImageFormats}"
                                               DisplayMemberPath="DisplayNameWithPreferredExtension"
                                               SelectedValuePath="Value"
@@ -526,8 +546,8 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="85"/>
                                     </Grid.ColumnDefinitions>
-                                    <Label Content="{wpf:Text Settings.Jpegquality}"/>
-                                    <Slider Grid.Column="1" 
+                                    <Label Content="{wpf:Text Settings.Jpegquality}" Target="{Binding ElementName=JpegQualitySlider}"/>
+                                    <Slider x:Name="JpegQualitySlider" Grid.Column="1" 
                                             Minimum="0" Maximum="100" 
                                             TickFrequency="10" 
                                             IsSnapToTickEnabled="True" 
@@ -535,6 +555,7 @@
                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFileJpegQuality}"/>
                                     <TextBox Grid.Column="2" 
                                              Text="{Binding CoreConfiguration.OutputFileJpegQuality, Mode=OneWay, StringFormat={}{0}%}" 
+                                             AutomationProperties.Name="{wpf:Text Settings.Jpegquality}"
                                              IsReadOnly="True"
                                              TextAlignment="Center"
                                              Padding="2,4"
@@ -563,6 +584,7 @@
                                       IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputDestinations}"
                                       Margin="5" DockPanel.Dock="Top"/>
                             <ListView ItemsSource="{Binding Destinations}" 
+                                      AutomationProperties.Name="{wpf:Text Settings.Destination}"
                                       Style="{DynamicResource ThemeListView}"
                                       ItemContainerStyle="{DynamicResource ThemeListViewItem}"
                                       Margin="5" 
@@ -575,6 +597,7 @@
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                              AutomationProperties.Name="{Binding Description}"
                                                               IsEnabled="{Binding DataContext.PickerSelected, RelativeSource={RelativeSource AncestorType=ListView}, Converter={StaticResource InverseBooleanConverter}}"/>
                                                 </DataTemplate>
                                             </GridViewColumn.CellTemplate>
@@ -639,22 +662,28 @@
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
-                                <TextBlock Text="{wpf:Text Settings.NewImageSize}" VerticalAlignment="Center" Margin="0,4,12,4"
+                                <TextBlock x:Name="NewImageSizeLabel" Text="{wpf:Text Settings.NewImageSize}" VerticalAlignment="Center" Margin="0,4,12,4"
                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                                 <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="0,4"
                                             IsEnabled="{Binding EditorConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=DefaultEditorSize}">
                                     <TextBox Width="70" TextAlignment="Right" Text="{Binding NewImageWidth, Mode=TwoWay}"
-                                             ToolTip="{wpf:Text Settings.FixedCaptureSizesWidth}"/>
+                                             ToolTip="{wpf:Text Settings.FixedCaptureSizesWidth}"
+                                             AutomationProperties.Name="{wpf:Text Settings.FixedCaptureSizesWidth}"
+                                             AutomationProperties.LabeledBy="{Binding ElementName=NewImageSizeLabel}"/>
                                     <TextBlock Text="×" Margin="6,0" VerticalAlignment="Center"
                                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                                     <TextBox Width="70" TextAlignment="Right" Text="{Binding NewImageHeight, Mode=TwoWay}"
-                                             ToolTip="{wpf:Text Settings.FixedCaptureSizesHeight}"/>
+                                             ToolTip="{wpf:Text Settings.FixedCaptureSizesHeight}"
+                                             AutomationProperties.Name="{wpf:Text Settings.FixedCaptureSizesHeight}"
+                                             AutomationProperties.LabeledBy="{Binding ElementName=NewImageSizeLabel}"/>
                                 </StackPanel>
                                 <TextBlock Grid.Row="1" Text="{wpf:Text Settings.NewImageColor}" VerticalAlignment="Center" Margin="0,4,12,4"
                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                                 <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource SecondaryButtonStyle}"
                                         HorizontalAlignment="Left" Margin="0,4" Padding="2"
                                         ToolTip="{wpf:Text Settings.NewImageColor}"
+                                        AutomationProperties.Name="{wpf:Text Settings.NewImageColor}"
+                                        AutomationProperties.HelpText="{wpf:Text Core.AccessibleChooseColor}"
                                         IsEnabled="{Binding EditorConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=NewImageColor}"
                                         Click="NewImageColor_Click">
                                     <Border Width="40" Height="16" BorderThickness="1" Background="{Binding NewImageBrush}"
@@ -713,8 +742,8 @@
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <Label Content="{wpf:Text Settings.ExpertFooterpattern}" VerticalAlignment="Center"/>
-                                    <TextBox Grid.Column="1" Text="{Binding CoreConfiguration.OutputPrintFooterPattern, Mode=TwoWay}">
+                                    <Label Content="{wpf:Text Settings.ExpertFooterpattern}" VerticalAlignment="Center" Target="{Binding ElementName=FooterPatternTextBox}"/>
+                                    <TextBox x:Name="FooterPatternTextBox" Grid.Column="1" Text="{Binding CoreConfiguration.OutputPrintFooterPattern, Mode=TwoWay}">
                                         <TextBox.IsEnabled>
                                             <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="OutputPrintFooterPattern">
                                                 <Binding Path="CoreConfiguration.OutputPrintFooter"/>
@@ -811,26 +840,33 @@
                                                                 <!-- Number: a box with the range next to it -->
                                                                 <StackPanel Grid.Column="1" Orientation="Horizontal"
                                                                             Visibility="{Binding IsNumber, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                                                    <TextBox Width="60" Text="{Binding TextValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"/>
+                                                                    <TextBox Width="60" Text="{Binding TextValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                                                             AutomationProperties.Name="{Binding Label}"/>
                                                                     <TextBlock Text="{Binding RangeText}" Margin="8,0,0,0" VerticalAlignment="Center"
                                                                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                                                                 </StackPanel>
                                                                 <!-- Text -->
                                                                 <TextBox Grid.Column="1" Text="{Binding TextValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                                                         AutomationProperties.Name="{Binding Label}"
                                                                          Visibility="{Binding IsText, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                                                 <!-- Choice -->
                                                                 <ComboBox Grid.Column="1" HorizontalAlignment="Left" MinWidth="140"
                                                                           ItemsSource="{Binding Choices}" DisplayMemberPath="DisplayLabel"
                                                                           SelectedItem="{Binding SelectedChoice, Mode=TwoWay}"
+                                                                          AutomationProperties.Name="{Binding Label}"
                                                                           Visibility="{Binding IsEnum, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                                                 <!-- Color: the swatch opens the color picker, the text can be typed -->
                                                                 <StackPanel Grid.Column="1" Orientation="Horizontal"
                                                                             Visibility="{Binding IsColor, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                                                    <Button Width="28" Height="22" Padding="0" VerticalAlignment="Center" Click="RecipeOptionColor_Click">
+                                                                    <Button Width="28" Height="22" Padding="0" VerticalAlignment="Center" Click="RecipeOptionColor_Click"
+                                                                            AutomationProperties.Name="{Binding Label}"
+                                                                            AutomationProperties.HelpText="{wpf:Text Core.AccessibleChooseColor}"
+                                                                            ToolTip="{wpf:Text Core.AccessibleChooseColor}">
                                                                         <Border Width="20" Height="12" Background="{Binding ColorBrush}" BorderThickness="1"
                                                                                 BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
                                                                     </Button>
-                                                                    <TextBox Width="80" Margin="6,1,0,1" Text="{Binding TextValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"/>
+                                                                    <TextBox Width="80" Margin="6,1,0,1" Text="{Binding TextValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                                                             AutomationProperties.Name="{Binding Label}"/>
                                                                 </StackPanel>
                                                             </Grid>
                                                         </DataTemplate>
@@ -972,7 +1008,8 @@
                                 </CheckBox>
 
                                 <!-- Memory and speed, collapsed: the header shows the profile the settings match. The profile sets the settings, which can also be changed one by one -->
-                                <Expander Margin="0,8,0,5" Style="{StaticResource ExpanderStyle}">
+                                <Expander Margin="0,8,0,5" Style="{StaticResource ExpanderStyle}"
+                                          AutomationProperties.Name="{wpf:Text Settings.MemoryProfile}">
                                     <Expander.Header>
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="{wpf:Text Settings.MemoryProfile}" FontWeight="SemiBold"/>
@@ -983,6 +1020,7 @@
                                     <StackPanel Margin="18,4,0,0">
                                         <!-- The profile; the header of the group already names it -->
                                         <ComboBox Margin="0,0,0,5"
+                                                  AutomationProperties.Name="{wpf:Text Settings.MemoryProfile}"
                                                   ItemsSource="{Binding MemoryProfileOptions}"
                                                   DisplayMemberPath="DisplayName"
                                                   SelectedValuePath="Profile"
@@ -1034,7 +1072,8 @@
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock Text="{wpf:Text Settings.ExpertBufferpoollimit}"
+                                            <TextBlock x:Name="BufferPoolLimitLabel"
+                                                       Text="{wpf:Text Settings.ExpertBufferpoollimit}"
                                                        TextWrapping="Wrap"
                                                        VerticalAlignment="Center"
                                                        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
@@ -1042,7 +1081,8 @@
                                                      HorizontalAlignment="Right"
                                                      Width="70"
                                                      TextAlignment="Right"
-                                                     Text="{Binding CoreConfiguration.BufferPoolLimit, Mode=TwoWay}">
+                                                     Text="{Binding CoreConfiguration.BufferPoolLimit, Mode=TwoWay}"
+                                                     AutomationProperties.LabeledBy="{Binding ElementName=BufferPoolLimitLabel}">
                                                 <TextBox.IsEnabled>
                                                     <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="BufferPoolLimit">
                                                         <Binding Path="ExpertModeEnabled"/>
@@ -1069,7 +1109,8 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text="{wpf:Text Settings.ExpertCounter}" 
+                                    <TextBlock x:Name="CounterLabel"
+                                               Text="{wpf:Text Settings.ExpertCounter}" 
                                                TextWrapping="Wrap"
                                                VerticalAlignment="Center"
                                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
@@ -1077,7 +1118,8 @@
                                              HorizontalAlignment="Right"
                                              Width="70"
                                              TextAlignment="Right"
-                                             Text="{Binding CoreConfiguration.OutputFileIncrementingNumber, Mode=TwoWay}">
+                                             Text="{Binding CoreConfiguration.OutputFileIncrementingNumber, Mode=TwoWay}"
+                                             AutomationProperties.LabeledBy="{Binding ElementName=CounterLabel}">
                                         <TextBox.IsEnabled>
                                             <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="OutputFileIncrementingNumber">
                                                 <Binding Path="ExpertModeEnabled"/>

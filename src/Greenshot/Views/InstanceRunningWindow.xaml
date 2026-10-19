@@ -89,6 +89,7 @@
                                             Content="{wpf:Text Editor.Opendirinexplorer}"
                                             Click="ShowInExplorerButton_Click"
                                             Tag="{Binding Path}"
+                                            AutomationProperties.HelpText="{Binding Path}"
                                             VerticalAlignment="Center"
                                             Height="28"
                                             Padding="10,0"/>

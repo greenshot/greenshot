@@ -90,6 +90,7 @@
                                                FontSize="{wpf:FontSize 12.5}"
                                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                                     <TextBlock Text="{Binding LatestReleaseVersion, TargetNullValue='Checking...'}"
+                                               wpf:LiveRegion.Mode="Polite"
                                                FontWeight="SemiBold"
                                                FontSize="{wpf:FontSize 12.5}"
                                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
@@ -112,6 +113,7 @@
                                     Style="{StaticResource WarnButtonStyle}"
                                     Visibility="{Binding IsOutdated, Converter={StaticResource BooleanToVisibilityConverter}}"
                                     Click="OnUpgradeClicked"
+                                    AutomationProperties.Name="Download Update"
                                     VerticalAlignment="Center"
                                     Margin="12,0,0,0">
                                 <StackPanel Orientation="Horizontal">
@@ -176,6 +178,7 @@
                                 <Button Grid.Column="1"
                                         Style="{StaticResource PrimaryButtonStyle}"
                                         Click="OnSearchGitHubClicked"
+                                        AutomationProperties.Name="Search Existing Issues"
                                         VerticalAlignment="Center">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="🔍 Search Existing Issues" Margin="0,0,2,0"/>
@@ -233,6 +236,7 @@
                                         Style="{StaticResource SecondaryTextButtonStyle}"
                                         Padding="4,2"
                                         Click="OnCopyStackTraceClicked"
+                                        AutomationProperties.Name="Copy Stack Trace"
                                         ToolTip="Copy Stack Trace to Clipboard">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="📋 " FontSize="{wpf:FontSize 10}"/>
@@ -247,6 +251,7 @@
                                     CornerRadius="4"
                                     Padding="4">
                                 <TextBox Text="{Binding StackTrace, Mode=OneWay}"
+                                         AutomationProperties.Name="Stack Trace"
                                          IsReadOnly="True"
                                          TextWrapping="NoWrap"
                                          AcceptsReturn="True"
@@ -288,7 +293,8 @@
 
                                 <Button Grid.Column="1"
                                         Style="{StaticResource SecondaryTextButtonStyle}"
-                                        Click="OnCopyReportClicked">
+                                        Click="OnCopyReportClicked"
+                                        AutomationProperties.Name="{Binding CopyButtonText}">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="📋 " Margin="0,0,4,0"/>
                                         <TextBlock Text="{Binding CopyButtonText}"/>
@@ -304,6 +310,7 @@
                                     Margin="0,8,0,0"
                                     Padding="4">
                                 <TextBox Text="{Binding FullReport, Mode=OneWay}"
+                                         AutomationProperties.Name="Details"
                                          IsReadOnly="True"
                                          TextWrapping="NoWrap"
                                          AcceptsReturn="True"
@@ -333,6 +340,7 @@
                                 Style="{StaticResource SecondaryButtonStyle}"
                                 Margin="0,0,8,0"
                                 Click="OnOpenSelfServiceClicked"
+                                AutomationProperties.Name="{wpf:Text SelfService.Title}"
                                 ToolTip="{wpf:Text SelfService.Tooltip}">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="🛠️ " FontSize="{wpf:FontSize 12}" Margin="0,0,2,0"/>
@@ -342,7 +350,8 @@
 
                         <Button Grid.Column="1"
                                 Style="{StaticResource SecondaryButtonStyle}"
-                                Click="OnReportIssueClicked">
+                                Click="OnReportIssueClicked"
+                                AutomationProperties.Name="Report on GitHub">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="🌐 Report on GitHub" Margin="0,0,2,0"/>
                             </StackPanel>

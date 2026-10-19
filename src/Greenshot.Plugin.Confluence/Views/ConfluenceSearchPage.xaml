@@ -23,17 +23,25 @@
 			<RowDefinition Height="Auto"/>
 			<RowDefinition Height="*"/>
 		</Grid.RowDefinitions>
-		<Label Grid.Row="0" Grid.Column="0" Content="Space" />
+		<Label Grid.Row="0" Grid.Column="0" Content="{wpf:Text Confluence.Space}" Target="{Binding ElementName=SpaceComboBox}" />
 		<ComboBox Grid.Row="0" Grid.Column="1" Name="SpaceComboBox" ItemsSource="{Binding Path=Spaces}" DisplayMemberPath="Name" SelectedValuePath="Key"/>
-        <Label Grid.Row="1" Grid.Column="0" Content="{wpf:Text Confluence.SearchText}" />
+        <Label Grid.Row="1" Grid.Column="0" Content="{wpf:Text Confluence.SearchText}" Target="{Binding ElementName=searchText}" />
 		<TextBox Grid.Row="1" Grid.Column="1" Name="searchText" Text="" KeyDown="SearchText_KeyDown" TextChanged="SearchText_TextChanged"/>
         <Button Grid.Row="2" Grid.ColumnSpan="2" Name="Search" Content="{wpf:Text Confluence.Search}" Style="{StaticResource SecondaryButtonStyle}" Click="Search_Click" IsEnabled="False"/>
-		<ListView Grid.Row="3" Grid.ColumnSpan="2" Name="PageListView" SelectionMode="Single" ItemsSource="{Binding Path=Pages}" SelectionChanged="PageListView_SelectionChanged">
+		<ListView Grid.Row="3" Grid.ColumnSpan="2" Name="PageListView" SelectionMode="Single" ItemsSource="{Binding Path=Pages}" SelectionChanged="PageListView_SelectionChanged"
+			AutomationProperties.Name="{wpf:Text Confluence.SearchPages}">
+			<!-- The page title for a screen reader, the item has no ToString -->
+			<ListView.ItemContainerStyle>
+				<Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">
+					<Setter Property="AutomationProperties.Name" Value="{Binding Title}"/>
+				</Style>
+			</ListView.ItemContainerStyle>
 			<ListView.ItemTemplate>
 				<DataTemplate>
 					<StackPanel>
-						<Label Content="{Binding Title}" Foreground="DarkBlue" />
-						<TextBlock Text="{Binding Content}" Foreground="DarkGray" />
+						<!-- System colors: readable, and they follow high contrast -->
+						<Label Content="{Binding Title}" Foreground="{DynamicResource {x:Static SystemColors.HotTrackBrushKey}}" />
+						<TextBlock Text="{Binding Content}" Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" />
 					</StackPanel>
 				</DataTemplate>
 			</ListView.ItemTemplate>

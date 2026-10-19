@@ -806,5 +806,50 @@ namespace Greenshot.Base.Languages
         /// Off: what is on the screen keeps moving while you select, only the selection is captured, when you make it
         /// </summary>
         string TooltipFreezeScreen { get; }
+
+        /// <summary>
+        /// Larger icons
+        /// </summary>
+        string IconsizeIncrease { get; }
+
+        /// <summary>
+        /// Smaller icons
+        /// </summary>
+        string IconsizeDecrease { get; }
+
+        /// <summary>
+        /// Choose the storage location
+        /// </summary>
+        string StoragelocationBrowse { get; }
+
+        /// <summary>
+        /// Placeholders of the filename pattern
+        /// </summary>
+        string FilenamepatternHelp { get; }
+
+        /// <summary>
+        /// Edit
+        /// </summary>
+        string HotkeyEdit { get; }
+
+        /// <summary>
+        /// Edit: {0}
+        /// </summary>
+        string HotkeyEditAccessible { get; }
+
+        /// <summary>
+        /// Change the hotkey
+        /// </summary>
+        string HotkeyChange { get; }
+
+        /// <summary>
+        /// None
+        /// </summary>
+        string HotkeyNone { get; }
+
+        /// <summary>
+        /// then
+        /// </summary>
+        string HotkeyThen { get; }
     }
 }

@@ -78,6 +78,11 @@ namespace Greenshot.Plugin.RecipeEditor.Helpers
         public byte[] RawData { get; set; }
         public string FileExtension { get; set; } = ".png";
         public Dictionary<string, object> Parameters { get; set; } = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// What screen readers announce for the element in the import list (instead of the class name)
+        /// </summary>
+        public override string ToString() => string.IsNullOrEmpty(Description) ? Type : $"{Type}: {Description}";
     }
 
     /// <summary>
