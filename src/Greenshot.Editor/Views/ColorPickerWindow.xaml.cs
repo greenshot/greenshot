@@ -36,7 +36,6 @@ using Dapplo.Windows.User32;
 using Greenshot.Base.Core;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Controls;
-using Greenshot.Editor.Forms;
 using Color = System.Drawing.Color;
 
 namespace Greenshot.Editor.Views
@@ -46,7 +45,7 @@ namespace Greenshot.Editor.Views
         private static readonly IEditorConfiguration EditorConfig = IniConfigHelper.EnsureSection<IEditorConfiguration>(() => new EditorConfigurationImpl());
 
         private System.Windows.Input.Cursor _pipetteCursor;
-        private MovableShowColorForm _movableShowColorForm;
+        private MovableShowColorWindow _movableShowColorWindow;
         private bool _isDraggingPipette;
         private bool _isUpdating;
         private Color _selectedColor;
@@ -125,8 +124,8 @@ namespace Greenshot.Editor.Views
 
         protected override void OnClosed(EventArgs e)
         {
-            _movableShowColorForm?.Dispose();
-            _movableShowColorForm = null;
+            _movableShowColorWindow?.Close();
+            _movableShowColorWindow = null;
             base.OnClosed(e);
         }
 
@@ -487,11 +486,11 @@ namespace Greenshot.Editor.Views
                 Mouse.OverrideCursor = _pipetteCursor;
             }
 
-            _movableShowColorForm ??= new MovableShowColorForm();
-            _movableShowColorForm.Visible = true;
+            _movableShowColorWindow ??= new MovableShowColorWindow();
+            _movableShowColorWindow.Show();
 
             var screenPt = System.Windows.Forms.Cursor.Position;
-            _movableShowColorForm.MoveTo(new NativePoint(screenPt.X, screenPt.Y));
+            _movableShowColorWindow.MoveTo(new NativePoint(screenPt.X, screenPt.Y));
 
             e.Handled = true;
         }
@@ -506,7 +505,7 @@ namespace Greenshot.Editor.Views
             if (msg == (int)WindowsMessages.WM_MOUSEMOVE)
             {
                 var screenPt = System.Windows.Forms.Cursor.Position;
-                _movableShowColorForm?.MoveTo(new NativePoint(screenPt.X, screenPt.Y));
+                _movableShowColorWindow?.MoveTo(new NativePoint(screenPt.X, screenPt.Y));
                 handled = true;
             }
             else if (msg == (int)WindowsMessages.WM_LBUTTONUP)
@@ -515,10 +514,10 @@ namespace Greenshot.Editor.Views
                 _isDraggingPipette = false;
                 Mouse.OverrideCursor = null;
 
-                if (_movableShowColorForm != null)
+                if (_movableShowColorWindow != null)
                 {
-                    _movableShowColorForm.Visible = false;
-                    PreviewColor(_movableShowColorForm.Color);
+                    _movableShowColorWindow.Hide();
+                    PreviewColor(_movableShowColorWindow.Color);
                 }
 
                 handled = true;
@@ -529,9 +528,9 @@ namespace Greenshot.Editor.Views
                 _isDraggingPipette = false;
                 Mouse.OverrideCursor = null;
 
-                if (_movableShowColorForm != null)
+                if (_movableShowColorWindow != null)
                 {
-                    _movableShowColorForm.Visible = false;
+                    _movableShowColorWindow.Hide();
                 }
 
                 handled = true;
@@ -541,9 +540,9 @@ namespace Greenshot.Editor.Views
                 _isDraggingPipette = false;
                 Mouse.OverrideCursor = null;
 
-                if (_movableShowColorForm != null)
+                if (_movableShowColorWindow != null)
                 {
-                    _movableShowColorForm.Visible = false;
+                    _movableShowColorWindow.Hide();
                 }
             }
 
