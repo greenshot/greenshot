@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
+using Greenshot.Base.Recipes.Pipeline;
 
 namespace Greenshot.Base.Recipes
 {
@@ -101,7 +102,7 @@ namespace Greenshot.Base.Recipes
         public bool HasDestinationStep()
         {
             if (Nodes == null || Nodes.Count == 0) return false;
-            return Nodes.Any(n => n != null && WellKnownStepTypes.IsDestination(n.StepType));
+            return Nodes.Any(n => n != null && StepRegistry.Instance.IsDestinationStep(n.StepType));
         }
 
         /// <summary>
