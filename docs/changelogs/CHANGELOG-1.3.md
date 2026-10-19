@@ -10,7 +10,7 @@ Released: October 19, 2026
 
 ### Security
 
-- Fixed a security issue where Greenshot sent the user's Windows credentials to any server it requested content from, so a malicious image URL could trigger an automatic NTLM authentication exchange. Reported by [@Y4k150b4](https://github.com/Y4k150b4); fixed by [@jklingen](https://github.com/jklingen) in [commit 5b7dca1](https://github.com/greenshot/greenshot/commit/5b7dca10d9b56dc5fef55189030879a1ddd29312). [GHSA-gjcr-pccx-w2vg](https://github.com/greenshot/greenshot/security/advisories/GHSA-gjcr-pccx-w2vg)
+- Fixed a security issue where Greenshot sent the user's Windows credentials to any server it requested content from, so a malicious image URL could trigger an automatic NTLM authentication exchange. Reported by [@Y4k150b4](https://github.com/Y4k150b4); fixed by [@Lakritzator](https://github.com/Lakritzator) (Robin Krom) and [@jklingen](https://github.com/jklingen) in [commit 5b7dca1](https://github.com/greenshot/greenshot/commit/5b7dca10d9b56dc5fef55189030879a1ddd29312). [GHSA-gjcr-pccx-w2vg](https://github.com/greenshot/greenshot/security/advisories/GHSA-gjcr-pccx-w2vg)
 
 ### Installer & Upgrades
 
