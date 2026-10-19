@@ -26,7 +26,6 @@ using Greenshot.Base.Core;
 using Greenshot.Editor.Forms;
 using Greenshot.Plugin.Box;
 using Greenshot.Plugin.Dropbox;
-using Greenshot.Plugin.Imgur;
 using Greenshot.Plugin.Jira;
 using Greenshot.Shell;
 using Xunit;
@@ -45,7 +44,6 @@ namespace Greenshot.Tests.Core
             new object[] { typeof(GreenshotResources) },
             new object[] { typeof(BoxPlugin) },
             new object[] { typeof(DropboxPlugin) },
-            new object[] { typeof(ImgurPlugin) },
             new object[] { typeof(JiraPlugin) },
         };
 

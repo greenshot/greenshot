@@ -144,6 +144,8 @@ namespace Greenshot.Helpers
                 try
                 {
                     _applicationMutex.ReleaseMutex();
+                    // Also close the handle: while one is open the mutex exists, and the AppMutex check of a setup or uninstaller sees Greenshot running
+                    _applicationMutex.Close();
                     _applicationMutex = null;
                     Log.InfoFormat("Released Mutex {0} for {1}", _mutexId, _resourceName);
                 }

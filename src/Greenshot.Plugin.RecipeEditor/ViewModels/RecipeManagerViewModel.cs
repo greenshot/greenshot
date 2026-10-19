@@ -137,7 +137,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 }
                 if (Recipe.Triggers == null || Recipe.Triggers.Count == 0)
                 {
-                    return Recipe.ShowInContextMenu ? "📋 Systray (Default)" : "No triggers (Editor/DAG only)";
+                    return Recipe.ShowInContextMenu ? "📋 Context menu (Default)" : "No triggers (Editor/DAG only)";
                 }
 
                 var list = new List<string>();
@@ -170,7 +170,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
             if (Is(TriggerConfig.TypeContextMenu))
             {
-                return $"📋 Systray (\"{t.GetParameter<string>("MenuItemText") ?? Recipe.Name}\")";
+                return $"📋 Context menu (\"{t.GetParameter<string>("MenuItemText") ?? Recipe.Name}\")";
             }
             if (Is(TriggerConfig.TypeEditor))
             {

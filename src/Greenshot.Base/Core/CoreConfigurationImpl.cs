@@ -188,8 +188,8 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Validate the OutputFilePath, and if this is not correct it will be set to the default.
-        /// Added for BUG-1992, reset the OutputFilePath if it doesn't exist (e.g. the configuration is used on a different PC)
+        /// Sets the default folder when no OutputFilePath is configured. A configured folder stays, also when it doesn't exist right now:
+        /// <see cref="GetOutputDirectory"/> creates it, or uses the default folder for one save (e.g. a network drive which isn't reachable).
         /// </summary>
         public void ValidateAndCorrectOutputFilePath()
         {
@@ -197,10 +197,42 @@ namespace Greenshot.Base.Core
             {
                 OutputFilePath = NormalizePath(OutputFilePath);
             }
-            if (!Directory.Exists(OutputFilePath))
+            if (string.IsNullOrWhiteSpace(OutputFilePath))
             {
                 OutputFilePath = CreateOutputFilePath();
             }
+        }
+
+        /// <summary>
+        /// The folder for a new screenshot: the configured folder with its variables filled in, created when it doesn't exist.
+        /// When it can't be used, the default folder, only for this save: the setting stays, so the configured folder is used
+        /// again as soon as it's available (e.g. a network drive after connecting the VPN).
+        /// </summary>
+        /// <param name="problem">Why the configured folder couldn't be used, null when it is used</param>
+        public string GetOutputDirectory(out string problem)
+        {
+            problem = null;
+            ValidateAndCorrectOutputFilePath();
+            string configured = OutputFilePath;
+            string directory = null;
+            try
+            {
+                directory = FilenameHelper.FillVariables(configured, false);
+                if (!Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                    Log.InfoFormat("Created the screenshot folder {0}", directory);
+                }
+                return directory;
+            }
+            catch (Exception ex)
+            {
+                problem = ex.Message;
+            }
+
+            string fallback = CreateOutputFilePath();
+            Log.WarnFormat("The screenshot folder '{0}' ('{1}') can't be used: {2} Saving to '{3}' this time, the setting stays.", configured, directory, problem, fallback);
+            return fallback;
         }
 
         /// <summary>

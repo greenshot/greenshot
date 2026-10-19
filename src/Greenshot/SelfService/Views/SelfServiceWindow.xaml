@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
         xmlns:local="clr-namespace:Greenshot.SelfService.ViewModels"
+        xmlns:views="clr-namespace:Greenshot.SelfService.Views"
         mc:Ignorable="d"
         Title="{Binding WindowTitle}"
         Width="940"
@@ -19,107 +20,12 @@
         Foreground="{Binding TextPrimaryBrush}">
 
     <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-
-        <!-- Modern Action Button Style -->
-        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="{Binding AccentBrush}"/>
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentForegroundBrush}"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="14,6"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" 
-                                Background="{TemplateBinding Background}" 
-                                CornerRadius="5" 
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Opacity" Value="0.9"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Opacity" Value="0.8"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="border" Property="Opacity" Value="0.4"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Secondary Button Style -->
-        <Style x:Key="SecondaryButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="{Binding CardBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{Binding TextPrimaryBrush}"/>
-            <Setter Property="BorderBrush" Value="{Binding CardBorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="10,5"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" 
-                                Background="{TemplateBinding Background}" 
-                                BorderBrush="{TemplateBinding BorderBrush}" 
-                                BorderThickness="{TemplateBinding BorderThickness}" 
-                                CornerRadius="5" 
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="{Binding BadgeBackgroundBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Opacity" Value="0.8"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="border" Property="Opacity" Value="0.4"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Warning Action Button Style -->
-        <Style x:Key="WarningButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#F59E0B"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="12,5"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" 
-                                Background="{TemplateBinding Background}" 
-                                CornerRadius="5" 
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Opacity" Value="0.9"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Opacity" Value="0.8"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
 
         <!-- Card Border Style -->
         <Style x:Key="CardBorderStyle" TargetType="Border">
@@ -247,6 +153,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        </ResourceDictionary>
     </Window.Resources>
 
     <Grid>
@@ -497,6 +404,75 @@
                     </StackPanel>
                 </ScrollViewer>
 
+                <!-- Your setup: the same checks as the "Your setup" step of the welcome window (SetupSectionViewModel) -->
+                <ScrollViewer x:Name="SetupPanel"
+                              VerticalScrollBarVisibility="Auto"
+                              Padding="22,18"
+                              Visibility="Collapsed">
+                    <StackPanel>
+                        <StackPanel Margin="0,0,0,16">
+                            <TextBlock Text="{wpf:Text Welcome.SetupTitle}" FontSize="18" FontWeight="SemiBold" Foreground="{Binding TextPrimaryBrush}"/>
+                            <TextBlock Text="{wpf:Text Welcome.SetupSub}" FontSize="12" Foreground="{Binding TextSecondaryBrush}" Margin="0,3,0,0"/>
+                        </StackPanel>
+                        <Border Style="{StaticResource CardBorderStyle}">
+                            <StackPanel>
+                                <TextBlock Visibility="{Binding SetupSection.VersionPendingVisibility}" Text="{Binding SetupSection.VersionText}" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                <TextBlock Visibility="{Binding SetupSection.VersionOkVisibility}" TextWrapping="Wrap" Margin="0,0,0,8">
+                                    <Run Text="✓ " Foreground="{Binding AccentBrush}" FontWeight="Bold"/><Run Text="{Binding SetupSection.VersionText, Mode=OneWay}"/>
+                                </TextBlock>
+                                <Grid Visibility="{Binding SetupSection.VersionOldVisibility}" Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding SetupSection.VersionText}" Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                    <Button Grid.Column="1" Style="{StaticResource WarnButtonStyle}" Click="OnDownloadClicked" VerticalAlignment="Center">
+                                        <TextBlock Text="{wpf:Text Welcome.SetupVersionDownload}"/>
+                                    </Button>
+                                </Grid>
+                                <TextBlock Visibility="{Binding SetupSection.TrayIconOkVisibility}" TextWrapping="Wrap" Margin="0,0,0,8">
+                                    <Run Text="✓ " Foreground="{Binding AccentBrush}" FontWeight="Bold"/><Run Text="{wpf:Text Welcome.SetupTrayOk}"/>
+                                </TextBlock>
+                                <Grid Visibility="{Binding SetupSection.TrayIconHiddenVisibility}" Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{wpf:Text Welcome.SetupTrayHidden}" Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                    <Button Grid.Column="1" Style="{StaticResource WarnButtonStyle}" Click="OnShowTrayIconClicked" VerticalAlignment="Center">
+                                        <TextBlock Text="{wpf:Text Welcome.SetupTrayFix}"/>
+                                    </Button>
+                                </Grid>
+                                <TextBlock Visibility="{Binding SetupSection.PrintKeyOkVisibility}" TextWrapping="Wrap" Margin="0,0,0,8">
+                                    <Run Text="✓ " Foreground="{Binding AccentBrush}" FontWeight="Bold"/><Run Text="{wpf:Text Welcome.SetupPrintOk}"/>
+                                </TextBlock>
+                                <Grid Visibility="{Binding SetupSection.SnippingToolVisibility}" Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{wpf:Text Welcome.SetupSnipping}" Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                    <Button Grid.Column="1" Style="{StaticResource WarnButtonStyle}" Click="OnFixSetupSnippingToolClicked" VerticalAlignment="Center">
+                                        <TextBlock Text="{wpf:Text Welcome.SetupSnippingFix}"/>
+                                    </Button>
+                                </Grid>
+                                <Grid Visibility="{Binding SetupSection.OneDriveVisibility}" Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{wpf:Text Welcome.SetupOnedrive}" Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                    <Button Grid.Column="1" Style="{StaticResource WarnButtonStyle}" Click="OnFixSetupOneDriveClicked" VerticalAlignment="Center">
+                                        <TextBlock Text="{wpf:Text Welcome.SetupOnedriveFix}"/>
+                                    </Button>
+                                </Grid>
+                                <!-- The same switch as in the settings: only this user's own entry, see docs/vNext/autostart.md -->
+                                <CheckBox Content="{wpf:Text Settings.Autostartshortcut}" IsChecked="{Binding SetupSection.IsAutostartEnabled, Mode=TwoWay}" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
                 <!-- Section 2: Files & Logs -->
                 <ScrollViewer x:Name="FileInfoPanel" 
                               VerticalScrollBarVisibility="Auto" 
@@ -527,6 +503,79 @@
                                 </StackPanel>
                             </Button>
                         </Grid>
+
+                        <!-- Screenshot Folder Card: where Greenshot saves, and why screenshots "disappear" -->
+                        <Border Style="{StaticResource CardBorderStyle}">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <TextBlock Text="🖼️ " FontSize="15" Margin="0,0,4,0"/>
+                                    <TextBlock Text="{wpf:Text SelfService.FilesOutputTitle}" FontWeight="SemiBold" FontSize="13"/>
+                                </StackPanel>
+
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{wpf:Text SelfService.FilesOutputConfigured}" FontSize="11.5" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,10,4"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding FileInfoSection.OutputConfiguredPath}" FontFamily="Consolas, monospace" FontSize="11.5" TextWrapping="Wrap" Margin="0,0,0,4"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="{wpf:Text SelfService.FilesOutputExpanded}" FontSize="11.5" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,10,4"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding FileInfoSection.OutputExpandedPath}" FontFamily="Consolas, monospace" FontSize="11.5" TextWrapping="Wrap" Margin="0,0,0,4"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="{wpf:Text SelfService.FilesOutputExample}" FontSize="11.5" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,10,0"
+                                               Visibility="{Binding FileInfoSection.HasOutputExampleFile, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding FileInfoSection.OutputExampleFile}" FontFamily="Consolas, monospace" FontSize="11.5" TextWrapping="Wrap"
+                                               Visibility="{Binding FileInfoSection.HasOutputExampleFile, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                </Grid>
+
+                                <!-- The findings of the check -->
+                                <ItemsControl ItemsSource="{Binding FileInfoSection.OutputChecks}" Margin="0,0,0,10">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,2">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding Icon}" Margin="0,0,6,0"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Text}" TextWrapping="Wrap" FontSize="12"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <WrapPanel>
+                                    <Button Style="{StaticResource SecondaryButtonStyle}" Click="OnOpenOutputFolderClicked" Margin="0,0,6,6">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="📂 "/>
+                                            <TextBlock Text="{wpf:Text SelfService.BtnOpenFolder}"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Style="{StaticResource SecondaryButtonStyle}" Click="OnCopyOutputPathClicked" Margin="0,0,6,6">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="📋 "/>
+                                            <TextBlock Text="{wpf:Text SelfService.BtnCopyPath}"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Style="{StaticResource SecondaryButtonStyle}" Click="OnResetOutputPathClicked" Margin="0,0,6,6">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="↩️ "/>
+                                            <TextBlock Text="{wpf:Text SelfService.BtnResetOutputPath}"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Style="{StaticResource SecondaryButtonStyle}" Click="OnResetFilenamePatternClicked" Margin="0,0,6,6">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="↩️ "/>
+                                            <TextBlock Text="{wpf:Text SelfService.BtnResetFilenamePattern}"/>
+                                        </StackPanel>
+                                    </Button>
+                                </WrapPanel>
+                            </StackPanel>
+                        </Border>
 
                         <!-- Log File Card -->
                         <Border Style="{StaticResource CardBorderStyle}">
@@ -1003,7 +1052,7 @@
                                     </StackPanel>
                                     <Button Grid.Column="1" 
                                             Visibility="{Binding HotkeySection.OneDriveFixButtonVisibility}"
-                                            Style="{StaticResource WarningButtonStyle}" 
+                                            Style="{StaticResource WarnButtonStyle}"
                                             Click="OnDisableOneDriveHotkeyClicked">
                                         <TextBlock Text="{wpf:Text SelfService.HotkeysOnedriveDisableBtn}"/>
                                     </Button>
@@ -1041,7 +1090,7 @@
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Orientation="Horizontal">
                                         <Button Visibility="{Binding HotkeySection.SnippingToolFixButtonVisibility}"
-                                                Style="{StaticResource WarningButtonStyle}" 
+                                                Style="{StaticResource WarnButtonStyle}"
                                                 Margin="0,0,6,0" 
                                                 Click="OnDisableSnippingToolTakeoverClicked">
                                             <TextBlock Text="{wpf:Text SelfService.HotkeysSnippingDisableBtn}"/>
@@ -1564,6 +1613,12 @@
                         </Border>
                     </StackPanel>
                 </ScrollViewer>
+
+                <!-- Imgur uploads, only when there are some: the same view as in the welcome wizard -->
+                <views:ImgurUploadsView x:Name="ImgurPanel"
+                                        DataContext="{Binding ImgurSection}"
+                                        Visibility="Collapsed"
+                                        Margin="22,18"/>
 
                 <!-- Section 6 (DEBUG only): Browser Extension & IPC Integration Debugger -->
                 <ScrollViewer x:Name="IntegrationDebugPanel" 

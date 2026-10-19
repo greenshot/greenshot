@@ -208,6 +208,8 @@ namespace Greenshot.Editor.Forms
 			this.toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
             this.closeToolStripMenuItem = new ToolStripMenuItem();
             this.closeAllToolStripMenuItem = new ToolStripMenuItem();
+            this.closeTabToolStripMenuItem = new ToolStripMenuItem();
+            this.tabStrip = new Greenshot.Editor.Tabs.EditorTabStrip();
             this.fileSavedStatusContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.copyPathMenuItem = new ToolStripMenuItem();
 			this.openDirectoryMenuItem = new ToolStripMenuItem();
@@ -263,6 +265,7 @@ namespace Greenshot.Editor.Forms
 			// 
 			this.topToolStripContainer.ContentPanel.AutoScroll = true;
 			this.topToolStripContainer.ContentPanel.Controls.Add(this.tableLayoutPanel1);
+			this.topToolStripContainer.ContentPanel.Controls.Add(this.tabStrip);
 			this.topToolStripContainer.ContentPanel.Size = new System.Drawing.Size(761, 385);
 			this.topToolStripContainer.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.topToolStripContainer.LeftToolStripPanel.Join(this.toolsToolStrip,0);
@@ -308,6 +311,11 @@ namespace Greenshot.Editor.Forms
 			this.statusLabel.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
 			this.statusLabel.Name = "statusLabel";
 			this.statusLabel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.StatusLabelClicked);
+			// 
+			// tabStrip
+			// 
+			this.tabStrip.Dock = System.Windows.Forms.DockStyle.Top;
+			this.tabStrip.Name = "tabStrip";
 			// 
 			// tableLayoutPanel1
 			// 
@@ -1631,6 +1639,11 @@ namespace Greenshot.Editor.Forms
 			this.closeAllToolStripMenuItem.Name = "closeAllToolStripMenuItem";
 			this.closeAllToolStripMenuItem.Click += new System.EventHandler(this.CloseAllToolStripMenuItemClick);
             // 
+            // closeTabToolStripMenuItem
+            // 
+            this.closeTabToolStripMenuItem.Name = "closeTabToolStripMenuItem";
+            this.closeTabToolStripMenuItem.Click += new System.EventHandler(this.CloseTabToolStripMenuItemClick);
+            // 
             // closeToolStripMenuItem
             // 
             this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
@@ -1991,6 +2004,8 @@ namespace Greenshot.Editor.Forms
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator12;
         private ToolStripMenuItem closeToolStripMenuItem;
         private ToolStripMenuItem closeAllToolStripMenuItem;
+        private ToolStripMenuItem closeTabToolStripMenuItem;
+        private Greenshot.Editor.Tabs.EditorTabStrip tabStrip;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator9;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator8;

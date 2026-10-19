@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -31,6 +32,7 @@ using Dapplo.Jira;
 using Dapplo.Jira.Entities;
 using Dapplo.Jira.SvgWinForms.Converters;
 using Greenshot.Base.Core;
+using Greenshot.Base.Http;
 using Greenshot.Base.Interfaces;
 using Dapplo.Ini;
 using Greenshot.Base.Threading;
@@ -125,15 +127,13 @@ public sealed class JiraConnector : IDisposable
             Monitor = new JiraMonitor();
             await Monitor.AddJiraInstanceAsync(_jiraClient, cancellationToken);
 
-            var favIconUri = _jiraClient.JiraBaseUri.AppendSegments("favicon.ico");
-            try
+            // The favicon of the server (or the icon link of its start page) for the destination, the Jira logo without one
+            var favIcon = await SiteIcon.FetchAsync(HttpService.Current, _jiraClient.JiraBaseUri, false, cancellationToken);
+            if (favIcon != null)
             {
-                FavIcon = await _jiraClient.Server.GetUriContentAsync<Bitmap>(favIconUri, cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                Log.WarnFormat("Couldn't load favicon from {0}", favIconUri);
-                Log.Warn("Exception details: ", ex);
+                using var stream = new MemoryStream(favIcon);
+                using var image = Image.FromStream(stream);
+                FavIcon = new Bitmap(image);
             }
         }
         catch (Exception ex2)

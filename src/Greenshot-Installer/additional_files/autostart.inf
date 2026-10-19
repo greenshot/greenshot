@@ -1,0 +1,11 @@
+; Greenshot starts with Windows: the Greenshot value in the Run key of the current user, see docs/vNext/autostart.md.
+; The installer and Active Setup apply it with rundll32.exe advpack.dll,LaunchINFSectionEx, as the user it is meant for.
+; %01% is the folder of this file, the folder of Greenshot.exe; "" is a quote in the value. --autostart: a second start at the logon ends silently.
+[Version]
+Signature="$Windows NT$"
+
+[DefaultInstall]
+AddReg=Autostart.AddReg
+
+[Autostart.AddReg]
+HKCU,"Software\Microsoft\Windows\CurrentVersion\Run","Greenshot",0x00000000,"""%01%\Greenshot.exe"" --autostart"

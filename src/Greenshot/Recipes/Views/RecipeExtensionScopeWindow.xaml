@@ -14,49 +14,13 @@
         AllowsTransparency="False">
 
     <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
+
+            </ResourceDictionary.MergedDictionaries>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-
-        <Style TargetType="CheckBox">
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="Margin" Value="0,2"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-        </Style>
-
-        <Style TargetType="Button">
-            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="14,6"/>
-            <Setter Property="Margin" Value="4"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Name="Border"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="4"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonPressedBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.5"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
 
         <!-- A column: the header, then the checkboxes one under the other -->
         <DataTemplate x:Key="ScopeItemTemplate">
@@ -64,25 +28,6 @@
                 <TextBlock Text="{Binding Name}" TextWrapping="Wrap"/>
             </CheckBox>
         </DataTemplate>
-
-        <!-- "All" / "None" above a list: small, like a link -->
-        <Style x:Key="LinkButton" TargetType="Button">
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Margin" Value="8,0,0,0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <TextBlock x:Name="Text" Text="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}"/>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Text" Property="TextDecorations" Value="Underline"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
 
         <!-- A column is a card, like the group boxes of the other dialogs -->
         <Style x:Key="ColumnCard" TargetType="Border">
@@ -92,6 +37,8 @@
             <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=GroupBoxBrush}"/>
             <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
         </Style>
+
+        </ResourceDictionary>
     </Window.Resources>
 
     <Border BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}" BorderThickness="1">
@@ -122,8 +69,8 @@
                     <DockPanel>
                         <DockPanel DockPanel.Dock="Top" Margin="0,0,0,4">
                             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                                <Button Style="{StaticResource LinkButton}" Content="{wpf:Text Settings.RecipesScopeAll}" Click="CapturesAll_Click"/>
-                                <Button Style="{StaticResource LinkButton}" Content="{wpf:Text Settings.RecipesScopeNone}" Click="CapturesNone_Click"/>
+                                <Button Style="{StaticResource LinkTextButtonStyle}" Content="{wpf:Text Settings.RecipesScopeAll}" Click="CapturesAll_Click"/>
+                                <Button Style="{StaticResource LinkTextButtonStyle}" Content="{wpf:Text Settings.RecipesScopeNone}" Click="CapturesNone_Click"/>
                             </StackPanel>
                             <TextBlock Text="{wpf:Text Settings.RecipesScopeCaptures}" FontWeight="SemiBold" VerticalAlignment="Center"/>
                         </DockPanel>
@@ -136,8 +83,8 @@
                     <DockPanel>
                         <DockPanel DockPanel.Dock="Top" Margin="0,0,0,4">
                             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                                <Button Style="{StaticResource LinkButton}" Content="{wpf:Text Settings.RecipesScopeAll}" Click="DestinationsAll_Click"/>
-                                <Button Style="{StaticResource LinkButton}" Content="{wpf:Text Settings.RecipesScopeNone}" Click="DestinationsNone_Click"/>
+                                <Button Style="{StaticResource LinkTextButtonStyle}" Content="{wpf:Text Settings.RecipesScopeAll}" Click="DestinationsAll_Click"/>
+                                <Button Style="{StaticResource LinkTextButtonStyle}" Content="{wpf:Text Settings.RecipesScopeNone}" Click="DestinationsNone_Click"/>
                             </StackPanel>
                             <TextBlock Text="{wpf:Text Settings.RecipesScopeDestinations}" FontWeight="SemiBold" VerticalAlignment="Center"/>
                         </DockPanel>
@@ -156,8 +103,19 @@
                     <TextBlock x:Name="NoDestinationText" Text="{wpf:Text Settings.RecipesScopeNodestination}" VerticalAlignment="Center"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}" Visibility="Collapsed"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button x:Name="OkButton" Content="{wpf:Text Core.Ok}" IsDefault="True" Width="80" Click="OkButton_Click"/>
-                        <Button Content="{wpf:Text Core.Cancel}" IsCancel="True" Width="80" Click="CancelButton_Click"/>
+                        <Button x:Name="OkButton" 
+                                Content="{wpf:Text Core.Ok}"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                IsDefault="True" 
+                                Width="80" 
+                                Margin="5,0"
+                                Click="OkButton_Click"/>
+                        <Button Content="{wpf:Text Core.Cancel}"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                IsCancel="True" 
+                                Width="80" 
+                                Margin="5,0"
+                                Click="CancelButton_Click"/>
                     </StackPanel>
                 </DockPanel>
             </Border>

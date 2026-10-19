@@ -1,0 +1,323 @@
+/*
+ * Greenshot - a free and open source screenshot tool
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
+ *
+ * For more information see: https://getgreenshot.org/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 1 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+
+using System;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Threading;
+using System.Threading.Tasks;
+using Greenshot.Base.Core;
+using Greenshot.Base.Core.FileFormat;
+using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Threading;
+using Greenshot.Editor.Drawing;
+using Greenshot.Editor.Forms;
+using Greenshot.Recipes;
+using Greenshot.Recipes.Pipeline;
+using log4net;
+
+namespace Greenshot.Notifications
+{
+    /// <summary>
+    /// The captures which notifications show and offer in the destination flyout (a recipe), also after a restart: what went to the
+    /// destination, kept as .greenshot file with a thumbnail. Both are named by an id (UUID v7), the <see cref="Notification.CaptureId"/>.
+    /// Only for a notification service which <see cref="INotificationService.ShowsCaptures"/> (the toasts, not the balloons of the tray
+    /// icon). They are removed when the notification is clicked, and once it is gone. Not in Greenshot Light.
+    /// </summary>
+    internal static class NotificationCaptures
+    {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(NotificationCaptures));
+
+        /// <summary>
+        /// The largest thumbnail Windows shows in a toast without scaling it down
+        /// </summary>
+        private const int ThumbnailWidth = 364;
+        private const int ThumbnailHeight = 180;
+
+        private static string StoreDirectory => Path.Combine(GreenshotEnvironment.LocalDataDirectory, "Notifications");
+
+        public static string GetThumbnailPath(string id) => Path.Combine(StoreDirectory, id + ".png");
+
+        private static string GetCapturePath(string id) => Path.Combine(StoreDirectory, id + ".greenshot");
+
+        /// <summary>
+        /// At startup, for the notifications which show captures: offers the capture of a clicked notification (also when the click
+        /// started Greenshot) and removes the captures of the notifications which are gone
+        /// </summary>
+        public static void Initialize(INotificationService notificationService)
+        {
+            if (notificationService?.ShowsCaptures != true)
+            {
+                return;
+            }
+            notificationService.CaptureActivated += (sender, args) => OfferCapture(args.CaptureId);
+            notificationService.ButtonActivated += (sender, args) => NotificationButtons.Run(args);
+            // PARALLEL: the cleanup runs next to the startup, which may be for a click on a toast; it only removes the files of toasts
+            // which are gone (see RemoveUnused), not the one clicked
+#pragma warning disable RS0030 // R10: documented parallel branch
+            Task.Run(() => RemoveUnused(notificationService)).FireAndLog("Removing the captures of the notifications", Log);
+#pragma warning restore RS0030
+        }
+
+        /// <summary>
+        /// Whether a capture is kept for the notification: only a notification which is shown and shows the capture needs it (a
+        /// toast, not the balloon of the tray icon)
+        /// </summary>
+        public static bool KeepsCaptures
+        {
+            get
+            {
+                var notificationService = SimpleServiceProvider.Current.GetInstance<INotificationService>(isOptional: true);
+                return notificationService?.ShowsCaptures == true && notificationService.IsEnabled;
+            }
+        }
+
+        /// <summary>
+        /// The id for a capture to keep, a UUID v7
+        /// </summary>
+        public static string NewId() => CreateId();
+
+        /// <summary>
+        /// Writes the thumbnail the notification shows, from the rendered capture (see <see cref="GetThumbnailPath"/>)
+        /// </summary>
+        /// <param name="id">The id of the capture</param>
+        /// <param name="source">What was exported</param>
+        /// <param name="cancellationToken">CancellationToken</param>
+        /// <returns>The thumbnail file, null when it couldn't be written</returns>
+        public static async Task<string> WriteThumbnailAsync(string id, IExportSource source, CancellationToken cancellationToken)
+        {
+            try
+            {
+                using var lease = await source.RenderAsync(new SurfaceOutputSettings(), cancellationToken).ConfigureAwait(false);
+                var image = lease.Image;
+                Directory.CreateDirectory(StoreDirectory);
+                using var thumbnail = ImageHelper.CreateThumbnail(image, Math.Min(image.Width, ThumbnailWidth), -1, ThumbnailWidth, ThumbnailHeight);
+                thumbnail.Save(GetThumbnailPath(id), ImageFormat.Png);
+                return GetThumbnailPath(id);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Couldn't write the thumbnail for the notification.", ex);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Keeps the capture for its notification, after the notification is shown: the user doesn't wait for it. The export source
+        /// encodes it in the greenshot format (the elements are serialized on the UI thread), the file is written and the captures
+        /// of the notifications which are gone are removed on the pool thread of the flow.
+        /// </summary>
+        public static async Task WriteCaptureAsync(string id, IExportSource source, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var encoded = await source.EncodeAsync(new SurfaceOutputSettings(WellKnownFileFormats.Greenshot), cancellationToken).ConfigureAwait(false);
+                Directory.CreateDirectory(StoreDirectory);
+                using (var file = new FileStream(GetCapturePath(id), FileMode.Create, FileAccess.Write, FileShare.None, 81920, useAsync: true))
+                using (var stream = encoded.OpenRead())
+                {
+                    await stream.CopyToAsync(file, 81920, cancellationToken).ConfigureAwait(false);
+                }
+                var notificationService = SimpleServiceProvider.Current.GetInstance<INotificationService>(isOptional: true);
+                if (notificationService != null)
+                {
+                    RemoveUnused(notificationService);
+                }
+            }
+            catch (Exception ex)
+            {
+                // The toast then only shows the capture, a click on it does nothing
+                Log.Warn("Couldn't keep the capture for the notification.", ex);
+                Delete(id);
+            }
+        }
+
+        /// <summary>
+        /// Opens the capture in the editor, on the UI thread (the Edit button of a toast). The capture file is removed, its toast is
+        /// gone with the click.
+        /// </summary>
+        /// <returns>false when there is no capture with the id</returns>
+        public static bool EditCapture(string id)
+        {
+            var surface = Load(id);
+            if (surface == null)
+            {
+                return false;
+            }
+            // Like any capture: as a tab or in its own window, the capture was shown in the toast already (nothing to save)
+            surface.Modified = false;
+            ImageEditorForm.Open(surface);
+            return true;
+        }
+
+        /// <summary>
+        /// Runs the notification recipe (the destination flyout) for the capture, on the UI thread. The capture file is removed,
+        /// its toast is gone with the click.
+        /// </summary>
+        /// <returns>false when there is no capture with the id</returns>
+        public static bool OfferCapture(string id)
+        {
+            var surface = Load(id);
+            if (surface == null)
+            {
+                return false;
+            }
+
+            var recipe = RecipeManager.Instance.GetRecipeById(NotificationRecipes.RecipeIdNotification);
+            if (recipe?.IsEnabled != true)
+            {
+                surface.Dispose();
+                return false;
+            }
+
+            surface.CaptureDetails ??= new CaptureDetails();
+            var payload = new CapturePayload
+            {
+                Surface = surface,
+                RawCapture = new Capture(surface.GetImageForExport())
+                {
+                    CaptureDetails = surface.CaptureDetails
+                }
+            };
+            CaptureFlowRunner.Current.Start(recipe, configure: context =>
+            {
+                context.Payload = payload;
+                context.IsPayloadPreSupplied = true;
+            });
+            return true;
+        }
+
+        /// <summary>
+        /// Removes the kept capture, e.g. after another button of its toast was clicked: the toast is gone
+        /// </summary>
+        public static void Discard(string id)
+        {
+            if (Guid.TryParseExact(id, "D", out _))
+            {
+                Delete(id);
+            }
+        }
+
+        /// <summary>
+        /// Loads the kept capture and removes its files
+        /// </summary>
+        /// <returns>null when there is no capture with the id</returns>
+        private static ISurface Load(string id)
+        {
+            // The id comes from the toast arguments, only an id may name a file
+            if (!Guid.TryParseExact(id, "D", out _) || !File.Exists(GetCapturePath(id)))
+            {
+                return null;
+            }
+
+            try
+            {
+                return ImageIO.LoadGreenshotSurface(GetCapturePath(id), new Surface());
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Couldn't load the capture of the notification.", ex);
+                return null;
+            }
+            finally
+            {
+                Delete(id);
+            }
+        }
+
+        /// <summary>
+        /// Removes the captures of the notifications the user can no longer click
+        /// </summary>
+        public static void RemoveUnused(INotificationService notificationService)
+        {
+            if (!Directory.Exists(StoreDirectory))
+            {
+                return;
+            }
+
+            try
+            {
+                var shownIds = notificationService.GetShownCaptureIds();
+                // A clicked toast is gone from the notification center before Greenshot handles the click (also when Windows starts
+                // Greenshot for it), so a capture is kept as long as its toast lives (an hour, see DestinationDispatcher.Notify)
+                var keptBefore = DateTime.UtcNow - TimeSpan.FromHours(1);
+                foreach (var file in Directory.GetFiles(StoreDirectory))
+                {
+                    string id = Path.GetFileNameWithoutExtension(file);
+                    if (!shownIds.Contains(id, StringComparer.OrdinalIgnoreCase) && File.GetLastWriteTimeUtc(file) < keptBefore)
+                    {
+                        Delete(id);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Couldn't remove the captures of the notifications which are gone.", ex);
+            }
+        }
+
+        private static void Delete(string id)
+        {
+            foreach (var path in new[] { GetCapturePath(id), GetThumbnailPath(id) })
+            {
+                try
+                {
+                    File.Delete(path);
+                }
+                catch (Exception ex)
+                {
+                    Log.WarnFormat("Couldn't remove {0}: {1}", path, ex.Message);
+                }
+            }
+        }
+
+        /// <summary>
+        /// A UUID version 7 (RFC 9562): the time in milliseconds followed by random bits, so the files sort by their creation
+        /// </summary>
+        private static string CreateId()
+        {
+            var bytes = new byte[16];
+            using (var random = RandomNumberGenerator.Create())
+            {
+                random.GetBytes(bytes);
+            }
+            long milliseconds = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            for (int i = 0; i < 6; i++)
+            {
+                bytes[i] = unchecked((byte)(milliseconds >> (40 - i * 8)));
+            }
+            bytes[6] = (byte)((bytes[6] & 0x0F) | 0x70);
+            bytes[8] = (byte)((bytes[8] & 0x3F) | 0x80);
+            string hex = string.Concat(bytes.Select(b => b.ToString("x2")));
+            return $"{hex.Substring(0, 8)}-{hex.Substring(8, 4)}-{hex.Substring(12, 4)}-{hex.Substring(16, 4)}-{hex.Substring(20)}";
+        }
+    }
+}

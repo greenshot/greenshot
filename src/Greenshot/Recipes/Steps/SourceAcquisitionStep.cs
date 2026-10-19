@@ -175,6 +175,8 @@ namespace Greenshot.Recipes.Steps
                                          !string.IsNullOrEmpty(Config.GetParameter<string>("WindowTitlePattern")) ||
                                          !string.IsNullOrEmpty(Config.GetParameter<string>("ProcessName"));
 
+            bool liveSelection = UseLiveSelection(context, sourceType, hasTargetWindowConfig);
+
             // 5. Instantiate source based on SourceType
             ICaptureSource source = sourceType switch
             {
@@ -182,6 +184,12 @@ namespace Greenshot.Recipes.Steps
                     captureMouse
                         ? new CompositeCaptureSource("TargetWindowWithCursor", new ICaptureSource[] { new ActiveWindowCaptureSource(Config), new CursorCaptureSource() })
                         : new ActiveWindowCaptureSource(Config),
+
+                // The screen isn't frozen: nothing is captured before the selection, see InteractiveSelectionStep
+                CaptureSourceType.Region or CaptureSourceType.Window when liveSelection =>
+                    captureMouse
+                        ? new CompositeCaptureSource("LiveScreenWithCursor", new ICaptureSource[] { new LiveScreenCaptureSource(), new CursorCaptureSource() })
+                        : new LiveScreenCaptureSource(),
 
                 CaptureSourceType.Region or CaptureSourceType.Window or CaptureSourceType.TextOcr =>
                     CreateScreenWithCursorSource(captureMouse, "InteractiveBaseSource", ScreenCaptureMode.FullScreen),
@@ -309,6 +317,8 @@ namespace Greenshot.Recipes.Steps
             {
                 return;
             }
+            // A new capture of the screen (L in the selection) would show the excluded windows
+            payload.RawCapture.CaptureDetails.AddMetaData(LiveScreenCaptureSource.FrozenOnlyKey, "true");
             int redacted = AiToolCapture.RedactExcludedWindows(payload.RawCapture.Image, payload.RawCapture.Location);
             if (redacted > 0)
             {
@@ -403,6 +413,35 @@ namespace Greenshot.Recipes.Steps
         /// The default of ICoreConfiguration.CaptureDelay
         /// </summary>
         private const int DefaultCaptureDelay = 100;
+
+        /// <summary>
+        /// Select on the live screen instead of a frozen capture: when the user turned freezing off, for a region or window selection
+        /// of the user. Text (OCR) needs the capture of the screen, AI tools need it to black out excluded windows.
+        /// </summary>
+        private static bool UseLiveSelection(CaptureFlowContext context, CaptureSourceType sourceType, bool hasTargetWindowConfig)
+        {
+            if (CoreConfig.CaptureFreezeScreen || sourceType is not (CaptureSourceType.Region or CaptureSourceType.Window) || hasTargetWindowConfig)
+            {
+                return false;
+            }
+            var selections = context.Recipe?.Nodes?.Where(node => string.Equals(node?.StepType, WellKnownStepTypes.InteractiveSelection, StringComparison.OrdinalIgnoreCase)).ToList();
+            if (selections == null || selections.Count == 0 || selections.Any(node => node.GetParameter("SelectionMode", CaptureMode.Region) == CaptureMode.Text))
+            {
+                return false;
+            }
+#if !GREENSHOT_LIGHT
+            if (AiToolCapture.IsAiToolRun(context))
+            {
+                return false;
+            }
+#endif
+            if (!LiveScreenCaptureSource.IsSupported)
+            {
+                Log.Info("Selecting on the live screen needs Windows 10 2004 or newer, the screen is frozen.");
+                return false;
+            }
+            return true;
+        }
 
         private static bool HasInteractiveSelection(CaptureFlowContext context) =>
             context.Recipe?.Nodes?.Any(node => string.Equals(node?.StepType, WellKnownStepTypes.InteractiveSelection, StringComparison.OrdinalIgnoreCase)) == true;

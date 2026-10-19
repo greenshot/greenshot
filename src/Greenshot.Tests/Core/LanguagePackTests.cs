@@ -55,9 +55,9 @@ namespace Greenshot.Tests.Core
                 typeof(ICoreLanguage).Assembly,
                 typeof(Greenshot.Plugin.Box.IBoxLanguage).Assembly,
                 typeof(Greenshot.Plugin.Confluence.IConfluenceLanguage).Assembly,
+                typeof(Greenshot.Plugin.CustomUploader.ICustomUploaderLanguage).Assembly,
                 typeof(Greenshot.Plugin.Dropbox.IDropboxLanguage).Assembly,
                 typeof(Greenshot.Plugin.ExternalCommand.IExternalCommandLanguage).Assembly,
-                typeof(Greenshot.Plugin.Imgur.IImgurLanguage).Assembly,
                 typeof(Greenshot.Plugin.Jira.IJiraLanguage).Assembly,
                 typeof(Greenshot.Plugin.Office.IOfficeLanguage).Assembly,
                 typeof(Greenshot.Plugin.Pdf.IPdfLanguage).Assembly

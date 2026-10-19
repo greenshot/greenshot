@@ -162,6 +162,36 @@ namespace Greenshot.Base.Languages
         string CloseOnSaveTitle { get; }
 
         /// <summary>
+        /// Close tab
+        /// </summary>
+        string CloseTab { get; }
+
+        /// <summary>
+        /// New image
+        /// </summary>
+        string NewImage { get; }
+
+        /// <summary>
+        /// Do you want to save the changes of these captures?
+        /// </summary>
+        string CloseOnSaveAll { get; }
+
+        /// <summary>
+        /// Save images?
+        /// </summary>
+        string CloseOnSaveAllTitle { get; }
+
+        /// <summary>
+        /// Save all
+        /// </summary>
+        string SaveAll { get; }
+
+        /// <summary>
+        /// Discard all
+        /// </summary>
+        string DiscardAll { get; }
+
+        /// <summary>
         /// Confirm
         /// </summary>
         string Confirm { get; }

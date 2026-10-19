@@ -24,9 +24,12 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Export;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Plugin.Box.Destinations;
 using log4net;
 
 namespace Greenshot.Plugin.Box.Recipes
@@ -84,16 +87,18 @@ namespace Greenshot.Plugin.Box.Recipes
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                // Same behaviour as the other upload steps: the flow continues, the failure is logged
+                // Same behaviour as the other upload steps: the flow continues, the failure is logged and shown in the notification
                 context.LogStep($"BoxStep: Upload to Box failed: {ex.Message}");
                 Log.Error("BoxStep: Upload to Box failed.", ex);
+                await ApplyAsync(context, ExportResult.Failed(ex.Message, ex), source, captureDetails, cancellationToken).ConfigureAwait(false);
                 return;
             }
 
             if (!string.IsNullOrEmpty(uploadUrl))
             {
                 context.Properties["Box.UploadUrl"] = uploadUrl;
-                await source.UseSurfaceAsync(surface => surface.UploadUrl = uploadUrl, cancellationToken).ConfigureAwait(false);
+                // The same result as the Box destination: the link is set on the capture, the Notification step shows it
+                await ApplyAsync(context, ExportResult.Succeeded(uri: new Uri(uploadUrl)), source, captureDetails, cancellationToken).ConfigureAwait(false);
                 context.LogStep($"Successfully uploaded capture to Box: {uploadUrl}");
                 Log.InfoFormat("BoxStep: Capture uploaded to Box with URL '{0}'", uploadUrl);
             }
@@ -102,6 +107,13 @@ namespace Greenshot.Plugin.Box.Recipes
                 context.LogStep("BoxStep: Upload to Box did not produce a URL (declined).");
                 Log.Warn("BoxStep: Upload to Box was declined.");
             }
+        }
+
+        private async Task ApplyAsync(CaptureFlowContext context, ExportResult result, IExportSource source, ICaptureDetails captureDetails, CancellationToken cancellationToken)
+        {
+            var destination = new BoxDestination(_plugin);
+            await ExportResultHandler.ApplyAsync(destination, result, source, cancellationToken).ConfigureAwait(false);
+            context.RecordExport(destination, result, captureDetails, source);
         }
     }
 }

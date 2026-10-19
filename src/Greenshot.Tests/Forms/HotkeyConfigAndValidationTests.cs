@@ -386,6 +386,25 @@ namespace Greenshot.Tests.Forms
         }
 
         [Fact]
+        public void HotkeyManager_IsRegistered_OnlyWhileTheSequenceIsRegistered()
+        {
+            HotkeyManager.ClearRegisteredHotkeys();
+            var seq = HotkeySequence.Parse("Ctrl + Alt + Shift + F13");
+            Assert.False(HotkeyManager.IsRegistered(seq));
+
+            int id = HotkeyManager.RegisterHotKey(seq, () => { });
+            Assert.True(HotkeyManager.IsRegistered(seq));
+            Assert.True(HotkeyManager.IsRegistered(HotkeySequence.Parse("Ctrl + Alt + Shift + F13")));
+            Assert.False(HotkeyManager.IsRegistered(HotkeySequence.Parse("Ctrl + Alt + Shift + F14")));
+
+            HotkeyManager.UnregisterHotKey(id);
+            Assert.False(HotkeyManager.IsRegistered(seq));
+            Assert.False(HotkeyManager.IsRegistered(null));
+
+            HotkeyManager.ClearRegisteredHotkeys();
+        }
+
+        [Fact]
         public void HotkeyManager_SequenceWithReleasedModifier_TriggersCorrectly()
         {
             HotkeyManager.ClearRegisteredHotkeys();

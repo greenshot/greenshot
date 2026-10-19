@@ -230,8 +230,13 @@ namespace Greenshot.Destinations
             }
 
             string filename = FilenameHelper.GetFilenameFromPattern(pattern, CoreConfig.OutputFileFormat, captureDetails);
-            CoreConfig.ValidateAndCorrectOutputFilePath();
-            string filepath = FilenameHelper.FillVariables(CoreConfig.OutputFilePath, false);
+            string filepath = CoreConfig.GetOutputDirectory(out string folderProblem);
+            if (folderProblem != null)
+            {
+                // Saved to the default folder this time: say so, instead of letting the screenshot "disappear"
+                string message = string.Format(Texts.Core.ErrorOutputfolderFallback, CoreConfig.OutputFilePath, folderProblem, filepath);
+                userInteraction.NotifyAsync(new Notification(NotificationKind.Warning, message)).FireAndLog("Screenshot folder fallback notification", Log);
+            }
             try
             {
                 return Path.Combine(filepath, filename);

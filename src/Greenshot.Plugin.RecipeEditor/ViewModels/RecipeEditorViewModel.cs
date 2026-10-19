@@ -194,7 +194,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 {
                     AddCurrentFormatOption(value?.OutputFileFormat);
                     AddCurrentFormatOption(value?.ExternalCommandFormat);
-                    AddCurrentFormatOption(value?.ImgurFormat);
                     AddCurrentFormatOption(value?.JiraFormat);
                     AddCurrentFormatOption(value?.ConfluenceFormat);
                     foreach (var n in Nodes) n.IsSelected = (n == value);
@@ -2137,8 +2136,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                         string hotkey = t.GetParameter<string>("Hotkey", "Shortcut");
                         tLabel = $"⚡ Hotkey: {hotkey}";
                     }
-                    else if (string.Equals(t.TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase) ||
-                             string.Equals(t.TriggerType, TriggerConfig.TypeSystray, StringComparison.OrdinalIgnoreCase))
+                    else if (string.Equals(t.TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase))
                     {
                         string menuText = t.GetParameter<string>("MenuItemText", t.Name ?? "Context Menu");
                         tLabel = $"🖱️ Menu: {menuText}";
@@ -2407,7 +2405,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     dict["ShowPrintDialog"] = true;
                     break;
                 case WellKnownStepTypes.CustomDestination:
-                    dict["CustomDestinationId"] = "Imgur";
+                    dict["CustomDestinationId"] = "Clipboard";
                     break;
                 case WellKnownStepTypes.Notification:
                     dict["ShowNotification"] = true;
@@ -2452,10 +2450,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     dict["OutputToClipboard"] = false;
                     dict["UriToClipboard"] = false;
                     dict["ReloadAfterExecution"] = false;
-                    break;
-                case "Imgur":
-                    dict["Format"] = "png";
-                    dict["CopyLinkToClipboard"] = true;
                     break;
                 case "Jira":
                     dict["IssueKey"] = "PROJECT-123";

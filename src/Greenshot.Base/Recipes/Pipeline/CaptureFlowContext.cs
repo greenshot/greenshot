@@ -155,6 +155,8 @@ namespace Greenshot.Base.Recipes.Pipeline
             Recipe = recipe ?? throw new ArgumentNullException(nameof(recipe));
             Trigger = trigger;
             CancellationToken = cancellationToken;
+            // From the start: the contexts of the nodes and branches copy the properties, so they all add to this one log
+            Properties[ExportLog.PropertyName] = new ExportLog();
         }
 
         /// <summary>

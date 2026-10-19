@@ -50,7 +50,6 @@ Source: {#ReleaseDir}\Svg.dll; DestDir: {app}; Components: greenshot; Flags: {#D
 Source: {#ReleaseDir}\ExCSS.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\HtmlAgilityPack.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\Newtonsoft.Json.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
-Source: {#ReleaseDir}\Microsoft.Toolkit.Uwp.Notifications.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\Hardcodet.NotifyIcon.Wpf.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\Microsoft.Bcl.AsyncInterfaces.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\Microsoft.Bcl.HashCode.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
@@ -65,8 +64,13 @@ Source: {#ReleaseDir}\emojis.xml; DestDir: {app}; Components: greenshot; Flags: 
 Source: additional_files\installer.txt; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: additional_files\license.txt; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: additional_files\readme.txt; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
+; Writes the start with Windows for the current user, see tasks-icons-reg.iss
+Source: additional_files\autostart.inf; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
+#ifndef IsLightEdition
+; Not in Greenshot Light: it opens files with Greenshot.exe (see tasks-icons-reg.iss)
 Source: {#ReleaseDir}\greenshot-proxy.exe; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\greenshot-cli.exe; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
+#endif
 
 ; Core language files
 Source: {#LanguagesDir}\*nl-NL*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: greenshot; Flags: {#DefaultInstallFlags};

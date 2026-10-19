@@ -14,6 +14,14 @@
         AllowsTransparency="False">
     
     <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/PillStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ComboBoxStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ExpanderStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         <wpf:ExpertVisibilityConverter x:Key="ExpertVisibilityConverter"/>
         <wpf:FixedToEnabledConverter x:Key="FixedToEnabledConverter"/>
         <wpf:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
@@ -108,13 +116,6 @@
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
         
-        <!-- Modern CheckBox Style -->
-        <Style TargetType="CheckBox">
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="Margin" Value="6,3"/>
-            <Setter Property="Padding" Value="4,0,0,0"/>
-        </Style>
-        
         <!-- Modern TextBox Style -->
         <Style TargetType="TextBox">
             <Setter Property="Margin" Value="6,3"/>
@@ -138,247 +139,13 @@
             </Setter>
         </Style>
         
-        <!-- Modern ComboBoxItem Style -->
-        <Style TargetType="ComboBoxItem">
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="TextElement.Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Padding" Value="8,5"/>
-            <Setter Property="HorizontalContentAlignment" Value="Left"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ComboBoxItem">
-                        <Border x:Name="ItemBorder"
-                                Background="{TemplateBinding Background}"
-                                Padding="{TemplateBinding Padding}"
-                                SnapsToDevicePixels="True">
-                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
-                                <ContentPresenter.Resources>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                                    </Style>
-                                </ContentPresenter.Resources>
-                            </ContentPresenter>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ItemBorder" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="ItemBorder" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TabItemSelectedBrush}"/>
-                                <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Modern ComboBox Style -->
-        <Style TargetType="ComboBox">
-            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
-            <Setter Property="Padding" Value="8,6"/>
-            <Setter Property="Margin" Value="6,3"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ComboBox">
-                        <Grid>
-                            <ToggleButton Name="ToggleButton"
-                                          Background="{TemplateBinding Background}"
-                                          BorderBrush="{TemplateBinding BorderBrush}"
-                                          BorderThickness="1"
-                                          Focusable="False"
-                                          IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
-                                          ClickMode="Press">
-                                <ToggleButton.Template>
-                                    <ControlTemplate TargetType="ToggleButton">
-                                        <Border Name="Border"
-                                                Background="{TemplateBinding Background}"
-                                                BorderBrush="{TemplateBinding BorderBrush}"
-                                                BorderThickness="{TemplateBinding BorderThickness}"
-                                                CornerRadius="4">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition/>
-                                                    <ColumnDefinition Width="20"/>
-                                                </Grid.ColumnDefinitions>
-                                                <Path Grid.Column="1"
-                                                      HorizontalAlignment="Center"
-                                                      VerticalAlignment="Center"
-                                                      Data="M 0 0 L 4 4 L 8 0 Z"
-                                                      Fill="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                                            </Grid>
-                                        </Border>
-                                    </ControlTemplate>
-                                </ToggleButton.Template>
-                            </ToggleButton>
-                            <ContentPresenter Name="ContentSite"
-                                              IsHitTestVisible="False"
-                                              Content="{TemplateBinding SelectionBoxItem}"
-                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
-                                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
-                                              Margin="8,6,28,6"
-                                              VerticalAlignment="Center"
-                                              HorizontalAlignment="Left">
-                                <ContentPresenter.Resources>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                                    </Style>
-                                </ContentPresenter.Resources>
-                            </ContentPresenter>
-                            <Popup Name="Popup"
-                                   Placement="Bottom"
-                                   IsOpen="{TemplateBinding IsDropDownOpen}"
-                                   AllowsTransparency="True"
-                                   Focusable="False"
-                                   PopupAnimation="None">
-                                <Grid Name="DropDown"
-                                      SnapsToDevicePixels="True"
-                                      MinWidth="{TemplateBinding ActualWidth}"
-                                      MaxHeight="{TemplateBinding MaxDropDownHeight}">
-                                     <Border Name="DropDownBorder"
-                                            Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}"
-                                            BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
-                                            TextElement.Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
-                                            BorderThickness="1"
-                                            CornerRadius="4"
-                                            Padding="0"
-                                            Margin="0,1,0,0">
-                                        <ScrollViewer x:Name="DropDownScrollViewer"
-                                                      CanContentScroll="True"
-                                                      Focusable="False"
-                                                      VerticalScrollBarVisibility="Auto"
-                                                      HorizontalScrollBarVisibility="Disabled"
-                                                      SnapsToDevicePixels="True">
-                                            <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained"
-                                                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
-                                        </ScrollViewer>
-                                    </Border>
-                                </Grid>
-                            </Popup>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        
-        <!-- Modern Button Style -->
-        <Style TargetType="Button">
-            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="16,8"/>
-            <Setter Property="Margin" Value="4"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Name="Border"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="4"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonPressedBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.4"/>
-                                <Setter Property="Cursor" Value="Arrow"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        
-        <!-- Modern Icon/Small Button Style -->
-        <Style x:Key="IconButtonStyle" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="Width" Value="34"/>
-            <Setter Property="Height" Value="28"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-        </Style>
-        
-        <!-- Modern RadioButton Style -->
-        <Style TargetType="RadioButton">
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="Margin" Value="6,3"/>
-        </Style>
-        
-        
         <!-- Modern Slider Style -->
         <Style TargetType="Slider">
             <Setter Property="Margin" Value="6,3"/>
         </Style>
-        
-        <!-- A group which opens and closes with its header, the arrow follows the theme -->
-        <Style x:Key="SettingsGroupExpanderStyle" TargetType="Expander">
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="IsExpanded" Value="False"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Expander">
-                        <DockPanel>
-                            <ToggleButton DockPanel.Dock="Top"
-                                          Content="{TemplateBinding Header}"
-                                          Foreground="{TemplateBinding Foreground}"
-                                          IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
-                                          Cursor="Hand">
-                                <ToggleButton.Template>
-                                    <ControlTemplate TargetType="ToggleButton">
-                                        <Border x:Name="HeaderBorder" Background="Transparent" CornerRadius="3" Padding="2,4">
-                                            <StackPanel Orientation="Horizontal">
-                                                <Path x:Name="Arrow" Data="M 0,0 L 4,4 L 0,8" Stroke="{TemplateBinding Foreground}" StrokeThickness="1.5"
-                                                      VerticalAlignment="Center" Margin="2,0,8,0" RenderTransformOrigin="0.5,0.5">
-                                                    <Path.RenderTransform>
-                                                        <RotateTransform Angle="0"/>
-                                                    </Path.RenderTransform>
-                                                </Path>
-                                                <ContentPresenter VerticalAlignment="Center"/>
-                                            </StackPanel>
-                                        </Border>
-                                        <ControlTemplate.Triggers>
-                                            <Trigger Property="IsChecked" Value="True">
-                                                <Setter TargetName="Arrow" Property="RenderTransform">
-                                                    <Setter.Value>
-                                                        <RotateTransform Angle="90"/>
-                                                    </Setter.Value>
-                                                </Setter>
-                                            </Trigger>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter TargetName="HeaderBorder" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
-                                            </Trigger>
-                                        </ControlTemplate.Triggers>
-                                    </ControlTemplate>
-                                </ToggleButton.Template>
-                            </ToggleButton>
-                            <ContentPresenter x:Name="ExpandSite" Visibility="Collapsed"/>
-                        </DockPanel>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsExpanded" Value="True">
-                                <Setter TargetName="ExpandSite" Property="Visibility" Value="Visible"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+
+
+        </ResourceDictionary>
     </Window.Resources>
     
     <Grid>
@@ -549,13 +316,35 @@
                                 <CheckBox Content="{wpf:Text Settings.Playsound}"
                                           IsChecked="{Binding CoreConfiguration.PlayCameraSound, Mode=TwoWay}"
                                           IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=PlayCameraSound}"/>
-                                <CheckBox Content="{wpf:Text Settings.Shownotify}"
-                                          IsChecked="{Binding CoreConfiguration.ShowTrayNotification, Mode=TwoWay}"
-                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ShowTrayNotification}"/>
                                 <CheckBox Content="{wpf:Text Settings.Zoom}"
                                           IsChecked="{Binding CoreConfiguration.ZoomerEnabled, Mode=TwoWay}"
                                            IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ZoomerEnabled}"/>
-                                
+                                <CheckBox Content="{wpf:Text Settings.FreezeScreen}"
+                                          ToolTip="{wpf:Text Settings.TooltipFreezeScreen}"
+                                          IsChecked="{Binding CoreConfiguration.CaptureFreezeScreen, Mode=TwoWay}"
+                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureFreezeScreen}"/>
+
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Content="{wpf:Text Settings.Notifications}"/>
+                                    <ComboBox Grid.Column="1"
+                                              ItemsSource="{Binding NotificationLevels}"
+                                              DisplayMemberPath="DisplayName"
+                                              SelectedValuePath="Level"
+                                              SelectedValue="{Binding SelectedNotificationLevel, Mode=TwoWay}"
+                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ShowTrayNotification}"/>
+                                </Grid>
+                                <!-- Only the toasts show a capture, not the balloons of the tray icon -->
+                                <StackPanel IsEnabled="{Binding AreNotificationsShown}"
+                                            Visibility="{Binding CanShowNotificationThumbnail, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <CheckBox Content="{wpf:Text Settings.NotificationThumbnail}"
+                                              IsChecked="{Binding CoreConfiguration.ShowNotificationThumbnail, Mode=TwoWay}"
+                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ShowNotificationThumbnail}"/>
+                                </StackPanel>
+
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -572,6 +361,82 @@
                                              Text="{Binding CoreConfiguration.CaptureDelay, Mode=TwoWay}"
                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureDelay}"/>
                                 </Grid>
+
+                                <!-- The sizes of the fixed size capture: pills with an "x", the "+" opens a small popup for width and height -->
+                                <StackPanel Margin="0,5"
+                                            IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=FixedCaptureSizes}">
+                                    <TextBlock Text="{wpf:Text Settings.FixedCaptureSizes}"
+                                               TextWrapping="Wrap"
+                                               Margin="0,0,0,6"
+                                               ToolTip="{wpf:Text Settings.TooltipFixedCaptureSizes}"
+                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                    <WrapPanel ToolTip="{wpf:Text Settings.TooltipFixedCaptureSizes}">
+                                        <ItemsControl ItemsSource="{Binding FixedCaptureSizes}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <WrapPanel/>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border Style="{StaticResource PillStyle}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock VerticalAlignment="Center" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}">
+                                                                <TextBlock.Text>
+                                                                    <MultiBinding StringFormat="{}{0} × {1}">
+                                                                        <Binding Path="Width"/>
+                                                                        <Binding Path="Height"/>
+                                                                    </MultiBinding>
+                                                                </TextBlock.Text>
+                                                            </TextBlock>
+                                                            <Button Style="{StaticResource RemoveEntryButtonStyle}" Margin="4,0,0,0"
+                                                                    Click="RemoveFixedCaptureSize_Click"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        <Button x:Name="AddFixedCaptureSizeButton"
+                                                Style="{StaticResource AddPillButtonStyle}"
+                                                ToolTip="{wpf:Text Settings.FixedCaptureSizesAdd}"
+                                                Click="AddFixedCaptureSize_Click"/>
+                                    </WrapPanel>
+                                    <Popup x:Name="AddFixedCaptureSizePopup"
+                                           PlacementTarget="{Binding ElementName=AddFixedCaptureSizeButton}"
+                                           Placement="Bottom"
+                                           StaysOpen="False"
+                                           AllowsTransparency="True"
+                                           Opened="AddFixedCaptureSizePopup_Opened">
+                                        <Border Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"
+                                                BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
+                                                BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,4,0,0"
+                                                KeyDown="AddFixedCaptureSizePopup_KeyDown">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="70"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="70"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+                                                <TextBlock Text="{wpf:Text Settings.FixedCaptureSizesWidth}" FontSize="11" Margin="0,0,0,3"
+                                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                                <TextBlock Grid.Column="2" Text="{wpf:Text Settings.FixedCaptureSizesHeight}" FontSize="11" Margin="0,0,0,3"
+                                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                                <TextBox x:Name="FixedCaptureSizeWidth" Grid.Row="1" TextAlignment="Right"/>
+                                                <TextBlock Grid.Row="1" Grid.Column="1" Text="×" Margin="6,0" VerticalAlignment="Center"
+                                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                                <TextBox x:Name="FixedCaptureSizeHeight" Grid.Row="1" Grid.Column="2" TextAlignment="Right"/>
+                                                <Button Grid.Row="1" Grid.Column="3" Content="+" Margin="8,0,0,0" Padding="10,2"
+                                                        ToolTip="{wpf:Text Settings.FixedCaptureSizesAdd}"
+                                                        Click="AddFixedCaptureSizeConfirm_Click"/>
+                                            </Grid>
+                                        </Border>
+                                    </Popup>
+                                </StackPanel>
                             </StackPanel>
                         </GroupBox>
                         
@@ -629,13 +494,13 @@
                                     <Label Grid.Row="0" Grid.Column="0" Content="{wpf:Text Settings.Storagelocation}" Margin="0,0,12,0"/>
                                     <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding CoreConfiguration.OutputFilePath}"
                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFilePath}"/>
-                                    <Button Grid.Row="0" Grid.Column="2" Content="..." Style="{StaticResource IconButtonStyle}" Margin="6,0,0,0" Click="BrowseStorageLocation_Click"
+                                    <Button Grid.Row="0" Grid.Column="2" Content="..." Style="{StaticResource SecondaryButtonStyle}" Margin="6,2,0,2" Click="BrowseStorageLocation_Click"
                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFilePath}"/>
                                     
                                     <Label Grid.Row="1" Grid.Column="0" Content="{wpf:Text Settings.Filenamepattern}" Margin="0,0,12,0"/>
                                     <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding CoreConfiguration.OutputFileFilenamePattern}"
                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFileFilenamePattern}"/>
-                                    <Button Grid.Row="1" Grid.Column="2" Content="?" Style="{StaticResource IconButtonStyle}" Margin="6,0,0,0" Click="ShowPatternHelp_Click"
+                                    <Button Grid.Row="1" Grid.Column="2" Content="?" Style="{StaticResource SecondaryButtonStyle}" Margin="6,2,0,2" Click="ShowPatternHelp_Click"
                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFileFilenamePattern}"/>
                                     
                                     <Label Grid.Row="2" Grid.Column="0" Content="{wpf:Text Settings.Primaryimageformat}" Margin="0,0,12,0"/>
@@ -740,13 +605,62 @@
                                 <CheckBox Content="{wpf:Text Editor.MatchCaptureSize}"
                                           IsChecked="{Binding EditorConfiguration.MatchSizeToCapture, Mode=TwoWay}"
                                           IsEnabled="{Binding EditorConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=MatchSizeToCapture}"/>
-                                <CheckBox Content="{wpf:Text Settings.ExpertReuseeditorifpossible}"
-                                          IsChecked="{Binding EditorConfiguration.ReuseEditor, Mode=TwoWay}"
-                                          IsEnabled="{Binding EditorConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ReuseEditor}"/>
+                                <CheckBox Content="{wpf:Text Settings.EditorTabs}"
+                                          IsChecked="{Binding EditorConfiguration.EditorTabs, Mode=TwoWay}"
+                                          IsEnabled="{Binding EditorConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=EditorTabs}"/>
+                                <CheckBox Content="{wpf:Text Settings.OpenCaptureAsTab}" Margin="20,0,0,0"
+                                          IsChecked="{Binding EditorConfiguration.OpenCaptureAsTab, Mode=TwoWay}">
+                                    <!-- Only with tabs -->
+                                    <CheckBox.Style>
+                                        <Style TargetType="CheckBox" BasedOn="{StaticResource GreenshotCheckBoxStyle}">
+                                            <Setter Property="IsEnabled" Value="{Binding EditorConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OpenCaptureAsTab}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding EditorConfiguration.EditorTabs}" Value="False">
+                                                    <Setter Property="IsEnabled" Value="False"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </CheckBox.Style>
+                                </CheckBox>
                                 <CheckBox Content="{wpf:Text Settings.ExpertSuppresssavedialogatclose}"
                                           IsChecked="{Binding EditorConfiguration.SuppressSaveDialogAtClose, Mode=TwoWay}"
                                           IsEnabled="{Binding EditorConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=SuppressSaveDialogAtClose}"/>
                             </StackPanel>
+                        </GroupBox>
+
+                        <!-- The image of the "+" after the tabs, and of the editor without a capture -->
+                        <GroupBox Header="{wpf:Text Editor.NewImage}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="{wpf:Text Settings.NewImageSize}" VerticalAlignment="Center" Margin="0,4,12,4"
+                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="0,4"
+                                            IsEnabled="{Binding EditorConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=DefaultEditorSize}">
+                                    <TextBox Width="70" TextAlignment="Right" Text="{Binding NewImageWidth, Mode=TwoWay}"
+                                             ToolTip="{wpf:Text Settings.FixedCaptureSizesWidth}"/>
+                                    <TextBlock Text="×" Margin="6,0" VerticalAlignment="Center"
+                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                    <TextBox Width="70" TextAlignment="Right" Text="{Binding NewImageHeight, Mode=TwoWay}"
+                                             ToolTip="{wpf:Text Settings.FixedCaptureSizesHeight}"/>
+                                </StackPanel>
+                                <TextBlock Grid.Row="1" Text="{wpf:Text Settings.NewImageColor}" VerticalAlignment="Center" Margin="0,4,12,4"
+                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource SecondaryButtonStyle}"
+                                        HorizontalAlignment="Left" Margin="0,4" Padding="2"
+                                        ToolTip="{wpf:Text Settings.NewImageColor}"
+                                        IsEnabled="{Binding EditorConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=NewImageColor}"
+                                        Click="NewImageColor_Click">
+                                    <Border Width="40" Height="16" BorderThickness="1" Background="{Binding NewImageBrush}"
+                                            BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+                                </Button>
+                            </Grid>
                         </GroupBox>
                     </StackPanel>
                 </ScrollViewer>
@@ -769,7 +683,7 @@
                                 <CheckBox Content="{wpf:Text Core.PrintoptionsInverted}"
                                           IsChecked="{Binding CoreConfiguration.OutputPrintInverted, Mode=TwoWay}"
                                           IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputPrintInverted}"/>
-                                <RadioButton Content="{wpf:Text Core.PrintoptionsPrintcolor}"
+                                <RadioButton Style="{StaticResource DefaultRadioButtonStyle}" Content="{wpf:Text Core.PrintoptionsPrintcolor}"
                                              GroupName="PrintColorMode"
                                              IsChecked="{Binding PrintColor, Mode=TwoWay}">
                                     <RadioButton.IsEnabled>
@@ -778,11 +692,11 @@
                                         </MultiBinding>
                                     </RadioButton.IsEnabled>
                                 </RadioButton>
-                                <RadioButton Content="{wpf:Text Core.PrintoptionsPrintgrayscale}"
+                                <RadioButton Style="{StaticResource DefaultRadioButtonStyle}" Content="{wpf:Text Core.PrintoptionsPrintgrayscale}"
                                              GroupName="PrintColorMode"
                                              IsChecked="{Binding PrintGrayscale, Mode=TwoWay}"
                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputPrintGrayscale}"/>
-                                <RadioButton Content="{wpf:Text Core.PrintoptionsPrintmonochrome}"
+                                <RadioButton Style="{StaticResource DefaultRadioButtonStyle}" Content="{wpf:Text Core.PrintoptionsPrintmonochrome}"
                                              GroupName="PrintColorMode"
                                              IsChecked="{Binding PrintMonochrome, Mode=TwoWay}"
                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputPrintMonochrome}"/>
@@ -850,10 +764,6 @@
                                         </ControlTemplate>
                                     </Setter.Value>
                                 </Setter>
-                            </Style>
-                            <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
-                                <Setter Property="Padding" Value="6,2"/>
-                                <Setter Property="Margin" Value="0,1"/>
                             </Style>
                         </StackPanel.Resources>
                         <TextBlock Text="{wpf:Text Settings.RecipesDescription}" TextWrapping="Wrap" Margin="4,0,4,6"
@@ -1062,7 +972,7 @@
                                 </CheckBox>
 
                                 <!-- Memory and speed, collapsed: the header shows the profile the settings match. The profile sets the settings, which can also be changed one by one -->
-                                <Expander Margin="0,8,0,5" Style="{StaticResource SettingsGroupExpanderStyle}">
+                                <Expander Margin="0,8,0,5" Style="{StaticResource ExpanderStyle}">
                                     <Expander.Header>
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="{wpf:Text Settings.MemoryProfile}" FontWeight="SemiBold"/>
@@ -1208,12 +1118,14 @@
                     HorizontalAlignment="Right" 
                     Margin="0,10,0,0">
             <Button Content="{wpf:Text Core.Ok}" 
-                    MinWidth="80" 
+                    Style="{StaticResource PrimaryButtonStyle}"
+                    MinWidth="90" 
                     Margin="5,0"
                     IsDefault="True"
                     Click="OkButton_Click"/>
-            <Button Content="{wpf:Text Core.Cancel}" 
-                    MinWidth="80"
+                <Button Content="{wpf:Text Core.Cancel}" 
+                        Style="{StaticResource SecondaryButtonStyle}"
+                    MinWidth="90"
                     Margin="5,0"
                     IsCancel="True"
                     Click="CancelButton_Click"/>

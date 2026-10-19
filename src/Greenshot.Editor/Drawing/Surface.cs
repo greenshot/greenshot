@@ -46,6 +46,7 @@ using log4net;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Threading;
+using Greenshot.Base.Http;
 
 namespace Greenshot.Editor.Drawing
 {
@@ -1105,7 +1106,7 @@ namespace Greenshot.Editor.Drawing
             IDrawableContainer downloaded = null;
             foreach (var url in urls)
             {
-                downloaded = await NetworkHelper.DownloadImageAsDrawableContainerAsync(url, CancellationToken.None);
+                downloaded = await ImageDownloader.DownloadImageAsDrawableContainerAsync(url, CancellationToken.None);
                 if (downloaded != null)
                 {
                     break;

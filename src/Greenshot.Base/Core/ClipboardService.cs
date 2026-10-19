@@ -26,6 +26,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Windows.Clipboard;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Http;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Threading;
 using log4net;
@@ -122,7 +123,7 @@ namespace Greenshot.Base.Core
             // Only HTML with images: download them
             foreach (var imageUrl in ClipboardHelper.GetHtmlImageUrls(snapshot))
             {
-                var downloaded = await NetworkHelper.DownloadImageAsync(imageUrl, cancellationToken).ConfigureAwait(false);
+                var downloaded = await ImageDownloader.DownloadImageAsync(imageUrl, cancellationToken).ConfigureAwait(false);
                 if (downloaded != null)
                 {
                     return downloaded;

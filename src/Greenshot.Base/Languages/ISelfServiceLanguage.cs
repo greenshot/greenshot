@@ -42,6 +42,11 @@ namespace Greenshot.Base.Languages
         string BtnCopySysinfo { get; }
 
         /// <summary>
+        /// Open Folder
+        /// </summary>
+        string BtnOpenFolder { get; }
+
+        /// <summary>
         /// Open Log Viewer
         /// </summary>
         string BtnOpenLogviewer { get; }
@@ -50,6 +55,16 @@ namespace Greenshot.Base.Languages
         /// Refresh (F5)
         /// </summary>
         string BtnRefresh { get; }
+
+        /// <summary>
+        /// Reset Filename Pattern
+        /// </summary>
+        string BtnResetFilenamePattern { get; }
+
+        /// <summary>
+        /// Reset Folder to Default
+        /// </summary>
+        string BtnResetOutputPath { get; }
 
         /// <summary>
         /// Self-Service [S]
@@ -100,6 +115,16 @@ namespace Greenshot.Base.Languages
         /// Greenshot shortcuts, conflict detection (OneDrive, Windows 11 Snipping Tool, Dropbox)
         /// </summary>
         string CategoryHotkeysSub { get; }
+
+        /// <summary>
+        /// Delete old Imgur uploads
+        /// </summary>
+        string CategoryImgur { get; }
+
+        /// <summary>
+        /// Greenshot still has the delete keys of your earlier anonymous uploads
+        /// </summary>
+        string CategoryImgurSub { get; }
 
         /// <summary>
         /// System &amp; Hardware
@@ -647,6 +672,86 @@ namespace Greenshot.Base.Languages
         string FilesNotFound { get; }
 
         /// <summary>
+        /// Configured folder
+        /// </summary>
+        string FilesOutputConfigured { get; }
+
+        /// <summary>
+        /// The folder contains variables like ${YYYY}: Greenshot fills them in when it saves, and creates the folder.
+        /// </summary>
+        string FilesOutputContainsVariables { get; }
+
+        /// <summary>
+        /// The drive or network share {0} isn't available: until it is, Greenshot saves to the default folder (Desktop) and shows a notification.
+        /// </summary>
+        string FilesOutputDriveMissing { get; }
+
+        /// <summary>
+        /// Next file, for example
+        /// </summary>
+        string FilesOutputExample { get; }
+
+        /// <summary>
+        /// Folder used
+        /// </summary>
+        string FilesOutputExpanded { get; }
+
+        /// <summary>
+        /// The filename pattern doesn't give a valid filename. {0}
+        /// </summary>
+        string FilesOutputInvalidFilename { get; }
+
+        /// <summary>
+        /// The folder doesn't exist yet: Greenshot creates it at the next save.
+        /// </summary>
+        string FilesOutputMissing { get; }
+
+        /// <summary>
+        /// A network folder: when it can't be reached (e.g. without VPN), Greenshot saves to the default folder (Desktop) for that time and shows a notification.
+        /// </summary>
+        string FilesOutputNetwork { get; }
+
+        /// <summary>
+        /// No folder configured: Greenshot saves to the default folder (Desktop).
+        /// </summary>
+        string FilesOutputNotConfigured { get; }
+
+        /// <summary>
+        /// Greenshot can't write to the folder: {0} Check the permissions, or whether the controlled folder access of Windows Security blocks Greenshot.
+        /// </summary>
+        string FilesOutputNotWritable { get; }
+
+        /// <summary>
+        /// The folder exists and Greenshot can write to it.
+        /// </summary>
+        string FilesOutputOk { get; }
+
+        /// <summary>
+        /// OneDrive synchronizes the folder (also the Desktop, when OneDrive backs it up): files can be online only, or show sync conflicts.
+        /// </summary>
+        string FilesOutputOnedrive { get; }
+
+        /// <summary>
+        /// The filename pattern creates subfolders.
+        /// </summary>
+        string FilesOutputPatternFolders { get; }
+
+        /// <summary>
+        /// Reset to: {0}
+        /// </summary>
+        string FilesOutputResetDone { get; }
+
+        /// <summary>
+        /// Screenshot Folder (where Greenshot saves)
+        /// </summary>
+        string FilesOutputTitle { get; }
+
+        /// <summary>
+        /// The full path of a file has {0} characters, more than the {1} that Windows allows by default.
+        /// </summary>
+        string FilesOutputTooLong { get; }
+
+        /// <summary>
         /// Open the dedicated Log Viewer window to scroll, search, refresh, or copy the complete recent log entries with clear scrollbars.
         /// </summary>
         string FilesQuickglanceDesc { get; }
@@ -882,6 +987,61 @@ namespace Greenshot.Base.Languages
         string HotkeysUpdatedAt { get; }
 
         /// <summary>
+        /// Uploaded
+        /// </summary>
+        string ImgurColumnDate { get; }
+
+        /// <summary>
+        /// Image
+        /// </summary>
+        string ImgurColumnImage { get; }
+
+        /// <summary>
+        /// Delete from Imgur
+        /// </summary>
+        string ImgurDelete { get; }
+
+        /// <summary>
+        /// Delete {0} image(s) from Imgur? This can't be undone.
+        /// </summary>
+        string ImgurDeleteQuestion { get; }
+
+        /// <summary>
+        /// Save delete links
+        /// </summary>
+        string ImgurExport { get; }
+
+        /// <summary>
+        /// Delete this image
+        /// </summary>
+        string ImgurExportDelete { get; }
+
+        /// <summary>
+        /// Forget the delete keys
+        /// </summary>
+        string ImgurForget { get; }
+
+        /// <summary>
+        /// Greenshot forgets the delete keys and can no longer delete these images for you, the images stay on Imgur. Save the delete links first to keep them. Continue?
+        /// </summary>
+        string ImgurForgetQuestion { get; }
+
+        /// <summary>
+        /// Open
+        /// </summary>
+        string ImgurOpen { get; }
+
+        /// <summary>
+        /// Greenshot no longer uploads to Imgur. For the images you uploaded anonymously with an earlier Greenshot it still has the delete keys, so it can delete them for you. Only Greenshot can do that, Imgur has no other way for anonymous uploads.
+        /// </summary>
+        string ImgurSub { get; }
+
+        /// <summary>
+        /// Delete your old Imgur uploads
+        /// </summary>
+        string ImgurTitle { get; }
+
+        /// <summary>
         /// Copied entire log content to clipboard ({0:N0} characters)
         /// </summary>
         string LogviewerCopied { get; }
@@ -897,6 +1057,11 @@ namespace Greenshot.Base.Languages
         string LogviewerEmpty { get; }
 
         /// <summary>
+        /// Log level
+        /// </summary>
+        string LogviewerLevel { get; }
+
+        /// <summary>
         /// Load Earlier (+64 KB)
         /// </summary>
         string LogviewerLoadEarlier { get; }
@@ -910,6 +1075,16 @@ namespace Greenshot.Base.Languages
         /// Refresh Tail (F5)
         /// </summary>
         string LogviewerRefresh { get; }
+
+        /// <summary>
+        /// Search
+        /// </summary>
+        string LogviewerSearch { get; }
+
+        /// <summary>
+        /// {0:N0} of {1:N0} log entries contain "{2}"
+        /// </summary>
+        string LogviewerSearchMatches { get; }
 
         /// <summary>
         /// Loaded complete log file: {0} ({1:N0} bytes, {2} lines)
@@ -937,6 +1112,11 @@ namespace Greenshot.Base.Languages
         string LogviewerTitle { get; }
 
         /// <summary>
+        /// How much Greenshot writes to the log, until Greenshot restarts. Debug writes the most.
+        /// </summary>
+        string LogviewerTooltipLevel { get; }
+
+        /// <summary>
         /// Load previous 64 KB chunk of log lines
         /// </summary>
         string LogviewerTooltipLoadEarlier { get; }
@@ -945,6 +1125,11 @@ namespace Greenshot.Base.Languages
         /// Load all remaining earlier log lines
         /// </summary>
         string LogviewerTooltipLoadEntire { get; }
+
+        /// <summary>
+        /// Shows only the log entries that contain this text, from the whole log file (Ctrl+F)
+        /// </summary>
+        string LogviewerTooltipSearch { get; }
 
         /// <summary>
         /// Wrap text
@@ -962,7 +1147,7 @@ namespace Greenshot.Base.Languages
         string SidebarNavigationHeader { get; }
 
         /// <summary>
-        /// Press 1-5 to navigate tabs, F5 to refresh, and T to toggle Dark/Light mode.
+        /// Press the number of a section (1 is the first) to open it, F5 to refresh, and T to toggle Dark/Light mode.
         /// </summary>
         string SidebarNavigationTip { get; }
 

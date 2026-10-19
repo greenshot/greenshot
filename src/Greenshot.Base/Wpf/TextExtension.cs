@@ -28,7 +28,7 @@ namespace Greenshot.Base.Wpf
 {
     /// <summary>
     /// A text of a language section in XAML: <c>{wpf:Text Editor.Undo}</c> binds to the property Undo of the [Editor] section
-    /// (plugins: <c>{wpf:Text Imgur.History}</c>). The section notifies changed texts, so a language switch updates the view.
+    /// (plugins: <c>{wpf:Text Jira.LabelUrl}</c>). The section notifies changed texts, so a language switch updates the view.
     /// </summary>
     [MarkupExtensionReturnType(typeof(object))]
     public class TextExtension : MarkupExtension

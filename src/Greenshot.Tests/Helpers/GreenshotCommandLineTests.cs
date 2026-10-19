@@ -76,6 +76,17 @@ namespace Greenshot.Tests.Helpers
         }
 
         [Fact]
+        public void Parse_Autostart_IsAStartupOption()
+        {
+            CommandLineOptions options = GreenshotCommandLine.Parse(["--autostart"]);
+
+            Assert.NotNull(options);
+            Assert.True(options.Autostart);
+            Assert.Empty(options.CommandArguments);
+            Assert.False(GreenshotCommandLine.Parse(["--restore"]).Autostart);
+        }
+
+        [Fact]
         public void Parse_ReloadAndExit_AreCommandsForTheRunningGreenshot()
         {
             Assert.Equal(["--exit"], GreenshotCommandLine.Parse(["--exit"]).CommandArguments);

@@ -140,7 +140,6 @@ namespace Greenshot.Tests.Recipes
             {
                 Payload = new CapturePayload(capture)
             };
-            context.Properties["EnableCompletionNotification"] = false;
             context.Properties["Destination.PromptQuality"] = false;
             context.Properties["Destination.CopyPathToClipboard"] = false;
             // Same as OutputFileFormat=gsa in the configuration

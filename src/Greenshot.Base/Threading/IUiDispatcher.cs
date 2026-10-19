@@ -26,7 +26,7 @@ using System.Threading.Tasks;
 namespace Greenshot.Base.Threading
 {
     /// <summary>
-    /// The only way background code talks to the UI thread. See docs/async-threading-roadmap.md, section 4.1.
+    /// The only way background code talks to the UI thread. See docs/vNext/async-threading-roadmap.md, section 4.1.
     /// </summary>
     /// <remarks>
     /// Semantics, identical for every implementation:

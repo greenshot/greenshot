@@ -37,6 +37,7 @@ using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Wpf;
+using Greenshot.Capturing.Tools;
 using Greenshot.Editor.Configuration;
 using Greenshot.Helpers;
 using Greenshot.Base.Threading;
@@ -62,7 +63,7 @@ namespace Greenshot.Settings.ViewModels
             CoreConfiguration = IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
             EditorConfiguration = IniConfigHelper.EnsureSection<IEditorConfiguration>(() => new EditorConfigurationImpl());
             _expertModeEnabled = !CoreConfiguration.HideExpertSettings;
-            _autoStartEnabled = StartupHelper.HasRunUser() || StartupHelper.HasRunAll();
+            _autoStartEnabled = StartupHelper.IsAutostartEnabled();
             
             // Initialize language
             _selectedLanguage = Texts.Config.CurrentLanguage;
@@ -72,7 +73,9 @@ namespace Greenshot.Settings.ViewModels
             
             // Initialize image formats
             InitializeImageFormats();
-            
+
+            FixedCaptureSizes = new ObservableCollection<NativeSize>(FixedSizeCaptureTool.GetSizes(CoreConfiguration.FixedCaptureSizes, null).Select(entry => entry.Size));
+
             // Initialize window capture modes
             
             // Initialize destinations
@@ -254,6 +257,93 @@ namespace Greenshot.Settings.ViewModels
         }
 
         public List<ImageFormatViewModel> ImageFormats { get; private set; }
+
+        /// <summary>
+        /// The sizes of the fixed size capture, in the order the number keys pick them, written back on save
+        /// </summary>
+        public ObservableCollection<NativeSize> FixedCaptureSizes { get; }
+
+        /// <summary>
+        /// Adds a size at the end; false when it isn't a size or is already there
+        /// </summary>
+        public bool AddFixedCaptureSize(NativeSize size)
+        {
+            if (size.Width <= 0 || size.Height <= 0 || FixedCaptureSizes.Contains(size))
+            {
+                return false;
+            }
+            FixedCaptureSizes.Add(size);
+            return true;
+        }
+
+        /// <summary>
+        /// Writes the sizes of the fixed size capture back to the configuration
+        /// </summary>
+        public void SaveFixedCaptureSizes()
+        {
+            if (!CoreConfiguration.IsConstant(nameof(ICoreConfiguration.FixedCaptureSizes)))
+            {
+                CoreConfiguration.FixedCaptureSizes = FixedCaptureSizes.Select(FixedSizeCaptureTool.FormatSize).ToList();
+            }
+        }
+
+        /// <summary>
+        /// The largest width or height of a new image in the editor
+        /// </summary>
+        public const int MaximumNewImageSize = 10000;
+
+        /// <summary>
+        /// The width of a new image in the editor (the "+" after the tabs, or the editor without a capture)
+        /// </summary>
+        public int NewImageWidth
+        {
+            get => EditorConfiguration.DefaultEditorSize.Width;
+            set
+            {
+                if (value > 0 && value <= MaximumNewImageSize && value != NewImageWidth)
+                {
+                    EditorConfiguration.DefaultEditorSize = new NativeSize(value, NewImageHeight);
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// The height of a new image in the editor
+        /// </summary>
+        public int NewImageHeight
+        {
+            get => EditorConfiguration.DefaultEditorSize.Height;
+            set
+            {
+                if (value > 0 && value <= MaximumNewImageSize && value != NewImageHeight)
+                {
+                    EditorConfiguration.DefaultEditorSize = new NativeSize(NewImageWidth, value);
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// The color of a new image in the editor
+        /// </summary>
+        public System.Drawing.Color NewImageColor
+        {
+            get => EditorConfiguration.NewImageColor;
+            set
+            {
+                if (value == NewImageColor || EditorConfiguration.IsConstant(nameof(IEditorConfiguration.NewImageColor)))
+                {
+                    return;
+                }
+
+                EditorConfiguration.NewImageColor = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(NewImageBrush));
+            }
+        }
+
+        public Brush NewImageBrush => new SolidColorBrush(Color.FromArgb(NewImageColor.A, NewImageColor.R, NewImageColor.G, NewImageColor.B));
 
         public int IconSize
         {
