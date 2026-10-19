@@ -74,8 +74,16 @@ namespace Greenshot.SelfService.ViewModels
         /// Black or white badge text, whichever is readable on the badge background (fixed white was invisible on light badges)
         /// </summary>
         public Brush BadgeForeground => _badgeBrush is SolidColorBrush solidBrush
-            ? new SolidColorBrush(ThemePalette.ReadableForeground(solidBrush.Color))
+            ? CreateFrozenBrush(ThemePalette.ReadableForeground(solidBrush.Color))
             : ThemeManager.Instance.CurrentPalette.ForegroundBrush;
+
+        // Frozen: the badge brush can be set on a worker thread (the checksum validation), the binding reads it on the UI thread
+        private static Brush CreateFrozenBrush(Color color)
+        {
+            var brush = new SolidColorBrush(color);
+            brush.Freeze();
+            return brush;
+        }
 
         public bool HasBadge => !string.IsNullOrEmpty(BadgeText);
 

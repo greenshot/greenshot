@@ -3,6 +3,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using Dapplo.Windows.Input.Enums;
 using Greenshot.Base.Core;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Base.Wpf.ViewModels
 {
@@ -29,13 +30,13 @@ namespace Greenshot.Base.Wpf.ViewModels
         public KeyChord Chord { get; }
         public bool IsSelected { get; }
 
-        public string StepHeader => $"Step {StepNumber}:";
-        public string StepText => Chord.Key == VirtualKeyCode.None && !Chord.HasModifiers ? "None" : Chord.ToString();
+        public string StepHeader => string.Format(Texts.Settings.HotkeyStep, StepNumber);
+        public string StepText => Chord.Key == VirtualKeyCode.None && !Chord.HasModifiers ? Texts.Settings.HotkeyNone : Chord.ToString();
 
         /// <summary>
         /// The name of the step for a screen reader, the selection is otherwise only shown by color
         /// </summary>
-        public string AccessibleName => IsSelected ? $"Step {StepNumber}: {StepText}, selected" : $"Step {StepNumber}: {StepText}";
+        public string AccessibleName => string.Format(IsSelected ? Texts.Settings.HotkeyStepSelectedAccessible : Texts.Settings.HotkeyStepAccessible, StepNumber, StepText);
 
         public bool CanRemove => _parent.Steps.Count > 1;
 

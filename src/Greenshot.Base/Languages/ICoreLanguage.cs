@@ -465,9 +465,14 @@ namespace Greenshot.Base.Languages
         string CaptureKeyWindowSmaller { get; }
 
         /// <summary>
-        /// Select the next window, with Shift the previous one
+        /// Select the next window
         /// </summary>
         string CaptureKeyWindowNext { get; }
+
+        /// <summary>
+        /// Select the previous window
+        /// </summary>
+        string CaptureKeyWindowPrevious { get; }
 
         /// <summary>
         /// Show or hide the keys

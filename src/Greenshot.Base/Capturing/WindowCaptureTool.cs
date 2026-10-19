@@ -198,7 +198,7 @@ namespace Greenshot.Base.Capturing
             base.Attach(host);
             host.RegisterToolKey(this, Key.Return, ModifierKeys.None, () => Texts.Core.CaptureKeyWindowAccept, AcceptWindow);
             host.RegisterToolKey(this, Key.Tab, ModifierKeys.None, () => Texts.Core.CaptureKeyWindowNext, () => SelectNextWindow(1));
-            host.RegisterToolKey(this, Key.Tab, ModifierKeys.Shift, () => Texts.Core.CaptureKeyWindowNext, () => SelectNextWindow(-1));
+            host.RegisterToolKey(this, Key.Tab, ModifierKeys.Shift, () => Texts.Core.CaptureKeyWindowPrevious, () => SelectNextWindow(-1));
             host.RegisterToolKey(this, Key.D, ModifierKeys.None, () => Texts.Core.CaptureKeyWindowDetails, () =>
             {
                 _showDebugInfo = !_showDebugInfo;

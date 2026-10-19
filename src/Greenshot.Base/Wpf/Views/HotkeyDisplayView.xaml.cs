@@ -69,13 +69,29 @@ namespace Greenshot.Base.Wpf.Views
             }
             UpdateBadges();
             // "None", "then" and the name of the button are built in code, follow a language switch
-            Loaded += (_, _) => Texts.Settings.PropertyChanged += OnLanguageChanged;
+            Loaded += (_, _) =>
+            {
+                // Loaded can come again without Unloaded in between, subscribe only once
+                Texts.Settings.PropertyChanged -= OnLanguageChanged;
+                Texts.Settings.PropertyChanged += OnLanguageChanged;
+            };
             Unloaded += (_, _) => Texts.Settings.PropertyChanged -= OnLanguageChanged;
         }
 
         private void OnLanguageChanged(object sender, PropertyChangedEventArgs e)
         {
-            UpdateBadges();
+            // A language switch notifies every changed text of the section, only these few are used here
+            switch (e.PropertyName)
+            {
+                case null:
+                case "":
+                case nameof(ISettingsLanguage.HotkeyNone):
+                case nameof(ISettingsLanguage.HotkeyThen):
+                case nameof(ISettingsLanguage.HotkeyEdit):
+                case nameof(ISettingsLanguage.HotkeyEditAccessible):
+                    UpdateBadges();
+                    break;
+            }
         }
 
         private static void OnHeaderTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)

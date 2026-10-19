@@ -100,10 +100,8 @@ public partial class ConfluenceTreePickerPage
     /// </summary>
     private void ConfluenceTreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
     {
-        if (e.NewValue is TreeViewItem { Tag: Page page })
-        {
-            _confluenceUpload.SelectedPage = page;
-        }
+        // A space is no target: without this the page selected before would stay the target, while the space is shown selected
+        _confluenceUpload.SelectedPage = (e.NewValue as TreeViewItem)?.Tag as Page;
     }
 
     /// <summary>

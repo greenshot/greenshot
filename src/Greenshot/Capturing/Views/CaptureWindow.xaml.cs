@@ -1132,6 +1132,7 @@ namespace Greenshot.Capturing.Views
             }
             // Showing the window must not have changed the bounds, but make sure
             PlaceWindow();
+            AnnounceTool();
             if (_live)
             {
                 // The application below keeps the focus
@@ -1139,7 +1140,6 @@ namespace Greenshot.Capturing.Views
             }
             Activate();
             WindowHelper.ToForeground(new WindowInteropHelper(this).Handle);
-            AnnounceTool();
         }
 
         /// <summary>

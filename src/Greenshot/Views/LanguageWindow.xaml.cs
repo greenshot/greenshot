@@ -53,6 +53,14 @@ namespace Greenshot.Views
             }
 
             Loaded += LanguageWindow_Loaded;
+            // Esc, the Cancel button, the close button and Alt+F4: the caller uses SelectedLanguage in any case, keep the initial one
+            Closing += (s, e) =>
+            {
+                if (DialogResult != true && _initialLanguage != null)
+                {
+                    LanguageComboBox.SelectedValue = _initialLanguage;
+                }
+            };
         }
 
         private void LanguageWindow_Loaded(object sender, RoutedEventArgs e)
@@ -108,8 +116,7 @@ namespace Greenshot.Views
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
-            // The caller uses SelectedLanguage in any case
-            LanguageComboBox.SelectedValue = _initialLanguage;
+            // Closes the window, Closing goes back to the initial language
             DialogResult = false;
         }
     }

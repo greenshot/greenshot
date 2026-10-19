@@ -851,5 +851,20 @@ namespace Greenshot.Base.Languages
         /// then
         /// </summary>
         string HotkeyThen { get; }
+
+        /// <summary>
+        /// Step {0}:
+        /// </summary>
+        string HotkeyStep { get; }
+
+        /// <summary>
+        /// Step {0}: {1}
+        /// </summary>
+        string HotkeyStepAccessible { get; }
+
+        /// <summary>
+        /// Step {0}: {1}, selected
+        /// </summary>
+        string HotkeyStepSelectedAccessible { get; }
     }
 }
