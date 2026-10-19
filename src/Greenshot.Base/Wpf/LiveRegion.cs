@@ -20,11 +20,16 @@
  */
 
 
+using System;
 using System.ComponentModel;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Automation.Peers;
+using System.Windows.Automation.Provider;
 using System.Windows.Controls;
+using System.Windows.Interop;
+using System.Windows.Media;
 
 namespace Greenshot.Base.Wpf
 {
@@ -55,6 +60,39 @@ namespace Greenshot.Base.Wpf
             var peer = UIElementAutomationPeer.FromElement(element) ?? UIElementAutomationPeer.CreatePeerForElement(element);
             peer?.RaiseAutomationEvent(AutomationEvents.LiveRegionChanged);
         }
+
+        /// <summary>
+        /// Let a screen reader say a text which is in no element, e.g. what changed in a drawn window like the capture window.
+        /// A UI Automation notification of the window: a newer one with the same activity id replaces one which wasn't said yet.
+        /// WPF on .NET Framework has no RaiseNotificationEvent, so this calls UI Automation directly (Windows 10 1709 and newer).
+        /// </summary>
+        /// <param name="element">An element in the window the text is about</param>
+        /// <param name="text">What to say</param>
+        /// <param name="activityId">Groups the notifications, e.g. "GreenshotCapture"</param>
+        public static void Notify(Visual element, string text, string activityId)
+        {
+            if (string.IsNullOrEmpty(text) || !(PresentationSource.FromVisual(element) is HwndSource source) || source.Handle == IntPtr.Zero)
+            {
+                return;
+            }
+
+            try
+            {
+                var provider = AutomationInteropProvider.HostProviderFromHandle(source.Handle);
+                UiaRaiseNotificationEvent(provider, NotificationKindOther, NotificationProcessingImportantMostRecent, text, activityId);
+            }
+            catch (Exception ex) when (ex is EntryPointNotFoundException || ex is DllNotFoundException || ex is COMException)
+            {
+                // Older Windows, or no UI Automation: nothing is said
+            }
+        }
+
+        private const int NotificationKindOther = 4;
+        private const int NotificationProcessingImportantMostRecent = 1;
+
+        [DllImport("UIAutomationCore.dll", CharSet = CharSet.Unicode, PreserveSig = false)]
+        private static extern void UiaRaiseNotificationEvent([MarshalAs(UnmanagedType.Interface)] IRawElementProviderSimple provider, int notificationKind,
+            int notificationProcessing, [MarshalAs(UnmanagedType.BStr)] string displayString, [MarshalAs(UnmanagedType.BStr)] string activityId);
 
         private static void OnModeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {

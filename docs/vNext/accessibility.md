@@ -61,8 +61,8 @@ It applies to people and to AI coding assistants alike: new UI is not done until
 - Status lines, errors, search results and progress use the `LiveRegion` attached property (`Greenshot.Base/Wpf/LiveRegion.cs`):
   `wpf:LiveRegion.Mode="Polite"` (or `Assertive` for an error that blocks the user). It sets `AutomationProperties.LiveSetting` and raises
   the event a screen reader listens for whenever the text changes.
-- For text that is not on screen, use a hidden `TextBlock` with `Opacity="0"` and `IsHitTestVisible="False"` as live region (see
-  `Announcement` in `CaptureWindow.xaml`), or call `LiveRegion.Announce(element)`.
+- For text that is not on screen, call `LiveRegion.Notify(element, text, activityId)`: a UI Automation notification, which Narrator
+  says even though no element holds the text. A hidden live region `TextBlock` was not said in the capture window.
 - Don't announce what changes many times a second (a live log tail, a drag). Announce the result.
 
 ### Colors and contrast
@@ -122,7 +122,7 @@ The editor still misses some of this (the canvas needs the mouse to draw). New e
 ## The capture window
 
 The capture window is drawn, not made of controls, so it speaks for itself: it announces the mode, the window under the selection and
-the selection size through its hidden `Announcement` live region. When you add a tool or a mode:
+the selection size with `LiveRegion.Notify` (see `Announce` in `CaptureWindow.xaml.cs`). When you add a tool or a mode:
 
 - Register its keys with `RegisterToolKey`, so they work and show up in the F1 key panel, and add them to
   [capture-user-guide.md](capture-user-guide.md).

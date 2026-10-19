@@ -1173,6 +1173,8 @@ namespace Greenshot.Capturing.Views
             }
             _announced = text;
             Announcement.Text = text;
+            // The live region of the hidden text isn't said by Narrator in this window, a notification is
+            LiveRegion.Notify(this, text, "GreenshotCapture");
         }
 
         /// <summary>

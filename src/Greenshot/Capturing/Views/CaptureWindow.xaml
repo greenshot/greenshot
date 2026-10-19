@@ -88,7 +88,7 @@
 
     <Canvas x:Name="Root" HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="True">
         <!-- Not drawn: what a screen reader says about the mode and the selection, see Announce -->
-        <TextBlock x:Name="Announcement" Opacity="0" IsHitTestVisible="False" wpf:LiveRegion.Mode="Polite" />
+        <TextBlock x:Name="Announcement" Opacity="0" IsHitTestVisible="False" />
 
         <!-- The frozen capture of the screen -->
         <Image x:Name="ScreenImage" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" />
