@@ -391,8 +391,6 @@ namespace Greenshot.Base.Core
         {
             var webRequest = (HttpWebRequest) WebRequest.Create(uri);
             webRequest.Proxy = Config.UseProxy ? CreateProxy(uri) : null;
-            // Make sure the default credentials are available
-            webRequest.Credentials = CredentialCache.DefaultCredentials;
 
             // Allow redirect, this is usually needed so that we don't get a problem when a service moves
             webRequest.AllowAutoRedirect = true;
