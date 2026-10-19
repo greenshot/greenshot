@@ -1193,7 +1193,7 @@ namespace Greenshot.Capturing.Views
             // the text goes into the hidden element which doesn't have the focus, then the focus moves to it.
             // While the window isn't active yet this is the logical focus, said when the window is activated.
             var target = ReferenceEquals(FocusManager.GetFocusedElement(this), AnnouncementA) ? AnnouncementB : AnnouncementA;
-            target.Text = text;
+            // Only the name: a text would make the screen reader mark one long line
             System.Windows.Automation.AutomationProperties.SetName(target, text);
             target.Focus();
         }
