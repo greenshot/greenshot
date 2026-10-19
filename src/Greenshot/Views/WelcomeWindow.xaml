@@ -13,8 +13,7 @@
         ShowInTaskbar="True"
         FontFamily="Segoe UI, Segoe UI Variable Display, Tahoma, Arial"
         FontSize="{wpf:FontSize 13}"
-        Background="{Binding WindowBackgroundBrush}"
-        FocusManager.FocusedElement="{Binding ElementName=NextButton}">
+        Background="{Binding WindowBackgroundBrush}">
 
     <Window.Resources>
         <ResourceDictionary>
@@ -73,7 +72,7 @@
                     <local:AnimatedLogo Grid.Column="0" Width="110" Height="110" VerticalAlignment="Center"/>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="18,0,0,0">
                         <TextBlock Text="{wpf:Text Welcome.Title}" FontSize="{wpf:FontSize 24}" FontWeight="Bold" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,0,0,6"/>
-                        <TextBlock Text="{wpf:Text Welcome.Thanks}" FontSize="{wpf:FontSize 14}" Style="{StaticResource BodyTextStyle}"/>
+                        <TextBlock x:Name="ThanksText" Text="{wpf:Text Welcome.Thanks}" FontSize="{wpf:FontSize 14}" Style="{StaticResource BodyTextStyle}"/>
                     </StackPanel>
                 </Grid>
 
@@ -222,10 +221,9 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <!-- Where the user is: one dot per step, a screen reader says "Step 2 of 5" when the step changes -->
+                    <!-- Where the user is: one dot per step, a screen reader hears "Step 2 of 5" with the step (see FocusStep) -->
                     <ItemsControl x:Name="StepIndicator" Grid.Column="0" ItemsSource="{Binding StepDots}" VerticalAlignment="Center"
-                                  AutomationProperties.Name="{Binding StepText}"
-                                  AutomationProperties.LiveSetting="Polite">
+                                  AutomationProperties.Name="{Binding StepText}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <StackPanel Orientation="Horizontal"/>

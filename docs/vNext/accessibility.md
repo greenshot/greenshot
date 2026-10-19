@@ -64,6 +64,9 @@ It applies to people and to AI coding assistants alike: new UI is not done until
 - For text that is not on screen, `LiveRegion.Notify(element, text, activityId)` raises a UI Automation notification (the window
   returns a `NotifyingWindowAutomationPeer`). It is not said in every window (not in the frozen capture window on Windows 11), so
   check it with Narrator; moving the focus to an element with the text is what a screen reader always says.
+- When a page or a wizard step changes, move the focus to the new content and name it by its text (see `FocusStep` in
+  `WelcomeWindow.xaml.cs`): Narrator says only the window title and the focused button, not text that appears. Keep the main button
+  `IsDefault`, so Enter still goes on.
 - Don't announce what changes many times a second (a live log tail, a drag). Announce the result.
 
 ### Colors and contrast
