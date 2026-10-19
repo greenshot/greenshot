@@ -147,7 +147,7 @@ public class CustomUploaderPlugin : IGreenshotPlugin, IConfigurablePlugin, IReci
 
         if (!response.IsSuccess)
         {
-            Log.WarnFormat("Upload with {0} failed, the service didn't accept it", definition.Name);
+            Log.WarnFormat("Upload with {0} failed, the service didn't accept it: {1}", definition.Name, response.Error);
             return ExportResult.Failed(response.Error);
         }
 
