@@ -142,7 +142,7 @@
         </Style>
         
         <!-- Modern Slider Style -->
-        <Style TargetType="Slider">
+        <Style TargetType="wpf:ValueSlider">
             <Setter Property="Margin" Value="6,3"/>
         </Style>
 
@@ -547,7 +547,7 @@
                                         <ColumnDefinition Width="85"/>
                                     </Grid.ColumnDefinitions>
                                     <Label Content="{wpf:Text Settings.Jpegquality}" Target="{Binding ElementName=JpegQualitySlider}"/>
-                                    <Slider x:Name="JpegQualitySlider" Grid.Column="1" 
+                                    <wpf:ValueSlider x:Name="JpegQualitySlider" ValueFormat="{}{0}%" Grid.Column="1" 
                                             Minimum="0" Maximum="100" 
                                             TickFrequency="10" 
                                             IsSnapToTickEnabled="True" 

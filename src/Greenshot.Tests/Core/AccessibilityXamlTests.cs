@@ -61,6 +61,7 @@ namespace Greenshot.Tests.Core
         // A word: two letters in a row, so "X:", "✕" or "ℹ️" are not texts to translate
         private static readonly Regex Word = new(@"\p{L}{2,}");
         private static readonly Regex FixedFontSize = new(@"FontSize=""\d|Property=""FontSize""\s+Value=""\d");
+        private static readonly Regex PlainSlider = new(@"<Slider[\s>]");
         private static readonly Regex HiddenFocus = new(@"FocusVisualStyle=""\{x:Null\}""|Property=""FocusVisualStyle""\s+Value=""\{x:Null\}""");
 
         [Fact]
@@ -75,6 +76,13 @@ namespace Greenshot.Tests.Core
         {
             // Use GreenshotFocusVisual (FocusStyles.xaml) instead of switching the focus frame off
             AssertNoProblems(XamlLines().Where(l => HiddenFocus.IsMatch(l.Text)).Select(l => $"{l.Location}: {l.Text.Trim()}"));
+        }
+
+        [Fact]
+        public void Sliders_SayTheValueTheyShow()
+        {
+            // A plain Slider is read as a percentage of its range ("32 %" for "7 px"), wpf:ValueSlider says its ValueText
+            AssertNoProblems(XamlLines().Where(l => PlainSlider.IsMatch(l.Text)).Select(l => $"{l.Location}: {l.Text.Trim()}"));
         }
 
         [Fact]

@@ -48,6 +48,10 @@ It applies to people and to AI coding assistants alike: new UI is not done until
 - List items are read by `ToString()` of their view model unless the item container sets `AutomationProperties.Name`. Override `ToString()`
   to return the visible text, otherwise Narrator reads the class name.
 - A state shown only by color (selected step, a status dot) goes into the name or `AutomationProperties.ItemStatus`.
+- A control with a value says the value the user sees, with its unit. A plain `Slider` is read as a percentage of its range
+  (Narrator says "32 %" next to a label "7 px"): use `wpf:ValueSlider` with `ValueFormat="{}{0:0} px"` and bind the text next to it to
+  its `ValueText`, so screen and screen reader say the same. The same goes for a custom control with a value: give its automation peer
+  the value pattern (see `HotkeyEditorView.CaptureBox`).
 - The shared parts are named already: `ThemedTitleBar` (minimize, maximize, close, theme), `ThemedMessageBox`, `DestinationPicker`,
   the pill and title close styles. Reuse them.
 
@@ -133,6 +137,7 @@ the selection size through its hidden `Announcement` live region. When you add a
 |---|---|
 | `FontSizes_FollowTheWindowsTextSize` | a `FontSize` is a number instead of `{wpf:FontSize N}` |
 | `KeyboardFocus_IsNeverHidden` | `FocusVisualStyle` is set to `{x:Null}` |
+| `Sliders_SayTheValueTheyShow` | a plain `Slider` is used instead of `wpf:ValueSlider` |
 | `ButtonsWithoutText_HaveAnAccessibleName` | a `Button`, `ToggleButton` or `RepeatButton` shows no text and has no `AutomationProperties.Name` or `LabeledBy` |
 | `Texts_ComeFromTheLanguagePacks` | `Text`, `Content`, `Header`, `ToolTip`, `Title` or an accessible name is literal text instead of `{wpf:Text …}` (links, "Greenshot" and glyphs are fine) |
 
@@ -156,6 +161,7 @@ The tests can't hear or see. Before a UI change is done, check it once with:
 - [ ] Every action works with the keyboard, the Tab order follows the layout, Enter and Esc do what they should
 - [ ] The focus frame is visible everywhere
 - [ ] Every icon button, input and list item has a translated name
+- [ ] Sliders and other value controls are read with the value and unit shown on screen
 - [ ] Status and errors are live regions
 - [ ] Only theme brushes and palette roles; no state shown by color alone
 - [ ] `{wpf:FontSize N}` for every font size, layout survives 150 %
