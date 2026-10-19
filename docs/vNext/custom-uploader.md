@@ -62,7 +62,8 @@ destination is only there when you imported an uploader.
 
 Greenshot uploads the capture in your output file format (PNG when that is the Greenshot format), shows the progress, and
 puts the link to the upload on the clipboard. The notification shows the link too. When the upload fails, the notification
-says why: the error of the service when the uploader reads it, otherwise the status (e.g. *403 Forbidden*).
+says why: the error of the service when the uploader reads it, otherwise the status with the start of the answer when it is text (e.g.
+*500 Internal Server Error: Error: file too large*; an HTML error page gives the status only). The log gets the same.
 
 In a recipe, use the step *Upload with a custom uploader* (`CustomUploader`) with the name of the uploader in `Uploader`
 (empty when you have only one). The link is in the variable `CustomUploader.Url`. Like every step which sends data, the

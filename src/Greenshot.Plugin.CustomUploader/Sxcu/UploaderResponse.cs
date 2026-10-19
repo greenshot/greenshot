@@ -89,7 +89,11 @@ internal sealed class UploaderResponse
             string error = SafeReplace(Replace, definition.ErrorMessage);
             if (string.IsNullOrWhiteSpace(error))
             {
-                error = $"{(int)result.StatusCode} {result.ReasonPhrase}";
+                // Without ErrorMessage the start of a text answer says more than the status (an HTML error page doesn't)
+                string answer = result.Content?.Trim();
+                error = string.IsNullOrEmpty(answer) || answer.StartsWith("<", StringComparison.Ordinal)
+                    ? $"{(int)result.StatusCode} {result.ReasonPhrase}"
+                    : $"{(int)result.StatusCode} {result.ReasonPhrase}: {answer}";
             }
 
             return new UploaderResponse(false, null, null, null, UploaderFile.Clean(error));
