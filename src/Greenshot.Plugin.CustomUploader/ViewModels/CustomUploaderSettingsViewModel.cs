@@ -267,6 +267,7 @@ public sealed class CustomUploaderSettingsViewModel : INotifyPropertyChanged
             text.Append("\n\n").Append(Language.ImportReplaces);
         }
 
+        text.Append("\n\n").Append(string.Format(Language.ImportNotGreenshot, definition.Name, UploaderFile.DescribeServer(definition)));
         text.Append("\n\n").Append(Language.ImportTrust);
         return text.ToString();
     }

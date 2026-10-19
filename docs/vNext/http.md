@@ -117,7 +117,10 @@ A service needs a registered client id; keep it out of the repository (the `*.Cr
   Libraries with their own HTTP stack (Dapplo.Jira) get the certificate rules through `CertificateValidator.RegisterGlobally`, called at startup.
 - **Nothing that is sent or received goes into the log.** `HttpService` logs method, scheme, host and status, never path,
   query, headers or content: tokens hide in all of them (a webhook url is a secret, an error body can repeat the api key).
-  Log the fields of a response you parsed, not the response. The exception messages follow the same rule.
+  Log the fields of a response you parsed, not the response. The exception messages follow the same rule. One exception: a
+  custom uploader without `ErrorMessage` shows and logs the start (100 characters) of a text error answer, the user needs
+  the service's reason. At DEBUG `HttpService` logs the shape of a request and its answer, never a value: content type and
+  length, the names of form fields, the name, type and length of a file, the time to the answer.
 - **Secrets are stored encrypted** for the Windows user, never in clear text in greenshot.ini, and never written to an export
   or a bug report.
 - **Escape what goes into a url** (`Uri.EscapeDataString`) and don't put user text into header values unchecked.

@@ -21,8 +21,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Ini;
@@ -171,6 +174,12 @@ namespace Greenshot.Base.Http
 
         private async Task<HttpResponseMessage> SendCoreAsync(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationToken cancellationToken)
         {
+            if (Log.IsDebugEnabled)
+            {
+                Log.DebugFormat("{0} {1}: sending {2}", request.Method, Describe(request.RequestUri), DescribeContent(request.Content));
+            }
+
+            var stopwatch = Stopwatch.StartNew();
             HttpResponseMessage response;
             try
             {
@@ -183,8 +192,44 @@ namespace Greenshot.Base.Http
             }
 
             Log.InfoFormat("{0} {1}: {2}", request.Method, Describe(request.RequestUri), (int)response.StatusCode);
+            if (Log.IsDebugEnabled)
+            {
+                Log.DebugFormat("{0} {1}: answer {2} after {3} ms", request.Method, Describe(request.RequestUri), DescribeContent(response.Content), stopwatch.ElapsedMilliseconds);
+            }
+
             return response;
         }
+
+        /// <summary>
+        /// The shape of a body for the debug log, never a value: the type and length, for a form the names of the fields and the
+        /// name, type and length of a file. Shows whether the file went out without logging keys or contents.
+        /// </summary>
+        internal static string DescribeContent(HttpContent content)
+        {
+            if (content == null)
+            {
+                return "no body";
+            }
+
+            string type = content.Headers.ContentType?.MediaType ?? "no type";
+            if (content is not MultipartContent multipart)
+            {
+                return $"{type}, {DescribeLength(content.Headers)}";
+            }
+
+            var parts = multipart.Select(part =>
+            {
+                var disposition = part.Headers.ContentDisposition;
+                string name = disposition?.Name?.Trim('"') ?? "(no name)";
+                string fileName = disposition?.FileNameStar ?? disposition?.FileName?.Trim('"');
+                return fileName == null
+                    ? name
+                    : $"{name} (file \"{fileName}\", {part.Headers.ContentType?.MediaType ?? "no type"}, {DescribeLength(part.Headers)})";
+            });
+            return $"{type} with {string.Join(", ", parts)}";
+        }
+
+        private static string DescribeLength(HttpContentHeaders headers) => headers.ContentLength is long length ? $"{length} bytes" : "unknown length";
 
         /// <summary>
         /// Scheme, host and port: the path and the query can hold tokens (a webhook url, an api key), they are not logged.

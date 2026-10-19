@@ -216,11 +216,21 @@ namespace Greenshot.Tests.CustomUploader
         }
 
         [Fact]
-        public void From_HttpErrorWithoutErrorMessage_HasTheStatus()
+        public void From_HttpErrorWithoutErrorMessage_HasTheStatusAndTheTextAnswer()
         {
-            var response = UploaderResponse.From(Read(null), Result("secret details", HttpStatusCode.Forbidden), "a.png");
+            var response = UploaderResponse.From(Read(null), Result("Error: file too large\n", HttpStatusCode.InternalServerError), "a.png");
 
             Assert.False(response.IsSuccess);
+            Assert.Equal("500 InternalServerError: Error: file too large", response.Error);
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData("<html><body><h1>500 Internal Server Error</h1></body></html>")]
+        public void From_HttpErrorWithoutErrorMessage_EmptyOrHtmlAnswer_HasTheStatus(string content)
+        {
+            var response = UploaderResponse.From(Read(null), Result(content, HttpStatusCode.Forbidden), "a.png");
+
             Assert.Equal("403 Forbidden", response.Error);
         }
     }

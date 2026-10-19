@@ -596,6 +596,16 @@ namespace Greenshot.Base.Languages
         string Ok { get; }
 
         /// <summary>
+        /// Details
+        /// </summary>
+        string ErrorDetails { get; }
+
+        /// <summary>
+        /// Copy details
+        /// </summary>
+        string ErrorCopyDetails { get; }
+
+        /// <summary>
         /// An error ocurred while trying to print.
         /// </summary>
         string PrintError { get; }
