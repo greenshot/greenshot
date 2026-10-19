@@ -30,7 +30,7 @@ namespace Greenshot.Editor.Drawing.Fields.Binding
     /// This implementation synchronizes null values, too. If you do not want this
     /// behavior (e.g. when binding to a 
     /// </summary>
-    public class BidirectionalBinding
+    public class BidirectionalBinding : IDisposable
     {
         private readonly INotifyPropertyChanged _controlObject;
         private readonly INotifyPropertyChanged _fieldObject;
@@ -117,6 +117,31 @@ namespace Greenshot.Editor.Drawing.Fields.Binding
                 Synchronize(_controlObject, _controlPropertyName, _fieldObject, _fieldPropertyName);
                 _updatingField = false;
             }
+        }
+
+        /// <summary>
+        /// Show the value of the field in the control, e.g. when the control is bound to another field
+        /// </summary>
+        public void UpdateControl()
+        {
+            _updatingControl = true;
+            try
+            {
+                Synchronize(_fieldObject, _fieldPropertyName, _controlObject, _controlPropertyName);
+            }
+            finally
+            {
+                _updatingControl = false;
+            }
+        }
+
+        /// <summary>
+        /// Stop synchronizing the properties
+        /// </summary>
+        public void Dispose()
+        {
+            _controlObject.PropertyChanged -= ControlPropertyChanged;
+            _fieldObject.PropertyChanged -= FieldPropertyChanged;
         }
 
         public void FieldPropertyChanged(object sender, PropertyChangedEventArgs e)

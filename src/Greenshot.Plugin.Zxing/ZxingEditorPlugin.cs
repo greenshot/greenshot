@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Windows.Forms;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
@@ -35,14 +36,14 @@ public class ZxingEditorPlugin : IEditorPlugin
         _config = config;
     }
 
-    public void InitializeEditor(Form editorForm, ToolStripMenuItem pluginMenu, ISurface surface)
+    public void InitializeEditor(Form editorForm, ToolStripMenuItem pluginMenu, Func<ISurface> currentSurface)
     {
         var menuItem = new ToolStripMenuItem("Insert QR / Barcode...", null, (s, e) =>
         {
             var window = new Views.ZxingEditorWindow();
             if (window.ShowDialog(editorForm) == true && window.GeneratedBitmap != null)
             {
-                var container = surface.AddImageContainer(window.GeneratedBitmap, 50, 50);
+                var container = currentSurface().AddImageContainer(window.GeneratedBitmap, 50, 50);
                 var model = new ZxingModel();
                 window.PopulateModel(model);
                 container.Tag = model;

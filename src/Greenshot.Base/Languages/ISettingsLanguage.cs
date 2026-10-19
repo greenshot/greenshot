@@ -317,9 +317,24 @@ namespace Greenshot.Base.Languages
         string ExpertOptimizeforrdp { get; }
 
         /// <summary>
-        /// Reuse editor if possible
+        /// Open new captures as a tab in the editor window used last
         /// </summary>
-        string ExpertReuseeditorifpossible { get; }
+        string OpenCaptureAsTab { get; }
+
+        /// <summary>
+        /// Show the captures of an editor window as tabs
+        /// </summary>
+        string EditorTabs { get; }
+
+        /// <summary>
+        /// Size of a new image
+        /// </summary>
+        string NewImageSize { get; }
+
+        /// <summary>
+        /// Color of a new image
+        /// </summary>
+        string NewImageColor { get; }
 
         /// <summary>
         /// Suppress the save dialog when closing the editor

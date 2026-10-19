@@ -29,6 +29,13 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 #### 🎨 Editor Enhancements
 
+**Tabs in the editor**
+- An editor window can show several captures as tabs, like a browser
+- Drag a tab to change its place, into another editor window, or out of the window to open it in its own window
+- A new capture opens as a tab in the editor you used last, the settings can turn this or the tabs off
+- The "+" after the tabs adds a new image, its size and color are in the settings
+- Closing a window with several changed captures asks once: save all, discard all or cancel
+
 **Emoji Support** (#358)
 - Added a new "Emoji" object type to the editor
 - Insert emojis directly into your screenshots

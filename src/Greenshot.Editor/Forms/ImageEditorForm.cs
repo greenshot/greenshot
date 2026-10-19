@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -58,6 +59,7 @@ using Greenshot.Editor.Drawing.Emoji;
 using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Drawing.Fields.Binding;
 using Greenshot.Editor.Helpers;
+using Greenshot.Editor.Tabs;
 using Greenshot.Base.Threading;
 using Greenshot.Editor.Views;
 using log4net;
@@ -70,7 +72,7 @@ namespace Greenshot.Editor.Forms
     /// <summary>
     /// The ImageEditorForm is the editor for Greenshot
     /// </summary>
-    public partial class ImageEditorForm : EditorForm, IImageEditor
+    public partial class ImageEditorForm : EditorForm
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ImageEditorForm));
         private static readonly IEditorConfiguration EditorConfiguration = IniConfigHelper.EnsureSection<IEditorConfiguration>(() => new EditorConfigurationImpl());
@@ -82,11 +84,16 @@ namespace Greenshot.Editor.Forms
             EditorDestination.DESIGNATION
         };
 
-        private static readonly List<IImageEditor> EditorList = new();
-        private static readonly object _editorListLock = new();
+        // The open editor windows, the tabs are changed under the same lock: Editors can be read from other threads
+        private static readonly List<ImageEditorForm> OpenWindowList = new();
+        private static readonly object OpenWindowsLock = new();
+        private static ImageEditorForm _lastActiveWindow;
 
+        // The surface of the selected tab
         private Surface _surface;
+        private List<BidirectionalBinding> _fieldBindings = new();
         private ToolStripButton[] _toolbarButtons;
+        private bool _showWithoutActivation;
 
         private bool _originalBoldCheckState;
         private bool _originalItalicCheckState;
@@ -105,25 +112,92 @@ namespace Greenshot.Editor.Forms
             (1, 4), (1, 2), (2, 3), (3, 4), (1, 1), (2, 1), (3, 1), (4, 1), (6, 1)
         };
 
+        /// <summary>
+        /// The captures in the open editor windows (every tab is an editor), sorted by title
+        /// </summary>
         public static List<IImageEditor> Editors
         {
             get
             {
-                lock (_editorListLock)
+                lock (OpenWindowsLock)
                 {
-                    try
-                    {
-                        EditorList.Sort((e1, e2) => string.Compare(e1.Surface.CaptureDetails.Title, e2.Surface.CaptureDetails.Title, StringComparison.Ordinal));
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Warn("Sorting of editors failed.", ex);
-                    }
-
-                    return EditorList;
+                    return OpenWindowList.SelectMany(window => window.tabStrip.Tabs)
+                        .OrderBy(tab => tab.CaptureDetails?.Title, StringComparer.Ordinal)
+                        .Cast<IImageEditor>()
+                        .ToList();
                 }
             }
         }
+
+        /// <summary>
+        /// The open editor windows
+        /// </summary>
+        internal static IReadOnlyList<ImageEditorForm> OpenWindows
+        {
+            get
+            {
+                lock (OpenWindowsLock)
+                {
+                    return OpenWindowList.ToList();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Show the capture in an editor: as a new tab of the editor window which was active last when an open editor
+        /// should be used, else in a new editor window.
+        /// </summary>
+        /// <param name="surface">The capture, the editor takes it over</param>
+        /// <param name="useOpenEditor">true to add a tab to an open editor window, when there is one; null to use the setting</param>
+        /// <param name="matchSizeToCapture">null to use the setting</param>
+        /// <returns>The tab of the capture</returns>
+        public static EditorTab Open(ISurface surface, bool? useOpenEditor = null, bool? matchSizeToCapture = null)
+        {
+            ThreadAssert.IsUi(nameof(Open));
+            // Without tabs every capture gets its own window
+            bool addTab = (useOpenEditor ?? EditorConfiguration.OpenCaptureAsTab) && EditorConfiguration.EditorTabs;
+            var window = addTab ? _lastActiveWindow ?? OpenWindows.LastOrDefault() : null;
+            // A window which is closing (its question or its saves are running) doesn't get new captures
+            if (window == null || window.IsDisposed || window._closing)
+            {
+                window = new ImageEditorForm(surface, !surface.Modified, matchSizeToCapture);
+                window.Show();
+                window.Activate();
+                return window.SelectedTab;
+            }
+
+            var tab = window.AddTab(surface, !surface.Modified, fitWindow: true);
+            if (window.WindowState == FormWindowState.Minimized)
+            {
+                window.WindowState = FormWindowState.Normal;
+            }
+
+            window.BringToFront();
+            window.Activate();
+            return tab;
+        }
+
+        /// <summary>
+        /// The tabs of this window, from left to right
+        /// </summary>
+        internal IReadOnlyList<EditorTab> Tabs => tabStrip.Tabs;
+
+        /// <summary>
+        /// The tab which is shown
+        /// </summary>
+        internal EditorTab SelectedTab => tabStrip.SelectedTab;
+
+        internal EditorTabStrip TabStrip => tabStrip;
+
+        /// <summary>
+        /// The question about the changed captures is shown or their saves run, the window closes afterwards
+        /// </summary>
+        internal bool IsClosing => _closing;
+
+        /// <summary>
+        /// A window for a tab which is dragged out of another window is shown without taking the focus (which would end the drag)
+        /// </summary>
+        protected override bool ShowWithoutActivation => _showWithoutActivation;
 
         /// <summary>
         /// Adjust the icons etc to the supplied DPI settings
@@ -138,7 +212,10 @@ namespace Greenshot.Editor.Forms
             destinationsToolStrip.ImageScalingSize = newSize;
             propertiesToolStrip.ImageScalingSize = newSize;
             propertiesToolStrip.MinimumSize = new Size(150, newSize.Height + 10);
-            _surface?.AdjustToDpi(newDpi);
+            foreach (var tab in Tabs)
+            {
+                tab.Surface.AdjustToDpi(newDpi);
+            }
 
             // The framework's own DPI-triggered scaling runs after this handler returns, and it resizes
             // the canvas control along with every other control on the form - even though the canvas size
@@ -169,19 +246,48 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         }
 
         private bool? _matchSizeToCapture;
+        // The user answered the question about the changed captures, the window closes without asking again
+        private bool _closeConfirmed;
+        // The question about the changed captures is shown, or their saves run
+        private bool _closing;
         private bool MatchSizeToCapture => _matchSizeToCapture ?? EditorConfiguration.MatchSizeToCapture;
 
-        public ImageEditorForm()
+        /// <summary>
+        /// Open a new image (the size and the color are in the settings) like a capture: as a tab or in its own window
+        /// </summary>
+        public static EditorTab OpenNewImage() => Open(CreateNewImage());
+
+        /// <summary>
+        /// A new image, with the size and the color from the settings
+        /// </summary>
+        private static Surface CreateNewImage()
         {
-            var image = ImageHelper.CreateEmpty(EditorConfiguration.DefaultEditorSize.Width, EditorConfiguration.DefaultEditorSize.Height, PixelFormat.Format32bppArgb, Color.White, 96f, 96f);
-            ISurface surface = new Surface(image);
-            Initialize(surface, false);
+            var size = EditorConfiguration.DefaultEditorSize;
+            var image = ImageHelper.CreateEmpty(Math.Max(1, size.Width), Math.Max(1, size.Height), PixelFormat.Format32bppArgb, EditorConfiguration.NewImageColor, 96f, 96f);
+            var surface = new Surface(image);
+            surface.CaptureDetails.Title = Texts.Editor.NewImage;
+            return surface;
         }
 
         public ImageEditorForm(ISurface surface, bool outputMade, bool? matchSizeToCapture = null)
         {
             _matchSizeToCapture = matchSizeToCapture;
-            Initialize(surface, outputMade);
+            Initialize(useStoredPlacement: true);
+            AddTab(surface, outputMade, fitWindow: true);
+            // Workaround: As the cursor is (mostly) selected on the surface a funny artifact is visible, this fixes it.
+            HideToolstripItems();
+        }
+
+        /// <summary>
+        /// A window for a tab which was dragged out of another window, it is shown at the bounds without taking the focus
+        /// </summary>
+        private ImageEditorForm(EditorTab tab, Rectangle bounds)
+        {
+            _showWithoutActivation = true;
+            Initialize(useStoredPlacement: false);
+            StartPosition = FormStartPosition.Manual;
+            Bounds = bounds;
+            InsertTab(tab, 0);
         }
 
         /// <summary>
@@ -282,7 +388,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             zoomStatusDropDownBtn.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "zoomStatusDropDownBtn.Image");
         }
 
-        private void Initialize(ISurface surface, bool outputMade)
+        private void Initialize(bool useStoredPlacement)
         {
             ThreadAssert.IsUi(nameof(ImageEditorForm));
             var timing = new StartupTiming();
@@ -332,58 +438,43 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 _clipboardSubscription = null;
             };
 
-            // Make sure the editor is placed on the same location as the last editor was on close
-            // But only if this still exists, else it will be reset (BUG-1812)
+            tabStrip.TabSelected += (s, e) => SelectTab(e.Tab);
+            tabStrip.TabCloseRequested += (s, e) => CloseTabAsync(e.Tab).FireAndLog("Close a tab of the editor", Log);
+            // Nothing to save before something is drawn on the new image
+            tabStrip.NewTabRequested += (s, e) => AddTab(CreateNewImage(), outputMade: true, fitWindow: false);
+            Activated += (s, e) => _lastActiveWindow = this;
+            FormClosed += (s, e) => CloseAllTabs();
+            // Also when the window is disposed without closing it
+            Disposed += (s, e) => RemoveFromOpenWindows();
+
             timing.Mark("Events");
-            WindowPlacement editorWindowPlacement = EditorConfigurationHelper.GetEditorPlacement(EditorConfiguration);
-            NativeRect screenBounds = DisplayInfo.ScreenBounds;
-            if (!screenBounds.Contains(editorWindowPlacement.NormalPosition))
+            if (useStoredPlacement)
             {
-                EditorConfigurationHelper.ResetEditorPlacement(EditorConfiguration);
+                // Make sure the editor is placed on the same location as the last editor was on close
+                // But only if this still exists, else it will be reset (BUG-1812)
+                WindowPlacement editorWindowPlacement = EditorConfigurationHelper.GetEditorPlacement(EditorConfiguration);
+                NativeRect screenBounds = DisplayInfo.ScreenBounds;
+                if (!screenBounds.Contains(editorWindowPlacement.NormalPosition))
+                {
+                    EditorConfigurationHelper.ResetEditorPlacement(EditorConfiguration);
+                }
+
+                timing.Mark("ScreenBounds");
+                ApplyStoredPlacement();
+                timing.Mark("Placement");
             }
-
-            timing.Mark("ScreenBounds");
-            ApplyStoredPlacement();
-
-            timing.Mark("Placement");
-            // init surface
-            Surface = surface;
-            timing.Mark("SetSurface");
-            // Initial "saved" flag for asking if the image needs to be save
-            _surface.Modified = !outputMade;
-
-            // Note: SetSurface (called via Surface = surface above) already registered this
-            // editor in EditorList. Do NOT add again here — double-registration causes
-            // closed editors to linger in the list because Remove() only removes one entry.
 
             UpdateUi();
             timing.Mark("UpdateUi");
 
-            // Re-apply the capture title after UpdateUi()/ApplyLanguage() which resets Text
-            // to just the bare form language key ("Greenshot editor").
-            if (_surface?.CaptureDetails?.Title != null)
-            {
-                Text = _surface.CaptureDetails.Title + " - " + Texts.Editor.Title;
-            }
-
             // Workaround: for the MouseWheel event which doesn't get to the panel
             MouseWheel += PanelMouseWheel;
 
-            // Use best fit, for those capture modes where we can get huge images
-            bool useBestFit = _surface.CaptureDetails.CaptureMode switch
+            lock (OpenWindowsLock)
             {
-                CaptureMode.File => true,
-                CaptureMode.Clipboard => true,
-                _ => false
-            };
-
-            if (useBestFit)
-            {
-                ZoomBestFitMenuItemClick(this, EventArgs.Empty);
+                OpenWindowList.Add(this);
             }
 
-            // Workaround: As the cursor is (mostly) selected on the surface a funny artifact is visible, this fixes it.
-            HideToolstripItems();
             timing.Mark("Rest");
             Log.Debug("Editor constructed: " + timing);
         }
@@ -441,82 +532,480 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         }
 
         /// <summary>
-        /// Remove the current surface
+        /// Add a capture as a new tab and show it
         /// </summary>
-        private void RemoveSurface()
+        /// <param name="surface">The capture, the tab takes it over</param>
+        /// <param name="outputMade">true when the capture was already exported, closing it doesn't ask to save it then</param>
+        /// <param name="fitWindow">true to fit the window to the capture, when the setting asks for it</param>
+        internal EditorTab AddTab(ISurface surface, bool outputMade, bool fitWindow)
         {
-            if (_surface == null)
+            var editorSurface = (Surface)surface;
+            editorSurface.Modified = !outputMade;
+            editorSurface.TransparencyBackgroundBrush = new TextureBrush(GreenshotResources.GetImage("Checkerboard.Image"), WrapMode.Tile);
+            var tab = new EditorTab(editorSurface);
+            InsertTab(tab, Tabs.Count);
+            if (fitWindow && MatchSizeToCapture)
+            {
+                Size = GetOptimalWindowSize();
+                AlignCanvasPositionAfterResize();
+            }
+
+            // Use best fit, for those capture modes where we can get huge images
+            if (editorSurface.CaptureDetails.CaptureMode is CaptureMode.File or CaptureMode.Clipboard)
+            {
+                ZoomBestFitMenuItemClick(this, EventArgs.Empty);
+            }
+
+            return tab;
+        }
+
+        /// <summary>
+        /// Insert a tab, a new one or one from another window, and show it
+        /// </summary>
+        private void InsertTab(EditorTab tab, int index)
+        {
+            lock (OpenWindowsLock)
+            {
+                tabStrip.Insert(index, tab);
+            }
+
+            tab.Window = this;
+            tab.Changed += TabChanged;
+            UpdateTabStripVisibility();
+            SelectTab(tab);
+        }
+
+        /// <summary>
+        /// Without tabs in the settings the tabs are hidden, unless the window has more than one (e.g. the setting was just changed)
+        /// </summary>
+        private void UpdateTabStripVisibility()
+        {
+            tabStrip.Visible = EditorConfiguration.EditorTabs || Tabs.Count > 1;
+        }
+
+        /// <summary>
+        /// Take the tab out of this window, its capture stays open. The tab to the right (or left) of it is shown instead.
+        /// </summary>
+        private void RemoveTab(EditorTab tab)
+        {
+            int index = tabStrip.IndexOf(tab);
+            if (tab == SelectedTab)
+            {
+                HideSelectedTab();
+            }
+
+            tab.Changed -= TabChanged;
+            tab.Window = null;
+            lock (OpenWindowsLock)
+            {
+                tabStrip.Remove(tab);
+            }
+
+            UpdateTabStripVisibility();
+            if (Tabs.Count > 0 && SelectedTab == null)
+            {
+                SelectTab(Tabs[Math.Min(index, Tabs.Count - 1)]);
+            }
+        }
+
+        /// <summary>
+        /// Move the tab into another editor window, at the index. This window closes when it was its last tab.
+        /// </summary>
+        internal void MoveTab(EditorTab tab, ImageEditorForm target, int index)
+        {
+            RemoveTab(tab);
+            if (tab.Surface.CurrentDpi != target.DeviceDpi && DeviceDpi != target.DeviceDpi)
+            {
+                tab.Surface.AdjustToDpi(target.DeviceDpi);
+            }
+
+            target.InsertTab(tab, index);
+            if (Tabs.Count == 0)
+            {
+                Close();
+            }
+        }
+
+        /// <summary>
+        /// Move the tab into a new editor window at the location, with the size of this window
+        /// </summary>
+        internal ImageEditorForm DetachTab(EditorTab tab, Point location)
+        {
+            var size = WindowState == FormWindowState.Normal ? Size : RestoreBounds.Size;
+            RemoveTab(tab);
+            var window = new ImageEditorForm(tab, new Rectangle(location, size));
+            window.Show();
+            // Activating the window later shows it in front of the others
+            window._showWithoutActivation = false;
+            return window;
+        }
+
+        /// <summary>
+        /// Close the tab and its capture, without asking. The window closes with its last tab.
+        /// </summary>
+        /// <param name="tab">EditorTab of this window</param>
+        internal void CloseTab(EditorTab tab)
+        {
+            RemoveTab(tab);
+            tab.Dispose();
+            if (Tabs.Count == 0)
+            {
+                Close();
+            }
+        }
+
+        /// <summary>
+        /// Close the tab like the user does: a changed capture is saved first when the user wants it, the user can cancel
+        /// </summary>
+        private async Task CloseTabAsync(EditorTab tab)
+        {
+            if (_closing || !await ConfirmCloseAsync(new[] { tab }))
             {
                 return;
             }
 
-            panel1.Controls.Remove(_surface);
-            _surface.Dispose();
-            _surface = null;
+            if (tab.Window == this)
+            {
+                CloseTab(tab);
+            }
         }
 
         /// <summary>
-        /// Change the surface
+        /// Close the window like the user does: the changed captures are saved first when the user wants it, the user can cancel.
         /// </summary>
-        /// <param name="newSurface"></param>
-        private void SetSurface(ISurface newSurface)
+        /// <returns>true when the window is closed</returns>
+        public async Task<bool> CloseAsync()
         {
-            if (Surface != null && Surface.Modified)
+            if (_closing)
             {
-                throw new ApplicationException("Surface modified");
+                // The question or a save is running already
+                return false;
             }
 
-            // Remove from the global list while _surface is being swapped, so background threads
-            // iterating Editors never observe this editor in a null-surface state.
-            lock (_editorListLock)
+            _closing = true;
+            try
             {
-                EditorList.Remove(this);
-            }
-
-            RemoveSurface();
-
-            panel1.Height = 10;
-            panel1.Width = 10;
-            _surface = newSurface as Surface;
-            if (_surface != null)
-            {
-                panel1.Controls.Add(_surface);
-            }
-
-            Image backgroundForTransparency = GreenshotResources.GetImage("Checkerboard.Image");
-            if (_surface != null)
-            {
-                _surface.TransparencyBackgroundBrush = new TextureBrush(backgroundForTransparency, WrapMode.Tile);
-
-                _surface.MovingElementChanged += delegate { RefreshEditorControls(); };
-                _surface.DrawingModeChanged += Surface_DrawingModeChanged;
-                _surface.SurfaceSizeChanged += SurfaceSizeChanged;
-                _surface.SurfaceExpanded += SurfaceExpanded;
-                _surface.SurfaceMessage += SurfaceMessageReceived;
-                _surface.ForegroundColorChanged += ForegroundColorChanged;
-                _surface.BackgroundColorChanged += BackgroundColorChanged;
-                _surface.LineThicknessChanged += LineThicknessChanged;
-                _surface.ShadowChanged += ShadowChanged;
-                _surface.FieldAggregator.FieldChanged += FieldAggregatorFieldChanged;
-                SurfaceSizeChanged(Surface, null);
-
-                BindFieldControls();
-                RefreshEditorControls();
-                // Fix title
-                if (_surface?.CaptureDetails?.Title != null)
+                // Not inside the FormClosing event, the window is closed at the end
+                await Task.Yield();
+                if (IsDisposed)
                 {
-                    Text = _surface.CaptureDetails.Title + " - " + Texts.Editor.Title;
+                    return true;
+                }
+
+                if (!await ConfirmCloseAsync(Tabs.ToList()))
+                {
+                    return false;
+                }
+
+                if (!IsDisposed)
+                {
+                    _closeConfirmed = true;
+                    Close();
+                }
+
+                return IsDisposed;
+            }
+            finally
+            {
+                _closing = false;
+            }
+        }
+
+        /// <summary>
+        /// Close all editor windows like the user does, one after the other
+        /// </summary>
+        /// <returns>false when the user cancelled, a window stays open</returns>
+        public static async Task<bool> CloseAllAsync()
+        {
+            foreach (var window in OpenWindows)
+            {
+                if (!window.IsDisposed && !await window.CloseAsync())
+                {
+                    return false;
                 }
             }
 
-            // Re-register in the global list now that the new surface is fully assigned.
-            lock (_editorListLock)
+            return true;
+        }
+
+        /// <summary>
+        /// Ask what happens with the changed captures of the tabs and save them when the user wants it:
+        /// for one capture "Do you want to save the screenshot?", for more one question with the list of them: save all, discard all or cancel.
+        /// Saving stops at a capture which isn't saved (e.g. its file dialog was cancelled).
+        /// </summary>
+        /// <returns>true when the tabs can be closed, false when the user cancelled or a capture wasn't saved</returns>
+        private async Task<bool> ConfirmCloseAsync(IReadOnlyList<EditorTab> tabs)
+        {
+            var changedTabs = tabs.Where(tab => tab.Surface.Modified).ToList();
+            if (changedTabs.Count == 0 || EditorConfiguration.SuppressSaveDialogAtClose)
             {
-                EditorList.Add(this);
+                return true;
+            }
+
+            // Show the (first) changed capture
+            SelectTab(changedTabs[0]);
+            WindowHelper.ToForeground(Handle);
+            bool save;
+            if (changedTabs.Count == 1)
+            {
+                DialogResult result = MessageBox.Show(this, Texts.Editor.CloseOnSave, Texts.Editor.CloseOnSaveTitle, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                if (result == DialogResult.Cancel)
+                {
+                    return false;
+                }
+
+                save = result == DialogResult.Yes;
+            }
+            else
+            {
+                const int saveAll = 0, cancel = 2;
+                const int maximumListed = 10;
+                var titles = changedTabs.Take(maximumListed).Select(tab => "• " + tab.Title);
+                if (changedTabs.Count > maximumListed)
+                {
+                    titles = titles.Concat(new[] { "…" });
+                }
+
+                string text = Texts.Editor.CloseOnSaveAll + Environment.NewLine + Environment.NewLine + string.Join(Environment.NewLine, titles);
+                int choice = Greenshot.Base.Wpf.ThemedMessageBox.ShowChoice(Handle, Texts.Editor.CloseOnSaveAllTitle, text, System.Windows.MessageBoxImage.Question,
+                    new[] { Texts.Editor.SaveAll, Texts.Editor.DiscardAll, Texts.Core.Cancel }, saveAll, cancel);
+                if (choice == cancel)
+                {
+                    return false;
+                }
+
+                save = choice == saveAll;
+            }
+
+            if (!save)
+            {
+                return true;
+            }
+
+            foreach (var tab in changedTabs)
+            {
+                if (tab.Window != this || !tab.Surface.Modified)
+                {
+                    // Closed, moved or saved in the meantime
+                    continue;
+                }
+
+                SelectTab(tab);
+                if (!await SaveAsync(tab.Surface) || tab.Surface.Modified)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Save the capture to its file, or with the file dialog when it has none
+        /// </summary>
+        /// <returns>true when it was saved</returns>
+        private static async Task<bool> SaveAsync(Surface surface)
+        {
+            var designation = surface.LastSaveFullPath == null ? WellKnownDestinations.FileDialog : WellKnownDestinations.FileNoDialog;
+            var destination = DestinationHelper.GetDestination(designation.ToString());
+            if (destination == null)
+            {
+                return false;
+            }
+
+            var result = await DestinationExporter.ExportAsync(destination, surface, surface.CaptureDetails, manuallyInitiated: true);
+            return result.IsSucceeded;
+        }
+
+        /// <summary>
+        /// Close the captures of the window
+        /// </summary>
+        private void CloseAllTabs()
+        {
+            RemoveFromOpenWindows();
+            HideSelectedTab();
+            foreach (var tab in Tabs.ToList())
+            {
+                tab.Changed -= TabChanged;
+                tab.Window = null;
+                lock (OpenWindowsLock)
+                {
+                    tabStrip.Remove(tab);
+                }
+
+                tab.Dispose();
+            }
+
+            if (coreConfiguration.MinimizeWorkingSetSize)
+            {
+                GC.Collect();
+                PsApi.EmptyWorkingSet();
+            }
+        }
+
+        private void RemoveFromOpenWindows()
+        {
+            lock (OpenWindowsLock)
+            {
+                OpenWindowList.Remove(this);
+            }
+
+            if (_lastActiveWindow == this)
+            {
+                _lastActiveWindow = null;
+            }
+        }
+
+        /// <summary>
+        /// Show the tab
+        /// </summary>
+        internal void SelectTab(EditorTab tab)
+        {
+            if (tab == SelectedTab && _surface == tab.Surface)
+            {
+                return;
+            }
+
+            HideSelectedTab();
+            tabStrip.SelectedTab = tab;
+            ShowSelectedTab();
+        }
+
+        private void SelectTabAt(int index)
+        {
+            if (Tabs.Count > 1)
+            {
+                SelectTab(Tabs[(index + Tabs.Count) % Tabs.Count]);
+            }
+        }
+
+        /// <summary>
+        /// Show the surface of the selected tab, with its tools and status
+        /// </summary>
+        private void ShowSelectedTab()
+        {
+            var tab = SelectedTab;
+            _surface = tab.Surface;
+            panel1.Controls.Add(_surface);
+            BindSurface();
+
+            dimensionsLabel.Text = _surface.Image.Width + "x" + _surface.Image.Height;
+            UpdateZoomControls(_surface.ZoomFactor);
+            AlignCanvasPositionAfterResize();
+            panel1.AutoScrollPosition = tab.ScrollPosition;
+
+            ShowDrawingMode(_surface.DrawingMode);
+            UpdateDestinationButtons();
+            ShowTabState(tab);
+            RefreshEditorControls();
+            if (ContainsFocus)
+            {
+                // The keys go to the shown surface, not to a tool bar control which got the focus from the hidden surface
+                _surface.Focus();
+            }
+        }
+
+        /// <summary>
+        /// Take the surface of the selected tab out of the window, the tab keeps the scroll position
+        /// </summary>
+        private void HideSelectedTab()
+        {
+            var tab = SelectedTab;
+            if (tab == null || _surface == null)
+            {
+                return;
+            }
+
+            tab.ScrollPosition = new Point(-panel1.AutoScrollPosition.X, -panel1.AutoScrollPosition.Y);
+            UnbindSurface();
+            // Removing the surface can move the focus (e.g. a text being edited loses it), the handlers mustn't change the hidden surface
+            var surface = _surface;
+            _surface = null;
+            panel1.Controls.Remove(surface);
+            tabStrip.SelectedTab = null;
+        }
+
+        private void BindSurface()
+        {
+            _surface.MovingElementChanged += SurfaceMovingElementChanged;
+            _surface.DrawingModeChanged += Surface_DrawingModeChanged;
+            _surface.SurfaceSizeChanged += SurfaceSizeChanged;
+            _surface.SurfaceExpanded += SurfaceExpanded;
+            _surface.ForegroundColorChanged += ForegroundColorChanged;
+            _surface.BackgroundColorChanged += BackgroundColorChanged;
+            _surface.LineThicknessChanged += LineThicknessChanged;
+            _surface.ShadowChanged += ShadowChanged;
+            _surface.FieldAggregator.FieldChanged += FieldAggregatorFieldChanged;
+            BindFieldControls();
+        }
+
+        private void UnbindSurface()
+        {
+            _surface.MovingElementChanged -= SurfaceMovingElementChanged;
+            _surface.DrawingModeChanged -= Surface_DrawingModeChanged;
+            _surface.SurfaceSizeChanged -= SurfaceSizeChanged;
+            _surface.SurfaceExpanded -= SurfaceExpanded;
+            _surface.ForegroundColorChanged -= ForegroundColorChanged;
+            _surface.BackgroundColorChanged -= BackgroundColorChanged;
+            _surface.LineThicknessChanged -= LineThicknessChanged;
+            _surface.ShadowChanged -= ShadowChanged;
+            _surface.FieldAggregator.FieldChanged -= FieldAggregatorFieldChanged;
+            foreach (var binding in _fieldBindings)
+            {
+                binding.Dispose();
+            }
+
+            _fieldBindings.Clear();
+        }
+
+        /// <summary>
+        /// Replace the surface of the tab (used to show another capture in the same tab)
+        /// </summary>
+        internal void ReplaceSurface(EditorTab tab, Surface surface)
+        {
+            if (tab.Surface.Modified)
+            {
+                throw new InvalidOperationException("The capture of the tab is modified, it can't be replaced.");
+            }
+
+            bool selected = tab == SelectedTab;
+            if (selected)
+            {
+                HideSelectedTab();
+            }
+
+            surface.TransparencyBackgroundBrush = new TextureBrush(GreenshotResources.GetImage("Checkerboard.Image"), WrapMode.Tile);
+            tab.ReplaceSurface(surface);
+            tab.ScrollPosition = Point.Empty;
+            if (selected)
+            {
+                SelectTab(tab);
             }
 
             Activate();
             WindowHelper.ToForeground(Handle);
+        }
+
+        /// <summary>
+        /// The title or the status of a tab changed
+        /// </summary>
+        private void TabChanged(object sender, EventArgs e)
+        {
+            tabStrip.Invalidate();
+            if (sender == SelectedTab)
+            {
+                ShowTabState(SelectedTab);
+            }
+        }
+
+        /// <summary>
+        /// Show the title and the status message of the tab
+        /// </summary>
+        private void ShowTabState(EditorTab tab)
+        {
+            string description = tab.Surface.LastSaveFullPath ?? tab.Surface.CaptureDetails?.Title;
+            Text = string.IsNullOrEmpty(description) ? Texts.Editor.Title : description + " - " + Texts.Editor.Title;
+            UpdateStatusLabel(tab.StatusText ?? string.Empty, tab.StatusIsFileSaved ? fileSavedStatusContextMenu : null, tab.StatusIsError);
         }
 
         private void UpdateUi()
@@ -549,7 +1038,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 var editorPlugins = SimpleServiceProvider.Current.GetAllInstances<IEditorPlugin>();
                 foreach (var plugin in editorPlugins)
                 {
-                    plugin.InitializeEditor(this, pluginToolStripMenuItem, Surface);
+                    plugin.InitializeEditor(this, pluginToolStripMenuItem, () => _surface);
                 }
             }
             catch (Exception ex)
@@ -558,12 +1047,6 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             }
 
             pluginToolStripMenuItem.Visible = pluginToolStripMenuItem.DropDownItems.Count > 0;
-
-            // Make sure the value is set correctly when starting
-            if (Surface != null)
-            {
-                counterUpDown.Value = Surface.CounterStart;
-            }
         }
 
         /// <summary>
@@ -608,11 +1091,6 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                     continue;
                 }
 
-                if (!destination.IsAvailableFor(_surface.CaptureDetails))
-                {
-                    continue;
-                }
-
                 if (descriptor.IconKey == null)
                 {
                     continue;
@@ -626,6 +1104,22 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 {
                     Log.WarnFormat("Problem adding destination {0}", destination.Designation);
                     Log.Warn("Exception: ", addingException);
+                }
+            }
+
+            UpdateDestinationButtons();
+        }
+
+        /// <summary>
+        /// Show the destination buttons which are available for the capture of the selected tab
+        /// </summary>
+        private void UpdateDestinationButtons()
+        {
+            foreach (ToolStripItem item in destinationsToolStrip.Items)
+            {
+                if (item.Tag is IDestination destination)
+                {
+                    item.Visible = destination.IsAvailableFor(_surface.CaptureDetails);
                 }
             }
         }
@@ -648,6 +1142,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                     DisplayStyle = ToolStripItemDisplayStyle.Image,
                     Size = new Size(23, 22),
                     Text = descriptor.DisplayName,
+                    Tag = toolstripDestination,
                 };
                 DestinationMenuBuilder.AssignIcon(destinationButton, descriptor.IconKey);
 
@@ -683,6 +1178,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 destinationButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
                 destinationButton.Size = new Size(23, 22);
                 destinationButton.Text = descriptor.DisplayName;
+                destinationButton.Tag = toolstripDestination;
                 destinationButton.Click += delegate { ExportTo(toolstripDestination); };
                 DestinationMenuBuilder.AssignIcon(destinationButton, descriptor.IconKey);
             }
@@ -753,43 +1249,19 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             // add the elements after the destinations
             fileStripMenuItem.DropDownItems.Add(toolStripSeparator9);
             // Only provide the close all if there is more then one editor open, otherwise it doesn't make sense and clutters the UI
-            if (EditorList.Count > 1)
+            if (OpenWindows.Count > 1)
             {
                 fileStripMenuItem.DropDownItems.Add(closeAllToolStripMenuItem);
+            }
+            // Closing the only tab is the same as closing the window
+            if (Tabs.Count > 1)
+            {
+                fileStripMenuItem.DropDownItems.Add(closeTabToolStripMenuItem);
+                closeTabToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.W;
             }
             fileStripMenuItem.DropDownItems.Add(closeToolStripMenuItem);
             // reassign the close shortcuts besause ClearItems above removes them
             closeToolStripMenuItem.ShortcutKeys = Keys.Alt | Keys.F4;
-        }
-
-        /// <summary>
-        /// This is the SurfaceMessageEvent receiver which display a message in the status bar if the
-        /// surface is exported. It also updates the title to represent the filename, if there is one.
-        /// Surface messages are raised on the UI thread (export results are applied there).
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="eventArgs"></param>
-        private void SurfaceMessageReceived(object sender, SurfaceMessageEventArgs eventArgs)
-        {
-            ThreadAssert.IsUi(nameof(SurfaceMessageReceived));
-            string dateTime = DateTime.Now.ToLongTimeString();
-            // TODO: Fix that we only open files, like in the tooltip
-            switch (eventArgs.MessageType)
-            {
-                case SurfaceMessageTyp.Error:
-                    UpdateStatusLabel(dateTime + " - ⚠ " + eventArgs.Message, isError: true);
-                    break;
-                case SurfaceMessageTyp.FileSaved:
-                    // Put the event message on the status label and attach the context menu
-                    UpdateStatusLabel(dateTime + " - " + eventArgs.Message, fileSavedStatusContextMenu);
-                    // Change title
-                    Text = eventArgs.Surface.LastSaveFullPath + " - " + Texts.Editor.Title;
-                    break;
-                default:
-                    // Put the event message on the status label
-                    UpdateStatusLabel(dateTime + " - " + eventArgs.Message);
-                    break;
-            }
         }
 
         /// <summary>
@@ -844,7 +1316,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 Size = GetOptimalWindowSize();
             }
 
-            dimensionsLabel.Text = Surface.Image.Width + "x" + Surface.Image.Height;
+            dimensionsLabel.Text = _surface.Image.Width + "x" + _surface.Image.Height;
             AlignCanvasPositionAfterResize();
         }
 
@@ -858,34 +1330,23 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             UpdateUndoRedoSurfaceDependencies();
         }
 
-        public ISurface Surface
+        private void SurfaceMovingElementChanged(object sender, SurfaceElementEventArgs e)
         {
-            get { return _surface; }
-            set { SetSurface(value); }
-        }
-
-        public void SetImagePath(string fullpath)
-        {
-            // Check if the editor supports the format
-            if (fullpath != null && (fullpath.EndsWith(".ico") || fullpath.EndsWith(".wmf")))
-            {
-                fullpath = null;
-            }
-
-            _surface.LastSaveFullPath = fullpath;
-
-            if (fullpath == null)
-            {
-                return;
-            }
-
-            UpdateStatusLabel(string.Format(Texts.Editor.Imagesaved, fullpath), fileSavedStatusContextMenu);
-            Text = Path.GetFileName(fullpath) + " - " + Texts.Editor.Title;
+            RefreshEditorControls();
         }
 
         private void Surface_DrawingModeChanged(object source, SurfaceDrawingModeEventArgs eventArgs)
         {
-            switch (eventArgs.DrawingMode)
+            ShowDrawingMode(eventArgs.DrawingMode);
+            RefreshEditorControls();
+        }
+
+        /// <summary>
+        /// Check the tool button of the drawing mode
+        /// </summary>
+        private void ShowDrawingMode(DrawingModes drawingMode)
+        {
+            switch (drawingMode)
             {
                 case DrawingModes.None:
                     SetButtonChecked(btnCursor);
@@ -927,29 +1388,20 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                     SetButtonChecked(btnEmoji);
                     break;
             }
-
-            RefreshEditorControls();
         }
-
-        /**
-         * Interfaces for plugins, see GreenshotInterface for more details!
-         */
-        public Image GetImageForExport()
-        {
-            return _surface.GetImageForExport();
-        }
-
-        public ICaptureDetails CaptureDetails => _surface.CaptureDetails;
 
         private void BtnSaveClick(object sender, EventArgs e)
         {
-            var destinationDesignation = WellKnownDestinations.FileNoDialog;
-            if (_surface.LastSaveFullPath == null)
-            {
-                destinationDesignation = WellKnownDestinations.FileDialog;
-            }
+            Save(_surface);
+        }
 
-            DestinationHelper.StartExport(destinationDesignation, _surface);
+        /// <summary>
+        /// Save the capture to its file, or ask for the file when it wasn't saved yet (the save runs in the background)
+        /// </summary>
+        private static void Save(Surface surface)
+        {
+            var destinationDesignation = surface.LastSaveFullPath == null ? WellKnownDestinations.FileDialog : WellKnownDestinations.FileNoDialog;
+            DestinationHelper.StartExport(destinationDesignation, surface);
         }
 
         private void BtnClipboardClick(object sender, EventArgs e)
@@ -973,17 +1425,20 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             CloseEditor(closeAllOpenEditors: true);
         }
 
+        private void CloseTabToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            CloseTabAsync(SelectedTab).FireAndLog("Close a tab of the editor", Log);
+        }
+
         /// <summary>
-        /// Closes the current editor or all open editors in <see cref="Editors"/>.
+        /// Closes this editor window or all open editor windows
         /// </summary>
         /// <param name="closeAllOpenEditors"></param>
         private void CloseEditor(bool closeAllOpenEditors)
         {
             if (closeAllOpenEditors)
             {
-                // we have to copy the list because closing the editor will remove it from the list
-                List<ImageEditorForm> closinglist = Editors.OfType<ImageEditorForm>().ToList();
-                closinglist.ForEach(e => e.Close());
+                CloseAllAsync().FireAndLog("Close all editor windows", Log);
             }
             else
             {
@@ -1256,54 +1711,20 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
         private void ImageEditorFormFormClosing(object sender, FormClosingEventArgs e)
         {
-            if (_surface.Modified && !EditorConfiguration.SuppressSaveDialogAtClose)
+            // When the application must end there is no time to ask and to save, at the end of the session the editor state is saved
+            // (see RestartManagerHelper), the exit of Greenshot closes the editors with CloseAllAsync first.
+            bool mustClose = e.CloseReason is CloseReason.ApplicationExitCall or CloseReason.WindowsShutDown or CloseReason.TaskManagerClosing;
+            if (!_closeConfirmed && !mustClose && (_closing || Tabs.Any(tab => tab.Surface.Modified)))
             {
-                // Make sure the editor is visible
-                WindowHelper.ToForeground(Handle);
-
-                MessageBoxButtons buttons = MessageBoxButtons.YesNoCancel;
-                // Disallow "CANCEL" if the application needs to shutdown
-                if (e.CloseReason == CloseReason.ApplicationExitCall || e.CloseReason == CloseReason.WindowsShutDown || e.CloseReason == CloseReason.TaskManagerClosing)
-                {
-                    buttons = MessageBoxButtons.YesNo;
-                }
-
-                DialogResult result = MessageBox.Show(Texts.Editor.CloseOnSave, Texts.Editor.CloseOnSaveTitle, buttons, MessageBoxIcon.Question);
-                if (result.Equals(DialogResult.Cancel))
-                {
-                    e.Cancel = true;
-                    return;
-                }
-
-                if (result.Equals(DialogResult.Yes))
-                {
-                    BtnSaveClick(sender, e);
-                    // Check if the save was made, if not it was cancelled so we cancel the closing
-                    if (_surface.Modified)
-                    {
-                        e.Cancel = true;
-                        return;
-                    }
-                }
+                // The saves run in the background: the window closes when they are done
+                e.Cancel = true;
+                CloseAsync().FireAndLog("Close the editor with changed captures", Log);
+                return;
             }
 
             // persist our geometry string.
             EditorConfigurationHelper.SetEditorPlacement(EditorConfiguration, InteropWindowFactory.CreateFor(Handle).GetPlacement());
             IniConfigRegistry.Get().Save();
-
-            // remove from the editor list
-            lock (_editorListLock)
-            {
-                EditorList.Remove(this);
-            }
-
-            _surface.Dispose();
-
-            if (coreConfiguration.MinimizeWorkingSetSize)
-            {
-                GC.Collect();
-                PsApi.EmptyWorkingSet();
-            }
         }
 
         private void ImageEditorFormKeyDown(object sender, KeyEventArgs e)
@@ -1463,7 +1884,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         protected override bool ProcessKeyPreview(ref Message msg)
         {
             // disable default key handling if surface has requested a lock
-            if (!_surface.KeysLocked)
+            if (_surface?.KeysLocked != true)
             {
                 return base.ProcessKeyPreview(ref msg);
             }
@@ -1473,9 +1894,20 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keys)
         {
-            // disable default key handling if surface has requested a lock
-            if (!_surface.KeysLocked)
+            // Escape cancels the drag of a tab
+            if (keys == Keys.Escape && tabStrip.CancelDrag())
             {
+                return true;
+            }
+
+            // disable default key handling if surface has requested a lock
+            if (_surface?.KeysLocked == false)
+            {
+                if (ProcessTabKey(keys))
+                {
+                    return true;
+                }
+
                 // Go through the destinations to check the EditorShortcut Keys
                 // this way the menu entries don't need to be enabled.
                 // This also fixes bugs #3526974 & #3527020
@@ -1505,6 +1937,31 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// The keys of the tabs: Ctrl+W closes the tab, Ctrl+Tab and Ctrl+Page Down show the next tab, with Shift or Page Up the previous one
+        /// </summary>
+        /// <returns>true when the key was handled</returns>
+        private bool ProcessTabKey(Keys keys)
+        {
+            int index = tabStrip.IndexOf(SelectedTab);
+            switch (keys)
+            {
+                case Keys.Control | Keys.W:
+                    CloseTabAsync(SelectedTab).FireAndLog("Close a tab of the editor", Log);
+                    return true;
+                case Keys.Control | Keys.Tab:
+                case Keys.Control | Keys.PageDown:
+                    SelectTabAt(index + 1);
+                    return true;
+                case Keys.Control | Keys.Shift | Keys.Tab:
+                case Keys.Control | Keys.PageUp:
+                    SelectTabAt(index - 1);
+                    return true;
+                default:
+                    return false;
+            }
         }
 
         private void UpdateUndoRedoSurfaceDependencies()
@@ -1633,43 +2090,65 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             ExplorerHelper.OpenInExplorer(_surface.LastSaveFullPath);
         }
 
+        /// <summary>
+        /// Bind the controls of the properties tool bar to the fields of the surface, the controls show the values of the surface
+        /// </summary>
         private void BindFieldControls()
         {
-            // TODO: This is actually risky, if there are no references than the objects may be garbage collected
-            new BidirectionalBinding(btnFillColor, "SelectedColor", _surface.FieldAggregator.GetField(FieldType.FILL_COLOR), "Value", NotNullValidator.GetInstance());
-            new BidirectionalBinding(btnLineColor, "SelectedColor", _surface.FieldAggregator.GetField(FieldType.LINE_COLOR), "Value", NotNullValidator.GetInstance());
-            new BidirectionalBinding(lineThicknessUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.LINE_THICKNESS), "Value", DecimalIntConverter.GetInstance(),
+            Bind(btnFillColor, "SelectedColor", _surface.FieldAggregator.GetField(FieldType.FILL_COLOR), "Value", NotNullValidator.GetInstance());
+            Bind(btnLineColor, "SelectedColor", _surface.FieldAggregator.GetField(FieldType.LINE_COLOR), "Value", NotNullValidator.GetInstance());
+            Bind(lineThicknessUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.LINE_THICKNESS), "Value", DecimalIntConverter.GetInstance(),
                 NotNullValidator.GetInstance());
-            new BidirectionalBinding(toothHeightUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.TOOTH_HEIGHT), "Value", DecimalIntConverter.GetInstance(),
+            Bind(toothHeightUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.TOOTH_HEIGHT), "Value", DecimalIntConverter.GetInstance(),
                 NotNullValidator.GetInstance());
-            new BidirectionalBinding(toothRangeUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.TOOTH_RANGE), "Value", DecimalIntConverter.GetInstance(),
+            Bind(toothRangeUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.TOOTH_RANGE), "Value", DecimalIntConverter.GetInstance(),
                 NotNullValidator.GetInstance());
-            new BidirectionalBinding(blurRadiusUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.BLUR_RADIUS), "Value", DecimalIntConverter.GetInstance(),
+            Bind(blurRadiusUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.BLUR_RADIUS), "Value", DecimalIntConverter.GetInstance(),
                 NotNullValidator.GetInstance());
-            new BidirectionalBinding(magnificationFactorUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.MAGNIFICATION_FACTOR), "Value",
+            Bind(magnificationFactorUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.MAGNIFICATION_FACTOR), "Value",
                 DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance());
-            new BidirectionalBinding(pixelSizeUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.PIXEL_SIZE), "Value", DecimalIntConverter.GetInstance(),
+            Bind(pixelSizeUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.PIXEL_SIZE), "Value", DecimalIntConverter.GetInstance(),
                 NotNullValidator.GetInstance());
-            new BidirectionalBinding(brightnessUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.BRIGHTNESS), "Value", DecimalDoublePercentageConverter.GetInstance(),
+            Bind(brightnessUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.BRIGHTNESS), "Value", DecimalDoublePercentageConverter.GetInstance(),
                 NotNullValidator.GetInstance());
-            new BidirectionalBinding(fontFamilyComboBox, "Text", _surface.FieldAggregator.GetField(FieldType.FONT_FAMILY), "Value", NotNullValidator.GetInstance());
-            new BidirectionalBinding(fontSizeUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.FONT_SIZE), "Value", DecimalFloatConverter.GetInstance(),
+            Bind(fontFamilyComboBox, "Text", _surface.FieldAggregator.GetField(FieldType.FONT_FAMILY), "Value", NotNullValidator.GetInstance());
+            Bind(fontSizeUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.FONT_SIZE), "Value", DecimalFloatConverter.GetInstance(),
                 NotNullValidator.GetInstance());
-            new BidirectionalBinding(fontBoldButton, "Checked", _surface.FieldAggregator.GetField(FieldType.FONT_BOLD), "Value", NotNullValidator.GetInstance());
-            new BidirectionalBinding(fontItalicButton, "Checked", _surface.FieldAggregator.GetField(FieldType.FONT_ITALIC), "Value", NotNullValidator.GetInstance());
-            new BidirectionalBinding(textHorizontalAlignmentButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.TEXT_HORIZONTAL_ALIGNMENT), "Value",
+            Bind(fontBoldButton, "Checked", _surface.FieldAggregator.GetField(FieldType.FONT_BOLD), "Value", NotNullValidator.GetInstance());
+            Bind(fontItalicButton, "Checked", _surface.FieldAggregator.GetField(FieldType.FONT_ITALIC), "Value", NotNullValidator.GetInstance());
+            Bind(textHorizontalAlignmentButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.TEXT_HORIZONTAL_ALIGNMENT), "Value",
                 NotNullValidator.GetInstance());
-            new BidirectionalBinding(textVerticalAlignmentButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.TEXT_VERTICAL_ALIGNMENT), "Value",
+            Bind(textVerticalAlignmentButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.TEXT_VERTICAL_ALIGNMENT), "Value",
                 NotNullValidator.GetInstance());
-            new BidirectionalBinding(shadowButton, "Checked", _surface.FieldAggregator.GetField(FieldType.SHADOW), "Value", NotNullValidator.GetInstance());
-            new BidirectionalBinding(previewQualityUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.PREVIEW_QUALITY), "Value",
+            Bind(shadowButton, "Checked", _surface.FieldAggregator.GetField(FieldType.SHADOW), "Value", NotNullValidator.GetInstance());
+            Bind(previewQualityUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.PREVIEW_QUALITY), "Value",
                 DecimalDoublePercentageConverter.GetInstance(), NotNullValidator.GetInstance());
-            new BidirectionalBinding(obfuscateModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.PREPARED_FILTER_OBFUSCATE), "Value");
-            new BidirectionalBinding(cutMarkStyleButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.CUT_MARK_STYLE), "Value");
-            new BidirectionalBinding(highlightModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.PREPARED_FILTER_HIGHLIGHT), "Value");
-            new BidirectionalBinding(arrowHeadsDropDownButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.ARROWHEADS), "Value",
+            Bind(obfuscateModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.PREPARED_FILTER_OBFUSCATE), "Value");
+            Bind(cutMarkStyleButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.CUT_MARK_STYLE), "Value");
+            Bind(highlightModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.PREPARED_FILTER_HIGHLIGHT), "Value");
+            Bind(arrowHeadsDropDownButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.ARROWHEADS), "Value",
                 NotNullValidator.GetInstance());
-            new BidirectionalBinding(counterUpDown, "Value", _surface, "CounterStart", DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance());
+            Bind(counterUpDown, "Value", _surface, "CounterStart", DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance());
+        }
+
+        private void Bind(INotifyPropertyChanged control, string controlPropertyName, INotifyPropertyChanged field, string fieldPropertyName,
+            IBindingValidator validator = null) =>
+            Bind(control, controlPropertyName, field, fieldPropertyName, null, validator);
+
+        private void Bind(INotifyPropertyChanged control, string controlPropertyName, INotifyPropertyChanged field, string fieldPropertyName,
+            IBindingConverter converter, IBindingValidator validator)
+        {
+            var binding = new BidirectionalBinding(control, controlPropertyName, field, fieldPropertyName, converter, validator);
+            try
+            {
+                binding.UpdateControl();
+            }
+            catch (Exception ex)
+            {
+                Log.Warn($"Couldn't show the value of {fieldPropertyName} in {controlPropertyName}", ex);
+            }
+
+            _fieldBindings.Add(binding);
         }
 
         /// <summary>
@@ -1928,12 +2407,18 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
         private void ToolBarFocusableElementGotFocus(object sender, EventArgs e)
         {
-            _surface.KeysLocked = true;
+            if (_surface != null)
+            {
+                _surface.KeysLocked = true;
+            }
         }
 
         private void ToolBarFocusableElementLostFocus(object sender, EventArgs e)
         {
-            _surface.KeysLocked = false;
+            if (_surface != null)
+            {
+                _surface.KeysLocked = false;
+            }
         }
 
         private void SaveElementsToolStripMenuItemClick(object sender, EventArgs e)
@@ -2300,7 +2785,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         private void ShrinkCanvasToolStripMenuItemClick(object sender, EventArgs e)
         {
             NativeRect cropRectangle;
-            using (Image tmpImage = GetImageForExport())
+            using (Image tmpImage = _surface.GetImageForExport())
             {
                 cropRectangle = ImageHelper.FindAutoCropRectangle(tmpImage, coreConfiguration.AutoCropDifference);
             }
@@ -2437,12 +2922,12 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
         private void AlignCanvasPositionAfterResize()
         {
-            if (Surface?.Image == null || panel1 == null)
+            if (_surface?.Image == null || panel1 == null)
             {
                 return;
             }
 
-            var canvas = Surface as Control;
+            Control canvas = _surface;
             Size canvasSize = canvas.Size;
             Size currentClientSize = panel1.ClientSize;
             Panel panel = (Panel)canvas?.Parent;
@@ -2478,7 +2963,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         /// </summary>
         private Size GetOptimalWindowSize()
         {
-            var surfaceSize = (Surface as Control).Size;
+            var surfaceSize = _surface.Size;
             var chromeSize = GetChromeSize();
             var newWidth = chromeSize.Width + surfaceSize.Width;
             var newHeight = chromeSize.Height + surfaceSize.Height;
@@ -2520,7 +3005,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
         private void ZoomInMenuItemClick(object sender, EventArgs e)
         {
-            var zoomValue = Surface.ZoomFactor;
+            var zoomValue = _surface.ZoomFactor;
             var nextIndex = Array.FindIndex(ZOOM_VALUES, v => v > zoomValue);
             var nextValue = nextIndex < 0 ? ZOOM_VALUES[ZOOM_VALUES.Length - 1] : ZOOM_VALUES[nextIndex];
 
@@ -2529,7 +3014,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
         private void ZoomOutMenuItemClick(object sender, EventArgs e)
         {
-            var zoomValue = Surface.ZoomFactor;
+            var zoomValue = _surface.ZoomFactor;
             var nextIndex = Array.FindLastIndex(ZOOM_VALUES, v => v < zoomValue);
             var nextValue = nextIndex < 0 ? ZOOM_VALUES[0] : ZOOM_VALUES[nextIndex];
 
@@ -2549,7 +3034,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             var maxWindowSize = GetAvailableScreenSpace();
             var chromeSize = GetChromeSize();
             var maxImageSize = maxWindowSize - chromeSize;
-            var imageSize = Surface.Image.Size;
+            var imageSize = _surface.Image.Size;
 
             static bool isFit(Fraction scale, int source, int boundary)
                 => (int)(source * scale) <= boundary;
@@ -2566,13 +3051,13 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
         private void ZoomSetValue(Fraction value)
         {
-            var surface = Surface as Surface;
+            var surface = _surface;
             if (surface?.Parent is not Panel panel)
             {
                 return;
             }
 
-            if (value == Surface.ZoomFactor)
+            if (value == surface.ZoomFactor)
             {
                 return;
             }
@@ -2580,7 +3065,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             // Store scroll position
             var rc = surface.GetVisibleRectangle(); // use visible rc by default
             var size = surface.Size;
-            if (value > Surface.ZoomFactor) // being smart on zoom-in
+            if (value > surface.ZoomFactor) // being smart on zoom-in
             {
                 var selection = surface.GetSelectionRectangle().Intersect(rc);
                 if (selection != NativeRect.Empty)
@@ -2607,20 +3092,10 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             var verticalCenter = 1.0 * (rc.Top + rc.Height / 2) / size.Height;
 
             // Set the new zoom value
-            Surface.ZoomFactor = value;
+            surface.ZoomFactor = value;
             Size = GetOptimalWindowSize();
             AlignCanvasPositionAfterResize();
-
-            // Update zoom controls
-            zoomStatusDropDownBtn.Text = ((int)(100 * (double)value)).ToString() + "%";
-            var valueString = value.ToString();
-            foreach (var item in zoomMenuStrip.Items)
-            {
-                if (item is ToolStripMenuItem menuItem)
-                {
-                    menuItem.Checked = menuItem.Tag as string == valueString;
-                }
-            }
+            UpdateZoomControls(value);
 
             // Restore scroll position
             rc = surface.GetVisibleRectangle();
@@ -2632,31 +3107,19 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         }
 
         /// <summary>
-        ///   Attempts to save the current surface state to the specified file path.
+        /// Show the zoom factor in the status bar and the zoom menu
         /// </summary>
-        /// <param name="filePath">The path to the file where the surface state will be saved. Must be a valid file path.</param>
-        /// <returns>true if the surface state was saved successfully; otherwise, false.</returns>
-        public bool TrySaveState(string filePath)
+        private void UpdateZoomControls(Fraction value)
         {
-            // Check if we even have a state
-            if (!_surface.Modified)
+            zoomStatusDropDownBtn.Text = ((int)(100 * (double)value)).ToString() + "%";
+            var valueString = value.ToString();
+            foreach (var item in zoomMenuStrip.Items)
             {
-                Close();
-                return false;
+                if (item is ToolStripMenuItem menuItem)
+                {
+                    menuItem.Checked = menuItem.Tag as string == valueString;
+                }
             }
-            try
-            {
-                ImageIO.Save(_surface, filePath, true, new SurfaceOutputSettings(WellKnownFileFormats.Greenshot), false);
-                // Make sure the user isn't asked to save
-                _surface.Modified = false;
-                Close();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"Error saving surface state to {filePath}", ex);
-            }
-            return false;
         }
 
         /// <summary>
@@ -2889,9 +3352,16 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             this.alignLeftToolStripMenuItem.Text = Texts.Editor.AlignLeft;
             this.alignCenterToolStripMenuItem.Text = Texts.Editor.AlignCenter;
             this.alignRightToolStripMenuItem.Text = Texts.Editor.AlignRight;
-            this.Text = _surface?.CaptureDetails?.Title != null
-                ? _surface.CaptureDetails.Title + " - " + Texts.Editor.Title
-                : Texts.Editor.Title;
+            this.closeTabToolStripMenuItem.Text = Texts.Editor.CloseTab;
+            tabStrip.NewTabText = Texts.Editor.NewImage;
+            if (SelectedTab != null)
+            {
+                ShowTabState(SelectedTab);
+            }
+            else
+            {
+                this.Text = Texts.Editor.Title;
+            }
         }
 
         /// <summary>
@@ -2953,7 +3423,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                     var item = new ToolStripMenuItem(menuText);
                     item.Click += (s, ev) =>
                     {
-                        trigger.Fire(this);
+                        trigger.Fire(SelectedTab);
                     };
 
                     parentItems.Add(item);

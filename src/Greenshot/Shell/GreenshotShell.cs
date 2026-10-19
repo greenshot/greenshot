@@ -481,7 +481,7 @@ namespace Greenshot.Shell
 
             // The editors first, before anything is stopped: the user can still keep Greenshot running
             // (cancel in the save question, or in the save dialog)
-            if (!await UiDispatcher.InvokeAsync(CloseEditors))
+            if (!await UiDispatcher.InvokeAsync(ImageEditorForm.CloseAllAsync))
             {
                 Log.Info("The exit was cancelled in an editor, Greenshot keeps running.");
                 Volatile.Write(ref _shutdownState, 0);
@@ -548,24 +548,6 @@ namespace Greenshot.Shell
             _namedPipeServer?.NotifyWatchersAsync(new { @event = "tools_changed" }).FireAndLog("Tell the watchers that the tools changed", Log);
         }
 #endif
-
-        /// <summary>
-        /// Close the editors like the user does, so each can ask to save its image (with cancel)
-        /// </summary>
-        /// <returns>false when an editor stays open: the user cancelled</returns>
-        private static bool CloseEditors()
-        {
-            foreach (var editor in Application.OpenForms.OfType<ImageEditorForm>().ToList())
-            {
-                editor.Close();
-                if (!editor.IsDisposed)
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
 
         /// <summary>
         /// The application ends without <see cref="ExitAsync"/>, e.g. at the end of the session: no time to wait for flows,

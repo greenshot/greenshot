@@ -317,6 +317,22 @@ namespace Greenshot.Settings.Views
         }
 
         /// <summary>
+        /// Choose the color of a new image in the editor
+        /// </summary>
+        private void NewImageColor_Click(object sender, RoutedEventArgs e)
+        {
+            var colorPicker = new Greenshot.Editor.Views.ColorPickerWindow
+            {
+                SelectedColor = _viewModel.NewImageColor,
+                Owner = this
+            };
+            if (colorPicker.ShowDialog() == true)
+            {
+                _viewModel.NewImageColor = colorPicker.SelectedColor;
+            }
+        }
+
+        /// <summary>
         /// Adds the size of the popup and closes it, a value which isn't a positive number keeps it open with that box focused
         /// </summary>
         private void AddFixedCaptureSize()
