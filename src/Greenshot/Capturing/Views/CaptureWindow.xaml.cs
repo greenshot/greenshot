@@ -48,6 +48,7 @@ using Dapplo.Windows.User32.Enums;
 using Greenshot.Base.Capturing;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Native;
 using Greenshot.Base.Interfaces.Capture;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Languages;
@@ -513,6 +514,11 @@ namespace Greenshot.Capturing.Views
             {
                 // The text needs a capture of the screen, T freezes it later
                 _activeTool = _regionTool;
+            }
+            if (initialTool == null && _activeTool == _regionTool && ScreenReader.IsRunning)
+            {
+                // A region can't be seen, a window is said by its title: start with window capture, Space still switches to the region
+                _activeTool = _windowTool;
             }
             _usedCaptureMode = _activeTool.Mode;
 
@@ -1161,6 +1167,9 @@ namespace Greenshot.Capturing.Views
                 Announce(Texts.Core.AccessibleCaptureWindowMode);
             }
         }
+
+        /// <inheritdoc />
+        protected override System.Windows.Automation.Peers.AutomationPeer OnCreateAutomationPeer() => new NotifyingWindowAutomationPeer(this);
 
         /// <summary>
         /// Let a screen reader say the text, without a visible change. The same text twice in a row is said once.

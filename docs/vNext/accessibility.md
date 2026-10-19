@@ -130,7 +130,9 @@ the selection size with `LiveRegion.Notify` (see `Announce` in `CaptureWindow.xa
 - Keys a screen reader needs (Insert, Caps Lock and keys held with them) are never swallowed.
 - Use the high contrast colors when `SystemParameters.HighContrast` is on.
 - Window capture selects the window under the cursor as soon as it starts, so a screen reader says its title without a mouse move.
-  Don't rely on the screen reader flag of Windows (`SPI_GETSCREENREADER`): applications leave it on, so it is no sign of a screen reader.
+- While the screen reader flag of Windows is on (`ScreenReader.IsRunning` in `Greenshot.Base/Native`), a region capture starts as
+  window capture. Applications can leave that flag on, so use it only for a default the user changes with one key (Space), never to
+  turn something off.
 
 ## Menus and lists to choose from
 

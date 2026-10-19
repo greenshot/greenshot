@@ -29,7 +29,7 @@ using System.Windows.Automation.Peers;
 using System.Windows.Automation.Provider;
 using System.Windows.Controls;
 using System.Windows.Interop;
-using System.Windows.Media;
+using log4net;
 
 namespace Greenshot.Base.Wpf
 {
@@ -40,6 +40,8 @@ namespace Greenshot.Base.Wpf
     /// </summary>
     public static class LiveRegion
     {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(LiveRegion));
+
         public static readonly DependencyProperty ModeProperty = DependencyProperty.RegisterAttached(
             "Mode", typeof(AutomationLiveSetting), typeof(LiveRegion), new PropertyMetadata(AutomationLiveSetting.Off, OnModeChanged));
 
@@ -63,27 +65,41 @@ namespace Greenshot.Base.Wpf
 
         /// <summary>
         /// Let a screen reader say a text which is in no element, e.g. what changed in a drawn window like the capture window.
-        /// A UI Automation notification of the window: a newer one with the same activity id replaces one which wasn't said yet.
-        /// WPF on .NET Framework has no RaiseNotificationEvent, so this calls UI Automation directly (Windows 10 1709 and newer).
+        /// A UI Automation notification: a newer one with the same activity id replaces one which wasn't said yet.
+        /// WPF on .NET Framework has no RaiseNotificationEvent, so this does what the newer WPF does there (Windows 10 1709 and newer):
+        /// UiaRaiseNotificationEvent with the WPF provider of the window's automation peer.
+        /// A window which calls this returns a <see cref="NotifyingWindowAutomationPeer"/> from OnCreateAutomationPeer.
         /// </summary>
-        /// <param name="element">An element in the window the text is about</param>
+        /// <param name="element">The element the text is about, e.g. the window</param>
         /// <param name="text">What to say</param>
         /// <param name="activityId">Groups the notifications, e.g. "GreenshotCapture"</param>
-        public static void Notify(Visual element, string text, string activityId)
+        public static void Notify(UIElement element, string text, string activityId)
         {
-            if (string.IsNullOrEmpty(text) || !(PresentationSource.FromVisual(element) is HwndSource source) || source.Handle == IntPtr.Zero)
+            if (string.IsNullOrEmpty(text) || element == null)
+            {
+                return;
+            }
+
+            var peer = UIElementAutomationPeer.FromElement(element) ?? UIElementAutomationPeer.CreatePeerForElement(element);
+            // The provider of the window's own peer, as WPF uses it; any other element gets the provider of its window handle
+            var provider = (peer as NotifyingWindowAutomationPeer)?.Provider;
+            if (provider == null && PresentationSource.FromVisual(element) is HwndSource source && source.Handle != IntPtr.Zero)
+            {
+                provider = AutomationInteropProvider.HostProviderFromHandle(source.Handle);
+            }
+            if (provider == null)
             {
                 return;
             }
 
             try
             {
-                var provider = AutomationInteropProvider.HostProviderFromHandle(source.Handle);
                 UiaRaiseNotificationEvent(provider, NotificationKindOther, NotificationProcessingImportantMostRecent, text, activityId);
             }
             catch (Exception ex) when (ex is EntryPointNotFoundException || ex is DllNotFoundException || ex is COMException)
             {
                 // Older Windows, or no UI Automation: nothing is said
+                Log.Debug($"No UI Automation notification: {ex.Message}");
             }
         }
 
