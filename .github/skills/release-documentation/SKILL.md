@@ -26,6 +26,10 @@ This skill defines the procedures, standards, and workflows for creating and mai
 
 Each stable release is appended as a new version section at the top of the relevant `CHANGELOG-<MAJOR>.<MINOR>.md` file, following the established format already used in that file (see, for example, the "Version 1.3.315" entry). Do not restructure or replace prior entries.
 
+### Release Version Number
+
+When preparing a changelog before its release-notes commit is made, account for that commit increasing the build number once. Determine the version currently shown by the release branch, add **1** to its final/build-number component, and use that adjusted version as the target release version everywhere the changelog names the release (including its version heading and version-specific links). Do not add 1 again when the release version has already been explicitly confirmed as the target version or is already published.
+
 ### Content Structure
 
 A release's changelog entry is a single bullet list, grouped under short thematic headings, with one bullet per shipped feature or bug fix. Typical headings, used only when relevant content exists (omit empty ones, and add others as needed):
@@ -134,6 +138,7 @@ Do not mention changes that do not affect shipped software, including GitHub wor
 Before completing documentation work:
 - [ ] All text is written in clean, natural English.
 - [ ] No intermediate/continuous builds were documented as standalone changelog entries or blog posts.
+- [ ] When preparing release notes before their commit, the changelog uses the target release version with 1 added to the current branch's final/build-number component.
 - [ ] Only shipped-software or user-visible distribution changes are included.
 - [ ] Repository-only changes such as workflows, documentation, agents, skills, and CI maintenance are excluded.
 - [ ] The changelog entry is a single bullet list, grouped under short thematic headings — no separate technical document.
