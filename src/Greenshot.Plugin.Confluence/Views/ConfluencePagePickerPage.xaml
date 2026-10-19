@@ -8,7 +8,7 @@
         <!-- The page title for a screen reader, the item has no ToString -->
         <ListView.ItemContainerStyle>
             <Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">
-                <Setter Property="AutomationProperties.Name" Value="{Binding Title}"/>
+                <Setter Property="AutomationProperties.Name" Value="{Binding Title, TargetNullValue=''}"/>
             </Style>
         </ListView.ItemContainerStyle>
         <ListView.ItemTemplate>

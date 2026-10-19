@@ -227,7 +227,7 @@
                     </Grid.ColumnDefinitions>
                     <!-- Where the user is: one dot per step, nothing to choose, so no tab stop: a screen reader hears "Step 2 of 5" with the step (see FocusStep) -->
                     <ItemsControl x:Name="StepIndicator" Grid.Column="0" ItemsSource="{Binding StepDots}" VerticalAlignment="Center"
-                                  AutomationProperties.Name="{Binding StepText}" Focusable="False" KeyboardNavigation.IsTabStop="False">
+                                  AutomationProperties.Name="{Binding StepText, TargetNullValue=''}" Focusable="False" KeyboardNavigation.IsTabStop="False">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <StackPanel Orientation="Horizontal"/>

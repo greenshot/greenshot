@@ -69,7 +69,7 @@
                     <!-- Caption Buttons: Theme Toggle & Close -->
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
                         <Button Style="{StaticResource TitleBarButtonStyle}" Click="OnThemeToggleClicked" ToolTip="{Binding ThemeToggleToolTip}"
-                                AutomationProperties.Name="{Binding ThemeToggleToolTip}">
+                                AutomationProperties.Name="{Binding ThemeToggleToolTip, TargetNullValue=''}">
                             <TextBlock Text="{Binding ThemeToggleIcon}" FontSize="{wpf:FontSize 13}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                         </Button>
                         <Button Style="{StaticResource TitleCloseButtonStyle}" Click="CloseButton_Click" ToolTip="{Binding CloseButtonToolTip}"/>
@@ -116,7 +116,7 @@
                                     MaxHeight="125" Cursor="Hand"
                                     Click="Thumbnail_Click"
                                     ToolTip="{Binding ClickToPreviewTooltip}"
-                                    AutomationProperties.Name="{Binding ClickToPreviewTooltip}"
+                                    AutomationProperties.Name="{Binding ClickToPreviewTooltip, TargetNullValue=''}"
                                     FocusVisualStyle="{StaticResource GreenshotFocusVisual}"
                                     Visibility="{Binding ThumbnailVisibility}">
                                 <Button.Template>
@@ -150,7 +150,7 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Button Style="{StaticResource ToolboxButtonStyle}" Click="DestinationTile_Click" Tag="{Binding}"
-                                                AutomationProperties.Name="{Binding Title}" AutomationProperties.ItemStatus="{Binding BadgeText}">
+                                                AutomationProperties.Name="{Binding Title, TargetNullValue=''}" AutomationProperties.ItemStatus="{Binding BadgeText, TargetNullValue=''}">
                                             <Grid HorizontalAlignment="Stretch">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto"/>
@@ -241,7 +241,7 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Button Style="{StaticResource ToolboxButtonStyle}" Click="DestinationTile_Click" Tag="{Binding}"
-                                                AutomationProperties.Name="{Binding Title}" AutomationProperties.ItemStatus="{Binding BadgeText}">
+                                                AutomationProperties.Name="{Binding Title, TargetNullValue=''}" AutomationProperties.ItemStatus="{Binding BadgeText, TargetNullValue=''}">
                                             <Grid HorizontalAlignment="Stretch">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto"/>
@@ -289,12 +289,12 @@
                                 <ComboBox Grid.Column="0" ItemsSource="{Binding AvailableRecipes}"
                                           SelectedItem="{Binding SelectedRecipe}"
                                           DisplayMemberPath="Name" Margin="0,0,8,0"
-                                          AutomationProperties.Name="{Binding ForwardToRecipeHeaderText}"
+                                          AutomationProperties.Name="{Binding ForwardToRecipeHeaderText, TargetNullValue=''}"
                                           Style="{StaticResource DefaultComboBoxStyle}">
                                     <ComboBox.ItemContainerStyle>
                                         <!-- The recipe name instead of the class name for screen readers -->
                                         <Style TargetType="ComboBoxItem" BasedOn="{StaticResource DefaultComboBoxItemStyle}">
-                                            <Setter Property="AutomationProperties.Name" Value="{Binding Name}"/>
+                                            <Setter Property="AutomationProperties.Name" Value="{Binding Name, TargetNullValue=''}"/>
                                         </Style>
                                     </ComboBox.ItemContainerStyle>
                                 </ComboBox>

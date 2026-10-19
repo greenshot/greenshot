@@ -43,8 +43,8 @@
             <Setter Property="Padding" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <!-- Without a name a screen reader reads the view model class name, the badge is the status of the section -->
-            <Setter Property="AutomationProperties.Name" Value="{Binding Title}"/>
-            <Setter Property="AutomationProperties.ItemStatus" Value="{Binding BadgeText}"/>
+            <Setter Property="AutomationProperties.Name" Value="{Binding Title, TargetNullValue=''}"/>
+            <Setter Property="AutomationProperties.ItemStatus" Value="{Binding BadgeText, TargetNullValue=''}"/>
             <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
             <Setter Property="Foreground" Value="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
             <Setter Property="Template">
@@ -89,8 +89,8 @@
             <Setter Property="Padding" Value="4,5"/>
             <Setter Property="Margin" Value="0,1"/>
             <!-- The checksum rows: file name and status instead of the view model class name -->
-            <Setter Property="AutomationProperties.Name" Value="{Binding RelativePath}"/>
-            <Setter Property="AutomationProperties.ItemStatus" Value="{Binding StatusText}"/>
+            <Setter Property="AutomationProperties.Name" Value="{Binding RelativePath, TargetNullValue=''}"/>
+            <Setter Property="AutomationProperties.ItemStatus" Value="{Binding StatusText, TargetNullValue=''}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="Background" Value="Transparent"/>
@@ -912,8 +912,8 @@
                                         <ListBox.ItemContainerStyle>
                                             <Style TargetType="ListBoxItem">
                                                 <!-- Read the event instead of the class name -->
-                                                <Setter Property="AutomationProperties.Name" Value="{Binding Message}"/>
-                                                <Setter Property="AutomationProperties.HelpText" Value="{Binding ProcessDetails}"/>
+                                                <Setter Property="AutomationProperties.Name" Value="{Binding Message, TargetNullValue=''}"/>
+                                                <Setter Property="AutomationProperties.HelpText" Value="{Binding ProcessDetails, TargetNullValue=''}"/>
                                                 <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
                                             </Style>
                                         </ListBox.ItemContainerStyle>

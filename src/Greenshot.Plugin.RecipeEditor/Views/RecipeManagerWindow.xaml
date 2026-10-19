@@ -38,7 +38,7 @@
 
                                     <!-- Active / Deactivate Toggle Switch -->
                                     <StackPanel Grid.Column="0" Margin="0,0,14,0" VerticalAlignment="Center" Width="85" HorizontalAlignment="Center">
-                                        <Button Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ToggleActiveCommand}" AutomationProperties.Name="{Binding StatusBadgeText}"
+                                        <Button Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ToggleActiveCommand}" AutomationProperties.Name="{Binding StatusBadgeText, TargetNullValue=''}"
                                                 Padding="6,4" HorizontalAlignment="Stretch" ToolTip="{ui:Text RecipeEditor.ManagerToggleActiveTooltip}">
                                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                                 <Ellipse Width="8" Height="8" Margin="0,0,5,0" VerticalAlignment="Center"

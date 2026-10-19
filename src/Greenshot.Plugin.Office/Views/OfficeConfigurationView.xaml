@@ -53,7 +53,7 @@
                 <!-- The application's name for a screen reader, the item has no ToString -->
                 <ListBox.ItemContainerStyle>
                     <Style TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
-                        <Setter Property="AutomationProperties.Name" Value="{Binding Title}"/>
+                        <Setter Property="AutomationProperties.Name" Value="{Binding Title, TargetNullValue=''}"/>
                     </Style>
                 </ListBox.ItemContainerStyle>
                 <ListBox.ItemTemplate>

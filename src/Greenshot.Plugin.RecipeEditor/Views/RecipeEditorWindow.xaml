@@ -471,7 +471,7 @@
             <!-- Nodify moves the keyboard focus between the steps with the arrow keys, the frame shows which one has it -->
             <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
             <!-- Screen readers announce the step by its title instead of the view model's class name -->
-            <Setter Property="AutomationProperties.Name" Value="{Binding DisplayName}"/>
+            <Setter Property="AutomationProperties.Name" Value="{Binding DisplayName, TargetNullValue=''}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type nodify:ItemContainer}">
@@ -498,13 +498,13 @@
 
         <!-- Names for the items of the combo boxes with objects (without them screen readers announce the class name) -->
         <Style x:Key="RecipeComboItemStyle" TargetType="ComboBoxItem" BasedOn="{StaticResource DefaultComboBoxItemStyle}">
-            <Setter Property="AutomationProperties.Name" Value="{Binding Name}"/>
+            <Setter Property="AutomationProperties.Name" Value="{Binding Name, TargetNullValue=''}"/>
         </Style>
         <Style x:Key="FileFormatComboItemStyle" TargetType="ComboBoxItem" BasedOn="{StaticResource DefaultComboBoxItemStyle}">
-            <Setter Property="AutomationProperties.Name" Value="{Binding DisplayNameWithPreferredExtension}"/>
+            <Setter Property="AutomationProperties.Name" Value="{Binding DisplayNameWithPreferredExtension, TargetNullValue=''}"/>
         </Style>
         <Style x:Key="ChoiceKeyComboItemStyle" TargetType="ComboBoxItem" BasedOn="{StaticResource DefaultComboBoxItemStyle}">
-            <Setter Property="AutomationProperties.Name" Value="{Binding Key}"/>
+            <Setter Property="AutomationProperties.Name" Value="{Binding Key, TargetNullValue=''}"/>
         </Style>
         </ResourceDictionary>
     </Window.Resources>
@@ -564,7 +564,7 @@
                             </ComboBox>
 
                             <!-- Quick Active / Deactivate Toggle for Selected Recipe -->
-                            <Button Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ToggleActiveRecipeEnabledCommand}" AutomationProperties.Name="{Binding ActiveRecipeStatusText}"
+                            <Button Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ToggleActiveRecipeEnabledCommand}" AutomationProperties.Name="{Binding ActiveRecipeStatusText, TargetNullValue=''}"
                                     ToolTip="{wpf:Text RecipeEditor.TipToggleRecipeActive}" Margin="0,0,6,0" Padding="8,4">
                                 <StackPanel Orientation="Horizontal">
                                     <Ellipse Width="7" Height="7" Margin="0,0,5,0" VerticalAlignment="Center"
@@ -574,7 +574,7 @@
                             </Button>
 
                             <!-- Quick Unload button if custom or overridden -->
-                            <Button Style="{StaticResource SecondaryButtonStyle}" Command="{Binding UnloadActiveRecipeCommand}" AutomationProperties.Name="{Binding UnloadActiveRecipeText}"
+                            <Button Style="{StaticResource SecondaryButtonStyle}" Command="{Binding UnloadActiveRecipeCommand}" AutomationProperties.Name="{Binding UnloadActiveRecipeText, TargetNullValue=''}"
                                     Visibility="{Binding CanUnloadActiveRecipe, Converter={StaticResource BoolToVis}}"
                                     ToolTip="{Binding UnloadActiveRecipeToolTip}" Margin="0,0,6,0" Padding="8,4">
                                 <TextBlock Text="{Binding UnloadActiveRecipeText}" FontSize="{wpf:FontSize 10}"/>
@@ -2100,7 +2100,7 @@
                                                                                     BorderBrush="{Binding DataContext.CardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}" BorderThickness="1"
                                                                                     Background="{Binding FillColor, Converter={StaticResource StringToBrushConv}}" ToolTip="{wpf:Text RecipeEditor.ClickPickColor}"
                                                                                     Command="{Binding PickFillColorCommand}" AutomationProperties.Name="{wpf:Text RecipeEditor.PickColor}"/>
-                                                                            <TextBox AutomationProperties.Name="{Binding FillColorLabel}" Grid.Column="2" Text="{Binding FillColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" FontSize="{wpf:FontSize 11}"
+                                                                            <TextBox AutomationProperties.Name="{Binding FillColorLabel, TargetNullValue=''}" Grid.Column="2" Text="{Binding FillColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" FontSize="{wpf:FontSize 11}"
                                                                                      Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                                      Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                                      VerticalContentAlignment="Center" Padding="4,2"/>
@@ -2118,7 +2118,7 @@
                                                                                     BorderBrush="{Binding DataContext.CardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}" BorderThickness="1"
                                                                                     Background="{Binding LineColor, Converter={StaticResource StringToBrushConv}}" ToolTip="{wpf:Text RecipeEditor.ClickPickColor}"
                                                                                     Command="{Binding PickLineColorCommand}" AutomationProperties.Name="{wpf:Text RecipeEditor.PickColor}"/>
-                                                                            <TextBox AutomationProperties.Name="{Binding LineColorLabel}" Grid.Column="2" Text="{Binding LineColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" FontSize="{wpf:FontSize 11}"
+                                                                            <TextBox AutomationProperties.Name="{Binding LineColorLabel, TargetNullValue=''}" Grid.Column="2" Text="{Binding LineColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" FontSize="{wpf:FontSize 11}"
                                                                                      Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                                      Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                                      VerticalContentAlignment="Center" Padding="4,2"/>
@@ -3156,7 +3156,7 @@
                                             <ItemsControl ItemsSource="{Binding Nodes}">
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate>
-                                                        <CheckBox IsChecked="{Binding IsStartNode, Mode=TwoWay}" AutomationProperties.Name="{Binding DisplayName}" Margin="0,3" Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}">
+                                                        <CheckBox IsChecked="{Binding IsStartNode, Mode=TwoWay}" AutomationProperties.Name="{Binding DisplayName, TargetNullValue=''}" Margin="0,3" Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}">
                                                             <StackPanel Orientation="Horizontal">
                                                                 <TextBlock Text="{Binding StepType, Converter={StaticResource StepIconConv}}" FontSize="{wpf:FontSize 11}" Margin="0,0,6,0"/>
                                                                 <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" FontSize="{wpf:FontSize 11}"/>

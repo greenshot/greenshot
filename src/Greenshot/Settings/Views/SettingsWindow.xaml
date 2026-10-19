@@ -597,7 +597,7 @@
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
-                                                              AutomationProperties.Name="{Binding Description}"
+                                                              AutomationProperties.Name="{Binding Description, TargetNullValue=''}"
                                                               IsEnabled="{Binding DataContext.PickerSelected, RelativeSource={RelativeSource AncestorType=ListView}, Converter={StaticResource InverseBooleanConverter}}"/>
                                                 </DataTemplate>
                                             </GridViewColumn.CellTemplate>
@@ -841,32 +841,32 @@
                                                                 <StackPanel Grid.Column="1" Orientation="Horizontal"
                                                                             Visibility="{Binding IsNumber, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                     <TextBox Width="60" Text="{Binding TextValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
-                                                                             AutomationProperties.Name="{Binding Label}"/>
+                                                                             AutomationProperties.Name="{Binding Label, TargetNullValue=''}"/>
                                                                     <TextBlock Text="{Binding RangeText}" Margin="8,0,0,0" VerticalAlignment="Center"
                                                                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                                                                 </StackPanel>
                                                                 <!-- Text -->
                                                                 <TextBox Grid.Column="1" Text="{Binding TextValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
-                                                                         AutomationProperties.Name="{Binding Label}"
+                                                                         AutomationProperties.Name="{Binding Label, TargetNullValue=''}"
                                                                          Visibility="{Binding IsText, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                                                 <!-- Choice -->
                                                                 <ComboBox Grid.Column="1" HorizontalAlignment="Left" MinWidth="140"
                                                                           ItemsSource="{Binding Choices}" DisplayMemberPath="DisplayLabel"
                                                                           SelectedItem="{Binding SelectedChoice, Mode=TwoWay}"
-                                                                          AutomationProperties.Name="{Binding Label}"
+                                                                          AutomationProperties.Name="{Binding Label, TargetNullValue=''}"
                                                                           Visibility="{Binding IsEnum, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                                                 <!-- Color: the swatch opens the color picker, the text can be typed -->
                                                                 <StackPanel Grid.Column="1" Orientation="Horizontal"
                                                                             Visibility="{Binding IsColor, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                     <Button Width="28" Height="22" Padding="0" VerticalAlignment="Center" Click="RecipeOptionColor_Click"
-                                                                            AutomationProperties.Name="{Binding Label}"
+                                                                            AutomationProperties.Name="{Binding Label, TargetNullValue=''}"
                                                                             AutomationProperties.HelpText="{wpf:Text Core.AccessibleChooseColor}"
                                                                             ToolTip="{wpf:Text Core.AccessibleChooseColor}">
                                                                         <Border Width="20" Height="12" Background="{Binding ColorBrush}" BorderThickness="1"
                                                                                 BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
                                                                     </Button>
                                                                     <TextBox Width="80" Margin="6,1,0,1" Text="{Binding TextValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
-                                                                             AutomationProperties.Name="{Binding Label}"/>
+                                                                             AutomationProperties.Name="{Binding Label, TargetNullValue=''}"/>
                                                                 </StackPanel>
                                                             </Grid>
                                                         </DataTemplate>

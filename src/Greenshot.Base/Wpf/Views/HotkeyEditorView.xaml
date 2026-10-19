@@ -165,7 +165,7 @@
                                                     Padding="8,4"
                                                     Cursor="Hand"
                                                     Command="{Binding SelectCommand}"
-                                                    AutomationProperties.Name="{Binding AccessibleName}"
+                                                    AutomationProperties.Name="{Binding AccessibleName, TargetNullValue=''}"
                                                     FocusVisualStyle="{StaticResource GreenshotFocusVisual}">
                                                 <Button.Template>
                                                     <ControlTemplate TargetType="Button">

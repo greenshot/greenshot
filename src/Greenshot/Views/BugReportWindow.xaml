@@ -291,7 +291,7 @@
                                 <Button Grid.Column="1"
                                         Style="{StaticResource SecondaryTextButtonStyle}"
                                         Click="OnCopyReportClicked"
-                                        AutomationProperties.Name="{Binding CopyButtonText}">
+                                        AutomationProperties.Name="{Binding CopyButtonText, TargetNullValue=''}">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="📋 " Margin="0,0,4,0"/>
                                         <TextBlock Text="{Binding CopyButtonText}"/>

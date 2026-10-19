@@ -74,7 +74,7 @@
                     <!-- The command's name for a screen reader, the item has no ToString -->
                     <ListBox.ItemContainerStyle>
                         <Style TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
-                            <Setter Property="AutomationProperties.Name" Value="{Binding Name}"/>
+                            <Setter Property="AutomationProperties.Name" Value="{Binding Name, TargetNullValue=''}"/>
                         </Style>
                     </ListBox.ItemContainerStyle>
                     <ListBox.ItemTemplate>

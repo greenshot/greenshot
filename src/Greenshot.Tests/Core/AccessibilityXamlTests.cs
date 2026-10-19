@@ -62,6 +62,7 @@ namespace Greenshot.Tests.Core
         private static readonly Regex Word = new(@"\p{L}{2,}");
         private static readonly Regex FixedFontSize = new(@"FontSize=""\d|Property=""FontSize""\s+Value=""\d");
         private static readonly Regex PlainSlider = new(@"<Slider[\s>]");
+        private static readonly Regex AutomationTextBinding = new(@"AutomationProperties\.(Name|HelpText|ItemStatus|ItemType|AcceleratorKey|AccessKey|AutomationId)(=""|""\s+Value="")\{Binding[^""]*""");
         private static readonly Regex HiddenFocus = new(@"FocusVisualStyle=""\{x:Null\}""|Property=""FocusVisualStyle""\s+Value=""\{x:Null\}""");
 
         [Fact]
@@ -76,6 +77,14 @@ namespace Greenshot.Tests.Core
         {
             // Use GreenshotFocusVisual (FocusStyles.xaml) instead of switching the focus frame off
             AssertNoProblems(XamlLines().Where(l => HiddenFocus.IsMatch(l.Text)).Select(l => $"{l.Location}: {l.Text.Trim()}"));
+        }
+
+        [Fact]
+        public void AutomationTexts_AreNeverNull()
+        {
+            // The text properties of AutomationProperties refuse null: a binding to null fails (a binding error in the log), TargetNullValue='' doesn't
+            AssertNoProblems(XamlLines()
+                .SelectMany(l => AutomationTextBinding.Matches(l.Text).Cast<Match>().Where(m => !m.Value.Contains("TargetNullValue")).Select(m => $"{l.Location}: {m.Value}")));
         }
 
         [Fact]

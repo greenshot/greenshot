@@ -49,7 +49,7 @@
                     <ComboBox.ItemContainerStyle>
                         <!-- A screen reader says the language instead of the class name of the item -->
                         <Style TargetType="ComboBoxItem" BasedOn="{StaticResource DefaultComboBoxItemStyle}">
-                            <Setter Property="AutomationProperties.Name" Value="{Binding DisplayName}"/>
+                            <Setter Property="AutomationProperties.Name" Value="{Binding DisplayName, TargetNullValue=''}"/>
                         </Style>
                     </ComboBox.ItemContainerStyle>
                 </ComboBox>

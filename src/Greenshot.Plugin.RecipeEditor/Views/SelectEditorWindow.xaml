@@ -71,7 +71,7 @@
                                     <!-- The template draws no focus, the shared frame shows the keyboard focus -->
                                     <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
                                     <!-- Screen readers announce the editor's title instead of the class name -->
-                                    <Setter Property="AutomationProperties.Name" Value="{Binding Title}"/>
+                                    <Setter Property="AutomationProperties.Name" Value="{Binding Title, TargetNullValue=''}"/>
                                     <Setter Property="Template">
                                         <Setter.Value>
                                             <ControlTemplate TargetType="ListBoxItem">

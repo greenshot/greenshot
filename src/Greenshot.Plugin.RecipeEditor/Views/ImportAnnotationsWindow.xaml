@@ -136,7 +136,7 @@
                                     </Grid.ColumnDefinitions>
 
                                     <!-- Checkbox -->
-                                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" AutomationProperties.Name="{Binding}" Click="OnItemSelectionChanged" VerticalAlignment="Center"/>
+                                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" AutomationProperties.Name="{Binding TargetNullValue=''}" Click="OnItemSelectionChanged" VerticalAlignment="Center"/>
 
                                     <!-- Type Badge -->
                                     <Border Grid.Column="1" Background="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.BadgeBackground}"

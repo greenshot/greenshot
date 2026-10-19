@@ -239,7 +239,7 @@
                     <!-- Self-Service & Diagnostics Button -->
                     <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                         <Button Style="{StaticResource SecondaryButtonStyle}"
-                                AutomationProperties.Name="{Binding SelfServiceButtonText}"
+                                AutomationProperties.Name="{Binding SelfServiceButtonText, TargetNullValue=''}"
                                 Click="OnOpenSelfServiceClicked"
                                 ToolTip="{Binding SelfServiceButtonToolTip}">
                             <StackPanel Orientation="Horizontal">

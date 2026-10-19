@@ -50,7 +50,7 @@
                     <DataTemplate>
                         <!-- A screen reader says the name of the emoji character itself -->
                         <Button Background="Transparent" BorderBrush="Transparent" FocusVisualStyle="{StaticResource EmojiFocusVisual}"
-                                AutomationProperties.Name="{Binding Text}"
+                                AutomationProperties.Name="{Binding Text, TargetNullValue=''}"
                                 Margin="0" Click="OnEmojiPicked"
                                 Width="40" Height="40">
                             <emoji:EmojiControl Height="24" Emoji="{Binding Path=Text}"  />
@@ -64,7 +64,7 @@
             <!-- A plain button: a toggle button would be read as "off". With variations a click opens them, see OnEmojiPicked -->
             <Button Width="40" Height="40" Margin="0" Padding="2"
                           Background="Transparent" BorderBrush="Transparent" FocusVisualStyle="{StaticResource EmojiFocusVisual}"
-                          AutomationProperties.Name="{Binding Text}"
+                          AutomationProperties.Name="{Binding Text, TargetNullValue=''}"
                           Click="OnEmojiPicked" >
                 <Grid>
                     <emoji:EmojiControl Height="24" Margin="4" Emoji="{Binding Path=Text}" 
@@ -95,7 +95,7 @@
                 <TabControl ItemsSource="{Binding EmojiGroups, ElementName=StackPanel_INTERNAL}" Padding="0">
                     <TabControl.ItemContainerStyle>
                         <Style TargetType="TabItem">
-                            <Setter Property="AutomationProperties.Name" Value="{Binding Name}"/>
+                            <Setter Property="AutomationProperties.Name" Value="{Binding Name, TargetNullValue=''}"/>
                         </Style>
                     </TabControl.ItemContainerStyle>
                     <TabControl.ItemTemplate>

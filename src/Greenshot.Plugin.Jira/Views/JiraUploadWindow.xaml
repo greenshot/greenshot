@@ -58,7 +58,7 @@
                             <GridViewColumn Header="{wpf:Text Jira.ColumnIssueType}" Width="44">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Image Source="{Binding Icon}" Width="16" Height="16" ToolTip="{Binding IssueType}" AutomationProperties.Name="{Binding IssueType}"/>
+                                        <Image Source="{Binding Icon}" Width="16" Height="16" ToolTip="{Binding IssueType}" AutomationProperties.Name="{Binding IssueType, TargetNullValue=''}"/>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>

@@ -599,7 +599,7 @@
                         <!-- JSON Content Text Box -->
                         <TextBox x:Name="JsonTextBox"
                                  Grid.Row="1" 
-                                 AutomationProperties.Name="{Binding OverlayTitle}"
+                                 AutomationProperties.Name="{Binding OverlayTitle, TargetNullValue=''}"
                                  Text="{Binding RecipeJsonContent, Mode=OneWay}"
                                  FontFamily="Consolas, Courier New" FontSize="{wpf:FontSize 12}"
                                  Background="{Binding WindowBackgroundBrush}" 

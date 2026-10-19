@@ -58,6 +58,8 @@ It applies to people and to AI coding assistants alike: new UI is not done until
 
 ### Announcements
 
+- Bind an `AutomationProperties` text with `TargetNullValue=''`: these properties refuse null, a binding to a null value fails
+  with a binding error in the log.
 - Status lines, errors, search results and progress use the `LiveRegion` attached property (`Greenshot.Base/Wpf/LiveRegion.cs`):
   `wpf:LiveRegion.Mode="Polite"` (or `Assertive` for an error that blocks the user). It sets `AutomationProperties.LiveSetting` and raises
   the event a screen reader listens for whenever the text changes.
@@ -159,6 +161,7 @@ When you add a tool or a mode:
 | `FontSizes_FollowTheWindowsTextSize` | a `FontSize` is a number instead of `{wpf:FontSize N}` |
 | `KeyboardFocus_IsNeverHidden` | `FocusVisualStyle` is set to `{x:Null}` |
 | `Sliders_SayTheValueTheyShow` | a plain `Slider` is used instead of `wpf:ValueSlider` |
+| `AutomationTexts_AreNeverNull` | an `AutomationProperties` text (Name, HelpText, ItemStatus, ...) is bound without `TargetNullValue=''` |
 | `ButtonsWithoutText_HaveAnAccessibleName` | a `Button`, `ToggleButton` or `RepeatButton` shows no text and has no `AutomationProperties.Name` or `LabeledBy` |
 | `Texts_ComeFromTheLanguagePacks` | `Text`, `Content`, `Header`, `ToolTip`, `Title` or an accessible name is literal text instead of `{wpf:Text …}` (links, "Greenshot" and glyphs are fine) |
 
