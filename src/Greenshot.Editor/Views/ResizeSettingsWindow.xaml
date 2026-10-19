@@ -7,6 +7,7 @@
         Width="440"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
+        PreviewKeyDown="ResizeSettingsWindow_PreviewKeyDown"
         Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"
         Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
         WindowStyle="None"
@@ -101,7 +102,8 @@
                            Text="{wpf:Text Editor.ResizeWidth}"
                            VerticalAlignment="Center" Margin="0,6"
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                <TextBox Grid.Row="0" Grid.Column="1" x:Name="WidthTextBox" AutomationProperties.LabeledBy="{Binding ElementName=WidthLabel}" Margin="0,6,8,6"/>
+                <TextBox Grid.Row="0" Grid.Column="1" x:Name="WidthTextBox" AutomationProperties.LabeledBy="{Binding ElementName=WidthLabel}" Margin="0,6,8,6" MaxLength="10"
+                         PreviewMouseWheel="DimensionTextBox_PreviewMouseWheel"/>
                 <ComboBox Grid.Row="0" Grid.Column="2" x:Name="WidthUnitComboBox" AutomationProperties.LabeledBy="{Binding ElementName=WidthLabel}" Margin="0,6"/>
 
                 <!-- Height -->
@@ -109,7 +111,8 @@
                            Text="{wpf:Text Editor.ResizeHeight}"
                            VerticalAlignment="Center" Margin="0,6"
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                <TextBox Grid.Row="1" Grid.Column="1" x:Name="HeightTextBox" AutomationProperties.LabeledBy="{Binding ElementName=HeightLabel}" Margin="0,6,8,6"/>
+                <TextBox Grid.Row="1" Grid.Column="1" x:Name="HeightTextBox" AutomationProperties.LabeledBy="{Binding ElementName=HeightLabel}" Margin="0,6,8,6" MaxLength="10"
+                         PreviewMouseWheel="DimensionTextBox_PreviewMouseWheel"/>
                 <ComboBox Grid.Row="1" Grid.Column="2" x:Name="HeightUnitComboBox" AutomationProperties.LabeledBy="{Binding ElementName=HeightLabel}" Margin="0,6"/>
 
                 <!-- Maintain Aspect Ratio -->
@@ -127,6 +130,7 @@
                     Padding="16,10">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Content="{wpf:Text Core.Ok}" 
+                            x:Name="OkButton"
                             Style="{StaticResource PrimaryButtonStyle}"
                             IsDefault="True"
                             Width="80"
