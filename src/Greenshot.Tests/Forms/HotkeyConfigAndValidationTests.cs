@@ -143,7 +143,8 @@ namespace Greenshot.Tests.Forms
                     Assert.True(Greenshot.Base.Wpf.ThemeManager.Instance.IsDarkTheme);
                     Assert.NotNull(modal.Resources[typeof(System.Windows.Controls.GroupBox)]);
                     Assert.NotNull(modal.Resources[typeof(System.Windows.Controls.ComboBox)]);
-                    Assert.NotNull(modal.Resources[typeof(System.Windows.Controls.ComboBoxItem)]);
+                    // Since the global ComboBox style the items get theirs through ItemContainerStyle, there is no implicit ComboBoxItem style
+                    Assert.NotNull(modal.Resources["DefaultComboBoxItemStyle"]);
                     Assert.NotNull(modal.Resources[typeof(System.Windows.Controls.CheckBox)]);
                     Assert.Equal(System.Windows.Visibility.Visible, modal.Visibility);
 
