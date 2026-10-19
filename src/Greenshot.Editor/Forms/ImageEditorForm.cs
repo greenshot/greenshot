@@ -29,6 +29,7 @@ using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Windows.Forms;
+using System.Windows.Interop;
 using Dapplo.Ini;
 using Dapplo.Windows.Clipboard;
 using Dapplo.Windows.Common.Extensions;
@@ -3200,16 +3201,21 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
         private void RemoveTransparencyToolStripMenuItemClick(object sender, EventArgs e)
         {
-            var colorDialog = new ColorDialog
+            var colorPickerWindow = new ColorPickerWindow
             {
-                Color = Color.White
+                SelectedColor = Color.White
             };
 
-            if (colorDialog.ShowDialog(this) == DialogResult.OK)
+            new WindowInteropHelper(colorPickerWindow)
+            {
+                Owner = Handle
+            };
+
+            if (colorPickerWindow.ShowDialog() == true)
             {
                 var removeTransparencyEffect = new RemoveTransparencyEffect
                 {
-                    Color = colorDialog.Color
+                    Color = colorPickerWindow.SelectedColor
                 };
                 ApplyEffect(removeTransparencyEffect);
             }

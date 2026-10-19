@@ -436,6 +436,11 @@ namespace Greenshot.Base.Languages
         string ColorpickerTransparent { get; }
 
         /// <summary>
+        /// Color under the mouse cursor
+        /// </summary>
+        string ColorpickerUnderCursor { get; }
+
+        /// <summary>
         /// The destination {0} rejected Greenshot access, probably a dialog is open. Close the dialog and try again.
         /// </summary>
         string ComRejected { get; }
