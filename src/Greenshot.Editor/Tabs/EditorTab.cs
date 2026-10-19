@@ -189,7 +189,7 @@ namespace Greenshot.Editor.Tabs
         {
             if (!Surface.Modified)
             {
-                Window.CloseTab(this, askToSave: false);
+                Window.CloseTab(this);
                 return false;
             }
 
@@ -198,7 +198,7 @@ namespace Greenshot.Editor.Tabs
                 ImageIO.Save(Surface, filePath, true, new SurfaceOutputSettings(WellKnownFileFormats.Greenshot), false);
                 // Make sure the user isn't asked to save
                 Surface.Modified = false;
-                Window.CloseTab(this, askToSave: false);
+                Window.CloseTab(this);
                 return true;
             }
             catch (Exception ex)

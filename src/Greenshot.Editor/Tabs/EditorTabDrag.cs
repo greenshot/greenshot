@@ -215,7 +215,7 @@ namespace Greenshot.Editor.Tabs
         {
             var sourceWindow = _sourceStrip.Window;
             var candidates = ImageEditorForm.OpenWindows
-                .Where(window => window != sourceWindow && window.Visible && window.WindowState != FormWindowState.Minimized
+                .Where(window => window != sourceWindow && !window.IsClosing && window.Visible && window.WindowState != FormWindowState.Minimized
                                  && window.TabStrip.IsNear(window.TabStrip.PointToClient(location)))
                 .ToList();
             if (candidates.Count == 0)

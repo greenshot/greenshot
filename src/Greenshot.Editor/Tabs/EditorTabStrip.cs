@@ -35,7 +35,6 @@ namespace Greenshot.Editor.Tabs
     public sealed class EditorTabStrip : Control
     {
         private const int MaximumTabWidth = 220;
-        private const int MinimumTabWidth = 48;
         // Below this width only the selected tab and the tab under the mouse show the cross
         private const int AlwaysShowCloseWidth = 90;
         private const int TabMargin = 4;
@@ -237,7 +236,8 @@ namespace Greenshot.Editor.Tabs
 
             // The "+" follows the tabs
             int available = Width - 3 * Scale(TabMargin) - NewTabSize;
-            return Math.Min(Scale(MaximumTabWidth), Math.Max(Scale(MinimumTabWidth), available / slotCount));
+            // Many tabs get narrow, but all of them and the "+" stay in the window
+            return Math.Max(1, Math.Min(Scale(MaximumTabWidth), available / slotCount));
         }
 
         /// <summary>
@@ -261,8 +261,9 @@ namespace Greenshot.Editor.Tabs
             return new Rectangle(Scale(TabMargin) + slot * TabWidth, top, TabWidth, Height - top);
         }
 
+        // A very narrow tab has no room for the cross, the middle mouse button or Ctrl+W close it
         private bool ShowsClose(int index) =>
-            TabWidth >= Scale(AlwaysShowCloseWidth) || index == _hotIndex || _tabs[index] == _selectedTab;
+            TabWidth >= Scale(AlwaysShowCloseWidth) || (TabWidth >= Scale(CloseSize + 12) && (index == _hotIndex || _tabs[index] == _selectedTab));
 
         private Rectangle GetCloseBounds(int index)
         {
