@@ -90,8 +90,11 @@ public partial class EmojiPicker : StackPanel
             return;
         }
 
-        if (emoji.Variations.Count != 0 && sender is not Button)
+        // An emoji with variations opens them first, the buttons in that popup pick
+        if (emoji.HasVariations && FindChild<Popup>((DependencyObject)sender) is { } variations)
         {
+            variations.IsOpen = true;
+            e.Handled = true;
             return;
         }
 
@@ -133,7 +136,6 @@ public partial class EmojiPicker : StackPanel
     {
         if (sender is not UIElement child || !child.IsVisible) return;
         _oldFocus = Keyboard.FocusedElement;
-        Keyboard.Focus(child);
 
         // Start on the tab of the category, Tab goes on to its emoji.
         // The tabs exist only after the popup's first layout, which must not be forced while the popup is still opening.
@@ -143,6 +145,10 @@ public partial class EmojiPicker : StackPanel
             if (tabs?.ItemContainerGenerator.ContainerFromIndex(Math.Max(0, tabs.SelectedIndex)) is TabItem tab)
             {
                 tab.Focus();
+            }
+            else
+            {
+                Keyboard.Focus(child);
             }
         }, DispatcherPriority.Loaded).Task.FireAndLog("Focus the emoji category");
     }

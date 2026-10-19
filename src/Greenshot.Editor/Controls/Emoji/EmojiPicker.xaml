@@ -61,8 +61,9 @@
         </ControlTemplate>
 
         <DataTemplate x:Key="CellTemplate">
-            <ToggleButton Width="40" Height="40" Margin="0" Padding="2"
-                          x:Name="VariationButton" Background="Transparent" BorderBrush="Transparent" FocusVisualStyle="{StaticResource EmojiFocusVisual}"
+            <!-- A plain button: a toggle button would be read as "off". With variations a click opens them, see OnEmojiPicked -->
+            <Button Width="40" Height="40" Margin="0" Padding="2"
+                          Background="Transparent" BorderBrush="Transparent" FocusVisualStyle="{StaticResource EmojiFocusVisual}"
                           AutomationProperties.Name="{Binding Text}"
                           Click="OnEmojiPicked" >
                 <Grid>
@@ -71,12 +72,11 @@
                     <Polygon Visibility="{Binding HasVariations, Converter={StaticResource BoolToVis}}"
                              Width="6" Height="6" VerticalAlignment="Bottom" HorizontalAlignment="Right"
                              Stretch="Fill" Points="0,1 1,1 1,0" Fill="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
-                    <Popup x:Name="VariationPopup" StaysOpen="False" AllowsTransparency="True" Margin="0" Opened="OnVariationPopupOpened"
-                           IsOpen="{Binding IsChecked, ElementName=VariationButton, Mode=TwoWay}">
+                    <Popup x:Name="VariationPopup" StaysOpen="False" AllowsTransparency="True" Margin="0" Opened="OnVariationPopupOpened">
                         <ContentControl Template="{StaticResource ResourceKey=VariationPopupTemplate}"/>
                     </Popup>
                 </Grid>
-            </ToggleButton>
+            </Button>
         </DataTemplate>
 
     </StackPanel.Resources>
@@ -146,7 +146,7 @@
                                     <!-- Now for our actual content -->
                                     <ListView.ItemTemplate>
                                         <DataTemplate>
-                                            <ItemsControl ItemsSource="{Binding}"
+                                            <ItemsControl ItemsSource="{Binding}" Focusable="False"
                                                   ItemTemplate="{StaticResource ResourceKey=CellTemplate}">
                                                 <ItemsControl.ItemsPanel>
                                                     <ItemsPanelTemplate>
