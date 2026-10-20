@@ -60,7 +60,7 @@ namespace Greenshot.Plugin.Win10
         /// the .zip, which don't write the registration</returns>
         public INotificationService TryCreate()
         {
-            if (GreenshotEnvironment.IsPortable)
+            if (GreenshotEnvironment.LeavesNoTraces)
             {
                 Log.Info("Portable or .zip, the tray icon shows the notifications.");
                 return null;

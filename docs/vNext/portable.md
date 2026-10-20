@@ -44,6 +44,18 @@ GreenshotPortable\
 
 Greenshot handles the portable part itself. It knows it runs from the package when `App\AppInfo\appinfo.ini` is two folders up
 from `Greenshot.exe` (`GreenshotEnvironment.PortableAppsDirectory`). So the launcher only starts it and needs no settings of its own.
+
+`GreenshotEnvironment` has one property for each decision, so none of them hides an assumption about the others:
+
+| Property | True or set when | Used for |
+|---|---|---|
+| `PortableAppsDirectory`, `IsPortableApps` | `App\AppInfo\appinfo.ini` is two folders up from `Greenshot.exe` | the basis of the PortableApps.com properties |
+| `PortableAppsSettingsDirectory` | the package's `Data\Settings` | where greenshot.ini is kept, unless `--ini-directory` is given |
+| `DefaultOutputDirectory` | the package's drive: `Documents\Pictures\Greenshots`; otherwise the desktop | the default folder for saved captures |
+| `UsesSettingsNextToExecutable` | greenshot.ini was loaded from the folder of `Greenshot.exe` (the .zip ships one), known after loading | `LeavesNoTraces` and `PortableSuffix` |
+| `LeavesNoTraces` | `IsPortableApps` or `UsesSettingsNextToExecutable` | no toast registration, no JIT profile, the *Portable* badge in About |
+| `PortableSuffix` | " PortableApps", " Portable" or empty | the version in the log and the bug report |
+
 An update keeps `Data`. An update of a Greenshot 1.x package removes the old `Greenshot.exe` from the main folder
 (`installer.ini`) and goes on using `Data\Settings\greenshot.ini`.
 

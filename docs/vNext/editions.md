@@ -43,7 +43,7 @@ Each edition comes as an installer and as a portable version. The portable versi
 3. The setting writes the path of this `Greenshot.exe` to the *Run* key of the current user (see [autostart.md](autostart.md)).
    If the portable version is moved, switch it off and on again.
 4. The portable versions register no toasts, no file types and no links, and keep their files in their own folder
-   (`GreenshotEnvironment.IsPortable`). Only settings the user changes on purpose, like *Start with Windows*, write
+   (`GreenshotEnvironment.LeavesNoTraces`). Only settings the user changes on purpose, like *Start with Windows*, write
    to the computer.
 
 ## Signing

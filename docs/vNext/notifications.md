@@ -42,7 +42,7 @@ Another platform (macOS, Linux) is another provider in the list of `Notification
 `ToastNotificationServiceProvider.TryCreate` initializes the toasts; it returns no service, so the balloons of the tray icon are
 used, when
 
-* Greenshot runs as PortableApp or from the .zip (`GreenshotEnvironment.IsPortable`): they leave nothing on the system,
+* Greenshot runs as PortableApp or from the .zip (`GreenshotEnvironment.LeavesNoTraces`): they leave nothing on the system,
   and the toasts need a registration,
 * Windows has no toast API (`ToastNotificationActionTrigger` is missing),
 * the registration fails, or

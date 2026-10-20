@@ -109,9 +109,9 @@ namespace Greenshot.Base.Core
 
         private string CreateOutputFilePath()
         {
-            if (GreenshotEnvironment.PortableAppsDirectory != null)
+            if (GreenshotEnvironment.IsPortableApps)
             {
-                string pafOutputFilePath = Path.Combine(GreenshotEnvironment.PortableAppsDirectory, @"..\..\Documents\Pictures\Greenshots");
+                string pafOutputFilePath = GreenshotEnvironment.DefaultOutputDirectory;
                 if (!Directory.Exists(pafOutputFilePath))
                 {
                     try
@@ -248,9 +248,7 @@ namespace Greenshot.Base.Core
             var outputFilePath = Path.GetDirectoryName(OutputFileAsFullpath);
             if (outputFilePath == null || (!File.Exists(OutputFileAsFullpath) && !Directory.Exists(outputFilePath)))
             {
-                OutputFileAsFullpath = GreenshotEnvironment.PortableAppsDirectory != null
-                    ? Path.Combine(GreenshotEnvironment.PortableAppsDirectory, @"..\..\Documents\Pictures\Greenshots\dummy.png")
-                    : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "dummy.png");
+                OutputFileAsFullpath = Path.Combine(GreenshotEnvironment.DefaultOutputDirectory, "dummy.png");
             }
         }
 
@@ -347,9 +345,7 @@ namespace Greenshot.Base.Core
 
             if (string.IsNullOrEmpty(OutputFileAsFullpath))
             {
-                OutputFileAsFullpath = GreenshotEnvironment.PortableAppsDirectory != null
-                    ? Path.Combine(GreenshotEnvironment.PortableAppsDirectory, @"..\..\Documents\Pictures\Greenshots\dummy.png")
-                    : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "dummy.png");
+                OutputFileAsFullpath = Path.Combine(GreenshotEnvironment.DefaultOutputDirectory, "dummy.png");
             }
 
             ActiveTitleFixes ??= new List<string> { "Firefox", "Chrome" };
