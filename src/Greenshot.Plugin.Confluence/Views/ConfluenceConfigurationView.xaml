@@ -31,7 +31,6 @@
         <CheckBox IsChecked="{Binding IncludePersonSpaces}" Content="{wpf:Text Confluence.IncludePersonSpaces}"/>
         <CheckBox IsChecked="{Binding OpenPageAfterUpload}" Content="{wpf:Text Confluence.OpenPageAfterUpload}"/>
         <CheckBox IsChecked="{Binding CopyWikiMarkupForImageToClipboard}" Content="{wpf:Text Confluence.CopyWikimarkup}"/>
-        <CheckBox IsChecked="{Binding QuicklinkEnabled}" Content="{wpf:Text Core.QuicklinkEnable}"/>
 
         <Grid Margin="0,8,0,4">
             <Grid.ColumnDefinitions>

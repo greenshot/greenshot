@@ -46,8 +46,5 @@
                       SelectedValuePath="Id"
                       SelectedValue="{Binding UploadFormat, Mode=TwoWay}"/>
         </Grid>
-
-        <CheckBox IsChecked="{Binding QuicklinkEnabled}"
-                  Content="{wpf:Text Core.QuicklinkEnable}"/>
     </StackPanel>
 </UserControl>

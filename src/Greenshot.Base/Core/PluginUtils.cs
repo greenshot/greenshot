@@ -252,21 +252,6 @@ namespace Greenshot.Base.Core
             return null;
         }
 
-        /// <summary>
-        /// Gets the localized text for a plugin quicklink context menu item (e.g. "Configure {0}").
-        /// </summary>
-        /// <param name="pluginDisplayName">Display name of the plugin.</param>
-        /// <returns>Formatted quicklink text.</returns>
-        public static string GetQuicklinkText(string pluginDisplayName)
-        {
-            string format = Texts.Core.ContextmenuConfigurePlugin;
-            if (string.IsNullOrEmpty(format) || format.StartsWith("string ###"))
-            {
-                format = "Configure {0}";
-            }
-            return string.Format(format, pluginDisplayName);
-        }
-
         private static readonly object TrayMenuEntriesLock = new object();
         private static readonly List<TrayMenuEntry> TrayMenuEntries = new List<TrayMenuEntry>();
 
