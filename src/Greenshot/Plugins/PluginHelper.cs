@@ -153,7 +153,7 @@ namespace Greenshot.Plugins
         /// Load the plugins and let them register (synchronous, their configuration sections are filled from greenshot.ini when added), then start them
         /// without waiting: the starts are queued on the UI thread, so they run once the shell is created, one after the other.
         /// The returned task completes when all started (or failed / timed out), it never throws.
-        /// A plugin which fails to register or to start is disabled: what it registered is removed again, only its recipe steps stay
+        /// A plugin which fails to register or to start is disabled: what it registered is removed again, including its recipe steps
         /// (they are registered before the start, for the recipes which are loaded at startup).
         /// </summary>
         /// <returns>Task which completes when all plugins started</returns>
@@ -403,8 +403,9 @@ namespace Greenshot.Plugins
             }
 
             /// <summary>
-            /// The plugin is disabled: remove its services and settings views again.
-            /// Its configuration sections stay (they are kept in greenshot.ini anyway), and so do the recipe steps which were registered.
+            /// The plugin is disabled: remove its services, settings views, recipe steps and recipe drawables again,
+            /// recipes using them handle them like those of a plugin which isn't installed.
+            /// Its configuration sections stay, they are kept in greenshot.ini anyway.
             /// </summary>
             public void Unregister()
             {
@@ -441,12 +442,22 @@ namespace Greenshot.Plugins
                 {
                     SimpleServiceProvider.Current.AddService(recipeStepProvider);
                     StepRegistry.Instance.RegisterProvider(recipeStepProvider);
+                    _unregister.Add(() =>
+                    {
+                        SimpleServiceProvider.Current.RemoveService(recipeStepProvider);
+                        StepRegistry.Instance.UnregisterProvider(recipeStepProvider);
+                    });
                 }
 
                 foreach (var recipeDrawableProvider in _recipeDrawableProviders)
                 {
                     SimpleServiceProvider.Current.AddService(recipeDrawableProvider);
                     RecipeDrawableRegistry.Instance.RegisterProvider(recipeDrawableProvider);
+                    _unregister.Add(() =>
+                    {
+                        SimpleServiceProvider.Current.RemoveService(recipeDrawableProvider);
+                        RecipeDrawableRegistry.Instance.UnregisterProvider(recipeDrawableProvider);
+                    });
                 }
             }
         }
