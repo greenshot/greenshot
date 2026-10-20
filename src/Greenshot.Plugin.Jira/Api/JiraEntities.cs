@@ -161,6 +161,7 @@ public sealed class JiraDateTimeOffsetConverter : JsonConverter<DateTimeOffset?>
 [JsonSerializable(typeof(JiraSearchRequest))]
 [JsonSerializable(typeof(JiraSearchResult))]
 [JsonSerializable(typeof(JiraComment))]
+[JsonSerializable(typeof(JiraUser))]
 internal sealed partial class JiraJsonContext : JsonSerializerContext
 {
 }

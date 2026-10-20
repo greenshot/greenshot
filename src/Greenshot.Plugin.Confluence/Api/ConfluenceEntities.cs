@@ -77,6 +77,19 @@ public sealed class ConfluenceSpace
 }
 
 /// <summary>
+/// The signed in user, from GET rest/api/user/current
+/// </summary>
+public sealed class ConfluenceUser
+{
+    /// <summary>
+    /// known or anonymous
+    /// </summary>
+    public string Type { get; set; }
+
+    public string DisplayName { get; set; }
+}
+
+/// <summary>
 /// The answer of a list call
 /// </summary>
 public sealed class ConfluenceResults<T>
@@ -94,6 +107,7 @@ public sealed class ConfluenceResults<T>
     NumberHandling = JsonNumberHandling.AllowReadingFromString)]
 [JsonSerializable(typeof(ConfluenceResults<ConfluenceContent>))]
 [JsonSerializable(typeof(ConfluenceResults<ConfluenceSpace>))]
+[JsonSerializable(typeof(ConfluenceUser))]
 internal sealed partial class ConfluenceJsonContext : JsonSerializerContext
 {
 }

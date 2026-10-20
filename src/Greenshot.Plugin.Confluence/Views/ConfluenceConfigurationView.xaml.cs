@@ -19,9 +19,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.ComponentModel;
 using System.Windows.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
+using Greenshot.Base.Wpf.ViewModels;
 
 namespace Greenshot.Plugin.Confluence.Views;
 
@@ -36,6 +38,22 @@ public partial class ConfluenceConfigurationView : UserControl
         {
             uploadFormatCombo.ItemsSource = registry?.GetSaveableFileFormatOptions()
                 .WithCurrentFormat(config.UploadFormat);
+        }
+
+        var account = new ServerAccountViewModel(ConfluencePlugin.ConfluenceConnector.SignIn);
+        AccountView.DataContext = account;
+        // Another url is another sign-in
+        PropertyChangedEventHandler onUrlChanged = (_, args) =>
+        {
+            if (args.PropertyName == nameof(IConfluenceConfiguration.Url))
+            {
+                account.Refresh();
+            }
+        };
+        if (config is INotifyPropertyChanged notifying)
+        {
+            Loaded += (_, _) => notifying.PropertyChanged += onUrlChanged;
+            Unloaded += (_, _) => notifying.PropertyChanged -= onUrlChanged;
         }
     }
 }

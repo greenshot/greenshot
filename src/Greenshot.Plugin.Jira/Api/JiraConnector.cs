@@ -28,7 +28,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using Greenshot.Base.Core;
 using Greenshot.Base.Http;
 using Greenshot.Base.Interfaces;
@@ -69,11 +68,8 @@ public sealed class JiraConnector : IDisposable
     public void Dispose()
     {
         CoreConfig.PropertyChanged -= OnCoreConfigPropertyChanged;
-        if (_jiraClient != null)
-        {
-            Logout();
-        }
-
+        SignIn.Changed -= OnSignInChanged;
+        Logout();
         ClearIssueTypeBitmaps();
         FavIcon?.Dispose();
     }
@@ -85,7 +81,14 @@ public sealed class JiraConnector : IDisposable
     {
         JiraConfig.Url = JiraConfig.Url.Replace(DefaultPostfix, string.Empty);
         CoreConfig.PropertyChanged += OnCoreConfigPropertyChanged;
+        SignIn = new ServerSignIn("Jira", () => JiraConfig.Url, ConnectAsync, ServerSignInOptions.Atlassian);
+        SignIn.Changed += OnSignInChanged;
     }
+
+    /// <summary>
+    /// The sign-in to Jira, also used by the settings
+    /// </summary>
+    public ServerSignIn SignIn { get; }
 
     /// <summary>
     /// Access the jira monitor
@@ -95,129 +98,122 @@ public sealed class JiraConnector : IDisposable
     public Bitmap FavIcon { get; private set; }
 
     /// <summary>
-    /// Internal login which catches the exceptions
+    /// True when signed in and connected to the Jira of the configuration
     /// </summary>
-    /// <returns>true if login was done successfully</returns>
-    private async Task<bool> DoLoginAsync(string user, string password, CancellationToken cancellationToken = default)
+    public bool IsLoggedIn => _jiraClient != null && SignIn.IsSignedIn;
+
+    // Signed out in the settings: stop the monitor
+    private void OnSignInChanged(object sender, EventArgs e)
     {
-        if (string.IsNullOrEmpty(user) || string.IsNullOrEmpty(password))
+        if (!SignIn.IsSignedIn)
         {
-            return false;
+            Logout();
         }
-
-        _jiraClient = new JiraClient(new Uri(JiraConfig.Url), user, password);
-        try
-        {
-            // Reading the projects checks the credentials
-            Monitor = new JiraMonitor();
-            await Monitor.AddJiraInstanceAsync(_jiraClient, cancellationToken);
-
-            // The favicon of the server (or the icon link of its start page) for the destination, the Jira logo without one
-            var favIcon = await SiteIcon.FetchAsync(HttpService.Current, _jiraClient.BaseUri, false, cancellationToken);
-            if (favIcon != null)
-            {
-                using var stream = new MemoryStream(favIcon);
-                using var image = Image.FromStream(stream);
-                var oldFavIcon = FavIcon;
-                FavIcon = new Bitmap(image);
-                if (oldFavIcon != null)
-                {
-                    // JiraDestination clones the icon under this lock
-                    lock (oldFavIcon)
-                    {
-                        oldFavIcon.Dispose();
-                    }
-                }
-            }
-        }
-        catch (Exception ex2)
-        {
-            Log.WarnFormat("Couldn't connect to JIRA {0}", JiraConfig.Url);
-            Log.Warn("Exception details: ", ex2);
-            // The monitor hooks the title changes of all windows, don't leave one running for every failed login
-            Monitor?.Dispose();
-            Monitor = null;
-            return false;
-        }
-
-        return true;
     }
 
     /// <summary>
-    /// Use the credentials dialog, this will show if there are not correct credentials.
-    /// If there are credentials, call the real login.
+    /// Connect with the credentials: check them, start the title monitor and get the icon of the server
     /// </summary>
-    /// <returns>Task</returns>
+    /// <returns>the name of the user</returns>
+    private async Task<string> ConnectAsync(string url, ServerCredentials credentials, CancellationToken cancellationToken)
+    {
+        var jiraClient = new JiraClient(new Uri(url), credentials);
+        var myself = await jiraClient.GetMyselfAsync(cancellationToken).ConfigureAwait(false);
+
+        // The title monitor only accepts keys of the projects
+        var monitor = new JiraMonitor();
+        try
+        {
+            await monitor.AddJiraInstanceAsync(jiraClient, cancellationToken).ConfigureAwait(false);
+        }
+        catch
+        {
+            // The monitor hooks the title changes of all windows, don't leave one running for a failed sign-in
+            monitor.Dispose();
+            throw;
+        }
+
+        var oldMonitor = Monitor;
+        Monitor = monitor;
+        _jiraClient = jiraClient;
+        oldMonitor?.Dispose();
+
+        await LoadFavIconAsync(jiraClient, cancellationToken).ConfigureAwait(false);
+        return myself?.DisplayName;
+    }
+
+    /// <summary>
+    /// The favicon of the server (or the icon link of its start page) for the destination, the Jira logo without one
+    /// </summary>
+    private async Task LoadFavIconAsync(JiraClient jiraClient, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var favIcon = await SiteIcon.FetchAsync(HttpService.Current, jiraClient.BaseUri, false, cancellationToken).ConfigureAwait(false);
+            if (favIcon == null)
+            {
+                return;
+            }
+
+            using var stream = new MemoryStream(favIcon);
+            using var image = Image.FromStream(stream);
+            var oldFavIcon = FavIcon;
+            FavIcon = new Bitmap(image);
+            if (oldFavIcon != null)
+            {
+                // JiraDestination clones the icon under this lock
+                lock (oldFavIcon)
+                {
+                    oldFavIcon.Dispose();
+                }
+            }
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            Log.Warn($"Couldn't load the icon of {jiraClient.BaseUri}", ex);
+        }
+    }
+
+    /// <summary>
+    /// Sign in: with the stored credentials, otherwise the sign-in window
+    /// </summary>
     public async Task LoginAsync(CancellationToken cancellationToken = default)
     {
-        Logout();
-        // The credentials dialog is modal UI, it is shown on the UI thread
-        var ui = UiDispatcher.Current;
-        try
+        if (_jiraClient == null && SignIn.IsSignedIn)
         {
-            // Get the system name, so the user knows where to login to
-            var credentialsDialog = new CredentialsDialog(JiraConfig.Url)
-            {
-                Name = null
-            };
-            while (await ui.InvokeAsync(() => credentialsDialog.Show(credentialsDialog.Name), cancellationToken).ConfigureAwait(false) == DialogResult.OK)
-            {
-                if (await DoLoginAsync(credentialsDialog.Name, credentialsDialog.Password, cancellationToken).ConfigureAwait(false))
-                {
-                    if (credentialsDialog.SaveChecked)
-                    {
-                        credentialsDialog.Confirm(true);
-                    }
-
-                    IsLoggedIn = true;
-                    return;
-                }
-
-                // Login failed, confirm this
-                try
-                {
-                    credentialsDialog.Confirm(false);
-                }
-                catch (ApplicationException e)
-                {
-                    // exception handling ...
-                    Log.Error("Problem using the credentials dialog", e);
-                }
-
-                // For every windows version after XP show an incorrect password balloon
-                credentialsDialog.IncorrectPassword = true;
-                // Make sure the dialog is display, the password was false!
-                credentialsDialog.AlwaysDisplay = true;
-            }
+            // Logged out (plugin stopped), connect again with the same credentials
+            SignIn.Recheck();
         }
-        catch (ApplicationException e)
-        {
-            // exception handling ...
-            Log.Error("Problem using the credentials dialog", e);
-        }
+
+        await SignIn.EnsureSignedInAsync(cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
-    /// End the session, if there was one
+    /// Stop the monitor and the connection, the credentials stay
     /// </summary>
     public void Logout()
     {
-        if (_jiraClient == null || !IsLoggedIn) return;
-        IsLoggedIn = false;
-        Monitor?.Dispose();
+        _jiraClient = null;
+        var monitor = Monitor;
         Monitor = null;
+        monitor?.Dispose();
     }
 
     /// <summary>
-    /// check the login credentials, to prevent timeouts of the session, or makes a login
+    /// check the login credentials, or makes a login
     /// The login marshals its dialog to the UI thread, so this can be called from any thread.
     /// </summary>
-    /// <returns></returns>
+    /// <exception cref="UnauthorizedAccessException">the user canceled the sign-in</exception>
     private async Task CheckCredentialsAsync(CancellationToken cancellationToken = default)
     {
         if (!IsLoggedIn)
         {
             await LoginAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        if (!IsLoggedIn)
+        {
+            throw new UnauthorizedAccessException($"Not signed in to {JiraConfig.Url}");
         }
     }
 
@@ -417,9 +413,4 @@ public sealed class JiraConnector : IDisposable
     /// The page of an issue in the browser
     /// </summary>
     public Uri GetBrowseUri(string issueKey) => _jiraClient?.GetBrowseUri(issueKey);
-
-    /// <summary>
-    /// Is the user "logged in?
-    /// </summary>
-    public bool IsLoggedIn { get; private set; }
 }

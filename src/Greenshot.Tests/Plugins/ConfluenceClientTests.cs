@@ -46,7 +46,8 @@ namespace Greenshot.Tests.Plugins
             TestEnvironment.EnsureInitialized();
         }
 
-        private static (ConfluenceClient Client, List<HttpRequestMessage> Requests, FakeHttpHandler Handler) CreateClient(string baseUri, Func<HttpRequestMessage, HttpResponseMessage> respond)
+        private static (ConfluenceClient Client, List<HttpRequestMessage> Requests, FakeHttpHandler Handler) CreateClient(string baseUri, Func<HttpRequestMessage, HttpResponseMessage> respond,
+            ServerCredentials credentials = null)
         {
             var requests = new List<HttpRequestMessage>();
             var handler = new FakeHttpHandler(request =>
@@ -58,7 +59,7 @@ namespace Greenshot.Tests.Plugins
 
                 return respond(request);
             });
-            return (new ConfluenceClient(new Uri(baseUri), "user@example.com", "token", new HttpService(handler, TestTimeout)), requests, handler);
+            return (new ConfluenceClient(new Uri(baseUri), credentials ?? new ServerCredentials("user@example.com", "token"), new HttpService(handler, TestTimeout)), requests, handler);
         }
 
         private static HttpResponseMessage Json(string json, HttpStatusCode statusCode = HttpStatusCode.OK) =>
@@ -158,6 +159,25 @@ namespace Greenshot.Tests.Plugins
             Assert.Contains("name=\"minorEdit\"", body);
             Assert.DoesNotContain("name=\"comment\"", body);
             Assert.Contains("name=\"file\"; filename=\"capture.png\"", body);
+        }
+        [Fact]
+        public async Task CheckCredentialsAsync_ReturnsTheDisplayName_WithBearerForAToken()
+        {
+            var (client, requests, _) = CreateClient("https://confluence.example.com", _ => Json("{\"type\":\"known\",\"username\":\"robin\",\"displayName\":\"Robin\"}"),
+                new ServerCredentials(null, "pat-123"));
+
+            Assert.Equal("Robin", await client.CheckCredentialsAsync(TestContext.Current.CancellationToken));
+            var request = Assert.Single(requests);
+            Assert.Equal("Bearer", request.Headers.Authorization.Scheme);
+            Assert.Equal("pat-123", request.Headers.Authorization.Parameter);
+        }
+
+        [Fact]
+        public async Task CheckCredentialsAsync_AnonymousUser_Throws()
+        {
+            var (client, _, _) = CreateClient("https://confluence.example.com", _ => Json("{\"type\":\"anonymous\",\"displayName\":\"Anonymous\"}"));
+
+            await Assert.ThrowsAsync<UnauthorizedAccessException>(() => client.CheckCredentialsAsync(TestContext.Current.CancellationToken));
         }
     }
 }

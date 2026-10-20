@@ -24,7 +24,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using System.Threading;
@@ -52,15 +51,15 @@ public sealed class ConfluenceClient
     private readonly AuthenticationHeaderValue _authorization;
 
     /// <param name="baseUri">the Confluence url, e.g. https://example.atlassian.net/wiki or https://confluence.example.com</param>
-    /// <param name="user">user name, on Cloud the e-mail address</param>
-    /// <param name="password">password, on Cloud an API token</param>
+    /// <param name="credentials">on Cloud the e-mail address with an API token, on Data Center user name and password or a personal access token</param>
     /// <param name="httpService">HttpService, default <see cref="HttpService.WithoutRedirects"/></param>
-    public ConfluenceClient(Uri baseUri, string user, string password, HttpService httpService = null)
+    public ConfluenceClient(Uri baseUri, ServerCredentials credentials, HttpService httpService = null)
     {
         if (baseUri == null) throw new ArgumentNullException(nameof(baseUri));
+        if (credentials == null) throw new ArgumentNullException(nameof(credentials));
         // Relative uris are resolved below the path of Confluence (/wiki on Cloud)
         BaseUri = baseUri.AbsoluteUri.EndsWith("/") ? baseUri : new Uri(baseUri.AbsoluteUri + "/");
-        _authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes($"{user}:{password}")));
+        _authorization = credentials.CreateAuthorization();
         _httpService = httpService ?? HttpService.WithoutRedirects;
     }
 
@@ -72,11 +71,21 @@ public sealed class ConfluenceClient
     /// <summary>
     /// Check the credentials
     /// </summary>
+    /// <returns>the name of the signed in user</returns>
     /// <exception cref="UnauthorizedAccessException">wrong credentials</exception>
-    public async Task CheckCredentialsAsync(CancellationToken cancellationToken = default)
+    /// <exception cref="SignInDeniedException">Data Center wants a CAPTCHA after failed sign-ins</exception>
+    public async Task<string> CheckCredentialsAsync(CancellationToken cancellationToken = default)
     {
         var result = await _httpService.SendAsync(CreateRequest(HttpMethod.Get, "rest/api/user/current"), cancellationToken).ConfigureAwait(false);
-        result.EnsureSuccess();
+        SignInDeniedException.ThrowWhenDenied(result, "X-Authentication-Denied-Reason");
+        var user = Deserialize(result.EnsureSuccess(), ConfluenceJsonContext.Default.ConfluenceUser);
+        // Instances with anonymous access answer for a request without valid credentials as the anonymous user
+        if (user == null || string.Equals(user.Type, "anonymous", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new UnauthorizedAccessException("Confluence answered as the anonymous user");
+        }
+
+        return user.DisplayName;
     }
 
     /// <summary>

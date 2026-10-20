@@ -47,7 +47,8 @@ namespace Greenshot.Tests.Plugins
             TestEnvironment.EnsureInitialized();
         }
 
-        private static (JiraClient Client, List<HttpRequestMessage> Requests, FakeHttpHandler Handler) CreateClient(string baseUri, Func<HttpRequestMessage, HttpResponseMessage> respond)
+        private static (JiraClient Client, List<HttpRequestMessage> Requests, FakeHttpHandler Handler) CreateClient(string baseUri, Func<HttpRequestMessage, HttpResponseMessage> respond,
+            ServerCredentials credentials = null)
         {
             var requests = new List<HttpRequestMessage>();
             var handler = new FakeHttpHandler(request =>
@@ -59,7 +60,7 @@ namespace Greenshot.Tests.Plugins
 
                 return respond(request);
             });
-            return (new JiraClient(new Uri(baseUri), "user@example.com", "token", new HttpService(handler, TestTimeout)), requests, handler);
+            return (new JiraClient(new Uri(baseUri), credentials ?? new ServerCredentials("user@example.com", "token"), new HttpService(handler, TestTimeout)), requests, handler);
         }
 
         private static HttpResponseMessage Json(string json, HttpStatusCode statusCode = HttpStatusCode.OK) =>
@@ -171,6 +172,33 @@ namespace Greenshot.Tests.Plugins
             var (client, _, _) = CreateClient("https://jira.example.com/jira/", _ => Json("{}"));
 
             Assert.Equal(new Uri("https://jira.example.com/jira/browse/ABC-1"), client.GetBrowseUri("ABC-1"));
+        }
+        [Fact]
+        public async Task GetMyselfAsync_PersonalAccessToken_SendsBearer()
+        {
+            var (client, requests, _) = CreateClient("https://jira.example.com", _ => Json("{\"name\":\"robin\",\"displayName\":\"Robin\"}"),
+                new ServerCredentials(null, "pat-123"));
+
+            var myself = await client.GetMyselfAsync(TestContext.Current.CancellationToken);
+
+            Assert.Equal("Robin", myself.DisplayName);
+            var request = Assert.Single(requests);
+            Assert.Equal("/rest/api/2/myself", request.RequestUri.AbsolutePath);
+            Assert.Equal("Bearer", request.Headers.Authorization.Scheme);
+            Assert.Equal("pat-123", request.Headers.Authorization.Parameter);
+        }
+
+        [Fact]
+        public async Task GetMyselfAsync_CaptchaAfterFailedSignIns_Denied()
+        {
+            var (client, _, _) = CreateClient("https://jira.example.com", _ =>
+            {
+                var response = Json(string.Empty, HttpStatusCode.Forbidden);
+                response.Headers.Add("X-Authentication-Denied-Reason", "CAPTCHA_CHALLENGE; login-url=https://jira.example.com/login.jsp");
+                return response;
+            });
+
+            await Assert.ThrowsAsync<SignInDeniedException>(() => client.GetMyselfAsync(TestContext.Current.CancellationToken));
         }
     }
 }

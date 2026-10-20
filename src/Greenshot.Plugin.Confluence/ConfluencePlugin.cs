@@ -59,7 +59,7 @@ public class ConfluencePlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeSt
     {
         if (_confluenceConnector == null)
         {
-            _confluenceConnector = new ConfluenceConnector(_config.Url, _config.Timeout);
+            _confluenceConnector = new ConfluenceConnector();
         }
     }
 
@@ -119,7 +119,7 @@ public class ConfluencePlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeSt
         {
             if (_confluenceConnector != null)
             {
-                _confluenceConnector.Logout();
+                _confluenceConnector.Dispose();
                 _confluenceConnector = null;
             }
         }, cancellationToken);

@@ -52,15 +52,15 @@ public sealed class JiraClient
     private bool? _isCloud;
 
     /// <param name="baseUri">the Jira server, e.g. https://example.atlassian.net or https://jira.example.com/jira</param>
-    /// <param name="user">user name, on Cloud the e-mail address</param>
-    /// <param name="password">password, on Cloud an API token</param>
+    /// <param name="credentials">on Cloud the e-mail address with an API token, on Data Center user name and password or a personal access token</param>
     /// <param name="httpService">HttpService, default <see cref="HttpService.WithoutRedirects"/></param>
-    public JiraClient(Uri baseUri, string user, string password, HttpService httpService = null)
+    public JiraClient(Uri baseUri, ServerCredentials credentials, HttpService httpService = null)
     {
         if (baseUri == null) throw new ArgumentNullException(nameof(baseUri));
+        if (credentials == null) throw new ArgumentNullException(nameof(credentials));
         // Relative uris are resolved below the path of the server
         BaseUri = baseUri.AbsoluteUri.EndsWith("/") ? baseUri : new Uri(baseUri.AbsoluteUri + "/");
-        _authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes($"{user}:{password}")));
+        _authorization = credentials.CreateAuthorization();
         _httpService = httpService ?? HttpService.WithoutRedirects;
     }
 
@@ -73,6 +73,19 @@ public sealed class JiraClient
     /// The page of an issue in the browser
     /// </summary>
     public Uri GetBrowseUri(string issueKey) => new Uri(BaseUri, "browse/" + Uri.EscapeDataString(issueKey));
+
+    /// <summary>
+    /// The signed in user, checks the credentials
+    /// </summary>
+    /// <exception cref="UnauthorizedAccessException">the credentials were rejected</exception>
+    /// <exception cref="SignInDeniedException">Jira wants a CAPTCHA after failed sign-ins</exception>
+    public async Task<JiraUser> GetMyselfAsync(CancellationToken cancellationToken = default)
+    {
+        var result = await _httpService.SendAsync(CreateRequest(HttpMethod.Get, "rest/api/2/myself"), cancellationToken).ConfigureAwait(false);
+        // Server and Data Center deny sign-ins after failed ones, until the user solved a CAPTCHA in the browser
+        SignInDeniedException.ThrowWhenDenied(result, "X-Authentication-Denied-Reason");
+        return Deserialize(result.EnsureSuccess(), JiraJsonContext.Default.JiraUser);
+    }
 
     /// <summary>
     /// All projects the user can see, the title monitor only accepts keys of these

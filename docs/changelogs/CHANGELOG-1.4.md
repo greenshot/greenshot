@@ -136,6 +136,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 **JIRA Plugin** (#871)
 - Various fixes to improve JIRA plugin functionality
 - The issues of a favourite filter show again on Jira Cloud (Atlassian removed the old search)
+- Jira and Confluence: a new sign-in, on Cloud with your e-mail address and an API token, on Data Center also with a personal access token; the plugin settings show the account, test the connection and sign out
 - By @Lakritzator
 
 **OneNote Plugin** (#883)

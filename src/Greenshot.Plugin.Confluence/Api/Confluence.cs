@@ -24,10 +24,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Threading;
+using Greenshot.Base.Http;
 using Dapplo.Ini;
 
 namespace Greenshot.Plugin.Confluence.Api;
@@ -37,174 +36,91 @@ namespace Greenshot.Plugin.Confluence.Api;
 /// </summary>
 public class ConfluenceConnector : IDisposable
 {
-    private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ConfluenceConnector));
     private static readonly IConfluenceConfiguration Config = IniConfigRegistry.GetSection<IConfluenceConfiguration>();
-    private readonly SemaphoreSlim _loginLock = new SemaphoreSlim(1, 1);
-    private DateTime _loggedInTime = DateTime.Now;
-    private volatile bool _loggedIn;
-    private ConfluenceClient _confluence;
-    private readonly int _timeout;
-    private readonly string _url;
+    private DateTime _signedInTime = DateTime.Now;
+    private volatile ConfluenceClient _confluence;
     private readonly Cache<string, Entities.Page> _pageCache = new Cache<string, Entities.Page>(60 * Config.Timeout);
     private IList<Entities.Space> _spaces;
     private DateTime _spacesLoaded;
 
-    public void Dispose()
+    public ConfluenceConnector()
     {
-        Dispose(true);
-        GC.SuppressFinalize(this);
+        SignIn = new ServerSignIn("Confluence", () => Config.Url, ConnectAsync, ServerSignInOptions.Atlassian);
+        SignIn.Changed += OnSignInChanged;
     }
 
-    private void Dispose(bool disposing)
+    /// <summary>
+    /// The sign-in to Confluence, also used by the settings
+    /// </summary>
+    public ServerSignIn SignIn { get; }
+
+    public void Dispose()
     {
-        if (_confluence != null)
+        SignIn.Changed -= OnSignInChanged;
+        Logout();
+    }
+
+    // Signed out in the settings: nothing loaded for the account stays
+    private void OnSignInChanged(object sender, EventArgs e)
+    {
+        if (!SignIn.IsSignedIn)
         {
             Logout();
         }
-
-        if (disposing)
-        {
-            _confluence = null;
-        }
-    }
-
-    public ConfluenceConnector(string url, int timeout)
-    {
-        _timeout = timeout;
-        _url = url;
-    }
-
-    ~ConfluenceConnector()
-    {
-        Dispose(false);
     }
 
     /// <summary>
-    /// Internal login which catches the authentication failure
+    /// Connect with the credentials and check them
     /// </summary>
-    /// <returns>true if login was done successfully</returns>
-    private async Task<bool> DoLoginAsync(string user, string password, CancellationToken cancellationToken)
+    /// <returns>the name of the user</returns>
+    private async Task<string> ConnectAsync(string url, ServerCredentials credentials, CancellationToken cancellationToken)
     {
-        var confluence = new ConfluenceClient(new Uri(_url), user, password);
-        try
+        var confluence = new ConfluenceClient(new Uri(url), credentials);
+        string account = await confluence.CheckCredentialsAsync(cancellationToken).ConfigureAwait(false);
+        if (_confluence?.BaseUri != confluence.BaseUri)
         {
-            // Test the credentials by getting current user info
-            await confluence.CheckCredentialsAsync(cancellationToken).ConfigureAwait(false);
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return false;
-        }
-        catch (Exception e) when (e is not OperationCanceledException)
-        {
-            // Not an authentication issue
-            _loggedIn = false;
-            e.Data["user"] = user;
-            e.Data["url"] = _url;
-            throw;
+            // Another server
+            _spaces = null;
         }
 
         _confluence = confluence;
-        _loggedInTime = DateTime.Now;
-        _loggedIn = true;
-        return true;
+        _signedInTime = DateTime.Now;
+        return account;
     }
 
     /// <summary>
-    /// Ask the user for the credentials (on the UI thread) until the login worked or the user canceled.
+    /// Forget the connection, the credentials stay
     /// </summary>
-    public async Task LoginAsync(CancellationToken cancellationToken = default)
-    {
-        Logout();
-        var ui = UiDispatcher.Current;
-        try
-        {
-            // Get the system name, so the user knows where to login to
-            string systemName = _url;
-            var dialog = new CredentialsDialog(systemName)
-            {
-                Name = null
-            };
-            while (await ui.InvokeAsync(() => dialog.Show(dialog.Name), cancellationToken).ConfigureAwait(false) == DialogResult.OK)
-            {
-                if (await DoLoginAsync(dialog.Name, dialog.Password, cancellationToken).ConfigureAwait(false))
-                {
-                    if (dialog.SaveChecked)
-                    {
-                        await ui.InvokeAsync(() => dialog.Confirm(true), cancellationToken).ConfigureAwait(false);
-                    }
-
-                    return;
-                }
-
-                try
-                {
-                    await ui.InvokeAsync(() => dialog.Confirm(false), cancellationToken).ConfigureAwait(false);
-                }
-                catch (ApplicationException e)
-                {
-                    // exception handling ...
-                    Log.Error("Problem using the credentials dialog", e);
-                }
-
-                // For every windows version after XP show an incorrect password balloon
-                dialog.IncorrectPassword = true;
-                // Make sure the dialog is display, the password was false!
-                dialog.AlwaysDisplay = true;
-            }
-        }
-        catch (ApplicationException e)
-        {
-            // exception handling ...
-            Log.Error("Problem using the credentials dialog", e);
-        }
-    }
-
     public void Logout()
     {
-        if (_loggedIn)
-        {
-            _loggedIn = false;
-            _confluence = null;
-        }
+        _confluence = null;
+        _spaces = null;
     }
 
     /// <summary>
-    /// Make sure the connector is logged in (asks the user when needed), one login at a time.
+    /// Make sure the connector is signed in: with the stored credentials, otherwise the sign-in window.
+    /// After the session timeout of the configuration the credentials are checked again.
     /// </summary>
-    /// <returns>true when logged in, false when the user canceled the login</returns>
+    /// <returns>true when signed in, false when the user canceled the sign-in</returns>
     public async Task<bool> EnsureLoggedInAsync(CancellationToken cancellationToken = default)
     {
-        await _loginLock.WaitAsync(cancellationToken).ConfigureAwait(false);
-        try
+        if (_confluence == null || _signedInTime.AddMinutes(Config.Timeout - 1).CompareTo(DateTime.Now) < 0)
         {
-            if (_loggedIn && _loggedInTime.AddMinutes(_timeout - 1).CompareTo(DateTime.Now) < 0)
-            {
-                Logout();
-            }
-
-            if (!_loggedIn)
-            {
-                await LoginAsync(cancellationToken).ConfigureAwait(false);
-            }
-
-            return _loggedIn;
+            SignIn.Recheck();
         }
-        finally
-        {
-            _loginLock.Release();
-        }
+
+        return await SignIn.EnsureSignedInAsync(cancellationToken).ConfigureAwait(false) && _confluence != null;
     }
 
     private async Task CheckCredentialsAsync(CancellationToken cancellationToken)
     {
         if (!await EnsureLoggedInAsync(cancellationToken).ConfigureAwait(false))
         {
-            throw new UnauthorizedAccessException($"Not logged in to {_url}");
+            throw new UnauthorizedAccessException($"Not logged in to {Config.Url}");
         }
     }
 
-    public bool IsLoggedIn => _loggedIn;
+    public bool IsLoggedIn => _confluence != null && SignIn.IsSignedIn;
 
     public async Task AddAttachmentAsync(long pageId, EncodedImage image, string filename, string comment, CancellationToken cancellationToken = default)
     {
@@ -214,7 +130,8 @@ public class ConfluenceConnector : IDisposable
 
     public async Task<Entities.Page> GetPageAsync(long pageId, CancellationToken cancellationToken = default)
     {
-        string cacheKey = pageId.ToString();
+        // The same id can be another page on another server
+        string cacheKey = Config.Url + "|" + pageId;
         var page = _pageCache.Contains(cacheKey) ? _pageCache[cacheKey] : null;
         if (page == null)
         {

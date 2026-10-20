@@ -19,9 +19,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.ComponentModel;
+using System.Windows;
 using System.Windows.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
+using Greenshot.Base.Wpf.ViewModels;
+using Greenshot.Plugin.Jira.Api;
 
 namespace Greenshot.Plugin.Jira.Views;
 
@@ -36,6 +40,29 @@ public partial class JiraConfigurationView : UserControl
         {
             uploadFormatCombo.ItemsSource = registry?.GetSaveableFileFormatOptions()
                 .WithCurrentFormat(config.UploadFormat);
+        }
+
+        var connector = SimpleServiceProvider.Current.GetInstance<JiraConnector>(true);
+        if (connector == null)
+        {
+            AccountView.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        var account = new ServerAccountViewModel(connector.SignIn);
+        AccountView.DataContext = account;
+        // Another url is another sign-in
+        PropertyChangedEventHandler onUrlChanged = (_, args) =>
+        {
+            if (args.PropertyName == nameof(IJiraConfiguration.Url))
+            {
+                account.Refresh();
+            }
+        };
+        if (config is INotifyPropertyChanged notifying)
+        {
+            Loaded += (_, _) => notifying.PropertyChanged += onUrlChanged;
+            Unloaded += (_, _) => notifying.PropertyChanged -= onUrlChanged;
         }
     }
 }
