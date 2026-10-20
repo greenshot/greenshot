@@ -19,7 +19,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Windows;
 using System.Windows.Controls;
+using Greenshot.Settings.ViewModels;
+using Greenshot.Settings.Views;
 
 namespace Greenshot.Plugins.Views
 {
@@ -31,6 +34,11 @@ namespace Greenshot.Plugins.Views
         public PluginsSettingsPage()
         {
             InitializeComponent();
+        }
+
+        private void AdministratorSettings_Click(object sender, RoutedEventArgs e)
+        {
+            (Window.GetWindow(this) as SettingsWindow)?.AdministratorSettings_Click(sender, e);
         }
     }
 }

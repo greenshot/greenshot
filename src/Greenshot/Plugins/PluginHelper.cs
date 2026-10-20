@@ -31,6 +31,8 @@ using Dapplo.Ini;
 using Dapplo.Ini.Interfaces;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Languages;
+using Greenshot.Base.Wpf;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
 using log4net;
@@ -55,6 +57,16 @@ namespace Greenshot.Plugins
         private readonly List<IGreenshotPlugin> _startedPlugins = new();
 
         public static PluginHelper Instance { get; } = new PluginHelper();
+
+        /// <summary>
+        /// The names of the plugin files found, also of those which weren't loaded
+        /// </summary>
+        public IReadOnlyList<string> FoundPluginNames { get; private set; } = Array.Empty<string>();
+
+        /// <summary>
+        /// The plugins which aren't signed like Greenshot.exe and weren't approved yet, the user is asked about them after the start
+        /// </summary>
+        public IReadOnlyList<HeldBackPlugin> HeldBackPlugins { get; private set; } = Array.Empty<HeldBackPlugin>();
 
         /// <summary>
         /// The started plugins
@@ -96,6 +108,43 @@ namespace Greenshot.Plugins
 
             Log.WarnFormat("No settings view registered for {0} of plugin {1}", viewModel.GetType(), plugin.Name);
             return null;
+        }
+
+        /// <summary>
+        /// Ask about each plugin which isn't signed like Greenshot.exe, on the UI thread: Load approves its SHA-256 for the next start,
+        /// Don't load rejects it, closing the question asks again at the next start
+        /// </summary>
+        public void AskAboutHeldBackPlugins()
+        {
+            foreach (var plugin in HeldBackPlugins)
+            {
+                var text = string.Format(Texts.Core.PluginUnsignedQuestion, plugin.Name, Path.GetDirectoryName(plugin.FilePath),
+                    plugin.Signer ?? Texts.Core.PluginUnsignedNoSigner, plugin.Sha256);
+                int choice = ThemedMessageBox.ShowChoice((System.Windows.Window)null, Texts.Core.PluginUnsignedTitle, text, System.Windows.MessageBoxImage.Warning,
+                    new[] { Texts.Core.PluginUnsignedLoad, Texts.Core.PluginUnsignedDontLoad }, defaultIndex: 1);
+                switch (choice)
+                {
+                    case 0:
+                        AddHash(nameof(ICoreConfiguration.PluginApprovedHashes), CoreConfig.PluginApprovedHashes, hashes => CoreConfig.PluginApprovedHashes = hashes, plugin.Sha256);
+                        Log.InfoFormat("The plugin {0} (SHA-256 {1}) was approved, it is loaded at the next start", plugin.FilePath, plugin.Sha256);
+                        break;
+                    case 1:
+                        AddHash(nameof(ICoreConfiguration.PluginRejectedHashes), CoreConfig.PluginRejectedHashes, hashes => CoreConfig.PluginRejectedHashes = hashes, plugin.Sha256);
+                        Log.InfoFormat("The plugin {0} (SHA-256 {1}) was rejected", plugin.FilePath, plugin.Sha256);
+                        break;
+                }
+            }
+        }
+
+        private static void AddHash(string key, IEnumerable<string> current, Action<List<string>> store, string sha256)
+        {
+            if (CoreConfig.IsConstant(key))
+            {
+                Log.WarnFormat("{0} is set in greenshot-fixed.ini, the answer isn't kept", key);
+                return;
+            }
+
+            store(ConfigurationRestrictions.Names(current).Append(sha256).Distinct(StringComparer.OrdinalIgnoreCase).ToList());
         }
 
         /// <summary>
@@ -175,18 +224,29 @@ namespace Greenshot.Plugins
                 pluginFiles.AddRange(FindPluginsOnPath(ApplicationPath));
             }
 
-            // Instantiate all plugins first, greenshot.ini is already loaded so the include / exclude settings apply
+            FoundPluginNames = pluginFiles.Select(ConfigurationRestrictions.PluginNameFromFile).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+
+            // Instantiate all plugins first, greenshot.ini is already loaded so the include / exclude settings apply before a plugin is loaded,
+            // then the signature check (see docs/vNext/plugin-loading.md)
+            var signatureGate = new PluginSignatureGate(CoreConfig, Application.ExecutablePath);
             var plugins = new List<IGreenshotPlugin>();
             foreach (string pluginFile in pluginFiles)
             {
+                var pluginName = ConfigurationRestrictions.PluginNameFromFile(pluginFile);
+                if (!ConfigurationRestrictions.IsPluginAllowed(CoreConfig, pluginName))
+                {
+                    Log.WarnFormat("Skipping the plugin {0} from {1}, the configuration doesn't allow it", pluginName, pluginFile);
+                    continue;
+                }
+
+                if (signatureGate.Check(pluginFile) != PluginGateResult.Load)
+                {
+                    continue;
+                }
+
                 try
                 {
                     var assembly = Assembly.LoadFrom(pluginFile);
-
-                    if (IsPluginExcludedByConfig(assembly, pluginFile))
-                    {
-                        continue;
-                    }
 
                     var assemblyName = assembly.GetName().Name;
                     var pluginEntryName = $"{assemblyName}.{assemblyName.Replace("Greenshot.Plugin.", string.Empty)}Plugin";
@@ -214,6 +274,9 @@ namespace Greenshot.Plugins
                     Log.Error(e);
                 }
             }
+
+            signatureGate.SaveVerified();
+            HeldBackPlugins = signatureGate.HeldBack;
 
             // ── Registration: configuration sections (filled from the already read greenshot.ini), services, views ───
             var activeIniConfig = IniConfigRegistry.Get();
@@ -303,52 +366,6 @@ namespace Greenshot.Plugins
 
             // On the UI thread, where the settings views are read
             await uiDispatcher.InvokeAsync(pluginServices.Unregister).ConfigureAwait(false);
-        }
-
-        private bool IsPluginExcludedByConfig(Assembly assembly, string pluginFile)
-        {
-            // Get plugin identifier from assembly attributes
-            string pluginConfigIdentifier = GetPluginIdentifier(assembly, pluginFile);
-
-            if (CoreConfig.IncludePlugins is { } includePlugins
-                && includePlugins.Count(p => !string.IsNullOrWhiteSpace(p)) > 0 // ignore empty entries i.e. a whitespace
-                && !includePlugins.Contains(pluginConfigIdentifier))
-            {
-                Log.WarnFormat("Include plugin list: {0}", string.Join(",", includePlugins));
-                Log.WarnFormat("Skipping the not included plugin '{0}' with version {1} from {2}", pluginConfigIdentifier, assembly.GetName().Version, pluginFile);
-                return true;
-            }
-
-            if (CoreConfig.ExcludePlugins is { } excludePlugins
-                && excludePlugins.Contains(pluginConfigIdentifier))
-            {
-                Log.WarnFormat("Exclude plugin list: {0}", string.Join(",", excludePlugins));
-                Log.WarnFormat("Skipping the excluded plugin '{0}' with version {1} from {2}", pluginConfigIdentifier, assembly.GetName().Version, pluginFile);
-                return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Retrieves the plugin identifier for the specified assembly.
-        /// </summary>
-        private string GetPluginIdentifier(Assembly assembly, string pluginFile)
-        {
-            // Try to find PluginIdentifierAttribute
-            var attribute = assembly
-                .GetCustomAttributes<AssemblyPluginIdentifierAttribute>()
-                .FirstOrDefault();
-
-            if (!string.IsNullOrEmpty(attribute?.Identifier))
-            {
-               return attribute.Identifier;
-            }
-
-            // If no attribute found, fall back to the sub namespace
-            var pluginSubNamespace = assembly.GetName().Name.Replace("Greenshot.Plugin.", string.Empty);
-            Log.WarnFormat("No '{0}' found in '{1}'. Use plugin namespace '{2}' as fallback.", nameof(AssemblyPluginIdentifierAttribute), pluginFile, pluginSubNamespace);
-            return pluginSubNamespace;
         }
 
         /// <summary>
