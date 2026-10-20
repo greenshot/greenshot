@@ -182,13 +182,18 @@ namespace Greenshot.Plugins
             }
         }
 
+        /// <summary>
+        /// The plugins in the Plugins folder of the path, each in a folder of its own (Plugins\&lt;name&gt;\, as the installer, the .zip and the build put them).
+        /// Only there: the rest of the folder can be anything, e.g. Downloads with an older copy of Greenshot.
+        /// </summary>
         private IEnumerable<string> FindPluginsOnPath(string path)
         {
             var pluginFiles = Enumerable.Empty<string>();
-            if (!Directory.Exists(path)) return pluginFiles;
+            string pluginsPath = Path.Combine(path, "Plugins");
+            if (!Directory.Exists(pluginsPath)) return pluginFiles;
             try
             {
-                pluginFiles = Directory.GetFiles(path, "Greenshot.Plugin.*.dll", SearchOption.AllDirectories);
+                pluginFiles = Directory.GetFiles(pluginsPath, "Greenshot.Plugin.*.dll", SearchOption.AllDirectories);
             }
             catch (Exception ex)
             {

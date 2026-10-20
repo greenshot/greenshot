@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Ini;
@@ -76,8 +77,12 @@ namespace Greenshot.Plugin.Win10
             ToastActivator.Activated += service.HandleClick;
             try
             {
-                // Before the registration, which replaces the CustomActivator the Toolkit wrote for our app id
-                RemoveOldRegistrations();
+                // Before the registration, which replaces the CustomActivator the Toolkit wrote for our app id.
+                // Only after an update (or the first start): that is when earlier versions left them, the search walks every app id.
+                if (IsFirstStartOfThisVersion())
+                {
+                    RemoveOldRegistrations();
+                }
                 DesktopToasts.Register(ToastNotificationService.AppId, "Greenshot", WriteIcon(), $"\"{Application.ExecutablePath}\"");
                 var setting = DesktopToasts.GetSetting(ToastNotificationService.AppId);
                 if (setting == NotificationSetting.DisabledByManifest)
@@ -99,6 +104,15 @@ namespace Greenshot.Plugin.Win10
                 Log.Warn("Couldn't register for toasts, the tray icon shows the notifications.", ex);
                 return null;
             }
+        }
+
+        /// <summary>
+        /// True when greenshot.ini was last saved by another version of Greenshot, or is new
+        /// </summary>
+        private static bool IsFirstStartOfThisVersion()
+        {
+            var loadedWithVersion = IniConfigRegistry.GetSection<ICoreConfiguration>().LoadedWithVersion;
+            return string.IsNullOrEmpty(loadedWithVersion) || loadedWithVersion != Assembly.GetEntryAssembly()?.GetName().Version.ToString();
         }
 
         /// <summary>
