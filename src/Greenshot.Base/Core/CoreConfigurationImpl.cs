@@ -338,8 +338,9 @@ namespace Greenshot.Base.Core
                 }
             }
 
-            // Set defaults for properties that need computed defaults
-            if (string.IsNullOrEmpty(OutputFilePath) || !Directory.Exists(OutputFilePath))
+            // Set defaults for properties that need computed defaults. A configured folder stays, also when it doesn't exist right now
+            // (a network drive at the logon, variables like ${YYYY}), see GetOutputDirectory
+            if (string.IsNullOrEmpty(OutputFilePath))
             {
                 OutputFilePath = CreateOutputFilePath();
             }
