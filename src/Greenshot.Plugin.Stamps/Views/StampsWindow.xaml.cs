@@ -22,6 +22,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -30,6 +32,7 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
+using Dapplo.Windows.Clipboard;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Desktop;
@@ -58,6 +61,7 @@ public partial class StampsWindow : Window
     private bool _canDrop;
     // The popup with the tags is for the filter, else for the selected stamp
     private bool _tagPopupForFilter;
+    private IDisposable _clipboardSubscription;
 
     internal StampsWindow(StampsViewModel viewModel)
     {
@@ -69,6 +73,32 @@ public partial class StampsWindow : Window
         DragOver += OnDragOver;
         Drop += OnDrop;
         PreviewKeyDown += OnPreviewKeyDown;
+        SubscribeToClipboardChanges();
+        Closed += (s, e) =>
+        {
+            _clipboardSubscription?.Dispose();
+            _clipboardSubscription = null;
+        };
+    }
+
+    /// <summary>
+    /// Paste is only possible while the clipboard has an image which isn't a stamp of this window. The first update is the current state,
+    /// the others come after a change (throttled, the copying program may still be busy); checked on the UI thread.
+    /// </summary>
+    private void SubscribeToClipboardChanges()
+    {
+        try
+        {
+            _clipboardSubscription = ClipboardNative.OnUpdate
+                .Throttle(TimeSpan.FromMilliseconds(150))
+                .Subscribe(_ => Dispatcher.InvokeAsync(() => ViewModel.UpdateCanPasteAsync()).Task.Unwrap().FireAndLog("Check the clipboard for paste", Log),
+                    ex => Log.Warn("Clipboard change notifications stopped", ex));
+        }
+        catch (Exception ex)
+        {
+            // E.g. while the process is exiting
+            Log.Warn("Couldn't subscribe to clipboard changes", ex);
+        }
     }
 
     private StampsViewModel ViewModel => (StampsViewModel)DataContext;
@@ -163,7 +193,7 @@ public partial class StampsWindow : Window
                 e.Handled = true;
                 break;
             // In a text field Ctrl+V pastes text
-            case Key.V when control && Keyboard.FocusedElement is not TextBox:
+            case Key.V when control && Keyboard.FocusedElement is not TextBox && ViewModel.CanPaste:
                 Paste();
                 e.Handled = true;
                 break;

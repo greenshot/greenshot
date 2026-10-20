@@ -231,7 +231,9 @@
                         BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}">
                     <WrapPanel>
                         <Button Content="{wpf:Text Stamps.Add}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,6,6" Click="Add_Click"/>
-                        <Button Content="{wpf:Text Stamps.Paste}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,6,6" Click="Paste_Click"/>
+                        <Button Content="{wpf:Text Stamps.Paste}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,6,6"
+                                IsEnabled="{Binding CanPaste}" ToolTip="{wpf:Text Stamps.PasteTooltip}" ToolTipService.ShowOnDisabled="True"
+                                Click="Paste_Click"/>
                         <Button Content="{wpf:Text Stamps.OpenFolder}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,6,6" Click="OpenFolder_Click"/>
                     </WrapPanel>
                 </Border>

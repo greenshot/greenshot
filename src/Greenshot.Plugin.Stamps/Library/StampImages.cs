@@ -45,6 +45,11 @@ internal static class StampImages
 {
     private const string FormatSvg = "image/svg+xml";
 
+    /// <summary>
+    /// The private clipboard format which marks a stamp copied by the stamps window
+    /// </summary>
+    internal const string FormatStampCopy = "Greenshot.StampCopy";
+
     private static IEnumerable<IFileFormatHandler> Handlers => SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
 
     /// <summary>
@@ -123,6 +128,8 @@ internal static class StampImages
         }
 
         content.Contents.AddFileNames(new[] { stamp.FullPath });
+        // So the stamps window doesn't offer to paste it: that would only make a copy of the stamp
+        content.Contents.AddBytes(new byte[] { 1 }, FormatStampCopy);
         await ClipboardHelper.SetClipboardDataAsync(content.Contents, cancellationToken: cancellationToken).ConfigureAwait(false);
     }
 }

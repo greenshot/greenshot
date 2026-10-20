@@ -68,6 +68,11 @@ namespace Greenshot.Plugin.Stamps
         string Paste { get; }
 
         /// <summary>
+        /// Add the image of the clipboard as stamp (Ctrl+V). Not for a stamp copied here, that would only make a copy.
+        /// </summary>
+        string PasteTooltip { get; }
+
+        /// <summary>
         /// Insert
         /// </summary>
         string Insert { get; }

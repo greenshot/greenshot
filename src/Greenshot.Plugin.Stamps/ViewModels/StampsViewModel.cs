@@ -32,6 +32,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Data;
+using Dapplo.Windows.Clipboard;
 using Greenshot.Base.Core;
 using Greenshot.Base.Http;
 using Greenshot.Base.Interfaces.Forms;
@@ -565,6 +566,19 @@ public sealed class StampsViewModel : INotifyPropertyChanged
     /// </summary>
     public async Task PasteAsync(CancellationToken cancellationToken = default)
     {
+        if (!CanPaste)
+        {
+            return;
+        }
+
+        // Files keep their format, an SVG stays an SVG
+        var files = await ClipboardFilesAsync(cancellationToken);
+        if (files.Count > 0)
+        {
+            AddFiles(files, CurrentCategory);
+            return;
+        }
+
         using var image = await ClipboardService.Current.GetImageAsync(cancellationToken);
         if (image == null)
         {
@@ -572,6 +586,90 @@ public sealed class StampsViewModel : INotifyPropertyChanged
         }
 
         AddImage(image, Language.Title, CurrentCategory);
+    }
+
+    /// <summary>
+    /// Can the clipboard be pasted: it has an image, and it isn't a stamp of this folder (which would only make a copy)
+    /// </summary>
+    public bool CanPaste
+    {
+        get => _canPaste;
+        private set
+        {
+            if (value == _canPaste) return;
+            _canPaste = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private bool _canPaste;
+
+    /// <summary>
+    /// Check the clipboard for <see cref="CanPaste"/>, on the UI thread after it changed. Without opening the clipboard when the formats tell,
+    /// else the file names and the HTML are read in a short snapshot.
+    /// </summary>
+    internal async Task UpdateCanPasteAsync(CancellationToken cancellationToken = default)
+    {
+        if (ClipboardNative.HasFormat(StampImages.FormatStampCopy))
+        {
+            CanPaste = false;
+            return;
+        }
+
+        uint sequenceNumber = ClipboardNative.SequenceNumber;
+        bool canPaste = ClipboardHelper.ContainsImageQuick() switch
+        {
+            true => true,
+            false => false,
+            // A file list, virtual files or HTML: stamp files of this folder don't count
+            null => await ClipboardHelper.ContainsImageAsync(cancellationToken) && !await HasOnlyOwnFilesAsync(cancellationToken)
+        };
+
+        // A newer change checks again
+        if (sequenceNumber == ClipboardNative.SequenceNumber)
+        {
+            CanPaste = canPaste;
+        }
+    }
+
+    /// <summary>
+    /// Are the files on the clipboard all in the stamps folder, e.g. copied in Explorer after "Open folder"
+    /// </summary>
+    private async Task<bool> HasOnlyOwnFilesAsync(CancellationToken cancellationToken)
+    {
+        var files = await ClipboardFileNamesAsync(cancellationToken);
+        return files.Count > 0 && files.All(IsInLibrary);
+    }
+
+    /// <summary>
+    /// The stamp files on the clipboard which aren't in the stamps folder yet
+    /// </summary>
+    private async Task<IList<string>> ClipboardFilesAsync(CancellationToken cancellationToken) =>
+        (await ClipboardFileNamesAsync(cancellationToken)).Where(file => !IsInLibrary(file) && (Library.IsStampFile(file) || Directory.Exists(file))).ToList();
+
+    private static async Task<IList<string>> ClipboardFileNamesAsync(CancellationToken cancellationToken)
+    {
+        string formatDrop = StandardClipboardFormats.Drop.AsString();
+        if (!ClipboardNative.HasFormat(formatDrop))
+        {
+            return Array.Empty<string>();
+        }
+
+        var snapshot = await ClipboardHelper.ReadSnapshotAsync(new[] { formatDrop }, cancellationToken);
+        return snapshot?.GetFileNames().Where(file => !string.IsNullOrEmpty(file)).ToList() ?? (IList<string>)Array.Empty<string>();
+    }
+
+    private bool IsInLibrary(string path)
+    {
+        try
+        {
+            string folder = Library.Directory.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
+            return Path.GetFullPath(path).StartsWith(folder, StringComparison.OrdinalIgnoreCase);
+        }
+        catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException)
+        {
+            return false;
+        }
     }
 
     /// <summary>
