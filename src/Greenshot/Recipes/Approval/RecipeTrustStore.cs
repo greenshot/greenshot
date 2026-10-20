@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using log4net;
@@ -197,7 +198,18 @@ namespace Greenshot.Recipes.Approval
             }
             catch (Exception ex)
             {
-                Log.Warn("Failed to read encrypted recipe trust store; starting with fresh database.", ex);
+                // Kept next to it, the next approval would overwrite it: e.g. a profile copied to another computer can't decrypt it
+                string unreadablePath = path + ".unreadable";
+                Log.Warn($"Failed to read encrypted recipe trust store, it is moved to '{unreadablePath}'; starting with fresh database.", ex);
+                try
+                {
+                    File.Delete(unreadablePath);
+                    File.Move(path, unreadablePath);
+                }
+                catch (Exception moveException)
+                {
+                    Log.Warn("Could not move the unreadable recipe trust store.", moveException);
+                }
             }
 
             return _records;
@@ -331,6 +343,29 @@ namespace Greenshot.Recipes.Approval
                 SaveRecords();
             }
             Log.InfoFormat("Revoked the approval of recipe '{0}' in '{1}'", recipeId, fullPath);
+        }
+
+        /// <summary>
+        /// Removes the records of all other files, with their approved content: the files which aren't used anymore
+        /// </summary>
+        public static void KeepOnly(IEnumerable<string> filePaths)
+        {
+            var keep = new HashSet<string>(filePaths ?? Enumerable.Empty<string>(), StringComparer.OrdinalIgnoreCase);
+            lock (LockObj)
+            {
+                var records = LoadRecords();
+                var unused = records.Keys.Where(path => !keep.Contains(path)).ToList();
+                if (unused.Count == 0)
+                {
+                    return;
+                }
+                foreach (var path in unused)
+                {
+                    records.Remove(path);
+                }
+                SaveRecords();
+                Log.InfoFormat("Removed the approvals of {0} recipe file(s) which aren't used anymore.", unused.Count);
+            }
         }
 
         /// <summary>

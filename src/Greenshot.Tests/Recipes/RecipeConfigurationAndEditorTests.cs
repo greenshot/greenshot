@@ -69,6 +69,16 @@ namespace Greenshot.Tests.Recipes
             }
         }
 
+        private class CountingStepProvider : IRecipeStepProvider
+        {
+            public int Calls { get; private set; }
+
+            public void RegisterSteps(IStepRegistry registry)
+            {
+                Calls++;
+            }
+        }
+
         private class DrawableTypeProvider : IRecipeDrawableProvider
         {
             private readonly string _drawableType;
@@ -154,6 +164,22 @@ namespace Greenshot.Tests.Recipes
             Assert.False(registry.IsRegistered("DisabledPluginStep"));
             Assert.True(registry.IsRegistered("OtherPluginStep"));
             Assert.True(registry.IsRegistered("CoreStep"));
+        }
+
+        [Fact]
+        public void StepRegistry_RegistersAProviderOnce_UntilItIsUnregistered()
+        {
+            IniConfigHelper.EnsureSection<IRecipeConfiguration>(() => new RecipeConfigurationImpl()).Enabled = true;
+            var registry = new StepRegistry();
+            var provider = new CountingStepProvider();
+
+            registry.RegisterProvider(provider);
+            registry.RegisterProvider(provider);
+            Assert.Equal(1, provider.Calls);
+
+            registry.UnregisterProvider(provider);
+            registry.RegisterProvider(provider);
+            Assert.Equal(2, provider.Calls);
         }
 
         [Fact]
