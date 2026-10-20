@@ -24,7 +24,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapplo.HttpExtensions;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Export;
@@ -121,7 +120,7 @@ namespace Greenshot.Plugin.Jira.Recipes
                 {
                     var image = await source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
                     await jiraConnector.AttachAsync(issueKey, image, filename, cancellationToken).ConfigureAwait(false);
-                    string uploadUrl = jiraConnector.JiraBaseUri.AppendSegments("browse", issueKey).AbsoluteUri;
+                    string uploadUrl = jiraConnector.GetBrowseUri(issueKey).AbsoluteUri;
                     await source.UseSurfaceAsync(surface => surface.UploadUrl = uploadUrl, cancellationToken).ConfigureAwait(false);
                     context.Properties["Jira.UploadUrl"] = uploadUrl;
                     context.Properties["Jira.IssueKey"] = issueKey;

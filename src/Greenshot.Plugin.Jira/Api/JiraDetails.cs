@@ -20,7 +20,6 @@
  */
 
 using System;
-using Dapplo.Jira.Entities;
 
 namespace Greenshot.Plugin.Jira.Api;
 
@@ -37,7 +36,7 @@ public class JiraDetails : IComparable<JiraDetails>
 
     public string JiraKey => ProjectKey + "-" + Id;
 
-    public IssueV2 JiraIssue { get; set; }
+    public JiraIssue JiraIssue { get; set; }
 
     public DateTimeOffset FirstSeenAt { get; private set; }
 

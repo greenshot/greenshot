@@ -44,7 +44,8 @@ public class ConfluenceUtils
     public static async Task<List<Page>> GetCurrentPagesAsync(CancellationToken cancellationToken)
     {
         List<Page> pages = new List<Page>();
-        Regex pageIdRegex = new Regex(@"pageId=(\d+)");
+        // Server: viewpage.action?pageId=123, Cloud: /wiki/spaces/KEY/pages/123/Title
+        Regex pageIdRegex = new Regex(@"(?:pageId=|/pages/)(\d+)");
         Regex spacePageRegex = new Regex(@"\/display\/([^\/]+)\/([^#]+)");
         foreach (string browserurl in GetBrowserUrls())
         {

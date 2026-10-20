@@ -23,11 +23,6 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Dapplo.HttpExtensions;
-using Dapplo.HttpExtensions.JsonNet;
-using Dapplo.HttpExtensions.WinForms.ContentConverter;
-using Dapplo.Jira.SvgWinForms.Converters;
-using Dapplo.Log;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
@@ -96,7 +91,7 @@ public class JiraPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProv
     }
 
     /// <summary>
-    /// Register the upload dialog, the HTTP setup of Dapplo.Jira waits for the first login (see JiraConnector)
+    /// Register the upload dialog, the connection waits for the first login (see JiraConnector)
     /// </summary>
     public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken)
     {

@@ -26,8 +26,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapplo.HttpExtensions;
-using Dapplo.Jira.Entities;
 using Greenshot.Base.Core;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
@@ -59,14 +57,14 @@ public sealed class JiraUploadRequest : IDialogViewModel<JiraUploadChoice>
 /// </summary>
 public sealed class JiraUploadChoice
 {
-    public JiraUploadChoice(IssueV2 issue, string filename, string comment)
+    public JiraUploadChoice(JiraIssue issue, string filename, string comment)
     {
         Issue = issue;
         Filename = filename;
         Comment = comment;
     }
 
-    public IssueV2 Issue { get; }
+    public JiraIssue Issue { get; }
 
     public string Filename { get; }
 
@@ -142,9 +140,9 @@ public class JiraDestination : DestinationBase, IRequiresRecipeAuthorization
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(JiraDestination));
     private static IJiraConfiguration Config => IniConfigRegistry.GetSection<IJiraConfiguration>();
-    private readonly IssueV2 _jiraIssue;
+    private readonly JiraIssue _jiraIssue;
 
-    public JiraDestination(IssueV2 jiraIssue = null)
+    public JiraDestination(JiraIssue jiraIssue = null)
     {
         _jiraIssue = jiraIssue;
     }
@@ -217,7 +215,7 @@ public class JiraDestination : DestinationBase, IRequiresRecipeAuthorization
                 await jiraConnector.AttachAsync(issue.Key, image, filename, token).ConfigureAwait(false);
                 if (!string.IsNullOrEmpty(comment))
                 {
-                    await jiraConnector.AddCommentAsync(issue.Key, comment, null, token).ConfigureAwait(false);
+                    await jiraConnector.AddCommentAsync(issue.Key, comment, token).ConfigureAwait(false);
                 }
 
                 return true;
@@ -230,6 +228,6 @@ public class JiraDestination : DestinationBase, IRequiresRecipeAuthorization
         }
 
         Log.DebugFormat("Uploaded to Jira {0}", issue.Key);
-        return ExportResult.Succeeded(uri: jiraConnector.JiraBaseUri.AppendSegments("browse", issue.Key), target: issue.Key);
+        return ExportResult.Succeeded(uri: jiraConnector.GetBrowseUri(issue.Key), target: issue.Key);
     }
 }

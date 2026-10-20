@@ -1,87 +1,32 @@
-# Confluence Plugin Migration Notes
+# Confluence Plugin API Notes
 
-## Overview
+The plugin talks to the Confluence REST API with its own small client (`Api/ConfluenceClient.cs`) over Greenshot's
+`HttpService`. It replaced the SOAP API (removed by Atlassian) and later the Dapplo.Confluence library.
 
-The Greenshot Confluence plugin has been migrated from the deprecated SOAP API to the modern REST API using the Dapplo.Confluence library.
+## Configuration
 
-## Changes Made
+- Server/Data Center: the base url, e.g. `https://confluence.example.com`, with user name and password (or a personal access token as password where Basic is allowed).
+- Cloud: `https://yourdomain.atlassian.net/wiki`, with the e-mail address and an API token from https://id.atlassian.com/manage/api-tokens
 
-### 1. Dependency Updates
+## Calls
 
-- **Removed**: `System.Web.Services` reference (SOAP client)
-- **Removed**: Web References directory containing auto-generated SOAP proxy code
-- **Added**: `Dapplo.Confluence` NuGet package (v1.0.17+)
+Cloud deprecated most v1 calls that have a v2 replacement (RFC-19), so the plugin uses only calls that exist on both:
 
-### 2. API Changes
+| Use | Call |
+|-----|------|
+| Check the login | `GET rest/api/user/current` |
+| Page by id, by space and title, child pages, text search | `GET rest/api/content/search?cql=...` (CQL `id=`, `space= and title=`, `parent=`, `text~`) |
+| Spaces with their home page | `GET rest/api/space?expand=homepage`; when that is gone (404/410 on Cloud) `GET api/v2/spaces` |
+| Upload | `POST rest/api/content/{id}/child/attachment` (multipart `file`, `minorEdit`, `comment`, header `X-Atlassian-Token: no-check`) |
 
-#### Authentication
-- **Old (SOAP)**: Used `login()` method with session tokens
-- **New (REST)**: Uses HTTP Basic Authentication via `SetBasicAuthentication()`
+## Open pages in the browser
 
-#### Configuration
-- **Old**: Required SOAP endpoint URLs with `/rpc/soap-axis/confluenceservice-v1?wsdl` or `v2` suffix
-- **New**: Uses base Confluence URL (e.g., `https://confluence.example.com` or `https://domain.atlassian.net/wiki` for Cloud)
-
-### 3. Code Changes
-
-#### Confluence.cs
-- Replaced `ConfluenceSoapServiceService` with `IConfluenceClient`
-- Updated all API calls to use async/await pattern with REST endpoints
-- Implemented CQL (Confluence Query Language) for search operations
-- Updated attachment upload to use streams instead of byte arrays
-
-#### Entities
-- Updated `Page.cs` to map from `Dapplo.Confluence.Entities.Content`
-- Updated `Space.cs` to map from `Dapplo.Confluence.Entities.Space`
-
-#### Configuration
-- Removed SOAP-specific URL constants (`DEFAULT_POSTFIX1`, `DEFAULT_POSTFIX2`)
-- Updated URL description to indicate REST API usage
-
-## Confluence Cloud Support
-
-The plugin now supports both **Confluence Server** and **Confluence Cloud**:
-
-### Server
-- URL: `https://confluence.example.com`
-- Authentication: Username and password
-
-### Cloud
-- URL: `https://yourdomain.atlassian.net/wiki`
-- Authentication: Email address and API token
-- API Token: Generate at https://id.atlassian.com/manage/api-tokens
-
-## API Mapping
-
-| SOAP Method | REST Method | Notes |
-|-------------|-------------|-------|
-| `login(user, password)` | `SetBasicAuthentication(user, password)` | No session tokens needed |
-| `logout(credentials)` | N/A | REST uses stateless auth |
-| `getPage(credentials, pageId)` | `Content.GetAsync(pageId)` | Returns Content object |
-| `getPage(credentials, space, title)` | `Content.SearchAsync(query)` | Uses CQL query |
-| `getSpaces(credentials)` | `Space.GetAllAsync()` | Returns paginated results |
-| `getChildren(credentials, pageId)` | `Content.GetChildrenAsync(pageId)` | Returns child pages |
-| `search(credentials, query, limit)` | `Content.SearchAsync(whereClause)` | Uses CQL queries |
-| `addAttachment(...)` | `Attachment.AttachAsync(...)` | Uses streams |
-
-## Known Limitations
-
-- The REST API does not support session timeout in the same way as SOAP
-- Attachment deletion has limitations (see CONF-36015)
-- Some operations may have different pagination behavior
-
-## Testing Recommendations
-
-When testing the migrated plugin:
-
-1. Test authentication with both Server and Cloud instances
-2. Verify page browsing and searching functionality
-3. Test image upload to pages
-4. Verify the "current page" detection from browser URLs still works
-5. Test personal space filtering
+`ConfluenceUtils.GetCurrentPagesAsync` finds page ids (`pageId=123`, Cloud `/pages/123/`) and Server page paths
+(`/display/SPACE/Title`) in the urls of Firefox windows.
 
 ## References
 
-- Dapplo.Confluence: https://github.com/dapplo/Dapplo.Confluence
-- Confluence REST API: https://docs.atlassian.com/ConfluenceServer/rest/
-- CQL Documentation: https://developer.atlassian.com/cloud/confluence/advanced-searching-using-cql/
+- Confluence Cloud REST API: https://developer.atlassian.com/cloud/confluence/rest/v1/
+- Confluence Data Center REST API: https://developer.atlassian.com/server/confluence/rest/
+- CQL: https://developer.atlassian.com/cloud/confluence/advanced-searching-using-cql/
+- v1 deprecation: https://community.developer.atlassian.com/t/rfc-19-deprecation-of-confluence-cloud-rest-api-v1-endpoints/71752

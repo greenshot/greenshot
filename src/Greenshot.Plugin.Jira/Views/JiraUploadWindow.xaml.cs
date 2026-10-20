@@ -31,7 +31,6 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
-using Dapplo.Jira.Entities;
 using Greenshot.Base.Core;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Wpf;
@@ -50,7 +49,7 @@ public partial class JiraUploadWindow : Window
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(JiraUploadWindow));
     private readonly JiraConnector _jiraConnector;
     private readonly DispatcherTimer _keyLookupTimer;
-    private IssueV2 _selectedIssue;
+    private JiraIssue _selectedIssue;
     private bool _closed;
     private string _sortProperty;
     private ListSortDirection _sortDirection = ListSortDirection.Ascending;
@@ -111,20 +110,20 @@ public partial class JiraUploadWindow : Window
     }
 
     /// <summary>
-    /// A line in the issue list, a search result (Issue); the IssueV2 to upload to is looked up by its key when it is picked
+    /// A line in the issue list, a search result; the issue to upload to is looked up by its key when it is picked
     /// </summary>
     public sealed class IssueRow : INotifyPropertyChanged
     {
         private ImageSource _icon;
 
-        public IssueRow(Issue issue)
+        public IssueRow(JiraIssue issue)
         {
             Issue = issue;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public Issue Issue { get; }
+        public JiraIssue Issue { get; }
 
         /// <summary>
         /// The icon of the issue type, loaded after the row is shown
@@ -227,7 +226,7 @@ public partial class JiraUploadWindow : Window
     /// <summary>
     /// The issue to upload to, its key is shown in the key box
     /// </summary>
-    private void SelectIssue(IssueV2 issue)
+    private void SelectIssue(JiraIssue issue)
     {
         _selectedIssue = issue;
         UploadButton.IsEnabled = issue != null;
@@ -241,20 +240,20 @@ public partial class JiraUploadWindow : Window
 
     private void FilterBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (FilterBox.SelectedItem is Filter filter)
+        if (FilterBox.SelectedItem is JiraFilter filter)
         {
             AsyncCommand.Run(() => LoadFilterAsync(filter), "Jira filter selected");
         }
     }
 
-    private async Task LoadFilterAsync(Filter filter)
+    private async Task LoadFilterAsync(JiraFilter filter)
     {
         if (!_jiraConnector.IsLoggedIn)
         {
             return;
         }
 
-        IList<Issue> issues;
+        IList<JiraIssue> issues;
         try
         {
             issues = await _jiraConnector.SearchAsync(filter);
@@ -279,8 +278,15 @@ public partial class JiraUploadWindow : Window
         {
             try
             {
-                var bitmap = row.Issue.Fields?.IssueType == null ? null : await _jiraConnector.GetIssueTypeBitmapAsync(row.Issue.Fields.IssueType);
-                row.Icon = bitmap?.ToBitmapSource();
+                var bitmap = await _jiraConnector.GetIssueTypeBitmapAsync(row.Issue);
+                if (bitmap != null)
+                {
+                    // The connector owns the bitmap
+                    lock (bitmap)
+                    {
+                        row.Icon = bitmap.ToBitmapSource();
+                    }
+                }
             }
             catch (Exception ex)
             {

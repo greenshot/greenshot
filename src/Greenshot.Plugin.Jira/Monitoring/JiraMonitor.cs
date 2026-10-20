@@ -26,8 +26,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapplo.Jira;
-using Dapplo.Log;
 using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Structs;
 using Dapplo.Windows.User32;
@@ -43,12 +41,12 @@ namespace Greenshot.Plugin.Jira.Monitoring;
 /// </summary>
 public class JiraMonitor : IDisposable
 {
-    private static readonly LogSource Log = new LogSource();
+    private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(JiraMonitor));
     private readonly Regex _jiraKeyPattern = new Regex(@"[A-Z][A-Z0-9]+\-[0-9]+");
     private readonly IDisposable _monitor;
-    private readonly IList<IJiraClient> _jiraInstances = new List<IJiraClient>();
+    private readonly IList<JiraClient> _jiraInstances = new List<JiraClient>();
     // Read by the title monitor (WinEventHook, SharedMessageWindow thread) while instances are added asynchronously
-    private readonly ConcurrentDictionary<string, IJiraClient> _projectJiraClientMap = new ConcurrentDictionary<string, IJiraClient>();
+    private readonly ConcurrentDictionary<string, JiraClient> _projectJiraClientMap = new ConcurrentDictionary<string, JiraClient>();
 
     private readonly int _maxEntries;
 
@@ -98,8 +96,8 @@ public class JiraMonitor : IDisposable
     /// Retrieve the API belonging to a JiraDetails
     /// </summary>
     /// <param name="jiraDetails"></param>
-    /// <returns>IJiraClient</returns>
-    public IJiraClient GetJiraClientForKey(JiraDetails jiraDetails)
+    /// <returns>JiraClient</returns>
+    public JiraClient GetJiraClientForKey(JiraDetails jiraDetails)
     {
         return _projectJiraClientMap[jiraDetails.ProjectKey];
     }
@@ -129,12 +127,12 @@ public class JiraMonitor : IDisposable
     /// <summary>
     /// Add an instance of a JIRA system
     /// </summary>
-    /// <param name="jiraInstance">IJiraClient</param>
+    /// <param name="jiraInstance">JiraClient</param>
     /// <param name="token">CancellationToken</param>
-    public async Task AddJiraInstanceAsync(IJiraClient jiraInstance, CancellationToken token = default)
+    public async Task AddJiraInstanceAsync(JiraClient jiraInstance, CancellationToken token = default)
     {
         _jiraInstances.Add(jiraInstance);
-        var projects = await jiraInstance.Project.GetAllAsync(cancellationToken: token).ConfigureAwait(false);
+        var projects = await jiraInstance.GetProjectsAsync(token).ConfigureAwait(false);
         if (projects != null)
         {
             foreach (var project in projects)
@@ -156,7 +154,7 @@ public class JiraMonitor : IDisposable
         {
             if (_projectJiraClientMap.TryGetValue(jiraDetails.ProjectKey, out var jiraClient))
             {
-                var issue = await jiraClient.Issue.GetAsync(jiraDetails.JiraKey).ConfigureAwait(false);
+                var issue = await jiraClient.GetIssueAsync(jiraDetails.JiraKey).ConfigureAwait(false);
                 jiraDetails.JiraIssue = issue;
             }
 
@@ -169,7 +167,7 @@ public class JiraMonitor : IDisposable
         }
         catch (Exception ex)
         {
-            Log.Warn().WriteLine("Couldn't retrieve JIRA title: {0}", ex.Message);
+            Log.WarnFormat("Couldn't retrieve JIRA title: {0}", ex.Message);
         }
     }
 
@@ -250,7 +248,7 @@ public class JiraMonitor : IDisposable
         }
         else
         {
-            Log.Info().WriteLine("Couldn't match possible JIRA key {0} to projects in a configured JIRA instance, ignoring", projectKey);
+            Log.InfoFormat("Couldn't match possible JIRA key {0} to projects in a configured JIRA instance, ignoring", projectKey);
         }
     }
 }

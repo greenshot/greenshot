@@ -19,24 +19,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Confluence.Entities;
-
 namespace Greenshot.Plugin.Confluence.Api.Entities;
 
 public class Page
 {
-    public Page(Content content)
+    public Page(ConfluenceContent content, string url)
     {
         Id = content.Id;
         Title = content.Title;
         SpaceKey = content.Space?.Key;
-        Url = content.Links?.WebUi;
-        Content = content.Body?.Storage?.Value;
+        Url = url;
     }
 
     public long Id { get; set; }
     public string Title { get; set; }
+
+    /// <summary>
+    /// The page in the browser
+    /// </summary>
     public string Url { get; set; }
-    public string Content { get; set; }
     public string SpaceKey { get; set; }
 }

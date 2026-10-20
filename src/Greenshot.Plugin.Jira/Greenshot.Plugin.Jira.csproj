@@ -14,9 +14,8 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
-    <PackageReference Include="Dapplo.Jira" version="2.0.7" />
-    <PackageReference Include="Dapplo.Jira.SvgWinForms" Version="2.0.7" />
-    <PackageReference Include="Dapplo.HttpExtensions.WinForms" Version="2.0.12" />
+    <!-- For the source generator of the JSON serializer, the library comes with Greenshot.Base -->
+    <PackageReference Include="System.Text.Json" Version="10.0.13" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0" />

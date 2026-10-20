@@ -143,9 +143,18 @@ namespace Greenshot.Base.Http
         /// Get the content at the url as bytes.
         /// </summary>
         /// <exception cref="HttpRequestException">for an HTTP error</exception>
-        public async Task<byte[]> GetBytesAsync(string url, CancellationToken cancellationToken)
+        public Task<byte[]> GetBytesAsync(string url, CancellationToken cancellationToken) => GetBytesAsync(new HttpRequestMessage(HttpMethod.Get, url), cancellationToken);
+
+        /// <summary>
+        /// Send the request (with headers of the caller) and read the content as bytes.
+        /// </summary>
+        /// <param name="request">HttpRequestMessage, disposed after sending</param>
+        /// <param name="cancellationToken">CancellationToken</param>
+        /// <exception cref="HttpRequestException">for an HTTP error</exception>
+        public async Task<byte[]> GetBytesAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            using var request = new HttpRequestMessage(HttpMethod.Get, url);
+            if (request == null) throw new ArgumentNullException(nameof(request));
+            using var disposeRequest = request;
             using var response = await SendCoreAsync(request, HttpCompletionOption.ResponseContentRead, cancellationToken).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
             {

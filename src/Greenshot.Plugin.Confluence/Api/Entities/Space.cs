@@ -19,18 +19,28 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using DapploSpace = Dapplo.Confluence.Entities.Space;
-
 namespace Greenshot.Plugin.Confluence.Api.Entities;
 
 public class Space
 {
-    public Space(DapploSpace space)
+    public Space(ConfluenceSpace space, Page homepage)
     {
         Key = space.Key;
         Name = space.Name;
+        Homepage = homepage;
+        HomepageId = space.Homepage?.Id ?? space.HomepageId;
     }
 
     public string Key { get; set; }
     public string Name { get; set; }
+
+    /// <summary>
+    /// The home page, when the server sent it with the space
+    /// </summary>
+    public Page Homepage { get; }
+
+    /// <summary>
+    /// The id of the home page, null when the space has none
+    /// </summary>
+    public long? HomepageId { get; }
 }

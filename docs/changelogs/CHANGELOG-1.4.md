@@ -125,6 +125,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 **Confluence Plugin** (#869)
 - Replaced deprecated SOAP API with REST API
 - Modern API integration for Confluence
+- Works with Confluence Cloud and Data Center, also finds open Confluence Cloud pages in Firefox
 - By @Copilot
 
 **Dropbox Plugin** (#885)
@@ -134,6 +135,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 **JIRA Plugin** (#871)
 - Various fixes to improve JIRA plugin functionality
+- The issues of a favourite filter show again on Jira Cloud (Atlassian removed the old search)
 - By @Lakritzator
 
 **OneNote Plugin** (#883)

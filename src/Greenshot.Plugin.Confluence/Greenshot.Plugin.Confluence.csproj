@@ -20,7 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapplo.Confluence" Version="1.0.41" />
+    <!-- For the source generator of the JSON serializer, the library comes with Greenshot.Base -->
+    <PackageReference Include="System.Text.Json" Version="10.0.13" />
   </ItemGroup>
 
   <ItemGroup>

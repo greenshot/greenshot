@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -28,14 +29,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Dapplo.HttpExtensions;
-using Dapplo.HttpExtensions.Extensions;
-using Dapplo.HttpExtensions.JsonNet;
-using Dapplo.HttpExtensions.WinForms.ContentConverter;
-using Dapplo.Jira;
-using Dapplo.Jira.Entities;
-using Dapplo.Jira.SvgWinForms.Converters;
-using Dapplo.Log;
 using Greenshot.Base.Core;
 using Greenshot.Base.Http;
 using Greenshot.Base.Interfaces;
@@ -46,7 +39,7 @@ using Greenshot.Plugin.Jira.Monitoring;
 namespace Greenshot.Plugin.Jira.Api;
 
 /// <summary>
-/// This encapsulates the JiraClient to make it possible to change as less old Greenshot code as needed
+/// The login, the title monitor and the calls of the Jira plugin, over the <see cref="JiraClient"/>
 /// </summary>
 public sealed class JiraConnector : IDisposable
 {
@@ -57,37 +50,16 @@ public sealed class JiraConnector : IDisposable
 
     // Used to remove the wsdl information from the old SOAP Uri
     public const string DefaultPostfix = "/rpc/soap/jirasoapservice-v2?wsdl";
-    private IJiraClient _jiraClient;
-    private IssueTypeBitmapCache _issueTypeBitmapCache;
+    private JiraClient _jiraClient;
 
-    // The HTTP setup Dapplo.Jira needs, done once at the first login instead of at every start
-    private static readonly Lazy<bool> HttpSetup = new(() =>
-    {
-        if (HttpExtensionsGlobals.HttpContentConverters.All(x => x.GetType() != typeof(SvgBitmapHttpContentConverter)))
-        {
-            HttpExtensionsGlobals.HttpContentConverters.Add(SvgBitmapHttpContentConverter.Instance.Value);
-        }
-
-        BitmapHttpContentConverter.RegisterGlobally();
-        // Dapplo.Jira (de)serializes with Json.NET
-        JsonNetJsonSerializer.RegisterGlobally();
-        LogSettings.RegisterDefaultLogger<Log4NetLogger>(Log.IsDebugEnabled ? LogLevels.Verbose
-            : Log.IsInfoEnabled ? LogLevels.Info
-            : Log.IsWarnEnabled ? LogLevels.Warn
-            : Log.IsErrorEnabled ? LogLevels.Error
-            : LogLevels.Fatal);
-        return true;
-    });
+    // The issue type icons in the icon size, replaced when the icon size changes
+    private IssueTypeIcons _issueTypeIcons = new IssueTypeIcons();
 
     private void OnCoreConfigPropertyChanged(object sender, PropertyChangedEventArgs args)
     {
         if (args.PropertyName == nameof(CoreConfig.IconSize))
         {
-            _jiraClient?.Behaviour.SetConfig(new SvgConfiguration
-            {
-                Width = CoreConfig.IconSize.Width,
-                Height = CoreConfig.IconSize.Height
-            });
+            ClearIssueTypeBitmaps();
         }
     }
 
@@ -102,6 +74,7 @@ public sealed class JiraConnector : IDisposable
             Logout();
         }
 
+        ClearIssueTypeBitmaps();
         FavIcon?.Dispose();
     }
 
@@ -132,23 +105,15 @@ public sealed class JiraConnector : IDisposable
             return false;
         }
 
-        _ = HttpSetup.Value;
-        _jiraClient = JiraClient.Create(new Uri(JiraConfig.Url));
-        _jiraClient.Behaviour.SetConfig(new SvgConfiguration
-        {
-            Width = CoreConfig.IconSize.Width,
-            Height = CoreConfig.IconSize.Height
-        });
-        _jiraClient.SetBasicAuthentication(user, password);
-
-        _issueTypeBitmapCache = new IssueTypeBitmapCache(_jiraClient);
+        _jiraClient = new JiraClient(new Uri(JiraConfig.Url), user, password);
         try
         {
+            // Reading the projects checks the credentials
             Monitor = new JiraMonitor();
             await Monitor.AddJiraInstanceAsync(_jiraClient, cancellationToken);
 
             // The favicon of the server (or the icon link of its start page) for the destination, the Jira logo without one
-            var favIcon = await SiteIcon.FetchAsync(HttpService.Current, _jiraClient.JiraBaseUri, false, cancellationToken);
+            var favIcon = await SiteIcon.FetchAsync(HttpService.Current, _jiraClient.BaseUri, false, cancellationToken);
             if (favIcon != null)
             {
                 using var stream = new MemoryStream(favIcon);
@@ -260,10 +225,10 @@ public sealed class JiraConnector : IDisposable
     /// Get the favorite filters
     /// </summary>
     /// <returns>List with filters</returns>
-    public async Task<IList<Filter>> GetFavoriteFiltersAsync(CancellationToken cancellationToken = default)
+    public async Task<IList<JiraFilter>> GetFavoriteFiltersAsync(CancellationToken cancellationToken = default)
     {
         await CheckCredentialsAsync(cancellationToken);
-        return await _jiraClient.Filter.GetFavoritesAsync(cancellationToken).ConfigureAwait(false);
+        return await _jiraClient.GetFavoriteFiltersAsync(cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -271,16 +236,17 @@ public sealed class JiraConnector : IDisposable
     /// </summary>
     /// <param name="issueKey">Jira issue key</param>
     /// <param name="cancellationToken">CancellationToken</param>
-    /// <returns>Issue</returns>
-    public async Task<IssueV2> GetIssueAsync(string issueKey, CancellationToken cancellationToken = default)
+    /// <returns>JiraIssue, null when it couldn't be read</returns>
+    public async Task<JiraIssue> GetIssueAsync(string issueKey, CancellationToken cancellationToken = default)
     {
         await CheckCredentialsAsync(cancellationToken);
         try
         {
-            return await _jiraClient.Issue.GetAsync(issueKey, cancellationToken: cancellationToken).ConfigureAwait(false);
+            return await _jiraClient.GetIssueAsync(issueKey, cancellationToken).ConfigureAwait(false);
         }
-        catch
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
+            Log.Debug($"Couldn't read Jira issue {issueKey}", ex);
             return null;
         }
     }
@@ -295,8 +261,7 @@ public sealed class JiraConnector : IDisposable
     public async Task AttachAsync(string issueKey, EncodedImage content, string filename, CancellationToken cancellationToken = default)
     {
         await CheckCredentialsAsync(cancellationToken).ConfigureAwait(false);
-        using var stream = content.OpenRead();
-        await _jiraClient.Attachment.AttachAsync(issueKey, stream, filename, content.MimeType, cancellationToken).ConfigureAwait(false);
+        await _jiraClient.AttachAsync(issueKey, content, filename, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -304,56 +269,154 @@ public sealed class JiraConnector : IDisposable
     /// </summary>
     /// <param name="issueKey">Jira issue key</param>
     /// <param name="body">text</param>
-    /// <param name="visibility">the visibility role</param>
     /// <param name="cancellationToken">CancellationToken</param>
-    public async Task AddCommentAsync(string issueKey, string body, Visibility visibility = null, CancellationToken cancellationToken = default)
+    public async Task AddCommentAsync(string issueKey, string body, CancellationToken cancellationToken = default)
     {
         await CheckCredentialsAsync(cancellationToken);
-        await _jiraClient.Issue.AddCommentAsync(issueKey, body, visibility, cancellationToken).ConfigureAwait(false);
+        await _jiraClient.AddCommentAsync(issueKey, body, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
     /// Get the search results for the specified filter
     /// </summary>
-    /// <param name="filter">Filter</param>
+    /// <param name="filter">JiraFilter</param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<IList<Issue>> SearchAsync(Filter filter, CancellationToken cancellationToken = default)
+    public async Task<IList<JiraIssue>> SearchAsync(JiraFilter filter, CancellationToken cancellationToken = default)
     {
         await CheckCredentialsAsync(cancellationToken);
-        var searchResult = await _jiraClient.Issue.SearchAsync(filter.Jql, null, new[]
-        {
-            "summary", "reporter", "assignee", "created", "issuetype"
-        }, null, cancellationToken).ConfigureAwait(false);
-        return searchResult.Issues;
+        return await _jiraClient.SearchAsync(filter.Jql, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
     /// Get the bitmap representing the issue type of an issue, from cache.
     /// </summary>
-    /// <param name="issue">Issue</param>
+    /// <param name="issue">JiraIssue</param>
     /// <param name="cancellationToken">CancellationToken</param>
-    /// <returns>Bitmap</returns>
-    public Task<Bitmap> GetIssueTypeBitmapAsync(IssueV2 issue, CancellationToken cancellationToken = default)
+    /// <returns>Bitmap, owned by the cache: lock it while using it</returns>
+    public Task<Bitmap> GetIssueTypeBitmapAsync(JiraIssue issue, CancellationToken cancellationToken = default)
     {
-        return GetIssueTypeBitmapAsync(issue.Fields.IssueType, cancellationToken);
+        return GetIssueTypeBitmapAsync(issue?.Fields?.IssueType, cancellationToken);
     }
 
     /// <summary>
-    /// Get the bitmap representing the issue type, from cache (search results are Issue, not IssueV2).
+    /// Get the bitmap representing the issue type, from cache, in the icon size.
     /// </summary>
-    /// <param name="issueType">IssueType</param>
+    /// <param name="issueType">JiraIssueType</param>
     /// <param name="cancellationToken">CancellationToken</param>
-    /// <returns>Bitmap</returns>
-    public async Task<Bitmap> GetIssueTypeBitmapAsync(IssueType issueType, CancellationToken cancellationToken = default)
+    /// <returns>Bitmap, owned by the cache: lock it while using it</returns>
+    public async Task<Bitmap> GetIssueTypeBitmapAsync(JiraIssueType issueType, CancellationToken cancellationToken = default)
     {
-        return await _issueTypeBitmapCache.GetOrCreateAsync(issueType, cancellationToken).ConfigureAwait(false);
+        var client = _jiraClient;
+        if (issueType?.IconUrl == null || client == null)
+        {
+            return null;
+        }
+
+        var icons = _issueTypeIcons;
+        var task = icons.Bitmaps.GetOrAdd(issueType.IconUrl, iconUrl => LoadIconAsync(client, iconUrl, icons));
+        try
+        {
+            return await task.ConfigureAwait(false);
+        }
+        catch
+        {
+            // Try again the next time
+            icons.Bitmaps.TryRemove(issueType.IconUrl, out _);
+            throw;
+        }
+    }
+
+    // Not cancelled by the caller: the task is shared by everyone asking for the icon
+    private static async Task<Bitmap> LoadIconAsync(JiraClient client, Uri iconUrl, IssueTypeIcons icons)
+    {
+        var bitmap = await LoadIconAsync(client, iconUrl).ConfigureAwait(false);
+        if (bitmap != null)
+        {
+            icons.Loaded.Enqueue(bitmap);
+        }
+
+        return bitmap;
+    }
+
+    private static async Task<Bitmap> LoadIconAsync(JiraClient client, Uri iconUrl)
+    {
+        var bytes = await client.GetIconBytesAsync(iconUrl).ConfigureAwait(false);
+        if (bytes == null || bytes.Length == 0)
+        {
+            return null;
+        }
+
+        // Cloud serves SVG icons, Server PNG or GIF
+        using var image = ImageIO.FromStream(new MemoryStream(bytes), GetImageExtension(bytes));
+        if (image == null)
+        {
+            return null;
+        }
+
+        var iconSize = CoreConfig.IconSize;
+        if (image.Width == iconSize.Width && image.Height == iconSize.Height)
+        {
+            return ImageHelper.Clone(image) as Bitmap;
+        }
+
+        return ImageHelper.ResizeImage(image, true, iconSize.Width, iconSize.Height, null) as Bitmap;
+    }
+
+    /// <summary>
+    /// The extension for the file format handlers, from the first bytes
+    /// </summary>
+    internal static string GetImageExtension(byte[] bytes)
+    {
+        if (bytes.Length >= 4 && bytes[0] == 0x89 && bytes[1] == (byte)'P' && bytes[2] == (byte)'N' && bytes[3] == (byte)'G')
+        {
+            return ".png";
+        }
+
+        if (bytes.Length >= 3 && bytes[0] == (byte)'G' && bytes[1] == (byte)'I' && bytes[2] == (byte)'F')
+        {
+            return ".gif";
+        }
+
+        if (bytes.Length >= 2 && bytes[0] == 0xFF && bytes[1] == 0xD8)
+        {
+            return ".jpg";
+        }
+
+        // Text: an SVG, maybe with a BOM, an XML declaration or white space in front
+        return bytes.Take(64).Any(b => b == (byte)'<') ? ".svg" : null;
+    }
+
+    private void ClearIssueTypeBitmaps()
+    {
+        var old = Interlocked.Exchange(ref _issueTypeIcons, new IssueTypeIcons());
+        while (old.Loaded.TryDequeue(out var bitmap))
+        {
+            // JiraDestination clones the icon under this lock
+            lock (bitmap)
+            {
+                bitmap.Dispose();
+            }
+        }
+    }
+
+    private sealed class IssueTypeIcons
+    {
+        public ConcurrentDictionary<Uri, Task<Bitmap>> Bitmaps { get; } = new ConcurrentDictionary<Uri, Task<Bitmap>>();
+
+        // The loaded bitmaps, to dispose them
+        public ConcurrentQueue<Bitmap> Loaded { get; } = new ConcurrentQueue<Bitmap>();
     }
 
     /// <summary>
     /// Get the base uri
     /// </summary>
-    public Uri JiraBaseUri => _jiraClient.JiraBaseUri;
+    public Uri JiraBaseUri => _jiraClient?.BaseUri;
+
+    /// <summary>
+    /// The page of an issue in the browser
+    /// </summary>
+    public Uri GetBrowseUri(string issueKey) => _jiraClient?.GetBrowseUri(issueKey);
 
     /// <summary>
     /// Is the user "logged in?

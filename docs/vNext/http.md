@@ -33,7 +33,7 @@ Destinations and recipe steps already run on the thread pool; the UI thread can 
 var feed = await HttpService.Current.GetJsonAsync<UpdateFeed>(new Uri("https://getgreenshot.org/update-feed.json"), cancellationToken);
 ```
 
-The content is deserialized with Json.NET, so `[JsonProperty]` works. An HTTP error throws (see [Errors](#errors)).
+The content is deserialized with Json.NET, so `[JsonProperty]` works. New code can deserialize `HttpResult.Content` with System.Text.Json and a source generated context, like the Jira and Confluence clients. An HTTP error throws (see [Errors](#errors)).
 
 ### Any request
 
@@ -114,7 +114,7 @@ A service needs a registered client id; keep it out of the repository (the `*.Cr
 ## Rules
 
 - **Never create an HttpClient.** Use `HttpService.Current`; it carries the configuration and keeps the connections.
-  Libraries with their own HTTP stack (Dapplo.Jira) get the certificate rules through `CertificateValidator.RegisterGlobally`, called at startup.
+  Jira and Confluence call their REST APIs through it too, no library brings its own HTTP stack.
 - **Nothing that is sent or received goes into the log.** `HttpService` logs method, scheme, host and status, never path,
   query, headers or content: tokens hide in all of them (a webhook url is a secret, an error body can repeat the api key).
   Log the fields of a response you parsed, not the response. The exception messages follow the same rule. One exception: a
