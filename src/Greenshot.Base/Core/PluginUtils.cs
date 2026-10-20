@@ -96,6 +96,23 @@ namespace Greenshot.Base.Core
         /// <returns>Path to file</returns>
         public static string GetExePath(string exeName)
         {
+            bool isFullPath;
+            try
+            {
+                isFullPath = Path.IsPathRooted(exeName);
+            }
+            catch (ArgumentException)
+            {
+                // Not a valid path
+                return null;
+            }
+
+            if (isFullPath)
+            {
+                // Searching the PATH would only check the same file again for every entry, which takes seconds each for a network drive which isn't there
+                return File.Exists(exeName) ? Path.GetFullPath(exeName) : null;
+            }
+
             using (var key = Registry.LocalMachine.OpenSubKey(PathKey + exeName, false))
             {
                 if (key != null)
