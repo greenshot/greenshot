@@ -26,6 +26,20 @@ $Tools = @(
     @{ Name = "PortableApps.comInstaller"; Version = "3.9.22"; Folder = "PortableApps.com%20Installer"; Sha256 = "689456f1fb1320c45e82a077afe6b87fb388fd3f75c41d9ee9ce8d45f3966b67" }
 )
 
+# 7z.exe from the PATH (GitHub runners) or from the folder 7-Zip installs to
+function Get-SevenZip {
+    $command = Get-Command 7z -ErrorAction SilentlyContinue
+    if ($command) {
+        return $command.Source
+    }
+    foreach ($folder in @($env:ProgramFiles, ${env:ProgramFiles(x86)})) {
+        if ($folder -and (Test-Path "$folder\7-Zip\7z.exe")) {
+            return "$folder\7-Zip\7z.exe"
+        }
+    }
+    throw "7-Zip is needed to extract the PortableApps.com tools, install it (e.g. winget install 7zip.7zip)"
+}
+
 function Get-Tool($tool) {
     $toolPath = Join-Path $ToolsPath "$($tool.Name)_$($tool.Version)"
     if (Test-Path $toolPath) {
@@ -41,8 +55,9 @@ function Get-Tool($tool) {
         throw "$fileName has the SHA-256 $hash, expected $($tool.Sha256)"
     }
     # The .paf.exe is an NSIS installer, 7-Zip extracts it without running it
-    & 7z x -y "-o$toolPath" $download | Out-Null
+    & (Get-SevenZip) x -y "-o$toolPath" $download | Out-Null
     if ($LASTEXITCODE -ne 0) {
+        Remove-Item $toolPath -Recurse -Force -ErrorAction SilentlyContinue
         throw "7-Zip couldn't extract $fileName"
     }
     Remove-Item $download
