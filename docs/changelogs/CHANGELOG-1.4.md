@@ -283,6 +283,9 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Prevents `System.InvalidOperationException: Unable to retrieve the root folder` error
 - By @Copilot
 
+**External Commands**
+- An external command whose program isn't found when Greenshot starts (e.g. on a USB stick or a network drive) is no longer deleted from the settings, it is only left out of the menu until Greenshot starts with the program available again
+
 **Plugin Configuration** (#733)
 - Improved plugin configuration handling
 - By @xqtp
