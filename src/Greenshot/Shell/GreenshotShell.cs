@@ -324,10 +324,11 @@ namespace Greenshot.Shell
             _updateService.Startup();
             SimpleServiceProvider.Current.AddService(_updateService);
 
-            // Files of earlier shares which an app still had open
-            _housekeeping.Enqueue("Remove the files of earlier shares", _ =>
+            // Temp files of earlier runs: still in use at their exit, or left by a crash
+            _housekeeping.Enqueue("Remove the temp files of earlier runs", _ =>
             {
                 SharingFiles.CleanupOldShareFiles();
+                ImageIO.RemoveExpiredTmpFiles();
                 return Task.CompletedTask;
             });
             // After the background work of the start, so the housekeeping doesn't compete with it

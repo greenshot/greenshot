@@ -25,6 +25,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -449,7 +450,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="encoded">MemoryStream with the encoded image, the position isn't changed</param>
         /// <param name="format">the format of the encoded bytes, used for the extension</param>
-        /// <param name="destinationPath">directory, null for the temp directory</param>
+        /// <param name="destinationPath">directory, null for Greenshot's temp directory (see GetTmpDirectory)</param>
         /// <returns>the path of the temp file, null when it couldn't be written</returns>
         public static string SaveEncodedToTmpFile(MemoryStream encoded, string format, string destinationPath)
         {
@@ -474,16 +475,47 @@ namespace Greenshot.Base.Core
         /// A path for a temp file with a random name and the extension of the format
         /// </summary>
         /// <param name="format">the file format, used for the extension</param>
-        /// <param name="destinationPath">directory, null for the temp directory</param>
+        /// <param name="destinationPath">directory, null for Greenshot's temp directory (see GetTmpDirectory)</param>
         /// <returns>the path, the file isn't created</returns>
         public static string CreateTmpFilePath(string format, string destinationPath)
         {
             string tmpFile = Path.GetRandomFileName() + FileFormatRegistry.GetPreferredExtensionWithDot(format);
             // Prevent problems with "other characters", which could cause problems
             tmpFile = Regex.Replace(tmpFile, @"[^\d\w\.]", string.Empty);
-            string tmpPath = Path.Combine(destinationPath ?? Path.GetTempPath(), tmpFile);
+            string tmpPath = Path.Combine(destinationPath ?? GetTmpDirectory(), tmpFile);
             Log.Debug("Creating TMP File : " + tmpPath);
             return tmpPath;
+        }
+
+        /// <summary>
+        /// Greenshot's own folder for temporary files (%TEMP%\Greenshot\Files), created when missing. What is left there (a file still in use
+        /// at exit, or after a crash) is removed at a later start by RemoveExpiredTmpFiles, without remembering anything.
+        /// </summary>
+        public static string GetTmpDirectory()
+        {
+            Directory.CreateDirectory(TmpDirectory);
+            return TmpDirectory;
+        }
+
+        private static string TmpDirectory => Path.Combine(Path.GetTempPath(), "Greenshot", "Files");
+
+        /// <summary>
+        /// Removes the files in Greenshot's temp directory which are older than the lifetime of a temp file, e.g. left by an earlier run
+        /// </summary>
+        public static void RemoveExpiredTmpFiles()
+        {
+            if (!Directory.Exists(TmpDirectory))
+            {
+                return;
+            }
+            var expired = DateTime.UtcNow - TmpFileLifetime;
+            foreach (var file in new DirectoryInfo(TmpDirectory).EnumerateFiles())
+            {
+                if (file.LastWriteTimeUtc < expired)
+                {
+                    TryDeleteTmpFile(file.FullName);
+                }
+            }
         }
 
         /// <summary>
@@ -514,6 +546,24 @@ namespace Greenshot.Base.Core
             {
                 TryDeleteTmpFile(tmpFile);
                 TmpFiles.TryRemove(tmpFile, out _);
+            }
+            // Nothing stays behind when the folder is empty (the parent can still hold the state of a restart)
+            TryDeleteEmptyDirectory(TmpDirectory);
+            TryDeleteEmptyDirectory(Path.GetDirectoryName(TmpDirectory));
+        }
+
+        private static void TryDeleteEmptyDirectory(string directory)
+        {
+            try
+            {
+                if (Directory.Exists(directory) && !Directory.EnumerateFileSystemEntries(directory).Any())
+                {
+                    Directory.Delete(directory);
+                }
+            }
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
+            {
+                Log.DebugFormat("Couldn't remove the folder {0}: {1}", directory, ex.Message);
             }
         }
 

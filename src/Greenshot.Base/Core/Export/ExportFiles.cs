@@ -136,7 +136,7 @@ namespace Greenshot.Base.Core.Export
             filename = Regex.Replace(filename, @"[^\d\w\.]", "_");
             // Remove multiple "_"
             filename = Regex.Replace(filename, @"_+", "_");
-            string tmpFile = Path.Combine(Path.GetTempPath(), filename);
+            string tmpFile = Path.Combine(ImageIO.GetTmpDirectory(), filename);
             Log.Debug("Creating TMP File: " + tmpFile);
             await SaveAsync(source, tmpFile, true, outputSettings, cancellationToken).ConfigureAwait(false);
             ImageIO.RegisterTmpFile(tmpFile);
