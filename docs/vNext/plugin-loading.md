@@ -8,7 +8,7 @@ Greenshot Light has no plugins. Which plugins and destinations are switched on o
 
 ```mermaid
 flowchart TD
-    S["Greenshot starts, greenshot.ini<br/>(with defaults and greenshot-fixed.ini) is read"] --> F["Find Greenshot.Plugin.*.dll<br/>(application folder, App\Greenshot for the portable version)"]
+    S["Greenshot starts, greenshot.ini<br/>(with defaults and greenshot-fixed.ini) is read"] --> F["Find Greenshot.Plugin.*.dll<br/>(application folder)"]
     F --> R{"Allowed by the settings?<br/>Blocked / Allowed / Exclude"}
     R -- no --> X["Not loaded"]
     R -- yes --> G{"Signature check"}

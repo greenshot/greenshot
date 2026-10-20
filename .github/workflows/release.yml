@@ -207,6 +207,35 @@ jobs:
           path: Greenshot-*PORTABLE-*.zip
           if-no-files-found: error
 
+  portableapps:
+    # Creates the PortableApps.com package of Greenshot Light (prepare-portableapps.ps1, the PortableApps.com tools need Windows)
+    # Uploads it to artifacts-greenshot-portableapps
+    name: Build PortableApps.com package
+    runs-on: windows-latest
+    needs: pre_deploy
+    steps:
+
+      - uses: actions/checkout@v5
+
+      - name: Download light build artifacts
+        uses: actions/download-artifact@v5
+        with:
+          name: artifacts-greenshot-light-build
+          path: artifacts-greenshot-light-build
+
+      - name: Create the PortableApps.com package
+        run: |
+          & "${{ github.workspace }}/prepare-portableapps.ps1" -RepositoryRootPath "${{ github.workspace }}" -BuildArtifactsPath "${{ github.workspace }}/artifacts-greenshot-light-build" -OutputPath "${{ github.workspace }}/portableapps"
+          Get-ChildItem "${{ github.workspace }}/portableapps/GreenshotPortable_*.paf.exe" | Move-Item -Destination "Greenshot-Light-PORTABLEAPPS-${{ needs.pre_deploy.outputs.version }}-UNSTABLE-UNSIGNED.paf.exe"
+        shell: pwsh
+
+      - name: Upload PortableApps.com package
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts-greenshot-portableapps
+          path: Greenshot-Light-PORTABLEAPPS-*.paf.exe
+          if-no-files-found: error
+
   deploy:
     # Deploy the release
     # Creates a GitHub Release
@@ -216,7 +245,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: 
       - pre_deploy
-      - portable      
+      - portable
+      - portableapps
     steps:
     
       - name: Checkout repository
@@ -235,6 +265,12 @@ jobs:
         with:
           name: artifacts-greenshot-portable
           path: artifacts-greenshot-portable
+
+      - name: Download PortableApps.com artifacts
+        uses: actions/download-artifact@v5
+        with:
+          name: artifacts-greenshot-portableapps
+          path: artifacts-greenshot-portableapps
 
       - name: Download MCP server artifact
         uses: actions/download-artifact@v5
@@ -270,7 +306,7 @@ jobs:
         with:
           name: "Greenshot ${{ needs.pre_deploy.outputs.version }} (continuous build)"
           tag_name: ${{ needs.pre_deploy.outputs.tag_name }}
-          files: artifacts-installer/*.exe, artifacts-greenshot-portable/*.zip, artifacts-greenshot-mcp/*.zip
+          files: artifacts-installer/*.exe, artifacts-greenshot-portable/*.zip, artifacts-greenshot-portableapps/*.paf.exe, artifacts-greenshot-mcp/*.zip
           generate_release_notes: true
           draft: ${{ env.IS_MAIN_OR_RELEASE_BRANCH != 'true'  }}
           prerelease: true

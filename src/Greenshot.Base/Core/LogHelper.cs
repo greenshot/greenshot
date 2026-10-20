@@ -62,23 +62,17 @@ namespace Greenshot.Base.Core
         public static string InitializeLog4Net()
         {
             // Setup log4j, currently the file is called log4net.xml
-            foreach (var logName in new[]
+            string log4NetFilename = Path.Combine(Application.StartupPath, "log4net.xml");
+            if (File.Exists(log4NetFilename))
             {
-                "log4net.xml", @"App\Greenshot\log4net-portable.xml"
-            })
-            {
-                string log4NetFilename = Path.Combine(Application.StartupPath, logName);
-                if (File.Exists(log4NetFilename))
+                try
                 {
-                    try
-                    {
-                        XmlConfigurator.Configure(new FileInfo(log4NetFilename));
-                        _isLog4NetConfigured = true;
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show(ex.Message, InitMessage, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    }
+                    XmlConfigurator.Configure(new FileInfo(log4NetFilename));
+                    _isLog4NetConfigured = true;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, InitMessage, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
 

@@ -31,11 +31,27 @@ namespace Greenshot.Base.Core
     public static class GreenshotEnvironment
     {
         /// <summary>
-        /// Gets a value indicating whether Greenshot is running in PortableApp (PAF) mode.
-        /// Set to <c>true</c> when the standard PortableApp directory structure
-        /// (<c>App\Greenshot</c> next to the executable) is detected at startup.
+        /// The folder of the PortableApps.com package (GreenshotPortable) when Greenshot.exe runs from its <c>App\Greenshot</c>,
+        /// detected at startup by <c>App\AppInfo\appinfo.ini</c> in that folder; null otherwise.
         /// </summary>
-        public static bool IsPortable { get; set; }
+        public static string PortableAppsDirectory { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether Greenshot is running as PortableApps.com app (PAF), see <see cref="PortableAppsDirectory"/>.
+        /// </summary>
+        public static bool IsPortable => PortableAppsDirectory != null;
+
+        /// <summary>
+        /// Finds the folder of the PortableApps.com package for Greenshot.exe in <paramref name="applicationDirectory"/>:
+        /// two folders up (from App\Greenshot), when it has App\AppInfo\appinfo.ini.
+        /// </summary>
+        /// <param name="applicationDirectory">The directory of Greenshot.exe</param>
+        /// <returns>The package folder, or null when Greenshot.exe isn't in a PortableApps.com package</returns>
+        public static string FindPortableAppsDirectory(string applicationDirectory)
+        {
+            var packageDirectory = Path.GetFullPath(Path.Combine(applicationDirectory, @"..\.."));
+            return File.Exists(Path.Combine(packageDirectory, @"App\AppInfo\appinfo.ini")) ? packageDirectory : null;
+        }
 
         /// <summary>
         /// Gets the full path of the active <c>greenshot.ini</c> configuration file.

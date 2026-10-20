@@ -24,7 +24,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Windows.Forms;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core.Enums;
 using System.Text.RegularExpressions;
@@ -112,7 +111,7 @@ namespace Greenshot.Base.Core
         {
             if (GreenshotEnvironment.IsPortable)
             {
-                string pafOutputFilePath = Path.Combine(Application.StartupPath, @"..\..\Documents\Pictures\Greenshots");
+                string pafOutputFilePath = Path.Combine(GreenshotEnvironment.PortableAppsDirectory, @"..\..\Documents\Pictures\Greenshots");
                 if (!Directory.Exists(pafOutputFilePath))
                 {
                     try
@@ -250,7 +249,7 @@ namespace Greenshot.Base.Core
             if (outputFilePath == null || (!File.Exists(OutputFileAsFullpath) && !Directory.Exists(outputFilePath)))
             {
                 OutputFileAsFullpath = GreenshotEnvironment.IsPortable
-                    ? Path.Combine(Application.StartupPath, @"..\..\Documents\Pictures\Greenshots\dummy.png")
+                    ? Path.Combine(GreenshotEnvironment.PortableAppsDirectory, @"..\..\Documents\Pictures\Greenshots\dummy.png")
                     : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "dummy.png");
             }
         }
@@ -349,7 +348,7 @@ namespace Greenshot.Base.Core
             if (string.IsNullOrEmpty(OutputFileAsFullpath))
             {
                 OutputFileAsFullpath = GreenshotEnvironment.IsPortable
-                    ? Path.Combine(Application.StartupPath, @"..\..\Documents\Pictures\Greenshots\dummy.png")
+                    ? Path.Combine(GreenshotEnvironment.PortableAppsDirectory, @"..\..\Documents\Pictures\Greenshots\dummy.png")
                     : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "dummy.png");
             }
 
