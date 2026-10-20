@@ -114,7 +114,8 @@ namespace Greenshot.Settings.ViewModels
         /// </summary>
         /// <param name="allowOnlyChecked">true: only what is checked is allowed, everything else (also unknown names) is blocked; false: what isn't checked is blocked</param>
         /// <param name="noUserExclusions">true fixes the user's exclude lists empty, the user can't switch anything off</param>
-        public string BuildAdministratorSettings(bool allowOnlyChecked, bool noUserExclusions)
+        /// <param name="noUnsignedQuestion">true: a plugin which isn't signed like Greenshot.exe only loads when its hash is approved here</param>
+        public string BuildAdministratorSettings(bool allowOnlyChecked, bool noUserExclusions, bool noUnsignedQuestion)
         {
             var text = new StringBuilder();
             text.AppendLine("[Core]");
@@ -123,6 +124,18 @@ namespace Greenshot.Settings.ViewModels
             if (noUserExclusions)
             {
                 AppendList(text, nameof(ICoreConfiguration.ExcludePluginNames), Enumerable.Empty<string>());
+            }
+
+            // The plugins approved on this PC, which aren't signed like Greenshot.exe
+            var approvedHashes = ConfigurationRestrictions.Names(CoreConfiguration.PluginApprovedHashes).ToList();
+            if (approvedHashes.Count > 0)
+            {
+                AppendList(text, nameof(ICoreConfiguration.PluginApprovedHashes), approvedHashes);
+            }
+
+            if (noUnsignedQuestion)
+            {
+                text.AppendLine($"{nameof(ICoreConfiguration.AskForUnsignedPlugins)}=False");
             }
 #endif
             if (allowOnlyChecked)

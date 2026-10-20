@@ -272,6 +272,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Plugins and destinations can be switched on or off in the settings, without typing their names into greenshot.ini
 - Administrators can block plugins and destinations, or allow only some and block everything else, with greenshot-fixed.ini, and decide if users may switch off more; the settings show the lines to copy
 - A destination of a plugin which isn't loaded is no longer removed from the settings
+- A plugin which isn't signed by the makers of Greenshot isn't loaded until you allow it
 
 **MAPI Client Detection** (#861)
 - Fixed MAPI Client detection on HKCU registry

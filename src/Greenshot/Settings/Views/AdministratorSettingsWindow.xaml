@@ -43,6 +43,9 @@
                 <CheckBox x:Name="NoUserExclusionsBox" DockPanel.Dock="Top" Margin="0,10,0,0"
                           Content="{wpf:Text Settings.AdministratorSettingsNoUserExclusions}"
                           Checked="Option_Changed" Unchecked="Option_Changed"/>
+                <CheckBox x:Name="NoUnsignedQuestionBox" DockPanel.Dock="Top" Margin="0,6,0,0"
+                          Content="{wpf:Text Settings.AdministratorSettingsNoUnsignedQuestion}"
+                          Checked="Option_Changed" Unchecked="Option_Changed"/>
                 <TextBox x:Name="SettingsText" Margin="0,10,0,0" IsReadOnly="True" TextWrapping="Wrap" FontFamily="Consolas"
                          AutomationProperties.Name="{wpf:Text Settings.AdministratorSettings}"
                          VerticalScrollBarVisibility="Auto"/>

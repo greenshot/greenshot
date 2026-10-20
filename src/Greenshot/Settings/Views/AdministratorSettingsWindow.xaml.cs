@@ -38,14 +38,18 @@ namespace Greenshot.Settings.Views
     public partial class AdministratorSettingsWindow : Window
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(AdministratorSettingsWindow));
-        private readonly Func<bool, bool, string> _buildSettings;
+        private readonly Func<bool, bool, bool, string> _buildSettings;
 
-        /// <param name="buildSettings">The lines, with "allow only what is checked" and "users can't switch off"</param>
-        public AdministratorSettingsWindow(Func<bool, bool, string> buildSettings)
+        /// <param name="buildSettings">The lines, with "allow only what is checked", "users can't switch off" and "don't ask about unsigned plugins"</param>
+        public AdministratorSettingsWindow(Func<bool, bool, bool, string> buildSettings)
         {
             InitializeComponent();
             _buildSettings = buildSettings;
-            SettingsText.Text = _buildSettings(false, false);
+#if GREENSHOT_LIGHT
+            // Greenshot Light has no plugins
+            NoUnsignedQuestionBox.Visibility = Visibility.Collapsed;
+#endif
+            SettingsText.Text = _buildSettings(false, false, false);
         }
 
         private void Option_Changed(object sender, RoutedEventArgs e)
@@ -53,7 +57,7 @@ namespace Greenshot.Settings.Views
             // Raised while InitializeComponent builds the check boxes
             if (_buildSettings != null)
             {
-                SettingsText.Text = _buildSettings(OnlyAllowCheckedButton.IsChecked == true, NoUserExclusionsBox.IsChecked == true);
+                SettingsText.Text = _buildSettings(OnlyAllowCheckedButton.IsChecked == true, NoUserExclusionsBox.IsChecked == true, NoUnsignedQuestionBox.IsChecked == true);
             }
         }
 

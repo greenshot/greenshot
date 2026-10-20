@@ -278,6 +278,13 @@ namespace Greenshot.Shell
             {
                 ApplicationStartupHelper.ShowWelcome();
             }
+#if !GREENSHOT_LIGHT
+            // Plugins which aren't signed like Greenshot.exe: the question comes after the start, not inside it
+            if (PluginHelper.Instance.HeldBackPlugins.Count > 0)
+            {
+                _ = UiDispatcher.Dispatcher.BeginInvoke(new Action(PluginHelper.Instance.AskAboutHeldBackPlugins), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+            }
+#endif
 
             if (startupCommand != null)
             {

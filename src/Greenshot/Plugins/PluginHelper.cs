@@ -31,6 +31,8 @@ using Dapplo.Ini;
 using Dapplo.Ini.Interfaces;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Languages;
+using Greenshot.Base.Wpf;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
 using log4net;
@@ -60,6 +62,11 @@ namespace Greenshot.Plugins
         /// The names of the plugin files found, also of those which weren't loaded
         /// </summary>
         public IReadOnlyList<string> FoundPluginNames { get; private set; } = Array.Empty<string>();
+
+        /// <summary>
+        /// The plugins which aren't signed like Greenshot.exe and weren't approved yet, the user is asked about them after the start
+        /// </summary>
+        public IReadOnlyList<HeldBackPlugin> HeldBackPlugins { get; private set; } = Array.Empty<HeldBackPlugin>();
 
         /// <summary>
         /// The started plugins
@@ -101,6 +108,45 @@ namespace Greenshot.Plugins
 
             Log.WarnFormat("No settings view registered for {0} of plugin {1}", viewModel.GetType(), plugin.Name);
             return null;
+        }
+
+        /// <summary>
+        /// Ask about each plugin which isn't signed like Greenshot.exe, on the UI thread: Load approves its SHA-256 for the next start,
+        /// Don't load rejects it, closing the question asks again at the next start
+        /// </summary>
+        public void AskAboutHeldBackPlugins()
+        {
+            foreach (var plugin in HeldBackPlugins)
+            {
+                var text = string.Format(Texts.Core.PluginUnsignedQuestion, plugin.Name, Path.GetDirectoryName(plugin.FilePath),
+                    plugin.Signer ?? Texts.Core.PluginUnsignedNoSigner, plugin.Sha256);
+                int choice = ThemedMessageBox.ShowChoice((System.Windows.Window)null, Texts.Core.PluginUnsignedTitle, text, System.Windows.MessageBoxImage.Warning,
+                    new[] { Texts.Core.PluginUnsignedLoad, Texts.Core.PluginUnsignedDontLoad }, defaultIndex: 1);
+                switch (choice)
+                {
+                    case 0:
+                        AddHash(nameof(ICoreConfiguration.PluginApprovedHashes), CoreConfig.PluginApprovedHashes, hashes => CoreConfig.PluginApprovedHashes = hashes, plugin.Sha256);
+                        Log.InfoFormat("The plugin {0} (SHA-256 {1}) was approved, it is loaded at the next start", plugin.FilePath, plugin.Sha256);
+                        break;
+                    case 1:
+                        AddHash(nameof(ICoreConfiguration.PluginRejectedHashes), CoreConfig.PluginRejectedHashes, hashes => CoreConfig.PluginRejectedHashes = hashes, plugin.Sha256);
+                        Log.InfoFormat("The plugin {0} (SHA-256 {1}) was rejected", plugin.FilePath, plugin.Sha256);
+                        break;
+                }
+            }
+
+            HeldBackPlugins = Array.Empty<HeldBackPlugin>();
+        }
+
+        private static void AddHash(string key, IEnumerable<string> current, Action<List<string>> store, string sha256)
+        {
+            if (CoreConfig.IsConstant(key))
+            {
+                Log.WarnFormat("{0} is set in greenshot-fixed.ini, the answer isn't kept", key);
+                return;
+            }
+
+            store(ConfigurationRestrictions.Names(current).Append(sha256).Distinct(StringComparer.OrdinalIgnoreCase).ToList());
         }
 
         /// <summary>
@@ -183,7 +229,9 @@ namespace Greenshot.Plugins
 
             FoundPluginNames = pluginFiles.Select(ConfigurationRestrictions.PluginNameFromFile).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
 
-            // Instantiate all plugins first, greenshot.ini is already loaded so the include / exclude settings apply before a plugin is loaded
+            // Instantiate all plugins first, greenshot.ini is already loaded so the include / exclude settings apply before a plugin is loaded,
+            // then the signature check (see docs/vNext/plugin-loading.md)
+            var signatureGate = new PluginSignatureGate(CoreConfig, Application.ExecutablePath);
             var plugins = new List<IGreenshotPlugin>();
             foreach (string pluginFile in pluginFiles)
             {
@@ -191,6 +239,11 @@ namespace Greenshot.Plugins
                 if (!ConfigurationRestrictions.IsPluginAllowed(CoreConfig, pluginName))
                 {
                     Log.WarnFormat("Skipping the plugin {0} from {1}, the configuration doesn't allow it", pluginName, pluginFile);
+                    continue;
+                }
+
+                if (signatureGate.Check(pluginFile) != PluginGateResult.Load)
+                {
                     continue;
                 }
 
@@ -224,6 +277,9 @@ namespace Greenshot.Plugins
                     Log.Error(e);
                 }
             }
+
+            signatureGate.SaveVerified();
+            HeldBackPlugins = signatureGate.HeldBack;
 
             // ── Registration: configuration sections (filled from the already read greenshot.ini), services, views ───
             var activeIniConfig = IniConfigRegistry.Get();

@@ -302,6 +302,11 @@ namespace Greenshot.Base.Languages
         string AdministratorSettingsNoUserExclusions { get; }
 
         /// <summary>
+        /// Don't ask about plugins which aren't signed by the makers of Greenshot, load only the ones approved on this PC
+        /// </summary>
+        string AdministratorSettingsNoUnsignedQuestion { get; }
+
+        /// <summary>
         /// Copy
         /// </summary>
         string AdministratorSettingsCopy { get; }

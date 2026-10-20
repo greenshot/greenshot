@@ -526,6 +526,31 @@ namespace Greenshot.Base.Languages
         string PluginsNoOptions { get; }
 
         /// <summary>
+        /// Load a plugin which isn't signed?
+        /// </summary>
+        string PluginUnsignedTitle { get; }
+
+        /// <summary>
+        /// The plugin {0} isn't signed by the makers of Greenshot, so it wasn't loaded.\n\nFolder: {1}\nSigned by: {2}\nSHA-256: {3}\n\nOnly load it when you trust where it comes from. It is loaded at the next start of Greenshot.
+        /// </summary>
+        string PluginUnsignedQuestion { get; }
+
+        /// <summary>
+        /// nobody
+        /// </summary>
+        string PluginUnsignedNoSigner { get; }
+
+        /// <summary>
+        /// Load
+        /// </summary>
+        string PluginUnsignedLoad { get; }
+
+        /// <summary>
+        /// Don't load
+        /// </summary>
+        string PluginUnsignedDontLoad { get; }
+
+        /// <summary>
         /// Keys
         /// </summary>
         string CaptureKeysTitle { get; }

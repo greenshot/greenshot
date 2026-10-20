@@ -371,6 +371,9 @@ namespace Greenshot.Base.Core
             BlockedPluginNames ??= new List<string>();
             AllowedDestinations ??= new List<string>();
             BlockedDestinations ??= new List<string>();
+            PluginApprovedHashes ??= new List<string>();
+            PluginRejectedHashes ??= new List<string>();
+            PluginVerifiedHashes ??= new List<string>();
             // The plugin lists of the user use the names now, values in greenshot-fixed.ini are still read where they are
             if (MoveToPluginNames(nameof(ExcludePlugins), ExcludePlugins, nameof(ExcludePluginNames), ExcludePluginNames)
                 | MoveToPluginNames(nameof(IncludePlugins), IncludePlugins, nameof(AllowedPluginNames), AllowedPluginNames))
