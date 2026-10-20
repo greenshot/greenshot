@@ -124,4 +124,4 @@ public class ConfluencePlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeSt
             }
         }, cancellationToken);
 
-}
+}
