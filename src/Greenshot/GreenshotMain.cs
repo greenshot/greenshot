@@ -119,7 +119,7 @@ public class GreenshotMain
 
         // The PortableApps.com package keeps greenshot.ini in its Data\Settings, an explicit --ini-directory still wins
         var iniDirectory = options.IniDirectory;
-        if (string.IsNullOrWhiteSpace(iniDirectory) && GreenshotEnvironment.IsPortable)
+        if (string.IsNullOrWhiteSpace(iniDirectory) && GreenshotEnvironment.PortableAppsDirectory != null)
         {
             iniDirectory = Path.Combine(GreenshotEnvironment.PortableAppsDirectory, @"Data\Settings");
         }

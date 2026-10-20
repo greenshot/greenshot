@@ -37,11 +37,6 @@ namespace Greenshot.Base.Core
         public static string PortableAppsDirectory { get; set; }
 
         /// <summary>
-        /// Gets a value indicating whether Greenshot is running as PortableApps.com app (PAF), see <see cref="PortableAppsDirectory"/>.
-        /// </summary>
-        public static bool IsPortable => PortableAppsDirectory != null;
-
-        /// <summary>
         /// Finds the folder of the PortableApps.com package for Greenshot.exe in <paramref name="applicationDirectory"/>:
         /// two folders up (from App\Greenshot), when it has App\AppInfo\appinfo.ini.
         /// </summary>
@@ -66,14 +61,15 @@ namespace Greenshot.Base.Core
         public static string LocalDataDirectory => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Greenshot");
 
         /// <summary>
-        /// True for the PortableApp and the .zip (greenshot.ini next to Greenshot.exe), these leave nothing on the system
+        /// True for a portable Greenshot: the PortableApps.com package (<see cref="PortableAppsDirectory"/>) and the .zip
+        /// (greenshot.ini next to Greenshot.exe, so only known after greenshot.ini was loaded). These leave nothing on the system.
         /// </summary>
-        public static bool LeavesNoTraces
+        public static bool IsPortable
         {
             get
             {
                 string configLocation = ConfigLocation;
-                return IsPortable || (!string.IsNullOrEmpty(configLocation)
+                return PortableAppsDirectory != null || (!string.IsNullOrEmpty(configLocation)
                     && string.Equals(Path.GetDirectoryName(configLocation)?.TrimEnd('\\'), AppContext.BaseDirectory.TrimEnd('\\'), StringComparison.OrdinalIgnoreCase));
             }
         }
