@@ -28,9 +28,18 @@ namespace Greenshot.Settings.ViewModels
     public class DestinationViewModel : INotifyPropertyChanged
     {
         private bool _isSelected;
+        private bool _isAllowed = true;
         private ImageSource _iconSource;
 
+        /// <summary>
+        /// The registered destination, null for a name which was typed in or is only in the settings
+        /// </summary>
         public IDestination Destination { get; set; }
+
+        /// <summary>
+        /// The name in the settings, e.g. FileNoDialog
+        /// </summary>
+        public string Designation { get; set; }
         public string Description { get; set; }
         public ImageSource IconSource
         {
@@ -57,6 +66,31 @@ namespace Greenshot.Settings.ViewModels
                 }
             }
         }
+
+        /// <summary>
+        /// The destination is available, unchecked it is in ExcludeDestinations. Not available it can't be selected.
+        /// </summary>
+        public bool IsAllowed
+        {
+            get => _isAllowed;
+            set
+            {
+                if (_isAllowed != value)
+                {
+                    _isAllowed = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsAllowed)));
+                    if (!value)
+                    {
+                        IsSelected = false;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// False when the administrator blocked the destination, or doesn't let the user switch destinations off
+        /// </summary>
+        public bool CanChangeAllowed { get; set; } = true;
 
         public event PropertyChangedEventHandler PropertyChanged;
 

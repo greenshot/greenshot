@@ -87,6 +87,8 @@ namespace Greenshot.Shell
         private readonly UiStallWatchdog _uiStallWatchdog;
         private readonly CaptureFlowRunner _flowRunner;
         private readonly UpdateService _updateService;
+        // The background work which isn't urgent (temp files and the like), it starts once Greenshot has started
+        private readonly HousekeepingService _housekeeping = new HousekeepingService();
         private readonly WpfWindow _ownerWindow;
         private TrayIcon _trayIcon;
 
@@ -120,6 +122,8 @@ namespace Greenshot.Shell
             UiDispatcher = WpfUiDispatcher.CreateForCurrentThread();
             SimpleServiceProvider.Current.AddService<IUiDispatcher>(UiDispatcher);
             SimpleServiceProvider.Current.AddService<IStaWorkerFactory>(StaWorkers);
+            // Before the plugins, they can queue their housekeeping while they start
+            SimpleServiceProvider.Current.AddService<IHousekeeping>(_housekeeping);
             SimpleServiceProvider.Current.AddService<IClipboardService>(new ClipboardService(UiDispatcher));
             // The destinations talk to the user only through IUserInteraction, the dialogs are the registered views
             var userInteraction = new InteractiveUserInteraction(UiDispatcher);
@@ -221,7 +225,8 @@ namespace Greenshot.Shell
 
             // The recipe settings (disabled recipes, recipe files) belong to the Recipe Editor plugin and recipe files can use steps
             // of other plugins, both are only available now that the plugins registered themselves.
-            RecipeManager.Instance.ReloadRecipes();
+            // No window yet: a file which needs the user (approval, errors) is loaded again once the tray icon is there.
+            var recipeFilesForTheUser = RecipeManager.Instance.LoadRecipesAtStartup();
 
             // The command line language was already applied in Start, right after greenshot.ini was read
             // if language is not set, show language dialog
@@ -236,21 +241,6 @@ namespace Greenshot.Shell
                 Texts.SetLanguage(_conf.Language);
             }
 
-            // Check destinations, remove all that don't exist
-            foreach (string destination in _conf.OutputDestinations.ToArray())
-            {
-                if (DestinationHelper.GetDestination(destination) == null)
-                {
-                    _conf.OutputDestinations.Remove(destination);
-                }
-            }
-
-            // we should have at least one!
-            if (_conf.OutputDestinations.Count == 0)
-            {
-                _conf.OutputDestinations.Add(EditorDestination.DESIGNATION);
-            }
-
             SoundHelper.Initialize();
 
             // The tray icon; the menu is built when it opens, so it always shows the current recipes, plugins and settings
@@ -262,6 +252,9 @@ namespace Greenshot.Shell
             // Make sure we never capture our own windows
             WindowHelper.RegisterIgnoreHandle(SharedMessageWindow.Handle);
             WindowHelper.RegisterIgnoreHandle(OwnerHandle);
+
+            // Only now the hotkeys and the other triggers start: the recipes are loaded and the tray icon is there
+            TriggerManager.Instance.StartAll();
 
             // The application ends without the shutdown when the session ends (see RestartManagerHelper).
             // Not Application.ApplicationExit: WinForms raises it when its first message loop ends, which is the one of an STA worker now.
@@ -293,6 +286,20 @@ namespace Greenshot.Shell
             {
                 ApplicationStartupHelper.ShowWelcome();
             }
+#if !GREENSHOT_LIGHT
+            // Plugins which aren't signed like Greenshot.exe: the question comes after the start, not inside it
+            if (PluginHelper.Instance.HeldBackPlugins.Count > 0)
+            {
+                _ = UiDispatcher.Dispatcher.BeginInvoke(new Action(PluginHelper.Instance.AskAboutHeldBackPlugins), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+            }
+#endif
+
+            if (recipeFilesForTheUser.Count > 0)
+            {
+                // Posted: the approval and error windows come after the start, not inside it
+                UiDispatcher.InvokeAsync(() => RecipeManager.Instance.LoadRecipeFilesInteractively(recipeFilesForTheUser))
+                    .FireAndLog("Load the recipe files which need the user", Log);
+            }
 
             if (startupCommand != null)
             {
@@ -309,11 +316,34 @@ namespace Greenshot.Shell
             _updateService.Startup();
             SimpleServiceProvider.Current.AddService(_updateService);
 
+            // Temp files of earlier runs: still in use at their exit, or left by a crash
+            _housekeeping.Enqueue("Remove the temp files of earlier runs", _ =>
+            {
+                SharingFiles.CleanupOldShareFiles();
+                ImageIO.RemoveExpiredTmpFiles();
+                return Task.CompletedTask;
+            });
+            // After the background work of the start, so the housekeeping doesn't compete with it
+            StartHousekeepingAfterAsync(startupWork).FireAndLog("Start the housekeeping", Log);
+
             // Make Greenshot use less memory after startup: once the background work of the start is done, it would fill the memory again
             if (_conf.MinimizeWorkingSetSize)
             {
                 TrimMemoryAfterAsync(startupWork).FireAndLog("Minimize the memory after the start", Log);
             }
+        }
+
+        private async Task StartHousekeepingAfterAsync(IEnumerable<Task> work)
+        {
+            try
+            {
+                await Task.WhenAll(work).ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                // Already logged by FireAndLog
+            }
+            _housekeeping.Start();
         }
 
         private static async Task TrimMemoryAfterAsync(IEnumerable<Task> work)
@@ -355,9 +385,11 @@ namespace Greenshot.Shell
                 internalDestinations.Add(new EditorDestination());
             }
 
+            // Also when only the configuration excludes it, so the settings can switch it on again
+            var coreConfiguration = IniConfigRegistry.GetSection<ICoreConfiguration>();
             foreach (var internalDestination in internalDestinations)
             {
-                if (internalDestination.IsAvailableFor(null))
+                if (internalDestination.IsAvailableFor(null) || !ConfigurationRestrictions.IsDestinationAllowed(coreConfiguration, internalDestination.Designation))
                 {
                     SimpleServiceProvider.Current.AddService(internalDestination);
                 }
@@ -638,6 +670,7 @@ namespace Greenshot.Shell
                 return;
             }
 
+            _housekeeping.Dispose();
             ImageIO.RemoveTmpFiles();
 
             _uiStallWatchdog?.Dispose();

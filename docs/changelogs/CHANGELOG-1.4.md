@@ -160,6 +160,10 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Renamed OCR feature for clarity
 - By @danrhodes
 
+**Plugin Start**
+- The tray icon is there before the plugins start, they no longer hold up the start of Greenshot
+- A plugin which fails to start is switched off completely, it no longer leaves destinations behind which don't work
+
 #### 🖼️ Image Format Support
 
 **ImageSharp Integration** (#921)
@@ -273,6 +277,13 @@ Continuous builds are automatically created for every commit to the `main` branc
 - By @Copilot
 
 #### ⚙️ Configuration & Settings
+
+**Switching plugins and destinations on or off**
+- Plugins and destinations can be switched on or off in the settings, without typing their names into greenshot.ini
+- Administrators can block plugins and destinations, or allow only some and block everything else, with greenshot-fixed.ini, and decide if users may switch off more; the settings show the lines to copy
+- A destination of a plugin which isn't loaded is no longer removed from the settings
+- A plugin in a folder you can change (e.g. the portable version) which isn't signed by the makers of Greenshot isn't loaded until you allow it
+- The plugin list in the settings shows who signed each plugin
 
 **MAPI Client Detection** (#861)
 - Fixed MAPI Client detection on HKCU registry

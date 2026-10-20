@@ -1,0 +1,63 @@
+<!-- The lines for greenshot-fixed.ini with the plugins and destinations checked in the settings -->
+<Window x:Class="Greenshot.Settings.Views.AdministratorSettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
+        Title="{wpf:Text Settings.RestrictForAllUsersTitle}"
+        Width="560" Height="500"
+        MinWidth="420" MinHeight="300"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResizeWithGrip"
+        Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"
+        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
+        WindowStyle="None"
+        AllowsTransparency="False">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/DialogStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Border BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}" BorderThickness="1">
+        <DockPanel>
+            <wpf:ThemedTitleBar DockPanel.Dock="Top" ShowMinimize="False" ShowMaximize="False"/>
+
+            <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="14,0,14,14">
+                <Button Content="{wpf:Text Settings.AdministratorSettingsCopy}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,6,0" Click="Copy_Click"/>
+                <Button Content="{wpf:Text Settings.AdministratorSettingsSave}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,6,0" Click="Save_Click"/>
+                <Button Content="{wpf:Text Core.Ok}" Style="{StaticResource PrimaryButtonStyle}" IsDefault="True" IsCancel="True"/>
+            </StackPanel>
+
+            <DockPanel Margin="14,10,14,12">
+                <TextBlock DockPanel.Dock="Top" Text="{wpf:Text Settings.AdministratorSettingsDescription}" TextWrapping="Wrap"
+                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                <RadioButton x:Name="BlockUncheckedButton" DockPanel.Dock="Top" Margin="0,10,0,0" GroupName="Mode" IsChecked="True"
+                             Content="{wpf:Text Settings.AdministratorSettingsBlockUnchecked}" Style="{StaticResource DefaultRadioButtonStyle}"
+                             Checked="Option_Changed"/>
+                <RadioButton x:Name="OnlyAllowCheckedButton" DockPanel.Dock="Top" Margin="0,4,0,0" GroupName="Mode"
+                             Content="{wpf:Text Settings.AdministratorSettingsOnlyChecked}" Style="{StaticResource DefaultRadioButtonStyle}"
+                             Checked="Option_Changed"/>
+                <CheckBox x:Name="NoUserExclusionsBox" DockPanel.Dock="Top" Margin="0,10,0,0"
+                          Content="{wpf:Text Settings.AdministratorSettingsNoUserExclusions}"
+                          Checked="Option_Changed" Unchecked="Option_Changed"/>
+                <CheckBox x:Name="NoUnsignedQuestionBox" DockPanel.Dock="Top" Margin="0,6,0,0"
+                          Content="{wpf:Text Settings.AdministratorSettingsNoUnsignedQuestion}"
+                          Checked="Option_Changed" Unchecked="Option_Changed"/>
+                <!-- A plugin or destination which isn't installed, by its name -->
+                <TextBlock DockPanel.Dock="Top" Margin="0,12,0,4" Text="{wpf:Text Settings.AddNotInstalled}" TextWrapping="Wrap"
+                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                <DockPanel DockPanel.Dock="Top">
+                    <Button x:Name="AddDestinationButton" DockPanel.Dock="Right" Content="{wpf:Text Settings.AddDestination}" Style="{StaticResource SecondaryButtonStyle}" Margin="6,0,0,0" Click="AddDestination_Click"/>
+                    <Button x:Name="AddPluginButton" DockPanel.Dock="Right" Content="{wpf:Text Settings.AddPlugin}" Style="{StaticResource SecondaryButtonStyle}" Margin="6,0,0,0" Click="AddPlugin_Click"/>
+                    <TextBox x:Name="NameBox" AutomationProperties.Name="{wpf:Text Settings.AddNotInstalledName}" VerticalContentAlignment="Center"/>
+                </DockPanel>
+                <TextBox x:Name="SettingsText" Margin="0,10,0,0" IsReadOnly="True" TextWrapping="Wrap" FontFamily="Consolas"
+                         AutomationProperties.Name="{wpf:Text Settings.RestrictForAllUsersTitle}"
+                         VerticalScrollBarVisibility="Auto"/>
+            </DockPanel>
+        </DockPanel>
+    </Border>
+</Window>

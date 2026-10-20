@@ -150,7 +150,10 @@ namespace Greenshot.Recipes
             }
             Log.InfoFormat("Registered automatic step '{0}' from '{1}'", extension.Id, fullPath);
             AddRecipeFileToConfig(fullPath);
-            NotifyRecipesChanged();
+            if (!_loadingConfiguredFiles)
+            {
+                NotifyRecipesChanged();
+            }
             return result;
         }
 
@@ -399,7 +402,6 @@ namespace Greenshot.Recipes
                 result.AddError($"Could not save the automatic step: {ex.Message}");
                 return result;
             }
-            SetupWatcherForFile(fullPath);
 
             extension.ProposedBy = null;
             extension.IsBuiltIn = false;

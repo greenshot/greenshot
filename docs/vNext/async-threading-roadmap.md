@@ -298,6 +298,26 @@ public sealed class CaptureFlowHandle
 - Hooks `TaskScheduler.UnobservedTaskException` and logs with flow id. Anything that shows up there is a bug
   (should be zero, see the "done" criteria).
 
+### 4.5 Housekeeping (work that isn't urgent)
+```csharp
+public interface IHousekeeping
+{
+    void Enqueue(string description, Func<CancellationToken, Task> work, TimeSpan delay = default);
+}
+// Housekeeping.Current: the one of the running Greenshot, null in tests or a second instance
+```
+- For work nobody waits for, e.g. removing temp files after a while (`ImageIO.RegisterTmpFile` queues the removal
+  after 10 hours). Any part of Greenshot can queue work, plugins too (from `ConfigureServices` on).
+- Nothing is saved: what must survive an exit or a crash is found again at the next start. Temp files go to
+  `ImageIO.GetTmpDirectory()` (`%TEMP%\Greenshot\Files`), and every start queues the removal of the files there which
+  are older than 10 hours (a file still in use at exit, or left by a crash) and of the files of earlier shares.
+- One item after the other on the thread pool, in the order they are due. Nothing runs before the background work
+  of the start (plugins, prewarms) is done, so it doesn't compete with the start.
+- An exception is logged and the next item runs. At exit the running item is cancelled through the token and the
+  queued ones are dropped: anything that must happen at exit belongs in the shutdown (e.g. `ImageIO.RemoveTmpFiles`).
+- Use it instead of an own `Timer` or `Task.Run`: the service is the only place that starts the background loop
+  (through `AsyncCommand.RunInBackground`, R10).
+
 ---
 
 ## 5. Redesigned public interfaces
