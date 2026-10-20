@@ -32,7 +32,7 @@ public interface IEditorPlugin
     /// <summary>
     /// Called once for every editor window
     /// </summary>
-    /// <param name="editorForm">The editor window</param>
+    /// <param name="editorForm">The editor window, also an <see cref="Forms.IEditorWindow"/>: what a plugin needs of it without WinForms</param>
     /// <param name="pluginMenu">The menu to add the entries to</param>
     /// <param name="currentSurface">The surface of the capture which is shown, a window can show several captures in tabs</param>
     void InitializeEditor(Form editorForm, ToolStripMenuItem pluginMenu, Func<ISurface> currentSurface);

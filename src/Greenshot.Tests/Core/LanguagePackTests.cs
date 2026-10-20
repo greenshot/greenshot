@@ -62,6 +62,7 @@ namespace Greenshot.Tests.Core
                 typeof(Greenshot.Plugin.Office.IOfficeLanguage).Assembly,
                 typeof(Greenshot.Plugin.Pdf.IPdfLanguage).Assembly,
                 typeof(Greenshot.Plugin.RecipeEditor.IRecipeEditorLanguage).Assembly,
+                typeof(Greenshot.Plugin.Stamps.IStampsLanguage).Assembly,
                 typeof(Greenshot.Plugin.Zxing.IZxingLanguage).Assembly
             };
             return assemblies

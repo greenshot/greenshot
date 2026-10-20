@@ -1,0 +1,137 @@
+<Window x:Class="Greenshot.Plugin.Stamps.Views.StampsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
+        Title="{wpf:Text Stamps.Title}"
+        Width="380" Height="600"
+        MinWidth="300" MinHeight="360"
+        WindowStartupLocation="Manual"
+        ResizeMode="CanResizeWithGrip"
+        AllowDrop="True"
+        Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"
+        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
+        WindowStyle="None"
+        AllowsTransparency="False">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/DialogStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Border BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <wpf:ThemedTitleBar Grid.Row="0"/>
+
+            <Grid Grid.Row="1" Margin="10,8,10,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Label Grid.Row="0" Grid.Column="0" Content="{wpf:Text Stamps.Search}" Margin="0,0,8,0" Target="{Binding ElementName=SearchBox}"/>
+                <TextBox x:Name="SearchBox" Grid.Row="0" Grid.Column="1"
+                         Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                         PreviewKeyDown="SearchBox_PreviewKeyDown"/>
+
+                <!-- The stamps, one tab stop: the arrow keys move between them -->
+                <ListBox x:Name="StampList" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,8,0,8"
+                         Style="{StaticResource ThemeListBox}"
+                         ItemContainerStyle="{StaticResource ThemeListBoxItem}"
+                         ItemsSource="{Binding Stamps}"
+                         SelectedItem="{Binding SelectedStamp}"
+                         SelectionMode="Single"
+                         AutomationProperties.Name="{wpf:Text Stamps.Title}"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         KeyDown="StampList_KeyDown"
+                         MouseDoubleClick="StampList_MouseDoubleClick"
+                         PreviewMouseLeftButtonDown="StampList_PreviewMouseLeftButtonDown"
+                         PreviewMouseMove="StampList_PreviewMouseMove">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Width="80" ToolTip="{Binding Description}">
+                                <Image Source="{Binding Thumbnail}" Width="64" Height="64" Stretch="Uniform" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" TextAlignment="Center" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <!-- No stamps yet, or none matches the search -->
+                <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="16"
+                           Text="{Binding EmptyText}" TextWrapping="Wrap"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"
+                           IsHitTestVisible="False"
+                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding EmptyText}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+
+                <Label Grid.Row="2" Grid.Column="0" Content="{wpf:Text Stamps.Name}" Margin="0,0,8,0" Target="{Binding ElementName=NameBox}"/>
+                <TextBox x:Name="NameBox" Grid.Row="2" Grid.Column="1"
+                         Text="{Binding SelectedStamp.Name, UpdateSourceTrigger=LostFocus}"
+                         IsEnabled="{Binding HasSelection}"
+                         KeyDown="DetailsBox_KeyDown"/>
+
+                <Label Grid.Row="3" Grid.Column="0" Content="{wpf:Text Stamps.Tags}" Margin="0,6,8,0" Target="{Binding ElementName=TagsBox}"/>
+                <TextBox x:Name="TagsBox" Grid.Row="3" Grid.Column="1" Margin="0,6,0,0"
+                         Text="{Binding SelectedStamp.TagsText, UpdateSourceTrigger=LostFocus}"
+                         IsEnabled="{Binding HasSelection}"
+                         ToolTip="{wpf:Text Stamps.TagsHint}"
+                         AutomationProperties.HelpText="{wpf:Text Stamps.TagsHint}"
+                         KeyDown="DetailsBox_KeyDown"/>
+
+                <WrapPanel Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,10,0,0">
+                    <Button Content="{wpf:Text Stamps.Insert}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,6,6"
+                            IsEnabled="{Binding CanInsert}" ToolTip="{Binding InsertToolTip}" ToolTipService.ShowOnDisabled="True"
+                            Click="Insert_Click"/>
+                    <Button Content="{wpf:Text Stamps.Copy}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,6,6"
+                            IsEnabled="{Binding HasSelection}" ToolTip="{wpf:Text Stamps.CopyTooltip}"
+                            Click="Copy_Click"/>
+                    <Button Content="{wpf:Text Stamps.Delete}" Style="{StaticResource LightErrorButtonStyle}" Margin="0,0,6,6"
+                            IsEnabled="{Binding HasSelection}"
+                            Click="Delete_Click"/>
+                </WrapPanel>
+
+                <WrapPanel Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2">
+                    <Button Content="{wpf:Text Stamps.Add}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,6,6" Click="Add_Click"/>
+                    <Button Content="{wpf:Text Stamps.Paste}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,6,6" Click="Paste_Click"/>
+                    <Button Content="{wpf:Text Stamps.OpenFolder}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,6,6" Click="OpenFolder_Click"/>
+                </WrapPanel>
+
+                <TextBlock Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,4,0,0"
+                           Text="{Binding StatusText}" TextWrapping="Wrap"
+                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
+                           wpf:LiveRegion.Mode="Polite"/>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

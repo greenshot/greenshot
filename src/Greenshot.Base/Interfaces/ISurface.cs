@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
@@ -158,6 +159,13 @@ namespace Greenshot.Base.Interfaces
 
         void RemoveElements(IDrawableContainerList elements, bool makeUndoable = true);
         void SelectElements(IDrawableContainerList elements);
+
+        /// <summary>
+        /// Add elements, e.g. from a plugin: in the middle of the visible part of the canvas, made smaller when they don't fit there,
+        /// as one undo step, and select them instead of the selection before
+        /// </summary>
+        /// <param name="elements">the elements, created with this surface as parent</param>
+        void InsertElements(IEnumerable<IDrawableContainer> elements);
 
         /// <summary>
         /// Add an element to the surface

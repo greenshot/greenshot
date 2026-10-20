@@ -3221,6 +3221,40 @@ namespace Greenshot.Editor.Drawing
             ResumeLayout();
         }
 
+        /// <inheritdoc />
+        public void InsertElements(IEnumerable<IDrawableContainer> elements)
+        {
+            var elementsToInsert = new DrawableContainerList(elements.Where(element => element != null));
+            if (elementsToInsert.Count == 0)
+            {
+                return;
+            }
+
+            NativeRect area = ToImageCoordinates(GetVisibleArea());
+            if (area.Width <= 0 || area.Height <= 0)
+            {
+                area = new NativeRect(0, 0, Image.Width, Image.Height);
+            }
+
+            // Each further element 10 pixels lower and to the right, like dropped elements
+            int offset = 0;
+            foreach (var element in elementsToInsert)
+            {
+                element.Parent = this;
+                double factor = Math.Max(1d, Math.Max(element.Width / (double) area.Width, element.Height / (double) area.Height));
+                element.Width = Math.Max(1, (int) (element.Width / factor));
+                element.Height = Math.Max(1, (int) (element.Height / factor));
+                element.Left = area.Left + (area.Width - element.Width) / 2 + offset;
+                element.Top = area.Top + (area.Height - element.Height) / 2 + offset;
+                offset += 10;
+            }
+
+            DeselectAllElements();
+            AddElements(elementsToInsert);
+            SelectElements(elementsToInsert);
+            Invalidate();
+        }
+
         /// <summary>
         /// Process key presses on the surface, this is called from the editor (and NOT an override from the Control)
         /// </summary>
