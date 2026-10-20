@@ -135,6 +135,11 @@ namespace Greenshot.Helpers
         private static readonly HashSet<string> Flags = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "--no-run", "--restore", "--autostart", "-Embedding", "--help", "-h", "-?" };
 
         /// <summary>
+        /// Flags which need no System.CommandLine, spelled exactly as it accepts them (it is case-sensitive)
+        /// </summary>
+        private static readonly HashSet<string> SimpleFlags = new HashSet<string>(StringComparer.Ordinal) { "--restore", "--autostart", "-Embedding" };
+
+        /// <summary>
         /// Parses the given command line arguments.
         /// </summary>
         /// <param name="args">The command line arguments passed to the application.</param>
@@ -149,6 +154,15 @@ namespace Greenshot.Helpers
             if (args == null || args.Length == 0)
             {
                 return new CommandLineOptions();
+            }
+            // The same for the autostart (--autostart) and a click on a toast (-Embedding), which only pass these flags
+            if (args.All(SimpleFlags.Contains))
+            {
+                return new CommandLineOptions
+                {
+                    Restore = args.Contains("--restore"),
+                    Autostart = args.Contains("--autostart")
+                };
             }
 
             return ParseArguments(args);

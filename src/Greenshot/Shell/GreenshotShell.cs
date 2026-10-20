@@ -87,6 +87,8 @@ namespace Greenshot.Shell
         private readonly UiStallWatchdog _uiStallWatchdog;
         private readonly CaptureFlowRunner _flowRunner;
         private readonly UpdateService _updateService;
+        // The background work which isn't urgent (temp files and the like), it starts once Greenshot has started
+        private readonly HousekeepingService _housekeeping = new HousekeepingService();
         private readonly WpfWindow _ownerWindow;
         private TrayIcon _trayIcon;
 
@@ -120,6 +122,8 @@ namespace Greenshot.Shell
             UiDispatcher = WpfUiDispatcher.CreateForCurrentThread();
             SimpleServiceProvider.Current.AddService<IUiDispatcher>(UiDispatcher);
             SimpleServiceProvider.Current.AddService<IStaWorkerFactory>(StaWorkers);
+            // Before the plugins, they can queue their housekeeping while they start
+            SimpleServiceProvider.Current.AddService<IHousekeeping>(_housekeeping);
             SimpleServiceProvider.Current.AddService<IClipboardService>(new ClipboardService(UiDispatcher));
             // The destinations talk to the user only through IUserInteraction, the dialogs are the registered views
             var userInteraction = new InteractiveUserInteraction(UiDispatcher);
@@ -221,7 +225,8 @@ namespace Greenshot.Shell
 
             // The recipe settings (disabled recipes, recipe files) belong to the Recipe Editor plugin and recipe files can use steps
             // of other plugins, both are only available now that the plugins registered themselves.
-            RecipeManager.Instance.ReloadRecipes();
+            // No window yet: a file which needs the user (approval, errors) is loaded again once the tray icon is there.
+            var recipeFilesForTheUser = RecipeManager.Instance.LoadRecipesAtStartup();
 
             // The command line language was already applied in Start, right after greenshot.ini was read
             // if language is not set, show language dialog
@@ -263,6 +268,9 @@ namespace Greenshot.Shell
             WindowHelper.RegisterIgnoreHandle(SharedMessageWindow.Handle);
             WindowHelper.RegisterIgnoreHandle(OwnerHandle);
 
+            // Only now the hotkeys and the other triggers start: the recipes are loaded and the tray icon is there
+            TriggerManager.Instance.StartAll();
+
             // The application ends without the shutdown when the session ends (see RestartManagerHelper).
             // Not Application.ApplicationExit: WinForms raises it when its first message loop ends, which is the one of an STA worker now.
             RestartManagerHelper.SessionEndShutdown = ShutdownForSessionEnd;
@@ -294,6 +302,13 @@ namespace Greenshot.Shell
                 ApplicationStartupHelper.ShowWelcome();
             }
 
+            if (recipeFilesForTheUser.Count > 0)
+            {
+                // Posted: the approval and error windows come after the start, not inside it
+                UiDispatcher.InvokeAsync(() => RecipeManager.Instance.LoadRecipeFilesInteractively(recipeFilesForTheUser))
+                    .FireAndLog("Load the recipe files which need the user", Log);
+            }
+
             if (startupCommand != null)
             {
                 // The command Greenshot was started with takes the same way as one from greenshot-cli.exe, now that the pipe server listens
@@ -309,11 +324,33 @@ namespace Greenshot.Shell
             _updateService.Startup();
             SimpleServiceProvider.Current.AddService(_updateService);
 
+            // Files of earlier shares which an app still had open
+            _housekeeping.Enqueue("Remove the files of earlier shares", _ =>
+            {
+                SharingFiles.CleanupOldShareFiles();
+                return Task.CompletedTask;
+            });
+            // After the background work of the start, so the housekeeping doesn't compete with it
+            StartHousekeepingAfterAsync(startupWork).FireAndLog("Start the housekeeping", Log);
+
             // Make Greenshot use less memory after startup: once the background work of the start is done, it would fill the memory again
             if (_conf.MinimizeWorkingSetSize)
             {
                 TrimMemoryAfterAsync(startupWork).FireAndLog("Minimize the memory after the start", Log);
             }
+        }
+
+        private async Task StartHousekeepingAfterAsync(IEnumerable<Task> work)
+        {
+            try
+            {
+                await Task.WhenAll(work).ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                // Already logged by FireAndLog
+            }
+            _housekeeping.Start();
         }
 
         private static async Task TrimMemoryAfterAsync(IEnumerable<Task> work)
@@ -638,6 +675,7 @@ namespace Greenshot.Shell
                 return;
             }
 
+            _housekeeping.Dispose();
             ImageIO.RemoveTmpFiles();
 
             _uiStallWatchdog?.Dispose();

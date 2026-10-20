@@ -527,7 +527,12 @@ namespace Greenshot.Recipes
         /// </summary>
         private bool _loadingConfiguredFiles;
 
-        private void LoadConfiguredRecipeFiles()
+        /// <summary>
+        /// Loads the recipe files of the configuration
+        /// </summary>
+        /// <param name="interactive">false: no window is shown, a file which needs the user (approval, errors) is only added to <paramref name="needsUser"/></param>
+        /// <param name="needsUser">Collects the files which couldn't be loaded without the user</param>
+        private void LoadConfiguredRecipeFiles(bool interactive, List<string> needsUser)
         {
             if (!RecipeFilesSupported)
             {
@@ -555,10 +560,14 @@ namespace Greenshot.Recipes
                     string fullPath = Path.GetFullPath(trimmed);
                     if (File.Exists(fullPath))
                     {
-                        var result = LoadRecipeFromFile(fullPath);
+                        var result = LoadRecipeFromFile(fullPath, interactive);
                         if (!result.IsValid)
                         {
                             Log.WarnFormat("Validation failed for configured recipe file '{0}': {1}", fullPath, string.Join("; ", result.Errors));
+                            if (!interactive)
+                            {
+                                needsUser.Add(fullPath);
+                            }
                         }
                     }
                     else
@@ -1328,6 +1337,42 @@ namespace Greenshot.Recipes
 
         public void ReloadRecipes()
         {
+            ReloadRecipes(interactive: true);
+        }
+
+        /// <summary>
+        /// Loads the recipes at startup without showing a window: the files which need the user (a changed file to approve, an error
+        /// to show) are returned, to be loaded with <see cref="LoadRecipeFilesInteractively"/> once Greenshot has started
+        /// </summary>
+        /// <returns>The recipe files which weren't loaded (or only partly)</returns>
+        public IReadOnlyList<string> LoadRecipesAtStartup()
+        {
+            return ReloadRecipes(interactive: false);
+        }
+
+        /// <summary>
+        /// Loads the recipe files again, asking the user where needed (approval, errors), e.g. the ones held back by <see cref="LoadRecipesAtStartup"/>
+        /// </summary>
+        public void LoadRecipeFilesInteractively(IEnumerable<string> filePaths)
+        {
+            _loadingConfiguredFiles = true;
+            try
+            {
+                foreach (var filePath in filePaths)
+                {
+                    LoadRecipeFromFile(filePath, interactiveApproval: true);
+                }
+            }
+            finally
+            {
+                _loadingConfiguredFiles = false;
+            }
+            NotifyRecipesChanged();
+        }
+
+        private IReadOnlyList<string> ReloadRecipes(bool interactive)
+        {
+            var needsUser = new List<string>();
             lock (_recipes)
             {
                 _recipes.Clear();
@@ -1359,7 +1404,7 @@ namespace Greenshot.Recipes
             _loadingConfiguredFiles = true;
             try
             {
-                LoadConfiguredRecipeFiles();
+                LoadConfiguredRecipeFiles(interactive, needsUser);
             }
             finally
             {
@@ -1367,6 +1412,7 @@ namespace Greenshot.Recipes
             }
             ForgetApprovalsOfUnusedFiles();
             NotifyRecipesChanged();
+            return needsUser;
         }
 
         /// <summary>

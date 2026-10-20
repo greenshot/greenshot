@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Concurrent;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -28,11 +29,13 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using Greenshot.Base.Core.FileFormatHandlers;
 using Dapplo.Ini;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Threading;
 using log4net;
 
 namespace Greenshot.Base.Core
@@ -45,7 +48,9 @@ namespace Greenshot.Base.Core
         private static readonly ILog Log = LogManager.GetLogger(typeof(ImageIO));
         private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
         private static readonly int PROPERTY_TAG_SOFTWARE_USED = 0x0131;
-        private static readonly Cache<string, string> TmpFileCache = new Cache<string, string>(10 * 60 * 60, RemoveExpiredTmpFile);
+        // The temporary files which are still there, removed by the housekeeping after TmpFileLifetime or at exit
+        private static readonly ConcurrentDictionary<string, bool> TmpFiles = new ConcurrentDictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+        private static readonly TimeSpan TmpFileLifetime = TimeSpan.FromHours(10);
 
         /// <summary>
         /// Creates a PropertyItem (Metadata) to store with the image.
@@ -425,8 +430,8 @@ namespace Greenshot.Base.Core
                 if (File.Exists(tmpfile))
                 {
                     File.Delete(tmpfile);
-                    TmpFileCache.Remove(tmpfile);
                 }
+                TmpFiles.TryRemove(tmpfile, out _);
 
                 return true;
             }
@@ -482,14 +487,22 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Remember a temporary file, it is removed by RemoveTmpFiles (e.g. at exit).
+        /// Remember a temporary file, the housekeeping removes it after a while, RemoveTmpFiles at exit.
         /// </summary>
         public static void RegisterTmpFile(string tmpFile)
         {
-            if (!string.IsNullOrEmpty(tmpFile))
+            if (string.IsNullOrEmpty(tmpFile) || !TmpFiles.TryAdd(tmpFile, true))
             {
-                TmpFileCache.Add(tmpFile, tmpFile);
+                return;
             }
+            Housekeeping.Current?.Enqueue("Remove an expired temp file", cancellationToken =>
+            {
+                if (TmpFiles.ContainsKey(tmpFile) && TryDeleteTmpFile(tmpFile))
+                {
+                    TmpFiles.TryRemove(tmpFile, out _);
+                }
+                return Task.CompletedTask;
+            }, TmpFileLifetime);
         }
 
         /// <summary>
@@ -497,29 +510,32 @@ namespace Greenshot.Base.Core
         /// </summary>	
         public static void RemoveTmpFiles()
         {
-            foreach (string tmpFile in TmpFileCache.Elements)
+            foreach (string tmpFile in TmpFiles.Keys)
             {
-                if (File.Exists(tmpFile))
-                {
-                    Log.DebugFormat("Removing old temp file {0}", tmpFile);
-                    File.Delete(tmpFile);
-                }
-
-                TmpFileCache.Remove(tmpFile);
+                TryDeleteTmpFile(tmpFile);
+                TmpFiles.TryRemove(tmpFile, out _);
             }
         }
 
         /// <summary>
-        /// Cleanup handler for expired tempfiles
+        /// Deletes the temp file, a file which is still in use (e.g. opened by the app it was handed to) is left
         /// </summary>
-        /// <param name="filekey"></param>
-        /// <param name="filename"></param>
-        private static void RemoveExpiredTmpFile(string filekey, object filename)
+        /// <returns>false when it couldn't be deleted</returns>
+        private static bool TryDeleteTmpFile(string tmpFile)
         {
-            if (filename is string path && File.Exists(path))
+            try
             {
-                Log.DebugFormat("Removing expired file {0}", path);
-                File.Delete(path);
+                if (File.Exists(tmpFile))
+                {
+                    Log.DebugFormat("Removing temp file {0}", tmpFile);
+                    File.Delete(tmpFile);
+                }
+                return true;
+            }
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
+            {
+                Log.WarnFormat("Couldn't remove the temp file {0}: {1}", tmpFile, ex.Message);
+                return false;
             }
         }
 

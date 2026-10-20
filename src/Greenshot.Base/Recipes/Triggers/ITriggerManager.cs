@@ -40,7 +40,7 @@ namespace Greenshot.Base.Recipes.Triggers
         IReadOnlyList<IEditorTrigger> GetEditorTriggers();
 
         /// <summary>
-        /// Registers a new trigger and starts it if enabled.
+        /// Registers a new trigger and starts it if enabled, once StartAll was called.
         /// </summary>
         void RegisterTrigger(ITrigger trigger);
 
@@ -50,7 +50,7 @@ namespace Greenshot.Base.Recipes.Triggers
         bool UnregisterTrigger(string triggerId);
 
         /// <summary>
-        /// Starts all enabled triggers.
+        /// Starts all enabled triggers, the triggers registered from now on start right away (Greenshot calls it once it has started).
         /// </summary>
         void StartAll();
 

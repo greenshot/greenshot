@@ -58,77 +58,32 @@ namespace Greenshot.Plugin.Office
         /// </summary>
         public string Name => "Office";
 
-        private IEnumerable<IDestination> Destinations()
+        private static IEnumerable<IDestination> Destinations()
         {
-            IDestination destination;
+            return new[]
+            {
+                TryCreate(() => new ExcelDestination(), "Excel"),
+                TryCreate(() => new PowerpointDestination(), "PowerPoint"),
+                TryCreate(() => new WordDestination(), "Word"),
+                TryCreate(() => new OutlookDestination(), "Outlook"),
+                TryCreate(() => new OneNoteDestination(), "OneNote")
+            }.Where(destination => destination != null);
+        }
+
+        /// <summary>
+        /// The destination, null when it couldn't be created: logged, otherwise e.g. a TypeInitializationException
+        /// would leave it out for the whole run without a trace
+        /// </summary>
+        private static IDestination TryCreate(Func<IDestination> create, string application)
+        {
             try
             {
-                destination = new ExcelDestination();
+                return create();
             }
-            catch
+            catch (Exception ex)
             {
-                destination = null;
-            }
-
-            if (destination != null)
-            {
-                yield return destination;
-            }
-
-            try
-            {
-                destination = new PowerpointDestination();
-            }
-            catch
-            {
-                destination = null;
-            }
-
-            if (destination != null)
-            {
-                yield return destination;
-            }
-
-            try
-            {
-                destination = new WordDestination();
-            }
-            catch
-            {
-                destination = null;
-            }
-
-            if (destination != null)
-            {
-                yield return destination;
-            }
-
-            try
-            {
-                destination = new OutlookDestination();
-            }
-            catch
-            {
-                destination = null;
-            }
-
-            if (destination != null)
-            {
-                yield return destination;
-            }
-
-            try
-            {
-                destination = new OneNoteDestination();
-            }
-            catch
-            {
-                destination = null;
-            }
-
-            if (destination != null)
-            {
-                yield return destination;
+                LOG.Warn($"The {application} destination isn't available.", ex);
+                return null;
             }
         }
 
