@@ -42,6 +42,15 @@ namespace Greenshot.Tests.Core
         }
 
         [Fact]
+        public void GetExePath_ProgramNameWithoutExtension_IsFoundAsExe()
+        {
+            string expected = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe");
+
+            Assert.Equal(expected, PluginUtils.GetExePath("cmd"), ignoreCase: true);
+            Assert.Equal(expected, PluginUtils.GetExePath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd")), ignoreCase: true);
+        }
+
+        [Fact]
         public void GetExePath_ExistingFullPath_IsReturned()
         {
             string cmd = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe");

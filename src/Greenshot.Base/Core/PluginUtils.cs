@@ -92,7 +92,7 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Get the path of an executable
         /// </summary>
-        /// <param name="exeName">e.g. cmd.exe</param>
+        /// <param name="exeName">e.g. cmd.exe, or cmd as starting a process adds .exe to a name without extension</param>
         /// <returns>Path to file</returns>
         public static string GetExePath(string exeName)
         {
@@ -100,6 +100,10 @@ namespace Greenshot.Base.Core
             try
             {
                 isFullPath = Path.IsPathRooted(exeName);
+                if (!Path.HasExtension(exeName))
+                {
+                    exeName += ".exe";
+                }
             }
             catch (ArgumentException)
             {
