@@ -63,10 +63,10 @@ namespace Greenshot.Settings.ViewModels
         }
 
         /// <summary>
-        /// Add a destination by its name, switched off, e.g. of a plugin which isn't installed
+        /// Add a destination by its name, e.g. of a plugin which isn't installed: unchecked to block it, checked to allow it
         /// </summary>
         /// <returns>false when the name is empty or already listed</returns>
-        public bool AddDestinationName(string designation)
+        public bool AddDestinationName(string designation, bool isAllowed)
         {
             designation = designation?.Trim();
             if (string.IsNullOrEmpty(designation) || string.Equals(designation, nameof(WellKnownDestinations.Picker), StringComparison.OrdinalIgnoreCase)
@@ -75,7 +75,7 @@ namespace Greenshot.Settings.ViewModels
                 return false;
             }
 
-            AddUnregisteredDestination(designation).IsAllowed = false;
+            AddUnregisteredDestination(designation).IsAllowed = isAllowed;
             return true;
         }
 

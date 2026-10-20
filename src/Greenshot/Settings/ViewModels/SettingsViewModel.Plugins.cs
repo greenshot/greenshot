@@ -199,10 +199,10 @@ namespace Greenshot.Settings.ViewModels
         }
 
         /// <summary>
-        /// Add a plugin which isn't installed by its name, switched off, e.g. to block it before it is installed
+        /// Add a plugin which isn't installed by its name: unchecked to block it before it is installed, checked to allow it
         /// </summary>
         /// <returns>false when the name is empty or already listed</returns>
-        public bool AddPluginName(string name)
+        public bool AddPluginName(string name, bool isAllowed)
         {
             name = name?.Trim();
             if (string.IsNullOrEmpty(name) || Plugins.Any(item => string.Equals(item.PluginName, name, StringComparison.OrdinalIgnoreCase)))
@@ -210,7 +210,7 @@ namespace Greenshot.Settings.ViewModels
                 return false;
             }
 
-            var item = new PluginViewModel { PluginName = name, Name = name, Version = Texts.Settings.PluginNotInstalled, IsAllowed = false };
+            var item = new PluginViewModel { PluginName = name, Name = name, Version = Texts.Settings.PluginNotInstalled, IsAllowed = isAllowed };
             Plugins.Add(item);
             SelectedPlugin = item;
             return true;

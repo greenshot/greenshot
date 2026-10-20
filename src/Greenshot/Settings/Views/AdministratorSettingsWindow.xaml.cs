@@ -27,38 +27,70 @@ using System.Windows;
 using Greenshot.Base.Core;
 using Greenshot.Base.Languages;
 using Greenshot.Base.Wpf;
+using Greenshot.Settings.ViewModels;
 using log4net;
 using Microsoft.Win32;
 
 namespace Greenshot.Settings.Views
 {
     /// <summary>
-    /// Shows the lines for greenshot-fixed.ini, built from the check boxes of the settings, to copy or save
+    /// Shows the lines for greenshot-fixed.ini, built from the check boxes of the settings, to copy or save.
+    /// Plugins and destinations which aren't installed can be added by their name.
     /// </summary>
     public partial class AdministratorSettingsWindow : Window
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(AdministratorSettingsWindow));
-        private readonly Func<bool, bool, bool, string> _buildSettings;
+        private readonly SettingsViewModel _viewModel;
 
-        /// <param name="buildSettings">The lines, with "allow only what is checked", "users can't switch off" and "don't ask about unsigned plugins"</param>
-        public AdministratorSettingsWindow(Func<bool, bool, bool, string> buildSettings)
+        public AdministratorSettingsWindow(SettingsViewModel viewModel)
         {
             InitializeComponent();
-            _buildSettings = buildSettings;
+            _viewModel = viewModel;
 #if GREENSHOT_LIGHT
             // Greenshot Light has no plugins
             NoUnsignedQuestionBox.Visibility = Visibility.Collapsed;
+            AddPluginButton.Visibility = Visibility.Collapsed;
 #endif
-            SettingsText.Text = _buildSettings(false, false, false);
+            UpdateSettingsText();
+        }
+
+        private bool OnlyAllowChecked => OnlyAllowCheckedButton.IsChecked == true;
+
+        private void UpdateSettingsText()
+        {
+            SettingsText.Text = _viewModel.BuildAdministratorSettings(OnlyAllowChecked, NoUserExclusionsBox.IsChecked == true, NoUnsignedQuestionBox.IsChecked == true);
         }
 
         private void Option_Changed(object sender, RoutedEventArgs e)
         {
             // Raised while InitializeComponent builds the check boxes
-            if (_buildSettings != null)
+            if (_viewModel != null)
             {
-                SettingsText.Text = _buildSettings(OnlyAllowCheckedButton.IsChecked == true, NoUserExclusionsBox.IsChecked == true, NoUnsignedQuestionBox.IsChecked == true);
+                UpdateSettingsText();
             }
+        }
+
+        /// <summary>
+        /// Blocked, or allowed when only what is checked is allowed; it shows up in the list of the settings too
+        /// </summary>
+        private void AddPlugin_Click(object sender, RoutedEventArgs e)
+        {
+#if !GREENSHOT_LIGHT
+            AddName(_viewModel.AddPluginName(NameBox.Text, OnlyAllowChecked));
+#endif
+        }
+
+        private void AddDestination_Click(object sender, RoutedEventArgs e) => AddName(_viewModel.AddDestinationName(NameBox.Text, OnlyAllowChecked));
+
+        private void AddName(bool added)
+        {
+            if (added)
+            {
+                NameBox.Clear();
+                UpdateSettingsText();
+            }
+
+            NameBox.Focus();
         }
 
         private void Copy_Click(object sender, RoutedEventArgs e)
@@ -86,7 +118,7 @@ namespace Greenshot.Settings.Views
             catch (Exception ex)
             {
                 Log.Error("Couldn't save the administrator settings", ex);
-                ThemedMessageBox.Show(this, ex.Message, Texts.Settings.AdministratorSettings, MessageBoxButton.OK, MessageBoxImage.Error);
+                ThemedMessageBox.Show(this, ex.Message, Texts.Settings.RestrictForAllUsersTitle, MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

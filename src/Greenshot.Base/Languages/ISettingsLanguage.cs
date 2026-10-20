@@ -277,9 +277,14 @@ namespace Greenshot.Base.Languages
         string SetByAdministrator { get; }
 
         /// <summary>
-        /// Administrator settings…
+        /// Restrict for all users…
         /// </summary>
-        string AdministratorSettings { get; }
+        string RestrictForAllUsers { get; }
+
+        /// <summary>
+        /// Restrict for all users (greenshot-fixed.ini)
+        /// </summary>
+        string RestrictForAllUsersTitle { get; }
 
         /// <summary>
         /// Copy these lines into greenshot-fixed.ini next to Greenshot.exe. Users can't switch on what these lines block.
@@ -297,14 +302,24 @@ namespace Greenshot.Base.Languages
         string AdministratorSettingsOnlyChecked { get; }
 
         /// <summary>
-        /// Add
+        /// Not installed yet? Add a plugin or destination by its name...
         /// </summary>
-        string AddByName { get; }
+        string AddNotInstalled { get; }
 
         /// <summary>
-        /// Name to add, e.g. of a plugin which isn't installed (see the documentation for the known names)
+        /// Name of the plugin or destination
         /// </summary>
-        string AddByNameHint { get; }
+        string AddNotInstalledName { get; }
+
+        /// <summary>
+        /// Add plugin
+        /// </summary>
+        string AddPlugin { get; }
+
+        /// <summary>
+        /// Add destination
+        /// </summary>
+        string AddDestination { get; }
 
         /// <summary>
         /// Users can't switch off plugins or destinations themselves

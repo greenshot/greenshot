@@ -280,28 +280,7 @@ namespace Greenshot.Settings.Views
         /// </summary>
         internal void AdministratorSettings_Click(object sender, RoutedEventArgs e)
         {
-            new AdministratorSettingsWindow(_viewModel.BuildAdministratorSettings) { Owner = this }.ShowDialog();
-        }
-
-        private void AddDestinationName_Click(object sender, RoutedEventArgs e) => AddDestinationName();
-
-        private void DestinationNameBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                AddDestinationName();
-                e.Handled = true;
-            }
-        }
-
-        private void AddDestinationName()
-        {
-            if (_viewModel.AddDestinationName(DestinationNameBox.Text))
-            {
-                DestinationNameBox.Clear();
-            }
-
-            DestinationNameBox.Focus();
+            new AdministratorSettingsWindow(_viewModel) { Owner = this }.ShowDialog();
         }
 
         private void RemoveFixedCaptureSize_Click(object sender, RoutedEventArgs e)

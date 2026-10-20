@@ -21,7 +21,6 @@
 
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using Greenshot.Settings.ViewModels;
 using Greenshot.Settings.Views;
 
@@ -35,27 +34,6 @@ namespace Greenshot.Plugins.Views
         public PluginsSettingsPage()
         {
             InitializeComponent();
-        }
-
-        private void AddPluginName_Click(object sender, RoutedEventArgs e) => AddPluginName();
-
-        private void PluginNameBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                AddPluginName();
-                e.Handled = true;
-            }
-        }
-
-        private void AddPluginName()
-        {
-            if ((DataContext as SettingsViewModel)?.AddPluginName(PluginNameBox.Text) == true)
-            {
-                PluginNameBox.Clear();
-            }
-
-            PluginNameBox.Focus();
         }
 
         private void AdministratorSettings_Click(object sender, RoutedEventArgs e)

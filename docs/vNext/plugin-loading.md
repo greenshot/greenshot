@@ -94,5 +94,5 @@ These keys only matter for plugins in a folder the user can change; plugins unde
 | `PluginVerifiedHashes` | Kept by Greenshot: hashes which passed the signature check. |
 | `AskForUnsignedPlugins` | `False` in greenshot-fixed.ini: no question, a plugin which isn't signed like Greenshot.exe only loads when `PluginApprovedHashes` lists it. |
 
-**Administrator settings…** in the settings (Plugins or Destinations tab) adds the hashes approved on this PC to the lines for
+**Restrict for all users…** in the settings (Plugins or Destinations tab) adds the hashes approved on this PC to the lines for
 greenshot-fixed.ini, and *Don't ask about plugins which aren't signed* adds `AskForUnsignedPlugins=False`.
