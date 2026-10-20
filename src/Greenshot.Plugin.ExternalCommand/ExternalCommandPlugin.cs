@@ -46,7 +46,6 @@ namespace Greenshot.Plugin.ExternalCommand;
 public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvider
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ExternalCommandPlugin));
-    private static ICoreConfiguration CoreConfig;
     private static IExternalCommandConfiguration ExternalCommandConfig;
 
     public ValueTask DisposeAsync()
@@ -126,7 +125,6 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRec
     /// </summary>
     private IEnumerable<IDestination> CreateDestinations()
     {
-        CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
         return ExternalCommandConfig.Commands
             .Where(IsCommandValid)
             .Select(command => (IDestination)new ExternalCommandDestination(command))
