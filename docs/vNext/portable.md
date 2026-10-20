@@ -2,6 +2,8 @@
 
 Greenshot comes in two portable versions. Neither one needs an installation, and both keep their settings in their own folder.
 
+What each download has compared to the installers is in the feature matrix in [editions.md](editions.md).
+
 | | Portable .zip | PortableApps.com package |
 |---|---|---|
 | Download | `Greenshot-PORTABLE-<version>.zip`, `Greenshot-Light-PORTABLE-<version>.zip` | `Greenshot-Light-PORTABLEAPPS-<version>.paf.exe` |

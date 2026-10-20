@@ -14,6 +14,7 @@ work differently there, and they can still change before the release. The docume
 | [self-service.md](self-service.md) | The Self-Service window: checking that Greenshot is set up as expected |
 | [welcome-window.md](welcome-window.md) | The welcome window at the first start |
 | [autostart.md](autostart.md) | Starting Greenshot with Windows |
+| [editions.md](editions.md) | The downloads and editions (Greenshot, Greenshot Light, portable): what each one has |
 | [portable.md](portable.md) | The portable .zip and the PortableApps.com package, and where greenshot.ini is read from |
 | [plugins-and-destinations.md](plugins-and-destinations.md) | Switching plugins and destinations on or off, and locking it for all users |
 | [plugin-loading.md](plugin-loading.md) | How plugins are loaded, the signature check and the question about unsigned plugins |
