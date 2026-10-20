@@ -341,7 +341,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 **Language**
 - The first start uses the language of Windows instead of asking, the settings change it
-- `--reload` also switches to the language set in greenshot.ini
+- `--reload` also applies a language set in greenshot-fixed.ini
 
 #### 🔒 Security Improvements
 
@@ -536,7 +536,7 @@ If you have scripts or shortcuts that use Greenshot's command line arguments, yo
 |--------------|--------------|-------------|
 | `/help`, `/h`, `/?` | `--help`, `-h` | Show help information |
 | `/exit` | `--exit` | Close running Greenshot instance |
-| `/reload` | `--reload` | Reload configuration |
+| `/reload` | `--reload` | Apply a changed greenshot-fixed.ini (greenshot.ini is locked while Greenshot runs) |
 | `/norun` | `--no-run` | Start in configuration mode |
 | `/language [code]` | `--language <language-code>` | Set interface language |
 | `/inidirectory [path]` | `--ini-directory <directory>` | Set configuration directory |
