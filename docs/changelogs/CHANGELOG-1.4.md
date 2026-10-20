@@ -125,7 +125,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 **Confluence Plugin** (#869)
 - Replaced deprecated SOAP API with REST API
 - Modern API integration for Confluence
-- Works with Confluence Cloud and Data Center, also finds open Confluence Cloud pages in Firefox
+- Works with Confluence Cloud and Data Center
 - By @Copilot
 
 **Dropbox Plugin** (#885)

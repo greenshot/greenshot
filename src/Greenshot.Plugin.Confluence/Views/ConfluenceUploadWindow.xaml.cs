@@ -33,7 +33,6 @@ namespace Greenshot.Plugin.Confluence.Views;
 public partial class ConfluenceUploadWindow
 {
     private readonly ConfluenceUploadRequest _request;
-    private ConfluencePagePickerPage _pickerPage;
 
     /// <summary>
     /// The view of a <see cref="ConfluenceUploadRequest"/>: shows the dialog modally (on the UI thread).
@@ -47,24 +46,7 @@ public partial class ConfluenceUploadWindow
             return null;
         }
 
-        return new ConfluenceUploadChoice(confluenceUpload.SelectedPage, confluenceUpload.Filename, confluenceUpload.IsOpenPageSelected);
-    }
-
-    public ConfluencePagePickerPage PickerPage
-    {
-        get
-        {
-            if (_pickerPage == null)
-            {
-                List<Page> pages = _request.CurrentPages.ToList();
-                if (pages.Count > 0)
-                {
-                    _pickerPage = new ConfluencePagePickerPage(this, pages);
-                }
-            }
-
-            return _pickerPage;
-        }
+        return new ConfluenceUploadChoice(confluenceUpload.SelectedPage, confluenceUpload.Filename);
     }
 
     private System.Windows.Controls.Page _searchPage;
@@ -90,11 +72,9 @@ public partial class ConfluenceUploadWindow
         {
             _selectedPage = value;
             Upload.IsEnabled = _selectedPage != null;
-            IsOpenPageSelected = false;
         }
     }
 
-    public bool IsOpenPageSelected { get; set; }
     public string Filename { get; set; }
 
     /// <summary>
@@ -108,12 +88,6 @@ public partial class ConfluenceUploadWindow
         Filename = request.Filename;
         InitializeComponent();
         DataContext = this;
-        if (PickerPage != null)
-        {
-            return;
-        }
-        PickerTab.Visibility = Visibility.Collapsed;
-        SearchTab.IsSelected = true;
     }
 
     private void Upload_Click(object sender, RoutedEventArgs e)

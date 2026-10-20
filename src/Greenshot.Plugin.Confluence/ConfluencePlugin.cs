@@ -63,11 +63,6 @@ public class ConfluencePlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeSt
         }
     }
 
-    public static ConfluenceConnector ConfluenceConnectorNoLogin
-    {
-        get { return _confluenceConnector; }
-    }
-
     /// <summary>
     /// The connector, created when needed. Its methods log in (ask the user for the credentials) when needed.
     /// </summary>

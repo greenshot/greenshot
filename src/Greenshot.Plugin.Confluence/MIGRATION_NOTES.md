@@ -15,14 +15,9 @@ Cloud deprecated most v1 calls that have a v2 replacement (RFC-19), so the plugi
 | Use | Call |
 |-----|------|
 | Check the login | `GET rest/api/user/current` |
-| Page by id, by space and title, child pages, text search | `GET rest/api/content/search?cql=...` (CQL `id=`, `space= and title=`, `parent=`, `text~`) |
+| Page by id (space home page), child pages, text search | `GET rest/api/content/search?cql=...` (CQL `id=`, `parent=`, `text~`) |
 | Spaces with their home page | `GET rest/api/space?expand=homepage`; when that is gone (404/410 on Cloud) `GET api/v2/spaces` |
 | Upload | `POST rest/api/content/{id}/child/attachment` (multipart `file`, `minorEdit`, `comment`, header `X-Atlassian-Token: no-check`) |
-
-## Open pages in the browser
-
-`ConfluenceUtils.GetCurrentPagesAsync` finds page ids (`pageId=123`, Cloud `/pages/123/`) and Server page paths
-(`/display/SPACE/Title`) in the urls of Firefox windows.
 
 ## References
 

@@ -212,22 +212,6 @@ public class ConfluenceConnector : IDisposable
         await _confluence.AttachAsync(pageId, image, filename, comment, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<Entities.Page> GetPageAsync(string spaceKey, string pageTitle, CancellationToken cancellationToken = default)
-    {
-        string cacheKey = spaceKey + pageTitle;
-        var page = _pageCache.Contains(cacheKey) ? _pageCache[cacheKey] : null;
-        if (page == null)
-        {
-            page = await SearchFirstPageAsync($"type=page and space={ConfluenceClient.Quote(spaceKey)} and title={ConfluenceClient.Quote(pageTitle)}", cancellationToken).ConfigureAwait(false);
-            if (page != null)
-            {
-                _pageCache.Add(cacheKey, page);
-            }
-        }
-
-        return page;
-    }
-
     public async Task<Entities.Page> GetPageAsync(long pageId, CancellationToken cancellationToken = default)
     {
         string cacheKey = pageId.ToString();

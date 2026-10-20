@@ -12,9 +12,6 @@
 	</Window.Resources>
 	<StackPanel>
 		<TabControl>
-            <TabItem Header="{wpf:Text Confluence.OpenPages}" Name="PickerTab">
-				<Frame NavigationUIVisibility="Hidden" Content="{Binding Path=PickerPage}" Height="500"/>
-			</TabItem>
             <TabItem Header="{wpf:Text Confluence.SearchPages}" Name="SearchTab">
 				<Frame NavigationUIVisibility="Hidden" Content="{Binding Path=SearchPage}" Height="500"/>
 			</TabItem>

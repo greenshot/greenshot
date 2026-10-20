@@ -49,7 +49,6 @@ public class ConfluenceDestination : DestinationBase, IRequiresRecipeAuthorizati
     private static ICoreConfiguration CoreConfig => IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
     private static readonly object IconLock = new object();
     private static Image _confluenceIcon;
-    private readonly Page _page;
 
     private static Image LoadConfluenceIcon()
     {
@@ -114,11 +113,6 @@ public class ConfluenceDestination : DestinationBase, IRequiresRecipeAuthorizati
     {
     }
 
-    public ConfluenceDestination(Page page)
-    {
-        _page = page;
-    }
-
     public override string Designation => "Confluence";
 
     /// <summary>
@@ -133,31 +127,17 @@ public class ConfluenceDestination : DestinationBase, IRequiresRecipeAuthorizati
     {
         get
         {
-            string displayName = _page == null
-                ? Texts.Get<IConfluenceLanguage>().UploadMenuItem
-                : Texts.Get<IConfluenceLanguage>().UploadMenuItem + ": \"" + _page.Title + "\"";
-            return new DestinationDescriptor(displayName, iconKey: IconKey, hasDynamicDestinations: _page == null);
+            return new DestinationDescriptor(Texts.Get<IConfluenceLanguage>().UploadMenuItem, iconKey: IconKey);
         }
     }
 
     public override bool IsAvailableFor(ICaptureDetails metadata) => base.IsAvailableFor(metadata) && !string.IsNullOrEmpty(ConfluenceConfig.Url);
 
-    public override async ValueTask<IReadOnlyList<IDestination>> GetDynamicDestinationsAsync(ICaptureDetails metadata, CancellationToken cancellationToken)
-    {
-        if (_page != null || ConfluencePlugin.ConfluenceConnectorNoLogin == null || !ConfluencePlugin.ConfluenceConnectorNoLogin.IsLoggedIn)
-        {
-            return Array.Empty<IDestination>();
-        }
-
-        List<Page> currentPages = await ConfluenceUtils.GetCurrentPagesAsync(cancellationToken).ConfigureAwait(false);
-        return currentPages.Select(currentPage => (IDestination) new ConfluenceDestination(currentPage)).ToList();
-    }
-
     public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
     {
         var connector = ConfluencePlugin.ConfluenceConnector;
-        Page selectedPage = _page;
-        bool openPage = (_page == null) && ConfluenceConfig.OpenPageAfterUpload;
+        Page selectedPage;
+        bool openPage = ConfluenceConfig.OpenPageAfterUpload;
         string filename = FilenameHelper.GetFilenameWithoutExtensionFromPattern(CoreConfig.OutputFileFilenamePattern, request.Metadata);
         try
         {
@@ -167,25 +147,16 @@ public class ConfluenceDestination : DestinationBase, IRequiresRecipeAuthorizati
                 return ExportResult.Declined;
             }
 
-            if (selectedPage == null)
+            // Everything the dialog shows is loaded before it opens, the dialog itself only loads the page tree
+            var spaces = await connector.GetSpaceSummariesAsync(cancellationToken).ConfigureAwait(false);
+            var choice = await request.Ui.ShowDialogAsync(new ConfluenceUploadRequest(filename, spaces), cancellationToken).ConfigureAwait(false);
+            if (choice?.Page == null)
             {
-                // Everything the dialog shows is loaded before it opens, the dialog itself only loads the page tree
-                var currentPages = await ConfluenceUtils.GetCurrentPagesAsync(cancellationToken).ConfigureAwait(false);
-                var spaces = await connector.GetSpaceSummariesAsync(cancellationToken).ConfigureAwait(false);
-                var choice = await request.Ui.ShowDialogAsync(new ConfluenceUploadRequest(filename, currentPages, spaces), cancellationToken).ConfigureAwait(false);
-                if (choice?.Page == null)
-                {
-                    return ExportResult.Declined;
-                }
-
-                selectedPage = choice.Page;
-                if (choice.IsOpenPageSelected)
-                {
-                    openPage = false;
-                }
-
-                filename = choice.Filename;
+                return ExportResult.Declined;
             }
+
+            selectedPage = choice.Page;
+            filename = choice.Filename;
         }
         catch (Exception e) when (e is not OperationCanceledException)
         {
@@ -272,23 +243,17 @@ public sealed class ConfluenceIconProvider : IIconProvider
 }
 
 /// <summary>
-/// What the Confluence upload dialog shows: the open pages and the spaces, the result is the choice or null.
+/// What the Confluence upload dialog shows: the spaces, the result is the choice or null.
 /// </summary>
 public sealed class ConfluenceUploadRequest : IDialogViewModel<ConfluenceUploadChoice>
 {
-    public ConfluenceUploadRequest(string filename, IList<Page> currentPages, IList<Space> spaces)
+    public ConfluenceUploadRequest(string filename, IList<Space> spaces)
     {
         Filename = filename;
-        CurrentPages = currentPages ?? new List<Page>();
         Spaces = spaces ?? new List<Space>();
     }
 
     public string Filename { get; }
-
-    /// <summary>
-    /// The Confluence pages which are open in a browser
-    /// </summary>
-    public IList<Page> CurrentPages { get; }
 
     public IList<Space> Spaces { get; }
 }
@@ -298,19 +263,13 @@ public sealed class ConfluenceUploadRequest : IDialogViewModel<ConfluenceUploadC
 /// </summary>
 public sealed class ConfluenceUploadChoice
 {
-    public ConfluenceUploadChoice(Page page, string filename, bool isOpenPageSelected)
+    public ConfluenceUploadChoice(Page page, string filename)
     {
         Page = page;
         Filename = filename;
-        IsOpenPageSelected = isOpenPageSelected;
     }
 
     public Page Page { get; }
 
     public string Filename { get; }
-
-    /// <summary>
-    /// True when the page was picked from the pages which are open in a browser (no need to open it)
-    /// </summary>
-    public bool IsOpenPageSelected { get; }
 }
