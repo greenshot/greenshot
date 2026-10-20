@@ -368,7 +368,9 @@ namespace Greenshot.Base.Core
             IncludePlugins ??= new List<string>();
             ExcludePluginNames ??= new List<string>();
             IncludePluginNames ??= new List<string>();
+            BlockedPluginNames ??= new List<string>();
             IncludeDestinations ??= new List<string>();
+            BlockedDestinations ??= new List<string>();
             // The plugin lists of the user use the names now, values in greenshot-fixed.ini are still read where they are
             if (MoveToPluginNames(nameof(ExcludePlugins), ExcludePlugins, nameof(ExcludePluginNames), ExcludePluginNames)
                 | MoveToPluginNames(nameof(IncludePlugins), IncludePlugins, nameof(IncludePluginNames), IncludePluginNames))

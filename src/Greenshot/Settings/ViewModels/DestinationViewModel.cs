@@ -79,6 +79,11 @@ namespace Greenshot.Settings.ViewModels
             }
         }
 
+        /// <summary>
+        /// False when the administrator blocked the destination, or doesn't let the user switch destinations off
+        /// </summary>
+        public bool CanChangeAllowed { get; set; } = true;
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>

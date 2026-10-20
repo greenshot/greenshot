@@ -38,19 +38,23 @@ namespace Greenshot.Settings.Views
     public partial class AdministratorSettingsWindow : Window
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(AdministratorSettingsWindow));
-        private readonly Func<bool, string> _buildSettings;
+        private readonly Func<bool, bool, string> _buildSettings;
 
-        /// <param name="buildSettings">The lines, true for "only allow what is checked"</param>
-        public AdministratorSettingsWindow(Func<bool, string> buildSettings)
+        /// <param name="buildSettings">The lines, with "only allow what is checked" and "users can't switch off"</param>
+        public AdministratorSettingsWindow(Func<bool, bool, string> buildSettings)
         {
             InitializeComponent();
             _buildSettings = buildSettings;
-            SettingsText.Text = _buildSettings(false);
+            SettingsText.Text = _buildSettings(false, false);
         }
 
-        private void OnlyAllowChecked_Changed(object sender, RoutedEventArgs e)
+        private void Option_Changed(object sender, RoutedEventArgs e)
         {
-            SettingsText.Text = _buildSettings(OnlyAllowCheckedBox.IsChecked == true);
+            // Raised while InitializeComponent builds the check boxes
+            if (_buildSettings != null)
+            {
+                SettingsText.Text = _buildSettings(OnlyAllowCheckedBox.IsChecked == true, NoUserExclusionsBox.IsChecked == true);
+            }
         }
 
         private void Copy_Click(object sender, RoutedEventArgs e)

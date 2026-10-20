@@ -41,8 +41,10 @@ namespace Greenshot.Tests.Core
             config.IncludePlugins = new List<string>();
             config.ExcludePluginNames = new List<string>();
             config.IncludePluginNames = new List<string>();
+            config.BlockedPluginNames = new List<string>();
             config.ExcludeDestinations = new List<string>();
             config.IncludeDestinations = new List<string>();
+            config.BlockedDestinations = new List<string>();
             return config;
         }
 
@@ -83,6 +85,20 @@ namespace Greenshot.Tests.Core
         }
 
         [Fact]
+        public void IsPluginAllowed_UserExclusionAddsToTheAdministrator()
+        {
+            var config = NewConfiguration();
+            config.BlockedPluginNames = new List<string> { "Dropbox" };
+            config.ExcludePluginNames = new List<string> { "Jira" };
+
+            Assert.False(ConfigurationRestrictions.IsPluginAllowed(config, "Dropbox"));
+            Assert.False(ConfigurationRestrictions.IsPluginAllowed(config, "Jira"));
+            Assert.True(ConfigurationRestrictions.IsPluginBlockedByAdministrator(config, "Dropbox"));
+            Assert.False(ConfigurationRestrictions.IsPluginBlockedByAdministrator(config, "Jira"));
+            Assert.True(ConfigurationRestrictions.IsPluginAllowed(config, "Box"));
+        }
+
+        [Fact]
         public void IsPluginAllowed_Included_BlocksAllOthers()
         {
             var config = NewConfiguration();
@@ -99,6 +115,7 @@ namespace Greenshot.Tests.Core
             config.ExcludePlugins = new List<string> { "Jira Plugin" };
 
             Assert.False(ConfigurationRestrictions.IsPluginAllowed(config, "Jira"));
+            Assert.True(ConfigurationRestrictions.IsPluginBlockedByAdministrator(config, "Jira"));
         }
 
         [Fact]
@@ -118,9 +135,16 @@ namespace Greenshot.Tests.Core
             Assert.False(ConfigurationRestrictions.IsDestinationAllowed(config, "Jira"));
             Assert.True(ConfigurationRestrictions.IsDestinationAllowed(config, "Clipboard"));
 
+            Assert.False(ConfigurationRestrictions.IsDestinationBlockedByAdministrator(config, "Jira"));
+
+            config.BlockedDestinations = new List<string> { "Box" };
+            Assert.False(ConfigurationRestrictions.IsDestinationAllowed(config, "Box"));
+            Assert.True(ConfigurationRestrictions.IsDestinationBlockedByAdministrator(config, "Box"));
+
             config.IncludeDestinations = new List<string> { "Clipboard" };
             Assert.True(ConfigurationRestrictions.IsDestinationAllowed(config, "clipboard"));
             Assert.False(ConfigurationRestrictions.IsDestinationAllowed(config, "FileNoDialog"));
+            Assert.True(ConfigurationRestrictions.IsDestinationBlockedByAdministrator(config, "FileNoDialog"));
         }
 
         [Fact]

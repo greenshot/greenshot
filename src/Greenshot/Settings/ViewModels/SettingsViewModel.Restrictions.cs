@@ -30,15 +30,15 @@ using Greenshot.Base.Interfaces;
 namespace Greenshot.Settings.ViewModels
 {
     /// <summary>
-    /// Which destinations (and plugins) can be used: the check boxes of the Destinations and Plugins tabs write
+    /// Which destinations (and plugins) can be used: the check boxes of the Destinations and Plugins tabs write the user's
     /// ExcludeDestinations / ExcludePluginNames, and the administrator settings show them as lines for greenshot-fixed.ini.
     /// </summary>
     public partial class SettingsViewModel
     {
         /// <summary>
-        /// greenshot-fixed.ini decides which destinations are available
+        /// greenshot-fixed.ini doesn't let the user switch destinations off
         /// </summary>
-        public bool AreDestinationsFixed => ConfigurationRestrictions.AreDestinationsFixed(CoreConfiguration);
+        public bool AreDestinationExclusionsFixed => ConfigurationRestrictions.AreDestinationExclusionsFixed(CoreConfiguration);
 
         /// <summary>
         /// The registered destinations which are available, or only excluded by the configuration, without the picker
@@ -62,20 +62,16 @@ namespace Greenshot.Settings.ViewModels
         }
 
         /// <summary>
-        /// Write the check boxes to the include / exclude lists, entries which aren't listed (e.g. of a plugin which isn't installed) stay
+        /// Write the check boxes the user can change to the exclude lists, entries which aren't listed (e.g. of a plugin which isn't installed) stay
         /// </summary>
         public void SaveRestrictions()
         {
-            if (!AreDestinationsFixed && Destinations != null)
+            if (!AreDestinationExclusionsFixed && Destinations != null)
             {
-                var listed = Destinations.Select(item => item.Destination.Designation).ToList();
-                CoreConfiguration.ExcludeDestinations = ConfigurationRestrictions.ReplaceListed(CoreConfiguration.ExcludeDestinations, listed,
-                    Destinations.Where(item => !item.IsAllowed).Select(item => item.Destination.Designation));
-                if (ConfigurationRestrictions.Names(CoreConfiguration.IncludeDestinations).Any())
-                {
-                    CoreConfiguration.IncludeDestinations = ConfigurationRestrictions.ReplaceListed(CoreConfiguration.IncludeDestinations, listed,
-                        Destinations.Where(item => item.IsAllowed).Select(item => item.Destination.Designation));
-                }
+                var changeable = Destinations.Where(item => item.CanChangeAllowed).ToList();
+                CoreConfiguration.ExcludeDestinations = ConfigurationRestrictions.ReplaceListed(CoreConfiguration.ExcludeDestinations,
+                    changeable.Select(item => item.Destination.Designation),
+                    changeable.Where(item => !item.IsAllowed).Select(item => item.Destination.Designation));
             }
 #if !GREENSHOT_LIGHT
             SavePluginRestrictions();
@@ -83,26 +79,35 @@ namespace Greenshot.Settings.ViewModels
         }
 
         /// <summary>
-        /// The lines for greenshot-fixed.ini with the current check boxes
+        /// The lines for greenshot-fixed.ini with the current check boxes: what isn't checked is blocked
         /// </summary>
-        /// <param name="onlyAllowChecked">true writes the include lists, which also block what is added later</param>
-        public string BuildAdministratorSettings(bool onlyAllowChecked)
+        /// <param name="onlyAllowChecked">true also writes the include lists, which block what is added later</param>
+        /// <param name="noUserExclusions">true fixes the user's exclude lists empty, the user can't switch anything off</param>
+        public string BuildAdministratorSettings(bool onlyAllowChecked, bool noUserExclusions)
         {
             var text = new StringBuilder();
             text.AppendLine("[Core]");
 #if !GREENSHOT_LIGHT
             AppendPluginRestrictions(text, onlyAllowChecked);
+            if (noUserExclusions)
+            {
+                AppendList(text, nameof(ICoreConfiguration.ExcludePluginNames), Enumerable.Empty<string>());
+            }
 #endif
-            // Both lists for "only allow": an empty include list allows everything
             var listed = Destinations.Select(item => item.Destination.Designation).ToList();
-            var excluded = Destinations.Where(item => !item.IsAllowed).Select(item => item.Destination.Designation);
-            AppendList(text, nameof(ICoreConfiguration.ExcludeDestinations), ConfigurationRestrictions.ReplaceListed(CoreConfiguration.ExcludeDestinations, listed, excluded));
+            AppendList(text, nameof(ICoreConfiguration.BlockedDestinations), ConfigurationRestrictions.ReplaceListed(CoreConfiguration.BlockedDestinations, listed,
+                Destinations.Where(item => !item.IsAllowed).Select(item => item.Destination.Designation)));
             if (onlyAllowChecked)
             {
                 // The picker has no check box, it stays available
                 var allowed = Destinations.Where(item => item.IsAllowed).Select(item => item.Destination.Designation)
                     .Append(nameof(WellKnownDestinations.Picker));
                 AppendList(text, nameof(ICoreConfiguration.IncludeDestinations), ConfigurationRestrictions.ReplaceListed(CoreConfiguration.IncludeDestinations, listed, allowed));
+            }
+
+            if (noUserExclusions)
+            {
+                AppendList(text, nameof(ICoreConfiguration.ExcludeDestinations), Enumerable.Empty<string>());
             }
 
             return text.ToString();

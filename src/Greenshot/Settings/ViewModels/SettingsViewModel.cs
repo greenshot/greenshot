@@ -443,6 +443,7 @@ namespace Greenshot.Settings.ViewModels
                     Description = description,
                     // Before IsSelected: switching it off unselects, an output destination which is off stays in the settings
                     IsAllowed = ConfigurationRestrictions.IsDestinationAllowed(CoreConfiguration, destination.Designation),
+                    CanChangeAllowed = !AreDestinationExclusionsFixed && !ConfigurationRestrictions.IsDestinationBlockedByAdministrator(CoreConfiguration, destination.Designation),
                     IsSelected = CoreConfiguration.OutputDestinations != null && CoreConfiguration.OutputDestinations.Contains(destination.Designation)
                 };
                 

@@ -227,16 +227,22 @@ namespace Greenshot.Base.Core
         [Description("Replaced by ExcludePluginNames, still applied when set in greenshot-fixed.ini. Plugins by their identifier, e.g. Box Plugin.")]
         List<string> ExcludePlugins { get; set; }
 
-        [Description("Plugins which are not loaded, by name: Box for Greenshot.Plugin.Box.dll. Built on the Plugins tab of the settings, greenshot-fixed.ini makes it a restriction.")]
+        [Description("Plugins the user switched off, by name: Box for Greenshot.Plugin.Box.dll. Set in greenshot-fixed.ini (also empty) the user can't switch plugins off.")]
         List<string> ExcludePluginNames { get; set; }
 
-        [Description("When not empty only these plugins are loaded, also blocking plugins installed later. Names like ExcludePluginNames.")]
+        [Description("Plugins the administrator blocked, names like ExcludePluginNames. For greenshot-fixed.ini.")]
+        List<string> BlockedPluginNames { get; set; }
+
+        [Description("When not empty only these plugins are loaded, also blocking plugins installed later. Names like ExcludePluginNames. For greenshot-fixed.ini.")]
         List<string> IncludePluginNames { get; set; }
 
-        [Description("Destinations which are not available. Built on the Destinations tab of the settings, greenshot-fixed.ini makes it a restriction.")]
+        [Description("Destinations the user switched off. Set in greenshot-fixed.ini (also empty) the user can't switch destinations off.")]
         List<string> ExcludeDestinations { get; set; }
 
-        [Description("When not empty only these destinations are available, also blocking destinations added later.")]
+        [Description("Destinations the administrator blocked. For greenshot-fixed.ini.")]
+        List<string> BlockedDestinations { get; set; }
+
+        [Description("When not empty only these destinations are available, also blocking destinations added later. For greenshot-fixed.ini.")]
         List<string> IncludeDestinations { get; set; }
 
         [Description("How many days between every update check? (0=no checks)")]

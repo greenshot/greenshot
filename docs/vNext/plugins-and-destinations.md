@@ -1,7 +1,8 @@
 # Plugins and destinations: switching them on or off
 
-Which plugins Greenshot loads and which destinations it offers is set in the settings. An administrator can make the choice a
-restriction that users can't change, with `greenshot-fixed.ini`, without typing the names by hand.
+Users can switch plugins and destinations off in the settings. An administrator can block plugins and destinations with
+`greenshot-fixed.ini`, which users can't switch on again, and can also stop users from switching anything off themselves. The
+lines for the file are built in the settings, nobody has to type the names.
 
 ## In the settings
 
@@ -19,10 +20,12 @@ off), it stays in the settings and a capture skips it; when none of them is ther
 
 1. Check the plugins and destinations you want to allow in the settings.
 2. Click **Administrator settings…** (on the Plugins or the Destinations tab). It shows the lines for `greenshot-fixed.ini`.
-   *Only allow what is checked* also blocks plugins and destinations which are added later.
+   *Only allow what is checked* also blocks plugins and destinations which are added later. *Users can't switch off plugins or
+   destinations themselves* adds empty `ExcludePluginNames=` and `ExcludeDestinations=` lines.
 3. **Copy** the lines into `greenshot-fixed.ini` next to Greenshot.exe, or **Save as…** when there is no such file yet.
 
-Greenshot then shows the check boxes as locked, with the note that the administrator set them.
+Greenshot then shows what the administrator blocked as unchecked and locked. Users can still switch off more, unless the
+administrator turned that off.
 
 ## The values
 
@@ -30,13 +33,16 @@ All in the `[Core]` section, comma separated, not case sensitive:
 
 | Key | What it does |
 |---|---|
-| `ExcludePluginNames` | Plugins which aren't loaded. The name is the part of the file name after `Greenshot.Plugin.`: `Box` for `Greenshot.Plugin.Box.dll`. Greenshot checks it before it loads the file. |
-| `IncludePluginNames` | When not empty, only these plugins are loaded. |
-| `ExcludeDestinations` | Destinations which aren't available, by designation (e.g. `Jira`, `FileDialog`). |
-| `IncludeDestinations` | When not empty, only these destinations are available. |
+| `BlockedPluginNames` | Administrator: plugins which aren't loaded. The name is the part of the file name after `Greenshot.Plugin.`: `Box` for `Greenshot.Plugin.Box.dll`. Greenshot checks it before it loads the file. |
+| `IncludePluginNames` | Administrator: when not empty, only these plugins are loaded. |
+| `ExcludePluginNames` | User: plugins the user switched off, added to the blocked ones. Set in greenshot-fixed.ini (also empty), the user can't switch plugins off. |
+| `BlockedDestinations` | Administrator: destinations which aren't available, by designation (e.g. `Jira`, `FileDialog`). |
+| `IncludeDestinations` | Administrator: when not empty, only these destinations are available. |
+| `ExcludeDestinations` | User: destinations the user switched off. Set in greenshot-fixed.ini (also empty), the user can't switch destinations off. |
 
 The plugins Greenshot ships are `Box`, `Confluence`, `CustomUploader`, `Dropbox`, `ExternalCommand`, `Jira`, `Office`, `Pdf`,
 `RecipeEditor` and `Zxing`.
 
 The older `IncludePlugins` and `ExcludePlugins` named a plugin by its identifier, e.g. `Box Plugin`. In greenshot-fixed.ini they
-still apply; in greenshot.ini Greenshot moves them to `IncludePluginNames` and `ExcludePluginNames` once.
+still apply as a block by the administrator; in greenshot.ini Greenshot moves them to `IncludePluginNames` and `ExcludePluginNames` once.
+An `ExcludeDestinations` list in an existing greenshot-fixed.ini keeps blocking those destinations, and stops users from switching off others.

@@ -90,9 +90,9 @@ namespace Greenshot.Settings.ViewModels
         }
 
         /// <summary>
-        /// greenshot-fixed.ini decides which plugins are loaded
+        /// greenshot-fixed.ini doesn't let the user switch plugins off
         /// </summary>
-        public bool ArePluginsFixed => ConfigurationRestrictions.ArePluginsFixed(CoreConfiguration);
+        public bool ArePluginExclusionsFixed => ConfigurationRestrictions.ArePluginExclusionsFixed(CoreConfiguration);
 
         /// <summary>
         /// The loaded plugins, the plugins which are installed but not loaded, and those which Greenshot ships or the settings name but aren't installed
@@ -133,6 +133,7 @@ namespace Greenshot.Settings.ViewModels
             var named = ConfigurationRestrictions.ShippedPluginNames
                 .Concat(found)
                 .Concat(ConfigurationRestrictions.Names(CoreConfiguration.ExcludePluginNames))
+                .Concat(ConfigurationRestrictions.Names(CoreConfiguration.BlockedPluginNames))
                 .Concat(ConfigurationRestrictions.Names(CoreConfiguration.IncludePluginNames))
                 .Concat(ConfigurationRestrictions.Names(CoreConfiguration.ExcludePlugins).Select(ConfigurationRestrictions.PluginNameFromLegacyIdentifier))
                 .Concat(ConfigurationRestrictions.Names(CoreConfiguration.IncludePlugins).Select(ConfigurationRestrictions.PluginNameFromLegacyIdentifier))
@@ -142,7 +143,8 @@ namespace Greenshot.Settings.ViewModels
             foreach (var name in named)
             {
                 bool isAllowed = ConfigurationRestrictions.IsPluginAllowed(CoreConfiguration, name);
-                string status = !found.Contains(name, StringComparer.OrdinalIgnoreCase) ? Texts.Settings.PluginNotInstalled
+                string status = ConfigurationRestrictions.IsPluginBlockedByAdministrator(CoreConfiguration, name) ? Texts.Settings.PluginBlocked
+                    : !found.Contains(name, StringComparer.OrdinalIgnoreCase) ? Texts.Settings.PluginNotInstalled
                     : isAllowed ? Texts.Settings.PluginNotLoaded
                     : Texts.Settings.PluginOff;
                 items.Add(new PluginViewModel { PluginName = name, Name = name, Version = status });
@@ -151,6 +153,7 @@ namespace Greenshot.Settings.ViewModels
             foreach (var item in items)
             {
                 item.IsAllowed = ConfigurationRestrictions.IsPluginAllowed(CoreConfiguration, item.PluginName);
+                item.CanChangeAllowed = !ArePluginExclusionsFixed && !ConfigurationRestrictions.IsPluginBlockedByAdministrator(CoreConfiguration, item.PluginName);
             }
 
             Plugins = new ObservableCollection<PluginViewModel>(items.OrderBy(item => item.Name, StringComparer.CurrentCultureIgnoreCase));
@@ -158,25 +161,21 @@ namespace Greenshot.Settings.ViewModels
 
         private void SavePluginRestrictions()
         {
-            if (ArePluginsFixed || Plugins == null)
+            if (ArePluginExclusionsFixed || Plugins == null)
             {
                 return;
             }
 
-            var listed = Plugins.Select(item => item.PluginName).ToList();
-            CoreConfiguration.ExcludePluginNames = ConfigurationRestrictions.ReplaceListed(CoreConfiguration.ExcludePluginNames, listed,
-                Plugins.Where(item => !item.IsAllowed).Select(item => item.PluginName));
-            if (ConfigurationRestrictions.Names(CoreConfiguration.IncludePluginNames).Any())
-            {
-                CoreConfiguration.IncludePluginNames = ConfigurationRestrictions.ReplaceListed(CoreConfiguration.IncludePluginNames, listed,
-                    Plugins.Where(item => item.IsAllowed).Select(item => item.PluginName));
-            }
+            var changeable = Plugins.Where(item => item.CanChangeAllowed).ToList();
+            CoreConfiguration.ExcludePluginNames = ConfigurationRestrictions.ReplaceListed(CoreConfiguration.ExcludePluginNames,
+                changeable.Select(item => item.PluginName),
+                changeable.Where(item => !item.IsAllowed).Select(item => item.PluginName));
         }
 
         private void AppendPluginRestrictions(StringBuilder text, bool onlyAllowChecked)
         {
             var listed = Plugins.Select(item => item.PluginName).ToList();
-            AppendList(text, nameof(ICoreConfiguration.ExcludePluginNames), ConfigurationRestrictions.ReplaceListed(CoreConfiguration.ExcludePluginNames, listed,
+            AppendList(text, nameof(ICoreConfiguration.BlockedPluginNames), ConfigurationRestrictions.ReplaceListed(CoreConfiguration.BlockedPluginNames, listed,
                 Plugins.Where(item => !item.IsAllowed).Select(item => item.PluginName)));
             if (onlyAllowChecked)
             {

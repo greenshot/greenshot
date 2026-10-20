@@ -257,7 +257,12 @@ namespace Greenshot.Base.Languages
         string PluginNotLoaded { get; }
 
         /// <summary>
-        /// Set by your administrator in greenshot-fixed.ini
+        /// Blocked by your administrator
+        /// </summary>
+        string PluginBlocked { get; }
+
+        /// <summary>
+        /// Your administrator doesn't let you switch these off (greenshot-fixed.ini)
         /// </summary>
         string SetByAdministrator { get; }
 
@@ -267,7 +272,7 @@ namespace Greenshot.Base.Languages
         string AdministratorSettings { get; }
 
         /// <summary>
-        /// Copy these lines into greenshot-fixed.ini next to Greenshot.exe. The plugins and destinations which aren't checked are blocked, users can't change it.
+        /// Copy these lines into greenshot-fixed.ini next to Greenshot.exe. The plugins and destinations which aren't checked are blocked, users can't switch them on.
         /// </summary>
         string AdministratorSettingsDescription { get; }
 
@@ -275,6 +280,11 @@ namespace Greenshot.Base.Languages
         /// Only allow what is checked, this also blocks plugins and destinations added later
         /// </summary>
         string AdministratorSettingsOnlyChecked { get; }
+
+        /// <summary>
+        /// Users can't switch off plugins or destinations themselves
+        /// </summary>
+        string AdministratorSettingsNoUserExclusions { get; }
 
         /// <summary>
         /// Copy

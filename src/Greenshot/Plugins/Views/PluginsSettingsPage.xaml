@@ -32,7 +32,7 @@
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                 <TextBlock Text="{wpf:Text Settings.SetByAdministrator}" TextWrapping="Wrap"
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
-                           Visibility="{Binding ArePluginsFixed, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                           Visibility="{Binding ArePluginExclusionsFixed, Converter={StaticResource BooleanToVisibilityConverter}}"/>
             </StackPanel>
         </DockPanel>
 
@@ -70,7 +70,7 @@
                             <CheckBox Grid.RowSpan="2" VerticalAlignment="Center" Margin="0,0,6,0"
                                       IsChecked="{Binding IsAllowed, Mode=TwoWay}"
                                       AutomationProperties.Name="{Binding Name, TargetNullValue=''}"
-                                      IsEnabled="{Binding DataContext.ArePluginsFixed, RelativeSource={RelativeSource AncestorType=ListBox}, Converter={StaticResource InverseBooleanConverter}}"/>
+                                      IsEnabled="{Binding CanChangeAllowed}"/>
                             <TextBlock Grid.Row="0" Grid.Column="1"
                                        Text="{Binding Name}"
                                        FontWeight="SemiBold"

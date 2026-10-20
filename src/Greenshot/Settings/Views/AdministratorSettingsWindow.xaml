@@ -36,7 +36,10 @@
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                 <CheckBox x:Name="OnlyAllowCheckedBox" DockPanel.Dock="Top" Margin="0,10,0,0"
                           Content="{wpf:Text Settings.AdministratorSettingsOnlyChecked}"
-                          Checked="OnlyAllowChecked_Changed" Unchecked="OnlyAllowChecked_Changed"/>
+                          Checked="Option_Changed" Unchecked="Option_Changed"/>
+                <CheckBox x:Name="NoUserExclusionsBox" DockPanel.Dock="Top" Margin="0,6,0,0"
+                          Content="{wpf:Text Settings.AdministratorSettingsNoUserExclusions}"
+                          Checked="Option_Changed" Unchecked="Option_Changed"/>
                 <TextBox x:Name="SettingsText" Margin="0,10,0,0" IsReadOnly="True" TextWrapping="Wrap" FontFamily="Consolas"
                          AutomationProperties.Name="{wpf:Text Settings.AdministratorSettings}"
                          VerticalScrollBarVisibility="Auto"/>

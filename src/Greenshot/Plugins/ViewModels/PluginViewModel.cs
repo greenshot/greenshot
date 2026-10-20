@@ -66,6 +66,11 @@ namespace Greenshot.Plugins.ViewModels
             }
         }
 
+        /// <summary>
+        /// False when the administrator blocked the plugin, or doesn't let the user switch plugins off
+        /// </summary>
+        public bool CanChangeAllowed { get; set; } = true;
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         private UIElement _configControl;

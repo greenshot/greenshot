@@ -27,8 +27,8 @@ using System.Linq;
 namespace Greenshot.Base.Core
 {
     /// <summary>
-    /// Which plugins are loaded and which destinations are available, from the include / exclude lists of the core configuration.
-    /// Set in greenshot-fixed.ini they are a restriction the user can't change, see docs/vNext/plugins-and-destinations.md.
+    /// Which plugins are loaded and which destinations are available. The administrator blocks with the Blocked and Include lists in
+    /// greenshot-fixed.ini, the user switches more off with the Exclude lists, see docs/vNext/plugins-and-destinations.md.
     /// </summary>
     public static class ConfigurationRestrictions
     {
@@ -76,59 +76,69 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// True when the plugin with the name may be loaded
+        /// True when the plugin with the name may be loaded: neither the administrator nor the user excluded it
         /// </summary>
-        public static bool IsPluginAllowed(ICoreConfiguration configuration, string pluginName)
+        public static bool IsPluginAllowed(ICoreConfiguration configuration, string pluginName) =>
+            !IsPluginBlockedByAdministrator(configuration, pluginName)
+            && (configuration == null || !Names(configuration.ExcludePluginNames).Contains(pluginName, StringComparer.OrdinalIgnoreCase));
+
+        /// <summary>
+        /// True when BlockedPluginNames, IncludePluginNames or the older IncludePlugins / ExcludePlugins don't allow the plugin, the user can't change that
+        /// </summary>
+        public static bool IsPluginBlockedByAdministrator(ICoreConfiguration configuration, string pluginName)
         {
             if (configuration == null)
             {
-                return true;
+                return false;
             }
 
-            var excluded = Names(configuration.ExcludePluginNames).Concat(Names(configuration.ExcludePlugins).Select(PluginNameFromLegacyIdentifier));
-            if (excluded.Contains(pluginName, StringComparer.OrdinalIgnoreCase))
+            var blocked = Names(configuration.BlockedPluginNames).Concat(Names(configuration.ExcludePlugins).Select(PluginNameFromLegacyIdentifier));
+            if (blocked.Contains(pluginName, StringComparer.OrdinalIgnoreCase))
             {
-                return false;
+                return true;
             }
 
             var included = Names(configuration.IncludePluginNames).Concat(Names(configuration.IncludePlugins).Select(PluginNameFromLegacyIdentifier)).ToList();
-            return included.Count == 0 || included.Contains(pluginName, StringComparer.OrdinalIgnoreCase);
+            return included.Count > 0 && !included.Contains(pluginName, StringComparer.OrdinalIgnoreCase);
         }
 
         /// <summary>
-        /// True when the destination with the designation may be used
+        /// True when the destination with the designation may be used: neither the administrator nor the user excluded it
         /// </summary>
-        public static bool IsDestinationAllowed(ICoreConfiguration configuration, string designation)
+        public static bool IsDestinationAllowed(ICoreConfiguration configuration, string designation) =>
+            !IsDestinationBlockedByAdministrator(configuration, designation)
+            && (configuration == null || !Names(configuration.ExcludeDestinations).Contains(designation, StringComparer.OrdinalIgnoreCase));
+
+        /// <summary>
+        /// True when BlockedDestinations or IncludeDestinations don't allow the destination, the user can't change that
+        /// </summary>
+        public static bool IsDestinationBlockedByAdministrator(ICoreConfiguration configuration, string designation)
         {
             if (configuration == null)
-            {
-                return true;
-            }
-
-            if (Names(configuration.ExcludeDestinations).Contains(designation, StringComparer.OrdinalIgnoreCase))
             {
                 return false;
             }
 
+            if (Names(configuration.BlockedDestinations).Contains(designation, StringComparer.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
             var included = Names(configuration.IncludeDestinations).ToList();
-            return included.Count == 0 || included.Contains(designation, StringComparer.OrdinalIgnoreCase);
+            return included.Count > 0 && !included.Contains(designation, StringComparer.OrdinalIgnoreCase);
         }
 
         /// <summary>
-        /// True when greenshot-fixed.ini decides which plugins are loaded, the user can't change it
+        /// True when greenshot-fixed.ini sets ExcludePluginNames (also empty): the user can't switch plugins off
         /// </summary>
-        public static bool ArePluginsFixed(ICoreConfiguration configuration) =>
-            configuration != null && (configuration.IsConstant(nameof(ICoreConfiguration.ExcludePluginNames))
-                                      || configuration.IsConstant(nameof(ICoreConfiguration.IncludePluginNames))
-                                      || configuration.IsConstant(nameof(ICoreConfiguration.ExcludePlugins))
-                                      || configuration.IsConstant(nameof(ICoreConfiguration.IncludePlugins)));
+        public static bool ArePluginExclusionsFixed(ICoreConfiguration configuration) =>
+            configuration != null && configuration.IsConstant(nameof(ICoreConfiguration.ExcludePluginNames));
 
         /// <summary>
-        /// True when greenshot-fixed.ini decides which destinations are available, the user can't change it
+        /// True when greenshot-fixed.ini sets ExcludeDestinations (also empty): the user can't switch destinations off
         /// </summary>
-        public static bool AreDestinationsFixed(ICoreConfiguration configuration) =>
-            configuration != null && (configuration.IsConstant(nameof(ICoreConfiguration.ExcludeDestinations))
-                                      || configuration.IsConstant(nameof(ICoreConfiguration.IncludeDestinations)));
+        public static bool AreDestinationExclusionsFixed(ICoreConfiguration configuration) =>
+            configuration != null && configuration.IsConstant(nameof(ICoreConfiguration.ExcludeDestinations));
 
         /// <summary>
         /// A list with the choice for the listed entries, keeping the entries of the current list which weren't listed, e.g. a plugin which isn't installed
