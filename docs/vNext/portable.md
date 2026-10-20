@@ -28,6 +28,11 @@ Greenshot uses the first of these that applies:
 
 `greenshot-fixed.ini` is never read from the folders in 1 and 2, so a user can't replace what an administrator fixed.
 
+The approvals of recipe files (`recipe_trust.dat`) belong to the greenshot.ini which lists the files: next to it in 1 to 3,
+in `%LOCALAPPDATA%\Greenshot` for 4. At the start Greenshot removes the approvals of the files its greenshot.ini doesn't use,
+so a shared store would make a portable Greenshot remove the approvals of the installed one. The store is encrypted for the
+Windows user (DPAPI), on another computer the approvals are asked again.
+
 ## The PortableApps.com package
 
 The package follows the [PortableApps.com Format](https://portableapps.com/development/portableapps.com_format) 3.9:
@@ -55,9 +60,6 @@ from `Greenshot.exe` (`GreenshotEnvironment.PortableAppsDirectory`). So the laun
 | `UsesSettingsNextToExecutable` | greenshot.ini was loaded from the folder of `Greenshot.exe` (the .zip ships one), known after loading | `LeavesNoTraces` and `PortableSuffix` |
 | `LeavesNoTraces` | `IsPortableApps` or `UsesSettingsNextToExecutable` | no toast registration, no JIT profile, the *Portable* badge in About |
 | `PortableSuffix` | " PortableApps", " Portable" or empty | the version in the log and the bug report |
-
-The approvals of recipe files (`recipe_trust.dat`) are kept next to greenshot.ini, so each configuration keeps its own and
-the portable versions leave nothing in `%LocalAppData%`.
 
 An update keeps `Data`. An update of a Greenshot 1.x package removes the old `Greenshot.exe` from the main folder
 (`installer.ini`) and goes on using `Data\Settings\greenshot.ini`.

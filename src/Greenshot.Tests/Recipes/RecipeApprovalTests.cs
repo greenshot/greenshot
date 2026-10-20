@@ -48,6 +48,17 @@ namespace Greenshot.Tests.Recipes
             StepRegistry.Instance.Register<ExternalCommandStep>(config => new ExternalCommandStep(config));
         }
 
+        [Theory]
+        [InlineData(@"C:\Users\u\AppData\Roaming\Greenshot\greenshot.ini", @"C:\Users\u\AppData\Local\Greenshot\recipe_trust.dat")]
+        [InlineData(@"C:\Users\u\AppData\Roaming\Greenshot\\greenshot.ini", @"C:\Users\u\AppData\Local\Greenshot\recipe_trust.dat")]
+        [InlineData("", @"C:\Users\u\AppData\Local\Greenshot\recipe_trust.dat")]
+        [InlineData(@"D:\Tools\Greenshot\greenshot.ini", @"D:\Tools\Greenshot\recipe_trust.dat")]
+        [InlineData(@"E:\PortableApps\GreenshotPortable\Data\Settings\greenshot.ini", @"E:\PortableApps\GreenshotPortable\Data\Settings\recipe_trust.dat")]
+        public void TrustStore_BelongsToTheConfiguration(string configLocation, string expected)
+        {
+            Assert.Equal(expected, RecipeTrustStore.GetStoreFilePath(configLocation, @"C:\Users\u\AppData\Roaming\Greenshot\", @"C:\Users\u\AppData\Local\Greenshot"));
+        }
+
         [Fact]
         public void Diff_OfEqualTexts_HasNoChanges()
         {

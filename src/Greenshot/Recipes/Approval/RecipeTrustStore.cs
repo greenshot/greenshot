@@ -48,23 +48,32 @@ namespace Greenshot.Recipes.Approval
 
         private static string _storeFilePathOverride;
 
-        /// <summary>
-        /// The store is kept next to greenshot.ini: the recipe files belong to that configuration, and a second configuration
-        /// (portable, --ini-directory) would otherwise remove their approvals as unused. Also, the portable versions leave nothing behind.
-        /// </summary>
-        private static string StoreFilePath
-        {
-            get
-            {
-                if (_storeFilePathOverride != null)
-                {
-                    return _storeFilePathOverride;
-                }
+        private const string StoreFileName = "recipe_trust.dat";
 
-                string configLocation = GreenshotEnvironment.ConfigLocation;
-                string directory = string.IsNullOrEmpty(configLocation) ? GreenshotEnvironment.LocalDataDirectory : Path.GetDirectoryName(configLocation);
-                return Path.Combine(directory, "recipe_trust.dat");
+        private static string StoreFilePath => _storeFilePathOverride ?? GetStoreFilePath(
+            GreenshotEnvironment.ConfigLocation,
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Greenshot"),
+            GreenshotEnvironment.LocalDataDirectory
+        );
+
+        /// <summary>
+        /// The store belongs to the configuration, which lists the recipe files and removes the approvals of the others (<see cref="KeepOnly"/>):
+        /// %LocalAppData%\Greenshot for the greenshot.ini in %AppData%\Greenshot, otherwise next to greenshot.ini (--ini-directory, the .zip,
+        /// the PortableApps.com package). So a portable Greenshot neither removes the approvals of the installed one nor leaves its own behind.
+        /// </summary>
+        /// <param name="configLocation">The path of the loaded greenshot.ini, empty when none was loaded</param>
+        /// <param name="appDataDirectory">%AppData%\Greenshot, the directory of the greenshot.ini of an installed Greenshot</param>
+        /// <param name="localDataDirectory">%LocalAppData%\Greenshot</param>
+        /// <returns>The path of recipe_trust.dat</returns>
+        internal static string GetStoreFilePath(string configLocation, string appDataDirectory, string localDataDirectory)
+        {
+            string configDirectory = string.IsNullOrEmpty(configLocation) ? null : Path.GetDirectoryName(Path.GetFullPath(configLocation));
+            if (string.IsNullOrEmpty(configDirectory)
+                || string.Equals(configDirectory.TrimEnd('\\'), Path.GetFullPath(appDataDirectory).TrimEnd('\\'), StringComparison.OrdinalIgnoreCase))
+            {
+                return Path.Combine(localDataDirectory, StoreFileName);
             }
+            return Path.Combine(configDirectory, StoreFileName);
         }
 
         /// <summary>

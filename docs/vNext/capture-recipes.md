@@ -42,7 +42,8 @@ added and removed and the changed lines, and a file that replaces a built-in rec
 "Reset Default" brings the built-in recipe back).
 
 The approval is pinned to the exact content of the file (SHA-256) and stored, per recipe of the file, in the
-encrypted trust store (`recipe_trust.dat` next to greenshot.ini), not in the recipe file: which triggers are
+encrypted trust store (`%LOCALAPPDATA%\Greenshot\recipe_trust.dat`, next to greenshot.ini for a portable Greenshot or
+`--ini-directory`, see [portable.md](portable.md)), not in the recipe file: which triggers are
 switched on and which permissions were given. When the file is changed outside Greenshot you are asked again, right after the change. Saving in Greenshot's recipe
 editor renews the approval for the saved content without asking: triggers keep their switch, and new harmless ones
 (hotkey, menu entry) are on. Only a change which adds a trigger that starts the recipe on its own or from outside

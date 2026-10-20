@@ -281,6 +281,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 **PortableApps.com package**
 - Greenshot Light is available again as a package for the PortableApps.com Platform (`.paf.exe`), it keeps its settings in `Data\Settings` like the package of Greenshot 1.x
+- The approvals of recipe files are kept next to greenshot.ini when it isn't in `%APPDATA%\Greenshot` (the .zip, `--ini-directory`), so starting a portable Greenshot no longer removes the approvals of the installed one
 
 **MAPI Client Detection** (#861)
 - Fixed MAPI Client detection on HKCU registry
