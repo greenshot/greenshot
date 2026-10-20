@@ -104,6 +104,21 @@ namespace Greenshot.Tests.Core
         }
 
         [Theory]
+        [InlineData(@"Z:\Greenshot\Not\Connected")]
+        [InlineData(@"\\server\share\Screenshots")]
+        [InlineData(@"C:\Screenshots\${YYYY}-${MM}")]
+        public void OnAfterLoad_KeepsAFolderWhichDoesNotExist(string configuredFolder)
+        {
+            var config = new CoreConfigurationImpl();
+            config.ResetToDefaults();
+            config.SetRawValue(nameof(config.OutputFilePath), configuredFolder);
+
+            config.OnAfterLoad();
+
+            Assert.Equal(configuredFolder, config.OutputFilePath);
+        }
+
+        [Theory]
         [InlineData("24,24", 16)]
         [InlineData("40,40", 32)]
         [InlineData("8,8", 16)]
