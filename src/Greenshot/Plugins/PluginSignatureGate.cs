@@ -24,6 +24,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.AccessControl;
+using System.Security.Principal;
 using Greenshot.Base.Core;
 using Greenshot.Recipes.Approval;
 using log4net;
@@ -59,11 +61,14 @@ namespace Greenshot.Plugins
     /// Loads a plugin only when it is signed like Greenshot.exe, or when its SHA-256 is approved. A release build is signed,
     /// a build from Visual Studio isn't: then the check is off. Hashes which passed the check are kept, so a plugin is only
     /// verified again when it changed (about 6 ms for the signature check, 0.1-0.3 ms for the hash).
+    /// Only plugins in a folder the user can change are checked: in an installation under Program Files only an administrator can
+    /// place or replace a plugin, so it is loaded as it is.
     /// See docs/vNext/plugin-loading.md.
     /// </summary>
     public sealed class PluginSignatureGate
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(PluginSignatureGate));
+        private static readonly SecurityIdentifier Administrators = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null);
 
         private readonly ICoreConfiguration _configuration;
         private readonly string _greenshotExe;
@@ -94,7 +99,7 @@ namespace Greenshot.Plugins
         /// </summary>
         public PluginGateResult Check(string pluginFile)
         {
-            if (!_isActive)
+            if (!_isActive || !CanUserChange(pluginFile))
             {
                 return PluginGateResult.Load;
             }
@@ -184,6 +189,60 @@ namespace Greenshot.Plugins
 
             _verifiedNow.Add(sha256);
             return true;
+        }
+
+        /// <summary>
+        /// The user, without administrator rights, can place a file in the plugin's folder, replace the plugin or change their permissions.
+        /// A Greenshot started as administrator decides as without: another program of the user can't write there either.
+        /// When the permissions can't be read the plugin is checked.
+        /// </summary>
+        internal static bool CanUserChange(string pluginFile)
+        {
+            try
+            {
+                using var identity = WindowsIdentity.GetCurrent();
+                // Groups leaves out the groups which only deny, like Administrators without elevation
+                var sids = new HashSet<IdentityReference>(identity.Groups ?? Enumerable.Empty<IdentityReference>());
+                if (identity.User != null)
+                {
+                    sids.Add(identity.User);
+                }
+                sids.Remove(Administrators);
+
+                var folderSecurity = Directory.GetAccessControl(Path.GetDirectoryName(pluginFile));
+                var fileSecurity = File.GetAccessControl(pluginFile);
+                return sids.Contains(folderSecurity.GetOwner(typeof(SecurityIdentifier)))
+                    || sids.Contains(fileSecurity.GetOwner(typeof(SecurityIdentifier)))
+                    || Allows(folderSecurity.GetAccessRules(true, true, typeof(SecurityIdentifier)), sids, FileSystemRights.CreateFiles)
+                    || Allows(fileSecurity.GetAccessRules(true, true, typeof(SecurityIdentifier)), sids, FileSystemRights.WriteData);
+            }
+            catch (Exception ex)
+            {
+                Log.Warn($"Can't read the permissions of {pluginFile}, checking its signature", ex);
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// One of the identities is allowed the right and none is denied it
+        /// </summary>
+        private static bool Allows(AuthorizationRuleCollection rules, ISet<IdentityReference> sids, FileSystemRights right)
+        {
+            bool allowed = false;
+            foreach (FileSystemAccessRule rule in rules)
+            {
+                // Inherit only: the rule is for the files in the folder, not for the folder itself
+                if ((rule.PropagationFlags & PropagationFlags.InheritOnly) != 0 || (rule.FileSystemRights & right) == 0 || !sids.Contains(rule.IdentityReference))
+                {
+                    continue;
+                }
+                if (rule.AccessControlType == AccessControlType.Deny)
+                {
+                    return false;
+                }
+                allowed = true;
+            }
+            return allowed;
         }
 
         private static bool IsListed(IEnumerable<string> hashes, string sha256) =>

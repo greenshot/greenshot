@@ -37,11 +37,18 @@ Release builds of Greenshot and its plugins are signed with the Greenshot code s
 signed with the same certificate as Greenshot.exe; any other plugin (not signed, a broken signature, another signer) is held back
 and the user is asked. Builds from Visual Studio aren't signed: when Greenshot.exe has no valid signature the check is off.
 
+The check only runs where it can help: for a plugin in a folder the user can change (the portable version, an installation in a
+user folder). In an installation under Program Files only an administrator can place or replace a plugin, so it loads without the
+check. Greenshot reads the permissions of the plugin's folder and file for the user without administrator rights, also when
+Greenshot itself was started as administrator.
+
 ```mermaid
 flowchart TD
     A["Greenshot.Plugin.*.dll allowed by the settings"] --> C{"Greenshot.exe signed?<br/>(once per start)"}
     C -- "no (Visual Studio build)" --> LOAD["Load plugin"]
-    C -- yes --> D["SHA-256 of the DLL"]
+    C -- yes --> W{"Can the user change<br/>the plugin's folder or file?"}
+    W -- "no (Program Files)" --> LOAD
+    W -- "yes (portable, user folder)" --> D["SHA-256 of the DLL"]
     D --> E{"Hash in PluginVerifiedHashes?"}
     E -- yes --> LOAD
     E -- no --> F{"Hash in PluginApprovedHashes?<br/>(user or greenshot-fixed.ini)"}
@@ -65,9 +72,9 @@ flowchart TD
   and is checked again. The plugin loads at the next start, loading it later would miss the registration of its settings and
   destinations.
 - **Only the plugin DLL** is checked, not the libraries in its folder (some are signed by others, e.g. Microsoft).
-- **Limits:** the lists are in greenshot.ini, which every program of the user can change. The check protects against a plugin
-  which was placed in a folder the user can write to (portable or per-user installation); an all-users installation keeps the
-  plugins under Program Files, where only administrators can write.
+- **Limits:** the lists are in greenshot.ini, which every program of the user can change. The check catches a plugin which was
+  placed or replaced in a folder the user can write to, not a program which also edits greenshot.ini (that program could replace
+  Greenshot.exe in the same folder as well).
 - **Plugins tab:** the settings show who signed each loaded plugin. A plugin signed with the certificate of Greenshot.exe is shown
   in green with a check mark; a plugin which was held back shows *Not signed*.
 
