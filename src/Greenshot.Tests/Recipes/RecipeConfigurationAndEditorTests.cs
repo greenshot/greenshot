@@ -21,6 +21,7 @@
 
 using Greenshot.Base.Core;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Plugin.RecipeEditor;
 using Greenshot.Recipes;
@@ -48,6 +49,39 @@ namespace Greenshot.Tests.Recipes
             public void RegisterDrawables(IRecipeDrawableRegistry registry)
             {
                 RegisterDrawablesCalled = true;
+            }
+
+            public string GetDrawableSchemaJson() => null;
+        }
+
+        private class StepTypeProvider : IRecipeStepProvider
+        {
+            private readonly string _stepType;
+
+            public StepTypeProvider(string stepType)
+            {
+                _stepType = stepType;
+            }
+
+            public void RegisterSteps(IStepRegistry registry)
+            {
+                registry.Register(new StepContract(_stepType), config => null);
+            }
+        }
+
+        private class DrawableTypeProvider : IRecipeDrawableProvider
+        {
+            private readonly string _drawableType;
+
+            public DrawableTypeProvider(string drawableType)
+            {
+                _drawableType = drawableType;
+            }
+
+            public void RegisterDrawables(IRecipeDrawableRegistry registry)
+            {
+                registry.RegisterDrawableFactory(_drawableType, (surface, parameters, context) => null);
+                registry.RegisterDrawableConfigurator(_drawableType, (parameters, owner) => true);
             }
 
             public string GetDrawableSchemaJson() => null;
@@ -103,6 +137,40 @@ namespace Greenshot.Tests.Recipes
             recipeConfig.Enabled = true;
             RecipeDrawableRegistry.Instance.RegisterProvider(provider);
             Assert.True(provider.RegisterDrawablesCalled, "Drawable provider registration should execute when recipe feature is enabled");
+        }
+
+        [Fact]
+        public void StepRegistry_UnregisterProvider_RemovesOnlyItsStepTypes()
+        {
+            IniConfigHelper.EnsureSection<IRecipeConfiguration>(() => new RecipeConfigurationImpl()).Enabled = true;
+            var registry = new StepRegistry();
+            var disabledProvider = new StepTypeProvider("DisabledPluginStep");
+            registry.RegisterProvider(disabledProvider);
+            registry.RegisterProvider(new StepTypeProvider("OtherPluginStep"));
+            registry.Register(new StepContract("CoreStep"), config => null);
+
+            registry.UnregisterProvider(disabledProvider);
+
+            Assert.False(registry.IsRegistered("DisabledPluginStep"));
+            Assert.True(registry.IsRegistered("OtherPluginStep"));
+            Assert.True(registry.IsRegistered("CoreStep"));
+        }
+
+        [Fact]
+        public void RecipeDrawableRegistry_UnregisterProvider_RemovesOnlyItsDrawableTypes()
+        {
+            IniConfigHelper.EnsureSection<IRecipeConfiguration>(() => new RecipeConfigurationImpl()).Enabled = true;
+            var registry = new RecipeDrawableRegistry();
+            var disabledProvider = new DrawableTypeProvider("DisabledPluginDrawable");
+            registry.RegisterProvider(disabledProvider);
+            registry.RegisterProvider(new DrawableTypeProvider("OtherPluginDrawable"));
+
+            registry.UnregisterProvider(disabledProvider);
+
+            Assert.False(registry.IsRegistered("DisabledPluginDrawable"));
+            Assert.False(registry.CanConfigureDrawable("DisabledPluginDrawable"));
+            Assert.True(registry.IsRegistered("OtherPluginDrawable"));
+            Assert.True(registry.CanConfigureDrawable("OtherPluginDrawable"));
         }
 
         [Fact]

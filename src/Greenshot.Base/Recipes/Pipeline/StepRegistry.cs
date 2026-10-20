@@ -42,7 +42,13 @@ namespace Greenshot.Base.Recipes.Pipeline
         {
             public StepContract Contract;
             public Func<RecipeNodeConfig, ICaptureStep> Factory;
+            // The provider which registered the step type, null when it wasn't registered by a provider
+            public IRecipeStepProvider Provider;
         }
+
+        // The provider which is registering its step types on this thread
+        [ThreadStatic]
+        private static IRecipeStepProvider _registeringProvider;
 
         private readonly ConcurrentDictionary<string, Registration> _registrations = new ConcurrentDictionary<string, Registration>(StringComparer.OrdinalIgnoreCase);
 
@@ -57,7 +63,7 @@ namespace Greenshot.Base.Recipes.Pipeline
             if (string.IsNullOrWhiteSpace(contract.StepType)) throw new ArgumentException("The contract has no step type.", nameof(contract));
             if (factory == null) throw new ArgumentNullException(nameof(factory));
 
-            _registrations[contract.StepType] = new Registration { Contract = contract, Factory = factory };
+            _registrations[contract.StepType] = new Registration { Contract = contract, Factory = factory, Provider = _registeringProvider };
             Log.DebugFormat("Registered step type '{0}'", contract.StepType);
         }
 
@@ -116,6 +122,8 @@ namespace Greenshot.Base.Recipes.Pipeline
                 return;
             }
 
+            var previousProvider = _registeringProvider;
+            _registeringProvider = provider;
             try
             {
                 provider.RegisterSteps(this);
@@ -123,6 +131,25 @@ namespace Greenshot.Base.Recipes.Pipeline
             catch (Exception ex)
             {
                 Log.Error($"Error registering steps from provider {provider.GetType().Name}", ex);
+            }
+            finally
+            {
+                _registeringProvider = previousProvider;
+            }
+        }
+
+        /// <summary>
+        /// Removes the step types registered by the provider, recipes using them then show and handle them as unknown.
+        /// The provider has to be removed from the services first, otherwise the discovery registers it again.
+        /// </summary>
+        public void UnregisterProvider(IRecipeStepProvider provider)
+        {
+            if (provider == null) return;
+            foreach (var registration in _registrations.Where(registration => ReferenceEquals(registration.Value.Provider, provider)).ToList())
+            {
+                // Only removes the step type when it wasn't registered again in the meantime
+                ((ICollection<KeyValuePair<string, Registration>>)_registrations).Remove(registration);
+                Log.DebugFormat("Removed step type '{0}'", registration.Key);
             }
         }
 

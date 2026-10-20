@@ -39,8 +39,8 @@ using Greenshot.Base.Threading;
 namespace Greenshot.Plugins
 {
     /// <summary>
-    /// The PluginHelper takes care of all plugin related functionality: loading, registration, the parallel start (with
-    /// a timeout, the main window doesn't wait for it), the settings views and stopping the plugins.
+    /// The PluginHelper takes care of all plugin related functionality: loading, registration, the start (after the shell
+    /// was created, one plugin after the other, each with a timeout), the settings views and stopping the plugins.
     /// </summary>
     public class PluginHelper
     {
@@ -150,17 +150,11 @@ namespace Greenshot.Plugins
         }
 
         /// <summary>
-        /// Load the plugins using the three-phase initialisation pattern:
-        /// <list type="number">
-        ///   <item><description>Phase 1 — every plugin registers its configuration sections (no file I/O).</description></item>
-        ///   <item><description>The INI file is read once, populating all sections (core + plugin).</description></item>
-        ///   <item><description>Phase 2 — every plugin registers its services into the DI container.</description></item>
-        ///   <item><description>Phase 3 — every plugin runs its remaining start-up logic.</description></item>
-        /// </list>
-        /// </summary>
-        /// <summary>
         /// Load the plugins and let them register (synchronous, their configuration sections are filled from greenshot.ini when added), then start them
-        /// in parallel without waiting: the returned task completes when all started (or failed / timed out), it never throws.
+        /// without waiting: the starts are queued on the UI thread, so they run once the shell is created, one after the other.
+        /// The returned task completes when all started (or failed / timed out), it never throws.
+        /// A plugin which fails to register or to start is disabled: what it registered is removed again, including its recipe steps
+        /// (they are registered before the start, for the recipes which are loaded at startup).
         /// </summary>
         /// <returns>Task which completes when all plugins started</returns>
         public Task LoadPluginsAsync()
@@ -229,49 +223,70 @@ namespace Greenshot.Plugins
                 }
                 catch (Exception e)
                 {
-                    Log.ErrorFormat("Error during ConfigureServices for plugin {0}", plugin.Name);
+                    Log.ErrorFormat("Error during ConfigureServices for plugin {0}, it is disabled.", plugin.Name);
                     Log.Error(e);
+                    pluginServices.Unregister();
                 }
             }
 
             // ── What needs the configuration ─────────────────────────────────────
             bool recipesEnabled = RecipeConfigHelper.IsRecipeFeatureEnabled();
-            var toStart = new List<IGreenshotPlugin>();
+            var toStart = new List<(IGreenshotPlugin Plugin, PluginServices Services)>();
             foreach (var (plugin, pluginServices) in registrations)
             {
                 try
                 {
                     pluginServices.RegisterDeferred(recipesEnabled);
-                    toStart.Add(plugin);
+                    // Already now, not after the start: the recipes which are loaded at startup check which plugins there are
+                    pluginServices.AddService(plugin);
+                    toStart.Add((plugin, pluginServices));
                 }
                 catch (Exception e)
                 {
-                    Log.ErrorFormat("Error registering the services of plugin {0}", plugin.Name);
+                    Log.ErrorFormat("Error registering the services of plugin {0}, it is disabled.", plugin.Name);
                     Log.Error(e);
+                    pluginServices.Unregister();
                 }
             }
 
-            // ── Start all in parallel, nobody waits for it ───────────────────────
-            return Task.WhenAll(toStart.Select(StartPluginAsync));
+            // ── Start them after the shell was created, nobody waits for it ──────
+            return StartPluginsAsync(toStart);
+        }
+
+        /// <summary>
+        /// Start the plugins one after the other on the UI thread, where they add their tray menu entries.
+        /// Queued, so the shell is created (and the tray icon shown) first, and the UI thread handles its messages between the plugins.
+        /// </summary>
+        private async Task StartPluginsAsync(IReadOnlyList<(IGreenshotPlugin Plugin, PluginServices Services)> plugins)
+        {
+            var uiDispatcher = SimpleServiceProvider.Current.GetInstance<IUiDispatcher>();
+            foreach (var (plugin, pluginServices) in plugins)
+            {
+                await StartPluginAsync(uiDispatcher, plugin, pluginServices).ConfigureAwait(false);
+            }
         }
 
         /// <summary>
         /// Start one plugin with a timeout, a failure is logged and the plugin disabled.
+        /// The timeout ends the wait for a start which doesn't complete, it can't interrupt code which blocks the UI thread.
         /// </summary>
-        private async Task StartPluginAsync(IGreenshotPlugin plugin)
+        private async Task StartPluginAsync(IUiDispatcher uiDispatcher, IGreenshotPlugin plugin, PluginServices pluginServices)
         {
             using var timeoutSource = new CancellationTokenSource(StartTimeout);
             try
             {
-                await plugin.StartAsync(SimpleServiceProvider.Current, timeoutSource.Token);
+                await uiDispatcher.InvokeAsync(async () =>
+                {
+                    await plugin.StartAsync(SimpleServiceProvider.Current, timeoutSource.Token).ConfigureAwait(true);
+                    return true;
+                }, timeoutSource.Token).WaitAsync(StartTimeout).ConfigureAwait(false);
                 lock (_startedPlugins)
                 {
                     _startedPlugins.Add(plugin);
                 }
-
-                SimpleServiceProvider.Current.AddService(plugin);
+                return;
             }
-            catch (OperationCanceledException) when (timeoutSource.IsCancellationRequested)
+            catch (Exception e) when (e is TimeoutException || (e is OperationCanceledException && timeoutSource.IsCancellationRequested))
             {
                 Log.ErrorFormat("Plugin {0} didn't start within {1}, it is disabled.", plugin.Name, StartTimeout);
             }
@@ -280,6 +295,9 @@ namespace Greenshot.Plugins
                 Log.ErrorFormat("Error during the start of plugin {0}, it is disabled.", plugin.Name);
                 Log.Error(e);
             }
+
+            // On the UI thread, where the settings views are read
+            await uiDispatcher.InvokeAsync(pluginServices.Unregister).ConfigureAwait(false);
         }
 
         private bool IsPluginExcludedByConfig(Assembly assembly, string pluginFile)
@@ -336,6 +354,8 @@ namespace Greenshot.Plugins
             private readonly IniConfig _iniConfig;
             private readonly Dictionary<Type, Func<object, object>> _settingsViews;
             private readonly List<Action> _deferred = new();
+            // How to remove what was registered, when the plugin is disabled
+            private readonly List<Action> _unregister = new();
             private readonly List<IRecipeStepProvider> _recipeStepProviders = new();
             private readonly List<IRecipeDrawableProvider> _recipeDrawableProviders = new();
 
@@ -353,11 +373,17 @@ namespace Greenshot.Plugins
             public void AddService<TService>(TService service)
             {
                 SimpleServiceProvider.Current.AddService(service);
+                _unregister.Add(() => SimpleServiceProvider.Current.RemoveService(service));
             }
 
             public void AddServices<TService>(Func<IEnumerable<TService>> factory)
             {
-                _deferred.Add(() => SimpleServiceProvider.Current.AddService(factory()));
+                _deferred.Add(() =>
+                {
+                    var services = factory()?.ToList() ?? new List<TService>();
+                    SimpleServiceProvider.Current.AddService<TService>(services);
+                    _unregister.Add(() => SimpleServiceProvider.Current.RemoveService<TService>(services));
+                });
             }
 
             public void AddRecipeStepProvider(IRecipeStepProvider provider)
@@ -373,6 +399,28 @@ namespace Greenshot.Plugins
             public void AddSettingsView<TViewModel>(Func<TViewModel, object> createView)
             {
                 _settingsViews[typeof(TViewModel)] = viewModel => createView((TViewModel)viewModel);
+                _unregister.Add(() => _settingsViews.Remove(typeof(TViewModel)));
+            }
+
+            /// <summary>
+            /// The plugin is disabled: remove its services, settings views, recipe steps and recipe drawables again,
+            /// recipes using them handle them like those of a plugin which isn't installed.
+            /// Its configuration sections stay, they are kept in greenshot.ini anyway.
+            /// </summary>
+            public void Unregister()
+            {
+                foreach (var unregister in _unregister)
+                {
+                    try
+                    {
+                        unregister();
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Warn("Couldn't remove a registration of a disabled plugin", ex);
+                    }
+                }
+                _unregister.Clear();
             }
 
             /// <summary>
@@ -394,12 +442,22 @@ namespace Greenshot.Plugins
                 {
                     SimpleServiceProvider.Current.AddService(recipeStepProvider);
                     StepRegistry.Instance.RegisterProvider(recipeStepProvider);
+                    _unregister.Add(() =>
+                    {
+                        SimpleServiceProvider.Current.RemoveService(recipeStepProvider);
+                        StepRegistry.Instance.UnregisterProvider(recipeStepProvider);
+                    });
                 }
 
                 foreach (var recipeDrawableProvider in _recipeDrawableProviders)
                 {
                     SimpleServiceProvider.Current.AddService(recipeDrawableProvider);
                     RecipeDrawableRegistry.Instance.RegisterProvider(recipeDrawableProvider);
+                    _unregister.Add(() =>
+                    {
+                        SimpleServiceProvider.Current.RemoveService(recipeDrawableProvider);
+                        RecipeDrawableRegistry.Instance.UnregisterProvider(recipeDrawableProvider);
+                    });
                 }
             }
         }

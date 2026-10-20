@@ -49,6 +49,14 @@ namespace Greenshot.Base.Recipes
         private readonly ConcurrentDictionary<string, Func<IDictionary<string, object>, object, bool>> _configurators =
             new ConcurrentDictionary<string, Func<IDictionary<string, object>, object, bool>>(StringComparer.OrdinalIgnoreCase);
 
+        // The provider which registered a drawable type, drawable types registered without a provider are not in here
+        private readonly ConcurrentDictionary<string, IRecipeDrawableProvider> _providers =
+            new ConcurrentDictionary<string, IRecipeDrawableProvider>(StringComparer.OrdinalIgnoreCase);
+
+        // The provider which is registering its drawable types on this thread
+        [ThreadStatic]
+        private static IRecipeDrawableProvider _registeringProvider;
+
         // Thread-safe: the first access can come from the UI thread and an IPC or pipeline thread at the same time,
         // and a second instance would silently lose what was registered in the first one.
         private static readonly Lazy<RecipeDrawableRegistry> LazyInstance = new Lazy<RecipeDrawableRegistry>(() => new RecipeDrawableRegistry(), LazyThreadSafetyMode.ExecutionAndPublication);
@@ -66,6 +74,7 @@ namespace Greenshot.Base.Recipes
 
             _factories[drawableType] = factory;
             _scaleOptions[drawableType] = scaleOptions;
+            RememberProvider(drawableType);
             Log.DebugFormat("Registered recipe drawable factory for '{0}' (ScaleOptions={1})", drawableType, scaleOptions);
         }
 
@@ -115,6 +124,7 @@ namespace Greenshot.Base.Recipes
             if (configurator == null) throw new ArgumentNullException(nameof(configurator));
 
             _configurators[drawableType] = configurator;
+            RememberProvider(drawableType);
             Log.DebugFormat("Registered recipe drawable configurator for '{0}'", drawableType);
         }
 
@@ -154,6 +164,8 @@ namespace Greenshot.Base.Recipes
                 return;
             }
 
+            var previousProvider = _registeringProvider;
+            _registeringProvider = provider;
             try
             {
                 provider.RegisterDrawables(this);
@@ -161,6 +173,37 @@ namespace Greenshot.Base.Recipes
             catch (Exception ex)
             {
                 Log.Error($"Error registering recipe drawables from provider {provider.GetType().Name}", ex);
+            }
+            finally
+            {
+                _registeringProvider = previousProvider;
+            }
+        }
+
+        private void RememberProvider(string drawableType)
+        {
+            if (_registeringProvider == null)
+            {
+                _providers.TryRemove(drawableType, out _);
+                return;
+            }
+            _providers[drawableType] = _registeringProvider;
+        }
+
+        /// <summary>
+        /// Removes the drawable types registered by the provider, recipes using them then show and handle them as unknown.
+        /// The provider has to be removed from the services first, otherwise the discovery registers it again.
+        /// </summary>
+        public void UnregisterProvider(IRecipeDrawableProvider provider)
+        {
+            if (provider == null) return;
+            foreach (var drawableType in _providers.Where(entry => ReferenceEquals(entry.Value, provider)).Select(entry => entry.Key).ToList())
+            {
+                _providers.TryRemove(drawableType, out _);
+                _factories.TryRemove(drawableType, out _);
+                _scaleOptions.TryRemove(drawableType, out _);
+                _configurators.TryRemove(drawableType, out _);
+                Log.DebugFormat("Removed recipe drawable type '{0}'", drawableType);
             }
         }
 
