@@ -40,7 +40,7 @@ namespace Greenshot.Settings.Views
         private static readonly ILog Log = LogManager.GetLogger(typeof(AdministratorSettingsWindow));
         private readonly Func<bool, bool, string> _buildSettings;
 
-        /// <param name="buildSettings">The lines, with "only allow what is checked" and "users can't switch off"</param>
+        /// <param name="buildSettings">The lines, with "allow only what is checked" and "users can't switch off"</param>
         public AdministratorSettingsWindow(Func<bool, bool, string> buildSettings)
         {
             InitializeComponent();
@@ -53,7 +53,7 @@ namespace Greenshot.Settings.Views
             // Raised while InitializeComponent builds the check boxes
             if (_buildSettings != null)
             {
-                SettingsText.Text = _buildSettings(OnlyAllowCheckedBox.IsChecked == true, NoUserExclusionsBox.IsChecked == true);
+                SettingsText.Text = _buildSettings(OnlyAllowCheckedButton.IsChecked == true, NoUserExclusionsBox.IsChecked == true);
             }
         }
 

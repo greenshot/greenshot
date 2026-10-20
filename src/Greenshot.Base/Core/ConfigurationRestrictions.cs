@@ -35,14 +35,6 @@ namespace Greenshot.Base.Core
         private const string PluginFilePrefix = "Greenshot.Plugin.";
 
         /// <summary>
-        /// The plugins Greenshot ships, so they can be blocked before they are installed
-        /// </summary>
-        public static IReadOnlyList<string> ShippedPluginNames { get; } = new[]
-        {
-            "Box", "Confluence", "CustomUploader", "Dropbox", "ExternalCommand", "Jira", "Office", "Pdf", "RecipeEditor", "Zxing"
-        };
-
-        /// <summary>
         /// The identifiers IncludePlugins and ExcludePlugins used (AssemblyPluginIdentifierAttribute), other values were already the name
         /// </summary>
         private static readonly Dictionary<string, string> LegacyPluginIdentifiers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -83,7 +75,7 @@ namespace Greenshot.Base.Core
             && (configuration == null || !Names(configuration.ExcludePluginNames).Contains(pluginName, StringComparer.OrdinalIgnoreCase));
 
         /// <summary>
-        /// True when BlockedPluginNames, IncludePluginNames or the older IncludePlugins / ExcludePlugins don't allow the plugin, the user can't change that
+        /// True when BlockedPluginNames, AllowedPluginNames or the older IncludePlugins / ExcludePlugins don't allow the plugin, the user can't change that
         /// </summary>
         public static bool IsPluginBlockedByAdministrator(ICoreConfiguration configuration, string pluginName)
         {
@@ -98,8 +90,8 @@ namespace Greenshot.Base.Core
                 return true;
             }
 
-            var included = Names(configuration.IncludePluginNames).Concat(Names(configuration.IncludePlugins).Select(PluginNameFromLegacyIdentifier)).ToList();
-            return included.Count > 0 && !included.Contains(pluginName, StringComparer.OrdinalIgnoreCase);
+            var allowed = Names(configuration.AllowedPluginNames).Concat(Names(configuration.IncludePlugins).Select(PluginNameFromLegacyIdentifier)).ToList();
+            return IsAllowList(configuration, nameof(ICoreConfiguration.AllowedPluginNames), allowed) && !allowed.Contains(pluginName, StringComparer.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -110,7 +102,7 @@ namespace Greenshot.Base.Core
             && (configuration == null || !Names(configuration.ExcludeDestinations).Contains(designation, StringComparer.OrdinalIgnoreCase));
 
         /// <summary>
-        /// True when BlockedDestinations or IncludeDestinations don't allow the destination, the user can't change that
+        /// True when BlockedDestinations or AllowedDestinations don't allow the destination, the user can't change that
         /// </summary>
         public static bool IsDestinationBlockedByAdministrator(ICoreConfiguration configuration, string designation)
         {
@@ -124,9 +116,16 @@ namespace Greenshot.Base.Core
                 return true;
             }
 
-            var included = Names(configuration.IncludeDestinations).ToList();
-            return included.Count > 0 && !included.Contains(designation, StringComparer.OrdinalIgnoreCase);
+            var allowed = Names(configuration.AllowedDestinations).ToList();
+            return IsAllowList(configuration, nameof(ICoreConfiguration.AllowedDestinations), allowed) && !allowed.Contains(designation, StringComparer.OrdinalIgnoreCase);
         }
+
+        /// <summary>
+        /// Only what the list allows is used, everything else (also unknown names) is blocked: when the list has entries, or when
+        /// greenshot-fixed.ini sets it, also empty (then nothing is allowed)
+        /// </summary>
+        private static bool IsAllowList(ICoreConfiguration configuration, string key, List<string> allowed) =>
+            allowed.Count > 0 || configuration.IsConstant(key);
 
         /// <summary>
         /// True when greenshot-fixed.ini sets ExcludePluginNames (also empty): the user can't switch plugins off

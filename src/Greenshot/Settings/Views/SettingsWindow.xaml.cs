@@ -283,6 +283,27 @@ namespace Greenshot.Settings.Views
             new AdministratorSettingsWindow(_viewModel.BuildAdministratorSettings) { Owner = this }.ShowDialog();
         }
 
+        private void AddDestinationName_Click(object sender, RoutedEventArgs e) => AddDestinationName();
+
+        private void DestinationNameBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                AddDestinationName();
+                e.Handled = true;
+            }
+        }
+
+        private void AddDestinationName()
+        {
+            if (_viewModel.AddDestinationName(DestinationNameBox.Text))
+            {
+                DestinationNameBox.Clear();
+            }
+
+            DestinationNameBox.Focus();
+        }
+
         private void RemoveFixedCaptureSize_Click(object sender, RoutedEventArgs e)
         {
             if ((sender as FrameworkElement)?.DataContext is NativeSize size)
@@ -375,13 +396,13 @@ namespace Greenshot.Settings.Views
             {
                 foreach (var destItem in _viewModel.Destinations.Where(d => d.IsSelected))
                 {
-                    destinations.Add(destItem.Destination.Designation);
+                    destinations.Add(destItem.Designation);
                 }
 
                 // Keep the destinations which aren't there right now, e.g. of a plugin which isn't loaded
                 destinations.AddRange(_viewModel.CoreConfiguration.OutputDestinations?
                     .Where(designation => designation != nameof(WellKnownDestinations.Picker)
-                                          && _viewModel.Destinations.All(d => !string.Equals(d.Destination.Designation, designation, StringComparison.OrdinalIgnoreCase)))
+                                          && _viewModel.Destinations.All(d => !string.Equals(d.Designation, designation, StringComparison.OrdinalIgnoreCase)))
                     ?? Enumerable.Empty<string>());
             }
             

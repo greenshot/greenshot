@@ -36,7 +36,7 @@ namespace Greenshot.Plugins.ViewModels
         public IGreenshotPlugin Plugin { get; set; }
 
         /// <summary>
-        /// The name in ExcludePluginNames and IncludePluginNames: Box for Greenshot.Plugin.Box.dll
+        /// The name in ExcludePluginNames and AllowedPluginNames: Box for Greenshot.Plugin.Box.dll
         /// </summary>
         public string PluginName { get; set; }
 

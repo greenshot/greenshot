@@ -40,10 +40,10 @@ namespace Greenshot.Tests.Core
             config.ExcludePlugins = new List<string>();
             config.IncludePlugins = new List<string>();
             config.ExcludePluginNames = new List<string>();
-            config.IncludePluginNames = new List<string>();
+            config.AllowedPluginNames = new List<string>();
             config.BlockedPluginNames = new List<string>();
             config.ExcludeDestinations = new List<string>();
-            config.IncludeDestinations = new List<string>();
+            config.AllowedDestinations = new List<string>();
             config.BlockedDestinations = new List<string>();
             return config;
         }
@@ -102,7 +102,7 @@ namespace Greenshot.Tests.Core
         public void IsPluginAllowed_Included_BlocksAllOthers()
         {
             var config = NewConfiguration();
-            config.IncludePluginNames = new List<string> { "Office" };
+            config.AllowedPluginNames = new List<string> { "Office" };
 
             Assert.True(ConfigurationRestrictions.IsPluginAllowed(config, "Office"));
             Assert.False(ConfigurationRestrictions.IsPluginAllowed(config, "SomePluginInstalledLater"));
@@ -122,7 +122,7 @@ namespace Greenshot.Tests.Core
         public void IsPluginAllowed_EmptyEntry_IsNoIncludeList()
         {
             var config = NewConfiguration();
-            config.IncludePluginNames = new List<string> { " " };
+            config.AllowedPluginNames = new List<string> { " " };
 
             Assert.True(ConfigurationRestrictions.IsPluginAllowed(config, "Box"));
         }
@@ -141,7 +141,7 @@ namespace Greenshot.Tests.Core
             Assert.False(ConfigurationRestrictions.IsDestinationAllowed(config, "Box"));
             Assert.True(ConfigurationRestrictions.IsDestinationBlockedByAdministrator(config, "Box"));
 
-            config.IncludeDestinations = new List<string> { "Clipboard" };
+            config.AllowedDestinations = new List<string> { "Clipboard" };
             Assert.True(ConfigurationRestrictions.IsDestinationAllowed(config, "clipboard"));
             Assert.False(ConfigurationRestrictions.IsDestinationAllowed(config, "FileNoDialog"));
             Assert.True(ConfigurationRestrictions.IsDestinationBlockedByAdministrator(config, "FileNoDialog"));
@@ -167,7 +167,7 @@ namespace Greenshot.Tests.Core
             config.OnAfterLoad();
 
             Assert.Equal(new[] { "Box", "Zxing" }, config.ExcludePluginNames);
-            Assert.Equal(new[] { "Office" }, config.IncludePluginNames);
+            Assert.Equal(new[] { "Office" }, config.AllowedPluginNames);
             Assert.Empty(config.ExcludePlugins);
             Assert.Empty(config.IncludePlugins);
         }

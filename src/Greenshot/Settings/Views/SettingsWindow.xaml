@@ -583,6 +583,11 @@
                                       Margin="5" DockPanel.Dock="Top"/>
                             <!-- Which destinations can be used, greenshot-fixed.ini makes it a restriction -->
                             <DockPanel DockPanel.Dock="Bottom" Margin="5" LastChildFill="False">
+                                <!-- A destination which isn't there, by its name -->
+                                <DockPanel DockPanel.Dock="Top" Margin="0,0,0,8" Width="300" HorizontalAlignment="Left">
+                                    <Button DockPanel.Dock="Right" Content="{wpf:Text Settings.AddByName}" Style="{StaticResource SecondaryButtonStyle}" Margin="6,0,0,0" Click="AddDestinationName_Click"/>
+                                    <TextBox x:Name="DestinationNameBox" AutomationProperties.Name="{wpf:Text Settings.AddByNameHint}" ToolTip="{wpf:Text Settings.AddByNameHint}" PreviewKeyDown="DestinationNameBox_KeyDown"/>
+                                </DockPanel>
                                 <Button DockPanel.Dock="Right" Content="{wpf:Text Settings.AdministratorSettings}" Style="{StaticResource SecondaryButtonStyle}" Click="AdministratorSettings_Click"/>
                                 <TextBlock DockPanel.Dock="Left" Text="{wpf:Text Settings.SetByAdministrator}" VerticalAlignment="Center" TextWrapping="Wrap"
                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
@@ -615,6 +620,9 @@
                                                                 <Setter Property="IsEnabled" Value="{Binding DataContext.PickerSelected, RelativeSource={RelativeSource AncestorType=ListView}, Converter={StaticResource InverseBooleanConverter}}"/>
                                                                 <Style.Triggers>
                                                                     <DataTrigger Binding="{Binding IsAllowed}" Value="False">
+                                                                        <Setter Property="IsEnabled" Value="False"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Destination}" Value="{x:Null}">
                                                                         <Setter Property="IsEnabled" Value="False"/>
                                                                     </DataTrigger>
                                                                 </Style.Triggers>

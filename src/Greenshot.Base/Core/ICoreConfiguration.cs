@@ -221,7 +221,7 @@ namespace Greenshot.Base.Core
         [Range(0, 255, ErrorMessage = "AutoCropDifference must be between 0 and 255.")]
         int AutoCropDifference { get; set; }
 
-        [Description("Replaced by IncludePluginNames, still applied when set in greenshot-fixed.ini. Plugins by their identifier, e.g. Box Plugin.")]
+        [Description("Replaced by AllowedPluginNames, still applied when set in greenshot-fixed.ini. Plugins by their identifier, e.g. Box Plugin.")]
         List<string> IncludePlugins { get; set; }
 
         [Description("Replaced by ExcludePluginNames, still applied when set in greenshot-fixed.ini. Plugins by their identifier, e.g. Box Plugin.")]
@@ -233,8 +233,8 @@ namespace Greenshot.Base.Core
         [Description("Plugins the administrator blocked, names like ExcludePluginNames. For greenshot-fixed.ini.")]
         List<string> BlockedPluginNames { get; set; }
 
-        [Description("When not empty only these plugins are loaded, also blocking plugins installed later. Names like ExcludePluginNames. For greenshot-fixed.ini.")]
-        List<string> IncludePluginNames { get; set; }
+        [Description("When set only these plugins are loaded, every other one (also unknown ones) is blocked; set empty in greenshot-fixed.ini no plugin is loaded. Names like ExcludePluginNames. For greenshot-fixed.ini.")]
+        List<string> AllowedPluginNames { get; set; }
 
         [Description("Destinations the user switched off. Set in greenshot-fixed.ini (also empty) the user can't switch destinations off.")]
         List<string> ExcludeDestinations { get; set; }
@@ -242,8 +242,8 @@ namespace Greenshot.Base.Core
         [Description("Destinations the administrator blocked. For greenshot-fixed.ini.")]
         List<string> BlockedDestinations { get; set; }
 
-        [Description("When not empty only these destinations are available, also blocking destinations added later. For greenshot-fixed.ini.")]
-        List<string> IncludeDestinations { get; set; }
+        [Description("When set only these destinations are available, every other one (also unknown ones) is blocked. For greenshot-fixed.ini.")]
+        List<string> AllowedDestinations { get; set; }
 
         [Description("How many days between every update check? (0=no checks)")]
         [DefaultValue(14)]

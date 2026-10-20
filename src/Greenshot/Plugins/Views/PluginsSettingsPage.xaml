@@ -26,6 +26,11 @@
 
         <!-- Which plugins are loaded at the next start, greenshot-fixed.ini makes it a restriction -->
         <DockPanel Grid.Row="1" Grid.ColumnSpan="3" Margin="0,8,0,0" LastChildFill="False">
+            <!-- A plugin which isn't installed, by its name -->
+            <DockPanel DockPanel.Dock="Top" Margin="0,0,0,8" Width="200" HorizontalAlignment="Left">
+                <Button DockPanel.Dock="Right" Content="{wpf:Text Settings.AddByName}" Style="{StaticResource SecondaryButtonStyle}" Margin="6,0,0,0" Click="AddPluginName_Click"/>
+                <TextBox x:Name="PluginNameBox" AutomationProperties.Name="{wpf:Text Settings.AddByNameHint}" ToolTip="{wpf:Text Settings.AddByNameHint}" PreviewKeyDown="PluginNameBox_KeyDown"/>
+            </DockPanel>
             <Button DockPanel.Dock="Right" Content="{wpf:Text Settings.AdministratorSettings}" Style="{StaticResource SecondaryButtonStyle}" Click="AdministratorSettings_Click"/>
             <StackPanel DockPanel.Dock="Left" VerticalAlignment="Center">
                 <TextBlock Text="{wpf:Text Settings.PluginsRestart}" TextWrapping="Wrap"

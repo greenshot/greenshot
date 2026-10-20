@@ -95,7 +95,7 @@ namespace Greenshot.Settings.ViewModels
         public bool ArePluginExclusionsFixed => ConfigurationRestrictions.ArePluginExclusionsFixed(CoreConfiguration);
 
         /// <summary>
-        /// The loaded plugins, the plugins which are installed but not loaded, and those which Greenshot ships or the settings name but aren't installed
+        /// The loaded plugins, the plugins which are installed but not loaded, and those which the settings name but aren't installed
         /// </summary>
         private void InitializePlugins()
         {
@@ -130,11 +130,10 @@ namespace Greenshot.Settings.ViewModels
             }
 
             var found = PluginHelper.Instance.FoundPluginNames;
-            var named = ConfigurationRestrictions.ShippedPluginNames
-                .Concat(found)
+            var named = found
                 .Concat(ConfigurationRestrictions.Names(CoreConfiguration.ExcludePluginNames))
                 .Concat(ConfigurationRestrictions.Names(CoreConfiguration.BlockedPluginNames))
-                .Concat(ConfigurationRestrictions.Names(CoreConfiguration.IncludePluginNames))
+                .Concat(ConfigurationRestrictions.Names(CoreConfiguration.AllowedPluginNames))
                 .Concat(ConfigurationRestrictions.Names(CoreConfiguration.ExcludePlugins).Select(ConfigurationRestrictions.PluginNameFromLegacyIdentifier))
                 .Concat(ConfigurationRestrictions.Names(CoreConfiguration.IncludePlugins).Select(ConfigurationRestrictions.PluginNameFromLegacyIdentifier))
                 .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -159,6 +158,24 @@ namespace Greenshot.Settings.ViewModels
             Plugins = new ObservableCollection<PluginViewModel>(items.OrderBy(item => item.Name, StringComparer.CurrentCultureIgnoreCase));
         }
 
+        /// <summary>
+        /// Add a plugin which isn't installed by its name, switched off, e.g. to block it before it is installed
+        /// </summary>
+        /// <returns>false when the name is empty or already listed</returns>
+        public bool AddPluginName(string name)
+        {
+            name = name?.Trim();
+            if (string.IsNullOrEmpty(name) || Plugins.Any(item => string.Equals(item.PluginName, name, StringComparison.OrdinalIgnoreCase)))
+            {
+                return false;
+            }
+
+            var item = new PluginViewModel { PluginName = name, Name = name, Version = Texts.Settings.PluginNotInstalled, IsAllowed = false };
+            Plugins.Add(item);
+            SelectedPlugin = item;
+            return true;
+        }
+
         private void SavePluginRestrictions()
         {
             if (ArePluginExclusionsFixed || Plugins == null)
@@ -172,15 +189,15 @@ namespace Greenshot.Settings.ViewModels
                 changeable.Where(item => !item.IsAllowed).Select(item => item.PluginName));
         }
 
-        private void AppendPluginRestrictions(StringBuilder text, bool onlyAllowChecked)
+        private void AppendPluginRestrictions(StringBuilder text, bool allowOnlyChecked)
         {
-            var listed = Plugins.Select(item => item.PluginName).ToList();
-            AppendList(text, nameof(ICoreConfiguration.BlockedPluginNames), ConfigurationRestrictions.ReplaceListed(CoreConfiguration.BlockedPluginNames, listed,
-                Plugins.Where(item => !item.IsAllowed).Select(item => item.PluginName)));
-            if (onlyAllowChecked)
+            if (allowOnlyChecked)
             {
-                AppendList(text, nameof(ICoreConfiguration.IncludePluginNames), ConfigurationRestrictions.ReplaceListed(CoreConfiguration.IncludePluginNames, listed,
-                    Plugins.Where(item => item.IsAllowed).Select(item => item.PluginName)));
+                AppendList(text, nameof(ICoreConfiguration.AllowedPluginNames), Plugins.Where(item => item.IsAllowed).Select(item => item.PluginName));
+            }
+            else
+            {
+                AppendList(text, nameof(ICoreConfiguration.BlockedPluginNames), Plugins.Where(item => !item.IsAllowed).Select(item => item.PluginName));
             }
         }
     }

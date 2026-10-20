@@ -34,10 +34,13 @@
             <DockPanel Margin="14,10,14,12">
                 <TextBlock DockPanel.Dock="Top" Text="{wpf:Text Settings.AdministratorSettingsDescription}" TextWrapping="Wrap"
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                <CheckBox x:Name="OnlyAllowCheckedBox" DockPanel.Dock="Top" Margin="0,10,0,0"
-                          Content="{wpf:Text Settings.AdministratorSettingsOnlyChecked}"
-                          Checked="Option_Changed" Unchecked="Option_Changed"/>
-                <CheckBox x:Name="NoUserExclusionsBox" DockPanel.Dock="Top" Margin="0,6,0,0"
+                <RadioButton x:Name="BlockUncheckedButton" DockPanel.Dock="Top" Margin="0,10,0,0" GroupName="Mode" IsChecked="True"
+                             Content="{wpf:Text Settings.AdministratorSettingsBlockUnchecked}" Style="{StaticResource DefaultRadioButtonStyle}"
+                             Checked="Option_Changed"/>
+                <RadioButton x:Name="OnlyAllowCheckedButton" DockPanel.Dock="Top" Margin="0,4,0,0" GroupName="Mode"
+                             Content="{wpf:Text Settings.AdministratorSettingsOnlyChecked}" Style="{StaticResource DefaultRadioButtonStyle}"
+                             Checked="Option_Changed"/>
+                <CheckBox x:Name="NoUserExclusionsBox" DockPanel.Dock="Top" Margin="0,10,0,0"
                           Content="{wpf:Text Settings.AdministratorSettingsNoUserExclusions}"
                           Checked="Option_Changed" Unchecked="Option_Changed"/>
                 <TextBox x:Name="SettingsText" Margin="0,10,0,0" IsReadOnly="True" TextWrapping="Wrap" FontFamily="Consolas"

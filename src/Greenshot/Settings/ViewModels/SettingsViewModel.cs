@@ -440,6 +440,7 @@ namespace Greenshot.Settings.ViewModels
                 var destItem = new DestinationViewModel
                 {
                     Destination = destination,
+                    Designation = destination.Designation,
                     Description = description,
                     // Before IsSelected: switching it off unselects, an output destination which is off stays in the settings
                     IsAllowed = ConfigurationRestrictions.IsDestinationAllowed(CoreConfiguration, destination.Designation),
@@ -448,6 +449,17 @@ namespace Greenshot.Settings.ViewModels
                 };
                 
                 Destinations.Add(destItem);
+            }
+
+            // Names in the settings which aren't registered, e.g. of a plugin which isn't installed
+            foreach (var designation in ConfigurationRestrictions.Names(CoreConfiguration.ExcludeDestinations)
+                         .Concat(ConfigurationRestrictions.Names(CoreConfiguration.BlockedDestinations))
+                         .Concat(ConfigurationRestrictions.Names(CoreConfiguration.AllowedDestinations))
+                         .Distinct(StringComparer.OrdinalIgnoreCase)
+                         .Where(designation => designation != nameof(WellKnownDestinations.Picker))
+                         .ToList())
+            {
+                AddUnregisteredDestination(designation);
             }
 
             // Resolve the destination icons asynchronously, the window opens right away
@@ -463,7 +475,10 @@ namespace Greenshot.Settings.ViewModels
             {
                 try
                 {
-                    destItem.IconSource = await DestinationIcons.GetImageSourceAsync(destItem.Destination?.Descriptor?.IconKey).ConfigureAwait(true);
+                    if (destItem.Destination != null)
+                    {
+                        destItem.IconSource = await DestinationIcons.GetImageSourceAsync(destItem.Destination.Descriptor?.IconKey).ConfigureAwait(true);
+                    }
                 }
                 catch (Exception)
                 {

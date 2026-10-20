@@ -31,7 +31,15 @@ namespace Greenshot.Settings.ViewModels
         private bool _isAllowed = true;
         private ImageSource _iconSource;
 
+        /// <summary>
+        /// The registered destination, null for a name which was typed in or is only in the settings
+        /// </summary>
         public IDestination Destination { get; set; }
+
+        /// <summary>
+        /// The name in the settings, e.g. FileNoDialog
+        /// </summary>
+        public string Designation { get; set; }
         public string Description { get; set; }
         public ImageSource IconSource
         {
