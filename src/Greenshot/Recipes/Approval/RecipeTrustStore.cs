@@ -25,6 +25,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using Greenshot.Base.Core;
 using log4net;
 using Newtonsoft.Json;
 
@@ -47,11 +48,24 @@ namespace Greenshot.Recipes.Approval
 
         private static string _storeFilePathOverride;
 
-        private static string StoreFilePath => _storeFilePathOverride ?? Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "Greenshot",
-            "recipe_trust.dat"
-        );
+        /// <summary>
+        /// The store is kept next to greenshot.ini: the recipe files belong to that configuration, and a second configuration
+        /// (portable, --ini-directory) would otherwise remove their approvals as unused. Also, the portable versions leave nothing behind.
+        /// </summary>
+        private static string StoreFilePath
+        {
+            get
+            {
+                if (_storeFilePathOverride != null)
+                {
+                    return _storeFilePathOverride;
+                }
+
+                string configLocation = GreenshotEnvironment.ConfigLocation;
+                string directory = string.IsNullOrEmpty(configLocation) ? GreenshotEnvironment.LocalDataDirectory : Path.GetDirectoryName(configLocation);
+                return Path.Combine(directory, "recipe_trust.dat");
+            }
+        }
 
         /// <summary>
         /// Uses another store file (tests), null for the default one

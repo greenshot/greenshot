@@ -56,6 +56,9 @@ from `Greenshot.exe` (`GreenshotEnvironment.PortableAppsDirectory`). So the laun
 | `LeavesNoTraces` | `IsPortableApps` or `UsesSettingsNextToExecutable` | no toast registration, no JIT profile, the *Portable* badge in About |
 | `PortableSuffix` | " PortableApps", " Portable" or empty | the version in the log and the bug report |
 
+The approvals of recipe files (`recipe_trust.dat`) are kept next to greenshot.ini, so each configuration keeps its own and
+the portable versions leave nothing in `%LocalAppData%`.
+
 An update keeps `Data`. An update of a Greenshot 1.x package removes the old `Greenshot.exe` from the main folder
 (`installer.ini`) and goes on using `Data\Settings\greenshot.ini`.
 
