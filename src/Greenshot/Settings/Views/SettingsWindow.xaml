@@ -581,6 +581,13 @@
                                       IsChecked="{Binding PickerSelected, Mode=TwoWay}" 
                                       IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputDestinations}"
                                       Margin="5" DockPanel.Dock="Top"/>
+                            <!-- Which destinations can be used, greenshot-fixed.ini makes it a restriction -->
+                            <DockPanel DockPanel.Dock="Bottom" Margin="5" LastChildFill="False">
+                                <Button DockPanel.Dock="Right" Content="{wpf:Text Settings.BlockDestinations}" Style="{StaticResource SecondaryButtonStyle}" Click="AdministratorSettings_Click"/>
+                                <TextBlock DockPanel.Dock="Left" Text="{wpf:Text Settings.SetByAdministrator}" VerticalAlignment="Center" TextWrapping="Wrap"
+                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
+                                           Visibility="{Binding AreDestinationExclusionsFixed, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                            </DockPanel>
                             <ListView ItemsSource="{Binding Destinations}" 
                                       AutomationProperties.Name="{wpf:Text Settings.Destination}"
                                       KeyboardNavigation.TabNavigation="Continue"
@@ -601,8 +608,22 @@
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
-                                                              AutomationProperties.Name="{Binding Description, TargetNullValue=''}"
-                                                              IsEnabled="{Binding DataContext.PickerSelected, RelativeSource={RelativeSource AncestorType=ListView}, Converter={StaticResource InverseBooleanConverter}}"/>
+                                                              AutomationProperties.Name="{Binding Description, TargetNullValue=''}">
+                                                        <!-- Not with the picker, and not for a destination which isn't available -->
+                                                        <CheckBox.Style>
+                                                            <Style TargetType="CheckBox" BasedOn="{StaticResource GreenshotCheckBoxStyle}">
+                                                                <Setter Property="IsEnabled" Value="{Binding DataContext.PickerSelected, RelativeSource={RelativeSource AncestorType=ListView}, Converter={StaticResource InverseBooleanConverter}}"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsAllowed}" Value="False">
+                                                                        <Setter Property="IsEnabled" Value="False"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Destination}" Value="{x:Null}">
+                                                                        <Setter Property="IsEnabled" Value="False"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </CheckBox.Style>
+                                                    </CheckBox>
                                                 </DataTemplate>
                                             </GridViewColumn.CellTemplate>
                                         </GridViewColumn>
@@ -613,6 +634,16 @@
                                                         <Image Source="{Binding IconSource}" Width="16" Height="16" Margin="0,0,6,0" VerticalAlignment="Center"/>
                                                         <TextBlock Text="{Binding Description}" VerticalAlignment="Center"/>
                                                     </StackPanel>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="{wpf:Text Settings.DestinationAvailable}" Width="90">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding IsAllowed, Mode=TwoWay}"
+                                                              AutomationProperties.Name="{Binding Description, TargetNullValue=''}"
+                                                              AutomationProperties.HelpText="{wpf:Text Settings.DestinationAvailable}"
+                                                              IsEnabled="{Binding CanChangeAllowed}"/>
                                                 </DataTemplate>
                                             </GridViewColumn.CellTemplate>
                                         </GridViewColumn>

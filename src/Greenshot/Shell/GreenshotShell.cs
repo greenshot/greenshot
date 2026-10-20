@@ -236,21 +236,6 @@ namespace Greenshot.Shell
                 Texts.SetLanguage(_conf.Language);
             }
 
-            // Check destinations, remove all that don't exist
-            foreach (string destination in _conf.OutputDestinations.ToArray())
-            {
-                if (DestinationHelper.GetDestination(destination) == null)
-                {
-                    _conf.OutputDestinations.Remove(destination);
-                }
-            }
-
-            // we should have at least one!
-            if (_conf.OutputDestinations.Count == 0)
-            {
-                _conf.OutputDestinations.Add(EditorDestination.DESIGNATION);
-            }
-
             SoundHelper.Initialize();
 
             // The tray icon; the menu is built when it opens, so it always shows the current recipes, plugins and settings
@@ -293,6 +278,13 @@ namespace Greenshot.Shell
             {
                 ApplicationStartupHelper.ShowWelcome();
             }
+#if !GREENSHOT_LIGHT
+            // Plugins which aren't signed like Greenshot.exe: the question comes after the start, not inside it
+            if (PluginHelper.Instance.HeldBackPlugins.Count > 0)
+            {
+                _ = UiDispatcher.Dispatcher.BeginInvoke(new Action(PluginHelper.Instance.AskAboutHeldBackPlugins), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+            }
+#endif
 
             if (startupCommand != null)
             {
@@ -355,9 +347,11 @@ namespace Greenshot.Shell
                 internalDestinations.Add(new EditorDestination());
             }
 
+            // Also when only the configuration excludes it, so the settings can switch it on again
+            var coreConfiguration = IniConfigRegistry.GetSection<ICoreConfiguration>();
             foreach (var internalDestination in internalDestinations)
             {
-                if (internalDestination.IsAvailableFor(null))
+                if (internalDestination.IsAvailableFor(null) || !ConfigurationRestrictions.IsDestinationAllowed(coreConfiguration, internalDestination.Designation))
                 {
                     SimpleServiceProvider.Current.AddService(internalDestination);
                 }

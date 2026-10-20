@@ -232,6 +232,121 @@ namespace Greenshot.Base.Languages
         string DestinationPrinter { get; }
 
         /// <summary>
+        /// Available
+        /// </summary>
+        string DestinationAvailable { get; }
+
+        /// <summary>
+        /// Plugins are switched on or off at the next start of Greenshot.
+        /// </summary>
+        string PluginsRestart { get; }
+
+        /// <summary>
+        /// Switched off
+        /// </summary>
+        string PluginOff { get; }
+
+        /// <summary>
+        /// Not installed
+        /// </summary>
+        string PluginNotInstalled { get; }
+
+        /// <summary>
+        /// Not loaded, see the log
+        /// </summary>
+        string PluginNotLoaded { get; }
+
+        /// <summary>
+        /// Blocked by your administrator
+        /// </summary>
+        string PluginBlocked { get; }
+
+        /// <summary>
+        /// Signed by {0}
+        /// </summary>
+        string PluginSignedBy { get; }
+
+        /// <summary>
+        /// Not signed
+        /// </summary>
+        string PluginNotSigned { get; }
+
+        /// <summary>
+        /// Your administrator doesn't let you switch these off (greenshot-fixed.ini)
+        /// </summary>
+        string SetByAdministrator { get; }
+
+        /// <summary>
+        /// Block plugins…
+        /// </summary>
+        string BlockPlugins { get; }
+
+        /// <summary>
+        /// Block destinations…
+        /// </summary>
+        string BlockDestinations { get; }
+
+        /// <summary>
+        /// Restrict for all users (greenshot-fixed.ini)
+        /// </summary>
+        string RestrictForAllUsersTitle { get; }
+
+        /// <summary>
+        /// Copy these lines into greenshot-fixed.ini next to Greenshot.exe. Users can't switch on what these lines block.
+        /// </summary>
+        string AdministratorSettingsDescription { get; }
+
+        /// <summary>
+        /// Block what isn't checked
+        /// </summary>
+        string AdministratorSettingsBlockUnchecked { get; }
+
+        /// <summary>
+        /// Allow only what is checked, block everything else, also plugins and destinations which aren't known yet
+        /// </summary>
+        string AdministratorSettingsOnlyChecked { get; }
+
+        /// <summary>
+        /// Not installed yet? Add a plugin or destination by its name...
+        /// </summary>
+        string AddNotInstalled { get; }
+
+        /// <summary>
+        /// Name of the plugin or destination
+        /// </summary>
+        string AddNotInstalledName { get; }
+
+        /// <summary>
+        /// Add plugin
+        /// </summary>
+        string AddPlugin { get; }
+
+        /// <summary>
+        /// Add destination
+        /// </summary>
+        string AddDestination { get; }
+
+        /// <summary>
+        /// Users can't switch off plugins or destinations themselves
+        /// </summary>
+        string AdministratorSettingsNoUserExclusions { get; }
+
+        /// <summary>
+        /// Don't ask about plugins which aren't signed by the makers of Greenshot, load only the ones approved on this PC
+        /// </summary>
+        string AdministratorSettingsNoUnsignedQuestion { get; }
+
+        /// <summary>
+        /// Copy
+        /// </summary>
+        string AdministratorSettingsCopy { get; }
+
+        /// <summary>
+        /// Save as…
+        /// </summary>
+        string AdministratorSettingsSave { get; }
+
+        /// <summary>
         /// Editor
         /// </summary>
         string Editor { get; }
