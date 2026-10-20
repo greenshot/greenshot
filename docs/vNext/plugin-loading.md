@@ -68,6 +68,8 @@ flowchart TD
 - **Limits:** the lists are in greenshot.ini, which every program of the user can change. The check protects against a plugin
   which was placed in a folder the user can write to (portable or per-user installation); an all-users installation keeps the
   plugins under Program Files, where only administrators can write.
+- **Plugins tab:** the settings show who signed each loaded plugin. A plugin signed with the certificate of Greenshot.exe is shown
+  in green with a check mark; a plugin which was held back shows *Not signed*.
 
 ## For administrators
 

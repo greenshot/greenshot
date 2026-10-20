@@ -134,8 +134,6 @@ namespace Greenshot.Plugins
                         break;
                 }
             }
-
-            HeldBackPlugins = Array.Empty<HeldBackPlugin>();
         }
 
         private static void AddHash(string key, IEnumerable<string> current, Action<List<string>> store, string sha256)

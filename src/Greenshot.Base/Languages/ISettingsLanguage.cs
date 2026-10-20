@@ -262,6 +262,16 @@ namespace Greenshot.Base.Languages
         string PluginBlocked { get; }
 
         /// <summary>
+        /// Signed by {0}
+        /// </summary>
+        string PluginSignedBy { get; }
+
+        /// <summary>
+        /// Not signed
+        /// </summary>
+        string PluginNotSigned { get; }
+
+        /// <summary>
         /// Your administrator doesn't let you switch these off (greenshot-fixed.ini)
         /// </summary>
         string SetByAdministrator { get; }

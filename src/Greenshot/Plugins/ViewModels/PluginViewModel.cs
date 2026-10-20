@@ -29,6 +29,8 @@ namespace Greenshot.Plugins.ViewModels
     public class PluginViewModel : INotifyPropertyChanged
     {
         private bool _isAllowed = true;
+        private string _signature;
+        private bool _isSignedLikeGreenshot;
 
         /// <summary>
         /// The loaded plugin, null when it isn't loaded
@@ -70,6 +72,32 @@ namespace Greenshot.Plugins.ViewModels
         /// False when the administrator blocked the plugin, or doesn't let the user switch plugins off
         /// </summary>
         public bool CanChangeAllowed { get; set; } = true;
+
+        /// <summary>
+        /// Who signed the plugin's file, empty until it is checked and for a plugin which isn't loaded
+        /// </summary>
+        public string Signature
+        {
+            get => _signature;
+            set
+            {
+                _signature = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Signature)));
+            }
+        }
+
+        /// <summary>
+        /// The plugin's file has a valid signature with the same certificate as Greenshot.exe
+        /// </summary>
+        public bool IsSignedLikeGreenshot
+        {
+            get => _isSignedLikeGreenshot;
+            set
+            {
+                _isSignedLikeGreenshot = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsSignedLikeGreenshot)));
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 

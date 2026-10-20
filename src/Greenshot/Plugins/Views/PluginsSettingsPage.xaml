@@ -66,13 +66,14 @@
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <!-- Loaded at the next start -->
-                            <CheckBox Grid.RowSpan="2" VerticalAlignment="Center" Margin="0,0,6,0"
+                            <CheckBox Grid.RowSpan="3" VerticalAlignment="Center" Margin="0,0,6,0"
                                       IsChecked="{Binding IsAllowed, Mode=TwoWay}"
                                       AutomationProperties.Name="{Binding Name, TargetNullValue=''}"
                                       IsEnabled="{Binding CanChangeAllowed}"/>
@@ -84,6 +85,24 @@
                                        Text="{Binding Version}"
                                        FontSize="{wpf:FontSize 11}"
                                        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                            <!-- Who signed the file: green with a check mark when it is the certificate of Greenshot.exe -->
+                            <TextBlock Grid.Row="2" Grid.Column="1" FontSize="{wpf:FontSize 11}" TextWrapping="Wrap">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="{Binding Signature}"/>
+                                        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Signature}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsSignedLikeGreenshot}" Value="True">
+                                                <Setter Property="Text" Value="{Binding Signature, StringFormat='✔ {0}'}"/>
+                                                <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.SuccessBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
                         </Grid>
                     </DataTemplate>
                 </ListBox.ItemTemplate>

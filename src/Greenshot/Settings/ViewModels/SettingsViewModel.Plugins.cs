@@ -25,11 +25,13 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Languages;
+using Greenshot.Base.Threading;
 using Greenshot.Plugins;
 using Greenshot.Plugins.ViewModels;
 
@@ -144,6 +146,7 @@ namespace Greenshot.Settings.ViewModels
                 bool isAllowed = ConfigurationRestrictions.IsPluginAllowed(CoreConfiguration, name);
                 string status = ConfigurationRestrictions.IsPluginBlockedByAdministrator(CoreConfiguration, name) ? Texts.Settings.PluginBlocked
                     : !found.Contains(name, StringComparer.OrdinalIgnoreCase) ? Texts.Settings.PluginNotInstalled
+                    : PluginHelper.Instance.HeldBackPlugins.Any(plugin => string.Equals(plugin.Name, name, StringComparison.OrdinalIgnoreCase)) ? Texts.Settings.PluginNotSigned
                     : isAllowed ? Texts.Settings.PluginNotLoaded
                     : Texts.Settings.PluginOff;
                 items.Add(new PluginViewModel { PluginName = name, Name = name, Version = status });
@@ -156,6 +159,43 @@ namespace Greenshot.Settings.ViewModels
             }
 
             Plugins = new ObservableCollection<PluginViewModel>(items.OrderBy(item => item.Name, StringComparer.CurrentCultureIgnoreCase));
+
+            // The signatures are checked while the window opens, about 6 ms per file
+            LoadPluginSignaturesAsync(items.Where(item => !string.IsNullOrEmpty(item.Location)).ToList()).FireAndLog("Check the plugin signatures");
+        }
+
+        /// <summary>
+        /// Started on the UI thread, the results are set there (the continuation returns to the UI thread)
+        /// </summary>
+        private static async Task LoadPluginSignaturesAsync(IReadOnlyList<PluginViewModel> loadedPlugins)
+        {
+            if (loadedPlugins.Count == 0)
+            {
+                return;
+            }
+
+            var files = loadedPlugins.Select(item => item.Location).ToList();
+            // PARALLEL: WinVerifyTrust reads every file, the settings window must not wait for it
+#pragma warning disable RS0030 // R10: documented parallel branch
+            var signatures = await Task.Run(() =>
+            {
+                string greenshotExe = System.Windows.Forms.Application.ExecutablePath;
+                string greenshotSigner = AuthenticodeHelper.VerifyAuthenticode(greenshotExe) ? AuthenticodeHelper.GetSignerThumbprint(greenshotExe) : null;
+                return files.Select(file =>
+                {
+                    string signer = AuthenticodeHelper.GetVerifiedSigner(file);
+                    bool likeGreenshot = signer != null && greenshotSigner != null
+                        && string.Equals(AuthenticodeHelper.GetSignerThumbprint(file), greenshotSigner, StringComparison.OrdinalIgnoreCase);
+                    return (Signer: signer, LikeGreenshot: likeGreenshot);
+                }).ToList();
+            }).ConfigureAwait(true);
+#pragma warning restore RS0030
+
+            for (int i = 0; i < loadedPlugins.Count; i++)
+            {
+                loadedPlugins[i].Signature = signatures[i].Signer == null ? Texts.Settings.PluginNotSigned : string.Format(Texts.Settings.PluginSignedBy, signatures[i].Signer);
+                loadedPlugins[i].IsSignedLikeGreenshot = signatures[i].LikeGreenshot;
+            }
         }
 
         /// <summary>
