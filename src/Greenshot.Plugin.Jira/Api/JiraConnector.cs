@@ -21,16 +21,21 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.Extensions;
+using Dapplo.HttpExtensions.JsonNet;
+using Dapplo.HttpExtensions.WinForms.ContentConverter;
 using Dapplo.Jira;
 using Dapplo.Jira.Entities;
 using Dapplo.Jira.SvgWinForms.Converters;
+using Dapplo.Log;
 using Greenshot.Base.Core;
 using Greenshot.Base.Http;
 using Greenshot.Base.Interfaces;
@@ -55,23 +60,35 @@ public sealed class JiraConnector : IDisposable
     private IJiraClient _jiraClient;
     private IssueTypeBitmapCache _issueTypeBitmapCache;
 
-    /// <summary>
-    /// Initialize some basic stuff, in the case the SVG to bitmap converter
-    /// </summary>
-    static JiraConnector()
+    // The HTTP setup Dapplo.Jira needs, done once at the first login instead of at every start
+    private static readonly Lazy<bool> HttpSetup = new(() =>
     {
-        CoreConfig.PropertyChanged += (sender, args) =>
+        if (HttpExtensionsGlobals.HttpContentConverters.All(x => x.GetType() != typeof(SvgBitmapHttpContentConverter)))
         {
-            if (args.PropertyName == nameof(CoreConfig.IconSize))
+            HttpExtensionsGlobals.HttpContentConverters.Add(SvgBitmapHttpContentConverter.Instance.Value);
+        }
+
+        BitmapHttpContentConverter.RegisterGlobally();
+        // Dapplo.Jira (de)serializes with Json.NET
+        JsonNetJsonSerializer.RegisterGlobally();
+        LogSettings.RegisterDefaultLogger<Log4NetLogger>(Log.IsDebugEnabled ? LogLevels.Verbose
+            : Log.IsInfoEnabled ? LogLevels.Info
+            : Log.IsWarnEnabled ? LogLevels.Warn
+            : Log.IsErrorEnabled ? LogLevels.Error
+            : LogLevels.Fatal);
+        return true;
+    });
+
+    private void OnCoreConfigPropertyChanged(object sender, PropertyChangedEventArgs args)
+    {
+        if (args.PropertyName == nameof(CoreConfig.IconSize))
+        {
+            _jiraClient?.Behaviour.SetConfig(new SvgConfiguration
             {
-                var jiraConnector = SimpleServiceProvider.Current.GetInstance<JiraConnector>();
-                jiraConnector._jiraClient?.Behaviour.SetConfig(new SvgConfiguration
-                {
-                    Width = CoreConfig.IconSize.Width,
-                    Height = CoreConfig.IconSize.Height
-                });
-            }
-        };
+                Width = CoreConfig.IconSize.Width,
+                Height = CoreConfig.IconSize.Height
+            });
+        }
     }
 
     /// <summary>
@@ -79,6 +96,7 @@ public sealed class JiraConnector : IDisposable
     /// </summary>
     public void Dispose()
     {
+        CoreConfig.PropertyChanged -= OnCoreConfigPropertyChanged;
         if (_jiraClient != null)
         {
             Logout();
@@ -93,6 +111,7 @@ public sealed class JiraConnector : IDisposable
     public JiraConnector()
     {
         JiraConfig.Url = JiraConfig.Url.Replace(DefaultPostfix, string.Empty);
+        CoreConfig.PropertyChanged += OnCoreConfigPropertyChanged;
     }
 
     /// <summary>
@@ -113,6 +132,7 @@ public sealed class JiraConnector : IDisposable
             return false;
         }
 
+        _ = HttpSetup.Value;
         _jiraClient = JiraClient.Create(new Uri(JiraConfig.Url));
         _jiraClient.Behaviour.SetConfig(new SvgConfiguration
         {
@@ -133,7 +153,16 @@ public sealed class JiraConnector : IDisposable
             {
                 using var stream = new MemoryStream(favIcon);
                 using var image = Image.FromStream(stream);
+                var oldFavIcon = FavIcon;
                 FavIcon = new Bitmap(image);
+                if (oldFavIcon != null)
+                {
+                    // JiraDestination clones the icon under this lock
+                    lock (oldFavIcon)
+                    {
+                        oldFavIcon.Dispose();
+                    }
+                }
             }
         }
         catch (Exception ex2)
@@ -209,8 +238,9 @@ public sealed class JiraConnector : IDisposable
     public void Logout()
     {
         if (_jiraClient == null || !IsLoggedIn) return;
-        Monitor.Dispose();
         IsLoggedIn = false;
+        Monitor?.Dispose();
+        Monitor = null;
     }
 
     /// <summary>

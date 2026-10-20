@@ -32,8 +32,5 @@
 
         <CheckBox IsChecked="{Binding AfterUploadLinkToClipBoard}"
                   Content="{wpf:Text Dropbox.LabelAfterUploadLinkToClipBoard}"/>
-
-        <CheckBox IsChecked="{Binding QuicklinkEnabled}"
-                  Content="{wpf:Text Core.QuicklinkEnable}"/>
     </StackPanel>
 </UserControl>

@@ -179,12 +179,13 @@ public class JiraDestination : DestinationBase, IRequiresRecipeAuthorization
     public override ValueTask<IReadOnlyList<IDestination>> GetDynamicDestinationsAsync(ICaptureDetails metadata, CancellationToken cancellationToken)
     {
         var jiraConnector = SimpleServiceProvider.Current.GetInstance<JiraConnector>(isOptional: true);
-        if (_jiraIssue != null || jiraConnector == null || !jiraConnector.IsLoggedIn)
+        var monitor = jiraConnector?.Monitor;
+        if (_jiraIssue != null || monitor == null || !jiraConnector.IsLoggedIn)
         {
             return base.GetDynamicDestinationsAsync(metadata, cancellationToken);
         }
 
-        IReadOnlyList<IDestination> destinations = jiraConnector.Monitor.RecentJiras.Select(jiraDetails => (IDestination) new JiraDestination(jiraDetails.JiraIssue)).ToList();
+        IReadOnlyList<IDestination> destinations = monitor.RecentJiras.Select(jiraDetails => (IDestination) new JiraDestination(jiraDetails.JiraIssue)).ToList();
         return new ValueTask<IReadOnlyList<IDestination>>(destinations);
     }
 

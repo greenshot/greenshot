@@ -516,11 +516,6 @@ namespace Greenshot.Base.Languages
         string ContextmenuCapturewindowfromlist { get; }
 
         /// <summary>
-        /// Configure {0}
-        /// </summary>
-        string ContextmenuConfigurePlugin { get; }
-
-        /// <summary>
         /// This plugin has no configurable options.
         /// </summary>
         string PluginsNoOptions { get; }
@@ -1005,11 +1000,6 @@ namespace Greenshot.Base.Languages
         /// Greenshot quality
         /// </summary>
         string QualitydialogTitle { get; }
-
-        /// <summary>
-        /// Create a quicklink to the configuration in the context menu
-        /// </summary>
-        string QuicklinkEnable { get; }
 
         /// <summary>
         /// Automatic steps
