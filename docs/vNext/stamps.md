@@ -33,11 +33,12 @@ in the full and the custom installation.
 | Find | Type in *Search*: every word must be part of the name, a tag, the category or the file name. Down or Enter goes to the stamps. The groups of the categories close and open with a click on their header, or with the keyboard: Up from the first row of a group goes to its header, there Left closes it, Right opens it (Space and Enter switch it) and Down goes on. A search shows all it finds, also in closed groups. |
 | Insert into the editor | Double-click, Enter, or *Insert*. The stamp lands in the middle of the visible part of the capture, selected; a big one is made smaller to fit. The editor gets the keyboard, so the arrow keys move it. Ctrl+Z removes it. |
 | Give it to another program | *Copy* or Ctrl+C: the clipboard gets the file, PNG and DIBV5 (with transparency), and for an SVG also the SVG itself. Or drag the stamp to the program: it gets the file. |
-| Name and tags | Select the stamp and type into *Name* and *Tags* (tags separated by commas); Enter or leaving the field saves them. F2 goes to *Name*. |
+| Filter by tags | The **+** next to *Filter* adds a tag of the list: only the stamps with all the tags of the filter are shown. The **x** of a tag removes it, *Clear all* removes all. |
+| Name and tags | Select the stamp and type into *Name*; Enter or leaving the field saves it. F2 goes to *Name*. Its tags are shown under the stamps: the **+** adds one from the list of tags, the **x** removes one. A tag which isn't in the list yet is added with *New tag* in the same list, it goes into the list and to the stamp. |
 | Add | *Add...* (several files at once), drop image files or folders onto the window, drop an image from a web page, or *Paste* (Ctrl+V) an image from the clipboard, which is saved as PNG. The files are copied into the stamps folder. |
 | Categories | Every stamp is in a category: a sub folder of the stamps folder. The stamps without one are in *General*, the stamps folder itself. Choose another category in *Category* or type a new name (`/` for a category in a category); the file moves into that folder. Added stamps go into the category of the selected stamp, dropped ones into the category of the group they are dropped on. A dropped folder becomes a category with its name, its sub folders categories in it. |
 | Delete | *Delete* or the Delete key, after a question. The file is deleted from the stamps folder. |
-| Show the folder | *Open folder* shows the stamps folder in Explorer, with the file of the selected stamp selected. F5 reads the folder again. |
+| Show the folder | The buttons for the stamps folder (*Add...*, *Paste*, *Open folder*) are below a line, apart from those of the selected stamp. *Open folder* shows the stamps folder in Explorer, with the file of the selected stamp selected. F5 reads the folder again. |
 
 The list shows the format of each stamp (SVG, PNG, ...) under its name. Every image Greenshot can open is a stamp: PNG, SVG, ICO, JPG, GIF, BMP, TIFF, WebP and the others the editor opens.
 An SVG stays a vector element in the editor, it stays sharp when it is resized.
@@ -60,11 +61,13 @@ Files copied into the folder by hand show up too, named after the file and witho
   "stamps": {
     "check.svg": { "name": "Done", "tags": [ "green", "ok" ] },
     "Logos/company.png": { "name": "Company", "tags": [ "logo" ] }
-  }
+  },
+  "tags": [ "green", "logo", "ok", "sticker" ]
 }
 ```
 
-The key is the path of the file in the folder, with `/` between sub folders. A change reads the file again before it writes
+The key is the path of the file in the folder, with `/` between sub folders. `tags` is the list of tags to choose from,
+also those no stamp has yet; a tag a stamp has is always in it. A change reads the file again before it writes
 it, so in a shared folder the changes of the others are kept.
 
 ---

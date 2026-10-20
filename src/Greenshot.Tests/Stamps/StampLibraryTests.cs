@@ -107,7 +107,7 @@ namespace Greenshot.Tests.Stamps
             CreateFile("check.png");
             var library = Load();
 
-            library.Update(library.Stamps[0], "  ", null);
+            library.Update(library.Stamps[0], "  ", (string)null);
 
             Assert.Equal("check", Load().Stamps[0].Name);
         }
@@ -326,6 +326,40 @@ namespace Greenshot.Tests.Stamps
             library.Move(library.Stamps[0], "");
 
             Assert.Equal("check.png", Assert.Single(Load().Stamps).Key);
+        }
+
+        [Fact]
+        public void Tags_AreTheListAndTheTagsOfTheStamps_EachOnce()
+        {
+            CreateFile("check.png");
+            var library = Load();
+            library.Update(library.Stamps[0], "Done", "ok, Green");
+
+            library.AddTag("arrow");
+            library.AddTag("GREEN");
+
+            Assert.Equal(new[] { "arrow", "Green", "ok" }, Load().Tags);
+        }
+
+        [Fact]
+        public void AddTag_IsKeptInStampsJson_WithoutAStamp()
+        {
+            var library = Load();
+
+            Assert.Equal("red arrow", library.AddTag("  red,arrow "));
+            Assert.Null(library.AddTag(" ; "));
+
+            Assert.Equal(new[] { "red arrow" }, Load().Tags);
+        }
+
+        [Fact]
+        public void AddTag_WhichExists_KeepsItsSpelling()
+        {
+            var library = Load();
+            library.AddTag("Logo");
+
+            Assert.Equal("Logo", library.AddTag("logo"));
+            Assert.Equal(new[] { "Logo" }, Load().Tags);
         }
     }
 }

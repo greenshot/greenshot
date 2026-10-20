@@ -20,6 +20,8 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Media;
@@ -66,22 +68,19 @@ public sealed class StampViewModel : INotifyPropertyChanged
         set
         {
             if (value == Stamp.Name) return;
-            _owner.Update(this, value, TagsText);
+            _owner.Update(this, value, Stamp.Tags);
         }
     }
 
     /// <summary>
-    /// The tags separated by commas, a change is saved in stamps.json
+    /// The tags separated by commas
     /// </summary>
-    public string TagsText
-    {
-        get => StampLibrary.FormatTags(Stamp.Tags);
-        set
-        {
-            if (value == TagsText) return;
-            _owner.Update(this, Name, value);
-        }
-    }
+    public string TagsText => StampLibrary.FormatTags(Stamp.Tags);
+
+    /// <summary>
+    /// The tags as pills
+    /// </summary>
+    public IReadOnlyList<TagViewModel> TagPills => Stamp.Tags.Select(tag => new TagViewModel(tag)).ToList();
 
     /// <summary>
     /// The category: the folder in the stamps folder, empty for none. A change moves the file.
@@ -152,6 +151,7 @@ public sealed class StampViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(CategoryName));
         OnPropertyChanged(nameof(Name));
         OnPropertyChanged(nameof(TagsText));
+        OnPropertyChanged(nameof(TagPills));
         OnPropertyChanged(nameof(Description));
     }
 

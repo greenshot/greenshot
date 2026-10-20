@@ -17,6 +17,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/DialogStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/PillStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
@@ -37,6 +38,7 @@
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -51,8 +53,46 @@
                          Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                          PreviewKeyDown="SearchBox_PreviewKeyDown"/>
 
+                <!-- The tag filter: only the stamps with all these tags are shown -->
+                <Label x:Name="FilterLabel" Grid.Row="1" Grid.Column="0" Content="{wpf:Text Stamps.Filter}" Margin="0,6,8,0" VerticalAlignment="Top"/>
+                <WrapPanel Grid.Row="1" Grid.Column="1" Margin="0,6,0,0">
+                    <ItemsControl ItemsSource="{Binding FilterTags}" Focusable="False"
+                                  AutomationProperties.LabeledBy="{Binding ElementName=FilterLabel}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource PillStyle}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                        <Button Style="{StaticResource RemoveEntryButtonStyle}" Margin="4,0,0,0"
+                                                AutomationProperties.Name="{Binding RemoveName, TargetNullValue=''}"
+                                                Click="RemoveFilterTag_Click"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <Button x:Name="AddFilterTagButton" Style="{StaticResource AddPillButtonStyle}"
+                            ToolTip="{wpf:Text Stamps.AddFilterTag}" AutomationProperties.Name="{wpf:Text Stamps.AddFilterTag}"
+                            Click="AddFilterTag_Click"/>
+                    <Button Content="{wpf:Text Stamps.ClearFilter}" Style="{StaticResource SecondaryTextButtonStyle}" Margin="0,0,6,6"
+                            VerticalAlignment="Center" Click="ClearFilter_Click">
+                        <Button.Visibility>
+                            <Binding Path="HasFilterTags">
+                                <Binding.Converter>
+                                    <BooleanToVisibilityConverter/>
+                                </Binding.Converter>
+                            </Binding>
+                        </Button.Visibility>
+                    </Button>
+                </WrapPanel>
+
                 <!-- The stamps grouped by category, one tab stop: the arrow keys move between them -->
-                <ListBox x:Name="StampList" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,8,0,8"
+                <ListBox x:Name="StampList" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,8,0,8"
                          Style="{StaticResource ThemeListBox}"
                          ItemContainerStyle="{StaticResource ThemeListBoxItem}"
                          ItemsSource="{Binding Stamps}"
@@ -112,7 +152,7 @@
                 </ListBox>
 
                 <!-- No stamps yet, or none matches the search -->
-                <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="16"
+                <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="16"
                            Text="{Binding EmptyText}" TextWrapping="Wrap"
                            HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"
                            IsHitTestVisible="False"
@@ -128,18 +168,10 @@
                     </TextBlock.Style>
                 </TextBlock>
 
-                <Label Grid.Row="2" Grid.Column="0" Content="{wpf:Text Stamps.Name}" Margin="0,0,8,0" Target="{Binding ElementName=NameBox}"/>
-                <TextBox x:Name="NameBox" Grid.Row="2" Grid.Column="1"
+                <Label Grid.Row="3" Grid.Column="0" Content="{wpf:Text Stamps.Name}" Margin="0,0,8,0" Target="{Binding ElementName=NameBox}"/>
+                <TextBox x:Name="NameBox" Grid.Row="3" Grid.Column="1"
                          Text="{Binding SelectedStamp.Name, UpdateSourceTrigger=LostFocus}"
                          IsEnabled="{Binding HasSelection}"
-                         KeyDown="DetailsBox_KeyDown"/>
-
-                <Label Grid.Row="3" Grid.Column="0" Content="{wpf:Text Stamps.Tags}" Margin="0,6,8,0" Target="{Binding ElementName=TagsBox}"/>
-                <TextBox x:Name="TagsBox" Grid.Row="3" Grid.Column="1" Margin="0,6,0,0"
-                         Text="{Binding SelectedStamp.TagsText, UpdateSourceTrigger=LostFocus}"
-                         IsEnabled="{Binding HasSelection}"
-                         ToolTip="{wpf:Text Stamps.TagsHint}"
-                         AutomationProperties.HelpText="{wpf:Text Stamps.TagsHint}"
                          KeyDown="DetailsBox_KeyDown"/>
 
                 <Label Grid.Row="4" Grid.Column="0" Content="{wpf:Text Stamps.Category}" Margin="0,6,8,0" Target="{Binding ElementName=CategoryBox}"/>
@@ -153,7 +185,36 @@
                           KeyDown="DetailsBox_KeyDown"
                           DropDownClosed="CategoryBox_DropDownClosed"/>
 
-                <WrapPanel Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,10,0,0">
+                <!-- The tags of the selected stamp, added from the list of tags -->
+                <Label x:Name="TagsLabel" Grid.Row="5" Grid.Column="0" Content="{wpf:Text Stamps.Tags}" Margin="0,6,8,0" VerticalAlignment="Top"/>
+                <WrapPanel Grid.Row="5" Grid.Column="1" Margin="0,6,0,0" IsEnabled="{Binding HasSelection}">
+                    <ItemsControl ItemsSource="{Binding SelectedStamp.TagPills}" Focusable="False"
+                                  AutomationProperties.LabeledBy="{Binding ElementName=TagsLabel}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource PillStyle}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                        <Button Style="{StaticResource RemoveEntryButtonStyle}" Margin="4,0,0,0"
+                                                AutomationProperties.Name="{Binding RemoveName, TargetNullValue=''}"
+                                                Click="RemoveStampTag_Click"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <Button x:Name="AddStampTagButton" Style="{StaticResource AddPillButtonStyle}"
+                            ToolTip="{wpf:Text Stamps.AddTag}" AutomationProperties.Name="{wpf:Text Stamps.AddTag}"
+                            Click="AddStampTag_Click"/>
+                </WrapPanel>
+
+                <!-- What can be done with the selected stamp -->
+                <WrapPanel Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,10,0,0">
                     <Button Content="{wpf:Text Stamps.Insert}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,6,6"
                             IsEnabled="{Binding CanInsert}" ToolTip="{Binding InsertToolTip}" ToolTipService.ShowOnDisabled="True"
                             Click="Insert_Click"/>
@@ -165,16 +226,50 @@
                             Click="Delete_Click"/>
                 </WrapPanel>
 
-                <WrapPanel Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2">
-                    <Button Content="{wpf:Text Stamps.Add}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,6,6" Click="Add_Click"/>
-                    <Button Content="{wpf:Text Stamps.Paste}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,6,6" Click="Paste_Click"/>
-                    <Button Content="{wpf:Text Stamps.OpenFolder}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,6,6" Click="OpenFolder_Click"/>
-                </WrapPanel>
+                <!-- The stamps folder: apart from the buttons of the selected stamp -->
+                <Border Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,4,0,0" Padding="0,10,0,0" BorderThickness="0,1,0,0"
+                        BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}">
+                    <WrapPanel>
+                        <Button Content="{wpf:Text Stamps.Add}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,6,6" Click="Add_Click"/>
+                        <Button Content="{wpf:Text Stamps.Paste}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,6,6" Click="Paste_Click"/>
+                        <Button Content="{wpf:Text Stamps.OpenFolder}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,6,6" Click="OpenFolder_Click"/>
+                    </WrapPanel>
+                </Border>
 
-                <TextBlock Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,4,0,0"
+                <TextBlock Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,4,0,0"
                            Text="{Binding StatusText}" TextWrapping="Wrap"
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
                            wpf:LiveRegion.Mode="Polite"/>
+
+                <!-- The tags to choose from, for the filter or the selected stamp; for the stamp a new tag can be added to the list -->
+                <Popup x:Name="TagPopup" Placement="Bottom" StaysOpen="False" AllowsTransparency="True" Opened="TagPopup_Opened">
+                    <Border Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"
+                            BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
+                            BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,4,0,0" Width="240">
+                        <StackPanel>
+                            <ListBox x:Name="TagChoices" MaxHeight="220"
+                                     Style="{StaticResource ThemeListBox}"
+                                     ItemContainerStyle="{StaticResource ThemeListBoxItem}"
+                                     AutomationProperties.Name="{wpf:Text Stamps.TagList}"
+                                     KeyDown="TagChoices_KeyDown"
+                                     PreviewMouseLeftButtonUp="TagChoices_PreviewMouseLeftButtonUp"/>
+                            <TextBlock x:Name="NoTagsText" TextWrapping="Wrap" Margin="0,0,0,4" Visibility="Collapsed"
+                                       Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                            <StackPanel x:Name="NewTagPanel" Margin="0,8,0,0">
+                                <Label Content="{wpf:Text Stamps.NewTag}" Target="{Binding ElementName=NewTagBox}" Padding="0,0,0,3"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox x:Name="NewTagBox" KeyDown="NewTagBox_KeyDown"/>
+                                    <Button Grid.Column="1" Content="{wpf:Text Stamps.NewTagAdd}" Style="{StaticResource SecondaryButtonStyle}" Margin="6,0,0,0"
+                                            Click="NewTag_Click"/>
+                                </Grid>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </Popup>
             </Grid>
         </Grid>
     </Border>

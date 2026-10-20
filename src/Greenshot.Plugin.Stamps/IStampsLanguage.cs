@@ -113,9 +113,55 @@ namespace Greenshot.Plugin.Stamps
         string Tags { get; }
 
         /// <summary>
-        /// Separate the tags with commas.
+        /// Filter:
         /// </summary>
-        string TagsHint { get; }
+        string Filter { get; }
+
+        /// <summary>
+        /// Show only the stamps with a tag
+        /// </summary>
+        string AddFilterTag { get; }
+
+        /// <summary>
+        /// Clear all
+        /// </summary>
+        string ClearFilter { get; }
+
+        /// <summary>
+        /// Add a tag to the stamp
+        /// </summary>
+        string AddTag { get; }
+
+        /// <summary>
+        /// Remove the tag {0}
+        /// </summary>
+        string RemoveTag { get; }
+
+        /// <summary>
+        /// Tags
+        /// </summary>
+        string TagList { get; }
+
+        /// <summary>
+        /// No tags yet: give stamps tags first.
+        /// </summary>
+        string NoTagsFilter { get; }
+
+        /// <summary>
+        /// No other tags in the list yet. Add a new one:
+        /// </summary>
+        string NoTagsStamp { get; }
+
+        /// <summary>
+        /// New tag:
+        /// </summary>
+        string NewTag { get; }
+
+        /// <summary>
+        /// Add to the list
+        /// </summary>
+        string NewTagAdd { get; }
+
 
         /// <summary>
         /// Category:

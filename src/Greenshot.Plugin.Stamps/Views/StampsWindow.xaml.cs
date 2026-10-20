@@ -56,6 +56,8 @@ public partial class StampsWindow : Window
     private Point _dragStart;
     private bool _dragging;
     private bool _canDrop;
+    // The popup with the tags is for the filter, else for the selected stamp
+    private bool _tagPopupForFilter;
 
     internal StampsWindow(StampsViewModel viewModel)
     {
@@ -139,7 +141,16 @@ public partial class StampsWindow : Window
         switch (e.Key)
         {
             case Key.Escape:
-                Close();
+                // Esc closes the list of tags first
+                if (TagPopup.IsOpen)
+                {
+                    CloseTagPopup();
+                }
+                else
+                {
+                    Close();
+                }
+
                 e.Handled = true;
                 break;
             case Key.F when control:
@@ -495,6 +506,135 @@ public partial class StampsWindow : Window
         }
 
         return null;
+    }
+
+    private void AddFilterTag_Click(object sender, RoutedEventArgs e) => OpenTagPopup(forFilter: true);
+
+    private void AddStampTag_Click(object sender, RoutedEventArgs e) => OpenTagPopup(forFilter: false);
+
+    private void RemoveFilterTag_Click(object sender, RoutedEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.DataContext is TagViewModel tag)
+        {
+            ViewModel.RemoveFilterTag(tag);
+            // The pill is gone, the keyboard goes to the "+" of the row
+            AddFilterTagButton.Focus();
+        }
+    }
+
+    private void RemoveStampTag_Click(object sender, RoutedEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.DataContext is TagViewModel tag)
+        {
+            ViewModel.RemoveTag(ViewModel.SelectedStamp, tag);
+            AddStampTagButton.Focus();
+        }
+    }
+
+    private void ClearFilter_Click(object sender, RoutedEventArgs e)
+    {
+        ViewModel.ClearFilterTags();
+        AddFilterTagButton.Focus();
+    }
+
+    /// <summary>
+    /// Show the tags of the list which can be added, under the "+" which was used
+    /// </summary>
+    private void OpenTagPopup(bool forFilter)
+    {
+        _tagPopupForFilter = forFilter;
+        var tags = forFilter ? ViewModel.AvailableFilterTags : ViewModel.AvailableTagsFor(ViewModel.SelectedStamp);
+        TagChoices.ItemsSource = tags;
+        TagChoices.Visibility = tags.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        NoTagsText.Text = forFilter ? StampsTexts.NoTagsFilter : StampsTexts.NoTagsStamp;
+        NoTagsText.Visibility = tags.Count > 0 ? Visibility.Collapsed : Visibility.Visible;
+        // A new tag is added to the list for a stamp, a filter only takes the tags which are there
+        NewTagPanel.Visibility = forFilter ? Visibility.Collapsed : Visibility.Visible;
+        NewTagBox.Clear();
+        TagPopup.PlacementTarget = forFilter ? AddFilterTagButton : AddStampTagButton;
+        TagPopup.IsOpen = true;
+    }
+
+    /// <summary>
+    /// The keyboard goes to the first tag, or to the new tag when the list has none
+    /// </summary>
+    private void TagPopup_Opened(object sender, EventArgs e)
+    {
+        if (TagChoices.Items.Count > 0)
+        {
+            TagChoices.SelectedIndex = 0;
+            TagChoices.UpdateLayout();
+            (TagChoices.ItemContainerGenerator.ContainerFromIndex(0) as ListBoxItem)?.Focus();
+        }
+        else if (NewTagPanel.IsVisible)
+        {
+            NewTagBox.Focus();
+        }
+        else
+        {
+            NoTagsText.Focusable = true;
+            NoTagsText.Focus();
+        }
+    }
+
+    private void CloseTagPopup()
+    {
+        TagPopup.IsOpen = false;
+        (_tagPopupForFilter ? AddFilterTagButton : AddStampTagButton).Focus();
+    }
+
+    private void TagChoices_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter && TagChoices.SelectedItem is string tag)
+        {
+            ChooseTag(tag);
+            e.Handled = true;
+        }
+    }
+
+    private void TagChoices_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        if (e.OriginalSource is DependencyObject element && (ItemsControl.ContainerFromElement(TagChoices, element) as ListBoxItem)?.DataContext is string tag)
+        {
+            ChooseTag(tag);
+            e.Handled = true;
+        }
+    }
+
+    private void NewTagBox_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter)
+        {
+            AddNewTag();
+            e.Handled = true;
+        }
+    }
+
+    private void NewTag_Click(object sender, RoutedEventArgs e) => AddNewTag();
+
+    /// <summary>
+    /// The new tag goes into the list of tags and to the selected stamp
+    /// </summary>
+    private void AddNewTag()
+    {
+        if (ViewModel.CreateTag(NewTagBox.Text) is { } tag)
+        {
+            ChooseTag(tag);
+        }
+    }
+
+    private void ChooseTag(string tag)
+    {
+        if (_tagPopupForFilter)
+        {
+            ViewModel.AddFilterTag(tag);
+        }
+        else
+        {
+            ViewModel.AddTag(ViewModel.SelectedStamp, tag);
+        }
+
+        CloseTagPopup();
     }
 
     private void Insert_Click(object sender, RoutedEventArgs e) => ViewModel.Insert(ViewModel.SelectedStamp);

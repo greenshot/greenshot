@@ -61,7 +61,7 @@ public sealed class StampsViewModel : INotifyPropertyChanged
         Library = library ?? throw new ArgumentNullException(nameof(library));
         _activeEditor = activeEditor ?? throw new ArgumentNullException(nameof(activeEditor));
         Stamps = CollectionViewSource.GetDefaultView(_items);
-        Stamps.Filter = item => ((StampViewModel)item).Stamp.Matches(_searchText);
+        Stamps.Filter = item => ((StampViewModel)item).Stamp.Matches(_searchText) && HasFilterTagsOf(((StampViewModel)item).Stamp);
         // The stamps without category first, as "General"
         Stamps.SortDescriptions.Add(new SortDescription(nameof(StampViewModel.Category), ListSortDirection.Ascending));
         Stamps.SortDescriptions.Add(new SortDescription(nameof(StampViewModel.Name), ListSortDirection.Ascending));
@@ -78,6 +78,97 @@ public sealed class StampsViewModel : INotifyPropertyChanged
     /// The stamps which match the search
     /// </summary>
     public ICollectionView Stamps { get; }
+
+    /// <summary>
+    /// The tags of the filter: only the stamps which have all of them are shown
+    /// </summary>
+    public ObservableCollection<TagViewModel> FilterTags { get; } = new();
+
+    public bool HasFilterTags => FilterTags.Count > 0;
+
+    /// <summary>
+    /// The tags which can be added to the filter
+    /// </summary>
+    internal IReadOnlyList<string> AvailableFilterTags =>
+        Library.Tags.Where(tag => !FilterTags.Any(filter => string.Equals(filter.Name, tag, StringComparison.CurrentCultureIgnoreCase))).ToList();
+
+    /// <summary>
+    /// Show only the stamps which also have this tag
+    /// </summary>
+    internal void AddFilterTag(string tag)
+    {
+        if (string.IsNullOrEmpty(tag) || FilterTags.Any(filter => string.Equals(filter.Name, tag, StringComparison.CurrentCultureIgnoreCase)))
+        {
+            return;
+        }
+
+        FilterTags.Add(new TagViewModel(tag));
+        OnFilterTagsChanged();
+    }
+
+    internal void RemoveFilterTag(TagViewModel tag)
+    {
+        if (tag != null && FilterTags.Remove(tag))
+        {
+            OnFilterTagsChanged();
+        }
+    }
+
+    internal void ClearFilterTags()
+    {
+        if (FilterTags.Count == 0) return;
+        FilterTags.Clear();
+        OnFilterTagsChanged();
+    }
+
+    private void OnFilterTagsChanged()
+    {
+        OnPropertyChanged(nameof(HasFilterTags));
+        Stamps.Refresh();
+        ShowCount();
+    }
+
+    private bool HasFilterTagsOf(Stamp stamp) =>
+        FilterTags.All(filter => stamp.Tags.Contains(filter.Name, StringComparer.CurrentCultureIgnoreCase));
+
+    /// <summary>
+    /// The tags of the list which the stamp doesn't have yet
+    /// </summary>
+    internal IReadOnlyList<string> AvailableTagsFor(StampViewModel stamp) =>
+        stamp == null ? Array.Empty<string>() : Library.Tags.Where(tag => !stamp.Stamp.Tags.Contains(tag, StringComparer.CurrentCultureIgnoreCase)).ToList();
+
+    /// <summary>
+    /// Give the stamp a tag of the list
+    /// </summary>
+    internal void AddTag(StampViewModel stamp, string tag)
+    {
+        if (stamp == null || string.IsNullOrEmpty(tag)) return;
+        Update(stamp, stamp.Name, stamp.Stamp.Tags.Append(tag));
+    }
+
+    internal void RemoveTag(StampViewModel stamp, TagViewModel tag)
+    {
+        if (stamp == null || tag == null) return;
+        Update(stamp, stamp.Name, stamp.Stamp.Tags.Where(other => !string.Equals(other, tag.Name, StringComparison.CurrentCultureIgnoreCase)));
+    }
+
+    /// <summary>
+    /// Add a new tag to the list of tags
+    /// </summary>
+    /// <returns>the tag as it is in the list, null when it can't be added</returns>
+    internal string CreateTag(string tag)
+    {
+        try
+        {
+            return Library.AddTag(tag);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            Log.Warn("Can't add the tag to the list in stamps.json", ex);
+            StatusText = ex.Message;
+            return null;
+        }
+    }
 
     /// <summary>
     /// The categories which have stamps, offered for the category of the selected stamp
@@ -464,11 +555,8 @@ public sealed class StampsViewModel : INotifyPropertyChanged
         stamp.Refresh();
         // Into the group of its new category, still selected
         SetCollapsed(stamp.CategoryName, false);
-        Stamps.Refresh();
+        RefreshKeepingSelection(stamp);
         UpdateCategories();
-        // The refresh can take the selection of the list, set it again
-        SelectedStamp = null;
-        SelectedStamp = stamp;
         ShowCount();
     }
 
@@ -527,7 +615,7 @@ public sealed class StampsViewModel : INotifyPropertyChanged
     /// <summary>
     /// Save a new name or new tags of the stamp
     /// </summary>
-    internal void Update(StampViewModel stamp, string name, string tags)
+    internal void Update(StampViewModel stamp, string name, IEnumerable<string> tags)
     {
         try
         {
@@ -540,9 +628,19 @@ public sealed class StampsViewModel : INotifyPropertyChanged
         }
 
         stamp.Refresh();
-        // The search can match it now, or not anymore
-        Stamps.Refresh();
+        // The search and the tag filter can match it now, or not anymore
+        RefreshKeepingSelection(stamp);
         ShowCount();
+    }
+
+    /// <summary>
+    /// Filter, sort and group again; the refresh can take the selection of the list, so the stamp is selected again when it is still shown
+    /// </summary>
+    private void RefreshKeepingSelection(StampViewModel stamp)
+    {
+        Stamps.Refresh();
+        SelectedStamp = null;
+        SelectedStamp = Stamps.Cast<StampViewModel>().Contains(stamp) ? stamp : null;
     }
 
     private void ShowAdded(Stamp stamp)

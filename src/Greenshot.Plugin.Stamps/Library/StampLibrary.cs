@@ -47,6 +47,7 @@ public sealed class StampLibrary
     private static readonly char[] TagSeparators = { ',', ';' };
     private readonly HashSet<string> _extensions;
     private List<Stamp> _stamps = new();
+    private List<string> _listedTags = new();
 
     /// <param name="directory">the stamps folder, created when the first stamp is added</param>
     /// <param name="extensions">the extensions of the files which are stamps, with the dot</param>
@@ -78,6 +79,13 @@ public sealed class StampLibrary
         _stamps.Select(stamp => stamp.Category).Where(category => category.Length > 0)
             .Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(category => category, StringComparer.CurrentCultureIgnoreCase).ToList();
 
+    /// <summary>
+    /// The tags to choose from: the list of tags in stamps.json and the tags the stamps have, each once, sorted
+    /// </summary>
+    public IReadOnlyList<string> Tags =>
+        _listedTags.Concat(_stamps.SelectMany(stamp => stamp.Tags))
+            .Distinct(StringComparer.CurrentCultureIgnoreCase).OrderBy(tag => tag, StringComparer.CurrentCultureIgnoreCase).ToList();
+
     private string IndexPath => Path.Combine(Directory, IndexFileName);
 
     /// <summary>
@@ -104,6 +112,7 @@ public sealed class StampLibrary
         }
 
         _stamps = Sort(stamps);
+        _listedTags = index.Tags.ToList();
     }
 
     /// <summary>
@@ -158,16 +167,65 @@ public sealed class StampLibrary
     /// <param name="stamp">Stamp</param>
     /// <param name="name">the new name, empty for the file name</param>
     /// <param name="tags">the tags as the user enters them, see <see cref="ParseTags"/></param>
-    public void Update(Stamp stamp, string name, string tags)
+    public void Update(Stamp stamp, string name, string tags) => Update(stamp, name, ParseTags(tags));
+
+    /// <summary>
+    /// Change the name and the tags of the stamp, a tag which isn't in the list of tags yet is added to it
+    /// </summary>
+    /// <param name="stamp">Stamp</param>
+    /// <param name="name">the new name, empty for the file name</param>
+    /// <param name="tags">the tags</param>
+    public void Update(Stamp stamp, string name, IEnumerable<string> tags)
     {
         if (stamp == null) throw new ArgumentNullException(nameof(stamp));
 
         stamp.Name = string.IsNullOrWhiteSpace(name) ? Path.GetFileNameWithoutExtension(stamp.FullPath) : name.Trim();
-        stamp.Tags = ParseTags(tags);
+        stamp.Tags = NormalizeTags(tags);
         var index = ReadIndex();
         index.Stamps[stamp.Key] = new StampEntry { Name = stamp.Name, Tags = stamp.Tags.ToList() };
+        AddToList(index, stamp.Tags);
         WriteIndex(index);
+        _listedTags = index.Tags.ToList();
         _stamps = Sort(_stamps);
+    }
+
+    /// <summary>
+    /// Add a tag to the list of tags, so it can be chosen for stamps
+    /// </summary>
+    /// <param name="tag">the tag, trimmed; commas and semicolons can't be in it</param>
+    /// <returns>the tag as it is in the list (an existing one keeps its spelling), null when it is empty</returns>
+    public string AddTag(string tag)
+    {
+        tag = NormalizeTags(new[] { tag?.Replace(',', ' ').Replace(';', ' ') }).FirstOrDefault();
+        if (tag == null)
+        {
+            return null;
+        }
+
+        var existing = Tags.FirstOrDefault(other => string.Equals(other, tag, StringComparison.CurrentCultureIgnoreCase));
+        if (existing != null)
+        {
+            return existing;
+        }
+
+        var index = ReadIndex();
+        AddToList(index, new[] { tag });
+        WriteIndex(index);
+        _listedTags = index.Tags.ToList();
+        return tag;
+    }
+
+    private static void AddToList(StampIndex index, IEnumerable<string> tags)
+    {
+        foreach (string tag in tags)
+        {
+            if (!index.Tags.Contains(tag, StringComparer.CurrentCultureIgnoreCase))
+            {
+                index.Tags.Add(tag);
+            }
+        }
+
+        index.Tags.Sort(StringComparer.CurrentCultureIgnoreCase);
     }
 
     /// <summary>
@@ -299,7 +357,11 @@ public sealed class StampLibrary
                 var index = JsonConvert.DeserializeObject<StampIndex>(File.ReadAllText(IndexPath, Encoding.UTF8));
                 if (index?.Stamps != null)
                 {
-                    return new StampIndex { Stamps = new Dictionary<string, StampEntry>(index.Stamps, StringComparer.OrdinalIgnoreCase) };
+                    return new StampIndex
+                    {
+                        Stamps = new Dictionary<string, StampEntry>(index.Stamps, StringComparer.OrdinalIgnoreCase),
+                        Tags = NormalizeTags(index.Tags).ToList()
+                    };
                 }
             }
         }
@@ -344,6 +406,12 @@ public sealed class StampLibrary
 
         [JsonProperty("stamps")]
         public Dictionary<string, StampEntry> Stamps { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// The tags to choose from, also those no stamp has (yet)
+        /// </summary>
+        [JsonProperty("tags")]
+        public List<string> Tags { get; set; } = new();
     }
 
     private sealed class StampEntry
