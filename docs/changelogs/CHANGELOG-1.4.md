@@ -154,6 +154,10 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Renamed OCR feature for clarity
 - By @danrhodes
 
+**Plugin Start**
+- The tray icon is there before the plugins start, they no longer hold up the start of Greenshot
+- A plugin which fails to start is switched off completely, it no longer leaves destinations behind which don't work
+
 #### 🖼️ Image Format Support
 
 **ImageSharp Integration** (#921)

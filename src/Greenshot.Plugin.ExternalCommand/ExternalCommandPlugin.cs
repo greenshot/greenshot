@@ -96,9 +96,8 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRec
         string commandline = FilenameHelper.FillVariables(ExternalCommandConfig.Commandline[command], true);
         commandline = FilenameHelper.FillCmdVariables(commandline, true);
 
-        if (!File.Exists(commandline) &&
-            PluginUtils.GetExePath(commandline) == null &&
-            WindowsAppHelper.FindPackage(commandline, command) == null)
+        // The command line is started as a process: it is a file, or a program on the PATH (also an App Execution Alias of a Windows App)
+        if (!File.Exists(commandline) && PluginUtils.GetExePath(commandline) == null)
         {
             Log.WarnFormat("The program {0} of the command {1} isn't found, the command is left out until the next start", ExternalCommandConfig.Commandline[command], command);
             return false;
