@@ -61,11 +61,10 @@ namespace Greenshot.Base.Core
         // Initialize Log4J
         public static string InitializeLog4Net()
         {
-            // Setup log4j, currently the file is called log4net.xml. Only the first file found: the portable one, else log4net.xml
-            // (configuring both added the appenders of both, the portable one was the one meant)
+            // Setup log4j, currently the file is called log4net.xml
             foreach (var logName in new[]
             {
-                @"App\Greenshot\log4net-portable.xml", "log4net.xml"
+                "log4net.xml", @"App\Greenshot\log4net-portable.xml"
             })
             {
                 string log4NetFilename = Path.Combine(Application.StartupPath, logName);
@@ -75,7 +74,6 @@ namespace Greenshot.Base.Core
                     {
                         XmlConfigurator.Configure(new FileInfo(log4NetFilename));
                         _isLog4NetConfigured = true;
-                        break;
                     }
                     catch (Exception ex)
                     {
