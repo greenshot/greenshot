@@ -85,6 +85,8 @@ flowchart TD
 
 ## For administrators
 
+These keys only matter for plugins in a folder the user can change; plugins under Program Files load without the check.
+
 | Key | What it does |
 |---|---|
 | `PluginApprovedHashes` | SHA-256 of plugins which aren't signed like Greenshot.exe but may load. In greenshot-fixed.ini, users can't approve others. |

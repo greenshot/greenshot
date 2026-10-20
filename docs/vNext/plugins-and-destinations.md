@@ -8,7 +8,9 @@ the settings, nobody has to type them by hand.
 
 - **Plugins tab:** each plugin has a check box. The list shows the loaded plugins, the installed plugins which are switched off,
   and the names the settings mention. A plugin which isn't installed can be added by its name (see [the known names](#known-names)),
-  e.g. to block it before it is installed. A change applies at the next start of Greenshot.
+  e.g. to block it before it is installed. A change applies at the next start of Greenshot. Each loaded plugin shows who signed it,
+  in green with a check mark when it is the certificate of Greenshot.exe; see [plugin-loading.md](plugin-loading.md) for the
+  signature check.
 - **Destinations tab:** the *Available* column switches a destination on or off, a destination which is off isn't offered anywhere
   (tray menu, picker, editor, recipes). A destination which isn't there, e.g. of a plugin which isn't installed, can be added by its
   name too. The change applies when the settings are saved.
