@@ -583,7 +583,7 @@
                                       Margin="5" DockPanel.Dock="Top"/>
                             <!-- Which destinations can be used, greenshot-fixed.ini makes it a restriction -->
                             <DockPanel DockPanel.Dock="Bottom" Margin="5" LastChildFill="False">
-                                <Button DockPanel.Dock="Right" Content="{wpf:Text Settings.RestrictForAllUsers}" Style="{StaticResource SecondaryButtonStyle}" Click="AdministratorSettings_Click"/>
+                                <Button DockPanel.Dock="Right" Content="{wpf:Text Settings.BlockDestinations}" Style="{StaticResource SecondaryButtonStyle}" Click="AdministratorSettings_Click"/>
                                 <TextBlock DockPanel.Dock="Left" Text="{wpf:Text Settings.SetByAdministrator}" VerticalAlignment="Center" TextWrapping="Wrap"
                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
                                            Visibility="{Binding AreDestinationExclusionsFixed, Converter={StaticResource BooleanToVisibilityConverter}}"/>

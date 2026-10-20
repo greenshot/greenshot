@@ -26,7 +26,7 @@
 
         <!-- Which plugins are loaded at the next start, greenshot-fixed.ini makes it a restriction -->
         <DockPanel Grid.Row="1" Grid.ColumnSpan="3" Margin="0,8,0,0" LastChildFill="False">
-            <Button DockPanel.Dock="Right" Content="{wpf:Text Settings.RestrictForAllUsers}" Style="{StaticResource SecondaryButtonStyle}" Click="AdministratorSettings_Click"/>
+            <Button DockPanel.Dock="Right" Content="{wpf:Text Settings.BlockPlugins}" Style="{StaticResource SecondaryButtonStyle}" Click="AdministratorSettings_Click"/>
             <StackPanel DockPanel.Dock="Left" VerticalAlignment="Center">
                 <TextBlock Text="{wpf:Text Settings.PluginsRestart}" TextWrapping="Wrap"
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>

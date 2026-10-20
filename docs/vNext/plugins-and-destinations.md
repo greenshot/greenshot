@@ -19,7 +19,7 @@ capture skips it; when none of them is there, the capture opens in the editor.
 ## For administrators: greenshot-fixed.ini
 
 1. Check what you want to allow in the settings.
-2. Click **Restrict for all users…** (on the Plugins or the Destinations tab) and choose one of:
+2. Click **Block plugins…** on the Plugins tab or **Block destinations…** on the Destinations tab (both open the same window) and choose one of:
    - *Block what isn't checked*: writes the blocked plugins and destinations, everything else can be used.
    - *Allow only what is checked*: writes the allowed plugins and destinations, everything else is blocked, also plugins and
      destinations nobody knows yet.

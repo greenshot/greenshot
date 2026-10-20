@@ -277,9 +277,14 @@ namespace Greenshot.Base.Languages
         string SetByAdministrator { get; }
 
         /// <summary>
-        /// Restrict for all users…
+        /// Block plugins…
         /// </summary>
-        string RestrictForAllUsers { get; }
+        string BlockPlugins { get; }
+
+        /// <summary>
+        /// Block destinations…
+        /// </summary>
+        string BlockDestinations { get; }
 
         /// <summary>
         /// Restrict for all users (greenshot-fixed.ini)
