@@ -17,8 +17,11 @@ flowchart TD
     G -- hold back --> H["Not loaded, asked after the start"]
     L --> C["ConfigureServices: settings sections,<br/>destinations, settings views"]
     C --> D["Register what needs the settings<br/>(recipe steps when recipes are on)"]
-    D --> T["StartAsync, with a time limit"]
+    D --> T["StartAsync after the tray icon,<br/>one plugin after the other on the UI thread"]
     T --> RUN["Plugin runs"]
+    C -- fails --> OFF["Removed again with everything it registered"]
+    D -- fails --> OFF
+    T -- "fails or times out" --> OFF
     H --> Q["Question after the tray icon is shown"]
 ```
 
@@ -29,7 +32,9 @@ flowchart TD
 3. **Signature check:** see below.
 4. **Load and register:** the DLL is loaded and the plugin registers its settings sections (filled from the already read
    greenshot.ini), destinations, settings views and recipe steps.
-5. **Start:** each plugin starts with a time limit; a plugin which fails is logged.
+5. **Start:** after the tray icon is shown, the plugins start one after the other on the UI thread, which handles its messages
+   between them. A plugin which fails to register or start (or doesn't start within its time limit) is logged and removed again
+   with everything it registered: services, settings views, recipe steps and drawables.
 
 ## The signature check
 
