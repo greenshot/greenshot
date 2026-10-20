@@ -111,7 +111,7 @@ namespace Greenshot.Settings.ViewModels
                     {
                         var assembly = plugin.GetType().Assembly;
                         var company = assembly.GetCustomAttribute<AssemblyCompanyAttribute>()?.Company ?? string.Empty;
-                        var version = assembly.GetName().Version?.ToString() ?? string.Empty;
+                        var version = EnvironmentInfo.GetVersion(assembly);
                         var location = assembly.Location ?? string.Empty;
 
                         items.Add(new PluginViewModel
