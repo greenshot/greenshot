@@ -5,6 +5,7 @@
 #   App\Greenshot                      Greenshot Light (prepare-portable.ps1 -Light -PortableApps)
 #   Data\Settings, Data\Greenshot      greenshot.ini and the log, created by Greenshot (see docs/vNext/portable.md)
 # The PortableApps.com Launcher and Installer are downloaded once into ToolsPath (pinned versions, SHA-256 checked) and extracted with 7-Zip.
+# With the environment variable CertumThumbprint (as for the release build and the installers) the launcher and the .paf.exe are signed.
 param(
     [Parameter(Mandatory=$true)]
     [string]$RepositoryRootPath,
@@ -88,8 +89,20 @@ $content = [System.IO.File]::ReadAllText($appInfo).Replace("@PACKAGEVERSION@", $
 $launcher = Get-Tool $Tools[0]
 Invoke-Tool "$launcher\PortableApps.comLauncherGenerator.exe" $package "$package\GreenshotPortable.exe" "$launcher\Data\PortableApps.comLauncherGeneratorLog.txt"
 
+# Signs what isn't signed yet: the launcher in the package, then the .paf.exe next to it
+function Invoke-Signing($directory) {
+    if ($env:CertumThumbprint) {
+        & "$RepositoryRootPath\src\Greenshot-Installer\scripts\sign-files.ps1" -OutputDir $directory -Thumbprint $env:CertumThumbprint
+        if ($LASTEXITCODE -ne 0) {
+            throw "Signing the files in $directory failed"
+        }
+    }
+}
+Invoke-Signing $package
+
 $installer = Get-Tool $Tools[1]
 $pafFile = Join-Path $OutputPath "GreenshotPortable_$displayVersion.paf.exe"
 Invoke-Tool "$installer\PortableApps.comInstaller.exe" $package $pafFile "$installer\Data\PortableApps.comInstallerLog.txt"
+Invoke-Signing $OutputPath
 
 Write-Host "Created $pafFile"

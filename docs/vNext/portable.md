@@ -55,7 +55,9 @@ An update keeps `Data`. An update of a Greenshot 1.x package removes the old `Gr
 3. downloads the PortableApps.com Launcher and Installer once (the versions and SHA-256 are in the script) and extracts them
    with 7-Zip,
 4. creates `GreenshotPortable.exe` with the Launcher Generator, then `GreenshotPortable_<version>.paf.exe` with the
-   PortableApps.com Installer.
+   PortableApps.com Installer. With the environment variable `CertumThumbprint`, which also signs the release build and
+   the installers, both are signed with `sign-files.ps1`. The continuous builds on GitHub have no certificate, so their
+   package is unsigned, like the rest of their files.
 
 PortableApps.com asks that every release uses the current PortableApps.com Installer. When a new version comes out, update its
 version and SHA-256 in the script.
