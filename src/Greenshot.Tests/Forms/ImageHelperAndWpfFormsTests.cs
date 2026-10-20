@@ -221,9 +221,6 @@ namespace Greenshot.Tests.Forms
                 try
                 {
                     // Greenshot WPF windows
-                    var languageWindow = new Greenshot.Views.LanguageWindow();
-                    Assert.NotNull(languageWindow);
-
                     var printOptionsWindow = new Greenshot.Views.PrintOptionsWindow();
                     Assert.NotNull(printOptionsWindow);
 

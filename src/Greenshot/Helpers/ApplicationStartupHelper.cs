@@ -68,8 +68,9 @@ namespace Greenshot.Helpers
                 // Make sure the current hotkeys are disabled
                 HotkeyManager.UnregisterHotkeys();
                 IniConfigRegistry.Get().Reload();
+                // The language of the reloaded greenshot.ini, the texts and the open windows follow (LanguageChanged)
+                Texts.SetLanguage(IniConfigRegistry.GetSection<ICoreConfiguration>().Language);
                 var shell = SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true);
-                // Even update language when needed
                 shell?.UpdateUi();
                 // Update the hotkey
                 TriggerManager.Instance.RestartHotkeyTriggers();

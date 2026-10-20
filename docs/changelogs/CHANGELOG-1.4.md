@@ -339,6 +339,10 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Use Greenshot's UI language for date formatting in print footer
 - By @tsiakoulias
 
+**Language**
+- The first start uses the language of Windows instead of asking, the settings change it
+- `--reload` also switches to the language set in greenshot.ini
+
 #### 🔒 Security Improvements
 
 **TLS Protocol** (#814)
