@@ -428,6 +428,42 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
+        public void KeepOnly_RemovesTheRecordsOfOtherFiles()
+        {
+            WithTemporaryTrustStore(directory =>
+            {
+                string used = Path.Combine(directory, "used" + RecipeSerializer.RecipeFileExtension);
+                string unused = Path.Combine(directory, "unused" + RecipeSerializer.RecipeFileExtension);
+                File.WriteAllText(used, "{}");
+                File.WriteAllText(unused, "{}");
+                RecipeTrustStore.RecordApproval(used, RecipeTrustStore.ComputeSha256(used), new RecipeApproval { RecipeId = "used" });
+                RecipeTrustStore.RecordApproval(unused, RecipeTrustStore.ComputeSha256(unused), new RecipeApproval { RecipeId = "unused" });
+
+                RecipeTrustStore.KeepOnly(new[] { used });
+
+                Assert.NotNull(RecipeTrustStore.GetTrustRecord(used));
+                Assert.Null(RecipeTrustStore.GetTrustRecord(unused));
+            });
+        }
+
+        [Fact]
+        public void UnreadableTrustStore_IsKeptNextToIt()
+        {
+            WithTemporaryTrustStore(directory =>
+            {
+                string storeFile = Path.Combine(directory, "recipe_trust.dat");
+                File.WriteAllText(storeFile, "not encrypted");
+                // Reads the store again from the file
+                RecipeTrustStore.UseStoreFile(storeFile);
+
+                Assert.Null(RecipeTrustStore.GetTrustRecord(Path.Combine(directory, "any" + RecipeSerializer.RecipeFileExtension)));
+
+                Assert.False(File.Exists(storeFile));
+                Assert.Equal("not encrypted", File.ReadAllText(storeFile + ".unreadable"));
+            });
+        }
+
+        [Fact]
         public void RevokeRecipeApproval_RemovesOnlyThatRecipe_AndTheRecordWithTheLast()
         {
             WithTemporaryTrustStore(directory =>

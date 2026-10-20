@@ -51,10 +51,14 @@ namespace Greenshot.Base.Core
             }
         }
 
-        public static string GetGreenshotVersion(bool shortVersion = false)
-        {
-            var executingAssembly = Assembly.GetExecutingAssembly();
+        public static string GetGreenshotVersion(bool shortVersion = false) => GetVersion(Assembly.GetExecutingAssembly(), shortVersion);
 
+        /// <summary>
+        /// The version of an assembly as the build made it: the informational version (e.g. 1.4.123 - g1a2b3c4), the short one is
+        /// the file version (1.4.123). The assembly version alone only has major and minor (1.4.0.0).
+        /// </summary>
+        public static string GetVersion(Assembly executingAssembly, bool shortVersion = false)
+        {
             // Use assembly version
             string greenshotVersion = executingAssembly.GetName().Version.ToString();
 

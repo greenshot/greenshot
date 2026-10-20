@@ -55,6 +55,8 @@ namespace Greenshot.Recipes.Triggers
 
         private readonly Dictionary<string, ITrigger> _triggers = new Dictionary<string, ITrigger>(StringComparer.OrdinalIgnoreCase);
         private bool _disposed;
+        // The triggers only start with StartAll: a hotkey pressed while Greenshot starts would run a recipe before it is ready
+        private bool _started;
 
         public event EventHandler<TriggerEventArgs> TriggerFired;
 
@@ -101,6 +103,10 @@ namespace Greenshot.Recipes.Triggers
             InitializeDefaultTriggers();
             lock (_triggers)
             {
+                if (!_started)
+                {
+                    return;
+                }
                 foreach (var trigger in _triggers.Values.OfType<HotkeyTrigger>().Where(t => t.IsEnabled))
                 {
                     trigger.Start();
@@ -265,7 +271,7 @@ namespace Greenshot.Recipes.Triggers
 
                 _triggers[trigger.Id] = trigger;
                 trigger.Triggered += OnTriggerFired;
-                if (trigger.IsEnabled)
+                if (_started && trigger.IsEnabled)
                 {
                     trigger.Start();
                 }
@@ -298,6 +304,7 @@ namespace Greenshot.Recipes.Triggers
         {
             lock (_triggers)
             {
+                _started = true;
                 foreach (var trigger in _triggers.Values)
                 {
                     if (trigger.IsEnabled)
@@ -323,7 +330,7 @@ namespace Greenshot.Recipes.Triggers
         {
             TriggerFired?.Invoke(sender, e);
 
-            var recipeManager = SimpleServiceProvider.Current.GetInstance<IRecipeManager>() ?? RecipeManager.Instance;
+            var recipeManager = SimpleServiceProvider.Current.GetInstance<IRecipeManager>(isOptional: true) ?? RecipeManager.Instance;
             var recipe = recipeManager.GetRecipeById(e.TargetRecipeId);
 
             if (recipe != null)

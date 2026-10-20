@@ -120,7 +120,7 @@ namespace Greenshot.Base.Core.Export
 
         /// <summary>
         /// Save the source to a temporary file named after the configured filename pattern (used e.g. by the e-mail and Office exports),
-        /// the file is removed at exit.
+        /// the file is removed after a while or at exit (see ImageIO.RegisterTmpFile).
         /// </summary>
         public static async Task<string> SaveNamedTmpFileAsync(IExportSource source, ICaptureDetails captureDetails, SurfaceOutputSettings outputSettings, CancellationToken cancellationToken)
         {
@@ -136,7 +136,7 @@ namespace Greenshot.Base.Core.Export
             filename = Regex.Replace(filename, @"[^\d\w\.]", "_");
             // Remove multiple "_"
             filename = Regex.Replace(filename, @"_+", "_");
-            string tmpFile = Path.Combine(Path.GetTempPath(), filename);
+            string tmpFile = Path.Combine(ImageIO.GetTmpDirectory(), filename);
             Log.Debug("Creating TMP File: " + tmpFile);
             await SaveAsync(source, tmpFile, true, outputSettings, cancellationToken).ConfigureAwait(false);
             ImageIO.RegisterTmpFile(tmpFile);
@@ -144,7 +144,7 @@ namespace Greenshot.Base.Core.Export
         }
 
         /// <summary>
-        /// Save the source to a temporary file with a random name (e.g. for external commands), the file is removed at exit.
+        /// Save the source to a temporary file with a random name (e.g. for external commands), the file is removed after a while or at exit.
         /// </summary>
         public static async Task<string> SaveToTmpFileAsync(IExportSource source, SurfaceOutputSettings outputSettings, string destinationPath, CancellationToken cancellationToken)
         {

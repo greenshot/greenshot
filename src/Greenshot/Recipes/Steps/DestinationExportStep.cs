@@ -97,7 +97,7 @@ namespace Greenshot.Recipes.Steps
                 yield return new RecipeGatedAction(RecipeGateType.FileSystemAccess, $"Writes files to {saveDirectory}");
             }
 
-            var designations = ResolveDestinationDesignations(null);
+            var designations = ResolveDestinationDesignations(null, out _);
             if (designations != null)
             {
                 foreach (var des in designations)
@@ -133,7 +133,7 @@ namespace Greenshot.Recipes.Steps
             // Handle custom SaveDirectory & Filename overrides
             ApplyCustomFileSettings(context);
 
-            var designations = ResolveDestinationDesignations(context).ToList();
+            var designations = ResolveDestinationDesignations(context, out bool fromSettings).ToList();
             List<IDestination> destinations = new List<IDestination>();
 
             foreach (var designation in designations)
@@ -210,6 +210,16 @@ namespace Greenshot.Recipes.Steps
                 else if (dest != null)
                 {
                     Log.WarnFormat("Destination '{0}' was resolved but is marked inactive in configuration.", dest.Designation);
+                }
+            }
+
+            // The settings keep destinations which aren't there right now, e.g. of a plugin which isn't loaded: without any other the capture opens in the editor
+            if (destinations.Count == 0 && fromSettings)
+            {
+                var editor = new EditorDestination();
+                if (editor.IsAvailableFor(context.Payload?.RawCapture?.CaptureDetails))
+                {
+                    destinations.Add(editor);
                 }
             }
 
@@ -315,8 +325,9 @@ namespace Greenshot.Recipes.Steps
             return registry.TryGet(fallbackFormat, out _) ? fallbackFormat : WellKnownFileFormats.Png;
         }
 
-        private IEnumerable<string> ResolveDestinationDesignations(CaptureFlowContext context)
+        private IEnumerable<string> ResolveDestinationDesignations(CaptureFlowContext context, out bool fromSettings)
         {
+            fromSettings = false;
             // Priority 1: StepType direct mapping
             if (string.Equals(Config.StepType, WellKnownStepTypes.SaveFile, StringComparison.OrdinalIgnoreCase))
             {
@@ -362,6 +373,7 @@ namespace Greenshot.Recipes.Steps
             }
 
             // Priority 4: Dynamic user configuration evaluation
+            fromSettings = true;
             return (IEnumerable<string>)CoreConfig?.OutputDestinations ?? Array.Empty<string>();
         }
 

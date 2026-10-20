@@ -87,6 +87,19 @@ namespace Greenshot.Tests.Helpers
         }
 
         [Fact]
+        public void Parse_AutostartWithToastClick_OnlyStartupOptions()
+        {
+            // A click on a toast started Greenshot (Windows adds -Embedding), the Run value adds --autostart
+            CommandLineOptions options = GreenshotCommandLine.Parse(["--autostart", "-Embedding"]);
+
+            Assert.NotNull(options);
+            Assert.True(options.Autostart);
+            Assert.False(options.Restore);
+            Assert.False(options.NoRun);
+            Assert.Empty(options.CommandArguments);
+        }
+
+        [Fact]
         public void Parse_ReloadAndExit_AreCommandsForTheRunningGreenshot()
         {
             Assert.Equal(["--exit"], GreenshotCommandLine.Parse(["--exit"]).CommandArguments);

@@ -221,14 +221,42 @@ namespace Greenshot.Base.Core
         [Range(0, 255, ErrorMessage = "AutoCropDifference must be between 0 and 255.")]
         int AutoCropDifference { get; set; }
 
-        [Description("Comma separated list of Plugins which are allowed. If something in the list, than every plugin not in the list will not be loaded!")]
+        [Description("Replaced by AllowedPluginNames, still applied when set in greenshot-fixed.ini. Plugins by their identifier, e.g. Box Plugin.")]
         List<string> IncludePlugins { get; set; }
 
-        [Description("Comma separated list of Plugins which are NOT allowed.")]
+        [Description("Replaced by ExcludePluginNames, still applied when set in greenshot-fixed.ini. Plugins by their identifier, e.g. Box Plugin.")]
         List<string> ExcludePlugins { get; set; }
 
-        [Description("Comma separated list of destinations which should be disabled.")]
+        [Description("Plugins the user switched off, by name: Box for Greenshot.Plugin.Box.dll. Set in greenshot-fixed.ini (also empty) the user can't switch plugins off.")]
+        List<string> ExcludePluginNames { get; set; }
+
+        [Description("Plugins the administrator blocked, names like ExcludePluginNames. For greenshot-fixed.ini.")]
+        List<string> BlockedPluginNames { get; set; }
+
+        [Description("When set only these plugins are loaded, every other one (also unknown ones) is blocked; set empty in greenshot-fixed.ini no plugin is loaded. Names like ExcludePluginNames. For greenshot-fixed.ini.")]
+        List<string> AllowedPluginNames { get; set; }
+
+        [Description("Destinations the user switched off. Set in greenshot-fixed.ini (also empty) the user can't switch destinations off.")]
         List<string> ExcludeDestinations { get; set; }
+
+        [Description("Destinations the administrator blocked. For greenshot-fixed.ini.")]
+        List<string> BlockedDestinations { get; set; }
+
+        [Description("When set only these destinations are available, every other one (also unknown ones) is blocked. For greenshot-fixed.ini.")]
+        List<string> AllowedDestinations { get; set; }
+
+        [Description("SHA-256 of plugins which aren't signed like Greenshot.exe, allowed to load. The user adds them by answering the question, an administrator can list them in greenshot-fixed.ini.")]
+        List<string> PluginApprovedHashes { get; set; }
+
+        [Description("SHA-256 of plugins which aren't signed like Greenshot.exe, the user chose not to load them.")]
+        List<string> PluginRejectedHashes { get; set; }
+
+        [Description("SHA-256 of plugins whose signature was checked: valid and of the same signer as Greenshot.exe. Greenshot keeps this list itself.")]
+        List<string> PluginVerifiedHashes { get; set; }
+
+        [Description("Ask whether to load a plugin which isn't signed like Greenshot.exe. False in greenshot-fixed.ini: such a plugin only loads when PluginApprovedHashes lists it.")]
+        [DefaultValue(true)]
+        bool AskForUnsignedPlugins { get; set; }
 
         [Description("How many days between every update check? (0=no checks)")]
         [DefaultValue(14)]
