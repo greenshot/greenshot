@@ -93,7 +93,7 @@ $LightPortableFilesPath = "$ArtifactsPath\portable-files-light"
 $LightZipArtifactPath = "$ArtifactsPath\Greenshot-Light-PORTABLE-$Version-RELEASE.zip"
 Compress-Archive -Path "$LightPortableFilesPath/*" -DestinationPath $LightZipArtifactPath -Force
 
-# Create the PortableApps.com package of Greenshot Light (needs 7-Zip, the PortableApps.com tools are downloaded)
+# Create the PortableApps.com package of Greenshot Light (the PortableApps.com tools are downloaded, 7-Zip is installed with winget when missing)
 Write-Host "Creating PortableApps.com package..."
 $PortableAppsPath = "$ArtifactsPath\portableapps"
 ./prepare-portableapps.ps1 -RepositoryRootPath . -BuildArtifactsPath $LightBuildArtifactsPath -OutputPath $PortableAppsPath

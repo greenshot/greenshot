@@ -55,7 +55,7 @@ An update keeps `Data`. An update of a Greenshot 1.x package removes the old `Gr
 1. copies the template `installer\portable` and runs `prepare-portable.ps1 -Light -PortableApps` for `App\Greenshot`,
 2. fills in the version of `Greenshot.exe` in `appinfo.ini`,
 3. downloads the PortableApps.com Launcher and Installer once (the versions and SHA-256 are in the script) and extracts them
-   with 7-Zip,
+   with 7-Zip (installed with winget when it is missing),
 4. creates `GreenshotPortable.exe` with the Launcher Generator, then `GreenshotPortable_<version>.paf.exe` with the
    PortableApps.com Installer. With the environment variable `CertumThumbprint`, which also signs the release build and
    the installers, both are signed with `sign-files.ps1`. The continuous builds on GitHub have no certificate, so their

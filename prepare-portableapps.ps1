@@ -26,8 +26,9 @@ $Tools = @(
     @{ Name = "PortableApps.comInstaller"; Version = "3.9.22"; Folder = "PortableApps.com%20Installer"; Sha256 = "689456f1fb1320c45e82a077afe6b87fb388fd3f75c41d9ee9ce8d45f3966b67" }
 )
 
-# 7z.exe from the PATH (GitHub runners) or from the folder 7-Zip installs to
-function Get-SevenZip {
+# 7z.exe from the PATH (the GitHub runners have it) or from the folder 7-Zip installs to; when it is missing (e.g. on the
+# build server) it is installed with winget
+function Find-SevenZip {
     $command = Get-Command 7z -ErrorAction SilentlyContinue
     if ($command) {
         return $command.Source
@@ -37,7 +38,20 @@ function Get-SevenZip {
             return "$folder\7-Zip\7z.exe"
         }
     }
-    throw "7-Zip is needed to extract the PortableApps.com tools, install it (e.g. winget install 7zip.7zip)"
+    return $null
+}
+
+function Get-SevenZip {
+    $sevenZip = Find-SevenZip
+    if (-not $sevenZip) {
+        Write-Host "7-Zip is needed to extract the PortableApps.com tools, installing it with winget..."
+        & winget install --id 7zip.7zip --exact --silent --accept-source-agreements --accept-package-agreements
+        $sevenZip = Find-SevenZip
+    }
+    if (-not $sevenZip) {
+        throw "7-Zip is needed to extract the PortableApps.com tools, install it (winget install 7zip.7zip)"
+    }
+    return $sevenZip
 }
 
 function Get-Tool($tool) {
