@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Structs;
@@ -364,11 +365,43 @@ namespace Greenshot.Base.Core
             }
             ExcludePlugins ??= new List<string>();
             IncludePlugins ??= new List<string>();
+            ExcludePluginNames ??= new List<string>();
+            IncludePluginNames ??= new List<string>();
+            IncludeDestinations ??= new List<string>();
+            // The plugin lists of the user use the names now, values in greenshot-fixed.ini are still read where they are
+            if (MoveToPluginNames(nameof(ExcludePlugins), ExcludePlugins, nameof(ExcludePluginNames), ExcludePluginNames)
+                | MoveToPluginNames(nameof(IncludePlugins), IncludePlugins, nameof(IncludePluginNames), IncludePluginNames))
+            {
+                MarkAsDirty();
+            }
             AllowedUntrustedCertificateHosts ??= new List<string>();
             AllowedCertificateThumbprints ??= new List<string>();
             AiToolsExcludedProcesses ??= new List<string>();
             AiToolsAllowedClients ??= new List<string>();
             AiToolsMcpServerPaths ??= new List<string>();
+        }
+
+        /// <summary>
+        /// Move the plugin identifiers of IncludePlugins or ExcludePlugins, e.g. Box Plugin, to the list with the names, e.g. Box
+        /// </summary>
+        /// <returns>true when something was moved</returns>
+        private bool MoveToPluginNames(string identifiersKey, List<string> identifiers, string namesKey, List<string> names)
+        {
+            if (IsConstant(identifiersKey) || IsConstant(namesKey) || !ConfigurationRestrictions.Names(identifiers).Any())
+            {
+                return false;
+            }
+
+            foreach (var name in ConfigurationRestrictions.Names(identifiers).Select(ConfigurationRestrictions.PluginNameFromLegacyIdentifier))
+            {
+                if (!names.Contains(name, StringComparer.OrdinalIgnoreCase))
+                {
+                    names.Add(name);
+                }
+            }
+
+            identifiers.Clear();
+            return true;
         }
 
         public bool OnBeforeSave()

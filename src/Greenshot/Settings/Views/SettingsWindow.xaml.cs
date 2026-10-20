@@ -275,6 +275,14 @@ namespace Greenshot.Settings.Views
             }
         }
 
+        /// <summary>
+        /// The lines for greenshot-fixed.ini with the check boxes of the destinations and plugins, also before OK
+        /// </summary>
+        internal void AdministratorSettings_Click(object sender, RoutedEventArgs e)
+        {
+            new AdministratorSettingsWindow(_viewModel.BuildAdministratorSettings) { Owner = this }.ShowDialog();
+        }
+
         private void RemoveFixedCaptureSize_Click(object sender, RoutedEventArgs e)
         {
             if ((sender as FrameworkElement)?.DataContext is NativeSize size)
@@ -369,9 +377,16 @@ namespace Greenshot.Settings.Views
                 {
                     destinations.Add(destItem.Destination.Designation);
                 }
+
+                // Keep the destinations which aren't there right now, e.g. of a plugin which isn't loaded
+                destinations.AddRange(_viewModel.CoreConfiguration.OutputDestinations?
+                    .Where(designation => designation != nameof(WellKnownDestinations.Picker)
+                                          && _viewModel.Destinations.All(d => !string.Equals(d.Destination.Designation, designation, StringComparison.OrdinalIgnoreCase)))
+                    ?? Enumerable.Empty<string>());
             }
             
             _viewModel.CoreConfiguration.OutputDestinations = destinations;
+            _viewModel.SaveRestrictions();
 
             _viewModel.SaveRecipeOptions();
             _viewModel.SaveFixedCaptureSizes();

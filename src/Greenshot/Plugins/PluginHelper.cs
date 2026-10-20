@@ -57,6 +57,11 @@ namespace Greenshot.Plugins
         public static PluginHelper Instance { get; } = new PluginHelper();
 
         /// <summary>
+        /// The names of the plugin files found, also of those which weren't loaded
+        /// </summary>
+        public IReadOnlyList<string> FoundPluginNames { get; private set; } = Array.Empty<string>();
+
+        /// <summary>
         /// The started plugins
         /// </summary>
         public IReadOnlyList<IGreenshotPlugin> Plugins
@@ -176,18 +181,22 @@ namespace Greenshot.Plugins
                 pluginFiles.AddRange(FindPluginsOnPath(ApplicationPath));
             }
 
-            // Instantiate all plugins first, greenshot.ini is already loaded so the include / exclude settings apply
+            FoundPluginNames = pluginFiles.Select(ConfigurationRestrictions.PluginNameFromFile).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+
+            // Instantiate all plugins first, greenshot.ini is already loaded so the include / exclude settings apply before a plugin is loaded
             var plugins = new List<IGreenshotPlugin>();
             foreach (string pluginFile in pluginFiles)
             {
+                var pluginName = ConfigurationRestrictions.PluginNameFromFile(pluginFile);
+                if (!ConfigurationRestrictions.IsPluginAllowed(CoreConfig, pluginName))
+                {
+                    Log.WarnFormat("Skipping the plugin {0} from {1}, the configuration doesn't allow it", pluginName, pluginFile);
+                    continue;
+                }
+
                 try
                 {
                     var assembly = Assembly.LoadFrom(pluginFile);
-
-                    if (IsPluginExcludedByConfig(assembly, pluginFile))
-                    {
-                        continue;
-                    }
 
                     var assemblyName = assembly.GetName().Name;
                     var pluginEntryName = $"{assemblyName}.{assemblyName.Replace("Greenshot.Plugin.", string.Empty)}Plugin";
@@ -280,52 +289,6 @@ namespace Greenshot.Plugins
                 Log.ErrorFormat("Error during the start of plugin {0}, it is disabled.", plugin.Name);
                 Log.Error(e);
             }
-        }
-
-        private bool IsPluginExcludedByConfig(Assembly assembly, string pluginFile)
-        {
-            // Get plugin identifier from assembly attributes
-            string pluginConfigIdentifier = GetPluginIdentifier(assembly, pluginFile);
-
-            if (CoreConfig.IncludePlugins is { } includePlugins
-                && includePlugins.Count(p => !string.IsNullOrWhiteSpace(p)) > 0 // ignore empty entries i.e. a whitespace
-                && !includePlugins.Contains(pluginConfigIdentifier))
-            {
-                Log.WarnFormat("Include plugin list: {0}", string.Join(",", includePlugins));
-                Log.WarnFormat("Skipping the not included plugin '{0}' with version {1} from {2}", pluginConfigIdentifier, assembly.GetName().Version, pluginFile);
-                return true;
-            }
-
-            if (CoreConfig.ExcludePlugins is { } excludePlugins
-                && excludePlugins.Contains(pluginConfigIdentifier))
-            {
-                Log.WarnFormat("Exclude plugin list: {0}", string.Join(",", excludePlugins));
-                Log.WarnFormat("Skipping the excluded plugin '{0}' with version {1} from {2}", pluginConfigIdentifier, assembly.GetName().Version, pluginFile);
-                return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Retrieves the plugin identifier for the specified assembly.
-        /// </summary>
-        private string GetPluginIdentifier(Assembly assembly, string pluginFile)
-        {
-            // Try to find PluginIdentifierAttribute
-            var attribute = assembly
-                .GetCustomAttributes<AssemblyPluginIdentifierAttribute>()
-                .FirstOrDefault();
-
-            if (!string.IsNullOrEmpty(attribute?.Identifier))
-            {
-               return attribute.Identifier;
-            }
-
-            // If no attribute found, fall back to the sub namespace
-            var pluginSubNamespace = assembly.GetName().Name.Replace("Greenshot.Plugin.", string.Empty);
-            Log.WarnFormat("No '{0}' found in '{1}'. Use plugin namespace '{2}' as fallback.", nameof(AssemblyPluginIdentifierAttribute), pluginFile, pluginSubNamespace);
-            return pluginSubNamespace;
         }
 
         /// <summary>

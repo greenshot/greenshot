@@ -20,13 +20,17 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Windows;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Languages;
+using Greenshot.Plugins;
 using Greenshot.Plugins.ViewModels;
 
 namespace Greenshot.Settings.ViewModels
@@ -85,9 +89,17 @@ namespace Greenshot.Settings.ViewModels
             }
         }
 
+        /// <summary>
+        /// greenshot-fixed.ini decides which plugins are loaded
+        /// </summary>
+        public bool ArePluginsFixed => ConfigurationRestrictions.ArePluginsFixed(CoreConfiguration);
+
+        /// <summary>
+        /// The loaded plugins, the plugins which are installed but not loaded, and those which Greenshot ships or the settings name but aren't installed
+        /// </summary>
         private void InitializePlugins()
         {
-            Plugins = new ObservableCollection<PluginViewModel>();
+            var items = new List<PluginViewModel>();
             try
             {
                 var plugins = SimpleServiceProvider.Current.GetAllInstances<IGreenshotPlugin>();
@@ -100,9 +112,10 @@ namespace Greenshot.Settings.ViewModels
                         var version = assembly.GetName().Version?.ToString() ?? string.Empty;
                         var location = assembly.Location ?? string.Empty;
 
-                        Plugins.Add(new PluginViewModel
+                        items.Add(new PluginViewModel
                         {
                             Plugin = plugin,
+                            PluginName = ConfigurationRestrictions.PluginNameFromFile(location),
                             Name = plugin.Name,
                             Version = version,
                             Company = company,
@@ -114,6 +127,61 @@ namespace Greenshot.Settings.ViewModels
             catch
             {
                 // In some test scenarios SimpleServiceProvider might not have plugins registered
+            }
+
+            var found = PluginHelper.Instance.FoundPluginNames;
+            var named = ConfigurationRestrictions.ShippedPluginNames
+                .Concat(found)
+                .Concat(ConfigurationRestrictions.Names(CoreConfiguration.ExcludePluginNames))
+                .Concat(ConfigurationRestrictions.Names(CoreConfiguration.IncludePluginNames))
+                .Concat(ConfigurationRestrictions.Names(CoreConfiguration.ExcludePlugins).Select(ConfigurationRestrictions.PluginNameFromLegacyIdentifier))
+                .Concat(ConfigurationRestrictions.Names(CoreConfiguration.IncludePlugins).Select(ConfigurationRestrictions.PluginNameFromLegacyIdentifier))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Where(name => !items.Any(item => string.Equals(item.PluginName, name, StringComparison.OrdinalIgnoreCase)))
+                .ToList();
+            foreach (var name in named)
+            {
+                bool isAllowed = ConfigurationRestrictions.IsPluginAllowed(CoreConfiguration, name);
+                string status = !found.Contains(name, StringComparer.OrdinalIgnoreCase) ? Texts.Settings.PluginNotInstalled
+                    : isAllowed ? Texts.Settings.PluginNotLoaded
+                    : Texts.Settings.PluginOff;
+                items.Add(new PluginViewModel { PluginName = name, Name = name, Version = status });
+            }
+
+            foreach (var item in items)
+            {
+                item.IsAllowed = ConfigurationRestrictions.IsPluginAllowed(CoreConfiguration, item.PluginName);
+            }
+
+            Plugins = new ObservableCollection<PluginViewModel>(items.OrderBy(item => item.Name, StringComparer.CurrentCultureIgnoreCase));
+        }
+
+        private void SavePluginRestrictions()
+        {
+            if (ArePluginsFixed || Plugins == null)
+            {
+                return;
+            }
+
+            var listed = Plugins.Select(item => item.PluginName).ToList();
+            CoreConfiguration.ExcludePluginNames = ConfigurationRestrictions.ReplaceListed(CoreConfiguration.ExcludePluginNames, listed,
+                Plugins.Where(item => !item.IsAllowed).Select(item => item.PluginName));
+            if (ConfigurationRestrictions.Names(CoreConfiguration.IncludePluginNames).Any())
+            {
+                CoreConfiguration.IncludePluginNames = ConfigurationRestrictions.ReplaceListed(CoreConfiguration.IncludePluginNames, listed,
+                    Plugins.Where(item => item.IsAllowed).Select(item => item.PluginName));
+            }
+        }
+
+        private void AppendPluginRestrictions(StringBuilder text, bool onlyAllowChecked)
+        {
+            var listed = Plugins.Select(item => item.PluginName).ToList();
+            AppendList(text, nameof(ICoreConfiguration.ExcludePluginNames), ConfigurationRestrictions.ReplaceListed(CoreConfiguration.ExcludePluginNames, listed,
+                Plugins.Where(item => !item.IsAllowed).Select(item => item.PluginName)));
+            if (onlyAllowChecked)
+            {
+                AppendList(text, nameof(ICoreConfiguration.IncludePluginNames), ConfigurationRestrictions.ReplaceListed(CoreConfiguration.IncludePluginNames, listed,
+                    Plugins.Where(item => item.IsAllowed).Select(item => item.PluginName)));
             }
         }
     }

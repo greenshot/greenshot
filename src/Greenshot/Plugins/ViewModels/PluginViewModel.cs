@@ -19,19 +19,54 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
+using System.ComponentModel;
 using System.Windows;
 using Greenshot.Base.Interfaces.Plugin;
 
 namespace Greenshot.Plugins.ViewModels
 {
-    public class PluginViewModel
+    public class PluginViewModel : INotifyPropertyChanged
     {
+        private bool _isAllowed = true;
+
+        /// <summary>
+        /// The loaded plugin, null when it isn't loaded
+        /// </summary>
         public IGreenshotPlugin Plugin { get; set; }
+
+        /// <summary>
+        /// The name in ExcludePluginNames and IncludePluginNames: Box for Greenshot.Plugin.Box.dll
+        /// </summary>
+        public string PluginName { get; set; }
+
         public string Name { get; set; }
+
+        /// <summary>
+        /// The version, or why the plugin isn't loaded
+        /// </summary>
         public string Version { get; set; }
         public string Company { get; set; }
         public string Location { get; set; }
         public bool IsConfigurable => Plugin is IConfigurablePlugin;
+
+        /// <summary>
+        /// The plugin is loaded at the next start, unchecked it is in ExcludePluginNames
+        /// </summary>
+        public bool IsAllowed
+        {
+            get => _isAllowed;
+            set
+            {
+                if (_isAllowed != value)
+                {
+                    _isAllowed = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsAllowed)));
+                }
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         private UIElement _configControl;
         private bool _controlCreated;
@@ -45,5 +80,10 @@ namespace Greenshot.Plugins.ViewModels
             }
             return _configControl;
         }
+
+        /// <summary>
+        /// The text a screen reader reads for the row of the plugin list
+        /// </summary>
+        public override string ToString() => Name ?? base.ToString();
     }
 }

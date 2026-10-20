@@ -47,16 +47,9 @@ namespace Greenshot.Base.Core
         public string DisplayName => Descriptor?.DisplayName ?? Designation;
 
         /// <summary>
-        /// True when the user excluded the destination in the configuration.
+        /// True when the include / exclude lists of the configuration don't allow the destination.
         /// </summary>
-        protected bool IsExcludedByConfiguration
-        {
-            get
-            {
-                var excluded = CoreConfiguration?.ExcludeDestinations;
-                return excluded != null && excluded.Contains(Designation);
-            }
-        }
+        protected bool IsExcludedByConfiguration => !ConfigurationRestrictions.IsDestinationAllowed(CoreConfiguration, Designation);
 
         public virtual bool IsAvailableFor(ICaptureDetails metadata) => !IsExcludedByConfiguration;
 

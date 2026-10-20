@@ -28,6 +28,7 @@ namespace Greenshot.Settings.ViewModels
     public class DestinationViewModel : INotifyPropertyChanged
     {
         private bool _isSelected;
+        private bool _isAllowed = true;
         private ImageSource _iconSource;
 
         public IDestination Destination { get; set; }
@@ -54,6 +55,26 @@ namespace Greenshot.Settings.ViewModels
                 {
                     _isSelected = value;
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsSelected)));
+                }
+            }
+        }
+
+        /// <summary>
+        /// The destination is available, unchecked it is in ExcludeDestinations. Not available it can't be selected.
+        /// </summary>
+        public bool IsAllowed
+        {
+            get => _isAllowed;
+            set
+            {
+                if (_isAllowed != value)
+                {
+                    _isAllowed = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsAllowed)));
+                    if (!value)
+                    {
+                        IsSelected = false;
+                    }
                 }
             }
         }

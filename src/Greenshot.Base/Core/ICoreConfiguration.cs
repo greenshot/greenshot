@@ -221,14 +221,23 @@ namespace Greenshot.Base.Core
         [Range(0, 255, ErrorMessage = "AutoCropDifference must be between 0 and 255.")]
         int AutoCropDifference { get; set; }
 
-        [Description("Comma separated list of Plugins which are allowed. If something in the list, than every plugin not in the list will not be loaded!")]
+        [Description("Replaced by IncludePluginNames, still applied when set in greenshot-fixed.ini. Plugins by their identifier, e.g. Box Plugin.")]
         List<string> IncludePlugins { get; set; }
 
-        [Description("Comma separated list of Plugins which are NOT allowed.")]
+        [Description("Replaced by ExcludePluginNames, still applied when set in greenshot-fixed.ini. Plugins by their identifier, e.g. Box Plugin.")]
         List<string> ExcludePlugins { get; set; }
 
-        [Description("Comma separated list of destinations which should be disabled.")]
+        [Description("Plugins which are not loaded, by name: Box for Greenshot.Plugin.Box.dll. Built on the Plugins tab of the settings, greenshot-fixed.ini makes it a restriction.")]
+        List<string> ExcludePluginNames { get; set; }
+
+        [Description("When not empty only these plugins are loaded, also blocking plugins installed later. Names like ExcludePluginNames.")]
+        List<string> IncludePluginNames { get; set; }
+
+        [Description("Destinations which are not available. Built on the Destinations tab of the settings, greenshot-fixed.ini makes it a restriction.")]
         List<string> ExcludeDestinations { get; set; }
+
+        [Description("When not empty only these destinations are available, also blocking destinations added later.")]
+        List<string> IncludeDestinations { get; set; }
 
         [Description("How many days between every update check? (0=no checks)")]
         [DefaultValue(14)]

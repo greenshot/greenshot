@@ -232,6 +232,61 @@ namespace Greenshot.Base.Languages
         string DestinationPrinter { get; }
 
         /// <summary>
+        /// Available
+        /// </summary>
+        string DestinationAvailable { get; }
+
+        /// <summary>
+        /// Plugins are switched on or off at the next start of Greenshot.
+        /// </summary>
+        string PluginsRestart { get; }
+
+        /// <summary>
+        /// Switched off
+        /// </summary>
+        string PluginOff { get; }
+
+        /// <summary>
+        /// Not installed
+        /// </summary>
+        string PluginNotInstalled { get; }
+
+        /// <summary>
+        /// Not loaded, see the log
+        /// </summary>
+        string PluginNotLoaded { get; }
+
+        /// <summary>
+        /// Set by your administrator in greenshot-fixed.ini
+        /// </summary>
+        string SetByAdministrator { get; }
+
+        /// <summary>
+        /// Administrator settings…
+        /// </summary>
+        string AdministratorSettings { get; }
+
+        /// <summary>
+        /// Copy these lines into greenshot-fixed.ini next to Greenshot.exe. The plugins and destinations which aren't checked are blocked, users can't change it.
+        /// </summary>
+        string AdministratorSettingsDescription { get; }
+
+        /// <summary>
+        /// Only allow what is checked, this also blocks plugins and destinations added later
+        /// </summary>
+        string AdministratorSettingsOnlyChecked { get; }
+
+        /// <summary>
+        /// Copy
+        /// </summary>
+        string AdministratorSettingsCopy { get; }
+
+        /// <summary>
+        /// Save as…
+        /// </summary>
+        string AdministratorSettingsSave { get; }
+
+        /// <summary>
         /// Editor
         /// </summary>
         string Editor { get; }
