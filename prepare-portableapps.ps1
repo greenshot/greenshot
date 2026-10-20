@@ -48,7 +48,11 @@ function Get-Tool($tool) {
     New-Item -ItemType Directory -Path $ToolsPath -Force | Out-Null
     $fileName = "$($tool.Name)_$($tool.Version).paf.exe"
     $download = Join-Path $ToolsPath $fileName
-    Invoke-WebRequest -Uri "https://downloads.sourceforge.net/project/portableapps/$($tool.Folder)/$fileName" -OutFile $download -UserAgent "Wget"
+    # curl.exe of Windows: follows SourceForge's redirects to a mirror and retries, Invoke-WebRequest of Windows PowerShell times out there
+    & curl.exe --fail --silent --show-error --location --retry 3 --output $download "https://downloads.sourceforge.net/project/portableapps/$($tool.Folder)/$fileName"
+    if ($LASTEXITCODE -ne 0) {
+        throw "Downloading $fileName failed (curl exit code $LASTEXITCODE)"
+    }
     $hash = (Get-FileHash $download -Algorithm SHA256).Hash
     if ($hash -ne $tool.Sha256) {
         Remove-Item $download
