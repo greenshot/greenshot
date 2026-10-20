@@ -260,7 +260,7 @@ namespace Greenshot.Helpers
                               "The command has the same syntax as for greenshot-cli.exe (see greenshot-cli.exe --help), e.g.\n" +
                               "  Greenshot.exe image.png            open a file with the recipes of its OpenFile triggers\n" +
                               "  Greenshot.exe --recipe ocr         run a recipe\n" +
-                              "  Greenshot.exe --reload / --exit    reload the configuration / exit Greenshot\n" +
+                              "  Greenshot.exe --reload / --exit    apply a changed greenshot-fixed.ini / exit Greenshot\n" +
                               "The command is sent to the running Greenshot; if none is running, Greenshot starts and runs it.\n" +
                               "Unlike greenshot-cli.exe, Greenshot.exe shows no output of the command."
             };

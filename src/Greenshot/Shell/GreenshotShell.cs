@@ -228,18 +228,8 @@ namespace Greenshot.Shell
             // No window yet: a file which needs the user (approval, errors) is loaded again once the tray icon is there.
             var recipeFilesForTheUser = RecipeManager.Instance.LoadRecipesAtStartup();
 
-            // The command line language was already applied in Start, right after greenshot.ini was read
-            // if language is not set, show language dialog
-            if (string.IsNullOrEmpty(_conf.Language))
-            {
-                var languageWindow = new LanguageWindow();
-                languageWindow.ShowDialog(OwnerHandle);
-                Texts.SetLanguage(languageWindow.SelectedLanguage);
-            }
-            else
-            {
-                Texts.SetLanguage(_conf.Language);
-            }
+            // The language was applied in Start, right after greenshot.ini was read: the configured one, the one of the command line,
+            // or on the first start the one of Windows (Texts.Initialize), which the settings can change
 
             SoundHelper.Initialize();
 
