@@ -104,6 +104,8 @@
                             <StackPanel Width="80" ToolTip="{Binding Description}">
                                 <Image Source="{Binding Thumbnail}" Width="64" Height="64" Stretch="Uniform" HorizontalAlignment="Center"/>
                                 <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" TextAlignment="Center" Margin="0,2,0,0"/>
+                                <TextBlock Text="{Binding Format}" TextAlignment="Center" FontSize="{wpf:FontSize 10}"
+                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                             </StackPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>

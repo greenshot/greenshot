@@ -102,9 +102,14 @@ public sealed class StampViewModel : INotifyPropertyChanged
     public string CategoryName => Stamp.Category.Length == 0 ? Texts.Get<IStampsLanguage>().General : Stamp.Category;
 
     /// <summary>
-    /// The name and the tags, for the tooltip in the list
+    /// The format of the file, e.g. SVG or PNG
     /// </summary>
-    public string Description => Stamp.Tags.Count == 0 ? Name : $"{Name}{Environment.NewLine}{TagsText}";
+    public string Format => Stamp.Extension.TrimStart('.').ToUpperInvariant();
+
+    /// <summary>
+    /// The name, the format and the tags, for the tooltip in the list
+    /// </summary>
+    public string Description => Stamp.Tags.Count == 0 ? $"{Name} ({Format})" : $"{Name} ({Format}){Environment.NewLine}{TagsText}";
 
     /// <summary>
     /// The preview, null until it was made (or when the file can't be read)
@@ -152,5 +157,8 @@ public sealed class StampViewModel : INotifyPropertyChanged
 
     private void OnPropertyChanged([CallerMemberName] string propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-    public override string ToString() => Name;
+    /// <summary>
+    /// What a screen reader says for the stamp in the list: the name and the format, as shown
+    /// </summary>
+    public override string ToString() => $"{Name}, {Format}";
 }

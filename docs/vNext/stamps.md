@@ -39,7 +39,7 @@ in the full and the custom installation.
 | Delete | *Delete* or the Delete key, after a question. The file is deleted from the stamps folder. |
 | Show the folder | *Open folder* shows the stamps folder in Explorer, with the file of the selected stamp selected. F5 reads the folder again. |
 
-Every image Greenshot can open is a stamp: PNG, SVG, ICO, JPG, GIF, BMP, TIFF, WebP and the others the editor opens.
+The list shows the format of each stamp (SVG, PNG, ...) under its name. Every image Greenshot can open is a stamp: PNG, SVG, ICO, JPG, GIF, BMP, TIFF, WebP and the others the editor opens.
 An SVG stays a vector element in the editor, it stays sharp when it is resized.
 
 An image dragged from a web page is kept in its own format: the file the browser gives, else the image downloaded from its
