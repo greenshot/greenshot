@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -61,15 +61,6 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRec
     /// </summary>
     public string Name => "ExternalCommand";
 
-    private IEnumerable<IDestination> Destinations()
-    {
-        foreach (string command in ExternalCommandConfig.Commands)
-        {
-            yield return new ExternalCommandDestination(command);
-        }
-    }
-
-
     /// <summary>
     /// Check and eventually fix the command settings
     /// </summary>
@@ -109,7 +100,7 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRec
             PluginUtils.GetExePath(commandline) == null &&
             WindowsAppHelper.FindPackage(commandline, command) == null)
         {
-            Log.WarnFormat("Found 'invalid' commandline {0} for command {1}", ExternalCommandConfig.Commandline[command], command);
+            Log.WarnFormat("The program {0} of the command {1} isn't found, the command is left out until the next start", ExternalCommandConfig.Commandline[command], command);
             return false;
         }
 
@@ -133,26 +124,16 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRec
     public object CreateSettingsViewModel(IServiceProvider services) => ExternalCommandConfig;
 
     /// <summary>
-    /// Remove the invalid commands from the configuration, create the destinations for the others.
+    /// The destinations of the commands which can run now. A command whose program isn't found (a USB stick or network drive which
+    /// isn't there yet) stays in the configuration, it only gets no destination until the next start.
     /// </summary>
     private IEnumerable<IDestination> CreateDestinations()
     {
         CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
-        var commandsToDelete = new List<string>();
-        foreach (string command in ExternalCommandConfig.Commands)
-        {
-            if (!IsCommandValid(command))
-            {
-                commandsToDelete.Add(command);
-            }
-        }
-
-        foreach (string command in commandsToDelete)
-        {
-            ExternalCommandConfig.Delete(command);
-        }
-
-        return Destinations().ToList();
+        return ExternalCommandConfig.Commands
+            .Where(IsCommandValid)
+            .Select(command => (IDestination)new ExternalCommandDestination(command))
+            .ToList();
     }
 
     /// <summary>
