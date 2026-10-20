@@ -42,7 +42,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Contributed by @jairbubbles
 
 **Stamps** (Beta)
-- Collect small images (PNG, SVG and more) in categories, with names and tags, search them and insert them into the editor with Ctrl+Shift+M
+- Collect small images (PNG, SVG and more) in categories, with names and tags, search them and insert them into the editor with Ctrl+Shift+K
 - Add stamps by dropping images from a web page
 - An SVG stamp stays sharp when it is resized
 - Copy or drag a stamp into other programs

@@ -36,8 +36,8 @@ namespace Greenshot.Plugin.Stamps.Editor;
 /// </summary>
 internal sealed class EditorTracker : IEditorPlugin
 {
-    // In the editor only, Ctrl+Shift+M isn't used there
-    private const Keys MenuShortcut = Keys.Control | Keys.Shift | Keys.M;
+    // In the editor only, not used there; Ctrl+Shift+M was taken as global hotkey by other programs (mute in meeting apps)
+    private const Keys MenuShortcut = Keys.Control | Keys.Shift | Keys.K;
 
     // The open editor windows, the one which was active last at the end
     private readonly List<IEditorWindow> _editors = new();

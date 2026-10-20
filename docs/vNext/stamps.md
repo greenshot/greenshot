@@ -20,7 +20,7 @@ in the full and the custom installation.
 
 ### Open the stamps
 
-- In the editor: *Plugins*, *Stamps...*, or **Ctrl+Shift+M**. The window opens at the right edge of the editor (over it when the
+- In the editor: *Plugins*, *Stamps...*, or **Ctrl+Shift+K**. The window opens at the right edge of the editor (over it when the
   screen has no room) and stays above it. The stamps go into the capture which is shown in the editor window you used last.
 - From the tray menu: *Stamps...*. Without an editor the window is a window of its own, to give stamps to other programs.
 - With a hotkey from everywhere: set `Hotkey` in `[Stamps]` of greenshot.ini, e.g. `Hotkey=Ctrl + Shift + Alt + S`. Pressed in
@@ -86,7 +86,7 @@ and `TryLoadFromStream`), so the plugin supports what Greenshot opens; a `.green
 | Part | What it does |
 |---|---|
 | `StampsPlugin` | Registers everything only for beta testers: the editor menu entry, the tray menu entry, the hotkey; shows the window and keeps it above the editor window used last |
-| `Editor/EditorTracker` | The `IEditorPlugin`: adds *Stamps...* with Ctrl+Shift+M, knows the editor window which was active last. The only class which sees WinForms |
+| `Editor/EditorTracker` | The `IEditorPlugin`: adds *Stamps...* with Ctrl+Shift+K, knows the editor window which was active last. The only class which sees WinForms |
 | `Library/StampLibrary`, `Stamp` | The folder and `stamps.json`: load, search, import, add, change, move to a category, delete. No image is decoded here |
 | `Library/DroppedImages` | What was dropped, read during the drop: files and folders, the virtual files of a browser, image urls, the image |
 | `Library/StampImages` | Previews, elements and clipboard content, with the file format handlers |
