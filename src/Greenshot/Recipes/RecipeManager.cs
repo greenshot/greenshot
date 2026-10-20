@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -739,10 +739,8 @@ namespace Greenshot.Recipes
             }
             SetupWatcherForFile(fullPath);
 
-            if (approval != null)
-            {
-                RecipeApprovalPolicy.Apply(recipe, approval);
-            }
+            // Without an approval (an invalid recipe, saved as work in progress) none of its triggers is approved until it is loaded again
+            RecipeApprovalPolicy.Apply(recipe, approval);
             recipe.ProposedBy = null;
             lock (_recipes)
             {

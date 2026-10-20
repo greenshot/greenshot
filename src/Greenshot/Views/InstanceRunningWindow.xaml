@@ -14,38 +14,11 @@
         AllowsTransparency="False">
 
     <Window.Resources>
-        <Style TargetType="Button">
-            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="12,6"/>
-            <Setter Property="Margin" Value="4"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Name="Border"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="4"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonPressedBrush}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Window.Resources>
 
     <Border BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
@@ -63,7 +36,7 @@
             <!-- Description / Header -->
             <StackPanel Grid.Row="1" Margin="20,16,20,8">
                 <TextBlock Text="{wpf:Text Core.ErrorMultipleinstances}"
-                           FontSize="15"
+                           FontSize="{wpf:FontSize 15}"
                            FontWeight="SemiBold"
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                            Margin="0,0,0,4"/>
@@ -107,7 +80,7 @@
                                                ToolTip="{Binding Path}"
                                                TextTrimming="CharacterEllipsis"
                                                FontFamily="Consolas, Segoe UI Mono, Courier New, Segoe UI"
-                                               FontSize="12"
+                                               FontSize="{wpf:FontSize 12}"
                                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                                                Margin="0,0,12,0"/>
 
@@ -116,6 +89,7 @@
                                             Content="{wpf:Text Editor.Opendirinexplorer}"
                                             Click="ShowInExplorerButton_Click"
                                             Tag="{Binding Path}"
+                                            AutomationProperties.HelpText="{Binding Path, TargetNullValue=''}"
                                             VerticalAlignment="Center"
                                             Height="28"
                                             Padding="10,0"/>
@@ -128,7 +102,12 @@
 
             <!-- Bottom Actions -->
             <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="20,0,20,16">
-                <Button Content="{wpf:Text Core.Ok}" Width="90" Height="30" IsDefault="True" Click="CloseButton_Click"/>
+                <Button Content="{wpf:Text Core.Ok}"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Width="90"
+                        Height="30"
+                        IsDefault="True" 
+                        Click="CloseButton_Click"/>
             </StackPanel>
         </Grid>
     </Border>

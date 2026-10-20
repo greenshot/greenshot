@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -60,6 +60,12 @@ namespace Greenshot.Helpers
         public bool Restore { get; set; }
 
         /// <summary>
+        /// When true, Windows started Greenshot at the logon (the Run value, see docs/vNext/autostart.md).
+        /// If Greenshot runs already, this start ends silently instead of showing that Greenshot is running.
+        /// </summary>
+        public bool Autostart { get; set; }
+
+        /// <summary>
         /// The arguments after the startup options: a Greenshot command in the syntax of greenshot-cli.exe
         /// (e.g. <c>--file a.png</c>, <c>a.png</c>, <c>--recipe ocr</c>, <c>--reload</c>, <c>--exit</c>).
         /// It is sent to the running Greenshot exactly as greenshot-cli.exe sends it; empty when there is none.
@@ -69,7 +75,7 @@ namespace Greenshot.Helpers
 
     /// <summary>
     /// Parses Greenshot.exe's command line: leading startup options, which only Greenshot.exe itself uses
-    /// (--language, --ini-directory, --no-run, --restore, --help), followed by an optional Greenshot command.
+    /// (--language, --ini-directory, --no-run, --restore, --autostart, --help), followed by an optional Greenshot command.
     /// The command is not interpreted here: it is parsed by <see cref="CliCommandParser"/>, like every
     /// command that reaches Greenshot through greenshot-cli.exe or greenshot-proxy.exe.
     /// </summary>
@@ -103,6 +109,15 @@ namespace Greenshot.Helpers
         };
 
         /// <summary>
+        /// Written into the Run value, so a second start at the logon (a link in the Startup folder, another Run value,
+        /// Windows restarting its apps) ends silently while Greenshot runs already.
+        /// </summary>
+        private static readonly Option<bool> AutostartOption = new Option<bool>("--autostart")
+        {
+            Description = "Started with Windows: end silently when Greenshot is running already."
+        };
+
+        /// <summary>
         /// Added by Windows (COM) to the command line of every program it starts for a COM call, here a click on a toast while
         /// Greenshot isn't running. Greenshot doesn't choose it and ignores it: it is only accepted so the start isn't rejected.
         /// The click itself arrives over COM after the start (see ToastActivator).
@@ -117,7 +132,7 @@ namespace Greenshot.Helpers
         private static readonly HashSet<string> OptionsWithValue = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "--language", "--ini-directory" };
 
         /// <summary>Startup options without a value, including the help options.</summary>
-        private static readonly HashSet<string> Flags = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "--no-run", "--restore", "-Embedding", "--help", "-h", "-?" };
+        private static readonly HashSet<string> Flags = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "--no-run", "--restore", "--autostart", "-Embedding", "--help", "-h", "-?" };
 
         /// <summary>
         /// Parses the given command line arguments.
@@ -180,6 +195,7 @@ namespace Greenshot.Helpers
                     Language = parseResult.GetValue(LanguageOption),
                     IniDirectory = parseResult.GetValue(IniDirectoryOption),
                     Restore = parseResult.GetValue(RestoreOption),
+                    Autostart = parseResult.GetValue(AutostartOption),
                     CommandArguments = commandArguments
                 };
             });
@@ -238,6 +254,7 @@ namespace Greenshot.Helpers
             rootCommand.Options.Add(LanguageOption);
             rootCommand.Options.Add(IniDirectoryOption);
             rootCommand.Options.Add(RestoreOption);
+            rootCommand.Options.Add(AutostartOption);
             rootCommand.Options.Add(EmbeddingOption);
 
             return rootCommand;

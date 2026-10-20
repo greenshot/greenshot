@@ -1,13 +1,17 @@
 [InstallDelete]
 // processed as the first step of installation.
+// The start with Windows is the Run value (see docs/vNext/autostart.md): a Greenshot link in a Startup folder would start it a second time at every logon
+Type: files; Name: "{userstartup}\Greenshot.lnk"; Tasks: startup
+Type: files; Name: "{commonstartup}\Greenshot.lnk"; Tasks: startup; Check: IsAdminInstallMode
 #ifdef IsLightEdition
 // Light edition strips all plugins so an installation over Full is completely clean
 Type: filesandordirs; Name: "{app}\Plugins"
 // Greenshot Light has no command line and no proxy, it opens files with Greenshot.exe
 Type: files; Name: "{app}\greenshot-proxy.exe"
 Type: files; Name: "{app}\greenshot-cli.exe"
-// Greenshot Light has no toasts: the icon and the kept captures of the toasts of the full version (see tasks-icons-reg.iss for the registration)
+// Greenshot Light has no toasts: the icon, the icons and the kept captures of the toasts of the full version (see tasks-icons-reg.iss for the registration)
 Type: files; Name: "{localappdata}\Greenshot\greenshot.png"
+// The error and warning icons of earlier 1.4 builds, they are in Notifications\Icons now
 Type: files; Name: "{localappdata}\Greenshot\notification-*.png"
 Type: filesandordirs; Name: "{localappdata}\Greenshot\Notifications"
 #endif
@@ -23,6 +27,8 @@ Type: files; Name: "{app}\greenshot.com"
 // The XML language files were replaced by the language packs greenshot.{ietf}.ini, plugins had theirs in Languages\Plugins
 Type: files; Name: "{app}\Languages\language*.xml"
 Type: filesandordirs; Name: "{app}\Languages\Plugins"
+// Greenshot no longer uploads to Imgur, the plugin was removed (Self-Service deletes the earlier uploads)
+Type: files; Name: "{app}\Languages\greenshot.imgur.*.ini"
 
 // Delete plugins from Greenshot 1.2
 Type: filesandordirs; Name: "{app}\Plugins\GreenshotBoxPlugin"
@@ -41,6 +47,7 @@ Type: filesandordirs; Name: "{app}\Plugins\GreenshotPicasaPlugin"
 // Removed first, so no file of an older version stays behind.
 Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.Box"
 Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.Confluence"
+Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.CustomUploader"
 Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.Dropbox"
 Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.ExternalCommand"
 Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.Flickr"
@@ -81,6 +88,7 @@ Name: {app}; Type: dirifempty;
 Type: files; Name: "{app}\greenshot-mcp.exe"
 // The icons and the kept captures of the toasts (notifications), which Greenshot writes when it runs
 Type: files; Name: "{localappdata}\Greenshot\greenshot.png"
+// The error and warning icons of earlier 1.4 builds, they are in Notifications\Icons now
 Type: files; Name: "{localappdata}\Greenshot\notification-*.png"
 Type: filesandordirs; Name: "{localappdata}\Greenshot\Notifications"
 // The multi-core JIT profile, which Greenshot writes when it runs

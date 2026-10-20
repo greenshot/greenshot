@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -172,9 +172,9 @@ namespace Greenshot.Notifications
             {
                 return false;
             }
-            var editor = new ImageEditorForm(surface, true);
-            editor.Show();
-            editor.Activate();
+            // Like any capture: as a tab or in its own window, the capture was shown in the toast already (nothing to save)
+            surface.Modified = false;
+            ImageEditorForm.Open(surface);
             return true;
         }
 

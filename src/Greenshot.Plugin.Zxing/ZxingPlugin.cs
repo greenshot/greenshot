@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -61,6 +61,7 @@ public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
 
     public void ConfigureServices(IPluginServices services)
     {
+        Texts.Register<IZxingLanguage>(new ZxingLanguageImpl());
         var section = new ZxingConfigurationImpl();
         services.AddConfiguration(section);
         _config = section;

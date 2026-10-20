@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -63,9 +63,8 @@ namespace Greenshot.Base.Core
         [Description("Hotkey for opening the clipboard contents into the editor")]
         string ClipboardHotkey { get; set; }
 
-        [Description("Is this the first time launch?")]
-        [DefaultValue(true)]
-        bool IsFirstLaunch { get; set; }
+        [Description("Was the welcome window shown? Greenshot shows it once, at its first start")]
+        bool WelcomeShown { get; set; }
 
         [DataMember(Name = "Destinations")]
         [Description("Which destinations? Possible options (more might be added by plugins) are: Editor, FileDefault, FileWithDialog, Clipboard, Printer, EMail, Picker")]
@@ -328,6 +327,10 @@ namespace Greenshot.Base.Core
         [DefaultValue(true)]
         bool ZoomerEnabled { get; set; }
 
+        [Description("Sets if the screen is frozen while a region or window is selected. When false the screen stays live and only the selection is captured, when it is made (Windows 10 2004 or newer, else the screen is frozen).")]
+        [DefaultValue(true)]
+        bool CaptureFreezeScreen { get; set; }
+
         [Description("Sets if the keys are shown (help panel) in the interactive capture, F1 shows or hides them")]
         [DefaultValue(true)]
         bool CaptureHelpVisible { get; set; }
@@ -335,6 +338,14 @@ namespace Greenshot.Base.Core
         [Description("Sets if the info panel (screen, selection, window and mouse position) is shown in the interactive capture, I shows or hides it")]
         [DefaultValue(true)]
         bool CaptureInfoVisible { get; set; }
+
+        [Description("Sets if the preview of the selection (enlarged when small, reduced when large) is shown in the interactive capture, P shows or hides it")]
+        [DefaultValue(true)]
+        bool CaptureSelectionPreviewVisible { get; set; }
+
+        [Description("Sets if the preview of the selection is shown in the place of the zoomer (next to the cursor) instead of in a corner, P switches between a corner, the zoomer's place and off")]
+        [DefaultValue(false)]
+        bool ZoomerShowsPreview { get; set; }
 
         [Description("Specify the transparency for the zoomer, from 0-1 (where 1 is no transparency and 0 is complete transparent. An useful setting would be 0.7)")]
         [DefaultValue(1)]
@@ -383,6 +394,20 @@ namespace Greenshot.Base.Core
         [Description("The last used region, for reuse in the capture last region")]
         NativeRect LastCapturedRegion { get; set; }
 
+        [Description("The sizes of the fixed size capture (F in the region selection), width x height separated by commas")]
+        [DefaultValue("640x480,800x600,1024x768,1280x720,1920x1080")]
+        List<string> FixedCaptureSizes { get; set; }
+
+        [Description("The sizes of the last region captures, the fixed size capture offers them below its own sizes")]
+        List<string> RecentCaptureSizes { get; set; }
+
+        [Description("The size of the last fixed size capture, the fixed size capture starts with it")]
+        NativeSize FixedCaptureSize { get; set; }
+
+        [Description("Where the cursor holds the area of the fixed size capture: TopLeft, TopRight, BottomRight, BottomLeft or Center, C changes it")]
+        [DefaultValue("TopLeft")]
+        FixedCaptureAnchor FixedCaptureAnchor { get; set; }
+
         [DataMember(Name = "BaseIconSize")]
         [Description("Defines the base size of the icons (e.g. for the buttons in the editor), default value 16,16 and it's scaled to the current DPI")]
         [DefaultValue("16,16")]
@@ -420,8 +445,14 @@ namespace Greenshot.Base.Core
         [DefaultValue(true)]
         bool AiToolsNotifyOnCapture { get; set; }
 
-        /// <summary>Validates <see cref="OutputFilePath"/>; resets it to the default output folder when the path no longer exists.</summary>
+        /// <summary>Normalizes <see cref="OutputFilePath"/>; sets the default output folder when none is configured. A configured folder which doesn't exist stays.</summary>
         void ValidateAndCorrectOutputFilePath();
+
+        /// <summary>
+        /// The folder for a new screenshot: <see cref="OutputFilePath"/> with its variables filled in, created when it doesn't exist.
+        /// When it can't be used, the default output folder for this save only, <paramref name="problem"/> tells why.
+        /// </summary>
+        string GetOutputDirectory(out string problem);
 
         /// <summary>Validates <see cref="OutputFileAsFullpath"/>; resets it to a default full-path dummy when the directory no longer exists.</summary>
         void ValidateAndCorrectOutputFileAsFullpath();

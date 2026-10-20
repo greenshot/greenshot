@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -87,6 +87,16 @@ namespace Greenshot.Base.Recipes.Pipeline
         }
 
         public bool IsRegistered(string stepType) => Find(stepType, true) != null;
+
+        /// <summary>
+        /// Determines whether a step exports the capture. Core step types are identified centrally;
+        /// plugin-provided export steps are identified by their registered Export category.
+        /// </summary>
+        public bool IsDestinationStep(string stepType)
+        {
+            if (WellKnownStepTypes.IsDestination(stepType)) return true;
+            return string.Equals(GetContract(stepType)?.Category, "Export", StringComparison.OrdinalIgnoreCase);
+        }
 
         public IReadOnlyCollection<string> RegisteredStepTypes
         {

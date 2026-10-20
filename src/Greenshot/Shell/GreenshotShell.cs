@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -55,6 +55,7 @@ using Greenshot.Processors;
 using Greenshot.Recipes;
 using Greenshot.Recipes.Pipeline;
 using Greenshot.Recipes.Triggers;
+using Greenshot.Recipes.Views;
 using Greenshot.Settings.Views;
 using Greenshot.Views;
 using log4net;
@@ -124,6 +125,8 @@ namespace Greenshot.Shell
             var userInteraction = new InteractiveUserInteraction(UiDispatcher);
             userInteraction.Register<PrintRequest, bool>(PrintRequest.Print);
             userInteraction.Register<ShareRequest, string>(ShareHostWindow.Show);
+            userInteraction.Register<PreviewPromptRequest, PreviewPromptResult>(RecipeUserPromptWindow.Show);
+            userInteraction.Register<ErrorDetailsRequest, bool>(ErrorDetailsWindow.Show);
             SimpleServiceProvider.Current.AddService<IUserInteraction>(userInteraction);
             SimpleServiceProvider.Current.AddService<IDialogViewRegistry>(userInteraction);
 #if DEBUG
@@ -165,9 +168,10 @@ namespace Greenshot.Shell
 
             SimpleServiceProvider.Current.AddService<IGreenshotShell>(this);
             SimpleServiceProvider.Current.AddService<ITriggerManager>(TriggerManager.Instance);
-            SimpleServiceProvider.Current.AddService<IRecipeManager>(RecipeManager.Instance);
+            // The pipeline registers the built-in step types: before the recipe manager, which checks its built-in extensions with them
             SimpleServiceProvider.Current.AddService<IStepRegistry>(StepRegistry.Instance);
             SimpleServiceProvider.Current.AddService<ICapturePipeline>(CapturePipeline.Instance);
+            SimpleServiceProvider.Current.AddService<IRecipeManager>(RecipeManager.Instance);
             // Every flow is started, tracked and cancelled through the flow runner
             _flowRunner = new CaptureFlowRunner(CapturePipeline.Instance, UiDispatcher, CapturePipeline.Instance.Selector);
             SimpleServiceProvider.Current.AddService<ICaptureFlowRunner>(_flowRunner);
@@ -286,10 +290,10 @@ namespace Greenshot.Shell
             {
                 RestartManagerHelper.RestoreState();
             }
-            // Check if it's the first time launch?
-            if (_conf.IsFirstLaunch)
+            // Welcome everybody who hasn't seen the welcome window yet
+            if (!_conf.WelcomeShown)
             {
-                ApplicationStartupHelper.FirstLaunch();
+                ApplicationStartupHelper.ShowWelcome();
             }
 
             if (startupCommand != null)
@@ -393,7 +397,7 @@ namespace Greenshot.Shell
                 this,
                 Exit,
                 ApplicationStartupHelper.ReloadConfig,
-                ApplicationStartupHelper.FirstLaunch,
+                ApplicationStartupHelper.ShowWelcome,
                 ApplicationStartupHelper.OpenFile).ConfigureAwait(false);
         }
 
@@ -445,19 +449,21 @@ namespace Greenshot.Shell
                 return;
             }
 
-            try
+            // Not modal: a dialog blocks every window of the UI thread, the editors too, also from the Self-Service window opened from here
+            var aboutWindow = new AboutWindow();
+            _ = new WindowInteropHelper(aboutWindow)
             {
-                _aboutWindow = new AboutWindow();
-                _ = new WindowInteropHelper(_aboutWindow)
+                Owner = OwnerHandle
+            };
+            aboutWindow.Closed += (sender, args) =>
+            {
+                if (ReferenceEquals(_aboutWindow, aboutWindow))
                 {
-                    Owner = OwnerHandle
-                };
-                _aboutWindow.ShowDialog();
-            }
-            finally
-            {
-                _aboutWindow = null;
-            }
+                    _aboutWindow = null;
+                }
+            };
+            _aboutWindow = aboutWindow;
+            aboutWindow.Show();
         }
 
         /// <summary>
@@ -480,7 +486,7 @@ namespace Greenshot.Shell
 
             // The editors first, before anything is stopped: the user can still keep Greenshot running
             // (cancel in the save question, or in the save dialog)
-            if (!await UiDispatcher.InvokeAsync(CloseEditors))
+            if (!await UiDispatcher.InvokeAsync(ImageEditorForm.CloseAllAsync))
             {
                 Log.Info("The exit was cancelled in an editor, Greenshot keeps running.");
                 Volatile.Write(ref _shutdownState, 0);
@@ -547,24 +553,6 @@ namespace Greenshot.Shell
             _namedPipeServer?.NotifyWatchersAsync(new { @event = "tools_changed" }).FireAndLog("Tell the watchers that the tools changed", Log);
         }
 #endif
-
-        /// <summary>
-        /// Close the editors like the user does, so each can ask to save its image (with cancel)
-        /// </summary>
-        /// <returns>false when an editor stays open: the user cancelled</returns>
-        private static bool CloseEditors()
-        {
-            foreach (var editor in Application.OpenForms.OfType<ImageEditorForm>().ToList())
-            {
-                editor.Close();
-                if (!editor.IsDisposed)
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
 
         /// <summary>
         /// The application ends without <see cref="ExitAsync"/>, e.g. at the end of the session: no time to wait for flows,

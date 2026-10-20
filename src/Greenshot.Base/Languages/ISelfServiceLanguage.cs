@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -42,6 +42,11 @@ namespace Greenshot.Base.Languages
         string BtnCopySysinfo { get; }
 
         /// <summary>
+        /// Open Folder
+        /// </summary>
+        string BtnOpenFolder { get; }
+
+        /// <summary>
         /// Open Log Viewer
         /// </summary>
         string BtnOpenLogviewer { get; }
@@ -50,6 +55,16 @@ namespace Greenshot.Base.Languages
         /// Refresh (F5)
         /// </summary>
         string BtnRefresh { get; }
+
+        /// <summary>
+        /// Reset Filename Pattern
+        /// </summary>
+        string BtnResetFilenamePattern { get; }
+
+        /// <summary>
+        /// Reset Folder to Default
+        /// </summary>
+        string BtnResetOutputPath { get; }
 
         /// <summary>
         /// Self-Service [S]
@@ -100,6 +115,16 @@ namespace Greenshot.Base.Languages
         /// Greenshot shortcuts, conflict detection (OneDrive, Windows 11 Snipping Tool, Dropbox)
         /// </summary>
         string CategoryHotkeysSub { get; }
+
+        /// <summary>
+        /// Delete old Imgur uploads
+        /// </summary>
+        string CategoryImgur { get; }
+
+        /// <summary>
+        /// Greenshot still has the delete keys of your earlier anonymous uploads
+        /// </summary>
+        string CategoryImgurSub { get; }
 
         /// <summary>
         /// System &amp; Hardware
@@ -237,6 +262,31 @@ namespace Greenshot.Base.Languages
         string ChecksumManifestLocation { get; }
 
         /// <summary>
+        /// Checksum validation canceled.
+        /// </summary>
+        string ChecksumCanceled { get; }
+
+        /// <summary>
+        /// Validation error: {0}
+        /// </summary>
+        string ChecksumValidationError { get; }
+
+        /// <summary>
+        /// Opened Explorer for: {0}
+        /// </summary>
+        string ChecksumOpenedExplorer { get; }
+
+        /// <summary>
+        /// Checksum file not found, opened containing folder: {0}
+        /// </summary>
+        string ChecksumOpenedFolder { get; }
+
+        /// <summary>
+        /// Failed to open file: {0}
+        /// </summary>
+        string ChecksumOpenFailed { get; }
+
+        /// <summary>
         /// MISMATCHED (CORRUPT)
         /// </summary>
         string ChecksumMetricCorrupt { get; }
@@ -365,6 +415,106 @@ namespace Greenshot.Base.Languages
         /// Clipboard may be busy or locked
         /// </summary>
         string ClipboardBusy { get; }
+
+        /// <summary>
+        /// None
+        /// </summary>
+        string ClipboardNone { get; }
+
+        /// <summary>
+        /// (No owner or system clipboard)
+        /// </summary>
+        string ClipboardNoOwner { get; }
+
+        /// <summary>
+        /// None (or system clipboard)
+        /// </summary>
+        string ClipboardNoneSystem { get; }
+
+        /// <summary>
+        /// Error checking clipboard status
+        /// </summary>
+        string ClipboardStatusError { get; }
+
+        /// <summary>
+        /// Unknown Process
+        /// </summary>
+        string ClipboardUnknownProcess { get; }
+
+        /// <summary>
+        /// (No Title)
+        /// </summary>
+        string ClipboardNoTitle { get; }
+
+        /// <summary>
+        /// Unknown Path
+        /// </summary>
+        string ClipboardUnknownPath { get; }
+
+        /// <summary>
+        /// Access Denied
+        /// </summary>
+        string ClipboardAccessDenied { get; }
+
+        /// <summary>
+        /// (Protected or Elevated Process)
+        /// </summary>
+        string ClipboardProtectedProcess { get; }
+
+        /// <summary>
+        /// Native clipboard data
+        /// </summary>
+        string ClipboardNativeData { get; }
+
+        /// <summary>
+        /// Text: "{0}"
+        /// </summary>
+        string ClipboardTextPreview { get; }
+
+        /// <summary>
+        /// {0:N0} chars
+        /// </summary>
+        string ClipboardChars { get; }
+
+        /// <summary>
+        /// (+{0} more)
+        /// </summary>
+        string ClipboardMoreFiles { get; }
+
+        /// <summary>
+        /// Files: {0}
+        /// </summary>
+        string ClipboardFilesPreview { get; }
+
+        /// <summary>
+        /// {0} files
+        /// </summary>
+        string ClipboardFilesCount { get; }
+
+        /// <summary>
+        /// Raster bitmap image data
+        /// </summary>
+        string ClipboardRasterImage { get; }
+
+        /// <summary>
+        /// Image
+        /// </summary>
+        string ClipboardImage { get; }
+
+        /// <summary>
+        /// PNG compressed image data
+        /// </summary>
+        string ClipboardPngImage { get; }
+
+        /// <summary>
+        /// HTML formatted text fragment
+        /// </summary>
+        string ClipboardHtmlFragment { get; }
+
+        /// <summary>
+        /// Idle
+        /// </summary>
+        string ClipboardIdle { get; }
 
         /// <summary>
         /// Current Clipboard Data Owner:
@@ -647,6 +797,156 @@ namespace Greenshot.Base.Languages
         string FilesNotFound { get; }
 
         /// <summary>
+        /// Configured folder
+        /// </summary>
+        string FilesOutputConfigured { get; }
+
+        /// <summary>
+        /// The folder contains variables like ${YYYY}: Greenshot fills them in when it saves, and creates the folder.
+        /// </summary>
+        string FilesOutputContainsVariables { get; }
+
+        /// <summary>
+        /// The drive or network share {0} isn't available: until it is, Greenshot saves to the default folder (Desktop) and shows a notification.
+        /// </summary>
+        string FilesOutputDriveMissing { get; }
+
+        /// <summary>
+        /// Next file, for example
+        /// </summary>
+        string FilesOutputExample { get; }
+
+        /// <summary>
+        /// Folder used
+        /// </summary>
+        string FilesOutputExpanded { get; }
+
+        /// <summary>
+        /// The filename pattern doesn't give a valid filename. {0}
+        /// </summary>
+        string FilesOutputInvalidFilename { get; }
+
+        /// <summary>
+        /// The folder doesn't exist yet: Greenshot creates it at the next save.
+        /// </summary>
+        string FilesOutputMissing { get; }
+
+        /// <summary>
+        /// A network folder: when it can't be reached (e.g. without VPN), Greenshot saves to the default folder (Desktop) for that time and shows a notification.
+        /// </summary>
+        string FilesOutputNetwork { get; }
+
+        /// <summary>
+        /// No folder configured: Greenshot saves to the default folder (Desktop).
+        /// </summary>
+        string FilesOutputNotConfigured { get; }
+
+        /// <summary>
+        /// Greenshot can't write to the folder: {0} Check the permissions, or whether the controlled folder access of Windows Security blocks Greenshot.
+        /// </summary>
+        string FilesOutputNotWritable { get; }
+
+        /// <summary>
+        /// The folder exists and Greenshot can write to it.
+        /// </summary>
+        string FilesOutputOk { get; }
+
+        /// <summary>
+        /// OneDrive synchronizes the folder (also the Desktop, when OneDrive backs it up): files can be online only, or show sync conflicts.
+        /// </summary>
+        string FilesOutputOnedrive { get; }
+
+        /// <summary>
+        /// The filename pattern creates subfolders.
+        /// </summary>
+        string FilesOutputPatternFolders { get; }
+
+        /// <summary>
+        /// Reset to: {0}
+        /// </summary>
+        string FilesOutputResetDone { get; }
+
+        /// <summary>
+        /// Screenshot folder
+        /// </summary>
+        string FilesScreenshotFolder { get; }
+
+        /// <summary>
+        /// Screenshot folder copied to clipboard.
+        /// </summary>
+        string FilesScreenshotFolderCopied { get; }
+
+        /// <summary>
+        /// Log file
+        /// </summary>
+        string FilesLogFile { get; }
+
+        /// <summary>
+        /// Configuration file
+        /// </summary>
+        string FilesConfigFile { get; }
+
+        /// <summary>
+        /// No path specified for {0}.
+        /// </summary>
+        string FilesNoPath { get; }
+
+        /// <summary>
+        /// Opened Explorer for {0}.
+        /// </summary>
+        string FilesOpenedExplorer { get; }
+
+        /// <summary>
+        /// File not found, opened containing folder: {0}
+        /// </summary>
+        string FilesOpenedFolder { get; }
+
+        /// <summary>
+        /// {0} does not exist at: {1}
+        /// </summary>
+        string FilesDoesNotExist { get; }
+
+        /// <summary>
+        /// Failed to open Explorer: {0}
+        /// </summary>
+        string FilesExplorerFailed { get; }
+
+        /// <summary>
+        /// Opened Log Viewer window.
+        /// </summary>
+        string FilesLogviewerOpened { get; }
+
+        /// <summary>
+        /// Could not open log viewer: {0}
+        /// </summary>
+        string FilesLogviewerFailed { get; }
+
+        /// <summary>
+        /// Log path copied to clipboard.
+        /// </summary>
+        string FilesLogPathCopied { get; }
+
+        /// <summary>
+        /// Config path copied to clipboard.
+        /// </summary>
+        string FilesConfigPathCopied { get; }
+
+        /// <summary>
+        /// {0:N0} bytes
+        /// </summary>
+        string FilesSizeBytes { get; }
+
+        /// <summary>
+        /// Screenshot Folder (where Greenshot saves)
+        /// </summary>
+        string FilesOutputTitle { get; }
+
+        /// <summary>
+        /// The full path of a file has {0} characters, more than the {1} that Windows allows by default.
+        /// </summary>
+        string FilesOutputTooLong { get; }
+
+        /// <summary>
         /// Open the dedicated Log Viewer window to scroll, search, refresh, or copy the complete recent log entries with clear scrollbars.
         /// </summary>
         string FilesQuickglanceDesc { get; }
@@ -882,6 +1182,81 @@ namespace Greenshot.Base.Languages
         string HotkeysUpdatedAt { get; }
 
         /// <summary>
+        /// {0} Issue
+        /// </summary>
+        string HotkeysIssue { get; }
+
+        /// <summary>
+        /// {0} Issues
+        /// </summary>
+        string HotkeysIssues { get; }
+
+        /// <summary>
+        /// Could not update registry: {0}
+        /// </summary>
+        string HotkeysRegistryError { get; }
+
+        /// <summary>
+        /// Could not open Windows Settings: {0}
+        /// </summary>
+        string HotkeysSettingsError { get; }
+
+        /// <summary>
+        /// Uploaded
+        /// </summary>
+        string ImgurColumnDate { get; }
+
+        /// <summary>
+        /// Image
+        /// </summary>
+        string ImgurColumnImage { get; }
+
+        /// <summary>
+        /// Delete from Imgur
+        /// </summary>
+        string ImgurDelete { get; }
+
+        /// <summary>
+        /// Delete {0} image(s) from Imgur? This can't be undone.
+        /// </summary>
+        string ImgurDeleteQuestion { get; }
+
+        /// <summary>
+        /// Save delete links
+        /// </summary>
+        string ImgurExport { get; }
+
+        /// <summary>
+        /// Delete this image
+        /// </summary>
+        string ImgurExportDelete { get; }
+
+        /// <summary>
+        /// Forget the delete keys
+        /// </summary>
+        string ImgurForget { get; }
+
+        /// <summary>
+        /// Greenshot forgets the delete keys and can no longer delete these images for you, the images stay on Imgur. Save the delete links first to keep them. Continue?
+        /// </summary>
+        string ImgurForgetQuestion { get; }
+
+        /// <summary>
+        /// Open
+        /// </summary>
+        string ImgurOpen { get; }
+
+        /// <summary>
+        /// Greenshot no longer uploads to Imgur. For the images you uploaded anonymously with an earlier Greenshot it still has the delete keys, so it can delete them for you. Only Greenshot can do that, Imgur has no other way for anonymous uploads.
+        /// </summary>
+        string ImgurSub { get; }
+
+        /// <summary>
+        /// Delete your old Imgur uploads
+        /// </summary>
+        string ImgurTitle { get; }
+
+        /// <summary>
         /// Copied entire log content to clipboard ({0:N0} characters)
         /// </summary>
         string LogviewerCopied { get; }
@@ -897,6 +1272,11 @@ namespace Greenshot.Base.Languages
         string LogviewerEmpty { get; }
 
         /// <summary>
+        /// Log level
+        /// </summary>
+        string LogviewerLevel { get; }
+
+        /// <summary>
         /// Load Earlier (+64 KB)
         /// </summary>
         string LogviewerLoadEarlier { get; }
@@ -910,6 +1290,16 @@ namespace Greenshot.Base.Languages
         /// Refresh Tail (F5)
         /// </summary>
         string LogviewerRefresh { get; }
+
+        /// <summary>
+        /// Search
+        /// </summary>
+        string LogviewerSearch { get; }
+
+        /// <summary>
+        /// {0:N0} of {1:N0} log entries contain "{2}"
+        /// </summary>
+        string LogviewerSearchMatches { get; }
 
         /// <summary>
         /// Loaded complete log file: {0} ({1:N0} bytes, {2} lines)
@@ -937,6 +1327,81 @@ namespace Greenshot.Base.Languages
         string LogviewerTitle { get; }
 
         /// <summary>
+        /// How much Greenshot writes to the log, until Greenshot restarts. Debug writes the most.
+        /// </summary>
+        string LogviewerTooltipLevel { get; }
+
+        /// <summary>
+        /// Searched at {0} | Last modified: {1}
+        /// </summary>
+        string LogviewerSearchedAt { get; }
+
+        /// <summary>
+        /// Size: 0 KB | 0 lines
+        /// </summary>
+        string LogviewerInfoEmpty { get; }
+
+        /// <summary>
+        /// Empty log file | Last modified: {0}
+        /// </summary>
+        string LogviewerStatusEmpty { get; }
+
+        /// <summary>
+        /// (No log entries in chunk)
+        /// </summary>
+        string LogviewerNoEntries { get; }
+
+        /// <summary>
+        /// Read error
+        /// </summary>
+        string LogviewerReadError { get; }
+
+        /// <summary>
+        /// Loaded earlier chunk at {0}
+        /// </summary>
+        string LogviewerLoadedEarlier { get; }
+
+        /// <summary>
+        /// Error loading earlier chunk: {0}
+        /// </summary>
+        string LogviewerErrorEarlier { get; }
+
+        /// <summary>
+        /// Complete log loaded at {0}
+        /// </summary>
+        string LogviewerLoadedComplete { get; }
+
+        /// <summary>
+        /// Error loading entire log: {0}
+        /// </summary>
+        string LogviewerErrorComplete { get; }
+
+        /// <summary>
+        /// Showing ~{0:N0} lines ({1} of {2})
+        /// </summary>
+        string LogviewerInfoPartial { get; }
+
+        /// <summary>
+        /// Showing tail {0} of {1} total. Earlier log lines available.
+        /// </summary>
+        string LogviewerChunkPartial { get; }
+
+        /// <summary>
+        /// Complete log: ~{0:N0} lines ({1})
+        /// </summary>
+        string LogviewerInfoComplete { get; }
+
+        /// <summary>
+        /// All {0} loaded.
+        /// </summary>
+        string LogviewerChunkComplete { get; }
+
+        /// <summary>
+        /// Loaded at {0} | Last modified: {1}
+        /// </summary>
+        string LogviewerLoadedAt { get; }
+
+        /// <summary>
         /// Load previous 64 KB chunk of log lines
         /// </summary>
         string LogviewerTooltipLoadEarlier { get; }
@@ -945,6 +1410,11 @@ namespace Greenshot.Base.Languages
         /// Load all remaining earlier log lines
         /// </summary>
         string LogviewerTooltipLoadEntire { get; }
+
+        /// <summary>
+        /// Shows only the log entries that contain this text, from the whole log file (Ctrl+F)
+        /// </summary>
+        string LogviewerTooltipSearch { get; }
 
         /// <summary>
         /// Wrap text
@@ -962,7 +1432,7 @@ namespace Greenshot.Base.Languages
         string SidebarNavigationHeader { get; }
 
         /// <summary>
-        /// Press 1-5 to navigate tabs, F5 to refresh, and T to toggle Dark/Light mode.
+        /// Press the number of a section (1 is the first) to open it, F5 to refresh, and T to toggle Dark/Light mode.
         /// </summary>
         string SidebarNavigationTip { get; }
 
@@ -995,6 +1465,261 @@ namespace Greenshot.Base.Languages
         /// Full Environment Diagnostic Report
         /// </summary>
         string SysReportTitle { get; }
+
+        /// <summary>
+        /// Peak:
+        /// </summary>
+        string SysPeak { get; }
+
+        /// <summary>
+        /// Private:
+        /// </summary>
+        string SysPrivate { get; }
+
+        /// <summary>
+        /// Memory Load:
+        /// </summary>
+        string SysMemoryLoad { get; }
+
+        /// <summary>
+        /// {0} GB free of {1} GB
+        /// </summary>
+        string SysMemoryFree { get; }
+
+        /// <summary>
+        /// {0}% in use
+        /// </summary>
+        string SysMemoryInUse { get; }
+
+        /// <summary>
+        /// Unknown
+        /// </summary>
+        string SysUnknown { get; }
+
+        /// <summary>
+        /// PID: {0} | Threads: {1} | Handles: {2} | GDI: {3} | USER: {4}
+        /// </summary>
+        string SysProcessStats { get; }
+
+        /// <summary>
+        /// Failed to refresh metrics
+        /// </summary>
+        string SysRefreshFailed { get; }
+
+        /// <summary>
+        /// Updated at {0}
+        /// </summary>
+        string StatusUpdatedAt { get; }
+
+        /// <summary>
+        /// Copy failed: {0}
+        /// </summary>
+        string StatusCopyFailed { get; }
+
+        /// <summary>
+        /// Error: {0}
+        /// </summary>
+        string StatusError { get; }
+
+        /// <summary>
+        /// Ready
+        /// </summary>
+        string StatusReady { get; }
+
+        /// <summary>
+        /// System information ready
+        /// </summary>
+        string StatusSystemReady { get; }
+
+        /// <summary>
+        /// File locations ready
+        /// </summary>
+        string StatusFilesReady { get; }
+
+        /// <summary>
+        /// Clipboard diagnostics ready
+        /// </summary>
+        string StatusClipboardReady { get; }
+
+        /// <summary>
+        /// Hotkey diagnostics ready
+        /// </summary>
+        string StatusHotkeysReady { get; }
+
+        /// <summary>
+        /// Checksum validation ready
+        /// </summary>
+        string StatusChecksumReady { get; }
+
+        /// <summary>
+        /// Integration (Debug)
+        /// </summary>
+        string DebugTitle { get; }
+
+        /// <summary>
+        /// Register Native Messaging host &amp; URL scheme for current user (HKCU)
+        /// </summary>
+        string DebugSub { get; }
+
+        /// <summary>
+        /// Integration &amp; Extension Debugger
+        /// </summary>
+        string DebugHeader { get; }
+
+        /// <summary>
+        /// Configure and test local Native Messaging hosts &amp; greenshot:// URL protocol in HKCU
+        /// </summary>
+        string DebugHeaderSub { get; }
+
+        /// <summary>
+        /// Extension Folder
+        /// </summary>
+        string DebugExtensionFolder { get; }
+
+        /// <summary>
+        /// Registry &amp; Binary Status (Current User / HKCU)
+        /// </summary>
+        string DebugStatusTitle { get; }
+
+        /// <summary>
+        /// Proxy Executable:
+        /// </summary>
+        string DebugProxy { get; }
+
+        /// <summary>
+        /// Chrome Host (HKCU):
+        /// </summary>
+        string DebugChrome { get; }
+
+        /// <summary>
+        /// Edge Host (HKCU):
+        /// </summary>
+        string DebugEdge { get; }
+
+        /// <summary>
+        /// Firefox Host (HKCU):
+        /// </summary>
+        string DebugFirefox { get; }
+
+        /// <summary>
+        /// URL Protocol (greenshot://):
+        /// </summary>
+        string DebugUrlProtocol { get; }
+
+        /// <summary>
+        /// Browser Extension ID (Unpacked Developer Mode)
+        /// </summary>
+        string DebugExtensionIdTitle { get; }
+
+        /// <summary>
+        /// Chromium browsers (Chrome, Edge, Brave) enforce allowed_origins with the exact extension ID generated when loading an unpacked extension. Paste your extension ID below to update org.greenshot.proxy.json.
+        /// </summary>
+        string DebugExtensionIdDesc { get; }
+
+        /// <summary>
+        /// Extension ID
+        /// </summary>
+        string DebugExtensionId { get; }
+
+        /// <summary>
+        /// Save ID to Manifest
+        /// </summary>
+        string DebugSaveId { get; }
+
+        /// <summary>
+        /// Registry Actions
+        /// </summary>
+        string DebugActions { get; }
+
+        /// <summary>
+        /// Register Debug Host &amp; Protocol (HKCU)
+        /// </summary>
+        string DebugRegister { get; }
+
+        /// <summary>
+        /// Unregister from HKCU
+        /// </summary>
+        string DebugUnregister { get; }
+
+        /// <summary>
+        /// Test greenshot:// URL Scheme
+        /// </summary>
+        string DebugTestUrl { get; }
+
+        /// <summary>
+        /// Note: Registering in HKCU modifies only your user account (no admin privileges needed). Chrome, Edge, and Firefox will immediately detect this debug build's greenshot-proxy.
+        /// </summary>
+        string DebugNote { get; }
+
+        /// <summary>
+        /// Found: {0}
+        /// </summary>
+        string DebugProxyFound { get; }
+
+        /// <summary>
+        /// Missing in {0}
+        /// </summary>
+        string DebugProxyMissing { get; }
+
+        /// <summary>
+        /// Registered (HKCU): {0}
+        /// </summary>
+        string DebugRegistered { get; }
+
+        /// <summary>
+        /// Not registered in HKCU
+        /// </summary>
+        string DebugNotRegistered { get; }
+
+        /// <summary>
+        /// Successfully registered Chrome, Edge, Firefox Native Hosts and greenshot:// URL Scheme in HKCU!
+        /// </summary>
+        string DebugRegisterSuccess { get; }
+
+        /// <summary>
+        /// Registration failed: {0}
+        /// </summary>
+        string DebugRegisterFailed { get; }
+
+        /// <summary>
+        /// Removed debug native messaging hosts and greenshot:// protocol from HKCU.
+        /// </summary>
+        string DebugUnregisterSuccess { get; }
+
+        /// <summary>
+        /// Unregister failed: {0}
+        /// </summary>
+        string DebugUnregisterFailed { get; }
+
+        /// <summary>
+        /// Saved extension ID to org.greenshot.proxy.json!
+        /// </summary>
+        string DebugSaveIdSuccess { get; }
+
+        /// <summary>
+        /// Failed to save extension ID: {0}
+        /// </summary>
+        string DebugSaveIdFailed { get; }
+
+        /// <summary>
+        /// Launched 'greenshot://about'. The About dialog should open.
+        /// </summary>
+        string DebugTestUrlLaunched { get; }
+
+        /// <summary>
+        /// Failed to launch URL scheme: {0}
+        /// </summary>
+        string DebugTestUrlFailed { get; }
+
+        /// <summary>
+        /// Extension directory not found: {0}
+        /// </summary>
+        string DebugExtensionFolderMissing { get; }
+
+        /// <summary>
+        /// Error opening folder: {0}
+        /// </summary>
+        string DebugExtensionFolderError { get; }
 
         /// <summary>
         /// Detailed environment, memory utilization, screen layout, and process metrics.

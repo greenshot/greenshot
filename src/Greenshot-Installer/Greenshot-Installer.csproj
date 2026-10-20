@@ -10,7 +10,6 @@
   
   <ItemGroup>
     <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0" />
-    <PackageReference Update="Microsoft.VisualStudio.Threading.Analyzers" Version="18.7.23" />
   </ItemGroup>
   
   <Target Name="GenerateSbom" BeforeTargets="Generate hashes" DependsOnTargets="PrunePluginFiles;SignFiles" Condition="'$(Configuration)' == 'Release'">
@@ -95,7 +94,7 @@
   <!--
     The MCP server (greenshot-mcp.exe, Native AOT, a single exe) as the very last step: next to Greenshot.exe for the release
     download, but not in checksum.SHA256, the SBOM, the installers or the portable versions, which are made before.
-    Needs the C++ build tools of Visual Studio (see docs/mcp-server.md); skip it with /p:SkipMcpPublish=true.
+    Needs the C++ build tools of Visual Studio (see docs/vNext/mcp-server.md); skip it with /p:SkipMcpPublish=true.
   -->
   <Target Name="PublishMcpServer" AfterTargets="PostBuild" Condition="'$(Configuration)' == 'Release' and '$(SkipMcpPublish)' != 'true'">
     <PropertyGroup>

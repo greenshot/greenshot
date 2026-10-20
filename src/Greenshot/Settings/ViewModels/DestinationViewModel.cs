@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -59,5 +59,10 @@ namespace Greenshot.Settings.ViewModels
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        /// The text a screen reader reads for the row of the destination list
+        /// </summary>
+        public override string ToString() => Description ?? base.ToString();
     }
 }

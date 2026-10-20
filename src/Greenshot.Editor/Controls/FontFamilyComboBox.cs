@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -102,7 +102,7 @@ namespace Greenshot.Editor.Controls
                 {
                     if (fontFamily != null)
                     {
-                        DrawText(e.Graphics, fontFamily, fontStyle, e.Bounds, fontFamily.Name);
+                        DrawText(e.Graphics, fontFamily, fontStyle, e.Bounds, fontFamily.Name, e.ForeColor);
                     }
                 }
                 catch
@@ -110,13 +110,13 @@ namespace Greenshot.Editor.Controls
                     // If the drawing failed, BUG-1770 seems to have a weird case that causes: Font 'Lucida Sans Typewriter' does not support style 'Regular' 
                     if (fontFamily != null)
                     {
-                        DrawText(e.Graphics, FontFamily.GenericSansSerif, FontStyle.Regular, e.Bounds, fontFamily.Name);
+                        DrawText(e.Graphics, FontFamily.GenericSansSerif, FontStyle.Regular, e.Bounds, fontFamily.Name, e.ForeColor);
                     }
                 }
             }
 
-            // Uncomment this if you actually like the way the focus rectangle looks
-            //e.DrawFocusRectangle ();
+            // Shows the item with the keyboard focus
+            e.DrawFocusRectangle();
         }
 
         /// <summary>
@@ -127,7 +127,8 @@ namespace Greenshot.Editor.Controls
         /// <param name="fontStyle">FontStyle</param>
         /// <param name="bounds">NativeRect</param>
         /// <param name="text">string</param>
-        private void DrawText(Graphics graphics, FontFamily fontFamily, FontStyle fontStyle, NativeRect bounds, string text)
+        /// <param name="color">The text color of the item: highlighted, normal or high contrast</param>
+        private void DrawText(Graphics graphics, FontFamily fontFamily, FontStyle fontStyle, NativeRect bounds, string text, Color color)
         {
             using Font font = new Font(fontFamily, Font.Size + 5, fontStyle, GraphicsUnit.Pixel);
             // Make sure the text is visible by centering it in the line
@@ -135,7 +136,8 @@ namespace Greenshot.Editor.Controls
             {
                 LineAlignment = StringAlignment.Center
             };
-            graphics.DrawString(text, font, Brushes.Black, bounds, stringFormat);
+            using var brush = new SolidBrush(color);
+            graphics.DrawString(text, font, brush, bounds, stringFormat);
         }
 
         private void BindableToolStripComboBox_SelectedIndexChanged(object sender, EventArgs e)

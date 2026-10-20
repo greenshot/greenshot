@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Dapplo.Windows.Input.Enums;
 using Greenshot.Base.Core;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Base.Wpf.ViewModels
 {
@@ -36,8 +37,13 @@ namespace Greenshot.Base.Wpf.ViewModels
         public string ActionTitle
         {
             get => _actionTitle;
-            set { _actionTitle = value; OnPropertyChanged(); }
+            set { _actionTitle = value; OnPropertyChanged(); OnPropertyChanged(nameof(HeaderText)); }
         }
+
+        /// <summary>
+        /// The header of the editor: "Configure Hotkey: " and the action
+        /// </summary>
+        public string HeaderText => string.Format(Texts.Settings.HotkeyEditorTitle, _actionTitle);
 
         public bool Ctrl
         {
@@ -175,7 +181,7 @@ namespace Greenshot.Base.Wpf.ViewModels
             }
         }
 
-        public string TriggerKeyDisplay => _triggerKey == VirtualKeyCode.None ? "Click here and press key" : KeyChord.FormatKeyName(_triggerKey);
+        public string TriggerKeyDisplay => _triggerKey == VirtualKeyCode.None ? Texts.Settings.HotkeyPressKey : KeyChord.FormatKeyName(_triggerKey);
 
         public ObservableCollection<KeyChord> Steps { get; } = new ObservableCollection<KeyChord>();
 
@@ -546,7 +552,7 @@ namespace Greenshot.Base.Wpf.ViewModels
                 var current = GetCurrentChord();
                 if (current.HasModifiers && current.Key == VirtualKeyCode.None)
                 {
-                    ValidationError = "Please choose a trigger key for the selected modifiers.";
+                    ValidationError = Texts.Settings.HotkeyErrorNoTrigger;
                     IsValid = false;
                     return;
                 }
@@ -562,7 +568,7 @@ namespace Greenshot.Base.Wpf.ViewModels
             {
                 if (Steps[i].Key == VirtualKeyCode.None)
                 {
-                    ValidationError = $"Step {i + 1} requires a trigger key.";
+                    ValidationError = string.Format(Texts.Settings.HotkeyErrorStepNoTrigger, i + 1);
                     IsValid = false;
                     return;
                 }

@@ -22,62 +22,10 @@
     </WindowChrome.WindowChrome>
 
     <Window.Resources>
-        <Style x:Key="TitleBarButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Width" Value="46"/>
-            <Setter Property="Height" Value="36"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" BorderThickness="0">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#E81123"/>
-                                <Setter Property="Foreground" Value="White"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style TargetType="Button">
-            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="14,6"/>
-            <Setter Property="Margin" Value="4"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Name="Border"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="4"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonPressedBrush}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
 
         <Style TargetType="TextBox">
             <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}"/>
@@ -86,9 +34,10 @@
             <Setter Property="Padding" Value="6,4"/>
         </Style>
 
-        <Style TargetType="Slider">
+        <Style TargetType="wpf:ValueSlider">
             <Setter Property="Margin" Value="0,4"/>
         </Style>
+        </ResourceDictionary>
     </Window.Resources>
 
     <Border BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
@@ -122,15 +71,14 @@
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                            VerticalAlignment="Center"
                            Margin="8,0,0,0"
-                           FontSize="13"
+                           FontSize="{wpf:FontSize 13}"
                            FontWeight="SemiBold"
                            WindowChrome.IsHitTestVisibleInChrome="False"/>
 
                 <Button Grid.Column="2"
-                        Content="✕" 
                         Click="CloseButton_Click"
-                        Style="{StaticResource TitleBarButtonStyle}"
-                        ToolTip="Close"
+                        Style="{StaticResource TitleCloseButtonStyle}"
+                        ToolTip="{wpf:Text Core.AccessibleClose}"
                         WindowChrome.IsHitTestVisibleInChrome="True"/>
             </Grid>
 
@@ -147,14 +95,14 @@
                 </Grid.RowDefinitions>
 
                 <!-- Thickness / Size -->
-                <TextBlock Grid.Row="0" Grid.Column="0"
+                <TextBlock x:Name="ThicknessLabel" Grid.Row="0" Grid.Column="0"
                            Text="{wpf:Text Editor.DropshadowThickness}"
                            VerticalAlignment="Center"
                            Margin="0,8"
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                 <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,8">
-                    <Slider x:Name="ThicknessSlider" Minimum="1" Maximum="20" Value="9" Width="170" VerticalAlignment="Center"/>
-                    <TextBlock Text="{Binding ElementName=ThicknessSlider, Path=Value, StringFormat={}{0:0} px}"
+                    <wpf:ValueSlider x:Name="ThicknessSlider" ValueFormat="{}{0:0} px" AutomationProperties.LabeledBy="{Binding ElementName=ThicknessLabel}" Minimum="1" Maximum="20" Value="9" Width="170" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding ElementName=ThicknessSlider, Path=ValueText}"
                                Margin="10,0,0,0" VerticalAlignment="Center" MinWidth="45"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                 </StackPanel>
@@ -167,32 +115,32 @@
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                 <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Vertical" Margin="0,8">
                     <StackPanel Orientation="Horizontal" Margin="0,2">
-                        <TextBlock Text="X:" VerticalAlignment="Center" Width="20"
+                        <TextBlock x:Name="OffsetXLabel" Text="X:" VerticalAlignment="Center" Width="20"
                                    Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                        <Slider x:Name="OffsetXSlider" Minimum="-20" Maximum="20" Value="0" Width="150" VerticalAlignment="Center"/>
-                        <TextBlock Text="{Binding ElementName=OffsetXSlider, Path=Value, StringFormat={}{0:0} px}"
+                        <wpf:ValueSlider x:Name="OffsetXSlider" ValueFormat="{}{0:0} px" AutomationProperties.HelpText="{wpf:Text Editor.DropshadowOffset}" AutomationProperties.LabeledBy="{Binding ElementName=OffsetXLabel}" Minimum="-20" Maximum="20" Value="0" Width="150" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding ElementName=OffsetXSlider, Path=ValueText}"
                                    Margin="10,0,0,0" VerticalAlignment="Center" MinWidth="45"
                                    Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,2">
-                        <TextBlock Text="Y:" VerticalAlignment="Center" Width="20"
+                        <TextBlock x:Name="OffsetYLabel" Text="Y:" VerticalAlignment="Center" Width="20"
                                    Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                        <Slider x:Name="OffsetYSlider" Minimum="-20" Maximum="20" Value="0" Width="150" VerticalAlignment="Center"/>
-                        <TextBlock Text="{Binding ElementName=OffsetYSlider, Path=Value, StringFormat={}{0:0} px}"
+                        <wpf:ValueSlider x:Name="OffsetYSlider" ValueFormat="{}{0:0} px" AutomationProperties.HelpText="{wpf:Text Editor.DropshadowOffset}" AutomationProperties.LabeledBy="{Binding ElementName=OffsetYLabel}" Minimum="-20" Maximum="20" Value="0" Width="150" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding ElementName=OffsetYSlider, Path=ValueText}"
                                    Margin="10,0,0,0" VerticalAlignment="Center" MinWidth="45"
                                    Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                     </StackPanel>
                 </StackPanel>
 
                 <!-- Darkness -->
-                <TextBlock Grid.Row="2" Grid.Column="0"
+                <TextBlock x:Name="DarknessLabel" Grid.Row="2" Grid.Column="0"
                            Text="{wpf:Text Editor.DropshadowDarkness}"
                            VerticalAlignment="Center"
                            Margin="0,8"
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                 <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,8">
-                    <Slider x:Name="DarknessSlider" Minimum="1" Maximum="40" Value="40" Width="170" VerticalAlignment="Center"/>
-                    <TextBlock Text="{Binding ElementName=DarknessSlider, Path=Value, StringFormat={}{0:0}}"
+                    <wpf:ValueSlider x:Name="DarknessSlider" ValueFormat="{}{0:0}" AutomationProperties.LabeledBy="{Binding ElementName=DarknessLabel}" Minimum="1" Maximum="40" Value="40" Width="170" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding ElementName=DarknessSlider, Path=ValueText}"
                                Margin="10,0,0,0" VerticalAlignment="Center" MinWidth="45"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                 </StackPanel>
@@ -206,12 +154,16 @@
                     Padding="16,10">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Content="{wpf:Text Core.Ok}" 
+                            Style="{StaticResource PrimaryButtonStyle}"
                             IsDefault="True"
                             Width="80"
+                            Margin="4"
                             Click="OkButton_Click"/>
                     <Button Content="{wpf:Text Core.Cancel}" 
+                            Style="{StaticResource SecondaryButtonStyle}"
                             IsCancel="True"
                             Width="80"
+                            Margin="4"
                             Click="CancelButton_Click"/>
                 </StackPanel>
             </Border>

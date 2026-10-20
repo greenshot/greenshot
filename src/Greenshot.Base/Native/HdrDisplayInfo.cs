@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -197,6 +197,98 @@ internal static class HdrDisplayInfo
     [DllImport("user32.dll")]
     private static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint dwFlags);
 
+    [DllImport("dxgi.dll")]
+    private static extern int CreateDXGIFactory1(ref Guid riid, out IDXGIFactory1 factory);
+
+    #endregion
+
+    #region DXGI
+
+    // Only the methods which are called have a signature, the others keep the vtable slots
+
+    [ComImport, Guid("770aae78-f26f-4dba-a829-253c83d1b387"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    private interface IDXGIFactory1
+    {
+        void SetPrivateData();
+        void SetPrivateDataInterface();
+        void GetPrivateData();
+        void GetParent();
+        void EnumAdapters();
+        void MakeWindowAssociation();
+        void GetWindowAssociation();
+        void CreateSwapChain();
+        void CreateSoftwareAdapter();
+        [PreserveSig]
+        int EnumAdapters1(uint adapter, out IDXGIAdapter1 result);
+    }
+
+    [ComImport, Guid("29038f61-3839-4626-91fd-086879011a05"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    private interface IDXGIAdapter1
+    {
+        void SetPrivateData();
+        void SetPrivateDataInterface();
+        void GetPrivateData();
+        void GetParent();
+        [PreserveSig]
+        int EnumOutputs(uint output, out IDXGIOutput6 result);
+    }
+
+    /// <summary>
+    /// IDXGIOutput6: the output is asked for this interface when EnumOutputs returns it, which fails before Windows 10 1703
+    /// </summary>
+    [ComImport, Guid("068346e8-aaec-4b84-add7-137f513f77a1"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    private interface IDXGIOutput6
+    {
+        // IDXGIObject
+        void SetPrivateData();
+        void SetPrivateDataInterface();
+        void GetPrivateData();
+        void GetParent();
+        // IDXGIOutput
+        void GetDesc();
+        void GetDisplayModeList();
+        void FindClosestMatchingMode();
+        void WaitForVBlank();
+        void TakeOwnership();
+        void ReleaseOwnership();
+        void GetGammaControlCapabilities();
+        void SetGammaControl();
+        void GetGammaControl();
+        void SetDisplaySurface();
+        void GetDisplaySurfaceData();
+        void GetFrameStatistics();
+        // IDXGIOutput1 to IDXGIOutput5
+        void GetDisplayModeList1();
+        void FindClosestMatchingMode1();
+        void GetDisplaySurfaceData1();
+        void DuplicateOutput();
+        void SupportsOverlays();
+        void CheckOverlaySupport();
+        void CheckOverlayColorSpaceSupport();
+        void DuplicateOutput1();
+        // IDXGIOutput6
+        [PreserveSig]
+        int GetDesc1(out DXGI_OUTPUT_DESC1 desc);
+    }
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    private struct DXGI_OUTPUT_DESC1
+    {
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
+        public string DeviceName;
+        public RECT DesktopCoordinates;
+        public int AttachedToDesktop;
+        public int Rotation;
+        public IntPtr Monitor;
+        public uint BitsPerColor;
+        public int ColorSpace;
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
+        public float[] Primaries;
+        public float MinLuminance;
+        public float MaxLuminance;
+        public float MaxFullFrameLuminance;
+    }
+
     #endregion
 
     #region Public API
@@ -287,6 +379,62 @@ internal static class HdrDisplayInfo
             Log.Debug($"Failed to query SDR white level for monitor {hMonitor}: {ex.Message}");
             return 80.0f;
         }
+    }
+
+    /// <summary>
+    /// Gets the peak brightness in nits which the specified monitor can show, as Windows reports it (EDID or the Windows HDR Calibration app).
+    /// </summary>
+    /// <param name="hMonitor">The monitor handle (HMONITOR).</param>
+    /// <returns>The peak brightness in nits, 0 if it cannot be determined.</returns>
+    public static float GetMaxLuminanceInNits(IntPtr hMonitor)
+    {
+        IDXGIFactory1 factory = null;
+        try
+        {
+            var factoryId = typeof(IDXGIFactory1).GUID;
+            if (CreateDXGIFactory1(ref factoryId, out factory) != 0)
+            {
+                return 0;
+            }
+
+            for (uint adapterIndex = 0; factory.EnumAdapters1(adapterIndex, out var adapter) == 0; adapterIndex++)
+            {
+                try
+                {
+                    for (uint outputIndex = 0; adapter.EnumOutputs(outputIndex, out var output) == 0; outputIndex++)
+                    {
+                        try
+                        {
+                            if (output.GetDesc1(out var desc) == 0 && desc.Monitor == hMonitor)
+                            {
+                                Log.Debug($"Monitor {hMonitor}: peak brightness {desc.MaxLuminance} nits.");
+                                return desc.MaxLuminance;
+                            }
+                        }
+                        finally
+                        {
+                            Marshal.ReleaseComObject(output);
+                        }
+                    }
+                }
+                finally
+                {
+                    Marshal.ReleaseComObject(adapter);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Debug($"Failed to query the peak brightness for monitor {hMonitor}: {ex.Message}");
+        }
+        finally
+        {
+            if (factory != null)
+            {
+                Marshal.ReleaseComObject(factory);
+            }
+        }
+        return 0;
     }
 
     #endregion

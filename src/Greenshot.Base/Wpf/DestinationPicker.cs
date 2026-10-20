@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Automation;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -55,6 +56,7 @@ namespace Greenshot.Base.Wpf
             var menu = ThemedMenu.CreateContextMenu();
             // A click somewhere else doesn't decline, the user might want to look at something first
             menu.StaysOpen = true;
+            AutomationProperties.SetName(menu, Texts.Core.AccessibleDestinationPicker);
 
             void Close()
             {
@@ -92,6 +94,7 @@ namespace Greenshot.Base.Wpf
                 }
             };
 
+            var keys = AccessKeys();
             foreach (var destination in destinations.Where(d => d != null).OrderBy(d => d, DestinationComparer.Instance))
             {
                 if (!destination.IsAvailableFor(captureDetails))
@@ -99,7 +102,12 @@ namespace Greenshot.Base.Wpf
                     continue;
                 }
 
-                menu.Items.Add(CreateItem(destination, captureDetails, Complete, true));
+                var item = CreateItem(destination, captureDetails, Complete, true);
+                if (keys.TryGetValue(destination.Designation, out char key))
+                {
+                    SetAccessKey(item, destination.Descriptor.DisplayName, key);
+                }
+                menu.Items.Add(item);
             }
 
             menu.Items.Add(ThemedMenu.CreateSeparator());
@@ -109,6 +117,40 @@ namespace Greenshot.Base.Wpf
 
             ThemedMenu.ShowAtCursor(menu);
             return picked.Task;
+        }
+
+        /// <summary>
+        /// The fixed letter of each destination from the language pack (designation:letter;...). The letters don't depend on which destinations
+        /// are available, so someone who uses the keyboard or a screen reader can rely on them.
+        /// </summary>
+        private static Dictionary<string, char> AccessKeys()
+        {
+            var keys = new Dictionary<string, char>(StringComparer.OrdinalIgnoreCase);
+            foreach (string entry in (Texts.Core.DestinationPickerKeys ?? string.Empty).Split(';'))
+            {
+                int colon = entry.LastIndexOf(':');
+                if (colon > 0 && colon == entry.Length - 2 && char.IsLetterOrDigit(entry[colon + 1]))
+                {
+                    keys[entry.Substring(0, colon).Trim()] = entry[colon + 1];
+                }
+            }
+
+            return keys;
+        }
+
+        /// <summary>
+        /// Show the item with its letter underlined, pressing it picks the item. The menu shows headers as they are (a file name can contain _),
+        /// so the header becomes an AccessText: the letter is marked where the name has it, otherwise it is added like "Name (K)".
+        /// </summary>
+        private static void SetAccessKey(MenuItem item, string name, char key)
+        {
+            name ??= string.Empty;
+            string escaped = name.Replace("_", "__");
+            int index = escaped.IndexOf(key.ToString(), StringComparison.CurrentCultureIgnoreCase);
+            string text = index >= 0 ? escaped.Insert(index, "_") : $"{escaped} (_{key})";
+            item.Header = new AccessText { Text = text };
+            AutomationProperties.SetName(item, name);
+            AutomationProperties.SetAccessKey(item, key.ToString());
         }
 
         /// <summary>
@@ -130,6 +172,8 @@ namespace Greenshot.Base.Wpf
             {
                 // Until the dynamic destinations arrive a placeholder shows that there is more
                 var placeholder = ThemedMenu.CreateItem("…");
+                // A screen reader would say "ellipsis"
+                AutomationProperties.SetName(placeholder, Texts.Core.AccessibleLoading);
                 placeholder.IsEnabled = false;
                 item.Items.Add(placeholder);
                 AddDynamicDestinationsAsync(item, target, captureDetails, onClick).FireAndLog($"Dynamic destinations of {destination.Designation}", Log);
@@ -157,7 +201,17 @@ namespace Greenshot.Base.Wpf
                 {
                     // Only one: the item itself becomes that destination, without a sub menu
                     target.Destination = validSubDestinations[0];
-                    item.Header = validSubDestinations[0].Descriptor.DisplayName;
+                    string name = validSubDestinations[0].Descriptor.DisplayName;
+                    if (AutomationProperties.GetAccessKey(item) is { Length: 1 } key)
+                    {
+                        // The letter stays with the item
+                        SetAccessKey(item, name, key[0]);
+                    }
+                    else
+                    {
+                        item.Header = name;
+                    }
+                    ThemedMenu.AssignIcon(item, validSubDestinations[0].Descriptor.IconKey);
                     return;
                 }
 

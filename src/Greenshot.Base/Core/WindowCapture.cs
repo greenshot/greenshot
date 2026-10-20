@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -77,8 +77,8 @@ namespace Greenshot.Base.Core
                 capture = new Capture();
             }
 
-            CapturedCursor capturedCursor;
-            if (CursorHelper.TryGetCurrentCursor(out capturedCursor))
+            // Trimmed: only the visible pointer, not the mostly empty cursor canvas
+            if (CursorHelper.TryGetCurrentCursor(out var capturedCursor, trim: true))
             {
                 NativePoint cursorLocation = User32Api.GetCursorLocation();
                 // Align cursor location to Bitmap coordinates (instead of Screen coordinates)

@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -25,6 +25,8 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapplo.Windows.Icons;
+using Dapplo.Windows.Shell32.Enums;
 using Greenshot.Base.Interfaces;
 using log4net;
 
@@ -32,7 +34,8 @@ namespace Greenshot.Base.Core
 {
     /// <summary>
     /// Icon keys of destination descriptors and their resolution through the registered <see cref="IIconProvider"/>s.
-    /// Built in keys: "resource:Name" (Greenshot resources), "exe:index:path" (icon of an executable), "greenshot" (the application icon).
+    /// Built in keys: "resource:Name" (Greenshot resources), "exe:index:path" (icon of an executable), "stock:Id" (an icon of Windows, e.g.
+    /// the one for an error, see <see cref="StockIconId"/>), "greenshot" (the application icon).
     /// </summary>
     public static class DestinationIcons
     {
@@ -41,9 +44,38 @@ namespace Greenshot.Base.Core
 
         public const string Greenshot = "greenshot";
 
+        private const string StockPrefix = "stock:";
+
+        /// <summary>
+        /// The size of the icons of Windows ("stock:"), large enough for the big image of a toast
+        /// </summary>
+        public const int StockIconSize = 96;
+
         public static string Resource(string name) => name == null ? null : "resource:" + name;
 
         public static string Exe(string path, int index) => path == null ? null : string.Format(CultureInfo.InvariantCulture, "exe:{0}:{1}", index, path);
+
+        /// <summary>
+        /// The key of an icon of Windows, e.g. <see cref="StockIconId.Error"/>
+        /// </summary>
+        public static string Stock(StockIconId id) => StockPrefix + id;
+
+        /// <summary>
+        /// The icon of Windows in <see cref="StockIconSize"/>, synchronously (it needs nothing to wait for); the caller owns (disposes) it,
+        /// null when Windows doesn't have it
+        /// </summary>
+        public static Image GetStockIcon(StockIconId id)
+        {
+            try
+            {
+                return StockIcons.GetIcon<Bitmap>(id, StockIconSize);
+            }
+            catch (Exception ex)
+            {
+                Log.Warn($"Couldn't get the icon {id} of Windows", ex);
+                return null;
+            }
+        }
 
         /// <summary>
         /// Resolve the icon, the caller owns (disposes) the image; null when unknown.
@@ -100,12 +132,13 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// The built in icons (resources, executables), which don't need to wait for anything.
+        /// The built in icons (resources, executables, the icons of Windows), which don't need to wait for anything.
         /// </summary>
         private sealed class CoreIconProvider : IIconProvider
         {
             public bool CanProvide(string iconKey) =>
-                iconKey == Greenshot || iconKey.StartsWith("resource:", StringComparison.Ordinal) || iconKey.StartsWith("exe:", StringComparison.Ordinal);
+                iconKey == Greenshot || iconKey.StartsWith("resource:", StringComparison.Ordinal) || iconKey.StartsWith("exe:", StringComparison.Ordinal)
+                || iconKey.StartsWith(StockPrefix, StringComparison.Ordinal);
 
             public async Task<Image> GetIconAsync(string iconKey, CancellationToken cancellationToken)
             {
@@ -114,6 +147,13 @@ namespace Greenshot.Base.Core
                 {
                     using var icon = GreenshotResources.GetGreenshotIcon();
                     image = icon?.ToBitmap();
+                }
+                else if (iconKey.StartsWith(StockPrefix, StringComparison.Ordinal))
+                {
+                    if (Enum.TryParse<StockIconId>(iconKey.Substring(StockPrefix.Length), out var id))
+                    {
+                        image = GetStockIcon(id);
+                    }
                 }
                 else if (iconKey.StartsWith("resource:", StringComparison.Ordinal))
                 {

@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -69,10 +69,22 @@ namespace Greenshot.Capturing
         /// <param name="avoid">What the zoomer should not cover if possible: the selection, panels of tools and overlays</param>
         /// <returns>NativePoint with the offset</returns>
         public static NativePoint GetOffset(NativePoint cursor, NativePoint currentOffset, int size, NativeRect screenBounds, IReadOnlyCollection<NativeRect> avoid)
+            => GetOffset(cursor, currentOffset, new NativeSize(size, size), screenBounds, avoid);
+
+        /// <summary>
+        /// The offset of the zoomer's top left corner from the cursor, for a zoomer which isn't square (the preview of the selection in its place)
+        /// </summary>
+        /// <param name="cursor">The cursor</param>
+        /// <param name="currentOffset">Where the zoomer is now, it stays there when that is fine</param>
+        /// <param name="size">Width and height of the zoomer</param>
+        /// <param name="screenBounds">The screen the cursor is on</param>
+        /// <param name="avoid">What the zoomer should not cover if possible: the selection, panels of tools and overlays</param>
+        /// <returns>NativePoint with the offset</returns>
+        public static NativePoint GetOffset(NativePoint cursor, NativePoint currentOffset, NativeSize size, NativeRect screenBounds, IReadOnlyCollection<NativeRect> avoid)
         {
             bool Fits(NativePoint offset, bool allowOverlap)
             {
-                var zoomer = new NativeRect(cursor.X + offset.X, cursor.Y + offset.Y, size, size);
+                var zoomer = new NativeRect(cursor.X + offset.X, cursor.Y + offset.Y, size.Width, size.Height);
                 return screenBounds.Contains(zoomer) && (allowOverlap || !avoid.Any(rect => !rect.IsEmpty && rect.IntersectsWith(zoomer)));
             }
 
@@ -85,9 +97,9 @@ namespace Greenshot.Capturing
             var candidates = new[]
             {
                 new NativePoint(Distance, Distance),
-                new NativePoint(-Distance - size, Distance),
-                new NativePoint(Distance, -Distance - size),
-                new NativePoint(-Distance - size, -Distance - size)
+                new NativePoint(-Distance - size.Width, Distance),
+                new NativePoint(Distance, -Distance - size.Height),
+                new NativePoint(-Distance - size.Width, -Distance - size.Height)
             };
             foreach (bool allowOverlap in new[] { false, true })
             {
@@ -103,5 +115,11 @@ namespace Greenshot.Capturing
             // Nothing fits (a tiny screen), keep it where it is
             return currentOffset;
         }
+
+        /// <summary>
+        /// The same corner of the cursor for another size: left or above the cursor keeps the distance to it
+        /// </summary>
+        public static NativePoint Resize(NativePoint offset, NativeSize size) =>
+            new NativePoint(offset.X < 0 ? -Distance - size.Width : offset.X, offset.Y < 0 ? -Distance - size.Height : offset.Y);
     }
 }

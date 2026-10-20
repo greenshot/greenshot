@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -24,7 +24,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
@@ -45,7 +44,6 @@ namespace Greenshot.Editor.Destinations
     public class EditorDestination : DestinationBase
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(EditorDestination));
-        private static readonly IEditorConfiguration EditorConfiguration = IniConfigRegistry.GetSection<IEditorConfiguration>();
         public const string DESIGNATION = "Editor";
         private readonly IImageEditor _dedicatedEditor;
         private readonly bool _replaceSurfaceInDedicatedEditor;
@@ -128,40 +126,15 @@ namespace Greenshot.Editor.Destinations
                 return ExportResult.Succeeded(clearsModified: false, keepsCapture: true);
             }
 
-            bool reuse = _reuseAvailableEditor ?? EditorConfiguration.ReuseEditor;
-            if (reuse)
-            {
-                foreach (IImageEditor openedEditor in ImageEditorForm.Editors)
-                {
-                    if (openedEditor.Surface.Modified) continue;
-
-                    openedEditor.Surface = surface;
-                    if (openedEditor is Form editorForm)
-                    {
-                        if (editorForm.WindowState == FormWindowState.Minimized)
-                        {
-                            editorForm.WindowState = FormWindowState.Normal;
-                        }
-
-                        editorForm.BringToFront();
-                        editorForm.Activate();
-                    }
-
-                    return ExportResult.Succeeded(clearsModified: false, keepsCapture: true);
-                }
-            }
-
             try
             {
-                var editorForm = new ImageEditorForm(surface, !surface.Modified, _matchSizeToCapture); // Output made??
-
+                // As a tab of the editor window used last or in its own window, see the settings
+                var tab = ImageEditorForm.Open(surface, _reuseAvailableEditor, _matchSizeToCapture);
                 if (!string.IsNullOrEmpty(captureDetails?.Filename))
                 {
-                    editorForm.SetImagePath(captureDetails.Filename);
+                    tab.SetImagePath(captureDetails.Filename);
                 }
 
-                editorForm.Show();
-                editorForm.Activate();
                 LOG.Debug("Finished opening Editor");
                 return ExportResult.Succeeded(clearsModified: false, keepsCapture: true);
             }

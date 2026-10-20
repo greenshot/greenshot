@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -25,6 +25,7 @@ using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Recipes.Triggers;
+using Greenshot.Views;
 using log4net;
 using Greenshot.Base.Threading;
 using System.Threading;
@@ -39,26 +40,13 @@ namespace Greenshot.Helpers
         private static readonly ICoreConfiguration config = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         /// <summary>
-        /// Performs initialization tasks for the application's first launch and displays an informational message to the user.
+        /// Show the welcome window: at the first start, or when greenshot-cli asks for it
         /// </summary>
-        /// <remarks>This method marks the application as no longer in its first launch state and shows a
-        /// balloon notification with a localized message. The notification includes a callback that opens the settings
-        /// dialog when triggered. Typically called during application startup to provide guidance to new
-        /// users.</remarks>
-        public static void FirstLaunch()
+        public static void ShowWelcome()
         {
-            config.IsFirstLaunch = false;
-            LOG.Info("FirstLaunch: Created new configuration, showing balloon.");
-            var notifyIconClassicMessageHandler = SimpleServiceProvider.Current.GetInstance<INotificationService>();
-
-            notifyIconClassicMessageHandler.ShowInfoMessage(
-                string.Format(Texts.Core.TooltipFirststart, HotkeyManager.GetLocalizedHotkeyStringFromString(config.RegionHotkey)),
-                TimeSpan.FromMinutes(10),
-                () =>
-                {
-                    var shell = SimpleServiceProvider.Current.GetInstance<IGreenshotShell>();
-                    shell.ShowSetting();
-                });
+            config.WelcomeShown = true;
+            LOG.Info("Showing the welcome window.");
+            WelcomeWindow.ShowWelcome();
         }
 
         /// <summary>

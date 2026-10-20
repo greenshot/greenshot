@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -24,6 +24,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapplo.HttpExtensions;
+using Dapplo.HttpExtensions.JsonNet;
 using Dapplo.HttpExtensions.WinForms.ContentConverter;
 using Dapplo.Jira.SvgWinForms.Converters;
 using Dapplo.Log;
@@ -111,6 +112,8 @@ public class JiraPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProv
             HttpExtensionsGlobals.HttpContentConverters.Add(SvgBitmapHttpContentConverter.Instance.Value);
         }
         BitmapHttpContentConverter.RegisterGlobally();
+        // Dapplo.Jira (de)serializes with Json.NET, this was registered by the update check before it moved to the HttpService
+        JsonNetJsonSerializer.RegisterGlobally();
 
         if (Log.IsDebugEnabled)
         {

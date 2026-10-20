@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -147,27 +147,18 @@ namespace Greenshot.Tests.Core
         }
 
         [Fact]
-        public void StatusIcons_Write_TheErrorAndWarningIconOfWindowsAsPng()
+        public async System.Threading.Tasks.Task DestinationIcons_StockKey_TheErrorAndWarningIconOfWindows()
         {
-            var directory = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "greenshot-status-icons-" + System.Guid.NewGuid().ToString("N"));
-            try
+            foreach (var id in new[] { Dapplo.Windows.Shell32.Enums.StockIconId.Error, Dapplo.Windows.Shell32.Enums.StockIconId.Warning })
             {
-                foreach (var kind in new[] { Greenshot.Base.Interfaces.NotificationKind.Error, Greenshot.Base.Interfaces.NotificationKind.Warning })
-                {
-                    var path = Greenshot.Native.StatusIcons.Write(directory, kind);
-                    Assert.NotNull(path);
-                    using var image = System.Drawing.Image.FromFile(path);
-                    Assert.True(image.Width >= 48, $"{kind}: {image.Width}px");
-                }
-                Assert.Null(Greenshot.Native.StatusIcons.Write(directory, Greenshot.Base.Interfaces.NotificationKind.Info));
+                var key = Greenshot.Base.Core.DestinationIcons.Stock(id);
+                Assert.Equal("stock:" + id, key);
+                using var image = await Greenshot.Base.Core.DestinationIcons.GetIconAsync(key);
+                Assert.NotNull(image);
+                Assert.Equal(Greenshot.Base.Core.DestinationIcons.StockIconSize, image.Width);
             }
-            finally
-            {
-                if (System.IO.Directory.Exists(directory))
-                {
-                    System.IO.Directory.Delete(directory, true);
-                }
-            }
+            // Not an icon of Windows
+            Assert.Null(await Greenshot.Base.Core.DestinationIcons.GetIconAsync("stock:NoSuchIcon"));
         }
 
         [Fact]

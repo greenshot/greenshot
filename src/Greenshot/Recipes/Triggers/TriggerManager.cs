@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -191,8 +191,7 @@ namespace Greenshot.Recipes.Triggers
                                 RegisterTrigger(new HotkeyTrigger(triggerId, tc.Name ?? $"{recipe.Name} Hotkey", hotkey, recipe.Id));
                             }
                         }
-                        else if (string.Equals(tc.TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase) ||
-                                 string.Equals(tc.TriggerType, TriggerConfig.TypeSystray, StringComparison.OrdinalIgnoreCase))
+                        else if (string.Equals(tc.TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase))
                         {
                             hasMenuTrigger = true;
                             string menuText = tc.GetParameter<string>("MenuItemText") ?? recipe.Name;

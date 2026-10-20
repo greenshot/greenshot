@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -73,6 +73,17 @@ namespace Greenshot.Tests.Helpers
             Assert.NotNull(options);
             Assert.True(options.Restore);
             Assert.Empty(options.CommandArguments);
+        }
+
+        [Fact]
+        public void Parse_Autostart_IsAStartupOption()
+        {
+            CommandLineOptions options = GreenshotCommandLine.Parse(["--autostart"]);
+
+            Assert.NotNull(options);
+            Assert.True(options.Autostart);
+            Assert.Empty(options.CommandArguments);
+            Assert.False(GreenshotCommandLine.Parse(["--restore"]).Autostart);
         }
 
         [Fact]

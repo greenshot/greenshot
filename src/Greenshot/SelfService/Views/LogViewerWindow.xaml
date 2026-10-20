@@ -13,45 +13,19 @@
         WindowStartupLocation="CenterOwner"
         ResizeMode="CanResizeWithGrip"
         FontFamily="Segoe UI, Segoe UI Variable Display, Tahoma, Arial"
-        FontSize="13"
+        FontSize="{wpf:FontSize 13}"
         Background="{Binding WindowBackgroundBrush}"
         Foreground="{Binding TextPrimaryBrush}">
 
     <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 
-        <!-- Secondary Button Style -->
-        <Style x:Key="SecondaryButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="{Binding CardBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{Binding TextPrimaryBrush}"/>
-            <Setter Property="BorderBrush" Value="{Binding CardBorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="10,5"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" 
-                                Background="{TemplateBinding Background}" 
-                                BorderBrush="{TemplateBinding BorderBrush}" 
-                                BorderThickness="{TemplateBinding BorderThickness}" 
-                                CornerRadius="4" 
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="{Binding BadgeBackgroundBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Opacity" Value="0.8"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        </ResourceDictionary>
     </Window.Resources>
 
     <Grid>
@@ -70,13 +44,17 @@
 
         <wpf:ThemedTitleBar Grid.Row="0" ShowThemeToggle="True"/>
 
-        <!-- Action Bar with Refresh Glance and Copy Log -->
+        <!-- Action Bar with Refresh, Copy Log, Search and Log level -->
         <Border Grid.Row="1" 
                 Background="{Binding CardBackgroundBrush}" 
                 BorderBrush="{Binding CardBorderBrush}" 
                 BorderThickness="0,0,0,1" 
                 Padding="14,6">
             <Grid VerticalAlignment="Center">
+                <Grid.Resources>
+                    <!-- The themed TextBox and ComboBox for search and log level, the buttons keep their own style -->
+                    <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/DialogStyles.xaml"/>
+                </Grid.Resources>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
@@ -85,7 +63,7 @@
 
                 <!-- Left Controls: Refresh & Copy -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button Style="{StaticResource SecondaryButtonStyle}" 
+                    <Button AutomationProperties.Name="{wpf:Text SelfService.LogviewerRefresh}" Style="{StaticResource SecondaryButtonStyle}" 
                             Margin="0,0,8,0" 
                             Click="OnRefreshLogClicked">
                         <StackPanel Orientation="Horizontal">
@@ -93,7 +71,7 @@
                             <TextBlock Text="{wpf:Text SelfService.LogviewerRefresh}"/>
                         </StackPanel>
                     </Button>
-                    <Button Style="{StaticResource SecondaryButtonStyle}" 
+                    <Button AutomationProperties.Name="{wpf:Text SelfService.LogviewerCopy}" Style="{StaticResource SecondaryButtonStyle}" 
                             Margin="0,0,12,0" 
                             Click="OnCopyLogClicked">
                         <StackPanel Orientation="Horizontal">
@@ -105,15 +83,42 @@
                               IsChecked="{Binding WrapText, Mode=TwoWay}" 
                               Foreground="{Binding TextPrimaryBrush}" 
                               VerticalAlignment="Center" 
-                              FontSize="12"/>
+                              FontSize="{wpf:FontSize 12}"/>
                 </StackPanel>
 
-                <!-- Right Status: Line count and size -->
-                <TextBlock Grid.Column="2" 
-                           Text="{Binding LogInfoText}" 
-                           FontSize="11.5" 
-                           Foreground="{Binding TextSecondaryBrush}" 
-                           VerticalAlignment="Center"/>
+                <!-- Search: only the log entries with this text, from the whole log file -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,16,0">
+                    <TextBlock x:Name="SearchLabel"
+                               Text="{wpf:Text SelfService.LogviewerSearch}"
+                               FontSize="{wpf:FontSize 12}"
+                               Foreground="{Binding TextPrimaryBrush}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,6,0"/>
+                    <TextBox x:Name="SearchTextBox"
+                             AutomationProperties.LabeledBy="{Binding ElementName=SearchLabel}"
+                             Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="{wpf:Text SelfService.LogviewerTooltipSearch}"
+                             Width="200"
+                             FontSize="{wpf:FontSize 12}"
+                             VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Log level: changed only here, never by a greenshot://log link -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock x:Name="LevelLabel"
+                               Text="{wpf:Text SelfService.LogviewerLevel}"
+                               FontSize="{wpf:FontSize 12}"
+                               Foreground="{Binding TextPrimaryBrush}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,6,0"/>
+                    <ComboBox ItemsSource="{Binding LogLevels}"
+                              AutomationProperties.LabeledBy="{Binding ElementName=LevelLabel}"
+                              SelectedItem="{Binding SelectedLogLevel, Mode=TwoWay}"
+                              ToolTip="{wpf:Text SelfService.LogviewerTooltipLevel}"
+                              Width="90"
+                              FontSize="{wpf:FontSize 12}"
+                              VerticalAlignment="Center"/>
+                </StackPanel>
             </Grid>
         </Border>
 
@@ -131,28 +136,28 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="ℹ️ " FontSize="12" Margin="0,0,4,0"/>
+                    <TextBlock Text="ℹ️ " FontSize="{wpf:FontSize 12}" Margin="0,0,4,0"/>
                     <TextBlock Text="{Binding ChunkStatusText}" 
-                               FontSize="11.5" 
+                               FontSize="{wpf:FontSize 11.5}" 
                                Foreground="{Binding TextSecondaryBrush}" 
                                VerticalAlignment="Center"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button Style="{StaticResource SecondaryButtonStyle}" 
+                    <Button AutomationProperties.Name="{wpf:Text SelfService.LogviewerLoadEarlier}" Style="{StaticResource SecondaryButtonStyle}" 
                             Margin="0,0,8,0" 
                             Click="OnLoadEarlierLinesClicked"
                             ToolTip="{wpf:Text SelfService.LogviewerTooltipLoadEarlier}">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="⬆ " FontSize="11" Margin="0,0,3,0"/>
+                            <TextBlock Text="⬆ " FontSize="{wpf:FontSize 11}" Margin="0,0,3,0"/>
                             <TextBlock Text="{wpf:Text SelfService.LogviewerLoadEarlier}"/>
                         </StackPanel>
                     </Button>
-                    <Button Style="{StaticResource SecondaryButtonStyle}" 
+                    <Button AutomationProperties.Name="{wpf:Text SelfService.LogviewerLoadEntire}" Style="{StaticResource SecondaryButtonStyle}" 
                             Click="OnLoadEntireLogClicked"
                             ToolTip="{wpf:Text SelfService.LogviewerTooltipLoadEntire}">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="⏬ " FontSize="11" Margin="0,0,3,0"/>
+                            <TextBlock Text="⏬ " FontSize="{wpf:FontSize 11}" Margin="0,0,3,0"/>
                             <TextBlock Text="{wpf:Text SelfService.LogviewerLoadEntire}"/>
                         </StackPanel>
                     </Button>
@@ -165,6 +170,7 @@
                 Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}" 
                 Padding="4">
             <TextBox x:Name="LogTextBox" 
+                     AutomationProperties.Name="{wpf:Text SelfService.LogviewerTitle}"
                      Text="{Binding LogText, Mode=OneWay}"
                      IsReadOnly="True"
                      TextWrapping="{Binding TextWrappingMode}"
@@ -172,7 +178,7 @@
                      VerticalScrollBarVisibility="Visible"
                      HorizontalScrollBarVisibility="Visible"
                      FontFamily="Consolas, Cascadia Code, Courier New"
-                     FontSize="11.5"
+                     FontSize="{wpf:FontSize 11.5}"
                      BorderThickness="0"
                      Background="Transparent"
                      Foreground="{Binding TextPrimaryBrush}"
@@ -185,11 +191,27 @@
                 BorderBrush="{Binding CardBorderBrush}" 
                 BorderThickness="0,1,0,0" 
                 Padding="14,0">
-            <TextBlock x:Name="StatusMessageText" 
-                       Text="{Binding StatusMessage}" 
-                       FontSize="11" 
-                       Foreground="{Binding TextSecondaryBrush}" 
-                       VerticalAlignment="Center"/>
+            <Grid VerticalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="StatusMessageText" 
+                           AutomationProperties.LiveSetting="Polite"
+                           Grid.Column="0"
+                           Text="{Binding StatusMessage}" 
+                           FontSize="{wpf:FontSize 11}" 
+                           Foreground="{Binding TextSecondaryBrush}" 
+                           TextTrimming="CharacterEllipsis"
+                           VerticalAlignment="Center"/>
+                <!-- Line count and size, or the number of search matches -->
+                <TextBlock Grid.Column="1" 
+                           Text="{Binding LogInfoText}" 
+                           FontSize="{wpf:FontSize 11}" 
+                           Foreground="{Binding TextSecondaryBrush}" 
+                           Margin="12,0,0,0"
+                           VerticalAlignment="Center"/>
+            </Grid>
         </Border>
     </Grid>
 </Window>

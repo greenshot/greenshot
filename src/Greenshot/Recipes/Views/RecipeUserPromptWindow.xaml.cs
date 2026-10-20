@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -31,6 +31,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using Greenshot.Base.Interfaces;
+using Greenshot.Base.Languages;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Wpf;
 using Greenshot.Recipes.ViewModels;
@@ -50,17 +52,34 @@ namespace Greenshot.Recipes.Views
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public string WindowTitle { get; set; } = "Greenshot - Decision Prompt";
-        public string PromptTitle { get; set; } = "Decision Required";
-        public string PromptMessage { get; set; } = "Please select how you would like to proceed:";
+        public string WindowTitle { get; set; } = Texts.Recipe.PromptWindowTitle;
+        public string PromptTitle { get; set; } = Texts.Recipe.PromptTitle;
+        public string PromptMessage { get; set; } = Texts.Recipe.PromptMessage;
         public BitmapSource PreviewImageSource { get; set; }
         public Visibility PreviewVisibility => PreviewImageSource != null ? Visibility.Visible : Visibility.Collapsed;
+
+        public string CheckBoxText { get; set; }
+        public Visibility CheckBoxVisibility => string.IsNullOrEmpty(CheckBoxText) ? Visibility.Collapsed : Visibility.Visible;
+        public bool IsChecked { get; set; }
+
+        /// <summary>
+        /// The view of a <see cref="PreviewPromptRequest"/> (registered for ShowDialogAsync), on the UI thread
+        /// </summary>
+        public static PreviewPromptResult Show(PreviewPromptRequest request)
+        {
+            var window = new RecipeUserPromptWindow(request.Title, request.Message, request.Choices, request.Preview)
+            {
+                CheckBoxText = request.CheckBoxText
+            };
+            window.ShowDialog();
+            return new PreviewPromptResult(window.SelectedChoiceKey, window.CheckBoxVisibility == Visibility.Visible && window.IsChecked);
+        }
 
         public ObservableCollection<PromptButtonViewModel> ActionButtons { get; } = new ObservableCollection<PromptButtonViewModel>();
 
         public string SelectedChoiceKey { get; private set; }
 
-        public string TimeoutText => _secondsRemaining > 0 ? $"Auto-selecting default choice in {_secondsRemaining}s..." : "";
+        public string TimeoutText => _secondsRemaining > 0 ? string.Format(Texts.Recipe.PromptTimeout, _secondsRemaining) : "";
         public Visibility TimeoutVisibility => _secondsRemaining > 0 ? Visibility.Visible : Visibility.Collapsed;
 
         public SolidColorBrush WindowBackgroundBrush => WpfThemeHelper.WindowBackground;
@@ -116,7 +135,7 @@ namespace Greenshot.Recipes.Views
             }
 
             var primaryStyle = FindResource("PrimaryButtonStyle") as Style;
-            var dangerStyle = FindResource("DangerButtonStyle") as Style;
+            var dangerStyle = FindResource("ErrorButtonStyle") as Style;
             var secondaryStyle = FindResource("SecondaryButtonStyle") as Style;
 
             if (choices != null)
@@ -152,8 +171,8 @@ namespace Greenshot.Recipes.Views
             {
                 _defaultChoiceKey = "Yes";
                 _cancelChoiceKey = "No";
-                ActionButtons.Add(new PromptButtonViewModel { Key = "Yes", Label = "Yes, Proceed", ButtonStyle = primaryStyle, IsDefault = true });
-                ActionButtons.Add(new PromptButtonViewModel { Key = "No", Label = "No, Cancel", ButtonStyle = secondaryStyle, IsCancel = true });
+                ActionButtons.Add(new PromptButtonViewModel { Key = "Yes", Label = Texts.Recipe.PromptYes, ButtonStyle = primaryStyle, IsDefault = true });
+                ActionButtons.Add(new PromptButtonViewModel { Key = "No", Label = Texts.Recipe.PromptNo, ButtonStyle = secondaryStyle, IsCancel = true });
             }
 
             if (_cancelChoiceKey == null)

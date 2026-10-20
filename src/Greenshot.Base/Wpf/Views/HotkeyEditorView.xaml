@@ -7,51 +7,19 @@
              xmlns:views="clr-namespace:Greenshot.Base.Wpf.Views"
              xmlns:core="clr-namespace:Greenshot.Base.Core"
              mc:Ignorable="d" 
-             d:DesignHeight="500" d:DesignWidth="520"
+             d:DesignHeight="600" d:DesignWidth="520"
+             KeyboardNavigation.TabNavigation="Cycle"
+             KeyboardNavigation.ControlTabNavigation="Cycle"
              PreviewKeyDown="HotkeyEditorModal_PreviewKeyDown"
              PreviewKeyUp="HotkeyEditorModal_PreviewKeyUp">
     <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ComboBoxStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-
-        <!-- Modal Action Button Style to prevent clipping -->
-        <Style x:Key="ModalButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="14,6"/>
-            <Setter Property="MinHeight" Value="32"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Name="Border"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="4"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonPressedBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.4"/>
-                                <Setter Property="Cursor" Value="Arrow"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
 
         <!-- Modern GroupBox Style -->
         <Style TargetType="GroupBox">
@@ -76,7 +44,7 @@
                                 </Grid.RowDefinitions>
                                 <TextBlock Text="{TemplateBinding Header}"
                                            FontWeight="SemiBold"
-                                           FontSize="12"
+                                           FontSize="{wpf:FontSize 12}"
                                            Foreground="{TemplateBinding Foreground}"
                                            Margin="0,0,0,8"/>
                                 <ContentPresenter Grid.Row="1"/>
@@ -87,205 +55,7 @@
             </Setter>
         </Style>
 
-        <!-- Modern CheckBox Style -->
-        <Style TargetType="CheckBox">
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="CheckBox">
-                        <Grid Background="Transparent">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Border x:Name="checkBorder" Grid.Column="0"
-                                    Width="16" Height="16"
-                                    CornerRadius="3"
-                                    Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}"
-                                    BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
-                                    BorderThickness="1.5"
-                                    VerticalAlignment="Center"
-                                    HorizontalAlignment="Center"
-                                    SnapsToDevicePixels="True">
-                                <Path x:Name="checkMark"
-                                      Data="M 3,8 L 6.5,11.5 L 12.5,4.5"
-                                      Stroke="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
-                                      StrokeThickness="2"
-                                      StrokeStartLineCap="Round"
-                                      StrokeEndLineCap="Round"
-                                      StrokeLineJoin="Round"
-                                      Visibility="Collapsed"
-                                      SnapsToDevicePixels="True"/>
-                            </Border>
-                            <ContentPresenter Grid.Column="1"
-                                              Margin="6,0,0,0"
-                                              VerticalAlignment="Center"
-                                              HorizontalAlignment="Left"
-                                              RecognizesAccessKey="True"/>
-                        </Grid>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="checkMark" Property="Visibility" Value="Visible"/>
-                                <Setter TargetName="checkBorder" Property="BorderBrush" Value="#0078D7"/>
-                            </Trigger>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="checkBorder" Property="BorderBrush" Value="#0078D7"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.4"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Modern ComboBoxItem Style -->
-        <Style TargetType="ComboBoxItem">
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Padding" Value="8,5"/>
-            <Setter Property="HorizontalContentAlignment" Value="Left"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ComboBoxItem">
-                        <Border x:Name="ItemBorder"
-                                Background="{TemplateBinding Background}"
-                                Padding="{TemplateBinding Padding}"
-                                SnapsToDevicePixels="True">
-                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
-                                <ContentPresenter.Resources>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                                    </Style>
-                                </ContentPresenter.Resources>
-                            </ContentPresenter>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ItemBorder" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="ItemBorder" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TabItemSelectedBrush}"/>
-                                <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Modern ComboBox Style -->
-        <Style TargetType="ComboBox">
-            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
-            <Setter Property="Padding" Value="6,2"/>
-            <Setter Property="Height" Value="28"/>
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ComboBox">
-                        <Grid>
-                            <ToggleButton Name="ToggleButton"
-                                          Background="{TemplateBinding Background}"
-                                          BorderBrush="{TemplateBinding BorderBrush}"
-                                          BorderThickness="1"
-                                          Focusable="False"
-                                          IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
-                                          ClickMode="Press">
-                                <ToggleButton.Template>
-                                    <ControlTemplate TargetType="ToggleButton">
-                                        <Border Name="Border"
-                                                Background="{TemplateBinding Background}"
-                                                BorderBrush="{TemplateBinding BorderBrush}"
-                                                BorderThickness="{TemplateBinding BorderThickness}"
-                                                CornerRadius="4">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition/>
-                                                    <ColumnDefinition Width="20"/>
-                                                </Grid.ColumnDefinitions>
-                                                <Path Grid.Column="1"
-                                                      HorizontalAlignment="Center"
-                                                      VerticalAlignment="Center"
-                                                      Data="M 0 0 L 4 4 L 8 0 Z"
-                                                      Fill="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                                            </Grid>
-                                        </Border>
-                                        <ControlTemplate.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter TargetName="Border" Property="BorderBrush" Value="#0078D7"/>
-                                            </Trigger>
-                                        </ControlTemplate.Triggers>
-                                    </ControlTemplate>
-                                </ToggleButton.Template>
-                            </ToggleButton>
-                            <ContentPresenter Name="ContentSite"
-                                              IsHitTestVisible="False"
-                                              Content="{TemplateBinding SelectionBoxItem}"
-                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
-                                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
-                                              Margin="8,3,24,3"
-                                              VerticalAlignment="Center"
-                                              HorizontalAlignment="Left">
-                                <ContentPresenter.Resources>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                                    </Style>
-                                </ContentPresenter.Resources>
-                            </ContentPresenter>
-                            <Popup Name="Popup"
-                                   Placement="Bottom"
-                                   IsOpen="{TemplateBinding IsDropDownOpen}"
-                                   AllowsTransparency="True"
-                                   Focusable="False"
-                                   PopupAnimation="None">
-                                <Grid Name="DropDown"
-                                      SnapsToDevicePixels="True"
-                                      MinWidth="{TemplateBinding ActualWidth}"
-                                      MaxHeight="{TemplateBinding MaxDropDownHeight}">
-                                     <Border Name="DropDownBorder"
-                                            Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}"
-                                            BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
-                                            TextElement.Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
-                                            BorderThickness="1"
-                                            CornerRadius="4"
-                                            Padding="0"
-                                            Margin="0,1,0,0">
-                                        <ScrollViewer x:Name="DropDownScrollViewer"
-                                                      CanContentScroll="True"
-                                                      Focusable="False"
-                                                      VerticalScrollBarVisibility="Auto"
-                                                      HorizontalScrollBarVisibility="Disabled"
-                                                      SnapsToDevicePixels="True">
-                                            <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained"
-                                                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
-                                        </ScrollViewer>
-                                    </Border>
-                                </Grid>
-                            </Popup>
-                        </Grid>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.4"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Location ComboBox Style to prevent text truncation -->
-        <Style x:Key="LocationComboBoxStyle" TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
-            <Setter Property="Width" Value="92"/>
-        </Style>
+        </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid Background="#80000000" Focusable="False">
@@ -312,14 +82,14 @@
 
                 <!-- Header -->
                 <TextBlock Grid.Row="0"
-                           Text="{Binding ActionTitle, StringFormat='Configure Hotkey: {0}'}"
-                           FontSize="15"
+                           Text="{Binding HeaderText}"
+                           FontSize="{wpf:FontSize 15}"
                            FontWeight="Bold"
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                            Margin="0,0,0,16"/>
 
                 <!-- Modifiers Section -->
-                <GroupBox Grid.Row="1" Header="Modifiers" Margin="0,0,0,12">
+                <GroupBox Grid.Row="1" Header="{wpf:Text Settings.HotkeyModifiers}" Margin="0,0,0,12">
                     <Grid Margin="0,6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -335,8 +105,8 @@
                             <CheckBox Content="Ctrl" IsChecked="{Binding Ctrl, Mode=TwoWay}" VerticalAlignment="Center" Margin="0,0,6,0" MinWidth="56"/>
                             <ComboBox ItemsSource="{Binding AvailableLocations}"
                                       SelectedItem="{Binding CtrlLocation, Mode=TwoWay}"
-                                      IsEnabled="{Binding Ctrl}"
-                                      Style="{StaticResource LocationComboBoxStyle}"/>
+                                      AutomationProperties.Name="{wpf:Text Settings.HotkeyCtrlLocation}"
+                                      IsEnabled="{Binding Ctrl}"/>
                         </StackPanel>
 
                         <!-- Alt -->
@@ -344,8 +114,8 @@
                             <CheckBox Content="Alt" IsChecked="{Binding Alt, Mode=TwoWay}" VerticalAlignment="Center" Margin="0,0,6,0" MinWidth="56"/>
                             <ComboBox ItemsSource="{Binding AvailableLocations}"
                                       SelectedItem="{Binding AltLocation, Mode=TwoWay}"
-                                      IsEnabled="{Binding Alt}"
-                                      Style="{StaticResource LocationComboBoxStyle}"/>
+                                      AutomationProperties.Name="{wpf:Text Settings.HotkeyAltLocation}"
+                                      IsEnabled="{Binding Alt}"/>
                         </StackPanel>
 
                         <!-- Shift -->
@@ -353,8 +123,8 @@
                             <CheckBox Content="Shift" IsChecked="{Binding Shift, Mode=TwoWay}" VerticalAlignment="Center" Margin="0,0,6,0" MinWidth="56"/>
                             <ComboBox ItemsSource="{Binding AvailableLocations}"
                                       SelectedItem="{Binding ShiftLocation, Mode=TwoWay}"
-                                      IsEnabled="{Binding Shift}"
-                                      Style="{StaticResource LocationComboBoxStyle}"/>
+                                      AutomationProperties.Name="{wpf:Text Settings.HotkeyShiftLocation}"
+                                      IsEnabled="{Binding Shift}"/>
                         </StackPanel>
 
                         <!-- Win -->
@@ -362,14 +132,14 @@
                             <CheckBox Content="Win" IsChecked="{Binding Win, Mode=TwoWay}" VerticalAlignment="Center" Margin="0,0,6,0" MinWidth="56"/>
                             <ComboBox ItemsSource="{Binding AvailableLocations}"
                                       SelectedItem="{Binding WinLocation, Mode=TwoWay}"
-                                      IsEnabled="{Binding Win}"
-                                      Style="{StaticResource LocationComboBoxStyle}"/>
+                                      AutomationProperties.Name="{wpf:Text Settings.HotkeyWinLocation}"
+                                      IsEnabled="{Binding Win}"/>
                         </StackPanel>
                     </Grid>
                 </GroupBox>
 
                 <!-- Key Sequence Capture Area -->
-                <GroupBox Grid.Row="2" Header="Key Sequence Steps &amp; Capture" Margin="0,0,0,12">
+                <GroupBox Grid.Row="2" Header="{wpf:Text Settings.HotkeyStepsCapture}" Margin="0,0,0,12">
                     <StackPanel Margin="0,6">
                         <!-- Step Chips & + Add Next Step -->
                         <Grid Margin="0,0,0,10">
@@ -387,86 +157,101 @@
                                     </ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Border Margin="0,0,6,0"
-                                                    CornerRadius="4"
-                                                    BorderThickness="1.5"
+                                            <!-- A button, so a step can be selected with the keyboard too; the name says which one is selected -->
+                                            <Button Margin="0,0,6,0"
+                                                    MinWidth="0"
                                                     Background="{Binding BackgroundBrush}"
                                                     BorderBrush="{Binding BorderBrush}"
                                                     Padding="8,4"
-                                                    Cursor="Hand">
-                                                <Border.InputBindings>
-                                                    <MouseBinding MouseAction="LeftClick" Command="{Binding SelectCommand}"/>
-                                                </Border.InputBindings>
+                                                    Cursor="Hand"
+                                                    Command="{Binding SelectCommand}"
+                                                    AutomationProperties.Name="{Binding AccessibleName, TargetNullValue=''}"
+                                                    FocusVisualStyle="{StaticResource GreenshotFocusVisual}">
+                                                <Button.Template>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border CornerRadius="4"
+                                                                BorderThickness="1.5"
+                                                                Background="{TemplateBinding Background}"
+                                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                                Padding="{TemplateBinding Padding}">
+                                                            <ContentPresenter VerticalAlignment="Center"/>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Button.Template>
                                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                    <TextBlock Text="{Binding StepHeader}" FontWeight="SemiBold" FontSize="11" Foreground="{Binding TextBrush}" VerticalAlignment="Center"/>
-                                                    <TextBlock Text="{Binding StepText}" FontSize="11" Foreground="{Binding TextBrush}" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding StepHeader}" FontWeight="SemiBold" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextBrush}" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding StepText}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextBrush}" Margin="5,0,0,0" VerticalAlignment="Center"/>
                                                     <Button Content="✕"
                                                             Command="{Binding RemoveCommand}"
                                                             Visibility="{Binding CanRemove, Converter={StaticResource BooleanToVisibilityConverter}}"
                                                             Margin="6,0,0,0"
                                                             Padding="3,0"
-                                                            FontSize="10"
+                                                            FontSize="{wpf:FontSize 10}"
                                                             Cursor="Hand"
                                                             Background="Transparent"
                                                             BorderThickness="0"
-                                                            Foreground="{Binding MutedBrush}"/>
+                                                            Foreground="{Binding MutedBrush}"
+                                                            AutomationProperties.Name="{wpf:Text Settings.HotkeyRemoveStep}"
+                                                            ToolTip="{wpf:Text Settings.HotkeyRemoveStep}"
+                                                            FocusVisualStyle="{StaticResource GreenshotFocusVisual}"/>
                                                 </StackPanel>
-                                            </Border>
+                                            </Button>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
                             </ScrollViewer>
 
                             <Button Grid.Column="1"
-                                    Content="+ Add Step"
+                                    Content="{wpf:Text Settings.HotkeyAddStep}"
                                     Command="{Binding AddStepCommand}"
-                                    Style="{StaticResource ModalButtonStyle}"
-                                    FontSize="11"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    FontSize="{wpf:FontSize 11}"
                                     Padding="10,4"
                                     MinHeight="28"
-                                    ToolTip="Add next chord step to this sequence"
+                                    ToolTip="{wpf:Text Settings.HotkeyAddStepTooltip}"
                                     VerticalAlignment="Center"/>
                         </Grid>
 
-                        <Border x:Name="KeyCaptureBorder"
+                        <!-- Takes the pressed keys (the handlers of the UserControl), for a screen reader a read-only field with the hotkey as value -->
+                        <views:HotkeyCaptureBox x:Name="KeyCaptureBorder"
                                 Focusable="True"
                                 Cursor="Hand"
                                 CornerRadius="5"
                                 BorderThickness="2"
-                                BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
-                                Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBackgroundBrush}"
                                 MinHeight="54"
                                 Padding="12,8"
+                                AutomationProperties.Name="{wpf:Text Settings.HotkeyCapture}"
+                                AutomationProperties.HelpText="{wpf:Text Settings.HotkeyCaptureHelp}"
                                 MouseLeftButtonDown="KeyCaptureBorder_MouseLeftButtonDown"
-                                PreviewKeyDown="KeyCaptureBorder_PreviewKeyDown"
-                                PreviewKeyUp="KeyCaptureBorder_PreviewKeyUp"
                                 GotFocus="KeyCaptureBorder_GotFocus"
                                 LostFocus="KeyCaptureBorder_LostFocus">
-                            <Border.Style>
-                                <Style TargetType="Border">
+                            <views:HotkeyCaptureBox.Style>
+                                <!-- The colors in the style, local values would win over the focus trigger -->
+                                <Style TargetType="views:HotkeyCaptureBox">
+                                    <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+                                    <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBackgroundBrush}"/>
                                     <Style.Triggers>
-                                        <Trigger Property="IsFocused" Value="True">
-                                            <Setter Property="BorderBrush" Value="#0078D7"/>
-                                            <Setter Property="Background" Value="#150078D7"/>
+                                        <Trigger Property="IsKeyboardFocused" Value="True">
+                                            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"/>
                                         </Trigger>
                                     </Style.Triggers>
                                 </Style>
-                            </Border.Style>
+                            </views:HotkeyCaptureBox.Style>
                             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding TriggerKeyDisplay}"
-                                           FontSize="14"
+                                           FontSize="{wpf:FontSize 14}"
                                            FontWeight="Bold"
                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                                            HorizontalAlignment="Center"/>
                                 <TextBlock x:Name="CaptureHintText"
-                                           Text="Click here to focus and press shortcut keys"
-                                           FontSize="11"
+                                           Text="{wpf:Text Settings.HotkeyCaptureHint}"
+                                           FontSize="{wpf:FontSize 11}"
                                            FontStyle="Italic"
                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
                                            HorizontalAlignment="Center"
                                            Margin="0,3,0,0"/>
                             </StackPanel>
-                        </Border>
+                        </views:HotkeyCaptureBox>
 
                         <!-- Multi-chord options -->
                         <Grid Margin="0,8,0,0">
@@ -475,10 +260,10 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <Button Grid.Column="1"
-                                    Content="Clear / Reset"
+                                    Content="{wpf:Text Settings.HotkeyClear}"
                                     Command="{Binding ClearCommand}"
-                                    Style="{StaticResource ModalButtonStyle}"
-                                    FontSize="11"
+                                    Style="{StaticResource LightErrorButtonStyle}"
+                                    FontSize="{wpf:FontSize 11}"
                                     Padding="10,4"
                                     MinHeight="28"/>
                         </Grid>
@@ -487,8 +272,8 @@
 
                 <!-- Live Preview Badges -->
                 <StackPanel Grid.Row="3" Margin="0,0,0,8">
-                    <TextBlock Text="Preview:"
-                               FontSize="11"
+                    <TextBlock Text="{wpf:Text Settings.HotkeyPreview}"
+                               FontSize="{wpf:FontSize 11}"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
                                Margin="0,0,0,4"/>
                     <views:HotkeyDisplayView x:Name="LivePreviewControl"
@@ -501,28 +286,29 @@
                         Margin="0,0,0,16"
                         Padding="8,6"
                         CornerRadius="4"
-                        Background="#33D83B01"
-                        BorderBrush="#80D83B01"
+                        Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.ErrorBackground}"
+                        BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.ErrorBorder}"
                         BorderThickness="1"
                         Visibility="{Binding HasValidationError, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <TextBlock Text="{Binding ValidationError}"
-                               FontSize="11"
-                               Foreground="#FFD83B01"
-                               TextWrapping="Wrap"/>
+                               FontSize="{wpf:FontSize 11}"
+                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.ErrorBrush}"
+                               TextWrapping="Wrap"
+                               wpf:LiveRegion.Mode="Assertive"/>
                 </Border>
 
                 <!-- Action Buttons -->
                 <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Content="Cancel"
-                            Command="{Binding CancelCommand}"
-                            Style="{StaticResource ModalButtonStyle}"
-                            MinWidth="85"
-                            Margin="0,0,8,0"/>
-                    <Button Content="Save / Apply"
+                    <Button Content="{wpf:Text Settings.HotkeySave}"
                             Command="{Binding SaveCommand}"
-                            Style="{StaticResource ModalButtonStyle}"
-                            MinWidth="110"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            MinWidth="100"
                             FontWeight="SemiBold"/>
+                    <Button Content="{wpf:Text Core.Cancel}"
+                            Command="{Binding CancelCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            MinWidth="100"
+                            Margin="0,0,8,0"/>
                 </StackPanel>
             </Grid>
         </Border>

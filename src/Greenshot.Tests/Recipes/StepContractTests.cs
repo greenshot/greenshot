@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -166,7 +166,7 @@ namespace Greenshot.Tests.Recipes
             var contracts = registry.Contracts.ToDictionary(c => c.StepType, StringComparer.OrdinalIgnoreCase);
             foreach (var pluginStep in new[]
                      {
-                         typeof(Greenshot.Plugin.Imgur.Recipes.ImgurStep), typeof(Greenshot.Plugin.Jira.Recipes.JiraStep), typeof(Greenshot.Plugin.Confluence.Recipes.ConfluenceStep),
+                         typeof(Greenshot.Plugin.Jira.Recipes.JiraStep), typeof(Greenshot.Plugin.Confluence.Recipes.ConfluenceStep),
                          typeof(Greenshot.Plugin.Office.Recipes.OfficeStep), typeof(Greenshot.Plugin.Box.Recipes.BoxStep), typeof(Greenshot.Plugin.Dropbox.Recipes.DropboxStep),
                          typeof(Greenshot.Plugin.Pdf.Recipes.PdfStep)
                      })
@@ -210,7 +210,6 @@ namespace Greenshot.Tests.Recipes
         [Theory]
         [InlineData(typeof(Greenshot.Recipes.Steps.DestinationExportStep))]
         [InlineData(typeof(Greenshot.Plugin.ExternalCommand.Recipes.ExternalCommandStep))]
-        [InlineData(typeof(Greenshot.Plugin.Imgur.Recipes.ImgurStep))]
         [InlineData(typeof(Greenshot.Plugin.Jira.Recipes.JiraStep))]
         [InlineData(typeof(Greenshot.Plugin.Confluence.Recipes.ConfluenceStep))]
         public void FormatParameter_AllowedValues_ComeFromTheFileFormatRegistry(Type stepType)
@@ -260,18 +259,19 @@ namespace Greenshot.Tests.Recipes
         {
         }
 
-        private static string FindRepositoryDirectory() => Path.GetDirectoryName(Path.GetDirectoryName(FindExamplesDirectory()));
+        // docs/vNext/examples is three levels below the repository
+        private static string FindRepositoryDirectory() => Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(FindExamplesDirectory())));
 
         private static string FindExamplesDirectory()
         {
             var directory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
             while (directory != null)
             {
-                string candidate = Path.Combine(directory.FullName, "docs", "examples");
+                string candidate = Path.Combine(directory.FullName, "docs", "vNext", "examples");
                 if (Directory.Exists(candidate)) return candidate;
                 directory = directory.Parent;
             }
-            throw new DirectoryNotFoundException("docs/examples not found above " + AppDomain.CurrentDomain.BaseDirectory);
+            throw new DirectoryNotFoundException("docs/vNext/examples not found above " + AppDomain.CurrentDomain.BaseDirectory);
         }
 
         // --- Graph analysis ------------------------------------------------------------------------------------

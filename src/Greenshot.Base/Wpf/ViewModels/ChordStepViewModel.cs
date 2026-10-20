@@ -3,6 +3,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using Dapplo.Windows.Input.Enums;
 using Greenshot.Base.Core;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Base.Wpf.ViewModels
 {
@@ -29,18 +30,30 @@ namespace Greenshot.Base.Wpf.ViewModels
         public KeyChord Chord { get; }
         public bool IsSelected { get; }
 
-        public string StepHeader => $"Step {StepNumber}:";
-        public string StepText => Chord.Key == VirtualKeyCode.None && !Chord.HasModifiers ? "None" : Chord.ToString();
+        public string StepHeader => string.Format(Texts.Settings.HotkeyStep, StepNumber);
+        public string StepText => Chord.Key == VirtualKeyCode.None && !Chord.HasModifiers ? Texts.Settings.HotkeyNone : Chord.ToString();
+
+        /// <summary>
+        /// The name of the step for a screen reader, the selection is otherwise only shown by color
+        /// </summary>
+        public string AccessibleName => string.Format(IsSelected ? Texts.Settings.HotkeyStepSelectedAccessible : Texts.Settings.HotkeyStepAccessible, StepNumber, StepText);
 
         public bool CanRemove => _parent.Steps.Count > 1;
 
+        // The accent of the theme, which follows Windows and switches to the system colors in high contrast
         public Brush BorderBrush => IsSelected
-            ? new SolidColorBrush(Color.FromRgb(0x0A, 0x84, 0xFF))
+            ? ThemeManager.Instance.AccentBrush
             : ThemeManager.Instance.BorderBrush;
 
         public Brush BackgroundBrush => IsSelected
-            ? (ThemeManager.Instance.IsDarkTheme ? new SolidColorBrush(Color.FromArgb(0x40, 0x0A, 0x84, 0xFF)) : new SolidColorBrush(Color.FromArgb(0x25, 0x00, 0x78, 0xD7)))
+            ? CreateAccentTint()
             : ThemeManager.Instance.ControlBackgroundBrush;
+
+        private static Brush CreateAccentTint()
+        {
+            var accent = ThemeManager.Instance.CurrentPalette.AccentBrush.Color;
+            return new SolidColorBrush(Color.FromArgb(ThemeManager.Instance.IsDarkTheme ? (byte)0x40 : (byte)0x25, accent.R, accent.G, accent.B));
+        }
 
         public Brush TextBrush => ThemeManager.Instance.ForegroundBrush;
         public Brush MutedBrush => ThemeManager.Instance.MutedBrush;

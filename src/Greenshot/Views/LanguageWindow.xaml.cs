@@ -8,7 +8,7 @@
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -35,6 +35,9 @@ namespace Greenshot.Views
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(LanguageWindow));
 
+        // The language selected when the window opened, cancel goes back to it
+        private string _initialLanguage;
+
         public string SelectedLanguage => LanguageComboBox.SelectedValue?.ToString() ?? Texts.Config.CurrentLanguage;
 
         public LanguageWindow()
@@ -50,6 +53,14 @@ namespace Greenshot.Views
             }
 
             Loaded += LanguageWindow_Loaded;
+            // Esc, the Cancel button, the close button and Alt+F4: the caller uses SelectedLanguage in any case, keep the initial one
+            Closing += (s, e) =>
+            {
+                if (DialogResult != true && _initialLanguage != null)
+                {
+                    LanguageComboBox.SelectedValue = _initialLanguage;
+                }
+            };
         }
 
         private void LanguageWindow_Loaded(object sender, RoutedEventArgs e)
@@ -71,6 +82,7 @@ namespace Greenshot.Views
             {
                 LanguageComboBox.SelectedIndex = 0;
             }
+            _initialLanguage = LanguageComboBox.SelectedValue?.ToString();
 
             // Close again when there is only one language
             if (languages.Count == 1)
@@ -100,6 +112,12 @@ namespace Greenshot.Views
             Texts.SetLanguage(SelectedLanguage);
             DialogResult = true;
             Close();
+        }
+
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Closes the window, Closing goes back to the initial language
+            DialogResult = false;
         }
     }
 }

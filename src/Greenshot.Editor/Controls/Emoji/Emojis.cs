@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -51,6 +51,11 @@ public class Emojis
 
         public IEnumerable<Emoji> EmojiList => SubGroups.SelectMany(s => s.Emojis);
 #endif
+
+        /// <summary>
+        /// A screen reader reads an item without a name by its ToString
+        /// </summary>
+        public override string ToString() => Name;
     }
 
     [XmlType("E")]
@@ -72,5 +77,7 @@ public class Emojis
         public bool HasVariations => Variations.Count > 0;
 
         public IEnumerable<Emoji> AllVariations => HasVariations ? new[] { this }.Union(Variations) : Array.Empty<Emoji>();
+
+        public override string ToString() => Text;
     }
 }

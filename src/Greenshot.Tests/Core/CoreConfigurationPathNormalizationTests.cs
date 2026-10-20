@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -101,6 +101,21 @@ namespace Greenshot.Tests.Core
 
             Assert.Equal(desktopPath, config.OutputFilePath);
             Assert.Equal(dummyFile, config.OutputFileAsFullpath);
+        }
+
+        [Theory]
+        [InlineData(@"Z:\Greenshot\Not\Connected")]
+        [InlineData(@"\\server\share\Screenshots")]
+        [InlineData(@"C:\Screenshots\${YYYY}-${MM}")]
+        public void OnAfterLoad_KeepsAFolderWhichDoesNotExist(string configuredFolder)
+        {
+            var config = new CoreConfigurationImpl();
+            config.ResetToDefaults();
+            config.SetRawValue(nameof(config.OutputFilePath), configuredFolder);
+
+            config.OnAfterLoad();
+
+            Assert.Equal(configuredFolder, config.OutputFilePath);
         }
 
         [Theory]

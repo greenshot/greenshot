@@ -4,6 +4,10 @@
              xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
              >
     <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         <Style TargetType="Label">
             <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -17,10 +21,7 @@
             <Setter Property="Height" Value="28"/>
             <Setter Property="Padding" Value="6,0"/>
         </Style>
-        <Style TargetType="CheckBox">
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="Margin" Value="0,6"/>
-        </Style>
+        </ResourceDictionary>
     </UserControl.Resources>
 
     <StackPanel Margin="8">
@@ -29,8 +30,8 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Label Grid.Column="0" Content="{wpf:Text Jira.LabelUrl}" Margin="0,0,12,0"/>
-            <TextBox Grid.Column="1" Text="{Binding Url, UpdateSourceTrigger=PropertyChanged}"/>
+            <Label Grid.Column="0" Content="{wpf:Text Jira.LabelUrl}" Margin="0,0,12,0" Target="{Binding ElementName=UrlTextBox}"/>
+            <TextBox x:Name="UrlTextBox" Grid.Column="1" Text="{Binding Url, UpdateSourceTrigger=PropertyChanged}"/>
         </Grid>
 
         <Grid Margin="0,4">
@@ -38,7 +39,7 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <Label Grid.Column="0" Content="{wpf:Text Jira.LabelUploadFormat}" Margin="0,0,12,0"/>
+            <Label Grid.Column="0" Content="{wpf:Text Jira.LabelUploadFormat}" Margin="0,0,12,0" Target="{Binding ElementName=UploadFormatCombo}"/>
             <ComboBox x:Name="UploadFormatCombo" Grid.Column="1"
                       HorizontalAlignment="Right" Width="200"
                       DisplayMemberPath="DisplayNameWithPreferredExtension"

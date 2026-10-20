@@ -6,7 +6,7 @@
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 1 of the License, or
+// the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
 // This program is distributed in the hope that it will be useful,
@@ -22,8 +22,6 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapplo.HttpExtensions;
-using Dapplo.HttpExtensions.JsonNet;
 using Greenshot.Base.Core;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
@@ -31,6 +29,7 @@ using Greenshot.Helpers.Entities;
 using log4net;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Languages;
+using Greenshot.Base.Http;
 
 namespace Greenshot.Helpers
 {
@@ -108,8 +107,6 @@ namespace Greenshot.Helpers
         /// <param name="currentVersion">Current version override</param>
         public UpdateService(Version currentVersion)
         {
-            JsonNetJsonSerializer.RegisterGlobally();
-
             if (currentVersion != null)
             {
                 CurrentVersion = currentVersion;
@@ -282,7 +279,7 @@ namespace Greenshot.Helpers
                     CoreConfig.LastUpdateCheck = DateTime.Now;
                 }
 
-                var updateFeed = await UpdateFeed.GetAsAsync<UpdateFeed>(cancellationToken).ConfigureAwait(false);
+                var updateFeed = await HttpService.Current.GetJsonAsync<UpdateFeed>(UpdateFeed, cancellationToken).ConfigureAwait(false);
                 if (updateFeed == null)
                 {
                     return false;

@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -397,6 +397,9 @@ namespace Greenshot.Shell
                 {
                     item.MouseEnter += (sender, args) => ShowThumbnail(item, windowToCapture);
                     item.MouseLeave += (sender, args) => _thumbnailWindow?.Hide();
+                    // Also for the item the arrow keys are on
+                    item.GotKeyboardFocus += (sender, args) => ShowThumbnail(item, windowToCapture);
+                    item.LostKeyboardFocus += (sender, args) => _thumbnailWindow?.Hide();
                 }
             }
         }
@@ -454,16 +457,39 @@ namespace Greenshot.Shell
             var recipeManager = SimpleServiceProvider.Current.GetInstance<IRecipeManager>(isOptional: true) ?? RecipeManager.Instance;
 
             int recipeItemCount = 0;
-            foreach (var trigger in triggerManager.GetContextMenuTriggers().OrderBy(t => t.Order))
-            {
-                var recipe = recipeManager.GetRecipeById(trigger.TargetRecipeId);
-                if (recipe == null || !recipe.ShowInContextMenu || !recipe.IsEnabled)
+            var menuGroups = new Dictionary<string, MenuItem>(StringComparer.OrdinalIgnoreCase);
+            var menuEntries = triggerManager.GetContextMenuTriggers()
+                .Select(trigger => new
                 {
-                    continue;
-                }
+                    Trigger = trigger,
+                    Recipe = recipeManager.GetRecipeById(trigger.TargetRecipeId),
+                    Group = string.IsNullOrWhiteSpace(trigger.Group) ? "Recipes" : trigger.Group.Trim()
+                })
+                .Where(entry => entry.Recipe != null && entry.Recipe.ShowInContextMenu && entry.Recipe.IsEnabled)
+                .OrderBy(entry => string.Equals(entry.Group, "Recipes", StringComparison.OrdinalIgnoreCase) ? 0 : 10)
+                .ThenBy(entry => entry.Group, StringComparer.CurrentCultureIgnoreCase)
+                .ThenBy(entry => entry.Trigger.Order)
+                .ThenBy(entry => entry.Recipe.Name, StringComparer.CurrentCultureIgnoreCase);
+            foreach (var entry in menuEntries)
+            {
+                var trigger = entry.Trigger;
+                var recipe = entry.Recipe;
 
                 var menuTrigger = trigger;
-                var item = AddItem(recipesItem, trigger.MenuItemText ?? recipe.Name, null, () => menuTrigger.Fire());
+                string group = entry.Group;
+                ItemsControl parent = recipesItem;
+                if (!string.Equals(group, "Recipes", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (!menuGroups.TryGetValue(group, out var groupItem))
+                    {
+                        groupItem = ThemedMenu.CreateItem(group);
+                        menuGroups.Add(group, groupItem);
+                        recipesItem.Items.Add(groupItem);
+                    }
+                    parent = groupItem;
+                }
+
+                var item = AddItem(parent, trigger.MenuItemText ?? recipe.Name, null, () => menuTrigger.Fire());
                 var hotkeyTrigger = triggerManager.FindHotkeyTriggerForRecipe(recipe.Id);
                 if (hotkeyTrigger != null && !string.IsNullOrWhiteSpace(hotkeyTrigger.HotkeyString))
                 {

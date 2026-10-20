@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -55,12 +55,14 @@ namespace Greenshot.Tests.Core
                 typeof(ICoreLanguage).Assembly,
                 typeof(Greenshot.Plugin.Box.IBoxLanguage).Assembly,
                 typeof(Greenshot.Plugin.Confluence.IConfluenceLanguage).Assembly,
+                typeof(Greenshot.Plugin.CustomUploader.ICustomUploaderLanguage).Assembly,
                 typeof(Greenshot.Plugin.Dropbox.IDropboxLanguage).Assembly,
                 typeof(Greenshot.Plugin.ExternalCommand.IExternalCommandLanguage).Assembly,
-                typeof(Greenshot.Plugin.Imgur.IImgurLanguage).Assembly,
                 typeof(Greenshot.Plugin.Jira.IJiraLanguage).Assembly,
                 typeof(Greenshot.Plugin.Office.IOfficeLanguage).Assembly,
-                typeof(Greenshot.Plugin.Pdf.IPdfLanguage).Assembly
+                typeof(Greenshot.Plugin.Pdf.IPdfLanguage).Assembly,
+                typeof(Greenshot.Plugin.RecipeEditor.IRecipeEditorLanguage).Assembly,
+                typeof(Greenshot.Plugin.Zxing.IZxingLanguage).Assembly
             };
             return assemblies
                 .SelectMany(a => a.GetTypes())
@@ -90,7 +92,8 @@ namespace Greenshot.Tests.Core
             var sections = LanguageSections()
                 .Select(o => (Type)o[0])
                 .ToDictionary(t => t.GetCustomAttribute<IniLanguageSectionAttribute>().SectionName, StringComparer.Ordinal);
-            var textReference = new Regex(@"\{wpf:Text\s+(\w+)\.(\w+)\s*\}");
+            // Any prefix the file maps to Greenshot.Base.Wpf (wpf:, ui:)
+            var textReference = new Regex(@"\{\w+:Text\s+(\w+)\.(\w+)\s*\}");
             var problems = new List<string>();
             int count = 0;
             foreach (string xamlFile in Directory.EnumerateFiles(FindSourceDirectory(), "*.xaml", SearchOption.AllDirectories)
@@ -247,7 +250,7 @@ namespace Greenshot.Tests.Core
             Assert.Equal("Title", Greenshot.Base.Recipes.RecipeText.Translate("Title"));
         }
 
-        private static string FindSourceDirectory()
+        internal static string FindSourceDirectory()
         {
             var directory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
             while (directory != null)

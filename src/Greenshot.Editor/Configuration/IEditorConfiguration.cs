@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -70,9 +70,13 @@ namespace Greenshot.Editor.Configuration
         [DefaultValue("100,100,400,400")]
         NativeRect WindowNormalPosition { get; set; }
 
-        [Description("Reuse already open editor")]
-        [DefaultValue(false)]
-        bool ReuseEditor { get; set; }
+        [Description("Show the captures of an editor window as tabs, when false every capture gets its own window")]
+        [DefaultValue(true)]
+        bool EditorTabs { get; set; }
+
+        [Description("Open a new capture as tab in the editor window which was used last, when false every capture gets its own window")]
+        [DefaultValue(true)]
+        bool OpenCaptureAsTab { get; set; }
 
         [Description("The smaller this number, the less smoothing is used. Decrease for detailed drawing, e.g. when using a pen. Increase for smoother lines. e.g. when you want to draw a smooth line. Minimal value is 1, max is 100.")]
         [DefaultValue(3)]
@@ -89,9 +93,13 @@ namespace Greenshot.Editor.Configuration
         [Description("Settings for the torn edge effect.")]
         TornEdgeEffect TornEdgeEffectSettings { get; set; }
 
-        [Description("The size for the editor when it's opened without a capture")]
+        [Description("The size of a new image, for the editor when it's opened without a capture and for a new tab")]
         [DefaultValue("500,500")]
         NativeSize DefaultEditorSize { get; set; }
+
+        [Description("The color of a new image, for the editor when it's opened without a capture and for a new tab")]
+        [DefaultValue("White")]
+        Color NewImageColor { get; set; }
 
         [Description("Last used search pattern for text obfuscation")]
         [DefaultValue("")]

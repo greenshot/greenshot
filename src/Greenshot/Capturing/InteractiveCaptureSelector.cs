@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -198,8 +198,11 @@ namespace Greenshot.Capturing
             }
             else
             {
-                captureWindow = new CaptureWindow(fullscreenCapture, windows, initialTool);
+                // Shown without ShowDialog, which would take the focus from the application below on the live screen (also after L)
+                captureWindow = new CaptureWindow(fullscreenCapture.ScreenBounds);
                 SetOwner(captureWindow);
+                captureWindow.Prepare();
+                captureWindow.SetCapture(fullscreenCapture, windows, initialTool);
             }
             _openWindow = captureWindow;
             // Cancelling the flow closes the window

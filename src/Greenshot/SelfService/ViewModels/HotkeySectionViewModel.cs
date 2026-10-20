@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -42,10 +42,16 @@ namespace Greenshot.SelfService.ViewModels
         public string ConfigKey { get; set; }
         public string HotkeyText { get; set; }
         public bool IsRegistered { get; set; }
-        public string StatusText => IsRegistered 
-            ? (Texts.SelfService.HotkeysStatusOk ?? "Registered") 
-            : (Texts.SelfService.HotkeysStatusFailed ?? "Not Registered / Conflict");
-        public Brush StatusBrush => IsRegistered ? WpfThemeHelper.Accent : WpfThemeHelper.WarningText;
+        /// <summary>
+        /// No hotkey is set for this capture
+        /// </summary>
+        public bool IsDisabled => string.Equals(HotkeyText, "None", StringComparison.OrdinalIgnoreCase);
+        public string StatusText => IsDisabled
+            ? (Texts.SelfService.HotkeysStatusDisabled ?? "Disabled")
+            : IsRegistered
+                ? (Texts.SelfService.HotkeysStatusOk ?? "Registered")
+                : (Texts.SelfService.HotkeysStatusFailed ?? "Not Registered / Conflict");
+        public Brush StatusBrush => IsDisabled ? WpfThemeHelper.TextSecondary : IsRegistered ? WpfThemeHelper.Accent : WpfThemeHelper.WarningText;
     }
 
     public class ContenderAppViewModel
@@ -167,11 +173,11 @@ namespace Greenshot.SelfService.ViewModels
             int totalIssues = 0;
             if (IsOneDriveBlocking) totalIssues++;
             if (IsSnippingToolHijackEnabled) totalIssues++;
-            if (Hotkeys.Any(h => !h.IsRegistered && !string.Equals(h.HotkeyText, "None", StringComparison.OrdinalIgnoreCase))) totalIssues++;
+            if (Hotkeys.Any(h => !h.IsRegistered && !h.IsDisabled)) totalIssues++;
 
             if (totalIssues > 0)
             {
-                BadgeText = $"{totalIssues} Issue{(totalIssues > 1 ? "s" : "")}";
+                BadgeText = string.Format(totalIssues > 1 ? Texts.SelfService.HotkeysIssues : Texts.SelfService.HotkeysIssue, totalIssues);
                 BadgeBrush = WpfThemeHelper.WarningBackground;
             }
             else
@@ -199,19 +205,16 @@ namespace Greenshot.SelfService.ViewModels
         {
             string displayValue = string.IsNullOrWhiteSpace(hotkeyValue) ? "None" : hotkeyValue;
             bool isRegistered = false;
-
             if (!string.Equals(displayValue, "None", StringComparison.OrdinalIgnoreCase))
             {
-                // In Greenshot, if HotkeyManager registered sequences exist, assume registered unless error
-                // Test parsing sequence
                 try
                 {
-                    var seq = HotkeySequence.Parse(displayValue);
-                    isRegistered = seq != null;
+                    // Registered means Greenshot really listens for it, not only that the text is a valid hotkey
+                    isRegistered = HotkeyManager.IsRegistered(HotkeySequence.Parse(displayValue));
                 }
-                catch
+                catch (Exception ex)
                 {
-                    isRegistered = false;
+                    Log.Warn($"Couldn't read the hotkey '{displayValue}' of {configKey}", ex);
                 }
             }
 
@@ -431,7 +434,7 @@ namespace Greenshot.SelfService.ViewModels
             catch (Exception ex)
             {
                 Log.Error("Error disabling Snipping Tool takeover", ex);
-                StatusMessage = $"Could not update registry: {ex.Message}";
+                StatusMessage = string.Format(Texts.SelfService.HotkeysRegistryError, ex.Message);
             }
         }
 
@@ -444,7 +447,7 @@ namespace Greenshot.SelfService.ViewModels
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Could not open Windows Settings: {ex.Message}";
+                StatusMessage = string.Format(Texts.SelfService.HotkeysSettingsError, ex.Message);
             }
         }
 

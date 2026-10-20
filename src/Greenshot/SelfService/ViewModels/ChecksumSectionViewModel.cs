@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -33,6 +33,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using Greenshot.Base.Core;
+using Greenshot.Base.Wpf;
 using log4net;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Languages;
@@ -174,18 +175,20 @@ namespace Greenshot.SelfService.ViewModels
         {
             get
             {
+                // Palette roles: readable on light and dark, and the text color in high contrast
+                var palette = ThemeManager.Instance.CurrentPalette;
                 switch (Status)
                 {
                     case ChecksumStatus.Match:
-                        return new SolidColorBrush(Color.FromRgb(34, 197, 94)); // Emerald #22C55E
+                        return palette.SuccessBrush;
                     case ChecksumStatus.Mismatch:
-                        return new SolidColorBrush(Color.FromRgb(239, 68, 68)); // Red #EF4444
+                        return palette.ErrorBrush;
                     case ChecksumStatus.Missing:
-                        return new SolidColorBrush(Color.FromRgb(249, 115, 22)); // Orange #F97316
+                        return palette.WarningBrush;
                     case ChecksumStatus.Unlisted:
-                        return new SolidColorBrush(Color.FromRgb(59, 130, 246)); // Blue #3B82F6
+                        return palette.InfoBrush;
                     default:
-                        return new SolidColorBrush(Colors.Gray);
+                        return palette.MutedBrush;
                 }
             }
         }
@@ -402,11 +405,12 @@ namespace Greenshot.SelfService.ViewModels
         {
             get
             {
+                var palette = ThemeManager.Instance.CurrentPalette;
                 if (ChecksumFileNotFound || HasCorruptFiles)
-                    return new SolidColorBrush(Color.FromRgb(239, 68, 68)); // Red #EF4444
+                    return palette.ErrorBrush;
                 if (HasMissingFiles)
-                    return new SolidColorBrush(Color.FromRgb(249, 115, 22)); // Orange #F97316
-                return new SolidColorBrush(Color.FromRgb(34, 197, 94)); // Emerald #22C55E
+                    return palette.WarningBrush;
+                return palette.SuccessBrush;
             }
         }
 
@@ -505,12 +509,12 @@ namespace Greenshot.SelfService.ViewModels
             }
             catch (OperationCanceledException)
             {
-                StatusMessage = "Checksum validation canceled.";
+                StatusMessage = Texts.SelfService.ChecksumCanceled;
             }
             catch (Exception ex)
             {
                 Log.Error("Error during checksum validation", ex);
-                StatusMessage = $"Validation error: {ex.Message}";
+                StatusMessage = string.Format(Texts.SelfService.ChecksumValidationError, ex.Message);
             }
             finally
             {
@@ -665,7 +669,7 @@ namespace Greenshot.SelfService.ViewModels
                     {
                         Log.Error($"Failed to compute hash for file {fullPath}", ex);
                         item.Status = ChecksumStatus.Mismatch;
-                        item.ActualHash = $"Error: {ex.Message}";
+                        item.ActualHash = string.Format(Texts.SelfService.StatusError, ex.Message);
                         res.MismatchedCount++;
                     }
                 }
@@ -700,7 +704,7 @@ namespace Greenshot.SelfService.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    item.ActualHash = $"Error: {ex.Message}";
+                    item.ActualHash = string.Format(Texts.SelfService.StatusError, ex.Message);
                 }
 
                 res.UnlistedCount++;
@@ -910,17 +914,17 @@ namespace Greenshot.SelfService.ViewModels
             if (HasCorruptFiles || ChecksumFileNotFound)
             {
                 BadgeText = $"{MismatchedCount + (ChecksumFileNotFound ? 1 : 0)} ❌";
-                BadgeBrush = new SolidColorBrush(Color.FromRgb(239, 68, 68));
+                BadgeBrush = ThemeManager.Instance.CurrentPalette.ErrorBrush;
             }
             else if (HasMissingFiles)
             {
                 BadgeText = $"{MissingCount} ⚠️";
-                BadgeBrush = new SolidColorBrush(Color.FromRgb(249, 115, 22));
+                BadgeBrush = ThemeManager.Instance.CurrentPalette.WarningBrush;
             }
             else if (TotalCount > 0)
             {
                 BadgeText = "OK";
-                BadgeBrush = new SolidColorBrush(Color.FromRgb(34, 197, 94));
+                BadgeBrush = ThemeManager.Instance.CurrentPalette.SuccessBrush;
             }
             else
             {
@@ -1003,7 +1007,7 @@ namespace Greenshot.SelfService.ViewModels
             catch (Exception ex)
             {
                 Log.Error("Failed to copy integrity report to clipboard", ex);
-                StatusMessage = $"Copy failed: {ex.Message}";
+                StatusMessage = string.Format(Texts.SelfService.StatusCopyFailed, ex.Message);
             }
         }
 
@@ -1024,7 +1028,7 @@ namespace Greenshot.SelfService.ViewModels
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Copy failed: {ex.Message}";
+                StatusMessage = string.Format(Texts.SelfService.StatusCopyFailed, ex.Message);
             }
         }
 
@@ -1035,17 +1039,17 @@ namespace Greenshot.SelfService.ViewModels
                 if (File.Exists(ChecksumFilePath))
                 {
                     ExplorerHelper.OpenInExplorer(ChecksumFilePath);
-                    StatusMessage = $"Opened Explorer for: {ChecksumFilePath}";
+                    StatusMessage = string.Format(Texts.SelfService.ChecksumOpenedExplorer, ChecksumFilePath);
                 }
                 else if (Directory.Exists(BaseDirectory))
                 {
                     ExplorerHelper.OpenInExplorer(BaseDirectory);
-                    StatusMessage = $"Checksum file not found, opened containing folder: {BaseDirectory}";
+                    StatusMessage = string.Format(Texts.SelfService.ChecksumOpenedFolder, BaseDirectory);
                 }
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Failed to open file: {ex.Message}";
+                StatusMessage = string.Format(Texts.SelfService.ChecksumOpenFailed, ex.Message);
             }
         }
 

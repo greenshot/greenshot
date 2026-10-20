@@ -717,7 +717,7 @@ namespace Greenshot.Document.Rendering
                 : Canvas(new PointD(area.X + across, area.Y + point.X));
             var first = Outlines.Of(cutMark.Shape, length, height, random).Select(point => Place(point, height - point.Y)).ToArray();
             var second = Outlines.Of(cutMark.Shape, length, height, random).Select(point => Place(point, thickness - height + point.Y)).ToArray();
-            var gap = new Polygon(new LinearLineSegment(first.Concat(second.Reverse()).ToArray()));
+            var gap = new Polygon(new LinearLineSegment(first.Concat(Enumerable.Reverse(second)).ToArray()));
             canvas.Mutate(context =>
             {
                 context.Fill(Replace, style.Fill is { Enabled: not false, Color: Rgba fill } ? Colour(fill) : Color.Transparent, gap);

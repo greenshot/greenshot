@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -105,6 +105,15 @@ namespace Greenshot.Shell
                 if (options.NoRun)
                 {
                     // Make an exit possible
+                    FreeMutex();
+                    return;
+                }
+
+                // Started by Windows (the Run value, or restarted by Windows) while Greenshot runs already: another start at the logon
+                // (a link in the Startup folder, another Run value, Windows restarting its apps) was first, nobody needs to be told
+                if (isAlreadyRunning && (options.Autostart || options.Restore))
+                {
+                    Log.Info($"Greenshot runs already, this start by Windows ({(options.Autostart ? "--autostart" : "--restore")}) ends.");
                     FreeMutex();
                     return;
                 }

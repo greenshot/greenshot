@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -25,6 +25,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Input;
+using Greenshot.Base.Languages;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Wpf;
@@ -67,12 +68,12 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 key = $"option{i}";
             }
-            var option = new RecipeOption { Key = key, Type = ContractDataType.Boolean, DefaultValue = false, Label = "New option" };
+            var option = new RecipeOption { Key = key, Type = ContractDataType.Boolean, DefaultValue = false, Label = Texts.Get<IRecipeEditorLanguage>().NewOptionLabel };
             ActiveRecipe.Options.Add(option);
             RecipeOptions.Add(new RecipeOptionItemViewModel(option, RemoveOption));
             OnPropertyChanged(nameof(HasRecipeOptions));
             IsDirty = true;
-            StatusMessage = $"Added option '{key}': the steps read it with ${{option.{key}}}";
+            StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusOptionAdded, key, "${option." + key + "}");
         }
 
         private void RemoveOption(RecipeOptionItemViewModel item)
@@ -86,7 +87,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             RecipeOptions.Remove(item);
             OnPropertyChanged(nameof(HasRecipeOptions));
             IsDirty = true;
-            StatusMessage = $"Removed option '{item.Key}'";
+            StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusOptionRemoved, item.Key);
         }
     }
 

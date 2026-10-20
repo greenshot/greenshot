@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -42,9 +42,19 @@ namespace Greenshot.Plugin.ExternalCommand
         string LabelArgument { get; }
 
         /// <summary>
+        /// Choose the program
+        /// </summary>
+        string LabelBrowse { get; }
+
+        /// <summary>
         /// Command
         /// </summary>
         string LabelCommand { get; }
+
+        /// <summary>
+        /// Commands
+        /// </summary>
+        string LabelCommands { get; }
 
         /// <summary>
         /// {0} is the filename of your screenshot

@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
@@ -28,6 +29,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapplo.Windows.Shell32.Enums;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using log4net;
@@ -89,23 +91,7 @@ namespace Greenshot.Notifications
             try
             {
                 using var icon = await DestinationIcons.GetIconAsync(iconKey, cancellationToken).ConfigureAwait(false);
-                if (icon == null)
-                {
-                    return null;
-                }
-                Directory.CreateDirectory(IconDirectory);
-                // Written next to it and moved, a notification shown at the same time never reads half a file
-                var temporaryPath = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
-                icon.Save(temporaryPath, ImageFormat.Png);
-                if (File.Exists(path))
-                {
-                    File.Delete(temporaryPath);
-                }
-                else
-                {
-                    File.Move(temporaryPath, path);
-                }
-                return path;
+                return Write(iconKey, icon, path);
             }
             catch (OperationCanceledException)
             {
@@ -116,6 +102,57 @@ namespace Greenshot.Notifications
                 Log.Warn($"Couldn't write the icon '{iconKey}' for the notification.", ex);
                 return null;
             }
+        }
+
+        /// <summary>
+        /// The icon of Windows for an error or a warning (the big image of such a toast, like the icon of a balloon of the tray icon),
+        /// synchronously: it is written once, the toast service needs it while it shows the toast
+        /// </summary>
+        /// <returns>The png file, null for <see cref="NotificationKind.Info"/> or when it couldn't be written</returns>
+        public static string GetStatusIconPath(NotificationKind kind)
+        {
+            if (kind == NotificationKind.Info)
+            {
+                return null;
+            }
+            var iconKey = DestinationIcons.Stock(kind == NotificationKind.Error ? StockIconId.Error : StockIconId.Warning);
+            var path = Path.Combine(IconDirectory, GetFileName(iconKey));
+            if (File.Exists(path))
+            {
+                return path;
+            }
+            try
+            {
+                using var icon = DestinationIcons.GetStockIcon(kind == NotificationKind.Error ? StockIconId.Error : StockIconId.Warning);
+                return Write(iconKey, icon, path);
+            }
+            catch (Exception ex)
+            {
+                Log.Warn($"Couldn't write the icon '{iconKey}' for the notification.", ex);
+                return null;
+            }
+        }
+
+        /// <returns>The path, null without an icon</returns>
+        private static string Write(string iconKey, Image icon, string path)
+        {
+            if (icon == null)
+            {
+                return null;
+            }
+            Directory.CreateDirectory(IconDirectory);
+            // Written next to it and moved, a notification shown at the same time never reads half a file
+            var temporaryPath = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
+            icon.Save(temporaryPath, ImageFormat.Png);
+            if (File.Exists(path))
+            {
+                File.Delete(temporaryPath);
+            }
+            else
+            {
+                File.Move(temporaryPath, path);
+            }
+            return path;
         }
     }
 }

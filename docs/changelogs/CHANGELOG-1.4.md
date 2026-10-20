@@ -29,6 +29,13 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 #### 🎨 Editor Enhancements
 
+**Tabs in the editor**
+- An editor window can show several captures as tabs, like a browser
+- Drag a tab to change its place, into another editor window, or out of the window to open it in its own window
+- A new capture opens as a tab in the editor you used last, the settings can turn this or the tabs off
+- The "+" after the tabs adds a new image, its size and color are in the settings
+- Closing a window with several changed captures asks once: save all, discard all or cancel
+
 **Emoji Support** (#358)
 - Added a new "Emoji" object type to the editor
 - Insert emojis directly into your screenshots
@@ -66,21 +73,36 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 #### 📸 Capture Improvements
 
+**Capture a fixed size** (#152, #1525)
+- Press F while selecting a region to capture an area of a fixed size, e.g. 1280 × 720 or 32 × 32
+- The area follows the mouse and lines up with the edges of windows and the screen; hold Alt to place it freely
+- The mouse holds the area at its top left corner, so the magnifier shows exactly where it starts; press C for another corner or the middle
+- The magnifier shows the edges of the area (and of a region you drag), so even a 16 × 16 area can be placed to the pixel
+- A list shows the sizes: pick one with 1 to 9 (also on the number pad), or go through them with Page Up and Page Down
+- The sizes of your last region captures are in the list too, so you can capture the same size again
+- Add and remove your own sizes in the settings, on the Capture tab
+- A preview in a corner shows what will be captured, enlarged when it is small and reduced when it is large; this works for regions and windows too. Press P to move it next to the mouse in place of the magnifier, and again to turn it off
+
+**Capture without freezing the screen**
+- Turn off *Freeze the screen while selecting* on the Capture tab to select on the live screen: videos keep playing and HDR content keeps its brightness
+- The selection appears at once and only the selected area is captured, when you finish the selection
+- Press L while selecting to switch between the frozen and the live screen
+
 **New Capture Technology** (#932)
 - Implemented new capture technology for better screenshot quality
 - Improved compatibility with modern Windows applications
 - By @Lakritzator
 
-**Windows Graphics Capture API** (Beta)
-- Greenshot can now use the modern Windows Graphics Capture (WGC) API for full-screen and region captures
-- Produces higher-quality screenshots by capturing each monitor individually and stitching them together
-- More compatible with modern Windows applications compared to the legacy GDI-based capture method
-- Enable this by turning on the `IsBetaTester` flag in Greenshot's configuration
+**Windows Graphics Capture** (#542)
+- Screenshots use the modern Windows Graphics Capture, one monitor at a time, which works better with modern Windows applications
+- HDR screens are supported: bright parts of HDR games and videos keep their color and detail, like with the Xbox Game Bar
+- Screenshots without HDR content keep their colors exactly as on the screen, also on HDR screens
 - By @Lakritzator
 
 **Improved Cursor Capture** (#863)
 - Enhanced cursor capture logic to reflect real cursor size
 - More accurate cursor representation in screenshots
+- The captured cursor is only as big as the visible pointer, without the empty space around it
 - By @Lakritzator
 
 **Windows 11 Capture Behavior** (#771)
@@ -172,6 +194,41 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Greenshot appears only once in the Windows notification settings
 - Choose in the settings which notifications you want to see (all, warnings and errors, errors only, or none) and whether they show a preview
 
+#### 🩺 Help with problems
+
+**Log viewer in Self-Service**
+- Read Greenshot's log in its own window and copy it, for example for an issue report
+- Search the log: only the entries with your text are shown, including the details of an error
+- New entries appear while the log viewer is open, also in a search
+- Choose how much Greenshot writes to the log, until Greenshot restarts
+- Links like `greenshot://log?search=HDR` open the log viewer with that search, a link never changes a setting
+
+#### 🖼️ Imgur
+
+**Imgur uploads removed, delete your old ones in Self-Service**
+- Greenshot no longer uploads to Imgur: Imgur would only allow it with paid or capped access for all Greenshot users
+- If you uploaded images anonymously with an earlier Greenshot, it still has their delete keys: Self-Service lists those images so you can delete them from Imgur
+- Save the delete links as a web page to keep them
+
+#### 🩺 Self-Service
+
+**Screenshots no longer end up on the Desktop unnoticed**
+- When the screenshot folder couldn't be found, Greenshot switched it to the Desktop for good, without a message: e.g. a network drive without VPN, a renamed folder, or a folder with variables like ${YYYY}
+- Now a missing folder is created, variables are filled in first, and only when the folder really can't be used (e.g. the network drive isn't there), Greenshot saves that one screenshot to the Desktop and says so: the setting stays
+
+**Check where screenshots are saved**
+- Self-Service shows whether the screenshot folder exists, whether Greenshot can write to it, and whether it's a network or OneDrive folder
+- It also tells if the drive of the folder is missing, or the filename pattern gives no valid name
+- The folder and the filename pattern can be reset to the default with one click
+
+#### ♿ Accessibility
+
+**Screen readers, keyboard, high contrast and text size** (settings, Self-Service, welcome, dialogs, plugins, recipe editor, capture)
+- Narrator and other screen readers can name the buttons, lists and fields, and hear status changes
+- The keyboard focus is always visible, also in dark mode
+- Greenshot follows the Windows "Text size" setting and the "Animation effects" switch
+- In the capture window, Tab and Shift+Tab select the next or previous window, and a screen reader hears the mode, window and size
+
 ### Bug Fixes & Improvements
 
 #### 🐛 Critical Fixes
@@ -225,6 +282,9 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Folder browser now gracefully falls back to My Documents when the configured path is unavailable, too long, or doesn't exist
 - Prevents `System.InvalidOperationException: Unable to retrieve the root folder` error
 - By @Copilot
+
+**External Commands**
+- An external command whose program isn't found when Greenshot starts (e.g. on a USB stick or a network drive) is no longer deleted from the settings, it is only left out of the menu until Greenshot starts with the program available again
 
 **Plugin Configuration** (#733)
 - Improved plugin configuration handling
