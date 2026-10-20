@@ -11,8 +11,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapplo.Ini" Version="1.1.11" />
-    <PackageReference Include="Dapplo.Ini.Generator" Version="1.1.11" />
+    <PackageReference Include="Dapplo.Ini" Version="1.1.15" />
+    <PackageReference Include="Dapplo.Ini.Generator" Version="1.1.15" />
   </ItemGroup>
 
   <ItemGroup>
