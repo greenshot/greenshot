@@ -323,7 +323,7 @@ namespace Greenshot.Recipes.Triggers
         {
             TriggerFired?.Invoke(sender, e);
 
-            var recipeManager = SimpleServiceProvider.Current.GetInstance<IRecipeManager>() ?? RecipeManager.Instance;
+            var recipeManager = SimpleServiceProvider.Current.GetInstance<IRecipeManager>(isOptional: true) ?? RecipeManager.Instance;
             var recipe = recipeManager.GetRecipeById(e.TargetRecipeId);
 
             if (recipe != null)

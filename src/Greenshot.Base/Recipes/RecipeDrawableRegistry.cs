@@ -53,6 +53,9 @@ namespace Greenshot.Base.Recipes
         private readonly ConcurrentDictionary<string, IRecipeDrawableProvider> _providers =
             new ConcurrentDictionary<string, IRecipeDrawableProvider>(StringComparer.OrdinalIgnoreCase);
 
+        // The providers which registered their drawable types: the discovery only registers new ones
+        private readonly ConcurrentDictionary<IRecipeDrawableProvider, bool> _registeredProviders = new ConcurrentDictionary<IRecipeDrawableProvider, bool>();
+
         // The provider which is registering its drawable types on this thread
         [ThreadStatic]
         private static IRecipeDrawableProvider _registeringProvider;
@@ -163,6 +166,11 @@ namespace Greenshot.Base.Recipes
                 Log.DebugFormat("Recipe feature/editor is not enabled; skipping drawable registration for provider '{0}'", provider.GetType().Name);
                 return;
             }
+            if (!_registeredProviders.TryAdd(provider, true))
+            {
+                // Already registered: a lookup of an unknown drawable type doesn't run every provider again
+                return;
+            }
 
             var previousProvider = _registeringProvider;
             _registeringProvider = provider;
@@ -197,6 +205,7 @@ namespace Greenshot.Base.Recipes
         public void UnregisterProvider(IRecipeDrawableProvider provider)
         {
             if (provider == null) return;
+            _registeredProviders.TryRemove(provider, out _);
             foreach (var drawableType in _providers.Where(entry => ReferenceEquals(entry.Value, provider)).Select(entry => entry.Key).ToList())
             {
                 _providers.TryRemove(drawableType, out _);

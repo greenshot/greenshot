@@ -46,6 +46,9 @@ namespace Greenshot.Base.Recipes.Pipeline
             public IRecipeStepProvider Provider;
         }
 
+        // The providers which registered their step types: the discovery only registers new ones
+        private readonly ConcurrentDictionary<IRecipeStepProvider, bool> _registeredProviders = new ConcurrentDictionary<IRecipeStepProvider, bool>();
+
         // The provider which is registering its step types on this thread
         [ThreadStatic]
         private static IRecipeStepProvider _registeringProvider;
@@ -121,6 +124,11 @@ namespace Greenshot.Base.Recipes.Pipeline
                 Log.DebugFormat("Recipe feature/editor is not enabled; skipping step registration for provider '{0}'", provider.GetType().Name);
                 return;
             }
+            if (!_registeredProviders.TryAdd(provider, true))
+            {
+                // Already registered: a lookup of an unknown step type doesn't run every provider again
+                return;
+            }
 
             var previousProvider = _registeringProvider;
             _registeringProvider = provider;
@@ -145,6 +153,7 @@ namespace Greenshot.Base.Recipes.Pipeline
         public void UnregisterProvider(IRecipeStepProvider provider)
         {
             if (provider == null) return;
+            _registeredProviders.TryRemove(provider, out _);
             foreach (var registration in _registrations.Where(registration => ReferenceEquals(registration.Value.Provider, provider)).ToList())
             {
                 // Only removes the step type when it wasn't registered again in the meantime
