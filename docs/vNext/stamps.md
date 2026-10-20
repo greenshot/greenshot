@@ -30,7 +30,7 @@ in the full and the custom installation.
 
 | What | How |
 |---|---|
-| Find | Type in *Search*: every word must be part of the name, a tag, the category or the file name. Down or Enter goes to the stamps. The groups of the categories close and open with a click on their header; a search shows all it finds. |
+| Find | Type in *Search*: every word must be part of the name, a tag, the category or the file name. Down or Enter goes to the stamps. The groups of the categories close and open with a click on their header, or with the keyboard: Up from the first row of a group goes to its header, there Left closes it, Right opens it (Space and Enter switch it) and Down goes on. A search shows all it finds, also in closed groups. |
 | Insert into the editor | Double-click, Enter, or *Insert*. The stamp lands in the middle of the visible part of the capture, selected; a big one is made smaller to fit. The editor gets the keyboard, so the arrow keys move it. Ctrl+Z removes it. |
 | Give it to another program | *Copy* or Ctrl+C: the clipboard gets the file, PNG and DIBV5 (with transparency), and for an SVG also the SVG itself. Or drag the stamp to the program: it gets the file. |
 | Name and tags | Select the stamp and type into *Name* and *Tags* (tags separated by commas); Enter or leaving the field saves them. F2 goes to *Name*. |

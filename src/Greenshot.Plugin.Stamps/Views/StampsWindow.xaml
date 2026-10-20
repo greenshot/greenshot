@@ -61,6 +61,7 @@
                          AutomationProperties.Name="{wpf:Text Stamps.Title}"
                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                          KeyDown="StampList_KeyDown"
+                         PreviewKeyDown="StampList_PreviewKeyDown"
                          MouseDoubleClick="StampList_MouseDoubleClick"
                          PreviewMouseLeftButtonDown="StampList_PreviewMouseLeftButtonDown"
                          PreviewMouseMove="StampList_PreviewMouseMove">
@@ -73,10 +74,13 @@
                         <GroupStyle>
                             <GroupStyle.ContainerStyle>
                                 <Style TargetType="GroupItem">
+                                    <!-- Narrator says the category of a stamp with the group -->
+                                    <Setter Property="AutomationProperties.Name" Value="{Binding Name, TargetNullValue=''}"/>
                                     <Setter Property="Template">
                                         <Setter.Value>
                                             <ControlTemplate TargetType="GroupItem">
-                                                <!-- Open unless the user closed it, a search opens all -->
+                                                <!-- Open unless the user closed it, a search opens all. Up from the first row of stamps goes to the header,
+                                                     Left and Right close and open it there, see StampList_PreviewKeyDown -->
                                                 <Expander Style="{StaticResource ExpanderStyle}" IsExpanded="True" Margin="0,0,0,4"
                                                           Loaded="CategoryExpander_Loaded" Expanded="CategoryExpander_Changed" Collapsed="CategoryExpander_Changed">
                                                     <Expander.Header>

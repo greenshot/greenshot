@@ -20,9 +20,11 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Interop;
@@ -170,7 +172,8 @@ public partial class StampsWindow : Window
     private void StampList_KeyDown(object sender, KeyEventArgs e)
     {
         var stamp = ViewModel.SelectedStamp;
-        if (stamp == null)
+        // On the header of a category the keys are for it, not for the selected stamp
+        if (stamp == null || e.OriginalSource is ToggleButton)
         {
             return;
         }
@@ -195,6 +198,135 @@ public partial class StampsWindow : Window
                 e.Handled = true;
                 break;
         }
+    }
+
+    /// <summary>
+    /// The headers of the categories with the keyboard, like the groups in Explorer: Up from the first row of a group goes to its header;
+    /// on a header Left closes and Right opens the group (Space switches it), Down goes to its first stamp (or the next header) and Up
+    /// to the last stamp of the group above (or its header).
+    /// </summary>
+    private void StampList_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (Keyboard.Modifiers != ModifierKeys.None)
+        {
+            return;
+        }
+
+        if (e.OriginalSource is ToggleButton header && FindAncestor<GroupItem>(header) is { } groupItem)
+        {
+            e.Handled = OnHeaderKey(groupItem, e.Key);
+        }
+        else if (e.Key == Key.Up && e.OriginalSource is ListBoxItem item && FindAncestor<GroupItem>(item) is { } itemGroup && IsInFirstRow(itemGroup, item))
+        {
+            e.Handled = FocusHeader(itemGroup);
+        }
+    }
+
+    private bool OnHeaderKey(GroupItem groupItem, Key key)
+    {
+        var expander = FindDescendant<Expander>(groupItem);
+        var groups = ViewModel.Stamps.Groups?.OfType<CollectionViewGroup>().ToList() ?? new List<CollectionViewGroup>();
+        int index = groups.IndexOf(groupItem.DataContext as CollectionViewGroup);
+        switch (key)
+        {
+            case Key.Left when expander != null:
+                expander.IsExpanded = false;
+                return true;
+            case Key.Right when expander != null:
+                expander.IsExpanded = true;
+                return true;
+            case Key.Enter when expander != null:
+                expander.IsExpanded = !expander.IsExpanded;
+                return true;
+            case Key.Down:
+                if (expander?.IsExpanded == true && groups[index].Items.FirstOrDefault() is StampViewModel first)
+                {
+                    FocusStamp(first);
+                }
+                else if (index + 1 < groups.Count)
+                {
+                    FocusHeader(GroupItemOf(groups[index + 1]));
+                }
+
+                return true;
+            case Key.Up:
+                if (index > 0)
+                {
+                    var above = GroupItemOf(groups[index - 1]);
+                    if (above != null && FindDescendant<Expander>(above)?.IsExpanded == true && groups[index - 1].Items.LastOrDefault() is StampViewModel last)
+                    {
+                        FocusStamp(last);
+                    }
+                    else
+                    {
+                        FocusHeader(above);
+                    }
+                }
+                else
+                {
+                    SearchBox.Focus();
+                }
+
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private GroupItem GroupItemOf(CollectionViewGroup group) => group == null ? null : StampList.ItemContainerGenerator.ContainerFromItem(group) as GroupItem;
+
+    private static bool FocusHeader(GroupItem groupItem) => groupItem != null && FindDescendant<ToggleButton>(groupItem) is { } header && header.Focus();
+
+    private void FocusStamp(StampViewModel stamp)
+    {
+        ViewModel.SelectedStamp = stamp;
+        FocusSelectedStamp();
+    }
+
+    /// <summary>
+    /// Is the stamp in the first row of its group: nothing of the group is above it
+    /// </summary>
+    private static bool IsInFirstRow(GroupItem groupItem, ListBoxItem item)
+    {
+        if (groupItem.DataContext is not CollectionViewGroup { Items.Count: > 0 } group ||
+            ItemsControl.ItemsControlFromItemContainer(item)?.ItemContainerGenerator.ContainerFromItem(group.Items[0]) is not ListBoxItem first)
+        {
+            return false;
+        }
+
+        return item.TranslatePoint(new Point(0, 0), groupItem).Y <= first.TranslatePoint(new Point(0, 0), groupItem).Y + 1;
+    }
+
+    private static T FindAncestor<T>(DependencyObject element) where T : DependencyObject
+    {
+        for (var current = element; current != null; current = VisualTreeHelper.GetParent(current))
+        {
+            if (current is T found)
+            {
+                return found;
+            }
+        }
+
+        return null;
+    }
+
+    private static T FindDescendant<T>(DependencyObject element) where T : DependencyObject
+    {
+        for (int i = 0; i < VisualTreeHelper.GetChildrenCount(element); i++)
+        {
+            var child = VisualTreeHelper.GetChild(element, i);
+            if (child is T found)
+            {
+                return found;
+            }
+
+            if (FindDescendant<T>(child) is { } nested)
+            {
+                return nested;
+            }
+        }
+
+        return null;
     }
 
     private void StampList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
