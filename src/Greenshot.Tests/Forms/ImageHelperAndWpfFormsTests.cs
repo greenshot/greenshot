@@ -221,9 +221,6 @@ namespace Greenshot.Tests.Forms
                 try
                 {
                     // Greenshot WPF windows
-                    var languageWindow = new Greenshot.Views.LanguageWindow();
-                    Assert.NotNull(languageWindow);
-
                     var printOptionsWindow = new Greenshot.Views.PrintOptionsWindow();
                     Assert.NotNull(printOptionsWindow);
 
@@ -352,31 +349,6 @@ namespace Greenshot.Tests.Forms
         }
 
         [Fact]
-        public void PluginConfigurations_QuicklinkEnabled_DefaultsToFalse()
-        {
-            var extCmd = IniConfigHelper.EnsureSection<IExternalCommandConfiguration>(() => new ExternalCommandConfigurationImpl());
-            Assert.False(extCmd.QuicklinkEnabled);
-
-            var dropbox = IniConfigHelper.EnsureSection<IDropboxConfiguration>(() => new DropboxConfigurationImpl());
-            Assert.False(dropbox.QuicklinkEnabled);
-
-            var box = IniConfigHelper.EnsureSection<IBoxConfiguration>(() => new BoxConfigurationImpl());
-            Assert.False(box.QuicklinkEnabled);
-
-            var jira = IniConfigHelper.EnsureSection<IJiraConfiguration>(() => new JiraConfigurationImpl());
-            Assert.False(jira.QuicklinkEnabled);
-
-            var confluence = IniConfigHelper.EnsureSection<IConfluenceConfiguration>(() => new ConfluenceConfigurationImpl());
-            Assert.False(confluence.QuicklinkEnabled);
-
-            var office = IniConfigHelper.EnsureSection<Greenshot.Plugin.Office.IOfficeConfiguration>(() => new Greenshot.Plugin.Office.OfficeConfigurationImpl());
-            Assert.False(office.QuicklinkEnabled);
-
-            var zxing = IniConfigHelper.EnsureSection<IZxingConfiguration>(() => new ZxingConfigurationImpl());
-            Assert.False(zxing.QuicklinkEnabled);
-        }
-
-        [Fact]
         public void ExternalCommandConfigurationControl_PropertyBindingsAndDependentPropertiesWork()
         {
             Exception threadEx = null;
@@ -386,13 +358,6 @@ namespace Greenshot.Tests.Forms
                 {
                     var config = IniConfigHelper.EnsureSection<IExternalCommandConfiguration>(() => new ExternalCommandConfigurationImpl());
                     var control = new ExternalCommandConfigurationView();
-
-                    // Quicklink
-                    bool origQuicklink = control.QuicklinkEnabled;
-                    control.QuicklinkEnabled = !origQuicklink;
-                    Assert.Equal(!origQuicklink, control.QuicklinkEnabled);
-                    Assert.Equal(!origQuicklink, config.QuicklinkEnabled);
-                    control.QuicklinkEnabled = origQuicklink;
 
                     // Per-command settings on SelectedCommand
                     Assert.NotNull(control.SelectedCommand);
@@ -452,16 +417,9 @@ namespace Greenshot.Tests.Forms
         }
 
         [Fact]
-        public void PluginUtils_QuicklinkAndTrayMenuEntriesTests()
+        public void PluginUtils_TrayMenuEntriesTests()
         {
-            // 1. Unified quicklink text
-            string text = PluginUtils.GetQuicklinkText("Dropbox");
-            Assert.Equal("Configure Dropbox", text);
-
-            string textImgur = PluginUtils.GetQuicklinkText("Imgur");
-            Assert.Equal("Configure Imgur", textImgur);
-
-            // 2. Only visible tray menu entries are in the menu, disposing removes the entry
+            // Only visible tray menu entries are in the menu, disposing removes the entry
             var entry1 = new TrayMenuEntry("Item 1") { Visible = false };
             var entry2 = new TrayMenuEntry("Item 2") { Visible = false };
             try
