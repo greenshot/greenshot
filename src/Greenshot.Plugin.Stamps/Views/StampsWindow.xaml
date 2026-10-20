@@ -43,6 +43,7 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
                 <Label Grid.Row="0" Grid.Column="0" Content="{wpf:Text Stamps.Search}" Margin="0,0,8,0" Target="{Binding ElementName=SearchBox}"/>
@@ -50,7 +51,7 @@
                          Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                          PreviewKeyDown="SearchBox_PreviewKeyDown"/>
 
-                <!-- The stamps, one tab stop: the arrow keys move between them -->
+                <!-- The stamps grouped by category, one tab stop: the arrow keys move between them -->
                 <ListBox x:Name="StampList" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,8,0,8"
                          Style="{StaticResource ThemeListBox}"
                          ItemContainerStyle="{StaticResource ThemeListBoxItem}"
@@ -68,6 +69,32 @@
                             <WrapPanel Orientation="Horizontal"/>
                         </ItemsPanelTemplate>
                     </ListBox.ItemsPanel>
+                    <ListBox.GroupStyle>
+                        <GroupStyle>
+                            <GroupStyle.ContainerStyle>
+                                <Style TargetType="GroupItem">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="GroupItem">
+                                                <!-- Open unless the user closed it, a search opens all -->
+                                                <Expander Style="{StaticResource ExpanderStyle}" IsExpanded="True" Margin="0,0,0,4"
+                                                          Loaded="CategoryExpander_Loaded" Expanded="CategoryExpander_Changed" Collapsed="CategoryExpander_Changed">
+                                                    <Expander.Header>
+                                                        <TextBlock FontWeight="SemiBold">
+                                                            <Run Text="{Binding Name, Mode=OneWay}"/>
+                                                            <Run Text="{Binding ItemCount, Mode=OneWay, StringFormat='({0})'}"
+                                                                 Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                                        </TextBlock>
+                                                    </Expander.Header>
+                                                    <ItemsPresenter/>
+                                                </Expander>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </GroupStyle.ContainerStyle>
+                        </GroupStyle>
+                    </ListBox.GroupStyle>
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Width="80" ToolTip="{Binding Description}">
@@ -109,7 +136,18 @@
                          AutomationProperties.HelpText="{wpf:Text Stamps.TagsHint}"
                          KeyDown="DetailsBox_KeyDown"/>
 
-                <WrapPanel Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,10,0,0">
+                <Label Grid.Row="4" Grid.Column="0" Content="{wpf:Text Stamps.Category}" Margin="0,6,8,0" Target="{Binding ElementName=CategoryBox}"/>
+                <ComboBox x:Name="CategoryBox" Grid.Row="4" Grid.Column="1" Margin="0,6,0,0"
+                          IsEditable="True"
+                          ItemsSource="{Binding Categories}"
+                          Text="{Binding SelectedStamp.Category, UpdateSourceTrigger=LostFocus}"
+                          IsEnabled="{Binding HasSelection}"
+                          ToolTip="{wpf:Text Stamps.CategoryHint}"
+                          AutomationProperties.HelpText="{wpf:Text Stamps.CategoryHint}"
+                          KeyDown="DetailsBox_KeyDown"
+                          DropDownClosed="CategoryBox_DropDownClosed"/>
+
+                <WrapPanel Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,10,0,0">
                     <Button Content="{wpf:Text Stamps.Insert}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,6,6"
                             IsEnabled="{Binding CanInsert}" ToolTip="{Binding InsertToolTip}" ToolTipService.ShowOnDisabled="True"
                             Click="Insert_Click"/>
@@ -121,13 +159,13 @@
                             Click="Delete_Click"/>
                 </WrapPanel>
 
-                <WrapPanel Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2">
+                <WrapPanel Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2">
                     <Button Content="{wpf:Text Stamps.Add}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,6,6" Click="Add_Click"/>
                     <Button Content="{wpf:Text Stamps.Paste}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,6,6" Click="Paste_Click"/>
                     <Button Content="{wpf:Text Stamps.OpenFolder}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,6,6" Click="OpenFolder_Click"/>
                 </WrapPanel>
 
-                <TextBlock Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,4,0,0"
+                <TextBlock Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,4,0,0"
                            Text="{Binding StatusText}" TextWrapping="Wrap"
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
                            wpf:LiveRegion.Mode="Polite"/>

@@ -118,6 +118,21 @@ namespace Greenshot.Plugin.Stamps
         string TagsHint { get; }
 
         /// <summary>
+        /// Category:
+        /// </summary>
+        string Category { get; }
+
+        /// <summary>
+        /// The category is a folder in the stamps folder: choose one, or type a new name.
+        /// </summary>
+        string CategoryHint { get; }
+
+        /// <summary>
+        /// General
+        /// </summary>
+        string General { get; }
+
+        /// <summary>
         /// No stamps yet: add images with Add, drop files here or paste an image with Ctrl+V.
         /// </summary>
         string Empty { get; }
@@ -156,5 +171,15 @@ namespace Greenshot.Plugin.Stamps
         /// Could not insert "{0}": {1}
         /// </summary>
         string InsertFailed { get; }
+
+        /// <summary>
+        /// Downloading the image...
+        /// </summary>
+        string Downloading { get; }
+
+        /// <summary>
+        /// The dropped content has no image which can be a stamp.
+        /// </summary>
+        string DropFailed { get; }
     }
 }

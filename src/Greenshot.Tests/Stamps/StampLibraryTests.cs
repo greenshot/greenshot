@@ -220,5 +220,112 @@ namespace Greenshot.Tests.Stamps
             Assert.False(File.Exists(file));
             Assert.DoesNotContain("check.png", File.ReadAllText(Path.Combine(_directory, StampLibrary.IndexFileName)));
         }
+
+        [Fact]
+        public void Category_IsTheSubFolder_EmptyInTheStampsFolder()
+        {
+            CreateFile("check.png");
+            CreateFile(@"Arrows\Red\left.png");
+            CreateFile(@"Shapes\star.png");
+
+            var library = Load();
+
+            Assert.Equal("", library.Stamps.Single(stamp => stamp.Name == "check").Category);
+            Assert.Equal("Arrows/Red", library.Stamps.Single(stamp => stamp.Name == "left").Category);
+            Assert.Equal(new[] { "Arrows/Red", "Shapes" }, library.Categories);
+        }
+
+        [Fact]
+        public void Matches_TheCategory()
+        {
+            CreateFile(@"Arrows\left.png");
+
+            var stamp = Load().Stamps[0];
+
+            Assert.True(stamp.Matches("arrows"));
+            Assert.False(stamp.Matches("shapes"));
+        }
+
+        [Theory]
+        [InlineData(null, "")]
+        [InlineData("  ", "")]
+        [InlineData("Arrows", "Arrows")]
+        [InlineData(@" Arrows \ Red/ ", "Arrows/Red")]
+        [InlineData("../a:b/./c.", "a_b/c")]
+        public void NormalizeCategory_GivesASafeFolderPath(string category, string expected)
+        {
+            Assert.Equal(expected, StampLibrary.NormalizeCategory(category));
+        }
+
+        [Fact]
+        public void Import_IntoACategory_CopiesIntoItsFolder()
+        {
+            string source = Path.Combine(_directory, "..", $"greenshot_stamp_{Guid.NewGuid():N}.png");
+            File.WriteAllBytes(source, new byte[] { 1 });
+            try
+            {
+                var library = Load();
+
+                var stamp = library.Import(source, "Arrows/Red");
+
+                Assert.Equal("Arrows/Red", stamp.Category);
+                Assert.Equal(Path.Combine(_directory, "Arrows", "Red", Path.GetFileName(source)), stamp.FullPath);
+                Assert.True(File.Exists(stamp.FullPath));
+            }
+            finally
+            {
+                File.Delete(source);
+            }
+        }
+
+        [Fact]
+        public void Add_IntoACategory_WritesIntoItsFolder()
+        {
+            var library = Load();
+
+            var stamp = library.Add("star", ".svg", new byte[] { 1 }, "Shapes");
+
+            Assert.Equal(Path.Combine(_directory, "Shapes", "star.svg"), stamp.FullPath);
+            Assert.Equal("Shapes/star.svg", stamp.Key);
+        }
+
+        [Fact]
+        public void Move_MovesTheFile_AndKeepsTheNameAndTags()
+        {
+            string file = CreateFile("check.png");
+            var library = Load();
+            library.Update(library.Stamps[0], "Done", "ok");
+
+            library.Move(library.Stamps[0], "Marks");
+
+            Assert.False(File.Exists(file));
+            var stamp = Assert.Single(Load().Stamps);
+            Assert.Equal("Marks", stamp.Category);
+            Assert.Equal("Done", stamp.Name);
+            Assert.Equal(new[] { "ok" }, stamp.Tags);
+        }
+
+        [Fact]
+        public void Move_WhenTheNameIsTaken_GivesAFreeName()
+        {
+            CreateFile("check.png");
+            CreateFile(@"Marks\check.png");
+            var library = Load();
+
+            library.Move(library.Stamps.Single(stamp => stamp.Category == ""), "Marks");
+
+            Assert.Equal(new[] { "Marks/check (2).png", "Marks/check.png" }, Load().Stamps.Select(stamp => stamp.Key).OrderBy(key => key, StringComparer.Ordinal));
+        }
+
+        [Fact]
+        public void Move_BackToNoCategory_PutsItIntoTheStampsFolder()
+        {
+            CreateFile(@"Marks\check.png");
+            var library = Load();
+
+            library.Move(library.Stamps[0], "");
+
+            Assert.Equal("check.png", Assert.Single(Load().Stamps).Key);
+        }
     }
 }

@@ -26,6 +26,8 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Media;
+using System.Windows.Media.Media3D;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Desktop;
@@ -35,6 +37,7 @@ using Dapplo.Windows.User32.Enums;
 using Greenshot.Base.Languages;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Wpf;
+using Greenshot.Plugin.Stamps.Library;
 using Greenshot.Plugin.Stamps.ViewModels;
 using log4net;
 using Microsoft.Win32;
@@ -50,6 +53,7 @@ public partial class StampsWindow : Window
     private static readonly ILog Log = LogManager.GetLogger(typeof(StampsWindow));
     private Point _dragStart;
     private bool _dragging;
+    private bool _canDrop;
 
     internal StampsWindow(StampsViewModel viewModel)
     {
@@ -57,6 +61,7 @@ public partial class StampsWindow : Window
         DataContext = viewModel;
         // The keyboard goes to the search, typing filters at once
         Loaded += (s, e) => SearchBox.Focus();
+        DragEnter += OnDragEnter;
         DragOver += OnDragOver;
         Drop += OnDrop;
         PreviewKeyDown += OnPreviewKeyDown;
@@ -242,35 +247,122 @@ public partial class StampsWindow : Window
 
     private void DetailsBox_KeyDown(object sender, KeyEventArgs e)
     {
-        if (e.Key == Key.Enter && sender is TextBox textBox)
-        {
-            BindingOperations.GetBindingExpression(textBox, TextBox.TextProperty)?.UpdateSource();
-            e.Handled = true;
-        }
-    }
-
-    private void OnDragOver(object sender, DragEventArgs e)
-    {
-        e.Effects = !_dragging && e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Copy : DragDropEffects.None;
-        e.Handled = true;
-    }
-
-    /// <summary>
-    /// Image files dropped onto the window are added
-    /// </summary>
-    private void OnDrop(object sender, DragEventArgs e)
-    {
-        if (_dragging || e.Data.GetData(DataFormats.FileDrop) is not string[] files)
+        if (e.Key != Key.Enter)
         {
             return;
         }
 
-        if (ViewModel.AddFiles(files.Where(ViewModel.Library.IsStampFile)) > 0)
+        switch (sender)
         {
-            FocusSelectedStamp();
+            case TextBox textBox:
+                BindingOperations.GetBindingExpression(textBox, TextBox.TextProperty)?.UpdateSource();
+                e.Handled = true;
+                break;
+            case ComboBox comboBox:
+                BindingOperations.GetBindingExpression(comboBox, ComboBox.TextProperty)?.UpdateSource();
+                e.Handled = true;
+                break;
+        }
+    }
+
+    /// <summary>
+    /// A category chosen in the list moves the stamp at once
+    /// </summary>
+    private void CategoryBox_DropDownClosed(object sender, EventArgs e) =>
+        BindingOperations.GetBindingExpression(CategoryBox, ComboBox.TextProperty)?.UpdateSource();
+
+    private void CategoryExpander_Loaded(object sender, RoutedEventArgs e)
+    {
+        if (sender is Expander { DataContext: CollectionViewGroup group } expander)
+        {
+            expander.IsExpanded = !ViewModel.IsCollapsed(group.Name as string);
+        }
+    }
+
+    private void CategoryExpander_Changed(object sender, RoutedEventArgs e)
+    {
+        if (sender is Expander { DataContext: CollectionViewGroup group } expander && expander.IsLoaded)
+        {
+            ViewModel.SetCollapsed(group.Name as string, !expander.IsExpanded);
+        }
+    }
+
+    /// <summary>
+    /// Files, folders and images of a web page can be dropped, the stamps of this window itself not
+    /// </summary>
+    private void OnDragEnter(object sender, DragEventArgs e)
+    {
+        try
+        {
+            _canDrop = !_dragging && DroppedImages.CanRead(e.Data);
+        }
+        catch (Exception ex)
+        {
+            // A source which can't give its data
+            Log.Debug("The dragged data can't be read", ex);
+            _canDrop = false;
+        }
+
+        OnDragOver(sender, e);
+    }
+
+    private void OnDragOver(object sender, DragEventArgs e)
+    {
+        e.Effects = _canDrop && (e.AllowedEffects & DragDropEffects.Copy) != 0 ? DragDropEffects.Copy : DragDropEffects.None;
+        e.Handled = true;
+    }
+
+    /// <summary>
+    /// Dropped files, folders and images are added: into the category of the group they were dropped on,
+    /// else into the one of the selected stamp
+    /// </summary>
+    private void OnDrop(object sender, DragEventArgs e)
+    {
+        if (!_canDrop)
+        {
+            return;
         }
 
         e.Handled = true;
+        _canDrop = false;
+        DroppedImages drop;
+        try
+        {
+            drop = DroppedImages.Read(e.Data);
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("The dropped data can't be read", ex);
+            return;
+        }
+
+        string category = CategoryAt(e.OriginalSource as DependencyObject) ?? ViewModel.CurrentCategory;
+
+        async System.Threading.Tasks.Task AddAndFocusAsync()
+        {
+            if (await ViewModel.AddDropAsync(drop, category) > 0)
+            {
+                FocusSelectedStamp();
+            }
+        }
+
+        AddAndFocusAsync().FireAndLog("Add dropped stamps", Log);
+    }
+
+    /// <summary>
+    /// The category of the group at the element, null when it isn't in one
+    /// </summary>
+    private static string CategoryAt(DependencyObject element)
+    {
+        for (var current = element; current != null; current = current is Visual or Visual3D ? VisualTreeHelper.GetParent(current) : LogicalTreeHelper.GetParent(current))
+        {
+            if (current is GroupItem { DataContext: CollectionViewGroup group })
+            {
+                return group.Items.OfType<StampViewModel>().FirstOrDefault()?.Category;
+            }
+        }
+
+        return null;
     }
 
     private void Insert_Click(object sender, RoutedEventArgs e) => ViewModel.Insert(ViewModel.SelectedStamp);
@@ -288,7 +380,7 @@ public partial class StampsWindow : Window
             Multiselect = true,
             Filter = $"{StampsTexts.ImageFiles} ({patterns})|{patterns}"
         };
-        if (dialog.ShowDialog(this) == true && ViewModel.AddFiles(dialog.FileNames) > 0)
+        if (dialog.ShowDialog(this) == true && ViewModel.AddFiles(dialog.FileNames, ViewModel.CurrentCategory) > 0)
         {
             FocusSelectedStamp();
         }

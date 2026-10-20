@@ -31,6 +31,7 @@ namespace Greenshot.Plugin.Stamps.Library;
 
 /// <summary>
 /// The stamps folder: the image files in it (also in sub folders) and stamps.json with their names and tags.
+/// The sub folders are the categories, so a category can be shared by copying its folder.
 /// Files which are copied into the folder by hand show up with their file name and without tags.
 /// Every change reads stamps.json again before it writes it, so a folder shared by several users keeps the changes of the others.
 /// </summary>
@@ -70,6 +71,13 @@ public sealed class StampLibrary
     /// </summary>
     public IReadOnlyList<Stamp> Stamps => _stamps;
 
+    /// <summary>
+    /// The categories which have stamps, sorted, without the empty one of the stamps folder itself
+    /// </summary>
+    public IReadOnlyList<string> Categories =>
+        _stamps.Select(stamp => stamp.Category).Where(category => category.Length > 0)
+            .Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(category => category, StringComparer.CurrentCultureIgnoreCase).ToList();
+
     private string IndexPath => Path.Combine(Directory, IndexFileName);
 
     /// <summary>
@@ -101,9 +109,11 @@ public sealed class StampLibrary
     /// <summary>
     /// Copy an image file into the stamps folder, a file which is already in it is only returned
     /// </summary>
+    /// <param name="sourceFile">the image file</param>
+    /// <param name="category">the category, see <see cref="NormalizeCategory"/>; empty for none</param>
     /// <returns>the new stamp</returns>
     /// <exception cref="ArgumentException">when the file isn't an image Greenshot can use as stamp</exception>
-    public Stamp Import(string sourceFile)
+    public Stamp Import(string sourceFile, string category = "")
     {
         if (!IsStampFile(sourceFile))
         {
@@ -117,8 +127,7 @@ public sealed class StampLibrary
             return existing;
         }
 
-        System.IO.Directory.CreateDirectory(Directory);
-        string target = UniquePath(Path.GetFileNameWithoutExtension(sourceFile), Path.GetExtension(sourceFile).ToLowerInvariant());
+        string target = UniquePath(category, Path.GetFileNameWithoutExtension(sourceFile), Path.GetExtension(sourceFile).ToLowerInvariant());
         File.Copy(fullSource, target);
         return AddStamp(target);
     }
@@ -129,16 +138,16 @@ public sealed class StampLibrary
     /// <param name="name">the name, also used for the file name</param>
     /// <param name="extension">the extension of the content, with the dot</param>
     /// <param name="content">the content of the file</param>
+    /// <param name="category">the category, see <see cref="NormalizeCategory"/>; empty for none</param>
     /// <returns>the new stamp</returns>
-    public Stamp Add(string name, string extension, byte[] content)
+    public Stamp Add(string name, string extension, byte[] content, string category = "")
     {
         if (!_extensions.Contains(extension))
         {
             throw new ArgumentException($"{extension} files can't be stamps", nameof(extension));
         }
 
-        System.IO.Directory.CreateDirectory(Directory);
-        string target = UniquePath(name, extension.ToLowerInvariant());
+        string target = UniquePath(category, name, extension.ToLowerInvariant());
         File.WriteAllBytes(target, content ?? throw new ArgumentNullException(nameof(content)));
         return AddStamp(target);
     }
@@ -159,6 +168,49 @@ public sealed class StampLibrary
         index.Stamps[stamp.Key] = new StampEntry { Name = stamp.Name, Tags = stamp.Tags.ToList() };
         WriteIndex(index);
         _stamps = Sort(_stamps);
+    }
+
+    /// <summary>
+    /// Move the stamp into another category: its file goes into that folder, its name and tags go with it
+    /// </summary>
+    /// <param name="stamp">Stamp</param>
+    /// <param name="category">the category, see <see cref="NormalizeCategory"/>; empty for none</param>
+    public void Move(Stamp stamp, string category)
+    {
+        if (stamp == null) throw new ArgumentNullException(nameof(stamp));
+
+        category = NormalizeCategory(category);
+        if (string.Equals(category, stamp.Category, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        string target = UniquePath(category, Path.GetFileNameWithoutExtension(stamp.FullPath), stamp.Extension);
+        File.Move(stamp.FullPath, target);
+        string oldKey = stamp.Key;
+        stamp.FullPath = target;
+        stamp.Key = KeyOf(target);
+
+        var index = ReadIndex();
+        index.Stamps.Remove(oldKey);
+        if (stamp.Name != Path.GetFileNameWithoutExtension(target) || stamp.Tags.Count > 0)
+        {
+            index.Stamps[stamp.Key] = new StampEntry { Name = stamp.Name, Tags = stamp.Tags.ToList() };
+        }
+
+        WriteIndex(index);
+    }
+
+    /// <summary>
+    /// The category as folder path: / or \ between the sub folders, each without the characters a folder name can't have, no . or .. and no empty ones
+    /// </summary>
+    public static string NormalizeCategory(string category)
+    {
+        var invalid = Path.GetInvalidFileNameChars();
+        var folders = (category ?? string.Empty).Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries)
+            .Select(folder => new string(folder.Select(c => invalid.Contains(c) ? '_' : c).ToArray()).Trim().TrimEnd('.'))
+            .Where(folder => folder.Length > 0);
+        return string.Join("/", folders);
     }
 
     /// <summary>
@@ -214,9 +266,10 @@ public sealed class StampLibrary
         path.Substring(Directory.TrimEnd(Path.DirectorySeparatorChar).Length + 1).Replace(Path.DirectorySeparatorChar, '/');
 
     /// <summary>
-    /// A path in the stamps folder for a new file: the name without the characters a file name can't have, with " (2)" etc. when it is taken
+    /// A path in the folder of the category for a new file: the name without the characters a file name can't have, with " (2)" etc. when it is taken.
+    /// The folder is created.
     /// </summary>
-    private string UniquePath(string name, string extension)
+    private string UniquePath(string category, string name, string extension)
     {
         var invalid = Path.GetInvalidFileNameChars();
         string baseName = new string((name ?? string.Empty).Select(c => invalid.Contains(c) ? '_' : c).ToArray()).Trim();
@@ -225,10 +278,13 @@ public sealed class StampLibrary
             baseName = "Stamp";
         }
 
-        string path = Path.Combine(Directory, baseName + extension);
+        category = NormalizeCategory(category);
+        string folder = category.Length == 0 ? Directory : Path.Combine(Directory, category.Replace('/', Path.DirectorySeparatorChar));
+        System.IO.Directory.CreateDirectory(folder);
+        string path = Path.Combine(folder, baseName + extension);
         for (int number = 2; File.Exists(path); number++)
         {
-            path = Path.Combine(Directory, $"{baseName} ({number}){extension}");
+            path = Path.Combine(folder, $"{baseName} ({number}){extension}");
         }
 
         return path;

@@ -24,6 +24,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Media;
 using System.Windows.Threading;
+using Greenshot.Base.Languages;
 using Greenshot.Base.Threading;
 using Greenshot.Plugin.Stamps.Library;
 using log4net;
@@ -83,6 +84,24 @@ public sealed class StampViewModel : INotifyPropertyChanged
     }
 
     /// <summary>
+    /// The category: the folder in the stamps folder, empty for none. A change moves the file.
+    /// </summary>
+    public string Category
+    {
+        get => Stamp.Category;
+        set
+        {
+            if (StampLibrary.NormalizeCategory(value) == Stamp.Category) return;
+            _owner.Move(this, value);
+        }
+    }
+
+    /// <summary>
+    /// The category as shown, the stamps without one are in "General"
+    /// </summary>
+    public string CategoryName => Stamp.Category.Length == 0 ? Texts.Get<IStampsLanguage>().General : Stamp.Category;
+
+    /// <summary>
     /// The name and the tags, for the tooltip in the list
     /// </summary>
     public string Description => Stamp.Tags.Count == 0 ? Name : $"{Name}{Environment.NewLine}{TagsText}";
@@ -120,10 +139,12 @@ public sealed class StampViewModel : INotifyPropertyChanged
     }
 
     /// <summary>
-    /// The name and the tags changed
+    /// The name, the tags or the category changed
     /// </summary>
     internal void Refresh()
     {
+        OnPropertyChanged(nameof(Category));
+        OnPropertyChanged(nameof(CategoryName));
         OnPropertyChanged(nameof(Name));
         OnPropertyChanged(nameof(TagsText));
         OnPropertyChanged(nameof(Description));

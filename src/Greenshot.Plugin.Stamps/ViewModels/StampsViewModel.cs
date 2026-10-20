@@ -33,6 +33,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using Greenshot.Base.Core;
+using Greenshot.Base.Http;
 using Greenshot.Base.Interfaces.Forms;
 using Greenshot.Base.Languages;
 using Greenshot.Plugin.Stamps.Library;
@@ -47,6 +48,7 @@ public sealed class StampsViewModel : INotifyPropertyChanged
 {
     private static readonly ILog Log = LogManager.GetLogger(typeof(StampsViewModel));
     private readonly ObservableCollection<StampViewModel> _items = new();
+    private readonly HashSet<string> _collapsedCategories = new(StringComparer.CurrentCultureIgnoreCase);
     private readonly Func<IEditorWindow> _activeEditor;
     private string _searchText = string.Empty;
     private StampViewModel _selectedStamp;
@@ -60,7 +62,10 @@ public sealed class StampsViewModel : INotifyPropertyChanged
         _activeEditor = activeEditor ?? throw new ArgumentNullException(nameof(activeEditor));
         Stamps = CollectionViewSource.GetDefaultView(_items);
         Stamps.Filter = item => ((StampViewModel)item).Stamp.Matches(_searchText);
+        // The stamps without category first, as "General"
+        Stamps.SortDescriptions.Add(new SortDescription(nameof(StampViewModel.Category), ListSortDirection.Ascending));
         Stamps.SortDescriptions.Add(new SortDescription(nameof(StampViewModel.Name), ListSortDirection.Ascending));
+        Stamps.GroupDescriptions.Add(new PropertyGroupDescription(nameof(StampViewModel.CategoryName)));
     }
 
     public event PropertyChangedEventHandler PropertyChanged;
@@ -75,7 +80,17 @@ public sealed class StampsViewModel : INotifyPropertyChanged
     public ICollectionView Stamps { get; }
 
     /// <summary>
-    /// The search: every word must be in the name, a tag or the file name
+    /// The categories which have stamps, offered for the category of the selected stamp
+    /// </summary>
+    public ObservableCollection<string> Categories { get; } = new();
+
+    /// <summary>
+    /// The category new stamps go into when they are added with the buttons or pasted: the one of the selected stamp
+    /// </summary>
+    internal string CurrentCategory => _selectedStamp?.Stamp.Category ?? string.Empty;
+
+    /// <summary>
+    /// The search: every word must be in the name, a tag, the category or the file name
     /// </summary>
     public string SearchText
     {
@@ -108,6 +123,32 @@ public sealed class StampsViewModel : INotifyPropertyChanged
     }
 
     public bool HasSelection => _selectedStamp != null;
+
+    /// <summary>
+    /// Is the group of the category shown closed: only while there is no search, a search shows all it finds
+    /// </summary>
+    internal bool IsCollapsed(string categoryName) => string.IsNullOrWhiteSpace(_searchText) && categoryName != null && _collapsedCategories.Contains(categoryName);
+
+    /// <summary>
+    /// The user opened or closed the group of the category, kept while the window is open
+    /// </summary>
+    internal void SetCollapsed(string categoryName, bool collapsed)
+    {
+        // Opened by a search: that doesn't change what the user chose
+        if (categoryName == null || !string.IsNullOrWhiteSpace(_searchText))
+        {
+            return;
+        }
+
+        if (collapsed)
+        {
+            _collapsedCategories.Add(categoryName);
+        }
+        else
+        {
+            _collapsedCategories.Remove(categoryName);
+        }
+    }
 
     /// <summary>
     /// A stamp is selected and an editor is open to insert it into
@@ -161,6 +202,7 @@ public sealed class StampsViewModel : INotifyPropertyChanged
         }
 
         SelectedStamp = _items.FirstOrDefault(item => item.Stamp.Key == selectedKey);
+        UpdateCategories();
         ShowCount();
     }
 
@@ -251,22 +293,26 @@ public sealed class StampsViewModel : INotifyPropertyChanged
         // The next stamp, so Delete can be pressed again
         var visible = Stamps.Cast<StampViewModel>().ToList();
         SelectedStamp = visible.Count == 0 ? null : visible[Math.Min(Math.Max(index, 0), visible.Count - 1)];
+        UpdateCategories();
         ShowCount();
     }
 
     /// <summary>
-    /// Copy image files into the stamps folder, the last one is selected
+    /// Copy image files into the stamps folder, the last one is selected. A folder adds its images as category with its name,
+    /// its sub folders as categories in it. Other files are skipped.
     /// </summary>
+    /// <param name="paths">the files and folders</param>
+    /// <param name="category">the category the files (and the categories of the folders) go into, empty for none</param>
     /// <returns>the number of files which were added</returns>
-    public int AddFiles(IEnumerable<string> files)
+    public int AddFiles(IEnumerable<string> paths, string category = "")
     {
         Stamp added = null;
         int count = 0;
-        foreach (string file in files ?? Enumerable.Empty<string>())
+        foreach (var (file, fileCategory) in ExpandFolders(paths, category))
         {
             try
             {
-                added = Library.Import(file);
+                added = Library.Import(file, fileCategory);
                 count++;
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
@@ -285,6 +331,148 @@ public sealed class StampsViewModel : INotifyPropertyChanged
     }
 
     /// <summary>
+    /// The stamp files of the paths with their category: a file in the category, the files of a folder in the category of the folder
+    /// </summary>
+    private IEnumerable<(string File, string Category)> ExpandFolders(IEnumerable<string> paths, string category)
+    {
+        foreach (string path in paths ?? Enumerable.Empty<string>())
+        {
+            if (!Directory.Exists(path))
+            {
+                if (Library.IsStampFile(path))
+                {
+                    yield return (path, category);
+                }
+
+                continue;
+            }
+
+            string folder = Path.GetFullPath(path).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            string folderCategory = StampLibrary.NormalizeCategory($"{category}/{Path.GetFileName(folder)}");
+            List<string> files;
+            try
+            {
+                files = Directory.EnumerateFiles(folder, "*", SearchOption.AllDirectories).Where(Library.IsStampFile).ToList();
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                Log.Warn($"Can't read the folder {folder}", ex);
+                StatusText = string.Format(Language.AddFailed, Path.GetFileName(folder), ex.Message);
+                continue;
+            }
+
+            foreach (string file in files)
+            {
+                string relativeFolder = Path.GetDirectoryName(file)?.Substring(folder.Length) ?? string.Empty;
+                yield return (file, StampLibrary.NormalizeCategory($"{folderCategory}/{relativeFolder}"));
+            }
+        }
+    }
+
+    /// <summary>
+    /// Add image files in their own format, e.g. dropped from a browser, the last one is selected
+    /// </summary>
+    /// <returns>the number of files which were added</returns>
+    public int AddContents(IEnumerable<ImageFileContent> files, string category = "")
+    {
+        Stamp added = null;
+        int count = 0;
+        foreach (var file in files ?? Enumerable.Empty<ImageFileContent>())
+        {
+            try
+            {
+                added = Library.Add(Path.GetFileNameWithoutExtension(file.FileName), file.Extension, file.Content, category);
+                count++;
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
+            {
+                Log.Warn($"Can't add {file.FileName} as stamp", ex);
+                StatusText = string.Format(Language.AddFailed, file.FileName, ex.Message);
+            }
+        }
+
+        if (added != null)
+        {
+            ShowAdded(added);
+        }
+
+        return count;
+    }
+
+    /// <summary>
+    /// Add what was dropped: the files and folders, else the image files of a browser, else the image downloaded from its url
+    /// in its own format, else the image as PNG.
+    /// </summary>
+    /// <param name="drop">what was dropped, read during the drop; disposed here</param>
+    /// <param name="category">the category of the group it was dropped on, empty for none</param>
+    /// <returns>the number of stamps which were added</returns>
+    internal async Task<int> AddDropAsync(DroppedImages drop, string category, CancellationToken cancellationToken = default)
+    {
+        using (drop)
+        {
+            if (drop.Paths.Count > 0)
+            {
+                return AddFiles(drop.Paths, category);
+            }
+
+            if (drop.Files.Count > 0)
+            {
+                return AddContents(drop.Files, category);
+            }
+
+            if (drop.Urls.Count > 0)
+            {
+                StatusText = Language.Downloading;
+                foreach (string url in drop.Urls)
+                {
+                    var downloaded = await ImageDownloader.DownloadImageFileAsync(url, cancellationToken);
+                    if (downloaded != null && Library.Extensions.Contains(downloaded.Extension))
+                    {
+                        return AddContents(new[] { downloaded }, category);
+                    }
+                }
+            }
+
+            if (drop.Image != null)
+            {
+                string name = drop.Urls.Count > 0 && Uri.TryCreate(drop.Urls[0], UriKind.Absolute, out var uri)
+                    ? Path.GetFileNameWithoutExtension(ImageFileContent.FileNameOf(uri, ".png"))
+                    : Language.Title;
+                return AddImage(drop.Image, name, category) ? 1 : 0;
+            }
+
+            StatusText = Language.DropFailed;
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Move the stamp into another category, see <see cref="StampLibrary.NormalizeCategory"/>
+    /// </summary>
+    internal void Move(StampViewModel stamp, string category)
+    {
+        try
+        {
+            Library.Move(stamp.Stamp, category);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            Log.Warn($"Can't move the stamp {stamp.Stamp.FullPath} to the category {category}", ex);
+            StatusText = ex.Message;
+        }
+
+        stamp.Refresh();
+        // Into the group of its new category, still selected
+        SetCollapsed(stamp.CategoryName, false);
+        Stamps.Refresh();
+        UpdateCategories();
+        // The refresh can take the selection of the list, set it again
+        SelectedStamp = null;
+        SelectedStamp = stamp;
+        ShowCount();
+    }
+
+    /// <summary>
     /// Add the image on the clipboard as PNG stamp
     /// </summary>
     public async Task PasteAsync(CancellationToken cancellationToken = default)
@@ -295,16 +483,27 @@ public sealed class StampsViewModel : INotifyPropertyChanged
             return;
         }
 
+        AddImage(image, Language.Title, CurrentCategory);
+    }
+
+    /// <summary>
+    /// Add the image as PNG stamp
+    /// </summary>
+    /// <returns>true when it was added</returns>
+    private bool AddImage(Image image, string name, string category)
+    {
         try
         {
             using var stream = new MemoryStream();
             image.Save(stream, ImageFormat.Png);
-            ShowAdded(Library.Add(Language.Title, ".png", stream.ToArray()));
+            ShowAdded(Library.Add(name, ".png", stream.ToArray(), category));
+            return true;
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or ExternalException)
         {
-            Log.Warn("Can't add the image of the clipboard as stamp", ex);
-            StatusText = string.Format(Language.AddFailed, Language.Paste, ex.Message);
+            Log.Warn("Can't add the image as stamp", ex);
+            StatusText = string.Format(Language.AddFailed, name, ex.Message);
+            return false;
         }
     }
 
@@ -355,10 +554,28 @@ public sealed class StampsViewModel : INotifyPropertyChanged
             _items.Add(item);
         }
 
-        // A new stamp is shown, also when it doesn't match the search
+        // A new stamp is shown, also when it doesn't match the search or its group is closed
         SearchText = string.Empty;
+        SetCollapsed(item.CategoryName, false);
+        UpdateCategories();
+        Stamps.Refresh();
         SelectedStamp = item;
         ShowCount();
+    }
+
+    private void UpdateCategories()
+    {
+        var categories = Library.Categories;
+        if (categories.SequenceEqual(Categories))
+        {
+            return;
+        }
+
+        Categories.Clear();
+        foreach (string category in categories)
+        {
+            Categories.Add(category);
+        }
     }
 
     private void ShowCount()

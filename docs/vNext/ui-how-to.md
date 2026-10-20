@@ -80,6 +80,7 @@ looks the same and a change of the design is made in one place. Merge the dictio
 |---|---|
 | `DialogStyles.xaml` | The usual start for a window: merges the shared button, check box, expander and list styles and themes `Label`, `TextBox`, `ComboBox` and the list views by default. |
 | `ButtonStyles.xaml` | `PrimaryButtonStyle` (the main action, e.g. OK), `SecondaryButtonStyle` (the other actions, e.g. Cancel), `WarnButtonStyle`, `ErrorButtonStyle` (strong red, destructive), `LightErrorButtonStyle` (a lighter delete), text-only buttons `PrimaryTextButtonStyle`, `SecondaryTextButtonStyle`, `LinkTextButtonStyle`, `ToolboxButtonStyle`, `PaletteSwatchStyle`, `DefaultRadioButtonStyle`, `FilterChipRadioButtonStyle`, and the caption buttons `TitleBarButtonStyle`, `TitleCloseButtonStyle`. |
+| `ComboBoxStyles.xaml` | `DefaultComboBoxStyle`, the default style of every `ComboBox` in a window which merges it; with `IsEditable="True"` the box takes typing and the list offers values. |
 | `CheckBoxStyles.xaml` | `GreenshotCheckBoxStyle`, also the default style of every `CheckBox` in a window which merges it. |
 | `ExpanderStyles.xaml` | `ExpanderStyle`: a header with an arrow which turns when the content is shown (settings groups, error details). |
 | `ListViewStyles.xaml` | `ThemeListView`, `ThemeListViewItem`, `ThemeGridViewColumnHeader`; `ThemeListBox` and `ThemeListBoxItem` for a list without columns, e.g. tiles in a `WrapPanel`. |

@@ -42,12 +42,24 @@ public sealed class Stamp
     /// <summary>
     /// The path of the file relative to the stamps folder, with / between the folders: the key in stamps.json
     /// </summary>
-    public string Key { get; }
+    public string Key { get; internal set; }
 
     /// <summary>
     /// The full path of the file
     /// </summary>
-    public string FullPath { get; }
+    public string FullPath { get; internal set; }
+
+    /// <summary>
+    /// The category: the folder of the file in the stamps folder, with / between sub folders. Empty for the stamps folder itself.
+    /// </summary>
+    public string Category
+    {
+        get
+        {
+            int separator = Key.LastIndexOf('/');
+            return separator < 0 ? string.Empty : Key.Substring(0, separator);
+        }
+    }
 
     /// <summary>
     /// The extension of the file, lower case with the dot
@@ -65,7 +77,7 @@ public sealed class Stamp
     public IReadOnlyList<string> Tags { get; internal set; }
 
     /// <summary>
-    /// Does the stamp match the search: every word of it is part of the name, of a tag or of the file name (ignoring the case).
+    /// Does the stamp match the search: every word of it is part of the name, of a tag, of the category or of the file name (ignoring the case).
     /// An empty search matches every stamp.
     /// </summary>
     public bool Matches(string search)
@@ -77,7 +89,7 @@ public sealed class Stamp
 
         string fileName = Path.GetFileNameWithoutExtension(FullPath);
         return search.Split((char[])null, StringSplitOptions.RemoveEmptyEntries)
-            .All(word => Contains(Name, word) || Contains(fileName, word) || Tags.Any(tag => Contains(tag, word)));
+            .All(word => Contains(Name, word) || Contains(fileName, word) || Contains(Category, word) || Tags.Any(tag => Contains(tag, word)));
     }
 
     private static bool Contains(string text, string word) => text != null && text.IndexOf(word, StringComparison.CurrentCultureIgnoreCase) >= 0;
