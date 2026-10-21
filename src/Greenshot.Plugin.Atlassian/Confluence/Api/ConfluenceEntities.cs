@@ -101,6 +101,14 @@ public sealed class ConfluenceResults<T>
 }
 
 /// <summary>
+/// The error answer of Confluence, e.g. for an attachment name the page already has
+/// </summary>
+public sealed class ConfluenceError
+{
+    public string Message { get; set; }
+}
+
+/// <summary>
 /// The serializer for the Confluence types, generated at compile time
 /// </summary>
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase, PropertyNameCaseInsensitive = true,
@@ -108,6 +116,7 @@ public sealed class ConfluenceResults<T>
 [JsonSerializable(typeof(ConfluenceResults<ConfluenceContent>))]
 [JsonSerializable(typeof(ConfluenceResults<ConfluenceSpace>))]
 [JsonSerializable(typeof(ConfluenceUser))]
+[JsonSerializable(typeof(ConfluenceError))]
 internal sealed partial class ConfluenceJsonContext : JsonSerializerContext
 {
 }

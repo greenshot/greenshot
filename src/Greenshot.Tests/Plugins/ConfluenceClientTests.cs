@@ -160,6 +160,19 @@ namespace Greenshot.Tests.Plugins
             Assert.DoesNotContain("name=\"comment\"", body);
             Assert.Contains("name=\"file\"; filename=\"capture.png\"", body);
         }
+
+        [Fact]
+        public async Task AttachAsync_Rejected_ThrowsWithTheReasonOfConfluence()
+        {
+            var (client, _, _) = CreateClient("https://example.atlassian.net/wiki", _ => Json(
+                "{\"statusCode\":400,\"message\":\"Cannot add a new attachment with same file name as an existing attachment: capture.png\"}", HttpStatusCode.BadRequest));
+
+            var exception = await Assert.ThrowsAsync<HttpRequestException>(() =>
+                client.AttachAsync(42, new EncodedImage(new byte[] { 1, 2, 3 }, "png"), "capture.png", null, TestContext.Current.CancellationToken));
+
+            Assert.Contains("400", exception.Message);
+            Assert.Contains("same file name as an existing attachment", exception.Message);
+        }
         [Fact]
         public async Task CheckCredentialsAsync_ReturnsTheDisplayName_WithBearerForAToken()
         {

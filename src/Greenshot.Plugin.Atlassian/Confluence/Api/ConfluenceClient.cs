@@ -172,6 +172,12 @@ public sealed class ConfluenceClient
 
         request.Content = HttpContents.Multipart("file", image, filename, fields);
         var result = await _httpService.SendAsync(request, cancellationToken).ConfigureAwait(false);
+        if (result.StatusCode == HttpStatusCode.BadRequest && ReadErrorMessage(result) is { } message)
+        {
+            // Confluence says why, e.g. the page already has an attachment with this name
+            throw new HttpRequestException($"{(int)result.StatusCode} {result.ReasonPhrase}: {message}");
+        }
+
         result.EnsureSuccess();
     }
 
@@ -200,6 +206,22 @@ public sealed class ConfluenceClient
         request.Headers.Authorization = _authorization;
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         return request;
+    }
+
+    /// <summary>
+    /// The message of a Confluence error answer, null when there is none
+    /// </summary>
+    private static string ReadErrorMessage(HttpResult result)
+    {
+        try
+        {
+            string message = Deserialize(result, ConfluenceJsonContext.Default.ConfluenceError)?.Message;
+            return string.IsNullOrWhiteSpace(message) ? null : message;
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
     }
 
     private static T Deserialize<T>(HttpResult result, JsonTypeInfo<T> typeInfo) =>
