@@ -40,7 +40,7 @@ namespace Greenshot.Plugin.Atlassian.Confluence.Recipes
     /// <summary>
     /// Capture recipe step that uploads/attaches the screenshot to a Confluence page.
     /// </summary>
-    [StepInfo("Confluence", "Upload to Confluence", "Uploads the capture as attachment to a Confluence page.", "Export")]
+    [StepInfo("Confluence", "Upload to Confluence", "Uploads the capture as attachment to a Confluence page, as a new version when the page has a file with the name.", "Export")]
     [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required)]
     [StepParameter("Format", ContractDataType.Enum, Description = "Image format of the upload", AllowedValuesProvider = typeof(SaveableFileFormatIds))]
     [StepParameter("JpegQuality", ContractDataType.Integer, Description = "JPEG quality (1-100) when uploading as JPEG")]
@@ -112,7 +112,8 @@ namespace Greenshot.Plugin.Atlassian.Confluence.Recipes
                     if (connector != null)
                     {
                         var image = await source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
-                        await connector.AddAttachmentAsync(parsedPageId, image, filename, cancellationToken: cancellationToken).ConfigureAwait(false);
+                        // Nobody to ask: a file name the page already has gets a new version of that attachment
+                        await connector.AddAttachmentAsync(parsedPageId, image, filename, newVersion: true, cancellationToken).ConfigureAwait(false);
                         context.Properties["Confluence.PageId"] = parsedPageId.ToString();
                         context.LogStep($"Successfully uploaded capture to Confluence page '{parsedPageId}'.");
                     }

@@ -71,3 +71,9 @@ plugin is only available while the plugin is loaded, blocking the plugin blocks 
 Jira and Confluence were two plugins until 1.4 and are one now, `Atlassian`. In the plugin lists their old names still work and
 stand for their destination: `Jira` in `BlockedPluginNames` or `ExcludePluginNames` blocks only the Jira destination,
 `Confluence` in `AllowedPluginNames` loads the plugin with only the Confluence destination. Both old names block the whole plugin.
+
+**A file name that is already used.** A Confluence page has one attachment per file name, with versions. When the page already
+has a file with the name, the Confluence destination asks: add the capture as a new version of that attachment, or upload it
+with another name (`name (2).png` is suggested). The Confluence recipe step can't ask, it always adds a new version, so a recipe
+with a fixed file name keeps one attachment on the page with every capture as a version. Jira has no attachment versions: an issue
+can have several attachments with the same name, so a capture with a used name is added as another attachment.
