@@ -22,7 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Greenshot.Ipc
 {
@@ -31,13 +31,13 @@ namespace Greenshot.Ipc
     /// </summary>
     public class IpcCaptureMetadata
     {
-        [JsonProperty("title")]
+        [JsonPropertyName("title")]
         public string Title { get; set; }
 
-        [JsonProperty("url")]
+        [JsonPropertyName("url")]
         public string Url { get; set; }
 
-        [JsonProperty("timestamp")]
+        [JsonPropertyName("timestamp")]
         public long Timestamp { get; set; }
     }
 
@@ -46,13 +46,13 @@ namespace Greenshot.Ipc
     /// </summary>
     public class IpcCaptureData
     {
-        [JsonProperty("mime_type")]
+        [JsonPropertyName("mime_type")]
         public string MimeType { get; set; }
 
-        [JsonProperty("encoding")]
+        [JsonPropertyName("encoding")]
         public string Encoding { get; set; }
 
-        [JsonProperty("payload")]
+        [JsonPropertyName("payload")]
         public string Payload { get; set; }
     }
 
@@ -108,82 +108,82 @@ namespace Greenshot.Ipc
 
     public class IpcEnvelope
     {
-        [JsonProperty("version")]
+        [JsonPropertyName("version")]
         public int Version { get; set; } = 1;
 
-        [JsonProperty("source")]
+        [JsonPropertyName("source")]
         public string Source { get; set; }
 
-        [JsonProperty("command")]
+        [JsonPropertyName("command")]
         public string Command { get; set; }
 
-        [JsonProperty("extension_version")]
+        [JsonPropertyName("extension_version")]
         public string ExtensionVersion { get; set; }
 
-        [JsonProperty("browser")]
+        [JsonPropertyName("browser")]
         public string Browser { get; set; }
 
-        [JsonProperty("raw_input")]
+        [JsonPropertyName("raw_input")]
         public string RawInput { get; set; }
 
-        [JsonProperty("parsed")]
+        [JsonPropertyName("parsed")]
         public IpcParsedCommand Parsed { get; set; } = new IpcParsedCommand();
 
-        [JsonProperty("metadata")]
+        [JsonPropertyName("metadata")]
         public IpcCaptureMetadata Metadata { get; set; }
 
-        [JsonProperty("data")]
+        [JsonPropertyName("data")]
         public IpcCaptureData Data { get; set; }
 
-        [JsonProperty("url")]
+        [JsonPropertyName("url")]
         public string Url { get; set; }
 
-        [JsonProperty("title")]
+        [JsonPropertyName("title")]
         public string Title { get; set; }
 
-        [JsonProperty("recipe")]
+        [JsonPropertyName("recipe")]
         public string Recipe { get; set; }
 
-        [JsonProperty("files")]
+        [JsonPropertyName("files")]
         public List<string> Files { get; set; } = new List<string>();
 
-        [JsonProperty("parameters")]
+        [JsonPropertyName("parameters")]
         public Dictionary<string, string> Parameters { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-        [JsonProperty("async")]
+        [JsonPropertyName("async")]
         public bool Async { get; set; }
 
-        [JsonProperty("cwd")]
+        [JsonPropertyName("cwd")]
         public string Cwd { get; set; }
 
         /// <summary>
         /// HELLO only: the calling browser extension's origin, as passed to the proxy by the browser.
         /// </summary>
-        [JsonProperty("origin")]
+        [JsonPropertyName("origin")]
         public string Origin { get; set; }
 
         /// <summary>
         /// HELLO only: "json" (default) or "text", see <see cref="IpcSources.ReplyFormatText"/>.
         /// </summary>
-        [JsonProperty("reply_format")]
+        [JsonPropertyName("reply_format")]
         public string ReplyFormat { get; set; }
 
         /// <summary>
         /// CLI only: the unparsed command line arguments (without the executable name).
         /// </summary>
-        [JsonProperty("argv")]
+        [JsonPropertyName("argv")]
         public List<string> Argv { get; set; }
 
         /// <summary>
         /// RUN_RECIPE only: expression evaluated after the recipe finished; its value replaces the recipe's own output (--query).
         /// </summary>
-        [JsonProperty("query")]
+        [JsonPropertyName("query")]
         public string Query { get; set; }
 
         /// <summary>
         /// RUN_RECIPE only: return a structured JSON result (status, exit code, output, variables) instead of streaming (--json).
         /// </summary>
-        [JsonProperty("json")]
+        [JsonPropertyName("json")]
         public bool Json { get; set; }
 
         /// <summary>

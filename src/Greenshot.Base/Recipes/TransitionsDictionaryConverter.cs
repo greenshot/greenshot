@@ -21,8 +21,8 @@
 
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Greenshot.Base.Recipes
 {
@@ -30,68 +30,58 @@ namespace Greenshot.Base.Recipes
     /// Converts JSON transition mappings where values can be either a single target string or an array of target strings.
     /// E.g. { "a": "b", "c": ["d", "e"] }
     /// </summary>
-    public class TransitionsDictionaryConverter : JsonConverter
+    public class TransitionsDictionaryConverter : JsonConverter<Dictionary<string, List<string>>>
     {
-        public override bool CanConvert(Type objectType)
-        {
-            return typeof(IDictionary<string, List<string>>).IsAssignableFrom(objectType) ||
-                   objectType == typeof(Dictionary<string, List<string>>);
-        }
+        public override bool HandleNull => true;
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override Dictionary<string, List<string>> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            if (reader.TokenType == JsonToken.Null)
+            var result = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+            var token = JsonElement.ParseValue(ref reader);
+            if (token.ValueKind != JsonValueKind.Object)
             {
-                return new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+                return result;
             }
 
-            var result = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
-            var token = JToken.Load(reader);
-
-            if (token is JObject obj)
+            foreach (var prop in token.EnumerateObject())
             {
-                foreach (var prop in obj.Properties())
+                var list = new List<string>();
+                if (prop.Value.ValueKind == JsonValueKind.Array)
                 {
-                    string key = prop.Name;
-                    var list = new List<string>();
-
-                    if (prop.Value is JArray arr)
+                    foreach (var item in prop.Value.EnumerateArray())
                     {
-                        foreach (var item in arr)
-                        {
-                            string s = item?.ToString();
-                            if (!string.IsNullOrWhiteSpace(s))
-                            {
-                                list.Add(s);
-                            }
-                        }
-                    }
-                    else if (prop.Value != null && prop.Value.Type != JTokenType.Null)
-                    {
-                        string s = prop.Value.ToString();
+                        string s = item.ValueKind == JsonValueKind.Null ? null : item.ToString();
                         if (!string.IsNullOrWhiteSpace(s))
                         {
                             list.Add(s);
                         }
                     }
-
-                    result[key] = list;
                 }
+                else if (prop.Value.ValueKind != JsonValueKind.Null)
+                {
+                    string s = prop.Value.ToString();
+                    if (!string.IsNullOrWhiteSpace(s))
+                    {
+                        list.Add(s);
+                    }
+                }
+
+                result[prop.Name] = list;
             }
 
             return result;
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, Dictionary<string, List<string>> value, JsonSerializerOptions options)
         {
-            if (value is not Dictionary<string, List<string>> dict)
+            if (value == null)
             {
-                writer.WriteNull();
+                writer.WriteNullValue();
                 return;
             }
 
             writer.WriteStartObject();
-            foreach (var kvp in dict)
+            foreach (var kvp in value)
             {
                 writer.WritePropertyName(kvp.Key);
                 writer.WriteStartArray();
@@ -101,7 +91,7 @@ namespace Greenshot.Base.Recipes
                     {
                         if (!string.IsNullOrWhiteSpace(item))
                         {
-                            writer.WriteValue(item);
+                            writer.WriteStringValue(item);
                         }
                     }
                 }

@@ -24,7 +24,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Newtonsoft.Json.Linq;
 
 namespace Greenshot.Base.Recipes
 {
@@ -462,7 +461,7 @@ namespace Greenshot.Base.Recipes
         }
 
         /// <summary>
-        /// Rewrites the option references in all texts of a parameter value (texts, JSON, dictionaries and lists); unchanged values are returned as they are
+        /// Rewrites the option references in all texts of a parameter value (texts, dictionaries and lists); unchanged values are returned as they are
         /// </summary>
         private static object RewriteOptionReferences(object value, string extensionId)
         {
@@ -472,15 +471,6 @@ namespace Greenshot.Base.Recipes
                     return null;
                 case string text:
                     return RewriteOptionReferences(text, extensionId);
-                case JToken token:
-                    if (token.ToString(Newtonsoft.Json.Formatting.None).IndexOf("option.", StringComparison.OrdinalIgnoreCase) < 0) return token;
-                    var copy = token.DeepClone();
-                    var values = copy is JContainer container ? container.Descendants().OfType<JValue>() : new[] { (JValue)copy };
-                    foreach (var jValue in values.Where(v => v.Type == JTokenType.String).ToList())
-                    {
-                        jValue.Value = RewriteOptionReferences((string)jValue.Value, extensionId);
-                    }
-                    return copy;
                 case IDictionary<string, object> dictionary:
                     var rewritten = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
                     bool changed = false;

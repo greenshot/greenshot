@@ -39,7 +39,6 @@ using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Emoji;
 using Greenshot.Editor.Drawing.Fields;
 using log4net;
-using Newtonsoft.Json.Linq;
 
 namespace Greenshot.Recipes.Steps
 {
@@ -107,10 +106,6 @@ namespace Greenshot.Recipes.Steps
                         if (item is Dictionary<string, object> d)
                         {
                             annotationConfigs.Add(d);
-                        }
-                        else if (item is JObject jObj)
-                        {
-                            annotationConfigs.Add(jObj.ToObject<Dictionary<string, object>>());
                         }
                     }
                 }

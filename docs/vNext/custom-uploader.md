@@ -173,7 +173,7 @@ A re-import fetches it again. Without an icon (the fetch failed, an uploader imp
 | `{response}` | | the response text |
 | `{responseurl}` | | the url which answered (the request url, redirects are not followed) |
 | `{header:name}` | | a response header |
-| `{json:path}`, `{json:input\|path}` | | JSONPath, `$.` in front is optional (`data.link`, `[0].url`) |
+| `{json:path}`, `{json:input\|path}` | | JSONPath, `$.` in front is optional (`data.link`, `[0].url`, `['a b']`); names and array indexes only, no wildcards or filters |
 | `{xml:xpath}`, `{xml:input\|xpath}` | | the text of the first node; no DTD, no external entities |
 | `{regex:pattern}`, `{regex:pattern\|group}`, `{regex:input\|pattern\|group}` | | the match, or the group by number or name; 2 seconds at most |
 

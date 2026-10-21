@@ -22,9 +22,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using Greenshot.Base.Recipes.Expressions;
 using Greenshot.Base.Recipes.Pipeline;
-using Newtonsoft.Json.Linq;
 
 namespace Greenshot.Base.Recipes
 {
@@ -52,7 +52,7 @@ namespace Greenshot.Base.Recipes
         /// <summary>
         /// Whether this node is active in the flow. Disabled nodes are skipped during execution.
         /// </summary>
-        [Newtonsoft.Json.JsonIgnore]
+        [JsonIgnore]
         public bool Enabled { get; set; } = true;
 
         /// <summary>
@@ -60,20 +60,16 @@ namespace Greenshot.Base.Recipes
         /// When set, it replaces <see cref="Enabled"/>; a node which doesn't run passes the flow on to the next nodes.
         /// In the recipe file both are "enabled": true, false or the expression.
         /// </summary>
-        [Newtonsoft.Json.JsonIgnore]
+        [JsonIgnore]
         public string EnabledExpression { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("enabled")]
+        [JsonInclude, JsonPropertyName("enabled")]
         private object EnabledJson
         {
             get => string.IsNullOrWhiteSpace(EnabledExpression) ? Enabled : (object)EnabledExpression;
             set
             {
                 EnabledExpression = null;
-                if (value is JValue jValue)
-                {
-                    value = jValue.Value;
-                }
                 switch (value)
                 {
                     case bool enabled:
@@ -141,11 +137,11 @@ namespace Greenshot.Base.Recipes
                     return typed;
                 }
 
-                if (val is JToken jToken)
+                if ((val is IDictionary<string, object> || val is IEnumerable && val is not string) && typeof(T) != typeof(List<string>))
                 {
                     try
                     {
-                        return jToken.ToObject<T>();
+                        return RecipeSerializer.ConvertValue<T>(val);
                     }
                     catch
                     {
@@ -216,7 +212,7 @@ namespace Greenshot.Base.Recipes
         /// Provenance: the id of the extension which put this node into a composed recipe, null for the recipe's own nodes.
         /// Set only by <see cref="RecipeComposer"/>, never read from a file.
         /// </summary>
-        [Newtonsoft.Json.JsonIgnore]
+        [JsonIgnore]
         public string ContributedBy { get; set; }
 
         public RecipeNodeConfig Clone()

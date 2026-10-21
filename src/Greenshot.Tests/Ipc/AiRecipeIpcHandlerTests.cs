@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Ini;
@@ -38,7 +39,6 @@ using Greenshot.Recipes;
 using Greenshot.Recipes.Approval;
 using Greenshot.Recipes.Pipeline;
 using Greenshot.Tests.Recipes;
-using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace Greenshot.Tests.Ipc
@@ -168,7 +168,7 @@ namespace Greenshot.Tests.Ipc
                 var reply = await DispatchAsync("VALIDATE_RECIPE", new Dictionary<string, string> { ["recipe"] = RecipeSerializer.Serialize(recipe) });
                 Assert.Equal("ok", reply.Value<string>("status"));
                 Assert.True(reply.Value<bool>("valid"));
-                var needs = Assert.IsType<JArray>(reply["needs_permission"]);
+                var needs = Assert.IsType<JsonArray>(reply["needs_permission"]);
                 Assert.Contains(needs, n => n.Value<string>("kind") == nameof(RecipeGateType.ExternalCommand));
             });
         }
@@ -255,8 +255,8 @@ namespace Greenshot.Tests.Ipc
                     var reply = await DispatchAsync("PROPOSE_RECIPE", ProposalParameters(recipe));
                     Assert.Equal("ok", reply.Value<string>("status"));
                     Assert.Equal("approved", reply.Value<string>("decision"));
-                    Assert.Single(reply.Value<JArray>("triggers_on"));
-                    Assert.Single(reply.Value<JArray>("triggers_off"));
+                    Assert.Single(reply.Value<JsonArray>("triggers_on"));
+                    Assert.Single(reply.Value<JsonArray>("triggers_off"));
 
                     string file = reply.Value<string>("file");
                     Assert.True(File.Exists(file));
@@ -286,8 +286,8 @@ namespace Greenshot.Tests.Ipc
             {
                 var catalog = await DispatchAsync("RECIPE_CATALOG", null);
                 Assert.Equal("ok", catalog.Value<string>("status"));
-                Assert.Contains(catalog.Value<JArray>("steps"), s => s.Value<string>("step_type") == "Source");
-                var recipes = catalog.Value<JArray>("recipes");
+                Assert.Contains(catalog.Value<JsonArray>("steps"), s => s.Value<string>("step_type") == "Source");
+                var recipes = catalog.Value<JsonArray>("recipes");
                 Assert.NotEmpty(recipes);
 
                 string id = recipes[0].Value<string>("id");
@@ -303,9 +303,9 @@ namespace Greenshot.Tests.Ipc
             await WithConsentAsync(async () =>
             {
                 var catalog = await DispatchAsync("RECIPE_CATALOG", null);
-                Assert.Contains(catalog.Value<JArray>("slots"), s => s.Value<string>("name") == RecipeSlots.BeforeDestination && s.Value<JArray>("recipes").Count > 0);
-                Assert.Contains(catalog.Value<JArray>("option_types"), t => t.Value<string>() == "Color");
-                Assert.Contains(catalog.Value<JArray>("automatic_steps"), e => e.Value<string>("id") == BuiltInExtensions.BorderId);
+                Assert.Contains(catalog.Value<JsonArray>("slots"), s => s.Value<string>("name") == RecipeSlots.BeforeDestination && s.Value<JsonArray>("recipes").Count > 0);
+                Assert.Contains(catalog.Value<JsonArray>("option_types"), t => t.Value<string>() == "Color");
+                Assert.Contains(catalog.Value<JsonArray>("automatic_steps"), e => e.Value<string>("id") == BuiltInExtensions.BorderId);
 
                 var border = await DispatchAsync("RECIPE_CATALOG", new Dictionary<string, string> { ["recipe"] = BuiltInExtensions.BorderId });
                 Assert.Equal("extension", border.Value<string>("kind"));
@@ -343,7 +343,7 @@ namespace Greenshot.Tests.Ipc
                     var validation = await DispatchAsync("VALIDATE_RECIPE", parameters);
                     Assert.True(validation.Value<bool>("valid"));
                     Assert.Equal("extension", validation.Value<string>("kind"));
-                    Assert.NotEmpty(validation.Value<JArray>("changes_other_recipes"));
+                    Assert.NotEmpty(validation.Value<JsonArray>("changes_other_recipes"));
 
                     var reply = await DispatchAsync("PROPOSE_RECIPE", parameters);
                     Assert.Equal("approved", reply.Value<string>("decision"));
@@ -450,7 +450,7 @@ namespace Greenshot.Tests.Ipc
             }
         }
 
-        private static async Task<JObject> DispatchAsync(string command, Dictionary<string, string> parameters)
+        private static async Task<JsonObject> DispatchAsync(string command, Dictionary<string, string> parameters)
         {
             // AI tools are opt-in: these tests are about what happens once they are switched on
             var config = IniConfigRegistry.GetSection<ICoreConfiguration>();
@@ -483,7 +483,7 @@ namespace Greenshot.Tests.Ipc
             int length = BitConverter.ToInt32(lengthBytes, 0);
             byte[] payload = new byte[length];
             Assert.Equal(length, stream.Read(payload, 0, length));
-            return JObject.Parse(Encoding.UTF8.GetString(payload));
+            return JsonNode.Parse(Encoding.UTF8.GetString(payload)).AsObject();
         }
     }
 }

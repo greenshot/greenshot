@@ -9,8 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-    <!-- The Jira and Confluence plugins (de)serialize with it, generated at compile time -->
+    <!-- All JSON: recipes, IPC, uploads; the Jira and Confluence plugin also uses its source generator -->
     <PackageReference Include="System.Text.Json" Version="10.0.13" />
     <!-- The Range and Required attributes of the configuration -->
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />

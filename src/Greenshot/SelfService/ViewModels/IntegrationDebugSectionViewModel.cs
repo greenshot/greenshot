@@ -23,10 +23,11 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Text.Json.Nodes;
 using System.Windows.Media;
 using Greenshot.Base.Languages;
+using Greenshot.Base.Serialization;
 using Microsoft.Win32;
-using Newtonsoft.Json.Linq;
 
 namespace Greenshot.SelfService.ViewModels
 {
@@ -228,10 +229,9 @@ namespace Greenshot.SelfService.ViewModels
             if (string.IsNullOrEmpty(id)) return;
 
             string json = File.ReadAllText(ChromeManifestPath);
-            var jobj = JObject.Parse(json);
-            var origins = new JArray { $"chrome-extension://{id}/" };
-            jobj["allowed_origins"] = origins;
-            File.WriteAllText(ChromeManifestPath, jobj.ToString(Newtonsoft.Json.Formatting.Indented));
+            var jobj = GreenshotJson.Parse(json).AsObject();
+            jobj["allowed_origins"] = new JsonArray($"chrome-extension://{id}/");
+            File.WriteAllText(ChromeManifestPath, jobj.ToJsonString(GreenshotJson.IndentedOptions));
         }
 
         private void LoadCurrentExtensionId()
@@ -241,8 +241,7 @@ namespace Greenshot.SelfService.ViewModels
                 if (File.Exists(ChromeManifestPath))
                 {
                     string json = File.ReadAllText(ChromeManifestPath);
-                    var jobj = JObject.Parse(json);
-                    if (jobj["allowed_origins"] is JArray arr && arr.Count > 0)
+                    if ((GreenshotJson.Parse(json) as JsonObject)?["allowed_origins"] is JsonArray arr && arr.Count > 0)
                     {
                         string first = arr[0]?.ToString() ?? "";
                         if (first.StartsWith("chrome-extension://"))

@@ -22,7 +22,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json.Linq;
 
 namespace Greenshot.Base.Recipes
 {
@@ -89,10 +88,6 @@ namespace Greenshot.Base.Recipes
             {
                 return true;
             }
-            if (accept is JValue jValue)
-            {
-                accept = jValue.Value;
-            }
             switch (accept)
             {
                 case string text when string.IsNullOrWhiteSpace(text) || string.Equals(text.Trim(), AcceptAll, StringComparison.OrdinalIgnoreCase):
@@ -102,7 +97,7 @@ namespace Greenshot.Base.Recipes
                 case string text:
                     return SplitList(text).Contains(extensionId, StringComparer.OrdinalIgnoreCase);
                 case System.Collections.IEnumerable list:
-                    return list.Cast<object>().Select(o => (o as JValue)?.Value?.ToString() ?? o?.ToString()).Contains(extensionId, StringComparer.OrdinalIgnoreCase);
+                    return list.Cast<object>().Select(o => o?.ToString()).Contains(extensionId, StringComparer.OrdinalIgnoreCase);
                 default:
                     return true;
             }

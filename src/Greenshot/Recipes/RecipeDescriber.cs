@@ -32,7 +32,6 @@ using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Recipes.Approval;
 using log4net;
-using Newtonsoft.Json.Linq;
 
 namespace Greenshot.Recipes
 {
@@ -458,8 +457,6 @@ namespace Greenshot.Recipes
                     return text;
                 case bool flag:
                     return flag ? "yes" : "no";
-                case JValue jValue:
-                    return FormatValue(jValue.Value);
                 case IFormattable formattable:
                     return formattable.ToString(null, CultureInfo.InvariantCulture);
                 default:

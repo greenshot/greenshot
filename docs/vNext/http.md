@@ -34,7 +34,7 @@ Destinations and recipe steps already run on the thread pool; the UI thread can 
 var feed = await HttpService.Current.GetJsonAsync<UpdateFeed>(new Uri("https://getgreenshot.org/update-feed.json"), cancellationToken);
 ```
 
-The content is deserialized with Json.NET, so `[JsonProperty]` works. New code can deserialize `HttpResult.Content` with System.Text.Json and a source generated context, like the Jira and Confluence clients. An HTTP error throws (see [Errors](#errors)).
+The content is deserialized with System.Text.Json and the tolerant settings of `GreenshotJson` (comments, trailing commas, any casing, numbers in quotes), so `[JsonPropertyName]` works. Code which reads a lot of JSON can deserialize `HttpResult.Content` with a source generated context, like the Jira and Confluence clients. An HTTP error throws (see [Errors](#errors)).
 
 ### Any request
 

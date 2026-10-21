@@ -23,10 +23,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Greenshot.Base.Serialization;
 
 namespace Greenshot.Base.Recipes
 {
@@ -38,27 +37,43 @@ namespace Greenshot.Base.Recipes
         public const string RecipeFileExtension = ".gsrecipe.json";
         public const string RecipeFileFilter = "Greenshot Recipe (*.gsrecipe.json)|*.gsrecipe.json|JSON Recipe (*.json)|*.json|All files (*.*)|*.*";
 
-        private static readonly JsonSerializerSettings SerializerSettings = new JsonSerializerSettings
-        {
-            Formatting = Formatting.Indented,
-            NullValueHandling = NullValueHandling.Ignore,
-            ContractResolver = new CamelCasePropertyNamesContractResolver(),
-            Converters = new List<JsonConverter>
-            {
-                new StringEnumConverter(),
-                new TransitionsDictionaryConverter()
-            }
-        };
+        /// <summary>
+        /// The settings of recipe files: camelCase names (also for the parameter keys), enums as names, no nulls.
+        /// Reading is tolerant, see <see cref="GreenshotJson"/>.
+        /// </summary>
+        public static readonly JsonSerializerOptions Options = CreateOptions(true);
 
-        private static readonly JsonSerializerSettings DeserializerSettings = new JsonSerializerSettings
+        private static readonly JsonSerializerOptions CompactOptions = CreateOptions(false);
+
+        private static JsonSerializerOptions CreateOptions(bool indented)
         {
-            NullValueHandling = NullValueHandling.Ignore,
-            Converters = new List<JsonConverter>
+            var options = GreenshotJson.CreateOptions();
+            options.WriteIndented = indented;
+            options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            options.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
+            options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+            options.Converters.Add(new JsonStringEnumConverter());
+            return options;
+        }
+
+        /// <summary>
+        /// Converts a parameter value (as read from a file, or set in code) to another type, e.g. a list of dictionaries to a list of
+        /// <see cref="PromptChoice"/>, by writing it as JSON and reading that back.
+        /// </summary>
+        public static T ConvertValue<T>(object value)
+        {
+            if (value is T typed)
             {
-                new StringEnumConverter(),
-                new TransitionsDictionaryConverter()
+                return typed;
             }
-        };
+            return JsonSerializer.SerializeToElement(value, Options).Deserialize<T>(Options);
+        }
+
+        /// <summary>
+        /// A parameter value as plain values (dictionaries, lists, texts, numbers and booleans), as it would be read from a file
+        /// </summary>
+        public static object ToPlainValue(object value) =>
+            value is null or string or bool or long or double ? value : JsonSerializer.SerializeToElement(value, Options).Deserialize<object>(Options);
 
         /// <summary>
         /// Serializes a CaptureRecipe into a formatted JSON string.
@@ -66,14 +81,7 @@ namespace Greenshot.Base.Recipes
         public static string Serialize(CaptureRecipe recipe, bool indented = true)
         {
             if (recipe == null) throw new ArgumentNullException(nameof(recipe));
-            var settings = indented ? SerializerSettings : new JsonSerializerSettings
-            {
-                Formatting = Formatting.None,
-                NullValueHandling = NullValueHandling.Ignore,
-                ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                Converters = new List<JsonConverter> { new StringEnumConverter() }
-            };
-            return JsonConvert.SerializeObject(recipe, settings);
+            return JsonSerializer.Serialize(recipe, indented ? Options : CompactOptions);
         }
 
         /// <summary>
@@ -82,23 +90,47 @@ namespace Greenshot.Base.Recipes
         public static string SerializeList(IEnumerable<CaptureRecipe> recipes, bool indented = true)
         {
             if (recipes == null) throw new ArgumentNullException(nameof(recipes));
-            var settings = indented ? SerializerSettings : new JsonSerializerSettings
-            {
-                Formatting = Formatting.None,
-                NullValueHandling = NullValueHandling.Ignore,
-                ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                Converters = new List<JsonConverter> { new StringEnumConverter() }
-            };
-            return JsonConvert.SerializeObject(recipes, settings);
+            return JsonSerializer.Serialize(recipes, indented ? Options : CompactOptions);
         }
 
         /// <summary>
         /// The "kind" of a definition in a file: "recipe" (also when it is missing) or "extension"
         /// </summary>
-        public static string ReadKind(JObject definition)
+        public static string ReadKind(JsonElement definition)
         {
-            var kind = definition?.GetValue("kind", StringComparison.OrdinalIgnoreCase)?.ToString()?.Trim();
-            return string.IsNullOrEmpty(kind) ? FlowDefinition.KindRecipe : kind.ToLowerInvariant();
+            var kind = FindProperty(definition, "kind");
+            string text = kind?.ValueKind == JsonValueKind.Null ? null : kind?.ToString().Trim();
+            return string.IsNullOrEmpty(text) ? FlowDefinition.KindRecipe : text.ToLowerInvariant();
+        }
+
+        /// <summary>
+        /// The property of a definition, the name in any casing (the last one when there are more)
+        /// </summary>
+        private static JsonElement? FindProperty(JsonElement definition, string name)
+        {
+            JsonElement? found = null;
+            if (definition.ValueKind == JsonValueKind.Object)
+            {
+                foreach (var property in definition.EnumerateObject())
+                {
+                    if (string.Equals(property.Name, name, StringComparison.OrdinalIgnoreCase))
+                    {
+                        found = property.Value;
+                    }
+                }
+            }
+            return found;
+        }
+
+        /// <summary>
+        /// Parses the text of a recipe file, comments and trailing commas are allowed
+        /// </summary>
+        public static JsonElement Parse(string json) => GreenshotJson.ParseElement(json);
+
+        private static JsonElement ParseObject(string json)
+        {
+            var definition = Parse(json);
+            return definition.ValueKind == JsonValueKind.Object ? definition : throw new JsonException("A recipe or an extension must be a JSON object.");
         }
 
         /// <summary>
@@ -108,13 +140,7 @@ namespace Greenshot.Base.Recipes
         {
             if (definition is CaptureRecipe recipe) return Serialize(recipe, indented);
             if (definition == null) throw new ArgumentNullException(nameof(definition));
-            return JsonConvert.SerializeObject(definition, indented ? SerializerSettings : new JsonSerializerSettings
-            {
-                Formatting = Formatting.None,
-                NullValueHandling = NullValueHandling.Ignore,
-                ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                Converters = new List<JsonConverter> { new StringEnumConverter() }
-            });
+            return JsonSerializer.Serialize(definition, definition.GetType(), indented ? Options : CompactOptions);
         }
 
         /// <summary>
@@ -124,18 +150,18 @@ namespace Greenshot.Base.Recipes
         {
             if (string.IsNullOrWhiteSpace(json)) throw new ArgumentException("JSON content cannot be empty", nameof(json));
 
-            var definition = JObject.Parse(json.Trim());
+            var definition = ParseObject(json.Trim());
             string kind = ReadKind(definition);
             if (kind != FlowDefinition.KindExtension)
             {
                 throw new JsonException($"Expected an extension (\"kind\": \"extension\"), but the kind is '{kind}'.");
             }
-            if (definition.GetValue("triggers", StringComparison.OrdinalIgnoreCase) != null)
+            if (FindProperty(definition, "triggers") != null)
             {
                 throw new JsonException("An extension can't have triggers; it runs in the recipes it extends.");
             }
 
-            var extension = definition.ToObject<RecipeExtension>(JsonSerializer.Create(DeserializerSettings));
+            var extension = definition.Deserialize<RecipeExtension>(Options);
             if (extension == null)
             {
                 throw new JsonException("Failed to deserialize RecipeExtension from JSON.");
@@ -160,7 +186,7 @@ namespace Greenshot.Base.Recipes
         {
             if (string.IsNullOrWhiteSpace(json)) throw new ArgumentException("JSON content cannot be empty", nameof(json));
 
-            var definition = JObject.Parse(json.Trim());
+            var definition = ParseObject(json.Trim());
             string kind = ReadKind(definition);
             if (kind != FlowDefinition.KindRecipe)
             {
@@ -169,7 +195,7 @@ namespace Greenshot.Base.Recipes
                     : $"Unknown kind '{kind}', use \"recipe\" or \"extension\".");
             }
 
-            CaptureRecipe recipe = definition.ToObject<CaptureRecipe>(JsonSerializer.Create(DeserializerSettings));
+            CaptureRecipe recipe = definition.Deserialize<CaptureRecipe>(Options);
             if (recipe == null)
             {
                 throw new JsonException("Failed to deserialize CaptureRecipe from JSON.");
@@ -199,15 +225,14 @@ namespace Greenshot.Base.Recipes
 
             if (trimmed.StartsWith("["))
             {
-                var serializer = JsonSerializer.Create(DeserializerSettings);
-                foreach (var item in JArray.Parse(trimmed).OfType<JObject>())
+                foreach (var item in Parse(trimmed).EnumerateArray().Where(item => item.ValueKind == JsonValueKind.Object))
                 {
                     string kind = ReadKind(item);
                     if (kind != FlowDefinition.KindRecipe)
                     {
                         throw new JsonException($"The list contains a definition of kind '{kind}'; a recipe list can only hold recipes.");
                     }
-                    var recipe = item.ToObject<CaptureRecipe>(serializer);
+                    var recipe = item.Deserialize<CaptureRecipe>(Options);
                     if (recipe != null)
                     {
                         list.Add(recipe);

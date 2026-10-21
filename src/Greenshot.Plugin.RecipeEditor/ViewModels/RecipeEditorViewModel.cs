@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -17,7 +18,6 @@ using Greenshot.Plugin.RecipeEditor.Layout;
 using Greenshot.Plugin.RecipeEditor.Views;
 using log4net;
 using Microsoft.Win32;
-using Newtonsoft.Json.Linq;
 using Greenshot.Base.Threading;
 
 namespace Greenshot.Plugin.RecipeEditor.ViewModels
@@ -2257,10 +2257,11 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     string expr = "";
                     if (nodeMap.TryGetValue(ct.From, out var srcNode) && srcNode.Parameters != null && srcNode.Parameters.TryGetValue("Branches", out var bObj))
                     {
-                        if (bObj is JArray arr)
+                        if (RecipeSerializer.ToPlainValue(bObj) is IEnumerable branches && bObj is not string)
                         {
-                            var match = arr.FirstOrDefault(t => string.Equals((string)t["key"], ct.Branch, StringComparison.OrdinalIgnoreCase));
-                            if (match != null) expr = (string)match["expression"];
+                            var match = branches.OfType<IDictionary<string, object>>()
+                                .FirstOrDefault(b => b.TryGetValue("key", out var key) && string.Equals(key?.ToString(), ct.Branch, StringComparison.OrdinalIgnoreCase));
+                            if (match != null && match.TryGetValue("expression", out var expression)) expr = expression?.ToString();
                         }
                     }
 

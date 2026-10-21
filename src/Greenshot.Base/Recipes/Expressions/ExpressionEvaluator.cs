@@ -33,7 +33,6 @@ using System.Threading;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Recipes.Pipeline;
-using Newtonsoft.Json.Linq;
 
 namespace Greenshot.Base.Recipes.Expressions
 {
@@ -126,28 +125,9 @@ namespace Greenshot.Base.Recipes.Expressions
                 return str;
             }
 
-            if (value is JValue jValue)
-            {
-                if (jValue.Type == JTokenType.String)
-                {
-                    string s = jValue.Value<string>();
-                    if (s != null && s.Contains("${"))
-                    {
-                        return Evaluate(s, context, extraVariables);
-                    }
-                }
-                return jValue.Value;
-            }
-
             if (value is IDictionary<string, object> dict)
             {
                 return ResolveParameters(dict, context, extraVariables);
-            }
-
-            if (value is JObject jObj)
-            {
-                var dictObj = jObj.ToObject<Dictionary<string, object>>();
-                return ResolveParameters(dictObj, context, extraVariables);
             }
 
             if (value is IEnumerable enumerable && !(value is string))

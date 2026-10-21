@@ -127,11 +127,7 @@ namespace Greenshot.Base.Recipes.Contracts
             {
                 object value = node?.GetParameter<object>(result.Substring(keysPrefix.Length, result.Length - keysPrefix.Length - 1));
                 var keys = new List<string>();
-                if (value is Newtonsoft.Json.Linq.JObject jObject)
-                {
-                    keys.AddRange(jObject.Properties().Select(p => p.Name));
-                }
-                else if (value is System.Collections.IDictionary dictionary)
+                if (value is System.Collections.IDictionary dictionary)
                 {
                     foreach (var key in dictionary.Keys)
                     {

@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Recipes;
@@ -34,7 +35,6 @@ using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Recipes;
 using Greenshot.Recipes.Approval;
 using Greenshot.Recipes.Pipeline;
-using Newtonsoft.Json;
 using Xunit;
 
 namespace Greenshot.Tests.Recipes
@@ -244,7 +244,7 @@ namespace Greenshot.Tests.Recipes
             Assert.Equal(new[] { "ext_test_border/when" }, Targets(composed, "process"));
             Assert.Contains(composed.Flow.ConditionalTransitions, ct => ct.From == "ext_test_border/when" && ct.Branch == "run" && ct.To == "ext_test_border/border");
             Assert.Contains(composed.Flow.ConditionalTransitions, ct => ct.From == "ext_test_border/when" && ct.Branch == "skip" && ct.To == "before_destination");
-            Assert.Contains("option.ext_test_border.width", JsonConvert.SerializeObject(when.Parameters));
+            Assert.Contains("option.ext_test_border.width", JsonSerializer.Serialize(when.Parameters, RecipeSerializer.Options));
             Assert.True(RecipeValidator.Validate(composed).IsValid, RecipeValidator.Validate(composed).ToString());
         }
 

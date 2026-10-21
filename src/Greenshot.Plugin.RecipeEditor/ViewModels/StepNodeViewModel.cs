@@ -15,7 +15,6 @@ using Greenshot.Base.Wpf;
 using Greenshot.Editor.Views;
 using Greenshot.Plugin.RecipeEditor.Helpers;
 using Greenshot.Plugin.RecipeEditor.Views;
-using Newtonsoft.Json.Linq;
 
 namespace Greenshot.Plugin.RecipeEditor.ViewModels
 {
@@ -1552,9 +1551,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             get
             {
                 if (Config?.Parameters == null || !Config.Parameters.TryGetValue("Accept", out var accept) || accept == null) return RecipeSlots.AcceptAll;
-                if (accept is JValue jValue) accept = jValue.Value;
                 if (accept is string text) return string.IsNullOrWhiteSpace(text) ? RecipeSlots.AcceptAll : text;
-                if (accept is System.Collections.IEnumerable list) return string.Join(", ", list.Cast<object>().Select(o => (o as JValue)?.Value?.ToString() ?? o?.ToString()));
+                if (accept is System.Collections.IEnumerable list) return string.Join(", ", list.Cast<object>().Select(o => o?.ToString()));
                 return RecipeSlots.AcceptAll;
             }
             set
@@ -1824,13 +1822,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                             Variables.Add(new VariableItemViewModel(key?.ToString() ?? "", dict[key]?.ToString() ?? "", SyncVariablesToConfig, RemoveVariable));
                         }
                     }
-                    else if (varsObj is JObject jObj)
-                    {
-                        foreach (var prop in jObj.Properties())
-                        {
-                            Variables.Add(new VariableItemViewModel(prop.Name, prop.Value?.ToString() ?? "", SyncVariablesToConfig, RemoveVariable));
-                        }
-                    }
                 }
                 else
                 {
@@ -1902,11 +1893,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                             if (elem is IDictionary d)
                             {
                                 Annotations.Add(DrawableItemViewModel.FromDictionary(d, SyncAnnotationsToConfig, RemoveAnnotation));
-                            }
-                            else if (elem is JObject jObj)
-                            {
-                                var jDict = jObj.ToObject<Dictionary<string, object>>();
-                                Annotations.Add(DrawableItemViewModel.FromDictionary(jDict, SyncAnnotationsToConfig, RemoveAnnotation));
                             }
                         }
                     }
@@ -2625,14 +2611,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                             Output.Add(b.Port);
                         }
                     }
-                    else if (item is Newtonsoft.Json.Linq.JObject jobj)
-                    {
-                        string k = jobj.Value<string>("Key") ?? jobj.Value<string>("key");
-                        string exp = jobj.Value<string>("Expression") ?? jobj.Value<string>("expression");
-                        var b = new ConditionBranchViewModel(k ?? "A", exp ?? "${true}", this, SyncConditionBranchesToConfig, RemoveConditionBranch);
-                        ConditionBranches.Add(b);
-                        Output.Add(b.Port);
-                    }
                 }
             }
 
@@ -2712,20 +2690,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                         string s = dict.Contains("Style") ? dict["Style"]?.ToString() : (dict.Contains("style") ? dict["style"]?.ToString() : "Primary");
                         bool isDef = dict.Contains("IsDefault") && Convert.ToBoolean(dict["IsDefault"]);
                         bool isCanc = dict.Contains("IsCancel") && Convert.ToBoolean(dict["IsCancel"]);
-                        if (!string.IsNullOrEmpty(k))
-                        {
-                            var c = new PromptChoiceViewModel(k, l ?? k, s, isDef, isCanc, this, SyncPromptChoicesToConfig, RemovePromptChoice);
-                            PromptChoices.Add(c);
-                            Output.Add(c.Port);
-                        }
-                    }
-                    else if (item is Newtonsoft.Json.Linq.JObject jobj)
-                    {
-                        string k = jobj.Value<string>("Key") ?? jobj.Value<string>("key");
-                        string l = jobj.Value<string>("Label") ?? jobj.Value<string>("label");
-                        string s = jobj.Value<string>("Style") ?? jobj.Value<string>("style") ?? "Primary";
-                        bool isDef = jobj.Value<bool?>("IsDefault") ?? jobj.Value<bool?>("isDefault") ?? false;
-                        bool isCanc = jobj.Value<bool?>("IsCancel") ?? jobj.Value<bool?>("isCancel") ?? false;
                         if (!string.IsNullOrEmpty(k))
                         {
                             var c = new PromptChoiceViewModel(k, l ?? k, s, isDef, isCanc, this, SyncPromptChoicesToConfig, RemovePromptChoice);
@@ -3013,9 +2977,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 if (Config.Parameters.TryGetValue("Destinations", out var obj))
                 {
-                    if (obj is IEnumerable<string> strEnum) return string.Join(", ", strEnum);
-                    if (obj is Newtonsoft.Json.Linq.JArray jarr) return string.Join(", ", jarr.Select(j => j.ToString()));
                     if (obj is string s) return s;
+                    if (obj is IEnumerable list) return string.Join(", ", list.Cast<object>());
                 }
                 return "";
             }

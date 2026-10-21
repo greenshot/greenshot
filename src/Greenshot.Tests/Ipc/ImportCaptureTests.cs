@@ -24,10 +24,10 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Text;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Greenshot.Ipc;
 using Greenshot.Ipc.BrowserExtension;
-using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace Greenshot.Tests.Ipc
@@ -156,7 +156,7 @@ namespace Greenshot.Tests.Ipc
             Assert.Contains("not ready", reply.Value<string>("stderr"));
         }
 
-        private static async Task<JObject> DispatchImportAsync(string payload)
+        private static async Task<JsonObject> DispatchImportAsync(string payload)
         {
             var envelope = new IpcEnvelope
             {
@@ -174,7 +174,7 @@ namespace Greenshot.Tests.Ipc
                 ms.Read(lengthBytes, 0, 4);
                 byte[] payloadBytes = new byte[BitConverter.ToUInt32(lengthBytes, 0)];
                 ms.Read(payloadBytes, 0, payloadBytes.Length);
-                return JObject.Parse(Encoding.UTF8.GetString(payloadBytes));
+                return JsonNode.Parse(Encoding.UTF8.GetString(payloadBytes)).AsObject();
             }
         }
 

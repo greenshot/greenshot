@@ -609,12 +609,6 @@ namespace Greenshot.Base.Recipes.Contracts
                                 names.Add(match.Groups[1].Value.TrimEnd('.'));
                             }
                             return;
-                        case Newtonsoft.Json.Linq.JValue jValue:
-                            Collect(jValue.Value);
-                            return;
-                        case Newtonsoft.Json.Linq.JObject jObject:
-                            foreach (var property in jObject.Properties()) Collect(property.Value);
-                            return;
                         case IDictionary dictionary:
                             foreach (var item in dictionary.Values) Collect(item);
                             return;

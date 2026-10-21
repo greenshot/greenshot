@@ -155,7 +155,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         public string DefaultText
         {
-            get => Convert.ToString(Option.DefaultValue is Newtonsoft.Json.Linq.JValue j ? j.Value : Option.DefaultValue, CultureInfo.InvariantCulture);
+            get => Convert.ToString(Option.DefaultValue, CultureInfo.InvariantCulture);
             set
             {
                 // Stored as the type when it fits, as text otherwise (the check reports it)

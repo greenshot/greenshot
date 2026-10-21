@@ -32,7 +32,6 @@ using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Recipes.Views;
 using log4net;
-using Newtonsoft.Json.Linq;
 using Greenshot.Base.Threading;
 
 namespace Greenshot.Recipes.Steps
@@ -155,18 +154,6 @@ namespace Greenshot.Recipes.Steps
                         string s = dict.Contains("Style") ? dict["Style"]?.ToString() : (dict.Contains("style") ? dict["style"]?.ToString() : "Primary");
                         bool isDef = dict.Contains("IsDefault") && Convert.ToBoolean(dict["IsDefault"]);
                         bool isCanc = dict.Contains("IsCancel") && Convert.ToBoolean(dict["IsCancel"]);
-                        if (!string.IsNullOrEmpty(k))
-                        {
-                            list.Add(new PromptChoice(k, l ?? k, s, isDef, isCanc));
-                        }
-                    }
-                    else if (item is JObject jobj)
-                    {
-                        string k = jobj.Value<string>("Key") ?? jobj.Value<string>("key");
-                        string l = jobj.Value<string>("Label") ?? jobj.Value<string>("label");
-                        string s = jobj.Value<string>("Style") ?? jobj.Value<string>("style") ?? "Primary";
-                        bool isDef = jobj.Value<bool?>("IsDefault") ?? jobj.Value<bool?>("isDefault") ?? false;
-                        bool isCanc = jobj.Value<bool?>("IsCancel") ?? jobj.Value<bool?>("isCancel") ?? false;
                         if (!string.IsNullOrEmpty(k))
                         {
                             list.Add(new PromptChoice(k, l ?? k, s, isDef, isCanc));

@@ -20,20 +20,19 @@
  */
 
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Greenshot.Helpers.Entities
 {
-    [JsonObject]
     public class UpdateFeed
     {
-        [JsonProperty("release")] public string CurrentReleaseVersion { get; set; }
+        [JsonPropertyName("release")] public string CurrentReleaseVersion { get; set; }
 
-        [JsonProperty("beta")] public string CurrentBetaVersion { get; set; }
+        [JsonPropertyName("beta")] public string CurrentBetaVersion { get; set; }
 
         /// <summary>
         /// Optional download page per edition (e.g. "light"), for the editions that don't use the default downloads page
         /// </summary>
-        [JsonProperty("downloads")] public Dictionary<string, string> Downloads { get; set; }
+        [JsonPropertyName("downloads")] public Dictionary<string, string> Downloads { get; set; }
     }
 }

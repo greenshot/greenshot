@@ -20,16 +20,16 @@
  */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using System.Text.RegularExpressions;
 using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Pipeline;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Greenshot.Base.Recipes
 {
@@ -352,12 +352,13 @@ namespace Greenshot.Base.Recipes
             var list = new List<(string Key, string Expression)>();
             var branches = node.GetParameter<object>("Branches");
             if (branches == null) return list;
-            var token = branches as JToken ?? JToken.FromObject(branches);
-            foreach (var item in token.OfType<JObject>())
+            // Branches set in code can be of any type, read them as they would be read from a file
+            if (RecipeSerializer.ToPlainValue(branches) is not IEnumerable items || items is string) return list;
+            foreach (var item in items.OfType<IDictionary<string, object>>())
             {
-                string key = item.GetValue("key", StringComparison.OrdinalIgnoreCase)?.ToString();
-                string expression = item.GetValue("expression", StringComparison.OrdinalIgnoreCase)?.ToString();
-                list.Add((key, expression));
+                item.TryGetValue("key", out var key);
+                item.TryGetValue("expression", out var expression);
+                list.Add((key?.ToString(), expression?.ToString()));
             }
             return list;
         }
@@ -533,8 +534,7 @@ namespace Greenshot.Base.Recipes
                 }
                 if (node.Parameters.TryGetValue("Accept", out var accept) && accept != null)
                 {
-                    var acceptValue = accept is JValue jAccept ? jAccept.Value : accept;
-                    bool valid = acceptValue is string || (acceptValue is System.Collections.IEnumerable && !(acceptValue is string));
+                    bool valid = accept is string || (accept is IEnumerable && !(accept is string));
                     if (!valid)
                     {
                         result.AddError($"Node '{node.Id}' [Slot]: 'accept' must be \"{RecipeSlots.AcceptAll}\", \"{RecipeSlots.AcceptNone}\" or a list of extension ids.");
@@ -571,10 +571,6 @@ namespace Greenshot.Base.Recipes
                     if (item is Dictionary<string, object> dict && dict.TryGetValue("Type", out var tObj))
                     {
                         aType = tObj?.ToString();
-                    }
-                    else if (item is Newtonsoft.Json.Linq.JObject jobj && jobj.TryGetValue("Type", StringComparison.OrdinalIgnoreCase, out var jt))
-                    {
-                        aType = jt?.ToString();
                     }
                     if (!string.IsNullOrWhiteSpace(aType))
                     {
@@ -760,7 +756,7 @@ namespace Greenshot.Base.Recipes
                     result.AddError($"Node '{node.Id}': 'enabled' must be true, false or an expression like \"${{option.key}}\".");
                 }
 
-                string parameters = node.Parameters == null || node.Parameters.Count == 0 ? null : JsonConvert.SerializeObject(node.Parameters);
+                string parameters = node.Parameters == null || node.Parameters.Count == 0 ? null : JsonSerializer.Serialize(node.Parameters, RecipeSerializer.Options);
                 var parameterReferences = FindOptionReferences(parameters);
                 foreach (var key in parameterReferences.Concat(FindOptionReferences(node.EnabledExpression)).Distinct(StringComparer.OrdinalIgnoreCase))
                 {

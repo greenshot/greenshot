@@ -71,8 +71,6 @@ namespace Greenshot.Recipes.Pipeline
         {
             switch (branch)
             {
-                case Newtonsoft.Json.Linq.JObject jObject:
-                    return jObject.GetValue(name, StringComparison.OrdinalIgnoreCase)?.ToString();
                 case System.Collections.IDictionary dictionary:
                     foreach (System.Collections.DictionaryEntry entry in dictionary)
                     {

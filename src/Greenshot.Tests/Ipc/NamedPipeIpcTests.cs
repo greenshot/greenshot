@@ -24,12 +24,13 @@ using System.IO;
 using System.IO.Pipes;
 using System.Security.Principal;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
+using Greenshot.Base.Serialization;
 using Greenshot.Ipc;
 using Greenshot.Ipc.BrowserExtension;
 using Greenshot.Ipc.Cli;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace Greenshot.Tests.Ipc
@@ -44,7 +45,7 @@ namespace Greenshot.Tests.Ipc
         {
             var envelope = IpcEnvelope.CreateCli(new[] { "--file", @"C:\Users\Test\Pictures\screenshot.png" }, IpcSources.Cli, @"C:\Users\Test");
 
-            JObject jobj = JObject.Parse(JsonConvert.SerializeObject(envelope));
+            JsonObject jobj = JsonNode.Parse(JsonSerializer.Serialize(envelope, GreenshotJson.Options)).AsObject();
             Assert.Equal(1, jobj.Value<int>("version"));
             Assert.Equal("CLI", jobj.Value<string>("command"));
             Assert.Equal("cli", jobj.Value<string>("source"));
@@ -116,7 +117,7 @@ namespace Greenshot.Tests.Ipc
             stream.Flush();
         }
 
-        private static JObject ReadFrame(Stream stream)
+        private static JsonObject ReadFrame(Stream stream)
         {
             byte[] length = new byte[4];
             int read = 0;
@@ -134,7 +135,7 @@ namespace Greenshot.Tests.Ipc
                 if (n == 0) return null;
                 read += n;
             }
-            return JObject.Parse(Encoding.UTF8.GetString(payload));
+            return JsonNode.Parse(Encoding.UTF8.GetString(payload)).AsObject();
         }
 
         [Fact]
@@ -367,13 +368,13 @@ namespace Greenshot.Tests.Ipc
                 using (var client = new NamedPipeClientStream(".", testPipeName, PipeDirection.InOut))
                 {
                     client.Connect(3000);
-                    var hello = new JObject { ["version"] = 1, ["command"] = "HELLO", ["source"] = "native_messaging" };
+                    var hello = new JsonObject { ["version"] = 1, ["command"] = "HELLO", ["source"] = "native_messaging" };
                     if (origin != null)
                     {
                         hello["origin"] = origin;
                     }
                     // Only the HELLO: the server stops reading after rejecting it, and a flush of unread data would block
-                    WriteFrame(client, hello.ToString(Formatting.None));
+                    WriteFrame(client, hello.ToJsonString());
 
                     var readTask = Task.Run(() => ReadFrame(client));
                     Assert.Same(readTask, await Task.WhenAny(readTask, Task.Delay(4000)));

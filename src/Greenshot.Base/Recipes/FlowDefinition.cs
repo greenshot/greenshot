@@ -22,7 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using Greenshot.Base.Recipes.Pipeline;
 
 namespace Greenshot.Base.Recipes
@@ -40,7 +40,6 @@ namespace Greenshot.Base.Recipes
         /// <summary>
         /// "recipe" or "extension", written first in the file
         /// </summary>
-        [JsonProperty("kind", Order = -10)]
         public abstract string Kind { get; }
 
         /// <summary>
@@ -70,7 +69,7 @@ namespace Greenshot.Base.Recipes
         /// <summary>
         /// Values the user sets once in Settings > Recipes, read by the nodes with ${option.key}. See <see cref="RecipeOption"/>.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public List<RecipeOption> Options { get; set; }
 
         /// <summary>

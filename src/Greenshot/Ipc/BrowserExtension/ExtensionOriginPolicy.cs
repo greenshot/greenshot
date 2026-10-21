@@ -22,8 +22,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using Greenshot.Base.Serialization;
 using log4net;
-using Newtonsoft.Json.Linq;
 
 namespace Greenshot.Ipc.BrowserExtension
 {
@@ -114,13 +116,13 @@ namespace Greenshot.Ipc.BrowserExtension
                 {
                     return result;
                 }
-                if (JObject.Parse(File.ReadAllText(manifestPath))[propertyName] is JArray entries)
+                if ((GreenshotJson.Parse(File.ReadAllText(manifestPath)) as JsonObject)?[propertyName] is JsonArray entries)
                 {
                     foreach (var entry in entries)
                     {
-                        if (entry.Type == JTokenType.String)
+                        if (entry?.GetValueKind() == JsonValueKind.String)
                         {
-                            result.Add((string)entry);
+                            result.Add(entry.GetValue<string>());
                         }
                     }
                 }
