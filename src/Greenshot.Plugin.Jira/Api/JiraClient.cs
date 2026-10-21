@@ -83,7 +83,7 @@ public sealed class JiraClient
     {
         var result = await _httpService.SendAsync(CreateRequest(HttpMethod.Get, "rest/api/2/myself"), cancellationToken).ConfigureAwait(false);
         // Server and Data Center deny sign-ins after failed ones, until the user solved a CAPTCHA in the browser
-        SignInDeniedException.ThrowWhenDenied(result, "X-Authentication-Denied-Reason");
+        SignInDeniedException.ThrowWhenDenied(result, AtlassianSignIn.DeniedReasonHeader);
         return Deserialize(result.EnsureSuccess(), JiraJsonContext.Default.JiraUser);
     }
 

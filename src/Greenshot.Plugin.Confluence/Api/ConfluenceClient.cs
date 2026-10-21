@@ -77,7 +77,7 @@ public sealed class ConfluenceClient
     public async Task<string> CheckCredentialsAsync(CancellationToken cancellationToken = default)
     {
         var result = await _httpService.SendAsync(CreateRequest(HttpMethod.Get, "rest/api/user/current"), cancellationToken).ConfigureAwait(false);
-        SignInDeniedException.ThrowWhenDenied(result, "X-Authentication-Denied-Reason");
+        SignInDeniedException.ThrowWhenDenied(result, AtlassianSignIn.DeniedReasonHeader);
         var user = Deserialize(result.EnsureSuccess(), ConfluenceJsonContext.Default.ConfluenceUser);
         // Instances with anonymous access answer for a request without valid credentials as the anonymous user
         if (user == null || string.Equals(user.Type, "anonymous", StringComparison.OrdinalIgnoreCase))

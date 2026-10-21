@@ -28,15 +28,6 @@ namespace Greenshot.Base.Http
     /// </summary>
     public sealed class ServerSignInOptions
     {
-        /// <summary>
-        /// Jira and Confluence: Cloud signs in with the e-mail address and an API token
-        /// (https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/),
-        /// Data Center with user name and password or a personal access token.
-        /// </summary>
-        public static ServerSignInOptions Atlassian { get; } = new ServerSignInOptions(
-            "https://id.atlassian.com/manage-profile/security/api-tokens",
-            uri => uri.Host.EndsWith(".atlassian.net", StringComparison.OrdinalIgnoreCase));
-
         /// <param name="apiTokenUrl">the page where a cloud user creates an API token, null when the server has no cloud variant</param>
         /// <param name="isCloud">true when the url is a cloud server, null for never</param>
         public ServerSignInOptions(string apiTokenUrl = null, Func<Uri, bool> isCloud = null)

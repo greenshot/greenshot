@@ -25,7 +25,7 @@ using System.Net;
 namespace Greenshot.Base.Http
 {
     /// <summary>
-    /// The server doesn't take credentials for now, e.g. Jira or Confluence Data Center ask for a CAPTCHA after failed sign-ins.
+    /// The server doesn't take credentials for now, e.g. it asks for a CAPTCHA in the browser after failed sign-ins.
     /// </summary>
     public class SignInDeniedException : UnauthorizedAccessException
     {
@@ -35,7 +35,7 @@ namespace Greenshot.Base.Http
 
         /// <summary>
         /// Throw when the server answered 403 with the header which says why it denies the sign-in,
-        /// e.g. X-Authentication-Denied-Reason of Jira and Confluence Data Center
+        /// the header name is the plugin's, e.g. X-Authentication-Denied-Reason
         /// </summary>
         public static void ThrowWhenDenied(HttpResult result, string reasonHeader)
         {

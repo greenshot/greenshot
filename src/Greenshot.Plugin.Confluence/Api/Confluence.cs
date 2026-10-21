@@ -45,7 +45,7 @@ public class ConfluenceConnector : IDisposable
 
     public ConfluenceConnector()
     {
-        SignIn = new ServerSignIn("Confluence", () => Config.Url, ConnectAsync, ServerSignInOptions.Atlassian);
+        SignIn = new ServerSignIn("Confluence", () => Config.Url, ConnectAsync, AtlassianSignIn.Options);
         SignIn.Changed += OnSignInChanged;
     }
 

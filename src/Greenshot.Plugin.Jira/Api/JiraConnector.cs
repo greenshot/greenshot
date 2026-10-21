@@ -81,7 +81,7 @@ public sealed class JiraConnector : IDisposable
     {
         JiraConfig.Url = JiraConfig.Url.Replace(DefaultPostfix, string.Empty);
         CoreConfig.PropertyChanged += OnCoreConfigPropertyChanged;
-        SignIn = new ServerSignIn("Jira", () => JiraConfig.Url, ConnectAsync, ServerSignInOptions.Atlassian);
+        SignIn = new ServerSignIn("Jira", () => JiraConfig.Url, ConnectAsync, AtlassianSignIn.Options);
         SignIn.Changed += OnSignInChanged;
     }
 
