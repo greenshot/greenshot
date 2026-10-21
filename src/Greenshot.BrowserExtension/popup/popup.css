@@ -104,6 +104,36 @@ body {
   cursor: not-allowed;
 }
 
+.btn.secondary {
+  background-color: #f1f3f4;
+  color: #202124;
+}
+
+.btn.secondary:hover {
+  background-color: #e8eaed;
+}
+
+.btn.secondary:disabled {
+  background-color: #f1f3f4;
+  color: #80868b;
+  cursor: not-allowed;
+}
+
+.btn.stop {
+  background-color: #d93025;
+  color: #ffffff;
+}
+
+.btn.stop:hover {
+  background-color: #b3261e;
+}
+
+.btn.stop:disabled {
+  background-color: #dadce0;
+  color: #80868b;
+  cursor: wait;
+}
+
 .feedback-msg {
   margin-top: 8px;
   padding: 6px 8px;

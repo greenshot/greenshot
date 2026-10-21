@@ -111,13 +111,27 @@ namespace Greenshot.Ipc.BrowserExtension
         }
 
         /// <summary>
-        /// Imports a browser capture. The image is validated (PNG/JPEG only, dimension limits) before it is decoded,
-        /// then handed to the UI thread. The extension gets an acknowledgement with "reply_to": "IMPORT_CAPTURE":
+        /// Imports a browser capture. PNG/JPEG images and capture-list payloads are validated and decoded before they
+        /// are handed to the UI thread. The extension gets an acknowledgement with "reply_to": "IMPORT_CAPTURE":
         /// status "ok" when the capture was accepted, or "error" with the reason.
         /// </summary>
         private static async Task HandleImportCaptureAsync(IpcRequestContext context, IGreenshotShell shell)
         {
-            if (!ImportCaptureDecoder.TryDecode(context.Envelope.Data?.Payload, out Bitmap importedBmp, out string error))
+            string mimeType = context.Envelope.Data?.MimeType;
+            string payload = context.Envelope.Data?.Payload;
+            Bitmap importedBmp;
+            string error;
+            bool decoded;
+            if (string.Equals(mimeType, CaptureListDecoder.MimeType, StringComparison.OrdinalIgnoreCase))
+            {
+                decoded = CaptureListDecoder.TryDecode(payload, out importedBmp, out error);
+            }
+            else
+            {
+                decoded = ImportCaptureDecoder.TryDecode(payload, out importedBmp, out error);
+            }
+
+            if (!decoded)
             {
                 Log.Warn($"IMPORT_CAPTURE rejected: {error}.");
                 await ReplyImportCaptureAsync(context, false, $"Error: {error}.").ConfigureAwait(false);

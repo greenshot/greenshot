@@ -2,6 +2,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const statusIndicator = document.getElementById("statusIndicator");
   const statusText = document.getElementById("statusText");
   const btnCaptureVisible = document.getElementById("btnCaptureVisible");
+  const btnCaptureScrollable = document.getElementById("btnCaptureScrollable");
+  const btnStopScrollable = document.getElementById("btnStopScrollable");
   const feedbackMessage = document.getElementById("feedbackMessage");
   const qaTrackingStatus = document.getElementById("qaTrackingStatus");
   const linkOptions = document.getElementById("linkOptions");
@@ -21,11 +23,13 @@ document.addEventListener("DOMContentLoaded", () => {
       statusIndicator.className = "status-indicator online";
       statusText.textContent = "Ready";
       btnCaptureVisible.disabled = false;
+      btnCaptureScrollable.disabled = false;
       btnCaptureVisible.title = "Capture visible page and send to Greenshot";
     } else {
       statusIndicator.className = "status-indicator offline";
       statusText.textContent = "Offline";
       btnCaptureVisible.disabled = true;
+      btnCaptureScrollable.disabled = true;
       btnCaptureVisible.title = "Greenshot is offline. Please start Greenshot to capture.";
     }
 
@@ -63,6 +67,46 @@ document.addEventListener("DOMContentLoaded", () => {
         showFeedback("Sent to Greenshot!");
       } else {
         showFeedback(response?.error || "Failed to capture tab.", true);
+      }
+    });
+  });
+
+  btnCaptureScrollable.addEventListener("click", () => {
+    btnCaptureVisible.disabled = true;
+    btnCaptureScrollable.disabled = true;
+    btnCaptureScrollable.textContent = "Capturing...";
+    btnStopScrollable.disabled = false;
+    btnStopScrollable.textContent = "Stop and Send Captured Area";
+    btnStopScrollable.classList.remove("hidden");
+
+    chrome.runtime.sendMessage({ action: "CAPTURE_SCROLLABLE" }, (response) => {
+      const lastError = chrome.runtime.lastError;
+      btnCaptureScrollable.textContent = "Capture Scrollable Page";
+      btnStopScrollable.classList.add("hidden");
+      btnStopScrollable.disabled = false;
+      btnStopScrollable.textContent = "Stop and Send Captured Area";
+      btnCaptureVisible.disabled = false;
+      btnCaptureScrollable.disabled = false;
+
+      if (lastError) {
+        showFeedback(lastError.message, true);
+      } else if (response && response.success) {
+        showFeedback(response.stoppedEarly ? "Partial capture sent to Greenshot." : "Sent to Greenshot!");
+      } else {
+        showFeedback(response?.error || "Failed to capture the scrollable page.", true);
+      }
+    });
+  });
+
+  btnStopScrollable.addEventListener("click", () => {
+    btnStopScrollable.disabled = true;
+    btnStopScrollable.textContent = "Stopping after this tile...";
+    chrome.runtime.sendMessage({ action: "STOP_SCROLLABLE_CAPTURE" }, (response) => {
+      const lastError = chrome.runtime.lastError;
+      if (lastError) {
+        showFeedback(lastError.message, true);
+      } else if (!response || !response.success) {
+        showFeedback("No scrollable-page capture is currently running.", true);
       }
     });
   });
