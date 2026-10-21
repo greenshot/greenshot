@@ -25,10 +25,10 @@ using Dapplo.Ini.Internationalization.Attributes;
 namespace Greenshot.Plugin.Atlassian.Jira
 {
     /// <summary>
-    /// The texts of the [Jira] section of greenshot.jira.{ietf}.ini, the English text is shown per property.
+    /// The texts of the [Jira] section of greenshot.atlassian.{ietf}.ini, the English text is shown per property.
     /// Generated from the language files, add a key to the en-US file and a property here.
     /// </summary>
-    [IniLanguageSection("Jira", ModuleName = "jira")]
+    [IniLanguageSection("Jira", ModuleName = "atlassian")]
     public interface IJiraLanguage : INotifyPropertyChanged
     {
         /// <summary>

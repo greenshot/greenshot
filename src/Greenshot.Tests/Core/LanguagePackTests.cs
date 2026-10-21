@@ -53,12 +53,11 @@ namespace Greenshot.Tests.Core
             var assemblies = new[]
             {
                 typeof(ICoreLanguage).Assembly,
+                typeof(Greenshot.Plugin.Atlassian.AtlassianPlugin).Assembly,
                 typeof(Greenshot.Plugin.Box.IBoxLanguage).Assembly,
-                typeof(Greenshot.Plugin.Atlassian.Confluence.IConfluenceLanguage).Assembly,
                 typeof(Greenshot.Plugin.CustomUploader.ICustomUploaderLanguage).Assembly,
                 typeof(Greenshot.Plugin.Dropbox.IDropboxLanguage).Assembly,
                 typeof(Greenshot.Plugin.ExternalCommand.IExternalCommandLanguage).Assembly,
-                typeof(Greenshot.Plugin.Atlassian.Jira.IJiraLanguage).Assembly,
                 typeof(Greenshot.Plugin.Office.IOfficeLanguage).Assembly,
                 typeof(Greenshot.Plugin.Pdf.IPdfLanguage).Assembly,
                 typeof(Greenshot.Plugin.RecipeEditor.IRecipeEditorLanguage).Assembly,

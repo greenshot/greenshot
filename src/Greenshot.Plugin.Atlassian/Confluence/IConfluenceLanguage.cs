@@ -25,10 +25,10 @@ using Dapplo.Ini.Internationalization.Attributes;
 namespace Greenshot.Plugin.Atlassian.Confluence
 {
     /// <summary>
-    /// The texts of the [Confluence] section of greenshot.confluence.{ietf}.ini, the English text is shown per property.
+    /// The texts of the [Confluence] section of greenshot.atlassian.{ietf}.ini, the English text is shown per property.
     /// Generated from the language files, add a key to the en-US file and a property here.
     /// </summary>
-    [IniLanguageSection("Confluence", ModuleName = "confluence")]
+    [IniLanguageSection("Confluence", ModuleName = "atlassian")]
     public interface IConfluenceLanguage : INotifyPropertyChanged
     {
         /// <summary>
