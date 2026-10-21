@@ -171,5 +171,47 @@ namespace Greenshot.Tests.Core
             Assert.Empty(config.ExcludePlugins);
             Assert.Empty(config.IncludePlugins);
         }
+        [Fact]
+        public void MergedPlugin_BlockedOldName_BlocksOnlyItsDestination()
+        {
+            var config = NewConfiguration();
+            config.BlockedPluginNames = new List<string> { "Jira" };
+
+            Assert.True(ConfigurationRestrictions.IsPluginAllowed(config, "Atlassian"));
+            Assert.False(ConfigurationRestrictions.IsDestinationAllowed(config, "Jira"));
+            Assert.True(ConfigurationRestrictions.IsDestinationAllowed(config, "Confluence"));
+        }
+
+        [Fact]
+        public void MergedPlugin_BothOldNamesBlocked_BlocksThePlugin()
+        {
+            var config = NewConfiguration();
+            config.ExcludePlugins = new List<string> { "Jira Plugin", "Confluence Plugin" };
+
+            Assert.False(ConfigurationRestrictions.IsPluginAllowed(config, "Atlassian"));
+        }
+
+        [Fact]
+        public void MergedPlugin_AllowListWithOneOldName_LoadsThePlugin_AllowsOnlyThatDestination()
+        {
+            var config = NewConfiguration();
+            config.AllowedPluginNames = new List<string> { "Box", "Confluence" };
+
+            Assert.True(ConfigurationRestrictions.IsPluginAllowed(config, "Atlassian"));
+            Assert.True(ConfigurationRestrictions.IsDestinationAllowed(config, "Confluence"));
+            Assert.False(ConfigurationRestrictions.IsDestinationAllowed(config, "Jira"));
+            Assert.True(ConfigurationRestrictions.IsDestinationAllowed(config, "Box"));
+        }
+
+        [Fact]
+        public void MergedPlugin_UserExcludedOldName_ExcludesItsDestination()
+        {
+            var config = NewConfiguration();
+            config.ExcludePluginNames = new List<string> { "Jira" };
+
+            Assert.True(ConfigurationRestrictions.IsPluginAllowed(config, "Atlassian"));
+            Assert.False(ConfigurationRestrictions.IsDestinationAllowed(config, "Jira"));
+            Assert.True(ConfigurationRestrictions.IsDestinationAllowed(config, "Confluence"));
+        }
     }
 }

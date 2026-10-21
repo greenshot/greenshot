@@ -33,11 +33,10 @@
     <ProjectReference Include="..\Greenshot\Greenshot.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.ExternalCommand\Greenshot.Plugin.ExternalCommand.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.Zxing\Greenshot.Plugin.Zxing.csproj" />
-    <ProjectReference Include="..\Greenshot.Plugin.Confluence\Greenshot.Plugin.Confluence.csproj" />
+    <ProjectReference Include="..\Greenshot.Plugin.Atlassian\Greenshot.Plugin.Atlassian.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.Box\Greenshot.Plugin.Box.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.CustomUploader\Greenshot.Plugin.CustomUploader.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.Dropbox\Greenshot.Plugin.Dropbox.csproj" />
-    <ProjectReference Include="..\Greenshot.Plugin.Jira\Greenshot.Plugin.Jira.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.Office\Greenshot.Plugin.Office.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.Pdf\Greenshot.Plugin.Pdf.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.RecipeEditor\Greenshot.Plugin.RecipeEditor.csproj" />

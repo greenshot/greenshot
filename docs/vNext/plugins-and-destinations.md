@@ -58,13 +58,27 @@ plugin is only available while the plugin is loaded, blocking the plugin blocks 
 | Plugin | Destinations |
 |---|---|
 | (Greenshot itself) | `Editor`, `FileNoDialog` (save directly), `FileDialog` (save as), `Clipboard`, `Printer`, `EMail`, `Picker` (ask every time), `Windows10Share`, `Windows10OCR` |
+| `Atlassian` | `Jira`, `Confluence` |
 | `Box` | `Box` |
-| `Confluence` | `Confluence` |
 | `CustomUploader` | `CustomUploader`, and `CustomUploader:<name>` per uploader file |
 | `Dropbox` | `Dropbox` |
 | `ExternalCommand` | `External <name>` per command, e.g. `External MS Paint` |
-| `Jira` | `Jira` |
 | `Office` | `Outlook`, `Word`, `Excel`, `Powerpoint`, `OneNote` |
 | `Pdf` | `Pdf` |
 | `RecipeEditor` | none |
 | `Zxing` | `ZxingQrDestination` |
+
+Jira and Confluence were two plugins until 1.4 and are one now, `Atlassian`. In the plugin lists their old names still work and
+stand for their destination: `Jira` in `BlockedPluginNames` or `ExcludePluginNames` blocks only the Jira destination,
+`Confluence` in `AllowedPluginNames` loads the plugin with only the Confluence destination. Both old names block the whole plugin.
+
+**A file name that is already used.** A Confluence page has one attachment per file name, with versions. When the page already
+has a file with the name, the Confluence destination asks: add the capture as a new version of that attachment, or upload it
+with another name (`name (2).png` is suggested). The Confluence recipe step can't ask, it always adds a new version, so a recipe
+with a fixed file name keeps one attachment on the page with every capture as a version. Jira has no attachment versions: an issue
+can have several attachments with the same name, so a capture with a used name is added as another attachment.
+
+**The capture in a Jira comment.** *Insert capture* in the Jira upload window puts `{capture}` at the cursor of the comment.
+Before the comment is sent, Greenshot replaces it with the wiki markup `!name.png|thumbnail!`, so the comment shows the capture
+there. Jira shows the first attachment with a name, so when the issue already has a file with the name, the capture is uploaded
+as `name (2).png`.

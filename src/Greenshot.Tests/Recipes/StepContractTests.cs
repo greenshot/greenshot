@@ -166,7 +166,7 @@ namespace Greenshot.Tests.Recipes
             var contracts = registry.Contracts.ToDictionary(c => c.StepType, StringComparer.OrdinalIgnoreCase);
             foreach (var pluginStep in new[]
                      {
-                         typeof(Greenshot.Plugin.Jira.Recipes.JiraStep), typeof(Greenshot.Plugin.Confluence.Recipes.ConfluenceStep),
+                         typeof(Greenshot.Plugin.Atlassian.Jira.Recipes.JiraStep), typeof(Greenshot.Plugin.Atlassian.Confluence.Recipes.ConfluenceStep),
                          typeof(Greenshot.Plugin.Office.Recipes.OfficeStep), typeof(Greenshot.Plugin.Box.Recipes.BoxStep), typeof(Greenshot.Plugin.Dropbox.Recipes.DropboxStep),
                          typeof(Greenshot.Plugin.Pdf.Recipes.PdfStep)
                      })
@@ -210,8 +210,8 @@ namespace Greenshot.Tests.Recipes
         [Theory]
         [InlineData(typeof(Greenshot.Recipes.Steps.DestinationExportStep))]
         [InlineData(typeof(Greenshot.Plugin.ExternalCommand.Recipes.ExternalCommandStep))]
-        [InlineData(typeof(Greenshot.Plugin.Jira.Recipes.JiraStep))]
-        [InlineData(typeof(Greenshot.Plugin.Confluence.Recipes.ConfluenceStep))]
+        [InlineData(typeof(Greenshot.Plugin.Atlassian.Jira.Recipes.JiraStep))]
+        [InlineData(typeof(Greenshot.Plugin.Atlassian.Confluence.Recipes.ConfluenceStep))]
         public void FormatParameter_AllowedValues_ComeFromTheFileFormatRegistry(Type stepType)
         {
             var registry = SimpleServiceProvider.Current.GetInstance<Greenshot.Base.Core.FileFormat.IFileFormatRegistry>();
