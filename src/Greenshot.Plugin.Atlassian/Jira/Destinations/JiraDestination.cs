@@ -183,7 +183,10 @@ public class JiraDestination : DestinationBase, IRequiresRecipeAuthorization
             return base.GetDynamicDestinationsAsync(metadata, cancellationToken);
         }
 
-        IReadOnlyList<IDestination> destinations = monitor.RecentJiras.Select(jiraDetails => (IDestination) new JiraDestination(jiraDetails.JiraIssue)).ToList();
+        IReadOnlyList<IDestination> destinations = monitor.RecentJiras
+            // Without the issue (not loaded yet, or it failed) it would be a second "Upload to Jira"
+            .Where(jiraDetails => jiraDetails.JiraIssue != null)
+            .Select(jiraDetails => (IDestination) new JiraDestination(jiraDetails.JiraIssue)).ToList();
         return new ValueTask<IReadOnlyList<IDestination>>(destinations);
     }
 
