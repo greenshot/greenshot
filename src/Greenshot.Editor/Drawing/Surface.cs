@@ -244,6 +244,7 @@ namespace Greenshot.Editor.Drawing
         /// the element we are drawing with, do not serialize
         /// </summary>
         [NonSerialized] private IDrawableContainer _drawingElement;
+        [NonSerialized] private bool _modifiedBeforePolyline;
 
         /// <summary>
         /// the element we want to draw with (not yet drawn), do not serialize
@@ -464,6 +465,7 @@ namespace Greenshot.Editor.Drawing
             get => _drawingMode;
             set
             {
+                FinishPolyline();
                 _drawingMode = value;
                 if (_drawingModeChanged != null)
                 {
@@ -675,6 +677,11 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         public void Undo()
         {
+            if (FinishPolyline(cancel: true))
+            {
+                return;
+            }
+
             if (_undoStack.Count > 0)
             {
                 _inUndoRedo = true;
@@ -689,6 +696,7 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         public void Redo()
         {
+            FinishPolyline(cancel: true);
             if (_redoStack.Count > 0)
             {
                 _inUndoRedo = true;
@@ -701,7 +709,7 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// Returns if the surface can do a undo
         /// </summary>
-        public bool CanUndo => _undoStack.Count > 0;
+        public bool CanUndo => _drawingElement is PolylineContainer || _undoStack.Count > 0;
 
         /// <summary>
         /// Returns if the surface can do a redo
@@ -795,6 +803,7 @@ namespace Greenshot.Editor.Drawing
         /// <returns></returns>
         public long SaveElementsToStream(Stream streamWrite)
         {
+            FinishPolyline();
             long bytesWritten = 0;
             try
             {
@@ -903,6 +912,9 @@ namespace Greenshot.Editor.Drawing
                     break;
                 case DrawingModes.Line:
                     _undrawnElement = new LineContainer(this);
+                    break;
+                case DrawingModes.Polyline:
+                    _undrawnElement = new PolylineContainer(this);
                     break;
                 case DrawingModes.Arrow:
                     _undrawnElement = new ArrowContainer(this);
@@ -1248,6 +1260,7 @@ namespace Greenshot.Editor.Drawing
             //create a blank bitmap the same size as original
             Bitmap newBitmap = ImageHelper.CreateEmptyLike(Image, newColor);
             if (newBitmap == null) return;
+            FinishPolyline();
             // Make undoable
             MakeUndoable(new SurfaceBackgroundChangeMemento(this, null), false);
             SetImage(newBitmap, false);
@@ -1372,6 +1385,7 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 
+            FinishPolyline();
             var imageRectangle = new NativeRect(NativePoint.Empty, Image.Size);
             // Make sure the elements move according to the offset the effect made the bitmap move
             _elements.Transform(matrix);
@@ -1954,22 +1968,16 @@ namespace Greenshot.Editor.Drawing
         /// <returns>IAdorner</returns>
         private IAdorner FindActiveAdorner(MouseEventArgs mouseEventArgs)
         {
-            foreach (IDrawableContainer drawableContainer in selectedElements)
+            // Keep the dragged handle even when the pointer crosses another handle.
+            var adorners = selectedElements.SelectMany(container => container.Adorners);
+            IAdorner adorner = adorners.FirstOrDefault(candidate => candidate.IsActive)
+                ?? adorners.FirstOrDefault(candidate => candidate.HitTest(mouseEventArgs.Location));
+            if (adorner?.Cursor != null)
             {
-                foreach (IAdorner adorner in drawableContainer.Adorners)
-                {
-                    if (!adorner.IsActive && !adorner.HitTest(mouseEventArgs.Location)) continue;
-                    
-                    if (adorner.Cursor != null)
-                    {
-                        Cursor = adorner.Cursor;
-                    }
-
-                    return adorner;
-                }
+                Cursor = adorner.Cursor;
             }
 
-            return null;
+            return adorner;
         }
 
         /// <summary>
@@ -1986,6 +1994,24 @@ namespace Greenshot.Editor.Drawing
         private void SurfaceMouseDown(object sender, MouseEventArgs e)
         {
             e = InverseZoomMouseCoordinates(e);
+
+            if (_drawingElement is PolylineContainer polyline)
+            {
+                if (e.Button == MouseButtons.Right || (e.Button == MouseButtons.Left && e.Clicks > 1))
+                {
+                    FinishPolyline();
+                }
+                else if (e.Button == MouseButtons.Left)
+                {
+                    polyline.HandleMouseDown(e.X, e.Y);
+                    if (polyline.IsClosed)
+                    {
+                        FinishPolyline();
+                    }
+                }
+
+                return;
+            }
 
             // Handle Adorners
             var adorner = FindActiveAdorner(e);
@@ -2059,6 +2085,12 @@ namespace Greenshot.Editor.Drawing
         private void SurfaceMouseUp(object sender, MouseEventArgs e)
         {
             e = InverseZoomMouseCoordinates(e);
+
+            if (_drawingElement is PolylineContainer)
+            {
+                _mouseDown = false;
+                return;
+            }
 
             // Handle Adorners
             var adorner = FindActiveAdorner(e);
@@ -2168,11 +2200,18 @@ namespace Greenshot.Editor.Drawing
                     _drawingElement.Top = start.Y;
                 }
 
-                AddElement(_drawingElement);
-                _drawingElement.Selected = true;
+                bool isPolyline = _drawingElement is PolylineContainer;
+                _modifiedBeforePolyline = _modified;
+                AddElement(_drawingElement, makeUndoable: !isPolyline);
+                _drawingElement.Selected = !isPolyline;
             }
 
             _undrawnElement = null;
+            if (_drawingElement is PolylineContainer)
+            {
+                // The draft can be cancelled with Undo before it has a creation memento.
+                _movingElementChanged?.Invoke(this, new SurfaceElementEventArgs { Elements = selectedElements });
+            }
         }
 
         /// <summary>
@@ -2204,6 +2243,36 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
+        /// A polyline is a single undoable edit, committed only when all vertices are placed.
+        /// </summary>
+        private bool FinishPolyline(bool cancel = false)
+        {
+            if (_drawingElement is not PolylineContainer polyline)
+            {
+                return false;
+            }
+
+            _drawingElement = null;
+            _mouseDown = false;
+            polyline.HandleMouseUp(0, 0);
+            if (cancel || !polyline.InitContent())
+            {
+                RemoveElement(polyline, makeUndoable: false);
+                polyline.Dispose();
+                _modified = _modifiedBeforePolyline;
+            }
+            else
+            {
+                polyline.Status = EditStatus.IDLE;
+                MakeUndoable(new AddElementMemento(this, polyline), false);
+                SelectElement(polyline);
+                polyline.Invalidate();
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// This event handler is called when the mouse moves over the surface
         /// </summary>
         /// <param name="sender"></param>
@@ -2211,6 +2280,13 @@ namespace Greenshot.Editor.Drawing
         private void SurfaceMouseMove(object sender, MouseEventArgs e)
         {
             e = InverseZoomMouseCoordinates(e);
+
+            if (_drawingElement is PolylineContainer polyline)
+            {
+                Cursor = Cursors.Cross;
+                polyline.HandleMouseMove(e.X, e.Y);
+                return;
+            }
 
             // Handle Adorners
             var adorner = FindActiveAdorner(e);
@@ -2312,6 +2388,7 @@ namespace Greenshot.Editor.Drawing
         /// <returns></returns>
         public Image GetImageForExport()
         {
+            FinishPolyline();
             return GetImage(RenderMode.EXPORT);
         }
 
@@ -2636,6 +2713,11 @@ namespace Greenshot.Editor.Drawing
         /// <param name="invalidate">true if invalidate needs to be called</param>
         public void AddElement(IDrawableContainer element, bool makeUndoable = true, bool invalidate = true)
         {
+            if (element != _drawingElement)
+            {
+                FinishPolyline();
+            }
+
             _elements.Add(element);
             if (element is DrawableContainer container)
             {
@@ -2675,6 +2757,7 @@ namespace Greenshot.Editor.Drawing
         /// <param name="makeUndoable">flag specifying if the remove needs to be undoable</param>
         public void RemoveElements(IDrawableContainerList elementsToRemove, bool makeUndoable = true)
         {
+            FinishPolyline();
             // fix potential issues with iterating a changing list
             DrawableContainerList cloned = new DrawableContainerList(elementsToRemove);
 
@@ -2715,6 +2798,13 @@ namespace Greenshot.Editor.Drawing
         /// <param name="generateEvents">false to skip event generation</param>
         public void RemoveElement(IDrawableContainer elementToRemove, bool makeUndoable = true, bool invalidate = true, bool generateEvents = true)
         {
+            if (elementToRemove == _drawingElement && _drawingElement is PolylineContainer)
+            {
+                FinishPolyline(cancel: true);
+                return;
+            }
+
+            FinishPolyline();
             DeselectElement(elementToRemove, generateEvents);
             if (_elements.Remove(elementToRemove))
             {
@@ -2753,6 +2843,7 @@ namespace Greenshot.Editor.Drawing
         /// <param name="makeUndoable">true if the adding should be undoable</param>
         public void AddElements(IDrawableContainerList elementsToAdd, bool makeUndoable = true)
         {
+            FinishPolyline();
             // fix potential issues with iterating a changing list
             DrawableContainerList cloned = new DrawableContainerList(elementsToAdd);
             if (makeUndoable)
@@ -2830,6 +2921,11 @@ namespace Greenshot.Editor.Drawing
         /// <param name="confirm">bool</param>
         public void Confirm(bool confirm)
         {
+            if (FinishPolyline(cancel: !confirm))
+            {
+                return;
+            }
+
             if (DrawingMode == DrawingModes.Crop)
             {
                 ConfirmCrop(confirm);
@@ -3151,6 +3247,7 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         public void DeselectAllElements()
         {
+            FinishPolyline();
             DeselectElements(selectedElements);
         }
 
@@ -3193,6 +3290,7 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         public void SelectAllElements()
         {
+            FinishPolyline();
             SelectElements(_elements);
         }
 
@@ -3228,6 +3326,12 @@ namespace Greenshot.Editor.Drawing
         /// <returns>false if no keys were processed</returns>
         public bool ProcessCmdKey(Keys k)
         {
+            Keys command = k & ~Keys.Shift;
+            if (command is Keys.Enter or Keys.Escape && FinishPolyline(cancel: command == Keys.Escape))
+            {
+                return true;
+            }
+
             if (selectedElements.Count <= 0 && k != Keys.Escape) return false;
 
             bool shiftModifier = (k & Keys.Shift) == Keys.Shift;
@@ -3437,6 +3541,12 @@ namespace Greenshot.Editor.Drawing
         /// <returns>true when the key was handled</returns>
         public bool ProcessCanvasKey(Keys keys)
         {
+            Keys command = keys & ~Keys.Shift;
+            if (command is Keys.Enter or Keys.Escape && FinishPolyline(cancel: command == Keys.Escape))
+            {
+                return true;
+            }
+
             // Not while a text is typed, or while a mouse button is down: the mouse draws or moves an element, or drags a tab
             // (Esc must reach the window, which cancels the drag of the tab)
             if (KeysLocked || MouseButtons != MouseButtons.None)
@@ -3479,6 +3589,7 @@ namespace Greenshot.Editor.Drawing
                 // A freehand line needs a path, an image comes from a file or the clipboard
                 case DrawingModes.Path:
                 case DrawingModes.Bitmap:
+                case DrawingModes.Polyline:
                     return false;
                 case DrawingModes.Crop when _cropContainer != null && _undrawnElement != _cropContainer:
                     // The crop rectangle is there, Enter confirms it in ProcessCmdKey(Keys)
@@ -3561,6 +3672,7 @@ namespace Greenshot.Editor.Drawing
         /// <returns>true if an element is selected</returns>
         public bool SelectNextElement(bool forward)
         {
+            FinishPolyline();
             if (DrawingMode == DrawingModes.Crop)
             {
                 return false;
