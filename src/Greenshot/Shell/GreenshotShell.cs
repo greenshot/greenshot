@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -55,10 +55,12 @@ using Greenshot.Processors;
 using Greenshot.Recipes;
 using Greenshot.Recipes.Pipeline;
 using Greenshot.Recipes.Triggers;
+using Greenshot.Recipes.Views;
 using Greenshot.Settings.Views;
 using Greenshot.Views;
 using log4net;
 #if !GREENSHOT_LIGHT
+using Greenshot.Notifications;
 using Greenshot.Plugins;
 #endif
 using WpfWindow = System.Windows.Window;
@@ -85,6 +87,8 @@ namespace Greenshot.Shell
         private readonly UiStallWatchdog _uiStallWatchdog;
         private readonly CaptureFlowRunner _flowRunner;
         private readonly UpdateService _updateService;
+        // The background work which isn't urgent (temp files and the like), it starts once Greenshot has started
+        private readonly HousekeepingService _housekeeping = new HousekeepingService();
         private readonly WpfWindow _ownerWindow;
         private TrayIcon _trayIcon;
 
@@ -118,11 +122,15 @@ namespace Greenshot.Shell
             UiDispatcher = WpfUiDispatcher.CreateForCurrentThread();
             SimpleServiceProvider.Current.AddService<IUiDispatcher>(UiDispatcher);
             SimpleServiceProvider.Current.AddService<IStaWorkerFactory>(StaWorkers);
+            // Before the plugins, they can queue their housekeeping while they start
+            SimpleServiceProvider.Current.AddService<IHousekeeping>(_housekeeping);
             SimpleServiceProvider.Current.AddService<IClipboardService>(new ClipboardService(UiDispatcher));
             // The destinations talk to the user only through IUserInteraction, the dialogs are the registered views
             var userInteraction = new InteractiveUserInteraction(UiDispatcher);
             userInteraction.Register<PrintRequest, bool>(PrintRequest.Print);
             userInteraction.Register<ShareRequest, string>(ShareHostWindow.Show);
+            userInteraction.Register<PreviewPromptRequest, PreviewPromptResult>(RecipeUserPromptWindow.Show);
+            userInteraction.Register<ErrorDetailsRequest, bool>(ErrorDetailsWindow.Show);
             SimpleServiceProvider.Current.AddService<IUserInteraction>(userInteraction);
             SimpleServiceProvider.Current.AddService<IDialogViewRegistry>(userInteraction);
 #if DEBUG
@@ -164,15 +172,22 @@ namespace Greenshot.Shell
 
             SimpleServiceProvider.Current.AddService<IGreenshotShell>(this);
             SimpleServiceProvider.Current.AddService<ITriggerManager>(TriggerManager.Instance);
-            SimpleServiceProvider.Current.AddService<IRecipeManager>(RecipeManager.Instance);
+            // The pipeline registers the built-in step types: before the recipe manager, which checks its built-in extensions with them
             SimpleServiceProvider.Current.AddService<IStepRegistry>(StepRegistry.Instance);
             SimpleServiceProvider.Current.AddService<ICapturePipeline>(CapturePipeline.Instance);
+            SimpleServiceProvider.Current.AddService<IRecipeManager>(RecipeManager.Instance);
             // Every flow is started, tracked and cancelled through the flow runner
             _flowRunner = new CaptureFlowRunner(CapturePipeline.Instance, UiDispatcher, CapturePipeline.Instance.Selector);
             SimpleServiceProvider.Current.AddService<ICaptureFlowRunner>(_flowRunner);
 
+            // Toasts, or the balloons of the tray icon
+            var notificationService = NotificationServiceFactory.Create();
+            SimpleServiceProvider.Current.AddService(notificationService);
+#if !GREENSHOT_LIGHT
+            // The kept captures of the notifications: a click on one offers its capture, also when the click started Greenshot
+            NotificationCaptures.Initialize(notificationService);
+#endif
             // Windows specific services
-            SimpleServiceProvider.Current.AddService<INotificationService>(ToastNotificationService.Create());
             // Set this as IOcrProvider
             SimpleServiceProvider.Current.AddService<IOcrProvider>(new Win10OcrProvider());
 
@@ -210,35 +225,11 @@ namespace Greenshot.Shell
 
             // The recipe settings (disabled recipes, recipe files) belong to the Recipe Editor plugin and recipe files can use steps
             // of other plugins, both are only available now that the plugins registered themselves.
-            RecipeManager.Instance.ReloadRecipes();
+            // No window yet: a file which needs the user (approval, errors) is loaded again once the tray icon is there.
+            var recipeFilesForTheUser = RecipeManager.Instance.LoadRecipesAtStartup();
 
-            // The command line language was already applied in Start, right after greenshot.ini was read
-            // if language is not set, show language dialog
-            if (string.IsNullOrEmpty(_conf.Language))
-            {
-                var languageWindow = new LanguageWindow();
-                languageWindow.ShowDialog(OwnerHandle);
-                Texts.SetLanguage(languageWindow.SelectedLanguage);
-            }
-            else
-            {
-                Texts.SetLanguage(_conf.Language);
-            }
-
-            // Check destinations, remove all that don't exist
-            foreach (string destination in _conf.OutputDestinations.ToArray())
-            {
-                if (DestinationHelper.GetDestination(destination) == null)
-                {
-                    _conf.OutputDestinations.Remove(destination);
-                }
-            }
-
-            // we should have at least one!
-            if (_conf.OutputDestinations.Count == 0)
-            {
-                _conf.OutputDestinations.Add(EditorDestination.DESIGNATION);
-            }
+            // The language was applied in Start, right after greenshot.ini was read: the configured one, the one of the command line,
+            // or on the first start the one of Windows (Texts.Initialize), which the settings can change
 
             SoundHelper.Initialize();
 
@@ -248,16 +239,12 @@ namespace Greenshot.Shell
             _trayIcon.Visible = !_conf.HideTrayicon;
             SimpleServiceProvider.Current.AddService<ITrayIcon>(_trayIcon);
 
-            // Check to see if there is already another INotificationService
-            if (!SimpleServiceProvider.Current.GetAllInstances<INotificationService>().Any())
-            {
-                // If not we add the balloons of the tray icon
-                SimpleServiceProvider.Current.AddService<INotificationService>(new TrayNotificationService(_trayIcon));
-            }
-
             // Make sure we never capture our own windows
             WindowHelper.RegisterIgnoreHandle(SharedMessageWindow.Handle);
             WindowHelper.RegisterIgnoreHandle(OwnerHandle);
+
+            // Only now the hotkeys and the other triggers start: the recipes are loaded and the tray icon is there
+            TriggerManager.Instance.StartAll();
 
             // The application ends without the shutdown when the session ends (see RestartManagerHelper).
             // Not Application.ApplicationExit: WinForms raises it when its first message loop ends, which is the one of an STA worker now.
@@ -284,10 +271,24 @@ namespace Greenshot.Shell
             {
                 RestartManagerHelper.RestoreState();
             }
-            // Check if it's the first time launch?
-            if (_conf.IsFirstLaunch)
+            // Welcome everybody who hasn't seen the welcome window yet
+            if (!_conf.WelcomeShown)
             {
-                ApplicationStartupHelper.FirstLaunch();
+                ApplicationStartupHelper.ShowWelcome();
+            }
+#if !GREENSHOT_LIGHT
+            // Plugins which aren't signed like Greenshot.exe: the question comes after the start, not inside it
+            if (PluginHelper.Instance.HeldBackPlugins.Count > 0)
+            {
+                _ = UiDispatcher.Dispatcher.BeginInvoke(new Action(PluginHelper.Instance.AskAboutHeldBackPlugins), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+            }
+#endif
+
+            if (recipeFilesForTheUser.Count > 0)
+            {
+                // Posted: the approval and error windows come after the start, not inside it
+                UiDispatcher.InvokeAsync(() => RecipeManager.Instance.LoadRecipeFilesInteractively(recipeFilesForTheUser))
+                    .FireAndLog("Load the recipe files which need the user", Log);
             }
 
             if (startupCommand != null)
@@ -305,11 +306,34 @@ namespace Greenshot.Shell
             _updateService.Startup();
             SimpleServiceProvider.Current.AddService(_updateService);
 
+            // Temp files of earlier runs: still in use at their exit, or left by a crash
+            _housekeeping.Enqueue("Remove the temp files of earlier runs", _ =>
+            {
+                SharingFiles.CleanupOldShareFiles();
+                ImageIO.RemoveExpiredTmpFiles();
+                return Task.CompletedTask;
+            });
+            // After the background work of the start, so the housekeeping doesn't compete with it
+            StartHousekeepingAfterAsync(startupWork).FireAndLog("Start the housekeeping", Log);
+
             // Make Greenshot use less memory after startup: once the background work of the start is done, it would fill the memory again
             if (_conf.MinimizeWorkingSetSize)
             {
                 TrimMemoryAfterAsync(startupWork).FireAndLog("Minimize the memory after the start", Log);
             }
+        }
+
+        private async Task StartHousekeepingAfterAsync(IEnumerable<Task> work)
+        {
+            try
+            {
+                await Task.WhenAll(work).ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                // Already logged by FireAndLog
+            }
+            _housekeeping.Start();
         }
 
         private static async Task TrimMemoryAfterAsync(IEnumerable<Task> work)
@@ -351,9 +375,11 @@ namespace Greenshot.Shell
                 internalDestinations.Add(new EditorDestination());
             }
 
+            // Also when only the configuration excludes it, so the settings can switch it on again
+            var coreConfiguration = IniConfigRegistry.GetSection<ICoreConfiguration>();
             foreach (var internalDestination in internalDestinations)
             {
-                if (internalDestination.IsAvailableFor(null))
+                if (internalDestination.IsAvailableFor(null) || !ConfigurationRestrictions.IsDestinationAllowed(coreConfiguration, internalDestination.Designation))
                 {
                     SimpleServiceProvider.Current.AddService(internalDestination);
                 }
@@ -391,7 +417,7 @@ namespace Greenshot.Shell
                 this,
                 Exit,
                 ApplicationStartupHelper.ReloadConfig,
-                ApplicationStartupHelper.FirstLaunch,
+                ApplicationStartupHelper.ShowWelcome,
                 ApplicationStartupHelper.OpenFile).ConfigureAwait(false);
         }
 
@@ -443,19 +469,21 @@ namespace Greenshot.Shell
                 return;
             }
 
-            try
+            // Not modal: a dialog blocks every window of the UI thread, the editors too, also from the Self-Service window opened from here
+            var aboutWindow = new AboutWindow();
+            _ = new WindowInteropHelper(aboutWindow)
             {
-                _aboutWindow = new AboutWindow();
-                _ = new WindowInteropHelper(_aboutWindow)
+                Owner = OwnerHandle
+            };
+            aboutWindow.Closed += (sender, args) =>
+            {
+                if (ReferenceEquals(_aboutWindow, aboutWindow))
                 {
-                    Owner = OwnerHandle
-                };
-                _aboutWindow.ShowDialog();
-            }
-            finally
-            {
-                _aboutWindow = null;
-            }
+                    _aboutWindow = null;
+                }
+            };
+            _aboutWindow = aboutWindow;
+            aboutWindow.Show();
         }
 
         /// <summary>
@@ -478,7 +506,7 @@ namespace Greenshot.Shell
 
             // The editors first, before anything is stopped: the user can still keep Greenshot running
             // (cancel in the save question, or in the save dialog)
-            if (!await UiDispatcher.InvokeAsync(CloseEditors))
+            if (!await UiDispatcher.InvokeAsync(ImageEditorForm.CloseAllAsync))
             {
                 Log.Info("The exit was cancelled in an editor, Greenshot keeps running.");
                 Volatile.Write(ref _shutdownState, 0);
@@ -545,24 +573,6 @@ namespace Greenshot.Shell
             _namedPipeServer?.NotifyWatchersAsync(new { @event = "tools_changed" }).FireAndLog("Tell the watchers that the tools changed", Log);
         }
 #endif
-
-        /// <summary>
-        /// Close the editors like the user does, so each can ask to save its image (with cancel)
-        /// </summary>
-        /// <returns>false when an editor stays open: the user cancelled</returns>
-        private static bool CloseEditors()
-        {
-            foreach (var editor in Application.OpenForms.OfType<ImageEditorForm>().ToList())
-            {
-                editor.Close();
-                if (!editor.IsDisposed)
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
 
         /// <summary>
         /// The application ends without <see cref="ExitAsync"/>, e.g. at the end of the session: no time to wait for flows,
@@ -650,6 +660,7 @@ namespace Greenshot.Shell
                 return;
             }
 
+            _housekeeping.Dispose();
             ImageIO.RemoveTmpFiles();
 
             _uiStallWatchdog?.Dispose();

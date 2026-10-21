@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
+using Greenshot.Base.Recipes.Pipeline;
 
 namespace Greenshot.Base.Recipes
 {
@@ -101,7 +102,7 @@ namespace Greenshot.Base.Recipes
         public bool HasDestinationStep()
         {
             if (Nodes == null || Nodes.Count == 0) return false;
-            return Nodes.Any(n => n != null && WellKnownStepTypes.IsDestination(n.StepType));
+            return Nodes.Any(n => n != null && StepRegistry.Instance.IsDestinationStep(n.StepType));
         }
 
         /// <summary>

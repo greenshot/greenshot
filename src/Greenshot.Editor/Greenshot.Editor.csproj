@@ -21,6 +21,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>Greenshot.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="Controls\BindableToolStripButton.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -28,9 +34,6 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Update="Controls\BindableToolStripDropDownButton.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Update="Controls\ColorButton.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Update="Controls\FontFamilyComboBox.cs">
@@ -54,16 +57,10 @@
     <Compile Update="Controls\ToolStripNumericUpDown.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Forms\ColorPickerToolStripButton.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Update="Forms\EditorForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\ImageEditorForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="Forms\MovableShowColorForm.cs">
       <SubType>Form</SubType>
     </Compile>
   </ItemGroup>
@@ -122,6 +119,5 @@
 
   <ItemGroup>
     <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0" />
-    <PackageReference Update="Microsoft.VisualStudio.Threading.Analyzers" Version="18.7.23" />
   </ItemGroup>
 </Project>

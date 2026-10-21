@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -425,6 +425,42 @@ namespace Greenshot.Tests.Recipes
 
             RecipeEditApproval.Create(edited, RecipeValidator.Validate(edited), edited, new RecipeApproval { ReplacesBuiltIn = true }, true, out decision);
             Assert.False(decision.IsNeeded);
+        }
+
+        [Fact]
+        public void KeepOnly_RemovesTheRecordsOfOtherFiles()
+        {
+            WithTemporaryTrustStore(directory =>
+            {
+                string used = Path.Combine(directory, "used" + RecipeSerializer.RecipeFileExtension);
+                string unused = Path.Combine(directory, "unused" + RecipeSerializer.RecipeFileExtension);
+                File.WriteAllText(used, "{}");
+                File.WriteAllText(unused, "{}");
+                RecipeTrustStore.RecordApproval(used, RecipeTrustStore.ComputeSha256(used), new RecipeApproval { RecipeId = "used" });
+                RecipeTrustStore.RecordApproval(unused, RecipeTrustStore.ComputeSha256(unused), new RecipeApproval { RecipeId = "unused" });
+
+                RecipeTrustStore.KeepOnly(new[] { used });
+
+                Assert.NotNull(RecipeTrustStore.GetTrustRecord(used));
+                Assert.Null(RecipeTrustStore.GetTrustRecord(unused));
+            });
+        }
+
+        [Fact]
+        public void UnreadableTrustStore_IsKeptNextToIt()
+        {
+            WithTemporaryTrustStore(directory =>
+            {
+                string storeFile = Path.Combine(directory, "recipe_trust.dat");
+                File.WriteAllText(storeFile, "not encrypted");
+                // Reads the store again from the file
+                RecipeTrustStore.UseStoreFile(storeFile);
+
+                Assert.Null(RecipeTrustStore.GetTrustRecord(Path.Combine(directory, "any" + RecipeSerializer.RecipeFileExtension)));
+
+                Assert.False(File.Exists(storeFile));
+                Assert.Equal("not encrypted", File.ReadAllText(storeFile + ".unreadable"));
+            });
         }
 
         [Fact]

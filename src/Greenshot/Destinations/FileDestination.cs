@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -230,8 +230,13 @@ namespace Greenshot.Destinations
             }
 
             string filename = FilenameHelper.GetFilenameFromPattern(pattern, CoreConfig.OutputFileFormat, captureDetails);
-            CoreConfig.ValidateAndCorrectOutputFilePath();
-            string filepath = FilenameHelper.FillVariables(CoreConfig.OutputFilePath, false);
+            string filepath = CoreConfig.GetOutputDirectory(out string folderProblem);
+            if (folderProblem != null)
+            {
+                // Saved to the default folder this time: say so, instead of letting the screenshot "disappear"
+                string message = string.Format(Texts.Core.ErrorOutputfolderFallback, CoreConfig.OutputFilePath, folderProblem, filepath);
+                userInteraction.NotifyAsync(new Notification(NotificationKind.Warning, message)).FireAndLog("Screenshot folder fallback notification", Log);
+            }
             try
             {
                 return Path.Combine(filepath, filename);

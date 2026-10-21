@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -22,6 +22,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Media;
+using Greenshot.Base.Wpf;
 
 namespace Greenshot.SelfService.ViewModels
 {
@@ -64,8 +65,24 @@ namespace Greenshot.SelfService.ViewModels
                 {
                     _badgeBrush = value;
                     OnPropertyChanged();
+                    OnPropertyChanged(nameof(BadgeForeground));
                 }
             }
+        }
+
+        /// <summary>
+        /// Black or white badge text, whichever is readable on the badge background (fixed white was invisible on light badges)
+        /// </summary>
+        public Brush BadgeForeground => _badgeBrush is SolidColorBrush solidBrush
+            ? CreateFrozenBrush(ThemePalette.ReadableForeground(solidBrush.Color))
+            : ThemeManager.Instance.CurrentPalette.ForegroundBrush;
+
+        // Frozen: the badge brush can be set on a worker thread (the checksum validation), the binding reads it on the UI thread
+        private static Brush CreateFrozenBrush(Color color)
+        {
+            var brush = new SolidColorBrush(color);
+            brush.Freeze();
+            return brush;
         }
 
         public bool HasBadge => !string.IsNullOrEmpty(BadgeText);

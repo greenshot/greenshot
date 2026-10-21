@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -29,6 +29,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.OAuth;
+using Greenshot.Base.Http;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Threading;
 using Dapplo.Ini;
@@ -40,7 +41,6 @@ namespace Greenshot.Plugin.Box.Api;
 /// </summary>
 public static class BoxUtils
 {
-    private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(BoxUtils));
     private static readonly IBoxConfiguration Config = IniConfigRegistry.GetSection<IBoxConfiguration>();
     private const string UploadFileUri = "https://upload.box.com/api/2.0/files/content";
     private const string FilesUri = "https://www.box.com/api/2.0/files/{0}";
@@ -81,13 +81,11 @@ public static class BoxUtils
                 return null;
             }
 
-            request.Content = NetworkHelper.CreateMultipartContent("file", image, filename, new Dictionary<string, object>
+            request.Content = HttpContents.Multipart("file", image, filename, new Dictionary<string, string>
             {
                 { "parent_id", Config.FolderId }
             }, progress);
-            var response = await NetworkHelper.SendAsync(request, cancellationToken).ConfigureAwait(false);
-
-            Log.DebugFormat("Box response: {0}", response);
+            var response = (await HttpService.Current.SendAsync(request, cancellationToken).ConfigureAwait(false)).EnsureSuccess().Content;
 
             var upload = JsonSerializer.Deserialize<Upload>(response);
             if (upload?.Entries == null || upload.Entries.Count == 0) return null;
@@ -101,7 +99,7 @@ public static class BoxUtils
                 }
 
                 putRequest.Content = new StringContent("{\"shared_link\": {\"access\": \"open\"}}", Encoding.UTF8, "application/json");
-                string filesResponse = await NetworkHelper.SendAsync(putRequest, cancellationToken).ConfigureAwait(false);
+                string filesResponse = (await HttpService.Current.SendAsync(putRequest, cancellationToken).ConfigureAwait(false)).EnsureSuccess().Content;
                 var file = JsonSerializer.Deserialize<FileEntry>(filesResponse);
                 return file.SharedLink.Url;
             }

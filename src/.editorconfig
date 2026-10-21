@@ -72,7 +72,7 @@ csharp_new_line_before_catch = true
 csharp_new_line_before_finally = true
 csharp_new_line_before_members_in_object_initializers = true
 csharp_new_line_before_members_in_anonymous_types = true
-# Async & threading guardrails, see docs/async-threading-roadmap.md (section 3), errors: the baseline is empty
+# Async & threading guardrails, see docs/vNext/async-threading-roadmap.md (section 3), errors: the baseline is empty
 [*.cs]
 dotnet_diagnostic.VSTHRD002.severity = error
 dotnet_diagnostic.VSTHRD100.severity = error

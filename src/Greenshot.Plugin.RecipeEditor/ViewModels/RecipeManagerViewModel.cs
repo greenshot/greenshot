@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using Greenshot.Base.Languages;
 using Greenshot.Base.Core;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
@@ -77,14 +78,14 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public bool IsBuiltIn => IsExtension ? Extension.IsBuiltIn : Recipe.IsBuiltIn;
         public bool IsOverridden => IsExtension ? Extension.IsOverridden : Recipe.IsOverridden;
 
-        public string RecipeTypeBadge => IsOverridden ? "OVERRIDDEN" : (IsBuiltIn ? "BUILT-IN" : "CUSTOM");
+        public string RecipeTypeBadge => IsOverridden ? Texts.Get<IRecipeEditorLanguage>().BadgeOverridden : (IsBuiltIn ? Texts.Get<IRecipeEditorLanguage>().BadgeBuiltIn : Texts.Get<IRecipeEditorLanguage>().BadgeCustom);
 
         /// <summary>
         /// The recipe file was written by an AI tool (and approved by the user)
         /// </summary>
         public bool IsAiCreated => !string.IsNullOrEmpty(IsExtension ? Extension.ProposedBy : Recipe.ProposedBy);
 
-        public string AiBadge => IsAiCreated ? $"🤖 BY {Recipe.ProposedBy}" : string.Empty;
+        public string AiBadge => IsAiCreated ? "🤖 " + string.Format(Texts.Get<IRecipeEditorLanguage>().BadgeAiBy, Recipe.ProposedBy) : string.Empty;
 
         public string Name => IsExtension ? RecipeText.Translate(Extension.Name ?? Extension.Id) : Recipe.Name ?? Recipe.Id;
         public string Description => IsExtension ? RecipeText.Translate(Extension.Description) ?? "" : Recipe.Description ?? "";
@@ -122,7 +123,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
         }
 
-        public string StatusBadgeText => IsEnabled ? "ACTIVE" : "DEACTIVATED";
+        public string StatusBadgeText => IsEnabled ? Texts.Get<IRecipeEditorLanguage>().BadgeActive : Texts.Get<IRecipeEditorLanguage>().BadgeDeactivated;
 
         public int StepCount => Recipe.Nodes?.Count ?? 0;
 
@@ -133,11 +134,11 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 if (IsExtension)
                 {
                     int changed = _recipeManager?.GetAllRecipes().Count(r => RecipeComposer.CanExtend(Extension, r)) ?? 0;
-                    return $"🧩 Automatic step at {Extension.SlotName}, fits {changed} recipe(s)";
+                    return "🧩 " + string.Format(Texts.Get<IRecipeEditorLanguage>().TriggerSummaryExtension, Extension.SlotName, changed);
                 }
                 if (Recipe.Triggers == null || Recipe.Triggers.Count == 0)
                 {
-                    return Recipe.ShowInContextMenu ? "📋 Systray (Default)" : "No triggers (Editor/DAG only)";
+                    return Recipe.ShowInContextMenu ? "📋 " + Texts.Get<IRecipeEditorLanguage>().TriggerSummaryDefaultContextMenu : Texts.Get<IRecipeEditorLanguage>().TriggerSummaryNone;
                 }
 
                 var list = new List<string>();
@@ -146,11 +147,11 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     string label = DescribeTrigger(t);
                     if (!t.Enabled)
                     {
-                        label += " (disabled)";
+                        label += " " + Texts.Get<IRecipeEditorLanguage>().TriggerSuffixDisabled;
                     }
                     else if (!t.IsApproved)
                     {
-                        label += " (off, not approved)";
+                        label += " " + Texts.Get<IRecipeEditorLanguage>().TriggerSuffixNotApproved;
                     }
                     list.Add(label);
                 }
@@ -166,57 +167,57 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             if (Is(TriggerConfig.TypeHotkey))
             {
                 string hk = t.GetParameter<string>("Hotkey");
-                return string.IsNullOrWhiteSpace(hk) ? "⌨ Hotkey" : $"⌨ {hk}";
+                return string.IsNullOrWhiteSpace(hk) ? "⌨ " + Texts.Get<IRecipeEditorLanguage>().TriggerHotkey : $"⌨ {hk}";
             }
             if (Is(TriggerConfig.TypeContextMenu))
             {
-                return $"📋 Systray (\"{t.GetParameter<string>("MenuItemText") ?? Recipe.Name}\")";
+                return "📋 " + string.Format(Texts.Get<IRecipeEditorLanguage>().TriggerSummaryContextMenu, t.GetParameter<string>("MenuItemText") ?? Recipe.Name);
             }
             if (Is(TriggerConfig.TypeEditor))
             {
-                return $"🎨 Editor (\"{t.GetParameter<string>("MenuItemText") ?? Recipe.Name}\")";
+                return "🎨 " + string.Format(Texts.Get<IRecipeEditorLanguage>().TriggerSummaryEditor, t.GetParameter<string>("MenuItemText") ?? Recipe.Name);
             }
             if (Is(TriggerConfig.TypeClipboard))
             {
-                return "📋 Clipboard Monitor";
+                return "📋 " + Texts.Get<IRecipeEditorLanguage>().TriggerClipboardMonitor;
             }
             if (Is(TriggerConfig.TypeCommandline))
             {
                 string label = $"⌨ greenshot-cli.exe run {t.GetParameter<string>("Command") ?? Recipe.Id}";
                 if (t.GetParameter("AllowBrowserInvocation", false))
                 {
-                    label += t.IsBrowserInvocationApproved ? " (+ web pages)" : " (web pages: not approved)";
+                    label += t.IsBrowserInvocationApproved ? " " + Texts.Get<IRecipeEditorLanguage>().TriggerSuffixWebPages : " " + Texts.Get<IRecipeEditorLanguage>().TriggerSuffixWebPagesNotApproved;
                 }
                 return label;
             }
             if (Is(TriggerConfig.TypeAiTool))
             {
-                return $"🤖 AI tool \"{t.GetParameter<string>("ToolName") ?? t.Name}\"";
+                return "🤖 " + string.Format(Texts.Get<IRecipeEditorLanguage>().TriggerSummaryAiTool, t.GetParameter<string>("ToolName") ?? t.Name);
             }
             if (Is(TriggerConfig.TypeOpenFile))
             {
-                return "📂 Open file";
+                return "📂 " + Texts.Get<IRecipeEditorLanguage>().TriggerOpenFile;
             }
             if (Is(TriggerConfig.TypeExtension))
             {
-                return "🌐 Browser extension";
+                return "🌐 " + Texts.Get<IRecipeEditorLanguage>().TriggerBrowserExtension;
             }
             if (Is(TriggerConfig.TypeSchedule))
             {
-                return "⏱ Schedule";
+                return "⏱ " + Texts.Get<IRecipeEditorLanguage>().TriggerSchedule;
             }
             if (Is(TriggerConfig.TypeManual))
             {
-                return "▶ Manual";
+                return "▶ " + Texts.Get<IRecipeEditorLanguage>().TriggerManual;
             }
             return t.Name ?? t.TriggerType;
         }
 
         public bool CanUnload => IsExtension ? HasFilePath : !IsBuiltIn || IsOverridden;
-        public string UnloadButtonText => IsOverridden ? "Reset Default" : "Unload";
+        public string UnloadButtonText => IsOverridden ? Texts.Get<IRecipeEditorLanguage>().BtnResetDefault : Texts.Get<IRecipeEditorLanguage>().BtnUnload;
         public string UnloadToolTip => IsOverridden
-            ? "Revert overridden recipe back to original default definition"
-            : "Unload and unregister this custom recipe from Greenshot";
+            ? Texts.Get<IRecipeEditorLanguage>().TooltipResetDefault
+            : Texts.Get<IRecipeEditorLanguage>().TooltipUnload;
 
         public ICommand ToggleActiveCommand { get; }
         public ICommand EditCommand { get; private set; }
@@ -244,7 +245,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             var result = _recipeManager.ReviewApproval(Recipe.Id);
             if (result != null && !result.IsValid)
             {
-                ThemedMessageBox.Show(string.Join("\n", result.Errors), "Recipe Permissions", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ThemedMessageBox.Show(string.Join("\n", result.Errors), Texts.Get<IRecipeEditorLanguage>().TitleRecipePermissions, MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             _onRecipeChanged?.Invoke();
         }
@@ -253,10 +254,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         {
             if (!CanUnload) return;
 
-            string confirmTitle = IsOverridden ? "Reset Recipe to Default" : "Unload Recipe";
+            string confirmTitle = IsOverridden ? Texts.Get<IRecipeEditorLanguage>().TitleResetRecipe : Texts.Get<IRecipeEditorLanguage>().TitleUnloadRecipe;
             string confirmMsg = IsOverridden
-                ? $"Are you sure you want to revert '{Name}' back to its default built-in definition?"
-                : $"Are you sure you want to unload '{Name}'? It will be unregistered from Greenshot.";
+                ? string.Format(Texts.Get<IRecipeEditorLanguage>().ConfirmResetRecipe, Name)
+                : string.Format(Texts.Get<IRecipeEditorLanguage>().ConfirmUnloadRecipe, Name);
 
             if (ThemedMessageBox.Show(confirmMsg, confirmTitle, MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
             {
@@ -284,7 +285,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             var valResult = RecipeValidator.Validate(Recipe);
             if (!valResult.IsValid)
             {
-                ThemedMessageBox.Show($"Cannot test run recipe. Fix validation errors first:\n\n{string.Join("\n", valResult.Errors)}", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ThemedMessageBox.Show(Texts.Get<IRecipeEditorLanguage>().ErrorTestRunValidation + "\n\n" + string.Join("\n", valResult.Errors), Texts.Get<IRecipeEditorLanguage>().TitleValidationError, MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -299,7 +300,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
             catch (Exception ex)
             {
-                ThemedMessageBox.Show($"Recipe execution encountered an error:\n{ex.Message}", "Execution Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                ThemedMessageBox.Show(Texts.Get<IRecipeEditorLanguage>().ErrorExecution + "\n" + ex.Message, Texts.Get<IRecipeEditorLanguage>().TitleExecutionError, MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
@@ -405,7 +406,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         {
             var replaced = AllRecipes.Where(r => r.IsOverridden).Select(r => r.Name).ToList();
             if (replaced.Count == 0) return;
-            if (ThemedMessageBox.Show($"Bring back the built-in version of these recipes?\n\n{string.Join("\n", replaced)}", "Reset All to Default",
+            if (ThemedMessageBox.Show(Texts.Get<IRecipeEditorLanguage>().ConfirmResetAll + "\n\n" + string.Join("\n", replaced), Texts.Get<IRecipeEditorLanguage>().TitleResetAll,
                     MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
             {
                 return;
@@ -513,7 +514,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             var dlg = new OpenFileDialog
             {
                 Filter = RecipeSerializer.RecipeFileFilter,
-                Title = "Load Capture Recipe into Greenshot"
+                Title = Texts.Get<IRecipeEditorLanguage>().TitleLoadRecipe
             };
 
             if (dlg.ShowDialog() == true)
@@ -527,11 +528,11 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                         var valResult = RecipeValidator.Validate(recipe);
                         if (!valResult.IsValid)
                         {
-                            ThemedMessageBox.Show($"Recipe validation failed:\n\n{string.Join("\n", valResult.Errors)}", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            ThemedMessageBox.Show(Texts.Get<IRecipeEditorLanguage>().ErrorRecipeValidation + "\n\n" + string.Join("\n", valResult.Errors), Texts.Get<IRecipeEditorLanguage>().TitleValidationError, MessageBoxButton.OK, MessageBoxImage.Warning);
                             return;
                         }
                         _onSelectRecipeForEditor?.Invoke(recipe);
-                        StatusMessage = $"Loaded {Path.GetFileName(dlg.FileName)}";
+                        StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusLoaded, Path.GetFileName(dlg.FileName));
                         RequestClose?.Invoke();
                         return;
                     }
@@ -539,12 +540,12 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     var result = _recipeManager.LoadRecipeFromFile(dlg.FileName);
                     if (!result.IsValid)
                     {
-                        ThemedMessageBox.Show($"Failed to load recipe:\n\n{string.Join("\n", result.Errors)}", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        StatusMessage = $"Validation failed for {Path.GetFileName(dlg.FileName)}";
+                        ThemedMessageBox.Show(Texts.Recipe.ImportFailed + "\n\n" + string.Join("\n", result.Errors), Texts.Get<IRecipeEditorLanguage>().TitleValidationError, MessageBoxButton.OK, MessageBoxImage.Warning);
+                        StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusValidationFailed, Path.GetFileName(dlg.FileName));
                     }
                     else
                     {
-                        StatusMessage = $"Loaded and registered {Path.GetFileName(dlg.FileName)}";
+                        StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusLoadedRegistered, Path.GetFileName(dlg.FileName));
                         LoadRecipes();
 
                         // Select the newly loaded recipe in the list
@@ -557,7 +558,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    ThemedMessageBox.Show($"Failed to load recipe:\n{ex.Message}", "Error Loading Recipe", MessageBoxButton.OK, MessageBoxImage.Error);
+                    ThemedMessageBox.Show(Texts.Recipe.ImportFailed + "\n" + ex.Message, Texts.Get<IRecipeEditorLanguage>().TitleErrorLoadingRecipe, MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -572,7 +573,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         {
             _recipeManager?.ReloadRecipes();
             LoadRecipes();
-            StatusMessage = "Reloaded recipes from disk.";
+            StatusMessage = Texts.Get<IRecipeEditorLanguage>().StatusReloaded;
         }
     }
 }

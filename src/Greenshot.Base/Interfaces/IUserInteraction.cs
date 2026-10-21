@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -154,24 +154,145 @@ namespace Greenshot.Base.Interfaces
     }
 
     /// <summary>
+    /// A line of a notification, e.g. what a destination did, with the icon of the destination
+    /// </summary>
+    public sealed class NotificationLine
+    {
+        public NotificationLine(string text, string iconPath = null)
+        {
+            Text = text;
+            IconPath = iconPath;
+        }
+
+        public string Text { get; }
+
+        /// <summary>
+        /// An image file with the icon shown next to the text, or null
+        /// </summary>
+        public string IconPath { get; }
+    }
+
+    /// <summary>
+    /// A button of a notification. A click raises <see cref="INotificationService.ButtonActivated"/> with the action and the value,
+    /// also after Greenshot exited: they are all a handler gets, so the value must name what the button acts on (e.g. a file)
+    /// </summary>
+    public sealed class NotificationButton
+    {
+        public NotificationButton(string text, string action, string value = null)
+        {
+            Text = text;
+            Action = action;
+            Value = value;
+            Choices = Array.Empty<NotificationChoice>();
+        }
+
+        /// <summary>
+        /// A button which acts on one of several values: the notification shows a drop-down with the choices, the chosen value is
+        /// the <see cref="NotificationButtonEventArgs.Value"/> of the click
+        /// </summary>
+        public NotificationButton(string text, string action, IReadOnlyList<NotificationChoice> choices)
+        {
+            Text = text;
+            Action = action;
+            Choices = choices ?? Array.Empty<NotificationChoice>();
+        }
+
+        /// <summary>
+        /// The values to choose from, empty for a button with its <see cref="Value"/>
+        /// </summary>
+        public IReadOnlyList<NotificationChoice> Choices { get; }
+
+        /// <summary>
+        /// The text of the button
+        /// </summary>
+        public string Text { get; }
+
+        /// <summary>
+        /// What the button does, e.g. "open", see NotificationButtons in Greenshot
+        /// </summary>
+        public string Action { get; }
+
+        /// <summary>
+        /// What it acts on, e.g. the path of a file, or null (also for a button with <see cref="Choices"/>)
+        /// </summary>
+        public string Value { get; }
+    }
+
+    /// <summary>
+    /// One of the values a <see cref="NotificationButton"/> can act on, e.g. a link
+    /// </summary>
+    public sealed class NotificationChoice
+    {
+        public NotificationChoice(string text, string value)
+        {
+            Text = text;
+            Value = value;
+        }
+
+        /// <summary>
+        /// What the drop-down shows, e.g. "Box: https://…"
+        /// </summary>
+        public string Text { get; }
+
+        /// <summary>
+        /// The value, e.g. the link
+        /// </summary>
+        public string Value { get; }
+    }
+
+    /// <summary>
     /// A notification for the user, the click action runs on the UI thread.
     /// </summary>
     public sealed class Notification
     {
-        public Notification(NotificationKind kind, string message, TimeSpan? timeout = null, Action onClick = null)
+        public Notification(NotificationKind kind, string message, TimeSpan? timeout = null, Action onClick = null, string captureId = null, string imagePath = null,
+            string title = null, IReadOnlyList<NotificationLine> lines = null, IReadOnlyList<NotificationButton> buttons = null)
         {
+            Buttons = buttons ?? Array.Empty<NotificationButton>();
             Kind = kind;
             Message = message;
             Timeout = timeout;
             OnClick = onClick;
+            CaptureId = captureId;
+            ImagePath = imagePath;
+            Title = title;
+            Lines = lines ?? Array.Empty<NotificationLine>();
         }
 
         public NotificationKind Kind { get; }
 
+        /// <summary>
+        /// The whole text, also of the <see cref="Lines"/>: what an implementation shows which can't show lines with icons
+        /// </summary>
         public string Message { get; }
+
+        /// <summary>
+        /// A heading above the <see cref="Lines"/>, or null
+        /// </summary>
+        public string Title { get; }
+
+        /// <summary>
+        /// The lines with their icons, e.g. one per destination; empty when the notification is just the <see cref="Message"/>
+        /// </summary>
+        public IReadOnlyList<NotificationLine> Lines { get; }
+
+        /// <summary>
+        /// The buttons, only shown by a service which <see cref="INotificationService.ShowsCaptures"/> (the toasts)
+        /// </summary>
+        public IReadOnlyList<NotificationButton> Buttons { get; }
 
         public TimeSpan? Timeout { get; }
 
         public Action OnClick { get; }
+
+        /// <summary>
+        /// The id of the capture kept for the notification, which a click offers in the destination picker (also after a restart), or null
+        /// </summary>
+        public string CaptureId { get; }
+
+        /// <summary>
+        /// An image file the notification shows, or null
+        /// </summary>
+        public string ImagePath { get; }
     }
 }

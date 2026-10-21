@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -178,6 +178,11 @@ namespace Greenshot.Recipes.Pipeline
         {
             var notifyService = SimpleServiceProvider.Current.GetInstance<INotificationService>(isOptional: true);
             if (notifyService == null)
+            {
+                return;
+            }
+            // The notification of the exports showed the failure already (see CapturePipeline)
+            if (result.Context?.Properties.TryGetValue(ExportNotification.FailureShownProperty, out var shown) == true && shown is true)
             {
                 return;
             }

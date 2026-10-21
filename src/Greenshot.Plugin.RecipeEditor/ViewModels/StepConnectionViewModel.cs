@@ -1,6 +1,7 @@
 using System;
 using System.Windows;
 using System.Windows.Input;
+using Greenshot.Base.Languages;
 using Greenshot.Base.Wpf;
 
 namespace Greenshot.Plugin.RecipeEditor.ViewModels
@@ -50,7 +51,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
         }
 
-        public string DisplayName => $"{SourceNode?.DisplayName ?? "Step"} ({Source?.Title}) ➔ {TargetNode?.DisplayName ?? "Step"}";
+        public string DisplayName => $"{SourceNode?.DisplayName ?? Texts.Get<IRecipeEditorLanguage>().Step} ({Source?.Title}) ➔ {TargetNode?.DisplayName ?? Texts.Get<IRecipeEditorLanguage>().Step}";
 
         public StepConnectionViewModel(StepPortViewModel source, StepPortViewModel target, Action<StepConnectionViewModel> onDisconnect = null)
         {

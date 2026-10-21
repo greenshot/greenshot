@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version. 
  *
  * This program is distributed in the hope that it will be useful,
@@ -24,7 +24,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Languages;
 
 namespace Greenshot.Plugin.Dropbox.Destinations;
@@ -58,11 +58,16 @@ internal class DropboxDestination : DestinationBase, IRequiresRecipeAuthorizatio
     public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
     {
         bool? uploaded = await _plugin.UploadAsync(request.Source, request.Metadata, request.Ui, cancellationToken).ConfigureAwait(false);
-        return uploaded switch
-        {
-            null => ExportResult.Declined,
-            true => ExportResult.Succeeded(),
-            false => ExportResult.Failed(Texts.Get<IDropboxLanguage>().UploadFailure)
-        };
+        return ToResult(uploaded);
     }
+
+    /// <summary>
+    /// The result of an upload, also for the Dropbox step
+    /// </summary>
+    internal static ExportResult ToResult(bool? uploaded) => uploaded switch
+    {
+        null => ExportResult.Declined,
+        true => ExportResult.Succeeded(),
+        false => ExportResult.Failed(Texts.Get<IDropboxLanguage>().UploadFailure)
+    };
 }

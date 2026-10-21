@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -20,10 +20,15 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Windows;
+using Dapplo.Ini;
 using Greenshot.Base.Core;
+using Greenshot.Base.Wpf;
 using Greenshot.SelfService.Views;
 using log4net;
 using Greenshot.Base.Languages;
@@ -33,6 +38,7 @@ namespace Greenshot.SelfService.ViewModels
     public class FileInfoSectionViewModel : SelfServiceSectionViewModel
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(FileInfoSectionViewModel));
+        private static ICoreConfiguration CoreConfig => IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         public override string Id => "files";
         public override string Title
@@ -77,6 +83,18 @@ namespace Greenshot.SelfService.ViewModels
         public bool ConfigFileExists { get => _configFileExists; private set { _configFileExists = value; OnPropertyChanged(); } }
         public string ConfigFileSizeText { get => _configFileSizeText; private set { _configFileSizeText = value; OnPropertyChanged(); } }
         public string ConfigFileModifiedText { get => _configFileModifiedText; private set { _configFileModifiedText = value; OnPropertyChanged(); } }
+
+        // Output folder check
+        private string _outputConfiguredPath;
+        private string _outputExpandedPath;
+        private string _outputExampleFile;
+        private IList<OutputPathCheckRow> _outputChecks = new List<OutputPathCheckRow>();
+
+        public string OutputConfiguredPath { get => _outputConfiguredPath; private set { _outputConfiguredPath = value; OnPropertyChanged(); } }
+        public string OutputExpandedPath { get => _outputExpandedPath; private set { _outputExpandedPath = value; OnPropertyChanged(); } }
+        public string OutputExampleFile { get => _outputExampleFile; private set { _outputExampleFile = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasOutputExampleFile)); } }
+        public bool HasOutputExampleFile => !string.IsNullOrEmpty(OutputExampleFile);
+        public IList<OutputPathCheckRow> OutputChecks { get => _outputChecks; private set { _outputChecks = value; OnPropertyChanged(); } }
 
         public string RecentLogContent { get => _recentLogContent; private set { _recentLogContent = value; OnPropertyChanged(); } }
         public string StatusMessage { get => _statusMessage; set { _statusMessage = value; OnPropertyChanged(); } }
@@ -127,15 +145,17 @@ namespace Greenshot.SelfService.ViewModels
                     ConfigFileModifiedText = "N/A";
                 }
 
+                CheckOutputPath();
+
                 // Brief preview snippet
                 LoadRecentLog();
 
-                StatusMessage = $"Updated at {DateTime.Now:HH:mm:ss}";
+                StatusMessage = string.Format(Texts.SelfService.StatusUpdatedAt, DateTime.Now.ToString("HH:mm:ss"));
             }
             catch (Exception ex)
             {
                 Log.Error("Error updating file information", ex);
-                StatusMessage = $"Error: {ex.Message}";
+                StatusMessage = string.Format(Texts.SelfService.StatusError, ex.Message);
             }
         }
 
@@ -143,6 +163,60 @@ namespace Greenshot.SelfService.ViewModels
         {
             base.OnLanguageChanged();
             Refresh();
+        }
+
+        /// <summary>
+        /// Checks where screenshots are saved, the result is shown and logged (a helpdesk asks for the log)
+        /// </summary>
+        public void CheckOutputPath()
+        {
+            var result = OutputPathCheck.Run(CoreConfig.OutputFilePath, CoreConfig.OutputFileFilenamePattern, CoreConfig.OutputFileFormat);
+            OutputConfiguredPath = result.ConfiguredPath;
+            OutputExpandedPath = result.ExpandedPath ?? string.Empty;
+            OutputExampleFile = result.ExampleFile;
+            OutputChecks = result.Items.Select(item => new OutputPathCheckRow(item)).ToList();
+            // The section shows in the navigation when screenshots probably don't end up where the user expects them
+            bool problem = result.Worst >= OutputPathSeverity.Warning;
+            BadgeText = problem ? (result.Worst == OutputPathSeverity.Error ? "❌" : "⚠️") : null;
+            BadgeBrush = problem ? WpfThemeHelper.ErrorBackground : null;
+            Log.Info($"Output folder check: '{result.ConfiguredPath}' -> '{result.ExpandedPath}': {string.Join(", ", result.Items.Select(i => i.Finding + (i.Detail == null ? string.Empty : $" ({i.Detail})")))}");
+        }
+
+        public void OpenOutputFolder()
+        {
+            OpenPathInExplorer(OutputExpandedPath, Texts.SelfService.FilesScreenshotFolder);
+        }
+
+        public void CopyOutputPath()
+        {
+            CopyText(OutputExpandedPath, Texts.SelfService.FilesScreenshotFolderCopied);
+        }
+
+        /// <summary>
+        /// The screenshot folder becomes the default folder again (the Desktop, or the portable folder)
+        /// </summary>
+        public void ResetOutputPath()
+        {
+            string previous = CoreConfig.OutputFilePath;
+            CoreConfig.OutputFilePath = null;
+            CoreConfig.ValidateAndCorrectOutputFilePath();
+            Log.Info($"The user reset the screenshot folder in Self-Service: '{previous}' -> '{CoreConfig.OutputFilePath}'");
+            CheckOutputPath();
+            StatusMessage = string.Format(Texts.SelfService.FilesOutputResetDone, CoreConfig.OutputFilePath);
+        }
+
+        /// <summary>
+        /// The filename pattern becomes the default pattern again
+        /// </summary>
+        public void ResetFilenamePattern()
+        {
+            string previous = CoreConfig.OutputFileFilenamePattern;
+            string defaultPattern = typeof(ICoreConfiguration).GetProperty(nameof(ICoreConfiguration.OutputFileFilenamePattern))?
+                .GetCustomAttributes(typeof(DefaultValueAttribute), false).OfType<DefaultValueAttribute>().FirstOrDefault()?.Value as string;
+            CoreConfig.OutputFileFilenamePattern = defaultPattern;
+            Log.Info($"The user reset the filename pattern in Self-Service: '{previous}' -> '{defaultPattern}'");
+            CheckOutputPath();
+            StatusMessage = string.Format(Texts.SelfService.FilesOutputResetDone, defaultPattern);
         }
 
         public void LoadRecentLog()
@@ -179,18 +253,18 @@ namespace Greenshot.SelfService.ViewModels
             catch (Exception ex)
             {
                 Log.Error("Error reading log tail", ex);
-                RecentLogContent = $"Error reading log file:\n{ex.Message}";
+                RecentLogContent = string.Format(Texts.SelfService.LogviewerStatusError, ex.Message);
             }
         }
 
         public void OpenLogInExplorer()
         {
-            OpenPathInExplorer(LogFilePath, "Log file");
+            OpenPathInExplorer(LogFilePath, Texts.SelfService.FilesLogFile);
         }
 
         public void OpenConfigInExplorer()
         {
-            OpenPathInExplorer(ConfigFilePath, "Configuration file");
+            OpenPathInExplorer(ConfigFilePath, Texts.SelfService.FilesConfigFile);
         }
 
         private void OpenPathInExplorer(string path, string fileDescription)
@@ -199,7 +273,7 @@ namespace Greenshot.SelfService.ViewModels
             {
                 if (string.IsNullOrEmpty(path))
                 {
-                    StatusMessage = $"No path specified for {fileDescription}.";
+                    StatusMessage = string.Format(Texts.SelfService.FilesNoPath, fileDescription);
                     return;
                 }
 
@@ -207,7 +281,7 @@ namespace Greenshot.SelfService.ViewModels
                 {
                     // Use the ExplorerHelper!
                     ExplorerHelper.OpenInExplorer(path);
-                    StatusMessage = $"Opened Explorer for {fileDescription}.";
+                    StatusMessage = string.Format(Texts.SelfService.FilesOpenedExplorer, fileDescription);
                 }
                 else
                 {
@@ -216,18 +290,18 @@ namespace Greenshot.SelfService.ViewModels
                     if (!string.IsNullOrEmpty(dir) && Directory.Exists(dir))
                     {
                         ExplorerHelper.OpenInExplorer(dir);
-                        StatusMessage = $"File not found, opened containing folder: {dir}";
+                        StatusMessage = string.Format(Texts.SelfService.FilesOpenedFolder, dir);
                     }
                     else
                     {
-                        StatusMessage = $"{fileDescription} does not exist at: {path}";
+                        StatusMessage = string.Format(Texts.SelfService.FilesDoesNotExist, fileDescription, path);
                     }
                 }
             }
             catch (Exception ex)
             {
                 Log.Error($"Error opening {fileDescription} in Explorer", ex);
-                StatusMessage = $"Failed to open Explorer: {ex.Message}";
+                StatusMessage = string.Format(Texts.SelfService.FilesExplorerFailed, ex.Message);
             }
         }
 
@@ -241,23 +315,23 @@ namespace Greenshot.SelfService.ViewModels
                     viewer.Owner = owner;
                 }
                 viewer.Show();
-                StatusMessage = "Opened Log Viewer window.";
+                StatusMessage = Texts.SelfService.FilesLogviewerOpened;
             }
             catch (Exception ex)
             {
                 Log.Error("Error opening LogViewerWindow", ex);
-                StatusMessage = $"Could not open log viewer: {ex.Message}";
+                StatusMessage = string.Format(Texts.SelfService.FilesLogviewerFailed, ex.Message);
             }
         }
 
         public void CopyLogPath()
         {
-            CopyText(LogFilePath, "Log path copied to clipboard.");
+            CopyText(LogFilePath, Texts.SelfService.FilesLogPathCopied);
         }
 
         public void CopyConfigPath()
         {
-            CopyText(ConfigFilePath, "Config path copied to clipboard.");
+            CopyText(ConfigFilePath, Texts.SelfService.FilesConfigPathCopied);
         }
 
         private void CopyText(string text, string successMessage)
@@ -272,7 +346,7 @@ namespace Greenshot.SelfService.ViewModels
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Copy failed: {ex.Message}";
+                StatusMessage = string.Format(Texts.SelfService.StatusCopyFailed, ex.Message);
             }
         }
 
@@ -280,13 +354,13 @@ namespace Greenshot.SelfService.ViewModels
         {
             if (bytes >= 1024 * 1024)
             {
-                return $"{bytes / (1024.0 * 1024.0):F2} MB ({bytes:N0} bytes)";
+                return $"{bytes / (1024.0 * 1024.0):F2} MB ({string.Format(Texts.SelfService.FilesSizeBytes, bytes)})";
             }
             if (bytes >= 1024)
             {
-                return $"{bytes / 1024.0:F1} KB ({bytes:N0} bytes)";
+                return $"{bytes / 1024.0:F1} KB ({string.Format(Texts.SelfService.FilesSizeBytes, bytes)})";
             }
-            return $"{bytes} bytes";
+            return string.Format(Texts.SelfService.FilesSizeBytes, bytes);
         }
     }
 }

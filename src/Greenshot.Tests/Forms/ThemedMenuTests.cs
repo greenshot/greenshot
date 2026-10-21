@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -53,13 +53,14 @@ namespace Greenshot.Tests.Forms
                     var item = ThemedMenu.CreateItem("Save as", null, () => menuWindowExistedInAction = IsWindow(menuWindow));
                     menu.Items.Add(item);
                     ThemedMenu.ShowAtCursor(menu);
-                    Pump(TimeSpan.FromMilliseconds(200));
+                    // Waits for the menu window, not a fixed time: with the other tests running in parallel it can take longer
+                    PumpUntil(() => (PresentationSource.FromVisual(menu) as HwndSource)?.Handle is { } handle && handle != IntPtr.Zero, TimeSpan.FromSeconds(10));
                     menuWindow = (PresentationSource.FromVisual(menu) as HwndSource)?.Handle ?? IntPtr.Zero;
                     Assert.NotEqual(IntPtr.Zero, menuWindow);
 
                     // Clicked like the user does: the menu closes (and fades out), then the action runs
                     ((IInvokeProvider)new MenuItemAutomationPeer(item).GetPattern(PatternInterface.Invoke)).Invoke();
-                    Pump(TimeSpan.FromSeconds(1));
+                    PumpUntil(() => menuWindowExistedInAction.HasValue, TimeSpan.FromSeconds(10));
 
                     Assert.False(menuWindowExistedInAction ?? true, "The action ran while the menu window still existed, or not at all");
                 }
@@ -79,12 +80,19 @@ namespace Greenshot.Tests.Forms
             Assert.Null(threadEx);
         }
 
-        private static void Pump(TimeSpan duration)
+        /// <summary>
+        /// Lets the dispatcher work until the condition is met, or the time is over
+        /// </summary>
+        private static void PumpUntil(Func<bool> condition, TimeSpan timeout)
         {
-            var end = DateTime.Now + duration;
+            var end = DateTime.Now + timeout;
             while (DateTime.Now < end)
             {
                 Dispatcher.CurrentDispatcher.Invoke(() => { }, DispatcherPriority.ApplicationIdle);
+                if (condition())
+                {
+                    return;
+                }
                 Thread.Sleep(10);
             }
         }

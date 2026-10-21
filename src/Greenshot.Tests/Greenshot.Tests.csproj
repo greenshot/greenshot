@@ -9,10 +9,12 @@
     <!-- The tests don't pass TestContext.Current.CancellationToken to every call that takes a token, a hanging test is stopped by the runner -->
     <NoWarn>$(NoWarn);xUnit1051</NoWarn>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <!-- Like Greenshot.exe, which it references (see Greenshot.csproj) -->
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
     <!-- Without Microsoft Testing Platform: dotnet test (and tools\build-runner) keep using VSTest on the .NET 10 SDK -->
     <PackageReference Include="xunit.v3.mtp-off" Version="4.0.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="4.0.1">
@@ -33,8 +35,8 @@
     <ProjectReference Include="..\Greenshot.Plugin.Zxing\Greenshot.Plugin.Zxing.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.Confluence\Greenshot.Plugin.Confluence.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.Box\Greenshot.Plugin.Box.csproj" />
+    <ProjectReference Include="..\Greenshot.Plugin.CustomUploader\Greenshot.Plugin.CustomUploader.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.Dropbox\Greenshot.Plugin.Dropbox.csproj" />
-    <ProjectReference Include="..\Greenshot.Plugin.Imgur\Greenshot.Plugin.Imgur.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.Jira\Greenshot.Plugin.Jira.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.Office\Greenshot.Plugin.Office.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.Pdf\Greenshot.Plugin.Pdf.csproj" />

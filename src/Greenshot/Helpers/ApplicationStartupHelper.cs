@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -25,6 +25,7 @@ using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Recipes.Triggers;
+using Greenshot.Views;
 using log4net;
 using Greenshot.Base.Threading;
 using System.Threading;
@@ -39,34 +40,21 @@ namespace Greenshot.Helpers
         private static readonly ICoreConfiguration config = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         /// <summary>
-        /// Performs initialization tasks for the application's first launch and displays an informational message to the user.
+        /// Show the welcome window: at the first start, or when greenshot-cli asks for it
         /// </summary>
-        /// <remarks>This method marks the application as no longer in its first launch state and shows a
-        /// balloon notification with a localized message. The notification includes a callback that opens the settings
-        /// dialog when triggered. Typically called during application startup to provide guidance to new
-        /// users.</remarks>
-        public static void FirstLaunch()
+        public static void ShowWelcome()
         {
-            config.IsFirstLaunch = false;
-            LOG.Info("FirstLaunch: Created new configuration, showing balloon.");
-            var notifyIconClassicMessageHandler = SimpleServiceProvider.Current.GetInstance<INotificationService>();
-
-            notifyIconClassicMessageHandler.ShowInfoMessage(
-                string.Format(Texts.Core.TooltipFirststart, HotkeyManager.GetLocalizedHotkeyStringFromString(config.RegionHotkey)),
-                TimeSpan.FromMinutes(10),
-                () =>
-                {
-                    var shell = SimpleServiceProvider.Current.GetInstance<IGreenshotShell>();
-                    shell.ShowSetting();
-                });
+            config.WelcomeShown = true;
+            LOG.Info("Showing the welcome window.");
+            WelcomeWindow.ShowWelcome();
         }
 
         /// <summary>
-        /// Reloads the application configuration and updates the user interface and hotkey settings accordingly.
+        /// Reads the configuration again (--reload) and applies it: language, tray tooltip and hotkeys.
         /// </summary>
-        /// <remarks>This method refreshes the configuration from persistent storage, updates UI elements
-        /// to reflect any changes, and re-registers hotkeys. It should be called when configuration settings are
-        /// modified at runtime to ensure the application state remains consistent.</remarks>
+        /// <remarks>greenshot.ini is locked while Greenshot runs (only readable for others), so what can change is greenshot-fixed.ini,
+        /// e.g. an administrator who rolls out a new value. greenshot-defaults.ini only fills keys which are missing in greenshot.ini, and
+        /// greenshot.ini holds every key once it was saved, so a changed default rarely shows.</remarks>
         public static void ReloadConfig()
         {
             // Hotkeys and the UI belong to the UI thread: runs inline there, otherwise posted to it
@@ -80,8 +68,9 @@ namespace Greenshot.Helpers
                 // Make sure the current hotkeys are disabled
                 HotkeyManager.UnregisterHotkeys();
                 IniConfigRegistry.Get().Reload();
+                // The language of the reloaded configuration (e.g. fixed in greenshot-fixed.ini), the texts and open windows follow (LanguageChanged)
+                Texts.SetLanguage(IniConfigRegistry.GetSection<ICoreConfiguration>().Language);
                 var shell = SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true);
-                // Even update language when needed
                 shell?.UpdateUi();
                 // Update the hotkey
                 TriggerManager.Instance.RestartHotkeyTriggers();

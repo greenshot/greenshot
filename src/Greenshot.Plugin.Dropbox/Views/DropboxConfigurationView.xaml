@@ -4,15 +4,16 @@
              xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
              >
     <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         <Style TargetType="Label">
             <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
-        <Style TargetType="CheckBox">
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="Margin" Value="0,6"/>
-        </Style>
+        </ResourceDictionary>
     </UserControl.Resources>
 
     <StackPanel Margin="8">
@@ -21,7 +22,7 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <Label Grid.Column="0" Content="{wpf:Text Dropbox.LabelUploadFormat}" Margin="0,0,12,0"/>
+            <Label Grid.Column="0" Content="{wpf:Text Dropbox.LabelUploadFormat}" Margin="0,0,12,0" Target="{Binding ElementName=UploadFormatCombo}"/>
             <ComboBox x:Name="UploadFormatCombo" Grid.Column="1"
                       HorizontalAlignment="Right" Width="200"
                       DisplayMemberPath="DisplayNameWithPreferredExtension"
@@ -31,8 +32,5 @@
 
         <CheckBox IsChecked="{Binding AfterUploadLinkToClipBoard}"
                   Content="{wpf:Text Dropbox.LabelAfterUploadLinkToClipBoard}"/>
-
-        <CheckBox IsChecked="{Binding QuicklinkEnabled}"
-                  Content="{wpf:Text Core.QuicklinkEnable}"/>
     </StackPanel>
 </UserControl>

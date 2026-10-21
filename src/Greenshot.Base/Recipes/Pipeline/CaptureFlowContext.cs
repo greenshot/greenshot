@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -155,6 +155,8 @@ namespace Greenshot.Base.Recipes.Pipeline
             Recipe = recipe ?? throw new ArgumentNullException(nameof(recipe));
             Trigger = trigger;
             CancellationToken = cancellationToken;
+            // From the start: the contexts of the nodes and branches copy the properties, so they all add to this one log
+            Properties[ExportLog.PropertyName] = new ExportLog();
         }
 
         /// <summary>

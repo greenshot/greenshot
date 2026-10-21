@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -61,7 +61,7 @@ namespace Greenshot.Destinations
                 if (result.IsSucceeded)
                 {
                     // The caller applies the result (messages, surface state) for the picked destination
-                    return result.WithTarget(result.Target ?? picked.Descriptor.DisplayName);
+                    return result.WithTarget(result.Target ?? picked.Descriptor.DisplayName).WithExportedBy(result.ExportedBy ?? picked);
                 }
 
                 // Export cancelled or failed: show the problem, and the picker again

@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -46,14 +46,12 @@ public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ZxingPlugin));
     private static IZxingConfiguration _config;
-    private TrayMenuEntry _itemPlugInConfig;
     private ZxingCaptureProcessor _captureProcessor;
     private ZxingEditorPlugin _editorPlugin;
     private ZxingHotspotTransformer _hotspotTransformer;
 
     public ValueTask DisposeAsync()
     {
-        // The menu item is removed and disposed in StopAsync
         return default;
     }
 
@@ -61,6 +59,7 @@ public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
 
     public void ConfigureServices(IPluginServices services)
     {
+        Texts.Register<IZxingLanguage>(new ZxingLanguageImpl());
         var section = new ZxingConfigurationImpl();
         services.AddConfiguration(section);
         _config = section;
@@ -461,80 +460,9 @@ public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
         return $"geo:{lat},{lon}";
     }
 
-    /// <summary>
-    /// Add the quick link to the context menu (on the UI thread)
-    /// </summary>
-    public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken) =>
-        services.GetRequiredService<IUiDispatcher>().RunOnUiAsync(Start, cancellationToken);
+    public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken) => Task.CompletedTask;
 
-    private void Start()
-    {
-        Image icon = null;
-        try
-        {
-            icon = PluginUtils.GetCachedExeIcon(FilenameHelper.FillCmdVariables(@"%windir%\system32\imageres.dll"), 97);
-        }
-        catch
-        {
-            // Ignore
-        }
-
-        _itemPlugInConfig = new TrayMenuEntry
-        {
-            Image = icon,
-            Text = PluginUtils.GetQuicklinkText("Zxing"),
-            Visible = _config?.QuicklinkEnabled ?? false
-        };
-        _itemPlugInConfig.Click += delegate { ShowSettings(); };
-
-        PluginUtils.AddToContextMenu(_itemPlugInConfig);
-        Texts.Config.LanguageChanged += OnLanguageChanged;
-        if (_config is INotifyPropertyChanged notify)
-        {
-            notify.PropertyChanged += OnConfigPropertyChanged;
-        }
-    }
-
-    private void OnConfigPropertyChanged(object sender, PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == nameof(IZxingConfiguration.QuicklinkEnabled))
-        {
-            if (_itemPlugInConfig != null)
-            {
-                _itemPlugInConfig.Visible = _config?.QuicklinkEnabled ?? false;
-            }
-        }
-    }
-
-    public void OnLanguageChanged(object sender, EventArgs e)
-    {
-        if (_itemPlugInConfig != null)
-        {
-            _itemPlugInConfig.Text = PluginUtils.GetQuicklinkText("Zxing");
-        }
-    }
-
-    public Task StopAsync(CancellationToken cancellationToken) =>
-        UiDispatcher.Current.RunOnUiAsync(() =>
-        {
-            Log.Debug("ZXing plugin shutdown.");
-            Texts.Config.LanguageChanged -= OnLanguageChanged;
-            if (_config is INotifyPropertyChanged notify)
-            {
-                notify.PropertyChanged -= OnConfigPropertyChanged;
-            }
-
-            _itemPlugInConfig?.Dispose();
-            _itemPlugInConfig = null;
-        }, cancellationToken);
-
-    /// <summary>
-    /// Show the settings of this plugin
-    /// </summary>
-    private void ShowSettings()
-    {
-        Greenshot.Base.Core.SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true)?.ShowSetting(Name);
-    }
+    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
     /// <summary>
     /// Configures a barcode or QR code drawable using the ZxingEditorForm dialog.

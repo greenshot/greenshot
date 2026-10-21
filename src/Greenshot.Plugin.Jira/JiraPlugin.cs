@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -24,6 +24,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapplo.HttpExtensions;
+using Dapplo.HttpExtensions.JsonNet;
 using Dapplo.HttpExtensions.WinForms.ContentConverter;
 using Dapplo.Jira.SvgWinForms.Converters;
 using Dapplo.Log;
@@ -49,7 +50,6 @@ public class JiraPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProv
 {
     private static readonly ILog Log = LogManager.GetLogger(typeof(JiraPlugin));
     private IJiraConfiguration _config;
-    private TrayMenuEntry _itemPlugInConfig;
     private JiraConnector _jiraConnector;
 
     public ValueTask DisposeAsync()
@@ -96,98 +96,15 @@ public class JiraPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProv
     }
 
     /// <summary>
-    /// Register the dialog and the HTTP converters, add the quick link to the context menu (on the UI thread)
+    /// Register the upload dialog, the HTTP setup of Dapplo.Jira waits for the first login (see JiraConnector)
     /// </summary>
     public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken)
     {
         services.GetService<IDialogViewRegistry>()?.Register<JiraUploadRequest, JiraUploadChoice>(JiraUploadWindow.Show);
-        return services.GetRequiredService<IUiDispatcher>().RunOnUiAsync(Start, cancellationToken);
-    }
-
-    private void Start()
-    {
-        if (HttpExtensionsGlobals.HttpContentConverters.All(x => x.GetType() != typeof(SvgBitmapHttpContentConverter)))
-        {
-            HttpExtensionsGlobals.HttpContentConverters.Add(SvgBitmapHttpContentConverter.Instance.Value);
-        }
-        BitmapHttpContentConverter.RegisterGlobally();
-
-        if (Log.IsDebugEnabled)
-        {
-            LogSettings.RegisterDefaultLogger<Log4NetLogger>(LogLevels.Verbose);
-        }
-        else if (Log.IsInfoEnabled)
-        {
-            LogSettings.RegisterDefaultLogger<Log4NetLogger>(LogLevels.Info);
-        }
-        else if (Log.IsWarnEnabled)
-        {
-            LogSettings.RegisterDefaultLogger<Log4NetLogger>(LogLevels.Warn);
-        }
-        else if (Log.IsErrorEnabled)
-        {
-            LogSettings.RegisterDefaultLogger<Log4NetLogger>(LogLevels.Error);
-        }
-        else
-        {
-            LogSettings.RegisterDefaultLogger<Log4NetLogger>(LogLevels.Fatal);
-        }
-
-        _itemPlugInConfig = new TrayMenuEntry
-        {
-            Image = EmbeddedResources.GetImage(typeof(JiraPlugin), "Jira"),
-            Text = PluginUtils.GetQuicklinkText("Jira"),
-            Visible = _config?.QuicklinkEnabled ?? false
-        };
-        _itemPlugInConfig.Click += delegate { ShowSettings(); };
-
-        PluginUtils.AddToContextMenu(_itemPlugInConfig);
-        Texts.Config.LanguageChanged += OnLanguageChanged;
-        if (_config is INotifyPropertyChanged notify)
-        {
-            notify.PropertyChanged += OnConfigPropertyChanged;
-        }
-    }
-
-    private void OnConfigPropertyChanged(object sender, PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == nameof(IJiraConfiguration.QuicklinkEnabled))
-        {
-            if (_itemPlugInConfig != null)
-            {
-                _itemPlugInConfig.Visible = _config?.QuicklinkEnabled ?? false;
-            }
-        }
-    }
-
-    public void OnLanguageChanged(object sender, EventArgs e)
-    {
-        if (_itemPlugInConfig != null)
-        {
-            _itemPlugInConfig.Text = PluginUtils.GetQuicklinkText("Jira");
-        }
+        return Task.CompletedTask;
     }
 
     public Task StopAsync(CancellationToken cancellationToken) =>
-        UiDispatcher.Current.RunOnUiAsync(() =>
-        {
-            Log.Debug("Jira Plugin shutdown.");
-            Texts.Config.LanguageChanged -= OnLanguageChanged;
-            if (_config is INotifyPropertyChanged notify)
-            {
-                notify.PropertyChanged -= OnConfigPropertyChanged;
-            }
+        UiDispatcher.Current.RunOnUiAsync(() => _jiraConnector?.Logout(), cancellationToken);
 
-            _itemPlugInConfig?.Dispose();
-            _itemPlugInConfig = null;
-            _jiraConnector?.Logout();
-        }, cancellationToken);
-
-    /// <summary>
-    /// Show the settings of this plugin
-    /// </summary>
-    private void ShowSettings()
-    {
-        SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true)?.ShowSetting(Name);
-    }
 }

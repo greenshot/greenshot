@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -28,6 +28,7 @@ using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.OAuth;
 using Dapplo.Ini;
+using Greenshot.Base.Http;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Threading;
 using Newtonsoft.Json;
@@ -85,11 +86,10 @@ public static class DropboxUtils
             }
 
             request.Headers.Add("Dropbox-API-Arg", encodedArgs);
-            var content = NetworkHelper.CreateContent(image, progress);
+            var content = HttpContents.Upload(image, progress);
             content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
             request.Content = content;
-            var responseString = await NetworkHelper.SendAsync(request, cancellationToken).ConfigureAwait(false);
-            Log.DebugFormat("Upload response: {0}", responseString);
+            var responseString = (await HttpService.Current.SendAsync(request, cancellationToken).ConfigureAwait(false)).EnsureSuccess().Content;
             var response = JsonConvert.DeserializeObject<IDictionary<string, object>>(responseString);
             return response.ContainsKey("id");
         }

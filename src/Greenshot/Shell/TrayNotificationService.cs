@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -20,54 +20,103 @@
  */
 
 using System;
+using System.Collections.Generic;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
 
 namespace Greenshot.Shell
 {
     /// <summary>
-    /// Notify the user with balloons at the tray icon, used when Windows has no toast notifications
+    /// The balloons of the tray icon: always available, used where there are no other notifications
+    /// </summary>
+    internal sealed class TrayNotificationServiceProvider : INotificationServiceProvider
+    {
+        /// <inheritdoc />
+        public int Priority => 0;
+
+        /// <inheritdoc />
+        public INotificationService TryCreate() => new TrayNotificationService();
+    }
+
+    /// <summary>
+    /// Notify the user with balloons at the tray icon, used where there are no toasts. A balloon shows no capture and can't be
+    /// clicked after Greenshot exited.
     /// </summary>
     internal sealed class TrayNotificationService : INotificationService
     {
-        private readonly ITrayIcon _trayIcon;
+        private static ICoreConfiguration CoreConfiguration => IniConfigRegistry.GetSection<ICoreConfiguration>();
 
-        public TrayNotificationService(ITrayIcon trayIcon)
+        /// <inheritdoc />
+        public bool IsEnabled => CoreConfiguration.ShowTrayNotification && CoreConfiguration.NotificationLevel != NotificationLevel.None;
+
+        /// <inheritdoc />
+        public bool ShowsCaptures => false;
+
+        /// <inheritdoc />
+        public IReadOnlyCollection<string> GetShownCaptureIds() => Array.Empty<string>();
+
+        /// <inheritdoc />
+        /// <remarks>Never raised, see <see cref="ShowsCaptures"/></remarks>
+        public event EventHandler<NotificationActivatedEventArgs> CaptureActivated
         {
-            _trayIcon = trayIcon;
+            add { }
+            remove { }
+        }
+
+        /// <inheritdoc />
+        /// <remarks>Never raised, a balloon has no buttons</remarks>
+        public event EventHandler<NotificationButtonEventArgs> ButtonActivated
+        {
+            add { }
+            remove { }
+        }
+
+        /// <inheritdoc />
+        public void ShowNotification(Notification notification)
+        {
+            ShowMessage(notification.Message, notification.Kind, notification.OnClick, null);
         }
 
         /// <inheritdoc />
         public void ShowWarningMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
         {
-            ShowMessage(message, TrayBalloonLevel.Warning, onClickAction, onClosedAction);
+            ShowMessage(message, NotificationKind.Warning, onClickAction, onClosedAction);
         }
 
         /// <inheritdoc />
         public void ShowErrorMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
         {
-            ShowMessage(message, TrayBalloonLevel.Error, onClickAction, onClosedAction);
+            ShowMessage(message, NotificationKind.Error, onClickAction, onClosedAction);
         }
 
         /// <inheritdoc />
         public void ShowInfoMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
         {
-            ShowMessage(message, TrayBalloonLevel.Info, onClickAction, onClosedAction);
+            ShowMessage(message, NotificationKind.Info, onClickAction, onClosedAction);
         }
 
         /// <summary>
         /// Show the message, the timeout is up to Windows (it ignores the one of a balloon since Vista)
         /// </summary>
-        private void ShowMessage(string message, TrayBalloonLevel level, Action onClickAction, Action onClosedAction)
+        private void ShowMessage(string message, NotificationKind kind, Action onClickAction, Action onClosedAction)
         {
-            // Do not inform the user if this is disabled
-            if (!IniConfigRegistry.GetSection<ICoreConfiguration>().ShowTrayNotification)
+            // Do not inform the user if this is disabled, or the level doesn't show this kind
+            if (!IsEnabled || !CoreConfiguration.NotificationLevel.Shows(kind))
             {
                 return;
             }
 
-            _trayIcon.ShowBalloon("Greenshot", message, level, onClickAction, onClosedAction);
+            var level = kind switch
+            {
+                NotificationKind.Error => TrayBalloonLevel.Error,
+                NotificationKind.Warning => TrayBalloonLevel.Warning,
+                _ => TrayBalloonLevel.Info
+            };
+
+            // The tray icon is created after the services, a notification before it isn't shown
+            SimpleServiceProvider.Current.GetInstance<ITrayIcon>(isOptional: true)?.ShowBalloon("Greenshot", message, level, onClickAction, onClosedAction);
         }
     }
 }

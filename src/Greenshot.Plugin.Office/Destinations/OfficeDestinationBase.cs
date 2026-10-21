@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -135,7 +135,8 @@ namespace Greenshot.Plugin.Office.Destinations
             // The user picked it: export as manually initiated, else "new document" would show the picker again
             var pickedRequest = new ExportRequest(request.Source, request.Metadata, true, request.Ui, request.Progress);
             var result = await picked.ExportAsync(pickedRequest, cancellationToken).ConfigureAwait(false);
-            return result.WithTarget(picked.Descriptor?.DisplayName);
+            // The message (and the icon of the notification) is about the picked document
+            return result.WithTarget(picked.Descriptor?.DisplayName).WithExportedBy(result.ExportedBy ?? picked);
         }
 
         /// <summary>

@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -30,10 +30,6 @@ namespace Greenshot.Plugin.Confluence;
 [Description("Greenshot Confluence Plugin configuration")]
 public interface IConfluenceConfiguration : IIniSection
 {
-    [Description("Whether to show a quicklink in the tray context menu for configuring this plugin.")]
-    [DefaultValue(false)]
-    bool QuicklinkEnabled { get; set; }
-
     [Description("Url to Confluence system (e.g., https://confluence.example.com or https://domain.atlassian.net/wiki for Cloud).")]
     [DefaultValue("https://confluence")]
     [Required(ErrorMessage = "Confluence URL is required.")]

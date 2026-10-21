@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -74,6 +74,7 @@ namespace Greenshot.Ipc
             "SETTINGS",
             "ABOUT",
             "SELF_SERVICE",
+            "LOG_VIEWER",
             "RECIPE_EDITOR",
             "RECIPE_MANAGER"
         };
@@ -269,6 +270,8 @@ namespace Greenshot.Ipc
                 "SETTINGS",
                 "ABOUT",
                 "SELF_SERVICE",
+                // Only shows the log, filtered on a search text: the log level is changed only in the log viewer itself
+                "LOG_VIEWER",
                 "RECIPE_EDITOR",
                 "RECIPE_MANAGER"
             },
@@ -431,6 +434,10 @@ namespace Greenshot.Ipc
 
                 case "SELF_SERVICE":
                     await HandleSelfServiceAsync(context, shell).ConfigureAwait(false);
+                    break;
+
+                case "LOG_VIEWER":
+                    await HandleLogViewerAsync(context, shell).ConfigureAwait(false);
                     break;
 
                 case "RECIPE_EDITOR":
@@ -1465,6 +1472,31 @@ namespace Greenshot.Ipc
             }).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// The longest search text a greenshot://log?search= link can pass, longer texts are cut
+        /// </summary>
+        internal const int MaxLogSearchLength = 200;
+
+        private static async Task HandleLogViewerAsync(IpcRequestContext context, IGreenshotShell shell)
+        {
+            string search = null;
+            context.Envelope.Parsed?.Parameters?.TryGetValue("search", out search);
+            if (string.IsNullOrEmpty(search) && context.Envelope.Parameters != null) context.Envelope.Parameters.TryGetValue("search", out search);
+            if (search?.Length > MaxLogSearchLength)
+            {
+                search = search.Substring(0, MaxLogSearchLength);
+            }
+
+            RunOnUi(shell, new Action(() => LogViewerWindow.ShowForLink(search)));
+
+            await context.ReplyAsync(new
+            {
+                status = "ok",
+                exit_code = 0,
+                stdout = "Log viewer displayed."
+            }).ConfigureAwait(false);
+        }
+
         private static async Task HandleRecipeEditorAsync(IpcRequestContext context, IGreenshotShell shell)
         {
             string recipe = null;
@@ -1560,6 +1592,11 @@ namespace Greenshot.Ipc
                     return "SELF_SERVICE";
                 }
 
+                if (string.Equals(pathAndAction, "log", StringComparison.OrdinalIgnoreCase))
+                {
+                    return "LOG_VIEWER";
+                }
+
                 if (string.Equals(pathAndAction, "recipe-editor", StringComparison.OrdinalIgnoreCase))
                 {
                     return "RECIPE_EDITOR";
@@ -1570,7 +1607,10 @@ namespace Greenshot.Ipc
                     return "RECIPE_MANAGER";
                 }
 
-                return pathAndAction.ToUpperInvariant();
+                // Other paths are checked against the whitelist of the source, e.g. greenshot://exit is refused there.
+                // The commands which carry a link are never its target: greenshot://cli or greenshot://url_scheme lead nowhere.
+                string command = pathAndAction.ToUpperInvariant();
+                return command is "CLI" or "URL_SCHEME" ? null : command;
             }
             catch (Exception ex)
             {

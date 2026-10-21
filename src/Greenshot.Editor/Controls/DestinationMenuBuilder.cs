@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -199,6 +199,7 @@ namespace Greenshot.Editor.Controls
                 // Only one: the item itself becomes that destination, without a sub menu
                 menuItem.Tag = validSubDestinations[0];
                 menuItem.Text = validSubDestinations[0].Descriptor.DisplayName;
+                AssignIcon(menuItem, validSubDestinations[0].Descriptor.IconKey);
                 return;
             }
 

@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -137,6 +137,22 @@ public class CaptureKeyRegistryTests
     }
 
     [Fact]
+    public void Find_NumberPadDigit_DoesWhatTheDigitDoes_UnlessItHasItsOwn()
+    {
+        var registry = new CaptureKeyRegistry();
+        var tool = new FakeTool();
+        var one = registry.Register(ForTool(tool, Key.D1, "Pick"));
+        var two = registry.Register(ForTool(tool, Key.D2, "Pick"));
+        var numPadTwo = registry.Register(ForTool(tool, Key.NumPad2, "Own"));
+
+        Assert.Same(one, registry.Find(Key.NumPad1, ModifierKeys.None, tool));
+        Assert.Same(numPadTwo, registry.Find(Key.NumPad2, ModifierKeys.None, tool));
+        Assert.Same(two, registry.Find(Key.D2, ModifierKeys.None, tool));
+        Assert.Null(registry.Find(Key.NumPad3, ModifierKeys.None, tool));
+        Assert.Null(registry.Find(Key.NumPad1, ModifierKeys.None, new FakeTool()));
+    }
+
+    [Fact]
     public void Description_IsReadWhenAsked()
     {
         string text = "before";
@@ -172,5 +188,33 @@ public class CaptureKeyRegistryTests
         Assert.Equal(new[] { "Select", "Move", "Direction" }, rows.Select(row => row.Description));
         Assert.Equal(new[] { "↑", "↓" }, rows[1].Keys);
         Assert.Equal(new[] { "Shift" }, rows[2].Keys);
+    }
+
+    [Fact]
+    public void HelpRows_TheKeyWhichSwitchesToTheActiveTool_IsNotShown()
+    {
+        var registry = new CaptureKeyRegistry();
+        var fixedSize = new FakeTool();
+        var region = new FakeTool();
+        registry.Register(Always(fixedSize, Key.F, "Fixed size"));
+        registry.Register(Always(Window, Key.Escape, "Cancel"));
+
+        Assert.Equal(new[] { "Cancel" }, HelpOverlay.GetRows(registry.Bindings, fixedSize).Select(row => row.Description));
+        Assert.Equal(new[] { "Fixed size", "Cancel" }, HelpOverlay.GetRows(registry.Bindings, region).Select(row => row.Description));
+    }
+
+    [Fact]
+    public void HelpRows_ManyKeysWithTheSameDescription_ShowAsARange()
+    {
+        var registry = new CaptureKeyRegistry();
+        var tool = new FakeTool();
+        for (int i = 0; i < 9; i++)
+        {
+            registry.Register(ForTool(tool, Key.D1 + i, "Pick"));
+        }
+
+        var rows = HelpOverlay.GetRows(registry.Bindings, tool);
+
+        Assert.Equal(new[] { "1–9" }, rows.Single().Keys);
     }
 }

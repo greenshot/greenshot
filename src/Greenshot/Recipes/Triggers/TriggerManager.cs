@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -55,6 +55,8 @@ namespace Greenshot.Recipes.Triggers
 
         private readonly Dictionary<string, ITrigger> _triggers = new Dictionary<string, ITrigger>(StringComparer.OrdinalIgnoreCase);
         private bool _disposed;
+        // The triggers only start with StartAll: a hotkey pressed while Greenshot starts would run a recipe before it is ready
+        private bool _started;
 
         public event EventHandler<TriggerEventArgs> TriggerFired;
 
@@ -101,6 +103,10 @@ namespace Greenshot.Recipes.Triggers
             InitializeDefaultTriggers();
             lock (_triggers)
             {
+                if (!_started)
+                {
+                    return;
+                }
                 foreach (var trigger in _triggers.Values.OfType<HotkeyTrigger>().Where(t => t.IsEnabled))
                 {
                     trigger.Start();
@@ -191,8 +197,7 @@ namespace Greenshot.Recipes.Triggers
                                 RegisterTrigger(new HotkeyTrigger(triggerId, tc.Name ?? $"{recipe.Name} Hotkey", hotkey, recipe.Id));
                             }
                         }
-                        else if (string.Equals(tc.TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase) ||
-                                 string.Equals(tc.TriggerType, TriggerConfig.TypeSystray, StringComparison.OrdinalIgnoreCase))
+                        else if (string.Equals(tc.TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase))
                         {
                             hasMenuTrigger = true;
                             string menuText = tc.GetParameter<string>("MenuItemText") ?? recipe.Name;
@@ -266,7 +271,7 @@ namespace Greenshot.Recipes.Triggers
 
                 _triggers[trigger.Id] = trigger;
                 trigger.Triggered += OnTriggerFired;
-                if (trigger.IsEnabled)
+                if (_started && trigger.IsEnabled)
                 {
                     trigger.Start();
                 }
@@ -299,6 +304,7 @@ namespace Greenshot.Recipes.Triggers
         {
             lock (_triggers)
             {
+                _started = true;
                 foreach (var trigger in _triggers.Values)
                 {
                     if (trigger.IsEnabled)
@@ -324,7 +330,7 @@ namespace Greenshot.Recipes.Triggers
         {
             TriggerFired?.Invoke(sender, e);
 
-            var recipeManager = SimpleServiceProvider.Current.GetInstance<IRecipeManager>() ?? RecipeManager.Instance;
+            var recipeManager = SimpleServiceProvider.Current.GetInstance<IRecipeManager>(isOptional: true) ?? RecipeManager.Instance;
             var recipe = recipeManager.GetRecipeById(e.TargetRecipeId);
 
             if (recipe != null)

@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -24,6 +24,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Media;
+using Greenshot.Base.Languages;
 using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
 
@@ -37,8 +38,8 @@ namespace Greenshot.SelfService.ViewModels
     public class IntegrationDebugSectionViewModel : SelfServiceSectionViewModel
     {
         public override string Id => "debug_integration";
-        public override string Title => "Integration (Debug)";
-        public override string Subtitle => "Register Native Messaging host & URL scheme for current user (HKCU)";
+        public override string Title => Texts.SelfService.DebugTitle;
+        public override string Subtitle => Texts.SelfService.DebugSub;
         public override string Icon => "🛠️";
 
         private string _extensionId;
@@ -102,34 +103,34 @@ namespace Greenshot.SelfService.ViewModels
         public void CheckStatus()
         {
             // Proxy binary
-            ProxyStatus = File.Exists(ProxyPath) ? "Found: " + ProxyPath : "Missing in " + BaseDirectory;
+            ProxyStatus = File.Exists(ProxyPath) ? string.Format(Texts.SelfService.DebugProxyFound, ProxyPath) : string.Format(Texts.SelfService.DebugProxyMissing, BaseDirectory);
 
             // Chrome Native Messaging Host
             using (var key = Registry.CurrentUser.OpenSubKey(@"Software\Google\Chrome\NativeMessagingHosts\org.greenshot.proxy"))
             {
                 var val = key?.GetValue(null)?.ToString();
-                ChromeStatus = !string.IsNullOrEmpty(val) ? "Registered (HKCU): " + val : "Not registered in HKCU";
+                ChromeStatus = !string.IsNullOrEmpty(val) ? string.Format(Texts.SelfService.DebugRegistered, val) : Texts.SelfService.DebugNotRegistered;
             }
 
             // Edge Native Messaging Host
             using (var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Edge\NativeMessagingHosts\org.greenshot.proxy"))
             {
                 var val = key?.GetValue(null)?.ToString();
-                EdgeStatus = !string.IsNullOrEmpty(val) ? "Registered (HKCU): " + val : "Not registered in HKCU";
+                EdgeStatus = !string.IsNullOrEmpty(val) ? string.Format(Texts.SelfService.DebugRegistered, val) : Texts.SelfService.DebugNotRegistered;
             }
 
             // Firefox Native Messaging Host
             using (var key = Registry.CurrentUser.OpenSubKey(@"Software\Mozilla\NativeMessagingHosts\org.greenshot.proxy"))
             {
                 var val = key?.GetValue(null)?.ToString();
-                FirefoxStatus = !string.IsNullOrEmpty(val) ? "Registered (HKCU): " + val : "Not registered in HKCU";
+                FirefoxStatus = !string.IsNullOrEmpty(val) ? string.Format(Texts.SelfService.DebugRegistered, val) : Texts.SelfService.DebugNotRegistered;
             }
 
             // Custom URL Scheme: greenshot://
             using (var key = Registry.CurrentUser.OpenSubKey(@"Software\Classes\greenshot\shell\open\command"))
             {
                 var val = key?.GetValue(null)?.ToString();
-                UrlSchemeStatus = !string.IsNullOrEmpty(val) ? "Registered (HKCU): " + val : "Not registered in HKCU";
+                UrlSchemeStatus = !string.IsNullOrEmpty(val) ? string.Format(Texts.SelfService.DebugRegistered, val) : Texts.SelfService.DebugNotRegistered;
             }
         }
 
@@ -175,12 +176,12 @@ namespace Greenshot.SelfService.ViewModels
                 }
 
                 CheckStatus();
-                ActionFeedback = "Successfully registered Chrome, Edge, Firefox Native Hosts and greenshot:// URL Scheme in HKCU!";
+                ActionFeedback = Texts.SelfService.DebugRegisterSuccess;
                 ActionFeedbackBrush = Brushes.ForestGreen;
             }
             catch (Exception ex)
             {
-                ActionFeedback = "Registration failed: " + ex.Message;
+                ActionFeedback = string.Format(Texts.SelfService.DebugRegisterFailed, ex.Message);
                 ActionFeedbackBrush = Brushes.Red;
             }
         }
@@ -195,12 +196,12 @@ namespace Greenshot.SelfService.ViewModels
                 Registry.CurrentUser.DeleteSubKeyTree(@"Software\Classes\greenshot", false);
 
                 CheckStatus();
-                ActionFeedback = "Removed debug native messaging hosts and greenshot:// protocol from HKCU.";
+                ActionFeedback = Texts.SelfService.DebugUnregisterSuccess;
                 ActionFeedbackBrush = Brushes.DodgerBlue;
             }
             catch (Exception ex)
             {
-                ActionFeedback = "Unregister failed: " + ex.Message;
+                ActionFeedback = string.Format(Texts.SelfService.DebugUnregisterFailed, ex.Message);
                 ActionFeedbackBrush = Brushes.Red;
             }
         }
@@ -210,12 +211,12 @@ namespace Greenshot.SelfService.ViewModels
             try
             {
                 SaveExtensionIdInternal();
-                ActionFeedback = "Saved extension ID to org.greenshot.proxy.json!";
+                ActionFeedback = Texts.SelfService.DebugSaveIdSuccess;
                 ActionFeedbackBrush = Brushes.ForestGreen;
             }
             catch (Exception ex)
             {
-                ActionFeedback = "Failed to save extension ID: " + ex.Message;
+                ActionFeedback = string.Format(Texts.SelfService.DebugSaveIdFailed, ex.Message);
                 ActionFeedbackBrush = Brushes.Red;
             }
         }
@@ -284,12 +285,12 @@ namespace Greenshot.SelfService.ViewModels
             {
                 // Opens a visible dialog, so the round trip through the URL protocol can be seen
                 Process.Start(new ProcessStartInfo("greenshot://about") { UseShellExecute = true });
-                ActionFeedback = "Launched 'greenshot://about'. The About dialog should open.";
+                ActionFeedback = Texts.SelfService.DebugTestUrlLaunched;
                 ActionFeedbackBrush = Brushes.DodgerBlue;
             }
             catch (Exception ex)
             {
-                ActionFeedback = "Failed to launch URL scheme: " + ex.Message;
+                ActionFeedback = string.Format(Texts.SelfService.DebugTestUrlFailed, ex.Message);
                 ActionFeedbackBrush = Brushes.Red;
             }
         }
@@ -304,13 +305,13 @@ namespace Greenshot.SelfService.ViewModels
                 }
                 else
                 {
-                    ActionFeedback = "Extension directory not found: " + ExtensionDirectory;
+                    ActionFeedback = string.Format(Texts.SelfService.DebugExtensionFolderMissing, ExtensionDirectory);
                     ActionFeedbackBrush = Brushes.Red;
                 }
             }
             catch (Exception ex)
             {
-                ActionFeedback = "Error opening folder: " + ex.Message;
+                ActionFeedback = string.Format(Texts.SelfService.DebugExtensionFolderError, ex.Message);
                 ActionFeedbackBrush = Brushes.Red;
             }
         }

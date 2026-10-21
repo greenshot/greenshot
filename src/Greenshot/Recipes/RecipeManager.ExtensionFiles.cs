@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -150,7 +150,10 @@ namespace Greenshot.Recipes
             }
             Log.InfoFormat("Registered automatic step '{0}' from '{1}'", extension.Id, fullPath);
             AddRecipeFileToConfig(fullPath);
-            NotifyRecipesChanged();
+            if (!_loadingConfiguredFiles)
+            {
+                NotifyRecipesChanged();
+            }
             return result;
         }
 
@@ -399,7 +402,6 @@ namespace Greenshot.Recipes
                 result.AddError($"Could not save the automatic step: {ex.Message}");
                 return result;
             }
-            SetupWatcherForFile(fullPath);
 
             extension.ProposedBy = null;
             extension.IsBuiltIn = false;

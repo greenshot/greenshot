@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -145,17 +145,24 @@ public class ExternalCommandDestination : DestinationBase, IRequiresRecipeAuthor
 
         if (runInBackground)
         {
-            // The export doesn't wait for the command, its outcome is reported by a notification (the task is observed)
-            RunInBackgroundAsync(fullPath, request.Ui).FireAndLog("Running " + _presetCommand, LOG);
+            // The command is started here, the export doesn't wait for it to finish. What fails before the command runs (a file name
+            // it doesn't accept, a missing program) completes the run right away: that is the result of the export, the notification
+            // of the flow shows it. A failure of the running command is reported by a notification of its own (the task is observed).
+            var run = RunAsync(fullPath, CancellationToken.None);
+            if (run.IsCompleted)
+            {
+                return await run.ConfigureAwait(false);
+            }
+            ReportFailureAsync(run, request.Ui).FireAndLog("Running " + _presetCommand, LOG);
             return ExportResult.Succeeded(fullPath);
         }
 
         return await RunAsync(fullPath, cancellationToken).ConfigureAwait(false);
     }
 
-    private async Task RunInBackgroundAsync(string fullPath, IUserInteraction userInteraction)
+    private async Task ReportFailureAsync(Task<ExportResult> run, IUserInteraction userInteraction)
     {
-        var result = await RunAsync(fullPath, CancellationToken.None).ConfigureAwait(false);
+        var result = await run.ConfigureAwait(false);
         if (result.Status == ExportStatus.Failed)
         {
             await userInteraction.NotifyAsync(new Notification(NotificationKind.Error, $"{_presetCommand}: {result.Error}")).ConfigureAwait(false);

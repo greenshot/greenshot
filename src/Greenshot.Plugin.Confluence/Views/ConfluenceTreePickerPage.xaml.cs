@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -93,6 +93,29 @@ public partial class ConfluenceTreePickerPage
         {
             ShowBusy.Visibility = Visibility.Collapsed;
         }
+    }
+
+    /// <summary>
+    /// A page selected with the keyboard is the target too, like a clicked one
+    /// </summary>
+    private void ConfluenceTreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+    {
+        // A space is no target: without this the page selected before would stay the target, while the space is shown selected
+        _confluenceUpload.SelectedPage = (e.NewValue as TreeViewItem)?.Tag as Page;
+    }
+
+    /// <summary>
+    /// Right arrow (expand) loads the child pages of the selected page, like the double click; Enter stays the upload
+    /// </summary>
+    private void ConfluenceTreeView_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key is not (Key.Right or Key.Add) || ConfluenceTreeView.SelectedItem is not TreeViewItem { Tag: Page page } selectedItem || selectedItem.HasItems)
+        {
+            return;
+        }
+
+        e.Handled = true;
+        AsyncCommand.Run(() => LoadChildPagesAsync(selectedItem, page), "Loading childpages for confluence page " + page.Title);
     }
 
     private void PageTreeViewItem_Click(object sender, MouseButtonEventArgs eventArgs)

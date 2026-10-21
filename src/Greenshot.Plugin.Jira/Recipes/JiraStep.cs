@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -140,6 +140,8 @@ namespace Greenshot.Plugin.Jira.Recipes
                 var destination = new JiraDestination();
                 var result = await DestinationExporter.ExportAsync(destination, source, captureDetails, false, context.UserInteraction, cancellationToken).ConfigureAwait(false);
                 await ExportResultHandler.ApplyAsync(destination, result, source, cancellationToken).ConfigureAwait(false);
+                // The Notification step shows it
+                context.RecordExport(destination, result, captureDetails, source);
                 if (result.Uri != null)
                 {
                     context.Properties["Jira.UploadUrl"] = result.Uri.AbsoluteUri;

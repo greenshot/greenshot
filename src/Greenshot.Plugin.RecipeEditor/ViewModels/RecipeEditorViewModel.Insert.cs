@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using Greenshot.Base.Languages;
 using Greenshot.Base.Wpf;
 
 namespace Greenshot.Plugin.RecipeEditor.ViewModels
@@ -86,7 +87,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             if (nearest != null)
             {
                 PutNodeIntoConnection(nearest, node);
-                StatusMessage = $"Inserted '{node.DisplayName}' between '{nearest.SourceNode.DisplayName}' and '{nearest.TargetNode.DisplayName}'";
+                StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusInsertedBetween, node.DisplayName, nearest.SourceNode.DisplayName, nearest.TargetNode.DisplayName);
             }
         }
 

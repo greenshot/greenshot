@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -92,10 +92,31 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Get the path of an executable
         /// </summary>
-        /// <param name="exeName">e.g. cmd.exe</param>
+        /// <param name="exeName">e.g. cmd.exe, or cmd as starting a process adds .exe to a name without extension</param>
         /// <returns>Path to file</returns>
         public static string GetExePath(string exeName)
         {
+            bool isFullPath;
+            try
+            {
+                isFullPath = Path.IsPathRooted(exeName);
+                if (!Path.HasExtension(exeName))
+                {
+                    exeName += ".exe";
+                }
+            }
+            catch (ArgumentException)
+            {
+                // Not a valid path
+                return null;
+            }
+
+            if (isFullPath)
+            {
+                // Searching the PATH would only check the same file again for every entry, which takes seconds each for a network drive which isn't there
+                return File.Exists(exeName) ? Path.GetFullPath(exeName) : null;
+            }
+
             using (var key = Registry.LocalMachine.OpenSubKey(PathKey + exeName, false))
             {
                 if (key != null)
@@ -229,21 +250,6 @@ namespace Greenshot.Base.Core
 
 
             return null;
-        }
-
-        /// <summary>
-        /// Gets the localized text for a plugin quicklink context menu item (e.g. "Configure {0}").
-        /// </summary>
-        /// <param name="pluginDisplayName">Display name of the plugin.</param>
-        /// <returns>Formatted quicklink text.</returns>
-        public static string GetQuicklinkText(string pluginDisplayName)
-        {
-            string format = Texts.Core.ContextmenuConfigurePlugin;
-            if (string.IsNullOrEmpty(format) || format.StartsWith("string ###"))
-            {
-                format = "Configure {0}";
-            }
-            return string.Format(format, pluginDisplayName);
         }
 
         private static readonly object TrayMenuEntriesLock = new object();

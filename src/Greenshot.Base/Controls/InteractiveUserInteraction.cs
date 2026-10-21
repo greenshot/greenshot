@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -209,21 +209,7 @@ namespace Greenshot.Base.Controls
             }
 
             // Notifications are shown on the UI thread, but nobody waits for the user
-            return _ui.InvokeAsync(() =>
-            {
-                switch (notification.Kind)
-                {
-                    case NotificationKind.Error:
-                        notificationService.ShowErrorMessage(notification.Message, notification.Timeout, notification.OnClick);
-                        break;
-                    case NotificationKind.Warning:
-                        notificationService.ShowWarningMessage(notification.Message, notification.Timeout, notification.OnClick);
-                        break;
-                    default:
-                        notificationService.ShowInfoMessage(notification.Message, notification.Timeout, notification.OnClick);
-                        break;
-                }
-            });
+            return _ui.InvokeAsync(() => notificationService.ShowNotification(notification));
         }
 
         public Task<bool?> ConfirmAsync(string title, string message, bool isError, CancellationToken cancellationToken)

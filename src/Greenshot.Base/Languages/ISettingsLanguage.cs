@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -232,6 +232,121 @@ namespace Greenshot.Base.Languages
         string DestinationPrinter { get; }
 
         /// <summary>
+        /// Available
+        /// </summary>
+        string DestinationAvailable { get; }
+
+        /// <summary>
+        /// Plugins are switched on or off at the next start of Greenshot.
+        /// </summary>
+        string PluginsRestart { get; }
+
+        /// <summary>
+        /// Switched off
+        /// </summary>
+        string PluginOff { get; }
+
+        /// <summary>
+        /// Not installed
+        /// </summary>
+        string PluginNotInstalled { get; }
+
+        /// <summary>
+        /// Not loaded, see the log
+        /// </summary>
+        string PluginNotLoaded { get; }
+
+        /// <summary>
+        /// Blocked by your administrator
+        /// </summary>
+        string PluginBlocked { get; }
+
+        /// <summary>
+        /// Signed by {0}
+        /// </summary>
+        string PluginSignedBy { get; }
+
+        /// <summary>
+        /// Not signed
+        /// </summary>
+        string PluginNotSigned { get; }
+
+        /// <summary>
+        /// Your administrator doesn't let you switch these off (greenshot-fixed.ini)
+        /// </summary>
+        string SetByAdministrator { get; }
+
+        /// <summary>
+        /// Block plugins…
+        /// </summary>
+        string BlockPlugins { get; }
+
+        /// <summary>
+        /// Block destinations…
+        /// </summary>
+        string BlockDestinations { get; }
+
+        /// <summary>
+        /// Restrict for all users (greenshot-fixed.ini)
+        /// </summary>
+        string RestrictForAllUsersTitle { get; }
+
+        /// <summary>
+        /// Copy these lines into greenshot-fixed.ini next to Greenshot.exe. Users can't switch on what these lines block.
+        /// </summary>
+        string AdministratorSettingsDescription { get; }
+
+        /// <summary>
+        /// Block what isn't checked
+        /// </summary>
+        string AdministratorSettingsBlockUnchecked { get; }
+
+        /// <summary>
+        /// Allow only what is checked, block everything else, also plugins and destinations which aren't known yet
+        /// </summary>
+        string AdministratorSettingsOnlyChecked { get; }
+
+        /// <summary>
+        /// Not installed yet? Add a plugin or destination by its name...
+        /// </summary>
+        string AddNotInstalled { get; }
+
+        /// <summary>
+        /// Name of the plugin or destination
+        /// </summary>
+        string AddNotInstalledName { get; }
+
+        /// <summary>
+        /// Add plugin
+        /// </summary>
+        string AddPlugin { get; }
+
+        /// <summary>
+        /// Add destination
+        /// </summary>
+        string AddDestination { get; }
+
+        /// <summary>
+        /// Users can't switch off plugins or destinations themselves
+        /// </summary>
+        string AdministratorSettingsNoUserExclusions { get; }
+
+        /// <summary>
+        /// Don't ask about plugins which aren't signed by the makers of Greenshot, load only the ones approved on this PC
+        /// </summary>
+        string AdministratorSettingsNoUnsignedQuestion { get; }
+
+        /// <summary>
+        /// Copy
+        /// </summary>
+        string AdministratorSettingsCopy { get; }
+
+        /// <summary>
+        /// Save as…
+        /// </summary>
+        string AdministratorSettingsSave { get; }
+
+        /// <summary>
         /// Editor
         /// </summary>
         string Editor { get; }
@@ -317,9 +432,24 @@ namespace Greenshot.Base.Languages
         string ExpertOptimizeforrdp { get; }
 
         /// <summary>
-        /// Reuse editor if possible
+        /// Open new captures as a tab in the editor window used last
         /// </summary>
-        string ExpertReuseeditorifpossible { get; }
+        string OpenCaptureAsTab { get; }
+
+        /// <summary>
+        /// Show the captures of an editor window as tabs
+        /// </summary>
+        string EditorTabs { get; }
+
+        /// <summary>
+        /// Size of a new image
+        /// </summary>
+        string NewImageSize { get; }
+
+        /// <summary>
+        /// Color of a new image
+        /// </summary>
+        string NewImageColor { get; }
 
         /// <summary>
         /// Suppress the save dialog when closing the editor
@@ -631,6 +761,36 @@ namespace Greenshot.Base.Languages
         string Shownotify { get; }
 
         /// <summary>
+        /// Notifications
+        /// </summary>
+        string Notifications { get; }
+
+        /// <summary>
+        /// All
+        /// </summary>
+        string NotificationsAll { get; }
+
+        /// <summary>
+        /// Warnings and errors
+        /// </summary>
+        string NotificationsWarnings { get; }
+
+        /// <summary>
+        /// Errors only
+        /// </summary>
+        string NotificationsErrors { get; }
+
+        /// <summary>
+        /// None
+        /// </summary>
+        string NotificationsNone { get; }
+
+        /// <summary>
+        /// Show a thumbnail of the capture in the notification
+        /// </summary>
+        string NotificationThumbnail { get; }
+
+        /// <summary>
         /// Storage location
         /// </summary>
         string Storagelocation { get; }
@@ -718,6 +878,31 @@ namespace Greenshot.Base.Languages
         string Waittime { get; }
 
         /// <summary>
+        /// Fixed capture sizes
+        /// </summary>
+        string FixedCaptureSizes { get; }
+
+        /// <summary>
+        /// The sizes F offers in the region selection, in this order: 1 picks the first. The sizes of the last region captures are offered below them.
+        /// </summary>
+        string TooltipFixedCaptureSizes { get; }
+
+        /// <summary>
+        /// Add a size
+        /// </summary>
+        string FixedCaptureSizesAdd { get; }
+
+        /// <summary>
+        /// Width
+        /// </summary>
+        string FixedCaptureSizesWidth { get; }
+
+        /// <summary>
+        /// Height
+        /// </summary>
+        string FixedCaptureSizesHeight { get; }
+
+        /// <summary>
         /// Window capture
         /// </summary>
         string Windowscapture { get; }
@@ -726,5 +911,175 @@ namespace Greenshot.Base.Languages
         /// Show magnifier
         /// </summary>
         string Zoom { get; }
+
+        /// <summary>
+        /// Freeze the screen while selecting
+        /// </summary>
+        string FreezeScreen { get; }
+
+        /// <summary>
+        /// Off: what is on the screen keeps moving while you select, only the selection is captured, when you make it
+        /// </summary>
+        string TooltipFreezeScreen { get; }
+
+        /// <summary>
+        /// Larger icons
+        /// </summary>
+        string IconsizeIncrease { get; }
+
+        /// <summary>
+        /// Smaller icons
+        /// </summary>
+        string IconsizeDecrease { get; }
+
+        /// <summary>
+        /// Choose the storage location
+        /// </summary>
+        string StoragelocationBrowse { get; }
+
+        /// <summary>
+        /// Placeholders of the filename pattern
+        /// </summary>
+        string FilenamepatternHelp { get; }
+
+        /// <summary>
+        /// Edit
+        /// </summary>
+        string HotkeyEdit { get; }
+
+        /// <summary>
+        /// Edit {0}: {1}
+        /// </summary>
+        string HotkeyEditValueAccessible { get; }
+
+        /// <summary>
+        /// Change the hotkey
+        /// </summary>
+        string HotkeyChange { get; }
+
+        /// <summary>
+        /// None
+        /// </summary>
+        string HotkeyNone { get; }
+
+        /// <summary>
+        /// then
+        /// </summary>
+        string HotkeyThen { get; }
+
+        /// <summary>
+        /// Step {0}:
+        /// </summary>
+        string HotkeyStep { get; }
+
+        /// <summary>
+        /// Step {0}: {1}
+        /// </summary>
+        string HotkeyStepAccessible { get; }
+
+        /// <summary>
+        /// Step {0}: {1}, selected
+        /// </summary>
+        string HotkeyStepSelectedAccessible { get; }
+
+        /// <summary>
+        /// Configure Hotkey: {0}
+        /// </summary>
+        string HotkeyEditorTitle { get; }
+
+        /// <summary>
+        /// Modifiers
+        /// </summary>
+        string HotkeyModifiers { get; }
+
+        /// <summary>
+        /// Ctrl key, left or right
+        /// </summary>
+        string HotkeyCtrlLocation { get; }
+
+        /// <summary>
+        /// Alt key, left or right
+        /// </summary>
+        string HotkeyAltLocation { get; }
+
+        /// <summary>
+        /// Shift key, left or right
+        /// </summary>
+        string HotkeyShiftLocation { get; }
+
+        /// <summary>
+        /// Win key, left or right
+        /// </summary>
+        string HotkeyWinLocation { get; }
+
+        /// <summary>
+        /// Key Sequence Steps &amp; Capture
+        /// </summary>
+        string HotkeyStepsCapture { get; }
+
+        /// <summary>
+        /// Remove step
+        /// </summary>
+        string HotkeyRemoveStep { get; }
+
+        /// <summary>
+        /// + Add Step
+        /// </summary>
+        string HotkeyAddStep { get; }
+
+        /// <summary>
+        /// Add next chord step to this sequence
+        /// </summary>
+        string HotkeyAddStepTooltip { get; }
+
+        /// <summary>
+        /// Hotkey
+        /// </summary>
+        string HotkeyCapture { get; }
+
+        /// <summary>
+        /// Press the keys of the hotkey. Tab moves on, Esc cancels.
+        /// </summary>
+        string HotkeyCaptureHelp { get; }
+
+        /// <summary>
+        /// Click here to focus and press shortcut keys
+        /// </summary>
+        string HotkeyCaptureHint { get; }
+
+        /// <summary>
+        /// Listening... Press keys on your keyboard
+        /// </summary>
+        string HotkeyCaptureListening { get; }
+
+        /// <summary>
+        /// Click here and press key
+        /// </summary>
+        string HotkeyPressKey { get; }
+
+        /// <summary>
+        /// Clear / Reset
+        /// </summary>
+        string HotkeyClear { get; }
+
+        /// <summary>
+        /// Preview:
+        /// </summary>
+        string HotkeyPreview { get; }
+
+        /// <summary>
+        /// Save / Apply
+        /// </summary>
+        string HotkeySave { get; }
+
+        /// <summary>
+        /// Please choose a trigger key for the selected modifiers.
+        /// </summary>
+        string HotkeyErrorNoTrigger { get; }
+
+        /// <summary>
+        /// Step {0} requires a trigger key.
+        /// </summary>
+        string HotkeyErrorStepNoTrigger { get; }
     }
 }

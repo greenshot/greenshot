@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -44,11 +44,9 @@ public class ConfluencePlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeSt
     private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluencePlugin));
     private static ConfluenceConnector _confluenceConnector;
     private static IConfluenceConfiguration _config;
-    private TrayMenuEntry _itemPlugInConfig;
 
     public ValueTask DisposeAsync()
     {
-        // The menu item is removed and disposed in StopAsync
         return default;
     }
 
@@ -94,10 +92,7 @@ public class ConfluencePlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeSt
         _config = section;
 
         services.AddService<IIconProvider>(new ConfluenceIconProvider());
-        if (ConfluenceDestination.IsInitialized)
-        {
-            services.AddService<IDestination>(new ConfluenceDestination());
-        }
+        services.AddService<IDestination>(new ConfluenceDestination());
 
         services.AddRecipeStepProvider(this);
         services.AddSettingsView<IConfluenceConfiguration>(config => new ConfluenceConfigurationView(config));
@@ -116,63 +111,17 @@ public class ConfluencePlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeSt
     }
 
     /// <summary>
-    /// Register the dialog, add the quick link to the context menu (on the UI thread)
+    /// Register the upload dialog
     /// </summary>
     public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken)
     {
         services.GetService<IDialogViewRegistry>()?.Register<ConfluenceUploadRequest, ConfluenceUploadChoice>(ConfluenceUploadWindow.Show);
-        return services.GetRequiredService<IUiDispatcher>().RunOnUiAsync(Start, cancellationToken);
-    }
-
-    private void Start()
-    {
-        _itemPlugInConfig = new TrayMenuEntry
-        {
-            Image = ConfluenceDestination.LoadConfluenceIcon(),
-            Text = PluginUtils.GetQuicklinkText("Confluence"),
-            Visible = _config?.QuicklinkEnabled ?? false
-        };
-        _itemPlugInConfig.Click += delegate { ShowSettings(); };
-
-        PluginUtils.AddToContextMenu(_itemPlugInConfig);
-        Texts.Config.LanguageChanged += OnLanguageChanged;
-        if (_config is INotifyPropertyChanged notify)
-        {
-            notify.PropertyChanged += OnConfigPropertyChanged;
-        }
-    }
-
-    private void OnConfigPropertyChanged(object sender, PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == nameof(IConfluenceConfiguration.QuicklinkEnabled))
-        {
-            if (_itemPlugInConfig != null)
-            {
-                _itemPlugInConfig.Visible = _config?.QuicklinkEnabled ?? false;
-            }
-        }
-    }
-
-    public void OnLanguageChanged(object sender, EventArgs e)
-    {
-        if (_itemPlugInConfig != null)
-        {
-            _itemPlugInConfig.Text = PluginUtils.GetQuicklinkText("Confluence");
-        }
+        return Task.CompletedTask;
     }
 
     public Task StopAsync(CancellationToken cancellationToken) =>
         UiDispatcher.Current.RunOnUiAsync(() =>
         {
-            LOG.Debug("Confluence Plugin shutdown.");
-            Texts.Config.LanguageChanged -= OnLanguageChanged;
-            if (_config is INotifyPropertyChanged notify)
-            {
-                notify.PropertyChanged -= OnConfigPropertyChanged;
-            }
-
-            _itemPlugInConfig?.Dispose();
-            _itemPlugInConfig = null;
             if (_confluenceConnector != null)
             {
                 _confluenceConnector.Logout();
@@ -180,11 +129,4 @@ public class ConfluencePlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeSt
             }
         }, cancellationToken);
 
-    /// <summary>
-    /// Show the settings of this plugin
-    /// </summary>
-    private void ShowSettings()
-    {
-        SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true)?.ShowSetting(Name);
-    }
 }

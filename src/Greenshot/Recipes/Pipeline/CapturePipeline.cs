@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -221,6 +221,24 @@ namespace Greenshot.Recipes.Pipeline
                 if (CoreConfig.MinimizeWorkingSetSize)
                 {
                     PsApi.EmptyWorkingSet();
+                }
+
+                // A failed flow didn't get to its Notification step: what it exported is shown with the failure, while the export
+                // sources still exist (the kept capture of the toast comes from them). CaptureFlowRunner then shows no other message.
+                if (context.State == CaptureFlowState.Failed)
+                {
+                    try
+                    {
+                        string flowError = context.Error?.Message ?? context.AbortReason;
+                        if (await ExportNotification.ShowAsync(context, flowError, CancellationToken.None).ConfigureAwait(false))
+                        {
+                            context.Properties[ExportNotification.FailureShownProperty] = true;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Warn("The notification of the failed flow failed", ex);
+                    }
                 }
 
                 // The caller's last look at the result, while the payload still exists

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -54,6 +54,7 @@ namespace Greenshot.Editor.Helpers
             {"System.Drawing.Color",typeof(System.Drawing.Color) },
             {"System.Drawing.Bitmap",typeof(System.Drawing.Bitmap) },
             {"System.Drawing.Icon",typeof(System.Drawing.Icon) },
+            {"System.Drawing.Imaging.Metafile",typeof(System.Drawing.Imaging.Metafile) },
             {"System.Drawing.Size",typeof(System.Drawing.Size) },
             {"System.IO.MemoryStream",typeof(System.IO.MemoryStream) },
             {"System.Drawing.StringAlignment",typeof(System.Drawing.StringAlignment) },

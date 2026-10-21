@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -51,7 +51,7 @@ public class ConfluenceDestination : DestinationBase, IRequiresRecipeAuthorizati
     private static Image _confluenceIcon;
     private readonly Page _page;
 
-    internal static Image LoadConfluenceIcon()
+    private static Image LoadConfluenceIcon()
     {
         if (_confluenceIcon != null)
         {
@@ -99,14 +99,8 @@ public class ConfluenceDestination : DestinationBase, IRequiresRecipeAuthorizati
                 }
             }
 
-            IsInitialized = _confluenceIcon != null;
             return _confluenceIcon;
         }
-    }
-
-    static ConfluenceDestination()
-    {
-        LoadConfluenceIcon();
     }
 
     public static Image ConfluenceIcon => LoadConfluenceIcon();
@@ -115,8 +109,6 @@ public class ConfluenceDestination : DestinationBase, IRequiresRecipeAuthorizati
     /// The icon key of the Confluence destinations
     /// </summary>
     public const string IconKey = "confluence:icon";
-
-    public static bool IsInitialized { get; private set; }
 
     public ConfluenceDestination()
     {

@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -27,7 +27,7 @@ using Dapplo.Windows.Icons;
 using Dapplo.Windows.Icons.SafeHandles;
 using Dapplo.Windows.Messages.Enums;
 using Dapplo.Windows.User32;
-using Greenshot.Editor.Forms;
+using Greenshot.Editor.Views;
 
 namespace Greenshot.Editor.Controls
 {
@@ -37,7 +37,7 @@ namespace Greenshot.Editor.Controls
     /// </summary>
     public sealed class Pipette : Label, IMessageFilter, IDisposable
     {
-        private MovableShowColorForm _movableShowColorForm;
+        private MovableShowColorWindow _movableShowColorWindow;
         private bool _dragging;
         private Cursor _cursor;
         private readonly Bitmap _image;
@@ -67,7 +67,7 @@ namespace Greenshot.Editor.Controls
             _image = CreatePipetteBitmap();
             Image = _image;
             _cursor = CreateCursor(_image, 1, 14);
-            _movableShowColorForm = new MovableShowColorForm();
+            _movableShowColorWindow = new MovableShowColorWindow();
             Application.AddMessageFilter(this);
         }
 
@@ -117,10 +117,10 @@ namespace Greenshot.Editor.Controls
                     _cursor.Dispose();
                 }
 
-                _movableShowColorForm?.Dispose();
+                _movableShowColorWindow?.Close();
             }
 
-            _movableShowColorForm = null;
+            _movableShowColorWindow = null;
             _cursor = null;
             base.Dispose(disposing);
         }
@@ -134,7 +134,7 @@ namespace Greenshot.Editor.Controls
             if (e.Button == MouseButtons.Left)
             {
                 User32Api.SetCapture(Handle);
-                _movableShowColorForm.MoveTo(PointToScreen(new Point(e.X, e.Y)));
+                _movableShowColorWindow.MoveTo(PointToScreen(new Point(e.X, e.Y)));
             }
 
             base.OnMouseDown(e);
@@ -150,7 +150,7 @@ namespace Greenshot.Editor.Controls
             {
                 //Release Capture should consume MouseUp when canceled with the escape key 
                 User32Api.ReleaseCapture();
-                PipetteUsed?.Invoke(this, new PipetteUsedArgs(_movableShowColorForm.Color));
+                PipetteUsed?.Invoke(this, new PipetteUsedArgs(_movableShowColorWindow.Color));
             }
 
             base.OnMouseUp(e);
@@ -166,7 +166,7 @@ namespace Greenshot.Editor.Controls
             {
                 //display the form on the right side of the cursor by default;
                 Point zp = PointToScreen(new Point(e.X, e.Y));
-                _movableShowColorForm.MoveTo(zp);
+                _movableShowColorWindow.MoveTo(zp);
             }
 
             base.OnMouseMove(e);
@@ -184,14 +184,14 @@ namespace Greenshot.Editor.Controls
                 Image = null;
                 Cursor c = _cursor;
                 Cursor = c;
-                _movableShowColorForm.Visible = true;
+                _movableShowColorWindow.Show();
             }
             else
             {
                 _dragging = false;
                 Image = _image;
                 Cursor = Cursors.Arrow;
-                _movableShowColorForm.Visible = false;
+                _movableShowColorWindow.Hide();
             }
 
             Update();

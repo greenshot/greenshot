@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -33,10 +33,6 @@ namespace Greenshot.Plugin.Jira;
 [Description("Greenshot Jira Plugin configuration")]
 public interface IJiraConfiguration : IIniSection
 {
-    [Description("Whether to show a quicklink in the tray context menu for configuring this plugin.")]
-    [DefaultValue(false)]
-    bool QuicklinkEnabled { get; set; }
-
     [Description("Base url to Jira system, without anything else")]
     [DefaultValue("https://jira")]
     [Required(ErrorMessage = "Jira URL is required.")]

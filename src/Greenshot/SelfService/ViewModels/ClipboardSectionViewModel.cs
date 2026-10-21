@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -289,11 +289,11 @@ namespace Greenshot.SelfService.ViewModels
             }
             else
             {
-                OwnerProcessName = "None";
+                OwnerProcessName = Texts.SelfService.ClipboardNone;
                 OwnerProcessId = 0;
-                OwnerWindowTitle = "None";
-                OwnerExecutablePath = "(No owner or system clipboard)";
-                CurrentOwnerInfo = "None (or system clipboard)";
+                OwnerWindowTitle = Texts.SelfService.ClipboardNone;
+                OwnerExecutablePath = Texts.SelfService.ClipboardNoOwner;
+                CurrentOwnerInfo = Texts.SelfService.ClipboardNoneSystem;
             }
         }
 
@@ -395,7 +395,7 @@ namespace Greenshot.SelfService.ViewModels
                 catch (Exception ex)
                 {
                     Log.Error("Error checking clipboard status", ex);
-                    StatusHeader = "Error checking clipboard status";
+                    StatusHeader = Texts.SelfService.ClipboardStatusError;
                     StatusDetails = ex.Message;
                     StatusBrush = WpfThemeHelper.WarningText;
                 }
@@ -404,10 +404,10 @@ namespace Greenshot.SelfService.ViewModels
 
         private void ExtractProcessDetails(IntPtr hWnd, out string processName, out int processId, out string windowTitle, out string executablePath)
         {
-            processName = "Unknown Process";
+            processName = Texts.SelfService.ClipboardUnknownProcess;
             processId = 0;
-            windowTitle = "(No Title)";
-            executablePath = "Unknown Path";
+            windowTitle = Texts.SelfService.ClipboardNoTitle;
+            executablePath = Texts.SelfService.ClipboardUnknownPath;
 
             if (hWnd == IntPtr.Zero)
             {
@@ -417,7 +417,7 @@ namespace Greenshot.SelfService.ViewModels
             try
             {
                 // Use Dapplo.Windows.User32.User32Api
-                windowTitle = User32Api.GetText(hWnd) ?? "(No Title)";
+                windowTitle = User32Api.GetText(hWnd) ?? Texts.SelfService.ClipboardNoTitle;
 
                 User32Api.GetWindowThreadProcessId(hWnd, out var pid);
                 processId = (int)pid;
@@ -428,11 +428,11 @@ namespace Greenshot.SelfService.ViewModels
                     processName = proc.ProcessName;
                     try
                     {
-                        executablePath = proc.MainModule?.FileName ?? "Access Denied";
+                        executablePath = proc.MainModule?.FileName ?? Texts.SelfService.ClipboardAccessDenied;
                     }
                     catch
                     {
-                        executablePath = "(Protected or Elevated Process)";
+                        executablePath = Texts.SelfService.ClipboardProtectedProcess;
                     }
                 }
             }
@@ -457,7 +457,7 @@ namespace Greenshot.SelfService.ViewModels
                         foreach (var formatName in formats)
                         {
                             string desc = GetFormatDescription(formatName);
-                            string details = "Native clipboard data";
+                            string details = Texts.SelfService.ClipboardNativeData;
                             string sizeText = "-";
 
                             try
@@ -468,8 +468,8 @@ namespace Greenshot.SelfService.ViewModels
                                     string text = token.GetAsUnicodeString(formatName);
                                     if (text != null)
                                     {
-                                        details = $"Text: \"{TruncateString(text, 60)}\"";
-                                        sizeText = $"{text.Length:N0} chars";
+                                        details = string.Format(Texts.SelfService.ClipboardTextPreview, TruncateString(text, 60));
+                                        sizeText = string.Format(Texts.SelfService.ClipboardChars, text.Length);
                                     }
                                 }
                                 else if (string.Equals(formatName, "CF_HDROP", StringComparison.OrdinalIgnoreCase))
@@ -478,30 +478,30 @@ namespace Greenshot.SelfService.ViewModels
                                     if (files != null && files.Count > 0)
                                     {
                                         string preview = string.Join(", ", files.Take(2));
-                                        if (files.Count > 2) preview += $" (+{files.Count - 2} more)";
-                                        details = $"Files: {preview}";
-                                        sizeText = $"{files.Count} files";
+                                        if (files.Count > 2) preview += " " + string.Format(Texts.SelfService.ClipboardMoreFiles, files.Count - 2);
+                                        details = string.Format(Texts.SelfService.ClipboardFilesPreview, preview);
+                                        sizeText = string.Format(Texts.SelfService.ClipboardFilesCount, files.Count);
                                     }
                                 }
                                 else if (string.Equals(formatName, "CF_BITMAP", StringComparison.OrdinalIgnoreCase) ||
                                          string.Equals(formatName, "CF_DIB", StringComparison.OrdinalIgnoreCase) ||
                                          string.Equals(formatName, "CF_DIBV5", StringComparison.OrdinalIgnoreCase))
                                 {
-                                    details = "Raster bitmap image data";
-                                    sizeText = "Image";
+                                    details = Texts.SelfService.ClipboardRasterImage;
+                                    sizeText = Texts.SelfService.ClipboardImage;
                                 }
                                 else if (formatName.IndexOf("PNG", StringComparison.OrdinalIgnoreCase) >= 0)
                                 {
-                                    details = "PNG compressed image data";
-                                    sizeText = "Image";
+                                    details = Texts.SelfService.ClipboardPngImage;
+                                    sizeText = Texts.SelfService.ClipboardImage;
                                 }
                                 else if (formatName.StartsWith("HTML", StringComparison.OrdinalIgnoreCase))
                                 {
-                                    details = "HTML formatted text fragment";
+                                    details = Texts.SelfService.ClipboardHtmlFragment;
                                 }
                                 else if (formatName.StartsWith("Rich Text", StringComparison.OrdinalIgnoreCase))
                                 {
-                                    details = "Rich Text Format (RTF)";
+                                    details = Texts.SelfService.ClipformatRtf;
                                 }
                             }
                             catch (Exception ex)
@@ -624,7 +624,7 @@ namespace Greenshot.SelfService.ViewModels
                             Timestamp = DateTime.Now.ToString("HH:mm:ss.fff"),
                             IsBlocked = false,
                             Message = string.IsNullOrEmpty(stopMsg) ? "Stopped clipboard monitoring loop" : stopMsg,
-                            ProcessDetails = "Idle"
+                            ProcessDetails = Texts.SelfService.ClipboardIdle
                         });
                     }
                 }

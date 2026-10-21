@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -70,7 +70,7 @@ namespace Greenshot.Destinations
         {
             SharingFiles.CleanupOldShareFiles();
             // A unique name, an app which still has an older share open keeps its file
-            string filePath = Path.Combine(Path.GetTempPath(), $"greenshot_share_{Guid.NewGuid()}.png");
+            string filePath = Path.Combine(ImageIO.GetTmpDirectory(), $"greenshot_share_{Guid.NewGuid()}.png");
             await ExportFiles.SaveAsync(request.Source, filePath, false, new SurfaceOutputSettings(WellKnownFileFormats.Png), cancellationToken).ConfigureAwait(false);
             string appName = await request.Ui.ShowDialogAsync(new ShareRequest(filePath, request.Metadata?.Title), cancellationToken).ConfigureAwait(false);
             return appName == null ? ExportResult.Declined : ExportResult.Succeeded(target: appName);
@@ -91,7 +91,7 @@ namespace Greenshot.Destinations
         {
             try
             {
-                foreach (string file in Directory.GetFiles(Path.GetTempPath(), "greenshot_share_*.png"))
+                foreach (string file in Directory.GetFiles(ImageIO.GetTmpDirectory(), "greenshot_share_*.png"))
                 {
                     try
                     {

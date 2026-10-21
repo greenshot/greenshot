@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -28,13 +28,12 @@ namespace Greenshot.Base.Recipes.Triggers
 {
     /// <summary>
     /// Configuration entity for a modular trigger attached to a capture recipe.
-    /// Supports hotkeys, systray/context menu entries, clipboard monitors, and manual triggers.
+    /// Supports hotkeys, context menu entries, clipboard monitors, and manual triggers.
     /// </summary>
     public class TriggerConfig
     {
         public const string TypeHotkey = "Hotkey";
         public const string TypeContextMenu = "ContextMenu";
-        public const string TypeSystray = "Systray";
         public const string TypeClipboard = "Clipboard";
         public const string TypeEditor = "Editor";
         public const string TypeManual = "Manual";

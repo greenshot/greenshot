@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -73,12 +73,14 @@ namespace Greenshot.Tests
                 // The plugins register their texts when they start, the tests need them without starting the plugins
                 Texts.Register<Greenshot.Plugin.Box.IBoxLanguage>(new Greenshot.Plugin.Box.BoxLanguageImpl());
                 Texts.Register<Greenshot.Plugin.Confluence.IConfluenceLanguage>(new Greenshot.Plugin.Confluence.ConfluenceLanguageImpl());
+                Texts.Register<Greenshot.Plugin.CustomUploader.ICustomUploaderLanguage>(new Greenshot.Plugin.CustomUploader.CustomUploaderLanguageImpl());
                 Texts.Register<Greenshot.Plugin.Dropbox.IDropboxLanguage>(new Greenshot.Plugin.Dropbox.DropboxLanguageImpl());
                 Texts.Register<Greenshot.Plugin.ExternalCommand.IExternalCommandLanguage>(new Greenshot.Plugin.ExternalCommand.ExternalCommandLanguageImpl());
-                Texts.Register<Greenshot.Plugin.Imgur.IImgurLanguage>(new Greenshot.Plugin.Imgur.ImgurLanguageImpl());
                 Texts.Register<Greenshot.Plugin.Jira.IJiraLanguage>(new Greenshot.Plugin.Jira.JiraLanguageImpl());
                 Texts.Register<Greenshot.Plugin.Office.IOfficeLanguage>(new Greenshot.Plugin.Office.OfficeLanguageImpl());
                 Texts.Register<Greenshot.Plugin.Pdf.IPdfLanguage>(new Greenshot.Plugin.Pdf.PdfLanguageImpl());
+                Texts.Register<Greenshot.Plugin.RecipeEditor.IRecipeEditorLanguage>(new Greenshot.Plugin.RecipeEditor.RecipeEditorLanguageImpl());
+                Texts.Register<Greenshot.Plugin.Zxing.IZxingLanguage>(new Greenshot.Plugin.Zxing.ZxingLanguageImpl());
 
                 _initialized = true;
             }

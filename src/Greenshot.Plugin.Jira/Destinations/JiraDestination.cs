@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -179,12 +179,13 @@ public class JiraDestination : DestinationBase, IRequiresRecipeAuthorization
     public override ValueTask<IReadOnlyList<IDestination>> GetDynamicDestinationsAsync(ICaptureDetails metadata, CancellationToken cancellationToken)
     {
         var jiraConnector = SimpleServiceProvider.Current.GetInstance<JiraConnector>(isOptional: true);
-        if (_jiraIssue != null || jiraConnector == null || !jiraConnector.IsLoggedIn)
+        var monitor = jiraConnector?.Monitor;
+        if (_jiraIssue != null || monitor == null || !jiraConnector.IsLoggedIn)
         {
             return base.GetDynamicDestinationsAsync(metadata, cancellationToken);
         }
 
-        IReadOnlyList<IDestination> destinations = jiraConnector.Monitor.RecentJiras.Select(jiraDetails => (IDestination) new JiraDestination(jiraDetails.JiraIssue)).ToList();
+        IReadOnlyList<IDestination> destinations = monitor.RecentJiras.Select(jiraDetails => (IDestination) new JiraDestination(jiraDetails.JiraIssue)).ToList();
         return new ValueTask<IReadOnlyList<IDestination>>(destinations);
     }
 

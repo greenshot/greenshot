@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -26,7 +26,6 @@ using System.IO;
 using System.IO.Pipes;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography.X509Certificates;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Ipc;
@@ -261,7 +260,7 @@ namespace Greenshot.Ai
             {
                 ExePath = exePath,
                 DisplayName = string.IsNullOrWhiteSpace(displayName) ? Path.GetFileNameWithoutExtension(exePath) : displayName.Trim(),
-                Signer = GetVerifiedSigner(exePath)
+                Signer = AuthenticodeHelper.GetVerifiedSigner(exePath)
             };
         }
 
@@ -293,89 +292,6 @@ namespace Greenshot.Ai
             return null;
         }
 
-        /// <summary>
-        /// The signer's name when the file has a valid Authenticode signature, otherwise null.
-        /// </summary>
-        private static string GetVerifiedSigner(string filePath)
-        {
-            if (!VerifyAuthenticode(filePath))
-            {
-                return null;
-            }
-            try
-            {
-                using var certificate = new X509Certificate2(X509Certificate.CreateFromSignedFile(filePath));
-                return certificate.GetNameInfo(X509NameType.SimpleName, false);
-            }
-            catch (Exception ex)
-            {
-                Log.Debug($"Could not read the signer of {filePath}", ex);
-                return null;
-            }
-        }
-
-        private static bool VerifyAuthenticode(string filePath)
-        {
-            IntPtr fileInfoPointer = IntPtr.Zero;
-            IntPtr dataPointer = IntPtr.Zero;
-            var data = new WinTrustData();
-            try
-            {
-                var fileInfo = new WinTrustFileInfo
-                {
-                    cbStruct = (uint)Marshal.SizeOf<WinTrustFileInfo>(),
-                    pcwszFilePath = filePath
-                };
-                fileInfoPointer = Marshal.AllocHGlobal(Marshal.SizeOf<WinTrustFileInfo>());
-                Marshal.StructureToPtr(fileInfo, fileInfoPointer, false);
-
-                data.cbStruct = (uint)Marshal.SizeOf<WinTrustData>();
-                data.dwUIChoice = WtdUiNone;
-                data.fdwRevocationChecks = WtdRevokeNone;
-                data.dwUnionChoice = WtdChoiceFile;
-                data.pFile = fileInfoPointer;
-                data.dwStateAction = WtdStateActionVerify;
-                data.dwProvFlags = WtdCacheOnlyUrlRetrieval;
-                dataPointer = Marshal.AllocHGlobal(Marshal.SizeOf<WinTrustData>());
-                Marshal.StructureToPtr(data, dataPointer, false);
-
-                var action = WinTrustActionGenericVerifyV2;
-                int result = WinVerifyTrust(IntPtr.Zero, ref action, dataPointer);
-
-                // Release the state data
-                var verified = Marshal.PtrToStructure<WinTrustData>(dataPointer);
-                verified.dwStateAction = WtdStateActionClose;
-                Marshal.StructureToPtr(verified, dataPointer, true);
-                WinVerifyTrust(IntPtr.Zero, ref action, dataPointer);
-                return result == 0;
-            }
-            catch (Exception ex)
-            {
-                Log.Debug($"Could not verify the signature of {filePath}", ex);
-                return false;
-            }
-            finally
-            {
-                if (dataPointer != IntPtr.Zero)
-                {
-                    Marshal.FreeHGlobal(dataPointer);
-                }
-                if (fileInfoPointer != IntPtr.Zero)
-                {
-                    Marshal.DestroyStructure<WinTrustFileInfo>(fileInfoPointer);
-                    Marshal.FreeHGlobal(fileInfoPointer);
-                }
-            }
-        }
-
-        private const uint WtdUiNone = 2;
-        private const uint WtdRevokeNone = 0;
-        private const uint WtdChoiceFile = 1;
-        private const uint WtdStateActionVerify = 1;
-        private const uint WtdStateActionClose = 2;
-        private const uint WtdCacheOnlyUrlRetrieval = 0x1000;
-        private static readonly Guid WinTrustActionGenericVerifyV2 = new Guid("00AAC56B-CD44-11d0-8CC2-00C04FC295EE");
-
         [StructLayout(LayoutKind.Sequential)]
         private struct ProcessBasicInformation
         {
@@ -387,34 +303,6 @@ namespace Greenshot.Ai
             public IntPtr InheritedFromUniqueProcessId;
         }
 
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-        private struct WinTrustFileInfo
-        {
-            public uint cbStruct;
-            [MarshalAs(UnmanagedType.LPWStr)]
-            public string pcwszFilePath;
-            public IntPtr hFile;
-            public IntPtr pgKnownSubject;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct WinTrustData
-        {
-            public uint cbStruct;
-            public IntPtr pPolicyCallbackData;
-            public IntPtr pSIPClientData;
-            public uint dwUIChoice;
-            public uint fdwRevocationChecks;
-            public uint dwUnionChoice;
-            public IntPtr pFile;
-            public uint dwStateAction;
-            public IntPtr hWVTStateData;
-            public IntPtr pwszURLReference;
-            public uint dwProvFlags;
-            public uint dwUIContext;
-            public IntPtr pSignatureSettings;
-        }
-
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool GetProcessTimes(SafeProcessHandle process, out long creationTime, out long exitTime, out long kernelTime, out long userTime);
@@ -422,7 +310,5 @@ namespace Greenshot.Ai
         [DllImport("ntdll.dll")]
         private static extern int NtQueryInformationProcess(SafeProcessHandle process, int processInformationClass, ref ProcessBasicInformation processInformation, int processInformationLength, out int returnLength);
 
-        [DllImport("wintrust.dll", CharSet = CharSet.Unicode)]
-        private static extern int WinVerifyTrust(IntPtr hwnd, ref Guid actionId, IntPtr data);
     }
 }

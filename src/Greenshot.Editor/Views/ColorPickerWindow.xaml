@@ -21,6 +21,11 @@
     </WindowChrome.WindowChrome>
 
     <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
         <DrawingBrush x:Key="CheckerboardBrush" TileMode="Tile" Viewport="0,0,10,10" ViewportUnits="Absolute">
             <DrawingBrush.Drawing>
                 <DrawingGroup>
@@ -41,35 +46,11 @@
             </DrawingBrush.Drawing>
         </DrawingBrush>
 
-        <Style x:Key="TitleBarCloseButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Width" Value="46"/>
-            <Setter Property="Height" Value="36"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" BorderThickness="0">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#E81123"/>
-                                <Setter Property="Foreground" Value="White"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
         <Style TargetType="Label">
             <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Padding" Value="0,2"/>
-            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontSize" Value="{wpf:FontSize 11}"/>
         </Style>
 
         <Style TargetType="TextBox">
@@ -78,70 +59,10 @@
             <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Height" Value="22"/>
-            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontSize" Value="{wpf:FontSize 11}"/>
             <Setter Property="Padding" Value="4,0"/>
         </Style>
-
-        <Style TargetType="Button">
-            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="8,3"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Name="Border"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="3"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonPressedBrush}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="PaletteSwatchStyle" TargetType="Button">
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="#80808080"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Width" Value="16"/>
-            <Setter Property="Height" Value="16"/>
-            <Setter Property="Margin" Value="1"/>
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Name="SwatchBorder"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="1">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="SwatchBorder" Property="BorderBrush" Value="#FFFFFFFF"/>
-                                <Setter TargetName="SwatchBorder" Property="BorderThickness" Value="2"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        </ResourceDictionary>
     </Window.Resources>
 
     <Border BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
@@ -174,15 +95,14 @@
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                            VerticalAlignment="Center"
                            Margin="8,0,0,0"
-                           FontSize="13"
+                           FontSize="{wpf:FontSize 13}"
                            FontWeight="SemiBold"
                            WindowChrome.IsHitTestVisibleInChrome="False"/>
 
                 <Button Grid.Column="2"
-                        Content="✕" 
                         Click="CloseButton_Click"
-                        Style="{StaticResource TitleBarCloseButtonStyle}"
-                        ToolTip="Close"
+                        Style="{StaticResource TitleCloseButtonStyle}"
+                        ToolTip="{wpf:Text Core.AccessibleClose}"
                         WindowChrome.IsHitTestVisibleInChrome="True"/>
             </Grid>
 
@@ -205,17 +125,21 @@
                     </Grid.RowDefinitions>
 
                     <!-- Palette Grid (13 cols x 11 rows) -->
-                    <UniformGrid x:Name="PaletteGrid" Grid.Row="0" Columns="13" Rows="11" />
+                    <!-- Tab enters the palette once, the arrow keys move between the colors -->
+                    <UniformGrid x:Name="PaletteGrid" Grid.Row="0" Columns="13" Rows="11"
+                                 KeyboardNavigation.TabNavigation="Once" KeyboardNavigation.DirectionalNavigation="Contained" />
 
                     <!-- Recent Colors Label -->
-                    <TextBlock Grid.Row="2"
+                    <TextBlock Grid.Row="2" x:Name="RecentColorsLabel"
                                Text="{wpf:Text Core.ColorpickerRecentcolors}"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
-                               FontSize="11"
+                               FontSize="{wpf:FontSize 11}"
                                FontWeight="SemiBold"/>
 
                     <!-- Recent Colors Row (12 swatches) -->
-                    <UniformGrid x:Name="RecentColorsGrid" Grid.Row="4" Columns="12" Rows="1" />
+                    <UniformGrid x:Name="RecentColorsGrid" Grid.Row="4" Columns="12" Rows="1"
+                                 KeyboardNavigation.TabNavigation="Once" KeyboardNavigation.DirectionalNavigation="Contained"
+                                 AutomationProperties.LabeledBy="{Binding ElementName=RecentColorsLabel}" />
                 </Grid>
 
                 <!-- Separator line -->
@@ -241,7 +165,7 @@
                     <!-- Transparent Button -->
                     <Button Grid.Row="0" x:Name="BtnTransparent"
                             Content="{wpf:Text Core.ColorpickerTransparent}"
-                            Height="24"
+                            Style="{StaticResource SecondaryButtonStyle}"
                             Click="BtnTransparent_Click"/>
 
                     <!-- Preview & Pipette -->
@@ -268,18 +192,20 @@
                         <Button Grid.Column="2" x:Name="BtnPipette"
                                 Height="28" Width="32"
                                 Padding="0"
-                                ToolTip="Pipette"
+                                ToolTip="{wpf:Text Core.ColorpickerPipette}"
+                                AutomationProperties.Name="{wpf:Text Core.ColorpickerPipette}"
+                                Style="{StaticResource SecondaryButtonStyle}"
                                 PreviewMouseLeftButtonDown="BtnPipette_PreviewMouseLeftButtonDown">
                             <Image x:Name="PipetteIcon" Width="16" Height="16"/>
                         </Button>
                     </Grid>
 
                     <!-- HTML Color -->
-                    <TextBlock Grid.Row="4"
+                    <TextBlock Grid.Row="4" x:Name="HtmlColorLabel"
                                Text="{wpf:Text Core.ColorpickerHtmlcolor}"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
-                               FontSize="11"/>
-                    <TextBox Grid.Row="6" x:Name="TextBoxHtml"
+                               FontSize="{wpf:FontSize 11}"/>
+                    <TextBox Grid.Row="6" x:Name="TextBoxHtml" AutomationProperties.LabeledBy="{Binding ElementName=HtmlColorLabel}"
                              TextChanged="TextBoxHtml_TextChanged"
                              GotFocus="TextBox_GotFocus"
                              KeyDown="TextBox_KeyDown"/>
@@ -303,7 +229,7 @@
                         </Grid.RowDefinitions>
 
                         <!-- Red -->
-                        <Label Grid.Row="0" Grid.Column="0" Content="{wpf:Text Core.ColorpickerRed}"/>
+                        <Label Grid.Row="0" Grid.Column="0" Content="{wpf:Text Core.ColorpickerRed}" Target="{Binding ElementName=TextBoxRed}"/>
                         <TextBox Grid.Row="0" Grid.Column="1" x:Name="TextBoxRed"
                                  Width="46" HorizontalAlignment="Right" TextAlignment="Right"
                                  TextChanged="TextBoxRgb_TextChanged"
@@ -311,7 +237,7 @@
                                  KeyDown="TextBox_KeyDown"/>
 
                         <!-- Green -->
-                        <Label Grid.Row="2" Grid.Column="0" Content="{wpf:Text Core.ColorpickerGreen}"/>
+                        <Label Grid.Row="2" Grid.Column="0" Content="{wpf:Text Core.ColorpickerGreen}" Target="{Binding ElementName=TextBoxGreen}"/>
                         <TextBox Grid.Row="2" Grid.Column="1" x:Name="TextBoxGreen"
                                  Width="46" HorizontalAlignment="Right" TextAlignment="Right"
                                  TextChanged="TextBoxRgb_TextChanged"
@@ -319,7 +245,7 @@
                                  KeyDown="TextBox_KeyDown"/>
 
                         <!-- Blue -->
-                        <Label Grid.Row="4" Grid.Column="0" Content="{wpf:Text Core.ColorpickerBlue}"/>
+                        <Label Grid.Row="4" Grid.Column="0" Content="{wpf:Text Core.ColorpickerBlue}" Target="{Binding ElementName=TextBoxBlue}"/>
                         <TextBox Grid.Row="4" Grid.Column="1" x:Name="TextBoxBlue"
                                  Width="46" HorizontalAlignment="Right" TextAlignment="Right"
                                  TextChanged="TextBoxRgb_TextChanged"
@@ -327,7 +253,7 @@
                                  KeyDown="TextBox_KeyDown"/>
 
                         <!-- Alpha -->
-                        <Label Grid.Row="6" Grid.Column="0" Content="{wpf:Text Core.ColorpickerAlpha}"/>
+                        <Label Grid.Row="6" Grid.Column="0" Content="{wpf:Text Core.ColorpickerAlpha}" Target="{Binding ElementName=TextBoxAlpha}"/>
                         <TextBox Grid.Row="6" Grid.Column="1" x:Name="TextBoxAlpha"
                                  Width="46" HorizontalAlignment="Right" TextAlignment="Right"
                                  TextChanged="TextBoxRgb_TextChanged"
@@ -343,15 +269,15 @@
                             </Grid.ColumnDefinitions>
 
                             <Button Grid.Column="0" x:Name="BtnApply"
+                                    Style="{StaticResource PrimaryButtonStyle}"
                                     Content="{wpf:Text Core.ColorpickerApply}"
                                     IsDefault="True"
-                                    Height="24"
                                     Click="BtnApply_Click"/>
 
                             <Button Grid.Column="2" x:Name="BtnCancel"
                                     Content="{wpf:Text Core.Cancel}"
+                                    Style="{StaticResource SecondaryButtonStyle}"
                                     IsCancel="True"
-                                    Height="24"
                                     Click="BtnCancel_Click"/>
                         </Grid>
                     </Grid>

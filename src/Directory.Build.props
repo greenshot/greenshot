@@ -6,7 +6,7 @@
     <RepositoryUrl>https://github.com/greenshot/greenshot</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageProjectUrl>https://github.com/greenshot/greenshot</PackageProjectUrl>
-    <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
+    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
     <LangVersion>latest</LangVersion>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
@@ -90,7 +90,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <!-- SourceLink is only needed for the build, its dependency System.IO.Hashing (the tasks bring their own copy) shouldn't end up in the output -->
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.401" PrivateAssets="All" ExcludeAssets="compile;runtime"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.402" PrivateAssets="All" ExcludeAssets="compile;runtime"/>
   </ItemGroup>
 
   <!-- HttpClient (NetworkHelper.HttpClient) is part of the framework, but not referenced by default -->
@@ -98,13 +98,13 @@
     <Reference Include="System.Net.Http" />
   </ItemGroup>
 
-  <!-- Async & threading guardrails, see docs/async-threading-roadmap.md (section 3 and Phase 0).
+  <!-- Async & threading guardrails, see docs/vNext/async-threading-roadmap.md (section 3 and Phase 0).
        Test and build-task projects are excluded: tests may block on tasks, build tasks run inside MSBuild. -->
   <PropertyGroup Condition="!$(MSBuildProjectName.Contains('Tests')) And $(MSBuildProjectName.StartsWith('Greenshot')) And '$(MSBuildProjectName)' != 'Greenshot.BuildTasks'">
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
   </PropertyGroup>
   <ItemGroup Condition="!$(MSBuildProjectName.Contains('Tests')) And $(MSBuildProjectName.StartsWith('Greenshot')) And '$(MSBuildProjectName)' != 'Greenshot.BuildTasks'">
-    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.14.15">
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="18.12.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -137,9 +137,6 @@
     <Tokens Include="Imgur13_ClientId">
       <ReplacementValue>$(Imgur13_ClientId)</ReplacementValue>
     </Tokens>
-    <Tokens Include="Imgur13_ClientSecret">
-      <ReplacementValue>$(Imgur13_ClientSecret)</ReplacementValue>
-    </Tokens>
   </ItemGroup>
 
   <!-- Add MSBuild.Community.Tasks to use the TemplateFile Task-->
@@ -147,7 +144,7 @@
     <PackageReference Include="MSBuildTasks" Version="1.5.0.235" GeneratePathProperty="true" DevelopmentDependency="true" />
   </ItemGroup>
 
-  <Target Name="PostBuild" BeforeTargets="PostBuildEvent" Condition="$(MSBuildProjectName.StartsWith('Greenshot.Plugin.'))">
+  <Target Name="PostBuild" BeforeTargets="PostBuildEvent" Condition="$(MSBuildProjectName.StartsWith('Greenshot.Plugin.')) And '$(GreenshotDeliverPlugin)' != 'false'">
     <Exec Command="
     IF NOT EXIST &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(TargetName)&quot; (&#xD;&#xA;
             mkdir &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(TargetName)&quot;&#xD;&#xA;

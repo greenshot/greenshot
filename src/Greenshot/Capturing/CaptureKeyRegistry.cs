@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -69,6 +69,7 @@ namespace Greenshot.Capturing
         /// The binding for a pressed key while the given tool is active, null when there is none.
         /// When Shift is held and nothing has the key with Shift, the key without Shift is used: Shift keeps the selection
         /// to one direction, which should also work with the arrow keys.
+        /// A digit of the number pad (Num Lock on) does what the digit above the letters does, unless it has a binding of its own.
         /// </summary>
         public CaptureKeyBinding Find(Key key, ModifierKeys modifiers, ICaptureTool activeTool)
         {
@@ -77,6 +78,16 @@ namespace Greenshot.Capturing
                 // Pressing Shift itself reports Shift as a modifier
                 modifiers &= ~ModifierKeys.Shift;
             }
+            var binding = FindWithoutShift(key, modifiers, activeTool);
+            if (binding == null && key >= Key.NumPad0 && key <= Key.NumPad9)
+            {
+                binding = FindWithoutShift(Key.D0 + (key - Key.NumPad0), modifiers, activeTool);
+            }
+            return binding;
+        }
+
+        private CaptureKeyBinding FindWithoutShift(Key key, ModifierKeys modifiers, ICaptureTool activeTool)
+        {
             var binding = FindExact(key, modifiers, activeTool);
             if (binding == null && (modifiers & ModifierKeys.Shift) != 0)
             {
