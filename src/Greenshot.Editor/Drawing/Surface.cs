@@ -2633,12 +2633,13 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
-        /// Copy the selected elements to the clipboard
+        /// Copy the selected elements to the clipboard, together with the image so that other applications can paste it
         /// </summary>
         public void CopySelectedElements()
         {
             if (!HasSelectedElements) return;
-            DrawableContainerClipboard.Copy(selectedElements);
+            using Image image = GetImageForExport();
+            DrawableContainerClipboard.Copy(selectedElements, image);
         }
 
         /// <summary>

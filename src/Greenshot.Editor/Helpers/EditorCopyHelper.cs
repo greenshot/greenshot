@@ -31,7 +31,7 @@ namespace Greenshot.Editor.Helpers
     public enum EditorCopyTarget
     {
         /// <summary>
-        /// The selected elements, in the format which only the editor can paste
+        /// The selected elements, in the format which only the editor can paste, together with the image for other applications
         /// </summary>
         SelectedElements,
 
