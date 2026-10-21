@@ -150,7 +150,7 @@ namespace Greenshot.Tests.Plugins
         {
             var (client, requests, handler) = CreateClient("https://confluence.example.com", _ => Json("{\"results\":[]}"));
 
-            await client.AttachAsync(42, new EncodedImage(new byte[] { 1, 2, 3 }, "png"), "capture.png", null, TestContext.Current.CancellationToken);
+            await client.AttachAsync(42, new EncodedImage(new byte[] { 1, 2, 3 }, "png"), "capture.png", cancellationToken: TestContext.Current.CancellationToken);
 
             var request = Assert.Single(requests);
             Assert.Equal("/rest/api/content/42/child/attachment", request.RequestUri.AbsolutePath);
@@ -166,7 +166,7 @@ namespace Greenshot.Tests.Plugins
         {
             var (client, requests, _) = CreateClient("https://confluence.example.com", _ => Json("{\"results\":[]}"));
 
-            await client.AttachAsync(42, new EncodedImage(new byte[] { 1, 2, 3 }, "png"), "capture.png", null, TestContext.Current.CancellationToken, newVersion: true);
+            await client.AttachAsync(42, new EncodedImage(new byte[] { 1, 2, 3 }, "png"), "capture.png", newVersion: true, cancellationToken: TestContext.Current.CancellationToken);
 
             var request = Assert.Single(requests);
             Assert.Equal(HttpMethod.Put, request.Method);
@@ -213,7 +213,7 @@ namespace Greenshot.Tests.Plugins
                 "{\"statusCode\":400,\"message\":\"com.atlassian.confluence.api.service.exceptions.api.BadRequestException: Cannot add a new attachment with same file name as an existing attachment: capture.png\"}", HttpStatusCode.BadRequest));
 
             var exception = await Assert.ThrowsAsync<HttpRequestException>(() =>
-                client.AttachAsync(42, new EncodedImage(new byte[] { 1, 2, 3 }, "png"), "capture.png", null, TestContext.Current.CancellationToken));
+                client.AttachAsync(42, new EncodedImage(new byte[] { 1, 2, 3 }, "png"), "capture.png", cancellationToken: TestContext.Current.CancellationToken));
 
             Assert.Contains("400", exception.Message);
             Assert.Equal("400 Bad Request: Cannot add a new attachment with same file name as an existing attachment: capture.png", exception.Message);

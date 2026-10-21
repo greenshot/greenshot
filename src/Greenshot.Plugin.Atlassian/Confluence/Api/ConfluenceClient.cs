@@ -177,7 +177,7 @@ public sealed class ConfluenceClient
     /// Attach the capture to the page
     /// </summary>
     /// <param name="newVersion">true: when the page has an attachment with the file name, the capture becomes its new version</param>
-    public async Task AttachAsync(long pageId, EncodedImage image, string filename, string comment, CancellationToken cancellationToken = default, bool newVersion = false)
+    public async Task AttachAsync(long pageId, EncodedImage image, string filename, bool newVersion = false, CancellationToken cancellationToken = default)
     {
         // POST fails for a file name the page already has, PUT adds a new version then
         var request = CreateRequest(newVersion ? HttpMethod.Put : HttpMethod.Post, $"rest/api/content/{pageId}/child/attachment");
@@ -188,11 +188,6 @@ public sealed class ConfluenceClient
             // Don't notify the watchers of the page for a screenshot
             new KeyValuePair<string, string>("minorEdit", "true")
         };
-        if (!string.IsNullOrEmpty(comment))
-        {
-            fields.Add(new KeyValuePair<string, string>("comment", comment));
-        }
-
         request.Content = HttpContents.Multipart("file", image, filename, fields);
         var result = await _httpService.SendAsync(request, cancellationToken).ConfigureAwait(false);
         if (result.StatusCode == HttpStatusCode.BadRequest && ReadErrorMessage(result) is { } message)

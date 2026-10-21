@@ -201,7 +201,7 @@ public class ConfluenceDestination : DestinationBase, IRequiresRecipeAuthorizati
             var image = await request.Source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
             await request.Ui.RunWithProgressAsync(Texts.Get<IConfluenceLanguage>().CommunicationWait, async (progress, token) =>
             {
-                await connector.AddAttachmentAsync(selectedPage.Id, image, filename, null, token, newVersion).ConfigureAwait(false);
+                await connector.AddAttachmentAsync(selectedPage.Id, image, filename, newVersion, token).ConfigureAwait(false);
                 return true;
             }, cancellationToken).ConfigureAwait(false);
         }

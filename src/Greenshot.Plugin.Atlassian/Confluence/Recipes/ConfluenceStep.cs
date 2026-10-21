@@ -112,7 +112,7 @@ namespace Greenshot.Plugin.Atlassian.Confluence.Recipes
                     if (connector != null)
                     {
                         var image = await source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
-                        await connector.AddAttachmentAsync(parsedPageId, image, filename, null, cancellationToken).ConfigureAwait(false);
+                        await connector.AddAttachmentAsync(parsedPageId, image, filename, cancellationToken: cancellationToken).ConfigureAwait(false);
                         context.Properties["Confluence.PageId"] = parsedPageId.ToString();
                         context.LogStep($"Successfully uploaded capture to Confluence page '{parsedPageId}'.");
                     }
