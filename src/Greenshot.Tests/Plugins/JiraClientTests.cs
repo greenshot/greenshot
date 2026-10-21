@@ -130,6 +130,19 @@ namespace Greenshot.Tests.Plugins
         }
 
         [Fact]
+        public async Task SearchAsync_RejectedJql_ThrowsWithTheReasonOfJira()
+        {
+            var (client, _, _) = CreateClient("https://example.atlassian.net", request => request.RequestUri.AbsolutePath.EndsWith("/serverInfo")
+                ? Json("{\"deploymentType\":\"Cloud\"}")
+                : Json("{\"errorMessages\":[\"Unbounded JQL queries are not allowed here. Please add a search restriction to your query.\"],\"errors\":{}}", HttpStatusCode.BadRequest));
+
+            var exception = await Assert.ThrowsAsync<HttpRequestException>(() => client.SearchAsync("order by updated DESC", TestContext.Current.CancellationToken));
+
+            Assert.Contains("400", exception.Message);
+            Assert.Contains("Unbounded JQL queries are not allowed here.", exception.Message);
+        }
+
+        [Fact]
         public async Task GetFavoriteFiltersAsync_ReadsNameAndJql()
         {
             var (client, requests, _) = CreateClient("https://example.atlassian.net", _ => Json("[{\"id\":\"10000\",\"name\":\"My open issues\",\"jql\":\"assignee = currentUser()\"}]"));

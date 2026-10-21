@@ -81,6 +81,14 @@ public sealed class JiraProject
     public string Key { get; set; }
 }
 
+/// <summary>
+/// The error answer of Jira, e.g. for a JQL it doesn't accept
+/// </summary>
+public sealed class JiraErrorResponse
+{
+    public List<string> ErrorMessages { get; set; }
+}
+
 public sealed class JiraServerInfo
 {
     /// <summary>
@@ -158,6 +166,7 @@ public sealed class JiraDateTimeOffsetConverter : JsonConverter<DateTimeOffset?>
 [JsonSerializable(typeof(List<JiraFilter>))]
 [JsonSerializable(typeof(List<JiraProject>))]
 [JsonSerializable(typeof(JiraServerInfo))]
+[JsonSerializable(typeof(JiraErrorResponse))]
 [JsonSerializable(typeof(JiraSearchRequest))]
 [JsonSerializable(typeof(JiraSearchResult))]
 [JsonSerializable(typeof(JiraComment))]

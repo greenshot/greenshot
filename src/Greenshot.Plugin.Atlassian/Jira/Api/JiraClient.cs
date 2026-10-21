@@ -21,6 +21,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -129,6 +131,12 @@ public sealed class JiraClient
         var request = CreateRequest(HttpMethod.Post, _isCloud == true ? "rest/api/3/search/jql" : "rest/api/2/search");
         request.Content = CreateJsonContent(body, JiraJsonContext.Default.JiraSearchRequest);
         var result = await _httpService.SendAsync(request, cancellationToken).ConfigureAwait(false);
+        if (result.StatusCode == HttpStatusCode.BadRequest && ReadErrorMessages(result) is { } errorMessages)
+        {
+            // Jira says why it doesn't accept the JQL, e.g. Cloud rejects a filter without a restriction ("order by updated DESC")
+            throw new HttpRequestException($"{(int)result.StatusCode} {result.ReasonPhrase}: {errorMessages}");
+        }
+
         return Deserialize(result.EnsureSuccess(), JiraJsonContext.Default.JiraSearchResult)?.Issues ?? new List<JiraIssue>();
     }
 
@@ -202,6 +210,22 @@ public sealed class JiraClient
 
     private static HttpContent CreateJsonContent<T>(T body, JsonTypeInfo<T> typeInfo) =>
         new StringContent(JsonSerializer.Serialize(body, typeInfo), Encoding.UTF8, "application/json");
+
+    /// <summary>
+    /// The errorMessages of a Jira error answer, null when there are none
+    /// </summary>
+    private static string ReadErrorMessages(HttpResult result)
+    {
+        try
+        {
+            var messages = Deserialize(result, JiraJsonContext.Default.JiraErrorResponse)?.ErrorMessages?.Where(message => !string.IsNullOrWhiteSpace(message)).ToList();
+            return messages is { Count: > 0 } ? string.Join(" ", messages) : null;
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+    }
 
     private static T Deserialize<T>(HttpResult result, JsonTypeInfo<T> typeInfo) =>
         string.IsNullOrEmpty(result.Content) ? default : JsonSerializer.Deserialize(result.Content, typeInfo);
