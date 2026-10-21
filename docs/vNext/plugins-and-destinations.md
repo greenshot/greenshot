@@ -77,3 +77,8 @@ has a file with the name, the Confluence destination asks: add the capture as a 
 with another name (`name (2).png` is suggested). The Confluence recipe step can't ask, it always adds a new version, so a recipe
 with a fixed file name keeps one attachment on the page with every capture as a version. Jira has no attachment versions: an issue
 can have several attachments with the same name, so a capture with a used name is added as another attachment.
+
+**The capture in a Jira comment.** *Insert capture* in the Jira upload window puts `{capture}` at the cursor of the comment.
+Before the comment is sent, Greenshot replaces it with the wiki markup `!name.png|thumbnail!`, so the comment shows the capture
+there. Jira shows the first attachment with a name, so when the issue already has a file with the name, the capture is uploaded
+as `name (2).png`.

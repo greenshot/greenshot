@@ -72,6 +72,11 @@ namespace Greenshot.Plugin.Atlassian.Jira
         string LabelComment { get; }
 
         /// <summary>
+        /// Insert capture
+        /// </summary>
+        string InsertCapture { get; }
+
+        /// <summary>
         /// Filename
         /// </summary>
         string LabelFilename { get; }

@@ -143,6 +143,16 @@ namespace Greenshot.Tests.Plugins
         }
 
         [Fact]
+        public async Task GetAttachmentNamesAsync_ReadsTheFileNames()
+        {
+            var (client, requests, _) = CreateClient("https://jira.example.com", _ => Json(
+                "{\"key\":\"ABC-1\",\"fields\":{\"attachment\":[{\"id\":\"34457\",\"filename\":\"capture.png\"},{\"id\":\"34458\",\"filename\":\"capture.png\"}]}}"));
+
+            Assert.Equal(new[] { "capture.png", "capture.png" }, await client.GetAttachmentNamesAsync("ABC-1", TestContext.Current.CancellationToken));
+            Assert.Equal("?fields=attachment", Assert.Single(requests).RequestUri.Query);
+        }
+
+        [Fact]
         public async Task GetFavoriteFiltersAsync_ReadsNameAndJql()
         {
             var (client, requests, _) = CreateClient("https://example.atlassian.net", _ => Json("[{\"id\":\"10000\",\"name\":\"My open issues\",\"jql\":\"assignee = currentUser()\"}]"));

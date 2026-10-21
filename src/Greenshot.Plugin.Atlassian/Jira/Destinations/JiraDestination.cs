@@ -187,6 +187,11 @@ public class JiraDestination : DestinationBase, IRequiresRecipeAuthorization
         return new ValueTask<IReadOnlyList<IDestination>>(destinations);
     }
 
+    /// <summary>
+    /// Stands for the capture in the comment, replaced with the wiki markup that shows the attachment
+    /// </summary>
+    public const string CapturePlaceholder = "{capture}";
+
     public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
     {
         string filename = Path.GetFileName(FilenameHelper.GetFilename(Config.UploadFormat, request.Metadata));
@@ -212,10 +217,23 @@ public class JiraDestination : DestinationBase, IRequiresRecipeAuthorization
             var image = await request.Source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
             await request.Ui.RunWithProgressAsync(Texts.Get<IJiraLanguage>().CommunicationWait, async (progress, token) =>
             {
+                bool showsCapture = comment?.Contains(CapturePlaceholder) == true;
+                if (showsCapture)
+                {
+                    // The comment shows the attachment by name, which is the first one with that name
+                    var names = await jiraConnector.GetAttachmentNamesAsync(issue.Key, token).ConfigureAwait(false);
+                    while (names.Contains(filename, StringComparer.OrdinalIgnoreCase))
+                    {
+                        filename = AttachmentNames.Next(filename);
+                    }
+                }
+
                 await jiraConnector.AttachAsync(issue.Key, image, filename, token).ConfigureAwait(false);
                 if (!string.IsNullOrEmpty(comment))
                 {
-                    await jiraConnector.AddCommentAsync(issue.Key, comment, token).ConfigureAwait(false);
+                    // Wiki markup: the capture, which was just attached, is shown where the user inserted it
+                    string body = showsCapture ? comment.Replace(CapturePlaceholder, "!" + filename + "|thumbnail!") : comment;
+                    await jiraConnector.AddCommentAsync(issue.Key, body, token).ConfigureAwait(false);
                 }
 
                 return true;

@@ -200,10 +200,11 @@ namespace Greenshot.Tests.Plugins
         [Theory]
         [InlineData("capture.png", "capture (2).png")]
         [InlineData("capture (2).png", "capture (3).png")]
-        [InlineData("capture", "capture (2).png")]
-        public void AttachmentExistsRequest_SuggestsANumberedName(string filename, string expected)
+        [InlineData("capture (x).png", "capture (x) (2).png")]
+        [InlineData("capture", "capture (2)")]
+        public void AttachmentNames_Next_Numbers(string filename, string expected)
         {
-            Assert.Equal(expected, new Greenshot.Plugin.Atlassian.Confluence.Destinations.ConfluenceAttachmentExistsRequest("Page", filename, ".png").OtherName);
+            Assert.Equal(expected, Greenshot.Plugin.Atlassian.AttachmentNames.Next(filename));
         }
 
         [Fact]

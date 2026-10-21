@@ -261,6 +261,15 @@ public sealed class JiraConnector : IDisposable
     }
 
     /// <summary>
+    /// The file names of the attachments of the issue
+    /// </summary>
+    public async Task<IList<string>> GetAttachmentNamesAsync(string issueKey, CancellationToken cancellationToken = default)
+    {
+        await CheckCredentialsAsync(cancellationToken);
+        return await _jiraClient.GetAttachmentNamesAsync(issueKey, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
     /// Add a comment to the supplied issue
     /// </summary>
     /// <param name="issueKey">Jira issue key</param>

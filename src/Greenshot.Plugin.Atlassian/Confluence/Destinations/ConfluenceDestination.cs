@@ -23,10 +23,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -179,7 +177,7 @@ public class ConfluenceDestination : DestinationBase, IRequiresRecipeAuthorizati
         {
             while (!newVersion && await connector.HasAttachmentAsync(selectedPage.Id, filename, cancellationToken).ConfigureAwait(false))
             {
-                var answer = await request.Ui.ShowDialogAsync(new ConfluenceAttachmentExistsRequest(selectedPage.Title, filename, extension), cancellationToken).ConfigureAwait(false);
+                var answer = await request.Ui.ShowDialogAsync(new ConfluenceAttachmentExistsRequest(selectedPage.Title, filename), cancellationToken).ConfigureAwait(false);
                 if (answer == null)
                 {
                     return ExportResult.Declined;
@@ -287,16 +285,11 @@ public sealed class ConfluenceUploadRequest : IDialogViewModel<ConfluenceUploadC
 /// </summary>
 public sealed class ConfluenceAttachmentExistsRequest : IDialogViewModel<ConfluenceAttachmentExistsChoice>
 {
-    public ConfluenceAttachmentExistsRequest(string pageTitle, string filename, string extension)
+    public ConfluenceAttachmentExistsRequest(string pageTitle, string filename)
     {
         PageTitle = pageTitle;
         Filename = filename;
-        // Suggested: "name (2).png", "name (3).png" for "name (2).png"
-        string name = filename.EndsWith(extension, StringComparison.OrdinalIgnoreCase) ? filename.Substring(0, filename.Length - extension.Length) : filename;
-        var numbered = Regex.Match(name, @"^(.*) \((\d{1,6})\)$");
-        OtherName = numbered.Success
-            ? $"{numbered.Groups[1].Value} ({int.Parse(numbered.Groups[2].Value, CultureInfo.InvariantCulture) + 1}){extension}"
-            : $"{name} (2){extension}";
+        OtherName = AttachmentNames.Next(filename);
     }
 
     public string PageTitle { get; }

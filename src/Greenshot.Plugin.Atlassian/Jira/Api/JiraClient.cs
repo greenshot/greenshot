@@ -96,6 +96,15 @@ public sealed class JiraClient
         await GetAsync("rest/api/2/project", JiraJsonContext.Default.ListJiraProject, cancellationToken).ConfigureAwait(false) ?? new List<JiraProject>();
 
     /// <summary>
+    /// The file names of the attachments of the issue, an issue can have several with the same name
+    /// </summary>
+    public async Task<IList<string>> GetAttachmentNamesAsync(string issueKey, CancellationToken cancellationToken = default)
+    {
+        var issue = await GetAsync($"rest/api/2/issue/{Uri.EscapeDataString(issueKey)}?fields=attachment", JiraJsonContext.Default.JiraIssue, cancellationToken).ConfigureAwait(false);
+        return issue?.Fields?.Attachment?.Select(attachment => attachment.Filename).ToList() ?? new List<string>();
+    }
+
+    /// <summary>
     /// The issue, null when it doesn't exist or the user can't see it
     /// </summary>
     public async Task<JiraIssue> GetIssueAsync(string issueKey, CancellationToken cancellationToken = default)

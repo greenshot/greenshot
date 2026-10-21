@@ -75,7 +75,11 @@
                 <TextBox x:Name="FilenameBox" Grid.Row="2" Grid.Column="1"/>
 
                 <Label Grid.Row="3" Grid.Column="0" Content="{wpf:Text Jira.LabelComment}" Margin="0,8,12,0" Target="{Binding ElementName=CommentBox}"/>
-                <TextBox x:Name="CommentBox" Grid.Row="3" Grid.Column="1" Margin="0,8,0,0"/>
+                <DockPanel Grid.Row="3" Grid.Column="1" Margin="0,8,0,0">
+                    <Button x:Name="InsertCaptureButton" DockPanel.Dock="Right" Content="{wpf:Text Jira.InsertCapture}" Style="{StaticResource SecondaryButtonStyle}"
+                            Margin="8,0,0,0" Click="InsertCaptureButton_Click"/>
+                    <TextBox x:Name="CommentBox"/>
+                </DockPanel>
 
                 <Label Grid.Row="4" Grid.Column="0" Content="{wpf:Text Jira.LabelJira}" Margin="0,8,12,0" Target="{Binding ElementName=KeyBox}"/>
                 <DockPanel Grid.Row="4" Grid.Column="1" Margin="0,8,0,0" LastChildFill="False">

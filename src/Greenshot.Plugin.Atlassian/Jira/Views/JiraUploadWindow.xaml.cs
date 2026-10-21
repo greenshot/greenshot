@@ -164,6 +164,16 @@ public partial class JiraUploadWindow : Window
         IssueList.IsEnabled = connected;
         FilenameBox.IsEnabled = connected;
         CommentBox.IsEnabled = connected;
+        InsertCaptureButton.IsEnabled = connected;
+    }
+
+    private void InsertCaptureButton_Click(object sender, RoutedEventArgs e)
+    {
+        // Replaced with the attachment when the comment is sent, the final file name isn't known yet
+        int caret = CommentBox.CaretIndex;
+        CommentBox.Text = CommentBox.Text.Insert(caret, JiraDestination.CapturePlaceholder);
+        CommentBox.Focus();
+        CommentBox.CaretIndex = caret + JiraDestination.CapturePlaceholder.Length;
     }
 
     private void ShowError(string message, string caption = "Jira")

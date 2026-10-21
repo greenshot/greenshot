@@ -52,6 +52,16 @@ public sealed class JiraIssueFields
 
     [JsonConverter(typeof(JiraDateTimeOffsetConverter))]
     public DateTimeOffset? Created { get; set; }
+
+    /// <summary>
+    /// Only when asked for with fields=attachment
+    /// </summary>
+    public List<JiraAttachment> Attachment { get; set; }
+}
+
+public sealed class JiraAttachment
+{
+    public string Filename { get; set; }
 }
 
 public sealed class JiraIssueType
