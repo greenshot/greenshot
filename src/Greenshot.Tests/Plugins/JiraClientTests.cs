@@ -29,7 +29,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Http;
 using Greenshot.Base.Interfaces;
-using Greenshot.Plugin.Jira.Api;
+using Greenshot.Plugin.Atlassian.Jira.Api;
 using Greenshot.Tests.Http;
 using Xunit;
 

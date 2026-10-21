@@ -58,13 +58,16 @@ plugin is only available while the plugin is loaded, blocking the plugin blocks 
 | Plugin | Destinations |
 |---|---|
 | (Greenshot itself) | `Editor`, `FileNoDialog` (save directly), `FileDialog` (save as), `Clipboard`, `Printer`, `EMail`, `Picker` (ask every time), `Windows10Share`, `Windows10OCR` |
+| `Atlassian` | `Jira`, `Confluence` |
 | `Box` | `Box` |
-| `Confluence` | `Confluence` |
 | `CustomUploader` | `CustomUploader`, and `CustomUploader:<name>` per uploader file |
 | `Dropbox` | `Dropbox` |
 | `ExternalCommand` | `External <name>` per command, e.g. `External MS Paint` |
-| `Jira` | `Jira` |
 | `Office` | `Outlook`, `Word`, `Excel`, `Powerpoint`, `OneNote` |
 | `Pdf` | `Pdf` |
 | `RecipeEditor` | none |
 | `Zxing` | `ZxingQrDestination` |
+
+Jira and Confluence were two plugins until 1.4 and are one now, `Atlassian`. In the plugin lists their old names still work and
+stand for their destination: `Jira` in `BlockedPluginNames` or `ExcludePluginNames` blocks only the Jira destination,
+`Confluence` in `AllowedPluginNames` loads the plugin with only the Confluence destination. Both old names block the whole plugin.

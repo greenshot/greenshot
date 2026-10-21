@@ -10,7 +10,7 @@ and inside a feature by kind (Views, ViewModels, Tools, Steps, ...). The namespa
   one class per file.
 - **Not everything with a UI is a view.** Capture tools and overlays draw into the capture window but are no XAML; they live in `Capturing/Tools` and `Capturing/Overlays`.
 - **Recipes are the umbrella for the capture pipeline.** Execution, steps, triggers, approval and the recipe windows are under `Greenshot/Recipes`,
-  the shared model under `Greenshot.Base/Recipes`. A plugin's recipe steps live in its own `Recipes` folder (e.g. `Greenshot.Plugin.Jira/Recipes/JiraStep.cs`).
+  the shared model under `Greenshot.Base/Recipes`. A plugin's recipe steps live in its own `Recipes` folder (e.g. `Greenshot.Plugin.Atlassian/Jira/Recipes/JiraStep.cs`).
 - **Optional parts live in their own folder and register themselves.** The browser extension (`Greenshot/Ipc/BrowserExtension`), the AI tools (`Greenshot/Ai`)
   and plugin loading (`Greenshot/Plugins`) are left out of Greenshot Light by excluding their folders in `Greenshot.csproj`.
   They plug in through `[assembly: GreenshotModule(typeof(...))]` in their folder, implementing `IIpcCommandExtension` (IPC commands) or `IBuiltInRecipeProvider` (built-in recipes).

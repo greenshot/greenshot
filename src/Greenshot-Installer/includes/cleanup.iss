@@ -45,6 +45,7 @@ Type: filesandordirs; Name: "{app}\Plugins\GreenshotPicasaPlugin"
 
 // Plugin directories as installed now (the same as in the portable version and the build output).
 // Removed first, so no file of an older version stays behind.
+Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.Atlassian"
 Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.Box"
 Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.Confluence"
 Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.CustomUploader"

@@ -28,7 +28,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Greenshot.Base.Http;
 using Greenshot.Base.Interfaces;
-using Greenshot.Plugin.Confluence.Api;
+using Greenshot.Plugin.Atlassian.Confluence.Api;
 using Greenshot.Tests.Http;
 using Xunit;
 

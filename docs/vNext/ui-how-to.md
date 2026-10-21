@@ -29,10 +29,10 @@ and which shared pieces to reuse so every window looks and behaves the same. Whe
 ## A new window
 
 Every Greenshot window uses the same frame: the theme brushes of `ThemeManager`, the shared styles and `ThemedTitleBar` in its first row.
-The Jira upload window (`Greenshot.Plugin.Jira/Views/JiraUploadWindow.xaml`) is a small, complete example:
+The Jira upload window (`Greenshot.Plugin.Atlassian/Jira/Views/JiraUploadWindow.xaml`) is a small, complete example:
 
 ```xaml
-<Window x:Class="Greenshot.Plugin.Jira.Views.JiraUploadWindow"
+<Window x:Class="Greenshot.Plugin.Atlassian.Jira.Views.JiraUploadWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"

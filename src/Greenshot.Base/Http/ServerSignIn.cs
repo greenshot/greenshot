@@ -20,6 +20,8 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
@@ -43,6 +45,7 @@ namespace Greenshot.Base.Http
         private readonly Func<string, ServerCredentials, CancellationToken, Task<string>> _connectAsync;
         private volatile SignedIn _signedIn;
         private volatile bool _verified;
+        private ServerSignIn _sharesWith;
 
         /// <param name="serviceName">the name of the service in the sign-in window, e.g. Jira</param>
         /// <param name="url">the url of the server from the configuration, also the target in the Credential Manager</param>
@@ -107,17 +110,26 @@ namespace Greenshot.Base.Http
 
                 var sessionCredentials = signedIn?.Url == url ? signedIn.Credentials : null;
                 var storedCredentials = CredentialStore.Read(url);
+                var sharedCredentials = GetSharedCredentials(url, out bool sharedAreStored);
                 string error = null;
-                foreach (var credentials in new[] { sessionCredentials, storedCredentials })
+                var tried = new List<ServerCredentials>();
+                foreach (var credentials in new[] { sessionCredentials, storedCredentials, sharedCredentials })
                 {
-                    if (credentials == null || (credentials == storedCredentials && SameAs(credentials, sessionCredentials)))
+                    if (credentials == null || tried.Any(other => SameAs(credentials, other)))
                     {
                         continue;
                     }
 
+                    tried.Add(credentials);
                     try
                     {
                         await ConnectAsync(url, credentials, cancellationToken).ConfigureAwait(false);
+                        if (credentials == sharedCredentials && sharedAreStored && storedCredentials == null)
+                        {
+                            // Remembered for the other server, so for this one too
+                            CredentialStore.Write(url, credentials);
+                        }
+
                         return true;
                     }
                     catch (UnauthorizedAccessException ex)
@@ -127,7 +139,7 @@ namespace Greenshot.Base.Http
                     }
                 }
 
-                return await PromptAsync(url, sessionCredentials ?? storedCredentials, storedCredentials != null, error, cancellationToken).ConfigureAwait(false);
+                return await PromptAsync(url, sessionCredentials ?? storedCredentials ?? sharedCredentials, storedCredentials != null || sharedAreStored, error, cancellationToken).ConfigureAwait(false);
             }
             finally
             {
@@ -146,8 +158,9 @@ namespace Greenshot.Base.Http
             {
                 string url = Url;
                 var storedCredentials = CredentialStore.Read(url);
-                var credentials = _signedIn?.Url == url ? _signedIn.Credentials : storedCredentials;
-                return await PromptAsync(url, credentials, storedCredentials != null, null, cancellationToken).ConfigureAwait(false);
+                var sharedCredentials = GetSharedCredentials(url, out bool sharedAreStored);
+                var credentials = (_signedIn?.Url == url ? _signedIn.Credentials : storedCredentials) ?? sharedCredentials;
+                return await PromptAsync(url, credentials, storedCredentials != null || sharedAreStored, null, cancellationToken).ConfigureAwait(false);
             }
             finally
             {
@@ -180,6 +193,40 @@ namespace Greenshot.Base.Http
                 _lock.Release();
             }
         }
+
+        /// <summary>
+        /// Servers on the same host (scheme, host and port) usually use the same account, e.g. Jira and Confluence on one Atlassian site:
+        /// when a sign-in has no working credentials of its own, it tries the ones of the other before it shows the window
+        /// </summary>
+        public void ShareCredentialsWith(ServerSignIn other)
+        {
+            if (other == null || other == this) throw new ArgumentException("Another sign-in is needed", nameof(other));
+            _sharesWith = other;
+            other._sharesWith = this;
+        }
+
+        /// <summary>
+        /// The credentials of the sign-in shared with, when its server is on the same host: of its session or stored
+        /// </summary>
+        private ServerCredentials GetSharedCredentials(string url, out bool areStored)
+        {
+            areStored = false;
+            var other = _sharesWith;
+            string otherUrl = other?.Url;
+            if (otherUrl == null || !IsSameHost(url, otherUrl))
+            {
+                return null;
+            }
+
+            var stored = CredentialStore.Read(otherUrl);
+            areStored = stored != null;
+            var signedIn = other._signedIn;
+            return signedIn != null && signedIn.Url == otherUrl ? signedIn.Credentials : stored;
+        }
+
+        internal static bool IsSameHost(string url, string otherUrl) =>
+            Uri.TryCreate(url, UriKind.Absolute, out var uri) && Uri.TryCreate(otherUrl, UriKind.Absolute, out var otherUri)
+            && string.Equals(uri.GetLeftPart(UriPartial.Authority), otherUri.GetLeftPart(UriPartial.Authority), StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
         /// The next <see cref="EnsureSignedInAsync"/> checks the credentials again, e.g. after a session timeout

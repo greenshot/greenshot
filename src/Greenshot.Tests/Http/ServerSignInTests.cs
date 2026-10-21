@@ -179,5 +179,42 @@ namespace Greenshot.Tests.Http
                 CredentialStore.Delete(target);
             }
         }
+        [Fact]
+        public async Task EnsureSignedInAsync_SameHost_UsesTheCredentialsOfTheOtherSignIn_AndStoresThem()
+        {
+            string jiraUrl = NewTarget();
+            string confluenceUrl = jiraUrl + "/wiki";
+            try
+            {
+                CredentialStore.Write(jiraUrl, new ServerCredentials("user@example.com", "token"));
+                ServerCredentials used = null;
+                var jira = new ServerSignIn("Jira", () => jiraUrl, (_, _, _) => Task.FromResult("Robin"));
+                var confluence = new ServerSignIn("Confluence", () => confluenceUrl, (_, credentials, _) =>
+                {
+                    used = credentials;
+                    return Task.FromResult("Robin");
+                });
+                jira.ShareCredentialsWith(confluence);
+
+                Assert.True(await confluence.EnsureSignedInAsync(TestContext.Current.CancellationToken));
+
+                Assert.Equal("user@example.com", used.UserName);
+                Assert.Equal("token", CredentialStore.Read(confluenceUrl)?.Secret);
+            }
+            finally
+            {
+                CredentialStore.Delete(jiraUrl);
+                CredentialStore.Delete(confluenceUrl);
+            }
+        }
+
+        [Theory]
+        [InlineData("https://example.atlassian.net", "https://example.atlassian.net/wiki", true)]
+        [InlineData("https://jira.example.com", "https://confluence.example.com", false)]
+        [InlineData("https://example.com:8443/jira", "https://example.com/confluence", false)]
+        public void IsSameHost_SchemeHostAndPort(string url, string otherUrl, bool expected)
+        {
+            Assert.Equal(expected, ServerSignIn.IsSameHost(url, otherUrl));
+        }
     }
 }
