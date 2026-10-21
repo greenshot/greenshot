@@ -120,6 +120,7 @@ public class AtlassianPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeSte
         var dialogs = services.GetService<IDialogViewRegistry>();
         dialogs?.Register<JiraUploadRequest, JiraUploadChoice>(JiraUploadWindow.Show);
         dialogs?.Register<ConfluenceUploadRequest, ConfluenceUploadChoice>(ConfluenceUploadWindow.Show);
+        dialogs?.Register<ConfluenceAttachmentExistsRequest, ConfluenceAttachmentExistsChoice>(ConfluenceAttachmentExistsWindow.Show);
         return Task.CompletedTask;
     }
 

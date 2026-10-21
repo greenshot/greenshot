@@ -122,10 +122,16 @@ public class ConfluenceConnector : IDisposable
 
     public bool IsLoggedIn => _confluence != null && SignIn.IsSignedIn;
 
-    public async Task AddAttachmentAsync(long pageId, EncodedImage image, string filename, string comment, CancellationToken cancellationToken = default)
+    public async Task AddAttachmentAsync(long pageId, EncodedImage image, string filename, string comment, CancellationToken cancellationToken = default, bool newVersion = false)
     {
         await CheckCredentialsAsync(cancellationToken).ConfigureAwait(false);
-        await _confluence.AttachAsync(pageId, image, filename, comment, cancellationToken).ConfigureAwait(false);
+        await _confluence.AttachAsync(pageId, image, filename, comment, cancellationToken, newVersion).ConfigureAwait(false);
+    }
+
+    public async Task<bool> HasAttachmentAsync(long pageId, string filename, CancellationToken cancellationToken = default)
+    {
+        await CheckCredentialsAsync(cancellationToken).ConfigureAwait(false);
+        return await _confluence.HasAttachmentAsync(pageId, filename, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<Entities.Page> GetPageAsync(long pageId, CancellationToken cancellationToken = default)

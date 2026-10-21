@@ -162,16 +162,61 @@ namespace Greenshot.Tests.Plugins
         }
 
         [Fact]
+        public async Task AttachAsync_NewVersion_Puts()
+        {
+            var (client, requests, _) = CreateClient("https://confluence.example.com", _ => Json("{\"results\":[]}"));
+
+            await client.AttachAsync(42, new EncodedImage(new byte[] { 1, 2, 3 }, "png"), "capture.png", null, TestContext.Current.CancellationToken, newVersion: true);
+
+            var request = Assert.Single(requests);
+            Assert.Equal(HttpMethod.Put, request.Method);
+            Assert.Equal("/rest/api/content/42/child/attachment", request.RequestUri.AbsolutePath);
+        }
+
+        [Theory]
+        [InlineData("capture 1.png", true)]
+        [InlineData("other.png", false)]
+        public async Task HasAttachmentAsync_ComparesTheName(string filename, bool expected)
+        {
+            var (client, requests, _) = CreateClient("https://confluence.example.com", _ => Json("{\"results\":[{\"id\":\"att123\",\"title\":\"capture 1.png\"}]}"));
+
+            Assert.Equal(expected, await client.HasAttachmentAsync(42, filename, TestContext.Current.CancellationToken));
+            var request = Assert.Single(requests);
+            Assert.Equal("/rest/api/content/42/child/attachment", request.RequestUri.AbsolutePath);
+            Assert.Contains("filename=" + Uri.EscapeDataString(filename), request.RequestUri.AbsoluteUri);
+        }
+
+        [Fact]
+        public async Task HasAttachmentAsync_WithoutV1_UsesV2()
+        {
+            var (client, requests, _) = CreateClient("https://example.atlassian.net/wiki", request => request.RequestUri.AbsolutePath.Contains("/rest/api/")
+                ? Json(string.Empty, HttpStatusCode.Gone)
+                : Json("{\"results\":[{\"id\":\"att123\",\"title\":\"capture.png\"}],\"_links\":{}}"));
+
+            Assert.True(await client.HasAttachmentAsync(42, "capture.png", TestContext.Current.CancellationToken));
+            Assert.Equal("/wiki/api/v2/pages/42/attachments", requests[1].RequestUri.AbsolutePath);
+        }
+
+        [Theory]
+        [InlineData("capture.png", "capture (2).png")]
+        [InlineData("capture (2).png", "capture (3).png")]
+        [InlineData("capture", "capture (2).png")]
+        public void AttachmentExistsRequest_SuggestsANumberedName(string filename, string expected)
+        {
+            Assert.Equal(expected, new Greenshot.Plugin.Atlassian.Confluence.Destinations.ConfluenceAttachmentExistsRequest("Page", filename, ".png").OtherName);
+        }
+
+        [Fact]
         public async Task AttachAsync_Rejected_ThrowsWithTheReasonOfConfluence()
         {
             var (client, _, _) = CreateClient("https://example.atlassian.net/wiki", _ => Json(
-                "{\"statusCode\":400,\"message\":\"Cannot add a new attachment with same file name as an existing attachment: capture.png\"}", HttpStatusCode.BadRequest));
+                "{\"statusCode\":400,\"message\":\"com.atlassian.confluence.api.service.exceptions.api.BadRequestException: Cannot add a new attachment with same file name as an existing attachment: capture.png\"}", HttpStatusCode.BadRequest));
 
             var exception = await Assert.ThrowsAsync<HttpRequestException>(() =>
                 client.AttachAsync(42, new EncodedImage(new byte[] { 1, 2, 3 }, "png"), "capture.png", null, TestContext.Current.CancellationToken));
 
             Assert.Contains("400", exception.Message);
-            Assert.Contains("same file name as an existing attachment", exception.Message);
+            Assert.Equal("400 Bad Request: Cannot add a new attachment with same file name as an existing attachment: capture.png", exception.Message);
         }
         [Fact]
         public async Task CheckCredentialsAsync_ReturnsTheDisplayName_WithBearerForAToken()

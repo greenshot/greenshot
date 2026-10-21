@@ -23,8 +23,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -169,9 +171,28 @@ public class ConfluenceDestination : DestinationBase, IRequiresRecipeAuthorizati
         string extension = formatRegistry != null && formatRegistry.TryGet(uploadFormat, out var formatDefinition)
             ? "." + formatDefinition.PreferredExtension
             : ".png";
-        if (!filename.EndsWith(extension, StringComparison.OrdinalIgnoreCase))
+        filename = WithExtension(filename, extension);
+
+        // The page already has an attachment with the name: the user chooses a new version of it or another name
+        bool newVersion = false;
+        try
         {
-            filename += extension;
+            while (!newVersion && await connector.HasAttachmentAsync(selectedPage.Id, filename, cancellationToken).ConfigureAwait(false))
+            {
+                var answer = await request.Ui.ShowDialogAsync(new ConfluenceAttachmentExistsRequest(selectedPage.Title, filename, extension), cancellationToken).ConfigureAwait(false);
+                if (answer == null)
+                {
+                    return ExportResult.Declined;
+                }
+
+                newVersion = answer.NewVersion;
+                filename = WithExtension(answer.Filename, extension);
+            }
+        }
+        catch (Exception e) when (e is not OperationCanceledException and not InteractionRequiredException)
+        {
+            // The upload itself tells when the name is used
+            Log.Warn("Couldn't check the attachments of the page", e);
         }
 
         var outputSettings = new SurfaceOutputSettings(uploadFormat, ConfluenceConfig.UploadJpegQuality, ConfluenceConfig.UploadReduceColors);
@@ -180,7 +201,7 @@ public class ConfluenceDestination : DestinationBase, IRequiresRecipeAuthorizati
             var image = await request.Source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
             await request.Ui.RunWithProgressAsync(Texts.Get<IConfluenceLanguage>().CommunicationWait, async (progress, token) =>
             {
-                await connector.AddAttachmentAsync(selectedPage.Id, image, filename, null, token).ConfigureAwait(false);
+                await connector.AddAttachmentAsync(selectedPage.Id, image, filename, null, token, newVersion).ConfigureAwait(false);
                 return true;
             }, cancellationToken).ConfigureAwait(false);
         }
@@ -217,6 +238,9 @@ public class ConfluenceDestination : DestinationBase, IRequiresRecipeAuthorizati
 
         return ExportResult.Succeeded(uri: new Uri(selectedPage.Url));
     }
+
+    private static string WithExtension(string filename, string extension) =>
+        filename.EndsWith(extension, StringComparison.OrdinalIgnoreCase) ? filename : filename + extension;
 }
 
 /// <summary>
@@ -256,6 +280,46 @@ public sealed class ConfluenceUploadRequest : IDialogViewModel<ConfluenceUploadC
     public string Filename { get; }
 
     public IList<Space> Spaces { get; }
+}
+
+/// <summary>
+/// The page already has an attachment with the file name: add a new version of it or upload with another name.
+/// </summary>
+public sealed class ConfluenceAttachmentExistsRequest : IDialogViewModel<ConfluenceAttachmentExistsChoice>
+{
+    public ConfluenceAttachmentExistsRequest(string pageTitle, string filename, string extension)
+    {
+        PageTitle = pageTitle;
+        Filename = filename;
+        // Suggested: "name (2).png", "name (3).png" for "name (2).png"
+        string name = filename.EndsWith(extension, StringComparison.OrdinalIgnoreCase) ? filename.Substring(0, filename.Length - extension.Length) : filename;
+        var numbered = Regex.Match(name, @"^(.*) \((\d{1,6})\)$");
+        OtherName = numbered.Success
+            ? $"{numbered.Groups[1].Value} ({int.Parse(numbered.Groups[2].Value, CultureInfo.InvariantCulture) + 1}){extension}"
+            : $"{name} (2){extension}";
+    }
+
+    public string PageTitle { get; }
+
+    public string Filename { get; }
+
+    public string OtherName { get; }
+}
+
+/// <summary>
+/// A new version of the attachment, or the other file name.
+/// </summary>
+public sealed class ConfluenceAttachmentExistsChoice
+{
+    public ConfluenceAttachmentExistsChoice(bool newVersion, string filename)
+    {
+        NewVersion = newVersion;
+        Filename = filename;
+    }
+
+    public bool NewVersion { get; }
+
+    public string Filename { get; }
 }
 
 /// <summary>

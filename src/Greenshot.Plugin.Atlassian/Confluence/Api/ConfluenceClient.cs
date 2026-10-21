@@ -21,10 +21,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Text.Json.Serialization.Metadata;
 using System.Threading;
 using System.Threading.Tasks;
@@ -153,11 +155,32 @@ public sealed class ConfluenceClient
     }
 
     /// <summary>
+    /// True when the page has an attachment with the file name
+    /// </summary>
+    public async Task<bool> HasAttachmentAsync(long pageId, string filename, CancellationToken cancellationToken = default)
+    {
+        string name = Uri.EscapeDataString(filename);
+        var result = await _httpService.SendAsync(CreateRequest(HttpMethod.Get, $"rest/api/content/{pageId}/child/attachment?filename={name}&limit=1"), cancellationToken)
+            .ConfigureAwait(false);
+        if (result.StatusCode is HttpStatusCode.NotFound or HttpStatusCode.Gone)
+        {
+            // Removed on Cloud; on Cloud BaseUri ends with /wiki/
+            result = await _httpService.SendAsync(CreateRequest(HttpMethod.Get, $"api/v2/pages/{pageId}/attachments?filename={name}&limit=1"), cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        var attachments = Deserialize(result.EnsureSuccess(), ConfluenceJsonContext.Default.ConfluenceResultsConfluenceAttachment)?.Results;
+        return attachments != null && attachments.Any(attachment => string.Equals(attachment.Title, filename, StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
     /// Attach the capture to the page
     /// </summary>
-    public async Task AttachAsync(long pageId, EncodedImage image, string filename, string comment, CancellationToken cancellationToken = default)
+    /// <param name="newVersion">true: when the page has an attachment with the file name, the capture becomes its new version</param>
+    public async Task AttachAsync(long pageId, EncodedImage image, string filename, string comment, CancellationToken cancellationToken = default, bool newVersion = false)
     {
-        var request = CreateRequest(HttpMethod.Post, $"rest/api/content/{pageId}/child/attachment");
+        // POST fails for a file name the page already has, PUT adds a new version then
+        var request = CreateRequest(newVersion ? HttpMethod.Put : HttpMethod.Post, $"rest/api/content/{pageId}/child/attachment");
         // Without it Confluence rejects the upload as cross site request
         request.Headers.Add("X-Atlassian-Token", "no-check");
         var fields = new List<KeyValuePair<string, string>>
@@ -216,13 +239,21 @@ public sealed class ConfluenceClient
         try
         {
             string message = Deserialize(result, ConfluenceJsonContext.Default.ConfluenceError)?.Message;
-            return string.IsNullOrWhiteSpace(message) ? null : message;
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                return null;
+            }
+
+            // Cloud starts with the Java exception: "com.atlassian.confluence.api.service.exceptions.api.BadRequestException: Cannot add ..."
+            return JavaExceptionPrefix.Replace(message, string.Empty);
         }
         catch (JsonException)
         {
             return null;
         }
     }
+
+    private static readonly Regex JavaExceptionPrefix = new Regex(@"^(\w+\.)+\w*Exception:\s*", RegexOptions.CultureInvariant);
 
     private static T Deserialize<T>(HttpResult result, JsonTypeInfo<T> typeInfo) =>
         string.IsNullOrEmpty(result.Content) ? default : JsonSerializer.Deserialize(result.Content, typeInfo);

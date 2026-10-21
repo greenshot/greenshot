@@ -101,6 +101,14 @@ public sealed class ConfluenceResults<T>
 }
 
 /// <summary>
+/// An attachment of a page (v1 and v2, v2 ids are not numbers)
+/// </summary>
+public sealed class ConfluenceAttachment
+{
+    public string Title { get; set; }
+}
+
+/// <summary>
 /// The error answer of Confluence, e.g. for an attachment name the page already has
 /// </summary>
 public sealed class ConfluenceError
@@ -117,6 +125,7 @@ public sealed class ConfluenceError
 [JsonSerializable(typeof(ConfluenceResults<ConfluenceSpace>))]
 [JsonSerializable(typeof(ConfluenceUser))]
 [JsonSerializable(typeof(ConfluenceError))]
+[JsonSerializable(typeof(ConfluenceResults<ConfluenceAttachment>))]
 internal sealed partial class ConfluenceJsonContext : JsonSerializerContext
 {
 }

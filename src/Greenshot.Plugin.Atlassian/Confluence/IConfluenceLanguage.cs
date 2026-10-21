@@ -52,6 +52,26 @@ namespace Greenshot.Plugin.Atlassian.Confluence
         string Filename { get; }
 
         /// <summary>
+        /// The file name is already used
+        /// </summary>
+        string AttachmentExistsTitle { get; }
+
+        /// <summary>
+        /// The page "{0}" already has an attachment named "{1}".
+        /// </summary>
+        string AttachmentExistsMessage { get; }
+
+        /// <summary>
+        /// Add the capture as a new version of it
+        /// </summary>
+        string AttachmentNewVersion { get; }
+
+        /// <summary>
+        /// Upload the capture with another name
+        /// </summary>
+        string AttachmentOtherName { get; }
+
+        /// <summary>
         /// Include personal spaces in search and browsing
         /// </summary>
         string IncludePersonSpaces { get; }
