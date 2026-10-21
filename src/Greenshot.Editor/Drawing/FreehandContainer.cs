@@ -84,6 +84,19 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
+        /// The points of the line, in surface coordinates
+        /// </summary>
+        internal IReadOnlyList<Point> CapturePoints
+        {
+            get => capturePoints;
+            set
+            {
+                capturePoints = new List<Point>(value);
+                RecalculatePath();
+            }
+        }
+
+        /// <summary>
         /// This Dispose is called from the Dispose and the Destructor.
         /// </summary>
         /// <param name="disposing">When disposing==true all non-managed resources should be freed too!</param>

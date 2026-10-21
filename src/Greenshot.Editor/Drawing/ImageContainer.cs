@@ -52,6 +52,14 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         [NonSerialized] private Image _shadowBitmap;
 
+        // The file the image was loaded from, so it can be kept unchanged. Not in the .greenshot file, which stores the image as PNG
+        [NonSerialized] private ReadOnlyMemory<byte> _originalData;
+        [NonSerialized] private string _originalMediaType;
+
+        // The part of the image which is shown and how it's scaled, from the document model. Not in the .greenshot file of 1.3
+        [NonSerialized] private RectangleF? _source;
+        [NonSerialized] private bool _pixelated;
+
         public ImageContainer(ISurface parent, string filename) : this(parent)
         {
             Load(filename);
@@ -86,8 +94,29 @@ namespace Greenshot.Editor.Drawing
                 DisposeImage();
                 DisposeShadow();
                 _image = ImageHelper.Clone(value);
+                _originalData = default;
+                _originalMediaType = null;
             }
             get { return _image; }
+        }
+
+        /// <summary>
+        /// The file the image was loaded from, empty when the image didn't come from a file or was changed
+        /// </summary>
+        internal ReadOnlyMemory<byte> OriginalData => _originalData;
+
+        /// <summary>
+        /// The media type of OriginalData, e.g. image/webp
+        /// </summary>
+        internal string OriginalMediaType => _originalMediaType;
+
+        /// <summary>
+        /// Remember the file the current image was loaded from
+        /// </summary>
+        internal void SetOriginal(ReadOnlyMemory<byte> data, string mediaType)
+        {
+            _originalData = mediaType == null ? default : data;
+            _originalMediaType = mediaType;
         }
 
         /// <summary>
@@ -198,8 +227,9 @@ namespace Greenshot.Editor.Drawing
             }
 
             bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
+            var source = _source ?? new RectangleF(0, 0, _image.Width, _image.Height);
             graphics.SmoothingMode = SmoothingMode.HighQuality;
-            graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            graphics.InterpolationMode = _pixelated ? InterpolationMode.NearestNeighbor : InterpolationMode.HighQualityBicubic;
             graphics.CompositingQuality = CompositingQuality.HighQuality;
             graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 
@@ -222,12 +252,23 @@ namespace Greenshot.Editor.Drawing
                         Height
                         ).Normalize();
 
-                    DrawImageWithAlpha(graphics, _shadowBitmap, rect, shadowPen.Color.A);
+                    DrawImageWithAlpha(graphics, _shadowBitmap, rect, source, shadowPen.Color.A);
 
                 });
             }
 
-            graphics.DrawImage(_image, Bounds);
+            var bounds = Bounds;
+            graphics.DrawImage(_image, new RectangleF(bounds.X, bounds.Y, bounds.Width, bounds.Height), source, GraphicsUnit.Pixel);
+        }
+
+        /// <summary>
+        /// Shows only a part of the image (in its pixels, null shows all of it), drawn pixelated (nearest neighbour) or smooth
+        /// </summary>
+        public void SetSource(RectangleF? source, bool pixelated)
+        {
+            _source = source;
+            _pixelated = pixelated;
+            Invalidate();
         }
 
         /// <summary>
@@ -237,9 +278,10 @@ namespace Greenshot.Editor.Drawing
         /// <param name="graphics">The graphics surface on which the image will be drawn. Cannot be null.</param>
         /// <param name="image">The image to draw. Cannot be null.</param>
         /// <param name="bounds">The rectangle that defines the destination area on the graphics surface where the image will be rendered.</param>
+        /// <param name="source">The part of the image to draw, in its pixels.</param>
         /// <param name="alpha">The alpha <see cref="Color.A"/> transparency value to apply to the image. Valid values are from 0 (fully transparent) to 255
         /// (fully opaque).</param>
-        private void DrawImageWithAlpha(Graphics graphics, Image image, Rectangle bounds, byte alpha)
+        private void DrawImageWithAlpha(Graphics graphics, Image image, Rectangle bounds, RectangleF source, byte alpha)
         {
             // normalize alpha from (0-255) to (0.0 - 1.0)
             float normalizedAlpha = alpha / 255f;
@@ -256,10 +298,10 @@ namespace Greenshot.Editor.Drawing
                 graphics.DrawImage(
                     image,
                     bounds,
-                    0,
-                    0,
-                    image.Width,
-                    image.Height,
+                    source.X,
+                    source.Y,
+                    source.Width,
+                    source.Height,
                     GraphicsUnit.Pixel,
                     attributes
                 );

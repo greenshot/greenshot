@@ -30,6 +30,7 @@ work differently there, and they can still change before the release. The docume
 | [capture-tools.md](capture-tools.md) | How the capture modes and helpers are built, and how a plugin adds its own |
 | [notifications.md](notifications.md) | Notifications: toasts and the tray icon |
 | [http.md](http.md) | Talking to services on the Internet with `HttpService` |
+| [document-model.md](document-model.md) | The experimental document model (`GreenshotDocument`), its file format, rules and renderer |
 | [greenshot-proxy-and-integration.md](greenshot-proxy-and-integration.md) | The native proxy, IPC, command line and the browser extension |
 | [async-threading-roadmap.md](async-threading-roadmap.md) | The threading model and the async rules |
 | [recipe-contracts-cli-query-plan.md](recipe-contracts-cli-query-plan.md) | Plan: recipe contracts, CLI queries and error handling |

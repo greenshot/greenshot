@@ -27,6 +27,7 @@ using System.Linq;
 using System.Windows.Media.Imaging;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces.Plugin;
 using log4net;
 using Microsoft.Win32;
@@ -44,10 +45,16 @@ namespace Greenshot.Editor.FileFormatHandlers
 
         private IReadOnlyCollection<string> LoadExtensions { get; } = new []{ ".jxr", ".dds", ".hdp", ".wdp", ".wmp"};
         private IReadOnlyCollection<string> SaveExtensions { get; } = new[] { ".jxr" };
-        
+
+        /// <summary>
+        /// The decoders WIC has, with their extensions and media types
+        /// </summary>
+        private readonly IReadOnlyList<(string[] Extensions, string[] MimeTypes)> _codecs;
+
         public WpfFileFormatHandler()
         {
-            LoadExtensions = LoadExtensions.ToList().Concat(RetrieveSupportedExtensions()).OrderBy(e => e).Distinct().ToArray();
+            _codecs = RetrieveCodecs().ToList();
+            LoadExtensions = LoadExtensions.ToList().Concat(_codecs.SelectMany(codec => codec.Extensions)).OrderBy(e => e).Distinct().ToArray();
 
             SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = LoadExtensions;
             SupportedExtensions[FileFormatHandlerActions.LoadFromStream] = LoadExtensions;
@@ -57,10 +64,29 @@ namespace Greenshot.Editor.FileFormatHandlers
         }
 
         /// <summary>
+        /// Register the formats of the WIC decoders which no other handler registered, e.g. HEIC, so images in them can be kept as they are
+        /// </summary>
+        public override void RegisterFileFormats(IFileFormatRegistry registry)
+        {
+            foreach (var codec in _codecs)
+            {
+                var extensions = codec.Extensions.Where(extension => registry.GetByExtension(extension) == null).ToArray();
+                var mimeTypes = codec.MimeTypes.Where(mimeType => registry.GetByMimeType(mimeType) == null).ToArray();
+                if (extensions.Length == 0 || mimeTypes.Length == 0 || registry.TryGet(extensions[0].TrimStart('.'), out _))
+                {
+                    continue;
+                }
+
+                var id = extensions[0].TrimStart('.');
+                RegisterFileFormat(registry, id, extensions, [], extensions[0], mimeTypes[0], mimeTypes.Skip(1), id.ToUpperInvariant());
+            }
+        }
+
+        /// <summary>
         /// Detect all the formats WIC supports
         /// </summary>
-        /// <returns>IEnumerable{string}</returns>
-        private IEnumerable<string> RetrieveSupportedExtensions()
+        /// <returns>IEnumerable with the extensions and media types of each decoder</returns>
+        private static IEnumerable<(string[] Extensions, string[] MimeTypes)> RetrieveCodecs()
         {
             string baseKeyPath;
             if (Environment.Is64BitOperatingSystem && !Environment.Is64BitProcess)
@@ -87,20 +113,17 @@ namespace Greenshot.Editor.FileFormatHandlers
                 using var codecKey = baseKey.OpenSubKey(codecGuid);
                 if (codecKey == null) continue;
 
-                var fileExtensions = Convert.ToString(codecKey.GetValue("FileExtensions", "")).ToLowerInvariant();
-                foreach (var fileExtension in fileExtensions.Split(','))
-                {
-                    yield return fileExtension;
-                }
+                yield return (Split(codecKey.GetValue("FileExtensions")), Split(codecKey.GetValue("MimeTypes")));
             }
             var heifDecoderPath = Path.Combine(baseKeyPath, HeifDecoder);
 
             using RegistryKey heifKey = Registry.ClassesRoot.OpenSubKey(heifDecoderPath, false);
             if (heifKey == null) yield break;
 
-            yield return ".heic";
-            yield return ".heif";
+            yield return (new[] { ".heic", ".heif" }, new[] { "image/heic", "image/heif" });
         }
+
+        private static string[] Split(object value) => Convert.ToString(value ?? "").ToLowerInvariant().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(part => part.Trim()).ToArray();
 
         /// <inheritdoc />
         public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null)
