@@ -385,17 +385,23 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
-        public void ZxingPlugin_SchemaProviders_ReturnValidJsonSchemas()
+        public void ZxingPlugin_DeclaresItsAnnotationProperties_AndStepSchema()
         {
             var plugin = new ZxingPlugin();
+            var registry = new RecipeDrawableRegistry();
+            plugin.RegisterDrawables(registry);
 
-            string drawableSchema = plugin.GetDrawableSchemaJson();
-            Assert.NotNull(drawableSchema);
-            Assert.Contains("qrType", drawableSchema);
-            Assert.Contains("epcIban", drawableSchema);
-            Assert.Contains("vcardEmail", drawableSchema);
-            Assert.Contains("wifiSsid", drawableSchema);
-            Assert.Contains("emailTo", drawableSchema);
+            foreach (string type in new[] { "QRCode", "Barcode" })
+            {
+                var names = registry.GetProperties(type).Select(p => p.Name).ToList();
+                Assert.Contains("QrType", names);
+                Assert.Contains("EpcIban", names);
+                Assert.Contains("VcardEmail", names);
+                Assert.Contains("WifiSsid", names);
+                Assert.Contains("EmailTo", names);
+                // With the common ones
+                Assert.Contains("HorizontalAnchor", names);
+            }
             string stepSchema = plugin.GetStepSchemaJson();
             Assert.NotNull(stepSchema);
             Assert.Contains("BarcodeScan", stepSchema);

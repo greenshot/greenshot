@@ -140,11 +140,5 @@ namespace Greenshot.Base.Recipes
         /// </summary>
         /// <param name="registry">The recipe drawable registry to register factories with.</param>
         void RegisterDrawables(IRecipeDrawableRegistry registry);
-
-        /// <summary>
-        /// Returns an optional JSON Schema fragment describing the configuration properties
-        /// accepted by the custom drawables provided by this extension, or null if none is provided.
-        /// </summary>
-        string GetDrawableSchemaJson();
     }
 }

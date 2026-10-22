@@ -127,60 +127,6 @@ public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
     }
 
     /// <summary>
-    /// Returns the JSON Schema fragment describing the drawables provided by this extension.
-    /// </summary>
-    public string GetDrawableSchemaJson()
-    {
-        return @"{
-  ""definitions"": {
-    ""ZxingQrDrawable"": {
-      ""type"": ""object"",
-      ""properties"": {
-        ""type"": { ""type"": ""string"", ""enum"": [""QRCode"", ""Barcode""] },
-        ""qrType"": { 
-          ""type"": ""string"", 
-          ""enum"": [""Text"", ""Link"", ""WiFi"", ""BusinessCard"", ""Payment"", ""Email"", ""CalendarEvent"", ""Phone"", ""Sms"", ""Geo""] 
-        },
-        ""text"": { ""type"": ""string"" },
-        ""foreColor"": { ""type"": ""string"" },
-        ""backColor"": { ""type"": ""string"" },
-        ""roundedDots"": { ""type"": ""boolean"" },
-        ""margin"": { ""type"": ""integer"", ""minimum"": 0 },
-        ""wifiSsid"": { ""type"": ""string"" },
-        ""wifiPassword"": { ""type"": ""string"" },
-        ""wifiEncryption"": { ""type"": ""string"", ""enum"": [""WPA"", ""WEP"", ""nopass""] },
-        ""vcardFirstName"": { ""type"": ""string"" },
-        ""vcardLastName"": { ""type"": ""string"" },
-        ""vcardCompany"": { ""type"": ""string"" },
-        ""vcardEmail"": { ""type"": ""string"" },
-        ""vcardPhone"": { ""type"": ""string"" },
-        ""vcardUrl"": { ""type"": ""string"" },
-        ""epcName"": { ""type"": ""string"" },
-        ""epcIban"": { ""type"": ""string"" },
-        ""epcBic"": { ""type"": ""string"" },
-        ""epcAmount"": { ""type"": ""string"" },
-        ""epcReference"": { ""type"": ""string"" },
-        ""epcMessage"": { ""type"": ""string"" },
-        ""emailTo"": { ""type"": ""string"" },
-        ""emailSubject"": { ""type"": ""string"" },
-        ""emailBody"": { ""type"": ""string"" },
-        ""eventTitle"": { ""type"": ""string"" },
-        ""eventLocation"": { ""type"": ""string"" },
-        ""eventStart"": { ""type"": ""string"" },
-        ""eventEnd"": { ""type"": ""string"" },
-        ""eventDescription"": { ""type"": ""string"" },
-        ""phoneNumber"": { ""type"": ""string"" },
-        ""smsNumber"": { ""type"": ""string"" },
-        ""smsMessage"": { ""type"": ""string"" },
-        ""latitude"": { ""type"": ""string"" },
-        ""longitude"": { ""type"": ""string"" }
-      }
-    }
-  }
-}";
-    }
-
-    /// <summary>
     /// Returns the JSON Schema fragment describing custom capture steps provided by this extension.
     /// </summary>
     public string GetStepSchemaJson()

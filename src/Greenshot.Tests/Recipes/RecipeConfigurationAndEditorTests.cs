@@ -50,8 +50,6 @@ namespace Greenshot.Tests.Recipes
             {
                 RegisterDrawablesCalled = true;
             }
-
-            public string GetDrawableSchemaJson() => null;
         }
 
         private class StepTypeProvider : IRecipeStepProvider
@@ -93,8 +91,6 @@ namespace Greenshot.Tests.Recipes
                 registry.RegisterDrawableFactory(_drawableType, (surface, parameters, context) => null);
                 registry.RegisterDrawableConfigurator(_drawableType, (parameters, owner) => true);
             }
-
-            public string GetDrawableSchemaJson() => null;
         }
 
         public RecipeConfigurationAndEditorTests()
