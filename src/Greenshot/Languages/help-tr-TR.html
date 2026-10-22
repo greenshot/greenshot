@@ -1,337 +1,358 @@
-﻿
-<html>
+<!DOCTYPE html>
+<html lang="tr">
 	<head>
-		<title>Greenshot Yardımı</title>
-		
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Greenshot Yardım</title>
 		<style>
-		* {
-			font-family: Tahoma, Arial, Sans-serif;
-		}
-		h1 {font-size:16px;}
-		h2 {font-size:14px;color:#009900;margin-top:24px;}
-		h3 {font-size:12px;margin-top:18px;}
-		small {font-size:10px;}
-		p, li {font-size:12px;line-height:1.5em}
-		a:link, a:hover, a:visited, a:active {color:#009900;}
-		kbd {background-color:#dddddd;border:1px solid #bbbbbb;padding:0 2px;border-radius:2px;}
-		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px;}
-		em {padding-right:0.2em;}
+		* {font-family: "Segoe UI", Tahoma, Arial, Sans-serif;}
+		body {max-width:60em;margin:0 auto;padding:0 16px 24px 16px;}
+		h1 {font-size:20px;}
+		h2 {font-size:16px;color:#009900;margin-top:28px;}
+		h3 {font-size:14px;margin-top:20px;}
+		small {font-size:11px;}
+		p, li, td, th {font-size:13px;line-height:1.5em;}
+		a:link, a:hover, a:visited, a:active {color:#007700;}
+		kbd {background-color:#eeeeee;border:1px solid #bbbbbb;padding:0 3px;border-radius:3px;white-space:nowrap;}
+		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px 8px;}
+		table {border-collapse:collapse;margin:6px 0;}
+		th, td {border:1px solid #dddddd;padding:3px 8px;text-align:left;vertical-align:top;}
+		th {background-color:#f2f2f2;}
+		em {font-style:normal;font-weight:bold;}
 		</style>
 	</head>
 	<body>
-	<h1>Greenshot Yardımı</h1>
-	<small>Version 0.8 Yardım içeriğini Türkçe'ye çeviren Kaya Zeren</small>
-	
+	<h1>Greenshot Yardım</h1>
+	<!--
+	Note to translator: uncomment the entry below to have your effort honored
+	-->
+	<!--<small>Yardım içeriğini Türkçe'ye çeviren: ADINIZ (önceki sürüm: Kaya Zeren)</small>-->
+
+	<p class="hint">
+		<code>greenshot:</code> ile başlayan bağlantılar, örneğin <a href="greenshot://settings">ayarları aç</a>,
+		Greenshot'ın ilgili penceresini açar. Greenshot kurulum programıyla kurulduysa çalışırlar; taşınabilir sürümde
+		ve Greenshot Light'ta çalışmazlar. Tarayıcınız Greenshot'ı açmadan önce sorar.
+	</p>
+
 	<h2>İçindekiler</h2>
 	<ol>
-		<li><a href="#screenshot">Bir ekran görüntüsünü yakalamak</a></li>
-		<ol>
-			<li><a href="#capture-region">Yakalanacak bölge</a></li>
-			<li><a href="#capture-last-region">Son bölgeyi yakala</a></li>
-			<li><a href="#capture-window">Pencereyi yakala</a></li>
-			<li><a href="#capture-fullscreen">Tüm ekranı yakala</a></li>
-		</ol>
-	
-		<li><a href="#editor">Görüntü düzenleyicinin kullanımı</a></li>
-		<ol>
-			<li><a href="#editor-shapes">Şekil çizilmesi</a></li>
-			<li><a href="#editor-text">Yazı eklenmesi</a></li>
-			<li><a href="#editor-highlight">Nesnelerin vurgulanması</a></li>
-			<li><a href="#editor-obfuscate">Obfuscating things</a></li>
-			<li><a href="#editor-crop">Ekran görüntüsünün traşlanması</a></li>
-			<li><a href="#editor-reuse-elements">Re-using drawn elements</a></li>
-			<li><a href="#editor-export">Ekran görüntüsünün verilmesi</a></li>
-		</ol>
-		<li><a href="#settings">Ayarlar penceresi</a></li>
-		<ol>
-			<li><a href="#settings-general">Genel ayarlar</a></li>
-			<li><a href="#settings-output">Dosya ayarları</a></li>
-			<li><a href="#settings-printer">Yazıcı ayarları</a></li>
-		</ol>
-		<li><a href="#help">Yardımcı olmak ister misiniz?</a></li>
-		<ol>
-			<li><a href="#help-donate">Bağış yapmayı düşünün</a></li>
-			<li><a href="#help-spread">Dünyaya yayın</a></li>
-			<li><a href="#help-translate">Kendi dilinize çevirin</a></li>
-		</ol>
+		<li><a href="#start">Başlarken</a></li>
+		<li><a href="#screenshot">Ekran görüntüsü almak</a>
+			<ol>
+				<li><a href="#capture-screen">Yakalama ekranı</a></li>
+				<li><a href="#capture-modes">Bölge, pencere, sabit boyut ve metin</a></li>
+				<li><a href="#capture-keys">Seçim yaparken kullanılan tuşlar</a></li>
+				<li><a href="#capture-live">Ekranı dondurmadan seçmek</a></li>
+			</ol>
+		</li>
+		<li><a href="#destinations">Ekran görüntüsü nereye gider</a></li>
+		<li><a href="#editor">Görüntü editörü</a>
+			<ol>
+				<li><a href="#editor-tabs">Sekmeler</a></li>
+				<li><a href="#editor-tools">Çizim araçları</a></li>
+				<li><a href="#editor-highlight">Vurgulama ve gizleme</a></li>
+				<li><a href="#editor-crop">Kırpma</a></li>
+				<li><a href="#editor-effects">Efektler, döndürme ve yeniden boyutlandırma</a></li>
+				<li><a href="#editor-reuse">Görüntü eklemek ve öğeleri yeniden kullanmak</a></li>
+				<li><a href="#editor-export">Kaydetme ve dışa aktarma</a></li>
+			</ol>
+		</li>
+		<li><a href="#recipes">Otomatik adımlar ve tarifler</a></li>
+		<li><a href="#settings">Ayarlar</a></li>
+		<li><a href="#troubleshooting">Bir şey çalışmadığında</a></li>
+		<li><a href="#help">Yardım etmek ister misiniz?</a></li>
 	</ol>
-	
+
+	<a name="start"></a>
+	<h2>Başlarken</h2>
+	<p>
+		Greenshot arka planda çalışır. Simgesi saatin yanında, görev çubuğunun bildirim alanındadır.
+		Tüm yakalama seçeneklerini, <em>Ayarlar...</em> öğesini ve bu yardımı içeren menüyü açmak için simgeye sağ tıklayın.
+	</p>
+	<p class="hint">
+		Simgeyi göremiyor musunuz? Windows 11 onu okun (^) arkasına gizleyebilir. Self-Service içindeki <a href="greenshot://self-service?section=setup">Your setup</a>
+		onu sizin için saatin yanında gösterir ve <kbd>Print Screen</kbd> tuşunun Greenshot'a ulaşıp ulaşmadığını da denetler.
+	</p>
+
 	<a name="screenshot"></a>
-	<h2>Bir ekran görüntüsü yakalamak</h2>
+	<h2>Ekran görüntüsü almak</h2>
+	<p>Yakalamayı bir kısayol tuşuyla ya da Greenshot simgesinin menüsünden başlatın:</p>
+	<table>
+		<tr><th>Yakalama</th><th>Kısayol tuşu</th><th>Ne olur</th></tr>
+		<tr><td><em>Bölge yakala</em></td><td><kbd>Print Screen</kbd></td><td>Yakalama ekranı açılır, neyi yakalayacağınızı seçersiniz.</td></tr>
+		<tr><td><em>Pencere yakala</em></td><td><kbd>Alt</kbd> + <kbd>Print Screen</kbd></td><td>Etkin pencereyi hemen yakalar. <em>Etkileşimli pencere yakalama modunu kullan</em> (<a href="greenshot://settings?tab=capture">Yakala sekmesi</a>) ile pencereyi bunun yerine yakalama ekranında seçersiniz.</td></tr>
+		<tr><td><em>Tüm ekranı yakala</em></td><td><kbd>Ctrl</kbd> + <kbd>Print Screen</kbd></td><td>Ekranı hemen yakalar. Birden fazla monitör varsa simgenin menüsü tüm monitörleri ya da birini sunar.</td></tr>
+		<tr><td><em>Son bölgeyi yakala</em></td><td><kbd>Shift</kbd> + <kbd>Print Screen</kbd></td><td>Son yakalamanızla aynı alanı yeniden yakalar.</td></tr>
+		<tr><td><em>Panodaki görüntüyü aç</em></td><td>yok</td><td>Panodaki görüntüyü açar.</td></tr>
+	</table>
 	<p>
-		Bir ekran görüntüsünü klavyenizdeki <kbd>Print</kbd> tuşuna basarak 
-		veya sistem tepsisindeki Greenshot simgesine sağ tıklayarak yakalayabilirsiniz.<br>
-		Bir kaç farklı ekran görüntüsü yakalama yöntemi vardır:
+		Menüde ayrıca yakalama ekranı olmadan seçtiğiniz açık bir pencereyi yakalayan <em>Açık pencereleri yakala</em>,
+		<em>Masaüstünden görüntü aç</em> ve <em>Son kaydedilenin konumunu aç</em> bulunur.
+		Kısayol tuşlarını <a href="greenshot://settings?tab=general">ayarlarda, Genel sekmesinde</a> değiştirebilirsiniz.
 	</p>
-	
-	<a name="capture-region"></a>
-	<h3>Bölge yakalama <kbd>Print</kbd></h3>
+
+	<a name="capture-screen"></a>
+	<h3>Yakalama ekranı</h3>
 	<p>
-		Bölge yakalama kipi ekranın bir bölümünü işaretleyip yakalamanızı sağlar.<br>
-		Bölge kipini seçtikten sonra fare imlecinin yerinde bir artı işareti görürsünüz.
-		Bu işareti yakalamak istediğiniz ekran bölümünün bir köşesine tıklayıp basılı 
-		tutun ve diğer köşeye çekerek bir dikdörtgen çizin. İstediğiniz bölgeyi seçtiğinizde
-		fare tuşunu bırakın.
+		Greenshot tüm monitörlerinizin bir görüntüsünü alır ve her şeyin üzerinde gösterir. Siz seçim yaparken hiçbir şey değişmez,
+		bu yüzden açık bir menü ya da araç ipucu olduğu yerde kalır. Yalnızca seçtiğiniz kısım yakalanır. <kbd>Esc</kbd> hiçbir şey
+		yakalamadan yakalama ekranını kapatır.
+	</p>
+	<p>Görüntünün üzerinde şunları görürsünüz:</p>
+	<ul>
+		<li>boyutuyla birlikte <em>seçim</em>,</li>
+		<li>bir köşeyi tam olarak yerleştirebilmeniz için her pikseli gösteren, farenin yanındaki büyüteç, yani <em>yakınlaştırıcı</em>,</li>
+		<li>köşelerdeki paneller: <em>tuşlar</em> (<kbd>F1</kbd>), <em>bilgi</em> (<kbd>I</kbd>) ve seçimin <em>önizlemesi</em> (<kbd>P</kbd>).
+			Kendiliğinden yolunuzdan çekilirler.</li>
+	</ul>
+	<p class="hint">
+		Seçim yaparken <kbd>F1</kbd> tuşuna basın: tuşlar paneli her zaman o anda çalışan tuşları listeler.
+		Greenshot bir paneli gizlediğinizi hatırlar, <kbd>F1</kbd> veya <kbd>I</kbd> onu geri getirir.
+	</p>
+
+	<a name="capture-modes"></a>
+	<h3>Bölge, pencere, sabit boyut ve metin</h3>
+	<ul>
+		<li><em>Bölge</em>: fareyle bir dikdörtgen sürükleyin, bıraktığınızda yakalanır. Klavyeyle: ok tuşları fareyi hareket ettirir,
+			<kbd>Enter</kbd> seçimi başlatır, tekrar <kbd>Enter</kbd> onu yakalar. Yalnızca genişliği ya da yalnızca yüksekliği değiştirmek için <kbd>Shift</kbd> tuşunu basılı tutun.</li>
+		<li><em>Pencere</em> (<kbd>Boşluk</kbd>): farenin altındaki pencere seçilir, bir tıklama veya <kbd>Enter</kbd> onu yakalar.
+			Greenshot en içteki parçayı, örneğin bir araç çubuğunu seçer; pencerenin tamamını seçmek için pencerenin dış kenarına gidin.
+			<kbd>Tab</kbd> ve <kbd>Shift</kbd> + <kbd>Tab</kbd> sonraki veya önceki pencereyi seçer.</li>
+		<li><em>Sabit boyut</em> (<kbd>F</kbd>): tam boyutlu bir dikdörtgen, örneğin 1280 × 720, fareyi izler. <kbd>1</kbd> – <kbd>9</kbd> bir boyut seçer,
+			<kbd>C</kbd> farenin tuttuğu köşeyi değiştirir, pencerelere yapışmadan yerleştirmek için <kbd>Alt</kbd> tuşunu basılı tutun. Kendi boyutlarınız
+			<a href="greenshot://settings?tab=capture">Yakala sekmesinde</a> ayarlanır, son yakalamalarınızın boyutları da sunulur.</li>
+		<li><em>Metin</em> (<kbd>T</kbd>): Greenshot ekrandaki metni Windows metin tanıma özelliğiyle okur ve her satırı çerçeveler.
+			Yakalamak için bir satıra tıklayın veya sözcüklerin üzerinden sürükleyin. Sözcükleri metin olarak almak için yakalamayı metni panoya kopyalayan
+			<em>Windows OCR</em> hedefine gönderin. Bunun için Windows'ta bir tanıma dilinin kurulu olması gerekir; dil
+			<a href="greenshot://settings?tab=capture">Yakala sekmesinde</a>, <em>Text recognition (OCR)</em> altında seçilir.</li>
+	</ul>
+	<p class="hint">
+		QR kodu eklentisiyle Greenshot ekrandaki QR kodlarını bulur ve çerçeveler. İçeriğini kopyalamak veya web adresini açmak için birine tıklayın.
+	</p>
+
+	<a name="capture-keys"></a>
+	<h3>Seçim yaparken kullanılan tuşlar</h3>
+	<table>
+		<tr><th>Tuş</th><th>Ne yapar</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Yakalamayı iptal et</td></tr>
+		<tr><td><kbd>Boşluk</kbd></td><td>Bölge ile pencere arasında geçiş yap</td></tr>
+		<tr><td><kbd>F</kbd> / <kbd>T</kbd></td><td>Sabit boyut yakala / metin yakala</td></tr>
+		<tr><td><kbd>M</kbd></td><td>Yakalamada fare imlecini göster veya gizle</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Dondurulmuş ve canlı ekran arasında geçiş yap</td></tr>
+		<tr><td><kbd>Z</kbd></td><td>Yakınlaştırıcıyı göster veya gizle</td></tr>
+		<tr><td><kbd>F1</kbd> / <kbd>I</kbd> / <kbd>P</kbd></td><td>Tuşları / bilgiyi göster veya gizle / önizlemeyi taşı veya gizle</td></tr>
+		<tr><td>Ok tuşları</td><td>Fareyi bir piksel, <kbd>Ctrl</kbd> ile on piksel hareket ettir</td></tr>
+		<tr><td><kbd>Enter</kbd></td><td>Seçimi başlat veya bitir, pencereyi yakala</td></tr>
+	</table>
+
+	<a name="capture-live"></a>
+	<h3>Ekranı dondurmadan seçmek</h3>
+	<p>
+		<a href="greenshot://settings?tab=capture">Yakala sekmesinde</a> <em>Freeze the screen while selecting</em> seçeneğini kapatın ya da seçim yaparken
+		<kbd>L</kbd> tuşuna basın; böylece canlı ekranda seçim yaparsınız: bir video oynamaya devam eder ve yakalama, seçimi bitirdiğinizde
+		alınır. Metin modu ve önizleme dondurulmuş görüntüye ihtiyaç duyar. Açık menüler genellikle tıkladığınızda kapanır, bu yüzden onlar için dondurulmuş ekranı kullanın.
 	</p>
 	<p class="hint">
-		   Klavyedeki <kbd>Boşluk</kbd> tuşunu kullanarak bölge ve  
-		<a href="#capture-window">pencere</a> yakalama kipi arasında geçiş yapabilirsiniz.
+		Bir şey ancak bir süre sonra mı beliriyor? <a href="greenshot://settings?tab=capture">Yakala sekmesinde</a>
+		<em>Yakalamadan önce beklenecek milisaniye</em> değerini ayarlayın ya da canlı ekranda seçin.
 	</p>
-	<p class="hint">
-		Kesin bir bölgeyi yakalamak istiyorsanız biraz daha geniş bir alanı seçip yakaladıktan
-		sonra Greenshot görüntü düzenleyicide <a href="#editor-crop">kırpma</a> işlemini yapmak
-		kolaylık sağlar.
-	</p>
-	
-	<a name="capture-last-region"></a>
-	<h3>Son bölgeyi yakala <kbd>Shift</kbd> + <kbd>Print</kbd></h3>
+
+	<a name="destinations"></a>
+	<h2>Ekran görüntüsü nereye gider</h2>
 	<p>
-		Eğer daha önce bir <a href="#capture-region">bölge yakalama</a> veya 
-		<a href="#capture-window">pencere yakalama</a> işlemi yaptıysanız aynı bölgeyi 
-		yeniden yakalamak için bu seçeneği kullanın.
+		Yakalamadan sonra Greenshot ekran görüntüsünü hedeflerinize gönderir. Varsayılan olarak her seferinde küçük bir menüyle sorar.
+		Oradaki her hedefin sabit, altı çizili bir harfi vardır, örneğin pano için <kbd>C</kbd> ve kaydetmek için <kbd>S</kbd>; böylece onu klavyeyle seçebilirsiniz.
+		Hedeflerinizi <a href="greenshot://settings?tab=destination">Hedef sekmesinde</a> ya da simgenin menüsündeki <em>Hızlı ayarlar</em> altında seçin.
 	</p>
-	
-	<a name="capture-window"></a>
-	<h3>Pencere yakala <kbd>Alt</kbd> + <kbd>Print</kbd></h3>
+	<ul>
+		<li><em>Editörde aç</em>: önce ekran görüntüsüne not ekleyin, bkz. <a href="#editor">görüntü editörü</a>.</li>
+		<li><em>Doğrudan kaydet</em>, <a href="greenshot://settings?tab=output">Çıkış sekmesindeki</a> klasörü ve dosya adı desenini kullanır, <em>Farklı kaydet</em> bunları sorar.</li>
+		<li><em>Panoya kopyala</em>, <em>Yazıcıya gönder</em>, <em>E-Posta gönder</em>, <em>Windows share</em> ve <em>Windows OCR</em> (ekran görüntüsündeki metni kopyalar).</li>
+		<li>Eklentiler başka hedefler ekler, örneğin Microsoft Word, Excel, PowerPoint, Outlook ve OneNote, PDF, Box, Dropbox, Jira ve Confluence.
+			Bunlar <a href="greenshot://settings?tab=plugins">Eklentiler sekmesinde</a> ayarlanır; bir eklentiyi orada kapatabilirsiniz de.</li>
+	</ul>
 	<p>
-		Etkin pencerenin ekran görüntüsünü yakalar.
+		<a href="greenshot://settings?tab=destination">Hedef sekmesindeki</a> <em>Available</em> sütunu bir hedefi her yerde kapatır.
+		Bir yakalamadan sonra hangi bildirimleri alacağınız <a href="greenshot://settings?tab=capture">Yakala sekmesinde</a>, <em>Notifications</em> altında ayarlanır.
 	</p>
-	<p class="hint">
-		<a href="#settings">Ayarlar</a> bölümünden doğrudan etkin pencereyi 
-		yakalamayı veya etkileşimli olarak istediğiniz pencereye tıklayarak
-		yakalamayı seçebilirsiniz. Bu seçenek seçildiğinde, 
-		<a href="#capture-region">bölge kipindeki</a> gibi bir pencereyi tıklayarak 
-		seçebilirsiniz. Greenshot yakalanacak bölgeyi vurgulayacaktır.<br>
-		Eğer yakalanmasını istediğiniz bir alt pencereyse (araç çubukları olmadan bir 
-		tarayıcı görünümü, veya bir web sayfasının bir çerçevesi gibi) fare imlecini 
-		pencerenin üzerine getirip <kbd>PgDown</kbd> tuşuna basın. Bunu yaptıktan sonra 
-		pencerenin alt ögelerini seçerek yakalayabilirsiniz.
-	</p>
-	
-	<a name="capture-fullscreen"></a>
-	<h3>Tüm ekranı yakala <kbd>Control</kbd> + <kbd>Print</kbd></h3>
-	<p>
-		Ekrandaki tüm görüntüyü yakalar.
-	</p>
-	
+
 	<a name="editor"></a>
-	<h2>Görüntü düzenleyiciyi kullanmak</h2>
+	<h2>Görüntü editörü</h2>
 	<p>
-		Greenshot kolay kullanılan, not ve şekil ekleme özellikleri olan 
-		bir görüntü düzenleyici ile birlikte gelir. Ayrıca ekran görüntünüzün 
-		vurgulanması veya bulanıklaştırılmasını sağlayan işlevleri vardır.
+		Editör bir ekran görüntüsüne şekiller, metin, oklar, vurgular ve daha fazlasını ekler ya da başkalarının görmemesi gerekenleri gizler.
+		Yakalamalarınızın yanı sıra bir dosyadan veya panodan görüntüler açar (simgenin menüsü).
+		Çizdiğiniz her şey seçebileceğiniz, taşıyabileceğiniz, değiştirebileceğiniz veya kaldırabileceğiniz bir öğe olarak kalır.
 	</p>
-	<p class="hint">
-		Greenshot görüntü düzenleyici yalnızca ekran görüntüleri için kullanılmayabilir.
-		Başka resim dosyaları ve panoya kopyalanmış resimleri de düzenleyebilirsiniz.
-		Bunu yapmak için sistem tepsisindeki Greenshot simgesine sağ tıklayın ve 
-		<em>Dosyadaki görüntüyü aç</em> veya <em>Panodaki görüntüyü aç</em> komutunu seçin.
-	</p>
-	<p class="hint">
-		Varsayılan olarak, görüntü düzenleyici, bir ekran görüntüsü yakalandığında açılır
-		Eğer görüntü düzenleyiciyi kullanmak istemiyorsanız <a href="#settings">ayarlar</a>
-		bölümünden devre dışı bırakabilirsiniz.
-	</p>
-	
-	
-	<a name="editor-shapes"></a>
-	<h3>Şekillerin çizilmesi</h3>
+
+	<a name="editor-tabs"></a>
+	<h3>Sekmeler</h3>
 	<p>
-		Görüntü düzenleyicinin sol tarafındaki araç çubuğundan veya <em>Nesne</em> menüsünden
-		şekil çizme araçlarından birini seçin. Ayrıca daha rahat kullanabilmek için her bir 
-		araca bir tuş atanmıştır.<br>
-		Kullanılabilecek şekiller: dikdörtgen <kbd>R</kbd>, elips <kbd>E</kbd>, çizgi <kbd>L</kbd>
-		ve oktur <kbd>A</kbd>.<br>
-		Fare tuşuna basılı tutup sürükleyerek şekilin konumu ve boyutunu belirleyebilirsiniz.
-		Şekli çizmeyi bitirdiğinizde fare tuşunu bırakın.
-		Click, hold down the mouse button and drag to define position and size of the shape. 
-		Release the mouse button when you are done.
+		Bir editör penceresi birkaç görüntüyü sekme olarak gösterir; yeni bir yakalama, en son kullandığınız editör penceresinde bir sekme olarak açılır.
+		<kbd>Ctrl</kbd> + <kbd>Tab</kbd> sonraki sekmeye geçer, <kbd>Ctrl</kbd> + <kbd>W</kbd> bir sekmeyi kapatır. Bir sekmeyi başka bir editör penceresine sürükleyin
+		ya da yeni bir pencereye taşımak için ona sağ tıklayın. Sekme şeridindeki <em>+</em> yeni, boş bir görüntü başlatır.
+		Kaydedilmemiş görüntüler içeren bir pencereyi kapattığınızda Greenshot bir kez sorar: <em>Save all</em>, <em>Discard all</em> veya iptal.
+		Her yakalama için bir pencere mi tercih edersiniz? Sekmeleri <a href="greenshot://settings?tab=editor">Editör sekmesinde</a> kapatın.
 	</p>
+
+	<a name="editor-tools"></a>
+	<h3>Çizim araçları</h3>
 	<p>
-		Varolan şekilleri taşımak ve yeniden boyutlandırmak için araç çubuğundaki 
-		seçme aracını <kbd>ESC</kbd> kullanabilirsiniz.<br>
-		Her şekil tipi için, çizgi kalınlığı, çizgi rengi, arkaplan rengi gibi değiştirebileceğiniz 
-		farklı özellikler vardır. Varolan bir şekli seçtikten sonra ayarlarını değiştirebilirsiniz.
-		Yaptığınız ayarlar kalıcı olur ve daha sonra çizeceğiniz aynı tipteki şekiller bu ayarlarla 
-		çizilir.
+		Editörün solundan, <em>Nesne</em> menüsünden veya tuşuyla bir araç seçin, ardından görüntü üzerinde sürükleyin.
+		Üstteki araç çubuğu, aracın veya seçili öğelerin seçeneklerini gösterir, örneğin çizgi rengi, dolgu rengi ve kalınlık.
 	</p>
-	<p class="hint">
-		Aynı anda bir kaç şekli de düzenleyebilirsiniz. Birden fazla şekli seçmek için 
-		<kbd>Harf kaydırma (Shift)</kbd> tuşuna basılı tutarken şekillere tıklayın.
-	</p>
-	
-	<a name="editor-text"></a>
-	<h3>Yazı ekleme</h3>
-	<p>
-		Yazı aracının <kbd>T</kbd> kullanımı <a href="#editor-shapes">şekil</a> araçlarına çok benzer. 
-		İstediğiniz boyda bir yazı nesnesi çizin ve yazıyı yazın.<br>
-		Varolan bir yazı nesnesini düzenlemek için üzerinde çift tıklayın.
-	</p>
-	
+	<table>
+		<tr><th>Tuş</th><th>Araç</th><th>Tuş</th><th>Araç</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Seçim aracı</td><td><kbd>S</kbd></td><td>Konuşma balonu</td></tr>
+		<tr><td><kbd>R</kbd></td><td>Dikdörtgen</td><td><kbd>I</kbd></td><td>Sayaç (numaralı adımlar)</td></tr>
+		<tr><td><kbd>E</kbd></td><td>Elips</td><td><kbd>M</kbd></td><td>Emoji</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Çizgi</td><td><kbd>H</kbd></td><td>Vurgula</td></tr>
+		<tr><td><kbd>A</kbd></td><td>Ok</td><td><kbd>O</kbd></td><td>Gizle</td></tr>
+		<tr><td><kbd>F</kbd></td><td>Serbest çizim</td><td><kbd>C</kbd></td><td>Kırp</td></tr>
+		<tr><td><kbd>T</kbd></td><td>Metin</td><td><kbd>Z</kbd></td><td>Görüntüyü yeniden boyutlandır</td></tr>
+	</table>
+	<ul>
+		<li>Kare veya daire ya da 15°'lik adımlarla çizgiler için çizerken <kbd>Shift</kbd> tuşunu basılı tutun; yeniden boyutlandırırken en-boy oranını korur.
+			Ortadan çizmek veya yeniden boyutlandırmak için <kbd>Ctrl</kbd> tuşunu basılı tutun; bir şeyin etrafına elips çizmek için kullanışlıdır.</li>
+		<li>Metin: metin kutusunu çizin ve yazın. Bir metni değiştirmek için çift tıklayın, <kbd>Enter</kbd> bitirir, <kbd>Shift</kbd> + <kbd>Enter</kbd> yeni bir satır başlatır.</li>
+		<li>Seçili öğeler: ok tuşları onları taşır (<kbd>Shift</kbd> ile on piksel), <kbd>Ctrl</kbd> + ok tuşları yeniden boyutlandırır,
+			<kbd>Page Up</kbd> / <kbd>Page Down</kbd> onları bir katman yukarı veya aşağı taşır, <kbd>Delete</kbd> kaldırır, <kbd>Ctrl</kbd> + <kbd>D</kbd> çoğaltır.
+			Birden fazla öğe seçmek için <kbd>Shift</kbd> tuşunu basılı tutup tıklayın.</li>
+		<li><kbd>Ctrl</kbd> + <kbd>Z</kbd> geri alır, <kbd>Ctrl</kbd> + <kbd>Y</kbd> yineler.</li>
+	</ul>
+
 	<a name="editor-highlight"></a>
-	<h3>Bölgelerin vurgulanması</h3>
-	<p>
-		Vurgulama aracını seçtikten sonra <kbd>H</kbd>, vurgulamak istediğiniz alanı bir  
-		<a href="#editor-shapes">sekil</a> çizer gibi belirleyebilirsiniz.<br>
-		Vurgulanacak alanın nasıl gösterileceği ile ilgili bir kaç seçeneğiniz vardır. 
-		Bunları üst araç çubuğunun en solundaki düğmeye tıklayarak görebilirsiniz. :
-	</p>
+	<h3>Vurgulama ve gizleme</h3>
+	<p>Vurgulama (<kbd>H</kbd>) veya gizleme (<kbd>O</kbd>) alanını bir dikdörtgen gibi çizin ve araç çubuğunda modu seçin:</p>
 	<ul>
-		<li><em>Yazıyı vurgula</em>: Bir bölgeyi fosforlu bir kalemle işaretlenmiş gibi parlak bir 
-		renkle işaretler</li>
-		<li><em>Bölgeyi vurgula</em>: Seçili alanın dışındaki her şeyi bulanıklaştırır<a href="#hint-blur">*</a> ve karartır</li>
-		<li><em>Gritonlama</em>: Seçili alanın dışındaki her şey gritonlanır</li>
-		<li><em>Büyüt</em>: Seçili alan büyütülmüş olarak gösterilir</li>
+		<li><em>Metni vurgula</em> alanı fosforlu kalem gibi renklendirir, <em>Bölgeyi vurgula</em> geri kalan her şeyi karartır ve bulanıklaştırır,
+			<em>Gri tonlama</em> geri kalan her şeyi griye çevirir, <em>Büyüt</em> alanı büyütür.</li>
+		<li><em>Pikselleştir</em> veya <em>Bulanıklaştır</em> parolaları, adları, hesap numaralarını veya yüzleri gizler.</li>
 	</ul>
-	
-	<a name="editor-obfuscate"></a>
-	<h3>Karartma</h3>
-	<p>
-		Ekran görüntüsünde ad, parola, resim gibi başkalarının görmesini istemediğiniz bilgiler varsa bunları 
-		karartmak iyi bir fikirdir.<br>
-		Karartma aracını <kbd>O</kbd> <a href="#editor-highlight">vurgulama</a> aracı ile aynı şekilde 
-		kullanabilirsiniz.<br>
-		Karatma için kullanabileceğiniz seçenekler şunlardır:
-	</p>
-	<ul>
-		<li><em>Pikselleştir</em>: Seçili alandaki piksel boyutunu büyütür</li>
-		<li><em>Bulanıklaştır</em><a href="#hint-blur">*</a>: Seçili alanı bulanıklaştırır</li>
-	</ul>
-	<a name="hint-blur"></a>
-	<p class="hint">
-		* Bilgisayarınızın başarımına bağlı olarak bulanıklaştırma işlemi Greenshot görüntü 
-		düzenleyiciyi yavaşlatabilir. Bulanıklaştırmayı uygular uygulamaz görüntü düzenleyicinin
-		yavaşladığını hissederseniz, araç çubuğundan <em>Önizleme kalitesi</em>  
-		veya <em>Bulanıklaştırma çapı</em> değerini küçültün.<br>
-		Başarım hala çalışılamayacak kadar kötüyse, bulanıklaştırma yerine pikselleştirme
-		etkisini kullanabilirsiniz.
-	</p>
-	
+
 	<a name="editor-crop"></a>
-	<h3>Ekran görüntüsünün kırpılması</h3>
+	<h3>Kırpma</h3>
 	<p>
-		Yakaladığınız ekran görüntüsünün yalnızca bir bölümünü kullanacaksanız, istediğiniz
-		bölgeyi kırpmak için kırpma aracını	<kbd>C</kbd> kullanın.
-		Kırpma aracını seçtikten sonra elinizde kalmasını istediğiniz bölümü bir dikdörtgen 
-		çizerek seçin. Seçtiğiniz bölgeyi diğer nesnelerde olduğu gibi yeniden 
-		boyutlandırabilirsiniz.<br>
-		Seçiminizi tamamladığınızda üst araç çubuğunda soldaki onaylama düğmesine tıklayın ya da
-		<kbd>Enter</kbd> tuşuna basın. Kırpma işlemini iptal etmek için  iptal düğmesine tıklayın 
-		ya da <kbd>ESC</kbd> tuşuna basın.
-	</p>
-	
-	<a name="editor-reuse-elements"></a>
-	<h3>Çizilmiş şekillerin yeniden kullanılması</h3>
-	<p>
-		Ekran görüntülerinizde sık sık aynı veya benzer şekilleri kullanıyorsanız (tarayıcı tipi
-		ve sürümünün yazdığı bir yazı alanı veya bir kaç ekran görüntüsünde bulanıklaştırılmış aynı 
-		şekiller gibi) nesneleri yeniden kullanabilirsiniz.<br>
-		<em>Nesne</em> menüsünden <em>Nesneleri dosyaya kaydet</em> seçeneğini seçerek kullandığınız
-		nesne takımını daha sonra yine kullanabilmek için kaydedebilirsiniz. 
-		<em>Dosyadan nesneleri yükle</em> seçeneği ile aynı nesneleri başka bir ekran görüntüsüne 
-		uygulayabilirsiniz.
-	</p>
-	
-	<a name="editor-export"></a>
-	<h3>Ekran görüntüsünün aktarılması</h3>
-	<p>
-		Ekran görüntüsünü düzenledikten sonra sonucu farklı amaçlarla aktarmak isteyebilirsiniz. 
-		Tüm aktarma seçeneklerini <em>Dosya</em> menüsünden, en üstteki araç çubuğundan veya 
-		kısayol tularından ulaşabilirsiniz.
+		Kırpma aracını (<kbd>C</kbd>) seçin ve saklanacak alanı çizin, <kbd>Enter</kbd> onaylar, <kbd>Esc</kbd> iptal eder.
+		Modu değiştirmek için <kbd>C</kbd> tuşuna yeniden basın veya araç çubuğundaki <em>Kırpma modu</em> seçeneğini kullanın:
 	</p>
 	<ul>
-		<li><em>Kaydet</em> <kbd>Control</kbd> + <kbd>S</kbd>: Görüntüyü bir dosyaya kaydeder(eğer görüntü zaten kaydedildiyse <em>Farklı kaydet...</em> penceresini gösterir</li>
-		<li><em>Farklı kaydet...</em> <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>: Kaydedilecek dosyanın yeri, adı ve görüntü biçimi </li>
-		<li><em>Görüntüyü panoya kopyala</em> <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd>: Görüntünün bir kopyasını panoya alır. Böylece ekran görüntüsünü başka programlara yapıştırabilirsiniz</li>
-		<li><em>Yazdır...</em> <kbd>Control</kbd> + <kbd>P</kbd>: Görüntüyü yazıcıya gönderir</li>
-		<li><em>E-posta</em> <kbd>Control</kbd> + <kbd>E</kbd>: Varsayılan e-posta programınızı açarak, gönderilmek üzere görüntünün ekli olduğu yeni bir ileti oluşturur</li>
+		<li><em>Dikey olarak kırp</em> veya <em>Yatay olarak kırp</em> görüntüden bir şerit çıkarır ve kalanı birleştirir, örneğin uzun bir sayfanın
+			boş ortasını atlamak için. <em>Cut edges</em> birleşim yerinin görünüşünü seçer: düz, zikzak, dalgalı, yırtık veya kesintisiz.</li>
+		<li><em>Otomatik kırp</em> görüntünün çevresindeki tek renkli kenarlığı kaldırır.</li>
+	</ul>
+
+	<a name="editor-effects"></a>
+	<h3>Efektler, döndürme ve yeniden boyutlandırma</h3>
+	<table>
+		<tr><th>Tuşlar</th><th>Ne yapar</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Q</kbd></td><td>Gölge</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>B</kbd></td><td>Kenarlık</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>T</kbd></td><td>Yırtık kenar</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>G</kbd> / <kbd>Ctrl</kbd> + <kbd>I</kbd></td><td>Gri tonlama / ters çevirme, örneğin yazdırırken mürekkepten tasarruf etmek için</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>,</kbd> / <kbd>Ctrl</kbd> + <kbd>.</kbd></td><td>Saat yönünün tersine / saat yönünde döndür</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>+</kbd> / <kbd>-</kbd></td><td>Tuvali büyüt / küçült</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>+</kbd> / <kbd>-</kbd>, <kbd>Ctrl</kbd> + <kbd>0</kbd>, <kbd>Ctrl</kbd> + <kbd>9</kbd></td><td>Yakınlaştır / uzaklaştır, gerçek boyut, en iyi sığdırma</td></tr>
+	</table>
+	<p>
+		Yırtık kenar değiştirebileceğiniz bir öğe olarak kalır; araç çubuğundaki <em>Apply to the image</em> onu görüntünün bir parçası yapar.
+	</p>
+
+	<a name="editor-reuse"></a>
+	<h3>Görüntü eklemek ve öğeleri yeniden kullanmak</h3>
+	<ul>
+		<li>Bir görüntü dosyasını editöre sürükleyin veya <kbd>Ctrl</kbd> + <kbd>V</kbd> ile bir görüntü yapıştırın. <em>Düzenle</em> menüsündeki <em>Pencere ekle</em>, başka bir açık pencerenin görüntüsünü ekler.</li>
+		<li>Aynı öğeleri birçok ekran görüntüsünde kullanın: <em>Nesne</em> menüsünde <em>Nesneleri dosyaya kaydet</em>, sonraki ekran görüntüsünde <em>Dosyadan nesneleri yükle</em>.</li>
+		<li>Her öğeyi düzenlenebilir tutmak ve daha sonra devam etmek için <code>.greenshot</code> dosyası olarak kaydedin.</li>
+	</ul>
+
+	<a name="editor-export"></a>
+	<h3>Kaydetme ve dışa aktarma</h3>
+	<table>
+		<tr><th>Tuşlar</th><th>Ne yapar</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td><td><em>Kaydet</em>, <a href="greenshot://settings?tab=output">Çıkış sekmesindeki</a> klasöre</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd></td><td><em>Farklı kaydet...</em>: klasörü, adı ve görüntü biçimini seçin</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd></td><td><em>Görüntüyü panoya kopyala</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>P</kbd></td><td><em>Yazdır</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>E</kbd></td><td><em>E-Posta</em>: görüntünün ekli olduğu yeni bir ileti</td></tr>
+	</table>
+	<p>
+		<em>Dosya</em> menüsü ve üstteki araç çubuğu, eklentilerinkiler dahil tüm hedeflerinizi listeler.
+		Kaydettikten sonra dosyanın yolunu kopyalamak veya klasörünü açmak için alttaki durum çubuğuna sağ tıklayın.
+	</p>
+
+	<a name="recipes"></a>
+	<h2>Otomatik adımlar ve tarifler</h2>
+	<p>
+		Tarifler yakalamalarınızla ilgili işleri otomatik olarak yapar, örneğin her yakalamaya bir kenarlık ekler ya da yakalamayı tek seferde kaydedip yükler.
+		Simgenin menüsündeki <em>Hızlı ayarlar</em> &gt; <em>Automatic steps</em> hazır adımları açar veya kapatır,
+		<em>More…</em> bunların ayarlarını <a href="greenshot://settings?tab=recipes">Recipes sekmesinde</a> açar.
+		Simgenin <em>Tarifler</em> menüsü tariflerinizi başlatır, <a href="greenshot://recipe-manager">Recipe Manager</a> ve Recipe Editor'ı açar.
+		Tarifler Recipe Editor eklentisiyle gelir.
+	</p>
+
+	<a name="settings"></a>
+	<h2>Ayarlar</h2>
+	<p>Ayarları simgenin menüsündeki <em>Ayarlar...</em> ile ya da aşağıdaki bağlantılarla açın.</p>
+	<ul>
+		<li><a href="greenshot://settings?tab=general">Genel</a>: dil, renkler (açık, koyu veya Windows gibi), simge boyutu,
+			<em>Windows başlangıcında çalıştır</em>, kısayol tuşları, proxy ve Greenshot'ın güncellemeleri ne sıklıkta denetleyeceği.</li>
+		<li><a href="greenshot://settings?tab=capture">Yakala</a>: fare işaretçisini yakalama, kamera sesi, büyüteç, ekranı dondurma,
+			bildirimler, yakalamadan önceki bekleme, sabit boyutlarınız, etkileşimli pencere yakalama ve metin tanımanın dili.</li>
+		<li><a href="greenshot://settings?tab=output">Çıkış</a>: kaydetme klasörü ve dosya adı deseni (yer tutucular için <em>?</em> düğmesine tıklayın,
+			örneğin <code>${YYYY}-${MM}-${DD}</code> veya <code>${title}</code>; desendeki bir <code>\</code> klasör oluşturur), görüntü biçimi ve JPEG kalitesi.</li>
+		<li><a href="greenshot://settings?tab=destination">Hedef</a>: bir yakalamadan sonra ne olacağı, bkz. <a href="#destinations">ekran görüntüsü nereye gider</a>.</li>
+		<li><a href="greenshot://settings?tab=editor">Editör</a>: sekmeler, editör penceresinin boyutu, kapatırken kaydetme sorusu, yeni bir görüntünün boyutu ve rengi.</li>
+		<li><a href="greenshot://settings?tab=printer">Yazıcı</a>: görüntüyü sayfaya sığdırma, döndürme veya ortalama, renkli, gri tonlamalı veya ters çevrilmiş yazdırma ve tarih ile saat içeren bir alt bilgi.</li>
+		<li><a href="greenshot://settings?tab=plugins">Eklentiler</a>: eklentileri açın, kapatın ve yapılandırın. Değişiklikler Greenshot'ın bir sonraki başlatılışında geçerli olur.</li>
+		<li><a href="greenshot://settings?tab=expert">Gelişmiş Ayarlar</a>: özel durumlar için ayarlar, örneğin uzak masaüstü, DirectX yakalama (HDR ekranlar için gerekir), bellek ve hız
+			ve pano biçimleri. Bunları yalnızca ne yaptıklarını biliyorsanız değiştirin.</li>
 	</ul>
 	<p class="hint">
-		Düzenleyicideki bir görüntüyü kaydettikten sonra alttaki durum çubuğuna sağ tıklayarak,
-		dosya yolunu panoya kopyalayabilir ya da dosyanın kopyalandığı klasörü windows gezgininde 
-		açabilirsiniz.
+		Greenshot ayarlarını <code>%APPDATA%\Greenshot</code> içindeki <code>greenshot.ini</code> dosyasında tutar (taşınabilir sürüm onu Greenshot.exe'nin yanında tutar).
+		Self-Service içindeki <a href="greenshot://self-service?section=files">Files &amp; Configuration</a> dosyanın nerede olduğunu gösterir.
 	</p>
-	
-	
-	<a name="settings"></a>
-	<h2>Ayarlar penceresi</h2>
-	
-	<a name="settings-general"></a>
-	<h3>Genel ayarlar</h3>
-	<ul>
-		<li><em>Dil</em>: Programı kullanmayı tercih ettiğiniz dil.<br>
-			Greenshot için kullanılabilecek diğer dilleri <a target="_blank" href="https://getgreenshot.org/downloads/">buradan indirebilirsiniz</a>. </li>
-		<li><em>Kısayol tuşlarını devral</em>: İşaretlediğinizde, Greenshot <kbd>Print</kbd> tuşu ile kullanılabilir.</li>
-		<li><em>Windows başlangıcında çalıştır</em>: Bilgisayar başlatıldığında programı çalıştır.</li>
-		<li><em>Flaş etkisi</em>: Ekran yakalarken görsel flaş çakması etkisi oluşturur</li>
-		<li><em>Kamera sesi</em>: Ekran yakalarken işitsel kamera sesi etkisi oluşturur</li>
-		<li><em>Fare imlecini de yakala</em>: İşaretlediğinizde fare imleci de yakalanır. İmleç görüntü düzenleyicide ayrı bir nesne olarak görüntülenir. Böylece daha sonra taşıyabilir ya da silebilirsiniz.</li>
-		<li><em>Etkileşimli pencere yakalama kipini kullan</em>: Etkileşimli kip, doğrudan etkin ekranı yakalamak yerine, yakalamak istediğiniz pencereyi seçmenize olanak tanır. Bu şekilde ayrıca alt pencereler de yakalanabilir. Ayrıntılar için <a href="#capture-window">pancere yakala</a> bölümüne bakın.</li>
-	</ul>
-	
-	<a name="settings-output"></a>
-	<h3>Çıkış ayarları</h3>
-	<ul>
-		<li><em>Yakalanan ekran görüntüsünün hedefi</em>: Ekran görüntüsü yakalandıktan sonra bir ya da bir kaç hedefe gönderebilirsiniz.</li>
-		<li><em>Çıkış dosyası ayarları</em>: Doğrudan kaydederken veya farklı kaydet penceresinde gösterilecek klasör ve dosya adı. <em>?</em> düğmesine tıklayarak dosya adı biçiminde kullanılabilen ifadeler hakkında ayrıntılı bilgi alabilirsiniz.</li>
-		<li><em>JPEG ayarları</em>: JPEG dosyaları kaydedilirken kullanılacak kalite ayarları</li>
-	</ul>
-	
-	<a name="settings-printer"></a>
-	<h3>Yazıcı ayarları</h3>
-	<ul>
-		<li><em>Sayfaya sığacak şekilde daralt</em>: Eğer görüntü kağıt boyutundan taşıyorsa sayfaya sığacak şekilde daraltılır.</li>
-		<li><em>Sayfaya sığacak şekilde genişlet</em>: Eğer görüntü kağıt boyutundan küçükse sayfaya sığacak şekilde büyütülür</li>
-		<li><em>Görüntüyü sayfa duruşuna göre döndür</em>: Yatay biçimli bir görüntüyü yazdırmak için 90 derece döndürür.</li>
-	</ul>
-	
-	
-	<a name="help"></a>
-	<h2>Yardım etmek mi istiyorsunuz?</h2>
-	
+
+	<a name="troubleshooting"></a>
+	<h2>Bir şey çalışmadığında</h2>
 	<p>
-		Şu anda geliştirme içinb yardıma gerek yok. Ancak Greenshot ve geliştirme takımını desteklemek 
-		için yapabileceğiniz bir kaç şey var.<br>
-		Teşekkürler :)
+		Self-Service, Greenshot'ı denetler ve sorunların çoğunu giderir. Simgenin menüsünde <em>Greenshot Hakkında</em> ve ardından <em>Self-Service</em> ile açın
+		ya da doğrudan ilgili bölüme gidin:
 	</p>
-	
+	<ul>
+		<li><kbd>Print Screen</kbd> hiçbir şey yapmıyor veya başka bir şey açıyor: <a href="greenshot://self-service?section=hotkeys">Hotkeys &amp; Conflicts</a>
+			tuşu OneDrive'ın veya Ekran Alıntısı Aracı'nın alıp almadığını gösterir ve tuşu Greenshot'a geri verir.</li>
+		<li>Ekran görüntülerinizi bulamıyorsunuz: <a href="greenshot://self-service?section=files">Files &amp; Configuration</a> Greenshot'ın onları nereye kaydettiğini gösterir.</li>
+		<li>Panoya kopyalama başarısız oluyor: <a href="greenshot://self-service?section=clipboard">Clipboard Diagnostics</a> panoyu engelleyen programı bulur.</li>
+		<li>Greenshot çöküyor veya bir güncellemeden sonra bir eklenti eksik: <a href="greenshot://self-service?section=checksum">Installation Integrity</a> kurulu dosyaları denetler.</li>
+		<li>Bir sorunu bildirmek: <a href="greenshot://self-service?section=system">System &amp; Hardware</a> içindeki <em>Copy System Info</em> ve
+			<a href="greenshot://log?search=ERROR">günlükteki hatalar</a> size yardım etmemize yardımcı olur. Sorunları
+			<a target="_blank" href="https://github.com/greenshot/greenshot/issues">github.com/greenshot/greenshot/issues</a> adresinden bildirin.</li>
+	</ul>
+
+	<a name="help"></a>
+	<h2>Yardım etmek ister misiniz?</h2>
+
 	<a name="help-donate"></a>
 	<h3>Bağış yapmayı düşünün</h3>
 	<p>
-		Greenshot gibi iyi bir yazılımı ücretsiz ve açık kaynaklı olarak sunmak için 
-		oldukça çok emek harcıyoruz. Üretkenliğinize katkıda bulunduğuna inanıyorsanız, size
-		veya kurumunuza para ve zaman kazandırıyorsa ya da Greenshot ve açık kaynak felsefesinden 
-		hoşlanıyorsanız lütfen bağış yaparak emeklerimize saygı gösterin.<br>
-		Greenshot geliştirici takımını nasıl destekleyeceğinizi görmek için web sitemize bakın:<br>
-		<a target="_blank" href="https://getgreenshot.org/support/">https://getgreenshot.org/support/</a>
+		Ücretsiz ve açık kaynaklı iyi bir yazılım sunmak için Greenshot'a çok emek veriyoruz. Sizi daha üretken yapıyorsa,
+		size veya şirketinize zaman ve para kazandırıyorsa ya da Greenshot'ı sadece seviyorsanız: lütfen bizi desteklemeyi düşünün.
+		Nasıl yardım edebileceğinizi <a target="_blank" href="https://getgreenshot.org/support/">https://getgreenshot.org/support/</a> adresinde bulabilirsiniz.
 	</p>
-	
+
 	<a name="help-spread"></a>
-	<h3>Yayılmasına yardım edin</h3>
+	<h3>Duyurun</h3>
 	<p>
-		Greenshot hoşunuza gittiyse, tanıdıklarınıza anlatın ve onların da yararlanmasını sağlayın.<br>
-		Yazılım yorumlama sitelerinde bahsedin ve blogunuz veya web sitenizden bağlantı verin.
+		Greenshot'ı seviyorsanız arkadaşlarınıza ve iş arkadaşlarınıza anlatın. Greenshot'ı yazılım portallarında değerlendirin ya da blogunuzdan veya web sitenizden ana sayfamıza bağlantı verin.
 	</p>
-	
+
 	<a name="help-translate"></a>
-	<h3>Kendi dilinize çevirin</h3>
+	<h3>Çeviri gönderin</h3>
 	<p>
-		Greenshot sizin dilinizi konuşmuyor mu? Eğer bir yazılımı çevirebileceğinizi düşünüyorsanız
-		hoşgeldinden fazlasını hakediyorsunuz.
-		Eğer kayıtlı bir sourceforge.net üyesi iseniz, çevirilerinizi
-		<a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">çeviri izleyicimize</a> gönderbilirsiniz.<br>
-		Öncesinde 
-		<a target="_blank" href="https://getgreenshot.org/downloads/">indirme sayfasından</a> dilinizde bir çeviri olmadığından emin olun. Ayrıca <a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">çeviri izleyicimizden</a> de durumu denetleyin.
-		Dilinizde bir çeviri çalışması planlanıyor veya yapılıyor olabilir.<br>
-		Çevirileri indirme sayfalarımızda ancak sourceforge.net kullanıcı hesabınızla gönderdiyseniz  
-		yayınlayacağız. Böylece bizler çevirinizi büyük olasılıkla anlayamayacağımız için diğer sourceforge.
-		net kullanıcılarının sizinle iletişim kurması veya yeni sürümlerin çevirisini güncellenmek için 
-		devreye girebilmesi sağlanacak.
+		Greenshot sizin dilinizde yok mu ya da bir çeviri daha iyi olabilir mi? Yardımınızı memnuniyetle karşılarız.
+		Dil dosyaları <a target="_blank" href="https://github.com/greenshot/greenshot/tree/main/src/Greenshot/Languages">GitHub</a> üzerindedir;
+		çevirinizi bir pull request olarak gönderin ya da sorularınız varsa bir issue açın.
 	</p>
-	
-	
-	
+
 	</body>
 </html>
-
- 	  	 

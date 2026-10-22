@@ -1,310 +1,358 @@
-
-<html>
+<!DOCTYPE html>
+<html lang="hu">
 	<head>
-		<title>Greenshot Súgó</title>
-		
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Greenshot sÃºgÃ³</title>
 		<style>
-		* {
-			font-family: Tahoma, Arial, Sans-serif;
-		}
-		h1 {font-size:16px;}
-		h2 {font-size:14px;color:#009900;margin-top:24px;}
-		h3 {font-size:12px;margin-top:18px;}
-		small {font-size:10px;}
-		p, li {font-size:12px;line-height:1.5em}
-		a:link, a:hover, a:visited, a:active {color:#009900;}
-		kbd {background-color:#dddddd;border:1px solid #bbbbbb;padding:0 2px;border-radius:2px;}
-		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px;}
-		em {padding-right:0.2em;}
+		* {font-family: "Segoe UI", Tahoma, Arial, Sans-serif;}
+		body {max-width:60em;margin:0 auto;padding:0 16px 24px 16px;}
+		h1 {font-size:20px;}
+		h2 {font-size:16px;color:#009900;margin-top:28px;}
+		h3 {font-size:14px;margin-top:20px;}
+		small {font-size:11px;}
+		p, li, td, th {font-size:13px;line-height:1.5em;}
+		a:link, a:hover, a:visited, a:active {color:#007700;}
+		kbd {background-color:#eeeeee;border:1px solid #bbbbbb;padding:0 3px;border-radius:3px;white-space:nowrap;}
+		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px 8px;}
+		table {border-collapse:collapse;margin:6px 0;}
+		th, td {border:1px solid #dddddd;padding:3px 8px;text-align:left;vertical-align:top;}
+		th {background-color:#f2f2f2;}
+		em {font-style:normal;font-weight:bold;}
 		</style>
 	</head>
 	<body>
-	<h1>Greenshot Súgó</h1>
-	<!-- 
-	Note to translator: uncomment entry below to have your effort honored 
+	<h1>Greenshot sÃºgÃ³</h1>
+	<!--
+	Note to translator: uncomment the entry below to have your effort honored
 	-->
-	<small>Verzió 0.8 - A magyar fordítástban a segítséget bordanrobert@yahoo.com nyújtotta.</small>
-	
+	<!--<small>A sÃºgÃ³ magyar fordÃ­tÃ¡sa: AZ_Ã–N_NEVE (korÃ¡bbi vÃ¡ltozat: bordanrobert@yahoo.com)</small>-->
+
+	<p class="hint">
+		A <code>greenshot:</code> kezdetÅ± hivatkozÃ¡sok, mint pÃ©ldÃ¡ul a <a href="greenshot://settings">beÃ¡llÃ­tÃ¡sok megnyitÃ¡sa</a>,
+		a Greenshot megfelelÅ‘ ablakÃ¡t nyitjÃ¡k meg. Akkor mÅ±kÃ¶dnek, ha a Greenshot a telepÃ­tÅ‘vel lett telepÃ­tve, a hordozhatÃ³
+		vÃ¡ltozatban Ã©s a Greenshot Light vÃ¡ltozatban nem. A bÃ¶ngÃ©szÅ‘ rÃ¡kÃ©rdez, mielÅ‘tt megnyitja a Greenshotot.
+	</p>
+
 	<h2>Tartalom</h2>
 	<ol>
-		<li><a href="#screenshot">Képernyõkép létrehozása</a></li>
-		<ol>
-			<li><a href="#capture-region">Kijelölt rész mentése</a></li>
-			<li><a href="#capture-last-region">Az utoljára kijelölt rész megjelenítése</a></li>
-			<li><a href="#capture-window">Az ablak mentése</a></li>
-			<li><a href="#capture-fullscreen">A teljes képernyõ mentése</a></li>
-		</ol>
-	
-		<li><a href="#editor">Képszerkesztõ használata</a></li>
-		<ol>
-			<li><a href="#editor-shapes">Rajz eszközök</a></li>
-			<li><a href="#editor-text">Szöveg hozzáadása</a></li>
-			<li><a href="#editor-highlight">Kiemelés</a></li>
-			<li><a href="#editor-obfuscate">Homályosítás</a></li>
-			<li><a href="#editor-crop">Képernyõkép vágása</a></li>
-			<li><a href="#editor-reuse-elements">Kijelölések újbóli használata</a></li>
-			<li><a href="#editor-export">Képernyõkép kiviteli lehetõségek</a></li>
-		</ol>
-		<li><a href="#settings">Beállítások</a></li>
-		<ol>
-			<li><a href="#settings-general">Általános</a></li>
-			<li><a href="#settings-output">Mentés</a></li>
-			<li><a href="#settings-printer">Nyomtatás</a></li>
-		</ol>
-		<li><a href="#help">Akar segíteni?</a></li>
-		<ol>
-			<li><a href="#help-donate">Adományozással</a></li>
-			<li><a href="#help-spread">Szájhagyomány útján :)</a></li>
-			<li><a href="#help-translate">Fordítás beküldésével</a></li>
-		</ol>
+		<li><a href="#start">ElsÅ‘ lÃ©pÃ©sek</a></li>
+		<li><a href="#screenshot">KÃ©pernyÅ‘kÃ©p kÃ©szÃ­tÃ©se</a>
+			<ol>
+				<li><a href="#capture-screen">A kijelÃ¶lÅ‘ kÃ©pernyÅ‘</a></li>
+				<li><a href="#capture-modes">TerÃ¼let, ablak, rÃ¶gzÃ­tett mÃ©ret Ã©s szÃ¶veg</a></li>
+				<li><a href="#capture-keys">BillentyÅ±k kijelÃ¶lÃ©s kÃ¶zben</a></li>
+				<li><a href="#capture-live">KijelÃ¶lÃ©s a kÃ©pernyÅ‘ kimerevÃ­tÃ©se nÃ©lkÃ¼l</a></li>
+			</ol>
+		</li>
+		<li><a href="#destinations">HovÃ¡ kerÃ¼l a kÃ©pernyÅ‘kÃ©p</a></li>
+		<li><a href="#editor">A kÃ©pszerkesztÅ‘</a>
+			<ol>
+				<li><a href="#editor-tabs">Lapok</a></li>
+				<li><a href="#editor-tools">RajzeszkÃ¶zÃ¶k</a></li>
+				<li><a href="#editor-highlight">KiemelÃ©s Ã©s kitakarÃ¡s</a></li>
+				<li><a href="#editor-crop">VÃ¡gÃ¡s</a></li>
+				<li><a href="#editor-effects">Effektusok, forgatÃ¡s Ã©s Ã¡tmÃ©retezÃ©s</a></li>
+				<li><a href="#editor-reuse">KÃ©pek hozzÃ¡adÃ¡sa Ã©s elemek ÃºjrahasznosÃ­tÃ¡sa</a></li>
+				<li><a href="#editor-export">MentÃ©s Ã©s exportÃ¡lÃ¡s</a></li>
+			</ol>
+		</li>
+		<li><a href="#recipes">Automatikus lÃ©pÃ©sek Ã©s receptek</a></li>
+		<li><a href="#settings">A beÃ¡llÃ­tÃ¡sok</a></li>
+		<li><a href="#troubleshooting">Ha valami nem mÅ±kÃ¶dik</a></li>
+		<li><a href="#help">Szeretne segÃ­teni?</a></li>
 	</ol>
-	
+
+	<a name="start"></a>
+	<h2>ElsÅ‘ lÃ©pÃ©sek</h2>
+	<p>
+		A Greenshot a hÃ¡ttÃ©rben fut. Az ikonja az Ã³ra mellett, a tÃ¡lca Ã©rtesÃ­tÃ©si terÃ¼letÃ©n talÃ¡lhatÃ³.
+		Kattintson rÃ¡ a jobb egÃ©rgombbal: megnyÃ­lik a menÃ¼ az Ã¶sszes kÃ©pernyÅ‘kÃ©p-kÃ©szÃ­tÃ©si mÃ³ddal, a <em>BeÃ¡llÃ­tÃ¡sok</em> ponttal Ã©s ezzel a sÃºgÃ³val.
+	</p>
+	<p class="hint">
+		Nem lÃ¡tja az ikont? Lehet, hogy a Windows 11 elrejti a nyÃ­l (^) mÃ¶gÃ©. A Self-Service <a href="greenshot://self-service?section=setup">Your setup</a>
+		rÃ©sze megjelenÃ­ti az Ã³ra mellett, Ã©s azt is ellenÅ‘rzi, hogy a <kbd>Print Screen</kbd> billentyÅ± eljut-e a Greenshothoz.
+	</p>
+
 	<a name="screenshot"></a>
-	<h2>Képernyõkép létrehozása</h2>
+	<h2>KÃ©pernyÅ‘kÃ©p kÃ©szÃ­tÃ©se</h2>
+	<p>A kÃ©pernyÅ‘kÃ©pet gyorsbillentyÅ±vel vagy a Greenshot ikon menÃ¼jÃ©bÅ‘l indÃ­thatja:</p>
+	<table>
+		<tr><th>KÃ©pernyÅ‘kÃ©p</th><th>GyorsbillentyÅ±</th><th>Mi tÃ¶rtÃ©nik</th></tr>
+		<tr><td><em>A kijelÃ¶t rÃ©sz mentÃ©se</em></td><td><kbd>Print Screen</kbd></td><td>MegnyÃ­lik a kijelÃ¶lÅ‘ kÃ©pernyÅ‘, Ã–n vÃ¡lasztja ki, mi kerÃ¼ljÃ¶n a kÃ©pre.</td></tr>
+		<tr><td><em>Az ablak mentÃ©se</em></td><td><kbd>Alt</kbd> + <kbd>Print Screen</kbd></td><td>Azonnal lefÃ©nykÃ©pezi az aktÃ­v ablakot. A <em>HasznÃ¡lja az interakÃ­v kijelÃ¶lÃ©si mÃ³dot</em> beÃ¡llÃ­tÃ¡ssal (<a href="greenshot://settings?tab=capture">KijelÃ¶lÃ©s lap</a>) az ablakot a kijelÃ¶lÅ‘ kÃ©pernyÅ‘n vÃ¡laszthatja ki.</td></tr>
+		<tr><td><em>Teljes kÃ©pernyÅ‘kÃ©p mentÃ©s</em></td><td><kbd>Ctrl</kbd> + <kbd>Print Screen</kbd></td><td>Azonnal lefÃ©nykÃ©pezi a kÃ©pernyÅ‘t. TÃ¶bb monitor esetÃ©n az ikon menÃ¼je felkÃ­nÃ¡lja az Ã¶sszes monitort vagy kÃ¶zÃ¼lÃ¼k egyet.</td></tr>
+		<tr><td><em>Az utoljÃ¡ra kijelÃ¶lt rÃ©sz</em></td><td><kbd>Shift</kbd> + <kbd>Print Screen</kbd></td><td>Ãšjra ugyanazt a terÃ¼letet fÃ©nykÃ©pezi le, mint legutÃ³bb.</td></tr>
+		<tr><td><em>KÃ©p megnyitÃ¡sa a vÃ¡gÃ³laprÃ³l</em></td><td>nincs</td><td>Megnyitja a vÃ¡gÃ³lapon lÃ©vÅ‘ kÃ©pet.</td></tr>
+	</table>
 	<p>
-		Képernyõképet létrehozni a <kbd>Print+Scrn</kbd> billentyû megnyomásával
-		vagy a tálcán található Greenshot ikonon az egér jobb gomb lenyomásával lehet.<br>
-		Számos lehetõséget kínál a képernyõmentés:
+		A menÃ¼ben van mÃ©g a <em>Capture window from list</em>, amely egy kivÃ¡lasztott nyitott ablakot a kijelÃ¶lÅ‘ kÃ©pernyÅ‘ nÃ©lkÃ¼l fÃ©nykÃ©pez le,
+		a <em>KÃ©p megnyitÃ¡sa fÃ¡jlbÃ³l</em> Ã©s az <em>Open last capture location</em>.
+		A gyorsbillentyÅ±ket a <a href="greenshot://settings?tab=general">beÃ¡llÃ­tÃ¡sok ÃltalÃ¡nos lapjÃ¡n</a> mÃ³dosÃ­thatja.
 	</p>
-	
-	<a name="capture-region"></a>
-	<h3>A kijelölt rész <kbd>mentése</kbd></h3>
+
+	<a name="capture-screen"></a>
+	<h3>A kijelÃ¶lÅ‘ kÃ©pernyÅ‘</h3>
 	<p>
-		A kijelölt rész mentése funkció lehetõvé teszi, hogy a képernyõ bármely részét lementsük.<br>
-		Kiválasztás után megjelenik egy „célkereszt” az egér pozícióját mutatva a képernyõn. 
-		Tetszõleges helyen egér bal gombját lenyomva és nyomva tartva az egér mozgatásával megjelenik egy zöld téglalap. 
-		Az egér bal gombját elengedve kijelöltük azt a részt, amit a képernyõrõl szeretnénk lementeni..
+		A Greenshot kÃ©pet kÃ©szÃ­t az Ã¶sszes monitorrÃ³l, Ã©s mindennek a tetejÃ©n megjelenÃ­ti. KijelÃ¶lÃ©s kÃ¶zben semmi sem vÃ¡ltozik,
+		Ã­gy egy nyitott menÃ¼ vagy elemleÃ­rÃ¡s a helyÃ©n marad. Csak a kijelÃ¶lt rÃ©sz kerÃ¼l a kÃ©pre. Az <kbd>Esc</kbd> bezÃ¡rja
+		a kijelÃ¶lÅ‘ kÃ©pernyÅ‘t anÃ©lkÃ¼l, hogy bÃ¡rmit lefÃ©nykÃ©pezne.
+	</p>
+	<p>A kÃ©p fÃ¶lÃ¶tt ezeket lÃ¡tja:</p>
+	<ul>
+		<li>a <em>kijelÃ¶lÃ©st</em> a mÃ©retÃ©vel,</li>
+		<li>a <em>nagyÃ­tÃ³t</em> az egÃ©r mellett, amely minden kÃ©ppontot mutat, Ã­gy egy sarkot pontosan elhelyezhet,</li>
+		<li>paneleket a sarkokban: a <em>billentyÅ±ket</em> (<kbd>F1</kbd>), az <em>informÃ¡ciÃ³t</em> (<kbd>I</kbd>) Ã©s a kijelÃ¶lÃ©s <em>elÅ‘nÃ©zetÃ©t</em> (<kbd>P</kbd>).
+			Ezek maguktÃ³l kitÃ©rnek az ÃºtbÃ³l.</li>
+	</ul>
+	<p class="hint">
+		Nyomja meg az <kbd>F1</kbd> billentyÅ±t kijelÃ¶lÃ©s kÃ¶zben: a billentyÅ±panel mindig azokat a billentyÅ±ket mutatja, amelyek Ã©ppen mÅ±kÃ¶dnek.
+		A Greenshot megjegyzi, ha elrejt egy panelt, az <kbd>F1</kbd> vagy az <kbd>I</kbd> visszahozza.
+	</p>
+
+	<a name="capture-modes"></a>
+	<h3>TerÃ¼let, ablak, rÃ¶gzÃ­tett mÃ©ret Ã©s szÃ¶veg</h3>
+	<ul>
+		<li><em>TerÃ¼let</em>: hÃºzzon egy tÃ©glalapot az egÃ©rrel, elengedÃ©skor elkÃ©szÃ¼l a kÃ©p. BillentyÅ±zettel: a nyilak mozgatjÃ¡k az egeret,
+			az <kbd>Enter</kbd> elkezdi a kijelÃ¶lÃ©st, a mÃ¡sodik <kbd>Enter</kbd> lefÃ©nykÃ©pezi. Tartsa lenyomva a <kbd>Shift</kbd> billentyÅ±t, ha csak a szÃ©lessÃ©get vagy csak a magassÃ¡got akarja vÃ¡ltoztatni.</li>
+		<li><em>Ablak</em> (<kbd>SzÃ³kÃ¶z</kbd>): az egÃ©r alatti ablak lesz kijelÃ¶lve, egy kattintÃ¡s vagy az <kbd>Enter</kbd> lefÃ©nykÃ©pezi.
+			A Greenshot a legbelsÅ‘ rÃ©szt jelÃ¶li ki, pÃ©ldÃ¡ul egy eszkÃ¶ztÃ¡rat; menjen az ablak kÃ¼lsÅ‘ szÃ©lÃ©hez, hogy az egÃ©sz ablakot kijelÃ¶lje.
+			A <kbd>Tab</kbd> Ã©s a <kbd>Shift</kbd> + <kbd>Tab</kbd> a kÃ¶vetkezÅ‘ vagy az elÅ‘zÅ‘ ablakot jelÃ¶li ki.</li>
+		<li><em>RÃ¶gzÃ­tett mÃ©ret</em> (<kbd>F</kbd>): egy pontos mÃ©retÅ± tÃ©glalap, pÃ©ldÃ¡ul 1280 Ã— 720, kÃ¶veti az egeret. Az <kbd>1</kbd> â€“ <kbd>9</kbd> mÃ©retet vÃ¡laszt,
+			a <kbd>C</kbd> megvÃ¡ltoztatja, melyik sarkÃ¡nÃ¡l fogja az egÃ©r, az <kbd>Alt</kbd> nyomva tartÃ¡sÃ¡val az ablakokhoz igazÃ­tÃ¡s nÃ©lkÃ¼l helyezheti el. SajÃ¡t mÃ©reteit a
+			<a href="greenshot://settings?tab=capture">KijelÃ¶lÃ©s lapon</a> adhatja meg, a legutÃ³bbi kÃ©pek mÃ©reteit is felkÃ­nÃ¡lja.</li>
+		<li><em>SzÃ¶veg</em> (<kbd>T</kbd>): a Greenshot a Windows szÃ¶vegfelismerÃ©sÃ©vel beolvassa a kÃ©pernyÅ‘n lÃ©vÅ‘ szÃ¶veget, Ã©s minden sort bekeretez.
+			Kattintson egy sorra, vagy hÃºzza az egeret szavak fÃ¶lÃ¶tt, hogy lefÃ©nykÃ©pezze Å‘ket. Ha a szavakat szÃ¶vegkÃ©nt szeretnÃ© megkapni, kÃ¼ldje a kÃ©pet a <em>Windows OCR</em> cÃ©lhoz,
+			amely a szÃ¶veget a vÃ¡gÃ³lapra mÃ¡solja. Ehhez a Windowsban telepÃ­tett felismerÃ©si nyelv kell; a nyelvet a
+			<a href="greenshot://settings?tab=capture">KijelÃ¶lÃ©s lapon</a>, a <em>Text recognition (OCR)</em> rÃ©sznÃ©l vÃ¡laszthatja ki.</li>
+	</ul>
+	<p class="hint">
+		A QR-kÃ³d bÅ‘vÃ­tmÃ©nnyel a Greenshot megtalÃ¡lja Ã©s bekeretezi a kÃ©pernyÅ‘n lÃ©vÅ‘ QR-kÃ³dokat. Kattintson egyre a tartalma mÃ¡solÃ¡sÃ¡hoz vagy a webcÃ­m megnyitÃ¡sÃ¡hoz.
+	</p>
+
+	<a name="capture-keys"></a>
+	<h3>BillentyÅ±k kijelÃ¶lÃ©s kÃ¶zben</h3>
+	<table>
+		<tr><th>BillentyÅ±</th><th>Mit csinÃ¡l</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>MegszakÃ­tja a kÃ©pkÃ©szÃ­tÃ©st</td></tr>
+		<tr><td><kbd>SzÃ³kÃ¶z</kbd></td><td>VÃ¡ltÃ¡s terÃ¼let Ã©s ablak kÃ¶zÃ¶tt</td></tr>
+		<tr><td><kbd>F</kbd> / <kbd>T</kbd></td><td>RÃ¶gzÃ­tett mÃ©ret / szÃ¶veg lefÃ©nykÃ©pezÃ©se</td></tr>
+		<tr><td><kbd>M</kbd></td><td>Az egÃ©rmutatÃ³ megjelenÃ­tÃ©se vagy elrejtÃ©se a kÃ©pen</td></tr>
+		<tr><td><kbd>L</kbd></td><td>VÃ¡ltÃ¡s a kimerevÃ­tett Ã©s az Ã©lÅ‘ kÃ©pernyÅ‘ kÃ¶zÃ¶tt</td></tr>
+		<tr><td><kbd>Z</kbd></td><td>A nagyÃ­tÃ³ megjelenÃ­tÃ©se vagy elrejtÃ©se</td></tr>
+		<tr><td><kbd>F1</kbd> / <kbd>I</kbd> / <kbd>P</kbd></td><td>A billentyÅ±k / az informÃ¡ciÃ³ megjelenÃ­tÃ©se vagy elrejtÃ©se / az elÅ‘nÃ©zet Ã¡thelyezÃ©se vagy elrejtÃ©se</td></tr>
+		<tr><td>Nyilak</td><td>Az egÃ©r mozgatÃ¡sa egy kÃ©pponttal, <kbd>Ctrl</kbd> billentyÅ±vel tÃ­zzel</td></tr>
+		<tr><td><kbd>Enter</kbd></td><td>A kijelÃ¶lÃ©s kezdete vagy vÃ©ge, az ablak lefÃ©nykÃ©pezÃ©se</td></tr>
+	</table>
+
+	<a name="capture-live"></a>
+	<h3>KijelÃ¶lÃ©s a kÃ©pernyÅ‘ kimerevÃ­tÃ©se nÃ©lkÃ¼l</h3>
+	<p>
+		Kapcsolja ki a <em>Freeze the screen while selecting</em> beÃ¡llÃ­tÃ¡st a <a href="greenshot://settings?tab=capture">KijelÃ¶lÃ©s lapon</a>, vagy nyomja meg
+		az <kbd>L</kbd> billentyÅ±t kijelÃ¶lÃ©s kÃ¶zben, Ã©s az Ã©lÅ‘ kÃ©pernyÅ‘n jelÃ¶lhet ki: egy videÃ³ tovÃ¡bb megy, a kÃ©p pedig akkor kÃ©szÃ¼l el, amikor befejezi
+		a kijelÃ¶lÃ©st. A szÃ¶veg mÃ³dhoz Ã©s az elÅ‘nÃ©zethez a kimerevÃ­tett kÃ©p kell. A nyitott menÃ¼k kattintÃ¡skor Ã¡ltalÃ¡ban bezÃ¡rÃ³dnak, ezÃ©rt ezekhez a kimerevÃ­tett kÃ©pernyÅ‘t hasznÃ¡lja.
 	</p>
 	<p class="hint">
-		A <kbd>Space</kbd> billentyû segítségével tud a kijelölt rész mentése és az	<a href="#capture-window">ablak mentése</a> funkció között váltani.
+		Valami csak egy pillanat mÃºlva jelenik meg? ÃllÃ­tsa be az <em>EzredmÃ¡sodpercet vÃ¡rjon kijelÃ¶lÃ©s elÅ‘tt</em> Ã©rtÃ©ket a
+		<a href="greenshot://settings?tab=capture">KijelÃ¶lÃ©s lapon</a>, vagy jelÃ¶ljÃ¶n ki az Ã©lÅ‘ kÃ©pernyÅ‘n.
 	</p>
-	<p class="hint">
-		Ha a pontos területet szeretné rögzíteni, akkor válassza a teljes képernyõ mentését,
-		utána a képszerkesztõben ki tudja <a href="#editor-crop">vágni</a> a kívánt területet.
-	</p>
-	
-	<a name="capture-last-region"></a>
-	<h3>Az utoljára kijelölt rész megjelenítése <kbd>Shift</kbd> + <kbd>Print Scrn</kbd></h3>
+
+	<a name="destinations"></a>
+	<h2>HovÃ¡ kerÃ¼l a kÃ©pernyÅ‘kÃ©p</h2>
 	<p>
-		Mielõtt egy újabb <a href="#capture-region">részt</a> vagy <a href="#capture-window">ablakot</a> szeretnénk kijelölni, 
-		lehetõségünk van az utoljára kijelölt elem ismételt megtekintésére, szerkesztésére.
+		A kÃ©pkÃ©szÃ­tÃ©s utÃ¡n a Greenshot a kÃ©pet a beÃ¡llÃ­tott cÃ©lokhoz kÃ¼ldi. AlapÃ©rtelmezÃ©s szerint minden alkalommal megkÃ©rdezi egy kis menÃ¼ben.
+		Ott minden cÃ©lnak van egy Ã¡llandÃ³, alÃ¡hÃºzott betÅ±je, pÃ©ldÃ¡ul <kbd>C</kbd> a vÃ¡gÃ³laphoz Ã©s <kbd>S</kbd> a mentÃ©shez, Ã­gy billentyÅ±zettel is vÃ¡laszthat.
+		A cÃ©lokat a <a href="greenshot://settings?tab=destination">Mit csinÃ¡ljak a kÃ©pernyÅ‘kÃ©ppel? lapon</a>, vagy az ikon menÃ¼jÃ©nek <em>Gyors beÃ¡llÃ­tÃ¡sok</em> pontjÃ¡ban vÃ¡laszthatja ki.
 	</p>
-	
-	<a name="capture-window"></a>
-	<h3>A kijelölt ablak mentése <kbd>Alt</kbd> + <kbd>Print Scrn</kbd></h3>
+	<ul>
+		<li><em>MegnyitÃ¡s kÃ©pszerkesztÅ‘vel</em>: elÅ‘szÃ¶r jegyzetekkel lÃ¡tja el a kÃ©pet, lÃ¡sd <a href="#editor">a kÃ©pszerkesztÅ‘t</a>.</li>
+		<li>A <em>MentÃ©s kÃ¶zvetlenÃ¼l</em> a <a href="greenshot://settings?tab=output">MentÃ©s lap</a> mappÃ¡jÃ¡t Ã©s fÃ¡jlnÃ©vmintÃ¡jÃ¡t hasznÃ¡lja, a <em>MentÃ©s mÃ¡skÃ©nt</em> rÃ¡kÃ©rdez ezekre.</li>
+		<li><em>MÃ¡solÃ¡s vÃ¡gÃ³lapra</em>, <em>NyomtatÃ¡s</em>, <em>E-Mail</em>, <em>Windows share</em> Ã©s <em>Windows OCR</em> (a kÃ©p szÃ¶vegÃ©t mÃ¡solja).</li>
+		<li>A bÅ‘vÃ­tmÃ©nyek tovÃ¡bbi cÃ©lokat adnak hozzÃ¡, pÃ©ldÃ¡ul Microsoft Word, Excel, PowerPoint, Outlook Ã©s OneNote, PDF, Box, Dropbox, Jira Ã©s Confluence.
+			Ezeket a <a href="greenshot://settings?tab=plugins">Plugins lapon</a> Ã¡llÃ­thatja be, ahol egy bÅ‘vÃ­tmÃ©nyt ki is kapcsolhat.</li>
+	</ul>
 	<p>
-		Létrehoz egy képernyõ képet az aktív ablakról.
+		A <a href="greenshot://settings?tab=destination">Mit csinÃ¡ljak a kÃ©pernyÅ‘kÃ©ppel? lap</a> <em>Available</em> oszlopa mindenhol kikapcsol egy cÃ©lt.
+		Hogy milyen Ã©rtesÃ­tÃ©seket kap egy kÃ©p utÃ¡n, azt a <a href="greenshot://settings?tab=capture">KijelÃ¶lÃ©s lapon</a>, a <em>Notifications</em> rÃ©sznÃ©l Ã¡llÃ­thatja be.
 	</p>
-	<p class="hint">
-	    Ha a <a href="#settings">beállításokban</a> beállítjuk az interaktív ablak képmentési módot 
-		akkor <a href="#capture-region">a kijelölt rész mentése</a> módban nem menti le azonnal a képet. 
-		Ha az opció be van jelölve a kijelölt rész mentése módban kiemeli a menteni kívánt területet.<br>
-		Ha szeretne ablakon belül kisebb ablakot lementeni (pl.: a böngészõ ablakot eszköztár nélkül, 
-		egy képkockát internetes oldalról, vagy egy párbeszéd ablakról egy ok gombot), 
-		az egér mutatóval az ablakra célzunk és megnyomjuk a <kbd>PageDown</kbd> gombot. 
-		Ezután kiválaszthatjuk a kisebb kijelölt ablakot, amit szeretnénk.
-	</p>
-	
-	<a name="capture-fullscreen"></a>
-	<h3>A teljes képernyõ mentése <kbd>Control</kbd> + <kbd>Print Scrn</kbd></h3>
-	<p>
-		A teljes képernyõrõl létrehoz egy képet.
-	</p>
-	
+
 	<a name="editor"></a>
-	<h2>Képszerkesztõ használata</h2>
+	<h2>A kÃ©pszerkesztÅ‘</h2>
 	<p>
-		A Greenshot -hoz tartozik egy könnyen használható képszerkesztõ, amely hasznos beállítási funkciókat nyújt, 
-		a képernyõképekhez megjegyzéseket vagy alakzatokat rendelhetünk. Lehetõvé teszi, hogy egy kép részeit kiemeljük vagy elmossuk.
+		A szerkesztÅ‘ alakzatokat, szÃ¶veget, nyilakat, kiemelÃ©seket Ã©s mÃ©g sok mÃ¡st ad a kÃ©pernyÅ‘kÃ©phez, vagy elrejti, amit mÃ¡sok nem lÃ¡thatnak.
+		A sajÃ¡t kÃ©pei mellett fÃ¡jlbÃ³l vagy a vÃ¡gÃ³laprÃ³l is megnyit kÃ©peket (az ikon menÃ¼jÃ©bÅ‘l).
+		Minden, amit rajzol, elem marad, amelyet kijelÃ¶lhet, Ã¡thelyezhet, mÃ³dosÃ­that vagy tÃ¶rÃ¶lhet.
 	</p>
-	<p class="hint">
-		A Greenshot képszerkesztõ nem csak a lementett képernyõképekhez használható, más képek szerkesztéséhez is használhatjuk. 
-		A tálcán található Greenshot ikonon jobb egérgomb megnyomásával a felugró menübõl kiválaszthatjuk a
-		<em>Kép megnyitása fájlból</em> vagy a <em>Kép megnyitása vágólapról</em> opciót.
-	</p>
-	<p class="hint">
-		Alapértelmezés szerint a Greenshot képszerkesztõ nyílik meg, ha képernyõ képet készítünk. 
-		A felugró menü <a href="#settings">Gyors-beállítások</a> menüpont, <em>Mit csináljak a képernyõképpel?</em>
-		kinyíló fülön lehet kiválasztani, hogy mi történjen a képernyõ mentés után. 
-	</p>
-	
-	
-	<a name="editor-shapes"></a>
-	<h3>Rajz eszközök</h3>
+
+	<a name="editor-tabs"></a>
+	<h3>Lapok</h3>
 	<p>
-		Válasszon egy rajzeszközt a képszerkesztõ bal oldalán látható eszközeibõl vagy az <em>eszközök</em> legördülõ menübõl. 
-		A bal oldalon elhelyezett eszközök kényelmessé teszik a program használatát. <br>
-		Rendelkezésre álló eszközök: négyszög <kbd>R</kbd>, ellipszis <kbd>E</kbd>, vonal <kbd>L</kbd> és a nyíl <kbd>A</kbd>. <br>
-		Az egér bal oldali gombjának nyomva tartásával és az egér mozgatásával tudja kijelölni a célterületet. 
-		Az egér bal oldali gombjának elengedése után aktív a kijelölt terület.
+		Egy szerkesztÅ‘ablak tÃ¶bb kÃ©pet mutat lapokon, egy Ãºj kÃ©p lapkÃ©nt nyÃ­lik meg abban a szerkesztÅ‘ablakban, amelyet utoljÃ¡ra hasznÃ¡lt.
+		A <kbd>Ctrl</kbd> + <kbd>Tab</kbd> a kÃ¶vetkezÅ‘ lapra vÃ¡lt, a <kbd>Ctrl</kbd> + <kbd>W</kbd> bezÃ¡r egyet. HÃºzzon egy lapot egy mÃ¡sik szerkesztÅ‘ablakba,
+		vagy kattintson rÃ¡ a jobb egÃ©rgombbal, hogy Ãºj ablakba helyezze. A lapsÃ¡von lÃ©vÅ‘ <em>+</em> Ãºj, Ã¼res kÃ©pet hoz lÃ©tre.
+		Ha mentetlen kÃ©pekkel zÃ¡r be egy ablakot, a Greenshot egyszer kÃ©rdez: <em>Save all</em>, <em>Discard all</em> vagy mÃ©gse.
+		InkÃ¡bb kÃ©penkÃ©nt egy ablakot szeretne? Kapcsolja ki a lapokat az <a href="greenshot://settings?tab=editor">Editor lapon</a>.
 	</p>
+
+	<a name="editor-tools"></a>
+	<h3>RajzeszkÃ¶zÃ¶k</h3>
 	<p>
-		Lehetõség van  kijelölt terület mozgatására vagy átméretezésére. <br>
-		Az eszközökbõl az <kbd>ESC</kbd>  gomb megnyomásával tudunk kilépni és ezzel automatikusa a kijelölõ eszköz lesz kiválasztva. 
-		A kijelölt elem minden tulajdonságát megváltoztathatjuk (pl.: vonal vastagság, vonal szín, kiemelés színe). 
-		Egy másik elem létrehozásához ismét kell egy rajzeszközt választani.
+		VÃ¡lasszon eszkÃ¶zt a szerkesztÅ‘ bal oldalÃ¡n, az <em>EszkÃ¶zÃ¶k</em> menÃ¼ben vagy a billentyÅ±jÃ©vel, majd hÃºzza az egeret a kÃ©pen.
+		A felsÅ‘ eszkÃ¶ztÃ¡r az eszkÃ¶z vagy a kijelÃ¶lt elemek beÃ¡llÃ­tÃ¡sait mutatja, pÃ©ldÃ¡ul vonalszÃ­n, kitÃ¶ltÅ‘szÃ­n Ã©s vonalvastagsÃ¡g.
 	</p>
-	<p class="hint">
-		Egyszerre több elem tulajdonságát is állíthatjuk. A <kbd>Shift</kbd> gomb nyomva tartásával és az egérrel tudunk több elemet kijelölni.
-	</p>
-	
-	<a name="editor-text"></a>
-	<h3>Szöveg hozzáadása</h3>
-	<p>
-		Használja a szövegdoboz hozzáadása <kbd>T</kbd> eszközt. <br>
-		Állítsuk be a betûtípust és a betûméretet, jelöljük ki a szövegdobozt, ezután írhatunk is bele.<br>
-		Ha a kijelölõ eszközzel duplán kattintunk egy létezõ szöveg elemere, akkor azt tudjuk szerkeszteni.
-	</p>
-	
+	<table>
+		<tr><th>BillentyÅ±</th><th>EszkÃ¶z</th><th>BillentyÅ±</th><th>EszkÃ¶z</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>KijelÃ¶lÃ©s</td><td><kbd>S</kbd></td><td>SzÃ¶vegbuborÃ©k</td></tr>
+		<tr><td><kbd>R</kbd></td><td>TÃ©glalap</td><td><kbd>I</kbd></td><td>SzÃ¡mlÃ¡lÃ³ (szÃ¡mozott lÃ©pÃ©sek)</td></tr>
+		<tr><td><kbd>E</kbd></td><td>Ellipszis</td><td><kbd>M</kbd></td><td>Emoji</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Vonal</td><td><kbd>H</kbd></td><td>KiemelÃ©s</td></tr>
+		<tr><td><kbd>A</kbd></td><td>NyÃ­l</td><td><kbd>O</kbd></td><td>KitakarÃ¡s</td></tr>
+		<tr><td><kbd>F</kbd></td><td>SzabadkÃ©zi rajz</td><td><kbd>C</kbd></td><td>VÃ¡gÃ¡s</td></tr>
+		<tr><td><kbd>T</kbd></td><td>SzÃ¶veg</td><td><kbd>Z</kbd></td><td>A kÃ©p Ã¡tmÃ©retezÃ©se</td></tr>
+	</table>
+	<ul>
+		<li>RajzolÃ¡s kÃ¶zben tartsa lenyomva a <kbd>Shift</kbd> billentyÅ±t nÃ©gyzethez, kÃ¶rhÃ¶z vagy 15Â°-os lÃ©pÃ©sekben haladÃ³ vonalakhoz; Ã¡tmÃ©retezÃ©skor Ã­gy megmarad a mÃ©retarÃ¡ny.
+			A <kbd>Ctrl</kbd> lenyomÃ¡sÃ¡val a kÃ¶zÃ©ppontbÃ³l rajzol vagy mÃ©retez, ez hasznos egy ellipszishez valami kÃ¶rÃ¼l.</li>
+		<li>SzÃ¶veg: hÃºzza meg a szÃ¶vegdobozt Ã©s gÃ©peljen. Egy szÃ¶vegre duplÃ¡n kattintva mÃ³dosÃ­thatja, az <kbd>Enter</kbd> befejezi, a <kbd>Shift</kbd> + <kbd>Enter</kbd> Ãºj sort kezd.</li>
+		<li>KijelÃ¶lt elemek: a nyilak mozgatjÃ¡k Å‘ket (<kbd>Shift</kbd> billentyÅ±vel tÃ­z kÃ©pponttal), a <kbd>Ctrl</kbd> + nyilak Ã¡tmÃ©retezik Å‘ket,
+			a <kbd>Page Up</kbd> / <kbd>Page Down</kbd> egy szinttel feljebb vagy lejjebb viszi Å‘ket, a <kbd>Delete</kbd> tÃ¶rli, a <kbd>Ctrl</kbd> + <kbd>D</kbd> megkettÅ‘zi Å‘ket.
+			TÃ¶bb elem kijelÃ¶lÃ©sÃ©hez tartsa lenyomva a <kbd>Shift</kbd> billentyÅ±t Ã©s kattintson.</li>
+		<li>A <kbd>Ctrl</kbd> + <kbd>Z</kbd> visszavon, a <kbd>Ctrl</kbd> + <kbd>Y</kbd> Ãºjra vÃ©grehajt.</li>
+	</ul>
+
 	<a name="editor-highlight"></a>
-	<h3>Kiemelés</h3>
-	<p>
-		A kiemelés eszköz <kbd>H</kbd> kiválasztása után, pontosan megadhatjuk a kiemelni kívánt területet. <br>
-		Számos lehetõség közül lehet választani bal oldali eszköztár feletti legördülõ menübõl:
-	</p>
+	<h3>KiemelÃ©s Ã©s kitakarÃ¡s</h3>
+	<p>HÃºzza meg a kiemelendÅ‘ (<kbd>H</kbd>) vagy kitakarandÃ³ (<kbd>O</kbd>) terÃ¼letet, mint egy tÃ©glalapot, Ã©s vÃ¡lassza ki a mÃ³dot az eszkÃ¶ztÃ¡ron:</p>
 	<ul>
-		<li><em>Szöveg kiemelés</em>: ki lehet emelni a szöveget élénk színekkel, mint egy irodai szöveg kiemelõvel.</li>
-		<li><em>Terület kiemelése</em>: a kijelölt területen kívül mindent el lehet mosni<a href="#hint-blur">*</a> és sötétíteni.</li>
-		<li><em>Szürkeárnyalatos</em>: a kijelölt területen kívül minden szürkeárnyalatos lesz.</li>
-		<li><em>Nagyítás</em>: A kijelölt terület lesz kinagyítva. A nagyítás mértékétõl függ, hogy mekkora lesz a kijelölt terület.</li>
+		<li>A <em>SzÃ¶veg kiemelÃ©s</em> szÃ¶vegkiemelÅ‘ tollkÃ©nt szÃ­nezi a terÃ¼letet, a <em>TerÃ¼let kiemelÃ©s</em> minden mÃ¡st elsÃ¶tÃ©tÃ­t Ã©s elmos,
+			a <em>SzÃ¼rkeÃ¡rnyalat</em> minden mÃ¡st szÃ¼rkÃ©vÃ© tesz, a <em>NagyÃ­tÃ¡s</em> felnagyÃ­tja a terÃ¼letet.</li>
+		<li>A <em>PixelesÃ­tÅ‘ szÅ±rÅ‘</em> vagy a <em>Folt</em> elrejti a jelszavakat, neveket, szÃ¡mlaszÃ¡mokat vagy arcokat.</li>
 	</ul>
-	
-	<a name="editor-obfuscate"></a>
-	<h3>Homályosítás</h3>
-	<p>
-		Jó ötlet a képernyõkép egyes részeit homályosítani, ha nem akarjuk, hogy mindent lássanak. 
-		pl.: bankszámlaszám, jelszavakat vagy arcképek.<br>
-		Használja a homályosítás eszközt <kbd>O</kbd>, pontosan olyan, mint a <a href="#editor-highlight">kiemelõ eszköz</a>.<br>
-		A következõ lehetõségekkel lehet homályosítani:
-	</p>
-	<ul>
-		<li><em>Pixelesítõ</em>: Növeli a pixel méretét a kiválasztott területen.</li>
-		<li><em>Elmosás</em><a href="#hint-blur">*</a>: A kijelölt területet elkeni, elmossa.</li>
-	</ul>
-	<a name="hint-blur"></a>
-	<p class="hint">
-		* A számítógép teljesítményétõl függõen lassíthatja a Greenshot képszerkesztõjét a homályosítás. 
-		Ha úgy érezzük, hogy a képszerkesztõ lassan reagál, csökkentsük az <em>elõnézet minõségét</em> vagy a <em>homályosítás értékét</em>. 
-		Ha úgy érezzük, hogy továbbra is lassú, használjuk inkább a pixelesítést. 
-		Ha az elõnézet minõségét minimálisra állítjuk, a mentett képen nem azt fogjuk látni.<br>		
-	</p>
-	
+
 	<a name="editor-crop"></a>
-	<h3>Képernyõkép vágása</h3>
+	<h3>VÃ¡gÃ¡s</h3>
 	<p>
-		Ha szükségünk lenne a képernyõkép egy részére akkor használjuk vágás eszközt <kbd>C</kbd>.<br>
-		Miután kiválasztottuk a vágás eszközt <kbd>C</kbd>, rajzoljunk egy téglalapot a köré, amit ki akarunk vágni. 
-		A kijelölt területet még át tudjuk méretezni mielõtt kivágjuk.<br>
-		Ha kijelöltük a kivágandó területet az <kbd>Enter</kbd> billentyûvel vagy az eszköztár feletti a zöld pipával 
-		vághatunk. Ha mégis meggondoltuk magunkat az <kbd>ESC</kbd> gomb vagy az eszköztár feletti mégsem, 
-		piros kör áthúzva ikonra kattintva megszakíthatjuk a terület kivágását.
-	</p>
-	
-	<a name="editor-reuse-elements"></a>
-	<h3>Kijelölések újbóli használata</h3>
-	<p>
-		Ha többször használunk azonos méretû elemeket különbözõ képernyõmentéseken (pl.: szövegmezõt vagy homályosításokat), 
-		akkor újra használhatjuk ezeket a kijelöléseket.<br>
-		Válasszuk az <em>eszközök</em> menü, <em>kijelölés mentése fájlba</em> opciót. 
-		Elnevezzük úgy, hogy ha szükségünk lesz rá késõbb megtaláljuk és az <em>eszközök</em> menü, 
-		<em>kijelölés betöltése fájlból</em> opciót választva újból tudjuk használni korábbi kijelölésünket egy új képernyõképen.
-	</p>
-	
-	<a name="editor-export"></a>
-	<h3>Képernyõkép kiviteli lehetõségek</h3>
-	<p>
-		A képernyõkép szerkesztése után lehetõségünk van többféle módon elmenti a fájlunkat. 
-		A fájl kiviteli lehetõségeit a <em>Fájl</em> menüben vagy a legfelsõ eszköztáron lehet kiválasztani.
+		VÃ¡lassza a vÃ¡gÃ¡s eszkÃ¶zt (<kbd>C</kbd>), Ã©s hÃºzza meg a megtartandÃ³ terÃ¼letet, az <kbd>Enter</kbd> jÃ³vÃ¡hagyja, az <kbd>Esc</kbd> megszakÃ­tja.
+		Nyomja meg Ãºjra a <kbd>C</kbd> billentyÅ±t, vagy hasznÃ¡lja az eszkÃ¶ztÃ¡r <em>Crop mode</em> elemÃ©t a mÃ³d vÃ¡ltÃ¡sÃ¡hoz:
 	</p>
 	<ul>
-		<li><em>Mentés</em> <kbd>Control</kbd> + <kbd>S</kbd>: a kép mentése fájlba (ha a kép már mentve van felugrik a <em>mentés másként</em> ablak)</li>
-		<li><em>Mentés másként...</em> <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>: lehetõségünk van mentési helyet, fájl formátumot és fájlnevet választani.</li>
-		<li><em>Kép másolása vágólapra</em> <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd>: a kép egy másolatát vágólapra helyezi, így más programokba beilleszthetjük képünket</li>
-		<li><em>Nyomtatás...</em> <kbd>Control</kbd> + <kbd>P</kbd>: kép nyomtatása</li>
-		<li><em>E-Mail</em> <kbd>Control</kbd> + <kbd>E</kbd>: megnyílik egy új levél küldése ablak alapértelmezett levelezõrendszerrel és mellékletként csatolva lesz a képünk</li>
+		<li>A <em>Crop out vertically</em> vagy a <em>Crop out horizontally</em> kivÃ¡g egy sÃ¡vot a kÃ©pbÅ‘l, Ã©s Ã¶sszeilleszti a maradÃ©kot, pÃ©ldÃ¡ul hogy kihagyja
+			egy hosszÃº oldal Ã¼res kÃ¶zepÃ©t. A <em>Cut edges</em> a varrat kinÃ©zetÃ©t adja meg: egyenes, cikcakk, hullÃ¡mos, szakadt vagy varrat nÃ©lkÃ¼li.</li>
+		<li>Az <em>Auto crop</em> eltÃ¡volÃ­t egy egyszÃ­nÅ± keretet a kÃ©p kÃ¶rÃ¼l.</li>
+	</ul>
+
+	<a name="editor-effects"></a>
+	<h3>Effektusok, forgatÃ¡s Ã©s Ã¡tmÃ©retezÃ©s</h3>
+	<table>
+		<tr><th>BillentyÅ±k</th><th>Mit csinÃ¡lnak</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Q</kbd></td><td>ÃrnyÃ©k</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>B</kbd></td><td>Keret</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>T</kbd></td><td>Szakadt szÃ©l</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>G</kbd> / <kbd>Ctrl</kbd> + <kbd>I</kbd></td><td>SzÃ¼rkeÃ¡rnyalat / szÃ­nek megfordÃ­tÃ¡sa, pÃ©ldÃ¡ul festÃ©ktakarÃ©kos nyomtatÃ¡shoz</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>,</kbd> / <kbd>Ctrl</kbd> + <kbd>.</kbd></td><td>ForgatÃ¡s az Ã³ramutatÃ³ jÃ¡rÃ¡sÃ¡val ellentÃ©tesen / megegyezÅ‘en</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>+</kbd> / <kbd>-</kbd></td><td>A vÃ¡szon nagyÃ­tÃ¡sa / kicsinyÃ­tÃ©se</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>+</kbd> / <kbd>-</kbd>, <kbd>Ctrl</kbd> + <kbd>0</kbd>, <kbd>Ctrl</kbd> + <kbd>9</kbd></td><td>NagyÃ­tÃ¡s / kicsinyÃ­tÃ©s, eredeti mÃ©ret, ablakhoz igazÃ­tÃ¡s</td></tr>
+	</table>
+	<p>
+		A szakadt szÃ©l mÃ³dosÃ­thatÃ³ elem marad; az eszkÃ¶ztÃ¡r <em>Apply to the image</em> gombja a kÃ©p rÃ©szÃ©vÃ© teszi.
+	</p>
+
+	<a name="editor-reuse"></a>
+	<h3>KÃ©pek hozzÃ¡adÃ¡sa Ã©s elemek ÃºjrahasznosÃ­tÃ¡sa</h3>
+	<ul>
+		<li>HÃºzzon egy kÃ©pfÃ¡jlt a szerkesztÅ‘be, vagy illesszen be egy kÃ©pet a <kbd>Ctrl</kbd> + <kbd>V</kbd> billentyÅ±kkel. A <em>SzerkesztÃ©s</em> menÃ¼ <em>Insert window</em> pontja egy mÃ¡sik nyitott ablak kÃ©pÃ©t adja hozzÃ¡.</li>
+		<li>Ugyanazok az elemek sok kÃ©pernyÅ‘kÃ©pen: <em>KijelÃ¶lÃ©s mentÃ©se fÃ¡jlba</em> az <em>EszkÃ¶zÃ¶k</em> menÃ¼ben, majd <em>KijelÃ¶lÃ©s megnyitÃ¡sa fÃ¡jlbÃ³l</em> a kÃ¶vetkezÅ‘ kÃ©pen.</li>
+		<li>Mentsen <code>.greenshot</code> fÃ¡jlba, hogy minden elem szerkeszthetÅ‘ maradjon, Ã©s kÃ©sÅ‘bb folytathassa.</li>
+	</ul>
+
+	<a name="editor-export"></a>
+	<h3>MentÃ©s Ã©s exportÃ¡lÃ¡s</h3>
+	<table>
+		<tr><th>BillentyÅ±k</th><th>Mit csinÃ¡lnak</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td><td><em>MentÃ©s</em> a <a href="greenshot://settings?tab=output">MentÃ©s lap</a> mappÃ¡jÃ¡ba</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd></td><td><em>MentÃ©s mÃ¡skÃ©nt</em>: mappa, nÃ©v Ã©s kÃ©pformÃ¡tum kivÃ¡lasztÃ¡sa</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd></td><td><em>A kÃ©p mÃ¡solÃ¡sa a vÃ¡gÃ³lapra</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>P</kbd></td><td><em>NyomtatÃ¡s</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>E</kbd></td><td><em>E-Mail</em>: Ãºj Ã¼zenet a kÃ©ppel mellÃ©kletkÃ©nt</td></tr>
+	</table>
+	<p>
+		A <em>FÃ¡jl</em> menÃ¼ Ã©s a felsÅ‘ eszkÃ¶ztÃ¡r az Ã¶sszes cÃ©lt mutatja, a bÅ‘vÃ­tmÃ©nyekÃ©t is.
+		MentÃ©s utÃ¡n kattintson jobb egÃ©rgombbal az alsÃ³ Ã¡llapotsorra a fÃ¡jl elÃ©rÃ©si ÃºtjÃ¡nak mÃ¡solÃ¡sÃ¡hoz vagy a mappa megnyitÃ¡sÃ¡hoz.
+	</p>
+
+	<a name="recipes"></a>
+	<h2>Automatikus lÃ©pÃ©sek Ã©s receptek</h2>
+	<p>
+		A receptek automatikusan elvÃ©geznek dolgokat a kÃ©pekkel, pÃ©ldÃ¡ul keretet adnak minden kÃ©phez, vagy egy lÃ©pÃ©sben mentik Ã©s feltÃ¶ltik.
+		Az ikon menÃ¼jÃ©ben a <em>Gyors beÃ¡llÃ­tÃ¡sok</em> &gt; <em>Automatic steps</em> be- vagy kikapcsolja a kÃ©sz lÃ©pÃ©seket,
+		a <em>Moreâ€¦</em> megnyitja a beÃ¡llÃ­tÃ¡saikat a <a href="greenshot://settings?tab=recipes">Recipes lapon</a>.
+		Az ikon <em>Receptek</em> menÃ¼je elindÃ­tja a receptjeit, Ã©s megnyitja a <a href="greenshot://recipe-manager">Recipe Manager</a> Ã©s a Recipe Editor ablakot.
+		A receptek a Recipe Editor bÅ‘vÃ­tmÃ©nnyel Ã©rkeznek.
+	</p>
+
+	<a name="settings"></a>
+	<h2>A beÃ¡llÃ­tÃ¡sok</h2>
+	<p>A beÃ¡llÃ­tÃ¡sokat az ikon menÃ¼jÃ©nek <em>BeÃ¡llÃ­tÃ¡sok</em> pontjÃ¡val vagy az alÃ¡bbi hivatkozÃ¡sokkal nyithatja meg.</p>
+	<ul>
+		<li><a href="greenshot://settings?tab=general">ÃltalÃ¡nos</a>: nyelv, szÃ­nek (vilÃ¡gos, sÃ¶tÃ©t vagy a Windows szerint), ikonmÃ©ret,
+			<em>Greenshot futtatÃ¡s indulÃ¡skor</em>, a gyorsbillentyÅ±k, a proxy Ã©s hogy a Greenshot milyen gyakran keres frissÃ­tÃ©seket.</li>
+		<li><a href="greenshot://settings?tab=capture">KijelÃ¶lÃ©s</a>: egÃ©rmutatÃ³ a kÃ©pen, fÃ©nykÃ©pezÅ‘gÃ©p-hang, nagyÃ­tÃ³, a kÃ©pernyÅ‘ kimerevÃ­tÃ©se,
+			Ã©rtesÃ­tÃ©sek, vÃ¡rakozÃ¡s a kÃ©p elÅ‘tt, sajÃ¡t rÃ¶gzÃ­tett mÃ©retek, interaktÃ­v ablakkijelÃ¶lÃ©s Ã©s a szÃ¶vegfelismerÃ©s nyelve.</li>
+		<li><a href="greenshot://settings?tab=output">MentÃ©s</a>: a mentÃ©s mappÃ¡ja Ã©s fÃ¡jlnÃ©vmintÃ¡ja (a helyettesÃ­tÅ‘kÃ©rt kattintson a <em>?</em> gombra,
+			pÃ©ldÃ¡ul <code>${YYYY}-${MM}-${DD}</code> vagy <code>${title}</code>; a mintÃ¡ban lÃ©vÅ‘ <code>\</code> mappÃ¡kat hoz lÃ©tre), a kÃ©pformÃ¡tum Ã©s a JPEG minÅ‘sÃ©g.</li>
+		<li><a href="greenshot://settings?tab=destination">Mit csinÃ¡ljak a kÃ©pernyÅ‘kÃ©ppel?</a>: mi tÃ¶rtÃ©njen egy kÃ©p utÃ¡n, lÃ¡sd <a href="#destinations">hovÃ¡ kerÃ¼l a kÃ©pernyÅ‘kÃ©p</a>.</li>
+		<li><a href="greenshot://settings?tab=editor">Editor</a>: lapok, a szerkesztÅ‘ablak mÃ©rete, a mentÃ©sre vonatkozÃ³ kÃ©rdÃ©s bezÃ¡rÃ¡skor, valamint egy Ãºj kÃ©p mÃ©rete Ã©s szÃ­ne.</li>
+		<li><a href="greenshot://settings?tab=printer">NyomtatÃ¡s</a>: a kÃ©p oldalhoz igazÃ­tÃ¡sa, forgatÃ¡sa vagy kÃ¶zÃ©pre helyezÃ©se, nyomtatÃ¡s szÃ­nesben, szÃ¼rkeÃ¡rnyalatosan vagy megfordÃ­tott szÃ­nekkel, Ã©s lÃ¡blÃ©c dÃ¡tummal Ã©s idÅ‘vel.</li>
+		<li><a href="greenshot://settings?tab=plugins">Plugins</a>: bÅ‘vÃ­tmÃ©nyek be- Ã©s kikapcsolÃ¡sa Ã©s beÃ¡llÃ­tÃ¡sa. A vÃ¡ltozÃ¡sok a Greenshot kÃ¶vetkezÅ‘ indÃ­tÃ¡sakor lÃ©pnek Ã©letbe.</li>
+		<li><a href="greenshot://settings?tab=expert">Expert</a>: beÃ¡llÃ­tÃ¡sok kÃ¼lÃ¶nleges esetekre, pÃ©ldÃ¡ul tÃ¡voli asztal, DirectX-es kÃ©pkÃ©szÃ­tÃ©s (HDR kÃ©pernyÅ‘khÃ¶z szÃ¼ksÃ©ges), memÃ³ria Ã©s sebessÃ©g,
+			valamint a vÃ¡gÃ³lap formÃ¡tumai. Csak akkor mÃ³dosÃ­tsa Å‘ket, ha tudja, mit csinÃ¡lnak.</li>
 	</ul>
 	<p class="hint">
-		Mentés után a képszerkesztõ állapotsorán megnyomjuk a jobb egérgombot és lehet választani, hogy a kép elérési útját a vágólapra másolja vagy megnyitja a mentési helyet.
+		A Greenshot a beÃ¡llÃ­tÃ¡sait a <code>greenshot.ini</code> fÃ¡jlban tÃ¡rolja, a <code>%APPDATA%\Greenshot</code> mappÃ¡ban (a hordozhatÃ³ vÃ¡ltozat a Greenshot.exe mellett).
+		A Self-Service <a href="greenshot://self-service?section=files">Files &amp; Configuration</a> rÃ©sze megmutatja, hol van.
 	</p>
-	
-	
-	<a name="settings"></a>
-	<h2>Beállítások</h2>
-	
-	<a name="settings-general"></a>
-	<h3>Általános beállítások</h3>
+
+	<a name="troubleshooting"></a>
+	<h2>Ha valami nem mÅ±kÃ¶dik</h2>
+	<p>
+		A Self-Service ellenÅ‘rzi a Greenshotot, Ã©s a legtÃ¶bb problÃ©mÃ¡t kijavÃ­tja. Nyissa meg az ikon menÃ¼jÃ©nek <em>Greenshot nÃ©vjegye</em> pontjÃ¡val, majd a <em>Self-Service</em> gombbal,
+		vagy menjen egyenesen a megfelelÅ‘ rÃ©szhez:
+	</p>
 	<ul>
-		<li><em>Nyelv</em>: A használni kívánt nyelv kiválasztása.<br>
-			Letölthet további nyelvi fájlokat a Greenshot oldaláról <a target="_blank" href="https://getgreenshot.org/downloads/">itt</a>. </li>
-		<li><em>Gyorsbillentyûk használata</em>: Ha be van jelölve, indíthatod a Greenshot programot a <kbd>Print + Scrn</kbd> billentyûvel.</li>
-		<li><em>Program indítása a Windows indulásakor</em>: a Greenshot program elindul Windows indulásakor.</li>
-		<li><em>Fényképezõ vaku</em>: Vizuális visszajelzés képernyõkép készítésekor.</li>
-		<li><em>Fényképezõ zárhang</em>: Hallható visszajelzés képernyõkép készítésekor</li>
-		<li><em>Kijelölés egérmutatóval</em>: Ha be van jelölve, egér mutatóval tudunk kijelölni. A mutatóval a külön álló elemeket ki tudjuk jelölni a szerkesztõben, hogy késõbb mozgathassuk vagy eltávolíthassuk.</li>
-		<li><em>Interaktív ablak kijelölési mód</em>: Lehetõségünk van kisebb ablakok lementésére is az aktív ablakon belül. 
-		Lásd <a href="#capture-window">az ablak mentésénél</a>.</li>
+		<li>A <kbd>Print Screen</kbd> nem csinÃ¡l semmit, vagy mÃ¡st nyit meg: a <a href="greenshot://self-service?section=hotkeys">Hotkeys &amp; Conflicts</a>
+			megmutatja, hogy a OneDrive vagy a KÃ©pmetszÃ©s eszkÃ¶z elvette-e a billentyÅ±t, Ã©s visszaadja a Greenshotnak.</li>
+		<li>Nem talÃ¡lja a kÃ©peit: a <a href="greenshot://self-service?section=files">Files &amp; Configuration</a> megmutatja, hovÃ¡ menti Å‘ket a Greenshot.</li>
+		<li>Nem sikerÃ¼l a vÃ¡gÃ³lapra mÃ¡solÃ¡s: a <a href="greenshot://self-service?section=clipboard">Clipboard Diagnostics</a> megtalÃ¡lja a vÃ¡gÃ³lapot blokkolÃ³ programot.</li>
+		<li>A Greenshot Ã¶sszeomlik, vagy egy frissÃ­tÃ©s utÃ¡n hiÃ¡nyzik egy bÅ‘vÃ­tmÃ©ny: az <a href="greenshot://self-service?section=checksum">Installation Integrity</a> ellenÅ‘rzi a telepÃ­tett fÃ¡jlokat.</li>
+		<li>Hiba bejelentÃ©se: a <a href="greenshot://self-service?section=system">System &amp; Hardware</a> rÃ©sz <em>Copy System Info</em> gombja Ã©s a
+			<a href="greenshot://log?search=ERROR">naplÃ³ hibÃ¡i</a> segÃ­tenek nekÃ¼nk segÃ­teni Ã–nnek. A hibÃ¡kat itt jelentheti be:
+			<a target="_blank" href="https://github.com/greenshot/greenshot/issues">github.com/greenshot/greenshot/issues</a>.</li>
 	</ul>
-	
-	<a name="settings-output"></a>
-	<h3>Mentés </h3>
-	<ul>
-		<li><em>Kiviteli lehetõségek</em>: Megadhatjuk, hogy a képernyõkép mentése után mit csináljon a program.</li>
-		<li><em>Kimeneti fájl beállításai</em>: Könyvtár és fájlnév beállítások közvetlen mentéshez, vagy a javasolt mentéskor (mentés másként). A <em>?</em> gombra kattintva többet megtudhatunk a fájlnév formátumáról.</li>
-		<li><em>JPEG beállítások</em>: JPEG fájlok mentési minõségét lehet beállítani.</li>
-	</ul>
-	
-	<a name="settings-printer"></a>
-	<h3>Nyomtatási beállítások</h3>
-	<ul>
-		<li><em>Zsugorítás a nyomtatható területhez</em>: Ha a kép nagyobb az oldal méretétõl, akkor zsugorítja az oldal méretéhez a képet.</li>
-		<li><em>Igazítás a nyomtatható területhez</em>: Ha a kép kisebb, mint a papír mérete, akkor a papír méretéhet igazítja a képet.</li>
-		<li><em>Automatikus forgatás és középre igazítás</em>: Fekvõ tájolású képet 90&deg; -kal fordítja el.</li>
-	</ul>
-	
-	
+
 	<a name="help"></a>
-	<h2>Akar segíteni?</h2>
-	
-	<p>
-		A fejlesztésében segítségére nincs szükség. Azonban van néhány dolog, amit tehetünk, 
-		hogy támogassuk a Greenshot támogatást és a fejlesztõ csapatot.<br>
-		Elõre is köszönjük :)
-	</p>
-	
+	<h2>Szeretne segÃ­teni?</h2>
+
 	<a name="help-donate"></a>
-	<h3>Fontolja meg az adományozást</h3>
+	<h3>Gondoljon egy adomÃ¡nyra</h3>
 	<p>
-		A Greenshot programba sok munkát és pénzt fektettünk, ez egy jó, ingyenes, nyílt forráskódú programot hoztunk létre. 
-		Ha úgy érzed, hogy megkönnyíti a munkádat, ha idõt és pénzt tudsz spórolni magadnak (vagy cégednek), 
-		vagy ha csak úgy, szereted a Greenshot programot és ha van egy jó ötleted a programhoz, 
-		kérlek tartsd tiszteletben az erõfeszítésünket és fontold meg az adományozást.<br>
-		Kérjük tekintse meg honlapunkat, hogy hogyan tudná segíteni a Greenshot fejlesztõi csapatot.:<br>
-		<a target="_blank" href="https://getgreenshot.org/?locale=default&page=support">https://getgreenshot.org/?locale=default&amp;page=support</a>
+		Sok munkÃ¡t fektetÃ¼nk a Greenshotba, hogy jÃ³, ingyenes Ã©s nyÃ­lt forrÃ¡skÃ³dÃº szoftvert kÃ­nÃ¡ljunk. Ha termelÃ©kenyebbÃ© teszi,
+		Ã–nnek vagy cÃ©gÃ©nek idÅ‘t Ã©s pÃ©nzt takarÃ­t meg, vagy egyszerÅ±en kedveli a Greenshotot: kÃ©rjÃ¼k, fontolja meg a tÃ¡mogatÃ¡sunkat.
+		A <a target="_blank" href="https://getgreenshot.org/support/">https://getgreenshot.org/support/</a> oldalon megtudja, hogyan segÃ­thet.
 	</p>
-	
+
 	<a name="help-spread"></a>
-	<h3>Szájhagyomány útján :)</h3>
+	<h3>Adja tovÃ¡bb a hÃ­rt</h3>
 	<p>
-		Ha szereted a Greenshot -ot, tudasd  az emberekkel, beszélj a barátaiddal és kollégáiddal a Greenshot -ról. 
-		A követõiddel is :)<br>
-		Értékeld a Greenshot -ot szoftver oldalakon vagy linkeld be a honlapodon, blogodon.
+		Ha tetszik a Greenshot, mesÃ©ljen rÃ³la barÃ¡tainak Ã©s kollÃ©gÃ¡inak. Ã‰rtÃ©kelje a Greenshotot szoftverportÃ¡lokon, vagy hivatkozzon a honlapunkra a blogjÃ¡rÃ³l vagy weboldalÃ¡rÃ³l.
 	</p>
-	
+
 	<a name="help-translate"></a>
-	<h3>Küldjön be fordítást</h3>
+	<h3>KÃ¼ldjÃ¶n be fordÃ­tÃ¡st</h3>
 	<p>
-		Greenshot nem érhetõ el a kívánt nyelvet? Ha úgy érzi, fordítsa le a szoftvert és küldje el nekünk, szívesen fogadjuk. 
-		Ha Ön regisztrál a sourceforge.net -en fel tudja tölteni a fordítást a <a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">keresõnkre</a>.<br>
-		Kérjük, gyõzõdjön meg róla, hogy nincs e létezõ fordítása az Ön nyelvét a <a target="_blank" href="https://getgreenshot.org/downloads/">letöltési oldalunkon</a>. 
-		Nézze meg a <a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">keresõnkben</a>, hogy fordítás nincs e folyamatban vagy elbírálás alatt. 
-		Felhívjuk figyelmét, hogy csak akkor tudjuk a fordítását elfogadni, ha a sourceforge.net -en saját felhasználói fiókján keresztül tölti fel. 
-		Nagy valószínûséggel nem értjük meg az Ön fordítását, jó esetben a többi soundforge felhasználó eléri az Ön fejlesztését 
-		vagy az új Greenshot továbbfejlesztett verziójában.
+		A Greenshot nem Ã©rhetÅ‘ el az Ã–n nyelvÃ©n, vagy egy fordÃ­tÃ¡s jobb lehetne? SegÃ­tsÃ©gÃ©t szÃ­vesen fogadjuk.
+		A nyelvi fÃ¡jlok a <a target="_blank" href="https://github.com/greenshot/greenshot/tree/main/src/Greenshot/Languages">GitHubon</a> vannak;
+		kÃ¼ldje be fordÃ­tÃ¡sÃ¡t pull requestkÃ©nt, vagy nyisson egy issue-t, ha kÃ©rdÃ©se van.
 	</p>
-	
-	
-	
+
 	</body>
 </html>
-
- 	  	 
