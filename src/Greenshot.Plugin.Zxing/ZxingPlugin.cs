@@ -29,6 +29,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Contracts;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Recipes.Pipeline;
@@ -86,11 +87,33 @@ public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
     {
         if (registry == null) return;
 
-        registry.RegisterDrawableFactory("QRCode", (surface, p, ctx) => CreateQrDrawable(surface, p, ctx), ScaleOptions.Rational);
-        registry.RegisterDrawableFactory("Barcode", (surface, p, ctx) => CreateQrDrawable(surface, p, ctx), ScaleOptions.Default);
+        registry.RegisterDrawableFactory("QRCode", (surface, p, ctx) => CreateQrDrawable(surface, p, ctx), ScaleOptions.Rational, DrawableProperties);
+        registry.RegisterDrawableFactory("Barcode", (surface, p, ctx) => CreateQrDrawable(surface, p, ctx), ScaleOptions.Default, DrawableProperties);
         registry.RegisterDrawableConfigurator("QRCode", (p, owner) => ConfigureZxingDrawable(p, owner));
         registry.RegisterDrawableConfigurator("Barcode", (p, owner) => ConfigureZxingDrawable(p, owner));
     }
+
+    /// <summary>
+    /// The properties of the QRCode and Barcode annotations, read by <see cref="CreateQrDrawable"/>
+    /// </summary>
+    private static readonly IReadOnlyList<ParameterContract> DrawableProperties = new[]
+    {
+        new ParameterContract("QrType", description: "Text, Link, WiFi, BusinessCard, Payment, Email, CalendarEvent, Phone, Sms or Geo"),
+        new ParameterContract("Text", description: "The text or link (QrType Text or Link)"),
+        new ParameterContract("Format", description: "The barcode format, e.g. QR_CODE, CODE_128"),
+        new ParameterContract("ForeColor", ContractDataType.Color, description: "Color of the code"),
+        new ParameterContract("BackColor", ContractDataType.Color, description: "Background color"),
+        new ParameterContract("RoundedDots", ContractDataType.Boolean, description: "Rounded dots"),
+        new ParameterContract("Margin", ContractDataType.Integer, description: "Quiet zone around the code, in modules"),
+        Payload("WifiSsid"), Payload("WifiPassword"), Payload("WifiEncryption"),
+        Payload("VcardFirstName"), Payload("VcardLastName"), Payload("VcardCompany"), Payload("VcardEmail"), Payload("VcardPhone"), Payload("VcardUrl"),
+        Payload("EpcName"), Payload("EpcIban"), Payload("EpcBic"), Payload("EpcAmount"), Payload("EpcReference"), Payload("EpcMessage"),
+        Payload("EmailTo"), Payload("EmailSubject"), Payload("EmailBody"),
+        Payload("EventTitle"), Payload("EventLocation"), Payload("EventStart"), Payload("EventEnd"), Payload("EventDescription"),
+        Payload("PhoneNumber"), Payload("SmsNumber"), Payload("SmsMessage"), Payload("Latitude"), Payload("Longitude")
+    };
+
+    private static ParameterContract Payload(string name) => new ParameterContract(name, description: "Content of the code for its QrType");
 
     /// <summary>
     /// Registers recipe step factories provided by the ZXing plugin.

@@ -32,6 +32,8 @@ namespace Greenshot.Base.Recipes
     [JsonSerializable(typeof(List<ConditionalBranch>))]
     [JsonSerializable(typeof(List<PromptChoice>))]
     [JsonSerializable(typeof(List<string>))]
+    [JsonSerializable(typeof(Dictionary<string, object>))]
+    [JsonSerializable(typeof(List<Dictionary<string, object>>))]
     internal partial class RecipeParameterJsonContext : JsonSerializerContext
     {
     }

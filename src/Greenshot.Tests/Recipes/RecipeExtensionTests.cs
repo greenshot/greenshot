@@ -173,7 +173,7 @@ namespace Greenshot.Tests.Recipes
             var recipe = CreateCaptureRecipe();
             var extension = CreateBorderExtension();
 
-            recipe.FindNode("before_export").Set("Accept", RecipeSlots.AcceptNone);
+            recipe.FindNode("before_export").Set("Accept", new List<string>());
             Assert.Same(recipe, RecipeComposer.Compose(recipe, new[] { extension }, AllOn));
 
             recipe.FindNode("before_export").Set("Accept", new List<string> { "ext_other" });

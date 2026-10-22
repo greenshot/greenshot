@@ -20,7 +20,6 @@
  */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -46,10 +45,10 @@ namespace Greenshot.Recipes.Steps
     /// Pipeline step that instantiates and places any available annotation element onto the visual surface.
     /// Supports absolute, calculated (expressions using width/height), and anchored (Left/Center/Right, Top/Center/Bottom) positioning.
     /// </summary>
-    [StepInfo(WellKnownStepTypes.Annotation, "Add Annotation", "Adds annotations (shapes, text, arrows, icons, blur, stamps) to the capture. The properties of an annotation depend on its type.", "Annotations", AcceptsUndeclaredParameters = true)]
+    [StepInfo(WellKnownStepTypes.Annotation, "Add Annotation", "Adds annotations (shapes, text, arrows, icons, blur, stamps) to the capture. The properties of an annotation depend on its type.", "Annotations")]
     [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required, VisualMutation = PayloadEffect.AddsAnnotations)]
-    [StepParameter("Annotations", ContractDataType.Object, Description = "List of annotations; without it the node's own parameters describe one annotation")]
-    [StepParameter("Type", ContractDataType.String, DefaultValue = "Rectangle", Description = "Type of the annotation (Text, Rectangle, Arrow, Icon, Blur, SpeechBubble, ...)")]
+    [StepParameter("Annotations", ContractDataType.Object, ValueType = typeof(List<Dictionary<string, object>>), Required = true, SupportsExpressions = false,
+        Description = "List of annotations: each has a Type (Text, Rectangle, Arrow, ...) and the properties of that type (see AnnotationProperties)")]
     public class AnnotationStep : ICaptureStep, IEvaluatesOwnParameters
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(AnnotationStep));
@@ -94,26 +93,7 @@ namespace Greenshot.Recipes.Steps
                 ["h"] = surfaceHeight
             };
 
-            // Support either a single annotation defined in parameters, or a list under "Annotations"
-            var annotationConfigs = new List<Dictionary<string, object>>();
-
-            if (NodeConfig.Parameters != null && NodeConfig.Parameters.TryGetValue("Annotations", out var annotationsObj) && annotationsObj != null)
-            {
-                if (annotationsObj is IEnumerable enumerable && !(annotationsObj is string))
-                {
-                    foreach (var item in enumerable)
-                    {
-                        if (item is Dictionary<string, object> d)
-                        {
-                            annotationConfigs.Add(d);
-                        }
-                    }
-                }
-            }
-            else
-            {
-                annotationConfigs.Add(NodeConfig.Parameters ?? new Dictionary<string, object>());
-            }
+            var annotationConfigs = NodeConfig.GetParameter<List<Dictionary<string, object>>>("Annotations") ?? new List<Dictionary<string, object>>();
 
             var elementsToAdd = new DrawableContainerList();
 

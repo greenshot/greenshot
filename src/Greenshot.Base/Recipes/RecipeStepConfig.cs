@@ -162,18 +162,21 @@ namespace Greenshot.Base.Recipes
             return node;
         }
 
-        public static RecipeNodeConfig CreateAnnotation(string id = "annotation", string annotationType = "Text", Dictionary<string, object> parameters = null)
+        /// <summary>
+        /// An Annotation node with one annotation of the type, with its properties (see <see cref="AnnotationProperties"/>)
+        /// </summary>
+        public static RecipeNodeConfig CreateAnnotation(string id = "annotation", string annotationType = "Text", Dictionary<string, object> properties = null)
         {
-            var node = new RecipeNodeConfig(id, WellKnownStepTypes.Annotation, $"Add {annotationType}");
-            node.Set("Type", annotationType);
-            if (parameters != null)
+            var annotation = new Dictionary<string, object> { ["Type"] = annotationType };
+            if (properties != null)
             {
-                foreach (var kvp in parameters)
+                foreach (var kvp in properties)
                 {
-                    node.Set(kvp.Key, kvp.Value);
+                    annotation[kvp.Key] = kvp.Value;
                 }
             }
-            return node;
+            return new RecipeNodeConfig(id, WellKnownStepTypes.Annotation, $"Add {annotationType}")
+                .Set("Annotations", new List<Dictionary<string, object>> { annotation });
         }
 
         public static RecipeNodeConfig CreateSetVariable(string id = "set_var", string variable = null, object value = null)

@@ -253,7 +253,7 @@ namespace Greenshot.Tests.Recipes
             var dict = original.ToDictionary();
             Assert.Equal("StepLabel", dict["Type"]);
             Assert.Equal(7, dict["Number"]);
-            Assert.Equal("7", dict["Text"]);
+            Assert.False(dict.ContainsKey("Text"));
             Assert.Equal(true, dict["Shadow"]);
             Assert.Equal("#AA0000", dict["FillColor"]);
             Assert.Equal("#FFFFFF", dict["LineColor"]);

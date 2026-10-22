@@ -1158,7 +1158,26 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 dict["LockAspectRatio"] = _lockAspectRatio.Value;
             }
 
-            return dict;
+            return OnlyDeclared(dict);
+        }
+
+        /// <summary>
+        /// Only the properties of the annotation type, written as declared and in their type ("5" is 5 for a whole number):
+        /// the item keeps everything it was loaded with (e.g. all styles of an imported element), the recipe gets what the type reads.
+        /// A type registered without its properties keeps everything.
+        /// </summary>
+        private Dictionary<string, object> OnlyDeclared(Dictionary<string, object> dict)
+        {
+            var properties = RecipeDrawableRegistry.Instance.GetProperties(Type);
+            if (properties == null) return dict;
+            var declared = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+            foreach (var kvp in dict)
+            {
+                var property = properties.FirstOrDefault(p => p.Matches(kvp.Key));
+                if (property == null) continue;
+                declared[property.Name] = kvp.Value is string text ? RecipeParameterTypes.FromText(text, property.DataType) : kvp.Value;
+            }
+            return declared;
         }
 
         public static DrawableItemViewModel FromDictionary(IDictionary dict, Action onChanged = null, Action<DrawableItemViewModel> onRemove = null)
@@ -1535,28 +1554,28 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         }
 
         /// <summary>
-        /// Slot: which extensions it takes, "all", "none" or extension ids separated by commas
+        /// Slot: which extensions it takes, "all", "none" or extension ids separated by commas.
+        /// In the recipe "Accept" is the list of ids: left out for all, empty for none.
         /// </summary>
         public string SlotAccept
         {
             get
             {
-                if (Config?.Parameters == null || !Config.Parameters.TryGetValue("Accept", out var accept) || accept == null) return RecipeSlots.AcceptAll;
-                if (accept is string text) return string.IsNullOrWhiteSpace(text) ? RecipeSlots.AcceptAll : text;
-                if (accept is System.Collections.IEnumerable list) return string.Join(", ", list.Cast<object>().Select(o => o?.ToString()));
-                return RecipeSlots.AcceptAll;
+                var accept = Config?.GetParameter<List<string>>("Accept");
+                if (accept == null) return SlotAcceptAll;
+                return accept.Count == 0 ? SlotAcceptNone : string.Join(", ", accept);
             }
             set
             {
                 string text = value?.Trim();
-                if (string.IsNullOrEmpty(text) || string.Equals(text, RecipeSlots.AcceptAll, StringComparison.OrdinalIgnoreCase))
+                if (string.IsNullOrEmpty(text) || string.Equals(text, SlotAcceptAll, StringComparison.OrdinalIgnoreCase))
                 {
                     Config.Parameters?.Remove("Accept");
                     NotifyConfigUpdated();
                 }
-                else if (string.Equals(text, RecipeSlots.AcceptNone, StringComparison.OrdinalIgnoreCase))
+                else if (string.Equals(text, SlotAcceptNone, StringComparison.OrdinalIgnoreCase))
                 {
-                    SetParam("Accept", RecipeSlots.AcceptNone);
+                    SetParam("Accept", new List<string>());
                 }
                 else
                 {
@@ -1566,6 +1585,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 OnSlotChanged();
             }
         }
+
+        private const string SlotAcceptAll = "all";
+        private const string SlotAcceptNone = "none";
 
         private void OnSlotChanged()
         {
@@ -1875,22 +1897,15 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     }
                 }
 
-                if (aObj != null)
+                if (aObj is IEnumerable enumerable && !(aObj is string))
                 {
-                    if (aObj is IEnumerable enumerable && !(aObj is string))
+                    foreach (var elem in enumerable)
                     {
-                        foreach (var elem in enumerable)
+                        if (elem is IDictionary d)
                         {
-                            if (elem is IDictionary d)
-                            {
-                                Annotations.Add(DrawableItemViewModel.FromDictionary(d, SyncAnnotationsToConfig, RemoveAnnotation));
-                            }
+                            Annotations.Add(DrawableItemViewModel.FromDictionary(d, SyncAnnotationsToConfig, RemoveAnnotation));
                         }
                     }
-                }
-                else if (Config.HasParameter("Type"))
-                {
-                    Annotations.Add(DrawableItemViewModel.FromDictionary(Config.Parameters, SyncAnnotationsToConfig, RemoveAnnotation));
                 }
             }
         }
@@ -2427,11 +2442,33 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetParam("GenerateShadow", value); OnPropertyChanged(nameof(TornEdgeShadow)); }
         }
 
+        private static readonly string[] TornEdgeNames = { "Top", "Right", "Bottom", "Left" };
+        private string _tornEdgesText;
+
+        /// <summary>
+        /// The torn edges separated by commas; in the recipe "Edges" is a list of Top, Right, Bottom, Left (left out for all)
+        /// </summary>
         public string TornEdges
         {
-            get => GetParam("Edges", "top,right,bottom,left");
-            set { SetParam("Edges", value); OnPropertyChanged(nameof(TornEdges)); OnPropertyChanged(nameof(Summary)); }
+            get
+            {
+                var edges = Config?.GetParameter<List<string>>("Edges") ?? TornEdgeNames.ToList();
+                // What was typed, as long as it is still the list in the recipe (keeps a trailing comma while typing)
+                return _tornEdgesText != null && ToTornEdges(_tornEdgesText).SequenceEqual(edges) ? _tornEdgesText : string.Join(", ", edges);
+            }
+            set
+            {
+                _tornEdgesText = value;
+                SetParam("Edges", ToTornEdges(value));
+                OnPropertyChanged(nameof(TornEdges));
+                OnPropertyChanged(nameof(Summary));
+            }
         }
+
+        // Written as declared; a name which isn't an edge stays as typed, the validator reports it
+        private static List<string> ToTornEdges(string text) => RecipeSlots.SplitList(text)
+            .Select(e => TornEdgeNames.FirstOrDefault(n => string.Equals(n, e, StringComparison.OrdinalIgnoreCase)) ?? e)
+            .ToList();
 
         // Monochrome Parameters
         public byte MonochromeThreshold
@@ -3717,7 +3754,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     case RecipeExtension.OutNode:
                         return Texts.Get<IRecipeEditorLanguage>().SummaryOut;
                     case WellKnownStepTypes.Slot:
-                        return string.Equals(SlotAccept, RecipeSlots.AcceptAll, StringComparison.OrdinalIgnoreCase)
+                        return string.Equals(SlotAccept, SlotAcceptAll, StringComparison.OrdinalIgnoreCase)
                             ? string.Format(Texts.Get<IRecipeEditorLanguage>().SummarySlotAll, SlotName)
                             : string.Format(Texts.Get<IRecipeEditorLanguage>().SummarySlotAccepts, SlotName, SlotAccept);
                     case WellKnownStepTypes.Stdout:

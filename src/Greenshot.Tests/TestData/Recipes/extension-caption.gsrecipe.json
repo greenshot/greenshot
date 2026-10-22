@@ -48,17 +48,21 @@
       "name": "Caption text",
       "enabled": true,
       "parameters": {
-        "Type": "Text",
-        "Text": "${option.text}",
-        "FontSize": "${option.fontSize}",
-        "LineColor": "${option.textColor}",
-        "Shadow": false,
-        "TextAlign": "Center",
-        "Left": 0,
-        "Width": "${payload.width}",
-        "Height": "${option.fontSize * 2}",
-        "VerticalAnchor": "Top",
-        "Top": 0
+        "Annotations": [
+          {
+            "Type": "Text",
+            "Text": "${option.text}",
+            "FontSize": "${option.fontSize}",
+            "LineColor": "${option.textColor}",
+            "Shadow": false,
+            "TextAlign": "Center",
+            "Left": 0,
+            "Width": "${payload.width}",
+            "Height": "${option.fontSize * 2}",
+            "VerticalAnchor": "Top",
+            "Top": 0
+          }
+        ]
       }
     },
     {
@@ -78,17 +82,21 @@
       "name": "Caption text",
       "enabled": true,
       "parameters": {
-        "Type": "Text",
-        "Text": "${option.text}",
-        "FontSize": "${option.fontSize}",
-        "LineColor": "${option.textColor}",
-        "Shadow": false,
-        "TextAlign": "Center",
-        "Left": 0,
-        "Width": "${payload.width}",
-        "Height": "${option.fontSize * 2}",
-        "VerticalAnchor": "Bottom",
-        "Bottom": 0
+        "Annotations": [
+          {
+            "Type": "Text",
+            "Text": "${option.text}",
+            "FontSize": "${option.fontSize}",
+            "LineColor": "${option.textColor}",
+            "Shadow": false,
+            "TextAlign": "Center",
+            "Left": 0,
+            "Width": "${payload.width}",
+            "Height": "${option.fontSize * 2}",
+            "VerticalAnchor": "Bottom",
+            "Bottom": 0
+          }
+        ]
       }
     }
   ],

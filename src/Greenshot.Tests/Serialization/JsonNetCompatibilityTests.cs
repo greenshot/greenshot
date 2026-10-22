@@ -26,6 +26,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Pipeline;
@@ -54,6 +55,12 @@ namespace Greenshot.Tests.Serialization
             StepRegistry.Instance.Register<SetVariableStep>(config => new SetVariableStep(config));
             StepRegistry.Instance.Register<ConditionalStep>(config => new ConditionalStep(config));
             StepRegistry.Instance.Register<UserPromptStep>(config => new UserPromptStep(config));
+            StepRegistry.Instance.Register<AnnotationStep>(config => new AnnotationStep(config));
+            StepRegistry.Instance.Register<EffectCaptureStep>(config => new EffectCaptureStep(config));
+            StepRegistry.Instance.Register<SlotStep>(config => new SlotStep(config));
+            // An annotation type of a plugin, with its properties
+            RecipeDrawableRegistry.Instance.RegisterDrawableFactory("TestBadge", (surface, parameters, context) => null, ScaleOptions.Default,
+                new[] { new ParameterContract("Label") });
         }
 
         private static string TestData(params string[] path) => File.ReadAllText(Path.Combine(new[] { AppContext.BaseDirectory, "TestData" }.Concat(path).ToArray()));
@@ -153,7 +160,7 @@ namespace Greenshot.Tests.Serialization
             Assert.Equal(false, variables["FLAG"]);
             var annotations = Assert.IsType<List<object>>(sink.FindNode("draw").Parameters["annotations"]);
             Assert.Equal("Rectangle", ((IDictionary<string, object>)annotations[0])["Type"]);
-            Assert.Equal(20.5, ((IDictionary<string, object>)annotations[0])["y"]);
+            Assert.Equal(20.5, ((IDictionary<string, object>)annotations[1])["FontSize"]);
             Assert.True(RecipeSlots.Accepts(sink.FindNode("slot"), "caption"));
             Assert.False(RecipeSlots.Accepts(sink.FindNode("slot"), "dropshadow"));
             Assert.Contains(sink.Flow.ErrorTransitions, t => t.From == "fail" && t.Recipe == "other" && t.OnError == "*");
@@ -289,6 +296,59 @@ namespace Greenshot.Tests.Serialization
             var error = Assert.Throws<JsonException>(() => RecipeSerializer.Deserialize(ConditionalRecipe.Replace(part, mistake)));
 
             Assert.Contains("Node 'decide_size': the parameter " + message, error.Message);
+        }
+
+        private const string TypedValuesRecipe = @"
+            {
+                ""id"": ""typed"",
+                ""name"": ""Typed"",
+                ""nodes"": [
+                    { ""id"": ""capture"", ""stepType"": ""Source"", ""parameters"": { ""SourceType"": ""Window"", ""WindowHandle"": 4242 } },
+                    { ""id"": ""torn"", ""stepType"": ""Effect"", ""parameters"": { ""Effect"": ""TornEdge"", ""Edges"": [ ""Top"", ""Bottom"" ] } },
+                    { ""id"": ""slot"", ""stepType"": ""Slot"", ""parameters"": { ""Name"": ""BeforeExport"", ""Accept"": [ ""ext_border"" ] } },
+                    { ""id"": ""draw"", ""stepType"": ""Annotation"", ""parameters"": { ""Annotations"": [
+                        { ""Type"": ""Text"", ""Text"": ""Hello"", ""FontSize"": 12, ""Width"": ""${payload.width / 2}"", ""Bold"": true },
+                        { ""Type"": ""TestBadge"", ""Label"": ""New"", ""OffsetX"": -5 } ] } }
+                ],
+                ""flow"": {
+                    ""startNodes"": [""capture""],
+                    ""transitions"": [ { ""from"": ""capture"", ""to"": ""torn"" }, { ""from"": ""torn"", ""to"": ""slot"" }, { ""from"": ""slot"", ""to"": ""draw"" } ]
+                }
+            }";
+
+        /// <summary>
+        /// Lists of names, window handles and the properties of annotations are read in their declared types
+        /// </summary>
+        [Fact]
+        public void Recipe_TypedValues_AreReadIntoTheirTypes()
+        {
+            var recipe = RecipeSerializer.Deserialize(TypedValuesRecipe);
+
+            Assert.Equal(4242, recipe.FindNode("capture").Parameters["WindowHandle"]);
+            Assert.Equal(new[] { "Top", "Bottom" }, Assert.IsType<List<string>>(recipe.FindNode("torn").Parameters["Edges"]));
+            Assert.True(RecipeSlots.Accepts(recipe.FindNode("slot"), "ext_border"));
+            Assert.False(RecipeSlots.Accepts(recipe.FindNode("slot"), "ext_caption"));
+            var annotations = Assert.IsType<List<Dictionary<string, object>>>(recipe.FindNode("draw").Parameters["Annotations"]);
+            Assert.Equal(12.0, annotations[0]["FontSize"]);
+            Assert.Equal(-5, annotations[1]["OffsetX"]);
+        }
+
+        [Theory]
+        [InlineData(@"""WindowHandle"": 4242", @"""WindowHandle"": ""main""", "'WindowHandle' must be a window handle")]
+        [InlineData(@"[ ""Top"", ""Bottom"" ]", @"[ ""top"", ""Bottom"" ]", "Node 'torn': the parameter 'Edges', 'top' is not one of Top, Right, Bottom, Left.")]
+        [InlineData(@"""Accept"": [ ""ext_border"" ]", @"""Accept"": ""all""", "Node 'slot': the parameter 'Accept', the value doesn't fit, it must be a list of texts.")]
+        [InlineData(@"""FontSize"": 12", @"""fontSize"": 12", "Node 'draw': annotation 1 (Text): 'fontSize' is written 'FontSize'.")]
+        [InlineData(@"""FontSize"": 12", @"""FontSize"": ""big""", "Node 'draw': annotation 1 (Text): 'FontSize' must be a number, not a text.")]
+        [InlineData(@"""Bold"": true", @"""Bold"": true, ""TailX"": 3", "Node 'draw': annotation 1 (Text): 'TailX' is not a property of a Text annotation.")]
+        [InlineData(@"""Label"": ""New""", @"""Text"": ""New""", "Node 'draw': annotation 2 (TestBadge): 'Text' is not a property of a TestBadge annotation.")]
+        [InlineData(@"{ ""Type"": ""TestBadge"", ", "{ ", "Node 'draw': annotation 2: 'Type' is missing.")]
+        public void Recipe_TypedValueWithAMistake_IsNotValid(string part, string mistake, string message)
+        {
+            Assert.Contains(part, TypedValuesRecipe);
+
+            var error = Assert.Throws<JsonException>(() => RecipeSerializer.Deserialize(TypedValuesRecipe.Replace(part, mistake)));
+
+            Assert.Contains(message, error.Message);
         }
 
         [Fact]

@@ -464,6 +464,14 @@ namespace Greenshot.Base.Recipes
                     if (RecipeParameterTypes.TryRead(value, declared.ValueType, out var typed, out string error))
                     {
                         node.Parameters[key] = typed;
+                        // A list of fixed names (e.g. the torn Edges): each item one of them, written as declared
+                        if (typed is List<string> names && declared.AllowedValuesProvider == null && declared.AllowedValues.Count > 0)
+                        {
+                            foreach (string name in names.Where(n => !declared.AllowedValues.Contains(n, StringComparer.Ordinal)))
+                            {
+                                result.AddError($"Node '{node.Id}': the parameter '{declared.Name}', '{name}' is not one of {string.Join(", ", declared.AllowedValues)}.");
+                            }
+                        }
                     }
                     else
                     {
@@ -578,60 +586,70 @@ namespace Greenshot.Base.Recipes
                 {
                     result.AddError($"Node '{node.Id}' [Slot]: 'name' must be one of {string.Join(", ", RecipeSlots.All)}.");
                 }
-                if (node.Parameters.TryGetValue("Accept", out var accept) && accept != null)
-                {
-                    bool valid = accept is string || (accept is IEnumerable && !(accept is string));
-                    if (!valid)
-                    {
-                        result.AddError($"Node '{node.Id}' [Slot]: 'accept' must be \"{RecipeSlots.AcceptAll}\", \"{RecipeSlots.AcceptNone}\" or a list of extension ids.");
-                    }
-                }
             }
 
             // Programmatic step inspection for recipe authorization gates
             CheckAndDetectGatedActions(node, result);
         }
 
-        private static readonly HashSet<string> BuiltInAnnotationTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        {
-            "Rectangle", "Ellipse", "Line", "Arrow", "Freehand", "Text", "Speechbubble", "StepLabel",
-            "Image", "Icon", "Cursor", "Emoji", "Svg", "Blur", "Pixelize", "Highlight", "Magnify", "Crop"
-        };
-
+        /// <summary>
+        /// Each annotation has a known Type and only the properties of that type (see <see cref="AnnotationProperties"/>),
+        /// written as declared, with values of the declared type (or an expression). The values are stored in their type.
+        /// </summary>
         private static void ValidateAnnotationNode(RecipeNodeConfig node, RecipeValidationResult result)
         {
-            if (node.Parameters == null) return;
+            // Not a list of objects: already reported with the parameter
+            var annotations = node.GetParameter<List<Dictionary<string, object>>>("Annotations");
+            if (annotations == null) return;
+            node.Parameters["Annotations"] = annotations;
 
-            // Single annotation in Type parameter
-            if (node.Parameters.TryGetValue("Type", out var typeObj) && typeObj is string singleType && !string.IsNullOrWhiteSpace(singleType))
+            for (int i = 0; i < annotations.Count; i++)
             {
-                ValidateAnnotationType(singleType, node.Id, result);
-            }
-
-            // Multiple annotations in Annotations list
-            if (node.Parameters.TryGetValue("Annotations", out var annotationsObj) && annotationsObj is System.Collections.IEnumerable list && !(annotationsObj is string))
-            {
-                foreach (var item in list)
+                var annotation = annotations[i];
+                string where = $"Node '{node.Id}': annotation {i + 1}";
+                if (annotation == null)
                 {
-                    string aType = null;
-                    if (item is Dictionary<string, object> dict && dict.TryGetValue("Type", out var tObj))
+                    result.AddError($"{where} is empty.");
+                    continue;
+                }
+                var typeKey = annotation.Keys.FirstOrDefault(k => string.Equals(k, "Type", StringComparison.OrdinalIgnoreCase));
+                string annotationType = typeKey != null ? annotation[typeKey] as string : null;
+                if (string.IsNullOrWhiteSpace(annotationType))
+                {
+                    result.AddError($"{where}: 'Type' is missing.");
+                    continue;
+                }
+                if (!AnnotationProperties.IsBuiltIn(annotationType) && !RecipeDrawableRegistry.Instance.IsRegistered(annotationType))
+                {
+                    result.AddError($"{where} uses custom annotation type '{annotationType}', which is not available because the required extension is not installed or active.");
+                    continue;
+                }
+
+                // A type registered without its properties: they aren't checked
+                var properties = RecipeDrawableRegistry.Instance.GetProperties(annotationType);
+                if (properties == null) continue;
+                foreach (string key in annotation.Keys.ToList())
+                {
+                    var declared = properties.FirstOrDefault(p => p.Matches(key));
+                    if (declared == null)
                     {
-                        aType = tObj?.ToString();
+                        result.AddError($"{where} ({annotationType}): '{key}' is not a property of a {annotationType} annotation.");
+                        continue;
                     }
-                    if (!string.IsNullOrWhiteSpace(aType))
+                    if (!string.Equals(declared.Name, key, StringComparison.Ordinal))
                     {
-                        ValidateAnnotationType(aType, node.Id, result);
+                        result.AddError($"{where} ({annotationType}): '{key}' is written '{declared.Name}'.");
+                    }
+                    if (RecipeParameterTypes.TryConvert(annotation[key], declared.DataType, out var converted, out string expected))
+                    {
+                        annotation[key] = converted;
+                    }
+                    else
+                    {
+                        result.AddError($"{where} ({annotationType}): '{declared.Name}' must be {expected}, not {DescribeValue(annotation[key])}.");
                     }
                 }
             }
-        }
-
-        private static void ValidateAnnotationType(string annotationType, string nodeId, RecipeValidationResult result)
-        {
-            if (BuiltInAnnotationTypes.Contains(annotationType)) return;
-            if (RecipeDrawableRegistry.Instance.IsRegistered(annotationType)) return;
-
-            result.AddError($"Node '{nodeId}' uses custom annotation type '{annotationType}', which is not available because the required extension is not installed or active.");
         }
 
         private static void ValidateRequirement(RecipeRequirement req, RecipeValidationResult result)

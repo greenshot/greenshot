@@ -277,12 +277,14 @@
               "description": "Used by 'Slot' step: the name of the slot, where extensions add their steps."
             },
             "Accept": {
-              "oneOf": [
-                { "type": "string", "enum": [ "all", "none" ] },
-                { "type": "array", "items": { "type": "string" } }
-              ],
-              "default": "all",
-              "description": "Used by 'Slot' step: which extensions the slot takes: all (default), none or a list of extension ids."
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Used by 'Slot' step: the ids of the extensions the slot takes. Left out: all extensions; an empty list: none."
+            },
+            "Edges": {
+              "type": "array",
+              "items": { "type": "string", "enum": [ "Top", "Right", "Bottom", "Left" ] },
+              "description": "Used by 'Effect' step (TornEdge): the torn edges. Left out: all four."
             },
             "SourceType": {
               "type": "string",
@@ -319,6 +321,7 @@
               "description": "Used by 'Source' step (Window/ActiveWindow): Target process name (e.g. 'notepad', 'Greenshot')."
             },
             "WindowHandle": {
+              "type": [ "string", "integer" ],
               "description": "Used by 'Source' step (Window): the window to capture without asking or activating it, usually the variable of a Window argument (e.g. '${Window}')."
             },
             "MatchCase": {
@@ -573,14 +576,14 @@
     "AnnotationElementConfig": {
       "type": "object",
       "required": [
-        "type"
+        "Type"
       ],
       "properties": {
-        "type": {
+        "Type": {
           "type": "string",
           "description": "The type of annotation element. Built-in types include Rectangle, Ellipse, Line, Arrow, Freehand, Text, Speechbubble, StepLabel, Image, Icon, Cursor, Emoji, Svg, Blur, Pixelize, Highlight, Magnify, Crop. Extension-provided annotations (e.g. QRCode, Barcode) are dynamically registered by installed plugins."
         },
-        "horizontalAnchor": {
+        "HorizontalAnchor": {
           "type": "string",
           "enum": [
             "Left",
@@ -589,7 +592,7 @@
           ],
           "description": "Horizontal alignment anchor relative to the capture payload surface."
         },
-        "verticalAnchor": {
+        "VerticalAnchor": {
           "type": "string",
           "enum": [
             "Top",
@@ -598,71 +601,71 @@
           ],
           "description": "Vertical alignment anchor relative to the capture payload surface."
         },
-        "left": {
+        "Left": {
           "description": "Distance from the left edge, or expression (e.g. 20, '${payload.width - 200}').",
           "oneOf": [{ "type": "integer" }, { "type": "string" }]
         },
-        "top": {
+        "Top": {
           "description": "Distance from the top edge, or expression (e.g. 15, '${payload.height - 50}').",
           "oneOf": [{ "type": "integer" }, { "type": "string" }]
         },
-        "right": {
+        "Right": {
           "description": "Distance from the right edge, or expression.",
           "oneOf": [{ "type": "integer" }, { "type": "string" }]
         },
-        "bottom": {
+        "Bottom": {
           "description": "Distance from the bottom edge, or expression.",
           "oneOf": [{ "type": "integer" }, { "type": "string" }]
         },
-        "width": {
+        "Width": {
           "description": "Width or expression (e.g. 250, '${payload.width / 2}').",
           "oneOf": [{ "type": "integer" }, { "type": "string" }]
         },
-        "height": {
+        "Height": {
           "description": "Height or expression (e.g. 60, '${payload.height * 0.1}').",
           "oneOf": [{ "type": "integer" }, { "type": "string" }]
         },
-        "offsetX": {
+        "OffsetX": {
           "description": "Horizontal offset applied to anchor/coordinate (e.g. -20).",
           "oneOf": [{ "type": "integer" }, { "type": "string" }]
         },
-        "offsetY": {
+        "OffsetY": {
           "description": "Vertical offset applied to anchor/coordinate (e.g. -15).",
           "oneOf": [{ "type": "integer" }, { "type": "string" }]
         },
-        "text": {
+        "Text": {
           "type": "string",
           "description": "Text content for Text, Speechbubble, or StepLabel (supports string interpolation like 'User: ${user.username} on ${machine.computername} at ${now:yyyy-MM-dd}')."
         },
-        "lineColor": {
+        "LineColor": {
           "type": "string",
           "description": "Stroke/border/text color."
         },
-        "fillColor": {
+        "FillColor": {
           "type": "string",
           "description": "Fill/background color."
         },
-        "lineThickness": {
+        "LineThickness": {
           "type": "integer",
           "description": "Line thickness in pixels."
         },
-        "fontSize": {
+        "FontSize": {
           "type": "number",
           "description": "Font size in points."
         },
-        "fontFamily": {
+        "FontFamily": {
           "type": "string",
           "description": "Font family name."
         },
-        "bold": {
+        "Bold": {
           "type": "boolean",
           "description": "Font bold weight."
         },
-        "italic": {
+        "Italic": {
           "type": "boolean",
           "description": "Italic font style."
         },
-        "textAlign": {
+        "TextAlign": {
           "type": "string",
           "enum": [
             "Left",
@@ -671,23 +674,23 @@
           ],
           "description": "Horizontal alignment of the text inside the element."
         },
-        "shadow": {
+        "Shadow": {
           "type": "boolean",
           "description": "Whether to render a drop shadow for the element."
         },
-        "filePath": {
+        "FilePath": {
           "type": "string",
           "description": "File path for Image, Icon, Cursor, or Svg annotations when linked as an external file."
         },
-        "imageData": {
+        "ImageData": {
           "type": "string",
           "description": "Base64-encoded image or cursor bitmap data for embedded Image or Cursor annotations."
         },
-        "content": {
+        "Content": {
           "type": "string",
           "description": "Raw SVG XML string or text content for embedded Svg annotations."
         },
-        "cursorName": {
+        "CursorName": {
           "type": "string",
           "enum": [
             "AppStarting",
@@ -707,19 +710,19 @@
           ],
           "description": "Standard Windows cursor preset name for Cursor annotations."
         },
-        "hotspotX": {
+        "HotspotX": {
           "type": "integer",
           "description": "Horizontal hotspot coordinate offset in pixels for Cursor annotations."
         },
-        "hotspotY": {
+        "HotspotY": {
           "type": "integer",
           "description": "Vertical hotspot coordinate offset in pixels for Cursor annotations."
         },
-        "lockAspectRatio": {
+        "LockAspectRatio": {
           "type": "boolean",
           "description": "Whether to preserve the width-to-height aspect ratio when resizing or configuring the annotation."
         },
-        "arrowHeads": {
+        "ArrowHeads": {
           "type": "string",
           "enum": [
             "END_POINT",
@@ -729,43 +732,43 @@
           ],
           "description": "Arrowheads rendering placement for Arrow annotations."
         },
-        "number": {
+        "Number": {
           "type": "integer",
           "description": "Counter sequence number for StepLabel annotations."
         },
-        "blurRadius": {
+        "BlurRadius": {
           "type": "integer",
           "description": "Blur kernel radius in pixels for Blur annotations."
         },
-        "pixelSize": {
+        "PixelSize": {
           "type": "integer",
           "description": "Pixel block size in pixels for Pixelize annotations."
         },
-        "magnificationFactor": {
+        "MagnificationFactor": {
           "type": "integer",
           "description": "Magnification zoom multiplier (e.g. 2 for 2x zoom) for Magnify annotations."
         },
-        "foreColor": {
+        "ForeColor": {
           "type": "string",
           "description": "Foreground or module color for QRCode or Barcode annotations."
         },
-        "backColor": {
+        "BackColor": {
           "type": "string",
           "description": "Background quiet-zone color for QRCode or Barcode annotations."
         },
-        "roundedDots": {
+        "RoundedDots": {
           "type": "boolean",
           "description": "Whether QRCode data modules are drawn as rounded dots instead of square blocks."
         },
-        "emoji": {
+        "Emoji": {
           "type": "string",
           "description": "Emoji character for Emoji annotations (e.g. '⚠️', '🔥', '✅')."
         },
-        "points": {
+        "Points": {
           "type": "string",
           "description": "Coordinates list for Freehand annotation (e.g. '10,10;20,30;50,80')."
         },
-        "tailDirection": {
+        "TailDirection": {
           "type": "string",
           "enum": [
             "BottomLeft",
@@ -779,27 +782,27 @@
           ],
           "description": "Direction/placement preset of the tail for Speechbubble annotations."
         },
-        "tailOffsetX": {
+        "TailOffsetX": {
           "type": "integer",
           "description": "Horizontal pixel offset for Speechbubble tail."
         },
-        "tailOffsetY": {
+        "TailOffsetY": {
           "type": "integer",
           "description": "Vertical pixel offset for Speechbubble tail."
         },
-        "tailX": {
+        "TailX": {
           "type": "integer",
           "description": "Absolute X coordinate of the Speechbubble tail target."
         },
-        "tailY": {
+        "TailY": {
           "type": "integer",
           "description": "Absolute Y coordinate of the Speechbubble tail target."
         },
-        "size": {
+        "Size": {
           "type": "integer",
           "description": "Square size dimension (e.g. for icon, emoji, or square element)."
         },
-        "margin": {
+        "Margin": {
           "type": "integer",
           "description": "Outer margin or quiet zone in pixels."
         }

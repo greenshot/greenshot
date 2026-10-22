@@ -64,51 +64,51 @@
       "parameters": {
         "Annotations": [
           {
-            "type": "Rectangle",
-            "horizontalAnchor": "Right",
-            "verticalAnchor": "Bottom",
-            "width": 380,
-            "height": 40,
-            "offsetX": -15,
-            "offsetY": -15,
-            "fillColor": "rgba(0, 0, 0, 180)",
-            "lineColor": "#0078D7",
-            "lineThickness": 2,
-            "shadow": true
+            "Type": "Rectangle",
+            "HorizontalAnchor": "Right",
+            "VerticalAnchor": "Bottom",
+            "Width": 380,
+            "Height": 40,
+            "OffsetX": -15,
+            "OffsetY": -15,
+            "FillColor": "rgba(0, 0, 0, 180)",
+            "LineColor": "#0078D7",
+            "LineThickness": 2,
+            "Shadow": true
           },
           {
-            "type": "Text",
-            "horizontalAnchor": "Right",
-            "verticalAnchor": "Bottom",
-            "width": 370,
-            "height": 30,
-            "offsetX": -20,
-            "offsetY": -20,
-            "text": "${context.watermark_text}",
-            "lineColor": "#FFFFFF",
-            "fontSize": 9.5,
-            "fontFamily": "Segoe UI",
-            "bold": true,
-            "shadow": false
+            "Type": "Text",
+            "HorizontalAnchor": "Right",
+            "VerticalAnchor": "Bottom",
+            "Width": 370,
+            "Height": 30,
+            "OffsetX": -20,
+            "OffsetY": -20,
+            "Text": "${context.watermark_text}",
+            "LineColor": "#FFFFFF",
+            "FontSize": 9.5,
+            "FontFamily": "Segoe UI",
+            "Bold": true,
+            "Shadow": false
           },
           {
-            "type": "StepLabel",
-            "horizontalAnchor": "Left",
-            "verticalAnchor": "Top",
-            "left": 20,
-            "top": 20,
-            "number": 1,
-            "fillColor": "#D83B01",
-            "lineColor": "#FFFFFF"
+            "Type": "StepLabel",
+            "HorizontalAnchor": "Left",
+            "VerticalAnchor": "Top",
+            "Left": 20,
+            "Top": 20,
+            "Number": 1,
+            "FillColor": "#D83B01",
+            "LineColor": "#FFFFFF"
           },
           {
-            "type": "Emoji",
-            "horizontalAnchor": "Left",
-            "verticalAnchor": "Bottom",
-            "left": 20,
-            "top": "${payload.height - 50}",
-            "emoji": "🛡️",
-            "size": 32
+            "Type": "Emoji",
+            "HorizontalAnchor": "Left",
+            "VerticalAnchor": "Bottom",
+            "Left": 20,
+            "Top": "${payload.height - 50}",
+            "Emoji": "🛡️",
+            "Size": 32
           }
         ]
       }

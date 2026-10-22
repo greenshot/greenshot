@@ -2337,12 +2337,12 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                             ["Text"] = "Captured: ${now:yyyy-MM-dd}",
                             ["HorizontalAnchor"] = "Right",
                             ["VerticalAnchor"] = "Bottom",
-                            ["OffsetX"] = "-15",
-                            ["OffsetY"] = "-10",
+                            ["OffsetX"] = -15,
+                            ["OffsetY"] = -10,
                             ["FillColor"] = "rgba(0,0,0,160)",
                             ["LineColor"] = "#0078D7",
-                            ["Width"] = "220",
-                            ["Height"] = "32"
+                            ["Width"] = 220,
+                            ["Height"] = 32
                         }
                     };
                     break;

@@ -146,13 +146,19 @@ namespace Greenshot.Tests.Recipes
             {
                 Parameters = new Dictionary<string, object>
                 {
-                    ["Type"] = "QRCode",
-                    ["Text"] = "${Barcode.Text}",
-                    ["HorizontalAnchor"] = "Right",
-                    ["VerticalAnchor"] = "Bottom",
-                    ["Width"] = "${w - 850}",
-                    ["Height"] = "${h - 650}",
-                    ["Margin"] = 25
+                    ["Annotations"] = new List<Dictionary<string, object>>
+                    {
+                        new Dictionary<string, object>
+                        {
+                            ["Type"] = "QRCode",
+                            ["Text"] = "${Barcode.Text}",
+                            ["HorizontalAnchor"] = "Right",
+                            ["VerticalAnchor"] = "Bottom",
+                            ["Width"] = "${w - 850}",
+                            ["Height"] = "${h - 650}",
+                            ["Margin"] = 25
+                        }
+                    }
                 }
             };
             context.Properties["Barcode.Text"] = InjectedText;

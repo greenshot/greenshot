@@ -262,6 +262,33 @@ The `Annotation` step allows adding any Greenshot annotation container to the ca
 - **Barcodes & QR Codes** *(via ZXing Plugin)*: `QRCode`, `Barcode`
 - **Filters & Effects**: `Blur`, `Pixelize`, `Highlight`, `Magnify`, `Crop`
 
+The node's `Annotations` is a list: each annotation has a `Type` and the properties of that type, written exactly as
+below (`FontSize`, not `fontSize`). Loading a recipe reports a property the type doesn't have and a value of another type
+(e.g. `"Width": "wide"`); an expression (`"${payload.width / 2}"`) is always allowed.
+
+| Type | Properties (besides the common ones) |
+|------|--------------------------------------|
+| All types | `Type`, `Width`, `Height`, `Size`, `LockAspectRatio`, `HorizontalAnchor`, `VerticalAnchor`, `OffsetX`, `OffsetY`, `Left`, `Right`, `Top`, `Bottom`, `Margin`, `MarginLeft`, `MarginRight`, `MarginTop`, `MarginBottom` |
+| `Rectangle`, `Ellipse` | `LineThickness`, `LineColor`, `FillColor`, `Shadow` |
+| `Line` | `LineThickness`, `LineColor`, `Shadow` |
+| `Arrow` | `LineThickness`, `LineColor`, `Shadow`, `ArrowHeads` |
+| `Freehand` | `LineThickness`, `LineColor`, `Shadow`, `Points` |
+| `Text` | `Text`, `FontFamily`, `FontSize`, `Bold`, `Italic`, `TextAlign`, `FitToText`, `LineColor`, `LineThickness`, `FillColor`, `Shadow` |
+| `Speechbubble` | `Text`, `FontFamily`, `FontSize`, `Bold`, `LineColor`, `LineThickness`, `FillColor`, `Shadow`, `TailDirection`, `TailOffsetX`, `TailOffsetY`, `TailX`, `TailY` |
+| `StepLabel` | `Number`, `FillColor`, `LineColor`, `Shadow` |
+| `Image` | `FilePath`, `ImageData`, `Shadow` |
+| `Icon` | `FilePath` |
+| `Cursor` | `CursorName`, `FilePath`, `ImageData`, `HotspotX`, `HotspotY` |
+| `Emoji` | `Emoji` |
+| `Svg` | `Content`, `FilePath`, `ImageData` |
+| `Blur` / `Pixelize` | `BlurRadius` / `PixelSize` |
+| `Highlight` / `Magnify` | `FillColor` / `MagnificationFactor` |
+| `Crop` | none |
+| `QRCode`, `Barcode` | see below |
+
+Sizes, positions and numbers (`LineThickness`, `Number`, ...) are whole numbers, `FontSize` is a number, `Shadow`, `Bold`,
+`Italic`, `FitToText`, `LockAspectRatio` and `RoundedDots` are `true`/`false`, the rest are texts.
+
 ### Barcode & QR Code Annotations (`QRCode`, `Barcode`)
 When `Greenshot.Plugin.Zxing` is active, recipes can stamp 2D QR codes and 1D barcodes directly onto the capture surface with uniform positioning, anchoring, and colors. When opened in the Greenshot Image Editor, double-clicking any stamped QR code opens the interactive editor to modify or inspect its payload.
 
@@ -277,7 +304,7 @@ The QR code format is explicitly declared via the `"QrType"` parameter (`"Text"`
   - `"EpcIban"`: Recipient IBAN (e.g. `"DE89370400440532013000"`).
   - `"EpcName"`: Recipient account holder name (e.g. `"Greenshot Community e.V."`).
   - `"EpcBic"`: Recipient BIC/SWIFT code (optional).
-  - `"EpcAmount"`: Payment transfer amount in EUR (e.g. `15.00` or `"15.00"`).
+  - `"EpcAmount"`: Payment transfer amount in EUR (a text, e.g. `"15.00"`).
   - `"EpcReference"`: Structured remittance reference / invoice number (e.g. `"INV-2026-0042"`).
   - `"EpcMessage"`: Unstructured payment note or purpose (e.g. `"Support Greenshot"`).
 
@@ -321,8 +348,8 @@ The QR code format is explicitly declared via the `"QrType"` parameter (`"Text"`
 
 - **Geographic Location (`"QrType": "Geo"`)**:
   - Map location coordinates or query (`geo:`):
-  - `"Latitude"`: Latitude in decimal degrees (e.g. `52.5200`).
-  - `"Longitude"`: Longitude in decimal degrees (e.g. `13.4050`).
+  - `"Latitude"`: Latitude in decimal degrees (a text, e.g. `"52.5200"`).
+  - `"Longitude"`: Longitude in decimal degrees (a text, e.g. `"13.4050"`).
 
 #### Visual Recipe Editor Integration:
 In the visual Recipe Editor:
@@ -345,34 +372,34 @@ Greenshot supports rich graphical elements including bitmaps (`Image`), Windows 
 - **Embedded (`ImageData` / `Content`)**: Binary image or cursor bitmaps are encoded as Base64 strings, and SVG vectors as inline XML text. This makes recipe files 100% self-contained and portable across environments with no external file dependencies:
   ```json
   {
-    "type": "Cursor",
-    "horizontalAnchor": "Center",
-    "verticalAnchor": "Center",
-    "imageData": "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0...",
-    "width": 32,
-    "height": 32
+    "Type": "Cursor",
+    "HorizontalAnchor": "Center",
+    "VerticalAnchor": "Center",
+    "ImageData": "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0...",
+    "Width": 32,
+    "Height": 32
   }
   ```
 - **Linked (`FilePath`)**: Stored as a reference path to an external image (`.png`, `.jpg`, `.bmp`, `.ico`), cursor (`.cur`, `.ico`), or SVG (`.svg`) file on disk.
 
 #### 2. Standard Windows Cursor Presets:
-`Cursor` annotations can directly use any standard Windows system cursor via `"cursorName"` without requiring any image file:
+`Cursor` annotations can directly use any standard Windows system cursor via `"CursorName"` without requiring any image file:
 - **Available Presets**: `"Arrow"` (default), `"AppStarting"`, `"Cross"`, `"Hand"`, `"Help"`, `"IBeam"`, `"No"`, `"SizeAll"`, `"SizeNESW"`, `"SizeNS"`, `"SizeNWSE"`, `"SizeWE"`, `"UpArrow"`, `"Wait"`.
 ```json
 {
-  "type": "Cursor",
-  "horizontalAnchor": "Right",
-  "verticalAnchor": "Bottom",
-  "offsetX": -50,
-  "offsetY": -50,
-  "cursorName": "Hand",
-  "width": 32,
-  "height": 32
+  "Type": "Cursor",
+  "HorizontalAnchor": "Right",
+  "VerticalAnchor": "Bottom",
+  "OffsetX": -50,
+  "OffsetY": -50,
+  "CursorName": "Hand",
+  "Width": 32,
+  "Height": 32
 }
 ```
 
 #### 3. Aspect Ratio Locking:
-Annotations with scalable visual proportions (`Image`, `Svg`, `Emoji`, `StepLabel`, `Cursor`) support `"lockAspectRatio": true` to preserve original dimensions and prevent distortion when resizing in the editor.
+Annotations with scalable visual proportions (`Image`, `Svg`, `Emoji`, `StepLabel`, `Cursor`) support `"LockAspectRatio": true` to preserve original dimensions and prevent distortion when resizing in the editor.
 
 ---
 
@@ -396,13 +423,13 @@ The visual Recipe Editor includes a built-in workflow to convert open screenshot
 
 ### Flexible Positioning: Absolute, Calculated & Anchored
 Annotations can be positioned using:
-1. **Absolute Coordinates**: Fixed integers (`left: 50, top: 100, width: 200, height: 40`).
-2. **Calculated Expressions**: Dynamic formulas using `${payload.width}` and `${payload.height}` (e.g. `top: "${payload.height - 60}"`, `width: "${payload.width / 2}"`).
+1. **Absolute Coordinates**: Fixed integers (`Left: 50, Top: 100, Width: 200, Height: 40`).
+2. **Calculated Expressions**: Dynamic formulas using `${payload.width}` and `${payload.height}` (e.g. `Top: "${payload.height - 60}"`, `Width: "${payload.width / 2}"`).
 3. **Anchor Alignments**:
-   - `horizontalAnchor`: `"Left"`, `"Center"`, `"Right"`
-   - `verticalAnchor`: `"Top"`, `"Center"`, `"Bottom"`
-   - Optional `offsetX` and `offsetY` pixel adjustments.
-   - `margin`: Margin distance from screen/capture borders when anchored.
+   - `HorizontalAnchor`: `"Left"`, `"Center"`, `"Right"`
+   - `VerticalAnchor`: `"Top"`, `"Center"`, `"Bottom"`
+   - Optional `OffsetX` and `OffsetY` pixel adjustments.
+   - `Margin`: Margin distance from screen/capture borders when anchored.
 
 #### Example Annotation Node Configuration
 ```json
@@ -412,56 +439,56 @@ Annotations can be positioned using:
   "parameters": {
     "Annotations": [
       {
-        "type": "Rectangle",
-        "horizontalAnchor": "Right",
-        "verticalAnchor": "Bottom",
-        "width": 380,
-        "height": 40,
-        "offsetX": -15,
-        "offsetY": -15,
-        "fillColor": "rgba(0, 0, 0, 180)",
-        "lineColor": "#0078D7",
-        "lineThickness": 2,
-        "shadow": true
+        "Type": "Rectangle",
+        "HorizontalAnchor": "Right",
+        "VerticalAnchor": "Bottom",
+        "Width": 380,
+        "Height": 40,
+        "OffsetX": -15,
+        "OffsetY": -15,
+        "FillColor": "rgba(0, 0, 0, 180)",
+        "LineColor": "#0078D7",
+        "LineThickness": 2,
+        "Shadow": true
       },
       {
-        "type": "Text",
-        "horizontalAnchor": "Right",
-        "verticalAnchor": "Bottom",
-        "width": 370,
-        "height": 30,
-        "offsetX": -20,
-        "offsetY": -20,
-        "text": "User: ${user.username} | Host: ${machine.computername} | ${now:yyyy-MM-dd}",
-        "lineColor": "#FFFFFF",
-        "fontSize": 9.5,
-        "bold": true
+        "Type": "Text",
+        "HorizontalAnchor": "Right",
+        "VerticalAnchor": "Bottom",
+        "Width": 370,
+        "Height": 30,
+        "OffsetX": -20,
+        "OffsetY": -20,
+        "Text": "User: ${user.username} | Host: ${machine.computername} | ${now:yyyy-MM-dd}",
+        "LineColor": "#FFFFFF",
+        "FontSize": 9.5,
+        "Bold": true
       },
       {
-        "type": "Emoji",
-        "horizontalAnchor": "Left",
-        "verticalAnchor": "Bottom",
-        "left": 20,
-        "top": "${payload.height - 45}",
-        "emoji": "🛡️",
-        "size": 32
+        "Type": "Emoji",
+        "HorizontalAnchor": "Left",
+        "VerticalAnchor": "Bottom",
+        "Left": 20,
+        "Top": "${payload.height - 45}",
+        "Emoji": "🛡️",
+        "Size": 32
       },
       {
-        "type": "QRCode",
-        "qrType": "BusinessCard",
-        "horizontalAnchor": "Right",
-        "verticalAnchor": "Top",
-        "margin": 15,
-        "size": 120,
-        "roundedDots": true,
-        "foreColor": "#003366",
-        "backColor": "#FFFFFF",
-        "vcardFirstName": "Jane",
-        "vcardLastName": "Doe",
-        "vcardCompany": "Greenshot Team",
-        "vcardEmail": "jane@getgreenshot.org",
-        "vcardPhone": "+1-555-0199",
-        "vcardUrl": "https://getgreenshot.org"
+        "Type": "QRCode",
+        "QrType": "BusinessCard",
+        "HorizontalAnchor": "Right",
+        "VerticalAnchor": "Top",
+        "Margin": 15,
+        "Size": 120,
+        "RoundedDots": true,
+        "ForeColor": "#003366",
+        "BackColor": "#FFFFFF",
+        "VcardFirstName": "Jane",
+        "VcardLastName": "Doe",
+        "VcardCompany": "Greenshot Team",
+        "VcardEmail": "jane@getgreenshot.org",
+        "VcardPhone": "+1-555-0199",
+        "VcardUrl": "https://getgreenshot.org"
       }
     ]
   }
@@ -566,10 +593,10 @@ extension) have all four slots, and so does a new recipe in the recipe editor; t
 before the export, where it does nothing itself. Opening a file, OCR and the AI tools have no slots.
 
 ```json
-{ "id": "before_export", "stepType": "Slot", "parameters": { "Name": "BeforeExport", "Accept": "all" } }
+{ "id": "before_export", "stepType": "Slot", "parameters": { "Name": "BeforeExport", "Accept": [ "border", "caption" ] } }
 ```
 
-`Accept` is `"all"` (the default), `"none"` or a list of extension ids.
+`Accept` is the list of the extension ids the slot takes. Without it the slot takes all extensions, an empty list (`[]`) takes none.
 
 **Where an extension goes.** `extends.recipes` takes recipe ids, `"*"` (every recipe with the slot) or `"*capture"`
 (recipes with a Source step and a destination). AI tool recipes are only extended when named by id. Several extensions
@@ -744,31 +771,31 @@ Demonstrating parallel fork/join execution, variable evaluation, user & machine 
       "parameters": {
         "Annotations": [
           {
-            "type": "Rectangle",
-            "horizontalAnchor": "Right",
-            "verticalAnchor": "Bottom",
-            "width": 380,
-            "height": 40,
-            "offsetX": -15,
-            "offsetY": -15,
-            "fillColor": "rgba(0, 0, 0, 180)",
-            "lineColor": "#0078D7",
-            "lineThickness": 2,
-            "shadow": true
+            "Type": "Rectangle",
+            "HorizontalAnchor": "Right",
+            "VerticalAnchor": "Bottom",
+            "Width": 380,
+            "Height": 40,
+            "OffsetX": -15,
+            "OffsetY": -15,
+            "FillColor": "rgba(0, 0, 0, 180)",
+            "LineColor": "#0078D7",
+            "LineThickness": 2,
+            "Shadow": true
           },
           {
-            "type": "Text",
-            "horizontalAnchor": "Right",
-            "verticalAnchor": "Bottom",
-            "width": 370,
-            "height": 30,
-            "offsetX": -20,
-            "offsetY": -20,
-            "text": "${context.watermark_text}",
-            "lineColor": "#FFFFFF",
-            "fontSize": 9.5,
-            "fontFamily": "Segoe UI",
-            "bold": true
+            "Type": "Text",
+            "HorizontalAnchor": "Right",
+            "VerticalAnchor": "Bottom",
+            "Width": 370,
+            "Height": 30,
+            "OffsetX": -20,
+            "OffsetY": -20,
+            "Text": "${context.watermark_text}",
+            "LineColor": "#FFFFFF",
+            "FontSize": 9.5,
+            "FontFamily": "Segoe UI",
+            "Bold": true
           }
         ]
       }

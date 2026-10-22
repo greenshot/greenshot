@@ -38,7 +38,7 @@ namespace Greenshot.Recipes.Steps
     [StepInfo(WellKnownStepTypes.SetVariable, "Set Variable", "Stores values in variables for the following steps.", "Logic")]
     [StepParameter("Variable", ContractDataType.String, Description = "Name of the variable to set")]
     [StepParameter("Value", ContractDataType.String, Description = "Value of the variable")]
-    [StepParameter("Variables", ContractDataType.Object, Description = "Several variables: name to value")]
+    [StepParameter("Variables", ContractDataType.Object, ValueType = typeof(Dictionary<string, object>), Description = "Several variables: name to value")]
     [StepOutputVariable("{Parameter:Variable}", ContractDataType.String, "The variable named by the Variable parameter")]
     [StepOutputVariable("{ParameterKeys:Variables}", ContractDataType.String, "The variables of the Variables parameter")]
     public class SetVariableStep : ICaptureStep

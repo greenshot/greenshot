@@ -23,32 +23,32 @@
       "parameters": {
         "Annotations": [
           {
-            "type": "Rectangle",
-            "horizontalAnchor": "Right",
-            "verticalAnchor": "Bottom",
-            "width": 180,
-            "height": 24,
-            "offsetX": -10,
-            "offsetY": -10,
-            "fillColor": "rgba(0, 0, 0, 160)",
-            "lineColor": "#00AA00",
-            "lineThickness": 1,
-            "shadow": true
+            "Type": "Rectangle",
+            "HorizontalAnchor": "Right",
+            "VerticalAnchor": "Bottom",
+            "Width": 180,
+            "Height": 24,
+            "OffsetX": -10,
+            "OffsetY": -10,
+            "FillColor": "rgba(0, 0, 0, 160)",
+            "LineColor": "#00AA00",
+            "LineThickness": 1,
+            "Shadow": true
           },
           {
-            "type": "Text",
-            "horizontalAnchor": "Right",
-            "verticalAnchor": "Bottom",
-            "width": 170,
-            "height": 20,
-            "offsetX": -15,
-            "offsetY": -12,
-            "text": "Greenshot: ${now:HH:mm:ss}",
-            "lineColor": "#FFFFFF",
-            "fontSize": 9.0,
-            "fontFamily": "Segoe UI",
-            "bold": true,
-            "shadow": false
+            "Type": "Text",
+            "HorizontalAnchor": "Right",
+            "VerticalAnchor": "Bottom",
+            "Width": 170,
+            "Height": 20,
+            "OffsetX": -15,
+            "OffsetY": -12,
+            "Text": "Greenshot: ${now:HH:mm:ss}",
+            "LineColor": "#FFFFFF",
+            "FontSize": 9.0,
+            "FontFamily": "Segoe UI",
+            "Bold": true,
+            "Shadow": false
           }
         ]
       }

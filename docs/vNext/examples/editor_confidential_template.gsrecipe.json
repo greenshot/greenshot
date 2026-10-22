@@ -22,30 +22,30 @@
       "parameters": {
         "Annotations": [
           {
-            "type": "Rectangle",
-            "horizontalAnchor": "Center",
-            "verticalAnchor": "Top",
-            "width": 320,
-            "height": 44,
-            "offsetY": 15,
-            "fillColor": "rgba(220, 38, 38, 230)",
-            "lineColor": "#991B1B",
-            "lineThickness": 2,
-            "shadow": true
+            "Type": "Rectangle",
+            "HorizontalAnchor": "Center",
+            "VerticalAnchor": "Top",
+            "Width": 320,
+            "Height": 44,
+            "OffsetY": 15,
+            "FillColor": "rgba(220, 38, 38, 230)",
+            "LineColor": "#991B1B",
+            "LineThickness": 2,
+            "Shadow": true
           },
           {
-            "type": "Text",
-            "horizontalAnchor": "Center",
-            "verticalAnchor": "Top",
-            "width": 300,
-            "height": 34,
-            "offsetY": 20,
-            "text": "CONFIDENTIAL // INTERNAL ONLY",
-            "lineColor": "#FFFFFF",
-            "fontSize": 12.0,
-            "fontFamily": "Segoe UI",
-            "bold": true,
-            "shadow": false
+            "Type": "Text",
+            "HorizontalAnchor": "Center",
+            "VerticalAnchor": "Top",
+            "Width": 300,
+            "Height": 34,
+            "OffsetY": 20,
+            "Text": "CONFIDENTIAL // INTERNAL ONLY",
+            "LineColor": "#FFFFFF",
+            "FontSize": 12.0,
+            "FontFamily": "Segoe UI",
+            "Bold": true,
+            "Shadow": false
           }
         ]
       }

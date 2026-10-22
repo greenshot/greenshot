@@ -33,7 +33,7 @@ namespace Greenshot.Base.Recipes
 {
     /// <summary>
     /// The values of step parameters in the type the step declares (<see cref="ContractDataType"/>): a whole number (int) for Integer,
-    /// a double for Decimal, a bool for Boolean, a text for the text types; Object, Window and Region take any value.
+    /// a double for Decimal, a bool for Boolean, a text for the text types, a whole number for Window (or an expression); Object and Region take any value.
     /// An expression ("${...}") stays a text, it is evaluated when the node runs.
     /// </summary>
     public static class RecipeParameterTypes
@@ -86,8 +86,22 @@ namespace Greenshot.Base.Recipes
                 case ContractDataType.Color:
                     expected = "a text";
                     return value is string || value is Enum;
+                case ContractDataType.Window:
+                    // A window handle; the window itself is passed with an expression (e.g. ${Window})
+                    expected = "a window handle (a whole number) or the variable of a window";
+                    switch (value)
+                    {
+                        case int:
+                            return true;
+                        case long whole:
+                            // Window handles have 32 significant bits, also in 64-bit Windows
+                            if (whole >= int.MinValue && whole <= int.MaxValue) converted = (int)whole;
+                            return true;
+                        default:
+                            return false;
+                    }
                 default:
-                    // Object, Window, Region: any value
+                    // Object, Region: any value
                     return true;
             }
         }
@@ -125,7 +139,9 @@ namespace Greenshot.Base.Recipes
                     {
                         TypeInfoResolver = JsonTypeInfoResolver.Combine(Resolvers.ToArray()),
                         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-                        AllowDuplicateProperties = false
+                        AllowDuplicateProperties = false,
+                        // Values of open objects (Variables, annotation properties) as they are read from a recipe
+                        Converters = { new Serialization.ObjectValueConverter() }
                     };
                 }
             }

@@ -119,13 +119,19 @@ namespace Greenshot.Tests.Recipes
                 StepType = "Drawable",
                 Parameters = new Dictionary<string, object>
                 {
-                    ["Type"] = "QRCode",
-                    ["Text"] = "https://getgreenshot.org",
-                    ["HorizontalAnchor"] = "Right",
-                    ["VerticalAnchor"] = "Bottom",
-                    ["Width"] = 150,
-                    ["Height"] = 150,
-                    ["Margin"] = 25
+                    ["Annotations"] = new List<Dictionary<string, object>>
+                    {
+                        new Dictionary<string, object>
+                        {
+                            ["Type"] = "QRCode",
+                            ["Text"] = "https://getgreenshot.org",
+                            ["HorizontalAnchor"] = "Right",
+                            ["VerticalAnchor"] = "Bottom",
+                            ["Width"] = 150,
+                            ["Height"] = 150,
+                            ["Margin"] = 25
+                        }
+                    }
                 }
             };
 
@@ -164,11 +170,17 @@ namespace Greenshot.Tests.Recipes
                 StepType = "Annotation",
                 Parameters = new Dictionary<string, object>
                 {
-                    ["Type"] = "QRCode",
-                    ["Text"] = "GreenshotQR",
-                    ["HorizontalAnchor"] = "Center",
-                    ["VerticalAnchor"] = "Center",
-                    ["Size"] = 200
+                    ["Annotations"] = new List<Dictionary<string, object>>
+                    {
+                        new Dictionary<string, object>
+                        {
+                            ["Type"] = "QRCode",
+                            ["Text"] = "GreenshotQR",
+                            ["HorizontalAnchor"] = "Center",
+                            ["VerticalAnchor"] = "Center",
+                            ["Size"] = 200
+                        }
+                    }
                 }
             };
 
@@ -454,10 +466,16 @@ namespace Greenshot.Tests.Recipes
                 StepType = "Annotation",
                 Parameters = new Dictionary<string, object>
                 {
-                    ["Type"] = "QRCode",
-                    ["Text"] = "GreenshotAspectLock",
-                    ["Width"] = 200,
-                    ["Height"] = 40
+                    ["Annotations"] = new List<Dictionary<string, object>>
+                    {
+                        new Dictionary<string, object>
+                        {
+                            ["Type"] = "QRCode",
+                            ["Text"] = "GreenshotAspectLock",
+                            ["Width"] = 200,
+                            ["Height"] = 40
+                        }
+                    }
                 }
             };
 

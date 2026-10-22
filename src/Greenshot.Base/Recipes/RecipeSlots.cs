@@ -53,16 +53,6 @@ namespace Greenshot.Base.Recipes
 
         public static readonly IReadOnlyList<string> All = new[] { AfterCapture, BeforeExport, AfterExport, BeforeDestination };
 
-        /// <summary>
-        /// The value of a slot's "Accept" for all extensions (the default)
-        /// </summary>
-        public const string AcceptAll = "all";
-
-        /// <summary>
-        /// The value of a slot's "Accept" for no extension
-        /// </summary>
-        public const string AcceptNone = "none";
-
         public static bool IsKnown(string slotName) => Normalize(slotName) != null;
 
         /// <summary>
@@ -80,27 +70,12 @@ namespace Greenshot.Base.Recipes
         }
 
         /// <summary>
-        /// Whether the Slot node accepts the extension: "Accept" is "all" (or missing), "none" or a list of extension ids
+        /// Whether the Slot node accepts the extension: "Accept" is the list of the extension ids it takes, without it all
         /// </summary>
         public static bool Accepts(RecipeNodeConfig slotNode, string extensionId)
         {
-            if (slotNode == null || !slotNode.Parameters.TryGetValue("Accept", out var accept) || accept == null)
-            {
-                return true;
-            }
-            switch (accept)
-            {
-                case string text when string.IsNullOrWhiteSpace(text) || string.Equals(text.Trim(), AcceptAll, StringComparison.OrdinalIgnoreCase):
-                    return true;
-                case string text when string.Equals(text.Trim(), AcceptNone, StringComparison.OrdinalIgnoreCase):
-                    return false;
-                case string text:
-                    return SplitList(text).Contains(extensionId, StringComparer.OrdinalIgnoreCase);
-                case System.Collections.IEnumerable list:
-                    return list.Cast<object>().Select(o => o?.ToString()).Contains(extensionId, StringComparer.OrdinalIgnoreCase);
-                default:
-                    return true;
-            }
+            var accept = slotNode?.GetParameter<List<string>>("Accept");
+            return accept == null || accept.Contains(extensionId, StringComparer.OrdinalIgnoreCase);
         }
 
         /// <summary>

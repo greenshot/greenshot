@@ -53,7 +53,7 @@ namespace Greenshot.Recipes.Steps
     [StepParameter("HorizontalToothRange", ContractDataType.Integer, Description = "Horizontal tooth range (TornEdge)")]
     [StepParameter("VerticalToothRange", ContractDataType.Integer, Description = "Vertical tooth range (TornEdge)")]
     [StepParameter("GenerateShadow", ContractDataType.Boolean, Description = "Add a shadow (TornEdge)")]
-    [StepParameter("Edges", ContractDataType.Object, Description = "Torn edges: top, right, bottom, left (TornEdge)")]
+    [StepParameter("Edges", ContractDataType.Object, ValueType = typeof(List<string>), AllowedValues = new[] { "Top", "Right", "Bottom", "Left" }, Description = "The torn edges, a list of Top, Right, Bottom, Left; without it all (TornEdge)")]
     [StepParameter("Threshold", ContractDataType.Integer, DefaultValue = 128, Description = "Threshold (Monochrome)")]
     [StepParameter("Brightness", ContractDataType.Decimal, Description = "Brightness (Adjust)")]
     [StepParameter("Contrast", ContractDataType.Decimal, Description = "Contrast (Adjust)")]
@@ -166,24 +166,10 @@ namespace Greenshot.Recipes.Steps
                 tornEdge.ShadowSize = Config.GetParameter("ShadowSize", tornEdge.ShadowSize);
                 tornEdge.Darkness = Config.GetParameter("Darkness", tornEdge.Darkness);
 
-                var edgesList = Config.GetParameter<List<bool>>("Edges");
-                if (edgesList != null && edgesList.Count == 4)
+                var edges = Config.GetParameter<List<string>>("Edges");
+                if (edges != null)
                 {
-                    tornEdge.Edges = edgesList.ToArray();
-                }
-                else
-                {
-                    string edgesStr = Config.GetParameter<string>("Edges");
-                    if (!string.IsNullOrEmpty(edgesStr))
-                    {
-                        tornEdge.Edges = new[]
-                        {
-                            edgesStr.IndexOf("top", StringComparison.OrdinalIgnoreCase) >= 0,
-                            edgesStr.IndexOf("right", StringComparison.OrdinalIgnoreCase) >= 0,
-                            edgesStr.IndexOf("bottom", StringComparison.OrdinalIgnoreCase) >= 0,
-                            edgesStr.IndexOf("left", StringComparison.OrdinalIgnoreCase) >= 0
-                        };
-                    }
+                    tornEdge.Edges = new[] { edges.Contains("Top"), edges.Contains("Right"), edges.Contains("Bottom"), edges.Contains("Left") };
                 }
                 return tornEdge;
             }
