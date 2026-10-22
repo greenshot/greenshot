@@ -218,7 +218,8 @@ itself and needs no `Ocr` step. Barcodes and QR codes are read by the `BarcodeSc
 
 Every capture of the screen (not the clipboard, a file or the editor) gets the title fixes of the settings. The QR code scan
 (`ScanOnCapture` of the ZXing plugin) starts in the background as soon as the screen is captured, so the codes show up while
-selecting; the `BarcodeScan` step uses what it found. OCR only runs where text is needed: the text selection, the `Ocr`
+selecting; the `BarcodeScan` step uses what it found. When the capture is cropped to the selection, only the codes and text
+lines whose center is in the selection stay with it, also the ones the scan finds later. OCR only runs where text is needed: the text selection, the `Ocr`
 step, the OCR destination and the editor's text obfuscation, each on the image it gets.
 
 ## 3. Dynamic Expressions & Scoped Environment Variables

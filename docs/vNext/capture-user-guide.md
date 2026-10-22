@@ -304,8 +304,9 @@ In the place of the zoomer the preview moves with the mouse, so you see the resu
 
 When the QR code plugin is installed, Greenshot looks for QR codes on the screen while the capture screen is open. A QR code it finds
 gets a dashed frame. Moving the mouse over it shows its content, a click opens a menu: *Copy to Clipboard* copies the content, and for a
-web address *Open URL in Browser* opens it. Choosing one of them ends the capture. This can be turned off with `ScanOnCapture` in the
-`[Zxing]` section of greenshot.ini.
+web address *Open URL in Browser* opens it. Choosing one of them ends the capture. Only the QR codes in the selection stay with the
+capture (and are named in the notification). This can be turned off in the settings of the QR code plugin, or with `ScanOnCapture` in
+the `[Zxing]` section of greenshot.ini.
 
 ## Why the panels and the zoomer move
 

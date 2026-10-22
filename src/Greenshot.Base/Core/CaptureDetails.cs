@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 
 namespace Greenshot.Base.Core
@@ -117,7 +118,58 @@ namespace Greenshot.Base.Core
         }
 
         /// <inheritdoc />
-        public NativePoint CropOffset { get; set; } = NativePoint.Empty;
+        public NativeRect CropArea { get; private set; } = NativeRect.Empty;
+
+        /// <inheritdoc />
+        public void CropFeatures(NativeRect cropRectangle)
+        {
+            lock (Features)
+            {
+                CropArea = new NativeRect(CropArea.Location.Offset(cropRectangle.Location.X, cropRectangle.Location.Y), cropRectangle.Size);
+                foreach (var feature in Features)
+                {
+                    feature.Offset(-cropRectangle.X, -cropRectangle.Y);
+                }
+                Features.RemoveAll(feature => !IsInImage(feature, cropRectangle.Size));
+            }
+        }
+
+        /// <inheritdoc />
+        public void AddFeatures(IEnumerable<IDetectedFeature> features, NativeRect cropAreaWhenFound)
+        {
+            lock (Features)
+            {
+                int dx = CropArea.X - cropAreaWhenFound.X;
+                int dy = CropArea.Y - cropAreaWhenFound.Y;
+                foreach (var feature in features)
+                {
+                    if (dx != 0 || dy != 0)
+                    {
+                        feature.Offset(-dx, -dy);
+                    }
+                    if (CropArea.IsEmpty || IsInImage(feature, CropArea.Size))
+                    {
+                        Features.Add(feature);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// A feature is in the image when its center is: a code or text line cut by the selection still counts when most of it was selected.
+        /// Windows always stay, they are where the selection snaps to.
+        /// </summary>
+        private static bool IsInImage(IDetectedFeature feature, NativeSize imageSize)
+        {
+            if (feature is WindowFeature)
+            {
+                return true;
+            }
+            var bounds = feature.Bounds;
+            int centerX = bounds.X + bounds.Width / 2;
+            int centerY = bounds.Y + bounds.Height / 2;
+            return centerX >= 0 && centerY >= 0 && centerX < imageSize.Width && centerY < imageSize.Height;
+        }
 
         /// <inheritdoc />
         public System.Threading.Tasks.Task ProcessingTask { get; set; }
@@ -141,7 +193,7 @@ namespace Greenshot.Base.Core
                 DpiX = DpiX,
                 DpiY = DpiY,
                 CaptureMode = CaptureMode,
-                CropOffset = CropOffset
+                CropArea = CropArea
             };
 
             if (MetaData != null)

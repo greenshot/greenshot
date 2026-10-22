@@ -1039,9 +1039,9 @@ namespace Greenshot.Base.Languages
         string ZxingContextmenuConfigure { get; }
 
         /// <summary>
-        /// Enable QR code scanning on region capture
+        /// Scan screen captures for QR codes (shown while selecting and in the notification)
         /// </summary>
-        string ZxingScanOnCapture { get; }
+        string ZxingScanScreenCaptures { get; }
 
         /// <summary>
         /// Sign in to {0}

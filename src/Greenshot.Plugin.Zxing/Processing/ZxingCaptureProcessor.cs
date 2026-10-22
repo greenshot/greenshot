@@ -82,7 +82,7 @@ if (capture.Image == null)
         }
 
         var captureDetails = capture.CaptureDetails;
-        var initialCropOffset = captureDetails.CropOffset;
+        var cropAreaWhenFound = captureDetails.CropArea;
 
         // PARALLEL: barcode detection runs next to the interactive selection, the codes show up as hotspots while the user selects.
         // (Background work tracked on the capture details, replaced by an ICaptureAnalyzer with imaging roadmap step 2.)
@@ -138,23 +138,8 @@ if (capture.Image == null)
                                 ));
                             }
 
-                            if (detectedFeatures.Count > 0)
-                            {
-                                lock (captureDetails.Features)
-                                {
-                                    var currentCropOffset = captureDetails.CropOffset;
-                                    var dx = currentCropOffset.X - initialCropOffset.X;
-                                    var dy = currentCropOffset.Y - initialCropOffset.Y;
-                                    if (dx != 0 || dy != 0)
-                                    {
-                                        foreach (var feature in detectedFeatures)
-                                        {
-                                            feature.Offset(-dx, -dy);
-                                        }
-                                    }
-                                    captureDetails.Features.AddRange(detectedFeatures);
-                                }
-                            }
+                            // Cropped to the selection in the meantime: only what is in the selection is added
+                            captureDetails.AddFeatures(detectedFeatures, cropAreaWhenFound);
                         }
                     }
                 catch (Exception ex)

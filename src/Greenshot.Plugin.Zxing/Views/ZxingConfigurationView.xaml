@@ -12,6 +12,6 @@
 
     <StackPanel Margin="8">
         <CheckBox IsChecked="{Binding ScanOnCapture}"
-                  Content="{wpf:Text Core.ZxingScanOnCapture}"/>
+                  Content="{wpf:Text Core.ZxingScanScreenCaptures}"/>
     </StackPanel>
 </UserControl>
