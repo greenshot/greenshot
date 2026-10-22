@@ -50,44 +50,15 @@ namespace Greenshot.Base.Recipes
         public string Name { get; set; }
 
         /// <summary>
-        /// Whether this node is active in the flow. Disabled nodes are skipped during execution.
+        /// Whether this node is active in the flow (the switch in the recipe editor). Disabled nodes are skipped during execution.
         /// </summary>
-        [JsonIgnore]
         public bool Enabled { get; set; } = true;
 
         /// <summary>
-        /// An expression deciding at run time whether the node runs, e.g. "${option.border}" to switch a step with a recipe option.
-        /// When set, it replaces <see cref="Enabled"/>; a node which doesn't run passes the flow on to the next nodes.
-        /// In the recipe file both are "enabled": true, false or the expression.
+        /// An expression deciding at run time whether the enabled node runs, e.g. "${option.border}" to switch a step with a recipe option.
+        /// A node which doesn't run passes the flow on to the next nodes.
         /// </summary>
-        [JsonIgnore]
-        public string EnabledExpression { get; set; }
-
-        [JsonInclude, JsonPropertyName("enabled")]
-        private object EnabledJson
-        {
-            get => string.IsNullOrWhiteSpace(EnabledExpression) ? Enabled : (object)EnabledExpression;
-            set
-            {
-                EnabledExpression = null;
-                switch (value)
-                {
-                    case bool enabled:
-                        Enabled = enabled;
-                        break;
-                    case string text when bool.TryParse(text.Trim(), out var parsed):
-                        Enabled = parsed;
-                        break;
-                    case string text when !string.IsNullOrWhiteSpace(text):
-                        Enabled = true;
-                        EnabledExpression = text.Trim();
-                        break;
-                    default:
-                        Enabled = true;
-                        break;
-                }
-            }
-        }
+        public string When { get; set; }
 
         /// <summary>
         /// Optional fallback step node ID within the same recipe to route to when this node encounters an error.
@@ -198,14 +169,14 @@ namespace Greenshot.Base.Recipes
         }
 
         /// <summary>
-        /// Whether the node runs in this flow: it is enabled and its <see cref="EnabledExpression"/>, if any, is true.
+        /// Whether the node runs in this flow: it is enabled and its <see cref="When"/>, if any, is true.
         /// An expression which can't be evaluated counts as false.
         /// </summary>
         public bool ShouldRun(CaptureFlowContext context)
         {
             if (!Enabled) return false;
-            if (string.IsNullOrWhiteSpace(EnabledExpression)) return true;
-            return ExpressionEvaluator.Instance.Evaluate(EnabledExpression, context, false);
+            if (string.IsNullOrWhiteSpace(When)) return true;
+            return ExpressionEvaluator.Instance.Evaluate(When, context, false);
         }
 
         /// <summary>
@@ -223,7 +194,7 @@ namespace Greenshot.Base.Recipes
                 StepType = StepType,
                 Name = Name,
                 Enabled = Enabled,
-                EnabledExpression = EnabledExpression,
+                When = When,
                 OnErrorNodeId = OnErrorNodeId,
                 OnErrorRecipeId = OnErrorRecipeId,
                 ContributedBy = ContributedBy,

@@ -86,7 +86,7 @@ namespace Greenshot.Tests.Recipes
         }
 
         private static List<string> Targets(CaptureRecipe recipe, string from) =>
-            recipe.Flow.Transitions.TryGetValue(from, out var targets) ? targets : new List<string>();
+            recipe.Flow.GetTargets(from);
 
         [Fact]
         public void AddStandardSlots_PutsTheSlotsAroundTheExport()
@@ -553,22 +553,22 @@ namespace Greenshot.Tests.Recipes
             editor.InsertStepIntoConnection(connection, WellKnownStepTypes.Slot);
             var slot = editor.SelectedNode;
             Assert.Equal(RecipeSlots.BeforeExport, slot.SlotName);
-            Assert.Equal(new[] { slot.Id }, editor.ActiveRecipe.Flow.Transitions["feedback"]);
-            Assert.Equal(new[] { "export" }, editor.ActiveRecipe.Flow.Transitions[slot.Id]);
+            Assert.Equal(new[] { slot.Id }, editor.ActiveRecipe.Flow.GetTargets("feedback"));
+            Assert.Equal(new[] { "export" }, editor.ActiveRecipe.Flow.GetTargets(slot.Id));
 
             // After the selected export: its next steps (none) follow, a slot there is AfterExport
             editor.SelectedNode = editor.Nodes.Single(n => n.Id == "export");
             editor.AddStep(WellKnownStepTypes.Slot);
             var after = editor.SelectedNode;
             Assert.Equal(RecipeSlots.AfterExport, after.SlotName);
-            Assert.Equal(new[] { after.Id }, editor.ActiveRecipe.Flow.Transitions["export"]);
+            Assert.Equal(new[] { after.Id }, editor.ActiveRecipe.Flow.GetTargets("export"));
 
             // After source, which leads to feedback: source -> new -> feedback
             editor.SelectedNode = editor.Nodes.Single(n => n.Id == "source");
             editor.AddStep(WellKnownStepTypes.Effect);
             var effect = editor.SelectedNode;
-            Assert.Equal(new[] { effect.Id }, editor.ActiveRecipe.Flow.Transitions["source"]);
-            Assert.Equal(new[] { "feedback" }, editor.ActiveRecipe.Flow.Transitions[effect.Id]);
+            Assert.Equal(new[] { effect.Id }, editor.ActiveRecipe.Flow.GetTargets("source"));
+            Assert.Equal(new[] { "feedback" }, editor.ActiveRecipe.Flow.GetTargets(effect.Id));
             Assert.True(editor.Nodes.Single(n => n.Id == "feedback").Location.Y > effect.Location.Y);
         }
 
@@ -643,8 +643,8 @@ namespace Greenshot.Tests.Recipes
             Assert.DoesNotContain(editor.Connections, c => c.Source == decision.OutputPort);
             Assert.Equal(decision.ConditionBranches.Count, editor.Connections.Count(c => c.SourceNode == decision && c.TargetNode.Id == "export"));
             var flow = editor.ActiveRecipe.Flow;
-            Assert.Equal(new[] { decision.Id }, flow.Transitions["source"]);
-            Assert.False(flow.Transitions.ContainsKey(decision.Id));
+            Assert.Equal(new[] { decision.Id }, flow.GetTargets("source"));
+            Assert.Empty(flow.GetTargets(decision.Id));
             Assert.Equal(decision.ConditionBranches.Count, flow.ConditionalTransitions.Count(ct => ct.From == decision.Id && ct.To == "export"));
         }
 
@@ -674,7 +674,7 @@ namespace Greenshot.Tests.Recipes
             editor.ToggleJsonView();
             var saved = RecipeSerializer.DeserializeExtension(editor.RawJsonText, validate: false);
             Assert.Equal(new[] { effect.Id }, saved.Flow.StartNodes);
-            Assert.Equal(new[] { "position" }, saved.Flow.Transitions[effect.Id]);
+            Assert.Equal(new[] { "position" }, saved.Flow.GetTargets(effect.Id));
             Assert.Equal("${payload.width > 10}", saved.When);
             Assert.Equal(new[] { "recipe_region", "recipe_window" }, saved.Extends.Recipes);
             Assert.Equal(caption.Options.Count, saved.Options.Count);
@@ -684,7 +684,7 @@ namespace Greenshot.Tests.Recipes
             var outNode = editor.Nodes.Single(n => n.IsOutNode);
             editor.Connect(editor.Nodes.Single(n => n.Id == "text_top").OutputPort, outNode.InputPort);
             editor.SyncRecipeTransitions();
-            Assert.Contains(RecipeExtension.OutNode, editor.ActiveRecipe.Flow.Transitions["text_top"]);
+            Assert.Contains(RecipeExtension.OutNode, editor.ActiveRecipe.Flow.GetTargets("text_top"));
 
             // Opening a recipe leaves the automatic step
             editor.ActiveRecipe = CreateCaptureRecipe();

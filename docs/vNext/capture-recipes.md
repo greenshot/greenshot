@@ -89,7 +89,13 @@ For example:
 
 Every recipe defines:
 1. **`nodes`**: A list of execution nodes, each having a unique flow-local `id`, a `stepType`, an optional `name`, and step-specific `parameters`.
-2. **`flow`**: A graph configuration defining entry point(s) (`startNodes`), unconditional transitions (`transitions`), and branch-routed transitions (`conditionalTransitions`).
+2. **`flow`**: A graph configuration defining entry point(s) (`startNodes`) and one list of `transitions`: plain ones, the branches of `Conditional` nodes and error routes.
+
+A recipe file is read strictly, so a mistake is reported instead of silently ignored: property names and parameter names are
+written exactly as documented (`stepType`, `SourceType`), an unknown or repeated property is an error, and a value has the
+type the property or the step's parameter declares (`true`, not `"true"`; `2`, not `"2"`). An expression (`${...}`) can
+stand for any value. Comments and trailing commas are allowed. Recipes of an earlier Greenshot beta (`"version": "1.x"`) are
+not read; the error says what changed.
 
 
 ```
@@ -119,36 +125,37 @@ Every recipe defines:
 ```
 
 ### Fork, Join & Conditional Branch Execution Semantics
-- **Parallel Branching (Fork)**: When an unconditional transition maps one node to multiple targets (e.g. `"select_node": ["feedback_branch", "set_vars_node"]`), all downstream branches execute concurrently as async tasks.
+- **Parallel Branching (Fork)**: When an unconditional transition maps one node to multiple targets (e.g. `{ "from": "select_node", "to": "feedback_branch" }` and `{ "from": "select_node", "to": "set_vars_node" }`), all downstream branches execute concurrently as async tasks.
 - **Barrier Synchronization (Join)**: When multiple branches converge into a single downstream node (e.g. `export_join`), the engine pauses execution of that node until **all** parent dependency branches have fully completed.
-- **Conditional Decision Routing**: A `Conditional` node defines ordered decision `branches` (e.g. `[ { "key": "A", "expression": "${payload.width > 800}" }, { "key": "B", "expression": "else" } ]`). Downstream routing from branch pins is declared in `flow.conditionalTransitions` (e.g. `[ { "from": "decide", "branch": "A", "to": "full_editor" } ]`).
+- **Conditional Decision Routing**: A `Conditional` node defines ordered decision `Branches` (e.g. `[ { "Key": "A", "Expression": "${payload.width > 800}" }, { "Key": "B", "Expression": "else" } ]`). Downstream routing from branch pins is a transition with a `branch` (e.g. `{ "from": "decide", "branch": "A", "to": "full_editor" }`).
 - **Acyclic Enforcement**: The workflow engine performs cycle detection during recipe load. If any cycle/loop is detected, the recipe is rejected with a validation error.
 
 ### Flow Definition Syntax
-Transitions map source node IDs to arrays of downstream target node IDs:
+Each transition goes from a node to the next one; a node with several transitions forks:
 
 ```json
 "flow": {
   "startNodes": [ "source" ],
-  "transitions": {
-    "source": [ "select" ],
-    "select": [ "feedback", "watermark" ],
-    "watermark": [ "export" ],
-    "feedback": [ "export" ]
-  }
+  "transitions": [
+    { "from": "source", "to": "select" },
+    { "from": "select", "to": "feedback" },
+    { "from": "select", "to": "watermark" },
+    { "from": "watermark", "to": "export" },
+    { "from": "feedback", "to": "export" }
+  ]
 }
 ```
 
-When using conditional branching:
+A transition with a `branch` leaves a `Conditional` node by that branch, one with `onError` is taken when the node fails
+(`"*"` for any error; `from` can be `"*"` for any node) and goes `to` a node or runs another `recipe`:
 ```json
 "flow": {
   "startNodes": [ "source" ],
-  "transitions": {
-    "source": [ "decide_step" ]
-  },
-  "conditionalTransitions": [
+  "transitions": [
+    { "from": "source", "to": "decide_step" },
     { "from": "decide_step", "branch": "A", "to": "large_editor" },
-    { "from": "decide_step", "branch": "B", "to": "quick_clipboard" }
+    { "from": "decide_step", "branch": "B", "to": "quick_clipboard" },
+    { "from": "large_editor", "onError": "*", "to": "quick_clipboard" }
   ]
 }
 ```
@@ -231,7 +238,7 @@ Create or transform variables in the pipeline context for downstream nodes to co
   "id": "set_metadata",
   "stepType": "SetVariable",
   "parameters": {
-    "variables": {
+    "Variables": {
       "captured_by": "Captured by ${user.username} on ${machine.computername}",
       "watermark_box_width": "${payload.width * 0.4}",
       "timestamp_header": "[${now:yyyy-MM-dd HH:mm:ss}]"
@@ -401,7 +408,7 @@ Annotations can be positioned using:
   "id": "stamp_watermark",
   "stepType": "Annotation",
   "parameters": {
-    "annotations": [
+    "Annotations": [
       {
         "type": "Rectangle",
         "horizontalAnchor": "Right",
@@ -496,8 +503,8 @@ default). Changing a value therefore doesn't change the file and doesn't ask for
   { "key": "color", "type": "Color", "default": "#000000", "label": "Color", "enabledWhen": "border" }
 ],
 "nodes": [
-  { "id": "frame", "stepType": "Effect", "enabled": "${option.border}",
-    "parameters": { "effect": "Border", "width": "${option.width}", "color": "${option.color}" } }
+  { "id": "frame", "stepType": "Effect", "when": "${option.border}",
+    "parameters": { "Effect": "Border", "Width": "${option.width}", "Color": "${option.color}" } }
 ]
 ```
 
@@ -536,7 +543,7 @@ and the code they are extensions. Recipes and extensions share one file type
     { "key": "color", "type": "Color", "default": "#000000", "label": "Color", "enabledWhen": "enabled" }
   ],
   "nodes": [
-    { "id": "border", "stepType": "Effect", "parameters": { "effect": "Border", "width": "${option.width}", "color": "${option.color}" } }
+    { "id": "border", "stepType": "Effect", "parameters": { "Effect": "Border", "Width": "${option.width}", "Color": "${option.color}" } }
   ],
   "flow": { "startNodes": [ "border" ] }
 }
@@ -557,10 +564,10 @@ extension) have all four slots, and so does a new recipe in the recipe editor; t
 before the export, where it does nothing itself. Opening a file, OCR and the AI tools have no slots.
 
 ```json
-{ "id": "before_export", "stepType": "Slot", "parameters": { "name": "BeforeExport", "accept": "all" } }
+{ "id": "before_export", "stepType": "Slot", "parameters": { "Name": "BeforeExport", "Accept": "all" } }
 ```
 
-`accept` is `"all"` (the default), `"none"` or a list of extension ids.
+`Accept` is `"all"` (the default), `"none"` or a list of extension ids.
 
 **Where an extension goes.** `extends.recipes` takes recipe ids, `"*"` (every recipe with the slot) or `"*capture"`
 (recipes with a Source step and a destination). AI tool recipes are only extended when named by id. Several extensions
@@ -638,14 +645,14 @@ Interactive region capture that adds a 2px blue border and opens the editor:
       "triggerType": "ContextMenu",
       "name": "Region with Border Menu Item",
       "parameters": {
-        "menuItemText": "Region with Blue Border",
-        "group": "Recipes"
+        "MenuItemText": "Region with Blue Border",
+        "Group": "Recipes"
       }
     },
     {
       "triggerType": "Hotkey",
       "parameters": {
-        "hotkey": "Ctrl + Shift + B"
+        "Hotkey": "Ctrl + Shift + B"
       }
     }
   ],
@@ -653,37 +660,37 @@ Interactive region capture that adds a 2px blue border and opens the editor:
     {
       "id": "source",
       "stepType": "Source",
-      "parameters": { "sourceType": "Region" }
+      "parameters": { "SourceType": "Region" }
     },
     {
       "id": "select",
       "stepType": "InteractiveSelection",
-      "parameters": { "selectionMode": "Region" }
+      "parameters": { "SelectionMode": "Region" }
     },
     {
       "id": "border",
       "stepType": "Effect",
-      "parameters": { "effect": "Border", "width": 2, "color": "#0000FF" }
+      "parameters": { "Effect": "Border", "Width": 2, "Color": "#0000FF" }
     },
     {
       "id": "feedback",
       "stepType": "ImmediateFeedback",
-      "parameters": { "playSound": true }
+      "parameters": { "PlaySound": true }
     },
     {
       "id": "destination",
       "stepType": "Destinations",
-      "parameters": { "destinationDesignations": [ "Editor" ] }
+      "parameters": { "DestinationDesignations": [ "Editor" ] }
     }
   ],
   "flow": {
     "startNodes": [ "source" ],
-    "transitions": {
-      "source": [ "select" ],
-      "select": [ "border" ],
-      "border": [ "feedback" ],
-      "feedback": [ "destination" ]
-    }
+    "transitions": [
+      { "from": "source", "to": "select" },
+      { "from": "select", "to": "border" },
+      { "from": "border", "to": "feedback" },
+      { "from": "feedback", "to": "destination" }
+    ]
   }
 }
 ```
@@ -700,30 +707,30 @@ Demonstrating parallel fork/join execution, variable evaluation, user & machine 
   "triggers": [
     {
       "triggerType": "Hotkey",
-      "parameters": { "hotkey": "Ctrl + Shift + W" }
+      "parameters": { "Hotkey": "Ctrl + Shift + W" }
     }
   ],
   "nodes": [
     {
       "id": "capture_node",
       "stepType": "Source",
-      "parameters": { "sourceType": "Region" }
+      "parameters": { "SourceType": "Region" }
     },
     {
       "id": "select_node",
       "stepType": "InteractiveSelection",
-      "parameters": { "selectionMode": "Region", "allowWindowSnapping": true }
+      "parameters": { "SelectionMode": "Region", "AllowWindowSnapping": true }
     },
     {
       "id": "feedback_branch",
       "stepType": "ImmediateFeedback",
-      "parameters": { "playSound": true }
+      "parameters": { "PlaySound": true }
     },
     {
       "id": "set_vars_node",
       "stepType": "SetVariable",
       "parameters": {
-        "variables": {
+        "Variables": {
           "department": "Engineering QA",
           "watermark_text": "Captured by ${user.username} on ${machine.computername} [${now:yyyy-MM-dd HH:mm}]"
         }
@@ -733,7 +740,7 @@ Demonstrating parallel fork/join execution, variable evaluation, user & machine 
       "id": "watermark_node",
       "stepType": "Annotation",
       "parameters": {
-        "annotations": [
+        "Annotations": [
           {
             "type": "Rectangle",
             "horizontalAnchor": "Right",
@@ -768,19 +775,20 @@ Demonstrating parallel fork/join execution, variable evaluation, user & machine 
       "id": "export_join",
       "stepType": "Destinations",
       "parameters": {
-        "destinationDesignations": [ "Editor", "Clipboard" ]
+        "DestinationDesignations": [ "Editor", "Clipboard" ]
       }
     }
   ],
   "flow": {
     "startNodes": [ "capture_node" ],
-    "transitions": {
-      "capture_node": [ "select_node" ],
-      "select_node": [ "feedback_branch", "set_vars_node" ],
-      "set_vars_node": [ "watermark_node" ],
-      "feedback_branch": [ "export_join" ],
-      "watermark_node": [ "export_join" ]
-    }
+    "transitions": [
+      { "from": "capture_node", "to": "select_node" },
+      { "from": "select_node", "to": "feedback_branch" },
+      { "from": "select_node", "to": "set_vars_node" },
+      { "from": "set_vars_node", "to": "watermark_node" },
+      { "from": "feedback_branch", "to": "export_join" },
+      { "from": "watermark_node", "to": "export_join" }
+    ]
   }
 }
 ```
@@ -797,7 +805,7 @@ Captures a specific window, applies a drop shadow, scans OCR text for sensitive 
   "triggers": [
     {
       "triggerType": "Hotkey",
-      "parameters": { "hotkey": "Ctrl + Shift + D" }
+      "parameters": { "Hotkey": "Ctrl + Shift + D" }
     }
   ],
   "nodes": [
@@ -805,51 +813,51 @@ Captures a specific window, applies a drop shadow, scans OCR text for sensitive 
       "id": "capture_window",
       "stepType": "Source",
       "parameters": {
-        "sourceType": "ActiveWindow",
-        "windowTitlePattern": ".*(Notepad|Editor|Greenshot|Chrome|Edge).*",
-        "matchCase": false
+        "SourceType": "ActiveWindow",
+        "WindowTitlePattern": ".*(Notepad|Editor|Greenshot|Chrome|Edge).*",
+        "MatchCase": false
       }
     },
     {
       "id": "shadow",
       "stepType": "Effect",
-      "parameters": { "effect": "DropShadow", "shadowSize": 10, "darkness": 0.65 }
+      "parameters": { "Effect": "DropShadow", "ShadowSize": 10, "Darkness": 0.65 }
     },
     {
       "id": "redact",
       "stepType": "TextEffect",
       "parameters": {
-        "effect": "Redact",
-        "fillColor": "#000000",
-        "scope": "Auto",
-        "patterns": [
+        "Effect": "Redact",
+        "FillColor": "#000000",
+        "Scope": "Auto",
+        "Patterns": [
           "\\b\\d{4}[ -]?\\d{4}[ -]?\\d{4}[ -]?\\d{4}\\b",
           "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}",
           "\\b(AKIA|AIza|ghp_|glpat-)[A-Za-z0-9_\\-]{16,}\\b"
         ],
-        "paddingHorizontal": 12,
-        "paddingVertical": 25
+        "PaddingHorizontal": 12,
+        "PaddingVertical": 25
       }
     },
     {
       "id": "feedback",
       "stepType": "ImmediateFeedback",
-      "parameters": { "playSound": true }
+      "parameters": { "PlaySound": true }
     },
     {
       "id": "destination",
       "stepType": "Destinations",
-      "parameters": { "destinationDesignations": [ "Editor" ] }
+      "parameters": { "DestinationDesignations": [ "Editor" ] }
     }
   ],
   "flow": {
     "startNodes": [ "capture_window" ],
-    "transitions": {
-      "capture_window": [ "shadow" ],
-      "shadow": [ "redact" ],
-      "redact": [ "feedback" ],
-      "feedback": [ "destination" ]
-    }
+    "transitions": [
+      { "from": "capture_window", "to": "shadow" },
+      { "from": "shadow", "to": "redact" },
+      { "from": "redact", "to": "feedback" },
+      { "from": "feedback", "to": "destination" }
+    ]
   }
 }
 ```
@@ -866,20 +874,20 @@ Evaluates captured screenshot dimensions to route large screen captures through 
   "triggers": [
     {
       "triggerType": "Hotkey",
-      "parameters": { "hotkey": "Ctrl + Shift + C" }
+      "parameters": { "Hotkey": "Ctrl + Shift + C" }
     }
   ],
   "nodes": [
     {
       "id": "source",
       "stepType": "Source",
-      "parameters": { "sourceType": "Region" }
+      "parameters": { "SourceType": "Region" }
     },
     {
       "id": "decide_size",
       "stepType": "Conditional",
       "parameters": {
-        "branches": [
+        "Branches": [
           { "key": "Large", "expression": "${payload.width > 800}" },
           { "key": "Small", "expression": "else" }
         ]
@@ -888,20 +896,18 @@ Evaluates captured screenshot dimensions to route large screen captures through 
     {
       "id": "large_editor",
       "stepType": "Destinations",
-      "parameters": { "destinationDesignations": [ "Editor" ] }
+      "parameters": { "DestinationDesignations": [ "Editor" ] }
     },
     {
       "id": "quick_clipboard",
       "stepType": "Destinations",
-      "parameters": { "destinationDesignations": [ "Clipboard" ] }
+      "parameters": { "DestinationDesignations": [ "Clipboard" ] }
     }
   ],
   "flow": {
     "startNodes": [ "source" ],
-    "transitions": {
-      "source": [ "decide_size" ]
-    },
-    "conditionalTransitions": [
+    "transitions": [
+      { "from": "source", "to": "decide_size" },
       { "from": "decide_size", "branch": "Large", "to": "large_editor" },
       { "from": "decide_size", "branch": "Small", "to": "quick_clipboard" }
     ]
@@ -922,13 +928,13 @@ If a recipe references a step type provided by a plugin that is **not installed 
 
 | Step Type | Plugin | Description | Parameters |
 |---|---|---|---|
-| `ExternalCommand` | `Greenshot.Plugin.ExternalCommand` | Saves the capture to a file and runs an external command with it. `command` runs a command configured in `greenshot.ini`. | `command`, `commandLine`, `arguments`, `workingDirectory`, `verb`, `format`, `jpegQuality`, `runInBackground`, `outputToClipboard`, `uriToClipboard`, `reloadAfterExecution`, `setOutputVariable`, `setExitCodeVariable` |
+| `ExternalCommand` | `Greenshot.Plugin.ExternalCommand` | Saves the capture to a file and runs an external command with it. `Command` runs a command configured in `greenshot.ini`. | `Command`, `CommandLine`, `Arguments`, `WorkingDirectory`, `Verb`, `Format`, `JpegQuality`, `RunInBackground`, `OutputToClipboard`, `UriToClipboard`, `ReloadAfterExecution`, `SetOutputVariable`, `SetExitCodeVariable` |
 | `Box` | `Greenshot.Plugin.Box` | Uploads the capture to Box; sets `Box.UploadUrl`. | (account settings) |
 | `Dropbox` | `Greenshot.Plugin.Dropbox` | Uploads the capture to Dropbox; sets `Dropbox.UploadUrl`. | (account settings) |
-| `Jira` | `Greenshot.Plugin.Atlassian` | Attaches the capture to a Jira issue; sets `Jira.UploadUrl`, `Jira.IssueKey`. A used file name adds another attachment with that name (Jira has no versions). | `issueKey` (default: variable `Jira.IssueKey`), `format`, `jpegQuality`, `reduceColors` |
-| `Confluence` | `Greenshot.Plugin.Atlassian` | Attaches the capture to a Confluence page; sets `Confluence.PageId`, `Confluence.UploadUrl`. When the page has a file with the name, the capture becomes a new version of it. | `pageId`, `format`, `jpegQuality`, `reduceColors` |
-| `Office` | `Greenshot.Plugin.Office` | Sends the capture to an Office application. | `application`: `Word` (default), `Excel`, `PowerPoint`, `OneNote`, `Outlook` |
-| `BarcodeScan` | `Greenshot.Plugin.Zxing` | Scans the capture for barcodes/QR codes; sets `Barcode.Text`, `Barcode.Format` and `Payload.ExtractedText` when something was found. | `setVariable`, `copyToClipboard` |
+| `Jira` | `Greenshot.Plugin.Atlassian` | Attaches the capture to a Jira issue; sets `Jira.UploadUrl`, `Jira.IssueKey`. A used file name adds another attachment with that name (Jira has no versions). | `IssueKey` (default: variable `Jira.IssueKey`), `Format`, `JpegQuality`, `ReduceColors` |
+| `Confluence` | `Greenshot.Plugin.Atlassian` | Attaches the capture to a Confluence page; sets `Confluence.PageId`, `Confluence.UploadUrl`. When the page has a file with the name, the capture becomes a new version of it. | `PageId`, `Format`, `JpegQuality`, `ReduceColors` |
+| `Office` | `Greenshot.Plugin.Office` | Sends the capture to an Office application. | `Application`: `Word` (default), `Excel`, `PowerPoint`, `OneNote`, `Outlook` |
+| `BarcodeScan` | `Greenshot.Plugin.Zxing` | Scans the capture for barcodes/QR codes; sets `Barcode.Text`, `Barcode.Format` and `Payload.ExtractedText` when something was found. | `SetVariable`, `CopyToClipboard` |
 
 The complete, current description of every step type (parameters, variables it reads and sets, payload) is its contract: `greenshot --info <recipe>` shows it for the steps of a recipe. See section 8.
 
@@ -937,18 +943,18 @@ The complete, current description of every step type (parameters, variables it r
 The `ExternalCommand` step allows screenshot automation workflows to invoke external optimization tools (e.g., `pngquant`, `optipng`, `cwebp`), scripts (`PowerShell`, `Bash`), custom webhooks, or processing binaries.
 
 #### Configuration Parameters:
-- **`commandLine`**: Path or executable to run (e.g. `pngquant.exe`, `powershell.exe`, `curl.exe`). Supports `${...}` variable expansion.
-- **`arguments`**: Arguments string passed to the process. Supports `{0}` / `{1}` positional tokens or `${context.ExternalCommand.TargetFile}`, `${user.*}`, `${machine.*}`, etc.
-- **`command`**: Name of a pre-configured command in `greenshot.ini` `[ExternalCommand]` section.
-- **`runInBackground`** *(default: `false`)*: Start the command without waiting for it; the output variables are not set then.
-- **`workingDirectory`**, **`verb`**: Working directory, or a shell verb (e.g. `print`) instead of running the executable.
-- **`format`** *(default: `png`)*: Image format saved to temporary disk before launching the command (`png`, `jpg`, `bmp`, etc.).
-- **`jpegQuality`** *(default: `90`)*: JPEG compression quality if saving as JPEG.
-- **`reloadAfterExecution`** *(default: `false`)*: When `true`, re-reads the modified image file from disk and updates the pipeline surface/payload for subsequent steps. Ideal for in-place image optimization tools.
-- **`outputToClipboard`** *(default: `false`)*: Copies the standard output of the external command to the Windows clipboard.
-- **`uriToClipboard`** *(default: `false`)*: Extracts any URI from stdout using regex and copies it to the Windows clipboard.
-- **`setOutputVariable`**: Stores the raw standard output text in `context.Properties[key]`.
-- **`setExitCodeVariable`**: Stores the process exit code integer in `context.Properties[key]`.
+- **`CommandLine`**: Path or executable to run (e.g. `pngquant.exe`, `powershell.exe`, `curl.exe`). Supports `${...}` variable expansion.
+- **`Arguments`**: Arguments string passed to the process. Supports `{0}` / `{1}` positional tokens or `${context.ExternalCommand.TargetFile}`, `${user.*}`, `${machine.*}`, etc.
+- **`Command`**: Name of a pre-configured command in `greenshot.ini` `[ExternalCommand]` section.
+- **`RunInBackground`** *(default: `false`)*: Start the command without waiting for it; the output variables are not set then.
+- **`WorkingDirectory`**, **`Verb`**: Working directory, or a shell verb (e.g. `print`) instead of running the executable.
+- **`Format`** *(default: `png`)*: Image format saved to temporary disk before launching the command (`png`, `jpg`, `bmp`, etc.).
+- **`JpegQuality`** *(default: `90`)*: JPEG compression quality if saving as JPEG.
+- **`ReloadAfterExecution`** *(default: `false`)*: When `true`, re-reads the modified image file from disk and updates the pipeline surface/payload for subsequent steps. Ideal for in-place image optimization tools.
+- **`OutputToClipboard`** *(default: `false`)*: Copies the standard output of the external command to the Windows clipboard.
+- **`UriToClipboard`** *(default: `false`)*: Extracts any URI from stdout using regex and copies it to the Windows clipboard.
+- **`SetOutputVariable`**: Stores the raw standard output text in `context.Properties[key]`.
+- **`SetExitCodeVariable`**: Stores the process exit code integer in `context.Properties[key]`.
 
 ---
 

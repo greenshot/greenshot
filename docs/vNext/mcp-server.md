@@ -88,8 +88,10 @@ Example: the built-in `capture_window` recipe as JSON.
   ],
   "flow": {
     "startNodes": ["acquire"],
-    "transitions": { "acquire": ["ocr_wanted"] },
-    "conditionalTransitions": [{ "from": "ocr_wanted", "branch": "ocr", "to": "ocr" }]
+    "transitions": [
+      { "from": "acquire", "to": "ocr_wanted" },
+      { "from": "ocr_wanted", "branch": "ocr", "to": "ocr" }
+    ]
   }
 }
 ```

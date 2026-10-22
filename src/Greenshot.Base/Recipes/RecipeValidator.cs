@@ -182,14 +182,18 @@ namespace Greenshot.Base.Recipes
         {
             if (string.IsNullOrWhiteSpace(definition.Version))
             {
-                result.AddWarning($"{what} 'version' is missing; defaulting to '1.0'.");
+                result.AddWarning($"{what} 'version' is missing; defaulting to '{FlowDefinition.CurrentVersion}'.");
             }
             else
             {
                 string major = definition.Version.Split('.')[0].Trim();
-                if (major != "1")
+                if (major == "1")
                 {
-                    result.AddError($"Unsupported {what.ToLowerInvariant()} version '{definition.Version}'. This version of Greenshot supports version 1.x recipes.");
+                    result.AddError($"The {what.ToLowerInvariant()} has version '{definition.Version}', the format of an earlier Greenshot beta. Version {FlowDefinition.CurrentVersion} has one list of transitions and conditions in 'when'.");
+                }
+                else if (major != "2")
+                {
+                    result.AddError($"Unsupported {what.ToLowerInvariant()} version '{definition.Version}'. This version of Greenshot supports version 2.x recipes.");
                 }
             }
 
@@ -323,9 +327,9 @@ namespace Greenshot.Base.Recipes
                 }
                 foreach (var branch in branches.Where(b => !string.IsNullOrEmpty(b.Key)))
                 {
-                    bool routed = flow.ConditionalTransitions?.Any(ct => string.Equals(ct?.From, node.Id, StringComparison.OrdinalIgnoreCase) &&
-                                                                         string.Equals(ct.Branch, branch.Key, StringComparison.OrdinalIgnoreCase) &&
-                                                                         !string.IsNullOrWhiteSpace(ct.To)) ?? false;
+                    bool routed = flow.ConditionalTransitions.Any(ct => string.Equals(ct.From, node.Id, StringComparison.OrdinalIgnoreCase) &&
+                                                                        string.Equals(ct.Branch, branch.Key, StringComparison.OrdinalIgnoreCase) &&
+                                                                        !string.IsNullOrWhiteSpace(ct.To));
                     if (!routed)
                     {
                         result.AddError($"Node '{node.Id}' [Conditional]: branch '{branch.Key}' leads nowhere; route it to a node or to \"{RecipeExtension.OutNode}\".");
@@ -333,9 +337,8 @@ namespace Greenshot.Base.Recipes
                 }
             }
 
-            foreach (var et in flow.ErrorTransitions ?? new List<RecipeErrorTransitionConfig>())
+            foreach (var et in flow.ErrorTransitions)
             {
-                if (et == null) continue;
                 if (extension.FindNode(et.From) == null)
                 {
                     result.AddError($"Error transition from '{et.From}': in an extension error transitions must start at one of its nodes.");
@@ -447,6 +450,46 @@ namespace Greenshot.Base.Recipes
             }
         }
 
+        /// <summary>
+        /// The parameters the step declares: written with the declared name, and the value of the declared type. A literal value is
+        /// converted once (a whole number for Integer, a double for Decimal), so the step reads the type it declared;
+        /// an expression ("${...}") is evaluated when the node runs. Unknown parameters are left to the contract (a warning).
+        /// </summary>
+        private static void ApplyDeclaredParameterTypes(RecipeNodeConfig node, RecipeValidationResult result)
+        {
+            var contract = StepRegistry.Instance.GetContract(node.StepType);
+            if (contract == null || node.Parameters == null) return;
+            foreach (var key in node.Parameters.Keys.ToList())
+            {
+                var declared = contract.FindParameter(key);
+                if (declared == null) continue;
+                if (!string.Equals(declared.Name, key, StringComparison.Ordinal))
+                {
+                    result.AddError($"Node '{node.Id}': the parameter '{key}' is written '{declared.Name}'.");
+                }
+
+                object value = node.Parameters[key];
+                if (RecipeParameterTypes.TryConvert(value, declared.DataType, out var converted, out string expected))
+                {
+                    node.Parameters[key] = converted;
+                }
+                else
+                {
+                    result.AddError($"Node '{node.Id}': the parameter '{declared.Name}' must be {expected}, not {DescribeValue(value)}.");
+                }
+            }
+        }
+
+        private static string DescribeValue(object value) => value switch
+        {
+            string => "a text",
+            bool => "true or false",
+            int or long or double or float or decimal => "a number",
+            IDictionary => "an object",
+            IEnumerable => "a list",
+            _ => value.GetType().Name
+        };
+
         private static void ValidateNode(RecipeNodeConfig node, int index, HashSet<string> seenIds, RecipeValidationResult result)
         {
             if (node == null)
@@ -481,6 +524,8 @@ namespace Greenshot.Base.Recipes
             {
                 result.AddError($"Node '{node.Id}' uses stepType '{node.StepType}' which is not available because the required extension/plugin is not installed or active.");
             }
+
+            ApplyDeclaredParameterTypes(node, result);
 
             // Node-specific parameter validations (independent checks)
             if (string.Equals(node.StepType, WellKnownStepTypes.Effect, StringComparison.OrdinalIgnoreCase) &&
@@ -751,14 +796,14 @@ namespace Greenshot.Base.Recipes
 
             foreach (var node in recipe.Nodes.Where(n => n != null))
             {
-                if (!string.IsNullOrWhiteSpace(node.EnabledExpression) && node.EnabledExpression.IndexOf("${", StringComparison.Ordinal) < 0)
+                if (!string.IsNullOrWhiteSpace(node.When) && node.When.IndexOf("${", StringComparison.Ordinal) < 0)
                 {
-                    result.AddError($"Node '{node.Id}': 'enabled' must be true, false or an expression like \"${{option.key}}\".");
+                    result.AddError($"Node '{node.Id}': 'when' must be an expression like \"${{option.key}}\".");
                 }
 
                 string parameters = node.Parameters == null || node.Parameters.Count == 0 ? null : JsonSerializer.Serialize(node.Parameters, RecipeSerializer.Options);
                 var parameterReferences = FindOptionReferences(parameters);
-                foreach (var key in parameterReferences.Concat(FindOptionReferences(node.EnabledExpression)).Distinct(StringComparer.OrdinalIgnoreCase))
+                foreach (var key in parameterReferences.Concat(FindOptionReferences(node.When)).Distinct(StringComparer.OrdinalIgnoreCase))
                 {
                     // Options of the recipe, or (composed recipe) of the extension the node came from
                     if (!options.ContainsKey(key) && !RecipeOptionStore.TryResolve(recipe, key, out _, out _))
@@ -852,43 +897,65 @@ namespace Greenshot.Base.Recipes
                 }
             }
 
-            // Validate ConditionalTransitions
-            if (flow.ConditionalTransitions != null)
+            foreach (var transition in flow.Transitions ?? new List<RecipeTransition>())
             {
-                foreach (var ct in flow.ConditionalTransitions)
+                if (transition == null || string.IsNullOrWhiteSpace(transition.From))
                 {
-                    if (string.IsNullOrWhiteSpace(ct?.From))
+                    result.AddError("A transition is missing 'from'.");
+                    continue;
+                }
+                if (transition.IsError)
+                {
+                    if (transition.Branch != null)
                     {
-                        result.AddError("Conditional transition is missing source 'from' node ID.");
-                        continue;
+                        result.AddError($"The transition from '{transition.From}' has 'branch' and 'onError'; a transition is either for a branch or for an error.");
                     }
-                    if (string.IsNullOrWhiteSpace(ct.Branch))
+                    if (string.IsNullOrWhiteSpace(transition.To) == string.IsNullOrWhiteSpace(transition.Recipe))
                     {
-                        result.AddError($"Conditional transition from '{ct.From}' is missing 'branch' key.");
+                        result.AddError($"The error transition from '{transition.From}' needs either 'to' (a node) or 'recipe' (another recipe).");
                     }
-                    if (string.IsNullOrWhiteSpace(ct.To))
+                    else if (!string.IsNullOrWhiteSpace(transition.To) && !validNodeIds.Contains(transition.To) && !(allowOutTarget && IsOutNode(transition.To)))
                     {
-                        result.AddError($"Conditional transition from '{ct.From}' is missing target 'to' node ID.");
-                        continue;
+                        result.AddError($"Error transition target node '{transition.To}' (from '{transition.From}') does not exist in 'nodes'.");
                     }
+                    if (transition.From != "*" && !validNodeIds.Contains(transition.From))
+                    {
+                        result.AddError($"Error transition source node '{transition.From}' does not exist in 'nodes'.");
+                    }
+                    continue;
+                }
+                if (transition.Recipe != null)
+                {
+                    result.AddError($"The transition from '{transition.From}' has 'recipe', which is only for error transitions ('onError').");
+                }
+                if (string.IsNullOrWhiteSpace(transition.To))
+                {
+                    result.AddError($"The transition from '{transition.From}' is missing 'to'.");
+                }
+                if (transition.Branch != null && string.IsNullOrWhiteSpace(transition.Branch))
+                {
+                    result.AddError($"The transition from '{transition.From}' has an empty 'branch'.");
+                }
+            }
 
-                    if (!validNodeIds.Contains(ct.From))
+            foreach (var ct in flow.ConditionalTransitions.Where(ct => !string.IsNullOrWhiteSpace(ct.From) && !string.IsNullOrWhiteSpace(ct.To)))
+            {
+                if (!validNodeIds.Contains(ct.From))
+                {
+                    result.AddError($"Conditional transition source node '{ct.From}' does not exist in 'nodes'.");
+                }
+                else
+                {
+                    var fromNode = recipe.FindNode(ct.From);
+                    if (fromNode != null && !string.Equals(fromNode.StepType, WellKnownStepTypes.Conditional, StringComparison.OrdinalIgnoreCase))
                     {
-                        result.AddError($"Conditional transition source node '{ct.From}' does not exist in 'nodes'.");
+                        result.AddWarning($"Conditional transition source node '{ct.From}' has stepType '{fromNode.StepType}' rather than 'Conditional'.");
                     }
-                    else
-                    {
-                        var fromNode = recipe.FindNode(ct.From);
-                        if (fromNode != null && !string.Equals(fromNode.StepType, WellKnownStepTypes.Conditional, StringComparison.OrdinalIgnoreCase))
-                        {
-                            result.AddWarning($"Conditional transition source node '{ct.From}' has stepType '{fromNode.StepType}' rather than 'Conditional'.");
-                        }
-                    }
+                }
 
-                    if (!validNodeIds.Contains(ct.To) && !(allowOutTarget && IsOutNode(ct.To)))
-                    {
-                        result.AddError($"Conditional transition target node '{ct.To}' (from '{ct.From}', branch '{ct.Branch}') does not exist in 'nodes'.");
-                    }
+                if (!validNodeIds.Contains(ct.To) && !(allowOutTarget && IsOutNode(ct.To)))
+                {
+                    result.AddError($"Conditional transition target node '{ct.To}' (from '{ct.From}', branch '{ct.Branch}') does not exist in 'nodes'.");
                 }
             }
 

@@ -83,7 +83,7 @@ namespace Greenshot.Recipes.Pipeline
         }
 
         /// <summary>
-        /// Whether the node runs: a disabled node, or one whose enabled expression is false, is passed through to its next nodes
+        /// Whether the node runs: a disabled node, or one whose 'when' expression is false, is passed through to its next nodes
         /// </summary>
         private static bool IsNodeRunning(RecipeNodeConfig node, CaptureFlowContext context)
         {
@@ -93,7 +93,7 @@ namespace Greenshot.Recipes.Pipeline
             }
             catch (Exception ex)
             {
-                Log.Warn($"The enabled expression '{node.EnabledExpression}' of node '{node.Id}' failed, the node is skipped.", ex);
+                Log.Warn($"The 'when' expression '{node.When}' of node '{node.Id}' failed, the node is skipped.", ex);
             }
 
             return false;
@@ -275,22 +275,9 @@ namespace Greenshot.Recipes.Pipeline
 
                 // Collect all outgoing targets from bypassedId (both standard and conditional)
                 var outgoing = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                if (flow.Transitions != null && flow.Transitions.TryGetValue(bypassedId, out var stdTargets) && stdTargets != null)
+                if (transitions.TryGetValue(bypassedId, out var bypassedTargets))
                 {
-                    foreach (var t in stdTargets)
-                    {
-                        if (!string.IsNullOrWhiteSpace(t)) outgoing.Add(t);
-                    }
-                }
-                if (flow.ConditionalTransitions != null)
-                {
-                    foreach (var ct in flow.ConditionalTransitions)
-                    {
-                        if (string.Equals(ct.From, bypassedId, StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(ct.To))
-                        {
-                            outgoing.Add(ct.To);
-                        }
-                    }
+                    outgoing.UnionWith(bypassedTargets);
                 }
 
                 foreach (var targetId in outgoing)
@@ -390,7 +377,7 @@ namespace Greenshot.Recipes.Pipeline
                         var errorTransition = flow.GetErrorTransition(nodeId, ex);
                         string errorTargetNodeId = errorTransition?.To
                             ?? (!string.IsNullOrEmpty(nodeConfig.OnErrorNodeId) ? nodeConfig.OnErrorNodeId : null);
-                        string errorTargetRecipeId = errorTransition?.TargetRecipeId
+                        string errorTargetRecipeId = errorTransition?.Recipe
                             ?? (!string.IsNullOrEmpty(nodeConfig.OnErrorRecipeId) ? nodeConfig.OnErrorRecipeId : null);
 
                         if (!string.IsNullOrEmpty(errorTargetNodeId) || !string.IsNullOrEmpty(errorTargetRecipeId))
@@ -480,9 +467,9 @@ namespace Greenshot.Recipes.Pipeline
                 }
                 else
                 {
-                    nodeContext.LogStep(string.IsNullOrWhiteSpace(nodeConfig.EnabledExpression)
+                    nodeContext.LogStep(!nodeConfig.Enabled || string.IsNullOrWhiteSpace(nodeConfig.When)
                         ? $"Skipping disabled node: [{nodeConfig.Id}] {nodeConfig.Name}"
-                        : $"Skipping node: [{nodeConfig.Id}] {nodeConfig.Name}, '{nodeConfig.EnabledExpression}' is not true");
+                        : $"Skipping node: [{nodeConfig.Id}] {nodeConfig.Name}, '{nodeConfig.When}' is not true");
                 }
 
                 completedNodes[nodeId] = true;
@@ -549,8 +536,7 @@ namespace Greenshot.Recipes.Pipeline
                 var activeNext = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                 var bypassedNext = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-                bool hasConditionalTransitions = flow.ConditionalTransitions != null &&
-                                                 flow.ConditionalTransitions.Any(ct => string.Equals(ct.From, nodeId, StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(ct.To));
+                bool hasConditionalTransitions = flow.ConditionalTransitions.Any(ct => string.Equals(ct.From, nodeId, StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(ct.To));
 
                 if (hasConditionalTransitions)
                 {
@@ -572,13 +558,7 @@ namespace Greenshot.Recipes.Pipeline
                 else
                 {
                     // Standard transitions (only when no conditional transitions exist from this node)
-                    if (flow.Transitions != null && flow.Transitions.TryGetValue(nodeId, out var stdTargets) && stdTargets != null)
-                    {
-                        foreach (var t in stdTargets)
-                        {
-                            if (!string.IsNullOrWhiteSpace(t)) activeNext.Add(t);
-                        }
-                    }
+                    activeNext.UnionWith(flow.GetTargets(nodeId));
                 }
 
                 // Find next ready downstream nodes

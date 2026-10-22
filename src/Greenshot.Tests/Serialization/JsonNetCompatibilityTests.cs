@@ -35,6 +35,7 @@ using Greenshot.Ipc;
 using Greenshot.Plugin.CustomUploader;
 using Greenshot.Plugin.CustomUploader.Sxcu;
 using Greenshot.Recipes.Approval;
+using Greenshot.Recipes.Steps;
 using Xunit;
 
 namespace Greenshot.Tests.Serialization
@@ -48,6 +49,9 @@ namespace Greenshot.Tests.Serialization
         public JsonNetCompatibilityTests()
         {
             TestEnvironment.EnsureInitialized();
+            // The validator checks the parameters with the contracts of the step types
+            StepRegistry.Instance.Register<SourceAcquisitionStep>(config => new SourceAcquisitionStep(config));
+            StepRegistry.Instance.Register<SetVariableStep>(config => new SetVariableStep(config));
         }
 
         private static string TestData(params string[] path) => File.ReadAllText(Path.Combine(new[] { AppContext.BaseDirectory, "TestData" }.Concat(path).ToArray()));
@@ -57,40 +61,66 @@ namespace Greenshot.Tests.Serialization
             Assert.True(JsonNode.DeepEquals(JsonNode.Parse(expected), JsonNode.Parse(actual)), $"Expected:\n{expected}\nActual:\n{actual}");
         }
 
+        /// <summary>
+        /// Recipes of the earlier beta (written by Json.NET, transitions per node) get an error which says what changed
+        /// </summary>
         [Fact]
-        public void Recipes_WrittenByJsonNet_AreReadAndWrittenTheSame()
+        public void Recipes_OfTheEarlierBeta_AreRejectedWithAClearError()
         {
-            string json = TestData("JsonNet", "recipes.gsrecipe.json");
+            var error = Assert.Throws<JsonException>(() => RecipeSerializer.DeserializeList(TestData("JsonNet", "recipes.gsrecipe.json"), validate: false));
 
-            var recipes = RecipeSerializer.DeserializeList(json, validate: false);
-
-            Assert.Equal(17, recipes.Count);
-            var oldRecipes = JsonNode.Parse(json).AsArray();
-            for (int i = 0; i < recipes.Count; i++)
-            {
-                AssertSameJson(oldRecipes[i].ToJsonString(), RecipeSerializer.Serialize(recipes[i]));
-            }
+            Assert.Contains("earlier Greenshot beta", error.Message);
+            Assert.Contains("\"transitions\" is now one list", error.Message);
         }
 
         [Theory]
         [InlineData("ext_border")]
         [InlineData("ext_caption")]
         [InlineData("ext_dropshadow")]
-        public void Extensions_WrittenByJsonNet_AreReadAndWrittenTheSame(string id)
+        public void Extensions_OfTheEarlierBeta_AreRejectedWithAClearError(string id)
         {
-            string json = TestData("JsonNet", $"extension-{id}.gsrecipe.json");
+            var error = Assert.Throws<JsonException>(() => RecipeSerializer.DeserializeExtension(TestData("JsonNet", $"extension-{id}.gsrecipe.json"), validate: false));
+
+            Assert.Contains("earlier Greenshot beta", error.Message);
+        }
+
+        /// <summary>
+        /// The same recipes in the current format (TestData/Recipes) are read and written the same
+        /// </summary>
+        [Fact]
+        public void Recipes_AreReadAndWrittenTheSame()
+        {
+            string json = TestData("Recipes", "recipes.gsrecipe.json");
+
+            var recipes = RecipeSerializer.DeserializeList(json, validate: false);
+
+            Assert.Equal(17, recipes.Count);
+            var written = JsonNode.Parse(json).AsArray();
+            for (int i = 0; i < recipes.Count; i++)
+            {
+                AssertSameJson(written[i].ToJsonString(), RecipeSerializer.Serialize(recipes[i]));
+            }
+        }
+
+        [Theory]
+        [InlineData("border")]
+        [InlineData("caption")]
+        [InlineData("dropshadow")]
+        public void Extensions_AreReadAndWrittenTheSame(string name)
+        {
+            string json = TestData("Recipes", $"extension-{name}.gsrecipe.json");
 
             var extension = RecipeSerializer.DeserializeExtension(json, validate: false);
 
-            Assert.Equal(id, extension.Id);
+            Assert.Equal("ext_" + name, extension.Id);
             Assert.True(RecipeValidator.Validate(extension).IsValid, RecipeValidator.Validate(extension).ToString());
             AssertSameJson(json, RecipeSerializer.Serialize(extension));
         }
 
         [Fact]
-        public void Recipe_WrittenByJsonNet_HasTheValuesTheStepsRead()
+        public void Recipe_HasTheValuesTheStepsRead()
         {
-            var recipes = RecipeSerializer.DeserializeList(TestData("JsonNet", "recipes.gsrecipe.json"), validate: false);
+            var recipes = RecipeSerializer.DeserializeList(TestData("Recipes", "recipes.gsrecipe.json"), validate: false);
             var sink = recipes.Single(r => r.Id == "json_net_kitchen_sink");
 
             Assert.Equal("Ünïcödé, <html> & \"quotes\"", sink.Description);
@@ -113,7 +143,7 @@ namespace Greenshot.Tests.Serialization
             Assert.Equal(true, choices[0]["IsDefault"]);
             Assert.Equal(true, choices[1]["isCancel"]);
             Assert.Equal(new[] { "big", "small" }, RecipeSerializer.ConvertValue<List<Dictionary<string, string>>>(sink.FindNode("branch").Parameters["branches"]).Select(b => b["key"]));
-            Assert.Equal("${option.border}", sink.FindNode("branch").EnabledExpression);
+            Assert.Equal("${option.border}", sink.FindNode("branch").When);
             Assert.False(sink.FindNode("off").Enabled);
             var variables = Assert.IsAssignableFrom<IDictionary<string, object>>(sink.FindNode("vars").Parameters["variables"]);
             Assert.Equal(3L, variables["count"]);
@@ -129,7 +159,7 @@ namespace Greenshot.Tests.Serialization
             // Flow
             Assert.Contains("draw", sink.Flow.GetUnifiedTransitions()["branch"]);
             Assert.Equal("vars", sink.Flow.GetErrorTransition("fail", new IOException()).To);
-            Assert.Equal("fallback_recipe", sink.Flow.GetErrorTransition("prompt", new InvalidOperationException()).TargetRecipeId);
+            Assert.Equal("fallback_recipe", sink.Flow.GetErrorTransition("prompt", new InvalidOperationException()).Recipe);
 
             // Triggers
             var contextMenu = sink.Triggers.Single();
@@ -145,57 +175,81 @@ namespace Greenshot.Tests.Serialization
             Assert.True(all.Triggers.Single(t => t.TriggerType == TriggerConfig.TypeAiTool && t.GetParameter<string>("ToolName") == "convert_file").GetParameter<bool>("ReadOnly"));
         }
 
-        /// <summary>
-        /// Hand written recipe files were read by Json.NET, which is lenient
-        /// </summary>
-        [Fact]
-        public void Recipe_HandWritten_AsLenientAsJsonNet()
-        {
-            const string json = @"
+        private const string HandWrittenRecipe = @"
             {
                 // A comment
-                ""Kind"": ""Recipe"",
-                ""ID"": ""hand_written"",
-                ""Name"": ""Hand written"",
-                ""version"": 2,
-                ""concurrency"": ""exclusive"",
-                ""isEnabled"": ""false"",
-                ""unknownProperty"": { ""a"": [1, 2] },
-                ""triggers"": [
-                    { ""triggerType"": ""Hotkey"", ""enabled"": 1, ""parameters"": { ""hotkey"": ""Ctrl+H"", ""Order"": ""7"" } },
-                ],
+                ""kind"": ""recipe"",
+                ""id"": ""hand_written"",
+                ""name"": ""Hand written"",
                 ""nodes"": [
-                    { ""id"": ""a"", ""stepType"": ""SetVariable"", ""enabled"": ""false"", ""parameters"": { ""Variable"": ""X"", ""Value"": null } },
-                    { ""id"": ""b"", ""stepType"": ""SetVariable"", ""enabled"": ""${option.on}"" },
-                    { ""id"": ""c"", ""stepType"": ""SetVariable"", ""onErrorNodeId"": null },
+                    { ""id"": ""a"", ""stepType"": ""SetVariable"", ""enabled"": false, ""parameters"": { ""Variable"": ""X"", ""Value"": null } },
+                    { ""id"": ""b"", ""stepType"": ""SetVariable"", ""when"": ""${option.on}"" },
+                    { ""id"": ""c"", ""stepType"": ""Source"", ""parameters"": { ""SourceType"": ""Region"", ""DelayMs"": 5 } },
                 ],
                 ""flow"": {
-                    ""startNodes"": [""a""],
-                    ""transitions"": { ""a"": ""b"", ""b"": [""c"", null, """"] },
-                    ""errorTransitions"": [ { ""from"": ""*"", ""to"": ""c"" } ]
+                    ""startNodes"": [""c""],
+                    ""transitions"": [ { ""from"": ""c"", ""to"": ""a"" }, { ""from"": ""a"", ""to"": ""b"" }, { ""from"": ""*"", ""to"": ""b"", ""onError"": ""*"" }, ],
                 },
-                ""options"": [ { ""key"": ""on"", ""type"": 3, ""default"": ""true"" }, { ""key"": ""size"", ""type"": ""integer"", ""default"": ""12"", ""min"": ""1"" } ]
+                ""options"": [ { ""key"": ""on"", ""type"": ""Boolean"", ""default"": true } ]
             }";
 
-            var recipe = RecipeSerializer.Deserialize(json, validate: false);
+        /// <summary>
+        /// A hand written recipe: comments and trailing commas are fine, the values get the type the step declares
+        /// </summary>
+        [Fact]
+        public void Recipe_HandWritten_IsRead()
+        {
+            var recipe = RecipeSerializer.Deserialize(HandWrittenRecipe);
 
             Assert.Equal("hand_written", recipe.Id);
-            Assert.Equal("2", recipe.Version);
-            Assert.Equal(FlowConcurrency.Exclusive, recipe.Concurrency);
-            Assert.False(recipe.IsEnabled);
-            var trigger = Assert.Single(recipe.Triggers);
-            Assert.True(trigger.Enabled);
-            Assert.Equal("Ctrl+H", trigger.GetParameter<string>("Hotkey"));
-            Assert.Equal(7, trigger.GetParameter<int>("order"));
             Assert.False(recipe.FindNode("a").Enabled);
-            Assert.Equal("${option.on}", recipe.FindNode("b").EnabledExpression);
-            Assert.Equal(new[] { "b" }, recipe.Flow.Transitions["A"]);
-            Assert.Equal(new[] { "c" }, recipe.Flow.Transitions["b"]);
-            Assert.Equal("c", recipe.Flow.GetErrorTransition("b", new Exception()).To);
-            Assert.Equal(ContractDataType.Boolean, recipe.FindOption("on").Type);
-            Assert.Equal(true, recipe.FindOption("on").GetDefaultValue());
-            Assert.Equal(12, recipe.FindOption("size").GetDefaultValue());
-            Assert.Equal(1m, recipe.FindOption("size").Min);
+            Assert.Equal("${option.on}", recipe.FindNode("b").When);
+            Assert.IsType<int>(recipe.FindNode("c").Parameters["DelayMs"]);
+            Assert.Equal(new[] { "a" }, recipe.Flow.GetTargets("c"));
+            Assert.Equal("b", recipe.Flow.GetErrorTransition("c", new Exception()).To);
+        }
+
+        /// <summary>
+        /// Recipes are read strictly: a mistake is an error, not a guess
+        /// </summary>
+        [Theory]
+        [InlineData(@"""id"": ""hand_written""", @"""ID"": ""hand_written""", "ID")]
+        [InlineData(@"""name"": ""Hand written"",", @"""name"": ""Hand written"", ""unknownProperty"": 1,", "unknownProperty")]
+        [InlineData(@"""name"": ""Hand written"",", @"""name"": ""Hand written"", ""name"": ""Again"",", "name")]
+        [InlineData(@"""enabled"": false", @"""enabled"": 0", "enabled")]
+        [InlineData(@"""kind"": ""recipe""", @"""kind"": ""Recipe""", "Recipe")]
+        [InlineData(@"""type"": ""Boolean""", @"""type"": 3", "type")]
+        public void Recipe_WithAMistake_IsNotRead(string part, string mistake, string named)
+        {
+            Assert.Contains(part, HandWrittenRecipe);
+
+            var error = Assert.Throws<JsonException>(() => RecipeSerializer.Deserialize(HandWrittenRecipe.Replace(part, mistake), validate: false));
+
+            Assert.Contains(named, error.Message + error.Path);
+        }
+
+        [Theory]
+        [InlineData(@"""SourceType"": ""Region""", @"""sourceType"": ""Region""", "is written 'SourceType'")]
+        [InlineData(@"""DelayMs"": 5", @"""DelayMs"": ""5""", "'DelayMs' must be a whole number")]
+        [InlineData(@"""DelayMs"": 5", @"""DelayMs"": 5.5", "'DelayMs' must be a whole number")]
+        [InlineData(@"""Variable"": ""X""", @"""Variable"": 7", "'Variable' must be a text")]
+        [InlineData(@"{ ""from"": ""a"", ""to"": ""b"" }", @"{ ""from"": ""a"", ""to"": ""b"", ""recipe"": ""other"" }", "only for error transitions")]
+        [InlineData(@"""onError"": ""*""", @"""onError"": ""*"", ""branch"": ""x""", "either for a branch or for an error")]
+        public void Recipe_WithAWrongParameterOrTransition_IsNotValid(string part, string mistake, string message)
+        {
+            Assert.Contains(part, HandWrittenRecipe);
+
+            var error = Assert.Throws<JsonException>(() => RecipeSerializer.Deserialize(HandWrittenRecipe.Replace(part, mistake)));
+
+            Assert.Contains(message, error.Message);
+        }
+
+        [Fact]
+        public void Recipe_WithAConditionInEnabled_SaysWhereItGoes()
+        {
+            var error = Assert.Throws<JsonException>(() => RecipeSerializer.Deserialize(HandWrittenRecipe.Replace(@"""when"": ""${option.on}""", @"""enabled"": ""${option.on}"""), validate: false));
+
+            Assert.Contains("goes into \"when\"", error.Message);
         }
 
         [Fact]
@@ -207,8 +261,8 @@ namespace Greenshot.Tests.Serialization
 
             string json = RecipeSerializer.Serialize(recipe);
 
-            // The parameter names are camel-cased as Json.NET did, the variable names of the user are kept
-            Assert.Contains("\"variables\": {", json);
+            // The parameter names as the step declares them, the variable names as the user wrote them
+            Assert.Contains("\"Variables\": {", json);
             Assert.Contains("\"MyVar\": 1", json);
             Assert.Contains("Grüße <b>", json);
             Assert.StartsWith("{\r\n  \"kind\": \"recipe\"".Replace("\r\n", Environment.NewLine), json);

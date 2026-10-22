@@ -223,9 +223,9 @@ namespace Greenshot.Recipes
                 {
                     text += " (disabled)";
                 }
-                else if (!string.IsNullOrWhiteSpace(node.EnabledExpression))
+                else if (!string.IsNullOrWhiteSpace(node.When))
                 {
-                    text += $" (only when {node.EnabledExpression})";
+                    text += $" (only when {node.When})";
                 }
                 lines.Add(new RecipeDescriptionLine(text, mainRisk));
                 foreach (var action in gatedActions)

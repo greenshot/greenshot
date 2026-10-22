@@ -75,12 +75,9 @@ namespace Greenshot.Base.Recipes
         private static void InsertBefore(CaptureRecipe recipe, RecipeNodeConfig node, string targetId)
         {
             var flow = recipe.Flow;
-            foreach (var targets in flow.Transitions.Values)
+            foreach (var transition in flow.Transitions.Where(t => t.IsPlain && string.Equals(t.To, targetId, StringComparison.OrdinalIgnoreCase)))
             {
-                for (int i = 0; i < targets.Count; i++)
-                {
-                    if (string.Equals(targets[i], targetId, StringComparison.OrdinalIgnoreCase)) targets[i] = node.Id;
-                }
+                transition.To = node.Id;
             }
             for (int i = 0; i < flow.StartNodes.Count; i++)
             {
@@ -93,8 +90,9 @@ namespace Greenshot.Base.Recipes
         private static void InsertAfter(CaptureRecipe recipe, RecipeNodeConfig node, string sourceId)
         {
             var flow = recipe.Flow;
-            flow.Transitions.TryGetValue(sourceId, out var next);
-            flow.Transitions[sourceId] = new List<string> { node.Id };
+            var next = flow.GetTargets(sourceId);
+            flow.Transitions.RemoveAll(t => t.IsPlain && string.Equals(t.From, sourceId, StringComparison.OrdinalIgnoreCase));
+            flow.AddTransition(sourceId, node.Id);
             if (next != null && next.Count > 0)
             {
                 flow.AddTransitions(node.Id, next);

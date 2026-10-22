@@ -179,9 +179,7 @@ namespace Greenshot.Base.Recipes
             public readonly List<RecipeNodeConfig> Nodes = new List<RecipeNodeConfig>();
             public readonly List<string> Entry = new List<string>();
             public readonly List<string> Starts = new List<string>();
-            public readonly Dictionary<string, List<string>> Transitions = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
-            public readonly List<RecipeConditionalTransitionConfig> ConditionalTransitions = new List<RecipeConditionalTransitionConfig>();
-            public readonly List<RecipeErrorTransitionConfig> ErrorTransitions = new List<RecipeErrorTransitionConfig>();
+            public readonly List<RecipeTransition> Transitions = new List<RecipeTransition>();
 
             /// <summary>
             /// Nodes which lead on to the recipe: without outgoing edges, or with a transition to Out
@@ -214,52 +212,45 @@ namespace Greenshot.Base.Recipes
                 clone.Id = Map(node.Id);
                 clone.ContributedBy = extension.Id;
                 clone.Parameters = (Dictionary<string, object>)RewriteOptionReferences(clone.Parameters, extension.Id);
-                clone.EnabledExpression = RewriteOptionReferences(clone.EnabledExpression, extension.Id);
+                clone.When = RewriteOptionReferences(clone.When, extension.Id);
                 clone.OnErrorNodeId = Map(node.OnErrorNodeId);
                 chain.Nodes.Add(clone);
             }
 
             var flow = extension.Flow ?? new RecipeFlowConfig();
             var toOut = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var transition in flow.Transitions ?? new Dictionary<string, List<string>>())
+            var withOutgoing = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var transition in (flow.Transitions ?? new List<RecipeTransition>()).Where(t => t != null))
             {
-                string from = Map(transition.Key);
+                // An extension's error transitions only apply to its own nodes
+                string from = Map(transition.From);
                 if (from == null) continue;
-                foreach (var target in transition.Value ?? new List<string>())
+                if (transition.IsError)
                 {
-                    if (IsOut(target))
+                    chain.Transitions.Add(new RecipeTransition(from, Map(transition.To)) { OnError = transition.OnError, Recipe = transition.Recipe });
+                    continue;
+                }
+
+                if (transition.IsBranch)
+                {
+                    withOutgoing.Add(from);
+                }
+                if (IsOut(transition.To))
+                {
+                    if (transition.IsBranch)
+                    {
+                        chain.BranchesToOut.Add((from, transition.Branch));
+                    }
+                    else
                     {
                         toOut.Add(from);
                     }
-                    else if (Map(target) is string to)
-                    {
-                        AddTo(chain.Transitions, from, to);
-                    }
                 }
-            }
-
-            var conditionalSources = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var ct in flow.ConditionalTransitions ?? new List<RecipeConditionalTransitionConfig>())
-            {
-                string from = Map(ct?.From);
-                if (from == null) continue;
-                conditionalSources.Add(from);
-                if (IsOut(ct.To))
+                else if (Map(transition.To) is string to)
                 {
-                    chain.BranchesToOut.Add((from, ct.Branch));
+                    withOutgoing.Add(from);
+                    chain.Transitions.Add(new RecipeTransition(from, to) { Branch = transition.Branch });
                 }
-                else if (Map(ct.To) is string to)
-                {
-                    chain.ConditionalTransitions.Add(new RecipeConditionalTransitionConfig(from, ct.Branch, to));
-                }
-            }
-
-            foreach (var et in flow.ErrorTransitions ?? new List<RecipeErrorTransitionConfig>())
-            {
-                // An extension's error transitions only apply to its own nodes
-                string from = Map(et?.From);
-                if (from == null) continue;
-                chain.ErrorTransitions.Add(new RecipeErrorTransitionConfig(from, Map(et.To), et.TargetRecipeId, et.ErrorType));
             }
 
             var starts = flow.GetEffectiveStartNodes().Select(Map).Where(id => id != null).ToList();
@@ -271,8 +262,7 @@ namespace Greenshot.Base.Recipes
 
             foreach (var node in chain.Nodes)
             {
-                bool hasOutgoing = chain.Transitions.ContainsKey(node.Id) || conditionalSources.Contains(node.Id);
-                if (!hasOutgoing || toOut.Contains(node.Id))
+                if (!withOutgoing.Contains(node.Id) || toOut.Contains(node.Id))
                 {
                     chain.Ends.Add(node.Id);
                 }
@@ -291,7 +281,7 @@ namespace Greenshot.Base.Recipes
                 chain.Nodes.Insert(0, whenNode);
                 foreach (var start in chain.Starts)
                 {
-                    chain.ConditionalTransitions.Add(new RecipeConditionalTransitionConfig(chain.WhenNodeId, WhenRunBranch, start));
+                    chain.Transitions.Add(new RecipeTransition(chain.WhenNodeId, start) { Branch = WhenRunBranch });
                 }
                 chain.Entry.Add(chain.WhenNodeId);
             }
@@ -308,19 +298,7 @@ namespace Greenshot.Base.Recipes
         /// </summary>
         private static void Connect(RecipeFlowConfig flow, BuiltChain chain, IReadOnlyList<string> exits)
         {
-            foreach (var transition in chain.Transitions)
-            {
-                flow.AddTransitions(transition.Key, transition.Value);
-            }
-            foreach (var ct in chain.ConditionalTransitions)
-            {
-                flow.AddConditionalTransition(ct.From, ct.Branch, ct.To);
-            }
-            foreach (var et in chain.ErrorTransitions)
-            {
-                flow.ErrorTransitions ??= new List<RecipeErrorTransitionConfig>();
-                flow.ErrorTransitions.Add(et);
-            }
+            flow.Transitions.AddRange(chain.Transitions);
             foreach (var end in chain.Ends)
             {
                 flow.AddTransitions(end, exits);
@@ -344,14 +322,12 @@ namespace Greenshot.Base.Recipes
         private static void ReplaceSlot(CaptureRecipe composed, string slotId, IReadOnlyList<BuiltChain> chains)
         {
             var flow = composed.Flow ??= new RecipeFlowConfig();
-            flow.Transitions ??= new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
-            flow.ConditionalTransitions ??= new List<RecipeConditionalTransitionConfig>();
+            flow.Transitions ??= new List<RecipeTransition>();
+            flow.Transitions.RemoveAll(t => t == null);
             flow.StartNodes ??= new List<string>();
 
-            var exits = flow.Transitions.TryGetValue(slotId, out var slotTargets) && slotTargets != null ? slotTargets.ToList() : new List<string>();
-            flow.Transitions.Remove(slotId);
-            flow.ConditionalTransitions.RemoveAll(ct => string.Equals(ct?.From, slotId, StringComparison.OrdinalIgnoreCase));
-            flow.ErrorTransitions?.RemoveAll(et => string.Equals(et?.From, slotId, StringComparison.OrdinalIgnoreCase));
+            var exits = flow.GetTargets(slotId);
+            flow.Transitions.RemoveAll(t => string.Equals(t.From, slotId, StringComparison.OrdinalIgnoreCase));
 
             // Wired from the last chain to the first: each chain leads to the entry of the next one
             IReadOnlyList<string> next = exits;
@@ -363,24 +339,29 @@ namespace Greenshot.Base.Recipes
             var entry = next;
 
             // The slot's incoming edges go to the first chain
-            foreach (var key in flow.Transitions.Keys.ToList())
+            string firstEntry = entry.FirstOrDefault();
+            foreach (var incoming in flow.Transitions.Where(t => string.Equals(t.To, slotId, StringComparison.OrdinalIgnoreCase)).ToList())
             {
-                flow.Transitions[key] = ReplaceTarget(flow.Transitions[key], slotId, entry);
-            }
-            foreach (var ct in flow.ConditionalTransitions.Where(ct => string.Equals(ct?.To, slotId, StringComparison.OrdinalIgnoreCase)).ToList())
-            {
-                flow.ConditionalTransitions.Remove(ct);
+                if (incoming.IsError)
+                {
+                    // An error transition leads to one node
+                    incoming.To = firstEntry;
+                    continue;
+                }
+                flow.Transitions.Remove(incoming);
                 foreach (var target in entry)
                 {
-                    flow.AddConditionalTransition(ct.From, ct.Branch, target);
+                    if (incoming.IsBranch)
+                    {
+                        flow.AddConditionalTransition(incoming.From, incoming.Branch, target);
+                    }
+                    else
+                    {
+                        flow.AddTransition(incoming.From, target);
+                    }
                 }
             }
             flow.StartNodes = ReplaceTarget(flow.StartNodes, slotId, entry);
-            string firstEntry = entry.FirstOrDefault();
-            foreach (var et in flow.ErrorTransitions?.Where(et => string.Equals(et?.To, slotId, StringComparison.OrdinalIgnoreCase)) ?? Enumerable.Empty<RecipeErrorTransitionConfig>())
-            {
-                et.To = firstEntry;
-            }
             foreach (var node in composed.Nodes.Where(n => string.Equals(n?.OnErrorNodeId, slotId, StringComparison.OrdinalIgnoreCase)))
             {
                 node.OnErrorNodeId = firstEntry;
@@ -425,19 +406,6 @@ namespace Greenshot.Base.Recipes
                 }
             }
             return result;
-        }
-
-        private static void AddTo(IDictionary<string, List<string>> transitions, string from, string to)
-        {
-            if (!transitions.TryGetValue(from, out var list))
-            {
-                list = new List<string>();
-                transitions[from] = list;
-            }
-            if (!list.Contains(to, StringComparer.OrdinalIgnoreCase))
-            {
-                list.Add(to);
-            }
         }
 
         private static string UniqueId(string id, ISet<string> usedIds)

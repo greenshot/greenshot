@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "version": "1.0",
+  "version": "2.0",
   "id": "recipe_editor_confidential_template",
   "name": "Editor Template: Confidential Watermark",
   "description": "Exposed directly inside the Greenshot Editor 'Recipes' menu. When selected, applies a red 'CONFIDENTIAL' banner and watermark directly to the active editor surface in-place without exporting.",
@@ -9,8 +9,8 @@
       "triggerType": "Editor",
       "name": "Apply Confidential Watermark",
       "parameters": {
-        "menuItemText": "Apply Confidential Watermark",
-        "group": "Templates"
+        "MenuItemText": "Apply Confidential Watermark",
+        "Group": "Templates"
       }
     }
   ],
@@ -20,7 +20,7 @@
       "stepType": "Annotation",
       "name": "Confidential Watermark Banner",
       "parameters": {
-        "annotations": [
+        "Annotations": [
           {
             "type": "Rectangle",
             "horizontalAnchor": "Center",
@@ -55,6 +55,6 @@
     "startNodes": [
       "apply_banner"
     ],
-    "transitions": {}
+    "transitions": []
   }
 }

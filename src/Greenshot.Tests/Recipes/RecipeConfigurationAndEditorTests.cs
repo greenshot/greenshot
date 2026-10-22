@@ -324,10 +324,10 @@ namespace Greenshot.Tests.Recipes
 
             Assert.NotNull(editorVm.ActiveRecipe.Flow.ErrorTransitions);
             Assert.Single(editorVm.ActiveRecipe.Flow.ErrorTransitions);
-            var savedTransition = editorVm.ActiveRecipe.Flow.ErrorTransitions[0];
+            var savedTransition = editorVm.ActiveRecipe.Flow.ErrorTransitions.First();
             Assert.Equal("acquire", savedTransition.From);
             Assert.Equal(dynStep.Id, savedTransition.To);
-            Assert.Equal("ClipboardException", savedTransition.ErrorType);
+            Assert.Equal("ClipboardException", savedTransition.OnError);
         }
     }
 }

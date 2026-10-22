@@ -389,37 +389,38 @@ namespace Greenshot.Base.Recipes.Contracts
             {
                 var flow = _recipe.Flow ?? new RecipeFlowConfig();
                 var conditionalSources = new HashSet<string>(
-                    (flow.ConditionalTransitions ?? new List<RecipeConditionalTransitionConfig>()).Where(ct => !string.IsNullOrWhiteSpace(ct?.From) && !string.IsNullOrWhiteSpace(ct.To)).Select(ct => ct.From),
+                    flow.ConditionalTransitions.Where(ct => !string.IsNullOrWhiteSpace(ct.From) && !string.IsNullOrWhiteSpace(ct.To)).Select(ct => ct.From),
                     StringComparer.OrdinalIgnoreCase);
 
-                foreach (var kvp in flow.Transitions ?? new Dictionary<string, List<string>>())
+                foreach (var from in (flow.Transitions ?? new List<RecipeTransition>()).Where(t => t != null && t.IsPlain).Select(t => t.From).Where(f => !string.IsNullOrWhiteSpace(f)).Distinct(StringComparer.OrdinalIgnoreCase))
                 {
-                    if (conditionalSources.Contains(kvp.Key))
+                    var targets = flow.GetTargets(from);
+                    if (conditionalSources.Contains(from))
                     {
                         // The engine follows only the conditional transitions of a node that has them
-                        if (kvp.Value?.Count > 0)
+                        if (targets.Count > 0)
                         {
-                            _warnings.Add($"Node '{kvp.Key}' has conditional transitions, so its normal transitions ({string.Join(", ", kvp.Value)}) are never followed.");
+                            _warnings.Add($"Node '{from}' has conditional transitions, so its normal transitions ({string.Join(", ", targets)}) are never followed.");
                         }
                         continue;
                     }
-                    foreach (var to in kvp.Value ?? new List<string>())
+                    foreach (var to in targets)
                     {
-                        AddEdge(kvp.Key, to, EdgeKind.Standard);
+                        AddEdge(from, to, EdgeKind.Standard);
                     }
                 }
 
-                foreach (var ct in flow.ConditionalTransitions ?? new List<RecipeConditionalTransitionConfig>())
+                foreach (var ct in flow.ConditionalTransitions)
                 {
-                    if (string.IsNullOrWhiteSpace(ct?.From) || string.IsNullOrWhiteSpace(ct.To)) continue;
+                    if (string.IsNullOrWhiteSpace(ct.From) || string.IsNullOrWhiteSpace(ct.To)) continue;
                     AddEdge(ct.From, ct.To, EdgeKind.Conditional, ct.Branch ?? string.Empty);
                     if (!_branchKeys.TryGetValue(ct.From, out var keys)) _branchKeys[ct.From] = keys = new List<string>();
                     if (!keys.Contains(ct.Branch ?? string.Empty, StringComparer.OrdinalIgnoreCase)) keys.Add(ct.Branch ?? string.Empty);
                 }
 
-                foreach (var et in flow.ErrorTransitions ?? new List<RecipeErrorTransitionConfig>())
+                foreach (var et in flow.ErrorTransitions)
                 {
-                    if (string.IsNullOrWhiteSpace(et?.From) || string.IsNullOrWhiteSpace(et.To)) continue;
+                    if (string.IsNullOrWhiteSpace(et.From) || string.IsNullOrWhiteSpace(et.To)) continue;
                     AddEdge(et.From, et.To, EdgeKind.Error);
                     _hasErrorEdge.Add(et.From);
                 }

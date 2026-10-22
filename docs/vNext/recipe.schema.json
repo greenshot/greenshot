@@ -24,8 +24,8 @@
     "version": {
       "type": "string",
       "pattern": "^[0-9]+(\\.[0-9]+)*$",
-      "default": "1.0",
-      "description": "Recipe schema and format version (e.g. '1.0')."
+      "default": "2.0",
+      "description": "Recipe format version. Greenshot reads 2.x; recipes of an earlier beta (1.x) are not read."
     },
     "id": {
       "type": "string",
@@ -200,45 +200,42 @@
           "description": "Starting node IDs for workflow entry points."
         },
         "transitions": {
-          "type": "object",
-          "description": "Adjacency mapping from source node ID to target node IDs (array of strings).",
-          "additionalProperties": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        },
-        "conditionalTransitions": {
           "type": "array",
-          "description": "Branch-specific routing for Conditional nodes, mapping source node ID and branch key to destination node ID.",
+          "description": "Every connection between nodes: plain (from, to), a branch of a Conditional node (from, branch, to) or an error route (from, onError, to or recipe).",
           "items": {
-            "$ref": "#/definitions/ConditionalTransitionConfig"
+            "$ref": "#/definitions/RecipeTransition"
           }
         }
       }
     },
-    "ConditionalTransitionConfig": {
+    "RecipeTransition": {
       "type": "object",
       "required": [
-        "from",
-        "branch",
-        "to"
+        "from"
       ],
       "properties": {
         "from": {
           "type": "string",
-          "description": "Source conditional node ID."
-        },
-        "branch": {
-          "type": "string",
-          "description": "Branch key / pin on the conditional node (e.g. 'A', 'B', 'true', 'false')."
+          "description": "Source node ID. For an error route also \"*\": any node."
         },
         "to": {
           "type": "string",
-          "description": "Target destination node ID."
+          "description": "Target node ID."
+        },
+        "branch": {
+          "type": "string",
+          "description": "Branch key on a Conditional node (e.g. 'A', 'B', 'true', 'false')."
+        },
+        "onError": {
+          "type": "string",
+          "description": "Makes this an error route: the error type it handles, \"*\" for every error."
+        },
+        "recipe": {
+          "type": "string",
+          "description": "Error routes only: a recipe ID to run instead of a node ('to')."
         }
-      }
+      },
+      "additionalProperties": false
     },
     "RecipeNodeConfig": {
       "type": "object",
@@ -261,12 +258,14 @@
           "description": "Optional label for this node (defaults to stepType if omitted)."
         },
         "enabled": {
-          "oneOf": [
-            { "type": "boolean" },
-            { "type": "string", "pattern": "\\$\\{" }
-          ],
+          "type": "boolean",
           "default": true,
-          "description": "Whether this node runs: true, false or an expression such as \"${option.border}\". A node which doesn't run passes the flow on to its next nodes."
+          "description": "Whether this node runs. A node which doesn't run passes the flow on to its next nodes."
+        },
+        "when": {
+          "type": "string",
+          "pattern": "\\$\\{",
+          "description": "An expression such as \"${option.border}\": the node runs only when it is true, otherwise it passes the flow on to its next nodes."
         },
         "parameters": {
           "type": "object",

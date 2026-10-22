@@ -11,6 +11,7 @@ using Greenshot.Base.Languages;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Forms;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Wpf;
 using Greenshot.Editor.Views;
 using Greenshot.Plugin.RecipeEditor.Helpers;
@@ -3997,7 +3998,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 Config.Parameters = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
             }
-            Config.Parameters[key] = value;
+            // The text of an input field in the type the step declares: "5" is saved as 5
+            var declared = value is string ? StepRegistry.Instance.GetContract(Config.StepType)?.FindParameter(key) : null;
+            Config.Parameters[key] = declared != null ? RecipeParameterTypes.FromText((string)value, declared.DataType) : value;
             NotifyConfigUpdated();
         }
 

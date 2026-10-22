@@ -106,7 +106,7 @@ namespace Greenshot.Tests.Recipes
         {
             var original = new CaptureRecipe("json_test", "JSON Test", "Serialization test")
             {
-                Version = "1.0",
+                Version = "2.0",
                 IsBuiltIn = false
             };
 

@@ -1024,27 +1024,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             // If no explicit start nodes were defined, infer start nodes from graph topology
             if (!hasExplicitStarts && Nodes.Count > 0)
             {
-                var targetNodeIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                if (recipe.Flow?.Transitions != null)
-                {
-                    foreach (var kvp in recipe.Flow.Transitions)
-                    {
-                        if (kvp.Value != null)
-                        {
-                            foreach (var toId in kvp.Value)
-                            {
-                                if (!string.IsNullOrWhiteSpace(toId)) targetNodeIds.Add(toId);
-                            }
-                        }
-                    }
-                }
-                if (recipe.Flow?.ConditionalTransitions != null)
-                {
-                    foreach (var ct in recipe.Flow.ConditionalTransitions)
-                    {
-                        if (!string.IsNullOrWhiteSpace(ct?.To)) targetNodeIds.Add(ct.To);
-                    }
-                }
+                var targetNodeIds = new HashSet<string>(
+                    (recipe.Flow?.GetUnifiedTransitions() ?? new Dictionary<string, List<string>>()).Values.SelectMany(targets => targets),
+                    StringComparer.OrdinalIgnoreCase);
 
                 bool foundRoot = false;
                 foreach (var node in Nodes)
@@ -1067,34 +1049,23 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
 
             // Map Standard Connections
-            if (recipe.Flow?.Transitions != null)
+            foreach (var transition in (recipe.Flow?.Transitions ?? new List<RecipeTransition>()).Where(t => t != null && t.IsPlain))
             {
-                foreach (var kvp in recipe.Flow.Transitions)
+                if (transition.From != null && transition.To != null && nodeMap.TryGetValue(transition.From, out var sourceNode) && nodeMap.TryGetValue(transition.To, out var targetNode))
                 {
-                    string fromId = kvp.Key;
-                    if (nodeMap.TryGetValue(fromId, out var sourceNode))
-                    {
-                        var targetList = kvp.Value ?? new List<string>();
-                        foreach (var toId in targetList)
-                        {
-                            if (nodeMap.TryGetValue(toId, out var targetNode))
-                            {
-                                var conn = new StepConnectionViewModel(sourceNode.OutputPort, targetNode.InputPort, RemoveConnection);
-                                Connections.Add(conn);
-                                sourceNode.OutputPort.IsConnected = true;
-                                targetNode.InputPort.IsConnected = true;
-                            }
-                        }
-                    }
+                    var conn = new StepConnectionViewModel(sourceNode.OutputPort, targetNode.InputPort, RemoveConnection);
+                    Connections.Add(conn);
+                    sourceNode.OutputPort.IsConnected = true;
+                    targetNode.InputPort.IsConnected = true;
                 }
             }
 
             // Map Conditional Transitions (Branch-specific connections)
-            if (recipe.Flow?.ConditionalTransitions != null)
+            if (recipe.Flow != null)
             {
                 foreach (var ct in recipe.Flow.ConditionalTransitions)
                 {
-                    if (string.IsNullOrWhiteSpace(ct?.From) || string.IsNullOrWhiteSpace(ct?.To)) continue;
+                    if (string.IsNullOrWhiteSpace(ct.From) || string.IsNullOrWhiteSpace(ct.To)) continue;
                     if (nodeMap.TryGetValue(ct.From, out var sourceNode) && nodeMap.TryGetValue(ct.To, out var targetNode))
                     {
                         var branch = sourceNode.ConditionBranches.FirstOrDefault(b => string.Equals(b.Key, ct.Branch, StringComparison.OrdinalIgnoreCase));
@@ -1110,7 +1081,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
             // Map Error Transitions
             ErrorTransitions.Clear();
-            if (recipe.Flow?.ErrorTransitions != null)
+            if (recipe.Flow != null)
             {
                 foreach (var et in recipe.Flow.ErrorTransitions)
                 {
@@ -1484,39 +1455,11 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 }
             }
 
-            // Update Transitions (as key and as targets)
-            if (ActiveRecipe?.Flow?.Transitions != null)
+            // Update the transitions
+            foreach (var transition in ActiveRecipe?.Flow?.Transitions ?? new List<RecipeTransition>())
             {
-                if (ActiveRecipe.Flow.Transitions.TryGetValue(oldId, out var targets))
-                {
-                    ActiveRecipe.Flow.Transitions.Remove(oldId);
-                    ActiveRecipe.Flow.Transitions[newId] = targets;
-                }
-
-                foreach (var kvp in ActiveRecipe.Flow.Transitions)
-                {
-                    var list = kvp.Value;
-                    if (list != null)
-                    {
-                        for (int i = 0; i < list.Count; i++)
-                        {
-                            if (string.Equals(list[i], oldId, StringComparison.OrdinalIgnoreCase))
-                            {
-                                list[i] = newId;
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Update ConditionalTransitions
-            if (ActiveRecipe?.Flow?.ConditionalTransitions != null)
-            {
-                foreach (var ct in ActiveRecipe.Flow.ConditionalTransitions)
-                {
-                    if (string.Equals(ct.From, oldId, StringComparison.OrdinalIgnoreCase)) ct.From = newId;
-                    if (string.Equals(ct.To, oldId, StringComparison.OrdinalIgnoreCase)) ct.To = newId;
-                }
+                if (string.Equals(transition?.From, oldId, StringComparison.OrdinalIgnoreCase)) transition.From = newId;
+                if (string.Equals(transition?.To, oldId, StringComparison.OrdinalIgnoreCase)) transition.To = newId;
             }
 
             SyncRecipeTransitions();
@@ -1584,8 +1527,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public void SyncRecipeTransitions()
         {
             if (ActiveRecipe?.Flow == null) return;
-            var transitions = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
-            var conditionalTransitions = new List<RecipeConditionalTransitionConfig>();
+            var flow = new RecipeFlowConfig();
             var extensionStarts = new List<string>();
 
             foreach (var c in Connections)
@@ -1606,23 +1548,15 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     var promptChoice = c.SourceNode.PromptChoices.FirstOrDefault(p => p.Port == c.Source);
                     if (branch != null)
                     {
-                        conditionalTransitions.Add(new RecipeConditionalTransitionConfig(c.SourceNode.Id, branch.Key, c.TargetNode.Id));
+                        flow.AddConditionalTransition(c.SourceNode.Id, branch.Key, c.TargetNode.Id);
                     }
                     else if (promptChoice != null)
                     {
-                        conditionalTransitions.Add(new RecipeConditionalTransitionConfig(c.SourceNode.Id, promptChoice.Key, c.TargetNode.Id));
+                        flow.AddConditionalTransition(c.SourceNode.Id, promptChoice.Key, c.TargetNode.Id);
                     }
                     else
                     {
-                        if (!transitions.TryGetValue(c.SourceNode.Id, out var list))
-                        {
-                            list = new List<string>();
-                            transitions[c.SourceNode.Id] = list;
-                        }
-                        if (!list.Contains(c.TargetNode.Id, StringComparer.OrdinalIgnoreCase))
-                        {
-                            list.Add(c.TargetNode.Id);
-                        }
+                        flow.AddTransition(c.SourceNode.Id, c.TargetNode.Id);
                     }
                 }
             }
@@ -1630,9 +1564,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             ActiveRecipe.Flow.StartNodes = _extension != null
                 ? extensionStarts.Distinct(StringComparer.OrdinalIgnoreCase).ToList()
                 : Nodes.Where(n => n.IsStartNode).Select(n => n.Id).ToList();
-            ActiveRecipe.Flow.Transitions = transitions;
-            ActiveRecipe.Flow.ConditionalTransitions = conditionalTransitions;
-            ActiveRecipe.Flow.ErrorTransitions = ErrorTransitions.Select(e => e.ToConfig()).ToList();
+            flow.Transitions.AddRange(ErrorTransitions.Select(e => e.ToConfig()));
+            ActiveRecipe.Flow.Transitions = flow.Transitions;
         }
 
         private void ValidateGraphCycles()
@@ -1666,7 +1599,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             string fallbackTarget = Nodes.FirstOrDefault(n => n.IsDynamicDestination)?.Id 
                                   ?? Nodes.FirstOrDefault(n => string.Equals(n.StepType, WellKnownStepTypes.Editor, StringComparison.OrdinalIgnoreCase))?.Id
                                   ?? Nodes.FirstOrDefault()?.Id;
-            var defaultConfig = new RecipeErrorTransitionConfig("*", fallbackTarget);
+            var defaultConfig = new RecipeTransition("*", fallbackTarget) { OnError = "*" };
             var item = new ErrorTransitionItemViewModel(defaultConfig, DeleteErrorTransition, () => Nodes, () => AvailableRecipes);
             ErrorTransitions.Add(item);
             SyncRecipeTransitions();
@@ -2230,29 +2163,18 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
             sb.AppendLine();
             sb.AppendLine("    %% Unconditional Transitions");
-            if (recipe.Flow?.Transitions != null)
+            foreach (var transition in (recipe.Flow?.Transitions ?? new List<RecipeTransition>()).Where(t => t != null && t.IsPlain))
             {
-                foreach (var kvp in recipe.Flow.Transitions)
-                {
-                    string fromId = kvp.Key;
-                    var targets = kvp.Value;
-                    if (targets != null)
-                    {
-                        foreach (var toId in targets)
-                        {
-                            sb.AppendLine($"    {fromId} --> {toId}");
-                        }
-                    }
-                }
+                sb.AppendLine($"    {transition.From} --> {transition.To}");
             }
 
-            if (recipe.Flow?.ConditionalTransitions != null && recipe.Flow.ConditionalTransitions.Count > 0)
+            if (recipe.Flow != null && recipe.Flow.ConditionalTransitions.Any())
             {
                 sb.AppendLine();
                 sb.AppendLine("    %% Conditional Branch Transitions");
                 foreach (var ct in recipe.Flow.ConditionalTransitions)
                 {
-                    if (string.IsNullOrWhiteSpace(ct?.From) || string.IsNullOrWhiteSpace(ct?.To)) continue;
+                    if (string.IsNullOrWhiteSpace(ct.From) || string.IsNullOrWhiteSpace(ct.To)) continue;
 
                     string expr = "";
                     if (nodeMap.TryGetValue(ct.From, out var srcNode) && srcNode.Parameters != null && srcNode.Parameters.TryGetValue("Branches", out var bObj))
@@ -2271,15 +2193,15 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 }
             }
 
-            if (recipe.Flow?.ErrorTransitions != null && recipe.Flow.ErrorTransitions.Count > 0)
+            if (recipe.Flow != null && recipe.Flow.ErrorTransitions.Any())
             {
                 sb.AppendLine();
                 sb.AppendLine("    %% Error Handling Fallbacks");
                 foreach (var et in recipe.Flow.ErrorTransitions)
                 {
-                    if (string.IsNullOrWhiteSpace(et?.From)) continue;
-                    string target = !string.IsNullOrEmpty(et.To) ? et.To : $"Recipe_{et.TargetRecipeId}";
-                    sb.AppendLine($"    {et.From} -. \"Error: {et.ErrorType}\" .-> {target}");
+                    if (string.IsNullOrWhiteSpace(et.From)) continue;
+                    string target = !string.IsNullOrEmpty(et.To) ? et.To : $"Recipe_{et.Recipe}";
+                    sb.AppendLine($"    {et.From} -. \"Error: {et.OnError}\" .-> {target}");
                 }
             }
 

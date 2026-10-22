@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "version": "1.0",
+  "version": "2.0",
   "id": "recipe_dag_watermark_branching",
   "name": "DAG Workflow with environment watermark and parallel feedback",
   "description": "Demonstrates DAG branching, variable assignment, scoped user/machine environment variables, mathematical positioning expressions, and multi-drawable surface stamping.",
@@ -9,14 +9,14 @@
       "triggerType": "ContextMenu",
       "name": "DAG Watermark Capture",
       "parameters": {
-        "menuItemText": "DAG Environment Watermark Capture",
-        "group": "Recipes"
+        "MenuItemText": "DAG Environment Watermark Capture",
+        "Group": "Recipes"
       }
     },
     {
       "triggerType": "Hotkey",
       "parameters": {
-        "hotkey": "Ctrl + Shift + W"
+        "Hotkey": "Ctrl + Shift + W"
       }
     }
   ],
@@ -26,7 +26,7 @@
       "stepType": "Source",
       "name": "Capture Screen Region",
       "parameters": {
-        "sourceType": "Region"
+        "SourceType": "Region"
       }
     },
     {
@@ -34,8 +34,8 @@
       "stepType": "InteractiveSelection",
       "name": "Select Area",
       "parameters": {
-        "selectionMode": "Region",
-        "allowWindowSnapping": true
+        "SelectionMode": "Region",
+        "AllowWindowSnapping": true
       }
     },
     {
@@ -43,7 +43,7 @@
       "stepType": "ImmediateFeedback",
       "name": "Play Shutter Sound (Branch A)",
       "parameters": {
-        "playSound": true
+        "PlaySound": true
       }
     },
     {
@@ -51,7 +51,7 @@
       "stepType": "SetVariable",
       "name": "Set Recipe Variables (Branch B)",
       "parameters": {
-        "variables": {
+        "Variables": {
           "department": "Engineering QA",
           "watermark_text": "Captured by ${user.username} on ${machine.computername} [${now:yyyy-MM-dd HH:mm}]"
         }
@@ -62,7 +62,7 @@
       "stepType": "Annotation",
       "name": "Stamp Annotations & Watermarks",
       "parameters": {
-        "annotations": [
+        "Annotations": [
           {
             "type": "Rectangle",
             "horizontalAnchor": "Right",
@@ -118,7 +118,7 @@
       "stepType": "Destinations",
       "name": "Join Paths and Export to Editor",
       "parameters": {
-        "destinationDesignations": [
+        "DestinationDesignations": [
           "Editor",
           "Clipboard"
         ]
@@ -129,23 +129,31 @@
     "startNodes": [
       "capture_node"
     ],
-    "transitions": {
-      "capture_node": [
-        "select_node"
-      ],
-      "select_node": [
-        "feedback_branch",
-        "set_vars_node"
-      ],
-      "set_vars_node": [
-        "watermark_node"
-      ],
-      "feedback_branch": [
-        "export_join"
-      ],
-      "watermark_node": [
-        "export_join"
-      ]
-    }
+    "transitions": [
+      {
+        "from": "capture_node",
+        "to": "select_node"
+      },
+      {
+        "from": "select_node",
+        "to": "feedback_branch"
+      },
+      {
+        "from": "select_node",
+        "to": "set_vars_node"
+      },
+      {
+        "from": "set_vars_node",
+        "to": "watermark_node"
+      },
+      {
+        "from": "feedback_branch",
+        "to": "export_join"
+      },
+      {
+        "from": "watermark_node",
+        "to": "export_join"
+      }
+    ]
   }
 }

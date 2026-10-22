@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "version": "1.0",
+  "version": "2.0",
   "id": "recipe_external_command_optimize",
   "name": "Region Snip with External Tool Optimization",
   "description": "Interactive region snip that runs an external command to optimize the image and reloads it into the editor.",
@@ -8,15 +8,15 @@
     {
       "triggerType": "Hotkey",
       "parameters": {
-        "hotkey": "Ctrl + Shift + O"
+        "Hotkey": "Ctrl + Shift + O"
       }
     },
     {
       "triggerType": "ContextMenu",
       "name": "Optimize and Edit",
       "parameters": {
-        "menuItemText": "Snip & Optimize Image",
-        "group": "Recipes"
+        "MenuItemText": "Snip & Optimize Image",
+        "Group": "Recipes"
       }
     }
   ],
@@ -25,14 +25,14 @@
       "id": "source",
       "stepType": "Source",
       "parameters": {
-        "sourceType": "Region"
+        "SourceType": "Region"
       }
     },
     {
       "id": "select",
       "stepType": "InteractiveSelection",
       "parameters": {
-        "selectionMode": "Region"
+        "SelectionMode": "Region"
       }
     },
     {
@@ -40,17 +40,17 @@
       "stepType": "ExternalCommand",
       "name": "Run Image Optimizer",
       "parameters": {
-        "commandLine": "cmd.exe",
-        "arguments": "/c echo Optimizing ${context.ExternalCommand.TargetFile}",
-        "reloadAfterExecution": false,
-        "setOutputVariable": "opt_output"
+        "CommandLine": "cmd.exe",
+        "Arguments": "/c echo Optimizing ${context.ExternalCommand.TargetFile}",
+        "ReloadAfterExecution": false,
+        "SetOutputVariable": "opt_output"
       }
     },
     {
       "id": "feedback",
       "stepType": "ImmediateFeedback",
       "parameters": {
-        "playSound": true
+        "PlaySound": true
       }
     },
     {
@@ -58,7 +58,7 @@
       "stepType": "Destinations",
       "name": "Open Editor",
       "parameters": {
-        "destinationDesignations": [
+        "DestinationDesignations": [
           "Editor"
         ]
       }
@@ -68,19 +68,23 @@
     "startNodes": [
       "source"
     ],
-    "transitions": {
-      "source": [
-        "select"
-      ],
-      "select": [
-        "optimize_cmd"
-      ],
-      "optimize_cmd": [
-        "feedback"
-      ],
-      "feedback": [
-        "destination"
-      ]
-    }
+    "transitions": [
+      {
+        "from": "source",
+        "to": "select"
+      },
+      {
+        "from": "select",
+        "to": "optimize_cmd"
+      },
+      {
+        "from": "optimize_cmd",
+        "to": "feedback"
+      },
+      {
+        "from": "feedback",
+        "to": "destination"
+      }
+    ]
   }
 }

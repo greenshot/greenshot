@@ -1,5 +1,5 @@
 {
-  "version": "1.0",
+  "version": "2.0",
   "id": "recipe_region_blue_border",
   "name": "Region with Blue Border",
   "description": "Interactive region capture that adds a 2px blue border and opens the editor",
@@ -9,15 +9,15 @@
       "name": "Region with Border Menu Item",
       "enabled": true,
       "parameters": {
-        "menuItemText": "Region with Blue Border",
-        "group": "Recipes"
+        "MenuItemText": "Region with Blue Border",
+        "Group": "Recipes"
       }
     },
     {
       "triggerType": "Hotkey",
       "enabled": true,
       "parameters": {
-        "hotkey": "Ctrl + Shift + B"
+        "Hotkey": "Ctrl + Shift + B"
       }
     }
   ],
@@ -28,7 +28,7 @@
       "stepType": "Source",
       "enabled": true,
       "parameters": {
-        "sourceType": "Region"
+        "SourceType": "Region"
       }
     },
     {
@@ -36,7 +36,7 @@
       "stepType": "InteractiveSelection",
       "enabled": true,
       "parameters": {
-        "selectionMode": "Region"
+        "SelectionMode": "Region"
       }
     },
     {
@@ -45,9 +45,9 @@
       "name": "Add Blue Border",
       "enabled": true,
       "parameters": {
-        "effect": "Border",
-        "width": 2,
-        "color": "#0000FF"
+        "Effect": "Border",
+        "Width": 2,
+        "Color": "#0000FF"
       }
     },
     {
@@ -56,7 +56,7 @@
       "name": "Camera Feedback",
       "enabled": true,
       "parameters": {
-        "playSound": true
+        "PlaySound": true
       }
     },
     {
@@ -65,7 +65,7 @@
       "name": "Open Editor",
       "enabled": true,
       "parameters": {
-        "destinationDesignations": [
+        "DestinationDesignations": [
           "Editor"
         ]
       }
@@ -75,21 +75,24 @@
     "startNodes": [
       "source"
     ],
-    "transitions": {
-      "source": [
-        "select"
-      ],
-      "select": [
-        "border"
-      ],
-      "border": [
-        "feedback"
-      ],
-      "feedback": [
-        "destination"
-      ]
-    },
-    "conditionalTransitions": []
+    "transitions": [
+      {
+        "from": "source",
+        "to": "select"
+      },
+      {
+        "from": "select",
+        "to": "border"
+      },
+      {
+        "from": "border",
+        "to": "feedback"
+      },
+      {
+        "from": "feedback",
+        "to": "destination"
+      }
+    ]
   },
   "showInContextMenu": true,
   "isBuiltIn": false,

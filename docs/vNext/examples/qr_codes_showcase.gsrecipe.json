@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "version": "1.0",
+  "version": "2.0",
   "id": "recipe_qr_codes_showcase",
   "name": "QR Codes Showcase (Payments, Business Cards & Links)",
   "description": "Demonstrates inserting multiple structured QR codes: an EPC SEPA bank transfer QR code for payments, a vCard contact business card, and a dynamic website link with rounded dots styling.",
@@ -17,14 +17,14 @@
       "triggerType": "ContextMenu",
       "name": "QR Codes Showcase Menu Item",
       "parameters": {
-        "menuItemText": "QR Codes Showcase (Payments & Business Cards)",
-        "group": "Recipes"
+        "MenuItemText": "QR Codes Showcase (Payments & Business Cards)",
+        "Group": "Recipes"
       }
     },
     {
       "triggerType": "Hotkey",
       "parameters": {
-        "hotkey": "Ctrl + Shift + Q"
+        "Hotkey": "Ctrl + Shift + Q"
       }
     }
   ],
@@ -34,7 +34,7 @@
       "stepType": "Source",
       "name": "Capture Screen Area",
       "parameters": {
-        "sourceType": "Region"
+        "SourceType": "Region"
       }
     },
     {
@@ -42,7 +42,7 @@
       "stepType": "InteractiveSelection",
       "name": "Interactive Region Selection",
       "parameters": {
-        "selectionMode": "Region"
+        "SelectionMode": "Region"
       }
     },
     {
@@ -50,7 +50,7 @@
       "stepType": "Annotation",
       "name": "Stamp QR Codes",
       "parameters": {
-        "annotations": [
+        "Annotations": [
           {
             "type": "QRCode",
             "qrType": "Payment",
@@ -64,7 +64,7 @@
             "epcName": "Greenshot Community e.V.",
             "epcIban": "DE89370400440532013000",
             "epcBic": "COBADEFFXXX",
-            "epcAmount": 15.00,
+            "epcAmount": 15.0,
             "epcReference": "DONATION-2026",
             "epcMessage": "Support Greenshot Development"
           },
@@ -105,16 +105,29 @@
       "stepType": "Destinations",
       "name": "Open in Greenshot Editor",
       "parameters": {
-        "destinationDesignations": [ "Editor" ]
+        "DestinationDesignations": [
+          "Editor"
+        ]
       }
     }
   ],
   "flow": {
-    "startNodes": [ "source" ],
-    "transitions": {
-      "source": [ "select" ],
-      "select": [ "add_qr_annotations" ],
-      "add_qr_annotations": [ "destination" ]
-    }
+    "startNodes": [
+      "source"
+    ],
+    "transitions": [
+      {
+        "from": "source",
+        "to": "select"
+      },
+      {
+        "from": "select",
+        "to": "add_qr_annotations"
+      },
+      {
+        "from": "add_qr_annotations",
+        "to": "destination"
+      }
+    ]
   }
 }
