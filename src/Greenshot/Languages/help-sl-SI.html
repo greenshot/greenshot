@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="sl">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Pomoč za Greenshot</title>
+		<style>
+		* {font-family: "Segoe UI", Tahoma, Arial, Sans-serif;}
+		body {max-width:60em;margin:0 auto;padding:0 16px 24px 16px;}
+		h1 {font-size:20px;}
+		h2 {font-size:16px;color:#009900;margin-top:28px;}
+		h3 {font-size:14px;margin-top:20px;}
+		small {font-size:11px;}
+		p, li, td, th {font-size:13px;line-height:1.5em;}
+		a:link, a:hover, a:visited, a:active {color:#007700;}
+		kbd {background-color:#eeeeee;border:1px solid #bbbbbb;padding:0 3px;border-radius:3px;white-space:nowrap;}
+		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px 8px;}
+		table {border-collapse:collapse;margin:6px 0;}
+		th, td {border:1px solid #dddddd;padding:3px 8px;text-align:left;vertical-align:top;}
+		th {background-color:#f2f2f2;}
+		em {font-style:normal;font-weight:bold;}
+		</style>
+	</head>
+	<body>
+	<h1>Pomoč za Greenshot</h1>
+	<!--
+	Note to translator: uncomment the entry below to have your effort honored
+	-->
+	<!--<small>Slovenski prevod pomoči: YOUR_NAME</small>-->
+
+	<p class="hint">
+		Povezave, ki se začnejo z <code>greenshot:</code>, na primer <a href="greenshot://settings">odpri nastavitve</a>,
+		odprejo to okno programa Greenshot. Delujejo, če je bil Greenshot nameščen z namestitvenim programom, ne pa v prenosni
+		različici ali v Greenshot Light. Brskalnik vas vpraša, preden odpre Greenshot.
+	</p>
+
+	<h2>Vsebina</h2>
+	<ol>
+		<li><a href="#start">Prvi koraki</a></li>
+		<li><a href="#screenshot">Zajem zaslonske slike</a>
+			<ol>
+				<li><a href="#capture-screen">Zaslon za zajem</a></li>
+				<li><a href="#capture-modes">Področje, okno, stalna velikost in besedilo</a></li>
+				<li><a href="#capture-keys">Tipke med izbiranjem</a></li>
+				<li><a href="#capture-live">Izbiranje brez zamrznitve zaslona</a></li>
+			</ol>
+		</li>
+		<li><a href="#destinations">Kam gre zaslonska slika</a></li>
+		<li><a href="#editor">Urejevalnik slik</a>
+			<ol>
+				<li><a href="#editor-tabs">Zavihki</a></li>
+				<li><a href="#editor-tools">Orodja za risanje</a></li>
+				<li><a href="#editor-highlight">Označevanje in zakrivanje</a></li>
+				<li><a href="#editor-crop">Obrezovanje</a></li>
+				<li><a href="#editor-effects">Učinki, vrtenje in spreminjanje velikosti</a></li>
+				<li><a href="#editor-reuse">Dodajanje slik in ponovna uporaba elementov</a></li>
+				<li><a href="#editor-export">Shranjevanje in izvoz</a></li>
+			</ol>
+		</li>
+		<li><a href="#recipes">Samodejni koraki in recepti</a></li>
+		<li><a href="#settings">Nastavitve</a></li>
+		<li><a href="#troubleshooting">Ko kaj ne deluje</a></li>
+		<li><a href="#help">Želite pomagati?</a></li>
+	</ol>
+
+	<a name="start"></a>
+	<h2>Prvi koraki</h2>
+	<p>
+		Greenshot teče v ozadju. Njegova ikona je ob uri, v območju za obvestila v opravilni vrstici.
+		Kliknite jo z desno tipko miške, da odprete meni z vsemi načini zajema, <em>Nastavitve...</em> in to pomočjo.
+	</p>
+	<p class="hint">
+		Ne vidite ikone? Windows 11 jo lahko skrije za puščico (^). <a href="greenshot://self-service?section=setup">Vaša nastavitev</a>
+		v Samopomoč jo prikaže ob uri in preveri tudi, ali tipka <kbd>Print Screen</kbd> pride do programa Greenshot.
+	</p>
+
+	<a name="screenshot"></a>
+	<h2>Zajem zaslonske slike</h2>
+	<p>Zajem začnete z bližnjico ali iz menija ikone Greenshot:</p>
+	<table>
+		<tr><th>Zajem</th><th>Bližnjica</th><th>Kaj se zgodi</th></tr>
+		<tr><td><em>Zajemi del zaslona</em></td><td><kbd>Print Screen</kbd></td><td>Odpre se zaslon za zajem, izberete, kaj želite zajeti.</td></tr>
+		<tr><td><em>Zajemi okno</em></td><td><kbd>Alt</kbd> + <kbd>Print Screen</kbd></td><td>Takoj zajame aktivno okno. Z možnostjo <em>Uporabi interaktivno okno za zajem</em> (<a href="greenshot://settings?tab=capture">zavihek Zajem</a>) okno namesto tega izberete na zaslonu za zajem.</td></tr>
+		<tr><td><em>Zajemi celoten zaslon</em></td><td><kbd>Ctrl</kbd> + <kbd>Print Screen</kbd></td><td>Takoj zajame zaslon. Pri več monitorjih meni ikone ponudi vse monitorje ali enega od njih.</td></tr>
+		<tr><td><em>Zajemi zadnjo regijo</em></td><td><kbd>Shift</kbd> + <kbd>Print Screen</kbd></td><td>Znova zajame isto območje kot pri zadnjem zajemu.</td></tr>
+		<tr><td><em>Odpri sliko iz odložišča</em></td><td>brez</td><td>Odpre sliko iz odložišča.</td></tr>
+	</table>
+	<p>
+		Meni ima tudi <em>Zajemi okno iz seznama</em>, ki zajame odprto okno, ki ga izberete, brez zaslona za zajem,
+		<em>Odpri sliko iz datoteke</em> in <em>Odpri mesto zadnjega zajema</em>.
+		Bližnjice lahko spremenite v <a href="greenshot://settings?tab=general">nastavitvah, zavihek Splošno</a>.
+	</p>
+
+	<a name="capture-screen"></a>
+	<h3>Zaslon za zajem</h3>
+	<p>
+		Greenshot posname vse vaše monitorje in sliko prikaže nad vsem drugim. Med izbiranjem se nič ne spremeni,
+		zato odprt meni ali opis orodja ostane, kjer je bil. Zajame se le del, ki ga izberete. <kbd>Esc</kbd> zapre zaslon
+		za zajem, ne da bi kar koli zajel.
+	</p>
+	<p>Nad sliko vidite:</p>
+	<ul>
+		<li><em>izbor</em> z njegovo velikostjo,</li>
+		<li><em>povečevalo</em> ob miški, ki prikaže vsak piksel, da lahko natančno postavite kot,</li>
+		<li>plošče v kotih: <em>tipke</em> (<kbd>F1</kbd>), <em>podatki</em> (<kbd>I</kbd>) in <em>predogled</em> izbora (<kbd>P</kbd>).
+			Same se vam umaknejo s poti.</li>
+	</ul>
+	<p class="hint">
+		Med izbiranjem pritisnite <kbd>F1</kbd>: plošča tipk vedno navaja tipke, ki v tistem trenutku delujejo.
+		Greenshot si zapomni, ko skrijete ploščo, <kbd>F1</kbd> ali <kbd>I</kbd> jo prikaže znova.
+	</p>
+
+	<a name="capture-modes"></a>
+	<h3>Področje, okno, stalna velikost in besedilo</h3>
+	<ul>
+		<li><em>Področje</em>: z miško povlecite pravokotnik, ko spustite tipko, se zajame. S tipkovnico: puščice premikajo miško,
+			<kbd>Enter</kbd> začne izbor, ponovni <kbd>Enter</kbd> ga zajame. Držite <kbd>Shift</kbd>, da spreminjate le širino ali le višino.</li>
+		<li><em>Okno</em> (<kbd>Preslednica</kbd>): izbere se okno pod miško, klik ali <kbd>Enter</kbd> ga zajame.
+			Greenshot izbere najbolj notranji del, npr. orodno vrstico; premaknite miško na zunanji rob okna, da izberete celo okno.
+			<kbd>Tab</kbd> in <kbd>Shift</kbd> + <kbd>Tab</kbd> izbereta naslednje ali prejšnje okno.</li>
+		<li><em>Stalna velikost</em> (<kbd>F</kbd>): pravokotnik natančne velikosti, npr. 1280 × 720, sledi miški. <kbd>1</kbd> – <kbd>9</kbd> izberejo velikost,
+			<kbd>C</kbd> spremeni kot, za katerega ga drži miška, držite <kbd>Alt</kbd>, da ga postavite brez pripenjanja na okna. Svoje velikosti nastavite na
+			<a href="greenshot://settings?tab=capture">zavihku Zajem</a>, ponujene so tudi velikosti vaših zadnjih zajemov.</li>
+		<li><em>Besedilo</em> (<kbd>T</kbd>): Greenshot prebere besedilo na zaslonu s prepoznavanjem besedila v sistemu Windows in uokviri vsako vrstico.
+			Kliknite vrstico ali povlecite čez besede, da jih zajamete. Če želite besede kot besedilo, pošljite zajem v <em>Windows OCR</em>,
+			ki besedilo kopira na odložišče. Za to mora biti v sistemu Windows nameščen jezik za prepoznavanje; jezik izberete na
+			<a href="greenshot://settings?tab=capture">zavihku Zajem</a>, <em>Prepoznavanje besedila (OCR)</em>.</li>
+	</ul>
+	<p class="hint">
+		Z dodatkom za kode QR Greenshot najde kode QR na zaslonu in jih uokviri. Kliknite kodo, da kopirate njeno vsebino ali odprete njen spletni naslov.
+	</p>
+
+	<a name="capture-keys"></a>
+	<h3>Tipke med izbiranjem</h3>
+	<table>
+		<tr><th>Tipka</th><th>Kaj naredi</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Prekliče zajem</td></tr>
+		<tr><td><kbd>Preslednica</kbd></td><td>Preklopi med področjem in oknom</td></tr>
+		<tr><td><kbd>F</kbd> / <kbd>T</kbd></td><td>Zajame stalno velikost / zajame besedilo</td></tr>
+		<tr><td><kbd>M</kbd></td><td>Pokaže ali skrije kazalec miške na zajemu</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Preklopi med zamrznjenim in živim zaslonom</td></tr>
+		<tr><td><kbd>Z</kbd></td><td>Pokaže ali skrije povečevalo</td></tr>
+		<tr><td><kbd>F1</kbd> / <kbd>I</kbd> / <kbd>P</kbd></td><td>Pokaže ali skrije tipke / podatke / premakne ali skrije predogled</td></tr>
+		<tr><td>Puščice</td><td>Premaknejo miško za en piksel, s <kbd>Ctrl</kbd> za deset pikslov</td></tr>
+		<tr><td><kbd>Enter</kbd></td><td>Začne ali konča izbor, zajame okno</td></tr>
+	</table>
+
+	<a name="capture-live"></a>
+	<h3>Izbiranje brez zamrznitve zaslona</h3>
+	<p>
+		Izklopite <em>Zamrzni zaslon med izbiranjem</em> na <a href="greenshot://settings?tab=capture">zavihku Zajem</a> ali med izbiranjem pritisnite
+		<kbd>L</kbd>, pa izbirate na živem zaslonu: videoposnetek se predvaja naprej, zajem pa se naredi, ko končate
+		izbor. Način besedila in predogled potrebujeta zamrznjeno sliko. Odprti meniji se ob kliku običajno zaprejo, zato zanje uporabite zamrznjen zaslon.
+	</p>
+	<p class="hint">
+		Se kaj prikaže šele čez trenutek? Nastavite <em>Čakanje pred zajemom slike (v milisekundah)</em> na
+		<a href="greenshot://settings?tab=capture">zavihku Zajem</a> ali izbirajte na živem zaslonu.
+	</p>
+
+	<a name="destinations"></a>
+	<h2>Kam gre zaslonska slika</h2>
+	<p>
+		Po zajemu Greenshot pošlje zaslonsko sliko na vaše cilje. Privzeto vsakič vpraša z majhnim menijem.
+		Vsak cilj ima tam stalno podčrtano črko, npr. <kbd>C</kbd> za odložišče in <kbd>S</kbd> za shranjevanje, zato ga lahko izberete s tipkovnico.
+		Cilje izberite na <a href="greenshot://settings?tab=destination">zavihku Cilj</a> ali v <em>Hitre nastavitve</em> v meniju ikone.
+	</p>
+	<ul>
+		<li><em>Odpri v urejevalniku</em>: zaslonsko sliko najprej opremite z oznakami, glejte <a href="#editor">urejevalnik slik</a>.</li>
+		<li><em>Shrani neposredno (z uporabo spodnjih nastavitev)</em> uporabi mapo in vzorec imena datoteke z <a href="greenshot://settings?tab=output">zavihka Shranjevanje</a>, <em>Shrani kot (odpre pogovorno okno)</em> ju vpraša.</li>
+		<li><em>Kopiraj na odložišče</em>, <em>Tiskaj</em>, <em>E-pošta</em>, <em>Windows share</em> in <em>Windows OCR</em> (kopira besedilo zaslonske slike).</li>
+		<li>Dodatki dodajo več ciljev, npr. Microsoft Word, Excel, PowerPoint, Outlook in OneNote, PDF, Box, Dropbox, Jira in Confluence.
+			Nastavite jih na <a href="greenshot://settings?tab=plugins">zavihku Dodatki</a>, kjer lahko dodatek tudi izklopite.</li>
+	</ul>
+	<p>
+		Stolpec <em>Na voljo</em> na <a href="greenshot://settings?tab=destination">zavihku Cilj</a> izklopi cilj povsod.
+		Katera obvestila dobite po zajemu, nastavite na <a href="greenshot://settings?tab=capture">zavihku Zajem</a>, <em>Obvestila</em>.
+	</p>
+
+	<a name="editor"></a>
+	<h2>Urejevalnik slik</h2>
+	<p>
+		Urejevalnik zaslonski sliki doda oblike, besedilo, puščice, oznake in drugo, ali skrije, česar drugi ne bi smeli videti.
+		Poleg vaših zajemov odpre tudi slike iz datoteke ali iz odložišča (meni ikone).
+		Vse, kar narišete, ostane element, ki ga lahko izberete, premaknete, spremenite ali odstranite.
+	</p>
+
+	<a name="editor-tabs"></a>
+	<h3>Zavihki</h3>
+	<p>
+		Okno urejevalnika prikaže več slik kot zavihke, nov zajem se odpre kot zavihek v oknu urejevalnika, ki ste ga uporabili nazadnje.
+		<kbd>Ctrl</kbd> + <kbd>Tab</kbd> gre na naslednji zavihek, <kbd>Ctrl</kbd> + <kbd>W</kbd> pa zavihek zapre. Zavihek povlecite v drugo okno urejevalnika
+		ali ga kliknite z desno tipko miške, da ga premaknete v novo okno. <em>+</em> na vrstici zavihkov začne novo, prazno sliko.
+		Ko zaprete okno z neshranjenimi slikami, Greenshot vpraša enkrat: <em>Shrani vse</em>, <em>Zavrzi vse</em> ali prekliči.
+		Vam je ljubše eno okno na zajem? Izklopite zavihke na <a href="greenshot://settings?tab=editor">zavihku Urejevalnik</a>.
+	</p>
+
+	<a name="editor-tools"></a>
+	<h3>Orodja za risanje</h3>
+	<p>
+		Orodje izberite na levi strani urejevalnika, v meniju <em>Objekt</em> ali z njegovo tipko, nato povlecite po sliki.
+		Orodna vrstica na vrhu prikaže možnosti orodja ali izbranih elementov, npr. barvo črte, barvo polnila in debelino.
+	</p>
+	<table>
+		<tr><th>Tipka</th><th>Orodje</th><th>Tipka</th><th>Orodje</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Izbiranje</td><td><kbd>S</kbd></td><td>Oblaček</td></tr>
+		<tr><td><kbd>R</kbd></td><td>Pravokotnik</td><td><kbd>I</kbd></td><td>Števec (oštevilčeni koraki)</td></tr>
+		<tr><td><kbd>E</kbd></td><td>Elipsa</td><td><kbd>M</kbd></td><td>Emoji</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Črta</td><td><kbd>H</kbd></td><td>Označevanje</td></tr>
+		<tr><td><kbd>A</kbd></td><td>Puščica</td><td><kbd>O</kbd></td><td>Zakrivanje</td></tr>
+		<tr><td><kbd>F</kbd></td><td>Prostoročno</td><td><kbd>C</kbd></td><td>Obrezovanje</td></tr>
+		<tr><td><kbd>T</kbd></td><td>Besedilo</td><td><kbd>Z</kbd></td><td>Spremeni velikost slike</td></tr>
+	</table>
+	<ul>
+		<li>Med risanjem držite <kbd>Shift</kbd> za kvadrat ali krog ali za črte v korakih po 15°; pri spreminjanju velikosti ohrani razmerje stranic.
+			Držite <kbd>Ctrl</kbd>, da rišete ali spreminjate velikost iz sredine, priročno za elipso okoli česa.</li>
+		<li>Besedilo: narišite polje z besedilom in tipkajte. Dvokliknite besedilo, da ga spremenite, <kbd>Enter</kbd> konča, <kbd>Shift</kbd> + <kbd>Enter</kbd> začne novo vrstico.</li>
+		<li>Izbrani elementi: puščice jih premikajo (s <kbd>Shift</kbd> za deset pikslov), <kbd>Ctrl</kbd> + puščice jim spremenijo velikost,
+			<kbd>Page Up</kbd> / <kbd>Page Down</kbd> jih premakneta za raven višje ali nižje, <kbd>Delete</kbd> jih odstrani, <kbd>Ctrl</kbd> + <kbd>D</kbd> jih podvoji.
+			Držite <kbd>Shift</kbd> in klikajte, da izberete več elementov.</li>
+		<li><kbd>Ctrl</kbd> + <kbd>Z</kbd> razveljavi, <kbd>Ctrl</kbd> + <kbd>Y</kbd> uveljavi znova.</li>
+	</ul>
+
+	<a name="editor-highlight"></a>
+	<h3>Označevanje in zakrivanje</h3>
+	<p>Področje za označevanje (<kbd>H</kbd>) ali zakrivanje (<kbd>O</kbd>) narišite kot pravokotnik in v orodni vrstici izberite način:</p>
+	<ul>
+		<li><em>Označi besedilo</em> obarva področje kot označevalnik, <em>Označi področje</em> potemni in zamegli vse drugo,
+			<em>Označi črno-belo</em> obarva vse drugo sivo, <em>Povečaj</em> poveča področje.</li>
+		<li><em>Velikost pikslov</em> ali <em>Zamegli</em> skrijeta gesla, imena, številke računov ali obraze.</li>
+	</ul>
+
+	<a name="editor-crop"></a>
+	<h3>Obrezovanje</h3>
+	<p>
+		Izberite orodje za obrezovanje (<kbd>C</kbd>) in narišite področje, ki ga želite obdržati, <kbd>Enter</kbd> potrdi, <kbd>Esc</kbd> prekliče.
+		Znova pritisnite <kbd>C</kbd> ali uporabite <em>Način obrezovanja</em> v orodni vrstici, da preklopite način:
+	</p>
+	<ul>
+		<li><em>Izreži navpično</em> ali <em>Izreži vodoravno</em> odstrani pas iz slike in združi preostanek, npr. da izpustite
+			prazno sredino dolge strani. <em>Robovi reza</em> izbere videz šiva: raven, cikcak, valovit, strgan ali brez šiva.</li>
+		<li><em>Samodejno obreži</em> odstrani enobarvni rob okoli slike.</li>
+	</ul>
+
+	<a name="editor-effects"></a>
+	<h3>Učinki, vrtenje in spreminjanje velikosti</h3>
+	<table>
+		<tr><th>Tipke</th><th>Kaj naredi</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Q</kbd></td><td>Senca</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>B</kbd></td><td>Obroba</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>T</kbd></td><td>Strgan rob</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>G</kbd> / <kbd>Ctrl</kbd> + <kbd>I</kbd></td><td>Sivine / obrni barve, npr. za varčevanje s črnilom pri tiskanju</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>,</kbd> / <kbd>Ctrl</kbd> + <kbd>.</kbd></td><td>Zavrti v nasprotni smeri urinega kazalca / v smeri urinega kazalca</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>+</kbd> / <kbd>-</kbd></td><td>Povečaj / pomanjšaj platno</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>+</kbd> / <kbd>-</kbd>, <kbd>Ctrl</kbd> + <kbd>0</kbd>, <kbd>Ctrl</kbd> + <kbd>9</kbd></td><td>Povečaj / pomanjšaj pogled, dejanska velikost, najboljše prileganje</td></tr>
+	</table>
+	<p>
+		Strgan rob ostane element, ki ga lahko spremenite; <em>Uporabi na sliki</em> v orodni vrstici ga naredi za del slike.
+	</p>
+
+	<a name="editor-reuse"></a>
+	<h3>Dodajanje slik in ponovna uporaba elementov</h3>
+	<ul>
+		<li>Povlecite slikovno datoteko v urejevalnik ali prilepite sliko s <kbd>Ctrl</kbd> + <kbd>V</kbd>. <em>Vstavi okno</em> v meniju <em>Uredi</em> doda zajem drugega odprtega okna.</li>
+		<li>Iste elemente uporabite na več zaslonskih slikah: <em>Shrani objekte v datoteko</em> v meniju <em>Objekt</em> in <em>Naloži objekte iz datoteke</em> na naslednji sliki.</li>
+		<li>Shranite kot datoteko <code>.greenshot</code>, da ostanejo vsi elementi urejljivi in lahko nadaljujete pozneje.</li>
+	</ul>
+
+	<a name="editor-export"></a>
+	<h3>Shranjevanje in izvoz</h3>
+	<table>
+		<tr><th>Tipke</th><th>Kaj naredi</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td><td><em>Shrani</em> v mapo z <a href="greenshot://settings?tab=output">zavihka Shranjevanje</a></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd></td><td><em>Shrani kot...</em>: izberite mapo, ime in obliko slike</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd></td><td><em>Kopiraj sliko na odložišče</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>P</kbd></td><td><em>Tiskaj</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>E</kbd></td><td><em>E-pošta</em>: novo sporočilo s priloženo sliko</td></tr>
+	</table>
+	<p>
+		Meni <em>Datoteka</em> in orodna vrstica na vrhu navajata vse vaše cilje, tudi cilje dodatkov.
+		Po shranjevanju kliknite vrstico stanja na dnu z desno tipko miške, da kopirate pot do datoteke ali odprete njeno mapo.
+	</p>
+
+	<a name="recipes"></a>
+	<h2>Samodejni koraki in recepti</h2>
+	<p>
+		Recepti samodejno obdelajo vaše zajeme, npr. vsakemu zajemu dodajo obrobo ali ga shranijo in naložijo v enem koraku.
+		<em>Hitre nastavitve</em> &gt; <em>Samodejni koraki</em> v meniju ikone vklopi ali izklopi pripravljene korake,
+		<em>Več…</em> odpre njihove nastavitve na <a href="greenshot://settings?tab=recipes">zavihku Recepti</a>.
+		Meni <em>Recepti</em> ikone zažene vaše recepte in odpre <a href="greenshot://recipe-manager">Upravitelj receptov</a> in Recipe Editor.
+		Recepti so del dodatka Recipe Editor.
+	</p>
+
+	<a name="settings"></a>
+	<h2>Nastavitve</h2>
+	<p>Nastavitve odprete z <em>Nastavitve...</em> v meniju ikone ali s spodnjimi povezavami.</p>
+	<ul>
+		<li><a href="greenshot://settings?tab=general">Splošno</a>: jezik, barve (svetle, temne ali kot Windows), velikost ikon,
+			<em>Zaženi Greenshot skupaj s sistemom</em>, bližnjice, posredniški strežnik in kako pogosto Greenshot preverja posodobitve.</li>
+		<li><a href="greenshot://settings?tab=capture">Zajem</a>: zajem kazalca miške, zvok fotoaparata, povečevalo, zamrznitev zaslona,
+			obvestila, čakanje pred zajemom, vaše stalne velikosti, interaktivni zajem okna in jezik prepoznavanja besedila.</li>
+		<li><a href="greenshot://settings?tab=output">Shranjevanje</a>: mapa in vzorec imena datoteke za shranjevanje (kliknite <em>?</em> za nadomestne oznake,
+			npr. <code>${YYYY}-${MM}-${DD}</code> ali <code>${title}</code>; <code>\</code> v vzorcu ustvari mape), oblika slike in kakovost JPEG.</li>
+		<li><a href="greenshot://settings?tab=destination">Cilj</a>: kaj se zgodi po zajemu, glejte <a href="#destinations">kam gre zaslonska slika</a>.</li>
+		<li><a href="greenshot://settings?tab=editor">Urejevalnik</a>: zavihki, velikost okna urejevalnika, vprašanje o shranjevanju ob zapiranju ter velikost in barva nove slike.</li>
+		<li><a href="greenshot://settings?tab=printer">Tiskanje</a>: prilagoditev slike strani, vrtenje ali centriranje, tisk v barvah, sivinah ali obrnjenih barvah ter noga z datumom in časom.</li>
+		<li><a href="greenshot://settings?tab=plugins">Dodatki</a>: vklop, izklop in nastavitev dodatkov. Spremembe veljajo ob naslednjem zagonu programa Greenshot.</li>
+		<li><a href="greenshot://settings?tab=expert">Napredno</a>: nastavitve za posebne primere, npr. oddaljeno namizje, zajem DirectX (potreben za zaslone HDR), pomnilnik in hitrost
+			ter oblike odložišča. Spreminjajte jih le, če veste, kaj naredijo.</li>
+	</ul>
+	<p class="hint">
+		Greenshot hrani svoje nastavitve v <code>greenshot.ini</code>, v <code>%APPDATA%\Greenshot</code> (prenosna različica ga hrani poleg Greenshot.exe).
+		<a href="greenshot://self-service?section=files">Datoteke in konfiguracija</a> v Samopomoč pokaže, kje je.
+	</p>
+
+	<a name="troubleshooting"></a>
+	<h2>Ko kaj ne deluje</h2>
+	<p>
+		Samopomoč preveri Greenshot in odpravi večino težav. Odprite ga z <em>O programu</em> v meniju ikone, nato <em>Samopomoč</em>,
+		ali pojdite naravnost v pravi razdelek:
+	</p>
+	<ul>
+		<li><kbd>Print Screen</kbd> ne naredi ničesar ali odpre kaj drugega: <a href="greenshot://self-service?section=hotkeys">Bližnjice in konflikti</a>
+			pokaže, ali sta tipko prevzela OneDrive ali Orodje za izrezovanje, in jo vrne programu Greenshot.</li>
+		<li>Ne najdete zaslonskih slik: <a href="greenshot://self-service?section=files">Datoteke in konfiguracija</a> pokaže, kam jih Greenshot shranjuje.</li>
+		<li>Kopiranje na odložišče ne uspe: <a href="greenshot://self-service?section=clipboard">Diagnostika odložišča</a> najde program, ki blokira odložišče.</li>
+		<li>Greenshot se sesuje ali po posodobitvi manjka dodatek: <a href="greenshot://self-service?section=checksum">Celovitost namestitve</a> preveri nameščene datoteke.</li>
+		<li>Prijava težave: <em>Kopiraj sistemske informacije</em> v <a href="greenshot://self-service?section=system">Sistem in strojna oprema</a> in
+			<a href="greenshot://log?search=ERROR">napake v dnevniku</a> nam pomagajo, da vam pomagamo. Težave prijavite na
+			<a target="_blank" href="https://github.com/greenshot/greenshot/issues">github.com/greenshot/greenshot/issues</a>.</li>
+	</ul>
+
+	<a name="help"></a>
+	<h2>Želite pomagati?</h2>
+
+	<a name="help-donate"></a>
+	<h3>Razmislite o donaciji</h3>
+	<p>
+		V Greenshot vlagamo veliko dela, da bi ponudili dobro programsko opremo, brezplačno in odprtokodno. Če vas naredi bolj produktivne,
+		vam ali vašemu podjetju prihrani čas in denar ali vam je Greenshot preprosto všeč: prosimo, razmislite o podpori.
+		Kako lahko pomagate, si oglejte na <a target="_blank" href="https://getgreenshot.org/support/">https://getgreenshot.org/support/</a>.
+	</p>
+
+	<a name="help-spread"></a>
+	<h3>Razširite glas</h3>
+	<p>
+		Če vam je Greenshot všeč, povejte o njem prijateljem in sodelavcem. Ocenite Greenshot na programskih portalih ali povežite na našo domačo stran s svojega bloga ali spletne strani.
+	</p>
+	<p>
+		Dajte programu Greenshot zvezdico na <a target="_blank" href="https://github.com/greenshot/greenshot">GitHubu</a>, to pomaga drugim, da ga najdejo:
+		<br><iframe src="https://ghbtns.com/github-btn.html?user=greenshot&amp;repo=greenshot&amp;type=star&amp;count=true&amp;size=large" frameborder="0" width="170" height="30" title="GitHub"></iframe>
+	</p>
+
+	</body>
+</html>

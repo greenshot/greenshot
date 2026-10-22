@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Greenshot 說明</title>
+		<style>
+		* {font-family: "Segoe UI", "Microsoft JhengHei", Tahoma, Arial, Sans-serif;}
+		body {max-width:60em;margin:0 auto;padding:0 16px 24px 16px;}
+		h1 {font-size:20px;}
+		h2 {font-size:16px;color:#009900;margin-top:28px;}
+		h3 {font-size:14px;margin-top:20px;}
+		small {font-size:11px;}
+		p, li, td, th {font-size:13px;line-height:1.6em;}
+		a:link, a:hover, a:visited, a:active {color:#007700;}
+		kbd {background-color:#eeeeee;border:1px solid #bbbbbb;padding:0 3px;border-radius:3px;white-space:nowrap;}
+		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px 8px;}
+		table {border-collapse:collapse;margin:6px 0;}
+		th, td {border:1px solid #dddddd;padding:3px 8px;text-align:left;vertical-align:top;}
+		th {background-color:#f2f2f2;}
+		em {font-style:normal;font-weight:bold;}
+		</style>
+	</head>
+	<body>
+	<h1>Greenshot 說明</h1>
+	<!--
+	Note to translator: uncomment the entry below to have your effort honored
+	-->
+	<!--<small>正體中文翻譯：您的名字</small>-->
+
+	<p class="hint">
+		以 <code>greenshot:</code> 開頭的連結，例如<a href="greenshot://settings">開啟設定</a>，
+		會開啟 Greenshot 的對應視窗。這些連結只有在使用安裝程式安裝 Greenshot 時才有效，在可攜版和 Greenshot Light 中無效。
+		瀏覽器會在開啟 Greenshot 之前詢問您。
+	</p>
+
+	<h2>目錄</h2>
+	<ol>
+		<li><a href="#start">入門</a></li>
+		<li><a href="#screenshot">擷取螢幕畫面</a>
+			<ol>
+				<li><a href="#capture-screen">擷取畫面</a></li>
+				<li><a href="#capture-modes">區域、視窗、固定大小和文字</a></li>
+				<li><a href="#capture-keys">選取時可用的按鍵</a></li>
+				<li><a href="#capture-live">不凍結螢幕進行選取</a></li>
+			</ol>
+		</li>
+		<li><a href="#destinations">螢幕擷圖的去處</a></li>
+		<li><a href="#editor">圖片編輯器</a>
+			<ol>
+				<li><a href="#editor-tabs">索引標籤</a></li>
+				<li><a href="#editor-tools">繪圖工具</a></li>
+				<li><a href="#editor-highlight">標示和模糊處理</a></li>
+				<li><a href="#editor-crop">裁剪</a></li>
+				<li><a href="#editor-effects">效果、旋轉和調整大小</a></li>
+				<li><a href="#editor-reuse">加入圖片和重複使用元素</a></li>
+				<li><a href="#editor-export">儲存和匯出</a></li>
+			</ol>
+		</li>
+		<li><a href="#recipes">自動步驟和配方</a></li>
+		<li><a href="#settings">設定</a></li>
+		<li><a href="#troubleshooting">遇到問題時</a></li>
+		<li><a href="#help">想要幫忙嗎？</a></li>
+	</ol>
+
+	<a name="start"></a>
+	<h2>入門</h2>
+	<p>
+		Greenshot 在背景執行。它的圖示位於時鐘旁邊，也就是工作列的通知區域。
+		用滑鼠右鍵按一下圖示，即可開啟包含所有擷取方式、<em>喜好設定...</em>和本說明的選單。
+	</p>
+	<p class="hint">
+		看不到圖示？Windows 11 可能把它藏在箭頭（^）後面。自助服務 中的 <a href="greenshot://self-service?section=setup">您的設定</a>
+		可以幫您把它顯示在時鐘旁邊，並檢查 <kbd>Print Screen</kbd> 鍵是否能傳到 Greenshot。
+	</p>
+
+	<a name="screenshot"></a>
+	<h2>擷取螢幕畫面</h2>
+	<p>使用快速鍵或從 Greenshot 圖示的選單開始擷取：</p>
+	<table>
+		<tr><th>擷取</th><th>快速鍵</th><th>結果</th></tr>
+		<tr><td><em>擷取區域</em></td><td><kbd>Print Screen</kbd></td><td>開啟擷取畫面，由您選取要擷取的內容。</td></tr>
+		<tr><td><em>擷取視窗</em></td><td><kbd>Alt</kbd> + <kbd>Print Screen</kbd></td><td>立即擷取作用中的視窗。啟用<em>使用互動式視窗擷取模式</em>（<a href="greenshot://settings?tab=capture">「擷取」索引標籤</a>）後，改為在擷取畫面中選擇視窗。</td></tr>
+		<tr><td><em>擷取全螢幕</em></td><td><kbd>Ctrl</kbd> + <kbd>Print Screen</kbd></td><td>立即擷取螢幕。如果有多台顯示器，圖示選單會提供所有顯示器或其中一台。</td></tr>
+		<tr><td><em>擷取上次區域</em></td><td><kbd>Shift</kbd> + <kbd>Print Screen</kbd></td><td>再次擷取與上次相同的區域。</td></tr>
+		<tr><td><em>從剪貼簿開啟圖片</em></td><td>無</td><td>開啟剪貼簿中的圖片。</td></tr>
+	</table>
+	<p>
+		選單中還有<em>從清單擷取視窗</em>（不經過擷取畫面，直接擷取您挑選的已開啟視窗）、
+		<em>從檔案開啟圖片</em>和<em>開啟上次擷取位置</em>。
+		您可以在<a href="greenshot://settings?tab=general">設定的「一般」索引標籤</a>中變更快速鍵。
+	</p>
+
+	<a name="capture-screen"></a>
+	<h3>擷取畫面</h3>
+	<p>
+		Greenshot 會拍下所有顯示器的畫面，並顯示在最上層。選取期間畫面不會改變，
+		因此開啟的選單或工具提示會保持原樣。只有您選取的部分會被擷取。<kbd>Esc</kbd> 會關閉擷取畫面，不擷取任何內容。
+	</p>
+	<p>在畫面上方您會看到：</p>
+	<ul>
+		<li>附有大小的<em>選取範圍</em>，</li>
+		<li><em>放大鏡</em>，位於滑鼠旁邊，顯示每個像素，方便您精確放置角落，</li>
+		<li>四個角落的面板：<em>按鍵</em>（<kbd>F1</kbd>）、<em>資訊</em>（<kbd>I</kbd>）和選取範圍的<em>預覽</em>（<kbd>P</kbd>）。
+			它們會自動避開您正在操作的位置。</li>
+	</ul>
+	<p class="hint">
+		選取時按 <kbd>F1</kbd>：按鍵面板一律列出當下可用的按鍵。
+		Greenshot 會記住您隱藏了哪個面板，按 <kbd>F1</kbd> 或 <kbd>I</kbd> 可以再次顯示。
+	</p>
+
+	<a name="capture-modes"></a>
+	<h3>區域、視窗、固定大小和文字</h3>
+	<ul>
+		<li><em>區域</em>：用滑鼠拖曳出一個矩形，放開即擷取。使用鍵盤時：方向鍵移動滑鼠，
+			<kbd>Enter</kbd> 開始選取，再按一次 <kbd>Enter</kbd> 擷取。按住 <kbd>Shift</kbd> 可只變更寬度或只變更高度。</li>
+		<li><em>視窗</em>（<kbd>空白鍵</kbd>）：選取滑鼠下方的視窗，按一下或按 <kbd>Enter</kbd> 擷取。
+			Greenshot 會選取最內層的部分，例如工具列；將滑鼠移到視窗的外框即可選取整個視窗。
+			<kbd>Tab</kbd> 和 <kbd>Shift</kbd> + <kbd>Tab</kbd> 選取下一個或上一個視窗。</li>
+		<li><em>固定大小</em>（<kbd>F</kbd>）：一個精確大小的矩形（例如 1280 × 720）會跟著滑鼠移動。<kbd>1</kbd> – <kbd>9</kbd> 選擇大小，
+			<kbd>C</kbd> 切換滑鼠所在的角落，按住 <kbd>Alt</kbd> 可放置矩形而不貼齊視窗。您自己的大小在
+			<a href="greenshot://settings?tab=capture">「擷取」索引標籤</a>中設定，最近幾次擷取的大小也會列出。</li>
+		<li><em>文字</em>（<kbd>T</kbd>）：Greenshot 使用 Windows 的文字辨識讀取螢幕上的文字，並為每一行加上外框。
+			按一下某一行，或在文字上拖曳，即可擷取。若要以文字形式取得內容，請將擷取的畫面傳送到 <em>Windows OCR</em>，
+			它會把文字複製到剪貼簿。這需要在 Windows 中安裝辨識語言；語言在
+			<a href="greenshot://settings?tab=capture">「擷取」索引標籤</a>的 <em>文字識別 (OCR)</em> 中選擇。</li>
+	</ul>
+	<p class="hint">
+		安裝 QR 碼外掛程式後，Greenshot 會找出螢幕上的 QR 碼並加上外框。按一下 QR 碼可複製其內容或開啟其網址。
+	</p>
+
+	<a name="capture-keys"></a>
+	<h3>選取時可用的按鍵</h3>
+	<table>
+		<tr><th>按鍵</th><th>作用</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>取消擷取</td></tr>
+		<tr><td><kbd>空白鍵</kbd></td><td>在區域和視窗之間切換</td></tr>
+		<tr><td><kbd>F</kbd> / <kbd>T</kbd></td><td>擷取固定大小 / 擷取文字</td></tr>
+		<tr><td><kbd>M</kbd></td><td>在擷取中顯示或隱藏滑鼠游標</td></tr>
+		<tr><td><kbd>L</kbd></td><td>在凍結的螢幕和即時螢幕之間切換</td></tr>
+		<tr><td><kbd>Z</kbd></td><td>顯示或隱藏放大鏡</td></tr>
+		<tr><td><kbd>F1</kbd> / <kbd>I</kbd> / <kbd>P</kbd></td><td>顯示或隱藏按鍵 / 資訊 / 移動或隱藏預覽</td></tr>
+		<tr><td>方向鍵</td><td>將滑鼠移動一個像素，按住 <kbd>Ctrl</kbd> 移動十個像素</td></tr>
+		<tr><td><kbd>Enter</kbd></td><td>開始或完成選取，擷取視窗</td></tr>
+	</table>
+
+	<a name="capture-live"></a>
+	<h3>不凍結螢幕進行選取</h3>
+	<p>
+		在<a href="greenshot://settings?tab=capture">「擷取」索引標籤</a>中關閉 <em>選擇時凍結螢幕</em>，或在選取時按
+		<kbd>L</kbd>，即可在即時螢幕上選取：影片會繼續播放，擷取會在您完成選取時進行。
+		文字模式和預覽需要凍結的畫面。開啟的選單通常在您按一下時就會關閉，因此擷取選單時請使用凍結的螢幕。
+	</p>
+	<p class="hint">
+		某些內容要過一會兒才會出現？請在<a href="greenshot://settings?tab=capture">「擷取」索引標籤</a>中設定
+		<em>擷取之前等待的時間 (毫秒)</em>，或在即時螢幕上選取。
+	</p>
+
+	<a name="destinations"></a>
+	<h2>螢幕擷圖的去處</h2>
+	<p>
+		擷取後，Greenshot 會將螢幕擷圖傳送到您的目的地。預設情況下，每次都會用一個小選單詢問您。
+		選單中的每個目的地都有固定的底線字母，例如 <kbd>C</kbd> 代表剪貼簿，<kbd>S</kbd> 代表儲存，因此您可以用鍵盤選擇。
+		請在<a href="greenshot://settings?tab=destination">「目的地」索引標籤</a>中，或在圖示選單的<em>快速喜好設定</em>中選擇目的地。
+	</p>
+	<ul>
+		<li><em>在圖片編輯器開啟</em>：先為螢幕擷圖加上註解，請參閱<a href="#editor">圖片編輯器</a>。</li>
+		<li><em>直接儲存 (使用以下設定)</em>使用<a href="greenshot://settings?tab=output">「輸出」索引標籤</a>中的資料夾和檔名格式，<em>另存新檔 (顯示對話方塊)</em>會詢問這些資訊。</li>
+		<li><em>複製到剪貼簿</em>、<em>傳送到印表機</em>、<em>電子郵件</em>、<em>Windows share</em> 和 <em>Windows OCR</em>（複製螢幕擷圖中的文字）。</li>
+		<li>外掛程式會加入更多目的地，例如 Microsoft Word、Excel、PowerPoint、Outlook 和 OneNote、PDF、Box、Dropbox、Jira 和 Confluence。
+			它們在<a href="greenshot://settings?tab=plugins">「外掛程式」索引標籤</a>中設定，您也可以在那裡關閉某個外掛程式。</li>
+	</ul>
+	<p>
+		<a href="greenshot://settings?tab=destination">「目的地」索引標籤</a>中的 <em>可用</em> 欄可在所有地方關閉某個目的地。
+		擷取後要收到哪些通知，請在<a href="greenshot://settings?tab=capture">「擷取」索引標籤</a>的 <em>通知</em> 中設定。
+	</p>
+
+	<a name="editor"></a>
+	<h2>圖片編輯器</h2>
+	<p>
+		編輯器可以在螢幕擷圖上加入圖形、文字、箭頭、標示等內容，或隱藏不該讓別人看到的內容。
+		除了您擷取的畫面，它也能開啟檔案或剪貼簿中的圖片（圖示選單）。
+		您繪製的所有內容都會保持為元素，可以選取、移動、變更或移除。
+	</p>
+
+	<a name="editor-tabs"></a>
+	<h3>索引標籤</h3>
+	<p>
+		一個編輯器視窗會以索引標籤顯示多張圖片，新的擷取會以索引標籤的形式在您最後使用的編輯器視窗中開啟。
+		<kbd>Ctrl</kbd> + <kbd>Tab</kbd> 切換到下一個索引標籤，<kbd>Ctrl</kbd> + <kbd>W</kbd> 關閉一個索引標籤。將索引標籤拖曳到另一個編輯器視窗，
+		或用滑鼠右鍵按一下它，將它移到新視窗。索引標籤列上的 <em>+</em> 會建立一張新的空白圖片。
+		關閉含有未儲存圖片的視窗時，Greenshot 只會詢問一次：<em>全部儲存</em>、<em>全部放棄</em> 或取消。
+		偏好每次擷取一個視窗？請在<a href="greenshot://settings?tab=editor">「編輯器」索引標籤</a>中關閉索引標籤。
+	</p>
+
+	<a name="editor-tools"></a>
+	<h3>繪圖工具</h3>
+	<p>
+		在編輯器左側、<em>物件</em>選單中或用對應的按鍵選擇工具，然後在圖片上拖曳。
+		上方的工具列會顯示該工具或所選元素的選項，例如線條色彩、填滿色彩和粗細。
+	</p>
+	<table>
+		<tr><th>按鍵</th><th>工具</th><th>按鍵</th><th>工具</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>選取工具</td><td><kbd>S</kbd></td><td>對話框</td></tr>
+		<tr><td><kbd>R</kbd></td><td>矩形</td><td><kbd>I</kbd></td><td>計數器（編號步驟）</td></tr>
+		<tr><td><kbd>E</kbd></td><td>橢圓</td><td><kbd>M</kbd></td><td>表情符號</td></tr>
+		<tr><td><kbd>L</kbd></td><td>直線</td><td><kbd>H</kbd></td><td>標示</td></tr>
+		<tr><td><kbd>A</kbd></td><td>箭頭</td><td><kbd>O</kbd></td><td>模糊處理</td></tr>
+		<tr><td><kbd>F</kbd></td><td>手繪</td><td><kbd>C</kbd></td><td>裁剪</td></tr>
+		<tr><td><kbd>T</kbd></td><td>文字</td><td><kbd>Z</kbd></td><td>調整圖片大小</td></tr>
+	</table>
+	<ul>
+		<li>繪製時按住 <kbd>Shift</kbd> 可畫出正方形或圓形，或以 15° 為間隔畫線；調整大小時則保持長寬比。
+			按住 <kbd>Ctrl</kbd> 可從中心繪製或調整大小，方便在某個東西周圍畫橢圓。</li>
+		<li>文字：畫出文字方塊後輸入文字。按兩下文字可修改，<kbd>Enter</kbd> 完成輸入，<kbd>Shift</kbd> + <kbd>Enter</kbd> 換行。</li>
+		<li>所選元素：方向鍵移動元素（按住 <kbd>Shift</kbd> 移動十個像素），<kbd>Ctrl</kbd> + 方向鍵調整大小，
+			<kbd>Page Up</kbd> / <kbd>Page Down</kbd> 將元素上移或下移一層，<kbd>Delete</kbd> 移除，<kbd>Ctrl</kbd> + <kbd>D</kbd> 複製。
+			按住 <kbd>Shift</kbd> 並按一下可選取多個元素。</li>
+		<li><kbd>Ctrl</kbd> + <kbd>Z</kbd> 復原，<kbd>Ctrl</kbd> + <kbd>Y</kbd> 取消復原。</li>
+	</ul>
+
+	<a name="editor-highlight"></a>
+	<h3>標示和模糊處理</h3>
+	<p>像畫矩形一樣畫出標示（<kbd>H</kbd>）或模糊處理（<kbd>O</kbd>）的區域，然後在工具列中選擇模式：</p>
+	<ul>
+		<li><em>標示文字</em>像螢光筆一樣為區域上色，<em>標示區域</em>讓其他部分變暗並模糊，
+			<em>灰階</em>讓其他部分變成灰色，<em>放大</em>放大該區域。</li>
+		<li><em>像素化</em>或<em>模糊</em>可隱藏密碼、姓名、帳號或臉孔。</li>
+	</ul>
+
+	<a name="editor-crop"></a>
+	<h3>裁剪</h3>
+	<p>
+		選擇裁剪工具（<kbd>C</kbd>），畫出要保留的區域，<kbd>Enter</kbd> 確認，<kbd>Esc</kbd> 取消。
+		再按一次 <kbd>C</kbd>，或使用工具列中的 <em>裁剪模式</em>，即可切換模式：
+	</p>
+	<ul>
+		<li><em>垂直裁除</em> 或 <em>水平裁除</em> 會從圖片中移除一條區域並接合其餘部分，例如省略長頁面中間的空白部分。
+			<em>裁切邊緣</em> 選擇接縫的樣式：直線、鋸齒、波浪、撕裂或無縫。</li>
+		<li><em>自動裁剪</em>會移除圖片四周單一色彩的邊框。</li>
+	</ul>
+
+	<a name="editor-effects"></a>
+	<h3>效果、旋轉和調整大小</h3>
+	<table>
+		<tr><th>按鍵</th><th>作用</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Q</kbd></td><td>陰影</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>B</kbd></td><td>框線</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>T</kbd></td><td>撕裂邊緣</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>G</kbd> / <kbd>Ctrl</kbd> + <kbd>I</kbd></td><td>灰階 / 反轉色彩，例如列印時節省墨水</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>,</kbd> / <kbd>Ctrl</kbd> + <kbd>.</kbd></td><td>逆時針 / 順時針旋轉</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>+</kbd> / <kbd>-</kbd></td><td>放大 / 縮小畫布</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>+</kbd> / <kbd>-</kbd>、<kbd>Ctrl</kbd> + <kbd>0</kbd>、<kbd>Ctrl</kbd> + <kbd>9</kbd></td><td>放大 / 縮小顯示、實際大小、最適大小</td></tr>
+	</table>
+	<p>
+		撕裂邊緣仍是一個可以變更的元素；工具列中的 <em>套用到圖片</em> 會把它變成圖片的一部分。
+	</p>
+
+	<a name="editor-reuse"></a>
+	<h3>加入圖片和重複使用元素</h3>
+	<ul>
+		<li>將圖片檔拖曳到編輯器中，或用 <kbd>Ctrl</kbd> + <kbd>V</kbd> 貼上圖片。<em>編輯</em>選單中的<em>插入視窗</em>會加入另一個已開啟視窗的擷取畫面。</li>
+		<li>在多張螢幕擷圖上使用相同的元素：使用<em>物件</em>選單中的<em>儲存物件到檔案</em>，然後在下一張螢幕擷圖上使用<em>從檔案載入物件</em>。</li>
+		<li>儲存為 <code>.greenshot</code> 檔案，可讓所有元素保持可編輯，以便日後繼續。</li>
+	</ul>
+
+	<a name="editor-export"></a>
+	<h3>儲存和匯出</h3>
+	<table>
+		<tr><th>按鍵</th><th>作用</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td><td><em>儲存</em>到<a href="greenshot://settings?tab=output">「輸出」索引標籤</a>中的資料夾</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd></td><td><em>另存新檔...</em>：選擇資料夾、名稱和圖片格式</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd></td><td><em>複製圖片到剪貼簿</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>P</kbd></td><td><em>列印</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>E</kbd></td><td><em>電子郵件</em>：附加該圖片的新郵件</td></tr>
+	</table>
+	<p>
+		<em>檔案</em>選單和上方的工具列會列出您所有的目的地，包括外掛程式提供的目的地。
+		儲存後，用滑鼠右鍵按一下下方的狀態列，即可複製檔案路徑或開啟其所在資料夾。
+	</p>
+
+	<a name="recipes"></a>
+	<h2>自動步驟和配方</h2>
+	<p>
+		配方會自動處理您擷取的畫面，例如為每次擷取加上框線，或一次完成儲存和上傳。
+		圖示選單中的<em>快速喜好設定</em> &gt; <em>自動步驟</em> 可開啟或關閉預設的步驟，
+		<em>更多…</em> 會在<a href="greenshot://settings?tab=recipes">「配方」索引標籤</a>中開啟它們的設定。
+		圖示的<em>配方</em>選單可啟動您的配方，並開啟 <a href="greenshot://recipe-manager">配方管理器</a> 和 Recipe Editor。
+		配方隨 Recipe Editor 外掛程式提供。
+	</p>
+
+	<a name="settings"></a>
+	<h2>設定</h2>
+	<p>使用圖示選單中的<em>喜好設定...</em>或下方的連結開啟設定。</p>
+	<ul>
+		<li><a href="greenshot://settings?tab=general">一般</a>：語言、色彩（淺色、深色或跟隨 Windows）、圖示大小、
+			<em>開機啟動 Greenshot</em>、快速鍵、Proxy 以及 Greenshot 檢查更新的頻率。</li>
+		<li><a href="greenshot://settings?tab=capture">擷取</a>：擷取滑鼠指標、相機快門聲、放大鏡、凍結螢幕、
+			通知、擷取前的等待時間、您的固定大小、互動式視窗擷取，以及文字辨識的語言。</li>
+		<li><a href="greenshot://settings?tab=output">輸出</a>：儲存的資料夾和檔名格式（按一下 <em>?</em> 查看預留位置，
+			例如 <code>${YYYY}-${MM}-${DD}</code> 或 <code>${title}</code>；格式中的 <code>\</code> 會建立資料夾）、圖片格式和 JPEG 品質。</li>
+		<li><a href="greenshot://settings?tab=destination">目的地</a>：擷取後要做什麼，請參閱<a href="#destinations">螢幕擷圖的去處</a>。</li>
+		<li><a href="greenshot://settings?tab=editor">編輯器</a>：索引標籤、編輯器視窗的大小、關閉時是否詢問儲存，以及新圖片的大小和色彩。</li>
+		<li><a href="greenshot://settings?tab=printer">印表機</a>：讓圖片符合頁面、旋轉或置中、以彩色、灰階或反轉色彩列印，以及含日期和時間的頁尾。</li>
+		<li><a href="greenshot://settings?tab=plugins">外掛程式</a>：開啟、關閉和設定外掛程式。變更會在下次啟動 Greenshot 時生效。</li>
+		<li><a href="greenshot://settings?tab=expert">專家</a>：用於特殊情況的設定，例如遠端桌面、DirectX 擷取（HDR 螢幕需要）、記憶體和速度，
+			以及剪貼簿格式。只有在了解其作用時才變更。</li>
+	</ul>
+	<p class="hint">
+		Greenshot 將設定保存在 <code>%APPDATA%\Greenshot</code> 中的 <code>greenshot.ini</code>（可攜版則保存在 Greenshot.exe 旁邊）。
+		自助服務 中的 <a href="greenshot://self-service?section=files">檔案和組態</a> 會顯示它的位置。
+	</p>
+
+	<a name="troubleshooting"></a>
+	<h2>遇到問題時</h2>
+	<p>
+		自助服務 會檢查 Greenshot 並修正大多數問題。請從圖示選單中的<em>關於 Greenshot</em> 開啟，然後按一下 <em>自助服務</em>，
+		或直接前往對應的區段：
+	</p>
+	<ul>
+		<li><kbd>Print Screen</kbd> 沒有反應或開啟了其他程式：<a href="greenshot://self-service?section=hotkeys">熱鍵和衝突</a>
+			會顯示 OneDrive 或剪取工具是否佔用了該鍵，並將它交還給 Greenshot。</li>
+		<li>找不到螢幕擷圖：<a href="greenshot://self-service?section=files">檔案和組態</a> 會顯示 Greenshot 將它們儲存在哪裡。</li>
+		<li>複製到剪貼簿失敗：<a href="greenshot://self-service?section=clipboard">剪貼簿診斷</a> 會找出佔用剪貼簿的程式。</li>
+		<li>Greenshot 當機或更新後缺少外掛程式：<a href="greenshot://self-service?section=checksum">安裝完整性</a> 會檢查已安裝的檔案。</li>
+		<li>回報問題：<a href="greenshot://self-service?section=system">系統和硬體</a> 中的 <em>複製系統資訊</em> 和
+			<a href="greenshot://log?search=ERROR">記錄檔中的錯誤</a>能幫助我們協助您。請在
+			<a target="_blank" href="https://github.com/greenshot/greenshot/issues">github.com/greenshot/greenshot/issues</a> 回報問題。</li>
+	</ul>
+
+	<a name="help"></a>
+	<h2>想要幫忙嗎？</h2>
+
+	<a name="help-donate"></a>
+	<h3>考慮捐款</h3>
+	<p>
+		我們在 Greenshot 上投入了大量心力，以免費和開放原始碼的方式提供優良的軟體。如果它讓您更有效率、
+		為您或您的公司節省了時間和金錢，或者您單純喜歡 Greenshot，請考慮支持我們。
+		請前往 <a target="_blank" href="https://getgreenshot.org/support/">https://getgreenshot.org/support/</a> 了解您可以如何幫忙。
+	</p>
+
+	<a name="help-spread"></a>
+	<h3>推廣 Greenshot</h3>
+	<p>
+		如果您喜歡 Greenshot，請告訴您的朋友和同事。在軟體入口網站上為 Greenshot 評分，或在您的部落格或網站上連結到我們的首頁。
+	</p>
+	<p>
+		請在 <a target="_blank" href="https://github.com/greenshot/greenshot">GitHub</a> 上為 Greenshot 加上星號，這能幫助更多人找到它：
+		<br><iframe src="https://ghbtns.com/github-btn.html?user=greenshot&amp;repo=greenshot&amp;type=star&amp;count=true&amp;size=large" frameborder="0" width="170" height="30" title="GitHub"></iframe>
+	</p>
+
+	</body>
+</html>

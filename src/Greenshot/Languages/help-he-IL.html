@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>העזרה של Greenshot</title>
+		<style>
+		* {font-family: "Segoe UI", Tahoma, Arial, Sans-serif;}
+		body {max-width:60em;margin:0 auto;padding:0 16px 24px 16px;}
+		h1 {font-size:20px;}
+		h2 {font-size:16px;color:#009900;margin-top:28px;}
+		h3 {font-size:14px;margin-top:20px;}
+		small {font-size:11px;}
+		p, li, td, th {font-size:13px;line-height:1.6em;}
+		a:link, a:hover, a:visited, a:active {color:#007700;}
+		kbd {background-color:#eeeeee;border:1px solid #bbbbbb;padding:0 3px;border-radius:3px;white-space:nowrap;}
+		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px 8px;}
+		table {border-collapse:collapse;margin:6px 0;}
+		th, td {border:1px solid #dddddd;padding:3px 8px;text-align:right;vertical-align:top;}
+		th {background-color:#f2f2f2;}
+		em {font-style:normal;font-weight:bold;}
+		</style>
+	</head>
+	<body>
+	<h1>העזרה של Greenshot</h1>
+	<!--
+	Note to translator: uncomment the entry below to have your effort honored
+	-->
+	<!--<small>תרגום העזרה לעברית: השם שלך</small>-->
+
+	<p class="hint">
+		קישורים שמתחילים ב־<code>greenshot:</code>, כמו <a href="greenshot://settings">פתיחת ההגדרות</a>,
+		פותחים את החלון המתאים ב־Greenshot. הם פועלים כאשר Greenshot הותקן בעזרת תוכנית ההתקנה, ולא בגרסה
+		הניידת או ב־Greenshot Light. הדפדפן שואל לפני שהוא פותח את Greenshot.
+	</p>
+
+	<h2>תוכן העניינים</h2>
+	<ol>
+		<li><a href="#start">צעדים ראשונים</a></li>
+		<li><a href="#screenshot">צילום מסך</a>
+			<ol>
+				<li><a href="#capture-screen">מסך הלכידה</a></li>
+				<li><a href="#capture-modes">אזור, חלון, גודל קבוע וטקסט</a></li>
+				<li><a href="#capture-keys">מקשים בזמן הבחירה</a></li>
+				<li><a href="#capture-live">בחירה בלי להקפיא את המסך</a></li>
+			</ol>
+		</li>
+		<li><a href="#destinations">לאן הולך צילום המסך</a></li>
+		<li><a href="#editor">עורך התמונות</a>
+			<ol>
+				<li><a href="#editor-tabs">כרטיסיות</a></li>
+				<li><a href="#editor-tools">כלי ציור</a></li>
+				<li><a href="#editor-highlight">הדגשה והסתרה</a></li>
+				<li><a href="#editor-crop">חיתוך</a></li>
+				<li><a href="#editor-effects">אפקטים, סיבוב ושינוי גודל</a></li>
+				<li><a href="#editor-reuse">הוספת תמונות ושימוש חוזר ברכיבים</a></li>
+				<li><a href="#editor-export">שמירה וייצוא</a></li>
+			</ol>
+		</li>
+		<li><a href="#recipes">שלבים אוטומטיים ומתכונים</a></li>
+		<li><a href="#settings">ההגדרות</a></li>
+		<li><a href="#troubleshooting">כשמשהו לא עובד</a></li>
+		<li><a href="#help">רוצים לעזור?</a></li>
+	</ol>
+
+	<a name="start"></a>
+	<h2>צעדים ראשונים</h2>
+	<p>
+		Greenshot פועל ברקע. הסמל שלו נמצא ליד השעון, באזור ההודעות של שורת המשימות.
+		לחצו עליו בלחצן העכבר הימני כדי לפתוח את התפריט עם כל סוגי הלכידה, <em>...הגדרות</em> והעזרה הזו.
+	</p>
+	<p class="hint">
+		לא רואים את הסמל? ייתכן ש־Windows 11 מסתיר אותו מאחורי החץ (^). <a href="greenshot://self-service?section=setup">ההגדרה שלך</a>
+		ב־שירות עצמי מציג אותו ליד השעון ובודק גם אם המקש <kbd>Print Screen</kbd> מגיע ל־Greenshot.
+	</p>
+
+	<a name="screenshot"></a>
+	<h2>צילום מסך</h2>
+	<p>התחילו לכידה בעזרת מקש קיצור או מהתפריט של סמל Greenshot:</p>
+	<table>
+		<tr><th>לכידה</th><th>מקש קיצור</th><th>מה קורה</th></tr>
+		<tr><td><em>לכידת אזור</em></td><td><kbd>Print Screen</kbd></td><td>מסך הלכידה נפתח ואתם בוחרים מה ללכוד.</td></tr>
+		<tr><td><em>לכידת חלון</em></td><td><kbd>Alt</kbd> + <kbd>Print Screen</kbd></td><td>לוכד מיד את החלון הפעיל. עם <em>השתמש במצב לכידת חלון אינטראקטיבית</em> (<a href="greenshot://settings?tab=capture">כרטיסיית לכידה</a>) בוחרים את החלון במסך הלכידה.</td></tr>
+		<tr><td><em>לכידת מסך מלא</em></td><td><kbd>Ctrl</kbd> + <kbd>Print Screen</kbd></td><td>לוכד מיד את המסך. כשיש יותר ממסך אחד, תפריט הסמל מציע את כל המסכים או אחד מהם.</td></tr>
+		<tr><td><em>לכידת האזור האחרון</em></td><td><kbd>Shift</kbd> + <kbd>Print Screen</kbd></td><td>לוכד שוב את אותו אזור כמו בלכידה האחרונה.</td></tr>
+		<tr><td><em>פתח תמונה מלוח העריכה</em></td><td>אין</td><td>פותח את התמונה שבלוח העריכה.</td></tr>
+	</table>
+	<p>
+		בתפריט יש גם <em>לכידת חלון מרשימה</em>, שלוכד חלון פתוח שבחרתם בלי מסך הלכידה,
+		<em>פתח תמונה מקובץ</em> ו־<em>פתח את מיקום הלכידה האחרונה</em>.
+		אפשר לשנות את מקשי הקיצור ב<a href="greenshot://settings?tab=general">הגדרות, כרטיסיית כללי</a>.
+	</p>
+
+	<a name="capture-screen"></a>
+	<h3>מסך הלכידה</h3>
+	<p>
+		Greenshot מצלם את כל המסכים שלכם ומציג את התמונה מעל הכול. שום דבר לא משתנה בזמן הבחירה,
+		כך שתפריט פתוח או תיאור כלי נשארים במקומם. רק החלק שבחרתם נלכד. <kbd>Esc</kbd> סוגר את מסך הלכידה
+		בלי ללכוד דבר.
+	</p>
+	<p>מעל התמונה רואים:</p>
+	<ul>
+		<li>את <em>הבחירה</em> עם הגודל שלה,</li>
+		<li>את <em>זכוכית המגדלת</em> ליד העכבר, שמציגה כל פיקסל כדי שתוכלו למקם פינה בדיוק,</li>
+		<li>חלוניות בפינות: <em>המקשים</em> (<kbd>F1</kbd>), <em>המידע</em> (<kbd>I</kbd>) ו<em>התצוגה המקדימה</em> של הבחירה (<kbd>P</kbd>).
+			הן זזות מעצמן מהדרך.</li>
+	</ul>
+	<p class="hint">
+		לחצו <kbd>F1</kbd> בזמן הבחירה: חלונית המקשים מציגה תמיד את המקשים שעובדים באותו רגע.
+		Greenshot זוכר שהסתרתם חלונית; <kbd>F1</kbd> או <kbd>I</kbd> מחזירים אותה.
+	</p>
+
+	<a name="capture-modes"></a>
+	<h3>אזור, חלון, גודל קבוע וטקסט</h3>
+	<ul>
+		<li><em>אזור</em>: גררו מלבן בעכבר; כשמשחררים את הלחצן הוא נלכד. במקלדת: מקשי החצים מזיזים את העכבר,
+			<kbd>Enter</kbd> מתחיל את הבחירה ו־<kbd>Enter</kbd> נוסף לוכד אותה. החזיקו <kbd>Shift</kbd> כדי לשנות רק את הרוחב או רק את הגובה.</li>
+		<li><em>חלון</em> (<kbd>רווח</kbd>): החלון שמתחת לעכבר נבחר, ולחיצה או <kbd>Enter</kbd> לוכדים אותו.
+			Greenshot בוחר את החלק הפנימי ביותר, למשל סרגל כלים; עברו לקצה החיצוני של חלון כדי לבחור את כל החלון.
+			<kbd>Tab</kbd> ו־<kbd>Shift</kbd> + <kbd>Tab</kbd> בוחרים את החלון הבא או הקודם.</li>
+		<li><em>גודל קבוע</em> (<kbd>F</kbd>): מלבן בגודל מדויק, למשל 1280 × 720, עוקב אחרי העכבר. <kbd>1</kbd> – <kbd>9</kbd> בוחרים גודל,
+			<kbd>C</kbd> מחליף את הפינה שהעכבר מחזיק, והחזקת <kbd>Alt</kbd> ממקמת אותו בלי להיצמד לחלונות. את הגדלים שלכם מגדירים ב
+			<a href="greenshot://settings?tab=capture">כרטיסיית לכידה</a>, וגם הגדלים של הלכידות האחרונות מוצעים.</li>
+		<li><em>טקסט</em> (<kbd>T</kbd>): Greenshot קורא את הטקסט שעל המסך בעזרת זיהוי הטקסט של Windows ומסמן כל שורה במסגרת.
+			לחצו על שורה, או גררו מעל מילים, כדי ללכוד אותן. כדי לקבל את המילים כטקסט, שלחו את הלכידה אל <em>Windows OCR</em>,
+			שמעתיק את הטקסט ללוח. לשם כך צריך שפת זיהוי מותקנת ב־Windows; את השפה בוחרים ב
+			<a href="greenshot://settings?tab=capture">כרטיסיית לכידה</a>, <em>זיהוי טקסט (OCR)</em>.</li>
+	</ul>
+	<p class="hint">
+		עם תוסף קודי ה־QR, Greenshot מוצא קודי QR על המסך ומסמן אותם במסגרת. לחצו על קוד כדי להעתיק את התוכן שלו או לפתוח את כתובת האינטרנט שלו.
+	</p>
+
+	<a name="capture-keys"></a>
+	<h3>מקשים בזמן הבחירה</h3>
+	<table>
+		<tr><th>מקש</th><th>מה הוא עושה</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>ביטול הלכידה</td></tr>
+		<tr><td><kbd>רווח</kbd></td><td>מעבר בין אזור לחלון</td></tr>
+		<tr><td><kbd>F</kbd> / <kbd>T</kbd></td><td>לכידת גודל קבוע / לכידת טקסט</td></tr>
+		<tr><td><kbd>M</kbd></td><td>הצגה או הסתרה של סמן העכבר בלכידה</td></tr>
+		<tr><td><kbd>L</kbd></td><td>מעבר בין המסך המוקפא למסך החי</td></tr>
+		<tr><td><kbd>Z</kbd></td><td>הצגה או הסתרה של זכוכית המגדלת</td></tr>
+		<tr><td><kbd>F1</kbd> / <kbd>I</kbd> / <kbd>P</kbd></td><td>הצגה או הסתרה של המקשים / המידע / הזזה או הסתרה של התצוגה המקדימה</td></tr>
+		<tr><td>מקשי החצים</td><td>הזזת העכבר בפיקסל אחד, עם <kbd>Ctrl</kbd> בעשרה פיקסלים</td></tr>
+		<tr><td><kbd>Enter</kbd></td><td>התחלה או סיום של הבחירה, לכידת החלון</td></tr>
+	</table>
+
+	<a name="capture-live"></a>
+	<h3>בחירה בלי להקפיא את המסך</h3>
+	<p>
+		כבו את <em>הקפא את המסך בזמן הבחירה</em> ב<a href="greenshot://settings?tab=capture">כרטיסיית לכידה</a>, או לחצו
+		<kbd>L</kbd> בזמן הבחירה, ואז בוחרים על המסך החי: סרטון ממשיך לפעול, והלכידה מתבצעת כשמסיימים
+		את הבחירה. מצב הטקסט והתצוגה המקדימה צריכים את התמונה המוקפאת. תפריטים פתוחים נסגרים בדרך כלל בלחיצה, לכן השתמשו עבורם במסך המוקפא.
+	</p>
+	<p class="hint">
+		משהו מופיע רק אחרי רגע? הגדירו <em>מספר מילי-שניות לפני לכידה</em> ב
+		<a href="greenshot://settings?tab=capture">כרטיסיית לכידה</a>, או בחרו על המסך החי.
+	</p>
+
+	<a name="destinations"></a>
+	<h2>לאן הולך צילום המסך</h2>
+	<p>
+		אחרי הלכידה Greenshot שולח את צילום המסך אל היעדים שלכם. כברירת מחדל הוא שואל בכל פעם בתפריט קטן.
+		לכל יעד שם יש אות קבועה עם קו תחתון, למשל <kbd>C</kbd> ללוח ו־<kbd>S</kbd> לשמירה, כך שאפשר לבחור אותו במקלדת.
+		בחרו את היעדים שלכם ב<a href="greenshot://settings?tab=destination">כרטיסיית יעד הלכידה</a>, או ב<em>הגדרות מהירות</em> בתפריט הסמל.
+	</p>
+	<ul>
+		<li><em>פתח בעורך התמונות של התוכנה</em>: הוסיפו הערות לצילום קודם, ראו <a href="#editor">עורך התמונות</a>.</li>
+		<li><em>שמור ישירות: תוך שימוש בהגדרות שלמטה</em> משתמש בתיקייה ובתבנית שם הקובץ מ<a href="greenshot://settings?tab=output">כרטיסיית פלט</a>, <em>שמירה בשם: פתח תיבת דו-שיח</em> שואל עליהם.</li>
+		<li><em>העתק אל הלוח</em>, <em>שלח למדפסת</em>, <em>דואר אלקטרוני</em>, <em>Windows share</em> ו־<em>Windows OCR</em> (מעתיק את הטקסט של הצילום).</li>
+		<li>תוספים מוסיפים יעדים נוספים, למשל Microsoft Word,‏ Excel,‏ PowerPoint,‏ Outlook ו־OneNote,‏ PDF,‏ Box,‏ Dropbox,‏ Jira ו־Confluence.
+			מגדירים אותם ב<a href="greenshot://settings?tab=plugins">כרטיסיית תוספים</a>, ושם אפשר גם לכבות תוסף.</li>
+	</ul>
+	<p>
+		העמודה <em>זמינים</em> ב<a href="greenshot://settings?tab=destination">כרטיסיית יעד הלכידה</a> מכבה יעד בכל מקום.
+		אילו הודעות מקבלים אחרי לכידה מגדירים ב<a href="greenshot://settings?tab=capture">כרטיסיית לכידה</a>, <em>התראות</em>.
+	</p>
+
+	<a name="editor"></a>
+	<h2>עורך התמונות</h2>
+	<p>
+		העורך מוסיף לצילום מסך צורות, טקסט, חצים, הדגשות ועוד, או מסתיר את מה שאחרים לא צריכים לראות.
+		מלבד הלכידות שלכם, הוא פותח תמונות מקובץ או מהלוח (תפריט הסמל).
+		כל מה שמציירים נשאר רכיב שאפשר לבחור, להזיז, לשנות או להסיר.
+	</p>
+
+	<a name="editor-tabs"></a>
+	<h3>כרטיסיות</h3>
+	<p>
+		חלון עורך מציג כמה תמונות ככרטיסיות, ולכידה חדשה נפתחת ככרטיסייה בחלון העורך שבו השתמשתם לאחרונה.
+		<kbd>Ctrl</kbd> + <kbd>Tab</kbd> עובר לכרטיסייה הבאה ו־<kbd>Ctrl</kbd> + <kbd>W</kbd> סוגר אחת. גררו כרטיסייה לחלון עורך אחר,
+		או לחצו עליה בלחצן הימני כדי להעביר אותה לחלון חדש. ה־<em>+</em> בסרגל הכרטיסיות מתחיל תמונה חדשה וריקה.
+		כשסוגרים חלון עם תמונות שלא נשמרו, Greenshot שואל פעם אחת: <em>שמור הכל</em>, <em>בטל הכל</em> או ביטול.
+		מעדיפים חלון לכל לכידה? כבו את הכרטיסיות ב<a href="greenshot://settings?tab=editor">כרטיסיית עורך</a>.
+	</p>
+
+	<a name="editor-tools"></a>
+	<h3>כלי ציור</h3>
+	<p>
+		בחרו כלי בצד העורך, בתפריט <em>אובייקט</em> או במקש שלו, ואז גררו על התמונה.
+		סרגל הכלים למעלה מציג את האפשרויות של הכלי או של הרכיבים שנבחרו, למשל צבע קו, צבע מילוי ועובי.
+	</p>
+	<table>
+		<tr><th>מקש</th><th>כלי</th><th>מקש</th><th>כלי</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>כלי בחירה</td><td><kbd>S</kbd></td><td>בועת דיבור</td></tr>
+		<tr><td><kbd>R</kbd></td><td>מלבן</td><td><kbd>I</kbd></td><td>מונה (שלבים ממוספרים)</td></tr>
+		<tr><td><kbd>E</kbd></td><td>אליפסה</td><td><kbd>M</kbd></td><td>אמוג'י</td></tr>
+		<tr><td><kbd>L</kbd></td><td>קו</td><td><kbd>H</kbd></td><td>הדגשה</td></tr>
+		<tr><td><kbd>A</kbd></td><td>חץ</td><td><kbd>O</kbd></td><td>הסתרה</td></tr>
+		<tr><td><kbd>F</kbd></td><td>יד חופשית</td><td><kbd>C</kbd></td><td>חיתוך</td></tr>
+		<tr><td><kbd>T</kbd></td><td>טקסט</td><td><kbd>Z</kbd></td><td>שינוי גודל התמונה</td></tr>
+	</table>
+	<ul>
+		<li>החזיקו <kbd>Shift</kbd> בזמן הציור לריבוע או לעיגול, או לקווים בצעדים של 15°; בשינוי גודל הוא שומר על היחס.
+			החזיקו <kbd>Ctrl</kbd> כדי לצייר או לשנות גודל מהמרכז, שימושי לאליפסה סביב משהו.</li>
+		<li>טקסט: ציירו את תיבת הטקסט והקלידו. לחיצה כפולה על טקסט משנה אותו, <kbd>Enter</kbd> מסיים, <kbd>Shift</kbd> + <kbd>Enter</kbd> מתחיל שורה חדשה.</li>
+		<li>רכיבים שנבחרו: מקשי החצים מזיזים אותם (עם <kbd>Shift</kbd> בעשרה פיקסלים), <kbd>Ctrl</kbd> + חצים משנים את גודלם,
+			<kbd>Page Up</kbd> / <kbd>Page Down</kbd> מעלים או מורידים אותם שכבה אחת, <kbd>Delete</kbd> מסיר אותם, <kbd>Ctrl</kbd> + <kbd>D</kbd> משכפל אותם.
+			החזיקו <kbd>Shift</kbd> ולחצו כדי לבחור כמה רכיבים.</li>
+		<li><kbd>Ctrl</kbd> + <kbd>Z</kbd> מבטל, <kbd>Ctrl</kbd> + <kbd>Y</kbd> מבצע שוב.</li>
+	</ul>
+
+	<a name="editor-highlight"></a>
+	<h3>הדגשה והסתרה</h3>
+	<p>ציירו את אזור ההדגשה (<kbd>H</kbd>) או ההסתרה (<kbd>O</kbd>) כמו מלבן ובחרו את המצב בסרגל הכלים:</p>
+	<ul>
+		<li><em>טקסט מודגש</em> צובע את האזור כמו מרקר, <em>אזור מודגש</em> מכהה ומטשטש את כל השאר,
+			<em>גווני אפור</em> הופך את כל השאר לאפור, <em>הגדלה</em> מגדילה את האזור.</li>
+		<li><em>פיקסליזציה</em> או <em>טישטוש</em> מסתירים סיסמאות, שמות, מספרי חשבון או פנים.</li>
+	</ul>
+
+	<a name="editor-crop"></a>
+	<h3>חיתוך</h3>
+	<p>
+		בחרו את כלי החיתוך (<kbd>C</kbd>) וציירו את האזור שיישאר; <kbd>Enter</kbd> מאשר, <kbd>Esc</kbd> מבטל.
+		לחצו שוב <kbd>C</kbd>, או השתמשו ב־<em>מצב חיתוך</em> בסרגל הכלים, כדי להחליף מצב:
+	</p>
+	<ul>
+		<li><em>חתוך החוצה אנכית</em> או <em>חתוך החוצה אופקית</em> מסיר רצועה מהתמונה ומחבר את השאר, למשל כדי להשמיט
+			את האמצע הריק של עמוד ארוך. <em>קצוות חיתוך</em> קובע איך נראה החיבור: ישר, זיגזג, גלי, קרוע או חלק.</li>
+		<li><em>חיתוך אוטומטי</em> מסיר שוליים בצבע אחד מסביב לתמונה.</li>
+	</ul>
+
+	<a name="editor-effects"></a>
+	<h3>אפקטים, סיבוב ושינוי גודל</h3>
+	<table>
+		<tr><th>מקשים</th><th>מה הם עושים</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Q</kbd></td><td>צל</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>B</kbd></td><td>מסגרת</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>T</kbd></td><td>קצה קרוע</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>G</kbd> / <kbd>Ctrl</kbd> + <kbd>I</kbd></td><td>גווני אפור / היפוך צבעים, למשל כדי לחסוך בדיו בהדפסה</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>,</kbd> / <kbd>Ctrl</kbd> + <kbd>.</kbd></td><td>סיבוב נגד כיוון השעון / עם כיוון השעון</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>+</kbd> / <kbd>-</kbd></td><td>הגדלה / הקטנה של משטח הציור</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>+</kbd> / <kbd>-</kbd>, <kbd>Ctrl</kbd> + <kbd>0</kbd>, <kbd>Ctrl</kbd> + <kbd>9</kbd></td><td>התקרבות / התרחקות, גודל אמיתי, התאמה מיטבית</td></tr>
+	</table>
+	<p>
+		קצה קרוע נשאר רכיב שאפשר לשנות; <em>החל על התמונה</em> בסרגל הכלים הופך אותו לחלק מהתמונה.
+	</p>
+
+	<a name="editor-reuse"></a>
+	<h3>הוספת תמונות ושימוש חוזר ברכיבים</h3>
+	<ul>
+		<li>גררו קובץ תמונה לעורך, או הדביקו תמונה עם <kbd>Ctrl</kbd> + <kbd>V</kbd>. <em>הוסף חלון</em> בתפריט <em>עריכה</em> מוסיף לכידה של חלון פתוח אחר.</li>
+		<li>השתמשו באותם רכיבים בהרבה צילומים: <em>שמור אובייקט לקובץ</em> בתפריט <em>אובייקט</em>, ו־<em>פתח אובייקט מקובץ</em> בצילום הבא.</li>
+		<li>שמרו כקובץ <code>.greenshot</code> כדי שכל הרכיבים יישארו ניתנים לעריכה ותוכלו להמשיך מאוחר יותר.</li>
+	</ul>
+
+	<a name="editor-export"></a>
+	<h3>שמירה וייצוא</h3>
+	<table>
+		<tr><th>מקשים</th><th>מה הם עושים</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td><td><em>שמור</em> בתיקייה מ<a href="greenshot://settings?tab=output">כרטיסיית פלט</a></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd></td><td><em>...שמירה בשם</em>: בחירת תיקייה, שם ותבנית תמונה</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd></td><td><em>העתקת תמונה אל הלוח</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>P</kbd></td><td><em>הדפסה</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>E</kbd></td><td><em>דואר אלקטרוני</em>: הודעה חדשה עם התמונה מצורפת</td></tr>
+	</table>
+	<p>
+		התפריט <em>קובץ</em> וסרגל הכלים למעלה מציגים את כל היעדים שלכם, כולל אלה של תוספים.
+		אחרי השמירה, לחצו בלחצן הימני על שורת המצב למטה כדי להעתיק את נתיב הקובץ או לפתוח את התיקייה שלו.
+	</p>
+
+	<a name="recipes"></a>
+	<h2>שלבים אוטומטיים ומתכונים</h2>
+	<p>
+		מתכונים עושים דברים עם הלכידות שלכם באופן אוטומטי, למשל מוסיפים מסגרת לכל לכידה, או שומרים ומעלים אותה בבת אחת.
+		<em>הגדרות מהירות</em> &gt; <em>צעדים אוטומטיים</em> בתפריט הסמל מפעיל או מכבה את השלבים המוכנים,
+		<em>עוד…</em> פותח את ההגדרות שלהם ב<a href="greenshot://settings?tab=recipes">כרטיסיית מתכונים</a>.
+		התפריט <em>מתכונים</em> של הסמל מפעיל את המתכונים שלכם ופותח את <a href="greenshot://recipe-manager">מנהל המתכונים</a> ואת Recipe Editor.
+		המתכונים מגיעים עם התוסף Recipe Editor.
+	</p>
+
+	<a name="settings"></a>
+	<h2>ההגדרות</h2>
+	<p>פתחו את ההגדרות עם <em>...הגדרות</em> בתפריט הסמל, או בקישורים שלמטה.</p>
+	<ul>
+		<li><a href="greenshot://settings?tab=general">כללי</a>: שפה, צבעים (בהיר, כהה או כמו Windows), גודל הסמל,
+			<em>הפעל את התוכנה עם הפעלת המחשב</em>, מקשי הקיצור, השרת המתווך (proxy) וכל כמה זמן Greenshot בודק עדכונים.</li>
+		<li><a href="greenshot://settings?tab=capture">לכידה</a>: לכידת סמן העכבר, צליל מצלמה, זכוכית מגדלת, הקפאת המסך,
+			הודעות, ההמתנה לפני לכידה, הגדלים הקבועים שלכם, לכידת חלון אינטראקטיבית ושפת זיהוי הטקסט.</li>
+		<li><a href="greenshot://settings?tab=output">פלט</a>: התיקייה ותבנית שם הקובץ לשמירה (לחצו על <em>?</em> כדי לראות את ממלאי המקום,
+			למשל <code>${YYYY}-${MM}-${DD}</code> או <code>${title}</code>; <code>\</code> בתבנית יוצר תיקיות), תבנית התמונה ואיכות ה־JPEG.</li>
+		<li><a href="greenshot://settings?tab=destination">יעד הלכידה</a>: מה קורה אחרי לכידה, ראו <a href="#destinations">לאן הולך צילום המסך</a>.</li>
+		<li><a href="greenshot://settings?tab=editor">עורך</a>: כרטיסיות, גודל חלון העורך, השאלה על שמירה בסגירה, וגודל וצבע של תמונה חדשה.</li>
+		<li><a href="greenshot://settings?tab=printer">מדפסת</a>: התאמת התמונה לעמוד, סיבוב או מירכוז, הדפסה בצבע, בגווני אפור או בהיפוך, וכותרת תחתונה עם תאריך ושעה.</li>
+		<li><a href="greenshot://settings?tab=plugins">תוספים</a>: הפעלה, כיבוי והגדרה של תוספים. שינויים חלים בהפעלה הבאה של Greenshot.</li>
+		<li><a href="greenshot://settings?tab=expert">מומחה</a>: הגדרות למקרים מיוחדים, למשל שולחן עבודה מרוחק, לכידת DirectX (נדרשת למסכי HDR), זיכרון ומהירות,
+			ותבניות הלוח. שנו אותן רק אם אתם יודעים מה הן עושות.</li>
+	</ul>
+	<p class="hint">
+		Greenshot שומר את ההגדרות שלו ב־<code>greenshot.ini</code>, בתיקייה <code>%APPDATA%\Greenshot</code> (הגרסה הניידת שומרת אותו ליד Greenshot.exe).
+		<a href="greenshot://self-service?section=files">קבצים והגדרות</a> ב־שירות עצמי מראה היכן הוא.
+	</p>
+
+	<a name="troubleshooting"></a>
+	<h2>כשמשהו לא עובד</h2>
+	<p>
+		שירות עצמי בודק את Greenshot ומתקן את רוב הבעיות. פתחו אותו עם <em>Greenshot אודות</em> בתפריט הסמל, ואז <em>שירות עצמי</em>,
+		או עברו ישירות לחלק המתאים:
+	</p>
+	<ul>
+		<li><kbd>Print Screen</kbd> לא עושה כלום או פותח משהו אחר: <a href="greenshot://self-service?section=hotkeys">מקשים חמים והתנגשויות</a>
+			מראה אם OneDrive או כלי החיתוך לקחו את המקש, ומחזיר אותו ל־Greenshot.</li>
+		<li>לא מוצאים את צילומי המסך: <a href="greenshot://self-service?section=files">קבצים והגדרות</a> מראה איפה Greenshot שומר אותם.</li>
+		<li>ההעתקה ללוח נכשלת: <a href="greenshot://self-service?section=clipboard">אבחון הלוח</a> מוצא את התוכנה שחוסמת את הלוח.</li>
+		<li>Greenshot קורס או שתוסף חסר אחרי עדכון: <a href="greenshot://self-service?section=checksum">שלמות ההתקנה</a> בודק את הקבצים המותקנים.</li>
+		<li>דיווח על בעיה: <em>העתק מידע מערכת</em> ב־<a href="greenshot://self-service?section=system">מערכת וחומרה</a> ו
+			<a href="greenshot://log?search=ERROR">השגיאות ביומן</a> עוזרים לנו לעזור לכם. דווחו על בעיות ב־
+			<a target="_blank" href="https://github.com/greenshot/greenshot/issues">github.com/greenshot/greenshot/issues</a>.</li>
+	</ul>
+
+	<a name="help"></a>
+	<h2>רוצים לעזור?</h2>
+
+	<a name="help-donate"></a>
+	<h3>שקלו לתרום</h3>
+	<p>
+		אנחנו משקיעים הרבה עבודה ב־Greenshot כדי לספק תוכנה טובה בחינם ובקוד פתוח. אם היא הופכת אתכם ליעילים יותר,
+		חוסכת לכם או לחברה שלכם זמן וכסף, או שאתם פשוט אוהבים את Greenshot: אנא שקלו לתמוך בנו.
+		ראו ב־<a target="_blank" href="https://getgreenshot.org/support/">https://getgreenshot.org/support/</a> איך אפשר לעזור.
+	</p>
+
+	<a name="help-spread"></a>
+	<h3>ספרו לאחרים</h3>
+	<p>
+		אם אתם אוהבים את Greenshot, ספרו עליו לחברים ולעמיתים. דרגו את Greenshot באתרי תוכנה או קשרו לדף הבית שלנו מהבלוג או מהאתר שלכם.
+	</p>
+	<p>
+		תנו ל־Greenshot כוכב ב־<a target="_blank" href="https://github.com/greenshot/greenshot">GitHub</a>, כך אחרים ימצאו אותו בקלות רבה יותר:
+		<br><iframe src="https://ghbtns.com/github-btn.html?user=greenshot&amp;repo=greenshot&amp;type=star&amp;count=true&amp;size=large" frameborder="0" width="170" height="30" title="GitHub"></iframe>
+	</p>
+
+	</body>
+</html>

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>مساعدة Greenshot</title>
+		<style>
+		* {font-family: "Segoe UI", Tahoma, Arial, Sans-serif;}
+		body {max-width:60em;margin:0 auto;padding:0 16px 24px 16px;}
+		h1 {font-size:20px;}
+		h2 {font-size:16px;color:#009900;margin-top:28px;}
+		h3 {font-size:14px;margin-top:20px;}
+		small {font-size:11px;}
+		p, li, td, th {font-size:13px;line-height:1.6em;}
+		a:link, a:hover, a:visited, a:active {color:#007700;}
+		kbd {background-color:#eeeeee;border:1px solid #bbbbbb;padding:0 3px;border-radius:3px;white-space:nowrap;}
+		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px 8px;}
+		table {border-collapse:collapse;margin:6px 0;}
+		th, td {border:1px solid #dddddd;padding:3px 8px;text-align:right;vertical-align:top;}
+		th {background-color:#f2f2f2;}
+		em {font-style:normal;font-weight:bold;}
+		</style>
+	</head>
+	<body>
+	<h1>مساعدة Greenshot</h1>
+	<!--
+	Note to translator: uncomment the entry below to have your effort honored
+	-->
+	<!--<small>الترجمة العربية للمساعدة: اسمك</small>-->
+
+	<p class="hint">
+		الروابط التي تبدأ بـ <code>greenshot:</code>، مثل <a href="greenshot://settings">فتح التفضيلات</a>،
+		تفتح تلك النافذة في Greenshot. تعمل هذه الروابط عندما يكون Greenshot مثبتًا بواسطة برنامج التثبيت، ولا تعمل في النسخة
+		المحمولة ولا في Greenshot Light. يسألك المتصفح قبل أن يفتح Greenshot.
+	</p>
+
+	<h2>المحتويات</h2>
+	<ol>
+		<li><a href="#start">البدء</a></li>
+		<li><a href="#screenshot">التقاط صورة للشاشة</a>
+			<ol>
+				<li><a href="#capture-screen">شاشة الالتقاط</a></li>
+				<li><a href="#capture-modes">منطقة، نافذة، حجم ثابت ونص</a></li>
+				<li><a href="#capture-keys">المفاتيح أثناء التحديد</a></li>
+				<li><a href="#capture-live">التحديد دون تجميد الشاشة</a></li>
+			</ol>
+		</li>
+		<li><a href="#destinations">أين تذهب الصورة</a></li>
+		<li><a href="#editor">محرر الصور</a>
+			<ol>
+				<li><a href="#editor-tabs">علامات التبويب</a></li>
+				<li><a href="#editor-tools">أدوات الرسم</a></li>
+				<li><a href="#editor-highlight">التظليل والإخفاء</a></li>
+				<li><a href="#editor-crop">القص</a></li>
+				<li><a href="#editor-effects">التأثيرات والتدوير وتغيير الحجم</a></li>
+				<li><a href="#editor-reuse">إضافة صور وإعادة استخدام العناصر</a></li>
+				<li><a href="#editor-export">الحفظ والتصدير</a></li>
+			</ol>
+		</li>
+		<li><a href="#recipes">الخطوات التلقائية والوصفات</a></li>
+		<li><a href="#settings">التفضيلات</a></li>
+		<li><a href="#troubleshooting">عندما لا يعمل شيء ما</a></li>
+		<li><a href="#help">هل تريد المساعدة؟</a></li>
+	</ol>
+
+	<a name="start"></a>
+	<h2>البدء</h2>
+	<p>
+		يعمل Greenshot في الخلفية. توجد أيقونته بجانب الساعة، في منطقة الإشعارات من شريط المهام.
+		انقر عليها بزر الفأرة الأيمن لفتح القائمة التي تحتوي على كل أنواع الالتقاط و<em>التفضيلات...</em> وهذه المساعدة.
+	</p>
+	<p class="hint">
+		لا ترى الأيقونة؟ قد يخفيها Windows 11 خلف السهم (^). يعرضها لك <a href="greenshot://self-service?section=setup">إعدادك</a>
+		في الخدمة الذاتية بجانب الساعة، ويتحقق أيضًا مما إذا كان مفتاح <kbd>Print Screen</kbd> يصل إلى Greenshot.
+	</p>
+
+	<a name="screenshot"></a>
+	<h2>التقاط صورة للشاشة</h2>
+	<p>ابدأ الالتقاط باختصار لوحة المفاتيح أو من قائمة أيقونة Greenshot:</p>
+	<table>
+		<tr><th>الالتقاط</th><th>الاختصار</th><th>ما يحدث</th></tr>
+		<tr><td><em>منطقة الالتقاط</em></td><td><kbd>Print Screen</kbd></td><td>تُفتح شاشة الالتقاط وتحدد ما تريد التقاطه.</td></tr>
+		<tr><td><em>التقط النافذة</em></td><td><kbd>Alt</kbd> + <kbd>Print Screen</kbd></td><td>يلتقط النافذة النشطة فورًا. مع <em>استخدم وضع نافذة الالتقاط التفاعلي</em> (<a href="greenshot://settings?tab=capture">تبويب إلتقط صورة</a>) تختار النافذة في شاشة الالتقاط بدلًا من ذلك.</td></tr>
+		<tr><td><em>التقط كامل الشاشة</em></td><td><kbd>Ctrl</kbd> + <kbd>Print Screen</kbd></td><td>يلتقط الشاشة فورًا. مع وجود أكثر من شاشة، تعرض قائمة الأيقونة كل الشاشات أو واحدة منها.</td></tr>
+		<tr><td><em>التقط المنطقة السابقة</em></td><td><kbd>Shift</kbd> + <kbd>Print Screen</kbd></td><td>يلتقط المنطقة نفسها التي التقطتها آخر مرة.</td></tr>
+		<tr><td><em>فتح صورة من الذاكرة</em></td><td>لا يوجد</td><td>يفتح الصورة الموجودة في الحافظة.</td></tr>
+	</table>
+	<p>
+		تحتوي القائمة أيضًا على <em>التقط نافذة من القائمة</em>، الذي يلتقط نافذة مفتوحة تختارها دون شاشة الالتقاط،
+		و<em>فتح صورة من ملف</em> و<em>افتح مكان آخر لقطة</em>.
+		يمكنك تغيير الاختصارات في <a href="greenshot://settings?tab=general">التفضيلات، تبويب عام</a>.
+	</p>
+
+	<a name="capture-screen"></a>
+	<h3>شاشة الالتقاط</h3>
+	<p>
+		يلتقط Greenshot صورة لكل شاشاتك ويعرضها فوق كل شيء. لا يتغير شيء أثناء التحديد،
+		لذلك تبقى القائمة المفتوحة أو تلميح الأداة في مكانها. يُلتقط الجزء الذي تحدده فقط. يغلق <kbd>Esc</kbd> شاشة الالتقاط
+		دون التقاط أي شيء.
+	</p>
+	<p>فوق الصورة ترى:</p>
+	<ul>
+		<li><em>التحديد</em> مع حجمه،</li>
+		<li><em>المكبّر</em>، وهو عدسة بجانب الفأرة تعرض كل بكسل، لتضع الزاوية بدقة،</li>
+		<li>لوحات في الزوايا: <em>المفاتيح</em> (<kbd>F1</kbd>) و<em>المعلومات</em> (<kbd>I</kbd>) و<em>معاينة</em> التحديد (<kbd>P</kbd>).
+			وهي تبتعد عن طريقك من تلقاء نفسها.</li>
+	</ul>
+	<p class="hint">
+		اضغط <kbd>F1</kbd> أثناء التحديد: تعرض لوحة المفاتيح دائمًا المفاتيح التي تعمل في تلك اللحظة.
+		يتذكر Greenshot أنك أخفيت لوحة، ويعيدها <kbd>F1</kbd> أو <kbd>I</kbd>.
+	</p>
+
+	<a name="capture-modes"></a>
+	<h3>منطقة، نافذة، حجم ثابت ونص</h3>
+	<ul>
+		<li><em>منطقة</em>: اسحب مستطيلًا بالفأرة، وعند تحرير الزر يُلتقط. بلوحة المفاتيح: مفاتيح الأسهم تحرك الفأرة،
+			و<kbd>Enter</kbd> يبدأ التحديد، و<kbd>Enter</kbd> مرة أخرى يلتقطه. اضغط مع الاستمرار على <kbd>Shift</kbd> لتغيير العرض فقط أو الارتفاع فقط.</li>
+		<li><em>نافذة</em> (<kbd>مسافة</kbd>): تُحدَّد النافذة التي تحت الفأرة، ونقرة أو <kbd>Enter</kbd> تلتقطها.
+			يحدد Greenshot الجزء الأعمق، مثل شريط أدوات؛ انتقل إلى الحافة الخارجية للنافذة لتحديد النافذة كاملة.
+			يحدد <kbd>Tab</kbd> و<kbd>Shift</kbd> + <kbd>Tab</kbd> النافذة التالية أو السابقة.</li>
+		<li><em>حجم ثابت</em> (<kbd>F</kbd>): مستطيل بحجم دقيق، مثل 1280 × 720، يتبع الفأرة. يختار <kbd>1</kbd> – <kbd>9</kbd> حجمًا،
+			ويغيّر <kbd>C</kbd> الزاوية التي تمسكها الفأرة، واضغط مع الاستمرار على <kbd>Alt</kbd> لوضعه دون أن يلتصق بالنوافذ. تُضبط أحجامك الخاصة في
+			<a href="greenshot://settings?tab=capture">تبويب إلتقط صورة</a>، وتُعرض أيضًا أحجام آخر لقطاتك.</li>
+		<li><em>نص</em> (<kbd>T</kbd>): يقرأ Greenshot النص على الشاشة باستخدام ميزة التعرف على النص في Windows ويؤطر كل سطر.
+			انقر على سطر، أو اسحب فوق الكلمات، لالتقاطها. للحصول على الكلمات كنص، أرسل اللقطة إلى <em>Windows OCR</em>،
+			الذي ينسخ النص إلى الحافظة. يتطلب ذلك تثبيت لغة تعرّف في Windows؛ وتُختار اللغة في
+			<a href="greenshot://settings?tab=capture">تبويب إلتقط صورة</a>، <em>التعرف على النص (OCR)</em>.</li>
+	</ul>
+	<p class="hint">
+		مع إضافة رموز QR، يجد Greenshot رموز QR على الشاشة ويؤطرها. انقر على أحدها لنسخ محتواه أو فتح عنوانه على الويب.
+	</p>
+
+	<a name="capture-keys"></a>
+	<h3>المفاتيح أثناء التحديد</h3>
+	<table>
+		<tr><th>المفتاح</th><th>ما يفعله</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>إلغاء الالتقاط</td></tr>
+		<tr><td><kbd>مسافة</kbd></td><td>التبديل بين المنطقة والنافذة</td></tr>
+		<tr><td><kbd>F</kbd> / <kbd>T</kbd></td><td>التقاط حجم ثابت / التقاط نص</td></tr>
+		<tr><td><kbd>M</kbd></td><td>إظهار مؤشر الفأرة في اللقطة أو إخفاؤه</td></tr>
+		<tr><td><kbd>L</kbd></td><td>التبديل بين الشاشة المجمدة والشاشة الحية</td></tr>
+		<tr><td><kbd>Z</kbd></td><td>إظهار المكبّر أو إخفاؤه</td></tr>
+		<tr><td><kbd>F1</kbd> / <kbd>I</kbd> / <kbd>P</kbd></td><td>إظهار أو إخفاء المفاتيح / المعلومات / نقل المعاينة أو إخفاؤها</td></tr>
+		<tr><td>مفاتيح الأسهم</td><td>تحريك الفأرة بكسلًا واحدًا، ومع <kbd>Ctrl</kbd> عشرة بكسلات</td></tr>
+		<tr><td><kbd>Enter</kbd></td><td>بدء التحديد أو إنهاؤه، التقاط النافذة</td></tr>
+	</table>
+
+	<a name="capture-live"></a>
+	<h3>التحديد دون تجميد الشاشة</h3>
+	<p>
+		أوقف <em>تجميد الشاشة أثناء التحديد</em> في <a href="greenshot://settings?tab=capture">تبويب إلتقط صورة</a>، أو اضغط
+		<kbd>L</kbd> أثناء التحديد، فتحدد على الشاشة الحية: يستمر تشغيل الفيديو، وتُلتقط الصورة عندما تنهي
+		التحديد. يحتاج وضع النص والمعاينة إلى الصورة المجمدة. عادةً ما تُغلق القوائم المفتوحة عند النقر، لذا استخدم الشاشة المجمدة لها.
+	</p>
+	<p class="hint">
+		هل يظهر شيء ما بعد لحظة فقط؟ اضبط <em>وقت الانتظار بالجزء من الثانية قبل الإلتقاط</em> في
+		<a href="greenshot://settings?tab=capture">تبويب إلتقط صورة</a>، أو حدد على الشاشة الحية.
+	</p>
+
+	<a name="destinations"></a>
+	<h2>أين تذهب الصورة</h2>
+	<p>
+		بعد الالتقاط، يرسل Greenshot الصورة إلى وجهاتك. افتراضيًا يسألك في كل مرة بقائمة صغيرة.
+		لكل وجهة هناك حرف ثابت مسطر، مثل <kbd>C</kbd> للحافظة و<kbd>S</kbd> للحفظ، فيمكنك اختيارها بلوحة المفاتيح.
+		اختر وجهاتك في <a href="greenshot://settings?tab=destination">تبويب بعد التقاط الشاشة</a>، أو في <em>تفضيلات سريعة</em> في قائمة الأيقونة.
+	</p>
+	<ul>
+		<li><em>افتح في محرر الصور</em>: أضف التعليقات إلى الصورة أولًا، انظر <a href="#editor">محرر الصور</a>.</li>
+		<li><em>احفظ مباشرة</em> يستخدم المجلد ونمط اسم الملف من <a href="greenshot://settings?tab=output">تبويب النتائج</a>، و<em>احفظ باسم..</em> يسألك عنهما.</li>
+		<li><em>انسخ للذاكرة</em> و<em>ارسل للطباعة</em> و<em>بريد الكتروني</em> و<em>Windows share</em> و<em>Windows OCR</em> (ينسخ نص الصورة).</li>
+		<li>تضيف الإضافات وجهات أخرى، مثل Microsoft Word وExcel وPowerPoint وOutlook وOneNote وPDF وBox وDropbox وJira وConfluence.
+			تُضبط في <a href="greenshot://settings?tab=plugins">تبويب الإضافات</a>، حيث يمكنك أيضًا إيقاف إضافة.</li>
+	</ul>
+	<p>
+		عمود <em>متاحة</em> في <a href="greenshot://settings?tab=destination">تبويب بعد التقاط الشاشة</a> يوقف وجهة في كل مكان.
+		تُضبط الإشعارات التي تتلقاها بعد الالتقاط في <a href="greenshot://settings?tab=capture">تبويب إلتقط صورة</a>، <em>الإشعارات</em>.
+	</p>
+
+	<a name="editor"></a>
+	<h2>محرر الصور</h2>
+	<p>
+		يضيف المحرر إلى الصورة أشكالًا ونصوصًا وأسهمًا وتظليلًا والمزيد، أو يخفي ما لا يجب أن يراه الآخرون.
+		إلى جانب لقطاتك، يفتح صورًا من ملف أو من الحافظة (قائمة الأيقونة).
+		يبقى كل ما ترسمه عنصرًا يمكنك تحديده أو نقله أو تغييره أو حذفه.
+	</p>
+
+	<a name="editor-tabs"></a>
+	<h3>علامات التبويب</h3>
+	<p>
+		تعرض نافذة المحرر عدة صور كعلامات تبويب، وتُفتح اللقطة الجديدة كعلامة تبويب في آخر نافذة محرر استخدمتها.
+		ينتقل <kbd>Ctrl</kbd> + <kbd>Tab</kbd> إلى علامة التبويب التالية ويغلق <kbd>Ctrl</kbd> + <kbd>W</kbd> واحدة. اسحب علامة تبويب إلى نافذة محرر أخرى،
+		أو انقر عليها بزر الفأرة الأيمن لنقلها إلى نافذة جديدة. يبدأ <em>+</em> في شريط علامات التبويب صورة جديدة فارغة.
+		عندما تغلق نافذة فيها صور غير محفوظة، يسأل Greenshot مرة واحدة: <em>حفظ الكل</em> أو <em>تجاهل الكل</em> أو إلغاء.
+		تفضّل نافذة لكل لقطة؟ أوقف علامات التبويب في <a href="greenshot://settings?tab=editor">تبويب المحرر</a>.
+	</p>
+
+	<a name="editor-tools"></a>
+	<h3>أدوات الرسم</h3>
+	<p>
+		اختر أداة على جانب المحرر، أو في قائمة <em>عنصر</em>، أو بمفتاحها، ثم اسحب على الصورة.
+		يعرض شريط الأدوات في الأعلى خيارات الأداة أو العناصر المحددة، مثل لون الخط ولون التعبئة والسُمك.
+	</p>
+	<table>
+		<tr><th>المفتاح</th><th>الأداة</th><th>المفتاح</th><th>الأداة</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>أداة التحديد</td><td><kbd>S</kbd></td><td>فقاعة كلام</td></tr>
+		<tr><td><kbd>R</kbd></td><td>مستطيل</td><td><kbd>I</kbd></td><td>عدّاد (خطوات مرقمة)</td></tr>
+		<tr><td><kbd>E</kbd></td><td>شكل بيضاوي</td><td><kbd>M</kbd></td><td>رمز تعبيري</td></tr>
+		<tr><td><kbd>L</kbd></td><td>خط</td><td><kbd>H</kbd></td><td>تظليل</td></tr>
+		<tr><td><kbd>A</kbd></td><td>سهم</td><td><kbd>O</kbd></td><td>إخفاء</td></tr>
+		<tr><td><kbd>F</kbd></td><td>رسم حر</td><td><kbd>C</kbd></td><td>قص</td></tr>
+		<tr><td><kbd>T</kbd></td><td>نص</td><td><kbd>Z</kbd></td><td>تغيير حجم الصورة</td></tr>
+	</table>
+	<ul>
+		<li>اضغط مع الاستمرار على <kbd>Shift</kbd> أثناء الرسم لمربع أو دائرة، أو لخطوط بخطوات 15°؛ وعند تغيير الحجم يحافظ على النسبة.
+			اضغط مع الاستمرار على <kbd>Ctrl</kbd> للرسم أو تغيير الحجم من المنتصف، وهذا مفيد لشكل بيضاوي حول شيء ما.</li>
+		<li>النص: ارسم مربع النص واكتب. انقر نقرًا مزدوجًا على نص لتغييره، و<kbd>Enter</kbd> ينهي، و<kbd>Shift</kbd> + <kbd>Enter</kbd> يبدأ سطرًا جديدًا.</li>
+		<li>العناصر المحددة: مفاتيح الأسهم تنقلها (مع <kbd>Shift</kbd> عشرة بكسلات)، و<kbd>Ctrl</kbd> + الأسهم تغيّر حجمها،
+			و<kbd>Page Up</kbd> / <kbd>Page Down</kbd> ترفعها أو تخفضها طبقة واحدة، و<kbd>Delete</kbd> يحذفها، و<kbd>Ctrl</kbd> + <kbd>D</kbd> يكررها.
+			اضغط مع الاستمرار على <kbd>Shift</kbd> وانقر لتحديد عدة عناصر.</li>
+		<li><kbd>Ctrl</kbd> + <kbd>Z</kbd> يتراجع، و<kbd>Ctrl</kbd> + <kbd>Y</kbd> يعيد.</li>
+	</ul>
+
+	<a name="editor-highlight"></a>
+	<h3>التظليل والإخفاء</h3>
+	<p>ارسم منطقة التظليل (<kbd>H</kbd>) أو الإخفاء (<kbd>O</kbd>) كمستطيل واختر الوضع في شريط الأدوات:</p>
+	<ul>
+		<li><em>تظليل النص</em> يلوّن المنطقة مثل قلم التظليل، و<em>منطقة التظليل</em> تُعتّم وتُضبّب كل ما عداها،
+			و<em>مقياس اللون الرمادي</em> يجعل كل ما عداها رماديًا، و<em>تكبير</em> يكبّر المنطقة.</li>
+		<li><em>تشويش</em> أو <em>التأثير الضبابي</em> يخفيان كلمات المرور والأسماء وأرقام الحسابات أو الوجوه.</li>
+	</ul>
+
+	<a name="editor-crop"></a>
+	<h3>القص</h3>
+	<p>
+		اختر أداة القص (<kbd>C</kbd>) وارسم المنطقة التي تريد الاحتفاظ بها، <kbd>Enter</kbd> يؤكد، و<kbd>Esc</kbd> يلغي.
+		اضغط <kbd>C</kbd> مرة أخرى، أو استخدم <em>وضع القص</em> في شريط الأدوات، لتغيير الوضع:
+	</p>
+	<ul>
+		<li><em>قص عمودي</em> أو <em>قص أفقي</em> يزيل شريطًا من الصورة ويصل الباقي، مثلًا لحذف
+			الوسط الفارغ من صفحة طويلة. يحدد <em>حواف القطع</em> شكل خط الوصل: مستقيم أو متعرج أو متموج أو ممزق أو بلا خط.</li>
+		<li><em>قص تلقائي</em> يزيل إطارًا بلون واحد حول الصورة.</li>
+	</ul>
+
+	<a name="editor-effects"></a>
+	<h3>التأثيرات والتدوير وتغيير الحجم</h3>
+	<table>
+		<tr><th>المفاتيح</th><th>ما تفعله</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Q</kbd></td><td>ظل</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>B</kbd></td><td>إطار</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>T</kbd></td><td>حافة ممزقة</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>G</kbd> / <kbd>Ctrl</kbd> + <kbd>I</kbd></td><td>تدرج رمادي / عكس الألوان، مثلًا لتوفير الحبر عند الطباعة</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>,</kbd> / <kbd>Ctrl</kbd> + <kbd>.</kbd></td><td>تدوير عكس اتجاه عقارب الساعة / مع اتجاه عقارب الساعة</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>+</kbd> / <kbd>-</kbd></td><td>تكبير / تصغير مساحة الرسم</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>+</kbd> / <kbd>-</kbd>، <kbd>Ctrl</kbd> + <kbd>0</kbd>، <kbd>Ctrl</kbd> + <kbd>9</kbd></td><td>تكبير / تصغير العرض، الحجم الفعلي، أفضل ملاءمة</td></tr>
+	</table>
+	<p>
+		تبقى الحافة الممزقة عنصرًا يمكنك تغييره؛ و<em>تطبيق على الصورة</em> في شريط الأدوات يجعلها جزءًا من الصورة.
+	</p>
+
+	<a name="editor-reuse"></a>
+	<h3>إضافة صور وإعادة استخدام العناصر</h3>
+	<ul>
+		<li>اسحب ملف صورة إلى المحرر، أو الصق صورة بـ <kbd>Ctrl</kbd> + <kbd>V</kbd>. يضيف <em>إدراج نافذة</em> في قائمة <em>عدل</em> لقطة لنافذة مفتوحة أخرى.</li>
+		<li>استخدم العناصر نفسها على لقطات كثيرة: <em>حفظ العنصر في ملف</em> في قائمة <em>عنصر</em>، و<em>تحميل العنصر من ملف</em> على اللقطة التالية.</li>
+		<li>احفظ كملف <code>.greenshot</code> لتبقى كل العناصر قابلة للتعديل وتكمل لاحقًا.</li>
+	</ul>
+
+	<a name="editor-export"></a>
+	<h3>الحفظ والتصدير</h3>
+	<table>
+		<tr><th>المفاتيح</th><th>ما تفعله</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td><td><em>احفظ</em>، في مجلد <a href="greenshot://settings?tab=output">تبويب النتائج</a></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd></td><td><em>احفظ باسم...</em>: اختر المجلد والاسم وتنسيق الصورة</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd></td><td><em>انسخ الصورة للذاكرة</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>P</kbd></td><td><em>اطبع</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>E</kbd></td><td><em>البريد الالكتروني</em>: رسالة جديدة مرفق بها الصورة</td></tr>
+	</table>
+	<p>
+		تعرض قائمة <em>ملف</em> وشريط الأدوات في الأعلى كل وجهاتك، ومنها وجهات الإضافات.
+		بعد الحفظ، انقر بزر الفأرة الأيمن على شريط الحالة في الأسفل لنسخ مسار الملف أو فتح مجلده.
+	</p>
+
+	<a name="recipes"></a>
+	<h2>الخطوات التلقائية والوصفات</h2>
+	<p>
+		تنفذ الوصفات أشياء على لقطاتك تلقائيًا، مثل إضافة إطار لكل لقطة، أو حفظها ورفعها دفعة واحدة.
+		<em>تفضيلات سريعة</em> &gt; <em>الخطوات التلقائية</em> في قائمة الأيقونة يشغّل الخطوات الجاهزة أو يوقفها،
+		و<em>المزيد…</em> يفتح إعداداتها في <a href="greenshot://settings?tab=recipes">تبويب الوصفات</a>.
+		قائمة <em>الوصفات</em> في الأيقونة تشغّل وصفاتك وتفتح <a href="greenshot://recipe-manager">مدير الوصفات</a> وRecipe Editor.
+		تأتي الوصفات مع إضافة Recipe Editor.
+	</p>
+
+	<a name="settings"></a>
+	<h2>التفضيلات</h2>
+	<p>افتح التفضيلات بـ <em>التفضيلات...</em> في قائمة الأيقونة، أو بالروابط أدناه.</p>
+	<ul>
+		<li><a href="greenshot://settings?tab=general">عام</a>: اللغة، والألوان (فاتح أو داكن أو مثل Windows)، وحجم الأيقونة،
+			و<em>تشغيل جرين شوت مع بدأ التشغيل</em>، والاختصارات، والوكيل (proxy)، وعدد مرات بحث Greenshot عن التحديثات.</li>
+		<li><a href="greenshot://settings?tab=capture">إلتقط صورة</a>: التقاط مؤشر الفأرة، وصوت الكاميرا، والمكبّر، وتجميد الشاشة،
+			والإشعارات، والانتظار قبل الالتقاط، وأحجامك الثابتة، والتقاط النافذة التفاعلي، ولغة التعرف على النص.</li>
+		<li><a href="greenshot://settings?tab=output">النتائج</a>: المجلد ونمط اسم الملف للحفظ (انقر على <em>?</em> لرؤية العناصر النائبة،
+			مثل <code>${YYYY}-${MM}-${DD}</code> أو <code>${title}</code>؛ و<code>\</code> في النمط ينشئ مجلدات)، وتنسيق الصورة وجودة JPEG.</li>
+		<li><a href="greenshot://settings?tab=destination">بعد التقاط الشاشة</a>: ما يحدث بعد الالتقاط، انظر <a href="#destinations">أين تذهب الصورة</a>.</li>
+		<li><a href="greenshot://settings?tab=editor">المحرر</a>: علامات التبويب، وحجم نافذة المحرر، والسؤال عن الحفظ عند إغلاقها، وحجم الصورة الجديدة ولونها.</li>
+		<li><a href="greenshot://settings?tab=printer">الطابعة</a>: ملاءمة الصورة للصفحة، وتدويرها أو توسيطها، والطباعة بالألوان أو بالرمادي أو معكوسة، وتذييل بالتاريخ والوقت.</li>
+		<li><a href="greenshot://settings?tab=plugins">الإضافات</a>: تشغيل الإضافات أو إيقافها وضبطها. تُطبَّق التغييرات عند تشغيل Greenshot التالي.</li>
+		<li><a href="greenshot://settings?tab=expert">متقدم</a>: إعدادات لحالات خاصة، مثل سطح المكتب البعيد، والتقاط DirectX (مطلوب لشاشات HDR)، والذاكرة والسرعة،
+			وتنسيقات الحافظة. لا تغيّرها إلا إذا كنت تعرف ما تفعله.</li>
+	</ul>
+	<p class="hint">
+		يحفظ Greenshot إعداداته في <code>greenshot.ini</code>، في <code>%APPDATA%\Greenshot</code> (تحفظه النسخة المحمولة بجانب Greenshot.exe).
+		يعرض <a href="greenshot://self-service?section=files">الملفات والإعدادات</a> في الخدمة الذاتية مكانه.
+	</p>
+
+	<a name="troubleshooting"></a>
+	<h2>عندما لا يعمل شيء ما</h2>
+	<p>
+		يفحص الخدمة الذاتية برنامج Greenshot ويصلح معظم المشكلات. افتحه بـ <em>حول البرنامج</em> في قائمة الأيقونة، ثم <em>الخدمة الذاتية</em>،
+		أو انتقل مباشرة إلى القسم المناسب:
+	</p>
+	<ul>
+		<li><kbd>Print Screen</kbd> لا يفعل شيئًا أو يفتح شيئًا آخر: يعرض <a href="greenshot://self-service?section=hotkeys">الاختصارات والتعارضات</a>
+			ما إذا كان OneDrive أو أداة القطع قد أخذ المفتاح، ويعيده إلى Greenshot.</li>
+		<li>لا تجد لقطاتك: يعرض <a href="greenshot://self-service?section=files">الملفات والإعدادات</a> أين يحفظها Greenshot.</li>
+		<li>فشل النسخ إلى الحافظة: يجد <a href="greenshot://self-service?section=clipboard">تشخيص الذاكرة</a> البرنامج الذي يحجز الحافظة.</li>
+		<li>يتعطل Greenshot أو تختفي إضافة بعد تحديث: يفحص <a href="greenshot://self-service?section=checksum">سلامة التثبيت</a> الملفات المثبتة.</li>
+		<li>الإبلاغ عن مشكلة: <em>نسخ معلومات النظام</em> في <a href="greenshot://self-service?section=system">النظام والعتاد</a> و
+			<a href="greenshot://log?search=ERROR">الأخطاء في السجل</a> تساعدنا على مساعدتك. أبلغ عن المشكلات على
+			<a target="_blank" href="https://github.com/greenshot/greenshot/issues">github.com/greenshot/greenshot/issues</a>.</li>
+	</ul>
+
+	<a name="help"></a>
+	<h2>هل تريد المساعدة؟</h2>
+
+	<a name="help-donate"></a>
+	<h3>فكّر في التبرع</h3>
+	<p>
+		نبذل جهدًا كبيرًا في Greenshot لنقدم برنامجًا جيدًا مجانيًا ومفتوح المصدر. إذا كان يجعلك أكثر إنتاجية،
+		أو يوفر عليك أو على شركتك الوقت والمال، أو كنت تحب Greenshot ببساطة: فكّر في دعمنا.
+		راجع <a target="_blank" href="https://getgreenshot.org/support/">https://getgreenshot.org/support/</a> لمعرفة كيف يمكنك المساعدة.
+	</p>
+
+	<a name="help-spread"></a>
+	<h3>انشر الكلمة</h3>
+	<p>
+		إذا أعجبك Greenshot، فأخبر أصدقاءك وزملاءك عنه. قيّم Greenshot في مواقع البرامج أو ضع رابطًا لصفحتنا الرئيسية في مدونتك أو موقعك.
+	</p>
+	<p>
+		امنح Greenshot نجمة على <a target="_blank" href="https://github.com/greenshot/greenshot">GitHub</a>، فهذا يساعد الآخرين على العثور عليه:
+		<br><iframe src="https://ghbtns.com/github-btn.html?user=greenshot&amp;repo=greenshot&amp;type=star&amp;count=true&amp;size=large" frameborder="0" width="170" height="30" title="GitHub"></iframe>
+	</p>
+
+	</body>
+</html>

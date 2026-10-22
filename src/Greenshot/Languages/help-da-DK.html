@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="da">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Hjælp til Greenshot</title>
+		<style>
+		* {font-family: "Segoe UI", Tahoma, Arial, Sans-serif;}
+		body {max-width:60em;margin:0 auto;padding:0 16px 24px 16px;}
+		h1 {font-size:20px;}
+		h2 {font-size:16px;color:#009900;margin-top:28px;}
+		h3 {font-size:14px;margin-top:20px;}
+		small {font-size:11px;}
+		p, li, td, th {font-size:13px;line-height:1.5em;}
+		a:link, a:hover, a:visited, a:active {color:#007700;}
+		kbd {background-color:#eeeeee;border:1px solid #bbbbbb;padding:0 3px;border-radius:3px;white-space:nowrap;}
+		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px 8px;}
+		table {border-collapse:collapse;margin:6px 0;}
+		th, td {border:1px solid #dddddd;padding:3px 8px;text-align:left;vertical-align:top;}
+		th {background-color:#f2f2f2;}
+		em {font-style:normal;font-weight:bold;}
+		</style>
+	</head>
+	<body>
+	<h1>Hjælp til Greenshot</h1>
+	<!--
+	Note to translator: uncomment the entry below to have your effort honored
+	-->
+	<!--<small>Dansk oversættelse af hjælpen: DIT_NAVN</small>-->
+
+	<p class="hint">
+		Links, der begynder med <code>greenshot:</code>, f.eks. <a href="greenshot://settings">åbn præferencerne</a>,
+		åbner det pågældende vindue i Greenshot. De virker, når Greenshot er installeret med installationsprogrammet, ikke i den bærbare
+		version eller i Greenshot Light. Din browser spørger, før den åbner Greenshot.
+	</p>
+
+	<h2>Indhold</h2>
+	<ol>
+		<li><a href="#start">Kom i gang</a></li>
+		<li><a href="#screenshot">Tag et skærmklip</a>
+			<ol>
+				<li><a href="#capture-screen">Klipskærmen</a></li>
+				<li><a href="#capture-modes">Område, vindue, fast størrelse og tekst</a></li>
+				<li><a href="#capture-keys">Taster mens du markerer</a></li>
+				<li><a href="#capture-live">Marker uden at fryse skærmen</a></li>
+			</ol>
+		</li>
+		<li><a href="#destinations">Hvor skærmklippet ender</a></li>
+		<li><a href="#editor">Billededitoren</a>
+			<ol>
+				<li><a href="#editor-tabs">Faner</a></li>
+				<li><a href="#editor-tools">Tegneværktøjer</a></li>
+				<li><a href="#editor-highlight">Fremhæve og skjule</a></li>
+				<li><a href="#editor-crop">Beskære</a></li>
+				<li><a href="#editor-effects">Effekter, rotation og størrelse</a></li>
+				<li><a href="#editor-reuse">Tilføje billeder og genbruge elementer</a></li>
+				<li><a href="#editor-export">Gemme og eksportere</a></li>
+			</ol>
+		</li>
+		<li><a href="#recipes">Automatiske trin og opskrifter</a></li>
+		<li><a href="#settings">Præferencerne</a></li>
+		<li><a href="#troubleshooting">Når noget ikke virker</a></li>
+		<li><a href="#help">Vil du hjælpe?</a></li>
+	</ol>
+
+	<a name="start"></a>
+	<h2>Kom i gang</h2>
+	<p>
+		Greenshot kører i baggrunden. Ikonet sidder ved siden af uret, i meddelelsesområdet på proceslinjen.
+		Klik på det med højre museknap for at åbne menuen med alle klip, <em>Præferencer...</em> og denne hjælp.
+	</p>
+	<p class="hint">
+		Kan du ikke se ikonet? Windows 11 kan skjule det bag pilen (^). <a href="greenshot://self-service?section=setup">Din opsætning</a>
+		i Selvbetjening viser det ved siden af uret for dig og kontrollerer også, om tasten <kbd>Print Screen</kbd> når frem til Greenshot.
+	</p>
+
+	<a name="screenshot"></a>
+	<h2>Tag et skærmklip</h2>
+	<p>Start et klip med en genvejstast eller fra menuen på Greenshot-ikonet:</p>
+	<table>
+		<tr><th>Klip</th><th>Genvejstast</th><th>Hvad der sker</th></tr>
+		<tr><td><em>Rektangulært klip</em></td><td><kbd>Print Screen</kbd></td><td>Klipskærmen åbnes, og du markerer, hvad der skal klippes.</td></tr>
+		<tr><td><em>Vinduesklip</em></td><td><kbd>Alt</kbd> + <kbd>Print Screen</kbd></td><td>Klipper det aktive vindue med det samme. Med <em>Brug interaktiv vinduesklip-tilstand</em> (<a href="greenshot://settings?tab=capture">fanen Klip</a>) vælger du i stedet vinduet på klipskærmen.</td></tr>
+		<tr><td><em>Fuldskærmsklip</em></td><td><kbd>Ctrl</kbd> + <kbd>Print Screen</kbd></td><td>Klipper skærmen med det samme. Med mere end én skærm tilbyder ikonets menu alle skærme eller en af dem.</td></tr>
+		<tr><td><em>Gentag forrige klip</em></td><td><kbd>Shift</kbd> + <kbd>Print Screen</kbd></td><td>Klipper det samme område som dit sidste klip igen.</td></tr>
+		<tr><td><em>Åbn billede fra udklipsholder</em></td><td>ingen</td><td>Åbner billedet i udklipsholderen.</td></tr>
+	</table>
+	<p>
+		Menuen har også <em>Klip vindue fra liste</em>, som klipper et åbent vindue, du vælger, uden klipskærmen,
+		<em>Åbn billede fra fil</em> og <em>Åbn placering for seneste klip</em>.
+		Du kan ændre genvejstasterne i <a href="greenshot://settings?tab=general">præferencerne, fanen Generelt</a>.
+	</p>
+
+	<a name="capture-screen"></a>
+	<h3>Klipskærmen</h3>
+	<p>
+		Greenshot tager et billede af alle dine skærme og viser det oven på alt andet. Intet ændrer sig, mens du markerer,
+		så en åben menu eller et værktøjstip bliver, hvor det var. Kun den del, du markerer, bliver klippet. <kbd>Esc</kbd> lukker klipskærmen
+		uden at klippe noget.
+	</p>
+	<p>Oven på billedet ser du:</p>
+	<ul>
+		<li><em>markeringen</em> med dens størrelse,</li>
+		<li><em>forstørrelsesglasset</em> ved siden af musen, som viser hver pixel, så du kan placere et hjørne præcist,</li>
+		<li>paneler i hjørnerne: <em>tasterne</em> (<kbd>F1</kbd>), <em>informationen</em> (<kbd>I</kbd>) og <em>forhåndsvisningen</em> af markeringen (<kbd>P</kbd>).
+			De flytter sig selv af vejen.</li>
+	</ul>
+	<p class="hint">
+		Tryk på <kbd>F1</kbd>, mens du markerer: tastpanelet viser altid de taster, der virker lige nu.
+		Greenshot husker, når du skjuler et panel; <kbd>F1</kbd> eller <kbd>I</kbd> henter det tilbage.
+	</p>
+
+	<a name="capture-modes"></a>
+	<h3>Område, vindue, fast størrelse og tekst</h3>
+	<ul>
+		<li><em>Område</em>: træk et rektangel med musen; når du slipper, bliver det klippet. Med tastaturet: piletasterne flytter musen,
+			<kbd>Enter</kbd> starter markeringen, og <kbd>Enter</kbd> igen klipper den. Hold <kbd>Shift</kbd> nede for kun at ændre bredden eller kun højden.</li>
+		<li><em>Vindue</em> (<kbd>Mellemrum</kbd>): vinduet under musen markeres, et klik eller <kbd>Enter</kbd> klipper det.
+			Greenshot markerer den inderste del, f.eks. en værktøjslinje; gå til vinduets yderkant for at markere hele vinduet.
+			<kbd>Tab</kbd> og <kbd>Shift</kbd> + <kbd>Tab</kbd> markerer det næste eller forrige vindue.</li>
+		<li><em>Fast størrelse</em> (<kbd>F</kbd>): et rektangel i en præcis størrelse, f.eks. 1280 × 720, følger musen. <kbd>1</kbd> – <kbd>9</kbd> vælger en størrelse,
+			<kbd>C</kbd> skifter det hjørne, musen holder, og hold <kbd>Alt</kbd> nede for at placere det uden at det hæfter sig til vinduer. Dine egne størrelser indstilles på
+			<a href="greenshot://settings?tab=capture">fanen Klip</a>; størrelserne fra dine seneste klip tilbydes også.</li>
+		<li><em>Tekst</em> (<kbd>T</kbd>): Greenshot læser teksten på skærmen med tekstgenkendelsen i Windows og sætter en ramme om hver linje.
+			Klik på en linje, eller træk hen over ord, for at klippe dem. For at få ordene som tekst sender du klippet til <em>Windows OCR</em>,
+			som kopierer teksten til udklipsholderen. Det kræver et genkendelsessprog installeret i Windows; sproget vælges på
+			<a href="greenshot://settings?tab=capture">fanen Klip</a>, <em>Tekstgenkendelse (OCR)</em>.</li>
+	</ul>
+	<p class="hint">
+		Med QR-kode-pluginet finder Greenshot QR-koder på skærmen og sætter en ramme om dem. Klik på en for at kopiere dens indhold eller åbne dens webadresse.
+	</p>
+
+	<a name="capture-keys"></a>
+	<h3>Taster mens du markerer</h3>
+	<table>
+		<tr><th>Tast</th><th>Hvad den gør</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Annuller klippet</td></tr>
+		<tr><td><kbd>Mellemrum</kbd></td><td>Skift mellem område og vindue</td></tr>
+		<tr><td><kbd>F</kbd> / <kbd>T</kbd></td><td>Klip en fast størrelse / klip tekst</td></tr>
+		<tr><td><kbd>M</kbd></td><td>Vis eller skjul musemarkøren i klippet</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Skift mellem den frosne og den levende skærm</td></tr>
+		<tr><td><kbd>Z</kbd></td><td>Vis eller skjul forstørrelsesglasset</td></tr>
+		<tr><td><kbd>F1</kbd> / <kbd>I</kbd> / <kbd>P</kbd></td><td>Vis eller skjul tasterne / informationen / flyt eller skjul forhåndsvisningen</td></tr>
+		<tr><td>Piletaster</td><td>Flyt musen én pixel, med <kbd>Ctrl</kbd> ti pixels</td></tr>
+		<tr><td><kbd>Enter</kbd></td><td>Start eller afslut markeringen, klip vinduet</td></tr>
+	</table>
+
+	<a name="capture-live"></a>
+	<h3>Marker uden at fryse skærmen</h3>
+	<p>
+		Slå <em>Frys skærmen under markering</em> fra på <a href="greenshot://settings?tab=capture">fanen Klip</a>, eller tryk på
+		<kbd>L</kbd>, mens du markerer, så markerer du på den levende skærm: en video bliver ved med at spille, og klippet tages, når du afslutter
+		markeringen. Teksttilstanden og forhåndsvisningen kræver det frosne billede. Åbne menuer lukker som regel, når du klikker, så brug den frosne skærm til dem.
+	</p>
+	<p class="hint">
+		Dukker noget først op efter et øjeblik? Indstil <em>Millisekunder der ventes inden klip</em> på
+		<a href="greenshot://settings?tab=capture">fanen Klip</a>, eller marker på den levende skærm.
+	</p>
+
+	<a name="destinations"></a>
+	<h2>Hvor skærmklippet ender</h2>
+	<p>
+		Efter klippet sender Greenshot skærmklippet til dine destinationer. Som standard spørger den hver gang med en lille menu.
+		Hver destination dér har et fast understreget bogstav, f.eks. <kbd>C</kbd> for udklipsholderen og <kbd>S</kbd> for at gemme, så du kan vælge den med tastaturet.
+		Vælg dine destinationer på <a href="greenshot://settings?tab=destination">fanen Skærmklipsdestination</a> eller under <em>Hurtige præferencer</em> i ikonets menu.
+	</p>
+	<ul>
+		<li><em>Åbn i billededitor</em>: annoter skærmklippet først, se <a href="#editor">billededitoren</a>.</li>
+		<li><em>Gem direkte</em> bruger mappen og filnavnsmønsteret fra <a href="greenshot://settings?tab=output">fanen Output</a>, <em>Gem som</em> spørger om dem.</li>
+		<li><em>Kopier til udklipsholder</em>, <em>Send til printer</em>, <em>E-mail</em>, <em>Windows share</em> og <em>Windows OCR</em> (kopierer teksten i skærmklippet).</li>
+		<li>Plugins tilføjer flere destinationer, f.eks. Microsoft Word, Excel, PowerPoint, Outlook og OneNote, PDF, Box, Dropbox, Jira og Confluence.
+			De indstilles på <a href="greenshot://settings?tab=plugins">fanen Plugins</a>, hvor du også kan slå et plugin fra.</li>
+	</ul>
+	<p>
+		Kolonnen <em>Tilgængelige</em> på <a href="greenshot://settings?tab=destination">fanen Skærmklipsdestination</a> slår en destination fra overalt.
+		Hvilke meddelelser du får efter et klip, indstilles på <a href="greenshot://settings?tab=capture">fanen Klip</a>, <em>Notifikationer</em>.
+	</p>
+
+	<a name="editor"></a>
+	<h2>Billededitoren</h2>
+	<p>
+		Editoren tilføjer figurer, tekst, pile, fremhævninger og mere til et skærmklip, eller skjuler det, andre ikke skal se.
+		Ud over dine klip åbner den billeder fra en fil eller fra udklipsholderen (ikonets menu).
+		Alt, hvad du tegner, forbliver et element, som du kan markere, flytte, ændre eller fjerne.
+	</p>
+
+	<a name="editor-tabs"></a>
+	<h3>Faner</h3>
+	<p>
+		Et editorvindue viser flere billeder som faner; et nyt klip åbnes som en fane i det editorvindue, du brugte sidst.
+		<kbd>Ctrl</kbd> + <kbd>Tab</kbd> går til næste fane, og <kbd>Ctrl</kbd> + <kbd>W</kbd> lukker en. Træk en fane til et andet editorvindue,
+		eller klik på den med højre museknap for at flytte den til et nyt vindue. <em>+</em> på fanelinjen starter et nyt, tomt billede.
+		Når du lukker et vindue med ugemte billeder, spørger Greenshot én gang: <em>Gem alle</em>, <em>Kassér alle</em> eller annuller.
+		Foretrækker du ét vindue pr. klip? Slå fanerne fra på <a href="greenshot://settings?tab=editor">fanen Editor</a>.
+	</p>
+
+	<a name="editor-tools"></a>
+	<h3>Tegneværktøjer</h3>
+	<p>
+		Vælg et værktøj til venstre i editoren, i menuen <em>Objekt</em> eller med dets tast, og træk så på billedet.
+		Værktøjslinjen øverst viser indstillingerne for værktøjet eller de markerede elementer, f.eks. stregfarve, fyldfarve og tykkelse.
+	</p>
+	<table>
+		<tr><th>Tast</th><th>Værktøj</th><th>Tast</th><th>Værktøj</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Markeringsværktøj</td><td><kbd>S</kbd></td><td>Taleboble</td></tr>
+		<tr><td><kbd>R</kbd></td><td>Rektangel</td><td><kbd>I</kbd></td><td>Tæller (nummererede trin)</td></tr>
+		<tr><td><kbd>E</kbd></td><td>Ellipse</td><td><kbd>M</kbd></td><td>Emoji</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Linje</td><td><kbd>H</kbd></td><td>Fremhæv</td></tr>
+		<tr><td><kbd>A</kbd></td><td>Pil</td><td><kbd>O</kbd></td><td>Skjul</td></tr>
+		<tr><td><kbd>F</kbd></td><td>Frihånd</td><td><kbd>C</kbd></td><td>Beskær</td></tr>
+		<tr><td><kbd>T</kbd></td><td>Tekst</td><td><kbd>Z</kbd></td><td>Skift billedets størrelse</td></tr>
+	</table>
+	<ul>
+		<li>Hold <kbd>Shift</kbd> nede, mens du tegner, for et kvadrat eller en cirkel, eller for linjer i trin på 15°; når du ændrer størrelse, bevares forholdet.
+			Hold <kbd>Ctrl</kbd> nede for at tegne eller ændre størrelse ud fra midten, praktisk til en ellipse rundt om noget.</li>
+		<li>Tekst: tegn tekstfeltet og skriv. Dobbeltklik på en tekst for at ændre den, <kbd>Enter</kbd> afslutter, <kbd>Shift</kbd> + <kbd>Enter</kbd> starter en ny linje.</li>
+		<li>Markerede elementer: piletasterne flytter dem (med <kbd>Shift</kbd> ti pixels), <kbd>Ctrl</kbd> + piletasterne ændrer deres størrelse,
+			<kbd>Page Up</kbd> / <kbd>Page Down</kbd> flytter dem et niveau op eller ned, <kbd>Delete</kbd> fjerner dem, <kbd>Ctrl</kbd> + <kbd>D</kbd> duplikerer dem.
+			Hold <kbd>Shift</kbd> nede og klik for at markere flere elementer.</li>
+		<li><kbd>Ctrl</kbd> + <kbd>Z</kbd> fortryder, <kbd>Ctrl</kbd> + <kbd>Y</kbd> annullerer fortryd.</li>
+	</ul>
+
+	<a name="editor-highlight"></a>
+	<h3>Fremhæve og skjule</h3>
+	<p>Tegn området til fremhævning (<kbd>H</kbd>) eller skjul (<kbd>O</kbd>) som et rektangel, og vælg tilstanden på værktøjslinjen:</p>
+	<ul>
+		<li><em>Fremhæv tekst</em> farver området som en overstregningstusch, <em>Fremhæv område</em> gør alt andet mørkere og uskarpt,
+			<em>Gråtoneskala</em> gør alt andet gråt, <em>Forstør</em> forstørrer området.</li>
+		<li><em>Pixeler</em> eller <em>Gør uskarp</em> skjuler adgangskoder, navne, kontonumre eller ansigter.</li>
+	</ul>
+
+	<a name="editor-crop"></a>
+	<h3>Beskære</h3>
+	<p>
+		Vælg beskæringsværktøjet (<kbd>C</kbd>), og tegn det område, der skal beholdes; <kbd>Enter</kbd> bekræfter, <kbd>Esc</kbd> annullerer.
+		Tryk på <kbd>C</kbd> igen, eller brug <em>Beskæringstilstand</em> på værktøjslinjen, for at skifte tilstand:
+	</p>
+	<ul>
+		<li><em>Beskær lodret ud</em> eller <em>Beskær vandret ud</em> fjerner en stribe fra billedet og samler resten, f.eks. for at udelade
+			den tomme midte af en lang side. <em>Klippekanter</em> vælger, hvordan samlingen ser ud: lige, zigzag, bølget, iturevet eller sømløs.</li>
+		<li><em>Automatisk beskæring</em> fjerner en ensfarvet kant rundt om billedet.</li>
+	</ul>
+
+	<a name="editor-effects"></a>
+	<h3>Effekter, rotation og størrelse</h3>
+	<table>
+		<tr><th>Taster</th><th>Hvad de gør</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Q</kbd></td><td>Skygge</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>B</kbd></td><td>Kant</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>T</kbd></td><td>Iturevet kant</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>G</kbd> / <kbd>Ctrl</kbd> + <kbd>I</kbd></td><td>Gråtoner / inverter, f.eks. for at spare blæk ved udskrivning</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>,</kbd> / <kbd>Ctrl</kbd> + <kbd>.</kbd></td><td>Roter mod uret / med uret</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>+</kbd> / <kbd>-</kbd></td><td>Gør lærredet større / mindre</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>+</kbd> / <kbd>-</kbd>, <kbd>Ctrl</kbd> + <kbd>0</kbd>, <kbd>Ctrl</kbd> + <kbd>9</kbd></td><td>Zoom ind / ud, faktisk størrelse, bedste tilpasning</td></tr>
+	</table>
+	<p>
+		En iturevet kant forbliver et element, som du kan ændre; <em>Anvend på billedet</em> på værktøjslinjen gør den til en del af billedet.
+	</p>
+
+	<a name="editor-reuse"></a>
+	<h3>Tilføje billeder og genbruge elementer</h3>
+	<ul>
+		<li>Træk en billedfil ind i editoren, eller indsæt et billede med <kbd>Ctrl</kbd> + <kbd>V</kbd>. <em>Indsæt vindue</em> i menuen <em>Rediger</em> tilføjer et klip af et andet åbent vindue.</li>
+		<li>Brug de samme elementer på mange skærmklip: <em>Gem objekter til fil</em> i menuen <em>Objekt</em>, og <em>Indlæs objekter fra fil</em> på det næste skærmklip.</li>
+		<li>Gem som en <code>.greenshot</code>-fil for at beholde alle elementer redigerbare og fortsætte senere.</li>
+	</ul>
+
+	<a name="editor-export"></a>
+	<h3>Gemme og eksportere</h3>
+	<table>
+		<tr><th>Taster</th><th>Hvad de gør</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td><td><em>Gem</em> i mappen fra <a href="greenshot://settings?tab=output">fanen Output</a></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd></td><td><em>Gem som...</em>: vælg mappe, navn og billedformat</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd></td><td><em>Kopier billede til udklipsholder</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>P</kbd></td><td><em>Udskriv</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>E</kbd></td><td><em>E-mail</em>: en ny besked med billedet vedhæftet</td></tr>
+	</table>
+	<p>
+		Menuen <em>Fil</em> og værktøjslinjen øverst viser alle dine destinationer, også dem fra plugins.
+		Når du har gemt, kan du klikke på statuslinjen nederst med højre museknap for at kopiere stien til filen eller åbne dens mappe.
+	</p>
+
+	<a name="recipes"></a>
+	<h2>Automatiske trin og opskrifter</h2>
+	<p>
+		Opskrifter gør ting med dine klip automatisk, f.eks. tilføjer en kant til hvert klip eller gemmer og uploader det i ét hug.
+		<em>Hurtige præferencer</em> &gt; <em>Automatiske trin</em> i ikonets menu slår de færdige trin til eller fra,
+		<em>Flere…</em> åbner deres indstillinger på <a href="greenshot://settings?tab=recipes">fanen Opskrifter</a>.
+		Menuen <em>Opskrifter</em> på ikonet starter dine opskrifter og åbner <a href="greenshot://recipe-manager">Opskriftshåndtering</a> og Recipe Editor.
+		Opskrifterne følger med pluginet Recipe Editor.
+	</p>
+
+	<a name="settings"></a>
+	<h2>Præferencerne</h2>
+	<p>Åbn præferencerne med <em>Præferencer...</em> i ikonets menu, eller med linkene nedenfor.</p>
+	<ul>
+		<li><a href="greenshot://settings?tab=general">Generelt</a>: sprog, farver (lyse, mørke eller som Windows), ikonstørrelse,
+			<em>Kør Greenshot ved opstart</em>, genvejstasterne, proxyen og hvor ofte Greenshot søger efter opdateringer.</li>
+		<li><a href="greenshot://settings?tab=capture">Klip</a>: klip af musemarkøren, kameralyd, forstørrelsesglas, frys skærmen,
+			meddelelser, ventetiden før et klip, dine faste størrelser, interaktivt vinduesklip og sproget for tekstgenkendelsen.</li>
+		<li><a href="greenshot://settings?tab=output">Output</a>: mappen og filnavnsmønsteret til at gemme (klik på <em>?</em> for pladsholderne,
+			f.eks. <code>${YYYY}-${MM}-${DD}</code> eller <code>${title}</code>; en <code>\</code> i mønsteret opretter mapper), billedformatet og JPEG-kvaliteten.</li>
+		<li><a href="greenshot://settings?tab=destination">Skærmklipsdestination</a>: hvad der sker efter et klip, se <a href="#destinations">hvor skærmklippet ender</a>.</li>
+		<li><a href="greenshot://settings?tab=editor">Editor</a>: faner, editorvinduets størrelse, spørgsmålet om at gemme, når du lukker det, og størrelse og farve for et nyt billede.</li>
+		<li><a href="greenshot://settings?tab=printer">Printer</a>: tilpas billedet til siden, roter eller centrer det, udskriv i farver, gråtoner eller inverteret, og en sidefod med dato og klokkeslæt.</li>
+		<li><a href="greenshot://settings?tab=plugins">Plugins</a>: slå plugins til eller fra og konfigurer dem. Ændringer gælder ved næste start af Greenshot.</li>
+		<li><a href="greenshot://settings?tab=expert">Ekspert</a>: indstillinger til særlige tilfælde, f.eks. fjernskrivebord, DirectX-klip (nødvendigt til HDR-skærme), hukommelse og hastighed,
+			og udklipsholderformaterne. Ændr dem kun, hvis du ved, hvad de gør.</li>
+	</ul>
+	<p class="hint">
+		Greenshot gemmer sine indstillinger i <code>greenshot.ini</code> i <code>%APPDATA%\Greenshot</code> (den bærbare version har den ved siden af Greenshot.exe).
+		<a href="greenshot://self-service?section=files">Filer og konfiguration</a> i Selvbetjening viser, hvor den ligger.
+	</p>
+
+	<a name="troubleshooting"></a>
+	<h2>Når noget ikke virker</h2>
+	<p>
+		Selvbetjening kontrollerer Greenshot og løser de fleste problemer. Åbn det med <em>Om Greenshot</em> i ikonets menu og derefter <em>Selvbetjening</em>,
+		eller gå direkte til det rette afsnit:
+	</p>
+	<ul>
+		<li><kbd>Print Screen</kbd> gør ingenting eller åbner noget andet: <a href="greenshot://self-service?section=hotkeys">Genvejstaster og konflikter</a>
+			viser, om OneDrive eller Skæreværktøj har taget tasten, og giver den tilbage til Greenshot.</li>
+		<li>Kan du ikke finde dine skærmklip: <a href="greenshot://self-service?section=files">Filer og konfiguration</a> viser, hvor Greenshot gemmer dem.</li>
+		<li>Kopiering til udklipsholderen mislykkes: <a href="greenshot://self-service?section=clipboard">Diagnostik af udklipsholder</a> finder det program, der blokerer udklipsholderen.</li>
+		<li>Greenshot går ned, eller et plugin mangler efter en opdatering: <a href="greenshot://self-service?section=checksum">Installationens integritet</a> kontrollerer de installerede filer.</li>
+		<li>Rapportering af et problem: <em>Kopier systeminfo</em> i <a href="greenshot://self-service?section=system">System og hardware</a> og
+			<a href="greenshot://log?search=ERROR">fejlene i loggen</a> hjælper os med at hjælpe dig. Rapporter problemer på
+			<a target="_blank" href="https://github.com/greenshot/greenshot/issues">github.com/greenshot/greenshot/issues</a>.</li>
+	</ul>
+
+	<a name="help"></a>
+	<h2>Vil du hjælpe?</h2>
+
+	<a name="help-donate"></a>
+	<h3>Overvej en donation</h3>
+	<p>
+		Vi lægger meget arbejde i Greenshot for at levere god software gratis og som open source. Hvis det gør dig mere produktiv,
+		sparer dig eller din virksomhed tid og penge, eller hvis du bare kan lide Greenshot: overvej venligst at støtte os.
+		Se på <a target="_blank" href="https://getgreenshot.org/support/">https://getgreenshot.org/support/</a>, hvordan du kan hjælpe.
+	</p>
+
+	<a name="help-spread"></a>
+	<h3>Fortæl andre om det</h3>
+	<p>
+		Hvis du kan lide Greenshot, så fortæl dine venner og kolleger om det. Bedøm Greenshot på softwareportaler, eller link til vores hjemmeside fra din blog eller dit websted.
+	</p>
+	<p>
+		Giv Greenshot en stjerne på <a target="_blank" href="https://github.com/greenshot/greenshot">GitHub</a>, så finder andre det lettere:
+		<br><iframe src="https://ghbtns.com/github-btn.html?user=greenshot&amp;repo=greenshot&amp;type=star&amp;count=true&amp;size=large" frameborder="0" width="170" height="30" title="GitHub"></iframe>
+	</p>
+
+	</body>
+</html>

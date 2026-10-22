@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="sk">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Pomocník Greenshot</title>
+		<style>
+		* {font-family: "Segoe UI", Tahoma, Arial, Sans-serif;}
+		body {max-width:60em;margin:0 auto;padding:0 16px 24px 16px;}
+		h1 {font-size:20px;}
+		h2 {font-size:16px;color:#009900;margin-top:28px;}
+		h3 {font-size:14px;margin-top:20px;}
+		small {font-size:11px;}
+		p, li, td, th {font-size:13px;line-height:1.5em;}
+		a:link, a:hover, a:visited, a:active {color:#007700;}
+		kbd {background-color:#eeeeee;border:1px solid #bbbbbb;padding:0 3px;border-radius:3px;white-space:nowrap;}
+		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px 8px;}
+		table {border-collapse:collapse;margin:6px 0;}
+		th, td {border:1px solid #dddddd;padding:3px 8px;text-align:left;vertical-align:top;}
+		th {background-color:#f2f2f2;}
+		em {font-style:normal;font-weight:bold;}
+		</style>
+	</head>
+	<body>
+	<h1>Pomocník Greenshot</h1>
+	<!--
+	Note to translator: uncomment the entry below to have your effort honored
+	-->
+	<!--<small>Slovenský preklad pomocníka: YOUR_NAME</small>-->
+
+	<p class="hint">
+		Odkazy, ktoré začínajú na <code>greenshot:</code>, ako napríklad <a href="greenshot://settings">otvoriť nastavenia</a>,
+		otvoria príslušné okno programu Greenshot. Fungujú, keď bol Greenshot nainštalovaný inštalátorom, nie v prenosnej
+		verzii ani v Greenshot Light. Prehliadač sa pred otvorením programu Greenshot opýta.
+	</p>
+
+	<h2>Obsah</h2>
+	<ol>
+		<li><a href="#start">Začíname</a></li>
+		<li><a href="#screenshot">Vytvorenie snímky obrazovky</a>
+			<ol>
+				<li><a href="#capture-screen">Obrazovka snímania</a></li>
+				<li><a href="#capture-modes">Oblasť, okno, pevná veľkosť a text</a></li>
+				<li><a href="#capture-keys">Klávesy počas výberu</a></li>
+				<li><a href="#capture-live">Výber bez zmrazenia obrazovky</a></li>
+			</ol>
+		</li>
+		<li><a href="#destinations">Kam ide snímka</a></li>
+		<li><a href="#editor">Editor obrázkov</a>
+			<ol>
+				<li><a href="#editor-tabs">Karty</a></li>
+				<li><a href="#editor-tools">Nástroje na kreslenie</a></li>
+				<li><a href="#editor-highlight">Zvýraznenie a skrytie</a></li>
+				<li><a href="#editor-crop">Orezanie</a></li>
+				<li><a href="#editor-effects">Efekty, otáčanie a zmena veľkosti</a></li>
+				<li><a href="#editor-reuse">Pridanie obrázkov a opakované použitie prvkov</a></li>
+				<li><a href="#editor-export">Uloženie a export</a></li>
+			</ol>
+		</li>
+		<li><a href="#recipes">Automatické kroky a recepty</a></li>
+		<li><a href="#settings">Nastavenia</a></li>
+		<li><a href="#troubleshooting">Keď niečo nefunguje</a></li>
+		<li><a href="#help">Chcete pomôcť?</a></li>
+	</ol>
+
+	<a name="start"></a>
+	<h2>Začíname</h2>
+	<p>
+		Greenshot beží na pozadí. Jeho ikona je vedľa hodín, v oblasti oznámení na paneli úloh.
+		Kliknite na ňu pravým tlačidlom myši a otvorí sa ponuka so všetkými spôsobmi snímania, položkou <em>Predvoľby...</em> a týmto pomocníkom.
+	</p>
+	<p class="hint">
+		Nevidíte ikonu? Windows 11 ju môže skryť za šípku (^). <a href="greenshot://self-service?section=setup">Vaše nastavenie</a>
+		v Samoobsluha ju zobrazí vedľa hodín a tiež skontroluje, či kláves <kbd>Print Screen</kbd> dorazí do programu Greenshot.
+	</p>
+
+	<a name="screenshot"></a>
+	<h2>Vytvorenie snímky obrazovky</h2>
+	<p>Snímanie spustíte klávesovou skratkou alebo z ponuky ikony Greenshot:</p>
+	<table>
+		<tr><th>Snímanie</th><th>Skratka</th><th>Čo sa stane</th></tr>
+		<tr><td><em>Zachytiť oblasť</em></td><td><kbd>Print Screen</kbd></td><td>Otvorí sa obrazovka snímania, vyberiete, čo zachytiť.</td></tr>
+		<tr><td><em>Zachytiť aktívne okno</em></td><td><kbd>Alt</kbd> + <kbd>Print Screen</kbd></td><td>Ihneď zachytí aktívne okno. S možnosťou <em>Interaktívny výber pri snímaní okien</em> (<a href="greenshot://settings?tab=capture">karta Spraviť snímku</a>) namiesto toho vyberiete okno na obrazovke snímania.</td></tr>
+		<tr><td><em>Zachytiť celú obrazovku</em></td><td><kbd>Ctrl</kbd> + <kbd>Print Screen</kbd></td><td>Ihneď zachytí obrazovku. Pri viacerých monitoroch ponuka ikony ponúka všetky monitory alebo jeden z nich.</td></tr>
+		<tr><td><em>Zachytiť predchádzajúcu oblasť</em></td><td><kbd>Shift</kbd> + <kbd>Print Screen</kbd></td><td>Znova zachytí rovnakú oblasť ako pri poslednom snímaní.</td></tr>
+		<tr><td><em>Otvoriť obrázok zo schránky</em></td><td>žiadna</td><td>Otvorí obrázok zo schránky.</td></tr>
+	</table>
+	<p>
+		Ponuka obsahuje aj <em>Zachytiť okno zo zoznamu</em>, ktorá zachytí otvorené okno, ktoré vyberiete, bez obrazovky snímania,
+		<em>Otvoriť obrázok zo súboru</em> a <em>Otvoriť posledné miesto uloženia</em>.
+		Klávesové skratky môžete zmeniť v <a href="greenshot://settings?tab=general">nastaveniach, karta Hlavné</a>.
+	</p>
+
+	<a name="capture-screen"></a>
+	<h3>Obrazovka snímania</h3>
+	<p>
+		Greenshot odfotí všetky vaše monitory a zobrazí obraz nad všetkým ostatným. Počas výberu sa nič nemení,
+		takže otvorená ponuka alebo popis zostanú tam, kde boli. Zachytí sa len časť, ktorú vyberiete. <kbd>Esc</kbd> zatvorí obrazovku
+		snímania bez zachytenia.
+	</p>
+	<p>Nad obrazom vidíte:</p>
+	<ul>
+		<li><em>výber</em> s jeho veľkosťou,</li>
+		<li><em>lupu</em> vedľa myši, ktorá ukazuje každý pixel, aby ste mohli presne umiestniť roh,</li>
+		<li>panely v rohoch: <em>klávesy</em> (<kbd>F1</kbd>), <em>informácie</em> (<kbd>I</kbd>) a <em>náhľad</em> výberu (<kbd>P</kbd>).
+			Samy sa vám uhnú z cesty.</li>
+	</ul>
+	<p class="hint">
+		Počas výberu stlačte <kbd>F1</kbd>: panel klávesov vždy zobrazuje klávesy, ktoré v danej chvíli fungujú.
+		Greenshot si pamätá, keď panel skryjete, <kbd>F1</kbd> alebo <kbd>I</kbd> ho vráti späť.
+	</p>
+
+	<a name="capture-modes"></a>
+	<h3>Oblasť, okno, pevná veľkosť a text</h3>
+	<ul>
+		<li><em>Oblasť</em>: myšou natiahnite obdĺžnik, po pustení tlačidla sa zachytí. Klávesnicou: šípky posúvajú myš,
+			<kbd>Enter</kbd> začne výber, ďalší <kbd>Enter</kbd> ho zachytí. Podržte <kbd>Shift</kbd>, ak chcete meniť len šírku alebo len výšku.</li>
+		<li><em>Okno</em> (<kbd>Medzerník</kbd>): vyberie sa okno pod myšou, kliknutie alebo <kbd>Enter</kbd> ho zachytí.
+			Greenshot vyberie najvnútornejšiu časť, napr. panel nástrojov; presuňte myš na vonkajší okraj okna, ak chcete vybrať celé okno.
+			<kbd>Tab</kbd> a <kbd>Shift</kbd> + <kbd>Tab</kbd> vyberú nasledujúce alebo predchádzajúce okno.</li>
+		<li><em>Pevná veľkosť</em> (<kbd>F</kbd>): obdĺžnik presnej veľkosti, napr. 1280 × 720, nasleduje myš. <kbd>1</kbd> – <kbd>9</kbd> vyberú veľkosť,
+			<kbd>C</kbd> zmení roh, za ktorý ho myš drží, podržte <kbd>Alt</kbd>, ak ho chcete umiestniť bez prichytávania k oknám. Vlastné veľkosti nastavíte na
+			<a href="greenshot://settings?tab=capture">karte Spraviť snímku</a>, ponúkajú sa aj veľkosti vašich posledných snímok.</li>
+		<li><em>Text</em> (<kbd>T</kbd>): Greenshot prečíta text na obrazovke pomocou rozpoznávania textu vo Windows a orámuje každý riadok.
+			Kliknite na riadok alebo potiahnite cez slová a zachytíte ich. Ak chcete slová získať ako text, pošlite snímku do <em>Windows OCR</em>,
+			ktorý skopíruje text do schránky. Vyžaduje to jazyk rozpoznávania nainštalovaný vo Windows; jazyk sa vyberá na
+			<a href="greenshot://settings?tab=capture">karte Spraviť snímku</a>, <em>Rozpoznávanie textu (OCR)</em>.</li>
+	</ul>
+	<p class="hint">
+		So zásuvným modulom pre QR kódy Greenshot nájde QR kódy na obrazovke a orámuje ich. Kliknutím na kód skopírujete jeho obsah alebo otvoríte jeho webovú adresu.
+	</p>
+
+	<a name="capture-keys"></a>
+	<h3>Klávesy počas výberu</h3>
+	<table>
+		<tr><th>Kláves</th><th>Čo robí</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Zruší snímanie</td></tr>
+		<tr><td><kbd>Medzerník</kbd></td><td>Prepína medzi oblasťou a oknom</td></tr>
+		<tr><td><kbd>F</kbd> / <kbd>T</kbd></td><td>Zachytí pevnú veľkosť / zachytí text</td></tr>
+		<tr><td><kbd>M</kbd></td><td>Zobrazí alebo skryje kurzor myši na snímke</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Prepína medzi zmrazenou a živou obrazovkou</td></tr>
+		<tr><td><kbd>Z</kbd></td><td>Zobrazí alebo skryje lupu</td></tr>
+		<tr><td><kbd>F1</kbd> / <kbd>I</kbd> / <kbd>P</kbd></td><td>Zobrazí alebo skryje klávesy / informácie / presunie alebo skryje náhľad</td></tr>
+		<tr><td>Šípky</td><td>Posunú myš o jeden pixel, s <kbd>Ctrl</kbd> o desať pixelov</td></tr>
+		<tr><td><kbd>Enter</kbd></td><td>Začne alebo dokončí výber, zachytí okno</td></tr>
+	</table>
+
+	<a name="capture-live"></a>
+	<h3>Výber bez zmrazenia obrazovky</h3>
+	<p>
+		Vypnite <em>Zmraziť obrazovku počas výberu</em> na <a href="greenshot://settings?tab=capture">karte Spraviť snímku</a> alebo počas výberu stlačte
+		<kbd>L</kbd> a vyberáte na živej obrazovke: video sa ďalej prehráva a snímka sa vytvorí, keď dokončíte
+		výber. Textový režim a náhľad potrebujú zmrazený obraz. Otvorené ponuky sa po kliknutí zvyčajne zatvoria, preto pre ne použite zmrazenú obrazovku.
+	</p>
+	<p class="hint">
+		Niečo sa objaví až po chvíli? Nastavte <em>Koľko milisekúnd čakať pred vytvorením snímky</em> na
+		<a href="greenshot://settings?tab=capture">karte Spraviť snímku</a> alebo vyberajte na živej obrazovke.
+	</p>
+
+	<a name="destinations"></a>
+	<h2>Kam ide snímka</h2>
+	<p>
+		Po zachytení Greenshot pošle snímku do vašich cieľov. Predvolene sa zakaždým opýta malou ponukou.
+		Každý cieľ v nej má pevné podčiarknuté písmeno, napr. <kbd>C</kbd> pre schránku a <kbd>S</kbd> pre uloženie, takže ho môžete vybrať klávesnicou.
+		Ciele vyberte na <a href="greenshot://settings?tab=destination">karte Cieľ screenshotu</a> alebo v položke <em>Rýchle nastavenia</em> v ponuke ikony.
+	</p>
+	<ul>
+		<li><em>Otvoriť v editore obrázkov</em>: najprv snímku doplňte poznámkami, pozrite <a href="#editor">editor obrázkov</a>.</li>
+		<li><em>Uložiť priamo (pomocou nastavení nižšie)</em> použije priečinok a vzor názvu súboru z <a href="greenshot://settings?tab=output">karty Výstup</a>, <em>Uložiť ako (zobraz dialóg)</em> sa na ne opýta.</li>
+		<li><em>Kopírovať do schránky</em>, <em>Poslať do tlačiarne</em>, <em>E-Mail</em>, <em>Windows share</em> a <em>Windows OCR</em> (skopíruje text snímky).</li>
+		<li>Zásuvné moduly pridávajú ďalšie ciele, napr. Microsoft Word, Excel, PowerPoint, Outlook a OneNote, PDF, Box, Dropbox, Jira a Confluence.
+			Nastavujú sa na <a href="greenshot://settings?tab=plugins">karte Zásuvné moduly</a>, kde môžete modul aj vypnúť.</li>
+	</ul>
+	<p>
+		Stĺpec <em>Dostupné</em> na <a href="greenshot://settings?tab=destination">karte Cieľ screenshotu</a> vypne cieľ všade.
+		Aké oznámenia dostanete po zachytení, nastavíte na <a href="greenshot://settings?tab=capture">karte Spraviť snímku</a>, <em>Upozornenia</em>.
+	</p>
+
+	<a name="editor"></a>
+	<h2>Editor obrázkov</h2>
+	<p>
+		Editor pridáva na snímku tvary, text, šípky, zvýraznenia a ďalšie, alebo skryje to, čo by iní nemali vidieť.
+		Okrem vašich snímok otvára aj obrázky zo súboru alebo zo schránky (ponuka ikony).
+		Všetko, čo nakreslíte, zostáva prvkom, ktorý môžete vybrať, presunúť, zmeniť alebo odstrániť.
+	</p>
+
+	<a name="editor-tabs"></a>
+	<h3>Karty</h3>
+	<p>
+		Okno editora zobrazuje viac obrázkov ako karty, nová snímka sa otvorí ako karta v okne editora, ktoré ste použili naposledy.
+		<kbd>Ctrl</kbd> + <kbd>Tab</kbd> prejde na ďalšiu kartu a <kbd>Ctrl</kbd> + <kbd>W</kbd> kartu zatvorí. Potiahnite kartu do iného okna editora
+		alebo na ňu kliknite pravým tlačidlom myši a presuňte ju do nového okna. <em>+</em> na lište kariet začne nový, prázdny obrázok.
+		Keď zatvárate okno s neuloženými obrázkami, Greenshot sa opýta raz: <em>Uložiť všetko</em>, <em>Zahodiť všetko</em> alebo zrušiť.
+		Uprednostňujete jedno okno na snímku? Vypnite karty na <a href="greenshot://settings?tab=editor">karte Editor</a>.
+	</p>
+
+	<a name="editor-tools"></a>
+	<h3>Nástroje na kreslenie</h3>
+	<p>
+		Nástroj vyberte vľavo v editore, v ponuke <em>Objekt</em> alebo jeho klávesom, potom ťahajte po obrázku.
+		Panel nástrojov hore zobrazuje možnosti nástroja alebo vybraných prvkov, napr. farbu čiary, farbu výplne a hrúbku.
+	</p>
+	<table>
+		<tr><th>Kláves</th><th>Nástroj</th><th>Kláves</th><th>Nástroj</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Výber</td><td><kbd>S</kbd></td><td>Bublina</td></tr>
+		<tr><td><kbd>R</kbd></td><td>Obdĺžnik</td><td><kbd>I</kbd></td><td>Počítadlo (číslované kroky)</td></tr>
+		<tr><td><kbd>E</kbd></td><td>Elipsa</td><td><kbd>M</kbd></td><td>Emoji</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Čiara</td><td><kbd>H</kbd></td><td>Zvýraznenie</td></tr>
+		<tr><td><kbd>A</kbd></td><td>Šípka</td><td><kbd>O</kbd></td><td>Skrytie</td></tr>
+		<tr><td><kbd>F</kbd></td><td>Voľná ruka</td><td><kbd>C</kbd></td><td>Orezanie</td></tr>
+		<tr><td><kbd>T</kbd></td><td>Text</td><td><kbd>Z</kbd></td><td>Zmena veľkosti obrázka</td></tr>
+	</table>
+	<ul>
+		<li>Podržte <kbd>Shift</kbd> pri kreslení pre štvorec alebo kruh, prípadne čiary v krokoch po 15°; pri zmene veľkosti zachová pomer strán.
+			Podržte <kbd>Ctrl</kbd> na kreslenie alebo zmenu veľkosti od stredu, praktické pre elipsu okolo niečoho.</li>
+		<li>Text: nakreslite textové pole a píšte. Dvojklikom na text ho zmeníte, <kbd>Enter</kbd> dokončí, <kbd>Shift</kbd> + <kbd>Enter</kbd> začne nový riadok.</li>
+		<li>Vybrané prvky: šípky ich posúvajú (s <kbd>Shift</kbd> o desať pixelov), <kbd>Ctrl</kbd> + šípky menia ich veľkosť,
+			<kbd>Page Up</kbd> / <kbd>Page Down</kbd> ich posunú o úroveň vyššie alebo nižšie, <kbd>Delete</kbd> ich odstráni, <kbd>Ctrl</kbd> + <kbd>D</kbd> ich duplikuje.
+			Podržte <kbd>Shift</kbd> a klikajte, ak chcete vybrať viac prvkov.</li>
+		<li><kbd>Ctrl</kbd> + <kbd>Z</kbd> vráti späť, <kbd>Ctrl</kbd> + <kbd>Y</kbd> zopakuje.</li>
+	</ul>
+
+	<a name="editor-highlight"></a>
+	<h3>Zvýraznenie a skrytie</h3>
+	<p>Oblasť zvýraznenia (<kbd>H</kbd>) alebo skrytia (<kbd>O</kbd>) nakreslite ako obdĺžnik a na paneli nástrojov vyberte režim:</p>
+	<ul>
+		<li><em>Zvýrazniť text</em> zafarbí oblasť ako zvýrazňovač, <em>Zvýrazniť oblasť</em> stmaví a rozmaže všetko ostatné,
+			<em>V odtieňoch šedej</em> zmení všetko ostatné na šedé, <em>Zväčšiť</em> zväčší oblasť.</li>
+		<li><em>Pixelizovať</em> alebo <em>Rozmazať</em> skryjú heslá, mená, čísla účtov alebo tváre.</li>
+	</ul>
+
+	<a name="editor-crop"></a>
+	<h3>Orezanie</h3>
+	<p>
+		Vyberte nástroj na orezanie (<kbd>C</kbd>) a nakreslite oblasť, ktorú chcete zachovať, <kbd>Enter</kbd> potvrdí, <kbd>Esc</kbd> zruší.
+		Znova stlačte <kbd>C</kbd> alebo použite <em>Režim orezania</em> na paneli nástrojov, ak chcete prepnúť režim:
+	</p>
+	<ul>
+		<li><em>Vystrihnúť zvislo</em> alebo <em>Vystrihnúť vodorovne</em> odstráni z obrázka pás a zvyšok spojí, napr. na vynechanie
+			prázdneho stredu dlhej stránky. <em>Okraje rezu</em> určí, ako vyzerá spoj: rovný, cikcak, vlnitý, roztrhnutý alebo bez spoja.</li>
+		<li><em>Automatické orezanie</em> odstráni jednofarebný okraj okolo obrázka.</li>
+	</ul>
+
+	<a name="editor-effects"></a>
+	<h3>Efekty, otáčanie a zmena veľkosti</h3>
+	<table>
+		<tr><th>Klávesy</th><th>Čo robí</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Q</kbd></td><td>Tieň</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>B</kbd></td><td>Okraj</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>T</kbd></td><td>Roztrhnutý okraj</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>G</kbd> / <kbd>Ctrl</kbd> + <kbd>I</kbd></td><td>Odtiene šedej / invertovať, napr. na úsporu atramentu pri tlači</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>,</kbd> / <kbd>Ctrl</kbd> + <kbd>.</kbd></td><td>Otočiť proti smeru / v smere hodinových ručičiek</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>+</kbd> / <kbd>-</kbd></td><td>Zväčšiť / zmenšiť plátno</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>+</kbd> / <kbd>-</kbd>, <kbd>Ctrl</kbd> + <kbd>0</kbd>, <kbd>Ctrl</kbd> + <kbd>9</kbd></td><td>Priblížiť / oddialiť, skutočná veľkosť, najlepšie prispôsobenie</td></tr>
+	</table>
+	<p>
+		Roztrhnutý okraj zostáva prvkom, ktorý môžete meniť; <em>Použiť na obrázok</em> na paneli nástrojov ho urobí súčasťou obrázka.
+	</p>
+
+	<a name="editor-reuse"></a>
+	<h3>Pridanie obrázkov a opakované použitie prvkov</h3>
+	<ul>
+		<li>Potiahnite súbor obrázka do editora alebo vložte obrázok pomocou <kbd>Ctrl</kbd> + <kbd>V</kbd>. <em>Vložiť okno</em> v ponuke <em>Upraviť</em> pridá snímku iného otvoreného okna.</li>
+		<li>Rovnaké prvky na mnohých snímkach: <em>Uložiť objekty do súboru</em> v ponuke <em>Objekt</em> a na ďalšej snímke <em>Načítať objekty zo súboru</em>.</li>
+		<li>Uložte ako súbor <code>.greenshot</code>, aby všetky prvky zostali upraviteľné a mohli ste neskôr pokračovať.</li>
+	</ul>
+
+	<a name="editor-export"></a>
+	<h3>Uloženie a export</h3>
+	<table>
+		<tr><th>Klávesy</th><th>Čo robí</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td><td><em>Uložiť</em> do priečinka z <a href="greenshot://settings?tab=output">karty Výstup</a></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd></td><td><em>Uložiť ako...</em>: vyberte priečinok, názov a formát obrázka</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd></td><td><em>Kopírovať obrázok do schránky</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>P</kbd></td><td><em>Tlač</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>E</kbd></td><td><em>E-Mail</em>: nová správa s priloženým obrázkom</td></tr>
+	</table>
+	<p>
+		Ponuka <em>Súbor</em> a panel nástrojov hore obsahujú všetky vaše ciele, aj ciele zásuvných modulov.
+		Po uložení kliknite pravým tlačidlom myši na stavový riadok dole a skopírujete cestu k súboru alebo otvoríte jeho priečinok.
+	</p>
+
+	<a name="recipes"></a>
+	<h2>Automatické kroky a recepty</h2>
+	<p>
+		Recepty automaticky spracúvajú vaše snímky, napr. pridajú okraj každej snímke alebo ju naraz uložia a nahrajú.
+		<em>Rýchle nastavenia</em> &gt; <em>Automatické kroky</em> v ponuke ikony zapína alebo vypína pripravené kroky,
+		<em>Ďalšie…</em> otvorí ich nastavenia na <a href="greenshot://settings?tab=recipes">karte Recepty</a>.
+		Ponuka <em>Recepty</em> ikony spúšťa vaše recepty a otvára <a href="greenshot://recipe-manager">Správca receptov</a> a Recipe Editor.
+		Recepty sú súčasťou zásuvného modulu Recipe Editor.
+	</p>
+
+	<a name="settings"></a>
+	<h2>Nastavenia</h2>
+	<p>Nastavenia otvoríte položkou <em>Predvoľby...</em> v ponuke ikony alebo odkazmi nižšie.</p>
+	<ul>
+		<li><a href="greenshot://settings?tab=general">Hlavné</a>: jazyk, farby (svetlé, tmavé alebo podľa Windows), veľkosť ikon,
+			<em>Spustiť Greenshot pri štarte</em>, klávesové skratky, proxy a ako často Greenshot hľadá aktualizácie.</li>
+		<li><a href="greenshot://settings?tab=capture">Spraviť snímku</a>: zachytenie kurzora myši, zvuk fotoaparátu, lupa, zmrazenie obrazovky,
+			oznámenia, čakanie pred snímaním, vaše pevné veľkosti, interaktívne snímanie okien a jazyk rozpoznávania textu.</li>
+		<li><a href="greenshot://settings?tab=output">Výstup</a>: priečinok a vzor názvu súboru na ukladanie (kliknite na <em>?</em> pre zástupné symboly,
+			napr. <code>${YYYY}-${MM}-${DD}</code> alebo <code>${title}</code>; <code>\</code> vo vzore vytvára priečinky), formát obrázka a kvalita JPEG.</li>
+		<li><a href="greenshot://settings?tab=destination">Cieľ screenshotu</a>: čo sa stane po zachytení, pozrite <a href="#destinations">kam ide snímka</a>.</li>
+		<li><a href="greenshot://settings?tab=editor">Editor</a>: karty, veľkosť okna editora, otázka na uloženie pri zatvorení a veľkosť a farba nového obrázka.</li>
+		<li><a href="greenshot://settings?tab=printer">Tlačiareň</a>: prispôsobenie obrázka stránke, otočenie alebo vycentrovanie, tlač farebne, v odtieňoch šedej alebo invertovane a päta s dátumom a časom.</li>
+		<li><a href="greenshot://settings?tab=plugins">Zásuvné moduly</a>: zapnutie, vypnutie a nastavenie modulov. Zmeny sa prejavia pri ďalšom spustení programu Greenshot.</li>
+		<li><a href="greenshot://settings?tab=expert">Expert</a>: nastavenia pre špeciálne prípady, napr. vzdialenú plochu, snímanie cez DirectX (potrebné pre obrazovky HDR), pamäť a rýchlosť
+			a formáty schránky. Meňte ich, len ak viete, čo robia.</li>
+	</ul>
+	<p class="hint">
+		Greenshot ukladá svoje nastavenia do <code>greenshot.ini</code> v <code>%APPDATA%\Greenshot</code> (prenosná verzia ho má vedľa Greenshot.exe).
+		<a href="greenshot://self-service?section=files">Súbory a konfigurácia</a> v Samoobsluha ukáže, kde je.
+	</p>
+
+	<a name="troubleshooting"></a>
+	<h2>Keď niečo nefunguje</h2>
+	<p>
+		Samoobsluha skontroluje Greenshot a vyrieši väčšinu problémov. Otvorte ho cez <em>O Greenshot</em> v ponuke ikony, potom <em>Samoobsluha</em>,
+		alebo prejdite priamo do správnej časti:
+	</p>
+	<ul>
+		<li><kbd>Print Screen</kbd> nerobí nič alebo otvorí niečo iné: <a href="greenshot://self-service?section=hotkeys">Klávesové skratky a konflikty</a>
+			ukáže, či kláves zabral OneDrive alebo Výstrižky, a vráti ho programu Greenshot.</li>
+		<li>Neviete nájsť snímky: <a href="greenshot://self-service?section=files">Súbory a konfigurácia</a> ukáže, kam ich Greenshot ukladá.</li>
+		<li>Kopírovanie do schránky zlyhá: <a href="greenshot://self-service?section=clipboard">Diagnostika schránky</a> nájde program, ktorý blokuje schránku.</li>
+		<li>Greenshot padá alebo po aktualizácii chýba zásuvný modul: <a href="greenshot://self-service?section=checksum">Integrita inštalácie</a> skontroluje nainštalované súbory.</li>
+		<li>Nahlásenie problému: <em>Kopírovať informácie o systéme</em> v <a href="greenshot://self-service?section=system">Systém a hardvér</a> a
+			<a href="greenshot://log?search=ERROR">chyby v protokole</a> nám pomôžu pomôcť vám. Problémy hláste na
+			<a target="_blank" href="https://github.com/greenshot/greenshot/issues">github.com/greenshot/greenshot/issues</a>.</li>
+	</ul>
+
+	<a name="help"></a>
+	<h2>Chcete pomôcť?</h2>
+
+	<a name="help-donate"></a>
+	<h3>Zvážte príspevok</h3>
+	<p>
+		Do programu Greenshot vkladáme veľa práce, aby sme poskytli dobrý softvér zadarmo a s otvoreným zdrojovým kódom. Ak vás robí produktívnejšími,
+		šetrí vám alebo vašej firme čas a peniaze, alebo sa vám Greenshot jednoducho páči, zvážte, prosím, našu podporu.
+		Ako môžete pomôcť, nájdete na <a target="_blank" href="https://getgreenshot.org/support/">https://getgreenshot.org/support/</a>.
+	</p>
+
+	<a name="help-spread"></a>
+	<h3>Šírte dobré slovo</h3>
+	<p>
+		Ak sa vám Greenshot páči, povedzte o ňom priateľom a kolegom. Ohodnoťte Greenshot na softvérových portáloch alebo odkážte na našu domovskú stránku zo svojho blogu či webu.
+	</p>
+	<p>
+		Dajte programu Greenshot hviezdičku na <a target="_blank" href="https://github.com/greenshot/greenshot">GitHube</a>, pomôže to ostatným ho nájsť:
+		<br><iframe src="https://ghbtns.com/github-btn.html?user=greenshot&amp;repo=greenshot&amp;type=star&amp;count=true&amp;size=large" frameborder="0" width="170" height="30" title="GitHub"></iframe>
+	</p>
+
+	</body>
+</html>

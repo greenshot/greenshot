@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="kab">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Tallelt n Greenshot</title>
+		<style>
+		* {font-family: "Segoe UI", Tahoma, Arial, Sans-serif;}
+		body {max-width:60em;margin:0 auto;padding:0 16px 24px 16px;}
+		h1 {font-size:20px;}
+		h2 {font-size:16px;color:#009900;margin-top:28px;}
+		h3 {font-size:14px;margin-top:20px;}
+		small {font-size:11px;}
+		p, li, td, th {font-size:13px;line-height:1.5em;}
+		a:link, a:hover, a:visited, a:active {color:#007700;}
+		kbd {background-color:#eeeeee;border:1px solid #bbbbbb;padding:0 3px;border-radius:3px;white-space:nowrap;}
+		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px 8px;}
+		table {border-collapse:collapse;margin:6px 0;}
+		th, td {border:1px solid #dddddd;padding:3px 8px;text-align:left;vertical-align:top;}
+		th {background-color:#f2f2f2;}
+		em {font-style:normal;font-weight:bold;}
+		</style>
+	</head>
+	<body>
+	<h1>Tallelt n Greenshot</h1>
+	<!--
+	Note to translator: uncomment the entry below to have your effort honored
+	-->
+	<!--<small>Tasuqilt taqbaylit n tallelt: YOUR_NAME</small>-->
+
+	<p class="hint">
+		Iseɣwan i yebdan s <code>greenshot:</code>, am <a href="greenshot://settings">ldi ismenyifen</a>,
+		ldin asfaylu-nni n Greenshot. Teddun ma yella Greenshot yebded s umsebded, ur teddun ara deg lqem amaziz
+		neɣ deg Greenshot Light. Iminig ad k-id-isteqsi send ad yeldi Greenshot.
+	</p>
+
+	<h2>Agbur</h2>
+	<ol>
+		<li><a href="#start">Bdu</a></li>
+		<li><a href="#screenshot">Tuṭṭfa n ugdil</a>
+			<ol>
+				<li><a href="#capture-screen">Agdil n tuṭṭfa</a></li>
+				<li><a href="#capture-modes">Tamnaṭ, asfaylu, teɣzi yettwasbadun d uḍris</a></li>
+				<li><a href="#capture-keys">Tisura mi ara tferneḍ</a></li>
+				<li><a href="#capture-live">Afran war ma yesgumed ugdil</a></li>
+			</ol>
+		</li>
+		<li><a href="#destinations">Anida ara tedduṭ tuṭṭfa</a></li>
+		<li><a href="#editor">Amaẓrag n tugniwin</a>
+			<ol>
+				<li><a href="#editor-tabs">Iccaren</a></li>
+				<li><a href="#editor-tools">Ifecka n usuneɣ</a></li>
+				<li><a href="#editor-highlight">Asebrureq d usenṭel</a></li>
+				<li><a href="#editor-crop">Agzam</a></li>
+				<li><a href="#editor-effects">Isemdaren, tuzzya d ubeddel n teɣzi</a></li>
+				<li><a href="#editor-reuse">Rnu tugniwin, ales aseqdec n yiferdisen</a></li>
+				<li><a href="#editor-export">Asekles d usifeḍ</a></li>
+			</ol>
+		</li>
+		<li><a href="#recipes">Isurifen iwurmanen d yiserwasen</a></li>
+		<li><a href="#settings">Ismenyifen</a></li>
+		<li><a href="#troubleshooting">Ma yella kra ur yeddi ara</a></li>
+		<li><a href="#help">Tebɣiḍ ad d-tefkeḍ afus?</a></li>
+	</ol>
+
+	<a name="start"></a>
+	<h2>Bdu</h2>
+	<p>
+		Greenshot yetteddu deg ugilal. Tignit-is tella ɣer tama n temrilt, deg temnaḍt n yilɣa n ufeggag n twuri.
+		Sit fell-as s tqeffalt tayeffust n tɣerdayt akken ad teldiḍ umuɣ s akk tuṭṭfiwin, <em>Ismenyifen...</em> d tallelt-a.
+	</p>
+	<p class="hint">
+		Ur d-tettbin ara tignit? Windows 11 yezmer ad tt-yeffer deffir n tneccabt (^). <a href="greenshot://self-service?section=setup">Tawila-inek</a>
+		deg Tallalt tudmawant ad tt-id-yesken ɣer tama n temrilt, yerna ad isenqed ma tasarut <kbd>Print Screen</kbd> tewweḍ ɣer Greenshot.
+	</p>
+
+	<a name="screenshot"></a>
+	<h2>Tuṭṭfa n ugdil</h2>
+	<p>Bdu tuṭṭfa s tsarut n unegzum neɣ seg wumuɣ n tignit n Greenshot:</p>
+	<table>
+		<tr><th>Tuṭṭfa</th><th>Tasarut</th><th>D acu ara yeḍrun</th></tr>
+		<tr><td><em>Ṭṭef tamnaṭ</em></td><td><kbd>Print Screen</kbd></td><td>Ad d-yeldi ugdil n tuṭṭfa, ad tferneḍ ayen ara tṭṭfeḍ.</td></tr>
+		<tr><td><em>Ṭṭef asfaylu urmid</em></td><td><kbd>Alt</kbd> + <kbd>Print Screen</kbd></td><td>Yeṭṭef imir-a asfaylu urmid. S <em>Seqdec askar amyigawan n tuṭṭfa n usfaylu</em> (<a href="greenshot://settings?tab=capture">iccer Tuṭṭfa</a>) ad tferneḍ asfaylu deg ugdil n tuṭṭfa.</td></tr>
+		<tr><td><em>Ṭṭef akk agdil</em></td><td><kbd>Ctrl</kbd> + <kbd>Print Screen</kbd></td><td>Yeṭṭef imir-a agdil. Ma llan aṭas n igdilen, umuɣ n tignit ad d-yefk akk igdilen neɣ yiwen seg-sen.</td></tr>
+		<tr><td><em>Ṭṭef tamnaṭ taneggarut</em></td><td><kbd>Shift</kbd> + <kbd>Print Screen</kbd></td><td>Yeṭṭef tikkelt nniḍen tamnaṭ-nni n tuṭṭfa taneggarut.</td></tr>
+		<tr><td><em>Ldi Tugna yellan Ɣef afus</em></td><td>ulac</td><td>Yeldi tugna yellan ɣef afus.</td></tr>
+	</table>
+	<p>
+		Deg wumuɣ yella daɣen <em>Ṭṭef asfaylu urmid si tebdart agi</em>, i yeṭṭfen asfaylu yeldin i tferneḍ war agdil n tuṭṭfa,
+		<em>Ldi tugna seg ufaylu</em> d <em>Ldi adig n usekles aneggaru</em>.
+		Tzemreḍ ad tbeddleḍ tisura deg <a href="greenshot://settings?tab=general">ismenyifen, iccer Amatu</a>.
+	</p>
+
+	<a name="capture-screen"></a>
+	<h3>Agdil n tuṭṭfa</h3>
+	<p>
+		Greenshot yeṭṭef tugna n akk igdilen-ik, yerna yesskan-itt nnig kullec. Ulac ayen ara ibeddlen mi ara tferneḍ,
+		ihi umuɣ yeldin neɣ tawennaḍt ad qqimen deg wadeg-nsen. D ayen kan i tferneḍ ara yettwaṭṭfen. <kbd>Esc</kbd> yemdel agdil n tuṭṭfa
+		war ma yeṭṭef kra.
+	</p>
+	<p>Nnig tugna ad twaliḍ:</p>
+	<ul>
+		<li><em>afran</em> s teɣzi-ines,</li>
+		<li><em>asemɣer</em> ɣer tama n tɣerdayt, i d-yesskanen yal tiqqeḍt, akken ad tesbeddeḍ tiɣmert s telqay,</li>
+		<li>igalisen deg tɣemrin: <em>tisura</em> (<kbd>F1</kbd>), <em>talɣut</em> (<kbd>I</kbd>) d <em>teskant</em> n ufran (<kbd>P</kbd>).
+			Ttinigen weḥd-sen akken ur k-ttḥesbun ara.</li>
+	</ul>
+	<p class="hint">
+		Sit ɣef <kbd>F1</kbd> mi ara tferneḍ: agalis n tsura yesskan yal tikkelt tisura i yeddan deg tallit-nni.
+		Greenshot yettmekti mi ara teffreḍ agalis, <kbd>F1</kbd> neɣ <kbd>I</kbd> ad t-id-yerr.
+	</p>
+
+	<a name="capture-modes"></a>
+	<h3>Tamnaṭ, asfaylu, teɣzi yettwasbadun d uḍris</h3>
+	<ul>
+		<li><em>Tamnaṭ</em>: zuɣer asrem s tɣerdayt, mi ara tserrḥeḍ ad yettwaṭṭef. S unasiw: tineccabin ssenkadent taɣerdayt,
+			<kbd>Enter</kbd> yebda afran, <kbd>Enter</kbd> tikkelt nniḍen yeṭṭef-it. Ṭṭef <kbd>Shift</kbd> akken ad tbeddleḍ kan tehri neɣ kan teɣzi.</li>
+		<li><em>Asfaylu</em> (<kbd>Space</kbd>): asfaylu yellan ddaw n tɣerdayt yettwafren, asiti neɣ <kbd>Enter</kbd> yeṭṭef-it.
+			Greenshot yefren aḥric akk agensan, am ufeggag n yifecka; ssenkez taɣerdayt ɣer yiri aberrani n usfaylu akken ad tferneḍ asfaylu akk.
+			<kbd>Tab</kbd> d <kbd>Shift</kbd> + <kbd>Tab</kbd> fernen asfaylu d-iteddun neɣ win yezrin.</li>
+		<li><em>Teɣzi yettwasbadun</em> (<kbd>F</kbd>): asrem s teɣzi tusdidt, am 1280 × 720, iḍefren taɣerdayt. <kbd>1</kbd> – <kbd>9</kbd> fernen teɣzi,
+			<kbd>C</kbd> ibeddel tiɣmert i teṭṭef tɣerdayt, ṭṭef <kbd>Alt</kbd> akken ad t-tesbeddeḍ war ma yenṭeḍ ɣer yisfuyla. Tiɣzi-inek ttwasbadent deg
+			<a href="greenshot://settings?tab=capture">iccer Tuṭṭfa</a>, tiɣzi n tuṭṭfiwin tineggura ttwasumrent daɣen.</li>
+		<li><em>Aḍris</em> (<kbd>T</kbd>): Greenshot yeqqar aḍris yellan deg ugdil s usentem n uḍris n Windows, yerna yezzi kra n yal izirig.
+			Sit ɣef yizirig neɣ zuɣer ɣef yimawalen akken ad ten-tṭṭfeḍ. Akken ad tawiḍ imawalen d aḍris, azen tuṭṭfa ɣer <em>Windows OCR</em>,
+			i yessenɣalen aḍris ɣef afus. Ilaq ad tebded tutlayt n usentem deg Windows; tutlayt tettwafren deg
+			<a href="greenshot://settings?tab=capture">iccer Tuṭṭfa</a>, <em>Tikci n uḍris (OCR)</em>.</li>
+	</ul>
+	<p class="hint">
+		S usiɣzef n tengalin QR, Greenshot yettaf tingalin QR deg ugdil yerna yezzi-asent. Sit ɣef yiwet akken ad tneɣleḍ agbur-is neɣ ad teldiḍ tansa-ines web.
+	</p>
+
+	<a name="capture-keys"></a>
+	<h3>Tisura mi ara tferneḍ</h3>
+	<table>
+		<tr><th>Tasarut</th><th>D acu txeddem</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Sefsex tuṭṭfa</td></tr>
+		<tr><td><kbd>Space</kbd></td><td>Senfel gar tmnaḍt d usfaylu</td></tr>
+		<tr><td><kbd>F</kbd> / <kbd>T</kbd></td><td>Ṭṭef teɣzi yettwasbadun / ṭṭef aḍris</td></tr>
+		<tr><td><kbd>M</kbd></td><td>Sken neɣ ffer taḥnaccaṭ n tɣerdayt deg tuṭṭfa</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Senfel gar ugdil yesgumden d ugdil udrir</td></tr>
+		<tr><td><kbd>Z</kbd></td><td>Sken neɣ ffer asemɣer</td></tr>
+		<tr><td><kbd>F1</kbd> / <kbd>I</kbd> / <kbd>P</kbd></td><td>Sken neɣ ffer tisura / talɣut / senkez neɣ ffer taskant</td></tr>
+		<tr><td>Tineccabin</td><td>Senkez taɣerdayt s yiwet n tqeqqeḍt, s <kbd>Ctrl</kbd> s mraw n tqeqqiḍin</td></tr>
+		<tr><td><kbd>Enter</kbd></td><td>Bdu neɣ fak afran, ṭṭef asfaylu</td></tr>
+	</table>
+
+	<a name="capture-live"></a>
+	<h3>Afran war ma yesgumed ugdil</h3>
+	<p>
+		Sens <em>Skeref agdil deg ufran</em> deg <a href="greenshot://settings?tab=capture">iccer Tuṭṭfa</a>, neɣ sit ɣef
+		<kbd>L</kbd> mi ara tferneḍ, ad tferneḍ ɣef ugdil udrir: tavidyut ad tkemmel tturar, tuṭṭfa ad tettwag mi ara tfakkeḍ
+		afran. Askar n uḍris d teskant ḥwaǧen tugna yesgumden. Umuɣen yeldin ttmedlen s umata mi ara tsiteḍ, ihi seqdec agdil yesgumden i nutni.
+	</p>
+	<p class="hint">
+		Kra ur d-yettbin ara alamma yezri kra n wakud? Sbadu <em>Millitasinin n uraǧu send tuṭṭfa</em> deg
+		<a href="greenshot://settings?tab=capture">iccer Tuṭṭfa</a>, neɣ fren ɣef ugdil udrir.
+	</p>
+
+	<a name="destinations"></a>
+	<h2>Anida ara tedduṭ tuṭṭfa</h2>
+	<p>
+		Deffir n tuṭṭfa, Greenshot yettazen tuṭṭfa ɣer tniɣriwin-ik. S wudem amezwer, yesteqsay yal tikkelt s wumuɣ amecṭuḥ.
+		Yal taniɣert dinna ɣur-s asekkil yettwaderren ur nbeddel ara, am <kbd>C</kbd> i ɣef afus d <kbd>S</kbd> i usekles, ihi tzemreḍ ad tt-tferneḍ s unasiw.
+		Fren tiniɣriwin deg <a href="greenshot://settings?tab=destination">iccer Taniɣert n tuṭṭfa n ugdil</a>, neɣ deg <em>Ismenyifen iruraden</em> deg wumuɣ n tignit.
+	</p>
+	<ul>
+		<li><em>Ldi deg umaẓrag n tugniwin</em>: rnu tizmilin ɣef tuṭṭfa di tazwara, wali <a href="#editor">amaẓrag n tugniwin</a>.</li>
+		<li><em>Sekles s srid (s useqdec n iɣewwaṛen daw-a)</em> yesseqdac akaram d tneɣruft n yisem n ufaylu n <a href="greenshot://settings?tab=output">iccer Tuffɣa</a>, <em>Sekles s yisem (sken asfaylu n udiwenni)</em> yesteqsay fell-asen.</li>
+		<li><em>Ɣef afus</em>, <em>Ar tsaggazt</em>, <em>Imayl</em>, <em>Windows share</em> d <em>Windows OCR</em> (yessenɣal aḍris n tuṭṭfa).</li>
+		<li>Isiɣzaf rennun tiniɣriwin nniḍen, am Microsoft Word, Excel, PowerPoint, Outlook d OneNote, PDF, Box, Dropbox, Jira d Confluence.
+			Ttwasbadun deg <a href="greenshot://settings?tab=plugins">iccer Isiɣzaf</a>, anda tzemreḍ daɣen ad tsenseḍ asiɣzef.</li>
+	</ul>
+	<p>
+		Tagejdit <em>Yella</em> n <a href="greenshot://settings?tab=destination">iccer Taniɣert n tuṭṭfa n ugdil</a> tessens taniɣert anda yebɣu yili.
+		Ilɣa ara d-tawiḍ deffir n tuṭṭfa ttwasbadun deg <a href="greenshot://settings?tab=capture">iccer Tuṭṭfa</a>, <em>Ilɣa</em>.
+	</p>
+
+	<a name="editor"></a>
+	<h2>Amaẓrag n tugniwin</h2>
+	<p>
+		Amaẓrag yettarnu talɣiwin, aḍris, tineccabin, asebrureq d wayen nniḍen ɣef tuṭṭfa, neɣ yeffer ayen ur ilaq ara ad t-walin wiyaḍ.
+		Ɣer tama n tuṭṭfiwin-ik, yeldi tugniwin seg ufaylu neɣ seg ɣef afus (umuɣ n tignit).
+		Kra n wayen i tsunɣeḍ yeqqim d aferdis i tzemreḍ ad tferneḍ, ad tsenkzeḍ, ad tbeddleḍ neɣ ad tekkseḍ.
+	</p>
+
+	<a name="editor-tabs"></a>
+	<h3>Iccaren</h3>
+	<p>
+		Asfaylu n umaẓrag yesskan aṭas n tugniwin d iccaren, tuṭṭfa tamaynut teldi d iccer deg usfaylu n umaẓrag i tesseqdceḍ taneggarut.
+		<kbd>Ctrl</kbd> + <kbd>Tab</kbd> iddu ɣer yiccer d-iteddun, <kbd>Ctrl</kbd> + <kbd>W</kbd> yemdel iccer. Zuɣer iccer ɣer usfaylu nniḍen n umaẓrag,
+		neɣ sit fell-as s tqeffalt tayeffust akken ad t-tesnekzeḍ ɣer usfaylu amaynut. <em>+</em> deg ufeggag n yiccaren yebda tugna tamaynut, tilemt.
+		Mi ara tmedleḍ asfaylu s tugniwin ur nettwasekles ara, Greenshot yesteqsay tikkelt kan: <em>Sekles akk</em>, <em>Sefsex akk</em> neɣ sefsex.
+		Tebɣiḍ yiwen usfaylu i yal tuṭṭfa? Sens iccaren deg <a href="greenshot://settings?tab=editor">iccer Amaẓrag</a>.
+	</p>
+
+	<a name="editor-tools"></a>
+	<h3>Ifecka n usuneɣ</h3>
+	<p>
+		Fren afecku deg tama tazelmaḍt n umaẓrag, deg wumuɣ <em>Taɣawsa</em> neɣ s tsarut-is, sakin zuɣer ɣef tugna.
+		Afeggag n yifecka s uksawen yesskan iɣewwaṛen n ufecku neɣ n yiferdisen yettwafernen, am yini n yizirig, ini n tačurt d tuzert.
+	</p>
+	<table>
+		<tr><th>Tasarut</th><th>Afecku</th><th>Tasarut</th><th>Afecku</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Afran</td><td><kbd>S</kbd></td><td>Tamuɣli n wawal</td></tr>
+		<tr><td><kbd>R</kbd></td><td>Asrem</td><td><kbd>I</kbd></td><td>Amesmiḍan (isurifen s wuṭṭun)</td></tr>
+		<tr><td><kbd>E</kbd></td><td>Taglayt</td><td><kbd>M</kbd></td><td>Emoji</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Izirig</td><td><kbd>H</kbd></td><td>Asebrureq</td></tr>
+		<tr><td><kbd>A</kbd></td><td>Taneccabt</td><td><kbd>O</kbd></td><td>Asenṭel</td></tr>
+		<tr><td><kbd>F</kbd></td><td>Asuneɣ ilelli</td><td><kbd>C</kbd></td><td>Agzam</td></tr>
+		<tr><td><kbd>T</kbd></td><td>Aḍris</td><td><kbd>Z</kbd></td><td>Beddel teɣzi n tugna</td></tr>
+	</table>
+	<ul>
+		<li>Ṭṭef <kbd>Shift</kbd> mi ara tsunɣeḍ i usrem amagdez neɣ tawinest, neɣ i yizirigen s yisurifen n 15°; mi ara tbeddleḍ teɣzi, yeḥrez assaɣ.
+			Ṭṭef <kbd>Ctrl</kbd> akken ad tsunɣeḍ neɣ ad tbeddleḍ teɣzi seg tlemmast, yelha i tglayt i yezzin i kra.</li>
+		<li>Aḍris: suneɣ tabewwaḍt n uḍris sakin aru. Sit snat n tikkal ɣef uḍris akken ad t-tbeddleḍ, <kbd>Enter</kbd> yettfakk, <kbd>Shift</kbd> + <kbd>Enter</kbd> yebda izirig amaynut.</li>
+		<li>Iferdisen yettwafernen: tineccabin ssenkadent-ten (s <kbd>Shift</kbd> s mraw n tqeqqiḍin), <kbd>Ctrl</kbd> + tineccabin beddlent teɣzi-nsen,
+			<kbd>Page Up</kbd> / <kbd>Page Down</kbd> ssalin-ten neɣ ssadayen-ten s yiwet n tseddart, <kbd>Delete</kbd> yekkes-iten, <kbd>Ctrl</kbd> + <kbd>D</kbd> yessinig-iten.
+			Ṭṭef <kbd>Shift</kbd> sakin sit akken ad tferneḍ aṭas n yiferdisen.</li>
+		<li><kbd>Ctrl</kbd> + <kbd>Z</kbd> yesefsax, <kbd>Ctrl</kbd> + <kbd>Y</kbd> yerra-d.</li>
+	</ul>
+
+	<a name="editor-highlight"></a>
+	<h3>Asebrureq d usenṭel</h3>
+	<p>Suneɣ tamnaṭ n usebrureq (<kbd>H</kbd>) neɣ n usenṭel (<kbd>O</kbd>) am usrem, sakin fren askar deg ufeggag n yifecka:</p>
+	<ul>
+		<li><em>Sebrureq aḍris</em> yessini tamnaṭ am umerkab, <em>Jerreḍ tamnaṭ</em> yesseḍlam yerna yesdeɛmumuc ayen nniḍen akk,
+			<em>Tifesniwin n umumed</em> yerra ayen nniḍen akk d amumed, <em>Semɣeṛ</em> yesmeɣṛ tamnaṭ.</li>
+		<li><em>Piksilizi</em> neɣ <em>Sdeɛmumec</em> ffren awalen uffiren, ismawen, uṭṭunen n yimiḍanen neɣ udmawen.</li>
+	</ul>
+
+	<a name="editor-crop"></a>
+	<h3>Agzam</h3>
+	<p>
+		Fren afecku n ugzam (<kbd>C</kbd>) sakin suneɣ tamnaṭ ara teǧǧeḍ, <kbd>Enter</kbd> yesentem, <kbd>Esc</kbd> yesefsax.
+		Sit tikkelt nniḍen ɣef <kbd>C</kbd>, neɣ seqdec <em>Askar n useggem</em> deg ufeggag n yifecka, akken ad tbeddleḍ askar:
+	</p>
+	<ul>
+		<li><em>Gzem s wudem ubdid</em> neɣ <em>Gzem s wudem aglawan</em> yekkes yiwen n uḍeggal seg tugna yerna yesdukkul ayen d-yeqqimen, am wakken ad tekkseḍ
+			talemmast tilemt n usebter aɣezfan. <em>Leryuf n tgezmi</em> yefren amek ara d-yettban usdukkel: d asrid, s zigzag, s yilmawen, yettwacerrṭen neɣ war asdukkel.</li>
+		<li><em>Aseggem awurman</em> yekkes iri n yiwen n yini i yezzin i tugna.</li>
+	</ul>
+
+	<a name="editor-effects"></a>
+	<h3>Isemdaren, tuzzya d ubeddel n teɣzi</h3>
+	<table>
+		<tr><th>Tisura</th><th>D acu txeddem</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Q</kbd></td><td>Tili</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>B</kbd></td><td>Iri</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>T</kbd></td><td>Iri yettwacerrṭen</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>G</kbd> / <kbd>Ctrl</kbd> + <kbd>I</kbd></td><td>Tifesniwin n umumed / tti initen, am wakken ad tḥerzeḍ lmidad mi ara tsiggzeḍ</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>,</kbd> / <kbd>Ctrl</kbd> + <kbd>.</kbd></td><td>Zzi mgal tamrilt / s tnila n temrilt</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>+</kbd> / <kbd>-</kbd></td><td>Semɣer / sneqqes aɣerbaz</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>+</kbd> / <kbd>-</kbd>, <kbd>Ctrl</kbd> + <kbd>0</kbd>, <kbd>Ctrl</kbd> + <kbd>9</kbd></td><td>Semɣer / sneqqes askan, teɣzi tilawt, aserwes ifazen</td></tr>
+	</table>
+	<p>
+		Iri yettwacerrṭen yeqqim d aferdis i tzemreḍ ad tbeddleḍ; <em>Snes ɣef tugna</em> deg ufeggag n yifecka yerra-t d aḥric n tugna.
+	</p>
+
+	<a name="editor-reuse"></a>
+	<h3>Rnu tugniwin, ales aseqdec n yiferdisen</h3>
+	<ul>
+		<li>Zuɣer afaylu n tugna ɣer umaẓrag, neɣ senṭeḍ tugna s <kbd>Ctrl</kbd> + <kbd>V</kbd>. <em>Ger asfaylu</em> deg wumuɣ <em>Taẓrigt</em> yettarnu tuṭṭfa n usfaylu nniḍen yeldin.</li>
+		<li>Seqdec yiwen n yiferdisen ɣef aṭas n tuṭṭfiwin: <em>Sekles tiɣawsiwin deg ufaylu</em> deg wumuɣ <em>Taɣawsa</em>, d <em>Sali-d tiɣawsiwin seg ufaylu</em> ɣef tuṭṭfa d-iteddun.</li>
+		<li>Sekles d afaylu <code>.greenshot</code> akken ad qqimen akk iferdisen ttwaẓrigen, ad tkemmleḍ ticki.</li>
+	</ul>
+
+	<a name="editor-export"></a>
+	<h3>Asekles d usifeḍ</h3>
+	<table>
+		<tr><th>Tisura</th><th>D acu txeddem</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td><td><em>Sekles</em>, deg ukaram n <a href="greenshot://settings?tab=output">iccer Tuffɣa</a></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd></td><td><em>Sekles s yisem...</em>: fren akaram, isem d umasal n tugna</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd></td><td><em>Nɣel tugna ɣef afus</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>P</kbd></td><td><em>Siggez</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>E</kbd></td><td><em>Imayl</em>: izen amaynut s tugna yeddan yid-s</td></tr>
+	</table>
+	<p>
+		Umuɣ <em>Afaylu</em> d ufeggag n yifecka s uksawen sskanen akk tiniɣriwin-ik, ula d tid n yisiɣzaf.
+		Deffir n usekles, sit s tqeffalt tayeffust ɣef ufeggag n waddad s wadda akken ad tneɣleḍ abrid n ufaylu neɣ ad teldiḍ akaram-is.
+	</p>
+
+	<a name="recipes"></a>
+	<h2>Isurifen iwurmanen d yiserwasen</h2>
+	<p>
+		Iserwasen xeddmen s wudem awurman tiɣawsiwin s tuṭṭfiwin-ik, am urnu n yiri i yal tuṭṭfa, neɣ asekles d usali s yiwet n tikkelt.
+		<em>Ismenyifen iruraden</em> &gt; <em>Isurifen iwurmanen</em> deg wumuɣ n tignit yessermad neɣ yessens isurifen iheggan,
+		<em>Ugar…</em> yeldi iɣewwaṛen-nsen deg <a href="greenshot://settings?tab=recipes">iccer Iserwasen</a>.
+		Umuɣ <em>Iserwasen</em> n tignit yessekkar iserwasen-ik yerna yeldi <a href="greenshot://recipe-manager">Amsefrak n yiserwasen</a> d Recipe Editor.
+		Iserwasen ttasen-d s usiɣzef Recipe Editor.
+	</p>
+
+	<a name="settings"></a>
+	<h2>Ismenyifen</h2>
+	<p>Ldi ismenyifen s <em>Ismenyifen...</em> deg wumuɣ n tignit, neɣ s yiseɣwan-a.</p>
+	<ul>
+		<li><a href="greenshot://settings?tab=general">Amatu</a>: tutlayt, initen (aceɛlal, ubrik neɣ am Windows), teɣzi n tignit,
+			<em>Senker Greenshot di tnekra n Windows</em>, tisura, apṛuksi d acḥal n tikkal ara yenadi Greenshot ɣef yileqman.</li>
+		<li><a href="greenshot://settings?tab=capture">Tuṭṭfa</a>: tuṭṭfa n tḥenccaṭ n tɣerdayt, ṣṣut n tkamiṛat, asemɣer, asgumed n ugdil,
+			ilɣa, araǧu send tuṭṭfa, tiɣzi-ik yettwasbadun, tuṭṭfa tamyigawt n usfaylu d tutlayt n usentem n uḍris.</li>
+		<li><a href="greenshot://settings?tab=output">Tuffɣa</a>: akaram d tneɣruft n yisem n ufaylu i usekles (sit ɣef <em>?</em> i yimeḍqan,
+			am <code>${YYYY}-${MM}-${DD}</code> neɣ <code>${title}</code>; <code>\</code> deg tneɣruft yesnulfuy ikaramen), amasal n tugna d tɣara n JPEG.</li>
+		<li><a href="greenshot://settings?tab=destination">Taniɣert n tuṭṭfa n ugdil</a>: d acu ara yeḍrun deffir n tuṭṭfa, wali <a href="#destinations">anida ara tedduṭ tuṭṭfa</a>.</li>
+		<li><a href="greenshot://settings?tab=editor">Amaẓrag</a>: iccaren, teɣzi n usfaylu n umaẓrag, asteqsi ɣef usekles mi ara t-tmedleḍ, d teɣzi d yini n tugna tamaynut.</li>
+		<li><a href="greenshot://settings?tab=printer">Tasaggazt</a>: aserwes n tugna ɣer usebter, tuzzya neɣ asemmes, asiggez s yini, s umumed neɣ s yini yettwattin, d uḍar n usebter s uzemz d wakud.</li>
+		<li><a href="greenshot://settings?tab=plugins">Isiɣzaf</a>: sermed, sens, sbadu isiɣzaf. Ibeddilen ad ddun deg usenker d-iteddun n Greenshot.</li>
+		<li><a href="greenshot://settings?tab=expert">Amazzag</a>: iɣewwaṛen i tegnatin tudmawanin, am tnarit n umeccaq, tuṭṭfa DirectX (tettwasra i yigdilen HDR), takatut d urured,
+			d yimasalen n ɣef afus. Beddel-iten kan ma tessneḍ d acu xeddmen.</li>
+	</ul>
+	<p class="hint">
+		Greenshot yeskles iɣewwaṛen-is deg <code>greenshot.ini</code>, deg <code>%APPDATA%\Greenshot</code> (lqem amaziz yeǧǧa-t ɣer tama n Greenshot.exe).
+		<a href="greenshot://self-service?section=files">Ifuyla &amp; Tawila</a> deg Tallalt tudmawant yesskan anda yella.
+	</p>
+
+	<a name="troubleshooting"></a>
+	<h2>Ma yella kra ur yeddi ara</h2>
+	<p>
+		Tallalt tudmawant yesenqad Greenshot yerna yessefrak tuget n wuguren. Ldi-t s <em>Ɣef Greenshot</em> deg wumuɣ n tignit, sakin <em>Tallalt tudmawant</em>,
+		neɣ ddu srid ɣer tgezmi i ilaqen:
+	</p>
+	<ul>
+		<li><kbd>Print Screen</kbd> ur yexdim acemma neɣ yeldi kra nniḍen: <a href="greenshot://self-service?section=hotkeys">Inegzumen n unasiw &amp; Imennuɣen</a>
+			yesskan ma yella OneDrive neɣ Snipping Tool yeṭṭef tasarut, yerna yerra-tt i Greenshot.</li>
+		<li>Ur tufiḍ ara tuṭṭfiwin-ik: <a href="greenshot://self-service?section=files">Ifuyla &amp; Tawila</a> yesskan anda ten-yeskles Greenshot.</li>
+		<li>Anɣal ɣef afus ur yeddi ara: <a href="greenshot://self-service?section=clipboard">Asenqed n ɣef afus</a> yettaf ahil i iḥebsen ɣef afus.</li>
+		<li>Greenshot yeɣli neɣ yexuṣ usiɣzef deffir n uleqqem: <a href="greenshot://self-service?section=checksum">Taɣdemt n usebded</a> yesenqad ifuyla yebdan.</li>
+		<li>Azen-d ugur: <em>Nɣel talɣut n unagraw</em> deg <a href="greenshot://self-service?section=system">Anagraw &amp; Ibenkan</a> d
+			<a href="greenshot://log?search=ERROR">tuccḍiwin deg uɣmis</a> ad aɣ-ɛiwnen ad k-nɛiwen. Azen-d uguren ɣer
+			<a target="_blank" href="https://github.com/greenshot/greenshot/issues">github.com/greenshot/greenshot/issues</a>.</li>
+	</ul>
+
+	<a name="help"></a>
+	<h2>Tebɣiḍ ad d-tefkeḍ afus?</h2>
+
+	<a name="help-donate"></a>
+	<h3>Xemmem ɣef tikci</h3>
+	<p>
+		Nexdem aṭas ɣef Greenshot, akken ad d-nefk aseɣẓan yelhan, baṭel yerna d aɣbalu yeldin. Ma yella yerra-k tesfaydeḍ ugar,
+		yesseḥraz-ak neɣ i tkebbanit-ik akud d yedrimen, neɣ tḥemmleḍ Greenshot kan: ttxil-k xemmem ad aɣ-tɛiwneḍ.
+		Wali <a target="_blank" href="https://getgreenshot.org/support/">https://getgreenshot.org/support/</a> amek tzemreḍ ad d-tefkeḍ afus.
+	</p>
+
+	<a name="help-spread"></a>
+	<h3>Ssiweḍ awal</h3>
+	<p>
+		Ma tḥemmleḍ Greenshot, ini-yas i yimeddukal d yimdukal-ik n uxeddim. Efk azal i Greenshot deg yismal n yiseɣẓanen neɣ err aseɣwen ɣer usebter-nneɣ agejdan seg ublug neɣ seg usmel-ik.
+	</p>
+	<p>
+		Efk itri i Greenshot deg <a target="_blank" href="https://github.com/greenshot/greenshot">GitHub</a>, ad iɛiwen wiyaḍ ad t-afen:
+		<br><iframe src="https://ghbtns.com/github-btn.html?user=greenshot&amp;repo=greenshot&amp;type=star&amp;count=true&amp;size=large" frameborder="0" width="170" height="30" title="GitHub"></iframe>
+	</p>
+
+	</body>
+</html>
