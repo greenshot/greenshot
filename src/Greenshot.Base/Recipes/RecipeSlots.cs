@@ -32,12 +32,12 @@ namespace Greenshot.Base.Recipes
     public static class RecipeSlots
     {
         /// <summary>
-        /// After the capture and the selection, before the processors
+        /// After the capture and the selection
         /// </summary>
         public const string AfterCapture = "AfterCapture";
 
         /// <summary>
-        /// After the processors, before the destinations: the image is final
+        /// Before the destinations: the image is final
         /// </summary>
         public const string BeforeExport = "BeforeExport";
 

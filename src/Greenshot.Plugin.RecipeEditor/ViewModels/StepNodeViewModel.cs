@@ -3082,76 +3082,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(IsOnErrorRecipe));
         }
 
-        // --- 11. Processors / OCR Step ---
-        public string ProcessorMode
-        {
-            get => GetParam("ProcessorMode", "All");
-            set
-            {
-                SetParam("ProcessorMode", value);
-                OnPropertyChanged(nameof(ProcessorMode));
-                OnPropertyChanged(nameof(IsCustomProcessorsEnabled));
-                OnPropertyChanged(nameof(Summary));
-            }
-        }
-
-        public bool IsCustomProcessorsEnabled => string.Equals(ProcessorMode, "Selected", StringComparison.OrdinalIgnoreCase);
-
-        public string ProcessorTiming
-        {
-            get => GetParam("Timing", "Any");
-            set
-            {
-                SetParam("Timing", value);
-                OnPropertyChanged(nameof(ProcessorTiming));
-                OnPropertyChanged(nameof(Summary));
-            }
-        }
-
-        public bool ProcessorRunOcr
-        {
-            get => GetParamBool("RunOcr", true);
-            set { SetParam("RunOcr", value); OnPropertyChanged(nameof(ProcessorRunOcr)); OnPropertyChanged(nameof(Summary)); }
-        }
-
-        public bool ProcessorRunTitleFix
-        {
-            get => GetParamBool("RunTitleFix", true);
-            set { SetParam("RunTitleFix", value); OnPropertyChanged(nameof(ProcessorRunTitleFix)); OnPropertyChanged(nameof(Summary)); }
-        }
-
-        public bool ProcessorRunPlugins
-        {
-            get => GetParamBool("RunPlugins", true);
-            set { SetParam("RunPlugins", value); OnPropertyChanged(nameof(ProcessorRunPlugins)); OnPropertyChanged(nameof(Summary)); }
-        }
-
-        public string CustomProcessorIdsText
-        {
-            get
-            {
-                var list = Config.GetParameter<List<string>>("ProcessorIds");
-                return list != null ? string.Join(", ", list) : "";
-            }
-            set
-            {
-                if (!string.IsNullOrWhiteSpace(value))
-                {
-                    var items = value.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
-                        .Select(s => s.Trim())
-                        .Where(s => !string.IsNullOrEmpty(s))
-                        .ToList();
-                    SetParam("ProcessorIds", items);
-                }
-                else
-                {
-                    Config.Parameters?.Remove("ProcessorIds");
-                }
-                OnPropertyChanged(nameof(CustomProcessorIdsText));
-                OnPropertyChanged(nameof(Summary));
-            }
-        }
-
         // --- 12. UserPrompt Step ---
         public string UserPromptTitle
         {
@@ -3765,17 +3695,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                         return string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryBranches, ConditionBranches.Count);
                     case WellKnownStepTypes.UserPrompt:
                         return PromptChoices.Count > 0 ? string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryPrompt, string.Join(", ", PromptChoices.Select(c => c.Label))) : Texts.Get<IRecipeEditorLanguage>().SummaryPromptNone;
-                    case WellKnownStepTypes.Processors:
-                        if (string.Equals(ProcessorMode, "OCR", StringComparison.OrdinalIgnoreCase)) return Texts.Get<IRecipeEditorLanguage>().SummaryProcessorsOcr;
-                        if (string.Equals(ProcessorMode, "Selected", StringComparison.OrdinalIgnoreCase))
-                        {
-                            var active = new List<string>();
-                            if (ProcessorRunOcr) active.Add("OCR");
-                            if (ProcessorRunTitleFix) active.Add("TitleFix");
-                            if (ProcessorRunPlugins) active.Add("Plugins");
-                            return active.Count > 0 ? string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryProcessors, string.Join(", ", active)) : Texts.Get<IRecipeEditorLanguage>().SummaryProcessorsNone;
-                        }
-                        return ProcessorTiming != "Any" && !string.IsNullOrEmpty(ProcessorTiming) ? string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryProcessorsAllTiming, ProcessorTiming) : Texts.Get<IRecipeEditorLanguage>().SummaryProcessorsAll;
+                    case WellKnownStepTypes.Ocr:
+                        return Texts.Get<IRecipeEditorLanguage>().SummaryOcr;
                     case WellKnownStepTypes.RecordVideo:
                         string recTarget = GetParam("SourceType", "ActiveWindow");
                         string recFps = GetParam("FrameRate", "30");
@@ -3925,13 +3846,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(ClipboardFormatHTMLDataUrl));
             OnPropertyChanged(nameof(ClipboardFormatText));
             OnPropertyChanged(nameof(ClipboardCustomText));
-            OnPropertyChanged(nameof(ProcessorMode));
-            OnPropertyChanged(nameof(IsCustomProcessorsEnabled));
-            OnPropertyChanged(nameof(ProcessorTiming));
-            OnPropertyChanged(nameof(ProcessorRunOcr));
-            OnPropertyChanged(nameof(ProcessorRunTitleFix));
-            OnPropertyChanged(nameof(ProcessorRunPlugins));
-            OnPropertyChanged(nameof(CustomProcessorIdsText));
             OnPropertyChanged(nameof(VideoSourceType));
             OnPropertyChanged(nameof(IsVideoWindowSource));
             OnPropertyChanged(nameof(IsVideoRegionSource));

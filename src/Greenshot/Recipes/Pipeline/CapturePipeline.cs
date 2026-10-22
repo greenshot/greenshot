@@ -103,7 +103,7 @@ namespace Greenshot.Recipes.Pipeline
             _stepRegistry.Register<SetVariableStep>(config => new SetVariableStep(config));
             _stepRegistry.Register<ConditionalStep>(config => new ConditionalStep(config));
             _stepRegistry.Register<ImmediateFeedbackStep>(config => new ImmediateFeedbackStep(config));
-            _stepRegistry.Register<ProcessorExecutionStep>(config => new ProcessorExecutionStep(config));
+            _stepRegistry.Register<OcrStep>(config => new OcrStep(config));
             _stepRegistry.Register<DestinationExportStep>(config => new DestinationExportStep(config, _dispatcher));
             _stepRegistry.Register<DestinationExportStep>(WellKnownStepTypes.SaveFile, "Save to File", "Saves the capture to a file without asking.",
                 config => new DestinationExportStep(config, _dispatcher));

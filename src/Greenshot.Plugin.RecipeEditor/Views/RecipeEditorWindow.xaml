@@ -681,8 +681,8 @@
                             <Button Style="{StaticResource ToolboxButtonStyle}" AutomationProperties.Name="{wpf:Text RecipeEditor.StepNotification}" Command="{Binding AddStepCommand}" CommandParameter="Notification">
                                 <TextBlock><Run Text="🔔 "/><Run Text="{wpf:Text RecipeEditor.StepNotification}"/></TextBlock>
                             </Button>
-                            <Button Style="{StaticResource ToolboxButtonStyle}" AutomationProperties.Name="{wpf:Text RecipeEditor.StepProcessors}" Command="{Binding AddStepCommand}" CommandParameter="Processors">
-                                <TextBlock><Run Text="⚙️ "/><Run Text="{wpf:Text RecipeEditor.StepProcessors}"/></TextBlock>
+                            <Button Style="{StaticResource ToolboxButtonStyle}" AutomationProperties.Name="{wpf:Text RecipeEditor.StepOcr}" Command="{Binding AddStepCommand}" CommandParameter="Ocr">
+                                <TextBlock><Run Text="🔤 "/><Run Text="{wpf:Text RecipeEditor.StepOcr}"/></TextBlock>
                             </Button>
                             <Button Style="{StaticResource ToolboxButtonStyle}" AutomationProperties.Name="{wpf:Text RecipeEditor.StepStdout}" Command="{Binding AddStepCommand}" CommandParameter="Stdout">
                                 <TextBlock><Run Text="📤 "/><Run Text="{wpf:Text RecipeEditor.StepStdout}"/></TextBlock>
@@ -2443,47 +2443,6 @@
                                                          Padding="6,4" Margin="0,0,0,8"/>
                                             <CheckBox Content="{wpf:Text RecipeEditor.StderrEndRecipe}" IsChecked="{Binding SelectedNode.StderrAbort, Mode=TwoWay}"
                                                       Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,8"/>
-                                        </StackPanel>
-
-                                        <!-- 11b. Processors / OCR Step Inspector -->
-                                        <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=Processors}">
-                                            <TextBlock Text="{wpf:Text RecipeEditor.ProcessorMode}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                            <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.ProcessorMode}" SelectedValue="{Binding SelectedNode.ProcessorMode, Mode=TwoWay}"
-                                                      SelectedValuePath="Tag" Margin="0,0,0,8">
-                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.ProcessorsAll}" Tag="All"/>
-                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.ProcessorsOcrOnly}" Tag="OCR"/>
-                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.ProcessorsSelected}" Tag="Selected"/>
-                                            </ComboBox>
-
-                                            <TextBlock Text="{wpf:Text RecipeEditor.TimingStage}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                            <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.TimingStage}" SelectedValue="{Binding SelectedNode.ProcessorTiming, Mode=TwoWay}"
-                                                      SelectedValuePath="Tag" Margin="0,0,0,8">
-                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.StageAny}" Tag="Any"/>
-                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.StageBefore}" Tag="PreSelection"/>
-                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.StageAfter}" Tag="PostSelection"/>
-                                            </ComboBox>
-
-                                            <!-- Checkboxes for Selected Processors mode -->
-                                            <StackPanel Visibility="{Binding SelectedNode.IsCustomProcessorsEnabled, Converter={StaticResource BoolToVis}}">
-                                                <TextBlock Text="{wpf:Text RecipeEditor.ActiveProcessors}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,4"/>
-                                                <Border Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="8" Margin="0,0,0,8">
-                                                    <StackPanel>
-                                                        <CheckBox Content="{wpf:Text RecipeEditor.ProcessorWindowsOcr}" IsChecked="{Binding SelectedNode.ProcessorRunOcr, Mode=TwoWay}"
-                                                                  Foreground="{Binding TextPrimaryBrush}" Margin="0,2,0,4"/>
-                                                        <CheckBox Content="{wpf:Text RecipeEditor.ProcessorTitleFix}" IsChecked="{Binding SelectedNode.ProcessorRunTitleFix, Mode=TwoWay}"
-                                                                  Foreground="{Binding TextPrimaryBrush}" Margin="0,2,0,4"/>
-                                                        <CheckBox Content="{wpf:Text RecipeEditor.ProcessorPlugins}" IsChecked="{Binding SelectedNode.ProcessorRunPlugins, Mode=TwoWay}"
-                                                                  Foreground="{Binding TextPrimaryBrush}" Margin="0,2,0,2"/>
-                                                    </StackPanel>
-                                                </Border>
-
-                                                <TextBlock Text="{wpf:Text RecipeEditor.ProcessorIds}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                                <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.ProcessorIds}" Text="{Binding SelectedNode.CustomProcessorIdsText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
-                                                         Padding="6,4" Margin="0,0,0,4"/>
-                                                <TextBlock Text="{wpf:Text RecipeEditor.HintProcessorIds}"
-                                                           FontSize="{wpf:FontSize 10}" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
-                                            </StackPanel>
                                         </StackPanel>
 
                                         <!-- PDF Step Inspector -->

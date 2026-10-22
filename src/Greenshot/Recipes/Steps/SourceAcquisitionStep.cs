@@ -245,9 +245,10 @@ namespace Greenshot.Recipes.Steps
             var acquired = await source.AcquireAsync(context, cancellationToken).ConfigureAwait(false);
             if (acquired != null)
             {
-#if !GREENSHOT_LIGHT
                 // Clipboard, file and editor contents are the user's, everything else is taken from the screen
-                if (sourceType != CaptureSourceType.Clipboard && sourceType != CaptureSourceType.File && sourceType != CaptureSourceType.CurrentEditor)
+                bool fromScreen = sourceType != CaptureSourceType.Clipboard && sourceType != CaptureSourceType.File && sourceType != CaptureSourceType.CurrentEditor;
+#if !GREENSHOT_LIGHT
+                if (fromScreen)
                 {
                     RedactForAiTool(context, acquired);
                 }
@@ -256,6 +257,10 @@ namespace Greenshot.Recipes.Steps
                 if (alignDpi && sourceType != CaptureSourceType.File)
                 {
                     AlignDpi(acquired);
+                }
+                if (fromScreen && acquired.RawCapture != null)
+                {
+                    ProcessScreenCapture(acquired.RawCapture);
                 }
                 context.Payload = acquired;
             }
@@ -326,6 +331,25 @@ namespace Greenshot.Recipes.Steps
             }
         }
 #endif
+
+        /// <summary>
+        /// What every capture of the screen gets: the title fixes of the settings, and the processors switched on in the settings
+        /// (the QR code scan) start in the background, so what they find shows up while selecting.
+        /// A live selection has no image yet, it gets no processors.
+        /// </summary>
+        private static void ProcessScreenCapture(ICapture capture)
+        {
+            TitleFix.Apply(capture.CaptureDetails);
+            if (capture.Image == null)
+            {
+                return;
+            }
+            foreach (var processor in SimpleServiceProvider.Current.GetAllInstances<IProcessor>().Where(p => p.isActive))
+            {
+                Log.DebugFormat("Starting processor {0}", processor.Designation);
+                processor.ProcessCapture(capture);
+            }
+        }
 
         private static void AlignDpi(ICapturePayload payload)
         {

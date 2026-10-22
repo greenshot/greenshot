@@ -79,7 +79,7 @@ namespace Greenshot.Base.Recipes
             WellKnownStepTypes.InteractiveSelection,
             WellKnownStepTypes.Effect,
             WellKnownStepTypes.ImmediateFeedback,
-            WellKnownStepTypes.Processors,
+            WellKnownStepTypes.Ocr,
             WellKnownStepTypes.Destinations,
             WellKnownStepTypes.Notification,
             WellKnownStepTypes.Conditional,

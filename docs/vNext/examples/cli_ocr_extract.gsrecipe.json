@@ -46,14 +46,10 @@
     },
     {
       "id": "ocr_extraction",
-      "stepType": "Processors",
+      "stepType": "Ocr",
       "name": "Perform OCR",
       "enabled": true,
-      "parameters": {
-        "ProcessorIds": [
-          "Windows10OcrProcessor"
-        ]
-      }
+      "parameters": {}
     },
     {
       "id": "print_result",

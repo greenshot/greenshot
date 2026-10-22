@@ -318,10 +318,9 @@ namespace Greenshot.Recipes
                     ? "Sends the result to the destinations from the settings"
                     : $"Sends the result to {string.Join(", ", designations.Select(GetDestinationName))}";
             }
-            if (Is(type, WellKnownStepTypes.Processors))
+            if (Is(type, WellKnownStepTypes.Ocr))
             {
-                var processors = GetStrings(node, "ProcessorIds");
-                return processors.Count == 0 ? "Runs the processors from the settings" : $"Runs {string.Join(", ", processors.Select(GetProcessorName))}";
+                return "Reads the text of the capture (OCR)";
             }
             if (Is(type, WellKnownStepTypes.Conditional))
             {
@@ -504,25 +503,6 @@ namespace Greenshot.Recipes
                 Log.Debug($"Could not look up the destination '{designation}'.", ex);
             }
             return designation;
-        }
-
-        private static string GetProcessorName(string processorId)
-        {
-            try
-            {
-                var processor = SimpleServiceProvider.Current?.GetAllInstances<IProcessor>()
-                    .FirstOrDefault(p => string.Equals(p.Designation, processorId, StringComparison.OrdinalIgnoreCase) ||
-                                         string.Equals(p.GetType().Name, processorId, StringComparison.OrdinalIgnoreCase));
-                if (!string.IsNullOrWhiteSpace(processor?.Description))
-                {
-                    return processor.Description;
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Debug($"Could not look up the processor '{processorId}'.", ex);
-            }
-            return processorId.EndsWith("Processor", StringComparison.Ordinal) ? processorId.Substring(0, processorId.Length - "Processor".Length) : processorId;
         }
 
         private static bool Is(string value, string expected) => string.Equals(value, expected, StringComparison.OrdinalIgnoreCase);

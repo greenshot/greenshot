@@ -2418,9 +2418,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     dict["ExitCode"] = 1;
                     dict["Abort"] = true;
                     break;
-                case WellKnownStepTypes.Processors:
-                    dict["ProcessorIds"] = new List<string>();
-                    break;
                 case WellKnownStepTypes.Slot:
                     dict["Name"] = RecipeSlots.BeforeExport;
                     break;

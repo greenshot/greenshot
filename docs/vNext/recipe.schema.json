@@ -251,7 +251,7 @@
         },
         "stepType": {
           "type": "string",
-          "description": "The modular step type identifier. Supports core built-in steps (Source, InteractiveSelection, Effect, TextEffect, Annotation, SetVariable, ImmediateFeedback, Processors, Destinations, Notification, Conditional, Slot) as well as extension/plugin-provided steps (e.g., ExternalCommand, Box, Dropbox, Jira, Confluence, Office, BarcodeScan)."
+          "description": "The modular step type identifier. Supports core built-in steps (Source, InteractiveSelection, Effect, TextEffect, Annotation, SetVariable, ImmediateFeedback, Ocr, Destinations, Notification, Conditional, Slot) as well as extension/plugin-provided steps (e.g., ExternalCommand, Box, Dropbox, Jira, Confluence, Office, BarcodeScan)."
         },
         "name": {
           "type": "string",

@@ -44,7 +44,7 @@ namespace Greenshot.Ai
     /// AI tools writing recipes (greenshot-mcp.exe). The caller (<see cref="IpcSecurityDispatcher"/>) already checked the source,
     /// the connection (<see cref="AiToolCaller"/>) and the user's consent for the AI tool.
     /// <list type="bullet">
-    /// <item>RECIPE_CATALOG: what a recipe can use on this PC: step types with their contracts, destinations, processors, triggers and the existing recipes</item>
+    /// <item>RECIPE_CATALOG: what a recipe can use on this PC: step types with their contracts, destinations, triggers and the existing recipes</item>
     /// <item>VALIDATE_RECIPE: checks a recipe, nothing is saved or shown</item>
     /// <item>PROPOSE_RECIPE: shows a new recipe (or a change of an existing one) in the approval window, it is only saved when the user approves it</item>
     /// </list>
@@ -145,11 +145,6 @@ namespace Greenshot.Ai
                 .OrderBy(d => d.designation, StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
-            var processors = SafeList(() => SimpleServiceProvider.Current.GetAllInstances<IProcessor>())
-                .Where(p => p != null)
-                .Select(p => new { id = p.GetType().Name, designation = p.Designation, description = p.Description })
-                .ToList();
-
             var recipeManager = RecipeManager.Instance;
             var recipes = recipeManager.GetAllRecipes().Select(r => new
             {
@@ -169,7 +164,7 @@ namespace Greenshot.Ai
                 exit_code = 0,
                 notes = new[]
                 {
-                    "Write a recipe as JSON following the recipe schema (get_recipe_schema), using only the step types, destinations and processors listed here.",
+                    "Write a recipe as JSON following the recipe schema (get_recipe_schema), using only the step types and destinations listed here.",
                     "Check it with validate_recipe, then propose_recipe shows it to the user. Nothing is saved or run unless the user approves it.",
                     "A new recipe needs an id that no recipe uses; to change a recipe (also a built-in one) use update_recipe with its id.",
                     "The user switches each trigger on or off; for a recipe from an AI tool they start switched off. Uploads, files outside the output folder and external commands need the user's permission.",
@@ -180,7 +175,6 @@ namespace Greenshot.Ai
                 trigger_types = TriggerTypes,
                 steps,
                 destinations,
-                processors,
                 recipes,
                 slots = RecipeSlots.All.Select(s => new
                 {
@@ -208,7 +202,7 @@ namespace Greenshot.Ai
         {
             switch (slot)
             {
-                case RecipeSlots.AfterCapture: return "after the capture and the selection, before the processors";
+                case RecipeSlots.AfterCapture: return "after the capture and the selection";
                 case RecipeSlots.BeforeExport: return "once before the destinations, the image is final";
                 case RecipeSlots.AfterExport: return "after the destinations";
                 case RecipeSlots.BeforeDestination: return "for each destination on its own copy of the capture (the user can limit it to some destinations)";

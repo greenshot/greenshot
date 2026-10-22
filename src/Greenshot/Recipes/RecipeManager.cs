@@ -260,20 +260,16 @@ namespace Greenshot.Recipes
                 "Capture region",
                 "Interactively select a region on the screen")
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Region))
-                .AddNode(RecipeStepConfig.CreateProcessors("scan_pre", timing: ProcessorTiming.PreSelection).WithName("Scan Before Selection"))
                 .AddNode(RecipeStepConfig.CreateSelection("select", CaptureMode.Region))
                 .AddNode(RecipeStepConfig.CreateFeedback("feedback"))
-                .AddNode(RecipeStepConfig.CreateProcessors("scan_post", timing: ProcessorTiming.PostSelection).WithName("Process After Selection"))
                 .AddNode(RecipeStepConfig.CreateDestinations("export"))
                 .AddNode(RecipeStepConfig.CreateNotification("notify"));
             regionRecipe.Flow = new RecipeFlowConfig("acquire")
-                .AddTransition("acquire", "scan_pre")
-                .AddTransition("scan_pre", "select")
+                .AddTransition("acquire", "select")
                 .AddTransition("select", "feedback")
-                .AddTransition("feedback", "scan_post")
-                .AddTransition("scan_post", "export")
+                .AddTransition("feedback", "export")
                 .AddTransition("export", "notify");
-            RecipeStepConfig.AddStandardSlots(regionRecipe, "scan_post", "export");
+            RecipeStepConfig.AddStandardSlots(regionRecipe, "export", "export");
             RegisterBuiltIn(regionRecipe, disabled);
 
             // 2. Interactive Window Capture
@@ -282,20 +278,16 @@ namespace Greenshot.Recipes
                 "Capture window",
                 "Interactively select a window on the screen")
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Window))
-                .AddNode(RecipeStepConfig.CreateProcessors("scan_pre", timing: ProcessorTiming.PreSelection).WithName("Scan Before Selection"))
                 .AddNode(RecipeStepConfig.CreateSelection("select", CaptureMode.Window))
                 .AddNode(RecipeStepConfig.CreateFeedback("feedback"))
-                .AddNode(RecipeStepConfig.CreateProcessors("scan_post", timing: ProcessorTiming.PostSelection).WithName("Process After Selection"))
                 .AddNode(RecipeStepConfig.CreateDestinations("export"))
                 .AddNode(RecipeStepConfig.CreateNotification("notify"));
             windowRecipe.Flow = new RecipeFlowConfig("acquire")
-                .AddTransition("acquire", "scan_pre")
-                .AddTransition("scan_pre", "select")
+                .AddTransition("acquire", "select")
                 .AddTransition("select", "feedback")
-                .AddTransition("feedback", "scan_post")
-                .AddTransition("scan_post", "export")
+                .AddTransition("feedback", "export")
                 .AddTransition("export", "notify");
-            RecipeStepConfig.AddStandardSlots(windowRecipe, "scan_post", "export");
+            RecipeStepConfig.AddStandardSlots(windowRecipe, "export", "export");
             RegisterBuiltIn(windowRecipe, disabled);
 
             // 3. Active Window Capture
@@ -305,15 +297,13 @@ namespace Greenshot.Recipes
                 "Directly capture the active window")
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.ActiveWindow))
                 .AddNode(RecipeStepConfig.CreateFeedback("feedback"))
-                .AddNode(RecipeStepConfig.CreateProcessors("processors"))
                 .AddNode(RecipeStepConfig.CreateDestinations("export"))
                 .AddNode(RecipeStepConfig.CreateNotification("notify"));
             activeWindowRecipe.Flow = new RecipeFlowConfig("acquire")
                 .AddTransition("acquire", "feedback")
-                .AddTransition("feedback", "processors")
-                .AddTransition("processors", "export")
+                .AddTransition("feedback", "export")
                 .AddTransition("export", "notify");
-            RecipeStepConfig.AddStandardSlots(activeWindowRecipe, "processors", "export");
+            RecipeStepConfig.AddStandardSlots(activeWindowRecipe, "export", "export");
             RegisterBuiltIn(activeWindowRecipe, disabled);
 
             // 4. Full Screen Capture
@@ -323,15 +313,13 @@ namespace Greenshot.Recipes
                 "Capture the entire screen or monitor")
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.FullScreen))
                 .AddNode(RecipeStepConfig.CreateFeedback("feedback"))
-                .AddNode(RecipeStepConfig.CreateProcessors("processors"))
                 .AddNode(RecipeStepConfig.CreateDestinations("export"))
                 .AddNode(RecipeStepConfig.CreateNotification("notify"));
             fullScreenRecipe.Flow = new RecipeFlowConfig("acquire")
                 .AddTransition("acquire", "feedback")
-                .AddTransition("feedback", "processors")
-                .AddTransition("processors", "export")
+                .AddTransition("feedback", "export")
                 .AddTransition("export", "notify");
-            RecipeStepConfig.AddStandardSlots(fullScreenRecipe, "processors", "export");
+            RecipeStepConfig.AddStandardSlots(fullScreenRecipe, "export", "export");
             RegisterBuiltIn(fullScreenRecipe, disabled);
 
             // 5. Last Region Capture
@@ -341,15 +329,13 @@ namespace Greenshot.Recipes
                 "Re-capture the coordinates of the previous region")
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.LastRegion))
                 .AddNode(RecipeStepConfig.CreateFeedback("feedback"))
-                .AddNode(RecipeStepConfig.CreateProcessors("processors"))
                 .AddNode(RecipeStepConfig.CreateDestinations("export"))
                 .AddNode(RecipeStepConfig.CreateNotification("notify"));
             lastRegionRecipe.Flow = new RecipeFlowConfig("acquire")
                 .AddTransition("acquire", "feedback")
-                .AddTransition("feedback", "processors")
-                .AddTransition("processors", "export")
+                .AddTransition("feedback", "export")
                 .AddTransition("export", "notify");
-            RecipeStepConfig.AddStandardSlots(lastRegionRecipe, "processors", "export");
+            RecipeStepConfig.AddStandardSlots(lastRegionRecipe, "export", "export");
             RegisterBuiltIn(lastRegionRecipe, disabled);
 
             // 6. Clipboard Import
@@ -384,13 +370,11 @@ namespace Greenshot.Recipes
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.TextOcr, captureMouse: false))
                 .AddNode(RecipeStepConfig.CreateSelection("select", CaptureMode.Text))
                 .AddNode(RecipeStepConfig.CreateFeedback("feedback"))
-                .AddNode(RecipeStepConfig.CreateProcessors("ocr", new[] { "Windows10OcrProcessor" }))
                 .AddNode(RecipeStepConfig.CreateClipboard("export", "TextOnly"));
             ocrRecipe.Flow = new RecipeFlowConfig("acquire")
                 .AddTransition("acquire", "select")
                 .AddTransition("select", "feedback")
-                .AddTransition("feedback", "ocr")
-                .AddTransition("ocr", "export");
+                .AddTransition("feedback", "export");
             RegisterBuiltIn(ocrRecipe, disabled);
 
             // The optional parts (browser extension, AI tools), Greenshot Light has none of them

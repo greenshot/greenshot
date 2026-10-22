@@ -293,9 +293,9 @@
         "parameters": {}
       },
       {
-        "id": "n11_CreateProcessors",
-        "stepType": "Processors",
-        "name": "Run Processors",
+        "id": "n11_CreateOcr",
+        "stepType": "Ocr",
+        "name": "OCR",
         "enabled": true,
         "parameters": {}
       },
@@ -423,10 +423,10 @@
         },
         {
           "from": "n10_CreatePrinter",
-          "to": "n11_CreateProcessors"
+          "to": "n11_CreateOcr"
         },
         {
-          "from": "n11_CreateProcessors",
+          "from": "n11_CreateOcr",
           "to": "n12_CreateSaveFile"
         },
         {
@@ -994,14 +994,10 @@
       },
       {
         "id": "ocr_extraction",
-        "stepType": "Processors",
-        "name": "Perform OCR",
+        "stepType": "Ocr",
+        "name": "OCR",
         "enabled": true,
-        "parameters": {
-          "ProcessorIds": [
-            "Windows10OcrProcessor"
-          ]
-        }
+        "parameters": {}
       },
       {
         "id": "print_result",
@@ -1978,14 +1974,10 @@
       },
       {
         "id": "ocr",
-        "stepType": "Processors",
-        "name": "Run Processors",
+        "stepType": "Ocr",
+        "name": "OCR",
         "enabled": true,
-        "parameters": {
-          "ProcessorIds": [
-            "Windows10OcrProcessor"
-          ]
-        }
+        "parameters": {}
       }
     ],
     "flow": {
@@ -2075,14 +2067,10 @@
       },
       {
         "id": "ocr",
-        "stepType": "Processors",
-        "name": "Run Processors",
+        "stepType": "Ocr",
+        "name": "OCR",
         "enabled": true,
-        "parameters": {
-          "ProcessorIds": [
-            "Windows10OcrProcessor"
-          ]
-        }
+        "parameters": {}
       }
     ],
     "flow": {
@@ -2166,14 +2154,10 @@
       },
       {
         "id": "ocr",
-        "stepType": "Processors",
-        "name": "Run Processors",
+        "stepType": "Ocr",
+        "name": "OCR",
         "enabled": true,
-        "parameters": {
-          "ProcessorIds": [
-            "Windows10OcrProcessor"
-          ]
-        }
+        "parameters": {}
       }
     ],
     "flow": {

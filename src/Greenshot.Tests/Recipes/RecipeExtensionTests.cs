@@ -60,7 +60,7 @@ namespace Greenshot.Tests.Recipes
         {
             var recipe = new CaptureRecipe(id, "Test capture")
                 .AddNode(RecipeStepConfig.CreateSource("source", CaptureSourceType.Region))
-                .AddNode(RecipeStepConfig.CreateProcessors("process"))
+                .AddNode(RecipeStepConfig.CreateOcr("process"))
                 .AddNode(RecipeStepConfig.CreateDestinations("export", new[] { "Clipboard" }))
                 .AddNode(RecipeStepConfig.CreateNotification("notify"));
             recipe.Flow = new RecipeFlowConfig("source")

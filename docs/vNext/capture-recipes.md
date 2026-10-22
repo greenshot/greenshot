@@ -210,6 +210,17 @@ When Greenshot loads or validates recipes (or when opened in the Visual Recipe E
 
 ---
 
+### Text and codes on the capture
+
+The `Ocr` step reads the text of the capture with Windows OCR into the variable `OcrText` (also `Payload.ExtractedText`);
+the text lines stay with the capture. A text selection (`InteractiveSelection` with `SelectionMode` `Text`) extracts the text
+itself and needs no `Ocr` step. Barcodes and QR codes are read by the `BarcodeScan` step of the ZXing plugin.
+
+Every capture of the screen (not the clipboard, a file or the editor) gets the title fixes of the settings. The QR code scan
+(`ScanOnCapture` of the ZXing plugin) starts in the background as soon as the screen is captured, so the codes show up while
+selecting; the `BarcodeScan` step uses what it found. OCR only runs where text is needed: the text selection, the `Ocr`
+step, the OCR destination and the editor's text obfuscation, each on the image it gets.
+
 ## 3. Dynamic Expressions & Scoped Environment Variables
 
 Recipe step parameters support embedded mathematical expressions, boolean conditions, string interpolation, and system environment information using `${...}` syntax exclusively.
@@ -583,8 +594,8 @@ it does nothing itself. No slot, no extension; nothing is inferred.
 
 | Slot | Where |
 |---|---|
-| `AfterCapture` | After the capture and the selection, before the processors |
-| `BeforeExport` | After the processors, before the destinations: the image is final |
+| `AfterCapture` | After the capture and the selection |
+| `BeforeExport` | Before the destinations: the image is final |
 | `AfterExport` | After the destinations |
 | `BeforeDestination` | Run by the export steps (Destinations and the pickers) once per destination, on its own copy of the capture |
 

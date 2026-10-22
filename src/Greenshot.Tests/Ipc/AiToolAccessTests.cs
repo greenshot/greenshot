@@ -217,9 +217,9 @@ namespace Greenshot.Tests.Ipc
                     Payload = new CapturePayload(new Capture((System.Drawing.Image)bitmap.Clone()))
                 };
 
-                // The recipe's own OCR step: it makes a surface, which takes the image from the capture
-                await new Greenshot.Recipes.Steps.ProcessorExecutionStep(ocrNode).ExecuteAsync(flowContext);
-                Assert.NotNull(flowContext.Payload.Surface);
+                // The recipe's own OCR step
+                await new Greenshot.Recipes.Steps.OcrStep(ocrNode).ExecuteAsync(flowContext);
+                Assert.Equal("Hello OCR", flowContext.Properties["OcrText"]);
 
                 var result = await AiToolIpcHandler.CollectResultAsync(flowContext, 0, CancellationToken.None);
                 Assert.NotNull(result);

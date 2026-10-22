@@ -194,18 +194,9 @@ namespace Greenshot.Base.Recipes
             return node;
         }
 
-        public static RecipeNodeConfig CreateProcessors(string id = "processors", IEnumerable<string> processorIds = null, ProcessorTiming? timing = null)
+        public static RecipeNodeConfig CreateOcr(string id = "ocr")
         {
-            var node = new RecipeNodeConfig(id, WellKnownStepTypes.Processors, "Run Processors");
-            if (processorIds != null)
-            {
-                node.Set("ProcessorIds", new List<string>(processorIds));
-            }
-            if (timing.HasValue)
-            {
-                node.Set("Timing", timing.Value.ToString());
-            }
-            return node;
+            return new RecipeNodeConfig(id, WellKnownStepTypes.Ocr, "OCR");
         }
 
         public static RecipeNodeConfig CreateSaveFile(
