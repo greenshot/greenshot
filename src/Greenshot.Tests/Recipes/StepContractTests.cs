@@ -461,8 +461,9 @@ namespace Greenshot.Tests.Recipes
             var recipe = new CaptureRecipe("params", "Params")
                 .AddNode(new RecipeNodeConfig("missing", "Strict").Set("Size", 3))
                 .AddNode(new RecipeNodeConfig("wrong", "Strict").Set("Mode", "Medium").Set("Colour", "red"))
-                .AddNode(new RecipeNodeConfig("fine", "Strict") { OnErrorNodeId = "missing" }.Set("Mode", "fast"));
-            recipe.Flow = new RecipeFlowConfig(new[] { "missing", "wrong", "fine" });
+                .AddNode(new RecipeNodeConfig("fine", "Strict").Set("Mode", "fast"));
+            recipe.Flow = new RecipeFlowConfig(new[] { "missing", "wrong", "fine" })
+                .AddErrorTransition("fine", "missing");
 
             var warnings = Warnings(recipe);
             Assert.Contains(warnings, w => w.Contains("'missing'") && w.Contains("missing required parameter 'Mode'"));

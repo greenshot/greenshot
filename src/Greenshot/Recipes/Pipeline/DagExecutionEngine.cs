@@ -373,12 +373,9 @@ namespace Greenshot.Recipes.Pipeline
                     {
                         Log.Error($"Node '{nodeConfig.Id}' failed with exception", ex);
 
-                        // Check flow error transitions or node-level error configuration
                         var errorTransition = flow.GetErrorTransition(nodeId, ex);
-                        string errorTargetNodeId = errorTransition?.To
-                            ?? (!string.IsNullOrEmpty(nodeConfig.OnErrorNodeId) ? nodeConfig.OnErrorNodeId : null);
-                        string errorTargetRecipeId = errorTransition?.Recipe
-                            ?? (!string.IsNullOrEmpty(nodeConfig.OnErrorRecipeId) ? nodeConfig.OnErrorRecipeId : null);
+                        string errorTargetNodeId = errorTransition?.To;
+                        string errorTargetRecipeId = errorTransition?.Recipe;
 
                         if (!string.IsNullOrEmpty(errorTargetNodeId) || !string.IsNullOrEmpty(errorTargetRecipeId))
                         {

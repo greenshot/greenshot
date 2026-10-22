@@ -162,7 +162,8 @@ namespace Greenshot.Base.Recipes
         }
 
         /// <summary>
-        /// A file of an earlier beta (transitions per node, conditional and error transitions apart, a condition in "enabled")
+        /// A file of an earlier beta (transitions per node, conditional and error transitions apart, a condition in "enabled",
+        /// error routes on the node)
         /// gets an error which says what changed, instead of the error of the first property which doesn't fit.
         /// </summary>
         private static void CheckFormat(JsonElement definition)
@@ -184,6 +185,11 @@ namespace Greenshot.Base.Recipes
                     if (node.ValueKind == JsonValueKind.Object && node.TryGetProperty("enabled", out var enabled) && enabled.ValueKind == JsonValueKind.String)
                     {
                         throw new JsonException(earlierFormat + "\"enabled\" is now true or false, an expression like \"${option.key}\" goes into \"when\".");
+                    }
+                    if (node.ValueKind == JsonValueKind.Object && (node.TryGetProperty("onErrorNodeId", out _) || node.TryGetProperty("onErrorRecipeId", out _)))
+                    {
+                        throw new JsonException(earlierFormat + "\"onErrorNodeId\" and \"onErrorRecipeId\" are now transitions, " +
+                                                "e.g. { \"from\": \"upload\", \"onError\": \"*\", \"to\": \"save\" } or { \"from\": \"upload\", \"onError\": \"*\", \"recipe\": \"recipe_id\" }.");
                     }
                 }
             }

@@ -424,15 +424,6 @@ namespace Greenshot.Base.Recipes.Contracts
                     AddEdge(et.From, et.To, EdgeKind.Error);
                     _hasErrorEdge.Add(et.From);
                 }
-                foreach (var node in _nodes.Values)
-                {
-                    string target = node.OnErrorNodeId;
-                    if (!string.IsNullOrWhiteSpace(target) && !_hasErrorEdge.Contains(node.Id))
-                    {
-                        AddEdge(node.Id, target, EdgeKind.Error);
-                        _hasErrorEdge.Add(node.Id);
-                    }
-                }
             }
 
             private List<string> TopologicalOrder()

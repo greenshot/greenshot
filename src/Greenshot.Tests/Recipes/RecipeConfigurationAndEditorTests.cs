@@ -239,29 +239,46 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
-        public void StepNodeViewModel_StepErrorHandling_UpdatesConfigCorrectly()
+        public void StepNodeViewModel_OnError_IsTheErrorTransitionOfTheStep()
         {
-            var config = RecipeStepConfig.CreateClipboard("clipboard_step");
-            var vm = new Greenshot.Plugin.RecipeEditor.ViewModels.StepNodeViewModel(config, new System.Windows.Point(0, 0));
+            var editorVm = new Greenshot.Plugin.RecipeEditor.ViewModels.RecipeEditorViewModel(RecipeManager.Instance);
+            try
+            {
+                editorVm.NewRecipe();
+                var vm = editorVm.Nodes.First(n => n.Id == "export");
+                Assert.Equal("Default", vm.OnErrorAction);
+                Assert.Empty(editorVm.ActiveRecipe.Flow.ErrorTransitions);
 
-            // Default
-            Assert.Equal("Default", vm.OnErrorAction);
-            Assert.Null(config.OnErrorNodeId);
-            Assert.Null(config.OnErrorRecipeId);
+                // A step: one error transition for any error
+                vm.OnErrorAction = "Step";
+                vm.OnErrorNodeId = "feedback";
+                var transition = Assert.Single(editorVm.ActiveRecipe.Flow.ErrorTransitions);
+                Assert.Equal(("export", "feedback", (string)null, "*"), (transition.From, transition.To, transition.Recipe, transition.OnError));
+                Assert.True(vm.IsOnErrorStep);
+                Assert.Single(editorVm.ErrorTransitions);
 
-            // Set to Step
-            vm.OnErrorAction = "Step";
-            vm.OnErrorNodeId = "dyn_dest";
-            Assert.Equal("dyn_dest", config.OnErrorNodeId);
-            Assert.Null(config.OnErrorRecipeId);
-            Assert.True(vm.IsOnErrorStep);
+                // A recipe: the same transition, now to the recipe
+                vm.OnErrorAction = "Recipe";
+                vm.OnErrorRecipeId = "rec_recovery";
+                transition = Assert.Single(editorVm.ActiveRecipe.Flow.ErrorTransitions);
+                Assert.Equal(("export", (string)null, "rec_recovery"), (transition.From, transition.To, transition.Recipe));
+                Assert.True(vm.IsOnErrorRecipe);
+                Assert.Null(vm.OnErrorNodeId);
 
-            // Set to Recipe
-            vm.OnErrorAction = "Recipe";
-            vm.OnErrorRecipeId = "rec_recovery";
-            Assert.Equal("rec_recovery", config.OnErrorRecipeId);
-            Assert.Null(config.OnErrorNodeId);
-            Assert.True(vm.IsOnErrorRecipe);
+                // Changed in the list of error transitions: the step shows it
+                editorVm.ErrorTransitions[0].TargetType = "Step";
+                editorVm.ErrorTransitions[0].ToNodeId = "acquire";
+                Assert.Equal("acquire", vm.OnErrorNodeId);
+
+                // Default removes it
+                vm.OnErrorAction = "Default";
+                Assert.Empty(editorVm.ActiveRecipe.Flow.ErrorTransitions);
+                Assert.Empty(editorVm.ErrorTransitions);
+            }
+            finally
+            {
+                editorVm.Detach();
+            }
         }
 
         [Fact]

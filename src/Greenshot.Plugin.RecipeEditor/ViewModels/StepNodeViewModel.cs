@@ -3009,6 +3009,18 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public IEnumerable<StepNodeViewModel> AvailableTargetSteps => OtherNodesProvider?.Invoke()?.Where(n => n != this) ?? Enumerable.Empty<StepNodeViewModel>();
         public IEnumerable<CaptureRecipe> AvailableTargetRecipes => AvailableRecipesProvider?.Invoke() ?? Enumerable.Empty<CaptureRecipe>();
 
+        /// <summary>
+        /// The error transition of the recipe from this step for any error, null when there is none.
+        /// </summary>
+        public Func<string, ErrorTransitionItemViewModel> StepErrorTransitionProvider { get; set; }
+
+        /// <summary>
+        /// Sets the error transition from this step for any error (step id, target step, target recipe), both targets null remove it.
+        /// </summary>
+        public Action<string, string, string> StepErrorTransitionSetter { get; set; }
+
+        private ErrorTransitionItemViewModel StepErrorTransition => StepErrorTransitionProvider?.Invoke(Id);
+
         public string OnErrorAction
         {
             get
@@ -3021,30 +3033,16 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 if (string.Equals(value, "Step", StringComparison.OrdinalIgnoreCase))
                 {
-                    OnErrorRecipeId = null;
-                    if (string.IsNullOrEmpty(OnErrorNodeId))
-                    {
-                        var firstOther = AvailableTargetSteps.FirstOrDefault();
-                        if (firstOther != null) OnErrorNodeId = firstOther.Id;
-                    }
+                    SetStepErrorTransition(OnErrorNodeId ?? AvailableTargetSteps.FirstOrDefault()?.Id, null);
                 }
                 else if (string.Equals(value, "Recipe", StringComparison.OrdinalIgnoreCase))
                 {
-                    OnErrorNodeId = null;
-                    if (string.IsNullOrEmpty(OnErrorRecipeId))
-                    {
-                        var firstRec = AvailableTargetRecipes.FirstOrDefault();
-                        if (firstRec != null) OnErrorRecipeId = firstRec.Id;
-                    }
+                    SetStepErrorTransition(null, OnErrorRecipeId ?? AvailableTargetRecipes.FirstOrDefault()?.Id);
                 }
                 else
                 {
-                    OnErrorNodeId = null;
-                    OnErrorRecipeId = null;
+                    SetStepErrorTransition(null, null);
                 }
-                OnPropertyChanged(nameof(OnErrorAction));
-                OnPropertyChanged(nameof(IsOnErrorStep));
-                OnPropertyChanged(nameof(IsOnErrorRecipe));
             }
         }
 
@@ -3053,24 +3051,47 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         public string OnErrorNodeId
         {
-            get => Config.OnErrorNodeId;
+            get
+            {
+                var transition = StepErrorTransition;
+                return transition != null && transition.IsTargetStep && !string.IsNullOrEmpty(transition.ToNodeId) ? transition.ToNodeId : null;
+            }
             set
             {
-                Config.OnErrorNodeId = string.IsNullOrWhiteSpace(value) ? null : value;
-                OnPropertyChanged(nameof(OnErrorNodeId));
-                OnPropertyChanged(nameof(OnErrorAction));
+                // An empty choice (the list of the other target hidden) changes nothing, "Default" removes the error transition
+                if (!string.IsNullOrWhiteSpace(value)) SetStepErrorTransition(value, null);
             }
         }
 
         public string OnErrorRecipeId
         {
-            get => Config.OnErrorRecipeId;
+            get
+            {
+                var transition = StepErrorTransition;
+                return transition != null && transition.IsTargetRecipe && !string.IsNullOrEmpty(transition.TargetRecipeId) ? transition.TargetRecipeId : null;
+            }
             set
             {
-                Config.OnErrorRecipeId = string.IsNullOrWhiteSpace(value) ? null : value;
-                OnPropertyChanged(nameof(OnErrorRecipeId));
-                OnPropertyChanged(nameof(OnErrorAction));
+                if (!string.IsNullOrWhiteSpace(value)) SetStepErrorTransition(null, value);
             }
+        }
+
+        private void SetStepErrorTransition(string toNodeId, string recipeId)
+        {
+            StepErrorTransitionSetter?.Invoke(Id, toNodeId, recipeId);
+            RefreshErrorRouting();
+        }
+
+        /// <summary>
+        /// Shows the error transition of this step again, after it was changed here or in the recipe's list of error transitions.
+        /// </summary>
+        public void RefreshErrorRouting()
+        {
+            OnPropertyChanged(nameof(OnErrorNodeId));
+            OnPropertyChanged(nameof(OnErrorRecipeId));
+            OnPropertyChanged(nameof(OnErrorAction));
+            OnPropertyChanged(nameof(IsOnErrorStep));
+            OnPropertyChanged(nameof(IsOnErrorRecipe));
         }
 
         // --- 11. Processors / OCR Step ---

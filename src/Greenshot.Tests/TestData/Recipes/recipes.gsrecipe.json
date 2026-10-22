@@ -609,8 +609,6 @@
         "stepType": "SetVariable",
         "name": "Fail",
         "enabled": true,
-        "onErrorNodeId": "vars",
-        "onErrorRecipeId": "other",
         "parameters": {}
       }
     ],
@@ -650,6 +648,11 @@
           "from": "fail",
           "to": "vars",
           "onError": "IOException"
+        },
+        {
+          "from": "fail",
+          "recipe": "other",
+          "onError": "*"
         },
         {
           "from": "*",

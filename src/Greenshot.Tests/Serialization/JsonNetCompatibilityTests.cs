@@ -154,7 +154,7 @@ namespace Greenshot.Tests.Serialization
             Assert.Equal(20.5, ((IDictionary<string, object>)annotations[0])["y"]);
             Assert.True(RecipeSlots.Accepts(sink.FindNode("slot"), "caption"));
             Assert.False(RecipeSlots.Accepts(sink.FindNode("slot"), "dropshadow"));
-            Assert.Equal("other", sink.FindNode("fail").OnErrorRecipeId);
+            Assert.Contains(sink.Flow.ErrorTransitions, t => t.From == "fail" && t.Recipe == "other" && t.OnError == "*");
 
             // Flow
             Assert.Contains("draw", sink.Flow.GetUnifiedTransitions()["branch"]);

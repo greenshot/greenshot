@@ -775,6 +775,16 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             _recipeManager = recipeManager ?? SimpleServiceProvider.Current.GetInstance<IRecipeManager>(isOptional: true);
             InitializeOutputFormatOptions();
 
+            // A step's "On error" shows its error transition: keep it current when the list of error transitions changes
+            ErrorTransitions.CollectionChanged += (sender, args) =>
+            {
+                foreach (var item in args.NewItems?.OfType<ErrorTransitionItemViewModel>() ?? Enumerable.Empty<ErrorTransitionItemViewModel>())
+                {
+                    item.PropertyChanged += (itemSender, itemArgs) => RefreshErrorRouting();
+                }
+                RefreshErrorRouting();
+            };
+
             NewRecipeCommand = new RelayCommand(NewRecipe);
             OpenRecipeCommand = new RelayCommand(OpenRecipeDialog);
             SaveRecipeCommand = new RelayCommand(SaveRecipe);
@@ -1005,6 +1015,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 vm.SlotExtensionsProvider = GetSlotExtensions;
                 vm.OtherNodesProvider = () => Nodes.Where(n => n != vm);
                 vm.AvailableRecipesProvider = () => AvailableRecipes;
+                vm.StepErrorTransitionProvider = FindStepErrorTransition;
+                vm.StepErrorTransitionSetter = SetStepErrorTransition;
                 if (hasExplicitStarts)
                 {
                     vm.IsStartNode = recipe.Flow.StartNodes.Contains(nodeConfig.Id, StringComparer.OrdinalIgnoreCase);
@@ -1400,6 +1412,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             nodeVm.SlotExtensionsProvider = GetSlotExtensions;
             nodeVm.OtherNodesProvider = () => Nodes.Where(n => n != nodeVm);
             nodeVm.AvailableRecipesProvider = () => AvailableRecipes;
+            nodeVm.StepErrorTransitionProvider = FindStepErrorTransition;
+            nodeVm.StepErrorTransitionSetter = SetStepErrorTransition;
             if (Nodes.Count == 0)
             {
                 nodeVm.IsStartNode = true;
@@ -1460,6 +1474,12 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 if (string.Equals(transition?.From, oldId, StringComparison.OrdinalIgnoreCase)) transition.From = newId;
                 if (string.Equals(transition?.To, oldId, StringComparison.OrdinalIgnoreCase)) transition.To = newId;
+            }
+            // The error transitions are written from their list
+            foreach (var errorTransition in ErrorTransitions)
+            {
+                if (string.Equals(errorTransition.FromNodeId, oldId, StringComparison.OrdinalIgnoreCase)) errorTransition.FromNodeId = newId;
+                if (string.Equals(errorTransition.ToNodeId, oldId, StringComparison.OrdinalIgnoreCase)) errorTransition.ToNodeId = newId;
             }
 
             SyncRecipeTransitions();
@@ -1614,6 +1634,47 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             SyncRecipeTransitions();
             IsDirty = true;
             StatusMessage = Texts.Get<IRecipeEditorLanguage>().StatusErrorRouteRemoved;
+        }
+
+        private void RefreshErrorRouting()
+        {
+            foreach (var node in Nodes)
+            {
+                node.RefreshErrorRouting();
+            }
+        }
+
+        /// <summary>
+        /// The error transition from a step for any error: what the step's "On error" shows.
+        /// </summary>
+        private ErrorTransitionItemViewModel FindStepErrorTransition(string nodeId) =>
+            ErrorTransitions.FirstOrDefault(e => string.Equals(e.FromNodeId, nodeId, StringComparison.OrdinalIgnoreCase) && e.ErrorType == "*");
+
+        /// <summary>
+        /// The step's "On error": sets its error transition for any error to a step or a recipe, or removes it.
+        /// </summary>
+        private void SetStepErrorTransition(string nodeId, string toNodeId, string recipeId)
+        {
+            if (string.IsNullOrEmpty(nodeId)) return;
+            var existing = FindStepErrorTransition(nodeId);
+            if (string.IsNullOrEmpty(toNodeId) && string.IsNullOrEmpty(recipeId))
+            {
+                if (existing == null) return;
+                ErrorTransitions.Remove(existing);
+            }
+            else if (existing == null)
+            {
+                var config = new RecipeTransition(nodeId, toNodeId) { OnError = "*", Recipe = recipeId };
+                ErrorTransitions.Add(new ErrorTransitionItemViewModel(config, DeleteErrorTransition, () => Nodes, () => AvailableRecipes));
+            }
+            else
+            {
+                existing.TargetType = string.IsNullOrEmpty(recipeId) ? "Step" : "Recipe";
+                existing.ToNodeId = toNodeId;
+                existing.TargetRecipeId = recipeId;
+            }
+            SyncRecipeTransitions();
+            IsDirty = true;
         }
 
         /// <summary>

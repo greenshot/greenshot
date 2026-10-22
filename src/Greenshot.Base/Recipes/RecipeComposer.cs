@@ -213,7 +213,6 @@ namespace Greenshot.Base.Recipes
                 clone.ContributedBy = extension.Id;
                 clone.Parameters = (Dictionary<string, object>)RewriteOptionReferences(clone.Parameters, extension.Id);
                 clone.When = RewriteOptionReferences(clone.When, extension.Id);
-                clone.OnErrorNodeId = Map(node.OnErrorNodeId);
                 chain.Nodes.Add(clone);
             }
 
@@ -362,10 +361,6 @@ namespace Greenshot.Base.Recipes
                 }
             }
             flow.StartNodes = ReplaceTarget(flow.StartNodes, slotId, entry);
-            foreach (var node in composed.Nodes.Where(n => string.Equals(n?.OnErrorNodeId, slotId, StringComparison.OrdinalIgnoreCase)))
-            {
-                node.OnErrorNodeId = firstEntry;
-            }
 
             // The chains' nodes take the place of the slot node
             int index = composed.Nodes.FindIndex(n => string.Equals(n?.Id, slotId, StringComparison.OrdinalIgnoreCase));
