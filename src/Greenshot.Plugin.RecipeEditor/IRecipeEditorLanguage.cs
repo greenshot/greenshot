@@ -1607,16 +1607,6 @@ namespace Greenshot.Plugin.RecipeEditor
         string PromptTimeout { get; }
 
         /// <summary>
-        /// Default Choice Key
-        /// </summary>
-        string DefaultChoice { get; }
-
-        /// <summary>
-        /// Select the fallback or default choice key for timeouts / Enter key
-        /// </summary>
-        string TipDefaultChoice { get; }
-
-        /// <summary>
         /// Decision Choices &amp; Buttons
         /// </summary>
         string DecisionChoices { get; }

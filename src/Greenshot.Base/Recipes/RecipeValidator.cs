@@ -555,12 +555,12 @@ namespace Greenshot.Base.Recipes
             }
             if (string.Equals(node.StepType, WellKnownStepTypes.Effect, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(node.GetParameter<string>("Effect"), "Resize", StringComparison.Ordinal) &&
-                node.Parameters.ContainsKey("Percentage") && (node.Parameters.ContainsKey("Width") || node.Parameters.ContainsKey("Height")))
+                node.Parameters?.ContainsKey("Percentage") == true && (node.Parameters.ContainsKey("Width") || node.Parameters.ContainsKey("Height")))
             {
                 result.AddError($"Node '{node.Id}' [Resize]: use 'Percentage' or 'Width' and 'Height', not both.");
             }
             if (string.Equals(node.StepType, WellKnownStepTypes.Effect, StringComparison.OrdinalIgnoreCase) &&
-                node.Parameters.ContainsKey("Color") && !string.Equals(node.GetParameter("Effect", "Border"), "Border", StringComparison.Ordinal))
+                node.Parameters?.ContainsKey("Color") == true && !string.Equals(node.GetParameter("Effect", "Border"), "Border", StringComparison.Ordinal))
             {
                 result.AddError($"Node '{node.Id}' [{node.GetParameter<string>("Effect")}]: 'Color' is the border color, the color of a canvas is 'BackgroundColor'.");
             }
@@ -606,6 +606,11 @@ namespace Greenshot.Base.Recipes
             if (string.Equals(node.StepType, WellKnownStepTypes.Annotation, StringComparison.OrdinalIgnoreCase))
             {
                 ValidateAnnotationNode(node, result);
+            }
+            if (string.Equals(node.StepType, WellKnownStepTypes.UserPrompt, StringComparison.OrdinalIgnoreCase) &&
+                node.GetParameter<List<PromptChoice>>("Choices") is { } choices && choices.Count(c => c?.IsDefault == true) > 1)
+            {
+                result.AddError($"Node '{node.Id}' [UserPrompt]: only one choice can be 'IsDefault'.");
             }
             if (string.Equals(node.StepType, WellKnownStepTypes.Slot, StringComparison.OrdinalIgnoreCase))
             {

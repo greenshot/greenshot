@@ -43,7 +43,7 @@ namespace Greenshot.Tests.Core
             var details = new CaptureDetails();
             details.Features.Add(Line(110, 110, "inside"));
             details.Features.Add(Line(10, 10, "outside"));
-            details.Features.Add(Line(285, 110, "mostly outside"));
+            details.Features.Add(Line(310, 110, "just outside"));
 
             details.CropFeatures(new NativeRect(100, 100, 200, 100));
 

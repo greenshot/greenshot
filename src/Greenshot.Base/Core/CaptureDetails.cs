@@ -156,20 +156,11 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// A feature is in the image when its center is: a code or text line cut by the selection still counts when most of it was selected.
+        /// A feature is in the image when any part of it is: a text line cut by a text selection still gives the words which were selected.
         /// Windows always stay, they are where the selection snaps to.
         /// </summary>
-        private static bool IsInImage(IDetectedFeature feature, NativeSize imageSize)
-        {
-            if (feature is WindowFeature)
-            {
-                return true;
-            }
-            var bounds = feature.Bounds;
-            int centerX = bounds.X + bounds.Width / 2;
-            int centerY = bounds.Y + bounds.Height / 2;
-            return centerX >= 0 && centerY >= 0 && centerX < imageSize.Width && centerY < imageSize.Height;
-        }
+        private static bool IsInImage(IDetectedFeature feature, NativeSize imageSize) =>
+            feature is WindowFeature || feature.Bounds.IntersectsWith(new NativeRect(0, 0, imageSize.Width, imageSize.Height));
 
         /// <inheritdoc />
         public System.Threading.Tasks.Task ProcessingTask { get; set; }

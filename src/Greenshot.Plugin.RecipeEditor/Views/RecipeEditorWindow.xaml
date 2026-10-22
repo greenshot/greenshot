@@ -503,9 +503,6 @@
         <Style x:Key="FileFormatComboItemStyle" TargetType="ComboBoxItem" BasedOn="{StaticResource DefaultComboBoxItemStyle}">
             <Setter Property="AutomationProperties.Name" Value="{Binding DisplayNameWithPreferredExtension, TargetNullValue=''}"/>
         </Style>
-        <Style x:Key="ChoiceKeyComboItemStyle" TargetType="ComboBoxItem" BasedOn="{StaticResource DefaultComboBoxItemStyle}">
-            <Setter Property="AutomationProperties.Name" Value="{Binding Key, TargetNullValue=''}"/>
-        </Style>
         </ResourceDictionary>
     </Window.Resources>
 
@@ -2266,15 +2263,6 @@
                                                     <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.PromptTimeout}" Text="{Binding SelectedNode.UserPromptTimeoutSeconds, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                              Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
                                                              Padding="6,4"/>
-                                                </StackPanel>
-                                                <StackPanel Grid.Column="2">
-                                                    <TextBlock Text="{wpf:Text RecipeEditor.DefaultChoice}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                                    <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.DefaultChoice}" ItemsSource="{Binding SelectedNode.PromptChoices}"
-                                                              DisplayMemberPath="Key" ItemContainerStyle="{StaticResource ChoiceKeyComboItemStyle}"
-                                                              SelectedValuePath="Key"
-                                                              SelectedValue="{Binding SelectedNode.UserPromptDefaultChoice, Mode=TwoWay}"
-                                                              Height="26"
-                                                              ToolTip="{wpf:Text RecipeEditor.TipDefaultChoice}"/>
                                                 </StackPanel>
                                             </Grid>
 

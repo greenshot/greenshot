@@ -112,6 +112,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         private bool _isCancel;
         private readonly Action _onChanged;
         private readonly Action<PromptChoiceViewModel> _onRemove;
+        private readonly StepNodeViewModel _node;
 
         public StepPortViewModel Port { get; }
 
@@ -152,6 +153,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
         }
 
+        /// <summary>
+        /// The answer to Enter and when the prompt times out: one choice at most
+        /// </summary>
         public bool IsDefault
         {
             get => _isDefault;
@@ -159,6 +163,13 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 if (SetField(ref _isDefault, value))
                 {
+                    if (value && _node != null)
+                    {
+                        foreach (var other in _node.PromptChoices.Where(c => c != this))
+                        {
+                            other.IsDefault = false;
+                        }
+                    }
                     _onChanged?.Invoke();
                 }
             }
@@ -187,6 +198,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             _isCancel = isCancel;
             _onChanged = onChanged;
             _onRemove = onRemove;
+            _node = node;
             Port = new StepPortViewModel(node, isInput: false, title: _key);
             RemoveCommand = new RelayCommand(() => _onRemove?.Invoke(this));
         }
@@ -3104,22 +3116,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetParam("TimeoutSeconds", value); OnPropertyChanged(nameof(UserPromptTimeoutSeconds)); }
         }
 
-        /// <summary>
-        /// The key of the choice with IsDefault: the answer to Enter and when the prompt times out
-        /// </summary>
-        public string UserPromptDefaultChoice
-        {
-            get => PromptChoices.FirstOrDefault(c => c.IsDefault)?.Key ?? "";
-            set
-            {
-                foreach (var choice in PromptChoices)
-                {
-                    choice.IsDefault = string.Equals(choice.Key, value, StringComparison.Ordinal);
-                }
-                OnPropertyChanged(nameof(UserPromptDefaultChoice));
-            }
-        }
-
         // --- Configuration Fallback Properties across Steps ---
         public string ScreenCaptureMode
         {
@@ -3771,7 +3767,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(UserPromptMessage));
             OnPropertyChanged(nameof(UserPromptShowPreview));
             OnPropertyChanged(nameof(UserPromptTimeoutSeconds));
-            OnPropertyChanged(nameof(UserPromptDefaultChoice));
             OnPropertyChanged(nameof(PlaySound));
             OnPropertyChanged(nameof(SoundFilePath));
             OnPropertyChanged(nameof(ScreenCaptureMode));

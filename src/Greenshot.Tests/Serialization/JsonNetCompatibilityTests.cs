@@ -263,6 +263,7 @@ namespace Greenshot.Tests.Serialization
         [Theory]
         [InlineData(@"""stepType"": ""SetVariable"", ""parameters"": { ""Variable"": ""X"", ""Value"": 1 }", "'Variable' is not a parameter")]
         [InlineData(@"""stepType"": ""UserPrompt"", ""parameters"": { ""DefaultChoice"": ""ok"" }", "'DefaultChoice' is not a parameter")]
+        [InlineData(@"""stepType"": ""UserPrompt"", ""parameters"": { ""Choices"": [ { ""Key"": ""a"", ""IsDefault"": true }, { ""Key"": ""b"", ""IsDefault"": true } ] }", "only one choice can be 'IsDefault'")]
         [InlineData(@"""stepType"": ""BarcodeScan"", ""parameters"": { ""DecodedText"": ""Barcode"" }", "'DecodedText' is not a parameter")]
         [InlineData(@"""stepType"": ""BarcodeScan"", ""parameters"": { ""Margin"": 2 }", "'Margin' is not a parameter")]
         [InlineData(@"""stepType"": ""ExternalCommand"", ""parameters"": { ""SetOutputVariable"": ""Out"" }", "'SetOutputVariable' is not a parameter")]
