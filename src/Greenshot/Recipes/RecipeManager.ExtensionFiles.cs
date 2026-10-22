@@ -23,10 +23,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using Greenshot.Base.Recipes;
 using Greenshot.Recipes.Approval;
 using Greenshot.Recipes.Views;
-using Newtonsoft.Json.Linq;
 
 namespace Greenshot.Recipes
 {
@@ -49,7 +49,7 @@ namespace Greenshot.Recipes
         {
             try
             {
-                return JToken.Parse(content) is JObject definition && RecipeSerializer.ReadKind(definition) == FlowDefinition.KindExtension;
+                return RecipeSerializer.Parse(content) is { ValueKind: JsonValueKind.Object } definition && RecipeSerializer.ReadKind(definition) == FlowDefinition.KindExtension;
             }
             catch (Exception)
             {

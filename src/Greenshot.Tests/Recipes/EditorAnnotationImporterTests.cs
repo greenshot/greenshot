@@ -265,7 +265,7 @@ namespace Greenshot.Tests.Recipes
             Assert.Equal("https://greenshot.org", dict["Text"]);
             Assert.Equal("#00008B", dict["ForeColor"]);
             Assert.Equal("#FFFFE0", dict["BackColor"]);
-            Assert.Equal(2, dict["Margin"]);
+            Assert.Equal(2, dict["QuietZone"]);
             Assert.True((bool)dict["RoundedDots"]);
         }
 

@@ -22,9 +22,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Triggers;
-using Newtonsoft.Json;
 
 namespace Greenshot.Base.Recipes
 {
@@ -98,6 +98,7 @@ namespace Greenshot.Base.Recipes
         /// </summary>
         public static readonly IReadOnlyList<RecipeOption> ScopeOptions = new[] { ApplyToOption, OnlyRecipesOption, ExceptRecipesOption, OnlyDestinationsOption };
 
+        [JsonPropertyOrder(-10)]
         public override string Kind => KindExtension;
 
         /// <summary>
@@ -108,7 +109,7 @@ namespace Greenshot.Base.Recipes
         /// <summary>
         /// Optional expression evaluated at the slot, e.g. "${payload.width > 800}"; when false the chain is skipped for that run
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string When { get; set; }
 
         /// <summary>

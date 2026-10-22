@@ -20,10 +20,10 @@
  */
 
 using System.Collections.Generic;
+using System.Text.Json;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Triggers;
-using Newtonsoft.Json;
 using Xunit;
 
 namespace Greenshot.Tests.Recipes
@@ -106,7 +106,7 @@ namespace Greenshot.Tests.Recipes
         {
             var original = new CaptureRecipe("json_test", "JSON Test", "Serialization test")
             {
-                Version = "1.0",
+                Version = "2.0",
                 IsBuiltIn = false
             };
 
@@ -129,8 +129,8 @@ namespace Greenshot.Tests.Recipes
                 .AddTransition("node_source", "node_dest")
                 .AddConditionalTransition("node_source", "ConditionAlt", "node_alt");
 
-            string json = JsonConvert.SerializeObject(original, Formatting.Indented);
-            var deserialized = JsonConvert.DeserializeObject<CaptureRecipe>(json);
+            string json = JsonSerializer.Serialize(original, RecipeSerializer.Options);
+            var deserialized = JsonSerializer.Deserialize<CaptureRecipe>(json, RecipeSerializer.Options);
 
             Assert.NotNull(deserialized);
             Assert.Equal(original.Id, deserialized.Id);
@@ -173,7 +173,7 @@ namespace Greenshot.Tests.Recipes
                 }
             }";
 
-            var node = JsonConvert.DeserializeObject<RecipeNodeConfig>(json);
+            var node = JsonSerializer.Deserialize<RecipeNodeConfig>(json, RecipeSerializer.Options);
             Assert.NotNull(node);
             Assert.True(node.HasParameter("Path"));
             Assert.True(node.HasParameter("path"));

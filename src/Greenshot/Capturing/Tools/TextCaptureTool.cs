@@ -173,13 +173,12 @@ namespace Greenshot.Capturing.Tools
         private async Task RunOcrAsync(IOcrProvider ocrProvider)
         {
             var capture = Host.Capture;
+            var cropAreaWhenFound = capture.CaptureDetails.CropArea;
             var ocrLines = await ocrProvider.DoOcrAsync(capture.Image).ConfigureAwait(true);
             if (ocrLines != null && ocrLines.Any())
             {
-                lock (capture.CaptureDetails.Features)
-                {
-                    capture.CaptureDetails.Features.AddRange(ocrLines);
-                }
+                // Cropped to the selection in the meantime: the lines are moved with it
+                capture.CaptureDetails.AddFeatures(ocrLines, cropAreaWhenFound);
 
                 if (capture.CaptureDetails is CaptureDetails concreteDetails)
                 {

@@ -65,7 +65,7 @@ namespace Greenshot.Tests.Recipes
         [Fact]
         public void Create_JsonSyntaxError_ReturnsJsonHint()
         {
-            string errorMessage = "JsonReaderException: Unexpected character encountered while parsing value: { at line 12, position 4.";
+            string errorMessage = "JsonException: '}' is an invalid start of a value. Path: $.nodes | LineNumber: 11 | BytePositionInLine: 4.";
             var item = RecipeValidationErrorViewModel.Create(errorMessage);
 
             Assert.True(item.HasHint);

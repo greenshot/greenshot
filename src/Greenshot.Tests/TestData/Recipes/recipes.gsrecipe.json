@@ -1,0 +1,2229 @@
+[
+  {
+    "kind": "recipe",
+    "triggers": [
+      {
+        "triggerType": "AiTool",
+        "name": "toolName_19",
+        "enabled": true,
+        "parameters": {
+          "ToolName": "toolName_19",
+          "Description": "description_20",
+          "ReadOnly": true,
+          "Destructive": false
+        }
+      },
+      {
+        "triggerType": "Clipboard",
+        "name": "Clipboard Monitor",
+        "enabled": true,
+        "parameters": {
+          "OnImageCopied": true
+        }
+      },
+      {
+        "triggerType": "Commandline",
+        "name": "Commandline",
+        "enabled": true,
+        "parameters": {
+          "FireAndForget": false
+        }
+      },
+      {
+        "triggerType": "ContextMenu",
+        "name": "Context Menu",
+        "enabled": true,
+        "parameters": {
+          "Group": "Recipes",
+          "Order": 0
+        }
+      },
+      {
+        "triggerType": "Editor",
+        "name": "Editor Menu",
+        "enabled": true,
+        "parameters": {
+          "Group": "Recipes",
+          "Order": 0
+        }
+      },
+      {
+        "triggerType": "Extension",
+        "name": "Browser Extension",
+        "enabled": true,
+        "parameters": {
+          "FireAndForget": false
+        }
+      },
+      {
+        "triggerType": "Hotkey",
+        "name": "Hotkey",
+        "enabled": true,
+        "parameters": {
+          "Hotkey": "hotkey_44"
+        }
+      },
+      {
+        "triggerType": "OpenFile",
+        "name": "Open File",
+        "enabled": true,
+        "parameters": {
+          "FireAndForget": false
+        }
+      },
+      {
+        "triggerType": "Commandline",
+        "name": "convert",
+        "enabled": true,
+        "parameters": {
+          "Command": "convert",
+          "Description": "Converts",
+          "FireAndForget": false,
+          "Stdout": "${Output}",
+          "Arguments": [
+            {
+              "name": "file",
+              "variable": "Input",
+              "description": "The file",
+              "required": true,
+              "type": "FilePath"
+            },
+            {
+              "name": "format",
+              "required": false,
+              "defaultValue": "png",
+              "type": "String",
+              "allowedValues": [
+                "png",
+                "jpg"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "triggerType": "AiTool",
+        "name": "Convert",
+        "enabled": true,
+        "parameters": {
+          "ToolName": "convert_file",
+          "Title": "Convert",
+          "Description": "Converts a file",
+          "ReadOnly": true,
+          "Destructive": false,
+          "Arguments": [
+            {
+              "name": "file",
+              "variable": "Input",
+              "description": "The file",
+              "required": true,
+              "type": "FilePath"
+            },
+            {
+              "name": "format",
+              "required": false,
+              "defaultValue": "png",
+              "type": "String",
+              "allowedValues": [
+                "png",
+                "jpg"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "triggerType": "Hotkey",
+        "name": "Hotkey",
+        "enabled": false,
+        "parameters": {
+          "Hotkey": "Ctrl+Shift+F9"
+        }
+      }
+    ],
+    "showInContextMenu": true,
+    "isOverridden": false,
+    "isEnabled": true,
+    "version": "2.0",
+    "id": "json_net_all_steps",
+    "name": "All steps",
+    "description": "Written by Json.NET",
+    "requires": [],
+    "nodes": [
+      {
+        "id": "n0_CreateAnnotation",
+        "stepType": "Annotation",
+        "name": "Add Text",
+        "enabled": true,
+        "parameters": {
+          "Annotations": [
+            {
+              "Type": "Text"
+            }
+          ]
+        }
+      },
+      {
+        "id": "after_capture",
+        "stepType": "Slot",
+        "name": "AfterCapture",
+        "enabled": true,
+        "parameters": {
+          "Name": "AfterCapture"
+        }
+      },
+      {
+        "id": "n1_CreateBorder",
+        "stepType": "Effect",
+        "name": "Add Border",
+        "enabled": true,
+        "parameters": {
+          "Effect": "Border",
+          "Width": 2,
+          "Color": "#000000"
+        }
+      },
+      {
+        "id": "before_export",
+        "stepType": "Slot",
+        "name": "BeforeExport",
+        "enabled": true,
+        "parameters": {
+          "Name": "BeforeExport"
+        }
+      },
+      {
+        "id": "before_destination",
+        "stepType": "Slot",
+        "name": "BeforeDestination",
+        "enabled": true,
+        "parameters": {
+          "Name": "BeforeDestination"
+        }
+      },
+      {
+        "id": "n2_CreateClipboard",
+        "stepType": "Clipboard",
+        "name": "Copy to Clipboard",
+        "enabled": true,
+        "parameters": {
+          "ClipboardMode": "ImageOnly"
+        }
+      },
+      {
+        "id": "after_export",
+        "stepType": "Slot",
+        "name": "AfterExport",
+        "enabled": true,
+        "parameters": {
+          "Name": "AfterExport"
+        }
+      },
+      {
+        "id": "n3_CreateConditional",
+        "stepType": "Conditional",
+        "name": "Decision Branch",
+        "enabled": true,
+        "parameters": {
+          "Branches": [
+            {
+              "Key": "A",
+              "Expression": "${payload.width > 800}"
+            },
+            {
+              "Key": "B",
+              "Expression": "else"
+            }
+          ]
+        }
+      },
+      {
+        "id": "n4_CreateDestinations",
+        "stepType": "Destinations",
+        "name": "Export Destinations",
+        "enabled": true,
+        "parameters": {}
+      },
+      {
+        "id": "n5_CreateDynamicDestination",
+        "stepType": "DynamicDestination",
+        "name": "Export Capture",
+        "enabled": true,
+        "parameters": {
+          "Title": "Export Capture",
+          "ShowPreview": true,
+          "AllowRecipeForwarding": true
+        }
+      },
+      {
+        "id": "n6_CreateEditor",
+        "stepType": "Editor",
+        "name": "Open in Editor",
+        "enabled": true,
+        "parameters": {}
+      },
+      {
+        "id": "n7_CreateEffect",
+        "stepType": "Effect",
+        "name": "Apply DropShadow",
+        "enabled": true,
+        "parameters": {
+          "Effect": "DropShadow"
+        }
+      },
+      {
+        "id": "n8_CreateFeedback",
+        "stepType": "ImmediateFeedback",
+        "name": "Capture Feedback",
+        "enabled": true,
+        "parameters": {}
+      },
+      {
+        "id": "n9_CreateNotification",
+        "stepType": "Notification",
+        "name": "Completion Notification",
+        "enabled": true,
+        "parameters": {}
+      },
+      {
+        "id": "n10_CreatePrinter",
+        "stepType": "Printer",
+        "name": "Send to Printer",
+        "enabled": true,
+        "parameters": {}
+      },
+      {
+        "id": "n11_CreateOcr",
+        "stepType": "Ocr",
+        "name": "OCR",
+        "enabled": true,
+        "parameters": {}
+      },
+      {
+        "id": "n12_CreateSaveFile",
+        "stepType": "SaveFile",
+        "name": "Save to File",
+        "enabled": true,
+        "parameters": {}
+      },
+      {
+        "id": "n13_CreateSaveFileWithFormat",
+        "stepType": "SaveFile",
+        "name": "Save to File",
+        "enabled": true,
+        "parameters": {
+          "Format": "format_13"
+        }
+      },
+      {
+        "id": "n14_CreateSelection",
+        "stepType": "InteractiveSelection",
+        "name": "Select Region",
+        "enabled": true,
+        "parameters": {
+          "SelectionMode": "Region",
+          "AllowWindowSnapping": true
+        }
+      },
+      {
+        "id": "n15_CreateSetVariable",
+        "stepType": "SetVariable",
+        "name": "Set Variable",
+        "enabled": true,
+        "parameters": {}
+      },
+      {
+        "id": "n16_CreateSlot",
+        "stepType": "Slot",
+        "name": "slotName_16",
+        "enabled": true,
+        "parameters": {
+          "Name": "slotName_16"
+        }
+      },
+      {
+        "id": "n17_CreateSource",
+        "stepType": "Source",
+        "name": "Acquire Region",
+        "enabled": true,
+        "parameters": {
+          "SourceType": "Region"
+        }
+      },
+      {
+        "id": "n18_CreateUserPrompt",
+        "stepType": "UserPrompt",
+        "name": "User Decision",
+        "enabled": true,
+        "parameters": {
+          "Title": "User Decision",
+          "Message": "Please choose how to proceed with this capture:",
+          "ShowPreview": true,
+          "Choices": [
+            {
+              "Key": "Yes",
+              "Label": "Yes, Proceed",
+              "Style": "Primary",
+              "IsDefault": true
+            },
+            {
+              "Key": "No",
+              "Label": "No, Cancel",
+              "Style": "Secondary",
+              "IsCancel": true
+            }
+          ]
+        }
+      }
+    ],
+    "flow": {
+      "startNodes": [
+        "n0_CreateAnnotation"
+      ],
+      "transitions": [
+        {
+          "from": "n0_CreateAnnotation",
+          "to": "after_capture"
+        },
+        {
+          "from": "n1_CreateBorder",
+          "to": "before_export"
+        },
+        {
+          "from": "n2_CreateClipboard",
+          "to": "after_export"
+        },
+        {
+          "from": "n3_CreateConditional",
+          "to": "n4_CreateDestinations"
+        },
+        {
+          "from": "n4_CreateDestinations",
+          "to": "n5_CreateDynamicDestination"
+        },
+        {
+          "from": "n5_CreateDynamicDestination",
+          "to": "n6_CreateEditor"
+        },
+        {
+          "from": "n6_CreateEditor",
+          "to": "n7_CreateEffect"
+        },
+        {
+          "from": "n7_CreateEffect",
+          "to": "n8_CreateFeedback"
+        },
+        {
+          "from": "n8_CreateFeedback",
+          "to": "n9_CreateNotification"
+        },
+        {
+          "from": "n9_CreateNotification",
+          "to": "n10_CreatePrinter"
+        },
+        {
+          "from": "n10_CreatePrinter",
+          "to": "n11_CreateOcr"
+        },
+        {
+          "from": "n11_CreateOcr",
+          "to": "n12_CreateSaveFile"
+        },
+        {
+          "from": "n12_CreateSaveFile",
+          "to": "n13_CreateSaveFileWithFormat"
+        },
+        {
+          "from": "n13_CreateSaveFileWithFormat",
+          "to": "n14_CreateSelection"
+        },
+        {
+          "from": "n14_CreateSelection",
+          "to": "n15_CreateSetVariable"
+        },
+        {
+          "from": "n15_CreateSetVariable",
+          "to": "n16_CreateSlot"
+        },
+        {
+          "from": "n16_CreateSlot",
+          "to": "n17_CreateSource"
+        },
+        {
+          "from": "n17_CreateSource",
+          "to": "n18_CreateUserPrompt"
+        },
+        {
+          "from": "after_capture",
+          "to": "n1_CreateBorder"
+        },
+        {
+          "from": "before_export",
+          "to": "before_destination"
+        },
+        {
+          "from": "before_destination",
+          "to": "n2_CreateClipboard"
+        },
+        {
+          "from": "after_export",
+          "to": "n3_CreateConditional"
+        }
+      ]
+    },
+    "isBuiltIn": false
+  },
+  {
+    "kind": "recipe",
+    "triggers": [
+      {
+        "triggerType": "ContextMenu",
+        "name": "Sink",
+        "enabled": true,
+        "parameters": {
+          "MenuItemText": "Sink",
+          "Group": "Tools",
+          "Order": 5
+        }
+      }
+    ],
+    "showInContextMenu": false,
+    "isOverridden": false,
+    "isEnabled": false,
+    "concurrency": "ReplacePrevious",
+    "version": "2.1",
+    "id": "json_net_kitchen_sink",
+    "name": "Kitchen sink",
+    "description": "Ünïcödé, <html> & \"quotes\"",
+    "requires": [
+      {
+        "id": "Greenshot.Plugin.Zxing",
+        "name": "QR",
+        "minVersion": "1.4",
+        "url": "https://getgreenshot.org"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "prompt",
+        "stepType": "UserPrompt",
+        "name": "Ask",
+        "enabled": true,
+        "parameters": {
+          "Title": "Really?",
+          "Choices": [
+            {
+              "Key": "Yes",
+              "Label": "Yes, go",
+              "Style": "Primary",
+              "IsDefault": true
+            },
+            {
+              "Key": "No",
+              "Label": "No",
+              "Style": "Danger",
+              "IsCancel": true
+            }
+          ]
+        }
+      },
+      {
+        "id": "branch",
+        "stepType": "Conditional",
+        "name": "Branch",
+        "enabled": true,
+        "when": "${option.border}",
+        "parameters": {
+          "Branches": [
+            {
+              "Key": "big",
+              "Expression": "${payload.width} > 1000"
+            },
+            {
+              "Key": "small",
+              "Expression": "${true}"
+            }
+          ]
+        }
+      },
+      {
+        "id": "vars",
+        "stepType": "SetVariable",
+        "name": "Variables",
+        "enabled": true,
+        "parameters": {
+          "Variables": {
+            "myVar": "${payload.width}",
+            "count": 3,
+            "ratio": 1.25,
+            "flag": false
+          }
+        }
+      },
+      {
+        "id": "off",
+        "stepType": "SetVariable",
+        "name": "Off",
+        "enabled": false,
+        "parameters": {
+          "Variables": {
+            "X": 1
+          }
+        }
+      },
+      {
+        "id": "draw",
+        "stepType": "Annotation",
+        "name": "Draw",
+        "enabled": true,
+        "parameters": {
+          "Annotations": [
+            {
+              "Type": "Rectangle",
+              "OffsetX": 10,
+              "OffsetY": 20,
+              "LineColor": "#00FF00"
+            },
+            {
+              "Type": "Text",
+              "Text": "Hällo ${option.caption}",
+              "FontSize": 20.5
+            }
+          ]
+        }
+      },
+      {
+        "id": "slot",
+        "stepType": "Slot",
+        "name": "Slot",
+        "enabled": true,
+        "parameters": {
+          "Name": "BeforeDestination",
+          "Accept": [
+            "border",
+            "caption"
+          ]
+        }
+      },
+      {
+        "id": "fail",
+        "stepType": "SetVariable",
+        "name": "Fail",
+        "enabled": true,
+        "parameters": {}
+      }
+    ],
+    "flow": {
+      "startNodes": [
+        "prompt"
+      ],
+      "transitions": [
+        {
+          "from": "vars",
+          "to": "off"
+        },
+        {
+          "from": "vars",
+          "to": "slot"
+        },
+        {
+          "from": "draw",
+          "to": "fail"
+        },
+        {
+          "from": "prompt",
+          "to": "branch",
+          "branch": "Yes"
+        },
+        {
+          "from": "branch",
+          "to": "vars",
+          "branch": "big"
+        },
+        {
+          "from": "branch",
+          "to": "draw",
+          "branch": "small"
+        },
+        {
+          "from": "fail",
+          "to": "vars",
+          "onError": "IOException"
+        },
+        {
+          "from": "fail",
+          "recipe": "other",
+          "onError": "*"
+        },
+        {
+          "from": "*",
+          "recipe": "fallback_recipe",
+          "onError": "*"
+        }
+      ]
+    },
+    "options": [
+      {
+        "key": "border",
+        "type": "Boolean",
+        "default": true,
+        "label": "Border",
+        "quickSettings": true
+      },
+      {
+        "key": "width",
+        "type": "Integer",
+        "default": 4,
+        "min": 1.0,
+        "max": 50.0,
+        "enabledWhen": "border",
+        "quickSettings": false
+      },
+      {
+        "key": "opacity",
+        "type": "Decimal",
+        "default": 0.5,
+        "min": 0.0,
+        "max": 1.0,
+        "quickSettings": false
+      },
+      {
+        "key": "color",
+        "type": "Color",
+        "default": "#FF0000",
+        "quickSettings": false
+      },
+      {
+        "key": "mode",
+        "type": "Enum",
+        "default": "fast",
+        "choices": [
+          {
+            "value": "fast",
+            "label": "Fast"
+          },
+          {
+            "value": "good"
+          }
+        ],
+        "quickSettings": false
+      },
+      {
+        "key": "caption",
+        "type": "String",
+        "default": "${capture.title}",
+        "description": "The caption",
+        "quickSettings": false,
+        "format": "template"
+      }
+    ],
+    "isBuiltIn": false
+  },
+  {
+    "kind": "recipe",
+    "triggers": [
+      {
+        "triggerType": "Commandline",
+        "name": "Annotate Image CLI Trigger",
+        "enabled": true,
+        "parameters": {
+          "Command": "annotate",
+          "Description": "Apply template annotations to an image file and save with suffix",
+          "FireAndForget": false,
+          "Stdout": "${Destination.Filename}",
+          "Arguments": [
+            {
+              "name": "file",
+              "variable": "Filename",
+              "type": "FilePath",
+              "description": "Path to the input image to annotate",
+              "required": true
+            }
+          ]
+        }
+      }
+    ],
+    "showInContextMenu": true,
+    "isOverridden": false,
+    "isEnabled": true,
+    "filePath": "C:\\Recipes\\cli_annotate_template.gsrecipe.json",
+    "version": "2.0",
+    "id": "recipe_cli_annotate_template",
+    "name": "CLI Apply Template & Annotation",
+    "description": "Loads an image file, applies a template watermark/badge annotation, and saves the result under the same name with a suffix (e.g. example1.png -> example1-with_annotation.png).",
+    "requires": [],
+    "nodes": [
+      {
+        "id": "load_file",
+        "stepType": "Source",
+        "name": "Load Source Image",
+        "enabled": true,
+        "parameters": {
+          "SourceType": "File",
+          "Filename": "${Filename}"
+        }
+      },
+      {
+        "id": "apply_template",
+        "stepType": "Annotation",
+        "name": "Apply Template Annotation",
+        "enabled": true,
+        "parameters": {
+          "Annotations": [
+            {
+              "Type": "Rectangle",
+              "HorizontalAnchor": "Right",
+              "VerticalAnchor": "Bottom",
+              "Width": 220,
+              "Height": 32,
+              "OffsetX": -12,
+              "OffsetY": -12,
+              "FillColor": "rgba(20, 20, 20, 180)",
+              "LineColor": "#0078D7",
+              "LineThickness": 2,
+              "Shadow": true
+            },
+            {
+              "Type": "Text",
+              "HorizontalAnchor": "Right",
+              "VerticalAnchor": "Bottom",
+              "Width": 210,
+              "Height": 26,
+              "OffsetX": -16,
+              "OffsetY": -15,
+              "Text": "REVIEWED: ${now:yyyy-MM-dd}",
+              "LineColor": "#FFFFFF",
+              "FontSize": 10.0,
+              "FontFamily": "Segoe UI",
+              "Bold": true,
+              "Shadow": false
+            }
+          ]
+        }
+      },
+      {
+        "id": "save_annotated",
+        "stepType": "SaveFile",
+        "name": "Save Annotated Image",
+        "enabled": true,
+        "parameters": {
+          "SaveDirectory": "${dirname}",
+          "FilenamePattern": "${title}-with_annotation",
+          "AllowOverwrite": true
+        }
+      },
+      {
+        "id": "print_result",
+        "stepType": "Stdout",
+        "name": "Print Saved Path",
+        "enabled": true,
+        "parameters": {
+          "Text": "${Destination.Filename}"
+        }
+      }
+    ],
+    "flow": {
+      "startNodes": [
+        "load_file"
+      ],
+      "transitions": [
+        {
+          "from": "load_file",
+          "to": "apply_template"
+        },
+        {
+          "from": "apply_template",
+          "to": "save_annotated"
+        },
+        {
+          "from": "save_annotated",
+          "to": "print_result"
+        }
+      ]
+    },
+    "isBuiltIn": false
+  },
+  {
+    "kind": "recipe",
+    "triggers": [
+      {
+        "triggerType": "Commandline",
+        "name": "Image Format Converter Trigger",
+        "enabled": true,
+        "parameters": {
+          "Command": "convert",
+          "Description": "Convert an image from one format to another",
+          "FireAndForget": false,
+          "Stdout": "${Destination.Filename}",
+          "Arguments": [
+            {
+              "name": "file",
+              "variable": "Filename",
+              "type": "FilePath",
+              "description": "Path to the input image file to convert",
+              "required": true
+            },
+            {
+              "name": "format",
+              "variable": "Format",
+              "type": "Enum",
+              "allowedValues": [
+                "png",
+                "jpg",
+                "webp",
+                "bmp",
+                "gif",
+                "tiff"
+              ],
+              "description": "Target image format (png, jpg, webp, bmp, gif, tiff)",
+              "required": false,
+              "defaultValue": "jpg"
+            }
+          ]
+        }
+      }
+    ],
+    "showInContextMenu": true,
+    "isOverridden": false,
+    "isEnabled": true,
+    "filePath": "C:\\Recipes\\cli_convert_format.gsrecipe.json",
+    "version": "2.0",
+    "id": "recipe_cli_convert_format",
+    "name": "CLI Image Format Converter",
+    "description": "Loads an image file, converts it to the requested target format (png, jpg, webp, bmp, gif, tiff), and saves it under the same name with the new extension.",
+    "requires": [],
+    "nodes": [
+      {
+        "id": "load_file",
+        "stepType": "Source",
+        "name": "Load Source Image",
+        "enabled": true,
+        "parameters": {
+          "SourceType": "File",
+          "Filename": "${Filename}"
+        }
+      },
+      {
+        "id": "save_converted",
+        "stepType": "SaveFile",
+        "name": "Save Converted File",
+        "enabled": true,
+        "parameters": {
+          "SaveDirectory": "${dirname}",
+          "FilenamePattern": "${title}",
+          "Format": "${Format}",
+          "AllowOverwrite": true
+        }
+      },
+      {
+        "id": "print_result",
+        "stepType": "Stdout",
+        "name": "Print Saved Path",
+        "enabled": true,
+        "parameters": {
+          "Text": "${Destination.Filename}"
+        }
+      }
+    ],
+    "flow": {
+      "startNodes": [
+        "load_file"
+      ],
+      "transitions": [
+        {
+          "from": "load_file",
+          "to": "save_converted"
+        },
+        {
+          "from": "save_converted",
+          "to": "print_result"
+        }
+      ]
+    },
+    "isBuiltIn": false
+  },
+  {
+    "kind": "recipe",
+    "triggers": [
+      {
+        "triggerType": "Commandline",
+        "name": "OCR CLI Trigger",
+        "enabled": true,
+        "parameters": {
+          "Command": "ocr",
+          "Description": "Extract text from an image file using OCR and return to stdout",
+          "FireAndForget": false,
+          "Stdout": "${Payload.ExtractedText}",
+          "Arguments": [
+            {
+              "name": "file",
+              "variable": "Filename",
+              "type": "FilePath",
+              "description": "Path to the image file to extract text from",
+              "required": true
+            },
+            {
+              "name": "lang",
+              "variable": "OcrLanguage",
+              "description": "Optional OCR language code (e.g. eng, deu, fra)",
+              "required": false,
+              "defaultValue": ""
+            }
+          ]
+        }
+      }
+    ],
+    "showInContextMenu": true,
+    "isOverridden": false,
+    "isEnabled": true,
+    "filePath": "C:\\Recipes\\cli_ocr_extract.gsrecipe.json",
+    "version": "2.0",
+    "id": "recipe_cli_ocr_extract",
+    "name": "CLI Headless OCR Text Extractor",
+    "description": "Loads a bitmap file from the command line, extracts all visible text via OCR, and outputs the plain text directly to the console stdout.",
+    "requires": [],
+    "nodes": [
+      {
+        "id": "load_file",
+        "stepType": "Source",
+        "name": "Load Image File",
+        "enabled": true,
+        "parameters": {
+          "SourceType": "File",
+          "Filename": "${Filename}"
+        }
+      },
+      {
+        "id": "ocr_extraction",
+        "stepType": "Ocr",
+        "name": "OCR",
+        "enabled": true,
+        "parameters": {}
+      },
+      {
+        "id": "print_result",
+        "stepType": "Stdout",
+        "name": "Print Extracted Text",
+        "enabled": true,
+        "parameters": {
+          "Text": "${Payload.ExtractedText}"
+        }
+      }
+    ],
+    "flow": {
+      "startNodes": [
+        "load_file"
+      ],
+      "transitions": [
+        {
+          "from": "load_file",
+          "to": "ocr_extraction"
+        },
+        {
+          "from": "ocr_extraction",
+          "to": "print_result"
+        }
+      ]
+    },
+    "isBuiltIn": false
+  },
+  {
+    "kind": "recipe",
+    "triggers": [
+      {
+        "triggerType": "Commandline",
+        "name": "QR Code CLI Trigger",
+        "enabled": true,
+        "parameters": {
+          "Command": "qr",
+          "Description": "Scan and decode QR codes from an image file",
+          "FireAndForget": false,
+          "Stdout": "${Barcode.Text}",
+          "Arguments": [
+            {
+              "name": "file",
+              "variable": "Filename",
+              "type": "FilePath",
+              "description": "Path to the bitmap image containing the QR code",
+              "required": true
+            }
+          ]
+        }
+      }
+    ],
+    "showInContextMenu": true,
+    "isOverridden": false,
+    "isEnabled": true,
+    "filePath": "C:\\Recipes\\cli_qr_decode.gsrecipe.json",
+    "version": "2.0",
+    "id": "recipe_cli_qr_decode",
+    "name": "CLI QR Code & Barcode Extractor",
+    "description": "Reads a bitmap file from the command line, decodes any QR codes or barcodes on the image, and outputs the decoded text directly to stdout.",
+    "requires": [
+      {
+        "id": "Greenshot.Plugin.Zxing",
+        "name": "ZXing Barcode Plugin",
+        "minVersion": "1.3.0"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "load_file",
+        "stepType": "Source",
+        "name": "Load Image File",
+        "enabled": true,
+        "parameters": {
+          "SourceType": "File",
+          "Filename": "${Filename}"
+        }
+      },
+      {
+        "id": "scan_barcodes",
+        "stepType": "BarcodeScan",
+        "name": "Scan QR & Barcodes",
+        "enabled": true,
+        "parameters": {
+          "OutputVariable": "Barcode.Text",
+          "CopyToClipboard": false
+        }
+      },
+      {
+        "id": "print_result",
+        "stepType": "Stdout",
+        "name": "Print to Console",
+        "enabled": true,
+        "parameters": {
+          "Text": "${Barcode.Text}"
+        }
+      }
+    ],
+    "flow": {
+      "startNodes": [
+        "load_file"
+      ],
+      "transitions": [
+        {
+          "from": "load_file",
+          "to": "scan_barcodes"
+        },
+        {
+          "from": "scan_barcodes",
+          "to": "print_result"
+        }
+      ]
+    },
+    "isBuiltIn": false
+  },
+  {
+    "kind": "recipe",
+    "triggers": [
+      {
+        "triggerType": "Clipboard",
+        "name": "Monitor External Image Copies",
+        "enabled": true,
+        "parameters": {
+          "FormatFilter": ""
+        }
+      }
+    ],
+    "showInContextMenu": true,
+    "isOverridden": false,
+    "isEnabled": true,
+    "filePath": "C:\\Recipes\\clipboard_format_converter.gsrecipe.json",
+    "version": "2.0",
+    "id": "recipe_clipboard_format_converter",
+    "name": "Clipboard Format Converter & Watermark",
+    "description": "Automatically detects external image clipboard copies (e.g. DeviceIndependentBitmap, DIBV5, or PNG), applies a subtle timestamped watermark annotation, and re-places clean PNG data onto the clipboard.",
+    "requires": [],
+    "nodes": [
+      {
+        "id": "annotate_clipboard",
+        "stepType": "Annotation",
+        "name": "Add Processed Tag",
+        "enabled": true,
+        "parameters": {
+          "Annotations": [
+            {
+              "Type": "Rectangle",
+              "HorizontalAnchor": "Right",
+              "VerticalAnchor": "Bottom",
+              "Width": 180,
+              "Height": 24,
+              "OffsetX": -10,
+              "OffsetY": -10,
+              "FillColor": "rgba(0, 0, 0, 160)",
+              "LineColor": "#00AA00",
+              "LineThickness": 1,
+              "Shadow": true
+            },
+            {
+              "Type": "Text",
+              "HorizontalAnchor": "Right",
+              "VerticalAnchor": "Bottom",
+              "Width": 170,
+              "Height": 20,
+              "OffsetX": -15,
+              "OffsetY": -12,
+              "Text": "Greenshot: ${now:HH:mm:ss}",
+              "LineColor": "#FFFFFF",
+              "FontSize": 9.0,
+              "FontFamily": "Segoe UI",
+              "Bold": true,
+              "Shadow": false
+            }
+          ]
+        }
+      },
+      {
+        "id": "editor_2850",
+        "stepType": "Editor",
+        "name": "Editor",
+        "enabled": true,
+        "parameters": {}
+      }
+    ],
+    "flow": {
+      "startNodes": [
+        "annotate_clipboard"
+      ],
+      "transitions": [
+        {
+          "from": "annotate_clipboard",
+          "to": "editor_2850"
+        }
+      ]
+    },
+    "isBuiltIn": false
+  },
+  {
+    "kind": "recipe",
+    "triggers": [
+      {
+        "triggerType": "ContextMenu",
+        "name": "DAG Watermark Capture",
+        "enabled": true,
+        "parameters": {
+          "MenuItemText": "DAG Environment Watermark Capture",
+          "Group": "Recipes"
+        }
+      },
+      {
+        "triggerType": "Hotkey",
+        "enabled": true,
+        "parameters": {
+          "Hotkey": "Ctrl + Shift + W"
+        }
+      }
+    ],
+    "showInContextMenu": true,
+    "isOverridden": false,
+    "isEnabled": true,
+    "filePath": "C:\\Recipes\\dag_watermark_branching.gsrecipe.json",
+    "version": "2.0",
+    "id": "recipe_dag_watermark_branching",
+    "name": "DAG Workflow with environment watermark and parallel feedback",
+    "description": "Demonstrates DAG branching, variable assignment, scoped user/machine environment variables, mathematical positioning expressions, and multi-drawable surface stamping.",
+    "requires": [],
+    "nodes": [
+      {
+        "id": "capture_node",
+        "stepType": "Source",
+        "name": "Capture Screen Region",
+        "enabled": true,
+        "parameters": {
+          "SourceType": "Region"
+        }
+      },
+      {
+        "id": "select_node",
+        "stepType": "InteractiveSelection",
+        "name": "Select Area",
+        "enabled": true,
+        "parameters": {
+          "SelectionMode": "Region",
+          "AllowWindowSnapping": true
+        }
+      },
+      {
+        "id": "feedback_branch",
+        "stepType": "ImmediateFeedback",
+        "name": "Play Shutter Sound (Branch A)",
+        "enabled": true,
+        "parameters": {
+          "PlaySound": true
+        }
+      },
+      {
+        "id": "set_vars_node",
+        "stepType": "SetVariable",
+        "name": "Set Recipe Variables (Branch B)",
+        "enabled": true,
+        "parameters": {
+          "Variables": {
+            "department": "Engineering QA",
+            "watermark_text": "Captured by ${user.username} on ${machine.computername} [${now:yyyy-MM-dd HH:mm}]"
+          }
+        }
+      },
+      {
+        "id": "watermark_node",
+        "stepType": "Annotation",
+        "name": "Stamp Annotations & Watermarks",
+        "enabled": true,
+        "parameters": {
+          "Annotations": [
+            {
+              "Type": "Rectangle",
+              "HorizontalAnchor": "Right",
+              "VerticalAnchor": "Bottom",
+              "Width": 380,
+              "Height": 40,
+              "OffsetX": -15,
+              "OffsetY": -15,
+              "FillColor": "rgba(0, 0, 0, 180)",
+              "LineColor": "#0078D7",
+              "LineThickness": 2,
+              "Shadow": true
+            },
+            {
+              "Type": "Text",
+              "HorizontalAnchor": "Right",
+              "VerticalAnchor": "Bottom",
+              "Width": 370,
+              "Height": 30,
+              "OffsetX": -20,
+              "OffsetY": -20,
+              "Text": "${context.watermark_text}",
+              "LineColor": "#FFFFFF",
+              "FontSize": 9.5,
+              "FontFamily": "Segoe UI",
+              "Bold": true,
+              "Shadow": false
+            },
+            {
+              "Type": "StepLabel",
+              "HorizontalAnchor": "Left",
+              "VerticalAnchor": "Top",
+              "Left": 20,
+              "Top": 20,
+              "Number": 1,
+              "FillColor": "#D83B01",
+              "LineColor": "#FFFFFF"
+            },
+            {
+              "Type": "Emoji",
+              "HorizontalAnchor": "Left",
+              "VerticalAnchor": "Bottom",
+              "Left": 20,
+              "Top": "${payload.height - 50}",
+              "Emoji": "🛡️",
+              "Size": 32
+            }
+          ]
+        }
+      },
+      {
+        "id": "export_join",
+        "stepType": "Destinations",
+        "name": "Join Paths and Export to Editor",
+        "enabled": true,
+        "parameters": {
+          "DestinationDesignations": [
+            "Editor",
+            "Clipboard"
+          ]
+        }
+      }
+    ],
+    "flow": {
+      "startNodes": [
+        "capture_node"
+      ],
+      "transitions": [
+        {
+          "from": "capture_node",
+          "to": "select_node"
+        },
+        {
+          "from": "select_node",
+          "to": "feedback_branch"
+        },
+        {
+          "from": "select_node",
+          "to": "set_vars_node"
+        },
+        {
+          "from": "set_vars_node",
+          "to": "watermark_node"
+        },
+        {
+          "from": "feedback_branch",
+          "to": "export_join"
+        },
+        {
+          "from": "watermark_node",
+          "to": "export_join"
+        }
+      ]
+    },
+    "isBuiltIn": false
+  },
+  {
+    "kind": "recipe",
+    "triggers": [
+      {
+        "triggerType": "Editor",
+        "name": "Apply Confidential Watermark",
+        "enabled": true,
+        "parameters": {
+          "MenuItemText": "Apply Confidential Watermark",
+          "Group": "Templates"
+        }
+      }
+    ],
+    "showInContextMenu": true,
+    "isOverridden": false,
+    "isEnabled": true,
+    "filePath": "C:\\Recipes\\editor_confidential_template.gsrecipe.json",
+    "version": "2.0",
+    "id": "recipe_editor_confidential_template",
+    "name": "Editor Template: Confidential Watermark",
+    "description": "Exposed directly inside the Greenshot Editor 'Recipes' menu. When selected, applies a red 'CONFIDENTIAL' banner and watermark directly to the active editor surface in-place without exporting.",
+    "requires": [],
+    "nodes": [
+      {
+        "id": "apply_banner",
+        "stepType": "Annotation",
+        "name": "Confidential Watermark Banner",
+        "enabled": true,
+        "parameters": {
+          "Annotations": [
+            {
+              "Type": "Rectangle",
+              "HorizontalAnchor": "Center",
+              "VerticalAnchor": "Top",
+              "Width": 320,
+              "Height": 44,
+              "OffsetY": 15,
+              "FillColor": "rgba(220, 38, 38, 230)",
+              "LineColor": "#991B1B",
+              "LineThickness": 2,
+              "Shadow": true
+            },
+            {
+              "Type": "Text",
+              "HorizontalAnchor": "Center",
+              "VerticalAnchor": "Top",
+              "Width": 300,
+              "Height": 34,
+              "OffsetY": 20,
+              "Text": "CONFIDENTIAL // INTERNAL ONLY",
+              "LineColor": "#FFFFFF",
+              "FontSize": 12.0,
+              "FontFamily": "Segoe UI",
+              "Bold": true,
+              "Shadow": false
+            }
+          ]
+        }
+      }
+    ],
+    "flow": {
+      "startNodes": [
+        "apply_banner"
+      ],
+      "transitions": []
+    },
+    "isBuiltIn": false
+  },
+  {
+    "kind": "recipe",
+    "triggers": [
+      {
+        "triggerType": "Hotkey",
+        "enabled": true,
+        "parameters": {
+          "Hotkey": "Ctrl + Shift + O"
+        }
+      },
+      {
+        "triggerType": "ContextMenu",
+        "name": "Optimize and Edit",
+        "enabled": true,
+        "parameters": {
+          "MenuItemText": "Snip & Optimize Image",
+          "Group": "Recipes"
+        }
+      }
+    ],
+    "showInContextMenu": true,
+    "isOverridden": false,
+    "isEnabled": true,
+    "filePath": "C:\\Recipes\\external_command_optimize.gsrecipe.json",
+    "version": "2.0",
+    "id": "recipe_external_command_optimize",
+    "name": "Region Snip with External Tool Optimization",
+    "description": "Interactive region snip that runs an external command to optimize the image and reloads it into the editor.",
+    "requires": [],
+    "nodes": [
+      {
+        "id": "source",
+        "stepType": "Source",
+        "enabled": true,
+        "parameters": {
+          "SourceType": "Region"
+        }
+      },
+      {
+        "id": "select",
+        "stepType": "InteractiveSelection",
+        "enabled": true,
+        "parameters": {
+          "SelectionMode": "Region"
+        }
+      },
+      {
+        "id": "optimize_cmd",
+        "stepType": "ExternalCommand",
+        "name": "Run Image Optimizer",
+        "enabled": true,
+        "parameters": {
+          "CommandLine": "cmd.exe",
+          "Arguments": "/c echo Optimizing ${context.ExternalCommand.TargetFile}",
+          "ReloadAfterExecution": false,
+          "OutputVariable": "opt_output"
+        }
+      },
+      {
+        "id": "feedback",
+        "stepType": "ImmediateFeedback",
+        "enabled": true,
+        "parameters": {
+          "PlaySound": true
+        }
+      },
+      {
+        "id": "destination",
+        "stepType": "Destinations",
+        "name": "Open Editor",
+        "enabled": true,
+        "parameters": {
+          "DestinationDesignations": [
+            "Editor"
+          ]
+        }
+      }
+    ],
+    "flow": {
+      "startNodes": [
+        "source"
+      ],
+      "transitions": [
+        {
+          "from": "source",
+          "to": "select"
+        },
+        {
+          "from": "select",
+          "to": "optimize_cmd"
+        },
+        {
+          "from": "optimize_cmd",
+          "to": "feedback"
+        },
+        {
+          "from": "feedback",
+          "to": "destination"
+        }
+      ]
+    },
+    "isBuiltIn": false
+  },
+  {
+    "kind": "recipe",
+    "triggers": [
+      {
+        "triggerType": "ContextMenu",
+        "name": "QR Codes Showcase Menu Item",
+        "enabled": true,
+        "parameters": {
+          "MenuItemText": "QR Codes Showcase (Payments & Business Cards)",
+          "Group": "Recipes"
+        }
+      },
+      {
+        "triggerType": "Hotkey",
+        "enabled": true,
+        "parameters": {
+          "Hotkey": "Ctrl + Shift + Q"
+        }
+      }
+    ],
+    "showInContextMenu": true,
+    "isOverridden": false,
+    "isEnabled": true,
+    "filePath": "C:\\Recipes\\qr_codes_showcase.gsrecipe.json",
+    "version": "2.0",
+    "id": "recipe_qr_codes_showcase",
+    "name": "QR Codes Showcase (Payments, Business Cards & Links)",
+    "description": "Demonstrates inserting multiple structured QR codes: an EPC SEPA bank transfer QR code for payments, a vCard contact business card, and a dynamic website link with rounded dots styling.",
+    "requires": [
+      {
+        "id": "Greenshot.Plugin.Zxing",
+        "name": "ZXing Barcode & QR Code Extension",
+        "minVersion": "1.3.0",
+        "url": "https://getgreenshot.org/plugins/zxing"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "source",
+        "stepType": "Source",
+        "name": "Capture Screen Area",
+        "enabled": true,
+        "parameters": {
+          "SourceType": "Region"
+        }
+      },
+      {
+        "id": "select",
+        "stepType": "InteractiveSelection",
+        "name": "Interactive Region Selection",
+        "enabled": true,
+        "parameters": {
+          "SelectionMode": "Region"
+        }
+      },
+      {
+        "id": "add_qr_annotations",
+        "stepType": "Annotation",
+        "name": "Stamp QR Codes",
+        "enabled": true,
+        "parameters": {
+          "Annotations": [
+            {
+              "Type": "QRCode",
+              "QrType": "Payment",
+              "HorizontalAnchor": "Right",
+              "VerticalAnchor": "Bottom",
+              "Margin": 20,
+              "Size": 150,
+              "RoundedDots": true,
+              "ForeColor": "#003366",
+              "BackColor": "#FFFFFF",
+              "EpcName": "Greenshot Community e.V.",
+              "EpcIban": "DE89370400440532013000",
+              "EpcBic": "COBADEFFXXX",
+              "EpcAmount": "15.00",
+              "EpcReference": "DONATION-2026",
+              "EpcMessage": "Support Greenshot Development"
+            },
+            {
+              "Type": "QRCode",
+              "QrType": "BusinessCard",
+              "HorizontalAnchor": "Left",
+              "VerticalAnchor": "Bottom",
+              "Margin": 20,
+              "Size": 150,
+              "RoundedDots": false,
+              "ForeColor": "#1A1A1A",
+              "BackColor": "#FAFAFA",
+              "VcardFirstName": "Robin",
+              "VcardLastName": "Krom",
+              "VcardCompany": "Greenshot Project",
+              "VcardEmail": "robin@getgreenshot.org",
+              "VcardPhone": "+49-123-456789",
+              "VcardUrl": "https://getgreenshot.org"
+            },
+            {
+              "Type": "QRCode",
+              "QrType": "Link",
+              "HorizontalAnchor": "Right",
+              "VerticalAnchor": "Top",
+              "Margin": 20,
+              "Size": 120,
+              "RoundedDots": true,
+              "ForeColor": "#0078D7",
+              "BackColor": "#FFFFFF",
+              "Text": "https://getgreenshot.org/docs"
+            }
+          ]
+        }
+      },
+      {
+        "id": "destination",
+        "stepType": "Destinations",
+        "name": "Open in Greenshot Editor",
+        "enabled": true,
+        "parameters": {
+          "DestinationDesignations": [
+            "Editor"
+          ]
+        }
+      }
+    ],
+    "flow": {
+      "startNodes": [
+        "source"
+      ],
+      "transitions": [
+        {
+          "from": "source",
+          "to": "select"
+        },
+        {
+          "from": "select",
+          "to": "add_qr_annotations"
+        },
+        {
+          "from": "add_qr_annotations",
+          "to": "destination"
+        }
+      ]
+    },
+    "isBuiltIn": false
+  },
+  {
+    "kind": "recipe",
+    "triggers": [
+      {
+        "triggerType": "ContextMenu",
+        "name": "Region with Border Menu Item",
+        "enabled": true,
+        "parameters": {
+          "MenuItemText": "Region with Blue Border",
+          "Group": "Recipes"
+        }
+      },
+      {
+        "triggerType": "Hotkey",
+        "enabled": true,
+        "parameters": {
+          "Hotkey": "Ctrl + Shift + B"
+        }
+      }
+    ],
+    "showInContextMenu": true,
+    "isOverridden": false,
+    "isEnabled": true,
+    "filePath": "C:\\Recipes\\region_blue_border.gsrecipe.json",
+    "version": "2.0",
+    "id": "recipe_region_blue_border",
+    "name": "Region with Blue Border",
+    "description": "Interactive region capture that adds a 2px blue border and opens the editor",
+    "requires": [],
+    "nodes": [
+      {
+        "id": "source",
+        "stepType": "Source",
+        "enabled": true,
+        "parameters": {
+          "SourceType": "Region"
+        }
+      },
+      {
+        "id": "select",
+        "stepType": "InteractiveSelection",
+        "enabled": true,
+        "parameters": {
+          "SelectionMode": "Region"
+        }
+      },
+      {
+        "id": "border",
+        "stepType": "Effect",
+        "name": "Add Blue Border",
+        "enabled": true,
+        "parameters": {
+          "Effect": "Border",
+          "Width": 2,
+          "Color": "#0000FF"
+        }
+      },
+      {
+        "id": "feedback",
+        "stepType": "ImmediateFeedback",
+        "name": "Camera Feedback",
+        "enabled": true,
+        "parameters": {
+          "PlaySound": true
+        }
+      },
+      {
+        "id": "destination",
+        "stepType": "Destinations",
+        "name": "Open Editor",
+        "enabled": true,
+        "parameters": {
+          "DestinationDesignations": [
+            "Editor"
+          ]
+        }
+      }
+    ],
+    "flow": {
+      "startNodes": [
+        "source"
+      ],
+      "transitions": [
+        {
+          "from": "source",
+          "to": "select"
+        },
+        {
+          "from": "select",
+          "to": "border"
+        },
+        {
+          "from": "border",
+          "to": "feedback"
+        },
+        {
+          "from": "feedback",
+          "to": "destination"
+        }
+      ]
+    },
+    "isBuiltIn": false
+  },
+  {
+    "kind": "recipe",
+    "triggers": [
+      {
+        "triggerType": "ContextMenu",
+        "name": "Target Window Redact Menu Item",
+        "enabled": true,
+        "parameters": {
+          "MenuItemText": "Target Window with DLP Redact",
+          "Group": "Recipes"
+        }
+      },
+      {
+        "triggerType": "Hotkey",
+        "name": "Target Window with DLP Redaction Hotkey",
+        "enabled": true,
+        "parameters": {
+          "Hotkey": "Ctrl + Shift + D"
+        }
+      }
+    ],
+    "showInContextMenu": true,
+    "isOverridden": false,
+    "isEnabled": true,
+    "filePath": "C:\\Recipes\\window_regex_redact.gsrecipe.json",
+    "version": "2.0",
+    "id": "recipe_window_regex_redact",
+    "name": "Target Window with DLP Redaction",
+    "description": "Captures a specific targeted window, adds a drop shadow effect, runs OCR to find sensitive tokens and emails by regex pattern, redacts them, and opens the editor",
+    "requires": [],
+    "nodes": [
+      {
+        "id": "capture_window",
+        "stepType": "Source",
+        "name": "Capture Target Window",
+        "enabled": true,
+        "parameters": {
+          "SourceType": "ActiveWindow",
+          "WindowTitlePattern": ".*(Notepad|Editor|Greenshot|Chrome|Edge).*",
+          "MatchCase": false
+        }
+      },
+      {
+        "id": "shadow",
+        "stepType": "Effect",
+        "name": "Apply Drop Shadow",
+        "enabled": true,
+        "parameters": {
+          "Effect": "DropShadow",
+          "ShadowSize": 10,
+          "Darkness": 0.65
+        }
+      },
+      {
+        "id": "redact",
+        "stepType": "TextEffect",
+        "name": "Redact Sensitive Data",
+        "enabled": true,
+        "parameters": {
+          "Effect": "Redact",
+          "FillColor": "#000000",
+          "Scope": "Auto",
+          "Patterns": [
+            "\\b\\d{4}[ -]?\\d{4}[ -]?\\d{4}[ -]?\\d{4}\\b",
+            "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}",
+            "\\b(AKIA|AIza|ghp_|glpat-)[A-Za-z0-9_\\-]{16,}\\b"
+          ],
+          "PaddingHorizontal": 12,
+          "PaddingVertical": 25,
+          "OffsetHorizontal": 0,
+          "OffsetVertical": 0
+        }
+      },
+      {
+        "id": "feedback",
+        "stepType": "ImmediateFeedback",
+        "name": "Camera Feedback",
+        "enabled": true,
+        "parameters": {
+          "PlaySound": true
+        }
+      },
+      {
+        "id": "destination",
+        "stepType": "Destinations",
+        "name": "Open in Editor",
+        "enabled": true,
+        "parameters": {
+          "DestinationDesignations": [
+            "Editor"
+          ]
+        }
+      }
+    ],
+    "flow": {
+      "startNodes": [
+        "capture_window"
+      ],
+      "transitions": [
+        {
+          "from": "capture_window",
+          "to": "shadow"
+        },
+        {
+          "from": "shadow",
+          "to": "redact"
+        },
+        {
+          "from": "redact",
+          "to": "feedback"
+        },
+        {
+          "from": "feedback",
+          "to": "destination"
+        }
+      ]
+    },
+    "isBuiltIn": false
+  },
+  {
+    "kind": "recipe",
+    "triggers": [
+      {
+        "triggerType": "AiTool",
+        "name": "Capture window",
+        "enabled": true,
+        "parameters": {
+          "ToolName": "capture_window",
+          "Title": "Capture window",
+          "Description": "Screenshot of one window, with its exact contents even when other windows cover it. The window is not activated. Use list_windows first and pass the id of the window (e.g. w7).",
+          "ReadOnly": true,
+          "Destructive": false,
+          "Arguments": [
+            {
+              "name": "window",
+              "variable": "Window",
+              "description": "The id of the window from list_windows, e.g. w7",
+              "required": true,
+              "type": "Window"
+            },
+            {
+              "name": "ocr",
+              "variable": "Ocr",
+              "description": "true to also return the text in the image (OCR) with the position of each line",
+              "required": false,
+              "defaultValue": "false",
+              "type": "Boolean"
+            }
+          ]
+        }
+      }
+    ],
+    "showInContextMenu": true,
+    "isOverridden": false,
+    "isEnabled": true,
+    "version": "2.0",
+    "id": "recipe_ai_capture_window",
+    "name": "AI tool: capture window",
+    "description": "Captures a window for an AI tool, with its exact contents (also when it is covered), without activating it",
+    "requires": [],
+    "nodes": [
+      {
+        "id": "acquire",
+        "stepType": "Source",
+        "name": "Acquire Window",
+        "enabled": true,
+        "parameters": {
+          "SourceType": "Window",
+          "CaptureMouseCursor": false,
+          "DelayMs": 0,
+          "WindowHandle": "${Window}"
+        }
+      },
+      {
+        "id": "ocr_wanted",
+        "stepType": "Conditional",
+        "name": "OCR wanted?",
+        "enabled": true,
+        "parameters": {
+          "Branches": [
+            {
+              "Key": "ocr",
+              "Expression": "${Ocr}"
+            }
+          ]
+        }
+      },
+      {
+        "id": "ocr",
+        "stepType": "Ocr",
+        "name": "OCR",
+        "enabled": true,
+        "parameters": {}
+      }
+    ],
+    "flow": {
+      "startNodes": [
+        "acquire"
+      ],
+      "transitions": [
+        {
+          "from": "acquire",
+          "to": "ocr_wanted"
+        },
+        {
+          "from": "ocr_wanted",
+          "to": "ocr",
+          "branch": "ocr"
+        }
+      ]
+    },
+    "isBuiltIn": false
+  },
+  {
+    "kind": "recipe",
+    "triggers": [
+      {
+        "triggerType": "AiTool",
+        "name": "Capture region",
+        "enabled": true,
+        "parameters": {
+          "ToolName": "capture_region",
+          "Title": "Capture region",
+          "Description": "Screenshot of a part of the screen, in screen coordinates (list_windows has the bounds of the windows and displays). Use it to see details at full resolution.",
+          "ReadOnly": true,
+          "Destructive": false,
+          "Arguments": [
+            {
+              "name": "region",
+              "variable": "PreSuppliedRegion",
+              "description": "x,y,width,height in screen coordinates, e.g. 0,0,800,600",
+              "required": true,
+              "type": "Region"
+            },
+            {
+              "name": "ocr",
+              "variable": "Ocr",
+              "description": "true to also return the text in the image (OCR) with the position of each line",
+              "required": false,
+              "defaultValue": "false",
+              "type": "Boolean"
+            }
+          ]
+        }
+      }
+    ],
+    "showInContextMenu": true,
+    "isOverridden": false,
+    "isEnabled": true,
+    "version": "2.0",
+    "id": "recipe_ai_capture_region",
+    "name": "AI tool: capture region",
+    "description": "Captures a part of the screen for an AI tool",
+    "requires": [],
+    "nodes": [
+      {
+        "id": "acquire",
+        "stepType": "Source",
+        "name": "Acquire Region",
+        "enabled": true,
+        "parameters": {
+          "SourceType": "Region",
+          "CaptureMouseCursor": false,
+          "DelayMs": 0
+        }
+      },
+      {
+        "id": "ocr_wanted",
+        "stepType": "Conditional",
+        "name": "OCR wanted?",
+        "enabled": true,
+        "parameters": {
+          "Branches": [
+            {
+              "Key": "ocr",
+              "Expression": "${Ocr}"
+            }
+          ]
+        }
+      },
+      {
+        "id": "ocr",
+        "stepType": "Ocr",
+        "name": "OCR",
+        "enabled": true,
+        "parameters": {}
+      }
+    ],
+    "flow": {
+      "startNodes": [
+        "acquire"
+      ],
+      "transitions": [
+        {
+          "from": "acquire",
+          "to": "ocr_wanted"
+        },
+        {
+          "from": "ocr_wanted",
+          "to": "ocr",
+          "branch": "ocr"
+        }
+      ]
+    },
+    "isBuiltIn": false
+  },
+  {
+    "kind": "recipe",
+    "triggers": [
+      {
+        "triggerType": "AiTool",
+        "name": "Capture screen",
+        "enabled": true,
+        "parameters": {
+          "ToolName": "capture_screen",
+          "Title": "Capture screen",
+          "Description": "Screenshot of all displays. For one display or a part of the screen use capture_region with the bounds from list_windows.",
+          "ReadOnly": true,
+          "Destructive": false,
+          "Arguments": [
+            {
+              "name": "ocr",
+              "variable": "Ocr",
+              "description": "true to also return the text in the image (OCR) with the position of each line",
+              "required": false,
+              "defaultValue": "false",
+              "type": "Boolean"
+            }
+          ]
+        }
+      }
+    ],
+    "showInContextMenu": true,
+    "isOverridden": false,
+    "isEnabled": true,
+    "version": "2.0",
+    "id": "recipe_ai_capture_screen",
+    "name": "AI tool: capture screen",
+    "description": "Captures all displays for an AI tool",
+    "requires": [],
+    "nodes": [
+      {
+        "id": "acquire",
+        "stepType": "Source",
+        "name": "Acquire FullScreen",
+        "enabled": true,
+        "parameters": {
+          "SourceType": "FullScreen",
+          "CaptureMouseCursor": false,
+          "DelayMs": 0,
+          "ScreenCaptureMode": "FullScreen"
+        }
+      },
+      {
+        "id": "ocr_wanted",
+        "stepType": "Conditional",
+        "name": "OCR wanted?",
+        "enabled": true,
+        "parameters": {
+          "Branches": [
+            {
+              "Key": "ocr",
+              "Expression": "${Ocr}"
+            }
+          ]
+        }
+      },
+      {
+        "id": "ocr",
+        "stepType": "Ocr",
+        "name": "OCR",
+        "enabled": true,
+        "parameters": {}
+      }
+    ],
+    "flow": {
+      "startNodes": [
+        "acquire"
+      ],
+      "transitions": [
+        {
+          "from": "acquire",
+          "to": "ocr_wanted"
+        },
+        {
+          "from": "ocr_wanted",
+          "to": "ocr",
+          "branch": "ocr"
+        }
+      ]
+    },
+    "isBuiltIn": false
+  },
+  {
+    "kind": "recipe",
+    "triggers": [],
+    "showInContextMenu": true,
+    "isOverridden": false,
+    "isEnabled": true,
+    "version": "2.0",
+    "id": "recipe_notification",
+    "name": "Capture of a notification",
+    "description": "Offer the capture of a clicked notification in the destination flyout",
+    "requires": [],
+    "nodes": [
+      {
+        "id": "acquire",
+        "stepType": "Source",
+        "name": "Acquire File",
+        "enabled": true,
+        "parameters": {
+          "SourceType": "File",
+          "CaptureMouseCursor": false
+        }
+      },
+      {
+        "id": "export",
+        "stepType": "DynamicDestination",
+        "name": "Export Capture",
+        "enabled": true,
+        "parameters": {
+          "Title": "Export Capture",
+          "ShowPreview": true,
+          "AllowRecipeForwarding": true
+        }
+      }
+    ],
+    "flow": {
+      "startNodes": [
+        "acquire"
+      ],
+      "transitions": [
+        {
+          "from": "acquire",
+          "to": "export"
+        }
+      ]
+    },
+    "isBuiltIn": false
+  }
+]

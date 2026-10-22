@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormatHandlers;
@@ -34,6 +35,7 @@ using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Expressions;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Triggers;
+using Greenshot.Base.Serialization;
 using Greenshot.Helpers;
 using Greenshot.Ipc.Cli;
 using Greenshot.Recipes;
@@ -602,7 +604,7 @@ namespace Greenshot.Ipc
                 exit_code = 0,
                 recipes = list,
                 // Console output for greenshot-cli.exe; JSON clients use "recipes"
-                stdout = WantsTextOutput(context) ? CliTextRenderer.RenderRecipeList(Newtonsoft.Json.Linq.JToken.FromObject(list)) : null
+                stdout = WantsTextOutput(context) ? CliTextRenderer.RenderRecipeList(JsonSerializer.SerializeToNode(list, GreenshotJson.Options)) : null
             }).ConfigureAwait(false);
         }
 
@@ -736,7 +738,7 @@ namespace Greenshot.Ipc
                 exit_code = 0,
                 recipe = recipeInfo,
                 // Console output for greenshot-cli.exe; JSON clients use "recipe"
-                stdout = WantsTextOutput(context) ? CliTextRenderer.RenderRecipeDescription(Newtonsoft.Json.Linq.JToken.FromObject(recipeInfo)) : null
+                stdout = WantsTextOutput(context) ? CliTextRenderer.RenderRecipeDescription(JsonSerializer.SerializeToNode(recipeInfo, GreenshotJson.Options)) : null
             }).ConfigureAwait(false);
         }
 
@@ -1070,33 +1072,9 @@ namespace Greenshot.Ipc
         private static async Task<string> GetFallbackOutputAsync(CaptureFlowContext flowCtx, CaptureRecipe matchedRecipe)
         {
             string outputText = null;
-            if (flowCtx.Properties.TryGetValue("CommandResult", out var crObj) && crObj != null)
-            {
-                outputText = crObj.ToString();
-            }
-            else if (flowCtx.Properties.TryGetValue("OutputText", out var otObj) && otObj != null)
-            {
-                outputText = otObj.ToString();
-            }
-            else if (flowCtx.Properties.TryGetValue("LastStdout", out var lsObj) && lsObj != null)
+            if (flowCtx.Properties.TryGetValue("LastStdout", out var lsObj) && lsObj != null)
             {
                 outputText = lsObj.ToString();
-            }
-            else if (flowCtx.Properties.TryGetValue("Text", out var tObj) && tObj != null)
-            {
-                outputText = tObj.ToString();
-            }
-            else if (flowCtx.Properties.TryGetValue("OcrText", out var ocrObj) && ocrObj != null)
-            {
-                outputText = ocrObj.ToString();
-            }
-            else if (flowCtx.Properties.TryGetValue("Barcode.Text", out var bObj) && bObj != null)
-            {
-                outputText = bObj.ToString();
-            }
-            else if (flowCtx.Properties.TryGetValue("Zxing.DecodedText", out var zObj) && zObj != null)
-            {
-                outputText = zObj.ToString();
             }
             else if (!string.IsNullOrWhiteSpace(flowCtx.Payload?.ExtractedText))
             {
@@ -1225,8 +1203,6 @@ namespace Greenshot.Ipc
                 case Enum enumValue:
                     safeValue = enumValue.ToString();
                     return true;
-                case Newtonsoft.Json.Linq.JValue jValue:
-                    return TryGetJsonSafeValue(jValue.Value, out safeValue);
                 case IEnumerable<string> strings:
                     safeValue = strings.ToList();
                     return true;

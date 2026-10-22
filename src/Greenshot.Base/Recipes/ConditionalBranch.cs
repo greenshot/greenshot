@@ -19,28 +19,34 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Greenshot.Base.Interfaces
+using System.Text.Json.Serialization;
+
+namespace Greenshot.Base.Recipes
 {
     /// <summary>
-    /// Declares when a processor prefers to run within the capture pipeline,
-    /// relative to any interactive selection step (e.g. region/window picker).
-    ///
-    /// This is used by <c>ProcessorExecutionStep</c> to filter processors when a step
-    /// is configured with a specific timing. A recipe can contain multiple
-    /// <c>Processors</c> steps at different positions to run each phase explicitly.
+    /// One branch of a Conditional node: the first branch whose expression is true (or "else") decides which transitions with
+    /// this key the flow follows.
     /// </summary>
-    public enum ProcessorTiming
+    public class ConditionalBranch
     {
-        /// <summary>
-        /// Run before interactive selection so results (e.g. QR code hotspots, OCR lines)
-        /// are available while the CaptureWindow is shown to the user.
-        /// </summary>
-        PreSelection,
+        /// <summary>The key of the branch, the "branch" of the transitions which leave the node by it.</summary>
+        [JsonPropertyName("Key"), JsonRequired]
+        public string Key { get; set; }
 
-        /// <summary>
-        /// Run after interactive selection / crop has been confirmed.
-        /// This is the default for all processors that do not override <see cref="PreSelection"/>.
-        /// </summary>
-        PostSelection
+        /// <summary>An expression like "${payload.width > 800}", or "else".</summary>
+        [JsonPropertyName("Expression"), JsonRequired]
+        public string Expression { get; set; }
+
+        public ConditionalBranch()
+        {
+        }
+
+        public ConditionalBranch(string key, string expression)
+        {
+            Key = key;
+            Expression = expression;
+        }
+
+        public override string ToString() => $"{Key}: {Expression}";
     }
 }

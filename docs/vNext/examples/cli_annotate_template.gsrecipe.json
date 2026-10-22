@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "version": "1.0",
+  "version": "2.0",
   "id": "recipe_cli_annotate_template",
   "name": "CLI Apply Template & Annotation",
   "description": "Loads an image file, applies a template watermark/badge annotation, and saves the result under the same name with a suffix (e.g. example1.png -> example1-with_annotation.png).",
@@ -10,11 +10,11 @@
       "name": "Annotate Image CLI Trigger",
       "enabled": true,
       "parameters": {
-        "command": "annotate",
-        "description": "Apply template annotations to an image file and save with suffix",
-        "fireAndForget": false,
-        "stdout": "${Destination.Filename}",
-        "arguments": [
+        "Command": "annotate",
+        "Description": "Apply template annotations to an image file and save with suffix",
+        "FireAndForget": false,
+        "Stdout": "${Destination.Filename}",
+        "Arguments": [
           {
             "name": "file",
             "variable": "Filename",
@@ -33,8 +33,8 @@
       "name": "Load Source Image",
       "enabled": true,
       "parameters": {
-        "sourceType": "File",
-        "filename": "${Filename}"
+        "SourceType": "File",
+        "Filename": "${Filename}"
       }
     },
     {
@@ -43,34 +43,34 @@
       "name": "Apply Template Annotation",
       "enabled": true,
       "parameters": {
-        "annotations": [
+        "Annotations": [
           {
-            "type": "Rectangle",
-            "horizontalAnchor": "Right",
-            "verticalAnchor": "Bottom",
-            "width": 220,
-            "height": 32,
-            "offsetX": -12,
-            "offsetY": -12,
-            "fillColor": "rgba(20, 20, 20, 180)",
-            "lineColor": "#0078D7",
-            "lineThickness": 2,
-            "shadow": true
+            "Type": "Rectangle",
+            "HorizontalAnchor": "Right",
+            "VerticalAnchor": "Bottom",
+            "Width": 220,
+            "Height": 32,
+            "OffsetX": -12,
+            "OffsetY": -12,
+            "FillColor": "rgba(20, 20, 20, 180)",
+            "LineColor": "#0078D7",
+            "LineThickness": 2,
+            "Shadow": true
           },
           {
-            "type": "Text",
-            "horizontalAnchor": "Right",
-            "verticalAnchor": "Bottom",
-            "width": 210,
-            "height": 26,
-            "offsetX": -16,
-            "offsetY": -15,
-            "text": "REVIEWED: ${now:yyyy-MM-dd}",
-            "lineColor": "#FFFFFF",
-            "fontSize": 10.0,
-            "fontFamily": "Segoe UI",
-            "bold": true,
-            "shadow": false
+            "Type": "Text",
+            "HorizontalAnchor": "Right",
+            "VerticalAnchor": "Bottom",
+            "Width": 210,
+            "Height": 26,
+            "OffsetX": -16,
+            "OffsetY": -15,
+            "Text": "REVIEWED: ${now:yyyy-MM-dd}",
+            "LineColor": "#FFFFFF",
+            "FontSize": 10.0,
+            "FontFamily": "Segoe UI",
+            "Bold": true,
+            "Shadow": false
           }
         ]
       }
@@ -92,7 +92,7 @@
       "name": "Print Saved Path",
       "enabled": true,
       "parameters": {
-        "text": "${Destination.Filename}"
+        "Text": "${Destination.Filename}"
       }
     }
   ],
@@ -100,17 +100,19 @@
     "startNodes": [
       "load_file"
     ],
-    "transitions": {
-      "load_file": [
-        "apply_template"
-      ],
-      "apply_template": [
-        "save_annotated"
-      ],
-      "save_annotated": [
-        "print_result"
-      ]
-    },
-    "conditionalTransitions": []
+    "transitions": [
+      {
+        "from": "load_file",
+        "to": "apply_template"
+      },
+      {
+        "from": "apply_template",
+        "to": "save_annotated"
+      },
+      {
+        "from": "save_annotated",
+        "to": "print_result"
+      }
+    ]
   }
 }

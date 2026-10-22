@@ -61,7 +61,7 @@ namespace Greenshot.Ai
                 "Captures a window for an AI tool, with its exact contents (also when it is covered), without activating it")
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Window, captureMouse: false, delayMs: 0).Set("WindowHandle", "${Window}"))
                 .AddNode(CreateOcrCondition("ocr_wanted"))
-                .AddNode(RecipeStepConfig.CreateProcessors("ocr", new[] { "Windows10OcrProcessor" }))
+                .AddNode(RecipeStepConfig.CreateOcr("ocr"))
                 .AddTrigger(TriggerConfig.CreateAiTool(
                     "capture_window",
                     "Screenshot of one window, with its exact contents even when other windows cover it. The window is not activated. " +
@@ -90,7 +90,7 @@ namespace Greenshot.Ai
                 "Captures a part of the screen for an AI tool")
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Region, captureMouse: false, delayMs: 0))
                 .AddNode(CreateOcrCondition("ocr_wanted"))
-                .AddNode(RecipeStepConfig.CreateProcessors("ocr", new[] { "Windows10OcrProcessor" }))
+                .AddNode(RecipeStepConfig.CreateOcr("ocr"))
                 .AddTrigger(TriggerConfig.CreateAiTool(
                     "capture_region",
                     "Screenshot of a part of the screen, in screen coordinates (list_windows has the bounds of the windows and displays). " +
@@ -119,7 +119,7 @@ namespace Greenshot.Ai
                 "Captures all displays for an AI tool")
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.FullScreen, captureMouse: false, delayMs: 0, screenMode: ScreenCaptureMode.FullScreen))
                 .AddNode(CreateOcrCondition("ocr_wanted"))
-                .AddNode(RecipeStepConfig.CreateProcessors("ocr", new[] { "Windows10OcrProcessor" }))
+                .AddNode(RecipeStepConfig.CreateOcr("ocr"))
                 .AddTrigger(TriggerConfig.CreateAiTool(
                     "capture_screen",
                     "Screenshot of all displays. For one display or a part of the screen use capture_region with the bounds from list_windows.",

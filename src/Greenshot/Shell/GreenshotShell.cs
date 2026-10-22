@@ -51,7 +51,6 @@ using Greenshot.Editor.Forms;
 using Greenshot.Helpers;
 using Greenshot.Ipc;
 using Greenshot.Plugin.Win10;
-using Greenshot.Processors;
 using Greenshot.Recipes;
 using Greenshot.Recipes.Pipeline;
 using Greenshot.Recipes.Triggers;
@@ -221,7 +220,6 @@ namespace Greenshot.Shell
             // This forces the registration of all destinations inside Greenshot itself.
             RegisterInternalDestinations();
             // This forces the registration of all processors inside Greenshot itself.
-            RegisterInternalProcessors();
 
             // The recipe settings (disabled recipes, recipe files) belong to the Recipe Editor plugin and recipe files can use steps
             // of other plugins, both are only available now that the plugins registered themselves.
@@ -382,27 +380,6 @@ namespace Greenshot.Shell
                 if (internalDestination.IsAvailableFor(null) || !ConfigurationRestrictions.IsDestinationAllowed(coreConfiguration, internalDestination.Designation))
                 {
                     SimpleServiceProvider.Current.AddService(internalDestination);
-                }
-            }
-        }
-
-        private static void RegisterInternalProcessors()
-        {
-            var internalProcessors = new List<IProcessor>
-            {
-                new TitleFixProcessor(),
-                new Win10OcrProcessor()
-            };
-
-            foreach (var internalProcessor in internalProcessors)
-            {
-                if (internalProcessor.isActive)
-                {
-                    SimpleServiceProvider.Current.AddService(internalProcessor);
-                }
-                else
-                {
-                    internalProcessor.Dispose();
                 }
             }
         }

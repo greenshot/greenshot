@@ -26,12 +26,13 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
+using Greenshot.Base.Serialization;
 using log4net;
-using Newtonsoft.Json;
 
 namespace Greenshot.Base.Http
 {
@@ -136,7 +137,7 @@ namespace Greenshot.Base.Http
         {
             var result = await SendAsync(new HttpRequestMessage(HttpMethod.Get, uri), cancellationToken).ConfigureAwait(false);
             result.EnsureSuccess();
-            return string.IsNullOrEmpty(result.Content) ? default : JsonConvert.DeserializeObject<T>(result.Content);
+            return string.IsNullOrEmpty(result.Content) ? default : JsonSerializer.Deserialize<T>(result.Content, GreenshotJson.Options);
         }
 
         /// <summary>

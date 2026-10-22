@@ -20,7 +20,7 @@
  */
 
 using System;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Greenshot.Base.Recipes
 {
@@ -29,19 +29,19 @@ namespace Greenshot.Base.Recipes
     /// </summary>
     public class PromptChoice
     {
-        [JsonProperty("key")]
+        [JsonPropertyName("Key"), JsonRequired]
         public string Key { get; set; } = "Yes";
 
-        [JsonProperty("label")]
+        [JsonPropertyName("Label")]
         public string Label { get; set; } = "Yes, Proceed";
 
-        [JsonProperty("style", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("Style"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string Style { get; set; } = "Primary"; // "Primary", "Secondary", "Danger"
 
-        [JsonProperty("isDefault", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonPropertyName("IsDefault"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public bool IsDefault { get; set; }
 
-        [JsonProperty("isCancel", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonPropertyName("IsCancel"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public bool IsCancel { get; set; }
 
         public PromptChoice()
