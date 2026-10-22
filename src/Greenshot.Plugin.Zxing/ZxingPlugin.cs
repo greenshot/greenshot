@@ -361,16 +361,7 @@ public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
         string iban = GetString(p, "EpcIban") ?? "";
         string name = GetString(p, "EpcName") ?? "";
         string bic = GetString(p, "EpcBic") ?? "";
-        string amount = GetString(p, "EpcAmount") ?? "";
-        string formattedAmount = string.Empty;
-        if (double.TryParse(amount, out double amt))
-        {
-            formattedAmount = string.Format(System.Globalization.CultureInfo.InvariantCulture, "EUR{0:F2}", amt);
-        }
-        else if (!string.IsNullOrEmpty(amount))
-        {
-            formattedAmount = amount.StartsWith("EUR", StringComparison.OrdinalIgnoreCase) ? amount : $"EUR{amount}";
-        }
+        string formattedAmount = ZxingModel.FormatEpcAmount(GetString(p, "EpcAmount"));
         string reference = GetString(p, "EpcReference") ?? "";
         string message = GetString(p, "EpcMessage") ?? "";
 

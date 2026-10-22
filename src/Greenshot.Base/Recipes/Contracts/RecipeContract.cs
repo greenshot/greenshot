@@ -344,7 +344,6 @@ namespace Greenshot.Base.Recipes.Contracts
                     }
                 }
 
-                if (contract.AcceptsUndeclaredParameters) return;
                 foreach (var name in parameters.Keys)
                 {
                     if (contract.FindParameter(name) == null)

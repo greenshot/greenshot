@@ -195,7 +195,7 @@ namespace Greenshot.Tests.Recipes
                 foreach (var parameter in node.Parameters)
                 {
                     var declared = contract.FindParameter(parameter.Key);
-                    Assert.True(declared != null || contract.AcceptsUndeclaredParameters, $"{stepType}: the editor sets '{parameter.Key}', which the step does not read");
+                    Assert.True(declared != null, $"{stepType}: the editor sets '{parameter.Key}', which the step does not read");
                     if (declared != null && declared.AllowedValues.Count > 0 && parameter.Value is string value)
                     {
                         Assert.Contains(value, declared.AllowedValues, StringComparer.OrdinalIgnoreCase);

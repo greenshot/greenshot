@@ -237,7 +237,6 @@ namespace Greenshot.Ai
                 name = contract.DisplayName,
                 description = contract.Description,
                 category = contract.Category,
-                accepts_other_parameters = contract.AcceptsUndeclaredParameters,
                 parameters = contract.Parameters?.Select(p => new
                 {
                     name = p.Name,

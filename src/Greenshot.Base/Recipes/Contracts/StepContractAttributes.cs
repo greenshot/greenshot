@@ -33,12 +33,6 @@ namespace Greenshot.Base.Recipes.Contracts
         public string Description { get; set; }
         public string Category { get; set; }
 
-        /// <summary>
-        /// The step also reads parameters that are not declared (e.g. the properties of an annotation), so undeclared
-        /// parameters are not reported.
-        /// </summary>
-        public bool AcceptsUndeclaredParameters { get; set; }
-
         public StepInfoAttribute(string stepType, string displayName = null, string description = null, string category = null)
         {
             StepType = stepType ?? throw new ArgumentNullException(nameof(stepType));
@@ -234,8 +228,7 @@ namespace Greenshot.Base.Recipes.Contracts
                 outVarsList,
                 payloadContract)
             {
-                ImplementationType = stepType,
-                AcceptsUndeclaredParameters = infoAttr?.AcceptsUndeclaredParameters ?? false
+                ImplementationType = stepType
             };
         }
     }

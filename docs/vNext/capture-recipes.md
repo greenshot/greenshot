@@ -304,7 +304,7 @@ The QR code format is explicitly declared via the `"QrType"` parameter (`"Text"`
   - `"EpcIban"`: Recipient IBAN (e.g. `"DE89370400440532013000"`).
   - `"EpcName"`: Recipient account holder name (e.g. `"Greenshot Community e.V."`).
   - `"EpcBic"`: Recipient BIC/SWIFT code (optional).
-  - `"EpcAmount"`: Payment transfer amount in EUR (a text, e.g. `"15.00"`).
+  - `"EpcAmount"`: Payment transfer amount in EUR (a text, e.g. `"15.00"` or `"15,00"`).
   - `"EpcReference"`: Structured remittance reference / invoice number (e.g. `"INV-2026-0042"`).
   - `"EpcMessage"`: Unstructured payment note or purpose (e.g. `"Support Greenshot"`).
 

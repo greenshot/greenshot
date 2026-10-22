@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
@@ -382,6 +383,27 @@ namespace Greenshot.Tests.Recipes
             var geoModel = Assert.IsType<ZxingModel>(geoContainer.Tag);
             Assert.Equal(8, geoModel.QrCategoryIndex);
             Assert.Equal("geo:52.5200,13.4050", geoModel.RawText);
+        }
+
+        [Theory]
+        [InlineData("15.00", "EUR15.00")]
+        [InlineData("15,5", "EUR15.50")]
+        [InlineData("1500", "EUR1500.00")]
+        [InlineData("EUR3", "EUR3")]
+        [InlineData("", "")]
+        public void ZxingModel_EpcAmount_IsTheSameInEveryWindowsLanguage(string amount, string expected)
+        {
+            var culture = CultureInfo.CurrentCulture;
+            try
+            {
+                // German Windows: "15.00" must not become 1500
+                CultureInfo.CurrentCulture = new CultureInfo("de-DE");
+                Assert.Equal(expected, ZxingModel.FormatEpcAmount(amount));
+            }
+            finally
+            {
+                CultureInfo.CurrentCulture = culture;
+            }
         }
 
         [Fact]
