@@ -2238,14 +2238,11 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     if (string.IsNullOrWhiteSpace(ct.From) || string.IsNullOrWhiteSpace(ct.To)) continue;
 
                     string expr = "";
-                    if (nodeMap.TryGetValue(ct.From, out var srcNode) && srcNode.Parameters != null && srcNode.Parameters.TryGetValue("Branches", out var bObj))
+                    if (nodeMap.TryGetValue(ct.From, out var srcNode))
                     {
-                        if (RecipeSerializer.ToPlainValue(bObj) is IEnumerable branches && bObj is not string)
-                        {
-                            var match = branches.OfType<IDictionary<string, object>>()
-                                .FirstOrDefault(b => b.TryGetValue("key", out var key) && string.Equals(key?.ToString(), ct.Branch, StringComparison.OrdinalIgnoreCase));
-                            if (match != null && match.TryGetValue("expression", out var expression)) expr = expression?.ToString();
-                        }
+                        var match = srcNode.GetParameter<List<ConditionalBranch>>("Branches")?
+                            .FirstOrDefault(b => string.Equals(b?.Key, ct.Branch, StringComparison.OrdinalIgnoreCase));
+                        if (match != null) expr = match.Expression;
                     }
 
                     string edgeLabel = string.IsNullOrEmpty(expr) ? ct.Branch : $"{ct.Branch}: {expr}";
@@ -2396,10 +2393,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     dict["ShowNotification"] = true;
                     break;
                 case WellKnownStepTypes.Conditional:
-                    dict["Branches"] = new List<object>
+                    dict["Branches"] = new List<ConditionalBranch>
                     {
-                        new Dictionary<string, string> { { "key", "A" }, { "expression", "${payload.width > 800}" } },
-                        new Dictionary<string, string> { { "key", "B" }, { "expression", "else" } }
+                        new ConditionalBranch("A", "${payload.width > 800}"),
+                        new ConditionalBranch("B", "else")
                     };
                     break;
                 case WellKnownStepTypes.UserPrompt:
@@ -2407,10 +2404,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     dict["Message"] = "Please confirm the next step for this capture:";
                     dict["ShowPreview"] = true;
                     dict["TimeoutSeconds"] = 0;
-                    dict["Choices"] = new List<object>
+                    dict["Choices"] = new List<PromptChoice>
                     {
-                        new Dictionary<string, object> { { "Key", "Yes" }, { "Label", "Yes, Proceed" }, { "Style", "Primary" }, { "IsDefault", true }, { "IsCancel", false } },
-                        new Dictionary<string, object> { { "Key", "No" }, { "Label", "No, Cancel" }, { "Style", "Secondary" }, { "IsDefault", false }, { "IsCancel", true } }
+                        new PromptChoice("Yes", "Yes, Proceed", "Primary", isDefault: true),
+                        new PromptChoice("No", "No, Cancel", "Secondary", isCancel: true)
                     };
                     break;
                 case WellKnownStepTypes.Stdout:

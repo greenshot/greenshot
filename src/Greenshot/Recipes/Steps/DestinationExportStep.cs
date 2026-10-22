@@ -33,7 +33,7 @@ namespace Greenshot.Recipes.Steps
     /// </summary>
     [StepInfo(WellKnownStepTypes.Destinations, "Export Destinations", "Exports the capture to one or more destinations (file, clipboard, editor, printer, email, plugins).", "Export")]
     [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required, ExtractedText = PayloadRequirement.Optional)]
-    [StepParameter("DestinationDesignations", ContractDataType.Object, Description = "List of destination designations (default: settings)")]
+    [StepParameter("DestinationDesignations", ContractDataType.Object, ValueType = typeof(List<string>), Description = "List of destination designations (default: settings)")]
     [StepParameter("SaveDirectory", ContractDataType.DirectoryPath, Description = "Directory to save to")]
     [StepParameter("FilenamePattern", ContractDataType.String, Description = "File name pattern (default: settings)")]
     [StepParameter("Format", ContractDataType.Enum, Description = "Image format (default: settings)", AllowedValuesProvider = typeof(SaveableFileFormatIds))]

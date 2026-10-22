@@ -291,23 +291,9 @@ namespace Greenshot.Base.Recipes
         public static RecipeNodeConfig CreateConditional(string id = "conditional", IEnumerable<KeyValuePair<string, string>> branches = null)
         {
             var node = new RecipeNodeConfig(id, WellKnownStepTypes.Conditional, "Decision Branch");
-            var branchList = new List<Dictionary<string, string>>();
-            if (branches != null)
-            {
-                foreach (var b in branches)
-                {
-                    branchList.Add(new Dictionary<string, string>
-                    {
-                        ["Key"] = b.Key,
-                        ["Expression"] = b.Value
-                    });
-                }
-            }
-            else
-            {
-                branchList.Add(new Dictionary<string, string> { ["Key"] = "A", ["Expression"] = "${payload.width > 800}" });
-                branchList.Add(new Dictionary<string, string> { ["Key"] = "B", ["Expression"] = "else" });
-            }
+            var branchList = branches != null
+                ? branches.Select(b => new ConditionalBranch(b.Key, b.Value)).ToList()
+                : new List<ConditionalBranch> { new ConditionalBranch("A", "${payload.width > 800}"), new ConditionalBranch("B", "else") };
             node.Set("Branches", branchList);
             return node;
         }
@@ -317,7 +303,7 @@ namespace Greenshot.Base.Recipes
             string title = "User Decision",
             string message = "Please choose how to proceed with this capture:",
             bool showPreview = true,
-            IEnumerable<Dictionary<string, object>> choices = null,
+            IEnumerable<PromptChoice> choices = null,
             int timeoutSeconds = 0,
             string defaultChoice = null)
         {
@@ -328,16 +314,9 @@ namespace Greenshot.Base.Recipes
             if (timeoutSeconds > 0) node.Set("TimeoutSeconds", timeoutSeconds);
             if (!string.IsNullOrEmpty(defaultChoice)) node.Set("DefaultChoice", defaultChoice);
 
-            var choiceList = new List<Dictionary<string, object>>();
-            if (choices != null)
-            {
-                choiceList.AddRange(choices);
-            }
-            else
-            {
-                choiceList.Add(new Dictionary<string, object> { ["Key"] = "Yes", ["Label"] = "Yes, Proceed", ["Style"] = "Primary", ["IsDefault"] = true });
-                choiceList.Add(new Dictionary<string, object> { ["Key"] = "No", ["Label"] = "No, Cancel", ["Style"] = "Secondary", ["IsCancel"] = true });
-            }
+            var choiceList = choices != null
+                ? choices.ToList()
+                : new List<PromptChoice> { new PromptChoice("Yes", "Yes, Proceed", "Primary", isDefault: true), new PromptChoice("No", "No, Cancel", "Secondary", isCancel: true) };
             node.Set("Choices", choiceList);
             return node;
         }

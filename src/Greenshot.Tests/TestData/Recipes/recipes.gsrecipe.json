@@ -223,12 +223,12 @@
         "parameters": {
           "Branches": [
             {
-              "key": "A",
-              "expression": "${payload.width > 800}"
+              "Key": "A",
+              "Expression": "${payload.width > 800}"
             },
             {
-              "key": "B",
-              "expression": "else"
+              "Key": "B",
+              "Expression": "else"
             }
           ]
         }
@@ -357,16 +357,16 @@
           "ShowPreview": true,
           "Choices": [
             {
-              "key": "Yes",
-              "label": "Yes, Proceed",
-              "style": "Primary",
-              "isDefault": true
+              "Key": "Yes",
+              "Label": "Yes, Proceed",
+              "Style": "Primary",
+              "IsDefault": true
             },
             {
-              "key": "No",
-              "label": "No, Cancel",
-              "style": "Secondary",
-              "isCancel": true
+              "Key": "No",
+              "Label": "No, Cancel",
+              "Style": "Secondary",
+              "IsCancel": true
             }
           ]
         }
@@ -509,16 +509,16 @@
           "Title": "Really?",
           "Choices": [
             {
-              "key": "Yes",
-              "label": "Yes, go",
-              "style": "Primary",
-              "isDefault": true
+              "Key": "Yes",
+              "Label": "Yes, go",
+              "Style": "Primary",
+              "IsDefault": true
             },
             {
-              "key": "No",
-              "label": "No",
-              "style": "Danger",
-              "isCancel": true
+              "Key": "No",
+              "Label": "No",
+              "Style": "Danger",
+              "IsCancel": true
             }
           ]
         }
@@ -532,12 +532,12 @@
         "parameters": {
           "Branches": [
             {
-              "key": "big",
-              "expression": "${payload.width} > 1000"
+              "Key": "big",
+              "Expression": "${payload.width} > 1000"
             },
             {
-              "key": "small",
-              "expression": "${true}"
+              "Key": "small",
+              "Expression": "${true}"
             }
           ]
         }
@@ -1970,8 +1970,8 @@
         "parameters": {
           "Branches": [
             {
-              "key": "ocr",
-              "expression": "${Ocr}"
+              "Key": "ocr",
+              "Expression": "${Ocr}"
             }
           ]
         }
@@ -2067,8 +2067,8 @@
         "parameters": {
           "Branches": [
             {
-              "key": "ocr",
-              "expression": "${Ocr}"
+              "Key": "ocr",
+              "Expression": "${Ocr}"
             }
           ]
         }
@@ -2158,8 +2158,8 @@
         "parameters": {
           "Branches": [
             {
-              "key": "ocr",
-              "expression": "${Ocr}"
+              "Key": "ocr",
+              "Expression": "${Ocr}"
             }
           ]
         }

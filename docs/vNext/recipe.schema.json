@@ -555,15 +555,16 @@
     "ConditionBranchConfig": {
       "type": "object",
       "required": [
-        "key",
-        "expression"
+        "Key",
+        "Expression"
       ],
+      "additionalProperties": false,
       "properties": {
-        "key": {
+        "Key": {
           "type": "string",
           "description": "Unique branch key / pin identifier (e.g. 'A', 'B', 'true', 'false')."
         },
-        "expression": {
+        "Expression": {
           "type": "string",
           "description": "Dynamic expression (${...}) or 'else' evaluated at runtime."
         }

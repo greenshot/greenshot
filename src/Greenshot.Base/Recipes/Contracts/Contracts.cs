@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 
 namespace Greenshot.Base.Recipes.Contracts
 {
@@ -51,6 +52,10 @@ namespace Greenshot.Base.Recipes.Contracts
         public IAllowedValuesProvider AllowedValuesProvider { get; set; }
 
         public bool SupportsExpressions { get; set; } = true;
+
+        /// <summary>The type of an Object parameter's value, see <see cref="StepParameterAttribute.ValueType"/>; null for any value.</summary>
+        [JsonIgnore]
+        public Type ValueType { get; set; }
 
         /// <summary>True when this is the parameter with the given name (parameter names are case-insensitive).</summary>
         public bool Matches(string parameterName) => string.Equals(Name, parameterName, StringComparison.OrdinalIgnoreCase);

@@ -20,7 +20,13 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
+using System.Text.RegularExpressions;
 using Greenshot.Base.Recipes.Contracts;
 
 namespace Greenshot.Base.Recipes
@@ -84,6 +90,110 @@ namespace Greenshot.Base.Recipes
                     // Object, Window, Region: any value
                     return true;
             }
+        }
+
+        // The JSON types of parameters with a ValueType: the core ones, and those plugins registered
+        private static readonly List<IJsonTypeInfoResolver> Resolvers = new List<IJsonTypeInfoResolver> { RecipeParameterJsonContext.Default };
+        private static readonly object ResolversLock = new object();
+        private static JsonSerializerOptions _readOptions;
+
+        /// <summary>
+        /// Adds the JSON types of a plugin, see <see cref="Pipeline.IStepRegistry.RegisterJsonTypes"/>.
+        /// </summary>
+        public static void AddJsonTypes(IJsonTypeInfoResolver resolver)
+        {
+            if (resolver == null) throw new ArgumentNullException(nameof(resolver));
+            lock (ResolversLock)
+            {
+                if (Resolvers.Contains(resolver)) return;
+                Resolvers.Add(resolver);
+                _readOptions = null;
+            }
+        }
+
+        /// <summary>
+        /// Reading a value into its declared type is strict, like reading a recipe: the names exactly as declared, no unknown or
+        /// duplicate properties, numbers, booleans and texts only as such.
+        /// </summary>
+        private static JsonSerializerOptions ReadOptions
+        {
+            get
+            {
+                lock (ResolversLock)
+                {
+                    return _readOptions ??= new JsonSerializerOptions
+                    {
+                        TypeInfoResolver = JsonTypeInfoResolver.Combine(Resolvers.ToArray()),
+                        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
+                        AllowDuplicateProperties = false
+                    };
+                }
+            }
+        }
+
+        /// <summary>
+        /// True when a registered JSON context has the type
+        /// </summary>
+        public static bool IsKnown(Type valueType) => valueType != null && ReadOptions.TryGetTypeInfo(valueType, out _);
+
+        /// <summary>
+        /// A parameter value (as read from the file, or set in code) in the declared type, false with what doesn't fit.
+        /// </summary>
+        public static bool TryRead(object value, Type valueType, out object typed, out string error)
+        {
+            typed = value;
+            error = null;
+            if (value == null || valueType == null || valueType.IsInstanceOfType(value)) return true;
+            var options = ReadOptions;
+            try
+            {
+                // The value as it is written in the file
+                var json = JsonSerializer.SerializeToElement(value, RecipeSerializer.Options);
+                typed = json.Deserialize(options.GetTypeInfo(valueType));
+                return true;
+            }
+            catch (JsonException ex)
+            {
+                typed = value;
+                error = Describe(ex, valueType, options);
+                return false;
+            }
+        }
+
+        private static readonly Regex UnmappedProperty = new Regex("The JSON property '(?<name>[^']*)' could not be mapped", RegexOptions.Compiled);
+        private static readonly Regex MissingProperties = new Regex("missing required properties including: (?<names>'[^']*'(, '[^']*')*)", RegexOptions.Compiled);
+        private static readonly Regex ItemIndex = new Regex(@"^\$\[(?<index>\d+)\]", RegexOptions.Compiled);
+
+        /// <summary>
+        /// What doesn't fit, in the words of the recipe file instead of the .NET types
+        /// </summary>
+        private static string Describe(JsonException ex, Type valueType, JsonSerializerOptions options)
+        {
+            string where = string.Empty;
+            var index = ItemIndex.Match(ex.Path ?? string.Empty);
+            if (index.Success) where = $"item {int.Parse(index.Groups["index"].Value, CultureInfo.InvariantCulture) + 1}: ";
+
+            var itemType = valueType.IsGenericType && valueType.GetGenericArguments().Length == 1 ? valueType.GetGenericArguments()[0] : valueType;
+            var names = options.TryGetTypeInfo(itemType, out var itemInfo) && itemInfo.Kind == JsonTypeInfoKind.Object
+                ? itemInfo.Properties.Select(p => p.Name).ToList()
+                : new List<string>();
+
+            var unmapped = UnmappedProperty.Match(ex.Message);
+            if (unmapped.Success)
+            {
+                string name = unmapped.Groups["name"].Value;
+                string declared = names.FirstOrDefault(n => string.Equals(n, name, StringComparison.OrdinalIgnoreCase));
+                return declared != null
+                    ? $"{where}'{name}' is written '{declared}'."
+                    : $"{where}'{name}' is not one of {string.Join(", ", names)}.";
+            }
+            var missing = MissingProperties.Match(ex.Message);
+            if (missing.Success)
+            {
+                return $"{where}{missing.Groups["names"].Value} is missing.";
+            }
+            string expected = names.Count > 0 ? $"a list of objects with {string.Join(", ", names)}" : itemType == typeof(string) ? "a list of texts" : "of another type";
+            return $"{where}the value doesn't fit, it must be {expected}.";
         }
 
         /// <summary>

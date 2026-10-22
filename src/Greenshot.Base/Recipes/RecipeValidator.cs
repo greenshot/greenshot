@@ -352,18 +352,8 @@ namespace Greenshot.Base.Recipes
 
         private static List<(string Key, string Expression)> ReadBranches(RecipeNodeConfig node)
         {
-            var list = new List<(string Key, string Expression)>();
-            var branches = node.GetParameter<object>("Branches");
-            if (branches == null) return list;
-            // Branches set in code can be of any type, read them as they would be read from a file
-            if (RecipeSerializer.ToPlainValue(branches) is not IEnumerable items || items is string) return list;
-            foreach (var item in items.OfType<IDictionary<string, object>>())
-            {
-                item.TryGetValue("key", out var key);
-                item.TryGetValue("expression", out var expression);
-                list.Add((key?.ToString(), expression?.ToString()));
-            }
-            return list;
+            var branches = node.GetParameter<List<ConditionalBranch>>("Branches");
+            return branches?.Where(b => b != null).Select(b => (b.Key, b.Expression)).ToList() ?? new List<(string Key, string Expression)>();
         }
 
         private static void AddContractWarnings(CaptureRecipe recipe, RecipeValidationResult result)
@@ -469,6 +459,18 @@ namespace Greenshot.Base.Recipes
                 }
 
                 object value = node.Parameters[key];
+                if (declared.ValueType != null && !(value is string expression && declared.SupportsExpressions && expression.IndexOf("${", StringComparison.Ordinal) >= 0))
+                {
+                    if (RecipeParameterTypes.TryRead(value, declared.ValueType, out var typed, out string error))
+                    {
+                        node.Parameters[key] = typed;
+                    }
+                    else
+                    {
+                        result.AddError($"Node '{node.Id}': the parameter '{declared.Name}', {error}");
+                    }
+                    continue;
+                }
                 if (RecipeParameterTypes.TryConvert(value, declared.DataType, out var converted, out string expected))
                 {
                     node.Parameters[key] = converted;
@@ -561,10 +563,9 @@ namespace Greenshot.Base.Recipes
             }
             if (string.Equals(node.StepType, WellKnownStepTypes.Conditional, StringComparison.OrdinalIgnoreCase))
             {
-                var branches = node.GetParameter<object>("Branches");
-                if (branches == null)
+                if (!node.HasParameter("Branches"))
                 {
-                    result.AddError($"Node '{node.Id}' [Conditional]: Missing required 'branches' configuration list.");
+                    result.AddError($"Node '{node.Id}' [Conditional]: Missing required 'Branches' configuration list.");
                 }
             }
             if (string.Equals(node.StepType, WellKnownStepTypes.Annotation, StringComparison.OrdinalIgnoreCase))

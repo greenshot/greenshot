@@ -191,17 +191,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             RemoveCommand = new RelayCommand(() => _onRemove?.Invoke(this));
         }
 
-        public Dictionary<string, object> ToDictionary()
-        {
-            return new Dictionary<string, object>
-            {
-                ["Key"] = Key,
-                ["Label"] = Label,
-                ["Style"] = Style,
-                ["IsDefault"] = IsDefault,
-                ["IsCancel"] = IsCancel
-            };
-        }
+        public PromptChoice ToPromptChoice() => new PromptChoice(Key, Label, Style, IsDefault, IsCancel);
     }
 
     public class VariableItemViewModel : ViewModelBase
@@ -2596,23 +2586,12 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             ConditionBranches.Clear();
             Output.Remove(OutputPort);
 
-            var branchesParam = Config.GetParameter<object>("Branches");
-            if (branchesParam is IEnumerable enumerable && !(branchesParam is string))
+            foreach (var branch in Config.GetParameter<List<ConditionalBranch>>("Branches") ?? new List<ConditionalBranch>())
             {
-                foreach (var item in enumerable)
-                {
-                    if (item is IDictionary dict)
-                    {
-                        string k = dict.Contains("Key") ? dict["Key"]?.ToString() : (dict.Contains("key") ? dict["key"]?.ToString() : null);
-                        string exp = dict.Contains("Expression") ? dict["Expression"]?.ToString() : (dict.Contains("expression") ? dict["expression"]?.ToString() : null);
-                        if (!string.IsNullOrEmpty(k) || !string.IsNullOrEmpty(exp))
-                        {
-                            var b = new ConditionBranchViewModel(k ?? "A", exp ?? "${true}", this, SyncConditionBranchesToConfig, RemoveConditionBranch);
-                            ConditionBranches.Add(b);
-                            Output.Add(b.Port);
-                        }
-                    }
-                }
+                if (string.IsNullOrEmpty(branch?.Key) && string.IsNullOrEmpty(branch?.Expression)) continue;
+                var b = new ConditionBranchViewModel(branch.Key ?? "A", branch.Expression ?? "${true}", this, SyncConditionBranchesToConfig, RemoveConditionBranch);
+                ConditionBranches.Add(b);
+                Output.Add(b.Port);
             }
 
             if (ConditionBranches.Count == 0)
@@ -2629,16 +2608,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         private void SyncConditionBranchesToConfig()
         {
-            var list = new List<Dictionary<string, string>>();
-            foreach (var b in ConditionBranches)
-            {
-                list.Add(new Dictionary<string, string>
-                {
-                    ["Key"] = b.Key,
-                    ["Expression"] = b.Expression
-                });
-            }
-            Config.Set("Branches", list);
+            Config.Set("Branches", ConditionBranches.Select(b => new ConditionalBranch(b.Key, b.Expression)).ToList());
             Config.Parameters?.Remove("Condition");
             Config.Parameters?.Remove("condition");
             OnPropertyChanged(nameof(Summary));
@@ -2679,26 +2649,12 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             PromptChoices.Clear();
             Output.Remove(OutputPort);
 
-            var choicesParam = Config.GetParameter<object>("Choices");
-            if (choicesParam is IEnumerable enumerable && !(choicesParam is string))
+            foreach (var choice in Config.GetParameter<List<PromptChoice>>("Choices") ?? new List<PromptChoice>())
             {
-                foreach (var item in enumerable)
-                {
-                    if (item is IDictionary dict)
-                    {
-                        string k = dict.Contains("Key") ? dict["Key"]?.ToString() : (dict.Contains("key") ? dict["key"]?.ToString() : null);
-                        string l = dict.Contains("Label") ? dict["Label"]?.ToString() : (dict.Contains("label") ? dict["label"]?.ToString() : null);
-                        string s = dict.Contains("Style") ? dict["Style"]?.ToString() : (dict.Contains("style") ? dict["style"]?.ToString() : "Primary");
-                        bool isDef = dict.Contains("IsDefault") && Convert.ToBoolean(dict["IsDefault"]);
-                        bool isCanc = dict.Contains("IsCancel") && Convert.ToBoolean(dict["IsCancel"]);
-                        if (!string.IsNullOrEmpty(k))
-                        {
-                            var c = new PromptChoiceViewModel(k, l ?? k, s, isDef, isCanc, this, SyncPromptChoicesToConfig, RemovePromptChoice);
-                            PromptChoices.Add(c);
-                            Output.Add(c.Port);
-                        }
-                    }
-                }
+                if (string.IsNullOrEmpty(choice?.Key)) continue;
+                var c = new PromptChoiceViewModel(choice.Key, choice.Label ?? choice.Key, choice.Style ?? "Primary", choice.IsDefault, choice.IsCancel, this, SyncPromptChoicesToConfig, RemovePromptChoice);
+                PromptChoices.Add(c);
+                Output.Add(c.Port);
             }
 
             if (PromptChoices.Count == 0)
@@ -2715,12 +2671,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         private void SyncPromptChoicesToConfig()
         {
-            var list = new List<Dictionary<string, object>>();
-            foreach (var c in PromptChoices)
-            {
-                list.Add(c.ToDictionary());
-            }
-            Config.Set("Choices", list);
+            Config.Set("Choices", PromptChoices.Select(c => c.ToPromptChoice()).ToList());
             OnPropertyChanged(nameof(Summary));
         }
 

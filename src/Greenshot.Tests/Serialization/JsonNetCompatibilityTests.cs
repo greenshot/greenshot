@@ -52,6 +52,8 @@ namespace Greenshot.Tests.Serialization
             // The validator checks the parameters with the contracts of the step types
             StepRegistry.Instance.Register<SourceAcquisitionStep>(config => new SourceAcquisitionStep(config));
             StepRegistry.Instance.Register<SetVariableStep>(config => new SetVariableStep(config));
+            StepRegistry.Instance.Register<ConditionalStep>(config => new ConditionalStep(config));
+            StepRegistry.Instance.Register<UserPromptStep>(config => new UserPromptStep(config));
         }
 
         private static string TestData(params string[] path) => File.ReadAllText(Path.Combine(new[] { AppContext.BaseDirectory, "TestData" }.Concat(path).ToArray()));
@@ -138,11 +140,11 @@ namespace Greenshot.Tests.Serialization
 
             // Parameters: found in any casing, lists and dictionaries as plain values
             var prompt = sink.FindNode("prompt");
-            var choices = Assert.IsType<List<object>>(prompt.Parameters["Choices"]).Cast<IDictionary<string, object>>().ToList();
-            Assert.Equal("Yes", choices[0]["Key"]);
-            Assert.Equal(true, choices[0]["IsDefault"]);
-            Assert.Equal(true, choices[1]["isCancel"]);
-            Assert.Equal(new[] { "big", "small" }, RecipeSerializer.ConvertValue<List<Dictionary<string, string>>>(sink.FindNode("branch").Parameters["branches"]).Select(b => b["key"]));
+            var choices = prompt.GetParameter<List<PromptChoice>>("Choices");
+            Assert.Equal("Yes", choices[0].Key);
+            Assert.True(choices[0].IsDefault);
+            Assert.True(choices[1].IsCancel);
+            Assert.Equal(new[] { "big", "small" }, sink.FindNode("branch").GetParameter<List<ConditionalBranch>>("Branches").Select(b => b.Key));
             Assert.Equal("${option.border}", sink.FindNode("branch").When);
             Assert.False(sink.FindNode("off").Enabled);
             var variables = Assert.IsAssignableFrom<IDictionary<string, object>>(sink.FindNode("vars").Parameters["variables"]);
@@ -242,6 +244,62 @@ namespace Greenshot.Tests.Serialization
             var error = Assert.Throws<JsonException>(() => RecipeSerializer.Deserialize(HandWrittenRecipe.Replace(part, mistake)));
 
             Assert.Contains(message, error.Message);
+        }
+
+        private const string ConditionalRecipe = @"
+            {
+                ""id"": ""decide"",
+                ""name"": ""Decide"",
+                ""nodes"": [
+                    { ""id"": ""decide_size"", ""stepType"": ""Conditional"", ""parameters"": { ""Branches"": [
+                        { ""Key"": ""Large"", ""Expression"": ""${payload.width > 800}"" },
+                        { ""Key"": ""Small"", ""Expression"": ""else"" } ] } },
+                    { ""id"": ""large"", ""stepType"": ""SetVariable"" },
+                    { ""id"": ""small"", ""stepType"": ""SetVariable"" }
+                ],
+                ""flow"": {
+                    ""startNodes"": [""decide_size""],
+                    ""transitions"": [ { ""from"": ""decide_size"", ""branch"": ""Large"", ""to"": ""large"" }, { ""from"": ""decide_size"", ""branch"": ""Small"", ""to"": ""small"" } ]
+                }
+            }";
+
+        /// <summary>
+        /// A parameter which holds objects is read into its declared type, as strictly as the recipe itself
+        /// </summary>
+        [Fact]
+        public void Recipe_ObjectParameter_IsReadIntoItsType()
+        {
+            var recipe = RecipeSerializer.Deserialize(ConditionalRecipe);
+
+            var branches = Assert.IsType<List<ConditionalBranch>>(recipe.FindNode("decide_size").Parameters["Branches"]);
+            Assert.Equal(new[] { "Large", "Small" }, branches.Select(b => b.Key));
+            Assert.Equal("else", branches[1].Expression);
+            Assert.Contains("\"Key\": \"Large\"", RecipeSerializer.Serialize(recipe));
+        }
+
+        [Theory]
+        [InlineData(@"""Expression"": ""${payload", @"""Expresion"": ""${payload", "'Branches', item 1: 'Expresion' is not one of Key, Expression.")]
+        [InlineData(@"""Key"": ""Small""", @"""key"": ""Small""", "'Branches', item 2: 'key' is written 'Key'.")]
+        [InlineData(@", ""Expression"": ""else""", "", "'Branches', item 2: 'Expression' is missing.")]
+        [InlineData(@"""Key"": ""Small""", @"""Key"": 2", "'Branches', item 2: the value doesn't fit, it must be a list of objects with Key, Expression.")]
+        public void Recipe_ObjectParameterWithAMistake_IsNotValid(string part, string mistake, string message)
+        {
+            Assert.Contains(part, ConditionalRecipe);
+
+            var error = Assert.Throws<JsonException>(() => RecipeSerializer.Deserialize(ConditionalRecipe.Replace(part, mistake)));
+
+            Assert.Contains("Node 'decide_size': the parameter " + message, error.Message);
+        }
+
+        [Fact]
+        public void Step_WithAValueTypeOfNoJsonContext_IsNotRegistered()
+        {
+            var contract = new StepContract("UnknownValueType", parameters: new[] { new ParameterContract("Target", ContractDataType.Object) { ValueType = typeof(Uri) } });
+
+            var error = Assert.Throws<InvalidOperationException>(() => StepRegistry.Instance.Register(contract, config => null));
+
+            Assert.Contains("'Target'", error.Message);
+            Assert.False(StepRegistry.Instance.IsRegistered("UnknownValueType"));
         }
 
         [Fact]

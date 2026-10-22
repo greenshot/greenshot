@@ -21,12 +21,12 @@
       "parameters": {
         "Branches": [
           {
-            "key": "Top",
-            "expression": "${option.position == 'Top'}"
+            "Key": "Top",
+            "Expression": "${option.position == 'Top'}"
           },
           {
-            "key": "Bottom",
-            "expression": "else"
+            "Key": "Bottom",
+            "Expression": "else"
           }
         ]
       }

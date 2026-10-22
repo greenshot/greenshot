@@ -78,6 +78,14 @@ namespace Greenshot.Base.Recipes.Contracts
 
         public bool SupportsExpressions { get; set; } = true;
 
+        /// <summary>
+        /// For an Object parameter: the type of its value, e.g. <c>typeof(List&lt;ConditionalBranch&gt;)</c>. A recipe's value is read
+        /// strictly into this type when the recipe is validated (names as declared, no unknown properties, types as declared).
+        /// The type has to be in a JSON context registered with <see cref="Pipeline.IStepRegistry.RegisterJsonTypes"/>
+        /// before the step is registered.
+        /// </summary>
+        public Type ValueType { get; set; }
+
         public StepParameterAttribute(string name, ContractDataType dataType = ContractDataType.String)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
@@ -163,7 +171,10 @@ namespace Greenshot.Base.Recipes.Contracts
                     p.DefaultValue,
                     p.Description,
                     p.AllowedValues,
-                    p.SupportsExpressions);
+                    p.SupportsExpressions)
+                {
+                    ValueType = p.ValueType
+                };
                 if (p.AllowedValuesProvider != null)
                 {
                     if (!typeof(IAllowedValuesProvider).IsAssignableFrom(p.AllowedValuesProvider))

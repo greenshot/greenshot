@@ -67,21 +67,6 @@ namespace Greenshot.Recipes.Pipeline
             null;
 #endif
 
-        private static string GetBranchProperty(object branch, string name)
-        {
-            switch (branch)
-            {
-                case System.Collections.IDictionary dictionary:
-                    foreach (System.Collections.DictionaryEntry entry in dictionary)
-                    {
-                        if (string.Equals(entry.Key?.ToString(), name, StringComparison.OrdinalIgnoreCase)) return entry.Value?.ToString();
-                    }
-                    return null;
-                default:
-                    return null;
-            }
-        }
-
         /// <summary>
         /// Whether the node runs: a disabled node, or one whose 'when' expression is false, is passed through to its next nodes
         /// </summary>
@@ -480,22 +465,10 @@ namespace Greenshot.Recipes.Pipeline
                 string matchedBranchKey = null;
                 if (string.Equals(nodeConfig.StepType, WellKnownStepTypes.Conditional, StringComparison.OrdinalIgnoreCase))
                 {
-                    var branchesParam = nodeConfig.GetParameter<object>("Branches");
-                    if (branchesParam != null)
+                    var branches = nodeConfig.GetParameter<List<ConditionalBranch>>("Branches");
+                    if (branches != null)
                     {
-                        var branchList = new List<(string Key, string Expression)>();
-                        if (branchesParam is System.Collections.IEnumerable enumerable && !(branchesParam is string))
-                        {
-                            foreach (var item in enumerable)
-                            {
-                                // Branch properties are case-insensitive, like parameters (JSON recipes use "key", code "Key")
-                                string k = GetBranchProperty(item, "Key");
-                                string exp = GetBranchProperty(item, "Expression");
-                                if (!string.IsNullOrEmpty(k)) branchList.Add((k, exp));
-                            }
-                        }
-
-                        foreach (var b in branchList)
+                        foreach (var b in branches.Where(b => !string.IsNullOrEmpty(b?.Key)))
                         {
                             string exp = b.Expression?.Trim();
                             if (string.IsNullOrEmpty(exp))

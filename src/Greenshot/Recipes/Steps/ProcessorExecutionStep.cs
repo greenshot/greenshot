@@ -40,7 +40,7 @@ namespace Greenshot.Recipes.Steps
     /// </summary>
     [StepInfo(WellKnownStepTypes.Processors, "Processors", "Runs image processors (e.g. OCR, title fix, plugin processors).", "Processing")]
     [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Optional, ExtractedText = PayloadRequirement.Created)]
-    [StepParameter("ProcessorIds", ContractDataType.Object, Description = "Only run these processors (type name, description or designation)")]
+    [StepParameter("ProcessorIds", ContractDataType.Object, ValueType = typeof(List<string>), Description = "Only run these processors (type name, description or designation)")]
     [StepParameter("ProcessorMode", ContractDataType.String, Description = "OCR runs OCR and stores the text")]
     [StepParameter("Timing", ContractDataType.Enum, Description = "Run the processors that belong before or after the selection", DefaultValue = "Any", AllowedValues = new[] { "Any", "PreSelection", "PostSelection" })]
     [StepParameter("RunOcr", ContractDataType.Boolean, DefaultValue = true, Description = "Run OCR processors")]

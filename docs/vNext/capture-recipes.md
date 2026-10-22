@@ -94,7 +94,9 @@ Every recipe defines:
 A recipe file is read strictly, so a mistake is reported instead of silently ignored: property names and parameter names are
 written exactly as documented (`stepType`, `SourceType`), an unknown or repeated property is an error, and a value has the
 type the property or the step's parameter declares (`true`, not `"true"`; `2`, not `"2"`). An expression (`${...}`) can
-stand for any value. Comments and trailing commas are allowed. Recipes of an earlier Greenshot beta (`"version": "1.x"`) are
+stand for any value. A parameter which holds a list of objects, like the `Branches` of a `Conditional` node or the `Choices`
+of a `UserPrompt` node, is read the same way: `{ "Key": "A", "Expression": "else" }`, not `"key"` or `"expresion"`.
+Comments and trailing commas are allowed. Recipes of an earlier Greenshot beta (`"version": "1.x"`) are
 not read; the error says what changed.
 
 
@@ -888,8 +890,8 @@ Evaluates captured screenshot dimensions to route large screen captures through 
       "stepType": "Conditional",
       "parameters": {
         "Branches": [
-          { "key": "Large", "expression": "${payload.width > 800}" },
-          { "key": "Small", "expression": "else" }
+          { "Key": "Large", "Expression": "${payload.width > 800}" },
+          { "Key": "Small", "Expression": "else" }
         ]
       }
     },

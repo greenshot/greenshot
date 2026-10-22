@@ -29,19 +29,19 @@ namespace Greenshot.Base.Recipes
     /// </summary>
     public class PromptChoice
     {
-        [JsonPropertyName("key")]
+        [JsonPropertyName("Key"), JsonRequired]
         public string Key { get; set; } = "Yes";
 
-        [JsonPropertyName("label")]
+        [JsonPropertyName("Label")]
         public string Label { get; set; } = "Yes, Proceed";
 
-        [JsonPropertyName("style"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        [JsonPropertyName("Style"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string Style { get; set; } = "Primary"; // "Primary", "Secondary", "Danger"
 
-        [JsonPropertyName("isDefault"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        [JsonPropertyName("IsDefault"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public bool IsDefault { get; set; }
 
-        [JsonPropertyName("isCancel"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        [JsonPropertyName("IsCancel"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public bool IsCancel { get; set; }
 
         public PromptChoice()
