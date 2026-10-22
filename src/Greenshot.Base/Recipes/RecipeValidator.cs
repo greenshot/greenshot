@@ -443,7 +443,7 @@ namespace Greenshot.Base.Recipes
         /// <summary>
         /// The parameters the step declares: written with the declared name, and the value of the declared type. A literal value is
         /// converted once (a whole number for Integer, a double for Decimal), so the step reads the type it declared;
-        /// an expression ("${...}") is evaluated when the node runs. Unknown parameters are left to the contract (a warning).
+        /// an expression ("${...}") is evaluated when the node runs. A parameter the step doesn't declare is an error.
         /// </summary>
         private static void ApplyDeclaredParameterTypes(RecipeNodeConfig node, RecipeValidationResult result)
         {
@@ -452,7 +452,11 @@ namespace Greenshot.Base.Recipes
             foreach (var key in node.Parameters.Keys.ToList())
             {
                 var declared = contract.FindParameter(key);
-                if (declared == null) continue;
+                if (declared == null)
+                {
+                    result.AddError($"Node '{node.Id}': '{key}' is not a parameter of {contract.StepType}.");
+                    continue;
+                }
                 if (!string.Equals(declared.Name, key, StringComparison.Ordinal))
                 {
                     result.AddError($"Node '{node.Id}': the parameter '{key}' is written '{declared.Name}'.");
@@ -549,6 +553,29 @@ namespace Greenshot.Base.Recipes
                     }
                 }
             }
+            if (string.Equals(node.StepType, WellKnownStepTypes.Effect, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(node.GetParameter<string>("Effect"), "Resize", StringComparison.Ordinal) &&
+                node.Parameters.ContainsKey("Percentage") && (node.Parameters.ContainsKey("Width") || node.Parameters.ContainsKey("Height")))
+            {
+                result.AddError($"Node '{node.Id}' [Resize]: use 'Percentage' or 'Width' and 'Height', not both.");
+            }
+            if (string.Equals(node.StepType, WellKnownStepTypes.Effect, StringComparison.OrdinalIgnoreCase) &&
+                node.Parameters.ContainsKey("Color") && !string.Equals(node.GetParameter("Effect", "Border"), "Border", StringComparison.Ordinal))
+            {
+                result.AddError($"Node '{node.Id}' [{node.GetParameter<string>("Effect")}]: 'Color' is the border color, the color of a canvas is 'BackgroundColor'.");
+            }
+            if ((string.Equals(node.StepType, WellKnownStepTypes.Source, StringComparison.OrdinalIgnoreCase) || string.Equals(node.StepType, WellKnownStepTypes.RecordVideo, StringComparison.OrdinalIgnoreCase)) &&
+                node.GetParameter<string>("WindowTitlePattern") is { } titlePattern && !titlePattern.Contains("${"))
+            {
+                try
+                {
+                    _ = new Regex(titlePattern);
+                }
+                catch (ArgumentException ex)
+                {
+                    result.AddError($"Node '{node.Id}' [{node.StepType}]: 'WindowTitlePattern' is not a valid regular expression: {ex.Message}");
+                }
+            }
             if (string.Equals(node.StepType, WellKnownStepTypes.Source, StringComparison.OrdinalIgnoreCase))
             {
                 if (node.Parameters != null && node.Parameters.TryGetValue("SourceType", out var st) && st is string stStr)
@@ -596,6 +623,8 @@ namespace Greenshot.Base.Recipes
         /// Each annotation has a known Type and only the properties of that type (see <see cref="AnnotationProperties"/>),
         /// written as declared, with values of the declared type (or an expression). The values are stored in their type.
         /// </summary>
+        private static readonly string[] ImageSources = { "CursorName", "FilePath", "ImageData" };
+
         private static void ValidateAnnotationNode(RecipeNodeConfig node, RecipeValidationResult result)
         {
             // Not a list of objects: already reported with the parameter
@@ -623,6 +652,13 @@ namespace Greenshot.Base.Recipes
                 {
                     result.AddError($"{where} uses custom annotation type '{annotationType}', which is not available because the required extension is not installed or active.");
                     continue;
+                }
+
+                // An image or cursor comes from one place
+                var sources = ImageSources.Where(k => annotation.TryGetValue(k, out var source) && source != null).ToList();
+                if (sources.Count > 1)
+                {
+                    result.AddError($"{where} ({annotationType}): use one of {string.Join(", ", sources)}, not {(sources.Count == 2 ? "both" : "several")}.");
                 }
 
                 // A type registered without its properties: they aren't checked

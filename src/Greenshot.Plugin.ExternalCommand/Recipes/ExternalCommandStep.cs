@@ -60,16 +60,16 @@ namespace Greenshot.Plugin.ExternalCommand.Recipes
     [StepParameter("OutputToClipboard", ContractDataType.Boolean, Description = "Copy the command's output to the clipboard")]
     [StepParameter("UriToClipboard", ContractDataType.Boolean, Description = "Copy a URI found in the command's output to the clipboard")]
     [StepParameter("ReloadAfterExecution", ContractDataType.Boolean, DefaultValue = false, Description = "Reload the image from the file after the command changed it")]
-    [StepParameter("SetOutputVariable", ContractDataType.String, Description = "Also store the command's output in this variable", SupportsExpressions = false)]
-    [StepParameter("SetExitCodeVariable", ContractDataType.String, Description = "Also store the command's exit code in this variable", SupportsExpressions = false)]
+    [StepParameter("OutputVariable", ContractDataType.String, Description = "Also store the command's output in this variable", SupportsExpressions = false)]
+    [StepParameter("ExitCodeVariable", ContractDataType.String, Description = "Also store the command's exit code in this variable", SupportsExpressions = false)]
     [StepInputVariable("Destination.Filename", ContractDataType.FilePath, Description = "File saved by an earlier destination step, handed to the command instead of a new file")]
     [StepOutputVariable("ExternalCommand.TargetFile", ContractDataType.FilePath, "The file handed to the command")]
     [StepOutputVariable("ExternalCommand.ExitCode", ContractDataType.Integer, "Exit code of the command", Conditional = true)]
     [StepOutputVariable("ExternalCommand.Output", ContractDataType.String, "Standard output of the command", Conditional = true)]
     [StepOutputVariable("ExternalCommand.Error", ContractDataType.String, "Standard error of the command", Conditional = true)]
     [StepOutputVariable("ExternalCommand.Uri", ContractDataType.String, "First URI found in the output", Conditional = true)]
-    [StepOutputVariable("{Parameter:SetOutputVariable}", ContractDataType.String, "The command's output", Conditional = true)]
-    [StepOutputVariable("{Parameter:SetExitCodeVariable}", ContractDataType.Integer, "The command's exit code", Conditional = true)]
+    [StepOutputVariable("{Parameter:OutputVariable}", ContractDataType.String, "The command's output", Conditional = true)]
+    [StepOutputVariable("{Parameter:ExitCodeVariable}", ContractDataType.Integer, "The command's exit code", Conditional = true)]
     public class ExternalCommandStep : ICaptureStep, IRequiresRecipeAuthorization
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ExternalCommandStep));
@@ -145,8 +145,8 @@ namespace Greenshot.Plugin.ExternalCommand.Recipes
             bool reloadAfterExecution = NodeConfig.GetParameter<bool?>("ReloadAfterExecution") ?? false;
             string workingDirectory = NodeConfig.GetParameter<string>("WorkingDirectory");
             string verb = NodeConfig.GetParameter<string>("Verb");
-            string setOutputVariable = NodeConfig.GetParameter<string>("SetOutputVariable");
-            string setExitCodeVariable = NodeConfig.GetParameter<string>("SetExitCodeVariable");
+            string setOutputVariable = NodeConfig.GetParameter<string>("OutputVariable");
+            string setExitCodeVariable = NodeConfig.GetParameter<string>("ExitCodeVariable");
 
             // Look up configured command if commandName is given or commandLine is not explicitly set
             var extConfig = Config;

@@ -542,11 +542,6 @@ namespace Greenshot.Plugin.RecipeEditor
         string SourceFilePath { get; }
 
         /// <summary>
-        /// Window Title (exact)
-        /// </summary>
-        string WindowTitleExact { get; }
-
-        /// <summary>
         /// Window Title Pattern (Regex)
         /// </summary>
         string WindowTitlePattern { get; }
@@ -715,11 +710,6 @@ namespace Greenshot.Plugin.RecipeEditor
         /// Countdown Delay (ms)
         /// </summary>
         string CountdownDelayMs { get; }
-
-        /// <summary>
-        /// Output MP4 File Path
-        /// </summary>
-        string OutputMp4Path { get; }
 
         /// <summary>
         /// Preset
@@ -1012,9 +1002,24 @@ namespace Greenshot.Plugin.RecipeEditor
         string MaintainAspectRatio { get; }
 
         /// <summary>
-        /// Padding / Margin (px on all sides)
+        /// Left (px)
         /// </summary>
-        string PaddingMargin { get; }
+        string CanvasLeft { get; }
+
+        /// <summary>
+        /// Top (px)
+        /// </summary>
+        string CanvasTop { get; }
+
+        /// <summary>
+        /// Right (px)
+        /// </summary>
+        string CanvasRight { get; }
+
+        /// <summary>
+        /// Bottom (px)
+        /// </summary>
+        string CanvasBottom { get; }
 
         /// <summary>
         /// Background Color (hex value or name)
@@ -1195,11 +1200,6 @@ namespace Greenshot.Plugin.RecipeEditor
         /// Step label
         /// </summary>
         string AnnotationTypeStepLabel { get; }
-
-        /// <summary>
-        /// SVG
-        /// </summary>
-        string AnnotationTypeSvg { get; }
 
         /// <summary>
         /// Text
@@ -1395,26 +1395,6 @@ namespace Greenshot.Plugin.RecipeEditor
         /// Image file
         /// </summary>
         string ImageFile { get; }
-
-        /// <summary>
-        /// SVG Source
-        /// </summary>
-        string SvgSource { get; }
-
-        /// <summary>
-        /// Embed (XML)
-        /// </summary>
-        string EmbedXml { get; }
-
-        /// <summary>
-        /// SVG file
-        /// </summary>
-        string SvgFile { get; }
-
-        /// <summary>
-        /// Inline SVG XML
-        /// </summary>
-        string InlineSvg { get; }
 
         /// <summary>
         /// Cursor Source
@@ -4032,21 +4012,6 @@ namespace Greenshot.Plugin.RecipeEditor
         string AssetEmbeddedImage { get; }
 
         /// <summary>
-        /// Embedded SVG
-        /// </summary>
-        string AssetEmbeddedSvg { get; }
-
-        /// <summary>
-        /// Select SVG Vector Graphic
-        /// </summary>
-        string TitleSelectSvg { get; }
-
-        /// <summary>
-        /// Scalable Vector Graphics (*.svg)
-        /// </summary>
-        string FilterSvg { get; }
-
-        /// <summary>
         /// All Files (*.*)
         /// </summary>
         string FilterAllFiles { get; }
@@ -4232,9 +4197,9 @@ namespace Greenshot.Plugin.RecipeEditor
         string SummaryResizeSize { get; }
 
         /// <summary>
-        /// Canvas Padding: {0}px
+        /// Canvas: left {0}, top {1}, right {2}, bottom {3} px
         /// </summary>
-        string SummaryCanvasPadding { get; }
+        string SummaryCanvasSides { get; }
 
         /// <summary>
         /// Monochrome (Thresh: {0})

@@ -277,7 +277,7 @@ namespace Greenshot.Tests.Recipes
                 ForeColor = "#001122",
                 BackColor = "#EEFFAA",
                 RoundedDots = true,
-                Margin = 3
+                QuietZone = 3
             };
 
             var dict = original.ToDictionary();
@@ -286,7 +286,7 @@ namespace Greenshot.Tests.Recipes
             Assert.Equal("#001122", dict["ForeColor"]);
             Assert.Equal("#EEFFAA", dict["BackColor"]);
             Assert.Equal(true, dict["RoundedDots"]);
-            Assert.Equal(3, dict["Margin"]);
+            Assert.Equal(3, dict["QuietZone"]);
             Assert.False(dict.ContainsKey("FillColor"));
             Assert.False(dict.ContainsKey("LineColor"));
 
@@ -296,7 +296,7 @@ namespace Greenshot.Tests.Recipes
             Assert.Equal("#001122", restored.ForeColor);
             Assert.Equal("#EEFFAA", restored.BackColor);
             Assert.True(restored.RoundedDots);
-            Assert.Equal(3, restored.Margin);
+            Assert.Equal(3, restored.QuietZone);
         }
 
         [Fact]
@@ -373,7 +373,7 @@ namespace Greenshot.Tests.Recipes
             Assert.Equal("QRCode", qrItem.Type);
             Assert.Equal("#000000", qrItem.ForeColor);
             Assert.Equal("#FFFFFF", qrItem.BackColor);
-            Assert.Equal(1, qrItem.Margin);
+            Assert.Equal(1, qrItem.QuietZone);
 
             stepVm.AddAnnotation("Blur");
             var blurItem = stepVm.Annotations[4];

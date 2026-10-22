@@ -102,9 +102,7 @@ namespace Greenshot.Tests.Recipes
             {
                 Parameters = new Dictionary<string, object>
                 {
-                    ["Variable"] = "Copy",
-                    ["Value"] = "${Barcode.Text}",
-                    ["Variables"] = new Dictionary<string, object> { ["Other"] = "prefix ${Barcode.Text}" }
+                    ["Variables"] = new Dictionary<string, object> { ["Copy"] = "${Barcode.Text}", ["Other"] = "prefix ${Barcode.Text}" }
                 }
             };
             await SingleNodeRunner.RunAsync(node, cfg => new SetVariableStep(cfg), context);

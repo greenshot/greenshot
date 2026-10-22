@@ -179,12 +179,10 @@ namespace Greenshot.Base.Recipes
                 .Set("Annotations", new List<Dictionary<string, object>> { annotation });
         }
 
-        public static RecipeNodeConfig CreateSetVariable(string id = "set_var", string variable = null, object value = null)
+        public static RecipeNodeConfig CreateSetVariable(string id, string variable, object value)
         {
-            var node = new RecipeNodeConfig(id, WellKnownStepTypes.SetVariable, "Set Variable");
-            if (variable != null) node.Set("Variable", variable);
-            if (value != null) node.Set("Value", value);
-            return node;
+            return new RecipeNodeConfig(id, WellKnownStepTypes.SetVariable, "Set Variable")
+                .Set("Variables", new Dictionary<string, object> { [variable] = value });
         }
 
         public static RecipeNodeConfig CreateFeedback(string id = "feedback", bool? playSound = null)
@@ -298,15 +296,13 @@ namespace Greenshot.Base.Recipes
             string message = "Please choose how to proceed with this capture:",
             bool showPreview = true,
             IEnumerable<PromptChoice> choices = null,
-            int timeoutSeconds = 0,
-            string defaultChoice = null)
+            int timeoutSeconds = 0)
         {
             var node = new RecipeNodeConfig(id, WellKnownStepTypes.UserPrompt, title ?? "User Decision");
             node.Set("Title", title ?? "User Decision");
             node.Set("Message", message ?? "Please choose how to proceed with this capture:");
             node.Set("ShowPreview", showPreview);
             if (timeoutSeconds > 0) node.Set("TimeoutSeconds", timeoutSeconds);
-            if (!string.IsNullOrEmpty(defaultChoice)) node.Set("DefaultChoice", defaultChoice);
 
             var choiceList = choices != null
                 ? choices.ToList()

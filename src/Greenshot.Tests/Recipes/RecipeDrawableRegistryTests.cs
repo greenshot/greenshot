@@ -424,9 +424,6 @@ namespace Greenshot.Tests.Recipes
                 // With the common ones
                 Assert.Contains("HorizontalAnchor", names);
             }
-            string stepSchema = plugin.GetStepSchemaJson();
-            Assert.NotNull(stepSchema);
-            Assert.Contains("BarcodeScan", stepSchema);
         }
 
         [Fact]
@@ -538,7 +535,7 @@ namespace Greenshot.Tests.Recipes
             // Built-in drawables
             Assert.Equal(ScaleOptions.Rational, registry.GetScaleOptions("StepLabel"));
             Assert.Equal(ScaleOptions.Rational, registry.GetScaleOptions("Emoji"));
-            Assert.Equal(ScaleOptions.Rational, registry.GetScaleOptions("Svg"));
+            Assert.Equal(ScaleOptions.Default, registry.GetScaleOptions("Image"));
             Assert.Equal(ScaleOptions.Default, registry.GetScaleOptions("Rectangle"));
             Assert.Equal(ScaleOptions.Default, registry.GetScaleOptions("Text"));
             Assert.Equal(ScaleOptions.Default, registry.GetScaleOptions("UnknownDrawable"));
@@ -698,6 +695,22 @@ namespace Greenshot.Tests.Recipes
             Assert.NotNull(ic.Image);
             Assert.Equal(64, ic.Image.Width);
             Assert.Equal(64, ic.Image.Height);
+        }
+
+        [Fact]
+        public void Registry_ImageDrawable_WithAnSvg_StaysAVector()
+        {
+            const string svg = "<?xml version=\"1.0\"?><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"40\" height=\"20\"><rect width=\"40\" height=\"20\" fill=\"red\"/></svg>";
+            using var bmp = new Bitmap(400, 400);
+            using var surface = new Surface(bmp);
+
+            var p = new Dictionary<string, object>
+            {
+                ["ImageData"] = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(svg))
+            };
+
+            var container = RecipeDrawableRegistry.Instance.CreateDrawable("Image", surface, p, null);
+            Assert.IsType<SvgContainer>(container);
         }
 
         [Fact]

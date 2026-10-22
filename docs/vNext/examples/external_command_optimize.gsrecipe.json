@@ -43,7 +43,7 @@
         "CommandLine": "cmd.exe",
         "Arguments": "/c echo Optimizing ${context.ExternalCommand.TargetFile}",
         "ReloadAfterExecution": false,
-        "SetOutputVariable": "opt_output"
+        "OutputVariable": "opt_output"
       }
     },
     {

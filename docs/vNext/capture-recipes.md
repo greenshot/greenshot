@@ -269,7 +269,7 @@ The `Annotation` step allows adding any Greenshot annotation container to the ca
 ### Supported Annotation Types
 - **Shapes & Lines**: `Rectangle`, `Ellipse`, `Line`, `Arrow`, `Freehand`
 - **Text & Annotations**: `Text`, `Speechbubble`, `StepLabel`
-- **Images & Icons**: `Image`, `Icon`, `Cursor`, `Emoji`, `Svg`
+- **Images & Icons**: `Image` (bitmaps and SVG), `Icon`, `Cursor`, `Emoji`
 - **Barcodes & QR Codes** *(via ZXing Plugin)*: `QRCode`, `Barcode`
 - **Filters & Effects**: `Blur`, `Pixelize`, `Highlight`, `Magnify`, `Crop`
 
@@ -291,7 +291,6 @@ below (`FontSize`, not `fontSize`). Loading a recipe reports a property the type
 | `Icon` | `FilePath` |
 | `Cursor` | `CursorName`, `FilePath`, `ImageData`, `HotspotX`, `HotspotY` |
 | `Emoji` | `Emoji` |
-| `Svg` | `Content`, `FilePath`, `ImageData` |
 | `Blur` / `Pixelize` | `BlurRadius` / `PixelSize` |
 | `Highlight` / `Magnify` | `FillColor` / `MagnificationFactor` |
 | `Crop` | none |
@@ -372,15 +371,18 @@ In the visual Recipe Editor:
 - **`Width` / `Height`**: Dimensions for 1D barcodes or rectangular barcodes.
 - **`ForeColor`**: Barcode foreground/module color (e.g. `"#003366"` or `"Black"`).
 - **`BackColor`**: Background quiet-zone color (e.g. `"#FFFFFF"` or `"White"`).
+- **`QuietZone`**: The empty border around the code, in modules (default `1`). `Margin` is the distance to the edge of the capture, as for every annotation.
 - **`RoundedDots`**: Boolean (`true`/`false`). Renders modern rounded circular dots for 2D matrix modules while preserving standard finder patterns.
 - **`Format`**: Barcode format string for `Barcode` type (e.g. `"QR_CODE"`, `"CODE_128"`, `"EAN_13"`, `"DATA_MATRIX"`, `"AZTEC"`, `"PDF_417"`). Defaults to `"QR_CODE"`.
 
 ### Image, Cursor & SVG Annotations
 
-Greenshot supports rich graphical elements including bitmaps (`Image`), Windows mouse cursors (`Cursor`), and vector graphics (`Svg`):
+Greenshot supports images (`Image`: bitmaps, and SVG which stays a vector) and Windows mouse cursors (`Cursor`).
 
 #### 1. Embedded (Base64) vs Linked (File Path) Storage:
-- **Embedded (`ImageData` / `Content`)**: Binary image or cursor bitmaps are encoded as Base64 strings, and SVG vectors as inline XML text. This makes recipe files 100% self-contained and portable across environments with no external file dependencies:
+An image or cursor comes from exactly one place: `ImageData`, `FilePath` or (for a cursor) `CursorName`. Setting more
+than one is an error. Whether the file is a bitmap or an SVG is read from its contents.
+- **Embedded (`ImageData`)**: The file contents (PNG, JPEG, SVG, cursor, ...) encoded as Base64. This makes recipe files self-contained and portable across environments with no external file dependencies:
   ```json
   {
     "Type": "Cursor",
@@ -410,7 +412,7 @@ Greenshot supports rich graphical elements including bitmaps (`Image`), Windows 
 ```
 
 #### 3. Aspect Ratio Locking:
-Annotations with scalable visual proportions (`Image`, `Svg`, `Emoji`, `StepLabel`, `Cursor`) support `"LockAspectRatio": true` to preserve original dimensions and prevent distortion when resizing in the editor.
+Annotations with scalable visual proportions (`Image`, `Emoji`, `StepLabel`, `Cursor`) support `"LockAspectRatio": true` to preserve original dimensions and prevent distortion when resizing in the editor.
 
 ---
 
@@ -968,13 +970,13 @@ If a recipe references a step type provided by a plugin that is **not installed 
 
 | Step Type | Plugin | Description | Parameters |
 |---|---|---|---|
-| `ExternalCommand` | `Greenshot.Plugin.ExternalCommand` | Saves the capture to a file and runs an external command with it. `Command` runs a command configured in `greenshot.ini`. | `Command`, `CommandLine`, `Arguments`, `WorkingDirectory`, `Verb`, `Format`, `JpegQuality`, `RunInBackground`, `OutputToClipboard`, `UriToClipboard`, `ReloadAfterExecution`, `SetOutputVariable`, `SetExitCodeVariable` |
+| `ExternalCommand` | `Greenshot.Plugin.ExternalCommand` | Saves the capture to a file and runs an external command with it. `Command` runs a command configured in `greenshot.ini`. | `Command`, `CommandLine`, `Arguments`, `WorkingDirectory`, `Verb`, `Format`, `JpegQuality`, `RunInBackground`, `OutputToClipboard`, `UriToClipboard`, `ReloadAfterExecution`, `OutputVariable`, `ExitCodeVariable` |
 | `Box` | `Greenshot.Plugin.Box` | Uploads the capture to Box; sets `Box.UploadUrl`. | (account settings) |
 | `Dropbox` | `Greenshot.Plugin.Dropbox` | Uploads the capture to Dropbox; sets `Dropbox.UploadUrl`. | (account settings) |
 | `Jira` | `Greenshot.Plugin.Atlassian` | Attaches the capture to a Jira issue; sets `Jira.UploadUrl`, `Jira.IssueKey`. A used file name adds another attachment with that name (Jira has no versions). | `IssueKey` (default: variable `Jira.IssueKey`), `Format`, `JpegQuality`, `ReduceColors` |
 | `Confluence` | `Greenshot.Plugin.Atlassian` | Attaches the capture to a Confluence page; sets `Confluence.PageId`, `Confluence.UploadUrl`. When the page has a file with the name, the capture becomes a new version of it. | `PageId`, `Format`, `JpegQuality`, `ReduceColors` |
 | `Office` | `Greenshot.Plugin.Office` | Sends the capture to an Office application. | `Application`: `Word` (default), `Excel`, `PowerPoint`, `OneNote`, `Outlook` |
-| `BarcodeScan` | `Greenshot.Plugin.Zxing` | Scans the capture for barcodes/QR codes; sets `Barcode.Text`, `Barcode.Format` and `Payload.ExtractedText` when something was found. | `SetVariable`, `CopyToClipboard` |
+| `BarcodeScan` | `Greenshot.Plugin.Zxing` | Scans the capture for barcodes/QR codes; sets `Barcode.Text`, `Barcode.Format` and `Payload.ExtractedText` when something was found. | `OutputVariable`, `CopyToClipboard` |
 
 The complete, current description of every step type (parameters, variables it reads and sets, payload) is its contract: `greenshot --info <recipe>` shows it for the steps of a recipe. See section 8.
 
@@ -993,8 +995,8 @@ The `ExternalCommand` step allows screenshot automation workflows to invoke exte
 - **`ReloadAfterExecution`** *(default: `false`)*: When `true`, re-reads the modified image file from disk and updates the pipeline surface/payload for subsequent steps. Ideal for in-place image optimization tools.
 - **`OutputToClipboard`** *(default: `false`)*: Copies the standard output of the external command to the Windows clipboard.
 - **`UriToClipboard`** *(default: `false`)*: Extracts any URI from stdout using regex and copies it to the Windows clipboard.
-- **`SetOutputVariable`**: Stores the raw standard output text in `context.Properties[key]`.
-- **`SetExitCodeVariable`**: Stores the process exit code integer in `context.Properties[key]`.
+- **`OutputVariable`**: Stores the raw standard output text in `context.Properties[key]`.
+- **`ExitCodeVariable`**: Stores the process exit code integer in `context.Properties[key]`.
 
 ---
 

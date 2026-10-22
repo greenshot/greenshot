@@ -328,7 +328,8 @@ namespace Greenshot.Recipes
             }
             if (Is(type, WellKnownStepTypes.SetVariable))
             {
-                return $"Sets the variable {node.GetParameter("Variable", "?")}";
+                var names = node.GetParameter<Dictionary<string, object>>("Variables")?.Keys.ToList() ?? new List<string>();
+                return names.Count == 1 ? $"Sets the variable {names[0]}" : $"Sets the variables {string.Join(", ", names)}";
             }
             if (Is(type, WellKnownStepTypes.Clipboard))
             {
@@ -384,7 +385,7 @@ namespace Greenshot.Recipes
                     what = node.HasParameter("PreSuppliedRegion") ? "Captures a given part of the screen" : "Captures a region you select";
                     break;
                 case "window":
-                    string title = node.GetParameter<string>("WindowTitle") ?? node.GetParameter<string>("WindowTitlePattern");
+                    string title = node.GetParameter<string>("WindowTitlePattern");
                     string process = node.GetParameter<string>("ProcessName");
                     what = node.HasParameter("WindowHandle") ? "Captures the window passed to the recipe"
                         : !string.IsNullOrWhiteSpace(title) ? $"Captures the window \"{title}\""

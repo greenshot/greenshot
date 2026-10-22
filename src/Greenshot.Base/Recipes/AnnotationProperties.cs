@@ -68,7 +68,7 @@ namespace Greenshot.Base.Recipes
         private static readonly ParameterContract FontSize = new ParameterContract("FontSize", ContractDataType.Decimal, description: "Font size in points");
         private static readonly ParameterContract Bold = new ParameterContract("Bold", ContractDataType.Boolean, description: "Bold text");
         private static readonly ParameterContract FilePath = new ParameterContract("FilePath", ContractDataType.FilePath, description: "The file to show");
-        private static readonly ParameterContract ImageData = new ParameterContract("ImageData", description: "The file contents, Base64 encoded");
+        private static readonly ParameterContract ImageData = new ParameterContract("ImageData", description: "The file contents (PNG, JPEG, SVG, ...), Base64 encoded; instead of FilePath");
 
         private static readonly Dictionary<string, IReadOnlyList<ParameterContract>> BuiltIn = new Dictionary<string, IReadOnlyList<ParameterContract>>(StringComparer.OrdinalIgnoreCase)
         {
@@ -96,7 +96,6 @@ namespace Greenshot.Base.Recipes
             ["Icon"] = new[] { FilePath },
             ["Cursor"] = new[] { new ParameterContract("CursorName", description: "A Windows cursor: Arrow, Hand, IBeam, ..."), FilePath, ImageData, Number("HotspotX", "The hot spot of the cursor image"), Number("HotspotY", "The hot spot of the cursor image") },
             ["Emoji"] = new[] { new ParameterContract("Emoji", description: "The emoji") },
-            ["Svg"] = new[] { new ParameterContract("Content", description: "The SVG"), FilePath, ImageData },
             ["Blur"] = new[] { Number("BlurRadius", "Blur radius") },
             ["Pixelize"] = new[] { Number("PixelSize", "Pixel size") },
             ["Highlight"] = new[] { FillColor },

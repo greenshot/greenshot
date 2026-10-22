@@ -1001,11 +1001,6 @@
                                             </StackPanel>
 
                                             <StackPanel Visibility="{Binding SelectedNode.IsWindowSource, Converter={StaticResource BoolToVis}}">
-                                                <TextBlock Text="{wpf:Text RecipeEditor.WindowTitleExact}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                                <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.WindowTitleExact}" Text="{Binding SelectedNode.WindowTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
-                                                         Padding="6,4" Margin="0,0,0,8"/>
-
                                                 <TextBlock Text="{wpf:Text RecipeEditor.WindowTitlePattern}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
                                                 <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.WindowTitlePattern}" Text="{Binding SelectedNode.WindowTitlePattern, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                          Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
@@ -1163,8 +1158,12 @@
                                             </Grid>
 
                                             <!-- Output Path -->
-                                            <TextBlock Text="{wpf:Text RecipeEditor.OutputMp4Path}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                            <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.OutputMp4Path}" Text="{Binding SelectedNode.VideoOutputFilePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            <TextBlock Text="{wpf:Text RecipeEditor.SaveDirectory}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.SaveDirectory}" Text="{Binding SelectedNode.VideoOutputDirectory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                     Padding="6,4" Margin="0,0,0,8"/>
+                                            <TextBlock Text="{wpf:Text RecipeEditor.FilenamePattern}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.FilenamePattern}" Text="{Binding SelectedNode.VideoFilenamePattern, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
                                                      Padding="6,4" Margin="0,0,0,8"/>
 
@@ -1456,8 +1455,20 @@
 
                                             <!-- 4h. Resize Canvas / Padding Effect -->
                                             <StackPanel Visibility="{Binding SelectedNode.IsResizeCanvasEffect, Converter={StaticResource BoolToVis}}">
-                                                <TextBlock Text="{wpf:Text RecipeEditor.PaddingMargin}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                                <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.PaddingMargin}" Text="{Binding SelectedNode.CanvasMargin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                <TextBlock Text="{wpf:Text RecipeEditor.CanvasLeft}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.CanvasLeft}" Text="{Binding SelectedNode.CanvasLeft, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                         Padding="6,4" Margin="0,0,0,8"/>
+                                                <TextBlock Text="{wpf:Text RecipeEditor.CanvasTop}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.CanvasTop}" Text="{Binding SelectedNode.CanvasTop, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                         Padding="6,4" Margin="0,0,0,8"/>
+                                                <TextBlock Text="{wpf:Text RecipeEditor.CanvasRight}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.CanvasRight}" Text="{Binding SelectedNode.CanvasRight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                         Padding="6,4" Margin="0,0,0,8"/>
+                                                <TextBlock Text="{wpf:Text RecipeEditor.CanvasBottom}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.CanvasBottom}" Text="{Binding SelectedNode.CanvasBottom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                          Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
                                                          Padding="6,4" Margin="0,0,0,8"/>
 
@@ -1629,7 +1640,6 @@
                                                             <ComboBoxItem Content="{wpf:Text RecipeEditor.AnnotationTypeRectangle}" Tag="Rectangle"/>
                                                             <ComboBoxItem Content="{wpf:Text RecipeEditor.AnnotationTypeSpeechBubble}" Tag="Speechbubble"/>
                                                             <ComboBoxItem Content="{wpf:Text RecipeEditor.AnnotationTypeStepLabel}" Tag="StepLabel"/>
-                                                            <ComboBoxItem Content="{wpf:Text RecipeEditor.AnnotationTypeSvg}" Tag="Svg"/>
                                                             <ComboBoxItem Content="{wpf:Text RecipeEditor.AnnotationTypeText}" Tag="Text"/>
                                                         </ComboBox>
                                                         <Button Content="{wpf:Text RecipeEditor.BtnAddAnnotation}" Style="{StaticResource PrimaryButtonStyle}" Padding="6,2"
@@ -1678,7 +1688,6 @@
                                                                         <ComboBoxItem Content="{wpf:Text RecipeEditor.AnnotationTypeRectangle}" Tag="Rectangle"/>
                                                                         <ComboBoxItem Content="{wpf:Text RecipeEditor.AnnotationTypeSpeechBubble}" Tag="Speechbubble"/>
                                                                         <ComboBoxItem Content="{wpf:Text RecipeEditor.AnnotationTypeStepLabel}" Tag="StepLabel"/>
-                                                                        <ComboBoxItem Content="{wpf:Text RecipeEditor.AnnotationTypeSvg}" Tag="Svg"/>
                                                                         <ComboBoxItem Content="{wpf:Text RecipeEditor.AnnotationTypeText}" Tag="Text"/>
                                                                     </ComboBox>
                                                                     <TextBlock Grid.Column="1" Text="{Binding SourceSummaryBadge}"
@@ -1892,41 +1901,6 @@
                                                                         <Button Grid.Column="2" Content="{wpf:Text RecipeEditor.ImportBtnBrowse}" Style="{StaticResource SecondaryButtonStyle}" Padding="6,2"
                                                                                 Command="{Binding BrowseFileCommand}"/>
                                                                     </Grid>
-                                                                </StackPanel>
-
-                                                                <!-- SVG Controls -->
-                                                                <StackPanel Visibility="{Binding IsSvgType, Converter={StaticResource BoolToVis}}" Margin="0,0,0,4">
-                                                                    <Grid Margin="0,0,0,2">
-                                                                        <Grid.ColumnDefinitions>
-                                                                            <ColumnDefinition Width="*"/>
-                                                                            <ColumnDefinition Width="Auto"/>
-                                                                        </Grid.ColumnDefinitions>
-                                                                        <TextBlock Text="{wpf:Text RecipeEditor.SvgSource}" FontSize="{wpf:FontSize 10}" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                                                                        <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                                                            <RadioButton Content="{wpf:Text RecipeEditor.EmbedXml}" IsChecked="{Binding IsEmbedMode, Mode=TwoWay}" FontSize="{wpf:FontSize 10}" Margin="0,0,8,0"/>
-                                                                            <RadioButton Content="{wpf:Text RecipeEditor.LinkFile}" IsChecked="{Binding IsLinkMode, Mode=TwoWay}" FontSize="{wpf:FontSize 10}"/>
-                                                                        </StackPanel>
-                                                                    </Grid>
-                                                                    <Grid Margin="0,1,0,3">
-                                                                        <Grid.ColumnDefinitions>
-                                                                            <ColumnDefinition Width="*"/>
-                                                                            <ColumnDefinition Width="6"/>
-                                                                            <ColumnDefinition Width="Auto"/>
-                                                                        </Grid.ColumnDefinitions>
-                                                                        <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.SvgFile}" Grid.Column="0" Text="{Binding FilePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                                                 FontFamily="Consolas" FontSize="{wpf:FontSize 11}"
-                                                                                 Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                                 Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                                 Padding="4,2"/>
-                                                                        <Button Grid.Column="2" Content="{wpf:Text RecipeEditor.ImportBtnBrowse}" Style="{StaticResource SecondaryButtonStyle}" Padding="6,2"
-                                                                                Command="{Binding BrowseFileCommand}"/>
-                                                                    </Grid>
-                                                                    <TextBlock Text="{wpf:Text RecipeEditor.InlineSvg}" FontSize="{wpf:FontSize 10}" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                                                                    <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.InlineSvg}" Text="{Binding SvgXml, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                                             FontFamily="Consolas" FontSize="{wpf:FontSize 10}" Height="50" TextWrapping="Wrap" AcceptsReturn="True"
-                                                                             Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                             Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                             Margin="0,1,0,3" Padding="4,2"/>
                                                                 </StackPanel>
 
                                                                 <!-- Cursor Controls -->
@@ -2178,7 +2152,7 @@
                                                                         </Grid.ColumnDefinitions>
                                                                         <StackPanel Grid.Column="0">
                                                                             <TextBlock Text="{wpf:Text RecipeEditor.QuietZone}" FontSize="{wpf:FontSize 10}" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                                                                            <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.QuietZone}" Text="{Binding Margin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" FontSize="{wpf:FontSize 11}"
+                                                                            <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.QuietZone}" Text="{Binding QuietZone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" FontSize="{wpf:FontSize 11}"
                                                                                      Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                                      Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                                      Padding="4,2" Margin="0,2,0,0"/>
@@ -2457,13 +2431,6 @@
                                                 <ComboBoxItem Content="{wpf:Text Pdf.PageA5}" Tag="A5"/>
                                                 <ComboBoxItem Content="{wpf:Text Pdf.PageA6}" Tag="A6"/>
                                                 <ComboBoxItem Content="{wpf:Text Pdf.PageLetter}" Tag="Letter"/>
-                                            </ComboBox>
-                                            <TextBlock Text="{wpf:Text Pdf.LabelUnit}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                            <ComboBox AutomationProperties.Name="{wpf:Text Pdf.LabelUnit}" SelectedValue="{Binding SelectedNode.PdfMeasurementUnit, Mode=TwoWay}" SelectedValuePath="Tag" Margin="0,0,0,8">
-                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.OutputFormatFromConfiguration}" Tag=""/>
-                                                <ComboBoxItem Content="{wpf:Text Pdf.UnitMm}" Tag="Mm"/>
-                                                <ComboBoxItem Content="{wpf:Text Pdf.UnitCm}" Tag="Cm"/>
-                                                <ComboBoxItem Content="{wpf:Text Pdf.UnitInch}" Tag="Inch"/>
                                             </ComboBox>
                                             <TextBlock FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"><Run Text="{wpf:Text Pdf.LabelPageWidth}"/><Run Text=" (mm)"/></TextBlock>
                                             <TextBox AutomationProperties.Name="{wpf:Text Pdf.LabelPageWidth}" Text="{Binding SelectedNode.PdfPageWidthMm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"

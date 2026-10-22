@@ -344,13 +344,6 @@ namespace Greenshot.Base.Recipes.Contracts
                     }
                 }
 
-                foreach (var name in parameters.Keys)
-                {
-                    if (contract.FindParameter(name) == null)
-                    {
-                        _warnings.Add($"Node '{node.Id}' ({node.StepType}) has parameter '{name}', which the step does not read.");
-                    }
-                }
             }
 
             private IEnumerable<string> GetStartNodes()

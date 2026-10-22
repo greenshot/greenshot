@@ -42,9 +42,9 @@ namespace Greenshot.Recipes.Steps
     [StepInfo(WellKnownStepTypes.Effect, "Image Effect", "Applies an image effect (border, drop shadow, torn edge, grayscale, resize, ...) to the capture.", "Effects")]
     [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required, VisualMutation = PayloadEffect.MutatesPixels)]
     [StepParameter("Effect", ContractDataType.Enum, DefaultValue = "Border", Description = "The effect", AllowedValues = new[] { "Border", "DropShadow", "TornEdge", "Invert", "Grayscale", "Monochrome", "Adjust", "Rotate", "Resize", "ResizeCanvas", "ReduceColors", "RemoveTransparency" })]
-    [StepParameter("Width", ContractDataType.Integer, Description = "Border width (Border), new width (Resize)")]
-    [StepParameter("Height", ContractDataType.Integer, Description = "New height (Resize)")]
-    [StepParameter("Color", ContractDataType.String, Description = "Border color (Border), background color (ResizeCanvas, RemoveTransparency)")]
+    [StepParameter("Width", ContractDataType.Integer, Description = "Border width (Border), new width (Resize, instead of Percentage)")]
+    [StepParameter("Height", ContractDataType.Integer, Description = "New height (Resize, instead of Percentage)")]
+    [StepParameter("Color", ContractDataType.String, Description = "Border color (Border)")]
     [StepParameter("Darkness", ContractDataType.Decimal, Description = "Shadow darkness (DropShadow, TornEdge)")]
     [StepParameter("ShadowSize", ContractDataType.Integer, Description = "Shadow size (DropShadow, TornEdge)")]
     [StepParameter("ShadowOffsetX", ContractDataType.Integer, Description = "Shadow offset (DropShadow)")]
@@ -59,14 +59,13 @@ namespace Greenshot.Recipes.Steps
     [StepParameter("Contrast", ContractDataType.Decimal, Description = "Contrast (Adjust)")]
     [StepParameter("Gamma", ContractDataType.Decimal, Description = "Gamma (Adjust)")]
     [StepParameter("Angle", ContractDataType.Integer, DefaultValue = 90, Description = "Angle (Rotate)")]
-    [StepParameter("Percentage", ContractDataType.Decimal, Description = "Size in percent (Resize)")]
+    [StepParameter("Percentage", ContractDataType.Decimal, Description = "Size in percent (Resize, instead of Width and Height)")]
     [StepParameter("MaintainAspectRatio", ContractDataType.Boolean, DefaultValue = true, Description = "Keep the aspect ratio (Resize)")]
-    [StepParameter("Margin", ContractDataType.Integer, Description = "Margin on all sides (ResizeCanvas)")]
-    [StepParameter("Left", ContractDataType.Integer, Description = "Left margin (ResizeCanvas)")]
-    [StepParameter("Right", ContractDataType.Integer, Description = "Right margin (ResizeCanvas)")]
-    [StepParameter("Top", ContractDataType.Integer, Description = "Top margin (ResizeCanvas)")]
-    [StepParameter("Bottom", ContractDataType.Integer, Description = "Bottom margin (ResizeCanvas)")]
-    [StepParameter("BackgroundColor", ContractDataType.String, Description = "Background color (ResizeCanvas)")]
+    [StepParameter("Left", ContractDataType.Integer, Description = "Pixels added on the left (ResizeCanvas)")]
+    [StepParameter("Right", ContractDataType.Integer, Description = "Pixels added on the right (ResizeCanvas)")]
+    [StepParameter("Top", ContractDataType.Integer, Description = "Pixels added at the top (ResizeCanvas)")]
+    [StepParameter("Bottom", ContractDataType.Integer, Description = "Pixels added at the bottom (ResizeCanvas)")]
+    [StepParameter("BackgroundColor", ContractDataType.String, Description = "Background color (ResizeCanvas, RemoveTransparency)")]
     [StepParameter("Colors", ContractDataType.Integer, Description = "Number of colors (ReduceColors)")]
     public class EffectCaptureStep : ICaptureStep
     {
@@ -210,6 +209,7 @@ namespace Greenshot.Recipes.Steps
                 int width = Config.GetParameter("Width", 0);
                 int height = Config.GetParameter("Height", 0);
                 float percentage = Config.GetParameter("Percentage", 0f);
+                // The validator makes sure only one of them is set
                 if (percentage > 0 && currentImage != null)
                 {
                     width = (int)Math.Round(currentImage.Width * (percentage / 100f));
@@ -222,14 +222,13 @@ namespace Greenshot.Recipes.Steps
 
             if (string.Equals(effectName, "ResizeCanvas", StringComparison.OrdinalIgnoreCase))
             {
-                int margin = Config.GetParameter("Margin", 0);
-                int left = Config.GetParameter("Left", margin);
-                int right = Config.GetParameter("Right", margin);
-                int top = Config.GetParameter("Top", margin);
-                int bottom = Config.GetParameter("Bottom", margin);
+                int left = Config.GetParameter("Left", 0);
+                int right = Config.GetParameter("Right", 0);
+                int top = Config.GetParameter("Top", 0);
+                int bottom = Config.GetParameter("Bottom", 0);
 
                 var canvas = new ResizeCanvasEffect(left, right, top, bottom);
-                string bgColor = Config.GetParameter<string>("BackgroundColor", Config.GetParameter<string>("Color", null));
+                string bgColor = Config.GetParameter<string>("BackgroundColor", null);
                 if (!string.IsNullOrEmpty(bgColor))
                 {
                     canvas.BackgroundColor = ParseColor(bgColor);
@@ -247,7 +246,7 @@ namespace Greenshot.Recipes.Steps
             if (string.Equals(effectName, "RemoveTransparency", StringComparison.OrdinalIgnoreCase))
             {
                 var removeTrans = new RemoveTransparencyEffect();
-                string colorStr = Config.GetParameter<string>("Color", null);
+                string colorStr = Config.GetParameter<string>("BackgroundColor", null);
                 if (!string.IsNullOrEmpty(colorStr))
                 {
                     removeTrans.Color = ParseColor(colorStr);

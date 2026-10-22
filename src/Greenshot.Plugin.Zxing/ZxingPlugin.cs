@@ -43,7 +43,7 @@ using Greenshot.Plugin.Zxing.Views;
 
 namespace Greenshot.Plugin.Zxing;
 
-public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvider, IRecipeDrawableProvider, IRecipeStepSchemaProvider
+public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvider, IRecipeDrawableProvider
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ZxingPlugin));
     private static IZxingConfiguration _config;
@@ -104,7 +104,7 @@ public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
         new ParameterContract("ForeColor", ContractDataType.Color, description: "Color of the code"),
         new ParameterContract("BackColor", ContractDataType.Color, description: "Background color"),
         new ParameterContract("RoundedDots", ContractDataType.Boolean, description: "Rounded dots"),
-        new ParameterContract("Margin", ContractDataType.Integer, description: "Quiet zone around the code, in modules"),
+        new ParameterContract("QuietZone", ContractDataType.Integer, description: "Empty border around the code, in modules"),
         Payload("WifiSsid"), Payload("WifiPassword"), Payload("WifiEncryption"),
         Payload("VcardFirstName"), Payload("VcardLastName"), Payload("VcardCompany"), Payload("VcardEmail"), Payload("VcardPhone"), Payload("VcardUrl"),
         Payload("EpcName"), Payload("EpcIban"), Payload("EpcBic"), Payload("EpcAmount"), Payload("EpcReference"), Payload("EpcMessage"),
@@ -124,30 +124,6 @@ public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
         if (registry == null) return;
 
         registry.Register<ZxingStep>(config => new ZxingStep(config));
-    }
-
-    /// <summary>
-    /// Returns the JSON Schema fragment describing custom capture steps provided by this extension.
-    /// </summary>
-    public string GetStepSchemaJson()
-    {
-        return @"{
-  ""definitions"": {
-    ""BarcodeScanStep"": {
-      ""type"": ""object"",
-      ""properties"": {
-        ""stepType"": { ""type"": ""string"", ""const"": ""BarcodeScan"" },
-        ""parameters"": {
-          ""type"": ""object"",
-          ""properties"": {
-            ""SetVariable"": { ""type"": ""string"" },
-            ""CopyToClipboard"": { ""type"": ""boolean"" }
-          }
-        }
-      }
-    }
-  }
-}";
     }
 
     /// <summary>
@@ -219,7 +195,7 @@ public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
         Color foreColor = GetColor(p, "ForeColor", Color.Black);
         Color backColor = GetColor(p, "BackColor", Color.White);
         bool rounded = GetBool(p, "RoundedDots", false);
-        int margin = GetInt(p, "Margin", 1);
+        int margin = GetInt(p, "QuietZone", 1);
 
         int? requestedW = null;
         int? requestedH = null;
@@ -487,7 +463,7 @@ public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
 
         model.ForeColor = GetColor(p, "ForeColor", Color.Black);
         model.BackColor = GetColor(p, "BackColor", Color.White);
-        model.Margin = GetInt(p, "Margin", 1);
+        model.Margin = GetInt(p, "QuietZone", 1);
 
         IWin32Window win32Owner = owner as IWin32Window;
         if (win32Owner == null && owner is System.Windows.Window wpfWin)
@@ -516,7 +492,7 @@ public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
             p["QrType"] = newQrType;
             p["Text"] = model.RawText;
             p["RoundedDots"] = model.RoundedDots;
-            p["Margin"] = model.Margin;
+            p["QuietZone"] = model.Margin;
 
             p["WifiSsid"] = model.WifiSsid;
             p["WifiPassword"] = model.WifiPassword;

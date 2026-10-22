@@ -41,12 +41,11 @@ namespace Greenshot.Plugin.Zxing.Recipes
     /// </summary>
     [StepInfo(ZxingStep.StepType, "Barcode Scanner (ZXing)", "Scans and decodes 1D/2D barcodes (such as QR codes) from the capture bitmap.", "Analysis")]
     [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required, ExtractedText = PayloadRequirement.Created)]
-    [StepParameter("SetVariable", ContractDataType.String, Description = "Also store the decoded text in this variable", SupportsExpressions = false)]
+    [StepParameter("OutputVariable", ContractDataType.String, Description = "Also store the decoded text in this variable", SupportsExpressions = false)]
     [StepParameter("CopyToClipboard", ContractDataType.Boolean, DefaultValue = false, Description = "Copy the decoded text to the clipboard")]
     [StepOutputVariable("Barcode.Text", ContractDataType.String, "Decoded text of the detected barcode(s), one per line", Conditional = true)]
     [StepOutputVariable("Barcode.Format", ContractDataType.String, "Format of the detected barcode(s), e.g. QR_CODE, one per line", Conditional = true)]
-    [StepOutputVariable("Zxing.DecodedText", ContractDataType.String, "Same as Barcode.Text", Conditional = true)]
-    [StepOutputVariable("{Parameter:SetVariable}", ContractDataType.String, "The decoded text, when SetVariable is set", Conditional = true)]
+    [StepOutputVariable("{Parameter:OutputVariable}", ContractDataType.String, "The decoded text, when OutputVariable is set", Conditional = true)]
     public class ZxingStep : ICaptureStep
     {
         /// <summary>The step type recipes use for this step.</summary>
@@ -77,7 +76,7 @@ namespace Greenshot.Plugin.Zxing.Recipes
 
             var captureDetails = context.Payload?.RawCapture?.CaptureDetails ?? new CaptureDetails();
 
-            string setVariable = NodeConfig.GetParameter<string>("SetVariable");
+            string outputVariable = NodeConfig.GetParameter<string>("OutputVariable");
             bool copyToClipboard = NodeConfig.GetParameter<bool?>("CopyToClipboard") ?? false;
 
             context.LogStep("Scanning surface for QR codes / barcodes...");
@@ -138,13 +137,12 @@ namespace Greenshot.Plugin.Zxing.Recipes
             {
                 string combinedText = string.Join(Environment.NewLine, decodedResults);
                 context.Payload.ExtractedText = combinedText;
-                context.Properties["Zxing.DecodedText"] = combinedText;
                 context.Properties["Barcode.Text"] = combinedText;
                 context.Properties["Barcode.Format"] = string.Join(Environment.NewLine, decodedFormats);
 
-                if (!string.IsNullOrEmpty(setVariable))
+                if (!string.IsNullOrEmpty(outputVariable))
                 {
-                    context.Properties[setVariable] = combinedText;
+                    context.Properties[outputVariable] = combinedText;
                 }
 
                 if (copyToClipboard)

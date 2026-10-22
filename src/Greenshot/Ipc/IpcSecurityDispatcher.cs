@@ -1072,33 +1072,9 @@ namespace Greenshot.Ipc
         private static async Task<string> GetFallbackOutputAsync(CaptureFlowContext flowCtx, CaptureRecipe matchedRecipe)
         {
             string outputText = null;
-            if (flowCtx.Properties.TryGetValue("CommandResult", out var crObj) && crObj != null)
-            {
-                outputText = crObj.ToString();
-            }
-            else if (flowCtx.Properties.TryGetValue("OutputText", out var otObj) && otObj != null)
-            {
-                outputText = otObj.ToString();
-            }
-            else if (flowCtx.Properties.TryGetValue("LastStdout", out var lsObj) && lsObj != null)
+            if (flowCtx.Properties.TryGetValue("LastStdout", out var lsObj) && lsObj != null)
             {
                 outputText = lsObj.ToString();
-            }
-            else if (flowCtx.Properties.TryGetValue("Text", out var tObj) && tObj != null)
-            {
-                outputText = tObj.ToString();
-            }
-            else if (flowCtx.Properties.TryGetValue("OcrText", out var ocrObj) && ocrObj != null)
-            {
-                outputText = ocrObj.ToString();
-            }
-            else if (flowCtx.Properties.TryGetValue("Barcode.Text", out var bObj) && bObj != null)
-            {
-                outputText = bObj.ToString();
-            }
-            else if (flowCtx.Properties.TryGetValue("Zxing.DecodedText", out var zObj) && zObj != null)
-            {
-                outputText = zObj.ToString();
             }
             else if (!string.IsNullOrWhiteSpace(flowCtx.Payload?.ExtractedText))
             {

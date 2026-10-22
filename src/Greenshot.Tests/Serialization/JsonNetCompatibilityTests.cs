@@ -58,6 +58,10 @@ namespace Greenshot.Tests.Serialization
             StepRegistry.Instance.Register<AnnotationStep>(config => new AnnotationStep(config));
             StepRegistry.Instance.Register<EffectCaptureStep>(config => new EffectCaptureStep(config));
             StepRegistry.Instance.Register<SlotStep>(config => new SlotStep(config));
+            StepRegistry.Instance.Register<RecordVideoRecipeStep>(config => new RecordVideoRecipeStep(config));
+            StepRegistry.Instance.Register<Greenshot.Plugin.Zxing.Recipes.ZxingStep>(config => new Greenshot.Plugin.Zxing.Recipes.ZxingStep(config));
+            StepRegistry.Instance.Register<Greenshot.Plugin.ExternalCommand.Recipes.ExternalCommandStep>(config => new Greenshot.Plugin.ExternalCommand.Recipes.ExternalCommandStep(config));
+            StepRegistry.Instance.Register<Greenshot.Plugin.Pdf.Recipes.PdfStep>(config => new Greenshot.Plugin.Pdf.Recipes.PdfStep(config, null));
             // An annotation type of a plugin, with its properties
             RecipeDrawableRegistry.Instance.RegisterDrawableFactory("TestBadge", (surface, parameters, context) => null, ScaleOptions.Default,
                 new[] { new ParameterContract("Label") });
@@ -191,7 +195,7 @@ namespace Greenshot.Tests.Serialization
                 ""id"": ""hand_written"",
                 ""name"": ""Hand written"",
                 ""nodes"": [
-                    { ""id"": ""a"", ""stepType"": ""SetVariable"", ""enabled"": false, ""parameters"": { ""Variable"": ""X"", ""Value"": null } },
+                    { ""id"": ""a"", ""stepType"": ""SetVariable"", ""enabled"": false, ""parameters"": { ""Variables"": { ""X"": null } } },
                     { ""id"": ""b"", ""stepType"": ""SetVariable"", ""when"": ""${option.on}"" },
                     { ""id"": ""c"", ""stepType"": ""Source"", ""parameters"": { ""SourceType"": ""Region"", ""DelayMs"": 5 } },
                 ],
@@ -241,7 +245,7 @@ namespace Greenshot.Tests.Serialization
         [InlineData(@"""SourceType"": ""Region""", @"""sourceType"": ""Region""", "is written 'SourceType'")]
         [InlineData(@"""DelayMs"": 5", @"""DelayMs"": ""5""", "'DelayMs' must be a whole number")]
         [InlineData(@"""DelayMs"": 5", @"""DelayMs"": 5.5", "'DelayMs' must be a whole number")]
-        [InlineData(@"""Variable"": ""X""", @"""Variable"": 7", "'Variable' must be a text")]
+        [InlineData(@"""Variables"": { ""X"": null }", @"""Variable"": ""X"", ""Value"": null", "'Variable' is not a parameter")]
         [InlineData(@"{ ""from"": ""a"", ""to"": ""b"" }", @"{ ""from"": ""a"", ""to"": ""b"", ""recipe"": ""other"" }", "only for error transitions")]
         [InlineData(@"""onError"": ""*""", @"""onError"": ""*"", ""branch"": ""x""", "either for a branch or for an error")]
         public void Recipe_WithAWrongParameterOrTransition_IsNotValid(string part, string mistake, string message)
@@ -249,6 +253,35 @@ namespace Greenshot.Tests.Serialization
             Assert.Contains(part, HandWrittenRecipe);
 
             var error = Assert.Throws<JsonException>(() => RecipeSerializer.Deserialize(HandWrittenRecipe.Replace(part, mistake)));
+
+            Assert.Contains(message, error.Message);
+        }
+
+        /// <summary>
+        /// Each setting has one way to be written (recipe format 2.0): the ways which were removed are reported, not ignored
+        /// </summary>
+        [Theory]
+        [InlineData(@"""stepType"": ""SetVariable"", ""parameters"": { ""Variable"": ""X"", ""Value"": 1 }", "'Variable' is not a parameter")]
+        [InlineData(@"""stepType"": ""UserPrompt"", ""parameters"": { ""DefaultChoice"": ""ok"" }", "'DefaultChoice' is not a parameter")]
+        [InlineData(@"""stepType"": ""BarcodeScan"", ""parameters"": { ""DecodedText"": ""Barcode"" }", "'DecodedText' is not a parameter")]
+        [InlineData(@"""stepType"": ""BarcodeScan"", ""parameters"": { ""Margin"": 2 }", "'Margin' is not a parameter")]
+        [InlineData(@"""stepType"": ""ExternalCommand"", ""parameters"": { ""SetOutputVariable"": ""Out"" }", "'SetOutputVariable' is not a parameter")]
+        [InlineData(@"""stepType"": ""Effect"", ""parameters"": { ""Effect"": ""ResizeCanvas"", ""Margin"": 10 }", "'Margin' is not a parameter")]
+        [InlineData(@"""stepType"": ""Effect"", ""parameters"": { ""Effect"": ""ResizeCanvas"", ""Left"": 10, ""Color"": ""White"" }", "'Color' is the border color")]
+        [InlineData(@"""stepType"": ""Effect"", ""parameters"": { ""Effect"": ""RemoveTransparency"", ""Color"": ""White"" }", "'Color' is the border color")]
+        [InlineData(@"""stepType"": ""Effect"", ""parameters"": { ""Effect"": ""Resize"", ""Percentage"": 50, ""Width"": 100 }", "use 'Percentage' or 'Width' and 'Height'")]
+        [InlineData(@"""stepType"": ""Annotation"", ""parameters"": { ""Annotations"": [ { ""Type"": ""Svg"", ""Content"": ""<svg/>"" } ] }", "'Svg'")]
+        [InlineData(@"""stepType"": ""Annotation"", ""parameters"": { ""Annotations"": [ { ""Type"": ""Image"", ""FilePath"": ""a.png"", ""ImageData"": ""AAAA"" } ] }", "not both")]
+        [InlineData(@"""stepType"": ""Pdf"", ""parameters"": { ""MeasurementUnit"": ""Cm"" }", "'MeasurementUnit' is not a parameter")]
+        [InlineData(@"""stepType"": ""RecordVideo"", ""parameters"": { ""OutputFilePath"": ""a.mp4"" }", "'OutputFilePath' is not a parameter")]
+        [InlineData(@"""stepType"": ""RecordVideo"", ""parameters"": { ""WindowTitle"": ""Notepad"" }", "'WindowTitle' is not a parameter")]
+        [InlineData(@"""stepType"": ""Source"", ""parameters"": { ""SourceType"": ""Window"", ""WindowTitle"": ""Notepad"" }", "'WindowTitle' is not a parameter")]
+        [InlineData(@"""stepType"": ""Source"", ""parameters"": { ""SourceType"": ""Window"", ""WindowTitlePattern"": ""Report (draft"" }", "not a valid regular expression")]
+        public void Recipe_WithARemovedWayOfWritingASetting_IsNotValid(string node, string message)
+        {
+            string recipe = @"{ ""id"": ""removed"", ""name"": ""Removed"", ""nodes"": [ { ""id"": ""a"", " + node + @" } ], ""flow"": { ""startNodes"": [""a""] } }";
+
+            var error = Assert.Throws<JsonException>(() => RecipeSerializer.Deserialize(recipe));
 
             Assert.Contains(message, error.Message);
         }

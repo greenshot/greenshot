@@ -460,7 +460,7 @@ namespace Greenshot.Tests.Recipes
         {
             var recipe = new CaptureRecipe("params", "Params")
                 .AddNode(new RecipeNodeConfig("missing", "Strict").Set("Size", 3))
-                .AddNode(new RecipeNodeConfig("wrong", "Strict").Set("Mode", "Medium").Set("Colour", "red"))
+                .AddNode(new RecipeNodeConfig("wrong", "Strict").Set("Mode", "Medium"))
                 .AddNode(new RecipeNodeConfig("fine", "Strict").Set("Mode", "fast"));
             recipe.Flow = new RecipeFlowConfig(new[] { "missing", "wrong", "fine" })
                 .AddErrorTransition("fine", "missing");
@@ -468,7 +468,6 @@ namespace Greenshot.Tests.Recipes
             var warnings = Warnings(recipe);
             Assert.Contains(warnings, w => w.Contains("'missing'") && w.Contains("missing required parameter 'Mode'"));
             Assert.Contains(warnings, w => w.Contains("'wrong'") && w.Contains("'Medium'"));
-            Assert.Contains(warnings, w => w.Contains("'wrong'") && w.Contains("'Colour'"));
             Assert.DoesNotContain(warnings, w => w.Contains("'fine'"));
             Assert.DoesNotContain(warnings, w => w.Contains("'Size'"));
         }
@@ -478,7 +477,7 @@ namespace Greenshot.Tests.Recipes
         {
             var registry = CreatePipelineRegistry();
             var recipe = new CaptureRecipe("prompt", "Prompt")
-                .AddNode(new RecipeNodeConfig("set", WellKnownStepTypes.SetVariable).Set("Variable", "Greeting").Set("Value", "hi"))
+                .AddNode(new RecipeNodeConfig("set", WellKnownStepTypes.SetVariable).Set("Variables", new Dictionary<string, object> { ["Greeting"] = "hi" }))
                 .AddNode(new RecipeNodeConfig("print", WellKnownStepTypes.Stdout).Set("Text", "${Greeting} ${UserChoice.set}"));
             recipe.Flow = new RecipeFlowConfig("set").AddTransition("set", "print");
 

@@ -251,14 +251,13 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         private string _foreColor = "#000000";
         private string _backColor = "#FFFFFF";
         private bool _roundedDots = false;
-        private int _margin = 1;
+        private int _quietZone = 1;
         private string _tailDirection = "BottomLeft";
         private string _tailOffsetX = "0";
         private string _tailOffsetY = "0";
 
         // Image, SVG & Cursor fields
         private string _filePath = "";
-        private string _svgXml = "";
         private string _imageData = "";
         private string _assetStorageMode = "Embed";
         private string _cursorName = "Arrow";
@@ -323,7 +322,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                             OnPropertyChanged(nameof(Height));
                         }
                     }
-                    else if ((IsImageType || IsSvgType) && (_width == "200" && _height == "40"))
+                    else if (IsImageType && (_width == "200" && _height == "40"))
                     {
                         _width = "120";
                         _height = "120";
@@ -338,7 +337,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     OnPropertyChanged(nameof(IsSpeechbubbleType));
                     OnPropertyChanged(nameof(IsQrCodeType));
                     OnPropertyChanged(nameof(IsImageType));
-                    OnPropertyChanged(nameof(IsSvgType));
                     OnPropertyChanged(nameof(IsCursorType));
                     OnPropertyChanged(nameof(IsStepLabelType));
                     OnPropertyChanged(nameof(IsArrowType));
@@ -362,7 +360,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
         }
 
-        private bool IsKnownNonColorType => IsQrCodeType || IsObfuscateType || IsMagnifyType || IsEmojiType || IsImageType || IsSvgType || IsCursorType;
+        private bool IsKnownNonColorType => IsQrCodeType || IsObfuscateType || IsMagnifyType || IsEmojiType || IsImageType || IsCursorType;
 
         public bool IsTextType => string.Equals(_type, "Text", StringComparison.OrdinalIgnoreCase) ||
                                   string.Equals(_type, "Speechbubble", StringComparison.OrdinalIgnoreCase) ||
@@ -378,7 +376,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         public bool IsImageType => string.Equals(_type, "Image", StringComparison.OrdinalIgnoreCase);
 
-        public bool IsSvgType => string.Equals(_type, "Svg", StringComparison.OrdinalIgnoreCase);
 
         public bool IsCursorType => string.Equals(_type, "Cursor", StringComparison.OrdinalIgnoreCase);
 
@@ -610,20 +607,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
         }
 
-        public string SvgXml
-        {
-            get => _svgXml;
-            set
-            {
-                if (SetField(ref _svgXml, value))
-                {
-                    OnPropertyChanged(nameof(HasEmbeddedData));
-                    OnPropertyChanged(nameof(SourceSummaryBadge));
-                    _onChanged?.Invoke();
-                }
-            }
-        }
-
         public string ImageData
         {
             get => _imageData;
@@ -638,7 +621,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
         }
 
-        public bool HasEmbeddedData => !string.IsNullOrEmpty(_imageData) || (!string.IsNullOrEmpty(_svgXml) && IsSvgType);
+        public bool HasEmbeddedData => !string.IsNullOrEmpty(_imageData);
         public bool HasLinkedFile => !string.IsNullOrEmpty(_filePath);
 
         public string AssetStorageMode
@@ -751,12 +734,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 if (IsImageType)
                 {
                     if (HasEmbeddedData) return "📦 " + Texts.Get<IRecipeEditorLanguage>().AssetEmbeddedImage;
-                    if (HasLinkedFile) return $"🔗 {Path.GetFileName(_filePath)}";
-                    return "";
-                }
-                if (IsSvgType)
-                {
-                    if (HasEmbeddedData) return "📦 " + Texts.Get<IRecipeEditorLanguage>().AssetEmbeddedSvg;
                     if (HasLinkedFile) return $"🔗 {Path.GetFileName(_filePath)}";
                     return "";
                 }
@@ -903,10 +880,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { if (SetField(ref _roundedDots, value)) { _parameters["RoundedDots"] = value; OnPropertyChanged(nameof(ConfigurationSummary)); _onChanged?.Invoke(); } }
         }
 
-        public int Margin
+        public int QuietZone
         {
-            get => _margin;
-            set { if (SetField(ref _margin, value)) { _parameters["Margin"] = value; _onChanged?.Invoke(); } }
+            get => _quietZone;
+            set { if (SetField(ref _quietZone, value)) { _parameters["QuietZone"] = value; _onChanged?.Invoke(); } }
         }
 
         public ICommand RemoveCommand { get; }
@@ -975,10 +952,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     _roundedDots = bRd;
                     OnPropertyChanged(nameof(RoundedDots));
                 }
-                if (dict.TryGetValue("Margin", out var mg) && mg != null && int.TryParse(mg.ToString(), out int iMg))
+                if (dict.TryGetValue("QuietZone", out var mg) && mg != null && int.TryParse(mg.ToString(), out int iMg))
                 {
-                    _margin = iMg;
-                    OnPropertyChanged(nameof(Margin));
+                    _quietZone = iMg;
+                    OnPropertyChanged(nameof(QuietZone));
                 }
                 OnPropertyChanged(nameof(ConfigurationSummary));
                 _onChanged?.Invoke();
@@ -988,12 +965,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         private void BrowseFile()
         {
             var ofd = new Microsoft.Win32.OpenFileDialog();
-            if (IsSvgType)
-            {
-                ofd.Title = Texts.Get<IRecipeEditorLanguage>().TitleSelectSvg;
-                ofd.Filter = Texts.Get<IRecipeEditorLanguage>().FilterSvg + "|*.svg" + "|" + Texts.Get<IRecipeEditorLanguage>().FilterAllFiles + "|*.*";
-            }
-            else if (IsCursorType)
+            if (IsCursorType)
             {
                 ofd.Title = Texts.Get<IRecipeEditorLanguage>().TitleSelectCursor;
                 ofd.Filter = Texts.Get<IRecipeEditorLanguage>().FilterCursorImage + "|*.cur;*.ico;*.png" + "|" + Texts.Get<IRecipeEditorLanguage>().FilterAllFiles + "|*.*";
@@ -1001,7 +973,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             else
             {
                 ofd.Title = Texts.Get<IRecipeEditorLanguage>().TitleSelectImage;
-                ofd.Filter = Texts.Get<IRecipeEditorLanguage>().FilterImage + "|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.ico" + "|" + Texts.Get<IRecipeEditorLanguage>().FilterAllFiles + "|*.*";
+                ofd.Filter = Texts.Get<IRecipeEditorLanguage>().FilterImage + "|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.ico;*.svg" + "|" + Texts.Get<IRecipeEditorLanguage>().FilterAllFiles + "|*.*";
             }
 
             if (ofd.ShowDialog() == true)
@@ -1009,7 +981,16 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 FilePath = ofd.FileName;
                 try
                 {
-                    if (IsImageType && System.IO.File.Exists(ofd.FileName))
+                    if (IsImageType && System.IO.File.Exists(ofd.FileName) && string.Equals(Path.GetExtension(ofd.FileName), ".svg", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // An SVG stays a vector: the file is embedded as it is
+                        LockAspectRatio = true;
+                        if (IsEmbedMode)
+                        {
+                            ImageData = Convert.ToBase64String(File.ReadAllBytes(ofd.FileName));
+                        }
+                    }
+                    else if (IsImageType && System.IO.File.Exists(ofd.FileName))
                     {
                         using var img = System.Drawing.Image.FromFile(ofd.FileName);
                         if (img.Width > 0 && img.Height > 0)
@@ -1026,13 +1007,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                             using var ms = new MemoryStream();
                             img.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
                             ImageData = Convert.ToBase64String(ms.ToArray());
-                        }
-                    }
-                    else if (IsSvgType && System.IO.File.Exists(ofd.FileName))
-                    {
-                        if (IsEmbedMode)
-                        {
-                            SvgXml = File.ReadAllText(ofd.FileName);
                         }
                     }
                     else if (IsCursorType && System.IO.File.Exists(ofd.FileName))
@@ -1094,7 +1068,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 dict["ForeColor"] = ForeColor;
                 dict["BackColor"] = BackColor;
                 dict["RoundedDots"] = RoundedDots;
-                dict["Margin"] = Margin;
+                dict["QuietZone"] = QuietZone;
                 if (!string.IsNullOrEmpty(Text)) dict["Text"] = Text;
             }
             if (IsImageType)
@@ -1108,22 +1082,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 {
                     dict["FilePath"] = FilePath;
                     dict.Remove("ImageData");
-                }
-            }
-            if (IsSvgType)
-            {
-                if (IsEmbedMode && !string.IsNullOrEmpty(SvgXml))
-                {
-                    dict["Content"] = SvgXml;
-                    dict.Remove("FilePath");
-                }
-                else if (!string.IsNullOrEmpty(FilePath))
-                {
-                    dict["FilePath"] = FilePath;
-                }
-                else if (!string.IsNullOrEmpty(SvgXml))
-                {
-                    dict["Content"] = SvgXml;
                 }
             }
             if (IsCursorType)
@@ -1315,8 +1273,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             bool? rd = GetBool("RoundedDots");
             if (rd.HasValue) item._roundedDots = rd.Value;
 
-            int? mg = GetInt("Margin");
-            if (mg.HasValue) item._margin = mg.Value;
+            int? mg = GetInt("QuietZone");
+            if (mg.HasValue) item._quietZone = mg.Value;
 
             string td = GetKey("TailDirection");
             if (td != null) item._tailDirection = td;
@@ -1361,9 +1319,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 item._cursorName = "Arrow";
                 item._assetStorageMode = "Preset";
             }
-
-            string svg = GetKey("Content");
-            if (svg != null && (item.IsSvgType || svg.Contains("<svg"))) item._svgXml = svg;
 
             string lockAsp = GetKey("LockAspectRatio");
             if (lockAsp != null && bool.TryParse(lockAsp, out bool bLock)) item._lockAspectRatio = bLock;
@@ -1836,15 +1791,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                         }
                     }
                 }
-                else
-                {
-                    string singleVar = GetParam("Variable", "");
-                    if (!string.IsNullOrEmpty(singleVar))
-                    {
-                        string val = GetParam("Value", "");
-                        Variables.Add(new VariableItemViewModel(singleVar, val, SyncVariablesToConfig, RemoveVariable));
-                    }
-                }
             }
         }
 
@@ -2014,7 +1960,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 item.Text = "https://getgreenshot.org";
                 item.ForeColor = "#000000";
                 item.BackColor = "#FFFFFF";
-                item.Margin = 1;
+                item.QuietZone = 1;
                 item.RoundedDots = false;
                 if (string.Equals(type, "QRCode", StringComparison.OrdinalIgnoreCase))
                 {
@@ -2027,7 +1973,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     item.Height = "80";
                 }
             }
-            else if (string.Equals(type, "Image", StringComparison.OrdinalIgnoreCase) || string.Equals(type, "Svg", StringComparison.OrdinalIgnoreCase))
+            else if (string.Equals(type, "Image", StringComparison.OrdinalIgnoreCase))
             {
                 item.Width = "120";
                 item.Height = "120";
@@ -2246,12 +2192,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetParamOrRemoveIfEmpty("Filename", value); OnPropertyChanged(nameof(SourceFilename)); OnPropertyChanged(nameof(Summary)); }
         }
 
-        public string WindowTitle
-        {
-            get => GetParam("WindowTitle", "");
-            set { SetParamOrRemoveIfEmpty("WindowTitle", value); OnPropertyChanged(nameof(WindowTitle)); }
-        }
-
         public bool WindowMatchCase
         {
             get => GetParamBool("MatchCase", false);
@@ -2372,7 +2312,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(ResizeHeight));
             OnPropertyChanged(nameof(ResizePercentage));
             OnPropertyChanged(nameof(ResizeMaintainAspectRatio));
-            OnPropertyChanged(nameof(CanvasMargin));
+            OnPropertyChanged(nameof(CanvasLeft));
+            OnPropertyChanged(nameof(CanvasTop));
+            OnPropertyChanged(nameof(CanvasRight));
+            OnPropertyChanged(nameof(CanvasBottom));
             OnPropertyChanged(nameof(CanvasBackgroundColor));
             OnPropertyChanged(nameof(ReduceColorsCount));
             OnPropertyChanged(nameof(TransparencyBackgroundColor));
@@ -2504,23 +2447,59 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         }
 
         // Resize Parameters
+        // A resize has a size or a percentage: entering one removes the other
         public string ResizeWidth
         {
             get => GetParam("Width", "0");
-            set { SetParam("Width", value); OnPropertyChanged(nameof(ResizeWidth)); OnPropertyChanged(nameof(Summary)); }
+            set { SetResizeSize("Width", value); OnPropertyChanged(nameof(ResizeWidth)); }
         }
 
         public string ResizeHeight
         {
             get => GetParam("Height", "0");
-            set { SetParam("Height", value); OnPropertyChanged(nameof(ResizeHeight)); OnPropertyChanged(nameof(Summary)); }
+            set { SetResizeSize("Height", value); OnPropertyChanged(nameof(ResizeHeight)); }
         }
 
         public string ResizePercentage
         {
             get => GetParam("Percentage", "0");
-            set { SetParam("Percentage", value); OnPropertyChanged(nameof(ResizePercentage)); OnPropertyChanged(nameof(Summary)); }
+            set
+            {
+                if (IsUnset(value))
+                {
+                    Config.Parameters?.Remove("Percentage");
+                }
+                else
+                {
+                    SetParam("Percentage", value);
+                    Config.Parameters.Remove("Width");
+                    Config.Parameters.Remove("Height");
+                }
+                NotifyConfigUpdated();
+                OnPropertyChanged(nameof(ResizePercentage));
+                OnPropertyChanged(nameof(ResizeWidth));
+                OnPropertyChanged(nameof(ResizeHeight));
+                OnPropertyChanged(nameof(Summary));
+            }
         }
+
+        private void SetResizeSize(string key, string value)
+        {
+            if (IsUnset(value))
+            {
+                Config.Parameters?.Remove(key);
+            }
+            else
+            {
+                SetParam(key, value);
+                Config.Parameters.Remove("Percentage");
+            }
+            NotifyConfigUpdated();
+            OnPropertyChanged(nameof(ResizePercentage));
+            OnPropertyChanged(nameof(Summary));
+        }
+
+        private static bool IsUnset(string value) => string.IsNullOrWhiteSpace(value) || value.Trim() == "0";
 
         public bool ResizeMaintainAspectRatio
         {
@@ -2529,10 +2508,28 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         }
 
         // Resize Canvas Parameters
-        public int CanvasMargin
+        public int CanvasLeft
         {
-            get => int.TryParse(GetParam("Margin", "20"), out int m) ? m : 20;
-            set { SetParam("Margin", value); OnPropertyChanged(nameof(CanvasMargin)); OnPropertyChanged(nameof(Summary)); }
+            get => int.TryParse(GetParam("Left", "0"), out int m) ? m : 0;
+            set { SetParam("Left", value); OnPropertyChanged(nameof(CanvasLeft)); OnPropertyChanged(nameof(Summary)); }
+        }
+
+        public int CanvasTop
+        {
+            get => int.TryParse(GetParam("Top", "0"), out int m) ? m : 0;
+            set { SetParam("Top", value); OnPropertyChanged(nameof(CanvasTop)); OnPropertyChanged(nameof(Summary)); }
+        }
+
+        public int CanvasRight
+        {
+            get => int.TryParse(GetParam("Right", "0"), out int m) ? m : 0;
+            set { SetParam("Right", value); OnPropertyChanged(nameof(CanvasRight)); OnPropertyChanged(nameof(Summary)); }
+        }
+
+        public int CanvasBottom
+        {
+            get => int.TryParse(GetParam("Bottom", "0"), out int m) ? m : 0;
+            set { SetParam("Bottom", value); OnPropertyChanged(nameof(CanvasBottom)); OnPropertyChanged(nameof(Summary)); }
         }
 
         public string CanvasBackgroundColor
@@ -2551,8 +2548,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         // Remove Transparency Parameters
         public string TransparencyBackgroundColor
         {
-            get => GetParam("Color", "#FFFFFF");
-            set { SetParam("Color", value); OnPropertyChanged(nameof(TransparencyBackgroundColor)); }
+            get => GetParam("BackgroundColor", "#FFFFFF");
+            set { SetParam("BackgroundColor", value); OnPropertyChanged(nameof(TransparencyBackgroundColor)); }
         }
 
         // --- 5. TextEffect / ObfuscateText Step ---
@@ -3107,10 +3104,20 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetParam("TimeoutSeconds", value); OnPropertyChanged(nameof(UserPromptTimeoutSeconds)); }
         }
 
+        /// <summary>
+        /// The key of the choice with IsDefault: the answer to Enter and when the prompt times out
+        /// </summary>
         public string UserPromptDefaultChoice
         {
-            get => GetParam("DefaultChoice", "");
-            set { SetParamOrRemoveIfEmpty("DefaultChoice", value); OnPropertyChanged(nameof(UserPromptDefaultChoice)); }
+            get => PromptChoices.FirstOrDefault(c => c.IsDefault)?.Key ?? "";
+            set
+            {
+                foreach (var choice in PromptChoices)
+                {
+                    choice.IsDefault = string.Equals(choice.Key, value, StringComparison.Ordinal);
+                }
+                OnPropertyChanged(nameof(UserPromptDefaultChoice));
+            }
         }
 
         // --- Configuration Fallback Properties across Steps ---
@@ -3279,8 +3286,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         public string ExternalCommandSetOutputVariable
         {
-            get => GetParam("SetOutputVariable", "");
-            set { SetParamOrRemoveIfEmpty("SetOutputVariable", value); OnPropertyChanged(nameof(ExternalCommandSetOutputVariable)); }
+            get => GetParam("OutputVariable", "");
+            set { SetParamOrRemoveIfEmpty("OutputVariable", value); OnPropertyChanged(nameof(ExternalCommandSetOutputVariable)); }
         }
 
         /// <summary>Name of a command configured in the External Command settings; when set, CommandLine and Arguments are not used.</summary>
@@ -3298,8 +3305,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         public string ExternalCommandSetExitCodeVariable
         {
-            get => GetParam("SetExitCodeVariable", "");
-            set { SetParamOrRemoveIfEmpty("SetExitCodeVariable", value); OnPropertyChanged(nameof(ExternalCommandSetExitCodeVariable)); }
+            get => GetParam("ExitCodeVariable", "");
+            set { SetParamOrRemoveIfEmpty("ExitCodeVariable", value); OnPropertyChanged(nameof(ExternalCommandSetExitCodeVariable)); }
         }
 
         // --- 15. Jira Step ---
@@ -3354,12 +3361,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetParamOrRemoveIfEmpty("PageSize", value); OnPropertyChanged(nameof(PdfPageSize)); }
         }
 
-        public string PdfMeasurementUnit
-        {
-            get => GetParam("MeasurementUnit", "");
-            set { SetParamOrRemoveIfEmpty("MeasurementUnit", value); OnPropertyChanged(nameof(PdfMeasurementUnit)); }
-        }
-
         public string PdfPageWidthMm
         {
             get => GetParam("PageWidthMm", "");
@@ -3411,8 +3412,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         // --- 18. Zxing Step ---
         public string ZxingSetVariable
         {
-            get => GetParam("SetVariable", "barcode_text");
-            set { SetParam("SetVariable", value); OnPropertyChanged(nameof(ZxingSetVariable)); OnPropertyChanged(nameof(Summary)); }
+            get => GetParam("OutputVariable", "barcode_text");
+            set { SetParam("OutputVariable", value); OnPropertyChanged(nameof(ZxingSetVariable)); OnPropertyChanged(nameof(Summary)); }
         }
 
         public bool ZxingCopyToClipboard
@@ -3452,10 +3453,16 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetParam("DurationSeconds", value); OnPropertyChanged(nameof(VideoDurationSeconds)); }
         }
 
-        public string VideoOutputFilePath
+        public string VideoOutputDirectory
         {
-            get => GetParam("OutputFilePath", @"%USERPROFILE%\Videos\Greenshot\Recording_{yyyyMMdd_HHmmss}.mp4");
-            set { SetParam("OutputFilePath", value); OnPropertyChanged(nameof(VideoOutputFilePath)); }
+            get => GetParam("OutputDirectory", @"%USERPROFILE%\Videos\Greenshot");
+            set { SetParam("OutputDirectory", value); OnPropertyChanged(nameof(VideoOutputDirectory)); }
+        }
+
+        public string VideoFilenamePattern
+        {
+            get => GetParam("FilenamePattern", "Recording_{yyyyMMdd_HHmmss}.mp4");
+            set { SetParam("FilenamePattern", value); OnPropertyChanged(nameof(VideoFilenamePattern)); }
         }
 
         public string VideoPreset
@@ -3633,7 +3640,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                         if (IsTornEdgeEffect) return string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryTornEdge, TornEdges);
                         if (IsRotateEffect) return string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryRotate, RotateAngle);
                         if (IsResizeEffect) return ResizePercentage != "0" && !string.IsNullOrEmpty(ResizePercentage) ? string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryResizePercent, ResizePercentage) : string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryResizeSize, ResizeWidth, ResizeHeight);
-                        if (IsResizeCanvasEffect) return string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryCanvasPadding, CanvasMargin);
+                        if (IsResizeCanvasEffect) return string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryCanvasSides, CanvasLeft, CanvasTop, CanvasRight, CanvasBottom);
                         if (IsMonochromeEffect) return string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryMonochrome, MonochromeThreshold);
                         if (IsAdjustEffect) return string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryAdjust, AdjustBrightness, AdjustContrast, AdjustGamma);
                         if (IsReduceColorsEffect) return string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryReduceColors, ReduceColorsCount);
@@ -3787,7 +3794,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(PrinterPrintFooter));
             OnPropertyChanged(nameof(PrinterFooterPattern));
             OnPropertyChanged(nameof(PdfPageSize));
-            OnPropertyChanged(nameof(PdfMeasurementUnit));
             OnPropertyChanged(nameof(PdfPageWidthMm));
             OnPropertyChanged(nameof(PdfPageHeightMm));
             OnPropertyChanged(nameof(PdfMarginTopMm));
@@ -3821,7 +3827,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(StderrAbort));
             OnPropertyChanged(nameof(IsFileSource));
             OnPropertyChanged(nameof(SourceFilename));
-            OnPropertyChanged(nameof(WindowTitle));
             OnPropertyChanged(nameof(WindowMatchCase));
             OnPropertyChanged(nameof(ExternalCommandCommand));
             OnPropertyChanged(nameof(ExternalCommandVerb));
@@ -3852,7 +3857,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(IsVideoMonitorSource));
             OnPropertyChanged(nameof(VideoUntilWindowCloses));
             OnPropertyChanged(nameof(VideoDurationSeconds));
-            OnPropertyChanged(nameof(VideoOutputFilePath));
+            OnPropertyChanged(nameof(VideoOutputDirectory));
+            OnPropertyChanged(nameof(VideoFilenamePattern));
             OnPropertyChanged(nameof(VideoPreset));
             OnPropertyChanged(nameof(VideoFormat));
             OnPropertyChanged(nameof(VideoFrameRate));

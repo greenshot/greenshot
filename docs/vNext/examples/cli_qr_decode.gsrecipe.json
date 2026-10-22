@@ -50,7 +50,7 @@
       "name": "Scan QR & Barcodes",
       "enabled": true,
       "parameters": {
-        "SetVariable": "Barcode.Text",
+        "OutputVariable": "Barcode.Text",
         "CopyToClipboard": false
       }
     },

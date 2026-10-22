@@ -27,6 +27,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Icons;
+using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 
@@ -166,7 +167,6 @@ namespace Greenshot.Recipes.Steps
             registry.RegisterDrawableFactory("Icon", (s, p, c) => CreateIcon(s, p), ScaleOptions.Default);
             registry.RegisterDrawableFactory("Cursor", (s, p, c) => CreateCursor(s, p), ScaleOptions.Default);
             registry.RegisterDrawableFactory("Emoji", (s, p, c) => CreateEmoji(s, p), ScaleOptions.Rational);
-            registry.RegisterDrawableFactory("Svg", (s, p, c) => CreateSvg(s, p), ScaleOptions.Rational);
             registry.RegisterDrawableFactory("Blur", (s, p, c) => CreateObfuscate(s, p, "blur"), ScaleOptions.Default);
             registry.RegisterDrawableFactory("Pixelize", (s, p, c) => CreateObfuscate(s, p, "pixelize"), ScaleOptions.Default);
             registry.RegisterDrawableFactory("Highlight", (s, p, c) => CreateHighlight(s, p, "highlight"), ScaleOptions.Default);
@@ -404,35 +404,51 @@ namespace Greenshot.Recipes.Steps
             return stepLabel;
         }
 
-        private static ImageContainer CreateImage(ISurface surface, Dictionary<string, object> p)
+        /// <summary>
+        /// An image from FilePath or ImageData (Base64, the bytes of the file): a bitmap, or an SVG which stays a vector
+        /// </summary>
+        private static IDrawableContainer CreateImage(ISurface surface, Dictionary<string, object> p)
         {
-            var imgContainer = new ImageContainer(surface);
             string base64 = GetString(p, "ImageData");
-            if (!string.IsNullOrWhiteSpace(base64))
+            string filePath = GetString(p, "FilePath");
+            byte[] bytes = null;
+            try
             {
-                try
+                if (!string.IsNullOrWhiteSpace(base64))
                 {
-                    byte[] bytes = Convert.FromBase64String(base64);
-                    using var ms = new MemoryStream(bytes);
-                    imgContainer.Image = Image.FromStream(ms);
+                    bytes = Convert.FromBase64String(base64);
                 }
-                catch (Exception ex)
+                else if (!string.IsNullOrWhiteSpace(filePath) && File.Exists(filePath))
                 {
-                    Log.Warn("Failed to load embedded Base64 image: " + ex.Message);
+                    bytes = File.ReadAllBytes(filePath);
                 }
             }
-
-            if (imgContainer.Image == null)
+            catch (Exception ex)
             {
-                string filePath = GetString(p, "FilePath");
-                if (!string.IsNullOrWhiteSpace(filePath) && File.Exists(filePath))
-                {
-                    imgContainer.Load(filePath);
-                }
+                Log.Warn("Failed to read the image of an annotation: " + ex.Message);
             }
 
+            if (bytes != null && IsSvg(bytes))
+            {
+                return new SvgContainer(new MemoryStream(bytes), surface);
+            }
+
+            var imgContainer = new ImageContainer(surface);
+            if (bytes != null)
+            {
+                imgContainer.Image = ImageIO.FromStream(new MemoryStream(bytes), Path.GetExtension(filePath ?? string.Empty));
+            }
             imgContainer.SetFieldValue(FieldType.SHADOW, GetBool(p, "Shadow", false));
             return imgContainer;
+        }
+
+        /// <summary>
+        /// SVG is text with an svg element near the start (after an optional XML declaration and comments)
+        /// </summary>
+        private static bool IsSvg(byte[] bytes)
+        {
+            string start = System.Text.Encoding.UTF8.GetString(bytes, 0, Math.Min(bytes.Length, 4096));
+            return start.IndexOf("<svg", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         private static IconContainer CreateIcon(ISurface surface, Dictionary<string, object> p)
@@ -571,38 +587,6 @@ namespace Greenshot.Recipes.Steps
                 string emoji = GetString(p, "Emoji") ?? "👍";
                 int size = GetInt(p, "Size", 64);
                 return new EmojiContainer(s, emoji, size);
-            }
-            return null;
-        }
-
-        private static SvgContainer CreateSvg(ISurface surface, Dictionary<string, object> p)
-        {
-            string base64 = GetString(p, "ImageData");
-            if (!string.IsNullOrWhiteSpace(base64))
-            {
-                try
-                {
-                    byte[] bytes = Convert.FromBase64String(base64);
-                    var stream = new MemoryStream(bytes);
-                    return new SvgContainer(stream, surface);
-                }
-                catch (Exception ex)
-                {
-                    Log.Warn("Failed to load embedded Base64 SVG: " + ex.Message);
-                }
-            }
-
-            string filePath = GetString(p, "FilePath");
-            if (!string.IsNullOrWhiteSpace(filePath) && File.Exists(filePath))
-            {
-                using var stream = File.OpenRead(filePath);
-                return new SvgContainer(stream, surface);
-            }
-            string svgXml = GetString(p, "Content");
-            if (!string.IsNullOrWhiteSpace(svgXml))
-            {
-                using var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(svgXml));
-                return new SvgContainer(stream, surface);
             }
             return null;
         }

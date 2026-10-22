@@ -42,10 +42,9 @@ namespace Greenshot.Recipes.Steps
     /// The user's selection determines which branch is activated in the DAG execution engine.
     /// </summary>
     [StepInfo(WellKnownStepTypes.UserPrompt, "User Prompt", "Asks the user to choose; conditional transitions of this node follow the chosen key.", "Interaction")]
-    [StepParameter("Choices", ContractDataType.Object, ValueType = typeof(List<PromptChoice>), Required = true, Description = "The choices (key and text)")]
+    [StepParameter("Choices", ContractDataType.Object, ValueType = typeof(List<PromptChoice>), Required = true, Description = "The choices (key and text); the one with IsDefault is the answer to Enter and when the prompt times out")]
     [StepParameter("Title", ContractDataType.String, Description = "Title of the prompt")]
     [StepParameter("Message", ContractDataType.String, Description = "Message of the prompt")]
-    [StepParameter("DefaultChoice", ContractDataType.String, Description = "Choice used when the prompt times out")]
     [StepParameter("ShowPreview", ContractDataType.Boolean, DefaultValue = true, Description = "Show a preview of the capture")]
     [StepParameter("TimeoutSeconds", ContractDataType.Integer, DefaultValue = 0, Description = "Close the prompt after this many seconds (0: never)")]
     [StepOutputVariable("UserChoice.{NodeId}", ContractDataType.String, "The key of the chosen choice")]
@@ -68,8 +67,6 @@ namespace Greenshot.Recipes.Steps
             string message = Config.GetParameter<string>("Message") ?? "Please select how you would like to proceed with this capture:";
             bool showPreview = Config.GetParameter("ShowPreview", true);
             int timeoutSeconds = Config.GetParameter("TimeoutSeconds", 0);
-            string defaultChoice = Config.GetParameter<string>("DefaultChoice");
-
             var choices = ReadChoices(context);
 
             // Capture preview image if enabled
@@ -98,7 +95,7 @@ namespace Greenshot.Recipes.Steps
                 // The prompt is UI: shown on the UI thread, the flow waits without blocking
                 chosenKey = await context.Ui.InvokeAsync(() =>
                 {
-                    var promptWindow = new RecipeUserPromptWindow(title, message, choices, previewImg, timeoutSeconds, defaultChoice);
+                    var promptWindow = new RecipeUserPromptWindow(title, message, choices, previewImg, timeoutSeconds);
                     // A cancelled flow closes the prompt, the close is posted to the UI thread
                     using (cancellationToken.Register(() => context.Ui.InvokeAsync(() =>
                            {
@@ -112,7 +109,7 @@ namespace Greenshot.Recipes.Steps
                     }
 
                     cancellationToken.ThrowIfCancellationRequested();
-                    return promptWindow.SelectedChoiceKey ?? defaultChoice ?? (choices.FirstOrDefault()?.Key ?? "Yes");
+                    return promptWindow.SelectedChoiceKey ?? (choices.FirstOrDefault(c => c.IsDefault) ?? choices.FirstOrDefault())?.Key ?? "Yes";
                 }, cancellationToken).ConfigureAwait(false);
             }
             finally

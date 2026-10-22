@@ -308,13 +308,9 @@
               "type": "string",
               "description": "Used by 'Stdout' step: String template or expression (e.g. '${Barcode.Text}') to emit to stdout."
             },
-            "WindowTitle": {
-              "type": "string",
-              "description": "Used by 'Source' step (Window/ActiveWindow): Substring or exact title of a specific window to target."
-            },
             "WindowTitlePattern": {
               "type": "string",
-              "description": "Used by 'Source' step (Window/ActiveWindow): Regular expression pattern to match window title."
+              "description": "Used by 'Source' and 'RecordVideo' steps (Window): regular expression (.NET syntax) the window title must contain a match for. For a literal title escape characters such as ( ) . [ ] with a backslash, e.g. 'Report \\(draft\\)'. Anchor with ^ and $ for the whole title."
             },
             "ProcessName": {
               "type": "string",
@@ -327,7 +323,7 @@
             "MatchCase": {
               "type": "boolean",
               "default": false,
-              "description": "Whether title or regex pattern matching is case-sensitive."
+              "description": "Whether WindowTitlePattern and ProcessName match case-sensitively."
             },
             "CaptureMouseCursor": {
               "type": "boolean",
@@ -353,14 +349,14 @@
               "description": "Used by 'InteractiveSelection' step: Whether to snap selection rect to windows under the cursor."
             },
             "Width": {
-              "description": "Border width or resize width (integer or expression string).",
+              "description": "Used by 'Effect' step: border width (Border) or new width (Resize, instead of Percentage).",
               "oneOf": [
                 { "type": "integer" },
                 { "type": "string" }
               ]
             },
             "Height": {
-              "description": "Resize height (integer or expression string).",
+              "description": "Used by 'Effect' step (Resize): new height, instead of Percentage.",
               "oneOf": [
                 { "type": "integer" },
                 { "type": "string" }
@@ -368,7 +364,46 @@
             },
             "Color": {
               "type": "string",
-              "description": "Border, canvas, or effect color (e.g. '#FF0000', 'Blue', 'rgba(255,0,0,128)')."
+              "description": "Used by 'Effect' step (Border): the border color (e.g. '#FF0000', 'Blue', 'rgba(255,0,0,128)')."
+            },
+            "BackgroundColor": {
+              "type": "string",
+              "description": "Used by 'Effect' step (ResizeCanvas, RemoveTransparency): the color of the added canvas or of the removed transparency."
+            },
+            "Percentage": {
+              "description": "Used by 'Effect' step (Resize): the new size in percent. Use either Percentage or Width/Height, not both.",
+              "oneOf": [
+                { "type": "number" },
+                { "type": "string" }
+              ]
+            },
+            "Left": {
+              "description": "Used by 'Effect' step (ResizeCanvas): pixels added on the left.",
+              "oneOf": [
+                { "type": "integer" },
+                { "type": "string" }
+              ]
+            },
+            "Top": {
+              "description": "Used by 'Effect' step (ResizeCanvas): pixels added at the top.",
+              "oneOf": [
+                { "type": "integer" },
+                { "type": "string" }
+              ]
+            },
+            "Right": {
+              "description": "Used by 'Effect' step (ResizeCanvas): pixels added on the right.",
+              "oneOf": [
+                { "type": "integer" },
+                { "type": "string" }
+              ]
+            },
+            "Bottom": {
+              "description": "Used by 'Effect' step (ResizeCanvas): pixels added at the bottom.",
+              "oneOf": [
+                { "type": "integer" },
+                { "type": "string" }
+              ]
             },
             "Effect": {
               "type": "string",
@@ -400,21 +435,9 @@
                 "$ref": "#/definitions/AnnotationElementConfig"
               }
             },
-            "Variable": {
-              "type": "string",
-              "description": "Used by 'SetVariable' step: Target variable name stored in context.Properties."
-            },
-            "Value": {
-              "description": "Used by 'SetVariable' step: Expression or literal value to assign.",
-              "oneOf": [
-                { "type": "string" },
-                { "type": "number" },
-                { "type": "boolean" }
-              ]
-            },
             "Variables": {
               "type": "object",
-              "description": "Used by 'SetVariable' step: Key-value dictionary of multiple variables and expressions to assign."
+              "description": "Used by 'SetVariable' step: the variables to set, name to value (an expression or a literal)."
             },
             "DestinationDesignations": {
               "type": "array",
@@ -445,17 +468,13 @@
               "default": 0,
               "description": "Used by 'RecordVideo' step: Maximum recording duration in seconds (0 = unlimited / until stopped or window closed)."
             },
-            "OutputFilePath": {
-              "type": "string",
-              "description": "Used by 'RecordVideo' step: Destination .mp4 file path. Supports %VAR% expansion and {yyyyMMdd_HHmmss} timestamp placeholders."
-            },
             "OutputDirectory": {
               "type": "string",
-              "description": "Used by 'RecordVideo' step: Destination directory when OutputFilePath is omitted."
+              "description": "Used by 'RecordVideo' step: the directory for the video, supports %VAR% expansion. Without it the video goes to the Videos folder."
             },
             "FilenamePattern": {
               "type": "string",
-              "description": "Used by 'RecordVideo' step: Filename template (e.g. 'Greenshot_{yyyyMMdd_HHmmss}.mp4')."
+              "description": "Used by 'RecordVideo' step: the file name in OutputDirectory, {yyyyMMdd_HHmmss} is the start time (default 'Greenshot_{yyyyMMdd_HHmmss}.mp4')."
             },
             "Preset": {
               "type": "string",
@@ -581,7 +600,7 @@
       "properties": {
         "Type": {
           "type": "string",
-          "description": "The type of annotation element. Built-in types include Rectangle, Ellipse, Line, Arrow, Freehand, Text, Speechbubble, StepLabel, Image, Icon, Cursor, Emoji, Svg, Blur, Pixelize, Highlight, Magnify, Crop. Extension-provided annotations (e.g. QRCode, Barcode) are dynamically registered by installed plugins."
+          "description": "The type of annotation element. Built-in types include Rectangle, Ellipse, Line, Arrow, Freehand, Text, Speechbubble, StepLabel, Image, Icon, Cursor, Emoji, Blur, Pixelize, Highlight, Magnify, Crop. Extension-provided annotations (e.g. QRCode, Barcode) are dynamically registered by installed plugins."
         },
         "HorizontalAnchor": {
           "type": "string",
@@ -680,15 +699,11 @@
         },
         "FilePath": {
           "type": "string",
-          "description": "File path for Image, Icon, Cursor, or Svg annotations when linked as an external file."
+          "description": "File path for Image (bitmap or SVG), Icon or Cursor annotations; instead of ImageData."
         },
         "ImageData": {
           "type": "string",
-          "description": "Base64-encoded image or cursor bitmap data for embedded Image or Cursor annotations."
-        },
-        "Content": {
-          "type": "string",
-          "description": "Raw SVG XML string or text content for embedded Svg annotations."
+          "description": "The file contents (PNG, JPEG, SVG, cursor, ...) Base64 encoded, for Image or Cursor annotations; instead of FilePath."
         },
         "CursorName": {
           "type": "string",
@@ -804,7 +819,11 @@
         },
         "Margin": {
           "type": "integer",
-          "description": "Outer margin or quiet zone in pixels."
+          "description": "Distance from the edge of the capture when anchored, in pixels."
+        },
+        "QuietZone": {
+          "type": "integer",
+          "description": "QRCode and Barcode: the empty border around the code, in modules."
         }
       },
       "additionalProperties": true

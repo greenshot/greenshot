@@ -184,7 +184,7 @@ Step classes are decorated with attributes; `StepContractBuilder.FromType` build
 ```csharp
 [StepInfo(ZxingStep.StepType, "Barcode Scanner (ZXing)", "Scans and decodes 1D/2D barcodes (such as QR codes).", "Analysis")]
 [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required, ExtractedText = PayloadRequirement.Created)]
-[StepParameter("SetVariable", ContractDataType.String, Description = "Also store the decoded text in this variable")]
+[StepParameter("OutputVariable", ContractDataType.String, Description = "Also store the decoded text in this variable")]
 [StepOutputVariable("Barcode.Text", ContractDataType.String, "Decoded text", Conditional = true)]
 [StepOutputVariable("Barcode.Format", ContractDataType.String, "Format, e.g. QR_CODE", Conditional = true)]
 [StepOutputVariable("{Parameter:SetVariable}", ContractDataType.String, "The decoded text, when SetVariable is set", Conditional = true)]

@@ -2301,7 +2301,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 case WellKnownStepTypes.RecordVideo:
                     dict["SourceType"] = "ActiveWindow";
                     dict["UntilWindowCloses"] = true;
-                    dict["OutputFilePath"] = @"%USERPROFILE%\Videos\Greenshot\Recording_{yyyyMMdd_HHmmss}.mp4";
+                    dict["OutputDirectory"] = @"%USERPROFILE%\Videos\Greenshot";
+                    dict["FilenamePattern"] = "Recording_{yyyyMMdd_HHmmss}.mp4";
                     dict["Preset"] = "Balanced";
                     dict["Format"] = "Mp4_H264";
                     dict["FrameRate"] = 30;
@@ -2445,7 +2446,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     break;
                 case "Pdf":
                     dict["PageSize"] = "Image";
-                    dict["MeasurementUnit"] = "Mm";
                     dict["PageWidthMm"] = 210.0;
                     dict["PageHeightMm"] = 297.0;
                     dict["MarginTopMm"] = 0.0;
@@ -2456,7 +2456,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     dict["ShowSaveDialog"] = true;
                     break;
                 case "BarcodeScan":
-                    dict["SetVariable"] = "barcode_text";
+                    dict["OutputVariable"] = "barcode_text";
                     dict["CopyToClipboard"] = true;
                     break;
             }
