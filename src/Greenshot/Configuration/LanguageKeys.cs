@@ -66,6 +66,7 @@ namespace Greenshot.Configuration
         settings_destination_picker,
         settings_filenamepattern,
         settings_message_filenamepattern,
+        settings_message_storagelocation_browse_failed,
         settings_printoptions,
         settings_tooltip_filenamepattern,
         settings_tooltip_language,

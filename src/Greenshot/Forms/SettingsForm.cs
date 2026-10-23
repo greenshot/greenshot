@@ -651,8 +651,29 @@ namespace Greenshot.Forms
         private void BrowseClick(object sender, EventArgs e)
         {
             // Get the storage location and replace the environment variables
-            folderBrowserDialog1.SelectedPath = FilenameHelper.FillVariables(textbox_storagelocation.Text, false);
-            if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+            string storageLocation = FilenameHelper.FillVariables(textbox_storagelocation.Text, false);
+            // The configured location might not be accessible, e.g. the desktop of the user who installed Greenshot
+            if (!Directory.Exists(storageLocation))
+            {
+                storageLocation = coreConfiguration.GetDefault(nameof(coreConfiguration.OutputFilePath)) as string;
+            }
+
+            folderBrowserDialog1.SelectedPath = storageLocation;
+            DialogResult dialogResult;
+            try
+            {
+                dialogResult = folderBrowserDialog1.ShowDialog();
+            }
+            catch (InvalidOperationException ex)
+            {
+                // The folder browser can't be shown on some systems, the user can still type the location
+                Log.Warn("Couldn't show the folder browser dialog", ex);
+                MessageBox.Show(Language.GetString(LangKey.settings_message_storagelocation_browse_failed), Language.GetString(LangKey.settings_storagelocation));
+                textbox_storagelocation.Focus();
+                return;
+            }
+
+            if (dialogResult == DialogResult.OK)
             {
                 // Only change if there is a change, otherwise we might overwrite the environment variables
                 if (folderBrowserDialog1.SelectedPath != null && !folderBrowserDialog1.SelectedPath.Equals(FilenameHelper.FillVariables(textbox_storagelocation.Text, false)))

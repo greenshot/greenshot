@@ -230,6 +230,7 @@ Bitte überprüfen Sie die Schreibrechte oder wählen Sie einen anderen Speicher
 		<resource name="settings_iecapture">Internet Explorer abfotografieren</resource>
 		<resource name="settings_jpegquality">JPEG-Qualität</resource>
 		<resource name="settings_language">Sprache</resource>
+		<resource name="settings_message_storagelocation_browse_failed">Die Ordnerauswahl konnte nicht geöffnet werden. Bitte tragen Sie den Speicherort in das Textfeld ein.</resource>
 		<resource name="settings_message_filenamepattern">Die folgenden Platzhalter werden im festgelegten Muster automatisch ersetzt:
 ${YYYY}		Jahr, 4-stellig
 ${MM}		Monat, 2-stellig
