@@ -331,7 +331,7 @@ namespace Greenshot.Tests.Recipes
         {
             // The test brings its own recipe file instead of depending on example files in the repository
             const string recipeJson = @"{
-  ""version"": ""1.0"",
+  ""version"": ""2.0"",
   ""id"": ""recipe_record_active_window"",
   ""name"": ""Record Active Window"",
   ""description"": ""Records the active window as video, started with the Pause key"",
@@ -341,7 +341,7 @@ namespace Greenshot.Tests.Recipes
       ""name"": ""Pause Hotkey"",
       ""enabled"": true,
       ""parameters"": {
-        ""hotkey"": ""Pause""
+        ""Hotkey"": ""Pause""
       }
     }
   ],
@@ -353,7 +353,7 @@ namespace Greenshot.Tests.Recipes
       ""name"": ""Record Active Window"",
       ""enabled"": true,
       ""parameters"": {
-        ""sourceType"": ""ActiveWindow""
+        ""SourceType"": ""ActiveWindow""
       }
     }
   ],

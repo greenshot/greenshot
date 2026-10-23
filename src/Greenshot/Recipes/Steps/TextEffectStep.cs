@@ -47,7 +47,7 @@ namespace Greenshot.Recipes.Steps
     /// </summary>
     [StepInfo(WellKnownStepTypes.TextEffect, "Text Effect", "Finds text via OCR and applies an effect (pixelize, blur, highlight, redact, magnify) to the matches.", "Effects")]
     [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required, VisualMutation = PayloadEffect.AddsAnnotations)]
-    [StepParameter("Patterns", ContractDataType.Object, Required = true, Description = "Regular expressions to find")]
+    [StepParameter("Patterns", ContractDataType.Object, ValueType = typeof(List<string>), Required = true, Description = "Regular expressions to find")]
     [StepParameter("Effect", ContractDataType.Enum, DefaultValue = "Pixelize", Description = "Effect to apply", AllowedValues = new[] { "Pixelize", "Blur", "Highlight", "Redact", "Magnify" })]
     [StepParameter("Scope", ContractDataType.Enum, DefaultValue = "Auto", Description = "Apply to the matching words or whole lines")]
     [StepParameter("MatchCase", ContractDataType.Boolean, DefaultValue = false, Description = "Match case")]

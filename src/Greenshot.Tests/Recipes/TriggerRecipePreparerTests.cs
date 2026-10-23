@@ -51,7 +51,7 @@ namespace Greenshot.Tests.Recipes
             Assert.StartsWith("trigger_source_", sourceNode.Id);
             Assert.Equal(CaptureSourceType.CurrentEditor, sourceNode.GetParameter<CaptureSourceType>("SourceType"));
             Assert.Equal(new[] { sourceNode.Id }, preparedRecipe.Flow.StartNodes);
-            Assert.Contains("effect_e095", preparedRecipe.Flow.Transitions[sourceNode.Id]);
+            Assert.Contains("effect_e095", preparedRecipe.Flow.GetTargets(sourceNode.Id));
             Assert.Single(recipe.Nodes);
         }
 
@@ -94,9 +94,9 @@ namespace Greenshot.Tests.Recipes
             });
             Assert.All(["effect_a", "effect_b"], endNodeId =>
             {
-                Assert.Contains(endNodeId, preparedRecipe.Flow.Transitions.Keys);
-                Assert.Single(preparedRecipe.Flow.Transitions[endNodeId]);
-                Assert.Contains(preparedRecipe.Flow.Transitions[endNodeId][0], editorNodes.Select(node => node.Id));
+                Assert.Contains(endNodeId, preparedRecipe.Flow.GetUnifiedTransitions().Keys);
+                Assert.Single(preparedRecipe.Flow.GetTargets(endNodeId));
+                Assert.Contains(preparedRecipe.Flow.GetTargets(endNodeId)[0], editorNodes.Select(node => node.Id));
             });
             Assert.Equal(3, recipe.Nodes.Count);
         }
@@ -134,8 +134,8 @@ namespace Greenshot.Tests.Recipes
             Assert.Equal(CaptureSourceType.CurrentEditor, sourceNode.GetParameter<CaptureSourceType>("SourceType"));
             Assert.Equal(nameof(TargetEditor.CurrentEditor), editorNode.GetParameter<string>("TargetEditor"));
             Assert.Equal(new[] { sourceNode.Id }, preparedRecipe.Flow.StartNodes);
-            Assert.Contains("effect_e095", preparedRecipe.Flow.Transitions[sourceNode.Id]);
-            Assert.Contains(editorNode.Id, preparedRecipe.Flow.Transitions["effect_e095"]);
+            Assert.Contains("effect_e095", preparedRecipe.Flow.GetTargets(sourceNode.Id));
+            Assert.Contains(editorNode.Id, preparedRecipe.Flow.GetTargets("effect_e095"));
         }
 
         [Fact]
@@ -170,8 +170,8 @@ namespace Greenshot.Tests.Recipes
             var destinationNode = Assert.Single(preparedRecipe.Nodes, node => node.StepType == WellKnownStepTypes.Destinations);
             Assert.Equal(CaptureSourceType.Clipboard, sourceNode.GetParameter<CaptureSourceType>("SourceType"));
             Assert.Equal(new[] { sourceNode.Id }, preparedRecipe.Flow.StartNodes);
-            Assert.Contains("effect_e095", preparedRecipe.Flow.Transitions[sourceNode.Id]);
-            Assert.Contains(destinationNode.Id, preparedRecipe.Flow.Transitions["effect_e095"]);
+            Assert.Contains("effect_e095", preparedRecipe.Flow.GetTargets(sourceNode.Id));
+            Assert.Contains(destinationNode.Id, preparedRecipe.Flow.GetTargets("effect_e095"));
         }
 
         [Fact]

@@ -21,12 +21,10 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Triggers;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 
 namespace Greenshot.Recipes.Approval
 {
@@ -56,16 +54,6 @@ namespace Greenshot.Recipes.Approval
     /// </summary>
     public static class RecipeEditApproval
     {
-        /// <summary>
-        /// Triggers are compared as they are written to a recipe file: a trigger read from a file has camel-cased parameter names
-        /// </summary>
-        private static readonly JsonSerializer TriggerComparer = JsonSerializer.Create(new JsonSerializerSettings
-        {
-            NullValueHandling = NullValueHandling.Ignore,
-            ContractResolver = new CamelCasePropertyNamesContractResolver(),
-            Converters = { new StringEnumConverter() }
-        });
-
         /// <summary>
         /// The approval for the edited recipe
         /// </summary>
@@ -145,7 +133,8 @@ namespace Greenshot.Recipes.Approval
         }
 
         /// <summary>
-        /// The index of the same (unchanged) trigger in the old version, -1 when there is none
+        /// The index of the same (unchanged) trigger in the old version, -1 when there is none.
+        /// Triggers are compared as they are written to a recipe file: a trigger read from a file has camel-cased parameter names
         /// </summary>
         internal static int FindSameTrigger(TriggerConfig trigger, IList<TriggerConfig> oldTriggers, ISet<int> used)
         {
@@ -153,14 +142,14 @@ namespace Greenshot.Recipes.Approval
             {
                 return -1;
             }
-            var token = JToken.FromObject(trigger, TriggerComparer);
+            var token = JsonSerializer.SerializeToNode(trigger, RecipeSerializer.Options);
             for (int i = 0; i < oldTriggers.Count; i++)
             {
                 if (used.Contains(i) || oldTriggers[i] == null)
                 {
                     continue;
                 }
-                if (JToken.DeepEquals(token, JToken.FromObject(oldTriggers[i], TriggerComparer)))
+                if (JsonNode.DeepEquals(token, JsonSerializer.SerializeToNode(oldTriggers[i], RecipeSerializer.Options)))
                 {
                     return i;
                 }

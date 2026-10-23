@@ -31,7 +31,7 @@ using Xunit;
 using Greenshot.Base.Languages;
 using Greenshot.Plugin.Box;
 using Greenshot.Plugin.Dropbox;
-using Greenshot.Plugin.Jira;
+using Greenshot.Plugin.Atlassian.Jira;
 using Greenshot.Plugin.Office;
 
 namespace Greenshot.Tests.Forms

@@ -20,7 +20,7 @@
  */
 
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Greenshot.Plugin.CustomUploader.Sxcu;
 
@@ -42,7 +42,7 @@ internal sealed class UploaderDefinition
     public string RequestMethod { get; set; }
 
     /// <summary>The name of <see cref="RequestMethod"/> in files of ShareX before 13.0</summary>
-    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string RequestType { get; set; }
 
     public string RequestURL { get; set; }

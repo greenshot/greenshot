@@ -502,15 +502,7 @@ namespace Greenshot.Plugin.Zxing.Views
                     {
                         return string.Empty;
                     }
-                    string formattedAmount = string.Empty;
-                    if (double.TryParse(TxtEpcAmount.Text, out double amt))
-                    {
-                        formattedAmount = string.Format(CultureInfo.InvariantCulture, "EUR{0:F2}", amt);
-                    }
-                    else if (!string.IsNullOrEmpty(TxtEpcAmount.Text))
-                    {
-                        formattedAmount = TxtEpcAmount.Text.StartsWith("EUR", StringComparison.OrdinalIgnoreCase) ? TxtEpcAmount.Text : $"EUR{TxtEpcAmount.Text}";
-                    }
+                    string formattedAmount = ZxingModel.FormatEpcAmount(TxtEpcAmount.Text);
 
                     return "BCD\n" +
                            "002\n" +

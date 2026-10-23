@@ -9,7 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapplo.HttpExtensions.JsonNet" Version="2.0.12" />
+    <!-- All JSON: recipes, IPC, uploads; the Jira and Confluence plugin also uses its source generator -->
+    <PackageReference Include="System.Text.Json" Version="10.0.13" />
+    <!-- The Range and Required attributes of the configuration -->
+    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="3.0.1" />
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.13" />
     <PackageReference Include="Dapplo.Windows" Version="3.17.3" />

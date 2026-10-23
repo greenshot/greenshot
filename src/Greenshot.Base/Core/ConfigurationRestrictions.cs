@@ -39,6 +39,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         private static readonly Dictionary<string, string> LegacyPluginIdentifiers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
+            ["Atlassian Plugin"] = "Atlassian",
             ["Box Plugin"] = "Box",
             ["Confluence Plugin"] = "Confluence",
             ["Custom uploader Plugin"] = "CustomUploader",
@@ -48,6 +49,22 @@ namespace Greenshot.Base.Core
             ["Office Plugin"] = "Office",
             ["PDF Plugin"] = "Pdf"
         };
+
+        /// <summary>
+        /// Plugins which became part of another plugin, with a destination of their name: the old name in a plugin list
+        /// now stands for that destination, so the lists of an administrator or user keep their meaning
+        /// </summary>
+        private static readonly Dictionary<string, string> MergedPlugins = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Jira"] = "Atlassian",
+            ["Confluence"] = "Atlassian"
+        };
+
+        /// <summary>
+        /// The names of the plugins which became part of the plugin
+        /// </summary>
+        private static IEnumerable<string> FormerPluginNames(string pluginName) =>
+            MergedPlugins.Where(merged => string.Equals(merged.Value, pluginName, StringComparison.OrdinalIgnoreCase)).Select(merged => merged.Key);
 
         /// <summary>
         /// The name of a plugin from its file: Box for Greenshot.Plugin.Box.dll
@@ -72,7 +89,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         public static bool IsPluginAllowed(ICoreConfiguration configuration, string pluginName) =>
             !IsPluginBlockedByAdministrator(configuration, pluginName)
-            && (configuration == null || !Names(configuration.ExcludePluginNames).Contains(pluginName, StringComparer.OrdinalIgnoreCase));
+            && (configuration == null || !IsListed(Names(configuration.ExcludePluginNames).ToList(), pluginName));
 
         /// <summary>
         /// True when BlockedPluginNames, AllowedPluginNames or the older IncludePlugins / ExcludePlugins don't allow the plugin, the user can't change that
@@ -84,22 +101,45 @@ namespace Greenshot.Base.Core
                 return false;
             }
 
-            var blocked = Names(configuration.BlockedPluginNames).Concat(Names(configuration.ExcludePlugins).Select(PluginNameFromLegacyIdentifier));
-            if (blocked.Contains(pluginName, StringComparer.OrdinalIgnoreCase))
+            if (IsListed(BlockedPlugins(configuration), pluginName))
             {
                 return true;
             }
 
-            var allowed = Names(configuration.AllowedPluginNames).Concat(Names(configuration.IncludePlugins).Select(PluginNameFromLegacyIdentifier)).ToList();
-            return IsAllowList(configuration, nameof(ICoreConfiguration.AllowedPluginNames), allowed) && !allowed.Contains(pluginName, StringComparer.OrdinalIgnoreCase);
+            var allowed = AllowedPlugins(configuration);
+            return IsAllowList(configuration, nameof(ICoreConfiguration.AllowedPluginNames), allowed)
+                && !allowed.Contains(pluginName, StringComparer.OrdinalIgnoreCase)
+                && !FormerPluginNames(pluginName).Any(former => allowed.Contains(former, StringComparer.OrdinalIgnoreCase));
         }
+
+        /// <summary>
+        /// The plugin is in the list, or all plugins which became part of it are
+        /// </summary>
+        private static bool IsListed(List<string> plugins, string pluginName)
+        {
+            if (plugins.Contains(pluginName, StringComparer.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            var formerNames = FormerPluginNames(pluginName).ToList();
+            return formerNames.Count > 0 && formerNames.All(former => plugins.Contains(former, StringComparer.OrdinalIgnoreCase));
+        }
+
+        private static List<string> BlockedPlugins(ICoreConfiguration configuration) =>
+            Names(configuration.BlockedPluginNames).Concat(Names(configuration.ExcludePlugins).Select(PluginNameFromLegacyIdentifier)).ToList();
+
+        private static List<string> AllowedPlugins(ICoreConfiguration configuration) =>
+            Names(configuration.AllowedPluginNames).Concat(Names(configuration.IncludePlugins).Select(PluginNameFromLegacyIdentifier)).ToList();
 
         /// <summary>
         /// True when the destination with the designation may be used: neither the administrator nor the user excluded it
         /// </summary>
         public static bool IsDestinationAllowed(ICoreConfiguration configuration, string designation) =>
             !IsDestinationBlockedByAdministrator(configuration, designation)
-            && (configuration == null || !Names(configuration.ExcludeDestinations).Contains(designation, StringComparer.OrdinalIgnoreCase));
+            && (configuration == null
+                || (!Names(configuration.ExcludeDestinations).Contains(designation, StringComparer.OrdinalIgnoreCase)
+                    && !(MergedPlugins.ContainsKey(designation) && Names(configuration.ExcludePluginNames).Contains(designation, StringComparer.OrdinalIgnoreCase))));
 
         /// <summary>
         /// True when BlockedDestinations or AllowedDestinations don't allow the destination, the user can't change that
@@ -114,6 +154,23 @@ namespace Greenshot.Base.Core
             if (Names(configuration.BlockedDestinations).Contains(designation, StringComparer.OrdinalIgnoreCase))
             {
                 return true;
+            }
+
+            // The destination of a plugin which became part of another: the plugin lists name it with the old plugin name
+            if (MergedPlugins.TryGetValue(designation, out var pluginName))
+            {
+                if (BlockedPlugins(configuration).Contains(designation, StringComparer.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
+                var allowedPlugins = AllowedPlugins(configuration);
+                if (IsAllowList(configuration, nameof(ICoreConfiguration.AllowedPluginNames), allowedPlugins)
+                    && !allowedPlugins.Contains(designation, StringComparer.OrdinalIgnoreCase)
+                    && !allowedPlugins.Contains(pluginName, StringComparer.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
             }
 
             var allowed = Names(configuration.AllowedDestinations).ToList();

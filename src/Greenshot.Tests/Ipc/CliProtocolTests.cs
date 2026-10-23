@@ -24,13 +24,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Ipc;
 using Greenshot.Ipc.Cli;
 using Greenshot.Recipes;
-using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace Greenshot.Tests.Ipc
@@ -202,7 +202,7 @@ namespace Greenshot.Tests.Ipc
                 var frames = ReadTextFrames(ms);
                 Assert.Equal(2, frames.Count);
                 Assert.Equal('O', frames[0].Type);
-                var document = JObject.Parse(frames[0].Text);
+                var document = JsonNode.Parse(frames[0].Text).AsObject();
                 Assert.Equal("42", document.Value<string>("stdout"));
                 Assert.Equal(('X', (string)null, 3), frames[1]);
             }

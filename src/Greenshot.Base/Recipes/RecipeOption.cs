@@ -23,10 +23,9 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using Greenshot.Base.Recipes.Contracts;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Greenshot.Base.Recipes
 {
@@ -68,7 +67,7 @@ namespace Greenshot.Base.Recipes
         /// <summary>
         /// The value used until the user changes it
         /// </summary>
-        [JsonProperty("default")]
+        [JsonPropertyName("default")]
         public object DefaultValue { get; set; }
 
         /// <summary>
@@ -167,10 +166,6 @@ namespace Greenshot.Base.Recipes
         public bool TryConvert(object raw, out object value)
         {
             value = null;
-            if (raw is JValue jValue)
-            {
-                raw = jValue.Value;
-            }
             if (raw == null)
             {
                 return false;

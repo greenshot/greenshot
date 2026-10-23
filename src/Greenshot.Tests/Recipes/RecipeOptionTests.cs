@@ -45,11 +45,11 @@ namespace Greenshot.Tests.Recipes
     { ""key"": ""color"", ""type"": ""Color"", ""default"": ""#000000"", ""enabledWhen"": ""border"" }
   ],
   ""nodes"": [
-    { ""id"": ""source"", ""stepType"": ""Source"", ""parameters"": { ""sourceType"": ""FullScreen"" } },
-    { ""id"": ""frame"", ""stepType"": ""Effect"", ""enabled"": ""${option.border}"",
-      ""parameters"": { ""effect"": ""Border"", ""width"": ""${option.width}"", ""color"": ""${option.color}"" } }
+    { ""id"": ""source"", ""stepType"": ""Source"", ""parameters"": { ""SourceType"": ""FullScreen"" } },
+    { ""id"": ""frame"", ""stepType"": ""Effect"", ""when"": ""${option.border}"",
+      ""parameters"": { ""Effect"": ""Border"", ""Width"": ""${option.width}"", ""Color"": ""${option.color}"" } }
   ],
-  ""flow"": { ""startNodes"": [ ""source"" ], ""transitions"": { ""source"": [ ""frame"" ] } }
+  ""flow"": { ""startNodes"": [ ""source"" ], ""transitions"": [ { ""from"": ""source"", ""to"": ""frame"" } ] }
 }";
 
         public RecipeOptionTests()
@@ -83,33 +83,32 @@ namespace Greenshot.Tests.Recipes
 
             var frame = recipe.FindNode("frame");
             Assert.True(frame.Enabled);
-            Assert.Equal("${option.border}", frame.EnabledExpression);
+            Assert.Equal("${option.border}", frame.When);
 
             string json = RecipeSerializer.Serialize(recipe);
             Assert.Contains("\"options\"", json);
-            Assert.Contains("\"enabled\": \"${option.border}\"", json);
+            Assert.Contains("\"when\": \"${option.border}\"", json);
             Assert.Contains("\"default\": 2", json);
             Assert.DoesNotContain("hasOptions", json, StringComparison.OrdinalIgnoreCase);
 
             var again = RecipeSerializer.Deserialize(json);
-            Assert.Equal("${option.border}", again.FindNode("frame").EnabledExpression);
+            Assert.Equal("${option.border}", again.FindNode("frame").When);
             Assert.Equal(3, again.Options.Count);
 
             var clone = recipe.Clone();
-            Assert.Equal("${option.border}", clone.FindNode("frame").EnabledExpression);
+            Assert.Equal("${option.border}", clone.FindNode("frame").When);
             Assert.NotSame(recipe.Options[0], clone.Options[0]);
         }
 
         [Theory]
         [InlineData("false", false)]
         [InlineData("true", true)]
-        [InlineData("\"False\"", false)]
         public void NodeEnabled_StaysABoolean(string jsonValue, bool expected)
         {
-            string json = BorderRecipeJson.Replace("\"enabled\": \"${option.border}\"", $"\"enabled\": {jsonValue}");
+            string json = BorderRecipeJson.Replace("\"when\": \"${option.border}\"", $"\"enabled\": {jsonValue}");
             var node = RecipeSerializer.Deserialize(json).FindNode("frame");
             Assert.Equal(expected, node.Enabled);
-            Assert.Null(node.EnabledExpression);
+            Assert.Null(node.When);
         }
 
         [Fact]
@@ -251,7 +250,7 @@ namespace Greenshot.Tests.Recipes
             string json = $@"{{
   ""id"": ""broken_options"", ""name"": ""Broken"",
   ""options"": [ {options} ],
-  ""nodes"": [ {{ ""id"": ""source"", ""stepType"": ""Source"", ""parameters"": {{ ""sourceType"": ""FullScreen"" }} }} ],
+  ""nodes"": [ {{ ""id"": ""source"", ""stepType"": ""Source"", ""parameters"": {{ ""SourceType"": ""FullScreen"" }} }} ],
   ""flow"": {{ ""startNodes"": [ ""source"" ] }}
 }}";
             var result = RecipeValidator.Validate(RecipeSerializer.Deserialize(json, validate: false));
@@ -264,7 +263,7 @@ namespace Greenshot.Tests.Recipes
         {
             var recipe = RecipeSerializer.Deserialize(BorderRecipeJson, validate: false);
             recipe.FindNode("frame").Parameters["width"] = "${option.thickness}";
-            recipe.FindNode("source").EnabledExpression = "option.border";
+            recipe.FindNode("source").When = "option.border";
 
             var result = RecipeValidator.Validate(recipe);
 

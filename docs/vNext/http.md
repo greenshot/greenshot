@@ -20,6 +20,7 @@ exceptions of the configuration and the logging rules apply everywhere without e
 | `CertificateValidator` | The certificate rules (platform validation plus the allowed hosts and thumbprints of the configuration). |
 | `ImageDownloader` | Downloads an image from a url (HTML on the clipboard, a drop on the editor). |
 | `SiteIcon` | The icon of a web site as 32x32 PNG, e.g. for a destination: `favicon.ico` below the site, else the icon link of its start page (same scheme and host), optionally the same for the parent domain. ICO, PNG, GIF and JPEG by their first bytes, 256 KB and 45 seconds at most, null when there is none. Used by the Jira destination and the custom uploader. |
+| `ServerSignIn` | The sign-in to the server of a plugin (Jira, Confluence) with `ServerCredentials`: user name with password or API token (Basic), or a personal access token (Bearer). The credentials of the session or the ones in the Windows Credential Manager (`CredentialStore`, target = the url) first, the sign-in window (`ServerSignInWindow`) only when there are none or the server rejects them. `ServerAccountView` shows the account in the plugin settings with *Sign in*, *Test connection* and *Sign out*. |
 | `OAuth2Helper` (`Greenshot.Base/Core/OAuth`) | The OAuth 2 authorization (browser, local listener) and the token refresh, on top of `HttpService`. |
 
 ## Using it
@@ -33,7 +34,7 @@ Destinations and recipe steps already run on the thread pool; the UI thread can 
 var feed = await HttpService.Current.GetJsonAsync<UpdateFeed>(new Uri("https://getgreenshot.org/update-feed.json"), cancellationToken);
 ```
 
-The content is deserialized with Json.NET, so `[JsonProperty]` works. An HTTP error throws (see [Errors](#errors)).
+The content is deserialized with System.Text.Json and the tolerant settings of `GreenshotJson` (comments, trailing commas, any casing, numbers in quotes), so `[JsonPropertyName]` works. Code which reads a lot of JSON can deserialize `HttpResult.Content` with a source generated context, like the Jira and Confluence clients. An HTTP error throws (see [Errors](#errors)).
 
 ### Any request
 
@@ -114,7 +115,7 @@ A service needs a registered client id; keep it out of the repository (the `*.Cr
 ## Rules
 
 - **Never create an HttpClient.** Use `HttpService.Current`; it carries the configuration and keeps the connections.
-  Libraries with their own HTTP stack (Dapplo.Jira) get the certificate rules through `CertificateValidator.RegisterGlobally`, called at startup.
+  Jira and Confluence call their REST APIs through it too, no library brings its own HTTP stack.
 - **Nothing that is sent or received goes into the log.** `HttpService` logs method, scheme, host and status, never path,
   query, headers or content: tokens hide in all of them (a webhook url is a secret, an error body can repeat the api key).
   Log the fields of a response you parsed, not the response. The exception messages follow the same rule. One exception: a

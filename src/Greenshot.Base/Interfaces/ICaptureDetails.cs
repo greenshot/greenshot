@@ -79,9 +79,24 @@ namespace Greenshot.Base.Interfaces
         List<IDetectedFeature> Features { get; }
 
         /// <summary>
-        /// The crop offset applied to the capture, used to offset background features
+        /// The part of the image as it was captured which is left after cropping, empty when it wasn't cropped.
+        /// A processor which still looks at the image as captured hands what it found to <see cref="AddFeatures"/> with the crop area of that moment.
         /// </summary>
-        Dapplo.Windows.Common.Structs.NativePoint CropOffset { get; set; }
+        Dapplo.Windows.Common.Structs.NativeRect CropArea { get; }
+
+        /// <summary>
+        /// The image was cropped: move the features with it and remove the ones which are no longer in the image
+        /// </summary>
+        /// <param name="cropRectangle">The new image, in coordinates of the image before the crop</param>
+        void CropFeatures(Dapplo.Windows.Common.Structs.NativeRect cropRectangle);
+
+        /// <summary>
+        /// Add features found on the image while the crop area was <paramref name="cropAreaWhenFound"/>: when it was cropped since,
+        /// they are moved with it and the ones which are no longer in the image are left out
+        /// </summary>
+        /// <param name="features">What was found, in coordinates of the image which was looked at</param>
+        /// <param name="cropAreaWhenFound">The <see cref="CropArea"/> when the image was taken</param>
+        void AddFeatures(IEnumerable<IDetectedFeature> features, Dapplo.Windows.Common.Structs.NativeRect cropAreaWhenFound);
 
         /// <summary>
         /// A Task that completes when all background capture processors (like OCR and QR) have finished.

@@ -59,18 +59,16 @@ namespace Greenshot.Recipes.Steps
     [StepParameter("CaptureMouseCursor", ContractDataType.Boolean, Description = "Include the mouse cursor (default: settings)")]
     [StepParameter("DelayMs", ContractDataType.Integer, Description = "Delay before capturing in milliseconds (default: settings)")]
     [StepParameter("ScreenCaptureMode", ContractDataType.Enum, Description = "Which screen(s) to capture for FullScreen (default: settings)", AllowedValues = new[] { "Auto", "FullScreen", "Fixed" })]
-    [StepParameter("WindowTitle", ContractDataType.String, Description = "Capture the window with this title (SourceType Window)")]
     [StepParameter("WindowTitlePattern", ContractDataType.String, Description = "Capture the window whose title matches this regular expression (SourceType Window)")]
     [StepParameter("ProcessName", ContractDataType.String, Description = "Capture the window of this process (SourceType Window)")]
-    [StepParameter("WindowHandle", ContractDataType.Object, Description = "Capture this window without asking or activating it (SourceType Window): the variable of a Window argument (e.g. ${Window}) or a window handle")]
-    [StepParameter("MatchCase", ContractDataType.Boolean, Description = "Match WindowTitle / WindowTitlePattern case-sensitively")]
+    [StepParameter("WindowHandle", ContractDataType.Window, Description = "Capture this window without asking or activating it (SourceType Window): the variable of a Window argument (e.g. ${Window}) or a window handle")]
+    [StepParameter("MatchCase", ContractDataType.Boolean, Description = "Match WindowTitlePattern and ProcessName case-sensitively")]
     [StepParameter("AlignDpi", ContractDataType.Boolean, DefaultValue = true, Description = "Set the image resolution to the screen DPI")]
     [StepInputVariable("PreSuppliedRegion", ContractDataType.Object, Description = "Region to capture without asking (set by the caller)")]
     [StepInputVariable("CaptureDelay", ContractDataType.Integer, Description = "Overrides DelayMs")]
     [StepInputVariable("CaptureMouseCursor", ContractDataType.Boolean, Description = "Overrides the CaptureMouseCursor parameter")]
     [StepInputVariable("ScreenCaptureMode", ContractDataType.Enum, Description = "Overrides the ScreenCaptureMode parameter")]
     [StepInputVariable("TargetWindow", ContractDataType.Object, Description = "Window to capture (set by the caller)")]
-    [StepInputVariable("WindowTitle", ContractDataType.String, Description = "Window title, when the parameter is not set")]
     [StepInputVariable("WindowTitlePattern", ContractDataType.String, Description = "Window title pattern, when the parameter is not set")]
     [StepInputVariable("ProcessName", ContractDataType.String, Description = "Process name, when the parameter is not set")]
     [StepInputVariable("MatchCase", ContractDataType.Boolean, Description = "Match case, when the parameter is not set")]
@@ -171,8 +169,7 @@ namespace Greenshot.Recipes.Steps
             }
 
             // Check if window targeting parameters are specified in config
-            bool hasTargetWindowConfig = !string.IsNullOrEmpty(Config.GetParameter<string>("WindowTitle")) ||
-                                         !string.IsNullOrEmpty(Config.GetParameter<string>("WindowTitlePattern")) ||
+            bool hasTargetWindowConfig = !string.IsNullOrEmpty(Config.GetParameter<string>("WindowTitlePattern")) ||
                                          !string.IsNullOrEmpty(Config.GetParameter<string>("ProcessName"));
 
             bool liveSelection = UseLiveSelection(context, sourceType, hasTargetWindowConfig);
@@ -245,9 +242,10 @@ namespace Greenshot.Recipes.Steps
             var acquired = await source.AcquireAsync(context, cancellationToken).ConfigureAwait(false);
             if (acquired != null)
             {
-#if !GREENSHOT_LIGHT
                 // Clipboard, file and editor contents are the user's, everything else is taken from the screen
-                if (sourceType != CaptureSourceType.Clipboard && sourceType != CaptureSourceType.File && sourceType != CaptureSourceType.CurrentEditor)
+                bool fromScreen = sourceType != CaptureSourceType.Clipboard && sourceType != CaptureSourceType.File && sourceType != CaptureSourceType.CurrentEditor;
+#if !GREENSHOT_LIGHT
+                if (fromScreen)
                 {
                     RedactForAiTool(context, acquired);
                 }
@@ -256,6 +254,10 @@ namespace Greenshot.Recipes.Steps
                 if (alignDpi && sourceType != CaptureSourceType.File)
                 {
                     AlignDpi(acquired);
+                }
+                if (fromScreen && acquired.RawCapture != null)
+                {
+                    ProcessScreenCapture(acquired.RawCapture);
                 }
                 context.Payload = acquired;
             }
@@ -326,6 +328,25 @@ namespace Greenshot.Recipes.Steps
             }
         }
 #endif
+
+        /// <summary>
+        /// What every capture of the screen gets: the title fixes of the settings, and the processors switched on in the settings
+        /// (the QR code scan) start in the background, so what they find shows up while selecting.
+        /// A live selection has no image yet, it gets no processors.
+        /// </summary>
+        private static void ProcessScreenCapture(ICapture capture)
+        {
+            TitleFix.Apply(capture.CaptureDetails);
+            if (capture.Image == null)
+            {
+                return;
+            }
+            foreach (var processor in SimpleServiceProvider.Current.GetAllInstances<IProcessor>().Where(p => p.isActive))
+            {
+                Log.DebugFormat("Starting processor {0}", processor.Designation);
+                processor.ProcessCapture(capture);
+            }
+        }
 
         private static void AlignDpi(ICapturePayload payload)
         {

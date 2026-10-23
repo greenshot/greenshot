@@ -355,14 +355,14 @@ To add a new route (e.g., `greenshot:quick-export`):
        {
            Command = "QUICK_EXPORT",
            Source = "url_scheme",
-           Payload = JObject.FromObject(queryParams)
+           Parameters = new Dictionary<string, string>(queryParams, StringComparer.OrdinalIgnoreCase)
        };
    ```
 
 3. **Implement Action Handler**:
    ```csharp
    case "QUICK_EXPORT":
-       await HandleQuickExportAsync(envelope.Payload, context);
+       await HandleQuickExportAsync(envelope.Parameters, context);
        break;
    ```
    Ensure any UI code is marshaled via `UiDispatcher.Current`.

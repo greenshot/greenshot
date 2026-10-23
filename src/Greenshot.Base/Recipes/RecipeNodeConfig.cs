@@ -22,9 +22,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using Greenshot.Base.Recipes.Expressions;
 using Greenshot.Base.Recipes.Pipeline;
-using Newtonsoft.Json.Linq;
 
 namespace Greenshot.Base.Recipes
 {
@@ -50,58 +50,15 @@ namespace Greenshot.Base.Recipes
         public string Name { get; set; }
 
         /// <summary>
-        /// Whether this node is active in the flow. Disabled nodes are skipped during execution.
+        /// Whether this node is active in the flow (the switch in the recipe editor). Disabled nodes are skipped during execution.
         /// </summary>
-        [Newtonsoft.Json.JsonIgnore]
         public bool Enabled { get; set; } = true;
 
         /// <summary>
-        /// An expression deciding at run time whether the node runs, e.g. "${option.border}" to switch a step with a recipe option.
-        /// When set, it replaces <see cref="Enabled"/>; a node which doesn't run passes the flow on to the next nodes.
-        /// In the recipe file both are "enabled": true, false or the expression.
+        /// An expression deciding at run time whether the enabled node runs, e.g. "${option.border}" to switch a step with a recipe option.
+        /// A node which doesn't run passes the flow on to the next nodes.
         /// </summary>
-        [Newtonsoft.Json.JsonIgnore]
-        public string EnabledExpression { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("enabled")]
-        private object EnabledJson
-        {
-            get => string.IsNullOrWhiteSpace(EnabledExpression) ? Enabled : (object)EnabledExpression;
-            set
-            {
-                EnabledExpression = null;
-                if (value is JValue jValue)
-                {
-                    value = jValue.Value;
-                }
-                switch (value)
-                {
-                    case bool enabled:
-                        Enabled = enabled;
-                        break;
-                    case string text when bool.TryParse(text.Trim(), out var parsed):
-                        Enabled = parsed;
-                        break;
-                    case string text when !string.IsNullOrWhiteSpace(text):
-                        Enabled = true;
-                        EnabledExpression = text.Trim();
-                        break;
-                    default:
-                        Enabled = true;
-                        break;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Optional fallback step node ID within the same recipe to route to when this node encounters an error.
-        /// </summary>
-        public string OnErrorNodeId { get; set; }
-
-        /// <summary>
-        /// Optional fallback recipe ID to invoke when this node encounters an error.
-        /// </summary>
-        public string OnErrorRecipeId { get; set; }
+        public string When { get; set; }
 
         private Dictionary<string, object> _parameters = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
@@ -141,11 +98,11 @@ namespace Greenshot.Base.Recipes
                     return typed;
                 }
 
-                if (val is JToken jToken)
+                if ((val is IDictionary<string, object> || val is IEnumerable && val is not string) && typeof(T) != typeof(List<string>))
                 {
                     try
                     {
-                        return jToken.ToObject<T>();
+                        return RecipeSerializer.ConvertValue<T>(val);
                     }
                     catch
                     {
@@ -202,21 +159,21 @@ namespace Greenshot.Base.Recipes
         }
 
         /// <summary>
-        /// Whether the node runs in this flow: it is enabled and its <see cref="EnabledExpression"/>, if any, is true.
+        /// Whether the node runs in this flow: it is enabled and its <see cref="When"/>, if any, is true.
         /// An expression which can't be evaluated counts as false.
         /// </summary>
         public bool ShouldRun(CaptureFlowContext context)
         {
             if (!Enabled) return false;
-            if (string.IsNullOrWhiteSpace(EnabledExpression)) return true;
-            return ExpressionEvaluator.Instance.Evaluate(EnabledExpression, context, false);
+            if (string.IsNullOrWhiteSpace(When)) return true;
+            return ExpressionEvaluator.Instance.Evaluate(When, context, false);
         }
 
         /// <summary>
         /// Provenance: the id of the extension which put this node into a composed recipe, null for the recipe's own nodes.
         /// Set only by <see cref="RecipeComposer"/>, never read from a file.
         /// </summary>
-        [Newtonsoft.Json.JsonIgnore]
+        [JsonIgnore]
         public string ContributedBy { get; set; }
 
         public RecipeNodeConfig Clone()
@@ -227,9 +184,7 @@ namespace Greenshot.Base.Recipes
                 StepType = StepType,
                 Name = Name,
                 Enabled = Enabled,
-                EnabledExpression = EnabledExpression,
-                OnErrorNodeId = OnErrorNodeId,
-                OnErrorRecipeId = OnErrorRecipeId,
+                When = When,
                 ContributedBy = ContributedBy,
                 Parameters = new Dictionary<string, object>(Parameters, StringComparer.OrdinalIgnoreCase)
             };

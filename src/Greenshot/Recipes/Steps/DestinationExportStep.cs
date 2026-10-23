@@ -11,7 +11,6 @@ using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Forms;
-using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
 
 using Greenshot.Base.Recipes;
@@ -33,7 +32,7 @@ namespace Greenshot.Recipes.Steps
     /// </summary>
     [StepInfo(WellKnownStepTypes.Destinations, "Export Destinations", "Exports the capture to one or more destinations (file, clipboard, editor, printer, email, plugins).", "Export")]
     [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required, ExtractedText = PayloadRequirement.Optional)]
-    [StepParameter("DestinationDesignations", ContractDataType.Object, Description = "List of destination designations (default: settings)")]
+    [StepParameter("DestinationDesignations", ContractDataType.Object, ValueType = typeof(List<string>), Description = "List of destination designations (default: settings)")]
     [StepParameter("SaveDirectory", ContractDataType.DirectoryPath, Description = "Directory to save to")]
     [StepParameter("FilenamePattern", ContractDataType.String, Description = "File name pattern (default: settings)")]
     [StepParameter("Format", ContractDataType.Enum, Description = "Image format (default: settings)", AllowedValuesProvider = typeof(SaveableFileFormatIds))]
@@ -445,61 +444,16 @@ namespace Greenshot.Recipes.Steps
             }
         }
 
-        private async Task<string> ExtractOrGetOcrTextAsync(CaptureFlowContext context, CancellationToken cancellationToken)
+        /// <summary>
+        /// The text of the capture: the extracted text (e.g. of a text selection), otherwise its OCR text
+        /// </summary>
+        private static async Task<string> ExtractOrGetOcrTextAsync(CaptureFlowContext context, CancellationToken cancellationToken)
         {
             if (!string.IsNullOrWhiteSpace(context.Payload?.ExtractedText))
             {
                 return context.Payload.ExtractedText;
             }
-
-            var captureDetails = context.Payload?.RawCapture?.CaptureDetails;
-            if (captureDetails?.ProcessingTask != null)
-            {
-                try
-                {
-                    await captureDetails.ProcessingTask.WaitAsync(cancellationToken).ConfigureAwait(false);
-                }
-                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-                {
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    Log.Warn("Error waiting for background OCR processing in DestinationExportStep", ex);
-                }
-            }
-
-            if (captureDetails != null)
-            {
-                lock (captureDetails.Features)
-                {
-                    var ocrLines = captureDetails.Features.OfType<IOcrLineFeature>().ToList();
-                    if (ocrLines.Any())
-                    {
-                        string txt = string.Join(Environment.NewLine, ocrLines.Select(l => l.Text));
-                        context.Payload.ExtractedText = txt;
-                        return txt;
-                    }
-                }
-            }
-
-            var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>(isOptional: true);
-            if (ocrProvider != null)
-            {
-                var surf = context.Payload?.EnsureSurface();
-                if (surf != null)
-                {
-                    var ocrLines = await ocrProvider.DoOcrAsync(surf).ConfigureAwait(false);
-                    if (ocrLines != null && ocrLines.Any())
-                    {
-                        string txt = string.Join(Environment.NewLine, ocrLines.Select(l => l.Text));
-                        context.Payload.ExtractedText = txt;
-                        return txt;
-                    }
-                }
-            }
-
-            return "";
+            return await OcrStep.ExtractTextAsync(context, cancellationToken).ConfigureAwait(false);
         }
     }
 }

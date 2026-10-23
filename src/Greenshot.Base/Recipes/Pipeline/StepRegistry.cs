@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Text.Json.Serialization.Metadata;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
@@ -65,10 +66,20 @@ namespace Greenshot.Base.Recipes.Pipeline
             if (contract == null) throw new ArgumentNullException(nameof(contract));
             if (string.IsNullOrWhiteSpace(contract.StepType)) throw new ArgumentException("The contract has no step type.", nameof(contract));
             if (factory == null) throw new ArgumentNullException(nameof(factory));
+            foreach (var parameter in contract.Parameters.Where(p => p.ValueType != null))
+            {
+                if (!RecipeParameterTypes.IsKnown(parameter.ValueType))
+                {
+                    throw new InvalidOperationException($"Step type '{contract.StepType}': the type {parameter.ValueType} of the parameter '{parameter.Name}' is in no registered JSON context, " +
+                                                        $"add it with [JsonSerializable] to the context given to {nameof(RegisterJsonTypes)}.");
+                }
+            }
 
             _registrations[contract.StepType] = new Registration { Contract = contract, Factory = factory, Provider = _registeringProvider };
             Log.DebugFormat("Registered step type '{0}'", contract.StepType);
         }
+
+        public void RegisterJsonTypes(IJsonTypeInfoResolver resolver) => RecipeParameterTypes.AddJsonTypes(resolver);
 
         private Registration Find(string stepType, bool discover)
         {

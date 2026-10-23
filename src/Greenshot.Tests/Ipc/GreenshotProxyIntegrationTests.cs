@@ -27,9 +27,9 @@ using System.IO.Pipes;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Greenshot.Ipc;
-using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace Greenshot.Tests.Ipc
@@ -195,12 +195,12 @@ namespace Greenshot.Tests.Ipc
         {
             var result = await RunAgainstFakeServerAsync(ProxyBinaries.Cli, "--recipe qr --file=a@b.png --offset -5 \"x \\\"y\\\" \u00fc\ud83d\ude00\" --json", async pipe =>
             {
-                JObject hello = await ReadJsonFrameAsync(pipe);
+                JsonObject hello = await ReadJsonFrameAsync(pipe);
                 Assert.Equal("HELLO", hello.Value<string>("command"));
                 Assert.Equal("cli", hello.Value<string>("source"));
                 Assert.Equal("text", hello.Value<string>("reply_format"));
 
-                JObject request = await ReadJsonFrameAsync(pipe);
+                JsonObject request = await ReadJsonFrameAsync(pipe);
                 Assert.Equal("CLI", request.Value<string>("command"));
                 Assert.Equal(
                     new[] { "--recipe", "qr", "--file=a@b.png", "--offset", "-5", "x \"y\" \u00fc\ud83d\ude00", "--json" },
@@ -236,11 +236,11 @@ namespace Greenshot.Tests.Ipc
         {
             var result = await RunAgainstFakeServerAsync(ProxyBinaries.Proxy, "\"greenshot://recipe/qr?x=1\"", async pipe =>
             {
-                JObject hello = await ReadJsonFrameAsync(pipe);
+                JsonObject hello = await ReadJsonFrameAsync(pipe);
                 Assert.Equal("url_scheme", hello.Value<string>("source"));
                 Assert.Equal("text", hello.Value<string>("reply_format"));
 
-                JObject request = await ReadJsonFrameAsync(pipe);
+                JsonObject request = await ReadJsonFrameAsync(pipe);
                 Assert.Equal("CLI", request.Value<string>("command"));
                 Assert.Equal(new[] { "greenshot://recipe/qr?x=1" }, request["argv"].Values<string>().ToArray());
 
@@ -255,10 +255,10 @@ namespace Greenshot.Tests.Ipc
         {
             var result = await RunAgainstFakeServerAsync(ProxyBinaries.Proxy, "--file \"C:\\some dir\\capture.png\"", async pipe =>
             {
-                JObject hello = await ReadJsonFrameAsync(pipe);
+                JsonObject hello = await ReadJsonFrameAsync(pipe);
                 Assert.Equal("open_with", hello.Value<string>("source"));
 
-                JObject request = await ReadJsonFrameAsync(pipe);
+                JsonObject request = await ReadJsonFrameAsync(pipe);
                 Assert.Equal(new[] { "--file", "C:\\some dir\\capture.png" }, request["argv"].Values<string>().ToArray());
 
                 await WriteExitFrameAsync(pipe, 0);
@@ -275,7 +275,7 @@ namespace Greenshot.Tests.Ipc
                 Assert.NotNull(process);
                 var stdout = process.StandardOutput.BaseStream;
 
-                JObject offline;
+                JsonObject offline;
                 try
                 {
                     offline = ReadJsonFrameAsync(stdout).GetAwaiter().GetResult();
@@ -310,7 +310,7 @@ namespace Greenshot.Tests.Ipc
                         await StepAsync("connect", () => connectTask);
 
                         // The proxy announces the connection before relaying anything from the extension
-                        JObject hello = await StepAsync("read HELLO from pipe", () => ReadJsonFrameAsync(pipeServer));
+                        JsonObject hello = await StepAsync("read HELLO from pipe", () => ReadJsonFrameAsync(pipeServer));
                         Assert.Equal("HELLO", hello.Value<string>("command"));
                         Assert.Equal("native_messaging", hello.Value<string>("source"));
                         Assert.Equal("json", hello.Value<string>("reply_format"));
@@ -433,9 +433,9 @@ namespace Greenshot.Tests.Ipc
             }
         }
 
-        private static async Task<JObject> ReadJsonFrameAsync(Stream stream, [System.Runtime.CompilerServices.CallerLineNumber] int callerLine = 0)
+        private static async Task<JsonObject> ReadJsonFrameAsync(Stream stream, [System.Runtime.CompilerServices.CallerLineNumber] int callerLine = 0)
         {
-            return JObject.Parse(Encoding.UTF8.GetString(await ReadFrameAsync(stream, callerLine)));
+            return JsonNode.Parse(Encoding.UTF8.GetString(await ReadFrameAsync(stream, callerLine))).AsObject();
         }
 
         private static async Task WriteFrameAsync(Stream stream, byte[] payload)

@@ -24,11 +24,11 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Http;
 using Greenshot.Base.Interfaces;
-using Newtonsoft.Json;
 using Xunit;
 
 namespace Greenshot.Tests.Http
@@ -231,7 +231,7 @@ namespace Greenshot.Tests.Http
 
         private sealed class Feed
         {
-            [JsonProperty("release")] public string Release { get; set; }
+            [JsonPropertyName("release")] public string Release { get; set; }
         }
     }
 }

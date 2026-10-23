@@ -26,10 +26,11 @@ using System.IO;
 using System.Linq;
 using System.IO.Pipes;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Greenshot.Base.Serialization;
 using log4net;
-using Newtonsoft.Json;
 using Greenshot.Base.Threading;
 #if !GREENSHOT_LIGHT
 using Greenshot.Ai;
@@ -245,10 +246,7 @@ namespace Greenshot.Ipc
                         }
 
                         string json = Encoding.UTF8.GetString(payloadBytes);
-                        var envelope = JsonConvert.DeserializeObject<IpcEnvelope>(json, new JsonSerializerSettings
-                        {
-                            TypeNameHandling = TypeNameHandling.None
-                        });
+                        var envelope = JsonSerializer.Deserialize<IpcEnvelope>(json, GreenshotJson.Options);
 
                         if (envelope == null)
                         {

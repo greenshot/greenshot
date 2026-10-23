@@ -1,0 +1,62 @@
+{
+  "kind": "extension",
+  "extends": {
+    "recipes": [
+      "*capture"
+    ],
+    "slot": "BeforeDestination",
+    "order": 200
+  },
+  "version": "2.0",
+  "id": "ext_border",
+  "name": "Recipe.extension_border",
+  "description": "Recipe.extension_border_description",
+  "requires": [],
+  "nodes": [
+    {
+      "id": "border",
+      "stepType": "Effect",
+      "name": "Border",
+      "enabled": true,
+      "parameters": {
+        "Effect": "Border",
+        "Width": "${option.width}",
+        "Color": "${option.color}"
+      }
+    }
+  ],
+  "flow": {
+    "startNodes": [
+      "border"
+    ],
+    "transitions": []
+  },
+  "options": [
+    {
+      "key": "enabled",
+      "type": "Boolean",
+      "default": false,
+      "label": "Recipe.extension_border_enabled",
+      "quickSettings": true
+    },
+    {
+      "key": "width",
+      "type": "Integer",
+      "default": 2,
+      "label": "Recipe.extension_border_width",
+      "min": 1.0,
+      "max": 50.0,
+      "enabledWhen": "enabled",
+      "quickSettings": false
+    },
+    {
+      "key": "color",
+      "type": "Color",
+      "default": "#000000",
+      "label": "Recipe.extension_border_color",
+      "enabledWhen": "enabled",
+      "quickSettings": false
+    }
+  ],
+  "isBuiltIn": true
+}

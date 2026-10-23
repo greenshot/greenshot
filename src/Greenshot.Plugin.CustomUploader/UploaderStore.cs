@@ -22,9 +22,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Encodings.Web;
+using System.Text.Json;
 using Greenshot.Base.Core;
 using Greenshot.Plugin.CustomUploader.Sxcu;
-using Newtonsoft.Json;
 
 namespace Greenshot.Plugin.CustomUploader;
 
@@ -83,7 +84,7 @@ internal sealed class UploaderStore
     private readonly Func<string, string> _unprotect;
 
     // StringExtensions.Encrypt only keeps ASCII: the JSON escapes everything else
-    private static readonly JsonSerializerSettings AsciiJson = new JsonSerializerSettings { StringEscapeHandling = StringEscapeHandling.EscapeNonAscii };
+    private static readonly JsonSerializerOptions AsciiJson = new JsonSerializerOptions(UploaderFile.JsonOptions) { Encoder = JavaScriptEncoder.Default };
 
     /// <param name="uploaders">id to encrypted uploader</param>
     /// <param name="uploads">id to encrypted upload</param>
@@ -138,7 +139,7 @@ internal sealed class UploaderStore
         {
             var existing = Find(definition.Name);
             string id = existing?.Id ?? Guid.NewGuid().ToString("N");
-            _uploaders[id] = _protect(JsonConvert.SerializeObject(definition, AsciiJson));
+            _uploaders[id] = _protect(JsonSerializer.Serialize(definition, AsciiJson));
             // The icon belonged to the old file, maybe another server: fetched again
             _icons.Remove(id);
             if (remindBeforeUpload)
@@ -264,7 +265,7 @@ internal sealed class UploaderStore
         if (upload == null) throw new ArgumentNullException(nameof(upload));
         lock (Lock)
         {
-            _uploads[Guid.NewGuid().ToString("N")] = _protect(JsonConvert.SerializeObject(upload, AsciiJson));
+            _uploads[Guid.NewGuid().ToString("N")] = _protect(JsonSerializer.Serialize(upload, AsciiJson));
             // The oldest go first, and what can't be read anymore
             var keep = new HashSet<string>(GetUploads().Take(MaximumUploads).Select(entry => entry.Key));
             foreach (string id in _uploads.Keys.Where(id => !keep.Contains(id)).ToList())
@@ -321,7 +322,7 @@ internal sealed class UploaderStore
 
         try
         {
-            return JsonConvert.DeserializeObject<T>(json);
+            return JsonSerializer.Deserialize<T>(json, UploaderFile.JsonOptions);
         }
         catch (JsonException)
         {

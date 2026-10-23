@@ -20,9 +20,9 @@
  */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json.Serialization;
 
 namespace Greenshot.Base.Recipes.Triggers
 {
@@ -107,12 +107,12 @@ namespace Greenshot.Base.Recipes.Triggers
                     return typedVal;
                 }
 
-                if (rawValue is JToken jToken)
+                if (rawValue is IDictionary<string, object> || rawValue is IEnumerable && rawValue is not string)
                 {
-                    return jToken.ToObject<T>();
+                    return RecipeSerializer.ConvertValue<T>(rawValue);
                 }
 
-                Type targetType = typeof(T);
+                Type targetType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
                 if (targetType.IsEnum)
                 {
                     if (rawValue is string strVal)

@@ -123,7 +123,7 @@ Example output:
 
 ```
 $ ./compare_keys.sh fr-FR jira
-Comparing src/Greenshot.Plugin.Jira/Languages/greenshot.jira.fr-FR.ini to src/Greenshot.Plugin.Jira/Languages/greenshot.jira.en-US.ini...
+Comparing src/Greenshot.Plugin.Atlassian/Languages/greenshot.atlassian.fr-FR.ini to src/Greenshot.Plugin.Atlassian/Languages/greenshot.atlassian.en-US.ini...
 === Missing in fr-FR (English is shown) ===
 [Jira] column_issueType
 [Jira] upload
