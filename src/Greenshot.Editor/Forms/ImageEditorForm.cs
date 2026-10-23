@@ -73,7 +73,7 @@ namespace Greenshot.Editor.Forms
     /// <summary>
     /// The ImageEditorForm is the editor for Greenshot
     /// </summary>
-    public partial class ImageEditorForm : EditorForm
+    public partial class ImageEditorForm : EditorForm, IEditorWindow
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ImageEditorForm));
         private static readonly IEditorConfiguration EditorConfiguration = IniConfigHelper.EnsureSection<IEditorConfiguration>(() => new EditorConfigurationImpl());
@@ -123,6 +123,19 @@ namespace Greenshot.Editor.Forms
         {
             (1, 4), (1, 2), (2, 3), (3, 4), (1, 1), (2, 1), (3, 1), (4, 1), (6, 1)
         };
+
+        /// <inheritdoc />
+        public ISurface CurrentSurface => _surface;
+
+        // Raised from FormClosed: Form.Closed is the old event of WinForms
+        private EventHandler _editorWindowClosed;
+
+        /// <inheritdoc />
+        event EventHandler IEditorWindow.Closed
+        {
+            add => _editorWindowClosed += value;
+            remove => _editorWindowClosed -= value;
+        }
 
         /// <summary>
         /// The captures in the open editor windows (every tab is an editor), sorted by title
@@ -459,6 +472,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             // The keys reach the canvas without F6
             Shown += (s, e) => FocusCanvas(fromKeyboard: false);
             FormClosed += (s, e) => CloseAllTabs();
+            FormClosed += (s, e) => _editorWindowClosed?.Invoke(this, EventArgs.Empty);
             // Also when the window is disposed without closing it
             Disposed += (s, e) => RemoveFromOpenWindows();
 

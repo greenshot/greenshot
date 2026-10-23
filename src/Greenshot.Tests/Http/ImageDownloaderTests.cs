@@ -85,5 +85,27 @@ namespace Greenshot.Tests.Http
             Assert.Null(await ImageDownloader.DownloadImageAsync(notFound, "https://example.com/image.png", CancellationToken.None));
             Assert.Null(await ImageDownloader.DownloadImageAsync(noImage, "https://example.com/page", CancellationToken.None));
         }
+
+        [Fact]
+        public async Task DownloadImageFileAsync_KeepsTheBytes_WithTheFormatOfTheContent()
+        {
+            byte[] png = CreatePng(3, 2);
+            var service = new HttpService(new FakeHttpHandler(_ => FakeHttpHandler.Bytes(png)), TestTimeout);
+
+            var file = await ImageDownloader.DownloadImageFileAsync(service, "https://example.com/show.php?id=7", CancellationToken.None);
+
+            Assert.NotNull(file);
+            Assert.Equal(".png", file.Extension);
+            Assert.Equal("show.png", file.FileName);
+            Assert.Equal(png, file.Content);
+        }
+
+        [Fact]
+        public async Task DownloadImageFileAsync_NoImage_ReturnsNull()
+        {
+            var noImage = new HttpService(new FakeHttpHandler(_ => FakeHttpHandler.Text(HttpStatusCode.OK, "just text")), TestTimeout);
+
+            Assert.Null(await ImageDownloader.DownloadImageFileAsync(noImage, "https://example.com/image.png", CancellationToken.None));
+        }
     }
 }

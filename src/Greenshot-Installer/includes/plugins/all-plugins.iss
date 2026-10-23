@@ -7,4 +7,5 @@
 #include "office.iss"
 #include "pdf.iss"
 #include "recipeeditor.iss"
+#include "stamps.iss"
 #include "zxing.iss"
