@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ro">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Ajutor Greenshot</title>
+		<style>
+		* {font-family: "Segoe UI", Tahoma, Arial, Sans-serif;}
+		body {max-width:60em;margin:0 auto;padding:0 16px 24px 16px;}
+		h1 {font-size:20px;}
+		h2 {font-size:16px;color:#009900;margin-top:28px;}
+		h3 {font-size:14px;margin-top:20px;}
+		small {font-size:11px;}
+		p, li, td, th {font-size:13px;line-height:1.5em;}
+		a:link, a:hover, a:visited, a:active {color:#007700;}
+		kbd {background-color:#eeeeee;border:1px solid #bbbbbb;padding:0 3px;border-radius:3px;white-space:nowrap;}
+		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px 8px;}
+		table {border-collapse:collapse;margin:6px 0;}
+		th, td {border:1px solid #dddddd;padding:3px 8px;text-align:left;vertical-align:top;}
+		th {background-color:#f2f2f2;}
+		em {font-style:normal;font-weight:bold;}
+		:root {--greenshot-icon:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAEgklEQVR4nO2WXWxTZRjHf+er3y0j3dhXuw8DHRsEJoPEBEY0CMEbPtR4gUiciYQgd4ImeqMRZuK9qBgwXBjDFcSQoASVz4RIXPnY5raAbN1GS7d1LWU9p2c9PV6UlBE76ACHFz5X7/l4/s/vvO95n/cvtLa2mjzDEJ9l8f8B/tsAjkqN6rVRLCWT/yqAXLB4RZoXD3cg2Qy0ESu/vtmCoUmzB1DSmESyGQDYytI4fRruuglqN0SIXfPQe7AOM/uUAKrXjEwRrsU0YfSPElK3bDiqNMY7PaRjCq0H+hBlE29zgniPm8g5L44qjcmkzGSy4HcUB9D8cW9O+Pk48V4XkXNeZGeG8zubsXgmuRuyo3gyCMKDiY3b+5m/dRBDk7j4/mJi1zyPBSBOFRYEWPhuP2uOXGLND5eQXRnMrIAeVwjuCxC76uH6935uX/BSuzEMgGQzqH45imQ3CGwbJNA2gOLKFD8DwfYAdZvCxK55iJz3svTDvpyw3cC3Nsp4Z+7Lhk/NY/jUvHziaHAOlavHABi7MoemHTep25yDclZrBPc2FAfgrEzz+weLmZyQ/iEcuzpn2sSOTxupWDWKOmJlvNODf300/8xRoWEv01nxeRcuv0r31/X0H60sqCN8YWIO/TyP4L4csahkqVw9hjpiJXa1+HWd25Sk5ZMekLIE9zZQ1pJgwbYQAIYmcmL9yoI7R4bclNm8Osv3dePyq/z5TT2xX2b2U413uzn1xor8taMynR+nIrZpt62cjin0HKqhdmOYuU1JABbtukHoeDlmViicVUQM/VSOIJo4fSr9xwpPP4B8ctMLOeJyPX9TjVqfqDiAmYXQ8YpHvidLdgNDlRg8UY6oZHPER6ueqPhMQnb5VZzVGrUbw8Q63XTvf+6ptdmiANKjVlZ9dQVRyVK6LE6iz0XkbOmsAYhZAxDu20Jhlh2CrCcULrcHqH81TKzTQ+Ssd3YB5m8ZQpBMLu5ZRGbi8U+1xwZo3HETAHddio7PiuvfNq/OivZunDUpeg5M32aLifyKO6rUopNqNoQpaUyiOA2adv6FIJrYKzR866JY5uqPFpgSsjZmQZRMer+rLTopFbblx2rUiq1U56XDHUh2A23Uwm9bl5NJFWfh5DNty9Djyoyoh0+WI1lMnP4UA8eqKFl4F8l+z8KV6rj8Kk6fSu2mMOOdbnq+rZ/+LFh9sIPTbxVPDLk2O/Dj/TarJ2Qmhuw4fSrjXW60qJWV+y8jKibepQnivW7Cpwv3FtlepuOqUbGXazlj0uWm79DMTKfiznBh1xIsngx3B+0oTgOKPErkeI+LVMTKyi/vdcOWOHeuuwifLsVRkUZPSg/dng3vDBB4O5TzhrsXYRoO9Dsywb0N1G3OLcHDOqt84b1mZLvxYDcUTAJtAzS0hTBUiYt7Fk9rTqZ6Q9+6KIk+N/WvDyMqWS591PRIxyxmJwX0OzKX2wOMd3m4caSa8JlS6l+7lRO2G/hfuY1oyTJ/yxALtoWQHUZeYCxYkh+PdpTQtOMmjdv7aWgLsWT39YcWB/gbBUPC48UgfpEAAAAASUVORK5CYII=);}
+		h1 {background:var(--greenshot-icon) no-repeat left center;background-size:32px;padding-left:40px;line-height:32px;}
+		a[href^="greenshot:"] {background:#eef8ee var(--greenshot-icon) no-repeat 3px center;background-size:16px;border:1px solid #99cc99;border-radius:3px;padding:0 4px 0 22px;text-decoration:none;white-space:nowrap;}
+		a[href^="greenshot:"]:hover {background-color:#ddf0dd;}
+		[dir="rtl"] h1 {background-position:right center;padding-left:0;padding-right:40px;}
+		[dir="rtl"] a[href^="greenshot:"] {background-position:right 3px center;padding:0 22px 0 4px;}
+		</style>
+	</head>
+	<body>
+	<h1>Ajutor Greenshot</h1>
+	<!--
+	Note to translator: uncomment the entry below to have your effort honored
+	-->
+	<!--<small>Traducerea în limba română a ajutorului: YOUR_NAME</small>-->
+
+	<p class="hint">
+		Legăturile care încep cu <code>greenshot:</code>, de exemplu <a href="greenshot://settings">deschide setările</a>,
+		deschid fereastra respectivă din Greenshot. Funcționează când Greenshot a fost instalat cu programul de instalare, nu în versiunea
+		portabilă sau în Greenshot Light. Browserul vă poate întreba înainte de a deschide Greenshot.
+	</p>
+
+	<h2>Cuprins</h2>
+	<ol>
+		<li><a href="#start">Primii pași</a></li>
+		<li><a href="#screenshot">Realizarea unei capturi de ecran</a>
+			<ol>
+				<li><a href="#capture-screen">Ecranul de captură</a></li>
+				<li><a href="#capture-modes">Regiune, fereastră, dimensiune fixă și text</a></li>
+				<li><a href="#capture-keys">Taste în timpul selecției</a></li>
+				<li><a href="#capture-live">Selecție fără înghețarea ecranului</a></li>
+			</ol>
+		</li>
+		<li><a href="#destinations">Unde ajunge captura</a></li>
+		<li><a href="#editor">Editorul de imagini</a>
+			<ol>
+				<li><a href="#editor-tabs">File</a></li>
+				<li><a href="#editor-tools">Instrumente de desen</a></li>
+				<li><a href="#editor-highlight">Evidențiere și ascundere</a></li>
+				<li><a href="#editor-crop">Decupare</a></li>
+				<li><a href="#editor-effects">Efecte, rotire și redimensionare</a></li>
+				<li><a href="#editor-reuse">Adăugarea de imagini și reutilizarea elementelor</a></li>
+				<li><a href="#editor-export">Salvare și export</a></li>
+			</ol>
+		</li>
+		<li><a href="#recipes">Pași automați și rețete</a></li>
+		<li><a href="#settings">Setările</a></li>
+		<li><a href="#troubleshooting">Când ceva nu funcționează</a></li>
+		<li><a href="#help">Vreți să ajutați?</a></li>
+	</ol>
+
+	<a name="start"></a>
+	<h2>Primii pași</h2>
+	<p>
+		Greenshot rulează în fundal. Pictograma sa se află lângă ceas, în zona de notificare a barei de activități.
+		Faceți clic dreapta pe ea pentru a deschide meniul cu toate capturile, <em>Preferințe...</em> și acest ajutor.
+	</p>
+	<p class="hint">
+		Nu vedeți pictograma? Windows 11 o poate ascunde în spatele săgeții (^). <a href="greenshot://self-service?section=setup">Configurația dumneavoastră</a>
+		din Self-Service o afișează lângă ceas și verifică dacă tasta <kbd>Print Screen</kbd> ajunge la Greenshot.
+	</p>
+
+	<a name="screenshot"></a>
+	<h2>Realizarea unei capturi de ecran</h2>
+	<p>Porniți o captură cu o tastă rapidă sau din meniul pictogramei Greenshot:</p>
+	<table>
+		<tr><th>Captură</th><th>Tastă rapidă</th><th>Ce se întâmplă</th></tr>
+		<tr><td><em>Captează regiune</em></td><td><kbd>Print Screen</kbd></td><td>Se deschide ecranul de captură, selectați ce să capturați.</td></tr>
+		<tr><td><em>Captează fereastră</em></td><td><kbd>Alt</kbd> + <kbd>Print Screen</kbd></td><td>Capturează imediat fereastra activă. Cu <em>Folosiți metoda interactivă de captură a ferestrei</em> (<a href="greenshot://settings?tab=capture">fila Captură</a>) alegeți în schimb fereastra în ecranul de captură.</td></tr>
+		<tr><td><em>Captează tot ecranul</em></td><td><kbd>Ctrl</kbd> + <kbd>Print Screen</kbd></td><td>Capturează imediat ecranul. Cu mai multe monitoare, meniul pictogramei oferă toate monitoarele sau unul dintre ele.</td></tr>
+		<tr><td><em>Captează ultima regiune</em></td><td><kbd>Shift</kbd> + <kbd>Print Screen</kbd></td><td>Capturează din nou aceeași zonă ca ultima dată.</td></tr>
+		<tr><td><em>Deschide imaginea din clipboard</em></td><td>niciuna</td><td>Deschide imaginea din clipboard.</td></tr>
+	</table>
+	<p>
+		Meniul conține și <em>Captează fereastră din listă</em>, care capturează o fereastră deschisă aleasă de dvs. fără ecranul de captură,
+		<em>Deschide imagine din fișier</em> și <em>Deschide locația ultimei capturi</em>.
+		Tastele rapide se pot schimba în <a href="greenshot://settings?tab=general">setări, fila General</a>.
+	</p>
+
+	<a name="capture-screen"></a>
+	<h3>Ecranul de captură</h3>
+	<p>
+		Greenshot face o imagine a tuturor monitoarelor și o afișează deasupra tuturor ferestrelor. Nimic nu se schimbă cât timp selectați,
+		astfel că un meniu deschis sau un sfat de instrument rămâne pe loc. Se capturează doar partea selectată. <kbd>Esc</kbd> închide ecranul
+		de captură fără să captureze nimic.
+	</p>
+	<p>Deasupra imaginii vedeți:</p>
+	<ul>
+		<li><em>selecția</em> cu dimensiunea ei,</li>
+		<li><em>lupa</em>, lângă mouse, care arată fiecare pixel, ca să puteți plasa exact un colț,</li>
+		<li>panouri în colțuri: <em>tastele</em> (<kbd>F1</kbd>), <em>informațiile</em> (<kbd>I</kbd>) și <em>previzualizarea</em> selecției (<kbd>P</kbd>).
+			Se mută singure din calea dvs.</li>
+	</ul>
+	<p class="hint">
+		Apăsați <kbd>F1</kbd> în timpul selecției: panoul de taste arată mereu tastele care funcționează în acel moment.
+		Greenshot ține minte când ascundeți un panou, <kbd>F1</kbd> sau <kbd>I</kbd> îl readuce.
+	</p>
+
+	<a name="capture-modes"></a>
+	<h3>Regiune, fereastră, dimensiune fixă și text</h3>
+	<ul>
+		<li><em>Regiune</em>: trageți un dreptunghi cu mouse-ul, la eliberare se capturează. Cu tastatura: săgețile mută mouse-ul,
+			<kbd>Enter</kbd> pornește selecția, încă un <kbd>Enter</kbd> o capturează. Țineți apăsat <kbd>Shift</kbd> pentru a schimba doar lățimea sau doar înălțimea.</li>
+		<li><em>Fereastră</em> (<kbd>Spațiu</kbd>): fereastra de sub mouse este selectată, un clic sau <kbd>Enter</kbd> o capturează.
+			Greenshot selectează partea cea mai interioară, de ex. o bară de instrumente; mutați mouse-ul pe marginea exterioară a unei ferestre pentru a o selecta întreagă.
+			<kbd>Tab</kbd> și <kbd>Shift</kbd> + <kbd>Tab</kbd> selectează fereastra următoare sau anterioară.</li>
+		<li><em>Dimensiune fixă</em> (<kbd>F</kbd>): un dreptunghi de dimensiune exactă, de ex. 1280 × 720, urmează mouse-ul. <kbd>1</kbd> – <kbd>9</kbd> aleg o dimensiune,
+			<kbd>C</kbd> schimbă colțul ținut de mouse, țineți apăsat <kbd>Alt</kbd> pentru a-l plasa fără aliniere la ferestre. Dimensiunile proprii se setează în
+			<a href="greenshot://settings?tab=capture">fila Captură</a>, sunt oferite și dimensiunile ultimelor capturi.</li>
+		<li><em>Text</em> (<kbd>T</kbd>): Greenshot citește textul de pe ecran cu recunoașterea textului din Windows și încadrează fiecare rând.
+			Faceți clic pe un rând sau trageți peste cuvinte pentru a le captura. Pentru a obține cuvintele ca text, trimiteți captura la <em>Windows OCR</em>,
+			care copiază textul în clipboard. Este nevoie de o limbă de recunoaștere instalată în Windows; limba se alege în
+			<a href="greenshot://settings?tab=capture">fila Captură</a>, <em>Recunoaștere text (OCR)</em>.</li>
+	</ul>
+	<p class="hint">
+		Cu pluginul pentru coduri QR, Greenshot găsește codurile QR de pe ecran și le încadrează. Faceți clic pe unul pentru a-i copia conținutul sau a-i deschide adresa web.
+	</p>
+
+	<a name="capture-keys"></a>
+	<h3>Taste în timpul selecției</h3>
+	<table>
+		<tr><th>Tastă</th><th>Ce face</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Anulează captura</td></tr>
+		<tr><td><kbd>Spațiu</kbd></td><td>Comută între regiune și fereastră</td></tr>
+		<tr><td><kbd>F</kbd> / <kbd>T</kbd></td><td>Capturează o dimensiune fixă / capturează text</td></tr>
+		<tr><td><kbd>M</kbd></td><td>Afișează sau ascunde cursorul mouse-ului în captură</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Comută între ecranul înghețat și cel live</td></tr>
+		<tr><td><kbd>Z</kbd></td><td>Afișează sau ascunde lupa</td></tr>
+		<tr><td><kbd>F1</kbd> / <kbd>I</kbd> / <kbd>P</kbd></td><td>Afișează sau ascunde tastele / informațiile / mută sau ascunde previzualizarea</td></tr>
+		<tr><td>Săgeți</td><td>Mută mouse-ul cu un pixel, cu <kbd>Ctrl</kbd> cu zece pixeli</td></tr>
+		<tr><td><kbd>Enter</kbd></td><td>Pornește sau termină selecția, capturează fereastra</td></tr>
+	</table>
+
+	<a name="capture-live"></a>
+	<h3>Selecție fără înghețarea ecranului</h3>
+	<p>
+		Dezactivați <em>Îngheață ecranul în timpul selecției</em> în <a href="greenshot://settings?tab=capture">fila Captură</a> sau apăsați
+		<kbd>L</kbd> în timpul selecției și selectați pe ecranul live: un videoclip continuă să ruleze, iar captura se face când terminați
+		selecția. Modul text și previzualizarea au nevoie de imaginea înghețată. Meniurile deschise se închid de obicei la clic, așa că folosiți ecranul înghețat pentru ele.
+	</p>
+	<p class="hint">
+		Ceva apare doar după un moment? Setați <em>Milisecunde de așteptat înaintea capturii</em> în
+		<a href="greenshot://settings?tab=capture">fila Captură</a> sau selectați pe ecranul live.
+	</p>
+
+	<a name="destinations"></a>
+	<h2>Unde ajunge captura</h2>
+	<p>
+		După captură, Greenshot trimite captura la destinațiile dvs. Implicit, întreabă de fiecare dată printr-un mic meniu.
+		Fiecare destinație de acolo are o literă subliniată fixă, de ex. <kbd>C</kbd> pentru clipboard și <kbd>S</kbd> pentru salvare, ca s-o puteți alege de la tastatură.
+		Alegeți destinațiile în <a href="greenshot://settings?tab=destination">fila Destinație captură</a> sau în <em>Preferințe rapide</em> din meniul pictogramei.
+	</p>
+	<ul>
+		<li><em>Deschide în editor imagini</em>: adnotați mai întâi captura, vedeți <a href="#editor">editorul de imagini</a>.</li>
+		<li><em>Salvează direct (folosind setările de mai jos)</em> folosește dosarul și modelul de nume de fișier din <a href="greenshot://settings?tab=output">fila Rezultat</a>, <em>Salvează ca (afișează dialog)</em> le cere.</li>
+		<li><em>Copie în clipboard</em>, <em>Trimite la imprimantă</em>, <em>E-Mail</em>, <em>Windows share</em> și <em>Windows OCR</em> (copiază textul capturii).</li>
+		<li>Pluginurile adaugă mai multe destinații, de ex. Microsoft Word, Excel, PowerPoint, Outlook și OneNote, PDF, Box, Dropbox, Jira și Confluence.
+			Se configurează în <a href="greenshot://settings?tab=plugins">fila Plugin-uri</a>, unde puteți și dezactiva un plugin.</li>
+	</ul>
+	<p>
+		Coloana <em>Disponibile</em> din <a href="greenshot://settings?tab=destination">fila Destinație captură</a> dezactivează o destinație peste tot.
+		Ce notificări primiți după o captură se setează în <a href="greenshot://settings?tab=capture">fila Captură</a>, <em>Notificări</em>.
+	</p>
+
+	<a name="editor"></a>
+	<h2>Editorul de imagini</h2>
+	<p>
+		Editorul adaugă forme, text, săgeți, evidențieri și altele unei capturi, sau ascunde ce nu trebuie să vadă alții.
+		Pe lângă capturile dvs., deschide imagini dintr-un fișier sau din clipboard (meniul pictogramei).
+		Tot ce desenați rămâne un element pe care îl puteți selecta, muta, schimba sau elimina.
+	</p>
+
+	<a name="editor-tabs"></a>
+	<h3>File</h3>
+	<p>
+		O fereastră a editorului afișează mai multe imagini ca file, o captură nouă se deschide ca filă în fereastra editorului folosită ultima dată.
+		<kbd>Ctrl</kbd> + <kbd>Tab</kbd> trece la fila următoare, iar <kbd>Ctrl</kbd> + <kbd>W</kbd> închide o filă. Trageți o filă într-o altă fereastră a editorului
+		sau faceți clic dreapta pe ea pentru a o muta într-o fereastră nouă. <em>+</em> de pe bara de file începe o imagine nouă, goală.
+		Când închideți o fereastră cu imagini nesalvate, Greenshot întreabă o singură dată: <em>Salvează tot</em>, <em>Renunță la tot</em> sau anulare.
+		Preferați o fereastră pentru fiecare captură? Dezactivați filele în <a href="greenshot://settings?tab=editor">fila Editor</a>.
+	</p>
+
+	<a name="editor-tools"></a>
+	<h3>Instrumente de desen</h3>
+	<p>
+		Alegeți un instrument în stânga editorului, în meniul <em>Obiect</em> sau cu tasta lui, apoi trageți pe imagine.
+		Bara de instrumente de sus arată opțiunile instrumentului sau ale elementelor selectate, de ex. culoarea liniei, culoarea de umplere și grosimea.
+	</p>
+	<table>
+		<tr><th>Tastă</th><th>Instrument</th><th>Tastă</th><th>Instrument</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Selecție</td><td><kbd>S</kbd></td><td>Balon de dialog</td></tr>
+		<tr><td><kbd>R</kbd></td><td>Dreptunghi</td><td><kbd>I</kbd></td><td>Contor (pași numerotați)</td></tr>
+		<tr><td><kbd>E</kbd></td><td>Elipsă</td><td><kbd>M</kbd></td><td>Emoji</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Linie</td><td><kbd>H</kbd></td><td>Evidențiere</td></tr>
+		<tr><td><kbd>A</kbd></td><td>Săgeată</td><td><kbd>O</kbd></td><td>Ascundere</td></tr>
+		<tr><td><kbd>F</kbd></td><td>Mână liberă</td><td><kbd>C</kbd></td><td>Decupare</td></tr>
+		<tr><td><kbd>T</kbd></td><td>Text</td><td><kbd>Z</kbd></td><td>Redimensionează imaginea</td></tr>
+	</table>
+	<ul>
+		<li>Țineți apăsat <kbd>Shift</kbd> când desenați pentru un pătrat sau un cerc, ori pentru linii în pași de 15°; la redimensionare păstrează proporțiile.
+			Țineți apăsat <kbd>Ctrl</kbd> pentru a desena sau redimensiona din mijloc, util pentru o elipsă în jurul a ceva.</li>
+		<li>Text: desenați caseta de text și tastați. Dublu clic pe un text îl modifică, <kbd>Enter</kbd> termină, <kbd>Shift</kbd> + <kbd>Enter</kbd> începe un rând nou.</li>
+		<li>Elemente selectate: săgețile le mută (cu <kbd>Shift</kbd> zece pixeli), <kbd>Ctrl</kbd> + săgeți le redimensionează,
+			<kbd>Page Up</kbd> / <kbd>Page Down</kbd> le mută cu un nivel mai sus sau mai jos, <kbd>Delete</kbd> le elimină, <kbd>Ctrl</kbd> + <kbd>D</kbd> le duplică.
+			Țineți apăsat <kbd>Shift</kbd> și faceți clic pentru a selecta mai multe elemente.</li>
+		<li><kbd>Ctrl</kbd> + <kbd>Z</kbd> anulează, <kbd>Ctrl</kbd> + <kbd>Y</kbd> refă.</li>
+	</ul>
+
+	<a name="editor-highlight"></a>
+	<h3>Evidențiere și ascundere</h3>
+	<p>Desenați zona de evidențiere (<kbd>H</kbd>) sau ascundere (<kbd>O</kbd>) ca pe un dreptunghi și alegeți modul în bara de instrumente:</p>
+	<ul>
+		<li><em>Evidențieză text</em> colorează zona ca un marker, <em>Evidențiază zona</em> întunecă și estompează restul,
+			<em>Gri</em> face restul gri, <em>Mărește</em> mărește zona.</li>
+		<li><em>Pixelat</em> sau <em>Încețoșat</em> ascund parole, nume, numere de cont sau fețe.</li>
+	</ul>
+
+	<a name="editor-crop"></a>
+	<h3>Decupare</h3>
+	<p>
+		Alegeți instrumentul de decupare (<kbd>C</kbd>) și desenați zona de păstrat, <kbd>Enter</kbd> confirmă, <kbd>Esc</kbd> anulează.
+		Apăsați din nou <kbd>C</kbd> sau folosiți <em>Mod decupare</em> din bara de instrumente pentru a schimba modul:
+	</p>
+	<ul>
+		<li><em>Elimină pe verticală</em> sau <em>Elimină pe orizontală</em> elimină o fâșie din imagine și unește restul, de ex. pentru a omite
+			mijlocul gol al unei pagini lungi. <em>Margini tăiate</em> alege cum arată îmbinarea: dreaptă, în zigzag, ondulată, ruptă sau fără îmbinare.</li>
+		<li><em>Decupare automată</em> elimină o margine de o singură culoare din jurul imaginii.</li>
+	</ul>
+
+	<a name="editor-effects"></a>
+	<h3>Efecte, rotire și redimensionare</h3>
+	<table>
+		<tr><th>Taste</th><th>Ce face</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Q</kbd></td><td>Umbră</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>B</kbd></td><td>Chenar</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>T</kbd></td><td>Margine ruptă</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>G</kbd> / <kbd>Ctrl</kbd> + <kbd>I</kbd></td><td>Tonuri de gri / inversare, de ex. pentru a economisi cerneală la imprimare</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>,</kbd> / <kbd>Ctrl</kbd> + <kbd>.</kbd></td><td>Rotire în sens invers acelor de ceasornic / în sensul acelor de ceasornic</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>+</kbd> / <kbd>-</kbd></td><td>Mărește / micșorează pânza</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>+</kbd> / <kbd>-</kbd>, <kbd>Ctrl</kbd> + <kbd>0</kbd>, <kbd>Ctrl</kbd> + <kbd>9</kbd></td><td>Mărire / micșorare, dimensiune reală, potrivire optimă</td></tr>
+	</table>
+	<p>
+		O margine ruptă rămâne un element pe care îl puteți schimba; <em>Aplică pe imagine</em> din bara de instrumente o face parte din imagine.
+	</p>
+
+	<a name="editor-reuse"></a>
+	<h3>Adăugarea de imagini și reutilizarea elementelor</h3>
+	<ul>
+		<li>Trageți un fișier imagine în editor sau lipiți o imagine cu <kbd>Ctrl</kbd> + <kbd>V</kbd>. <em>Inserează fereastră</em> din meniul <em>Editare</em> adaugă o captură a altei ferestre deschise.</li>
+		<li>Folosiți aceleași elemente pe multe capturi: <em>Salvează obiectele în fișier</em> din meniul <em>Obiect</em> și <em>Încarcă obiecte din fișier</em> pe următoarea captură.</li>
+		<li>Salvați ca fișier <code>.greenshot</code> pentru ca toate elementele să rămână editabile și să puteți continua mai târziu.</li>
+	</ul>
+
+	<a name="editor-export"></a>
+	<h3>Salvare și export</h3>
+	<table>
+		<tr><th>Taste</th><th>Ce face</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td><td><em>Salvează</em>, în dosarul din <a href="greenshot://settings?tab=output">fila Rezultat</a></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd></td><td><em>Salvează ca...</em>: alegeți dosarul, numele și formatul imaginii</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd></td><td><em>Copie imagine în clipboard</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>P</kbd></td><td><em>Imprimă</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>E</kbd></td><td><em>E-Mail</em>: un mesaj nou cu imaginea atașată</td></tr>
+	</table>
+	<p>
+		Meniul <em>Fișier</em> și bara de instrumente de sus listează toate destinațiile dvs., inclusiv cele ale pluginurilor.
+		După salvare, faceți clic dreapta pe bara de stare de jos pentru a copia calea fișierului sau a-i deschide dosarul.
+	</p>
+
+	<a name="recipes"></a>
+	<h2>Pași automați și rețete</h2>
+	<p>
+		Rețetele fac automat lucruri cu capturile dvs., de ex. adaugă un chenar fiecărei capturi sau o salvează și o încarcă dintr-o dată.
+		<em>Preferințe rapide</em> &gt; <em>Pași automați</em> din meniul pictogramei activează sau dezactivează pașii pregătiți,
+		<em>Mai multe…</em> le deschide setările în <a href="greenshot://settings?tab=recipes">fila Rețete</a>.
+		Meniul <em>Rețete</em> al pictogramei pornește rețetele dvs. și deschide <a href="greenshot://recipe-manager">Manager de rețete</a> și Recipe Editor.
+		Rețetele vin cu pluginul Recipe Editor.
+	</p>
+
+	<a name="settings"></a>
+	<h2>Setările</h2>
+	<p>Deschideți setările cu <em>Preferințe...</em> din meniul pictogramei sau cu legăturile de mai jos.</p>
+	<ul>
+		<li><a href="greenshot://settings?tab=general">General</a>: limba, culorile (deschise, întunecate sau ca Windows), dimensiunea pictogramelor,
+			<em>Pornește Greenshot odată cu Windows</em>, tastele rapide, proxy-ul și cât de des caută Greenshot actualizări.</li>
+		<li><a href="greenshot://settings?tab=capture">Captură</a>: capturarea cursorului mouse-ului, sunetul de cameră, lupa, înghețarea ecranului,
+			notificările, așteptarea înaintea capturii, dimensiunile fixe, captura interactivă a ferestrei și limba recunoașterii textului.</li>
+		<li><a href="greenshot://settings?tab=output">Rezultat</a>: dosarul și modelul de nume de fișier pentru salvare (clic pe <em>?</em> pentru substituenți,
+			de ex. <code>${YYYY}-${MM}-${DD}</code> sau <code>${title}</code>; un <code>\</code> în model creează dosare), formatul imaginii și calitatea JPEG.</li>
+		<li><a href="greenshot://settings?tab=destination">Destinație captură</a>: ce se întâmplă după o captură, vedeți <a href="#destinations">unde ajunge captura</a>.</li>
+		<li><a href="greenshot://settings?tab=editor">Editor</a>: filele, dimensiunea ferestrei editorului, întrebarea despre salvare la închidere, și dimensiunea și culoarea unei imagini noi.</li>
+		<li><a href="greenshot://settings?tab=printer">Imprimantă</a>: potrivirea imaginii pe pagină, rotire sau centrare, imprimare color, în tonuri de gri sau inversată, și un subsol cu data și ora.</li>
+		<li><a href="greenshot://settings?tab=plugins">Plugin-uri</a>: activați, dezactivați și configurați pluginurile. Modificările se aplică la următoarea pornire a Greenshot.</li>
+		<li><a href="greenshot://settings?tab=expert">Expert</a>: setări pentru cazuri speciale, de ex. desktop la distanță, captură DirectX (necesară pentru ecrane HDR), memorie și viteză,
+			și formatele clipboard-ului. Schimbați-le doar dacă știți ce fac.</li>
+	</ul>
+	<p class="hint">
+		Greenshot își păstrează setările în <code>greenshot.ini</code>, în <code>%APPDATA%\Greenshot</code> (versiunea portabilă îl păstrează lângă Greenshot.exe).
+		<a href="greenshot://self-service?section=files">Fișiere și configurație</a> din Self-Service arată unde se află.
+	</p>
+
+	<a name="troubleshooting"></a>
+	<h2>Când ceva nu funcționează</h2>
+	<p>
+		Self-Service verifică Greenshot și rezolvă majoritatea problemelor. Deschideți-l cu <em>Despre Greenshot</em> din meniul pictogramei, apoi <em>Self-Service</em>,
+		sau mergeți direct la secțiunea potrivită:
+	</p>
+	<ul>
+		<li><kbd>Print Screen</kbd> nu face nimic sau deschide altceva: <a href="greenshot://self-service?section=hotkeys">Scurtături și conflicte</a>
+			arată dacă OneDrive sau Instrumentul de decupare a preluat tasta și o dă înapoi lui Greenshot.</li>
+		<li>Nu găsiți capturile: <a href="greenshot://self-service?section=files">Fișiere și configurație</a> arată unde le salvează Greenshot.</li>
+		<li>Copierea în clipboard eșuează: <a href="greenshot://self-service?section=clipboard">Diagnosticare clipboard</a> găsește programul care blochează clipboard-ul.</li>
+		<li>Greenshot se blochează sau lipsește un plugin după o actualizare: <a href="greenshot://self-service?section=checksum">Integritatea instalării</a> verifică fișierele instalate.</li>
+		<li>Raportarea unei probleme: <em>Copiază informațiile de sistem</em> din <a href="greenshot://self-service?section=system">Sistem și hardware</a> și
+			<a href="greenshot://log?search=ERROR">erorile din jurnal</a> ne ajută să vă ajutăm. Raportați problemele la
+			<a target="_blank" href="https://github.com/greenshot/greenshot/issues">github.com/greenshot/greenshot/issues</a>.</li>
+	</ul>
+
+	<a name="help"></a>
+	<h2>Vreți să ajutați?</h2>
+
+	<a name="help-donate"></a>
+	<h3>Gândiți-vă la o donație</h3>
+	<p>
+		Depunem multă muncă în Greenshot pentru a oferi un program bun, gratuit și cu sursă deschisă. Dacă vă face mai productiv,
+		vă economisește dvs. sau firmei timp și bani, sau pur și simplu vă place Greenshot: vă rugăm să vă gândiți să ne sprijiniți.
+		Vedeți la <a target="_blank" href="https://getgreenshot.org/support/">https://getgreenshot.org/support/</a> cum puteți ajuta.
+	</p>
+
+	<a name="help-spread"></a>
+	<h3>Răspândiți vestea</h3>
+	<p>
+		Dacă vă place Greenshot, spuneți-le prietenilor și colegilor. Evaluați Greenshot pe portalurile de software sau puneți o legătură către pagina noastră pe blogul sau site-ul dvs.
+	</p>
+	<p>
+		Dați-i lui Greenshot o stea pe <a target="_blank" href="https://github.com/greenshot/greenshot">GitHub</a>, îi ajută pe alții să-l găsească:
+		<br><iframe src="https://ghbtns.com/github-btn.html?user=greenshot&amp;repo=greenshot&amp;type=star&amp;count=true&amp;size=large" frameborder="0" width="170" height="30" title="GitHub"></iframe>
+	</p>
+
+	</body>
+</html>

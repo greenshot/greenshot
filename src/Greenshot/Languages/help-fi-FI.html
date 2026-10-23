@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="fi">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Greenshotin ohje</title>
+		<style>
+		* {font-family: "Segoe UI", Tahoma, Arial, Sans-serif;}
+		body {max-width:60em;margin:0 auto;padding:0 16px 24px 16px;}
+		h1 {font-size:20px;}
+		h2 {font-size:16px;color:#009900;margin-top:28px;}
+		h3 {font-size:14px;margin-top:20px;}
+		small {font-size:11px;}
+		p, li, td, th {font-size:13px;line-height:1.5em;}
+		a:link, a:hover, a:visited, a:active {color:#007700;}
+		kbd {background-color:#eeeeee;border:1px solid #bbbbbb;padding:0 3px;border-radius:3px;white-space:nowrap;}
+		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px 8px;}
+		table {border-collapse:collapse;margin:6px 0;}
+		th, td {border:1px solid #dddddd;padding:3px 8px;text-align:left;vertical-align:top;}
+		th {background-color:#f2f2f2;}
+		em {font-style:normal;font-weight:bold;}
+		:root {--greenshot-icon:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAEgklEQVR4nO2WXWxTZRjHf+er3y0j3dhXuw8DHRsEJoPEBEY0CMEbPtR4gUiciYQgd4ImeqMRZuK9qBgwXBjDFcSQoASVz4RIXPnY5raAbN1GS7d1LWU9p2c9PV6UlBE76ACHFz5X7/l4/s/vvO95n/cvtLa2mjzDEJ9l8f8B/tsAjkqN6rVRLCWT/yqAXLB4RZoXD3cg2Qy0ESu/vtmCoUmzB1DSmESyGQDYytI4fRruuglqN0SIXfPQe7AOM/uUAKrXjEwRrsU0YfSPElK3bDiqNMY7PaRjCq0H+hBlE29zgniPm8g5L44qjcmkzGSy4HcUB9D8cW9O+Pk48V4XkXNeZGeG8zubsXgmuRuyo3gyCMKDiY3b+5m/dRBDk7j4/mJi1zyPBSBOFRYEWPhuP2uOXGLND5eQXRnMrIAeVwjuCxC76uH6935uX/BSuzEMgGQzqH45imQ3CGwbJNA2gOLKFD8DwfYAdZvCxK55iJz3svTDvpyw3cC3Nsp4Z+7Lhk/NY/jUvHziaHAOlavHABi7MoemHTep25yDclZrBPc2FAfgrEzz+weLmZyQ/iEcuzpn2sSOTxupWDWKOmJlvNODf300/8xRoWEv01nxeRcuv0r31/X0H60sqCN8YWIO/TyP4L4csahkqVw9hjpiJXa1+HWd25Sk5ZMekLIE9zZQ1pJgwbYQAIYmcmL9yoI7R4bclNm8Osv3dePyq/z5TT2xX2b2U413uzn1xor8taMynR+nIrZpt62cjin0HKqhdmOYuU1JABbtukHoeDlmViicVUQM/VSOIJo4fSr9xwpPP4B8ctMLOeJyPX9TjVqfqDiAmYXQ8YpHvidLdgNDlRg8UY6oZHPER6ueqPhMQnb5VZzVGrUbw8Q63XTvf+6ptdmiANKjVlZ9dQVRyVK6LE6iz0XkbOmsAYhZAxDu20Jhlh2CrCcULrcHqH81TKzTQ+Ssd3YB5m8ZQpBMLu5ZRGbi8U+1xwZo3HETAHddio7PiuvfNq/OivZunDUpeg5M32aLifyKO6rUopNqNoQpaUyiOA2adv6FIJrYKzR866JY5uqPFpgSsjZmQZRMer+rLTopFbblx2rUiq1U56XDHUh2A23Uwm9bl5NJFWfh5DNty9Djyoyoh0+WI1lMnP4UA8eqKFl4F8l+z8KV6rj8Kk6fSu2mMOOdbnq+rZ/+LFh9sIPTbxVPDLk2O/Dj/TarJ2Qmhuw4fSrjXW60qJWV+y8jKibepQnivW7Cpwv3FtlepuOqUbGXazlj0uWm79DMTKfiznBh1xIsngx3B+0oTgOKPErkeI+LVMTKyi/vdcOWOHeuuwifLsVRkUZPSg/dng3vDBB4O5TzhrsXYRoO9Dsywb0N1G3OLcHDOqt84b1mZLvxYDcUTAJtAzS0hTBUiYt7Fk9rTqZ6Q9+6KIk+N/WvDyMqWS591PRIxyxmJwX0OzKX2wOMd3m4caSa8JlS6l+7lRO2G/hfuY1oyTJ/yxALtoWQHUZeYCxYkh+PdpTQtOMmjdv7aWgLsWT39YcWB/gbBUPC48UgfpEAAAAASUVORK5CYII=);}
+		h1 {background:var(--greenshot-icon) no-repeat left center;background-size:32px;padding-left:40px;line-height:32px;}
+		a[href^="greenshot:"] {background:#eef8ee var(--greenshot-icon) no-repeat 3px center;background-size:16px;border:1px solid #99cc99;border-radius:3px;padding:0 4px 0 22px;text-decoration:none;white-space:nowrap;}
+		a[href^="greenshot:"]:hover {background-color:#ddf0dd;}
+		[dir="rtl"] h1 {background-position:right center;padding-left:0;padding-right:40px;}
+		[dir="rtl"] a[href^="greenshot:"] {background-position:right 3px center;padding:0 22px 0 4px;}
+		</style>
+	</head>
+	<body>
+	<h1>Greenshotin ohje</h1>
+	<!--
+	Note to translator: uncomment the entry below to have your effort honored
+	-->
+	<!--<small>Ohjeen suomennos: NIMESI</small>-->
+
+	<p class="hint">
+		Linkit, jotka alkavat <code>greenshot:</code>, esimerkiksi <a href="greenshot://settings">avaa asetukset</a>,
+		avaavat kyseisen Greenshotin ikkunan. Ne toimivat, kun Greenshot on asennettu asennusohjelmalla, mutta eivät siirrettävässä
+		versiossa eivätkä Greenshot Lightissa. Selain voi kysyä ennen kuin se avaa Greenshotin.
+	</p>
+
+	<h2>Sisältö</h2>
+	<ol>
+		<li><a href="#start">Aloittaminen</a></li>
+		<li><a href="#screenshot">Kuvakaappauksen ottaminen</a>
+			<ol>
+				<li><a href="#capture-screen">Kaappausnäkymä</a></li>
+				<li><a href="#capture-modes">Alue, ikkuna, kiinteä koko ja teksti</a></li>
+				<li><a href="#capture-keys">Näppäimet valinnan aikana</a></li>
+				<li><a href="#capture-live">Valitseminen näyttöä jäädyttämättä</a></li>
+			</ol>
+		</li>
+		<li><a href="#destinations">Minne kuvakaappaus menee</a></li>
+		<li><a href="#editor">Kuvamuokkain</a>
+			<ol>
+				<li><a href="#editor-tabs">Välilehdet</a></li>
+				<li><a href="#editor-tools">Piirtotyökalut</a></li>
+				<li><a href="#editor-highlight">Korostaminen ja peittäminen</a></li>
+				<li><a href="#editor-crop">Rajaaminen</a></li>
+				<li><a href="#editor-effects">Tehosteet, kiertäminen ja koon muuttaminen</a></li>
+				<li><a href="#editor-reuse">Kuvien lisääminen ja elementtien uudelleenkäyttö</a></li>
+				<li><a href="#editor-export">Tallentaminen ja vienti</a></li>
+			</ol>
+		</li>
+		<li><a href="#recipes">Automaattiset vaiheet ja reseptit</a></li>
+		<li><a href="#settings">Asetukset</a></li>
+		<li><a href="#troubleshooting">Kun jokin ei toimi</a></li>
+		<li><a href="#help">Haluatko auttaa?</a></li>
+	</ol>
+
+	<a name="start"></a>
+	<h2>Aloittaminen</h2>
+	<p>
+		Greenshot toimii taustalla. Sen kuvake on kellon vieressä, tehtäväpalkin ilmoitusalueella.
+		Napsauta sitä hiiren oikealla painikkeella, niin avautuu valikko, jossa ovat kaikki kaappaukset, <em>Asetukset...</em> ja tämä ohje.
+	</p>
+	<p class="hint">
+		Etkö näe kuvaketta? Windows 11 voi piilottaa sen nuolen (^) taakse. Itsepalvelun <a href="greenshot://self-service?section=setup">Asetuksesi</a>
+		näyttää sen kellon vieressä ja tarkistaa myös, päätyykö <kbd>Print Screen</kbd> -näppäin Greenshotille.
+	</p>
+
+	<a name="screenshot"></a>
+	<h2>Kuvakaappauksen ottaminen</h2>
+	<p>Aloita kaappaus pikanäppäimellä tai Greenshot-kuvakkeen valikosta:</p>
+	<table>
+		<tr><th>Kaappaus</th><th>Pikanäppäin</th><th>Mitä tapahtuu</th></tr>
+		<tr><td><em>Kaappaa alue</em></td><td><kbd>Print Screen</kbd></td><td>Kaappausnäkymä avautuu ja valitset, mitä kaapataan.</td></tr>
+		<tr><td><em>Kaappaa ikkuna</em></td><td><kbd>Alt</kbd> + <kbd>Print Screen</kbd></td><td>Kaappaa aktiivisen ikkunan heti. Asetuksella <em>Interaktiivinen ikkunan kaappaus</em> (<a href="greenshot://settings?tab=capture">välilehti Kaappaus</a>) valitset ikkunan sen sijaan kaappausnäkymässä.</td></tr>
+		<tr><td><em>Kaappaa koko näyttö</em></td><td><kbd>Ctrl</kbd> + <kbd>Print Screen</kbd></td><td>Kaappaa näytön heti. Jos näyttöjä on useampi, kuvakkeen valikko tarjoaa kaikki näytöt tai yhden niistä.</td></tr>
+		<tr><td><em>Kaappaa edellinen alue</em></td><td><kbd>Shift</kbd> + <kbd>Print Screen</kbd></td><td>Kaappaa uudelleen saman alueen kuin edellisellä kerralla.</td></tr>
+		<tr><td><em>Avaa kuva leikepöydältä</em></td><td>ei ole</td><td>Avaa leikepöydällä olevan kuvan.</td></tr>
+	</table>
+	<p>
+		Valikossa ovat myös <em>Kaappaa ikkuna luettelosta</em>, joka kaappaa valitsemasi avoimen ikkunan ilman kaappausnäkymää,
+		<em>Avaa kuva tiedostosta</em> ja <em>Avaa viimeisimmän kaappauksen sijainti</em>.
+		Voit muuttaa pikanäppäimiä <a href="greenshot://settings?tab=general">asetusten välilehdellä Yleiset</a>.
+	</p>
+
+	<a name="capture-screen"></a>
+	<h3>Kaappausnäkymä</h3>
+	<p>
+		Greenshot ottaa kuvan kaikista näytöistäsi ja näyttää sen kaiken päällä. Mikään ei muutu valinnan aikana,
+		joten avoin valikko tai työkaluvihje pysyy paikallaan. Vain valitsemasi osa kaapataan. <kbd>Esc</kbd> sulkee kaappausnäkymän
+		kaappaamatta mitään.
+	</p>
+	<p>Kuvan päällä näet:</p>
+	<ul>
+		<li><em>valinnan</em> ja sen koon,</li>
+		<li><em>suurennuslasin</em> hiiren vieressä; se näyttää jokaisen pikselin, jotta voit asettaa kulman tarkasti,</li>
+		<li>paneelit kulmissa: <em>näppäimet</em> (<kbd>F1</kbd>), <em>tiedot</em> (<kbd>I</kbd>) ja valinnan <em>esikatselu</em> (<kbd>P</kbd>).
+			Ne siirtyvät itsestään pois tieltä.</li>
+	</ul>
+	<p class="hint">
+		Paina <kbd>F1</kbd> valinnan aikana: näppäinpaneeli näyttää aina ne näppäimet, jotka toimivat juuri sillä hetkellä.
+		Greenshot muistaa, kun piilotat paneelin; <kbd>F1</kbd> tai <kbd>I</kbd> tuo sen takaisin.
+	</p>
+
+	<a name="capture-modes"></a>
+	<h3>Alue, ikkuna, kiinteä koko ja teksti</h3>
+	<ul>
+		<li><em>Alue</em>: vedä hiirellä suorakulmio; kun vapautat painikkeen, se kaapataan. Näppäimistöllä: nuolinäppäimet liikuttavat hiirtä,
+			<kbd>Enter</kbd> aloittaa valinnan ja toinen <kbd>Enter</kbd> kaappaa sen. Pidä <kbd>Shift</kbd> painettuna, jos haluat muuttaa vain leveyttä tai vain korkeutta.</li>
+		<li><em>Ikkuna</em> (<kbd>Välilyönti</kbd>): hiiren alla oleva ikkuna valitaan, napsautus tai <kbd>Enter</kbd> kaappaa sen.
+			Greenshot valitsee sisimmän osan, esimerkiksi työkalurivin; siirry ikkunan ulkoreunaan, jos haluat valita koko ikkunan.
+			<kbd>Tab</kbd> ja <kbd>Shift</kbd> + <kbd>Tab</kbd> valitsevat seuraavan tai edellisen ikkunan.</li>
+		<li><em>Kiinteä koko</em> (<kbd>F</kbd>): tarkan kokoinen suorakulmio, esimerkiksi 1280 × 720, seuraa hiirtä. <kbd>1</kbd> – <kbd>9</kbd> valitsevat koon,
+			<kbd>C</kbd> vaihtaa kulmaa, josta hiiri pitää kiinni, ja pitämällä <kbd>Alt</kbd> painettuna asetat sen tarttumatta ikkunoihin. Omat kokosi määritetään
+			<a href="greenshot://settings?tab=capture">välilehdellä Kaappaus</a>, ja myös viimeisimpien kaappaustesi koot tarjotaan.</li>
+		<li><em>Teksti</em> (<kbd>T</kbd>): Greenshot lukee näytön tekstin Windowsin tekstintunnistuksella ja kehystää jokaisen rivin.
+			Napsauta riviä tai vedä sanojen yli kaapataksesi ne. Saat sanat tekstinä, kun lähetät kaappauksen kohteeseen <em>Windows OCR</em>,
+			joka kopioi tekstin leikepöydälle. Tähän tarvitaan Windowsiin asennettu tunnistuskieli; kieli valitaan
+			<a href="greenshot://settings?tab=capture">välilehdellä Kaappaus</a>, <em>Tekstintunnistus (OCR)</em>.</li>
+	</ul>
+	<p class="hint">
+		QR-koodilaajennuksen avulla Greenshot löytää näytöltä QR-koodit ja kehystää ne. Napsauta koodia kopioidaksesi sen sisällön tai avataksesi sen verkko-osoitteen.
+	</p>
+
+	<a name="capture-keys"></a>
+	<h3>Näppäimet valinnan aikana</h3>
+	<table>
+		<tr><th>Näppäin</th><th>Toiminto</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Peruuta kaappaus</td></tr>
+		<tr><td><kbd>Välilyönti</kbd></td><td>Vaihda alueen ja ikkunan välillä</td></tr>
+		<tr><td><kbd>F</kbd> / <kbd>T</kbd></td><td>Kaappaa kiinteä koko / kaappaa teksti</td></tr>
+		<tr><td><kbd>M</kbd></td><td>Näytä tai piilota hiiren osoitin kaappauksessa</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Vaihda jäädytetyn ja elävän näytön välillä</td></tr>
+		<tr><td><kbd>Z</kbd></td><td>Näytä tai piilota suurennuslasi</td></tr>
+		<tr><td><kbd>F1</kbd> / <kbd>I</kbd> / <kbd>P</kbd></td><td>Näytä tai piilota näppäimet / tiedot / siirrä tai piilota esikatselu</td></tr>
+		<tr><td>Nuolinäppäimet</td><td>Siirrä hiirtä yhden pikselin, <kbd>Ctrl</kbd>-näppäimen kanssa kymmenen pikseliä</td></tr>
+		<tr><td><kbd>Enter</kbd></td><td>Aloita tai lopeta valinta, kaappaa ikkuna</td></tr>
+	</table>
+
+	<a name="capture-live"></a>
+	<h3>Valitseminen näyttöä jäädyttämättä</h3>
+	<p>
+		Poista <em>Pysäytä näyttö valinnan ajaksi</em> käytöstä <a href="greenshot://settings?tab=capture">välilehdellä Kaappaus</a> tai paina
+		<kbd>L</kbd> valinnan aikana, niin valitset elävästä näytöstä: video jatkaa toistoa, ja kaappaus otetaan, kun lopetat
+		valinnan. Tekstitila ja esikatselu tarvitsevat jäädytetyn kuvan. Avoimet valikot sulkeutuvat yleensä napsautuksesta, joten käytä niille jäädytettyä näyttöä.
+	</p>
+	<p class="hint">
+		Ilmestyykö jokin vasta hetken kuluttua? Aseta <em>Viive ennen kaappausta (ms)</em>
+		<a href="greenshot://settings?tab=capture">välilehdellä Kaappaus</a>, tai valitse elävästä näytöstä.
+	</p>
+
+	<a name="destinations"></a>
+	<h2>Minne kuvakaappaus menee</h2>
+	<p>
+		Kaappauksen jälkeen Greenshot lähettää kuvakaappauksen kohteisiisi. Oletuksena se kysyy joka kerta pienellä valikolla.
+		Jokaisella kohteella on siinä kiinteä alleviivattu kirjain, esimerkiksi <kbd>C</kbd> leikepöydälle ja <kbd>S</kbd> tallennukselle, joten voit valita sen näppäimistöllä.
+		Valitse kohteet <a href="greenshot://settings?tab=destination">välilehdellä Kaapatun kuvan käsittely</a> tai kuvakkeen valikon kohdassa <em>Pika-asetukset</em>.
+	</p>
+	<ul>
+		<li><em>Avaa kuva muokkaimessa</em>: lisää kuvakaappaukseen ensin merkintöjä, katso <a href="#editor">kuvamuokkain</a>.</li>
+		<li><em>Tallenna heti</em> käyttää <a href="greenshot://settings?tab=output">välilehden Tallennus</a> kansiota ja tiedostonimimallia, <em>Tallenna nimellä</em> kysyy ne.</li>
+		<li><em>Kopioi leikepöydälle</em>, <em>Tulosta</em>, <em>Sähköposti</em>, <em>Windows share</em> ja <em>Windows OCR</em> (kopioi kuvakaappauksen tekstin).</li>
+		<li>Laajennukset lisäävät kohteita, esimerkiksi Microsoft Word, Excel, PowerPoint, Outlook ja OneNote, PDF, Box, Dropbox, Jira ja Confluence.
+			Ne määritetään <a href="greenshot://settings?tab=plugins">välilehdellä Laajennukset</a>, jossa voit myös poistaa laajennuksen käytöstä.</li>
+	</ul>
+	<p>
+		<a href="greenshot://settings?tab=destination">Välilehden Kaapatun kuvan käsittely</a> sarake <em>Käytettävissä</em> poistaa kohteen käytöstä kaikkialla.
+		Kaappauksen jälkeiset ilmoitukset määritetään <a href="greenshot://settings?tab=capture">välilehdellä Kaappaus</a>, <em>Ilmoitukset</em>.
+	</p>
+
+	<a name="editor"></a>
+	<h2>Kuvamuokkain</h2>
+	<p>
+		Muokkain lisää kuvakaappaukseen muotoja, tekstiä, nuolia, korostuksia ja muuta, tai piilottaa sen, mitä muiden ei pidä nähdä.
+		Kaappaustesi lisäksi se avaa kuvia tiedostosta tai leikepöydältä (kuvakkeen valikko).
+		Kaikki piirtämäsi pysyy elementteinä, joita voit valita, siirtää, muuttaa tai poistaa.
+	</p>
+
+	<a name="editor-tabs"></a>
+	<h3>Välilehdet</h3>
+	<p>
+		Muokkainikkuna näyttää useita kuvia välilehtinä; uusi kaappaus avautuu välilehtenä viimeksi käyttämässäsi muokkainikkunassa.
+		<kbd>Ctrl</kbd> + <kbd>Tab</kbd> siirtyy seuraavaan välilehteen ja <kbd>Ctrl</kbd> + <kbd>W</kbd> sulkee välilehden. Vedä välilehti toiseen muokkainikkunaan
+		tai napsauta sitä hiiren oikealla painikkeella siirtääksesi sen uuteen ikkunaan. Välilehtirivin <em>+</em> aloittaa uuden, tyhjän kuvan.
+		Kun suljet ikkunan, jossa on tallentamattomia kuvia, Greenshot kysyy kerran: <em>Tallenna kaikki</em>, <em>Hylkää kaikki</em> tai peruuta.
+		Haluatko mieluummin yhden ikkunan kaappausta kohden? Poista välilehdet käytöstä <a href="greenshot://settings?tab=editor">välilehdellä Muokkain</a>.
+	</p>
+
+	<a name="editor-tools"></a>
+	<h3>Piirtotyökalut</h3>
+	<p>
+		Valitse työkalu muokkaimen vasemmasta reunasta, valikosta <em>Objektit</em> tai sen näppäimellä, ja vedä sitten kuvan päällä.
+		Yläreunan työkalurivi näyttää työkalun tai valittujen elementtien asetukset, esimerkiksi viivan värin, täyttövärin ja paksuuden.
+	</p>
+	<table>
+		<tr><th>Näppäin</th><th>Työkalu</th><th>Näppäin</th><th>Työkalu</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Valintatyökalu</td><td><kbd>S</kbd></td><td>Puhekupla</td></tr>
+		<tr><td><kbd>R</kbd></td><td>Suorakulmio</td><td><kbd>I</kbd></td><td>Laskuri (numeroidut vaiheet)</td></tr>
+		<tr><td><kbd>E</kbd></td><td>Ellipsi</td><td><kbd>M</kbd></td><td>Emoji</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Viiva</td><td><kbd>H</kbd></td><td>Korostus</td></tr>
+		<tr><td><kbd>A</kbd></td><td>Nuoli</td><td><kbd>O</kbd></td><td>Peittäminen</td></tr>
+		<tr><td><kbd>F</kbd></td><td>Vapaa piirto</td><td><kbd>C</kbd></td><td>Rajaus</td></tr>
+		<tr><td><kbd>T</kbd></td><td>Teksti</td><td><kbd>Z</kbd></td><td>Kuvan koon muuttaminen</td></tr>
+	</table>
+	<ul>
+		<li>Pidä <kbd>Shift</kbd> painettuna piirtäessäsi, niin saat neliön tai ympyrän tai 15° välein kulkevia viivoja; kokoa muutettaessa se säilyttää mittasuhteet.
+			Pidä <kbd>Ctrl</kbd> painettuna piirtääksesi tai muuttaaksesi kokoa keskeltä; kätevää ellipsille jonkin ympärille.</li>
+		<li>Teksti: piirrä tekstiruutu ja kirjoita. Kaksoisnapsauta tekstiä muuttaaksesi sitä; <kbd>Enter</kbd> lopettaa, <kbd>Shift</kbd> + <kbd>Enter</kbd> aloittaa uuden rivin.</li>
+		<li>Valitut elementit: nuolinäppäimet siirtävät niitä (<kbd>Shift</kbd>-näppäimen kanssa kymmenen pikseliä), <kbd>Ctrl</kbd> + nuolinäppäimet muuttavat niiden kokoa,
+			<kbd>Page Up</kbd> / <kbd>Page Down</kbd> siirtävät niitä tason ylös tai alas, <kbd>Delete</kbd> poistaa ne, <kbd>Ctrl</kbd> + <kbd>D</kbd> monistaa ne.
+			Pidä <kbd>Shift</kbd> painettuna ja napsauta valitaksesi useita elementtejä.</li>
+		<li><kbd>Ctrl</kbd> + <kbd>Z</kbd> kumoaa, <kbd>Ctrl</kbd> + <kbd>Y</kbd> tekee uudelleen.</li>
+	</ul>
+
+	<a name="editor-highlight"></a>
+	<h3>Korostaminen ja peittäminen</h3>
+	<p>Piirrä korostus- (<kbd>H</kbd>) tai peittoalue (<kbd>O</kbd>) kuin suorakulmio ja valitse tila työkaluriviltä:</p>
+	<ul>
+		<li><em>Korosta teksti</em> värittää alueen kuin korostuskynällä, <em>Korosta alue</em> tummentaa ja sumentaa kaiken muun,
+			<em>Grayscale</em> muuttaa kaiken muun harmaaksi, <em>Magnify</em> suurentaa alueen.</li>
+		<li><em>Pikselöi</em> tai <em>Sumenna</em> piilottavat salasanat, nimet, tilinumerot tai kasvot.</li>
+	</ul>
+
+	<a name="editor-crop"></a>
+	<h3>Rajaaminen</h3>
+	<p>
+		Valitse rajaustyökalu (<kbd>C</kbd>) ja piirrä alue, joka säilytetään; <kbd>Enter</kbd> vahvistaa, <kbd>Esc</kbd> peruuttaa.
+		Paina <kbd>C</kbd> uudelleen tai käytä työkalurivin kohtaa <em>Rajaustila</em> vaihtaaksesi tilaa:
+	</p>
+	<ul>
+		<li><em>Leikkaa pois pystysuunnassa</em> tai <em>Leikkaa pois vaakasuunnassa</em> poistaa kuvasta kaistaleen ja yhdistää loput, esimerkiksi jättääkseen pois
+			pitkän sivun tyhjän keskiosan. <em>Leikkausreunat</em> valitsee, miltä sauma näyttää: suora, siksak, aaltoileva, revitty tai saumaton.</li>
+		<li><em>Automaattinen rajaus</em> poistaa yksivärisen reunan kuvan ympäriltä.</li>
+	</ul>
+
+	<a name="editor-effects"></a>
+	<h3>Tehosteet, kiertäminen ja koon muuttaminen</h3>
+	<table>
+		<tr><th>Näppäimet</th><th>Toiminto</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Q</kbd></td><td>Varjo</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>B</kbd></td><td>Reunus</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>T</kbd></td><td>Revitty reuna</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>G</kbd> / <kbd>Ctrl</kbd> + <kbd>I</kbd></td><td>Harmaasävy / käänteiset värit, esimerkiksi musteen säästämiseksi tulostettaessa</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>,</kbd> / <kbd>Ctrl</kbd> + <kbd>.</kbd></td><td>Kierrä vastapäivään / myötäpäivään</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>+</kbd> / <kbd>-</kbd></td><td>Suurenna / pienennä piirtoaluetta</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>+</kbd> / <kbd>-</kbd>, <kbd>Ctrl</kbd> + <kbd>0</kbd>, <kbd>Ctrl</kbd> + <kbd>9</kbd></td><td>Lähennä / loitonna, todellinen koko, paras sovitus</td></tr>
+	</table>
+	<p>
+		Revitty reuna pysyy elementtinä, jota voit muuttaa; työkalurivin <em>Käytä kuvaan</em> tekee siitä osan kuvaa.
+	</p>
+
+	<a name="editor-reuse"></a>
+	<h3>Kuvien lisääminen ja elementtien uudelleenkäyttö</h3>
+	<ul>
+		<li>Vedä kuvatiedosto muokkaimeen tai liitä kuva näppäimillä <kbd>Ctrl</kbd> + <kbd>V</kbd>. Valikon <em>Muokkaa</em> kohta <em>Lisää ikkuna</em> lisää kaappauksen toisesta avoimesta ikkunasta.</li>
+		<li>Käytä samoja elementtejä monissa kuvakaappauksissa: <em>Tallenna objektit tiedostoon</em> valikossa <em>Objektit</em> ja <em>Lataa objektit tiedostosta</em> seuraavassa kuvakaappauksessa.</li>
+		<li>Tallenna <code>.greenshot</code>-tiedostona, niin kaikki elementit pysyvät muokattavina ja voit jatkaa myöhemmin.</li>
+	</ul>
+
+	<a name="editor-export"></a>
+	<h3>Tallentaminen ja vienti</h3>
+	<table>
+		<tr><th>Näppäimet</th><th>Toiminto</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td><td><em>Tallenna</em> <a href="greenshot://settings?tab=output">välilehden Tallennus</a> kansioon</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd></td><td><em>Tallenna nimellä...</em>: valitse kansio, nimi ja kuvamuoto</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd></td><td><em>Kopioi kuva leikepöydälle</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>P</kbd></td><td><em>Tulosta</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>E</kbd></td><td><em>Sähköposti</em>: uusi viesti, jonka liitteenä on kuva</td></tr>
+	</table>
+	<p>
+		Valikko <em>Tiedosto</em> ja yläreunan työkalurivi luettelevat kaikki kohteesi, myös laajennusten kohteet.
+		Tallennuksen jälkeen napsauta alareunan tilariviä hiiren oikealla painikkeella kopioidaksesi tiedoston polun tai avataksesi sen kansion.
+	</p>
+
+	<a name="recipes"></a>
+	<h2>Automaattiset vaiheet ja reseptit</h2>
+	<p>
+		Reseptit tekevät kaappauksillesi asioita automaattisesti, esimerkiksi lisäävät jokaiseen kaappaukseen reunuksen tai tallentavat ja lataavat sen kerralla.
+		Kuvakkeen valikon <em>Pika-asetukset</em> &gt; <em>Automaattiset vaiheet</em> ottaa valmiit vaiheet käyttöön tai pois käytöstä,
+		<em>Lisää…</em> avaa niiden asetukset <a href="greenshot://settings?tab=recipes">välilehdellä Reseptit</a>.
+		Kuvakkeen valikko <em>Reseptit</em> käynnistää reseptisi ja avaa <a href="greenshot://recipe-manager">Reseptien hallintain</a> ja Recipe Editorin.
+		Reseptit tulevat Recipe Editor -laajennuksen mukana.
+	</p>
+
+	<a name="settings"></a>
+	<h2>Asetukset</h2>
+	<p>Avaa asetukset kuvakkeen valikon kohdasta <em>Asetukset...</em> tai alla olevista linkeistä.</p>
+	<ul>
+		<li><a href="greenshot://settings?tab=general">Yleiset</a>: kieli, värit (vaalea, tumma tai kuten Windows), kuvakkeen koko,
+			<em>Käynnistä Greenshot automaattisesti.</em>, pikanäppäimet, välityspalvelin ja kuinka usein Greenshot etsii päivityksiä.</li>
+		<li><a href="greenshot://settings?tab=capture">Kaappaus</a>: hiiren osoittimen kaappaus, kameran ääni, suurennuslasi, näytön jäädytys,
+			ilmoitukset, viive ennen kaappausta, kiinteät kokosi, interaktiivinen ikkunan kaappaus ja tekstintunnistuksen kieli.</li>
+		<li><a href="greenshot://settings?tab=output">Tallennus</a>: tallennuksen kansio ja tiedostonimimalli (napsauta <em>?</em> nähdäksesi paikkamerkit,
+			esimerkiksi <code>${YYYY}-${MM}-${DD}</code> tai <code>${title}</code>; mallin <code>\</code> luo kansioita), kuvamuoto ja JPEG-laatu.</li>
+		<li><a href="greenshot://settings?tab=destination">Kaapatun kuvan käsittely</a>: mitä kaappauksen jälkeen tapahtuu, katso <a href="#destinations">minne kuvakaappaus menee</a>.</li>
+		<li><a href="greenshot://settings?tab=editor">Muokkain</a>: välilehdet, muokkainikkunan koko, kysymys tallentamisesta sulkemisen yhteydessä sekä uuden kuvan koko ja väri.</li>
+		<li><a href="greenshot://settings?tab=printer">Tulostus</a>: kuvan sovittaminen sivulle, kiertäminen tai keskittäminen, tulostus värillisenä, harmaasävyisenä tai käänteisenä sekä alatunniste päivämäärällä ja kellonajalla.</li>
+		<li><a href="greenshot://settings?tab=plugins">Laajennukset</a>: laajennusten käyttöönotto, poistaminen käytöstä ja määrittäminen. Muutokset tulevat voimaan, kun Greenshot käynnistetään seuraavan kerran.</li>
+		<li><a href="greenshot://settings?tab=expert">Asiantuntija</a>: asetukset erikoistapauksiin, esimerkiksi etätyöpöytä, DirectX-kaappaus (tarvitaan HDR-näytöille), muisti ja nopeus
+			sekä leikepöydän muodot. Muuta niitä vain, jos tiedät mitä ne tekevät.</li>
+	</ul>
+	<p class="hint">
+		Greenshot säilyttää asetuksensa tiedostossa <code>greenshot.ini</code> kansiossa <code>%APPDATA%\Greenshot</code> (siirrettävä versio pitää sen Greenshot.exe-tiedoston vieressä).
+		Itsepalvelun <a href="greenshot://self-service?section=files">Tiedostot ja määritykset</a> näyttää, missä se on.
+	</p>
+
+	<a name="troubleshooting"></a>
+	<h2>Kun jokin ei toimi</h2>
+	<p>
+		Itsepalvelu tarkistaa Greenshotin ja korjaa useimmat ongelmat. Avaa se kuvakkeen valikon kohdasta <em>Tietoja Greenshotista</em> ja sitten <em>Itsepalvelu</em>,
+		tai siirry suoraan oikeaan osioon:
+	</p>
+	<ul>
+		<li><kbd>Print Screen</kbd> ei tee mitään tai avaa jotain muuta: <a href="greenshot://self-service?section=hotkeys">Pikanäppäimet ja ristiriidat</a>
+			näyttää, onko OneDrive tai Leikkaustyökalu ottanut näppäimen, ja palauttaa sen Greenshotille.</li>
+		<li>Et löydä kuvakaappauksiasi: <a href="greenshot://self-service?section=files">Tiedostot ja määritykset</a> näyttää, minne Greenshot ne tallentaa.</li>
+		<li>Kopiointi leikepöydälle epäonnistuu: <a href="greenshot://self-service?section=clipboard">Leikepöydän diagnostiikka</a> löytää ohjelman, joka varaa leikepöydän.</li>
+		<li>Greenshot kaatuu tai laajennus puuttuu päivityksen jälkeen: <a href="greenshot://self-service?section=checksum">Asennuksen eheys</a> tarkistaa asennetut tiedostot.</li>
+		<li>Ongelmasta ilmoittaminen: <em>Kopioi järjestelmätiedot</em> osiossa <a href="greenshot://self-service?section=system">Järjestelmä ja laitteisto</a> ja
+			<a href="greenshot://log?search=ERROR">lokin virheet</a> auttavat meitä auttamaan sinua. Ilmoita ongelmista osoitteessa
+			<a target="_blank" href="https://github.com/greenshot/greenshot/issues">github.com/greenshot/greenshot/issues</a>.</li>
+	</ul>
+
+	<a name="help"></a>
+	<h2>Haluatko auttaa?</h2>
+
+	<a name="help-donate"></a>
+	<h3>Harkitse lahjoitusta</h3>
+	<p>
+		Teemme paljon työtä Greenshotin eteen tarjotaksemme hyvää ilmaista ja avoimen lähdekoodin ohjelmistoa. Jos se tekee sinusta tuottavamman,
+		säästää sinun tai yrityksesi aikaa ja rahaa tai pidät vain Greenshotista: harkitse meidän tukemistamme.
+		Katso osoitteesta <a target="_blank" href="https://getgreenshot.org/support/">https://getgreenshot.org/support/</a>, miten voit auttaa.
+	</p>
+
+	<a name="help-spread"></a>
+	<h3>Kerro muille</h3>
+	<p>
+		Jos pidät Greenshotista, kerro siitä ystävillesi ja kollegoillesi. Arvioi Greenshot ohjelmaportaaleissa tai linkitä kotisivullemme blogistasi tai verkkosivustoltasi.
+	</p>
+	<p>
+		Anna Greenshotille tähti <a target="_blank" href="https://github.com/greenshot/greenshot">GitHubissa</a>, niin muut löytävät sen helpommin:
+		<br><iframe src="https://ghbtns.com/github-btn.html?user=greenshot&amp;repo=greenshot&amp;type=star&amp;count=true&amp;size=large" frameborder="0" width="170" height="30" title="GitHub"></iframe>
+	</p>
+
+	</body>
+</html>

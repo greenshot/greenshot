@@ -1,421 +1,360 @@
-
-<html>
+<!DOCTYPE html>
+<html lang="de">
 	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>Greenshot Hilfe</title>
-		
 		<style>
-		* {
-			font-family: Tahoma, Arial, Sans-serif;
-		}
-		h1 {font-size:16px;}
-		h2 {font-size:14px;color:#009900;margin-top:24px;}
-		h3 {font-size:12px;margin-top:18px;}
-		small {font-size:10px;}
-		p, li {font-size:12px;line-height:1.5em}
-		a:link, a:hover, a:visited, a:active {color:#009900;}
-		kbd {background-color:#dddddd;border:1px solid #bbbbbb;padding:0 2px;border-radius:2px;}
-		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px;}
-		em {padding-right:0.2em;}
+		* {font-family: "Segoe UI", Tahoma, Arial, Sans-serif;}
+		body {max-width:60em;margin:0 auto;padding:0 16px 24px 16px;}
+		h1 {font-size:20px;}
+		h2 {font-size:16px;color:#009900;margin-top:28px;}
+		h3 {font-size:14px;margin-top:20px;}
+		small {font-size:11px;}
+		p, li, td, th {font-size:13px;line-height:1.5em;}
+		a:link, a:hover, a:visited, a:active {color:#007700;}
+		kbd {background-color:#eeeeee;border:1px solid #bbbbbb;padding:0 3px;border-radius:3px;white-space:nowrap;}
+		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px 8px;}
+		table {border-collapse:collapse;margin:6px 0;}
+		th, td {border:1px solid #dddddd;padding:3px 8px;text-align:left;vertical-align:top;}
+		th {background-color:#f2f2f2;}
+		em {font-style:normal;font-weight:bold;}
+		:root {--greenshot-icon:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAEgklEQVR4nO2WXWxTZRjHf+er3y0j3dhXuw8DHRsEJoPEBEY0CMEbPtR4gUiciYQgd4ImeqMRZuK9qBgwXBjDFcSQoASVz4RIXPnY5raAbN1GS7d1LWU9p2c9PV6UlBE76ACHFz5X7/l4/s/vvO95n/cvtLa2mjzDEJ9l8f8B/tsAjkqN6rVRLCWT/yqAXLB4RZoXD3cg2Qy0ESu/vtmCoUmzB1DSmESyGQDYytI4fRruuglqN0SIXfPQe7AOM/uUAKrXjEwRrsU0YfSPElK3bDiqNMY7PaRjCq0H+hBlE29zgniPm8g5L44qjcmkzGSy4HcUB9D8cW9O+Pk48V4XkXNeZGeG8zubsXgmuRuyo3gyCMKDiY3b+5m/dRBDk7j4/mJi1zyPBSBOFRYEWPhuP2uOXGLND5eQXRnMrIAeVwjuCxC76uH6935uX/BSuzEMgGQzqH45imQ3CGwbJNA2gOLKFD8DwfYAdZvCxK55iJz3svTDvpyw3cC3Nsp4Z+7Lhk/NY/jUvHziaHAOlavHABi7MoemHTep25yDclZrBPc2FAfgrEzz+weLmZyQ/iEcuzpn2sSOTxupWDWKOmJlvNODf300/8xRoWEv01nxeRcuv0r31/X0H60sqCN8YWIO/TyP4L4csahkqVw9hjpiJXa1+HWd25Sk5ZMekLIE9zZQ1pJgwbYQAIYmcmL9yoI7R4bclNm8Osv3dePyq/z5TT2xX2b2U413uzn1xor8taMynR+nIrZpt62cjin0HKqhdmOYuU1JABbtukHoeDlmViicVUQM/VSOIJo4fSr9xwpPP4B8ctMLOeJyPX9TjVqfqDiAmYXQ8YpHvidLdgNDlRg8UY6oZHPER6ueqPhMQnb5VZzVGrUbw8Q63XTvf+6ptdmiANKjVlZ9dQVRyVK6LE6iz0XkbOmsAYhZAxDu20Jhlh2CrCcULrcHqH81TKzTQ+Ssd3YB5m8ZQpBMLu5ZRGbi8U+1xwZo3HETAHddio7PiuvfNq/OivZunDUpeg5M32aLifyKO6rUopNqNoQpaUyiOA2adv6FIJrYKzR866JY5uqPFpgSsjZmQZRMer+rLTopFbblx2rUiq1U56XDHUh2A23Uwm9bl5NJFWfh5DNty9Djyoyoh0+WI1lMnP4UA8eqKFl4F8l+z8KV6rj8Kk6fSu2mMOOdbnq+rZ/+LFh9sIPTbxVPDLk2O/Dj/TarJ2Qmhuw4fSrjXW60qJWV+y8jKibepQnivW7Cpwv3FtlepuOqUbGXazlj0uWm79DMTKfiznBh1xIsngx3B+0oTgOKPErkeI+LVMTKyi/vdcOWOHeuuwifLsVRkUZPSg/dng3vDBB4O5TzhrsXYRoO9Dsywb0N1G3OLcHDOqt84b1mZLvxYDcUTAJtAzS0hTBUiYt7Fk9rTqZ6Q9+6KIk+N/WvDyMqWS591PRIxyxmJwX0OzKX2wOMd3m4caSa8JlS6l+7lRO2G/hfuY1oyTJ/yxALtoWQHUZeYCxYkh+PdpTQtOMmjdv7aWgLsWT39YcWB/gbBUPC48UgfpEAAAAASUVORK5CYII=);}
+		h1 {background:var(--greenshot-icon) no-repeat left center;background-size:32px;padding-left:40px;line-height:32px;}
+		a[href^="greenshot:"] {background:#eef8ee var(--greenshot-icon) no-repeat 3px center;background-size:16px;border:1px solid #99cc99;border-radius:3px;padding:0 4px 0 22px;text-decoration:none;white-space:nowrap;}
+		a[href^="greenshot:"]:hover {background-color:#ddf0dd;}
+		[dir="rtl"] h1 {background-position:right center;padding-left:0;padding-right:40px;}
+		[dir="rtl"] a[href^="greenshot:"] {background-position:right 3px center;padding:0 22px 0 4px;}
 		</style>
 	</head>
 	<body>
 	<h1>Greenshot Hilfe</h1>
-	<!-- 
-	Note to translator: uncomment entry below to have your effort honored 
+	<!--
+	Note to translator: uncomment the entry below to have your effort honored
 	-->
-	<small>Version 0.8<!-- - Deutsche Übersetzung der Hilfe von IHR_NAME--></small>
-	
+	<!--<small>Deutsche Übersetzung der Hilfe von IHR_NAME</small>-->
+
+	<p class="hint">
+		Links, die mit <code>greenshot:</code> beginnen, wie <a href="greenshot://settings">Einstellungen öffnen</a>,
+		öffnen das jeweilige Fenster von Greenshot. Sie funktionieren, wenn Greenshot mit dem Installer installiert wurde,
+		nicht in der portablen Version und nicht in Greenshot Light. Ihr Browser fragt eventuell, bevor er Greenshot öffnet.
+	</p>
+
 	<h2>Inhalt</h2>
 	<ol>
-		<li><a href="#screenshot">Erstellung eines Screenshots</a></li>
-		<ol>
-			<li><a href="#capture-region">Bereich abfotografieren</a></li>
-			<li><a href="#capture-last-region">Zuletzt gewählten Bereich abfotografieren</a></li>
-			<li><a href="#capture-window">Fenster abfotografieren</a></li>
-			<li><a href="#capture-fullscreen">Kompletten Bildschirm abfotografieren</a></li>
-			<li><a href="#capture-ie">Internet Explorer abfotografieren</a></li>
-		</ol>
-	
-		<li><a href="#editor">Verwendung des Bildeditors</a></li>
-		<ol>
-			<li><a href="#editor-shapes">Formen zeichnen</a></li>
-			<li><a href="#editor-text">Text hinzufügen</a></li>
-			<li><a href="#editor-highlight">Hervorheben</a></li>
-			<li><a href="#editor-obfuscate">Unkenntlich machen</a></li>
-			<li><a href="#editor-crop">Screenshot zuschneiden</a></li>
-			<li><a href="#editor-adding-graphics">Hinzufügen von Grafiken zum Screenshot</a></li>
-			<li><a href="#editor-reuse-elements">Elemente wiederverwenden</a></li>
-			<li><a href="#editor-export">Screenshot exportieren</a></li>
-		</ol>
-		<li><a href="#settings">Der Einstellungen-Dialog</a></li>
-		<ol>
-			<li><a href="#settings-general">Allgemeine Einstellungen</a></li>
-			<li><a href="#settings-capture">Abfotografieren Einstellungen</a></li>
-			<li><a href="#settings-output">Ausgabeeinstellungen</a></li>
-			<li><a href="#settings-printer">Druckereinstellungen</a></li>
-		</ol>
-		<li><a href="#help">Wollen Sie Greenshot unterstützen?</a></li>
-		<ol>
-			<li><a href="#help-donate">Spenden</a></li>
-			<li><a href="#help-spread">Weitersagen</a></li>
-			<li><a href="#help-translate">Übersetzen</a></li>
-		</ol>
-	</ol>
-	
-	<a name="screenshot"></a>
-	<h2>Erstellung eines Screenshots</h2>
-	<p>
-		Zum Erstellen eines Screenshots können Sie entweder die <kbd>Drucken</kbd>-Taste
-    verwenden oder Sie klicken das Greenshot-Icon im Windows-Infobereich mit der rechten Maustaste an.<br>
-		Es gibt verschiedene Optionen bei der Erstellung eines Screenshots:
-	</p>
-	
-	<a name="capture-region"></a>
-	<h3>Bereich abfotografieren <kbd>Drucken</kbd></h3>
-	<p>
-		Im Bereichsmodus können Sie einen Bildschirmbereich auswählen, der abfotografiert
-		werden soll.<br>
-		Nach dem Starten des Bereichsmodus sehen Sie ein Fadenkreuz, das die Position
-		des Mauszeigers auf dem Bildschirm anzeigt. Klicken und halten Sie die linke
-		Maustaste an der Stelle, an der eine der Ecken Ihres Screenshots liegen soll.
-		Halten Sie die Maustaste gedrückt, während Sie die Maus bewegen, um das Rechteck
-		zu markieren, von dem ein Screenshot erstellt werden soll. Wenn das grüne Rechteck
-		den Bereich bedeckt, den Sie aufnehmen wollen, lassen Sie die Maustaste los.<br>
-	</p>
-	<p class="hint">
-		Mit Hilfe der <kbd>Leertaste</kbd> können Sie vom Bereichsmodus in den
-		<a href="#capture-window">Fenstermodus</a> wechseln (und umgekehrt).
-	</p>
-	<p class="hint">
-		Wenn Sie einen exakten Bereich abfotografieren, ist es eventuell einfacher, zuerst
-		einen etwas größeren Bereich abzufotografieren und den Screenshot anschließend mit
-		Hilfe des Bildeditors <a href="#editor-crop">zuzuschneiden</a>.
-	</p>
-	
-	<a name="capture-last-region"></a>
-	<h3>Zuletzt gewählten Bereich abfotografieren <kbd>Shift</kbd> + <kbd>Drucken</kbd></h3>
-	<p>
-		Wenn Sie vorher einen <a href="#capture-region">Bereich</a> oder ein 
-		<a href="#capture-window">Fenster</a> abfotografiert haben, können Sie mit Hilfe
-		dieser Option den gleichen Bereich noch einmal abfotografieren.
-	</p>
-	
-	<a name="capture-window"></a>
-	<h3>Fenster abfotografieren <kbd>Alt</kbd> + <kbd>Drucken</kbd></h3>
-	<p>
-		Erstellt einen Screenshot des momentan aktiven Fensters.
-	</p>
-	<p class="hint">
-		Im <a href="#settings">Einstellungen-Dialog</a> können Sie einstellen, dass nicht
-		sofort das aktive Fenster abfotografiert werden soll, sondern stattdessen der
-		interaktive Modus gestartet wird. Wenn diese Option ausgewählt ist, können Sie
-		ein Fenster auswählen, indem Sie darauf klicken (wie beim 
-		<a href="#capture-region">Bereichsmodus</a> hebt Greenshot auch hier den Bereich 
-		hervor, der abfotografiert werden wird).<br>
-		Wenn Sie ein Kind-Fenster abfotografieren wollen (z.B. den Anzeigebereich eines Browsers (ohne 
-		Symbolleisten usw. oder einen einzelnen Frame einer Webseite mit Framesets) ziehen
-		Sie den Mauszeiger auf das Fenster und drücken Sie die <kbd>Bild ab</kbd>-Taste.
-		Anschließend können Sie Kind-Elemente des Fensters durch anklicken auswählen.
-	</p>
-	
-	<a name="capture-fullscreen"></a>
-	<h3>Kompletten Bildschirm abfotografieren <kbd>Strg</kbd> + <kbd>Drucken</kbd></h3>
-	<p>
-		Erstellt einen Screenhot vom gesamten Bildschirm.
-	</p>
-	
-	<a name="capture-ie"></a>
-	<h3>Internet Explorer abfotografieren <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>Print</kbd></h3>
-	<p>
-		Erstellt komfortabel einen Screenshot von einer Webseite, die gerade im Internet Explorer
-		geöffnet ist. Benutzen Sie Greenshots Kontextmenü, um das abzufotografierende Tab im Internet
-		Explorer aus einer Liste zu wählen oder drücken Sie <kbd>Strg</kbd> + <kbd>Shift</kbd> + <kbd>Drucken</kbd>
-		um das aktive Tab abzufotografieren.
-	</p>
-	
-	<a name="editor"></a>
-	<h2>Verwendung des Bildeditors</h2>
-	<p>
-		Greenshot bietet Ihnen ein einfaches Bildbearbeitungswerkzeug mit praktischen
-		Möglichkeiten; ein Screenshot kann beispielsweise mit Anmerkungen und Formen
-		ergänzt werden. Es ist auch möglich, Teile des Screenshots hervorzuheben oder
-		unkenntlich zu machen.
-	</p>
-	<p class="hint">
-		Sie können Greenshots Bildeditor nicht nur für Screenshots verwenden. Sie
-		können auch Bilder aus Dateien oder aus der Zwischenablage zur Bearbeitung
-		öffnen. Klicken Sie einfach mit der rechten Maustaste auf das Greenshot-Icon im
-		Windows-Infobereich und wählen Sie <em>Bild aus Datei öffnen</em> bzw. <em>Bild aus
-		Zwischenablage öffnen</em>.
-	</p>
-	<p class="hint">
-		Standardmäßig wird der Bildeditor immer geöffnet, wenn ein Screenshot
-		gemacht wird. Wenn Sie den Bildeditor nicht verwenden wollen, können 
-		Sie dies in den <a href="#settings">Einstellungen</a> deaktivieren.
-	</p>
-	
-	
-	<a name="editor-shapes"></a>
-	<h3>Formen zeichnen</h3>
-	<p>
-		Wählen Sie eines der Form-Zeichnen-Werkzeuge aus der Werkzeugliste auf der linken
-		Seite des Bildeditors oder aus dem Menü <em>Objekt</em>. Zur schnelleren
-		Bedienung ist jedem Werkzeug ein Buchstabe zugeordnet.<br>
-		Folgende Formen sind verfügbar: Rechteck <kbd>R</kbd>, Ellipse <kbd>E</kbd>, 
-		Linie <kbd>L</kbd> und Pfeil <kbd>A</kbd>.<br>
-		Klicken Sie die linke Maustaste, halten Sie diese gedrückt und bewegen Sie die Maus,
-		um den Position und Größe der Form zu bestimmen. Lassen Sie die Maustaste los,
-		wenn Sie fertig sind.
-	</p>
-	<p>
-		Sie können bereits gemalte Formen verschieben oder ihre Größe ändern. Wählen Sie
-		hierzu das Auswahlwerkzeug <kbd>ESC</kbd> aus der Werkzeugleiste.<br>
-		Jede Element-Art hat außerdem bestimmte Einstellungen, mit denen das Aussehen des
-		Elements verändert werden kann (z.B. Linienstärke, Rahmenfarbe, Hintergrundfarbe).
-		Sie können diese Einstellungen für ein bereits gezeichnetes Element ändern, wenn
-		es ausgewählt ist. Sie können die Einstellungen aber auch vor dem Zeichnen eines
-		Elements anpassen, direkt nach der Auswahl eines Zeichnen-Werkzeugs.
-	</p>
-	<p class="hint">
-		Sie können mehrere Elemente gleichzeitig zur Bearbeitung auswählen. Halten Sie
-		hierzu die <kbd>Shift</kbd>-Taste gedrückt, während Sie die Elemente anklicken.
-	
-	<a name="editor-text"></a>
-	<h3>Text hinzufügen</h3>
-	<p>
-		Das Textwerkzeug <kbd>T</kbd> wird ähnlich verwendet wie die 
-		<a href="#editor-shapes">Formen-Werkzeuge</a>.
-		Zeichnen Sie einfach ein Textelement in der gewünschten Größe und geben Sie
-		den gewünschten Text ein.<br>
-		Durch Doppelklicken können Sie den Text eines bestehenden Textelements bearbeiten.<br>
-		Drücken Sie <kbd>Return</kbd> oder <kbd>Enter</kbd> um die Bearbeitung des Textes zu beenden.
-	</p>
-	<p class="hint">
-		Wenn Sie Zeilenumbrüche innerhalb einer Textbox benötigen, drücken Sie <kbd>Shift</kbd> + <kbd>Return</kbd> oder
-		<kbd>Shift</kbd> + <kbd>Enter</kbd>.
-	</p>
-	
-	<a name="editor-highlight"></a>
-	<h3>Hervorheben</h3>
-	<p>
-		Nach der Auswahl des Hervorhebungs-Werkzeugs <kbd>H</kbd> können Sie den hervorzuhebenden
-		Bereich wählen, gehen Sie hierzu vor wie beim Zeichnen von <a href="#editor-shapes">Formen</a>.<br>
-		Sie habe verschiedene Möglichkeiten der Hervorhebung, wählen Sie ein durch Klicken
-		der Schaltfläche links in der Symbolleiste über dem Screenshot:
-	</p>
-	<ul>
-		<li><em>Textmarker</em>: hinterlegt den Bereich mit einer Farbe Ihrer Wahl</li>
-		<li><em>Bereich hervorheben</em>: alles außerhalb des Bereichs wird weichgezeichnet<a href="#hint-blur">*</a> 
-			und leicht verdunkelt</li>
-		<li><em>Graustufen</em>: alles außerhalb des Bereichs wird in Graustufen dargestellt</li>
-		<li><em>Magnify</em>: der Bereich wird vergrößert dargestellt</li>
-	</ul>
-	
-	<a name="editor-obfuscate"></a>
-	<h3>Unkenntlich machen</h3>
-	<p>
-		Wenn ein Screenshot Daten enthält, die nicht weitergegeben werden sollen (z.B. Kontodaten,
-		Namen, Passwörter oder Gesichter auf Bildern), ist es sinnvoll, diese unkenntlich zu machen.<br>
-		Das Unkenntlich-machen-Werkzeug <kbd>O</kbd> wird verwendet wie das 
-		<a href="#editor-highlight">Hervorheben</a>-Werkzeug.<br>
-		Folgende Möglichkeiten stehen zur Verfügung:
-	</p>
-	<ul>
-		<li><em>Verpixeln</em>: im Bereich werden die Pixel vergrößert</li>
-		<li><em>Weichzeichnen</em><a href="#hint-blur">*</a>: der Bereich wird weichgezeichnet</li>
-	</ul>
-	<a name="hint-blur"></a>
-	<p class="hint">
-		* Je nach Leistung Ihres Computers kann die Verwendung von Weichzeichner-Effekten
-		Greenshots Bildeditor verlangsamen. Wenn Sie merken, dass der Bildeditor zu langsam
-		reagiert sobald ein Weichzeichner verwendet wird, reduzieren Sie den Wert 
-		<em>Vorschauqualiät</em> in der Symbolleiste oder stellen Sie einen kleineren
-		<em>Weichzeichner-Radius</em> ein.<br>
-		Sollte die Reaktionsgeschwindigkeit dann immer noch unzufriedenstellend sein, sollten
-		Sie dem Verpixeln-Werkzeug den Vorzug geben.
-	</p>
-	
-	<a name="editor-crop"></a>
-	<h3>Screenshot zuschneiden</h3>
-	<p>
-		Wenn Sie nur einen Teil des Screenshots benötigen, können Sie das Zuschneiden-Werkzeug
-		<kbd>C</kbd> verwenden, um den Screenshot auf die gewünschte Größe zuzuschneiden.<br>
-		Wählen Sie das Zuschneiden-Werkzeug, zeichnen Sie dann ein Rechteck über den Bereich
-		des Screenshots, den Sie behalten wollen. Sie können die Größe des ausgewählten 
-		Bereichs ändern, wie bei jedem anderen Element.<br>
-		Wenn Sie mit Ihrer Auswahl zufrieden sind, klicken Sie die Bestätigen-Schaltfläche in
-		der Symbolleiste oder drücken Sie die <kbd>Enter</kbd>-Taste. Sie können den Vorgang
-		abbrechen, indem Sie die Abbrechen-Schaltfläche klicken oder <kbd>ESC</kbd> drücken.
-	</p>
-	<p class="hint">
-		<em>Auto-Crop</em>: Wenn Sie einen einfarbigen Rahmen von Ihrem Screenshot entfernen möchten,
-		wählen Sie einfach <em>Automatisch zuschneiden</em> aus dem Menü <em>Bearbeiten</em> und
-		Greenshot wählt automatisch einen Bereich für den Zuschnitt aus.
-	</p>
-
-	<a name="editor-adding-graphics"></a>
-	<h3>Grafische Elemente in ein Screenshot einfügen</h3>
-	<p>
-		Ziehen Sie einfach mit der Maus die Grafikdatei in den Editor um sie einzufügen.Sie können auch 
-		Screenshots von anderen Fenstern einfügen, durch Auswahl von
-		<em>Fenster einfügen</em> im <em>Bearbeiten</em> Menü. Wählen Sie zum Einfügen aus der angezeigten 
-		Liste der geöffneten Fenster aus.
-	</p>
-	
-	<a name="editor-reuse-elements"></a>
-	<h3>Elemente wiederverwenden</h3>
-	<p>
-		Wenn Sie regelmäßig die gleichen oder ähnliche Elemente in Ihren Screenshots
-		verwenden (z.B. ein Textfeld, in dem Browsertyp und -version angegeben sind, oder
-		Verpixelung des gleichen Elements auf mehreren Screenshots) können Sie diese
-		Elemente wiederverwenden.<br>
-		Wählen Sie <em>Objekte in Datei speichern</em> aus dem <em>Objekt</em>-Menü um
-		die aktuellen Elemente zur späteren Wiederverwendung zu speichern. <em>Objekte
-		aus Datei laden</em> fügt die Elemente dann zu einem anderen Screenshot hinzu.
-	</p>
-	
-	<a name="editor-export"></a>
-	<h3>Screenshot exportieren</h3>
-	<p>
-		Nach der Bearbeitung des Screenshots können Sie das Ergebnis auf verschiedene
-		Arten exportieren, je nach Bedarf. Alle Export-Optionen sind über das <em>Datei</em>-
-		Menü, die obere Symbolleiste oder über Tastaturkürzel verfügbar:
-	</p>
-	<ul>
-		<li><em>Speichern</em> <kbd>Strg</kbd> + <kbd>S</kbd>: speichert die Grafik in eine Datei (wenn es bereits gespeichert wurde, ansonsten wird der Dialog <em>Speichern unter...</em> angezeigt</li>
-		<li><em>Speichern unter...</em> <kbd>Strg</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>: öffnet einen Dialog, in dem Sie Verzeichnis, Dateiname und Grafikformat für die zu speichernde Grafik wählen können</li>
-		<li><em>Grafik in Zwichenablage kopieren</em> <kbd>Strg</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd>: legt eine Kopie der Grafik in der Zwischenablage ab, so dass sie direkt in andere Programme eingefügt werden kann</li>
-		<li><em>Drucken...</em> <kbd>Strg</kbd> + <kbd>P</kbd>: sendet die Grafik an einen Drucker</li>
-		<li><em>E-Mail</em> <kbd>Strg</kbd> + <kbd>E</kbd>: öffnet eine neue Nachricht in Ihrem Standard-E-Mail-Programm und hängt die Grafik als Datei an</li>
-	</ul>
-	<p class="hint">
-		Nach dem Speichern einer Grafik im Bildeditor können Sie mit der rechten Maustaste auf
-		die Statusleiste am unteren Rand des Editor-Fensters klicken, um den Dateipfad
-		zu öffnen.
-	</p>
-	
-	
-	<a name="settings"></a>
-	<h2>Der Einstellungen-Dialog</h2>
-	
-	<a name="settings-general"></a>
-	<h3>Allgemeine Einstellungen</h3>
-	<ul>
-		<li><em>Sprache</em>: Die Sprache, in der Sie Greenshot verwenden möchten.<br>
-			<a target="_blank" href="https://getgreenshot.org/downloads/">Hier</a> können Sie weitere Sprachen für Greenshot herunterladen. </li>
-		<li><em>Greenshot mit Windows starten</em>: Das Programm wird automatisch gestartet wenn das System hochfährt.</li>
-		<li><em>Tastenkombinationen</em>: Konfigurieren Sie die Tastenkombinationen für das Erstellen von Screenshots</li>
-		<li><em>Standard-Proxyserver des Betriebssystems verwenden</em>: Wenn ausgewählt, wird der im Betriebssystem eingetragene Standard-Proxyserver verwendet, um nach Updates zu suchen.</li>
-		<li><em>Aktualisierungsprüfung in Tagen</em>: Greenshot kann automatisch nach Updates suchen. Verwenden Sie die Einstellung, um das Interval zu ändern
-			(in Tagen) oder setzen sie den Wert auf 0, um die automatische Suche nach Updates zu deaktivieren..</li>
-	</ul>
-
-	<a name="settings-capture"></a>
-	<h3>Abfotografieren Einstellungen</h3>
-	<ul>
-		<li><em>Mauszeiger mit abfotografieren</em>: Wenn diese Option aktiviert ist, wird der Mauszeiger abfotografiert. Der Zeiger wird im Editor als eigenes Element eingefügt, so dass Sie ihn anschließend noch verschieben oder löschen können.</li>
-		<li><em>Kamera-Klang abspielen</em>: Hörbares Feedback beim Erstellen eines Screenshots</li>
-		<li><em>Millisekunden warten vor Abfotografieren</em>: Stellen Sie die Verzögerung ein, bevor der Screenshot erstellt wird.</li>
-		<li><em>Fenster interaktiv abfotografieren</em>: Anstatt sofort das aktive Fenster abzufotografieren, können Sie im 
-			interaktiven Modus ein Fenster auswählen. Es ist auch möglich, Kind-Fenster abzufotografieren, siehe <a href="#capture-window">Fenster abfotografieren</a>.</li>
-		<li>
-			<em>Aero Design abfotografieren (nur Windows Vista / 7)</em>: Wenn Sie Greenshot auf Windows Vista oder Windows 7 verwenden und Aero-Design Fenster
-			aktiviert haben, können Sie einstellen, wie mit transparenten Fensterrahmen umgegangen werden soll, wenn ein Screenshot
-			im Fenstermodus angefertigt wird. Verwenden Sie diese Einstellung, um zu vermeiden, dass durchscheinende Elemente im Hintergrund mit
-			abfotografiert werden.
-			<ul>
-				<li><em>Auto</em>: Greenshot entscheiden lassen, wie mit Transparenzen umgegangen werden soll.</li>
-				<li><em>Wie angezeigt</em>: Transparente Rahmen werden abfotografiert, wie sie auf dem Bildschirm angezeigt werden.</li>
-				<li><em>Standardfarbe verwenden</em>: Eine einheitliche Hintergrundfarbe wird anstelle von Transparenz verwendet.</li>
-				<li><em>Eigene Farbe verwenden</em>: Wählen Sie eine Farbe aus, die anstelle von Transparenz verwendet werden soll.</li>
-				<li><em>Transparenz erhalten</em>: Die Transparenz der Rahmen wird beim Abfotografieren erhalten, Elemente im Hintergrund werden nicht mit abfotografiert. (Hinweis: 
-					transparent Bereiche werden im Editor mit einem Schachbrettmuster dargestellt. Das Muster wird nicht mit exportiert, wenn der Screenshot gespeichert wird.
-					Denken Sie daran, den Screenshot als PNG zu speichern, da nur dieses Format die volle Unterstützung für
-					Transparenz bietet.)</li>
-			</ul>
+		<li><a href="#start">Erste Schritte</a></li>
+		<li><a href="#screenshot">Einen Screenshot erstellen</a>
+			<ol>
+				<li><a href="#capture-screen">Der Aufnahmebildschirm</a></li>
+				<li><a href="#capture-modes">Bereich, Fenster, feste Größe und Text</a></li>
+				<li><a href="#capture-keys">Tasten während der Auswahl</a></li>
+				<li><a href="#capture-live">Auswählen, ohne den Bildschirm einzufrieren</a></li>
+			</ol>
 		</li>
-		<li><em>Internet Explorer abfotografieren</em>: Komfortables Abfotografieren von Webseiten im Internet Explorer aktivieren.</li>
-		<li><em>Editorfenster an Screenshotgröße anpassen</em>: Wenn ausgewählt, wird das Editorfenster automatisch auf die Größe des Screenshots vergrößert oder verkleinert.</li>
-	</ul>
-	
-	<a name="settings-output"></a>
-	<h3>Ausgabeeinstellungen</h3>
+		<li><a href="#destinations">Wohin der Screenshot geht</a></li>
+		<li><a href="#editor">Der Bildeditor</a>
+			<ol>
+				<li><a href="#editor-tabs">Tabs</a></li>
+				<li><a href="#editor-tools">Zeichenwerkzeuge</a></li>
+				<li><a href="#editor-highlight">Hervorheben und unkenntlich machen</a></li>
+				<li><a href="#editor-crop">Zuschneiden</a></li>
+				<li><a href="#editor-effects">Effekte, Drehen und Größe ändern</a></li>
+				<li><a href="#editor-reuse">Bilder hinzufügen und Elemente wiederverwenden</a></li>
+				<li><a href="#editor-export">Speichern und exportieren</a></li>
+			</ol>
+		</li>
+		<li><a href="#recipes">Automatische Schritte und Rezepte</a></li>
+		<li><a href="#settings">Die Einstellungen</a></li>
+		<li><a href="#troubleshooting">Wenn etwas nicht funktioniert</a></li>
+		<li><a href="#help">Möchten Sie helfen?</a></li>
+	</ol>
+
+	<a name="start"></a>
+	<h2>Erste Schritte</h2>
+	<p>
+		Greenshot läuft im Hintergrund. Sein Symbol ist neben der Uhr, im Infobereich der Taskleiste.
+		Ein Klick mit der rechten Maustaste öffnet das Menü mit allen Aufnahmen, den <em>Einstellungen...</em> und dieser Hilfe.
+	</p>
+	<p class="hint">
+		Sie sehen das Symbol nicht? Windows 11 versteckt es eventuell hinter dem Pfeil (^). <a href="greenshot://self-service?section=setup">Ihre Einrichtung</a>
+		in der Fehlerbehebung zeigt es für Sie neben der Uhr an und prüft auch, ob die <kbd>Druck</kbd>-Taste bei Greenshot ankommt.
+	</p>
+
+	<a name="screenshot"></a>
+	<h2>Einen Screenshot erstellen</h2>
+	<p>Starten Sie eine Aufnahme mit einem Hotkey oder über das Menü des Greenshot-Symbols:</p>
+	<table>
+		<tr><th>Aufnahme</th><th>Hotkey</th><th>Was passiert</th></tr>
+		<tr><td><em>Bereich abfotografieren</em></td><td><kbd>Druck</kbd></td><td>Der Aufnahmebildschirm öffnet sich, Sie wählen aus, was aufgenommen wird.</td></tr>
+		<tr><td><em>Fenster abfotografieren</em></td><td><kbd>Alt</kbd> + <kbd>Druck</kbd></td><td>Nimmt sofort das aktive Fenster auf. Mit <em>Fensterteile einzeln abfotografieren</em> (<a href="greenshot://settings?tab=capture">Reiter Abfotografieren</a>) wählen Sie das Fenster stattdessen im Aufnahmebildschirm.</td></tr>
+		<tr><td><em>Kompletten Bildschirm abfotografieren</em></td><td><kbd>Strg</kbd> + <kbd>Druck</kbd></td><td>Nimmt sofort den Bildschirm auf. Mit mehreren Monitoren bietet das Menü des Symbols alle Monitore oder einen davon an.</td></tr>
+		<tr><td><em>Zuletzt gewählten Bereich abfotografieren</em></td><td><kbd>Umschalt</kbd> + <kbd>Druck</kbd></td><td>Nimmt denselben Bereich wie bei Ihrer letzten Aufnahme erneut auf.</td></tr>
+		<tr><td><em>Bild aus Zwischenablage öffnen</em></td><td>keiner</td><td>Öffnet das Bild in der Zwischenablage.</td></tr>
+	</table>
+	<p>
+		Im Menü gibt es außerdem <em>Fenster aus Liste abfotografieren</em>, das ein geöffnetes Fenster Ihrer Wahl ohne den Aufnahmebildschirm aufnimmt,
+		<em>Bild aus einer Datei öffnen...</em> und <em>Letzten Speicherort im Explorer öffnen</em>.
+		Die Hotkeys ändern Sie in den <a href="greenshot://settings?tab=general">Einstellungen, Reiter Allgemein</a>.
+	</p>
+
+	<a name="capture-screen"></a>
+	<h3>Der Aufnahmebildschirm</h3>
+	<p>
+		Greenshot macht ein Bild aller Monitore und zeigt es über allem anderen an. Während Sie auswählen, ändert sich nichts,
+		ein geöffnetes Menü oder ein Tooltip bleibt also, wo es war. Nur der ausgewählte Teil wird aufgenommen. <kbd>Esc</kbd> schließt
+		den Aufnahmebildschirm, ohne etwas aufzunehmen.
+	</p>
+	<p>Über dem Bild sehen Sie:</p>
 	<ul>
-		<li><em>Screenshot Ziel</em>: Sie können ein oder mehrere Möglichkeiten wählen, was mit dem Screenshot direkt nach der Erstellung geschehen soll.</li>
-		<li><em>Bevorzugte Ausgabedatei-Einstellungen</em>: Verzeichnis und Dateiname, die verwendet werden sollten, wenn Screenshots direkt gespeichert werden, bzw. die vorgeschlagen werden sollen, wenn mit dem Speichern-unter-Dialog gespeichert wird. Klicken Sie die <em>?</em>-Schaltfläche um zu erfahren, welche Platzhalter für das Dateiname-Muster verwendet werden können.</li>
-		<li><em>JPEG-Einstellungen</em>: Qualitätsstufe für den Export von JPEG-Dateien</li>
+		<li>die <em>Auswahl</em> mit ihrer Größe,</li>
+		<li>den <em>Zoomer</em>, eine Lupe neben der Maus, die jeden Pixel zeigt, damit Sie eine Ecke genau setzen können,</li>
+		<li>Felder in den Ecken: die <em>Tasten</em> (<kbd>F1</kbd>), die <em>Info</em> (<kbd>I</kbd>) und die <em>Vorschau</em> der Auswahl (<kbd>P</kbd>).
+			Sie gehen Ihnen von selbst aus dem Weg.</li>
 	</ul>
-	
-	<a name="settings-printer"></a>
-	<h3>Druckereinstellungen</h3>
+	<p class="hint">
+		Drücken Sie während der Auswahl <kbd>F1</kbd>: das Tastenfeld zeigt immer die Tasten, die gerade funktionieren.
+		Greenshot merkt sich, wenn Sie ein Feld ausblenden, <kbd>F1</kbd> oder <kbd>I</kbd> holt es zurück.
+	</p>
+
+	<a name="capture-modes"></a>
+	<h3>Bereich, Fenster, feste Größe und Text</h3>
 	<ul>
-		<li><em>Ausdruck auf Seitengröße verkleinern</em>: Verkleinert die Grafik, wenn sie zu groß für das Papierformat ist.</li>
-		<li><em>Ausdruck auf Seitengröße vergrößern</em>: Vergrößert die Grafik, wenn sie kleiner als das Papierformat ist.</li>
-		<li><em>Drehung des Ausdrucks an das Seitenformat anpassen</em>: Dreht eine Querformat-Grafik für den Ausdruck um 90&deg;.</li>
-		<li><em>Farben umkehren</em>: Vor dem Druck werden die Farben des Screenshots invertiert, z.B. nützlich wenn ein Screenshot von weißer Schrift auf schwarzem Grund gedruckt wird (um Toner/Tinte zu sparen).</li>
+		<li><em>Bereich</em>: Ziehen Sie mit der Maus ein Rechteck auf, beim Loslassen wird es aufgenommen. Mit der Tastatur: Die Pfeiltasten bewegen die Maus,
+			<kbd>Enter</kbd> beginnt die Auswahl, ein zweites <kbd>Enter</kbd> nimmt sie auf. Halten Sie <kbd>Umschalt</kbd>, um nur die Breite oder nur die Höhe zu ändern.</li>
+		<li><em>Fenster</em> (<kbd>Leertaste</kbd>): Das Fenster unter der Maus wird ausgewählt, ein Klick oder <kbd>Enter</kbd> nimmt es auf.
+			Greenshot wählt den innersten Teil, z.&nbsp;B. eine Werkzeugleiste; gehen Sie an den äußeren Rand eines Fensters, um das ganze Fenster auszuwählen.
+			<kbd>Tab</kbd> und <kbd>Umschalt</kbd> + <kbd>Tab</kbd> wählen das nächste oder das vorige Fenster.</li>
+		<li><em>Feste Größe</em> (<kbd>F</kbd>): Ein Rechteck mit genauer Größe, z.&nbsp;B. 1280 × 720, folgt der Maus. <kbd>1</kbd> – <kbd>9</kbd> wählen eine Größe,
+			<kbd>C</kbd> ändert die Ecke, an der die Maus es hält, mit gedrückter <kbd>Alt</kbd>-Taste wird es nicht an Fenstern ausgerichtet. Eigene Größen legen Sie im
+			<a href="greenshot://settings?tab=capture">Reiter Abfotografieren</a> fest, die Größen Ihrer letzten Aufnahmen werden ebenfalls angeboten.</li>
+		<li><em>Text</em> (<kbd>T</kbd>): Greenshot liest den Text auf dem Bildschirm mit der Texterkennung von Windows und umrahmt jede Zeile.
+			Klicken Sie auf eine Zeile oder ziehen Sie über Wörter, um sie aufzunehmen. Um die Wörter als Text zu bekommen, senden Sie die Aufnahme an <em>Windows OCR</em>,
+			das den Text in die Zwischenablage kopiert. Dafür muss in Windows eine Erkennungssprache installiert sein; die Sprache wählen Sie im
+			<a href="greenshot://settings?tab=capture">Reiter Abfotografieren</a>, <em>Texterkennung (OCR)</em>.</li>
+	</ul>
+	<p class="hint">
+		Mit dem QR-Code-Plugin findet Greenshot QR-Codes auf dem Bildschirm und umrahmt sie. Klicken Sie auf einen, um seinen Inhalt zu kopieren oder seine Webadresse zu öffnen.
+	</p>
+
+	<a name="capture-keys"></a>
+	<h3>Tasten während der Auswahl</h3>
+	<table>
+		<tr><th>Taste</th><th>Was sie macht</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Aufnahme abbrechen</td></tr>
+		<tr><td><kbd>Leertaste</kbd></td><td>Zwischen Bereich und Fenster wechseln</td></tr>
+		<tr><td><kbd>F</kbd> / <kbd>T</kbd></td><td>Feste Größe aufnehmen / Text aufnehmen</td></tr>
+		<tr><td><kbd>M</kbd></td><td>Mauszeiger in der Aufnahme zeigen oder ausblenden</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Zwischen eingefrorenem und laufendem Bildschirm wechseln</td></tr>
+		<tr><td><kbd>Z</kbd></td><td>Zoomer zeigen oder ausblenden</td></tr>
+		<tr><td><kbd>F1</kbd> / <kbd>I</kbd> / <kbd>P</kbd></td><td>Tasten / Info zeigen oder ausblenden / Vorschau verschieben oder ausblenden</td></tr>
+		<tr><td>Pfeiltasten</td><td>Maus um einen Pixel bewegen, mit <kbd>Strg</kbd> um zehn Pixel</td></tr>
+		<tr><td><kbd>Enter</kbd></td><td>Auswahl beginnen oder beenden, Fenster aufnehmen</td></tr>
+	</table>
+
+	<a name="capture-live"></a>
+	<h3>Auswählen, ohne den Bildschirm einzufrieren</h3>
+	<p>
+		Schalten Sie <em>Bildschirm beim Auswählen einfrieren</em> im <a href="greenshot://settings?tab=capture">Reiter Abfotografieren</a> aus oder drücken Sie
+		während der Auswahl <kbd>L</kbd>, dann wählen Sie auf dem laufenden Bildschirm aus: Ein Video läuft weiter, und die Aufnahme entsteht, wenn Sie
+		die Auswahl beenden. Der Textmodus und die Vorschau brauchen das eingefrorene Bild. Geöffnete Menüs schließen sich meist beim Klicken, nehmen Sie diese also mit eingefrorenem Bildschirm auf.
+	</p>
+	<p class="hint">
+		Etwas erscheint erst nach einem Moment? Stellen Sie <em>Millisekunden vor dem Abfotografieren warten</em> im
+		<a href="greenshot://settings?tab=capture">Reiter Abfotografieren</a> ein, oder wählen Sie auf dem laufenden Bildschirm aus.
+	</p>
+
+	<a name="destinations"></a>
+	<h2>Wohin der Screenshot geht</h2>
+	<p>
+		Nach der Aufnahme sendet Greenshot den Screenshot an Ihre Ziele. Standardmäßig fragt es jedes Mal mit einem kleinen Menü.
+		Jedes Ziel hat dort einen festen unterstrichenen Buchstaben, z.&nbsp;B. <kbd>C</kbd> für die Zwischenablage und <kbd>S</kbd> zum Speichern, so dass Sie es mit der Tastatur wählen können.
+		Ihre Ziele wählen Sie im <a href="greenshot://settings?tab=destination">Reiter Ziele</a> oder unter <em>Schnelleinstellungen</em> im Menü des Symbols.
+	</p>
+	<ul>
+		<li><em>Im Greenshot-Editor öffnen</em>: den Screenshot zuerst beschriften, siehe <a href="#editor">den Bildeditor</a>.</li>
+		<li><em>Sofort speichern</em> verwendet den Ordner und das Dateinamenmuster aus dem <a href="greenshot://settings?tab=output">Reiter Ausgabe</a>, <em>Speichern unter...</em> fragt danach.</li>
+		<li><em>In Zwischenablage kopieren</em>, <em>An Drucker senden</em>, <em>E-Mail</em>, <em>Windows share</em> und <em>Windows OCR</em> (kopiert den Text des Screenshots).</li>
+		<li>Plugins fügen weitere Ziele hinzu, z.&nbsp;B. Microsoft Word, Excel, PowerPoint, Outlook und OneNote, PDF, Box, Dropbox, Jira und Confluence.
+			Sie werden im <a href="greenshot://settings?tab=plugins">Reiter Plugins</a> eingerichtet, wo Sie ein Plugin auch ausschalten können.</li>
+	</ul>
+	<p>
+		Die Spalte <em>Verfügbar</em> im <a href="greenshot://settings?tab=destination">Reiter Ziele</a> schaltet ein Ziel überall aus.
+		Welche Benachrichtigungen Sie nach einer Aufnahme bekommen, legen Sie im <a href="greenshot://settings?tab=capture">Reiter Abfotografieren</a> unter <em>Benachrichtigungen</em> fest.
+	</p>
+
+	<a name="editor"></a>
+	<h2>Der Bildeditor</h2>
+	<p>
+		Der Editor fügt einem Screenshot Formen, Text, Pfeile, Hervorhebungen und mehr hinzu oder verbirgt, was andere nicht sehen sollen.
+		Außer Ihren Aufnahmen öffnet er Bilder aus einer Datei oder aus der Zwischenablage (Menü des Symbols).
+		Alles, was Sie zeichnen, bleibt ein Element, das Sie auswählen, verschieben, ändern oder entfernen können.
+	</p>
+
+	<a name="editor-tabs"></a>
+	<h3>Tabs</h3>
+	<p>
+		Ein Editorfenster zeigt mehrere Bilder als Tabs, eine neue Aufnahme öffnet sich als Tab in dem Editorfenster, das Sie zuletzt benutzt haben.
+		<kbd>Strg</kbd> + <kbd>Tab</kbd> wechselt zum nächsten Tab und <kbd>Strg</kbd> + <kbd>W</kbd> schließt einen. Ziehen Sie einen Tab in ein anderes Editorfenster
+		oder klicken Sie ihn mit der rechten Maustaste an, um ihn in ein neues Fenster zu verschieben. Das <em>+</em> in der Tableiste beginnt ein neues, leeres Bild.
+		Wenn Sie ein Fenster mit ungespeicherten Bildern schließen, fragt Greenshot einmal: <em>Alle speichern</em>, <em>Alle verwerfen</em> oder abbrechen.
+		Lieber ein Fenster pro Aufnahme? Schalten Sie die Tabs im <a href="greenshot://settings?tab=editor">Reiter Editor</a> aus.
+	</p>
+
+	<a name="editor-tools"></a>
+	<h3>Zeichenwerkzeuge</h3>
+	<p>
+		Wählen Sie ein Werkzeug links im Editor, im Menü <em>Objekt</em> oder mit seiner Taste, und ziehen Sie dann auf dem Bild.
+		Die Werkzeugleiste oben zeigt die Optionen des Werkzeugs oder der ausgewählten Elemente, z.&nbsp;B. Linienfarbe, Füllfarbe und Linienstärke.
+	</p>
+	<table>
+		<tr><th>Taste</th><th>Werkzeug</th><th>Taste</th><th>Werkzeug</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Auswahlwerkzeug</td><td><kbd>S</kbd></td><td>Sprechblase</td></tr>
+		<tr><td><kbd>R</kbd></td><td>Rechteck</td><td><kbd>I</kbd></td><td>Zähler (nummerierte Schritte)</td></tr>
+		<tr><td><kbd>E</kbd></td><td>Ellipse</td><td><kbd>M</kbd></td><td>Emoji</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Linie</td><td><kbd>H</kbd></td><td>Hervorheben</td></tr>
+		<tr><td><kbd>A</kbd></td><td>Pfeil</td><td><kbd>O</kbd></td><td>Unkenntlich machen</td></tr>
+		<tr><td><kbd>F</kbd></td><td>Freihand</td><td><kbd>C</kbd></td><td>Zuschneiden</td></tr>
+		<tr><td><kbd>T</kbd></td><td>Text</td><td><kbd>Z</kbd></td><td>Bildgröße ändern</td></tr>
+	</table>
+	<ul>
+		<li>Halten Sie beim Zeichnen <kbd>Umschalt</kbd> für ein Quadrat oder einen Kreis oder für Linien in 15°-Schritten; beim Ändern der Größe bleibt so das Seitenverhältnis erhalten.
+			Halten Sie <kbd>Strg</kbd>, um von der Mitte aus zu zeichnen oder die Größe zu ändern, praktisch für eine Ellipse um etwas herum.</li>
+		<li>Text: Textfeld aufziehen und schreiben. Ein Doppelklick auf einen Text ändert ihn, <kbd>Enter</kbd> beendet, <kbd>Umschalt</kbd> + <kbd>Enter</kbd> beginnt eine neue Zeile.</li>
+		<li>Ausgewählte Elemente: Die Pfeiltasten verschieben sie (mit <kbd>Umschalt</kbd> um zehn Pixel), <kbd>Strg</kbd> + Pfeiltasten ändern ihre Größe,
+			<kbd>Bild auf</kbd> / <kbd>Bild ab</kbd> bringen sie eine Ebene nach oben oder unten, <kbd>Entf</kbd> entfernt sie, <kbd>Strg</kbd> + <kbd>D</kbd> dupliziert sie.
+			Halten Sie <kbd>Umschalt</kbd> und klicken Sie, um mehrere Elemente auszuwählen.</li>
+		<li><kbd>Strg</kbd> + <kbd>Z</kbd> macht rückgängig, <kbd>Strg</kbd> + <kbd>Y</kbd> stellt wieder her.</li>
 	</ul>
 
-	
-	<a name="settings-plugins"></a>
-	<h3>Zusatzmodule Einstellungen</h3>
+	<a name="editor-highlight"></a>
+	<h3>Hervorheben und unkenntlich machen</h3>
+	<p>Ziehen Sie den Bereich zum Hervorheben (<kbd>H</kbd>) oder Unkenntlichmachen (<kbd>O</kbd>) wie ein Rechteck auf und wählen Sie den Modus in der Werkzeugleiste:</p>
+	<ul>
+		<li><em>Textmarker</em> färbt den Bereich wie ein Textmarker, <em>Bereich hervorheben</em> verdunkelt und verwischt alles andere,
+			<em>Graustufen</em> macht alles andere grau, <em>Vergrößern</em> zeigt den Bereich vergrößert.</li>
+		<li><em>Verpixeln</em> oder <em>Weichzeichner</em> verbergen Passwörter, Namen, Kontonummern oder Gesichter.</li>
+	</ul>
+
+	<a name="editor-crop"></a>
+	<h3>Zuschneiden</h3>
 	<p>
-		Zeigt eine Liste der installierten Greenshot-Zusatzmodule an. Wählen Sie einen Eintrag aus der Liste und klicken Sie
-		<em>Konfiguration</em> um die Einstellungen eines Zusatzmoduls zu konfigurieren.
+		Wählen Sie das Zuschneidewerkzeug (<kbd>C</kbd>) und ziehen Sie den Bereich auf, der bleiben soll, <kbd>Enter</kbd> bestätigt, <kbd>Esc</kbd> bricht ab.
+		Drücken Sie erneut <kbd>C</kbd> oder nutzen Sie <em>Zuschneiden-Modus</em> in der Werkzeugleiste, um den Modus zu wechseln:
 	</p>
-	
-	
+	<ul>
+		<li><em>Vertikal ausschneiden</em> oder <em>Horizontal ausschneiden</em> entfernt einen Streifen aus dem Bild und fügt den Rest zusammen, z.&nbsp;B. um
+			die leere Mitte einer langen Seite wegzulassen. <em>Schnittkanten</em> legt fest, wie die Naht aussieht: gerade, Zickzack, wellig, gerissen oder nahtlos.</li>
+		<li><em>Automatisch zuschneiden</em> entfernt einen einfarbigen Rand um das Bild.</li>
+	</ul>
+
+	<a name="editor-effects"></a>
+	<h3>Effekte, Drehen und Größe ändern</h3>
+	<table>
+		<tr><th>Tasten</th><th>Was sie machen</th></tr>
+		<tr><td><kbd>Strg</kbd> + <kbd>Q</kbd></td><td>Schlagschatten</td></tr>
+		<tr><td><kbd>Strg</kbd> + <kbd>B</kbd></td><td>Rahmen</td></tr>
+		<tr><td><kbd>Strg</kbd> + <kbd>T</kbd></td><td>Abgerissene Kante</td></tr>
+		<tr><td><kbd>Strg</kbd> + <kbd>G</kbd> / <kbd>Strg</kbd> + <kbd>I</kbd></td><td>Graustufen / Farben umkehren, z.&nbsp;B. um beim Drucken Tinte zu sparen</td></tr>
+		<tr><td><kbd>Strg</kbd> + <kbd>,</kbd> / <kbd>Strg</kbd> + <kbd>.</kbd></td><td>Gegen den / im Uhrzeigersinn drehen</td></tr>
+		<tr><td><kbd>Strg</kbd> + <kbd>Umschalt</kbd> + <kbd>+</kbd> / <kbd>-</kbd></td><td>Leinwand vergrößern / verkleinern</td></tr>
+		<tr><td><kbd>Strg</kbd> + <kbd>+</kbd> / <kbd>-</kbd>, <kbd>Strg</kbd> + <kbd>0</kbd>, <kbd>Strg</kbd> + <kbd>9</kbd></td><td>Vergrößern / verkleinern, Originalgröße, ins Fenster einpassen</td></tr>
+	</table>
+	<p>
+		Eine abgerissene Kante bleibt ein Element, das Sie ändern können; <em>Ins Bild übernehmen</em> in der Werkzeugleiste macht sie zum Teil des Bildes.
+	</p>
+
+	<a name="editor-reuse"></a>
+	<h3>Bilder hinzufügen und Elemente wiederverwenden</h3>
+	<ul>
+		<li>Ziehen Sie eine Bilddatei in den Editor oder fügen Sie ein Bild mit <kbd>Strg</kbd> + <kbd>V</kbd> ein. <em>Fenster einfügen</em> im Menü <em>Bearbeiten</em> fügt eine Aufnahme eines anderen geöffneten Fensters hinzu.</li>
+		<li>Dieselben Elemente auf vielen Screenshots: <em>Objekte in Datei speichern...</em> im Menü <em>Objekt</em>, und <em>Objekte aus Datei laden...</em> beim nächsten Screenshot.</li>
+		<li>Speichern Sie als <code>.greenshot</code>-Datei, damit jedes Element bearbeitbar bleibt und Sie später weitermachen können.</li>
+	</ul>
+
+	<a name="editor-export"></a>
+	<h3>Speichern und exportieren</h3>
+	<table>
+		<tr><th>Tasten</th><th>Was sie machen</th></tr>
+		<tr><td><kbd>Strg</kbd> + <kbd>S</kbd></td><td><em>Speichern</em>, im Ordner aus dem <a href="greenshot://settings?tab=output">Reiter Ausgabe</a></td></tr>
+		<tr><td><kbd>Strg</kbd> + <kbd>Umschalt</kbd> + <kbd>S</kbd></td><td><em>Speichern unter...</em>: Ordner, Name und Bildformat wählen</td></tr>
+		<tr><td><kbd>Strg</kbd> + <kbd>Umschalt</kbd> + <kbd>C</kbd></td><td><em>Grafik in die Zwischenablage kopieren</em></td></tr>
+		<tr><td><kbd>Strg</kbd> + <kbd>P</kbd></td><td><em>Drucken</em></td></tr>
+		<tr><td><kbd>Strg</kbd> + <kbd>E</kbd></td><td><em>E-Mail</em>: eine neue Nachricht mit dem Bild als Anhang</td></tr>
+	</table>
+	<p>
+		Das Menü <em>Datei</em> und die Werkzeugleiste oben zeigen alle Ihre Ziele, auch die der Plugins.
+		Klicken Sie nach dem Speichern mit der rechten Maustaste auf die Statusleiste unten, um den Pfad der Datei zu kopieren oder ihren Ordner zu öffnen.
+	</p>
+
+	<a name="recipes"></a>
+	<h2>Automatische Schritte und Rezepte</h2>
+	<p>
+		Rezepte erledigen Dinge mit Ihren Aufnahmen automatisch, z.&nbsp;B. einen Rahmen um jede Aufnahme, oder speichern und hochladen in einem Schritt.
+		<em>Schnelleinstellungen</em> &gt; <em>Automatische Schritte</em> im Menü des Symbols schaltet die fertigen Schritte ein oder aus,
+		<em>Mehr…</em> öffnet ihre Einstellungen im <a href="greenshot://settings?tab=recipes">Reiter Rezepte</a>.
+		Das Menü <em>Rezepte</em> des Symbols startet Ihre Rezepte und öffnet den <a href="greenshot://recipe-manager">Rezeptverwaltung</a> und den Recipe Editor.
+		Rezepte kommen mit dem Plugin Recipe Editor.
+	</p>
+
+	<a name="settings"></a>
+	<h2>Die Einstellungen</h2>
+	<p>Öffnen Sie die Einstellungen mit <em>Einstellungen...</em> im Menü des Symbols oder mit den Links unten.</p>
+	<ul>
+		<li><a href="greenshot://settings?tab=general">Allgemein</a>: Sprache, Farben (hell, dunkel oder wie Windows), Symbolgröße,
+			<em>Greenshot mit Windows starten</em>, die Hotkeys, der Proxy und wie oft Greenshot nach Updates sucht.</li>
+		<li><a href="greenshot://settings?tab=capture">Abfotografieren</a>: Mauszeiger aufnehmen, Kamerageräusch, Lupe, Bildschirm einfrieren,
+			Benachrichtigungen, die Wartezeit vor einer Aufnahme, Ihre festen Größen, Fensterteile einzeln abfotografieren und die Sprache der Texterkennung.</li>
+		<li><a href="greenshot://settings?tab=output">Ausgabe</a>: Ordner und Dateinamenmuster zum Speichern (klicken Sie auf <em>?</em> für die Platzhalter,
+			z.&nbsp;B. <code>${YYYY}-${MM}-${DD}</code> oder <code>${title}</code>; ein <code>\</code> im Muster legt Ordner an), das Bildformat und die JPEG-Qualität.</li>
+		<li><a href="greenshot://settings?tab=destination">Ziele</a>: was nach einer Aufnahme passiert, siehe <a href="#destinations">wohin der Screenshot geht</a>.</li>
+		<li><a href="greenshot://settings?tab=editor">Editor</a>: Tabs, die Größe des Editorfensters, die Frage nach dem Speichern beim Schließen sowie Größe und Farbe eines neuen Bildes.</li>
+		<li><a href="greenshot://settings?tab=printer">Drucker</a>: Bild an die Seite anpassen, drehen oder zentrieren, in Farbe, Graustufen oder invertiert drucken, und eine Fußzeile mit Datum und Uhrzeit.</li>
+		<li><a href="greenshot://settings?tab=plugins">Plugins</a>: Plugins ein- oder ausschalten und konfigurieren. Änderungen gelten beim nächsten Start von Greenshot.</li>
+		<li><a href="greenshot://settings?tab=expert">Experten</a>: Einstellungen für besondere Fälle, z.&nbsp;B. Remotedesktop, Aufnahme mit DirectX (nötig für HDR-Bildschirme), Speicher und Geschwindigkeit
+			sowie die Formate der Zwischenablage. Ändern Sie sie nur, wenn Sie wissen, was sie bewirken.</li>
+	</ul>
+	<p class="hint">
+		Greenshot speichert seine Einstellungen in <code>greenshot.ini</code>, in <code>%APPDATA%\Greenshot</code> (die portable Version neben Greenshot.exe).
+		<a href="greenshot://self-service?section=files">Dateien &amp; Konfiguration</a> in der Fehlerbehebung zeigt, wo sie liegt.
+	</p>
+
+	<a name="troubleshooting"></a>
+	<h2>Wenn etwas nicht funktioniert</h2>
+	<p>
+		Die Fehlerbehebung prüft Greenshot und behebt die meisten Probleme. Öffnen Sie sie mit <em>Über Greenshot</em> im Menü des Symbols und dann <em>Fehlerbehebung</em>,
+		oder gehen Sie direkt zum passenden Abschnitt:
+	</p>
+	<ul>
+		<li><kbd>Druck</kbd> macht nichts oder öffnet etwas anderes: <a href="greenshot://self-service?section=hotkeys">Tastenkombinationen &amp; Konflikte</a>
+			zeigt, ob OneDrive oder das Snipping Tool die Taste übernommen hat, und gibt sie Greenshot zurück.</li>
+		<li>Sie finden Ihre Screenshots nicht: <a href="greenshot://self-service?section=files">Dateien &amp; Konfiguration</a> zeigt, wo Greenshot sie speichert.</li>
+		<li>Kopieren in die Zwischenablage schlägt fehl: <a href="greenshot://self-service?section=clipboard">Zwischenablage-Diagnose</a> findet das Programm, das die Zwischenablage blockiert.</li>
+		<li>Greenshot stürzt ab oder ein Plugin fehlt nach einem Update: <a href="greenshot://self-service?section=checksum">Installationsintegrität</a> prüft die installierten Dateien.</li>
+		<li>Ein Problem melden: <em>Systeminfo kopieren</em> in <a href="greenshot://self-service?section=system">System &amp; Hardware</a> und die
+			<a href="greenshot://log?search=ERROR">Fehler im Log</a> helfen uns, Ihnen zu helfen. Melden Sie Probleme unter
+			<a target="_blank" href="https://github.com/greenshot/greenshot/issues">github.com/greenshot/greenshot/issues</a>.</li>
+	</ul>
+
 	<a name="help"></a>
-	<h2>Wollen Sie Greenshot unterstützen?</h2>
-	
-	<p>
-		Wir benötigen momentan keine Hilfe bei der Entwicklung von Greenshot. Es gibt aber
-		unterschiedliche Möglichkeiten, wenn Sie Greenshot und das Entwickler-Team 
-		unterstützen wollen.<br>
-		Vielen Dank im Voraus :)
-	</p>
-	
+	<h2>Möchten Sie helfen?</h2>
+
 	<a name="help-donate"></a>
-	<h3>Spenden</h3>
+	<h3>Denken Sie über eine Spende nach</h3>
 	<p>
-		Wir stecken sehr viel Arbeit in Greenshot und verbringen einige Zeit damit, ein
-		gutes Programm kostenlos und quelloffen zur Verfügung zu stellen. Wenn Sie
-		merken, dass Greenshot Ihnen hilft, produktiver zu sein, wenn es Ihnen (oder 
-		Ihrer Firma) viel Zeit und Geld spart, oder wenn Sie einfach Greenshot und die
-		Open-Source-Idee mögen: bitte ziehen Sie in Betracht, unserem Aufwand etwas
-		Anerkennung durch eine Spende zukommen zu lassen.<br>
-		Bitte werfen Sie einen Blick auf unsere Webseite, um zu sehen, wie Sie das 
-		Greenshot Entwicker-Team unterstützen können:
-		<a target="_blank" href="https://getgreenshot.org/support/">https://getgreenshot.org/support/</a>
+		Wir stecken viel Arbeit in Greenshot, um gute Software kostenlos und quelloffen anzubieten. Wenn Greenshot Sie produktiver macht,
+		Ihnen oder Ihrer Firma Zeit und Geld spart, oder wenn Sie Greenshot einfach mögen: Bitte überlegen Sie, uns zu unterstützen.
+		Unter <a target="_blank" href="https://getgreenshot.org/support/">https://getgreenshot.org/support/</a> sehen Sie, wie Sie helfen können.
 	</p>
-	
+
 	<a name="help-spread"></a>
-	<h3>Weitersagen</h3>
+	<h3>Erzählen Sie es weiter</h3>
 	<p>
-		Wenn Sie Greenshot mögen, sagen Sie es weiter: erzählen Sie Ihren Freunden und Kollegen 
-		von Greenshot. Und Ihren Followern :)<br>
-		Bewerten Sie Greenshot auf Software-Portalen oder verlinken Sie unsere Webseite von
-		Ihrem Blog oder Ihrer eigenen Webseite.
+		Wenn Ihnen Greenshot gefällt, erzählen Sie Ihren Freunden und Kollegen davon. Bewerten Sie Greenshot in Softwareportalen oder verlinken Sie unsere Homepage in Ihrem Blog oder auf Ihrer Website.
 	</p>
-	
-	<a name="help-translate"></a>
-	<h3>Übersetzen</h3>
 	<p>
-		Gibt es Greenshot noch nicht in Ihrer bevorzugten Sprache? Wenn Sie sich in der
-		Lage fühlen, ein Programm zu übersetzen, sind Sie herzlich eingeladen.<br>
-		Wenn Sie registrierter Nutzer bei sourceforge.net sind, können Sie Übersetzungen
-		<a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">hier</a> hochladen.<br>
-		Bitte stellen Sie vorher sicher, dass keine Übersetzung für Ihre Sprache auf unserer
-		<a target="_blank" href="https://getgreenshot.org/downloads/">Download-Seite</a> existiert. Prüfen Sie auch <a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">hier</a>, ob
-		evtl. eine Übersetzung in Arbeit oder in Vorbereitung ist.<br>
-		Bitte bedenken Sie, dass wir eine Übersetzung nur auf unserer Download-Seite zur 
-		Verfügung stellen werden, wenn Sie über ein Sourceforge.net-Benutzerkonto bereit gestellt
-		wurde. Da wir höchstwahrscheinlich nicht in der Lage sein werden, Ihre Übersetzung
-		zu verstehen, ist es gut, wenn andere Sourceforge-Nutzer Sie kontaktieren können,
-		um Verbesserungen vorzuschlagen oder die Übersetzung für eine nachfolgende Greenshot-Version
-		zu erweitern.
+		Geben Sie Greenshot einen Stern auf <a target="_blank" href="https://github.com/greenshot/greenshot">GitHub</a>, so finden andere es leichter:
+		<br><iframe src="https://ghbtns.com/github-btn.html?user=greenshot&amp;repo=greenshot&amp;type=star&amp;count=true&amp;size=large" frameborder="0" width="170" height="30" title="GitHub"></iframe>
 	</p>
-	
-	
-	
+
 	</body>
 </html>

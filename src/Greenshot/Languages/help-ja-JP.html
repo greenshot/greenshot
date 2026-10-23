@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ja">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Greenshot ヘルプ</title>
+		<style>
+		* {font-family: "Segoe UI", "Yu Gothic UI", "Meiryo UI", Meiryo, Tahoma, Arial, Sans-serif;}
+		body {max-width:60em;margin:0 auto;padding:0 16px 24px 16px;}
+		h1 {font-size:20px;}
+		h2 {font-size:16px;color:#009900;margin-top:28px;}
+		h3 {font-size:14px;margin-top:20px;}
+		small {font-size:11px;}
+		p, li, td, th {font-size:13px;line-height:1.6em;}
+		a:link, a:hover, a:visited, a:active {color:#007700;}
+		kbd {background-color:#eeeeee;border:1px solid #bbbbbb;padding:0 3px;border-radius:3px;white-space:nowrap;}
+		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px 8px;}
+		table {border-collapse:collapse;margin:6px 0;}
+		th, td {border:1px solid #dddddd;padding:3px 8px;text-align:left;vertical-align:top;}
+		th {background-color:#f2f2f2;}
+		em {font-style:normal;font-weight:bold;}
+		:root {--greenshot-icon:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAEgklEQVR4nO2WXWxTZRjHf+er3y0j3dhXuw8DHRsEJoPEBEY0CMEbPtR4gUiciYQgd4ImeqMRZuK9qBgwXBjDFcSQoASVz4RIXPnY5raAbN1GS7d1LWU9p2c9PV6UlBE76ACHFz5X7/l4/s/vvO95n/cvtLa2mjzDEJ9l8f8B/tsAjkqN6rVRLCWT/yqAXLB4RZoXD3cg2Qy0ESu/vtmCoUmzB1DSmESyGQDYytI4fRruuglqN0SIXfPQe7AOM/uUAKrXjEwRrsU0YfSPElK3bDiqNMY7PaRjCq0H+hBlE29zgniPm8g5L44qjcmkzGSy4HcUB9D8cW9O+Pk48V4XkXNeZGeG8zubsXgmuRuyo3gyCMKDiY3b+5m/dRBDk7j4/mJi1zyPBSBOFRYEWPhuP2uOXGLND5eQXRnMrIAeVwjuCxC76uH6935uX/BSuzEMgGQzqH45imQ3CGwbJNA2gOLKFD8DwfYAdZvCxK55iJz3svTDvpyw3cC3Nsp4Z+7Lhk/NY/jUvHziaHAOlavHABi7MoemHTep25yDclZrBPc2FAfgrEzz+weLmZyQ/iEcuzpn2sSOTxupWDWKOmJlvNODf300/8xRoWEv01nxeRcuv0r31/X0H60sqCN8YWIO/TyP4L4csahkqVw9hjpiJXa1+HWd25Sk5ZMekLIE9zZQ1pJgwbYQAIYmcmL9yoI7R4bclNm8Osv3dePyq/z5TT2xX2b2U413uzn1xor8taMynR+nIrZpt62cjin0HKqhdmOYuU1JABbtukHoeDlmViicVUQM/VSOIJo4fSr9xwpPP4B8ctMLOeJyPX9TjVqfqDiAmYXQ8YpHvidLdgNDlRg8UY6oZHPER6ueqPhMQnb5VZzVGrUbw8Q63XTvf+6ptdmiANKjVlZ9dQVRyVK6LE6iz0XkbOmsAYhZAxDu20Jhlh2CrCcULrcHqH81TKzTQ+Ssd3YB5m8ZQpBMLu5ZRGbi8U+1xwZo3HETAHddio7PiuvfNq/OivZunDUpeg5M32aLifyKO6rUopNqNoQpaUyiOA2adv6FIJrYKzR866JY5uqPFpgSsjZmQZRMer+rLTopFbblx2rUiq1U56XDHUh2A23Uwm9bl5NJFWfh5DNty9Djyoyoh0+WI1lMnP4UA8eqKFl4F8l+z8KV6rj8Kk6fSu2mMOOdbnq+rZ/+LFh9sIPTbxVPDLk2O/Dj/TarJ2Qmhuw4fSrjXW60qJWV+y8jKibepQnivW7Cpwv3FtlepuOqUbGXazlj0uWm79DMTKfiznBh1xIsngx3B+0oTgOKPErkeI+LVMTKyi/vdcOWOHeuuwifLsVRkUZPSg/dng3vDBB4O5TzhrsXYRoO9Dsywb0N1G3OLcHDOqt84b1mZLvxYDcUTAJtAzS0hTBUiYt7Fk9rTqZ6Q9+6KIk+N/WvDyMqWS591PRIxyxmJwX0OzKX2wOMd3m4caSa8JlS6l+7lRO2G/hfuY1oyTJ/yxALtoWQHUZeYCxYkh+PdpTQtOMmjdv7aWgLsWT39YcWB/gbBUPC48UgfpEAAAAASUVORK5CYII=);}
+		h1 {background:var(--greenshot-icon) no-repeat left center;background-size:32px;padding-left:40px;line-height:32px;}
+		a[href^="greenshot:"] {background:#eef8ee var(--greenshot-icon) no-repeat 3px center;background-size:16px;border:1px solid #99cc99;border-radius:3px;padding:0 4px 0 22px;text-decoration:none;white-space:nowrap;}
+		a[href^="greenshot:"]:hover {background-color:#ddf0dd;}
+		[dir="rtl"] h1 {background-position:right center;padding-left:0;padding-right:40px;}
+		[dir="rtl"] a[href^="greenshot:"] {background-position:right 3px center;padding:0 22px 0 4px;}
+		</style>
+	</head>
+	<body>
+	<h1>Greenshot ヘルプ</h1>
+	<!--
+	Note to translator: uncomment the entry below to have your effort honored
+	-->
+	<!--<small>日本語訳: YOUR_NAME</small>-->
+
+	<p class="hint">
+		<a href="greenshot://settings">設定を開く</a> のように <code>greenshot:</code> で始まるリンクは、Greenshot のその画面を開きます。
+		インストーラーで Greenshot をインストールした場合に使えます。ポータブル版や Greenshot Light では使えません。
+		Greenshot を開く前に、ブラウザーが確認を求める場合があります。
+	</p>
+
+	<h2>目次</h2>
+	<ol>
+		<li><a href="#start">はじめに</a></li>
+		<li><a href="#screenshot">スクリーンショットを撮る</a>
+			<ol>
+				<li><a href="#capture-screen">キャプチャ画面</a></li>
+				<li><a href="#capture-modes">範囲、ウィンドウ、固定サイズ、テキスト</a></li>
+				<li><a href="#capture-keys">選択中に使えるキー</a></li>
+				<li><a href="#capture-live">画面を止めずに選択する</a></li>
+			</ol>
+		</li>
+		<li><a href="#destinations">スクリーンショットの出力先</a></li>
+		<li><a href="#editor">イメージ エディター</a>
+			<ol>
+				<li><a href="#editor-tabs">タブ</a></li>
+				<li><a href="#editor-tools">描画ツール</a></li>
+				<li><a href="#editor-highlight">ハイライトと難読化</a></li>
+				<li><a href="#editor-crop">トリミング</a></li>
+				<li><a href="#editor-effects">効果、回転、サイズ変更</a></li>
+				<li><a href="#editor-reuse">画像の追加と要素の再利用</a></li>
+				<li><a href="#editor-export">保存とエクスポート</a></li>
+			</ol>
+		</li>
+		<li><a href="#recipes">自動ステップとレシピ</a></li>
+		<li><a href="#settings">設定</a></li>
+		<li><a href="#troubleshooting">うまく動かないとき</a></li>
+		<li><a href="#help">協力しませんか?</a></li>
+	</ol>
+
+	<a name="start"></a>
+	<h2>はじめに</h2>
+	<p>
+		Greenshot はバックグラウンドで動作します。アイコンはタスク バーの通知領域、時計の隣にあります。
+		アイコンを右クリックすると、すべてのキャプチャ、<em>設定...</em> とこのヘルプがあるメニューが開きます。
+	</p>
+	<p class="hint">
+		アイコンが見つかりませんか? Windows 11 では矢印 (^) の中に隠れていることがあります。セルフサービス の <a href="greenshot://self-service?section=setup">セットアップ</a>
+		でアイコンを時計の隣に表示できます。また、<kbd>Print</kbd> キーが Greenshot に届いているかも確認できます。
+	</p>
+
+	<a name="screenshot"></a>
+	<h2>スクリーンショットを撮る</h2>
+	<p>キャプチャはホットキー、または Greenshot アイコンのメニューから始めます:</p>
+	<table>
+		<tr><th>キャプチャ</th><th>ホットキー</th><th>動作</th></tr>
+		<tr><td><em>選択範囲キャプチャ</em></td><td><kbd>Print</kbd></td><td>キャプチャ画面が開き、キャプチャする部分を選択します。</td></tr>
+		<tr><td><em>ウィンドウ キャプチャ</em></td><td><kbd>Alt</kbd> + <kbd>Print</kbd></td><td>アクティブなウィンドウをすぐにキャプチャします。<em>対話型モードを使用</em> (<a href="greenshot://settings?tab=capture">キャプチャ タブ</a>) をオンにすると、代わりにキャプチャ画面でウィンドウを選びます。</td></tr>
+		<tr><td><em>フルスクリーン キャプチャ</em></td><td><kbd>Ctrl</kbd> + <kbd>Print</kbd></td><td>画面をすぐにキャプチャします。モニターが複数ある場合、アイコンのメニューですべてのモニターか、そのうちの 1 つを選べます。</td></tr>
+		<tr><td><em>前回範囲キャプチャ</em></td><td><kbd>Shift</kbd> + <kbd>Print</kbd></td><td>前回のキャプチャと同じ範囲をもう一度キャプチャします。</td></tr>
+		<tr><td><em>クリップボードのイメージを開く</em></td><td>なし</td><td>クリップボードの画像を開きます。</td></tr>
+	</table>
+	<p>
+		メニューには、キャプチャ画面を使わずに選んだウィンドウをキャプチャする <em>リストから選択して "ウィンドウ キャプチャ"</em>、
+		<em>ファイルからイメージを開く...</em>、<em>最後に保存した場所を開く</em> もあります。
+		ホットキーは <a href="greenshot://settings?tab=general">設定の一般タブ</a> で変更できます。
+	</p>
+
+	<a name="capture-screen"></a>
+	<h3>キャプチャ画面</h3>
+	<p>
+		Greenshot はすべてのモニターの画像を撮り、すべての上に表示します。選択中は何も変わらないので、開いているメニューやツールチップもそのまま残ります。
+		キャプチャされるのは選択した部分だけです。<kbd>Esc</kbd> を押すと、何もキャプチャせずにキャプチャ画面を閉じます。
+	</p>
+	<p>画像の上には次のものが表示されます:</p>
+	<ul>
+		<li>サイズ付きの<em>選択範囲</em>、</li>
+		<li><em>ズーム</em>: マウスの隣に表示され、1 ピクセルずつ見える拡大鏡です。角を正確に合わせられます。</li>
+		<li>四隅のパネル: <em>キー</em> (<kbd>F1</kbd>)、<em>情報</em> (<kbd>I</kbd>)、選択範囲の<em>プレビュー</em> (<kbd>P</kbd>)。
+			パネルは邪魔にならないよう自動で移動します。</li>
+	</ul>
+	<p class="hint">
+		選択中に <kbd>F1</kbd> を押してください。キー パネルには、その時点で使えるキーが常に表示されます。
+		パネルを隠すと Greenshot はそれを覚えます。<kbd>F1</kbd> または <kbd>I</kbd> で再び表示できます。
+	</p>
+
+	<a name="capture-modes"></a>
+	<h3>範囲、ウィンドウ、固定サイズ、テキスト</h3>
+	<ul>
+		<li><em>範囲</em>: マウスで四角形をドラッグし、ボタンを離すとキャプチャします。キーボードでは、矢印キーでマウスを動かし、
+			<kbd>Enter</kbd> で選択を開始、もう一度 <kbd>Enter</kbd> でキャプチャします。<kbd>Shift</kbd> を押したままにすると、幅だけ、または高さだけを変更できます。</li>
+		<li><em>ウィンドウ</em> (<kbd>Space</kbd>): マウスの下のウィンドウが選択され、クリックまたは <kbd>Enter</kbd> でキャプチャします。
+			Greenshot は一番内側の部分 (例: ツール バー) を選択します。ウィンドウ全体を選択するには、ウィンドウの外枠にマウスを動かします。
+			<kbd>Tab</kbd> と <kbd>Shift</kbd> + <kbd>Tab</kbd> で次または前のウィンドウを選択します。</li>
+		<li><em>固定サイズ</em> (<kbd>F</kbd>): 1280 × 720 などの決まったサイズの四角形がマウスについて動きます。<kbd>1</kbd> – <kbd>9</kbd> でサイズを選び、
+			<kbd>C</kbd> でマウスが持つ角を変えます。<kbd>Alt</kbd> を押したままにすると、ウィンドウに吸着せずに配置できます。独自のサイズは
+			<a href="greenshot://settings?tab=capture">キャプチャ タブ</a> で設定します。最近のキャプチャのサイズも候補に表示されます。</li>
+		<li><em>テキスト</em> (<kbd>T</kbd>): Greenshot は Windows の文字認識で画面上のテキストを読み取り、各行を枠で囲みます。
+			行をクリックするか、単語の上をドラッグしてキャプチャします。単語をテキストとして取得するには、キャプチャを <em>Windows OCR</em> に送ります。
+			テキストがクリップボードにコピーされます。Windows に認識用の言語がインストールされている必要があります。言語は
+			<a href="greenshot://settings?tab=capture">キャプチャ タブ</a> の <em>文字認識 (OCR)</em> で選びます。</li>
+	</ul>
+	<p class="hint">
+		QR コード プラグインを使うと、Greenshot は画面上の QR コードを見つけて枠で囲みます。クリックすると内容をコピーするか、その Web アドレスを開きます。
+	</p>
+
+	<a name="capture-keys"></a>
+	<h3>選択中に使えるキー</h3>
+	<table>
+		<tr><th>キー</th><th>動作</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>キャプチャを取り消す</td></tr>
+		<tr><td><kbd>Space</kbd></td><td>範囲とウィンドウを切り替える</td></tr>
+		<tr><td><kbd>F</kbd> / <kbd>T</kbd></td><td>固定サイズをキャプチャ / テキストをキャプチャ</td></tr>
+		<tr><td><kbd>M</kbd></td><td>キャプチャにマウス カーソルを含める / 含めない</td></tr>
+		<tr><td><kbd>L</kbd></td><td>止めた画面とライブ画面を切り替える</td></tr>
+		<tr><td><kbd>Z</kbd></td><td>ズームを表示 / 非表示</td></tr>
+		<tr><td><kbd>F1</kbd> / <kbd>I</kbd> / <kbd>P</kbd></td><td>キー / 情報を表示または非表示、プレビューを移動または非表示</td></tr>
+		<tr><td>矢印キー</td><td>マウスを 1 ピクセル、<kbd>Ctrl</kbd> と一緒に 10 ピクセル動かす</td></tr>
+		<tr><td><kbd>Enter</kbd></td><td>選択を開始または終了する、ウィンドウをキャプチャする</td></tr>
+	</table>
+
+	<a name="capture-live"></a>
+	<h3>画面を止めずに選択する</h3>
+	<p>
+		<a href="greenshot://settings?tab=capture">キャプチャ タブ</a> で <em>選択中は画面を静止</em> をオフにするか、選択中に
+		<kbd>L</kbd> を押すと、ライブ画面の上で選択できます。動画は再生され続け、選択を終えた時点でキャプチャされます。
+		テキスト モードとプレビューには止めた画像が必要です。開いたメニューはクリックすると閉じることが多いので、メニューには止めた画面を使ってください。
+	</p>
+	<p class="hint">
+		少し経ってから表示されるものがありますか? <a href="greenshot://settings?tab=capture">キャプチャ タブ</a> で
+		<em>ミリ秒待機してからキャプチャ</em> を設定するか、ライブ画面で選択してください。
+	</p>
+
+	<a name="destinations"></a>
+	<h2>スクリーンショットの出力先</h2>
+	<p>
+		キャプチャの後、Greenshot はスクリーンショットを出力先に送ります。既定では、毎回小さなメニューで尋ねます。
+		そこにある出力先にはそれぞれ決まった下線付きの文字があり (例: クリップボードは <kbd>C</kbd>、保存は <kbd>S</kbd>)、キーボードで選べます。
+		出力先は <a href="greenshot://settings?tab=destination">出力先タブ</a>、またはアイコンのメニューの <em>クィック設定</em> で選びます。
+	</p>
+	<ul>
+		<li><em>イメージ エディターで開く</em>: まずスクリーンショットに注釈を付けます。<a href="#editor">イメージ エディター</a> を参照してください。</li>
+		<li><em>保存 (下欄の設定を使用)</em> は <a href="greenshot://settings?tab=output">出力タブ</a> のフォルダーとファイル名パターンを使います。<em>名前を付けて保存 (ダイアログを表示)</em> はそれらを尋ねます。</li>
+		<li><em>クリップボードにコピー</em>、<em>プリンターに送る</em>、<em>メール</em>、<em>Windows share</em>、<em>Windows OCR</em> (スクリーンショットのテキストをコピー)。</li>
+		<li>プラグインで出力先が増えます。例: Microsoft Word、Excel、PowerPoint、Outlook、OneNote、PDF、Box、Dropbox、Jira、Confluence。
+			設定は <a href="greenshot://settings?tab=plugins">プラグイン タブ</a> で行い、そこでプラグインをオフにすることもできます。</li>
+	</ul>
+	<p>
+		<a href="greenshot://settings?tab=destination">出力先タブ</a> の <em>利用可能</em> 列で、出力先をすべての場所でオフにできます。
+		キャプチャ後にどの通知を受け取るかは、<a href="greenshot://settings?tab=capture">キャプチャ タブ</a> の <em>通知</em> で設定します。
+	</p>
+
+	<a name="editor"></a>
+	<h2>イメージ エディター</h2>
+	<p>
+		エディターでは、スクリーンショットに図形、テキスト、矢印、ハイライトなどを追加したり、他の人に見せたくないものを隠したりできます。
+		キャプチャのほか、ファイルやクリップボードの画像も開けます (アイコンのメニュー)。
+		描いたものはすべて要素のまま残り、選択、移動、変更、削除ができます。
+	</p>
+
+	<a name="editor-tabs"></a>
+	<h3>タブ</h3>
+	<p>
+		エディター ウィンドウは複数の画像をタブで表示します。新しいキャプチャは、最後に使ったエディター ウィンドウのタブとして開きます。
+		<kbd>Ctrl</kbd> + <kbd>Tab</kbd> で次のタブへ移動し、<kbd>Ctrl</kbd> + <kbd>W</kbd> でタブを閉じます。タブを別のエディター ウィンドウにドラッグするか、
+		右クリックして新しいウィンドウに移動できます。タブ バーの <em>+</em> で新しい空の画像を作ります。
+		保存していない画像があるウィンドウを閉じると、Greenshot は一度だけ尋ねます: <em>すべて保存</em>、<em>すべて破棄</em>、またはキャンセル。
+		キャプチャごとに 1 つのウィンドウが良いですか? <a href="greenshot://settings?tab=editor">エディター タブ</a> でタブをオフにしてください。
+	</p>
+
+	<a name="editor-tools"></a>
+	<h3>描画ツール</h3>
+	<p>
+		エディターの左側、<em>オブジェクト</em> メニュー、またはキーでツールを選び、画像の上でドラッグします。
+		上部のツール バーには、ツールまたは選択した要素のオプション (線の色、塗りつぶしの色、太さなど) が表示されます。
+	</p>
+	<table>
+		<tr><th>キー</th><th>ツール</th><th>キー</th><th>ツール</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>選択ツール</td><td><kbd>S</kbd></td><td>吹き出し</td></tr>
+		<tr><td><kbd>R</kbd></td><td>四角形</td><td><kbd>I</kbd></td><td>カウンター (番号付きの手順)</td></tr>
+		<tr><td><kbd>E</kbd></td><td>楕円</td><td><kbd>M</kbd></td><td>絵文字</td></tr>
+		<tr><td><kbd>L</kbd></td><td>直線</td><td><kbd>H</kbd></td><td>ハイライト</td></tr>
+		<tr><td><kbd>A</kbd></td><td>矢印</td><td><kbd>O</kbd></td><td>難読化</td></tr>
+		<tr><td><kbd>F</kbd></td><td>フリーハンド</td><td><kbd>C</kbd></td><td>トリミング</td></tr>
+		<tr><td><kbd>T</kbd></td><td>テキスト</td><td><kbd>Z</kbd></td><td>画像のサイズ変更</td></tr>
+	</table>
+	<ul>
+		<li>描画中に <kbd>Shift</kbd> を押したままにすると正方形や円、または 15° 刻みの線になります。サイズ変更中は縦横比を保ちます。
+			<kbd>Ctrl</kbd> を押したままにすると中心から描画またはサイズ変更します。何かを楕円で囲むときに便利です。</li>
+		<li>テキスト: テキスト ボックスを描いて入力します。テキストをダブルクリックすると変更でき、<kbd>Enter</kbd> で確定、<kbd>Shift</kbd> + <kbd>Enter</kbd> で改行します。</li>
+		<li>選択した要素: 矢印キーで移動 (<kbd>Shift</kbd> と一緒に 10 ピクセル)、<kbd>Ctrl</kbd> + 矢印キーでサイズ変更、
+			<kbd>Page Up</kbd> / <kbd>Page Down</kbd> で 1 つ上または下の階層へ、<kbd>Delete</kbd> で削除、<kbd>Ctrl</kbd> + <kbd>D</kbd> で複製します。
+			<kbd>Shift</kbd> を押しながらクリックすると、複数の要素を選択できます。</li>
+		<li><kbd>Ctrl</kbd> + <kbd>Z</kbd> で元に戻し、<kbd>Ctrl</kbd> + <kbd>Y</kbd> でやり直します。</li>
+	</ul>
+
+	<a name="editor-highlight"></a>
+	<h3>ハイライトと難読化</h3>
+	<p>ハイライト (<kbd>H</kbd>) または難読化 (<kbd>O</kbd>) の範囲を四角形のように描き、ツール バーでモードを選びます:</p>
+	<ul>
+		<li><em>テキスト ハイライト</em> は蛍光ペンのように範囲に色を付け、<em>範囲ハイライト</em> はそれ以外を暗くぼかします。
+			<em>グレースケール</em> はそれ以外を灰色にし、<em>拡大</em> は範囲を大きくします。</li>
+		<li><em>モザイク</em> または <em>ぼかし</em> で、パスワード、名前、口座番号、顔を隠します。</li>
+	</ul>
+
+	<a name="editor-crop"></a>
+	<h3>トリミング</h3>
+	<p>
+		トリミング ツール (<kbd>C</kbd>) を選び、残す範囲を描きます。<kbd>Enter</kbd> で確定、<kbd>Esc</kbd> で取り消します。
+		もう一度 <kbd>C</kbd> を押すか、ツール バーの <em>トリミング モード</em> でモードを切り替えます:
+	</p>
+	<ul>
+		<li><em>垂直方向に切り抜き</em> または <em>水平方向に切り抜き</em> は画像から帯状の部分を取り除き、残りをつなげます。例えば長いページの
+			空いた中央部分を省くときに使います。<em>切り取り端</em> でつなぎ目の見た目を選びます: 直線、ジグザグ、波、破れ、つなぎ目なし。</li>
+		<li><em>自動トリミング</em> は画像の周りの単色の枠を取り除きます。</li>
+	</ul>
+
+	<a name="editor-effects"></a>
+	<h3>効果、回転、サイズ変更</h3>
+	<table>
+		<tr><th>キー</th><th>動作</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Q</kbd></td><td>影</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>B</kbd></td><td>枠線</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>T</kbd></td><td>ちぎれた縁</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>G</kbd> / <kbd>Ctrl</kbd> + <kbd>I</kbd></td><td>グレースケール / 反転 (例: 印刷時のインク節約)</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>,</kbd> / <kbd>Ctrl</kbd> + <kbd>.</kbd></td><td>左回転 / 右回転</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>+</kbd> / <kbd>-</kbd></td><td>キャンバスを大きく / 小さくする</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>+</kbd> / <kbd>-</kbd>, <kbd>Ctrl</kbd> + <kbd>0</kbd>, <kbd>Ctrl</kbd> + <kbd>9</kbd></td><td>拡大 / 縮小、実際のサイズ、ウィンドウに合わせる</td></tr>
+	</table>
+	<p>
+		ちぎれた縁は変更できる要素のまま残ります。ツール バーの <em>イメージに適用</em> で画像の一部にします。
+	</p>
+
+	<a name="editor-reuse"></a>
+	<h3>画像の追加と要素の再利用</h3>
+	<ul>
+		<li>画像ファイルをエディターにドラッグするか、<kbd>Ctrl</kbd> + <kbd>V</kbd> で画像を貼り付けます。<em>編集</em> メニューの <em>ウィンドウ キャプチャを貼り付け</em> で、開いている別のウィンドウのキャプチャを追加します。</li>
+		<li>同じ要素を多くのスクリーンショットで使う: <em>オブジェクト</em> メニューの <em>オブジェクトをファイルに保存...</em> で保存し、次のスクリーンショットで <em>ファイルからオブジェクトを読み込み...</em> を使います。</li>
+		<li><code>.greenshot</code> ファイルとして保存すると、すべての要素が編集可能なまま残り、後で続きができます。</li>
+	</ul>
+
+	<a name="editor-export"></a>
+	<h3>保存とエクスポート</h3>
+	<table>
+		<tr><th>キー</th><th>動作</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td><td><em>保存</em>: <a href="greenshot://settings?tab=output">出力タブ</a> のフォルダーに保存</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd></td><td><em>名前を付けて保存...</em>: フォルダー、名前、画像形式を選ぶ</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd></td><td><em>イメージをクリップボードにコピー</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>P</kbd></td><td><em>印刷</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>E</kbd></td><td><em>メール</em>: 画像を添付した新しいメッセージ</td></tr>
+	</table>
+	<p>
+		<em>ファイル</em> メニューと上部のツール バーには、プラグインのものも含め、すべての出力先が表示されます。
+		保存後、下部のステータス バーを右クリックすると、ファイルのパスをコピーしたり、そのフォルダーを開いたりできます。
+	</p>
+
+	<a name="recipes"></a>
+	<h2>自動ステップとレシピ</h2>
+	<p>
+		レシピはキャプチャに対する処理を自動で行います。例えば、すべてのキャプチャに枠線を付けたり、保存とアップロードを一度に行ったりします。
+		アイコンのメニューの <em>クィック設定</em> &gt; <em>自動ステップ</em> で用意されたステップをオンまたはオフにし、
+		<em>その他…</em> で <a href="greenshot://settings?tab=recipes">レシピ タブ</a> にあるその設定を開きます。
+		アイコンの <em>レシピ</em> メニューから自分のレシピを開始したり、<a href="greenshot://recipe-manager">レシピ マネージャー</a> と Recipe Editor を開いたりできます。
+		レシピは Recipe Editor プラグインに含まれています。
+	</p>
+
+	<a name="settings"></a>
+	<h2>設定</h2>
+	<p>設定は、アイコンのメニューの <em>設定...</em>、または次のリンクで開きます。</p>
+	<ul>
+		<li><a href="greenshot://settings?tab=general">一般</a>: 言語、配色 (ライト、ダーク、Windows に合わせる)、アイコンのサイズ、
+			<em>Greenshot を Windows のスタートアップに登録</em>、ホットキー、プロキシ、更新を確認する頻度。</li>
+		<li><a href="greenshot://settings?tab=capture">キャプチャ</a>: マウス ポインターのキャプチャ、カメラの音、拡大鏡、画面の停止、
+			通知、キャプチャ前の待機、固定サイズ、対話型のウィンドウ キャプチャ、文字認識の言語。</li>
+		<li><a href="greenshot://settings?tab=output">出力</a>: 保存先のフォルダーとファイル名パターン (<em>?</em> をクリックするとプレースホルダーが表示されます。
+			例: <code>${YYYY}-${MM}-${DD}</code> や <code>${title}</code>。パターン内の <code>\</code> はフォルダーを作ります)、画像形式、JPEG の品質。</li>
+		<li><a href="greenshot://settings?tab=destination">出力先</a>: キャプチャ後の動作。<a href="#destinations">スクリーンショットの出力先</a> を参照してください。</li>
+		<li><a href="greenshot://settings?tab=editor">エディター</a>: タブ、エディター ウィンドウのサイズ、閉じるときの保存の確認、新しい画像のサイズと色。</li>
+		<li><a href="greenshot://settings?tab=printer">プリンター</a>: 画像をページに合わせる、回転や中央揃え、カラー、グレースケール、反転での印刷、日時入りのフッター。</li>
+		<li><a href="greenshot://settings?tab=plugins">プラグイン</a>: プラグインのオンとオフ、および設定。変更は Greenshot の次回起動時に反映されます。</li>
+		<li><a href="greenshot://settings?tab=expert">高度な設定</a>: 特別な場合の設定。例: リモート デスクトップ、DirectX キャプチャ (HDR 画面に必要)、メモリと速度、
+			クリップボードの形式。何をするか分かっている場合にだけ変更してください。</li>
+	</ul>
+	<p class="hint">
+		Greenshot は設定を <code>%APPDATA%\Greenshot</code> の <code>greenshot.ini</code> に保存します (ポータブル版は Greenshot.exe の隣に保存します)。
+		セルフサービス の <a href="greenshot://self-service?section=files">ファイルと構成</a> で場所を確認できます。
+	</p>
+
+	<a name="troubleshooting"></a>
+	<h2>うまく動かないとき</h2>
+	<p>
+		セルフサービス は Greenshot を確認し、ほとんどの問題を解決します。アイコンのメニューの <em>Greenshot について</em> から <em>セルフサービス</em> を開くか、
+		該当するセクションに直接移動してください:
+	</p>
+	<ul>
+		<li><kbd>Print</kbd> を押しても何も起きない、または別のものが開く: <a href="greenshot://self-service?section=hotkeys">ホット キーと競合</a>
+			で OneDrive や Snipping Tool がキーを使っていないかを確認し、キーを Greenshot に戻します。</li>
+		<li>スクリーンショットが見つからない: <a href="greenshot://self-service?section=files">ファイルと構成</a> で Greenshot の保存先を確認できます。</li>
+		<li>クリップボードへのコピーに失敗する: <a href="greenshot://self-service?section=clipboard">クリップボードの診断</a> でクリップボードをふさいでいるプログラムを見つけます。</li>
+		<li>更新後に Greenshot が異常終了する、またはプラグインがない: <a href="greenshot://self-service?section=checksum">インストールの整合性</a> でインストールされたファイルを確認します。</li>
+		<li>問題を報告する: <a href="greenshot://self-service?section=system">システムとハードウェア</a> の <em>システム情報をコピー</em> と
+			<a href="greenshot://log?search=ERROR">ログのエラー</a> があると、私たちがあなたを助けやすくなります。問題は
+			<a target="_blank" href="https://github.com/greenshot/greenshot/issues">github.com/greenshot/greenshot/issues</a> に報告してください。</li>
+	</ul>
+
+	<a name="help"></a>
+	<h2>協力しませんか?</h2>
+
+	<a name="help-donate"></a>
+	<h3>寄付をご検討ください</h3>
+	<p>
+		私たちは、良いソフトウェアを無料かつオープン ソースで提供するために、Greenshot に多くの労力を注いでいます。Greenshot で仕事がはかどる、
+		あなたや会社の時間とお金の節約になる、または単に Greenshot が気に入ったなら、ぜひ支援をご検討ください。
+		協力の方法は <a target="_blank" href="https://getgreenshot.org/support/">https://getgreenshot.org/support/</a> をご覧ください。
+	</p>
+
+	<a name="help-spread"></a>
+	<h3>広めてください</h3>
+	<p>
+		Greenshot が気に入ったら、友人や同僚に教えてください。ソフトウェア紹介サイトで Greenshot を評価したり、ブログや Web サイトから私たちのホームページにリンクしたりしてください。
+	</p>
+	<p>
+		<a target="_blank" href="https://github.com/greenshot/greenshot">GitHub</a> で Greenshot にスターを付けてください。他の人が見つけやすくなります:
+		<br><iframe src="https://ghbtns.com/github-btn.html?user=greenshot&amp;repo=greenshot&amp;type=star&amp;count=true&amp;size=large" frameborder="0" width="170" height="30" title="GitHub"></iframe>
+	</p>
+
+	</body>
+</html>

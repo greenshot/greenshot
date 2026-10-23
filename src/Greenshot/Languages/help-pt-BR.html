@@ -1,461 +1,360 @@
-
-<html>
+<!DOCTYPE html>
+<html lang="pt-BR">
 	<head>
-		<title>Greenshot Help</title>
-		
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Ajuda do Greenshot</title>
 		<style>
-		* {
-			font-family: Tahoma, Arial, Sans-serif;
-		}
-		h1 {font-size:16px;}
-		h2 {font-size:14px;color:#009900;margin-top:24px;}
-		h3 {font-size:12px;margin-top:18px;}
-		small {font-size:10px;}
-		p, li {font-size:12px;line-height:1.5em}
-		a:link, a:hover, a:visited, a:active {color:#009900;}
-		kbd {background-color:#dddddd;border:1px solid #bbbbbb;padding:0 2px;border-radius:2px;}
-		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px;}
-		em {padding-right:0.2em;}
+		* {font-family: "Segoe UI", Tahoma, Arial, Sans-serif;}
+		body {max-width:60em;margin:0 auto;padding:0 16px 24px 16px;}
+		h1 {font-size:20px;}
+		h2 {font-size:16px;color:#009900;margin-top:28px;}
+		h3 {font-size:14px;margin-top:20px;}
+		small {font-size:11px;}
+		p, li, td, th {font-size:13px;line-height:1.5em;}
+		a:link, a:hover, a:visited, a:active {color:#007700;}
+		kbd {background-color:#eeeeee;border:1px solid #bbbbbb;padding:0 3px;border-radius:3px;white-space:nowrap;}
+		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px 8px;}
+		table {border-collapse:collapse;margin:6px 0;}
+		th, td {border:1px solid #dddddd;padding:3px 8px;text-align:left;vertical-align:top;}
+		th {background-color:#f2f2f2;}
+		em {font-style:normal;font-weight:bold;}
+		:root {--greenshot-icon:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAEgklEQVR4nO2WXWxTZRjHf+er3y0j3dhXuw8DHRsEJoPEBEY0CMEbPtR4gUiciYQgd4ImeqMRZuK9qBgwXBjDFcSQoASVz4RIXPnY5raAbN1GS7d1LWU9p2c9PV6UlBE76ACHFz5X7/l4/s/vvO95n/cvtLa2mjzDEJ9l8f8B/tsAjkqN6rVRLCWT/yqAXLB4RZoXD3cg2Qy0ESu/vtmCoUmzB1DSmESyGQDYytI4fRruuglqN0SIXfPQe7AOM/uUAKrXjEwRrsU0YfSPElK3bDiqNMY7PaRjCq0H+hBlE29zgniPm8g5L44qjcmkzGSy4HcUB9D8cW9O+Pk48V4XkXNeZGeG8zubsXgmuRuyo3gyCMKDiY3b+5m/dRBDk7j4/mJi1zyPBSBOFRYEWPhuP2uOXGLND5eQXRnMrIAeVwjuCxC76uH6935uX/BSuzEMgGQzqH45imQ3CGwbJNA2gOLKFD8DwfYAdZvCxK55iJz3svTDvpyw3cC3Nsp4Z+7Lhk/NY/jUvHziaHAOlavHABi7MoemHTep25yDclZrBPc2FAfgrEzz+weLmZyQ/iEcuzpn2sSOTxupWDWKOmJlvNODf300/8xRoWEv01nxeRcuv0r31/X0H60sqCN8YWIO/TyP4L4csahkqVw9hjpiJXa1+HWd25Sk5ZMekLIE9zZQ1pJgwbYQAIYmcmL9yoI7R4bclNm8Osv3dePyq/z5TT2xX2b2U413uzn1xor8taMynR+nIrZpt62cjin0HKqhdmOYuU1JABbtukHoeDlmViicVUQM/VSOIJo4fSr9xwpPP4B8ctMLOeJyPX9TjVqfqDiAmYXQ8YpHvidLdgNDlRg8UY6oZHPER6ueqPhMQnb5VZzVGrUbw8Q63XTvf+6ptdmiANKjVlZ9dQVRyVK6LE6iz0XkbOmsAYhZAxDu20Jhlh2CrCcULrcHqH81TKzTQ+Ssd3YB5m8ZQpBMLu5ZRGbi8U+1xwZo3HETAHddio7PiuvfNq/OivZunDUpeg5M32aLifyKO6rUopNqNoQpaUyiOA2adv6FIJrYKzR866JY5uqPFpgSsjZmQZRMer+rLTopFbblx2rUiq1U56XDHUh2A23Uwm9bl5NJFWfh5DNty9Djyoyoh0+WI1lMnP4UA8eqKFl4F8l+z8KV6rj8Kk6fSu2mMOOdbnq+rZ/+LFh9sIPTbxVPDLk2O/Dj/TarJ2Qmhuw4fSrjXW60qJWV+y8jKibepQnivW7Cpwv3FtlepuOqUbGXazlj0uWm79DMTKfiznBh1xIsngx3B+0oTgOKPErkeI+LVMTKyi/vdcOWOHeuuwifLsVRkUZPSg/dng3vDBB4O5TzhrsXYRoO9Dsywb0N1G3OLcHDOqt84b1mZLvxYDcUTAJtAzS0hTBUiYt7Fk9rTqZ6Q9+6KIk+N/WvDyMqWS591PRIxyxmJwX0OzKX2wOMd3m4caSa8JlS6l+7lRO2G/hfuY1oyTJ/yxALtoWQHUZeYCxYkh+PdpTQtOMmjdv7aWgLsWT39YcWB/gbBUPC48UgfpEAAAAASUVORK5CYII=);}
+		h1 {background:var(--greenshot-icon) no-repeat left center;background-size:32px;padding-left:40px;line-height:32px;}
+		a[href^="greenshot:"] {background:#eef8ee var(--greenshot-icon) no-repeat 3px center;background-size:16px;border:1px solid #99cc99;border-radius:3px;padding:0 4px 0 22px;text-decoration:none;white-space:nowrap;}
+		a[href^="greenshot:"]:hover {background-color:#ddf0dd;}
+		[dir="rtl"] h1 {background-position:right center;padding-left:0;padding-right:40px;}
+		[dir="rtl"] a[href^="greenshot:"] {background-position:right 3px center;padding:0 22px 0 4px;}
 		</style>
 	</head>
 	<body>
 	<h1>Ajuda do Greenshot</h1>
-	<!-- 
-	Note to translator: uncomment entry below to have your effort honored 
+	<!--
+	Note to translator: uncomment the entry below to have your effort honored
 	-->
-	Vers„o 1.0
-	<small>TraduÁ„o PortuguÍs do Brasil por JNylson (nylsinho_ba@hotmail.com)</small>
-	
-	<h2>Conte˙do</h2>
+	<!--<small>Tradu√ß√£o para o portugu√™s do Brasil por SEU_NOME (vers√£o anterior: JNylson)</small>-->
+
+	<p class="hint">
+		Os links que come√ßam com <code>greenshot:</code>, como <a href="greenshot://settings">abrir as prefer√™ncias</a>,
+		abrem a janela correspondente do Greenshot. Eles funcionam quando o Greenshot foi instalado com o instalador, n√£o na vers√£o
+		port√°til nem no Greenshot Light. O navegador pode perguntar antes de abrir o Greenshot.
+	</p>
+
+	<h2>Conte√∫do</h2>
 	<ol>
-		<li><a href="#screenshot">Criar uma captura de tela</a></li>
-		<ol>
-			<li><a href="#capture-region">Capturar uma regi„o</a></li>
-			<li><a href="#capture-last-region">Capturar a ˙ltima regi„o</a></li>
-			<li><a href="#capture-window">Capturar janela</a></li>
-			<li><a href="#capture-fullscreen">Capturar a tela inteira</a></li>
-			<li><a href="#capture-ie">Capturar Internet Explorer</a></li>
-		</ol>
-	
-		<li><a href="#editor">Usar o editor de imagem</a></li>
-		<ol>
-			<li><a href="#editor-shapes">Desenhar formas</a></li>
-			<li><a href="#editor-text">Adicionar texto</a></li>
-			<li><a href="#editor-highlight">RealÁar coisas</a></li>
-			<li><a href="#editor-obfuscate">Ofuscar coisas</a></li>
-			<li><a href="#editor-effects">Adicionar efeitos</a></li>
-			<li><a href="#editor-crop">Recortar a captura de tela</a></li>
-			<li><a href="#editor-adding-graphics">Adicionar gr·ficos a uma captura</a></li>
-			<li><a href="#editor-reuse-elements">Reutilizar elementos desenhados</a></li>
-			<li><a href="#editor-export">Exportar a captura</a></li>
-		</ol>
-		<li><a href="#settings">ConfiguraÁıes</a></li>
-		<ol>
-			<li><a href="#settings-general">ConfiguraÁıes gerais</a></li>
-			<li><a href="#settings-capture">ConfiguraÁıes de captura</a></li>
-			<li><a href="#settings-output">ConfiguraÁıes de saÌda</a></li>
-			<li><a href="#settings-destination">ConfiguraÁıes de destino</a></li>
-			<li><a href="#settings-printer">ConfiguraÁıes de impress„o</a></li>
-			<li><a href="#settings-expert">ConfiguraÁıes avanÁadas</a></li>
-		</ol>
-		<li><a href="#help">Quer ajudar?</a></li>
-		<ol>
-			<li><a href="#help-donate">FaÁa uma doaÁ„o</a></li>
-			<li><a href="#help-spread">Espalhe a palavra</a></li>
-			<li><a href="#help-translate">Envie uma traduÁ„o</a></li>
-		</ol>
-	</ol>
-	
-	<a name="screenshot"></a>
-	<h2>Criar uma captura de tela</h2>
-	<p>
-		Pode criar uma captura de tela ou usando a tecla <kbd>Print</kbd> do seu teclado
-		ou clicando com o bot„o direito do mouse no Ìcone Greenshot da bandeja do sistema.<br>
-		Existem diversas opÁıes para criar uma captura de tela:
-	</p>
-	
-	<a name="capture-region"></a>
-	<h3>Capturar regi„o <kbd>Print</kbd></h3>
-	<p>
-		O modo de capturar uma regi„o permite-lhe selecionar uma parte da tela a ser capturada.<br>
-		ApÛs iniciar o modo regi„o, ir· visualizar uma mira a apontar a posiÁ„o do mouse 
-		no tela. Clique e mantenha o bot„o pressionado no local onde pretende que fique um dos cantos
-		da sua captura. Mantendo o bot„o do mouse pressionado, arraste o mouse para definir o
-		ret‚ngulo a ser capturado. Quando o ret‚ngulo verde cobrir a ·rea que pretende 
-		capturar, solte o bot„o do mouse.
-	</p>
-	<p class="hint">
-		Pode usar a tecla <kbd>Space</kbd> para alternar entre o modo regi„o e o modo 
-		<a href="#capture-window">janela</a>.
-	</p>
-	<p class="hint">
-		Se pretende capturar uma ·rea exata, ser· mais f·cil selecionar a ·rea inicial da
-		captura um pouco maior e depois <a href="#editor-crop">recortar</a> a captura de tela
-		usando o editor de imagem do Greenshot.
-	</p>
-	
-	<a name="capture-last-region"></a>
-	<h3>Capturar a ˙ltima regi„o <kbd>Shift</kbd> + <kbd>Print</kbd></h3>
-	<p>
-		Se acabou de capturar uma <a href="#capture-region">regi„o</a> ou uma <a href="#capture-window">janela</a>,
-		pode capturar novamente a mesma regi„o usando esta opÁ„o. 
-	</p>
-	
-	<a name="capture-window"></a>
-	<h3>Capturar uma janela <kbd>Alt</kbd> + <kbd>Print</kbd></h3>
-	<p>
-		Cria uma captura da janela que est· atualmente ativa.
-	</p>
-	<p class="hint">
-		Para sistemas com o Windows 7 ou Vista, use a configuraÁ„o do modo Captura de Janela para controlar
-		como o Greenshot manipula as bordas da janela semi transparente (Aero), p.e. substituindo a
-		transparÍncia com uma cor personalizada.
-	</p>
-	<p class="hint">
-		O <a href="#settings">di·logo de configuraÁıes</a> oferece uma opÁ„o de n„o capturar
-		a janela ativa de imediato, mas permitindo-lhe selecionar uma interativamente.
-		Se esta opÁ„o for selecionada, pode selecionar uma janela clicando nela (Tal como no 
-		<a href="#capture-region">modo regi„o</a>, o Greenshot ir· realÁar a ·rea que
-		ir· ser capturada).<br>Se pretender capturar uma janela secund·ria (p.e. uma janela do
-		navegador (sem barras de ferramentas, etc.) ou um simples quadro de uma p·gina web que use 'framesets') 
-		aponte o cursor do mouse para a janela e pressione a tecla <kbd>PgDown</kbd>. Depois de
-		fazer isso, pode selecionar elementos secund·rios da janela para serem capturados.
-	</p>
-	<p class="hint">
-		A captura dos menus de contexto È diferente: ao usar o atalho "Capturar janela" 
-		far· desaparecer o menu de contexto, e obviamente acontecer· o mesmo se usar
-		o menu de contexto do Greenshot para criar a captura. Se pretende capturar
-		um menu de contexto que faz surgir clicando com o bot„o direito do mouse em qualquer coisa,
-		simplesmente ativa o modo regi„o <kbd>Print</kbd>, e depois pressione a tecla <kbd>Space</kbd>.
-	</p>
-	
-	<a name="capture-fullscreen"></a>
-	<h3>Capturar tela completo <kbd>Control</kbd> + <kbd>Print</kbd></h3>
-	<p>
-		Cria uma captura da totalidade da tela.
-	</p>
-
-	<a name="capture-ie"></a>
-	<h3>Capturar Internet Explorer <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>Print</kbd></h3>
-	<p>
-		Cria confortavelmente uma captura da p·gina web atualmente aberta no Internet Explorer. 
-		Use o menu de contexto do Greenshot para selecionar o separador do Internet Explorer a capturar, ou pressione
-		<kbd>Crtl</kbd> + <kbd>Shift</kbd> + <kbd>Print</kbd> para capturar a aba ativa.
-	</p>
-
-	
-	<a name="editor"></a>
-	<h2>Usar o editor de imagem</h2>
-	<p>
-		O Greenshot possui um editor de imagem f·cil de usar, fornecendo uma sÈrie de funcionalidades
-		para adicionar anotaÁıes e formas a uma captura. Ele tambÈm permite realÁar ou 
-		ofuscar partes da sua captura.
-	</p>
-	<p class="hint">
-		O editor de imagem do Greenshot pode ser usado n„o apenas em capturas. TambÈm pode 
-		abrir imagens de um arquivo ou da ·rea de transferÍncia para editar. Basta clicar com o bot„o 
-		direito do mouse no Ìcone do Greenshot na bandeja do sistema e selecionar <em>Abrir imagem de arquivo</em> 
-		ou <em>Abrir imagem da ·rea de transferÍncia</em>, respectivamente.
-	</p>
-	<p class="hint">
-		Por padr„o, o editor de imagem È aberto sempre que È feita uma captura de tela.
-		Se n„o pretender usar o editor de imagem, pode desativar esta
-		funcionalidade no <a href="#settings">di·logo configuraÁıes</a>.
-	</p>
-	
-	
-	<a name="editor-shapes"></a>
-	<h3>Desenhar formas</h3>
-	<p>
-		Selecione uma das ferramentas de desenho de formas na barra de ferramentas situada do lado
-		esquerdo do editor de imagem ou do menu <em>Objeto</em>. Para sua conveniÍncia, tambÈm existe
-		uma tecla associada a cada ferramenta.<br>
-		As formas disponÌveis s„o: ret‚ngulo <kbd>R</kbd>, elipse <kbd>E</kbd>, linha <kbd>L</kbd>,
-		seta <kbd>A</kbd> e de linha livre <kbd>F</kbd>.<br>
-		Clique, mantenha pressionado o bot„o do mouse e arraste para definir a posiÁ„o e tamanho da forma. 
-		Solte o bot„o do mouse quando tiver terminado.
-	</p>
-	<p>
-		Pode mover ou redimensionar as formas existentes com a ferramenta de seleÁ„o 
-		<kbd>ESC</kbd> da barra de ferramentas.<br>Para cada tipo de elemento existe um conjunto 
-		prÛprio de opÁıes disponÌveis para alterar o aspecto do elemento.(p.e. espessura da linha, 
-		cor da linha, cor de preenchimento). Pode alterar as opÁıes de um elemento existente depois 
-		de selecion·-lo, mas tambÈm para o prÛximo elemento a ser desenhado apÛs selecionar uma ferramenta de desenho.
-	</p>
-	<p class="hint">
-		Pode selecionar v·rios elementos para editar ao mesmo tempo. Para selecionar v·rios
-		elementos, mantenha pressionada a tecla <kbd>Shift</kbd> enquanto clica nos elementos.
-	</p>
-	<p class="hint">
-		Se pretende desenhar formas com lados iguais (p.e. forÁar um ret‚ngulo a ser quadrado) mantenha
-		pressionada a tecla <kbd>Shift</kbd> ao desenhar. Ao desenhar linhas ou setas, manter pressionada a tecla <kbd>Shift</kbd>
-		resulta no ‚ngulo da linha ser rodado em passos de 15∞.<br>
-		Pode tambÈm usar o <kbd>Shift</kbd> se pretender redimensionar um objeto existente mantendo as suas proporÁıes. 
-	</p>
-	<p class="hint">
-		Ao desenhar ou redimensionar, pode manter pressionada a tecla <kbd>Ctrl</kbd> para ter o objeto ancorado
-		no seu centro geomÈtrico. P.e. o objeto tambÈm È redimensionado na direÁ„o oposta. (Isto
-		È muito ˙til se pretende desenhar uma elipse ‡ volta de qualquer coisa na sua captura.)
-	</p>
-	
-	<a name="editor-text"></a>
-	<h3>Adicionar texto</h3>
-	<p>
-		o uso da ferramenta texto <kbd>T</kbd> È semelhante ‡ das ferramentas de 
-		<a href="#editor-shapes">forma</a>. Desenhe simplesmente o elemento de texto do
-		tamanho desejado, depois digite o texto no seu interior.<br>
-		FaÁa duplo clique num elemento de texto existente para editar o seu conte˙do.<br>
-		Pressione <kbd>Return</kbd> ou <kbd>Enter</kbd> quando tiver concluÌdo a ediÁ„o.
-	</p>
-	<p class="hint">
-		Se necessita inserir quebras de linha dentro de uma caixa de texto, pressione <kbd>Shift</kbd> + <kbd>Return</kbd> ou
-		<kbd>Shift</kbd> + <kbd>Enter</kbd>.
-	</p>
-	
-	<a name="editor-highlight"></a>
-	<h3>RealÁar coisas</h3>
-	<p>
-		ApÛs selecionar a ferramenta de realÁar <kbd>H</kbd>, pode definir a ·rea para ser 
-		realÁada do mesmo modo como desenharia uma <a href="#editor-shapes">forma</a>.<br>
-		Existem diversas opÁıes para realÁar, entre as quais pode escolher clicando no
-		bot„o mais ‡ esquerda da barra de ferramentas na parte superior:
-	</p>
-	<ul>
-		<li><em>RealÁar texto</em>: realÁa uma ·rea aplicando-lhe uma cor brilhante, como
-			os marcadores de texto usados no escritÛrio</li>
-		<li><em>RealÁar ·rea</em>: desfoca<a href="#hint-blur">*</a> e escurece tudo fora da ·rea selecionada</li>
-		<li><em>Escala Cinza</em>: tudo o que est· fora da ·rea selecionada ficar· na escala cinza</li>
-		<li><em>Ampliar</em>: a ·rea selecionada ser· exibida com ampliaÁ„o</li>
-	</ul>
-	
-	<a name="editor-obfuscate"></a>
-	<h3>Ofuscar coisas</h3>
-	<p>
-		Ofuscar partes de uma captura È uma boa ideia se contiver dados que n„o se pretende que sejam
-		vistos por outras pessoas, p.e. dados de contas banc·rias, nomes, senhas ou rostos na imagem.<br>
-		Use a ferramenta ofuscar <kbd>O</kbd> exatamente do mesmo modo que a de <a href="#editor-highlight">realÁar</a>. 
-		<br>
-		As opÁıes disponÌveis para ofuscaÁ„o s„o:
-	</p>
-	<ul>
-		<li><em>Pixelizar</em>: aumenta o tamanho do pixeis na ·rea selecionada</li>
-		<li><em>Desfocar</em><a href="#hint-blur">*</a>: desfoca a ·rea selecionada</li>
-	</ul>
-	<a name="hint-blur"></a>
-	<p class="hint">
-		* Dependendo do desempenho do seu computador, a aplicaÁ„o do efeito desfocar pode tornar lento 
-		o editor de imagens do Greenshot. Se notar que o editor de imagem reage com lentid„o logo que 
-		o efeito È aplicado, tente reduzir o valor para a <em>Qualidade de PrÈ-visualizaÁ„o</em>  
-		na barra de ferramentas ou reduza o valor do <em>Raio de desfocagem</em>.<br>
-		Se o desempenho de desfoque continuar mau para poder trabalhar com ele, deve optar por
-		usar o efeito Pixelizar.
-	</p>
-	<a name="editor-effects"></a>
-	<h3>Adicionar efeitos</h3>
-	<p>
-		Pode adicionar diferentes efeitos ‡ sua captura. Pode querer aplicar uma borda, sombra ou efeito 
-		de cantos arredondados, p.e. para visualizar em separado a sua captura do restante conte˙do do documento.
-		Os efeitos Escala Cinza e Inverter s„o ˙teis principalmente antes de imprimir, poupando tinta ou toner 
-		ao imprimir capturas coloridas ou escuras.
-	</p>
-	
-	<a name="editor-crop"></a>
-	<h3>Recortar a Captura</h3>
-	<p>
-		Se precisa apenas de uma parte da imagem que capturou, use a ferramenta de recorte <kbd>C</kbd>
-		para recort·-la para a ·rea desejada.<br>
-		ApÛs selecionar a ferramenta recortar, desenhe um ret‚ngulo na ·rea da captura que quer
-		manter. Pode redimensionar a ·rea selecionada como qualquer outro elemento.<br>
-		Quando estiver satisfeito com a sua seleÁ„o, use o bot„o confirmar da barra de ferramentas ou
-		pressione a tecla <kbd>Enter</kbd>. Pode cancelar o recorte clicando no bot„o cancelar ou pressionando 
-		<kbd>ESC</kbd>.
-	</p>
-	<p class="hint">
-		<em>Recorte Autom·tico</em>: Se necessita recortar uma borda de uma cor sÛlida de fundo da sua
-		captura escolha simplesmente <em>Recorte Autom·tico</em> do menu <em>Editar</em> e o Greenshot 
-		ir· selecionar automaticamente a ·rea para recortar.
-	</p>
-	
-	<a name="editor-rotate"></a>
-	<p class="hint">
-		Use as ferramentas de rotaÁ„o para girar a captura no sentido hor·rio ou anti-hor·rio.
-	</p>
-
-	<a name="editor-adding-graphics"></a>
-	<h3>Adicionar gr·ficos a uma captura</h3>
-	<p>
-		Pode muito simplesmente adicionar gr·ficos ou imagens ‡ sua captura arrastando e soltando um
-		arquivo de imagem na janela do editor. Pode tambÈm inserir capturas de outras janelas selecionando
-		<em>Inserir janela</em> do menu <em>Editar</em>. Surge uma lista com todas as janelas abertas, 
-		permitindo-lhe selecionar uma para ser inserida.
-	</p>
-	
-	<a name="editor-reuse-elements"></a>
-	<h3>Reutilizar elementos de desenho</h3>
-	<p>
-		Se estiver a usar os mesmos ou elementos semelhantes na maioria das capturas
-		(p.e. um campo de texto contendo o tipo de navegador e a vers„o, ou a ofuscar o mesmo
-		elemento em v·rias capturas) pode reutilizar os elementos.<br>
-		Selecione <em>Salvar objetos para arquivo</em> do menu <em>Objetos</em> para
-		salvar o conjunto atual de elementos e reutiliz·-los mais tarde. <em>Carregar objetos de arquivo</em>
-		aplica os mesmos elementos a outra captura.
-	</p>
-	
-	<a name="editor-export"></a>
-	<h3>Exportar a captura</h3>
-	<p>
-		ApÛs editar a captura, pode exportar o resultado para diversos fins, dependendo das
-		suas necessidades. Pode aceder a todas as opÁıes de exportaÁ„o atravÈs do menu <em>Arquivo</em>,
-		da barra de ferramentas superior ou via teclas de atalho:
-	</p>
-	<ul>
-		<li><em>Salvar</em> <kbd>Control</kbd> + <kbd>S</kbd>: salva a imagem para um arquivo (se a imagem j· tiver sido guardada, exibe o di·logo <em>Salvar como...</em></li>
-		<li><em>Salvar como...</em> <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>: deixa-o escolher a localizaÁ„o, nome do arquivo e formato da imagem para o arquivo a salvar</li>
-		<li><em>Copiar imagem para a ·rea de transferÍncia</em> <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd>: coloca uma cÛpia da imagem na ·rea de transferÍncia, permitindo colar em outros programas</li>
-		<li><em>Imprimir...</em> <kbd>Control</kbd> + <kbd>P</kbd>: envia a imagem para uma impressora</li>
-		<li><em>E-Mail</em> <kbd>Control</kbd> + <kbd>E</kbd>: abre uma nova mensagem no cliente de e-mail padr„o, adicionando a imagem como anexo</li>
-	</ul>
-	<p> 
-		Existem plugins para exportar capturas para outros destinos, e.g. DropBox, Google Photos, Flickr. Deve 
-		selecionar os plugins apropriados durante o processo de instalaÁ„o.
-	</p>
-	<p class="hint">
-		ApÛs salvar uma imagem do editor, clique com o bot„o direito do mouse na barra de estado
-		na parte inferior da janela do editor para copiar o atalho do arquivo para a ·rea de transferÍncia
-		ou abrir a pasta respectiva no Explorador do Windows.
-	</p>
-	
-	
-	<a name="settings"></a>
-	<h2>O Di·logo ConfiguraÁıes</h2>
-	
-	<a name="settings-general"></a>
-	<h3>ConfiguraÁıes Gerais</h3>
-	<ul>
-		<li><em>Idioma</em>: O idioma preferido a usar.<br>
-			Pode transferir arquivos de idiomas adicionais para o Greenshot <a target="_blank" href="https://getgreenshot.org/downloads/">aqui</a>. </li>
-		<li><em>Iniciar o Greenshot no inicializaÁ„o</em>: Inicia o programa no inicializaÁ„o do sistema.</li>
-		<li><em>Teclas de Atalho</em>: Personaliza as teclas de atalho a serem usadas para criar capturas.</li>
-		<li><em>Usar proxy padr„o do sistema</em>: Se selecionado, o Greenshot usa proxy padr„o do sistema para procurar atualizaÁıes.</li>
-		<li><em>Intervalo de procura de atualizaÁıes em dias</em>: O Greenshot pode procurar atualizaÁıes automaticamente. Use esta configuraÁ„o para ajustar o
-			intervalo (em dias) ou defina-o para 0 para desligar a procura de atualizaÁıes.</li>
-	</ul>
-
-	<a name="settings-capture"></a>
-	<h3>ConfiguraÁıes de Captura</h3>
-	<ul>
-		<li><em>Capturar cursor do mouse</em>: Se selecionada, o cursor do mouse ser· capturado. O cursor È tratado no editor como um elemento separado, por isso pode movÍ-lo ou removÍ-lo mais tarde.</li>
-		<li><em>Reproduzir som de C‚mara</em>: Som audÌvel ao fazer a captura</li>
-		<li><em>Milissegundos de espera antes da captura</em>: Adiciona um tempo de atraso personalizado antes de capturar realmente a tela.</li>
-		<li><em>Usar modo de captura janela interativa</em>: Em vez de capturar a janela ativa de imediato, o modo interativo permite-lhe
-			selecionar a janela a capturar. TambÈm È possÌvel capturar janelas secund·rias, ver <a href="#capture-window">captura de janela</a>.</li>
-		<li>
-			<em>Captura estilo Aero (apenas Windows Vista / 7)</em>: Se estiver a usar o Greenshot no Windows Vista ou Windows 7 com janelas estilo aero ativado, pode 
-			escolher como ser„o tratadas as bordas transparentes da janela ao criar uma captura em modo janela. Use esta configuraÁ„o para evitar capturar elementos do 
-			fundo a brilhar atravÈs das bordas transparentes.
-			<ul>
-				<li><em>Auto</em>: Deixa o Greenshot decidir como tratar a transparÍncia.</li>
-				<li><em>Como exibida</em>: As bordas transparentes s„o capturadas tal como exibidas na tela.</li>
-				<li><em>Usar cor padr„o</em>: … aplicada uma cor sÛlida padr„o em vez da transparÍncia.</li>
-				<li><em>Usar cor personalizada</em>: Selecione uma cor sÛlida para ser aplicada em vez da transparÍncia.</li>
-				<li><em>Preservar transparÍncia</em>: As bordas s„o capturadas mantendo a transparÍncia, n„o capturando elementos que possam estar no fundo. (Nota: as ·reas
-					transparentes ser„o exibidas usando um padr„o selecionado no editor. O padr„o n„o È exportado ao salvar a captura para um arquivo. Lembre-se de salvar
-					como arquivo PNG para suporte completo da transparÍncia.)</li>
-			</ul>
+		<li><a href="#start">Primeiros passos</a></li>
+		<li><a href="#screenshot">Capturar a tela</a>
+			<ol>
+				<li><a href="#capture-screen">A tela de captura</a></li>
+				<li><a href="#capture-modes">Regi√£o, janela, tamanho fixo e texto</a></li>
+				<li><a href="#capture-keys">Teclas durante a sele√ß√£o</a></li>
+				<li><a href="#capture-live">Selecionar sem congelar a tela</a></li>
+			</ol>
 		</li>
-		<li><em>Capturar Internet Explorer</em>: Permite a captura confort·vel de p·gina web com o Internet Explorer.</li>
-		<li><em>Redimensionar a janela do editor ao tamanho da captura</em>: Se selecionado, a janela do editor ser· redimensionada automaticamente para o tamanho da captura.</li>
+		<li><a href="#destinations">Para onde vai a captura</a></li>
+		<li><a href="#editor">O editor de imagens</a>
+			<ol>
+				<li><a href="#editor-tabs">Abas</a></li>
+				<li><a href="#editor-tools">Ferramentas de desenho</a></li>
+				<li><a href="#editor-highlight">Destacar e ocultar</a></li>
+				<li><a href="#editor-crop">Recortar</a></li>
+				<li><a href="#editor-effects">Efeitos, girar e redimensionar</a></li>
+				<li><a href="#editor-reuse">Adicionar imagens e reutilizar elementos</a></li>
+				<li><a href="#editor-export">Salvar e exportar</a></li>
+			</ol>
+		</li>
+		<li><a href="#recipes">Passos autom√°ticos e receitas</a></li>
+		<li><a href="#settings">As prefer√™ncias</a></li>
+		<li><a href="#troubleshooting">Quando algo n√£o funciona</a></li>
+		<li><a href="#help">Quer ajudar?</a></li>
+	</ol>
 
-	</ul>
-	
-	<a name="settings-output"></a>
-	<h3>ConfiguraÁıes de SaÌda</h3>
-	<ul>
-		<li><em>Destino da captura</em>: Permite-lhe escolher o(s) destino(s) para a sua captura imediatamente apÛs faze-la.</li>
-		<li><em>ConfiguraÁıes preferidas do arquivo de saÌda</em>: Pasta e nome de arquivo a ser usado ao salvar diretamente ou para ser sugerido ao salvar (usando o di·logo Salvar como). Clique no bot„o <em>?</em> para aprender mais sobre os marcadores que podem ser usados como padr„o de nome de arquivo.</li>
-		<li><em>ConfiguraÁıes JPEG</em>: Qualidade a ser usada ao salvar arquivos JPEG</li>
-	</ul>
-	
-	<a name="settings-destination"></a>
-	<h3>ConfiguraÁıes de Destino</h3>
+	<a name="start"></a>
+	<h2>Primeiros passos</h2>
 	<p>
-		Por padr„o, o Greenshot deixa-o selecionar dinamicamente um destino apÛs criar a captura, exibindo um pequeno
-		menu com diferentes destinos ‡ sua escolha. Se n„o quer ou n„o necessita de estar sempre a alterar os destinos,
-		pode preferir configurar o Greenshot para exportar diretamente para um ou mais destinos, sem exibir o di·logo de
-		selecÁ„o dos destinos.<br/>
-		Nota: tal como <a href="#editor-export">exportar da janela do editor, os destinos exibidos variam 
-		dependendo dos plugins que tem instalados com o Greenshot.</a>
+		O Greenshot funciona em segundo plano. O √≠cone fica ao lado do rel√≥gio, na √°rea de notifica√ß√£o da barra de tarefas.
+		Clique nele com o bot√£o direito do mouse para abrir o menu com todas as capturas, as <em>Prefer√™ncias...</em> e esta ajuda.
 	</p>
-	
-	<a name="settings-printer"></a>
-	<h3>ConfiguraÁıes de impress„o</h3>
+	<p class="hint">
+		N√£o v√™ o √≠cone? O Windows 11 pode escond√™-lo atr√°s da seta (^). <a href="greenshot://self-service?section=setup">Sua configura√ß√£o</a>
+		no Autoatendimento mostra o √≠cone ao lado do rel√≥gio e tamb√©m verifica se a tecla <kbd>Print Screen</kbd> chega ao Greenshot.
+	</p>
+
+	<a name="screenshot"></a>
+	<h2>Capturar a tela</h2>
+	<p>Inicie uma captura com uma tecla de atalho ou pelo menu do √≠cone do Greenshot:</p>
+	<table>
+		<tr><th>Captura</th><th>Atalho</th><th>O que acontece</th></tr>
+		<tr><td><em>Capturar regi√£o</em></td><td><kbd>Print Screen</kbd></td><td>A tela de captura abre e voc√™ escolhe o que capturar.</td></tr>
+		<tr><td><em>Capturar tela</em></td><td><kbd>Alt</kbd> + <kbd>Print Screen</kbd></td><td>Captura na hora a janela ativa. Com <em>Usar modo interativo</em> (<a href="greenshot://settings?tab=capture">aba Captura</a>) voc√™ escolhe a janela na tela de captura.</td></tr>
+		<tr><td><em>Capturar a tela inteira</em></td><td><kbd>Ctrl</kbd> + <kbd>Print Screen</kbd></td><td>Captura na hora a tela. Com mais de um monitor, o menu do √≠cone oferece todos os monitores ou um deles.</td></tr>
+		<tr><td><em>Capturar a √∫ltima regi√£o</em></td><td><kbd>Shift</kbd> + <kbd>Print Screen</kbd></td><td>Captura de novo a mesma √°rea da sua √∫ltima captura.</td></tr>
+		<tr><td><em>Abrir imagem da √°rea de transfer√™ncia</em></td><td>nenhum</td><td>Abre a imagem da √°rea de transfer√™ncia.</td></tr>
+	</table>
+	<p>
+		O menu tamb√©m tem <em>Capturar janela da lista</em>, que captura uma janela aberta escolhida por voc√™ sem a tela de captura,
+		<em>Abrir imagem do arquivo</em> e <em>Abrir √∫ltimo local capturado</em>.
+		Voc√™ pode mudar os atalhos nas <a href="greenshot://settings?tab=general">prefer√™ncias, aba Geral</a>.
+	</p>
+
+	<a name="capture-screen"></a>
+	<h3>A tela de captura</h3>
+	<p>
+		O Greenshot tira uma foto de todos os monitores e a mostra por cima de tudo. Nada muda enquanto voc√™ seleciona,
+		ent√£o um menu aberto ou uma dica continuam onde estavam. S√≥ a parte selecionada √© capturada. <kbd>Esc</kbd> fecha
+		a tela de captura sem capturar nada.
+	</p>
+	<p>Por cima da foto voc√™ v√™:</p>
 	<ul>
-		<li><em>Reduzir impress„o para caber no tamanho do papel</em>: Se a imagem exceder o tamanho do papel, ser· reduzida para caber na p·gina.</li>
-		<li><em>Ampliar impress„o para caber no tamanho do papel</em>: Se a imagem for mais pequena do que o tamanho do papel, ser· dimensionada para ser impressa t„o grande quanto possÌvel sem exceder o tamanho do papel.</li>
-		<li><em>Rodar impress„o para orientaÁ„o da p·gina</em>: A imagem de formato paisagem ser· rodada 90&deg; para impress„o.</li>
-		<li><em>Imprimir com cores invertidas</em>: A captura ser· invertida antes de ser impressa, ˙til p.e. ao imprimir uma captura de texto branco em fundo preto (para poupar toner/tinta).</li>
-		<li><em>ForÁar impress„o em escala cinza</em>: As cores ser„o convertidas para a escala cinza antes de imprimir.</li>
+		<li>a <em>sele√ß√£o</em> com o tamanho dela,</li>
+		<li>o <em>zoom</em>, uma lupa ao lado do mouse que mostra cada pixel, para posicionar um canto com precis√£o,</li>
+		<li>pain√©is nos cantos: as <em>teclas</em> (<kbd>F1</kbd>), as <em>informa√ß√µes</em> (<kbd>I</kbd>) e a <em>pr√©via</em> da sele√ß√£o (<kbd>P</kbd>).
+			Eles saem do seu caminho sozinhos.</li>
+	</ul>
+	<p class="hint">
+		Pressione <kbd>F1</kbd> durante a sele√ß√£o: o painel de teclas sempre lista as teclas que funcionam naquele momento.
+		O Greenshot lembra quando voc√™ oculta um painel; <kbd>F1</kbd> ou <kbd>I</kbd> o mostram de novo.
+	</p>
+
+	<a name="capture-modes"></a>
+	<h3>Regi√£o, janela, tamanho fixo e texto</h3>
+	<ul>
+		<li><em>Regi√£o</em>: arraste um ret√¢ngulo com o mouse; ao soltar, ele √© capturado. Pelo teclado: as setas movem o mouse,
+			<kbd>Enter</kbd> inicia a sele√ß√£o e outro <kbd>Enter</kbd> a captura. Segure <kbd>Shift</kbd> para mudar s√≥ a largura ou s√≥ a altura.</li>
+		<li><em>Janela</em> (<kbd>Espa√ßo</kbd>): a janela sob o mouse √© selecionada; um clique ou <kbd>Enter</kbd> a captura.
+			O Greenshot seleciona a parte mais interna, por exemplo uma barra de ferramentas; v√° at√© a borda externa de uma janela para selecion√°-la inteira.
+			<kbd>Tab</kbd> e <kbd>Shift</kbd> + <kbd>Tab</kbd> selecionam a pr√≥xima janela ou a anterior.</li>
+		<li><em>Tamanho fixo</em> (<kbd>F</kbd>): um ret√¢ngulo de tamanho exato, por exemplo 1280 √ó 720, segue o mouse. <kbd>1</kbd> ‚Äì <kbd>9</kbd> escolhem um tamanho,
+			<kbd>C</kbd> muda o canto pelo qual o mouse o segura, segure <kbd>Alt</kbd> para posicion√°-lo sem encaixar nas janelas. Seus pr√≥prios tamanhos s√£o definidos na
+			<a href="greenshot://settings?tab=capture">aba Captura</a>; os tamanhos das √∫ltimas capturas tamb√©m s√£o oferecidos.</li>
+		<li><em>Texto</em> (<kbd>T</kbd>): o Greenshot l√™ o texto da tela com o reconhecimento de texto do Windows e emoldura cada linha.
+			Clique em uma linha, ou arraste sobre palavras, para captur√°-las. Para obter as palavras como texto, envie a captura para <em>Windows OCR</em>,
+			que copia o texto para a √°rea de transfer√™ncia. √â preciso um idioma de reconhecimento instalado no Windows; o idioma √© escolhido na
+			<a href="greenshot://settings?tab=capture">aba Captura</a>, <em>Reconhecimento de texto (OCR)</em>.</li>
+	</ul>
+	<p class="hint">
+		Com o plugin de QR code, o Greenshot encontra c√≥digos QR na tela e os emoldura. Clique em um para copiar o conte√∫do ou abrir o endere√ßo da web.
+	</p>
+
+	<a name="capture-keys"></a>
+	<h3>Teclas durante a sele√ß√£o</h3>
+	<table>
+		<tr><th>Tecla</th><th>O que faz</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Cancela a captura</td></tr>
+		<tr><td><kbd>Espa√ßo</kbd></td><td>Alterna entre regi√£o e janela</td></tr>
+		<tr><td><kbd>F</kbd> / <kbd>T</kbd></td><td>Captura um tamanho fixo / captura texto</td></tr>
+		<tr><td><kbd>M</kbd></td><td>Mostra ou oculta o ponteiro do mouse na captura</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Alterna entre a tela congelada e a tela ao vivo</td></tr>
+		<tr><td><kbd>Z</kbd></td><td>Mostra ou oculta o zoom</td></tr>
+		<tr><td><kbd>F1</kbd> / <kbd>I</kbd> / <kbd>P</kbd></td><td>Mostra ou oculta as teclas / as informa√ß√µes / move ou oculta a pr√©via</td></tr>
+		<tr><td>Setas</td><td>Movem o mouse um pixel, com <kbd>Ctrl</kbd> dez pixels</td></tr>
+		<tr><td><kbd>Enter</kbd></td><td>Inicia ou termina a sele√ß√£o, captura a janela</td></tr>
+	</table>
+
+	<a name="capture-live"></a>
+	<h3>Selecionar sem congelar a tela</h3>
+	<p>
+		Desative <em>Congelar a tela durante a sele√ß√£o</em> na <a href="greenshot://settings?tab=capture">aba Captura</a>, ou pressione
+		<kbd>L</kbd> durante a sele√ß√£o, e voc√™ seleciona na tela ao vivo: um v√≠deo continua tocando, e a captura √© feita quando voc√™ termina
+		a sele√ß√£o. O modo texto e a pr√©via precisam da foto congelada. Menus abertos costumam fechar ao clicar, ent√£o use a tela congelada para eles.
+	</p>
+	<p class="hint">
+		Algo s√≥ aparece depois de um momento? Ajuste <em>Milisegundos √† esperar antes de iniciar a captura</em> na
+		<a href="greenshot://settings?tab=capture">aba Captura</a>, ou selecione na tela ao vivo.
+	</p>
+
+	<a name="destinations"></a>
+	<h2>Para onde vai a captura</h2>
+	<p>
+		Depois da captura, o Greenshot a envia para os seus destinos. Por padr√£o, ele pergunta toda vez com um pequeno menu.
+		Cada destino tem ali uma letra sublinhada fixa, por exemplo <kbd>C</kbd> para a √°rea de transfer√™ncia e <kbd>S</kbd> para salvar, para voc√™ escolher pelo teclado.
+		Escolha seus destinos na <a href="greenshot://settings?tab=destination">aba Destino da tela capturada</a>, ou em <em>Prefer√™ncias r√°pidas</em> no menu do √≠cone.
+	</p>
+	<ul>
+		<li><em>Abrir imagem no editor</em>: anotar a captura primeiro, veja <a href="#editor">o editor de imagens</a>.</li>
+		<li><em>Salvar em um arquivo</em> usa a pasta e o padr√£o de nome de arquivo da <a href="greenshot://settings?tab=output">aba de arquivo de sa√≠da</a>, <em>Salvar como...</em> pergunta por eles.</li>
+		<li><em>√Årea de transfer√™ncia</em>, <em>Enviar para impressora</em>, <em>Enviar por e-mail</em>, <em>Windows share</em> e <em>Windows OCR</em> (copia o texto da captura).</li>
+		<li>Os plugins adicionam mais destinos, por exemplo Microsoft Word, Excel, PowerPoint, Outlook e OneNote, PDF, Box, Dropbox, Jira e Confluence.
+			Eles s√£o configurados na <a href="greenshot://settings?tab=plugins">aba Plugins</a>, onde voc√™ tamb√©m pode desativar um plugin.</li>
+	</ul>
+	<p>
+		A coluna <em>Dispon√≠vel</em> da <a href="greenshot://settings?tab=destination">aba Destino da tela capturada</a> desativa um destino em todos os lugares.
+		Quais notifica√ß√µes voc√™ recebe depois de uma captura √© definido na <a href="greenshot://settings?tab=capture">aba Captura</a>, <em>Notifica√ß√µes</em>.
+	</p>
+
+	<a name="editor"></a>
+	<h2>O editor de imagens</h2>
+	<p>
+		O editor adiciona formas, texto, setas, destaques e mais a uma captura, ou esconde o que outros n√£o devem ver.
+		Al√©m das suas capturas, ele abre imagens de um arquivo ou da √°rea de transfer√™ncia (menu do √≠cone).
+		Tudo o que voc√™ desenha continua sendo um elemento que voc√™ pode selecionar, mover, alterar ou remover.
+	</p>
+
+	<a name="editor-tabs"></a>
+	<h3>Abas</h3>
+	<p>
+		Uma janela do editor mostra v√°rias imagens como abas; uma nova captura abre como aba na janela do editor usada por √∫ltimo.
+		<kbd>Ctrl</kbd> + <kbd>Tab</kbd> vai para a pr√≥xima aba e <kbd>Ctrl</kbd> + <kbd>W</kbd> fecha uma. Arraste uma aba para outra janela do editor,
+		ou clique nela com o bot√£o direito para mov√™-la para uma nova janela. O <em>+</em> na barra de abas cria uma imagem nova e vazia.
+		Ao fechar uma janela com imagens n√£o salvas, o Greenshot pergunta uma s√≥ vez: <em>Salvar tudo</em>, <em>Descartar tudo</em> ou cancelar.
+		Prefere uma janela por captura? Desative as abas na <a href="greenshot://settings?tab=editor">aba Editor</a>.
+	</p>
+
+	<a name="editor-tools"></a>
+	<h3>Ferramentas de desenho</h3>
+	<p>
+		Escolha uma ferramenta √† esquerda do editor, no menu <em>Objeto</em> ou com a tecla dela, e arraste sobre a imagem.
+		A barra de ferramentas superior mostra as op√ß√µes da ferramenta ou dos elementos selecionados, por exemplo cor da linha, cor de preenchimento e espessura.
+	</p>
+	<table>
+		<tr><th>Tecla</th><th>Ferramenta</th><th>Tecla</th><th>Ferramenta</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Sele√ß√£o</td><td><kbd>S</kbd></td><td>Bal√£o de fala</td></tr>
+		<tr><td><kbd>R</kbd></td><td>Ret√¢ngulo</td><td><kbd>I</kbd></td><td>Contador (passos numerados)</td></tr>
+		<tr><td><kbd>E</kbd></td><td>Elipse</td><td><kbd>M</kbd></td><td>Emoji</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Linha</td><td><kbd>H</kbd></td><td>Destacar</td></tr>
+		<tr><td><kbd>A</kbd></td><td>Seta</td><td><kbd>O</kbd></td><td>Ocultar</td></tr>
+		<tr><td><kbd>F</kbd></td><td>M√£o livre</td><td><kbd>C</kbd></td><td>Recortar</td></tr>
+		<tr><td><kbd>T</kbd></td><td>Texto</td><td><kbd>Z</kbd></td><td>Redimensionar a imagem</td></tr>
+	</table>
+	<ul>
+		<li>Segure <kbd>Shift</kbd> ao desenhar para obter um quadrado ou um c√≠rculo, ou linhas em passos de 15¬∞; ao redimensionar, mant√©m a propor√ß√£o.
+			Segure <kbd>Ctrl</kbd> para desenhar ou redimensionar a partir do centro, √∫til para uma elipse em volta de algo.</li>
+		<li>Texto: desenhe a caixa de texto e digite. Clique duas vezes em um texto para alter√°-lo; <kbd>Enter</kbd> termina, <kbd>Shift</kbd> + <kbd>Enter</kbd> come√ßa uma nova linha.</li>
+		<li>Elementos selecionados: as setas os movem (com <kbd>Shift</kbd>, dez pixels), <kbd>Ctrl</kbd> + setas os redimensionam,
+			<kbd>Page Up</kbd> / <kbd>Page Down</kbd> os sobem ou descem uma camada, <kbd>Delete</kbd> os remove, <kbd>Ctrl</kbd> + <kbd>D</kbd> os duplica.
+			Segure <kbd>Shift</kbd> e clique para selecionar v√°rios elementos.</li>
+		<li><kbd>Ctrl</kbd> + <kbd>Z</kbd> desfaz, <kbd>Ctrl</kbd> + <kbd>Y</kbd> refaz.</li>
 	</ul>
 
-	<a name="settings-plugins"></a>
-	<h3>ConfiguraÁıes de Plugins</h3>
+	<a name="editor-highlight"></a>
+	<h3>Destacar e ocultar</h3>
+	<p>Desenhe a √°rea a destacar (<kbd>H</kbd>) ou ocultar (<kbd>O</kbd>) como um ret√¢ngulo e escolha o modo na barra de ferramentas:</p>
+	<ul>
+		<li><em>Destacar texto</em> colore a √°rea como um marca-texto, <em>Destacar √°rea</em> escurece e desfoca todo o resto,
+			<em>Escalas de cinza</em> deixa todo o resto cinza, <em>Ampliar</em> aumenta a √°rea.</li>
+		<li><em>Pixeliza√ß√£o</em> ou <em>Desfocar</em> escondem senhas, nomes, n√∫meros de conta ou rostos.</li>
+	</ul>
+
+	<a name="editor-crop"></a>
+	<h3>Recortar</h3>
 	<p>
-		Exibe uma lista de plugins do Greenshot instalados. Selecione um da lista e clique <em>Configurar</em> para acessar ‡ configuraÁ„o de um plugin.
+		Escolha a ferramenta de recorte (<kbd>C</kbd>) e desenhe a √°rea a manter; <kbd>Enter</kbd> confirma, <kbd>Esc</kbd> cancela.
+		Pressione <kbd>C</kbd> de novo, ou use <em>Modo de corte</em> na barra de ferramentas, para mudar o modo:
 	</p>
-	
-	<a name="settings-expert"></a>
-	<h3>ConfiguraÁıes avanÁadas</h3>
+	<ul>
+		<li><em>Remover verticalmente</em> ou <em>Remover horizontalmente</em> remove uma faixa da imagem e junta o resto, por exemplo para tirar
+			o meio vazio de uma p√°gina longa. <em>Bordas de corte</em> escolhe a apar√™ncia da emenda: reta, zigue-zague, ondulada, rasgada ou sem emenda.</li>
+		<li><em>Corte autom√°tico</em> remove uma borda de uma s√≥ cor em volta da imagem.</li>
+	</ul>
+
+	<a name="editor-effects"></a>
+	<h3>Efeitos, girar e redimensionar</h3>
+	<table>
+		<tr><th>Teclas</th><th>O que fazem</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Q</kbd></td><td>Sombra</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>B</kbd></td><td>Borda</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>T</kbd></td><td>Borda rasgada</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>G</kbd> / <kbd>Ctrl</kbd> + <kbd>I</kbd></td><td>Escala de cinza / inverter cores, por exemplo para economizar tinta ao imprimir</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>,</kbd> / <kbd>Ctrl</kbd> + <kbd>.</kbd></td><td>Girar no sentido anti-hor√°rio / hor√°rio</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>+</kbd> / <kbd>-</kbd></td><td>Aumentar / diminuir a tela de desenho</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>+</kbd> / <kbd>-</kbd>, <kbd>Ctrl</kbd> + <kbd>0</kbd>, <kbd>Ctrl</kbd> + <kbd>9</kbd></td><td>Aproximar / afastar, tamanho real, ajustar √† janela</td></tr>
+	</table>
 	<p>
-		Queremos dizer: È melhor n„o alterar nada aqui se n„o souber o que est· fazendo, pois estas configuraÁıes podem provocar comportamentos inesperados.
+		Uma borda rasgada continua sendo um elemento que voc√™ pode alterar; <em>Aplicar √† imagem</em> na barra de ferramentas a torna parte da imagem.
 	</p>
-	
-	
+
+	<a name="editor-reuse"></a>
+	<h3>Adicionar imagens e reutilizar elementos</h3>
+	<ul>
+		<li>Arraste um arquivo de imagem para o editor, ou cole uma imagem com <kbd>Ctrl</kbd> + <kbd>V</kbd>. <em>Inserir janela</em> no menu <em>Editar</em> adiciona a captura de outra janela aberta.</li>
+		<li>Use os mesmos elementos em muitas capturas: <em>Salvar objetos em arquivo...</em> no menu <em>Objeto</em>, e <em>Carregar objetos de arquivo...</em> na captura seguinte.</li>
+		<li>Salve como arquivo <code>.greenshot</code> para manter cada elemento edit√°vel e continuar depois.</li>
+	</ul>
+
+	<a name="editor-export"></a>
+	<h3>Salvar e exportar</h3>
+	<table>
+		<tr><th>Teclas</th><th>O que fazem</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td><td><em>Salvar</em>, na pasta da <a href="greenshot://settings?tab=output">aba de arquivo de sa√≠da</a></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd></td><td><em>Salvar como...</em>: escolher pasta, nome e formato de imagem</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd></td><td><em>Copiar imagem para a √Årea de transfer√™ncia</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>P</kbd></td><td><em>Imprimir</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>E</kbd></td><td><em>Enviar por e-mail</em>: uma nova mensagem com a imagem anexada</td></tr>
+	</table>
+	<p>
+		O menu <em>Arquivo</em> e a barra de ferramentas superior listam todos os seus destinos, inclusive os dos plugins.
+		Depois de salvar, clique com o bot√£o direito na barra de status, embaixo, para copiar o caminho do arquivo ou abrir a pasta dele.
+	</p>
+
+	<a name="recipes"></a>
+	<h2>Passos autom√°ticos e receitas</h2>
+	<p>
+		As receitas fazem coisas com as suas capturas automaticamente, por exemplo adicionar uma borda a cada captura, ou salvar e enviar de uma vez.
+		<em>Prefer√™ncias r√°pidas</em> &gt; <em>Etapas autom√°ticas</em> no menu do √≠cone ativa ou desativa os passos prontos,
+		<em>Mais‚Ä¶</em> abre as configura√ß√µes deles na <a href="greenshot://settings?tab=recipes">aba Receitas</a>.
+		O menu <em>Receitas</em> do √≠cone executa suas receitas e abre o <a href="greenshot://recipe-manager">Gerenciador de receitas</a> e o Recipe Editor.
+		As receitas v√™m com o plugin Recipe Editor.
+	</p>
+
+	<a name="settings"></a>
+	<h2>As prefer√™ncias</h2>
+	<p>Abra as prefer√™ncias com <em>Prefer√™ncias...</em> no menu do √≠cone, ou com os links abaixo.</p>
+	<ul>
+		<li><a href="greenshot://settings?tab=general">Geral</a>: idioma, cores (claro, escuro ou como o Windows), tamanho dos √≠cones,
+			<em>Executar o Greenshot ao iniciar o Windows</em>, as teclas de atalho, o proxy e com que frequ√™ncia o Greenshot procura atualiza√ß√µes.</li>
+		<li><a href="greenshot://settings?tab=capture">Captura</a>: capturar o ponteiro do mouse, som de c√¢mera, lupa, congelar a tela,
+			notifica√ß√µes, a espera antes de uma captura, seus tamanhos fixos, a captura interativa de janelas e o idioma do reconhecimento de texto.</li>
+		<li><a href="greenshot://settings?tab=output">Arquivo de sa√≠da</a>: a pasta e o padr√£o de nome de arquivo para salvar (clique em <em>?</em> para ver as vari√°veis,
+			por exemplo <code>${YYYY}-${MM}-${DD}</code> ou <code>${title}</code>; uma <code>\</code> no padr√£o cria pastas), o formato de imagem e a qualidade JPEG.</li>
+		<li><a href="greenshot://settings?tab=destination">Destino da tela capturada</a>: o que acontece depois de uma captura, veja <a href="#destinations">para onde vai a captura</a>.</li>
+		<li><a href="greenshot://settings?tab=editor">Editor</a>: abas, o tamanho da janela do editor, a pergunta sobre salvar ao fechar, e o tamanho e a cor de uma nova imagem.</li>
+		<li><a href="greenshot://settings?tab=printer">Impressora</a>: ajustar a imagem √† p√°gina, gir√°-la ou centraliz√°-la, imprimir em cores, em tons de cinza ou invertida, e um rodap√© com data e hora.</li>
+		<li><a href="greenshot://settings?tab=plugins">Plugins</a>: ativar, desativar e configurar plugins. As altera√ß√µes valem a partir da pr√≥xima inicializa√ß√£o do Greenshot.</li>
+		<li><a href="greenshot://settings?tab=expert">Especialista</a>: configura√ß√µes para casos especiais, por exemplo √°rea de trabalho remota, captura com DirectX (necess√°ria para telas HDR), mem√≥ria e velocidade,
+			e os formatos da √°rea de transfer√™ncia. S√≥ as altere se souber o que fazem.</li>
+	</ul>
+	<p class="hint">
+		O Greenshot guarda as configura√ß√µes em <code>greenshot.ini</code>, em <code>%APPDATA%\Greenshot</code> (a vers√£o port√°til ao lado do Greenshot.exe).
+		<a href="greenshot://self-service?section=files">Arquivos e configura√ß√£o</a> no Autoatendimento mostra onde ele est√°.
+	</p>
+
+	<a name="troubleshooting"></a>
+	<h2>Quando algo n√£o funciona</h2>
+	<p>
+		O Autoatendimento verifica o Greenshot e corrige a maioria dos problemas. Abra-o com <em>Sobre o Greenshot</em> no menu do √≠cone e depois <em>Autoatendimento</em>,
+		ou v√° direto para a se√ß√£o certa:
+	</p>
+	<ul>
+		<li><kbd>Print Screen</kbd> n√£o faz nada ou abre outra coisa: <a href="greenshot://self-service?section=hotkeys">Teclas de atalho e conflitos</a>
+			mostra se o OneDrive ou a Ferramenta de Captura pegou a tecla, e a devolve ao Greenshot.</li>
+		<li>N√£o encontra suas capturas: <a href="greenshot://self-service?section=files">Arquivos e configura√ß√£o</a> mostra onde o Greenshot as salva.</li>
+		<li>Copiar para a √°rea de transfer√™ncia falha: <a href="greenshot://self-service?section=clipboard">Diagn√≥stico da √°rea de transfer√™ncia</a> encontra o programa que bloqueia a √°rea de transfer√™ncia.</li>
+		<li>O Greenshot trava ou falta um plugin depois de uma atualiza√ß√£o: <a href="greenshot://self-service?section=checksum">Integridade da instala√ß√£o</a> verifica os arquivos instalados.</li>
+		<li>Relatar um problema: <em>Copiar informa√ß√µes do sistema</em> em <a href="greenshot://self-service?section=system">Sistema e hardware</a> e os
+			<a href="greenshot://log?search=ERROR">erros no log</a> nos ajudam a ajudar voc√™. Relate problemas em
+			<a target="_blank" href="https://github.com/greenshot/greenshot/issues">github.com/greenshot/greenshot/issues</a>.</li>
+	</ul>
+
 	<a name="help"></a>
 	<h2>Quer ajudar?</h2>
-	
-	<p>
-		De momento, n„o precisamos de ajuda no desenvolvimento. Contudo, h· v·rias coisas que
-		pode fazer para ajudar o Greenshot e a equipe de desenvolvimento.<br>
-		Antecipadamente obrigado :)
-	</p>
-	
+
 	<a name="help-donate"></a>
-	<h3>FaÁa uma doaÁ„o</h3>
+	<h3>Considere uma doa√ß√£o</h3>
 	<p>
-		Estamos investindo muito trabalho no Greenshot e gastando bastante tempo para fornecer
-		um bom software gratuito e de cÛdigo aberto. Se acha que
-		isso o torna mais produtivo, e lhe poupa (ou ‡ sua empresa)
-		muito tempo e dinheiro, ou se simplesmente gosta do Greenshot e
-		da ideia de software de cÛdigo aberto: por favor considere compensar o nosso esforÁo, doando.<br>
-		Por favor visite a nossa p·gina web para ver como pode apoiar a equipe de desenvolvimento do Greenshot:<br>
-		<a target="_blank" href="https://getgreenshot.org/support/">https://getgreenshot.org/support/</a>
+		Colocamos muito trabalho no Greenshot para oferecer um bom software gratuito e de c√≥digo aberto. Se ele deixa voc√™ mais produtivo,
+		economiza tempo e dinheiro para voc√™ ou sua empresa, ou se voc√™ simplesmente gosta do Greenshot: considere nos apoiar.
+		Em <a target="_blank" href="https://getgreenshot.org/support/">https://getgreenshot.org/support/</a> voc√™ v√™ como pode ajudar.
 	</p>
-	
+
 	<a name="help-spread"></a>
-	<h3>Espalhe a palavra</h3>
+	<h3>Divulgue</h3>
 	<p>
-		Se gosta do Greenshot, deixe que as pessoas saibam: Fale sobre o Greenshot aos seus amigos e colegas.
-		Os seus seguidores, tambÈm :)<br>
-		Classifique o Greenshot nos portais de software ou tenha um link da nossa p·gina no seu blog ou site.
+		Se voc√™ gosta do Greenshot, conte para seus amigos e colegas. Avalie o Greenshot em portais de software ou coloque um link para nosso site no seu blog ou site.
 	</p>
-	
-	<a name="help-translate"></a>
-	<h3>Envie uma traduÁ„o</h3>
 	<p>
-		O Greenshot n„o est· disponÌvel no seu idioma preferido? Se acha que pode traduzir
-		uma peÁa de software, È mais do que bem-vindo.
-		Se È um usu·rio registado no sourceforge.net, pode enviar traduÁıes para o nosso 
-		<a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">monitor de traduÁıes</a>.<br>
-		Por favor certifique-se de que n„o existe traduÁ„o para o seu idioma na nossa
-		<a target="_blank" href="https://getgreenshot.org/downloads/">p·gina de downloads</a>. Veja tambÈm no nosso <a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">monitor de traduÁıes</a>,
-		se existe alguma traduÁ„o a decorrer, ou pelo menos em discuss„o.<br>
-		Tenha em atenÁ„o que sÛ disponibilizaremos uma traduÁ„o na nossa p·gina de downloads se ela 
-		tiver sido enviada atravÈs da sua conta no sourceforge.net. Uma vez que o mais prov·vel È nÛs
-		n„o sermos capazes de perceber a sua traduÁ„o, È bom que outros utilizadores do sourceforge 
-		tenham possibilidade de contact·-lo sobre de aperfeiÁoamentos no caso de nova vers„o do Greenshot.
+		D√™ uma estrela ao Greenshot no <a target="_blank" href="https://github.com/greenshot/greenshot">GitHub</a>, isso ajuda outras pessoas a encontr√°-lo:
+		<br><iframe src="https://ghbtns.com/github-btn.html?user=greenshot&amp;repo=greenshot&amp;type=star&amp;count=true&amp;size=large" frameborder="0" width="170" height="30" title="GitHub"></iframe>
 	</p>
-	
-	
-	
+
 	</body>
 </html>

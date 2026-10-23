@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="et">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Greenshoti abi</title>
+		<style>
+		* {font-family: "Segoe UI", Tahoma, Arial, Sans-serif;}
+		body {max-width:60em;margin:0 auto;padding:0 16px 24px 16px;}
+		h1 {font-size:20px;}
+		h2 {font-size:16px;color:#009900;margin-top:28px;}
+		h3 {font-size:14px;margin-top:20px;}
+		small {font-size:11px;}
+		p, li, td, th {font-size:13px;line-height:1.5em;}
+		a:link, a:hover, a:visited, a:active {color:#007700;}
+		kbd {background-color:#eeeeee;border:1px solid #bbbbbb;padding:0 3px;border-radius:3px;white-space:nowrap;}
+		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px 8px;}
+		table {border-collapse:collapse;margin:6px 0;}
+		th, td {border:1px solid #dddddd;padding:3px 8px;text-align:left;vertical-align:top;}
+		th {background-color:#f2f2f2;}
+		em {font-style:normal;font-weight:bold;}
+		:root {--greenshot-icon:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAEgklEQVR4nO2WXWxTZRjHf+er3y0j3dhXuw8DHRsEJoPEBEY0CMEbPtR4gUiciYQgd4ImeqMRZuK9qBgwXBjDFcSQoASVz4RIXPnY5raAbN1GS7d1LWU9p2c9PV6UlBE76ACHFz5X7/l4/s/vvO95n/cvtLa2mjzDEJ9l8f8B/tsAjkqN6rVRLCWT/yqAXLB4RZoXD3cg2Qy0ESu/vtmCoUmzB1DSmESyGQDYytI4fRruuglqN0SIXfPQe7AOM/uUAKrXjEwRrsU0YfSPElK3bDiqNMY7PaRjCq0H+hBlE29zgniPm8g5L44qjcmkzGSy4HcUB9D8cW9O+Pk48V4XkXNeZGeG8zubsXgmuRuyo3gyCMKDiY3b+5m/dRBDk7j4/mJi1zyPBSBOFRYEWPhuP2uOXGLND5eQXRnMrIAeVwjuCxC76uH6935uX/BSuzEMgGQzqH45imQ3CGwbJNA2gOLKFD8DwfYAdZvCxK55iJz3svTDvpyw3cC3Nsp4Z+7Lhk/NY/jUvHziaHAOlavHABi7MoemHTep25yDclZrBPc2FAfgrEzz+weLmZyQ/iEcuzpn2sSOTxupWDWKOmJlvNODf300/8xRoWEv01nxeRcuv0r31/X0H60sqCN8YWIO/TyP4L4csahkqVw9hjpiJXa1+HWd25Sk5ZMekLIE9zZQ1pJgwbYQAIYmcmL9yoI7R4bclNm8Osv3dePyq/z5TT2xX2b2U413uzn1xor8taMynR+nIrZpt62cjin0HKqhdmOYuU1JABbtukHoeDlmViicVUQM/VSOIJo4fSr9xwpPP4B8ctMLOeJyPX9TjVqfqDiAmYXQ8YpHvidLdgNDlRg8UY6oZHPER6ueqPhMQnb5VZzVGrUbw8Q63XTvf+6ptdmiANKjVlZ9dQVRyVK6LE6iz0XkbOmsAYhZAxDu20Jhlh2CrCcULrcHqH81TKzTQ+Ssd3YB5m8ZQpBMLu5ZRGbi8U+1xwZo3HETAHddio7PiuvfNq/OivZunDUpeg5M32aLifyKO6rUopNqNoQpaUyiOA2adv6FIJrYKzR866JY5uqPFpgSsjZmQZRMer+rLTopFbblx2rUiq1U56XDHUh2A23Uwm9bl5NJFWfh5DNty9Djyoyoh0+WI1lMnP4UA8eqKFl4F8l+z8KV6rj8Kk6fSu2mMOOdbnq+rZ/+LFh9sIPTbxVPDLk2O/Dj/TarJ2Qmhuw4fSrjXW60qJWV+y8jKibepQnivW7Cpwv3FtlepuOqUbGXazlj0uWm79DMTKfiznBh1xIsngx3B+0oTgOKPErkeI+LVMTKyi/vdcOWOHeuuwifLsVRkUZPSg/dng3vDBB4O5TzhrsXYRoO9Dsywb0N1G3OLcHDOqt84b1mZLvxYDcUTAJtAzS0hTBUiYt7Fk9rTqZ6Q9+6KIk+N/WvDyMqWS591PRIxyxmJwX0OzKX2wOMd3m4caSa8JlS6l+7lRO2G/hfuY1oyTJ/yxALtoWQHUZeYCxYkh+PdpTQtOMmjdv7aWgLsWT39YcWB/gbBUPC48UgfpEAAAAASUVORK5CYII=);}
+		h1 {background:var(--greenshot-icon) no-repeat left center;background-size:32px;padding-left:40px;line-height:32px;}
+		a[href^="greenshot:"] {background:#eef8ee var(--greenshot-icon) no-repeat 3px center;background-size:16px;border:1px solid #99cc99;border-radius:3px;padding:0 4px 0 22px;text-decoration:none;white-space:nowrap;}
+		a[href^="greenshot:"]:hover {background-color:#ddf0dd;}
+		[dir="rtl"] h1 {background-position:right center;padding-left:0;padding-right:40px;}
+		[dir="rtl"] a[href^="greenshot:"] {background-position:right 3px center;padding:0 22px 0 4px;}
+		</style>
+	</head>
+	<body>
+	<h1>Greenshoti abi</h1>
+	<!--
+	Note to translator: uncomment the entry below to have your effort honored
+	-->
+	<!--<small>Abi eestikeelne tõlge: SINU_NIMI</small>-->
+
+	<p class="hint">
+		Lingid, mis algavad <code>greenshot:</code>, näiteks <a href="greenshot://settings">ava eelistused</a>,
+		avavad vastava Greenshoti akna. Need töötavad, kui Greenshot on paigaldatud paigaldusprogrammiga, mitte kaasaskantavas
+		versioonis ega Greenshot Lightis. Brauser võib enne Greenshoti avamist küsida.
+	</p>
+
+	<h2>Sisukord</h2>
+	<ol>
+		<li><a href="#start">Alustamine</a></li>
+		<li><a href="#screenshot">Ekraanipildi tegemine</a>
+			<ol>
+				<li><a href="#capture-screen">Haaramisekraan</a></li>
+				<li><a href="#capture-modes">Regioon, aken, kindel suurus ja tekst</a></li>
+				<li><a href="#capture-keys">Klahvid valimise ajal</a></li>
+				<li><a href="#capture-live">Valimine ekraani külmutamata</a></li>
+			</ol>
+		</li>
+		<li><a href="#destinations">Kuhu ekraanipilt läheb</a></li>
+		<li><a href="#editor">Pildiredaktor</a>
+			<ol>
+				<li><a href="#editor-tabs">Vahekaardid</a></li>
+				<li><a href="#editor-tools">Joonistustööriistad</a></li>
+				<li><a href="#editor-highlight">Esiletõstmine ja peitmine</a></li>
+				<li><a href="#editor-crop">Kärpimine</a></li>
+				<li><a href="#editor-effects">Efektid, pööramine ja suuruse muutmine</a></li>
+				<li><a href="#editor-reuse">Piltide lisamine ja elementide taaskasutamine</a></li>
+				<li><a href="#editor-export">Salvestamine ja eksportimine</a></li>
+			</ol>
+		</li>
+		<li><a href="#recipes">Automaatsed sammud ja retseptid</a></li>
+		<li><a href="#settings">Eelistused</a></li>
+		<li><a href="#troubleshooting">Kui midagi ei tööta</a></li>
+		<li><a href="#help">Kas soovite aidata?</a></li>
+	</ol>
+
+	<a name="start"></a>
+	<h2>Alustamine</h2>
+	<p>
+		Greenshot töötab taustal. Selle ikoon on kella kõrval, tegumiriba teavitusalas.
+		Klõpsake sellel parema hiireklahviga, et avada menüü kõigi haaramisviiside, valiku <em>Eelistused...</em> ja selle abiga.
+	</p>
+	<p class="hint">
+		Ei näe ikooni? Windows 11 võib selle peita noole (^) taha. <a href="greenshot://self-service?section=setup">Teie seadistus</a>
+		Iseteenindus'is kuvab selle kella kõrval ja kontrollib ka, kas klahv <kbd>Print Screen</kbd> jõuab Greenshotini.
+	</p>
+
+	<a name="screenshot"></a>
+	<h2>Ekraanipildi tegemine</h2>
+	<p>Alustage haaramist kiirklahviga või Greenshoti ikooni menüüst:</p>
+	<table>
+		<tr><th>Haaramine</th><th>Kiirklahv</th><th>Mis juhtub</th></tr>
+		<tr><td><em>Haarake teatud regioon</em></td><td><kbd>Print Screen</kbd></td><td>Avaneb haaramisekraan ja te valite, mida haarata.</td></tr>
+		<tr><td><em>Haarake aken</em></td><td><kbd>Alt</kbd> + <kbd>Print Screen</kbd></td><td>Haarab kohe aktiivse akna. Valikuga <em>Kasutage interaktiivset akna haaramismeetodit</em> (<a href="greenshot://settings?tab=capture">vahekaart Haarake</a>) valite akna hoopis haaramisekraanil.</td></tr>
+		<tr><td><em>Haarake kogu ekraan</em></td><td><kbd>Ctrl</kbd> + <kbd>Print Screen</kbd></td><td>Haarab kohe ekraani. Mitme monitori korral pakub ikooni menüü kõiki monitore või ühte neist.</td></tr>
+		<tr><td><em>Haarake hiljutine regioon</em></td><td><kbd>Shift</kbd> + <kbd>Print Screen</kbd></td><td>Haarab uuesti sama ala mis viimati.</td></tr>
+		<tr><td><em>Avage pilt lõikelaualt</em></td><td>puudub</td><td>Avab lõikelaual oleva pildi.</td></tr>
+	</table>
+	<p>
+		Menüüs on ka <em>Haarake aken loendist</em>, mis haarab valitud avatud akna ilma haaramisekraanita,
+		<em>Avage pilt failist</em> ja <em>Avage viimane haaratud asukoht</em>.
+		Kiirklahve saate muuta <a href="greenshot://settings?tab=general">eelistustes, vahekaardil Põhiline</a>.
+	</p>
+
+	<a name="capture-screen"></a>
+	<h3>Haaramisekraan</h3>
+	<p>
+		Greenshot teeb pildi kõigist teie monitoridest ja näitab seda kõige peal. Valimise ajal ei muutu midagi,
+		nii et avatud menüü või kohtspikker jääb paigale. Haaratakse ainult valitud osa. <kbd>Esc</kbd> sulgeb haaramisekraani
+		midagi haaramata.
+	</p>
+	<p>Pildi peal näete:</p>
+	<ul>
+		<li><em>valikut</em> koos selle suurusega,</li>
+		<li><em>suurendajat</em>, hiire kõrval olevat luupi, mis näitab iga pikslit, et saaksite nurga täpselt paika panna,</li>
+		<li>paneele nurkades: <em>klahvid</em> (<kbd>F1</kbd>), <em>info</em> (<kbd>I</kbd>) ja valiku <em>eelvaade</em> (<kbd>P</kbd>).
+			Need liiguvad ise eest ära.</li>
+	</ul>
+	<p class="hint">
+		Vajutage valimise ajal <kbd>F1</kbd>: klahvide paneel näitab alati klahve, mis sel hetkel töötavad.
+		Greenshot jätab meelde, kui peidate paneeli; <kbd>F1</kbd> või <kbd>I</kbd> toob selle tagasi.
+	</p>
+
+	<a name="capture-modes"></a>
+	<h3>Regioon, aken, kindel suurus ja tekst</h3>
+	<ul>
+		<li><em>Regioon</em>: lohistage hiirega ristkülik, nupu vabastamisel see haaratakse. Klaviatuuriga: nooleklahvid liigutavad hiirt,
+			<kbd>Enter</kbd> alustab valikut ja teine <kbd>Enter</kbd> haarab selle. Hoidke all <kbd>Shift</kbd>, et muuta ainult laiust või ainult kõrgust.</li>
+		<li><em>Aken</em> (<kbd>Tühik</kbd>): valitakse hiire all olev aken, klõps või <kbd>Enter</kbd> haarab selle.
+			Greenshot valib kõige sisemise osa, näiteks tööriistariba; liikuge akna välisservale, et valida kogu aken.
+			<kbd>Tab</kbd> ja <kbd>Shift</kbd> + <kbd>Tab</kbd> valivad järgmise või eelmise akna.</li>
+		<li><em>Kindel suurus</em> (<kbd>F</kbd>): täpse suurusega ristkülik, näiteks 1280 × 720, järgib hiirt. <kbd>1</kbd> – <kbd>9</kbd> valivad suuruse,
+			<kbd>C</kbd> vahetab nurka, millest hiir kinni hoiab, hoidke all <kbd>Alt</kbd>, et paigutada see akendele kinnitumata. Oma suurused määrate
+			<a href="greenshot://settings?tab=capture">vahekaardil Haarake</a>, pakutakse ka teie viimaste haaramiste suurusi.</li>
+		<li><em>Tekst</em> (<kbd>T</kbd>): Greenshot loeb ekraanil olevat teksti Windowsi tekstituvastusega ja raamib iga rea.
+			Klõpsake real või lohistage üle sõnade, et need haarata. Sõnade saamiseks tekstina saatke haaratud pilt sihtkohta <em>Windows OCR</em>,
+			mis kopeerib teksti lõikelauale. Selleks peab Windowsi olema paigaldatud tuvastuskeel; keel valitakse
+			<a href="greenshot://settings?tab=capture">vahekaardil Haarake</a>, <em>Tekstituvastus (OCR)</em>.</li>
+	</ul>
+	<p class="hint">
+		QR-koodi laiendiga leiab Greenshot ekraanilt QR-koodid ja raamib need. Klõpsake ühel, et kopeerida selle sisu või avada selle veebiaadress.
+	</p>
+
+	<a name="capture-keys"></a>
+	<h3>Klahvid valimise ajal</h3>
+	<table>
+		<tr><th>Klahv</th><th>Mida see teeb</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Tühista haaramine</td></tr>
+		<tr><td><kbd>Tühik</kbd></td><td>Vaheta regiooni ja akna vahel</td></tr>
+		<tr><td><kbd>F</kbd> / <kbd>T</kbd></td><td>Haara kindel suurus / haara tekst</td></tr>
+		<tr><td><kbd>M</kbd></td><td>Näita või peida hiirekursor pildil</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Vaheta külmutatud ja reaalajas ekraani vahel</td></tr>
+		<tr><td><kbd>Z</kbd></td><td>Näita või peida suurendaja</td></tr>
+		<tr><td><kbd>F1</kbd> / <kbd>I</kbd> / <kbd>P</kbd></td><td>Näita või peida klahvid / info / liiguta või peida eelvaade</td></tr>
+		<tr><td>Nooleklahvid</td><td>Liiguta hiirt ühe piksli võrra, <kbd>Ctrl</kbd>-iga kümne piksli võrra</td></tr>
+		<tr><td><kbd>Enter</kbd></td><td>Alusta või lõpeta valik, haara aken</td></tr>
+	</table>
+
+	<a name="capture-live"></a>
+	<h3>Valimine ekraani külmutamata</h3>
+	<p>
+		Lülitage <em>Külmuta ekraan valimise ajaks</em> välja <a href="greenshot://settings?tab=capture">vahekaardil Haarake</a> või vajutage valimise ajal
+		<kbd>L</kbd>, ja valite reaalajas ekraanil: video mängib edasi ning pilt tehakse siis, kui lõpetate
+		valiku. Tekstirežiim ja eelvaade vajavad külmutatud pilti. Avatud menüüd sulguvad klõpsamisel tavaliselt, seega kasutage nende jaoks külmutatud ekraani.
+	</p>
+	<p class="hint">
+		Midagi ilmub alles hetke pärast? Määrake <em>Pildi tegemise ooteaeg millisekundites</em>
+		<a href="greenshot://settings?tab=capture">vahekaardil Haarake</a> või valige reaalajas ekraanil.
+	</p>
+
+	<a name="destinations"></a>
+	<h2>Kuhu ekraanipilt läheb</h2>
+	<p>
+		Pärast haaramist saadab Greenshot ekraanipildi teie sihtkohtadesse. Vaikimisi küsib see iga kord väikese menüüga.
+		Igal sihtkohal on seal kindel allajoonitud täht, näiteks <kbd>C</kbd> lõikelaua ja <kbd>S</kbd> salvestamise jaoks, nii et saate selle valida klaviatuuriga.
+		Valige sihtkohad <a href="greenshot://settings?tab=destination">vahekaardil Asukoht</a> või ikooni menüüs <em>Kiirsätted</em>.
+	</p>
+	<ul>
+		<li><em>Avage pildihalduris</em>: lisage ekraanipildile kõigepealt märkmed, vt <a href="#editor">pildiredaktor</a>.</li>
+		<li><em>Salvestage otse</em> kasutab <a href="greenshot://settings?tab=output">vahekaardi Väljund</a> kausta ja failinime mustrit, <em>Salvestega nimega</em> küsib neid.</li>
+		<li><em>Kopeerige lõikelauale</em>, <em>Saatke printerisse</em>, <em>E-post</em>, <em>Windows share</em> ja <em>Windows OCR</em> (kopeerib ekraanipildi teksti).</li>
+		<li>Laiendid lisavad veel sihtkohti, näiteks Microsoft Word, Excel, PowerPoint, Outlook ja OneNote, PDF, Box, Dropbox, Jira ja Confluence.
+			Neid seadistatakse <a href="greenshot://settings?tab=plugins">vahekaardil Laiendid</a>, kus saate laiendi ka välja lülitada.</li>
+	</ul>
+	<p>
+		Veerg <em>Saadaval</em> <a href="greenshot://settings?tab=destination">vahekaardil Asukoht</a> lülitab sihtkoha kõikjal välja.
+		Milliseid teavitusi pärast haaramist saate, määratakse <a href="greenshot://settings?tab=capture">vahekaardil Haarake</a>, <em>Teated</em>.
+	</p>
+
+	<a name="editor"></a>
+	<h2>Pildiredaktor</h2>
+	<p>
+		Redaktor lisab ekraanipildile kujundeid, teksti, nooli, esiletõstmisi ja muud või peidab selle, mida teised nägema ei peaks.
+		Lisaks teie haaramistele avab see pilte failist või lõikelaualt (ikooni menüü).
+		Kõik, mida joonistate, jääb elemendiks, mida saate valida, liigutada, muuta või eemaldada.
+	</p>
+
+	<a name="editor-tabs"></a>
+	<h3>Vahekaardid</h3>
+	<p>
+		Redaktori aken näitab mitut pilti vahekaartidena, uus haaramine avaneb vahekaardina viimati kasutatud redaktori aknas.
+		<kbd>Ctrl</kbd> + <kbd>Tab</kbd> läheb järgmisele vahekaardile ja <kbd>Ctrl</kbd> + <kbd>W</kbd> sulgeb ühe. Lohistage vahekaart teise redaktori aknasse
+		või klõpsake sellel parema hiireklahviga, et viia see uude aknasse. <em>+</em> vahekaardiribal alustab uut tühja pilti.
+		Kui sulgete akna salvestamata piltidega, küsib Greenshot ühe korra: <em>Salvesta kõik</em>, <em>Loobu kõigist</em> või tühista.
+		Eelistate ühte akent haaramise kohta? Lülitage vahekaardid välja <a href="greenshot://settings?tab=editor">vahekaardil Kohandaja</a>.
+	</p>
+
+	<a name="editor-tools"></a>
+	<h3>Joonistustööriistad</h3>
+	<p>
+		Valige tööriist redaktori vasakult küljelt, menüüst <em>Objekt</em> või selle klahviga, seejärel lohistage pildil.
+		Ülaosas olev tööriistariba näitab tööriista või valitud elementide valikuid, näiteks joone värvi, täitevärvi ja paksust.
+	</p>
+	<table>
+		<tr><th>Klahv</th><th>Tööriist</th><th>Klahv</th><th>Tööriist</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Valikutööriist</td><td><kbd>S</kbd></td><td>Jutumull</td></tr>
+		<tr><td><kbd>R</kbd></td><td>Ristkülik</td><td><kbd>I</kbd></td><td>Loendur (nummerdatud sammud)</td></tr>
+		<tr><td><kbd>E</kbd></td><td>Ellips</td><td><kbd>M</kbd></td><td>Emotikon</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Joon</td><td><kbd>H</kbd></td><td>Esiletõstmine</td></tr>
+		<tr><td><kbd>A</kbd></td><td>Nool</td><td><kbd>O</kbd></td><td>Peitmine</td></tr>
+		<tr><td><kbd>F</kbd></td><td>Vabakäsi</td><td><kbd>C</kbd></td><td>Kärpimine</td></tr>
+		<tr><td><kbd>T</kbd></td><td>Tekst</td><td><kbd>Z</kbd></td><td>Pildi suuruse muutmine</td></tr>
+	</table>
+	<ul>
+		<li>Hoidke joonistamise ajal all <kbd>Shift</kbd>, et saada ruut või ring või 15° sammudega jooni; suuruse muutmisel säilitab see kuvasuhte.
+			Hoidke all <kbd>Ctrl</kbd>, et joonistada või suurust muuta keskelt, see on mugav ellipsi jaoks millegi ümber.</li>
+		<li>Tekst: joonistage tekstikast ja kirjutage. Teksti muutmiseks topeltklõpsake sellel, <kbd>Enter</kbd> lõpetab, <kbd>Shift</kbd> + <kbd>Enter</kbd> alustab uut rida.</li>
+		<li>Valitud elemendid: nooleklahvid liigutavad neid (<kbd>Shift</kbd>-iga kümme pikslit), <kbd>Ctrl</kbd> + nooleklahvid muudavad nende suurust,
+			<kbd>Page Up</kbd> / <kbd>Page Down</kbd> viivad neid ühe taseme üles või alla, <kbd>Delete</kbd> eemaldab need, <kbd>Ctrl</kbd> + <kbd>D</kbd> teeb neist koopia.
+			Hoidke all <kbd>Shift</kbd> ja klõpsake, et valida mitu elementi.</li>
+		<li><kbd>Ctrl</kbd> + <kbd>Z</kbd> võtab tagasi, <kbd>Ctrl</kbd> + <kbd>Y</kbd> teeb uuesti.</li>
+	</ul>
+
+	<a name="editor-highlight"></a>
+	<h3>Esiletõstmine ja peitmine</h3>
+	<p>Joonistage esiletõstmise (<kbd>H</kbd>) või peitmise (<kbd>O</kbd>) ala nagu ristkülik ja valige tööriistaribal režiim:</p>
+	<ul>
+		<li><em>Tõstke esile teksti</em> värvib ala nagu markeriga, <em>Tooge esiplaanile</em> tumendab ja hägustab kõik muu,
+			<em>Hall skaala</em> muudab kõik muu halliks, <em>Suurendamine</em> suurendab ala.</li>
+		<li><em>Mosaiik</em> või <em>Udune ala</em> peidavad paroolid, nimed, kontonumbrid või näod.</li>
+	</ul>
+
+	<a name="editor-crop"></a>
+	<h3>Kärpimine</h3>
+	<p>
+		Valige kärpimistööriist (<kbd>C</kbd>) ja joonistage ala, mis jääb alles; <kbd>Enter</kbd> kinnitab, <kbd>Esc</kbd> tühistab.
+		Vajutage uuesti <kbd>C</kbd> või kasutage tööriistaribal <em>Lõikerežiim</em>, et režiimi vahetada:
+	</p>
+	<ul>
+		<li><em>Lõika välja vertikaalselt</em> või <em>Lõika välja horisontaalselt</em> eemaldab pildist riba ja ühendab ülejäänu, näiteks et jätta välja
+			pika lehe tühi keskosa. <em>Lõikeservad</em> valib, milline on liitekoht: sirge, siksak, laineline, rebitud või õmblusteta.</li>
+		<li><em>Automaatne lõikus</em> eemaldab pildi ümbert ühevärvilise ääre.</li>
+	</ul>
+
+	<a name="editor-effects"></a>
+	<h3>Efektid, pööramine ja suuruse muutmine</h3>
+	<table>
+		<tr><th>Klahvid</th><th>Mida need teevad</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Q</kbd></td><td>Vari</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>B</kbd></td><td>Ääris</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>T</kbd></td><td>Rebitud serv</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>G</kbd> / <kbd>Ctrl</kbd> + <kbd>I</kbd></td><td>Halltoonid / pööra värvid ümber, näiteks tindi säästmiseks printimisel</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>,</kbd> / <kbd>Ctrl</kbd> + <kbd>.</kbd></td><td>Pööra vastupäeva / päripäeva</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>+</kbd> / <kbd>-</kbd></td><td>Suurenda / vähenda lõuendit</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>+</kbd> / <kbd>-</kbd>, <kbd>Ctrl</kbd> + <kbd>0</kbd>, <kbd>Ctrl</kbd> + <kbd>9</kbd></td><td>Suumi sisse / välja, tegelik suurus, parim sobivus</td></tr>
+	</table>
+	<p>
+		Rebitud serv jääb elemendiks, mida saate muuta; tööriistariba <em>Rakenda pildile</em> teeb sellest pildi osa.
+	</p>
+
+	<a name="editor-reuse"></a>
+	<h3>Piltide lisamine ja elementide taaskasutamine</h3>
+	<ul>
+		<li>Lohistage pildifail redaktorisse või kleepige pilt klahvidega <kbd>Ctrl</kbd> + <kbd>V</kbd>. <em>Sisestage aken</em> menüüs <em>Muutke</em> lisab teise avatud akna pildi.</li>
+		<li>Kasutage samu elemente paljudel ekraanipiltidel: <em>Salvestage objektid faili</em> menüüs <em>Objekt</em> ja <em>Laadige objektid failist</em> järgmisel ekraanipildil.</li>
+		<li>Salvestage <code>.greenshot</code>-failina, et kõik elemendid jääksid muudetavaks ja saaksite hiljem jätkata.</li>
+	</ul>
+
+	<a name="editor-export"></a>
+	<h3>Salvestamine ja eksportimine</h3>
+	<table>
+		<tr><th>Klahvid</th><th>Mida need teevad</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td><td><em>Salvesta</em> <a href="greenshot://settings?tab=output">vahekaardi Väljund</a> kausta</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd></td><td><em>Salvestage nimega...</em>: valige kaust, nimi ja pildivorming</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd></td><td><em>Kopeerige pilt lõikelauale</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>P</kbd></td><td><em>Printige</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>E</kbd></td><td><em>E-post</em>: uus kiri, mille manuseks on pilt</td></tr>
+	</table>
+	<p>
+		Menüü <em>Fail</em> ja ülaosa tööriistariba loetlevad kõik teie sihtkohad, ka laiendite omad.
+		Pärast salvestamist klõpsake allosas oleval olekuribal parema hiireklahviga, et kopeerida faili tee või avada selle kaust.
+	</p>
+
+	<a name="recipes"></a>
+	<h2>Automaatsed sammud ja retseptid</h2>
+	<p>
+		Retseptid teevad teie haaramistega asju automaatselt, näiteks lisavad igale haaramisele äärise või salvestavad ja laadivad selle ühe korraga üles.
+		<em>Kiirsätted</em> &gt; <em>Automaatsed sammud</em> ikooni menüüs lülitab valmis sammud sisse või välja,
+		<em>Veel…</em> avab nende seaded <a href="greenshot://settings?tab=recipes">vahekaardil Retseptid</a>.
+		Ikooni menüü <em>Retseptid</em> käivitab teie retsepte ning avab <a href="greenshot://recipe-manager">Retseptihalduri</a> ja Recipe Editori.
+		Retseptid tulevad koos laiendiga Recipe Editor.
+	</p>
+
+	<a name="settings"></a>
+	<h2>Eelistused</h2>
+	<p>Avage eelistused ikooni menüüs valikuga <em>Eelistused...</em> või allolevate linkidega.</p>
+	<ul>
+		<li><a href="greenshot://settings?tab=general">Põhiline</a>: keel, värvid (hele, tume või nagu Windows), ikooni suurus,
+			<em>Käivitage Greenshot koos Windowsiga</em>, kiirklahvid, puhverserver ja kui tihti Greenshot uuendusi otsib.</li>
+		<li><a href="greenshot://settings?tab=capture">Haarake</a>: hiirekursori haaramine, kaamera heli, suurendaja, ekraani külmutamine,
+			teavitused, ootamine enne haaramist, teie kindlad suurused, interaktiivne akna haaramine ja tekstituvastuse keel.</li>
+		<li><a href="greenshot://settings?tab=output">Väljund</a>: salvestamise kaust ja failinime muster (klõpsake <em>?</em>, et näha kohatäiteid,
+			näiteks <code>${YYYY}-${MM}-${DD}</code> või <code>${title}</code>; <code>\</code> mustris loob kaustu), pildivorming ja JPEG-kvaliteet.</li>
+		<li><a href="greenshot://settings?tab=destination">Asukoht</a>: mis juhtub pärast haaramist, vt <a href="#destinations">kuhu ekraanipilt läheb</a>.</li>
+		<li><a href="greenshot://settings?tab=editor">Kohandaja</a>: vahekaardid, redaktori akna suurus, salvestamise küsimus sulgemisel ning uue pildi suurus ja värv.</li>
+		<li><a href="greenshot://settings?tab=printer">Printer</a>: pildi sobitamine lehele, pööramine või keskele paigutamine, printimine värviliselt, halltoonides või ümberpööratult ning jalus kuupäeva ja kellaajaga.</li>
+		<li><a href="greenshot://settings?tab=plugins">Laiendid</a>: laiendite sisse- ja väljalülitamine ning seadistamine. Muudatused jõustuvad Greenshoti järgmisel käivitamisel.</li>
+		<li><a href="greenshot://settings?tab=expert">Ekspert</a>: seaded erijuhtudeks, näiteks kaugtöölaud, DirectX-iga haaramine (vajalik HDR-ekraanide jaoks), mälu ja kiirus
+			ning lõikelaua vormingud. Muutke neid ainult siis, kui teate, mida need teevad.</li>
+	</ul>
+	<p class="hint">
+		Greenshot hoiab oma seadeid failis <code>greenshot.ini</code> kaustas <code>%APPDATA%\Greenshot</code> (kaasaskantav versioon hoiab seda Greenshot.exe kõrval).
+		<a href="greenshot://self-service?section=files">Failid ja seadistus</a> Iseteenindus'is näitab, kus see asub.
+	</p>
+
+	<a name="troubleshooting"></a>
+	<h2>Kui midagi ei tööta</h2>
+	<p>
+		Iseteenindus kontrollib Greenshoti ja parandab enamiku probleeme. Avage see ikooni menüüs valikuga <em>Info Greenshoti kohta</em> ja siis <em>Iseteenindus</em>
+		või minge otse õigesse jaotisse:
+	</p>
+	<ul>
+		<li><kbd>Print Screen</kbd> ei tee midagi või avab midagi muud: <a href="greenshot://self-service?section=hotkeys">Kiirklahvid ja konfliktid</a>
+			näitab, kas OneDrive või Lõikeriist on klahvi endale võtnud, ja annab selle Greenshotile tagasi.</li>
+		<li>Ei leia oma ekraanipilte: <a href="greenshot://self-service?section=files">Failid ja seadistus</a> näitab, kuhu Greenshot need salvestab.</li>
+		<li>Lõikelauale kopeerimine ebaõnnestub: <a href="greenshot://self-service?section=clipboard">Lõikelaua diagnostika</a> leiab programmi, mis lõikelauda blokeerib.</li>
+		<li>Greenshot jookseb kokku või pärast uuendust on laiend puudu: <a href="greenshot://self-service?section=checksum">Paigalduse terviklikkus</a> kontrollib paigaldatud faile.</li>
+		<li>Probleemist teatamine: <em>Kopeeri süsteemiteave</em> jaotises <a href="greenshot://self-service?section=system">Süsteem ja riistvara</a> ja
+			<a href="greenshot://log?search=ERROR">logis olevad vead</a> aitavad meil teid aidata. Teatage probleemidest aadressil
+			<a target="_blank" href="https://github.com/greenshot/greenshot/issues">github.com/greenshot/greenshot/issues</a>.</li>
+	</ul>
+
+	<a name="help"></a>
+	<h2>Kas soovite aidata?</h2>
+
+	<a name="help-donate"></a>
+	<h3>Kaaluge annetust</h3>
+	<p>
+		Paneme Greenshotisse palju tööd, et pakkuda head tasuta ja avatud lähtekoodiga tarkvara. Kui see teeb teid produktiivsemaks,
+		säästab teie või teie ettevõtte aega ja raha või kui teile lihtsalt meeldib Greenshot: kaaluge palun meie toetamist.
+		Vaadake aadressilt <a target="_blank" href="https://getgreenshot.org/support/">https://getgreenshot.org/support/</a>, kuidas saate aidata.
+	</p>
+
+	<a name="help-spread"></a>
+	<h3>Levitage sõna</h3>
+	<p>
+		Kui teile meeldib Greenshot, rääkige sellest oma sõpradele ja kolleegidele. Hinnake Greenshoti tarkvaraportaalides või lisage link meie kodulehele oma blogis või veebisaidil.
+	</p>
+	<p>
+		Andke Greenshotile <a target="_blank" href="https://github.com/greenshot/greenshot">GitHubis</a> täht, nii leiavad teised selle kergemini:
+		<br><iframe src="https://ghbtns.com/github-btn.html?user=greenshot&amp;repo=greenshot&amp;type=star&amp;count=true&amp;size=large" frameborder="0" width="170" height="30" title="GitHub"></iframe>
+	</p>
+
+	</body>
+</html>

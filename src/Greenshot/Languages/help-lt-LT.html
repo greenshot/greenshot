@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="lt">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Greenshot pagalba</title>
+		<style>
+		* {font-family: "Segoe UI", Tahoma, Arial, Sans-serif;}
+		body {max-width:60em;margin:0 auto;padding:0 16px 24px 16px;}
+		h1 {font-size:20px;}
+		h2 {font-size:16px;color:#009900;margin-top:28px;}
+		h3 {font-size:14px;margin-top:20px;}
+		small {font-size:11px;}
+		p, li, td, th {font-size:13px;line-height:1.5em;}
+		a:link, a:hover, a:visited, a:active {color:#007700;}
+		kbd {background-color:#eeeeee;border:1px solid #bbbbbb;padding:0 3px;border-radius:3px;white-space:nowrap;}
+		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px 8px;}
+		table {border-collapse:collapse;margin:6px 0;}
+		th, td {border:1px solid #dddddd;padding:3px 8px;text-align:left;vertical-align:top;}
+		th {background-color:#f2f2f2;}
+		em {font-style:normal;font-weight:bold;}
+		:root {--greenshot-icon:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAEgklEQVR4nO2WXWxTZRjHf+er3y0j3dhXuw8DHRsEJoPEBEY0CMEbPtR4gUiciYQgd4ImeqMRZuK9qBgwXBjDFcSQoASVz4RIXPnY5raAbN1GS7d1LWU9p2c9PV6UlBE76ACHFz5X7/l4/s/vvO95n/cvtLa2mjzDEJ9l8f8B/tsAjkqN6rVRLCWT/yqAXLB4RZoXD3cg2Qy0ESu/vtmCoUmzB1DSmESyGQDYytI4fRruuglqN0SIXfPQe7AOM/uUAKrXjEwRrsU0YfSPElK3bDiqNMY7PaRjCq0H+hBlE29zgniPm8g5L44qjcmkzGSy4HcUB9D8cW9O+Pk48V4XkXNeZGeG8zubsXgmuRuyo3gyCMKDiY3b+5m/dRBDk7j4/mJi1zyPBSBOFRYEWPhuP2uOXGLND5eQXRnMrIAeVwjuCxC76uH6935uX/BSuzEMgGQzqH45imQ3CGwbJNA2gOLKFD8DwfYAdZvCxK55iJz3svTDvpyw3cC3Nsp4Z+7Lhk/NY/jUvHziaHAOlavHABi7MoemHTep25yDclZrBPc2FAfgrEzz+weLmZyQ/iEcuzpn2sSOTxupWDWKOmJlvNODf300/8xRoWEv01nxeRcuv0r31/X0H60sqCN8YWIO/TyP4L4csahkqVw9hjpiJXa1+HWd25Sk5ZMekLIE9zZQ1pJgwbYQAIYmcmL9yoI7R4bclNm8Osv3dePyq/z5TT2xX2b2U413uzn1xor8taMynR+nIrZpt62cjin0HKqhdmOYuU1JABbtukHoeDlmViicVUQM/VSOIJo4fSr9xwpPP4B8ctMLOeJyPX9TjVqfqDiAmYXQ8YpHvidLdgNDlRg8UY6oZHPER6ueqPhMQnb5VZzVGrUbw8Q63XTvf+6ptdmiANKjVlZ9dQVRyVK6LE6iz0XkbOmsAYhZAxDu20Jhlh2CrCcULrcHqH81TKzTQ+Ssd3YB5m8ZQpBMLu5ZRGbi8U+1xwZo3HETAHddio7PiuvfNq/OivZunDUpeg5M32aLifyKO6rUopNqNoQpaUyiOA2adv6FIJrYKzR866JY5uqPFpgSsjZmQZRMer+rLTopFbblx2rUiq1U56XDHUh2A23Uwm9bl5NJFWfh5DNty9Djyoyoh0+WI1lMnP4UA8eqKFl4F8l+z8KV6rj8Kk6fSu2mMOOdbnq+rZ/+LFh9sIPTbxVPDLk2O/Dj/TarJ2Qmhuw4fSrjXW60qJWV+y8jKibepQnivW7Cpwv3FtlepuOqUbGXazlj0uWm79DMTKfiznBh1xIsngx3B+0oTgOKPErkeI+LVMTKyi/vdcOWOHeuuwifLsVRkUZPSg/dng3vDBB4O5TzhrsXYRoO9Dsywb0N1G3OLcHDOqt84b1mZLvxYDcUTAJtAzS0hTBUiYt7Fk9rTqZ6Q9+6KIk+N/WvDyMqWS591PRIxyxmJwX0OzKX2wOMd3m4caSa8JlS6l+7lRO2G/hfuY1oyTJ/yxALtoWQHUZeYCxYkh+PdpTQtOMmjdv7aWgLsWT39YcWB/gbBUPC48UgfpEAAAAASUVORK5CYII=);}
+		h1 {background:var(--greenshot-icon) no-repeat left center;background-size:32px;padding-left:40px;line-height:32px;}
+		a[href^="greenshot:"] {background:#eef8ee var(--greenshot-icon) no-repeat 3px center;background-size:16px;border:1px solid #99cc99;border-radius:3px;padding:0 4px 0 22px;text-decoration:none;white-space:nowrap;}
+		a[href^="greenshot:"]:hover {background-color:#ddf0dd;}
+		[dir="rtl"] h1 {background-position:right center;padding-left:0;padding-right:40px;}
+		[dir="rtl"] a[href^="greenshot:"] {background-position:right 3px center;padding:0 22px 0 4px;}
+		</style>
+	</head>
+	<body>
+	<h1>Greenshot pagalba</h1>
+	<!--
+	Note to translator: uncomment the entry below to have your effort honored
+	-->
+	<!--<small>Pagalbos vertimas į lietuvių kalbą: YOUR_NAME</small>-->
+
+	<p class="hint">
+		Nuorodos, prasidedančios <code>greenshot:</code>, pavyzdžiui, <a href="greenshot://settings">atidaryti nustatymus</a>,
+		atidaro tą Greenshot langą. Jos veikia, kai Greenshot įdiegtas diegimo programa, bet ne nešiojamojoje
+		versijoje ir ne Greenshot Light. Naršyklė gali paklausti prieš atidarydama Greenshot.
+	</p>
+
+	<h2>Turinys</h2>
+	<ol>
+		<li><a href="#start">Pradžia</a></li>
+		<li><a href="#screenshot">Ekrano nuotraukos darymas</a>
+			<ol>
+				<li><a href="#capture-screen">Fotografavimo ekranas</a></li>
+				<li><a href="#capture-modes">Regionas, langas, fiksuotas dydis ir tekstas</a></li>
+				<li><a href="#capture-keys">Klavišai žymint</a></li>
+				<li><a href="#capture-live">Žymėjimas neužšaldant ekrano</a></li>
+			</ol>
+		</li>
+		<li><a href="#destinations">Kur keliauja nuotrauka</a></li>
+		<li><a href="#editor">Vaizdų redaktorius</a>
+			<ol>
+				<li><a href="#editor-tabs">Kortelės</a></li>
+				<li><a href="#editor-tools">Piešimo įrankiai</a></li>
+				<li><a href="#editor-highlight">Išskyrimas ir paslėpimas</a></li>
+				<li><a href="#editor-crop">Apkirpimas</a></li>
+				<li><a href="#editor-effects">Efektai, pasukimas ir dydžio keitimas</a></li>
+				<li><a href="#editor-reuse">Vaizdų pridėjimas ir elementų pakartotinis naudojimas</a></li>
+				<li><a href="#editor-export">Išsaugojimas ir eksportas</a></li>
+			</ol>
+		</li>
+		<li><a href="#recipes">Automatiniai žingsniai ir receptai</a></li>
+		<li><a href="#settings">Nustatymai</a></li>
+		<li><a href="#troubleshooting">Kai kas nors neveikia</a></li>
+		<li><a href="#help">Norite padėti?</a></li>
+	</ol>
+
+	<a name="start"></a>
+	<h2>Pradžia</h2>
+	<p>
+		Greenshot veikia fone. Jo piktograma yra šalia laikrodžio, užduočių juostos pranešimų srityje.
+		Spustelėkite ją dešiniuoju pelės mygtuku, kad atidarytumėte meniu su visomis nuotraukų rūšimis, <em>Paramentrai...</em> ir šia pagalba.
+	</p>
+	<p class="hint">
+		Nematote piktogramos? Windows 11 gali ją paslėpti už rodyklės (^). <a href="greenshot://self-service?section=setup">Jūsų sąranka</a>
+		Savitarna skiltyje parodo ją šalia laikrodžio ir patikrina, ar klavišas <kbd>Print Screen</kbd> pasiekia Greenshot.
+	</p>
+
+	<a name="screenshot"></a>
+	<h2>Ekrano nuotraukos darymas</h2>
+	<p>Pradėkite fotografuoti spartųjį klavišą arba Greenshot piktogramos meniu:</p>
+	<table>
+		<tr><th>Nuotrauka</th><th>Spartusis klavišas</th><th>Kas vyksta</th></tr>
+		<tr><td><em>Regiono nuotrauka</em></td><td><kbd>Print Screen</kbd></td><td>Atsidaro fotografavimo ekranas, pažymite, ką fotografuoti.</td></tr>
+		<tr><td><em>Lango nuotrauka</em></td><td><kbd>Alt</kbd> + <kbd>Print Screen</kbd></td><td>Iškart nufotografuoja aktyvų langą. Su <em>Interaktyvus lango pasirinkimas</em> (<a href="greenshot://settings?tab=capture">kortelė Nuotrauka</a>) langą renkatės fotografavimo ekrane.</td></tr>
+		<tr><td><em>Viso ekrano nuotrauka</em></td><td><kbd>Ctrl</kbd> + <kbd>Print Screen</kbd></td><td>Iškart nufotografuoja ekraną. Jei monitorių keli, piktogramos meniu siūlo visus monitorius arba vieną iš jų.</td></tr>
+		<tr><td><em>To paties regiono nuotrauka</em></td><td><kbd>Shift</kbd> + <kbd>Print Screen</kbd></td><td>Dar kartą nufotografuoja tą pačią sritį kaip praėjusį kartą.</td></tr>
+		<tr><td><em>Atidaryti vaizdą iš apsikeitimo podelio</em></td><td>nėra</td><td>Atidaro vaizdą iš apsikeitimo podelio.</td></tr>
+	</table>
+	<p>
+		Meniu taip pat yra <em>Lango iš sąrašo nuotrauka</em>, kuri nufotografuoja pasirinktą atidarytą langą be fotografavimo ekrano,
+		<em>Atidaryti vaizdą iš failo</em> ir <em>Atidaryti paskutinės nuotraukos vietą</em>.
+		Sparčiuosius klavišus galite pakeisti <a href="greenshot://settings?tab=general">nustatymų kortelėje Bendri</a>.
+	</p>
+
+	<a name="capture-screen"></a>
+	<h3>Fotografavimo ekranas</h3>
+	<p>
+		Greenshot nufotografuoja visus monitorius ir parodo vaizdą virš visko. Kol žymite, niekas nesikeičia,
+		todėl atidarytas meniu ar patarimas lieka vietoje. Nufotografuojama tik pažymėta dalis. <kbd>Esc</kbd> uždaro fotografavimo
+		ekraną nieko nenufotografavęs.
+	</p>
+	<p>Virš vaizdo matote:</p>
+	<ul>
+		<li><em>žymėjimą</em> su jo dydžiu,</li>
+		<li><em>didintuvą</em> šalia pelės, kuris rodo kiekvieną pikselį, kad galėtumėte tiksliai padėti kampą,</li>
+		<li>skydelius kampuose: <em>klavišai</em> (<kbd>F1</kbd>), <em>informacija</em> (<kbd>I</kbd>) ir žymėjimo <em>peržiūra</em> (<kbd>P</kbd>).
+			Jie patys pasitraukia jums iš kelio.</li>
+	</ul>
+	<p class="hint">
+		Žymėdami paspauskite <kbd>F1</kbd>: klavišų skydelis visada rodo tuo metu veikiančius klavišus.
+		Greenshot įsimena, kai paslepiate skydelį, <kbd>F1</kbd> arba <kbd>I</kbd> jį sugrąžina.
+	</p>
+
+	<a name="capture-modes"></a>
+	<h3>Regionas, langas, fiksuotas dydis ir tekstas</h3>
+	<ul>
+		<li><em>Regionas</em>: pele nubrėžkite stačiakampį, atleidus mygtuką jis nufotografuojamas. Klaviatūra: rodyklės judina pelę,
+			<kbd>Enter</kbd> pradeda žymėjimą, dar vienas <kbd>Enter</kbd> jį nufotografuoja. Laikykite <kbd>Shift</kbd>, kad keistumėte tik plotį arba tik aukštį.</li>
+		<li><em>Langas</em> (<kbd>Tarpas</kbd>): pažymimas langas po pele, spustelėjimas arba <kbd>Enter</kbd> jį nufotografuoja.
+			Greenshot pažymi giliausiai esančią dalį, pvz., įrankių juostą; nuveskite pelę prie išorinio lango krašto, kad pažymėtumėte visą langą.
+			<kbd>Tab</kbd> ir <kbd>Shift</kbd> + <kbd>Tab</kbd> pažymi kitą arba ankstesnį langą.</li>
+		<li><em>Fiksuotas dydis</em> (<kbd>F</kbd>): tikslaus dydžio stačiakampis, pvz., 1280 × 720, seka pelę. <kbd>1</kbd> – <kbd>9</kbd> parenka dydį,
+			<kbd>C</kbd> keičia kampą, kurį laiko pelė, laikykite <kbd>Alt</kbd>, kad padėtumėte jį neprilimpant prie langų. Savo dydžius nustatote
+			<a href="greenshot://settings?tab=capture">kortelėje Nuotrauka</a>, siūlomi ir paskutinių nuotraukų dydžiai.</li>
+		<li><em>Tekstas</em> (<kbd>T</kbd>): Greenshot perskaito ekrane esantį tekstą Windows teksto atpažinimu ir apibrėžia kiekvieną eilutę.
+			Spustelėkite eilutę arba vilkite per žodžius, kad juos nufotografuotumėte. Norėdami gauti žodžius kaip tekstą, nusiųskite nuotrauką į <em>Windows OCR</em>,
+			kuris nukopijuoja tekstą į podelį. Tam Windows turi būti įdiegta atpažinimo kalba; kalba parenkama
+			<a href="greenshot://settings?tab=capture">kortelėje Nuotrauka</a>, <em>Teksto atpažinimas (OCR)</em>.</li>
+	</ul>
+	<p class="hint">
+		Su QR kodų papildiniu Greenshot randa ekrane QR kodus ir juos apibrėžia. Spustelėkite kodą, kad nukopijuotumėte jo turinį arba atidarytumėte jo interneto adresą.
+	</p>
+
+	<a name="capture-keys"></a>
+	<h3>Klavišai žymint</h3>
+	<table>
+		<tr><th>Klavišas</th><th>Ką daro</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Atšaukia fotografavimą</td></tr>
+		<tr><td><kbd>Tarpas</kbd></td><td>Perjungia tarp regiono ir lango</td></tr>
+		<tr><td><kbd>F</kbd> / <kbd>T</kbd></td><td>Fiksuoto dydžio nuotrauka / teksto nuotrauka</td></tr>
+		<tr><td><kbd>M</kbd></td><td>Rodo arba slepia pelės žymeklį nuotraukoje</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Perjungia tarp užšaldyto ir gyvo ekrano</td></tr>
+		<tr><td><kbd>Z</kbd></td><td>Rodo arba slepia didintuvą</td></tr>
+		<tr><td><kbd>F1</kbd> / <kbd>I</kbd> / <kbd>P</kbd></td><td>Rodo arba slepia klavišus / informaciją / perkelia arba slepia peržiūrą</td></tr>
+		<tr><td>Rodyklės</td><td>Pajudina pelę vienu pikseliu, su <kbd>Ctrl</kbd> dešimčia pikselių</td></tr>
+		<tr><td><kbd>Enter</kbd></td><td>Pradeda arba baigia žymėjimą, nufotografuoja langą</td></tr>
+	</table>
+
+	<a name="capture-live"></a>
+	<h3>Žymėjimas neužšaldant ekrano</h3>
+	<p>
+		Išjunkite <em>Sustabdyti ekraną žymint</em> <a href="greenshot://settings?tab=capture">kortelėje Nuotrauka</a> arba žymėdami paspauskite
+		<kbd>L</kbd>, ir žymėsite gyvame ekrane: vaizdo įrašas toliau groja, o nuotrauka padaroma, kai baigiate
+		žymėjimą. Teksto režimui ir peržiūrai reikia užšaldyto vaizdo. Atidaryti meniu paprastai užsidaro spustelėjus, todėl jiems naudokite užšaldytą ekraną.
+	</p>
+	<p class="hint">
+		Kažkas atsiranda tik po akimirkos? Nustatykite <em>Išlaikymas prieš fotografuojant (ms)</em>
+		<a href="greenshot://settings?tab=capture">kortelėje Nuotrauka</a> arba žymėkite gyvame ekrane.
+	</p>
+
+	<a name="destinations"></a>
+	<h2>Kur keliauja nuotrauka</h2>
+	<p>
+		Po fotografavimo Greenshot nusiunčia nuotrauką į jūsų paskirties vietas. Pagal numatymą kaskart klausia mažu meniu.
+		Kiekviena paskirties vieta ten turi pastovią pabrauktą raidę, pvz., <kbd>C</kbd> podeliui ir <kbd>S</kbd> išsaugojimui, todėl galite ją pasirinkti klaviatūra.
+		Paskirties vietas pasirinkite <a href="greenshot://settings?tab=destination">kortelėje Padaryta nuotrauka...</a> arba piktogramos meniu punkte <em>Greiti nustatymai</em>.
+	</p>
+	<ul>
+		<li><em>Atidaryti redagtoriuje</em>: pirmiausia pažymėkite ką nors nuotraukoje, žr. <a href="#editor">vaizdų redaktorių</a>.</li>
+		<li><em>Išsaugoti į failą</em> naudoja aplanką ir failo pavadinimo šabloną iš <a href="greenshot://settings?tab=output">kortelės Nuotraukos</a>, <em>Išsaugoti pagal numatytus nustatymus</em> jų paklausia.</li>
+		<li><em>Patalpinti į podelį</em>, <em>Atspausdinti</em>, <em>Išsiųsti elektroniniu paštu</em>, <em>Windows share</em> ir <em>Windows OCR</em> (nukopijuoja nuotraukos tekstą).</li>
+		<li>Papildiniai prideda daugiau paskirties vietų, pvz., Microsoft Word, Excel, PowerPoint, Outlook ir OneNote, PDF, Box, Dropbox, Jira ir Confluence.
+			Jie nustatomi <a href="greenshot://settings?tab=plugins">kortelėje Papildiniai</a>, kur papildinį galima ir išjungti.</li>
+	</ul>
+	<p>
+		Stulpelis <em>Prieinamos</em> <a href="greenshot://settings?tab=destination">kortelėje Padaryta nuotrauka...</a> išjungia paskirties vietą visur.
+		Kokius pranešimus gaunate po fotografavimo, nustatoma <a href="greenshot://settings?tab=capture">kortelėje Nuotrauka</a>, <em>Pranešimai</em>.
+	</p>
+
+	<a name="editor"></a>
+	<h2>Vaizdų redaktorius</h2>
+	<p>
+		Redaktorius prideda prie nuotraukos figūras, tekstą, rodykles, išskyrimus ir kt. arba paslepia tai, ko kiti neturėtų matyti.
+		Be jūsų nuotraukų, jis atidaro vaizdus iš failo arba iš podelio (piktogramos meniu).
+		Viskas, ką nupiešiate, lieka elementu, kurį galite pažymėti, perkelti, pakeisti arba pašalinti.
+	</p>
+
+	<a name="editor-tabs"></a>
+	<h3>Kortelės</h3>
+	<p>
+		Redaktoriaus langas rodo kelis vaizdus kaip korteles, nauja nuotrauka atsidaro kaip kortelė paskutiniame naudotame redaktoriaus lange.
+		<kbd>Ctrl</kbd> + <kbd>Tab</kbd> pereina į kitą kortelę, o <kbd>Ctrl</kbd> + <kbd>W</kbd> uždaro kortelę. Nuvilkite kortelę į kitą redaktoriaus langą
+		arba spustelėkite ją dešiniuoju pelės mygtuku, kad perkeltumėte į naują langą. <em>+</em> kortelių juostoje pradeda naują, tuščią vaizdą.
+		Kai uždarote langą su neišsaugotais vaizdais, Greenshot paklausia vieną kartą: <em>Išsaugoti visus</em>, <em>Atmesti visus</em> arba atšaukti.
+		Norite vieno lango kiekvienai nuotraukai? Išjunkite korteles <a href="greenshot://settings?tab=editor">kortelėje Redaktorius</a>.
+	</p>
+
+	<a name="editor-tools"></a>
+	<h3>Piešimo įrankiai</h3>
+	<p>
+		Pasirinkite įrankį redaktoriaus kairėje, meniu <em>Objektas</em> arba jo klavišu, tada vilkite per vaizdą.
+		Įrankių juosta viršuje rodo įrankio arba pažymėtų elementų parinktis, pvz., linijos spalvą, užpildo spalvą ir storį.
+	</p>
+	<table>
+		<tr><th>Klavišas</th><th>Įrankis</th><th>Klavišas</th><th>Įrankis</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Žymėjimas</td><td><kbd>S</kbd></td><td>Kalbos debesėlis</td></tr>
+		<tr><td><kbd>R</kbd></td><td>Stačiakampis</td><td><kbd>I</kbd></td><td>Skaitiklis (sunumeruoti žingsniai)</td></tr>
+		<tr><td><kbd>E</kbd></td><td>Elipsė</td><td><kbd>M</kbd></td><td>Jaustukas</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Linija</td><td><kbd>H</kbd></td><td>Išskyrimas</td></tr>
+		<tr><td><kbd>A</kbd></td><td>Rodyklė</td><td><kbd>O</kbd></td><td>Paslėpimas</td></tr>
+		<tr><td><kbd>F</kbd></td><td>Laisva ranka</td><td><kbd>C</kbd></td><td>Apkirpimas</td></tr>
+		<tr><td><kbd>T</kbd></td><td>Tekstas</td><td><kbd>Z</kbd></td><td>Keisti vaizdo dydį</td></tr>
+	</table>
+	<ul>
+		<li>Piešdami laikykite <kbd>Shift</kbd>, kad gautumėte kvadratą ar apskritimą arba linijas 15° žingsniais; keičiant dydį išlaikomos proporcijos.
+			Laikykite <kbd>Ctrl</kbd>, kad pieštumėte ar keistumėte dydį nuo vidurio, patogu elipsei aplink ką nors.</li>
+		<li>Tekstas: nupieškite teksto langelį ir rašykite. Dukart spustelėkite tekstą, kad jį pakeistumėte, <kbd>Enter</kbd> baigia, <kbd>Shift</kbd> + <kbd>Enter</kbd> pradeda naują eilutę.</li>
+		<li>Pažymėti elementai: rodyklės juos perkelia (su <kbd>Shift</kbd> dešimčia pikselių), <kbd>Ctrl</kbd> + rodyklės keičia dydį,
+			<kbd>Page Up</kbd> / <kbd>Page Down</kbd> perkelia juos lygiu aukščiau arba žemiau, <kbd>Delete</kbd> pašalina, <kbd>Ctrl</kbd> + <kbd>D</kbd> padaro kopiją.
+			Laikykite <kbd>Shift</kbd> ir spustelėkite, kad pažymėtumėte kelis elementus.</li>
+		<li><kbd>Ctrl</kbd> + <kbd>Z</kbd> anuliuoja, <kbd>Ctrl</kbd> + <kbd>Y</kbd> pakartoja.</li>
+	</ul>
+
+	<a name="editor-highlight"></a>
+	<h3>Išskyrimas ir paslėpimas</h3>
+	<p>Nupieškite išskyrimo (<kbd>H</kbd>) arba paslėpimo (<kbd>O</kbd>) sritį kaip stačiakampį ir įrankių juostoje pasirinkite režimą:</p>
+	<ul>
+		<li><em>Teksto išskyrimas (H)</em> nuspalvina sritį kaip žymeklis, <em>Skaidrus tarp blankaus (I)</em> patamsina ir sulieja visa kita,
+			<em>Zonos išskyrimas</em> padaro visa kita pilką, <em>Išdidinimas</em> padidina sritį.</li>
+		<li><em>Kvadratėliai (P)</em> arba <em>Išlieta (B)</em> paslepia slaptažodžius, vardus, sąskaitų numerius ar veidus.</li>
+	</ul>
+
+	<a name="editor-crop"></a>
+	<h3>Apkirpimas</h3>
+	<p>
+		Pasirinkite apkirpimo įrankį (<kbd>C</kbd>) ir nupieškite norimą palikti sritį, <kbd>Enter</kbd> patvirtina, <kbd>Esc</kbd> atšaukia.
+		Dar kartą paspauskite <kbd>C</kbd> arba naudokite <em>Apkirpimo būsena</em> įrankių juostoje, kad pakeistumėte režimą:
+	</p>
+	<ul>
+		<li><em>Iškirpti vertikaliai</em> arba <em>Iškirpti horizontaliai</em> išpjauna juostą iš vaizdo ir sujungia likusias dalis, pvz., kad praleistumėte
+			tuščią ilgo puslapio vidurį. <em>Kirpimo kraštai</em> parenka, kaip atrodo siūlė: tiesi, zigzaginė, banguota, plėšyta arba be siūlės.</li>
+		<li><em>Automatinis apkirpimas</em> pašalina vienspalvį rėmelį aplink vaizdą.</li>
+	</ul>
+
+	<a name="editor-effects"></a>
+	<h3>Efektai, pasukimas ir dydžio keitimas</h3>
+	<table>
+		<tr><th>Klavišai</th><th>Ką daro</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Q</kbd></td><td>Šešėlis</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>B</kbd></td><td>Rėmelis</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>T</kbd></td><td>Plėšytas kraštas</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>G</kbd> / <kbd>Ctrl</kbd> + <kbd>I</kbd></td><td>Pilkumo tonai / invertuoti, pvz., kad taupytumėte rašalą spausdinant</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>,</kbd> / <kbd>Ctrl</kbd> + <kbd>.</kbd></td><td>Pasukti prieš laikrodžio rodyklę / pagal laikrodžio rodyklę</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>+</kbd> / <kbd>-</kbd></td><td>Padidinti / sumažinti drobę</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>+</kbd> / <kbd>-</kbd>, <kbd>Ctrl</kbd> + <kbd>0</kbd>, <kbd>Ctrl</kbd> + <kbd>9</kbd></td><td>Priartinti / nutolinti, tikrasis dydis, geriausias pritaikymas</td></tr>
+	</table>
+	<p>
+		Plėšytas kraštas lieka elementu, kurį galite keisti; <em>Taikyti vaizdui</em> įrankių juostoje padaro jį vaizdo dalimi.
+	</p>
+
+	<a name="editor-reuse"></a>
+	<h3>Vaizdų pridėjimas ir elementų pakartotinis naudojimas</h3>
+	<ul>
+		<li>Nuvilkite vaizdo failą į redaktorių arba įklijuokite vaizdą su <kbd>Ctrl</kbd> + <kbd>V</kbd>. <em>Įterpti langą</em> meniu <em>Taisa</em> prideda kito atidaryto lango nuotrauką.</li>
+		<li>Naudokite tuos pačius elementus daugelyje nuotraukų: <em>Išsaugoti objektus į failą</em> meniu <em>Objektas</em> ir <em>Įkelti objektus iš failo</em> kitoje nuotraukoje.</li>
+		<li>Išsaugokite kaip <code>.greenshot</code> failą, kad visi elementai liktų redaguojami ir galėtumėte tęsti vėliau.</li>
+	</ul>
+
+	<a name="editor-export"></a>
+	<h3>Išsaugojimas ir eksportas</h3>
+	<table>
+		<tr><th>Klavišai</th><th>Ką daro</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td><td><em>Išsaugoti</em> į aplanką iš <a href="greenshot://settings?tab=output">kortelės Nuotraukos</a></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd></td><td><em>Išsaugoti kaip...</em>: pasirinkite aplanką, pavadinimą ir vaizdo formatą</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd></td><td><em>Patalpinti į iškarpinių podelį</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>P</kbd></td><td><em>Spausdinti</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>E</kbd></td><td><em>Išsiųsti elektroninu paštu</em>: naujas laiškas su pridėtu vaizdu</td></tr>
+	</table>
+	<p>
+		Meniu <em>Failas</em> ir įrankių juosta viršuje rodo visas jūsų paskirties vietas, taip pat papildinių.
+		Išsaugoję spustelėkite būsenos juostą apačioje dešiniuoju pelės mygtuku, kad nukopijuotumėte failo kelią arba atidarytumėte jo aplanką.
+	</p>
+
+	<a name="recipes"></a>
+	<h2>Automatiniai žingsniai ir receptai</h2>
+	<p>
+		Receptai automatiškai atlieka veiksmus su jūsų nuotraukomis, pvz., prideda rėmelį kiekvienai nuotraukai arba ją išsaugo ir įkelia vienu kartu.
+		<em>Greiti nustatymai</em> &gt; <em>Automatiniai žingsniai</em> piktogramos meniu įjungia arba išjungia paruoštus žingsnius,
+		<em>Daugiau…</em> atidaro jų nustatymus <a href="greenshot://settings?tab=recipes">kortelėje Receptai</a>.
+		Piktogramos meniu <em>Receptai</em> paleidžia jūsų receptus ir atidaro <a href="greenshot://recipe-manager">Receptų tvarkyklė</a> bei Recipe Editor.
+		Receptai pateikiami su papildiniu Recipe Editor.
+	</p>
+
+	<a name="settings"></a>
+	<h2>Nustatymai</h2>
+	<p>Nustatymus atidarykite piktogramos meniu punktu <em>Paramentrai...</em> arba toliau pateiktomis nuorodomis.</p>
+	<ul>
+		<li><a href="greenshot://settings?tab=general">Bendri</a>: kalba, spalvos (šviesios, tamsios arba kaip Windows), piktogramų dydis,
+			<em>Paleisti Greenshot įeinant į Windows</em>, spartieji klavišai, tarpinis serveris ir kaip dažnai Greenshot tikrina naujinimus.</li>
+		<li><a href="greenshot://settings?tab=capture">Nuotrauka</a>: pelės žymeklio fotografavimas, fotoaparato garsas, didintuvas, ekrano užšaldymas,
+			pranešimai, laukimas prieš fotografuojant, jūsų fiksuoti dydžiai, interaktyvus lango fotografavimas ir teksto atpažinimo kalba.</li>
+		<li><a href="greenshot://settings?tab=output">Nuotraukos</a>: aplankas ir failo pavadinimo šablonas išsaugojimui (spustelėkite <em>?</em>, kad pamatytumėte vietos rezervavimo ženklus,
+			pvz., <code>${YYYY}-${MM}-${DD}</code> arba <code>${title}</code>; <code>\</code> šablone sukuria aplankus), vaizdo formatas ir JPEG kokybė.</li>
+		<li><a href="greenshot://settings?tab=destination">Padaryta nuotrauka...</a>: kas vyksta po fotografavimo, žr. <a href="#destinations">kur keliauja nuotrauka</a>.</li>
+		<li><a href="greenshot://settings?tab=editor">Redaktorius</a>: kortelės, redaktoriaus lango dydis, klausimas apie išsaugojimą uždarant ir naujo vaizdo dydis bei spalva.</li>
+		<li><a href="greenshot://settings?tab=printer">Spausdinti</a>: vaizdo pritaikymas puslapiui, pasukimas ar centravimas, spausdinimas spalvotai, pilkais tonais ar invertuotai ir poraštė su data ir laiku.</li>
+		<li><a href="greenshot://settings?tab=plugins">Papildiniai</a>: įjunkite, išjunkite ir nustatykite papildinius. Pakeitimai įsigalioja kitą kartą paleidus Greenshot.</li>
+		<li><a href="greenshot://settings?tab=expert">Ekspertams</a>: nustatymai ypatingiems atvejams, pvz., nuotoliniam darbalaukiui, DirectX fotografavimui (reikia HDR ekranams), atminčiai ir greičiui
+			bei podelio formatams. Keiskite juos tik žinodami, ką jie daro.</li>
+	</ul>
+	<p class="hint">
+		Greenshot laiko savo nustatymus faile <code>greenshot.ini</code>, aplanke <code>%APPDATA%\Greenshot</code> (nešiojamoji versija laiko jį šalia Greenshot.exe).
+		<a href="greenshot://self-service?section=files">Failai ir konfigūracija</a> Savitarna skiltyje parodo, kur jis yra.
+	</p>
+
+	<a name="troubleshooting"></a>
+	<h2>Kai kas nors neveikia</h2>
+	<p>
+		Savitarna patikrina Greenshot ir išsprendžia daugumą problemų. Atidarykite jį piktogramos meniu punktu <em>Apie programą</em>, tada <em>Savitarna</em>,
+		arba eikite tiesiai į reikiamą skyrių:
+	</p>
+	<ul>
+		<li><kbd>Print Screen</kbd> nieko nedaro arba atidaro ką nors kita: <a href="greenshot://self-service?section=hotkeys">Spartieji klavišai ir konfliktai</a>
+			parodo, ar klavišą užėmė OneDrive arba Iškirpimo įrankis, ir grąžina jį Greenshot.</li>
+		<li>Nerandate nuotraukų: <a href="greenshot://self-service?section=files">Failai ir konfigūracija</a> parodo, kur Greenshot jas išsaugo.</li>
+		<li>Nepavyksta nukopijuoti į podelį: <a href="greenshot://self-service?section=clipboard">Apsikeitimo podelio diagnostika</a> randa programą, kuri blokuoja podelį.</li>
+		<li>Greenshot užstringa arba po naujinimo trūksta papildinio: <a href="greenshot://self-service?section=checksum">Įdiegimo vientisumas</a> patikrina įdiegtus failus.</li>
+		<li>Pranešimas apie problemą: <em>Kopijuoti sistemos informaciją</em> skyriuje <a href="greenshot://self-service?section=system">Sistema ir aparatinė įranga</a> ir
+			<a href="greenshot://log?search=ERROR">klaidos žurnale</a> padeda mums jums padėti. Apie problemas praneškite
+			<a target="_blank" href="https://github.com/greenshot/greenshot/issues">github.com/greenshot/greenshot/issues</a>.</li>
+	</ul>
+
+	<a name="help"></a>
+	<h2>Norite padėti?</h2>
+
+	<a name="help-donate"></a>
+	<h3>Apsvarstykite paramą</h3>
+	<p>
+		Į Greenshot įdedame daug darbo, kad pasiūlytume gerą nemokamą ir atvirojo kodo programą. Jei ji padeda jums dirbti našiau,
+		taupo jūsų ar jūsų įmonės laiką ir pinigus arba jums tiesiog patinka Greenshot, apsvarstykite galimybę mus paremti.
+		Kaip galite padėti, žr. <a target="_blank" href="https://getgreenshot.org/support/">https://getgreenshot.org/support/</a>.
+	</p>
+
+	<a name="help-spread"></a>
+	<h3>Papasakokite kitiems</h3>
+	<p>
+		Jei jums patinka Greenshot, papasakokite apie jį draugams ir kolegoms. Įvertinkite Greenshot programų portaluose arba savo tinklaraštyje ar svetainėje pateikite nuorodą į mūsų pagrindinį puslapį.
+	</p>
+	<p>
+		Suteikite Greenshot žvaigždutę <a target="_blank" href="https://github.com/greenshot/greenshot">GitHub</a> svetainėje, tai padeda kitiems jį rasti:
+		<br><iframe src="https://ghbtns.com/github-btn.html?user=greenshot&amp;repo=greenshot&amp;type=star&amp;count=true&amp;size=large" frameborder="0" width="170" height="30" title="GitHub"></iframe>
+	</p>
+
+	</body>
+</html>

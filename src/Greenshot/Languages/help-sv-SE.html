@@ -1,385 +1,360 @@
-
-<html>
+<!DOCTYPE html>
+<html lang="sv">
 	<head>
-		<title>Greenshot Hjälp</title>
-		
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>HjÃ¤lp fÃ¶r Greenshot</title>
 		<style>
-		* {
-			font-family: Tahoma, Arial, Sans-serif;
-		}
-		h1 {font-size:16px;}
-		h2 {font-size:14px;color:#009900;margin-top:24px;}
-		h3 {font-size:12px;margin-top:18px;}
-		small {font-size:10px;}
-		p, li {font-size:12px;line-height:1.5em}
-		a:link, a:hover, a:visited, a:active {color:#009900;}
-		kbd {background-color:#dddddd;border:1px solid #bbbbbb;padding:0 2px;border-radius:2px;}
-		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px;}
-		em {padding-right:0.2em;}
+		* {font-family: "Segoe UI", Tahoma, Arial, Sans-serif;}
+		body {max-width:60em;margin:0 auto;padding:0 16px 24px 16px;}
+		h1 {font-size:20px;}
+		h2 {font-size:16px;color:#009900;margin-top:28px;}
+		h3 {font-size:14px;margin-top:20px;}
+		small {font-size:11px;}
+		p, li, td, th {font-size:13px;line-height:1.5em;}
+		a:link, a:hover, a:visited, a:active {color:#007700;}
+		kbd {background-color:#eeeeee;border:1px solid #bbbbbb;padding:0 3px;border-radius:3px;white-space:nowrap;}
+		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px 8px;}
+		table {border-collapse:collapse;margin:6px 0;}
+		th, td {border:1px solid #dddddd;padding:3px 8px;text-align:left;vertical-align:top;}
+		th {background-color:#f2f2f2;}
+		em {font-style:normal;font-weight:bold;}
+		:root {--greenshot-icon:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAEgklEQVR4nO2WXWxTZRjHf+er3y0j3dhXuw8DHRsEJoPEBEY0CMEbPtR4gUiciYQgd4ImeqMRZuK9qBgwXBjDFcSQoASVz4RIXPnY5raAbN1GS7d1LWU9p2c9PV6UlBE76ACHFz5X7/l4/s/vvO95n/cvtLa2mjzDEJ9l8f8B/tsAjkqN6rVRLCWT/yqAXLB4RZoXD3cg2Qy0ESu/vtmCoUmzB1DSmESyGQDYytI4fRruuglqN0SIXfPQe7AOM/uUAKrXjEwRrsU0YfSPElK3bDiqNMY7PaRjCq0H+hBlE29zgniPm8g5L44qjcmkzGSy4HcUB9D8cW9O+Pk48V4XkXNeZGeG8zubsXgmuRuyo3gyCMKDiY3b+5m/dRBDk7j4/mJi1zyPBSBOFRYEWPhuP2uOXGLND5eQXRnMrIAeVwjuCxC76uH6935uX/BSuzEMgGQzqH45imQ3CGwbJNA2gOLKFD8DwfYAdZvCxK55iJz3svTDvpyw3cC3Nsp4Z+7Lhk/NY/jUvHziaHAOlavHABi7MoemHTep25yDclZrBPc2FAfgrEzz+weLmZyQ/iEcuzpn2sSOTxupWDWKOmJlvNODf300/8xRoWEv01nxeRcuv0r31/X0H60sqCN8YWIO/TyP4L4csahkqVw9hjpiJXa1+HWd25Sk5ZMekLIE9zZQ1pJgwbYQAIYmcmL9yoI7R4bclNm8Osv3dePyq/z5TT2xX2b2U413uzn1xor8taMynR+nIrZpt62cjin0HKqhdmOYuU1JABbtukHoeDlmViicVUQM/VSOIJo4fSr9xwpPP4B8ctMLOeJyPX9TjVqfqDiAmYXQ8YpHvidLdgNDlRg8UY6oZHPER6ueqPhMQnb5VZzVGrUbw8Q63XTvf+6ptdmiANKjVlZ9dQVRyVK6LE6iz0XkbOmsAYhZAxDu20Jhlh2CrCcULrcHqH81TKzTQ+Ssd3YB5m8ZQpBMLu5ZRGbi8U+1xwZo3HETAHddio7PiuvfNq/OivZunDUpeg5M32aLifyKO6rUopNqNoQpaUyiOA2adv6FIJrYKzR866JY5uqPFpgSsjZmQZRMer+rLTopFbblx2rUiq1U56XDHUh2A23Uwm9bl5NJFWfh5DNty9Djyoyoh0+WI1lMnP4UA8eqKFl4F8l+z8KV6rj8Kk6fSu2mMOOdbnq+rZ/+LFh9sIPTbxVPDLk2O/Dj/TarJ2Qmhuw4fSrjXW60qJWV+y8jKibepQnivW7Cpwv3FtlepuOqUbGXazlj0uWm79DMTKfiznBh1xIsngx3B+0oTgOKPErkeI+LVMTKyi/vdcOWOHeuuwifLsVRkUZPSg/dng3vDBB4O5TzhrsXYRoO9Dsywb0N1G3OLcHDOqt84b1mZLvxYDcUTAJtAzS0hTBUiYt7Fk9rTqZ6Q9+6KIk+N/WvDyMqWS591PRIxyxmJwX0OzKX2wOMd3m4caSa8JlS6l+7lRO2G/hfuY1oyTJ/yxALtoWQHUZeYCxYkh+PdpTQtOMmjdv7aWgLsWT39YcWB/gbBUPC48UgfpEAAAAASUVORK5CYII=);}
+		h1 {background:var(--greenshot-icon) no-repeat left center;background-size:32px;padding-left:40px;line-height:32px;}
+		a[href^="greenshot:"] {background:#eef8ee var(--greenshot-icon) no-repeat 3px center;background-size:16px;border:1px solid #99cc99;border-radius:3px;padding:0 4px 0 22px;text-decoration:none;white-space:nowrap;}
+		a[href^="greenshot:"]:hover {background-color:#ddf0dd;}
+		[dir="rtl"] h1 {background-position:right center;padding-left:0;padding-right:40px;}
+		[dir="rtl"] a[href^="greenshot:"] {background-position:right 3px center;padding:0 22px 0 4px;}
 		</style>
 	</head>
 	<body>
-	<h1>Greenshot Hjälp</h1>
-	<!-- 
-	Note to translator: uncomment entry below to have your effort honored 
+	<h1>HjÃ¤lp fÃ¶r Greenshot</h1>
+	<!--
+	Note to translator: uncomment the entry below to have your effort honored
 	-->
-	<small>Version 1.0 - Svensk översättning av hjälpinnehållet av Torsten Augustsson</small>
-	
-	<h2>Innehåll</h2>
+	<!--<small>Svensk Ã¶versÃ¤ttning av hjÃ¤lpen: DITT_NAMN (tidigare version: Torsten Augustsson)</small>-->
+
+	<p class="hint">
+		LÃ¤nkar som bÃ¶rjar med <code>greenshot:</code>, till exempel <a href="greenshot://settings">Ã¶ppna instÃ¤llningarna</a>,
+		Ã¶ppnar det fÃ¶nstret i Greenshot. De fungerar nÃ¤r Greenshot har installerats med installationsprogrammet, inte i den portabla
+		versionen eller i Greenshot Light. WebblÃ¤saren kan frÃ¥ga innan den Ã¶ppnar Greenshot.
+	</p>
+
+	<h2>InnehÃ¥ll</h2>
 	<ol>
-		<li><a href="#screenshot">Skapa en skärmdump</a></li>
-		<ol>
-			<li><a href="#capture-region">Skärmdump av yta</a></li>
-			<li><a href="#capture-last-region">Skärmdump av senaste ytan</a></li>
-			<li><a href="#capture-window">Skärmdump av fönster</a></li>
-			<li><a href="#capture-fullscreen">Skärmdump av hela skärmen</a></li>
-			<li><a href="#capture-ie">Skärmdump av Internet Explorer</a></li>
-		</ol>
-	
-		<li><a href="#editor">Använda bildredigeraren</a></li>
-		<ol>
-			<li><a href="#editor-shapes">Rita former</a></li>
-			<li><a href="#editor-text">Lägga till text</a></li>
-			<li><a href="#editor-highlight">Framhäva saker</a></li>
-			<li><a href="#editor-obfuscate">Censurera saker</a></li>
-			<li><a href="#editor-effects">Lägg till effekter</a></li>
-			<li><a href="#editor-crop">Beskära skärmdumpen</a></li>
-			<li><a href="#editor-adding-graphics">Lägga till grafik till en skärmdump</a></li>
-			<li><a href="#editor-reuse-elements">Återanvända ritade element</a></li>
-			<li><a href="#editor-export">Exportera skärmdumpen</a></li>
-		</ol>
-		<li><a href="#settings">Inställningarna</a></li>
-		<ol>
-			<li><a href="#settings-general">Allmänt</a></li>
-			<li><a href="#settings-capture">Skärmdump</a></li>
-			<li><a href="#settings-output">Utdata</a></li>
-			<li><a href="#settings-destination">Destination för skärmdumpar</a></li>
-			<li><a href="#settings-printer">Utskrift</a></li>
-			<li><a href="#settings-expert">Expert</a></li>
-		</ol>
-		<li><a href="#help">Vill du hjälpa till?</a></li>
-		<ol>
-			<li><a href="#help-donate">Överväg en donation</a></li>
-			<li><a href="#help-spread">Sprid ordet</a></li>
-			<li><a href="#help-translate">Skicka in en översättning</a></li>
-		</ol>
+		<li><a href="#start">Kom igÃ¥ng</a></li>
+		<li><a href="#screenshot">Ta en skÃ¤rmdump</a>
+			<ol>
+				<li><a href="#capture-screen">SkÃ¤rmdumpsvyn</a></li>
+				<li><a href="#capture-modes">Yta, fÃ¶nster, fast storlek och text</a></li>
+				<li><a href="#capture-keys">Tangenter medan du markerar</a></li>
+				<li><a href="#capture-live">Markera utan att frysa skÃ¤rmen</a></li>
+			</ol>
+		</li>
+		<li><a href="#destinations">Vart skÃ¤rmdumpen tar vÃ¤gen</a></li>
+		<li><a href="#editor">Bildredigeraren</a>
+			<ol>
+				<li><a href="#editor-tabs">Flikar</a></li>
+				<li><a href="#editor-tools">Ritverktyg</a></li>
+				<li><a href="#editor-highlight">FramhÃ¤va och dÃ¶lja</a></li>
+				<li><a href="#editor-crop">BeskÃ¤ra</a></li>
+				<li><a href="#editor-effects">Effekter, rotera och Ã¤ndra storlek</a></li>
+				<li><a href="#editor-reuse">LÃ¤gga till bilder och Ã¥teranvÃ¤nda element</a></li>
+				<li><a href="#editor-export">Spara och exportera</a></li>
+			</ol>
+		</li>
+		<li><a href="#recipes">Automatiska steg och recept</a></li>
+		<li><a href="#settings">InstÃ¤llningarna</a></li>
+		<li><a href="#troubleshooting">NÃ¤r nÃ¥got inte fungerar</a></li>
+		<li><a href="#help">Vill du hjÃ¤lpa till?</a></li>
 	</ol>
-	
+
+	<a name="start"></a>
+	<h2>Kom igÃ¥ng</h2>
+	<p>
+		Greenshot kÃ¶rs i bakgrunden. Ikonen finns bredvid klockan, i meddelandefÃ¤ltet i aktivitetsfÃ¤ltet.
+		Klicka pÃ¥ den med hÃ¶ger musknapp fÃ¶r att Ã¶ppna menyn med alla skÃ¤rmdumpar, <em>InstÃ¤llningar...</em> och den hÃ¤r hjÃ¤lpen.
+	</p>
+	<p class="hint">
+		Ser du inte ikonen? Windows 11 kan dÃ¶lja den bakom pilen (^). <a href="greenshot://self-service?section=setup">Din konfiguration</a>
+		i SjÃ¤lvbetjÃ¤ning visar den bredvid klockan Ã¥t dig och kontrollerar ocksÃ¥ om tangenten <kbd>Print Screen</kbd> nÃ¥r Greenshot.
+	</p>
+
 	<a name="screenshot"></a>
-	<h2>Skapa en skärmdump</h2>
+	<h2>Ta en skÃ¤rmdump</h2>
+	<p>Starta en skÃ¤rmdump med ett kortkommando eller frÃ¥n menyn fÃ¶r Greenshot-ikonen:</p>
+	<table>
+		<tr><th>SkÃ¤rmdump</th><th>Kortkommando</th><th>Vad som hÃ¤nder</th></tr>
+		<tr><td><em>SkÃ¤rmdump av yta</em></td><td><kbd>Print Screen</kbd></td><td>SkÃ¤rmdumpsvyn Ã¶ppnas och du markerar vad som ska fÃ¥ngas.</td></tr>
+		<tr><td><em>SkÃ¤rmdump av fÃ¶nster</em></td><td><kbd>Alt</kbd> + <kbd>Print Screen</kbd></td><td>FÃ¥ngar det aktiva fÃ¶nstret direkt. Med <em>VÃ¤lj fÃ¶nster</em> (<a href="greenshot://settings?tab=capture">fliken SkÃ¤rmdump</a>) vÃ¤ljer du i stÃ¤llet fÃ¶nstret i skÃ¤rmdumpsvyn.</td></tr>
+		<tr><td><em>SkÃ¤rmdump av hela skÃ¤rmen</em></td><td><kbd>Ctrl</kbd> + <kbd>Print Screen</kbd></td><td>FÃ¥ngar skÃ¤rmen direkt. Med fler Ã¤n en bildskÃ¤rm erbjuder ikonens meny alla bildskÃ¤rmar eller en av dem.</td></tr>
+		<tr><td><em>SkÃ¤rmdump av senaste ytan</em></td><td><kbd>Shift</kbd> + <kbd>Print Screen</kbd></td><td>FÃ¥ngar samma yta som vid din senaste skÃ¤rmdump igen.</td></tr>
+		<tr><td><em>Ã–ppna bild frÃ¥n urklipp</em></td><td>inget</td><td>Ã–ppnar bilden som finns i urklipp.</td></tr>
+	</table>
 	<p>
-		Du kan skapa en skärmdump antingen genom att använda <kbd>Print</kbd>-tangenten på ditt tangentbord, eller genom att högerklicka på Greenshotikonen i aktivitetsfältet.<br>
-		Du kan skapa en skärmdump på flera olika sätt:
-	</p>
-	
-	<a name="capture-region"></a>
-	<h3>Skärmdump av yta <kbd>Print</kbd></h3>
-	<p>
-		Det här alternativet låter dig ta en skärmdump av en del av din skärm.<br>
-		Efter du startat detta läge kommer du se ett sikte istället för din muspekare. Klicka och håll in musknappen där du vill att hörnet av skärmdumpen ska vara. Genom att dra musen, när du fortfarande håller ner musknappen, ritar du ut en rektangel. Släpp musknappen när rektangeln täcker den yta du vill ha i skärmdumpen.
-	</p>
-	<p class="hint">
-		Du kan använda tangenten <kbd>Mellanslag</kbd> för att byta läge mellan yta och
-		<a href="#capture-window">fönster</a>.
-	</p>
-	<p class="hint">
-		Om du vill att skärmdumpen ska innehålla en exakt del av skärmen, kan det vara enklare att markera en något större del av skärmen och sedan <a href="#editor-crop">beskära</a> bilden i Greenshots bildredigerare.
-	</p>
-	
-	<a name="capture-last-region"></a>
-	<h3>Skärmdump av senaste ytan <kbd>Shift</kbd> + <kbd>Print</kbd></h3>
-	<p>
-		Om du tidigare tagit en skärmdump av en <a href="#capture-region">yta</a> eller ett <a href="#capture-window">fönster</a>, kan du ta en skärmdump av samma del av skärmen med detta alternativ.
-	</p>
-	
-	<a name="capture-window"></a>
-	<h3>Skärmdump av fönster <kbd>Alt</kbd> + <kbd>Print</kbd></h3>
-	<p>
-		Skapar en skärmdump av det fönster som är aktivt.
-	</p>
-	<p class="hint">
-		Om du använder Windows 7 eller Vista kan du använda inställningarna för skärmdump av fönster för att ställa in hur Greenshot hanterar halvgenomskinliga (Aero) fönsterkanter, t.ex. genom att byta ut dem mot en anpassningsbar färg.
-	</p>
-	<p class="hint">
-		I <a href="#settings">inställningarna</a> kan du ställa in så att skärmdumpen inte tas av det aktiva fönstret med en gång, utan låter dig välja fönster istället.
-		Om detta alternativ är valt kan du välja ett fönster genom att klicka på det (likadant som vid en <a href="#capture-region">skärmdump av yta</a> kommer Greenshot framhäva området).<br>
-		Om du vill ta en skärmdump av ett underfönster (t.ex. en webbläsares visningsområde, utan verktygsfält o.s.v., eller en ensam ram i en webbsida som använder ramar), placera muspekaren över fönstret och tryck på tangenten <kbd>PgDown</kbd>. Efter det kan du välja delar av fönstret till din skärmdump.
-	</p>
-	<p class="hint">
-		Att ta en skärmdump av enbart snabbmenyer är annorlunda. Om använder kortkommandot för att ta en skärmdump av ett fönster försvinner snabbmenyn, och detsamma skulle hända om du använde Greenshots snabbmeny för att ta skärmdumpen. Om du vill ta en skärmdump av en snabbmeny du fått fram genom att högerklicka på någonting, klicka på <kbd>Print</kbd> och sedan på <kbd>Mellanslag</kbd>.
-	</p>
-	
-	<a name="capture-fullscreen"></a>
-	<h3>Skärmdump av hela skärmen <kbd>Ctrl</kbd> + <kbd>Print</kbd></h3>
-	<p>
-		Skapar en skärmdump av hela skärmen.
+		Menyn har ocksÃ¥ <em>SkÃ¤rmdump av fÃ¶nster frÃ¥n lista</em>, som fÃ¥ngar ett Ã¶ppet fÃ¶nster du vÃ¤ljer utan skÃ¤rmdumpsvyn,
+		<em>Ã–ppna bild frÃ¥n fil</em> och <em>Ã–ppna platsen fÃ¶r senaste skÃ¤rmdumpen</em>.
+		Du kan Ã¤ndra kortkommandona i <a href="greenshot://settings?tab=general">instÃ¤llningarna, fliken AllmÃ¤nt</a>.
 	</p>
 
-	<a name="capture-ie"></a>
-	<h3>Skärmdump av Internet Explorer <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Print</kbd></h3>
+	<a name="capture-screen"></a>
+	<h3>SkÃ¤rmdumpsvyn</h3>
 	<p>
-		Skapa enkelt en skärmdump av en öppen webbsida i Internet Explorer.
-		Använd Greenshots snabbmeny för att välja flik i Internet Explorer, eller klicka på <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Print</kbd> för att ta en skärmdump av den aktiva fliken.
+		Greenshot tar en bild av alla dina bildskÃ¤rmar och visar den ovanpÃ¥ allt annat. Inget Ã¤ndras medan du markerar,
+		sÃ¥ en Ã¶ppen meny eller ett verktygstips stannar dÃ¤r det var. Bara den del du markerar fÃ¥ngas. <kbd>Esc</kbd> stÃ¤nger skÃ¤rmdumpsvyn
+		utan att fÃ¥nga nÃ¥got.
+	</p>
+	<p>OvanpÃ¥ bilden ser du:</p>
+	<ul>
+		<li><em>markeringen</em> med dess storlek,</li>
+		<li><em>fÃ¶rstoraren</em>, ett fÃ¶rstoringsglas bredvid musen som visar varje pixel sÃ¥ att du kan placera ett hÃ¶rn exakt,</li>
+		<li>paneler i hÃ¶rnen: <em>tangenterna</em> (<kbd>F1</kbd>), <em>informationen</em> (<kbd>I</kbd>) och <em>fÃ¶rhandsvisningen</em> av markeringen (<kbd>P</kbd>).
+			De flyttar sig sjÃ¤lva ur vÃ¤gen.</li>
+	</ul>
+	<p class="hint">
+		Tryck pÃ¥ <kbd>F1</kbd> medan du markerar: tangentpanelen visar alltid de tangenter som fungerar just dÃ¥.
+		Greenshot kommer ihÃ¥g nÃ¤r du dÃ¶ljer en panel, <kbd>F1</kbd> eller <kbd>I</kbd> tar tillbaka den.
 	</p>
 
-	
+	<a name="capture-modes"></a>
+	<h3>Yta, fÃ¶nster, fast storlek och text</h3>
+	<ul>
+		<li><em>Yta</em>: dra en rektangel med musen, nÃ¤r du slÃ¤pper fÃ¥ngas den. Med tangentbordet: piltangenterna flyttar musen,
+			<kbd>Enter</kbd> startar markeringen och <kbd>Enter</kbd> igen fÃ¥ngar den. HÃ¥ll ned <kbd>Shift</kbd> fÃ¶r att bara Ã¤ndra bredden eller bara hÃ¶jden.</li>
+		<li><em>FÃ¶nster</em> (<kbd>Blanksteg</kbd>): fÃ¶nstret under musen markeras, ett klick eller <kbd>Enter</kbd> fÃ¥ngar det.
+			Greenshot markerar den innersta delen, till exempel ett verktygsfÃ¤lt; flytta till fÃ¶nstrets ytterkant fÃ¶r att markera hela fÃ¶nstret.
+			<kbd>Tab</kbd> och <kbd>Shift</kbd> + <kbd>Tab</kbd> markerar nÃ¤sta eller fÃ¶regÃ¥ende fÃ¶nster.</li>
+		<li><em>Fast storlek</em> (<kbd>F</kbd>): en rektangel med exakt storlek, till exempel 1280 Ã— 720, fÃ¶ljer musen. <kbd>1</kbd> â€“ <kbd>9</kbd> vÃ¤ljer en storlek,
+			<kbd>C</kbd> byter vilket hÃ¶rn musen hÃ¥ller i, hÃ¥ll ned <kbd>Alt</kbd> fÃ¶r att placera den utan att den fÃ¤ster mot fÃ¶nster. Dina egna storlekar stÃ¤lls in pÃ¥
+			<a href="greenshot://settings?tab=capture">fliken SkÃ¤rmdump</a>, storlekarna frÃ¥n dina senaste skÃ¤rmdumpar erbjuds ocksÃ¥.</li>
+		<li><em>Text</em> (<kbd>T</kbd>): Greenshot lÃ¤ser texten pÃ¥ skÃ¤rmen med textigenkÃ¤nningen i Windows och ramar in varje rad.
+			Klicka pÃ¥ en rad, eller dra Ã¶ver ord, fÃ¶r att fÃ¥nga dem. FÃ¶r att fÃ¥ orden som text skickar du skÃ¤rmdumpen till <em>Windows OCR</em>,
+			som kopierar texten till urklipp. Det krÃ¤ver att ett igenkÃ¤nningssprÃ¥k Ã¤r installerat i Windows; sprÃ¥ket vÃ¤ljs pÃ¥
+			<a href="greenshot://settings?tab=capture">fliken SkÃ¤rmdump</a>, <em>TextigenkÃ¤nning (OCR)</em>.</li>
+	</ul>
+	<p class="hint">
+		Med QR-kodinsticksprogrammet hittar Greenshot QR-koder pÃ¥ skÃ¤rmen och ramar in dem. Klicka pÃ¥ en fÃ¶r att kopiera dess innehÃ¥ll eller Ã¶ppna dess webbadress.
+	</p>
+
+	<a name="capture-keys"></a>
+	<h3>Tangenter medan du markerar</h3>
+	<table>
+		<tr><th>Tangent</th><th>Vad den gÃ¶r</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Avbryt skÃ¤rmdumpen</td></tr>
+		<tr><td><kbd>Blanksteg</kbd></td><td>VÃ¤xla mellan yta och fÃ¶nster</td></tr>
+		<tr><td><kbd>F</kbd> / <kbd>T</kbd></td><td>FÃ¥nga en fast storlek / fÃ¥nga text</td></tr>
+		<tr><td><kbd>M</kbd></td><td>Visa eller dÃ¶lj muspekaren i skÃ¤rmdumpen</td></tr>
+		<tr><td><kbd>L</kbd></td><td>VÃ¤xla mellan den frysta och den levande skÃ¤rmen</td></tr>
+		<tr><td><kbd>Z</kbd></td><td>Visa eller dÃ¶lj fÃ¶rstoraren</td></tr>
+		<tr><td><kbd>F1</kbd> / <kbd>I</kbd> / <kbd>P</kbd></td><td>Visa eller dÃ¶lj tangenterna / informationen / flytta eller dÃ¶lj fÃ¶rhandsvisningen</td></tr>
+		<tr><td>Piltangenter</td><td>Flytta musen en pixel, med <kbd>Ctrl</kbd> tio pixlar</td></tr>
+		<tr><td><kbd>Enter</kbd></td><td>Starta eller avsluta markeringen, fÃ¥nga fÃ¶nstret</td></tr>
+	</table>
+
+	<a name="capture-live"></a>
+	<h3>Markera utan att frysa skÃ¤rmen</h3>
+	<p>
+		StÃ¤ng av <em>Frys skÃ¤rmen vid markering</em> pÃ¥ <a href="greenshot://settings?tab=capture">fliken SkÃ¤rmdump</a>, eller tryck pÃ¥
+		<kbd>L</kbd> medan du markerar, sÃ¥ markerar du pÃ¥ den levande skÃ¤rmen: en video fortsÃ¤tter spelas och skÃ¤rmdumpen tas nÃ¤r du avslutar
+		markeringen. TextlÃ¤get och fÃ¶rhandsvisningen krÃ¤ver den frysta bilden. Ã–ppna menyer stÃ¤ngs oftast nÃ¤r du klickar, sÃ¥ anvÃ¤nd den frysta skÃ¤rmen fÃ¶r dem.
+	</p>
+	<p class="hint">
+		Visas nÃ¥got fÃ¶rst efter en stund? StÃ¤ll in <em>FÃ¶rdrÃ¶jning i millisekunder innan skÃ¤rmdump</em> pÃ¥
+		<a href="greenshot://settings?tab=capture">fliken SkÃ¤rmdump</a>, eller markera pÃ¥ den levande skÃ¤rmen.
+	</p>
+
+	<a name="destinations"></a>
+	<h2>Vart skÃ¤rmdumpen tar vÃ¤gen</h2>
+	<p>
+		Efter skÃ¤rmdumpen skickar Greenshot den till dina destinationer. Som standard frÃ¥gar den varje gÃ¥ng med en liten meny.
+		Varje destination dÃ¤r har en fast understruken bokstav, till exempel <kbd>C</kbd> fÃ¶r urklipp och <kbd>S</kbd> fÃ¶r att spara, sÃ¥ att du kan vÃ¤lja den med tangentbordet.
+		VÃ¤lj dina destinationer pÃ¥ <a href="greenshot://settings?tab=destination">fliken Destination</a>, eller under <em>SnabbinstÃ¤llningar</em> i ikonens meny.
+	</p>
+	<ul>
+		<li><em>Ã–ppna i bildredigeraren</em>: kommentera skÃ¤rmdumpen fÃ¶rst, se <a href="#editor">bildredigeraren</a>.</li>
+		<li><em>Spara direkt</em> anvÃ¤nder mappen och filnamnsmÃ¶nstret frÃ¥n <a href="greenshot://settings?tab=output">fliken Utdata</a>, <em>Spara som</em> frÃ¥gar efter dem.</li>
+		<li><em>Kopiera till urklipp</em>, <em>Skicka till skrivare</em>, <em>E-mail</em>, <em>Windows share</em> och <em>Windows OCR</em> (kopierar texten i skÃ¤rmdumpen).</li>
+		<li>Insticksprogram lÃ¤gger till fler destinationer, till exempel Microsoft Word, Excel, PowerPoint, Outlook och OneNote, PDF, Box, Dropbox, Jira och Confluence.
+			De stÃ¤lls in pÃ¥ <a href="greenshot://settings?tab=plugins">fliken Insticksprogram</a>, dÃ¤r du ocksÃ¥ kan stÃ¤nga av ett insticksprogram.</li>
+	</ul>
+	<p>
+		Kolumnen <em>TillgÃ¤ngliga</em> pÃ¥ <a href="greenshot://settings?tab=destination">fliken Destination</a> stÃ¤nger av en destination Ã¶verallt.
+		Vilka meddelanden du fÃ¥r efter en skÃ¤rmdump stÃ¤lls in pÃ¥ <a href="greenshot://settings?tab=capture">fliken SkÃ¤rmdump</a>, <em>Notifikationer</em>.
+	</p>
+
 	<a name="editor"></a>
-	<h2>Använda bildredigeraren</h2>
+	<h2>Bildredigeraren</h2>
 	<p>
-		Greenshot inkluderar en lättanvänd bildredigerare som ger dig praktiska verktyg för att lägga till kommentarer eller former på en skärmdump. Den låter dig till och med framhäva eller censurera delar av din skärmdump.
+		Redigeraren lÃ¤gger till former, text, pilar, framhÃ¤vningar med mera i en skÃ¤rmdump, eller dÃ¶ljer det som andra inte ska se.
+		FÃ¶rutom dina skÃ¤rmdumpar Ã¶ppnar den bilder frÃ¥n en fil eller frÃ¥n urklipp (ikonens meny).
+		Allt du ritar fÃ¶rblir ett element som du kan markera, flytta, Ã¤ndra eller ta bort.
 	</p>
-	<p class="hint">
-		Greenshots bildredigerare kan användas till fler saker än skärmdumpar. Du kan också öppna bilder att redigera från filer eller urklippet. Högerklicka på Greenshotikonen i aktivitetsfältet och välj <em>Öppna bild från fil</em> eller <em>Öppna bild från urklipp</em>.
-	</p>
-	<p class="hint">
-		Som standard kommer bildredigeraren öppnas när du tar en skärmdump. Om du inte vill använda bildredigeraren kan du stänga av denna funktion i <a href="#settings">inställningarna</a>.
-	</p>
-	
-	
-	<a name="editor-shapes"></a>
-	<h3>Rita former</h3>
+
+	<a name="editor-tabs"></a>
+	<h3>Flikar</h3>
 	<p>
-		Välj ett av verktygen för att rita former från verktygsraden i vänstra delen av bildredigeraren, eller från menyn <em>Objekt</em>. Det finns också en snabbknapp du kan använda för varje verktyg.<br>
-		De tillgängliga formerna är: rektangel <kbd>R</kbd>, cirkel <kbd>E</kbd>, linje<kbd>L</kbd>,
-		pil <kbd>A</kbd> och rita på frihand <kbd>F</kbd>.<br>
-		Klicka, håll nere musknappen och dra för attbestämma position och storlek av formen. Släpp musknappen när du är klar.
+		Ett redigerarfÃ¶nster visar flera bilder som flikar, en ny skÃ¤rmdump Ã¶ppnas som en flik i det redigerarfÃ¶nster du anvÃ¤nde senast.
+		<kbd>Ctrl</kbd> + <kbd>Tab</kbd> gÃ¥r till nÃ¤sta flik och <kbd>Ctrl</kbd> + <kbd>W</kbd> stÃ¤nger en. Dra en flik till ett annat redigerarfÃ¶nster,
+		eller klicka pÃ¥ den med hÃ¶ger musknapp fÃ¶r att flytta den till ett nytt fÃ¶nster. <em>+</em> i flikraden skapar en ny, tom bild.
+		NÃ¤r du stÃ¤nger ett fÃ¶nster med osparade bilder frÃ¥gar Greenshot en gÃ¥ng: <em>Spara alla</em>, <em>FÃ¶rkasta alla</em> eller avbryt.
+		Vill du hellre ha ett fÃ¶nster per skÃ¤rmdump? StÃ¤ng av flikarna pÃ¥ <a href="greenshot://settings?tab=editor">fliken Redigerare</a>.
 	</p>
+
+	<a name="editor-tools"></a>
+	<h3>Ritverktyg</h3>
 	<p>
-		Du kan flytta eller ändra storlek på existerande former om du markerar dem med markeringsverktyget <kbd>Esc</kbd> från verktygsraden.<br>
-		För varje elementtyp finns ett antal alternativ tillgängliga för att ändra utseendet på elementet (t.ex. linjetjocklek, linjefärg och fyllnadsfärg). Du kan ändra alternativen för ett specifikt element genom att markera det, men också för nästa element som ritas efter att ha valt ett ritverktyg.
+		VÃ¤lj ett verktyg till vÃ¤nster i redigeraren, i menyn <em>Objekt</em> eller med dess tangent, och dra sedan pÃ¥ bilden.
+		VerktygsfÃ¤ltet lÃ¤ngst upp visar alternativen fÃ¶r verktyget eller fÃ¶r de markerade elementen, till exempel linjefÃ¤rg, fyllnadsfÃ¤rg och tjocklek.
 	</p>
-	<p class="hint">
-		Du kan välja flera element att redigera åt gången. För att markera flera element, håll ner tangenten <kbd>Shift</kbd> när du klickar på elementen.
-	</p>
-	<p class="hint">
-		Om du vill rita liksidiga former (t.ex. tvinga en rektangel att vara en kvadrat), håll ner <kbd>Shift</kbd> när du ritar. När du ritar linjer eller pilar kommer linjens vinkel stegas i grader om 15° när du håller ner <kbd>Shift</kbd>.<br>
-		Du kan också använda <kbd>Shift</kbd> om du vill ändra storlek på ett existerande objekt och behålla dess proportioner.
-	</p>
-	<p class="hint">
-		När du ritar eller skalar objekt kan du hålla nere <kbd>Ctrl</kbd> för att objektet ska ankras i dess geometriska mitt, d.v.s. att objektet också ändrar storlek i motsatt riktning. (Detta är väldigt praktiskt om du vill rita en cirkel runt någonting på din skärmdump.)
-	</p>
-	
-	<a name="editor-text"></a>
-	<h3>Lägga till text</h3>
-	<p>
-		Att använda textverktyget <kbd>T</kbd> är likt användandet av verktygen för att <a href="#editor-shapes">rita former</a>.
-		Rita helt enkelt ut textelementet till önskad storlek, och skriv sedan in text.<br>
-		Dubbelklicka på ett existerande textelement för att redigera text.<br>
-		Tryck på <kbd>Return</kbd> eller <kbd>Enter</kbd> när du är klar med redigeringen.
-	</p>
-	<p class="hint">
-		Om du behöver lägga till radbrytningar i en textruta, tryck på <kbd>Shift</kbd> + <kbd>Return</kbd> eller <kbd>Shift</kbd> + <kbd>Enter</kbd>.
-	</p>
-	
+	<table>
+		<tr><th>Tangent</th><th>Verktyg</th><th>Tangent</th><th>Verktyg</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Markeringsverktyg</td><td><kbd>S</kbd></td><td>Pratbubbla</td></tr>
+		<tr><td><kbd>R</kbd></td><td>Rektangel</td><td><kbd>I</kbd></td><td>RÃ¤knare (numrerade steg)</td></tr>
+		<tr><td><kbd>E</kbd></td><td>Ellips</td><td><kbd>M</kbd></td><td>Emoji</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Linje</td><td><kbd>H</kbd></td><td>FramhÃ¤v</td></tr>
+		<tr><td><kbd>A</kbd></td><td>Pil</td><td><kbd>O</kbd></td><td>DÃ¶lj</td></tr>
+		<tr><td><kbd>F</kbd></td><td>Frihand</td><td><kbd>C</kbd></td><td>BeskÃ¤r</td></tr>
+		<tr><td><kbd>T</kbd></td><td>Text</td><td><kbd>Z</kbd></td><td>Ã„ndra bildens storlek</td></tr>
+	</table>
+	<ul>
+		<li>HÃ¥ll ned <kbd>Shift</kbd> medan du ritar fÃ¶r en kvadrat eller en cirkel, eller fÃ¶r linjer i steg om 15Â°; nÃ¤r du Ã¤ndrar storlek behÃ¥lls proportionerna.
+			HÃ¥ll ned <kbd>Ctrl</kbd> fÃ¶r att rita eller Ã¤ndra storlek frÃ¥n mitten, praktiskt fÃ¶r en ellips runt nÃ¥got.</li>
+		<li>Text: rita textrutan och skriv. Dubbelklicka pÃ¥ en text fÃ¶r att Ã¤ndra den, <kbd>Enter</kbd> avslutar, <kbd>Shift</kbd> + <kbd>Enter</kbd> bÃ¶rjar en ny rad.</li>
+		<li>Markerade element: piltangenterna flyttar dem (med <kbd>Shift</kbd> tio pixlar), <kbd>Ctrl</kbd> + piltangenterna Ã¤ndrar storleken,
+			<kbd>Page Up</kbd> / <kbd>Page Down</kbd> flyttar dem en nivÃ¥ upp eller ned, <kbd>Delete</kbd> tar bort dem, <kbd>Ctrl</kbd> + <kbd>D</kbd> duplicerar dem.
+			HÃ¥ll ned <kbd>Shift</kbd> och klicka fÃ¶r att markera flera element.</li>
+		<li><kbd>Ctrl</kbd> + <kbd>Z</kbd> Ã¥ngrar, <kbd>Ctrl</kbd> + <kbd>Y</kbd> gÃ¶r om.</li>
+	</ul>
+
 	<a name="editor-highlight"></a>
-	<h3>Framhäva saker</h3>
-	<p>
-		Efter att du valt framhävningsverktyget <kbd>H</kbd> kan du definiera ytan du vill ska framhävas exakt på samma sätt du ritar en <a href="#editor-shapes">form</a>.<br>
-		Det finns flera olika alternativ för framhävning, som du kan välja mellan genom att klicka på knappen längst till vänster i verktygsfältet längst upp:
-	</p>
+	<h3>FramhÃ¤va och dÃ¶lja</h3>
+	<p>Rita ytan fÃ¶r framhÃ¤vning (<kbd>H</kbd>) eller dÃ¶ljning (<kbd>O</kbd>) som en rektangel och vÃ¤lj lÃ¤get i verktygsfÃ¤ltet:</p>
 	<ul>
-		<li><em>Framhäv text</em>: framhöver ett område genom att lägga till en stark färg, som en överstrykningspenna</li>
-		<li><em>Framhäv område</em>: lägger till oskärpa<a href="#hint-blur">*</a> och mörklägger allting utanför det markerade området</li>
-		<li><em>Gråskala</em>: allting utanför det markerade området visas i gråskala</li>
-		<li><em>Förstora</em>: det valda området kommer visas förstorat</li>
+		<li><em>FramhÃ¤v text</em> fÃ¤rgar ytan som en Ã¶verstrykningspenna, <em>FramhÃ¤v omrÃ¥de</em> gÃ¶r allt annat mÃ¶rkare och suddigare,
+			<em>GrÃ¥skala</em> gÃ¶r allt annat grÃ¥tt, <em>FÃ¶rstora</em> fÃ¶rstorar ytan.</li>
+		<li><em>Pixelering</em> eller <em>OskÃ¤rpa</em> dÃ¶ljer lÃ¶senord, namn, kontonummer eller ansikten.</li>
 	</ul>
-	
-	<a name="editor-obfuscate"></a>
-	<h3>Censurera saker</h3>
-	<p>
-		Att censurera delar av en skärmdump är en bra idé om den innehåller information som inte är menad för andra personer, t.ex. bankuppgifter, namn, lösenord eller ansikten på bilder.<br>
-		Använd censursverktyget <kbd>O</kbd> precis på samma sätt som verktyget för <a href="#editor-highlight">framhävning</a>.<br>
-		Tillgängliga alternativ för censur är:
-	</p>
-	<ul>
-		<li><em>Pixelering</em>: öka pixelstorleken för det valda området</li>
-		<li><em>Oskärpa</em><a href="#hint-blur">*</a>: gör det markerade området oskarpt</li>
-	</ul>
-	<a name="hint-blur"></a>
-	<p class="hint">
-		* Beroende på din dators prestanda kan oskärpan göra Greenshots bildredigerare långsam. Om du känner att bildredigeraren reagerar långsamt så fort en oskärpa läggs till, kan du försöka minska värdet för <em>förhandskvalitet</em> i verktygsfältet eller minska värdet för <em>oskärpans styrka</em>.<br>
-		Om prestandan vid oskärpan fortfarande är för låg för dig att arbeta med, kan du istället använda pixeleringseffekten.
-	</p>
-	<a name="editor-effects"></a>
-	<h3>Lägga till effekter</h3>
-	<p>
-		Du kan lägga till olika effekter till din skärmdump. Du kanske vill ha en kant, skugga eller rivna kanter, t.ex. för att visuellt separera din skrämdump från annat innehåll i ett dokument. Effekterna gråskala och invertering är främst användbara innan utskrift, för att spara på bläck eller toner när du skriver ut färgstarka eller mörka skärmdumpar.
-	</p>
-	
+
 	<a name="editor-crop"></a>
-	<h3>Beskära skärmdumpen</h3>
+	<h3>BeskÃ¤ra</h3>
 	<p>
-		Om du enbart behöver en del av din skärmdump kan du använda beskäringsverktyget <kbd>C</kbd> för att beskära den till önskad storlek.<br>
-		Efter att du valt beskäringsverktyget, rita en rektangel över det område du vill ha kvar av skärmdumpen. Du kan ändra storlek på det markerade området liksom alla andra element.<br>
-		När du är nöjd med din markering, använd knappen <em>Konfirmera</em> i verktygsfältet, eller tryck på <kbd>Enter</kbd>. Du kan avbryta beskäringen genom att klicka på knappen <em>Avbryt</em> eller genom att klicka på <kbd>Esc</kbd>.
+		VÃ¤lj beskÃ¤rningsverktyget (<kbd>C</kbd>) och rita ytan som ska behÃ¥llas, <kbd>Enter</kbd> bekrÃ¤ftar, <kbd>Esc</kbd> avbryter.
+		Tryck pÃ¥ <kbd>C</kbd> igen, eller anvÃ¤nd <em>BeskÃ¤ringslÃ¤ge</em> i verktygsfÃ¤ltet, fÃ¶r att byta lÃ¤ge:
 	</p>
-	<p class="hint">
-		<em>Autobeskärning</em>: Om du behöver beskära en enfärgad kant från din skärmdump, kan du välja <em>Autobeskäring</em> från menyn <em>Redigera</em> så att Greenshot automatiskt markerar området att beskära.
-	</p>
-	
-	<a name="editor-rotate"></a>
-	<p class="hint">
-		Använd verktygen för rotering för att rotera skärmdumpen med- eller moturs.
+	<ul>
+		<li><em>BeskÃ¤r vertikalt</em> eller <em>BeskÃ¤r horisontellt</em> tar bort en remsa ur bilden och fogar ihop resten, till exempel fÃ¶r att utelÃ¤mna
+			den tomma mitten av en lÃ¥ng sida. <em>Klippkanter</em> vÃ¤ljer hur skarven ser ut: rak, sicksack, vÃ¥gig, riven eller sÃ¶mlÃ¶s.</li>
+		<li><em>AutobeskÃ¤rning</em> tar bort en enfÃ¤rgad kant runt bilden.</li>
+	</ul>
+
+	<a name="editor-effects"></a>
+	<h3>Effekter, rotera och Ã¤ndra storlek</h3>
+	<table>
+		<tr><th>Tangenter</th><th>Vad de gÃ¶r</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Q</kbd></td><td>Skugga</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>B</kbd></td><td>Ram</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>T</kbd></td><td>Riven kant</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>G</kbd> / <kbd>Ctrl</kbd> + <kbd>I</kbd></td><td>GrÃ¥skala / invertera, till exempel fÃ¶r att spara blÃ¤ck vid utskrift</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>,</kbd> / <kbd>Ctrl</kbd> + <kbd>.</kbd></td><td>Rotera moturs / medurs</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>+</kbd> / <kbd>-</kbd></td><td>GÃ¶r arbetsytan stÃ¶rre / mindre</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>+</kbd> / <kbd>-</kbd>, <kbd>Ctrl</kbd> + <kbd>0</kbd>, <kbd>Ctrl</kbd> + <kbd>9</kbd></td><td>Zooma in / ut, verklig storlek, bÃ¤sta anpassning</td></tr>
+	</table>
+	<p>
+		En riven kant fÃ¶rblir ett element som du kan Ã¤ndra; <em>TillÃ¤mpa pÃ¥ bilden</em> i verktygsfÃ¤ltet gÃ¶r den till en del av bilden.
 	</p>
 
-	<a name="editor-adding-graphics"></a>
-	<h3>Lägga till grafik till en skärmdump</h3>
-	<p>
-		Du kan enkelt lägga till grafik eller bilder till dina skärmdumpar genom att dra och släppa en bildfil i redigeringsfönstret. Du kan också lägga in skärmdumpar av andra fönster genom att välja <em>Infoga fönster</em> från menyn <em>Redigera</em>. En lista med alla öppna fönster visas, där du kan välja ett att lägga till.
-	</p>
-	
-	<a name="editor-reuse-elements"></a>
-	<h3>Återanvända ritade element</h3>
-	<p>
-		Om du märker att du använder samma eller liknande element på de flesta av dina skärmdumpar (t.ex. ett textfält innehållandes webbläsartyp och -version, eller censur av samma element på flera olika skärmdumpar) kan du återanvända element.<br>
-		Välj <em>Spara objekt till fil</em> från menyn <em>Objekt</em> för att spara de nuvarande elementen för återanvändning senare. <em>Ladda in objekt från fil</em> använder samma element för en annan skärmdump.
-	</p>
-	
+	<a name="editor-reuse"></a>
+	<h3>LÃ¤gga till bilder och Ã¥teranvÃ¤nda element</h3>
+	<ul>
+		<li>Dra en bildfil till redigeraren eller klistra in en bild med <kbd>Ctrl</kbd> + <kbd>V</kbd>. <em>Infoga fÃ¶nster</em> i menyn <em>Redigera</em> lÃ¤gger till en skÃ¤rmdump av ett annat Ã¶ppet fÃ¶nster.</li>
+		<li>AnvÃ¤nd samma element pÃ¥ mÃ¥nga skÃ¤rmdumpar: <em>Spara objekt till fil</em> i menyn <em>Objekt</em>, och <em>Ladda in objekt frÃ¥n fil</em> pÃ¥ nÃ¤sta skÃ¤rmdump.</li>
+		<li>Spara som en <code>.greenshot</code>-fil fÃ¶r att alla element ska fÃ¶rbli redigerbara sÃ¥ att du kan fortsÃ¤tta senare.</li>
+	</ul>
+
 	<a name="editor-export"></a>
-	<h3>Exportera skärmdumpen</h3>
+	<h3>Spara och exportera</h3>
+	<table>
+		<tr><th>Tangenter</th><th>Vad de gÃ¶r</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td><td><em>Spara</em>, i mappen frÃ¥n <a href="greenshot://settings?tab=output">fliken Utdata</a></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd></td><td><em>Spara som...</em>: vÃ¤lj mapp, namn och bildformat</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd></td><td><em>Kopiera bilden till urklipp</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>P</kbd></td><td><em>Skriv ut</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>E</kbd></td><td><em>E-post</em>: ett nytt meddelande med bilden bifogad</td></tr>
+	</table>
 	<p>
-		Efter redigering av skärmdumpen kan du exportera resultatet för olika ändamål, beroende på dina behov. Du kommer åt alla exporteringsalternativ från menyn <em>Arkiv</em>, det översta verktygsfältet eller via kortkommandon:
+		Menyn <em>Arkiv</em> och verktygsfÃ¤ltet lÃ¤ngst upp listar alla dina destinationer, Ã¤ven de frÃ¥n insticksprogram.
+		Efter att du har sparat kan du klicka pÃ¥ statusfÃ¤ltet lÃ¤ngst ned med hÃ¶ger musknapp fÃ¶r att kopiera sÃ¶kvÃ¤gen till filen eller Ã¶ppna dess mapp.
 	</p>
-	<ul>
-		<li><em>Spara</em> <kbd>Ctrl</kbd> + <kbd>S</kbd>: sparar bilden som en fil (om bilden redan sparats, annars visas dialogrutan <em>Spara som...</em></li>
-		<li><em>Spara som...</em> <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>: låter dig välja sökväg, filnamn och bildformat innan du sparar</li>
-		<li><em>Kopiera till urklipp</em> <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd>: lägger en kopia av bilden i urklippet, som du kan kopiera in i andra program</li>
-		<li><em>Skriv ut...</em> <kbd>Ctrl</kbd> + <kbd>P</kbd>: skickar bilden till en skrivare</li>
-		<li><em>E-mail</em> <kbd>Ctrl</kbd> + <kbd>E</kbd>: öppnar ett nytt meddelande i din standardklient för e-post och bifogar bilden</li>
-	</ul>
-	<p> 
-		Det finns insticksprogram för att exportera skärmdumpar till andra mål, t.ex. Dropbox, Picasa och Flickr. Välj helt enkelt lämpliga insticksprogram under installationsprocessen.
+
+	<a name="recipes"></a>
+	<h2>Automatiska steg och recept</h2>
+	<p>
+		Recept gÃ¶r saker med dina skÃ¤rmdumpar automatiskt, till exempel lÃ¤gger till en ram pÃ¥ varje skÃ¤rmdump, eller sparar och laddar upp den i ett svep.
+		<em>SnabbinstÃ¤llningar</em> &gt; <em>Automatiska steg</em> i ikonens meny slÃ¥r pÃ¥ eller av de fÃ¤rdiga stegen,
+		<em>Flerâ€¦</em> Ã¶ppnar deras instÃ¤llningar pÃ¥ <a href="greenshot://settings?tab=recipes">fliken Recept</a>.
+		Menyn <em>Recept</em> fÃ¶r ikonen startar dina recept och Ã¶ppnar <a href="greenshot://recipe-manager">Recepthanterare</a> och Recipe Editor.
+		Recepten fÃ¶ljer med insticksprogrammet Recipe Editor.
 	</p>
-	<p class="hint">
-		Efter att du sparat en bild från redigeraren kan du högerklicka på statusfältet längst ner i redigerarfönstret för att antingen kopiera sökvägen till urklippet, eller öppna filens mapp i Windows Utforskaren.
-	</p>
-	
-	
+
 	<a name="settings"></a>
-	<h2>Inställningarna</h2>
-	
-	<a name="settings-general"></a>
-	<h3>Allmänt</h3>
+	<h2>InstÃ¤llningarna</h2>
+	<p>Ã–ppna instÃ¤llningarna med <em>InstÃ¤llningar...</em> i ikonens meny, eller med lÃ¤nkarna nedan.</p>
 	<ul>
-		<li><em>Språk</em>: Det språk du föredrar.
-			<p class="hint">
-				Du kan ladda ner ytterligare språkfiler för Greenshot <a target="_blank" href="https://getgreenshot.org/downloads/">här</a>.
-			</p>
-		</li>
-		<li><em>Starta Greenshot när datorn startas</em>: Starta programmet när systemet startat upp.</li>
-		<li><em>Kortkommandon</em>: Anpassa kortkommandona som används för att skapa skärmdumpar.</li>
-		<li><em>Använd systemets standardproxy</em>: Greenshot använder systemets standardinställningar för proxy för att leta efter uppdateringar, om detta alternativ är markerat.</li>
-		<li><em>Intervall för att leta efter uppdateringar i dagar</em>: Greenshot kan leta efter uppdateringar automatiskt. Använd denna inställning för att ställa in intervallen (i dagar) eller välj 0 för att stänga av automatiska uppdateringar.</li>
+		<li><a href="greenshot://settings?tab=general">AllmÃ¤nt</a>: sprÃ¥k, fÃ¤rger (ljust, mÃ¶rkt eller som Windows), ikonstorlek,
+			<em>Starta Greenshot nÃ¤r datorn startas</em>, kortkommandona, proxyn och hur ofta Greenshot sÃ¶ker efter uppdateringar.</li>
+		<li><a href="greenshot://settings?tab=capture">SkÃ¤rmdump</a>: fÃ¥nga muspekaren, kameraljud, fÃ¶rstorare, frysa skÃ¤rmen,
+			meddelanden, fÃ¶rdrÃ¶jningen fÃ¶re en skÃ¤rmdump, dina fasta storlekar, interaktiv fÃ¶nsterskÃ¤rmdump och sprÃ¥ket fÃ¶r textigenkÃ¤nningen.</li>
+		<li><a href="greenshot://settings?tab=output">Utdata</a>: mappen och filnamnsmÃ¶nstret fÃ¶r att spara (klicka pÃ¥ <em>?</em> fÃ¶r platshÃ¥llarna,
+			till exempel <code>${YYYY}-${MM}-${DD}</code> eller <code>${title}</code>; ett <code>\</code> i mÃ¶nstret skapar mappar), bildformatet och JPEG-kvaliteten.</li>
+		<li><a href="greenshot://settings?tab=destination">Destination</a>: vad som hÃ¤nder efter en skÃ¤rmdump, se <a href="#destinations">vart skÃ¤rmdumpen tar vÃ¤gen</a>.</li>
+		<li><a href="greenshot://settings?tab=editor">Redigerare</a>: flikar, storleken pÃ¥ redigerarfÃ¶nstret, frÃ¥gan om att spara nÃ¤r du stÃ¤nger det, och storlek och fÃ¤rg fÃ¶r en ny bild.</li>
+		<li><a href="greenshot://settings?tab=printer">Utskrift</a>: anpassa bilden till sidan, rotera eller centrera den, skriv ut i fÃ¤rg, grÃ¥skala eller inverterat, och en sidfot med datum och tid.</li>
+		<li><a href="greenshot://settings?tab=plugins">Insticksprogram</a>: slÃ¥ pÃ¥ eller av insticksprogram och konfigurera dem. Ã„ndringar gÃ¤ller vid nÃ¤sta start av Greenshot.</li>
+		<li><a href="greenshot://settings?tab=expert">Expert</a>: instÃ¤llningar fÃ¶r specialfall, till exempel fjÃ¤rrskrivbord, DirectX-skÃ¤rmdump (krÃ¤vs fÃ¶r HDR-skÃ¤rmar), minne och hastighet,
+			och urklippsformaten. Ã„ndra dem bara om du vet vad de gÃ¶r.</li>
 	</ul>
-
-	<a name="settings-capture"></a>
-	<h3>Skärmdump</h3>
-	<ul>
-		<li><em>Inkludera muspekaren</em>: Om detta alternativ är markerat kommer muspekaren inkluderas i skärmdumpen. Muspekaren hanteras som ett separat element i redigeraren, så du kan ta flytta eller ta bort den senare.</li>
-		<li><em>Spela upp kameraljud</em>: Ljudsignal vid skärmdump</li>
-		<li><em>Fördröjning i millisekunder innan skärmdump</em>: Lägg till en fördröjning innan skärmdumpen faktiskt tas.</li>
-		<li><em>Välj fönster</em>: Istället för att skapa en skärmdump av det aktiva fönstret med en gång får du istället välja vilket fönster du vill att skärmdumpen ska bestå utav. Du kan också välja underfönster, se <a href="#capture-window">skärmdump av fönster</a>.</li>
-		<li>
-			<em>Läge för skärmdump av fönster</em>: Om du använder Greenshot på Windows Vista eller Windows 7 med Aero kan du välja hur genomskinliga fönsterkanter hanteras vid skärmdumpar av fönster. Använd denna inställning för att undvika att element bakom fönstret lyser genom kanterna.
-			<ul>
-				<li><em>Automatiskt</em>: Låt Greenshot bestämma hur genomskinlighet ska hanteras.</li>
-				<li><em>Som visat</em>: Genomskinliga kanter visas som på skärmen.</li>
-				<li><em>Använd standardfärg</em>: En fast standardfärg används istället för genomskinlighet.</li>
-				<li><em>Använd anpassad färg</em>: Välj en anpassad färg att använda istället för genomskinlighet.</li>
-				<li><em>Bevara genomskinlighet</em>: Kanter behåller sin genomskinlighet, men eventuella objekt bakom fönstret döljs.
-					<p class="hint">
-						Genomskinliga områden visas som ett rutmönster i redigeraren. Mönstret exporteras inte när skärmdumpen sparas. Tänk på att spara som PNG för fullt stöd för genomskinlighet.
-					</p>
-				</li>
-			</ul>
-		</li>
-		<li><em>Skärmdump av Internet Explorer</em>: Låter dig enkelt skapa skärmdumpar av flikar i Internet Explorer.</li>
-		<li><em>Matcha bildstorlek</em>: Om detta alternativ är markerat kommer redigerarfönstret automatiskt matcha storleken på skärmdumpen.</li>
-
-	</ul>
-	
-	<a name="settings-output"></a>
-	<h3>Utdata</h3>
-	<ul>
-		<li><em>Mapp för lagring</em>: Låter dig välja destination(er) för din skärmdump när den skapats.</li>
-		<li><em>Filnamnsmönster</em>: Filnamn som används när skärmdumpar sparas direkt eller som föreslås när skärmdumpar sparas med dialogruta. Klicka på knappen <em>?</em> för att veta mer om platshållare som kan användas som filnamnsmönster.</li>
-		<li><em>Bildformat</em>: Välj vilket bildformat som ska användas som standard.</li>
-		<li><em>Kopiera bildens sökväg till urklipp varje gång en bild sparas</em>: Varje gång en skärmdump sparas på hårddisken kommer sökvägen till filen kopieras till utklippet.</li>
-		<li><em>JPEG-kvalitet</em>: Kvalitet som används när JPEG-filer sparas</li>
-		<li><em>Visa kvalitetsdialogen varje gång en bild sparas</em>: Du kommer få välja JPEG-kvalitet varje gång en bild ska sparas</li>
-		<li><em>Reducera antalet färger till maximalt 256</em>: Bilder kommer konverteras till att enbart innehålla 256 färger.</li>
-	</ul>
-	
-	<a name="settings-destination"></a>
-	<h3>Destination för skärmdumpar</h3>
-	<p>
-		Som standard låter Greenshot dig välja en destination dynamiskt efter en skärmdump, genom att visa en liten meny med olika destinationer att välja mellan. Om du inte vill eller behöver välja mellan destinationer direkt kanske du föredrar att konfigurera Greenshot till att exportera till en eller fler destinationer direkt, utan att visa destinationsväljaren.
-	</p>
 	<p class="hint">
-		Liksom <a href="#editor-export">exportering från redigerarfönstret</a> kommer de visade destinationerna variera baserat på de insticksprogram du har installerade med Greenshot.
+		Greenshot sparar sina instÃ¤llningar i <code>greenshot.ini</code>, i <code>%APPDATA%\Greenshot</code> (den portabla versionen har den bredvid Greenshot.exe).
+		<a href="greenshot://self-service?section=files">Filer och konfiguration</a> i SjÃ¤lvbetjÃ¤ning visar var den finns.
 	</p>
-	
-	<a name="settings-printer"></a>
-	<h3>Utskrift</h3>
+
+	<a name="troubleshooting"></a>
+	<h2>NÃ¤r nÃ¥got inte fungerar</h2>
+	<p>
+		SjÃ¤lvbetjÃ¤ning kontrollerar Greenshot och Ã¥tgÃ¤rdar de flesta problem. Ã–ppna det med <em>Om Greenshot</em> i ikonens meny och sedan <em>SjÃ¤lvbetjÃ¤ning</em>,
+		eller gÃ¥ direkt till rÃ¤tt avsnitt:
+	</p>
 	<ul>
-		<li><em>Förminska/anpassa utskriften till papprets storlek</em>: Om bildens storlek skulle överstiga papprets storlek kommer den förminskas för att passa in på sidan.</li>
-		<li><em>Förstora/anpassa utskriften till papprets storlek</em>: Om bilden är mindre än papprets storlek kommer den skalas upp för att skrivas ut så stor som möjligt, inom papprets gränser.</li>
-		<li><em>Rotera utskriften till sidans orientering</em>: Bild i landskapsformat kommer roteras 90&deg; före utskrift.</li>
-		<li><em>Centrera utskriften på sidan</em>: Bilder kommer skrivas ut i mitten på sidan.</li>
-		<li><em>Utskriftsdatum/klockslag i sidans nedre kant</em>: Datum och klockslag kommer skrivas ut i bildens nedre kant.</li>
-		<li><em>Tvinga gråskalig utskrift</em>: Färger kommer konverteras till gråskala innan utskrift.</li>
-		<li><em>Tvinga svart/vit utskrift</em>: Färger kommer konverteras till svart/vit innan utskrift.</li>
-		<li><em>Skriv ut med inverterade färger</em>: Skärmdumpar kommer inverteras innan utskrift, användbart vid t.ex. vit text på en svart bakgrund (för att spara bläck/toner).</li>
+		<li><kbd>Print Screen</kbd> gÃ¶r ingenting eller Ã¶ppnar nÃ¥got annat: <a href="greenshot://self-service?section=hotkeys">Kortkommandon och konflikter</a>
+			visar om OneDrive eller SkÃ¤rmklippverktyget har tagit tangenten, och ger den tillbaka till Greenshot.</li>
+		<li>Hittar du inte dina skÃ¤rmdumpar: <a href="greenshot://self-service?section=files">Filer och konfiguration</a> visar var Greenshot sparar dem.</li>
+		<li>Kopiering till urklipp misslyckas: <a href="greenshot://self-service?section=clipboard">Diagnostik av urklipp</a> hittar programmet som blockerar urklipp.</li>
+		<li>Greenshot kraschar eller ett insticksprogram saknas efter en uppdatering: <a href="greenshot://self-service?section=checksum">Installationens integritet</a> kontrollerar de installerade filerna.</li>
+		<li>Rapportera ett problem: <em>Kopiera systeminfo</em> i <a href="greenshot://self-service?section=system">System och maskinvara</a> och
+			<a href="greenshot://log?search=ERROR">felen i loggen</a> hjÃ¤lper oss att hjÃ¤lpa dig. Rapportera problem pÃ¥
+			<a target="_blank" href="https://github.com/greenshot/greenshot/issues">github.com/greenshot/greenshot/issues</a>.</li>
 	</ul>
 
-	<a name="settings-plugins"></a>
-	<h3>Insticksprogram</h3>
-	<p>
-		Visar en lista med installerade insticksprogram till Greenshot. Välj ett från listan och klicka på <em>Konfigurera</em> för att komma åt insticksprogrammets konfigurationsmöjligheter.
-	</p>
-	
-	<a name="settings-expert"></a>
-	<h3>Expert</h3>
-	<p>
-		Vi menar det verkligen: du borde verkligen inte ändra någonting här om du inte vet vad du håller på med, eftersom dessa inställningar skulle kunna leda till oväntade resultat.
-	</p>
-	
-	
 	<a name="help"></a>
-	<h2>Vill du hjälpa till?</h2>
-	
-	<p>
-		För nuvarande behöver vi ingen hjälp med utveckling. Däremot finns det ett antal saker du skulle kunna göra för att stödja Greenshot och utvecklingsteamet.<br>
-		Tack på förhand! :)
-	</p>
-	
+	<h2>Vill du hjÃ¤lpa till?</h2>
+
 	<a name="help-donate"></a>
-	<h3>Överväg en donation</h3>
+	<h3>Ã–vervÃ¤g en donation</h3>
 	<p>
-		Vi lägger ner mycket arbete på Greenshot och spenderar en hel del tid till att tillhandahålla ett bra program helt gratis och med öppen källkod. Om du tycker att programmet gör dig mer produktiv, om det sparar dig (eller ditt företag) en massa tid och pengar, eller om du helt enkelt bara tycker om Greenshot och tanken på mjukvara med öppen källkod: överväg att belöna vårt arbete genom att donera.<br>
-		Ta en titt på vår hemsida för få reda på hur du kan stödja Greenshots utvecklingsteam:<br>
-		<a target="_blank" href="https://getgreenshot.org/support/">https://getgreenshot.org/support/</a>
+		Vi lÃ¤gger ner mycket arbete pÃ¥ Greenshot fÃ¶r att erbjuda bra programvara gratis och med Ã¶ppen kÃ¤llkod. Om den gÃ¶r dig mer produktiv,
+		sparar tid och pengar Ã¥t dig eller ditt fÃ¶retag, eller om du helt enkelt gillar Greenshot: Ã¶vervÃ¤g gÃ¤rna att stÃ¶dja oss.
+		Se <a target="_blank" href="https://getgreenshot.org/support/">https://getgreenshot.org/support/</a> fÃ¶r hur du kan hjÃ¤lpa till.
 	</p>
-	
+
 	<a name="help-spread"></a>
 	<h3>Sprid ordet</h3>
 	<p>
-		Om du gillar Greenshot, låt folk veta: berätta för dina vänner och kollegor om Greenshot. Dina följare också! :)<br>
-		Betygsätt Greenshort i mjukvaruportaler eller länka till vår hemsida från din blogg eller hemsida.
+		Om du gillar Greenshot, berÃ¤tta om det fÃ¶r dina vÃ¤nner och kollegor. BetygsÃ¤tt Greenshot pÃ¥ programvaruportaler eller lÃ¤nka till vÃ¥r webbplats frÃ¥n din blogg eller webbplats.
 	</p>
-	
-	<a name="help-translate"></a>
-	<h3>Skicka in en översättning</h3>
 	<p>
-		Är inte Greenshot tillgängligt på ditt språk? Om du känner dig trygg med att översätta mjukvara är du mer än välkommen att göra så.
-		Om du är en registrerad användare på sourceforge.net kan du skicka in översättningar till vår <a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">översättnings-tracker</a>.<br>
-		Se till så att det inte finns någon existerande översättning till ditt språk på vår
-		<a target="_blank" href="https://getgreenshot.org/downloads/">nerladdningssida</a>. Kolla också vår <a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">översättnings-tracker</a>,
-		det kan finnas pågående översättningar, eller i alla fall i planeringsstadiet.<br>
-		Observera att vi enbart tillhandahåller en översättning på vår nerladdningssida om den blivit inskickad via ditt konto på sourceforge.net. Eftersom vi sannolikt inte har möjlighet att förstå din översättning är det bra om andra användare på sourceforge kan kontakta dig angående förbättringar eller ändringar om en ny version av Greenshot släpps.
+		Ge Greenshot en stjÃ¤rna pÃ¥ <a target="_blank" href="https://github.com/greenshot/greenshot">GitHub</a>, dÃ¥ hittar andra det lÃ¤ttare:
+		<br><iframe src="https://ghbtns.com/github-btn.html?user=greenshot&amp;repo=greenshot&amp;type=star&amp;count=true&amp;size=large" frameborder="0" width="170" height="30" title="GitHub"></iframe>
 	</p>
-	
-	
-	
+
 	</body>
 </html>

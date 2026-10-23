@@ -1,447 +1,360 @@
-
-<html>
+<!DOCTYPE html>
+<html lang="nn">
 	<head>
-		<title>Greenshot-hjelp</title>
-		
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Hjelp for Greenshot</title>
 		<style>
-		* {
-			font-family: Tahoma, Arial, Sans-serif;
-		}
-		h1 {font-size:16px;}
-		h2 {font-size:14px;color:#009900;margin-top:24px;}
-		h3 {font-size:12px;margin-top:18px;}
-		small {font-size:10px;}
-		p, li {font-size:12px;line-height:1.5em}
-		a:link, a:hover, a:visited, a:active {color:#009900;}
-		kbd {background-color:#dddddd;border:1px solid #bbbbbb;padding:0 2px;border-radius:2px;}
-		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px;}
-		em {padding-right:0.2em;}
+		* {font-family: "Segoe UI", Tahoma, Arial, Sans-serif;}
+		body {max-width:60em;margin:0 auto;padding:0 16px 24px 16px;}
+		h1 {font-size:20px;}
+		h2 {font-size:16px;color:#009900;margin-top:28px;}
+		h3 {font-size:14px;margin-top:20px;}
+		small {font-size:11px;}
+		p, li, td, th {font-size:13px;line-height:1.5em;}
+		a:link, a:hover, a:visited, a:active {color:#007700;}
+		kbd {background-color:#eeeeee;border:1px solid #bbbbbb;padding:0 3px;border-radius:3px;white-space:nowrap;}
+		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px 8px;}
+		table {border-collapse:collapse;margin:6px 0;}
+		th, td {border:1px solid #dddddd;padding:3px 8px;text-align:left;vertical-align:top;}
+		th {background-color:#f2f2f2;}
+		em {font-style:normal;font-weight:bold;}
+		:root {--greenshot-icon:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAEgklEQVR4nO2WXWxTZRjHf+er3y0j3dhXuw8DHRsEJoPEBEY0CMEbPtR4gUiciYQgd4ImeqMRZuK9qBgwXBjDFcSQoASVz4RIXPnY5raAbN1GS7d1LWU9p2c9PV6UlBE76ACHFz5X7/l4/s/vvO95n/cvtLa2mjzDEJ9l8f8B/tsAjkqN6rVRLCWT/yqAXLB4RZoXD3cg2Qy0ESu/vtmCoUmzB1DSmESyGQDYytI4fRruuglqN0SIXfPQe7AOM/uUAKrXjEwRrsU0YfSPElK3bDiqNMY7PaRjCq0H+hBlE29zgniPm8g5L44qjcmkzGSy4HcUB9D8cW9O+Pk48V4XkXNeZGeG8zubsXgmuRuyo3gyCMKDiY3b+5m/dRBDk7j4/mJi1zyPBSBOFRYEWPhuP2uOXGLND5eQXRnMrIAeVwjuCxC76uH6935uX/BSuzEMgGQzqH45imQ3CGwbJNA2gOLKFD8DwfYAdZvCxK55iJz3svTDvpyw3cC3Nsp4Z+7Lhk/NY/jUvHziaHAOlavHABi7MoemHTep25yDclZrBPc2FAfgrEzz+weLmZyQ/iEcuzpn2sSOTxupWDWKOmJlvNODf300/8xRoWEv01nxeRcuv0r31/X0H60sqCN8YWIO/TyP4L4csahkqVw9hjpiJXa1+HWd25Sk5ZMekLIE9zZQ1pJgwbYQAIYmcmL9yoI7R4bclNm8Osv3dePyq/z5TT2xX2b2U413uzn1xor8taMynR+nIrZpt62cjin0HKqhdmOYuU1JABbtukHoeDlmViicVUQM/VSOIJo4fSr9xwpPP4B8ctMLOeJyPX9TjVqfqDiAmYXQ8YpHvidLdgNDlRg8UY6oZHPER6ueqPhMQnb5VZzVGrUbw8Q63XTvf+6ptdmiANKjVlZ9dQVRyVK6LE6iz0XkbOmsAYhZAxDu20Jhlh2CrCcULrcHqH81TKzTQ+Ssd3YB5m8ZQpBMLu5ZRGbi8U+1xwZo3HETAHddio7PiuvfNq/OivZunDUpeg5M32aLifyKO6rUopNqNoQpaUyiOA2adv6FIJrYKzR866JY5uqPFpgSsjZmQZRMer+rLTopFbblx2rUiq1U56XDHUh2A23Uwm9bl5NJFWfh5DNty9Djyoyoh0+WI1lMnP4UA8eqKFl4F8l+z8KV6rj8Kk6fSu2mMOOdbnq+rZ/+LFh9sIPTbxVPDLk2O/Dj/TarJ2Qmhuw4fSrjXW60qJWV+y8jKibepQnivW7Cpwv3FtlepuOqUbGXazlj0uWm79DMTKfiznBh1xIsngx3B+0oTgOKPErkeI+LVMTKyi/vdcOWOHeuuwifLsVRkUZPSg/dng3vDBB4O5TzhrsXYRoO9Dsywb0N1G3OLcHDOqt84b1mZLvxYDcUTAJtAzS0hTBUiYt7Fk9rTqZ6Q9+6KIk+N/WvDyMqWS591PRIxyxmJwX0OzKX2wOMd3m4caSa8JlS6l+7lRO2G/hfuY1oyTJ/yxALtoWQHUZeYCxYkh+PdpTQtOMmjdv7aWgLsWT39YcWB/gbBUPC48UgfpEAAAAASUVORK5CYII=);}
+		h1 {background:var(--greenshot-icon) no-repeat left center;background-size:32px;padding-left:40px;line-height:32px;}
+		a[href^="greenshot:"] {background:#eef8ee var(--greenshot-icon) no-repeat 3px center;background-size:16px;border:1px solid #99cc99;border-radius:3px;padding:0 4px 0 22px;text-decoration:none;white-space:nowrap;}
+		a[href^="greenshot:"]:hover {background-color:#ddf0dd;}
+		[dir="rtl"] h1 {background-position:right center;padding-left:0;padding-right:40px;}
+		[dir="rtl"] a[href^="greenshot:"] {background-position:right 3px center;padding:0 22px 0 4px;}
 		</style>
 	</head>
 	<body>
-	<h1>Greenshot-hjelp</h1>
-	<!-- 
-	Note to translator: uncomment entry below to have your effort honored 
+	<h1>Hjelp for Greenshot</h1>
+	<!--
+	Note to translator: uncomment the entry below to have your effort honored
 	-->
-	<small>Version 1.0.2 RC2 - Norsk omsetjing av Ivar Barstad</small>
-	
+	<!--<small>Norsk omsetjing av hjelpa ved DITT_NAMN (tidlegare versjon: Ivar Barstad)</small>-->
+
+	<p class="hint">
+		Lenkjer som byrjar med <code>greenshot:</code>, som <a href="greenshot://settings">opne innstillingane</a>,
+		opnar det vindauget i Greenshot. Dei verkar nÃ¥r Greenshot er installert med installasjonsprogrammet, ikkje i den
+		flyttbare versjonen og ikkje i Greenshot Light. Nettlesaren kan spÃ¸rje fÃ¸r han opnar Greenshot.
+	</p>
+
 	<h2>Innhald</h2>
 	<ol>
-		<li><a href="#screenshot">Ta eit skjermknips</a></li>
-		<ol>
-			<li><a href="#capture-region">Knips område</a></li>
-			<li><a href="#capture-last-region">Knips siste område</a></li>
-			<li><a href="#capture-window">Knips vindauge</a></li>
-			<li><a href="#capture-fullscreen">Knips fullskjerm</a></li>
-			<li><a href="#capture-ie">Knips Internet Explorer</a></li>
-		</ol>
-	
-		<li><a href="#editor">Å bruke knipsfiksaren</a></li>
-		<ol>
-			<li><a href="#editor-shapes">Teikne former</a></li>
-			<li><a href="#editor-text">Leggje til tekst</a></li>
-			<li><a href="#editor-highlight">Markering</a></li>
-			<li><a href="#editor-obfuscate">Sensurering</a></li>
-			<li><a href="#editor-crop">Skjere skjermknipset</a></li>
-			<li><a href="#editor-adding-graphics">Setje grafikk inn i skjermknips</a></li>
-			<li><a href="#editor-reuse-elements">Gjenbruk av teikna element</a></li>
-			<li><a href="#editor-export">Eksportere skjermknipset</a></li>
-		</ol>
-		<li><a href="#settings">Innstillingsdialogen</a></li>
-		<ol>
-			<li><a href="#settings-general">Generelle innstillingar</a></li>
-			<li><a href="#settings-capture">Knipsinnstillingar</a></li>
-			<li><a href="#settings-output">Ut-innstillingar</a></li>
-			<li><a href="#settings-printer">Utskriftsinnstillingar</a></li>
-		</ol>
-		<li><a href="#help">Lyst til å hjelpe?</a></li>
-		<ol>
-			<li><a href="#help-donate">Vurder ein donasjon</a></li>
-			<li><a href="#help-spread">Spre ryktet</a></li>
-			<li><a href="#help-translate">Send inn omsetjing</a></li>
-		</ol>
+		<li><a href="#start">Kom i gang</a></li>
+		<li><a href="#screenshot">Ta eit skjermknips</a>
+			<ol>
+				<li><a href="#capture-screen">Knipseskjermen</a></li>
+				<li><a href="#capture-modes">OmrÃ¥de, vindauge, fast storleik og tekst</a></li>
+				<li><a href="#capture-keys">Tastar medan du vel</a></li>
+				<li><a href="#capture-live">Velje utan Ã¥ fryse skjermen</a></li>
+			</ol>
+		</li>
+		<li><a href="#destinations">Kvar knipset gÃ¥r</a></li>
+		<li><a href="#editor">Knipsfiksaren</a>
+			<ol>
+				<li><a href="#editor-tabs">Faner</a></li>
+				<li><a href="#editor-tools">Teiknereiskapar</a></li>
+				<li><a href="#editor-highlight">Framheve og skjule</a></li>
+				<li><a href="#editor-crop">Skjere til</a></li>
+				<li><a href="#editor-effects">Effektar, rotering og storleik</a></li>
+				<li><a href="#editor-reuse">Leggje til bilete og bruke element om att</a></li>
+				<li><a href="#editor-export">Lagre og eksportere</a></li>
+			</ol>
+		</li>
+		<li><a href="#recipes">Automatiske steg og oppskrifter</a></li>
+		<li><a href="#settings">Innstillingane</a></li>
+		<li><a href="#troubleshooting">NÃ¥r noko ikkje verkar</a></li>
+		<li><a href="#help">Vil du hjelpe?</a></li>
 	</ol>
-	
+
+	<a name="start"></a>
+	<h2>Kom i gang</h2>
+	<p>
+		Greenshot kÃ¸yrer i bakgrunnen. Ikonet stÃ¥r ved klokka, i varslingsomrÃ¥det pÃ¥ oppgÃ¥velinja.
+		HÃ¸greklikk pÃ¥ det for Ã¥ opne menyen med alle knipsemÃ¥tane, <em>Innstillingar...</em> og denne hjelpa.
+	</p>
+	<p class="hint">
+		Ser du ikkje ikonet? Windows 11 kan gÃ¸yme det bak pila (^). <a href="greenshot://self-service?section=setup">Oppsettet ditt</a>
+		i SjÃ¸lvhjelp viser det ved klokka for deg, og sjekkar Ã²g om <kbd>Print Screen</kbd>-tasten kjem fram til Greenshot.
+	</p>
+
 	<a name="screenshot"></a>
 	<h2>Ta eit skjermknips</h2>
+	<p>Start eit knips med ein snÃ¸ggtast eller frÃ¥ menyen til Greenshot-ikonet:</p>
+	<table>
+		<tr><th>Knips</th><th>SnÃ¸ggtast</th><th>Kva som skjer</th></tr>
+		<tr><td><em>Knips omrÃ¥de</em></td><td><kbd>Print Screen</kbd></td><td>Knipseskjermen opnar seg, og du vel kva som skal knipsast.</td></tr>
+		<tr><td><em>Knips vindauge</em></td><td><kbd>Alt</kbd> + <kbd>Print Screen</kbd></td><td>Knipsar det aktive vindauget med ein gong. Med <em>Bruk interaktiv vindaugsknipsing</em> (<a href="greenshot://settings?tab=capture">fana Knips</a>) vel du vindauget pÃ¥ knipseskjermen i staden.</td></tr>
+		<tr><td><em>Knips fullskjerm</em></td><td><kbd>Ctrl</kbd> + <kbd>Print Screen</kbd></td><td>Knipsar skjermen med ein gong. Med fleire skjermar tilbyr menyen til ikonet alle skjermane eller Ã©in av dei.</td></tr>
+		<tr><td><em>Knips sist omrÃ¥de</em></td><td><kbd>Shift</kbd> + <kbd>Print Screen</kbd></td><td>Knipsar det same omrÃ¥det som sist pÃ¥ nytt.</td></tr>
+		<tr><td><em>Opne bilde frÃ¥ utklyppstavle</em></td><td>ingen</td><td>Opnar biletet pÃ¥ utklyppstavla.</td></tr>
+	</table>
 	<p>
-		Du kan knipse ein del av skjermen ved å bruke <kbd>Print</kbd>-tasten
-		eller ved å høgreklikke Greenshot-ikonet i varselfeltet nedst til høgre.<br>
-		Det er fleire måtar å knipse skjermen på:
-	</p>
-	
-	<a name="capture-region"></a>
-	<h3>Knips område<kbd>Print</kbd></h3>
-	<p>
-		Områdeknipsing let deg ta bilde av ein del av skjermen.<br>
-		Etter at du har stara områdemodus vil du sjå eit kryss som syner musposisjonen
-		på skjermen. Klikk og hald inne venstre musknapp og teikn eit rektangel
-		rund den delen av skjermen du ønskjer å knipse. Når du slepp musknappen
-		blir det grøne området knipsa.
-	</p>
-	<p class="hint">
-		Du kan bruke <kbd>Mellomrom</kbd>-tasten for å bytte mellom områdemodus og 
-		<a href="#capture-window">vindaugknipsing</a>.
-	</p>
-	<p class="hint">
-		Om du ønskjer å ta bilde av eit nøyaktig område, kan det ofte vera lettare
-		å angje eit litt større område enn du ønskjer, for så å <a href="#editor-crop">skjera til</a>
-		bildet i Greenshot sin knipsfiksar.
-	</p>
-	
-	<a name="capture-last-region"></a>
-	<h3>Knips siste område <kbd>Shift</kbd> + <kbd>Print</kbd></h3>
-	<p>
-		Om du alt har knipsa eit <a href="#capture-region">område</a> eller <a href="#capture-window">vindauge</a> 
-		tidlegare, kan du knipse same område/vindauge på nytt med dette valet. 
-	</p>
-	
-	<a name="capture-window"></a>
-	<h3>Knips vindauge <kbd>Alt</kbd> + <kbd>Print</kbd></h3>
-	<p>
-		Knipsar det aktive vindauget (vanlegvis det som ligg fremst).
-	</p>
-	<p class="hint">
-		Under <a href="#settings">Innstillingar</a> er det mogeleg å skru på
-		interaktivt val av vindauge, i kontrast til standardfunksjonen som knipsar det
-		aktive vindauget. Om dette er skrudd på, kan ein velje eit vindauge ved å 
-		klikke på det. (Greenshot markerar området på same måte som i <a href="#capture-region">områdemodus</a>).<br>
-		Om du ønskjer å knipse eit dotterelement (f.eks. innhaldet på ei nettside
-		utan rulleområde og menyar eller ei enkeltramme på ein nettstad som nyttar rammer,
-		kan du halde muspeikaren over vindauget og trykkje <kbd>PgDown</kbd>-tasten. Etter
-		dette kan du velje dotterelementa du ønskjer å knipse.
-	</p>
-	<p class="hint">
-		Om du ønskjer å knipse høgreklikkmenyar, stiller ting seg annleis: Snøggtasten for
-		å knipse vindauge vil ta bort menyen, og Greenshot sin eigen høgreklikkmeny vil
-		openbart gje same resultat. Om du ønskjer å knipse ein slik meny, gjer du det enkelt
-		ved å aktivere områdeknipsing med <kbd>Print</kbd>-tasten, og deretter bytte til
-		vindaugemodus med <kbd>Mellomrom</kbd>.
-	</p>
-	
-	<a name="capture-fullscreen"></a>
-	<h3>Knips fullskjerm <kbd>Control</kbd> + <kbd>Print</kbd></h3>
-	<p>
-		Denne funksjonen tar eit bilde heile skjermen 
-		(den aktive skjermen i fleirskjermoppsett).
+		Menyen har Ã²g <em>Knips vindauge frÃ¥ liste</em>, som knipsar eit ope vindauge du vel utan knipseskjermen,
+		<em>Opne bilde frÃ¥ fil</em> og <em>Opne sist knipsomrÃ¥de</em>.
+		SnÃ¸ggtastane endrar du i <a href="greenshot://settings?tab=general">innstillingane, fana Generell</a>.
 	</p>
 
-	<a name="capture-ie"></a>
-	<h3>Knips Internet Explorer <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>Print</kbd></h3>
+	<a name="capture-screen"></a>
+	<h3>Knipseskjermen</h3>
 	<p>
-		Med denne funksjonen kan du enkelt ta eit skjermbilde av ei open nettside i
-		Internet Explorer. Bruk Greenshot sin høgreklikkmeny for å velje IE-fane, eller
-		bruk snøggtasten for å knipse den aktive fana.
+		Greenshot tek eit bilete av alle skjermane og viser det over alt anna. Ingenting endrar seg medan du vel,
+		sÃ¥ ein open meny eller eit verktÃ¸ytips blir verande der det var. Berre den delen du vel, blir knipsa. <kbd>Esc</kbd> lukkar
+		knipseskjermen utan Ã¥ knipse noko.
+	</p>
+	<p>Over biletet ser du:</p>
+	<ul>
+		<li><em>utvalet</em> med storleiken,</li>
+		<li><em>zoomaren</em>, eit forstÃ¸rringsglas ved musa som viser kvar piksel, sÃ¥ du kan plassere eit hjÃ¸rne nÃ¸yaktig,</li>
+		<li>panel i hjÃ¸rna: <em>tastane</em> (<kbd>F1</kbd>), <em>info</em> (<kbd>I</kbd>) og <em>fÃ¸rehandsvisinga</em> av utvalet (<kbd>P</kbd>).
+			Dei flyttar seg sjÃ¸lve ut av vegen.</li>
+	</ul>
+	<p class="hint">
+		Trykk <kbd>F1</kbd> medan du vel: tastepanelet viser alltid dei tastane som verkar akkurat dÃ¥.
+		Greenshot hugsar det nÃ¥r du skjuler eit panel; <kbd>F1</kbd> eller <kbd>I</kbd> hentar det fram att.
 	</p>
 
-	
+	<a name="capture-modes"></a>
+	<h3>OmrÃ¥de, vindauge, fast storleik og tekst</h3>
+	<ul>
+		<li><em>OmrÃ¥de</em>: dra eit rektangel med musa, og det blir knipsa nÃ¥r du slepper. Med tastaturet: piltastane flyttar musa,
+			<kbd>Enter</kbd> byrjar utvalet, <kbd>Enter</kbd> ein gong til knipsar det. Hald <kbd>Shift</kbd> for Ã¥ endre berre breidda eller berre hÃ¸gda.</li>
+		<li><em>Vindauge</em> (<kbd>Mellomrom</kbd>): vindauget under musa blir valt, eit klikk eller <kbd>Enter</kbd> knipsar det.
+			Greenshot vel den innerste delen, til dÃ¸mes ei verktÃ¸ylinje; gÃ¥ til ytterkanten av eit vindauge for Ã¥ velje heile vindauget.
+			<kbd>Tab</kbd> og <kbd>Shift</kbd> + <kbd>Tab</kbd> vel neste eller fÃ¸rre vindauge.</li>
+		<li><em>Fast storleik</em> (<kbd>F</kbd>): eit rektangel med nÃ¸yaktig storleik, til dÃ¸mes 1280 Ã— 720, fÃ¸lgjer musa. <kbd>1</kbd> â€“ <kbd>9</kbd> vel ein storleik,
+			<kbd>C</kbd> byter hjÃ¸rnet musa held det i, hald <kbd>Alt</kbd> for Ã¥ plassere det utan Ã¥ feste det til vindauge. Dine eigne storleikar set du i
+			<a href="greenshot://settings?tab=capture">fana Knips</a>; storleikane frÃ¥ dei siste knipsa blir Ã²g tilbodne.</li>
+		<li><em>Tekst</em> (<kbd>T</kbd>): Greenshot les teksten pÃ¥ skjermen med tekstattkjenninga i Windows og rammar inn kvar linje.
+			Klikk pÃ¥ ei linje, eller dra over ord, for Ã¥ knipse dei. For Ã¥ fÃ¥ orda som tekst sender du knipset til <em>Windows OCR</em>,
+			som kopierer teksten til utklyppstavla. Det krev eit attkjenningssprÃ¥k installert i Windows; sprÃ¥ket vel du i
+			<a href="greenshot://settings?tab=capture">fana Knips</a>, <em>Tekstattkjenning (OCR)</em>.</li>
+	</ul>
+	<p class="hint">
+		Med QR-kode-tillegget finn Greenshot QR-kodar pÃ¥ skjermen og rammar dei inn. Klikk pÃ¥ ein for Ã¥ kopiere innhaldet eller opne nettadressa.
+	</p>
+
+	<a name="capture-keys"></a>
+	<h3>Tastar medan du vel</h3>
+	<table>
+		<tr><th>Tast</th><th>Kva han gjer</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Avbryt knipset</td></tr>
+		<tr><td><kbd>Mellomrom</kbd></td><td>Byt mellom omrÃ¥de og vindauge</td></tr>
+		<tr><td><kbd>F</kbd> / <kbd>T</kbd></td><td>Knips ein fast storleik / knips tekst</td></tr>
+		<tr><td><kbd>M</kbd></td><td>Vis eller skjul musepeikaren i knipset</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Byt mellom den frosne og den levande skjermen</td></tr>
+		<tr><td><kbd>Z</kbd></td><td>Vis eller skjul zoomaren</td></tr>
+		<tr><td><kbd>F1</kbd> / <kbd>I</kbd> / <kbd>P</kbd></td><td>Vis eller skjul tastane / info / flytt eller skjul fÃ¸rehandsvisinga</td></tr>
+		<tr><td>Piltastar</td><td>Flytt musa Ã©in piksel, med <kbd>Ctrl</kbd> ti pikslar</td></tr>
+		<tr><td><kbd>Enter</kbd></td><td>Byrj eller avslutt utvalet, knips vindauget</td></tr>
+	</table>
+
+	<a name="capture-live"></a>
+	<h3>Velje utan Ã¥ fryse skjermen</h3>
+	<p>
+		SlÃ¥ av <em>Frys skjermen under markering</em> i <a href="greenshot://settings?tab=capture">fana Knips</a>, eller trykk
+		<kbd>L</kbd> medan du vel, sÃ¥ vel du pÃ¥ den levande skjermen: ein video held fram Ã¥ spele, og knipset blir teke nÃ¥r du avsluttar
+		utvalet. Tekstmodusen og fÃ¸rehandsvisinga treng det frosne biletet. Opne menyar lukkar seg som regel nÃ¥r du klikkar, sÃ¥ bruk den frosne skjermen for dei.
+	</p>
+	<p class="hint">
+		Dukkar noko opp fÃ¸rst etter ei lita stund? Set <em>Forseinking fÃ¸r skjermknips (ms)</em> i
+		<a href="greenshot://settings?tab=capture">fana Knips</a>, eller vel pÃ¥ den levande skjermen.
+	</p>
+
+	<a name="destinations"></a>
+	<h2>Kvar knipset gÃ¥r</h2>
+	<p>
+		Etter knipset sender Greenshot det til mÃ¥la dine. Som standard spÃ¸r det kvar gong med ein liten meny.
+		Kvart mÃ¥l har der ein fast understreka bokstav, til dÃ¸mes <kbd>C</kbd> for utklyppstavla og <kbd>S</kbd> for Ã¥ lagre, sÃ¥ du kan velje med tastaturet.
+		Vel mÃ¥la dine i <a href="greenshot://settings?tab=destination">fana MÃ¥l</a>, eller under <em>Hurtiginnstillingar</em> i menyen til ikonet.
+	</p>
+	<ul>
+		<li><em>Opne i knipsfiksaren</em>: merk knipset fÃ¸rst, sjÃ¥ <a href="#editor">knipsfiksaren</a>.</li>
+		<li><em>Lagre</em> brukar mappa og filnamnmÃ¸nsteret frÃ¥ <a href="greenshot://settings?tab=output">fana Utformat</a>, <em>Lagre som</em> spÃ¸r etter dei.</li>
+		<li><em>Kopier til utklyppstavla</em>, <em>Send til utskrift</em>, <em>Send med e-post</em>, <em>Windows share</em> og <em>Windows OCR</em> (kopierer teksten i knipset).</li>
+		<li>Tillegg legg til fleire mÃ¥l, til dÃ¸mes Microsoft Word, Excel, PowerPoint, Outlook og OneNote, PDF, Box, Dropbox, Jira og Confluence.
+			Dei blir sette opp i <a href="greenshot://settings?tab=plugins">fana Tillegg</a>, der du Ã²g kan slÃ¥ av eit tillegg.</li>
+	</ul>
+	<p>
+		Kolonnen <em>Tilgjengelege</em> i <a href="greenshot://settings?tab=destination">fana MÃ¥l</a> slÃ¥r av eit mÃ¥l overalt.
+		Kva varsel du fÃ¥r etter eit knips, set du i <a href="greenshot://settings?tab=capture">fana Knips</a>, <em>Varsel</em>.
+	</p>
+
 	<a name="editor"></a>
-	<h2>Å bruke knipsfiksaren</h2>
+	<h2>Knipsfiksaren</h2>
 	<p>
-		Greenshot har eit innebygd, enkelt bilderedigeringsprogram (knipsfiksaren)
-		som har kjekke funksjonar for å notere eller teikne på eit skjermbilde. 
-		Du kan òg markere eller sensurere delar av skjermknipset.
+		Knipsfiksaren legg til former, tekst, piler, framhevingar og meir pÃ¥ eit knips, eller skjuler det andre ikkje skal sjÃ¥.
+		I tillegg til knipsa dine opnar han bilete frÃ¥ ei fil eller frÃ¥ utklyppstavla (menyen til ikonet).
+		Alt du teiknar, blir verande eit element du kan velje, flytte, endre eller fjerne.
 	</p>
-	<p class="hint">
-		Greenshot sin knipsfiksar kan brukast til meir enn bare skjermknips;
-		du kan òg opne bildefiler frå disk eller frå utklyppstavla. Høgreklikk
-		Greenshot-ikonet i varselfeltet nedst til høgre og vel høvesvis 
-		<em>Opne bilde frå fil</em> eller <em>Opne bilde frå utklyppstavle</em>.
-	</p>
-	<!-- This has been changed in 1.0, if I'm not mistaken?
-	
-	<p class="hint">
-		Standardinnstillinga er å opne knipsfiksaren for kvart bilde som blir knipsa.
-		Om du ikkje ønskjøer å bruke denne funksjonen kan du endre dette under
-		<a href="#settings">Innstillingar</a>.
-	</p>
-	-->	
-	
-	<a name="editor-shapes"></a>
-	<h3>Teikne former</h3>
+
+	<a name="editor-tabs"></a>
+	<h3>Faner</h3>
 	<p>
-		Vel ei av teikneverktøya frå verktøypaletten på venstre side av knipsfiksaren
-		eller frå <em>Objekt</em>-menyen. Dei ymse verktøya har òg snøggtastar for å
-		effektivisere prosessen.<br>
-		Dei ymse formene er: Rektangel <kbd>R</kbd>, ellipse <kbd>E</kbd>, line <kbd>L</kbd>,
-		pil <kbd>A</kbd> og frihandsline <kbd>F</kbd>.<br>
-		Klikk og hald inne venstre museknapp for å teikne inn posisjon og storleik på
-		forma du ønskjer å teikne. Slepp musetasten når du er ferdig.
+		Eit vindauge i knipsfiksaren viser fleire bilete som faner; eit nytt knips opnar seg som fane i det vindauget du brukte sist.
+		<kbd>Ctrl</kbd> + <kbd>Tab</kbd> gÃ¥r til neste fane og <kbd>Ctrl</kbd> + <kbd>W</kbd> lukkar Ã©i. Dra ei fane til eit anna vindauge,
+		eller hÃ¸greklikk pÃ¥ henne for Ã¥ flytte henne til eit nytt vindauge. <em>+</em> pÃ¥ fanelinja lagar eit nytt, tomt bilete.
+		NÃ¥r du lukkar eit vindauge med ulagra bilete, spÃ¸r Greenshot Ã©in gong: <em>Lagre alle</em>, <em>Forkast alle</em> eller avbryt.
+		Vil du heller ha eitt vindauge per knips? SlÃ¥ av fanene i <a href="greenshot://settings?tab=editor">fana Knipsfiksar</a>.
 	</p>
+
+	<a name="editor-tools"></a>
+	<h3>Teiknereiskapar</h3>
 	<p>
-		Du kan flytte eller endre storleik på eksisterande objekt med peikarverktøyet <kbd>Esc</kbd>.<br>
-		Det finst visse val for dei ymse verktøya som endrar utsjånaden deira
-		(f.eks. linebreidde, linefarge og fyllfarge). Du kan endre desse eigenskapane
-		for eit eksisterande objekt, men også for det neste objektet du teiknar etter
-		å ha valt eit teikneverktøy.
+		Vel ein reiskap til venstre i knipsfiksaren, i menyen <em>Objekt</em> eller med tasten hans, og dra sÃ¥ pÃ¥ biletet.
+		VerktÃ¸ylinja Ã¸vst viser vala for reiskapen eller dei valde elementa, til dÃ¸mes linjefarge, fyllfarge og tjukkleik.
 	</p>
-	<p class="hint">
-		Du kan redigere fleire objekt på same tid! For å velje fleire objekt, hald inne
-		<kbd>Shift</kbd>-tasten medan du vel objekta.
-	</p>
-	<p class="hint">
-		Om du ønskjer å teikne eit kvadrat eller ein sirkel, gjer du dette ved å halde
-		inne <kbd>Shift</kbd>-tasten medan du teiknar. Gjer du det same med line- eller
-		pilverktøyet, vil du teikne i vinkelretningar runda av til næraste 15°. 
-		Du kan òg bruke <kbd>Shift</kbd> for å skalere eit objekt proporsjonalt.
-	</p>
-	<p class="hint">
-		Når du teiknar eller skalerar eit objekt kan du halde nede <kbd>Ctrl</kbd>-tasten
-		for å arbeide ut frå objektets midtpunkt, eksempelvis vil eit objekt som blir
-		forstørra vekse både med og mot muspekaren, forankra i midtpunktet. 
-		(Dette er veldig nyttig om du til dømes ønskjer å teikne ei ellipse 
-		rundt eit element på skjermknipset.)
-	</p>
-	
-	<a name="editor-text"></a>
-	<h3>Leggje til tekst</h3>
-	<p>
-		Tekstverktøyet <kbd>T</kbd> minner mykje om dei andre <a href="#editor-shapes">formverktøya</a>.
-		Du teiknar opp ein tekstboks i ønskt storleik og skriv så inn teksten.
-		Dobbeltklikk boksen for å redigere eksisterande tekst.
-	</p>
-	
+	<table>
+		<tr><th>Tast</th><th>Reiskap</th><th>Tast</th><th>Reiskap</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Vel</td><td><kbd>S</kbd></td><td>Snakkeboble</td></tr>
+		<tr><td><kbd>R</kbd></td><td>Rektangel</td><td><kbd>I</kbd></td><td>Teljar (nummererte steg)</td></tr>
+		<tr><td><kbd>E</kbd></td><td>Ellipse</td><td><kbd>M</kbd></td><td>Emoji</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Linje</td><td><kbd>H</kbd></td><td>Marker</td></tr>
+		<tr><td><kbd>A</kbd></td><td>Pil</td><td><kbd>O</kbd></td><td>Skjul</td></tr>
+		<tr><td><kbd>F</kbd></td><td>Frihand</td><td><kbd>C</kbd></td><td>Skjer til</td></tr>
+		<tr><td><kbd>T</kbd></td><td>Tekst</td><td><kbd>Z</kbd></td><td>Endre storleik pÃ¥ biletet</td></tr>
+	</table>
+	<ul>
+		<li>Hald <kbd>Shift</kbd> medan du teiknar for eit kvadrat eller ein sirkel, eller for linjer i steg pÃ¥ 15Â°; nÃ¥r du endrar storleik, held det sideforholdet.
+			Hald <kbd>Ctrl</kbd> for Ã¥ teikne eller endre storleik frÃ¥ midten, nyttig for ein ellipse rundt noko.</li>
+		<li>Tekst: teikn tekstboksen og skriv. Dobbeltklikk pÃ¥ ein tekst for Ã¥ endre han, <kbd>Enter</kbd> avsluttar, <kbd>Shift</kbd> + <kbd>Enter</kbd> byrjar ei ny linje.</li>
+		<li>Valde element: piltastane flyttar dei (med <kbd>Shift</kbd> ti pikslar), <kbd>Ctrl</kbd> + piltastar endrar storleiken,
+			<kbd>Page Up</kbd> / <kbd>Page Down</kbd> flyttar dei eitt lag opp eller ned, <kbd>Delete</kbd> fjernar dei, <kbd>Ctrl</kbd> + <kbd>D</kbd> lagar kopiar.
+			Hald <kbd>Shift</kbd> og klikk for Ã¥ velje fleire element.</li>
+		<li><kbd>Ctrl</kbd> + <kbd>Z</kbd> angrar, <kbd>Ctrl</kbd> + <kbd>Y</kbd> gjer om att.</li>
+	</ul>
+
 	<a name="editor-highlight"></a>
-	<h3>Markering</h3>
-	<p>
-		Med markeringsverktøyet <kbd>H</kbd> kan du definere eit markeringsområde 
-		på same måte som du ville ha teikna ei <a href="#editor-shapes">form</a>.<br>
-		På knappen lengst til venstre på verktøylina på toppen kan du bytte mellom
-		fleire forskjellige markeringstyper:
-	</p>
+	<h3>Framheve og skjule</h3>
+	<p>Teikn omrÃ¥det du vil framheve (<kbd>H</kbd>) eller skjule (<kbd>O</kbd>) som eit rektangel og vel modus i verktÃ¸ylinja:</p>
 	<ul>
-		<li><em>Marker tekst</em>: Markerar tekst i ein ljos farge, som ein markørpenn</li>
-		<li><em>Marker område</em>: Framhevar det valte området ved å gjera utsida uskarp<a href="#hint-blur">*</a> og mørk</li>
-		<li><em>Gråtone</em>: Framhevar det valte området ved å konvertere utsida til gråtonar</li>
-		<li><em>Forstørr</em>: Forstørrar det valte området</li>
+		<li><em>Marker tekst</em> fargar omrÃ¥det som ein merkepenn, <em>Marker omrÃ¥de</em> gjer alt anna mÃ¸rkare og uskarpt,
+			<em>GrÃ¥tone</em> gjer alt anna grÃ¥tt, <em>ForstÃ¸rr</em> viser omrÃ¥det forstÃ¸rra.</li>
+		<li><em>Pikseler</em> eller <em>Gjer uskarpt</em> skjuler passord, namn, kontonummer eller andlet.</li>
 	</ul>
-	
-	<a name="editor-obfuscate"></a>
-	<h3>Sensurering</h3>
-	<p>
-		Om skjermknipset inneheld sensitiv data, t.d. kontonummer, namn, passord eller 
-		andlet kan det vera lurt å sensurere bildet. Bruk sensureringsverktøyet <kbd>O</kbd> 
-		på same måte som <a href="#editor-highlight">markeringsverktøyet</a>.<br>
-		Dei forskjellige sensureringsmåtane er:
-	</p>
-	<ul>
-		<li><em>Pikseler</em>: Aukar pikselstorleiken i merkt område</li>
-		<li><em>Gjer uskarpt</em><a href="#hint-blur">*</a>: Gjer eit område uskarpt</li>
-	</ul>
-	<a name="hint-blur"></a>
-	<p class="hint">
-		* Avhengig av kor kraftig datamaskina di er, kan Greenshot sin knipsfiksar
-		oppføre seg treigt når ein nyttar uskarp-funskjonen. Om du syns at programmet
-		reagerar seint etter å ha aktivert funksjonen, prøv å skru ned <em>Kvalitet på 
-		førehandssyning</em> på verktøylina eller minsk verdien for <em>Uskarp-radius</em>.<br>
-		Om uskarp-ytelsen framleis er plagsom, bør du vurdere pikseler-effekten i staden.
-	</p>
-	
+
 	<a name="editor-crop"></a>
-	<h3>Skjere skjermknipset</h3>
+	<h3>Skjere til</h3>
 	<p>
-		Om du bare treng ein del av skjermbildet du har knipsa, kan du bruke 
-		skjereverktøyet <kbd>C</kbd> for å kutte det til ønskt storleik.<br>
-		Teikn eit rektangel for å markere området du ønskjer å halde fram med,
-		du kan òg endre storleiken på dette området som med andre objekt..<br>
-		Når du er nøgd med utklyppet, trykk <em>Stadfest</em>-knappen eller <kbd>Enter</kbd>.
-		Du kan avbryte operasjonen ved å trykkje <em>Avbryt</em> eller <kbd>Esc</kbd>.
+		Vel reiskapen for Ã¥ skjere til (<kbd>C</kbd>) og teikn omrÃ¥det som skal bli verande, <kbd>Enter</kbd> stadfestar, <kbd>Esc</kbd> avbryt.
+		Trykk <kbd>C</kbd> ein gong til, eller bruk <em>Skjeringsmodus</em> i verktÃ¸ylinja, for Ã¥ byte modus:
 	</p>
-	<p class="hint">
-		<em>Auto-skjer</em>: Om du vil klyppe vekk ein einsfarga kant rundt skjermknipset,
-		kan du bruke <em>Auto-skjer</em> frå <em>Rediger</em>-menyen. Greenshot vel då
-		automatisk området du vil skjera vekk.
+	<ul>
+		<li><em>Skjer ut loddrett</em> eller <em>Skjer ut vassrett</em> fjernar ei stripe frÃ¥ biletet og set resten saman, til dÃ¸mes for Ã¥ ta bort
+			den tomme midten av ei lang side. <em>Klyppkantar</em> vel korleis skÃ¸yten ser ut: rett, sikksakk, bÃ¸lgjete, riven eller utan skÃ¸yt.</li>
+		<li><em>Auto-skjer</em> fjernar ein einsfarga kant rundt biletet.</li>
+	</ul>
+
+	<a name="editor-effects"></a>
+	<h3>Effektar, rotering og storleik</h3>
+	<table>
+		<tr><th>Tastar</th><th>Kva dei gjer</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Q</kbd></td><td>Skugge</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>B</kbd></td><td>Kant</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>T</kbd></td><td>Riven kant</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>G</kbd> / <kbd>Ctrl</kbd> + <kbd>I</kbd></td><td>GrÃ¥tone / inverter, til dÃ¸mes for Ã¥ spare blekk ved utskrift</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>,</kbd> / <kbd>Ctrl</kbd> + <kbd>.</kbd></td><td>Roter mot / med klokka</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>+</kbd> / <kbd>-</kbd></td><td>Gjer lerretet stÃ¸rre / mindre</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>+</kbd> / <kbd>-</kbd>, <kbd>Ctrl</kbd> + <kbd>0</kbd>, <kbd>Ctrl</kbd> + <kbd>9</kbd></td><td>Zoom inn / ut, faktisk storleik, tilpass til vindauget</td></tr>
+	</table>
+	<p>
+		Ein riven kant blir verande eit element du kan endre; <em>Bruk pÃ¥ bildet</em> i verktÃ¸ylinja gjer han til ein del av biletet.
 	</p>
 
-	<a name="editor-adding-graphics"></a>
-	<h3>Setje grafikk inn i skjermknips</h3>
-	<p>
-		Du kan enkelt leggje til grafikk og bilde i eit skjermknips ved å dra bildefiler
-		inn i knipsfiksaren (dra-og-slepp). Du kan òg leggje til knips av andre vindauge
-		ved å bruke <em>Sett inn vindauge</em> frå <em>Rediger</em>-menyen. Du vil då
-		få opp ei liste over tilgjengelege vindauge som kan importerast.
-	</p>
-	
-	<a name="editor-reuse-elements"></a>
-	<h3>Gjenbruk av teikna element</h3>
-	<p>
-		Om du ønskjer å gjere den same eller liknande jobben på fleire skjermknips
-		(t.d. eit tekstfelt med nettlesartype og versjon, eller sensurering av det
-		same elementet på fleire knips) kan du enkelt bruke objekt på nytt.<br>
-		Vel <em>Lagre objekt til fil</em> frå <em>Objekt</em>-menyen for å lagre
-		det eksisterande sett av objekt for seinare bruk. Ein kan då enkelt bruke
-		<em>Last inn objekt...</em> for å importere objekta til eit anna skjermknips.
-	</p>
-	
+	<a name="editor-reuse"></a>
+	<h3>Leggje til bilete og bruke element om att</h3>
+	<ul>
+		<li>Dra ei biletfil inn i knipsfiksaren, eller lim inn eit bilete med <kbd>Ctrl</kbd> + <kbd>V</kbd>. <em>Sett inn vindauge</em> i menyen <em>Rediger</em> legg til eit knips av eit anna ope vindauge.</li>
+		<li>Same element pÃ¥ mange knips: <em>Lagre objekt til fil</em> i menyen <em>Objekt</em>, og <em>Last inn objekt...</em> pÃ¥ neste knips.</li>
+		<li>Lagre som <code>.greenshot</code>-fil for Ã¥ halde kvart element redigerbart og halde fram seinare.</li>
+	</ul>
+
 	<a name="editor-export"></a>
-	<h3>Eksportere skjermknipset</h3>
+	<h3>Lagre og eksportere</h3>
+	<table>
+		<tr><th>Tastar</th><th>Kva dei gjer</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td><td><em>Lagre</em>, i mappa frÃ¥ <a href="greenshot://settings?tab=output">fana Utformat</a></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd></td><td><em>Lagre som...</em>: vel mappe, namn og biletformat</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd></td><td><em>Kopier bildet til utklyppstavla</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>P</kbd></td><td><em>Skriv ut</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>E</kbd></td><td><em>E-post</em>: ei ny melding med biletet som vedlegg</td></tr>
+	</table>
 	<p>
-		Når du er ferdig med å redigere skjermknipset i knipsefiksaren, kan du eksportere
-		resultatet på fleire måtar. Du finn dei ymse vala på <em>Fil</em>-menyen, den øvste
-		knapperada eller via snøggtastar:
+		Menyen <em>Fil</em> og verktÃ¸ylinja Ã¸vst viser alle mÃ¥la dine, Ã²g dei frÃ¥ tillegg.
+		Etter lagring kan du hÃ¸greklikke pÃ¥ statuslinja nedst for Ã¥ kopiere stien til fila eller opne mappa.
 	</p>
+
+	<a name="recipes"></a>
+	<h2>Automatiske steg og oppskrifter</h2>
+	<p>
+		Oppskrifter gjer ting med knipsa dine automatisk, til dÃ¸mes legg ein kant rundt kvart knips, eller lagrar og lastar opp i Ã©in operasjon.
+		<em>Hurtiginnstillingar</em> &gt; <em>Automatiske steg</em> i menyen til ikonet slÃ¥r dei ferdige stega pÃ¥ eller av,
+		<em>Fleireâ€¦</em> opnar innstillingane deira i <a href="greenshot://settings?tab=recipes">fana Oppskrifter</a>.
+		Menyen <em>Oppskrifter</em> til ikonet startar oppskriftene dine og opnar <a href="greenshot://recipe-manager">Oppskriftshandsaming</a> og Recipe Editor.
+		Oppskrifter kjem med tillegget Recipe Editor.
+	</p>
+
+	<a name="settings"></a>
+	<h2>Innstillingane</h2>
+	<p>Opne innstillingane med <em>Innstillingar...</em> i menyen til ikonet, eller med lenkjene under.</p>
 	<ul>
-		<li><em>Lagre</em> <kbd>Control</kbd> + <kbd>S</kbd>: Lagrar bildet til ei fil, og overskriv førre utgåve om du bare har gjort endringar</li>
-		<li><em>Lagre som...</em> <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>: Let deg alltid velje kor du vil lagre fila, også når du alt har lagra ho før</li>
-		<li><em>Kopier knips til utklyppstavla</em> <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd>: Gjer knipset tilgjengeleg for andre Windows-program via <em>Lim inn</em>-funksjonen</li>
-		<li><em>Skriv ut...</em> <kbd>Control</kbd> + <kbd>P</kbd>: Sender skjermknipset til ein skrivar</li>
-		<li><em>Send med e-post</em> <kbd>Control</kbd> + <kbd>E</kbd>: Lagar ein ny melding i standard e-postprogram og legg knipset som eit vedlegg</li>
+		<li><a href="greenshot://settings?tab=general">Generell</a>: sprÃ¥k, fargar (lys, mÃ¸rk eller som Windows), ikonstorleik,
+			<em>Start Greenshot med systemet</em>, snÃ¸ggtastane, proxyen og kor ofte Greenshot ser etter oppdateringar.</li>
+		<li><a href="greenshot://settings?tab=capture">Knips</a>: knipse musepeikaren, kameralyd, forstÃ¸rringsglas, fryse skjermen,
+			varsel, ventetida fÃ¸r eit knips, dei faste storleikane dine, interaktiv vindaugsknipsing og sprÃ¥ket for tekstattkjenninga.</li>
+		<li><a href="greenshot://settings?tab=output">Utformat</a>: mappa og filnamnmÃ¸nsteret for lagring (klikk pÃ¥ <em>?</em> for variablane,
+			til dÃ¸mes <code>${YYYY}-${MM}-${DD}</code> eller <code>${title}</code>; ein <code>\</code> i mÃ¸nsteret lagar mapper), biletformatet og JPEG-kvaliteten.</li>
+		<li><a href="greenshot://settings?tab=destination">MÃ¥l</a>: kva som skjer etter eit knips, sjÃ¥ <a href="#destinations">kvar knipset gÃ¥r</a>.</li>
+		<li><a href="greenshot://settings?tab=editor">Knipsfiksar</a>: faner, storleiken pÃ¥ vindauget, spÃ¸rsmÃ¥let om lagring nÃ¥r du lukkar, og storleik og farge pÃ¥ eit nytt bilete.</li>
+		<li><a href="greenshot://settings?tab=printer">Skrivar</a>: tilpasse biletet til sida, rotere eller midtstille det, skrive ut i farge, grÃ¥tonar eller invertert, og ein botntekst med dato og klokkeslett.</li>
+		<li><a href="greenshot://settings?tab=plugins">Tillegg</a>: slÃ¥ tillegg pÃ¥ eller av og set dei opp. Endringar gjeld frÃ¥ neste gong Greenshot startar.</li>
+		<li><a href="greenshot://settings?tab=expert">Ekspert</a>: innstillingar for spesielle tilfelle, til dÃ¸mes fjernskrivebord, knipsing med DirectX (trengst for HDR-skjermar), minne og fart,
+			og formata pÃ¥ utklyppstavla. Endre dei berre nÃ¥r du veit kva dei gjer.</li>
 	</ul>
 	<p class="hint">
-		Når du har lagra bildefila frå knipsfiksaren, kan du enkelt kopiere filplasseringa
-		til utklyppstavla eller opne mappa i utforskaren ved å høgreklikke på <em>statuslina</em>
-		nedst i programmet.
+		Greenshot lagrar innstillingane sine i <code>greenshot.ini</code>, i <code>%APPDATA%\Greenshot</code> (den flyttbare versjonen ved sida av Greenshot.exe).
+		<a href="greenshot://self-service?section=files">Filer og konfigurasjon</a> i SjÃ¸lvhjelp viser kvar fila ligg.
 	</p>
-	
-	
-	<a name="settings"></a>
-	<h2>Innstillingsdialogen</h2>
-	
-	<a name="settings-general"></a>
-	<h3>Generelle innstillingar</h3>
-	<ul>
-		<li><em>Språk</em>: Språket du ønskjer å bruke i Greenshot.<br>
-			Du kan laste ned tilleggsspråk <a target="_blank" href="https://getgreenshot.org/downloads/">her</a>. </li>
-		<li><em>Start Greenshot med systemet</em>: Aktiverar Greenshot når Windows startar</li>
-		<li><em>Snøggtastar</em>: Redigerar snøggtastane knytt til skjermknipsing</li>
-		<li><em>Bruk systemets standardproxy</em>: Om dette er huka av, vil Greenshot bruke systemet sin proxyserver for å sjå etter oppdateringar.</li>
-		<li><em>Oppdateringsfrekvens</em>: Greenshot kan sjå om nye utgåver er tilgjengelege på verdsveven. Her vel du kor ofte dette skal skje, eller du kan stoppe kontrollen ved å velje 0 dagar.</li>
-	</ul>
 
-	<a name="settings-capture"></a>
-	<h3>Knipsinnstillingar</h3>
-	<ul>
-		<li><em>Knips muspeikaren</em>: Vel om du vil ha muspeikaren med i skjermknipset. 
-				Peikaren blir lagt til som eit eige objekt som du kan skalere og flytte i knipsfiksaren.</li>
-		<li><em>Spel av lukkarlyd</em>: Høyrleg indikasjon på at skjermknipset blir tatt.</li>
-		<li><em>Syn varsel</em>: Skrur av og på varsel
-	<!--- What kind of notifications? The en-US help file isn't clear on this, in fact it doesn't mention the notifications at all! -->
-		<li><em>Forseinking før skjermknips</em>: Her kan du leggje til ei forseinking 
-				mellom stadfesting og tidspunktet skjermknipset blir tatt.</li>
-		<li><em>Bruk interaktiv vindaugsknipsing</em>: Aktiverar mogelegheiten for å velje 
-				vindauge som knipsast, i kontrast til standardvalet som automatisk knipsar
-				det aktive vindauget. Sjå <a href="#capture-window">vindaugsknipsing</a>.</li>
-		<li>
-			<em>Vindaugsstil</em>: Om du nyttar Windows Vista eller 7 med eit Aero-tema 
-			(gjennomsynlege element) kan du velje korleis element som er synleg <em>gjennom</em>
-			vindauget blir knipsa.
-			<ul>
-				<li><em>Automatisk</em>: Let Greenshot avgjere gjennomsynlegheit.</li>
-				<li><em>Som synt</em>: Gjennomsynlege rammer blir knipsa nett som på skjermen.</li>
-				<li><em>Bruk standardfarge</em>: Gjev ein svart bakgrunn bak gjennomsynlege områda.</li>
-				<li><em>Use custom color</em>: Gjev ein eigendefinert farge bak dei gjennomsynlege områda.</li>
-				<li><em>Hald på gjennomsynlegheit</em>: Gjennomsynlege område blir knipsa utan bakgrunn,
-						og blir synt med ein rutete bakgrunn i knipsfiksaren. Mønsteret blir ikkje
-						synleg i utfila. Utfila må lagrast i PNG-format for å halde på gjennomsynlegheita.</li>
-			</ul>
-		</li>
-		<li><em>Internet Explorer-knipsing</em>: Gjer klart for enkel knipsing frå Internet Explorer.</li>
-
-		<li><em>Tilpass knipsfiksaren til utklyppsstorleiken</em>: Endrar storleiken på knipsfiksaren i høve til skjermknipset.</li>
-	</ul>
-	
-	<a name="settings-output"></a>
-	<h3>Utformat-innstillingar</h3>
-	<ul>
-		<li><em>Lagringsplassering</em>: Angjev standardmappa skjermknips blir lagra i.</li>
-		<li><em>Regel for filnamn</em>: Definerer ein regel for automatiske filnamn ved direktelagring. 
-				Klikk <em>?</em>-knappen for å få ei oversikt over gyldige felt.</li>
-		<li><em>Kopier filplasseringa til utklyppstavla kvar gong eit bilde blir lagra</em>: 
-				Når du lagrar eit bilde frå Greenshot vil mappe- og filnamn bli kopiert til 
-				utklyppstavla, og kan enkelt limast inn i andre program for lett tilgang.</li>
-		<li><em>JPEG-kvalitet</em>: Avgjer vektinga mellom filstorleik og kvalitet når du
-				lagrar bilde i JPEG-format. Standardkomprimering er 80%.</li>
-		<li><em>Syn kvalitetsdialog kvar gong eit bilde blir lagra</em>: Gjer det mogeleg å
-				velje komprimering ved kvar lagring.</li>
-		<li><em>Reduser totalt fargetal til maksimum 256</em>: Vil alltid lagre JPEG-bildet
-				med maksimum 256 fargar (8-bit). Dette vil ofte redusere kvaliteten.</li>
-	</ul>
-	
-	<a name="settings-output"></a>
-	<h3>Målinnstillingar</h3>
-	<ul>
-		<li><em>Dynamisk målveljar</em>: Syner ein meny rett etter knipset er tatt, 
-				der du sjølv kan velje kor du vil nytte skjermknipset.</li>
-		<li><em>Andre mål</em>: Om den dynamiske målveljaren er deaktivert kan du velje ein
-				eller fleire målprogram eller -funksjonar som blir brukt til å ta imot
-				eller vidareformidle skjermknipset. Om du kryssar av for fleire mål
-				vil Greenshot jobbe seg nedover lista og eksportere til alle måla.</li>
-	</ul>
-	
-	<a name="settings-printer"></a>
-	<h3>Utskriftsinnstillingar</h3>
-	<ul>
-		<li><em>Forminsk bildet til arkstorleiken</em>: Om skjermknipset skulle vera større 
-		enn arket som er valt, skalerer Greenshot ned bildet så det passar innanfor margane.</li>
-		<li><em>Forstørr bildet til arkstorleiken</em>: Om bildet er mindre enn arket, vil
-				Greenshot skalere bildet til å fylle heile arket proporsjonalt.</li>
-		<li><em>Roter bildet til arkretninga</em>: Snur bilde i breiddeformat på høgkant.</li>
-		<li><em>Sentrer bildet på arket</em>: Plasserar bildet på midten av arket.</li>
-		<li><em>Skriv ut dato/tid som botntekst</em>: Dato og tidspunkt for utskrift blir 
-				plassert nedst på arket.</li>
-		<li><em>Skriv ut med inverterte fargar</em>: Skriv ut bildet som eit negativ. 
-				Spesielt nyttig for t.d. kvit tekst på svart bakgrunn (for å spare blekk/toner).</li>
-		<li><em>Skriv ut i gråtonar</em>: Utskrifta blir skrive ut i gråtonar uavhengig av 
-				skrivar- og originalinnstilingar.</li>
-	</ul>
-	
-
-	<a name="settings-plugins"></a>
-	<h3>Tilleggsinnstillingar</h3>
+	<a name="troubleshooting"></a>
+	<h2>NÃ¥r noko ikkje verkar</h2>
 	<p>
-		Syner ei liste over installerte tillegg. Vel eit tillegg frå lista og klikk 
-		<em>Konfigurer</em> for å justere tilleggspesifikke innstillingar.
+		SjÃ¸lvhjelp sjekkar Greenshot og rettar dei fleste problem. Opne det med <em>Om Greenshot</em> i menyen til ikonet og sÃ¥ <em>SjÃ¸lvhjelp</em>,
+		eller gÃ¥ rett til rett del:
 	</p>
-	
-	
+	<ul>
+		<li><kbd>Print Screen</kbd> gjer ingenting eller opnar noko anna: <a href="greenshot://self-service?section=hotkeys">SnÃ¸ggtastar og konfliktar</a>
+			viser om OneDrive eller UtklippsverktÃ¸y har teke tasten, og gjev han tilbake til Greenshot.</li>
+		<li>Du finn ikkje knipsa dine: <a href="greenshot://self-service?section=files">Filer og konfigurasjon</a> viser kvar Greenshot lagrar dei.</li>
+		<li>Kopiering til utklyppstavla mislukkast: <a href="greenshot://self-service?section=clipboard">Diagnostikk av utklyppstavla</a> finn programmet som blokkerer utklyppstavla.</li>
+		<li>Greenshot krasjar eller eit tillegg manglar etter ei oppdatering: <a href="greenshot://self-service?section=checksum">Integriteten til installasjonen</a> sjekkar dei installerte filene.</li>
+		<li>Melde frÃ¥ om eit problem: <em>Kopier systeminfo</em> i <a href="greenshot://self-service?section=system">System og maskinvare</a> og
+			<a href="greenshot://log?search=ERROR">feila i loggen</a> hjelper oss Ã¥ hjelpe deg. Meld frÃ¥ om problem pÃ¥
+			<a target="_blank" href="https://github.com/greenshot/greenshot/issues">github.com/greenshot/greenshot/issues</a>.</li>
+	</ul>
+
 	<a name="help"></a>
-	<h2>Lyst til å hjelpe?</h2>
-	
-	<p>
-		I augneblinken treng me ikkje hjelp i utviklinga. Det er likevel fleire ting
-		du kan gjere for å støtte opp rundt Greenshot og utviklarane.
-		På førehand takk! :)
-	</p>
-	
+	<h2>Vil du hjelpe?</h2>
+
 	<a name="help-donate"></a>
-	<h3>Vurder ein donasjon</h3>
+	<h3>Tenk pÃ¥ Ã¥ gje ei gÃ¥ve</h3>
 	<p>
-		Me legg ned mykje arbeid i Greenshot, og brukar mykje tid på å utvikle eit godt
-		stykke open kjeldekode utan kostnad for sluttbrukaren. Om programmet gjer deg
-		meir produktiv, sparar deg eller selskapet ditt for mykje tid og pengar eller
-		du rett og slett likar ideen om open kjeldekode er du velkomen til å ære innsatsen
-		vår med ein donasjon.<br>
-		På heimesida vår finn du informasjon om korleis du kan støtte utviklarane:<br>
-		<a target="_blank" href="https://getgreenshot.org/support/">https://getgreenshot.org/support/</a>
+		Vi legg mykje arbeid i Greenshot for Ã¥ tilby god programvare som er gratis og open kjeldekode. Om det gjer deg meir produktiv,
+		sparar deg eller firmaet ditt tid og pengar, eller om du berre likar Greenshot: tenk pÃ¥ Ã¥ stÃ¸tte oss.
+		SjÃ¥ <a target="_blank" href="https://getgreenshot.org/support/">https://getgreenshot.org/support/</a> for korleis du kan hjelpe.
 	</p>
-	
+
 	<a name="help-spread"></a>
-	<h3>Spre ryktet</h3>
+	<h3>Spreie ordet</h3>
 	<p>
-		Om du likar Greenshot, syt for at andre får greie på det! Fortel vener, kollegaer og
-		fygljarar på sosiale media om Greenshot!<br>
-		Gje tilbakemelding på Greenshot på relevante programvaresider eller legg ei
-		lenkje til nettsida vår (https://getgreenshot.org) på bloggen eller heimesida di.
+		Om du likar Greenshot, fortel venner og kollegaer om det. Gje Greenshot ei vurdering pÃ¥ programvareportalar eller lenk til heimesida vÃ¥r frÃ¥ bloggen eller nettstaden din.
 	</p>
-	
-	<a name="help-translate"></a>
-	<h3>Send inn omsetjing</h3>
 	<p>
-		Er ikkje Greenshot tilgjengeleg på ditt føretrekte språk? Om du kjenner deg
-		i stand til å omsetje programmet er du meir enn velkomen!
-		Om du er registrert på sourceforge.net kan du sende inn omsetjingar til vår 
-		<a target="_blank" href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">omsetjings-tracker</a>.<br>
-		Kontroller fyrst om det alt finst ei omsetjing på
-		<a target="_blank" href="https://getgreenshot.org/downloads/">nedlastingssida</a>.
-		Sjekk òg <a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">omsetjings-trackeren</a>,
-		då den kan innehalde ein omsetjing under arbeid eller diskusjon.<br>
-		Ver merksam på at me bare tilbyr omsetjingar på nedlastingssida vår om den har
-		blitt sendt inn gjennom ein sourceforge.net-konto. Sidan me sannsynlegvis ikkje
-		forstår omsetjinga di er det fint om andre sourceforge-brukarar kan kontakte deg
-		om endringar eller forbetringar i samband med til dømes nye programversjonar.
+		Gje Greenshot ei stjerne pÃ¥ <a target="_blank" href="https://github.com/greenshot/greenshot">GitHub</a>, sÃ¥ finn andre det lettare:
+		<br><iframe src="https://ghbtns.com/github-btn.html?user=greenshot&amp;repo=greenshot&amp;type=star&amp;count=true&amp;size=large" frameborder="0" width="170" height="30" title="GitHub"></iframe>
 	</p>
-	
-	
-	
+
 	</body>
 </html>

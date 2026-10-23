@@ -140,12 +140,27 @@ static BOOL StartGreenshot(void)
     return bStarted;
 }
 
+/*
+ * Lets Greenshot bring its window to the front: Windows only allows the process the user just worked with, here the
+ * browser or Explorer, and the processes it started, like this one, to change the foreground window. Greenshot runs
+ * in the background, without this the window a link opens stays behind the browser.
+ */
+static void AllowGreenshotToForeground(HANDLE hPipe)
+{
+    ULONG ulServerProcessId = 0;
+    if (GetNamedPipeServerProcessId(hPipe, &ulServerProcessId) && ulServerProcessId != 0)
+    {
+        AllowSetForegroundWindow(ulServerProcessId);
+    }
+}
+
 HANDLE ConnectOrColdStart(LPCWSTR pwszPipeName)
 {
     /* 1. Fast path: Greenshot is already running */
     HANDLE hPipe = ConnectToGreenshotPipe(pwszPipeName, 0, 0);
     if (hPipe != INVALID_HANDLE_VALUE)
     {
+        AllowGreenshotToForeground(hPipe);
         return hPipe;
     }
 
@@ -180,6 +195,10 @@ HANDLE ConnectOrColdStart(LPCWSTR pwszPipeName)
             ReleaseMutex(hMutex);
         }
         CloseHandle(hMutex);
+    }
+    if (hPipe != INVALID_HANDLE_VALUE)
+    {
+        AllowGreenshotToForeground(hPipe);
     }
     return hPipe;
 }

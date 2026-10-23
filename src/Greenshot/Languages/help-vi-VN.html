@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="vi">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Trợ giúp Greenshot</title>
+		<style>
+		* {font-family: "Segoe UI", Tahoma, Arial, Sans-serif;}
+		body {max-width:60em;margin:0 auto;padding:0 16px 24px 16px;}
+		h1 {font-size:20px;}
+		h2 {font-size:16px;color:#009900;margin-top:28px;}
+		h3 {font-size:14px;margin-top:20px;}
+		small {font-size:11px;}
+		p, li, td, th {font-size:13px;line-height:1.5em;}
+		a:link, a:hover, a:visited, a:active {color:#007700;}
+		kbd {background-color:#eeeeee;border:1px solid #bbbbbb;padding:0 3px;border-radius:3px;white-space:nowrap;}
+		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px 8px;}
+		table {border-collapse:collapse;margin:6px 0;}
+		th, td {border:1px solid #dddddd;padding:3px 8px;text-align:left;vertical-align:top;}
+		th {background-color:#f2f2f2;}
+		em {font-style:normal;font-weight:bold;}
+		:root {--greenshot-icon:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAEgklEQVR4nO2WXWxTZRjHf+er3y0j3dhXuw8DHRsEJoPEBEY0CMEbPtR4gUiciYQgd4ImeqMRZuK9qBgwXBjDFcSQoASVz4RIXPnY5raAbN1GS7d1LWU9p2c9PV6UlBE76ACHFz5X7/l4/s/vvO95n/cvtLa2mjzDEJ9l8f8B/tsAjkqN6rVRLCWT/yqAXLB4RZoXD3cg2Qy0ESu/vtmCoUmzB1DSmESyGQDYytI4fRruuglqN0SIXfPQe7AOM/uUAKrXjEwRrsU0YfSPElK3bDiqNMY7PaRjCq0H+hBlE29zgniPm8g5L44qjcmkzGSy4HcUB9D8cW9O+Pk48V4XkXNeZGeG8zubsXgmuRuyo3gyCMKDiY3b+5m/dRBDk7j4/mJi1zyPBSBOFRYEWPhuP2uOXGLND5eQXRnMrIAeVwjuCxC76uH6935uX/BSuzEMgGQzqH45imQ3CGwbJNA2gOLKFD8DwfYAdZvCxK55iJz3svTDvpyw3cC3Nsp4Z+7Lhk/NY/jUvHziaHAOlavHABi7MoemHTep25yDclZrBPc2FAfgrEzz+weLmZyQ/iEcuzpn2sSOTxupWDWKOmJlvNODf300/8xRoWEv01nxeRcuv0r31/X0H60sqCN8YWIO/TyP4L4csahkqVw9hjpiJXa1+HWd25Sk5ZMekLIE9zZQ1pJgwbYQAIYmcmL9yoI7R4bclNm8Osv3dePyq/z5TT2xX2b2U413uzn1xor8taMynR+nIrZpt62cjin0HKqhdmOYuU1JABbtukHoeDlmViicVUQM/VSOIJo4fSr9xwpPP4B8ctMLOeJyPX9TjVqfqDiAmYXQ8YpHvidLdgNDlRg8UY6oZHPER6ueqPhMQnb5VZzVGrUbw8Q63XTvf+6ptdmiANKjVlZ9dQVRyVK6LE6iz0XkbOmsAYhZAxDu20Jhlh2CrCcULrcHqH81TKzTQ+Ssd3YB5m8ZQpBMLu5ZRGbi8U+1xwZo3HETAHddio7PiuvfNq/OivZunDUpeg5M32aLifyKO6rUopNqNoQpaUyiOA2adv6FIJrYKzR866JY5uqPFpgSsjZmQZRMer+rLTopFbblx2rUiq1U56XDHUh2A23Uwm9bl5NJFWfh5DNty9Djyoyoh0+WI1lMnP4UA8eqKFl4F8l+z8KV6rj8Kk6fSu2mMOOdbnq+rZ/+LFh9sIPTbxVPDLk2O/Dj/TarJ2Qmhuw4fSrjXW60qJWV+y8jKibepQnivW7Cpwv3FtlepuOqUbGXazlj0uWm79DMTKfiznBh1xIsngx3B+0oTgOKPErkeI+LVMTKyi/vdcOWOHeuuwifLsVRkUZPSg/dng3vDBB4O5TzhrsXYRoO9Dsywb0N1G3OLcHDOqt84b1mZLvxYDcUTAJtAzS0hTBUiYt7Fk9rTqZ6Q9+6KIk+N/WvDyMqWS591PRIxyxmJwX0OzKX2wOMd3m4caSa8JlS6l+7lRO2G/hfuY1oyTJ/yxALtoWQHUZeYCxYkh+PdpTQtOMmjdv7aWgLsWT39YcWB/gbBUPC48UgfpEAAAAASUVORK5CYII=);}
+		h1 {background:var(--greenshot-icon) no-repeat left center;background-size:32px;padding-left:40px;line-height:32px;}
+		a[href^="greenshot:"] {background:#eef8ee var(--greenshot-icon) no-repeat 3px center;background-size:16px;border:1px solid #99cc99;border-radius:3px;padding:0 4px 0 22px;text-decoration:none;white-space:nowrap;}
+		a[href^="greenshot:"]:hover {background-color:#ddf0dd;}
+		[dir="rtl"] h1 {background-position:right center;padding-left:0;padding-right:40px;}
+		[dir="rtl"] a[href^="greenshot:"] {background-position:right 3px center;padding:0 22px 0 4px;}
+		</style>
+	</head>
+	<body>
+	<h1>Trợ giúp Greenshot</h1>
+	<!--
+	Note to translator: uncomment the entry below to have your effort honored
+	-->
+	<!--<small>Bản dịch tiếng Việt của trợ giúp: YOUR_NAME</small>-->
+
+	<p class="hint">
+		Các liên kết bắt đầu bằng <code>greenshot:</code>, ví dụ <a href="greenshot://settings">mở thiết lập</a>,
+		sẽ mở cửa sổ tương ứng của Greenshot. Chúng hoạt động khi Greenshot được cài bằng trình cài đặt, không hoạt động với bản
+		di động hoặc Greenshot Light. Trình duyệt có thể hỏi bạn trước khi mở Greenshot.
+	</p>
+
+	<h2>Mục lục</h2>
+	<ol>
+		<li><a href="#start">Bắt đầu</a></li>
+		<li><a href="#screenshot">Chụp màn hình</a>
+			<ol>
+				<li><a href="#capture-screen">Màn hình chụp</a></li>
+				<li><a href="#capture-modes">Vùng, cửa sổ, kích thước cố định và văn bản</a></li>
+				<li><a href="#capture-keys">Phím khi chọn</a></li>
+				<li><a href="#capture-live">Chọn mà không đóng băng màn hình</a></li>
+			</ol>
+		</li>
+		<li><a href="#destinations">Ảnh chụp được gửi đi đâu</a></li>
+		<li><a href="#editor">Trình soạn thảo ảnh</a>
+			<ol>
+				<li><a href="#editor-tabs">Thẻ</a></li>
+				<li><a href="#editor-tools">Công cụ vẽ</a></li>
+				<li><a href="#editor-highlight">Tô sáng và che giấu</a></li>
+				<li><a href="#editor-crop">Cắt ảnh</a></li>
+				<li><a href="#editor-effects">Hiệu ứng, xoay và đổi kích thước</a></li>
+				<li><a href="#editor-reuse">Thêm ảnh và dùng lại các phần tử</a></li>
+				<li><a href="#editor-export">Lưu và xuất</a></li>
+			</ol>
+		</li>
+		<li><a href="#recipes">Các bước tự động và công thức</a></li>
+		<li><a href="#settings">Thiết lập</a></li>
+		<li><a href="#troubleshooting">Khi có gì đó không hoạt động</a></li>
+		<li><a href="#help">Bạn muốn giúp đỡ?</a></li>
+	</ol>
+
+	<a name="start"></a>
+	<h2>Bắt đầu</h2>
+	<p>
+		Greenshot chạy nền. Biểu tượng của nó nằm cạnh đồng hồ, trong vùng thông báo của thanh tác vụ.
+		Nhấp chuột phải vào biểu tượng để mở menu có mọi kiểu chụp, <em>Thiết lập...</em> và trợ giúp này.
+	</p>
+	<p class="hint">
+		Không thấy biểu tượng? Windows 11 có thể ẩn nó sau mũi tên (^). <a href="greenshot://self-service?section=setup">Thiết lập của bạn</a>
+		trong Tự phục vụ sẽ hiện nó cạnh đồng hồ, đồng thời kiểm tra xem phím <kbd>Print Screen</kbd> có đến được Greenshot hay không.
+	</p>
+
+	<a name="screenshot"></a>
+	<h2>Chụp màn hình</h2>
+	<p>Bắt đầu chụp bằng phím tắt hoặc từ menu của biểu tượng Greenshot:</p>
+	<table>
+		<tr><th>Kiểu chụp</th><th>Phím tắt</th><th>Điều gì xảy ra</th></tr>
+		<tr><td><em>Chọn vùng chụp</em></td><td><kbd>Print Screen</kbd></td><td>Màn hình chụp mở ra, bạn chọn phần cần chụp.</td></tr>
+		<tr><td><em>Chụp cửa sổ</em></td><td><kbd>Alt</kbd> + <kbd>Print Screen</kbd></td><td>Chụp ngay cửa sổ đang hoạt động. Khi bật <em>Chụp màn hình ở chế độ không-hỏi</em> (<a href="greenshot://settings?tab=capture">thẻ Chụp</a>), bạn chọn cửa sổ trên màn hình chụp.</td></tr>
+		<tr><td><em>Chụp toàn màn hình</em></td><td><kbd>Ctrl</kbd> + <kbd>Print Screen</kbd></td><td>Chụp ngay màn hình. Khi có nhiều màn hình, menu của biểu tượng cho chọn tất cả hoặc một màn hình.</td></tr>
+		<tr><td><em>Vùng chụp lần trước</em></td><td><kbd>Shift</kbd> + <kbd>Print Screen</kbd></td><td>Chụp lại đúng vùng của lần chụp trước.</td></tr>
+		<tr><td><em>Mở ảnh từ clipboard</em></td><td>không có</td><td>Mở ảnh trong clipboard.</td></tr>
+	</table>
+	<p>
+		Menu còn có <em>Chụp cửa sổ từ danh sách</em>, chụp một cửa sổ đang mở do bạn chọn mà không cần màn hình chụp,
+		<em>Mở tệp ảnh</em> và <em>Mở nơi lưu ảnh chụp gần nhất</em>.
+		Bạn có thể đổi phím tắt trong <a href="greenshot://settings?tab=general">thiết lập, thẻ Thông thường</a>.
+	</p>
+
+	<a name="capture-screen"></a>
+	<h3>Màn hình chụp</h3>
+	<p>
+		Greenshot chụp lại tất cả màn hình của bạn và hiển thị ảnh đó lên trên mọi thứ. Không có gì thay đổi trong khi bạn chọn,
+		nên menu đang mở hoặc chú giải vẫn ở nguyên chỗ. Chỉ phần bạn chọn được chụp. <kbd>Esc</kbd> đóng màn hình chụp
+		mà không chụp gì.
+	</p>
+	<p>Trên ảnh bạn thấy:</p>
+	<ul>
+		<li><em>vùng chọn</em> cùng kích thước của nó,</li>
+		<li><em>kính lúp</em> cạnh con trỏ chuột, hiển thị từng điểm ảnh để bạn đặt góc thật chính xác,</li>
+		<li>các bảng ở góc: <em>phím</em> (<kbd>F1</kbd>), <em>thông tin</em> (<kbd>I</kbd>) và <em>xem trước</em> vùng chọn (<kbd>P</kbd>).
+			Chúng tự di chuyển để không cản đường bạn.</li>
+	</ul>
+	<p class="hint">
+		Nhấn <kbd>F1</kbd> khi đang chọn: bảng phím luôn liệt kê các phím dùng được ở thời điểm đó.
+		Greenshot nhớ khi bạn ẩn một bảng, <kbd>F1</kbd> hoặc <kbd>I</kbd> sẽ hiện lại.
+	</p>
+
+	<a name="capture-modes"></a>
+	<h3>Vùng, cửa sổ, kích thước cố định và văn bản</h3>
+	<ul>
+		<li><em>Vùng</em>: kéo chuột thành một hình chữ nhật, thả chuột là chụp. Bằng bàn phím: các phím mũi tên di chuyển chuột,
+			<kbd>Enter</kbd> bắt đầu chọn, <kbd>Enter</kbd> lần nữa để chụp. Giữ <kbd>Shift</kbd> để chỉ đổi chiều rộng hoặc chỉ đổi chiều cao.</li>
+		<li><em>Cửa sổ</em> (<kbd>Space</kbd>): cửa sổ dưới con trỏ được chọn, nhấp chuột hoặc <kbd>Enter</kbd> để chụp.
+			Greenshot chọn phần trong cùng, ví dụ một thanh công cụ; di chuột ra mép ngoài của cửa sổ để chọn cả cửa sổ.
+			<kbd>Tab</kbd> và <kbd>Shift</kbd> + <kbd>Tab</kbd> chọn cửa sổ kế tiếp hoặc trước đó.</li>
+		<li><em>Kích thước cố định</em> (<kbd>F</kbd>): một hình chữ nhật có kích thước chính xác, ví dụ 1280 × 720, đi theo chuột. <kbd>1</kbd> – <kbd>9</kbd> chọn kích thước,
+			<kbd>C</kbd> đổi góc mà chuột giữ, giữ <kbd>Alt</kbd> để đặt nó mà không bám vào cửa sổ. Kích thước riêng của bạn được đặt trong
+			<a href="greenshot://settings?tab=capture">thẻ Chụp</a>, kích thước của các lần chụp gần đây cũng được gợi ý.</li>
+		<li><em>Văn bản</em> (<kbd>T</kbd>): Greenshot đọc chữ trên màn hình bằng tính năng nhận dạng văn bản của Windows và đóng khung từng dòng.
+			Nhấp vào một dòng hoặc kéo qua các từ để chụp chúng. Để lấy các từ dưới dạng văn bản, hãy gửi ảnh chụp đến <em>Windows OCR</em>,
+			nó sẽ chép văn bản vào clipboard. Cần cài một ngôn ngữ nhận dạng trong Windows; ngôn ngữ được chọn trong
+			<a href="greenshot://settings?tab=capture">thẻ Chụp</a>, <em>Nhận dạng văn bản (OCR)</em>.</li>
+	</ul>
+	<p class="hint">
+		Với plugin mã QR, Greenshot tìm các mã QR trên màn hình và đóng khung chúng. Nhấp vào một mã để chép nội dung hoặc mở địa chỉ web của nó.
+	</p>
+
+	<a name="capture-keys"></a>
+	<h3>Phím khi chọn</h3>
+	<table>
+		<tr><th>Phím</th><th>Tác dụng</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Hủy chụp</td></tr>
+		<tr><td><kbd>Space</kbd></td><td>Chuyển giữa vùng và cửa sổ</td></tr>
+		<tr><td><kbd>F</kbd> / <kbd>T</kbd></td><td>Chụp kích thước cố định / chụp văn bản</td></tr>
+		<tr><td><kbd>M</kbd></td><td>Hiện hoặc ẩn con trỏ chuột trong ảnh chụp</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Chuyển giữa màn hình đóng băng và màn hình trực tiếp</td></tr>
+		<tr><td><kbd>Z</kbd></td><td>Hiện hoặc ẩn kính lúp</td></tr>
+		<tr><td><kbd>F1</kbd> / <kbd>I</kbd> / <kbd>P</kbd></td><td>Hiện hoặc ẩn phím / thông tin / di chuyển hoặc ẩn xem trước</td></tr>
+		<tr><td>Phím mũi tên</td><td>Di chuyển chuột một điểm ảnh, với <kbd>Ctrl</kbd> mười điểm ảnh</td></tr>
+		<tr><td><kbd>Enter</kbd></td><td>Bắt đầu hoặc kết thúc vùng chọn, chụp cửa sổ</td></tr>
+	</table>
+
+	<a name="capture-live"></a>
+	<h3>Chọn mà không đóng băng màn hình</h3>
+	<p>
+		Tắt <em>Đóng băng màn hình khi chọn</em> trong <a href="greenshot://settings?tab=capture">thẻ Chụp</a>, hoặc nhấn
+		<kbd>L</kbd> khi đang chọn, bạn sẽ chọn trên màn hình trực tiếp: video vẫn tiếp tục phát, và ảnh được chụp khi bạn kết thúc
+		vùng chọn. Chế độ văn bản và xem trước cần ảnh đóng băng. Menu đang mở thường đóng lại khi bạn nhấp chuột, vì vậy hãy dùng màn hình đóng băng để chụp menu.
+	</p>
+	<p class="hint">
+		Có thứ gì đó chỉ xuất hiện sau một lúc? Đặt <em>Mili giây (thời gian trễ lấy ảnh)</em> trong
+		<a href="greenshot://settings?tab=capture">thẻ Chụp</a>, hoặc chọn trên màn hình trực tiếp.
+	</p>
+
+	<a name="destinations"></a>
+	<h2>Ảnh chụp được gửi đi đâu</h2>
+	<p>
+		Sau khi chụp, Greenshot gửi ảnh chụp đến các đích của bạn. Mặc định nó hỏi bạn mỗi lần bằng một menu nhỏ.
+		Mỗi đích ở đó có một chữ cái gạch chân cố định, ví dụ <kbd>C</kbd> cho clipboard và <kbd>S</kbd> để lưu, nên bạn có thể chọn bằng bàn phím.
+		Chọn các đích trong <a href="greenshot://settings?tab=destination">thẻ Thao tác sau khi chụp màn hình</a>, hoặc trong <em>Thiết lập nhanh</em> ở menu của biểu tượng.
+	</p>
+	<ul>
+		<li><em>Mở trình soạn thảo ảnh</em>: chú thích ảnh chụp trước, xem <a href="#editor">trình soạn thảo ảnh</a>.</li>
+		<li><em>Lưu mặc định (Sử dụng thiết lập ở dưới)</em> dùng thư mục và mẫu tên tệp của <a href="greenshot://settings?tab=output">thẻ Xuất</a>, <em>Lưu dưới dạng (hiện hộp thoại)</em> sẽ hỏi chúng.</li>
+		<li><em>Chép vào clipboard</em>, <em>In</em>, <em>Email</em>, <em>Windows share</em> và <em>Windows OCR</em> (chép văn bản của ảnh chụp).</li>
+		<li>Các plugin thêm nhiều đích khác, ví dụ Microsoft Word, Excel, PowerPoint, Outlook và OneNote, PDF, Box, Dropbox, Jira và Confluence.
+			Chúng được thiết lập trong <a href="greenshot://settings?tab=plugins">thẻ Plugin</a>, nơi bạn cũng có thể tắt một plugin.</li>
+	</ul>
+	<p>
+		Cột <em>Có sẵn</em> của <a href="greenshot://settings?tab=destination">thẻ Thao tác sau khi chụp màn hình</a> tắt một đích ở mọi nơi.
+		Bạn nhận thông báo nào sau khi chụp được đặt trong <a href="greenshot://settings?tab=capture">thẻ Chụp</a>, <em>Thông báo</em>.
+	</p>
+
+	<a name="editor"></a>
+	<h2>Trình soạn thảo ảnh</h2>
+	<p>
+		Trình soạn thảo thêm hình, chữ, mũi tên, tô sáng và nhiều thứ khác vào ảnh chụp, hoặc che giấu những gì người khác không nên thấy.
+		Ngoài ảnh chụp của bạn, nó còn mở ảnh từ tệp hoặc từ clipboard (menu của biểu tượng).
+		Mọi thứ bạn vẽ vẫn là một phần tử mà bạn có thể chọn, di chuyển, thay đổi hoặc xóa.
+	</p>
+
+	<a name="editor-tabs"></a>
+	<h3>Thẻ</h3>
+	<p>
+		Một cửa sổ trình soạn thảo hiển thị nhiều ảnh dưới dạng thẻ, ảnh chụp mới mở thành một thẻ trong cửa sổ trình soạn thảo bạn dùng gần nhất.
+		<kbd>Ctrl</kbd> + <kbd>Tab</kbd> chuyển sang thẻ kế tiếp và <kbd>Ctrl</kbd> + <kbd>W</kbd> đóng một thẻ. Kéo thẻ sang cửa sổ trình soạn thảo khác,
+		hoặc nhấp chuột phải vào thẻ để chuyển nó sang cửa sổ mới. Dấu <em>+</em> trên dải thẻ tạo một ảnh mới, trống.
+		Khi bạn đóng cửa sổ có ảnh chưa lưu, Greenshot hỏi một lần: <em>Lưu tất cả</em>, <em>Bỏ tất cả</em> hoặc hủy.
+		Bạn thích mỗi ảnh chụp một cửa sổ? Tắt thẻ trong <a href="greenshot://settings?tab=editor">thẻ Trình soạn thảo</a>.
+	</p>
+
+	<a name="editor-tools"></a>
+	<h3>Công cụ vẽ</h3>
+	<p>
+		Chọn công cụ ở bên trái trình soạn thảo, trong menu <em>Đối tượng</em> hoặc bằng phím của nó, rồi kéo trên ảnh.
+		Thanh công cụ ở trên cùng hiển thị tùy chọn của công cụ hoặc của các phần tử đã chọn, ví dụ màu đường, màu tô và độ dày.
+	</p>
+	<table>
+		<tr><th>Phím</th><th>Công cụ</th><th>Phím</th><th>Công cụ</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Chọn</td><td><kbd>S</kbd></td><td>Bong bóng thoại</td></tr>
+		<tr><td><kbd>R</kbd></td><td>Hình chữ nhật</td><td><kbd>I</kbd></td><td>Bộ đếm (các bước đánh số)</td></tr>
+		<tr><td><kbd>E</kbd></td><td>Hình elip</td><td><kbd>M</kbd></td><td>Emoji</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Đường thẳng</td><td><kbd>H</kbd></td><td>Tô sáng</td></tr>
+		<tr><td><kbd>A</kbd></td><td>Mũi tên</td><td><kbd>O</kbd></td><td>Che giấu</td></tr>
+		<tr><td><kbd>F</kbd></td><td>Vẽ tự do</td><td><kbd>C</kbd></td><td>Cắt ảnh</td></tr>
+		<tr><td><kbd>T</kbd></td><td>Văn bản</td><td><kbd>Z</kbd></td><td>Đổi kích thước ảnh</td></tr>
+	</table>
+	<ul>
+		<li>Giữ <kbd>Shift</kbd> khi vẽ để có hình vuông hoặc hình tròn, hoặc đường thẳng theo bước 15°; khi đổi kích thước nó giữ nguyên tỷ lệ.
+			Giữ <kbd>Ctrl</kbd> để vẽ hoặc đổi kích thước từ tâm, tiện khi vẽ hình elip quanh một thứ gì đó.</li>
+		<li>Văn bản: vẽ ô văn bản rồi gõ. Nhấp đúp vào văn bản để sửa, <kbd>Enter</kbd> để kết thúc, <kbd>Shift</kbd> + <kbd>Enter</kbd> để xuống dòng.</li>
+		<li>Phần tử đã chọn: phím mũi tên di chuyển chúng (với <kbd>Shift</kbd> mười điểm ảnh), <kbd>Ctrl</kbd> + phím mũi tên đổi kích thước,
+			<kbd>Page Up</kbd> / <kbd>Page Down</kbd> đưa chúng lên hoặc xuống một lớp, <kbd>Delete</kbd> xóa chúng, <kbd>Ctrl</kbd> + <kbd>D</kbd> nhân bản chúng.
+			Giữ <kbd>Shift</kbd> và nhấp để chọn nhiều phần tử.</li>
+		<li><kbd>Ctrl</kbd> + <kbd>Z</kbd> hoàn tác, <kbd>Ctrl</kbd> + <kbd>Y</kbd> làm lại.</li>
+	</ul>
+
+	<a name="editor-highlight"></a>
+	<h3>Tô sáng và che giấu</h3>
+	<p>Vẽ vùng tô sáng (<kbd>H</kbd>) hoặc che giấu (<kbd>O</kbd>) như một hình chữ nhật và chọn chế độ trên thanh công cụ:</p>
+	<ul>
+		<li><em>Tô sáng văn bản</em> tô màu vùng như bút dạ quang, <em>Tô sáng vùng</em> làm tối và làm mờ mọi phần khác,
+			<em>tô xám</em> làm mọi phần khác thành màu xám, <em>phóng to</em> phóng to vùng đó.</li>
+		<li><em>mosaic</em> hoặc <em>làm nhòe</em> che mật khẩu, tên, số tài khoản hoặc khuôn mặt.</li>
+	</ul>
+
+	<a name="editor-crop"></a>
+	<h3>Cắt ảnh</h3>
+	<p>
+		Chọn công cụ cắt (<kbd>C</kbd>) và vẽ vùng cần giữ, <kbd>Enter</kbd> xác nhận, <kbd>Esc</kbd> hủy.
+		Nhấn <kbd>C</kbd> lần nữa, hoặc dùng <em>Chế độ cắt</em> trên thanh công cụ, để đổi chế độ:
+	</p>
+	<ul>
+		<li><em>Cắt bỏ theo chiều dọc</em> hoặc <em>Cắt bỏ theo chiều ngang</em> bỏ một dải khỏi ảnh và nối phần còn lại, ví dụ để bỏ
+			phần giữa trống của một trang dài. <em>Mép cắt</em> chọn kiểu đường nối: thẳng, răng cưa, gợn sóng, rách hoặc liền mạch.</li>
+		<li><em>Tự động cắt</em> bỏ viền một màu quanh ảnh.</li>
+	</ul>
+
+	<a name="editor-effects"></a>
+	<h3>Hiệu ứng, xoay và đổi kích thước</h3>
+	<table>
+		<tr><th>Phím</th><th>Tác dụng</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Q</kbd></td><td>Đổ bóng</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>B</kbd></td><td>Viền</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>T</kbd></td><td>Mép rách</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>G</kbd> / <kbd>Ctrl</kbd> + <kbd>I</kbd></td><td>Thang xám / đảo màu, ví dụ để tiết kiệm mực khi in</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>,</kbd> / <kbd>Ctrl</kbd> + <kbd>.</kbd></td><td>Xoay ngược chiều / cùng chiều kim đồng hồ</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>+</kbd> / <kbd>-</kbd></td><td>Mở rộng / thu nhỏ khung vẽ</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>+</kbd> / <kbd>-</kbd>, <kbd>Ctrl</kbd> + <kbd>0</kbd>, <kbd>Ctrl</kbd> + <kbd>9</kbd></td><td>Phóng to / thu nhỏ, kích thước thực, vừa khít nhất</td></tr>
+	</table>
+	<p>
+		Mép rách vẫn là một phần tử bạn có thể thay đổi; <em>Áp dụng cho ảnh</em> trên thanh công cụ biến nó thành một phần của ảnh.
+	</p>
+
+	<a name="editor-reuse"></a>
+	<h3>Thêm ảnh và dùng lại các phần tử</h3>
+	<ul>
+		<li>Kéo một tệp ảnh vào trình soạn thảo, hoặc dán ảnh bằng <kbd>Ctrl</kbd> + <kbd>V</kbd>. <em>Chèn cửa sổ</em> trong menu <em>Biên soạn</em> thêm ảnh chụp của một cửa sổ đang mở khác.</li>
+		<li>Dùng cùng các phần tử trên nhiều ảnh chụp: <em>Lưu đối tượng vào tệp</em> trong menu <em>Đối tượng</em>, và <em>Tải đối tượng từ tệp</em> ở ảnh chụp tiếp theo.</li>
+		<li>Lưu thành tệp <code>.greenshot</code> để mọi phần tử vẫn chỉnh sửa được và tiếp tục sau.</li>
+	</ul>
+
+	<a name="editor-export"></a>
+	<h3>Lưu và xuất</h3>
+	<table>
+		<tr><th>Phím</th><th>Tác dụng</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td><td><em>Lưu</em>, vào thư mục của <a href="greenshot://settings?tab=output">thẻ Xuất</a></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd></td><td><em>Lưu thành tệp...</em>: chọn thư mục, tên và định dạng ảnh</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd></td><td><em>Chép ảnh vào clipboard</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>P</kbd></td><td><em>In</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>E</kbd></td><td><em>Email</em>: một thư mới có đính kèm ảnh</td></tr>
+	</table>
+	<p>
+		Menu <em>Tệp</em> và thanh công cụ ở trên cùng liệt kê mọi đích của bạn, kể cả đích của plugin.
+		Sau khi lưu, nhấp chuột phải vào thanh trạng thái ở dưới cùng để chép đường dẫn tệp hoặc mở thư mục chứa nó.
+	</p>
+
+	<a name="recipes"></a>
+	<h2>Các bước tự động và công thức</h2>
+	<p>
+		Công thức tự động xử lý ảnh chụp của bạn, ví dụ thêm viền cho mọi ảnh chụp, hoặc lưu và tải lên trong một lần.
+		<em>Thiết lập nhanh</em> &gt; <em>Bước tự động</em> trong menu của biểu tượng bật hoặc tắt các bước có sẵn,
+		<em>Thêm…</em> mở thiết lập của chúng trong <a href="greenshot://settings?tab=recipes">thẻ Công thức</a>.
+		Menu <em>Công thức</em> của biểu tượng chạy các công thức của bạn và mở <a href="greenshot://recipe-manager">Trình quản lý công thức</a> và Recipe Editor.
+		Công thức đi kèm plugin Recipe Editor.
+	</p>
+
+	<a name="settings"></a>
+	<h2>Thiết lập</h2>
+	<p>Mở thiết lập bằng <em>Thiết lập...</em> trong menu của biểu tượng, hoặc bằng các liên kết dưới đây.</p>
+	<ul>
+		<li><a href="greenshot://settings?tab=general">Thông thường</a>: ngôn ngữ, màu (sáng, tối hoặc theo Windows), kích thước biểu tượng,
+			<em>Đăng ký Greenshot chạy khởi động Windows.</em>, các phím tắt, proxy và tần suất Greenshot kiểm tra bản cập nhật.</li>
+		<li><a href="greenshot://settings?tab=capture">Chụp</a>: chụp con trỏ chuột, âm thanh máy ảnh, kính lúp, đóng băng màn hình,
+			thông báo, thời gian chờ trước khi chụp, các kích thước cố định của bạn, chụp cửa sổ tương tác và ngôn ngữ nhận dạng văn bản.</li>
+		<li><a href="greenshot://settings?tab=output">Xuất</a>: thư mục và mẫu tên tệp để lưu (nhấp <em>?</em> để xem các biến giữ chỗ,
+			ví dụ <code>${YYYY}-${MM}-${DD}</code> hoặc <code>${title}</code>; dấu <code>\</code> trong mẫu tạo thư mục), định dạng ảnh và chất lượng JPEG.</li>
+		<li><a href="greenshot://settings?tab=destination">Thao tác sau khi chụp màn hình</a>: điều gì xảy ra sau khi chụp, xem <a href="#destinations">ảnh chụp được gửi đi đâu</a>.</li>
+		<li><a href="greenshot://settings?tab=editor">Trình soạn thảo</a>: thẻ, kích thước cửa sổ trình soạn thảo, câu hỏi lưu khi đóng, kích thước và màu của ảnh mới.</li>
+		<li><a href="greenshot://settings?tab=printer">Máy in</a>: vừa ảnh với trang, xoay hoặc canh giữa, in màu, thang xám hoặc đảo màu, và chân trang có ngày giờ.</li>
+		<li><a href="greenshot://settings?tab=plugins">Plugin</a>: bật, tắt và cấu hình plugin. Thay đổi có hiệu lực ở lần khởi động Greenshot tiếp theo.</li>
+		<li><a href="greenshot://settings?tab=expert">Chuyên gia</a>: thiết lập cho trường hợp đặc biệt, ví dụ máy tính từ xa, chụp bằng DirectX (cần cho màn hình HDR), bộ nhớ và tốc độ,
+			và các định dạng clipboard. Chỉ thay đổi khi bạn biết chúng làm gì.</li>
+	</ul>
+	<p class="hint">
+		Greenshot lưu thiết lập trong <code>greenshot.ini</code>, ở <code>%APPDATA%\Greenshot</code> (bản di động lưu nó cạnh Greenshot.exe).
+		<a href="greenshot://self-service?section=files">Tệp &amp; Cấu hình</a> trong Tự phục vụ cho biết nó ở đâu.
+	</p>
+
+	<a name="troubleshooting"></a>
+	<h2>Khi có gì đó không hoạt động</h2>
+	<p>
+		Tự phục vụ kiểm tra Greenshot và sửa hầu hết các sự cố. Mở nó bằng <em>Giới thiêu Greenshot</em> trong menu của biểu tượng, rồi <em>Tự phục vụ</em>,
+		hoặc đi thẳng đến mục phù hợp:
+	</p>
+	<ul>
+		<li><kbd>Print Screen</kbd> không làm gì hoặc mở thứ khác: <a href="greenshot://self-service?section=hotkeys">Phím tắt &amp; Xung đột</a>
+			cho biết OneDrive hay Snipping Tool có chiếm phím đó không, và trả phím lại cho Greenshot.</li>
+		<li>Không tìm thấy ảnh chụp: <a href="greenshot://self-service?section=files">Tệp &amp; Cấu hình</a> cho biết Greenshot lưu chúng ở đâu.</li>
+		<li>Chép vào clipboard thất bại: <a href="greenshot://self-service?section=clipboard">Chẩn đoán clipboard</a> tìm chương trình đang chặn clipboard.</li>
+		<li>Greenshot bị lỗi hoặc thiếu plugin sau khi cập nhật: <a href="greenshot://self-service?section=checksum">Tính toàn vẹn của bản cài đặt</a> kiểm tra các tệp đã cài.</li>
+		<li>Báo cáo sự cố: <em>Chép thông tin hệ thống</em> trong <a href="greenshot://self-service?section=system">Hệ thống &amp; Phần cứng</a> và
+			<a href="greenshot://log?search=ERROR">các lỗi trong nhật ký</a> giúp chúng tôi giúp bạn. Hãy báo cáo sự cố tại
+			<a target="_blank" href="https://github.com/greenshot/greenshot/issues">github.com/greenshot/greenshot/issues</a>.</li>
+	</ul>
+
+	<a name="help"></a>
+	<h2>Bạn muốn giúp đỡ?</h2>
+
+	<a name="help-donate"></a>
+	<h3>Hãy cân nhắc quyên góp</h3>
+	<p>
+		Chúng tôi đã dành nhiều công sức cho Greenshot để cung cấp một phần mềm tốt, miễn phí và mã nguồn mở. Nếu nó giúp bạn làm việc hiệu quả hơn,
+		tiết kiệm thời gian và tiền bạc cho bạn hoặc công ty, hoặc đơn giản là bạn thích Greenshot: hãy cân nhắc ủng hộ chúng tôi.
+		Xem <a target="_blank" href="https://getgreenshot.org/support/">https://getgreenshot.org/support/</a> để biết bạn có thể giúp như thế nào.
+	</p>
+
+	<a name="help-spread"></a>
+	<h3>Lan tỏa thông tin</h3>
+	<p>
+		Nếu bạn thích Greenshot, hãy giới thiệu nó với bạn bè và đồng nghiệp. Đánh giá Greenshot trên các trang phần mềm hoặc đặt liên kết đến trang chủ của chúng tôi từ blog hay website của bạn.
+	</p>
+	<p>
+		Hãy tặng Greenshot một ngôi sao trên <a target="_blank" href="https://github.com/greenshot/greenshot">GitHub</a>, điều đó giúp người khác tìm thấy nó:
+		<br><iframe src="https://ghbtns.com/github-btn.html?user=greenshot&amp;repo=greenshot&amp;type=star&amp;count=true&amp;size=large" frameborder="0" width="170" height="30" title="GitHub"></iframe>
+	</p>
+
+	</body>
+</html>

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="lv">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Greenshot palīdzība</title>
+		<style>
+		* {font-family: "Segoe UI", Tahoma, Arial, Sans-serif;}
+		body {max-width:60em;margin:0 auto;padding:0 16px 24px 16px;}
+		h1 {font-size:20px;}
+		h2 {font-size:16px;color:#009900;margin-top:28px;}
+		h3 {font-size:14px;margin-top:20px;}
+		small {font-size:11px;}
+		p, li, td, th {font-size:13px;line-height:1.5em;}
+		a:link, a:hover, a:visited, a:active {color:#007700;}
+		kbd {background-color:#eeeeee;border:1px solid #bbbbbb;padding:0 3px;border-radius:3px;white-space:nowrap;}
+		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px 8px;}
+		table {border-collapse:collapse;margin:6px 0;}
+		th, td {border:1px solid #dddddd;padding:3px 8px;text-align:left;vertical-align:top;}
+		th {background-color:#f2f2f2;}
+		em {font-style:normal;font-weight:bold;}
+		:root {--greenshot-icon:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAEgklEQVR4nO2WXWxTZRjHf+er3y0j3dhXuw8DHRsEJoPEBEY0CMEbPtR4gUiciYQgd4ImeqMRZuK9qBgwXBjDFcSQoASVz4RIXPnY5raAbN1GS7d1LWU9p2c9PV6UlBE76ACHFz5X7/l4/s/vvO95n/cvtLa2mjzDEJ9l8f8B/tsAjkqN6rVRLCWT/yqAXLB4RZoXD3cg2Qy0ESu/vtmCoUmzB1DSmESyGQDYytI4fRruuglqN0SIXfPQe7AOM/uUAKrXjEwRrsU0YfSPElK3bDiqNMY7PaRjCq0H+hBlE29zgniPm8g5L44qjcmkzGSy4HcUB9D8cW9O+Pk48V4XkXNeZGeG8zubsXgmuRuyo3gyCMKDiY3b+5m/dRBDk7j4/mJi1zyPBSBOFRYEWPhuP2uOXGLND5eQXRnMrIAeVwjuCxC76uH6935uX/BSuzEMgGQzqH45imQ3CGwbJNA2gOLKFD8DwfYAdZvCxK55iJz3svTDvpyw3cC3Nsp4Z+7Lhk/NY/jUvHziaHAOlavHABi7MoemHTep25yDclZrBPc2FAfgrEzz+weLmZyQ/iEcuzpn2sSOTxupWDWKOmJlvNODf300/8xRoWEv01nxeRcuv0r31/X0H60sqCN8YWIO/TyP4L4csahkqVw9hjpiJXa1+HWd25Sk5ZMekLIE9zZQ1pJgwbYQAIYmcmL9yoI7R4bclNm8Osv3dePyq/z5TT2xX2b2U413uzn1xor8taMynR+nIrZpt62cjin0HKqhdmOYuU1JABbtukHoeDlmViicVUQM/VSOIJo4fSr9xwpPP4B8ctMLOeJyPX9TjVqfqDiAmYXQ8YpHvidLdgNDlRg8UY6oZHPER6ueqPhMQnb5VZzVGrUbw8Q63XTvf+6ptdmiANKjVlZ9dQVRyVK6LE6iz0XkbOmsAYhZAxDu20Jhlh2CrCcULrcHqH81TKzTQ+Ssd3YB5m8ZQpBMLu5ZRGbi8U+1xwZo3HETAHddio7PiuvfNq/OivZunDUpeg5M32aLifyKO6rUopNqNoQpaUyiOA2adv6FIJrYKzR866JY5uqPFpgSsjZmQZRMer+rLTopFbblx2rUiq1U56XDHUh2A23Uwm9bl5NJFWfh5DNty9Djyoyoh0+WI1lMnP4UA8eqKFl4F8l+z8KV6rj8Kk6fSu2mMOOdbnq+rZ/+LFh9sIPTbxVPDLk2O/Dj/TarJ2Qmhuw4fSrjXW60qJWV+y8jKibepQnivW7Cpwv3FtlepuOqUbGXazlj0uWm79DMTKfiznBh1xIsngx3B+0oTgOKPErkeI+LVMTKyi/vdcOWOHeuuwifLsVRkUZPSg/dng3vDBB4O5TzhrsXYRoO9Dsywb0N1G3OLcHDOqt84b1mZLvxYDcUTAJtAzS0hTBUiYt7Fk9rTqZ6Q9+6KIk+N/WvDyMqWS591PRIxyxmJwX0OzKX2wOMd3m4caSa8JlS6l+7lRO2G/hfuY1oyTJ/yxALtoWQHUZeYCxYkh+PdpTQtOMmjdv7aWgLsWT39YcWB/gbBUPC48UgfpEAAAAASUVORK5CYII=);}
+		h1 {background:var(--greenshot-icon) no-repeat left center;background-size:32px;padding-left:40px;line-height:32px;}
+		a[href^="greenshot:"] {background:#eef8ee var(--greenshot-icon) no-repeat 3px center;background-size:16px;border:1px solid #99cc99;border-radius:3px;padding:0 4px 0 22px;text-decoration:none;white-space:nowrap;}
+		a[href^="greenshot:"]:hover {background-color:#ddf0dd;}
+		[dir="rtl"] h1 {background-position:right center;padding-left:0;padding-right:40px;}
+		[dir="rtl"] a[href^="greenshot:"] {background-position:right 3px center;padding:0 22px 0 4px;}
+		</style>
+	</head>
+	<body>
+	<h1>Greenshot palīdzība</h1>
+	<!--
+	Note to translator: uncomment the entry below to have your effort honored
+	-->
+	<!--<small>Palīdzības tulkojums latviešu valodā: YOUR_NAME</small>-->
+
+	<p class="hint">
+		Saites, kas sākas ar <code>greenshot:</code>, piemēram, <a href="greenshot://settings">atvērt iestatījumus</a>,
+		atver attiecīgo „Greenshot” logu. Tās darbojas, ja „Greenshot” ir uzstādīts ar instalētāju, nevis pārnēsājamajā
+		versijā vai „Greenshot Light”. Pārlūks var pajautāt, pirms atver „Greenshot”.
+	</p>
+
+	<h2>Saturs</h2>
+	<ol>
+		<li><a href="#start">Darba sākšana</a></li>
+		<li><a href="#screenshot">Ekrānattēla uzņemšana</a>
+			<ol>
+				<li><a href="#capture-screen">Tveršanas ekrāns</a></li>
+				<li><a href="#capture-modes">Apgabals, logs, noteikts izmērs un teksts</a></li>
+				<li><a href="#capture-keys">Taustiņi atlases laikā</a></li>
+				<li><a href="#capture-live">Atlase, neiesaldējot ekrānu</a></li>
+			</ol>
+		</li>
+		<li><a href="#destinations">Kur nonāk ekrānattēls</a></li>
+		<li><a href="#editor">Attēlu redaktors</a>
+			<ol>
+				<li><a href="#editor-tabs">Cilnes</a></li>
+				<li><a href="#editor-tools">Zīmēšanas rīki</a></li>
+				<li><a href="#editor-highlight">Izcelšana un aizsegšana</a></li>
+				<li><a href="#editor-crop">Apciršana</a></li>
+				<li><a href="#editor-effects">Efekti, pagriešana un izmēra maiņa</a></li>
+				<li><a href="#editor-reuse">Attēlu pievienošana un elementu atkārtota izmantošana</a></li>
+				<li><a href="#editor-export">Saglabāšana un eksports</a></li>
+			</ol>
+		</li>
+		<li><a href="#recipes">Automātiskie soļi un receptes</a></li>
+		<li><a href="#settings">Iestatījumi</a></li>
+		<li><a href="#troubleshooting">Ja kaut kas nedarbojas</a></li>
+		<li><a href="#help">Vēlaties palīdzēt?</a></li>
+	</ol>
+
+	<a name="start"></a>
+	<h2>Darba sākšana</h2>
+	<p>
+		„Greenshot” darbojas fonā. Tā ikona atrodas blakus pulkstenim, uzdevumjoslas paziņojumu apgabalā.
+		Noklikšķiniet uz tās ar labo peles pogu, lai atvērtu izvēlni ar visiem tveršanas veidiem, <em>Iestatījumi...</em> un šo palīdzību.
+	</p>
+	<p class="hint">
+		Neredzat ikonu? Windows 11 to var paslēpt aiz bultiņas (^). <a href="greenshot://self-service?section=setup">Tava iestatīšana</a>
+		sadaļā Pašapkalpošanās to parāda blakus pulkstenim un pārbauda, vai taustiņš <kbd>Print Screen</kbd> nonāk līdz „Greenshot”.
+	</p>
+
+	<a name="screenshot"></a>
+	<h2>Ekrānattēla uzņemšana</h2>
+	<p>Sāciet tveršanu ar karsto taustiņu vai no „Greenshot” ikonas izvēlnes:</p>
+	<table>
+		<tr><th>Tveršana</th><th>Karstais taustiņš</th><th>Kas notiek</th></tr>
+		<tr><td><em>Tvert apgabalu</em></td><td><kbd>Print Screen</kbd></td><td>Atveras tveršanas ekrāns, jūs atlasāt, ko tvert.</td></tr>
+		<tr><td><em>Tvert logu</em></td><td><kbd>Alt</kbd> + <kbd>Print Screen</kbd></td><td>Uzreiz tver aktīvo logu. Ar <em>Lietot mijiedarbīgo logu tveršanas veidu</em> (<a href="greenshot://settings?tab=capture">cilne Tvert</a>) logu tā vietā izvēlaties tveršanas ekrānā.</td></tr>
+		<tr><td><em>Tvert visu ekrānu</em></td><td><kbd>Ctrl</kbd> + <kbd>Print Screen</kbd></td><td>Uzreiz tver ekrānu. Ja monitori ir vairāki, ikonas izvēlne piedāvā visus monitorus vai vienu no tiem.</td></tr>
+		<tr><td><em>Tvert pēdējo apgabalu</em></td><td><kbd>Shift</kbd> + <kbd>Print Screen</kbd></td><td>Vēlreiz tver to pašu apgabalu kā iepriekšējo reizi.</td></tr>
+		<tr><td><em>Ielasīt attēlu no starpliktuves</em></td><td>nav</td><td>Atver attēlu no starpliktuves.</td></tr>
+	</table>
+	<p>
+		Izvēlnē ir arī <em>Tvert kādu no logiem</em>, kas bez tveršanas ekrāna tver jūsu izvēlētu atvērtu logu,
+		<em>Atvērt attēlu no faila</em> un <em>Atvērt pēdējo ekrānattēla vietu</em>.
+		Karstos taustiņus var mainīt <a href="greenshot://settings?tab=general">iestatījumu cilnē Vispārīgi</a>.
+	</p>
+
+	<a name="capture-screen"></a>
+	<h3>Tveršanas ekrāns</h3>
+	<p>
+		„Greenshot” nofotografē visus jūsu monitorus un parāda attēlu pāri visam. Kamēr atlasāt, nekas nemainās,
+		tāpēc atvērta izvēlne vai rīka padoms paliek savā vietā. Tiek tverta tikai atlasītā daļa. <kbd>Esc</kbd> aizver tveršanas
+		ekrānu, neko netverot.
+	</p>
+	<p>Virs attēla redzat:</p>
+	<ul>
+		<li><em>atlasi</em> ar tās izmēru,</li>
+		<li><em>lupu</em> blakus pelei, kas rāda katru pikseli, lai varētu precīzi novietot stūri,</li>
+		<li>paneļus stūros: <em>taustiņi</em> (<kbd>F1</kbd>), <em>informācija</em> (<kbd>I</kbd>) un atlases <em>priekšskatījums</em> (<kbd>P</kbd>).
+			Tie paši pavirzās jums no ceļa.</li>
+	</ul>
+	<p class="hint">
+		Atlases laikā nospiediet <kbd>F1</kbd>: taustiņu panelis vienmēr rāda taustiņus, kas tobrīd darbojas.
+		„Greenshot” atceras, ka paslēpāt paneli, <kbd>F1</kbd> vai <kbd>I</kbd> to atgriež.
+	</p>
+
+	<a name="capture-modes"></a>
+	<h3>Apgabals, logs, noteikts izmērs un teksts</h3>
+	<ul>
+		<li><em>Apgabals</em>: ar peli izvelciet taisnstūri, atlaižot pogu, tas tiek tverts. Ar tastatūru: bultiņas pārvieto peli,
+			<kbd>Enter</kbd> sāk atlasi, vēl viens <kbd>Enter</kbd> to tver. Turiet <kbd>Shift</kbd>, lai mainītu tikai platumu vai tikai augstumu.</li>
+		<li><em>Logs</em> (<kbd>Atstarpe</kbd>): tiek atlasīts logs zem peles, klikšķis vai <kbd>Enter</kbd> to tver.
+			„Greenshot” atlasa iekšējāko daļu, piem., rīkjoslu; pārvietojiet peli uz loga ārējo malu, lai atlasītu visu logu.
+			<kbd>Tab</kbd> un <kbd>Shift</kbd> + <kbd>Tab</kbd> atlasa nākamo vai iepriekšējo logu.</li>
+		<li><em>Noteikts izmērs</em> (<kbd>F</kbd>): precīza izmēra taisnstūris, piem., 1280 × 720, seko pelei. <kbd>1</kbd> – <kbd>9</kbd> izvēlas izmēru,
+			<kbd>C</kbd> maina stūri, aiz kura pele to tur, turiet <kbd>Alt</kbd>, lai to novietotu, nepiesaistot logiem. Savus izmērus iestata
+			<a href="greenshot://settings?tab=capture">cilnē Tvert</a>, tiek piedāvāti arī pēdējo tveršanu izmēri.</li>
+		<li><em>Teksts</em> (<kbd>T</kbd>): „Greenshot” nolasa ekrānā redzamo tekstu ar Windows teksta atpazīšanu un ierāmē katru rindu.
+			Noklikšķiniet uz rindas vai velciet pār vārdiem, lai tos tvertu. Lai iegūtu vārdus kā tekstu, nosūtiet tvērumu uz <em>Windows OCR</em>,
+			kas nokopē tekstu starpliktuvē. Tam Windows jābūt uzstādītai atpazīšanas valodai; valodu izvēlas
+			<a href="greenshot://settings?tab=capture">cilnē Tvert</a>, <em>Teksta atpazīšana (OCR)</em>.</li>
+	</ul>
+	<p class="hint">
+		Ar QR kodu spraudni „Greenshot” atrod ekrānā QR kodus un tos ierāmē. Noklikšķiniet uz koda, lai nokopētu tā saturu vai atvērtu tā tīmekļa adresi.
+	</p>
+
+	<a name="capture-keys"></a>
+	<h3>Taustiņi atlases laikā</h3>
+	<table>
+		<tr><th>Taustiņš</th><th>Ko tas dara</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Atceļ tveršanu</td></tr>
+		<tr><td><kbd>Atstarpe</kbd></td><td>Pārslēdz starp apgabalu un logu</td></tr>
+		<tr><td><kbd>F</kbd> / <kbd>T</kbd></td><td>Tver noteiktu izmēru / tver tekstu</td></tr>
+		<tr><td><kbd>M</kbd></td><td>Rāda vai slēpj peles kursoru tvērumā</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Pārslēdz starp iesaldētu un dzīvu ekrānu</td></tr>
+		<tr><td><kbd>Z</kbd></td><td>Rāda vai slēpj lupu</td></tr>
+		<tr><td><kbd>F1</kbd> / <kbd>I</kbd> / <kbd>P</kbd></td><td>Rāda vai slēpj taustiņus / informāciju / pārvieto vai slēpj priekšskatījumu</td></tr>
+		<tr><td>Bultiņas</td><td>Pārvieto peli par vienu pikseli, ar <kbd>Ctrl</kbd> par desmit pikseļiem</td></tr>
+		<tr><td><kbd>Enter</kbd></td><td>Sāk vai pabeidz atlasi, tver logu</td></tr>
+	</table>
+
+	<a name="capture-live"></a>
+	<h3>Atlase, neiesaldējot ekrānu</h3>
+	<p>
+		Izslēdziet <em>Sastindzināt ekrānu atlases laikā</em> <a href="greenshot://settings?tab=capture">cilnē Tvert</a> vai atlases laikā nospiediet
+		<kbd>L</kbd>, un jūs atlasāt dzīvajā ekrānā: video turpina atskaņoties, un tvērums tiek uzņemts, kad pabeidzat
+		atlasi. Teksta režīmam un priekšskatījumam vajag iesaldētu attēlu. Atvērtās izvēlnes parasti aizveras pēc klikšķa, tāpēc tām izmantojiet iesaldētu ekrānu.
+	</p>
+	<p class="hint">
+		Kaut kas parādās tikai pēc brīža? Iestatiet <em>Cik milisekundes gaidīt pirms tveršanas</em>
+		<a href="greenshot://settings?tab=capture">cilnē Tvert</a> vai atlasiet dzīvajā ekrānā.
+	</p>
+
+	<a name="destinations"></a>
+	<h2>Kur nonāk ekrānattēls</h2>
+	<p>
+		Pēc tveršanas „Greenshot” nosūta ekrānattēlu uz jūsu galamērķiem. Pēc noklusējuma tas katru reizi jautā ar nelielu izvēlni.
+		Katram galamērķim tur ir nemainīgs pasvītrots burts, piem., <kbd>C</kbd> starpliktuvei un <kbd>S</kbd> saglabāšanai, tāpēc to var izvēlēties ar tastatūru.
+		Galamērķus izvēlieties <a href="greenshot://settings?tab=destination">cilnē Ko darīt ar attēlu</a> vai ikonas izvēlnes punktā <em>Ātrie iestatījumi</em>.
+	</p>
+	<ul>
+		<li><em>Atvērt attēla redaktorā</em>: vispirms papildiniet ekrānattēlu ar piezīmēm, skatiet <a href="#editor">attēlu redaktoru</a>.</li>
+		<li><em>Saglabāt nejautājot (izmantojot zemākesošos iestatījumus)</em> izmanto mapi un faila nosaukuma veidni no <a href="greenshot://settings?tab=output">cilnes Saglabāšana</a>, <em>Saglabāt kā (tiks vaicāts)</em> tos pajautā.</li>
+		<li><em>Ievietot atmiņā</em>, <em>Drukāt</em>, <em>E-pasts</em>, <em>Windows share</em> un <em>Windows OCR</em> (nokopē ekrānattēla tekstu).</li>
+		<li>Spraudņi pievieno citus galamērķus, piem., Microsoft Word, Excel, PowerPoint, Outlook un OneNote, PDF, Box, Dropbox, Jira un Confluence.
+			Tos iestata <a href="greenshot://settings?tab=plugins">cilnē Sparudņi</a>, kur spraudni var arī izslēgt.</li>
+	</ul>
+	<p>
+		Kolonna <em>Pieejamie</em> <a href="greenshot://settings?tab=destination">cilnē Ko darīt ar attēlu</a> izslēdz galamērķi visur.
+		Kādus paziņojumus saņemat pēc tveršanas, iestata <a href="greenshot://settings?tab=capture">cilnē Tvert</a>, <em>Paziņojumi</em>.
+	</p>
+
+	<a name="editor"></a>
+	<h2>Attēlu redaktors</h2>
+	<p>
+		Redaktors ekrānattēlam pievieno figūras, tekstu, bultas, izcēlumus un citu, vai paslēpj to, ko citiem nevajadzētu redzēt.
+		Papildus jūsu tvērumiem tas atver attēlus no faila vai no starpliktuves (ikonas izvēlne).
+		Viss, ko uzzīmējat, paliek elements, kuru var atlasīt, pārvietot, mainīt vai noņemt.
+	</p>
+
+	<a name="editor-tabs"></a>
+	<h3>Cilnes</h3>
+	<p>
+		Redaktora logs rāda vairākus attēlus kā cilnes, jauns tvērums atveras kā cilne pēdējā izmantotajā redaktora logā.
+		<kbd>Ctrl</kbd> + <kbd>Tab</kbd> pāriet uz nākamo cilni, bet <kbd>Ctrl</kbd> + <kbd>W</kbd> aizver cilni. Velciet cilni uz citu redaktora logu
+		vai noklikšķiniet uz tās ar labo peles pogu, lai pārvietotu to uz jaunu logu. <em>+</em> ciļņu joslā sāk jaunu, tukšu attēlu.
+		Aizverot logu ar nesaglabātiem attēliem, „Greenshot” pajautā vienreiz: <em>Saglabāt visus</em>, <em>Atmest visus</em> vai atcelt.
+		Vēlaties vienu logu katram tvērumam? Izslēdziet cilnes <a href="greenshot://settings?tab=editor">cilnē Redaktors</a>.
+	</p>
+
+	<a name="editor-tools"></a>
+	<h3>Zīmēšanas rīki</h3>
+	<p>
+		Izvēlieties rīku redaktora kreisajā pusē, izvēlnē <em>Objekts</em> vai ar tā taustiņu, tad velciet pa attēlu.
+		Rīkjosla augšā rāda rīka vai atlasīto elementu iespējas, piem., līnijas krāsu, aizpildījuma krāsu un biezumu.
+	</p>
+	<table>
+		<tr><th>Taustiņš</th><th>Rīks</th><th>Taustiņš</th><th>Rīks</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Atlase</td><td><kbd>S</kbd></td><td>Runas burbulis</td></tr>
+		<tr><td><kbd>R</kbd></td><td>Taisnstūris</td><td><kbd>I</kbd></td><td>Skaitītājs (numurēti soļi)</td></tr>
+		<tr><td><kbd>E</kbd></td><td>Elipse</td><td><kbd>M</kbd></td><td>Emocijzīme</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Līnija</td><td><kbd>H</kbd></td><td>Izcelšana</td></tr>
+		<tr><td><kbd>A</kbd></td><td>Bulta</td><td><kbd>O</kbd></td><td>Aizsegšana</td></tr>
+		<tr><td><kbd>F</kbd></td><td>Brīvroka</td><td><kbd>C</kbd></td><td>Apciršana</td></tr>
+		<tr><td><kbd>T</kbd></td><td>Teksts</td><td><kbd>Z</kbd></td><td>Mainīt attēla izmēru</td></tr>
+	</table>
+	<ul>
+		<li>Zīmējot turiet <kbd>Shift</kbd>, lai iegūtu kvadrātu vai apli, vai līnijas ar 15° soli; mainot izmēru, tiek saglabātas proporcijas.
+			Turiet <kbd>Ctrl</kbd>, lai zīmētu vai mainītu izmēru no vidus, ērti elipsei ap kaut ko.</li>
+		<li>Teksts: uzzīmējiet teksta lodziņu un rakstiet. Dubultklikšķis uz teksta ļauj to mainīt, <kbd>Enter</kbd> pabeidz, <kbd>Shift</kbd> + <kbd>Enter</kbd> sāk jaunu rindu.</li>
+		<li>Atlasītie elementi: bultiņas tos pārvieto (ar <kbd>Shift</kbd> par desmit pikseļiem), <kbd>Ctrl</kbd> + bultiņas maina izmēru,
+			<kbd>Page Up</kbd> / <kbd>Page Down</kbd> pārvieto tos līmeni augstāk vai zemāk, <kbd>Delete</kbd> noņem, <kbd>Ctrl</kbd> + <kbd>D</kbd> dublē.
+			Turiet <kbd>Shift</kbd> un klikšķiniet, lai atlasītu vairākus elementus.</li>
+		<li><kbd>Ctrl</kbd> + <kbd>Z</kbd> atsauc, <kbd>Ctrl</kbd> + <kbd>Y</kbd> atkārto.</li>
+	</ul>
+
+	<a name="editor-highlight"></a>
+	<h3>Izcelšana un aizsegšana</h3>
+	<p>Uzzīmējiet izcelšanas (<kbd>H</kbd>) vai aizsegšanas (<kbd>O</kbd>) apgabalu kā taisnstūri un rīkjoslā izvēlieties režīmu:</p>
+	<ul>
+		<li><em>Iekrāsot</em> iekrāso apgabalu kā marķieris, <em>Aptumšot apkārt</em> aptumšo un izpludina visu pārējo,
+			<em>Bez krāsas apkārt</em> padara visu pārējo pelēku, <em>Palielināt</em> palielina apgabalu.</li>
+		<li><em>Sadrumstalot</em> vai <em>Izpludināt</em> paslēpj paroles, vārdus, kontu numurus vai sejas.</li>
+	</ul>
+
+	<a name="editor-crop"></a>
+	<h3>Apciršana</h3>
+	<p>
+		Izvēlieties apciršanas rīku (<kbd>C</kbd>) un uzzīmējiet paturamo apgabalu, <kbd>Enter</kbd> apstiprina, <kbd>Esc</kbd> atceļ.
+		Vēlreiz nospiediet <kbd>C</kbd> vai izmantojiet <em>Apciršanas režīms</em> rīkjoslā, lai pārslēgtu režīmu:
+	</p>
+	<ul>
+		<li><em>Izgriezt vertikāli</em> vai <em>Izgriezt horizontāli</em> izgriež no attēla joslu un savieno atlikušo, piem., lai izlaistu
+			garas lapas tukšo vidu. <em>Griezuma malas</em> nosaka, kā izskatās savienojums: taisns, zigzaga, viļņots, plēsts vai bez šuves.</li>
+		<li><em>Automātiski apcirst</em> noņem vienkrāsainu malu ap attēlu.</li>
+	</ul>
+
+	<a name="editor-effects"></a>
+	<h3>Efekti, pagriešana un izmēra maiņa</h3>
+	<table>
+		<tr><th>Taustiņi</th><th>Ko tas dara</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Q</kbd></td><td>Ēna</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>B</kbd></td><td>Apmale</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>T</kbd></td><td>Plēsta mala</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>G</kbd> / <kbd>Ctrl</kbd> + <kbd>I</kbd></td><td>Pelēktoņi / invertēt, piem., lai drukājot taupītu tinti</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>,</kbd> / <kbd>Ctrl</kbd> + <kbd>.</kbd></td><td>Pagriezt pretēji pulksteņrādītājam / pulksteņrādītāja virzienā</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>+</kbd> / <kbd>-</kbd></td><td>Palielināt / samazināt audeklu</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>+</kbd> / <kbd>-</kbd>, <kbd>Ctrl</kbd> + <kbd>0</kbd>, <kbd>Ctrl</kbd> + <kbd>9</kbd></td><td>Tuvināt / tālināt, faktiskais izmērs, labākā ietilpināšana</td></tr>
+	</table>
+	<p>
+		Plēsta mala paliek elements, ko var mainīt; <em>Lietot attēlam</em> rīkjoslā padara to par attēla daļu.
+	</p>
+
+	<a name="editor-reuse"></a>
+	<h3>Attēlu pievienošana un elementu atkārtota izmantošana</h3>
+	<ul>
+		<li>Ievelciet attēla failu redaktorā vai ielīmējiet attēlu ar <kbd>Ctrl</kbd> + <kbd>V</kbd>. <em>Ievietot logu</em> izvēlnē <em>Labot</em> pievieno cita atvērta loga tvērumu.</li>
+		<li>Izmantojiet tos pašus elementus daudzos ekrānattēlos: <em>Saglabāt objektus failā</em> izvēlnē <em>Objekts</em> un nākamajā ekrānattēlā <em>Ielasīt objektu no faila</em>.</li>
+		<li>Saglabājiet kā <code>.greenshot</code> failu, lai visi elementi paliktu rediģējami un varētu turpināt vēlāk.</li>
+	</ul>
+
+	<a name="editor-export"></a>
+	<h3>Saglabāšana un eksports</h3>
+	<table>
+		<tr><th>Taustiņi</th><th>Ko tas dara</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td><td><em>Saglabāt</em> mapē no <a href="greenshot://settings?tab=output">cilnes Saglabāšana</a></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd></td><td><em>Saglbāt kā...</em>: izvēlieties mapi, nosaukumu un attēla formātu</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd></td><td><em>Ievit attēlu starpliktuvē</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>P</kbd></td><td><em>Drukāt</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>E</kbd></td><td><em>E-pasts</em>: jauna vēstule ar pievienotu attēlu</td></tr>
+	</table>
+	<p>
+		Izvēlne <em>Fails</em> un rīkjosla augšā uzskaita visus jūsu galamērķus, arī spraudņu galamērķus.
+		Pēc saglabāšanas noklikšķiniet ar labo peles pogu uz statusa joslas apakšā, lai nokopētu faila ceļu vai atvērtu tā mapi.
+	</p>
+
+	<a name="recipes"></a>
+	<h2>Automātiskie soļi un receptes</h2>
+	<p>
+		Receptes automātiski veic darbības ar jūsu tvērumiem, piem., pievieno apmali katram tvērumam vai saglabā un augšupielādē to vienā piegājienā.
+		<em>Ātrie iestatījumi</em> &gt; <em>Automātiskie soļi</em> ikonas izvēlnē ieslēdz vai izslēdz sagatavotos soļus,
+		<em>Vairāk…</em> atver to iestatījumus <a href="greenshot://settings?tab=recipes">cilnē Receptes</a>.
+		Ikonas izvēlne <em>Receptes</em> palaiž jūsu receptes un atver <a href="greenshot://recipe-manager">Recepšu pārvaldnieks</a> un Recipe Editor.
+		Receptes ir daļa no spraudņa Recipe Editor.
+	</p>
+
+	<a name="settings"></a>
+	<h2>Iestatījumi</h2>
+	<p>Atveriet iestatījumus ar <em>Iestatījumi...</em> ikonas izvēlnē vai ar saitēm zemāk.</p>
+	<ul>
+		<li><a href="greenshot://settings?tab=general">Vispārīgi</a>: valoda, krāsas (gaišas, tumšas vai kā Windows), ikonu izmērs,
+			<em>Palaist „Greenshot” uzsākot darbu</em>, karstie taustiņi, starpniekserveris un cik bieži „Greenshot” meklē atjauninājumus.</li>
+		<li><a href="greenshot://settings?tab=capture">Tvert</a>: peles rādītāja tveršana, kameras skaņa, lupa, ekrāna iesaldēšana,
+			paziņojumi, gaidīšana pirms tveršanas, jūsu noteiktie izmēri, mijiedarbīgā logu tveršana un teksta atpazīšanas valoda.</li>
+		<li><a href="greenshot://settings?tab=output">Saglabāšana</a>: mape un faila nosaukuma veidne saglabāšanai (noklikšķiniet uz <em>?</em>, lai redzētu vietturus,
+			piem., <code>${YYYY}-${MM}-${DD}</code> vai <code>${title}</code>; <code>\</code> veidnē izveido mapes), attēla formāts un JPEG kvalitāte.</li>
+		<li><a href="greenshot://settings?tab=destination">Ko darīt ar attēlu</a>: kas notiek pēc tveršanas, skatiet <a href="#destinations">kur nonāk ekrānattēls</a>.</li>
+		<li><a href="greenshot://settings?tab=editor">Redaktors</a>: cilnes, redaktora loga izmērs, jautājums par saglabāšanu, aizverot, un jauna attēla izmērs un krāsa.</li>
+		<li><a href="greenshot://settings?tab=printer">Drukas iekārta</a>: attēla ietilpināšana lapā, pagriešana vai centrēšana, druka krāsās, pelēktoņos vai invertēti un kājene ar datumu un laiku.</li>
+		<li><a href="greenshot://settings?tab=plugins">Sparudņi</a>: ieslēdziet, izslēdziet un iestatiet spraudņus. Izmaiņas stājas spēkā nākamajā „Greenshot” palaišanas reizē.</li>
+		<li><a href="greenshot://settings?tab=expert">Paplašināti</a>: iestatījumi īpašiem gadījumiem, piem., attālajai darbvirsmai, DirectX tveršanai (vajadzīga HDR ekrāniem), atmiņai un ātrumam,
+			un starpliktuves formātiem. Mainiet tos tikai tad, ja zināt, ko tie dara.</li>
+	</ul>
+	<p class="hint">
+		„Greenshot” glabā savus iestatījumus failā <code>greenshot.ini</code>, mapē <code>%APPDATA%\Greenshot</code> (pārnēsājamā versija to glabā blakus Greenshot.exe).
+		<a href="greenshot://self-service?section=files">Faili un konfigurācija</a> sadaļā Pašapkalpošanās parāda, kur tas ir.
+	</p>
+
+	<a name="troubleshooting"></a>
+	<h2>Ja kaut kas nedarbojas</h2>
+	<p>
+		Pašapkalpošanās pārbauda „Greenshot” un novērš lielāko daļu problēmu. Atveriet to ar <em>Par „Greenshot”</em> ikonas izvēlnē, tad <em>Pašapkalpošanās</em>,
+		vai dodieties tieši uz vajadzīgo sadaļu:
+	</p>
+	<ul>
+		<li><kbd>Print Screen</kbd> neko nedara vai atver ko citu: <a href="greenshot://self-service?section=hotkeys">Karstie taustiņi un konflikti</a>
+			parāda, vai taustiņu aizņēmis OneDrive vai Izgriešanas rīks, un atdod to „Greenshot”.</li>
+		<li>Nevarat atrast ekrānattēlus: <a href="greenshot://self-service?section=files">Faili un konfigurācija</a> parāda, kur „Greenshot” tos saglabā.</li>
+		<li>Kopēšana starpliktuvē neizdodas: <a href="greenshot://self-service?section=clipboard">Starpliktuves diagnostika</a> atrod programmu, kas bloķē starpliktuvi.</li>
+		<li>„Greenshot” avarē vai pēc atjaunināšanas trūkst spraudņa: <a href="greenshot://self-service?section=checksum">Instalācijas integritāte</a> pārbauda uzstādītos failus.</li>
+		<li>Ziņošana par problēmu: <em>Kopēt sistēmas informāciju</em> sadaļā <a href="greenshot://self-service?section=system">Sistēma un aparatūra</a> un
+			<a href="greenshot://log?search=ERROR">kļūdas žurnālā</a> palīdz mums palīdzēt jums. Ziņojiet par problēmām
+			<a target="_blank" href="https://github.com/greenshot/greenshot/issues">github.com/greenshot/greenshot/issues</a>.</li>
+	</ul>
+
+	<a name="help"></a>
+	<h2>Vēlaties palīdzēt?</h2>
+
+	<a name="help-donate"></a>
+	<h3>Apsveriet ziedojumu</h3>
+	<p>
+		Mēs ieguldām daudz darba „Greenshot”, lai piedāvātu labu bezmaksas un atvērtā koda programmu. Ja tā padara jūs ražīgāku,
+		ietaupa jums vai jūsu uzņēmumam laiku un naudu, vai jums vienkārši patīk „Greenshot”, lūdzu, apsveriet iespēju mūs atbalstīt.
+		Kā varat palīdzēt, skatiet <a target="_blank" href="https://getgreenshot.org/support/">https://getgreenshot.org/support/</a>.
+	</p>
+
+	<a name="help-spread"></a>
+	<h3>Pastāstiet citiem</h3>
+	<p>
+		Ja jums patīk „Greenshot”, pastāstiet par to draugiem un kolēģiem. Novērtējiet „Greenshot” programmatūras portālos vai savā emuārā vai tīmekļa vietnē ievietojiet saiti uz mūsu mājaslapu.
+	</p>
+	<p>
+		Piešķiriet „Greenshot” zvaigzni vietnē <a target="_blank" href="https://github.com/greenshot/greenshot">GitHub</a>, tas palīdz citiem to atrast:
+		<br><iframe src="https://ghbtns.com/github-btn.html?user=greenshot&amp;repo=greenshot&amp;type=star&amp;count=true&amp;size=large" frameborder="0" width="170" height="30" title="GitHub"></iframe>
+	</p>
+
+	</body>
+</html>

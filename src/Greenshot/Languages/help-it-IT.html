@@ -1,355 +1,360 @@
-<!-- saved from url=(0022)http://internet.e-mail -->
-
-<html>
+<!DOCTYPE html>
+<html lang="it">
 	<head>
-		<title>Guida in linea di Greenshot</title>
-		
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Guida di Greenshot</title>
 		<style>
-		* {
-			font-family: Tahoma, Arial, Sans-serif;
-		}
-		h1 {font-size:16px;}
-		h2 {font-size:14px;color:#009900;margin-top:24px;}
-		h3 {font-size:12px;margin-top:18px;}
-		small {font-size:10px;}
-		p, li {font-size:12px;line-height:1.5em}
-		a:link, a:hover, a:visited, a:active {color:#009900;}
-		kbd {background-color:#dddddd;border:1px solid #bbbbbb;padding:0 2px;border-radius:2px;}
-		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px;}
-		
-		em {padding-right:0.2em;}
+		* {font-family: "Segoe UI", Tahoma, Arial, Sans-serif;}
+		body {max-width:60em;margin:0 auto;padding:0 16px 24px 16px;}
+		h1 {font-size:20px;}
+		h2 {font-size:16px;color:#009900;margin-top:28px;}
+		h3 {font-size:14px;margin-top:20px;}
+		small {font-size:11px;}
+		p, li, td, th {font-size:13px;line-height:1.5em;}
+		a:link, a:hover, a:visited, a:active {color:#007700;}
+		kbd {background-color:#eeeeee;border:1px solid #bbbbbb;padding:0 3px;border-radius:3px;white-space:nowrap;}
+		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px 8px;}
+		table {border-collapse:collapse;margin:6px 0;}
+		th, td {border:1px solid #dddddd;padding:3px 8px;text-align:left;vertical-align:top;}
+		th {background-color:#f2f2f2;}
+		em {font-style:normal;font-weight:bold;}
+		:root {--greenshot-icon:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAEgklEQVR4nO2WXWxTZRjHf+er3y0j3dhXuw8DHRsEJoPEBEY0CMEbPtR4gUiciYQgd4ImeqMRZuK9qBgwXBjDFcSQoASVz4RIXPnY5raAbN1GS7d1LWU9p2c9PV6UlBE76ACHFz5X7/l4/s/vvO95n/cvtLa2mjzDEJ9l8f8B/tsAjkqN6rVRLCWT/yqAXLB4RZoXD3cg2Qy0ESu/vtmCoUmzB1DSmESyGQDYytI4fRruuglqN0SIXfPQe7AOM/uUAKrXjEwRrsU0YfSPElK3bDiqNMY7PaRjCq0H+hBlE29zgniPm8g5L44qjcmkzGSy4HcUB9D8cW9O+Pk48V4XkXNeZGeG8zubsXgmuRuyo3gyCMKDiY3b+5m/dRBDk7j4/mJi1zyPBSBOFRYEWPhuP2uOXGLND5eQXRnMrIAeVwjuCxC76uH6935uX/BSuzEMgGQzqH45imQ3CGwbJNA2gOLKFD8DwfYAdZvCxK55iJz3svTDvpyw3cC3Nsp4Z+7Lhk/NY/jUvHziaHAOlavHABi7MoemHTep25yDclZrBPc2FAfgrEzz+weLmZyQ/iEcuzpn2sSOTxupWDWKOmJlvNODf300/8xRoWEv01nxeRcuv0r31/X0H60sqCN8YWIO/TyP4L4csahkqVw9hjpiJXa1+HWd25Sk5ZMekLIE9zZQ1pJgwbYQAIYmcmL9yoI7R4bclNm8Osv3dePyq/z5TT2xX2b2U413uzn1xor8taMynR+nIrZpt62cjin0HKqhdmOYuU1JABbtukHoeDlmViicVUQM/VSOIJo4fSr9xwpPP4B8ctMLOeJyPX9TjVqfqDiAmYXQ8YpHvidLdgNDlRg8UY6oZHPER6ueqPhMQnb5VZzVGrUbw8Q63XTvf+6ptdmiANKjVlZ9dQVRyVK6LE6iz0XkbOmsAYhZAxDu20Jhlh2CrCcULrcHqH81TKzTQ+Ssd3YB5m8ZQpBMLu5ZRGbi8U+1xwZo3HETAHddio7PiuvfNq/OivZunDUpeg5M32aLifyKO6rUopNqNoQpaUyiOA2adv6FIJrYKzR866JY5uqPFpgSsjZmQZRMer+rLTopFbblx2rUiq1U56XDHUh2A23Uwm9bl5NJFWfh5DNty9Djyoyoh0+WI1lMnP4UA8eqKFl4F8l+z8KV6rj8Kk6fSu2mMOOdbnq+rZ/+LFh9sIPTbxVPDLk2O/Dj/TarJ2Qmhuw4fSrjXW60qJWV+y8jKibepQnivW7Cpwv3FtlepuOqUbGXazlj0uWm79DMTKfiznBh1xIsngx3B+0oTgOKPErkeI+LVMTKyi/vdcOWOHeuuwifLsVRkUZPSg/dng3vDBB4O5TzhrsXYRoO9Dsywb0N1G3OLcHDOqt84b1mZLvxYDcUTAJtAzS0hTBUiYt7Fk9rTqZ6Q9+6KIk+N/WvDyMqWS591PRIxyxmJwX0OzKX2wOMd3m4caSa8JlS6l+7lRO2G/hfuY1oyTJ/yxALtoWQHUZeYCxYkh+PdpTQtOMmjdv7aWgLsWT39YcWB/gbBUPC48UgfpEAAAAASUVORK5CYII=);}
+		h1 {background:var(--greenshot-icon) no-repeat left center;background-size:32px;padding-left:40px;line-height:32px;}
+		a[href^="greenshot:"] {background:#eef8ee var(--greenshot-icon) no-repeat 3px center;background-size:16px;border:1px solid #99cc99;border-radius:3px;padding:0 4px 0 22px;text-decoration:none;white-space:nowrap;}
+		a[href^="greenshot:"]:hover {background-color:#ddf0dd;}
+		[dir="rtl"] h1 {background-position:right center;padding-left:0;padding-right:40px;}
+		[dir="rtl"] a[href^="greenshot:"] {background-position:right 3px center;padding:0 22px 0 4px;}
 		</style>
 	</head>
 	<body>
-	<h1>Guida in linea di Greenshot</h1>
-	<!-- 
-	Note to translator: uncomment entry below to have your effort honored 
+	<h1>Guida di Greenshot</h1>
+	<!--
+	Note to translator: uncomment the entry below to have your effort honored
 	-->
-	<small>Versione 0.8<!-- - English translation of help content by YOUR_NAME--></small>
-	
-	<h2>Contenuti</h2>
+	<!--<small>Traduzione italiana della guida di IL_TUO_NOME</small>-->
+
+	<p class="hint">
+		I collegamenti che iniziano con <code>greenshot:</code>, come <a href="greenshot://settings">apri le impostazioni</a>,
+		aprono la finestra corrispondente di Greenshot. Funzionano quando Greenshot è stato installato con il programma di installazione,
+		non nella versione portable né in Greenshot Light. Il browser potrebbe chiedere conferma prima di aprire Greenshot.
+	</p>
+
+	<h2>Sommario</h2>
 	<ol>
-		<li><a href="#screenshot">Creazione immagine dello schermo</a></li>
-		<ol>
-			<li><a href="#capture-region">Cattura regione</a></li>
-			<li><a href="#capture-last-region">Cattura ultima regione</a></li>
-			<li><a href="#capture-window">Cattura finestra</a></li>
-			<li><a href="#capture-fullscreen">Cattura schermo intero</a></li>
-			<li><a href="#capture-ie">Cattura con Internet Explorer</a></li>
-		</ol>
-	
-		<li><a href="#editor">Uso gestione immagini</a></li>
-		<ol>
-			<li><a href="#editor-shapes">Disegna forme</a></li>
-			<li><a href="#editor-text">Aggiungi testo</a></li>
-			<li><a href="#editor-highlight">Evidenzia qualcosa</a></li>
-			<li><a href="#editor-obfuscate">Offusca qualcosa\</a></li>
-			<li><a href="#editor-crop">Ritaglia immagine</a></li>
-			<li><a href="#editor-adding-graphics">Aggiungi elementi grafici all'immagine</a></li>
-			<li><a href="#editor-reuse-elements">Riusa elementi disegnati</a></li>
-			<li><a href="#editor-export">Esporta immagine</a></li>
-		</ol>
-		<li><a href="#settings">Pagina impostazioni</a></li>
-		<ol>
-			<li><a href="#settings-general">Impostazioni generali</a></li>
-			<li><a href="#settings-capture">Impostazioni cattura</a></li>
-			<li><a href="#settings-output">Impostazioni destinazione</a></li>
-			<li><a href="#settings-printer">Impostazioni stampante</a></li>
-		</ol>
-		<li><a href="#help">Vuoi aiutarci?</a></li>
-		<ol>
-			<li><a href="#help-donate">Fai una donazione</a></li>
-			<li><a href="#help-spread">Spargi la parola</a></li>
-			<li><a href="#help-translate">Invia una traduzione</a></li>
-		</ol>
-	</ol>
-	
-	<a name="screenshot"></a>
-	<h2>Crea immagine dello schermo</h2>
-	<p>
-		L'immagine può essere creata usando il tasto <kbd>Stamp</kbd> della tastiera, oppure facendo clic il tasto destro del mouse sull'icona di Greenshot nella barra.<br>
-		Ci sono varie opzioni per creare un'immagine:
-	</p>
-	
-	<a name="capture-region"></a>
-	<h3>Cattura regione <kbd>Stamp</kbd></h3>
-	<p>
-		Il metodo cattura regione consente di selezionare una parte dello schermo da "catturare".<br>
-		Dopo aver attivato la cattura, apparirà un mirino sulla posizione del mouse sullo schermo.<br>
-		Fai clic e tieni premuto dove vuoi impostare un angolo della regione da catturare.<br>
-		Tenendo premuto il pulsante del mouse, sposta il mouse fino a definire il rettangolo da catturare.<br>
-		Rilascia quindi il pulsante quando il rettangolo verde avrà coperto l'area che vuoi catturare.
-	</p>
-	<p class="hint">
-		Puoi usare il tasto <kbd>Spazio</kbd> per cambiare da metodo regione a metodo <a href="#capture-window">finestra</a>.
-	</p>
-	<p class="hint">
-		Se vuoi catturare una specifica, può risultare più facile selezionare un'area più grande e quindi <a href="#editor-crop">ritagliare</a> l'immagine in seguito, usando la 'Gestione immagini' di Greenshot.
-	</p>
-	
-	<a name="capture-last-region"></a>
-	<h3>Cattura ultima regione <kbd>Maiusc</kbd> + <kbd>Stamp</kbd></h3>
-	<p>
-		Usando questa opzione, se hai già eseguito un cattura <a href="#capture-region">regione</a> o <a href="#capture-window">finestra</a>, puoi ricatturare automaticamente la stessa regione. 
-	</p>
-	
-	<a name="capture-window"></a>
-	<h3>Cattura finestra <kbd>Alt</kbd> + <kbd>Stamp</kbd></h3>
-	<p>
-		Crea un'immagine della finestra che è attiva in quel momento.
-	</p>
-	<p class="hint">
-		La <a href="#settings">pagina delle impostazioni</a> offre una possibilità per non catturare direttamente la finestra attiva, consentendo quindi di sceglierne una interattivamente.<br>
-		Se selezioni questa opzione, la finestra può essere scelta facendovi clic sopra (come nel metodo <a href="#capture-region">regione</a>, Greenshot evidenzierà l'area che verrà catturata).<br>
-		Se vuoi catturare una finestra figlia (es: una browser viewport (senza barra strumenti, ecc...) o un singolo frame di una pagina web che usa i frameset) puoi puntare il cursore del mouse sulla finestra e premere il tasto <kbd>PgDown</kbd>.<br>
-		Fatto questo, sarà possibile selezionare gli elementi da catturare nella finestra figlia.
-	</p>
-	
-	<a name="capture-fullscreen"></a>
-	<h3>Cattura schermo intero <kbd>Ctrl</kbd> + <kbd>Stamp</kbd></h3>
-	<p>
-		Crea un'immagine dell'intero schermo.
-	<a name="capture-ie"></a>
-	<h3>Cattura Internet Explorer <kbd>Ctrl</kbd> + <kbd>Maiusc</kbd> + <kbd>Stamp</kbd></h3>
-	<p>
-		Crea facilmente un'immagine della pagina web attiva in quel momento su Internet Explorer.<br>
-		Puoi usare il menu sensibile al contesto di Greenshot per selezionare la scheda di Internet Explorer da catturare, o premi <kbd>Crtl</kbd> + <kbd>Maiusc</kbd> + <kbd>Stamp</kbd> per catturare la scheda attiva.
-	</p>
-	
-	<a name="editor"></a>
-	<h2>Uso Gestione Immagini</h2>
-	<p>
-		Greenshot fornisce anche una pratica gestione delle immagini, che include degli utili strumenti per aggiungere note e forme alle immagini. <br>
-		Essa permette inoltre di evidenziare o offuscare parti dell'immagine.
-	</p>
-	<p class="hint">
-		La Gestioni Immagini di Greenshot non serve solo per le immagini catturate. <br>
-		Si può usare anche per aprire e modificare immagini da file o da Appunti. <br>
-		E' sufficiente premere il tasto destro sull'icona di Greenshot nella barra, e selezionare rispettivamente <em>Apri immagine da file</em> o <em>Apri immagine da Appunti</em>.
-	</p>
-	<p class="hint">
-		Come impostazione predefinita, la gestione immagini verrà aperta ogni volta che un'immagine viene catturata. <br>
-		Se non vuoi usare la gestione immagini, puoi disabilitare questa funzionalità nella <a href="#settings">pagina delle impostazioni</a>.
-	</p>
-	
-	
-	<a name="editor-shapes"></a>
-	<h3>Disegna forme</h3>
-	<p>
-		Seleziona uno degli strumenti di disegno dalla barra degli strumenti sul lato sinistro della gestione immagini o dal menù <em>Oggetti</em>. <br>
-		Per facilitarne la selezione, ciascun strumento è assegnato ad un tasto.<br>
-		Le forme disponibili sono: rettangolo <kbd>R</kbd>, ellisse <kbd>E</kbd>, linea <kbd>L</kbd> e freccia <kbd>A</kbd>.<br>
-		Fai clic, e tenendo premuto il pulsante del mouse trascina per definire la posizione e la dimensione della forma. <br>
-		Completata la definizione, rilascia il pulsante del mouse.
-	</p>
-	<p>
-		Le forme possono essere mosse e ridimensionate facilmente, previa selezione mediante lo strumento <kbd>ESC</kbd> disponibile nella barra a sinistra.<br>
-		Per ciascun tipo di elemento c'è un gruppo di opzioni specifiche per cambiarne l'aspetto (es: spessore linea, colore linea, colore di riempimento). <br>
-		Si possono modificare le opzioni di un elemento esistente, previa selezione, e anche quelle di nuovi elementi da disegnare, previa selezione dello strumento di disegno.
-	</p>
-	<p class="hint">
-		Si possono inoltre selezionare più elementi per una modifica simultanea. <br>
-		Per selezionare più elementi, tieni premuto il tasto <kbd>Maiusc</kbd> mentre si fai clic sugli elementi.
-	</p>
-	
-	<a name="editor-text"></a>
-	<h3>Aggiungi testo</h3>
-	<p>
-		L'uso dello strumento di testo <kbd>T</kbd> è simile all'uso degli strumenti di disegno <a href="#editor-shapes">forme</a>. <br>
-		E' sufficiente disegnare l'elemento di testo delle dimensioni desiderate, e quindi digitare il testo.<br>
-		Per modificare il testo di un elemento esistente, fai doppio clic sull'elemento.
-	</p>
-	
-	<a name="editor-highlight"></a>
-	<h3>Evidenzia qualcosa</h3>
-	<p>
-		Dopo aver selezionato lo strumento di evidenziazione <kbd>H</kbd>, definisci l'area da evidenziare esattamente come si volesse disegnare una <a href="#editor-shapes">forma</a>.<br>
-		Ci sono varie opzioni per evidenziare, esse possono essere selezionate selezionando il pulsante più in alto a sinistra nella barra degli strumenti:
-	</p>
-	<ul>
-		<li><em>Evidenzia testo</em>: evidenzia un'area applicando un colore brillante ad essa, come un pennarello evidenziatore</li>
-		<li><em>Evidenzia area</em>: sfuoca <a href="#hint-blur">*</a> e scurisce tutto all'esterno dell'area selezionata</li>
-		<li><em>Scala di grigi</em>: tutto ciò che è al di fuori dell'area selezionata viene trasformato in scala di grigi</li>
-		<li><em>Ingrandisci</em>: l'area selezionata verrà visualizzata come ingrandita da una lente</li>
-	</ul>
-	
-	<a name="editor-obfuscate"></a>
-	<h3>Offuscare qualcosa</h3>
-	<p>
-		Offuscare parti di un'immagine può essere una buona idea se essa contiene dati privati che non devono essere visti da altre persone, per esempio dati conto bancario, nomi, parole d'ordine o volti di persone.<br>
-		Usa lo strumento di offuscamento <kbd>O</kbd> esattamente come lo strumento di <a href="#editor-highlight">evidenziazione</a>.<br>
-		Le opzioni disponibili per l'offuscamento, sono:
-	</p>
-	<ul>
-		<li><em>Offusca/pixelizza</em>: aumenta le dimensioni dei pixel nell'area selezionata</li>
-		<li><em>Sfuma</em><a href="#hint-blur">*</a>: sfuma e sfuoca l'area selezionata</li>
-	</ul>
-	<a name="hint-blur"></a>
-	<p class="hint">
-		* A seconda delle prestazioni del proprio PC, applicare un effetto di sfumatura potrebbe rallentare la Gestione Immagini di Greenshot.<br>
-		Se si vede che la Gestione Immagini risponde lentamente subito dopo aver eseguito una sfumatura, è utile provare a ridurre il valore di <em>Qualità anteprima</em> nella barra strumenti di offuscamento, o a diminuire il valore di <em>Raggio sfumatura</em>.<br>
-		Se le prestazioni della sfumatura sono ancora deludenti per poterci lavorare, ti consiglia si usare invece l'effetto Offusca/pixelizza.
-	</p>
-	
-	<a name="editor-crop"></a>
-	<h3>Ritaglia immagine</h3>
-	<p>
-		Per ricavare solo una parte dell'immagine catturata, si può usare lo strumento di ritaglio <kbd>C</kbd> per ritagliare l'area desiderata.<br>
-		Dopo aver selezionato lo strumento di ritaglio, disegna un rettangolo per l'area che vuoi mantenere.<br>
-		Come per gli atri elementi, si possono facilmente modificare le dimensioni dell'area selezionata.<br>
-		Dopo aver impostato correttamente la selezione dell'area, seleziona il pulsante di conferma nella barra strumenti o premi il tasto <kbd>Invio</kbd>.<br>
-		Puoi annullare l'azione di ritaglio, selezionando il pulsante annullamento o premendo <kbd>ESC</kbd>.
-	</p>
-	<p class="hint">
-		<em>Ritaglia automaticamente</em>: ae si ha la necessità di ritagliare un pezzo dell'immagine lungo i bordi di uno sfondo con colore compatto, è sufficiente scegliere <em>Ritaglia automaticamente</em> dal menù <em>Modifica</em> e Greenshot automaticamente selezionerà l'area di ritaglio.
-	</p>
-
-	<a name="editor-adding-graphics"></a>
-	<h3>Aggiunta elementi grafici all'immagine</h3>
-	<p>
-		Si possono facilmente aggiungere degli elementi grafici o delle altre immagini alla immagine in lavorazione, trascinando un file immagine all'interno della finestra di gestione immagini.<br>
-		Inoltre, selezionando <em>Inserisci finestra</em> dal menù <em>Modifica</em>, si possono inserire immagini prese da altre finestre.<br>
-		In questo caso, appare un elenco con tutte le finestre aperte, consentendo quindi di scegliere quella che si vuole inserire.
-	</p>
-	
-	
-	<a name="editor-reuse-elements"></a>
-	<h3>Ri-usa elementi disegnati</h3>
-	<p>
-		Se ci si ritrova a utilizzare lo stesso o simile elemento nella maggior parte delle immagini, (es: campo di testo contenente tipo browser e versione, oppure offuscamento dello stesso elemento su più immagini), è possibile riusare gli elementi in modo semplice.<br>
-		Per salvare di elementi attuali seleziona <em>Salva oggetti su file</em> dal menù <em>Oggetti</em>.<br>
-		Per poterli riusare seleziona <em>Carica oggetti da file</em> con un'altra immagine.
-	</p>
-	
-	<a name="editor-export"></a>
-	<h3>Esporta immagine</h3>
-	<p>
-		Dopo aver modificato l'immagine, si può esportare il risultato per vari scopi, a seconda delle necessità.<br>
-		Si può accedere a tutte le opzioni di esportazione dal menù <em>File</em>, nella barra principale, o per mezzo delle seguenti scorciatoie:
-	</p>
-	<ul>
-		<li><em>Salva</em> <kbd>Ctrl</kbd> + <kbd>S</kbd>: salva l'immagine in un file (se l'immagine è già stata salvata, altrimenti visualizza la finestra di <em>Salva come...</em>)</li>
-		<li><em>Salva come...</em> <kbd>Ctrl</kbd> + <kbd>Maiusc</kbd> + <kbd>S</kbd>: permette di scegliere la destinazione, il nome file e il formato immagine per il file da salvare</li>
-		<li><em>Copia immagine negli Appunti</em> <kbd>Ctrl</kbd> + <kbd>Maiusc</kbd> + <kbd>C</kbd>: fa una copia dell'immagine negli Appunti, consentendo poi di incollarla in altri programmi</li>
-		<li><em>Stampa...</em> <kbd>Ctrl</kbd> + <kbd>P</kbd>: invia l'immagine ad una stampante</li>
-		<li><em>Email</em> <kbd>Ctrl</kbd> + <kbd>E</kbd>: crea un nuovo messaggio nel programma email predefinito, aggiungendo l'immagine come allegato</li>
-	</ul>
-	<p class="hint">
-		Dopo aver salvato un'immagine dalla gestione, facendo clic con il tasto destro del mouse sulla barra di stato in basso sulla finestra della gestione immagini, è possibile copiare il percorso negli Appunti, o aprire la cartella destinazione con la Gestione risorse.
-	</p>
-	
-	
-	<a name="settings"></a>
-	<h2>Preferenze</h2>
-	
-	<a name="settings-general"></a>
-	<h3>Impostazioni generali</h3>
-	<ul>
-		<li><em>Lingua</em>: lingua dell'interfaccia utente.<br>
-			Si possono scaricare i file per le lingue aggiuntive di Greenshot da <a href="#">qui</a>. </li>
-		<li><em>Esegui Greenshot all'avvio</em>: esegue il programma Greenshot in automatico all'avvio del sistema.</li>
-		<li><em>Scorciatoie tastiera</em>: personalizza le scorciatoie (tasti rapidi) da usare per catturare le immagini.</li>
-		<li><em>Usa proxy predefinito sistema</em>: se selezionato, Greenshot per controllare se ci sono aggiornamenti usa il proxy predefinito di sistema.</li>
-		<li><em>Intervallo controllo aggiornamento, in giorni</em>: Greenshot può controllare automaticamente se ci sono aggiornamenti.<br>
-			Questo parametro può essere usato per specificare l'intervallo (in giorni); per disabilitare il controllo aggiornamento si può usare il valore 0.</li>
-	</ul>
-	
-	<a name="settings-capture"></a>
-	<h3>Impostazioni cattura</h3>
-	<ul>
-		<li><em>Cattura puntatore mouse</em>: se selezionato, il puntatore del mouse verrà catturato. 
-			Il puntatore viene gestito come un elemento separato, in modo che possa essere spostato o rimosso in seguito.</li>
-		<li><em>Riproduci suono fotocamera</em>: attiva il riscontro udibile dell'azione di cattura (suono scatto fotografico).</li>
-		<li><em>Millisecondi attesa prima di catturare</em>: utile per aggiungere un tempo di ritardo prima dell'effettiva cattura dello schermo.</li>
-		<li><em>Usa modalità cattura via finestra interattiva</em>: invece di catturare direttamente la finestra attiva, la modalità interattiva consente di selezionare la finestra da catturare. <br>
-				E' inoltre possibile catturare le finestre figlie, vedi <a href="#capture-window">Cattura finestra</a>.</li>
-		<li>
-			<em>Cattura in stile Aero (so Windows Vista / 7)</em>: se si sta usando Greenshot in Windows Vista o Windows 7 con lo stile di visualizzazione Aero abilitato, è possibile scegliere come devono essere gestiti i bordi della finestra trasparenti quando vengono create le immagini in modalità finestra.<br>
-				Questa impostazione è da usare per evitare la cattura di elementi dello sfondo che appaiono attraverso i bordi trasparenti.
-			<ul>
-				<li><em>Automaticamente</em>: Greenshot deciderà come gestire la trasparenza.</li>
-				<li><em>Come visualizzata</em>: i bordi trasparenti verranno catturati come visualizzati sullo schermo.</li>
-				<li><em>Usa colori predefiniti</em>: Al posto della trasparenza verrà applicato un colore compatto predefinito.</li>
-				<li><em>Usa colori personalizzati</em>: si può scegliere il colore che sarà applicato al posto della trasparenza.</li>
-				<li><em>Conserva trasparenza</em>: i bordi verranno catturati conservando la trasparenza, senza però catturare gli elementi che potrebbero essere sullo sfondo.<br>
-						Nota: le aree trasparenti verranno visualizzate usando un modello selezionato nella gestione immagini.<br> 
-						Il modello non verrà esportato se si salverà l'immagine su file. <br>
-						Ricordarti di salvare il file come PNG se vuoi conservare il pieno supporto della trasparenza.)</li>
-			</ul>
+		<li><a href="#start">Per iniziare</a></li>
+		<li><a href="#screenshot">Catturare una schermata</a>
+			<ol>
+				<li><a href="#capture-screen">La schermata di cattura</a></li>
+				<li><a href="#capture-modes">Regione, finestra, dimensione fissa e testo</a></li>
+				<li><a href="#capture-keys">Tasti durante la selezione</a></li>
+				<li><a href="#capture-live">Selezionare senza bloccare lo schermo</a></li>
+			</ol>
 		</li>
-		<li><em>Cattura con Internet Explorer</em>: abilita la comoda cattura delle pagine web usando Internet Explorer.</li>
-		<li><em>Adatta finestra Gestione a dimensioni di cattura</em>: se selezionata, la finestra della Gestione immagini verrà automaticamente ridimensionata in base alla dimensione dell'immagine catturata.</li>
+		<li><a href="#destinations">Dove va la schermata</a></li>
+		<li><a href="#editor">Gestione immagini</a>
+			<ol>
+				<li><a href="#editor-tabs">Schede</a></li>
+				<li><a href="#editor-tools">Strumenti di disegno</a></li>
+				<li><a href="#editor-highlight">Evidenziare e offuscare</a></li>
+				<li><a href="#editor-crop">Ritagliare</a></li>
+				<li><a href="#editor-effects">Effetti, rotazione e ridimensionamento</a></li>
+				<li><a href="#editor-reuse">Aggiungere immagini e riutilizzare elementi</a></li>
+				<li><a href="#editor-export">Salvare ed esportare</a></li>
+			</ol>
+		</li>
+		<li><a href="#recipes">Passaggi automatici e ricette</a></li>
+		<li><a href="#settings">Le impostazioni</a></li>
+		<li><a href="#troubleshooting">Quando qualcosa non funziona</a></li>
+		<li><a href="#help">Vuoi aiutare?</a></li>
+	</ol>
 
-	</ul>
-	<a name="settings-output"></a>
-	<h3>Impostazioni destinazione</h3>
-	<ul>
-		<li><em>Destinazione immagine</em>: consente di scegliere la/le destinazione/i automatiche delle immagini subito dopo l'azione di cattura.</li>
-		<li><em>Impostazioni preferite destinazione file</em>: cartella e nome file da usare quando si salva automaticamente, o da suggerire quando si salva (usando la finestra "Salva come").<br>
-				Fai clic su <em>?</em> per sapere di più sulle variabili che possono essere usate nel modello del nome file.</li>
-		<li><em>Impostazioni JPEG</em>: qualità da usare quando si salvano file JPEG.</li>
-	</ul>
-	
-	<a name="settings-printer"></a>
-	<h3>Impostazioni Stampante</h3>
-	<ul>
-		<li><em>Riduci a dimensioni pagina</em>: se l'immagine eccede le dimensioni della pagina, essa verrà ridotta e adattata alle dimensioni della pagina.</li>
-		<li><em>Ingrandisci fino a dimensioni pagina</em>: se l'immagine è più piccola delle dimensioni della pagina, essa verrà ingrandita per stamparla più grande possibile senza superare le dimensioni della pagina.</li>
-		<li><em>Ruota a seconda dell'orientamento pagina</em>: Ruoterà l'immagine in formato orizzontale di 90° per la stampa.</li>
-		<li><em>Centra nella pagina</em>: l'immagine verrà stampata al centro della pagina.</li>
-		<li><em>Stampa data/ora in piè di pagina</em>: la data e l'ora di stampa verranno stampate nel piè di pagina.</li>
-		<li><em>Stampa con colori invertiti (negativo)</em>: trasformerà l'immagine in negativo prima di stamparla. <br>
-				Utile per esempio quando si stampa un'immagine con testo bianco su sfondo nero (per risparmiare toner o inchiostro).</li>
-		<li><em>Visualizza scelta opzioni stampa ogni volta che si stampa un'immagine</em>: permette di scegliere se visualizzare o meno la finestra di scelta opzioni per le stampe successive alla prima.</li>
-	</ul>
-	
-	<a name="settings-plugins"></a>
-	<h3>Impostazioni componenti aggiuntivi</h3>
+	<a name="start"></a>
+	<h2>Per iniziare</h2>
 	<p>
-		Visualizza l'elenco dei componenti aggiuntivi di Greenshot che sono attualmente installati.<br>
-		La configurazione del singolo componente aggiuntivo è disponibile selezionando il componente dall'elenco e quindi selezionando <em>Configura</em>.
+		Greenshot funziona in background. La sua icona è accanto all'orologio, nell'area di notifica della barra delle applicazioni.
+		Fai clic su di essa con il tasto destro del mouse per aprire il menu con tutte le catture, le <em>Impostazioni...</em> e questa guida.
+	</p>
+	<p class="hint">
+		Non vedi l'icona? Windows 11 potrebbe nasconderla dietro la freccia (^). <a href="greenshot://self-service?section=setup">La tua configurazione</a>
+		in Self-Service la mostra accanto all'orologio e controlla anche se il tasto <kbd>Stamp</kbd> arriva a Greenshot.
 	</p>
 
-	
+	<a name="screenshot"></a>
+	<h2>Catturare una schermata</h2>
+	<p>Avvia una cattura con un tasto di scelta rapida o dal menu dell'icona di Greenshot:</p>
+	<table>
+		<tr><th>Cattura</th><th>Tasto rapido</th><th>Cosa succede</th></tr>
+		<tr><td><em>Cattura regione</em></td><td><kbd>Stamp</kbd></td><td>Si apre la schermata di cattura, scegli cosa catturare.</td></tr>
+		<tr><td><em>Cattura finestra</em></td><td><kbd>Alt</kbd> + <kbd>Stamp</kbd></td><td>Cattura subito la finestra attiva. Con <em>Usa modalità cattura via finestra interattiva</em> (<a href="greenshot://settings?tab=capture">scheda Cattura</a>) scegli invece la finestra nella schermata di cattura.</td></tr>
+		<tr><td><em>Cattura schermo intero</em></td><td><kbd>Ctrl</kbd> + <kbd>Stamp</kbd></td><td>Cattura subito lo schermo. Con più monitor, il menu dell'icona offre tutti i monitor o uno di essi.</td></tr>
+		<tr><td><em>Cattura ultima regione</em></td><td><kbd>Maiusc</kbd> + <kbd>Stamp</kbd></td><td>Cattura di nuovo la stessa area dell'ultima cattura.</td></tr>
+		<tr><td><em>Apri immagine dagli Appunti</em></td><td>nessuno</td><td>Apre l'immagine presente negli Appunti.</td></tr>
+	</table>
+	<p>
+		Il menu contiene anche <em>Cattura finestra da elenco</em>, che cattura una finestra aperta a tua scelta senza la schermata di cattura,
+		<em>Apri immagine da file</em> e <em>Apri ultimo percorso cattura</em>.
+		Puoi cambiare i tasti rapidi nelle <a href="greenshot://settings?tab=general">impostazioni, scheda Generali</a>.
+	</p>
+
+	<a name="capture-screen"></a>
+	<h3>La schermata di cattura</h3>
+	<p>
+		Greenshot scatta un'immagine di tutti i monitor e la mostra sopra a tutto. Mentre selezioni non cambia nulla,
+		quindi un menu aperto o un suggerimento restano dove erano. Viene catturata solo la parte selezionata. <kbd>Esc</kbd> chiude
+		la schermata di cattura senza catturare nulla.
+	</p>
+	<p>Sopra l'immagine vedi:</p>
+	<ul>
+		<li>la <em>selezione</em> con la sua dimensione,</li>
+		<li>lo <em>zoom</em>, una lente accanto al mouse che mostra ogni pixel, per posizionare un angolo con precisione,</li>
+		<li>pannelli negli angoli: i <em>tasti</em> (<kbd>F1</kbd>), le <em>informazioni</em> (<kbd>I</kbd>) e l'<em>anteprima</em> della selezione (<kbd>P</kbd>).
+			Si spostano da soli per non intralciarti.</li>
+	</ul>
+	<p class="hint">
+		Premi <kbd>F1</kbd> durante la selezione: il pannello dei tasti elenca sempre i tasti che funzionano in quel momento.
+		Greenshot ricorda quando nascondi un pannello, <kbd>F1</kbd> o <kbd>I</kbd> lo fanno ricomparire.
+	</p>
+
+	<a name="capture-modes"></a>
+	<h3>Regione, finestra, dimensione fissa e testo</h3>
+	<ul>
+		<li><em>Regione</em>: trascina un rettangolo con il mouse, al rilascio viene catturato. Con la tastiera: le frecce muovono il mouse,
+			<kbd>Invio</kbd> inizia la selezione, un altro <kbd>Invio</kbd> la cattura. Tieni premuto <kbd>Maiusc</kbd> per cambiare solo la larghezza o solo l'altezza.</li>
+		<li><em>Finestra</em> (<kbd>Spazio</kbd>): viene selezionata la finestra sotto il mouse, un clic o <kbd>Invio</kbd> la cattura.
+			Greenshot seleziona la parte più interna, per esempio una barra degli strumenti; vai al bordo esterno di una finestra per selezionarla tutta.
+			<kbd>Tab</kbd> e <kbd>Maiusc</kbd> + <kbd>Tab</kbd> selezionano la finestra successiva o precedente.</li>
+		<li><em>Dimensione fissa</em> (<kbd>F</kbd>): un rettangolo di dimensione esatta, per esempio 1280 × 720, segue il mouse. <kbd>1</kbd> – <kbd>9</kbd> scelgono una dimensione,
+			<kbd>C</kbd> cambia l'angolo tenuto dal mouse, tieni premuto <kbd>Alt</kbd> per posizionarlo senza agganciarlo alle finestre. Le tue dimensioni si impostano nella
+			<a href="greenshot://settings?tab=capture">scheda Cattura</a>; vengono proposte anche le dimensioni delle ultime catture.</li>
+		<li><em>Testo</em> (<kbd>T</kbd>): Greenshot legge il testo sullo schermo con il riconoscimento del testo di Windows e incornicia ogni riga.
+			Fai clic su una riga, o trascina sopra delle parole, per catturarle. Per avere le parole come testo, invia la cattura a <em>Windows OCR</em>,
+			che copia il testo negli Appunti. Serve una lingua di riconoscimento installata in Windows; la lingua si sceglie nella
+			<a href="greenshot://settings?tab=capture">scheda Cattura</a>, <em>Riconoscimento testo (OCR)</em>.</li>
+	</ul>
+	<p class="hint">
+		Con il componente aggiuntivo per i codici QR, Greenshot trova i codici QR sullo schermo e li incornicia. Fai clic su uno per copiarne il contenuto o aprirne l'indirizzo web.
+	</p>
+
+	<a name="capture-keys"></a>
+	<h3>Tasti durante la selezione</h3>
+	<table>
+		<tr><th>Tasto</th><th>Cosa fa</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Annulla la cattura</td></tr>
+		<tr><td><kbd>Spazio</kbd></td><td>Passa tra regione e finestra</td></tr>
+		<tr><td><kbd>F</kbd> / <kbd>T</kbd></td><td>Cattura una dimensione fissa / cattura testo</td></tr>
+		<tr><td><kbd>M</kbd></td><td>Mostra o nascondi il puntatore del mouse nella cattura</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Passa tra lo schermo bloccato e quello dal vivo</td></tr>
+		<tr><td><kbd>Z</kbd></td><td>Mostra o nascondi lo zoom</td></tr>
+		<tr><td><kbd>F1</kbd> / <kbd>I</kbd> / <kbd>P</kbd></td><td>Mostra o nascondi i tasti / le informazioni / sposta o nascondi l'anteprima</td></tr>
+		<tr><td>Frecce</td><td>Muovi il mouse di un pixel, con <kbd>Ctrl</kbd> di dieci pixel</td></tr>
+		<tr><td><kbd>Invio</kbd></td><td>Inizia o termina la selezione, cattura la finestra</td></tr>
+	</table>
+
+	<a name="capture-live"></a>
+	<h3>Selezionare senza bloccare lo schermo</h3>
+	<p>
+		Disattiva <em>Congela lo schermo durante la selezione</em> nella <a href="greenshot://settings?tab=capture">scheda Cattura</a>, o premi
+		<kbd>L</kbd> durante la selezione, e selezioni sullo schermo dal vivo: un video continua a scorrere e la cattura avviene quando termini
+		la selezione. La modalità testo e l'anteprima hanno bisogno dell'immagine bloccata. I menu aperti di solito si chiudono al clic, quindi per loro usa lo schermo bloccato.
+	</p>
+	<p class="hint">
+		Qualcosa compare solo dopo un momento? Imposta <em>Millisecondi di attesa prima di catturare</em> nella
+		<a href="greenshot://settings?tab=capture">scheda Cattura</a>, o seleziona sullo schermo dal vivo.
+	</p>
+
+	<a name="destinations"></a>
+	<h2>Dove va la schermata</h2>
+	<p>
+		Dopo la cattura, Greenshot invia la schermata alle tue destinazioni. Per impostazione predefinita lo chiede ogni volta con un piccolo menu.
+		Lì ogni destinazione ha una lettera sottolineata fissa, per esempio <kbd>C</kbd> per gli Appunti e <kbd>S</kbd> per salvare, così puoi sceglierla con la tastiera.
+		Scegli le tue destinazioni nella <a href="greenshot://settings?tab=destination">scheda Destinazione immagine</a>, o in <em>Impostazioni rapide</em> nel menu dell'icona.
+	</p>
+	<ul>
+		<li><em>Apri in Gestione immagini</em>: annota prima la schermata, vedi <a href="#editor">Gestione immagini</a>.</li>
+		<li><em>Salva direttamente</em> usa la cartella e lo schema del nome file della <a href="greenshot://settings?tab=output">scheda Destinazione</a>, <em>Salva come</em> li chiede.</li>
+		<li><em>Copia negli Appunti</em>, <em>Invia alla stampante</em>, <em>Email</em>, <em>Windows share</em> e <em>Windows OCR</em> (copia il testo della schermata).</li>
+		<li>I componenti aggiuntivi aggiungono altre destinazioni, per esempio Microsoft Word, Excel, PowerPoint, Outlook e OneNote, PDF, Box, Dropbox, Jira e Confluence.
+			Si configurano nella <a href="greenshot://settings?tab=plugins">scheda Componenti aggiuntivi</a>, dove puoi anche disattivarli.</li>
+	</ul>
+	<p>
+		La colonna <em>Disponibili</em> della <a href="greenshot://settings?tab=destination">scheda Destinazione immagine</a> disattiva una destinazione ovunque.
+		Quali notifiche ricevi dopo una cattura si imposta nella <a href="greenshot://settings?tab=capture">scheda Cattura</a>, <em>Notifiche</em>.
+	</p>
+
+	<a name="editor"></a>
+	<h2>Gestione immagini</h2>
+	<p>
+		Gestione immagini aggiunge forme, testo, frecce, evidenziazioni e altro a una schermata, o nasconde ciò che altri non devono vedere.
+		Oltre alle tue catture apre immagini da un file o dagli Appunti (menu dell'icona).
+		Tutto ciò che disegni resta un elemento che puoi selezionare, spostare, modificare o rimuovere.
+	</p>
+
+	<a name="editor-tabs"></a>
+	<h3>Schede</h3>
+	<p>
+		Una finestra di Gestione immagini mostra più immagini come schede; una nuova cattura si apre come scheda nell'ultima finestra usata.
+		<kbd>Ctrl</kbd> + <kbd>Tab</kbd> passa alla scheda successiva e <kbd>Ctrl</kbd> + <kbd>W</kbd> ne chiude una. Trascina una scheda in un'altra finestra,
+		o fai clic su di essa con il tasto destro per spostarla in una nuova finestra. Il <em>+</em> della barra delle schede crea una nuova immagine vuota.
+		Quando chiudi una finestra con immagini non salvate, Greenshot chiede una sola volta: <em>Salva tutto</em>, <em>Scarta tutto</em> o annulla.
+		Preferisci una finestra per cattura? Disattiva le schede nella <a href="greenshot://settings?tab=editor">scheda Gestione immagini</a>.
+	</p>
+
+	<a name="editor-tools"></a>
+	<h3>Strumenti di disegno</h3>
+	<p>
+		Scegli uno strumento a sinistra, nel menu <em>Oggetti</em> o con il suo tasto, poi trascina sull'immagine.
+		La barra degli strumenti in alto mostra le opzioni dello strumento o degli elementi selezionati, per esempio colore della linea, colore di riempimento e spessore.
+	</p>
+	<table>
+		<tr><th>Tasto</th><th>Strumento</th><th>Tasto</th><th>Strumento</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Selezione</td><td><kbd>S</kbd></td><td>Fumetto</td></tr>
+		<tr><td><kbd>R</kbd></td><td>Rettangolo</td><td><kbd>I</kbd></td><td>Contatore (passi numerati)</td></tr>
+		<tr><td><kbd>E</kbd></td><td>Ellisse</td><td><kbd>M</kbd></td><td>Emoji</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Linea</td><td><kbd>H</kbd></td><td>Evidenzia</td></tr>
+		<tr><td><kbd>A</kbd></td><td>Freccia</td><td><kbd>O</kbd></td><td>Offusca</td></tr>
+		<tr><td><kbd>F</kbd></td><td>Mano libera</td><td><kbd>C</kbd></td><td>Ritaglia</td></tr>
+		<tr><td><kbd>T</kbd></td><td>Testo</td><td><kbd>Z</kbd></td><td>Ridimensiona l'immagine</td></tr>
+	</table>
+	<ul>
+		<li>Tieni premuto <kbd>Maiusc</kbd> mentre disegni per un quadrato o un cerchio, o per linee a passi di 15°; durante il ridimensionamento mantiene le proporzioni.
+			Tieni premuto <kbd>Ctrl</kbd> per disegnare o ridimensionare dal centro, comodo per un'ellisse intorno a qualcosa.</li>
+		<li>Testo: disegna la casella di testo e scrivi. Fai doppio clic su un testo per modificarlo, <kbd>Invio</kbd> termina, <kbd>Maiusc</kbd> + <kbd>Invio</kbd> va a capo.</li>
+		<li>Elementi selezionati: le frecce li spostano (con <kbd>Maiusc</kbd> di dieci pixel), <kbd>Ctrl</kbd> + frecce li ridimensionano,
+			<kbd>Pag Su</kbd> / <kbd>Pag Giù</kbd> li portano su o giù di un livello, <kbd>Canc</kbd> li elimina, <kbd>Ctrl</kbd> + <kbd>D</kbd> li duplica.
+			Tieni premuto <kbd>Maiusc</kbd> e fai clic per selezionare più elementi.</li>
+		<li><kbd>Ctrl</kbd> + <kbd>Z</kbd> annulla, <kbd>Ctrl</kbd> + <kbd>Y</kbd> ripete.</li>
+	</ul>
+
+	<a name="editor-highlight"></a>
+	<h3>Evidenziare e offuscare</h3>
+	<p>Disegna l'area da evidenziare (<kbd>H</kbd>) o da offuscare (<kbd>O</kbd>) come un rettangolo e scegli la modalità nella barra degli strumenti:</p>
+	<ul>
+		<li><em>Evidenzia testo</em> colora l'area come un evidenziatore, <em>Evidenzia l'area</em> scurisce e sfuma tutto il resto,
+			<em>Scala di grigi</em> rende grigio tutto il resto, <em>Ingrandisci</em> ingrandisce l'area.</li>
+		<li><em>Offusca/pixelizza</em> o <em>Sfuma</em> nascondono password, nomi, numeri di conto o volti.</li>
+	</ul>
+
+	<a name="editor-crop"></a>
+	<h3>Ritagliare</h3>
+	<p>
+		Scegli lo strumento di ritaglio (<kbd>C</kbd>) e disegna l'area da tenere, <kbd>Invio</kbd> conferma, <kbd>Esc</kbd> annulla.
+		Premi di nuovo <kbd>C</kbd>, o usa <em>Modalità ritaglio</em> nella barra degli strumenti, per cambiare modalità:
+	</p>
+	<ul>
+		<li><em>Ritaglia verticalmente</em> o <em>Ritaglia orizzontalmente</em> toglie una striscia dall'immagine e unisce il resto, per esempio per eliminare
+			la parte centrale vuota di una pagina lunga. <em>Bordi tagliati</em> sceglie l'aspetto della giunzione: dritta, a zigzag, ondulata, strappata o senza giunzione.</li>
+		<li><em>Ritaglia automaticamente</em> toglie un bordo di un solo colore intorno all'immagine.</li>
+	</ul>
+
+	<a name="editor-effects"></a>
+	<h3>Effetti, rotazione e ridimensionamento</h3>
+	<table>
+		<tr><th>Tasti</th><th>Cosa fanno</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Q</kbd></td><td>Ombra</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>B</kbd></td><td>Bordo</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>T</kbd></td><td>Bordo strappato</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>G</kbd> / <kbd>Ctrl</kbd> + <kbd>I</kbd></td><td>Scala di grigi / inverti, per esempio per risparmiare inchiostro in stampa</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>,</kbd> / <kbd>Ctrl</kbd> + <kbd>.</kbd></td><td>Ruota in senso antiorario / orario</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Maiusc</kbd> + <kbd>+</kbd> / <kbd>-</kbd></td><td>Ingrandisci / riduci la tela</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>+</kbd> / <kbd>-</kbd>, <kbd>Ctrl</kbd> + <kbd>0</kbd>, <kbd>Ctrl</kbd> + <kbd>9</kbd></td><td>Zoom avanti / indietro, dimensione reale, adatta alla finestra</td></tr>
+	</table>
+	<p>
+		Un bordo strappato resta un elemento modificabile; <em>Applica all'immagine</em> nella barra degli strumenti lo rende parte dell'immagine.
+	</p>
+
+	<a name="editor-reuse"></a>
+	<h3>Aggiungere immagini e riutilizzare elementi</h3>
+	<ul>
+		<li>Trascina un file immagine in Gestione immagini, o incolla un'immagine con <kbd>Ctrl</kbd> + <kbd>V</kbd>. <em>Inserisci finestra</em> nel menu <em>Modifica</em> aggiunge la cattura di un'altra finestra aperta.</li>
+		<li>Usa gli stessi elementi su molte schermate: <em>Salva oggetti su file</em> nel menu <em>Oggetti</em>, e <em>Carica oggetti da file</em> sulla schermata successiva.</li>
+		<li>Salva come file <code>.greenshot</code> per mantenere modificabile ogni elemento e continuare più tardi.</li>
+	</ul>
+
+	<a name="editor-export"></a>
+	<h3>Salvare ed esportare</h3>
+	<table>
+		<tr><th>Tasti</th><th>Cosa fanno</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td><td><em>Salva</em>, nella cartella della <a href="greenshot://settings?tab=output">scheda Destinazione</a></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Maiusc</kbd> + <kbd>S</kbd></td><td><em>Salva come...</em>: scegli cartella, nome e formato dell'immagine</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Maiusc</kbd> + <kbd>C</kbd></td><td><em>Copia immagine negli Appunti</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>P</kbd></td><td><em>Stampa</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>E</kbd></td><td><em>Email</em>: un nuovo messaggio con l'immagine allegata</td></tr>
+	</table>
+	<p>
+		Il menu <em>File</em> e la barra degli strumenti in alto elencano tutte le tue destinazioni, anche quelle dei componenti aggiuntivi.
+		Dopo il salvataggio, fai clic con il tasto destro sulla barra di stato in basso per copiare il percorso del file o aprirne la cartella.
+	</p>
+
+	<a name="recipes"></a>
+	<h2>Passaggi automatici e ricette</h2>
+	<p>
+		Le ricette fanno cose con le tue catture in automatico, per esempio aggiungono un bordo a ogni cattura, o la salvano e la caricano in un colpo solo.
+		<em>Impostazioni rapide</em> &gt; <em>Passaggi automatici</em> nel menu dell'icona attiva o disattiva i passaggi già pronti,
+		<em>Altro…</em> apre le loro impostazioni nella <a href="greenshot://settings?tab=recipes">scheda Ricette</a>.
+		Il menu <em>Ricette</em> dell'icona avvia le tue ricette e apre il <a href="greenshot://recipe-manager">Gestione ricette</a> e il Recipe Editor.
+		Le ricette sono fornite dal componente aggiuntivo Recipe Editor.
+	</p>
+
+	<a name="settings"></a>
+	<h2>Le impostazioni</h2>
+	<p>Apri le impostazioni con <em>Impostazioni...</em> nel menu dell'icona, o con i collegamenti qui sotto.</p>
+	<ul>
+		<li><a href="greenshot://settings?tab=general">Generali</a>: lingua, colori (chiaro, scuro o come Windows), dimensione delle icone,
+			<em>Esegui Greenshot all'avvio del sistema</em>, i tasti rapidi, il proxy e ogni quanto Greenshot cerca aggiornamenti.</li>
+		<li><a href="greenshot://settings?tab=capture">Cattura</a>: catturare il puntatore del mouse, suono della fotocamera, lente, blocco dello schermo,
+			notifiche, l'attesa prima di una cattura, le tue dimensioni fisse, la cattura interattiva di finestre e la lingua del riconoscimento del testo.</li>
+		<li><a href="greenshot://settings?tab=output">Destinazione</a>: la cartella e lo schema del nome file per il salvataggio (fai clic su <em>?</em> per i segnaposto,
+			per esempio <code>${YYYY}-${MM}-${DD}</code> o <code>${title}</code>; una <code>\</code> nello schema crea cartelle), il formato dell'immagine e la qualità JPEG.</li>
+		<li><a href="greenshot://settings?tab=destination">Destinazione immagine</a>: cosa succede dopo una cattura, vedi <a href="#destinations">dove va la schermata</a>.</li>
+		<li><a href="greenshot://settings?tab=editor">Gestione immagini</a>: schede, la dimensione della finestra, la domanda sul salvataggio alla chiusura, e dimensione e colore di una nuova immagine.</li>
+		<li><a href="greenshot://settings?tab=printer">Stampante</a>: adattare l'immagine alla pagina, ruotarla o centrarla, stampare a colori, in scala di grigi o invertita, e un piè di pagina con data e ora.</li>
+		<li><a href="greenshot://settings?tab=plugins">Componenti aggiuntivi</a>: attivarli o disattivarli e configurarli. Le modifiche valgono dal prossimo avvio di Greenshot.</li>
+		<li><a href="greenshot://settings?tab=expert">Utente esperto</a>: impostazioni per casi particolari, per esempio desktop remoto, cattura con DirectX (necessaria per gli schermi HDR), memoria e velocità,
+			e i formati degli Appunti. Cambiale solo se sai cosa fanno.</li>
+	</ul>
+	<p class="hint">
+		Greenshot conserva le impostazioni in <code>greenshot.ini</code>, in <code>%APPDATA%\Greenshot</code> (la versione portable accanto a Greenshot.exe).
+		<a href="greenshot://self-service?section=files">File e configurazione</a> in Self-Service mostra dove si trova.
+	</p>
+
+	<a name="troubleshooting"></a>
+	<h2>Quando qualcosa non funziona</h2>
+	<p>
+		Self-Service controlla Greenshot e risolve la maggior parte dei problemi. Aprilo con <em>Info su Greenshot</em> nel menu dell'icona, poi <em>Self-Service</em>,
+		o vai direttamente alla sezione giusta:
+	</p>
+	<ul>
+		<li><kbd>Stamp</kbd> non fa nulla o apre altro: <a href="greenshot://self-service?section=hotkeys">Scorciatoie tastiera e conflitti</a>
+			mostra se OneDrive o lo Strumento di cattura hanno preso il tasto, e lo restituisce a Greenshot.</li>
+		<li>Non trovi le tue schermate: <a href="greenshot://self-service?section=files">File e configurazione</a> mostra dove le salva Greenshot.</li>
+		<li>La copia negli Appunti non riesce: <a href="greenshot://self-service?section=clipboard">Diagnostica Appunti</a> trova il programma che blocca gli Appunti.</li>
+		<li>Greenshot si chiude da solo o manca un componente aggiuntivo dopo un aggiornamento: <a href="greenshot://self-service?section=checksum">Integrità dell'installazione</a> controlla i file installati.</li>
+		<li>Segnalare un problema: <em>Copia info di sistema</em> in <a href="greenshot://self-service?section=system">Sistema e hardware</a> e gli
+			<a href="greenshot://log?search=ERROR">errori nel log</a> ci aiutano ad aiutarti. Segnala i problemi su
+			<a target="_blank" href="https://github.com/greenshot/greenshot/issues">github.com/greenshot/greenshot/issues</a>.</li>
+	</ul>
+
 	<a name="help"></a>
-	<h2>Vuoi aiutarci?</h2>
-	
-	<p>
-		Attualmente non abbiamo bisogno di aiuto per lo sviluppo.<br>
-		Tuttavia, ci sono molte cose che puoi fare per supportare Greenshot e il team di sviluppo.<br>
-		Grazie anticipatamente :)
-	</p>
-	
+	<h2>Vuoi aiutare?</h2>
+
 	<a name="help-donate"></a>
-	<h3>Fai una donazione</h3>
+	<h3>Considera una donazione</h3>
 	<p>
-		Stiamo lavorando molto su Greenshot e stiamo spendendo molto tempo per fornire un buon prodotto software gratuito e open source.<br>
-		Se ti sei reso conto che Greenshot ti ha reso più produttivo, e se fa risparmiare a te (o alla tua società) molto tempo e denaro, o se semplicemente ti piace Greenshot e l'idea di software open source considera di onorare i nostri sforzi con una donazione.<br>
-		Dai un'occhiata alla nostra home page per vedere come puoi aiutare il team di sviluppo di Greenshot:<br>
-		<a href="https://getgreenshot.org/support/">https://getgreenshot.org/support/</a>
+		Mettiamo molto lavoro in Greenshot per offrire un buon software gratuito e open source. Se ti rende più produttivo,
+		fa risparmiare tempo e denaro a te o alla tua azienda, o semplicemente ti piace Greenshot: considera di sostenerci.
+		Su <a target="_blank" href="https://getgreenshot.org/support/">https://getgreenshot.org/support/</a> trovi come puoi aiutare.
 	</p>
-	
+
 	<a name="help-spread"></a>
-	<h3>Spargi la parola</h3>
+	<h3>Passaparola</h3>
 	<p>
-		Se ti piace Greenshot, fallo sapere anche agli altri: racconta ai tuoi amici di Greenshot.<br>
-		Anche loro, a loro volta :)<br>
-		Commenta positivamente Greenshot sui portali di software, oppure metti un link sulla tua home page, blog o sito web.
+		Se ti piace Greenshot, parlane ad amici e colleghi. Valuta Greenshot nei portali di software o inserisci un collegamento alla nostra pagina nel tuo blog o sito web.
 	</p>
-	
-	<a name="help-translate"></a>
-	<h3>Invia una traduzione</h3>
 	<p>
-		Greenshot non è disponibile nella tua lingua preferita?<br>
-		Se ti senti in grado di tradurre un pezzo di software, sei più che benvenuto.<br>
-		Se sei un utente registrato su sourceforge.net, puoi inviare le traduzioni al nostro <a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">translations tracker</a>.<br>
-		Prima di farlo, assicurati che non esista già la traduzione sulla nostra <a href="https://sourceforge.net/projects/greenshot/files/">pagina download</a>.<br>
-		Controlla anche il nostro <a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">translations tracker</a>, ci potrebbe essere una traduzione in lavorazione, o almeno in discussione.<br>
-		Nota che forniremo una traduzione della nostra pagina di download solo se è stata inviata mediante il tuo account utente di sourceforge.net.<br>
-		Visto che molto probabilmente non siamo in grado di capire la traduzione, è opportuno che gli altri utenti di sourceforge possano essere in grado di contattarti per revisioni o miglioramenti in caso di nuove versioni di Greenshot.
+		Dai una stella a Greenshot su <a target="_blank" href="https://github.com/greenshot/greenshot">GitHub</a>, così altri lo trovano più facilmente:
+		<br><iframe src="https://ghbtns.com/github-btn.html?user=greenshot&amp;repo=greenshot&amp;type=star&amp;count=true&amp;size=large" frameborder="0" width="170" height="30" title="GitHub"></iframe>
 	</p>
-	
-	
-	
+
 	</body>
 </html>

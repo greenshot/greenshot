@@ -1,499 +1,360 @@
-<html>
+<!DOCTYPE html>
+<html lang="ca-ES-valencia">
 	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>Ajuda de Greenshot</title>
-
 		<style>
-		* {
-			font-family: Tahoma, Arial, Sans-serif;
-											   
-																					   
-		}
-		h1 {font-size:16px;}
-		h2 {font-size:14px;color:#009900;margin-top:24px;}
-		h3 {font-size:12px;margin-top:18px;}
-		small {font-size:10px;}
-		p, li {font-size:12px;line-height:1.5em}
-		a:link, a:hover, a:visited, a:active {color:#009900;}
-		kbd {background-color:#dddddd;border:1px solid #bbbbbb;padding:0 2px;border-radius:2px;}
-		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px;}
-		em {padding-right:0.2em;}				   
-													
-															  
-																				   
-													 
+		* {font-family: "Segoe UI", Tahoma, Arial, Sans-serif;}
+		body {max-width:60em;margin:0 auto;padding:0 16px 24px 16px;}
+		h1 {font-size:20px;}
+		h2 {font-size:16px;color:#009900;margin-top:28px;}
+		h3 {font-size:14px;margin-top:20px;}
+		small {font-size:11px;}
+		p, li, td, th {font-size:13px;line-height:1.5em;}
+		a:link, a:hover, a:visited, a:active {color:#007700;}
+		kbd {background-color:#eeeeee;border:1px solid #bbbbbb;padding:0 3px;border-radius:3px;white-space:nowrap;}
+		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px 8px;}
+		table {border-collapse:collapse;margin:6px 0;}
+		th, td {border:1px solid #dddddd;padding:3px 8px;text-align:left;vertical-align:top;}
+		th {background-color:#f2f2f2;}
+		em {font-style:normal;font-weight:bold;}
+		:root {--greenshot-icon:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAEgklEQVR4nO2WXWxTZRjHf+er3y0j3dhXuw8DHRsEJoPEBEY0CMEbPtR4gUiciYQgd4ImeqMRZuK9qBgwXBjDFcSQoASVz4RIXPnY5raAbN1GS7d1LWU9p2c9PV6UlBE76ACHFz5X7/l4/s/vvO95n/cvtLa2mjzDEJ9l8f8B/tsAjkqN6rVRLCWT/yqAXLB4RZoXD3cg2Qy0ESu/vtmCoUmzB1DSmESyGQDYytI4fRruuglqN0SIXfPQe7AOM/uUAKrXjEwRrsU0YfSPElK3bDiqNMY7PaRjCq0H+hBlE29zgniPm8g5L44qjcmkzGSy4HcUB9D8cW9O+Pk48V4XkXNeZGeG8zubsXgmuRuyo3gyCMKDiY3b+5m/dRBDk7j4/mJi1zyPBSBOFRYEWPhuP2uOXGLND5eQXRnMrIAeVwjuCxC76uH6935uX/BSuzEMgGQzqH45imQ3CGwbJNA2gOLKFD8DwfYAdZvCxK55iJz3svTDvpyw3cC3Nsp4Z+7Lhk/NY/jUvHziaHAOlavHABi7MoemHTep25yDclZrBPc2FAfgrEzz+weLmZyQ/iEcuzpn2sSOTxupWDWKOmJlvNODf300/8xRoWEv01nxeRcuv0r31/X0H60sqCN8YWIO/TyP4L4csahkqVw9hjpiJXa1+HWd25Sk5ZMekLIE9zZQ1pJgwbYQAIYmcmL9yoI7R4bclNm8Osv3dePyq/z5TT2xX2b2U413uzn1xor8taMynR+nIrZpt62cjin0HKqhdmOYuU1JABbtukHoeDlmViicVUQM/VSOIJo4fSr9xwpPP4B8ctMLOeJyPX9TjVqfqDiAmYXQ8YpHvidLdgNDlRg8UY6oZHPER6ueqPhMQnb5VZzVGrUbw8Q63XTvf+6ptdmiANKjVlZ9dQVRyVK6LE6iz0XkbOmsAYhZAxDu20Jhlh2CrCcULrcHqH81TKzTQ+Ssd3YB5m8ZQpBMLu5ZRGbi8U+1xwZo3HETAHddio7PiuvfNq/OivZunDUpeg5M32aLifyKO6rUopNqNoQpaUyiOA2adv6FIJrYKzR866JY5uqPFpgSsjZmQZRMer+rLTopFbblx2rUiq1U56XDHUh2A23Uwm9bl5NJFWfh5DNty9Djyoyoh0+WI1lMnP4UA8eqKFl4F8l+z8KV6rj8Kk6fSu2mMOOdbnq+rZ/+LFh9sIPTbxVPDLk2O/Dj/TarJ2Qmhuw4fSrjXW60qJWV+y8jKibepQnivW7Cpwv3FtlepuOqUbGXazlj0uWm79DMTKfiznBh1xIsngx3B+0oTgOKPErkeI+LVMTKyi/vdcOWOHeuuwifLsVRkUZPSg/dng3vDBB4O5TzhrsXYRoO9Dsywb0N1G3OLcHDOqt84b1mZLvxYDcUTAJtAzS0hTBUiYt7Fk9rTqZ6Q9+6KIk+N/WvDyMqWS591PRIxyxmJwX0OzKX2wOMd3m4caSa8JlS6l+7lRO2G/hfuY1oyTJ/yxALtoWQHUZeYCxYkh+PdpTQtOMmjdv7aWgLsWT39YcWB/gbBUPC48UgfpEAAAAASUVORK5CYII=);}
+		h1 {background:var(--greenshot-icon) no-repeat left center;background-size:32px;padding-left:40px;line-height:32px;}
+		a[href^="greenshot:"] {background:#eef8ee var(--greenshot-icon) no-repeat 3px center;background-size:16px;border:1px solid #99cc99;border-radius:3px;padding:0 4px 0 22px;text-decoration:none;white-space:nowrap;}
+		a[href^="greenshot:"]:hover {background-color:#ddf0dd;}
+		[dir="rtl"] h1 {background-position:right center;padding-left:0;padding-right:40px;}
+		[dir="rtl"] a[href^="greenshot:"] {background-position:right 3px center;padding:0 22px 0 4px;}
 		</style>
 	</head>
 	<body>
 	<h1>Ajuda de Greenshot</h1>
-	
-	<small>Versió 1.0. Traducció al valencià del contingut de l'ajuda, per Daniel Seguí.</small>
-	<h2>Continguts</h2>
+	<!--
+	Note to translator: uncomment the entry below to have your effort honored
+	-->
+	<!--<small>Traducció al valencià de l'ajuda: EL_TEU_NOM (versió anterior: Daniel Seguí)</small>-->
+
+	<p class="hint">
+		Els enllaços que comencen per <code>greenshot:</code>, com <a href="greenshot://settings">obrir les preferències</a>,
+		obrin eixa finestra de Greenshot. Funcionen quan Greenshot s'ha instal·lat amb l'instal·lador, no en la versió
+		portàtil ni en Greenshot Light. És possible que el navegador pregunte abans d'obrir Greenshot.
+	</p>
+
+	<h2>Contingut</h2>
 	<ol>
-		<li><a href="#screenshot">Fent una captura de pantalla</a></li>
-		<ol>
-			<li><a href="#capture-region">Capturar regió</a></li>
-			<li><a href="#capture-last-region">Capturar l'última regió</a></li>
-			<li><a href="#capture-window">Capturar finestra</a></li>
-			<li><a href="#capture-fullscreen">Capturar pantalla completa</a></li>
-			<li><a href="#capture-ie">Capturar Internet Explorer</a></li>															   
-		</ol>
-
-		<li><a href="#editor">Usant l'editor d'image</a></li>
-		<ol>
-			<li><a href="#editor-shapes">Dibuixant formes</a></li>
-			<li><a href="#editor-text">Afegint text</a></li>
-			<li><a href="#editor-highlight">Ressaltant coses</a></li>
-			<li><a href="#editor-obfuscate">Escurint coses</a></li>
-			<li><a href="#editor-effects">Afegint efectes</a></li>
-			<li><a href="#editor-crop">Retallant la captura de pantalla</a></li>
-			<li><a href="#editor-adding-graphics">Afegint gràfics a una captura de pantalla</a></li>
-			<li><a href="#editor-reuse-elements">Reutilisant elements dibuixats</a></li>
-			<li><a href="#editor-export">Exportant la captura de pantalla</a></li>
-		</ol>
-
-		<li><a href="#settings">El diàlec de configuració</a></li>
-		<ol>
-			<li><a href="#settings-general">Configuració general</a></li>	
-			<li><a href="#settings-capture">Configuració de captura</a></li>			
-			<li><a href="#settings-output">Configuració d'eixida</a></li>
-			<li><a href="#settings-destination">Configuració de destí</a></li>			
-			<li><a href="#settings-printer">Configuració d'impressora</a></li>
-			<li><a href="#settings-expert">Configuració d'experts</a></li>
-		</ol>
-		
-		<li><a href="#help">¿Vol ajudar?</a></li>
-		<ol>
-			<li><a href="#help-donate">Considere una donació</a></li>
-			<li><a href="#help-spread">Escampa la paraula</a></li>
-			<li><a href="#help-translate">Envie una traducció</a></li>
-		</ol>
+		<li><a href="#start">Primers passos</a></li>
+		<li><a href="#screenshot">Fer una captura de pantalla</a>
+			<ol>
+				<li><a href="#capture-screen">La pantalla de captura</a></li>
+				<li><a href="#capture-modes">Regió, finestra, mida fixa i text</a></li>
+				<li><a href="#capture-keys">Tecles mentres seleccioneu</a></li>
+				<li><a href="#capture-live">Seleccionar sense congelar la pantalla</a></li>
+			</ol>
+		</li>
+		<li><a href="#destinations">On va la captura</a></li>
+		<li><a href="#editor">L'editor d'imàgens</a>
+			<ol>
+				<li><a href="#editor-tabs">Pestanyes</a></li>
+				<li><a href="#editor-tools">Ferramentes de dibuix</a></li>
+				<li><a href="#editor-highlight">Ressaltar i ocultar</a></li>
+				<li><a href="#editor-crop">Retallar</a></li>
+				<li><a href="#editor-effects">Efectes, girar i canviar la mida</a></li>
+				<li><a href="#editor-reuse">Afegir imàgens i reutilitzar elements</a></li>
+				<li><a href="#editor-export">Guardar i exportar</a></li>
+			</ol>
+		</li>
+		<li><a href="#recipes">Passos automàtics i receptes</a></li>
+		<li><a href="#settings">Les preferències</a></li>
+		<li><a href="#troubleshooting">Quan alguna cosa no funciona</a></li>
+		<li><a href="#help">Voleu ajudar?</a></li>
 	</ol>
 
+	<a name="start"></a>
+	<h2>Primers passos</h2>
+	<p>
+		Greenshot s'executa en segon pla. La seua icona està al costat del rellotge, en l'àrea de notificació de la barra de tasques.
+		Feu-hi clic amb el botó dret del ratolí per a obrir el menú amb totes les captures, les <em>Preferències...</em> i esta ajuda.
+	</p>
+	<p class="hint">
+		No veieu la icona? Windows 11 pot amagar-la darrere de la fletxa (^). <a href="greenshot://self-service?section=setup">La seua configuració</a>
+		en Autoservici la mostra al costat del rellotge i també comprova si la tecla <kbd>Impr Pant</kbd> arriba a Greenshot.
+	</p>
+
 	<a name="screenshot"></a>
-	<h2>Fent una captura de pantalla</h2>
+	<h2>Fer una captura de pantalla</h2>
+	<p>Comenceu una captura amb una tecla d'accés ràpid o des del menú de la icona de Greenshot:</p>
+	<table>
+		<tr><th>Captura</th><th>Tecla d'accés ràpid</th><th>Què passa</th></tr>
+		<tr><td><em>Capturar regió</em></td><td><kbd>Impr Pant</kbd></td><td>S'obri la pantalla de captura i seleccioneu què voleu capturar.</td></tr>
+		<tr><td><em>Capturar finestra</em></td><td><kbd>Alt</kbd> + <kbd>Impr Pant</kbd></td><td>Captura la finestra activa immediatament. Amb <em>Usar el modo interactiu de captura de finestres</em> (<a href="greenshot://settings?tab=capture">pestanya Captura</a>) trieu la finestra en la pantalla de captura.</td></tr>
+		<tr><td><em>Capturar pantalla completa</em></td><td><kbd>Ctrl</kbd> + <kbd>Impr Pant</kbd></td><td>Captura la pantalla immediatament. Amb més d'un monitor, el menú de la icona oferix tots els monitors o un d'ells.</td></tr>
+		<tr><td><em>Capturar l'última regió</em></td><td><kbd>Shift</kbd> + <kbd>Impr Pant</kbd></td><td>Torna a capturar la mateixa àrea que la vostra última captura.</td></tr>
+		<tr><td><em>Obrir image des del portapapers</em></td><td>cap</td><td>Obri la imatge del portapapers.</td></tr>
+	</table>
 	<p>
-		Pot crear una captura de pantalla bé utilisant la tecla <kbd>Print</kbd> del seu teclat,
-		o bé fent clic dret sobre l’icon de Greenshot en la barra del sistema.<br>
-		Hi ha diverses opcions per a crear una captura de pantalla:
+		El menú també té <em>Capturar finestra des de la llista</em>, que captura una finestra oberta que trieu sense la pantalla de captura,
+		<em>Obrir image des d'archiu</em> i <em>Obrir l'última captura</em>.
+		Podeu canviar les tecles d'accés ràpid en les <a href="greenshot://settings?tab=general">preferències, pestanya General</a>.
 	</p>
 
-	<a name="capture-region"></a>
-	<h3>Capturar regió <kbd>Print</kbd></h3>
+	<a name="capture-screen"></a>
+	<h3>La pantalla de captura</h3>
 	<p>
-		El modo capturar regió li permet triar la part de la pantalla que serà capturada.
-		<br>
-		Després d'iniciar el modo regió, 
-		vosté vorà una llínea vertical i una atra horisontal creuant-se en un punt controlat pel ratolí.
-		Faja clic i prema el botó esquerre del ratolí on vosté vol que estiga un dels cantons
-		del rectàngul a capturar.
-		Mantinga el botó apretat i arrastre la flecha per a definir el rectàngul;
-		quan el rectàngul vert
-		cobrixca l'àrea que vosté desija capturar, ya pot soltar-lo.
+		Greenshot fa una imatge de tots els vostres monitors i la mostra damunt de tot. Res no canvia mentres seleccioneu,
+		així que un menú obert o un indicador de funció es queden on estaven. Només es captura la part que seleccioneu. <kbd>Esc</kbd> tanca la pantalla
+		de captura sense capturar res.
+	</p>
+	<p>Damunt de la imatge veieu:</p>
+	<ul>
+		<li>la <em>selecció</em> amb la seua mida,</li>
+		<li>el <em>zoom</em>, una lupa al costat del ratolí que mostra cada píxel, perquè pugueu col·locar una cantonada amb exactitud,</li>
+		<li>panells en les cantonades: les <em>tecles</em> (<kbd>F1</kbd>), la <em>informació</em> (<kbd>I</kbd>) i la <em>previsualització</em> de la selecció (<kbd>P</kbd>).
+			S'aparten soles del vostre camí.</li>
+	</ul>
+	<p class="hint">
+		Premeu <kbd>F1</kbd> mentres seleccioneu: el panell de tecles sempre mostra les tecles que funcionen en eixe moment.
+		Greenshot recorda quan amagueu un panell, <kbd>F1</kbd> o <kbd>I</kbd> el torna a mostrar.
+	</p>
 
+	<a name="capture-modes"></a>
+	<h3>Regió, finestra, mida fixa i text</h3>
+	<ul>
+		<li><em>Regió</em>: arrossegueu un rectangle amb el ratolí, en soltar el botó es captura. Amb el teclat: les tecles de fletxa mouen el ratolí,
+			<kbd>Enter</kbd> comença la selecció i <kbd>Enter</kbd> una altra vegada la captura. Manteniu <kbd>Shift</kbd> per a canviar només l'amplària o només l'altura.</li>
+		<li><em>Finestra</em> (<kbd>Espai</kbd>): se selecciona la finestra que hi ha davall del ratolí, un clic o <kbd>Enter</kbd> la captura.
+			Greenshot selecciona la part més interior, per exemple una barra de ferramentes; aneu a la vora exterior d'una finestra per a seleccionar la finestra sencera.
+			<kbd>Tab</kbd> i <kbd>Shift</kbd> + <kbd>Tab</kbd> seleccionen la finestra següent o l'anterior.</li>
+		<li><em>Mida fixa</em> (<kbd>F</kbd>): un rectangle d'una mida exacta, per exemple 1280 × 720, seguix el ratolí. <kbd>1</kbd> – <kbd>9</kbd> trien una mida,
+			<kbd>C</kbd> canvia la cantonada que subjecta el ratolí, manteniu <kbd>Alt</kbd> per a col·locar-lo sense ajustar-lo a les finestres. Les vostres pròpies mides es configuren en la
+			<a href="greenshot://settings?tab=capture">pestanya Captura</a>, i també s'oferixen les mides de les vostres últimes captures.</li>
+		<li><em>Text</em> (<kbd>T</kbd>): Greenshot llig el text de la pantalla amb el reconeixement de text de Windows i emmarca cada línia.
+			Feu clic en una línia, o arrossegueu per damunt de paraules, per a capturar-les. Per a obtindre les paraules com a text, envieu la captura a <em>Windows OCR</em>,
+			que copia el text al portapapers. Cal tindre un idioma de reconeixement instal·lat en Windows; l'idioma es tria en la
+			<a href="greenshot://settings?tab=capture">pestanya Captura</a>, <em>Reconeiximent de text (OCR)</em>.</li>
+	</ul>
+	<p class="hint">
+		Amb el plugin de codis QR, Greenshot troba els codis QR de la pantalla i els emmarca. Feu clic en un per a copiar-ne el contingut o obrir-ne l'adreça web.
+	</p>
+
+	<a name="capture-keys"></a>
+	<h3>Tecles mentres seleccioneu</h3>
+	<table>
+		<tr><th>Tecla</th><th>Què fa</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Cancel·lar la captura</td></tr>
+		<tr><td><kbd>Espai</kbd></td><td>Canviar entre regió i finestra</td></tr>
+		<tr><td><kbd>F</kbd> / <kbd>T</kbd></td><td>Capturar una mida fixa / capturar text</td></tr>
+		<tr><td><kbd>M</kbd></td><td>Mostrar o amagar el cursor del ratolí en la captura</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Canviar entre la pantalla congelada i la pantalla en directe</td></tr>
+		<tr><td><kbd>Z</kbd></td><td>Mostrar o amagar el zoom</td></tr>
+		<tr><td><kbd>F1</kbd> / <kbd>I</kbd> / <kbd>P</kbd></td><td>Mostrar o amagar les tecles / la informació / moure o amagar la previsualització</td></tr>
+		<tr><td>Tecles de fletxa</td><td>Moure el ratolí un píxel, amb <kbd>Ctrl</kbd> deu píxels</td></tr>
+		<tr><td><kbd>Enter</kbd></td><td>Començar o acabar la selecció, capturar la finestra</td></tr>
+	</table>
+
+	<a name="capture-live"></a>
+	<h3>Seleccionar sense congelar la pantalla</h3>
+	<p>
+		Desactiveu <em>Congelar la pantalla mentres se selecciona</em> en la <a href="greenshot://settings?tab=capture">pestanya Captura</a>, o premeu
+		<kbd>L</kbd> mentres seleccioneu, i seleccionareu sobre la pantalla en directe: un vídeo continua reproduint-se i la captura es fa quan acabeu
+		la selecció. El modo de text i la previsualització necessiten la imatge congelada. Els menús oberts normalment es tanquen quan feu clic, així que per a ells useu la pantalla congelada.
 	</p>
 	<p class="hint">
-		Pot usar la tecla <kbd>Space</kbd> per a canviar entre el modo regió i el modo
-	<a href="#capture-window">finestra</a>.
-	</p>
-	<p class="hint">
-		Si vosté vol capturar una àrea exacta, pot ser més fàcil triar una àrea inicial
-		llaugerament més gran i després 
-		<a href="#editor-crop">retallar-la</a> usant
-		l'editor d'imàgens de Greenshot.
+		Alguna cosa apareix només després d'un moment? Configureu <em>Milisegons d'espera abans de capturar</em> en la
+		<a href="greenshot://settings?tab=capture">pestanya Captura</a>, o seleccioneu sobre la pantalla en directe.
 	</p>
 
-	<a name="capture-last-region"></a>
-	<h3>Capturar l'última regió <kbd>Shift</kbd> + <kbd>Print</kbd></h3>
-
+	<a name="destinations"></a>
+	<h2>On va la captura</h2>
 	<p>
-		Si vosté ha fet una captura de la <a href="#capture-region">regió</a>
-		o de la <a href="#capture-window">finestra</a>, pot capturar eixa mateixa àrea usant esta opció.
+		Després de la captura, Greenshot envia la captura als vostres destins. Per defecte pregunta cada vegada amb un menú xicotet.
+		Cada destí d'eixe menú té una lletra subratllada fixa, per exemple <kbd>C</kbd> per al portapapers i <kbd>S</kbd> per a guardar, perquè el pugueu triar amb el teclat.
+		Trieu els vostres destins en la <a href="greenshot://settings?tab=destination">pestanya Destí</a>, o en <em>Preferències ràpides</em> del menú de la icona.
 	</p>
-
-
-	<a name="capture-window"></a>
-	<h3>Capturar finestra <kbd>Alt</kbd> + <kbd>Print</kbd></h3>
+	<ul>
+		<li><em>Obrir en l'editor d'imàgens</em>: anoteu primer la captura, vegeu <a href="#editor">l'editor d'imàgens</a>.</li>
+		<li><em>Guardar directament</em> usa la carpeta i el patró de nom d'arxiu de la <a href="greenshot://settings?tab=output">pestanya Eixida</a>, <em>Guardar com</em> els pregunta.</li>
+		<li><em>Copiar al portapapers</em>, <em>Enviar a la impressora</em>, <em>Correu electrònic</em>, <em>Windows share</em> i <em>Windows OCR</em> (copia el text de la captura).</li>
+		<li>Els plugins afigen més destins, per exemple Microsoft Word, Excel, PowerPoint, Outlook i OneNote, PDF, Box, Dropbox, Jira i Confluence.
+			Es configuren en la <a href="greenshot://settings?tab=plugins">pestanya Plugins</a>, on també podeu desactivar un plugin.</li>
+	</ul>
 	<p>
-		Fa una captura de la finestra activa.
+		La columna <em>Disponibles</em> de la <a href="greenshot://settings?tab=destination">pestanya Destí</a> desactiva un destí a tot arreu.
+		Quines notificacions rebeu després d'una captura es configura en la <a href="greenshot://settings?tab=capture">pestanya Captura</a>, <em>Notificacions</em>.
 	</p>
-	<p class="hint">
-		Per als sistemes Windows 7 o Vista, utilitze l’opció de configuració de Captura de Finestra per a controlar
-		com tracta Greenshot els bordes semitransparents (Aero), p. ex., substituint
-		la transparència per un color personalisat.
-	</p>
-	<p class="hint">
-		El <a href="#settings">diàlec de configuració</a> oferix una opció per a no capturar
-		automàticament la finestra activa, sinó permetre-li seleccionar-ne una de manera interactiva.
-		Si esta opció està activada, podrà seleccionar una finestra fent clic sobre ella
-		(igual que en el <a href="#capture-region">modo de captura de regió</a>, Greenshot
-		ressaltarà l’àrea que serà capturada).<br>Si desija que es capture una finestra filla (p. ex., el visor d’un navegador
-		—sense barres d’eines, etc.— o un únic marc d’una pàgina web que use framesets),
-		situe el cursor del ratolí sobre la finestra i polse la tecla <kbd>PgDown</kbd>.
-		Després de fer-ho, podrà seleccionar els elements fills de la finestra que vullga capturar.
-	</p>
-	<p class="hint">
-		Capturar menús contextuals a soles és diferent: si uses la drecera «Capturar finestra» 
-		el menú contextual desapareixerà, i evidentment passarà el mateix si uses el menú
-		contextual de Greenshot per a crear la captura de pantalla. Si vols capturar un menú
-		contextual que acabes d'obrir fent clic dret sobre qualsevol element, simplement activa el
-		modo de regió. <kbd>Imprimir</kbd>, apreta la tecla<kbd>Espai</kbd>.
-	</p>
-	<a name="capture-fullscreen"></a>
-	<h3>Capturar pantalla completa <kbd>Control</kbd> + <kbd>Print</kbd></h3>
-		Fa una captura de tota la pantalla.																		 																			  
-	</p>
-
-	<a name="capture-ie"></a>
-	<h3>Capture Internet Explorer <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>Print</kbd></h3>
-	<p>
-		Crea còmodament una captura d’una pàgina web que tinga actualment oberta en Internet Explorer.
-		Utilise el menú contextual de Greenshot per a seleccionar la pestanya d’Internet Explorer que desija capturar, o polse
-		<kbd>Crtl</kbd> + <kbd>Shift</kbd> + <kbd>Print</kbd> per a capturar la pestanya activa.
-	</p>
-
 
 	<a name="editor"></a>
-	<h2>Usant l'editor d'image</h2>
-
+	<h2>L'editor d'imàgens</h2>
 	<p>
-		Greenshot té un editor d'image molt fàcil d'usar, oferint un conjunt còmode i complet
-		de funcionalitats per a afegir anotacions o formes a la captura de pantalla.
-		Permet inclús ressaltar o escureir parts de la seua captura.
+		L'editor afig formes, text, fletxes, ressaltats i més a una captura, o amaga el que els altres no han de veure.
+		A més de les vostres captures, obri imàgens des d'un arxiu o des del portapapers (menú de la icona).
+		Tot el que dibuixeu continua sent un element que podeu seleccionar, moure, canviar o eliminar.
 	</p>
 
-	<p class="hint">
-		L'editor d'imàgens de Greenshot pot usar-se no sols per a captures de pantalla.
-		També pot obrir imàgens per a editar-les des d'un archiu o des del portapapeis.
-		Preme el botó dret del ratolí sobre l'icona de Greenshot en la barra
-		de tasques del sistema i trie <em>"Obrir image des d'archiu"</em> o
-		<em>"Obrir image des del portapapeis"</em>.
-	</p>
-
-	<p class="hint">
-		Per defecte, l'editor d'imàgens s'obrirà cada vegada que una
-		image de pantalla siga capturada. Si no desija usar l'editor d'imàgens,
-		pot desactivar este comportament en el
-		<a href="#settings">quadro de configuració</a>.
-	</p>
-
-	<a name="editor-shapes"></a>
-	<h3>Dibuixant formes</h3>
-
+	<a name="editor-tabs"></a>
+	<h3>Pestanyes</h3>
 	<p>
-		Seleccione una de les ferramentes de dibuix de formes en la barra de ferramentes situada en el costat esquerre
-		de l’editor d’imàgens, o bé des del menú <em>Objecte</em>. També hi ha una tecla assignada
-		a cada ferramenta per a la seua comoditat.
-		<br>Les formes disponibles són: rectàngul <kbd>R</kbd>, elipse <kbd>E</kbd>, llínea <kbd>L</kbd>,
-		fletxa <kbd>A</kbd> i llínea a mà alçada <kbd>F</kbd>.
-		<br>Faça clic, mantinga pulsat el botó del ratolí i arrossegue per a definir la posició i la mida de la forma.
-		Solte el botó del ratolí quan haja acabat.
-
+		Una finestra de l'editor mostra diverses imàgens com a pestanyes, i una captura nova s'obri com a pestanya en l'última finestra de l'editor que heu usat.
+		<kbd>Ctrl</kbd> + <kbd>Tab</kbd> va a la pestanya següent i <kbd>Ctrl</kbd> + <kbd>W</kbd> en tanca una. Arrossegueu una pestanya a una altra finestra de l'editor,
+		o feu-hi clic amb el botó dret del ratolí per a moure-la a una finestra nova. El <em>+</em> de la barra de pestanyes comença una imatge nova i buida.
+		Quan tanqueu una finestra amb imàgens sense guardar, Greenshot pregunta una vegada: <em>Guardar tot</em>, <em>Descartar tot</em> o cancel·lar.
+		Preferiu una finestra per captura? Desactiveu les pestanyes en la <a href="greenshot://settings?tab=editor">pestanya Editor</a>.
 	</p>
 
+	<a name="editor-tools"></a>
+	<h3>Ferramentes de dibuix</h3>
 	<p>
-	Pot moure o redimensionar formes existents després d'haver triat la
-	<em>Ferramenta de Selecció</em> <kbd>ESC</kbd>.
-	Cada element té un conjunt d'opcions específiques disponibles
-	per a canviar l'aparença (per eixemple: grossor de llínea, color de llínea,
-	color de fondo). Pot canviar les opcions d'un element existent després
-	de seleccionar-lo, o establir les opcions per al següent element
-	abans de dibuixar-lo.
+		Trieu una ferramenta a l'esquerra de l'editor, en el menú <em>Objecte</em> o amb la seua tecla, i després arrossegueu sobre la imatge.
+		La barra de ferramentes de dalt mostra les opcions de la ferramenta o dels elements seleccionats, per exemple el color de línia, el color d'emplenat i el gruix.
 	</p>
+	<table>
+		<tr><th>Tecla</th><th>Ferramenta</th><th>Tecla</th><th>Ferramenta</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Ferramenta de selecció</td><td><kbd>S</kbd></td><td>Bafarada</td></tr>
+		<tr><td><kbd>R</kbd></td><td>Rectangle</td><td><kbd>I</kbd></td><td>Comptador (passos numerats)</td></tr>
+		<tr><td><kbd>E</kbd></td><td>El·lipse</td><td><kbd>M</kbd></td><td>Emoji</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Línia</td><td><kbd>H</kbd></td><td>Ressaltar</td></tr>
+		<tr><td><kbd>A</kbd></td><td>Fletxa</td><td><kbd>O</kbd></td><td>Ocultar</td></tr>
+		<tr><td><kbd>F</kbd></td><td>A mà alçada</td><td><kbd>C</kbd></td><td>Retallar</td></tr>
+		<tr><td><kbd>T</kbd></td><td>Text</td><td><kbd>Z</kbd></td><td>Canviar la mida de la imatge</td></tr>
+	</table>
+	<ul>
+		<li>Manteniu <kbd>Shift</kbd> mentres dibuixeu per a un quadrat o un cercle, o per a línies en passos de 15°; en canviar la mida es manté la proporció.
+			Manteniu <kbd>Ctrl</kbd> per a dibuixar o canviar la mida des del centre, pràctic per a una el·lipse al voltant d'alguna cosa.</li>
+		<li>Text: dibuixeu el quadre de text i escriviu. Feu doble clic en un text per a canviar-lo, <kbd>Enter</kbd> acaba, <kbd>Shift</kbd> + <kbd>Enter</kbd> comença una línia nova.</li>
+		<li>Elements seleccionats: les tecles de fletxa els mouen (amb <kbd>Shift</kbd> deu píxels), <kbd>Ctrl</kbd> + fletxes en canvien la mida,
+			<kbd>Re Pàg</kbd> / <kbd>Av Pàg</kbd> els pugen o baixen un nivell, <kbd>Supr</kbd> els elimina, <kbd>Ctrl</kbd> + <kbd>D</kbd> els duplica.
+			Manteniu <kbd>Shift</kbd> i feu clic per a seleccionar diversos elements.</li>
+		<li><kbd>Ctrl</kbd> + <kbd>Z</kbd> desfà, <kbd>Ctrl</kbd> + <kbd>Y</kbd> refà.</li>
+	</ul>
 
-	<p class="hint">
-	Pot seleccionar múltiples elements alhora per tal d'editar-los.	Per a seleccionar diversos elements, mantinga la tecla
-	<kbd>Shift</kbd> apretada mentres fa clic damunt d'ells.
-	
-	</p>
-	<p class="hint">
-		Si vol dibuixar formes equilàteres (p. eix., forçar que un rectàngul siga un quadrat), mantinga
-		pulsada la tecla <kbd>Shift</kbd> mentres dibuixa. Quan dibuixa línies o fleches, mantindre
-		pulsada la tecla <kbd>Shift</kbd> fa que l’àngul de la llínea s'arredonixca en passos de 15°.
-		També pot usar <kbd>Shift</kbd> si vol redimensionar un objecte existent mantenint la seua proporció. 
-	</p>
-	<p class="hint">
-		Quan dibuixa o escala un objecte, pot mantindre pulsada la tecla <kbd>Ctrl</kbd> per a que l’objecte quede ancorat en el seu centre geomètric.
-		És dir, l’objecte es redimensiona també en la direcció contrària.
-		(Açò és molt útil si vol dibuixar una elipse al voltant d’alguna cosa en la seua captura.)
-	</p>	 
-	<a name="editor-text"></a>
-	<h3>Afegint text</h3>
-
-	<p>
-		L'ús de la ferramenta de text <kbd>T</kbd> és similar a l'ús de la ferramenta
-		<a href="#editor-shapes">forma</a>.<br>
-		Simplement dibuixe l'àrea del text en el tamany desijat i, tot seguit,
-		escriga el text en ella.<br>
-		Per a editar un element de text ya existent, faça doble clic damunt d'ell.
-	</p>
-	<p class="hint">
-		Si necessita inserir salts de línia dins d’una caixa de text, polse <kbd>Shift</kbd> + <kbd>Return</kbd> o
-		<kbd>Shift</kbd> + <kbd>Enter</kbd>.
-	</p>
-	
 	<a name="editor-highlight"></a>
-	<h3>Ressaltant coses</h3>
-
-	<p>
-	Després de triar la ferramenta “Ressaltar” <kbd>H</kbd>, pot definir l'àrea a ressaltar
-	de la mateixa forma que dibuixa una
-	<a href="#editor-shapes">forma</a>.<br>
-	Hi ha diverses opcions per a la ferramenta Ressaltar, fent clic
-	en el botó més a l'esquerra de la barra d'eines superior:
-	</p>
-
+	<h3>Ressaltar i ocultar</h3>
+	<p>Dibuixeu l'àrea de ressaltat (<kbd>H</kbd>) o d'ocultació (<kbd>O</kbd>) com un rectangle i trieu el modo en la barra de ferramentes:</p>
 	<ul>
-		<li>Ressaltar text</em>: ressalta una àrea aplicant-li un color viu, 
-			igual que un subratllador de text d’oficina.</li>
-		<li><em>Ressaltar àrea</em>: difumina<a href="#hint-blur">*</a> i enfosquix tot allò que queda fora de l’àrea seleccionada.</li>
-		<li><em>Escala de grisos</em>: tot el que quede fora de l’àrea seleccionada es convertirà en escala de grisos.</li>
-		<li><em>Aumentar</em>: l'àrea seleccionada es mostrarà ampliada.</li>
+		<li><em>Ressaltar text</em> pinta l'àrea com un retolador fluorescent, <em>Ressaltar àrea</em> enfosquix i difumina tota la resta,
+			<em>Escala de grisos</em> torna gris tota la resta, <em>Magnificar</em> amplia l'àrea.</li>
+		<li><em>Pixelar</em> o <em>Difuminar</em> amaguen contrasenyes, noms, números de compte o cares.</li>
 	</ul>
 
-	<a name="editor-obfuscate"></a>
-	<h3>Enfosquint coses</h3>
-
-	<p>
-	Enfosquir parts d'una captura és una bona idea si conté dades sensibles
-	que no vol que altres persones vegen (informació bancària, noms,
-	contrasenyes o cares en imàgens).<br>
-	Use la ferramenta d'escurir <kbd>O</kbd> igual que la ferramenta
-	<a href="#editor-highlight">ressaltar</a>.<br>
-	Opcions disponibles per a l'escuriment:
-	</p>
-
-	<ul>
-		<li><em>Pixelar</em>: augmenta la mida del pixel en l'àrea seleccionada.</li>
-		<li><em>Difuminar</em> (Blur) <a href="#hint-blur">*</a>: difumina l'àrea seleccionada.</li>
-	</ul>
-
-	<a name="hint-blur"></a>
-	<p class="hint">
-	* Depenent del rendiment del seu ordinador, aplicar el difuminat
-	pot fer que l'editor vaja més lent.
-	Si nota lentitut quan s'aplica difuminar, prove a reduir el valor de
-	<em>“Calitat de vista prèvia”</em> o el valor del
-	<em>“Radi de difuminar”</em> en la barra d'eines.<br>
-	Si el rendiment continua sent baix, pot provar l'efecte
-	<i>pixelar</i>.
-	</p>
-	
-	<a name="editor-effects"></a>
-	<h3>Adding effects</h3>
-	<p>
-		Pot afegir diferents efectes a la seua captura de pantalla. Potser desija aplicar un borde, una ombra o 
-		un efecte de vores esgarrades, per a separar visualment la seua captura d’altres continguts dins d’un document.
-		Els efectes d’Escala de grisos i d’Invertir són especialment útils abans d’imprimir, ya que permeten estalviar tinta o tòner quan 
-		s’imprimixen captures molt colorides o fosques.
-	</p>
 	<a name="editor-crop"></a>
-	<h3>Retallant la captura de pantalla</h3>
-
+	<h3>Retallar</h3>
 	<p>
-	Si només necessita part de la captura, use la ferramenta “Retallar”
-	prement <kbd>C</kbd> per a seleccionar l'àrea desijada.<br>
-	Després de seleccionar la ferramenta, dibuixe un rectàngul sobre l'àrea
-	que vol conservar. Pot reajustar el tamany com en qualsevol element.<br>
-	Quan estiga satisfet en la selecció, prema el botó de confirmació
-	en la barra d'eines o <kbd>Enter</kbd>.
-	Pot cancelar el retall en el botó de Cancel·lar o <kbd>ESC</kbd>.
+		Trieu la ferramenta de retall (<kbd>C</kbd>) i dibuixeu l'àrea que voleu conservar, <kbd>Enter</kbd> confirma, <kbd>Esc</kbd> cancel·la.
+		Premeu <kbd>C</kbd> una altra vegada, o useu <em>Modo de retall</em> en la barra de ferramentes, per a canviar el modo:
 	</p>
-	 <p class="hint">
-		<em>Auto-Crop</em>: Si necessita retallar un borde d’un color de fons uniforme de la seua captura,
-		simplement trie <em>Auto-Crop</em> en el menú <em>Editar</em> i Greenshot seleccionarà automàticament
-		l’àrea que s’ha de retallar.
-	</p>
-	
-	<a name="editor-rotate"></a>
-	<p class="hint">
-		Utilise les ferramentes de rotació per a girar la captura de pantalla en sentit horari o antihorari.
-	</p>
+	<ul>
+		<li><em>Retallar verticalment</em> o <em>Retallar horisontalment</em> lleva una franja de la imatge i unix la resta, per exemple per a deixar fora
+			la part central buida d'una pàgina llarga. <em>Vores de tall</em> tria com es veu la unió: recta, en zig-zag, ondulada, estripada o sense costura.</li>
+		<li><em>Retall automàtic</em> lleva una vora d'un sol color al voltant de la imatge.</li>
+	</ul>
 
-	<a name="editor-adding-graphics"></a>
-	<h3>Afegir gràfics a una captura de pantalla</h3>
+	<a name="editor-effects"></a>
+	<h3>Efectes, girar i canviar la mida</h3>
+	<table>
+		<tr><th>Tecles</th><th>Què fan</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Q</kbd></td><td>Ombra</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>B</kbd></td><td>Vora</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>T</kbd></td><td>Vora estripada</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>G</kbd> / <kbd>Ctrl</kbd> + <kbd>I</kbd></td><td>Escala de grisos / invertir, per exemple per a estalviar tinta en imprimir</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>,</kbd> / <kbd>Ctrl</kbd> + <kbd>.</kbd></td><td>Girar en sentit antihorari / horari</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>+</kbd> / <kbd>-</kbd></td><td>Fer el llenç més gran / més xicotet</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>+</kbd> / <kbd>-</kbd>, <kbd>Ctrl</kbd> + <kbd>0</kbd>, <kbd>Ctrl</kbd> + <kbd>9</kbd></td><td>Ampliar / reduir, mida real, millor ajust</td></tr>
+	</table>
 	<p>
-		Pot afegir gràfics o imàgens a la seua captura simplement arrossegant i soltant un archiu d’image dins de la finestra de l’editor.
-		També pot inserir captures d’atres finestres seleccionant <em>Inserir finestra</em> en el menú <em>Editar</em>.
-		Apareixerà una llista en totes les finestres obertes, permetent-li triar quina vol inserir.
+		Una vora estripada continua sent un element que podeu canviar; <em>Aplicar a l'image</em> en la barra de ferramentes la fa part de la imatge.
 	</p>
 
-	<a name="editor-reuse-elements"></a>
-	<h3>Reutilisant elements dibuixats</h3>
-
-	<p>
-	Si utilisa elements semblants en moltes captures (per eixemple un quadro
-	de text en informació de navegador/versió, o escurir la mateixa zona),
-	pot reutilisar elements.<br>
-	Trie <em>“Guardar objectes com a archiu”</em> en el menú
-	<em>Objecte</em> per a guardar el conjunt actual d'elements.<br>
-	<em>“Carregar objectes des d'un archiu”</em> aplicarà els mateixos
-	elements a una altra captura.
-	</p>
+	<a name="editor-reuse"></a>
+	<h3>Afegir imàgens i reutilitzar elements</h3>
+	<ul>
+		<li>Arrossegueu un arxiu d'imatge a l'editor, o apegueu una imatge amb <kbd>Ctrl</kbd> + <kbd>V</kbd>. <em>Insertar finestra</em> en el menú <em>Editar</em> afig una captura d'una altra finestra oberta.</li>
+		<li>Useu els mateixos elements en moltes captures: <em>Guardar objectes en archiu</em> en el menú <em>Objecte</em>, i <em>Carregar objectes des d'un archiu</em> en la captura següent.</li>
+		<li>Guardeu com a arxiu <code>.greenshot</code> per a mantindre tots els elements editables i continuar més tard.</li>
+	</ul>
 
 	<a name="editor-export"></a>
-	<h3>Exportant la captura de pantalla</h3>
-
+	<h3>Guardar i exportar</h3>
+	<table>
+		<tr><th>Tecles</th><th>Què fan</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td><td><em>Guardar</em>, en la carpeta de la <a href="greenshot://settings?tab=output">pestanya Eixida</a></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd></td><td><em>Guardar com...</em>: trieu carpeta, nom i format d'imatge</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd></td><td><em>Copiar image al portapapers</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>P</kbd></td><td><em>Imprimir</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>E</kbd></td><td><em>Correu electrònic</em>: un missatge nou amb la imatge adjunta</td></tr>
+	</table>
 	<p>
-		Després d'editar la captura, pot exportar-la per a diferents finalitats.
-		Accedixca a totes les opcions d'exportació des del menú	<em>“Archiu”</em> en la barra d'eines superior o per mig de dreceres:
+		El menú <em>Archiu</em> i la barra de ferramentes de dalt mostren tots els vostres destins, també els dels plugins.
+		Després de guardar, feu clic amb el botó dret del ratolí en la barra d'estat de baix per a copiar el camí de l'arxiu o obrir la seua carpeta.
 	</p>
 
-	<ul>
-		<li><em>Guardar</em> <kbd>Control</kbd> + <kbd>S</kbd>:
-	guarda l'image en un archiu (si no existix) o obri “Guardar com…”.</li>
-
-		<li><em>Guardar com…</em> <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>:
-	permet triar directori, nom i format.</li>
-
-		<li><em>Copiar image al portapapeis</em> <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd>:
-	posa una còpia de l'image en el portapapers.</li>
-
-		<li><em>Imprimir…</em> <kbd>Control</kbd> + <kbd>P</kbd>:
-	envia l'image a la impressora.</li>
-
-		<li><em>Enviar correu</em> <kbd>Control</kbd> + <kbd>E</kbd>:
-	obri un correu nou en l'image com adjunt.</li>
-	</ul>
-
-	<p class="hint">
-		Després de guardar una image en l'editor, prema en el botó dret
-		en la barra d'estat inferior per a copiar la ruta de l'archiu
-		o obrir el directori en l'Explorador de Windows.
+	<a name="recipes"></a>
+	<h2>Passos automàtics i receptes</h2>
+	<p>
+		Les receptes fan coses amb les vostres captures automàticament, per exemple afigen una vora a cada captura, o la guarden i la pugen d'una vegada.
+		<em>Preferències ràpides</em> &gt; <em>Passos automàtics</em> en el menú de la icona activa o desactiva els passos ja preparats,
+		<em>Més…</em> obri la seua configuració en la <a href="greenshot://settings?tab=recipes">pestanya Receptes</a>.
+		El menú <em>Receptes</em> de la icona inicia les vostres receptes i obri el <a href="greenshot://recipe-manager">Gestor de receptes</a> i el Recipe Editor.
+		Les receptes vénen amb el plugin Recipe Editor.
 	</p>
 
 	<a name="settings"></a>
-	<h2>Quadro de configuració</h2>
-
-	<a name="settings-general"></a>
-	<h3>Configuració general</h3>
+	<h2>Les preferències</h2>
+	<p>Obriu les preferències amb <em>Preferències...</em> en el menú de la icona, o amb els enllaços de davall.</p>
 	<ul>
-		<li><em>Idioma</em>: L’idioma que preferix que s’utilise.<br>
-			Pot descarregar archius d’idioma addicionals per a Greenshot <a target="_blank" href="https://getgreenshot.org/downloads/">ací</a>.</li>
-		<li><em>Llançar Greenshot en iniciar</em>: Inicia el programa quan el sistema ha arrancat.</li>
-		<li><em>Tecles ràpides</em>: Personalise les tecles ràpides que s’utilisaran per a crear captures de pantalla.</li>
-		<li><em>Utilisar el servidor proxy predeterminat del sistema</em>: Si està marcat, Greenshot utilisa el servidor intermediari predeterminat del sistema per a comprovar si hi ha actualisacions.</li>
-		<li><em>Interval de comprovació d’actualisacions en dies</em>: Greenshot pot comprovar automàticament si hi ha actualisacions. Utilise esta configuració per a ajustar l’interval (en dies) o establir-lo en 0 per a desactivar la comprovació d’actualisacions.</li>
+		<li><a href="greenshot://settings?tab=general">General</a>: idioma, colors (clar, fosc o com Windows), mida de la icona,
+			<em>Iniciar Greenshot en arrancar el sistema</em>, les tecles d'accés ràpid, el proxy i cada quant de temps Greenshot busca actualitzacions.</li>
+		<li><a href="greenshot://settings?tab=capture">Captura</a>: capturar el punter del ratolí, so de càmera, lupa, congelar la pantalla,
+			notificacions, l'espera abans d'una captura, les vostres mides fixes, la captura interactiva de finestres i l'idioma del reconeixement de text.</li>
+		<li><a href="greenshot://settings?tab=output">Eixida</a>: la carpeta i el patró de nom d'arxiu per a guardar (feu clic en <em>?</em> per a vore els marcadors,
+			per exemple <code>${YYYY}-${MM}-${DD}</code> o <code>${title}</code>; una <code>\</code> en el patró crea carpetes), el format d'imatge i la qualitat JPEG.</li>
+		<li><a href="greenshot://settings?tab=destination">Destí</a>: què passa després d'una captura, vegeu <a href="#destinations">on va la captura</a>.</li>
+		<li><a href="greenshot://settings?tab=editor">Editor</a>: pestanyes, la mida de la finestra de l'editor, la pregunta sobre guardar en tancar-la, i la mida i el color d'una imatge nova.</li>
+		<li><a href="greenshot://settings?tab=printer">Impressora</a>: ajustar la imatge a la pàgina, girar-la o centrar-la, imprimir en color, en escala de grisos o invertida, i un peu de pàgina amb data i hora.</li>
+		<li><a href="greenshot://settings?tab=plugins">Plugins</a>: activar o desactivar plugins i configurar-los. Els canvis s'apliquen en el pròxim inici de Greenshot.</li>
+		<li><a href="greenshot://settings?tab=expert">Expert</a>: configuració per a casos especials, per exemple escriptori remot, captura DirectX (necessària per a pantalles HDR), memòria i velocitat,
+			i els formats del portapapers. Canvieu-les només si sabeu què fan.</li>
 	</ul>
-
-<a name="settings-capture"></a>
-Configuració de captura
-
-<ul>
-
-	<li><em>Capturar el punter del ratolí</em>: Si està marcat, es capturarà el punter del ratolí. El punter es tracta com un element separat en l’editor, de manera que podrà moure’l o eliminar-lo més avant.</li>
-	<li><em>Reproduir so de càmera</em>: Retroalimentació audible quan es realisa una captura.</li>
-	<li><em>Milisegons d’espera abans de capturar</em>: Afig un retard personalisat abans de capturar realment la pantalla.</li>
-	<li><em>Utilisar el mode interactiu de captura de finestres</em>: En lloc de capturar immediatament la finestra activa, el mode interactiu li permet seleccionar quina finestra vol capturar. També és possible capturar finestres filles; veja <a href="#capture-window">captura de finestres</a>.</li>
-	<li><em>Captura d’estil Aero (només Windows Vista / 7)</em>: Si utilisa Greenshot en Windows Vista o Windows 7 en finestres d’estil Aero activades, pot triar com s’han de gestionar els bordes transparents en capturar una finestra. Utilise esta configuració per a evitar capturar elements del fons que es vegen a través dels bordes transparents.
-
-	<ul>
-		<li><em>Auto</em>: Deixe que Greenshot decidixca com gestionar la transparència.</li>
-		<li><em>Tal com es mostra</em>: Els bordes transparents es capturen tal com apareixen en pantalla.</li>
-		<li><em>Utilisar color predeterminat</em>: S’aplica un color sòlit predeterminat en lloc de transparència.</li>
-		<li><em>Utilisar color personalisat</em>: Per a aplicar un color triat per vosté en lloc de transparència.</li>
-		<li><em>Preservar transparència</em>: Els bordes es capturen preservant la transparència, sense capturar elements que puguen estar en el fons.
-		(Nota: les zones transparents es mostren en l’editor amb un patró quadriculat, però este patró no s’exporta quan es guarda la captura. Recorde guardar en PNG per a mantindre la transparència completa.)</li>
-	</ul>
-	</li>
-	<li><em>Captura en Internet Explorer</em>: Permet una captura més còmoda de pàgines web utilisant Internet Explorer.</li>
-	<li><em>Redimensionar la finestra de l’editor a la mida de la captura</em>: Si està seleccionat, la finestra de l’editor s’ajustarà automàticament a la mida de la captura.</li>
-
-</ul>
-
-	<a name="settings-output"></a>
-	<h3>Configuració d'eixida</h3>
-	<ul>
-		<li><em>Destí de la captura de pantalla</em>: Permet triar què fer automàticament després de fer una captura.</li>
-		<li><em>Configuració preferida en guardar archius</em>: Directori i nom d'archiu que s'usaran al guardar automàticament, o com a proposta en “Guardar com…”.<br> Prema el botó ? per a conéixer els marcadors disponibles per als noms d'archiu.</li>
-		<li><em>Configuració JPEG</em>:	Calitat usada al guardar una image en format JPEG.</li>
-	</ul>
-	
-	<a name="settings-destination"></a>
-	<h3>Configuració de destí</h3>
-	<p>
-		Per defecte, Greenshot li permet triar el destí de manera dinàmica després de crear una captura, mostrant un menu
-		en diferents opcions de destí per a seleccionar. Si no vol —o no necessita— canviar de destí immediatament,
-		pot preferir configurar Greenshot perque exporte directament a un o més destins, sense mostrar el selector de destí.<br/>
-		Nota: igual que en  <a href="#editor-export">l’exportació des de la finestra de l’editor 
-		els destins mostrats varien depenent dels connectors (plugins) que tinga instalats en Greenshot..</a>
+	<p class="hint">
+		Greenshot guarda la seua configuració en <code>greenshot.ini</code>, en <code>%APPDATA%\Greenshot</code> (la versió portàtil la guarda al costat de Greenshot.exe).
+		<a href="greenshot://self-service?section=files">Archius i configuració</a> en Autoservici mostra on està.
 	</p>
 
-	<a name="settings-printer"></a>
-	<h3>Configuració de la impressora</h3>
+	<a name="troubleshooting"></a>
+	<h2>Quan alguna cosa no funciona</h2>
+	<p>
+		Autoservici comprova Greenshot i soluciona la majoria dels problemes. Obriu-lo amb <em>Sobre Greenshot</em> en el menú de la icona i després <em>Autoservici</em>,
+		o aneu directament a la secció adequada:
+	</p>
 	<ul>
-		<li><em>Reduir impressió fins ajustar-se al tamany del paper</em>: Si l'image és més gran que el paper, es reduirà.</li>
-		<li><em>Engrandir impressió fins ajustar-se al tamany del paper</em>: Si l'image és més chicoteta, s'engrandirà tant com siga possible sense superar el tamany del paper.</li>
-		<li><em>Rotar impressió segons l'orientació de la pàgina</em>: Rota l'image 90 graus per a imprimir-la en horisontal.</li>
-		<li><em>Imprimir en colors invertits</em>: Invertir la captura de pantalla abans d'imprimir-la, útil per eixemple quan s'imprimix una captura de pantalla de text blanc sobre fons negre (per aforrar tòner/tinta).</li>
-		<li><em>Forçar escala de grisos</em>: Convertirà a escala de grisos abans d'imprimir.</li>
-		
-	
-	
+		<li><kbd>Impr Pant</kbd> no fa res o obri una altra cosa: <a href="greenshot://self-service?section=hotkeys">Tecles ràpides i conflictes</a>
+			mostra si OneDrive o la Ferramenta Retalls s'han quedat la tecla, i la torna a Greenshot.</li>
+		<li>No trobeu les vostres captures: <a href="greenshot://self-service?section=files">Archius i configuració</a> mostra on les guarda Greenshot.</li>
+		<li>Copiar al portapapers falla: <a href="greenshot://self-service?section=clipboard">Diagnòstic del portapapers</a> troba el programa que bloqueja el portapapers.</li>
+		<li>Greenshot es bloqueja o falta un plugin després d'una actualització: <a href="greenshot://self-service?section=checksum">Integritat de la instalació</a> comprova els arxius instal·lats.</li>
+		<li>Informar d'un problema: <em>Copiar informació del sistema</em> en <a href="greenshot://self-service?section=system">Sistema i hardware</a> i els
+			<a href="greenshot://log?search=ERROR">errors del registre</a> ens ajuden a ajudar-vos. Informeu dels problemes en
+			<a target="_blank" href="https://github.com/greenshot/greenshot/issues">github.com/greenshot/greenshot/issues</a>.</li>
 	</ul>
 
-	<a name="settings-plugins"></a>
-	<h3>Configuració de complements</h3>
-	<p>
-		Mostra una llista dels complements Greenshot instalats. Seleccione un de la llista i faça clic en <em>Configure</em> per accedir a la configuració d'un complement.
-
-	</p>
-	
-	<a name="settings-expert"></a>
-	<h3>configuracions d'experts</h3>
-	<p>
-		Ho diem de veres: és millor no canviar res ací si no sap qué està fent, ya que esta configuració podria provocar un comportament inesperat.
-	</p>
 	<a name="help"></a>
-	<h2>¿Vol ajudar?</h2>
-
-	<p>
-		Actualment no necessitem ajuda directa en desenvolupament,
-		però hi ha diverses coses que pot fer per a recolzar Greenshot i l'equip.<br>
-		Agraïm la seua colaboració per avant. :)
-	</p>
+	<h2>Voleu ajudar?</h2>
 
 	<a name="help-donate"></a>
-	<h3>Faça una donació</h3>
-
+	<h3>Considereu fer una donació</h3>
 	<p>
-		Estem posant molt de treball en Greenshot i dedicant prou de temps per a oferir-li
-		un bon programa de manera gratuïta i de còdic obert. Si considera
-		que li fa ser més productiu, que li aforra (a vosté o a la seua empresa)
-		molt de temps i diners, o si simplement li agrada Greenshot i
-		la idea del programari de còdic obert: per favor, pense en honorar el nostre esforç fent una donació.<br>
-		Per favor, visite la nostra pàgina per vore com pot ajudar:<br>												  
-		<a href="https://getgreenshot.org/support/">https://getgreenshot.org/support/</a>
+		Dediquem molt de treball a Greenshot per a oferir bon programari gratuït i de codi obert. Si vos fa més productius,
+		vos estalvia temps i diners a vosaltres o a la vostra empresa, o simplement vos agrada Greenshot: considereu donar-nos suport.
+		Vegeu en <a target="_blank" href="https://getgreenshot.org/support/">https://getgreenshot.org/support/</a> com podeu ajudar.
 	</p>
 
 	<a name="help-spread"></a>
-	<h3>Escampa la paraula</h3>
-
+	<h3>Feu-ne difusió</h3>
 	<p>
-		Si li agrada Greenshot, comente-ho als seus amics/gues i companyers/es.
-		També als seus seguidors :)<br>
-		Valore Greenshot en portals de software o afegixca un enllaç a la nostra pàgina principal des del seu blog o lloc web.
-	
+		Si vos agrada Greenshot, parleu-ne als vostres amics i companys. Valoreu Greenshot en portals de programari o enllaceu la nostra pàgina principal des del vostre blog o lloc web.
+	</p>
+	<p>
+		Doneu una estrela a Greenshot en <a target="_blank" href="https://github.com/greenshot/greenshot">GitHub</a>, així altres el troben més fàcilment:
+		<br><iframe src="https://ghbtns.com/github-btn.html?user=greenshot&amp;repo=greenshot&amp;type=star&amp;count=true&amp;size=large" frameborder="0" width="170" height="30" title="GitHub"></iframe>
 	</p>
 
-	<a name="help-translate"></a>
-	<h3>Envie una traducció</h3>
-
-	<p>
-		¿No troba Greenshot en el seu idioma preferit?
-		Si pot traduir software, és benvingut.<br>
-		Si és usuari registrat en “sourceforge.net”, pot enviar traduccions al nostre
-	<a href="https://sourceforge.net/tracker/?group_id=191585&atid=1368020">seguiment de traduccions</a>.<br>
-
-	Assegure's que no existix ya una traducció en la nostra
-	<a href="https://getgreenshot.org/downloads/">pàgina de descàrregues</a>. També consulte la secció de seguiment en SourceForge,
-	on pot haver una traducció en progrés o en debat.<br>
-	Per favor, tinga en conte que només proporcionarem una traducció en la nostra pàgina de descàrregues si ha segut 
-	enviada a través del seu conte d’usuari de sourceforge.net. Com que molt probablement no som capaços d’entendre la seua traducció, 
-	és convenient que uns atres usuaris de SourceForge puguen contactar en vosté sobre millores o ampliacions en cas d’una nova versió 
-	de Greenshot.
-	</p>
-	
-	
-	
 	</body>
 </html>

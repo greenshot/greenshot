@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="de">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Greenshot Hüüülfe</title>
+		<style>
+		* {font-family: "Segoe UI", Tahoma, Arial, Sans-serif;}
+		body {max-width:60em;margin:0 auto;padding:0 16px 24px 16px;}
+		h1 {font-size:20px;}
+		h2 {font-size:16px;color:#009900;margin-top:28px;}
+		h3 {font-size:14px;margin-top:20px;}
+		small {font-size:11px;}
+		p, li, td, th {font-size:13px;line-height:1.5em;}
+		a:link, a:hover, a:visited, a:active {color:#007700;}
+		kbd {background-color:#eeeeee;border:1px solid #bbbbbb;padding:0 3px;border-radius:3px;white-space:nowrap;}
+		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px 8px;}
+		table {border-collapse:collapse;margin:6px 0;}
+		th, td {border:1px solid #dddddd;padding:3px 8px;text-align:left;vertical-align:top;}
+		th {background-color:#f2f2f2;}
+		em {font-style:normal;font-weight:bold;}
+		:root {--greenshot-icon:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAEgklEQVR4nO2WXWxTZRjHf+er3y0j3dhXuw8DHRsEJoPEBEY0CMEbPtR4gUiciYQgd4ImeqMRZuK9qBgwXBjDFcSQoASVz4RIXPnY5raAbN1GS7d1LWU9p2c9PV6UlBE76ACHFz5X7/l4/s/vvO95n/cvtLa2mjzDEJ9l8f8B/tsAjkqN6rVRLCWT/yqAXLB4RZoXD3cg2Qy0ESu/vtmCoUmzB1DSmESyGQDYytI4fRruuglqN0SIXfPQe7AOM/uUAKrXjEwRrsU0YfSPElK3bDiqNMY7PaRjCq0H+hBlE29zgniPm8g5L44qjcmkzGSy4HcUB9D8cW9O+Pk48V4XkXNeZGeG8zubsXgmuRuyo3gyCMKDiY3b+5m/dRBDk7j4/mJi1zyPBSBOFRYEWPhuP2uOXGLND5eQXRnMrIAeVwjuCxC76uH6935uX/BSuzEMgGQzqH45imQ3CGwbJNA2gOLKFD8DwfYAdZvCxK55iJz3svTDvpyw3cC3Nsp4Z+7Lhk/NY/jUvHziaHAOlavHABi7MoemHTep25yDclZrBPc2FAfgrEzz+weLmZyQ/iEcuzpn2sSOTxupWDWKOmJlvNODf300/8xRoWEv01nxeRcuv0r31/X0H60sqCN8YWIO/TyP4L4csahkqVw9hjpiJXa1+HWd25Sk5ZMekLIE9zZQ1pJgwbYQAIYmcmL9yoI7R4bclNm8Osv3dePyq/z5TT2xX2b2U413uzn1xor8taMynR+nIrZpt62cjin0HKqhdmOYuU1JABbtukHoeDlmViicVUQM/VSOIJo4fSr9xwpPP4B8ctMLOeJyPX9TjVqfqDiAmYXQ8YpHvidLdgNDlRg8UY6oZHPER6ueqPhMQnb5VZzVGrUbw8Q63XTvf+6ptdmiANKjVlZ9dQVRyVK6LE6iz0XkbOmsAYhZAxDu20Jhlh2CrCcULrcHqH81TKzTQ+Ssd3YB5m8ZQpBMLu5ZRGbi8U+1xwZo3HETAHddio7PiuvfNq/OivZunDUpeg5M32aLifyKO6rUopNqNoQpaUyiOA2adv6FIJrYKzR866JY5uqPFpgSsjZmQZRMer+rLTopFbblx2rUiq1U56XDHUh2A23Uwm9bl5NJFWfh5DNty9Djyoyoh0+WI1lMnP4UA8eqKFl4F8l+z8KV6rj8Kk6fSu2mMOOdbnq+rZ/+LFh9sIPTbxVPDLk2O/Dj/TarJ2Qmhuw4fSrjXW60qJWV+y8jKibepQnivW7Cpwv3FtlepuOqUbGXazlj0uWm79DMTKfiznBh1xIsngx3B+0oTgOKPErkeI+LVMTKyi/vdcOWOHeuuwifLsVRkUZPSg/dng3vDBB4O5TzhrsXYRoO9Dsywb0N1G3OLcHDOqt84b1mZLvxYDcUTAJtAzS0hTBUiYt7Fk9rTqZ6Q9+6KIk+N/WvDyMqWS591PRIxyxmJwX0OzKX2wOMd3m4caSa8JlS6l+7lRO2G/hfuY1oyTJ/yxALtoWQHUZeYCxYkh+PdpTQtOMmjdv7aWgLsWT39YcWB/gbBUPC48UgfpEAAAAASUVORK5CYII=);}
+		h1 {background:var(--greenshot-icon) no-repeat left center;background-size:32px;padding-left:40px;line-height:32px;}
+		a[href^="greenshot:"] {background:#eef8ee var(--greenshot-icon) no-repeat 3px center;background-size:16px;border:1px solid #99cc99;border-radius:3px;padding:0 4px 0 22px;text-decoration:none;white-space:nowrap;}
+		a[href^="greenshot:"]:hover {background-color:#ddf0dd;}
+		[dir="rtl"] h1 {background-position:right center;padding-left:0;padding-right:40px;}
+		[dir="rtl"] a[href^="greenshot:"] {background-position:right 3px center;padding:0 22px 0 4px;}
+		</style>
+	</head>
+	<body>
+	<h1>Greenshot Hüüülfe</h1>
+	<!--
+	Note to translator: uncomment the entry below to have your effort honored
+	-->
+	<!--<small>Fränkische Übersetzung der Hilfe von DEIN_NAME</small>-->
+
+	<p class="hint">
+		Links, däi mit <code>greenshot:</code> ofanga, wie zum Beischbiel <a href="greenshot://settings">Rumdogdern aufmachn</a>,
+		machn des basende Fensder vom Greenshot auf. Des geht fei bloß, wennst Greenshot middm Inschdallierer drauf gmacht hast,
+		ned mit der bordablen Version und ned beim Greenshot Light. Dei Browser frochd di vielleichd vorher nu, ob er des derf.
+	</p>
+
+	<h2>Wos drinnstehd</h2>
+	<ol>
+		<li><a href="#start">Wie mer ofängd</a></li>
+		<li><a href="#screenshot">A Sgrienschod machn</a>
+			<ol>
+				<li><a href="#capture-screen">Der Abmol-Bildschirm</a></li>
+				<li><a href="#capture-modes">Breich, Fensder, feste Größn und Dexd</a></li>
+				<li><a href="#capture-keys">Dasdn beim Aussuchn</a></li>
+				<li><a href="#capture-live">Aussuchn ohne dassd den Bildschirm eifrierst</a></li>
+			</ol>
+		</li>
+		<li><a href="#destinations">Wo der Sgrienschod hiegehd</a></li>
+		<li><a href="#editor">Der Bilder-Edidor</a>
+			<ol>
+				<li><a href="#editor-tabs">Reiter</a></li>
+				<li><a href="#editor-tools">Zeichnzeuch</a></li>
+				<li><a href="#editor-highlight">Hervorheem und Unkenntlich machn</a></li>
+				<li><a href="#editor-crop">Zamschneidn</a></li>
+				<li><a href="#editor-effects">Effegde, Drehn und Größ ändern</a></li>
+				<li><a href="#editor-reuse">Bildla neidua und Sachn widderhernehma</a></li>
+				<li><a href="#editor-export">Schbeichern und Exbordiern</a></li>
+			</ol>
+		</li>
+		<li><a href="#recipes">Audomadische Schridde und Rezebde</a></li>
+		<li><a href="#settings">Des Rumdogdern</a></li>
+		<li><a href="#troubleshooting">Wenn wos ned gehd</a></li>
+		<li><a href="#help">Willst a weng helfn?</a></li>
+	</ol>
+
+	<a name="start"></a>
+	<h2>Wie mer ofängd</h2>
+	<p>
+		Greenshot läffd im Hindergrund. Sei Fuztl-Bildla sitzd neberm Uhrla, undn rechds in der Daskleisdn.
+		Glick mid der rechdn Maustasdn drauf, nacherd kummt des Menü mit allm, wos mer abmoln ko, des <em>Rumdogdern...</em> und däi Hüüülfe do.
+	</p>
+	<p class="hint">
+		Siehst des Bildla ned? Windous 11 verschdeggd des gern hinder dem Bfeilla (^). <a href="greenshot://self-service?section=setup">Dei Eirichdung</a>
+		im Selberhelfn holds dir neber's Uhrla und schaud a glei, ob däi <kbd>Druck</kbd>-Dasdn überhaubd beim Greenshot okummd.
+	</p>
+
+	<a name="screenshot"></a>
+	<h2>A Sgrienschod machn</h2>
+	<p>Abmoln dusd mid a Dasdnkombi oder übers Menü vom Greenshot-Bildla:</p>
+	<table>
+		<tr><th>Abmoln</th><th>Dasdnkombi</th><th>Wos bassiert</th></tr>
+		<tr><td><em>A Schdüggerla abmoln</em></td><td><kbd>Druck</kbd></td><td>Der Abmol-Bildschirm gehd auf, und du suchst dir aus, wos drauf soll.</td></tr>
+		<tr><td><em>Fensder abmoln</em></td><td><kbd>Alt</kbd> + <kbd>Druck</kbd></td><td>Molt glei des agdive Fensder ab. Mit <em>Fensder-Deile einzeln abmoln</em> (<a href="greenshot://settings?tab=capture">Reiter Abmoln</a>) suchst des Fensder dafür im Abmol-Bildschirm selber aus.</td></tr>
+		<tr><td><em>En ganzn Bildschirm abmoln</em></td><td><kbd>Strg</kbd> + <kbd>Druck</kbd></td><td>Molt glei en Bildschirm ab. Hasd mehr als oin Monidor, nacherd bietd dir des Menü alle zam oder an einzelna o.</td></tr>
+		<tr><td><em>En ledzdn Breich nochamal abmoln</em></td><td><kbd>Umschalt</kbd> + <kbd>Druck</kbd></td><td>Molt nochamal genau des Schdüggerla ab, wie beim ledzdn Mol.</td></tr>
+		<tr><td><em>Bild vo der Zwischnablach aufmachn</em></td><td>gibds ned</td><td>Machd des Bild auf, des in der Zwischnablach drinhoggd.</td></tr>
+	</table>
+	<p>
+		Im Menü gibds a nu <em>Fensder aus Lisde abmoln</em>, des molt a offns Fensder ab, des du dir aussuchst, ganz ohne Abmol-Bildschirm,
+		dann <em>Dadei aufmachn</em> und <em>Ledzdn Sgrienschod im Eggsblorer ozeing</em>.
+		Däi Dasdnkombis kannsd im <a href="greenshot://settings?tab=general">Rumdogdern, Reiter Allgemein</a> umschdelln.
+	</p>
+
+	<a name="capture-screen"></a>
+	<h3>Der Abmol-Bildschirm</h3>
+	<p>
+		Greenshot machd a Bild vo alle deine Monidore und legd des über alles drüber. Solang du aussuchst, rührt si nix,
+		a offns Menü oder a Dooldibb bleibd also schee do, wo's woar. Abgmolt wird bloß des, wosd ausgsuchd hast. <kbd>Esc</kbd> machd den
+		Abmol-Bildschirm widder zu, ohne dass wos abgmolt wird.
+	</p>
+	<p>Auf dem Bild siehst nacherd:</p>
+	<ul>
+		<li><em>Auswahl</em> mid ihrer Größ,</li>
+		<li>en <em>Zoomer</em>, a Lubbn neberm Mauszeicher, wo mer jeds Bixl siehd, dassd a Eggla genau dreffst,</li>
+		<li>Kästla in den Eggn: <em>Dasdn</em> (<kbd>F1</kbd>), <em>Info</em> (<kbd>I</kbd>) und a <em>Vorschau</em> vo der Auswahl (<kbd>P</kbd>).
+			Däi gehn dir vo selber aus em Weech.</li>
+	</ul>
+	<p class="hint">
+		Drügg beim Aussuchn amal <kbd>F1</kbd>: des Dasdn-Kästla zeichd dir immer genau däi Dasdn, däi grad gehn.
+		Greenshot merkd si fei, wennst a Kästla wechgmachd hast, mit <kbd>F1</kbd> oder <kbd>I</kbd> kummd's widder.
+	</p>
+
+	<a name="capture-modes"></a>
+	<h3>Breich, Fensder, feste Größn und Dexd</h3>
+	<ul>
+		<li><em>Breich</em>: zieh mid der Maus a Viereck auf, wennsd auslässd, wird's abgmolt. Mid der Dasdadur: däi Bfeildasdn schiebn däi Maus,
+			<kbd>Enter</kbd> fängd's Aussuchn o, nochamal <kbd>Enter</kbd> molt's ab. Hald <kbd>Umschalt</kbd> fesd, wennsd bloß däi Breide oder bloß däi Höh ändern willst.</li>
+		<li><em>Fensder</em> (<kbd>Leerdasdn</kbd>): des Fensder underm Mauszeicher wird ausgsuchd, a Glick oder <kbd>Enter</kbd> molt's ab.
+			Greenshot nimmd des innersde Deil, zum Beischbiel a Werkzeuchleisdn; geh mid der Maus an den äußern Rand, nacherd hasd des ganze Fensder.
+			<kbd>Tab</kbd> und <kbd>Umschalt</kbd> + <kbd>Tab</kbd> nehma des nächsde oder des vorherige Fensder.</li>
+		<li><em>Feste Größn</em> (<kbd>F</kbd>): a Viereck mid ner genauen Größ, zum Beischbiel 1280 × 720, läffd der Maus hinderher. <kbd>1</kbd> – <kbd>9</kbd> suchn a Größ aus,
+			<kbd>C</kbd> wechseld des Eggla, wo däi Maus hebd, und mid <kbd>Alt</kbd> fesdghaldn bichds ned an de Fensder. Deine eichena Größn schdellst im
+			<a href="greenshot://settings?tab=capture">Reiter Abmoln</a> ei, däi Größn vo deine ledzdn Sgrienschods kriegst a ogebodn.</li>
+		<li><em>Dexd</em> (<kbd>T</kbd>): Greenshot lesd mid der Dexderkennung vo Windous, wos aufm Bildschirm schdehd, und machd um jede Zeil an Rahma.
+			Glick auf a Zeil oder zieh über däi Wördla, nacherd wern's abgmolt. Willsd däi Wördla als Dexd, nacherd schigg en Sgrienschod an <em>Windows OCR</em>,
+			des kobierd en Dexd in däi Zwischnablach. Dafür brauchds a Erkennungssbrach im Windous; däi suchst im
+			<a href="greenshot://settings?tab=capture">Reiter Abmoln</a> aus, bei <em>Dexderkennung (OCR)</em>.</li>
+	</ul>
+	<p class="hint">
+		Mid dem QR-Code-Blaggin findd Greenshot QR-Codes aufm Bildschirm und machd an Rahma drum. Glick drauf, nacherd hasd den Inhald kobierd oder däi Webseidn offn.
+	</p>
+
+	<a name="capture-keys"></a>
+	<h3>Dasdn beim Aussuchn</h3>
+	<table>
+		<tr><th>Dasdn</th><th>Wos's machd</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Abmoln abbrechn, lass bleim</td></tr>
+		<tr><td><kbd>Leerdasdn</kbd></td><td>Zwischn Breich und Fensder hin und her</td></tr>
+		<tr><td><kbd>F</kbd> / <kbd>T</kbd></td><td>Feste Größn abmoln / Dexd abmoln</td></tr>
+		<tr><td><kbd>M</kbd></td><td>Mauszeicher im Sgrienschod zeing oder ned</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Zwischn eigfrornem und lebendigem Bildschirm hin und her</td></tr>
+		<tr><td><kbd>Z</kbd></td><td>Zoomer zeing oder wechmachn</td></tr>
+		<tr><td><kbd>F1</kbd> / <kbd>I</kbd> / <kbd>P</kbd></td><td>Dasdn / Info zeing oder wechmachn / Vorschau verschiebn oder wechmachn</td></tr>
+		<tr><td>Bfeildasdn</td><td>Maus um a Bixl schiebn, mid <kbd>Strg</kbd> um zehn Bixl</td></tr>
+		<tr><td><kbd>Enter</kbd></td><td>Aussuchn ofanga oder ferdich machn, Fensder abmoln</td></tr>
+	</table>
+
+	<a name="capture-live"></a>
+	<h3>Aussuchn ohne dassd den Bildschirm eifrierst</h3>
+	<p>
+		Schald <em>Bildschirm beim Aussuchn eifriern</em> im <a href="greenshot://settings?tab=capture">Reiter Abmoln</a> aus, oder drügg beim Aussuchn
+		<kbd>L</kbd>, nacherd suchst aufm lebendign Bildschirm aus: a Video läffd weider, und abgmolt wird erschd, wennst mid dem Aussuchn
+		ferdich bisd. Dexd und Vorschau brauchn fei des eigfrorne Bild. Offne Menüs gehn meisdns zu, wennsd glickst, also nimm für däi liaber den eigfrornen Bildschirm.
+	</p>
+	<p class="hint">
+		Kummd wos erschd a weng schbäder? Schdell <em>Millisekundn waddn vorm abmoln</em> im
+		<a href="greenshot://settings?tab=capture">Reiter Abmoln</a> ei, oder such aufm lebendign Bildschirm aus.
+	</p>
+
+	<a name="destinations"></a>
+	<h2>Wo der Sgrienschod hiegehd</h2>
+	<p>
+		Nachm Abmoln schiggd Greenshot den Sgrienschod an deine Ziele. Normalerweis frochd er di jeds Mol mid a glans Menü.
+		Jeds Ziel do hod an fesdn underschdrichna Buchschdabn, zum Beischbiel <kbd>C</kbd> für däi Zwischnablach und <kbd>S</kbd> fürs Schbeichern, also gehd des a mid der Dasdadur.
+		Deine Ziele suchst im <a href="greenshot://settings?tab=destination">Reiter Ziele</a> aus, oder bei <em>Zaggich rumdogdern</em> im Menü vom Bildla.
+	</p>
+	<ul>
+		<li><em>Im Greenshot-Edidor aufmachn</em>: erschd amal wos neimoln, schau bei <a href="#editor">dem Bilder-Edidor</a>.</li>
+		<li><em>Sofodd schbeichern</em> nimmd den Ordner und des Dadeinamen-Mussder vom <a href="greenshot://settings?tab=output">Reiter Ausgabe</a>, <em>Schbeichern under (mit Dialooch)</em> frochd di danach.</li>
+		<li><em>In däi Zwischnablaach</em>, <em>An Drugger schiggn</em>, <em>I-Mehl</em>, <em>Windows share</em> und <em>Windows OCR</em> (kobierd den Dexd vom Sgrienschod).</li>
+		<li>Blaggins bringa nu mehr Ziele mit, zum Beischbiel Microsoft Word, Excel, PowerPoint, Outlook und OneNote, PDF, Box, Dropbox, Jira und Confluence.
+			Däi werdn im <a href="greenshot://settings?tab=plugins">Reiter Blaggins</a> eigschdelld, do kannsd a Blaggin a ausschaldn.</li>
+	</ul>
+	<p>
+		Mid der Schbaldn <em>Do</em> im <a href="greenshot://settings?tab=destination">Reiter Ziele</a> schaldsd a Ziel überall aus.
+		Wos fürne Bnachrichdigunga nachm Abmoln kummt, schdellst im <a href="greenshot://settings?tab=capture">Reiter Abmoln</a> ei, bei <em>Bnachrichdigunga</em>.
+	</p>
+
+	<a name="editor"></a>
+	<h2>Der Bilder-Edidor</h2>
+	<p>
+		Im Edidor mosd Formen, Dexd, Bfeil, Markierunga und nu viel mehr auf den Sgrienschod, oder du verschdeggsd des, wos annere ned sehng solln.
+		Außer deine Sgrienschods machd der a Bildla aus ner Dadei oder aus der Zwischnablach auf (Menü vom Bildla).
+		Alles, wosd neimolsd, bleibd a eigens Deil, des mer aussuchn, verschiebn, ändern oder widder wechmachn ko.
+	</p>
+
+	<a name="editor-tabs"></a>
+	<h3>Reiter</h3>
+	<p>
+		A Edidor-Fensder zeichd mehrere Bildla als Reiter, a neier Sgrienschod kummd als Reiter in des Edidor-Fensder, des du zuledzd ghabd hast.
+		<kbd>Strg</kbd> + <kbd>Tab</kbd> gehd zum nächsdn Reiter, <kbd>Strg</kbd> + <kbd>W</kbd> machd oin zu. Zieh an Reiter in a anners Edidor-Fensder,
+		oder glick mid der rechdn Maustasdn drauf, dann kummd er in a neis Fensder. Des <em>+</em> an der Reiterleisdn machd a neis, leers Bild.
+		Machsd a Fensder zu, wo nu ned gschbeicherde Bildla drin sin, frochd Greenshot bloß oamal: <em>Alle schbeichern</em>, <em>Alle wechschmeißn</em> oder abbrechn.
+		Willsd liaber für jeden Sgrienschod a eigns Fensder? Dann schald däi Reiter im <a href="greenshot://settings?tab=editor">Reiter Edidor</a> aus.
+	</p>
+
+	<a name="editor-tools"></a>
+	<h3>Zeichnzeuch</h3>
+	<p>
+		Such dir links im Edidor, im Menü <em>Objegd</em> oder mid seiner Dasdn a Werkzeuch aus, und nacherd zieh übers Bild.
+		Däi Leisdn obn zeichd, wos des Werkzeuch oder däi ausgsuchdn Deile ko, zum Beischbiel Linienfarb, Füllfarb und wie digg.
+	</p>
+	<table>
+		<tr><th>Dasdn</th><th>Werkzeuch</th><th>Dasdn</th><th>Werkzeuch</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Aussuchn</td><td><kbd>S</kbd></td><td>Schbrechblasn</td></tr>
+		<tr><td><kbd>R</kbd></td><td>Viereck</td><td><kbd>I</kbd></td><td>Zähler (Schridde mid Nummern)</td></tr>
+		<tr><td><kbd>E</kbd></td><td>Ellibbsn</td><td><kbd>M</kbd></td><td>Emoji</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Linie</td><td><kbd>H</kbd></td><td>Hervorheem</td></tr>
+		<tr><td><kbd>A</kbd></td><td>Bfeil</td><td><kbd>O</kbd></td><td>Unkenntlich machn</td></tr>
+		<tr><td><kbd>F</kbd></td><td>Freihand</td><td><kbd>C</kbd></td><td>Zamschneidn</td></tr>
+		<tr><td><kbd>T</kbd></td><td>Dexd</td><td><kbd>Z</kbd></td><td>Bildgröß ändern</td></tr>
+	</table>
+	<ul>
+		<li>Hald beim Zeichnen <kbd>Umschalt</kbd> fesd, nacherd gibd's a Quadrad oder an Kreis, oder Linien in 15°-Schriddla; beim Größändern bleibd des Seidnverhäldnis gleich.
+			Hald <kbd>Strg</kbd> fesd, nacherd zeichnsd oder ziehsd vo der Middn aus, bassd guad für a Ellibbsn um wos rum.</li>
+		<li>Dexd: zeichn des Dexdkäsdla und schreib nei. Doppelglick auf an Dexd, wennsd'n ändern willst, <kbd>Enter</kbd> machd ferdich, <kbd>Umschalt</kbd> + <kbd>Enter</kbd> gibd a neie Zeil.</li>
+		<li>Ausgsuchde Deile: däi Bfeildasdn schiebn's (mid <kbd>Umschalt</kbd> um zehn Bixl), <kbd>Strg</kbd> + Bfeildasdn ändern däi Größ,
+			<kbd>Bild auf</kbd> / <kbd>Bild ab</kbd> schiebn's a Ebene nauf oder nunder, <kbd>Entf</kbd> schmeißd's wech, <kbd>Strg</kbd> + <kbd>D</kbd> machd a Kobie.
+			Hald <kbd>Umschalt</kbd> fesd und glick, wennsd mehrere Deile auf oamal willst.</li>
+		<li><kbd>Strg</kbd> + <kbd>Z</kbd> machd's rückgängich, <kbd>Strg</kbd> + <kbd>Y</kbd> machd's widder.</li>
+	</ul>
+
+	<a name="editor-highlight"></a>
+	<h3>Hervorheem und Unkenntlich machn</h3>
+	<p>Zeichn den Breich zum Hervorheem (<kbd>H</kbd>) oder Unkenntlich machn (<kbd>O</kbd>) wie a Viereck und such in der Leisdn obn aus, wie:</p>
+	<ul>
+		<li><em>Dexdmarger</em> färbd den Breich wie a Leuchdschdifd, <em>Breich hervorheem</em> machd den Resd dunkl und verschwommen,
+			<em>Grauschdufn</em> machd den Resd grau, <em>Vergrößän</em> machd den Breich größer.</li>
+		<li><em>Verbixln</em> oder <em>Absofdn</em> verschdeggn Bassword, Namen, Kondonummern oder Gsichder.</li>
+	</ul>
+
+	<a name="editor-crop"></a>
+	<h3>Zamschneidn</h3>
+	<p>
+		Nimm des Zamschneid-Werkzeuch (<kbd>C</kbd>) und zeichn den Breich, der bleim soll, <kbd>Enter</kbd> nimmd's, <kbd>Esc</kbd> lässd's bleim.
+		Drügg nochamal <kbd>C</kbd> oder nimm <em>Zamschneid-Modus</em> in der Leisdn obn, nacherd wechseld der Modus:
+	</p>
+	<ul>
+		<li><em>Senkrechd rausschneidn</em> oder <em>Waagrechd rausschneidn</em> schneidd an Schdreifn aus em Bild raus und fügd den Resd zam, zum Beischbiel wennsd
+			däi leere Middn vo ner langa Seidn wechhabn willst. Bei <em>Schniddkandn</em> suchst aus, wie däi Nahd ausschaud: gerad, Zaggn, Welln, zrissn oder gor ned zu sehng.</li>
+		<li><em>Audomadisch zamschneidn</em> schneidd an einfarbichn Rand ums Bild rum wech.</li>
+	</ul>
+
+	<a name="editor-effects"></a>
+	<h3>Effegde, Drehn und Größ ändern</h3>
+	<table>
+		<tr><th>Dasdn</th><th>Wos's machd</th></tr>
+		<tr><td><kbd>Strg</kbd> + <kbd>Q</kbd></td><td>Schaddn</td></tr>
+		<tr><td><kbd>Strg</kbd> + <kbd>B</kbd></td><td>Rahma</td></tr>
+		<tr><td><kbd>Strg</kbd> + <kbd>T</kbd></td><td>Zrissne Kandn</td></tr>
+		<tr><td><kbd>Strg</kbd> + <kbd>G</kbd> / <kbd>Strg</kbd> + <kbd>I</kbd></td><td>Grauschdufn / Farbn umdrehn, zum Beischbiel dassd beim Druggn Dindn schbarsd</td></tr>
+		<tr><td><kbd>Strg</kbd> + <kbd>,</kbd> / <kbd>Strg</kbd> + <kbd>.</kbd></td><td>Gecha'n Uhrzeicher / mim Uhrzeicher drehn</td></tr>
+		<tr><td><kbd>Strg</kbd> + <kbd>Umschalt</kbd> + <kbd>+</kbd> / <kbd>-</kbd></td><td>Zeichnfläch größer / glaner machn</td></tr>
+		<tr><td><kbd>Strg</kbd> + <kbd>+</kbd> / <kbd>-</kbd>, <kbd>Strg</kbd> + <kbd>0</kbd>, <kbd>Strg</kbd> + <kbd>9</kbd></td><td>Neizoomen / rauszoomen, Originalgröß, bassd grad nei</td></tr>
+	</table>
+	<p>
+		Zrissne Kandn bleim a Deil, des mer nu ändern ko; mid <em>Ins Bild übernehma</em> in der Leisdn obn wern's fesd ins Bild nei.
+	</p>
+
+	<a name="editor-reuse"></a>
+	<h3>Bildla neidua und Sachn widderhernehma</h3>
+	<ul>
+		<li>Zieh a Bilddadei in den Edidor, oder kleb a Bild mid <kbd>Strg</kbd> + <kbd>V</kbd> nei. <em>Fensder nei gladschn</em> im Menü <em>Beabbeidn</em> holt an Sgrienschod vo am annern offna Fensder dazu.</li>
+		<li>Däi gleichn Sachn auf vieln Sgrienschods: <em>Objegde in Dadei schbeichern</em> im Menü <em>Objegd</em>, und beim nächsdn Sgrienschod <em>Objegde aus Dadei ladn</em>.</li>
+		<li>Schbeicher als <code>.greenshot</code>-Dadei, nacherd bleibd alles änderbar und du kannsd schbäder weidermachn.</li>
+	</ul>
+
+	<a name="editor-export"></a>
+	<h3>Schbeichern und Exbordiern</h3>
+	<table>
+		<tr><th>Dasdn</th><th>Wos's machd</th></tr>
+		<tr><td><kbd>Strg</kbd> + <kbd>S</kbd></td><td><em>Schbeichern</em>, in den Ordner vom <a href="greenshot://settings?tab=output">Reiter Ausgabe</a></td></tr>
+		<tr><td><kbd>Strg</kbd> + <kbd>Umschalt</kbd> + <kbd>S</kbd></td><td><em>Schbeichern under...</em>: Ordner, Namen und Bildformad selber aussuchn</td></tr>
+		<tr><td><kbd>Strg</kbd> + <kbd>Umschalt</kbd> + <kbd>C</kbd></td><td><em>Grafig in däi Zwischnblach nei</em></td></tr>
+		<tr><td><kbd>Strg</kbd> + <kbd>P</kbd></td><td><em>Druggn</em></td></tr>
+		<tr><td><kbd>Strg</kbd> + <kbd>E</kbd></td><td><em>I-Mehl</em>: a neie Nachrichd mid dem Bild dro</td></tr>
+	</table>
+	<p>
+		Im Menü <em>Dadei</em> und in der Leisdn obn sin alle deine Ziele, a däi vo de Blaggins.
+		Nachm Schbeichern glick mid der rechdn Maustasdn undn auf däi Schdadusleisdn, nacherd kannsd den Bfad kobiern oder den Ordner aufmachn.
+	</p>
+
+	<a name="recipes"></a>
+	<h2>Audomadische Schridde und Rezebde</h2>
+	<p>
+		Rezebde machn vo selber wos mid deine Sgrienschods, zum Beischbiel an Rahma um jeden Sgrienschod, oder schbeichern und hochladn in oam Rutsch.
+		<em>Zaggich rumdogdern</em> &gt; <em>Audomadische Schridde</em> im Menü vom Bildla schaldd däi ferdichn Schridde ei oder aus,
+		<em>Mehr…</em> machd deren Einschdellunga im <a href="greenshot://settings?tab=recipes">Reiter Rezebde</a> auf.
+		Des Menü <em>Rezebde</em> vom Bildla schdarded deine Rezebde und machd den <a href="greenshot://recipe-manager">Rezebde verwaldn</a> und den Rezebd-Edidor auf.
+		Däi Rezebde kumma middm Rezebd-Edidor-Blaggin.
+	</p>
+
+	<a name="settings"></a>
+	<h2>Des Rumdogdern</h2>
+	<p>Des Rumdogdern machsd mid <em>Rumdogdern...</em> im Menü vom Bildla auf, oder mid de Links do drunder.</p>
+	<ul>
+		<li><a href="greenshot://settings?tab=general">Allgemein</a>: Schbrach, Farbn (hell, dungl oder wie's Windous), Bildla-Größ,
+			<em>Greenshot mit Windous schdaddn</em>, Dasdnkombis, Broxy und wie ofd Greenshot nach neie Versiona schaud.</li>
+		<li><a href="greenshot://settings?tab=capture">Abmoln</a>: Mauszeicher mid abmoln, Kamera-Gräusch, Lubbn, Bildschirm eifriern,
+			Bnachrichdigunga, waddn vorm Abmoln, deine fesdn Größn, Fensder-Deile einzeln abmoln und däi Schbrach vo der Dexderkennung.</li>
+		<li><a href="greenshot://settings?tab=output">Ausgabe</a>: Ordner und Dadeinamen-Mussder zum Schbeichern (glick auf's <em>?</em> für däi Bladzhalder,
+			zum Beischbiel <code>${YYYY}-${MM}-${DD}</code> oder <code>${title}</code>; a <code>\</code> im Mussder machd Ordner), Bildformad und JPEG-Qualidäd.</li>
+		<li><a href="greenshot://settings?tab=destination">Ziele</a>: wos nachm Abmoln bassiert, schau bei <a href="#destinations">wo der Sgrienschod hiegehd</a>.</li>
+		<li><a href="greenshot://settings?tab=editor">Edidor</a>: Reiter, wie groß des Edidor-Fensder is, ob er beim Zumachn wechm Schbeichern frochd, und Größ und Farb vo am neia Bild.</li>
+		<li><a href="greenshot://settings?tab=printer">Drugger</a>: Bild auf däi Seidn einbassn, drehn oder in däi Middn, in Farb, grau oder umgedrehd druggn, und a Fußzeil mid Datum und Uhrzeid.</li>
+		<li><a href="greenshot://settings?tab=plugins">Blaggins</a>: Blaggins ei- oder ausschaldn und eischdelln. Des wirgd erschd, wenn Greenshot nei schdarded.</li>
+		<li><a href="greenshot://settings?tab=expert">Exbädde</a>: Sachn für Sonderfälle, zum Beischbiel Remode-Desggdob, DirectX-Abmoln (brauchsd für HDR-Bildschirme), Schbeicher und Dembo,
+			und däi Zwischnablach-Formade. Lass fei däi Finger davo, wennsd ned wasst, wos des machd.</li>
+	</ul>
+	<p class="hint">
+		Greenshot hebd sei Einschdellunga in der <code>greenshot.ini</code> auf, in <code>%APPDATA%\Greenshot</code> (däi bordable Version hods neber der Greenshot.exe).
+		<a href="greenshot://self-service?section=files">Dadein &amp; Konfigurazion</a> im Selberhelfn zeichd dir, wo däi hoggd.
+	</p>
+
+	<a name="troubleshooting"></a>
+	<h2>Wenn wos ned gehd</h2>
+	<p>
+		Des Selberhelfn schaud den Greenshot durch und richd des meisde vo selber. Machs mid <em>Was issn Greenshot???</em> im Menü vom Bildla auf, dann <em>Selberhelfn</em>,
+		oder geh glei in den richdign Abschnidd:
+	</p>
+	<ul>
+		<li><kbd>Druck</kbd> machd nix oder machd wos anners auf: <a href="greenshot://self-service?section=hotkeys">Dasdnkombis &amp; Schdreid</a>
+			zeichd, ob si OneDrive oder des Snipping Tool däi Dasdn gschnabbd hod, und gibd's dem Greenshot widder zrück.</li>
+		<li>Findsd deine Sgrienschods ned: <a href="greenshot://self-service?section=files">Dadein &amp; Konfigurazion</a> zeichd, wo Greenshot däi hieschbeicherd.</li>
+		<li>Kobiern in däi Zwischnablach gehd ned: <a href="greenshot://self-service?section=clipboard">Zwischnablach-Diagnose</a> findd des Brogramm, des däi Zwischnablach blockierd.</li>
+		<li>Greenshot schmierd ab oder nach am Update fehld a Blaggin: <a href="greenshot://self-service?section=checksum">Is däi Inschdallazion ganz?</a> schaud däi inschdallierdn Dadein durch.</li>
+		<li>A Broblem meldn: <em>Sysdeminfo kobiern</em> in <a href="greenshot://self-service?section=system">Sysdem &amp; Hardwär</a> und däi
+			<a href="greenshot://log?search=ERROR">Fehler im Logbuch</a> helfn uns, dassmer dir helfn könna. Broblem meldsd auf
+			<a target="_blank" href="https://github.com/greenshot/greenshot/issues">github.com/greenshot/greenshot/issues</a>.</li>
+	</ul>
+
+	<a name="help"></a>
+	<h2>Willst a weng helfn?</h2>
+
+	<a name="help-donate"></a>
+	<h3>Wie wär's mid ner Schbende?</h3>
+	<p>
+		Mir schdeggn fei a Haufn Arbeid in Greenshot, dass's a guds Brogramm umsonsd und Open Source gibd. Wenn's dir däi Arbeid leichder machd,
+		dir oder deiner Firma Zeid und Geld schbard, oder wennsd Greenshot einfach mogsd: dann denk doch amal drüber noch, ob'd uns ned underschdützn willsd.
+		Wiesd helfn kannsd, schdehd auf <a target="_blank" href="https://getgreenshot.org/support/">https://getgreenshot.org/support/</a>.
+	</p>
+
+	<a name="help-spread"></a>
+	<h3>Verzähl's weider</h3>
+	<p>
+		Wenn dir Greenshot gfälld, nacherd verzähl's deine Freind und Kollegn. Bewerd Greenshot in Soffdwär-Bordale oder verlink unsre Seidn vo deim Blog oder deiner Webseidn.
+	</p>
+	<p>
+		Gib dem Greenshot an Schdern auf <a target="_blank" href="https://github.com/greenshot/greenshot">GitHub</a>, des hilfd annere, dass'n findn:
+		<br><iframe src="https://ghbtns.com/github-btn.html?user=greenshot&amp;repo=greenshot&amp;type=star&amp;count=true&amp;size=large" frameborder="0" width="170" height="30" title="GitHub"></iframe>
+	</p>
+
+	</body>
+</html>

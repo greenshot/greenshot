@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ca">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Ajuda de Greenshot</title>
+		<style>
+		* {font-family: "Segoe UI", Tahoma, Arial, Sans-serif;}
+		body {max-width:60em;margin:0 auto;padding:0 16px 24px 16px;}
+		h1 {font-size:20px;}
+		h2 {font-size:16px;color:#009900;margin-top:28px;}
+		h3 {font-size:14px;margin-top:20px;}
+		small {font-size:11px;}
+		p, li, td, th {font-size:13px;line-height:1.5em;}
+		a:link, a:hover, a:visited, a:active {color:#007700;}
+		kbd {background-color:#eeeeee;border:1px solid #bbbbbb;padding:0 3px;border-radius:3px;white-space:nowrap;}
+		p.hint {background-color:#ffffdd;border:1px solid #ddddbb;padding:5px 8px;}
+		table {border-collapse:collapse;margin:6px 0;}
+		th, td {border:1px solid #dddddd;padding:3px 8px;text-align:left;vertical-align:top;}
+		th {background-color:#f2f2f2;}
+		em {font-style:normal;font-weight:bold;}
+		:root {--greenshot-icon:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAEgklEQVR4nO2WXWxTZRjHf+er3y0j3dhXuw8DHRsEJoPEBEY0CMEbPtR4gUiciYQgd4ImeqMRZuK9qBgwXBjDFcSQoASVz4RIXPnY5raAbN1GS7d1LWU9p2c9PV6UlBE76ACHFz5X7/l4/s/vvO95n/cvtLa2mjzDEJ9l8f8B/tsAjkqN6rVRLCWT/yqAXLB4RZoXD3cg2Qy0ESu/vtmCoUmzB1DSmESyGQDYytI4fRruuglqN0SIXfPQe7AOM/uUAKrXjEwRrsU0YfSPElK3bDiqNMY7PaRjCq0H+hBlE29zgniPm8g5L44qjcmkzGSy4HcUB9D8cW9O+Pk48V4XkXNeZGeG8zubsXgmuRuyo3gyCMKDiY3b+5m/dRBDk7j4/mJi1zyPBSBOFRYEWPhuP2uOXGLND5eQXRnMrIAeVwjuCxC76uH6935uX/BSuzEMgGQzqH45imQ3CGwbJNA2gOLKFD8DwfYAdZvCxK55iJz3svTDvpyw3cC3Nsp4Z+7Lhk/NY/jUvHziaHAOlavHABi7MoemHTep25yDclZrBPc2FAfgrEzz+weLmZyQ/iEcuzpn2sSOTxupWDWKOmJlvNODf300/8xRoWEv01nxeRcuv0r31/X0H60sqCN8YWIO/TyP4L4csahkqVw9hjpiJXa1+HWd25Sk5ZMekLIE9zZQ1pJgwbYQAIYmcmL9yoI7R4bclNm8Osv3dePyq/z5TT2xX2b2U413uzn1xor8taMynR+nIrZpt62cjin0HKqhdmOYuU1JABbtukHoeDlmViicVUQM/VSOIJo4fSr9xwpPP4B8ctMLOeJyPX9TjVqfqDiAmYXQ8YpHvidLdgNDlRg8UY6oZHPER6ueqPhMQnb5VZzVGrUbw8Q63XTvf+6ptdmiANKjVlZ9dQVRyVK6LE6iz0XkbOmsAYhZAxDu20Jhlh2CrCcULrcHqH81TKzTQ+Ssd3YB5m8ZQpBMLu5ZRGbi8U+1xwZo3HETAHddio7PiuvfNq/OivZunDUpeg5M32aLifyKO6rUopNqNoQpaUyiOA2adv6FIJrYKzR866JY5uqPFpgSsjZmQZRMer+rLTopFbblx2rUiq1U56XDHUh2A23Uwm9bl5NJFWfh5DNty9Djyoyoh0+WI1lMnP4UA8eqKFl4F8l+z8KV6rj8Kk6fSu2mMOOdbnq+rZ/+LFh9sIPTbxVPDLk2O/Dj/TarJ2Qmhuw4fSrjXW60qJWV+y8jKibepQnivW7Cpwv3FtlepuOqUbGXazlj0uWm79DMTKfiznBh1xIsngx3B+0oTgOKPErkeI+LVMTKyi/vdcOWOHeuuwifLsVRkUZPSg/dng3vDBB4O5TzhrsXYRoO9Dsywb0N1G3OLcHDOqt84b1mZLvxYDcUTAJtAzS0hTBUiYt7Fk9rTqZ6Q9+6KIk+N/WvDyMqWS591PRIxyxmJwX0OzKX2wOMd3m4caSa8JlS6l+7lRO2G/hfuY1oyTJ/yxALtoWQHUZeYCxYkh+PdpTQtOMmjdv7aWgLsWT39YcWB/gbBUPC48UgfpEAAAAASUVORK5CYII=);}
+		h1 {background:var(--greenshot-icon) no-repeat left center;background-size:32px;padding-left:40px;line-height:32px;}
+		a[href^="greenshot:"] {background:#eef8ee var(--greenshot-icon) no-repeat 3px center;background-size:16px;border:1px solid #99cc99;border-radius:3px;padding:0 4px 0 22px;text-decoration:none;white-space:nowrap;}
+		a[href^="greenshot:"]:hover {background-color:#ddf0dd;}
+		[dir="rtl"] h1 {background-position:right center;padding-left:0;padding-right:40px;}
+		[dir="rtl"] a[href^="greenshot:"] {background-position:right 3px center;padding:0 22px 0 4px;}
+		</style>
+	</head>
+	<body>
+	<h1>Ajuda de Greenshot</h1>
+	<!--
+	Note to translator: uncomment the entry below to have your effort honored
+	-->
+	<!--<small>Traducció al català de l'ajuda: EL_TEU_NOM</small>-->
+
+	<p class="hint">
+		Els enllaços que comencen per <code>greenshot:</code>, com ara <a href="greenshot://settings">obrir les preferències</a>,
+		obren aquesta finestra de Greenshot. Funcionen quan Greenshot s'ha instal·lat amb l'instal·lador, no a la versió
+		portable ni a Greenshot Light. Pot ser que el navegador us ho pregunti abans d'obrir Greenshot.
+	</p>
+
+	<h2>Contingut</h2>
+	<ol>
+		<li><a href="#start">Primers passos</a></li>
+		<li><a href="#screenshot">Fer una captura de pantalla</a>
+			<ol>
+				<li><a href="#capture-screen">La pantalla de captura</a></li>
+				<li><a href="#capture-modes">Regió, finestra, mida fixa i text</a></li>
+				<li><a href="#capture-keys">Tecles mentre seleccioneu</a></li>
+				<li><a href="#capture-live">Seleccionar sense congelar la pantalla</a></li>
+			</ol>
+		</li>
+		<li><a href="#destinations">On va la captura</a></li>
+		<li><a href="#editor">L'editor d'imatges</a>
+			<ol>
+				<li><a href="#editor-tabs">Pestanyes</a></li>
+				<li><a href="#editor-tools">Eines de dibuix</a></li>
+				<li><a href="#editor-highlight">Destacar i ocultar</a></li>
+				<li><a href="#editor-crop">Retallar</a></li>
+				<li><a href="#editor-effects">Efectes, girar i canviar la mida</a></li>
+				<li><a href="#editor-reuse">Afegir imatges i reutilitzar elements</a></li>
+				<li><a href="#editor-export">Desar i exportar</a></li>
+			</ol>
+		</li>
+		<li><a href="#recipes">Passos automàtics i receptes</a></li>
+		<li><a href="#settings">Les preferències</a></li>
+		<li><a href="#troubleshooting">Quan alguna cosa no funciona</a></li>
+		<li><a href="#help">Voleu ajudar?</a></li>
+	</ol>
+
+	<a name="start"></a>
+	<h2>Primers passos</h2>
+	<p>
+		Greenshot s'executa en segon pla. La seva icona és al costat del rellotge, a l'àrea de notificació de la barra de tasques.
+		Feu-hi clic amb el botó dret del ratolí per obrir el menú amb totes les captures, les <em>Preferències...</em> i aquesta ajuda.
+	</p>
+	<p class="hint">
+		No veieu la icona? Windows 11 pot amagar-la darrere la fletxa (^). <a href="greenshot://self-service?section=setup">La vostra configuració</a>
+		a Autoservei la mostra al costat del rellotge i també comprova si la tecla <kbd>Impr Pant</kbd> arriba a Greenshot.
+	</p>
+
+	<a name="screenshot"></a>
+	<h2>Fer una captura de pantalla</h2>
+	<p>Comenceu una captura amb una drecera de teclat o des del menú de la icona de Greenshot:</p>
+	<table>
+		<tr><th>Captura</th><th>Drecera</th><th>Què passa</th></tr>
+		<tr><td><em>Captura una regió</em></td><td><kbd>Impr Pant</kbd></td><td>S'obre la pantalla de captura i seleccioneu què voleu capturar.</td></tr>
+		<tr><td><em>Captura la finestra</em></td><td><kbd>Alt</kbd> + <kbd>Impr Pant</kbd></td><td>Captura la finestra activa immediatament. Amb <em>Utilitza el mode iteratiu de caputara de finestra</em> (<a href="greenshot://settings?tab=capture">pestanya Captura</a>) trieu la finestra a la pantalla de captura.</td></tr>
+		<tr><td><em>Captura la pantalla completa</em></td><td><kbd>Ctrl</kbd> + <kbd>Impr Pant</kbd></td><td>Captura la pantalla immediatament. Amb més d'un monitor, el menú de la icona ofereix tots els monitors o un d'ells.</td></tr>
+		<tr><td><em>Captura l'última regió</em></td><td><kbd>Maj</kbd> + <kbd>Impr Pant</kbd></td><td>Torna a capturar la mateixa àrea que la vostra última captura.</td></tr>
+		<tr><td><em>Obre la imatge del porta-retalls</em></td><td>cap</td><td>Obre la imatge que hi ha al porta-retalls.</td></tr>
+	</table>
+	<p>
+		El menú també té <em>Captura la finestra de la llista</em>, que captura una finestra oberta que trieu sense la pantalla de captura,
+		<em>Obre el fitxer d'imatge</em> i <em>Obre la carpeta de l'última captura</em>.
+		Podeu canviar les dreceres a les <a href="greenshot://settings?tab=general">preferències, pestanya General</a>.
+	</p>
+
+	<a name="capture-screen"></a>
+	<h3>La pantalla de captura</h3>
+	<p>
+		Greenshot fa una imatge de tots els vostres monitors i la mostra a sobre de tot. Res no canvia mentre seleccioneu,
+		de manera que un menú obert o un indicador de funció es queden on eren. Només es captura la part que seleccioneu. <kbd>Esc</kbd> tanca la pantalla
+		de captura sense capturar res.
+	</p>
+	<p>A sobre de la imatge veieu:</p>
+	<ul>
+		<li>la <em>selecció</em> amb la seva mida,</li>
+		<li>el <em>zoom</em>, una lupa al costat del ratolí que mostra cada píxel, perquè pugueu col·locar una cantonada amb exactitud,</li>
+		<li>plafons a les cantonades: les <em>tecles</em> (<kbd>F1</kbd>), la <em>informació</em> (<kbd>I</kbd>) i la <em>previsualització</em> de la selecció (<kbd>P</kbd>).
+			S'aparten sols del vostre camí.</li>
+	</ul>
+	<p class="hint">
+		Premeu <kbd>F1</kbd> mentre seleccioneu: el plafó de tecles sempre mostra les tecles que funcionen en aquell moment.
+		Greenshot recorda quan amagueu un plafó; <kbd>F1</kbd> o <kbd>I</kbd> el torna a mostrar.
+	</p>
+
+	<a name="capture-modes"></a>
+	<h3>Regió, finestra, mida fixa i text</h3>
+	<ul>
+		<li><em>Regió</em>: arrossegueu un rectangle amb el ratolí; en deixar anar el botó, es captura. Amb el teclat: les tecles de fletxa mouen el ratolí,
+			<kbd>Retorn</kbd> comença la selecció i <kbd>Retorn</kbd> de nou la captura. Manteniu premuda <kbd>Maj</kbd> per canviar només l'amplada o només l'alçada.</li>
+		<li><em>Finestra</em> (<kbd>Espai</kbd>): se selecciona la finestra que hi ha sota el ratolí; un clic o <kbd>Retorn</kbd> la captura.
+			Greenshot selecciona la part més interior, per exemple una barra d'eines; aneu a la vora exterior d'una finestra per seleccionar la finestra sencera.
+			<kbd>Tab</kbd> i <kbd>Maj</kbd> + <kbd>Tab</kbd> seleccionen la finestra següent o l'anterior.</li>
+		<li><em>Mida fixa</em> (<kbd>F</kbd>): un rectangle d'una mida exacta, per exemple 1280 × 720, segueix el ratolí. <kbd>1</kbd> – <kbd>9</kbd> trien una mida,
+			<kbd>C</kbd> canvia la cantonada que subjecta el ratolí, i manteniu premuda <kbd>Alt</kbd> per col·locar-lo sense ajustar-lo a les finestres. Les vostres pròpies mides es configuren a la
+			<a href="greenshot://settings?tab=capture">pestanya Captura</a>, i també s'ofereixen les mides de les vostres últimes captures.</li>
+		<li><em>Text</em> (<kbd>T</kbd>): Greenshot llegeix el text de la pantalla amb el reconeixement de text de Windows i emmarca cada línia.
+			Feu clic en una línia, o arrossegueu per sobre de paraules, per capturar-les. Per obtenir les paraules com a text, envieu la captura a <em>Windows OCR</em>,
+			que copia el text al porta-retalls. Cal tenir un idioma de reconeixement instal·lat a Windows; l'idioma es tria a la
+			<a href="greenshot://settings?tab=capture">pestanya Captura</a>, <em>Reconeixement de text (OCR)</em>.</li>
+	</ul>
+	<p class="hint">
+		Amb l'extensió de codis QR, Greenshot troba els codis QR de la pantalla i els emmarca. Feu clic en un per copiar-ne el contingut o obrir-ne l'adreça web.
+	</p>
+
+	<a name="capture-keys"></a>
+	<h3>Tecles mentre seleccioneu</h3>
+	<table>
+		<tr><th>Tecla</th><th>Què fa</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Cancel·la la captura</td></tr>
+		<tr><td><kbd>Espai</kbd></td><td>Canvia entre regió i finestra</td></tr>
+		<tr><td><kbd>F</kbd> / <kbd>T</kbd></td><td>Captura una mida fixa / captura text</td></tr>
+		<tr><td><kbd>M</kbd></td><td>Mostra o amaga el cursor del ratolí a la captura</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Canvia entre la pantalla congelada i la pantalla en directe</td></tr>
+		<tr><td><kbd>Z</kbd></td><td>Mostra o amaga el zoom</td></tr>
+		<tr><td><kbd>F1</kbd> / <kbd>I</kbd> / <kbd>P</kbd></td><td>Mostra o amaga les tecles / la informació / mou o amaga la previsualització</td></tr>
+		<tr><td>Tecles de fletxa</td><td>Mou el ratolí un píxel, amb <kbd>Ctrl</kbd> deu píxels</td></tr>
+		<tr><td><kbd>Retorn</kbd></td><td>Comença o acaba la selecció, captura la finestra</td></tr>
+	</table>
+
+	<a name="capture-live"></a>
+	<h3>Seleccionar sense congelar la pantalla</h3>
+	<p>
+		Desactiveu <em>Congela la pantalla mentre se selecciona</em> a la <a href="greenshot://settings?tab=capture">pestanya Captura</a>, o premeu
+		<kbd>L</kbd> mentre seleccioneu, i seleccionareu sobre la pantalla en directe: un vídeo continua reproduint-se i la captura es fa quan acabeu
+		la selecció. El mode de text i la previsualització necessiten la imatge congelada. Els menús oberts normalment es tanquen quan feu clic, així que per a ells feu servir la pantalla congelada.
+	</p>
+	<p class="hint">
+		Alguna cosa només apareix al cap d'un moment? Configureu <em>Milisegons d'espera abans de capturar</em> a la
+		<a href="greenshot://settings?tab=capture">pestanya Captura</a>, o seleccioneu sobre la pantalla en directe.
+	</p>
+
+	<a name="destinations"></a>
+	<h2>On va la captura</h2>
+	<p>
+		Després de la captura, Greenshot l'envia als vostres destins. Per defecte us ho pregunta cada vegada amb un menú petit.
+		Cada destí d'aquest menú té una lletra subratllada fixa, per exemple <kbd>C</kbd> per al porta-retalls i <kbd>S</kbd> per desar, perquè el pugueu triar amb el teclat.
+		Trieu els vostres destins a la <a href="greenshot://settings?tab=destination">pestanya Destí de la captura de pantalla</a>, o a <em>Preferències ràpides</em> del menú de la icona.
+	</p>
+	<ul>
+		<li><em>Obre la imatge a l'editor</em>: anoteu primer la captura, vegeu <a href="#editor">l'editor d'imatges</a>.</li>
+		<li><em>Desa directament</em> fa servir la carpeta i el patró de nom de fitxer de la <a href="greenshot://settings?tab=output">pestanya Sortida</a>; <em>Anomena i desa</em> us els pregunta.</li>
+		<li><em>Copia al porta-retalls</em>, <em>Envia a la impressora</em>, <em>Correu electrònic</em>, <em>Windows share</em> i <em>Windows OCR</em> (copia el text de la captura).</li>
+		<li>Les extensions afegeixen més destins, per exemple Microsoft Word, Excel, PowerPoint, Outlook i OneNote, PDF, Box, Dropbox, Jira i Confluence.
+			Es configuren a la <a href="greenshot://settings?tab=plugins">pestanya Extensions</a>, on també podeu desactivar una extensió.</li>
+	</ul>
+	<p>
+		La columna <em>Disponibles</em> de la <a href="greenshot://settings?tab=destination">pestanya Destí de la captura de pantalla</a> desactiva un destí a tot arreu.
+		Quines notificacions rebeu després d'una captura es configura a la <a href="greenshot://settings?tab=capture">pestanya Captura</a>, <em>Notificacions</em>.
+	</p>
+
+	<a name="editor"></a>
+	<h2>L'editor d'imatges</h2>
+	<p>
+		L'editor afegeix formes, text, fletxes, destacats i més a una captura, o amaga el que els altres no han de veure.
+		A més de les vostres captures, obre imatges d'un fitxer o del porta-retalls (menú de la icona).
+		Tot el que dibuixeu continua sent un element que podeu seleccionar, moure, canviar o eliminar.
+	</p>
+
+	<a name="editor-tabs"></a>
+	<h3>Pestanyes</h3>
+	<p>
+		Una finestra de l'editor mostra diverses imatges com a pestanyes, i una captura nova s'obre com a pestanya a l'última finestra de l'editor que heu fet servir.
+		<kbd>Ctrl</kbd> + <kbd>Tab</kbd> va a la pestanya següent i <kbd>Ctrl</kbd> + <kbd>W</kbd> en tanca una. Arrossegueu una pestanya a una altra finestra de l'editor,
+		o feu-hi clic amb el botó dret del ratolí per moure-la a una finestra nova. El <em>+</em> de la barra de pestanyes comença una imatge nova i buida.
+		Quan tanqueu una finestra amb imatges sense desar, Greenshot pregunta una sola vegada: <em>Desa-ho tot</em>, <em>Descarta-ho tot</em> o cancel·lar.
+		Preferiu una finestra per captura? Desactiveu les pestanyes a la <a href="greenshot://settings?tab=editor">pestanya Editor</a>.
+	</p>
+
+	<a name="editor-tools"></a>
+	<h3>Eines de dibuix</h3>
+	<p>
+		Trieu una eina a l'esquerra de l'editor, al menú <em>Objecte</em> o amb la seva tecla, i després arrossegueu sobre la imatge.
+		La barra d'eines de dalt mostra les opcions de l'eina o dels elements seleccionats, per exemple el color de la línia, el color d'emplenament i el gruix.
+	</p>
+	<table>
+		<tr><th>Tecla</th><th>Eina</th><th>Tecla</th><th>Eina</th></tr>
+		<tr><td><kbd>Esc</kbd></td><td>Eina de selecció</td><td><kbd>S</kbd></td><td>Bafarada</td></tr>
+		<tr><td><kbd>R</kbd></td><td>Rectangle</td><td><kbd>I</kbd></td><td>Comptador (passos numerats)</td></tr>
+		<tr><td><kbd>E</kbd></td><td>El·lipse</td><td><kbd>M</kbd></td><td>Emoji</td></tr>
+		<tr><td><kbd>L</kbd></td><td>Línia</td><td><kbd>H</kbd></td><td>Destaca</td></tr>
+		<tr><td><kbd>A</kbd></td><td>Fletxa</td><td><kbd>O</kbd></td><td>Oculta</td></tr>
+		<tr><td><kbd>F</kbd></td><td>A mà alçada</td><td><kbd>C</kbd></td><td>Retalla</td></tr>
+		<tr><td><kbd>T</kbd></td><td>Text</td><td><kbd>Z</kbd></td><td>Canvia la mida de la imatge</td></tr>
+	</table>
+	<ul>
+		<li>Manteniu premuda <kbd>Maj</kbd> mentre dibuixeu per obtenir un quadrat o un cercle, o línies en passos de 15°; en canviar la mida es manté la proporció.
+			Manteniu premuda <kbd>Ctrl</kbd> per dibuixar o canviar la mida des del centre, pràctic per a una el·lipse al voltant d'alguna cosa.</li>
+		<li>Text: dibuixeu el quadre de text i escriviu. Feu doble clic en un text per canviar-lo; <kbd>Retorn</kbd> acaba, <kbd>Maj</kbd> + <kbd>Retorn</kbd> comença una línia nova.</li>
+		<li>Elements seleccionats: les tecles de fletxa els mouen (amb <kbd>Maj</kbd> deu píxels), <kbd>Ctrl</kbd> + fletxes en canvien la mida,
+			<kbd>Re Pàg</kbd> / <kbd>Av Pàg</kbd> els pugen o baixen un nivell, <kbd>Supr</kbd> els elimina, <kbd>Ctrl</kbd> + <kbd>D</kbd> els duplica.
+			Manteniu premuda <kbd>Maj</kbd> i feu clic per seleccionar diversos elements.</li>
+		<li><kbd>Ctrl</kbd> + <kbd>Z</kbd> desfà, <kbd>Ctrl</kbd> + <kbd>Y</kbd> refà.</li>
+	</ul>
+
+	<a name="editor-highlight"></a>
+	<h3>Destacar i ocultar</h3>
+	<p>Dibuixeu l'àrea de destacat (<kbd>H</kbd>) o d'ocultació (<kbd>O</kbd>) com un rectangle i trieu el mode a la barra d'eines:</p>
+	<ul>
+		<li><em>Text destacat</em> pinta l'àrea com un retolador fluorescent, <em>Destaca l'àrea</em> enfosqueix i difumina tota la resta,
+			<em>Escala de grisos</em> torna gris tota la resta, <em>Amplia</em> amplia l'àrea.</li>
+		<li><em>Pixela</em> o <em>Difumina</em> amaguen contrasenyes, noms, números de compte o cares.</li>
+	</ul>
+
+	<a name="editor-crop"></a>
+	<h3>Retallar</h3>
+	<p>
+		Trieu l'eina de retall (<kbd>C</kbd>) i dibuixeu l'àrea que voleu conservar; <kbd>Retorn</kbd> confirma, <kbd>Esc</kbd> cancel·la.
+		Premeu <kbd>C</kbd> de nou, o feu servir <em>Mode de retall</em> a la barra d'eines, per canviar el mode:
+	</p>
+	<ul>
+		<li><em>Retalla verticalment</em> o <em>Retalla horitzontalment</em> treu una franja de la imatge i uneix la resta, per exemple per deixar fora
+			la part central buida d'una pàgina llarga. <em>Vores de tall</em> tria com es veu la unió: recta, en ziga-zaga, ondulada, esquinçada o sense costura.</li>
+		<li><em>Autorretalla</em> treu una vora d'un sol color al voltant de la imatge.</li>
+	</ul>
+
+	<a name="editor-effects"></a>
+	<h3>Efectes, girar i canviar la mida</h3>
+	<table>
+		<tr><th>Tecles</th><th>Què fan</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Q</kbd></td><td>Ombra</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>B</kbd></td><td>Vora</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>T</kbd></td><td>Vora esquinçada</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>G</kbd> / <kbd>Ctrl</kbd> + <kbd>I</kbd></td><td>Escala de grisos / inverteix, per exemple per estalviar tinta en imprimir</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>,</kbd> / <kbd>Ctrl</kbd> + <kbd>.</kbd></td><td>Gira en sentit antihorari / horari</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Maj</kbd> + <kbd>+</kbd> / <kbd>-</kbd></td><td>Fa el llenç més gran / més petit</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>+</kbd> / <kbd>-</kbd>, <kbd>Ctrl</kbd> + <kbd>0</kbd>, <kbd>Ctrl</kbd> + <kbd>9</kbd></td><td>Amplia / redueix, mida real, millor ajust</td></tr>
+	</table>
+	<p>
+		Una vora esquinçada continua sent un element que podeu canviar; <em>Aplica a la imatge</em> a la barra d'eines la fa part de la imatge.
+	</p>
+
+	<a name="editor-reuse"></a>
+	<h3>Afegir imatges i reutilitzar elements</h3>
+	<ul>
+		<li>Arrossegueu un fitxer d'imatge a l'editor, o enganxeu una imatge amb <kbd>Ctrl</kbd> + <kbd>V</kbd>. <em>Insereix una finestra</em> al menú <em>Edita</em> afegeix una captura d'una altra finestra oberta.</li>
+		<li>Feu servir els mateixos elements en moltes captures: <em>Desa objectes al fitxer</em> al menú <em>Objecte</em>, i <em>Carrega objectes del fitxer</em> a la captura següent.</li>
+		<li>Deseu com a fitxer <code>.greenshot</code> per mantenir tots els elements editables i continuar més tard.</li>
+	</ul>
+
+	<a name="editor-export"></a>
+	<h3>Desar i exportar</h3>
+	<table>
+		<tr><th>Tecles</th><th>Què fan</th></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td><td><em>Desa</em>, a la carpeta de la <a href="greenshot://settings?tab=output">pestanya Sortida</a></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Maj</kbd> + <kbd>S</kbd></td><td><em>Anomena i desa...</em>: trieu carpeta, nom i format d'imatge</td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>Maj</kbd> + <kbd>C</kbd></td><td><em>Copia la imatge al porta-retalls</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>P</kbd></td><td><em>Imprimeix</em></td></tr>
+		<tr><td><kbd>Ctrl</kbd> + <kbd>E</kbd></td><td><em>Correu electrònic</em>: un missatge nou amb la imatge adjunta</td></tr>
+	</table>
+	<p>
+		El menú <em>Fitxer</em> i la barra d'eines de dalt mostren tots els vostres destins, també els de les extensions.
+		Després de desar, feu clic amb el botó dret del ratolí a la barra d'estat de baix per copiar el camí del fitxer o obrir-ne la carpeta.
+	</p>
+
+	<a name="recipes"></a>
+	<h2>Passos automàtics i receptes</h2>
+	<p>
+		Les receptes fan coses amb les vostres captures automàticament, per exemple afegeixen una vora a cada captura, o la desen i la pugen d'una sola vegada.
+		<em>Preferències ràpides</em> &gt; <em>Passos automàtics</em> al menú de la icona activa o desactiva els passos ja preparats,
+		<em>Més…</em> n'obre la configuració a la <a href="greenshot://settings?tab=recipes">pestanya Receptes</a>.
+		El menú <em>Receptes</em> de la icona inicia les vostres receptes i obre el <a href="greenshot://recipe-manager">Gestor de receptes</a> i el Recipe Editor.
+		Les receptes vénen amb l'extensió Recipe Editor.
+	</p>
+
+	<a name="settings"></a>
+	<h2>Les preferències</h2>
+	<p>Obriu les preferències amb <em>Preferències...</em> al menú de la icona, o amb els enllaços de sota.</p>
+	<ul>
+		<li><a href="greenshot://settings?tab=general">General</a>: idioma, colors (clar, fosc o com Windows), mida de la icona,
+			<em>Carrega Greenshot a l'inici de Windows</em>, les dreceres, el servidor intermediari i cada quant Greenshot cerca actualitzacions.</li>
+		<li><a href="greenshot://settings?tab=capture">Captura</a>: capturar el punter del ratolí, so de càmera, lupa, congelar la pantalla,
+			notificacions, l'espera abans d'una captura, les vostres mides fixes, la captura interactiva de finestres i l'idioma del reconeixement de text.</li>
+		<li><a href="greenshot://settings?tab=output">Sortida</a>: la carpeta i el patró de nom de fitxer per desar (feu clic a <em>?</em> per veure els marcadors,
+			per exemple <code>${YYYY}-${MM}-${DD}</code> o <code>${title}</code>; una <code>\</code> al patró crea carpetes), el format d'imatge i la qualitat JPEG.</li>
+		<li><a href="greenshot://settings?tab=destination">Destí de la captura de pantalla</a>: què passa després d'una captura, vegeu <a href="#destinations">on va la captura</a>.</li>
+		<li><a href="greenshot://settings?tab=editor">Editor</a>: pestanyes, la mida de la finestra de l'editor, la pregunta sobre desar en tancar-la, i la mida i el color d'una imatge nova.</li>
+		<li><a href="greenshot://settings?tab=printer">Impressora</a>: ajustar la imatge a la pàgina, girar-la o centrar-la, imprimir en color, en escala de grisos o invertida, i un peu de pàgina amb data i hora.</li>
+		<li><a href="greenshot://settings?tab=plugins">Extensions</a>: activar o desactivar extensions i configurar-les. Els canvis s'apliquen en el proper inici de Greenshot.</li>
+		<li><a href="greenshot://settings?tab=expert">Expert</a>: configuració per a casos especials, per exemple escriptori remot, captura DirectX (necessària per a pantalles HDR), memòria i velocitat,
+			i els formats del porta-retalls. Canvieu-la només si sabeu què fa.</li>
+	</ul>
+	<p class="hint">
+		Greenshot desa la seva configuració a <code>greenshot.ini</code>, a <code>%APPDATA%\Greenshot</code> (la versió portable la desa al costat de Greenshot.exe).
+		<a href="greenshot://self-service?section=files">Fitxers i configuració</a> a Autoservei mostra on és.
+	</p>
+
+	<a name="troubleshooting"></a>
+	<h2>Quan alguna cosa no funciona</h2>
+	<p>
+		Autoservei comprova Greenshot i soluciona la majoria dels problemes. Obriu-lo amb <em>Quant a Greenshot</em> al menú de la icona i després <em>Autoservei</em>,
+		o aneu directament a la secció adequada:
+	</p>
+	<ul>
+		<li><kbd>Impr Pant</kbd> no fa res o obre una altra cosa: <a href="greenshot://self-service?section=hotkeys">Dreceres i conflictes</a>
+			mostra si OneDrive o l'Eina de retall s'han quedat la tecla, i la torna a Greenshot.</li>
+		<li>No trobeu les vostres captures: <a href="greenshot://self-service?section=files">Fitxers i configuració</a> mostra on les desa Greenshot.</li>
+		<li>Copiar al porta-retalls falla: <a href="greenshot://self-service?section=clipboard">Diagnòstic del porta-retalls</a> troba el programa que bloqueja el porta-retalls.</li>
+		<li>Greenshot es bloqueja o falta una extensió després d'una actualització: <a href="greenshot://self-service?section=checksum">Integritat de la instal·lació</a> comprova els fitxers instal·lats.</li>
+		<li>Informar d'un problema: <em>Copia la informació del sistema</em> a <a href="greenshot://self-service?section=system">Sistema i maquinari</a> i els
+			<a href="greenshot://log?search=ERROR">errors del registre</a> ens ajuden a ajudar-vos. Informeu dels problemes a
+			<a target="_blank" href="https://github.com/greenshot/greenshot/issues">github.com/greenshot/greenshot/issues</a>.</li>
+	</ul>
+
+	<a name="help"></a>
+	<h2>Voleu ajudar?</h2>
+
+	<a name="help-donate"></a>
+	<h3>Penseu a fer un donatiu</h3>
+	<p>
+		Dediquem molta feina a Greenshot per oferir bon programari gratuït i de codi obert. Si us fa més productius,
+		us estalvia temps i diners a vosaltres o a la vostra empresa, o simplement us agrada Greenshot: penseu a donar-nos suport.
+		A <a target="_blank" href="https://getgreenshot.org/support/">https://getgreenshot.org/support/</a> trobareu com podeu ajudar.
+	</p>
+
+	<a name="help-spread"></a>
+	<h3>Feu-ne difusió</h3>
+	<p>
+		Si us agrada Greenshot, parleu-ne als vostres amics i companys. Valoreu Greenshot en portals de programari o enllaceu la nostra pàgina principal des del vostre blog o lloc web.
+	</p>
+	<p>
+		Doneu una estrella a Greenshot a <a target="_blank" href="https://github.com/greenshot/greenshot">GitHub</a>, així d'altres el troben més fàcilment:
+		<br><iframe src="https://ghbtns.com/github-btn.html?user=greenshot&amp;repo=greenshot&amp;type=star&amp;count=true&amp;size=large" frameborder="0" width="170" height="30" title="GitHub"></iframe>
+	</p>
+
+	</body>
+</html>
