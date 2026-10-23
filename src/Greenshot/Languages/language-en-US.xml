@@ -231,6 +231,7 @@ Please check write accessibility of the selected storage location.</resource>
 		<resource name="settings_iecapture">Internet Explorer capture</resource>
 		<resource name="settings_jpegquality">JPEG quality</resource>
 		<resource name="settings_language">Language</resource>
+		<resource name="settings_message_storagelocation_browse_failed">The folder browser could not be opened. Please type the storage location into the text box.</resource>
 		<resource name="settings_message_filenamepattern">The following placeholders will be replaced automatically in the pattern defined:
 ${YYYY} year, 4 digits
 ${MM} month, 2 digits
