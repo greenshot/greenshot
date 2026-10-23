@@ -14,5 +14,6 @@ HANDLE ConnectToGreenshotPipe(LPCWSTR pwszPipeName, DWORD dwTimeoutMs, DWORD dwF
 /*
  * Connects to the Greenshot pipe, starting Greenshot.exe (from the proxy's own directory) when it is not running.
  * A per-user mutex prevents several proxies from starting Greenshot at the same time.
+ * Greenshot may then bring the window of the request to the front.
  */
 HANDLE ConnectOrColdStart(LPCWSTR pwszPipeName);

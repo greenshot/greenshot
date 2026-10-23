@@ -92,7 +92,7 @@
       <SubSystem>Windows</SubSystem>
       <EntryPointSymbol>ProxyEntry</EntryPointSymbol>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
-      <AdditionalDependencies>kernel32.lib;advapi32.lib;shell32.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;advapi32.lib;shell32.lib;user32.lib</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <DataExecutionPrevention>true</DataExecutionPrevention>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
@@ -121,7 +121,7 @@
       <SubSystem>Windows</SubSystem>
       <EntryPointSymbol>ProxyEntry</EntryPointSymbol>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
-      <AdditionalDependencies>kernel32.lib;advapi32.lib;shell32.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;advapi32.lib;shell32.lib;user32.lib</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <DataExecutionPrevention>true</DataExecutionPrevention>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
