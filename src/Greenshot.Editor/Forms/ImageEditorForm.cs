@@ -212,9 +212,27 @@ namespace Greenshot.Editor.Forms
                 return;
             }
 
-            panel1.Controls.Remove(_surface);
-            _surface.Dispose();
+            _surface.MovingElementChanged -= SurfaceMovingElementChanged;
+            _surface.DrawingModeChanged -= Surface_DrawingModeChanged;
+            _surface.SurfaceSizeChanged -= SurfaceSizeChanged;
+            _surface.SurfaceMessage -= SurfaceMessageReceived;
+            _surface.ForegroundColorChanged -= ForegroundColorChanged;
+            _surface.BackgroundColorChanged -= BackgroundColorChanged;
+            _surface.LineThicknessChanged -= LineThicknessChanged;
+            _surface.ShadowChanged -= ShadowChanged;
+            _surface.FieldAggregator.FieldChanged -= FieldAggregatorFieldChanged;
+
+            // Take the surface out of the window before disposing it: disposing releases the image first,
+            // and moving the focus or updating the toolbars while it is still shown would paint it without an image (#1592)
+            var surface = _surface;
             _surface = null;
+            panel1.Controls.Remove(surface);
+            surface.Dispose();
+        }
+
+        private void SurfaceMovingElementChanged(object sender, SurfaceElementEventArgs e)
+        {
+            RefreshEditorControls();
         }
 
         /// <summary>
@@ -243,7 +261,7 @@ namespace Greenshot.Editor.Forms
             {
                 _surface.TransparencyBackgroundBrush = new TextureBrush(backgroundForTransparency, WrapMode.Tile);
 
-                _surface.MovingElementChanged += delegate { RefreshEditorControls(); };
+                _surface.MovingElementChanged += SurfaceMovingElementChanged;
                 _surface.DrawingModeChanged += Surface_DrawingModeChanged;
                 _surface.SurfaceSizeChanged += SurfaceSizeChanged;
                 _surface.SurfaceMessage += SurfaceMessageReceived;
@@ -998,7 +1016,7 @@ namespace Greenshot.Editor.Forms
             // remove from the editor list
             EditorList.Remove(this);
 
-            _surface.Dispose();
+            RemoveSurface();
 
             GC.Collect();
             if (coreConfiguration.MinimizeWorkingSetSize)
