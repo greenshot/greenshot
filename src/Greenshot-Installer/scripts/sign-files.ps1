@@ -4,7 +4,7 @@
 
 .DESCRIPTION
     Smart App Control blocks unsigned files that Microsoft doesn't know yet, which every new release has
-    (FileLoadException, HRESULT 0x800711C7). Files that are already signed (Microsoft, Newtonsoft) keep their signature.
+    (FileLoadException, HRESULT 0x800711C7). Files that are already signed (Microsoft) keep their signature.
     Run it after prune-plugin-files.ps1 and before the SBOM and checksum.SHA256 are made, so they describe the signed files.
 #>
 param(

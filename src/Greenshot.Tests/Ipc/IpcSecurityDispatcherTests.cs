@@ -23,13 +23,15 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Triggers;
+using Greenshot.Base.Serialization;
 using Greenshot.Ipc;
 using Greenshot.Ipc.BrowserExtension;
 using Greenshot.Recipes;
-using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace Greenshot.Tests.Ipc
@@ -76,7 +78,7 @@ namespace Greenshot.Tests.Ipc
                 byte[] payloadBytes = new byte[length];
                 ms.Read(payloadBytes, 0, (int)length);
                 string json = Encoding.UTF8.GetString(payloadBytes);
-                JObject jobj = JObject.Parse(json);
+                JsonObject jobj = JsonNode.Parse(json).AsObject();
 
                 Assert.Equal("error", jobj.Value<string>("status"));
                 Assert.Equal(1, jobj.Value<int>("exit_code"));
@@ -117,7 +119,7 @@ namespace Greenshot.Tests.Ipc
                 ms.Read(payloadBytes, 0, (int)length);
 
                 string json = Encoding.UTF8.GetString(payloadBytes);
-                JObject jobj = JObject.Parse(json);
+                JsonObject jobj = JsonNode.Parse(json).AsObject();
 
                 Assert.Equal("ready", jobj.Value<string>("status"));
                 Assert.True(jobj.Value<bool>("greenshot_running"));
@@ -221,7 +223,7 @@ namespace Greenshot.Tests.Ipc
                     byte[] payloadBytes = new byte[length];
                     ms.Read(payloadBytes, 0, (int)length);
                     string json = Encoding.UTF8.GetString(payloadBytes);
-                    JObject jobj = JObject.Parse(json);
+                    JsonObject jobj = JsonNode.Parse(json).AsObject();
 
                     Assert.Equal("ok", jobj.Value<string>("status"));
                     Assert.Equal(0, jobj.Value<int>("exit_code"));
@@ -275,13 +277,13 @@ namespace Greenshot.Tests.Ipc
                 byte[] payloadBytes = new byte[length];
                 ms.Read(payloadBytes, 0, (int)length);
                 string json = Encoding.UTF8.GetString(payloadBytes);
-                JObject jobj = JObject.Parse(json);
+                JsonObject jobj = JsonNode.Parse(json).AsObject();
 
                 Assert.Equal("ok", jobj.Value<string>("status"));
                 Assert.Equal(0, jobj.Value<int>("exit_code"));
                 Assert.NotNull(jobj["recipes"]);
 
-                var recipes = jobj["recipes"] as JArray;
+                var recipes = jobj["recipes"] as JsonArray;
                 Assert.NotNull(recipes);
                 Assert.Contains(recipes, r => r.Value<string>("command") == "test-list-ocr" && r.Value<string>("id") == "recipe_test_list_ocr");
             }
@@ -327,7 +329,7 @@ namespace Greenshot.Tests.Ipc
                     byte[] payloadBytes = new byte[length];
                     ms.Read(payloadBytes, 0, (int)length);
                     string json = Encoding.UTF8.GetString(payloadBytes);
-                    JObject jobj = JObject.Parse(json);
+                    JsonObject jobj = JsonNode.Parse(json).AsObject();
 
                     Assert.Equal("ok", jobj.Value<string>("status"));
                     Assert.Equal(0, jobj.Value<int>("exit_code"));
@@ -442,7 +444,7 @@ namespace Greenshot.Tests.Ipc
                     byte[] payloadBytes = new byte[length];
                     ms.Read(payloadBytes, 0, (int)length);
                     string json = Encoding.UTF8.GetString(payloadBytes);
-                    JObject jobj = JObject.Parse(json);
+                    JsonObject jobj = JsonNode.Parse(json).AsObject();
 
                     Assert.Equal("ok", jobj.Value<string>("status"));
                     Assert.Equal(0, jobj.Value<int>("exit_code"));
@@ -484,7 +486,7 @@ namespace Greenshot.Tests.Ipc
                 byte[] payloadBytes = new byte[length];
                 ms.Read(payloadBytes, 0, (int)length);
                 string json = Encoding.UTF8.GetString(payloadBytes);
-                JObject jobj = JObject.Parse(json);
+                JsonObject jobj = JsonNode.Parse(json).AsObject();
 
                 Assert.Equal("error", jobj.Value<string>("status"));
                 Assert.Equal(1, jobj.Value<int>("exit_code"));
@@ -622,7 +624,7 @@ namespace Greenshot.Tests.Ipc
                 byte[] payloadBytes = new byte[length];
                 ms.Read(payloadBytes, 0, (int)length);
                 string json = Encoding.UTF8.GetString(payloadBytes);
-                var resp = JObject.Parse(json);
+                var resp = JsonNode.Parse(json).AsObject();
                 Assert.True(!string.IsNullOrEmpty(expectedCommand));
                 Assert.Equal("ok", resp["status"]?.ToString());
                 Assert.Equal(0, resp["exit_code"]?.Value<int>());
@@ -635,7 +637,7 @@ namespace Greenshot.Tests.Ipc
             }
         }
 
-        private static JObject ReadFirstFrame(MemoryStream ms)
+        private static JsonObject ReadFirstFrame(MemoryStream ms)
         {
             ms.Position = 0;
             byte[] lenBytes = new byte[4];
@@ -643,7 +645,7 @@ namespace Greenshot.Tests.Ipc
             uint length = BitConverter.ToUInt32(lenBytes, 0);
             byte[] payloadBytes = new byte[length];
             ms.Read(payloadBytes, 0, (int)length);
-            return JObject.Parse(Encoding.UTF8.GetString(payloadBytes));
+            return JsonNode.Parse(Encoding.UTF8.GetString(payloadBytes)).AsObject();
         }
 
         [Theory]
@@ -793,7 +795,7 @@ namespace Greenshot.Tests.Ipc
                 Assert.False(snapshot.ContainsKey("Stream"));
 
                 // The result must always be serializable
-                Newtonsoft.Json.JsonConvert.SerializeObject(snapshot);
+                JsonSerializer.Serialize(snapshot, GreenshotJson.Options);
             }
         }
 

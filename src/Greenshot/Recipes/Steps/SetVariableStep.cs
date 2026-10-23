@@ -28,7 +28,6 @@ using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Pipeline;
 using log4net;
-using Newtonsoft.Json.Linq;
 
 namespace Greenshot.Recipes.Steps
 {
@@ -37,10 +36,7 @@ namespace Greenshot.Recipes.Steps
     /// into the flow context (context.Properties) for use by subsequent downstream nodes.
     /// </summary>
     [StepInfo(WellKnownStepTypes.SetVariable, "Set Variable", "Stores values in variables for the following steps.", "Logic")]
-    [StepParameter("Variable", ContractDataType.String, Description = "Name of the variable to set")]
-    [StepParameter("Value", ContractDataType.String, Description = "Value of the variable")]
-    [StepParameter("Variables", ContractDataType.Object, Description = "Several variables: name to value")]
-    [StepOutputVariable("{Parameter:Variable}", ContractDataType.String, "The variable named by the Variable parameter")]
+    [StepParameter("Variables", ContractDataType.Object, ValueType = typeof(Dictionary<string, object>), Required = true, Description = "The variables to set: name to value")]
     [StepOutputVariable("{ParameterKeys:Variables}", ContractDataType.String, "The variables of the Variables parameter")]
     public class SetVariableStep : ICaptureStep
     {
@@ -59,34 +55,16 @@ namespace Greenshot.Recipes.Steps
         {
             if (context == null || NodeConfig.Parameters == null) return Task.CompletedTask;
 
-            // Single variable setting: { "Variable": "MyVar", "Value": "${user.name}" }
-            string singleVarName = NodeConfig.GetParameter<string>("Variable");
-
-            if (!string.IsNullOrWhiteSpace(singleVarName))
-            {
-                object rawValue = NodeConfig.Parameters.TryGetValue("Value", out var v) ? v : null;
-
-                object evaluated = EvaluateValue(rawValue, context);
-                lock (context.Properties)
-                {
-                    context.Properties[singleVarName] = evaluated;
-                }
-                context.LogStep($"Set variable '{singleVarName}' = '{evaluated}'");
-                Log.InfoFormat("SetVariableStep '{0}': context.Properties['{1}'] = '{2}'", Name, singleVarName, evaluated);
-            }
-
-            // Multiple variable settings: { "Variables": { "var1": "${payload.width}", "var2": "${user.name}" } }
+            // { "Variables": { "var1": "${payload.width}", "var2": "${user.name}" } }
+            // The engine already evaluated the expressions in the values (exactly once, see IEvaluatesOwnParameters);
+            // a value is used as it is, so ${...} text inside a variable's value stays text.
             if (NodeConfig.Parameters.TryGetValue("Variables", out var varsObj) && varsObj != null)
             {
-                Dictionary<string, object> dict = null;
-                if (varsObj is Dictionary<string, object> d) dict = d;
-                else if (varsObj is JObject jObj) dict = jObj.ToObject<Dictionary<string, object>>();
-
-                if (dict != null)
+                if (varsObj is Dictionary<string, object> dict)
                 {
                     foreach (var kvp in dict)
                     {
-                        object evaluated = EvaluateValue(kvp.Value, context);
+                        object evaluated = kvp.Value;
                         lock (context.Properties)
                         {
                             context.Properties[kvp.Key] = evaluated;
@@ -98,19 +76,6 @@ namespace Greenshot.Recipes.Steps
             }
 
             return Task.CompletedTask;
-        }
-
-        /// <summary>
-        /// The engine already evaluated the expressions in the parameters (exactly once, see IEvaluatesOwnParameters);
-        /// the value is used as it is, so ${...} text inside a variable's value stays text.
-        /// </summary>
-        private static object EvaluateValue(object rawValue, CaptureFlowContext context)
-        {
-            if (rawValue is JValue jValue)
-            {
-                return jValue.Value;
-            }
-            return rawValue;
         }
     }
 }

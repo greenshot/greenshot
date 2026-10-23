@@ -139,6 +139,7 @@ A client has to read its replies: a frame that is not read within 2 minutes (`Na
 
 * Startup options, used only by `Greenshot.exe` itself and only at the start of the command line: `--language <code>`, `--ini-directory <dir>`, `--no-run`, `--restore` (Restart Manager), `-Embedding` (added by Windows when it starts Greenshot for a click on a notification, ignored by Greenshot, see [notifications.md](notifications.md)) and `--help`.
 * Everything after them is a command in the syntax of `greenshot-cli.exe` (e.g. `image.png`, `--file image.png`, `--recipe ocr`, `--reload`, `--exit`). `Greenshot.exe` checks it with the same parser (`CliCommandParser`) and sends it unchanged as a `CLI` request (source `cli`), exactly like `greenshot-cli.exe`. When Greenshot is not running it starts and sends the request to itself once its pipe server listens; `--exit` and `--reload` then do nothing.
+* `--reload` reads the configuration again and applies it (language, hotkeys). greenshot.ini is locked while Greenshot runs, so it can't change underneath; what `--reload` picks up is a changed `greenshot-fixed.ini`, e.g. a value an administrator rolled out. `greenshot-defaults.ini` only fills keys missing in greenshot.ini, which holds every key once it was saved, so a changed default rarely shows.
 * `Greenshot.exe` shows no output of the command; use `greenshot-cli.exe` for that.
 
 ### 2.2 Cold-Start Orchestration & Concurrency
@@ -354,14 +355,14 @@ To add a new route (e.g., `greenshot:quick-export`):
        {
            Command = "QUICK_EXPORT",
            Source = "url_scheme",
-           Payload = JObject.FromObject(queryParams)
+           Parameters = new Dictionary<string, string>(queryParams, StringComparer.OrdinalIgnoreCase)
        };
    ```
 
 3. **Implement Action Handler**:
    ```csharp
    case "QUICK_EXPORT":
-       await HandleQuickExportAsync(envelope.Payload, context);
+       await HandleQuickExportAsync(envelope.Parameters, context);
        break;
    ```
    Ensure any UI code is marshaled via `UiDispatcher.Current`.

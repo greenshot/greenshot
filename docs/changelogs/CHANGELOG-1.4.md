@@ -125,6 +125,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 **Confluence Plugin** (#869)
 - Replaced deprecated SOAP API with REST API
 - Modern API integration for Confluence
+- Works with Confluence Cloud and Data Center
 - By @Copilot
 
 **Dropbox Plugin** (#885)
@@ -134,6 +135,9 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 **JIRA Plugin** (#871)
 - Various fixes to improve JIRA plugin functionality
+- The issues of a favourite filter show again on Jira Cloud (Atlassian removed the old search)
+- Jira and Confluence: a new sign-in, on Cloud with your e-mail address and an API token, on Data Center also with a personal access token; the plugin settings show the account, test the connection and sign out
+- Jira and Confluence are one plug-in now, signing in to one also signs in to the other on the same Atlassian site
 - By @Lakritzator
 
 **OneNote Plugin** (#883)
@@ -157,6 +161,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 **Plugin Start**
 - The tray icon is there before the plugins start, they no longer hold up the start of Greenshot
 - A plugin which fails to start is switched off completely, it no longer leaves destinations behind which don't work
+- The "Configure ..." entries of the plugins are no longer in the tray menu, the plugin settings are under Settings > Plugins
 
 #### 🖼️ Image Format Support
 
@@ -341,6 +346,10 @@ Continuous builds are automatically created for every commit to the `main` branc
 **Print Footer** (#820, #804)
 - Use Greenshot's UI language for date formatting in print footer
 - By @tsiakoulias
+
+**Language**
+- The first start uses the language of Windows instead of asking, the settings change it
+- `--reload` also applies a language set in greenshot-fixed.ini
 
 #### 🔒 Security Improvements
 
@@ -535,7 +544,7 @@ If you have scripts or shortcuts that use Greenshot's command line arguments, yo
 |--------------|--------------|-------------|
 | `/help`, `/h`, `/?` | `--help`, `-h` | Show help information |
 | `/exit` | `--exit` | Close running Greenshot instance |
-| `/reload` | `--reload` | Reload configuration |
+| `/reload` | `--reload` | Apply a changed greenshot-fixed.ini (greenshot.ini is locked while Greenshot runs) |
 | `/norun` | `--no-run` | Start in configuration mode |
 | `/language [code]` | `--language <language-code>` | Set interface language |
 | `/inidirectory [path]` | `--ini-directory <directory>` | Set configuration directory |

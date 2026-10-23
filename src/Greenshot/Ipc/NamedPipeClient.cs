@@ -23,8 +23,9 @@ using System;
 using System.IO;
 using System.IO.Pipes;
 using System.Text;
+using System.Text.Json;
+using Greenshot.Base.Serialization;
 using log4net;
-using Newtonsoft.Json;
 
 namespace Greenshot.Ipc
 {
@@ -37,7 +38,7 @@ namespace Greenshot.Ipc
 
         private static void WriteFrame(Stream stream, IpcEnvelope envelope)
         {
-            string json = JsonConvert.SerializeObject(envelope);
+            string json = JsonSerializer.Serialize(envelope, GreenshotJson.Options);
             byte[] payloadBytes = Encoding.UTF8.GetBytes(json);
             byte[] lengthBytes = BitConverter.GetBytes((uint)payloadBytes.Length);
             if (!BitConverter.IsLittleEndian)

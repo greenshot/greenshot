@@ -23,6 +23,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
+using System.Text.Encodings.Web;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
@@ -30,8 +32,8 @@ using Greenshot.Base.Core.OAuth;
 using Dapplo.Ini;
 using Greenshot.Base.Http;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Serialization;
 using Greenshot.Base.Threading;
-using Newtonsoft.Json;
 
 namespace Greenshot.Plugin.Dropbox.Api;
 
@@ -42,6 +44,9 @@ public static class DropboxUtils
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(DropboxUtils));
     private static readonly IDropboxConfiguration DropboxConfig = IniConfigRegistry.GetSection<IDropboxConfiguration>();
+
+    // For the Dropbox-API-Arg header: everything but ASCII is escaped, also 0x7F as Dropbox asks
+    private static readonly JsonSerializerOptions HeaderJson = new JsonSerializerOptions { Encoder = JavaScriptEncoder.Default };
 
     /// <summary>
     /// Upload the encoded capture
@@ -72,13 +77,7 @@ public static class DropboxUtils
                 { "path", "/" + filename.Replace(Path.DirectorySeparatorChar, '\\') }
             };
 
-            var serializerSettings = new JsonSerializerSettings
-            {
-                StringEscapeHandling = StringEscapeHandling.EscapeNonAscii
-            };
-
-            var encodedArgs = JsonConvert.SerializeObject(arguments, serializerSettings);
-            encodedArgs = encodedArgs.Replace("\x7F", "\\u007f");
+            var encodedArgs = JsonSerializer.Serialize(arguments, HeaderJson);
             var request = await OAuth2Helper.CreateOAuth2RequestAsync(HttpMethod.Post, "https://content.dropboxapi.com/2/files/upload", oauth2Settings, userInteraction, cancellationToken).ConfigureAwait(false);
             if (request == null)
             {
@@ -90,7 +89,7 @@ public static class DropboxUtils
             content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
             request.Content = content;
             var responseString = (await HttpService.Current.SendAsync(request, cancellationToken).ConfigureAwait(false)).EnsureSuccess().Content;
-            var response = JsonConvert.DeserializeObject<IDictionary<string, object>>(responseString);
+            var response = JsonSerializer.Deserialize<Dictionary<string, object>>(responseString, GreenshotJson.Options);
             return response.ContainsKey("id");
         }
         catch (Exception ex) when (ex is not OperationCanceledException)

@@ -45,9 +45,9 @@ namespace Greenshot.Base.Recipes
         public const string ImmediateFeedback = "ImmediateFeedback";
 
         /// <summary>
-        /// Runs image processors (e.g. Windows 10 OCR, TitleFix, or plugin processors).
+        /// Reads the text of the capture with OCR into the variable OcrText.
         /// </summary>
-        public const string Processors = "Processors";
+        public const string Ocr = "Ocr";
 
         /// <summary>
         /// Exports the capture surface to one or more destinations (File, Clipboard, Editor, Picker, etc.).

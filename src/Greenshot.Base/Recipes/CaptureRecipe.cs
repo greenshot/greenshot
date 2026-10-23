@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Triggers;
 
@@ -34,6 +35,7 @@ namespace Greenshot.Base.Recipes
     /// </summary>
     public class CaptureRecipe : FlowDefinition
     {
+        [JsonPropertyOrder(-10)]
         public override string Kind => KindRecipe;
 
         /// <summary>
@@ -66,33 +68,33 @@ namespace Greenshot.Base.Recipes
         /// The AI tool which wrote the recipe file, null when it wasn't written by an AI tool. Set by Greenshot from the approval,
         /// never read from the recipe file.
         /// </summary>
-        [Newtonsoft.Json.JsonIgnore]
+        [JsonIgnore]
         public string ProposedBy { get; set; }
 
         /// <summary>
         /// What happens when the recipe is started while a flow of it is still running; null means <see cref="FlowConcurrency.Parallel"/>.
         /// </summary>
-        [Newtonsoft.Json.JsonProperty(NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public FlowConcurrency? Concurrency { get; set; }
 
         /// <summary>
         /// Set by <see cref="RecipeComposer"/> on the recipe it composed: the extensions it put in (in the flow or for the
         /// destinations). ${option.extension.key} in their nodes reads their options. Never read from a file.
         /// </summary>
-        [Newtonsoft.Json.JsonIgnore]
+        [JsonIgnore]
         public IReadOnlyList<RecipeExtension> AppliedExtensions { get; set; } = Array.Empty<RecipeExtension>();
 
         /// <summary>
         /// Set by <see cref="RecipeComposer"/>: the chains of the extensions on the BeforeDestination slot, run by the export
         /// steps for each destination on its own copy of the capture.
         /// </summary>
-        [Newtonsoft.Json.JsonIgnore]
+        [JsonIgnore]
         public IReadOnlyList<ExtensionChain> DestinationChains { get; set; } = Array.Empty<ExtensionChain>();
 
         /// <summary>
         /// True for a recipe made by <see cref="RecipeComposer"/>, which isn't composed again
         /// </summary>
-        [Newtonsoft.Json.JsonIgnore]
+        [JsonIgnore]
         public bool IsComposed { get; set; }
 
         public CaptureRecipe()
@@ -129,7 +131,7 @@ namespace Greenshot.Base.Recipes
         /// <summary>
         /// A recipe AI tools run (it has an AI tool trigger): extensions only change it when they name it
         /// </summary>
-        [Newtonsoft.Json.JsonIgnore]
+        [JsonIgnore]
         public bool IsAiToolRecipe => Triggers?.Any(t => string.Equals(t?.TriggerType, TriggerConfig.TypeAiTool, StringComparison.OrdinalIgnoreCase)) ?? false;
 
         /// <summary>

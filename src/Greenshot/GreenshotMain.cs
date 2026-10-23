@@ -32,7 +32,6 @@ using Dapplo.Ini.Parsing;
 using Dapplo.Windows.Input.Keyboard;
 using Dapplo.Windows.Messages;
 using Greenshot.Base.Core;
-using Greenshot.Base.Http;
 using Greenshot.Base.Recipes;
 using Greenshot.Configuration;
 using Greenshot.Editor.Configuration;
@@ -79,8 +78,6 @@ public class GreenshotMain
     {
         // Enable TLS 1.2 and 1.3 support only (TLS 1.0/1.1 deprecated per RFC 8996)
         ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13;
-        // The certificate exceptions of the configuration also for HttpWebRequest based libraries (Jira), the HttpService has its own callback
-        CertificateValidator.RegisterGlobally();
 
         Greenshot.Base.Languages.Texts.SystemLanguage = CultureInfo.CurrentUICulture.Name;
 

@@ -22,61 +22,61 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Greenshot.Base.Recipes
 {
     /// <summary>
-    /// Represents a branch-specific transition originating from a Conditional node.
+    /// One transition of the flow, in the recipe file one entry of "transitions":
+    /// { "from": "a", "to": "b" } always, { "from": "check", "to": "b", "branch": "true" } when the branch of a decision node was taken,
+    /// { "from": "upload", "to": "save", "onError": "*" } when "from" failed ("from" "*" for every node, "onError" the exception type or "*"),
+    /// and instead of "to" "recipe": "other_recipe" to continue with another recipe after an error.
     /// </summary>
-    public class RecipeConditionalTransitionConfig
+    public class RecipeTransition
     {
         public string From { get; set; }
+        public string To { get; set; }
         public string Branch { get; set; }
-        public string To { get; set; }
+        public string OnError { get; set; }
+        public string Recipe { get; set; }
 
-        public RecipeConditionalTransitionConfig()
+        public RecipeTransition()
         {
         }
 
-        public RecipeConditionalTransitionConfig(string from, string branch, string to)
-        {
-            From = from;
-            Branch = branch;
-            To = to;
-        }
-
-        public override string ToString() => $"{From} [{Branch}] -> {To}";
-    }
-
-    /// <summary>
-    /// Represents an error-handling transition originating from a node when an unhandled exception or failure occurs.
-    /// Can route to another step within the recipe or to an external recovery recipe.
-    /// </summary>
-    public class RecipeErrorTransitionConfig
-    {
-        public string From { get; set; }
-        public string To { get; set; }
-        public string TargetRecipeId { get; set; }
-        public string ErrorType { get; set; } = "*";
-
-        public RecipeErrorTransitionConfig()
-        {
-        }
-
-        public RecipeErrorTransitionConfig(string from, string to, string targetRecipeId = null, string errorType = "*")
+        public RecipeTransition(string from, string to)
         {
             From = from;
             To = to;
-            TargetRecipeId = targetRecipeId;
-            ErrorType = errorType ?? "*";
         }
 
-        public override string ToString() => $"{From} [Error:{ErrorType}] -> {(string.IsNullOrEmpty(To) ? $"Recipe:{TargetRecipeId}" : To)}";
+        /// <summary>
+        /// Followed when the node failed
+        /// </summary>
+        [JsonIgnore]
+        public bool IsError => OnError != null;
+
+        /// <summary>
+        /// Followed when the branch of the decision node was taken
+        /// </summary>
+        [JsonIgnore]
+        public bool IsBranch => !IsError && Branch != null;
+
+        /// <summary>
+        /// Followed always after the node ran
+        /// </summary>
+        [JsonIgnore]
+        public bool IsPlain => !IsError && Branch == null;
+
+        public RecipeTransition Clone() => (RecipeTransition)MemberwiseClone();
+
+        public override string ToString() => IsError
+            ? $"{From} [Error:{OnError}] -> {(string.IsNullOrEmpty(To) ? $"Recipe:{Recipe}" : To)}"
+            : IsBranch ? $"{From} [{Branch}] -> {To}" : $"{From} -> {To}";
     }
 
     /// <summary>
-    /// Flow definition for a DAG capture recipe. Defines entry nodes, standard transitions, and conditional transitions between nodes.
+    /// Flow definition for a DAG capture recipe: the entry nodes and the transitions between nodes.
     /// Supports splitting onto multiple nodes and merging paths, while disallowing cycles/loops.
     /// </summary>
     public class RecipeFlowConfig
@@ -87,21 +87,21 @@ namespace Greenshot.Base.Recipes
         public List<string> StartNodes { get; set; } = new List<string>();
 
         /// <summary>
-        /// Explicit transition mapping from a source node ID to a list of target node IDs.
-        /// E.g. { "acquire": ["selection"], "selection": ["watermark", "effects"], "effects": ["export"], "watermark": ["export"] }
+        /// All transitions: plain, branch and error ones, see <see cref="RecipeTransition"/>.
         /// </summary>
-        [JsonConverter(typeof(TransitionsDictionaryConverter))]
-        public Dictionary<string, List<string>> Transitions { get; set; } = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+        public List<RecipeTransition> Transitions { get; set; } = new List<RecipeTransition>();
 
         /// <summary>
-        /// Branch-specific transitions originating from Conditional decision nodes.
+        /// The transitions followed when the branch of a decision node was taken
         /// </summary>
-        public List<RecipeConditionalTransitionConfig> ConditionalTransitions { get; set; } = new List<RecipeConditionalTransitionConfig>();
+        [JsonIgnore]
+        public IEnumerable<RecipeTransition> ConditionalTransitions => (Transitions ?? Enumerable.Empty<RecipeTransition>()).Where(t => t != null && t.IsBranch);
 
         /// <summary>
-        /// Error-handling transitions evaluated when an exception occurs during node execution.
+        /// The transitions followed when a node failed
         /// </summary>
-        public List<RecipeErrorTransitionConfig> ErrorTransitions { get; set; } = new List<RecipeErrorTransitionConfig>();
+        [JsonIgnore]
+        public IEnumerable<RecipeTransition> ErrorTransitions => (Transitions ?? Enumerable.Empty<RecipeTransition>()).Where(t => t != null && t.IsError);
 
         public RecipeFlowConfig()
         {
@@ -143,55 +143,53 @@ namespace Greenshot.Base.Recipes
         }
 
         /// <summary>
-        /// Retrieves all unified transitions combining Transitions dictionary, ConditionalTransitions, and Edges list.
+        /// The targets of the plain transitions of the node
+        /// </summary>
+        public List<string> GetTargets(string fromNodeId) =>
+            (Transitions ?? Enumerable.Empty<RecipeTransition>())
+            .Where(t => t != null && t.IsPlain && !string.IsNullOrWhiteSpace(t.To) && string.Equals(t.From, fromNodeId, StringComparison.OrdinalIgnoreCase))
+            .Select(t => t.To)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        /// <summary>
+        /// The targets of the plain and the branch transitions per node (not the error transitions).
         /// </summary>
         public Dictionary<string, List<string>> GetUnifiedTransitions()
         {
             var map = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
-
-            if (Transitions != null)
+            foreach (var transition in (Transitions ?? Enumerable.Empty<RecipeTransition>()).Where(t => t != null && !t.IsError))
             {
-                foreach (var kvp in Transitions)
+                if (string.IsNullOrWhiteSpace(transition.From) || string.IsNullOrWhiteSpace(transition.To)) continue;
+                if (!map.TryGetValue(transition.From, out var list))
                 {
-                    if (!map.TryGetValue(kvp.Key, out var list))
-                    {
-                        list = new List<string>();
-                        map[kvp.Key] = list;
-                    }
-
-                    if (kvp.Value != null)
-                    {
-                        foreach (var target in kvp.Value)
-                        {
-                            if (!string.IsNullOrWhiteSpace(target) && !list.Contains(target, StringComparer.OrdinalIgnoreCase))
-                            {
-                                list.Add(target);
-                            }
-                        }
-                    }
+                    list = new List<string>();
+                    map[transition.From] = list;
                 }
-            }
 
-            if (ConditionalTransitions != null)
-            {
-                foreach (var ct in ConditionalTransitions)
+                if (!list.Contains(transition.To, StringComparer.OrdinalIgnoreCase))
                 {
-                    if (string.IsNullOrWhiteSpace(ct?.From) || string.IsNullOrWhiteSpace(ct?.To)) continue;
-
-                    if (!map.TryGetValue(ct.From, out var list))
-                    {
-                        list = new List<string>();
-                        map[ct.From] = list;
-                    }
-
-                    if (!list.Contains(ct.To, StringComparer.OrdinalIgnoreCase))
-                    {
-                        list.Add(ct.To);
-                    }
+                    list.Add(transition.To);
                 }
             }
 
             return map;
+        }
+
+        private RecipeFlowConfig Add(RecipeTransition transition)
+        {
+            Transitions ??= new List<RecipeTransition>();
+            bool exists = Transitions.Any(t => t != null &&
+                string.Equals(t.From, transition.From, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(t.To, transition.To, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(t.Branch, transition.Branch, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(t.OnError, transition.OnError, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(t.Recipe, transition.Recipe, StringComparison.OrdinalIgnoreCase));
+            if (!exists)
+            {
+                Transitions.Add(transition);
+            }
+            return this;
         }
 
         /// <summary>
@@ -200,24 +198,7 @@ namespace Greenshot.Base.Recipes
         public RecipeFlowConfig AddTransition(string fromNodeId, string toNodeId)
         {
             if (string.IsNullOrWhiteSpace(fromNodeId) || string.IsNullOrWhiteSpace(toNodeId)) return this;
-
-            if (Transitions == null)
-            {
-                Transitions = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
-            }
-
-            if (!Transitions.TryGetValue(fromNodeId, out var list))
-            {
-                list = new List<string>();
-                Transitions[fromNodeId] = list;
-            }
-
-            if (!list.Contains(toNodeId, StringComparer.OrdinalIgnoreCase))
-            {
-                list.Add(toNodeId);
-            }
-
-            return this;
+            return Add(new RecipeTransition(fromNodeId, toNodeId));
         }
 
         /// <summary>
@@ -239,23 +220,7 @@ namespace Greenshot.Base.Recipes
         public RecipeFlowConfig AddConditionalTransition(string fromNodeId, string branchKey, string toNodeId)
         {
             if (string.IsNullOrWhiteSpace(fromNodeId) || string.IsNullOrWhiteSpace(branchKey) || string.IsNullOrWhiteSpace(toNodeId)) return this;
-
-            if (ConditionalTransitions == null)
-            {
-                ConditionalTransitions = new List<RecipeConditionalTransitionConfig>();
-            }
-
-            bool exists = ConditionalTransitions.Any(c =>
-                string.Equals(c.From, fromNodeId, StringComparison.OrdinalIgnoreCase) &&
-                string.Equals(c.Branch, branchKey, StringComparison.OrdinalIgnoreCase) &&
-                string.Equals(c.To, toNodeId, StringComparison.OrdinalIgnoreCase));
-
-            if (!exists)
-            {
-                ConditionalTransitions.Add(new RecipeConditionalTransitionConfig(fromNodeId, branchKey, toNodeId));
-            }
-
-            return this;
+            return Add(new RecipeTransition(fromNodeId, toNodeId) { Branch = branchKey });
         }
 
         /// <summary>
@@ -264,14 +229,7 @@ namespace Greenshot.Base.Recipes
         public RecipeFlowConfig AddErrorTransition(string fromNodeId, string toNodeId, string errorType = "*")
         {
             if (string.IsNullOrWhiteSpace(fromNodeId) || string.IsNullOrWhiteSpace(toNodeId)) return this;
-
-            if (ErrorTransitions == null)
-            {
-                ErrorTransitions = new List<RecipeErrorTransitionConfig>();
-            }
-
-            ErrorTransitions.Add(new RecipeErrorTransitionConfig(fromNodeId, toNodeId, null, errorType));
-            return this;
+            return Add(new RecipeTransition(fromNodeId, toNodeId) { OnError = string.IsNullOrWhiteSpace(errorType) ? "*" : errorType });
         }
 
         /// <summary>
@@ -280,22 +238,16 @@ namespace Greenshot.Base.Recipes
         public RecipeFlowConfig AddErrorRecipeTransition(string fromNodeId, string targetRecipeId, string errorType = "*")
         {
             if (string.IsNullOrWhiteSpace(fromNodeId) || string.IsNullOrWhiteSpace(targetRecipeId)) return this;
-
-            if (ErrorTransitions == null)
-            {
-                ErrorTransitions = new List<RecipeErrorTransitionConfig>();
-            }
-
-            ErrorTransitions.Add(new RecipeErrorTransitionConfig(fromNodeId, null, targetRecipeId, errorType));
-            return this;
+            return Add(new RecipeTransition { From = fromNodeId, Recipe = targetRecipeId, OnError = string.IsNullOrWhiteSpace(errorType) ? "*" : errorType });
         }
 
         /// <summary>
         /// Finds the best matching error transition for the given node and exception.
         /// </summary>
-        public RecipeErrorTransitionConfig GetErrorTransition(string fromNodeId, Exception ex)
+        public RecipeTransition GetErrorTransition(string fromNodeId, Exception ex)
         {
-            if (ErrorTransitions == null || ErrorTransitions.Count == 0 || string.IsNullOrWhiteSpace(fromNodeId))
+            var errorTransitions = ErrorTransitions.ToList();
+            if (errorTransitions.Count == 0 || string.IsNullOrWhiteSpace(fromNodeId))
             {
                 return null;
             }
@@ -303,78 +255,50 @@ namespace Greenshot.Base.Recipes
             string exType = ex?.GetType().Name ?? "";
             string innerType = ex?.InnerException?.GetType().Name ?? "";
 
-            bool MatchesErrorType(RecipeErrorTransitionConfig et)
+            bool MatchesErrorType(RecipeTransition et)
             {
-                return string.Equals(et.ErrorType, exType, StringComparison.OrdinalIgnoreCase) ||
-                       (!string.IsNullOrEmpty(innerType) && string.Equals(et.ErrorType, innerType, StringComparison.OrdinalIgnoreCase));
+                return string.Equals(et.OnError, exType, StringComparison.OrdinalIgnoreCase) ||
+                       (!string.IsNullOrEmpty(innerType) && string.Equals(et.OnError, innerType, StringComparison.OrdinalIgnoreCase));
             }
 
-            bool IsWildcardErrorType(RecipeErrorTransitionConfig et)
+            bool IsWildcardErrorType(RecipeTransition et)
             {
-                return string.Equals(et.ErrorType, "*", StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(et.ErrorType);
+                return string.Equals(et.OnError, "*", StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(et.OnError);
             }
 
-            bool MatchesExactFrom(RecipeErrorTransitionConfig et)
+            bool MatchesExactFrom(RecipeTransition et)
             {
                 return string.Equals(et.From, fromNodeId, StringComparison.OrdinalIgnoreCase);
             }
 
-            bool IsWildcardFrom(RecipeErrorTransitionConfig et)
+            bool IsWildcardFrom(RecipeTransition et)
             {
                 return string.Equals(et.From, "*", StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(et.From);
             }
 
             // 1. Exact node + exact error type
-            var match = ErrorTransitions.FirstOrDefault(et => MatchesExactFrom(et) && MatchesErrorType(et));
+            var match = errorTransitions.FirstOrDefault(et => MatchesExactFrom(et) && MatchesErrorType(et));
             if (match != null) return match;
 
             // 2. Exact node + wildcard error type
-            match = ErrorTransitions.FirstOrDefault(et => MatchesExactFrom(et) && IsWildcardErrorType(et));
+            match = errorTransitions.FirstOrDefault(et => MatchesExactFrom(et) && IsWildcardErrorType(et));
             if (match != null) return match;
 
             // 3. Wildcard node ("*" or empty) + exact error type
-            match = ErrorTransitions.FirstOrDefault(et => IsWildcardFrom(et) && MatchesErrorType(et));
+            match = errorTransitions.FirstOrDefault(et => IsWildcardFrom(et) && MatchesErrorType(et));
             if (match != null) return match;
 
             // 4. Wildcard node ("*" or empty) + wildcard error type ("*" or empty)
-            return ErrorTransitions.FirstOrDefault(et => IsWildcardFrom(et) && IsWildcardErrorType(et));
+            return errorTransitions.FirstOrDefault(et => IsWildcardFrom(et) && IsWildcardErrorType(et));
         }
 
         public RecipeFlowConfig Clone()
         {
-            var clone = new RecipeFlowConfig
+            return new RecipeFlowConfig
             {
                 StartNodes = new List<string>(StartNodes ?? Enumerable.Empty<string>()),
-                Transitions = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase),
-                ConditionalTransitions = new List<RecipeConditionalTransitionConfig>(ConditionalTransitions?.Count ?? 0),
-                ErrorTransitions = new List<RecipeErrorTransitionConfig>(ErrorTransitions?.Count ?? 0)
+                Transitions = (Transitions ?? Enumerable.Empty<RecipeTransition>()).Where(t => t != null).Select(t => t.Clone()).ToList()
             };
-
-            if (Transitions != null)
-            {
-                foreach (var kvp in Transitions)
-                {
-                    clone.Transitions[kvp.Key] = new List<string>(kvp.Value);
-                }
-            }
-
-            if (ConditionalTransitions != null)
-            {
-                foreach (var ct in ConditionalTransitions)
-                {
-                    clone.ConditionalTransitions.Add(new RecipeConditionalTransitionConfig(ct.From, ct.Branch, ct.To));
-                }
-            }
-
-            if (ErrorTransitions != null)
-            {
-                foreach (var et in ErrorTransitions)
-                {
-                    clone.ErrorTransitions.Add(new RecipeErrorTransitionConfig(et.From, et.To, et.TargetRecipeId, et.ErrorType));
-                }
-            }
-
-            return clone;
         }
     }
 }

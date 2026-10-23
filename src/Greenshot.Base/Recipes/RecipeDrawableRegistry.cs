@@ -28,6 +28,7 @@ using System.Threading;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
+using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Pipeline;
 using log4net;
 
@@ -48,6 +49,10 @@ namespace Greenshot.Base.Recipes
 
         private readonly ConcurrentDictionary<string, Func<IDictionary<string, object>, object, bool>> _configurators =
             new ConcurrentDictionary<string, Func<IDictionary<string, object>, object, bool>>(StringComparer.OrdinalIgnoreCase);
+
+        // The properties of the drawable types registered with them (with the common ones)
+        private readonly ConcurrentDictionary<string, IReadOnlyList<ParameterContract>> _properties =
+            new ConcurrentDictionary<string, IReadOnlyList<ParameterContract>>(StringComparer.OrdinalIgnoreCase);
 
         // The provider which registered a drawable type, drawable types registered without a provider are not in here
         private readonly ConcurrentDictionary<string, IRecipeDrawableProvider> _providers =
@@ -72,13 +77,37 @@ namespace Greenshot.Base.Recipes
 
         public void RegisterDrawableFactory(string drawableType, Func<ISurface, Dictionary<string, object>, CaptureFlowContext, IDrawableContainer> factory, ScaleOptions scaleOptions)
         {
+            RegisterDrawableFactory(drawableType, factory, scaleOptions, null);
+        }
+
+        public void RegisterDrawableFactory(string drawableType, Func<ISurface, Dictionary<string, object>, CaptureFlowContext, IDrawableContainer> factory, ScaleOptions scaleOptions, IEnumerable<ParameterContract> properties)
+        {
             if (string.IsNullOrEmpty(drawableType)) throw new ArgumentNullException(nameof(drawableType));
             if (factory == null) throw new ArgumentNullException(nameof(factory));
 
             _factories[drawableType] = factory;
             _scaleOptions[drawableType] = scaleOptions;
+            if (properties != null)
+            {
+                _properties[drawableType] = AnnotationProperties.WithCommon(properties);
+            }
+            else
+            {
+                _properties.TryRemove(drawableType, out _);
+            }
             RememberProvider(drawableType);
             Log.DebugFormat("Registered recipe drawable factory for '{0}' (ScaleOptions={1})", drawableType, scaleOptions);
+        }
+
+        public IReadOnlyList<ParameterContract> GetProperties(string drawableType)
+        {
+            if (string.IsNullOrEmpty(drawableType)) return null;
+            // The built-in types are known before Greenshot registers their factories
+            var builtIn = AnnotationProperties.ForBuiltIn(drawableType);
+            if (builtIn != null) return builtIn;
+            if (_properties.TryGetValue(drawableType, out var properties)) return properties;
+            DiscoverProviders();
+            return _properties.TryGetValue(drawableType, out properties) ? properties : null;
         }
 
         public ScaleOptions GetScaleOptions(string drawableType)
@@ -211,6 +240,7 @@ namespace Greenshot.Base.Recipes
                 _providers.TryRemove(drawableType, out _);
                 _factories.TryRemove(drawableType, out _);
                 _scaleOptions.TryRemove(drawableType, out _);
+                _properties.TryRemove(drawableType, out _);
                 _configurators.TryRemove(drawableType, out _);
                 Log.DebugFormat("Removed recipe drawable type '{0}'", drawableType);
             }

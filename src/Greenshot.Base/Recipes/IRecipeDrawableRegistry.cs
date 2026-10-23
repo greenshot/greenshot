@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
+using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Pipeline;
 
 namespace Greenshot.Base.Recipes
@@ -47,6 +48,24 @@ namespace Greenshot.Base.Recipes
         /// <param name="factory">Factory delegate accepting the surface, resolved parameters dictionary, and flow context.</param>
         /// <param name="scaleOptions">Scale options defining behavior such as rational aspect ratio locking.</param>
         void RegisterDrawableFactory(string drawableType, Func<ISurface, Dictionary<string, object>, CaptureFlowContext, IDrawableContainer> factory, ScaleOptions scaleOptions);
+
+        /// <summary>
+        /// Registers a factory delegate for a specific drawable type name with its properties: the validator reports
+        /// a property of an annotation of this type which isn't one of them (or of <see cref="AnnotationProperties.Common"/>),
+        /// or a value which isn't of the declared type, and the recipe editor writes only these.
+        /// </summary>
+        /// <param name="drawableType">Type name (case-insensitive), e.g. "Rectangle", "QRCode", "Emoji".</param>
+        /// <param name="factory">Factory delegate accepting the surface, resolved parameters dictionary, and flow context.</param>
+        /// <param name="scaleOptions">Scale options defining behavior such as rational aspect ratio locking.</param>
+        /// <param name="properties">The properties the factory reads, besides the common ones.</param>
+        void RegisterDrawableFactory(string drawableType, Func<ISurface, Dictionary<string, object>, CaptureFlowContext, IDrawableContainer> factory, ScaleOptions scaleOptions, IEnumerable<ParameterContract> properties);
+
+        /// <summary>
+        /// The properties of an annotation of the drawable type, the common ones included;
+        /// null when the type is unknown or was registered without its properties (then they aren't checked).
+        /// </summary>
+        /// <param name="drawableType">Type name (case-insensitive).</param>
+        IReadOnlyList<ParameterContract> GetProperties(string drawableType);
 
         /// <summary>
         /// Gets the scale options for a registered drawable type, indicating whether it requires aspect ratio locking.
@@ -121,11 +140,5 @@ namespace Greenshot.Base.Recipes
         /// </summary>
         /// <param name="registry">The recipe drawable registry to register factories with.</param>
         void RegisterDrawables(IRecipeDrawableRegistry registry);
-
-        /// <summary>
-        /// Returns an optional JSON Schema fragment describing the configuration properties
-        /// accepted by the custom drawables provided by this extension, or null if none is provided.
-        /// </summary>
-        string GetDrawableSchemaJson();
     }
 }

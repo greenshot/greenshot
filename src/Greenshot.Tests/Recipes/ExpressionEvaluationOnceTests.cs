@@ -102,9 +102,7 @@ namespace Greenshot.Tests.Recipes
             {
                 Parameters = new Dictionary<string, object>
                 {
-                    ["Variable"] = "Copy",
-                    ["Value"] = "${Barcode.Text}",
-                    ["Variables"] = new Dictionary<string, object> { ["Other"] = "prefix ${Barcode.Text}" }
+                    ["Variables"] = new Dictionary<string, object> { ["Copy"] = "${Barcode.Text}", ["Other"] = "prefix ${Barcode.Text}" }
                 }
             };
             await SingleNodeRunner.RunAsync(node, cfg => new SetVariableStep(cfg), context);
@@ -146,13 +144,19 @@ namespace Greenshot.Tests.Recipes
             {
                 Parameters = new Dictionary<string, object>
                 {
-                    ["Type"] = "QRCode",
-                    ["Text"] = "${Barcode.Text}",
-                    ["HorizontalAnchor"] = "Right",
-                    ["VerticalAnchor"] = "Bottom",
-                    ["Width"] = "${w - 850}",
-                    ["Height"] = "${h - 650}",
-                    ["Margin"] = 25
+                    ["Annotations"] = new List<Dictionary<string, object>>
+                    {
+                        new Dictionary<string, object>
+                        {
+                            ["Type"] = "QRCode",
+                            ["Text"] = "${Barcode.Text}",
+                            ["HorizontalAnchor"] = "Right",
+                            ["VerticalAnchor"] = "Bottom",
+                            ["Width"] = "${w - 850}",
+                            ["Height"] = "${h - 650}",
+                            ["Margin"] = 25
+                        }
+                    }
                 }
             };
             context.Properties["Barcode.Text"] = InjectedText;

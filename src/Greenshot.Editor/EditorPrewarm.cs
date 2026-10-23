@@ -21,6 +21,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Controls;
@@ -85,19 +86,9 @@ namespace Greenshot.Editor
             {
                 // The installed fonts for the font family combobox
                 _ = Controls.FontFamilyComboBox.InstalledFamilies.Length;
-                // Reading the embedded resources (the images of the buttons) the first time
-                foreach (string name in EmbeddedResources.GetNames(typeof(ImageEditorForm)))
-                {
-                    try
-                    {
-                        EmbeddedResources.GetImage(typeof(ImageEditorForm), name)?.Dispose();
-                    }
-                    catch (Exception ex)
-                    {
-                        // Only a preparation, the editor reports it if it really needs this image
-                        Log.Debug($"Couldn't load the embedded image {name}", ex);
-                    }
-                }
+                // Reading the names of the embedded resources (the images of the buttons) the first time, decoding the images
+                // here would only throw them away, the editor decodes the ones it shows
+                _ = EmbeddedResources.GetNames(typeof(ImageEditorForm)).Count();
                 return JitPrewarm.PrepareMethods(new[] { typeof(ImageEditorForm).Assembly, typeof(GreenshotForm).Assembly }, EditorStartupNamespaces, cancellationToken);
             }, cancellationToken).ConfigureAwait(false);
 

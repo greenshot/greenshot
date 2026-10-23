@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "version": "1.0",
+  "version": "2.0",
   "id": "recipe_cli_qr_decode",
   "name": "CLI QR Code & Barcode Extractor",
   "description": "Reads a bitmap file from the command line, decodes any QR codes or barcodes on the image, and outputs the decoded text directly to stdout.",
@@ -17,11 +17,11 @@
       "name": "QR Code CLI Trigger",
       "enabled": true,
       "parameters": {
-        "command": "qr",
-        "description": "Scan and decode QR codes from an image file",
-        "fireAndForget": false,
-        "stdout": "${Barcode.Text}",
-        "arguments": [
+        "Command": "qr",
+        "Description": "Scan and decode QR codes from an image file",
+        "FireAndForget": false,
+        "Stdout": "${Barcode.Text}",
+        "Arguments": [
           {
             "name": "file",
             "variable": "Filename",
@@ -40,8 +40,8 @@
       "name": "Load Image File",
       "enabled": true,
       "parameters": {
-        "sourceType": "File",
-        "filename": "${Filename}"
+        "SourceType": "File",
+        "Filename": "${Filename}"
       }
     },
     {
@@ -50,8 +50,8 @@
       "name": "Scan QR & Barcodes",
       "enabled": true,
       "parameters": {
-        "setVariable": "Barcode.Text",
-        "copyToClipboard": false
+        "OutputVariable": "Barcode.Text",
+        "CopyToClipboard": false
       }
     },
     {
@@ -60,7 +60,7 @@
       "name": "Print to Console",
       "enabled": true,
       "parameters": {
-        "text": "${Barcode.Text}"
+        "Text": "${Barcode.Text}"
       }
     }
   ],
@@ -68,14 +68,15 @@
     "startNodes": [
       "load_file"
     ],
-    "transitions": {
-      "load_file": [
-        "scan_barcodes"
-      ],
-      "scan_barcodes": [
-        "print_result"
-      ]
-    },
-    "conditionalTransitions": []
+    "transitions": [
+      {
+        "from": "load_file",
+        "to": "scan_barcodes"
+      },
+      {
+        "from": "scan_barcodes",
+        "to": "print_result"
+      }
+    ]
   }
 }

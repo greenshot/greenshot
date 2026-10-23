@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "version": "1.0",
+  "version": "2.0",
   "id": "recipe_cli_convert_format",
   "name": "CLI Image Format Converter",
   "description": "Loads an image file, converts it to the requested target format (png, jpg, webp, bmp, gif, tiff), and saves it under the same name with the new extension.",
@@ -10,11 +10,11 @@
       "name": "Image Format Converter Trigger",
       "enabled": true,
       "parameters": {
-        "command": "convert",
-        "description": "Convert an image from one format to another",
-        "fireAndForget": false,
-        "stdout": "${Destination.Filename}",
-        "arguments": [
+        "Command": "convert",
+        "Description": "Convert an image from one format to another",
+        "FireAndForget": false,
+        "Stdout": "${Destination.Filename}",
+        "Arguments": [
           {
             "name": "file",
             "variable": "Filename",
@@ -26,7 +26,14 @@
             "name": "format",
             "variable": "Format",
             "type": "Enum",
-            "allowedValues": [ "png", "jpg", "webp", "bmp", "gif", "tiff" ],
+            "allowedValues": [
+              "png",
+              "jpg",
+              "webp",
+              "bmp",
+              "gif",
+              "tiff"
+            ],
             "description": "Target image format (png, jpg, webp, bmp, gif, tiff)",
             "required": false,
             "defaultValue": "jpg"
@@ -42,8 +49,8 @@
       "name": "Load Source Image",
       "enabled": true,
       "parameters": {
-        "sourceType": "File",
-        "filename": "${Filename}"
+        "SourceType": "File",
+        "Filename": "${Filename}"
       }
     },
     {
@@ -64,7 +71,7 @@
       "name": "Print Saved Path",
       "enabled": true,
       "parameters": {
-        "text": "${Destination.Filename}"
+        "Text": "${Destination.Filename}"
       }
     }
   ],
@@ -72,14 +79,15 @@
     "startNodes": [
       "load_file"
     ],
-    "transitions": {
-      "load_file": [
-        "save_converted"
-      ],
-      "save_converted": [
-        "print_result"
-      ]
-    },
-    "conditionalTransitions": []
+    "transitions": [
+      {
+        "from": "load_file",
+        "to": "save_converted"
+      },
+      {
+        "from": "save_converted",
+        "to": "print_result"
+      }
+    ]
   }
 }

@@ -32,7 +32,6 @@ using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Recipes.Approval;
 using log4net;
-using Newtonsoft.Json.Linq;
 
 namespace Greenshot.Recipes
 {
@@ -224,9 +223,9 @@ namespace Greenshot.Recipes
                 {
                     text += " (disabled)";
                 }
-                else if (!string.IsNullOrWhiteSpace(node.EnabledExpression))
+                else if (!string.IsNullOrWhiteSpace(node.When))
                 {
-                    text += $" (only when {node.EnabledExpression})";
+                    text += $" (only when {node.When})";
                 }
                 lines.Add(new RecipeDescriptionLine(text, mainRisk));
                 foreach (var action in gatedActions)
@@ -319,10 +318,9 @@ namespace Greenshot.Recipes
                     ? "Sends the result to the destinations from the settings"
                     : $"Sends the result to {string.Join(", ", designations.Select(GetDestinationName))}";
             }
-            if (Is(type, WellKnownStepTypes.Processors))
+            if (Is(type, WellKnownStepTypes.Ocr))
             {
-                var processors = GetStrings(node, "ProcessorIds");
-                return processors.Count == 0 ? "Runs the processors from the settings" : $"Runs {string.Join(", ", processors.Select(GetProcessorName))}";
+                return "Reads the text of the capture (OCR)";
             }
             if (Is(type, WellKnownStepTypes.Conditional))
             {
@@ -330,7 +328,8 @@ namespace Greenshot.Recipes
             }
             if (Is(type, WellKnownStepTypes.SetVariable))
             {
-                return $"Sets the variable {node.GetParameter("Variable", "?")}";
+                var names = node.GetParameter<Dictionary<string, object>>("Variables")?.Keys.ToList() ?? new List<string>();
+                return names.Count == 1 ? $"Sets the variable {names[0]}" : $"Sets the variables {string.Join(", ", names)}";
             }
             if (Is(type, WellKnownStepTypes.Clipboard))
             {
@@ -386,7 +385,7 @@ namespace Greenshot.Recipes
                     what = node.HasParameter("PreSuppliedRegion") ? "Captures a given part of the screen" : "Captures a region you select";
                     break;
                 case "window":
-                    string title = node.GetParameter<string>("WindowTitle") ?? node.GetParameter<string>("WindowTitlePattern");
+                    string title = node.GetParameter<string>("WindowTitlePattern");
                     string process = node.GetParameter<string>("ProcessName");
                     what = node.HasParameter("WindowHandle") ? "Captures the window passed to the recipe"
                         : !string.IsNullOrWhiteSpace(title) ? $"Captures the window \"{title}\""
@@ -458,8 +457,6 @@ namespace Greenshot.Recipes
                     return text;
                 case bool flag:
                     return flag ? "yes" : "no";
-                case JValue jValue:
-                    return FormatValue(jValue.Value);
                 case IFormattable formattable:
                     return formattable.ToString(null, CultureInfo.InvariantCulture);
                 default:
@@ -507,25 +504,6 @@ namespace Greenshot.Recipes
                 Log.Debug($"Could not look up the destination '{designation}'.", ex);
             }
             return designation;
-        }
-
-        private static string GetProcessorName(string processorId)
-        {
-            try
-            {
-                var processor = SimpleServiceProvider.Current?.GetAllInstances<IProcessor>()
-                    .FirstOrDefault(p => string.Equals(p.Designation, processorId, StringComparison.OrdinalIgnoreCase) ||
-                                         string.Equals(p.GetType().Name, processorId, StringComparison.OrdinalIgnoreCase));
-                if (!string.IsNullOrWhiteSpace(processor?.Description))
-                {
-                    return processor.Description;
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Debug($"Could not look up the processor '{processorId}'.", ex);
-            }
-            return processorId.EndsWith("Processor", StringComparison.Ordinal) ? processorId.Substring(0, processorId.Length - "Processor".Length) : processorId;
         }
 
         private static bool Is(string value, string expected) => string.Equals(value, expected, StringComparison.OrdinalIgnoreCase);

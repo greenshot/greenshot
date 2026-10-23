@@ -29,6 +29,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Contracts;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Recipes.Pipeline;
@@ -42,18 +43,16 @@ using Greenshot.Plugin.Zxing.Views;
 
 namespace Greenshot.Plugin.Zxing;
 
-public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvider, IRecipeDrawableProvider, IRecipeStepSchemaProvider
+public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvider, IRecipeDrawableProvider
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ZxingPlugin));
     private static IZxingConfiguration _config;
-    private TrayMenuEntry _itemPlugInConfig;
     private ZxingCaptureProcessor _captureProcessor;
     private ZxingEditorPlugin _editorPlugin;
     private ZxingHotspotTransformer _hotspotTransformer;
 
     public ValueTask DisposeAsync()
     {
-        // The menu item is removed and disposed in StopAsync
         return default;
     }
 
@@ -88,11 +87,33 @@ public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
     {
         if (registry == null) return;
 
-        registry.RegisterDrawableFactory("QRCode", (surface, p, ctx) => CreateQrDrawable(surface, p, ctx), ScaleOptions.Rational);
-        registry.RegisterDrawableFactory("Barcode", (surface, p, ctx) => CreateQrDrawable(surface, p, ctx), ScaleOptions.Default);
+        registry.RegisterDrawableFactory("QRCode", (surface, p, ctx) => CreateQrDrawable(surface, p, ctx), ScaleOptions.Rational, DrawableProperties);
+        registry.RegisterDrawableFactory("Barcode", (surface, p, ctx) => CreateQrDrawable(surface, p, ctx), ScaleOptions.Default, DrawableProperties);
         registry.RegisterDrawableConfigurator("QRCode", (p, owner) => ConfigureZxingDrawable(p, owner));
         registry.RegisterDrawableConfigurator("Barcode", (p, owner) => ConfigureZxingDrawable(p, owner));
     }
+
+    /// <summary>
+    /// The properties of the QRCode and Barcode annotations, read by <see cref="CreateQrDrawable"/>
+    /// </summary>
+    private static readonly IReadOnlyList<ParameterContract> DrawableProperties = new[]
+    {
+        new ParameterContract("QrType", description: "Text, Link, WiFi, BusinessCard, Payment, Email, CalendarEvent, Phone, Sms or Geo"),
+        new ParameterContract("Text", description: "The text or link (QrType Text or Link)"),
+        new ParameterContract("Format", description: "The barcode format, e.g. QR_CODE, CODE_128"),
+        new ParameterContract("ForeColor", ContractDataType.Color, description: "Color of the code"),
+        new ParameterContract("BackColor", ContractDataType.Color, description: "Background color"),
+        new ParameterContract("RoundedDots", ContractDataType.Boolean, description: "Rounded dots"),
+        new ParameterContract("QuietZone", ContractDataType.Integer, description: "Empty border around the code, in modules"),
+        Payload("WifiSsid"), Payload("WifiPassword"), Payload("WifiEncryption"),
+        Payload("VcardFirstName"), Payload("VcardLastName"), Payload("VcardCompany"), Payload("VcardEmail"), Payload("VcardPhone"), Payload("VcardUrl"),
+        Payload("EpcName"), Payload("EpcIban"), Payload("EpcBic"), Payload("EpcAmount"), Payload("EpcReference"), Payload("EpcMessage"),
+        Payload("EmailTo"), Payload("EmailSubject"), Payload("EmailBody"),
+        Payload("EventTitle"), Payload("EventLocation"), Payload("EventStart"), Payload("EventEnd"), Payload("EventDescription"),
+        Payload("PhoneNumber"), Payload("SmsNumber"), Payload("SmsMessage"), Payload("Latitude"), Payload("Longitude")
+    };
+
+    private static ParameterContract Payload(string name) => new ParameterContract(name, description: "Content of the code for its QrType");
 
     /// <summary>
     /// Registers recipe step factories provided by the ZXing plugin.
@@ -103,84 +124,6 @@ public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
         if (registry == null) return;
 
         registry.Register<ZxingStep>(config => new ZxingStep(config));
-    }
-
-    /// <summary>
-    /// Returns the JSON Schema fragment describing the drawables provided by this extension.
-    /// </summary>
-    public string GetDrawableSchemaJson()
-    {
-        return @"{
-  ""definitions"": {
-    ""ZxingQrDrawable"": {
-      ""type"": ""object"",
-      ""properties"": {
-        ""type"": { ""type"": ""string"", ""enum"": [""QRCode"", ""Barcode""] },
-        ""qrType"": { 
-          ""type"": ""string"", 
-          ""enum"": [""Text"", ""Link"", ""WiFi"", ""BusinessCard"", ""Payment"", ""Email"", ""CalendarEvent"", ""Phone"", ""Sms"", ""Geo""] 
-        },
-        ""text"": { ""type"": ""string"" },
-        ""foreColor"": { ""type"": ""string"" },
-        ""backColor"": { ""type"": ""string"" },
-        ""roundedDots"": { ""type"": ""boolean"" },
-        ""margin"": { ""type"": ""integer"", ""minimum"": 0 },
-        ""wifiSsid"": { ""type"": ""string"" },
-        ""wifiPassword"": { ""type"": ""string"" },
-        ""wifiEncryption"": { ""type"": ""string"", ""enum"": [""WPA"", ""WEP"", ""nopass""] },
-        ""vcardFirstName"": { ""type"": ""string"" },
-        ""vcardLastName"": { ""type"": ""string"" },
-        ""vcardCompany"": { ""type"": ""string"" },
-        ""vcardEmail"": { ""type"": ""string"" },
-        ""vcardPhone"": { ""type"": ""string"" },
-        ""vcardUrl"": { ""type"": ""string"" },
-        ""epcName"": { ""type"": ""string"" },
-        ""epcIban"": { ""type"": ""string"" },
-        ""epcBic"": { ""type"": ""string"" },
-        ""epcAmount"": { ""type"": ""string"" },
-        ""epcReference"": { ""type"": ""string"" },
-        ""epcMessage"": { ""type"": ""string"" },
-        ""emailTo"": { ""type"": ""string"" },
-        ""emailSubject"": { ""type"": ""string"" },
-        ""emailBody"": { ""type"": ""string"" },
-        ""eventTitle"": { ""type"": ""string"" },
-        ""eventLocation"": { ""type"": ""string"" },
-        ""eventStart"": { ""type"": ""string"" },
-        ""eventEnd"": { ""type"": ""string"" },
-        ""eventDescription"": { ""type"": ""string"" },
-        ""phoneNumber"": { ""type"": ""string"" },
-        ""smsNumber"": { ""type"": ""string"" },
-        ""smsMessage"": { ""type"": ""string"" },
-        ""latitude"": { ""type"": ""string"" },
-        ""longitude"": { ""type"": ""string"" }
-      }
-    }
-  }
-}";
-    }
-
-    /// <summary>
-    /// Returns the JSON Schema fragment describing custom capture steps provided by this extension.
-    /// </summary>
-    public string GetStepSchemaJson()
-    {
-        return @"{
-  ""definitions"": {
-    ""BarcodeScanStep"": {
-      ""type"": ""object"",
-      ""properties"": {
-        ""stepType"": { ""type"": ""string"", ""const"": ""BarcodeScan"" },
-        ""parameters"": {
-          ""type"": ""object"",
-          ""properties"": {
-            ""SetVariable"": { ""type"": ""string"" },
-            ""CopyToClipboard"": { ""type"": ""boolean"" }
-          }
-        }
-      }
-    }
-  }
-}";
     }
 
     /// <summary>
@@ -252,7 +195,7 @@ public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
         Color foreColor = GetColor(p, "ForeColor", Color.Black);
         Color backColor = GetColor(p, "BackColor", Color.White);
         bool rounded = GetBool(p, "RoundedDots", false);
-        int margin = GetInt(p, "Margin", 1);
+        int margin = GetInt(p, "QuietZone", 1);
 
         int? requestedW = null;
         int? requestedH = null;
@@ -394,16 +337,7 @@ public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
         string iban = GetString(p, "EpcIban") ?? "";
         string name = GetString(p, "EpcName") ?? "";
         string bic = GetString(p, "EpcBic") ?? "";
-        string amount = GetString(p, "EpcAmount") ?? "";
-        string formattedAmount = string.Empty;
-        if (double.TryParse(amount, out double amt))
-        {
-            formattedAmount = string.Format(System.Globalization.CultureInfo.InvariantCulture, "EUR{0:F2}", amt);
-        }
-        else if (!string.IsNullOrEmpty(amount))
-        {
-            formattedAmount = amount.StartsWith("EUR", StringComparison.OrdinalIgnoreCase) ? amount : $"EUR{amount}";
-        }
+        string formattedAmount = ZxingModel.FormatEpcAmount(GetString(p, "EpcAmount"));
         string reference = GetString(p, "EpcReference") ?? "";
         string message = GetString(p, "EpcMessage") ?? "";
 
@@ -462,80 +396,9 @@ public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
         return $"geo:{lat},{lon}";
     }
 
-    /// <summary>
-    /// Add the quick link to the context menu (on the UI thread)
-    /// </summary>
-    public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken) =>
-        services.GetRequiredService<IUiDispatcher>().RunOnUiAsync(Start, cancellationToken);
+    public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken) => Task.CompletedTask;
 
-    private void Start()
-    {
-        Image icon = null;
-        try
-        {
-            icon = PluginUtils.GetCachedExeIcon(FilenameHelper.FillCmdVariables(@"%windir%\system32\imageres.dll"), 97);
-        }
-        catch
-        {
-            // Ignore
-        }
-
-        _itemPlugInConfig = new TrayMenuEntry
-        {
-            Image = icon,
-            Text = PluginUtils.GetQuicklinkText("Zxing"),
-            Visible = _config?.QuicklinkEnabled ?? false
-        };
-        _itemPlugInConfig.Click += delegate { ShowSettings(); };
-
-        PluginUtils.AddToContextMenu(_itemPlugInConfig);
-        Texts.Config.LanguageChanged += OnLanguageChanged;
-        if (_config is INotifyPropertyChanged notify)
-        {
-            notify.PropertyChanged += OnConfigPropertyChanged;
-        }
-    }
-
-    private void OnConfigPropertyChanged(object sender, PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == nameof(IZxingConfiguration.QuicklinkEnabled))
-        {
-            if (_itemPlugInConfig != null)
-            {
-                _itemPlugInConfig.Visible = _config?.QuicklinkEnabled ?? false;
-            }
-        }
-    }
-
-    public void OnLanguageChanged(object sender, EventArgs e)
-    {
-        if (_itemPlugInConfig != null)
-        {
-            _itemPlugInConfig.Text = PluginUtils.GetQuicklinkText("Zxing");
-        }
-    }
-
-    public Task StopAsync(CancellationToken cancellationToken) =>
-        UiDispatcher.Current.RunOnUiAsync(() =>
-        {
-            Log.Debug("ZXing plugin shutdown.");
-            Texts.Config.LanguageChanged -= OnLanguageChanged;
-            if (_config is INotifyPropertyChanged notify)
-            {
-                notify.PropertyChanged -= OnConfigPropertyChanged;
-            }
-
-            _itemPlugInConfig?.Dispose();
-            _itemPlugInConfig = null;
-        }, cancellationToken);
-
-    /// <summary>
-    /// Show the settings of this plugin
-    /// </summary>
-    private void ShowSettings()
-    {
-        Greenshot.Base.Core.SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true)?.ShowSetting(Name);
-    }
+    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
     /// <summary>
     /// Configures a barcode or QR code drawable using the ZxingEditorForm dialog.
@@ -600,7 +463,7 @@ public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
 
         model.ForeColor = GetColor(p, "ForeColor", Color.Black);
         model.BackColor = GetColor(p, "BackColor", Color.White);
-        model.Margin = GetInt(p, "Margin", 1);
+        model.Margin = GetInt(p, "QuietZone", 1);
 
         IWin32Window win32Owner = owner as IWin32Window;
         if (win32Owner == null && owner is System.Windows.Window wpfWin)
@@ -629,7 +492,7 @@ public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
             p["QrType"] = newQrType;
             p["Text"] = model.RawText;
             p["RoundedDots"] = model.RoundedDots;
-            p["Margin"] = model.Margin;
+            p["QuietZone"] = model.Margin;
 
             p["WifiSsid"] = model.WifiSsid;
             p["WifiPassword"] = model.WifiPassword;

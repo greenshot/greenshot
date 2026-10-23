@@ -22,7 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using Greenshot.Base.Recipes.Pipeline;
 
 namespace Greenshot.Base.Recipes
@@ -40,13 +40,20 @@ namespace Greenshot.Base.Recipes
         /// <summary>
         /// "recipe" or "extension", written first in the file
         /// </summary>
-        [JsonProperty("kind", Order = -10)]
         public abstract string Kind { get; }
 
         /// <summary>
-        /// The schema version (e.g. "1.0").
+        /// The JSON schema of the file, for editors (e.g. "../recipe.schema.json"); Greenshot doesn't read it
         /// </summary>
-        public string Version { get; set; } = "1.0";
+        [JsonPropertyName("$schema"), JsonPropertyOrder(-20)]
+        public string Schema { get; set; }
+
+        /// <summary>
+        /// The version of the recipe format: "2.0" since transitions are one list and conditions are in "when".
+        /// </summary>
+        public string Version { get; set; } = CurrentVersion;
+
+        public const string CurrentVersion = "2.0";
 
         public string Id { get; set; }
         public string Name { get; set; }
@@ -70,7 +77,7 @@ namespace Greenshot.Base.Recipes
         /// <summary>
         /// Values the user sets once in Settings > Recipes, read by the nodes with ${option.key}. See <see cref="RecipeOption"/>.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public List<RecipeOption> Options { get; set; }
 
         /// <summary>
@@ -121,6 +128,7 @@ namespace Greenshot.Base.Recipes
         /// </summary>
         protected void CopyTo(FlowDefinition clone)
         {
+            clone.Schema = Schema;
             clone.Version = Version;
             clone.Id = Id;
             clone.Name = Name;

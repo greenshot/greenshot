@@ -38,10 +38,6 @@ namespace Greenshot.Base.Recipes
         [DefaultValue(true)]
         bool Enabled { get; set; }
 
-        [Description("Whether to show a quicklink in the tray context menu for configuring or opening this plugin.")]
-        [DefaultValue(false)]
-        bool QuicklinkEnabled { get; set; }
-
         [Description("Semicolon-separated list of explicit recipe file paths to load. Automatic directory scanning is disabled for security.")]
         [DefaultValue(null)]
         string RecipeFiles { get; set; }

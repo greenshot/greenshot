@@ -516,11 +516,6 @@ namespace Greenshot.Base.Languages
         string ContextmenuCapturewindowfromlist { get; }
 
         /// <summary>
-        /// Configure {0}
-        /// </summary>
-        string ContextmenuConfigurePlugin { get; }
-
-        /// <summary>
         /// This plugin has no configurable options.
         /// </summary>
         string PluginsNoOptions { get; }
@@ -1007,11 +1002,6 @@ namespace Greenshot.Base.Languages
         string QualitydialogTitle { get; }
 
         /// <summary>
-        /// Create a quicklink to the configuration in the context menu
-        /// </summary>
-        string QuicklinkEnable { get; }
-
-        /// <summary>
         /// Automatic steps
         /// </summary>
         string QuicksettingsAutomaticsteps { get; }
@@ -1049,8 +1039,128 @@ namespace Greenshot.Base.Languages
         string ZxingContextmenuConfigure { get; }
 
         /// <summary>
-        /// Enable QR code scanning on region capture
+        /// Scan screen captures for QR codes (shown while selecting and in the notification)
         /// </summary>
-        string ZxingScanOnCapture { get; }
+        string ZxingScanScreenCaptures { get; }
+
+        /// <summary>
+        /// Sign in to {0}
+        /// </summary>
+        string SigninTitle { get; }
+
+        /// <summary>
+        /// Cloud: e-mail address and API token
+        /// </summary>
+        string SigninKindCloud { get; }
+
+        /// <summary>
+        /// User name and password
+        /// </summary>
+        string SigninKindPassword { get; }
+
+        /// <summary>
+        /// Personal access token
+        /// </summary>
+        string SigninKindToken { get; }
+
+        /// <summary>
+        /// E-mail address
+        /// </summary>
+        string SigninEmail { get; }
+
+        /// <summary>
+        /// User name
+        /// </summary>
+        string SigninUserName { get; }
+
+        /// <summary>
+        /// Password
+        /// </summary>
+        string SigninPassword { get; }
+
+        /// <summary>
+        /// API token
+        /// </summary>
+        string SigninApiToken { get; }
+
+        /// <summary>
+        /// Token
+        /// </summary>
+        string SigninAccessToken { get; }
+
+        /// <summary>
+        /// Create an API token
+        /// </summary>
+        string SigninCreateApiToken { get; }
+
+        /// <summary>
+        /// Remember in the Windows Credential Manager
+        /// </summary>
+        string SigninRemember { get; }
+
+        /// <summary>
+        /// Sign in
+        /// </summary>
+        string SigninButton { get; }
+
+        /// <summary>
+        /// Connecting…
+        /// </summary>
+        string SigninConnecting { get; }
+
+        /// <summary>
+        /// Please fill in the credentials.
+        /// </summary>
+        string SigninMissing { get; }
+
+        /// <summary>
+        /// The server didn't accept these credentials.
+        /// </summary>
+        string SigninRejected { get; }
+
+        /// <summary>
+        /// The server doesn't accept a sign-in from Greenshot right now, usually after failed attempts. Sign in once in the browser, then try again.
+        /// </summary>
+        string SigninDenied { get; }
+
+        /// <summary>
+        /// Couldn't connect to the server: {0}
+        /// </summary>
+        string SigninFailed { get; }
+
+        /// <summary>
+        /// Account
+        /// </summary>
+        string SigninAccount { get; }
+
+        /// <summary>
+        /// Signed in as {0}
+        /// </summary>
+        string SigninAccountSignedIn { get; }
+
+        /// <summary>
+        /// Credentials are stored for this server, test the connection to check them.
+        /// </summary>
+        string SigninAccountStored { get; }
+
+        /// <summary>
+        /// Not signed in
+        /// </summary>
+        string SigninAccountNotSignedIn { get; }
+
+        /// <summary>
+        /// Sign in…
+        /// </summary>
+        string SigninAccountSignIn { get; }
+
+        /// <summary>
+        /// Test connection
+        /// </summary>
+        string SigninAccountTest { get; }
+
+        /// <summary>
+        /// Sign out
+        /// </summary>
+        string SigninAccountSignOut { get; }
     }
 }

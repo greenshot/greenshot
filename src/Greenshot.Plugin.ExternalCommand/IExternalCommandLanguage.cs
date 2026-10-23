@@ -122,11 +122,6 @@ namespace Greenshot.Plugin.ExternalCommand
         string SettingsEdit { get; }
 
         /// <summary>
-        /// General settings
-        /// </summary>
-        string SettingsGeneralTitle { get; }
-
-        /// <summary>
         /// Select a command to edit details, or click New to add one.
         /// </summary>
         string SettingsInstructions { get; }

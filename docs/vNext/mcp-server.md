@@ -14,7 +14,7 @@ stdio, built with .NET 10 and Native AOT, and talks to the running Greenshot ove
 | `capture_region` | Screenshot of a part of the screen (`x,y,width,height` in screen coordinates), e.g. to see details at full resolution |
 | `capture_screen` | Screenshot of all displays |
 | `get_recipe_schema` | The recipe JSON schema and example recipes (also the resource `greenshot-mcp://recipes/schema`) |
-| `get_recipe_catalog` | What this Greenshot offers recipes: trigger types, step types with parameters, destinations (uploads marked), processors and the user's recipes; with `recipe_id` the JSON of one recipe |
+| `get_recipe_catalog` | What this Greenshot offers recipes: trigger types, step types with parameters, destinations (uploads marked) and the user's recipes; with `recipe_id` the JSON of one recipe |
 | `validate_recipe` | Checks a recipe: errors, warnings, what it does in plain words and what the user will be asked to allow |
 | `propose_recipe` | Shows a new recipe to the user, who decides whether it is saved |
 | `update_recipe` | Shows a changed version of an existing recipe (also a built-in one) with the changed lines |
@@ -84,12 +84,14 @@ Example: the built-in `capture_window` recipe as JSON.
   "nodes": [
     { "id": "acquire", "stepType": "Source", "parameters": { "SourceType": "Window", "WindowHandle": "${Window}", "CaptureMouseCursor": false, "DelayMs": 0 } },
     { "id": "ocr_wanted", "stepType": "Conditional", "parameters": { "Branches": [{ "Key": "ocr", "Expression": "${Ocr}" }] } },
-    { "id": "ocr", "stepType": "Processors", "parameters": { "ProcessorIds": ["Windows10OcrProcessor"] } }
+    { "id": "ocr", "stepType": "Ocr" }
   ],
   "flow": {
     "startNodes": ["acquire"],
-    "transitions": { "acquire": ["ocr_wanted"] },
-    "conditionalTransitions": [{ "from": "ocr_wanted", "branch": "ocr", "to": "ocr" }]
+    "transitions": [
+      { "from": "acquire", "to": "ocr_wanted" },
+      { "from": "ocr_wanted", "branch": "ocr", "to": "ocr" }
+    ]
   }
 }
 ```

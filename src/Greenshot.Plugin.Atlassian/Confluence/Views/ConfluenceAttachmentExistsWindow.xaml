@@ -1,0 +1,42 @@
+﻿<Window x:Class="Greenshot.Plugin.Atlassian.Confluence.Views.ConfluenceAttachmentExistsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
+        Title="{wpf:Text Confluence.AttachmentExistsTitle}"
+        Width="460" SizeToContent="Height"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Topmost="True"
+        Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"
+        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
+        WindowStyle="None">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/DialogStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Border BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}" BorderThickness="1">
+        <DockPanel>
+            <wpf:ThemedTitleBar DockPanel.Dock="Top"/>
+
+            <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="16,0,16,16">
+                <Button Content="{wpf:Text Confluence.Upload}" Style="{StaticResource PrimaryButtonStyle}" IsDefault="True" Margin="0,0,6,0" Click="Upload_Click"/>
+                <Button Content="{wpf:Text Core.Cancel}" Style="{StaticResource SecondaryButtonStyle}" IsCancel="True"/>
+            </StackPanel>
+
+            <StackPanel Margin="16,10,16,12">
+                <TextBlock x:Name="MessageText" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                <RadioButton x:Name="NewVersionButton" Content="{wpf:Text Confluence.AttachmentNewVersion}" GroupName="Choice" IsChecked="True"
+                             Style="{StaticResource DefaultRadioButtonStyle}" Margin="0,0,0,6"/>
+                <RadioButton x:Name="OtherNameButton" Content="{wpf:Text Confluence.AttachmentOtherName}" GroupName="Choice" Checked="OtherNameButton_Checked"
+                             Style="{StaticResource DefaultRadioButtonStyle}" Margin="0,0,0,6"/>
+                <TextBox x:Name="OtherNameBox" Margin="22,0,0,0" AutomationProperties.Name="{wpf:Text Confluence.Filename}"
+                         IsEnabled="{Binding IsChecked, ElementName=OtherNameButton}"/>
+            </StackPanel>
+        </DockPanel>
+    </Border>
+</Window>

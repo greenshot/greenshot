@@ -50,11 +50,11 @@ namespace Greenshot.Helpers
         }
 
         /// <summary>
-        /// Reloads the application configuration and updates the user interface and hotkey settings accordingly.
+        /// Reads the configuration again (--reload) and applies it: language, tray tooltip and hotkeys.
         /// </summary>
-        /// <remarks>This method refreshes the configuration from persistent storage, updates UI elements
-        /// to reflect any changes, and re-registers hotkeys. It should be called when configuration settings are
-        /// modified at runtime to ensure the application state remains consistent.</remarks>
+        /// <remarks>greenshot.ini is locked while Greenshot runs (only readable for others), so what can change is greenshot-fixed.ini,
+        /// e.g. an administrator who rolls out a new value. greenshot-defaults.ini only fills keys which are missing in greenshot.ini, and
+        /// greenshot.ini holds every key once it was saved, so a changed default rarely shows.</remarks>
         public static void ReloadConfig()
         {
             // Hotkeys and the UI belong to the UI thread: runs inline there, otherwise posted to it
@@ -68,8 +68,9 @@ namespace Greenshot.Helpers
                 // Make sure the current hotkeys are disabled
                 HotkeyManager.UnregisterHotkeys();
                 IniConfigRegistry.Get().Reload();
+                // The language of the reloaded configuration (e.g. fixed in greenshot-fixed.ini), the texts and open windows follow (LanguageChanged)
+                Texts.SetLanguage(IniConfigRegistry.GetSection<ICoreConfiguration>().Language);
                 var shell = SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true);
-                // Even update language when needed
                 shell?.UpdateUi();
                 // Update the hotkey
                 TriggerManager.Instance.RestartHotkeyTriggers();

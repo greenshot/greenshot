@@ -32,7 +32,6 @@
     <Grid Margin="4">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="190"/>
@@ -193,11 +192,5 @@
                 </StackPanel>
             </Grid>
         </Border>
-
-        <!-- Quicklink -->
-        <CheckBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
-                  Margin="0,8,0,0"
-                  IsChecked="{Binding Config.QuicklinkEnabled}"
-                  Content="{wpf:Text Core.QuicklinkEnable}"/>
     </Grid>
 </UserControl>
