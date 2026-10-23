@@ -604,20 +604,123 @@ begin
 end;
 
 /////////////////////////////////////////////////////////////////////
+// How long to wait for the uninstaller of an old version before giving up on it
+const
+	UninstallTimeoutMs = 60000;
+
+function GetTickCount: DWord; external 'GetTickCount@kernel32.dll stdcall';
+
+// Find the processes of a running uninstaller: the first phase (e.g. unins000.exe) and the second phase
+// (_unins.tmp in a temporary directory), which has the path of the first phase in its command line.
+// Result: -1 if the processes could not be queried, else the number of processes found.
+// If terminate is true, the processes found are ended.
+function FindUninstallerProcesses(uninstallerPath: String; terminate: Boolean): Integer;
+var
+	wmiLocator, wmiService, wmiProcesses, wmiProcess: Variant;
+	query, commandLine: String;
+	index, processId: Integer;
+begin
+	Result := 0;
+	try
+		wmiLocator := CreateOleObject('WbemScripting.SWbemLocator');
+		wmiService := wmiLocator.ConnectServer('.', 'root\CIMV2');
+		query := 'SELECT ProcessId, CommandLine FROM Win32_Process WHERE Name = ''' + ExtractFileName(uninstallerPath) + ''' OR Name = ''_unins.tmp''';
+		wmiProcesses := wmiService.ExecQuery(query);
+		for index := 0 to wmiProcesses.Count - 1 do
+		begin
+			wmiProcess := wmiProcesses.ItemIndex(index);
+			if VarIsNull(wmiProcess.CommandLine) then
+				continue;
+			commandLine := wmiProcess.CommandLine;
+			if Pos(Lowercase(uninstallerPath), Lowercase(commandLine)) = 0 then
+				continue;
+			Result := Result + 1;
+			if terminate then
+			begin
+				processId := wmiProcess.ProcessId;
+				Log(Format('Ending uninstaller process %d: %s', [processId, commandLine]));
+				wmiProcess.Terminate();
+			end;
+		end;
+	except
+		Log('Could not query the uninstaller processes: ' + GetExceptionMessage());
+		Result := -1;
+	end;
+end;
+
+// Run the uninstaller of an old version and wait until it is done, but not longer than UninstallTimeoutMs.
+// An uninstaller that never finishes (it was reported as "Suspended" in issue #1588) must not block the installation.
+function RunOldUninstaller(uninstallerPath: String): Boolean;
+var
+	iResultCode: Integer;
+	startTime, elapsed: DWord;
+	found, notFoundCount: Integer;
+begin
+	Result := false;
+	if not FileExists(uninstallerPath) then
+	begin
+		Log('Old uninstaller does not exist, skipping it: ' + uninstallerPath);
+		exit;
+	end;
+	Log('Running the old uninstaller: ' + uninstallerPath);
+	if not Exec(uninstallerPath, '/SILENT /NORESTART /SUPPRESSMSGBOXES', '', SW_HIDE, ewNoWait, iResultCode) then
+	begin
+		Log(Format('Could not start the old uninstaller, error %d: %s', [iResultCode, SysErrorMessage(iResultCode)]));
+		exit;
+	end;
+	Result := true;
+	startTime := GetTickCount();
+	notFoundCount := 0;
+	while true do
+	begin
+		Sleep(250);
+		elapsed := GetTickCount() - startTime;
+		found := FindUninstallerProcesses(uninstallerPath, false);
+		if found < 0 then
+		begin
+			// No process information, the uninstaller deletes itself when it is done
+			if not FileExists(uninstallerPath) then
+				break;
+		end
+		else if found = 0 then
+		begin
+			// Two polls in a row without a process, the first phase may hand over to the second phase in between
+			notFoundCount := notFoundCount + 1;
+			if notFoundCount >= 2 then
+				break;
+		end
+		else
+			notFoundCount := 0;
+		if elapsed >= UninstallTimeoutMs then
+		begin
+			Log(Format('The old uninstaller did not finish within %d seconds, continuing without it: %s', [UninstallTimeoutMs div 1000, uninstallerPath]));
+			FindUninstallerProcesses(uninstallerPath, true);
+			exit;
+		end;
+	end;
+	Log(Format('The old uninstaller finished after %d ms', [GetTickCount() - startTime]));
+end;
+
+/////////////////////////////////////////////////////////////////////
 procedure UnInstallOldVersions();
 var
 	sUnInstallString: String;
+	sDone: String;
 	index: Integer;
 	isUninstallMade: Boolean;
-	iResultCode : Integer;
 	asUninstallStrings : array of String;
 begin
 	isUninstallMade := false;
+	sDone := '|';
 	asUninstallStrings := GetUninstallStrings();
 	for index := 0 to (GetArrayLength(asUninstallStrings) -1) do
 	begin
 		sUnInstallString := RemoveQuotes(asUninstallStrings[index]);
-		if Exec(sUnInstallString, '/SILENT /NORESTART /SUPPRESSMSGBOXES','', SW_HIDE, ewWaitUntilTerminated, iResultCode) then
+		// HKCU32 and HKCU64 are the same key, don't run the same uninstaller twice
+		if Pos('|' + Lowercase(sUnInstallString) + '|', sDone) > 0 then
+			continue;
+		sDone := sDone + Lowercase(sUnInstallString) + '|';
+		if RunOldUninstaller(sUnInstallString) then
 			isUninstallMade := true;
 	end;
 
