@@ -47,8 +47,6 @@ tags: [uses_alerts]
 </p>
 
 
-<p><a href="#" onclick="jQuery('#w8info').slideToggle();return false;">(Info for Windows 8 users)</a><br/> <span id="w8info" style="display:none">Windows might ask you to install .NET 3.5 when running Greenshot. You can skip this. <a href="/faq/why-does-windows-8-suggest-to-install-earlier-net-versions-when-starting-greenshot/">Read more</a></span></p>
-
 <h2>Source code</h2>
 <p>If you want to have a look at the source code, you can do so in Greenshot's Git repositories at
 <a href="https://github.com/greenshot/greenshot/">GitHub</a> or
