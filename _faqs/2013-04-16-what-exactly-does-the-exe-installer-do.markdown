@@ -9,7 +9,7 @@ tags: []
 
 The Exe Installer does the following things:
 
-1. check pre-requisites (.NET 2.0 or higher)
+1. check pre-requisites (.NET Framework 4.7.2 or higher)
 2. display the license, ask where and what to install
 3. uninstall any previously installed Greenshot
 4. copy all the Greenshot files, including selected languages and plugins, to `Program files\Greenshot` (the actual path depends on 32 or 64 bit OS)
