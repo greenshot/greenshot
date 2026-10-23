@@ -557,68 +557,57 @@ end;
 // https://stackoverflow.com/questions/2000296/innosetup-how-to-automatically-uninstall-previous-installed-version
 // and than modified to work in a 32/64 bit environment
 /////////////////////////////////////////////////////////////////////
-function GetUninstallStrings(): array of String;
+// Uninstall the previous installation registered under the supplied root key.
+// The installation in the directory we install to is updated in place, its old plugins are removed by [InstallDelete].
+// Its uninstaller isn't started: on some systems it never finishes, and setup would wait for it forever (#1588).
+procedure UnInstallOldVersion(RootKey: Integer; var isUninstallMade: Boolean);
 var
 	sUnInstPath: String;
 	sUnInstallString: String;
-	asUninstallStrings : array of String;
-	index : Integer;
+	sInstallLocation: String;
+	iResultCode: Integer;
 begin
 	sUnInstPath := ExpandConstant('Software\Microsoft\Windows\CurrentVersion\Uninstall\{#emit SetupSetting("AppId")}_is1');
-	sUnInstallString := '';
-	index := 0;
+	if not RegQueryStringValue(RootKey, sUnInstPath, 'UninstallString', sUnInstallString) then
+		exit;
+	sUnInstallString := RemoveQuotes(sUnInstallString);
 
-	// Retrieve uninstall string from HKLM32 or HKCU32
-	if RegQueryStringValue(HKLM32, sUnInstPath, 'UninstallString', sUnInstallString) then
+	if RegQueryStringValue(RootKey, sUnInstPath, 'InstallLocation', sInstallLocation) and
+		(CompareText(AddBackslash(sInstallLocation), AddBackslash(ExpandConstant('{app}'))) = 0) then
 	begin
-		SetArrayLength(asUninstallStrings, index + 1);
-		asUninstallStrings[index] := sUnInstallString;
-		index := index +1;
+		Log('The previous installation in ' + sInstallLocation + ' is updated in place.');
+		exit;
 	end;
 
-	if RegQueryStringValue(HKCU32, sUnInstPath, 'UninstallString', sUnInstallString) then
+	if not FileExists(sUnInstallString) then
 	begin
-		SetArrayLength(asUninstallStrings, index + 1);
-		asUninstallStrings[index] := sUnInstallString;
-		index := index +1;
+		Log('The previous installation has no uninstaller ' + sUnInstallString + ', it is left alone.');
+		exit;
 	end;
 
-	// Only for Windows with 64 bit support: Retrieve uninstall string from HKLM64 or HKCU64
-	if IsWin64 then
+	Log('Removing the previous installation in ' + sInstallLocation + ': ' + sUnInstallString);
+	if Exec(sUnInstallString, '/SILENT /NORESTART /SUPPRESSMSGBOXES', '', SW_SHOW, ewWaitUntilTerminated, iResultCode) then
 	begin
-		if RegQueryStringValue(HKLM64, sUnInstPath, 'UninstallString', sUnInstallString) then
-		begin
-			SetArrayLength(asUninstallStrings, index + 1);
-			asUninstallStrings[index] := sUnInstallString;
-			index := index +1;
-		end;
-
-		if RegQueryStringValue(HKCU64, sUnInstPath, 'UninstallString', sUnInstallString) then
-		begin
-			SetArrayLength(asUninstallStrings, index + 1);
-			asUninstallStrings[index] := sUnInstallString;
-			index := index +1;
-		end;
-	end;
-	Result := asUninstallStrings;
+		Log('The uninstaller finished with exit code ' + IntToStr(iResultCode));
+		isUninstallMade := true;
+	end
+	else
+		Log('The uninstaller could not be started: ' + SysErrorMessage(iResultCode));
 end;
 
 /////////////////////////////////////////////////////////////////////
 procedure UnInstallOldVersions();
 var
-	sUnInstallString: String;
-	index: Integer;
 	isUninstallMade: Boolean;
-	iResultCode : Integer;
-	asUninstallStrings : array of String;
 begin
 	isUninstallMade := false;
-	asUninstallStrings := GetUninstallStrings();
-	for index := 0 to (GetArrayLength(asUninstallStrings) -1) do
+	UnInstallOldVersion(HKLM32, isUninstallMade);
+	UnInstallOldVersion(HKCU32, isUninstallMade);
+	// Only for Windows with 64 bit support
+	if IsWin64 then
 	begin
-		sUnInstallString := RemoveQuotes(asUninstallStrings[index]);
-		if Exec(sUnInstallString, '/SILENT /NORESTART /SUPPRESSMSGBOXES','', SW_HIDE, ewWaitUntilTerminated, iResultCode) then
-			isUninstallMade := true;
+		UnInstallOldVersion(HKLM64, isUninstallMade);
+		UnInstallOldVersion(HKCU64, isUninstallMade);
 	end;
 
 	// Wait a few seconds to prevent installation issues, otherwise files are removed in one process while the other tries to link to them
