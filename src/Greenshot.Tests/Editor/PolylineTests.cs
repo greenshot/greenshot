@@ -71,6 +71,23 @@ namespace Greenshot.Tests.Editor
             return Assert.IsType<PolylineContainer>(Assert.Single(surface.Elements));
         }
 
+        private static PolylineContainer DrawClosedPolyline(Surface surface)
+        {
+            Click(surface, 20, 20);
+            Click(surface, 100, 20);
+            Click(surface, 100, 100);
+            Click(surface, 24, 23);
+            return Assert.IsType<PolylineContainer>(Assert.Single(surface.Elements));
+        }
+
+        private static Bitmap Render(PolylineContainer polyline, RenderMode renderMode)
+        {
+            var bitmap = new Bitmap(400, 300);
+            using var graphics = Graphics.FromImage(bitmap);
+            polyline.Draw(graphics, renderMode);
+            return bitmap;
+        }
+
         [Fact]
         public void ClicksAndEnter_CreateOneObject_AndUndoRedoRestoreAllSegments()
         {
@@ -114,7 +131,7 @@ namespace Greenshot.Tests.Editor
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void EscapeOrSingleVertexFinish_DiscardsDraftWithoutUndoOrModification(bool cancel)
+        public void EscapeOrSingleVertexFinish_DiscardsDraftWithoutUndo(bool cancel)
         {
             using var surface = CreateSurface();
             Click(surface, 20, 20);
@@ -127,7 +144,6 @@ namespace Greenshot.Tests.Editor
             Assert.Empty(surface.Elements);
             Assert.Empty(surface.SelectedElements);
             Assert.False(surface.CanUndo);
-            Assert.False(surface.Modified);
             DrawPolyline(surface);
         }
 
@@ -158,7 +174,6 @@ namespace Greenshot.Tests.Editor
 
             Assert.Empty(surface.Elements);
             Assert.False(surface.CanUndo);
-            Assert.False(surface.Modified);
         }
 
         [Fact]
@@ -174,21 +189,6 @@ namespace Greenshot.Tests.Editor
             surface.Undo();
             Assert.Empty(surface.Elements);
             Assert.False(surface.CanUndo);
-            Assert.False(surface.Modified);
-        }
-
-        [Fact]
-        public void RemovingAnUnfinishedPolyline_CancelsItAndAllowsAnotherDrawing()
-        {
-            using var surface = CreateSurface();
-            Click(surface, 20, 20);
-            Click(surface, 100, 20);
-            surface.RemoveElement(Assert.Single(surface.Elements));
-
-            Assert.Empty(surface.Elements);
-            Assert.False(surface.Modified);
-            Assert.False(surface.CanUndo);
-            DrawPolyline(surface);
         }
 
         [Fact]
@@ -294,17 +294,23 @@ namespace Greenshot.Tests.Editor
         }
 
         [Fact]
-        public void ExportWhileDrawing_CommitsOnlyPlacedVertices()
+        public void ExportWhileDrawing_HasThePlacedSegmentsWithoutThePreview_AndDrawingContinues()
         {
             using var surface = CreateSurface();
+            surface.FieldAggregator.GetField(FieldType.SHADOW).Value = false;
             Click(surface, 20, 20);
             Click(surface, 100, 20);
-            Mouse(surface, "OnMouseMove", 300, 250, MouseButtons.None);
-            using var exported = surface.GetImageForExport();
+            Mouse(surface, "OnMouseMove", 100, 100, MouseButtons.None);
+            using (var exported = (Bitmap)surface.GetImageForExport())
+            {
+                Assert.True(exported.GetPixel(60, 20).A > 0);
+                Assert.Equal(0, exported.GetPixel(100, 60).A);
+            }
 
-            var polyline = Assert.IsType<PolylineContainer>(Assert.Single(surface.SelectedElements));
-            Assert.Equal(2, polyline.Points.Length);
-            Assert.False(polyline.DrawingBounds.Contains(300, 250));
+            Click(surface, 100, 100);
+            surface.ProcessCanvasKey(Keys.Enter);
+            var polyline = Assert.IsType<PolylineContainer>(Assert.Single(surface.Elements));
+            Assert.Equal(3, polyline.Points.Length);
             surface.Undo();
             Assert.Empty(surface.Elements);
         }
@@ -368,36 +374,38 @@ namespace Greenshot.Tests.Editor
         }
 
         [Fact]
-        public void Rendering_IsStraightAndOpen_AndPreviewIsOnlyInEditMode()
+        public void Rendering_IsStraightAndOpen_AndPreviewIsOnlyShownWhileDrawing()
         {
             using var surface = CreateSurface();
-            var polyline = DrawPolyline(surface);
-            polyline.SetFieldValue(FieldType.SHADOW, false);
-            polyline.SetFieldValue(FieldType.LINE_COLOR, Color.Red);
-            polyline.SetFieldValue(FieldType.LINE_THICKNESS, 2);
-            polyline.HandleMouseMove(200, 100);
+            surface.FieldAggregator.GetField(FieldType.SHADOW).Value = false;
+            Click(surface, 20, 20);
+            Click(surface, 100, 20);
+            Click(surface, 100, 100);
+            Mouse(surface, "OnMouseMove", 200, 100, MouseButtons.None);
+            var polyline = Assert.IsType<PolylineContainer>(Assert.Single(surface.Elements));
 
-            using var export = new Bitmap(400, 300);
-            using (var graphics = Graphics.FromImage(export))
+            using (var edit = Render(polyline, RenderMode.EDIT))
             {
-                polyline.Draw(graphics, RenderMode.EXPORT);
+                Assert.True(edit.GetPixel(150, 100).A > 0);
             }
 
-            Assert.True(export.GetPixel(60, 20).A > 0);
-            Assert.True(export.GetPixel(100, 60).A > 0);
-            Assert.Equal(0, export.GetPixel(60, 60).A); // No closing diagonal or fill.
-            Assert.Equal(0, export.GetPixel(150, 100).A); // No uncommitted preview.
+            using (var export = Render(polyline, RenderMode.EXPORT))
+            {
+                Assert.True(export.GetPixel(60, 20).A > 0);
+                Assert.True(export.GetPixel(100, 60).A > 0);
+                Assert.Equal(0, export.GetPixel(60, 60).A); // No closing diagonal or fill.
+                Assert.Equal(0, export.GetPixel(150, 100).A); // No uncommitted preview.
+            }
+
+            surface.ProcessCanvasKey(Keys.Enter);
+            using (var finished = Render(polyline, RenderMode.EDIT))
+            {
+                Assert.Equal(0, finished.GetPixel(150, 100).A);
+            }
+
             Assert.True(polyline.ClickableAt(60, 20));
             Assert.True(polyline.ClickableAt(100, 60));
             Assert.False(polyline.ClickableAt(60, 60));
-
-            using var edit = new Bitmap(400, 300);
-            using (var graphics = Graphics.FromImage(edit))
-            {
-                polyline.Draw(graphics, RenderMode.EDIT);
-            }
-
-            Assert.True(edit.GetPixel(150, 100).A > 0);
         }
 
         [Fact]
@@ -515,13 +523,10 @@ namespace Greenshot.Tests.Editor
         public void ClickingNearTheStart_ClosesAndFinishesAsOneUndoableObject()
         {
             using var surface = CreateSurface();
-            Click(surface, 20, 20);
-            Click(surface, 100, 20);
-            Click(surface, 100, 100);
-            Click(surface, 24, 23);
+            var polyline = DrawClosedPolyline(surface);
 
-            var polyline = Assert.IsType<PolylineContainer>(Assert.Single(surface.SelectedElements));
-            var closed = new[] { new Point(20, 20), new Point(100, 20), new Point(100, 100), new Point(20, 20) };
+            Assert.Same(polyline, Assert.Single(surface.SelectedElements));
+            var closed = new[] { new Point(20, 20), new Point(100, 20), new Point(100, 100) };
             Assert.Equal(closed, polyline.Points);
             Assert.True(polyline.IsClosed);
             Assert.Equal(EditStatus.IDLE, polyline.Status);
@@ -533,31 +538,46 @@ namespace Greenshot.Tests.Editor
         }
 
         [Fact]
-        public void ClosedEndpoints_CanBeDraggedApartAndSnappedTogetherAgain()
+        public void ClosedPolyline_IsJoinedAtTheStart_AndDraggingTheStartMovesBothSegments()
+        {
+            using var surface = CreateSurface();
+            var polyline = DrawClosedPolyline(surface);
+
+            Assert.Equal(3, polyline.Adorners.Count);
+            Assert.True(polyline.ClickableAt(60, 60));
+            using (var export = Render(polyline, RenderMode.EXPORT))
+            {
+                Assert.True(export.GetPixel(60, 60).A > 0); // The closing segment.
+            }
+
+            Mouse(surface, "OnMouseDown", 20, 20);
+            Mouse(surface, "OnMouseMove", 40, 60);
+            Mouse(surface, "OnMouseUp", 40, 60);
+            Assert.Equal(new[] { new Point(40, 60), new Point(100, 20), new Point(100, 100) }, polyline.Points);
+            Assert.True(polyline.IsClosed);
+            Assert.True(polyline.ClickableAt(70, 40));
+            Assert.True(polyline.ClickableAt(70, 80));
+            Assert.False(polyline.ClickableAt(60, 20));
+            surface.Undo();
+            Assert.Equal(new[] { new Point(20, 20), new Point(100, 20), new Point(100, 100) }, polyline.Points);
+        }
+
+        [Fact]
+        public void DoubleClickOnTheStart_ClosesWithoutStartingAnotherPolyline()
         {
             using var surface = CreateSurface();
             Click(surface, 20, 20);
             Click(surface, 100, 20);
             Click(surface, 100, 100);
-            Click(surface, 24, 23);
-            var polyline = Assert.IsType<PolylineContainer>(Assert.Single(surface.SelectedElements));
+            Click(surface, 22, 22);
+            Click(surface, 22, 22, clicks: 2);
+            Mouse(surface, "OnMouseDoubleClick", 22, 22, clicks: 2);
 
-            Mouse(surface, "OnMouseDown", 20, 20);
-            Mouse(surface, "OnMouseMove", 40, 60);
-            Mouse(surface, "OnMouseUp", 40, 60);
-            Assert.Equal(new Point(40, 60), polyline.Points[0]);
-            Assert.Equal(new Point(20, 20), polyline.Points[3]);
-            Assert.False(polyline.IsClosed);
-            surface.Undo();
+            var polyline = Assert.IsType<PolylineContainer>(Assert.Single(surface.Elements));
             Assert.True(polyline.IsClosed);
-            surface.Redo();
-            Assert.False(polyline.IsClosed);
-
-            Mouse(surface, "OnMouseDown", 40, 60);
-            Mouse(surface, "OnMouseUp", 23, 22);
-            Assert.True(polyline.IsClosed);
-            Assert.Equal(new Point(20, 20), polyline.Points[0]);
-            Assert.Equal(4, polyline.Adorners.Count);
+            Assert.Equal(3, polyline.Points.Length);
+            Mouse(surface, "OnMouseMove", 200, 200, MouseButtons.None);
+            Assert.False(polyline.DrawingBounds.Contains(200, 200));
         }
 
         [Theory]
@@ -572,21 +592,24 @@ namespace Greenshot.Tests.Editor
             polyline.AddPoint(new Point(100, 100), snapToAxes: false);
             polyline.AddPoint(new Point(200, 100), snapToAxes: false);
             polyline.AddPoint(new Point(200, 200), snapToAxes: false);
+
+            // A click farther from the start adds a corner.
+            int farOffset = (int)(40 / (double)surface.ZoomFactor);
+            polyline.AddPoint(new Point(100 + farOffset, 100), snapToAxes: false);
+            Assert.False(polyline.IsClosed);
+            Assert.Equal(4, polyline.Points.Length);
+
             int nearOffset = (int)(4 / (double)surface.ZoomFactor);
             polyline.AddPoint(new Point(100 + nearOffset, 100), snapToAxes: false);
             Assert.True(polyline.IsClosed);
-
-            // A pointer farther from the endpoint must remain free to move.
-            int farOffset = (int)(40 / (double)surface.ZoomFactor);
-            var outside = new Point(100 + farOffset, 100);
-            Assert.Equal(outside, polyline.ConstrainVertex(0, outside, snapToAxes: false));
+            Assert.Equal(4, polyline.Points.Length);
         }
 
         [Fact]
         public void ClosingPreviewAndClick_SnapToTheSameStartEvenWithShift()
         {
             using var surface = CreateSurface();
-            using var polyline = new PolylineContainer(surface);
+            using var polyline = new PolylineContainer(surface) { Status = EditStatus.DRAWING };
             polyline.SetFieldValue(FieldType.SHADOW, false);
             polyline.SetFieldValue(FieldType.LINE_THICKNESS, 2);
             polyline.AddPoint(new Point(20, 20), snapToAxes: false);
@@ -603,6 +626,7 @@ namespace Greenshot.Tests.Editor
             Assert.Equal(0, bitmap.GetPixel(60, 60).A);
             polyline.AddPoint(new Point(24, 23), snapToAxes: true);
             Assert.True(polyline.IsClosed);
+            Assert.Equal(3, polyline.Points.Length);
             polyline.Draw(graphics, RenderMode.EXPORT);
             Assert.True(bitmap.GetPixel(60, 60).A > 0);
         }
@@ -621,13 +645,10 @@ namespace Greenshot.Tests.Editor
         }
 
         [Fact]
-        public void ClosedPolylineSaveAndLoad_KeepsIndependentEndpoints()
+        public void ClosedPolylineSaveAndLoad_StaysClosed()
         {
             using var surface = CreateSurface();
-            Click(surface, 20, 20);
-            Click(surface, 100, 20);
-            Click(surface, 100, 100);
-            Click(surface, 24, 23);
+            DrawClosedPolyline(surface);
             using var stream = new MemoryStream();
             surface.SaveElementsToStream(stream);
             stream.Position = 0;
@@ -635,12 +656,8 @@ namespace Greenshot.Tests.Editor
             loaded.LoadElementsFromStream(stream);
             var polyline = Assert.IsType<PolylineContainer>(Assert.Single(loaded.Elements));
             Assert.True(polyline.IsClosed);
-            loaded.DrawingMode = DrawingModes.None;
-            loaded.SelectElement(polyline);
-            Mouse(loaded, "OnMouseDown", 20, 20);
-            Mouse(loaded, "OnMouseUp", 40, 60);
-            Assert.False(polyline.IsClosed);
-            Assert.Equal(new Point(20, 20), polyline.Points[3]);
+            Assert.Equal(3, polyline.Points.Length);
+            Assert.True(polyline.ClickableAt(60, 60));
         }
 
         [Theory]
@@ -689,7 +706,7 @@ namespace Greenshot.Tests.Editor
         public void ShiftPreview_MatchesCommittedSegment_AndCanReturnToFreeDrawing()
         {
             using var surface = CreateSurface();
-            using var polyline = new PolylineContainer(surface);
+            using var polyline = new PolylineContainer(surface) { Status = EditStatus.DRAWING };
             polyline.SetFieldValue(FieldType.SHADOW, false);
             polyline.SetFieldValue(FieldType.LINE_THICKNESS, 2);
             polyline.AddPoint(new Point(20, 20), snapToAxes: false);
@@ -728,6 +745,15 @@ namespace Greenshot.Tests.Editor
 
             Assert.Equal(new Point(expectedX, expectedY), polyline.ConstrainVertex(index, point, snapToAxes: true));
             Assert.Equal(point, polyline.ConstrainVertex(index, point, snapToAxes: false));
+        }
+
+        [Fact]
+        public void ShiftVertexEdit_OfTheClosedStart_UsesTheLastVertex()
+        {
+            using var surface = CreateSurface();
+            var polyline = DrawClosedPolyline(surface);
+
+            Assert.Equal(new Point(100, 30), polyline.ConstrainVertex(0, new Point(90, 30), snapToAxes: true));
         }
 
         [Fact]

@@ -36,15 +36,17 @@ using Greenshot.Editor.Drawing.Fields;
 namespace Greenshot.Editor.Drawing
 {
     /// <summary>
-    /// A sequence of straight segments, stored independently of its editable bounds.
+    /// A sequence of straight segments, drawn with a click per corner and stored independently of its editable bounds.
+    /// Clicking the start again closes it: the last corner connects to the first.
     /// </summary>
     [Serializable]
     public class PolylineContainer : DrawableContainer
     {
-        private const int EndpointSnapDistance = 8;
+        private const int CloseSnapDistance = 8;
 
         private List<Point> _points = new List<Point>();
         private Rectangle _pointBounds;
+        private bool _closed;
         [NonSerialized] private Point? _previewPoint;
 
         public PolylineContainer(ISurface parent) : base(parent)
@@ -94,8 +96,15 @@ namespace Greenshot.Editor.Drawing
 
         public override bool InitContent() => _points.Count >= 2;
 
-        // Closure is only coincident endpoints: they remain independent editable vertices.
-        internal bool IsClosed => _points.Count >= 4 && GetVertexPosition(0) == GetVertexPosition(_points.Count - 1);
+        /// <summary>
+        /// The last vertex connects back to the first one.
+        /// </summary>
+        internal bool IsClosed => _closed;
+
+        /// <summary>
+        /// Every click adds a corner, until the polyline is closed.
+        /// </summary>
+        public override bool AcceptsMoreClicks => !_closed;
 
         // Styling the draft is part of its creation, not a separate undoable edit.
         public override bool IsUndoable => Status is not (EditStatus.UNDRAWN or EditStatus.DRAWING);
@@ -109,13 +118,15 @@ namespace Greenshot.Editor.Drawing
         internal void AddPoint(Point point, bool snapToAxes)
         {
             Invalidate();
-            var points = new List<Point>(Points);
             point = ConstrainNewPoint(point, snapToAxes);
-
-            if (points.Count == 0 || points[points.Count - 1] != point)
+            if (_points.Count >= 3 && point == GetVertexPosition(0))
             {
-                points.Add(point);
-                SetPoints(points);
+                // After two segments, a click at the start closes the polyline instead of adding the start again.
+                _closed = true;
+            }
+            else if (_points.Count == 0 || GetVertexPosition(_points.Count - 1) != point)
+            {
+                SetPoints(new List<Point>(Points) { point });
             }
 
             _previewPoint = null;
@@ -138,7 +149,7 @@ namespace Greenshot.Editor.Drawing
         private Point ConstrainNewPoint(Point point, bool snapToAxes)
         {
             // Give closing the polyline priority over Shift's axis constraint.
-            if (_points.Count >= 3 && IsNearEndpoint(point, GetVertexPosition(0)))
+            if (_points.Count >= 3 && IsNearStart(point))
             {
                 return GetVertexPosition(0);
             }
@@ -148,21 +159,15 @@ namespace Greenshot.Editor.Drawing
                 : point;
         }
 
-        private bool IsNearEndpoint(Point point, Point endpoint)
+        private bool IsNearStart(Point point)
         {
             // Keep the magnet the same size on screen at every zoom and DPI.
+            Point start = GetVertexPosition(0);
             double zoom = Parent == null ? 1 : (double)Parent.ZoomFactor;
-            double radius = EndpointSnapDistance * (Parent?.CurrentDpi ?? 96) / 96.0;
-            double dx = ((double)point.X - endpoint.X) * zoom;
-            double dy = ((double)point.Y - endpoint.Y) * zoom;
+            double radius = CloseSnapDistance * (Parent?.CurrentDpi ?? 96) / 96.0;
+            double dx = ((double)point.X - start.X) * zoom;
+            double dy = ((double)point.Y - start.Y) * zoom;
             return dx * dx + dy * dy <= radius * radius;
-        }
-
-        public override void HandleMouseUp(int x, int y)
-        {
-            Invalidate();
-            _previewPoint = null;
-            Invalidate();
         }
 
         private void SetPoints(List<Point> points)
@@ -183,20 +188,14 @@ namespace Greenshot.Editor.Drawing
 
         internal Point ConstrainVertex(int index, Point point, bool snapToAxes)
         {
-            // Endpoints can snap together again after reopening, but are never welded.
-            if (_points.Count >= 4 && (index == 0 || index == _points.Count - 1))
+            if (!snapToAxes || _points.Count < 2)
             {
-                Point otherEndpoint = GetVertexPosition(index == 0 ? _points.Count - 1 : 0);
-                if (IsNearEndpoint(point, otherEndpoint))
-                {
-                    return otherEndpoint;
-                }
+                return point;
             }
 
-            // The first vertex has only a following neighbor; all others use the previous one.
-            return snapToAxes && _points.Count > 1
-                ? SnapToAxes(GetVertexPosition(index == 0 ? 1 : index - 1), point)
-                : point;
+            // Snap to the previous vertex; the first vertex of an open polyline only has a following one.
+            int neighbor = index > 0 ? index - 1 : _closed ? _points.Count - 1 : 1;
+            return SnapToAxes(GetVertexPosition(neighbor), point);
         }
 
         internal void MoveVertex(int index, Point point)
@@ -233,6 +232,11 @@ namespace Greenshot.Editor.Drawing
             }
         }
 
+        /// <summary>
+        /// The segment to the pointer is only shown while the polyline is drawn.
+        /// </summary>
+        private bool ShowsPreview => Status == EditStatus.DRAWING && _previewPoint.HasValue && _points.Count > 0;
+
         public override NativeRect DrawingBounds
         {
             get
@@ -243,7 +247,7 @@ namespace Greenshot.Editor.Drawing
                 }
 
                 NativeRect bounds = base.DrawingBounds;
-                if (_previewPoint.HasValue)
+                if (ShowsPreview)
                 {
                     int margin = GetFieldValueAsInt(FieldType.LINE_THICKNESS) + 15;
                     Point preview = _previewPoint.Value;
@@ -264,7 +268,7 @@ namespace Greenshot.Editor.Drawing
 
             var points = new List<Point>(Points);
             // The rubber band follows the pointer only in the editor, never in an export.
-            if (renderMode == RenderMode.EDIT && _previewPoint.HasValue && points.Count > 0)
+            if (renderMode == RenderMode.EDIT && ShowsPreview)
             {
                 points.Add(_previewPoint.Value);
             }
@@ -281,7 +285,7 @@ namespace Greenshot.Editor.Drawing
                 DrawShadow(thickness, (alpha, step, shadowPen, brush) =>
                 {
                     shadowPen.LineJoin = LineJoin.Round;
-                    graphics.DrawLines(shadowPen, vertices.Select(point => new Point(point.X + step, point.Y + step)).ToArray());
+                    DrawSegments(graphics, shadowPen, vertices.Select(point => new Point(point.X + step, point.Y + step)).ToArray());
                 });
             }
 
@@ -291,7 +295,22 @@ namespace Greenshot.Editor.Drawing
                 StartCap = LineCap.Round,
                 EndCap = LineCap.Round
             };
-            graphics.DrawLines(pen, vertices);
+            DrawSegments(graphics, pen, vertices);
+        }
+
+        /// <summary>
+        /// A closed polyline is one outline, joined at the start like at every other corner.
+        /// </summary>
+        private void DrawSegments(Graphics graphics, Pen pen, Point[] vertices)
+        {
+            if (_closed)
+            {
+                graphics.DrawPolygon(pen, vertices);
+            }
+            else
+            {
+                graphics.DrawLines(pen, vertices);
+            }
         }
 
         public override bool ClickableAt(int x, int y)
@@ -302,7 +321,15 @@ namespace Greenshot.Editor.Drawing
             }
 
             using var path = new GraphicsPath();
-            path.AddLines(Points);
+            if (_closed)
+            {
+                path.AddPolygon(Points);
+            }
+            else
+            {
+                path.AddLines(Points);
+            }
+
             using var pen = new Pen(Color.White, Math.Max(1, GetFieldValueAsInt(FieldType.LINE_THICKNESS)) + 5)
             {
                 LineJoin = LineJoin.Round

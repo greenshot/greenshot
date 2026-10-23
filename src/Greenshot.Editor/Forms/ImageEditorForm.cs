@@ -3556,7 +3556,6 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             this.btnEllipse.Text = Texts.Editor.Drawellipse;
             this.btnLine.Text = Texts.Editor.Drawline;
             this.btnPolyline.Text = Texts.Editor.Drawpolyline;
-            this.btnPolyline.ToolTipText = Texts.Editor.Drawpolyline + Environment.NewLine + Texts.Editor.PolylineHelp;
             this.btnArrow.Text = Texts.Editor.Drawarrow;
             this.btnFreehand.Text = Texts.Editor.Drawfreehand;
             this.btnText.Text = Texts.Editor.Drawtextbox;
@@ -3590,7 +3589,6 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             this.addEllipseToolStripMenuItem.Text = Texts.Editor.Drawellipse;
             this.drawLineToolStripMenuItem.Text = Texts.Editor.Drawline;
             this.drawPolylineToolStripMenuItem.Text = Texts.Editor.Drawpolyline;
-            this.drawPolylineToolStripMenuItem.ToolTipText = Texts.Editor.PolylineHelp;
             this.drawArrowToolStripMenuItem.Text = Texts.Editor.Drawarrow;
             this.drawFreehandToolStripMenuItem.Text = Texts.Editor.Drawfreehand;
             this.addTextBoxToolStripMenuItem.Text = Texts.Editor.Drawtextbox;

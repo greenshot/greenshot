@@ -362,11 +362,6 @@ namespace Greenshot.Base.Languages
         string Drawpolyline { get; }
 
         /// <summary>
-        /// Instructions for drawing, closing and editing a polyline.
-        /// </summary>
-        string PolylineHelp { get; }
-
-        /// <summary>
         /// Draw rectangle (R)
         /// </summary>
         string Drawrectangle { get; }

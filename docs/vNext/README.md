@@ -8,11 +8,11 @@ work differently there, and they can still change before the release. The docume
 
 The image editor includes a **Draw polyline (P)** tool in the toolbar and Object menu.
 Click to place each corner and preview the next straight segment. Hold Shift to snap the
-segment horizontally or vertically. Click near the first point to snap to it and finish a
-closed polyline; its endpoints stay separate and can be dragged apart to reopen it.
+segment horizontally or vertically. After two segments, click near the first point to close
+the shape: the last corner connects back to the start, which stays one joined corner.
 Double-click, right-click, or press Enter to finish an open polyline; Escape cancels it.
 Switching tools keeps the placed segments. Select a completed polyline to drag individual vertex handles; Shift snaps
-a dragged vertex relative to the previous vertex (or the next vertex for the first point).
+a dragged vertex relative to the previous vertex (or the next vertex for the first point of an open polyline).
 Drag a segment with the selection tool to move the whole polyline. Polylines can be styled,
 copied, and undone as one object, and stay editable when saved in the `.greenshot` format.
 
