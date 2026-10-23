@@ -177,7 +177,8 @@ public class StampsPlugin : IGreenshotPlugin
     }
 
     /// <summary>
-    /// The stamps go into the editor window which was active last: the window stays above that one
+    /// The stamps go into the editor window which was active last: the window stays above that one.
+    /// Shown for an editor window, it closes with the last editor window; shown from the tray it stays.
     /// </summary>
     private void OnActiveEditorChanged(object sender, EventArgs e)
     {
@@ -186,11 +187,19 @@ public class StampsPlugin : IGreenshotPlugin
             return;
         }
 
+        var editor = _editors.ActiveEditor;
+        if (_followsEditor && editor == null)
+        {
+            _window.Close();
+            return;
+        }
+
         ((StampsViewModel)_window.DataContext).OnActiveEditorChanged();
-        // Before the editor window is gone: an owned window would be closed with it. Without an editor window it is a window of its own.
         if (_followsEditor)
         {
-            _window.SetOwner(_editors.ActiveEditor?.Handle ?? IntPtr.Zero);
+            // Before the editor window is gone: an owned window would be closed with it
+            _window.SetOwner(editor.Handle);
+            _window.ShowIfHiddenWithOwner(false);
         }
     }
 

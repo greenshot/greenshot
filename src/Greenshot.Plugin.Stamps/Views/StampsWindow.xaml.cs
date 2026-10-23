@@ -155,6 +155,7 @@ public partial class StampsWindow : Window
             Show();
         }
 
+        ShowIfHiddenWithOwner(true);
         if (WindowState == WindowState.Minimized)
         {
             WindowState = WindowState.Normal;
@@ -163,6 +164,27 @@ public partial class StampsWindow : Window
         Activate();
         SearchBox.Focus();
         SearchBox.SelectAll();
+    }
+
+    /// <summary>
+    /// Windows hides an owned window while its owner is minimized and shows it again when that owner is restored, not when it
+    /// gets another owner: WPF still sees it as visible, so it stays hidden. Show it again, unless the new owner is minimized itself.
+    /// </summary>
+    /// <param name="activate">false keeps the active window as it is</param>
+    internal void ShowIfHiddenWithOwner(bool activate)
+    {
+        var helper = new WindowInteropHelper(this);
+        if (helper.Handle == IntPtr.Zero || User32Api.IsWindowVisible(helper.Handle))
+        {
+            return;
+        }
+
+        if (helper.Owner != IntPtr.Zero && User32Api.IsIconic(helper.Owner))
+        {
+            return;
+        }
+
+        User32Api.ShowWindow(helper.Handle, activate ? ShowWindowCommands.Show : ShowWindowCommands.ShowNoActivation);
     }
 
     private void OnPreviewKeyDown(object sender, KeyEventArgs e)

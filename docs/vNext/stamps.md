@@ -21,7 +21,7 @@ in the full and the custom installation.
 ### Open the stamps
 
 - In the editor: *Plugins*, *Stamps...*, or **Ctrl+Shift+K**. The window opens at the right edge of the editor (over it when the
-  screen has no room) and stays above it. The stamps go into the capture which is shown in the editor window you used last.
+  screen has no room) and stays above it. The stamps go into the capture which is shown in the editor window you used last. It closes with the last editor window.
 - From the tray menu: *Stamps...*. Without an editor the window is a window of its own, to give stamps to other programs.
 - With a hotkey from everywhere: set `Hotkey` in `[Stamps]` of greenshot.ini, e.g. `Hotkey=Ctrl + Shift + Alt + S`. Pressed in
   an editor it opens the window for that editor.
