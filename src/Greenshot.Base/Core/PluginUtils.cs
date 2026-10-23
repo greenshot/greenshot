@@ -49,27 +49,17 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Clear icon cache
+        /// Clear icon cache.
+        /// The cached images are not disposed, as open editors and menus still show them.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private static void OnIconSizeChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName != "IconSize") return;
-            var cachedImages = new List<Image>();
             lock (ExeIconCache)
             {
-                foreach (string key in ExeIconCache.Keys)
-                {
-                    cachedImages.Add(ExeIconCache[key]);
-                }
-
                 ExeIconCache.Clear();
-            }
-
-            foreach (Image cachedImage in cachedImages)
-            {
-                cachedImage?.Dispose();
             }
         }
 
