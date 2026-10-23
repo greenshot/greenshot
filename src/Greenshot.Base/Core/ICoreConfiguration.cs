@@ -66,6 +66,9 @@ namespace Greenshot.Base.Core
         [Description("Was the welcome window shown? Greenshot shows it once, at its first start")]
         bool WelcomeShown { get; set; }
 
+        [Description("The version of Greenshot for which the website was last opened after an install or update, kept up to date by Greenshot.")]
+        string WebsiteShownForVersion { get; set; }
+
         [DataMember(Name = "Destinations")]
         [Description("Which destinations? Possible options (more might be added by plugins) are: Editor, FileDefault, FileWithDialog, Clipboard, Printer, EMail, Picker")]
         [DefaultValue("Picker")]
