@@ -24,8 +24,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Greenshot.Base.Serialization;
 using log4net;
-using Newtonsoft.Json;
 
 namespace Greenshot.Plugin.Stamps.Library;
 
@@ -354,7 +356,7 @@ public sealed class StampLibrary
         {
             if (File.Exists(IndexPath))
             {
-                var index = JsonConvert.DeserializeObject<StampIndex>(File.ReadAllText(IndexPath, Encoding.UTF8));
+                var index = JsonSerializer.Deserialize<StampIndex>(File.ReadAllText(IndexPath, Encoding.UTF8), GreenshotJson.Options);
                 if (index?.Stamps != null)
                 {
                     return new StampIndex
@@ -385,7 +387,7 @@ public sealed class StampLibrary
         System.IO.Directory.CreateDirectory(Directory);
         // Written next to it and then swapped, so a crash or a full disk doesn't leave half a file
         string temporary = IndexPath + ".tmp";
-        File.WriteAllText(temporary, JsonConvert.SerializeObject(index, Formatting.Indented), new UTF8Encoding(false));
+        File.WriteAllText(temporary, JsonSerializer.Serialize(index, GreenshotJson.IndentedOptions), new UTF8Encoding(false));
         if (File.Exists(IndexPath))
         {
             File.Replace(temporary, IndexPath, null);
@@ -401,25 +403,25 @@ public sealed class StampLibrary
     /// </summary>
     private sealed class StampIndex
     {
-        [JsonProperty("version")]
+        [JsonPropertyName("version")]
         public int Version { get; set; } = 1;
 
-        [JsonProperty("stamps")]
+        [JsonPropertyName("stamps")]
         public Dictionary<string, StampEntry> Stamps { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// The tags to choose from, also those no stamp has (yet)
         /// </summary>
-        [JsonProperty("tags")]
+        [JsonPropertyName("tags")]
         public List<string> Tags { get; set; } = new();
     }
 
     private sealed class StampEntry
     {
-        [JsonProperty("name")]
+        [JsonPropertyName("name")]
         public string Name { get; set; }
 
-        [JsonProperty("tags")]
+        [JsonPropertyName("tags")]
         public List<string> Tags { get; set; }
     }
 }
