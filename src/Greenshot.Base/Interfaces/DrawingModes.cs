@@ -36,6 +36,7 @@ namespace Greenshot.Base.Interfaces
         Path,
         SpeechBubble,
         StepLabel,
-        Emoji
+        Emoji,
+        Polyline
     }
 }

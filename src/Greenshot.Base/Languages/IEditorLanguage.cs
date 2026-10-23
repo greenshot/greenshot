@@ -357,6 +357,11 @@ namespace Greenshot.Base.Languages
         string Drawline { get; }
 
         /// <summary>
+        /// Draw polyline (P)
+        /// </summary>
+        string Drawpolyline { get; }
+
+        /// <summary>
         /// Draw rectangle (R)
         /// </summary>
         string Drawrectangle { get; }
@@ -1005,6 +1010,11 @@ namespace Greenshot.Base.Languages
         /// Line
         /// </summary>
         string ElementLine { get; }
+
+        /// <summary>
+        /// Polyline
+        /// </summary>
+        string ElementPolyline { get; }
 
         /// <summary>
         /// Obfuscation
