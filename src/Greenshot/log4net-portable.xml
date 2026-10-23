@@ -2,7 +2,8 @@
 <configuration>
   <log4net>
     <appender name="FileAppender" type="log4net.Appender.RollingFileAppender">
-      <file value="Data\Greenshot\Greenshot.log" />
+      <!-- Greenshot.exe is in App\Greenshot of the PortableApps.com package, the log goes to its Data\Greenshot -->
+      <file value="..\..\Data\Greenshot\Greenshot.log" />
       <encoding value="utf-8" />
       <appendToFile value="true" />
       <rollingStyle value="Size" />

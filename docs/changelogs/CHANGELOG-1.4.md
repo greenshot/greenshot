@@ -284,6 +284,9 @@ Continuous builds are automatically created for every commit to the `main` branc
 - A plugin in a folder you can change (e.g. the portable version) which isn't signed by the makers of Greenshot isn't loaded until you allow it
 - The plugin list in the settings shows who signed each plugin
 
+**PortableApps.com package**
+- Greenshot Light is available again as a package for the PortableApps.com Platform (`.paf.exe`), it keeps its settings in `Data\Settings` like the package of Greenshot 1.x
+
 **MAPI Client Detection** (#861)
 - Fixed MAPI Client detection on HKCU registry
 - By @htcfreek
