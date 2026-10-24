@@ -33,6 +33,7 @@ namespace Greenshot.Editor.Controls
     public class ToolStripColorButton : ToolStripButton, INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
+        public event EventHandler ColorSelected;
 
         private Color _selectedColor = Color.Transparent;
 
@@ -92,11 +93,13 @@ namespace Greenshot.Editor.Controls
 
             if (colorPickerWindow.SelectedColor.Equals(SelectedColor))
             {
+                ColorSelected?.Invoke(this, EventArgs.Empty);
                 return;
             }
 
             SelectedColor = colorPickerWindow.SelectedColor;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedColor)));
+            ColorSelected?.Invoke(this, EventArgs.Empty);
         }
     }
 }

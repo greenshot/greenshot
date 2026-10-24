@@ -410,6 +410,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             //
             InitializeComponent();
             ApplyImages();
+            InitializeMeasurements();
             // Before the texts are applied
             CreateTabContextMenu();
             timing.Mark("InitializeComponent");
@@ -1052,6 +1053,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
         private void BindSurface()
         {
+            BindMeasurements();
             _surface.MovingElementChanged += SurfaceMovingElementChanged;
             _surface.DrawingModeChanged += Surface_DrawingModeChanged;
             _surface.SurfaceSizeChanged += SurfaceSizeChanged;
@@ -1066,6 +1068,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
         private void UnbindSurface()
         {
+            UnbindMeasurements();
             _surface.MovingElementChanged -= SurfaceMovingElementChanged;
             _surface.DrawingModeChanged -= Surface_DrawingModeChanged;
             _surface.SurfaceSizeChanged -= SurfaceSizeChanged;
@@ -1156,7 +1159,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
             _toolbarButtons = new[]
             {
-                btnCursor, btnRect, btnEllipse, btnText, btnLine, btnArrow, btnFreehand, btnHighlight, btnObfuscate, btnCrop, btnStepLabel, btnSpeechBubble, btnEmoji
+                btnCursor, btnRect, btnEllipse, btnText, btnLine, btnArrow, btnFreehand, btnHighlight, btnObfuscate, btnCrop, btnStepLabel, btnSpeechBubble, btnEmoji, _scaleButton
             };
             //toolbarDropDownButtons = new ToolStripDropDownButton[]{btnBlur, btnPixeliate, btnTextHighlighter, btnAreaHighlighter, btnMagnifier};
 
@@ -1398,6 +1401,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         /// <param name="eventArgs">SurfaceForegroundColorEventArgs</param>
         private void ForegroundColorChanged(object sender, SurfaceForegroundColorEventArgs eventArgs)
         {
+            _quickColors?.Remember(eventArgs.Color);
             _surface.FieldAggregator.GetField(FieldType.LINE_COLOR).Value = eventArgs.Color;
         }
 
@@ -1408,6 +1412,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         /// <param name="eventArgs">SurfaceBackgroundColorEventArgs</param>
         private void BackgroundColorChanged(object sender, SurfaceBackgroundColorEventArgs eventArgs)
         {
+            _quickColors?.Remember(eventArgs.Color);
             _surface.FieldAggregator.GetField(FieldType.FILL_COLOR).Value = eventArgs.Color;
         }
 
@@ -1459,6 +1464,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
         private void SurfaceMovingElementChanged(object sender, SurfaceElementEventArgs e)
         {
+            UpdateMeasurements();
             RefreshEditorControls();
         }
 
@@ -1475,6 +1481,9 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         {
             switch (drawingMode)
             {
+                case DrawingModes.Scale:
+                    SetButtonChecked(_scaleButton);
+                    break;
                 case DrawingModes.None:
                     SetButtonChecked(btnCursor);
                     break;
@@ -2514,6 +2523,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 HideToolstripItems();
             }
 
+            RefreshQuickColors();
             propertiesToolStrip.ResumeLayout();
         }
 

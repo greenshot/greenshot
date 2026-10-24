@@ -176,6 +176,9 @@ namespace Greenshot.Editor.Drawing
         }
 
 
+        [field: NonSerialized]
+        public event EventHandler GeometryChanged;
+
         private int left;
 
         public int Left
@@ -189,6 +192,7 @@ namespace Greenshot.Editor.Drawing
                 }
 
                 left = value;
+                GeometryChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -205,6 +209,7 @@ namespace Greenshot.Editor.Drawing
                 }
 
                 top = value;
+                GeometryChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -221,6 +226,7 @@ namespace Greenshot.Editor.Drawing
                 }
 
                 width = value;
+                GeometryChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -237,6 +243,7 @@ namespace Greenshot.Editor.Drawing
                 }
 
                 height = value;
+                GeometryChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -247,6 +254,7 @@ namespace Greenshot.Editor.Drawing
             {
                 left = value.X;
                 top = value.Y;
+                GeometryChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -257,6 +265,7 @@ namespace Greenshot.Editor.Drawing
             {
                 width = value.Width;
                 height = value.Height;
+                GeometryChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 

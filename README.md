@@ -1,7 +1,7 @@
 Greenshot - a free screenshot tool optimized for productivity
 =============================================================
 
-Welcome to the source repository for Greenshot.
+This is **GreenShotPlus**, a Windows Greenshot fork with compact quick colours and per-image engineering measurements. See [usage and development notes](docs/greenshotplus.md). The original editor and drawing architecture are retained.
 
 What is Greenshot?
 ------------------
