@@ -19,6 +19,10 @@ The optional 24-byte versioned metadata trailer follows the serialized element l
 
 ## Build and test
 
+The **GreenShotPlus installer** GitHub Actions workflow builds the full Windows installer and verifies a current-user install, installed-file hashes and uninstall on a disposable runner. The setup defaults to **install for me only**, using `%LOCALAPPDATA%\Programs\Greenshot` and a per-user uninstall entry. Choosing **install for all users** requires administrator rights. This installer updates an existing per-user Greenshot installation. Fork builds are unsigned; an organisation's application-control policy may require IT approval.
+
+The reproducible packaging entry point is `installer/build-greenshotplus.ps1`. It includes the existing plugins and native CLI/proxy programs. `installer/test-user-install.ps1` is restricted to disposable GitHub Actions runners.
+
 Use the upstream Windows prerequisites in the root README. A first standalone SDK build can generate credential-placeholder source files too late for inclusion; rerun after generation. Private credentials are unnecessary for editor tests; external uploads require their own configuration.
 
 ```powershell
