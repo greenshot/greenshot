@@ -19,7 +19,9 @@ try {
             Copy-Item -LiteralPath $template.FullName -Destination $generated
         }
     }
-    Invoke-Checked msbuild @('src/Greenshot.Tests/Greenshot.Tests.csproj', '/restore', '/p:Configuration=Release', '/v:minimal')
+    # Use the SDK's MSBuild for managed code: .NET 10 needs MSBuild 18, while the
+    # hosted VS 2022 MSBuild is retained only for the native C projects below.
+    Invoke-Checked dotnet @('build', 'src/Greenshot.Tests/Greenshot.Tests.csproj', '--configuration', 'Release', '--verbosity', 'minimal')
     foreach ($project in @('greenshot-proxy', 'greenshot-cli')) {
         Invoke-Checked msbuild @("src/greenshot-proxy/$project.vcxproj", '/p:Configuration=Release', '/p:Platform=x64', "/p:PlatformToolset=$PlatformToolset", '/v:minimal')
     }
