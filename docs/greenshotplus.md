@@ -18,11 +18,15 @@ Based on upstream Windows Greenshot commit `f25a9bba85bdfc1857ff3f14ac16fb192890
 
 `Measurements` contains immutable state, conversion, geometry and metadata. `MeasurementGeometry` reads and edits the existing container coordinates using the ordinary bounds-change undo memento. `Surface.Measurements` owns the temporary calibration interaction. UI integration lives in `ImageEditorForm.Measurements`, `MeasurementPanel` and `QuickColorPalette`. Existing shape renderers and the field aggregator are unchanged; `DrawableContainer` gains a nonserialized geometry notification.
 
-## Object and grid snapping assessment
+## Object snapping
 
-The existing architecture can support optional object/grid snapping without replacing the drawing containers. `Surface` already converts mouse coordinates to image space; `ScaleHelper` handles keyboard constraints, and drawing plus move/resize adorners already funnel geometry through a small set of methods. The current editor also has explicit snap-to-canvas-edge commands, but no general object/grid snapping engine.
+The first action toolbar has independent **Snap to points** and **Snap through** checkboxes, both off by default. Settings apply across tabs in the current editor window. There is no grid.
 
-A future snapping service should compute candidate image-space points or bounds from grid intersections and other objects' endpoints, corners, centres and edges. Drawing, endpoint handles, shape-resize handles and whole-object movement would call the same service before applying geometry. Snap tolerance should be measured in screen pixels and converted using zoom; modifier-angle constraints need explicit precedence. It should be optional and leave ordinary undo and numeric edits intact. This release assesses that extension and reuses existing Shift-angle snapping; it does not add a grid or object-snapping settings UI.
+Snap to points uses line/arrow endpoints and midpoints, rectangle corners, edge midpoints and centre, and ellipse centre/cardinal points. It works for drawing (including scale calibration), endpoint and resize handles, and translating objects or selections without changing their geometry. Active objects and the entire moving selection are excluded as targets. The tolerance is eight screen pixels at any zoom.
+
+Snap through aligns a line/arrow or calibration endpoint through a target; the endpoint follows the pointer projected onto the forward ray and can extend beyond the target. The target must lie on the resulting segment. Rectangles and ellipses supply targets but do not receive this constraint.
+
+Shift angle/aspect constraints take precedence; incompatible targets are skipped. Point snapping wins over through alignment when both are enabled. Existing centre/aspect modifiers and gesture undo remain in place, and numeric property edits do not snap. A small target marker and dotted through guide appear only while editing, never in saved/exported pixels. Completion, cancellation, tool/tab changes or changing a checkbox clears the guide.
 
 The optional 24-byte versioned metadata trailer follows the serialized element list inside the legacy length-counted payload. Existing projects default to pixels. Older readers can read the original element list and ignore the trailer; saving through an older reader loses calibration. Invalid or unknown metadata is ignored.
 

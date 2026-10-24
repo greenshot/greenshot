@@ -2065,6 +2065,7 @@ namespace Greenshot.Editor.Drawing
         private void SurfaceMouseUp(object sender, MouseEventArgs e)
         {
             e = InverseZoomMouseCoordinates(e);
+            ClearSnapGuide();
             if (DrawingMode == DrawingModes.Scale) { FinishScalePreview(e); return; }
 
             // Handle Adorners
@@ -2236,6 +2237,7 @@ namespace Greenshot.Editor.Drawing
 
             if (_mouseDownElement != null)
             {
+                currentMouse = SnapTranslation(currentMouse);
                 // an element is currently dragged
                 _mouseDownElement.Invalidate();
                 selectedElements.Invalidate();
@@ -2450,6 +2452,7 @@ namespace Greenshot.Editor.Drawing
             // No clipping for the adorners
             targetGraphics.ResetClip();
             PaintScalePreview(targetGraphics);
+            PaintSnapGuide(targetGraphics);
             // Draw adorners last
             foreach (var drawableContainer in selectedElements)
             {
@@ -2839,6 +2842,7 @@ namespace Greenshot.Editor.Drawing
         /// <param name="confirm">bool</param>
         public void Confirm(bool confirm)
         {
+            ClearSnapGuide();
             if (DrawingMode == DrawingModes.Crop)
             {
                 ConfirmCrop(confirm);
@@ -3451,6 +3455,7 @@ namespace Greenshot.Editor.Drawing
         /// <returns>true when the key was handled</returns>
         public bool ProcessCanvasKey(Keys keys)
         {
+            if (keys == Keys.Escape) ClearSnapGuide();
             if (keys == Keys.Escape && DrawingMode == DrawingModes.Scale)
             {
                 DrawingMode = DrawingModes.None;

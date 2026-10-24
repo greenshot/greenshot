@@ -16,9 +16,12 @@ namespace Greenshot.Editor.Forms
         private QuickColorPalette _quickColors;
         private ToolStripButton _scaleButton;
         private DrawableContainer _measuredObject;
+        private CheckBox _snapPoints, _snapThrough;
 
         private void InitializeMeasurements()
         {
+            _snapPoints = AddSnapCheckBox("Snap to points", "Snap handles and objects to nearby object points");
+            _snapThrough = AddSnapCheckBox("Snap through", "Align lines through nearby object points");
             _measurementPanel = new MeasurementPanel();
             tableLayoutPanel1.ColumnCount = 2;
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
@@ -64,6 +67,14 @@ namespace Greenshot.Editor.Forms
             };
         }
 
+        private CheckBox AddSnapCheckBox(string label, string tip)
+        {
+            var checkBox = new CheckBox { Text = label, AutoSize = true, AccessibleName = label, AccessibleDescription = tip, BackColor = Color.Transparent };
+            destinationsToolStrip.Items.Add(new ToolStripControlHost(checkBox) { ToolTipText = tip, Overflow = ToolStripItemOverflow.Never });
+            checkBox.CheckedChanged += (s, e) => _surface?.SetObjectSnapping(_snapPoints?.Checked == true, _snapThrough?.Checked == true);
+            return checkBox;
+        }
+
         private static Bitmap CreateScaleIcon()
         {
             var bitmap = new Bitmap(16, 16);
@@ -85,6 +96,7 @@ namespace Greenshot.Editor.Forms
 
         private void BindMeasurements()
         {
+            _surface.SetObjectSnapping(_snapPoints.Checked, _snapThrough.Checked);
             _surface.MeasurementsChanged += SelectedGeometryChanged;
             _surface.ScaleLineCompleted += CompleteCalibration;
             UpdateMeasurements();

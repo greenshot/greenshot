@@ -45,6 +45,7 @@ namespace Greenshot.Editor.Drawing
 
         internal void CancelScalePreview()
         {
+            ClearSnapGuide();
             if (_scalePreview == null) return;
             _scalePreview.Dispose();
             _scalePreview = null;
@@ -74,11 +75,12 @@ namespace Greenshot.Editor.Drawing
                 MoveScalePreview(e);
                 return;
             }
+            var start = SnapGesture(e.Location, null, null, false);
             _scalePreview = new LineContainer(this)
             {
-                Left = e.X, Top = e.Y, Status = EditStatus.DRAWING
+                Left = start.X, Top = start.Y, Status = EditStatus.DRAWING
             };
-            _scalePreview.HandleMouseDown(e.X, e.Y);
+            _scalePreview.HandleMouseDown(start.X, start.Y);
             _scalePointer = e.Location;
             _scaleCompleting = false;
             Focus();
@@ -95,13 +97,16 @@ namespace Greenshot.Editor.Drawing
         private void UpdateScalePreview(Keys modifiers)
         {
             if (_scalePreview == null) return;
-            var end = GetScaleEndpoint(new Point(_scalePreview.Left, _scalePreview.Top), _scalePointer, modifiers);
+            var start = new Point(_scalePreview.Left, _scalePreview.Top);
+            var end = GetScaleEndpoint(start, _scalePointer, modifiers);
+            end = SnapGesture(end, start, _scalePreview, true, p => ObjectSnapHelper.DistanceSquared(GetScaleEndpoint(start, p, modifiers), p) <= 2);
+            end = GetScaleEndpoint(start, end, modifiers);
             _scalePreview.Width = end.X - _scalePreview.Left;
             _scalePreview.Height = end.Y - _scalePreview.Top;
             Invalidate();
         }
 
-        // A shared endpoint calculation leaves a single place to compose future object/grid snaps.
+        // Shared angle calculation for calibration and endpoint gestures.
         internal static Point GetScaleEndpoint(Point start, Point pointer, Keys modifiers)
         {
             var bounds = new NativeRect(start.X, start.Y, pointer.X - start.X, pointer.Y - start.Y);
